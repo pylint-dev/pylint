@@ -1,6 +1,6 @@
-redundant-unittest-assert:17:8:Tests.test_something:Redundant use of assertTrue with constant value 'I meant assertEqual not assertTrue'
-redundant-unittest-assert:19:8:Tests.test_something:Redundant use of assertFalse with constant value 'I meant assertEqual not assertFalse'
-redundant-unittest-assert:21:8:Tests.test_something:Redundant use of assertTrue with constant value True
-redundant-unittest-assert:23:8:Tests.test_something:Redundant use of assertFalse with constant value False
-redundant-unittest-assert:25:8:Tests.test_something:Redundant use of assertFalse with constant value None
-redundant-unittest-assert:27:8:Tests.test_something:Redundant use of assertTrue with constant value 0
+redundant-unittest-assert:17:8:Tests.test_something:Redundant use of assertTrue with constant value 'I meant assertEqual not assertTrue':HIGH
+redundant-unittest-assert:19:8:Tests.test_something:Redundant use of assertFalse with constant value 'I meant assertEqual not assertFalse':HIGH
+redundant-unittest-assert:21:8:Tests.test_something:Redundant use of assertTrue with constant value True:HIGH
+redundant-unittest-assert:23:8:Tests.test_something:Redundant use of assertFalse with constant value False:HIGH
+redundant-unittest-assert:25:8:Tests.test_something:Redundant use of assertFalse with constant value None:HIGH
+redundant-unittest-assert:27:8:Tests.test_something:Redundant use of assertTrue with constant value 0:HIGH

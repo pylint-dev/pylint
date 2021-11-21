@@ -1,12 +1,12 @@
-simplifiable-condition:13:5::Boolean condition 'CONSTANT or False' may be simplified to 'CONSTANT'
-simplifiable-condition:14:7::Boolean condition 'CONSTANT or False' may be simplified to 'CONSTANT'
-simplifiable-condition:15:3::Boolean condition 'CONSTANT and True' may be simplified to 'CONSTANT'
-simplifiable-condition:17:5::Boolean condition 'CONSTANT and True' may be simplified to 'CONSTANT'
-simplifiable-condition:19:6::Boolean condition 'CONSTANT and True' may be simplified to 'CONSTANT'
-simplifiable-condition:21:5::Boolean condition 'CONSTANT or False' may be simplified to 'CONSTANT'
-simplifiable-condition:22:29::Boolean condition 'x or False' may be simplified to 'x'
-simplifiable-condition:25:7::Boolean condition 'CONSTANT or True and False' may be simplified to 'CONSTANT'
-simplifiable-condition:26:7::Boolean condition 'True and CONSTANT and OTHER' may be simplified to 'CONSTANT and OTHER'
-simplifiable-condition:27:7::Boolean condition '(CONSTANT or False) and (OTHER or True)' may be simplified to 'CONSTANT'
-simplifiable-condition:30:7::Boolean condition '[] or CONSTANT' may be simplified to 'CONSTANT'
-simplifiable-condition:31:7::Boolean condition '{} or CONSTANT' may be simplified to 'CONSTANT'
+simplifiable-condition:13:5::Boolean condition 'CONSTANT or False' may be simplified to 'CONSTANT':HIGH
+simplifiable-condition:14:7::Boolean condition 'CONSTANT or False' may be simplified to 'CONSTANT':HIGH
+simplifiable-condition:15:3::Boolean condition 'CONSTANT and True' may be simplified to 'CONSTANT':HIGH
+simplifiable-condition:17:5::Boolean condition 'CONSTANT and True' may be simplified to 'CONSTANT':HIGH
+simplifiable-condition:19:6::Boolean condition 'CONSTANT and True' may be simplified to 'CONSTANT':HIGH
+simplifiable-condition:21:5::Boolean condition 'CONSTANT or False' may be simplified to 'CONSTANT':HIGH
+simplifiable-condition:22:29::Boolean condition 'x or False' may be simplified to 'x':HIGH
+simplifiable-condition:25:7::Boolean condition 'CONSTANT or True and False' may be simplified to 'CONSTANT':HIGH
+simplifiable-condition:26:7::Boolean condition 'True and CONSTANT and OTHER' may be simplified to 'CONSTANT and OTHER':HIGH
+simplifiable-condition:27:7::Boolean condition '(CONSTANT or False) and (OTHER or True)' may be simplified to 'CONSTANT':HIGH
+simplifiable-condition:30:7::Boolean condition '[] or CONSTANT' may be simplified to 'CONSTANT':HIGH
+simplifiable-condition:31:7::Boolean condition '{} or CONSTANT' may be simplified to 'CONSTANT':HIGH

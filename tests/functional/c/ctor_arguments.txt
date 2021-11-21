@@ -1,24 +1,24 @@
-no-value-for-parameter:35:0::No value for argument 'first_argument' in constructor call
-too-many-function-args:36:0::Too many positional arguments for constructor call
-no-value-for-parameter:38:0::No value for argument 'third_argument' in constructor call
-no-value-for-parameter:40:0::No value for argument 'first_argument' in constructor call
-no-value-for-parameter:40:0::No value for argument 'second_argument' in constructor call
-no-value-for-parameter:40:0::No value for argument 'third_argument' in constructor call
-too-many-function-args:42:0::Too many positional arguments for constructor call
-no-value-for-parameter:47:0::No value for argument 'first_argument' in constructor call
-unexpected-keyword-arg:47:0::Unexpected keyword argument 'bob' in constructor call
-unexpected-keyword-arg:48:0::Unexpected keyword argument 'coin' in constructor call
-redundant-keyword-arg:50:0::Argument 'one' passed by position and keyword in constructor call
-no-value-for-parameter:53:0::No value for argument 'first_argument' in constructor call
-too-many-function-args:54:0::Too many positional arguments for constructor call
-too-many-function-args:60:0::Too many positional arguments for constructor call
-too-many-function-args:63:0::Too many positional arguments for constructor call
-no-value-for-parameter:64:0::No value for argument 'first_argument' in constructor call
-unexpected-keyword-arg:64:0::Unexpected keyword argument 'one' in constructor call
-too-many-function-args:85:0::Too many positional arguments for constructor call
-unexpected-keyword-arg:85:0::Unexpected keyword argument 'badarg' in constructor call
-too-many-function-args:95:15:Clsmethod.from_nothing:Too many positional arguments for constructor call
-no-value-for-parameter:99:15:Clsmethod.from_nothing1:No value for argument 'first' in constructor call
-no-value-for-parameter:99:15:Clsmethod.from_nothing1:No value for argument 'second' in constructor call
-no-value-for-parameter:104:15:Clsmethod.from_nothing2:No value for argument 'second' in constructor call
-unexpected-keyword-arg:104:15:Clsmethod.from_nothing2:Unexpected keyword argument 'not_argument' in constructor call
+no-value-for-parameter:35:0::No value for argument 'first_argument' in constructor call:HIGH
+too-many-function-args:36:0::Too many positional arguments for constructor call:HIGH
+no-value-for-parameter:38:0::No value for argument 'third_argument' in constructor call:HIGH
+no-value-for-parameter:40:0::No value for argument 'first_argument' in constructor call:HIGH
+no-value-for-parameter:40:0::No value for argument 'second_argument' in constructor call:HIGH
+no-value-for-parameter:40:0::No value for argument 'third_argument' in constructor call:HIGH
+too-many-function-args:42:0::Too many positional arguments for constructor call:HIGH
+no-value-for-parameter:47:0::No value for argument 'first_argument' in constructor call:HIGH
+unexpected-keyword-arg:47:0::Unexpected keyword argument 'bob' in constructor call:HIGH
+unexpected-keyword-arg:48:0::Unexpected keyword argument 'coin' in constructor call:HIGH
+redundant-keyword-arg:50:0::Argument 'one' passed by position and keyword in constructor call:HIGH
+no-value-for-parameter:53:0::No value for argument 'first_argument' in constructor call:HIGH
+too-many-function-args:54:0::Too many positional arguments for constructor call:HIGH
+too-many-function-args:60:0::Too many positional arguments for constructor call:HIGH
+too-many-function-args:63:0::Too many positional arguments for constructor call:HIGH
+no-value-for-parameter:64:0::No value for argument 'first_argument' in constructor call:HIGH
+unexpected-keyword-arg:64:0::Unexpected keyword argument 'one' in constructor call:HIGH
+too-many-function-args:85:0::Too many positional arguments for constructor call:HIGH
+unexpected-keyword-arg:85:0::Unexpected keyword argument 'badarg' in constructor call:HIGH
+too-many-function-args:95:15:Clsmethod.from_nothing:Too many positional arguments for constructor call:HIGH
+no-value-for-parameter:99:15:Clsmethod.from_nothing1:No value for argument 'first' in constructor call:HIGH
+no-value-for-parameter:99:15:Clsmethod.from_nothing1:No value for argument 'second' in constructor call:HIGH
+no-value-for-parameter:104:15:Clsmethod.from_nothing2:No value for argument 'second' in constructor call:HIGH
+unexpected-keyword-arg:104:15:Clsmethod.from_nothing2:Unexpected keyword argument 'not_argument' in constructor call:HIGH

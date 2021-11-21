@@ -1,8 +1,8 @@
-non-str-assignment-to-dunder-name:37:0::Non-string value assigned to __name__
-non-str-assignment-to-dunder-name:38:0::Non-string value assigned to __name__
-non-str-assignment-to-dunder-name:39:0::Non-string value assigned to __name__
-non-str-assignment-to-dunder-name:40:0::Non-string value assigned to __name__
-non-str-assignment-to-dunder-name:46:0::Non-string value assigned to __name__
-non-str-assignment-to-dunder-name:47:0::Non-string value assigned to __name__
-non-str-assignment-to-dunder-name:48:0::Non-string value assigned to __name__
-non-str-assignment-to-dunder-name:49:0::Non-string value assigned to __name__
+non-str-assignment-to-dunder-name:37:0::Non-string value assigned to __name__:HIGH
+non-str-assignment-to-dunder-name:38:0::Non-string value assigned to __name__:HIGH
+non-str-assignment-to-dunder-name:39:0::Non-string value assigned to __name__:HIGH
+non-str-assignment-to-dunder-name:40:0::Non-string value assigned to __name__:HIGH
+non-str-assignment-to-dunder-name:46:0::Non-string value assigned to __name__:HIGH
+non-str-assignment-to-dunder-name:47:0::Non-string value assigned to __name__:HIGH
+non-str-assignment-to-dunder-name:48:0::Non-string value assigned to __name__:HIGH
+non-str-assignment-to-dunder-name:49:0::Non-string value assigned to __name__:HIGH

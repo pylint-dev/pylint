@@ -1,7 +1,7 @@
-unnecessary-lambda:9:4:<lambda>:Lambda may not be necessary
-unnecessary-lambda:11:4:<lambda>:Lambda may not be necessary
-unnecessary-lambda:13:4:<lambda>:Lambda may not be necessary
-unnecessary-lambda:20:4:<lambda>:Lambda may not be necessary
-unnecessary-lambda:22:4:<lambda>:Lambda may not be necessary
-unnecessary-lambda:24:4:<lambda>:Lambda may not be necessary
-unnecessary-lambda:26:4:<lambda>:Lambda may not be necessary
+unnecessary-lambda:9:4:<lambda>:Lambda may not be necessary:HIGH
+unnecessary-lambda:11:4:<lambda>:Lambda may not be necessary:HIGH
+unnecessary-lambda:13:4:<lambda>:Lambda may not be necessary:HIGH
+unnecessary-lambda:20:4:<lambda>:Lambda may not be necessary:HIGH
+unnecessary-lambda:22:4:<lambda>:Lambda may not be necessary:HIGH
+unnecessary-lambda:24:4:<lambda>:Lambda may not be necessary:HIGH
+unnecessary-lambda:26:4:<lambda>:Lambda may not be necessary:HIGH

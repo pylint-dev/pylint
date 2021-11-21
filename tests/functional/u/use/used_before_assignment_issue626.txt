@@ -1,5 +1,5 @@
-unused-variable:5:4:main1:Unused variable 'e'
-used-before-assignment:8:10:main1:Using variable 'e' before assignment
-unused-variable:21:4:main3:Unused variable 'e'
-unused-variable:31:4:main4:Unused variable 'e'
-used-before-assignment:44:10:main4:Using variable 'e' before assignment
+unused-variable:5:4:main1:Unused variable 'e':HIGH
+used-before-assignment:8:10:main1:Using variable 'e' before assignment:HIGH
+unused-variable:21:4:main3:Unused variable 'e':HIGH
+unused-variable:31:4:main4:Unused variable 'e':HIGH
+used-before-assignment:44:10:main4:Using variable 'e' before assignment:HIGH

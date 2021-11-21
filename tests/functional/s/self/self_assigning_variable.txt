@@ -1,2 +1,2 @@
-self-assigning-variable:19:0::Assigning the same variable 'FIRST' to itself
-self-assigning-variable:20:0::Assigning the same variable 'FIRST' to itself
+self-assigning-variable:19:0::Assigning the same variable 'FIRST' to itself:HIGH
+self-assigning-variable:20:0::Assigning the same variable 'FIRST' to itself:HIGH

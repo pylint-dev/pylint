@@ -1,3 +1,3 @@
-invalid-all-object:3:4::Invalid object '1' in __all__, must contain only strings
-invalid-all-object:4:4:<lambda>:"Invalid object 'lambda: None' in __all__, must contain only strings"
-invalid-all-object:5:4::Invalid object 'None' in __all__, must contain only strings
+invalid-all-object:3:4::Invalid object '1' in __all__, must contain only strings:HIGH
+invalid-all-object:4:4:<lambda>:"Invalid object 'lambda: None' in __all__, must contain only strings":HIGH
+invalid-all-object:5:4::Invalid object 'None' in __all__, must contain only strings:HIGH

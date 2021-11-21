@@ -1,2 +1,2 @@
-broad-except:7:7::Catching too general exception Exception
-broad-except:13:7::Catching too general exception BaseException
+broad-except:7:7::Catching too general exception Exception:HIGH
+broad-except:13:7::Catching too general exception BaseException:HIGH

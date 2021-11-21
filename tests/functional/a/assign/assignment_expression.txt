@@ -1,3 +1,3 @@
-used-before-assignment:21:7::Using variable 'err_a' before assignment
-used-before-assignment:22:6::Using variable 'err_b' before assignment
-used-before-assignment:24:13::Using variable 'err_d' before assignment
+used-before-assignment:21:7::Using variable 'err_a' before assignment:HIGH
+used-before-assignment:22:6::Using variable 'err_b' before assignment:HIGH
+used-before-assignment:24:13::Using variable 'err_d' before assignment:HIGH

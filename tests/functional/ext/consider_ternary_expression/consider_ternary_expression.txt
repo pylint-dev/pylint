@@ -1,2 +1,2 @@
-consider-ternary-expression:1:0::Consider rewriting as a ternary expression
-consider-ternary-expression:14:4:a:Consider rewriting as a ternary expression
+consider-ternary-expression:1:0::Consider rewriting as a ternary expression:HIGH
+consider-ternary-expression:14:4:a:Consider rewriting as a ternary expression:HIGH

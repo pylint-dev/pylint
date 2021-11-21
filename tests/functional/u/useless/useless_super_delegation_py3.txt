@@ -1,2 +1,2 @@
-useless-super-delegation:21:4:UselessSuper.useless:Useless super delegation in method 'useless'
-useless-super-delegation:34:4:Ham.__init__:Useless super delegation in method '__init__'
+useless-super-delegation:21:4:UselessSuper.useless:Useless super delegation in method 'useless':HIGH
+useless-super-delegation:34:4:Ham.__init__:Useless super delegation in method '__init__':HIGH

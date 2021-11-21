@@ -1,31 +1,31 @@
-invalid-envvar-value:30:0::os.getenv does not support builtins.bytes type argument
-invalid-envvar-value:32:0::os.getenv does not support builtins.NoneType type argument
-invalid-envvar-value:33:0::os.getenv does not support builtins.list type argument
-invalid-envvar-value:34:0::os.getenv does not support builtins.bytes type argument
-invalid-envvar-value:35:0::os.getenv does not support builtins.bytes type argument
-invalid-envvar-value:36:0::os.getenv does not support builtins.list type argument
-invalid-envvar-value:37:0::os.getenv does not support builtins.NoneType type argument
-invalid-envvar-value:41:0::os.getenv does not support builtins.bytes type argument
-invalid-envvar-value:43:0::os.getenv does not support builtins.NoneType type argument
-invalid-envvar-value:44:0::os.getenv does not support builtins.list type argument
-invalid-envvar-value:45:0::os.getenv does not support builtins.bytes type argument
-invalid-envvar-value:46:0::os.getenv does not support builtins.list type argument
-invalid-envvar-value:47:0::os.getenv does not support builtins.NoneType type argument
-invalid-envvar-value:50:0::os.getenv does not support builtins.bytes type argument
-invalid-envvar-value:52:0::os.getenv does not support builtins.NoneType type argument
-invalid-envvar-value:53:0::os.getenv does not support builtins.list type argument
-invalid-envvar-value:54:0::os.getenv does not support builtins.bytes type argument
-invalid-envvar-value:55:0::os.getenv does not support builtins.list type argument
-invalid-envvar-value:56:0::os.getenv does not support builtins.NoneType type argument
-invalid-envvar-default:60:0::os.getenv default type is builtins.list. Expected str or None.
-invalid-envvar-default:62:0::os.getenv default type is builtins.bytes. Expected str or None.
-invalid-envvar-default:63:0::os.getenv default type is builtins.list. Expected str or None.
-invalid-envvar-default:66:0::os.getenv default type is builtins.bytes. Expected str or None.
-invalid-envvar-default:69:0::os.getenv default type is builtins.list. Expected str or None.
-invalid-envvar-default:71:0::os.getenv default type is builtins.bytes. Expected str or None.
-invalid-envvar-default:72:0::os.getenv default type is builtins.list. Expected str or None.
-invalid-envvar-default:75:0::os.getenv default type is builtins.bytes. Expected str or None.
-invalid-envvar-default:79:0::os.getenv default type is builtins.bytes. Expected str or None.
-invalid-envvar-default:80:0::os.getenv default type is builtins.list. Expected str or None.
-invalid-envvar-default:81:0::os.getenv default type is builtins.list. Expected str or None.
-invalid-envvar-default:84:0::os.getenv default type is builtins.bytes. Expected str or None.
+invalid-envvar-value:30:0::os.getenv does not support builtins.bytes type argument:HIGH
+invalid-envvar-value:32:0::os.getenv does not support builtins.NoneType type argument:HIGH
+invalid-envvar-value:33:0::os.getenv does not support builtins.list type argument:HIGH
+invalid-envvar-value:34:0::os.getenv does not support builtins.bytes type argument:HIGH
+invalid-envvar-value:35:0::os.getenv does not support builtins.bytes type argument:HIGH
+invalid-envvar-value:36:0::os.getenv does not support builtins.list type argument:HIGH
+invalid-envvar-value:37:0::os.getenv does not support builtins.NoneType type argument:HIGH
+invalid-envvar-value:41:0::os.getenv does not support builtins.bytes type argument:HIGH
+invalid-envvar-value:43:0::os.getenv does not support builtins.NoneType type argument:HIGH
+invalid-envvar-value:44:0::os.getenv does not support builtins.list type argument:HIGH
+invalid-envvar-value:45:0::os.getenv does not support builtins.bytes type argument:HIGH
+invalid-envvar-value:46:0::os.getenv does not support builtins.list type argument:HIGH
+invalid-envvar-value:47:0::os.getenv does not support builtins.NoneType type argument:HIGH
+invalid-envvar-value:50:0::os.getenv does not support builtins.bytes type argument:HIGH
+invalid-envvar-value:52:0::os.getenv does not support builtins.NoneType type argument:HIGH
+invalid-envvar-value:53:0::os.getenv does not support builtins.list type argument:HIGH
+invalid-envvar-value:54:0::os.getenv does not support builtins.bytes type argument:HIGH
+invalid-envvar-value:55:0::os.getenv does not support builtins.list type argument:HIGH
+invalid-envvar-value:56:0::os.getenv does not support builtins.NoneType type argument:HIGH
+invalid-envvar-default:60:0::os.getenv default type is builtins.list. Expected str or None.:HIGH
+invalid-envvar-default:62:0::os.getenv default type is builtins.bytes. Expected str or None.:HIGH
+invalid-envvar-default:63:0::os.getenv default type is builtins.list. Expected str or None.:HIGH
+invalid-envvar-default:66:0::os.getenv default type is builtins.bytes. Expected str or None.:HIGH
+invalid-envvar-default:69:0::os.getenv default type is builtins.list. Expected str or None.:HIGH
+invalid-envvar-default:71:0::os.getenv default type is builtins.bytes. Expected str or None.:HIGH
+invalid-envvar-default:72:0::os.getenv default type is builtins.list. Expected str or None.:HIGH
+invalid-envvar-default:75:0::os.getenv default type is builtins.bytes. Expected str or None.:HIGH
+invalid-envvar-default:79:0::os.getenv default type is builtins.bytes. Expected str or None.:HIGH
+invalid-envvar-default:80:0::os.getenv default type is builtins.list. Expected str or None.:HIGH
+invalid-envvar-default:81:0::os.getenv default type is builtins.list. Expected str or None.:HIGH
+invalid-envvar-default:84:0::os.getenv default type is builtins.bytes. Expected str or None.:HIGH

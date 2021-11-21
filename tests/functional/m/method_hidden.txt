@@ -1,2 +1,2 @@
-method-hidden:13:4:Cdef.abcd:An attribute defined in functional.m.method_hidden line 9 hides this method
-method-hidden:76:4:One.one:An attribute defined in functional.m.method_hidden line 74 hides this method
+method-hidden:13:4:Cdef.abcd:An attribute defined in functional.m.method_hidden line 9 hides this method:HIGH
+method-hidden:76:4:One.one:An attribute defined in functional.m.method_hidden line 74 hides this method:HIGH

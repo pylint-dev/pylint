@@ -1,2 +1,2 @@
-too-many-nested-blocks:6:4:my_function:Too many nested blocks (6/5)
-too-many-nested-blocks:77:4:else_if_function:Too many nested blocks (7/5)
+too-many-nested-blocks:6:4:my_function:Too many nested blocks (6/5):HIGH
+too-many-nested-blocks:77:4:else_if_function:Too many nested blocks (7/5):HIGH

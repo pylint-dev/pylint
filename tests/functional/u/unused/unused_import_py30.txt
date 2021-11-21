@@ -1,1 +1,1 @@
-reimported:7:0::Reimport 'ABCMeta' (imported line 6)
+reimported:7:0::Reimport 'ABCMeta' (imported line 6):HIGH

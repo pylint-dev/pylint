@@ -1,4 +1,4 @@
-consider-using-get:5:0::Consider using dict.get for getting values from a dict if a key is present or a default if not
-consider-using-get:8:0::Consider using dict.get for getting values from a dict if a key is present or a default if not
-consider-using-get:13:0::Consider using dict.get for getting values from a dict if a key is present or a default if not
-consider-using-get:67:0::Consider using dict.get for getting values from a dict if a key is present or a default if not
+consider-using-get:5:0::Consider using dict.get for getting values from a dict if a key is present or a default if not:HIGH
+consider-using-get:8:0::Consider using dict.get for getting values from a dict if a key is present or a default if not:HIGH
+consider-using-get:13:0::Consider using dict.get for getting values from a dict if a key is present or a default if not:HIGH
+consider-using-get:67:0::Consider using dict.get for getting values from a dict if a key is present or a default if not:HIGH

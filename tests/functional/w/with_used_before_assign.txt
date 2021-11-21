@@ -1,2 +1,2 @@
-undefined-variable:10:39:do_nothing:Undefined variable 'ctx'
-used-before-assignment:11:8:do_nothing:Using variable 'context' before assignment
+undefined-variable:10:39:do_nothing:Undefined variable 'ctx':HIGH
+used-before-assignment:11:8:do_nothing:Using variable 'context' before assignment:HIGH

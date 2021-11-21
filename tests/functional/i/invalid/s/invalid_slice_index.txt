@@ -1,5 +1,13 @@
+<<<<<<< HEAD
 invalid-slice-index:10:20:function1:Slice index is not an int, None, or instance with __index__:HIGH
 invalid-slice-index:10:23:function1:Slice index is not an int, None, or instance with __index__:HIGH
 invalid-slice-index:14:20:function2:Slice index is not an int, None, or instance with __index__:HIGH
 invalid-slice-index:14:24:function2:Slice index is not an int, None, or instance with __index__:HIGH
 invalid-slice-index:23:20:function3:Slice index is not an int, None, or instance with __index__:HIGH
+=======
+invalid-slice-index:10:0:function1:Slice index is not an int, None, or instance with __index__:HIGH
+invalid-slice-index:10:0:function1:Slice index is not an int, None, or instance with __index__:HIGH
+invalid-slice-index:14:0:function2:Slice index is not an int, None, or instance with __index__:HIGH
+invalid-slice-index:14:0:function2:Slice index is not an int, None, or instance with __index__:HIGH
+invalid-slice-index:23:0:function3:Slice index is not an int, None, or instance with __index__:HIGH
+>>>>>>> 4bc56a6e... Add ``confidence`` to all expected functional test outputs

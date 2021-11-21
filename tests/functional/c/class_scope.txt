@@ -1,7 +1,7 @@
-undefined-variable:11:39:Well.<lambda>:Undefined variable 'revattr'
-used-before-assignment:11:30:Well.<lambda>:Using variable 'revattr' before assignment
-undefined-variable:13:25:Well.<lambda>:Undefined variable 'get_attr_bad'
-undefined-variable:14:19:Well:Undefined variable 'attr'
-undefined-variable:20:15:Well.Sub:Undefined variable 'Data'
-undefined-variable:23:15:Well.func:Undefined variable 'Sub'
-undefined-variable:41:22:Wrong.work:Undefined variable 'self'
+undefined-variable:11:39:Well.<lambda>:Undefined variable 'revattr':HIGH
+used-before-assignment:11:30:Well.<lambda>:Using variable 'revattr' before assignment:HIGH
+undefined-variable:13:25:Well.<lambda>:Undefined variable 'get_attr_bad':HIGH
+undefined-variable:14:19:Well:Undefined variable 'attr':HIGH
+undefined-variable:20:15:Well.Sub:Undefined variable 'Data':HIGH
+undefined-variable:23:15:Well.func:Undefined variable 'Sub':HIGH
+undefined-variable:41:22:Wrong.work:Undefined variable 'self':HIGH

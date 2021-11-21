@@ -1,2 +1,2 @@
-deprecated-module:3:0::Uses of a deprecated module 'deprecated'
-deprecated-module:4:0::Uses of a deprecated module 'deprecated'
+deprecated-module:3:0::Uses of a deprecated module 'deprecated':HIGH
+deprecated-module:4:0::Uses of a deprecated module 'deprecated':HIGH

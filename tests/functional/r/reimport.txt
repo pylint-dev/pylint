@@ -1,4 +1,4 @@
-reimported:8:0::Reimport 'os' (imported line 6)
-reimported:16:4::Reimport 'exists' (imported line 7)
-reimported:21:4:func:Reimport 'os' (imported line 6)
-reimported:23:4:func:Reimport 're' (imported line 9)
+reimported:8:0::Reimport 'os' (imported line 6):HIGH
+reimported:16:4::Reimport 'exists' (imported line 7):HIGH
+reimported:21:4:func:Reimport 'os' (imported line 6):HIGH
+reimported:23:4:func:Reimport 're' (imported line 9):HIGH

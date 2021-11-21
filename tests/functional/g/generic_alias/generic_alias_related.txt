@@ -1,5 +1,5 @@
-unsubscriptable-object:34:0::Value 'ClsUnsubscriptable()' is unsubscriptable
-unsubscriptable-object:35:0::Value 'ClsUnsubscriptable' is unsubscriptable
-unsubscriptable-object:38:0::Value 'ClsGetItem' is unsubscriptable
-unsubscriptable-object:40:0::Value 'ClsClassGetItem()' is unsubscriptable
-abstract-method:53:0:Derived:Method 'abstract_method' is abstract in class 'ClsAbstract' but is not overridden
+unsubscriptable-object:34:0::Value 'ClsUnsubscriptable()' is unsubscriptable:HIGH
+unsubscriptable-object:35:0::Value 'ClsUnsubscriptable' is unsubscriptable:HIGH
+unsubscriptable-object:38:0::Value 'ClsGetItem' is unsubscriptable:HIGH
+unsubscriptable-object:40:0::Value 'ClsClassGetItem()' is unsubscriptable:HIGH
+abstract-method:53:0:Derived:Method 'abstract_method' is abstract in class 'ClsAbstract' but is not overridden:HIGH
