@@ -65,9 +65,8 @@ class LintModuleOutputUpdate(testutils.LintModuleTest):
                 os.remove(self._test_file.expected_output)
             return
         with open(self._test_file.expected_output, "w", encoding="utf-8") as f:
-            writer = csv.writer(f, dialect="test")
             for line in actual_output:
-                writer.writerow(line.to_csv())
+                print(":".join(line.to_csv()), file=f)
 
 
 def get_tests():
