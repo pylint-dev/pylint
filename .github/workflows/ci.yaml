@@ -476,8 +476,8 @@ jobs:
           . venv/bin/activate
           pytest --benchmark-disable tests/
 
-  pytest-acceptance:
-    name: Run acceptance tests Python ${{ matrix.python-version }} (Linux)
+  pytest-primer-stlib:
+    name: Run primer tests on stdlib Python ${{ matrix.python-version }} (Linux)
     runs-on: ubuntu-latest
     needs: prepare-tests-linux
     strategy:
@@ -508,4 +508,4 @@ jobs:
         run: |
           . venv/bin/activate
           pip install -e .
-          pytest -m acceptance -n auto
+          pytest -m primer_stdlib -n auto
