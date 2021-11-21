@@ -58,6 +58,7 @@ COLORIZED_DOT_FILES = ["packages_colorized.dot", "classes_colorized.dot"]
 VCG_FILES = ["packages_No_Name.vcg", "classes_No_Name.vcg"]
 PUML_FILES = ["packages_No_Name.puml", "classes_No_Name.puml"]
 COLORIZED_PUML_FILES = ["packages_colorized.puml", "classes_colorized.puml"]
+MMD_FILES = ["packages.mmd", "classes.mmd"]
 
 
 class Config:
@@ -121,6 +122,14 @@ def setup_colorized_puml(
     yield from _setup(project, colorized_puml_config, writer)
 
 
+@pytest.fixture()
+def setup_mmd(mmd_config: PyreverseConfig, get_project: Callable) -> Iterator:
+    writer = DiagramWriter(mmd_config)
+
+    project = get_project(TEST_DATA_DIR)
+    yield from _setup(project, mmd_config, writer)
+
+
 def _setup(
     project: Project, config: PyreverseConfig, writer: DiagramWriter
 ) -> Iterator:
@@ -161,6 +170,12 @@ def test_vcg_files(generated_file: str) -> None:
 @pytest.mark.usefixtures("setup_puml")
 @pytest.mark.parametrize("generated_file", PUML_FILES)
 def test_puml_files(generated_file: str) -> None:
+    _assert_files_are_equal(generated_file)
+
+
+@pytest.mark.usefixtures("setup_mmd")
+@pytest.mark.parametrize("generated_file", MMD_FILES)
+def test_mmd_files(generated_file: str) -> None:
     _assert_files_are_equal(generated_file)
 
 
