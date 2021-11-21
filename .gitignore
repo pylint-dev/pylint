@@ -20,3 +20,4 @@ build-stamp
 .pytest_cache/
 .mypy_cache/
 .benchmarks/
+.pylint_primer_tests/
