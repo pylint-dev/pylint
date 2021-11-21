@@ -50,14 +50,12 @@ def test_lib_module_no_crash(
     os.chdir(test_module_location)
     with _patch_stdout(io.StringIO()):
         try:
-            pylint.lint.Run(
-                [
-                    test_module_name,
-                    "--enable=all",
-                    "--enable-all-extensions",
-                    "--ignore=test",
-                ]
-            )
+            # We want to test all the code we can
+            enables = ["--enable-all-extensions", "--enable=all"]
+            # Duplicate code takes too long and is relatively safe
+            # We don't want to lint the test directory which are repetitive
+            disables = ["--disable=duplicate-code", "--ignore=test"]
+            pylint.lint.Run([test_module_name] + enables + disables)
         except SystemExit as ex:
             out, err = capsys.readouterr()
             assert not err, err
