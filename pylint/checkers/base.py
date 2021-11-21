@@ -2329,7 +2329,7 @@ class ComparisonChecker(_BasicChecker):
             "Comparison %s should be %s",
             "singleton-comparison",
             "Used when an expression is compared to singleton "
-            "values like True, False or None.",
+            "values like True, False, None, or an Enum member.",
         ),
         "C0122": (
             "Comparison should be %s",
