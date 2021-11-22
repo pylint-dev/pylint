@@ -21,12 +21,7 @@ def message() -> Callable:
             symbol="missing-docstring",
             msg_id="C0123",
             location=MessageLocationTuple(
-                "abspath",
-                "path",
-                "module",
-                "obj",
-                1,
-                2,
+                "abspath", "path", "module", "obj", 1, 2, 1, 3
             ),
             msg="msg",
             confidence=confidence,

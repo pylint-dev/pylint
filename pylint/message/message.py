@@ -25,6 +25,8 @@ _MsgBase = collections.namedtuple(
         "obj",
         "line",
         "column",
+        "end_line",
+        "end_column",
     ],
 )
 
@@ -59,7 +61,10 @@ class Message(_MsgBase):
         cls,
         msg_id: str,
         symbol: str,
-        location: Union[Tuple[str, str, str, str, int, int], MessageLocationTuple],
+        location: Union[
+            Tuple[str, str, str, str, int, int],
+            MessageLocationTuple,
+        ],
         msg: str,
         confidence: Optional[Confidence],
     ) -> "Message":
@@ -68,6 +73,7 @@ class Message(_MsgBase):
                 "In pylint 3.0, Messages will only accept a MessageLocationTuple as location parameter",
                 DeprecationWarning,
             )
+            location = location + (None, None)  # type: ignore[assignment] # Temporary fix until deprecation
         return _MsgBase.__new__(
             cls,
             msg_id,
