@@ -34,8 +34,12 @@ class UnittestLinter:
         args: Any = None,
         confidence: Optional[Confidence] = None,
         col_offset: Optional[int] = None,
+        end_lineno: Optional[int] = None,
+        end_col_offset: Optional[int] = None,
     ) -> None:
         # Do not test col_offset for now since changing Message breaks everything
+        # pylint: disable=fixme
+        # TODO: Test end_lineno and end_col_offset :)
         self._messages.append(MessageTest(msg_id, line, node, args, confidence))
 
     @staticmethod

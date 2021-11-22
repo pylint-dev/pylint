@@ -34,6 +34,8 @@ def test_new_message(message_definitions: ValuesView[MessageDefinition]) -> None
         obj="4",
         line=5,
         column=6,
+        end_line=5,
+        end_column=9,
     )
     w1234_location_values = MessageLocationTuple(
         abspath="7",
@@ -42,6 +44,8 @@ def test_new_message(message_definitions: ValuesView[MessageDefinition]) -> None
         obj="10",
         line=11,
         column=12,
+        end_line=11,
+        end_column=14,
     )
     expected = (
         "2:5:6: E1234: Duplicate keyword argument %r in %s call (duplicate-keyword-arg)"

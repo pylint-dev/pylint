@@ -21,12 +21,7 @@ def message() -> Callable:
             symbol="missing-docstring",
             msg_id="C0123",
             location=MessageLocationTuple(
-                "abspath",
-                "path",
-                "module",
-                "obj",
-                1,
-                2,
+                "abspath", "path", "module", "obj", 1, 2, 1, 3
             ),
             msg="msg",
             confidence=confidence,
@@ -36,6 +31,7 @@ def message() -> Callable:
 
 
 def test_output_line() -> None:
+    """Test that the OutputLine NamedTuple is instantiated correctly."""
     output_line = OutputLine(
         symbol="missing-docstring",
         lineno=1,
@@ -45,16 +41,30 @@ def test_output_line() -> None:
         confidence=HIGH.name,
     )
     assert output_line.symbol == "missing-docstring"
+    assert output_line.lineno == 1
+    assert output_line.column == 2
+    assert output_line.object == ""
+    assert output_line.msg == "Missing docstring's bad."
+    assert output_line.confidence == "HIGH"
 
 
 def test_output_line_from_message(message: Callable) -> None:
+    """Test that the OutputLine NamedTuple is instantiated correctly with from_msg."""
+    expected_column = 2 if PY38_PLUS else 0
     output_line = OutputLine.from_msg(message())
     assert output_line.symbol == "missing-docstring"
+    assert output_line.lineno == 1
+    assert output_line.column == expected_column
+    assert output_line.object == "obj"
     assert output_line.msg == "msg"
+    assert output_line.confidence == "HIGH"
 
 
 @pytest.mark.parametrize("confidence", [HIGH, INFERENCE])
 def test_output_line_to_csv(confidence: Confidence, message: Callable) -> None:
+    """Test that the OutputLine NamedTuple is instantiated correctly with from_msg
+    and then converted to csv.
+    """
     output_line = OutputLine.from_msg(message(confidence))
     csv = output_line.to_csv()
     expected_column = "2" if PY38_PLUS else "0"
@@ -69,6 +79,7 @@ def test_output_line_to_csv(confidence: Confidence, message: Callable) -> None:
 
 
 def test_output_line_from_csv_error() -> None:
+    """Test that errors are correctly raised for incorrect OutputLine's."""
     with pytest.raises(
         MalformedOutputLineException,
         match="msg-symbolic-name:42:27:MyClass.my_function:The message",
@@ -87,6 +98,7 @@ def test_output_line_from_csv_error() -> None:
 def test_output_line_from_csv(
     confidence: Optional[str], expected_confidence: str
 ) -> None:
+    """Test that the OutputLine NamedTuple is instantiated correctly with from_csv."""
     if confidence:
         proper_csv = [
             "missing-docstring",
