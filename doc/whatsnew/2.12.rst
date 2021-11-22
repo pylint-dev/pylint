@@ -123,6 +123,15 @@ Other Changes
 
   Closes #3031
 
+* The functional ``testutils`` now accept ``end_lineno`` and ``end_column``. Expected
+  output files without these will trigger a ``DeprecationWarning``. Expected output files
+  can be easily updated with the ``python tests/test_functional.py --update-functional-output`` command.
+
+* The functional ``testutils`` now correctly check the distinction betweeen ``HIGH`` and
+  ``UNDEFINED`` confidence. Expected output files without defiend ``confidence`` levels will now
+  trigger a ``DeprecationWarning``. Expected output files can be easily updated with the
+  ``python tests/test_functional.py --update-functional-output`` command.
+
 * ``undefined-variable`` now correctly flags variables which only receive a type annotations
   and never get assigned a value
 
