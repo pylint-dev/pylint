@@ -35,7 +35,7 @@ from typing import Dict, Type
 import astroid
 
 from pylint.checkers import base
-from pylint.interfaces import HIGH, INFERENCE
+from pylint.interfaces import HIGH, INFERENCE, UNDEFINED
 from pylint.testutils import CheckerTestCase, MessageTest, set_config
 
 
@@ -322,6 +322,7 @@ class TestNameChecker(CheckerTestCase):
                 msg_id="assign-to-new-keyword",
                 node=ast[0].targets[0],
                 args=("async", "3.7"),
+                confidence=UNDEFINED,
             )
         ):
             self.checker.visit_assignname(ast[0].targets[0])
@@ -330,18 +331,25 @@ class TestNameChecker(CheckerTestCase):
                 msg_id="assign-to-new-keyword",
                 node=ast[1].targets[0],
                 args=("await", "3.7"),
+                confidence=UNDEFINED,
             )
         ):
             self.checker.visit_assignname(ast[1].targets[0])
         with self.assertAddsMessages(
             MessageTest(
-                msg_id="assign-to-new-keyword", node=ast[2], args=("async", "3.7")
+                msg_id="assign-to-new-keyword",
+                node=ast[2],
+                args=("async", "3.7"),
+                confidence=UNDEFINED,
             )
         ):
             self.checker.visit_functiondef(ast[2])
         with self.assertAddsMessages(
             MessageTest(
-                msg_id="assign-to-new-keyword", node=ast[3], args=("async", "3.7")
+                msg_id="assign-to-new-keyword",
+                node=ast[3],
+                args=("async", "3.7"),
+                confidence=UNDEFINED,
             )
         ):
             self.checker.visit_classdef(ast[3])
