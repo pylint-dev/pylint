@@ -99,7 +99,7 @@ def test_template_option_non_exisiting(linter) -> None:
     linter.reporter.out = output
     linter.set_option(
         "msg-template",
-        "{path}:{line}:{a_new_option}:({a_second_new_option})",
+        "{path}:{line}:{a_new_option}:({a_second_new_option:03d})",
     )
     linter.open()
     linter.set_current_module("my_mod")

@@ -198,10 +198,10 @@ class TextReporter(BaseReporter):
         # Check to see if all parameters in the template are attributes of the Message
         if not self._checked_template:
             template = self._template
-            parameters = re.findall(r"\{(.+?)\}", template)
+            parameters = re.findall(r"\{(.+?)(:.*)?\}", template)
             for parameter in parameters:
-                if parameter not in self_dict:
-                    template = template.replace(f"{{{parameter}}}", "")
+                if parameter[0] not in self_dict:
+                    template = re.sub(r"\{" + parameter[0] + r"(:.*?)?\}", "", template)
             self._template = template
             self._checked_template = True
         self.writeln(self._template.format(**self_dict))
