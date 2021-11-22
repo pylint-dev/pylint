@@ -322,7 +322,7 @@ class TestNameChecker(CheckerTestCase):
                 msg_id="assign-to-new-keyword",
                 node=ast[0].targets[0],
                 args=("async", "3.7"),
-                confidence=UNDEFINED,
+                confidence=HIGH,
                 col_offset=None,
             )
         ):
