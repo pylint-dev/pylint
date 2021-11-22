@@ -89,9 +89,6 @@ ANSI_COLORS = {
     "cyan": "36",
     "white": "37",
 }
-PRINT_AS_EMPTY_STRING = {"end_line", "end_column"}
-"""Set of Message attributes that should be printed as an
-empty string when they are None"""
 
 
 def _get_ansi_code(msg_style: MessageStyle) -> str:
@@ -193,7 +190,7 @@ class TextReporter(BaseReporter):
     def write_message(self, msg: Message) -> None:
         """Convenience method to write a formatted message with class default template"""
         self_dict = msg._asdict()
-        for key in PRINT_AS_EMPTY_STRING:
+        for key in ("end_line", "end_column"):
             self_dict[key] = self_dict[key] or ""
         self.writeln(self._template.format(**self_dict))
 
