@@ -99,7 +99,7 @@ The ``--msg-template`` option can only be combined with text-based reporters (``
 If both ``--output-format`` and ``--msg-template`` are specified, the ``--msg-template`` option will take precedence over the default line format defined by the reporter class.
 
 If ``end_line`` or ``end_column`` are ``None`` they will be represented as an empty string
-by the formatter.
+by the default ``TextReporter``.
 
 .. _Python new format syntax: https://docs.python.org/2/library/string.html#formatstrings
 

@@ -39,9 +39,9 @@ def test_simple_json_output_no_score() -> None:
     expected = [
         [
             ("column", 0),
-            ("line", 1),
-            ("end_line", None),
             ("end_column", None),
+            ("end_line", None),
+            ("line", 1),
             ("message", "Line too long (1/2)"),
             ("message-id", "C0301"),
             ("module", "0123"),
@@ -69,9 +69,9 @@ def test_simple_json_output_no_score_with_end_line() -> None:
     expected = [
         [
             ("column", 0),
-            ("line", 1),
-            ("end_line", 1),
             ("end_column", 4),
+            ("end_line", 1),
+            ("line", 1),
             ("message", "Line too long (1/2)"),
             ("message-id", "C0301"),
             ("module", "0123"),
