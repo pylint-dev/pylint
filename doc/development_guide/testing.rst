@@ -99,7 +99,7 @@ the unittests.
 Writing functional tests for configurations
 -------------------------------------------
 
-To test the different way to configure Pylint there is also a small functional test framework
+To test the different ways to configure Pylint there is also a small functional test framework
 for configuration files. These tests can be found in the '/pylint/test/config' directory.
 
 To create a new test create a new file with an unused name in the directory of that type
