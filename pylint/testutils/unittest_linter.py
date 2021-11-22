@@ -34,6 +34,8 @@ class UnittestLinter:
         args: Any = None,
         confidence: Optional[Confidence] = None,
         col_offset: Optional[int] = None,
+        end_lineno: Optional[int] = None,
+        end_col_offset: Optional[int] = None,
     ) -> None:
         """Add a MessageTest to the _messages attribute of the linter class."""
         # If confidence is None we set it to UNDEFINED as well in PyLinter
@@ -45,6 +47,8 @@ class UnittestLinter:
         # TODO: Initialize col_offset on every node (can be None) -> astroid
         # if col_offset is None and hasattr(node, "col_offset"):
         #     col_offset = node.col_offset
+        # pylint: disable=fixme
+        # TODO: Test end_lineno and end_col_offset :)
         self._messages.append(
             MessageTest(msg_id, line, node, args, confidence, col_offset)
         )
