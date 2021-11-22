@@ -15,6 +15,11 @@ Release date: TBA
 
   Closes #4982
 
+* Introduced primer tests and a configuration tests framework. The helper classes available in
+  ``pylint/testutil/`` are still unstable and might be modified in the near future.
+
+  Closes #4412 #5287
+
 * Fix ``install graphiz`` message which isn't needed for puml output format.
 
 * Fix a crash in the ``check_elif`` extensions where an undetected if in a comprehension

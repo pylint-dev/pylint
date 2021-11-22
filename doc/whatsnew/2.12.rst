@@ -35,7 +35,7 @@ New checkers
 
 * Fix ``useless-super-delegation`` false positive when default keyword argument is a variable.
 
-* Added new checker `use-implicit-booleanness``: Emitted when using collection
+* Added new checker ``use-implicit-booleanness``: Emitted when using collection
   literals for boolean comparisons
 
 * Added new checker ``use-implicit-booleaness-not-comparison``: Emitted when
@@ -204,3 +204,8 @@ Other Changes
 * Fix crash on ``open()`` calls when the ``mode`` argument is not a simple string.
 
   Partially closes #5321
+
+* Introduced primer tests and a configuration tests framework. The helper classes available in
+  ``pylint/testutil/`` are still unstable and might be modified in the near future.
+
+  Closes #4412 #5287
