@@ -1424,13 +1424,14 @@ class PyLinter(
             if not col_offset and hasattr(node, "col_offset"):
                 col_offset = node.col_offset
             # pylint: disable=fixme
-            # TODO: Lookup end_lineno from node
-            # if not end_lineno:
-            # end_lineno = node.end_lineno
+            # TODO: Initialize end_lineno on every node (can be None) -> astroid
+            # See https://github.com/PyCQA/astroid/issues/1273
+            if not end_lineno and hasattr(node, "end_lineno"):
+                end_lineno = node.end_lineno
             # pylint: disable=fixme
-            # TODO: Lookup end_col_offset from node
-            # if not end_col_offset:
-            # end_col_offset = node.end_col_offset
+            # TODO: Initialize end_col_offset on every node (can be None) -> astroid
+            if not end_col_offset and hasattr(node, "end_col_offset"):
+                end_col_offset = node.end_col_offset
 
         # should this message be displayed
         if not self.is_message_enabled(message_definition.msgid, line, confidence):

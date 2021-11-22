@@ -506,8 +506,8 @@ def test_addmessage(linter: PyLinter) -> None:
             obj="",
             line=1,
             column=0,
-            end_lineno=None,
-            end_col_offset=None,
+            end_line=None,
+            end_column=None,
         ),
     )
     assert linter.reporter.messages[1] == Message(
@@ -525,8 +525,8 @@ def test_addmessage(linter: PyLinter) -> None:
             obj="",
             line=2,
             column=0,
-            end_lineno=None,
-            end_col_offset=None,
+            end_line=None,
+            end_column=None,
         ),
     )
 
@@ -630,8 +630,8 @@ def test_analyze_explicit_script(linter: PyLinter) -> None:
             obj="",
             line=2,
             column=0,
-            end_lineno=None,
-            end_col_offset=None,
+            end_line=None,
+            end_column=None,
         ),
     )
 

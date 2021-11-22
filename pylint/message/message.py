@@ -25,8 +25,8 @@ _MsgBase = collections.namedtuple(
         "obj",
         "line",
         "column",
-        "end_lineno",
-        "end_col_offset",
+        "end_line",
+        "end_column",
     ],
 )
 
