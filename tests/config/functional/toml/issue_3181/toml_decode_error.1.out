@@ -1,0 +1,2 @@
+************* Module {abspath}
+{relpath}:1:0: F0010: error while code parsing: Found invalid character in key name: '*'. Try quoting the key name. (line 3 column 2 char 48) (parse-error)
