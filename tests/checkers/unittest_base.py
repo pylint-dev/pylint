@@ -323,6 +323,7 @@ class TestNameChecker(CheckerTestCase):
                 node=ast[0].targets[0],
                 args=("async", "3.7"),
                 confidence=UNDEFINED,
+                col_offset=None,
             )
         ):
             self.checker.visit_assignname(ast[0].targets[0])
