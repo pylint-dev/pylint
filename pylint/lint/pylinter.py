@@ -98,6 +98,11 @@ MSGS = {
         "Used when an exception occurred while building the Astroid "
         "representation which could be handled by astroid.",
     ),
+    "F0011": (
+        "error while parsing the configuration: %s",
+        "config-parse-error",
+        "Used when an exception occurred while parsing a pylint configuration file.",
+    ),
     "I0001": (
         "Unable to run raw checkers on built-in module %s",
         "raw-checker-failed",
