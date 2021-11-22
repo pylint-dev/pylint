@@ -101,7 +101,7 @@ def test_output_line_from_csv_error() -> None:
 
 
 @pytest.mark.parametrize(
-    "confidence,expected_confidence", [[None, "HIGH"], ["INFERENCE", "INFERENCE"]]
+    "confidence,expected_confidence", [[None, "UNDEFINED"], ["INFERENCE", "INFERENCE"]]
 )
 def test_output_line_from_csv_deprecated(
     confidence: Optional[str], expected_confidence: str
