@@ -1,0 +1,4 @@
+compare-to-zero:6:3::Avoid comparisons to zero:HIGH
+compare-to-zero:9:3::Avoid comparisons to zero:HIGH
+compare-to-zero:12:3::Avoid comparisons to zero:HIGH
+compare-to-zero:15:3::Avoid comparisons to zero:HIGH

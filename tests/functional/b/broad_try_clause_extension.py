@@ -2,21 +2,21 @@
 
 MY_DICTIONARY = {"key_one": 1, "key_two": 2, "key_three": 3}
 
-try:  # [max-try-statements]
+try:  # [too-many-try-statements]
     value = MY_DICTIONARY["key_one"]
     value += 1
     print("This one has an except clause only.")
 except KeyError:
     pass
 
-try:  # [max-try-statements]
+try:  # [too-many-try-statements]
     value = MY_DICTIONARY["key_one"]
     value += 1
     print("This one has a finally clause only.")
 finally:
     pass
 
-try:  # [max-try-statements]
+try:  # [too-many-try-statements]
     value = MY_DICTIONARY["key_one"]
     value += 1
     print("This one has an except clause...")
@@ -26,7 +26,7 @@ except KeyError:
 finally:
     pass
 
-try:  # [max-try-statements]
+try:  # [too-many-try-statements]
     if "key_one" in MY_DICTIONARY:
         entered_if_body = True
         print("This verifies that content inside of an if statement is counted too.")

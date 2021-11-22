@@ -1,0 +1,2 @@
+else-if-used:10:8:my_function:"Consider using ""elif"" instead of ""else if""":HIGH
+else-if-used:22:20:my_function:"Consider using ""elif"" instead of ""else if""":HIGH
