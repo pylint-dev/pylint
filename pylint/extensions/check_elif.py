@@ -59,6 +59,7 @@ class ElseifUsedChecker(BaseTokenChecker):
 
     def visit_comprehension(self, node: nodes.Comprehension) -> None:
         self._if_counter += len(node.ifs)
+        self._elifs.insert(self._if_counter, True)
 
     @check_messages("else-if-used")
     def visit_if(self, node: nodes.If) -> None:
@@ -67,6 +68,8 @@ class ElseifUsedChecker(BaseTokenChecker):
             # current if node must directly follow an "else"
             if orelse and orelse == [node]:
                 if (
+                    # Safeguard if we missed an if in self._elifs
+                    # See https://github.com/PyCQA/pylint/pull/5369
                     self._if_counter < len(self._elifs)
                     and not self._elifs[self._if_counter]
                 ):

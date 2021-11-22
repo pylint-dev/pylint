@@ -1,2 +1,3 @@
 else-if-used:12:8:my_function:"Consider using ""elif"" instead of ""else if""":HIGH
 else-if-used:24:20:my_function:"Consider using ""elif"" instead of ""else if""":HIGH
+else-if-used:50:8:_if_in_fstring_comprehension_with_elif:"Consider using ""elif"" instead of ""else if""":HIGH

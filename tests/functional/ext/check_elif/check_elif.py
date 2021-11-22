@@ -37,3 +37,18 @@ def _if_in_fstring_comprehension():
         )
     elif "i" in "true":
         raise TypeError("d")
+
+
+def _if_in_fstring_comprehension_with_elif():
+    order = {}
+    if "z" not in "false":
+        raise TypeError(
+            f" {', '.join(sorted(i for i in order or () if i not in vars))}"
+        )
+    elif "z" not in "true":
+        pass
+    else:
+        if "t" not in "false":  # [else-if-used]
+            raise TypeError("d")
+        else:
+            print("e")
