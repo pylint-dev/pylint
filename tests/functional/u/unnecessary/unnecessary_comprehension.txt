@@ -1,13 +1,13 @@
-unnecessary-comprehension:5:0::Unnecessary use of a comprehension, use list(iterable) instead.:HIGH
-unnecessary-comprehension:8:0::Unnecessary use of a comprehension, use list(iterable) instead.:HIGH
-unnecessary-comprehension:9:0::Unnecessary use of a comprehension, use list(iterable) instead.:HIGH
-unnecessary-comprehension:17:0::Unnecessary use of a comprehension, use list(a_dict.items()) instead.:HIGH
-unnecessary-comprehension:20:0::Unnecessary use of a comprehension, use set(iterable) instead.:HIGH
-unnecessary-comprehension:23:0::Unnecessary use of a comprehension, use set(iterable) instead.:HIGH
-unnecessary-comprehension:24:0::Unnecessary use of a comprehension, use set(iterable) instead.:HIGH
-unnecessary-comprehension:32:0::Unnecessary use of a comprehension, use dict(iterable) instead.:HIGH
-unnecessary-comprehension:34:0::Unnecessary use of a comprehension, use dict(iterable) instead.:HIGH
-unnecessary-comprehension:46:0::Unnecessary use of a comprehension, use my_list instead.:HIGH
-unnecessary-comprehension:47:0::Unnecessary use of a comprehension, use my_dict instead.:HIGH
-consider-using-dict-items:48:0::Consider iterating with .items():HIGH
-unnecessary-comprehension:49:0::Unnecessary use of a comprehension, use my_set instead.:HIGH
+unnecessary-comprehension:5:0:None:None::Unnecessary use of a comprehension, use list(iterable) instead.:UNDEFINED
+unnecessary-comprehension:8:0:None:None::Unnecessary use of a comprehension, use list(iterable) instead.:UNDEFINED
+unnecessary-comprehension:9:0:None:None::Unnecessary use of a comprehension, use list(iterable) instead.:UNDEFINED
+unnecessary-comprehension:17:0:None:None::Unnecessary use of a comprehension, use list(a_dict.items()) instead.:UNDEFINED
+unnecessary-comprehension:20:0:None:None::Unnecessary use of a comprehension, use set(iterable) instead.:UNDEFINED
+unnecessary-comprehension:23:0:None:None::Unnecessary use of a comprehension, use set(iterable) instead.:UNDEFINED
+unnecessary-comprehension:24:0:None:None::Unnecessary use of a comprehension, use set(iterable) instead.:UNDEFINED
+unnecessary-comprehension:32:0:None:None::Unnecessary use of a comprehension, use dict(iterable) instead.:UNDEFINED
+unnecessary-comprehension:34:0:None:None::Unnecessary use of a comprehension, use dict(iterable) instead.:UNDEFINED
+unnecessary-comprehension:46:0:None:None::Unnecessary use of a comprehension, use my_list instead.:UNDEFINED
+unnecessary-comprehension:47:0:None:None::Unnecessary use of a comprehension, use my_dict instead.:UNDEFINED
+consider-using-dict-items:48:0:None:None::Consider iterating with .items():UNDEFINED
+unnecessary-comprehension:49:0:None:None::Unnecessary use of a comprehension, use my_set instead.:UNDEFINED

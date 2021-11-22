@@ -7,7 +7,7 @@ from typing import Any, NamedTuple, Optional, Sequence, Tuple, Union
 from astroid import nodes
 
 from pylint.constants import PY38_PLUS
-from pylint.interfaces import HIGH, UNDEFINED, Confidence
+from pylint.interfaces import UNDEFINED, Confidence
 from pylint.message.message import Message
 from pylint.testutils.constants import UPDATE_OPTION
 
@@ -82,7 +82,7 @@ class OutputLine(NamedTuple):
             msg.end_column,
             msg.obj or "",
             msg.msg.replace("\r\n", "\n"),
-            msg.confidence.name if msg.confidence != UNDEFINED else HIGH.name,
+            msg.confidence.name,
         )
 
     @staticmethod
@@ -118,7 +118,7 @@ class OutputLine(NamedTuple):
                         None,
                         row[3],
                         row[4],
-                        HIGH.name,
+                        UNDEFINED.name,
                     )
                 if len(row) == 6:
                     warnings.warn(
