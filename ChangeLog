@@ -15,6 +15,13 @@ Release date: TBA
 
   Closes #4982
 
+* Add ability to add ``end_line`` and ``end_column`` to the ``--msg-template`` option.
+  With the standard ``TextReporter`` this will add the line and column number of the
+  end of a node to the output of Pylint. If these numbers are unknown they are represented
+  by an empty string.
+
+* Add ``end_line`` and ``end_column`` fields to the output of the ``JSONReporter``.
+
 * Fix ``install graphiz`` message which isn't needed for puml output format.
 
 * Fix ``simplify-boolean-expression`` when condition can be inferred as False.

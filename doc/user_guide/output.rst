@@ -58,6 +58,10 @@ line
     line number
 column
     column number
+end_line
+    line number of the end of the node
+end_column
+    column number of the end of the node
 module
     module name
 obj
@@ -93,6 +97,9 @@ A few other examples:
 
 The ``--msg-template`` option can only be combined with text-based reporters (``--output-format`` either unspecified or one of: parseable, colorized or msvs).
 If both ``--output-format`` and ``--msg-template`` are specified, the ``--msg-template`` option will take precedence over the default line format defined by the reporter class.
+
+If ``end_line`` or ``end_column`` are ``None`` they will be represented as an empty string
+by the formatter.
 
 .. _Python new format syntax: https://docs.python.org/2/library/string.html#formatstrings
 

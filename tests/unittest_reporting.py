@@ -57,6 +57,40 @@ def test_template_option(linter):
     assert output.getvalue() == "************* Module 0123\nC0301:001\nC0301:002\n"
 
 
+def test_template_option_default(linter) -> None:
+    """Test the default msg-template setting"""
+    output = StringIO()
+    linter.reporter.out = output
+    linter.open()
+    linter.set_current_module("my_module")
+    linter.add_message("C0301", line=1, args=(1, 2))
+    linter.add_message("line-too-long", line=2, args=(3, 4))
+
+    out_lines = output.getvalue().split("\n")
+    assert out_lines[1] == "my_module:1:0: C0301: Line too long (1/2) (line-too-long)"
+    assert out_lines[2] == "my_module:2:0: C0301: Line too long (3/4) (line-too-long)"
+
+
+def test_template_option_end_line(linter) -> None:
+    """Test the msg-template option with end_line and end_column"""
+    output = StringIO()
+    linter.reporter.out = output
+    linter.set_option(
+        "msg-template",
+        "{path}:{line}:{column}:{end_line}:{end_column}: {msg_id}: {msg} ({symbol})",
+    )
+    linter.open()
+    linter.set_current_module("my_mod")
+    linter.add_message("C0301", line=1, args=(1, 2))
+    linter.add_message(
+        "line-too-long", line=2, end_lineno=2, end_col_offset=4, args=(3, 4)
+    )
+
+    out_lines = output.getvalue().split("\n")
+    assert out_lines[1] == "my_mod:1:0::: C0301: Line too long (1/2) (line-too-long)"
+    assert out_lines[2] == "my_mod:2:0:2:4: C0301: Line too long (3/4) (line-too-long)"
+
+
 def test_deprecation_set_output(recwarn):
     """TODO remove in 3.0"""  # pylint: disable=fixme
     reporter = BaseReporter()
