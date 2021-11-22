@@ -66,7 +66,10 @@ class ElseifUsedChecker(BaseTokenChecker):
             orelse = node.parent.orelse
             # current if node must directly follow an "else"
             if orelse and orelse == [node]:
-                if not self._elifs[self._if_counter]:
+                if (
+                    self._if_counter < len(self._elifs)
+                    and not self._elifs[self._if_counter]
+                ):
                     self.add_message("else-if-used", node=node)
         self._if_counter += 1
 

@@ -1,3 +1,5 @@
+# pylint: disable=no-else-raise,unsupported-membership-test,using-constant-test
+
 """Checks use of "else if" triggers a refactor message"""
 
 
@@ -7,7 +9,7 @@ def my_function():
     if myint > 5:
         pass
     else:
-        if myint <= 5:  #  [else-if-used]
+        if myint <= 5:  # [else-if-used]
             pass
         else:
             myint = 3
@@ -25,3 +27,13 @@ def my_function():
                 if myint:
                     pass
                 myint = 4
+
+
+def _if_in_fstring_comprehension():
+    order = {}
+    if "z" not in "false":
+        raise TypeError(
+            f" {', '.join(sorted(i for i in order or () if i not in vars))}"
+        )
+    elif "i" in "true":
+        raise TypeError("d")
