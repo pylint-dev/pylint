@@ -1,5 +1,5 @@
-abstract-method:34:0:DerivedHashable:Method '__hash__' is abstract in class 'Hashable' but is not overridden
-abstract-method:37:0:DerivedIterable:Method '__iter__' is abstract in class 'Iterable' but is not overridden
-abstract-method:40:0:DerivedCollection:Method '__contains__' is abstract in class 'Container' but is not overridden
-abstract-method:40:0:DerivedCollection:Method '__iter__' is abstract in class 'Iterable' but is not overridden
-abstract-method:40:0:DerivedCollection:Method '__len__' is abstract in class 'Sized' but is not overridden
+abstract-method:34:0:35:8:DerivedHashable:Method '__hash__' is abstract in class 'Hashable' but is not overridden:UNDEFINED
+abstract-method:37:0:38:8:DerivedIterable:Method '__iter__' is abstract in class 'Iterable' but is not overridden:UNDEFINED
+abstract-method:40:0:41:8:DerivedCollection:Method '__contains__' is abstract in class 'Container' but is not overridden:UNDEFINED
+abstract-method:40:0:41:8:DerivedCollection:Method '__iter__' is abstract in class 'Iterable' but is not overridden:UNDEFINED
+abstract-method:40:0:41:8:DerivedCollection:Method '__len__' is abstract in class 'Sized' but is not overridden:UNDEFINED

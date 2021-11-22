@@ -74,12 +74,14 @@ class OutputLine(NamedTuple):
     def from_msg(cls, msg: Message) -> "OutputLine":
         """Create an OutputLine from a Pylint Message"""
         column = cls._get_column(msg.column)
+        end_line = cls._get_py38_none_value(msg.end_line)
+        end_column = cls._get_py38_none_value(msg.end_column)
         return cls(
             msg.symbol,
             msg.line,
             column,
-            msg.end_line,
-            msg.end_column,
+            end_line,
+            end_column,
             msg.obj or "",
             msg.msg.replace("\r\n", "\n"),
             msg.confidence.name,
@@ -94,6 +96,14 @@ class OutputLine(NamedTuple):
             # We check the column only for the new better ast parser introduced in python 3.8
             return 0  # pragma: no cover
         return int(column)
+
+    @staticmethod
+    def _get_py38_none_value(value: Optional[int]) -> Optional[int]:
+        """Handle attributes that are always None on pylint < 3.8 similar to _get_column."""
+        if not PY38_PLUS:
+            # We check the column only for the new better ast parser introduced in python 3.8
+            return None  # pragma: no cover
+        return value
 
     @classmethod
     def from_csv(cls, row: Union[Sequence[str], str]) -> "OutputLine":
