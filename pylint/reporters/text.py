@@ -193,9 +193,8 @@ class TextReporter(BaseReporter):
     def write_message(self, msg: Message) -> None:
         """Convenience method to write a formatted message with class default template"""
         self_dict = msg._asdict()
-        for key, value in self_dict.items():
-            if value is None and key in PRINT_AS_EMPTY_STRING:
-                self_dict[key] = ""
+        for key in PRINT_AS_EMPTY_STRING:
+            self_dict[key] = self_dict[key] or ""
         self.writeln(self._template.format(**self_dict))
 
     def handle_message(self, msg: Message) -> None:
