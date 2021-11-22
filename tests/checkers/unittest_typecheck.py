@@ -29,7 +29,7 @@ import astroid
 import pytest
 
 from pylint.checkers import typecheck
-from pylint.interfaces import UNDEFINED
+from pylint.interfaces import INFERENCE, UNDEFINED
 from pylint.testutils import CheckerTestCase, MessageTest, set_config
 
 try:
@@ -63,6 +63,7 @@ class TestTypeChecker(CheckerTestCase):
                 "no-member",
                 node=node,
                 args=("Module", "optparse", "THIS_does_not_EXIST", ""),
+                confidence=INFERENCE,
             )
         ):
             self.checker.visit_attribute(node)
@@ -91,7 +92,10 @@ class TestTypeChecker(CheckerTestCase):
         """
         )
         message = MessageTest(
-            "no-member", node=node, args=("Module", "xml.etree", "Lala", "")
+            "no-member",
+            node=node,
+            args=("Module", "xml.etree", "Lala", ""),
+            confidence=INFERENCE,
         )
         with self.assertAddsMessages(message):
             self.checker.visit_attribute(node)
@@ -128,7 +132,10 @@ class TestTypeChecker(CheckerTestCase):
         """
         )
         message = MessageTest(
-            "no-member", node=node, args=("Module", "xml.etree.ElementTree", "Test", "")
+            "no-member",
+            node=node,
+            args=("Module", "xml.etree.ElementTree", "Test", ""),
+            confidence=INFERENCE,
         )
         with self.assertAddsMessages(message):
             self.checker.visit_attribute(node)
@@ -167,7 +174,10 @@ class TestTypeChecker(CheckerTestCase):
         """
         )
         message = MessageTest(
-            "no-member", node=node, args=("Module", "coverage.tracer", "CTracer", "")
+            "no-member",
+            node=node,
+            args=("Module", "coverage.tracer", "CTracer", ""),
+            confidence=INFERENCE,
         )
         with self.assertAddsMessages(message):
             self.checker.visit_attribute(node)
@@ -185,6 +195,7 @@ class TestTypeChecker(CheckerTestCase):
             "c-extension-no-member",
             node=node,
             args=("Module", "coverage.tracer", "CTracer", ""),
+            confidence=INFERENCE,
         )
         with self.assertAddsMessages(message):
             self.checker.visit_attribute(node)

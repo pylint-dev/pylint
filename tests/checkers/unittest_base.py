@@ -35,6 +35,7 @@ from typing import Dict, Type
 import astroid
 
 from pylint.checkers import base
+from pylint.interfaces import HIGH, INFERENCE
 from pylint.testutils import CheckerTestCase, MessageTest, set_config
 
 
@@ -43,7 +44,7 @@ class TestDocstring(CheckerTestCase):
 
     def test_missing_docstring_module(self) -> None:
         module = astroid.parse("something")
-        message = MessageTest("missing-module-docstring", node=module)
+        message = MessageTest("missing-module-docstring", node=module, confidence=HIGH)
         with self.assertAddsMessages(message):
             self.checker.visit_module(module)
 
@@ -54,7 +55,9 @@ class TestDocstring(CheckerTestCase):
 
     def test_empty_docstring_module(self) -> None:
         module = astroid.parse("''''''")
-        message = MessageTest("empty-docstring", node=module, args=("module",))
+        message = MessageTest(
+            "empty-docstring", node=module, args=("module",), confidence=HIGH
+        )
         with self.assertAddsMessages(message):
             self.checker.visit_module(module)
 
@@ -69,7 +72,9 @@ class TestDocstring(CheckerTestCase):
                 '''
         """
         )
-        message = MessageTest("empty-docstring", node=node.body[0], args=("method",))
+        message = MessageTest(
+            "empty-docstring", node=node.body[0], args=("method",), confidence=INFERENCE
+        )
         with self.assertAddsMessages(message):
             self.checker.visit_functiondef(node.body[0])
 
@@ -79,7 +84,7 @@ class TestDocstring(CheckerTestCase):
         def func(tion):
            pass"""
         )
-        message = MessageTest("missing-function-docstring", node=func)
+        message = MessageTest("missing-function-docstring", node=func, confidence=HIGH)
         with self.assertAddsMessages(message):
             self.checker.visit_functiondef(func)
 
@@ -102,7 +107,7 @@ class TestDocstring(CheckerTestCase):
             pass
            """
         )
-        message = MessageTest("missing-function-docstring", node=func)
+        message = MessageTest("missing-function-docstring", node=func, confidence=HIGH)
         with self.assertAddsMessages(message):
             self.checker.visit_functiondef(func)
 
@@ -117,7 +122,7 @@ class TestDocstring(CheckerTestCase):
                 pass
            """
         )
-        message = MessageTest("missing-function-docstring", node=func)
+        message = MessageTest("missing-function-docstring", node=func, confidence=HIGH)
         with self.assertAddsMessages(message):
             self.checker.visit_functiondef(func)
 
@@ -141,7 +146,9 @@ class TestDocstring(CheckerTestCase):
                 pass
         """
         )
-        message = MessageTest("missing-function-docstring", node=node.body[0])
+        message = MessageTest(
+            "missing-function-docstring", node=node.body[0], confidence=INFERENCE
+        )
         with self.assertAddsMessages(message):
             self.checker.visit_functiondef(node.body[0])
 
@@ -158,7 +165,11 @@ class TestDocstring(CheckerTestCase):
                 return True
         """
         )
-        message = MessageTest("missing-function-docstring", node=module.body[1].body[0])
+        message = MessageTest(
+            "missing-function-docstring",
+            node=module.body[1].body[0],
+            confidence=INFERENCE,
+        )
         with self.assertAddsMessages(message):
             self.checker.visit_functiondef(module.body[1].body[0])
 
@@ -168,7 +179,7 @@ class TestDocstring(CheckerTestCase):
         class Klass(object):
            pass"""
         )
-        message = MessageTest("missing-class-docstring", node=klass)
+        message = MessageTest("missing-class-docstring", node=klass, confidence=HIGH)
         with self.assertAddsMessages(message):
             self.checker.visit_classdef(klass)
 
@@ -232,6 +243,7 @@ class TestNameChecker(CheckerTestCase):
                 "invalid-name",
                 node=methods[1],
                 args=("Attribute", "bar", "'[A-Z]+' pattern"),
+                confidence=INFERENCE,
             )
         ):
             self.checker.visit_functiondef(methods[1])
@@ -360,6 +372,7 @@ class TestMultiNamingStyle(CheckerTestCase):
                 "classb",
                 "the `UP` group in the '(?:(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$' pattern",
             ),
+            confidence=HIGH,
         )
         with self.assertAddsMessages(message):
             cls = None
@@ -389,6 +402,7 @@ class TestMultiNamingStyle(CheckerTestCase):
                     "class_a",
                     "'(?:(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$' pattern",
                 ),
+                confidence=HIGH,
             ),
             MessageTest(
                 "invalid-name",
@@ -398,6 +412,7 @@ class TestMultiNamingStyle(CheckerTestCase):
                     "CLASSC",
                     "the `down` group in the '(?:(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$' pattern",
                 ),
+                confidence=HIGH,
             ),
         ]
         with self.assertAddsMessages(*messages):
@@ -432,6 +447,7 @@ class TestMultiNamingStyle(CheckerTestCase):
                 "FUNC",
                 "the `down` group in the '(?:(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$' pattern",
             ),
+            confidence=HIGH,
         )
         with self.assertAddsMessages(message):
             func = None
@@ -464,6 +480,7 @@ class TestMultiNamingStyle(CheckerTestCase):
                 "UPPER",
                 "the `down` group in the '(?:(?P<ignore>FOO)|(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$' pattern",
             ),
+            confidence=HIGH,
         )
         with self.assertAddsMessages(message):
             func = None

@@ -30,7 +30,7 @@ import astroid
 
 from pylint.checkers import variables
 from pylint.constants import IS_PYPY
-from pylint.interfaces import UNDEFINED
+from pylint.interfaces import HIGH, UNDEFINED
 from pylint.testutils import CheckerTestCase, MessageTest, linter, set_config
 
 REGR_DATA_DIR = str(Path(__file__).parent / ".." / "regrtest_data")
@@ -256,7 +256,9 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            MessageTest("unused-argument", node=node["abc"], args="abc")
+            MessageTest(
+                "unused-argument", node=node["abc"], args="abc", confidence=HIGH
+            )
         ):
             self.checker.visit_functiondef(node)
             self.checker.leave_functiondef(node)
@@ -268,7 +270,9 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            MessageTest("unused-argument", node=node["abc"], args="abc")
+            MessageTest(
+                "unused-argument", node=node["abc"], args="abc", confidence=HIGH
+            )
         ):
             self.checker.visit_functiondef(node)
             self.checker.leave_functiondef(node)
