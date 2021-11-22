@@ -39,9 +39,9 @@ astroid_ or any of the other dependencies has been published::
 To run only a specific test suite, use a pattern for the test filename
 (**without** the ``.py`` extension), as in::
 
-    python -m tox -e py36 -- -k test_functional
-    python -m tox -e py36 -- -k  \*func\*
-    python -m tox --recreate -e py36 -- -k test_functional # With recreation of the environment
+    python -m tox -e py310 -- -k test_functional
+    python -m tox -e py310 -- -k  \*func\*
+    python -m tox --recreate -e py310 -- -k test_functional # With recreation of the environment
 
 Since we use pytest_ to run the tests, you can also use it on its own.
 We do recommend using the tox_ command though::
@@ -103,15 +103,18 @@ To test the different ways to configure Pylint there is also a small functional 
 for configuration files. These tests can be found in the '/pylint/test/config' directory.
 
 To create a new test create a new file with an unused name in the directory of that type
-of configuration file. Subsequently add a ``.json`` file with the same name which records
+of configuration file. Subsequently add a ``filename.result.json`` file with 'filename'
+being the same name as your configuration file. This file should record
 what the configuration should be **compared to the standard configuration**.
 
-For example, if the configuration should add a warning to the list of disabled messages the
+For example, if the configuration should add a warning to the list of disabled messages
+and you changed the configuration for ``job`` to 10 instead of the default 1 the
 ``.json`` file should include::
 
     "functional_append": {
         "disable": [["a-message-to-be-added"],]
     }
+    "jobs": 10,
 
 Similarly if a message should be removed you can add the following to the ``.json`` file::
 
