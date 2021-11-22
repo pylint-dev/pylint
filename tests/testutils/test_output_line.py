@@ -36,6 +36,8 @@ def test_output_line() -> None:
         symbol="missing-docstring",
         lineno=1,
         column=2,
+        end_lineno=1,
+        end_column=4,
         object="",
         msg="Missing docstring's bad.",
         confidence=HIGH.name,
@@ -43,6 +45,8 @@ def test_output_line() -> None:
     assert output_line.symbol == "missing-docstring"
     assert output_line.lineno == 1
     assert output_line.column == 2
+    assert output_line.end_lineno == 1
+    assert output_line.end_column == 4
     assert output_line.object == ""
     assert output_line.msg == "Missing docstring's bad."
     assert output_line.confidence == "HIGH"
@@ -55,6 +59,8 @@ def test_output_line_from_message(message: Callable) -> None:
     assert output_line.symbol == "missing-docstring"
     assert output_line.lineno == 1
     assert output_line.column == expected_column
+    assert output_line.end_lineno == 1
+    assert output_line.end_column == 3
     assert output_line.object == "obj"
     assert output_line.msg == "msg"
     assert output_line.confidence == "HIGH"
@@ -72,6 +78,8 @@ def test_output_line_to_csv(confidence: Confidence, message: Callable) -> None:
         "missing-docstring",
         "1",
         expected_column,
+        "1",
+        "3",
         "obj",
         "msg",
         confidence.name,
@@ -95,10 +103,12 @@ def test_output_line_from_csv_error() -> None:
 @pytest.mark.parametrize(
     "confidence,expected_confidence", [[None, "HIGH"], ["INFERENCE", "INFERENCE"]]
 )
-def test_output_line_from_csv(
+def test_output_line_from_csv_deprecated(
     confidence: Optional[str], expected_confidence: str
 ) -> None:
-    """Test that the OutputLine NamedTuple is instantiated correctly with from_csv."""
+    """Test that the OutputLine NamedTuple is instantiated correctly with from_csv.
+    Test OutputLine's of length 5 or 6.
+    """
     if confidence:
         proper_csv = [
             "missing-docstring",
@@ -110,13 +120,46 @@ def test_output_line_from_csv(
         ]
     else:
         proper_csv = ["missing-docstring", "1", "2", "obj", "msg"]
+    with pytest.warns(DeprecationWarning) as records:
+        output_line = OutputLine.from_csv(proper_csv)
+        assert len(records) == 1
+
+    expected_column = 2 if PY38_PLUS else 0
+    assert output_line == OutputLine(
+        symbol="missing-docstring",
+        lineno=1,
+        column=expected_column,
+        end_lineno=None,
+        end_column=None,
+        object="obj",
+        msg="msg",
+        confidence=expected_confidence,
+    )
+
+
+def test_output_line_from_csv() -> None:
+    """Test that the OutputLine NamedTuple is instantiated correctly with from_csv.
+    Test OutputLine of length 8.
+    """
+    proper_csv = [
+        "missing-docstring",
+        "1",
+        "2",
+        "1",
+        "None",
+        "obj",
+        "msg",
+        "HIGH",
+    ]
     output_line = OutputLine.from_csv(proper_csv)
     expected_column = 2 if PY38_PLUS else 0
     assert output_line == OutputLine(
         symbol="missing-docstring",
         lineno=1,
         column=expected_column,
+        end_lineno=1,
+        end_column=None,
         object="obj",
         msg="msg",
-        confidence=expected_confidence,
+        confidence="HIGH",
     )
