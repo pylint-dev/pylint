@@ -180,8 +180,6 @@ class TextReporter(BaseReporter):
     __implements__ = IReporter
     name = "text"
     extension = "txt"
-    # pylint: disable=fixme
-    # TODO: Add end_line and end_column to standard line format of TextReporter
     line_format = "{path}:{line}:{column}: {msg_id}: {msg} ({symbol})"
 
     def __init__(self, output: Optional[TextIO] = None) -> None:
@@ -196,8 +194,6 @@ class TextReporter(BaseReporter):
         """Convenience method to write a formatted message with class default template"""
         self_dict = msg._asdict()
         for key, value in self_dict.items():
-            # pylint: disable=fixme
-            # TODO: Add column to list of attributes to be printed as an empty string
             if value is None and key in PRINT_AS_EMPTY_STRING:
                 self_dict[key] = ""
         self.writeln(self._template.format(**self_dict))
