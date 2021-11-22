@@ -17,6 +17,12 @@ Release date: TBA
 
 * Fix ``install graphiz`` message which isn't needed for puml output format.
 
+* ``MessageTest`` of the unittest ``testutil`` now requires the ``confidence`` attribute
+  to match the expected value. If none is provided it is set to ``UNDEFINED``.
+
+* ``add_message`` of the unittest ``testutil`` now actually handles the ``col_offset`` parameter
+  and allows it to be checked against actual output in a test.
+
 * Fix ``simplify-boolean-expression`` when condition can be inferred as False.
 
   Closes #5200

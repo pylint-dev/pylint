@@ -63,6 +63,12 @@ New checkers
 
   Follow-up in #5259
 
+* ``MessageTest`` of the unittest ``testutil`` now requires the ``confidence`` attribute
+  to match the expected value. If none is provided it is set to ``UNDEFINED``.
+
+* ``add_message`` of the unittest ``testutil`` now actually handles the ``col_offset`` parameter
+  and allows it to be checked against actual output in a test.
+
 Removed checkers
 ================
 
