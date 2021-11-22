@@ -1,19 +1,24 @@
+# pylint: disable=invalid-name,unnecessary-pass,no-else-return,useless-else-on-loop
+# pylint: disable=undefined-variable,consider-using-sys-exit,unused-variable,too-many-return-statements
+# pylint: disable=redefined-outer-name,useless-object-inheritance,using-constant-test,unused-argument
+# pylint: disable=broad-except, not-context-manager, no-method-argument, no-self-use, unspecified-encoding
+
 """Checks use of "too-complex" check"""
 
 
-def f1():
+def f1():  # [too-complex]
     """McCabe rating: 1"""
     pass
 
 
-def f2(n):
+def f2(n):  # [too-complex]
     """McCabe rating: 1"""
     k = n + 4
     s = k + n
     return s
 
 
-def f3(n):
+def f3(n):  # [too-complex]
     """McCabe rating: 3"""
     if n > 3:
         return "bigger than three"
@@ -23,13 +28,13 @@ def f3(n):
         return "smaller than or equal to three"
 
 
-def f4():
+def f4():  # [too-complex]
     """McCabe rating: 2"""
     for i in range(10):
         print(i)
 
 
-def f5(mylist):
+def f5(mylist):  # [too-complex]
     """McCabe rating: 2"""
     for i in mylist:
         print(i)
@@ -37,7 +42,7 @@ def f5(mylist):
         print(None)
 
 
-def f6(n):
+def f6(n):  # [too-complex]
     """McCabe rating: 2"""
     if n > 4:
         return f(n - 1)
@@ -45,18 +50,22 @@ def f6(n):
         return n
 
 
-def f7():
+def f7():  # [too-complex]
     """McCabe rating: 3"""
+
     def b():
         """McCabe rating: 2"""
+
         def c():
             """McCabe rating: 1"""
             pass
+
         c()
+
     b()
 
 
-def f8():
+def f8():  # [too-complex]
     """McCabe rating: 4"""
     try:
         print(1)
@@ -68,7 +77,7 @@ def f8():
         print(4)
 
 
-def f9():
+def f9():  # [too-complex]
     """McCabe rating: 9"""
     myint = 2
     if myint > 5:
@@ -94,7 +103,7 @@ def f9():
                 myint = 4
 
 
-def f10():
+def f10():  # [too-complex]
     """McCabe rating: 11"""
     myint = 2
     if myint == 5:
@@ -123,13 +132,14 @@ def f10():
 
 class MyClass1(object):
     """Class of example to test mccabe"""
-    _name = 'MyClass'  # To force a tail.node=None
 
-    def method1():
+    _name = "MyClass"  # To force a tail.node=None
+
+    def method1():  # [too-complex]
         """McCabe rating: 1"""
         pass
 
-    def method2(self, param1):
+    def method2(self, param1):  # [too-complex, too-many-branches]
         """McCabe rating: 18"""
         if not param1:
             pass
@@ -159,7 +169,7 @@ class MyClass1(object):
 
         pass
         for count in range(6):
-            with open('myfile') as fp:
+            with open("myfile") as fp:
                 count += 1
             pass
         pass
@@ -170,8 +180,8 @@ class MyClass1(object):
             else:
                 pass
             if param1:
-                raise BaseException('Error')
-            with open('myfile2') as fp2:
+                raise BaseException("Error")
+            with open("myfile2") as fp2:
                 pass
             pass
         finally:
@@ -180,12 +190,12 @@ class MyClass1(object):
             for count2 in range(8):
                 try:
                     pass
-                except BaseException('Error2'):
+                except BaseException("Error2"):
                     pass
         return param1
 
 
-for count in range(10):
+for count in range(10): # [too-complex]
     if count == 1:
         exit(0)
     elif count == 2:
@@ -194,7 +204,8 @@ for count in range(10):
         exit(2)
 
 
-def method3(self):
+def method3(self):  # [too-complex]
+    """McCabe rating: 2"""
     try:
         if True:
             pass

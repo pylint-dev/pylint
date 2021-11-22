@@ -18,7 +18,7 @@ class MyClass(object):
         self.a_str = "hello"
         a_str = False
         (a_str, b_str) = (1, 2)  # no support for inference on tuple assignment
-        a_str = 2.0 if self.var else 1.0
+        a_str = 2.0 if self.var else 1.0  # [redefined-variable-type]
 
     def _getter(self):
         return self.a_str
