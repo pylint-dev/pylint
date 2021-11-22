@@ -91,6 +91,28 @@ def test_template_option_end_line(linter) -> None:
     assert out_lines[2] == "my_mod:2:0:2:4: C0301: Line too long (3/4) (line-too-long)"
 
 
+def test_template_option_non_exisiting(linter) -> None:
+    """Test the msg-template option with a non exisiting options.
+    This makes sure that this option remains backwards compatible as new
+    parameters do not break on previous versions"""
+    output = StringIO()
+    linter.reporter.out = output
+    linter.set_option(
+        "msg-template",
+        "{path}:{line}:{a_new_option}:({a_second_new_option})",
+    )
+    linter.open()
+    linter.set_current_module("my_mod")
+    linter.add_message("C0301", line=1, args=(1, 2))
+    linter.add_message(
+        "line-too-long", line=2, end_lineno=2, end_col_offset=4, args=(3, 4)
+    )
+
+    out_lines = output.getvalue().split("\n")
+    assert out_lines[1] == "my_mod:1::()"
+    assert out_lines[2] == "my_mod:2::()"
+
+
 def test_deprecation_set_output(recwarn):
     """TODO remove in 3.0"""  # pylint: disable=fixme
     reporter = BaseReporter()

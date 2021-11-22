@@ -24,6 +24,7 @@
 :colorized: an ANSI colorized text reporter
 """
 import os
+import re
 import sys
 import warnings
 from typing import (
@@ -183,6 +184,7 @@ class TextReporter(BaseReporter):
         super().__init__(output)
         self._modules: Set[str] = set()
         self._template = self.line_format
+        self._checked_template = False
 
     def on_set_current_module(self, module: str, filepath: Optional[str]) -> None:
         self._template = str(self.linter.config.msg_template or self._template)
@@ -192,6 +194,16 @@ class TextReporter(BaseReporter):
         self_dict = msg._asdict()
         for key in ("end_line", "end_column"):
             self_dict[key] = self_dict[key] or ""
+
+        # Check to see if all parameters in the template are attributes of the Message
+        if not self._checked_template:
+            template = self._template
+            parameters = re.findall(r"\{(.+?)\}", template)
+            for parameter in parameters:
+                if parameter not in self_dict:
+                    template = template.replace(f"{{{parameter}}}", "")
+            self._template = template
+            self._checked_template = True
         self.writeln(self._template.format(**self_dict))
 
     def handle_message(self, msg: Message) -> None:
