@@ -2,7 +2,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import warnings
-from typing import Any, NamedTuple, Optional, Sequence, Tuple, Union
+from typing import Any, NamedTuple, Optional, Sequence, Tuple, TypeVar, Union
 
 from astroid import nodes
 
@@ -10,6 +10,8 @@ from pylint.constants import PY38_PLUS
 from pylint.interfaces import UNDEFINED, Confidence
 from pylint.message.message import Message
 from pylint.testutils.constants import UPDATE_OPTION
+
+T = TypeVar("T")
 
 
 class MessageTest(NamedTuple):
@@ -98,7 +100,7 @@ class OutputLine(NamedTuple):
         return int(column)
 
     @staticmethod
-    def _get_py38_none_value(value: Optional[int]) -> Optional[int]:
+    def _get_py38_none_value(value: T) -> Optional[T]:
         """Handle attributes that are always None on pylint < 3.8 similar to _get_column."""
         if not PY38_PLUS:
             # We check the column only for the new better ast parser introduced in python 3.8
@@ -141,12 +143,14 @@ class OutputLine(NamedTuple):
                         row[0], int(row[1]), column, None, None, row[3], row[4], row[5]
                     )
                 if len(row) == 8:
+                    end_line = cls._get_py38_none_value(row[3])
+                    end_column = cls._get_py38_none_value(row[4])
                     return cls(
                         row[0],
                         int(row[1]),
                         column,
-                        cls._stringified_int_to_optional_int(row[3]),
-                        cls._stringified_int_to_optional_int(row[4]),
+                        cls._value_to_optional_int(end_line),
+                        cls._value_to_optional_int(end_column),
                         row[5],
                         row[6],
                         row[7],
@@ -171,8 +175,8 @@ class OutputLine(NamedTuple):
         )
 
     @staticmethod
-    def _stringified_int_to_optional_int(string: str) -> Optional[int]:
-        """Checks if a stringified integer should be None or a Python integer"""
-        if string == "None":
+    def _value_to_optional_int(value: Optional[str]) -> Optional[int]:
+        """Checks if a (stringified) value should be None or a Python integer"""
+        if value == "None" or not value:
             return None
-        return int(string)
+        return int(value)
