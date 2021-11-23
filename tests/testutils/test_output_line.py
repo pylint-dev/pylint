@@ -55,12 +55,14 @@ def test_output_line() -> None:
 def test_output_line_from_message(message: Callable) -> None:
     """Test that the OutputLine NamedTuple is instantiated correctly with from_msg."""
     expected_column = 2 if PY38_PLUS else 0
+    expected_end_lineno = 1 if PY38_PLUS else None
+    expected_end_column = 3 if PY38_PLUS else None
     output_line = OutputLine.from_msg(message())
     assert output_line.symbol == "missing-docstring"
     assert output_line.lineno == 1
     assert output_line.column == expected_column
-    assert output_line.end_lineno == 1
-    assert output_line.end_column == 3
+    assert output_line.end_lineno == expected_end_lineno
+    assert output_line.end_column == expected_end_column
     assert output_line.object == "obj"
     assert output_line.msg == "msg"
     assert output_line.confidence == "HIGH"
@@ -74,12 +76,14 @@ def test_output_line_to_csv(confidence: Confidence, message: Callable) -> None:
     output_line = OutputLine.from_msg(message(confidence))
     csv = output_line.to_csv()
     expected_column = "2" if PY38_PLUS else "0"
+    expected_end_lineno = 1 if PY38_PLUS else "None"
+    expected_end_column = 3 if PY38_PLUS else "None"
     assert csv == (
         "missing-docstring",
         "1",
         expected_column,
-        "1",
-        "3",
+        expected_end_lineno,
+        expected_end_column,
         "obj",
         "msg",
         confidence.name,
@@ -153,11 +157,12 @@ def test_output_line_from_csv() -> None:
     ]
     output_line = OutputLine.from_csv(proper_csv)
     expected_column = 2 if PY38_PLUS else 0
+    expected_end_lineno = 1 if PY38_PLUS else None
     assert output_line == OutputLine(
         symbol="missing-docstring",
         lineno=1,
         column=expected_column,
-        end_lineno=1,
+        end_lineno=expected_end_lineno,
         end_column=None,
         object="obj",
         msg="msg",
