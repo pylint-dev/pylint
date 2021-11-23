@@ -76,8 +76,8 @@ def test_output_line_to_csv(confidence: Confidence, message: Callable) -> None:
     output_line = OutputLine.from_msg(message(confidence))
     csv = output_line.to_csv()
     expected_column = "2" if PY38_PLUS else "0"
-    expected_end_lineno = 1 if PY38_PLUS else "None"
-    expected_end_column = 3 if PY38_PLUS else "None"
+    expected_end_lineno = "1" if PY38_PLUS else "None"
+    expected_end_column = "3" if PY38_PLUS else "None"
     assert csv == (
         "missing-docstring",
         "1",
