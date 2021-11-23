@@ -185,10 +185,10 @@ class TextReporter(BaseReporter):
         self._modules: Set[str] = set()
         self._template = self.line_format
         self._fixed_template = self.line_format
-        """The output format template with any unrecognized parameters removed"""
+        """The output format template with any unrecognized arguments removed"""
 
     def on_set_current_module(self, module: str, filepath: Optional[str]) -> None:
-        """Set the format template to be used and check for unrecognized parameters."""
+        """Set the format template to be used and check for unrecognized arguments."""
         template = str(self.linter.config.msg_template or self._template)
 
         # Return early if the template is the same as the previous one
@@ -199,10 +199,14 @@ class TextReporter(BaseReporter):
         self._template = template
 
         # Check to see if all parameters in the template are attributes of the Message
-        parameters = re.findall(r"\{(.+?)(:.*)?\}", template)
-        for parameter in parameters:
-            if parameter[0] not in Message._fields:
-                template = re.sub(r"\{" + parameter[0] + r"(:.*?)?\}", "", template)
+        arguments = re.findall(r"\{(.+?)(:.*)?\}", template)
+        for argument in arguments:
+            if argument[0] not in Message._fields:
+                warnings.warn(
+                    f"Don't recognize the argument {argument[0]} in the --msg-template. "
+                    "Are you sure it is supported on the current version of pylint?"
+                )
+                template = re.sub(r"\{" + argument[0] + r"(:.*?)?\}", "", template)
         self._fixed_template = template
 
     def write_message(self, msg: Message) -> None:

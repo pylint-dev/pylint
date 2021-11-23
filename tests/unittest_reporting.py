@@ -102,7 +102,18 @@ def test_template_option_non_exisiting(linter) -> None:
         "{path}:{line}:{a_new_option}:({a_second_new_option:03d})",
     )
     linter.open()
-    linter.set_current_module("my_mod")
+    with pytest.warns(UserWarning) as records:
+        linter.set_current_module("my_mod")
+        assert len(records) == 2
+        assert (
+            records[0].message.args[0]
+            == "Don't recognize the argument a_new_option in the --msg-template. Are you sure it is supported on the current version of pylint?"
+        )
+        assert (
+            records[1].message.args[0]
+            == "Don't recognize the argument a_second_new_option in the --msg-template. Are you sure it is supported on the current version of pylint?"
+        )
+
     linter.add_message("C0301", line=1, args=(1, 2))
     linter.add_message(
         "line-too-long", line=2, end_lineno=2, end_col_offset=4, args=(3, 4)
