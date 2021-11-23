@@ -195,6 +195,11 @@ Other Changes
 * Added the ``--enable-all-extensions`` command line option. It will load all available extensions
   which can be listed by running ``--list-extensions``
 
+* It is now recommended to do ``pylint`` development on ``Python`` 3.8 or higher. This
+  allows using the latest ``ast`` parser.
+
+* All standard jobs in the ``pylint`` CI now run on ``Python`` 3.8 by default
+
 * Fix crash on ``open()`` calls when the ``mode`` argument is not a simple string.
 
   Partially closes #5321
