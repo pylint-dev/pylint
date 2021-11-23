@@ -20,8 +20,10 @@ except ImportError:
 
 def _cpu_count() -> int:
     """Use sched_affinity if available for virtualized or containerized environments."""
-    if getattr(os, "sched_getaffinity", None):
-        return len(os.sched_getaffinity(0))  # type: ignore[attr-defined] # Defined on some UNIX systems
+    sched_getaffinity = getattr(os, "sched_getaffinity", None)
+    # pylint: disable=not-callable,using-constant-test,useless-suppression
+    if sched_getaffinity:
+        return len(sched_getaffinity(0))
     if multiprocessing:
         return multiprocessing.cpu_count()
     return 1
