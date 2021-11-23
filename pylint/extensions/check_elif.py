@@ -57,6 +57,7 @@ class ElseifUsedChecker(BaseTokenChecker):
         if (
             isinstance(node.parent, nodes.If)
             and node.parent.orelse == [node]
+            and (node.lineno, node.col_offset) in self._elifs
             and not self._elifs[(node.lineno, node.col_offset)]
         ):
             self.add_message("else-if-used", node=node)
