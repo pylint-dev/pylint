@@ -184,17 +184,26 @@ class TextReporter(BaseReporter):
         super().__init__(output)
         self._modules: Set[str] = set()
         self._template = self.line_format
+        self._fixed_template = self.line_format
+        """The output format template with any unrecognized parameters removed"""
 
     def on_set_current_module(self, module: str, filepath: Optional[str]) -> None:
-        self._template = str(self.linter.config.msg_template or self._template)
+        """Set the format template to be used and check for unrecognized parameters."""
+        template = str(self.linter.config.msg_template or self._template)
+
+        # Return early if the template is the same as the previous one
+        if template == self._template:
+            return
+
+        # Set template to the currently selected template
+        self._template = template
 
         # Check to see if all parameters in the template are attributes of the Message
-        template = self._template
         parameters = re.findall(r"\{(.+?)(:.*)?\}", template)
         for parameter in parameters:
             if parameter[0] not in Message._fields:
                 template = re.sub(r"\{" + parameter[0] + r"(:.*?)?\}", "", template)
-        self._template = template
+        self._fixed_template = template
 
     def write_message(self, msg: Message) -> None:
         """Convenience method to write a formatted message with class default template"""
@@ -202,7 +211,7 @@ class TextReporter(BaseReporter):
         for key in ("end_line", "end_column"):
             self_dict[key] = self_dict[key] or ""
 
-        self.writeln(self._template.format(**self_dict))
+        self.writeln(self._fixed_template.format(**self_dict))
 
     def handle_message(self, msg: Message) -> None:
         """manage message of different type and in the context of path"""
