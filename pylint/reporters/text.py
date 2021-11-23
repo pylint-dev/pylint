@@ -184,10 +184,17 @@ class TextReporter(BaseReporter):
         super().__init__(output)
         self._modules: Set[str] = set()
         self._template = self.line_format
-        self._checked_template = False
 
     def on_set_current_module(self, module: str, filepath: Optional[str]) -> None:
         self._template = str(self.linter.config.msg_template or self._template)
+
+        # Check to see if all parameters in the template are attributes of the Message
+        template = self._template
+        parameters = re.findall(r"\{(.+?)(:.*)?\}", template)
+        for parameter in parameters:
+            if parameter[0] not in Message._fields:
+                template = re.sub(r"\{" + parameter[0] + r"(:.*?)?\}", "", template)
+        self._template = template
 
     def write_message(self, msg: Message) -> None:
         """Convenience method to write a formatted message with class default template"""
@@ -195,15 +202,6 @@ class TextReporter(BaseReporter):
         for key in ("end_line", "end_column"):
             self_dict[key] = self_dict[key] or ""
 
-        # Check to see if all parameters in the template are attributes of the Message
-        if not self._checked_template:
-            template = self._template
-            parameters = re.findall(r"\{(.+?)(:.*)?\}", template)
-            for parameter in parameters:
-                if parameter[0] not in self_dict:
-                    template = re.sub(r"\{" + parameter[0] + r"(:.*?)?\}", "", template)
-            self._template = template
-            self._checked_template = True
         self.writeln(self._template.format(**self_dict))
 
     def handle_message(self, msg: Message) -> None:
