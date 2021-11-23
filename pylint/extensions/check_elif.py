@@ -38,43 +38,28 @@ class ElseifUsedChecker(BaseTokenChecker):
         self._init()
 
     def _init(self):
-        self._elifs = []
-        self._if_counter = 0
+        self._elifs = {}
 
     def process_tokens(self, tokens):
-        # Process tokens and look for 'if' or 'elif'
-        for _, token, _, _, _ in tokens:
+        """Process tokens and look for 'if' or 'elif'"""
+        for _, token, begin, _, _ in tokens:
             if token == "elif":
-                self._elifs.append(True)
+                self._elifs[begin] = True
             elif token == "if":
-                self._elifs.append(False)
+                self._elifs[begin] = False
 
     def leave_module(self, _: nodes.Module) -> None:
         self._init()
 
-    def visit_ifexp(self, node: nodes.IfExp) -> None:
-        if isinstance(node.parent, nodes.FormattedValue):
-            return
-        self._if_counter += 1
-
-    def visit_comprehension(self, node: nodes.Comprehension) -> None:
-        self._if_counter += len(node.ifs)
-        self._elifs.insert(self._if_counter, True)
-
     @check_messages("else-if-used")
     def visit_if(self, node: nodes.If) -> None:
-        if isinstance(node.parent, nodes.If):
-            orelse = node.parent.orelse
-            # current if node must directly follow an "else"
-            if orelse and orelse == [node]:
-                if (
-                    # Safeguard if we missed an if in self._elifs
-                    # See https://github.com/PyCQA/pylint/pull/5369
-                    self._if_counter < len(self._elifs)
-                    and not self._elifs[self._if_counter]
-                ):
-                    self.add_message("else-if-used", node=node)
-        self._if_counter += 1
+        """Current if node must directly follow an 'else'"""
+        if (
+            isinstance(node.parent, nodes.If)
+            and node.parent.orelse == [node]
+            and not self._elifs[(node.lineno, node.col_offset)]
+        ):
+            self.add_message("else-if-used", node=node)
 
 
 def register(linter):
