@@ -105,14 +105,8 @@ def test_template_option_non_exisiting(linter) -> None:
     with pytest.warns(UserWarning) as records:
         linter.set_current_module("my_mod")
         assert len(records) == 2
-        assert (
-            records[0].message.args[0]
-            == "Don't recognize the argument a_new_option in the --msg-template. Are you sure it is supported on the current version of pylint?"
-        )
-        assert (
-            records[1].message.args[0]
-            == "Don't recognize the argument a_second_new_option in the --msg-template. Are you sure it is supported on the current version of pylint?"
-        )
+        assert  "Don't recognize the argument 'a_new_option'" in records[0].message.args[0]
+    assert  "Don't recognize the argument 'a_second_new_option'" in records[1].message.args[0]
 
     linter.add_message("C0301", line=1, args=(1, 2))
     linter.add_message(
