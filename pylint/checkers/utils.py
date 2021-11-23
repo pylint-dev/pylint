@@ -730,7 +730,7 @@ def inherit_from_std_ex(node: nodes.NodeNG) -> bool:
     """
     ancestors = node.ancestors() if hasattr(node, "ancestors") else []
     return any(
-        ancestor.name in ("Exception", "BaseException")
+        ancestor.name in {"Exception", "BaseException"}
         and ancestor.root().name == EXCEPTIONS_MODULE
         for ancestor in itertools.chain([node], ancestors)
     )
@@ -802,7 +802,7 @@ def is_property_setter_or_deleter(node: nodes.FunctionDef) -> bool:
 def _is_property_decorator(decorator: nodes.Name) -> bool:
     for inferred in decorator.infer():
         if isinstance(inferred, nodes.ClassDef):
-            if inferred.qname() in ("builtins.property", "functools.cached_property"):
+            if inferred.qname() in {"builtins.property", "functools.cached_property"}:
                 return True
             for ancestor in inferred.ancestors():
                 if ancestor.name == "property" and ancestor.root().name == "builtins":
@@ -1688,5 +1688,5 @@ def returns_bool(node: nodes.NodeNG) -> bool:
     return (
         isinstance(node, nodes.Return)
         and isinstance(node.value, nodes.Const)
-        and node.value.value in (True, False)
+        and node.value.value in {True, False}
     )

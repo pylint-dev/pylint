@@ -2251,7 +2251,7 @@ class DocStringChecker(_BasicChecker):
                     func.bound, astroid.Instance
                 ):
                     # Strings.
-                    if func.bound.name in ("str", "unicode", "bytes"):
+                    if func.bound.name in {"str", "unicode", "bytes"}:
                         return
             if node_type == "module":
                 message = "missing-module-docstring"
@@ -2386,7 +2386,7 @@ class ComparisonChecker(_BasicChecker):
 
         # True/False singletons have a special-cased message in case the user is
         # mistakenly using == or != to check for truthiness
-        if singleton in (True, False):
+        if singleton in {True, False}:
             suggestion_template = (
                 "{} if checking for the singleton value {}, or {} if testing for {}"
             )
@@ -2440,7 +2440,7 @@ class ComparisonChecker(_BasicChecker):
         def _is_numpy_nan(node):
             if isinstance(node, nodes.Attribute) and node.attrname == "NaN":
                 if isinstance(node.expr, nodes.Name):
-                    return node.expr.name in ("numpy", "nmp", "np")
+                    return node.expr.name in {"numpy", "nmp", "np"}
             return False
 
         def _is_nan(node) -> bool:
@@ -2540,16 +2540,16 @@ class ComparisonChecker(_BasicChecker):
         left = node.left
         operator, right = node.ops[0]
 
-        if operator in ("==", "!="):
+        if operator in {"==", "!="}:
             self._check_singleton_comparison(
                 left, right, node, checking_for_absence=operator == "!="
             )
 
-        if operator in ("==", "!=", "is", "is not"):
+        if operator in {"==", "!=", "is", "is not"}:
             self._check_nan_comparison(
-                left, right, node, checking_for_absence=operator in ("!=", "is not")
+                left, right, node, checking_for_absence=operator in {"!=", "is not"}
             )
-        if operator in ("is", "is not"):
+        if operator in {"is", "is not"}:
             self._check_literal_comparison(right, node)
 
     def _check_unidiomatic_typecheck(self, node):
@@ -2567,7 +2567,7 @@ class ComparisonChecker(_BasicChecker):
         ):
             return
 
-        if operator in ("is", "is not") and _is_one_arg_pos_call(right):
+        if operator in {"is", "is not"} and _is_one_arg_pos_call(right):
             right_func = utils.safe_infer(right.func)
             if (
                 isinstance(right_func, nodes.ClassDef)

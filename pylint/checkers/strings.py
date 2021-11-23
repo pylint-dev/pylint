@@ -429,9 +429,9 @@ class StringFormatChecker(BaseChecker):
         if (
             isinstance(func, astroid.BoundMethod)
             and isinstance(func.bound, astroid.Instance)
-            and func.bound.name in ("str", "unicode", "bytes")
+            and func.bound.name in {"str", "unicode", "bytes"}
         ):
-            if func.name in ("strip", "lstrip", "rstrip") and node.args:
+            if func.name in {"strip", "lstrip", "rstrip"} and node.args:
                 arg = utils.safe_infer(node.args[0])
                 if not isinstance(arg, nodes.Const) or not isinstance(arg.value, str):
                     return
@@ -942,11 +942,11 @@ def str_eval(token):
     We have to support all string literal notations:
     https://docs.python.org/3/reference/lexical_analysis.html#string-and-bytes-literals
     """
-    if token[0:2].lower() in ("fr", "rf"):
+    if token[0:2].lower() in {"fr", "rf"}:
         token = token[2:]
-    elif token[0].lower() in ("r", "u", "f"):
+    elif token[0].lower() in {"r", "u", "f"}:
         token = token[1:]
-    if token[0:3] in ('"""', "'''"):
+    if token[0:3] in {'"""', "'''"}:
         return token[3:-3]
     return token[1:-1]
 
