@@ -103,7 +103,7 @@ class OutputLine(NamedTuple):
     def _get_py38_none_value(value: T) -> Optional[T]:
         """Handle attributes that are always None on pylint < 3.8 similar to _get_column."""
         if not PY38_PLUS:
-            # We check the column only for the new better ast parser introduced in python 3.8
+            # We check the value only for the new better ast parser introduced in python 3.8
             return None  # pragma: no cover
         return value
 
