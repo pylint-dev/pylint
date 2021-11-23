@@ -114,7 +114,6 @@ if not 3:
 if instance.method():
     pass
 
-# pylint: disable=misplaced-comparison-constant
 if 2 < 3:
     pass
 

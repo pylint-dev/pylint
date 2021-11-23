@@ -382,7 +382,7 @@ class Similar:
                 raise ValueError
             readlines = decoding_stream(stream, encoding).readlines
         else:
-            readlines = stream.readlines  # type: ignore # hint parameter is incorrectly typed as non-optional
+            readlines = stream.readlines  # type: ignore[assignment] # hint parameter is incorrectly typed as non-optional
         try:
             self.linesets.append(
                 LineSet(

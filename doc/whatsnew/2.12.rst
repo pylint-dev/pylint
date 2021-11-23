@@ -75,6 +75,12 @@ Extensions
 
   Closes #5008
 
+* Moved ``misplaced-comparison-constant`` to its own extension ``comparison_placement``.
+  This checker was opinionated and now no longer a default. It can be reactived by adding
+  ``pylint.extensions.comparison_placement`` to ``load-plugins`` in your config.
+
+  Closes #1064
+
 Other Changes
 =============
 
@@ -173,6 +179,8 @@ Other Changes
 
   Closes #4580
 
+* Fix crash for ``protected-access`` on (outer) class traversal
+
 * Make yn validator case insensitive, to allow for ``True`` and ``False`` in config files.
 
 * The last version compatible with python '3.6.0' and '3.6.1' is pylint '2.9.3'. We did not
@@ -183,3 +191,10 @@ Other Changes
 
   Closes #5171
   Follow-up in #5065
+
+* Added the ``--enable-all-extensions`` command line option. It will load all available extensions
+  which can be listed by running ``--list-extensions``
+
+* Fix crash on ``open()`` calls when the ``mode`` argument is not a simple string.
+
+  Partially closes #5321

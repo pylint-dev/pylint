@@ -114,4 +114,4 @@ class OutputLine(NamedTuple):
             raise MalformedOutputLineException(row, e) from e
 
     def to_csv(self) -> Tuple[str, str, str, str, str, str]:
-        return tuple(str(i) for i in self)  # type: ignore # pylint: disable=not-an-iterable
+        return tuple(str(i) for i in self)  # type: ignore[return-value] # pylint: disable=not-an-iterable

@@ -36,7 +36,7 @@ if TYPE_CHECKING:
 
 def initialize(linter: "PyLinter") -> None:
     """initialize linter with reporters in this package"""
-    utils.register_plugins(linter, __path__[0])  # type: ignore # Fixed in https://github.com/python/mypy/pull/9454
+    utils.register_plugins(linter, __path__[0])  # type: ignore[name-defined] # Fixed in https://github.com/python/mypy/pull/9454
 
 
 __all__ = [

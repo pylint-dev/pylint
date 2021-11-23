@@ -181,7 +181,7 @@ class Option(optparse.Option):
                 f"must not supply choices for type {self.type!r}", self
             )
 
-    optparse.Option.CHECK_METHODS[2] = _check_choice  # type: ignore
+    optparse.Option.CHECK_METHODS[2] = _check_choice  # type: ignore[index]
 
     def process(self, opt, value, values, parser):
         # First, convert the value(s) to the right type.  Howl if any
