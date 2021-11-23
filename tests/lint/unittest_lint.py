@@ -70,8 +70,6 @@ from pylint.typing import MessageLocationTuple
 from pylint.utils import FileState, print_full_documentation, tokenize_module
 
 if os.name == "java":
-    # pylint: disable=no-member
-    # os._name is valid see https://www.programcreek.com/python/example/3842/os._name
     if os.name == "nt":
         HOME = "USERPROFILE"
     else:
@@ -799,7 +797,6 @@ class TestPreprocessOptions:
 
 
 class _CustomPyLinter(PyLinter):
-    # pylint: disable=too-many-ancestors
     @staticmethod
     def should_analyze_file(modname: str, path: str, is_argument: bool = False) -> bool:
         if os.path.basename(path) == "wrong.py":

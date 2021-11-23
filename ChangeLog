@@ -275,6 +275,12 @@ Release date: TBA
   Closes #3507
   Closes #5087
 
+* It is now recommended to do ``pylint`` development on ``Python`` 3.8 or higher. This
+  allows using the latest ``ast`` parser.
+
+* All standard jobs in the ``pylint`` CI now run on ``Python`` 3.8 by default. We still
+  support python 3.6 and 3.7 and run tests for those interpreters.
+
 * ``TypingChecker``
 
   * Fix false-negative for ``deprecated-typing-alias`` and ``consider-using-alias``

@@ -52,7 +52,7 @@ Some parts of the process_token method is based from The Tab Nanny std module.
 """
 
 import tokenize
-from functools import reduce  # pylint: disable=redefined-builtin
+from functools import reduce
 from typing import List
 
 from astroid import nodes
