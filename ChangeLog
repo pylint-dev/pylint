@@ -17,6 +17,11 @@ Release date: TBA
 
 * Fix ``install graphiz`` message which isn't needed for puml output format.
 
+* Fix a crash in the ``check_elif`` extensions where an undetected ifs in comprehension
+  containing an if within a fstring resulted in a out of range error. The checker do not
+  rely on counting ifs anymore and use known ifs locations instead. It should not crash
+  on badly parsed ifs anymore.
+
 * Fix ``simplify-boolean-expression`` when condition can be inferred as False.
 
   Closes #5200
