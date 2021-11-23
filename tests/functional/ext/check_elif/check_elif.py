@@ -51,4 +51,26 @@ def _if_in_fstring_comprehension_with_elif():
         if "t" not in "false":  # [else-if-used]
             raise TypeError("d")
         else:
-            print("e")
+            if "y" in "life":  # [else-if-used]
+                print("e")
+
+
+def simple_if_else(node) -> None:
+    """This should not emit anything"""
+    if isinstance(node, str):
+        node_name = node
+    elif (
+        isinstance(node, int)
+        and node.op == "not"
+        and isinstance(node, float)
+    ):
+        node_name = node.test.operand
+    elif (
+        isinstance(node.test, list)
+        and isinstance(node.test.left, dict)
+        and len(node.test.ops) == 1
+    ):
+        node_name = node.test.left
+    else:
+        return node
+    return node_name
