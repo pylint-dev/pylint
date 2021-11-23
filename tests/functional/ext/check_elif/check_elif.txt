@@ -1,4 +1,4 @@
 else-if-used:12:8:my_function:"Consider using ""elif"" instead of ""else if""":HIGH
 else-if-used:24:20:my_function:"Consider using ""elif"" instead of ""else if""":HIGH
-else-if-used:51:8:_if_in_fstring_comprehension_with_elif:"Consider using ""elif"" instead of ""else if""":HIGH
-else-if-used:54:12:_if_in_fstring_comprehension_with_elif:"Consider using ""elif"" instead of ""else if""":HIGH
+else-if-used:41:8:_if_in_fstring_comprehension_with_elif:"Consider using ""elif"" instead of ""else if""":HIGH
+else-if-used:44:12:_if_in_fstring_comprehension_with_elif:"Consider using ""elif"" instead of ""else if""":HIGH

@@ -29,16 +29,6 @@ def my_function():
                 myint = 4
 
 
-def _if_in_fstring_comprehension():
-    order = {}
-    if "z" not in "false":
-        raise TypeError(
-            f" {', '.join(sorted(i for i in order or () if i not in vars))}"
-        )
-    elif "i" in "true":
-        raise TypeError("d")
-
-
 def _if_in_fstring_comprehension_with_elif():
     order = {}
     if "z" not in "false":
@@ -53,24 +43,3 @@ def _if_in_fstring_comprehension_with_elif():
         else:
             if "y" in "life":  # [else-if-used]
                 print("e")
-
-
-def simple_if_else(node) -> None:
-    """This should not emit anything"""
-    if isinstance(node, str):
-        node_name = node
-    elif (
-        isinstance(node, int)
-        and node.op == "not"
-        and isinstance(node, float)
-    ):
-        node_name = node.test.operand
-    elif (
-        isinstance(node.test, list)
-        and isinstance(node.test.left, dict)
-        and len(node.test.ops) == 1
-    ):
-        node_name = node.test.left
-    else:
-        return node
-    return node_name
