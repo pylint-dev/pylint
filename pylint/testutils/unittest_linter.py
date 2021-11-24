@@ -30,6 +30,8 @@ class UnittestLinter:
         self,
         msg_id: str,
         line: Optional[int] = None,
+        # pylint: disable=fixme
+        # TODO: Make node non optional
         node: Optional[nodes.NodeNG] = None,
         args: Any = None,
         confidence: Optional[Confidence] = None,
@@ -49,8 +51,26 @@ class UnittestLinter:
         #     col_offset = node.col_offset
         # pylint: disable=fixme
         # TODO: Test end_lineno and end_col_offset :)
+        # pylint: disable=fixme
+        # TODO: Initialize end_lineno on every node (can be None) -> astroid
+        # See https://github.com/PyCQA/astroid/issues/1273
+        if not end_lineno and node and hasattr(node, "end_lineno"):
+            end_lineno = node.end_lineno
+        # pylint: disable=fixme
+        # TODO: Initialize end_col_offset on every node (can be None) -> astroid
+        if not end_col_offset and node and hasattr(node, "end_col_offset"):
+            end_col_offset = node.end_col_offset
         self._messages.append(
-            MessageTest(msg_id, line, node, args, confidence, col_offset)
+            MessageTest(
+                msg_id,
+                line,
+                node,
+                args,
+                confidence,
+                col_offset,
+                end_lineno,
+                end_col_offset,
+            )
         )
 
     @staticmethod

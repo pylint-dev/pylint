@@ -21,6 +21,8 @@ class MessageTest(NamedTuple):
     args: Optional[Any] = None
     confidence: Optional[Confidence] = UNDEFINED
     col_offset: Optional[int] = None
+    end_line: Optional[int] = None
+    end_col_offset: Optional[int] = None
     """Used to test messages produced by pylint. Class name cannot start with Test as pytest doesn't allow constructors in test classes."""
 
 
