@@ -44,20 +44,12 @@ class UnittestLinter:
         if confidence is None:
             confidence = UNDEFINED
         # pylint: disable=fixme
-        # TODO: Test col_offset
-        # pylint: disable=fixme
-        # TODO: Initialize col_offset on every node (can be None) -> astroid
-        # if col_offset is None and hasattr(node, "col_offset"):
-        #     col_offset = node.col_offset
-        # pylint: disable=fixme
-        # TODO: Test end_lineno and end_col_offset :)
-        # pylint: disable=fixme
-        # TODO: Initialize end_lineno on every node (can be None) -> astroid
+        # TODO: Initialize col_offset, end_lineno and end_col_offset on every node -> astroid
         # See https://github.com/PyCQA/astroid/issues/1273
+        if col_offset is None and node and hasattr(node, "col_offset"):
+            col_offset = node.col_offset
         if not end_lineno and node and hasattr(node, "end_lineno"):
             end_lineno = node.end_lineno
-        # pylint: disable=fixme
-        # TODO: Initialize end_col_offset on every node (can be None) -> astroid
         if not end_col_offset and node and hasattr(node, "end_col_offset"):
             end_col_offset = node.end_col_offset
         self._messages.append(
