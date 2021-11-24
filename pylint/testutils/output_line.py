@@ -73,7 +73,7 @@ class OutputLine(NamedTuple):
     confidence: str
 
     @classmethod
-    def from_msg(cls, msg: Message, check_endline: bool) -> "OutputLine":
+    def from_msg(cls, msg: Message, check_endline: bool = True) -> "OutputLine":
         """Create an OutputLine from a Pylint Message"""
         column = cls._get_column(msg.column)
         end_line = cls._get_py38_none_value(msg.end_line, check_endline)
@@ -109,7 +109,7 @@ class OutputLine(NamedTuple):
 
     @classmethod
     def from_csv(
-        cls, row: Union[Sequence[str], str], check_endline: bool
+        cls, row: Union[Sequence[str], str], check_endline: bool = True
     ) -> "OutputLine":
         """Create an OutputLine from a comma separated list (the functional tests expected
         output .txt files).

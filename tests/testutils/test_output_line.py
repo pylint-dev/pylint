@@ -56,7 +56,7 @@ def test_output_line_from_message(message: Callable) -> None:
     """Test that the OutputLine NamedTuple is instantiated correctly with from_msg."""
     expected_column = 2 if PY38_PLUS else 0
 
-    output_line = OutputLine.from_msg(message(), True)
+    output_line = OutputLine.from_msg(message())
     assert output_line.symbol == "missing-docstring"
     assert output_line.lineno == 1
     assert output_line.column == expected_column
@@ -65,6 +65,16 @@ def test_output_line_from_message(message: Callable) -> None:
     assert output_line.object == "obj"
     assert output_line.msg == "msg"
     assert output_line.confidence == "HIGH"
+
+    output_line_with_end = OutputLine.from_msg(message(), True)
+    assert output_line_with_end.symbol == "missing-docstring"
+    assert output_line_with_end.lineno == 1
+    assert output_line_with_end.column == expected_column
+    assert output_line_with_end.end_lineno == 1
+    assert output_line_with_end.end_column == 3
+    assert output_line_with_end.object == "obj"
+    assert output_line_with_end.msg == "msg"
+    assert output_line_with_end.confidence == "HIGH"
 
     output_line_without_end = OutputLine.from_msg(message(), False)
     assert output_line_without_end.symbol == "missing-docstring"
@@ -178,7 +188,7 @@ def test_output_line_from_csv() -> None:
     ]
     expected_column = 2 if PY38_PLUS else 0
 
-    output_line = OutputLine.from_csv(proper_csv, True)
+    output_line = OutputLine.from_csv(proper_csv)
     assert output_line == OutputLine(
         symbol="missing-docstring",
         lineno=1,
@@ -189,8 +199,19 @@ def test_output_line_from_csv() -> None:
         msg="msg",
         confidence="HIGH",
     )
-    output_line = OutputLine.from_csv(proper_csv, False)
-    assert output_line == OutputLine(
+    output_line_with_end = OutputLine.from_csv(proper_csv, True)
+    assert output_line_with_end == OutputLine(
+        symbol="missing-docstring",
+        lineno=1,
+        column=expected_column,
+        end_lineno=1,
+        end_column=None,
+        object="obj",
+        msg="msg",
+        confidence="HIGH",
+    )
+    output_line_without_end = OutputLine.from_csv(proper_csv, False)
+    assert output_line_without_end == OutputLine(
         symbol="missing-docstring",
         lineno=1,
         column=expected_column,
