@@ -72,8 +72,12 @@ class PackageToLint:
     def lazy_clone(self) -> None:  # pragma: no cover
         """Concatenates the target directory and clones the file
 
-        Not expected to be tested as the primer won't work if it doesn't,
-        we'll notice."""
+        Not expected to be tested as the primer won't work if it doesn't.
+        It's tested in the continuous integration primers, only the coverage
+        is not calculated on everything. If lazy clone breaks for local use
+        we'll probably notice because we'll have a fatal when launching the
+        primer locally.
+        """
         logging.info("Lazy cloning %s", self.url)
         if not self.clone_directory.exists():
             options: Dict[str, Union[str, int]] = {
