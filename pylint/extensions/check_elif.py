@@ -42,11 +42,9 @@ class ElseifUsedChecker(BaseTokenChecker):
 
     def process_tokens(self, tokens):
         """Process tokens and look for 'if' or 'elif'"""
-        for _, token, begin, _, _ in tokens:
-            if token == "elif":
-                self._elifs[begin] = True
-            elif token == "if":
-                self._elifs[begin] = False
+        self._elifs = {
+            begin: token for _, token, begin, _, _ in tokens if token in {"elif", "if"}
+        }
 
     def leave_module(self, _: nodes.Module) -> None:
         self._init()
@@ -58,7 +56,7 @@ class ElseifUsedChecker(BaseTokenChecker):
             isinstance(node.parent, nodes.If)
             and node.parent.orelse == [node]
             and (node.lineno, node.col_offset) in self._elifs
-            and not self._elifs[(node.lineno, node.col_offset)]
+            and self._elifs[(node.lineno, node.col_offset)] == "if"
         ):
             self.add_message("else-if-used", node=node, confidence=HIGH)
 
