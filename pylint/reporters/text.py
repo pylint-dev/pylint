@@ -203,7 +203,7 @@ class TextReporter(BaseReporter):
         for argument in arguments:
             if argument[0] not in Message._fields:
                 warnings.warn(
-                    f"Don't recognize the argument {argument[0]} in the --msg-template. "
+                    f"Don't recognize the argument '{argument[0]}' in the --msg-template. "
                     "Are you sure it is supported on the current version of pylint?"
                 )
                 template = re.sub(r"\{" + argument[0] + r"(:.*?)?\}", "", template)
