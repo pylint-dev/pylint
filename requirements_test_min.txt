@@ -3,3 +3,4 @@
 astroid==2.9.0  # Pinned to a specific version for tests
 pytest~=6.2
 pytest-benchmark~=3.4
+gitpython>3
