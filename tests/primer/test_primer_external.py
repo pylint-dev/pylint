@@ -31,7 +31,7 @@ PACKAGES_TO_LINT = get_packages_to_lint_from_json(PACKAGE_TO_LINT_JSON)
 
 class TestPrimer:
     @staticmethod
-    @pytest.mark.primer
+    @pytest.mark.primer_external
     @pytest.mark.parametrize("package", PACKAGES_TO_LINT.values(), ids=PACKAGES_TO_LINT)
     def test_primer_external_packages_no_crash(
         package: PackageToLint,

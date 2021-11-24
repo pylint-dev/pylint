@@ -39,7 +39,7 @@ MODULES_TO_CHECK = [
 MODULES_NAMES = [m[1] for m in MODULES_TO_CHECK]
 
 
-@pytest.mark.primer
+@pytest.mark.primer_stdlib
 @pytest.mark.parametrize(
     ("test_module_location", "test_module_name"), MODULES_TO_CHECK, ids=MODULES_NAMES
 )
