@@ -19,13 +19,13 @@ class PackageToLint:
     directories: List[str]
     """Directories within the repository to run pylint over"""
 
-    commit: Optional[str] = None
+    commit: Optional[str]
     """Commit hash to pin the repository on"""
 
     pylint_additional_args: List[str] = []
     """Arguments to give to pylint"""
 
-    pylintrc_relpath: Optional[str] = None
+    pylintrc_relpath: Optional[str]
     """Path relative to project's main directory to the pylintrc if it exists"""
 
     def __init__(
@@ -89,7 +89,7 @@ class PackageToLint:
         local_sha1_commit = git.Repo(self.clone_directory).head.object.hexsha
         if remote_sha1_commit != local_sha1_commit:
             logging.info(
-                "Remote sha is %s while local sha is %s : pulling",
+                "Remote sha is '%s' while local sha is '%s': pulling new commits",
                 remote_sha1_commit,
                 local_sha1_commit,
             )
@@ -97,4 +97,4 @@ class PackageToLint:
             origin = repo.remotes.origin
             origin.pull()
         else:
-            logging.info("Already up to date.")
+            logging.info("Repository already up to date.")
