@@ -1,1 +1,1 @@
-wrong-import-position:5:0::"Import ""import os"" should be placed at the top of the module"
+wrong-import-position:5:0:5:9::"Import ""import os"" should be placed at the top of the module":UNDEFINED

@@ -1,2 +1,2 @@
-access-member-before-definition:8:15:Aaaa.__init__:Access to member '_var2' before its definition line 9
-access-member-before-definition:28:19:Bbbb.catchme:Access to member '_repo' before its definition line 30
+access-member-before-definition:8:15:8:25:Aaaa.__init__:Access to member '_var2' before its definition line 9:UNDEFINED
+access-member-before-definition:28:19:28:29:Bbbb.catchme:Access to member '_repo' before its definition line 30:UNDEFINED

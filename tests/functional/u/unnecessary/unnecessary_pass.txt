@@ -1,3 +1,3 @@
-unnecessary-pass:7:4::Unnecessary pass statement
-unnecessary-pass:33:4:docstring_and_pass:Unnecessary pass statement
-unnecessary-pass:49:4:DocstringAndPass:Unnecessary pass statement
+unnecessary-pass:7:4:7:8::Unnecessary pass statement:UNDEFINED
+unnecessary-pass:33:4:33:8:docstring_and_pass:Unnecessary pass statement:UNDEFINED
+unnecessary-pass:49:4:49:8:DocstringAndPass:Unnecessary pass statement:UNDEFINED

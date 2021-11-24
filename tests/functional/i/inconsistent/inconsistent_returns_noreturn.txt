@@ -1,1 +1,1 @@
-inconsistent-return-statements:32:0:bug_pylint_4122_wrong:Either all return statements in a function should return an expression, or none of them should.
+inconsistent-return-statements:32:0:42:44:bug_pylint_4122_wrong:Either all return statements in a function should return an expression, or none of them should.:UNDEFINED

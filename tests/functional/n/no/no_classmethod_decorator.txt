@@ -1,3 +1,3 @@
-no-classmethod-decorator:14:4:MyClass:Consider using a decorator instead of calling classmethod
-no-classmethod-decorator:17:8:MyClass:Consider using a decorator instead of calling classmethod
-no-classmethod-decorator:25:4:MyClass:Consider using a decorator instead of calling classmethod
+no-classmethod-decorator:14:4:14:11:MyClass:Consider using a decorator instead of calling classmethod:UNDEFINED
+no-classmethod-decorator:17:8:17:15:MyClass:Consider using a decorator instead of calling classmethod:UNDEFINED
+no-classmethod-decorator:25:4:25:12:MyClass:Consider using a decorator instead of calling classmethod:UNDEFINED

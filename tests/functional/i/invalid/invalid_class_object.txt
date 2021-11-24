@@ -1,2 +1,2 @@
-invalid-class-object:17:0::Invalid __class__ object
-invalid-class-object:18:0::Invalid __class__ object
+invalid-class-object:17:0:17:11::Invalid __class__ object:UNDEFINED
+invalid-class-object:18:0:18:11::Invalid __class__ object:UNDEFINED

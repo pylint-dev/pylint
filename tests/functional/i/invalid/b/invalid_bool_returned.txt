@@ -1,3 +1,3 @@
-invalid-bool-returned:36:4:FirstBadBool.__bool__:__bool__ does not return bool
-invalid-bool-returned:43:4:SecondBadBool.__bool__:__bool__ does not return bool
-invalid-bool-returned:50:4:ThirdBadBool.__bool__:__bool__ does not return bool
+invalid-bool-returned:36:4:37:16:FirstBadBool.__bool__:__bool__ does not return bool:UNDEFINED
+invalid-bool-returned:43:4:44:21:SecondBadBool.__bool__:__bool__ does not return bool:UNDEFINED
+invalid-bool-returned:50:4:51:24:ThirdBadBool.__bool__:__bool__ does not return bool:UNDEFINED

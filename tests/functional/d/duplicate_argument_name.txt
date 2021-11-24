@@ -1,8 +1,8 @@
-duplicate-argument-name:4:9:foo1:Duplicate argument name _ in function definition
-duplicate-argument-name:4:12:foo1:Duplicate argument name _ in function definition
-duplicate-argument-name:7:9:foo2:Duplicate argument name _abc in function definition
-duplicate-argument-name:7:18:foo2:Duplicate argument name _abc in function definition
-duplicate-argument-name:10:9:foo3:Duplicate argument name _ in function definition
-duplicate-argument-name:10:12:foo3:Duplicate argument name _ in function definition
-duplicate-argument-name:13:9:foo4:Duplicate argument name _ in function definition
-duplicate-argument-name:13:15:foo4:Duplicate argument name _ in function definition
+duplicate-argument-name:4:9:4:10:foo1:Duplicate argument name _ in function definition:UNDEFINED
+duplicate-argument-name:4:12:4:13:foo1:Duplicate argument name _ in function definition:UNDEFINED
+duplicate-argument-name:7:9:7:13:foo2:Duplicate argument name _abc in function definition:UNDEFINED
+duplicate-argument-name:7:18:7:22:foo2:Duplicate argument name _abc in function definition:UNDEFINED
+duplicate-argument-name:10:9:10:10:foo3:Duplicate argument name _ in function definition:UNDEFINED
+duplicate-argument-name:10:12:10:13:foo3:Duplicate argument name _ in function definition:UNDEFINED
+duplicate-argument-name:13:9:13:10:foo4:Duplicate argument name _ in function definition:UNDEFINED
+duplicate-argument-name:13:15:13:16:foo4:Duplicate argument name _ in function definition:UNDEFINED

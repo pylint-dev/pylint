@@ -1,5 +1,5 @@
-not-async-context-manager:51:4:bad_coro:Async context manager 'int' doesn't implement __aenter__ and __aexit__.
-not-async-context-manager:53:4:bad_coro:Async context manager 'generator' doesn't implement __aenter__ and __aexit__.
-not-async-context-manager:55:4:bad_coro:Async context manager 'ContextManager' doesn't implement __aenter__ and __aexit__.
-not-async-context-manager:57:4:bad_coro:Async context manager 'PartialAsyncContextManager' doesn't implement __aenter__ and __aexit__.
-not-async-context-manager:59:4:bad_coro:Async context manager 'SecondPartialAsyncContextManager' doesn't implement __aenter__ and __aexit__.
+not-async-context-manager:51:4:52:12:bad_coro:Async context manager 'int' doesn't implement __aenter__ and __aexit__.:UNDEFINED
+not-async-context-manager:53:4:54:12:bad_coro:Async context manager 'generator' doesn't implement __aenter__ and __aexit__.:UNDEFINED
+not-async-context-manager:55:4:56:12:bad_coro:Async context manager 'ContextManager' doesn't implement __aenter__ and __aexit__.:UNDEFINED
+not-async-context-manager:57:4:58:12:bad_coro:Async context manager 'PartialAsyncContextManager' doesn't implement __aenter__ and __aexit__.:UNDEFINED
+not-async-context-manager:59:4:60:12:bad_coro:Async context manager 'SecondPartialAsyncContextManager' doesn't implement __aenter__ and __aexit__.:UNDEFINED

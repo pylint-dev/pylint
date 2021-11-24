@@ -1,6 +1,6 @@
-invalid-overridden-method:38:4:InvalidDerived.prop:Method 'prop' was expected to be 'property', found it instead as 'method'
-invalid-overridden-method:41:4:InvalidDerived.async_method:Method 'async_method' was expected to be 'async', found it instead as 'non-async'
-invalid-overridden-method:45:4:InvalidDerived.method_a:Method 'method_a' was expected to be 'method', found it instead as 'property'
-invalid-overridden-method:48:4:InvalidDerived.method_b:Method 'method_b' was expected to be 'non-async', found it instead as 'async'
-invalid-overridden-method:122:4:B.bar:Method 'bar' was expected to be 'property', found it instead as 'method'
-invalid-overridden-method:126:4:B.bar2:Method 'bar2' was expected to be 'property', found it instead as 'method'
+invalid-overridden-method:38:4:39:19:InvalidDerived.prop:Method 'prop' was expected to be 'property', found it instead as 'method':UNDEFINED
+invalid-overridden-method:41:4:42:19:InvalidDerived.async_method:Method 'async_method' was expected to be 'async', found it instead as 'non-async':UNDEFINED
+invalid-overridden-method:45:4:46:19:InvalidDerived.method_a:Method 'method_a' was expected to be 'method', found it instead as 'property':UNDEFINED
+invalid-overridden-method:48:4:49:19:InvalidDerived.method_b:Method 'method_b' was expected to be 'non-async', found it instead as 'async':UNDEFINED
+invalid-overridden-method:122:4:123:20:B.bar:Method 'bar' was expected to be 'property', found it instead as 'method':UNDEFINED
+invalid-overridden-method:126:4:127:20:B.bar2:Method 'bar2' was expected to be 'property', found it instead as 'method':UNDEFINED

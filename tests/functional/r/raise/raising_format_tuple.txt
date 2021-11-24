@@ -1,7 +1,7 @@
-raising-format-tuple:11:4:bad_percent:Exception arguments suggest string formatting might be intended
-raising-format-tuple:19:4:bad_multiarg:Exception arguments suggest string formatting might be intended
-raising-format-tuple:27:4:bad_braces:Exception arguments suggest string formatting might be intended
-raising-format-tuple:35:4:bad_multistring:Exception arguments suggest string formatting might be intended
-raising-format-tuple:41:4:bad_triplequote:Exception arguments suggest string formatting might be intended
-raising-format-tuple:47:4:bad_unicode:Exception arguments suggest string formatting might be intended
-raising-format-tuple:52:4:raise_something_without_name:Exception arguments suggest string formatting might be intended
+raising-format-tuple:11:4:11:38:bad_percent:Exception arguments suggest string formatting might be intended:UNDEFINED
+raising-format-tuple:19:4:19:53:bad_multiarg:Exception arguments suggest string formatting might be intended:UNDEFINED
+raising-format-tuple:27:4:27:40:bad_braces:Exception arguments suggest string formatting might be intended:UNDEFINED
+raising-format-tuple:35:4:37:52:bad_multistring:Exception arguments suggest string formatting might be intended:UNDEFINED
+raising-format-tuple:41:4:43:53:bad_triplequote:Exception arguments suggest string formatting might be intended:UNDEFINED
+raising-format-tuple:47:4:47:36:bad_unicode:Exception arguments suggest string formatting might be intended:UNDEFINED
+raising-format-tuple:52:4:52:56:raise_something_without_name:Exception arguments suggest string formatting might be intended:UNDEFINED

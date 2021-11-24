@@ -1,2 +1,2 @@
-ungrouped-imports:9:0::Imports from package os are not grouped
-ungrouped-imports:10:0::Imports from package logging are not grouped
+ungrouped-imports:9:0:9:24::Imports from package os are not grouped:UNDEFINED
+ungrouped-imports:10:0:10:23::Imports from package logging are not grouped:UNDEFINED

@@ -1,4 +1,4 @@
-reimported:8:0::Reimport 'os' (imported line 6)
-reimported:16:4::Reimport 'exists' (imported line 7)
-reimported:21:4:func:Reimport 'os' (imported line 6)
-reimported:23:4:func:Reimport 're' (imported line 9)
+reimported:8:0:8:9::Reimport 'os' (imported line 6):UNDEFINED
+reimported:16:4:16:30::Reimport 'exists' (imported line 7):UNDEFINED
+reimported:21:4:21:20:func:Reimport 'os' (imported line 6):UNDEFINED
+reimported:23:4:23:13:func:Reimport 're' (imported line 9):UNDEFINED

@@ -1,7 +1,7 @@
-redefined-argument-from-local:6:48:test_redefined_in_with:Redefining argument with the local name 'name'
-redefined-argument-from-local:8:57:test_redefined_in_with:Redefining argument with the local name 'name'
-redefined-argument-from-local:12:9:test_redefined_in_with:Redefining argument with the local name 'name'
-redefined-argument-from-local:26:8:test_redefined_in_for:Redefining argument with the local name 'name'
-redefined-argument-from-local:28:9:test_redefined_in_for:Redefining argument with the local name 'name'
-redefined-argument-from-local:30:15:test_redefined_in_for:Redefining argument with the local name 'name'
-redefined-argument-from-local:50:4:test_redefined_in_except_handler:Redefining argument with the local name 'name'
+redefined-argument-from-local:6:48:6:52:test_redefined_in_with:Redefining argument with the local name 'name':UNDEFINED
+redefined-argument-from-local:8:57:8:61:test_redefined_in_with:Redefining argument with the local name 'name':UNDEFINED
+redefined-argument-from-local:12:9:12:13:test_redefined_in_with:Redefining argument with the local name 'name':UNDEFINED
+redefined-argument-from-local:26:8:26:12:test_redefined_in_for:Redefining argument with the local name 'name':UNDEFINED
+redefined-argument-from-local:28:9:28:13:test_redefined_in_for:Redefining argument with the local name 'name':UNDEFINED
+redefined-argument-from-local:30:15:30:19:test_redefined_in_for:Redefining argument with the local name 'name':UNDEFINED
+redefined-argument-from-local:50:4:51:12:test_redefined_in_except_handler:Redefining argument with the local name 'name':UNDEFINED

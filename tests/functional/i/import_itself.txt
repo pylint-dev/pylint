@@ -1,1 +1,1 @@
-import-self:4:0::Module import itself
+import-self:4:0:4:27::Module import itself:UNDEFINED

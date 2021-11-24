@@ -1,3 +1,3 @@
-missing-module-docstring:1:0::Missing module docstring
-missing-class-docstring:21:0:ClassUndocumented:Missing class docstring
-missing-function-docstring:25:0:public_undocumented:Missing function or method docstring
+missing-module-docstring:1:0:None:None::Missing module docstring:HIGH
+missing-class-docstring:21:0:22:8:ClassUndocumented:Missing class docstring:HIGH
+missing-function-docstring:25:0:26:8:public_undocumented:Missing function or method docstring:HIGH

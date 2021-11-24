@@ -1,2 +1,2 @@
-lost-exception:14:16:insidious_break_and_return:break statement in finally block may swallow exception
-lost-exception:15:12:insidious_break_and_return:return statement in finally block may swallow exception
+lost-exception:14:16:14:21:insidious_break_and_return:break statement in finally block may swallow exception:UNDEFINED
+lost-exception:15:12:15:25:insidious_break_and_return:return statement in finally block may swallow exception:UNDEFINED

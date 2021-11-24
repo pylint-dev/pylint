@@ -1,6 +1,6 @@
-consider-using-with:12:9::Consider using 'with' for resource-allocating operations:HIGH
-consider-using-with:16:9:test_open:Consider using 'with' for resource-allocating operations:HIGH
-consider-using-with:46:4:test_open_outside_assignment:Consider using 'with' for resource-allocating operations:HIGH
-consider-using-with:47:14:test_open_outside_assignment:Consider using 'with' for resource-allocating operations:HIGH
-consider-using-with:52:8:test_open_inside_with_block:Consider using 'with' for resource-allocating operations:HIGH
-consider-using-with:120:26:TestControlFlow.test_triggers_if_reassigned_after_if_else:Consider using 'with' for resource-allocating operations:HIGH
+consider-using-with:12:9:12:43::Consider using 'with' for resource-allocating operations:UNDEFINED
+consider-using-with:16:9:16:43:test_open:Consider using 'with' for resource-allocating operations:UNDEFINED
+consider-using-with:46:4:46:33:test_open_outside_assignment:Consider using 'with' for resource-allocating operations:UNDEFINED
+consider-using-with:47:14:47:43:test_open_outside_assignment:Consider using 'with' for resource-allocating operations:UNDEFINED
+consider-using-with:52:8:52:37:test_open_inside_with_block:Consider using 'with' for resource-allocating operations:UNDEFINED
+consider-using-with:120:26:122:13:TestControlFlow.test_triggers_if_reassigned_after_if_else:Consider using 'with' for resource-allocating operations:UNDEFINED

@@ -1,2 +1,2 @@
-unsupported-membership-test:42:14::Value 'Child2.a_method' doesn't support membership test
-not-an-iterable:43:13::Non-iterable value Child2.a_method is used in an iterating context
+unsupported-membership-test:42:14:42:29::Value 'Child2.a_method' doesn't support membership test:UNDEFINED
+not-an-iterable:43:13:43:28::Non-iterable value Child2.a_method is used in an iterating context:UNDEFINED

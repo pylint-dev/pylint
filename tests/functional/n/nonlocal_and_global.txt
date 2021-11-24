@@ -1,1 +1,1 @@
-nonlocal-and-global:4:0:bad:Name 'missing' is nonlocal and global
+nonlocal-and-global:4:0:6:18:bad:Name 'missing' is nonlocal and global:UNDEFINED

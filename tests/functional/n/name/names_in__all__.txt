@@ -1,6 +1,6 @@
-undefined-all-variable:17:4::Undefined variable name '' in __all__
-undefined-variable:19:4::Undefined variable 'SomeUndefined'
-undefined-all-variable:20:4::Undefined variable name 'NonExistant' in __all__
-undefined-all-variable:22:4::Undefined variable name 'func' in __all__
-undefined-all-variable:23:4::Undefined variable name 'inner' in __all__
-undefined-all-variable:24:4::Undefined variable name 'InnerKlass' in __all__
+undefined-all-variable:17:4:17:6::Undefined variable name '' in __all__:UNDEFINED
+undefined-variable:19:4:19:17::Undefined variable 'SomeUndefined':UNDEFINED
+undefined-all-variable:20:4:20:17::Undefined variable name 'NonExistant' in __all__:UNDEFINED
+undefined-all-variable:22:4:22:10::Undefined variable name 'func' in __all__:UNDEFINED
+undefined-all-variable:23:4:23:11::Undefined variable name 'inner' in __all__:UNDEFINED
+undefined-all-variable:24:4:24:16::Undefined variable name 'InnerKlass' in __all__:UNDEFINED

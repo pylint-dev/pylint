@@ -1,1 +1,1 @@
-no-method-argument:15:4:B.play:Method has no argument:HIGH
+no-method-argument:15:4:16:12:B.play:Method has no argument:UNDEFINED
