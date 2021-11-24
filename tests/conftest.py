@@ -56,3 +56,39 @@ def disable():
 @pytest.fixture(scope="module")
 def reporter():
     return MinimalTestReporter
+
+
+def pytest_addoption(parser) -> None:
+    parser.addoption(
+        "--primer_stdlib",
+        action="store_true",
+        default=False,
+        help="Run primer stdlib tests",
+    )
+    parser.addoption(
+        "--primer_external",
+        action="store_true",
+        default=False,
+        help="Run primer external tests",
+    )
+
+
+def pytest_collection_modifyitems(config, items) -> None:
+    """Convert command line options to markers"""
+    # Add skip_primer_stdlib mark
+    if not config.getoption("--primer_external"):
+        skip_primer_external = pytest.mark.skip(
+            reason="need --primer_external option to run"
+        )
+        for item in items:
+            if "primer_external" in item.keywords:
+                item.add_marker(skip_primer_external)
+
+    # Add skip_primer_stdlib mark
+    if not config.getoption("--primer_stdlib"):
+        skip_primer_stdlib = pytest.mark.skip(
+            reason="need --primer_stdlib option to run"
+        )
+        for item in items:
+            if "primer_stdlib" in item.keywords:
+                item.add_marker(skip_primer_stdlib)

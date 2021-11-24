@@ -129,6 +129,19 @@ and should exit with exit code 2 the ``.out`` file should be named ``bad_configu
 The content of the ``.out`` file should have a similar pattern as a normal Pylint output. Note that the
 module name should be ``{abspath}`` and the file name ``{relpath}``.
 
+Primer tests
+-------------------------------------------
+
+Pylint also uses what we refer to as ``primer`` tests. These are tests that are ran automatically
+in our Continuous Integration and check whether any changes in Pylint lead to crashes or fatal errors
+on the ``stdlib`` and a selection of external repositories.
+This list of repositories is selected on the basis of three criteria: 1) projects need to use a diverse
+range of language features, 2) projects need to be well maintained and 3) projects should not have a codebase
+that is too repeitive. This guarantees a good balance between speed of our CI and finding potential bugs.
+
+You can find the latest list of repositories and any relevant code for these tests in the ``tests/primer``
+directory.
+
 .. _tox: https://tox.readthedocs.io/en/latest/
 .. _pytest: https://pytest.readthedocs.io/en/latest/
 .. _astroid: https://github.com/pycqa/astroid
