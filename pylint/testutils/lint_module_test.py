@@ -159,18 +159,23 @@ class LintModuleTest:
             return open(self._test_file.source, encoding="latin1")
         return open(self._test_file.source, encoding="utf8")
 
-    def _get_expected(self) -> Tuple["MessageCounter", List[OutputLine]]:
+    def _get_expected(
+        self, check_end_position: bool
+    ) -> Tuple["MessageCounter", List[OutputLine]]:
         with self._open_source_file() as f:
             expected_msgs = self.get_expected_messages(f)
         if not expected_msgs:
             expected_msgs = Counter()
         with self._open_expected_file() as f:
             expected_output_lines = [
-                OutputLine.from_csv(row) for row in csv.reader(f, "test")
+                OutputLine.from_csv(row, check_end_position)
+                for row in csv.reader(f, "test")
             ]
         return expected_msgs, expected_output_lines
 
-    def _get_actual(self) -> Tuple["MessageCounter", List[OutputLine]]:
+    def _get_actual(
+        self, check_end_position: bool
+    ) -> Tuple["MessageCounter", List[OutputLine]]:
         messages: List[Message] = self._linter.reporter.messages
         messages.sort(key=lambda m: (m.line, m.symbol, m.msg))
         received_msgs: "MessageCounter" = Counter()
@@ -180,15 +185,18 @@ class LintModuleTest:
                 msg.symbol != "fatal"
             ), f"Pylint analysis failed because of '{msg.msg}'"
             received_msgs[msg.line, msg.symbol] += 1
-            received_output_lines.append(OutputLine.from_msg(msg))
+            received_output_lines.append(OutputLine.from_msg(msg, check_end_position))
         return received_msgs, received_output_lines
 
     def _runTest(self) -> None:
         __tracebackhide__ = True  # pylint: disable=unused-variable
         modules_to_check = [self._test_file.source]
         self._linter.check(modules_to_check)
-        expected_messages, expected_output = self._get_expected()
-        actual_messages, actual_output = self._get_actual()
+        check_end_position = (
+            sys.version_info >= self._test_file.options["min_pyver_end_position"]
+        )
+        expected_messages, expected_output = self._get_expected(check_end_position)
+        actual_messages, actual_output = self._get_actual(check_end_position)
         assert (
             expected_messages == actual_messages
         ), self.error_msg_for_unequal_messages(

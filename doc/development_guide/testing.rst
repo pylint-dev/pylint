@@ -72,6 +72,15 @@ You can also use ``# +n: [`` with n an integer if the above syntax would make th
 
 If you need special control over Pylint's configuration, you can also create a .rc file, which
 can have sections of Pylint's configuration.
+The .rc file can also contain a section ``[testoptions]`` to pass options for the functional
+test runner. The following options are currently supported:
+
+    "min_pyver": Minimal python version required to run the test
+    "max_pyver": Maximum python version required to run the test
+    "min_pyver_end_position": Minimal python version required to check the end_line and end_column attributes of the message
+    "requires": Packages required to be installed locally to run the test
+    "except_implementations": List of python implementations on which the test should not run
+    "exclude_platforms": List of operating systems on which the test should not run
 
 During development, it's sometimes helpful to run all functional tests in your
 current environment in order to have faster feedback. Run from Pylint root directory with::

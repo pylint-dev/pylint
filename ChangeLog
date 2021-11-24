@@ -53,6 +53,9 @@ Release date: TBA
   trigger a ``DeprecationWarning``. Expected output files can be easily updated with the
   ``python tests/test_functional.py --update-functional-output`` command.
 
+* The functional test runner now supports the option ``min_pyver_end_position`` to control on which python
+  versions the ``end_lineno`` and ``end_column`` attributes should be checked. The default value is 3.8.
+
 * Fix ``accept-no-yields-doc`` and ``accept-no-return-doc`` not allowing missing ``yield`` or
   ``return`` documentation when a docstring is partially correct
 
