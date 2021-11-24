@@ -1,6 +1,5 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-from pathlib import Path
 
 from pylint.testutils.primer import PRIMER_DIRECTORY_PATH, PackageToLint
 
@@ -11,26 +10,28 @@ def test_package_to_lint() -> None:
     expected_path_to_lint = expected_dir_path / "graph_explorer"
     expected_pylintrc_path = expected_dir_path / ".pylintrcui"
 
+    args = ["--ignore-pattern='re*'"]
     package_to_lint = PackageToLint(
         url="https://github.com/vimeo/graph-explorer.git",
         branch="main",
         directories=["graph_explorer"],
         pylintrc_relpath=".pylintrcui",
-        pylint_additional_args=["--ignore-pattern='re*'"],
+        pylint_additional_args=args,
     )
+
     assert package_to_lint.url == "https://github.com/vimeo/graph-explorer.git"
     assert package_to_lint.branch == "main"
     assert package_to_lint.directories == ["graph_explorer"]
     assert package_to_lint.pylintrc_relpath == ".pylintrcui"
-    assert package_to_lint.pylint_additional_args == ["--ignore-pattern='re*'"]
-    assert package_to_lint.paths_to_lint == [str(Path(expected_path_to_lint))]
-    assert package_to_lint.clone_directory == Path(str(Path(expected_dir_path)))
-    assert package_to_lint.pylintrc == Path(str(Path(expected_pylintrc_path)))
-    assert package_to_lint.pylint_args == [
-        str(Path(expected_path_to_lint)),
+    assert package_to_lint.pylint_additional_args == args
+    assert package_to_lint.paths_to_lint == [str(expected_path_to_lint)]
+    assert package_to_lint.clone_directory == expected_dir_path
+    assert package_to_lint.pylintrc == expected_pylintrc_path
+    expected_args = [
+        str(expected_path_to_lint),
         f"--rcfile={expected_pylintrc_path}",
-        "--ignore-pattern='re*'",
-    ]
+    ] + args
+    assert package_to_lint.pylint_args == expected_args
 
 
 def test_package_to_lint_default_value() -> None:
@@ -44,4 +45,4 @@ def test_package_to_lint_default_value() -> None:
     expected_path_to_lint = (
         PRIMER_DIRECTORY_PATH / "pallets" / "flask" / "src" / "flask"
     )
-    assert package_to_lint.pylint_args == [str(Path(expected_path_to_lint))]
+    assert package_to_lint.pylint_args == [str(expected_path_to_lint)]
