@@ -22,7 +22,7 @@ class PackageToLint:
     commit: Optional[str]
     """Commit hash to pin the repository on"""
 
-    pylint_additional_args: List[str] = []
+    pylint_additional_args: List[str]
     """Arguments to give to pylint"""
 
     pylintrc_relpath: Optional[str]
