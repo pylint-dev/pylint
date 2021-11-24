@@ -14,7 +14,7 @@ from pylint.utils import LinterStats
 class UnittestLinter:
     """A fake linter class to capture checker messages."""
 
-    # pylint: disable=unused-argument, no-self-use
+    # pylint: disable=unused-argument
 
     def __init__(self):
         self._messages = []

@@ -1783,7 +1783,6 @@ class VariablesChecker(BaseChecker):
                 self.add_message("undefined-loop-variable", args=node.name, node=node)
 
     def _check_is_unused(self, name, node, stmt, global_names, nonlocal_names):
-        # pylint: disable=too-many-branches
         # Ignore some special names specified by user configuration.
         if self._is_name_ignored(stmt, name):
             return

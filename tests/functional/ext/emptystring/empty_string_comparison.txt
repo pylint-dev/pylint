@@ -1,0 +1,4 @@
+compare-to-empty-string:6:3::Avoid comparisons to empty string:HIGH
+compare-to-empty-string:9:3::Avoid comparisons to empty string:HIGH
+compare-to-empty-string:12:3::Avoid comparisons to empty string:HIGH
+compare-to-empty-string:15:3::Avoid comparisons to empty string:HIGH

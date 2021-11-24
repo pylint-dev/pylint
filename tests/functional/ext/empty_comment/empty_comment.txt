@@ -1,0 +1,4 @@
+empty-comment:3:0::Line with empty comment:HIGH
+empty-comment:5:0::Line with empty comment:HIGH
+empty-comment:8:0::Line with empty comment:HIGH
+empty-comment:11:0::Line with empty comment:HIGH

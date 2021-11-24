@@ -1,0 +1,4 @@
+too-many-try-statements:5:0::try clause contains 3 statements, expected at most 1:HIGH
+too-many-try-statements:12:0::try clause contains 3 statements, expected at most 1:HIGH
+too-many-try-statements:19:0::try clause contains 4 statements, expected at most 1:HIGH
+too-many-try-statements:29:0::try clause contains 7 statements, expected at most 1:HIGH

@@ -64,7 +64,8 @@ You can clone Pylint and its dependencies from ::
 .. _git: https://git-scm.com/
 
 Got a change for Pylint?  Below are a few steps you should take to make sure
-your patch gets accepted.
+your patch gets accepted. We recommend using Python 3.8 or higher for development
+of Pylint as it gives you access to the latest ``ast`` parser.
 
 - Test your code
 

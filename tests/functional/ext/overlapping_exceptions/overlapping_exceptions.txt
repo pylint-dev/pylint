@@ -1,0 +1,12 @@
+overlapping-except:18:7::Overlapping exceptions (SomeException and SomeException are the same):HIGH
+overlapping-except:23:7::Overlapping exceptions (SomeException is an ancestor class of SubclassException):HIGH
+overlapping-except:28:7::Overlapping exceptions (SomeException and AliasException are the same):HIGH
+overlapping-except:33:7::Overlapping exceptions (AliasException is an ancestor class of SubclassException):HIGH
+overlapping-except:39:7::Overlapping exceptions (AliasException is an ancestor class of SubclassException):HIGH
+overlapping-except:39:7::Overlapping exceptions (SomeException and AliasException are the same):HIGH
+overlapping-except:39:7::Overlapping exceptions (SomeException is an ancestor class of SubclassException):HIGH
+overlapping-except:44:7::Overlapping exceptions (ArithmeticError is an ancestor class of FloatingPointError):HIGH
+overlapping-except:49:7::Overlapping exceptions (ValueError is an ancestor class of UnicodeDecodeError):HIGH
+overlapping-except:55:7::Overlapping exceptions (IOError and OSError are the same):HIGH
+overlapping-except:60:7::Overlapping exceptions (socket.error and OSError are the same):HIGH
+overlapping-except:65:7::Overlapping exceptions (socket.error is an ancestor class of ConnectionError):HIGH
