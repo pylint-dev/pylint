@@ -7,6 +7,10 @@ from pylint.testutils.primer import PRIMER_DIRECTORY_PATH, PackageToLint
 
 def test_package_to_lint() -> None:
     """Test that the PackageToLint is instantiated correctly."""
+    expected_dir_path = PRIMER_DIRECTORY_PATH / "vimeo" / "graph-explorer"
+    expected_path_to_lint = expected_dir_path / "graph_explorer"
+    expected_pylintrc_path = expected_dir_path / ".pylintrcui"
+
     package_to_lint = PackageToLint(
         url="https://github.com/vimeo/graph-explorer.git",
         branch="main",
@@ -19,18 +23,12 @@ def test_package_to_lint() -> None:
     assert package_to_lint.directories == ["graph_explorer"]
     assert package_to_lint.pylintrc_relpath == ".pylintrcui"
     assert package_to_lint.pylint_additional_args == ["--ignore-pattern='re*'"]
-    assert package_to_lint.paths_to_lint == [
-        str(Path(f"{PRIMER_DIRECTORY_PATH}/vimeo/graph-explorer/graph_explorer"))
-    ]
-    assert package_to_lint.clone_directory == Path(
-        str(Path(f"{PRIMER_DIRECTORY_PATH}/vimeo/graph-explorer"))
-    )
-    assert package_to_lint.pylintrc == Path(
-        str(Path(f"{PRIMER_DIRECTORY_PATH}/vimeo/graph-explorer/.pylintrcui"))
-    )
+    assert package_to_lint.paths_to_lint == [str(Path(expected_path_to_lint))]
+    assert package_to_lint.clone_directory == Path(str(Path(expected_dir_path)))
+    assert package_to_lint.pylintrc == Path(str(Path(expected_pylintrc_path)))
     assert package_to_lint.pylint_args == [
-        str(Path(f"{PRIMER_DIRECTORY_PATH}/vimeo/graph-explorer/graph_explorer")),
-        f"--rcfile={PRIMER_DIRECTORY_PATH}/vimeo/graph-explorer/.pylintrcui",
+        str(Path(expected_path_to_lint)),
+        f"--rcfile={expected_pylintrc_path}",
         "--ignore-pattern='re*'",
     ]
 
@@ -40,9 +38,10 @@ def test_package_to_lint_default_value() -> None:
     package_to_lint = PackageToLint(
         url="https://github.com/pallets/flask.git",
         branch="main",
-        directories=["src/flask"],
+        directories=["src/flask"],  # Must work on Windows (src\\flask)
     )
     assert package_to_lint.pylintrc is None
-    assert package_to_lint.pylint_args == [
-        str(Path(f"{PRIMER_DIRECTORY_PATH}/pallets/flask/src/flask"))
-    ]
+    expected_path_to_lint = (
+        PRIMER_DIRECTORY_PATH / "pallets" / "flask" / "src" / "flask"
+    )
+    assert package_to_lint.pylint_args == [str(Path(expected_path_to_lint))]
