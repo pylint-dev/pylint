@@ -69,8 +69,11 @@ class PackageToLint:
             options += [f"--rcfile={self.pylintrc}"]
         return self.paths_to_lint + options + self.pylint_additional_args
 
-    def lazy_clone(self) -> None:
-        """Concatenates the target directory and clones the file"""
+    def lazy_clone(self) -> None:  # pragma: no cover
+        """Concatenates the target directory and clones the file
+
+        Not expected to be tested as the primer won't work if it doesn't,
+        we'll notice."""
         logging.info("Lazy cloning %s", self.url)
         if not self.clone_directory.exists():
             options: Dict[str, Union[str, int]] = {
