@@ -1,5 +1,4 @@
 # pylint: disable=redefined-outer-name
-# pylint: disable=no-name-in-module
 import os
 from pathlib import Path
 

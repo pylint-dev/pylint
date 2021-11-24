@@ -1,2 +1,2 @@
-no-member:69:26:TestClass2.some_func:Instance of 'Field' has no 'items' member:INFERENCE
-no-member:81:26:TestClass3.some_func:Instance of 'Field' has no 'items' member:INFERENCE
+no-member:69:26:69:46:TestClass2.some_func:Instance of 'Field' has no 'items' member:INFERENCE
+no-member:81:26:81:46:TestClass3.some_func:Instance of 'Field' has no 'items' member:INFERENCE

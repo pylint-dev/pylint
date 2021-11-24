@@ -1,7 +1,7 @@
-unsupported-membership-test:113:6::Value '42' doesn't support membership test
-unsupported-membership-test:114:10::Value 'None' doesn't support membership test
-unsupported-membership-test:115:6::Value '8.5' doesn't support membership test
-unsupported-membership-test:120:10::Value 'EmptyClass()' doesn't support membership test
-unsupported-membership-test:121:6::Value 'EmptyClass' doesn't support membership test
-unsupported-membership-test:122:10::Value 'count' doesn't support membership test
-unsupported-membership-test:123:6::Value 'range' doesn't support membership test
+unsupported-membership-test:113:6:113:8::Value '42' doesn't support membership test:UNDEFINED
+unsupported-membership-test:114:10:114:14::Value 'None' doesn't support membership test:UNDEFINED
+unsupported-membership-test:115:6:115:9::Value '8.5' doesn't support membership test:UNDEFINED
+unsupported-membership-test:120:10:120:22::Value 'EmptyClass()' doesn't support membership test:UNDEFINED
+unsupported-membership-test:121:6:121:16::Value 'EmptyClass' doesn't support membership test:UNDEFINED
+unsupported-membership-test:122:10:122:15::Value 'count' doesn't support membership test:UNDEFINED
+unsupported-membership-test:123:6:123:11::Value 'range' doesn't support membership test:UNDEFINED

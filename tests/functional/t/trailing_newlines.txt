@@ -1,1 +1,1 @@
-trailing-newlines:3:0::Trailing newlines
+trailing-newlines:3:0:None:None::Trailing newlines:UNDEFINED

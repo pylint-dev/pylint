@@ -55,7 +55,6 @@ class LintTestUsingModule:
     def _test_functionality(self) -> None:
         if self.module:
             tocheck = [self.package + "." + self.module]
-        # pylint: disable=not-an-iterable; can't handle boolean checks for now
         if self.depends:
             tocheck += [
                 self.package + f".{name.replace('.py', '')}" for name, _ in self.depends

@@ -1,4 +1,4 @@
-invalid-index-returned:36:4:FirstBadIndex.__index__:__index__ does not return int
-invalid-index-returned:43:4:SecondBadIndex.__index__:__index__ does not return int
-invalid-index-returned:50:4:ThirdBadIndex.__index__:__index__ does not return int
-invalid-index-returned:57:4:FourthBadIndex.__index__:__index__ does not return int
+invalid-index-returned:36:4:37:25:FirstBadIndex.__index__:__index__ does not return int:UNDEFINED
+invalid-index-returned:43:4:44:19:SecondBadIndex.__index__:__index__ does not return int:UNDEFINED
+invalid-index-returned:50:4:51:19:ThirdBadIndex.__index__:__index__ does not return int:UNDEFINED
+invalid-index-returned:57:4:58:24:FourthBadIndex.__index__:__index__ does not return int:UNDEFINED

@@ -7,7 +7,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-# pylint: disable=protected-access,missing-function-docstring,no-self-use
+# pylint: disable=missing-function-docstring
 
 import os
 import pprint

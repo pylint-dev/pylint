@@ -1,3 +1,3 @@
-invalid-name:10:4:Foo:"Class constant name ""variable"" doesn't conform to UPPER_CASE naming style"
-invalid-name:12:4:Foo:"Class constant name ""variable2"" doesn't conform to UPPER_CASE naming style"
-invalid-name:16:0::"Constant name ""module_var"" doesn't conform to UPPER_CASE naming style"
+invalid-name:10:4:10:12:Foo:"Class constant name ""variable"" doesn't conform to UPPER_CASE naming style":HIGH
+invalid-name:12:4:12:13:Foo:"Class constant name ""variable2"" doesn't conform to UPPER_CASE naming style":HIGH
+invalid-name:16:0:16:10::"Constant name ""module_var"" doesn't conform to UPPER_CASE naming style":HIGH

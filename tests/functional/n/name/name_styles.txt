@@ -1,17 +1,17 @@
-invalid-name:11:0::"Constant name ""bad_const_name"" doesn't conform to UPPER_CASE naming style"
-invalid-name:14:0:BADFUNCTION_name:"Function name ""BADFUNCTION_name"" doesn't conform to snake_case naming style"
-invalid-name:16:4:BADFUNCTION_name:"Variable name ""BAD_LOCAL_VAR"" doesn't conform to snake_case naming style"
-invalid-name:20:21:func_bad_argname:"Argument name ""NOT_GOOD"" doesn't conform to snake_case naming style"
-invalid-name:30:0:bad_class_name:"Class name ""bad_class_name"" doesn't conform to PascalCase naming style"
-invalid-name:41:8:CorrectClassName.__init__:"Attribute name ""_Bad_AtTR_name"" doesn't conform to snake_case naming style"
-invalid-name:42:8:CorrectClassName.__init__:"Attribute name ""Bad_PUBLIC_name"" doesn't conform to snake_case naming style"
-invalid-name:47:4:CorrectClassName.BadMethodName:"Method name ""BadMethodName"" doesn't conform to snake_case naming style":INFERENCE
-invalid-name:53:4:CorrectClassName.__DunDER_IS_not_free_for_all__:"Method name ""__DunDER_IS_not_free_for_all__"" doesn't conform to snake_case naming style":INFERENCE
-invalid-name:83:0::"Class name ""BAD_NAME_FOR_CLASS"" doesn't conform to PascalCase naming style"
-invalid-name:84:0::"Class name ""NEXT_BAD_NAME_FOR_CLASS"" doesn't conform to PascalCase naming style"
-invalid-name:91:0::"Class name ""NOT_CORRECT"" doesn't conform to PascalCase naming style"
-invalid-name:97:4:test_globals:"Constant name ""AlsoCorrect"" doesn't conform to UPPER_CASE naming style"
-invalid-name:110:4:FooClass.PROPERTY_NAME:"Attribute name ""PROPERTY_NAME"" doesn't conform to snake_case naming style":INFERENCE
-invalid-name:116:4:FooClass.ABSTRACT_PROPERTY_NAME:"Attribute name ""ABSTRACT_PROPERTY_NAME"" doesn't conform to snake_case naming style":INFERENCE
-invalid-name:121:4:FooClass.PROPERTY_NAME_SETTER:"Attribute name ""PROPERTY_NAME_SETTER"" doesn't conform to snake_case naming style":INFERENCE
-invalid-name:152:4:FooEnum:"Class constant name ""bad_enum_name"" doesn't conform to UPPER_CASE naming style"
+invalid-name:11:0:11:14::"Constant name ""bad_const_name"" doesn't conform to UPPER_CASE naming style":HIGH
+invalid-name:14:0:17:24:BADFUNCTION_name:"Function name ""BADFUNCTION_name"" doesn't conform to snake_case naming style":HIGH
+invalid-name:16:4:16:17:BADFUNCTION_name:"Variable name ""BAD_LOCAL_VAR"" doesn't conform to snake_case naming style":HIGH
+invalid-name:20:21:20:29:func_bad_argname:"Argument name ""NOT_GOOD"" doesn't conform to snake_case naming style":HIGH
+invalid-name:30:0:31:32:bad_class_name:"Class name ""bad_class_name"" doesn't conform to PascalCase naming style":HIGH
+invalid-name:41:8:41:27:CorrectClassName.__init__:"Attribute name ""_Bad_AtTR_name"" doesn't conform to snake_case naming style":HIGH
+invalid-name:42:8:42:28:CorrectClassName.__init__:"Attribute name ""Bad_PUBLIC_name"" doesn't conform to snake_case naming style":HIGH
+invalid-name:47:4:48:39:CorrectClassName.BadMethodName:"Method name ""BadMethodName"" doesn't conform to snake_case naming style":INFERENCE
+invalid-name:53:4:54:41:CorrectClassName.__DunDER_IS_not_free_for_all__:"Method name ""__DunDER_IS_not_free_for_all__"" doesn't conform to snake_case naming style":INFERENCE
+invalid-name:83:0:83:18::"Class name ""BAD_NAME_FOR_CLASS"" doesn't conform to PascalCase naming style":HIGH
+invalid-name:84:0:84:23::"Class name ""NEXT_BAD_NAME_FOR_CLASS"" doesn't conform to PascalCase naming style":HIGH
+invalid-name:91:0:91:11::"Class name ""NOT_CORRECT"" doesn't conform to PascalCase naming style":HIGH
+invalid-name:97:4:97:22:test_globals:"Constant name ""AlsoCorrect"" doesn't conform to UPPER_CASE naming style":HIGH
+invalid-name:110:4:112:12:FooClass.PROPERTY_NAME:"Attribute name ""PROPERTY_NAME"" doesn't conform to snake_case naming style":INFERENCE
+invalid-name:116:4:118:12:FooClass.ABSTRACT_PROPERTY_NAME:"Attribute name ""ABSTRACT_PROPERTY_NAME"" doesn't conform to snake_case naming style":INFERENCE
+invalid-name:121:4:123:12:FooClass.PROPERTY_NAME_SETTER:"Attribute name ""PROPERTY_NAME_SETTER"" doesn't conform to snake_case naming style":INFERENCE
+invalid-name:152:4:152:17:FooEnum:"Class constant name ""bad_enum_name"" doesn't conform to UPPER_CASE naming style":HIGH

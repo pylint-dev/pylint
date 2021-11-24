@@ -1,0 +1,4 @@
+compare-to-empty-string:6:3:6:10::Avoid comparisons to empty string:UNDEFINED
+compare-to-empty-string:9:3:9:14::Avoid comparisons to empty string:UNDEFINED
+compare-to-empty-string:12:3:12:10::Avoid comparisons to empty string:UNDEFINED
+compare-to-empty-string:15:3:15:10::Avoid comparisons to empty string:UNDEFINED

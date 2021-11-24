@@ -1,10 +1,10 @@
-useless-import-alias:6:0::Import alias does not rename original package
-consider-using-from-import:8:0::Use 'from os import path' instead
-consider-using-from-import:10:0::Use 'from foo.bar import foobar' instead
-useless-import-alias:14:0::Import alias does not rename original package
-useless-import-alias:17:0::Import alias does not rename original package
-useless-import-alias:18:0::Import alias does not rename original package
-useless-import-alias:20:0::Import alias does not rename original package
-useless-import-alias:21:0::Import alias does not rename original package
-useless-import-alias:23:0::Import alias does not rename original package
-relative-beyond-top-level:26:0::Attempted relative import beyond top-level package
+useless-import-alias:6:0:6:50::Import alias does not rename original package:UNDEFINED
+consider-using-from-import:8:0:8:22::Use 'from os import path' instead:UNDEFINED
+consider-using-from-import:10:0:10:31::Use 'from foo.bar import foobar' instead:UNDEFINED
+useless-import-alias:14:0:14:24::Import alias does not rename original package:UNDEFINED
+useless-import-alias:17:0:17:28::Import alias does not rename original package:UNDEFINED
+useless-import-alias:18:0:18:38::Import alias does not rename original package:UNDEFINED
+useless-import-alias:20:0:20:38::Import alias does not rename original package:UNDEFINED
+useless-import-alias:21:0:21:38::Import alias does not rename original package:UNDEFINED
+useless-import-alias:23:0:23:36::Import alias does not rename original package:UNDEFINED
+relative-beyond-top-level:26:0:26:27::Attempted relative import beyond top-level package:UNDEFINED

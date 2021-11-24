@@ -1,30 +1,30 @@
-use-implicit-booleaness-not-comparison:14:7:github_issue_4774:'bad_list == []' can be simplified to 'not bad_list' as an empty sequence is falsey:HIGH
-use-implicit-booleaness-not-comparison:22:3::'empty_tuple == ()' can be simplified to 'not empty_tuple' as an empty sequence is falsey:HIGH
-use-implicit-booleaness-not-comparison:25:3::'empty_list == []' can be simplified to 'not empty_list' as an empty sequence is falsey:HIGH
-use-implicit-booleaness-not-comparison:28:3::'empty_dict == {}' can be simplified to 'not empty_dict' as an empty sequence is falsey:HIGH
-use-implicit-booleaness-not-comparison:31:3::'empty_tuple == ()' can be simplified to 'not empty_tuple' as an empty sequence is falsey:HIGH
-use-implicit-booleaness-not-comparison:34:3::'empty_list == []' can be simplified to 'not empty_list' as an empty sequence is falsey:HIGH
-use-implicit-booleaness-not-comparison:37:3::'empty_dict == {}' can be simplified to 'not empty_dict' as an empty sequence is falsey:HIGH
-use-implicit-booleaness-not-comparison:42:11:bad_tuple_return:'t == ()' can be simplified to 'not t' as an empty sequence is falsey:HIGH
-use-implicit-booleaness-not-comparison:46:11:bad_list_return:'b == []' can be simplified to 'not b' as an empty sequence is falsey:HIGH
-use-implicit-booleaness-not-comparison:50:11:bad_dict_return:'c == {}' can be simplified to 'not c' as an empty sequence is falsey:HIGH
-use-implicit-booleaness-not-comparison:52:7::'empty_tuple == ()' can be simplified to 'not empty_tuple' as an empty sequence is falsey:HIGH
-use-implicit-booleaness-not-comparison:53:7::'empty_list == []' can be simplified to 'not empty_list' as an empty sequence is falsey:HIGH
-use-implicit-booleaness-not-comparison:54:7::'empty_dict != {}' can be simplified to 'empty_dict' as an empty sequence is falsey:HIGH
-use-implicit-booleaness-not-comparison:55:7::'empty_tuple < ()' can be simplified to 'not empty_tuple' as an empty sequence is falsey:HIGH
-use-implicit-booleaness-not-comparison:56:7::'empty_list <= []' can be simplified to 'not empty_list' as an empty sequence is falsey:HIGH
-use-implicit-booleaness-not-comparison:57:7::'empty_tuple > ()' can be simplified to 'not empty_tuple' as an empty sequence is falsey:HIGH
-use-implicit-booleaness-not-comparison:58:7::'empty_list >= []' can be simplified to 'not empty_list' as an empty sequence is falsey:HIGH
-use-implicit-booleaness-not-comparison:83:3::'a == []' can be simplified to 'not a' as an empty sequence is falsey:HIGH
-use-implicit-booleaness-not-comparison:95:3::'e == []' can be simplified to 'not e' as an empty sequence is falsey:HIGH
-use-implicit-booleaness-not-comparison:95:15::'f == {}' can be simplified to 'not f' as an empty sequence is falsey:HIGH
-use-implicit-booleaness-not-comparison:133:3::'A.lst == []' can be simplified to 'not A.lst' as an empty sequence is falsey:HIGH
-use-implicit-booleaness-not-comparison:137:3::'A.lst == []' can be simplified to 'not A.lst' as an empty sequence is falsey:HIGH
-use-implicit-booleaness-not-comparison:141:3::'A.test(...) == []' can be simplified to 'not A.test(...)' as an empty sequence is falsey:HIGH
-use-implicit-booleaness-not-comparison:149:3::'test_function(...) == []' can be simplified to 'not test_function(...)' as an empty sequence is falsey:HIGH
-use-implicit-booleaness-not-comparison:156:3::'numpy_array == []' can be simplified to 'not numpy_array' as an empty sequence is falsey:HIGH
-use-implicit-booleaness-not-comparison:158:3::'numpy_array != []' can be simplified to 'numpy_array' as an empty sequence is falsey:HIGH
-use-implicit-booleaness-not-comparison:160:3::'numpy_array >= ()' can be simplified to 'not numpy_array' as an empty sequence is falsey:HIGH
-use-implicit-booleaness-not-comparison:185:3::'data == {}' can be simplified to 'not data' as an empty sequence is falsey:HIGH
-use-implicit-booleaness-not-comparison:187:3::'data != {}' can be simplified to 'data' as an empty sequence is falsey:HIGH
-use-implicit-booleaness-not-comparison:195:3::'long_test == {}' can be simplified to 'not long_test' as an empty sequence is falsey:HIGH
+use-implicit-booleaness-not-comparison:14:7:14:21:github_issue_4774:'bad_list == []' can be simplified to 'not bad_list' as an empty sequence is falsey:UNDEFINED
+use-implicit-booleaness-not-comparison:22:3:22:20::'empty_tuple == ()' can be simplified to 'not empty_tuple' as an empty sequence is falsey:UNDEFINED
+use-implicit-booleaness-not-comparison:25:3:25:19::'empty_list == []' can be simplified to 'not empty_list' as an empty sequence is falsey:UNDEFINED
+use-implicit-booleaness-not-comparison:28:3:28:19::'empty_dict == {}' can be simplified to 'not empty_dict' as an empty sequence is falsey:UNDEFINED
+use-implicit-booleaness-not-comparison:31:3:31:20::'empty_tuple == ()' can be simplified to 'not empty_tuple' as an empty sequence is falsey:UNDEFINED
+use-implicit-booleaness-not-comparison:34:3:34:19::'empty_list == []' can be simplified to 'not empty_list' as an empty sequence is falsey:UNDEFINED
+use-implicit-booleaness-not-comparison:37:3:37:19::'empty_dict == {}' can be simplified to 'not empty_dict' as an empty sequence is falsey:UNDEFINED
+use-implicit-booleaness-not-comparison:42:11:42:18:bad_tuple_return:'t == ()' can be simplified to 'not t' as an empty sequence is falsey:UNDEFINED
+use-implicit-booleaness-not-comparison:46:11:46:18:bad_list_return:'b == []' can be simplified to 'not b' as an empty sequence is falsey:UNDEFINED
+use-implicit-booleaness-not-comparison:50:11:50:18:bad_dict_return:'c == {}' can be simplified to 'not c' as an empty sequence is falsey:UNDEFINED
+use-implicit-booleaness-not-comparison:52:7:52:24::'empty_tuple == ()' can be simplified to 'not empty_tuple' as an empty sequence is falsey:UNDEFINED
+use-implicit-booleaness-not-comparison:53:7:53:23::'empty_list == []' can be simplified to 'not empty_list' as an empty sequence is falsey:UNDEFINED
+use-implicit-booleaness-not-comparison:54:7:54:23::'empty_dict != {}' can be simplified to 'empty_dict' as an empty sequence is falsey:UNDEFINED
+use-implicit-booleaness-not-comparison:55:7:55:23::'empty_tuple < ()' can be simplified to 'not empty_tuple' as an empty sequence is falsey:UNDEFINED
+use-implicit-booleaness-not-comparison:56:7:56:23::'empty_list <= []' can be simplified to 'not empty_list' as an empty sequence is falsey:UNDEFINED
+use-implicit-booleaness-not-comparison:57:7:57:23::'empty_tuple > ()' can be simplified to 'not empty_tuple' as an empty sequence is falsey:UNDEFINED
+use-implicit-booleaness-not-comparison:58:7:58:23::'empty_list >= []' can be simplified to 'not empty_list' as an empty sequence is falsey:UNDEFINED
+use-implicit-booleaness-not-comparison:83:3:83:10::'a == []' can be simplified to 'not a' as an empty sequence is falsey:UNDEFINED
+use-implicit-booleaness-not-comparison:95:3:95:10::'e == []' can be simplified to 'not e' as an empty sequence is falsey:UNDEFINED
+use-implicit-booleaness-not-comparison:95:15:95:22::'f == {}' can be simplified to 'not f' as an empty sequence is falsey:UNDEFINED
+use-implicit-booleaness-not-comparison:133:3:133:14::'A.lst == []' can be simplified to 'not A.lst' as an empty sequence is falsey:UNDEFINED
+use-implicit-booleaness-not-comparison:137:3:137:14::'A.lst == []' can be simplified to 'not A.lst' as an empty sequence is falsey:UNDEFINED
+use-implicit-booleaness-not-comparison:141:3:141:20::'A.test(...) == []' can be simplified to 'not A.test(...)' as an empty sequence is falsey:UNDEFINED
+use-implicit-booleaness-not-comparison:149:3:149:24::'test_function(...) == []' can be simplified to 'not test_function(...)' as an empty sequence is falsey:UNDEFINED
+use-implicit-booleaness-not-comparison:156:3:156:20::'numpy_array == []' can be simplified to 'not numpy_array' as an empty sequence is falsey:UNDEFINED
+use-implicit-booleaness-not-comparison:158:3:158:20::'numpy_array != []' can be simplified to 'numpy_array' as an empty sequence is falsey:UNDEFINED
+use-implicit-booleaness-not-comparison:160:3:160:20::'numpy_array >= ()' can be simplified to 'not numpy_array' as an empty sequence is falsey:UNDEFINED
+use-implicit-booleaness-not-comparison:185:3:185:13::'data == {}' can be simplified to 'not data' as an empty sequence is falsey:UNDEFINED
+use-implicit-booleaness-not-comparison:187:3:187:13::'data != {}' can be simplified to 'data' as an empty sequence is falsey:UNDEFINED
+use-implicit-booleaness-not-comparison:195:3:195:26::'long_test == {}' can be simplified to 'not long_test' as an empty sequence is falsey:UNDEFINED

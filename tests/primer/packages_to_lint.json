@@ -1,0 +1,59 @@
+{
+  "flask": {
+    "url": "https://github.com/pallets/flask.git",
+    "branch": "main",
+    "directories": ["src/flask"]
+  },
+  "pytest": {
+    "url": "https://github.com/pytest-dev/pytest.git",
+    "branch": "main",
+    "directories": ["src/_pytest"]
+  },
+  "psycopg": {
+    "url": "https://github.com/psycopg/psycopg.git",
+    "branch": "master",
+    "directories": ["psycopg/psycopg"]
+  },
+  "keras": {
+    "url": "https://github.com/keras-team/keras.git",
+    "branch": "master",
+    "directories": ["keras"]
+  },
+  "sentry": {
+    "url": "https://github.com/getsentry/sentry.git",
+    "branch": "master",
+    "directories": ["src/sentry"]
+  },
+  "django": {
+    "url": "https://github.com/django/django.git",
+    "branch": "main",
+    "directories": ["django"]
+  },
+  "pandas": {
+    "url": "https://github.com/pandas-dev/pandas.git",
+    "branch": "master",
+    "directories": ["pandas"],
+    "pylint_additional_args": ["--ignore-patterns=\"test_"]
+  },
+  "black": {
+    "url": "https://github.com/psf/black.git",
+    "branch": "main",
+    "directories": ["src/black/", "src/blackd/", "src/black_primer/", "src/blib2to3/"]
+  },
+  "home-assistant": {
+    "url": "https://github.com/home-assistant/core.git",
+    "branch": "dev",
+    "directories": ["homeassistant"]
+  },
+  "graph-explorer": {
+    "url": "https://github.com/vimeo/graph-explorer.git",
+    "branch": "master",
+    "directories": ["graph_explorer"],
+    "pylintrc_relpath": ".pylintrc"
+  },
+  "pygame": {
+    "url": "https://github.com/pygame/pygame.git",
+    "branch": "main",
+    "directories": ["src_py"]
+  }
+}

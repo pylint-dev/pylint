@@ -1848,20 +1848,18 @@ a metaclass class method.",
                     "bad-mcs-method-argument",
                     node.name,
                 )
-        # regular class
-        else:  # pylint: disable=else-if-used
-            # class method
-            if node.type == "classmethod" or node.name == "__class_getitem__":
-                self._check_first_arg_config(
-                    first,
-                    self.config.valid_classmethod_first_arg,
-                    node,
-                    "bad-classmethod-argument",
-                    node.name,
-                )
-            # regular method without self as argument
-            elif first != "self":
-                self.add_message("no-self-argument", node=node)
+        # regular class with class method
+        elif node.type == "classmethod" or node.name == "__class_getitem__":
+            self._check_first_arg_config(
+                first,
+                self.config.valid_classmethod_first_arg,
+                node,
+                "bad-classmethod-argument",
+                node.name,
+            )
+        # regular class with regular method without self as argument
+        elif first != "self":
+            self.add_message("no-self-argument", node=node)
 
     def _check_first_arg_config(self, first, config, node, message, method_name):
         if first not in config:

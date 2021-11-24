@@ -1,1 +1,1 @@
-syntax-error:1:10::invalid syntax (<unknown>, line 1)
+syntax-error:1:10:None:None::invalid syntax (<unknown>, line 1):UNDEFINED

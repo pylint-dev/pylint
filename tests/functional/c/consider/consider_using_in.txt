@@ -1,14 +1,14 @@
-consider-using-in:10:0::"Consider merging these comparisons with ""in"" to 'value in (1,)'":HIGH
-consider-using-in:11:0::"Consider merging these comparisons with ""in"" to 'value in (1, 2)'":HIGH
-consider-using-in:12:0::"Consider merging these comparisons with ""in"" to ""value in ('value',)""":HIGH
-consider-using-in:13:0::"Consider merging these comparisons with ""in"" to 'value in (1, undef_value)'":HIGH
-consider-using-in:14:0::"Consider merging these comparisons with ""in"" to 'value in (1, 2, 3)'":HIGH
-consider-using-in:15:0::"Consider merging these comparisons with ""in"" to ""value in ('2', 1)""":HIGH
-consider-using-in:16:0::"Consider merging these comparisons with ""in"" to 'value in (1, 2)'":HIGH
-consider-using-in:17:0::"Consider merging these comparisons with ""in"" to 'value in (1, 2)'":HIGH
-consider-using-in:18:0::"Consider merging these comparisons with ""in"" to 'value in (1, a_list)'":HIGH
-consider-using-in:19:0::"Consider merging these comparisons with ""in"" to 'value in (a_set, a_list, a_str)'":HIGH
-consider-using-in:20:0::"Consider merging these comparisons with ""in"" to 'value not in (1, 2)'":HIGH
-consider-using-in:21:0::"Consider merging these comparisons with ""in"" to 'value1 in (value2,)'":HIGH
-consider-using-in:22:0::"Consider merging these comparisons with ""in"" to 'a_list in ([1, 2, 3], [])'":HIGH
-consider-using-in:53:0::"Consider merging these comparisons with ""in"" to 'A.value in (1, 2)'":HIGH
+consider-using-in:10:0:10:24::"Consider merging these comparisons with ""in"" to 'value in (1,)'":UNDEFINED
+consider-using-in:11:0:11:24::"Consider merging these comparisons with ""in"" to 'value in (1, 2)'":UNDEFINED
+consider-using-in:12:0:12:36::"Consider merging these comparisons with ""in"" to ""value in ('value',)""":UNDEFINED
+consider-using-in:13:0:13:34::"Consider merging these comparisons with ""in"" to 'value in (1, undef_value)'":UNDEFINED
+consider-using-in:14:0:14:38::"Consider merging these comparisons with ""in"" to 'value in (1, 2, 3)'":UNDEFINED
+consider-using-in:15:0:15:26::"Consider merging these comparisons with ""in"" to ""value in ('2', 1)""":UNDEFINED
+consider-using-in:16:0:16:24::"Consider merging these comparisons with ""in"" to 'value in (1, 2)'":UNDEFINED
+consider-using-in:17:0:17:24::"Consider merging these comparisons with ""in"" to 'value in (1, 2)'":UNDEFINED
+consider-using-in:18:0:18:29::"Consider merging these comparisons with ""in"" to 'value in (1, a_list)'":UNDEFINED
+consider-using-in:19:0:19:51::"Consider merging these comparisons with ""in"" to 'value in (a_set, a_list, a_str)'":UNDEFINED
+consider-using-in:20:0:20:25::"Consider merging these comparisons with ""in"" to 'value not in (1, 2)'":UNDEFINED
+consider-using-in:21:0:21:36::"Consider merging these comparisons with ""in"" to 'value1 in (value2,)'":UNDEFINED
+consider-using-in:22:0:22:35::"Consider merging these comparisons with ""in"" to 'a_list in ([1, 2, 3], [])'":UNDEFINED
+consider-using-in:53:0:53:28::"Consider merging these comparisons with ""in"" to 'A.value in (1, 2)'":UNDEFINED

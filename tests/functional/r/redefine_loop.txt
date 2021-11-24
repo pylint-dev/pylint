@@ -1,1 +1,1 @@
-redefined-outer-name:4:4::Redefining name 'item' from outer scope (line 2)
+redefined-outer-name:4:4:6:20::Redefining name 'item' from outer scope (line 2):UNDEFINED

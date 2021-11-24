@@ -1,3 +1,3 @@
-unused-argument:9:8:fun:Unused argument 'arg_a'
-unused-argument:9:15:fun:Unused argument 'arg_b'
-unused-argument:9:22:fun:Unused argument 'arg_c'
+unused-argument:9:8:9:13:fun:Unused argument 'arg_a':HIGH
+unused-argument:9:15:9:20:fun:Unused argument 'arg_b':HIGH
+unused-argument:9:22:9:27:fun:Unused argument 'arg_c':HIGH

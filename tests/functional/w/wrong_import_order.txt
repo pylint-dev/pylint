@@ -1,6 +1,6 @@
-wrong-import-order:12:0::"standard import ""import os.path"" should be placed before ""import six"""
-wrong-import-order:14:0::"standard import ""import sys"" should be placed before ""import six"""
-wrong-import-order:15:0::"standard import ""import datetime"" should be placed before ""import six"""
-wrong-import-order:18:0::"third party import ""import totally_missing"" should be placed before ""from .package import Class"""
-wrong-import-order:20:0::"third party import ""import astroid"" should be placed before ""from .package import Class"""
-wrong-import-order:24:0::"third party import ""from six.moves.urllib.parse import quote"" should be placed before ""from .package import Class"""
+wrong-import-order:12:0:12:14::"standard import ""import os.path"" should be placed before ""import six""":UNDEFINED
+wrong-import-order:14:0:14:10::"standard import ""import sys"" should be placed before ""import six""":UNDEFINED
+wrong-import-order:15:0:15:15::"standard import ""import datetime"" should be placed before ""import six""":UNDEFINED
+wrong-import-order:18:0:18:22::"third party import ""import totally_missing"" should be placed before ""from .package import Class""":UNDEFINED
+wrong-import-order:20:0:20:14::"third party import ""import astroid"" should be placed before ""from .package import Class""":UNDEFINED
+wrong-import-order:24:0:24:40::"third party import ""from six.moves.urllib.parse import quote"" should be placed before ""from .package import Class""":UNDEFINED

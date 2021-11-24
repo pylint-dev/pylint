@@ -1,16 +1,16 @@
-unsubscriptable-object:66:0::Value 'collections.abc.Hashable' is unsubscriptable
-unsubscriptable-object:67:0::Value 'collections.abc.Sized' is unsubscriptable
-abstract-method:74:0:DerivedHashable:Method '__hash__' is abstract in class 'Hashable' but is not overridden
-abstract-method:77:0:DerivedIterable:Method '__iter__' is abstract in class 'Iterable' but is not overridden
-abstract-method:80:0:DerivedCollection:Method '__contains__' is abstract in class 'Container' but is not overridden
-abstract-method:80:0:DerivedCollection:Method '__iter__' is abstract in class 'Iterable' but is not overridden
-abstract-method:80:0:DerivedCollection:Method '__len__' is abstract in class 'Sized' but is not overridden
-abstract-method:99:0:DerivedMultiple:Method '__hash__' is abstract in class 'Hashable' but is not overridden
-abstract-method:99:0:DerivedMultiple:Method '__len__' is abstract in class 'Sized' but is not overridden
-abstract-method:104:0:CustomAbstractCls2:Method '__iter__' is abstract in class 'Iterable' but is not overridden
-abstract-method:104:0:CustomAbstractCls2:Method '__len__' is abstract in class 'Sized' but is not overridden
-abstract-method:106:0:CustomImplementation:Method '__iter__' is abstract in class 'Iterable' but is not overridden
-abstract-method:106:0:CustomImplementation:Method '__len__' is abstract in class 'Sized' but is not overridden
-unsubscriptable-object:125:9::Value 'int' is unsubscriptable
-unsubscriptable-object:126:15::Value 'collections.abc.Hashable' is unsubscriptable
-unsubscriptable-object:127:12::Value 'collections.abc.Sized' is unsubscriptable
+unsubscriptable-object:66:0:66:24::Value 'collections.abc.Hashable' is unsubscriptable:UNDEFINED
+unsubscriptable-object:67:0:67:21::Value 'collections.abc.Sized' is unsubscriptable:UNDEFINED
+abstract-method:74:0:75:8:DerivedHashable:Method '__hash__' is abstract in class 'Hashable' but is not overridden:UNDEFINED
+abstract-method:77:0:78:8:DerivedIterable:Method '__iter__' is abstract in class 'Iterable' but is not overridden:UNDEFINED
+abstract-method:80:0:81:8:DerivedCollection:Method '__contains__' is abstract in class 'Container' but is not overridden:UNDEFINED
+abstract-method:80:0:81:8:DerivedCollection:Method '__iter__' is abstract in class 'Iterable' but is not overridden:UNDEFINED
+abstract-method:80:0:81:8:DerivedCollection:Method '__len__' is abstract in class 'Sized' but is not overridden:UNDEFINED
+abstract-method:99:0:100:8:DerivedMultiple:Method '__hash__' is abstract in class 'Hashable' but is not overridden:UNDEFINED
+abstract-method:99:0:100:8:DerivedMultiple:Method '__len__' is abstract in class 'Sized' but is not overridden:UNDEFINED
+abstract-method:104:0:105:8:CustomAbstractCls2:Method '__iter__' is abstract in class 'Iterable' but is not overridden:UNDEFINED
+abstract-method:104:0:105:8:CustomAbstractCls2:Method '__len__' is abstract in class 'Sized' but is not overridden:UNDEFINED
+abstract-method:106:0:107:8:CustomImplementation:Method '__iter__' is abstract in class 'Iterable' but is not overridden:UNDEFINED
+abstract-method:106:0:107:8:CustomImplementation:Method '__len__' is abstract in class 'Sized' but is not overridden:UNDEFINED
+unsubscriptable-object:125:9:125:12::Value 'int' is unsubscriptable:UNDEFINED
+unsubscriptable-object:126:15:126:39::Value 'collections.abc.Hashable' is unsubscriptable:UNDEFINED
+unsubscriptable-object:127:12:127:33::Value 'collections.abc.Sized' is unsubscriptable:UNDEFINED

@@ -1,1 +1,1 @@
-return-in-init:5:4:MyClass.__init__:Explicit return in __init__
+return-in-init:5:4:6:16:MyClass.__init__:Explicit return in __init__:UNDEFINED

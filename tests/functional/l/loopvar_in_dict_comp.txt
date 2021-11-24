@@ -1,1 +1,1 @@
-cell-var-from-loop:8:23:bad_case.<lambda>:Cell variable x defined in loop
+cell-var-from-loop:8:23:8:24:bad_case.<lambda>:Cell variable x defined in loop:UNDEFINED

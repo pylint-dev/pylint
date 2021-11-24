@@ -1,11 +1,11 @@
-global-at-module-level:5:0::Using the global statement at the module level:HIGH
-undefined-variable:6:6::Undefined variable 'CSTE':HIGH
-global-statement:14:4:fix_contant:Using the global statement:HIGH
-global-variable-not-assigned:21:4:other:Using global for 'HOP' but no assignment is done:HIGH
-undefined-variable:22:10:other:Undefined variable 'HOP':HIGH
-global-variable-undefined:27:4:define_constant:Global variable 'SOMEVAR' undefined at the module level:HIGH
-global-statement:33:4:global_with_import:Using the global statement:HIGH
-global-variable-not-assigned:39:4:global_no_assign:Using global for 'CONSTANT' but no assignment is done:HIGH
-global-statement:45:4:global_operator_assign:Using the global statement:HIGH
-global-statement:52:4:global_function_assign:Using the global statement:HIGH
-global-statement:62:4:override_func:Using the global statement:HIGH
+global-at-module-level:5:0:5:11::Using the global statement at the module level:UNDEFINED
+undefined-variable:6:6:6:10::Undefined variable 'CSTE':UNDEFINED
+global-statement:14:4:14:19:fix_contant:Using the global statement:UNDEFINED
+global-variable-not-assigned:21:4:21:14:other:Using global for 'HOP' but no assignment is done:UNDEFINED
+undefined-variable:22:10:22:13:other:Undefined variable 'HOP':UNDEFINED
+global-variable-undefined:27:4:27:18:define_constant:Global variable 'SOMEVAR' undefined at the module level:UNDEFINED
+global-statement:33:4:33:14:global_with_import:Using the global statement:UNDEFINED
+global-variable-not-assigned:39:4:39:19:global_no_assign:Using global for 'CONSTANT' but no assignment is done:UNDEFINED
+global-statement:45:4:45:19:global_operator_assign:Using the global statement:UNDEFINED
+global-statement:52:4:52:19:global_function_assign:Using the global statement:UNDEFINED
+global-statement:62:4:62:15:override_func:Using the global statement:UNDEFINED

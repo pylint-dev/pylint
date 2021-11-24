@@ -1,1 +1,1 @@
-deprecated-pragma:1:0::"Pragma ""disable-msg"" is deprecated, use ""disable"" instead"
+deprecated-pragma:1:0:None:None::"Pragma ""disable-msg"" is deprecated, use ""disable"" instead":UNDEFINED

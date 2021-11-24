@@ -1,1 +1,1 @@
-no-member:16:6::Instance of 'Client' has no 'foo' member:INFERENCE
+no-member:16:6:16:18::Instance of 'Client' has no 'foo' member:INFERENCE

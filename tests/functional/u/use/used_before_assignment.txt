@@ -1,5 +1,5 @@
-used-before-assignment:8:19::Using variable 'MSG' before assignment:HIGH
-used-before-assignment:10:20::Using variable 'MSG2' before assignment:HIGH
-used-before-assignment:17:21:MyClass.incorrect_typing_method:Using variable 'MyClass' before assignment:HIGH
-used-before-assignment:22:26:MyClass.incorrect_nested_typing_method:Using variable 'MyClass' before assignment:HIGH
-used-before-assignment:27:20:MyClass.incorrect_default_method:Using variable 'MyClass' before assignment:HIGH
+used-before-assignment:8:19:8:22::Using variable 'MSG' before assignment:UNDEFINED
+used-before-assignment:10:20:10:24::Using variable 'MSG2' before assignment:UNDEFINED
+used-before-assignment:17:21:17:28:MyClass.incorrect_typing_method:Using variable 'MyClass' before assignment:UNDEFINED
+used-before-assignment:22:26:22:33:MyClass.incorrect_nested_typing_method:Using variable 'MyClass' before assignment:UNDEFINED
+used-before-assignment:27:20:27:27:MyClass.incorrect_default_method:Using variable 'MyClass' before assignment:UNDEFINED
