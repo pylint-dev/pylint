@@ -43,6 +43,8 @@ class UnittestLinter:
         # If confidence is None we set it to UNDEFINED as well in PyLinter
         if confidence is None:
             confidence = UNDEFINED
+        if not line and node:
+            line = node.fromlineno
         # pylint: disable=fixme
         # TODO: Initialize col_offset, end_lineno and end_col_offset on every node -> astroid
         # See https://github.com/PyCQA/astroid/issues/1273
