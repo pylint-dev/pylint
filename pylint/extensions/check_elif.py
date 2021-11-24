@@ -15,7 +15,7 @@ from astroid import nodes
 
 from pylint.checkers import BaseTokenChecker
 from pylint.checkers.utils import check_messages
-from pylint.interfaces import IAstroidChecker, ITokenChecker
+from pylint.interfaces import HIGH, IAstroidChecker, ITokenChecker
 
 
 class ElseifUsedChecker(BaseTokenChecker):
@@ -60,7 +60,7 @@ class ElseifUsedChecker(BaseTokenChecker):
             and (node.lineno, node.col_offset) in self._elifs
             and not self._elifs[(node.lineno, node.col_offset)]
         ):
-            self.add_message("else-if-used", node=node)
+            self.add_message("else-if-used", node=node, confidence=HIGH)
 
 
 def register(linter):
