@@ -1,7 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-import collections
 from typing import Any, NamedTuple, Optional, Sequence, Tuple, Union
 
 from astroid import nodes
@@ -12,29 +11,14 @@ from pylint.message.message import Message
 from pylint.testutils.constants import UPDATE_OPTION
 
 
-class MessageTest(
-    collections.namedtuple(
-        "MessageTest", ["msg_id", "line", "node", "args", "confidence"]
-    )
-):
+class MessageTest(NamedTuple):
+    msg_id: str
+    line: Optional[int] = None
+    node: Optional[nodes.NodeNG] = None
+    args: Optional[Any] = None
+    confidence: Optional[Confidence] = UNDEFINED
+    col_offset: Optional[int] = None
     """Used to test messages produced by pylint. Class name cannot start with Test as pytest doesn't allow constructors in test classes."""
-
-    def __new__(
-        cls,
-        msg_id: str,
-        line: Optional[int] = None,
-        node: Optional[nodes.NodeNG] = None,
-        args: Any = None,
-        confidence: Optional[Confidence] = None,
-    ) -> "MessageTest":
-        return tuple.__new__(cls, (msg_id, line, node, args, confidence))
-
-    def __eq__(self, other: object) -> bool:
-        if isinstance(other, MessageTest):
-            if self.confidence and other.confidence:
-                return super().__eq__(other)
-            return tuple(self[:-1]) == tuple(other[:-1])
-        return NotImplemented  # pragma: no cover
 
 
 class MalformedOutputLineException(Exception):

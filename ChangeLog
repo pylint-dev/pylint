@@ -27,6 +27,12 @@ Release date: TBA
 
 * Fix ``install graphiz`` message which isn't needed for puml output format.
 
+* ``MessageTest`` of the unittest ``testutil`` now requires the ``confidence`` attribute
+  to match the expected value. If none is provided it is set to ``UNDEFINED``.
+
+* ``add_message`` of the unittest ``testutil`` now actually handles the ``col_offset`` parameter
+  and allows it to be checked against actual output in a test.
+
 * Fix a crash in the ``check_elif`` extensions where an undetected if in a comprehension
   with an if statement within a f-string resulted in an out of range error. The checker no
   longer relies on counting if statements anymore and uses known if statements locations instead.
