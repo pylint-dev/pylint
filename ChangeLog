@@ -16,6 +16,11 @@ Release date: TBA
 
   Closes #4761
 
+* ``used-before-assignment`` now considers that assignments in a try block
+  may not have occurred when the except or finally blocks are executed.
+
+  Closes #85, #2615
+
 * ``used-before-assignment`` now checks names in try blocks.
 
 * Some files in ``pylint.testutils`` were deprecated. In the future imports should be done from the

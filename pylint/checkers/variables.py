@@ -405,7 +405,8 @@ MSGS = {
     "E0601": (
         "Using variable %r before assignment",
         "used-before-assignment",
-        "Used when a local variable is accessed before its assignment.",
+        "Used when a local variable is accessed before its assignment or in "
+        "except or finally blocks without being defined before the try block.",
     ),
     "E0602": (
         "Undefined variable %r",
@@ -656,6 +657,49 @@ scope_type : {self._atomic.scope_type}
                     )
                 )
                 or n.statement(future=True).parent.parent_of(node)
+            ]
+            filtered_nodes_set = set(filtered_nodes)
+            difference = [n for n in found_nodes if n not in filtered_nodes_set]
+            self.consumed_uncertain[node.name] += difference
+            found_nodes = filtered_nodes
+
+        # If this node is in a Finally block of a Try/Finally,
+        # filter out assignments in the try portion, assuming they may fail
+        if (
+            found_nodes
+            and isinstance(node.statement(future=True).parent, nodes.TryFinally)
+            and node.statement(future=True)
+            in node.statement(future=True).parent.finalbody
+        ):
+            filtered_nodes = [
+                n
+                for n in found_nodes
+                if not (
+                    n.statement(future=True).parent
+                    is node.statement(future=True).parent
+                    and n.statement(future=True) in n.statement(future=True).parent.body
+                )
+            ]
+            filtered_nodes_set = set(filtered_nodes)
+            difference = [n for n in found_nodes if n not in filtered_nodes_set]
+            self.consumed_uncertain[node.name] += difference
+            found_nodes = filtered_nodes
+
+        # If this node is in an ExceptHandler,
+        # filter out assignments in the try portion, assuming they may fail
+        if found_nodes and isinstance(
+            node.statement(future=True).parent, nodes.ExceptHandler
+        ):
+            filtered_nodes = [
+                n
+                for n in found_nodes
+                if not (
+                    isinstance(n.statement(future=True).parent, nodes.TryExcept)
+                    and n.statement(future=True) in n.statement(future=True).parent.body
+                    and node.statement(future=True).parent
+                    in n.statement(future=True).parent.handlers
+                    and n.statement(future=True) in n.statement(future=True).parent.body
+                )
             ]
             filtered_nodes_set = set(filtered_nodes)
             difference = [n for n in found_nodes if n not in filtered_nodes_set]
