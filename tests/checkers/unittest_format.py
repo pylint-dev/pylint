@@ -293,9 +293,7 @@ def test_disable_global_option_end_of_line() -> None:
     Test for issue with disabling tokenizer messages
     that extend beyond the scope of the ast tokens
     """
-    file_ = tempfile.NamedTemporaryFile(
-        "w", delete=False
-    )  # pylint: disable=consider-using-with
+    file_ = tempfile.NamedTemporaryFile("w", delete=False)
     with file_:
         file_.write(
             """

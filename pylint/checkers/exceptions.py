@@ -232,7 +232,6 @@ class ExceptionRaiseLeafVisitor(BaseVisitor):
         )
 
     def visit_instance(self, instance: objects.ExceptionInstance) -> None:
-        # pylint: disable=protected-access
         cls = instance._proxied
         self.visit_classdef(cls)
 
@@ -535,7 +534,6 @@ class ExceptionsChecker(checkers.BaseChecker):
                     if isinstance(exc, astroid.Instance) and utils.inherit_from_std_ex(
                         exc
                     ):
-                        # pylint: disable=protected-access
                         exc = exc._proxied
 
                     self._check_catching_non_exception(handler, exc, part)

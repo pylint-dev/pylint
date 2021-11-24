@@ -35,7 +35,7 @@ New checkers
 
 * Fix ``useless-super-delegation`` false positive when default keyword argument is a variable.
 
-* Added new checker `use-implicit-booleanness``: Emitted when using collection
+* Added new checker ``use-implicit-booleanness``: Emitted when using collection
   literals for boolean comparisons
 
 * Added new checker ``use-implicit-booleaness-not-comparison``: Emitted when
@@ -201,6 +201,22 @@ Other Changes
 * Added the ``--enable-all-extensions`` command line option. It will load all available extensions
   which can be listed by running ``--list-extensions``
 
+* It is now recommended to do ``pylint`` development on ``Python`` 3.8 or higher. This
+  allows using the latest ``ast`` parser.
+
+* All standard jobs in the ``pylint`` CI now run on ``Python`` 3.8 by default. We still
+  support python 3.6 and 3.7 and run tests for those interpreters.
+
 * Fix crash on ``open()`` calls when the ``mode`` argument is not a simple string.
 
   Partially closes #5321
+
+* Add ability to add ``end_line`` and ``end_column`` to the ``--msg-template`` option.
+  With the standard ``TextReporter`` this will add the line and column number of the
+  end of a node to the output of Pylint. If these numbers are unknown, they are represented
+  by an empty string.
+
+* Introduced primer tests and a configuration tests framework. The helper classes available in
+  ``pylint/testutil/`` are still unstable and might be modified in the near future.
+
+  Closes #4412 #5287

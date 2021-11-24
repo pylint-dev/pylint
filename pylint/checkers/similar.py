@@ -26,7 +26,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-# pylint: disable=redefined-builtin
 """a similarities / code duplication command line tool and pylint checker
 
 The algorithm is based on comparing the hash value of n successive lines of a file.

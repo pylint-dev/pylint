@@ -1338,7 +1338,6 @@ def is_registered_in_singledispatch_function(node: nodes.FunctionDef) -> bool:
             continue
 
         if isinstance(func_def, nodes.FunctionDef):
-            # pylint: disable=redundant-keyword-arg; some flow inference goes wrong here
             return decorated_with(func_def, singledispatch_qnames)
 
     return False

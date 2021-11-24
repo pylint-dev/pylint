@@ -4,7 +4,6 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Unit test for the diagrams modules"""
-# pylint: disable=redefined-outer-name
 from typing import Callable
 
 from pylint.pyreverse.diadefslib import DefaultDiadefGenerator, DiadefsHandler
