@@ -20,16 +20,16 @@ def test_package_to_lint() -> None:
     assert package_to_lint.pylintrc_relpath == ".pylintrcui"
     assert package_to_lint.pylint_additional_args == ["--ignore-pattern='re*'"]
     assert package_to_lint.paths_to_lint == [
-        f"{PRIMER_DIRECTORY_PATH}/vimeo/graph-explorer/graph_explorer"
+        str(Path(f"{PRIMER_DIRECTORY_PATH}/vimeo/graph-explorer/graph_explorer"))
     ]
     assert package_to_lint.clone_directory == Path(
-        f"{PRIMER_DIRECTORY_PATH}/vimeo/graph-explorer"
+        str(Path(f"{PRIMER_DIRECTORY_PATH}/vimeo/graph-explorer"))
     )
     assert package_to_lint.pylintrc == Path(
-        f"{PRIMER_DIRECTORY_PATH}/vimeo/graph-explorer/.pylintrcui"
+        str(Path(f"{PRIMER_DIRECTORY_PATH}/vimeo/graph-explorer/.pylintrcui"))
     )
     assert package_to_lint.pylint_args == [
-        f"{PRIMER_DIRECTORY_PATH}/vimeo/graph-explorer/graph_explorer",
+        str(Path(f"{PRIMER_DIRECTORY_PATH}/vimeo/graph-explorer/graph_explorer")),
         f"--rcfile={PRIMER_DIRECTORY_PATH}/vimeo/graph-explorer/.pylintrcui",
         "--ignore-pattern='re*'",
     ]
@@ -44,5 +44,5 @@ def test_package_to_lint_default_value() -> None:
     )
     assert package_to_lint.pylintrc is None
     assert package_to_lint.pylint_args == [
-        f"{PRIMER_DIRECTORY_PATH}/pallets/flask/src/flask"
+        str(Path(f"{PRIMER_DIRECTORY_PATH}/pallets/flask/src/flask"))
     ]
