@@ -20,8 +20,6 @@ Release date: TBA
   end of a node to the output of Pylint. If these numbers are unknown, they are represented
   by an empty string.
 
-* Add ``end_line`` and ``end_column`` fields to the output of the ``JSONReporter``.
-
 * Fix ``install graphiz`` message which isn't needed for puml output format.
 
 * Fix ``simplify-boolean-expression`` when condition can be inferred as False.

@@ -25,69 +25,29 @@ from pylint.reporters import JSONReporter
 from pylint.reporters.ureports.nodes import EvaluationSection
 
 expected_score_message = "Expected score message"
+expected_result = [
+    [
+        ("column", 0),
+        ("line", 1),
+        ("message", "Line too long (1/2)"),
+        ("message-id", "C0301"),
+        ("module", "0123"),
+        ("obj", ""),
+        ("path", "0123"),
+        ("symbol", "line-too-long"),
+        ("type", "convention"),
+    ]
+]
 
 
 def test_simple_json_output_no_score() -> None:
-    """Test JSON reporter with no score"""
-    message = {
-        "msg": "line-too-long",
-        "line": 1,
-        "args": (1, 2),
-        "end_line": None,
-        "end_column": None,
-    }
-    expected = [
-        [
-            ("column", 0),
-            ("end_column", None),
-            ("end_line", None),
-            ("line", 1),
-            ("message", "Line too long (1/2)"),
-            ("message-id", "C0301"),
-            ("module", "0123"),
-            ("obj", ""),
-            ("path", "0123"),
-            ("symbol", "line-too-long"),
-            ("type", "convention"),
-        ]
-    ]
-    report = get_linter_result(score=False, message=message)
+    report = get_linter_result(score=False)
     assert len(report) == 1
     report_result = [sorted(report[0].items(), key=lambda item: item[0])]
-    assert report_result == expected
+    assert report_result == expected_result
 
 
-def test_simple_json_output_no_score_with_end_line() -> None:
-    """Test JSON reporter with no score with end_line and end_column"""
-    message = {
-        "msg": "line-too-long",
-        "line": 1,
-        "args": (1, 2),
-        "end_line": 1,
-        "end_column": 4,
-    }
-    expected = [
-        [
-            ("column", 0),
-            ("end_column", 4),
-            ("end_line", 1),
-            ("line", 1),
-            ("message", "Line too long (1/2)"),
-            ("message-id", "C0301"),
-            ("module", "0123"),
-            ("obj", ""),
-            ("path", "0123"),
-            ("symbol", "line-too-long"),
-            ("type", "convention"),
-        ]
-    ]
-    report = get_linter_result(score=False, message=message)
-    assert len(report) == 1
-    report_result = [sorted(report[0].items(), key=lambda item: item[0])]
-    assert report_result == expected
-
-
-def get_linter_result(score: bool, message: Dict[str, Any]) -> List[Dict[str, Any]]:
+def get_linter_result(score: bool) -> List[Dict[str, Any]]:
     output = StringIO()
     reporter = JSONReporter(output)
     linter = PyLinter(reporter=reporter)
@@ -96,13 +56,7 @@ def get_linter_result(score: bool, message: Dict[str, Any]) -> List[Dict[str, An
     linter.config.score = score
     linter.open()
     linter.set_current_module("0123")
-    linter.add_message(
-        message["msg"],
-        line=message["line"],
-        args=message["args"],
-        end_lineno=message["end_line"],
-        end_col_offset=message["end_column"],
-    )
+    linter.add_message("line-too-long", line=1, args=(1, 2))
     # we call those methods because we didn't actually run the checkers
     if score:
         reporter.display_reports(EvaluationSection(expected_score_message))

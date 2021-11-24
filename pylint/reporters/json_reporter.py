@@ -39,8 +39,6 @@ class JSONReporter(BaseReporter):
                 "obj": msg.obj,
                 "line": msg.line,
                 "column": msg.column,
-                "end_line": msg.end_line,
-                "end_column": msg.end_column,
                 "path": msg.path,
                 "symbol": msg.symbol,
                 "message": msg.msg or "",
