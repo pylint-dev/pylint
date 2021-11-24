@@ -1,4 +1,7 @@
+# pylint: disable=no-else-raise,unsupported-membership-test,using-constant-test
+
 """Checks use of "else if" triggers a refactor message"""
+from typing import Union, Sequence, Any, Mapping
 
 
 def my_function():
@@ -7,7 +10,7 @@ def my_function():
     if myint > 5:
         pass
     else:
-        if myint <= 5:  #  [else-if-used]
+        if myint <= 5:  # [else-if-used]
             pass
         else:
             myint = 3
@@ -25,3 +28,21 @@ def my_function():
                 if myint:
                     pass
                 myint = 4
+
+
+def _if_in_fstring_comprehension_with_elif(
+    params: Union[Sequence[Any], Mapping[str, Any]]
+):
+    order = {}
+    if "z" not in "false":
+        raise TypeError(
+            f" {', '.join(sorted(i for i in order or () if i not in params))}"
+        )
+    elif "z" not in "true":
+        pass
+    else:
+        if "t" not in "false":  # [else-if-used]
+            raise TypeError("d")
+        else:
+            if "y" in "life":  # [else-if-used]
+                print("e")
