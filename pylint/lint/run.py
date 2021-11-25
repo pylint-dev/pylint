@@ -4,6 +4,7 @@
 import os
 import sys
 import warnings
+from typing import Tuple
 
 from pylint import __pkginfo__, extensions, interfaces
 from pylint.constants import DEFAULT_PYLINT_HOME, OLD_DEFAULT_PYLINT_HOME, full_version
@@ -52,8 +53,7 @@ def cb_init_hook(optname, value):
 
 UNUSED_PARAM_SENTINEL = object()
 
-
-class Run:
+class BaseRun:
     """helper class to use as main for pylint :
 
     run(*sys.argv[1:])
@@ -72,13 +72,11 @@ group are mutually exclusive.",
     def _return_one(*args):  # pylint: disable=unused-argument
         return 1
 
-    def __init__(
+    def initialize(
         self,
-        args,
+        args: list,
         reporter=None,
-        exit=True,
-        do_exit=UNUSED_PARAM_SENTINEL,
-    ):  # pylint: disable=redefined-builtin
+    ) -> Tuple[PyLinter, list]:
         self._rcfile = None
         self._output = None
         self._version_asked = False
@@ -358,9 +356,15 @@ to search for configuration file.
             if exc.code == 2:  # bad options
                 exc.code = 32
             raise
+
+        return linter, args
+
+    def show_help(self, linter: PyLinter, args: list) -> None:
         if not args:
             print(linter.help())
             sys.exit(32)
+
+    def initialize_jobs(self, linter: PyLinter) -> None:
 
         if linter.config.jobs < 0:
             print(
@@ -384,6 +388,8 @@ to search for configuration file.
 
         # Now that plugins are loaded, get list of all fail_on messages, and enable them
         linter.enable_fail_on_messages()
+
+    def run(self, linter: PyLinter, args: list, do_exit, exit: bool) -> None:  # pylint: disable=redefined-builtin
 
         if self._output:
             try:
@@ -504,3 +510,18 @@ to search for configuration file.
                 extension_name = f"pylint.extensions.{filename[:-3]}"
                 if extension_name not in self._plugins:
                     self._plugins.append(extension_name)
+
+
+class Run(BaseRun):
+
+    def __init__(
+        self,
+        args,
+        reporter=None,
+        exit=True,
+        do_exit=UNUSED_PARAM_SENTINEL,
+    ):  # pylint: disable=redefined-builtin
+        linter, args = self.initialize(args, reporter)
+        self.show_help(linter, args)
+        self.initialize_jobs(linter)
+        self.run(linter, args, do_exit, exit)
