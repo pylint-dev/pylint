@@ -78,7 +78,7 @@ current environment in order to have faster feedback. Run from Pylint root direc
 
     python tests/test_functional.py
 
-You can use all the options you would use for pytest, for example ``-k "test_functional[len_checks]"``.
+You can use all the options you would use for pytest_, for example ``-k "test_functional[len_checks]"``.
 Furthermore, if required the .txt file with expected messages can be regenerated based
 on the the current output by appending ``--update-functional-output`` to the command line::
 
@@ -135,7 +135,13 @@ Primer tests
 Pylint also uses what we refer to as ``primer`` tests. These are tests that are run automatically
 in our Continuous Integration and check whether any changes in Pylint lead to crashes or fatal errors
 on the ``stdlib`` and a selection of external repositories.
-This list of repositories is selected on the basis of three criteria: 1) projects need to use a diverse
+
+To run the ``primer`` tests you can add either ``--primer-stdlib`` or ``--primer-external`` to the
+pytest_ command. If you want to only run the ``primer`` you can add either of their marks, for example::
+
+    pytest -m primer_external --primer-external
+
+The list of repositories is created on the basis of three criteria: 1) projects need to use a diverse
 range of language features, 2) projects need to be well maintained and 3) projects should not have a codebase
 that is too repetitive. This guarantees a good balance between speed of our CI and finding potential bugs.
 
