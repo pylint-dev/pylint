@@ -44,7 +44,7 @@ unsafe-load-any-extension=no
 extension-pkg-allow-list=
 
 # Minimum supported python version
-py-version = 3.6
+py-version = 3.6.2
 
 
 [MESSAGES CONTROL]

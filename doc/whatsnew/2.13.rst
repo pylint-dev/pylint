@@ -19,3 +19,7 @@ Extensions
 
 Other Changes
 =============
+
+* Require Python ``3.6.2`` to run pylint.
+
+  Closes #5065
