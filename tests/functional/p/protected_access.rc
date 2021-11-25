@@ -1,0 +1,2 @@
+[CLASSES]
+exclude-protected=_meta,_manager
