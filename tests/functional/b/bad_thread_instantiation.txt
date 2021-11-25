@@ -1,2 +1,2 @@
-bad-thread-instantiation:5:0::threading.Thread needs the target function
-bad-thread-instantiation:8:0::threading.Thread needs the target function
+bad-thread-instantiation:5:0:5:30::threading.Thread needs the target function:UNDEFINED
+bad-thread-instantiation:8:0:8:18::threading.Thread needs the target function:UNDEFINED

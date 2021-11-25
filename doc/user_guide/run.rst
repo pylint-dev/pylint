@@ -42,7 +42,7 @@ thanks to the ``Run()`` function in the ``pylint.lint`` module
 .. sourcecode:: python
 
   import pylint.lint
-  pylint_opts = ['--version']
+  pylint_opts = ['--disable=line-too-long', 'myfile.py']
   pylint.lint.Run(pylint_opts)
 
 To silently run Pylint on a ``module_name.py`` module,
@@ -100,6 +100,9 @@ configuration file in the following order and uses the first one it finds:
 #. ``.pylintrc`` in the current working directory
 #. ``pyproject.toml`` in the current working directory,
    providing it has at least one ``tool.pylint.`` section.
+   The ``pyproject.toml`` must prepend section names with ``tool.pylint.``,
+   for example ``[tool.pylint.'MESSAGES CONTROL']``. They can also be passed
+   in on the command line.
 #. ``setup.cfg`` in the current working directory,
    providing it has at least one ``pylint.`` section
 #. If the current working directory is in a Python package, Pylint searches \

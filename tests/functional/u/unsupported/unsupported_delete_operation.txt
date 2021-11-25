@@ -1,17 +1,17 @@
-unsupported-delete-operation:16:4::'(1, 2, 3)' does not support item deletion
-unsupported-delete-operation:31:4::'NonSubscriptable()' does not support item deletion
-unsupported-delete-operation:32:4::'NonSubscriptable' does not support item deletion
-unsupported-delete-operation:34:4::'Subscriptable' does not support item deletion
-unsupported-delete-operation:43:4::'powers_of_two()' does not support item deletion
-unsupported-delete-operation:44:4::'powers_of_two' does not support item deletion
-unsupported-delete-operation:48:4::'True' does not support item deletion
-unsupported-delete-operation:49:4::'None' does not support item deletion
-unsupported-delete-operation:50:4::'8.5' does not support item deletion
-unsupported-delete-operation:51:4::'10' does not support item deletion
-unsupported-delete-operation:54:4::'{x**2 for x in range(10)}' does not support item deletion
-unsupported-delete-operation:55:4::'set(numbers)' does not support item deletion
-unsupported-delete-operation:56:4::'frozenset(numbers)' does not support item deletion
-unsupported-delete-operation:76:4::'SubscriptableClass()' does not support item deletion
-unsupported-delete-operation:82:4::'test()' does not support item deletion
-unsupported-delete-operation:83:4::'test' does not support item deletion
-unsupported-delete-operation:94:16::'SubscriptableClass()' does not support item deletion
+unsupported-delete-operation:16:4:16:13::'(1, 2, 3)' does not support item deletion:UNDEFINED
+unsupported-delete-operation:31:4:31:22::'NonSubscriptable()' does not support item deletion:UNDEFINED
+unsupported-delete-operation:32:4:32:20::'NonSubscriptable' does not support item deletion:UNDEFINED
+unsupported-delete-operation:34:4:34:17::'Subscriptable' does not support item deletion:UNDEFINED
+unsupported-delete-operation:43:4:43:19::'powers_of_two()' does not support item deletion:UNDEFINED
+unsupported-delete-operation:44:4:44:17::'powers_of_two' does not support item deletion:UNDEFINED
+unsupported-delete-operation:48:4:48:8::'True' does not support item deletion:UNDEFINED
+unsupported-delete-operation:49:4:49:8::'None' does not support item deletion:UNDEFINED
+unsupported-delete-operation:50:4:50:7::'8.5' does not support item deletion:UNDEFINED
+unsupported-delete-operation:51:4:51:6::'10' does not support item deletion:UNDEFINED
+unsupported-delete-operation:54:4:54:31::'{x**2 for x in range(10)}' does not support item deletion:UNDEFINED
+unsupported-delete-operation:55:4:55:16::'set(numbers)' does not support item deletion:UNDEFINED
+unsupported-delete-operation:56:4:56:22::'frozenset(numbers)' does not support item deletion:UNDEFINED
+unsupported-delete-operation:76:4:76:24::'SubscriptableClass()' does not support item deletion:UNDEFINED
+unsupported-delete-operation:82:4:82:10::'test()' does not support item deletion:UNDEFINED
+unsupported-delete-operation:83:4:83:8::'test' does not support item deletion:UNDEFINED
+unsupported-delete-operation:94:16:94:36::'SubscriptableClass()' does not support item deletion:UNDEFINED

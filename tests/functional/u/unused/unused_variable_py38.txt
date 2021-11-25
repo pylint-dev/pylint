@@ -1,0 +1,6 @@
+unused-variable:4:0:8:16:typed_assignment_in_function_default:Unused variable 'typed_assignment_in_function_default':UNDEFINED
+unused-variable:5:18:5:31::Unused variable 'typed_default':UNDEFINED
+unused-variable:11:0:15:16:assignment_in_function_default:Unused variable 'assignment_in_function_default':UNDEFINED
+unused-variable:12:11:12:18::Unused variable 'default':UNDEFINED
+unused-variable:18:0:23:16:assignment_used_in_function_scope:Unused variable 'assignment_used_in_function_scope':UNDEFINED
+unused-variable:26:0:30:16:assignment_used_in_global_scope:Unused variable 'assignment_used_in_global_scope':UNDEFINED

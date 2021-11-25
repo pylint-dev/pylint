@@ -5,22 +5,23 @@ import os
 import sys
 import warnings
 
-from pylint import __pkginfo__, config, extensions, interfaces
-from pylint.constants import full_version
+from pylint import __pkginfo__, extensions, interfaces
+from pylint.constants import DEFAULT_PYLINT_HOME, OLD_DEFAULT_PYLINT_HOME, full_version
 from pylint.lint.pylinter import PyLinter
 from pylint.lint.utils import ArgumentPreprocessingError, preprocess_options
 from pylint.utils import print_full_documentation, utils
 
 try:
     import multiprocessing
+    from multiprocessing import synchronize  # noqa pylint: disable=unused-import
 except ImportError:
-    multiprocessing = None  # type: ignore
+    multiprocessing = None  # type: ignore[assignment]
 
 
 def _cpu_count() -> int:
     """Use sched_affinity if available for virtualized or containerized environments."""
     sched_getaffinity = getattr(os, "sched_getaffinity", None)
-    # pylint: disable=not-callable,using-constant-test
+    # pylint: disable=not-callable,using-constant-test,useless-suppression
     if sched_getaffinity:
         return len(sched_getaffinity(0))
     if multiprocessing:
@@ -92,6 +93,7 @@ group are mutually exclusive.",
                     "init-hook": (cb_init_hook, True),
                     "rcfile": (self.cb_set_rcfile, True),
                     "load-plugins": (self.cb_add_plugins, True),
+                    "enable-all-extensions": (self.cb_enable_all_extensions, False),
                     "verbose": (self.cb_verbose_mode, False),
                     "output": (self.cb_set_output, True),
                 },
@@ -257,6 +259,15 @@ group are mutually exclusive.",
                         "will be displayed.",
                     },
                 ),
+                (
+                    "enable-all-extensions",
+                    {
+                        "action": "callback",
+                        "callback": self.cb_enable_all_extensions,
+                        "help": "Load and enable all available extensions. "
+                        "Use --list-extensions to see a list all available extensions.",
+                    },
+                ),
             ),
             option_groups=self.option_groups,
             pylintrc=self._rcfile,
@@ -269,7 +280,20 @@ group are mutually exclusive.",
         # load command line plugins
         linter.load_plugin_modules(self._plugins)
         # add some help section
-        linter.add_help_section("Environment variables", config.ENV_HELP, level=1)
+        linter.add_help_section(
+            "Environment variables",
+            f"""
+The following environment variables are used:
+    * PYLINTHOME
+    Path to the directory where persistent data for the run will be stored. If
+not found, it defaults to '{DEFAULT_PYLINT_HOME}' or '{OLD_DEFAULT_PYLINT_HOME}'
+(in the current working directory).
+    * PYLINTRC
+    Path to the configuration file. See the documentation for the method used
+to search for configuration file.
+""",
+            level=1,
+        )
         linter.add_help_section(
             "Output",
             "Using the default text output, the message format is :                          \n"
@@ -364,7 +388,7 @@ group are mutually exclusive.",
         if self._output:
             try:
                 with open(self._output, "w", encoding="utf-8") as output:
-                    linter.reporter.set_output(output)
+                    linter.reporter.out = output
                     linter.check(args)
                     score_value = linter.generate_reports()
             except OSError as ex:
@@ -461,3 +485,17 @@ group are mutually exclusive.",
 
     def cb_verbose_mode(self, *args, **kwargs):
         self.verbose = True
+
+    def cb_enable_all_extensions(self, option_name: str, value: None) -> None:
+        """Callback to load and enable all available extensions"""
+        for filename in os.listdir(os.path.dirname(extensions.__file__)):
+            # pylint: disable=fixme
+            # TODO: Remove the check for deprecated check_docs after the extension has been removed
+            if (
+                filename.endswith(".py")
+                and not filename.startswith("_")
+                and not filename.startswith("check_docs")
+            ):
+                extension_name = f"pylint.extensions.{filename[:-3]}"
+                if extension_name not in self._plugins:
+                    self._plugins.append(extension_name)

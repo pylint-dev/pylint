@@ -1,2 +1,2 @@
-assert-on-tuple:5:0::Assert called on a 2-item-tuple. Did you mean 'assert x,y'?
-assert-on-tuple:11:0::Assert called on a 2-item-tuple. Did you mean 'assert x,y'?
+assert-on-tuple:5:0:5:23::Assert called on a 2-item-tuple. Did you mean 'assert x,y'?:UNDEFINED
+assert-on-tuple:11:0:11:26::Assert called on a 2-item-tuple. Did you mean 'assert x,y'?:UNDEFINED

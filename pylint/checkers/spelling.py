@@ -18,6 +18,8 @@
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
 # Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
+# Copyright (c) 2021 Tushar Sadhwani <tushar.sadhwani000@gmail.com>
+# Copyright (c) 2021 Nick Drozd <nicholasdrozd@gmail.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 bot <bot@noreply.github.com>
 # Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
@@ -52,20 +54,20 @@ try:
 except ImportError:
     enchant = None
 
-    class EmailFilter:  # type: ignore
+    class EmailFilter:  # type: ignore[no-redef]
         ...
 
-    class URLFilter:  # type: ignore
+    class URLFilter:  # type: ignore[no-redef]
         ...
 
-    class WikiWordFilter:  # type: ignore
+    class WikiWordFilter:  # type: ignore[no-redef]
         ...
 
-    class Filter:  # type: ignore
+    class Filter:  # type: ignore[no-redef]
         def _skip(self, word):
             raise NotImplementedError
 
-    class Chunker:  # type: ignore
+    class Chunker:  # type: ignore[no-redef]
         pass
 
     def get_tokenizer(
@@ -91,10 +93,7 @@ class WordsWithDigitsFilter(Filter):
     """Skips words with digits."""
 
     def _skip(self, word):
-        for char in word:
-            if char.isdigit():
-                return True
-        return False
+        return any(char.isdigit() for char in word)
 
 
 class WordsWithUnderscores(Filter):
@@ -262,7 +261,7 @@ class SpellingChecker(BaseTokenChecker):
             {
                 "default": "n",
                 "type": "yn",
-                "metavar": "<y_or_n>",
+                "metavar": "<y or n>",
                 "help": "Tells whether to store unknown words to the "
                 "private dictionary (see the "
                 "--spelling-private-dict-file option) instead of "

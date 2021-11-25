@@ -1,1 +1,1 @@
-subclassed-final-class:15:0:Subclass:"Class 'Subclass' is a subclass of a class decorated with typing.final: 'Base'":HIGH
+subclassed-final-class:14:0:15:8:Subclass:"Class 'Subclass' is a subclass of a class decorated with typing.final: 'Base'":UNDEFINED

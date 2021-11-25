@@ -27,6 +27,7 @@
 # Copyright (c) 2020 Ram Rachum <ram@rachum.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
+# Copyright (c) 2021 Nick Drozd <nicholasdrozd@gmail.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -72,11 +73,8 @@ def _annotated_unpack_infer(stmt, context=None):
 
 
 def _is_raising(body: List) -> bool:
-    """Return true if the given statement node raise an exception"""
-    for node in body:
-        if isinstance(node, nodes.Raise):
-            return True
-    return False
+    """Return whether the given statement node raises an exception"""
+    return any(isinstance(node, nodes.Raise) for node in body)
 
 
 OVERGENERAL_EXCEPTIONS = ("BaseException", "Exception")
@@ -235,7 +233,6 @@ class ExceptionRaiseLeafVisitor(BaseVisitor):
         )
 
     def visit_instance(self, instance: objects.ExceptionInstance) -> None:
-        # pylint: disable=protected-access
         cls = instance._proxied
         self.visit_classdef(cls)
 
@@ -538,7 +535,6 @@ class ExceptionsChecker(checkers.BaseChecker):
                     if isinstance(exc, astroid.Instance) and utils.inherit_from_std_ex(
                         exc
                     ):
-                        # pylint: disable=protected-access
                         exc = exc._proxied
 
                     self._check_catching_non_exception(handler, exc, part)

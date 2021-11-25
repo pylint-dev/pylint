@@ -10,6 +10,7 @@
 # Copyright (c) 2020-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 Nick Drozd <nicholasdrozd@gmail.com>
 # Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
@@ -46,16 +47,13 @@ class Interface:
 
 
 def implements(obj: "Interface", interface: Tuple[type, type]) -> bool:
-    """Return true if the give object (maybe an instance or class) implements
+    """Return whether the given object (maybe an instance or class) implements
     the interface.
     """
     kimplements = getattr(obj, "__implements__", ())
     if not isinstance(kimplements, (list, tuple)):
         kimplements = (kimplements,)
-    for implementedinterface in kimplements:
-        if issubclass(implementedinterface, interface):
-            return True
-    return False
+    return any(issubclass(i, interface) for i in kimplements)
 
 
 class IChecker(Interface):

@@ -300,3 +300,12 @@ class Pony:
 
 def lookup_attribute(mapping, key):
     return mapping[key]
+
+
+# Test for regression on checking __class__ attribute
+# See: https://github.com/PyCQA/pylint/issues/5261
+class Foo:
+    __ham = 1
+
+    def method(self):
+        print(self.__class__.__ham)

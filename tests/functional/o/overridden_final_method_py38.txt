@@ -1,1 +1,1 @@
-overridden-final-method:16:4:Subclass.my_method:Method 'my_method' overrides a method decorated with typing.final which is defined in class 'Base':HIGH
+overridden-final-method:15:4:16:12:Subclass.my_method:Method 'my_method' overrides a method decorated with typing.final which is defined in class 'Base':UNDEFINED

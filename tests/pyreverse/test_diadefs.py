@@ -10,6 +10,8 @@
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 Takahide Nojima <nozzy123nozzy@gmail.com>
+# Copyright (c) 2021 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
@@ -148,6 +150,7 @@ def test_known_values1(HANDLER: DiadefsHandler, PROJECT: Project) -> None:
     assert modules == [
         (True, "data"),
         (True, "data.clientmodule_test"),
+        (True, "data.property_pattern"),
         (True, "data.suppliermodule_test"),
     ]
     cd = dd[1]
@@ -160,6 +163,7 @@ def test_known_values1(HANDLER: DiadefsHandler, PROJECT: Project) -> None:
         (True, "DoNothing2"),
         (True, "DoSomething"),
         (True, "Interface"),
+        (True, "PropertyPatterns"),
         (True, "Specialization"),
     ]
 

@@ -1,39 +1,39 @@
-no-value-for-parameter:46:0::No value for argument 'first_argument' in function call
-too-many-function-args:47:0::Too many positional arguments for function call
-no-value-for-parameter:49:0::No value for argument 'third_argument' in function call
-no-value-for-parameter:51:0::No value for argument 'first_argument' in function call
-no-value-for-parameter:51:0::No value for argument 'second_argument' in function call
-no-value-for-parameter:51:0::No value for argument 'third_argument' in function call
-too-many-function-args:53:0::Too many positional arguments for function call
-no-value-for-parameter:58:0::No value for argument 'first_argument' in function call
-unexpected-keyword-arg:58:0::Unexpected keyword argument 'bob' in function call
-unexpected-keyword-arg:59:0::Unexpected keyword argument 'coin' in function call
-redundant-keyword-arg:61:0::Argument 'one' passed by position and keyword in function call
-no-value-for-parameter:66:0::No value for argument 'arg' in lambda call
-no-value-for-parameter:71:4:method_tests:No value for argument 'arg' in staticmethod call
-no-value-for-parameter:72:4:method_tests:No value for argument 'arg' in staticmethod call
-no-value-for-parameter:74:4:method_tests:No value for argument 'arg' in classmethod call
-no-value-for-parameter:75:4:method_tests:No value for argument 'arg' in classmethod call
-no-value-for-parameter:77:4:method_tests:No value for argument 'arg' in method call
-no-value-for-parameter:78:4:method_tests:No value for argument 'arg' in unbound method call
-no-value-for-parameter:80:4:method_tests:No value for argument 'arg' in method call
-no-value-for-parameter:81:4:method_tests:No value for argument 'arg' in unbound method call
-no-value-for-parameter:110:8:TestStaticMethod.func:No value for argument 'first' in staticmethod call
-too-many-function-args:111:8:TestStaticMethod.func:Too many positional arguments for staticmethod call
-too-many-function-args:119:8:TypeCheckConstructor.test:Too many positional arguments for constructor call
-no-value-for-parameter:121:8:TypeCheckConstructor.test:No value for argument 'first' in constructor call
-no-value-for-parameter:121:8:TypeCheckConstructor.test:No value for argument 'second' in constructor call
-no-value-for-parameter:122:8:TypeCheckConstructor.test:No value for argument 'second' in constructor call
-unexpected-keyword-arg:122:8:TypeCheckConstructor.test:Unexpected keyword argument 'lala' in constructor call
-no-value-for-parameter:133:8:Test.test:No value for argument 'icon' in method call
-too-many-function-args:134:8:Test.test:Too many positional arguments for method call
-no-value-for-parameter:136:0::No value for argument 'icon' in method call
-no-value-for-parameter:163:4:no_context_but_redefined:No value for argument 'three' in function call
-no-value-for-parameter:163:4:no_context_but_redefined:No value for argument 'two' in function call
-no-value-for-parameter:166:4:no_context_one_elem:No value for argument 'three' in function call
-no-value-for-parameter:166:4:no_context_one_elem:No value for argument 'two' in function call
-unexpected-keyword-arg:202:23:namedtuple_replace_issue_1036:Unexpected keyword argument 'd' in method call
-unexpected-keyword-arg:202:23:namedtuple_replace_issue_1036:Unexpected keyword argument 'e' in method call
-no-value-for-parameter:215:0::No value for argument 'third' in function call
-no-value-for-parameter:216:0::No value for argument 'second' in function call
-unexpected-keyword-arg:217:0::Unexpected keyword argument 'fourth' in function call
+no-value-for-parameter:46:0:46:16::No value for argument 'first_argument' in function call:UNDEFINED
+too-many-function-args:47:0:47:25::Too many positional arguments for function call:UNDEFINED
+no-value-for-parameter:49:0:49:25::No value for argument 'third_argument' in function call:UNDEFINED
+no-value-for-parameter:51:0:51:17::No value for argument 'first_argument' in function call:UNDEFINED
+no-value-for-parameter:51:0:51:17::No value for argument 'second_argument' in function call:UNDEFINED
+no-value-for-parameter:51:0:51:17::No value for argument 'third_argument' in function call:UNDEFINED
+too-many-function-args:53:0:53:41::Too many positional arguments for function call:UNDEFINED
+no-value-for-parameter:58:0:58:21::No value for argument 'first_argument' in function call:UNDEFINED
+unexpected-keyword-arg:58:0:58:21::Unexpected keyword argument 'bob' in function call:UNDEFINED
+unexpected-keyword-arg:59:0:59:40::Unexpected keyword argument 'coin' in function call:UNDEFINED
+redundant-keyword-arg:61:0:61:30::Argument 'one' passed by position and keyword in function call:UNDEFINED
+no-value-for-parameter:66:0:66:8::No value for argument 'arg' in lambda call:UNDEFINED
+no-value-for-parameter:71:4:71:24:method_tests:No value for argument 'arg' in staticmethod call:UNDEFINED
+no-value-for-parameter:72:4:72:29:method_tests:No value for argument 'arg' in staticmethod call:UNDEFINED
+no-value-for-parameter:74:4:74:23:method_tests:No value for argument 'arg' in classmethod call:UNDEFINED
+no-value-for-parameter:75:4:75:28:method_tests:No value for argument 'arg' in classmethod call:UNDEFINED
+no-value-for-parameter:77:4:77:17:method_tests:No value for argument 'arg' in method call:UNDEFINED
+no-value-for-parameter:78:4:78:26:method_tests:No value for argument 'arg' in unbound method call:UNDEFINED
+no-value-for-parameter:80:4:80:27:method_tests:No value for argument 'arg' in method call:UNDEFINED
+no-value-for-parameter:81:4:81:36:method_tests:No value for argument 'arg' in unbound method call:UNDEFINED
+no-value-for-parameter:110:8:110:19:TestStaticMethod.func:No value for argument 'first' in staticmethod call:UNDEFINED
+too-many-function-args:111:8:111:29:TestStaticMethod.func:Too many positional arguments for staticmethod call:UNDEFINED
+too-many-function-args:119:8:119:27:TypeCheckConstructor.test:Too many positional arguments for constructor call:UNDEFINED
+no-value-for-parameter:121:8:121:20:TypeCheckConstructor.test:No value for argument 'first' in constructor call:UNDEFINED
+no-value-for-parameter:121:8:121:20:TypeCheckConstructor.test:No value for argument 'second' in constructor call:UNDEFINED
+no-value-for-parameter:122:8:122:29:TypeCheckConstructor.test:No value for argument 'second' in constructor call:UNDEFINED
+unexpected-keyword-arg:122:8:122:29:TypeCheckConstructor.test:Unexpected keyword argument 'lala' in constructor call:UNDEFINED
+no-value-for-parameter:133:8:133:18:Test.test:No value for argument 'icon' in method call:UNDEFINED
+too-many-function-args:134:8:134:25:Test.test:Too many positional arguments for method call:UNDEFINED
+no-value-for-parameter:136:0:136:12::No value for argument 'icon' in method call:UNDEFINED
+no-value-for-parameter:163:4:163:29:no_context_but_redefined:No value for argument 'three' in function call:UNDEFINED
+no-value-for-parameter:163:4:163:29:no_context_but_redefined:No value for argument 'two' in function call:UNDEFINED
+no-value-for-parameter:166:4:166:22:no_context_one_elem:No value for argument 'three' in function call:UNDEFINED
+no-value-for-parameter:166:4:166:22:no_context_one_elem:No value for argument 'two' in function call:UNDEFINED
+unexpected-keyword-arg:202:23:202:56:namedtuple_replace_issue_1036:Unexpected keyword argument 'd' in method call:UNDEFINED
+unexpected-keyword-arg:202:23:202:56:namedtuple_replace_issue_1036:Unexpected keyword argument 'e' in method call:UNDEFINED
+no-value-for-parameter:215:0:215:24::No value for argument 'third' in function call:UNDEFINED
+no-value-for-parameter:216:0:216:30::No value for argument 'second' in function call:UNDEFINED
+unexpected-keyword-arg:217:0:217:43::Unexpected keyword argument 'fourth' in function call:UNDEFINED

@@ -11,7 +11,6 @@ try:
 except Exception:
     raise
 
-# pylint: disable=misplaced-comparison-constant
 try:
     pass
 except Exception:

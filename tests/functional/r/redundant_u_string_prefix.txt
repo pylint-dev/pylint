@@ -1,7 +1,7 @@
-redundant-u-string-prefix:10:10::The u prefix for strings is no longer necessary in Python >=3.0:HIGH
-redundant-u-string-prefix:11:10::The u prefix for strings is no longer necessary in Python >=3.0:HIGH
-redundant-u-string-prefix:12:11::The u prefix for strings is no longer necessary in Python >=3.0:HIGH
-redundant-u-string-prefix:12:22::The u prefix for strings is no longer necessary in Python >=3.0:HIGH
-redundant-u-string-prefix:13:11::The u prefix for strings is no longer necessary in Python >=3.0:HIGH
-redundant-u-string-prefix:13:22::The u prefix for strings is no longer necessary in Python >=3.0:HIGH
-redundant-u-string-prefix:14:14::The u prefix for strings is no longer necessary in Python >=3.0:HIGH
+redundant-u-string-prefix:10:10:None:None::The u prefix for strings is no longer necessary in Python >=3.0:UNDEFINED
+redundant-u-string-prefix:11:10:None:None::The u prefix for strings is no longer necessary in Python >=3.0:UNDEFINED
+redundant-u-string-prefix:12:11:None:None::The u prefix for strings is no longer necessary in Python >=3.0:UNDEFINED
+redundant-u-string-prefix:12:22:None:None::The u prefix for strings is no longer necessary in Python >=3.0:UNDEFINED
+redundant-u-string-prefix:13:11:None:None::The u prefix for strings is no longer necessary in Python >=3.0:UNDEFINED
+redundant-u-string-prefix:13:22:None:None::The u prefix for strings is no longer necessary in Python >=3.0:UNDEFINED
+redundant-u-string-prefix:14:14:None:None::The u prefix for strings is no longer necessary in Python >=3.0:UNDEFINED

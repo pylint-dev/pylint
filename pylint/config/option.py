@@ -3,7 +3,9 @@
 
 import copy
 import optparse  # pylint: disable=deprecated-module
+import pathlib
 import re
+from typing import List, Pattern
 
 from pylint import utils
 
@@ -25,6 +27,19 @@ def _regexp_csv_validator(_, name, value):
     return [_regexp_validator(_, name, val) for val in _csv_validator(_, name, value)]
 
 
+def _regexp_paths_csv_validator(_, name: str, value: str) -> List[Pattern[str]]:
+    patterns = []
+    for val in _csv_validator(_, name, value):
+        patterns.append(
+            re.compile(
+                str(pathlib.PureWindowsPath(val)).replace("\\", "\\\\")
+                + "|"
+                + pathlib.PureWindowsPath(val).as_posix()
+            )
+        )
+    return patterns
+
+
 def _choice_validator(choices, name, value):
     if value not in choices:
         msg = "option %s: invalid value: %r, should be in %s"
@@ -35,6 +50,8 @@ def _choice_validator(choices, name, value):
 def _yn_validator(opt, _, value):
     if isinstance(value, int):
         return bool(value)
+    if isinstance(value, str):
+        value = value.lower()
     if value in ("y", "yes", "true"):
         return True
     if value in ("n", "no", "false"):
@@ -80,6 +97,7 @@ VALIDATORS = {
     "float": float,
     "regexp": lambda pattern: re.compile(pattern or ""),
     "regexp_csv": _regexp_csv_validator,
+    "regexp_paths_csv": _regexp_paths_csv_validator,
     "csv": _csv_validator,
     "yn": _yn_validator,
     "choice": lambda opt, name, value: _choice_validator(opt["choices"], name, value),
@@ -122,6 +140,7 @@ class Option(optparse.Option):
     TYPES = optparse.Option.TYPES + (
         "regexp",
         "regexp_csv",
+        "regexp_paths_csv",
         "csv",
         "yn",
         "multiple_choice",
@@ -132,6 +151,7 @@ class Option(optparse.Option):
     TYPE_CHECKER = copy.copy(optparse.Option.TYPE_CHECKER)
     TYPE_CHECKER["regexp"] = _regexp_validator
     TYPE_CHECKER["regexp_csv"] = _regexp_csv_validator
+    TYPE_CHECKER["regexp_paths_csv"] = _regexp_paths_csv_validator
     TYPE_CHECKER["csv"] = _csv_validator
     TYPE_CHECKER["yn"] = _yn_validator
     TYPE_CHECKER["multiple_choice"] = _multiple_choices_validating_option
@@ -161,8 +181,7 @@ class Option(optparse.Option):
                 f"must not supply choices for type {self.type!r}", self
             )
 
-    # pylint: disable=unsupported-assignment-operation
-    optparse.Option.CHECK_METHODS[2] = _check_choice  # type: ignore
+    optparse.Option.CHECK_METHODS[2] = _check_choice  # type: ignore[index]
 
     def process(self, opt, value, values, parser):
         # First, convert the value(s) to the right type.  Howl if any

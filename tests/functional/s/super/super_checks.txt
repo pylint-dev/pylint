@@ -1,17 +1,17 @@
-no-member:10:8:Aaaa.hop:Super of 'Aaaa' has no 'hop' member:INFERENCE
-no-member:19:8:NewAaaa.hop:Super of 'NewAaaa' has no 'hop' member:INFERENCE
-bad-super-call:22:8:NewAaaa.__init__:Bad first argument 'Aaaa' given to super()
-bad-super-call:32:8:Py3kWrongSuper.__init__:Bad first argument 'NewAaaa' given to super()
-bad-super-call:37:8:WrongNameRegression.__init__:Bad first argument 'Missing' given to super()
-bad-super-call:46:8:CrashSuper.__init__:Bad first argument 'NewAaaa' given to super()
-bad-super-call:62:8:SuperDifferentScope.test:Bad first argument 'object' given to super()
-bad-super-call:70:8:UnknownBases.__init__:Bad first argument 'Missing' given to super()
-not-callable:89:8:InvalidSuperChecks.__init__:super(InvalidSuperChecks, self).not_a_method is not callable
-no-member:90:8:InvalidSuperChecks.__init__:Super of 'InvalidSuperChecks' has no 'attribute_error' member:INFERENCE
-no-value-for-parameter:92:8:InvalidSuperChecks.__init__:No value for argument 'param' in method call
-too-many-function-args:93:8:InvalidSuperChecks.__init__:Too many positional arguments for method call
-no-value-for-parameter:95:8:InvalidSuperChecks.__init__:No value for argument 'param' in method call
-unexpected-keyword-arg:95:8:InvalidSuperChecks.__init__:Unexpected keyword argument 'lala' in method call
-no-member:98:8:InvalidSuperChecks.__init__:Super of 'InvalidSuperChecks' has no 'attribute_error' member:INFERENCE
-bad-super-call:120:8:SuperWithType.__init__:Bad first argument 'type' given to super()
-bad-super-call:125:8:SuperWithSelfClass.__init__:Bad first argument 'self.__class__' given to super()
+no-member:10:8:10:29:Aaaa.hop:Super of 'Aaaa' has no 'hop' member:INFERENCE
+no-member:19:8:19:32:NewAaaa.hop:Super of 'NewAaaa' has no 'hop' member:INFERENCE
+bad-super-call:22:8:22:25:NewAaaa.__init__:Bad first argument 'Aaaa' given to super():UNDEFINED
+bad-super-call:32:8:32:28:Py3kWrongSuper.__init__:Bad first argument 'NewAaaa' given to super():UNDEFINED
+bad-super-call:37:8:37:28:WrongNameRegression.__init__:Bad first argument 'Missing' given to super():UNDEFINED
+bad-super-call:46:8:46:33:CrashSuper.__init__:Bad first argument 'NewAaaa' given to super():UNDEFINED
+bad-super-call:62:8:62:24:SuperDifferentScope.test:Bad first argument 'object' given to super():UNDEFINED
+bad-super-call:70:8:70:28:UnknownBases.__init__:Bad first argument 'Missing' given to super():UNDEFINED
+not-callable:89:8:89:54:InvalidSuperChecks.__init__:super(InvalidSuperChecks, self).not_a_method is not callable:UNDEFINED
+no-member:90:8:90:55:InvalidSuperChecks.__init__:Super of 'InvalidSuperChecks' has no 'attribute_error' member:INFERENCE
+no-value-for-parameter:92:8:92:50:InvalidSuperChecks.__init__:No value for argument 'param' in method call:UNDEFINED
+too-many-function-args:93:8:93:60:InvalidSuperChecks.__init__:Too many positional arguments for method call:UNDEFINED
+no-value-for-parameter:95:8:95:57:InvalidSuperChecks.__init__:No value for argument 'param' in method call:UNDEFINED
+unexpected-keyword-arg:95:8:95:57:InvalidSuperChecks.__init__:Unexpected keyword argument 'lala' in method call:UNDEFINED
+no-member:98:8:98:55:InvalidSuperChecks.__init__:Super of 'InvalidSuperChecks' has no 'attribute_error' member:INFERENCE
+bad-super-call:120:8:120:31:SuperWithType.__init__:Bad first argument 'type' given to super():UNDEFINED
+bad-super-call:125:8:125:35:SuperWithSelfClass.__init__:Bad first argument 'self.__class__' given to super():UNDEFINED

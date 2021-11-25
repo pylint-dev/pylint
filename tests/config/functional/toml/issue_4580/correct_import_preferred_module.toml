@@ -1,0 +1,2 @@
+[tool.pylint.imports]
+preferred-modules = { "a"="b" }

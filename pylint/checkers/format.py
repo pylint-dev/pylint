@@ -37,6 +37,9 @@
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2020 Raphael Gaschignard <raphael@rtpg.co>
 # Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
+# Copyright (c) 2021 Tushar Sadhwani <tushar.sadhwani000@gmail.com>
+# Copyright (c) 2021 bot <bot@noreply.github.com>
+# Copyright (c) 2021 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -52,7 +55,7 @@ Some parts of the process_token method is based from The Tab Nanny std module.
 """
 
 import tokenize
-from functools import reduce  # pylint: disable=redefined-builtin
+from functools import reduce
 from typing import List
 
 from astroid import nodes
@@ -270,7 +273,7 @@ class FormatChecker(BaseTokenChecker):
             {
                 "default": False,
                 "type": "yn",
-                "metavar": "<y_or_n>",
+                "metavar": "<y or n>",
                 "help": (
                     "Allow the body of an if to be on the same "
                     "line as the test if there is no else."
@@ -282,7 +285,7 @@ class FormatChecker(BaseTokenChecker):
             {
                 "default": False,
                 "type": "yn",
-                "metavar": "<y_or_n>",
+                "metavar": "<y or n>",
                 "help": (
                     "Allow the body of a class to be on the same "
                     "line as the declaration if body contains "

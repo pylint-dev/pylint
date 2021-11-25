@@ -25,7 +25,7 @@
 # Copyright (c) 2017 Jacques Kvam <jwkvam@gmail.com>
 # Copyright (c) 2017 ttenhoeve-aa <ttenhoeve@appannie.com>
 # Copyright (c) 2018-2019, 2021 Nick Drozd <nicholasdrozd@gmail.com>
-# Copyright (c) 2018-2019 Ville Skyttä <ville.skytta@iki.fi>
+# Copyright (c) 2018-2019, 2021 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2018 Sergei Lebedev <185856+superbobry@users.noreply.github.com>
 # Copyright (c) 2018 Lucas Cimon <lucas.cimon@gmail.com>
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
@@ -53,7 +53,12 @@
 # Copyright (c) 2020 Benny <benny.mueller91@gmail.com>
 # Copyright (c) 2020 Anubhav <35621759+anubh-v@users.noreply.github.com>
 # Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
+# Copyright (c) 2021 Tushar Sadhwani <tushar.sadhwani000@gmail.com>
+# Copyright (c) 2021 Tim Martin <tim@asymptotic.co.uk>
+# Copyright (c) 2021 Jaehoon Hwang <jaehoonhwang@users.noreply.github.com>
+# Copyright (c) 2021 jaydesl <35102795+jaydesl@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 bot <bot@noreply.github.com>
 # Copyright (c) 2021 Yilei "Dolee" Yang <yileiyang@google.com>
 # Copyright (c) 2021 Lorena B <46202743+lorena-b@users.noreply.github.com>
 # Copyright (c) 2021 David Liu <david@cs.toronto.edu>
@@ -214,7 +219,7 @@ DEFAULT_ARGUMENT_SYMBOLS = dict(
         )
     },
 )
-REVERSED_COMPS = {"<": ">", "<=": ">=", ">": "<", ">=": "<="}
+
 COMPARISON_OPERATORS = frozenset(("==", "!=", "<", ">", "<=", ">="))
 # List of methods which can be redefined
 REDEFINABLE_METHODS = frozenset(("__module__",))
@@ -242,21 +247,18 @@ def _redefines_import(node):
     return False
 
 
-def in_loop(node):
-    """return True if the node is inside a kind of for loop"""
-    for parent in node.node_ancestors():
-        if isinstance(
-            parent,
-            (
-                nodes.For,
-                nodes.ListComp,
-                nodes.SetComp,
-                nodes.DictComp,
-                nodes.GeneratorExp,
-            ),
-        ):
-            return True
-    return False
+LOOPLIKE_NODES = (
+    nodes.For,
+    nodes.ListComp,
+    nodes.SetComp,
+    nodes.DictComp,
+    nodes.GeneratorExp,
+)
+
+
+def in_loop(node: nodes.NodeNG) -> bool:
+    """Return whether the node is inside a kind of for loop"""
+    return any(isinstance(parent, LOOPLIKE_NODES) for parent in node.node_ancestors())
 
 
 def in_nested_list(nested_list, obj):
@@ -1819,7 +1821,7 @@ class NameChecker(_BasicChecker):
             {
                 "default": False,
                 "type": "yn",
-                "metavar": "<y_or_n>",
+                "metavar": "<y or n>",
                 "help": "Include a hint for the correct naming format with invalid-name.",
             },
         ),
@@ -2200,10 +2202,10 @@ class DocStringChecker(_BasicChecker):
                         overridden = True
                         break
                 self._check_docstring(
-                    ftype, node, report_missing=not overridden, confidence=confidence  # type: ignore
+                    ftype, node, report_missing=not overridden, confidence=confidence  # type: ignore[arg-type]
                 )
             elif isinstance(node.parent.frame(), nodes.Module):
-                self._check_docstring(ftype, node)  # type: ignore
+                self._check_docstring(ftype, node)  # type: ignore[arg-type]
             else:
                 return
 
@@ -2325,13 +2327,6 @@ class ComparisonChecker(_BasicChecker):
             "singleton-comparison",
             "Used when an expression is compared to singleton "
             "values like True, False or None.",
-        ),
-        "C0122": (
-            "Comparison should be %s",
-            "misplaced-comparison-constant",
-            "Used when the constant is placed on the left side "
-            "of a comparison. It is usually clearer in intent to "
-            "place it in the right hand side of the comparison.",
         ),
         "C0123": (
             "Use isinstance() rather than type() for a typecheck.",
@@ -2481,13 +2476,6 @@ class ComparisonChecker(_BasicChecker):
         if is_const or is_other_literal:
             self.add_message("literal-comparison", node=node)
 
-    def _check_misplaced_constant(self, node, left, right, operator):
-        if isinstance(right, nodes.Const):
-            return
-        operator = REVERSED_COMPS.get(operator, operator)
-        suggestion = f"{right.as_string()} {operator} {left.value!r}"
-        self.add_message("misplaced-comparison-constant", node=node, args=(suggestion,))
-
     def _check_logical_tautology(self, node: nodes.Compare):
         """Check if identifier is compared against itself.
         :param node: Compare node
@@ -2535,7 +2523,6 @@ class ComparisonChecker(_BasicChecker):
 
     @utils.check_messages(
         "singleton-comparison",
-        "misplaced-comparison-constant",
         "unidiomatic-typecheck",
         "literal-comparison",
         "comparison-with-itself",
@@ -2552,8 +2539,6 @@ class ComparisonChecker(_BasicChecker):
 
         left = node.left
         operator, right = node.ops[0]
-        if operator in COMPARISON_OPERATORS and isinstance(left, nodes.Const):
-            self._check_misplaced_constant(node, left, right, operator)
 
         if operator in ("==", "!="):
             self._check_singleton_comparison(

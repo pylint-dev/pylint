@@ -1,5 +1,0 @@
-consider-using-namedtuple-or-dataclass:11:12::Consider using namedtuple or dataclass for dictionary values
-consider-using-namedtuple-or-dataclass:15:12::Consider using namedtuple or dataclass for dictionary values
-consider-using-namedtuple-or-dataclass:34:23:func:Consider using namedtuple or dataclass for dictionary values
-consider-using-namedtuple-or-dataclass:41:12::Consider using namedtuple or dataclass for dictionary values
-consider-using-namedtuple-or-dataclass:53:12::Consider using namedtuple or dataclass for dictionary values

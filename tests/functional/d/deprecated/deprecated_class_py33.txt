@@ -1,3 +1,3 @@
-deprecated-class:4:0::Using deprecated class Iterable of module collections
-deprecated-class:6:0::Using deprecated class Set of module collections
-deprecated-class:11:4::Using deprecated class Awaitable of module collections
+deprecated-class:4:0:4:32::Using deprecated class Iterable of module collections:UNDEFINED
+deprecated-class:6:0:6:22::Using deprecated class Set of module collections:UNDEFINED
+deprecated-class:11:4:11:27::Using deprecated class Awaitable of module collections:UNDEFINED

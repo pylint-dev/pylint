@@ -1,4 +1,4 @@
-﻿Contributors
+Contributors
 ------------
 
 Current team:
@@ -154,6 +154,7 @@ contributors:
 
 * Martin Bašti: contributor
   Added new check for shallow copy of os.environ
+  Added new check for useless `with threading.Lock():` statement
 
 * Jacques Kvam: contributor
 
@@ -390,6 +391,8 @@ contributors:
 
 * Ram Rachum (cool-RR)
 
+* D. Alphus (Alphadelta14): contributor
+
 * Pieter Engelbrecht
 
 * Ethan Leba: contributor
@@ -526,6 +529,9 @@ contributors:
 
 * Marcin Kurczewski (rr-): contributor
 
+* Tanvi Moharir: contributor
+  - Fix for invalid toml config
+
 * Eisuke Kawashima (e-kwsm): contributor
 
 * Daniel van Noord (DanielNoord): contributor
@@ -553,6 +559,26 @@ contributors:
 
 * Samuel Forestier: contributor
 
+* Nick Pesce: contributor
+
 * James DesLauriers: contributor
 
 * Youngsoo Sung: contributor
+
+* Arianna Yang: contributor
+
+* Samuel Freilich (sfreilich): contributor
+
+* Mike Fiedler (miketheman): contributor
+
+* Takahide Nojima: contributor
+
+* Tushar Sadhwani (tusharsadhwani): contributor
+
+* Ikraduya Edian: contributor
+
+* Antonio Quarta (sgheppy): contributor
+
+* Harshil (harshil21): contributor
+
+* Felix von Drigalski (felixvd): contributor

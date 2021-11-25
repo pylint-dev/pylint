@@ -4,9 +4,11 @@ import platform
 import sys
 
 import astroid
+import platformdirs
 
 from pylint.__pkginfo__ import __version__
 
+PY37_PLUS = sys.version_info[:2] >= (3, 7)
 PY38_PLUS = sys.version_info[:2] >= (3, 8)
 PY39_PLUS = sys.version_info[:2] >= (3, 9)
 
@@ -38,6 +40,11 @@ MSG_TYPES_STATUS = {"I": 0, "C": 16, "R": 8, "W": 4, "E": 2, "F": 1}
 # This would affect rcfile generation and retro-compatibility
 # on all project using [MASTER] in their rcfile.
 MAIN_CHECKER_NAME = "master"
+
+# pylint: disable-next=fixme
+# TODO Remove in 3.0 with all the surrounding code
+OLD_DEFAULT_PYLINT_HOME = ".pylint.d"
+DEFAULT_PYLINT_HOME = platformdirs.user_cache_dir("pylint")
 
 
 class WarningScope:

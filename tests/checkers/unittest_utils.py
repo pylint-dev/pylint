@@ -11,8 +11,9 @@
 # Copyright (c) 2019 Nathan Marrow <nmarrow@google.com>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
+# Copyright (c) 2021 Jaehoon Hwang <jaehoonhwang@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
@@ -467,14 +468,14 @@ def test_if_typing_guard() -> None:
 
 def test_is_empty_literal() -> None:
     list_node = astroid.extract_node("a = []")
-    assert utils.is_empty_list_literal(list_node.value)
+    assert utils.is_base_container(list_node.value)
     not_empty_list_node = astroid.extract_node("a = [1,2,3]")
-    assert not utils.is_empty_list_literal(not_empty_list_node.value)
+    assert not utils.is_base_container(not_empty_list_node.value)
 
     tuple_node = astroid.extract_node("a = ()")
-    assert utils.is_empty_tuple_literal(tuple_node.value)
+    assert utils.is_base_container(tuple_node.value)
     not_empty_tuple_node = astroid.extract_node("a = (1,2)")
-    assert not utils.is_empty_tuple_literal(not_empty_tuple_node.value)
+    assert not utils.is_base_container(not_empty_tuple_node.value)
 
     dict_node = astroid.extract_node("a = {}")
     assert utils.is_empty_dict_literal(dict_node.value)

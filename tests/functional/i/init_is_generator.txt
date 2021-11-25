@@ -1,1 +1,1 @@
-init-is-generator:4:4:SomeClass.__init__:__init__ method is a generator
+init-is-generator:4:4:5:18:SomeClass.__init__:__init__ method is a generator:UNDEFINED

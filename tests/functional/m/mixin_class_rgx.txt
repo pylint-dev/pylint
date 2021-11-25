@@ -1,0 +1,3 @@
+not-async-context-manager:24:4:25:12:check_not_async_context_manager:Async context manager 'AsyncManagerMixedin' doesn't implement __aenter__ and __aexit__.:UNDEFINED
+attribute-defined-outside-init:38:8:38:17:OutsideInitMixedin.set_attribute:Attribute 'attr' defined outside __init__:UNDEFINED
+no-member:55:11:55:38::Instance of 'OutsideInitMixedin' has no 'method' member:INFERENCE

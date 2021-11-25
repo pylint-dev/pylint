@@ -1,1 +1,1 @@
-implicit-str-concat:3:0::Implicit string concatenation found in tuple
+implicit-str-concat:3:0:None:None::Implicit string concatenation found in tuple:UNDEFINED

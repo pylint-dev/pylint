@@ -1,1 +1,1 @@
-useless-super-delegation:11:4:UselessSuper.useless:Useless super delegation in method 'useless'
+useless-super-delegation:11:4:12:62:UselessSuper.useless:Useless super delegation in method 'useless':UNDEFINED

@@ -1,1 +1,1 @@
-deprecated-module:4:0::Uses of a deprecated module 'optparse':HIGH
+deprecated-module:4:0:4:33::Uses of a deprecated module 'optparse':UNDEFINED

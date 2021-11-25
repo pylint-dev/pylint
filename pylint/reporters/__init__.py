@@ -14,6 +14,7 @@
 # Copyright (c) 2019, 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 ruro <ruro.ruro@ya.ru>
 
@@ -36,7 +37,7 @@ if TYPE_CHECKING:
 
 def initialize(linter: "PyLinter") -> None:
     """initialize linter with reporters in this package"""
-    utils.register_plugins(linter, __path__[0])  # type: ignore # Fixed in https://github.com/python/mypy/pull/9454
+    utils.register_plugins(linter, __path__[0])  # type: ignore[name-defined] # Fixed in https://github.com/python/mypy/pull/9454
 
 
 __all__ = [

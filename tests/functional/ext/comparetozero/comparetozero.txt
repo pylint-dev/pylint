@@ -1,0 +1,4 @@
+compare-to-zero:6:3:6:9::Avoid comparisons to zero:UNDEFINED
+compare-to-zero:9:3:9:13::Avoid comparisons to zero:UNDEFINED
+compare-to-zero:12:3:12:9::Avoid comparisons to zero:UNDEFINED
+compare-to-zero:15:3:15:9::Avoid comparisons to zero:UNDEFINED

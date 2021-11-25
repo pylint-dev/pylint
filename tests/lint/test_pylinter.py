@@ -1,9 +1,9 @@
 from typing import Any, NoReturn
 from unittest.mock import patch
 
-from _pytest.capture import CaptureFixture
 from astroid import AstroidBuildingError
-from py._path.local import LocalPath  # type: ignore
+from py._path.local import LocalPath  # type: ignore[import]
+from pytest import CaptureFixture
 
 from pylint.lint.pylinter import PyLinter
 from pylint.utils import FileState
@@ -29,3 +29,9 @@ def test_crash_in_file(
     with open(files[0], encoding="utf8") as f:
         content = f.read()
     assert "Failed to import module spam." in content
+
+
+def test_check_deprecation(linter: PyLinter, recwarn):
+    linter.check("myfile.py")
+    msg = recwarn.pop()
+    assert "check function will only accept sequence" in str(msg)

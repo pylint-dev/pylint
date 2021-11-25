@@ -1,11 +1,11 @@
-redefined-builtin:5:0:next:Redefining built-in 'next'
-unused-argument:8:30:some_function:Unused argument 'arg2'
-bad-super-call:22:8:Class.some_method:Bad first argument 'OtherClass' given to super()
-too-many-arguments:26:0:complex_function:Too many arguments (10/5)
-too-many-branches:26:0:complex_function:Too many branches (13/12)
-too-many-return-statements:26:0:complex_function:Too many return statements (10/6)
-dangerous-default-value:57:0:func:Dangerous default value [] as argument
-duplicate-argument-name:57:15:func:Duplicate argument name a in function definition
-duplicate-argument-name:57:18:func:Duplicate argument name a in function definition
-disallowed-name:62:0:foo:Disallowed name "foo"
-empty-docstring:62:0:foo:Empty function docstring
+redefined-builtin:5:0:6:8:next:Redefining built-in 'next':UNDEFINED
+unused-argument:8:30:8:34:some_function:Unused argument 'arg2':HIGH
+bad-super-call:22:8:22:31:Class.some_method:Bad first argument 'OtherClass' given to super():UNDEFINED
+too-many-arguments:26:0:53:12:complex_function:Too many arguments (10/5):UNDEFINED
+too-many-branches:26:0:53:12:complex_function:Too many branches (13/12):UNDEFINED
+too-many-return-statements:26:0:53:12:complex_function:Too many return statements (10/6):UNDEFINED
+dangerous-default-value:57:0:58:15:func:Dangerous default value [] as argument:UNDEFINED
+duplicate-argument-name:57:15:57:16:func:Duplicate argument name a in function definition:UNDEFINED
+duplicate-argument-name:57:18:57:19:func:Duplicate argument name a in function definition:UNDEFINED
+disallowed-name:62:0:63:6:foo:"Disallowed name ""foo""":UNDEFINED
+empty-docstring:62:0:63:6:foo:Empty function docstring:HIGH

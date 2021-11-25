@@ -1,0 +1,15 @@
+too-complex:9:0:11:8:f1:'f1' is too complex. The McCabe rating is 1:HIGH
+too-complex:14:0:18:12:f2:'f2' is too complex. The McCabe rating is 1:HIGH
+too-complex:21:0:28:47:f3:'f3' is too complex. The McCabe rating is 3:HIGH
+too-complex:31:0:34:16:f4:'f4' is too complex. The McCabe rating is 2:HIGH
+too-complex:37:0:42:19:f5:'f5' is too complex. The McCabe rating is 2:HIGH
+too-complex:45:0:50:16:f6:'f6' is too complex. The McCabe rating is 2:HIGH
+too-complex:53:0:65:7:f7:'f7' is too complex. The McCabe rating is 3:HIGH
+too-complex:68:0:77:16:f8:'f8' is too complex. The McCabe rating is 4:HIGH
+too-complex:80:0:103:25:f9:'f9' is too complex. The McCabe rating is 9:HIGH
+too-complex:106:0:130:16:f10:'f10' is too complex. The McCabe rating is 11:HIGH
+too-complex:138:4:140:12:MyClass1.method1:'method1' is too complex. The McCabe rating is 1:HIGH
+too-complex:142:4:195:21:MyClass1.method2:'method2' is too complex. The McCabe rating is 18:HIGH
+too-many-branches:142:4:195:21:MyClass1.method2:Too many branches (20/12):UNDEFINED
+too-complex:198:0:204:15::This 'for' is too complex. The McCabe rating is 4:HIGH
+too-complex:207:0:216:15:method3:'method3' is too complex. The McCabe rating is 2:HIGH

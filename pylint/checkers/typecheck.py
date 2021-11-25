@@ -16,10 +16,10 @@
 # Copyright (c) 2016 Jürgen Hermann <jh@web.de>
 # Copyright (c) 2016 Jakub Wilk <jwilk@jwilk.net>
 # Copyright (c) 2016 Filipe Brandenburger <filbranden@google.com>
+# Copyright (c) 2017, 2021 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2017-2018, 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2017 Derek Gustafson <degustaf@gmail.com>
-# Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2018-2019, 2021 Nick Drozd <nicholasdrozd@gmail.com>
 # Copyright (c) 2018 Pablo Galindo <Pablogsal@gmail.com>
 # Copyright (c) 2018 Jim Robertson <jrobertson98atx@gmail.com>
@@ -42,9 +42,10 @@
 # Copyright (c) 2020 Ram Rachum <ram@rachum.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2020 Anubhav <35621759+anubh-v@users.noreply.github.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Tushar Sadhwani <tushar.sadhwani000@gmail.com>
 # Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 David Liu <david@cs.toronto.edu>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 doranid <ddandd@gmail.com>
 # Copyright (c) 2021 yushao2 <36848472+yushao2@users.noreply.github.com>
 # Copyright (c) 2021 Andrew Haigh <nelfin@gmail.com>
@@ -442,7 +443,14 @@ SEQUENCE_TYPES = {
 }
 
 
-def _emit_no_member(node, owner, owner_name, ignored_mixins=True, ignored_none=True):
+def _emit_no_member(
+    node,
+    owner,
+    owner_name,
+    mixin_class_rgx: Pattern[str],
+    ignored_mixins=True,
+    ignored_none=True,
+):
     """Try to see if no-member should be emitted for the given owner.
 
     The following cases are ignored:
@@ -462,7 +470,7 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins=True, ignored_none=T
         return False
     if is_super(owner) or getattr(owner, "type", None) == "metaclass":
         return False
-    if owner_name and ignored_mixins and owner_name[-5:].lower() == "mixin":
+    if owner_name and ignored_mixins and mixin_class_rgx.match(owner_name):
         return False
     if isinstance(owner, nodes.FunctionDef) and (
         owner.decorators or owner.is_abstract()
@@ -770,7 +778,7 @@ class TypeChecker(BaseChecker):
             {
                 "default": True,
                 "type": "yn",
-                "metavar": "<y_or_n>",
+                "metavar": "<y or n>",
                 "help": "This flag controls whether pylint should warn about "
                 "no-member and similar checks whenever an opaque object "
                 "is returned when inferring. The inference can return "
@@ -781,14 +789,24 @@ class TypeChecker(BaseChecker):
             },
         ),
         (
+            "mixin-class-rgx",
+            {
+                "default": ".*[Mm]ixin",
+                "type": "regexp",
+                "metavar": "<regexp>",
+                "help": "Regex pattern to define which classes are considered mixins "
+                "ignore-mixin-members is set to 'yes'",
+            },
+        ),
+        (
             "ignore-mixin-members",
             {
                 "default": True,
                 "type": "yn",
-                "metavar": "<y_or_n>",
-                "help": 'Tells whether missing members accessed in mixin \
-class should be ignored. A mixin class is detected if its name ends with \
-"mixin" (case insensitive).',
+                "metavar": "<y or n>",
+                "help": "Tells whether missing members accessed in mixin "
+                "class should be ignored. A class is considered mixin if its name matches "
+                "the mixin-class-rgx option.",
             },
         ),
         (
@@ -796,7 +814,7 @@ class should be ignored. A mixin class is detected if its name ends with \
             {
                 "default": True,
                 "type": "yn",
-                "metavar": "<y_or_n>",
+                "metavar": "<y or n>",
                 "help": "Tells whether to warn about missing members when the owner "
                 "of the attribute is inferred to be None.",
             },
@@ -898,6 +916,7 @@ accessed. Python regular expressions are accepted.",
     def open(self) -> None:
         py_version = get_global_option(self, "py-version")
         self._py310_plus = py_version >= (3, 10)
+        self._mixin_class_rgx = get_global_option(self, "mixin-class-rgx")
 
     @astroid.decorators.cachedproperty
     def _suggestion_mode(self):
@@ -1040,6 +1059,7 @@ accessed. Python regular expressions are accepted.",
                     node,
                     owner,
                     name,
+                    self._mixin_class_rgx,
                     ignored_mixins=self.config.ignore_mixin_members,
                     ignored_none=self.config.ignore_none,
                 ):
@@ -1296,8 +1316,9 @@ accessed. Python regular expressions are accepted.",
                 pass
             else:
                 self.add_message("not-callable", node=node, args=node.func.as_string())
+        else:
+            self._check_uninferable_call(node)
 
-        self._check_uninferable_call(node)
         try:
             called, implicit_args, callable_name = _determine_callable(called)
         except ValueError:
@@ -1564,9 +1585,9 @@ accessed. Python regular expressions are accepted.",
         # index to check if the object being sliced can support them
         return self._check_invalid_sequence_index(node.parent)
 
-    def _check_invalid_slice_index(self, node):
+    def _check_invalid_slice_index(self, node: nodes.Slice) -> None:
         # Check the type of each part of the slice
-        invalid_slices = 0
+        invalid_slices_nodes: List[nodes.NodeNG] = []
         for index in (node.lower, node.upper, node.step):
             if index is None:
                 continue
@@ -1590,9 +1611,9 @@ accessed. Python regular expressions are accepted.",
                     return
                 except astroid.NotFoundError:
                     pass
-            invalid_slices += 1
+            invalid_slices_nodes.append(index)
 
-        if not invalid_slices:
+        if not invalid_slices_nodes:
             return
 
         # Anything else is an error, unless the object that is indexed
@@ -1615,8 +1636,8 @@ accessed. Python regular expressions are accepted.",
             if not isinstance(inferred, known_objects):
                 # Might be an instance that knows how to handle this slice object
                 return
-        for _ in range(invalid_slices):
-            self.add_message("invalid-slice-index", node=node)
+        for snode in invalid_slices_nodes:
+            self.add_message("invalid-slice-index", node=snode)
 
     @check_messages("not-context-manager")
     def visit_with(self, node: nodes.With) -> None:

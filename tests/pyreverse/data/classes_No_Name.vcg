@@ -22,6 +22,9 @@ graph:{
   node: {title:"data.suppliermodule_test.Interface"  label:"\fbInterface\fn\n\f___________\n\f10get_value()\n\f10set_value()"
   shape:box
 }
+  node: {title:"data.property_pattern.PropertyPatterns"  label:"\fbPropertyPatterns\fn\n\f__________________\n\f08prop1\n\f08prop2\n\f__________________"
+  shape:box
+}
   node: {title:"data.clientmodule_test.Specialization"  label:"\fbSpecialization\fn\n\f________________\n\f08TYPE : str\n\f08relation\n\f08relation2\n\f08top : str\n\f________________"
   shape:box
 }

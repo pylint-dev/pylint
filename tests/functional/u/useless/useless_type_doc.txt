@@ -1,4 +1,0 @@
-useless-param-doc:34:0:function_useless_doc:"""_some_private_param"" useless ignored parameter documentation":HIGH
-useless-type-doc:34:0:function_useless_doc:"""_some_private_param"" useless ignored parameter type documentation":HIGH
-useless-param-doc:67:0:test_two:"""_new"" useless ignored parameter documentation":HIGH
-useless-type-doc:67:0:test_two:"""_new"" useless ignored parameter type documentation":HIGH

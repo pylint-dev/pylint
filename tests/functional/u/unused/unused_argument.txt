@@ -1,8 +1,8 @@
-unused-argument:3:16:test_unused:Unused argument 'first'
-unused-argument:3:23:test_unused:Unused argument 'second'
-unused-argument:32:29:Sub.newmethod:Unused argument 'aay':INFERENCE
-unused-argument:54:13:function:Unused argument 'arg'
-unused-argument:61:21:AAAA.method:Unused argument 'arg':INFERENCE
-unused-argument:68:0:AAAA.selected:Unused argument 'args':INFERENCE
-unused-argument:68:0:AAAA.selected:Unused argument 'kwargs':INFERENCE
-unused-argument:87:23:BBBB.__init__:Unused argument 'arg':INFERENCE
+unused-argument:3:16:3:21:test_unused:Unused argument 'first':HIGH
+unused-argument:3:23:3:29:test_unused:Unused argument 'second':HIGH
+unused-argument:32:29:32:32:Sub.newmethod:Unused argument 'aay':INFERENCE
+unused-argument:54:13:54:16:function:Unused argument 'arg':HIGH
+unused-argument:61:21:61:24:AAAA.method:Unused argument 'arg':INFERENCE
+unused-argument:68:0:None:None:AAAA.selected:Unused argument 'args':INFERENCE
+unused-argument:68:0:None:None:AAAA.selected:Unused argument 'kwargs':INFERENCE
+unused-argument:87:23:87:26:BBBB.__init__:Unused argument 'arg':INFERENCE

@@ -1,5 +1,6 @@
 # pylint: disable=missing-docstring, missing-module-docstring, invalid-name
 # pylint: disable=too-few-public-methods, line-too-long, dangerous-default-value
+# pylint: disable=wrong-import-order
 # https://github.com/PyCQA/pylint/issues/4774
 
 def github_issue_4774():
@@ -102,14 +103,13 @@ something_else = NoBool()
 empty_literals = [[], {}, ()]
 is_empty = any(field == something_else for field in empty_literals)
 
-# this should work, but it doesn't since, input parameter only get the latest one, not all when inferred()
 h, i, j = 1, None, [1,2,3]
 
 def test(k):
     print(k == {})
 
 def test_with_default(k={}):
-    print(k == {}) # [use-implicit-booleaness-not-comparison]
+    print(k == {})
     print(k == 1)
 
 test(h)
@@ -119,6 +119,35 @@ test(j)
 test_with_default(h)
 test_with_default(i)
 test_with_default(j)
+
+
+class A:
+    lst = []
+
+    @staticmethod
+    def test(b=1):
+        print(b)
+        return []
+
+
+if A.lst == []:  # [use-implicit-booleaness-not-comparison]
+    pass
+
+
+if [] == A.lst:  # [use-implicit-booleaness-not-comparison]
+    pass
+
+
+if A.test("b") == []:  # [use-implicit-booleaness-not-comparison]
+    pass
+
+
+def test_function():
+    return []
+
+
+if test_function() == []:  # [use-implicit-booleaness-not-comparison]
+    pass
 
 # pylint: disable=import-outside-toplevel, wrong-import-position, import-error
 # Numpy has its own implementation of __bool__, but base class has list, that's why the comparison check is happening
@@ -139,4 +168,29 @@ if pandas_df == []:
 if pandas_df != ():
     pass
 if pandas_df <= []:
-    print("truth value of a dataframe is ambiguous")
+    print("don't emit warning if variable can't safely be inferred")
+
+from typing import Union
+from random import random
+
+var: Union[dict, bool, None] = {}
+if random() > 0.5:
+    var = True
+
+if var == {}:
+    pass
+
+data = {}
+
+if data == {}: # [use-implicit-booleaness-not-comparison]
+    print("This will be printed")
+if data != {}: # [use-implicit-booleaness-not-comparison]
+    print("This will also be printed")
+
+if data or not data:
+    print("This however won't be")
+
+# literal string check
+long_test = {}
+if long_test == {        }: # [use-implicit-booleaness-not-comparison]
+    pass

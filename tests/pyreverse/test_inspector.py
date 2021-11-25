@@ -4,6 +4,7 @@
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
+# Copyright (c) 2021 Takahide Nojima <nozzy123nozzy@gmail.com>
 # Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
@@ -132,5 +133,10 @@ def test_from_directory(project: Project) -> None:
 
 
 def test_project_node(project: Project) -> None:
-    expected = ["data", "data.clientmodule_test", "data.suppliermodule_test"]
+    expected = [
+        "data",
+        "data.clientmodule_test",
+        "data.property_pattern",
+        "data.suppliermodule_test",
+    ]
     assert sorted(project.keys()) == expected

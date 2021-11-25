@@ -1,1 +1,1 @@
-no-member:25:6::Instance of 'C' has no 'myfield' member:INFERENCE
+no-member:25:6:25:15::Instance of 'C' has no 'myfield' member:INFERENCE

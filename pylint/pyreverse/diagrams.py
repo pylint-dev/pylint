@@ -6,6 +6,8 @@
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
 # Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2021 Takahide Nojima <nozzy123nozzy@gmail.com>
+# Copyright (c) 2021 bot <bot@noreply.github.com>
 # Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
@@ -121,6 +123,7 @@ class ClassDiagram(Figure, FilterMixIn):
             m
             for m in node.values()
             if isinstance(m, nodes.FunctionDef)
+            and not isinstance(m, astroid.objects.Property)
             and not decorated_with_property(m)
             and self.show_attr(m.name)
         ]

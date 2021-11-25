@@ -1,8 +1,8 @@
-non-str-assignment-to-dunder-name:37:0::Non-string value assigned to __name__
-non-str-assignment-to-dunder-name:38:0::Non-string value assigned to __name__
-non-str-assignment-to-dunder-name:39:0::Non-string value assigned to __name__
-non-str-assignment-to-dunder-name:40:0::Non-string value assigned to __name__
-non-str-assignment-to-dunder-name:46:0::Non-string value assigned to __name__
-non-str-assignment-to-dunder-name:47:0::Non-string value assigned to __name__
-non-str-assignment-to-dunder-name:48:0::Non-string value assigned to __name__
-non-str-assignment-to-dunder-name:49:0::Non-string value assigned to __name__
+non-str-assignment-to-dunder-name:37:0:37:25::Non-string value assigned to __name__:UNDEFINED
+non-str-assignment-to-dunder-name:38:0:38:28::Non-string value assigned to __name__:UNDEFINED
+non-str-assignment-to-dunder-name:39:0:39:39::Non-string value assigned to __name__:UNDEFINED
+non-str-assignment-to-dunder-name:40:0:40:37::Non-string value assigned to __name__:UNDEFINED
+non-str-assignment-to-dunder-name:46:0:46:29::Non-string value assigned to __name__:UNDEFINED
+non-str-assignment-to-dunder-name:47:0:47:32::Non-string value assigned to __name__:UNDEFINED
+non-str-assignment-to-dunder-name:48:0:48:43::Non-string value assigned to __name__:UNDEFINED
+non-str-assignment-to-dunder-name:49:0:49:41::Non-string value assigned to __name__:UNDEFINED

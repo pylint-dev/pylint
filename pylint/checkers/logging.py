@@ -17,6 +17,7 @@
 # Copyright (c) 2019 Djailla <bastien.vallet@gmail.com>
 # Copyright (c) 2019 Svet <svet@hyperscience.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 Nick Drozd <nicholasdrozd@gmail.com>
 # Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -369,14 +370,8 @@ class LoggingChecker(checkers.BaseChecker):
             self.add_message("logging-too-few-args", node=node)
 
 
-def is_complex_format_str(node):
-    """Checks if node represents a string with complex formatting specs.
-
-    Args:
-        node (nodes.NodeNG): AST node to check
-    Returns:
-        bool: True if inferred string uses complex formatting, False otherwise
-    """
+def is_complex_format_str(node: nodes.NodeNG) -> bool:
+    """Return whether the node represents a string with complex formatting specs."""
     inferred = utils.safe_infer(node)
     if inferred is None or not (
         isinstance(inferred, nodes.Const) and isinstance(inferred.value, str)
@@ -387,10 +382,7 @@ def is_complex_format_str(node):
     except ValueError:
         # This format string is invalid
         return False
-    for _, _, format_spec, _ in parsed:
-        if format_spec:
-            return True
-    return False
+    return any(format_spec for (_, _, format_spec, _) in parsed)
 
 
 def _count_supplied_tokens(args):

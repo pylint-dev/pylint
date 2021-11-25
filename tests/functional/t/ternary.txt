@@ -1,7 +1,8 @@
-consider-using-ternary:5:0::Consider using ternary (true_value if condition else false_value)
-consider-using-ternary:15:4:func2:Consider using ternary (true_value if condition else false_value)
-consider-using-ternary:18:0::Consider using ternary ('ERROR' if some_callable(condition) else 'SUCCESS')
-consider-using-ternary:19:0::Consider using ternary ('greater' if SOME_VALUE1 > 3 else 'not greater')
-consider-using-ternary:20:0::Consider using ternary ('both' if SOME_VALUE2 > 4 and SOME_VALUE3 else 'not')
-simplify-boolean-expression:23:0::Boolean expression may be simplified to SOME_VALUE2
-consider-using-ternary:33:4:func4:Consider using ternary (truth_value if condition else false_value)
+consider-using-ternary:5:0:5:53::Consider using ternary (true_value if condition else false_value):UNDEFINED
+consider-using-ternary:15:4:15:50:func2:Consider using ternary (true_value if condition else false_value):UNDEFINED
+consider-using-ternary:18:0:18:63::Consider using ternary ('ERROR' if some_callable(condition) else 'SUCCESS'):UNDEFINED
+consider-using-ternary:19:0:19:60::Consider using ternary ('greater' if SOME_VALUE1 > 3 else 'not greater'):UNDEFINED
+consider-using-ternary:20:0:20:67::Consider using ternary ('both' if SOME_VALUE2 > 4 and SOME_VALUE3 else 'not'):UNDEFINED
+simplify-boolean-expression:23:0:23:50::Boolean expression may be simplified to SOME_VALUE2:UNDEFINED
+consider-using-ternary:33:4:33:51:func4:Consider using ternary (truth_value if condition else false_value):UNDEFINED
+simplify-boolean-expression:39:4:39:51:func5:Boolean expression may be simplified to false_value:UNDEFINED

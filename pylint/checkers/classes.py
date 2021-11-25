@@ -16,6 +16,7 @@
 # Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
 # Copyright (c) 2016 Jakub Wilk <jwilk@jwilk.net>
 # Copyright (c) 2017, 2019-2020 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2018, 2021 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2018, 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2018-2019 Nick Drozd <nicholasdrozd@gmail.com>
 # Copyright (c) 2018-2019 Ashley Whetter <ashley@awhetter.co.uk>
@@ -23,7 +24,6 @@
 # Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
 # Copyright (c) 2018 Ben Green <benhgreen@icloud.com>
-# Copyright (c) 2018 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 mattlbeck <17108752+mattlbeck@users.noreply.github.com>
 # Copyright (c) 2019-2020 craig-sh <craig-sh@users.noreply.github.com>
@@ -34,10 +34,14 @@
 # Copyright (c) 2019 Pascal Corpet <pcorpet@users.noreply.github.com>
 # Copyright (c) 2020 GergelyKalmar <gergely.kalmar@logikal.jp>
 # Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Mark Byrne <31762852+mbyrnepr2@users.noreply.github.com>
+# Copyright (c) 2021 Samuel Freilich <sfreilich@google.com>
+# Copyright (c) 2021 Nick Pesce <nickpesce22@gmail.com>
+# Copyright (c) 2021 bot <bot@noreply.github.com>
 # Copyright (c) 2021 yushao2 <36848472+yushao2@users.noreply.github.com>
 # Copyright (c) 2021 SupImDos <62866982+SupImDos@users.noreply.github.com>
 # Copyright (c) 2021 Kayran Schmidt <59456929+yumasheta@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Yu Shao, Pang <p.yushao2@gmail.com>
 # Copyright (c) 2021 Konstantina Saketou <56515303+ksaketou@users.noreply.github.com>
 # Copyright (c) 2021 James Sinclair <james@nurfherder.com>
@@ -63,6 +67,7 @@ from pylint.checkers.utils import (
     class_is_abstract,
     decorated_with,
     decorated_with_property,
+    get_outer_class,
     has_known_bases,
     is_attr_private,
     is_attr_protected,
@@ -78,14 +83,22 @@ from pylint.checkers.utils import (
     overrides_a_method,
     safe_infer,
     unimplemented_abstract_methods,
+    uninferable_final_decorators,
 )
-from pylint.constants import PY38_PLUS
 from pylint.interfaces import IAstroidChecker
 from pylint.utils import get_global_option
 
 NEXT_METHOD = "__next__"
 INVALID_BASE_CLASSES = {"bool", "range", "slice", "memoryview"}
 BUILTIN_DECORATORS = {"builtins.property", "builtins.classmethod"}
+ASTROID_TYPE_COMPARATORS = {
+    nodes.Const: lambda a, b: a.value == b.value,
+    nodes.ClassDef: lambda a, b: a.qname == b.qname,
+    nodes.Tuple: lambda a, b: a.elts == b.elts,
+    nodes.List: lambda a, b: a.elts == b.elts,
+    nodes.Dict: lambda a, b: a.items == b.items,
+    nodes.Name: lambda a, b: set(a.infer()) == set(b.infer()),
+}
 
 # Dealing with useless override detection, with regard
 # to parameters vs arguments
@@ -142,38 +155,22 @@ def _signature_from_arguments(arguments):
 def _definition_equivalent_to_call(definition, call):
     """Check if a definition signature is equivalent to a call."""
     if definition.kwargs:
-        same_kw_variadics = definition.kwargs in call.starred_kws
-    else:
-        same_kw_variadics = not call.starred_kws
+        if definition.kwargs not in call.starred_kws:
+            return False
+    elif call.starred_kws:
+        return False
     if definition.varargs:
-        same_args_variadics = definition.varargs in call.starred_args
-    else:
-        same_args_variadics = not call.starred_args
-    same_kwonlyargs = all(kw in call.kws for kw in definition.kwonlyargs)
-    same_args = definition.args == call.args
+        if definition.varargs not in call.starred_args:
+            return False
+    elif call.starred_args:
+        return False
+    if any(kw not in call.kws for kw in definition.kwonlyargs):
+        return False
+    if definition.args != call.args:
+        return False
 
-    no_additional_kwarg_arguments = True
-    if call.kws:
-        for keyword in call.kws:
-            is_arg = keyword in call.args
-            is_kwonly = keyword in definition.kwonlyargs
-            if not is_arg and not is_kwonly:
-                # Maybe this argument goes into **kwargs,
-                # or it is an extraneous argument.
-                # In any case, the signature is different than
-                # the call site, which stops our search.
-                no_additional_kwarg_arguments = False
-                break
-
-    return all(
-        (
-            same_args,
-            same_kwonlyargs,
-            same_args_variadics,
-            same_kw_variadics,
-            no_additional_kwarg_arguments,
-        )
-    )
+    # No extra kwargs in call.
+    return all(kw in call.args or kw in definition.kwonlyargs for kw in call.kws)
 
 
 # Deal with parameters overriding in two methods.
@@ -186,36 +183,11 @@ def _positional_parameters(method):
     return positional
 
 
-def _get_node_type(node, potential_types):
-    """
-    Return the type of the node if it exists in potential_types.
-
-    Args:
-        node (astroid.node): node to get the type of.
-        potential_types (tuple): potential types of the node.
-
-    Returns:
-        type: type of the node or None.
-    """
-    for potential_type in potential_types:
-        if isinstance(node, potential_type):
-            return potential_type
-    return None
+class _DefaultMissing:
+    """Sentinel value for missing arg default, use _DEFAULT_MISSING."""
 
 
-def _check_arg_equality(node_a, node_b, attr_name):
-    """
-    Check equality of nodes based on the comparison of their attributes named attr_name.
-
-    Args:
-        node_a (astroid.node): first node to compare.
-        node_b (astroid.node): second node to compare.
-        attr_name (str): name of the nodes attribute to use for comparison.
-
-    Returns:
-        bool: True if node_a.attr_name == node_b.attr_name, False otherwise.
-    """
-    return getattr(node_a, attr_name) == getattr(node_b, attr_name)
+_DEFAULT_MISSING = _DefaultMissing()
 
 
 def _has_different_parameters_default_value(original, overridden):
@@ -230,49 +202,34 @@ def _has_different_parameters_default_value(original, overridden):
     if original.args is None or overridden.args is None:
         return False
 
-    all_args = chain(original.args, original.kwonlyargs)
-    original_param_names = [param.name for param in all_args]
-    default_missing = object()
-    for param_name in original_param_names:
+    for param in chain(original.args, original.kwonlyargs):
         try:
-            original_default = original.default_value(param_name)
+            original_default = original.default_value(param.name)
         except astroid.exceptions.NoDefault:
-            original_default = default_missing
+            original_default = _DEFAULT_MISSING
         try:
-            overridden_default = overridden.default_value(param_name)
+            overridden_default = overridden.default_value(param.name)
+            if original_default is _DEFAULT_MISSING:
+                # Only the original has a default.
+                return True
         except astroid.exceptions.NoDefault:
-            overridden_default = default_missing
-
-        default_list = [
-            arg == default_missing for arg in (original_default, overridden_default)
-        ]
-        if any(default_list) and not all(default_list):
-            # Only one arg has no default value
+            if original_default is _DEFAULT_MISSING:
+                # Both have a default, no difference
+                continue
+            # Only the override has a default.
             return True
 
-        astroid_type_compared_attr = {
-            nodes.Const: "value",
-            nodes.ClassDef: "name",
-            nodes.Tuple: "elts",
-            nodes.List: "elts",
-            nodes.Dict: "items",
-        }
-        handled_types = tuple(
-            astroid_type for astroid_type in astroid_type_compared_attr
-        )
-        original_type = _get_node_type(original_default, handled_types)
-        if original_type:
-            # We handle only astroid types that are inside the dict astroid_type_compared_attr
-            if not isinstance(overridden_default, original_type):
-                # Two args with same name but different types
-                return True
-            if not _check_arg_equality(
-                original_default,
-                overridden_default,
-                astroid_type_compared_attr[original_type],
-            ):
-                # Two args with same type but different values
-                return True
+        original_type = type(original_default)
+        if not isinstance(overridden_default, original_type):
+            # Two args with same name but different types
+            return True
+        is_same_fn = ASTROID_TYPE_COMPARATORS.get(original_type)
+        if is_same_fn is None:
+            # If the default value comparison is unhandled, assume the value is different
+            return True
+        if not is_same_fn(original_default, overridden_default):
+            # Two args with same type but different values
+            return True
     return False
 
 
@@ -840,6 +797,11 @@ a metaclass class method.",
         self._first_attrs = []
         self._meth_could_be_func = None
 
+    def open(self) -> None:
+        self._mixin_class_rgx = get_global_option(self, "mixin-class-rgx")
+        py_version = get_global_option(self, "py-version")
+        self._py38_plus = py_version >= (3, 8)
+
     @astroid.decorators.cachedproperty
     def _dummy_rgx(self):
         return get_global_option(self, "dummy-variables-rgx", default=None)
@@ -912,14 +874,16 @@ a metaclass class method.",
 
     def _check_typing_final(self, node: nodes.ClassDef) -> None:
         """Detect that a class does not subclass a class decorated with `typing.final`"""
-        if not PY38_PLUS:
+        if not self._py38_plus:
             return
         for base in node.bases:
             ancestor = safe_infer(base)
             if not ancestor:
                 continue
-            if isinstance(ancestor, nodes.ClassDef) and decorated_with(
-                ancestor, ["typing.final"]
+
+            if isinstance(ancestor, nodes.ClassDef) and (
+                decorated_with(ancestor, ["typing.final"])
+                or uninferable_final_decorators(ancestor.decorators)
             ):
                 self.add_message(
                     "subclassed-final-class",
@@ -989,6 +953,7 @@ a metaclass class method.",
                 )
 
     def _check_unused_private_variables(self, node: nodes.ClassDef) -> None:
+        """Check if private variables are never used within a class"""
         for assign_name in node.nodes_of_class(nodes.AssignName):
             if isinstance(assign_name.parent, nodes.Arguments):
                 continue  # Ignore function arguments
@@ -997,12 +962,15 @@ a metaclass class method.",
             for child in node.nodes_of_class((nodes.Name, nodes.Attribute)):
                 if isinstance(child, nodes.Name) and child.name == assign_name.name:
                     break
-                if (
-                    isinstance(child, nodes.Attribute)
-                    and child.attrname == assign_name.name
-                    and child.expr.name in ("self", "cls", node.name)
-                ):
-                    break
+                if isinstance(child, nodes.Attribute):
+                    if not isinstance(child.expr, nodes.Name):
+                        break
+                    if child.attrname == assign_name.name and child.expr.name in (
+                        "self",
+                        "cls",
+                        node.name,
+                    ):
+                        break
             else:
                 args = (node.name, assign_name.name)
                 self.add_message("unused-private-member", node=assign_name, args=args)
@@ -1061,7 +1029,7 @@ a metaclass class method.",
 
     def _check_attribute_defined_outside_init(self, cnode: nodes.ClassDef) -> None:
         # check access to existent members on non metaclass classes
-        if self._ignore_mixin and cnode.name[-5:].lower() == "mixin":
+        if self._ignore_mixin and self._mixin_class_rgx.match(cnode.name):
             # We are in a mixin class. No need to try to figure out if
             # something is missing, since it is most likely that it will
             # miss.
@@ -1376,7 +1344,10 @@ a metaclass class method.",
                 args=(function_node.name, "non-async", "async"),
                 node=function_node,
             )
-        if decorated_with(parent_function_node, ["typing.final"]) and PY38_PLUS:
+        if (
+            decorated_with(parent_function_node, ["typing.final"])
+            or uninferable_final_decorators(parent_function_node.decorators)
+        ) and self._py38_plus:
             self.add_message(
                 "overridden-final-method",
                 args=(function_node.name, parent_function_node.parent.name),
@@ -1651,9 +1622,22 @@ a metaclass class method.",
             if self._is_type_self_call(node.expr):
                 return
 
+            # Check if we are inside the scope of a class or nested inner class
+            inside_klass = True
+            outer_klass = klass
+            parents_callee = callee.split(".")
+            parents_callee.reverse()
+            for callee in parents_callee:
+                if not outer_klass or callee != outer_klass.name:
+                    inside_klass = False
+                    break
+
+                # Move up one level within the nested classes
+                outer_klass = get_outer_class(outer_klass)
+
             # We are in a class, one remaining valid cases, Klass._attr inside
             # Klass
-            if not (callee == klass.name or callee in klass.basenames):
+            if not (inside_klass or callee in klass.basenames):
                 # Detect property assignments in the body of the class.
                 # This is acceptable:
                 #
@@ -1868,20 +1852,18 @@ a metaclass class method.",
                     "bad-mcs-method-argument",
                     node.name,
                 )
-        # regular class
-        else:  # pylint: disable=else-if-used
-            # class method
-            if node.type == "classmethod" or node.name == "__class_getitem__":
-                self._check_first_arg_config(
-                    first,
-                    self.config.valid_classmethod_first_arg,
-                    node,
-                    "bad-classmethod-argument",
-                    node.name,
-                )
-            # regular method without self as argument
-            elif first != "self":
-                self.add_message("no-self-argument", node=node)
+        # regular class with class method
+        elif node.type == "classmethod" or node.name == "__class_getitem__":
+            self._check_first_arg_config(
+                first,
+                self.config.valid_classmethod_first_arg,
+                node,
+                "bad-classmethod-argument",
+                node.name,
+            )
+        # regular class with regular method without self as argument
+        elif first != "self":
+            self.add_message("no-self-argument", node=node)
 
     def _check_first_arg_config(self, first, config, node, message, method_name):
         if first not in config:

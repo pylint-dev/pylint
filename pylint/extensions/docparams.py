@@ -15,8 +15,9 @@
 # Copyright (c) 2020 Luigi <luigi.cristofolini@q-ctrl.com>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
-# Copyright (c) 2021 SupImDos <62866982+SupImDos@users.noreply.github.com>
 # Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
+# Copyright (c) 2021 Konstantina Saketou <56515303+ksaketou@users.noreply.github.com>
+# Copyright (c) 2021 SupImDos <62866982+SupImDos@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Logan Miller <14319179+komodo472@users.noreply.github.com>
 
@@ -322,13 +323,14 @@ class DocstringParameterChecker(BaseChecker):
         if not utils.returns_something(node):
             return
 
+        if self.config.accept_no_return_doc:
+            return
+
         func_node = node.frame()
         if not isinstance(func_node, astroid.FunctionDef):
             return
 
         doc = utils.docstringify(func_node.doc, self.config.default_docstring_type)
-        if not doc.is_valid() and self.config.accept_no_return_doc:
-            return
 
         is_property = checker_utils.decorated_with_property(func_node)
 
@@ -342,13 +344,14 @@ class DocstringParameterChecker(BaseChecker):
             self.add_message("missing-return-type-doc", node=func_node)
 
     def visit_yield(self, node: nodes.Yield) -> None:
+        if self.config.accept_no_yields_doc:
+            return
+
         func_node = node.frame()
         if not isinstance(func_node, astroid.FunctionDef):
             return
 
         doc = utils.docstringify(func_node.doc, self.config.default_docstring_type)
-        if not doc.is_valid() and self.config.accept_no_yields_doc:
-            return
 
         if doc.supports_yields:
             doc_has_yields = doc.has_yields()
@@ -536,11 +539,11 @@ class DocstringParameterChecker(BaseChecker):
             }
 
         if arguments_node.vararg is not None:
-            expected_argument_names.add(arguments_node.vararg)
-            not_needed_type_in_docstring.add(arguments_node.vararg)
+            expected_argument_names.add(f"*{arguments_node.vararg}")
+            not_needed_type_in_docstring.add(f"*{arguments_node.vararg}")
         if arguments_node.kwarg is not None:
-            expected_argument_names.add(arguments_node.kwarg)
-            not_needed_type_in_docstring.add(arguments_node.kwarg)
+            expected_argument_names.add(f"**{arguments_node.kwarg}")
+            not_needed_type_in_docstring.add(f"**{arguments_node.kwarg}")
         params_with_doc, params_with_type = doc.match_param_docs()
         # Tolerate no parameter documentation at all.
         if not params_with_doc and not params_with_type and accept_no_param_doc:

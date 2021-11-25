@@ -34,6 +34,7 @@
 # Copyright (c) 2020 Peter Kolbus <peter.kolbus@gmail.com>
 # Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 Tushar Sadhwani <tushar.sadhwani000@gmail.com>
 # Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Will Shanks <wsha@posteo.net>
@@ -405,7 +406,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             {
                 "default": False,
                 "type": "yn",
-                "metavar": "<y_or_n>",
+                "metavar": "<y or n>",
                 "help": "Analyse import fallback blocks. This can be used to "
                 "support both Python 2 and 3 compatible code, which "
                 "means that the block might have code that exists "
@@ -418,7 +419,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             {
                 "default": False,
                 "type": "yn",
-                "metavar": "<y_or_n>",
+                "metavar": "<y or n>",
                 "help": "Allow wildcard imports from modules that define __all__.",
             },
         ),

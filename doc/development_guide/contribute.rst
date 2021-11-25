@@ -64,50 +64,20 @@ You can clone Pylint and its dependencies from ::
 .. _git: https://git-scm.com/
 
 Got a change for Pylint?  Below are a few steps you should take to make sure
-your patch gets accepted.
+your patch gets accepted. We recommend using Python 3.8 or higher for development
+of Pylint as it gives you access to the latest ``ast`` parser.
 
 - Test your code
 
-  * Pylint is very well tested, with a high code coverage.
-    It has two types of tests, usual unittests and functional tests.
+  For more information on how to use our test suite and write new tests see :ref:`testing`.
 
-    The usual unittests can be found under `/pylint/test` directory and they can
-    be used for testing almost anything Pylint related. But for the ease
-    of testing Pylint's messages, we also have the concept of functional tests.
+- ``pylint`` uses black_ and isort_ among other Python autoformatters.
+  We have a pre-commit hook which should take care of the autoformatting for
+  you. To enable it, do the following:
 
-  * You should also run all the tests to ensure that your change isn't a
-    breaking one. You can run the tests using the tox_ package, as in::
+    * install ``pre-commit`` using ``pip install pre-commit``
 
-      python -m tox
-      python -m tox -epy36 # for Python 3.6 suite only
-      python -m tox -epylint # for running Pylint over Pylint's codebase
-      python -m tox -eformatting # for running formatting checks over Pylint's codebase
-
-  * It's usually a good idea to run tox_ with ``--recreate``. This is needed because
-    the tox environment might use an older version of astroid_, which can cause various failures
-    when you are running against the latest pylint::
-
-     python -m tox --recreate # The entire tox environment is going to be recreated
-
-
-  * To run only a specific test suite, use a pattern for the test filename
-    (**without** the ``.py`` extension), as in::
-
-      python -m tox -e py36 -- -k test_functional
-      python -m tox -e py36 -- -k  \*func\*
-
-  * Since we just use pytest_ to run the tests, you can also use it as well,
-    although we highly recommend using tox_ instead::
-
-      pytest pylint -k test_functional
-
-  * ``pylint`` uses black_ and isort_ among other Python autoformatters.
-    We have a pre-commit hook which should take care of the autoformatting for
-    you. To enable it, do the following:
-
-     * install ``pre-commit`` using ``pip install pre-commit``
-
-     * then run ``pre-commit install`` in the ``pylint`` root directory to enable the git hooks.
+    * then run ``pre-commit install`` in the ``pylint`` root directory to enable the git hooks.
 
 - Add a short entry to the ChangeLog describing the change, except for internal
   implementation only changes. Not usually required, but for changes other than small
@@ -132,43 +102,6 @@ your patch gets accepted.
   about this topic)
 
 
-.. _functional_tests:
-
-Functional Tests
-----------------
-
-These are residing under '/pylint/test/functional' and they are formed of multiple
-components. First, each Python file is considered to be a test case and it
-should be accompanied by a .txt file, having the same name, with the messages
-that are supposed to be emitted by the given test file.
-
-In the Python file, each line for which Pylint is supposed to emit a message
-has to be annotated with a comment in the form ``# [message_symbol]``, as in::
-
-    a, b, c = 1 # [unbalanced-tuple-unpacking]
-
-If multiple messages are expected on the same line, then this syntax can be used::
-
-    a, b, c = 1.test # [unbalanced-tuple-unpacking, no-member]
-
-You can also use ``# +n: [`` with n an integer if the above syntax would make the line too long or other reasons::
-
-    # +1: [empty-comment]
-    #
-
-If you need special control over Pylint's flag, you can also create a .rc file, which
-can have sections of Pylint's configuration.
-
-During development, it's sometimes helpful to run all functional tests in your
-current environment in order to have faster feedback. Run from Pylint root directory with::
-
-    python tests/test_functional.py
-
-You can use all the options you would use for pytest, for example `-k "test_functional[len_checks]"`.
-If required the .txt file can be re-generated from the current output by appending
-`--update-functional-output` to the command line::
-
-    python tests/test_functional.py --update-functional-output -k "test_functional[len_checks]"
 
 .. _`Closing issues via commit messages`: https://help.github.com/articles/closing-issues-via-commit-messages/
 .. _`About pull requests`: https://help.github.com/articles/using-pull-requests/
@@ -194,6 +127,9 @@ Tips for Getting Started with Pylint Development
   message to find where the warning is raised,
   and therefore where the logic for that code exists.
 
+* When adding a new checker class you can use the :file:`get_unused_message_id_category.py`
+  script in :file:`./scripts` to get a message id that is not used by
+  any of the other checkers.
 
 Building the documentation
 ----------------------------

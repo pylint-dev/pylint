@@ -24,6 +24,8 @@
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 谭九鼎 <109224573@qq.com>
 # Copyright (c) 2020 Anthony <tanant@users.noreply.github.com>
+# Copyright (c) 2021 Tushar Sadhwani <tushar.sadhwani000@gmail.com>
+# Copyright (c) 2021 Jaehoon Hwang <jaehoonhwang@users.noreply.github.com>
 # Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Peter Kolbus <peter.kolbus@garmin.com>
@@ -678,7 +680,7 @@ class StringConstantChecker(BaseTokenChecker):
             {
                 "default": False,
                 "type": "yn",
-                "metavar": "<y_or_n>",
+                "metavar": "<y or n>",
                 "help": "This flag controls whether the "
                 "implicit-str-concat should generate a warning "
                 "on implicit string concatenation in sequences defined over "
@@ -690,7 +692,7 @@ class StringConstantChecker(BaseTokenChecker):
             {
                 "default": False,
                 "type": "yn",
-                "metavar": "<y_or_n>",
+                "metavar": "<y or n>",
                 "help": "This flag controls whether inconsistent-quotes generates a "
                 "warning when the character used as a quote delimiter is used "
                 "inconsistently within a module.",

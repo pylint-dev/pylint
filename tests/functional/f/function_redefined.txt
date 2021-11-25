@@ -1,7 +1,7 @@
-function-redefined:18:4:AAAA.method2:method already defined line 15:HIGH
-function-redefined:21:0:AAAA:class already defined line 8:HIGH
-function-redefined:35:0:func2:function already defined line 32:HIGH
-redefined-outer-name:37:4:func2:Redefining name '__revision__' from outer scope (line 7):HIGH
-function-redefined:54:4:exclusive_func2:function already defined line 48:HIGH
-function-redefined:89:0:ceil:function already defined line 88:HIGH
-function-redefined:93:0:math:function already defined line 92:HIGH
+function-redefined:18:4:19:23:AAAA.method2:method already defined line 15:UNDEFINED
+function-redefined:21:0:28:17:AAAA:class already defined line 8:UNDEFINED
+function-redefined:35:0:38:23:func2:function already defined line 32:UNDEFINED
+redefined-outer-name:37:4:37:16:func2:Redefining name '__revision__' from outer scope (line 7):UNDEFINED
+function-redefined:54:4:55:51:exclusive_func2:function already defined line 48:UNDEFINED
+function-redefined:89:0:90:8:ceil:function already defined line 88:UNDEFINED
+function-redefined:93:0:94:8:math:function already defined line 92:UNDEFINED

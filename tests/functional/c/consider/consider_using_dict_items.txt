@@ -1,16 +1,16 @@
-consider-using-dict-items:6:4:bad:Consider iterating with .items():HIGH
-consider-using-dict-items:9:4:bad:Consider iterating with .items():HIGH
-consider-using-dict-items:21:4:another_bad:Consider iterating with .items():HIGH
-consider-using-dict-items:40:0::Consider iterating with .items():HIGH
-consider-using-dict-items:44:0::Consider iterating with .items():HIGH
-consider-iterating-dictionary:47:10::Consider iterating the dictionary directly instead of calling .keys():HIGH
-consider-using-dict-items:47:0::Consider iterating with .items():HIGH
-consider-using-dict-items:54:0::Consider iterating with .items():HIGH
-consider-using-dict-items:67:0::Consider iterating with .items():HIGH
-consider-using-dict-items:68:0::Consider iterating with .items():HIGH
-consider-using-dict-items:71:0::Consider iterating with .items():HIGH
-consider-using-dict-items:72:0::Consider iterating with .items():HIGH
-consider-using-dict-items:75:0::Consider iterating with .items():HIGH
-consider-iterating-dictionary:86:25::Consider iterating the dictionary directly instead of calling .keys():HIGH
-consider-using-dict-items:86:0::Consider iterating with .items():HIGH
-consider-using-dict-items:103:0::Consider iterating with .items():HIGH
+consider-using-dict-items:6:4:7:24:bad:Consider iterating with .items():UNDEFINED
+consider-using-dict-items:9:4:10:30:bad:Consider iterating with .items():UNDEFINED
+consider-using-dict-items:21:4:22:35:another_bad:Consider iterating with .items():UNDEFINED
+consider-using-dict-items:40:0:42:18::Consider iterating with .items():UNDEFINED
+consider-using-dict-items:44:0:45:20::Consider iterating with .items():UNDEFINED
+consider-iterating-dictionary:47:10:47:23::Consider iterating the dictionary directly instead of calling .keys():UNDEFINED
+consider-using-dict-items:47:0:48:20::Consider iterating with .items():UNDEFINED
+consider-using-dict-items:54:0:55:24::Consider iterating with .items():UNDEFINED
+consider-using-dict-items:67:0:None:None::Consider iterating with .items():UNDEFINED
+consider-using-dict-items:68:0:None:None::Consider iterating with .items():UNDEFINED
+consider-using-dict-items:71:0:None:None::Consider iterating with .items():UNDEFINED
+consider-using-dict-items:72:0:None:None::Consider iterating with .items():UNDEFINED
+consider-using-dict-items:75:0:None:None::Consider iterating with .items():UNDEFINED
+consider-iterating-dictionary:86:25:86:42::Consider iterating the dictionary directly instead of calling .keys():UNDEFINED
+consider-using-dict-items:86:0:None:None::Consider iterating with .items():UNDEFINED
+consider-using-dict-items:103:0:105:24::Consider iterating with .items():UNDEFINED

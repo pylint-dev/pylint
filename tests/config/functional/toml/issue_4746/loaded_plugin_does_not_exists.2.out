@@ -1,0 +1,2 @@
+************* Module {abspath}
+{relpath}:1:0: E0013: Plugin 'pylint_websockets' is impossible to load, is it installed ? ('No module named 'pylint_websockets'') (bad-plugin-value)

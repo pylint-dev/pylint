@@ -10,8 +10,9 @@ import functools
 import optparse  # pylint: disable=deprecated-module
 import os
 import sys
+from pathlib import Path
 from types import ModuleType
-from typing import Dict, List, Optional, TextIO, Tuple
+from typing import Dict, List, Optional, TextIO, Tuple, Union
 
 import toml
 
@@ -269,34 +270,18 @@ class OptionsManagerMixIn:
                 raise OSError(f"The config file {config_file} doesn't exist!")
 
         use_config_file = config_file and os.path.exists(config_file)
-        if use_config_file:  # pylint: disable=too-many-nested-blocks
+        if use_config_file:
+            self.set_current_module(config_file)
             parser = self.cfgfile_parser
-
             if config_file.endswith(".toml"):
-                with open(config_file, encoding="utf-8") as fp:
-                    content = toml.load(fp)
-
                 try:
-                    sections_values = content["tool"]["pylint"]
-                except KeyError:
-                    pass
-                else:
-                    for section, values in sections_values.items():
-                        # TOML has rich types, convert values to
-                        # strings as ConfigParser expects.
-                        for option, value in values.items():
-                            if isinstance(value, bool):
-                                values[option] = "yes" if value else "no"
-                            elif isinstance(value, (int, float)):
-                                values[option] = str(value)
-                            elif isinstance(value, list):
-                                values[option] = ",".join(value)
-                        parser._sections[section.upper()] = values
+                    self._parse_toml(config_file, parser)
+                except toml.TomlDecodeError as e:
+                    self.add_message("config-parse-error", line=0, args=str(e))
             else:
                 # Use this encoding in order to strip the BOM marker, if any.
                 with open(config_file, encoding="utf_8_sig") as fp:
                     parser.read_file(fp)
-
                 # normalize sections'title
                 for sect, values in list(parser._sections.items()):
                     if sect.startswith("pylint."):
@@ -310,6 +295,40 @@ class OptionsManagerMixIn:
         else:
             msg = "No config file found, using default configuration"
         print(msg, file=sys.stderr)
+
+    def _parse_toml(
+        self, config_file: Union[Path, str], parser: configparser.ConfigParser
+    ) -> None:
+        """Parse and handle errors of a toml configuration file."""
+        with open(config_file, encoding="utf-8") as fp:
+            content = toml.load(fp)
+        try:
+            sections_values = content["tool"]["pylint"]
+        except KeyError:
+            return
+        for section, values in sections_values.items():
+            section_name = section.upper()
+            # TOML has rich types, convert values to
+            # strings as ConfigParser expects.
+            if not isinstance(values, dict):
+                # This class is a mixin: add_message comes from the `PyLinter` class
+                self.add_message(  # type: ignore[attr-defined]
+                    "bad-configuration-section", line=0, args=(section, values)
+                )
+                continue
+            for option, value in values.items():
+                if isinstance(value, bool):
+                    values[option] = "yes" if value else "no"
+                elif isinstance(value, list):
+                    values[option] = ",".join(value)
+                else:
+                    values[option] = str(value)
+            for option, value in values.items():
+                try:
+                    parser.set(section_name, option, value=value)
+                except configparser.NoSectionError:
+                    parser.add_section(section_name)
+                    parser.set(section_name, option, value=value)
 
     def load_config_file(self):
         """Dispatch values previously read from a configuration file to each

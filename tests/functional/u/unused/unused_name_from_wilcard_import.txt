@@ -1,6 +1,6 @@
-unused-wildcard-import:3:0::Unused import(s) func and only_raises from wildcard import of unused_argument_py3:HIGH
-wildcard-import:3:0::Wildcard import unused_argument_py3:HIGH
-unused-wildcard-import:4:0::Unused import(s) VAR from wildcard import of unused_global_variable1:HIGH
-wildcard-import:4:0::Wildcard import unused_global_variable1:HIGH
-unused-wildcard-import:5:0::Unused import(s) abc, sys, Meta, Meta2, Meta3, ABCMeta and SomethingElse from wildcard import of unused_import_py30:HIGH
-wildcard-import:5:0::Wildcard import unused_import_py30:HIGH
+unused-wildcard-import:3:0:3:34::Unused import(s) func and only_raises from wildcard import of unused_argument_py3:UNDEFINED
+wildcard-import:3:0:3:34::Wildcard import unused_argument_py3:UNDEFINED
+unused-wildcard-import:4:0:4:38::Unused import(s) VAR from wildcard import of unused_global_variable1:UNDEFINED
+wildcard-import:4:0:4:38::Wildcard import unused_global_variable1:UNDEFINED
+unused-wildcard-import:5:0:5:33::Unused import(s) abc, sys, Meta, Meta2, Meta3, ABCMeta and SomethingElse from wildcard import of unused_import_py30:UNDEFINED
+wildcard-import:5:0:5:33::Wildcard import unused_import_py30:UNDEFINED

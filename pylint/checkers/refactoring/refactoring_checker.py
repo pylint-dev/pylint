@@ -49,10 +49,7 @@ CALLS_RETURNING_CONTEXT_MANAGERS = frozenset(
 
 
 def _if_statement_is_always_returning(if_node, returning_node_class) -> bool:
-    for node in if_node.body:
-        if isinstance(node, returning_node_class):
-            return True
-    return False
+    return any(isinstance(node, returning_node_class) for node in if_node.body)
 
 
 def _is_trailing_comma(tokens: List[tokenize.TokenInfo], index: int) -> bool:
@@ -97,10 +94,10 @@ def _is_trailing_comma(tokens: List[tokenize.TokenInfo], index: int) -> bool:
 
     curline_start = get_curline_index_start()
     expected_tokens = {"return", "yield"}
-    for prevtoken in tokens[curline_start:index]:
-        if "=" in prevtoken.string or prevtoken.string in expected_tokens:
-            return True
-    return False
+    return any(
+        "=" in prevtoken.string or prevtoken.string in expected_tokens
+        for prevtoken in tokens[curline_start:index]
+    )
 
 
 def _is_inside_context_manager(node: nodes.Call) -> bool:
@@ -1396,10 +1393,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return
 
         inferred_truth_value = utils.safe_infer(truth_value)
-        if inferred_truth_value in (None, astroid.Uninferable):
+        if inferred_truth_value is None or inferred_truth_value == astroid.Uninferable:
             truth_boolean_value = True
         else:
-            truth_boolean_value = truth_value.bool_value()
+            truth_boolean_value = inferred_truth_value.bool_value()
 
         if truth_boolean_value is False:
             message = "simplify-boolean-expression"

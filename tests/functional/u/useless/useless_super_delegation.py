@@ -3,6 +3,7 @@
 # pylint: disable=line-too-long, useless-object-inheritance, arguments-out-of-order
 # pylint: disable=super-with-arguments, dangerous-default-value
 
+default_var = 1
 def not_a_method(param, param2):
     return super(None, None).not_a_method(param, param2)
 
@@ -52,10 +53,16 @@ class Base(SuperBase):
     def with_default_argument_dict(self, first, default_arg={}):
         pass
 
+    def with_default_argument_var(self, first, default_arg=default_var):
+        pass
+
     def with_default_arg_ter(self, first, default_arg="has_been_changed"):
         super().with_default_arg_ter(first, default_arg)
 
     def with_default_arg_quad(self, first, default_arg="has_been_changed"):
+        super().with_default_arg_quad(first, default_arg)
+
+    def with_default_unhandled(self, first, default_arg=lambda: True):
         super().with_default_arg_quad(first, default_arg)
 
 class NotUselessSuper(Base):
@@ -167,6 +174,11 @@ class NotUselessSuper(Base):
         # Not useless because the default_arg is different from the one in the base class
         super(NotUselessSuper, self).with_default_argument_dict(first, default_arg)
 
+    default_var = 2
+    def with_default_argument_var(self, first, default_arg=default_var):
+        # Not useless because the default_arg refers to a different variable from the one in the base class
+        super(NotUselessSuper, self).with_default_argument_var(first, default_arg)
+
     def with_default_argument_bis(self, first, default_arg="default"):
         # Although the default_arg is the same as in the base class, the call signature
         # differs. Thus it is not useless.
@@ -191,6 +203,10 @@ class NotUselessSuper(Base):
         # Not useless because the default value is the same as in the base but the
         # call is different from the signature
         super(NotUselessSuper, self).with_default_arg_quad(first, default_arg + "_and_modified")
+
+    def with_default_unhandled(self, first, default_arg=lambda: True):
+        # Not useless because the default value type is not explictely handled (Lambda), so assume they are different
+        super(NotUselessSuper, self).with_default_unhandled(first, default_arg)
 
 
 class UselessSuper(Base):
@@ -235,6 +251,9 @@ class UselessSuper(Base):
 
     def with_default_argument_dict(self, first, default_arg={}): # [useless-super-delegation]
         super(UselessSuper, self).with_default_argument_dict(first, default_arg)
+
+    def with_default_argument_var(self, first, default_arg=default_var): # [useless-super-delegation]
+        super(UselessSuper, self).with_default_argument_var(first, default_arg)
 
     def __init__(self): # [useless-super-delegation]
         super(UselessSuper, self).__init__()
