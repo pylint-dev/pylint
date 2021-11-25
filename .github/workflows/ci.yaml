@@ -508,7 +508,7 @@ jobs:
         run: |
           . venv/bin/activate
           pip install -e .
-          pytest --primer-stdlib -n auto
+          pytest -m primer_stdlib --primer-stdlib -n auto
 
   pytest-primer-external:
     name: Run primer tests on external libs Python ${{ matrix.python-version }} (Linux)
@@ -542,4 +542,4 @@ jobs:
         run: |
           . venv/bin/activate
           pip install -e .
-          pytest --primer-external -n auto
+          pytest -m primer_external --primer-external -n auto
