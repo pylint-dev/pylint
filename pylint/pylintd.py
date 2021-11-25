@@ -1,14 +1,13 @@
 import sys
-from http.server import HTTPServer, BaseHTTPRequestHandler, HTTPStatus
+from http.server import BaseHTTPRequestHandler, HTTPServer, HTTPStatus
 from io import StringIO
-from pylint.reporters import text
-from pylint.reporters import json_reporter
-from pylint.lint.utils import fix_import_path
+
+from pylint.__pkginfo__ import __version__
 from pylint.lint.pylinter import MANAGER, PyLinter
 from pylint.lint.run import BaseRun
-from pylint.__pkginfo__ import __version__
+from pylint.lint.utils import fix_import_path
+from pylint.reporters import json_reporter, text
 from pylint.typing import FileItem
-
 
 CONTENT_TYPE_MAPPING = {
     "application/X-pylint-text": text.TextReporter,
@@ -69,30 +68,30 @@ class DaemonRun(BaseRun):
 
         * Closing connection 0
     """
+
     def __init__(self, args: list, port: int):
 
         run_linter = self.run_linter
-
 
         class PylintdHTTPRequestHandler(BaseHTTPRequestHandler):
 
             server_version = "pylintd/" + __version__
 
             def do_GET(self) -> None:
-                protocol_version = int(self.headers.get('X-Protocol-Version', 1))
+                protocol_version = int(self.headers.get("X-Protocol-Version", 1))
                 if protocol_version != 1:
-                    self.send_error(400, 'Wrong X-Protocol-Version header')
+                    self.send_error(400, "Wrong X-Protocol-Version header")
                     return
-                file_name = self.headers.get('X-File-Name', None)
+                file_name = self.headers.get("X-File-Name", None)
                 if not file_name:
-                    self.send_error(400, 'Wrong X-File-Name header')
+                    self.send_error(400, "Wrong X-File-Name header")
                     return
                 pylint_output = StringIO()
-                result_format = self.headers.get('accept', "application/X-pylint-text")
+                result_format = self.headers.get("accept", "application/X-pylint-text")
                 try:
                     reporter = CONTENT_TYPE_MAPPING[result_format](pylint_output)
                 except KeyError:
-                    self.send_error(400, 'Wrong accept header')
+                    self.send_error(400, "Wrong accept header")
                     return
 
                 linter.set_reporter(reporter)
@@ -106,7 +105,9 @@ class DaemonRun(BaseRun):
                     # So we use self.linter.msg_status if that is non-zero, otherwise we just return 1.
                     http_response = HTTPStatus.NOT_ACCEPTABLE
                     status_code = linter.msg_status or 1
-                elif score_value is not None and score_value >= linter.config.fail_under:
+                elif (
+                    score_value is not None and score_value >= linter.config.fail_under
+                ):
                     http_response = HTTPStatus.OK
                     status_code = 0
                 else:
@@ -114,7 +115,7 @@ class DaemonRun(BaseRun):
                     status_code = linter.msg_status
 
                 self.send_response(http_response)
-                body = pylint_output.getvalue().encode('utf8')
+                body = pylint_output.getvalue().encode("utf8")
                 self.send_header("Content-type", result_format)
                 self.send_header("Content-Length", len(body))
                 self.send_header("X-Pylint-Status", status_code)
@@ -124,10 +125,9 @@ class DaemonRun(BaseRun):
         linter, args = self.initialize(args, None)
         self.initialize_jobs(linter)
 
-        server_address = ('', port)
+        server_address = ("", port)
         with HTTPServer(server_address, PylintdHTTPRequestHandler) as httpd:
             httpd.serve_forever()
-
 
     @staticmethod
     def run_linter(linter: PyLinter, file_or_module: FileItem) -> int:
@@ -142,7 +142,8 @@ class DaemonRun(BaseRun):
         score_value = linter.generate_reports()
         return score_value
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     try:
         DaemonRun(sys.argv, 8000)
     except KeyboardInterrupt:

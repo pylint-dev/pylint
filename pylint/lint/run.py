@@ -53,6 +53,7 @@ def cb_init_hook(optname, value):
 
 UNUSED_PARAM_SENTINEL = object()
 
+
 class BaseRun:
     """helper class to use as main for pylint :
 
@@ -389,7 +390,9 @@ to search for configuration file.
         # Now that plugins are loaded, get list of all fail_on messages, and enable them
         linter.enable_fail_on_messages()
 
-    def run(self, linter: PyLinter, args: list, do_exit, exit: bool) -> None:  # pylint: disable=redefined-builtin
+    def run(
+        self, linter: PyLinter, args: list, do_exit, exit: bool
+    ) -> None:  # pylint: disable=redefined-builtin
 
         if self._output:
             try:
@@ -513,7 +516,6 @@ to search for configuration file.
 
 
 class Run(BaseRun):
-
     def __init__(
         self,
         args,
