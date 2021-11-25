@@ -250,3 +250,8 @@ Other Changes
 * Add ``endLine`` and ``endColumn`` keys to output of ``JSONReporter``.
 
   Closes #5380
+
+* Fix false negative for ``consider-iterating-dictionary`` during membership checks encapsulated in iterables
+  or ``not in`` checks
+
+  Closes #5323
