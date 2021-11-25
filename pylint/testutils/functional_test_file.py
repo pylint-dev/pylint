@@ -19,6 +19,7 @@ class FunctionalTestFile:
     _CONVERTERS = {
         "min_pyver": parse_python_version,
         "max_pyver": parse_python_version,
+        "min_pyver_end_position": parse_python_version,
         "requires": lambda s: s.split(","),
     }
 
@@ -28,6 +29,7 @@ class FunctionalTestFile:
         self.options = {
             "min_pyver": (2, 5),
             "max_pyver": (4, 0),
+            "min_pyver_end_position": (3, 8),
             "requires": [],
             "except_implementations": [],
             "exclude_platforms": [],

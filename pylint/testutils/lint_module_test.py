@@ -57,6 +57,9 @@ class LintModuleTest:
             pass
         self._test_file = test_file
         self._config = config
+        self._check_end_position = (
+            sys.version_info >= self._test_file.options["min_pyver_end_position"]
+        )
 
     def setUp(self) -> None:
         if self._should_be_skipped_due_to_version():
@@ -166,7 +169,8 @@ class LintModuleTest:
             expected_msgs = Counter()
         with self._open_expected_file() as f:
             expected_output_lines = [
-                OutputLine.from_csv(row) for row in csv.reader(f, "test")
+                OutputLine.from_csv(row, self._check_end_position)
+                for row in csv.reader(f, "test")
             ]
         return expected_msgs, expected_output_lines
 
@@ -180,7 +184,9 @@ class LintModuleTest:
                 msg.symbol != "fatal"
             ), f"Pylint analysis failed because of '{msg.msg}'"
             received_msgs[msg.line, msg.symbol] += 1
-            received_output_lines.append(OutputLine.from_msg(msg))
+            received_output_lines.append(
+                OutputLine.from_msg(msg, self._check_end_position)
+            )
         return received_msgs, received_output_lines
 
     def _runTest(self) -> None:
