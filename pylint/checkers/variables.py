@@ -63,7 +63,7 @@ import os
 import re
 import sys
 from functools import lru_cache
-from typing import DefaultDict, List, Optional, Set, Tuple
+from typing import DefaultDict, List, Optional, Set, Tuple, Union
 
 import astroid
 from astroid import nodes
@@ -360,12 +360,13 @@ def _assigned_locally(name_node):
     return any(a.name == name_node.name for a in assign_stmts)
 
 
-def _is_type_checking_import(node):
-    parent = node.parent
-    if not isinstance(parent, nodes.If):
-        return False
-    test = parent.test
-    return test.as_string() in TYPING_TYPE_CHECKS_GUARDS
+def _is_type_checking_import(node: Union[nodes.Import, nodes.ImportFrom]) -> bool:
+    """Check if an import node is guarded by a TYPE_CHECKS guard"""
+    for ancestor in node.node_ancestors():
+        if isinstance(ancestor, nodes.If):
+            if ancestor.test.as_string() in TYPING_TYPE_CHECKS_GUARDS:
+                return True
+    return False
 
 
 def _has_locals_call_after_node(stmt, scope):
