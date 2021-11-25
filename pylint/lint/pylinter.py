@@ -766,7 +766,7 @@ class PyLinter(
     def disable_noerror_messages(self):
         for msgcat, msgids in self.msgs_store._msgs_by_category.items():
             # enable only messages with 'error' severity and above ('fatal')
-            if msgcat in ["E", "F"]:
+            if msgcat in {"E", "F"}:
                 for msgid in msgids:
                     self.enable(msgid)
             else:
@@ -834,7 +834,7 @@ class PyLinter(
                 continue
             try:
                 for pragma_repr in parse_pragma(match.group(2)):
-                    if pragma_repr.action in ("disable-all", "skip-file"):
+                    if pragma_repr.action in {"disable-all", "skip-file"}:
                         if pragma_repr.action == "disable-all":
                             self.add_message(
                                 "deprecated-pragma",
@@ -1597,7 +1597,7 @@ class PyLinter(
         ignore_unknown: bool = False,
     ) -> None:
         """Do some tests and then iterate over message defintions to set state"""
-        assert scope in ("package", "module")
+        assert scope in {"package", "module"}
         if msgid == "all":
             for _msgid in MSG_TYPES:
                 self._set_msg_status(_msgid, enable, scope, line, ignore_unknown)

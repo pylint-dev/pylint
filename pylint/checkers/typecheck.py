@@ -486,7 +486,7 @@ def _emit_no_member(
                 return False
             if metaclass:
                 # Renamed in Python 3.10 to `EnumType`
-                return metaclass.qname() in ("enum.EnumMeta", "enum.EnumType")
+                return metaclass.qname() in {"enum.EnumMeta", "enum.EnumType"}
             return False
         if not has_known_bases(owner):
             return False
@@ -525,7 +525,7 @@ def _emit_no_member(
         and isinstance(owner.parent, nodes.ClassDef)
         and owner.parent.name == "EnumMeta"
         and owner_name == "__members__"
-        and node.attrname in ["items", "values", "keys"]
+        and node.attrname in {"items", "values", "keys"}
     ):
         # Avoid false positive on Enum.__members__.{items(), values, keys}
         # See https://github.com/PyCQA/pylint/issues/4123
@@ -1560,7 +1560,7 @@ accessed. Python regular expressions are accepted.",
                 return None
         # Instance values must be int, slice, or have an __index__ method
         elif isinstance(index_type, astroid.Instance):
-            if index_type.pytype() in ("builtins.int", "builtins.slice"):
+            if index_type.pytype() in {"builtins.int", "builtins.slice"}:
                 return None
             try:
                 index_type.getattr("__index__")
@@ -1603,7 +1603,7 @@ accessed. Python regular expressions are accepted.",
             # Instance values must be of type int, None or an object
             # with __index__
             elif isinstance(index_type, astroid.Instance):
-                if index_type.pytype() in ("builtins.int", "builtins.NoneType"):
+                if index_type.pytype() in {"builtins.int", "builtins.NoneType"}:
                     continue
 
                 try:
@@ -1805,7 +1805,7 @@ accessed. Python regular expressions are accepted.",
             return
 
         op, right = node.ops[0]
-        if op in ["in", "not in"]:
+        if op in {"in", "not in"}:
             self._check_membership_test(right)
 
     @check_messages(

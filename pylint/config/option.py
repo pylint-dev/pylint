@@ -52,9 +52,9 @@ def _yn_validator(opt, _, value):
         return bool(value)
     if isinstance(value, str):
         value = value.lower()
-    if value in ("y", "yes", "true"):
+    if value in {"y", "yes", "true"}:
         return True
-    if value in ("n", "no", "false"):
+    if value in {"n", "no", "false"}:
         return False
     msg = "option %s: invalid yn value %r, should be in (y, yes, true, n, no, false)"
     raise optparse.OptionValueError(msg % (opt, value))
@@ -164,7 +164,7 @@ class Option(optparse.Option):
             self.help = optparse.SUPPRESS_HELP
 
     def _check_choice(self):
-        if self.type in ("choice", "multiple_choice"):
+        if self.type in {"choice", "multiple_choice"}:
             if self.choices is None:
                 raise optparse.OptionError(
                     "must supply a list of choices for type 'choice'", self

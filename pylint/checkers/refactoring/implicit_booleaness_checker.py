@@ -177,7 +177,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
                     continue
 
                 # No need to check for operator when visiting compare node
-                if operator in ("==", "!=", ">=", ">", "<=", "<"):
+                if operator in {"==", "!=", ">=", ">", "<=", "<"}:
                     collection_literal = "{}"
                     if isinstance(literal_node, nodes.List):
                         collection_literal = "[]"

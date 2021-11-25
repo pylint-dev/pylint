@@ -734,7 +734,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             )
             import_category = isort_driver.place_module(package)
             node_and_package_import = (node, package)
-            if import_category in ("FUTURE", "STDLIB"):
+            if import_category in {"FUTURE", "STDLIB"}:
                 std_imports.append(node_and_package_import)
                 wrong_import = (
                     third_party_not_ignored
