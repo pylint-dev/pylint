@@ -197,6 +197,10 @@ def register_plugins(linter, directory):
                 if hasattr(module, "register"):
                     module.register(linter)
                     imported[base] = 1
+                    # pylint: disable-next=fixme
+                    # TODO: Remove after deprecation of check_docs, see #5322
+                    if base == "check_docs":
+                        imported["docparams"] = 1
 
 
 @overload

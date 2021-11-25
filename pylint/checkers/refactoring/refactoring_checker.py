@@ -231,7 +231,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "R1703": (
             "The if statement can be replaced with %s",
             "simplifiable-if-statement",
-            "Used when an if statement can be replaced with 'bool(test)'. ",
+            "Used when an if statement can be replaced with 'bool(test)'.",
             {"old_names": [("R0102", "old-simplifiable-if-statement")]},
         ),
         "R1704": (
@@ -340,7 +340,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "R1719": (
             "The if expression can be replaced with %s",
             "simplifiable-if-expression",
-            "Used when an if expression can be replaced with 'bool(test)'. ",
+            "Used when an if expression can be replaced with 'bool(test)'.",
         ),
         "R1720": (
             'Unnecessary "%s" after "raise"',

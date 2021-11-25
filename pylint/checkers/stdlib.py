@@ -377,27 +377,27 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "bad-thread-instantiation",
             "The warning is emitted when a threading.Thread class "
             "is instantiated without the target function being passed. "
-            "By default, the first parameter is the group param, not the target param. ",
+            "By default, the first parameter is the group param, not the target param.",
         ),
         "W1507": (
             "Using copy.copy(os.environ). Use os.environ.copy() instead. ",
             "shallow-copy-environ",
             "os.environ is not a dict object but proxy object, so "
             "shallow copy has still effects on original object. "
-            "See https://bugs.python.org/issue15373 for reference. ",
+            "See https://bugs.python.org/issue15373 for reference.",
         ),
         "E1507": (
             "%s does not support %s type argument",
             "invalid-envvar-value",
             "Env manipulation functions support only string type arguments. "
-            "See https://docs.python.org/3/library/os.html#os.getenv. ",
+            "See https://docs.python.org/3/library/os.html#os.getenv.",
         ),
         "W1508": (
             "%s default type is %s. Expected str or None.",
             "invalid-envvar-default",
             "Env manipulation functions return None or str values. "
             "Supplying anything different as a default may cause bugs. "
-            "See https://docs.python.org/3/library/os.html#os.getenv. ",
+            "See https://docs.python.org/3/library/os.html#os.getenv.",
         ),
         "W1509": (
             "Using preexec_fn keyword which may be unsafe in the presence "
