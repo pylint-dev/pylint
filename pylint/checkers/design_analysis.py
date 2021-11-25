@@ -23,7 +23,7 @@
 # Copyright (c) 2021 Melvin <31448155+melvio@users.noreply.github.com>
 # Copyright (c) 2021 Rebecca Turner <rbt@sent.as>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 yushao2 <36848472+yushao2@users.noreply.github.com>
+# Copyright (c) 2021 Yu Shao, Pang <36848472+yushao2@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
