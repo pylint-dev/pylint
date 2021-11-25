@@ -60,13 +60,13 @@ def reporter():
 
 def pytest_addoption(parser) -> None:
     parser.addoption(
-        "--primer_stdlib",
+        "--primer-stdlib",
         action="store_true",
         default=False,
         help="Run primer stdlib tests",
     )
     parser.addoption(
-        "--primer_external",
+        "--primer-external",
         action="store_true",
         default=False,
         help="Run primer external tests",
@@ -76,18 +76,18 @@ def pytest_addoption(parser) -> None:
 def pytest_collection_modifyitems(config, items) -> None:
     """Convert command line options to markers"""
     # Add skip_primer_stdlib mark
-    if not config.getoption("--primer_external"):
+    if not config.getoption("--primer-external"):
         skip_primer_external = pytest.mark.skip(
-            reason="need --primer_external option to run"
+            reason="need --primer-external option to run"
         )
         for item in items:
             if "primer_external" in item.keywords:
                 item.add_marker(skip_primer_external)
 
     # Add skip_primer_stdlib mark
-    if not config.getoption("--primer_stdlib"):
+    if not config.getoption("--primer-stdlib"):
         skip_primer_stdlib = pytest.mark.skip(
-            reason="need --primer_stdlib option to run"
+            reason="need --primer-stdlib option to run"
         )
         for item in items:
             if "primer_stdlib" in item.keywords:
