@@ -9,9 +9,6 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.13.rst'
 
-* Require Python ``3.6.2`` to run pylint.
-
-  Closes #5065
 
 ..
   Insert your changelog randomly, it will reduce merge conflicts
@@ -24,6 +21,10 @@ Release date: TBA
 
 ..
   Put bug fixes that should not wait for a new minor version here
+
+* Require Python ``3.6.2`` to run pylint.
+
+  Closes #5065
 
 ..
   Insert your changelog randomly, it will reduce merge conflicts
