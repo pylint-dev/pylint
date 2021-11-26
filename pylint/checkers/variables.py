@@ -534,7 +534,7 @@ MSGS = {
 
 
 ScopeConsumer = collections.namedtuple(
-    "ScopeConsumer", "to_consume consumed scope_type"
+    "ScopeConsumer", "to_consume consumed consumed_uncertain scope_type"
 )
 
 
@@ -544,17 +544,24 @@ class NamesConsumer:
     """
 
     def __init__(self, node, scope_type):
-        self._atomic = ScopeConsumer(copy.copy(node.locals), {}, scope_type)
+        self._atomic = ScopeConsumer(
+            copy.copy(node.locals), {}, collections.defaultdict(list), scope_type
+        )
         self.node = node
 
     def __repr__(self):
         to_consumes = [f"{k}->{v}" for k, v in self._atomic.to_consume.items()]
         consumed = [f"{k}->{v}" for k, v in self._atomic.consumed.items()]
+        consumed_uncertain = [
+            f"{k}->{v}" for k, v in self._atomic.consumed_uncertain.items()
+        ]
         to_consumes = ", ".join(to_consumes)
         consumed = ", ".join(consumed)
+        consumed_uncertain = ", ".join(consumed_uncertain)
         return f"""
 to_consume : {to_consumes}
 consumed : {consumed}
+consumed_uncertain: {consumed_uncertain}
 scope_type : {self._atomic.scope_type}
 """
 
@@ -568,6 +575,10 @@ scope_type : {self._atomic.scope_type}
     @property
     def consumed(self):
         return self._atomic.consumed
+
+    @property
+    def consumed_uncertain(self):
+        return self._atomic.consumed_uncertain
 
     @property
     def scope_type(self):
@@ -1042,7 +1053,8 @@ class VariablesChecker(BaseChecker):
             if action is VariableVisitConsumerAction.CONTINUE:
                 continue
             if action is VariableVisitConsumerAction.CONSUME:
-                current_consumer.mark_as_consumed(node.name, found_nodes)
+                uncertain_nodes = current_consumer.consumed_uncertain[node.name]
+                current_consumer.mark_as_consumed(node.name, found_nodes + uncertain_nodes)
             if action in {
                 VariableVisitConsumerAction.RETURN,
                 VariableVisitConsumerAction.CONSUME,
@@ -1135,6 +1147,9 @@ class VariablesChecker(BaseChecker):
             return (VariableVisitConsumerAction.CONTINUE, None)
         if not found_nodes:
             self.add_message("used-before-assignment", args=node.name, node=node)
+            if node.name in current_consumer.consumed_uncertain:
+                uncertain_nodes = current_consumer.consumed_uncertain[node.name]
+                return (VariableVisitConsumerAction.CONSUME, found_nodes + uncertain_nodes)
             return (VariableVisitConsumerAction.RETURN, found_nodes)
 
         self._check_late_binding_closure(node)
@@ -2362,7 +2377,7 @@ class VariablesChecker(BaseChecker):
         name = METACLASS_NAME_TRANSFORMS.get(name, name)
         if name:
             # check enclosing scopes starting from most local
-            for scope_locals, _, _ in self._to_consume[::-1]:
+            for scope_locals, _, _, _ in self._to_consume[::-1]:
                 found_nodes = scope_locals.get(name, [])
                 for found_node in found_nodes:
                     if found_node.lineno <= klass.lineno:
