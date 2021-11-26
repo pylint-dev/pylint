@@ -1,1 +1,1 @@
-syntax-error:7:0::EOF in multi-line statement
+syntax-error:7:0:None:None::EOF in multi-line statement:UNDEFINED

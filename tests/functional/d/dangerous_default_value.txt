@@ -1,22 +1,22 @@
-dangerous-default-value:6:0:function1:Dangerous default value [] as argument
-dangerous-default-value:10:0:function2:Dangerous default value HEHE (builtins.dict) as argument
-dangerous-default-value:18:0:function4:Dangerous default value set() (builtins.set) as argument
-dangerous-default-value:28:0:function6:Dangerous default value GLOBAL_SET (builtins.set) as argument
-dangerous-default-value:32:0:function7:Dangerous default value dict() (builtins.dict) as argument
-dangerous-default-value:36:0:function8:Dangerous default value list() (builtins.list) as argument
-dangerous-default-value:40:0:function9:Dangerous default value [] as argument
-dangerous-default-value:44:0:function10:Dangerous default value {} as argument
-dangerous-default-value:48:0:function11:Dangerous default value list() (builtins.list) as argument
-dangerous-default-value:52:0:function12:Dangerous default value dict() (builtins.dict) as argument
-dangerous-default-value:61:0:function13:Dangerous default value OINK (builtins.dict) as argument
-dangerous-default-value:65:0:function14:Dangerous default value dict() (builtins.dict) as argument
-dangerous-default-value:73:0:function15:Dangerous default value INVALID_DICT (builtins.dict) as argument
-dangerous-default-value:77:0:function16:Dangerous default value set() as argument
-dangerous-default-value:81:0:function17:Dangerous default value deque() (collections.deque) as argument
-dangerous-default-value:85:0:function18:Dangerous default value ChainMap() (collections.ChainMap) as argument
-dangerous-default-value:89:0:function19:Dangerous default value Counter() (collections.Counter) as argument
-dangerous-default-value:93:0:function20:Dangerous default value OrderedDict() (collections.OrderedDict) as argument
-dangerous-default-value:97:0:function21:Dangerous default value defaultdict() (collections.defaultdict) as argument
-dangerous-default-value:101:0:function22:Dangerous default value UserDict() (collections.UserDict) as argument
-dangerous-default-value:105:0:function23:Dangerous default value UserList() (collections.UserList) as argument
-dangerous-default-value:109:0:function24:Dangerous default value [] as argument
+dangerous-default-value:6:0:8:16:function1:Dangerous default value [] as argument:UNDEFINED
+dangerous-default-value:10:0:12:16:function2:Dangerous default value HEHE (builtins.dict) as argument:UNDEFINED
+dangerous-default-value:18:0:20:16:function4:Dangerous default value set() (builtins.set) as argument:UNDEFINED
+dangerous-default-value:28:0:30:16:function6:Dangerous default value GLOBAL_SET (builtins.set) as argument:UNDEFINED
+dangerous-default-value:32:0:34:16:function7:Dangerous default value dict() (builtins.dict) as argument:UNDEFINED
+dangerous-default-value:36:0:38:16:function8:Dangerous default value list() (builtins.list) as argument:UNDEFINED
+dangerous-default-value:40:0:42:16:function9:Dangerous default value [] as argument:UNDEFINED
+dangerous-default-value:44:0:46:16:function10:Dangerous default value {} as argument:UNDEFINED
+dangerous-default-value:48:0:50:16:function11:Dangerous default value list() (builtins.list) as argument:UNDEFINED
+dangerous-default-value:52:0:54:16:function12:Dangerous default value dict() (builtins.dict) as argument:UNDEFINED
+dangerous-default-value:61:0:63:16:function13:Dangerous default value OINK (builtins.dict) as argument:UNDEFINED
+dangerous-default-value:65:0:69:16:function14:Dangerous default value dict() (builtins.dict) as argument:UNDEFINED
+dangerous-default-value:73:0:75:16:function15:Dangerous default value INVALID_DICT (builtins.dict) as argument:UNDEFINED
+dangerous-default-value:77:0:79:16:function16:Dangerous default value set() as argument:UNDEFINED
+dangerous-default-value:81:0:83:16:function17:Dangerous default value deque() (collections.deque) as argument:UNDEFINED
+dangerous-default-value:85:0:87:16:function18:Dangerous default value ChainMap() (collections.ChainMap) as argument:UNDEFINED
+dangerous-default-value:89:0:91:16:function19:Dangerous default value Counter() (collections.Counter) as argument:UNDEFINED
+dangerous-default-value:93:0:95:16:function20:Dangerous default value OrderedDict() (collections.OrderedDict) as argument:UNDEFINED
+dangerous-default-value:97:0:99:16:function21:Dangerous default value defaultdict() (collections.defaultdict) as argument:UNDEFINED
+dangerous-default-value:101:0:103:16:function22:Dangerous default value UserDict() (collections.UserDict) as argument:UNDEFINED
+dangerous-default-value:105:0:107:16:function23:Dangerous default value UserList() (collections.UserList) as argument:UNDEFINED
+dangerous-default-value:109:0:111:16:function24:Dangerous default value [] as argument:UNDEFINED

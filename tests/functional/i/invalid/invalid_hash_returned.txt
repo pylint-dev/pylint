@@ -1,4 +1,4 @@
-invalid-hash-returned:36:4:FirstBadHash.__hash__:__hash__ does not return int
-invalid-hash-returned:43:4:SecondBadHash.__hash__:__hash__ does not return int
-invalid-hash-returned:50:4:ThirdBadHash.__hash__:__hash__ does not return int
-invalid-hash-returned:57:4:FourthBadHash.__hash__:__hash__ does not return int
+invalid-hash-returned:36:4:37:17:FirstBadHash.__hash__:__hash__ does not return int:UNDEFINED
+invalid-hash-returned:43:4:44:21:SecondBadHash.__hash__:__hash__ does not return int:UNDEFINED
+invalid-hash-returned:50:4:51:19:ThirdBadHash.__hash__:__hash__ does not return int:UNDEFINED
+invalid-hash-returned:57:4:58:24:FourthBadHash.__hash__:__hash__ does not return int:UNDEFINED

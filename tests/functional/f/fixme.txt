@@ -1,9 +1,9 @@
-fixme:5:1::"FIXME: beep"
-fixme:11:20::"FIXME: Valid test"
-fixme:14:5::"TODO: Do something with the variables"
-fixme:16:18::"XXX: Fix this later"
-fixme:18:5::"FIXME: no space after hash"
-fixme:20:5::"todo: no space after hash"
-fixme:23:2::"FIXME: this is broken"
-fixme:25:5::"./TODO: find with notes"
-fixme:27:5::"TO make something DO: find with regex"
+fixme:5:1:None:None::"FIXME: beep":UNDEFINED
+fixme:11:20:None:None::"FIXME: Valid test":UNDEFINED
+fixme:14:5:None:None::"TODO: Do something with the variables":UNDEFINED
+fixme:16:18:None:None::"XXX: Fix this later":UNDEFINED
+fixme:18:5:None:None::"FIXME: no space after hash":UNDEFINED
+fixme:20:5:None:None::"todo: no space after hash":UNDEFINED
+fixme:23:2:None:None::"FIXME: this is broken":UNDEFINED
+fixme:25:5:None:None::"./TODO: find with notes":UNDEFINED
+fixme:27:5:None:None::"TO make something DO: find with regex":UNDEFINED

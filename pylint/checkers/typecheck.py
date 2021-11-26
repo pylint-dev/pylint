@@ -16,10 +16,10 @@
 # Copyright (c) 2016 Jürgen Hermann <jh@web.de>
 # Copyright (c) 2016 Jakub Wilk <jwilk@jwilk.net>
 # Copyright (c) 2016 Filipe Brandenburger <filbranden@google.com>
+# Copyright (c) 2017, 2021 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2017-2018, 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2017 Derek Gustafson <degustaf@gmail.com>
-# Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2018-2019, 2021 Nick Drozd <nicholasdrozd@gmail.com>
 # Copyright (c) 2018 Pablo Galindo <Pablogsal@gmail.com>
 # Copyright (c) 2018 Jim Robertson <jrobertson98atx@gmail.com>
@@ -42,9 +42,10 @@
 # Copyright (c) 2020 Ram Rachum <ram@rachum.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2020 Anubhav <35621759+anubh-v@users.noreply.github.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Tushar Sadhwani <tushar.sadhwani000@gmail.com>
 # Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 David Liu <david@cs.toronto.edu>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 doranid <ddandd@gmail.com>
 # Copyright (c) 2021 yushao2 <36848472+yushao2@users.noreply.github.com>
 # Copyright (c) 2021 Andrew Haigh <nelfin@gmail.com>
@@ -485,7 +486,7 @@ def _emit_no_member(
                 return False
             if metaclass:
                 # Renamed in Python 3.10 to `EnumType`
-                return metaclass.qname() in ("enum.EnumMeta", "enum.EnumType")
+                return metaclass.qname() in {"enum.EnumMeta", "enum.EnumType"}
             return False
         if not has_known_bases(owner):
             return False
@@ -524,7 +525,7 @@ def _emit_no_member(
         and isinstance(owner.parent, nodes.ClassDef)
         and owner.parent.name == "EnumMeta"
         and owner_name == "__members__"
-        and node.attrname in ["items", "values", "keys"]
+        and node.attrname in {"items", "values", "keys"}
     ):
         # Avoid false positive on Enum.__members__.{items(), values, keys}
         # See https://github.com/PyCQA/pylint/issues/4123
@@ -1559,7 +1560,7 @@ accessed. Python regular expressions are accepted.",
                 return None
         # Instance values must be int, slice, or have an __index__ method
         elif isinstance(index_type, astroid.Instance):
-            if index_type.pytype() in ("builtins.int", "builtins.slice"):
+            if index_type.pytype() in {"builtins.int", "builtins.slice"}:
                 return None
             try:
                 index_type.getattr("__index__")
@@ -1584,9 +1585,9 @@ accessed. Python regular expressions are accepted.",
         # index to check if the object being sliced can support them
         return self._check_invalid_sequence_index(node.parent)
 
-    def _check_invalid_slice_index(self, node):
+    def _check_invalid_slice_index(self, node: nodes.Slice) -> None:
         # Check the type of each part of the slice
-        invalid_slices = 0
+        invalid_slices_nodes: List[nodes.NodeNG] = []
         for index in (node.lower, node.upper, node.step):
             if index is None:
                 continue
@@ -1602,7 +1603,7 @@ accessed. Python regular expressions are accepted.",
             # Instance values must be of type int, None or an object
             # with __index__
             elif isinstance(index_type, astroid.Instance):
-                if index_type.pytype() in ("builtins.int", "builtins.NoneType"):
+                if index_type.pytype() in {"builtins.int", "builtins.NoneType"}:
                     continue
 
                 try:
@@ -1610,9 +1611,9 @@ accessed. Python regular expressions are accepted.",
                     return
                 except astroid.NotFoundError:
                     pass
-            invalid_slices += 1
+            invalid_slices_nodes.append(index)
 
-        if not invalid_slices:
+        if not invalid_slices_nodes:
             return
 
         # Anything else is an error, unless the object that is indexed
@@ -1635,8 +1636,8 @@ accessed. Python regular expressions are accepted.",
             if not isinstance(inferred, known_objects):
                 # Might be an instance that knows how to handle this slice object
                 return
-        for _ in range(invalid_slices):
-            self.add_message("invalid-slice-index", node=node)
+        for snode in invalid_slices_nodes:
+            self.add_message("invalid-slice-index", node=snode)
 
     @check_messages("not-context-manager")
     def visit_with(self, node: nodes.With) -> None:
@@ -1804,7 +1805,7 @@ accessed. Python regular expressions are accepted.",
             return
 
         op, right = node.ops[0]
-        if op in ["in", "not in"]:
+        if op in {"in", "not in"}:
             self._check_membership_test(right)
 
     @check_messages(

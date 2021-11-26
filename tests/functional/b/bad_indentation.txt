@@ -1,2 +1,2 @@
-bad-indentation:6:0::Bad indentation. Found 1 spaces, expected 4
-bad-indentation:12:0::Bad indentation. Found 5 spaces, expected 4
+bad-indentation:6:0:None:None::Bad indentation. Found 1 spaces, expected 4:UNDEFINED
+bad-indentation:12:0:None:None::Bad indentation. Found 5 spaces, expected 4:UNDEFINED

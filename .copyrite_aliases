@@ -87,6 +87,11 @@
     "name": "Matus Valo"
   },
   {
+    "mails": ["nickpesce22@gmail.com", "npesce@terpmail.umd.edu"],
+    "authoritative_mail": "nickpesce22@gmail.com",
+    "name": "Nick Pesce"
+  },
+  {
     "mails": ["31762852+mbyrnepr2@users.noreply.github.com", "mbyrnepr2@gmail.com"],
     "authoritative_mail": "31762852+mbyrnepr2@users.noreply.github.com",
     "name": "Mark Byrne"

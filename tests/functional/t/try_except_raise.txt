@@ -1,6 +1,6 @@
-try-except-raise:5:0::The except handler raises immediately
-try-except-raise:16:0::The except handler raises immediately
-try-except-raise:53:4:ddd:The except handler raises immediately
-try-except-raise:67:0::The except handler raises immediately
-try-except-raise:72:0::The except handler raises immediately
-try-except-raise:94:0::The except handler raises immediately
+try-except-raise:5:0:6:9::The except handler raises immediately:UNDEFINED
+try-except-raise:16:0:18:29::The except handler raises immediately:UNDEFINED
+try-except-raise:53:4:54:13:ddd:The except handler raises immediately:UNDEFINED
+try-except-raise:67:0:68:9::The except handler raises immediately:UNDEFINED
+try-except-raise:72:0:73:9::The except handler raises immediately:UNDEFINED
+try-except-raise:94:0:95:9::The except handler raises immediately:UNDEFINED

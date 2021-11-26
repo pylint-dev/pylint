@@ -833,14 +833,14 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if right_statement_value != body_value:
             return
 
-        if operator in ("<", "<="):
+        if operator in {"<", "<="}:
             reduced_to = "{target} = max({target}, {item})".format(
                 target=target_assignation, item=body_value
             )
             self.add_message(
                 "consider-using-max-builtin", node=node, args=(reduced_to,)
             )
-        elif operator in (">", ">="):
+        elif operator in {">", ">="}:
             reduced_to = "{target} = min({target}, {item})".format(
                 target=target_assignation, item=body_value
             )
@@ -963,7 +963,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 # remove square brackets '[]'
                 inside_comp = node.args[0].as_string()[1:-1]
                 call_name = node.func.name
-                if call_name in ["any", "all"]:
+                if call_name in {"any", "all"}:
                     self.add_message(
                         "use-a-generator",
                         node=node,
@@ -1227,12 +1227,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                     if value is None:
                         continue
 
-                    if operator in ("<", "<="):
+                    if operator in {"<", "<="}:
                         if operand is left_operand:
                             uses[value]["lower_bound"].add(comparison_node)
                         elif operand is right_operand:
                             uses[value]["upper_bound"].add(comparison_node)
-                    elif operator in (">", ">="):
+                    elif operator in {">", ">="}:
                         if operand is left_operand:
                             uses[value]["upper_bound"].add(comparison_node)
                         elif operand is right_operand:
@@ -1482,7 +1482,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def _check_use_list_or_dict_literal(self, node: nodes.Call) -> None:
         """Check if empty list or dict is created by using the literal [] or {}"""
-        if node.as_string() in ("list()", "dict()"):
+        if node.as_string() in {"list()", "dict()"}:
             inferred = utils.safe_infer(node.func)
             if isinstance(inferred, nodes.ClassDef) and not node.args:
                 if inferred.qname() == "builtins.list":

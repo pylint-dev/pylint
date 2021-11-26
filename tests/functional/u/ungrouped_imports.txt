@@ -1,5 +1,5 @@
-ungrouped-imports:8:0::Imports from package logging are not grouped
-ungrouped-imports:11:4::Imports from package os are not grouped
-ungrouped-imports:17:0::Imports from package astroid are not grouped
-ungrouped-imports:19:4::Imports from package logging are not grouped
-ungrouped-imports:20:0::Imports from package os are not grouped
+ungrouped-imports:8:0:8:14::Imports from package logging are not grouped:UNDEFINED
+ungrouped-imports:11:4:11:13::Imports from package os are not grouped:UNDEFINED
+ungrouped-imports:17:0:17:30::Imports from package astroid are not grouped:UNDEFINED
+ungrouped-imports:19:4:19:27::Imports from package logging are not grouped:UNDEFINED
+ungrouped-imports:20:0:20:24::Imports from package os are not grouped:UNDEFINED

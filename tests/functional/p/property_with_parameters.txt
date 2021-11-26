@@ -1,1 +1,1 @@
-property-with-parameters:7:4:Cls.attribute:Cannot have defined parameters for properties
+property-with-parameters:7:4:8:29:Cls.attribute:Cannot have defined parameters for properties:UNDEFINED

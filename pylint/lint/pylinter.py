@@ -98,6 +98,11 @@ MSGS = {
         "Used when an exception occurred while building the Astroid "
         "representation which could be handled by astroid.",
     ),
+    "F0011": (
+        "error while parsing the configuration: %s",
+        "config-parse-error",
+        "Used when an exception occurred while parsing a pylint configuration file.",
+    ),
     "I0001": (
         "Unable to run raw checkers on built-in module %s",
         "raw-checker-failed",
@@ -618,7 +623,6 @@ class PyLinter(
                 sub_reporters.append(reporter)
                 if reporter_output:
                     (reporter_output,) = reporter_output
-                    # pylint: disable=consider-using-with
                     output_file = stack.enter_context(
                         open(reporter_output, "w", encoding="utf-8")
                     )
@@ -762,7 +766,7 @@ class PyLinter(
     def disable_noerror_messages(self):
         for msgcat, msgids in self.msgs_store._msgs_by_category.items():
             # enable only messages with 'error' severity and above ('fatal')
-            if msgcat in ["E", "F"]:
+            if msgcat in {"E", "F"}:
                 for msgid in msgids:
                     self.enable(msgid)
             else:
@@ -830,7 +834,7 @@ class PyLinter(
                 continue
             try:
                 for pragma_repr in parse_pragma(match.group(2)):
-                    if pragma_repr.action in ("disable-all", "skip-file"):
+                    if pragma_repr.action in {"disable-all", "skip-file"}:
                         if pragma_repr.action == "disable-all":
                             self.add_message(
                                 "deprecated-pragma",
@@ -1061,7 +1065,7 @@ class PyLinter(
         self.file_state = FileState(file.modpath)
         # fix the current file (if the source file was not available or
         # if it's actually a c extension)
-        self.current_file = ast_node.file  # pylint: disable=maybe-no-member
+        self.current_file = ast_node.file
         check_astroid_module(ast_node)
         # warn about spurious inline messages handling
         spurious_messages = self.file_state.iter_spurious_suppression_messages(
@@ -1307,6 +1311,7 @@ class PyLinter(
                 "refactor": self.stats.refactor,
                 "convention": self.stats.convention,
                 "statement": self.stats.statement,
+                "info": self.stats.info,
             }
             note = eval(evaluation, {}, stats_dict)  # pylint: disable=eval-used
         except Exception as ex:  # pylint: disable=broad-except
@@ -1408,14 +1413,30 @@ class PyLinter(
         args: Optional[Any],
         confidence: Optional[interfaces.Confidence],
         col_offset: Optional[int],
+        end_lineno: Optional[int],
+        end_col_offset: Optional[int],
     ) -> None:
         """After various checks have passed a single Message is
         passed to the reporter and added to stats"""
         message_definition.check_message_definition(line, node)
-        if line is None and node is not None:
-            line = node.fromlineno
-        if col_offset is None and hasattr(node, "col_offset"):
-            col_offset = node.col_offset  # type: ignore[union-attr]
+
+        # Look up "location" data of node if not yet supplied
+        if node:
+            if not line:
+                line = node.fromlineno
+            # pylint: disable=fixme
+            # TODO: Initialize col_offset on every node (can be None) -> astroid
+            if not col_offset and hasattr(node, "col_offset"):
+                col_offset = node.col_offset
+            # pylint: disable=fixme
+            # TODO: Initialize end_lineno on every node (can be None) -> astroid
+            # See https://github.com/PyCQA/astroid/issues/1273
+            if not end_lineno and hasattr(node, "end_lineno"):
+                end_lineno = node.end_lineno
+            # pylint: disable=fixme
+            # TODO: Initialize end_col_offset on every node (can be None) -> astroid
+            if not end_col_offset and hasattr(node, "end_col_offset"):
+                end_col_offset = node.end_col_offset
 
         # should this message be displayed
         if not self.is_message_enabled(message_definition.msgid, line, confidence):
@@ -1458,7 +1479,14 @@ class PyLinter(
                 message_definition.msgid,
                 message_definition.symbol,
                 MessageLocationTuple(
-                    abspath, path, module or "", obj, line or 1, col_offset or 0
+                    abspath,
+                    path,
+                    module or "",
+                    obj,
+                    line or 1,
+                    col_offset or 0,
+                    end_lineno,
+                    end_col_offset,
                 ),
                 msg,
                 confidence,
@@ -1473,6 +1501,8 @@ class PyLinter(
         args: Optional[Any] = None,
         confidence: Optional[interfaces.Confidence] = None,
         col_offset: Optional[int] = None,
+        end_lineno: Optional[int] = None,
+        end_col_offset: Optional[int] = None,
     ) -> None:
         """Adds a message given by ID or name.
 
@@ -1487,7 +1517,14 @@ class PyLinter(
         message_definitions = self.msgs_store.get_message_definitions(msgid)
         for message_definition in message_definitions:
             self._add_one_message(
-                message_definition, line, node, args, confidence, col_offset
+                message_definition,
+                line,
+                node,
+                args,
+                confidence,
+                col_offset,
+                end_lineno,
+                end_col_offset,
             )
 
     def add_ignored_message(
@@ -1560,7 +1597,7 @@ class PyLinter(
         ignore_unknown: bool = False,
     ) -> None:
         """Do some tests and then iterate over message defintions to set state"""
-        assert scope in ("package", "module")
+        assert scope in {"package", "module"}
         if msgid == "all":
             for _msgid in MSG_TYPES:
                 self._set_msg_status(_msgid, enable, scope, line, ignore_unknown)

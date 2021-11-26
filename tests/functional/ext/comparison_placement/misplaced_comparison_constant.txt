@@ -1,0 +1,6 @@
+misplaced-comparison-constant:19:11:19:17:bad_comparisons:Comparison should be i >= 5:UNDEFINED
+misplaced-comparison-constant:21:11:21:17:bad_comparisons:Comparison should be i == 1:UNDEFINED
+misplaced-comparison-constant:23:11:23:29:bad_comparisons:Comparison should be dummy_return() > 3:UNDEFINED
+misplaced-comparison-constant:25:11:25:39:bad_comparisons:Comparison should be instance.dummy_return() != 4:UNDEFINED
+misplaced-comparison-constant:27:11:27:29:bad_comparisons:Comparison should be instance.attr == 1:UNDEFINED
+misplaced-comparison-constant:29:11:29:33:bad_comparisons:Comparison should be instance.attr == 'aaa':UNDEFINED

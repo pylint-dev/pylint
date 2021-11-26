@@ -1,0 +1,2 @@
+[MASTER]
+check-protected-access-in-special-methods=yes

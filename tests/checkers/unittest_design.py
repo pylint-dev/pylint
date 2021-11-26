@@ -1,6 +1,7 @@
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
+# Copyright (c) 2021 Mike Fiedler <miketheman@gmail.com>
+# Copyright (c) 2021 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2021 Rebecca Turner <rbt@sent.as>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -58,5 +59,4 @@ class TestDesignChecker(CheckerTestCase):
         Compare against actual list to see if validator works."""
         options = get_global_option(self.checker, "exclude-too-few-public-methods")
 
-        # pylint: disable-next=use-implicit-booleaness-not-comparison
         assert options == []

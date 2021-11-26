@@ -1,1 +1,1 @@
-missing-final-newline:4:0::Final newline missing
+missing-final-newline:4:0:None:None::Final newline missing:UNDEFINED

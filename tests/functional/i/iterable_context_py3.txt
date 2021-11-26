@@ -1,1 +1,1 @@
-not-an-iterable:17:9::Non-iterable value SomeClass() is used in an iterating context
+not-an-iterable:17:9:17:20::Non-iterable value SomeClass() is used in an iterating context:UNDEFINED

@@ -1,7 +1,7 @@
-no-member:14:8:MyClass.test:Instance of 'MyClass' has no 'incorrect' member:INFERENCE
-no-member:15:12:MyClass.test:Instance of 'MyClass' has no 'havenot' member:INFERENCE
-no-member:16:8:MyClass.test:Instance of 'MyClass' has no 'nonexistent1' member:INFERENCE
-no-member:17:8:MyClass.test:Instance of 'MyClass' has no 'nonexistent2' member:INFERENCE
-no-member:48:0::Instance of 'TestMetaclass' has no 'register' member:INFERENCE
-no-member:49:0::Instance of 'UsingMetaclass' has no 'test' member:INFERENCE
-no-member:63:27:MetaClass.whatever:Class 'MetaClass' has no 'missing' member:INFERENCE
+no-member:14:8:14:22:MyClass.test:Instance of 'MyClass' has no 'incorrect' member:INFERENCE
+no-member:15:12:15:24:MyClass.test:Instance of 'MyClass' has no 'havenot' member:INFERENCE
+no-member:16:8:16:25:MyClass.test:Instance of 'MyClass' has no 'nonexistent1' member:INFERENCE
+no-member:17:8:17:25:MyClass.test:Instance of 'MyClass' has no 'nonexistent2' member:INFERENCE
+no-member:48:0:48:24::Instance of 'TestMetaclass' has no 'register' member:INFERENCE
+no-member:49:0:49:21::Instance of 'UsingMetaclass' has no 'test' member:INFERENCE
+no-member:63:27:63:38:MetaClass.whatever:Class 'MetaClass' has no 'missing' member:INFERENCE

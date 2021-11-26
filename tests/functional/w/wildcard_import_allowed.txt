@@ -1,2 +1,2 @@
-wildcard-import:3:0::Wildcard import abc
-wildcard-import:4:0::Wildcard import UNINFERABLE
+wildcard-import:3:0:3:17::Wildcard import abc:UNDEFINED
+wildcard-import:4:0:4:25::Wildcard import UNINFERABLE:UNDEFINED

@@ -1,9 +1,9 @@
-import-outside-toplevel:10:4:f:Import outside toplevel (symtable)
-import-outside-toplevel:14:4:g:Import outside toplevel (os, sys)
-import-outside-toplevel:18:4:h:Import outside toplevel (time)
-import-outside-toplevel:22:4:i:Import outside toplevel (random, socket)
-import-outside-toplevel:26:4:C:Import outside toplevel (tokenize)
-import-outside-toplevel:29:8:C.j:Import outside toplevel (turtle)
-import-outside-toplevel:34:8:k:Import outside toplevel (tabnanny)
-import-outside-toplevel:38:4:j:Import outside toplevel (collections.defaultdict)
-import-outside-toplevel:42:4:m:Import outside toplevel (math.sin, math.cos)
+import-outside-toplevel:10:4:10:19:f:Import outside toplevel (symtable):UNDEFINED
+import-outside-toplevel:14:4:14:18:g:Import outside toplevel (os, sys):UNDEFINED
+import-outside-toplevel:18:4:18:24:h:Import outside toplevel (time):UNDEFINED
+import-outside-toplevel:22:4:22:41:i:Import outside toplevel (random, socket):UNDEFINED
+import-outside-toplevel:26:4:26:19:C:Import outside toplevel (tokenize):UNDEFINED
+import-outside-toplevel:29:8:29:21:C.j:Import outside toplevel (turtle):UNDEFINED
+import-outside-toplevel:34:8:34:23:k:Import outside toplevel (tabnanny):UNDEFINED
+import-outside-toplevel:38:4:38:39:j:Import outside toplevel (collections.defaultdict):UNDEFINED
+import-outside-toplevel:42:4:42:48:m:Import outside toplevel (math.sin, math.cos):UNDEFINED

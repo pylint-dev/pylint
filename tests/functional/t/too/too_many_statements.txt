@@ -1,3 +1,3 @@
-too-many-statements:5:0:stupid_function:Too many statements (55/5):HIGH
-too-many-statements:62:0:long_function_with_inline_def:Too many statements (62/5):HIGH
-too-many-statements:128:0:exmaple_function:Too many statements (6/5):HIGH
+too-many-statements:5:0:60:16:stupid_function:Too many statements (55/5):UNDEFINED
+too-many-statements:62:0:125:13:long_function_with_inline_def:Too many statements (62/5):UNDEFINED
+too-many-statements:128:0:133:12:exmaple_function:Too many statements (6/5):UNDEFINED

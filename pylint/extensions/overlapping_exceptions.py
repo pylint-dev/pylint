@@ -49,7 +49,6 @@ class OverlappingExceptionsChecker(checkers.BaseChecker):
                 if exc is astroid.Uninferable:
                     continue
                 if isinstance(exc, astroid.Instance) and utils.inherit_from_std_ex(exc):
-                    # pylint: disable=protected-access
                     exc = exc._proxied
 
                 if not isinstance(exc, astroid.ClassDef):

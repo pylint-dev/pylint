@@ -1,1 +1,1 @@
-misplaced-future:3:0::__future__ import is not the first non docstring statement
+misplaced-future:3:0:3:37::__future__ import is not the first non docstring statement:UNDEFINED

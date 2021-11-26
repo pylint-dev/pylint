@@ -97,5 +97,4 @@ class TestPyLinterOptionSetters(CheckerTestCase):
         Compare against actual list to see if validator works."""
         options = get_global_option(self.checker, "ignore-paths")
 
-        # pylint: disable-next=use-implicit-booleaness-not-comparison
         assert options == []

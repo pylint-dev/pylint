@@ -1,7 +1,7 @@
-stop-iteration-return:24:4:gen_stopiter:Do not raise StopIteration in generator, use return statement instead
-stop-iteration-return:32:4:gen_stopiterchild:Do not raise StopIteration in generator, use return statement instead
-stop-iteration-return:39:14:gen_next_raises_stopiter:Do not raise StopIteration in generator, use return statement instead
-stop-iteration-return:59:18:gen_next_inside_wrong_try_except:Do not raise StopIteration in generator, use return statement instead
-stop-iteration-return:72:12:gen_next_inside_wrong_try_except2:Do not raise StopIteration in generator, use return statement instead
-stop-iteration-return:87:18:gen_dont_crash_on_no_exception:Do not raise StopIteration in generator, use return statement instead
-stop-iteration-return:129:10:invalid_object_passed_to_next:Do not raise StopIteration in generator, use return statement instead
+stop-iteration-return:24:4:24:23:gen_stopiter:Do not raise StopIteration in generator, use return statement instead:UNDEFINED
+stop-iteration-return:32:4:32:29:gen_stopiterchild:Do not raise StopIteration in generator, use return statement instead:UNDEFINED
+stop-iteration-return:39:14:39:21:gen_next_raises_stopiter:Do not raise StopIteration in generator, use return statement instead:UNDEFINED
+stop-iteration-return:59:18:59:25:gen_next_inside_wrong_try_except:Do not raise StopIteration in generator, use return statement instead:UNDEFINED
+stop-iteration-return:72:12:72:31:gen_next_inside_wrong_try_except2:Do not raise StopIteration in generator, use return statement instead:UNDEFINED
+stop-iteration-return:87:18:87:25:gen_dont_crash_on_no_exception:Do not raise StopIteration in generator, use return statement instead:UNDEFINED
+stop-iteration-return:129:10:129:35:invalid_object_passed_to_next:Do not raise StopIteration in generator, use return statement instead:UNDEFINED

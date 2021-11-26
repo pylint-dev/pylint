@@ -1,3 +1,3 @@
-unused-argument:3:9:func:Unused argument 'first'
-unused-argument:3:19:func:Unused argument 'second'
-unused-argument:7:23:only_raises:Unused argument 'second'
+unused-argument:3:9:3:14:func:Unused argument 'first':HIGH
+unused-argument:3:19:3:25:func:Unused argument 'second':HIGH
+unused-argument:7:23:7:29:only_raises:Unused argument 'second':HIGH

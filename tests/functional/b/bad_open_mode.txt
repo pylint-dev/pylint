@@ -1,6 +1,6 @@
-bad-open-mode:12:0::"""rwx"" is not a valid mode for open."
-bad-open-mode:13:0::"""rr"" is not a valid mode for open."
-bad-open-mode:14:0::"""+"" is not a valid mode for open."
-bad-open-mode:15:0::"""xw"" is not a valid mode for open."
-bad-open-mode:21:0::"""Ua"" is not a valid mode for open."
-bad-open-mode:22:0::"""Ur++"" is not a valid mode for open."
+bad-open-mode:12:0:12:35::"""rwx"" is not a valid mode for open.":UNDEFINED
+bad-open-mode:13:0:13:34::"""rr"" is not a valid mode for open.":UNDEFINED
+bad-open-mode:14:0:14:33::"""+"" is not a valid mode for open.":UNDEFINED
+bad-open-mode:15:0:15:34::"""xw"" is not a valid mode for open.":UNDEFINED
+bad-open-mode:21:0:21:34::"""Ua"" is not a valid mode for open.":UNDEFINED
+bad-open-mode:22:0:22:36::"""Ur++"" is not a valid mode for open.":UNDEFINED

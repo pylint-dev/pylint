@@ -1,5 +1,5 @@
-invalid-name:6:0::"Constant name ""SOME_CONSTANT"" doesn't conform to snake_case naming style ('([^\\W\\dA-Z][^\\WA-Z]*|__.*__)$' pattern)"
-invalid-name:13:0:MyClass:"Class name ""MyClass"" doesn't conform to snake_case naming style ('[^\\W\\dA-Z][^\\WA-Z]+$' pattern)"
-invalid-name:25:0:sayHello:"Function name ""sayHello"" doesn't conform to snake_case naming style ('([^\\W\\dA-Z][^\\WA-Z]{2,}|_[^\\WA-Z]*|__[^\\WA-Z\\d_][^\\WA-Z]+__)$' pattern)"
-invalid-name:29:0:FooEnum:"Class name ""FooEnum"" doesn't conform to snake_case naming style ('[^\\W\\dA-Z][^\\WA-Z]+$' pattern)"
-invalid-name:34:0:Bar:"Class name ""Bar"" doesn't conform to snake_case naming style ('[^\\W\\dA-Z][^\\WA-Z]+$' pattern)"
+invalid-name:6:0:6:13::"Constant name ""SOME_CONSTANT"" doesn't conform to snake_case naming style ('([^\\W\\dA-Z][^\\WA-Z]*|__.*__)$' pattern)":HIGH
+invalid-name:13:0:22:83:MyClass:"Class name ""MyClass"" doesn't conform to snake_case naming style ('[^\\W\\dA-Z][^\\WA-Z]+$' pattern)":HIGH
+invalid-name:25:0:26:8:sayHello:"Function name ""sayHello"" doesn't conform to snake_case naming style ('([^\\W\\dA-Z][^\\WA-Z]{2,}|_[^\\WA-Z]*|__[^\\WA-Z\\d_][^\\WA-Z]+__)$' pattern)":HIGH
+invalid-name:29:0:31:22:FooEnum:"Class name ""FooEnum"" doesn't conform to snake_case naming style ('[^\\W\\dA-Z][^\\WA-Z]+$' pattern)":HIGH
+invalid-name:34:0:35:45:Bar:"Class name ""Bar"" doesn't conform to snake_case naming style ('[^\\W\\dA-Z][^\\WA-Z]+$' pattern)":HIGH

@@ -50,7 +50,6 @@ class GenericTestReporter(BaseReporter):
         self.reset()
         return result
 
-    # pylint: disable=unused-argument
     def on_set_current_module(self, module: str, filepath: Optional[str]) -> None:
         pass
 

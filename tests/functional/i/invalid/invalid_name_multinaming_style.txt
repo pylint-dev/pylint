@@ -1,1 +1,1 @@
-invalid-name:4:0:UPPER:"Function name ""UPPER"" doesn't conform to the `down` group in the '^(?:(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$' pattern":HIGH
+invalid-name:4:0:5:59:UPPER:"Function name ""UPPER"" doesn't conform to the `down` group in the '^(?:(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$' pattern":HIGH

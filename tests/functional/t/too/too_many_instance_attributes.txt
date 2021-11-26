@@ -1,1 +1,1 @@
-too-many-instance-attributes:4:0:Aaaa:Too many instance attributes (21/7):HIGH
+too-many-instance-attributes:4:0:27:26:Aaaa:Too many instance attributes (21/7):UNDEFINED

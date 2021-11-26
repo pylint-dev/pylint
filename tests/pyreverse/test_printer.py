@@ -1,3 +1,4 @@
+# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
 

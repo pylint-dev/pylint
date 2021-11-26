@@ -1,7 +1,7 @@
 github_url = "https://github.com/PyCQA/pylint"
 
 [version]
-current = "2.11.2-dev0"
+current = "2.12.2-dev0"
 regex = '''
 ^(?P<major>0|[1-9]\d*)
 \.
@@ -35,10 +35,6 @@ cmd = "pip3 install copyrite;copyrite --contribution-threshold 1 --change-thresh
 [[before_commit]]
 name = "Apply pre-commit"
 cmd = "pre-commit run --all-files||echo 'Hack so this command does not fail'"
-
-[[before_commit]]
-name = "Acceptance tests"
-cmd = "pytest -m acceptance"
 
 # Or run some commands after the git tag and the branch
 # have been pushed:

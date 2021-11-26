@@ -1,2 +1,2 @@
-catching-non-exception:23:11:test:"Catching an exception which doesn't inherit from Exception: TestException"
-try-except-raise:23:4:test:The except handler raises immediately
+catching-non-exception:23:11:23:24:test:"Catching an exception which doesn't inherit from Exception: TestException":UNDEFINED
+try-except-raise:23:4:24:13:test:The except handler raises immediately:UNDEFINED

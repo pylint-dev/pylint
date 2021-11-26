@@ -1,6 +1,6 @@
-invalid-getnewargs-ex-returned:36:4:FirstBadGetNewArgsEx.__getnewargs_ex__:__getnewargs_ex__ does not return a tuple containing (tuple, dict)
-invalid-getnewargs-ex-returned:43:4:SecondBadGetNewArgsEx.__getnewargs_ex__:__getnewargs_ex__ does not return a tuple containing (tuple, dict)
-invalid-getnewargs-ex-returned:50:4:ThirdBadGetNewArgsEx.__getnewargs_ex__:__getnewargs_ex__ does not return a tuple containing (tuple, dict)
-invalid-getnewargs-ex-returned:57:4:FourthBadGetNewArgsEx.__getnewargs_ex__:__getnewargs_ex__ does not return a tuple containing (tuple, dict)
-invalid-getnewargs-ex-returned:64:4:FifthBadGetNewArgsEx.__getnewargs_ex__:__getnewargs_ex__ does not return a tuple containing (tuple, dict)
-invalid-getnewargs-ex-returned:71:4:SixthBadGetNewArgsEx.__getnewargs_ex__:__getnewargs_ex__ does not return a tuple containing (tuple, dict)
+invalid-getnewargs-ex-returned:36:4:37:16:FirstBadGetNewArgsEx.__getnewargs_ex__:__getnewargs_ex__ does not return a tuple containing (tuple, dict):UNDEFINED
+invalid-getnewargs-ex-returned:43:4:44:41:SecondBadGetNewArgsEx.__getnewargs_ex__:__getnewargs_ex__ does not return a tuple containing (tuple, dict):UNDEFINED
+invalid-getnewargs-ex-returned:50:4:51:41:ThirdBadGetNewArgsEx.__getnewargs_ex__:__getnewargs_ex__ does not return a tuple containing (tuple, dict):UNDEFINED
+invalid-getnewargs-ex-returned:57:4:58:29:FourthBadGetNewArgsEx.__getnewargs_ex__:__getnewargs_ex__ does not return a tuple containing (tuple, dict):UNDEFINED
+invalid-getnewargs-ex-returned:64:4:65:33:FifthBadGetNewArgsEx.__getnewargs_ex__:__getnewargs_ex__ does not return a tuple containing (tuple, dict):UNDEFINED
+invalid-getnewargs-ex-returned:71:4:72:29:SixthBadGetNewArgsEx.__getnewargs_ex__:__getnewargs_ex__ does not return a tuple containing (tuple, dict):UNDEFINED

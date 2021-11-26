@@ -1,6 +1,6 @@
-useless-else-on-loop:10:4:test_return_for:Else clause on loop without a break statement
-useless-else-on-loop:18:4:test_return_while:Else clause on loop without a break statement
-useless-else-on-loop:28:0::Else clause on loop without a break statement
-useless-else-on-loop:35:0::Else clause on loop without a break statement
-useless-else-on-loop:40:0::Else clause on loop without a break statement
-useless-else-on-loop:87:4:test_break_in_orelse_deep2:Else clause on loop without a break statement
+useless-else-on-loop:10:4:11:31:test_return_for:Else clause on loop without a break statement:UNDEFINED
+useless-else-on-loop:18:4:19:31:test_return_while:Else clause on loop without a break statement:UNDEFINED
+useless-else-on-loop:28:0:29:21::Else clause on loop without a break statement:UNDEFINED
+useless-else-on-loop:35:0:36:21::Else clause on loop without a break statement:UNDEFINED
+useless-else-on-loop:40:0:43:13::Else clause on loop without a break statement:UNDEFINED
+useless-else-on-loop:87:4:88:19:test_break_in_orelse_deep2:Else clause on loop without a break statement:UNDEFINED

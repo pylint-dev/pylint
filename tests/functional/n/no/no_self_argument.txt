@@ -1,2 +1,2 @@
-no-self-argument:8:4:NoSelfArgument.__init__:"Method should have ""self"" as first argument"
-no-self-argument:12:4:NoSelfArgument.abdc:"Method should have ""self"" as first argument"
+no-self-argument:8:4:10:16:NoSelfArgument.__init__:"Method should have ""self"" as first argument":UNDEFINED
+no-self-argument:12:4:14:18:NoSelfArgument.abdc:"Method should have ""self"" as first argument":UNDEFINED
