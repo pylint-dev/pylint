@@ -25,6 +25,11 @@ Other Changes
 
   Closes #5323
 
+* ``used-before-assignment`` now assumes that assignments in except blocks
+  may not have occurred and warns accordingly.
+
+  Closes #4761
+
 * Require Python ``3.6.2`` to run pylint.
 
   Closes #5065

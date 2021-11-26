@@ -628,9 +628,27 @@ scope_type : {self._atomic.scope_type}
             found_nodes = [
                 n
                 for n in found_nodes
-                if not isinstance(n.statement(), nodes.ExceptHandler)
-                or n.statement().parent_of(node)
+                if not isinstance(n.statement(future=True), nodes.ExceptHandler)
+                or n.statement(future=True).parent_of(node)
             ]
+
+        # Filter out assignments in an Except clause that node is not
+        # contained in, assuming they may fail
+        if found_nodes:
+            filtered_nodes = [
+                n
+                for n in found_nodes
+                if not (
+                    isinstance(n.statement(future=True).parent, nodes.ExceptHandler)
+                    and isinstance(
+                        n.statement(future=True).parent.parent, nodes.TryExcept
+                    )
+                )
+                or n.statement(future=True).parent.parent_of(node)
+            ]
+            difference = [n for n in found_nodes if n not in filtered_nodes]
+            self.consumed_uncertain[node.name] += difference
+            found_nodes = filtered_nodes
 
         return found_nodes
 
@@ -1053,8 +1071,8 @@ class VariablesChecker(BaseChecker):
             if action is VariableVisitConsumerAction.CONTINUE:
                 continue
             if action is VariableVisitConsumerAction.CONSUME:
-                uncertain_nodes = current_consumer.consumed_uncertain[node.name]
-                current_consumer.mark_as_consumed(node.name, found_nodes + uncertain_nodes)
+                found_nodes += current_consumer.consumed_uncertain[node.name]
+                current_consumer.mark_as_consumed(node.name, found_nodes)
             if action in {
                 VariableVisitConsumerAction.RETURN,
                 VariableVisitConsumerAction.CONSUME,
@@ -1148,8 +1166,8 @@ class VariablesChecker(BaseChecker):
         if not found_nodes:
             self.add_message("used-before-assignment", args=node.name, node=node)
             if node.name in current_consumer.consumed_uncertain:
-                uncertain_nodes = current_consumer.consumed_uncertain[node.name]
-                return (VariableVisitConsumerAction.CONSUME, found_nodes + uncertain_nodes)
+                found_nodes += current_consumer.consumed_uncertain[node.name]
+                return (VariableVisitConsumerAction.CONSUME, found_nodes)
             return (VariableVisitConsumerAction.RETURN, found_nodes)
 
         self._check_late_binding_closure(node)

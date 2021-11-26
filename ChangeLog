@@ -9,6 +9,10 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.13.rst'
 
+* ``used-before-assignment`` now assumes that assignments in except blocks
+  may not have occurred and warns accordingly.
+
+  Closes #4761
 
 ..
   Insert your changelog randomly, it will reduce merge conflicts
