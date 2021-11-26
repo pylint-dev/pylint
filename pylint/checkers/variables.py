@@ -1045,7 +1045,8 @@ class VariablesChecker(BaseChecker):
         # we have not found the name, if it isn't a builtin, that's an
         # undefined name !
         if (
-            self._undefined_variable_is_enabled and not (
+            self._undefined_variable_is_enabled
+            and not (
                 node.name in nodes.Module.scope_attrs
                 or utils.is_builtin(node.name)
                 or node.name in self.config.additional_builtins
@@ -1054,6 +1055,7 @@ class VariablesChecker(BaseChecker):
                     and isinstance(frame, nodes.FunctionDef)
                     and frame.is_method()
                 )
+            )
             and not utils.node_ignores_exception(node, NameError)
         ):
             self.add_message("undefined-variable", args=node.name, node=node)
