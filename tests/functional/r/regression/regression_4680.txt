@@ -1,2 +1,2 @@
-import-error:3:0::Unable to import 'pkg.sub':HIGH
-undefined-variable:10:0:FailedTwo:Undefined variable 'ab':HIGH
+import-error:3:0:3:14::Unable to import 'pkg.sub':UNDEFINED
+undefined-variable:10:0:11:8:FailedTwo:Undefined variable 'ab':UNDEFINED

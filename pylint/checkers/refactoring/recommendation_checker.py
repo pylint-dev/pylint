@@ -106,7 +106,7 @@ class RecommendationChecker(checkers.BaseChecker):
         # Check if call is split() or rsplit()
         if not (
             isinstance(node.func, nodes.Attribute)
-            and node.func.attrname in ("split", "rsplit")
+            and node.func.attrname in {"split", "rsplit"}
             and isinstance(utils.safe_infer(node.func), astroid.BoundMethod)
         ):
             return

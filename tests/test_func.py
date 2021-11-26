@@ -55,7 +55,6 @@ class LintTestUsingModule:
     def _test_functionality(self) -> None:
         if self.module:
             tocheck = [self.package + "." + self.module]
-        # pylint: disable=not-an-iterable; can't handle boolean checks for now
         if self.depends:
             tocheck += [
                 self.package + f".{name.replace('.py', '')}" for name, _ in self.depends
@@ -79,9 +78,9 @@ class LintTestUsingModule:
             self.linter.check(tocheck)
         except Exception as ex:
             print(f"Exception: {ex} in {tocheck}:: {'‚ '.join(ex.args)}")
-            ex.file = tocheck  # type: ignore # This is legacy code we're trying to remove, not worth it to type correctly
+            ex.file = tocheck  # type: ignore[attr-defined] # This is legacy code we're trying to remove, not worth it to type correctly
             print(ex)
-            ex.__str__ = exception_str  # type: ignore # This is legacy code we're trying to remove, impossible to type correctly
+            ex.__str__ = exception_str  # type: ignore[assignment] # This is legacy code we're trying to remove, impossible to type correctly
             raise
         self._check_result(self.linter.reporter.finalize())
 

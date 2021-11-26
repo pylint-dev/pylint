@@ -1,1 +1,1 @@
-bad-inline-option:3:0::Unable to consider inline option 'disable'
+bad-inline-option:3:0:None:None::Unable to consider inline option 'disable':UNDEFINED

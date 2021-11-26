@@ -1,2 +1,2 @@
-bad-staticmethod-argument:5:4:Abcd.method1:Static method with 'self' as first argument
-bad-staticmethod-argument:10:4:Abcd.method2:Static method with 'cls' as first argument
+bad-staticmethod-argument:5:4:6:12:Abcd.method1:Static method with 'self' as first argument:UNDEFINED
+bad-staticmethod-argument:10:4:11:12:Abcd.method2:Static method with 'cls' as first argument:UNDEFINED

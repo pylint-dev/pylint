@@ -5,7 +5,7 @@ from typing import Callable
 from unittest.mock import patch
 
 import pytest
-from py._path.local import LocalPath  # type: ignore
+from py._path.local import LocalPath  # type: ignore[import]
 
 from pylint import run_epylint, run_pylint, run_pyreverse, run_symilar
 

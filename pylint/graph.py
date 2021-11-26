@@ -64,11 +64,11 @@ class DotBackend:
         if size:
             self.emit(f'size="{size}"')
         if charset:
-            assert charset.lower() in (
+            assert charset.lower() in {
                 "utf-8",
                 "iso-8859-1",
                 "latin1",
-            ), f"unsupported charset {charset}"
+            }, f"unsupported charset {charset}"
             self.emit(f'charset="{charset}"')
         for param in additional_param.items():
             self.emit("=".join(param))

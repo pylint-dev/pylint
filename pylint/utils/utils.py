@@ -93,7 +93,7 @@ CMPS = ["=", "-", "+"]
 
 
 # py3k has no more cmp builtin
-def cmp(a, b):  # pylint: disable=redefined-builtin
+def cmp(a, b):
     return (a > b) - (a < b)
 
 

@@ -1,14 +1,8 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-import sys
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, NoReturn, Optional, Tuple
 
 from pylint.exceptions import InvalidMessageError, UnknownMessageError
-
-if sys.version_info >= (3, 6, 2):
-    from typing import NoReturn
-else:
-    from typing_extensions import NoReturn
 
 
 class MessageIdStore:

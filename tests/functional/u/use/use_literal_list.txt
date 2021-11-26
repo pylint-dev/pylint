@@ -1,1 +1,1 @@
-use-list-literal:3:4::"Consider using [] instead of list()"
+use-list-literal:3:4:3:10::Consider using [] instead of list():UNDEFINED

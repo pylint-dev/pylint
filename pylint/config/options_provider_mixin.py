@@ -56,7 +56,7 @@ class OptionsProviderMixIn:
             action = optdict.get("action", "store")
         if action == "store":
             setattr(self.config, self.option_attrname(optname, optdict), value)
-        elif action in ("store_true", "count"):
+        elif action in {"store_true", "count"}:
             setattr(self.config, self.option_attrname(optname, optdict), 0)
         elif action == "store_false":
             setattr(self.config, self.option_attrname(optname, optdict), 1)

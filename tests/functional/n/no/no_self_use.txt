@@ -1,2 +1,2 @@
-no-self-use:16:4:Toto.function_method:Method could be a function
-no-self-use:24:4:Toto.async_function_method:Method could be a function
+no-self-use:16:4:18:22:Toto.function_method:Method could be a function:UNDEFINED
+no-self-use:24:4:26:22:Toto.async_function_method:Method could be a function:UNDEFINED

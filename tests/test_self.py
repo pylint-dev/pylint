@@ -7,11 +7,11 @@
 # Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
 # Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
 # Copyright (c) 2017, 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2017, 2021 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2017, 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017, 2019 Thomas Hisch <t.hisch@gmail.com>
 # Copyright (c) 2017 Daniel Miller <millerdev@gmail.com>
 # Copyright (c) 2017 Bryce Guinta <bryce.paul.guinta@gmail.com>
-# Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
 # Copyright (c) 2018 Jason Owen <jason.a.owen@gmail.com>
 # Copyright (c) 2018 Jace Browning <jacebrowning@gmail.com>
@@ -56,9 +56,9 @@ from unittest import mock
 from unittest.mock import patch
 
 import pytest
-from py._path.local import LocalPath  # type: ignore
+from py._path.local import LocalPath  # type: ignore[import]
 
-from pylint import modify_sys_path
+from pylint import extensions, modify_sys_path
 from pylint.constants import MAIN_CHECKER_NAME, MSG_TYPES_STATUS
 from pylint.lint import Run
 from pylint.lint.pylinter import PyLinter
@@ -1237,3 +1237,25 @@ class TestRunTC:
             output_file,
             expected_output=expected,
         )
+
+    @staticmethod
+    def test_enable_all_extensions() -> None:
+        """Test to see if --enable-all-extensions does indeed load all extensions"""
+        # Record all extensions
+        plugins = []
+        for filename in os.listdir(os.path.dirname(extensions.__file__)):
+            # pylint: disable=fixme
+            # TODO: Remove the check for deprecated check_docs after the extension has been removed
+            if (
+                filename.endswith(".py")
+                and not filename.startswith("_")
+                and not filename.startswith("check_docs")
+            ):
+                plugins.append(f"pylint.extensions.{filename[:-3]}")
+
+        # Check if they are loaded
+        runner = Run(
+            ["--enable-all-extensions", join(HERE, "regrtest_data", "empty.py")],
+            exit=False,
+        )
+        assert sorted(plugins) == sorted(runner.linter._dynamic_plugins)

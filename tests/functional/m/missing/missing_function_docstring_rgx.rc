@@ -1,0 +1,2 @@
+[BASIC]
+no-docstring-rgx=^(?!__eq__$)_

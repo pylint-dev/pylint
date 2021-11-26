@@ -1,0 +1,7 @@
+docstring-first-line-empty:4:0:7:19:check_messages:First line empty in function docstring:HIGH
+docstring-first-line-empty:14:0:41:44:FFFF:First line empty in class docstring:HIGH
+bad-docstring-quotes:19:4:22:11:FFFF.method1:"Bad docstring quotes in method, expected """""", given '''":HIGH
+docstring-first-line-empty:19:4:22:11:FFFF.method1:First line empty in method docstring:HIGH
+bad-docstring-quotes:24:4:25:25:FFFF.method2:"Bad docstring quotes in method, expected """""", given """:HIGH
+bad-docstring-quotes:27:4:28:25:FFFF.method3:"Bad docstring quotes in method, expected """""", given '":HIGH
+bad-docstring-quotes:30:4:31:30:FFFF.method4:"Bad docstring quotes in method, expected """""", given '":HIGH

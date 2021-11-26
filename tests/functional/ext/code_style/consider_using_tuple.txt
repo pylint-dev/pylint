@@ -1,0 +1,8 @@
+consider-using-tuple:9:9:9:18::Consider using an in-place tuple instead of list:UNDEFINED
+consider-using-tuple:14:12:14:21::Consider using an in-place tuple instead of list:UNDEFINED
+consider-using-tuple:18:12:18:21::Consider using an in-place tuple instead of list:UNDEFINED
+consider-using-tuple:21:9:21:15::Consider using an in-place tuple instead of list:UNDEFINED
+consider-using-tuple:23:9:23:18::Consider using an in-place tuple instead of list:UNDEFINED
+consider-using-tuple:26:12:26:21::Consider using an in-place tuple instead of list:UNDEFINED
+use-sequence-for-iteration:30:12:30:21::Use a sequence type when iterating over values:UNDEFINED
+use-sequence-for-iteration:31:12:31:21::Use a sequence type when iterating over values:UNDEFINED

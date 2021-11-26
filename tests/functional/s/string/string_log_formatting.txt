@@ -1,6 +1,6 @@
-logging-too-many-args:14:4:pprint:Too many arguments for logging format string
-logging-too-many-args:15:4:pprint:Too many arguments for logging format string
-logging-format-truncated:16:4:pprint:Logging format string ends in middle of conversion specifier
-logging-too-few-args:17:4:pprint:Not enough arguments for logging format string
-logging-unsupported-format:18:4:pprint:Unsupported logging format character 'y' (0x79) at index 3
-logging-too-many-args:19:4:pprint:Too many arguments for logging format string
+logging-too-many-args:14:4:14:23:pprint:Too many arguments for logging format string:UNDEFINED
+logging-too-many-args:15:4:15:24:pprint:Too many arguments for logging format string:UNDEFINED
+logging-format-truncated:16:4:16:27:pprint:Logging format string ends in middle of conversion specifier:UNDEFINED
+logging-too-few-args:17:4:17:28:pprint:Not enough arguments for logging format string:UNDEFINED
+logging-unsupported-format:18:4:18:32:pprint:Unsupported logging format character 'y' (0x79) at index 3:UNDEFINED
+logging-too-many-args:19:4:19:36:pprint:Too many arguments for logging format string:UNDEFINED

@@ -1,2 +1,3 @@
-method-hidden:13:4:Cdef.abcd:An attribute defined in functional.m.method_hidden line 9 hides this method
-method-hidden:76:4:One.one:An attribute defined in functional.m.method_hidden line 74 hides this method
+method-hidden:18:4:20:19:Cdef.abcd:An attribute defined in functional.m.method_hidden line 12 hides this method:UNDEFINED
+method-hidden:86:4:87:12:One.one:An attribute defined in functional.m.method_hidden line 84 hides this method:UNDEFINED
+method-hidden:113:4:114:12:Child._protected:An attribute defined in functional.m.method_hidden line 109 hides this method:UNDEFINED

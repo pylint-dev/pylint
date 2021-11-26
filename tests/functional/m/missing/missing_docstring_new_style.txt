@@ -1,5 +1,5 @@
-missing-module-docstring:1:0::Missing module docstring
-missing-class-docstring:9:0:UndocumentedClass:Missing class docstring
-missing-class-docstring:19:0:OtherClassUndocumented:Missing class docstring
-missing-function-docstring:36:0:public_undocumented:Missing function or method docstring
-missing-function-docstring:46:0:undocumented_other_function:Missing function or method docstring
+missing-module-docstring:1:0:None:None::Missing module docstring:HIGH
+missing-class-docstring:9:0:10:8:UndocumentedClass:Missing class docstring:HIGH
+missing-class-docstring:19:0:20:8:OtherClassUndocumented:Missing class docstring:HIGH
+missing-function-docstring:36:0:37:8:public_undocumented:Missing function or method docstring:HIGH
+missing-function-docstring:46:0:47:8:undocumented_other_function:Missing function or method docstring:HIGH

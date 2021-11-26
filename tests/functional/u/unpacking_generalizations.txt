@@ -1,6 +1,6 @@
-too-many-function-args:24:0::Too many positional arguments for function call
-no-value-for-parameter:25:0::No value for argument 'd' in function call
-too-many-function-args:26:0::Too many positional arguments for function call
-repeated-keyword:27:0::Got multiple values for keyword argument 'd' in function call
-repeated-keyword:29:0::Got multiple values for keyword argument 'c' in function call
-repeated-keyword:29:0::Got multiple values for keyword argument 'd' in function call
+too-many-function-args:24:0:24:41::Too many positional arguments for function call:UNDEFINED
+no-value-for-parameter:25:0:25:32::No value for argument 'd' in function call:UNDEFINED
+too-many-function-args:26:0:26:43::Too many positional arguments for function call:UNDEFINED
+repeated-keyword:27:0:27:51::Got multiple values for keyword argument 'd' in function call:UNDEFINED
+repeated-keyword:29:0:29:67::Got multiple values for keyword argument 'c' in function call:UNDEFINED
+repeated-keyword:29:0:29:67::Got multiple values for keyword argument 'd' in function call:UNDEFINED

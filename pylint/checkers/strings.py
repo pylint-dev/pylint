@@ -24,8 +24,10 @@
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 谭九鼎 <109224573@qq.com>
 # Copyright (c) 2020 Anthony <tanant@users.noreply.github.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Tushar Sadhwani <tushar.sadhwani000@gmail.com>
+# Copyright (c) 2021 Jaehoon Hwang <jaehoonhwang@users.noreply.github.com>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Peter Kolbus <peter.kolbus@garmin.com>
 
 
@@ -39,7 +41,7 @@ import collections
 import numbers
 import re
 import tokenize
-from typing import TYPE_CHECKING, Iterable
+from typing import Counter, Iterable
 
 import astroid
 from astroid import nodes
@@ -47,9 +49,6 @@ from astroid import nodes
 from pylint.checkers import BaseChecker, BaseTokenChecker, utils
 from pylint.checkers.utils import check_messages
 from pylint.interfaces import IAstroidChecker, IRawChecker, ITokenChecker
-
-if TYPE_CHECKING:
-    from typing import Counter  # typing.Counter added in Python 3.6.1
 
 _AST_NODE_STR_TYPES = ("__builtin__.unicode", "__builtin__.str", "builtins.str")
 # Prefixes for both strings and bytes literals per
@@ -427,9 +426,9 @@ class StringFormatChecker(BaseChecker):
         if (
             isinstance(func, astroid.BoundMethod)
             and isinstance(func.bound, astroid.Instance)
-            and func.bound.name in ("str", "unicode", "bytes")
+            and func.bound.name in {"str", "unicode", "bytes"}
         ):
-            if func.name in ("strip", "lstrip", "rstrip") and node.args:
+            if func.name in {"strip", "lstrip", "rstrip"} and node.args:
                 arg = utils.safe_infer(node.args[0])
                 if not isinstance(arg, nodes.Const) or not isinstance(arg.value, str):
                     return
@@ -772,8 +771,7 @@ class StringConstantChecker(BaseTokenChecker):
         Args:
           tokens: The tokens to be checked against for consistent usage.
         """
-        # typing.Counter added in Python 3.6.1 so this type hint must be a comment
-        string_delimiters = collections.Counter()  # type: Counter[str]
+        string_delimiters: Counter[str] = collections.Counter()
 
         # First, figure out which quote character predominates in the module
         for tok_type, token, _, _, _ in tokens:
@@ -940,11 +938,11 @@ def str_eval(token):
     We have to support all string literal notations:
     https://docs.python.org/3/reference/lexical_analysis.html#string-and-bytes-literals
     """
-    if token[0:2].lower() in ("fr", "rf"):
+    if token[0:2].lower() in {"fr", "rf"}:
         token = token[2:]
-    elif token[0].lower() in ("r", "u", "f"):
+    elif token[0].lower() in {"r", "u", "f"}:
         token = token[1:]
-    if token[0:3] in ('"""', "'''"):
+    if token[0:3] in {'"""', "'''"}:
         return token[3:-3]
     return token[1:-1]
 

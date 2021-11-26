@@ -574,7 +574,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             isinstance(infer, astroid.BoundMethod)
             and node.args
             and isinstance(node.args[0], nodes.Const)
-            and infer.name in ["assertTrue", "assertFalse"]
+            and infer.name in {"assertTrue", "assertFalse"}
         ):
             self.add_message(
                 "redundant-unittest-assert",
@@ -626,7 +626,12 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
 
         if mode_arg:
             mode_arg = utils.safe_infer(mode_arg)
-        if not mode_arg or "b" not in mode_arg.value:
+
+        if (
+            not mode_arg
+            or isinstance(mode_arg, nodes.Const)
+            and "b" not in mode_arg.value
+        ):
             encoding_arg = None
             try:
                 if open_module == "pathlib" and node.func.attrname == "read_text":

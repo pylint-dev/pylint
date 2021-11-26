@@ -42,8 +42,13 @@
 # Copyright (c) 2020 Slavfox <slavfoxman@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Mark Byrne <31762852+mbyrnepr2@users.noreply.github.com>
 # Copyright (c) 2021 Nick Drozd <nicholasdrozd@gmail.com>
+# Copyright (c) 2021 Arianna Y <92831762+areveny@users.noreply.github.com>
+# Copyright (c) 2021 Jaehoon Hwang <jaehoonhwang@users.noreply.github.com>
+# Copyright (c) 2021 Samuel FORESTIER <HorlogeSkynet@users.noreply.github.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 bot <bot@noreply.github.com>
 # Copyright (c) 2021 David Liu <david@cs.toronto.edu>
 # Copyright (c) 2021 Matus Valo <matusvalo@users.noreply.github.com>
 # Copyright (c) 2021 Lorena B <46202743+lorena-b@users.noreply.github.com>
@@ -312,7 +317,7 @@ def is_error(node: nodes.FunctionDef) -> bool:
     return len(node.body) == 1 and isinstance(node.body[0], nodes.Raise)
 
 
-builtins = builtins.__dict__.copy()  # type: ignore
+builtins = builtins.__dict__.copy()  # type: ignore[assignment]
 SPECIAL_BUILTINS = ("__builtins__",)  # '__path__', '__file__')
 
 
@@ -323,7 +328,7 @@ def is_builtin_object(node: nodes.NodeNG) -> bool:
 
 def is_builtin(name: str) -> bool:
     """return true if <name> could be considered as a builtin defined by python"""
-    return name in builtins or name in SPECIAL_BUILTINS  # type: ignore
+    return name in builtins or name in SPECIAL_BUILTINS  # type: ignore[operator]
 
 
 def is_defined_in_scope(
@@ -725,7 +730,7 @@ def inherit_from_std_ex(node: nodes.NodeNG) -> bool:
     """
     ancestors = node.ancestors() if hasattr(node, "ancestors") else []
     return any(
-        ancestor.name in ("Exception", "BaseException")
+        ancestor.name in {"Exception", "BaseException"}
         and ancestor.root().name == EXCEPTIONS_MODULE
         for ancestor in itertools.chain([node], ancestors)
     )
@@ -797,7 +802,7 @@ def is_property_setter_or_deleter(node: nodes.FunctionDef) -> bool:
 def _is_property_decorator(decorator: nodes.Name) -> bool:
     for inferred in decorator.infer():
         if isinstance(inferred, nodes.ClassDef):
-            if inferred.qname() in ("builtins.property", "functools.cached_property"):
+            if inferred.qname() in {"builtins.property", "functools.cached_property"}:
                 return True
             for ancestor in inferred.ancestors():
                 if ancestor.name == "property" and ancestor.root().name == "builtins":
@@ -1338,7 +1343,6 @@ def is_registered_in_singledispatch_function(node: nodes.FunctionDef) -> bool:
             continue
 
         if isinstance(func_def, nodes.FunctionDef):
-            # pylint: disable=redundant-keyword-arg; some flow inference goes wrong here
             return decorated_with(func_def, singledispatch_qnames)
 
     return False
@@ -1684,5 +1688,5 @@ def returns_bool(node: nodes.NodeNG) -> bool:
     return (
         isinstance(node, nodes.Return)
         and isinstance(node.value, nodes.Const)
-        and node.value.value in (True, False)
+        and node.value.value in {True, False}
     )

@@ -1,5 +1,5 @@
-consider-using-enumerate:7:4:bad:Consider using enumerate instead of iterating with range and len
-consider-using-enumerate:9:4:bad:Consider using enumerate instead of iterating with range and len
-consider-using-enumerate:17:8:Bad.__iter__:Consider using enumerate instead of iterating with range and len
-consider-using-enumerate:21:8:Bad.test:Consider using enumerate instead of iterating with range and len
-consider-using-enumerate:83:4:my_function:Consider using enumerate instead of iterating with range and len
+consider-using-enumerate:7:4:8:27:bad:Consider using enumerate instead of iterating with range and len:UNDEFINED
+consider-using-enumerate:9:4:10:27:bad:Consider using enumerate instead of iterating with range and len:UNDEFINED
+consider-using-enumerate:17:8:18:29:Bad.__iter__:Consider using enumerate instead of iterating with range and len:UNDEFINED
+consider-using-enumerate:21:8:22:25:Bad.test:Consider using enumerate instead of iterating with range and len:UNDEFINED
+consider-using-enumerate:83:4:85:18:my_function:Consider using enumerate instead of iterating with range and len:UNDEFINED

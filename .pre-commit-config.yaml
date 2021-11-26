@@ -13,7 +13,7 @@ repos:
     rev: v1.4
     hooks:
       - id: autoflake
-        exclude: &fixtures tests/functional/|tests/input|tests/extensions/data|tests/regrtest_data/|tests/data/
+        exclude: &fixtures tests/functional/|tests/input|tests/regrtest_data/|tests/data/
         args:
           - --in-place
           - --remove-all-unused-imports
@@ -21,17 +21,17 @@ repos:
           - --remove-duplicate-keys
           - --remove-unused-variables
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.29.0
+    rev: v2.29.1
     hooks:
       - id: pyupgrade
         args: [--py36-plus]
         exclude: *fixtures
   - repo: https://github.com/PyCQA/isort
-    rev: 5.10.0
+    rev: 5.10.1
     hooks:
       - id: isort
   - repo: https://github.com/psf/black
-    rev: 21.10b0
+    rev: 21.11b1
     hooks:
       - id: black
         args: [--safe, --quiet]
@@ -44,6 +44,7 @@ repos:
     rev: 4.0.1
     hooks:
       - id: flake8
+        additional_dependencies: [flake8-typing-imports==1.10.1]
         exclude: *fixtures
   - repo: local
     hooks:
@@ -57,6 +58,7 @@ repos:
             "-rn",
             "-sn",
             "--rcfile=pylintrc",
+            "--fail-on=I",
             "--load-plugins=pylint.extensions.docparams",
           ]
         # disabled plugins: pylint.extensions.mccabe

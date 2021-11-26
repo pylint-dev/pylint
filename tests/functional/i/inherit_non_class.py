@@ -79,3 +79,26 @@ class NotInheritableSlice(slice): # [inherit-non-class]
 
 class NotInheritableMemoryView(memoryview): # [inherit-non-class]
     pass
+
+
+# Subscription of parent class that implements __class_getitem__
+# and returns cls should be allowed.
+class ParentGood:
+    def __class_getitem__(cls, item):  # pylint: disable=unused-argument
+        return cls
+
+class ParentBad:
+    def __class_getitem__(cls, item):  # pylint: disable=unused-argument
+        return 42
+
+# pylint: disable-next=fixme
+# TODO This should emit 'unsubscriptable-object' for Python 3.6
+class Child1(ParentGood[int]):
+    pass
+
+class Child2(ParentBad[int]):  # [inherit-non-class]
+    pass
+
+# Classes that don't implement '__class_getitem__' are marked as unsubscriptable
+class Child3(Empty[int]):  # [unsubscriptable-object]
+    pass

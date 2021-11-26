@@ -1,8 +1,0 @@
-consider-using-tuple:9:9::Consider using an in-place tuple instead of list
-consider-using-tuple:14:12::Consider using an in-place tuple instead of list
-consider-using-tuple:18:12::Consider using an in-place tuple instead of list
-consider-using-tuple:21:9::Consider using an in-place tuple instead of list
-consider-using-tuple:23:9::Consider using an in-place tuple instead of list
-consider-using-tuple:26:12::Consider using an in-place tuple instead of list
-use-sequence-for-iteration:30:12::Use a sequence type when iterating over values
-use-sequence-for-iteration:31:12::Use a sequence type when iterating over values

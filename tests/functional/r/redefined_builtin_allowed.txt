@@ -1,2 +1,2 @@
-redefined-builtin:6:4:function:Redefining built-in 'dict'
-redefined-builtin:9:0::Redefining built-in 'list'
+redefined-builtin:6:4:6:8:function:Redefining built-in 'dict':UNDEFINED
+redefined-builtin:9:0:9:4::Redefining built-in 'list':UNDEFINED

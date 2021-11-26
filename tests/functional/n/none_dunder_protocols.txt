@@ -1,6 +1,6 @@
-unsupported-membership-test:29:9:test:Value 'NonIterableClass' doesn't support membership test
-unsupported-membership-test:30:9:test:Value 'OldNonIterableClass' doesn't support membership test
-unsupported-membership-test:31:9:test:Value 'NonContainerClass' doesn't support membership test
-unsupported-membership-test:32:9:test:Value 'NonIterableClass()' doesn't support membership test
-unsupported-membership-test:33:9:test:Value 'OldNonIterableClass()' doesn't support membership test
-unsupported-membership-test:34:9:test:Value 'NonContainerClass()' doesn't support membership test
+unsupported-membership-test:29:9:29:25:test:Value 'NonIterableClass' doesn't support membership test:UNDEFINED
+unsupported-membership-test:30:9:30:28:test:Value 'OldNonIterableClass' doesn't support membership test:UNDEFINED
+unsupported-membership-test:31:9:31:26:test:Value 'NonContainerClass' doesn't support membership test:UNDEFINED
+unsupported-membership-test:32:9:32:27:test:Value 'NonIterableClass()' doesn't support membership test:UNDEFINED
+unsupported-membership-test:33:9:33:30:test:Value 'OldNonIterableClass()' doesn't support membership test:UNDEFINED
+unsupported-membership-test:34:9:34:28:test:Value 'NonContainerClass()' doesn't support membership test:UNDEFINED

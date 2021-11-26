@@ -1,9 +1,9 @@
-bad-classmethod-argument:10:4:Obj.__new__:Class method __new__ should have 'cls' as first argument
-no-classmethod-decorator:16:4:Obj:Consider using a decorator instead of calling classmethod
-bad-classmethod-argument:18:4:Obj.class2:Class method class2 should have 'cls' as first argument
-no-classmethod-decorator:20:4:Obj:Consider using a decorator instead of calling classmethod
-bad-mcs-classmethod-argument:25:4:Meta.__new__:Metaclass class method __new__ should have 'cls' as first argument
-bad-mcs-method-argument:32:4:Meta.method2:Metaclass method method2 should have 'cls' as first argument
-no-classmethod-decorator:38:4:Meta:Consider using a decorator instead of calling classmethod
-bad-mcs-classmethod-argument:40:4:Meta.class2:Metaclass class method class2 should have 'cls' as first argument
-no-classmethod-decorator:42:4:Meta:Consider using a decorator instead of calling classmethod
+bad-classmethod-argument:10:4:11:12:Obj.__new__:Class method __new__ should have 'cls' as first argument:UNDEFINED
+no-classmethod-decorator:16:4:16:10:Obj:Consider using a decorator instead of calling classmethod:UNDEFINED
+bad-classmethod-argument:18:4:19:12:Obj.class2:Class method class2 should have 'cls' as first argument:UNDEFINED
+no-classmethod-decorator:20:4:20:10:Obj:Consider using a decorator instead of calling classmethod:UNDEFINED
+bad-mcs-classmethod-argument:25:4:26:12:Meta.__new__:Metaclass class method __new__ should have 'cls' as first argument:UNDEFINED
+bad-mcs-method-argument:32:4:33:12:Meta.method2:Metaclass method method2 should have 'cls' as first argument:UNDEFINED
+no-classmethod-decorator:38:4:38:10:Meta:Consider using a decorator instead of calling classmethod:UNDEFINED
+bad-mcs-classmethod-argument:40:4:41:12:Meta.class2:Metaclass class method class2 should have 'cls' as first argument:UNDEFINED
+no-classmethod-decorator:42:4:42:10:Meta:Consider using a decorator instead of calling classmethod:UNDEFINED
