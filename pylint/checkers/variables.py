@@ -1029,9 +1029,9 @@ class VariablesChecker(BaseChecker):
                 node, stmt, frame, current_consumer, i, base_scope_type
             )
 
-            if action == VariableVisitConsumerAction.CONTINUE:
+            if action is VariableVisitConsumerAction.CONTINUE:
                 continue
-            if action == VariableVisitConsumerAction.CONSUME:
+            if action is VariableVisitConsumerAction.CONSUME:
                 current_consumer.mark_as_consumed(node.name, found_nodes)
             if action in {
                 VariableVisitConsumerAction.RETURN,
@@ -1050,9 +1050,9 @@ class VariablesChecker(BaseChecker):
                 and isinstance(frame, nodes.FunctionDef)
                 and frame.is_method()
             )
+            and not utils.node_ignores_exception(node, NameError)
         ):
-            if not utils.node_ignores_exception(node, NameError):
-                self.add_message("undefined-variable", args=node.name, node=node)
+            self.add_message("undefined-variable", args=node.name, node=node)
 
     # pylint: disable=too-many-return-statements
     def _check_consumer(
