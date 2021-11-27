@@ -1260,6 +1260,19 @@ def safe_infer(node: nodes.NodeNG, context=None) -> Optional[nodes.NodeNG]:
             inferred_type = _get_python_type_of_node(inferred)
             if inferred_type not in inferred_types:
                 return None  # If there is ambiguity on the inferred node.
+            if isinstance(inferred, astroid.FunctionDef):
+                # Special case due to unexpected inference ambiguity
+                if (
+                    inferred.name == "TemporaryFile"
+                    and value.name == "NamedTemporaryFile"
+                ):
+                    continue
+                if (
+                    inferred.args.args is not None
+                    and value.args.args is not None
+                    and len(inferred.args.args) != len(value.args.args)
+                ):
+                    return None  # Different number of arguments indicates ambiguity
     except astroid.InferenceError:
         return None  # There is some kind of ambiguity
     except StopIteration:
