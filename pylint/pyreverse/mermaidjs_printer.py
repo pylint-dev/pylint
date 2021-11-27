@@ -31,7 +31,7 @@ class MermaidJSPrinter(Printer):
 
     def _open_graph(self) -> None:
         """Emit the header lines"""
-        self.emit("classDiagram ")
+        self.emit("classDiagram")
         self._inc_indent()
 
     def emit_node(
@@ -86,22 +86,25 @@ class MermaidJSPrinter(Printer):
 class HTMLMermaidJSPrinter(MermaidJSPrinter):
     """Printer for MermaidJS diagrams wrapped in an html boilerplate"""
 
-    HTML_OPEN_BOILERPLATE = """
-    <html>
-        <body>
-            <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-        <div class="mermaid">
+    HTML_OPEN_BOILERPLATE = """<html>
+  <body>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+      <div class="mermaid">
     """
-
     HTML_CLOSE_BOILERPLATE = """
-            </div>
-        </body>
-    </html>
+       </div>
+  </body>
+</html>
 """
+    GRAPH_INDENT_LEVEL = 4
 
     def _open_graph(self) -> None:
         self.emit(self.HTML_OPEN_BOILERPLATE)
+        for _ in range(self.GRAPH_INDENT_LEVEL):
+            self._inc_indent()
         super()._open_graph()
 
     def _close_graph(self) -> None:
+        for _ in range(self.GRAPH_INDENT_LEVEL):
+            self._dec_indent()
         self.emit(self.HTML_CLOSE_BOILERPLATE)
