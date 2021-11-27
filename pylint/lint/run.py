@@ -75,7 +75,7 @@ group are mutually exclusive.",
 
     def initialize(
         self,
-        args: list,
+        args: List,
         reporter=None,
     ) -> Tuple[PyLinter, list]:
         self._rcfile = None
