@@ -1261,12 +1261,6 @@ def safe_infer(node: nodes.NodeNG, context=None) -> Optional[nodes.NodeNG]:
             if inferred_type not in inferred_types:
                 return None  # If there is ambiguity on the inferred node.
             if isinstance(inferred, astroid.FunctionDef):
-                # Special case due to unexpected inference ambiguity
-                if (
-                    inferred.name == "TemporaryFile"
-                    and value.name == "NamedTemporaryFile"
-                ):
-                    continue
                 if (
                     inferred.args.args is not None
                     and value.args.args is not None

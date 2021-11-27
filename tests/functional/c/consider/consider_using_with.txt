@@ -1,6 +1,5 @@
 consider-using-with:15:9:15:40:test_codecs_open:Consider using 'with' for resource-allocating operations:UNDEFINED
 consider-using-with:20:8:20:55:test_urlopen:Consider using 'with' for resource-allocating operations:UNDEFINED
-consider-using-with:24:8:24:35:test_temporary_file:Consider using 'with' for resource-allocating operations:UNDEFINED
 consider-using-with:28:8:28:40:test_named_temporary_file:Consider using 'with' for resource-allocating operations:UNDEFINED
 consider-using-with:32:8:32:42:test_spooled_temporary_file:Consider using 'with' for resource-allocating operations:UNDEFINED
 consider-using-with:36:8:36:37:test_temporary_directory:Consider using 'with' for resource-allocating operations:UNDEFINED
