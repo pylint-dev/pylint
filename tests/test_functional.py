@@ -25,7 +25,8 @@
 import csv
 import os
 import sys
-from typing import Union
+from pathlib import Path
+from typing import List, Union
 
 import pytest
 from _pytest.config import Config
@@ -64,8 +65,7 @@ class LintModuleOutputUpdate(testutils.LintModuleTest):
                 writer.writerow(line.to_csv())
 
 
-def get_tests():
-    input_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "functional")
+def get_tests(input_dir: Union[Path, str]) -> List[FunctionalTestFile]:
     suite = []
     for dirpath, _, filenames in os.walk(input_dir):
         if dirpath.endswith("__pycache__"):
@@ -85,7 +85,9 @@ def get_tests():
     return suite
 
 
-TESTS = get_tests()
+TESTS = get_tests(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "functional")
+)
 TESTS_NAMES = [t.base for t in TESTS]
 TEST_WITH_EXPECTED_DEPRECATION = [
     "future_unicode_literals",
