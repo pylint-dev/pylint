@@ -7,16 +7,8 @@ __all__ = [
     "parse_python_version",
 ]
 
-import warnings
-
-from pylint.testutils.functional import (
+from pylint.testutils.functional.test_file import (
     FunctionalTestFile,
     NoFileError,
     parse_python_version,
-)
-
-warnings.warn(
-    "'pylint.testutils.functional_test_file' will be accessible by"
-    " the 'pylint.testutils.functional' API in pylint 3.0",
-    DeprecationWarning,
 )

@@ -34,7 +34,7 @@ from _pytest.recwarn import WarningsRecorder
 
 from pylint import testutils
 from pylint.testutils import UPDATE_FILE, UPDATE_OPTION
-from pylint.testutils.functional_test_file import FunctionalTestFile
+from pylint.testutils.functional.test_file import FunctionalTestFile
 from pylint.utils import HAS_ISORT_5
 
 # TODOs
