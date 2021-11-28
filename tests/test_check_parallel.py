@@ -13,7 +13,6 @@
 
 import os
 from typing import List
-from pylint.checkers.mapreduce_checker import MapReduceMixin
 
 import pytest
 from astroid import nodes
@@ -21,6 +20,7 @@ from astroid import nodes
 import pylint.interfaces
 import pylint.lint.parallel
 from pylint.checkers.base_checker import BaseChecker
+from pylint.checkers.mapreduce_checker import MapReduceMixin
 from pylint.lint import PyLinter
 from pylint.lint.parallel import _worker_check_single_file as worker_check_single_file
 from pylint.lint.parallel import _worker_initialize as worker_initialize
