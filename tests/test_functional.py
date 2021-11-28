@@ -80,15 +80,16 @@ def get_functional_test_files_from_directory(
 
         for filename in filenames:
             if filename != "__init__.py" and filename.endswith(".py"):
-                # isort 5 has slightly different rules as isort 4. Testing
-                # both would be hard: test with isort 5 only.
-                if filename == "wrong_import_order.py" and not HAS_ISORT_5:
-                    continue
                 suite.append(testutils.FunctionalTestFile(dirpath, filename))
     return suite
 
 
-TESTS = get_functional_test_files_from_directory(FUNCTIONAL_DIR)
+# isort 5 has slightly different rules as isort 4. Testing both would be hard: test with isort 5 only.
+TESTS = [
+    t
+    for t in get_functional_test_files_from_directory(FUNCTIONAL_DIR)
+    if not (t.base == "wrong_import_order" and not HAS_ISORT_5)
+]
 TESTS_NAMES = [t.base for t in TESTS]
 TEST_WITH_EXPECTED_DEPRECATION = [
     "future_unicode_literals",
