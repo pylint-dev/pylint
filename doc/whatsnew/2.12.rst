@@ -97,11 +97,6 @@ Extensions
 Other Changes
 =============
 
-* Fix false negative for ``consider-iterating-dictionary`` during membership checks encapsulated in iterables
-  or ``not in`` checks
-
-  Closes #5323
-
 * Fix ``install graphiz`` message which isn't needed for puml output format.
 
 * ``pylint`` no longer crashes when checking assignment expressions within if-statements
