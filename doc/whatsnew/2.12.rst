@@ -97,10 +97,6 @@ Extensions
 Other Changes
 =============
 
-* Fix ``unnecessary_dict_index_lookup`` false positive when deleting a dictionary's entry.
-
-  Closes #4716
-
 * Fix ``install graphiz`` message which isn't needed for puml output format.
 
 * ``pylint`` no longer crashes when checking assignment expressions within if-statements
