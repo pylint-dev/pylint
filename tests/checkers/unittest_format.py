@@ -31,124 +31,12 @@
 import os
 import tempfile
 import tokenize
-from typing import Any
 
 import astroid
 
 from pylint import lint, reporters
 from pylint.checkers.format import FormatChecker
 from pylint.testutils import CheckerTestCase, MessageTest, _tokenize_str
-
-
-class TestMultiStatementLine(CheckerTestCase):
-    CHECKER_CLASS = FormatChecker
-
-    def testSingleLineIfStmts(self) -> None:
-        stmt = astroid.extract_node(
-            """
-        if True: pass  #@
-        """
-        )
-        self.checker.config.single_line_if_stmt = False
-        with self.assertAddsMessages(
-            MessageTest("multiple-statements", node=stmt.body[0])
-        ):
-            self.visitFirst(stmt)
-        self.checker.config.single_line_if_stmt = True
-        with self.assertNoMessages():
-            self.visitFirst(stmt)
-        stmt = astroid.extract_node(
-            """
-        if True: pass  #@
-        else:
-            pass
-        """
-        )
-        with self.assertAddsMessages(
-            MessageTest("multiple-statements", node=stmt.body[0])
-        ):
-            self.visitFirst(stmt)
-
-    def testSingleLineClassStmts(self) -> None:
-        stmt = astroid.extract_node(
-            """
-        class MyError(Exception): pass  #@
-        """
-        )
-        self.checker.config.single_line_class_stmt = False
-        with self.assertAddsMessages(
-            MessageTest("multiple-statements", node=stmt.body[0])
-        ):
-            self.visitFirst(stmt)
-        self.checker.config.single_line_class_stmt = True
-        with self.assertNoMessages():
-            self.visitFirst(stmt)
-
-        stmt = astroid.extract_node(
-            """
-        class MyError(Exception): a='a'  #@
-        """
-        )
-        self.checker.config.single_line_class_stmt = False
-        with self.assertAddsMessages(
-            MessageTest("multiple-statements", node=stmt.body[0])
-        ):
-            self.visitFirst(stmt)
-        self.checker.config.single_line_class_stmt = True
-        with self.assertNoMessages():
-            self.visitFirst(stmt)
-
-        stmt = astroid.extract_node(
-            """
-        class MyError(Exception): a='a'; b='b'  #@
-        """
-        )
-        self.checker.config.single_line_class_stmt = False
-        with self.assertAddsMessages(
-            MessageTest("multiple-statements", node=stmt.body[0])
-        ):
-            self.visitFirst(stmt)
-        self.checker.config.single_line_class_stmt = True
-        with self.assertAddsMessages(
-            MessageTest("multiple-statements", node=stmt.body[0])
-        ):
-            self.visitFirst(stmt)
-
-    def testTryExceptFinallyNoMultipleStatement(self) -> None:
-        tree = astroid.extract_node(
-            """
-        try:  #@
-            pass
-        except:
-            pass
-        finally:
-            pass"""
-        )
-        with self.assertNoMessages():
-            self.visitFirst(tree)
-
-    def visitFirst(self, tree: Any) -> None:
-        self.checker.process_tokens([])
-        self.checker.visit_default(tree.body[0])
-
-    def test_ellipsis_is_ignored(self) -> None:
-        code = """
-        from typing import overload
-        @overload
-        def concat2(arg1: str) -> str: ...
-        """
-        tree = astroid.extract_node(code)
-        with self.assertNoMessages():
-            self.visitFirst(tree)
-
-        code = """
-        def concat2(arg1: str) -> str: ...
-        """
-        stmt = astroid.extract_node(code)
-        with self.assertAddsMessages(
-            MessageTest("multiple-statements", node=stmt.body[0])
-        ):
-            self.visitFirst(stmt)
 
 
 class TestSuperfluousParentheses(CheckerTestCase):
