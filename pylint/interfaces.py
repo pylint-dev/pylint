@@ -26,6 +26,19 @@ from astroid import nodes
 if TYPE_CHECKING:
     from pylint.reporters.ureports.nodes import Section
 
+__all__ = (
+    "IRawChecker",
+    "IAstroidChecker",
+    "ITokenChecker",
+    "IReporter",
+    "IChecker",
+    "HIGH",
+    "INFERENCE",
+    "INFERENCE_FAILURE",
+    "UNDEFINED",
+    "CONFIDENCE_LEVELS",
+)
+
 Confidence = namedtuple("Confidence", ["name", "description"])
 # Warning Certainties
 HIGH = Confidence("HIGH", "No false positive possible.")
@@ -102,6 +115,3 @@ class IReporter(Interface):
 
     def display_reports(self, layout: "Section") -> None:
         """display results encapsulated in the layout tree"""
-
-
-__all__ = ("IRawChecker", "IAstroidChecker", "ITokenChecker", "IReporter", "IChecker")
