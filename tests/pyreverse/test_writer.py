@@ -134,7 +134,7 @@ def setup_mmd(mmd_config: PyreverseConfig, get_project: Callable) -> Iterator:
 @pytest.fixture()
 def setup_html(html_config: PyreverseConfig, get_project: Callable) -> Iterator:
     writer = DiagramWriter(html_config)
-    
+
     project = get_project(TEST_DATA_DIR)
     yield from _setup(project, html_config, writer)
 
@@ -186,6 +186,7 @@ def test_puml_files(generated_file: str) -> None:
 @pytest.mark.parametrize("generated_file", MMD_FILES)
 def test_mmd_files(generated_file: str) -> None:
     _assert_files_are_equal(generated_file)
+
 
 @pytest.mark.usefixtures("setup_html")
 @pytest.mark.parametrize("generated_file", HTML_FILES)
