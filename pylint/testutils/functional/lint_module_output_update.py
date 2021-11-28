@@ -3,19 +3,22 @@
 
 import csv
 import os
-from typing import Optional
+from typing import List, Optional
 
 from _pytest.config import Config
 
 from pylint.constants import PY38_PLUS
 from pylint.testutils.functional.test_file import FunctionalTestFile
-from pylint.testutils.lint_module_test import LintModuleTest
+from pylint.testutils.lint_module_test import LintModuleTest, MessageCounter
+from pylint.testutils.output_line import OutputLine
 
 
 class LintModuleOutputUpdate(LintModuleTest):
-    """If message files should be updated instead of checked."""
+    """Class to be used if expected output files should be updated instead of checked."""
 
     class TestDialect(csv.excel):
+        """Dialect used by the csv writer."""
+
         delimiter = ":"
         lineterminator = "\n"
 
@@ -32,11 +35,19 @@ class LintModuleOutputUpdate(LintModuleTest):
             )
         super().__init__(test_file, config)
 
-    def _check_output_text(self, _, expected_output, actual_output):
+    def _check_output_text(
+        self,
+        _: MessageCounter,
+        expected_output: List[OutputLine],
+        actual_output: List[OutputLine],
+    ) -> None:
+        """Overwrite or remove the expected output file based on actual output."""
+        # Remove the file if no output is actually expected and a file exists
         if not expected_output and not actual_output:
             if os.path.exists(self._test_file.expected_output):
                 os.remove(self._test_file.expected_output)
             return
+        # Write file with expected output
         with open(self._test_file.expected_output, "w", encoding="utf-8") as f:
             writer = csv.writer(f, dialect="test")
             for line in actual_output:

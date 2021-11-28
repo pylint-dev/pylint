@@ -34,9 +34,9 @@ from pylint import testutils
 from pylint.testutils import UPDATE_FILE, UPDATE_OPTION
 from pylint.testutils.functional import (
     FunctionalTestFile,
+    LintModuleOutputUpdate,
     get_functional_test_files_from_directory,
 )
-from pylint.testutils.functional.lint_module_output_update import LintModuleOutputUpdate
 from pylint.utils import HAS_ISORT_5
 
 # TODOs

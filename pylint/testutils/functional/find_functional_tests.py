@@ -15,6 +15,7 @@ REASONABLY_DISPLAYABLE_VERTICALLY = 48
 def get_functional_test_files_from_directory(
     input_dir: Union[Path, str]
 ) -> List[FunctionalTestFile]:
+    """Get all functional tests in the input_dir."""
     suite = []
     for dirpath, _, filenames in os.walk(input_dir):
         if dirpath.endswith("__pycache__"):
