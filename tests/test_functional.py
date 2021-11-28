@@ -43,6 +43,7 @@ from pylint.utils import HAS_ISORT_5
 # 'Wet finger' number of files that are reasonable to display by an IDE
 # 'Wet finger' as in 'in my settings there are precisely this many'.
 REASONABLY_DISPLAYABLE_VERTICALLY = 48
+FUNCTIONAL_DIR = Path(__file__).parent.resolve() / "functional"
 
 
 class LintModuleOutputUpdate(testutils.LintModuleTest):
@@ -65,7 +66,9 @@ class LintModuleOutputUpdate(testutils.LintModuleTest):
                 writer.writerow(line.to_csv())
 
 
-def get_tests(input_dir: Union[Path, str]) -> List[FunctionalTestFile]:
+def get_functional_test_files_from_directory(
+    input_dir: Union[Path, str]
+) -> List[FunctionalTestFile]:
     suite = []
     for dirpath, _, filenames in os.walk(input_dir):
         if dirpath.endswith("__pycache__"):
@@ -85,9 +88,7 @@ def get_tests(input_dir: Union[Path, str]) -> List[FunctionalTestFile]:
     return suite
 
 
-TESTS = get_tests(
-    os.path.join(os.path.dirname(os.path.abspath(__file__)), "functional")
-)
+TESTS = get_functional_test_files_from_directory(FUNCTIONAL_DIR)
 TESTS_NAMES = [t.base for t in TESTS]
 TEST_WITH_EXPECTED_DEPRECATION = [
     "future_unicode_literals",
