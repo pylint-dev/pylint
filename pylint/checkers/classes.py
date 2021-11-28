@@ -178,7 +178,7 @@ def _definition_equivalent_to_call(definition, call):
 
 def _positional_parameters(method):
     positional = method.args.args
-    if method.type in {"classmethod", "method"}:
+    if method.is_bound() and method.type in {"classmethod", "method"}:
         positional = positional[1:]
     return positional
 
