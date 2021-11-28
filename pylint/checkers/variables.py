@@ -992,6 +992,11 @@ class VariablesChecker(BaseChecker):
     def visit_delname(self, node: nodes.DelName) -> None:
         self.visit_name(node)
 
+    @utils.check_messages(
+        "undefined-variable",
+        "used-before-assignment",
+        "cell-var-from-loop",
+    )
     def visit_name(self, node: nodes.Name) -> None:
         stmt = node.statement()
         if stmt.fromlineno is None:
@@ -1025,7 +1030,7 @@ class VariablesChecker(BaseChecker):
             current_consumer = self._to_consume[i]
 
             # Certain nodes shouldn't be checked as they get checked another time
-            if self._node_should_be_skipped(current_consumer, node, i == start_index):
+            if self._node_should_be_skipped(node, current_consumer, i == start_index):
                 continue
 
             action, found_nodes = self._check_consumer(
@@ -2340,7 +2345,7 @@ class VariablesChecker(BaseChecker):
         return consumed
 
     def _node_should_be_skipped(
-        self, consumer: NamesConsumer, node: nodes.Name, is_start_index: bool
+        self, node: nodes.Name, consumer: NamesConsumer, is_start_index: bool
     ) -> bool:
         """Tests a consumer and node for various conditions in which the node
         shouldn't be checked for the undefined-variable and used-before-assignment checks.
