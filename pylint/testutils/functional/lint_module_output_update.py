@@ -3,7 +3,12 @@
 
 import csv
 import os
+from typing import Optional
 
+from _pytest.config import Config
+
+from pylint.constants import PY38_PLUS
+from pylint.testutils.functional.test_file import FunctionalTestFile
 from pylint.testutils.lint_module_test import LintModuleTest
 
 
@@ -15,6 +20,17 @@ class LintModuleOutputUpdate(LintModuleTest):
         lineterminator = "\n"
 
     csv.register_dialect("test", TestDialect)
+
+    def __init__(
+        self, test_file: FunctionalTestFile, config: Optional[Config] = None
+    ) -> None:
+        if not PY38_PLUS:
+            raise RuntimeError(
+                "You need at least python 3.8 for the functional test updater to work. "
+                "This is because python 3.8 includes a new AST parser, which amongst others "
+                "returns the end line and end column of most nodes."
+            )
+        super().__init__(test_file, config)
 
     def _check_output_text(self, _, expected_output, actual_output):
         if not expected_output and not actual_output:
