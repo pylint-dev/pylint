@@ -20,7 +20,7 @@ Extensions
 Other Changes
 =============
 
-* Fix ``unused-private-member`` false positive when accessing private methods through `property`
+* Fix ``unused-private-member`` false positive when accessing private methods through ``property``
 
   Closes #4756
 
