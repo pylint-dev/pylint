@@ -9,6 +9,8 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.13.rst'
 
+* Some file in ``pylint.testutils`` were deprecated, imports should be done from the
+  ``pylint.testutils`` API directly
 
 ..
   Insert your changelog randomly, it will reduce merge conflicts

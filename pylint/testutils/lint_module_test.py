@@ -17,7 +17,7 @@ from pylint import checkers
 from pylint.lint import PyLinter
 from pylint.message.message import Message
 from pylint.testutils.constants import _EXPECTED_RE, _OPERATORS, UPDATE_OPTION
-from pylint.testutils.functional_test_file import (
+from pylint.testutils.functional.test_file import (
     FunctionalTestFile,
     NoFileError,
     parse_python_version,
