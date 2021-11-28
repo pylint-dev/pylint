@@ -20,8 +20,7 @@ Extensions
 Other Changes
 =============
 
-* Fix ``unused-private-member`` false positive using private methods within the class without
-  using it as a dot.method.
+* Fix ``unused-private-member`` false positive when accessing private methods through `property`
 
   Closes #4756
 
