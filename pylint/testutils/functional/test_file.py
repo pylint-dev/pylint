@@ -2,15 +2,45 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import configparser
+import sys
 from os.path import basename, exists, join
+from typing import List, Tuple
 
 
-def parse_python_version(ver_str):
+def parse_python_version(ver_str: str) -> Tuple[int, ...]:
+    """Convert python version to a tuple of integers for easy comparison."""
     return tuple(int(digit) for digit in ver_str.split("."))
 
 
 class NoFileError(Exception):
     pass
+
+
+if sys.version_info >= (3, 8):
+    from typing import TypedDict
+else:
+    from typing_extensions import TypedDict
+
+
+class TestFileOptions(TypedDict):
+    min_pyver: Tuple[int, ...]
+    max_pyver: Tuple[int, ...]
+    min_pyver_end_position: Tuple[int, ...]
+    requires: List[str]
+    except_implementations: str  # Type is actually comma separated list of string
+    exclude_platforms: str  # Type is actually comma separated list of string
+
+
+# mypy need something literal, we can't create this dynamically from TestFileOptions
+POSSIBLE_TEST_OPTIONS = {
+    "min_pyver",
+    "max_pyver",
+    "min_pyver_end_position",
+    "requires",
+    "except_implementations",
+    "exclude_platforms",
+    "exclude_platforms",
+}
 
 
 class FunctionalTestFile:
@@ -23,23 +53,23 @@ class FunctionalTestFile:
         "requires": lambda s: s.split(","),
     }
 
-    def __init__(self, directory, filename):
+    def __init__(self, directory: str, filename: str) -> None:
         self._directory = directory
         self.base = filename.replace(".py", "")
-        self.options = {
+        self.options: TestFileOptions = {
             "min_pyver": (2, 5),
             "max_pyver": (4, 0),
             "min_pyver_end_position": (3, 8),
             "requires": [],
-            "except_implementations": [],
-            "exclude_platforms": [],
+            "except_implementations": "",
+            "exclude_platforms": "",
         }
         self._parse_options()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"FunctionalTest:{self.base}"
 
-    def _parse_options(self):
+    def _parse_options(self) -> None:
         cp = configparser.ConfigParser()
         cp.add_section("testoptions")
         try:
@@ -49,26 +79,30 @@ class FunctionalTestFile:
 
         for name, value in cp.items("testoptions"):
             conv = self._CONVERTERS.get(name, lambda v: v)
-            self.options[name] = conv(value)
+
+            assert (
+                name in POSSIBLE_TEST_OPTIONS
+            ), f"[testoptions]' can only contains one of {POSSIBLE_TEST_OPTIONS}"
+            self.options[name] = conv(value)  # type: ignore[misc]
 
     @property
-    def option_file(self):
+    def option_file(self) -> str:
         return self._file_type(".rc")
 
     @property
-    def module(self):
+    def module(self) -> str:
         package = basename(self._directory)
         return ".".join([package, self.base])
 
     @property
-    def expected_output(self):
+    def expected_output(self) -> str:
         return self._file_type(".txt", check_exists=False)
 
     @property
-    def source(self):
+    def source(self) -> str:
         return self._file_type(".py")
 
-    def _file_type(self, ext, check_exists=True):
+    def _file_type(self, ext: str, check_exists: bool = True) -> str:
         name = join(self._directory, self.base + ext)
         if not check_exists or exists(name):
             return name
