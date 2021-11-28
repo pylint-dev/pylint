@@ -738,6 +738,15 @@ class VariablesChecker(BaseChecker):
         self._type_annotation_names = []
         self._postponed_evaluation_enabled = False
 
+    def open(self) -> None:
+        """Called when loading the checker"""
+        self._undefined_variable_is_enabled = self.linter.is_message_enabled(
+            "undefined-variable"
+        )
+        self._used_before_assignment_is_enabled = self.linter.is_message_enabled(
+            "used-before-assignment"
+        )
+
     @utils.check_messages("redefined-outer-name")
     def visit_for(self, node: nodes.For) -> None:
         assigned_to = [a.name for a in node.target.nodes_of_class(nodes.AssignName)]
@@ -1016,13 +1025,6 @@ class VariablesChecker(BaseChecker):
         frame = stmt.scope()
         start_index = len(self._to_consume) - 1
 
-        self._undefined_variable_is_enabled = self.linter.is_message_enabled(
-            "undefined-variable"
-        )
-        self._used_before_assignment_is_enabled = self.linter.is_message_enabled(
-            "used-before-assignment"
-        )
-
         # iterates through parent scopes, from the inner to the outer
         base_scope_type = self._to_consume[start_index].scope_type
 
@@ -1064,6 +1066,45 @@ class VariablesChecker(BaseChecker):
             and not utils.node_ignores_exception(node, NameError)
         ):
             self.add_message("undefined-variable", args=node.name, node=node)
+
+    def _node_should_be_skipped(
+        self, node: nodes.Name, consumer: NamesConsumer, is_start_index: bool
+    ) -> bool:
+        """Tests a consumer and node for various conditions in which the node
+        shouldn't be checked for the undefined-variable and used-before-assignment checks.
+        """
+        if consumer.scope_type == "class":
+            # The list of base classes in the class definition is not part
+            # of the class body.
+            # If the current scope is a class scope but it's not the inner
+            # scope, ignore it. This prevents to access this scope instead of
+            # the globals one in function members when there are some common
+            # names.
+            if utils.is_ancestor_name(consumer.node, node) or (
+                not is_start_index and self._ignore_class_scope(node)
+            ):
+                return True
+
+            # Ignore inner class scope for keywords in class definition
+            if isinstance(node.parent, nodes.Keyword) and isinstance(
+                node.parent.parent, nodes.ClassDef
+            ):
+                return True
+
+        elif consumer.scope_type == "function" and self._defined_in_function_definition(
+            node, consumer.node
+        ):
+            # If the name node is used as a function default argument's value or as
+            # a decorator, then start from the parent frame of the function instead
+            # of the function frame - and thus open an inner class scope
+            return True
+
+        elif consumer.scope_type == "lambda" and utils.is_default_argument(
+            node, consumer.node
+        ):
+            return True
+
+        return False
 
     # pylint: disable=too-many-return-statements
     def _check_consumer(
@@ -2343,45 +2384,6 @@ class VariablesChecker(BaseChecker):
             self.add_message("undefined-variable", node=klass, args=(name,))
 
         return consumed
-
-    def _node_should_be_skipped(
-        self, node: nodes.Name, consumer: NamesConsumer, is_start_index: bool
-    ) -> bool:
-        """Tests a consumer and node for various conditions in which the node
-        shouldn't be checked for the undefined-variable and used-before-assignment checks.
-        """
-        if consumer.scope_type == "class":
-            # The list of base classes in the class definition is not part
-            # of the class body.
-            # If the current scope is a class scope but it's not the inner
-            # scope, ignore it. This prevents to access this scope instead of
-            # the globals one in function members when there are some common
-            # names.
-            if utils.is_ancestor_name(consumer.node, node) or (
-                not is_start_index and self._ignore_class_scope(node)
-            ):
-                return True
-
-            # Ignore inner class scope for keywords in class definition
-            if isinstance(node.parent, nodes.Keyword) and isinstance(
-                node.parent.parent, nodes.ClassDef
-            ):
-                return True
-
-        elif consumer.scope_type == "function" and self._defined_in_function_definition(
-            node, consumer.node
-        ):
-            # If the name node is used as a function default argument's value or as
-            # a decorator, then start from the parent frame of the function instead
-            # of the function frame - and thus open an inner class scope
-            return True
-
-        elif consumer.scope_type == "lambda" and utils.is_default_argument(
-            node, consumer.node
-        ):
-            return True
-
-        return False
 
 
 def register(linter):
