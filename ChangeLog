@@ -25,6 +25,10 @@ Release date: TBA
 * Fixed a false positive for ``unused-import`` where everything
   was not analyzed properly inside typing guards.
 
+* Specified that the ``ignore-paths`` option considers "\" to represent a
+  windows directory delimiter instead of a regular expression escape
+  character.
+
 ..
   Insert your changelog randomly, it will reduce merge conflicts
   (Ie. not necessarily at the end)
