@@ -16,7 +16,7 @@ from pylint.testutils.functional import (
 )
 
 warnings.warn(
-    "'pylint.testutils.functional_test_file' will be accessible by"
-    " the 'pylint.testutils.functional' API in pylint 3.0",
+    "'pylint.testutils.functional_test_file' will be accessible from"
+    " the 'pylint.testutils.functional' namespace in pylint 3.0.",
     DeprecationWarning,
 )

@@ -22,7 +22,7 @@ def get_functional_test_files_from_directory(
 
         assert (
             len(filenames) <= REASONABLY_DISPLAYABLE_VERTICALLY
-        ), f"{dirpath} contain too much functional tests files."
+        ), f"{dirpath} contains too many functional tests files."
 
         for filename in filenames:
             if filename != "__init__.py" and filename.endswith(".py"):
