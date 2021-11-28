@@ -14,7 +14,6 @@ class MapReduceMixin(metaclass=abc.ABCMeta):
     def get_map_data(self):
         """Returns mergable/reducible data that will be examined"""
 
-    @classmethod
     @abc.abstractmethod
-    def reduce_map_data(cls, linter, data):
+    def reduce_map_data(self, linter, data):
         """For a given Checker, receives data for all mapped runs"""

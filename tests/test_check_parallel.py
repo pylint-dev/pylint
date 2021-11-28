@@ -13,6 +13,7 @@
 
 import os
 from typing import List
+from pylint.checkers.mapreduce_checker import MapReduceMixin
 
 import pytest
 from astroid import nodes
@@ -73,7 +74,7 @@ class SequentialTestChecker(BaseChecker):
         self.data.append(record)
 
 
-class ParallelTestChecker(BaseChecker):
+class ParallelTestChecker(BaseChecker, MapReduceMixin):
     """A checker that does need to consolidate data.
 
     To simulate the need to consolidate data, this checker only
