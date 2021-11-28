@@ -1005,6 +1005,7 @@ class VariablesChecker(BaseChecker):
         "undefined-variable",
         "used-before-assignment",
         "cell-var-from-loop",
+        "unused-import",
     )
     def visit_name(self, node: nodes.Name) -> None:
         stmt = node.statement()
