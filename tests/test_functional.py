@@ -36,10 +36,6 @@ from pylint.testutils import UPDATE_FILE, UPDATE_OPTION
 from pylint.testutils.functional_test_file import FunctionalTestFile
 from pylint.utils import HAS_ISORT_5
 
-# Notes:
-# - for the purpose of this test, the confidence levels HIGH and UNDEFINED
-#   are treated as the same.
-
 # TODOs
 #  - implement exhaustivity tests
 
@@ -58,8 +54,6 @@ class LintModuleOutputUpdate(testutils.LintModuleTest):
     csv.register_dialect("test", TestDialect)
 
     def _check_output_text(self, _, expected_output, actual_output):
-        if expected_output and expected_output == actual_output:
-            return
         if not expected_output and not actual_output:
             if os.path.exists(self._test_file.expected_output):
                 os.remove(self._test_file.expected_output)

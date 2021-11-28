@@ -1,1 +1,1 @@
-invalid-all-format:5:11::Invalid format for __all__, must be tuple or list:HIGH
+invalid-all-format:5:11:None:None::Invalid format for __all__, must be tuple or list:UNDEFINED

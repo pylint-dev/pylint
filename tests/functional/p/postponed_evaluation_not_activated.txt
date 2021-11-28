@@ -1,2 +1,2 @@
-undefined-variable:6:36:Class.from_string:Undefined variable 'Class'
-used-before-assignment:9:30:Class.validate_b:Using variable 'OtherClass' before assignment
+undefined-variable:6:36:6:41:Class.from_string:Undefined variable 'Class':UNDEFINED
+used-before-assignment:9:30:9:40:Class.validate_b:Using variable 'OtherClass' before assignment:UNDEFINED

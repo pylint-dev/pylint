@@ -1,1 +1,1 @@
-use-dict-literal:3:4::"Consider using {} instead of dict()"
+use-dict-literal:3:4:3:10::Consider using {} instead of dict():UNDEFINED

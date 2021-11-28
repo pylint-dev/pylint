@@ -1,5 +1,5 @@
-unused-variable:60:4:_:Unused variable 'unused'
-unused-argument:65:24:not_single_dispatch:Unused argument 'arg'
-unused-argument:70:24:bad_single_dispatch:Unused argument 'arg'
-function-redefined:75:0:bad_single_dispatch:function already defined line 70
-unused-argument:75:24:bad_single_dispatch:Unused argument 'arg'
+unused-variable:60:4:60:10:_:Unused variable 'unused':UNDEFINED
+unused-argument:65:24:65:27:not_single_dispatch:Unused argument 'arg':HIGH
+unused-argument:70:24:70:27:bad_single_dispatch:Unused argument 'arg':HIGH
+function-redefined:75:0:76:13:bad_single_dispatch:function already defined line 70:UNDEFINED
+unused-argument:75:24:75:27:bad_single_dispatch:Unused argument 'arg':HIGH

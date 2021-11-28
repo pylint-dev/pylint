@@ -1,1 +1,1 @@
-disallowed-name:3:0:baz:Disallowed name "baz"
+disallowed-name:3:0:4:8:baz:"Disallowed name ""baz""":UNDEFINED

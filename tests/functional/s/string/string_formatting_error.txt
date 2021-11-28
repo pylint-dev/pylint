@@ -1,15 +1,15 @@
-too-few-format-args:10:10:pprint:Not enough arguments for format string
-too-many-format-args:11:10:pprint:Too many arguments for format string
-mixed-format-string:12:10:pprint:Mixing named and unnamed conversion specifiers in format string
-missing-format-string-key:13:10:pprint:Missing key 'PARG_2' in format string dictionary
-unused-format-string-key:14:10:pprint:Unused key 'PARG_3' in format string dictionary
-bad-format-string-key:15:10:pprint:Format string dictionary key should be a string, not 2
-missing-format-string-key:15:10:pprint:Missing key 'PARG_2' in format string dictionary
-format-needs-mapping:16:10:pprint:Expected mapping for format string, not Tuple
-format-needs-mapping:17:10:pprint:Expected mapping for format string, not List
-bad-format-character:18:10:pprint:Unsupported format character 'z' (0x7a) at index 2
-truncated-format-string:19:10:pprint:Format string ends in middle of conversion specifier
-format-string-without-interpolation:21:10:pprint:Using formatting for a string that does not have any interpolated variables
-format-string-without-interpolation:22:10:pprint:Using formatting for a string that does not have any interpolated variables
-format-string-without-interpolation:23:10:pprint:Using formatting for a string that does not have any interpolated variables
-format-string-without-interpolation:24:10:pprint:Using formatting for a string that does not have any interpolated variables
+too-few-format-args:10:10:10:46:pprint:Not enough arguments for format string:UNDEFINED
+too-many-format-args:11:10:11:33:pprint:Too many arguments for format string:UNDEFINED
+mixed-format-string:12:10:12:54:pprint:Mixing named and unnamed conversion specifiers in format string:UNDEFINED
+missing-format-string-key:13:10:13:49:pprint:Missing key 'PARG_2' in format string dictionary:UNDEFINED
+unused-format-string-key:14:10:14:73:pprint:Unused key 'PARG_3' in format string dictionary:UNDEFINED
+bad-format-string-key:15:10:15:54:pprint:Format string dictionary key should be a string, not 2:UNDEFINED
+missing-format-string-key:15:10:15:54:pprint:Missing key 'PARG_2' in format string dictionary:UNDEFINED
+format-needs-mapping:16:10:16:42:pprint:Expected mapping for format string, not Tuple:UNDEFINED
+format-needs-mapping:17:10:17:42:pprint:Expected mapping for format string, not List:UNDEFINED
+bad-format-character:18:10:18:24:pprint:Unsupported format character 'z' (0x7a) at index 2:UNDEFINED
+truncated-format-string:19:10:19:38:pprint:Format string ends in middle of conversion specifier:UNDEFINED
+format-string-without-interpolation:21:10:21:27:pprint:Using formatting for a string that does not have any interpolated variables:UNDEFINED
+format-string-without-interpolation:22:10:22:23:pprint:Using formatting for a string that does not have any interpolated variables:UNDEFINED
+format-string-without-interpolation:23:10:23:23:pprint:Using formatting for a string that does not have any interpolated variables:UNDEFINED
+format-string-without-interpolation:24:10:24:25:pprint:Using formatting for a string that does not have any interpolated variables:UNDEFINED

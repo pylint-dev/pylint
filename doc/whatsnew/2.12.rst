@@ -3,11 +3,31 @@
 ***************************
 
 :Release: 2.12
-:Date: TBA
+:Date: 2021-11-24
 
 Summary -- Release highlights
 =============================
 
+In 2.12, we introduced a new option ``py-version`` that permits to analyse code for a python
+version that may differ from your current python interpreter. This does not affect all checkers but
+permits, for example, to check for python 3.5 code smells (using f-string's) while using pylint with python 3.6.
+The minimum version to run pylint is now 3.6.2, while the last working version for python 3.6.0
+and 3.6.1 was pylint 2.9.3.
+
+On top of fixing a lot of false positives and bugs, we also added new default checks, like
+``use-implicit-booleaness-not-comparison``, ``overridden-final-method``, and ``useless-with-lock``.
+There's also better check for TOML configurations.
+
+Lastly, in addition to the information we already had about start line and start column,
+we introduced new information about the end line and end column of messages. This
+will permit to have more precise visual clue in IDE like in pylint for vs-code. The default
+will stay the same to not break compatibility but it can be retrieved by adding ``end_line``
+and ``end_column`` to the ``--msg-template`` option. For better result stick to python 3.8+.
+
+The checker for Yoda conditions is now an extension, you might want to enable it if you were
+relying on this check. There's also a new extension checker, ``consider-using-any-or-all`` that
+detects for loops that could be replaced by any or all, entirely contributed by @areveny,
+welcome to the team !
 
 New checkers
 ============
@@ -33,11 +53,6 @@ New checkers
   * Added ``using-f-string-in-unsupported-version`` checker. Issued when ``py-version``
     is set to a version that does not support f-strings (< 3.6)
 
-* Fix ``useless-super-delegation`` false positive when default keyword argument is a variable.
-
-* Added new checker `use-implicit-booleanness``: Emitted when using collection
-  literals for boolean comparisons
-
 * Added new checker ``use-implicit-booleaness-not-comparison``: Emitted when
   collection literal comparison is being used to check for emptiness.
 
@@ -45,11 +60,6 @@ New checkers
 
 * Added ``using-final-decorator-in-unsupported-version`` checker. Issued when ``py-version``
   is set to a version that does not support typing.final (< 3.8)
-
-* Added configuration option ``exclude-too-few-public-methods`` to allow excluding
-  classes from the ``min-public-methods`` checker.
-
-  Closes #3370
 
 * Added new checker ``useless-with-lock`` to find incorrect usage of with statement and threading module locks.
   Emitted when ``with threading.Lock():`` is used instead of ``with lock_instance:``.
@@ -63,12 +73,15 @@ New checkers
 
   Follow-up in #5259
 
-Removed checkers
-================
+* ``MessageTest`` of the unittest ``testutil`` now requires the ``confidence`` attribute
+  to match the expected value. If none is provided it is set to ``UNDEFINED``.
 
+* ``add_message`` of the unittest ``testutil`` now actually handles the ``col_offset`` parameter
+  and allows it to be checked against actual output in a test.
 
 Extensions
 ==========
+
 * Added an optional extension ``consider-using-any-or-all``: Emitted when a ``for`` loop only
   produces a boolean and could be replaced by ``any`` or ``all`` using a generator. Also suggests
   a suitable any/all statement if it is concise.
@@ -89,6 +102,11 @@ Other Changes
 * ``pylint`` no longer crashes when checking assignment expressions within if-statements
 
   Closes #5178
+
+* Added configuration option ``exclude-too-few-public-methods`` to allow excluding
+  classes from the ``min-public-methods`` checker.
+
+  Closes #3370
 
 * Fix ``accept-no-yields-doc`` and ``accept-no-return-doc`` not allowing missing ``yield`` or
   ``return`` documentation when a docstring is partially correct
@@ -116,6 +134,18 @@ Other Changes
 * Update ``literal-comparison``` checker to ignore tuple literals
 
   Closes #3031
+
+* The functional ``testutils`` now accept ``end_lineno`` and ``end_column``. Expected
+  output files without these will trigger a ``DeprecationWarning``. Expected output files
+  can be easily updated with the ``python tests/test_functional.py --update-functional-output`` command.
+
+* The functional ``testutils`` now correctly check the distinction betweeen ``HIGH`` and
+  ``UNDEFINED`` confidence. Expected output files without defiend ``confidence`` levels will now
+  trigger a ``DeprecationWarning``. Expected output files can be easily updated with the
+  ``python tests/test_functional.py --update-functional-output`` command.
+
+* The functional test runner now supports the option ``min_pyver_end_position`` to control on which python
+  versions the ``end_lineno`` and ``end_column`` attributes should be checked. The default value is 3.8.
 
 * ``undefined-variable`` now correctly flags variables which only receive a type annotations
   and never get assigned a value
@@ -181,6 +211,8 @@ Other Changes
 
 * Fix crash for ``protected-access`` on (outer) class traversal
 
+* Fix ``useless-super-delegation`` false positive when default keyword argument is a variable.
+
 * Make yn validator case insensitive, to allow for ``True`` and ``False`` in config files.
 
 * The last version compatible with python '3.6.0' and '3.6.1' is pylint '2.9.3'. We did not
@@ -194,3 +226,23 @@ Other Changes
 
 * Added the ``--enable-all-extensions`` command line option. It will load all available extensions
   which can be listed by running ``--list-extensions``
+
+* It is now recommended to do ``pylint`` development on ``Python`` 3.8 or higher. This
+  allows using the latest ``ast`` parser.
+
+* All standard jobs in the ``pylint`` CI now run on ``Python`` 3.8 by default. We still
+  support python 3.6 and 3.7 and run tests for those interpreters.
+
+* Fix crash on ``open()`` calls when the ``mode`` argument is not a simple string.
+
+  Partially closes #5321
+
+* Add ability to add ``end_line`` and ``end_column`` to the ``--msg-template`` option.
+  With the standard ``TextReporter`` this will add the line and column number of the
+  end of a node to the output of Pylint. If these numbers are unknown, they are represented
+  by an empty string.
+
+* Introduced primer tests and a configuration tests framework. The helper classes available in
+  ``pylint/testutil/`` are still unstable and might be modified in the near future.
+
+  Closes #4412 #5287

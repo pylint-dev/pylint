@@ -1,5 +1,5 @@
-invalid-name:15:4:function_C:"Variable name ""x"" doesn't conform to snake_case naming style":HIGH
-unused-variable:15:4:function_C:"Unused variable 'x'":HIGH
-f-string-without-interpolation:16:11:function_C:"Using an f-string that does not have any interpolated variables":HIGH
-invalid-name:19:0:function_D:"Function name ""function_D"" doesn't conform to snake_case naming style":HIGH
-unused-argument:19:21:function_D:"Unused argument 'arg2'":HIGH
+invalid-name:15:4:15:5:function_C:"Variable name ""x"" doesn't conform to snake_case naming style":HIGH
+unused-variable:15:4:15:5:function_C:Unused variable 'x':UNDEFINED
+f-string-without-interpolation:16:11:16:44:function_C:Using an f-string that does not have any interpolated variables:UNDEFINED
+invalid-name:19:0:20:15:function_D:"Function name ""function_D"" doesn't conform to snake_case naming style":HIGH
+unused-argument:19:21:19:25:function_D:Unused argument 'arg2':HIGH

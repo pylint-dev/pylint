@@ -1,4 +1,0 @@
-bad-builtin:2:0::Used builtin function 'input'
-bad-builtin:3:15::Used builtin function 'filter'. Using a list comprehension can be clearer.
-bad-builtin:3:6::Used builtin function 'map'. Using a list comprehension can be clearer.
-bad-builtin:3:0::Used builtin function 'print'

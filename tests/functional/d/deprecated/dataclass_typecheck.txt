@@ -1,12 +1,12 @@
-invalid-sequence-index:32:6::Sequence index is not an int, slice, or instance with __index__:HIGH
-invalid-slice-index:36:0::Slice index is not an int, None, or instance with __index__:HIGH
-not-callable:39:0::obj.attr1 is not callable:HIGH
-invalid-unary-operand-type:44:6::"bad operand type for unary -: str":HIGH
-unsupported-membership-test:51:11::Value 'obj.attr1' doesn't support membership test:HIGH
-unsubscriptable-object:56:6::Value 'obj.attr1' is unsubscriptable:HIGH
-unsupported-assignment-operation:61:0::'obj.attr1' does not support item assignment:HIGH
-unsupported-delete-operation:66:4::'obj.attr1' does not support item deletion:HIGH
-not-context-manager:91:0::Context manager 'str' doesn't implement __enter__ and __exit__.:HIGH
-invalid-metaclass:99:0:Test2:Invalid metaclass 'Instance of builtins.int' used:HIGH
-unhashable-dict-key:105:0::Dict key is unhashable:HIGH
-isinstance-second-argument-not-valid-type:115:6::Second argument of isinstance is not a type:HIGH
+invalid-sequence-index:32:6:32:20::Sequence index is not an int, slice, or instance with __index__:UNDEFINED
+invalid-slice-index:36:10:36:19::Slice index is not an int, None, or instance with __index__:UNDEFINED
+not-callable:39:0:39:14::obj.attr1 is not callable:UNDEFINED
+invalid-unary-operand-type:44:6:44:16::"bad operand type for unary -: str":UNDEFINED
+unsupported-membership-test:51:11:51:20::Value 'obj.attr1' doesn't support membership test:UNDEFINED
+unsubscriptable-object:56:6:56:15::Value 'obj.attr1' is unsubscriptable:UNDEFINED
+unsupported-assignment-operation:61:0:61:9::'obj.attr1' does not support item assignment:UNDEFINED
+unsupported-delete-operation:66:4:66:13::'obj.attr1' does not support item deletion:UNDEFINED
+not-context-manager:91:0:92:8::Context manager 'str' doesn't implement __enter__ and __exit__.:UNDEFINED
+invalid-metaclass:99:0:100:8:Test2:Invalid metaclass 'Instance of builtins.int' used:UNDEFINED
+unhashable-dict-key:105:0:105:2::Dict key is unhashable:UNDEFINED
+isinstance-second-argument-not-valid-type:115:6:115:30::Second argument of isinstance is not a type:UNDEFINED

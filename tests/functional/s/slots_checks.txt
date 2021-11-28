@@ -1,11 +1,11 @@
-invalid-slots:36:0:Bad:Invalid __slots__ object
-invalid-slots:39:0:SecondBad:Invalid __slots__ object
-invalid-slots-object:43:22:ThirdBad:Invalid object '2' in __slots__, must contain only non empty strings
-invalid-slots:45:0:FourthBad:Invalid __slots__ object
-invalid-slots-object:49:27:FifthBad:"Invalid object ""''"" in __slots__, must contain only non empty strings"
-single-string-used-for-slots:51:0:SixthBad:Class __slots__ should be a non-string iterable
-single-string-used-for-slots:54:0:SeventhBad:Class __slots__ should be a non-string iterable
-single-string-used-for-slots:57:0:EighthBad:Class __slots__ should be a non-string iterable
-class-variable-slots-conflict:85:17:ValueInSlotConflict:Value 'first' in slots conflicts with class variable
-class-variable-slots-conflict:85:45:ValueInSlotConflict:Value 'fourth' in slots conflicts with class variable
-class-variable-slots-conflict:85:36:ValueInSlotConflict:Value 'third' in slots conflicts with class variable
+invalid-slots:36:0:37:20:Bad:Invalid __slots__ object:UNDEFINED
+invalid-slots:39:0:40:17:SecondBad:Invalid __slots__ object:UNDEFINED
+invalid-slots-object:43:22:43:23:ThirdBad:Invalid object '2' in __slots__, must contain only non empty strings:UNDEFINED
+invalid-slots:45:0:46:29:FourthBad:Invalid __slots__ object:UNDEFINED
+invalid-slots-object:49:27:49:29:FifthBad:"Invalid object ""''"" in __slots__, must contain only non empty strings":UNDEFINED
+single-string-used-for-slots:51:0:52:19:SixthBad:Class __slots__ should be a non-string iterable:UNDEFINED
+single-string-used-for-slots:54:0:55:23:SeventhBad:Class __slots__ should be a non-string iterable:UNDEFINED
+single-string-used-for-slots:57:0:58:30:EighthBad:Class __slots__ should be a non-string iterable:UNDEFINED
+class-variable-slots-conflict:85:17:85:24:ValueInSlotConflict:Value 'first' in slots conflicts with class variable:UNDEFINED
+class-variable-slots-conflict:85:45:85:53:ValueInSlotConflict:Value 'fourth' in slots conflicts with class variable:UNDEFINED
+class-variable-slots-conflict:85:36:85:43:ValueInSlotConflict:Value 'third' in slots conflicts with class variable:UNDEFINED

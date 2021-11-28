@@ -1,2 +1,2 @@
-no-name-in-module:3:4::No name 'missing' in module 'collections'
-no-name-in-module:5:4::No name 'missing' in module 'collections'
+no-name-in-module:3:4:3:30::No name 'missing' in module 'collections':UNDEFINED
+no-name-in-module:5:4:5:35::No name 'missing' in module 'collections':UNDEFINED

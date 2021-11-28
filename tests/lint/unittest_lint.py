@@ -12,9 +12,9 @@
 # Copyright (c) 2016 Glenn Matthews <glenn@e-dad.net>
 # Copyright (c) 2016 Glenn Matthews <glmatthe@cisco.com>
 # Copyright (c) 2017-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2017, 2021 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2017 Craig Citro <craigcitro@gmail.com>
 # Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
-# Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2018, 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2018 Matus Valo <matusvalo@users.noreply.github.com>
 # Copyright (c) 2018 Scott Worley <scottworley@scottworley.com>
@@ -70,8 +70,6 @@ from pylint.typing import MessageLocationTuple
 from pylint.utils import FileState, print_full_documentation, tokenize_module
 
 if os.name == "java":
-    # pylint: disable=no-member
-    # os._name is valid see https://www.programcreek.com/python/example/3842/os._name
     if os.name == "nt":
         HOME = "USERPROFILE"
     else:
@@ -500,7 +498,14 @@ def test_addmessage(linter: PyLinter) -> None:
             description="Warning without any associated confidence level.",
         ),
         location=MessageLocationTuple(
-            abspath="0123", path="0123", module="0123", obj="", line=1, column=0
+            abspath="0123",
+            path="0123",
+            module="0123",
+            obj="",
+            line=1,
+            column=0,
+            end_line=None,
+            end_column=None,
         ),
     )
     assert linter.reporter.messages[1] == Message(
@@ -512,7 +517,14 @@ def test_addmessage(linter: PyLinter) -> None:
             description="Warning without any associated confidence level.",
         ),
         location=MessageLocationTuple(
-            abspath="0123", path="0123", module="0123", obj="", line=2, column=0
+            abspath="0123",
+            path="0123",
+            module="0123",
+            obj="",
+            line=2,
+            column=0,
+            end_line=None,
+            end_column=None,
         ),
     )
 
@@ -616,6 +628,8 @@ def test_analyze_explicit_script(linter: PyLinter) -> None:
             obj="",
             line=2,
             column=0,
+            end_line=None,
+            end_column=None,
         ),
     )
 
@@ -783,7 +797,6 @@ class TestPreprocessOptions:
 
 
 class _CustomPyLinter(PyLinter):
-    # pylint: disable=too-many-ancestors
     @staticmethod
     def should_analyze_file(modname: str, path: str, is_argument: bool = False) -> bool:
         if os.path.basename(path) == "wrong.py":

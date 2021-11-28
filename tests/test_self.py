@@ -7,11 +7,11 @@
 # Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
 # Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
 # Copyright (c) 2017, 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2017, 2021 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2017, 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017, 2019 Thomas Hisch <t.hisch@gmail.com>
 # Copyright (c) 2017 Daniel Miller <millerdev@gmail.com>
 # Copyright (c) 2017 Bryce Guinta <bryce.paul.guinta@gmail.com>
-# Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
 # Copyright (c) 2018 Jason Owen <jason.a.owen@gmail.com>
 # Copyright (c) 2018 Jace Browning <jacebrowning@gmail.com>
@@ -56,7 +56,7 @@ from unittest import mock
 from unittest.mock import patch
 
 import pytest
-from py._path.local import LocalPath  # type: ignore
+from py._path.local import LocalPath  # type: ignore[import]
 
 from pylint import extensions, modify_sys_path
 from pylint.constants import MAIN_CHECKER_NAME, MSG_TYPES_STATUS

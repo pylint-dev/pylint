@@ -1,9 +1,9 @@
-arguments-renamed:17:4:Orange.brew:Parameter 'fruit_name' has been renamed to 'orange_name' in overridden 'Orange.brew' method
-arguments-renamed:20:4:Orange.eat_with_condiment:Parameter 'fruit_name' has been renamed to 'orange_name' in overridden 'Orange.eat_with_condiment' method
-arguments-differ:27:4:Banana.eat_with_condiment:Number of parameters was 3 in 'Fruit.eat_with_condiment' and is now 4 in overridden 'Banana.eat_with_condiment' method
-arguments-renamed:40:4:Child.test:Parameter 'arg' has been renamed to 'arg1' in overridden 'Child.test' method
-arguments-renamed:43:4:Child.kwargs_test:Parameter 'var1' has been renamed to 'value1' in overridden 'Child.kwargs_test' method
-arguments-renamed:48:4:Child2.test:Parameter 'arg' has been renamed to 'var' in overridden 'Child2.test' method
-arguments-differ:51:4:Child2.kwargs_test:Number of parameters was 4 in 'Parent.kwargs_test' and is now 3 in overridden 'Child2.kwargs_test' method
-arguments-renamed:51:4:Child2.kwargs_test:Parameter 'var2' has been renamed to 'kw2' in overridden 'Child2.kwargs_test' method
-arguments-renamed:67:4:ChildDefaults.test1:Parameter 'barg' has been renamed to 'param2' in overridden 'ChildDefaults.test1' method
+arguments-renamed:17:4:18:55:Orange.brew:Parameter 'fruit_name' has been renamed to 'orange_name' in overridden 'Orange.brew' method:UNDEFINED
+arguments-renamed:20:4:21:69:Orange.eat_with_condiment:Parameter 'fruit_name' has been renamed to 'orange_name' in overridden 'Orange.eat_with_condiment' method:UNDEFINED
+arguments-differ:27:4:28:68:Banana.eat_with_condiment:Number of parameters was 3 in 'Fruit.eat_with_condiment' and is now 4 in overridden 'Banana.eat_with_condiment' method:UNDEFINED
+arguments-renamed:40:4:41:23:Child.test:Parameter 'arg' has been renamed to 'arg1' in overridden 'Child.test' method:UNDEFINED
+arguments-renamed:43:4:44:61:Child.kwargs_test:Parameter 'var1' has been renamed to 'value1' in overridden 'Child.kwargs_test' method:UNDEFINED
+arguments-renamed:48:4:49:22:Child2.test:Parameter 'arg' has been renamed to 'var' in overridden 'Child2.test' method:UNDEFINED
+arguments-differ:51:4:52:58:Child2.kwargs_test:Number of parameters was 4 in 'Parent.kwargs_test' and is now 3 in overridden 'Child2.kwargs_test' method:UNDEFINED
+arguments-renamed:51:4:52:58:Child2.kwargs_test:Parameter 'var2' has been renamed to 'kw2' in overridden 'Child2.kwargs_test' method:UNDEFINED
+arguments-renamed:67:4:68:56:ChildDefaults.test1:Parameter 'barg' has been renamed to 'param2' in overridden 'ChildDefaults.test1' method:UNDEFINED

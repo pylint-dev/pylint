@@ -11,6 +11,7 @@
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
 # Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
+# Copyright (c) 2021 Andrew Haigh <hello@nelf.in>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -26,7 +27,7 @@ import signal
 import sys
 from contextlib import contextmanager
 from os.path import abspath, dirname, join
-from typing import Callable, Iterator, List
+from typing import Callable, Iterator, List, cast
 
 import astroid
 import pytest
@@ -54,6 +55,9 @@ def finalize_linter(linter: PyLinter) -> Iterator[PyLinter]:
     pending messages if a test finished badly
     """
     yield linter
+    linter.reporter = cast(  # Due to fixture
+        testutils.GenericTestReporter, linter.reporter
+    )
     linter.reporter.finalize()
 
 
@@ -79,6 +83,9 @@ def test_package(
     finalize_linter: PyLinter, file_names: List[str], check: Callable
 ) -> None:
     finalize_linter.check(file_names)
+    finalize_linter.reporter = cast(  # Due to fixture
+        testutils.GenericTestReporter, finalize_linter.reporter
+    )
     got = finalize_linter.reporter.finalize().strip()
     assert check(got)
 
@@ -100,6 +107,9 @@ def test_crash(finalize_linter: PyLinter, file_names: List[str]) -> None:
 )
 def test_descriptor_crash(fname: str, finalize_linter: PyLinter) -> None:
     finalize_linter.check([join(REGR_DATA, fname)])
+    finalize_linter.reporter = cast(  # Due to fixture
+        testutils.GenericTestReporter, finalize_linter.reporter
+    )
     finalize_linter.reporter.finalize().strip()
 
 

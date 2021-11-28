@@ -2,20 +2,51 @@
 Pylint output
 -------------
 
+Output options
+''''''''''''''''''''''''''''
+Output by default is written to stdout. The simplest way to output to a file is
+with the ``--output=<filename>`` option.
+
 The default format for the output is raw text. You can change this by passing
-pylint the ``--output-format=<value>`` option. Possible values are: json,
-parseable, colorized and msvs (visual studio).
+pylint the ``--output-format=<value>`` option. Possible values are: ``text``, ``json``,
+``parseable``, ``colorized`` and ``msvs`` (for Visual Studio).
 
 Multiple output formats can be used at the same time by passing
-``--output-format`` a comma-separated list of formats. To change the output file
-for an individual format, specify it after a semicolon. For example, you can
-save a json report to ``somefile`` and print a colorized report to stdout at the
-same time with :
+a comma-separated list of formats to ``--output-format``.
+This output can be redirected to a file by giving a filename after a colon.
+
+For example, to save a json report to ``somefile.json`` and print
+a colorized report to stdout at the same time:
 ::
 
-  --output-format=json:somefile,colorized
+  --output-format=json:somefile.json,colorized
 
-Moreover you can customize the exact way information are displayed using the
+Finally, it is possible to invoke pylint programmatically with a
+reporter initialized with a custom stream:
+
+::
+
+  pylint_output = StringIO() # Custom open stream
+  reporter = text.TextReporter(pylint_output)
+  Run(["test_file.py"], reporter=reporter, do_exit=False)
+  print(pylint_output.getvalue()) # Retrieve and print the text report
+
+The reporter can accept any stream object as as parameter. In this example,
+the stream outputs to a file:
+
+::
+
+  with open("report.out", "w") as f:
+    reporter = text.TextReporter(f)
+    Run(["test_file.py"], reporter=reporter, do_exit=False)
+
+This would be useful to capture pylint output in an open stream which
+can be passed onto another program.
+
+Custom message formats
+''''''''''''''''''''''''''''
+
+You can customize the exact way information are displayed using the
 `--msg-template=<format string>` option. The `format string` uses the
 `Python new format syntax`_ and the following fields are available :
 
@@ -27,6 +58,10 @@ line
     line number
 column
     column number
+end_line
+    line number of the end of the node
+end_column
+    column number of the end of the node
 module
     module name
 obj
@@ -62,6 +97,9 @@ A few other examples:
 
 The ``--msg-template`` option can only be combined with text-based reporters (``--output-format`` either unspecified or one of: parseable, colorized or msvs).
 If both ``--output-format`` and ``--msg-template`` are specified, the ``--msg-template`` option will take precedence over the default line format defined by the reporter class.
+
+If ``end_line`` or ``end_column`` are ``None``, they will be represented as an empty string
+by the default ``TextReporter``.
 
 .. _Python new format syntax: https://docs.python.org/2/library/string.html#formatstrings
 

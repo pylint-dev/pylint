@@ -1,2 +1,2 @@
-consider-using-generator:7:0::Consider using a generator instead 'list(0 for y in list(range(10)))'
-consider-using-generator:8:0::Consider using a generator instead 'tuple(0 for y in list(range(10)))'
+consider-using-generator:7:0:7:34::Consider using a generator instead 'list(0 for y in list(range(10)))':UNDEFINED
+consider-using-generator:8:0:8:35::Consider using a generator instead 'tuple(0 for y in list(range(10)))':UNDEFINED

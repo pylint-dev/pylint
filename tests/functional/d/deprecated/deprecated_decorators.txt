@@ -1,1 +1,1 @@
-deprecated-decorator:7:4:MyClass.my_method:Using deprecated decorator abc.abstractclassmethod()
+deprecated-decorator:7:4:7:28:MyClass.my_method:Using deprecated decorator abc.abstractclassmethod():UNDEFINED

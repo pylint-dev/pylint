@@ -1,5 +1,5 @@
-no-member:21:8:Child.__init__:Instance of 'Child' has no '_similar' member; maybe one of '_similar1', '_similar2' or '_similar3'?:INFERENCE
-no-member:22:8:Child.__init__:Instance of 'Child' has no '_really_similar' member; maybe one of '_really_similar1' or '_really_similar2'?:INFERENCE
-no-member:23:8:Child.__init__:Instance of 'Child' has no '_paren' member; maybe '_parent'?:INFERENCE
-no-member:25:8:Child.__init__:Instance of 'Child' has no '_registryyyy' member:INFERENCE
-no-member:27:8:Child.__init__:Instance of 'Child' has no '_pretty_sure_this_wont_match' member:INFERENCE
+no-member:21:8:21:21:Child.__init__:Instance of 'Child' has no '_similar' member; maybe one of '_similar1', '_similar2' or '_similar3'?:INFERENCE
+no-member:22:8:22:28:Child.__init__:Instance of 'Child' has no '_really_similar' member; maybe one of '_really_similar1' or '_really_similar2'?:INFERENCE
+no-member:23:8:23:19:Child.__init__:Instance of 'Child' has no '_paren' member; maybe '_parent'?:INFERENCE
+no-member:25:8:25:25:Child.__init__:Instance of 'Child' has no '_registryyyy' member:INFERENCE
+no-member:27:8:27:41:Child.__init__:Instance of 'Child' has no '_pretty_sure_this_wont_match' member:INFERENCE

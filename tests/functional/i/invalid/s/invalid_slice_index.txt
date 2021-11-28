@@ -1,5 +1,5 @@
-invalid-slice-index:10:0:function1:Slice index is not an int, None, or instance with __index__
-invalid-slice-index:10:0:function1:Slice index is not an int, None, or instance with __index__
-invalid-slice-index:14:0:function2:Slice index is not an int, None, or instance with __index__
-invalid-slice-index:14:0:function2:Slice index is not an int, None, or instance with __index__
-invalid-slice-index:23:0:function3:Slice index is not an int, None, or instance with __index__
+invalid-slice-index:10:20:10:22:function1:Slice index is not an int, None, or instance with __index__:UNDEFINED
+invalid-slice-index:10:23:10:25:function1:Slice index is not an int, None, or instance with __index__:UNDEFINED
+invalid-slice-index:14:20:14:23:function2:Slice index is not an int, None, or instance with __index__:UNDEFINED
+invalid-slice-index:14:24:14:27:function2:Slice index is not an int, None, or instance with __index__:UNDEFINED
+invalid-slice-index:23:20:23:33:function3:Slice index is not an int, None, or instance with __index__:UNDEFINED

@@ -1,2 +1,2 @@
-global-statement:5:4:func:Using the global statement
-redefined-builtin:5:4:func:Redefining built-in '__file__'
+global-statement:5:4:5:19:func:Using the global statement:UNDEFINED
+redefined-builtin:5:4:5:19:func:Redefining built-in '__file__':UNDEFINED

@@ -274,7 +274,10 @@ class OptionsManagerMixIn:
             self.set_current_module(config_file)
             parser = self.cfgfile_parser
             if config_file.endswith(".toml"):
-                self._parse_toml(config_file, parser)
+                try:
+                    self._parse_toml(config_file, parser)
+                except toml.TomlDecodeError as e:
+                    self.add_message("config-parse-error", line=0, args=str(e))
             else:
                 # Use this encoding in order to strip the BOM marker, if any.
                 with open(config_file, encoding="utf_8_sig") as fp:
@@ -309,7 +312,7 @@ class OptionsManagerMixIn:
             # strings as ConfigParser expects.
             if not isinstance(values, dict):
                 # This class is a mixin: add_message comes from the `PyLinter` class
-                self.add_message(  # type: ignore
+                self.add_message(  # type: ignore[attr-defined]
                     "bad-configuration-section", line=0, args=(section, values)
                 )
                 continue

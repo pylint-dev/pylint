@@ -1,1 +1,1 @@
-cell-var-from-loop:7:18:example.nested:Cell variable i defined in loop
+cell-var-from-loop:7:18:7:19:example.nested:Cell variable i defined in loop:UNDEFINED

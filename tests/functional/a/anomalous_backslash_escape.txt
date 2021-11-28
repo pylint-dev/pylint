@@ -1,6 +1,6 @@
-anomalous-backslash-in-string:4:14::"Anomalous backslash in string: '\z'. String constant might be missing an r prefix."
-anomalous-backslash-in-string:5:27::"Anomalous backslash in string: '\z'. String constant might be missing an r prefix."
-anomalous-backslash-in-string:6:30::"Anomalous backslash in string: '\z'. String constant might be missing an r prefix."
-anomalous-backslash-in-string:8:4::"Anomalous backslash in string: '\z'. String constant might be missing an r prefix."
-anomalous-backslash-in-string:12:4::"Anomalous backslash in string: '\z'. String constant might be missing an r prefix."
-anomalous-backslash-in-string:15:23::"Anomalous backslash in string: '\z'. String constant might be missing an r prefix."
+anomalous-backslash-in-string:4:14:None:None::"Anomalous backslash in string: '\z'. String constant might be missing an r prefix.":UNDEFINED
+anomalous-backslash-in-string:5:27:None:None::"Anomalous backslash in string: '\z'. String constant might be missing an r prefix.":UNDEFINED
+anomalous-backslash-in-string:6:30:None:None::"Anomalous backslash in string: '\z'. String constant might be missing an r prefix.":UNDEFINED
+anomalous-backslash-in-string:8:4:None:None::"Anomalous backslash in string: '\z'. String constant might be missing an r prefix.":UNDEFINED
+anomalous-backslash-in-string:12:4:None:None::"Anomalous backslash in string: '\z'. String constant might be missing an r prefix.":UNDEFINED
+anomalous-backslash-in-string:15:23:None:None::"Anomalous backslash in string: '\z'. String constant might be missing an r prefix.":UNDEFINED

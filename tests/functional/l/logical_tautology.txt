@@ -1,12 +1,12 @@
-comparison-with-itself:6:7:foo:Redundant comparison - arg == arg
-comparison-with-itself:8:9:foo:Redundant comparison - arg != arg
-comparison-with-itself:10:9:foo:Redundant comparison - arg > arg
-comparison-with-itself:12:9:foo:Redundant comparison - arg <= arg
-comparison-with-itself:14:9:foo:Redundant comparison - None == None
-comparison-with-itself:16:9:foo:Redundant comparison - 786 == 786
-comparison-with-itself:18:9:foo:Redundant comparison - 786 is 786
-comparison-with-itself:20:9:foo:Redundant comparison - 786 is not 786
-comparison-with-itself:22:9:foo:Redundant comparison - arg is arg
-comparison-with-itself:24:9:foo:Redundant comparison - arg is not arg
-comparison-with-itself:26:9:foo:Redundant comparison - True is True
-comparison-with-itself:36:18:bar:Redundant comparison - arg != arg
+comparison-with-itself:6:7:6:17:foo:Redundant comparison - arg == arg:UNDEFINED
+comparison-with-itself:8:9:8:19:foo:Redundant comparison - arg != arg:UNDEFINED
+comparison-with-itself:10:9:10:18:foo:Redundant comparison - arg > arg:UNDEFINED
+comparison-with-itself:12:9:12:19:foo:Redundant comparison - arg <= arg:UNDEFINED
+comparison-with-itself:14:9:14:21:foo:Redundant comparison - None == None:UNDEFINED
+comparison-with-itself:16:9:16:19:foo:Redundant comparison - 786 == 786:UNDEFINED
+comparison-with-itself:18:9:18:19:foo:Redundant comparison - 786 is 786:UNDEFINED
+comparison-with-itself:20:9:20:23:foo:Redundant comparison - 786 is not 786:UNDEFINED
+comparison-with-itself:22:9:22:19:foo:Redundant comparison - arg is arg:UNDEFINED
+comparison-with-itself:24:9:24:23:foo:Redundant comparison - arg is not arg:UNDEFINED
+comparison-with-itself:26:9:26:21:foo:Redundant comparison - True is True:UNDEFINED
+comparison-with-itself:36:18:36:28:bar:Redundant comparison - arg != arg:UNDEFINED

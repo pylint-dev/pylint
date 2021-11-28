@@ -30,7 +30,7 @@ class TestFixme(CheckerTestCase):
                 # FIXME message
                 """
         with self.assertAddsMessages(
-            MessageTest(msg_id="fixme", line=2, args="FIXME message")
+            MessageTest(msg_id="fixme", line=2, args="FIXME message", col_offset=17)
         ):
             self.checker.process_tokens(_tokenize_str(code))
 
@@ -38,14 +38,18 @@ class TestFixme(CheckerTestCase):
         code = """a = 1
                 # TODO
                 """
-        with self.assertAddsMessages(MessageTest(msg_id="fixme", line=2, args="TODO")):
+        with self.assertAddsMessages(
+            MessageTest(msg_id="fixme", line=2, args="TODO", col_offset=17)
+        ):
             self.checker.process_tokens(_tokenize_str(code))
 
     def test_xxx_without_space(self) -> None:
         code = """a = 1
                 #XXX
                 """
-        with self.assertAddsMessages(MessageTest(msg_id="fixme", line=2, args="XXX")):
+        with self.assertAddsMessages(
+            MessageTest(msg_id="fixme", line=2, args="XXX", col_offset=17)
+        ):
             self.checker.process_tokens(_tokenize_str(code))
 
     def test_xxx_middle(self) -> None:
@@ -59,7 +63,9 @@ class TestFixme(CheckerTestCase):
         code = """a = 1
                 #FIXME
                 """
-        with self.assertAddsMessages(MessageTest(msg_id="fixme", line=2, args="FIXME")):
+        with self.assertAddsMessages(
+            MessageTest(msg_id="fixme", line=2, args="FIXME", col_offset=17)
+        ):
             self.checker.process_tokens(_tokenize_str(code))
 
     @set_config(notes=[])
@@ -79,7 +85,7 @@ class TestFixme(CheckerTestCase):
                 # FIXME
                 """
         with self.assertAddsMessages(
-            MessageTest(msg_id="fixme", line=2, args="CODETAG")
+            MessageTest(msg_id="fixme", line=2, args="CODETAG", col_offset=17)
         ):
             self.checker.process_tokens(_tokenize_str(code))
 
@@ -92,7 +98,10 @@ class TestFixme(CheckerTestCase):
         code = "# TODO this should not trigger a fixme"
         with self.assertAddsMessages(
             MessageTest(
-                msg_id="fixme", line=1, args="TODO this should not trigger a fixme"
+                msg_id="fixme",
+                line=1,
+                args="TODO this should not trigger a fixme",
+                col_offset=1,
             )
         ):
             self.checker.process_tokens(_tokenize_str(code))

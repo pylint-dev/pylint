@@ -1,15 +1,15 @@
-condition-evals-to-constant:14:5::Boolean condition 'CONSTANT or True' will always evaluate to 'True'
-condition-evals-to-constant:15:7::Boolean condition 'CONSTANT or True' will always evaluate to 'True'
-condition-evals-to-constant:16:3::Boolean condition 'CONSTANT and False' will always evaluate to 'False'
-condition-evals-to-constant:18:5::Boolean condition 'CONSTANT and False' will always evaluate to 'False'
-condition-evals-to-constant:20:6::Boolean condition 'CONSTANT and False' will always evaluate to 'False'
-condition-evals-to-constant:22:5::Boolean condition 'CONSTANT or True' will always evaluate to 'True'
-condition-evals-to-constant:23:29::Boolean condition 'x or True' will always evaluate to 'True'
-condition-evals-to-constant:26:7::Boolean condition 'True or CONSTANT or OTHER' will always evaluate to 'True'
-condition-evals-to-constant:27:7::Boolean condition 'CONSTANT or True or CONSTANT or True' will always evaluate to 'True'
-condition-evals-to-constant:30:7::Boolean condition '3 + 4 or CONSTANT' will always evaluate to '3 + 4'
-condition-evals-to-constant:31:7::Boolean condition 'Unknown or True' will always evaluate to 'True'
-condition-evals-to-constant:33:7::Boolean condition 'True or True' will always evaluate to 'True'
-condition-evals-to-constant:34:7::Boolean condition 'False or False' will always evaluate to 'False'
-condition-evals-to-constant:35:7::Boolean condition 'True and True' will always evaluate to 'True'
-condition-evals-to-constant:36:7::Boolean condition 'False and False' will always evaluate to 'False'
+condition-evals-to-constant:14:5:14:21::Boolean condition 'CONSTANT or True' will always evaluate to 'True':UNDEFINED
+condition-evals-to-constant:15:7:15:23::Boolean condition 'CONSTANT or True' will always evaluate to 'True':UNDEFINED
+condition-evals-to-constant:16:3:16:21::Boolean condition 'CONSTANT and False' will always evaluate to 'False':UNDEFINED
+condition-evals-to-constant:18:5:18:23::Boolean condition 'CONSTANT and False' will always evaluate to 'False':UNDEFINED
+condition-evals-to-constant:20:6:20:24::Boolean condition 'CONSTANT and False' will always evaluate to 'False':UNDEFINED
+condition-evals-to-constant:22:5:22:21::Boolean condition 'CONSTANT or True' will always evaluate to 'True':UNDEFINED
+condition-evals-to-constant:23:29:23:38::Boolean condition 'x or True' will always evaluate to 'True':UNDEFINED
+condition-evals-to-constant:26:7:26:32::Boolean condition 'True or CONSTANT or OTHER' will always evaluate to 'True':UNDEFINED
+condition-evals-to-constant:27:7:27:47::Boolean condition 'CONSTANT or True or CONSTANT or True' will always evaluate to 'True':UNDEFINED
+condition-evals-to-constant:30:7:30:24::Boolean condition '3 + 4 or CONSTANT' will always evaluate to '3 + 4':UNDEFINED
+condition-evals-to-constant:31:7:31:22::Boolean condition 'Unknown or True' will always evaluate to 'True':UNDEFINED
+condition-evals-to-constant:33:7:33:19::Boolean condition 'True or True' will always evaluate to 'True':UNDEFINED
+condition-evals-to-constant:34:7:34:21::Boolean condition 'False or False' will always evaluate to 'False':UNDEFINED
+condition-evals-to-constant:35:7:35:20::Boolean condition 'True and True' will always evaluate to 'True':UNDEFINED
+condition-evals-to-constant:36:7:36:22::Boolean condition 'False and False' will always evaluate to 'False':UNDEFINED

@@ -1,0 +1,2 @@
+bad-builtin:3:7:3:26::Used builtin function 'map'. Using a list comprehension can be clearer.:UNDEFINED
+bad-builtin:4:8:4:30::Used builtin function 'filter'. Using a list comprehension can be clearer.:UNDEFINED

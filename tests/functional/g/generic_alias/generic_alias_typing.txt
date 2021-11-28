@@ -1,19 +1,19 @@
-unsubscriptable-object:66:0::Value 'typing.ByteString' is unsubscriptable
-unsubscriptable-object:67:0::Value 'typing.Hashable' is unsubscriptable
-unsubscriptable-object:68:0::Value 'typing.Sized' is unsubscriptable
-abstract-method:72:0:DerivedHashable:Method '__hash__' is abstract in class 'Hashable' but is not overridden
-abstract-method:75:0:DerivedIterable:Method '__iter__' is abstract in class 'Iterable' but is not overridden
-abstract-method:78:0:DerivedCollection:Method '__contains__' is abstract in class 'Container' but is not overridden
-abstract-method:78:0:DerivedCollection:Method '__iter__' is abstract in class 'Iterable' but is not overridden
-abstract-method:78:0:DerivedCollection:Method '__len__' is abstract in class 'Sized' but is not overridden
-abstract-method:100:0:DerivedMultiple:Method '__hash__' is abstract in class 'Hashable' but is not overridden
-abstract-method:100:0:DerivedMultiple:Method '__len__' is abstract in class 'Sized' but is not overridden
-abstract-method:105:0:CustomAbstractCls2:Method '__iter__' is abstract in class 'Iterable' but is not overridden
-abstract-method:105:0:CustomAbstractCls2:Method '__len__' is abstract in class 'Sized' but is not overridden
-abstract-method:107:0:CustomImplementation:Method '__iter__' is abstract in class 'Iterable' but is not overridden
-abstract-method:107:0:CustomImplementation:Method '__len__' is abstract in class 'Sized' but is not overridden
-abstract-method:118:0:DerivedIterable2:Method '__iter__' is abstract in class 'Iterable' but is not overridden
-unsubscriptable-object:138:9::Value 'int' is unsubscriptable
-unsubscriptable-object:139:17::Value 'typing.ByteString' is unsubscriptable
-unsubscriptable-object:140:15::Value 'typing.Hashable' is unsubscriptable
-unsubscriptable-object:141:12::Value 'typing.Sized' is unsubscriptable
+unsubscriptable-object:66:0:66:17::Value 'typing.ByteString' is unsubscriptable:UNDEFINED
+unsubscriptable-object:67:0:67:15::Value 'typing.Hashable' is unsubscriptable:UNDEFINED
+unsubscriptable-object:68:0:68:12::Value 'typing.Sized' is unsubscriptable:UNDEFINED
+abstract-method:72:0:73:8:DerivedHashable:Method '__hash__' is abstract in class 'Hashable' but is not overridden:UNDEFINED
+abstract-method:75:0:76:8:DerivedIterable:Method '__iter__' is abstract in class 'Iterable' but is not overridden:UNDEFINED
+abstract-method:78:0:79:8:DerivedCollection:Method '__contains__' is abstract in class 'Container' but is not overridden:UNDEFINED
+abstract-method:78:0:79:8:DerivedCollection:Method '__iter__' is abstract in class 'Iterable' but is not overridden:UNDEFINED
+abstract-method:78:0:79:8:DerivedCollection:Method '__len__' is abstract in class 'Sized' but is not overridden:UNDEFINED
+abstract-method:100:0:101:8:DerivedMultiple:Method '__hash__' is abstract in class 'Hashable' but is not overridden:UNDEFINED
+abstract-method:100:0:101:8:DerivedMultiple:Method '__len__' is abstract in class 'Sized' but is not overridden:UNDEFINED
+abstract-method:105:0:106:8:CustomAbstractCls2:Method '__iter__' is abstract in class 'Iterable' but is not overridden:UNDEFINED
+abstract-method:105:0:106:8:CustomAbstractCls2:Method '__len__' is abstract in class 'Sized' but is not overridden:UNDEFINED
+abstract-method:107:0:108:8:CustomImplementation:Method '__iter__' is abstract in class 'Iterable' but is not overridden:UNDEFINED
+abstract-method:107:0:108:8:CustomImplementation:Method '__len__' is abstract in class 'Sized' but is not overridden:UNDEFINED
+abstract-method:118:0:119:8:DerivedIterable2:Method '__iter__' is abstract in class 'Iterable' but is not overridden:UNDEFINED
+unsubscriptable-object:138:9:138:12::Value 'int' is unsubscriptable:UNDEFINED
+unsubscriptable-object:139:17:139:34::Value 'typing.ByteString' is unsubscriptable:UNDEFINED
+unsubscriptable-object:140:15:140:30::Value 'typing.Hashable' is unsubscriptable:UNDEFINED
+unsubscriptable-object:141:12:141:24::Value 'typing.Sized' is unsubscriptable:UNDEFINED

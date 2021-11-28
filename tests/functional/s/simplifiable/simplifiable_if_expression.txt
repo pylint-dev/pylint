@@ -1,4 +1,4 @@
-simplifiable-if-expression:8:11:test_simplifiable_1:The if expression can be replaced with 'bool(test)'
-simplifiable-if-expression:12:11:test_simplifiable_2:The if expression can be replaced with 'not test'
-simplifiable-if-expression:16:11:test_simplifiable_3:The if expression can be replaced with 'test'
-simplifiable-if-expression:20:11:test_simplifiable_4:The if expression can be replaced with 'not test'
+simplifiable-if-expression:8:11:8:33:test_simplifiable_1:The if expression can be replaced with 'bool(test)':UNDEFINED
+simplifiable-if-expression:12:11:12:33:test_simplifiable_2:The if expression can be replaced with 'not test':UNDEFINED
+simplifiable-if-expression:16:11:16:38:test_simplifiable_3:The if expression can be replaced with 'test':UNDEFINED
+simplifiable-if-expression:20:11:20:38:test_simplifiable_4:The if expression can be replaced with 'not test':UNDEFINED

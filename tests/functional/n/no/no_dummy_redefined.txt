@@ -1,2 +1,2 @@
-invalid-name:7:0::"Constant name ""value"" doesn't conform to UPPER_CASE naming style"
-redefined-outer-name:12:4:clobbering:Redefining name 'value' from outer scope (line 7)
+invalid-name:7:0:7:5::"Constant name ""value"" doesn't conform to UPPER_CASE naming style":HIGH
+redefined-outer-name:12:4:12:9:clobbering:Redefining name 'value' from outer scope (line 7):UNDEFINED

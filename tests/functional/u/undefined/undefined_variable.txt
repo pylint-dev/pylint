@@ -1,36 +1,36 @@
-undefined-variable:12:19::Undefined variable 'unknown':HIGH
-undefined-variable:18:10:in_method:Undefined variable 'nomoreknown':HIGH
-undefined-variable:21:19::Undefined variable '__revision__':HIGH
-undefined-variable:23:8::Undefined variable '__revision__':HIGH
-undefined-variable:27:29:bad_default:Undefined variable 'unknown2':HIGH
-undefined-variable:30:10:bad_default:Undefined variable 'xxxx':HIGH
-undefined-variable:31:4:bad_default:Undefined variable 'augvar':HIGH
-undefined-variable:32:8:bad_default:Undefined variable 'vardel':HIGH
-undefined-variable:34:19:<lambda>:Undefined variable 'doesnotexist':HIGH
-undefined-variable:35:23:<lambda>:Undefined variable 'z':HIGH
-used-before-assignment:43:4::Using variable 'POUETT' before assignment:HIGH
-used-before-assignment:56:4::Using variable 'PLOUF' before assignment:HIGH
-used-before-assignment:65:11:if_branch_test:Using variable 'xxx' before assignment:HIGH
-used-before-assignment:91:23:test_arguments:Using variable 'TestClass' before assignment:HIGH
-used-before-assignment:95:16:TestClass:Using variable 'Ancestor' before assignment:HIGH
-used-before-assignment:98:26:TestClass.MissingAncestor:Using variable 'Ancestor1' before assignment:HIGH
-used-before-assignment:105:36:TestClass.test1.UsingBeforeDefinition:Using variable 'Empty' before assignment:HIGH
-undefined-variable:119:10:Self:Undefined variable 'Self':HIGH
-undefined-variable:135:7::Undefined variable 'BAT':HIGH
-used-before-assignment:146:31:KeywordArgument.test1:Using variable 'enabled' before assignment:HIGH
-undefined-variable:149:32:KeywordArgument.test2:Undefined variable 'disabled':HIGH
-undefined-variable:154:22:KeywordArgument.<lambda>:Undefined variable 'arg':HIGH
-undefined-variable:166:4::Undefined variable 'unicode_2':HIGH
-undefined-variable:171:4::Undefined variable 'unicode_3':HIGH
-undefined-variable:226:25:LambdaClass4.<lambda>:Undefined variable 'LambdaClass4':HIGH
-undefined-variable:234:25:LambdaClass5.<lambda>:Undefined variable 'LambdaClass5':HIGH
-used-before-assignment:255:26:func_should_fail:Using variable 'datetime' before assignment:HIGH
-undefined-variable:282:18:not_using_loop_variable_accordingly:Undefined variable 'iteree':HIGH
-undefined-variable:293:27:undefined_annotation:Undefined variable 'x':HIGH
-used-before-assignment:294:7:undefined_annotation:Using variable 'x' before assignment:HIGH
-undefined-variable:324:11:decorated3:Undefined variable 'x':HIGH
-undefined-variable:329:19:decorated4:Undefined variable 'y':HIGH
-undefined-variable:354:10:only_type_assignment:Undefined variable 'variable':HIGH
-undefined-variable:367:10:value_assignment_after_access:Undefined variable 'variable':HIGH
-undefined-variable:384:10:global_var_mixed_assignment:Undefined variable 'GLOBAL_VAR':HIGH
-undefined-variable:415:14:decorator_returning_incorrect_function.wrapper_with_type_and_no_value:Undefined variable 'var':HIGH
+undefined-variable:12:19:12:26::Undefined variable 'unknown':UNDEFINED
+undefined-variable:18:10:18:21:in_method:Undefined variable 'nomoreknown':UNDEFINED
+undefined-variable:21:19:21:31::Undefined variable '__revision__':UNDEFINED
+undefined-variable:23:8:23:20::Undefined variable '__revision__':UNDEFINED
+undefined-variable:27:29:27:37:bad_default:Undefined variable 'unknown2':UNDEFINED
+undefined-variable:30:10:30:14:bad_default:Undefined variable 'xxxx':UNDEFINED
+undefined-variable:31:4:31:10:bad_default:Undefined variable 'augvar':UNDEFINED
+undefined-variable:32:8:32:14:bad_default:Undefined variable 'vardel':UNDEFINED
+undefined-variable:34:19:34:31:<lambda>:Undefined variable 'doesnotexist':UNDEFINED
+undefined-variable:35:23:35:24:<lambda>:Undefined variable 'z':UNDEFINED
+used-before-assignment:43:4:43:10::Using variable 'POUETT' before assignment:UNDEFINED
+used-before-assignment:56:4:56:9::Using variable 'PLOUF' before assignment:UNDEFINED
+used-before-assignment:65:11:65:14:if_branch_test:Using variable 'xxx' before assignment:UNDEFINED
+used-before-assignment:91:23:91:32:test_arguments:Using variable 'TestClass' before assignment:UNDEFINED
+used-before-assignment:95:16:95:24:TestClass:Using variable 'Ancestor' before assignment:UNDEFINED
+used-before-assignment:98:26:98:35:TestClass.MissingAncestor:Using variable 'Ancestor1' before assignment:UNDEFINED
+used-before-assignment:105:36:105:41:TestClass.test1.UsingBeforeDefinition:Using variable 'Empty' before assignment:UNDEFINED
+undefined-variable:119:10:119:14:Self:Undefined variable 'Self':UNDEFINED
+undefined-variable:135:7:135:10::Undefined variable 'BAT':UNDEFINED
+used-before-assignment:146:31:146:38:KeywordArgument.test1:Using variable 'enabled' before assignment:UNDEFINED
+undefined-variable:149:32:149:40:KeywordArgument.test2:Undefined variable 'disabled':UNDEFINED
+undefined-variable:154:22:154:25:KeywordArgument.<lambda>:Undefined variable 'arg':UNDEFINED
+undefined-variable:166:4:166:13::Undefined variable 'unicode_2':UNDEFINED
+undefined-variable:171:4:171:13::Undefined variable 'unicode_3':UNDEFINED
+undefined-variable:226:25:226:37:LambdaClass4.<lambda>:Undefined variable 'LambdaClass4':UNDEFINED
+undefined-variable:234:25:234:37:LambdaClass5.<lambda>:Undefined variable 'LambdaClass5':UNDEFINED
+used-before-assignment:255:26:255:34:func_should_fail:Using variable 'datetime' before assignment:UNDEFINED
+undefined-variable:282:18:282:24:not_using_loop_variable_accordingly:Undefined variable 'iteree':UNDEFINED
+undefined-variable:293:27:293:28:undefined_annotation:Undefined variable 'x':UNDEFINED
+used-before-assignment:294:7:294:8:undefined_annotation:Using variable 'x' before assignment:UNDEFINED
+undefined-variable:324:11:324:12:decorated3:Undefined variable 'x':UNDEFINED
+undefined-variable:329:19:329:20:decorated4:Undefined variable 'y':UNDEFINED
+undefined-variable:354:10:354:18:only_type_assignment:Undefined variable 'variable':UNDEFINED
+undefined-variable:367:10:367:18:value_assignment_after_access:Undefined variable 'variable':UNDEFINED
+undefined-variable:384:10:384:20:global_var_mixed_assignment:Undefined variable 'GLOBAL_VAR':UNDEFINED
+undefined-variable:415:14:415:17:decorator_returning_incorrect_function.wrapper_with_type_and_no_value:Undefined variable 'var':UNDEFINED

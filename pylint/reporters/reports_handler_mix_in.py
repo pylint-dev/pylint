@@ -57,7 +57,7 @@ class ReportsHandlerMixIn:
         """
         return self._reports_state.get(reportid, True)
 
-    def make_reports(  # type: ignore # ReportsHandlerMixIn is always mixed with PyLinter
+    def make_reports(  # type: ignore[misc] # ReportsHandlerMixIn is always mixed with PyLinter
         self: "PyLinter",
         stats: LinterStats,
         old_stats: Optional[LinterStats],

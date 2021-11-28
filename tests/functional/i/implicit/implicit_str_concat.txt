@@ -1,5 +1,5 @@
-implicit-str-concat:4:0::Implicit string concatenation found in list
-implicit-str-concat:6:0::Implicit string concatenation found in tuple
-implicit-str-concat:8:0::Implicit string concatenation found in set
-implicit-str-concat:11:0::Implicit string concatenation found in list
-implicit-str-concat:27:0::Implicit string concatenation found in assignment
+implicit-str-concat:4:0:None:None::Implicit string concatenation found in list:UNDEFINED
+implicit-str-concat:6:0:None:None::Implicit string concatenation found in tuple:UNDEFINED
+implicit-str-concat:8:0:None:None::Implicit string concatenation found in set:UNDEFINED
+implicit-str-concat:11:0:None:None::Implicit string concatenation found in list:UNDEFINED
+implicit-str-concat:27:0:None:None::Implicit string concatenation found in assignment:UNDEFINED

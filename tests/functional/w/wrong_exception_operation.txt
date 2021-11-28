@@ -1,3 +1,3 @@
-wrong-exception-operation:6:8::Invalid exception operation. Did you mean '(ValueError, TypeError)' instead?
-wrong-exception-operation:11:8::Invalid exception operation. Did you mean '(ValueError, TypeError)' instead?
-wrong-exception-operation:17:8::Invalid exception operation. Did you mean '(ValueError, TypeError)' instead?
+wrong-exception-operation:6:8:6:30::Invalid exception operation. Did you mean '(ValueError, TypeError)' instead?:UNDEFINED
+wrong-exception-operation:11:8:11:30::Invalid exception operation. Did you mean '(ValueError, TypeError)' instead?:UNDEFINED
+wrong-exception-operation:17:8:17:30::Invalid exception operation. Did you mean '(ValueError, TypeError)' instead?:UNDEFINED
