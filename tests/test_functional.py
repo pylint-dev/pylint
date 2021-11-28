@@ -31,17 +31,17 @@ from _pytest.config import Config
 from _pytest.recwarn import WarningsRecorder
 
 from pylint import testutils
+from pylint.lint import PyLinter
 from pylint.testutils import UPDATE_FILE, UPDATE_OPTION
 from pylint.testutils.functional import (
     FunctionalTestFile,
-    LintModuleOutputUpdate,
     get_functional_test_files_from_directory,
 )
+from pylint.testutils.functional.functional_test_normalizer import (
+    FunctionalTestNormalizer,
+)
+from pylint.testutils.functional.lint_module_output_update import LintModuleOutputUpdate
 from pylint.utils import HAS_ISORT_5
-
-# TODOs
-#  - implement exhaustivity tests
-
 
 FUNCTIONAL_DIR = Path(__file__).parent.resolve() / "functional"
 
@@ -57,6 +57,61 @@ TEST_WITH_EXPECTED_DEPRECATION = [
     "future_unicode_literals",
     "anomalous_unicode_escape_py3",
 ]
+NO_TESTS_LIST = {
+    "bad-configuration-section",
+    "bad-plugin-value",
+    "fatal",
+    "astroid-error",
+    "parse-error",
+    "config-parse-error",
+    "raw-checker-failed",
+    "file-ignored",
+}
+NORMALIZE_LATER_MAYBE = {
+    "too-many-format-args",
+    "too-few-format-args",
+    "logging-unsupported-format",
+    "logging-format-truncated",
+    "suppressed-message",
+    "locally-disabled",
+    "no-value-for-parameter",
+    "too-many-function-args",
+    "bad-string-format-type",
+    "unexpected-keyword-arg",
+    "assignment-from-none",
+    "unsubscriptable-object",
+    "bad-str-strip-call",
+    "c-extension-no-member",
+    "bad-format-string-key",
+    "unused-format-string-key",
+    "bad-format-string",
+    "missing-format-argument-key",
+    "unused-format-string-argument",
+    "format-combined-specification",
+    "missing-format-attribute",
+    "invalid-format-index",
+    "truncated-format-string",
+    "format-needs-mapping",
+    "not-an-iterable",
+    "boolean-datetime",
+    "deprecated-argument",  # move unittest
+    "duplicate-string-formatting-argument",
+    "format-string-without-interpolation",
+}
+
+
+def test_functional_check_existing(linter: PyLinter):
+    normalizer = FunctionalTestNormalizer(FUNCTIONAL_DIR, linter.msgs_store)
+    SKIP = NO_TESTS_LIST
+    SKIP |= NORMALIZE_LATER_MAYBE
+    for message in normalizer:
+        if message.symbol in SKIP:
+            continue
+        msg = f"One of '{{}}' should exists to test '{message.symbol}'."
+        expected_directories = normalizer.expected_directories(message)
+        assert any(d.exists() for d in expected_directories), msg.format(
+            expected_directories
+        )
 
 
 @pytest.mark.parametrize("test_file", TESTS, ids=TESTS_NAMES)
