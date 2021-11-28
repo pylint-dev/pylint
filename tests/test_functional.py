@@ -26,7 +26,7 @@ import csv
 import os
 import sys
 from pathlib import Path
-from typing import List, Union
+from typing import Union
 
 import pytest
 from _pytest.config import Config
@@ -34,15 +34,16 @@ from _pytest.recwarn import WarningsRecorder
 
 from pylint import testutils
 from pylint.testutils import UPDATE_FILE, UPDATE_OPTION
-from pylint.testutils.functional.test_file import FunctionalTestFile
+from pylint.testutils.functional import (
+    FunctionalTestFile,
+    get_functional_test_files_from_directory,
+)
 from pylint.utils import HAS_ISORT_5
 
 # TODOs
 #  - implement exhaustivity tests
 
-# 'Wet finger' number of files that are reasonable to display by an IDE
-# 'Wet finger' as in 'in my settings there are precisely this many'.
-REASONABLY_DISPLAYABLE_VERTICALLY = 48
+
 FUNCTIONAL_DIR = Path(__file__).parent.resolve() / "functional"
 
 
@@ -64,24 +65,6 @@ class LintModuleOutputUpdate(testutils.LintModuleTest):
             writer = csv.writer(f, dialect="test")
             for line in actual_output:
                 writer.writerow(line.to_csv())
-
-
-def get_functional_test_files_from_directory(
-    input_dir: Union[Path, str]
-) -> List[FunctionalTestFile]:
-    suite = []
-    for dirpath, _, filenames in os.walk(input_dir):
-        if dirpath.endswith("__pycache__"):
-            continue
-
-        assert (
-            len(filenames) <= REASONABLY_DISPLAYABLE_VERTICALLY
-        ), f"{dirpath} contain too much functional tests files."
-
-        for filename in filenames:
-            if filename != "__init__.py" and filename.endswith(".py"):
-                suite.append(testutils.FunctionalTestFile(dirpath, filename))
-    return suite
 
 
 # isort 5 has slightly different rules as isort 4. Testing both would be hard: test with isort 5 only.
