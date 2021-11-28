@@ -7,7 +7,7 @@ import json
 import logging
 import unittest
 from pathlib import Path
-from typing import Any, Dict, Tuple, Union
+from typing import Any, Dict, List, Tuple, Union
 from unittest.mock import Mock
 
 from pylint.lint import Run
@@ -19,16 +19,14 @@ PylintConfiguration = Dict[str, ConfigurationValue]
 
 
 def get_expected_or_default(
-    tested_configuration_file: str, suffix: str, default: ConfigurationValue
+    tested_configuration_file: Union[str, Path],
+    suffix: str,
+    default: ConfigurationValue,
 ) -> str:
     """Return the expected value from the file if it exists, or the given default."""
-
-    def get_path_according_to_suffix() -> Path:
-        path = Path(tested_configuration_file)
-        return path.parent / f"{path.stem}.{suffix}"
-
     expected = default
-    expected_result_path = get_path_according_to_suffix()
+    path = Path(tested_configuration_file)
+    expected_result_path = path.parent / f"{path.stem}.{suffix}"
     if expected_result_path.exists():
         with open(expected_result_path, encoding="utf8") as f:
             expected = f.read()
@@ -70,22 +68,61 @@ def get_expected_configuration(
     return result
 
 
+def get_related_files(
+    tested_configuration_file: Union[str, Path], suffix_filter: str
+) -> List[Path]:
+    """Return all the file related to a test conf file endind with a suffix."""
+    conf_path = Path(tested_configuration_file)
+    return [
+        p
+        for p in conf_path.parent.iterdir()
+        if str(p.stem).startswith(conf_path.stem) and str(p).endswith(suffix_filter)
+    ]
+
+
 def get_expected_output(
-    configuration_path: str, user_specific_path: Path
+    configuration_path: Union[str, Path], user_specific_path: Path
 ) -> Tuple[int, str]:
     """Get the expected output of a functional test."""
-    output = get_expected_or_default(configuration_path, suffix="out", default="")
-    if output:
+    exit_code = 0
+    msg = (
+        "we expect a single file of the form 'filename.32.out' where 'filename' represents "
+        "the name of the configuration file, and '32' the expected error code."
+    )
+    possible_out_files = get_related_files(configuration_path, suffix_filter="out")
+    if len(possible_out_files) > 1:
+        logging.error(
+            "Too much .out files for %s %s.",
+            configuration_path,
+            msg,
+        )
+        return -1, "out file is broken"
+    if not possible_out_files:
         # logging is helpful to see what the expected exit code is and why.
         # The output of the program is checked during the test so printing
         # messes with the result.
-        logging.info(
-            "Output exists for %s so the expected exit code is 2", configuration_path
-        )
-        exit_code = 2
-    else:
         logging.info(".out file does not exists, so the expected exit code is 0")
-        exit_code = 0
+        return 0, ""
+    path = possible_out_files[0]
+    try:
+        exit_code = int(str(path.stem).rsplit(".", maxsplit=1)[-1])
+    except Exception as e:  # pylint: disable=broad-except
+        logging.error(
+            "Wrong format for .out file name for %s %s: %s",
+            configuration_path,
+            msg,
+            e,
+        )
+        return -1, "out file is broken"
+
+    output = get_expected_or_default(
+        configuration_path, suffix=f"{exit_code}.out", default=""
+    )
+    logging.info(
+        "Output exists for %s so the expected exit code is %s",
+        configuration_path,
+        exit_code,
+    )
     return exit_code, output.format(
         abspath=configuration_path,
         relpath=Path(configuration_path).relative_to(user_specific_path),

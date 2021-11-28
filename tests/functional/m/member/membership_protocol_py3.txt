@@ -1,3 +1,3 @@
-unsupported-membership-test:34:9:test:Value 'IterableClass()' doesn't support membership test
-unsupported-membership-test:35:9:test:Value 'OldIterableClass()' doesn't support membership test
-unsupported-membership-test:36:9:test:Value 'ContainerClass()' doesn't support membership test
+unsupported-membership-test:34:9:34:24:test:Value 'IterableClass()' doesn't support membership test:UNDEFINED
+unsupported-membership-test:35:9:35:27:test:Value 'OldIterableClass()' doesn't support membership test:UNDEFINED
+unsupported-membership-test:36:9:36:25:test:Value 'ContainerClass()' doesn't support membership test:UNDEFINED

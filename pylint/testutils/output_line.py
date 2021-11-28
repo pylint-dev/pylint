@@ -1,40 +1,27 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-import collections
-from typing import Any, NamedTuple, Optional, Sequence, Tuple, Union
+import warnings
+from typing import Any, NamedTuple, Optional, Sequence, Tuple, TypeVar, Union
 
 from astroid import nodes
 
 from pylint.constants import PY38_PLUS
-from pylint.interfaces import HIGH, UNDEFINED, Confidence
+from pylint.interfaces import UNDEFINED, Confidence
 from pylint.message.message import Message
 from pylint.testutils.constants import UPDATE_OPTION
 
+T = TypeVar("T")
 
-class MessageTest(
-    collections.namedtuple(
-        "MessageTest", ["msg_id", "line", "node", "args", "confidence"]
-    )
-):
+
+class MessageTest(NamedTuple):
+    msg_id: str
+    line: Optional[int] = None
+    node: Optional[nodes.NodeNG] = None
+    args: Optional[Any] = None
+    confidence: Optional[Confidence] = UNDEFINED
+    col_offset: Optional[int] = None
     """Used to test messages produced by pylint. Class name cannot start with Test as pytest doesn't allow constructors in test classes."""
-
-    def __new__(
-        cls,
-        msg_id: str,
-        line: Optional[int] = None,
-        node: Optional[nodes.NodeNG] = None,
-        args: Any = None,
-        confidence: Optional[Confidence] = None,
-    ) -> "MessageTest":
-        return tuple.__new__(cls, (msg_id, line, node, args, confidence))
-
-    def __eq__(self, other: object) -> bool:
-        if isinstance(other, MessageTest):
-            if self.confidence and other.confidence:
-                return super().__eq__(other)
-            return tuple(self[:-1]) == tuple(other[:-1])
-        return NotImplemented  # pragma: no cover
 
 
 class MalformedOutputLineException(Exception):
@@ -49,6 +36,8 @@ class MalformedOutputLineException(Exception):
             "symbol",
             "line",
             "column",
+            "end_line",
+            "end_column",
             "MyClass.myFunction, (or '')",
             "Message",
             "confidence",
@@ -77,41 +66,119 @@ class OutputLine(NamedTuple):
     symbol: str
     lineno: int
     column: int
+    end_lineno: Optional[int]
+    end_column: Optional[int]
     object: str
     msg: str
     confidence: str
 
     @classmethod
-    def from_msg(cls, msg: Message) -> "OutputLine":
+    def from_msg(cls, msg: Message, check_endline: bool = True) -> "OutputLine":
+        """Create an OutputLine from a Pylint Message"""
         column = cls._get_column(msg.column)
+        end_line = cls._get_py38_none_value(msg.end_line, check_endline)
+        end_column = cls._get_py38_none_value(msg.end_column, check_endline)
         return cls(
             msg.symbol,
             msg.line,
             column,
+            end_line,
+            end_column,
             msg.obj or "",
             msg.msg.replace("\r\n", "\n"),
-            msg.confidence.name if msg.confidence != UNDEFINED else HIGH.name,
+            msg.confidence.name,
         )
 
     @staticmethod
     def _get_column(column: str) -> int:
+        """Handle column numbers with the exception of pylint < 3.8 not having them
+        in the ast parser.
+        """
         if not PY38_PLUS:
             # We check the column only for the new better ast parser introduced in python 3.8
             return 0  # pragma: no cover
         return int(column)
 
+    @staticmethod
+    def _get_py38_none_value(value: T, check_endline: bool) -> Optional[T]:
+        """Used to make end_line and end_column None as indicated by our version compared to
+        `min_pyver_end_position`."""
+        if not check_endline:
+            return None  # pragma: no cover
+        return value
+
     @classmethod
-    def from_csv(cls, row: Union[Sequence[str], str]) -> "OutputLine":
+    def from_csv(
+        cls, row: Union[Sequence[str], str], check_endline: bool = True
+    ) -> "OutputLine":
+        """Create an OutputLine from a comma separated list (the functional tests expected
+        output .txt files).
+        """
         try:
             if isinstance(row, Sequence):
                 column = cls._get_column(row[2])
                 if len(row) == 5:
-                    return cls(row[0], int(row[1]), column, row[3], row[4], HIGH.name)
+                    warnings.warn(
+                        "In pylint 3.0 functional tests expected output should always include the "
+                        "expected confidence level, expected end_line and expected end_column. "
+                        "An OutputLine should thus have a length of 8.",
+                        DeprecationWarning,
+                    )
+                    return cls(
+                        row[0],
+                        int(row[1]),
+                        column,
+                        None,
+                        None,
+                        row[3],
+                        row[4],
+                        UNDEFINED.name,
+                    )
                 if len(row) == 6:
-                    return cls(row[0], int(row[1]), column, row[3], row[4], row[5])
+                    warnings.warn(
+                        "In pylint 3.0 functional tests expected output should always include the "
+                        "expected end_line and expected end_column. An OutputLine should thus have "
+                        "a length of 8.",
+                        DeprecationWarning,
+                    )
+                    return cls(
+                        row[0], int(row[1]), column, None, None, row[3], row[4], row[5]
+                    )
+                if len(row) == 8:
+                    end_line = cls._get_py38_none_value(row[3], check_endline)
+                    end_column = cls._get_py38_none_value(row[4], check_endline)
+                    return cls(
+                        row[0],
+                        int(row[1]),
+                        column,
+                        cls._value_to_optional_int(end_line),
+                        cls._value_to_optional_int(end_column),
+                        row[5],
+                        row[6],
+                        row[7],
+                    )
             raise IndexError
         except Exception as e:
             raise MalformedOutputLineException(row, e) from e
 
-    def to_csv(self) -> Tuple[str, str, str, str, str, str]:
-        return tuple(str(i) for i in self)  # type: ignore # pylint: disable=not-an-iterable
+    def to_csv(self) -> Tuple[str, str, str, str, str, str, str, str]:
+        """Convert an OutputLine to a tuple of string to be written by a
+        csv-writer.
+        """
+        return (
+            str(self.symbol),
+            str(self.lineno),
+            str(self.column),
+            str(self.end_lineno),
+            str(self.end_column),
+            str(self.object),
+            str(self.msg),
+            str(self.confidence),
+        )
+
+    @staticmethod
+    def _value_to_optional_int(value: Optional[str]) -> Optional[int]:
+        """Checks if a (stringified) value should be None or a Python integer"""
+        if value == "None" or not value:
+            return None
+        return int(value)

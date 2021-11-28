@@ -1,8 +1,8 @@
-missing-module-docstring:1:0::Missing module docstring
-empty-docstring:6:0:function0:Empty function docstring
-missing-function-docstring:10:0:function1:Missing function or method docstring
-missing-class-docstring:23:0:AAAA:Missing class docstring
-missing-function-docstring:40:4:AAAA.method1:Missing function or method docstring:INFERENCE
-empty-docstring:48:4:AAAA.method3:Empty method docstring:INFERENCE
-empty-docstring:62:4:DDDD.method2:Empty method docstring:INFERENCE
-missing-function-docstring:70:4:DDDD.method4:Missing function or method docstring:INFERENCE
+missing-module-docstring:1:0:None:None::Missing module docstring:HIGH
+empty-docstring:6:0:7:10:function0:Empty function docstring:HIGH
+missing-function-docstring:10:0:12:16:function1:Missing function or method docstring:HIGH
+missing-class-docstring:23:0:53:12:AAAA:Missing class docstring:HIGH
+missing-function-docstring:40:4:41:12:AAAA.method1:Missing function or method docstring:INFERENCE
+empty-docstring:48:4:50:12:AAAA.method3:Empty method docstring:INFERENCE
+empty-docstring:62:4:64:12:DDDD.method2:Empty method docstring:INFERENCE
+missing-function-docstring:70:4:71:12:DDDD.method4:Missing function or method docstring:INFERENCE

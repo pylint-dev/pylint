@@ -1,3 +1,3 @@
-no-self-use:31:4:HasherFake.update:Method could be a function
-unused-argument:31:21:HasherFake.update:Unused argument 'blob':INFERENCE
-no-self-use:33:4:HasherFake.digest:Method could be a function
+no-self-use:31:4:32:11:HasherFake.update:Method could be a function:UNDEFINED
+unused-argument:31:21:31:32:HasherFake.update:Unused argument 'blob':INFERENCE
+no-self-use:33:4:34:11:HasherFake.digest:Method could be a function:UNDEFINED

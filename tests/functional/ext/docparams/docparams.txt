@@ -1,0 +1,12 @@
+missing-return-doc:4:0:6:17:_private_func1:Missing return documentation:UNDEFINED
+missing-return-type-doc:4:0:6:17:_private_func1:Missing return type documentation:UNDEFINED
+missing-yield-doc:9:0:11:16:_private_func2:Missing yield documentation:UNDEFINED
+missing-yield-type-doc:9:0:11:16:_private_func2:Missing yield type documentation:UNDEFINED
+missing-raises-doc:14:0:16:30:_private_func3:"""Exception"" not documented as being raised":UNDEFINED
+missing-any-param-doc:19:0:21:17:public_func1:"Missing any documentation in ""public_func1""":UNDEFINED
+missing-return-doc:24:0:26:17:_async_private_func1:Missing return documentation:UNDEFINED
+missing-return-type-doc:24:0:26:17:_async_private_func1:Missing return type documentation:UNDEFINED
+missing-yield-doc:29:0:31:16:_async_private_func2:Missing yield documentation:UNDEFINED
+missing-yield-type-doc:29:0:31:16:_async_private_func2:Missing yield type documentation:UNDEFINED
+missing-raises-doc:34:0:36:30:_async_private_func3:"""Exception"" not documented as being raised":UNDEFINED
+missing-any-param-doc:39:0:41:17:async_public_func1:"Missing any documentation in ""async_public_func1""":UNDEFINED

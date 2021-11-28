@@ -1,10 +1,11 @@
+# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Takahide Nojima <nozzy123nozzy@gmail.com>
 #
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Unit test for the diagrams modules"""
-# pylint: disable=redefined-outer-name
 from typing import Callable
 
 from pylint.pyreverse.diadefslib import DefaultDiadefGenerator, DiadefsHandler

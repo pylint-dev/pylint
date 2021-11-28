@@ -1,1 +1,1 @@
-bad-format-string:1:0::Invalid format string
+bad-format-string:1:0:1:18::Invalid format string:UNDEFINED

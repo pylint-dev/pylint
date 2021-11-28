@@ -75,7 +75,7 @@ Pylint can be simply installed by running::
 
     pip install pylint
 
-If you are using Python 3.6+, upgrade to get full support for your version::
+If you are using Python 3.6.2+, upgrade to get full support for your version::
 
     pip install pylint --upgrade
 

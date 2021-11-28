@@ -5,6 +5,7 @@
 # Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 bot <bot@noreply.github.com>
 # Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
@@ -15,7 +16,7 @@ from astroid import nodes
 
 from pylint.checkers import BaseTokenChecker
 from pylint.checkers.utils import check_messages
-from pylint.interfaces import IAstroidChecker, ITokenChecker
+from pylint.interfaces import HIGH, IAstroidChecker, ITokenChecker
 
 
 class ElseifUsedChecker(BaseTokenChecker):
@@ -38,37 +39,27 @@ class ElseifUsedChecker(BaseTokenChecker):
         self._init()
 
     def _init(self):
-        self._elifs = []
-        self._if_counter = 0
+        self._elifs = {}
 
     def process_tokens(self, tokens):
-        # Process tokens and look for 'if' or 'elif'
-        for _, token, _, _, _ in tokens:
-            if token == "elif":
-                self._elifs.append(True)
-            elif token == "if":
-                self._elifs.append(False)
+        """Process tokens and look for 'if' or 'elif'"""
+        self._elifs = {
+            begin: token for _, token, begin, _, _ in tokens if token in {"elif", "if"}
+        }
 
     def leave_module(self, _: nodes.Module) -> None:
         self._init()
 
-    def visit_ifexp(self, node: nodes.IfExp) -> None:
-        if isinstance(node.parent, nodes.FormattedValue):
-            return
-        self._if_counter += 1
-
-    def visit_comprehension(self, node: nodes.Comprehension) -> None:
-        self._if_counter += len(node.ifs)
-
     @check_messages("else-if-used")
     def visit_if(self, node: nodes.If) -> None:
-        if isinstance(node.parent, nodes.If):
-            orelse = node.parent.orelse
-            # current if node must directly follow an "else"
-            if orelse and orelse == [node]:
-                if not self._elifs[self._if_counter]:
-                    self.add_message("else-if-used", node=node)
-        self._if_counter += 1
+        """Current if node must directly follow an 'else'"""
+        if (
+            isinstance(node.parent, nodes.If)
+            and node.parent.orelse == [node]
+            and (node.lineno, node.col_offset) in self._elifs
+            and self._elifs[(node.lineno, node.col_offset)] == "if"
+        ):
+            self.add_message("else-if-used", node=node, confidence=HIGH)
 
 
 def register(linter):

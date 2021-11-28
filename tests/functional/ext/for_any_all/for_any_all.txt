@@ -1,0 +1,8 @@
+consider-using-any-or-all:5:4:7:23:any_even:`for` loop could be `any(item % 2 == 0 for item in items)`:UNDEFINED
+consider-using-any-or-all:12:4:14:24:all_even:`for` loop could be `all(item % 2 == 0 for item in items)`:UNDEFINED
+consider-using-any-or-all:19:4:21:23:any_uneven:`for` loop could be `not all(item % 2 == 0 for item in items)`:UNDEFINED
+consider-using-any-or-all:26:4:28:24:all_uneven:`for` loop could be `not any(item % 2 == 0 for item in items)`:UNDEFINED
+consider-using-any-or-all:33:4:35:23:is_from_string:`for` loop could be `any(isinstance(parent, str) for parent in item.parents())`:UNDEFINED
+consider-using-any-or-all:40:4:42:23:is_not_from_string:`for` loop could be `not all(isinstance(parent, str) for parent in item.parents())`:UNDEFINED
+consider-using-any-or-all:49:8:51:28:nested_check:`for` loop could be `not any(item in (1, 2, 3) for item in items)`:UNDEFINED
+consider-using-any-or-all:58:4:60:23:words_contains_word:`for` loop could be `any(word == 'word' for word in words)`:UNDEFINED

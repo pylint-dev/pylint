@@ -1,2 +1,2 @@
-not-callable:17:0::a.func() is not callable
-invalid-sequence-index:18:0::Sequence index is not an int, slice, or instance with __index__
+not-callable:17:0:17:10::a.func() is not callable:UNDEFINED
+invalid-sequence-index:18:0:18:18::Sequence index is not an int, slice, or instance with __index__:UNDEFINED

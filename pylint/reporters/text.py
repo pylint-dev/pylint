@@ -12,8 +12,9 @@
 # Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
+# Copyright (c) 2021 bot <bot@noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
@@ -24,6 +25,7 @@
 :colorized: an ANSI colorized text reporter
 """
 import os
+import re
 import sys
 import warnings
 from typing import (
@@ -57,7 +59,7 @@ class MessageStyle(NamedTuple):
     """The color name (see `ANSI_COLORS` for available values)
     or the color number when 256 colors are available
     """
-    style: Tuple[str, ...]
+    style: Tuple[str, ...] = ()
     """Tuple of style strings (see `ANSI_COLORS` for available values).
     """
 
@@ -183,13 +185,38 @@ class TextReporter(BaseReporter):
         super().__init__(output)
         self._modules: Set[str] = set()
         self._template = self.line_format
+        self._fixed_template = self.line_format
+        """The output format template with any unrecognized arguments removed"""
 
     def on_set_current_module(self, module: str, filepath: Optional[str]) -> None:
-        self._template = str(self.linter.config.msg_template or self._template)
+        """Set the format template to be used and check for unrecognized arguments."""
+        template = str(self.linter.config.msg_template or self._template)
+
+        # Return early if the template is the same as the previous one
+        if template == self._template:
+            return
+
+        # Set template to the currently selected template
+        self._template = template
+
+        # Check to see if all parameters in the template are attributes of the Message
+        arguments = re.findall(r"\{(.+?)(:.*)?\}", template)
+        for argument in arguments:
+            if argument[0] not in Message._fields:
+                warnings.warn(
+                    f"Don't recognize the argument '{argument[0]}' in the --msg-template. "
+                    "Are you sure it is supported on the current version of pylint?"
+                )
+                template = re.sub(r"\{" + argument[0] + r"(:.*?)?\}", "", template)
+        self._fixed_template = template
 
     def write_message(self, msg: Message) -> None:
         """Convenience method to write a formatted message with class default template"""
-        self.writeln(msg.format(self._template))
+        self_dict = msg._asdict()
+        for key in ("end_line", "end_column"):
+            self_dict[key] = self_dict[key] or ""
+
+        self.writeln(self._fixed_template.format(**self_dict))
 
     def handle_message(self, msg: Message) -> None:
         """manage message of different type and in the context of path"""
@@ -237,10 +264,10 @@ class ColorizedTextReporter(TextReporter):
 
     name = "colorized"
     COLOR_MAPPING: ColorMappingDict = {
-        "I": MessageStyle("green", ()),
+        "I": MessageStyle("green"),
         "C": MessageStyle(None, ("bold",)),
         "R": MessageStyle("magenta", ("bold", "italic")),
-        "W": MessageStyle("magenta", ()),
+        "W": MessageStyle("magenta"),
         "E": MessageStyle("red", ("bold",)),
         "F": MessageStyle("red", ("bold", "underline")),
         "S": MessageStyle("yellow", ("inverse",)),  # S stands for module Separator
@@ -292,14 +319,14 @@ class ColorizedTextReporter(TextReporter):
         ansi_terms = ["xterm-16color", "xterm-256color"]
         if os.environ.get("TERM") not in ansi_terms:
             if sys.platform == "win32":
-                # pylint: disable=import-error,import-outside-toplevel
+                # pylint: disable=import-outside-toplevel
                 import colorama
 
                 self.out = colorama.AnsiToWin32(self.out)
 
     def _get_decoration(self, msg_id: str) -> MessageStyle:
         """Returns the message style as defined in self.color_mapping"""
-        return self.color_mapping.get(msg_id[0]) or MessageStyle(None, ())
+        return self.color_mapping.get(msg_id[0]) or MessageStyle(None)
 
     def handle_message(self, msg: Message) -> None:
         """manage message of different types, and colorize output

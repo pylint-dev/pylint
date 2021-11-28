@@ -1,0 +1,25 @@
+***************************
+ What's New in Pylint 2.13
+***************************
+
+:Release: 2.13
+:Date: TBA
+
+Summary -- Release highlights
+=============================
+
+New checkers
+============
+
+Removed checkers
+================
+
+Extensions
+==========
+
+Other Changes
+=============
+
+* Require Python ``3.6.2`` to run pylint.
+
+  Closes #5065

@@ -1,12 +1,12 @@
-pointless-string-statement:5:0::String statement has no effect
-pointless-statement:9:0::Statement seems to have no effect
-pointless-statement:11:0::Statement seems to have no effect
-pointless-statement:15:0::Statement seems to have no effect
-pointless-string-statement:18:0::String statement has no effect
-unnecessary-semicolon:21:0::Unnecessary semicolon
-expression-not-assigned:23:0::"Expression ""list() and tuple()"" is assigned to nothing"
-expression-not-assigned:30:0::"Expression ""ANSWER == to_be()"" is assigned to nothing"
-expression-not-assigned:32:0::"Expression ""to_be() or not to_be()"" is assigned to nothing"
-expression-not-assigned:33:0::"Expression ""to_be().title"" is assigned to nothing"
-pointless-string-statement:58:8:ClassLevelAttributeTest.__init__:String statement has no effect
-pointless-string-statement:65:8:ClassLevelAttributeTest.test:String statement has no effect
+pointless-string-statement:5:0:5:54::String statement has no effect:UNDEFINED
+pointless-statement:9:0:9:12::Statement seems to have no effect:UNDEFINED
+pointless-statement:11:0:11:17::Statement seems to have no effect:UNDEFINED
+pointless-statement:15:0:15:25::Statement seems to have no effect:UNDEFINED
+pointless-string-statement:18:0:18:54::String statement has no effect:UNDEFINED
+unnecessary-semicolon:21:0:None:None::Unnecessary semicolon:UNDEFINED
+expression-not-assigned:23:0:23:18::"Expression ""list() and tuple()"" is assigned to nothing":UNDEFINED
+expression-not-assigned:30:0:30:17::"Expression ""ANSWER == to_be()"" is assigned to nothing":UNDEFINED
+expression-not-assigned:32:0:32:22::"Expression ""to_be() or not to_be()"" is assigned to nothing":UNDEFINED
+expression-not-assigned:33:0:33:13::"Expression ""to_be().title"" is assigned to nothing":UNDEFINED
+pointless-string-statement:58:8:58:43:ClassLevelAttributeTest.__init__:String statement has no effect:UNDEFINED
+pointless-string-statement:65:8:65:55:ClassLevelAttributeTest.test:String statement has no effect:UNDEFINED

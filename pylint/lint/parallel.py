@@ -8,13 +8,13 @@ from typing import Any, DefaultDict, Iterable, List, Tuple
 from pylint import reporters
 from pylint.lint.utils import _patch_sys_path
 from pylint.message import Message
-from pylint.typing import FileItem
+from pylint.typing import FileItem, MessageLocationTuple
 from pylint.utils import LinterStats, merge_stats
 
 try:
     import multiprocessing
 except ImportError:
-    multiprocessing = None  # type: ignore
+    multiprocessing = None  # type: ignore[assignment]
 
 # PyLinter object used by worker processes when checking files using multiprocessing
 # should only be used by the worker processes
@@ -138,8 +138,10 @@ def check_parallel(linter, jobs, files: Iterable[FileItem], arguments=None):
             linter.file_state.base_name = base_name
             linter.set_current_module(module, file_path)
             for msg in messages:
-                msg = Message(*msg)
-                linter.reporter.handle_message(msg)  # type: ignore  # linter.set_reporter() call above makes linter have a reporter attr
+                msg = Message(
+                    msg[0], msg[1], MessageLocationTuple(*msg[2]), msg[3], msg[4]
+                )
+                linter.reporter.handle_message(msg)  # type: ignore[attr-defined]  # linter.set_reporter() call above makes linter have a reporter attr
             all_stats.append(stats)
             all_mapreduce_data[worker_idx].append(mapreduce_data)
             linter.msg_status |= msg_status

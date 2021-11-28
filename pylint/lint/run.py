@@ -15,13 +15,13 @@ try:
     import multiprocessing
     from multiprocessing import synchronize  # noqa pylint: disable=unused-import
 except ImportError:
-    multiprocessing = None  # type: ignore
+    multiprocessing = None  # type: ignore[assignment]
 
 
 def _cpu_count() -> int:
     """Use sched_affinity if available for virtualized or containerized environments."""
     sched_getaffinity = getattr(os, "sched_getaffinity", None)
-    # pylint: disable=not-callable,using-constant-test
+    # pylint: disable=not-callable,using-constant-test,useless-suppression
     if sched_getaffinity:
         return len(sched_getaffinity(0))
     if multiprocessing:

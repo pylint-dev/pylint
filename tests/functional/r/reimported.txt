@@ -1,9 +1,9 @@
-reimported:3:0::Reimport 'sleep' (imported line 3)
-reimported:4:0::Reimport 'missing' (imported line 4)
-reimported:7:0::Reimport 'missing1' (imported line 6)
-reimported:10:0::Reimport 'deque' (imported line 9)
-reimported:24:0::Reimport 'ElementTree' (imported line 23)
-reimported:27:0::Reimport 'email.encoders' (imported line 26)
-reimported:29:0::Reimport 'sys' (imported line 21)
-redefined-outer-name:40:4:reimport:Redefining name 'sys' from outer scope (line 16)
-reimported:40:4:reimport:Reimport 'sys' (imported line 21)
+reimported:3:0:3:29::Reimport 'sleep' (imported line 3):UNDEFINED
+reimported:4:0:4:33::Reimport 'missing' (imported line 4):UNDEFINED
+reimported:7:0:7:15::Reimport 'missing1' (imported line 6):UNDEFINED
+reimported:10:0:10:27::Reimport 'deque' (imported line 9):UNDEFINED
+reimported:24:0:24:33::Reimport 'ElementTree' (imported line 23):UNDEFINED
+reimported:27:0:27:21::Reimport 'email.encoders' (imported line 26):UNDEFINED
+reimported:29:0:29:10::Reimport 'sys' (imported line 21):UNDEFINED
+redefined-outer-name:40:4:40:14:reimport:Redefining name 'sys' from outer scope (line 16):UNDEFINED
+reimported:40:4:40:14:reimport:Reimport 'sys' (imported line 21):UNDEFINED

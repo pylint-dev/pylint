@@ -1,3 +1,3 @@
-invalid-length-hint-returned:38:4:FirstBadLengthHint.__length_hint__:__length_hint__ does not return non-negative integer
-invalid-length-hint-returned:45:4:SecondBadLengthHint.__length_hint__:__length_hint__ does not return non-negative integer
-invalid-length-hint-returned:52:4:ThirdBadLengthHint.__length_hint__:__length_hint__ does not return non-negative integer
+invalid-length-hint-returned:38:4:39:17:FirstBadLengthHint.__length_hint__:__length_hint__ does not return non-negative integer:UNDEFINED
+invalid-length-hint-returned:45:4:46:18:SecondBadLengthHint.__length_hint__:__length_hint__ does not return non-negative integer:UNDEFINED
+invalid-length-hint-returned:52:4:53:24:ThirdBadLengthHint.__length_hint__:__length_hint__ does not return non-negative integer:UNDEFINED

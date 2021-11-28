@@ -1,0 +1,2 @@
+protected-access:17:0:17:9::Access to a protected member _teta of a client class:UNDEFINED
+protected-access:29:16:29:26:Application.__no_special__:Access to a protected member _nargs of a client class:UNDEFINED

@@ -1,26 +1,26 @@
-unused-import:4:4:test_regression_737:Unused import xml
-unused-import:7:4:test_regression_923:Unused import unittest.case
-unused-import:8:4:test_regression_923:Unused xml imported as sql
-unused-variable:15:4:test_unused_with_prepended_underscore:Unused variable '_a_'
-unused-variable:16:4:test_unused_with_prepended_underscore:Unused variable '__a__'
-unused-variable:20:4:test_local_field_prefixed_with_unused_or_ignored:Unused variable 'flagged_local_field'
-unused-variable:28:8:HasUnusedDunderClass.test:Unused variable '__class__'
-possibly-unused-variable:35:4:locals_example_defined_before:Possibly unused variable 'value'
-unused-variable:41:4:locals_example_defined_after:Unused variable 'value'
-unused-variable:46:4:locals_does_not_account_for_subscopes:Unused variable 'value'
-unused-import:54:4:unused_import_from:Unused wraps imported from functools as abc
-unused-import:55:4:unused_import_from:Unused namedtuple imported from collections
-unused-import:59:4:unused_import_in_function:Unused hexdigits imported from string
-unused-variable:64:4:hello:Unused variable 'my_var'
-unused-variable:76:4:function:Unused variable 'aaaa'
-global-variable-not-assigned:97:4:test_global:Using global for 'PATH' but no assignment is done:HIGH
-global-variable-not-assigned:97:4:test_global:Using global for 'deque' but no assignment is done:HIGH
-unused-import:103:4:test_global:Unused platform imported from sys
-unused-import:104:4:test_global:Unused version imported from sys as VERSION
-unused-import:105:4:test_global:Unused import this
-unused-import:106:4:test_global:Unused re imported as RE
-unused-variable:110:4:function2:Unused variable 'unused'
-unused-variable:147:8:func3:Unused variable 'error'
-unused-variable:153:4:func4:Unused variable 'error'
-unused-variable:165:4:main:Unused variable 'e'
-undefined-loop-variable:172:10:main:Using possibly undefined loop variable 'e'
+unused-import:4:4:4:14:test_regression_737:Unused import xml:UNDEFINED
+unused-import:7:4:7:24:test_regression_923:Unused import unittest.case:UNDEFINED
+unused-import:8:4:8:21:test_regression_923:Unused xml imported as sql:UNDEFINED
+unused-variable:15:4:15:7:test_unused_with_prepended_underscore:Unused variable '_a_':UNDEFINED
+unused-variable:16:4:16:9:test_unused_with_prepended_underscore:Unused variable '__a__':UNDEFINED
+unused-variable:20:4:20:23:test_local_field_prefixed_with_unused_or_ignored:Unused variable 'flagged_local_field':UNDEFINED
+unused-variable:28:8:28:17:HasUnusedDunderClass.test:Unused variable '__class__':UNDEFINED
+possibly-unused-variable:35:4:35:9:locals_example_defined_before:Possibly unused variable 'value':UNDEFINED
+unused-variable:41:4:41:9:locals_example_defined_after:Unused variable 'value':UNDEFINED
+unused-variable:46:4:46:9:locals_does_not_account_for_subscopes:Unused variable 'value':UNDEFINED
+unused-import:54:4:54:38:unused_import_from:Unused wraps imported from functools as abc:UNDEFINED
+unused-import:55:4:55:38:unused_import_from:Unused namedtuple imported from collections:UNDEFINED
+unused-import:59:4:59:40:unused_import_in_function:Unused hexdigits imported from string:UNDEFINED
+unused-variable:64:4:64:10:hello:Unused variable 'my_var':UNDEFINED
+unused-variable:76:4:76:8:function:Unused variable 'aaaa':UNDEFINED
+global-variable-not-assigned:97:4:97:39:test_global:Using global for 'PATH' but no assignment is done:UNDEFINED
+global-variable-not-assigned:97:4:97:39:test_global:Using global for 'deque' but no assignment is done:UNDEFINED
+unused-import:103:4:103:28:test_global:Unused platform imported from sys:UNDEFINED
+unused-import:104:4:104:38:test_global:Unused version imported from sys as VERSION:UNDEFINED
+unused-import:105:4:105:15:test_global:Unused import this:UNDEFINED
+unused-import:106:4:106:19:test_global:Unused re imported as RE:UNDEFINED
+unused-variable:110:4:110:10:function2:Unused variable 'unused':UNDEFINED
+unused-variable:147:8:148:28:func3:Unused variable 'error':UNDEFINED
+unused-variable:153:4:158:26:func4:Unused variable 'error':UNDEFINED
+unused-variable:165:4:166:12:main:Unused variable 'e':UNDEFINED
+undefined-loop-variable:172:10:172:11:main:Using possibly undefined loop variable 'e':UNDEFINED

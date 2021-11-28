@@ -1,2 +1,2 @@
-undefined-variable:9:11:function:Undefined variable 'self'
-undefined-variable:13:4:func:Undefined variable 'self'
+undefined-variable:9:11:9:15:function:Undefined variable 'self':UNDEFINED
+undefined-variable:13:4:13:8:func:Undefined variable 'self':UNDEFINED

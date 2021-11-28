@@ -1,2 +1,2 @@
-using-f-string-in-unsupported-version:4:6::F-strings are not supported by all versions included in the py-version setting:HIGH
-using-f-string-in-unsupported-version:5:10::F-strings are not supported by all versions included in the py-version setting:HIGH
+using-f-string-in-unsupported-version:4:6:4:26::F-strings are not supported by all versions included in the py-version setting:UNDEFINED
+using-f-string-in-unsupported-version:5:10:5:53::F-strings are not supported by all versions included in the py-version setting:UNDEFINED

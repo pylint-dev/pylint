@@ -1,3 +1,3 @@
-invalid-bytes-returned:36:4:FirstBadBytes.__bytes__:__bytes__ does not return bytes
-invalid-bytes-returned:43:4:SecondBadBytes.__bytes__:__bytes__ does not return bytes
-invalid-bytes-returned:50:4:ThirdBadBytes.__bytes__:__bytes__ does not return bytes
+invalid-bytes-returned:36:4:37:20:FirstBadBytes.__bytes__:__bytes__ does not return bytes:UNDEFINED
+invalid-bytes-returned:43:4:44:16:SecondBadBytes.__bytes__:__bytes__ does not return bytes:UNDEFINED
+invalid-bytes-returned:50:4:51:36:ThirdBadBytes.__bytes__:__bytes__ does not return bytes:UNDEFINED

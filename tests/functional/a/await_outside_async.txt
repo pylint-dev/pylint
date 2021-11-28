@@ -1,2 +1,2 @@
-await-outside-async:12:10:not_async:'await' should be used within an async function
-await-outside-async:25:8:func2.inner_func:'await' should be used within an async function
+await-outside-async:12:10:12:24:not_async:'await' should be used within an async function:UNDEFINED
+await-outside-async:25:8:25:30:func2.inner_func:'await' should be used within an async function:UNDEFINED

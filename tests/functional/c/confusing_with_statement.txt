@@ -1,1 +1,1 @@
-confusing-with-statement:26:0::"Following ""as"" with another context manager looks like a tuple."
+confusing-with-statement:26:0:27:8::"Following ""as"" with another context manager looks like a tuple.":UNDEFINED
