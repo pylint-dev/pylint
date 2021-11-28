@@ -20,6 +20,11 @@ Extensions
 Other Changes
 =============
 
+* Fix ``unused-private-member`` false positive using private methods within the class without
+  using it as a dot.method.
+
+  Closes #4756
+
 * Require Python ``3.6.2`` to run pylint.
 
   Closes #5065
