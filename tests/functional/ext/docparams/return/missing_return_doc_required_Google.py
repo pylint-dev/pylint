@@ -11,3 +11,12 @@ def my_func(self):  # [missing-return-type-doc]
         Always False
     """
     return False
+
+
+def my_func(self):  # [missing-return-doc]
+    """This is a docstring.
+
+    Returns:
+        bool:
+    """
+    return False
