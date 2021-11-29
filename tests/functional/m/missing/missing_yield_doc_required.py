@@ -30,3 +30,13 @@ def my_func(self, doc_type):  # [missing-yield-doc, missing-yield-type-doc]
     :type doc_type: str
     """
     yield False
+
+
+# Test partial Google docstring
+def my_func(self):  # [missing-yield-type-doc]
+    """This is a docstring.
+
+    Yields:
+        Always False
+    """
+    yield False
