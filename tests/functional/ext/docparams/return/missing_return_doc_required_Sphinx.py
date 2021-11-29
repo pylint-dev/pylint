@@ -26,3 +26,12 @@ def my_func(self):  # [missing-return-doc]
     :rtype: bool
     """
     return False
+
+
+def my_func(self, doc_type):  # [missing-return-type-doc, missing-return-doc]
+    """This is a docstring.
+
+    :param doc_type: Sphinx
+    :type doc_type: str
+    """
+    return False
