@@ -18,3 +18,11 @@ def my_func(self) -> bool:
     :returns: Always False
     """
     return False
+
+
+def my_func(self):  # [missing-return-doc]
+    """This is a docstring.
+
+    :rtype: bool
+    """
+    return False

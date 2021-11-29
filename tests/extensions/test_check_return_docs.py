@@ -33,24 +33,6 @@ class TestDocstringCheckerReturn(CheckerTestCase):
     CHECKER_CLASS = DocstringParameterChecker
 
     @set_config(accept_no_return_doc="no")
-    def test_warn_partial_sphinx_returns_type(self) -> None:
-        node = astroid.extract_node(
-            '''
-        def my_func(self):
-            """This is a docstring.
-
-            :rtype: bool
-            """
-            return False
-        '''
-        )
-        return_node = node.body[0]
-        with self.assertAddsMessages(
-            MessageTest(msg_id="missing-return-doc", node=node)
-        ):
-            self.checker.visit_return(return_node)
-
-    @set_config(accept_no_return_doc="no")
     def test_warn_missing_sphinx_returns(self) -> None:
         node = astroid.extract_node(
             '''
