@@ -19,3 +19,12 @@ def my_func(self, doc_type):
     :type doc_type: str
     """
     return
+
+
+def my_func(self):
+    """This is a docstring.
+
+    :returns: An object
+    :rtype: :class:`mymodule.Class`
+    """
+    return mymodule.Class()
