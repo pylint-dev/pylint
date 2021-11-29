@@ -48,27 +48,6 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_ignores_numpy_redundant_return_doc_multiple_returns(self) -> None:
-        node = astroid.extract_node(
-            '''
-        def my_func(self):
-            """This is a docstring.
-
-            Returns
-            -------
-                int
-                    One
-                None
-                    Sometimes
-            """
-            if a_func():
-                return None
-            return 1
-        '''
-        )
-        with self.assertNoMessages():
-            self.checker.visit_functiondef(node)
-
     def test_ignore_sphinx_redundant_return_doc_yield(self) -> None:
         node = astroid.extract_node(
             '''
