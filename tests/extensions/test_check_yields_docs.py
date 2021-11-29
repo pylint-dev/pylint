@@ -28,16 +28,6 @@ class TestDocstringCheckerYield(CheckerTestCase):
 
     CHECKER_CLASS = DocstringParameterChecker
 
-    def test_ignores_no_docstring(self) -> None:
-        yield_node = astroid.extract_node(
-            """
-        def my_func(self):
-            yield False #@
-        """
-        )
-        with self.assertNoMessages():
-            self.checker.visit_yield(yield_node)
-
     @set_config(accept_no_yields_doc=False)
     def test_warns_no_docstring(self) -> None:
         node = astroid.extract_node(
