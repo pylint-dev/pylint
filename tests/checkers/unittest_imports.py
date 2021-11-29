@@ -26,7 +26,7 @@ import astroid
 from pylint import epylint as lint
 from pylint.checkers import imports
 from pylint.interfaces import UNDEFINED
-from pylint.testutils import CheckerTestCase, MessageTest, set_config
+from pylint.testutils import CheckerTestCase, MessageTest
 
 REGR_DATA = os.path.join(os.path.dirname(__file__), "..", "regrtest_data", "")
 
@@ -34,71 +34,6 @@ REGR_DATA = os.path.join(os.path.dirname(__file__), "..", "regrtest_data", "")
 class TestImportsChecker(CheckerTestCase):
 
     CHECKER_CLASS = imports.ImportsChecker
-
-    @set_config(
-        ignored_modules=("external_module", "fake_module.submodule", "foo", "bar")
-    )
-    def test_import_error_skipped(self) -> None:
-        """Make sure that imports do not emit an 'import-error' when the
-        module is configured to be ignored."""
-
-        node = astroid.extract_node(
-            """
-        from external_module import anything
-        """
-        )
-        with self.assertNoMessages():
-            self.checker.visit_importfrom(node)
-
-        node = astroid.extract_node(
-            """
-        from external_module.another_module import anything
-        """
-        )
-        with self.assertNoMessages():
-            self.checker.visit_importfrom(node)
-
-        node = astroid.extract_node(
-            """
-        import external_module
-        """
-        )
-        with self.assertNoMessages():
-            self.checker.visit_import(node)
-
-        node = astroid.extract_node(
-            """
-        from fake_module.submodule import anything
-        """
-        )
-        with self.assertNoMessages():
-            self.checker.visit_importfrom(node)
-
-        node = astroid.extract_node(
-            """
-        from fake_module.submodule.deeper import anything
-        """
-        )
-        with self.assertNoMessages():
-            self.checker.visit_importfrom(node)
-
-        node = astroid.extract_node(
-            """
-        import foo, bar
-        """
-        )
-        msg = MessageTest("multiple-imports", node=node, args="foo, bar")
-        with self.assertAddsMessages(msg):
-            self.checker.visit_import(node)
-
-        node = astroid.extract_node(
-            """
-        import foo
-        import bar
-        """
-        )
-        with self.assertNoMessages():
-            self.checker.visit_import(node)
 
     def test_reimported_same_line(self) -> None:
         """
