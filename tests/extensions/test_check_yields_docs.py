@@ -27,24 +27,6 @@ class TestDocstringCheckerYield(CheckerTestCase):
     CHECKER_CLASS = DocstringParameterChecker
 
     @set_config(accept_no_yields_doc="no")
-    def test_warn_partial_sphinx_yields(self) -> None:
-        node = astroid.extract_node(
-            '''
-        def my_func(self):
-            """This is a docstring.
-
-            :returns: Always False
-            """
-            yield False
-        '''
-        )
-        yield_node = node.body[0]
-        with self.assertAddsMessages(
-            MessageTest(msg_id="missing-yield-type-doc", node=node)
-        ):
-            self.checker.visit_yield(yield_node)
-
-    @set_config(accept_no_yields_doc="no")
     def test_warn_partial_sphinx_yields_type(self) -> None:
         node = astroid.extract_node(
             '''
