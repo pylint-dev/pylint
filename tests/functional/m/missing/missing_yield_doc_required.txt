@@ -5,9 +5,9 @@ missing-yield-type-doc:30:0:35:15:my_func:Missing yield type documentation:UNDEF
 missing-yield-doc:38:0:43:15:my_func:Missing yield documentation:UNDEFINED
 missing-yield-doc:46:0:52:15:my_func:Missing yield documentation:UNDEFINED
 missing-yield-type-doc:46:0:52:15:my_func:Missing yield type documentation:UNDEFINED
-missing-yield-type-doc:65:0:71:15:my_func:Missing yield type documentation:UNDEFINED
-missing-yield-doc:74:0:80:15:my_func:Missing yield documentation:UNDEFINED
+missing-yield-type-doc:74:0:80:15:my_func:Missing yield type documentation:UNDEFINED
 missing-yield-doc:83:0:89:15:my_func:Missing yield documentation:UNDEFINED
-missing-yield-type-doc:83:0:89:15:my_func:Missing yield type documentation:UNDEFINED
-missing-yield-doc:104:0:112:15:my_func:Missing yield documentation:UNDEFINED
-missing-yield-type-doc:104:0:112:15:my_func:Missing yield type documentation:UNDEFINED
+missing-yield-doc:92:0:98:15:my_func:Missing yield documentation:UNDEFINED
+missing-yield-type-doc:92:0:98:15:my_func:Missing yield type documentation:UNDEFINED
+missing-yield-doc:113:0:121:15:my_func:Missing yield documentation:UNDEFINED
+missing-yield-type-doc:113:0:121:15:my_func:Missing yield type documentation:UNDEFINED

@@ -62,6 +62,15 @@ def my_func(self):
     yield False
 
 
+def my_func(self):
+    """This is a docstring.
+
+    Yields:
+        mymodule.Class: An object
+    """
+    yield mymodule.Class()
+
+
 def my_func(self):  # [missing-yield-type-doc]
     """This is a docstring.
 
