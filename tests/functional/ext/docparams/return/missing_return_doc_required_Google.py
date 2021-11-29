@@ -20,3 +20,12 @@ def my_func(self):  # [missing-return-doc]
         bool:
     """
     return False
+
+
+def my_func(self, doc_type):  # [missing-return-doc, missing-return-type-doc]
+    """This is a docstring.
+
+    Parameters:
+        doc_type (str): Google
+    """
+    return False
