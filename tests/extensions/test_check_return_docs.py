@@ -31,23 +31,6 @@ class TestDocstringCheckerReturn(CheckerTestCase):
 
     CHECKER_CLASS = DocstringParameterChecker
 
-    def test_finds_numpy_return_list_of_custom_class(self) -> None:
-        return_node = astroid.extract_node(
-            '''
-        def my_func(self):
-            """This is a docstring.
-
-            Returns
-            -------
-                list(:class:`mymodule.Class`)
-                    An object
-            """
-            return [mymodule.Class()] #@
-        '''
-        )
-        with self.assertNoMessages():
-            self.checker.visit_return(return_node)
-
     @set_config(accept_no_return_doc="no")
     def test_warns_sphinx_return_list_of_custom_class_without_description(self) -> None:
         node = astroid.extract_node(

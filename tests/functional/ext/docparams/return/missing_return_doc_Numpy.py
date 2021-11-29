@@ -45,3 +45,14 @@ def my_func(self):
             An object
     """
     return mymodule.Class()
+
+
+def my_func(self):
+    """This is a docstring.
+
+    Returns
+    -------
+        list(:class:`mymodule.Class`)
+            An object
+    """
+    return [mymodule.Class()]
