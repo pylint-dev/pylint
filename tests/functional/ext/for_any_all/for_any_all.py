@@ -60,6 +60,39 @@ def words_contains_word(words):
             return True
     return False
 
+def complicated_condition_check(items):
+    """Case where we expect not any statement with a more complicated condition"""
+    for item in items: # [consider-using-any-or-all]
+        if item % 2 == 0 and (item % 3 == 0 or item > 15):
+            return False
+    return True
+
+def is_from_decorator1(node):
+    """Case where we expect a particularly long message to be emitted."""
+    for ancestor in node: # [consider-using-any-or-all]
+        if (
+            ancestor.name in ("Exception", "BaseException")
+            and ancestor.root().name == "Exception"
+        ):
+            return True
+    return False
+
+def is_from_decorator2(items):
+    """Case where we expect an all statement because of negation in the condition"""
+    for item in items: # [consider-using-any-or-all]
+        if not(item % 2 == 0 and (item % 3 == 0 or item > 15)):
+            return False
+    return True
+
+def is_from_decorator3(node):
+    """Case where we expect a not all statement because of negation in the condition"""
+    for ancestor in node: # [consider-using-any-or-all]
+        if not (
+            ancestor.name in ("Exception", "BaseException")
+            and ancestor.root().name == "Exception"
+        ):
+            return True
+    return False
 
 def no_suggestion_if_not_if():
     """Do not emit if the for loop does not have the pattern we are looking for"""
