@@ -37,3 +37,12 @@ def my_func(self):
         list(:class:`mymodule.Class`): An object
     """
     return [mymodule.Class()]
+
+
+def my_func(self):  # [redundant-returns-doc]
+    """This is a docstring.
+
+    Returns:
+        One
+    """
+    return None
