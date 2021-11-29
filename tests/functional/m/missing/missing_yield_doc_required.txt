@@ -6,6 +6,3 @@ missing-yield-type-doc:47:0:52:15:my_func:Missing yield type documentation:UNDEF
 missing-yield-doc:55:0:60:15:my_func:Missing yield documentation:UNDEFINED
 missing-yield-doc:63:0:69:15:my_func:Missing yield documentation:UNDEFINED
 missing-yield-type-doc:63:0:69:15:my_func:Missing yield type documentation:UNDEFINED
-missing-yield-doc:106:0:113:28:my_func:Missing yield documentation:UNDEFINED
-missing-yield-doc:116:0:124:15:my_func:Missing yield documentation:UNDEFINED
-missing-yield-type-doc:116:0:124:15:my_func:Missing yield type documentation:UNDEFINED
