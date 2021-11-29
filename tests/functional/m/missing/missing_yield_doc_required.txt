@@ -1,0 +1,2 @@
+missing-yield-doc:5:0:6:15:my_func:Missing yield documentation:UNDEFINED
+missing-yield-type-doc:5:0:6:15:my_func:Missing yield type documentation:UNDEFINED

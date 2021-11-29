@@ -28,21 +28,6 @@ class TestDocstringCheckerYield(CheckerTestCase):
 
     CHECKER_CLASS = DocstringParameterChecker
 
-    @set_config(accept_no_yields_doc=False)
-    def test_warns_no_docstring(self) -> None:
-        node = astroid.extract_node(
-            """
-        def my_func(self):
-            yield False
-        """
-        )
-        yield_node = node.body[0]
-        with self.assertAddsMessages(
-            MessageTest(msg_id="missing-yield-doc", node=node),
-            MessageTest(msg_id="missing-yield-type-doc", node=node),
-        ):
-            self.checker.visit_yield(yield_node)
-
     def test_ignores_unknown_style(self) -> None:
         yield_node = astroid.extract_node(
             '''
