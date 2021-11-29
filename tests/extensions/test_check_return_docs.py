@@ -31,26 +31,6 @@ class TestDocstringCheckerReturn(CheckerTestCase):
 
     CHECKER_CLASS = DocstringParameterChecker
 
-    def test_ignores_sphinx_redundant_return_doc_multiple_returns(self) -> None:
-        node = astroid.extract_node(
-            '''
-        def my_func(self):
-            """This is a docstring.
-
-            :returns: One
-            :rtype: int
-
-            :returns: None sometimes
-            :rtype: None
-            """
-            if a_func():
-                return None
-            return 1
-        '''
-        )
-        with self.assertNoMessages():
-            self.checker.visit_functiondef(node)
-
     def test_ignores_google_redundant_return_doc_multiple_returns(self) -> None:
         node = astroid.extract_node(
             '''
