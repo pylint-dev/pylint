@@ -10,3 +10,12 @@ def my_func(self):
         bool: Always False
     """
     return False
+
+
+def my_func(self, doc_type):
+    """This is a docstring.
+
+    Args:
+        doc_type (str): Google
+    """
+    return

@@ -31,21 +31,6 @@ class TestDocstringCheckerReturn(CheckerTestCase):
 
     CHECKER_CLASS = DocstringParameterChecker
 
-    def test_ignores_google_return_none(self) -> None:
-        return_node = astroid.extract_node(
-            '''
-        def my_func(self, doc_type):
-            """This is a docstring.
-
-            Args:
-                doc_type (str): Google
-            """
-            return #@
-        '''
-        )
-        with self.assertNoMessages():
-            self.checker.visit_return(return_node)
-
     def test_ignores_numpy_return_none(self) -> None:
         return_node = astroid.extract_node(
             '''
