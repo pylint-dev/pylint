@@ -7,3 +7,5 @@ import-outside-toplevel:29:8:29:21:C.j:Import outside toplevel (turtle):UNDEFINE
 import-outside-toplevel:34:8:34:23:k:Import outside toplevel (tabnanny):UNDEFINED
 import-outside-toplevel:38:4:38:39:j:Import outside toplevel (collections.defaultdict):UNDEFINED
 import-outside-toplevel:42:4:42:48:m:Import outside toplevel (math.sin, math.cos):UNDEFINED
+import-error:50:4:50:21:o:Unable to import 'notastroid':UNDEFINED
+import-outside-toplevel:50:4:50:21:o:Import outside toplevel (notastroid):UNDEFINED

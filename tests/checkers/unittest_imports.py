@@ -35,30 +35,6 @@ class TestImportsChecker(CheckerTestCase):
 
     CHECKER_CLASS = imports.ImportsChecker
 
-    @set_config(allow_any_import_level=("astroid",))
-    def test_import_outside_toplevel(self) -> None:
-        node = astroid.extract_node(
-            """
-        def f():
-            import astroid
-        """
-        ).body[0]
-
-        with self.assertNoMessages():
-            self.checker.visit_import(node)
-
-        node = astroid.extract_node(
-            """
-        def g():
-            import pylint
-        """
-        ).body[0]
-
-        with self.assertAddsMessages(
-            MessageTest("import-outside-toplevel", node=node, args="pylint")
-        ):
-            self.checker.visit_import(node)
-
     @set_config(
         ignored_modules=("external_module", "fake_module.submodule", "foo", "bar")
     )
