@@ -18,7 +18,7 @@
 import astroid
 
 from pylint.extensions.docparams import DocstringParameterChecker
-from pylint.testutils import CheckerTestCase, MessageTest
+from pylint.testutils import CheckerTestCase
 
 
 class TestDocstringCheckerYield(CheckerTestCase):
@@ -29,48 +29,8 @@ class TestDocstringCheckerYield(CheckerTestCase):
     # No such thing as redundant yield documentation for sphinx because it
     # doesn't support yield documentation
 
-    def test_ignores_numpy_redundant_yield_doc_multiple_yields(self) -> None:
-        node = astroid.extract_node(
-            '''
-        def my_func(self):
-            """This is a docstring.
-
-            Yields
-            -------
-                int
-                    One
-                None
-                    Sometimes
-            """
-            if a_func():
-                yield None
-            yield 1
-        '''
-        )
-        with self.assertNoMessages():
-            self.checker.visit_functiondef(node)
-
     # No such thing as redundant yield documentation for sphinx because it
     # doesn't support yield documentation
-
-    def test_warns_numpy_redundant_yield_doc_return(self) -> None:
-        node = astroid.extract_node(
-            '''
-        def my_func(self):
-            """This is a docstring.
-
-            Yields
-            -------
-                int
-                    One
-            """
-            return 1
-        '''
-        )
-        with self.assertAddsMessages(
-            MessageTest(msg_id="redundant-yields-doc", node=node)
-        ):
-            self.checker.visit_functiondef(node)
 
     def test_sphinx_missing_yield_type_with_annotations(self) -> None:
         node = astroid.extract_node(
