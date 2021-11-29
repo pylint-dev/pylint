@@ -37,3 +37,11 @@ def my_func(self):
     :rtype: list(:class:`mymodule.Class`)
     """
     return [mymodule.Class()]
+
+
+def my_func(self):  # [redundant-returns-doc]
+    """This is a docstring.
+
+    :returns: One
+    """
+    return None
