@@ -56,3 +56,14 @@ def my_func(self):
             An object
     """
     return [mymodule.Class()]
+
+
+def my_func(self):  # [redundant-returns-doc]
+    """This is a docstring.
+
+    Returns
+    -------
+        int
+            One
+    """
+    return None
