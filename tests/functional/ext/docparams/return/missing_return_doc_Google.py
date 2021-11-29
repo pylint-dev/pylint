@@ -64,3 +64,14 @@ def my_func(self):  # [redundant-returns-doc]
         int: One
     """
     yield 1
+
+
+def my_func(self):
+    """This is a docstring.
+
+    Returns:
+        int or None: One, or sometimes None.
+    """
+    if a_func():
+        return None
+    return 1
