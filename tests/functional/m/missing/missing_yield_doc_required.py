@@ -6,7 +6,16 @@ def my_func(self):  # [missing-yield-doc, missing-yield-type-doc]
     yield False
 
 
-# Test partial Sphinx docstring
+# Test Sphinx docstring
+def my_func(self):
+    """This is a docstring.
+
+    :return: Always False
+    :rtype: bool
+    """
+    yield False
+
+
 def my_func(self):  # [missing-yield-type-doc]
     """This is a docstring.
 
