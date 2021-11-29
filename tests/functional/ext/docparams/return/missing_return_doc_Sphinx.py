@@ -28,3 +28,12 @@ def my_func(self):
     :rtype: :class:`mymodule.Class`
     """
     return mymodule.Class()
+
+
+def my_func(self):
+    """This is a docstring.
+
+    :returns: An object
+    :rtype: list(:class:`mymodule.Class`)
+    """
+    return [mymodule.Class()]
