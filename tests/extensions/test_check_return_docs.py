@@ -19,7 +19,6 @@
 `DocstringChecker` in :mod:`pylint.extensions.check_docs`
 """
 
-# pylint: disable=too-many-public-methods
 
 import astroid
 
@@ -31,40 +30,6 @@ class TestDocstringCheckerReturn(CheckerTestCase):
     """Tests for pylint_plugin.RaiseDocChecker"""
 
     CHECKER_CLASS = DocstringParameterChecker
-
-    def test_find_numpy_returns(self) -> None:
-        return_node = astroid.extract_node(
-            '''
-        def my_func(self):
-            """This is a docstring.
-
-            Returns
-            -------
-            bool
-                Always False
-            """
-            return False #@
-        '''
-        )
-        with self.assertNoMessages():
-            self.checker.visit_return(return_node)
-
-    def test_find_numpy_returns_with_of(self) -> None:
-        return_node = astroid.extract_node(
-            '''
-        def my_func(self):
-            """This is a docstring.
-
-            Returns
-            -------
-            :obj:`list` of :obj:`str`
-                List of strings
-            """
-            return ["hi", "bye"] #@
-        '''
-        )
-        with self.assertNoMessages():
-            self.checker.visit_return(return_node)
 
     def test_ignores_sphinx_return_none(self) -> None:
         return_node = astroid.extract_node(
