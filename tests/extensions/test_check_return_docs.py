@@ -33,25 +33,6 @@ class TestDocstringCheckerReturn(CheckerTestCase):
     CHECKER_CLASS = DocstringParameterChecker
 
     @set_config(accept_no_return_doc="no")
-    def test_warn_partial_google_returns(self) -> None:
-        node = astroid.extract_node(
-            '''
-        def my_func(self):
-            """This is a docstring.
-
-            Returns:
-                Always False
-            """
-            return False
-        '''
-        )
-        return_node = node.body[0]
-        with self.assertAddsMessages(
-            MessageTest(msg_id="missing-return-type-doc", node=node)
-        ):
-            self.checker.visit_return(return_node)
-
-    @set_config(accept_no_return_doc="no")
     def test_warn_partial_google_returns_type(self) -> None:
         node = astroid.extract_node(
             '''
