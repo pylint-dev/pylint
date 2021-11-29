@@ -10,3 +10,11 @@ def my_func(self):  # [missing-return-type-doc]
     :returns: Always False
     """
     return False
+
+
+def my_func(self) -> bool:
+    """This is a docstring.
+
+    :returns: Always False
+    """
+    return False
