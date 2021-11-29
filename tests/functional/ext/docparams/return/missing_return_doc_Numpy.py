@@ -34,3 +34,14 @@ def my_func(self, doc_type):
         Numpy
     """
     return
+
+
+def my_func(self):
+    """This is a docstring.
+
+    Returns
+    -------
+        mymodule.Class
+            An object
+    """
+    return mymodule.Class()
