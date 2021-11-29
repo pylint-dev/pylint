@@ -48,22 +48,6 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_ignore_sphinx_redundant_return_doc_yield(self) -> None:
-        node = astroid.extract_node(
-            '''
-        def my_func_with_yield(self):
-            """This is a docstring.
-
-            :returns: One
-            :rtype: generator
-            """
-            for value in range(3):
-                yield value
-        '''
-        )
-        with self.assertNoMessages():
-            self.checker.visit_functiondef(node)
-
     def test_warns_google_redundant_return_doc_yield(self) -> None:
         node = astroid.extract_node(
             '''

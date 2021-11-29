@@ -67,3 +67,13 @@ def my_func(self):
     if a_func():
         return None
     return 1
+
+
+def my_func_with_yield(self):
+    """This is a docstring.
+
+    :returns: One
+    :rtype: generator
+    """
+    for value in range(3):
+        yield value
