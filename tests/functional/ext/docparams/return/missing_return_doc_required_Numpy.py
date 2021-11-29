@@ -17,3 +17,14 @@ def my_func(self, doc_type):  # [missing-return-doc]
     bool
     """
     return False
+
+
+def my_func(self, doc_type):  # [missing-return-doc, missing-return-type-doc]
+    """This is a docstring.
+
+    Arguments
+    ---------
+    doc_type : str
+        Numpy
+    """
+    return False
