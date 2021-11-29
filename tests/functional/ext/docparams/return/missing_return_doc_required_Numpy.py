@@ -2,3 +2,18 @@
 with accept-no-returns-doc = no"""
 # pylint: disable=function-redefined, invalid-name, undefined-variable, missing-function-docstring
 # pylint: disable=unused-argument
+
+
+def my_func(self, doc_type):  # [missing-return-doc]
+    """This is a docstring.
+
+    Arguments
+    ---------
+    doc_type : str
+        Numpy
+
+    Returns
+    -------
+    bool
+    """
+    return False
