@@ -58,3 +58,15 @@ def my_func(self, doc_type):  # [missing-yield-doc, missing-yield-type-doc]
         doc_type (str): Google
     """
     yield False
+
+
+# Test partial Numpy docstring
+def my_func(self, doc_type):  # [missing-yield-doc, missing-yield-type-doc]
+    """This is a docstring.
+
+    Arguments
+    ---------
+    doc_type : str
+        Numpy
+    """
+    yield False

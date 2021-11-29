@@ -26,28 +26,6 @@ class TestDocstringCheckerYield(CheckerTestCase):
 
     CHECKER_CLASS = DocstringParameterChecker
 
-    @set_config(accept_no_yields_doc="no")
-    def test_warn_missing_numpy_yields(self) -> None:
-        node = astroid.extract_node(
-            '''
-        def my_func(self, doc_type):
-            """This is a docstring.
-
-            Arguments
-            ---------
-            doc_type : str
-                Numpy
-            """
-            yield False
-        '''
-        )
-        yield_node = node.body[0]
-        with self.assertAddsMessages(
-            MessageTest(msg_id="missing-yield-doc", node=node),
-            MessageTest(msg_id="missing-yield-type-doc", node=node),
-        ):
-            self.checker.visit_yield(yield_node)
-
     def test_find_sphinx_yields(self) -> None:
         yield_node = astroid.extract_node(
             '''
