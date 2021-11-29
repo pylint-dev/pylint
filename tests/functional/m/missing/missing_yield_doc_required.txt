@@ -1,13 +1,13 @@
 import-error:3:0:3:15::Unable to import 'mymodule':UNDEFINED
 missing-yield-doc:7:0:8:15:my_func:Missing yield documentation:UNDEFINED
 missing-yield-type-doc:7:0:8:15:my_func:Missing yield type documentation:UNDEFINED
-missing-yield-type-doc:30:0:35:15:my_func:Missing yield type documentation:UNDEFINED
-missing-yield-doc:38:0:43:15:my_func:Missing yield documentation:UNDEFINED
-missing-yield-doc:46:0:52:15:my_func:Missing yield documentation:UNDEFINED
-missing-yield-type-doc:46:0:52:15:my_func:Missing yield type documentation:UNDEFINED
-missing-yield-type-doc:74:0:80:15:my_func:Missing yield type documentation:UNDEFINED
-missing-yield-doc:83:0:89:15:my_func:Missing yield documentation:UNDEFINED
+missing-yield-type-doc:39:0:44:15:my_func:Missing yield type documentation:UNDEFINED
+missing-yield-doc:47:0:52:15:my_func:Missing yield documentation:UNDEFINED
+missing-yield-doc:55:0:61:15:my_func:Missing yield documentation:UNDEFINED
+missing-yield-type-doc:55:0:61:15:my_func:Missing yield type documentation:UNDEFINED
+missing-yield-type-doc:83:0:89:15:my_func:Missing yield type documentation:UNDEFINED
 missing-yield-doc:92:0:98:15:my_func:Missing yield documentation:UNDEFINED
-missing-yield-type-doc:92:0:98:15:my_func:Missing yield type documentation:UNDEFINED
-missing-yield-doc:124:0:132:15:my_func:Missing yield documentation:UNDEFINED
-missing-yield-type-doc:124:0:132:15:my_func:Missing yield type documentation:UNDEFINED
+missing-yield-doc:101:0:107:15:my_func:Missing yield documentation:UNDEFINED
+missing-yield-type-doc:101:0:107:15:my_func:Missing yield type documentation:UNDEFINED
+missing-yield-doc:133:0:141:15:my_func:Missing yield documentation:UNDEFINED
+missing-yield-type-doc:133:0:141:15:my_func:Missing yield type documentation:UNDEFINED
