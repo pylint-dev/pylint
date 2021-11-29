@@ -10,3 +10,12 @@ def my_func(self):
     :rtype: bool
     """
     return False
+
+
+def my_func(self, doc_type):
+    """This is a docstring.
+
+    :param doc_type: Sphinx
+    :type doc_type: str
+    """
+    return

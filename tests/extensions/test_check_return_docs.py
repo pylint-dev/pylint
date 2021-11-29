@@ -31,21 +31,6 @@ class TestDocstringCheckerReturn(CheckerTestCase):
 
     CHECKER_CLASS = DocstringParameterChecker
 
-    def test_ignores_sphinx_return_none(self) -> None:
-        return_node = astroid.extract_node(
-            '''
-        def my_func(self, doc_type):
-            """This is a docstring.
-
-            :param doc_type: Sphinx
-            :type doc_type: str
-            """
-            return #@
-        '''
-        )
-        with self.assertNoMessages():
-            self.checker.visit_return(return_node)
-
     def test_ignores_google_return_none(self) -> None:
         return_node = astroid.extract_node(
             '''
