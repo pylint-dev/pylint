@@ -26,23 +26,6 @@ class TestDocstringCheckerYield(CheckerTestCase):
 
     CHECKER_CLASS = DocstringParameterChecker
 
-    def test_finds_numpy_yield_list_of_custom_class(self) -> None:
-        yield_node = astroid.extract_node(
-            '''
-        def my_func(self):
-            """This is a docstring.
-
-            Yields
-            -------
-                list(:class:`mymodule.Class`)
-                    An object
-            """
-            yield [mymodule.Class()] #@
-        '''
-        )
-        with self.assertNoMessages():
-            self.checker.visit_yield(yield_node)
-
     @set_config(accept_no_yields_doc="no")
     def test_warns_sphinx_yield_list_of_custom_class_without_description(self) -> None:
         node = astroid.extract_node(
