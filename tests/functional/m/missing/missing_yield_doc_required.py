@@ -49,3 +49,12 @@ def my_func(self):  # [missing-yield-doc]
         bool:
     """
     yield False
+
+
+def my_func(self, doc_type):  # [missing-yield-doc, missing-yield-type-doc]
+    """This is a docstring.
+
+    Parameters:
+        doc_type (str): Google
+    """
+    yield False
