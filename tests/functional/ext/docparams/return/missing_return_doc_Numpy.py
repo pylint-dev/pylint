@@ -92,3 +92,14 @@ def my_func(self):
     if a_func():
         return None
     return 1
+
+
+def my_func(self):  # [redundant-returns-doc]
+    """This is a docstring.
+
+    Returns
+    -------
+        int
+            One
+    """
+    yield 1
