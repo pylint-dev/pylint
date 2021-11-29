@@ -32,31 +32,6 @@ class TestDocstringCheckerReturn(CheckerTestCase):
 
     CHECKER_CLASS = DocstringParameterChecker
 
-    def test_ignores_no_docstring(self) -> None:
-        return_node = astroid.extract_node(
-            """
-        def my_func(self):
-            return False #@
-        """
-        )
-        with self.assertNoMessages():
-            self.checker.visit_return(return_node)
-
-    @set_config(accept_no_return_doc=False)
-    def test_warns_no_docstring(self) -> None:
-        node = astroid.extract_node(
-            """
-        def my_func(self):
-            return False
-        """
-        )
-        return_node = node.body[0]
-        with self.assertAddsMessages(
-            MessageTest(msg_id="missing-return-doc", node=node),
-            MessageTest(msg_id="missing-return-type-doc", node=node),
-        ):
-            self.checker.visit_return(return_node)
-
     def test_ignores_unknown_style(self) -> None:
         return_node = astroid.extract_node(
             '''
