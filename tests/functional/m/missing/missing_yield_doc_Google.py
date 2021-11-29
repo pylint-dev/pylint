@@ -25,7 +25,7 @@ def my_func(self):  # [redundant-yields-doc]
     return 1
 
 
-# Test missing yields type docstring
+# Test missing yields typing docstring
 def generator() -> typing.Iterator[int]:
     """A simple function for checking type hints.
 
