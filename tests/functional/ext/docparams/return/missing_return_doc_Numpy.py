@@ -67,3 +67,13 @@ def my_func(self):  # [redundant-returns-doc]
             One
     """
     return None
+
+
+def my_func(self):  # [redundant-returns-doc]
+    """This is a docstring.
+
+    Returns
+    -------
+        int
+    """
+    return None

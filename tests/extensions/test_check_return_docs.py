@@ -31,24 +31,6 @@ class TestDocstringCheckerReturn(CheckerTestCase):
 
     CHECKER_CLASS = DocstringParameterChecker
 
-    def test_warns_numpy_redundant_rtype_doc(self) -> None:
-        node = astroid.extract_node(
-            '''
-        def my_func(self):
-            """This is a docstring.
-
-            Returns
-            -------
-                int
-            """
-            return None
-        '''
-        )
-        with self.assertAddsMessages(
-            MessageTest(msg_id="redundant-returns-doc", node=node)
-        ):
-            self.checker.visit_functiondef(node)
-
     def test_ignores_sphinx_redundant_return_doc_multiple_returns(self) -> None:
         node = astroid.extract_node(
             '''

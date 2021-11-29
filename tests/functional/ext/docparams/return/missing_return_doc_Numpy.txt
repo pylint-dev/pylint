@@ -1,1 +1,2 @@
 redundant-returns-doc:61:0:69:15:my_func:Redundant returns documentation:UNDEFINED
+redundant-returns-doc:72:0:79:15:my_func:Redundant returns documentation:UNDEFINED
