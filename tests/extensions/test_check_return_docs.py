@@ -48,23 +48,6 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_warns_google_redundant_return_doc_yield(self) -> None:
-        node = astroid.extract_node(
-            '''
-        def my_func(self):
-            """This is a docstring.
-
-            Returns:
-                int: One
-            """
-            yield 1
-        '''
-        )
-        with self.assertAddsMessages(
-            MessageTest(msg_id="redundant-returns-doc", node=node)
-        ):
-            self.checker.visit_functiondef(node)
-
     def test_warns_numpy_redundant_return_doc_yield(self) -> None:
         node = astroid.extract_node(
             '''

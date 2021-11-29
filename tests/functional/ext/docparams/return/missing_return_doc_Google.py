@@ -55,3 +55,12 @@ def my_func(self):  # [redundant-returns-doc]
         int:
     """
     return None
+
+
+def my_func(self):  # [redundant-returns-doc]
+    """This is a docstring.
+
+    Returns:
+        int: One
+    """
+    yield 1
