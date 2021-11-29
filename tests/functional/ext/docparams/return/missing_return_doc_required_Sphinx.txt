@@ -1,0 +1,1 @@
+missing-return-type-doc:7:0:12:16:my_func:Missing return type documentation:UNDEFINED
