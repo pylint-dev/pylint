@@ -35,3 +35,11 @@ def my_func(self, doc_type):  # [missing-return-type-doc, missing-return-doc]
     :type doc_type: str
     """
     return False
+
+
+def my_func(self):  # [missing-return-doc]
+    """This is a docstring.
+
+    :rtype: list(:class:`mymodule.Class`)
+    """
+    return [mymodule.Class()]
