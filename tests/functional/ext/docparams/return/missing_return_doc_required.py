@@ -5,9 +5,3 @@
 
 def my_func(self):  # [missing-return-doc, missing-return-type-doc]
     return False
-
-
-# Ignore unknown style
-def my_func(self):
-    """This is a docstring."""
-    return False
