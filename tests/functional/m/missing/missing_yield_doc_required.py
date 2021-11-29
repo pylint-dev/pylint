@@ -21,3 +21,12 @@ def my_func(self):  # [missing-yield-doc]
     :rtype: bool
     """
     yield False
+
+
+def my_func(self, doc_type):  # [missing-yield-doc, missing-yield-type-doc]
+    """This is a docstring.
+
+    :param doc_type: Sphinx
+    :type doc_type: str
+    """
+    yield False

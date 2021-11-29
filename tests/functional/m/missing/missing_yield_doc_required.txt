@@ -2,3 +2,5 @@ missing-yield-doc:5:0:6:15:my_func:Missing yield documentation:UNDEFINED
 missing-yield-type-doc:5:0:6:15:my_func:Missing yield type documentation:UNDEFINED
 missing-yield-type-doc:10:0:15:15:my_func:Missing yield type documentation:UNDEFINED
 missing-yield-doc:18:0:23:15:my_func:Missing yield documentation:UNDEFINED
+missing-yield-doc:26:0:32:15:my_func:Missing yield documentation:UNDEFINED
+missing-yield-type-doc:26:0:32:15:my_func:Missing yield type documentation:UNDEFINED
