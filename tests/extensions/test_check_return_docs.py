@@ -31,23 +31,6 @@ class TestDocstringCheckerReturn(CheckerTestCase):
 
     CHECKER_CLASS = DocstringParameterChecker
 
-    def test_ignores_numpy_return_none(self) -> None:
-        return_node = astroid.extract_node(
-            '''
-        def my_func(self, doc_type):
-            """This is a docstring.
-
-            Arguments
-            ---------
-            doc_type : str
-                Numpy
-            """
-            return #@
-        '''
-        )
-        with self.assertNoMessages():
-            self.checker.visit_return(return_node)
-
     def test_finds_sphinx_return_custom_class(self) -> None:
         return_node = astroid.extract_node(
             '''

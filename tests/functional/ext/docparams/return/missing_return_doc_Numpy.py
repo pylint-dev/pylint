@@ -23,3 +23,14 @@ def my_func(self):
         List of strings
     """
     return ["hi", "bye"]
+
+
+def my_func(self, doc_type):
+    """This is a docstring.
+
+    Arguments
+    ---------
+    doc_type : str
+        Numpy
+    """
+    return
