@@ -18,33 +18,13 @@
 import astroid
 
 from pylint.extensions.docparams import DocstringParameterChecker
-from pylint.testutils import CheckerTestCase, MessageTest, set_config
+from pylint.testutils import CheckerTestCase, MessageTest
 
 
 class TestDocstringCheckerYield(CheckerTestCase):
     """Tests for pylint_plugin.RaiseDocChecker"""
 
     CHECKER_CLASS = DocstringParameterChecker
-
-    @set_config(accept_no_yields_doc="no")
-    def test_warns_numpy_yield_list_of_custom_class_without_description(self) -> None:
-        node = astroid.extract_node(
-            '''
-        def my_func(self):
-            """This is a docstring.
-
-            Yields
-            -------
-                list(:class:`mymodule.Class`)
-            """
-            yield [mymodule.Class()]
-        '''
-        )
-        yield_node = node.body[0]
-        with self.assertAddsMessages(
-            MessageTest(msg_id="missing-yield-doc", node=node)
-        ):
-            self.checker.visit_yield(yield_node)
 
     # No such thing as redundant yield documentation for sphinx because it
     # doesn't support yield documentation

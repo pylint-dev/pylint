@@ -167,6 +167,16 @@ def my_func(self):
     yield [mymodule.Class()]
 
 
+def my_func(self):  # [missing-yield-doc]
+    """This is a docstring.
+
+    Yields
+    -------
+        list(:class:`mymodule.Class`)
+    """
+    yield [mymodule.Class()]
+
+
 def my_func(self, doc_type):  # [missing-yield-doc, missing-yield-type-doc]
     """This is a docstring.
 
