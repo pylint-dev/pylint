@@ -29,23 +29,6 @@ class TestDocstringCheckerYield(CheckerTestCase):
     # No such thing as redundant yield documentation for sphinx because it
     # doesn't support yield documentation
 
-    def test_ignores_google_redundant_yield_doc_multiple_yields(self) -> None:
-        node = astroid.extract_node(
-            '''
-        def my_func(self):
-            """This is a docstring.
-
-            Yields:
-                int or None: One, or sometimes None.
-            """
-            if a_func():
-                yield None
-            yield 1
-        '''
-        )
-        with self.assertNoMessages():
-            self.checker.visit_functiondef(node)
-
     def test_ignores_numpy_redundant_yield_doc_multiple_yields(self) -> None:
         node = astroid.extract_node(
             '''
@@ -69,23 +52,6 @@ class TestDocstringCheckerYield(CheckerTestCase):
 
     # No such thing as redundant yield documentation for sphinx because it
     # doesn't support yield documentation
-
-    def test_warns_google_redundant_yield_doc_return(self) -> None:
-        node = astroid.extract_node(
-            '''
-        def my_func(self):
-            """This is a docstring.
-
-            Yields:
-                int: One
-            """
-            return 1
-        '''
-        )
-        with self.assertAddsMessages(
-            MessageTest(msg_id="redundant-yields-doc", node=node)
-        ):
-            self.checker.visit_functiondef(node)
 
     def test_warns_numpy_redundant_yield_doc_return(self) -> None:
         node = astroid.extract_node(
@@ -115,24 +81,6 @@ class TestDocstringCheckerYield(CheckerTestCase):
                 """A simple function for checking type hints.
 
                 :returns: The number 0
-                """
-                yield 0
-            '''
-        )
-        yield_node = node.body[0]
-        with self.assertNoMessages():
-            self.checker.visit_yield(yield_node)
-
-    def test_google_missing_yield_type_with_annotations(self) -> None:
-        node = astroid.extract_node(
-            '''
-            import typing
-
-            def generator() -> typing.Iterator[int]:
-                """A simple function for checking type hints.
-
-                Yields:
-                    The number 0
                 """
                 yield 0
             '''
