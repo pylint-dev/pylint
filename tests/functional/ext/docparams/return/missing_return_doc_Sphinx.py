@@ -45,3 +45,11 @@ def my_func(self):  # [redundant-returns-doc]
     :returns: One
     """
     return None
+
+
+def my_func(self):  # [redundant-returns-doc]
+    """This is a docstring.
+
+    :rtype: int
+    """
+    return None
