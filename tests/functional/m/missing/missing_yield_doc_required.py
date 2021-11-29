@@ -41,7 +41,16 @@ def my_func(self, doc_type):  # [missing-yield-doc, missing-yield-type-doc]
     yield False
 
 
-# Test partial Google docstring
+# Test Google docstring
+def my_func(self):
+    """This is a docstring.
+
+    Yields:
+        bool: Always False
+    """
+    yield False
+
+
 def my_func(self):  # [missing-yield-type-doc]
     """This is a docstring.
 
