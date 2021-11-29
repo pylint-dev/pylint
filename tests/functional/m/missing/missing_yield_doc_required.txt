@@ -1,8 +1,2 @@
-import-error:3:0:3:15::Unable to import 'mymodule':UNDEFINED
-missing-yield-doc:7:0:8:15:my_func:Missing yield documentation:UNDEFINED
-missing-yield-type-doc:7:0:8:15:my_func:Missing yield type documentation:UNDEFINED
-missing-yield-doc:39:0:44:28:my_func:Missing yield documentation:UNDEFINED
-missing-yield-type-doc:47:0:52:15:my_func:Missing yield type documentation:UNDEFINED
-missing-yield-doc:55:0:60:15:my_func:Missing yield documentation:UNDEFINED
-missing-yield-doc:63:0:69:15:my_func:Missing yield documentation:UNDEFINED
-missing-yield-type-doc:63:0:69:15:my_func:Missing yield type documentation:UNDEFINED
+missing-yield-doc:6:0:7:15:my_func:Missing yield documentation:UNDEFINED
+missing-yield-type-doc:6:0:7:15:my_func:Missing yield type documentation:UNDEFINED
