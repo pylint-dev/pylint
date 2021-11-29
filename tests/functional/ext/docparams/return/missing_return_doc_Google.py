@@ -19,3 +19,12 @@ def my_func(self, doc_type):
         doc_type (str): Google
     """
     return
+
+
+def my_func(self):
+    """This is a docstring.
+
+    Returns:
+        mymodule.Class: An object
+    """
+    return mymodule.Class()
