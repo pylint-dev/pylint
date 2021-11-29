@@ -1,0 +1,6 @@
+logging-too-few-args:5:0:5:26::Not enough arguments for logging format string:UNDEFINED
+logging-too-few-args:6:0:6:28::Not enough arguments for logging format string:UNDEFINED
+logging-too-few-args:7:0:7:50::Not enough arguments for logging format string:UNDEFINED
+logging-too-few-args:8:0:8:32::Not enough arguments for logging format string:UNDEFINED
+logging-too-few-args:9:0:9:42::Not enough arguments for logging format string:UNDEFINED
+logging-too-few-args:10:0:10:43::Not enough arguments for logging format string:UNDEFINED
