@@ -4,7 +4,7 @@
 
 
 def my_func(self):
-    """This is a docstring.
+    """find_google_returns
 
     Returns:
         bool: Always False
@@ -13,7 +13,7 @@ def my_func(self):
 
 
 def my_func(self, doc_type):
-    """This is a docstring.
+    """ignores_google_return_none
 
     Args:
         doc_type (str): Google
@@ -22,7 +22,7 @@ def my_func(self, doc_type):
 
 
 def my_func(self):
-    """This is a docstring.
+    """finds_google_return_custom_class
 
     Returns:
         mymodule.Class: An object
@@ -31,7 +31,7 @@ def my_func(self):
 
 
 def my_func(self):
-    """This is a docstring.
+    """finds_google_return_list_of_custom_class
 
     Returns:
         list(:class:`mymodule.Class`): An object
@@ -40,7 +40,7 @@ def my_func(self):
 
 
 def my_func(self):  # [redundant-returns-doc]
-    """This is a docstring.
+    """warns_google_redundant_return_doc
 
     Returns:
         One
@@ -49,7 +49,7 @@ def my_func(self):  # [redundant-returns-doc]
 
 
 def my_func(self):  # [redundant-returns-doc]
-    """This is a docstring.
+    """warns_google_redundant_rtype_doc
 
     Returns:
         int:
@@ -58,7 +58,7 @@ def my_func(self):  # [redundant-returns-doc]
 
 
 def my_func(self):  # [redundant-returns-doc]
-    """This is a docstring.
+    """warns_google_redundant_return_doc_yield
 
     Returns:
         int: One
@@ -67,7 +67,7 @@ def my_func(self):  # [redundant-returns-doc]
 
 
 def my_func(self):
-    """This is a docstring.
+    """ignores_google_redundant_return_doc_multiple_returns
 
     Returns:
         int or None: One, or sometimes None.

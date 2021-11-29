@@ -4,7 +4,7 @@
 
 
 def my_func(self):
-    """This is a docstring.
+    """find_numpy_returns
 
     Returns
     -------
@@ -15,7 +15,7 @@ def my_func(self):
 
 
 def my_func(self):
-    """This is a docstring.
+    """find_numpy_returns_with_of
 
     Returns
     -------
@@ -26,7 +26,7 @@ def my_func(self):
 
 
 def my_func(self, doc_type):
-    """This is a docstring.
+    """ignores_numpy_return_none
 
     Arguments
     ---------
@@ -37,7 +37,7 @@ def my_func(self, doc_type):
 
 
 def my_func(self):
-    """This is a docstring.
+    """finds_numpy_return_custom_class
 
     Returns
     -------
@@ -48,7 +48,7 @@ def my_func(self):
 
 
 def my_func(self):
-    """This is a docstring.
+    """finds_numpy_return_list_of_custom_class
 
     Returns
     -------
@@ -59,7 +59,7 @@ def my_func(self):
 
 
 def my_func(self):  # [redundant-returns-doc]
-    """This is a docstring.
+    """warns_numpy_redundant_return_doc
 
     Returns
     -------
@@ -70,7 +70,7 @@ def my_func(self):  # [redundant-returns-doc]
 
 
 def my_func(self):  # [redundant-returns-doc]
-    """This is a docstring.
+    """warns_numpy_redundant_rtype_doc
 
     Returns
     -------
@@ -80,7 +80,7 @@ def my_func(self):  # [redundant-returns-doc]
 
 
 def my_func(self):
-    """This is a docstring.
+    """ignores_numpy_redundant_return_doc_multiple_returns
 
     Returns
     -------
@@ -95,7 +95,7 @@ def my_func(self):
 
 
 def my_func(self):  # [redundant-returns-doc]
-    """This is a docstring.
+    """warns_numpy_redundant_return_doc_yield
 
     Returns
     -------

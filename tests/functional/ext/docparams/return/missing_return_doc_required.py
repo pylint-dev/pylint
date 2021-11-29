@@ -3,5 +3,5 @@
 # pylint: disable=unused-argument
 
 
-def my_func(self):  # [missing-return-doc, missing-return-type-doc]
+def warns_no_docstring(self):  # [missing-return-doc, missing-return-type-doc]
     return False

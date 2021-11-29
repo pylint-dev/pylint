@@ -3,11 +3,10 @@
 # pylint: disable=unused-argument
 
 
-def my_func(self):
+def ignores_no_docstring(self):
     return False
 
 
-# Ignore unknown style
-def my_func(self):
+def ignores_unknown_style(self):
     """This is a docstring."""
     return False

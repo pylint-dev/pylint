@@ -4,7 +4,7 @@
 
 
 def my_func(self):
-    """This is a docstring.
+    """find_sphinx_returns
 
     :return: Always False
     :rtype: bool
@@ -13,7 +13,7 @@ def my_func(self):
 
 
 def my_func(self, doc_type):
-    """This is a docstring.
+    """ignores_sphinx_return_none
 
     :param doc_type: Sphinx
     :type doc_type: str
@@ -22,7 +22,7 @@ def my_func(self, doc_type):
 
 
 def my_func(self):
-    """This is a docstring.
+    """finds_sphinx_return_custom_class
 
     :returns: An object
     :rtype: :class:`mymodule.Class`
@@ -31,7 +31,7 @@ def my_func(self):
 
 
 def my_func(self):
-    """This is a docstring.
+    """finds_sphinx_return_list_of_custom_class
 
     :returns: An object
     :rtype: list(:class:`mymodule.Class`)
@@ -40,7 +40,7 @@ def my_func(self):
 
 
 def my_func(self):  # [redundant-returns-doc]
-    """This is a docstring.
+    """warns_sphinx_redundant_return_doc
 
     :returns: One
     """
@@ -48,7 +48,7 @@ def my_func(self):  # [redundant-returns-doc]
 
 
 def my_func(self):  # [redundant-returns-doc]
-    """This is a docstring.
+    """warns_sphinx_redundant_rtype_doc
 
     :rtype: int
     """
@@ -56,7 +56,7 @@ def my_func(self):  # [redundant-returns-doc]
 
 
 def my_func(self):
-    """This is a docstring.
+    """ignores_sphinx_redundant_return_doc_multiple_returns
 
     :returns: One
     :rtype: int
@@ -70,7 +70,7 @@ def my_func(self):
 
 
 def my_func_with_yield(self):
-    """This is a docstring.
+    """ignore_sphinx_redundant_return_doc_yield
 
     :returns: One
     :rtype: generator

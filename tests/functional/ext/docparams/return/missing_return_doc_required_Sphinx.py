@@ -5,7 +5,7 @@ with accept-no-returns-doc = no"""
 
 
 def my_func(self):  # [missing-return-type-doc]
-    """This is a docstring.
+    """Warn partial sphinx returns
 
     :returns: Always False
     """
@@ -13,7 +13,7 @@ def my_func(self):  # [missing-return-type-doc]
 
 
 def my_func(self) -> bool:
-    """This is a docstring.
+    """Sphinx missing return type with annotations
 
     :returns: Always False
     """
@@ -21,14 +21,14 @@ def my_func(self) -> bool:
 
 
 def my_func(self):  # [missing-return-doc]
-    """This is a docstring.
+    """Warn partial sphinx returns type
 
     :rtype: bool
     """
     return False
 
 
-def my_func(self, doc_type):  # [missing-return-type-doc, missing-return-doc]
+def warn_missing_sphinx_returns(self, doc_type):  # [missing-return-type-doc, missing-return-doc]
     """This is a docstring.
 
     :param doc_type: Sphinx
@@ -38,7 +38,7 @@ def my_func(self, doc_type):  # [missing-return-type-doc, missing-return-doc]
 
 
 def my_func(self):  # [missing-return-doc]
-    """This is a docstring.
+    """warns_sphinx_return_list_of_custom_class_without_description
 
     :rtype: list(:class:`mymodule.Class`)
     """

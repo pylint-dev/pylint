@@ -5,7 +5,7 @@ with accept-no-returns-doc = no"""
 
 
 def my_func(self):  # [missing-return-type-doc]
-    """This is a docstring.
+    """Warn partial google returns
 
     Returns:
         Always False
@@ -14,7 +14,7 @@ def my_func(self):  # [missing-return-type-doc]
 
 
 def my_func(self):  # [missing-return-doc]
-    """This is a docstring.
+    """warn_partial_google_returns_type
 
     Returns:
         bool:
@@ -23,7 +23,7 @@ def my_func(self):  # [missing-return-doc]
 
 
 def my_func(self, doc_type):  # [missing-return-doc, missing-return-type-doc]
-    """This is a docstring.
+    """warn_missing_google_returns
 
     Parameters:
         doc_type (str): Google
@@ -32,7 +32,7 @@ def my_func(self, doc_type):  # [missing-return-doc, missing-return-type-doc]
 
 
 def my_func(self):  # [missing-return-doc]
-    """This is a docstring.
+    """warns_google_return_list_of_custom_class_without_description
 
     Returns:
         list(:class:`mymodule.Class`):

@@ -5,7 +5,7 @@ with accept-no-returns-doc = no"""
 
 
 def my_func(self, doc_type):  # [missing-return-doc]
-    """This is a docstring.
+    """warn_partial_numpy_returns_type
 
     Arguments
     ---------
@@ -20,7 +20,7 @@ def my_func(self, doc_type):  # [missing-return-doc]
 
 
 def my_func(self, doc_type):  # [missing-return-doc, missing-return-type-doc]
-    """This is a docstring.
+    """warn_missing_numpy_returns
 
     Arguments
     ---------
@@ -31,7 +31,7 @@ def my_func(self, doc_type):  # [missing-return-doc, missing-return-type-doc]
 
 
 def my_func(self):  # [missing-return-doc]
-    """This is a docstring.
+    """warns_numpy_return_list_of_custom_class_without_description
 
     Returns
     -------
