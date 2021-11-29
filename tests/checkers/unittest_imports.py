@@ -35,15 +35,6 @@ class TestImportsChecker(CheckerTestCase):
 
     CHECKER_CLASS = imports.ImportsChecker
 
-    def test_reimported_same_line(self) -> None:
-        """
-        Test that duplicate imports on single line raise 'reimported'.
-        """
-        node = astroid.extract_node("from time import sleep, sleep, time")
-        msg = MessageTest(msg_id="reimported", node=node, args=("sleep", 1))
-        with self.assertAddsMessages(msg):
-            self.checker.visit_importfrom(node)
-
     def test_relative_beyond_top_level(self) -> None:
         module = astroid.MANAGER.ast_from_module_name("beyond_top", REGR_DATA)
         import_from = module.body[0]
