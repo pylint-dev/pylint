@@ -13,3 +13,11 @@ def my_func(self):  # [missing-yield-type-doc]
     :returns: Always False
     """
     yield False
+
+
+def my_func(self):  # [missing-yield-doc]
+    """This is a docstring.
+
+    :rtype: bool
+    """
+    yield False
