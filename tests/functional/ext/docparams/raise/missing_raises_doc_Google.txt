@@ -1,2 +1,3 @@
 missing-raises-doc:6:0:13:25:test_find_missing_google_raises:"""RuntimeError"" not documented as being raised":UNDEFINED
 unreachable:13:4:13:25:test_find_missing_google_raises:Unreachable code:UNDEFINED
+missing-raises-doc:38:0:46:21:test_find_valid_missing_google_attr_raises:"""error"" not documented as being raised":UNDEFINED

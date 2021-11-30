@@ -33,3 +33,14 @@ def test_find_google_attr_raises_substr_exc(self):
     from re import error
 
     raise error("hi")
+
+
+def test_find_valid_missing_google_attr_raises(self):  # [missing-raises-doc]
+    """This is a google docstring.
+
+    Raises:
+        re.anothererror: Sometimes
+    """
+    from re import error
+
+    raise error("hi")
