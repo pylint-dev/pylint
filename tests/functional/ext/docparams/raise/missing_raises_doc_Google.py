@@ -105,6 +105,20 @@ def test_find_rethrown_google_raises(self):  # [missing-raises-doc]
     try:
         fake_func()
     except RuntimeError:
-        raise  # @
+        raise
+
+    raise NameError("hi")
+
+
+def test_find_rethrown_google_multiple_raises(self):  # [missing-raises-doc]
+    """This is a docstring.
+
+    Raises:
+        NameError: Sometimes
+    """
+    try:
+        fake_func()
+    except (RuntimeError, ValueError):
+        raise
 
     raise NameError("hi")
