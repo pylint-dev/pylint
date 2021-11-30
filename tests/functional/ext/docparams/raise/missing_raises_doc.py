@@ -77,3 +77,14 @@ def test_no_crash_when_inferring_handlers():
         pass
     except collections.U as exc:
         raise
+
+
+def test_no_crash_when_cant_find_exception():
+    """raises
+
+    :raise U: pass
+    """
+    try:
+        pass
+    except U as exc:
+        raise

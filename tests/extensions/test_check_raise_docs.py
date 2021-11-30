@@ -30,25 +30,6 @@ class TestDocstringCheckerRaise(CheckerTestCase):
 
     CHECKER_CLASS = DocstringParameterChecker
 
-    def test_no_crash_when_cant_find_exception(self) -> None:
-        raise_node = astroid.extract_node(
-            '''
-        import collections
-
-        def test():
-           """raises
-
-           :raise U: pass
-           """
-           try:
-              pass
-           except U as exc:
-              raise #@
-        '''
-        )
-        with self.assertNoMessages():
-            self.checker.visit_raise(raise_node)
-
     def test_no_error_notimplemented_documented(self) -> None:
         raise_node = astroid.extract_node(
             '''
