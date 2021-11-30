@@ -31,24 +31,6 @@ class TestDocstringCheckerRaise(CheckerTestCase):
 
     CHECKER_CLASS = DocstringParameterChecker
 
-    def test_find_invalid_missing_google_attr_raises(self) -> None:
-        raise_node = astroid.extract_node(
-            '''
-        def my_func(self):
-            """This is a google docstring.
-
-            Raises:
-                bogusmodule.error: Sometimes
-            """
-            from re import error
-            raise error('hi') #@
-        '''
-        )
-        # pylint allows this to pass since the comparison between Raises and
-        # raise are based on the class name, not the qualified name.
-        with self.assertNoMessages():
-            self.checker.visit_raise(raise_node)
-
     def test_google_raises_local_reference(self) -> None:
         raise_node = astroid.extract_node(
             '''

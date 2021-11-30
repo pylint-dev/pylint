@@ -44,3 +44,16 @@ def test_find_valid_missing_google_attr_raises(self):  # [missing-raises-doc]
     from re import error
 
     raise error("hi")
+
+
+def test_find_invalid_missing_google_attr_raises(self):
+    """This is a google docstring.
+    pylint allows this to pass since the comparison between Raises and
+    raise are based on the class name, not the qualified name.
+
+    Raises:
+        bogusmodule.error: Sometimes
+    """
+    from re import error
+
+    raise error("hi")
