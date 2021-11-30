@@ -101,3 +101,16 @@ def test_find_numpy_attr_raises_substr_exc(self):
     from re import error
 
     raise error("hi")
+
+
+def test_find_valid_missing_numpy_attr_raises(self):  # [missing-raises-doc]
+    """This is a numpy docstring.
+
+    Raises
+    ------
+    re.anothererror
+        Sometimes
+    """
+    from re import error
+
+    raise error("hi")
