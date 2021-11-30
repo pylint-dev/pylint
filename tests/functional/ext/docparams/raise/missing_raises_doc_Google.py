@@ -1,6 +1,6 @@
 """Tests for missing-raises-doc and missing-raises-type-doc for Google style docstrings"""
 # pylint: disable=function-redefined, invalid-name, undefined-variable, missing-function-docstring
-# pylint: disable=unused-argument, import-outside-toplevel
+# pylint: disable=unused-argument, import-outside-toplevel, import-error
 
 
 def test_find_missing_google_raises(self):  # [missing-raises-doc]
@@ -57,3 +57,16 @@ def test_find_invalid_missing_google_attr_raises(self):
     from re import error
 
     raise error("hi")
+
+
+def test_google_raises_local_reference(self):
+    """This is a google docstring.
+    pylint allows this to pass since the comparison between Raises and
+    raise are based on the class name, not the qualified name.
+
+    Raises:
+        .LocalException: Always
+    """
+    from neighbor_module import LocalException
+
+    raise LocalException("hi")
