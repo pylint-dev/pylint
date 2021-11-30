@@ -31,18 +31,6 @@ class TestDocstringCheckerRaise(CheckerTestCase):
 
     CHECKER_CLASS = DocstringParameterChecker
 
-    def test_ignores_unknown_style(self) -> None:
-        node = astroid.extract_node(
-            '''
-        def my_func(self):
-            """This is a docstring."""
-            raise RuntimeError('hi')
-        '''
-        )
-        raise_node = node.body[0]
-        with self.assertNoMessages():
-            self.checker.visit_raise(raise_node)
-
     @set_config(accept_no_raise_doc=False)
     def test_warns_unknown_style(self) -> None:
         node = astroid.extract_node(
