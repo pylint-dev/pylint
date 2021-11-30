@@ -1,1 +1,3 @@
 unreachable:23:4:23:25:test_ignores_raise_uninferable:Unreachable code:UNDEFINED
+missing-raises-doc:26:0:40:25:test_ignores_returns_from_inner_functions:"""RuntimeError"" not documented as being raised":UNDEFINED
+unreachable:40:4:40:25:test_ignores_returns_from_inner_functions:Unreachable code:UNDEFINED

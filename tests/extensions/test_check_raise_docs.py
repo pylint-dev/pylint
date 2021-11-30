@@ -22,36 +22,13 @@
 import astroid
 
 from pylint.extensions.docparams import DocstringParameterChecker
-from pylint.testutils import CheckerTestCase, MessageTest
+from pylint.testutils import CheckerTestCase
 
 
 class TestDocstringCheckerRaise(CheckerTestCase):
     """Tests for pylint_plugin.RaiseDocChecker"""
 
     CHECKER_CLASS = DocstringParameterChecker
-
-    def test_ignores_returns_from_inner_functions(self) -> None:
-        raise_node = astroid.extract_node(
-            '''
-        def my_func(self):
-            """This is a docstring.
-
-            :raises NameError: Never
-            """
-            def ex_func(val):
-                def inner_func(value):
-                    return OSError(value)
-                return RuntimeError(val)
-            raise ex_func('hi') #@
-            raise NameError('hi')
-        '''
-        )
-        node = raise_node.frame()
-        with self.assertAddsMessages(
-            MessageTest(msg_id="missing-raises-doc", node=node, args=("RuntimeError",))
-        ):
-            # we do NOT expect a warning about the OSError in inner_func!
-            self.checker.visit_raise(raise_node)
 
     def test_ignores_returns_use_only_names(self) -> None:
         raise_node = astroid.extract_node(
