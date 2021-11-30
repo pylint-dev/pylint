@@ -88,3 +88,11 @@ def test_no_crash_when_cant_find_exception():
         pass
     except U as exc:
         raise
+
+
+def test_no_error_notimplemented_documented():
+    """
+    Raises:
+        NotImplementedError: When called.
+    """
+    raise NotImplementedError
