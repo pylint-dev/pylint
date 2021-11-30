@@ -4,7 +4,7 @@
 
 
 def test_find_missing_google_raises(self):  # [missing-raises-doc]
-    """This is a docstring.
+    """This is a Google docstring.
 
     Raises:
         NameError: Never
@@ -73,7 +73,7 @@ def test_google_raises_local_reference(self):
 
 
 def test_find_all_google_raises(self):
-    """This is a docstring.
+    """This is a Google docstring.
 
     Raises:
         RuntimeError: Always
@@ -84,7 +84,7 @@ def test_find_all_google_raises(self):
 
 
 def test_find_multiple_google_raises(self):
-    """This is a docstring.
+    """This is a Google docstring.
 
     Raises:
         RuntimeError: Always
@@ -97,7 +97,7 @@ def test_find_multiple_google_raises(self):
 
 
 def test_find_rethrown_google_raises(self):  # [missing-raises-doc]
-    """This is a docstring.
+    """This is a Google docstring.
 
     Raises:
         NameError: Sometimes
@@ -111,7 +111,7 @@ def test_find_rethrown_google_raises(self):  # [missing-raises-doc]
 
 
 def test_find_rethrown_google_multiple_raises(self):  # [missing-raises-doc]
-    """This is a docstring.
+    """This is a Google docstring.
 
     Raises:
         NameError: Sometimes
@@ -125,7 +125,7 @@ def test_find_rethrown_google_multiple_raises(self):  # [missing-raises-doc]
 
 
 def test_ignores_caught_google_raises(self):
-    """This is a docstring.
+    """This is a Google docstring.
 
     Raises:
         NameError: Sometimes

@@ -4,7 +4,7 @@
 
 
 def test_find_missing_sphinx_raises(self):  # [missing-raises-doc]
-    """This is a docstring.
+    """This is a Sphinx docstring.
 
     :raises NameError: Never
     """
@@ -13,7 +13,7 @@ def test_find_missing_sphinx_raises(self):  # [missing-raises-doc]
 
 
 def test_ignore_spurious_sphinx_raises(self):
-    """This is a docstring.
+    """This is a Sphinx docstring.
 
     :raises RuntimeError: Always
     :except NameError: Never
@@ -24,7 +24,7 @@ def test_ignore_spurious_sphinx_raises(self):
 
 
 def test_find_all_sphinx_raises(self):
-    """This is a docstring.
+    """This is a Sphinx docstring.
 
     :raises RuntimeError: Always
     :except NameError: Never
@@ -38,7 +38,7 @@ def test_find_all_sphinx_raises(self):
 
 
 def test_find_multiple_sphinx_raises(self):
-    """This is a docstring.
+    """This is a Sphinx docstring.
 
     :raises RuntimeError: Always
     :raises NameError, OSError, ValueError: Never
@@ -48,7 +48,7 @@ def test_find_multiple_sphinx_raises(self):
 
 
 def test_finds_rethrown_sphinx_raises(self):  # [missing-raises-doc]
-    """This is a docstring.
+    """This is a Sphinx docstring.
 
     :raises NameError: Sometimes
     """
@@ -61,7 +61,7 @@ def test_finds_rethrown_sphinx_raises(self):  # [missing-raises-doc]
 
 
 def test_finds_rethrown_sphinx_multiple_raises(self):  # [missing-raises-doc]
-    """This is a docstring.
+    """This is a Sphinx docstring.
 
     :raises NameError: Sometimes
     """
@@ -74,7 +74,7 @@ def test_finds_rethrown_sphinx_multiple_raises(self):  # [missing-raises-doc]
 
 
 def test_ignores_caught_sphinx_raises(self):
-    """This is a docstring.
+    """This is a Sphinx docstring.
 
     :raises NameError: Sometimes
     """
@@ -87,7 +87,7 @@ def test_ignores_caught_sphinx_raises(self):
 
 
 def test_find_missing_sphinx_raises_infer_from_instance(self):  # [missing-raises-doc]
-    """This is a docstring.
+    """This is a Sphinx docstring.
 
     :raises NameError: Never
     """
@@ -97,7 +97,7 @@ def test_find_missing_sphinx_raises_infer_from_instance(self):  # [missing-raise
 
 
 def test_find_missing_sphinx_raises_infer_from_function(self):  # [missing-raises-doc]
-    """This is a docstring.
+    """This is a Sphinx docstring.
 
     :raises NameError: Never
     """

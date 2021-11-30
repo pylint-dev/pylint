@@ -4,7 +4,7 @@
 
 
 def test_find_missing_numpy_raises(self):  # [missing-raises-doc]
-    """This is a docstring.
+    """This is a Numpy docstring.
 
     Raises
     ------
@@ -16,7 +16,7 @@ def test_find_missing_numpy_raises(self):  # [missing-raises-doc]
 
 
 def test_find_all_numpy_raises(self):
-    """This is a docstring.
+    """This is a Numpy docstring.
 
     Raises
     ------
@@ -30,7 +30,7 @@ def test_find_all_numpy_raises(self):
 
 
 def test_find_rethrown_numpy_raises(self):  # [missing-raises-doc]
-    """This is a docstring.
+    """This is a Numpy docstring.
 
     Raises
     ------
@@ -46,7 +46,7 @@ def test_find_rethrown_numpy_raises(self):  # [missing-raises-doc]
 
 
 def test_find_rethrown_numpy_multiple_raises(self):  # [missing-raises-doc]
-    """This is a docstring.
+    """This is a Numpy docstring.
 
     Raises
     ------
