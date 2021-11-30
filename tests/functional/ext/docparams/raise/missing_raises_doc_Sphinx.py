@@ -21,3 +21,17 @@ def test_ignore_spurious_sphinx_raises(self):
     :exception ValueError: Never
     """
     raise RuntimeError("Blah")
+
+
+def test_find_all_sphinx_raises(self):
+    """This is a docstring.
+
+    :raises RuntimeError: Always
+    :except NameError: Never
+    :raise OSError: Never
+    :exception ValueError: Never
+    """
+    raise RuntimeError("hi")  # @
+    raise NameError("hi")
+    raise OSError(2, "abort!")
+    raise ValueError("foo")
