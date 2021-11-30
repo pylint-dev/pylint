@@ -50,3 +50,18 @@ def test_ignores_returns_use_only_names():
         return 42
 
     raise inner_func()  # [raising-bad-type]
+
+
+def test_ignores_returns_use_only_exception_instances():
+    """This is a docstring
+
+    :raises MyException: Never
+    """
+
+    class MyException(Exception):
+        """A docstring"""
+
+    def inner_func():
+        return MyException
+
+    raise inner_func()

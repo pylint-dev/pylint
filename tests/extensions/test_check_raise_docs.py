@@ -30,25 +30,6 @@ class TestDocstringCheckerRaise(CheckerTestCase):
 
     CHECKER_CLASS = DocstringParameterChecker
 
-    def test_ignores_returns_use_only_exception_instances(self) -> None:
-        raise_node = astroid.extract_node(
-            '''
-        def myfunc():
-            """This is a docstring
-
-            :raises MyException: Never
-            """
-            class MyException(Exception):
-                pass
-            def inner_func():
-                return MyException
-
-            raise inner_func() #@
-        '''
-        )
-        with self.assertNoMessages():
-            self.checker.visit_raise(raise_node)
-
     def test_no_crash_when_inferring_handlers(self) -> None:
         raise_node = astroid.extract_node(
             '''
