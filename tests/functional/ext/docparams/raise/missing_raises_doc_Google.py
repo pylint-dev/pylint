@@ -122,3 +122,17 @@ def test_find_rethrown_google_multiple_raises(self):  # [missing-raises-doc]
         raise
 
     raise NameError("hi")
+
+
+def test_ignores_caught_google_raises(self):
+    """This is a docstring.
+
+    Raises:
+        NameError: Sometimes
+    """
+    try:
+        raise RuntimeError("hi")
+    except RuntimeError:
+        pass
+
+    raise NameError("hi")

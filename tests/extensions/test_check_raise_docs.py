@@ -30,26 +30,6 @@ class TestDocstringCheckerRaise(CheckerTestCase):
 
     CHECKER_CLASS = DocstringParameterChecker
 
-    def test_ignores_caught_google_raises(self) -> None:
-        raise_node = astroid.extract_node(
-            '''
-        def my_func(self):
-            """This is a docstring.
-
-            Raises:
-                NameError: Sometimes
-            """
-            try:
-                raise RuntimeError('hi') #@
-            except RuntimeError:
-                pass
-
-            raise NameError('hi')
-        '''
-        )
-        with self.assertNoMessages():
-            self.checker.visit_raise(raise_node)
-
     def test_ignores_caught_numpy_raises(self) -> None:
         raise_node = astroid.extract_node(
             '''
