@@ -64,6 +64,7 @@ import itertools
 import numbers
 import re
 import string
+import warnings
 from functools import lru_cache, partial
 from typing import (
     Callable,
@@ -294,6 +295,11 @@ class InferredTypeError(Exception):
 
 def is_inside_lambda(node: nodes.NodeNG) -> bool:
     """Return whether the given node is inside a lambda"""
+    warnings.warn(
+        "utils.is_inside_lambda will be removed in favour of calling "
+        "utils.get_node_first_ancestor_of_type(x, (nodes.Lambda,))",
+        DeprecationWarning,
+    )
     return any(isinstance(parent, nodes.Lambda) for parent in node.node_ancestors())
 
 

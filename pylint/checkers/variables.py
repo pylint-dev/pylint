@@ -1085,7 +1085,7 @@ class VariablesChecker(BaseChecker):
 
                 if (
                     recursive_klass
-                    and utils.is_inside_lambda(node)
+                    and utils.get_node_first_ancestor_of_type(node, (nodes.Lambda,))
                     and (
                         not utils.is_default_argument(node)
                         or node.scope().parent.scope() is not defframe
