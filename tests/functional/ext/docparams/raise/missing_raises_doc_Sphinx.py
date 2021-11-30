@@ -1,6 +1,6 @@
 """Tests for missing-raises-doc and missing-raises-type-doc for Sphinx style docstrings"""
 # pylint: disable=function-redefined, invalid-name, undefined-variable, missing-function-docstring
-# pylint: disable=unused-argument, try-except-raise
+# pylint: disable=unused-argument, try-except-raise, import-outside-toplevel
 
 
 def test_find_missing_sphinx_raises(self):  # [missing-raises-doc]
@@ -107,3 +107,13 @@ def test_find_missing_sphinx_raises_infer_from_function(self):  # [missing-raise
 
     raise ex_func("hi")
     raise NameError("hi")  # [unreachable]
+
+
+def test_find_sphinx_attr_raises_exact_exc(self):
+    """This is a sphinx docstring.
+
+    :raises re.error: Sometimes
+    """
+    import re
+
+    raise re.error("hi")
