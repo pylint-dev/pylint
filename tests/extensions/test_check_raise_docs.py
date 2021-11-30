@@ -30,23 +30,6 @@ class TestDocstringCheckerRaise(CheckerTestCase):
 
     CHECKER_CLASS = DocstringParameterChecker
 
-    def test_find_invalid_missing_sphinx_attr_raises(self) -> None:
-        raise_node = astroid.extract_node(
-            '''
-        def my_func(self):
-            """This is a sphinx docstring.
-
-            :raises bogusmodule.error: Sometimes
-            """
-            from re import error
-            raise error('hi') #@
-        '''
-        )
-        # pylint allows this to pass since the comparison between Raises and
-        # raise are based on the class name, not the qualified name.
-        with self.assertNoMessages():
-            self.checker.visit_raise(raise_node)
-
     @set_config(accept_no_raise_doc=False)
     def test_sphinx_raises_with_prefix(self) -> None:
         code_snippet = '''

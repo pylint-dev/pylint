@@ -137,3 +137,15 @@ def test_find_valid_missing_sphinx_attr_raises(self):  # [missing-raises-doc]
     from re import error
 
     raise error("hi")
+
+
+def test_find_invalid_missing_sphinx_attr_raises(self):
+    """This is a sphinx docstring.
+    pylint allows this to pass since the comparison between Raises and
+    raise are based on the class name, not the qualified name.
+
+    :raises bogusmodule.error: Sometimes
+    """
+    from re import error
+
+    raise error("hi")
