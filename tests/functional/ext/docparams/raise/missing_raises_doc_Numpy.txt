@@ -1,0 +1,2 @@
+missing-raises-doc:6:0:15:25:test_find_missing_numpy_raises:"""RuntimeError"" not documented as being raised":UNDEFINED
+unreachable:15:4:15:25:test_find_missing_numpy_raises:Unreachable code:UNDEFINED
