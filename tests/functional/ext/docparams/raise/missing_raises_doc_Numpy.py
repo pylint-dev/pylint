@@ -1,6 +1,6 @@
 """Tests for missing-raises-doc and missing-raises-type-doc for Numpy style docstrings"""
 # pylint: disable=function-redefined, invalid-name, undefined-variable, missing-function-docstring
-# pylint: disable=unused-argument, try-except-raise
+# pylint: disable=unused-argument, try-except-raise, import-outside-toplevel
 
 
 def test_find_missing_numpy_raises(self):  # [missing-raises-doc]
@@ -75,3 +75,16 @@ def test_ignores_caught_numpy_raises(self):
         pass
 
     raise NameError("hi")
+
+
+def test_find_numpy_attr_raises_exact_exc(self):
+    """This is a numpy docstring.
+
+    Raises
+    ------
+    re.error
+        Sometimes
+    """
+    import re
+
+    raise re.error("hi")  # @
