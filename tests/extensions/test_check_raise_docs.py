@@ -30,28 +30,6 @@ class TestDocstringCheckerRaise(CheckerTestCase):
 
     CHECKER_CLASS = DocstringParameterChecker
 
-    def test_ignores_caught_numpy_raises(self) -> None:
-        raise_node = astroid.extract_node(
-            '''
-        def my_func(self):
-            """This is a numpy docstring.
-
-            Raises
-            ------
-            NameError
-                Sometimes
-            """
-            try:
-                raise RuntimeError('hi') #@
-            except RuntimeError:
-                pass
-
-            raise NameError('hi')
-        '''
-        )
-        with self.assertNoMessages():
-            self.checker.visit_raise(raise_node)
-
     def test_find_numpy_attr_raises_exact_exc(self) -> None:
         raise_node = astroid.extract_node(
             '''

@@ -59,3 +59,19 @@ def test_find_rethrown_numpy_multiple_raises(self):  # [missing-raises-doc]
         raise
 
     raise NameError("hi")
+
+
+def test_ignores_caught_numpy_raises(self):
+    """This is a numpy docstring.
+
+    Raises
+    ------
+    NameError
+        Sometimes
+    """
+    try:
+        raise RuntimeError("hi")
+    except RuntimeError:
+        pass
+
+    raise NameError("hi")
