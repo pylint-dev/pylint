@@ -55,6 +55,19 @@ def test_finds_rethrown_sphinx_raises(self):  # [missing-raises-doc]
     try:
         fake_func()
     except RuntimeError:
-        raise  # @
+        raise
+
+    raise NameError("hi")
+
+
+def test_finds_rethrown_sphinx_multiple_raises(self):  # [missing-raises-doc]
+    """This is a docstring.
+
+    :raises NameError: Sometimes
+    """
+    try:
+        fake_func()
+    except (RuntimeError, ValueError):
+        raise
 
     raise NameError("hi")
