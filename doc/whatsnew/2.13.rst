@@ -20,6 +20,11 @@ Extensions
 Other Changes
 =============
 
+* Fix false negative for ``consider-iterating-dictionary`` during membership checks encapsulated in iterables
+  or ``not in`` checks
+
+  Closes #5323
+
 * Require Python ``3.6.2`` to run pylint.
 
   Closes #5065
