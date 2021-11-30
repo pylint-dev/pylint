@@ -31,24 +31,6 @@ class TestDocstringCheckerRaise(CheckerTestCase):
 
     CHECKER_CLASS = DocstringParameterChecker
 
-    def test_find_missing_sphinx_raises(self) -> None:
-        node = astroid.extract_node(
-            '''
-        def my_func(self):
-            """This is a docstring.
-
-            :raises NameError: Never
-            """
-            raise RuntimeError('hi')
-            raise NameError('hi')
-        '''
-        )
-        raise_node = node.body[0]
-        with self.assertAddsMessages(
-            MessageTest(msg_id="missing-raises-doc", node=node, args=("RuntimeError",))
-        ):
-            self.checker.visit_raise(raise_node)
-
     def test_find_missing_google_raises(self) -> None:
         node = astroid.extract_node(
             '''
