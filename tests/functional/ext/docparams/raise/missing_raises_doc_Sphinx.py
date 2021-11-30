@@ -71,3 +71,16 @@ def test_finds_rethrown_sphinx_multiple_raises(self):  # [missing-raises-doc]
         raise
 
     raise NameError("hi")
+
+
+def test_ignores_caught_sphinx_raises(self):
+    """This is a docstring.
+
+    :raises NameError: Sometimes
+    """
+    try:
+        raise RuntimeError("hi")
+    except RuntimeError:
+        pass
+
+    raise NameError("hi")
