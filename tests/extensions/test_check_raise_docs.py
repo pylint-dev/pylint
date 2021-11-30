@@ -30,23 +30,6 @@ class TestDocstringCheckerRaise(CheckerTestCase):
 
     CHECKER_CLASS = DocstringParameterChecker
 
-    def test_ignores_raise_uninferable(self) -> None:
-        raise_node = astroid.extract_node(
-            '''
-        from unknown import Unknown
-
-        def my_func(self):
-            """This is a docstring.
-
-            :raises NameError: Never
-            """
-            raise Unknown('hi') #@
-            raise NameError('hi')
-        '''
-        )
-        with self.assertNoMessages():
-            self.checker.visit_raise(raise_node)
-
     def test_ignores_returns_from_inner_functions(self) -> None:
         raise_node = astroid.extract_node(
             '''
