@@ -1,6 +1,7 @@
 """Tests for missing-raises-doc and missing-raises-type-doc"""
 # pylint: disable=function-redefined, invalid-name, undefined-variable, missing-function-docstring
-# pylint: disable=unused-argument, import-error, unused-variable
+# pylint: disable=unused-argument, import-error, unused-variable, no-member, try-except-raise
+import collections
 
 from unknown import Unknown
 
@@ -65,3 +66,14 @@ def test_ignores_returns_use_only_exception_instances():
         return MyException
 
     raise inner_func()
+
+
+def test_no_crash_when_inferring_handlers():
+    """raises
+
+    :raise U: pass
+    """
+    try:
+        pass
+    except collections.U as exc:
+        raise
