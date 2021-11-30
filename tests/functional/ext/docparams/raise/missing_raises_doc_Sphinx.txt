@@ -1,2 +1,5 @@
 missing-raises-doc:6:0:12:25:test_find_missing_sphinx_raises:"""RuntimeError"" not documented as being raised":UNDEFINED
 unreachable:12:4:12:25:test_find_missing_sphinx_raises:Unreachable code:UNDEFINED
+unreachable:35:4:35:25:test_find_all_sphinx_raises:Unreachable code:UNDEFINED
+unreachable:36:4:36:30:test_find_all_sphinx_raises:Unreachable code:UNDEFINED
+unreachable:37:4:37:27:test_find_all_sphinx_raises:Unreachable code:UNDEFINED

@@ -80,4 +80,4 @@ def test_find_all_google_raises(self):
         NameError: Never
     """
     raise RuntimeError("hi")
-    raise NameError("hi")
+    raise NameError("hi")  # [unreachable]

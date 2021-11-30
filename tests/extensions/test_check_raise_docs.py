@@ -31,26 +31,6 @@ class TestDocstringCheckerRaise(CheckerTestCase):
 
     CHECKER_CLASS = DocstringParameterChecker
 
-    def test_find_all_numpy_raises(self) -> None:
-        raise_node = astroid.extract_node(
-            '''
-        def my_func(self):
-            """This is a docstring.
-
-            Raises
-            ------
-            RuntimeError
-                Always
-            NameError
-                Never
-            """
-            raise RuntimeError('hi') #@
-            raise NameError('hi')
-        '''
-        )
-        with self.assertNoMessages():
-            self.checker.visit_raise(raise_node)
-
     def test_find_multiple_sphinx_raises(self) -> None:
         raise_node = astroid.extract_node(
             '''

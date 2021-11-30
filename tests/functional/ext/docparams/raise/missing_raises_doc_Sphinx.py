@@ -31,7 +31,7 @@ def test_find_all_sphinx_raises(self):
     :raise OSError: Never
     :exception ValueError: Never
     """
-    raise RuntimeError("hi")  # @
-    raise NameError("hi")
-    raise OSError(2, "abort!")
-    raise ValueError("foo")
+    raise RuntimeError("hi")
+    raise NameError("hi")  # [unreachable]
+    raise OSError(2, "abort!")  # [unreachable]
+    raise ValueError("foo")  # [unreachable]
