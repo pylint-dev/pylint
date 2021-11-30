@@ -25,6 +25,11 @@ Other Changes
 
   Closes #5323
 
+* Allow disabling ``duplicate-code`` with a disable comment when running through
+  pylint.
+
+  Closes #214
+
 * Require Python ``3.6.2`` to run pylint.
 
   Closes #5065

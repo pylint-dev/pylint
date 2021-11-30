@@ -10,6 +10,11 @@ Release date: TBA
   Put new features here and also in 'doc/whatsnew/2.13.rst'
 
 
+* Allow disabling ``duplicate-code`` with a disable comment when running through
+  pylint.
+
+  Closes #214
+
 ..
   Insert your changelog randomly, it will reduce merge conflicts
   (Ie. not necessarily at the end)

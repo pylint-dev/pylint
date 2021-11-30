@@ -385,10 +385,19 @@ class Similar:
         else:
             readlines = stream.readlines  # type: ignore[assignment] # hint parameter is incorrectly typed as non-optional
         try:
+            active_lines: List[str] = []
+            if hasattr(self, "linter"):
+                # Remove those lines that should be ignored because of disables
+                for index, line in enumerate(readlines()):
+                    if self.linter._is_one_message_enabled("R0801", index + 1):  # type: ignore[attr-defined]
+                        active_lines.append(line)
+            else:
+                active_lines = readlines()
+
             self.linesets.append(
                 LineSet(
                     streamid,
-                    readlines(),
+                    active_lines,
                     self.ignore_comments,
                     self.ignore_docstrings,
                     self.ignore_imports,
