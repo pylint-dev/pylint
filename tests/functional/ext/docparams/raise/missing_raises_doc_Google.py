@@ -70,3 +70,14 @@ def test_google_raises_local_reference(self):
     from neighbor_module import LocalException
 
     raise LocalException("hi")
+
+
+def test_find_all_google_raises(self):
+    """This is a docstring.
+
+    Raises:
+        RuntimeError: Always
+        NameError: Never
+    """
+    raise RuntimeError("hi")
+    raise NameError("hi")
