@@ -1,0 +1,2 @@
+[LOGGING]
+logging-modules=logging,my.logging

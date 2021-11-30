@@ -25,6 +25,15 @@ Release date: TBA
 * Fixed a false positive for ``unused-import`` where everything
   was not analyzed properly inside typing guards.
 
+* Specified that the ``ignore-paths`` option considers "\" to represent a
+  windows directory delimiter instead of a regular expression escape
+  character.
+
+* Fixed a crash with the ``ignore-paths`` option when invoking the option
+  via the command line.
+
+  Closes #5437
+
 ..
   Insert your changelog randomly, it will reduce merge conflicts
   (Ie. not necessarily at the end)
@@ -60,6 +69,11 @@ Release date: 2021-11-24
 * Fix ``unnecessary_dict_index_lookup`` false positive when deleting a dictionary's entry.
 
   Closes #4716
+
+* Fix false negative for ``consider-iterating-dictionary`` during membership checks encapsulated in iterables
+  or ``not in`` checks
+
+  Closes #5323
 
 * Fix ``install graphiz`` message which isn't needed for puml output format.
 

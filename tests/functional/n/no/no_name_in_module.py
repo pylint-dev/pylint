@@ -75,3 +75,6 @@ except Exception:
 from .no_self_use import Super
 from .no_self_use import lala  # [no-name-in-module]
 from .no_self_use.bla import lala1 # [no-name-in-module]
+
+# Check ignored-modules setting
+from argparse import THIS_does_not_EXIST
