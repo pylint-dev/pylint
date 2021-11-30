@@ -87,4 +87,17 @@ def test_find_numpy_attr_raises_exact_exc(self):
     """
     import re
 
-    raise re.error("hi")  # @
+    raise re.error("hi")
+
+
+def test_find_numpy_attr_raises_substr_exc(self):
+    """This is a numpy docstring.
+
+    Raises
+    ------
+    re.error
+        Sometimes
+    """
+    from re import error
+
+    raise error("hi")
