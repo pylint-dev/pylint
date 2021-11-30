@@ -8,3 +8,5 @@ missing-raises-doc:50:0:60:25:test_finds_rethrown_sphinx_raises:"""RuntimeError"
 missing-raises-doc:63:0:73:25:test_finds_rethrown_sphinx_multiple_raises:"""RuntimeError, ValueError"" not documented as being raised":UNDEFINED
 missing-raises-doc:89:0:96:25:test_find_missing_sphinx_raises_infer_from_instance:"""RuntimeError"" not documented as being raised":UNDEFINED
 unreachable:96:4:96:25:test_find_missing_sphinx_raises_infer_from_instance:Unreachable code:UNDEFINED
+missing-raises-doc:99:0:109:25:test_find_missing_sphinx_raises_infer_from_function:"""RuntimeError"" not documented as being raised":UNDEFINED
+unreachable:109:4:109:25:test_find_missing_sphinx_raises_infer_from_function:Unreachable code:UNDEFINED

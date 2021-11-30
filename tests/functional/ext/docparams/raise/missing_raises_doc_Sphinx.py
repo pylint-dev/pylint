@@ -94,3 +94,16 @@ def test_find_missing_sphinx_raises_infer_from_instance(self):  # [missing-raise
     my_exception = RuntimeError("hi")
     raise my_exception
     raise NameError("hi")  # [unreachable]
+
+
+def test_find_missing_sphinx_raises_infer_from_function(self):  # [missing-raises-doc]
+    """This is a docstring.
+
+    :raises NameError: Never
+    """
+
+    def ex_func(val):
+        return RuntimeError(val)
+
+    raise ex_func("hi")
+    raise NameError("hi")  # [unreachable]
