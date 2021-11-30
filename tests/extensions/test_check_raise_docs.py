@@ -22,32 +22,13 @@
 import astroid
 
 from pylint.extensions.docparams import DocstringParameterChecker
-from pylint.testutils import CheckerTestCase, MessageTest, set_config
+from pylint.testutils import CheckerTestCase, MessageTest
 
 
 class TestDocstringCheckerRaise(CheckerTestCase):
     """Tests for pylint_plugin.RaiseDocChecker"""
 
     CHECKER_CLASS = DocstringParameterChecker
-
-    @set_config(accept_no_raise_doc=False)
-    def test_sphinx_raises_with_prefix(self) -> None:
-        code_snippet = '''
-        def my_func(self):
-            """This is a sphinx docstring.
-
-            :raises {prefix}re.error: Sometimes
-            """
-            import re
-            raise re.error('hi') #@
-        '''
-        for prefix in ("~", "!"):
-            raise_node = astroid.extract_node(code_snippet.format(prefix=prefix))
-            with self.assertNoMessages():
-                self.checker.visit_raise(raise_node)
-
-        with self.assertNoMessages():
-            self.checker.visit_raise(raise_node)
 
     def test_ignores_raise_uninferable(self) -> None:
         raise_node = astroid.extract_node(
