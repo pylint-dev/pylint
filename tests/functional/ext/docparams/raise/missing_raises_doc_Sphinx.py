@@ -84,3 +84,13 @@ def test_ignores_caught_sphinx_raises(self):
         pass
 
     raise NameError("hi")
+
+
+def test_find_missing_sphinx_raises_infer_from_instance(self):  # [missing-raises-doc]
+    """This is a docstring.
+
+    :raises NameError: Never
+    """
+    my_exception = RuntimeError("hi")
+    raise my_exception
+    raise NameError("hi")  # [unreachable]

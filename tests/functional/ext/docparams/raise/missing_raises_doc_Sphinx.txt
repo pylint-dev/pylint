@@ -6,3 +6,5 @@ unreachable:37:4:37:27:test_find_all_sphinx_raises:Unreachable code:UNDEFINED
 unreachable:47:4:47:25:test_find_multiple_sphinx_raises:Unreachable code:UNDEFINED
 missing-raises-doc:50:0:60:25:test_finds_rethrown_sphinx_raises:"""RuntimeError"" not documented as being raised":UNDEFINED
 missing-raises-doc:63:0:73:25:test_finds_rethrown_sphinx_multiple_raises:"""RuntimeError, ValueError"" not documented as being raised":UNDEFINED
+missing-raises-doc:89:0:96:25:test_find_missing_sphinx_raises_infer_from_instance:"""RuntimeError"" not documented as being raised":UNDEFINED
+unreachable:96:4:96:25:test_find_missing_sphinx_raises_infer_from_instance:Unreachable code:UNDEFINED
