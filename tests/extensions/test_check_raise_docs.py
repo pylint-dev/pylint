@@ -30,25 +30,6 @@ class TestDocstringCheckerRaise(CheckerTestCase):
 
     CHECKER_CLASS = DocstringParameterChecker
 
-    @set_config(accept_no_raise_doc=False)
-    def test_numpy_raises_with_prefix(self) -> None:
-        code_snippet = '''
-        def my_func(self):
-            """This is a numpy docstring.
-
-            Raises
-            ------
-            {prefix}re.error
-                Sometimes
-            """
-            import re
-            raise re.error('hi') #@
-        '''
-        for prefix in ("~", "!"):
-            raise_node = astroid.extract_node(code_snippet.format(prefix=prefix))
-            with self.assertNoMessages():
-                self.checker.visit_raise(raise_node)
-
     def test_find_missing_sphinx_raises_infer_from_instance(self) -> None:
         raise_node = astroid.extract_node(
             '''
