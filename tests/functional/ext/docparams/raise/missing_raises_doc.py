@@ -38,3 +38,15 @@ def test_ignores_returns_from_inner_functions(self):  # [missing-raises-doc]
 
     raise ex_func("hi")
     raise NameError("hi")  # [unreachable]
+
+
+def test_ignores_returns_use_only_names():
+    """This is a docstring
+
+    :raises NameError: Never
+    """
+
+    def inner_func():
+        return 42
+
+    raise inner_func()  # [raising-bad-type]
