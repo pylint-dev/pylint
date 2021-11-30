@@ -125,4 +125,15 @@ def test_find_sphinx_attr_raises_substr_exc(self):
     :raises re.error: Sometimes
     """
     from re import error
-    raise error('hi')
+
+    raise error("hi")
+
+
+def test_find_valid_missing_sphinx_attr_raises(self):  # [missing-raises-doc]
+    """This is a sphinx docstring.
+
+    :raises re.anothererror: Sometimes
+    """
+    from re import error
+
+    raise error("hi")
