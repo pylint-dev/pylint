@@ -81,3 +81,16 @@ def test_find_all_google_raises(self):
     """
     raise RuntimeError("hi")
     raise NameError("hi")  # [unreachable]
+
+
+def test_find_multiple_google_raises(self):
+    """This is a docstring.
+
+    Raises:
+        RuntimeError: Always
+        NameError, OSError, ValueError: Never
+    """
+    raise RuntimeError("hi")
+    raise NameError("hi")  # [unreachable]
+    raise OSError(2, "abort!")  # [unreachable]
+    raise ValueError("foo")  # [unreachable]

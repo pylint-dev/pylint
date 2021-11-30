@@ -35,3 +35,15 @@ def test_find_all_sphinx_raises(self):
     raise NameError("hi")  # [unreachable]
     raise OSError(2, "abort!")  # [unreachable]
     raise ValueError("foo")  # [unreachable]
+
+
+def test_find_multiple_sphinx_raises(self):
+    """This is a docstring.
+
+    :raises RuntimeError: Always
+    :raises NameError, OSError, ValueError: Never
+    """
+    raise RuntimeError("hi")
+    raise NameError("hi")  # [unreachable]
+    raise OSError(2, "abort!")  # [unreachable]
+    raise ValueError("foo")  # [unreachable]
