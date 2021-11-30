@@ -4,5 +4,4 @@ unreachable:35:4:35:25:test_find_all_sphinx_raises:Unreachable code:UNDEFINED
 unreachable:36:4:36:30:test_find_all_sphinx_raises:Unreachable code:UNDEFINED
 unreachable:37:4:37:27:test_find_all_sphinx_raises:Unreachable code:UNDEFINED
 unreachable:47:4:47:25:test_find_multiple_sphinx_raises:Unreachable code:UNDEFINED
-unreachable:48:4:48:30:test_find_multiple_sphinx_raises:Unreachable code:UNDEFINED
-unreachable:49:4:49:27:test_find_multiple_sphinx_raises:Unreachable code:UNDEFINED
+missing-raises-doc:50:0:60:25:test_finds_rethrown_sphinx_raises:"""RuntimeError"" not documented as being raised":UNDEFINED
