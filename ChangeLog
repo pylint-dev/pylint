@@ -10,6 +10,11 @@ Release date: TBA
   Put new features here and also in 'doc/whatsnew/2.13.rst'
 
 
+* Fixed detection of ``arguments-differ`` when superclass static
+  methods lacked a ``@staticmethod`` decorator.
+
+  Closes #5371
+
 ..
   Insert your changelog randomly, it will reduce merge conflicts
   (Ie. not necessarily at the end)
@@ -21,11 +26,6 @@ Release date: TBA
 
 ..
   Put bug fixes that should not wait for a new minor version here
-
-* Fixed detection of ``arguments-differ`` when superclass static
-  methods lacked a ``@staticmethod`` decorator.
-
-  Closes #5371
 
 * Fixed a false positive for ``unused-import`` where everything
   was not analyzed properly inside typing guards.
