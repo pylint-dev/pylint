@@ -745,6 +745,9 @@ class VariablesChecker(BaseChecker):
         self._used_before_assignment_is_enabled = self.linter.is_message_enabled(
             "used-before-assignment"
         )
+        self._undefined_loop_variable_is_enabled = self.linter.is_message_enabled(
+            "undefined-loop-variable"
+        )
 
     @utils.check_messages("redefined-outer-name")
     def visit_for(self, node: nodes.For) -> None:
@@ -1013,7 +1016,7 @@ class VariablesChecker(BaseChecker):
             return
 
         self._undefined_and_used_before_checker(node, stmt)
-        if self.linter.is_message_enabled("undefined-loop-variable"):
+        if self._undefined_loop_variable_is_enabled:
             self._loopvar_name(node)
 
     def _undefined_and_used_before_checker(
@@ -1248,26 +1251,28 @@ class VariablesChecker(BaseChecker):
                     )
                     return (VariableVisitConsumerAction.CONSUME, found_nodes)
 
-            # E0601 can occur in class-level scope in lambdas, as in
-            # the following example:
-            #   class A:
-            #      x = lambda attr: f + attr
-            #      f = 42
-            if isinstance(frame, nodes.ClassDef) and node.name in frame.locals:
-                if isinstance(node.parent, nodes.Arguments):
-                    if stmt.fromlineno <= defstmt.fromlineno:
-                        # Doing the following is fine:
-                        #   class A:
-                        #      x = 42
-                        #      y = lambda attr=x: attr
+                # E0601 can occur in class-level scope in lambdas, as in
+                # the following example:
+                #   class A:
+                #      x = lambda attr: f + attr
+                #      f = 42
+                if isinstance(frame, nodes.ClassDef) and node.name in frame.locals:
+                    if isinstance(node.parent, nodes.Arguments):
+                        if stmt.fromlineno <= defstmt.fromlineno:
+                            # Doing the following is fine:
+                            #   class A:
+                            #      x = 42
+                            #      y = lambda attr=x: attr
+                            self.add_message(
+                                "used-before-assignment",
+                                args=node.name,
+                                node=node,
+                            )
+                    else:
                         self.add_message(
-                            "used-before-assignment",
-                            args=node.name,
-                            node=node,
+                            "undefined-variable", args=node.name, node=node
                         )
-                else:
-                    self.add_message("undefined-variable", args=node.name, node=node)
-                    return (VariableVisitConsumerAction.CONSUME, found_nodes)
+                        return (VariableVisitConsumerAction.CONSUME, found_nodes)
             elif current_consumer.scope_type == "lambda":
                 self.add_message("undefined-variable", args=node.name, node=node)
                 return (VariableVisitConsumerAction.CONSUME, found_nodes)
