@@ -22,3 +22,11 @@ def test():
     raise IndexError() from ZeroDivisionError()
     raise IndexError() from object() # [bad-exception-context]
     raise IndexError() from unknown
+
+def function():
+    """Function to be passed as exception"""
+
+try:
+    pass
+except function as exc:  # [catching-non-exception]
+    raise Exception from exc  # [bad-exception-context]

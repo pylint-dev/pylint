@@ -1,0 +1,2 @@
+missing-function-docstring:5:0:6:8:func:Missing function or method docstring:HIGH
+missing-function-docstring:18:4:19:12:MyClass.__init__:Missing function or method docstring:INFERENCE

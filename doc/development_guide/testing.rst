@@ -76,7 +76,7 @@ The .rc file can also contain a section ``[testoptions]`` to pass options for th
 test runner. The following options are currently supported:
 
     "min_pyver": Minimal python version required to run the test
-    "max_pyver": Maximum python version required to run the test
+    "max_pyver": Python version from which the test won't be run. If the last supported version is 3.9 this setting should be set to 3.10.
     "min_pyver_end_position": Minimal python version required to check the end_line and end_column attributes of the message
     "requires": Packages required to be installed locally to run the test
     "except_implementations": List of python implementations on which the test should not run
@@ -148,7 +148,14 @@ on the ``stdlib`` and a selection of external repositories.
 To run the ``primer`` tests you can add either ``--primer-stdlib`` or ``--primer-external`` to the
 pytest_ command. If you want to only run the ``primer`` you can add either of their marks, for example::
 
-    pytest -m primer_external --primer-external
+    pytest -m primer_stdlib --primer-stdlib
+
+The external ``primer`` has been split up in two marks to speed up our Continuous Integration. You can run
+either of the two batches or run them both::
+
+    pytest -m primer_external_batch_one --primer-external # Runs batch one
+    pytest -m primer_external_batch_two --primer-external # Runs batch two
+    pytest -m "primer_external_batch_one or primer_external_batch_two" --primer-external # Runs both batches
 
 The list of repositories is created on the basis of three criteria: 1) projects need to use a diverse
 range of language features, 2) projects need to be well maintained and 3) projects should not have a codebase

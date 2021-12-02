@@ -375,11 +375,11 @@ def _assigned_locally(name_node):
 
 def _is_type_checking_import(node: Union[nodes.Import, nodes.ImportFrom]) -> bool:
     """Check if an import node is guarded by a TYPE_CHECKS guard"""
-    for ancestor in node.node_ancestors():
-        if isinstance(ancestor, nodes.If):
-            if ancestor.test.as_string() in TYPING_TYPE_CHECKS_GUARDS:
-                return True
-    return False
+    return any(
+        isinstance(ancestor, nodes.If)
+        and ancestor.test.as_string() in TYPING_TYPE_CHECKS_GUARDS
+        for ancestor in node.node_ancestors()
+    )
 
 
 def _has_locals_call_after_node(stmt, scope):
