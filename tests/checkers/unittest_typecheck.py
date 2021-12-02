@@ -200,21 +200,6 @@ class TestTypeChecker(CheckerTestCase):
         with self.assertAddsMessages(message):
             self.checker.visit_attribute(node)
 
-    def test_typing_namedtuple_not_callable_issue1295(self) -> None:
-        module = astroid.parse(
-            """
-        import typing
-        Named = typing.NamedTuple('Named', [('foo', int), ('bar', int)])
-        named = Named(1, 2)
-        """
-        )
-        call = module.body[-1].value
-        callables = call.func.inferred()
-        assert len(callables) == 1
-        assert callables[0].callable()
-        with self.assertNoMessages():
-            self.checker.visit_call(call)
-
     def test_typing_namedtuple_unsubscriptable_object_issue1295(self) -> None:
         module = astroid.parse(
             """
@@ -225,77 +210,6 @@ class TestTypeChecker(CheckerTestCase):
         subscript = module.body[-1].value
         with self.assertNoMessages():
             self.checker.visit_subscript(subscript)
-
-    def test_staticmethod_multiprocessing_call(self) -> None:
-        """Make sure not-callable isn't raised for descriptors
-
-        astroid can't process descriptors correctly so
-        pylint needs to ignore not-callable for them
-        right now
-
-        Test for https://github.com/PyCQA/pylint/issues/1699
-        """
-        call = astroid.extract_node(
-            """
-        import multiprocessing
-        multiprocessing.current_process() #@
-        """
-        )
-        with self.assertNoMessages():
-            self.checker.visit_call(call)
-
-    def test_not_callable_uninferable_property(self) -> None:
-        """Make sure not-callable isn't raised for uninferable
-        properties
-        """
-        call = astroid.extract_node(
-            """
-        class A:
-            @property
-            def call(self):
-                return undefined
-
-        a = A()
-        a.call() #@
-        """
-        )
-        with self.assertNoMessages():
-            self.checker.visit_call(call)
-
-    def test_descriptor_call(self) -> None:
-        call = astroid.extract_node(
-            """
-        def func():
-            pass
-
-        class ADescriptor:
-            def __get__(self, instance, owner):
-                return func
-
-        class AggregateCls:
-            a = ADescriptor()
-
-        AggregateCls().a() #@
-        """
-        )
-        with self.assertNoMessages():
-            self.checker.visit_call(call)
-
-    def test_unknown_parent(self) -> None:
-        """Make sure the callable check does not crash when a node's parent
-        cannot be determined.
-        """
-        call = astroid.extract_node(
-            """
-        def get_num(n):
-            return 2 * n
-        get_num(10)()
-        """
-        )
-        with self.assertAddsMessages(
-            MessageTest("not-callable", node=call, args="get_num(10)")
-        ):
-            self.checker.visit_call(call)
 
 
 class TestTypeCheckerOnDecorators(CheckerTestCase):
