@@ -1032,7 +1032,7 @@ class VariablesChecker(BaseChecker):
             current_consumer = self._to_consume[i]
 
             # Certain nodes shouldn't be checked as they get checked another time
-            if self._node_should_be_skipped(node, current_consumer, i == start_index):
+            if self._should_node_be_skipped(node, current_consumer, i == start_index):
                 continue
 
             action, found_nodes = self._check_consumer(
@@ -1067,7 +1067,7 @@ class VariablesChecker(BaseChecker):
         ):
             self.add_message("undefined-variable", args=node.name, node=node)
 
-    def _node_should_be_skipped(
+    def _should_node_be_skipped(
         self, node: nodes.Name, consumer: NamesConsumer, is_start_index: bool
     ) -> bool:
         """Tests a consumer and node for various conditions in which the node
