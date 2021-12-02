@@ -8,9 +8,4 @@ Messages
   :titlesonly:
 
   messages_introduction
-  convention
-  error
-  fatal
-  information
-  refactor
-  warning
+  messages_list

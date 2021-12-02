@@ -4,7 +4,8 @@
 """Script used to generate the messages files."""
 
 import os
-from typing import Dict, List, NamedTuple, Optional
+from collections import defaultdict
+from typing import DefaultDict, Dict, List, NamedTuple, Optional, Tuple
 
 from sphinx.application import Sphinx
 
@@ -38,23 +39,38 @@ class MessageData(NamedTuple):
     definition: MessageDefinition
 
 
+MessagesDict = Dict[str, List[MessageData]]
+OldMessagesDict = Dict[str, DefaultDict[Tuple[str, str], List[str]]]
+
+
 def _register_all_checkers_and_extensions(linter: PyLinter) -> None:
     """Registers all checkers and extensions found in the default folders."""
     initialize_checkers(linter)
     initialize_extensions(linter)
 
 
-def _get_all_messages(linter: PyLinter) -> Dict[str, List[MessageData]]:
+def _get_all_messages(
+    linter: PyLinter,
+) -> Tuple[MessagesDict, OldMessagesDict]:
     """Get all messages registered to a linter and return a dictionary indexed by message
     type.
+    Also return a dictionary of old message and the new messages they can be mapped to.
     """
-    messages_dict: Dict[str, List[MessageData]] = {
+    messages_dict: MessagesDict = {
         "fatal": [],
         "error": [],
         "warning": [],
         "convention": [],
         "refactor": [],
         "information": [],
+    }
+    old_messages: OldMessagesDict = {
+        "fatal": defaultdict(list),
+        "error": defaultdict(list),
+        "warning": defaultdict(list),
+        "convention": defaultdict(list),
+        "refactor": defaultdict(list),
+        "information": defaultdict(list),
     }
     for checker in linter.get_checkers():
         for message in checker.messages:
@@ -63,10 +79,17 @@ def _get_all_messages(linter: PyLinter) -> Dict[str, List[MessageData]]:
             )
             messages_dict[MSG_TYPES[message.msgid[0]]].append(message_data)
 
-    return messages_dict
+            if message.old_names:
+                for old_name in message.old_names:
+                    category = MSG_TYPES[old_name[0][0]]
+                    old_messages[category][(old_name[1], old_name[0])].append(
+                        message.symbol
+                    )
+
+    return messages_dict, old_messages
 
 
-def _write_message_page(messages_dict: Dict[str, List[MessageData]]) -> None:
+def _write_message_page(messages_dict: MessagesDict) -> None:
     """Create or overwrite the file for each message."""
     for category, messages in messages_dict.items():
         category_dir = os.path.join(PYLINT_BASE_PATH, "doc", "messages", category)
@@ -84,15 +107,28 @@ def _write_message_page(messages_dict: Dict[str, List[MessageData]]) -> None:
                 stream.write(f"Created by ``{message.checker}`` checker\n")
 
 
-def _write_category_page(messages_dict: Dict[str, List[MessageData]]) -> None:
-    """Create or overwrite the file for each category."""
-    for category, messages in messages_dict.items():
-        category_file = os.path.join(
-            PYLINT_BASE_PATH, "doc", "messages", f"{category}.rst"
-        )
-        with open(category_file, "w", encoding="utf-8") as stream:
-            stream.write(f".. _category-{category}:\n\n")
-            stream.write(get_rst_title(category.capitalize(), "="))
+def _write_messages_list_page(messages_dict: MessagesDict) -> None:
+    """Create or overwrite the page with the list of all messages."""
+    messages_file = os.path.join(
+        PYLINT_BASE_PATH, "doc", "messages", "messages_list.rst"
+    )
+    with open(messages_file, "w", encoding="utf-8") as stream:
+        stream.write(".. _messages-list:\n\n")
+        stream.write(get_rst_title("Pylint Messages", "="))
+        stream.write("\n")
+        stream.write("Pylint can emit the following messages:\n")
+        stream.write("\n")
+        # Iterate over tuple to keep same order
+        for category in (
+            "fatal",
+            "error",
+            "warning",
+            "convention",
+            "refactor",
+            "information",
+        ):
+            messages = messages_dict[category]
+            stream.write(get_rst_title(category.capitalize(), "-"))
             stream.write("\n")
             stream.write(f"All messages in the {category} category:\n\n")
             stream.write(".. toctree::\n")
@@ -101,6 +137,26 @@ def _write_category_page(messages_dict: Dict[str, List[MessageData]]) -> None:
             stream.write("\n")
             for message in sorted(messages, key=lambda item: item.name):
                 stream.write(f"   {category}/{message.name}.rst\n")
+            stream.write("\n\n")
+
+
+def _write_redirect_pages(old_messages: OldMessagesDict) -> None:
+    """Create redirect pages for old-messages."""
+    for category, old_names in old_messages.items():
+        category_dir = os.path.join(PYLINT_BASE_PATH, "doc", "messages", category)
+        if not os.path.exists(category_dir):
+            os.makedirs(category_dir)
+        for old_name, new_names in old_names.items():
+            old_name_file = os.path.join(category_dir, f"{old_name[0]}.rst")
+            with open(old_name_file, "w", encoding="utf-8") as stream:
+                stream.write(f".. _{old_name[0]}:\n\n")
+                stream.write(get_rst_title(" / ".join(old_name), "="))
+                stream.write(
+                    f"{old_name[0]} has been renamed. The new message can "
+                    "be found at:\n\n"
+                )
+                for new_name in new_names:
+                    stream.write(f":ref:`_{new_name}`\n")
 
 
 # pylint: disable-next=unused-argument
@@ -111,11 +167,14 @@ def build_messages_pages(app: Optional[Sphinx]) -> None:
     # Create linter, register all checkers and extensions and get all messages
     linter = PyLinter()
     _register_all_checkers_and_extensions(linter)
-    messages = _get_all_messages(linter)
+    messages, old_messages = _get_all_messages(linter)
 
     # Write message and category pages
     _write_message_page(messages)
-    _write_category_page(messages)
+    _write_messages_list_page(messages)
+
+    # Write redirect pages
+    _write_redirect_pages(old_messages)
 
 
 def setup(app: Sphinx) -> None:
@@ -127,5 +186,4 @@ def setup(app: Sphinx) -> None:
 
 if __name__ == "__main__":
     # Uncomment to allow running this script by your local python interpreter
-    # build_messages_pages(None)
-    pass
+    build_messages_pages(None)
