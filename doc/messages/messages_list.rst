@@ -20,6 +20,14 @@ All messages in the fatal category:
    fatal/method-check-failed.rst
    fatal/parse-error.rst
 
+All renamed messages in the fatal category:
+
+.. toctree::
+   :maxdepth: 2
+   :titlesonly:
+
+   fatal/old-import-error.rst
+
 
 Error
 -----
@@ -137,6 +145,17 @@ All messages in the error category:
    error/used-prior-global-declaration.rst
    error/yield-inside-async-function.rst
    error/yield-outside-function.rst
+
+All renamed messages in the error category:
+
+.. toctree::
+   :maxdepth: 2
+   :titlesonly:
+
+   error/bad-context-manager.rst
+   error/maybe-no-member.rst
+   error/old-non-iterator-returned-2.rst
+   error/old-unbalanced-tuple-unpacking.rst
 
 
 Warning
@@ -279,6 +298,23 @@ All messages in the warning category:
    warning/wildcard-import.rst
    warning/wrong-exception-operation.rst
 
+All renamed messages in the warning category:
+
+.. toctree::
+   :maxdepth: 2
+   :titlesonly:
+
+   warning/implicit-str-concat-in-sequence.rst
+   warning/old-assignment-from-none.rst
+   warning/old-empty-docstring.rst
+   warning/old-missing-param-doc.rst
+   warning/old-missing-returns-doc.rst
+   warning/old-missing-type-doc.rst
+   warning/old-missing-yields-doc.rst
+   warning/old-non-iterator-returned-1.rst
+   warning/old-unidiomatic-typecheck.rst
+   warning/old-unpacking-non-sequence.rst
+
 
 Convention
 ----------
@@ -335,6 +371,17 @@ All messages in the convention category:
    convention/wrong-import-position.rst
    convention/wrong-spelling-in-comment.rst
    convention/wrong-spelling-in-docstring.rst
+
+All renamed messages in the convention category:
+
+.. toctree::
+   :maxdepth: 2
+   :titlesonly:
+
+   convention/blacklisted-name.rst
+   convention/len-as-condition.rst
+   convention/missing-docstring.rst
+   convention/old-misplaced-comparison-constant.rst
 
 
 Refactor
@@ -413,6 +460,15 @@ All messages in the refactor category:
    refactor/useless-object-inheritance.rst
    refactor/useless-return.rst
 
+All renamed messages in the refactor category:
+
+.. toctree::
+   :maxdepth: 2
+   :titlesonly:
+
+   refactor/old-simplifiable-if-statement.rst
+   refactor/old-too-many-nested-blocks.rst
+
 
 Information
 -----------
@@ -432,3 +488,11 @@ All messages in the information category:
    information/suppressed-message.rst
    information/use-symbolic-message-instead.rst
    information/useless-suppression.rst
+
+All renamed messages in the information category:
+
+.. toctree::
+   :maxdepth: 2
+   :titlesonly:
+
+   information/deprecated-disable-all.rst

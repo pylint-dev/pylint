@@ -107,7 +107,9 @@ def _write_message_page(messages_dict: MessagesDict) -> None:
                 stream.write(f"Created by ``{message.checker}`` checker\n")
 
 
-def _write_messages_list_page(messages_dict: MessagesDict) -> None:
+def _write_messages_list_page(
+    messages_dict: MessagesDict, old_messages_dict: OldMessagesDict
+) -> None:
     """Create or overwrite the page with the list of all messages."""
     messages_file = os.path.join(
         PYLINT_BASE_PATH, "doc", "messages", "messages_list.rst"
@@ -128,6 +130,7 @@ def _write_messages_list_page(messages_dict: MessagesDict) -> None:
             "information",
         ):
             messages = messages_dict[category]
+            old_messages = old_messages_dict[category]
             stream.write(get_rst_title(category.capitalize(), "-"))
             stream.write("\n")
             stream.write(f"All messages in the {category} category:\n\n")
@@ -137,6 +140,14 @@ def _write_messages_list_page(messages_dict: MessagesDict) -> None:
             stream.write("\n")
             for message in sorted(messages, key=lambda item: item.name):
                 stream.write(f"   {category}/{message.name}.rst\n")
+            stream.write("\n")
+            stream.write(f"All renamed messages in the {category} category:\n\n")
+            stream.write(".. toctree::\n")
+            stream.write("   :maxdepth: 2\n")
+            stream.write("   :titlesonly:\n")
+            stream.write("\n")
+            for message in sorted(old_messages, key=lambda item: item[0]):
+                stream.write(f"   {category}/{message[0]}.rst\n")
             stream.write("\n\n")
 
 
@@ -171,7 +182,7 @@ def build_messages_pages(app: Optional[Sphinx]) -> None:
 
     # Write message and category pages
     _write_message_page(messages)
-    _write_messages_list_page(messages)
+    _write_messages_list_page(messages, old_messages)
 
     # Write redirect pages
     _write_redirect_pages(old_messages)
