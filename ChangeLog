@@ -34,6 +34,11 @@ Release date: TBA
   windows directory delimiter instead of a regular expression escape
   character.
 
+* Fixed a false positive for ``assigning-non-slot`` when the slotted class
+  defined ``__setattr__``.
+
+  Closes #3793
+
 * Fixed a crash with the ``ignore-paths`` option when invoking the option
   via the command line.
 
