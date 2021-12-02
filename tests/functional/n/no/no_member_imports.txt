@@ -1,0 +1,1 @@
+no-member:9:4:9:35:test_no_member_in_getattr:Module 'collections' has no 'THIS_does_not_EXIST' member:INFERENCE

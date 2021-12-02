@@ -49,25 +49,6 @@ class TestTypeChecker(CheckerTestCase):
     "Tests for pylint.checkers.typecheck"
     CHECKER_CLASS = typecheck.TypeChecker
 
-    def test_no_member_in_getattr(self) -> None:
-        """Make sure that a module attribute access is checked by pylint."""
-
-        node = astroid.extract_node(
-            """
-        import optparse
-        optparse.THIS_does_not_EXIST
-        """
-        )
-        with self.assertAddsMessages(
-            MessageTest(
-                "no-member",
-                node=node,
-                args=("Module", "optparse", "THIS_does_not_EXIST", ""),
-                confidence=INFERENCE,
-            )
-        ):
-            self.checker.visit_attribute(node)
-
     @set_config(ignored_modules=("argparse",))
     def test_no_member_in_getattr_ignored(self) -> None:
         """Make sure that a module attribute access check is omitted with a
