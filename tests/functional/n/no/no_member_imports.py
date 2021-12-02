@@ -39,9 +39,9 @@ def test_ignored_modules_patterns() -> None:
 
 
 def test_ignored_classes_no_recursive_pattern() -> None:
-    import dataclasses
+    import sys
 
-    dataclasses.THIS_does_not_EXIST  # [no-member]
+    sys.THIS_does_not_EXIST  # [no-member]
 
 
 def test_ignored_classes_qualified_name() -> None:
