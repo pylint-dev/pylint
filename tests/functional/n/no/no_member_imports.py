@@ -22,3 +22,10 @@ def test_ignored_modules_invalid_pattern() -> None:
     import xml
 
     xml.etree.Lala  # [no-member]
+
+
+def test_ignored_modules_root_one_applies_as_well() -> None:
+    """Check that when a root module is completely ignored, submodules are skipped."""
+    import argparse
+
+    argparse.submodule.Lala
