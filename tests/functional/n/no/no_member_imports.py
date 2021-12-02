@@ -1,5 +1,6 @@
 """Tests for no-member on imported modules"""
 # pylint: disable=import-outside-toplevel, pointless-statement, missing-function-docstring
+# pylint: disable=deprecated-module
 
 
 def test_no_member_in_getattr():
@@ -36,6 +37,16 @@ def test_ignored_modules_patterns() -> None:
 
     collections.abc.THIS_does_not_EXIST
 
+
 def test_ignored_classes_no_recursive_pattern() -> None:
     import dataclasses
-    dataclasses.THIS_does_not_EXIST # [no-member]
+
+    dataclasses.THIS_does_not_EXIST  # [no-member]
+
+
+def test_ignored_classes_qualified_name() -> None:
+    """Test that ignored-classes supports qualified name for ignoring."""
+
+    import optparse
+
+    optparse.Values.lala
