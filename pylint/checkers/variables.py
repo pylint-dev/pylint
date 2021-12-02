@@ -1688,7 +1688,10 @@ class VariablesChecker(BaseChecker):
             1 = Break
             2 = Break + emit message
         """
-        if node.frame().parent == defstmt:
+        if (
+            node.frame().parent == defstmt
+            and node.statement(future=True) not in node.frame().body
+        ):
             # Check if used as type annotation
             # Break but don't emit message if postponed evaluation is enabled
             if utils.is_node_in_type_annotation_context(node):
