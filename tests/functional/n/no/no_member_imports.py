@@ -35,3 +35,7 @@ def test_ignored_modules_patterns() -> None:
     import collections
 
     collections.abc.THIS_does_not_EXIST
+
+def test_ignored_classes_no_recursive_pattern() -> None:
+    import dataclasses
+    dataclasses.THIS_does_not_EXIST # [no-member]

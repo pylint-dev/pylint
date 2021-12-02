@@ -49,23 +49,6 @@ class TestTypeChecker(CheckerTestCase):
     "Tests for pylint.checkers.typecheck"
     CHECKER_CLASS = typecheck.TypeChecker
 
-    @set_config(ignored_classes=("xml.*",))
-    def test_ignored_classes_no_recursive_pattern(self) -> None:
-        node = astroid.extract_node(
-            """
-        import xml
-        xml.etree.ElementTree.Test
-        """
-        )
-        message = MessageTest(
-            "no-member",
-            node=node,
-            args=("Module", "xml.etree.ElementTree", "Test", ""),
-            confidence=INFERENCE,
-        )
-        with self.assertAddsMessages(message):
-            self.checker.visit_attribute(node)
-
     @set_config(ignored_classes=("optparse.Values",))
     def test_ignored_classes_qualified_name(self) -> None:
         """Test that ignored-classes supports qualified name for ignoring."""
