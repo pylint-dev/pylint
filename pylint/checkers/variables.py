@@ -1017,9 +1017,6 @@ class VariablesChecker(BaseChecker):
         self._undefined_and_used_before_checker(node, stmt)
         self._loopvar_name(node)
 
-    @utils.check_messages(
-        "undefined-variable", "used-before-assignment", "cell-var-from-loop"
-    )
     def _undefined_and_used_before_checker(
         self, node: nodes.Name, stmt: nodes.NodeNG
     ) -> None:
