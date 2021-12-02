@@ -1016,7 +1016,7 @@ class VariablesChecker(BaseChecker):
             return
 
         self._undefined_and_used_before_checker(node, stmt)
-        if self._undefined_loop_variable_is_enabled:
+        if self._is_undefined_loop_variable_enabled:
             self._loopvar_name(node)
 
     def _undefined_and_used_before_checker(
@@ -1052,7 +1052,7 @@ class VariablesChecker(BaseChecker):
         # we have not found the name, if it isn't a builtin, that's an
         # undefined name !
         if (
-            self._undefined_variable_is_enabled
+            self._is_undefined_variable_enabled
             and not (
                 node.name in nodes.Module.scope_attrs
                 or utils.is_builtin(node.name)
@@ -1140,8 +1140,8 @@ class VariablesChecker(BaseChecker):
         self._check_late_binding_closure(node)
 
         if not (
-            self._undefined_variable_is_enabled
-            or self._used_before_assignment_is_enabled
+            self._is_undefined_variable_enabled
+            or self._is_used_before_assignment_enabled
         ):
             return (VariableVisitConsumerAction.CONSUME, found_nodes)
 
