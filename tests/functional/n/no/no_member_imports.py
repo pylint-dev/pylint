@@ -49,4 +49,11 @@ def test_ignored_classes_qualified_name() -> None:
 
     import optparse
 
-    optparse.Values.lala
+    optparse.Values.THIS_does_not_EXIST
+
+
+def test_ignored_classes_only_name() -> None:
+    """Test that ignored_classes works with the name only."""
+    import optparse
+
+    optparse.Option.THIS_does_not_EXIST

@@ -49,18 +49,6 @@ class TestTypeChecker(CheckerTestCase):
     "Tests for pylint.checkers.typecheck"
     CHECKER_CLASS = typecheck.TypeChecker
 
-    @set_config(ignored_classes=("Values",))
-    def test_ignored_classes_only_name(self) -> None:
-        """Test that ignored_classes works with the name only."""
-        node = astroid.extract_node(
-            """
-        import optparse
-        optparse.Values.lala
-        """
-        )
-        with self.assertNoMessages():
-            self.checker.visit_attribute(node)
-
     @set_config(suggestion_mode=False)
     @needs_c_extension
     def test_nomember_on_c_extension_error_msg(self) -> None:
