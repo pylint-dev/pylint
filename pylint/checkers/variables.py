@@ -155,7 +155,8 @@ class VariableVisitConsumerAction(Enum):
 
     Continue -> continue loop to next consumer
     Return -> return and thereby break the loop
-    Consume -> consume the found nodes (second return value) and return"""
+    Consume -> consume the found nodes (second return value) and return
+    """
 
     CONTINUE = 0
     RETURN = 1
@@ -730,9 +731,7 @@ class VariablesChecker(BaseChecker):
 
     def __init__(self, linter=None):
         super().__init__(linter)
-        self._to_consume = (
-            None  # list of tuples: (to_consume:dict, consumed:dict, scope_type:str)
-        )
+        self._to_consume: List[NamesConsumer] = None
         self._checking_mod_attr = None
         self._loop_variables = []
         self._type_annotation_names = []
@@ -1001,13 +1000,10 @@ class VariablesChecker(BaseChecker):
     def visit_delname(self, node: nodes.DelName) -> None:
         self.visit_name(node)
 
-    @utils.check_messages(
-        "undefined-variable",
-        "used-before-assignment",
-        "cell-var-from-loop",
-        "unused-import",
-    )
     def visit_name(self, node: nodes.Name) -> None:
+        """This visit method is not decorated with utils.check_messages
+        as it does a number of smaller checks that would be ignored by it.
+        """
         stmt = node.statement()
         if stmt.fromlineno is None:
             # name node from an astroid built from live code, skip
@@ -1015,7 +1011,8 @@ class VariablesChecker(BaseChecker):
             return
 
         self._undefined_and_used_before_checker(node, stmt)
-        self._loopvar_name(node)
+        if self.linter.is_message_enabled("undefined-loop-variable"):
+            self._loopvar_name(node)
 
     def _undefined_and_used_before_checker(
         self, node: nodes.Name, stmt: nodes.NodeNG
@@ -1760,8 +1757,6 @@ class VariablesChecker(BaseChecker):
 
     def _loopvar_name(self, node: astroid.Name) -> None:
         # filter variables according to node's scope
-        if not self.linter.is_message_enabled("undefined-loop-variable"):
-            return
         astmts = [s for s in node.lookup(node.name)[1] if hasattr(s, "assign_type")]
         # If this variable usage exists inside a function definition
         # that exists in the same loop,
