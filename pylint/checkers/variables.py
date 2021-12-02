@@ -1165,7 +1165,7 @@ class VariablesChecker(BaseChecker):
             return (VariableVisitConsumerAction.CONTINUE, None)
         if not found_nodes:
             self.add_message("used-before-assignment", args=node.name, node=node)
-            if node.name in current_consumer.consumed_uncertain:
+            if current_consumer.consumed_uncertain[node.name]:
                 found_nodes += current_consumer.consumed_uncertain[node.name]
                 return (VariableVisitConsumerAction.CONSUME, found_nodes)
             return (VariableVisitConsumerAction.RETURN, found_nodes)
