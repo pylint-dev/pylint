@@ -146,7 +146,7 @@ def _write_messages_list_page(
             stream.write("\n")
             stream.write(f"All renamed messages in the {category} category:\n\n")
             stream.write(".. toctree::\n")
-            stream.write("   :maxdepth: 2\n")
+            stream.write("   :maxdepth: 1\n")
             stream.write("   :titlesonly:\n")
             stream.write("\n")
             for old_message in sorted(old_messages, key=lambda item: item[0]):
@@ -203,5 +203,6 @@ def setup(app: Sphinx) -> None:
 
 
 if __name__ == "__main__":
+    pass
     # Uncomment to allow running this script by your local python interpreter
-    build_messages_pages(None)
+    # build_messages_pages(None)
