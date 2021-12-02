@@ -25,6 +25,11 @@ Release date: TBA
 * Fixed a false positive for ``unused-import`` where everything
   was not analyzed properly inside typing guards.
 
+* Fixed a false-positive regression for ``used-before-assignment`` for
+  typed variables in the body of class methods that reference the same class
+
+  Closes #5342
+
 * Specified that the ``ignore-paths`` option considers "\" to represent a
   windows directory delimiter instead of a regular expression escape
   character.
