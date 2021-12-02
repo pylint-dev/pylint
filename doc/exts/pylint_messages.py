@@ -40,7 +40,10 @@ class MessageData(NamedTuple):
 
 
 MessagesDict = Dict[str, List[MessageData]]
-OldMessagesDict = Dict[str, DefaultDict[Tuple[str, str], List[str]]]
+OldMessagesDict = Dict[str, DefaultDict[Tuple[str, str], List[Tuple[str, str]]]]
+"""DefaultDict is indexed by tuples of (old name symbol, old name id) and values are
+tuples of (new name symbol, new name category)
+"""
 
 
 def _register_all_checkers_and_extensions(linter: PyLinter) -> None:
@@ -83,7 +86,7 @@ def _get_all_messages(
                 for old_name in message.old_names:
                     category = MSG_TYPES[old_name[0][0]]
                     old_messages[category][(old_name[1], old_name[0])].append(
-                        message.symbol
+                        (message.symbol, MSG_TYPES[message.msgid[0]])
                     )
 
     return messages_dict, old_messages
@@ -146,8 +149,8 @@ def _write_messages_list_page(
             stream.write("   :maxdepth: 2\n")
             stream.write("   :titlesonly:\n")
             stream.write("\n")
-            for message in sorted(old_messages, key=lambda item: item[0]):
-                stream.write(f"   {category}/{message[0]}.rst\n")
+            for old_message in sorted(old_messages, key=lambda item: item[0]):
+                stream.write(f"   {category}/{old_message[0]}.rst\n")
             stream.write("\n\n")
 
 
@@ -166,8 +169,12 @@ def _write_redirect_pages(old_messages: OldMessagesDict) -> None:
                     f"{old_name[0]} has been renamed. The new message can "
                     "be found at:\n\n"
                 )
+                stream.write(".. toctree::\n")
+                stream.write("   :maxdepth: 2\n")
+                stream.write("   :titlesonly:\n")
+                stream.write("\n")
                 for new_name in new_names:
-                    stream.write(f":ref:`_{new_name}`\n")
+                    stream.write(f"   ../{new_name[1]}/{new_name[0]}.rst\n")
 
 
 # pylint: disable-next=unused-argument
