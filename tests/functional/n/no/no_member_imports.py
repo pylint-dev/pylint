@@ -1,5 +1,5 @@
 """Tests for no-member on imported modules"""
-# pylint: disable=import-outside-toplevel, pointless-statement
+# pylint: disable=import-outside-toplevel, pointless-statement, missing-function-docstring
 
 
 def test_no_member_in_getattr():
@@ -16,3 +16,9 @@ def test_no_member_in_getattr_ignored() -> None:
     import argparse
 
     argparse.THIS_does_not_EXIST
+
+
+def test_ignored_modules_invalid_pattern() -> None:
+    import xml
+
+    xml.etree.Lala  # [no-member]

@@ -49,23 +49,6 @@ class TestTypeChecker(CheckerTestCase):
     "Tests for pylint.checkers.typecheck"
     CHECKER_CLASS = typecheck.TypeChecker
 
-    @set_config(ignored_modules=("xml.etree.",))
-    def test_ignored_modules_invalid_pattern(self) -> None:
-        node = astroid.extract_node(
-            """
-        import xml
-        xml.etree.Lala
-        """
-        )
-        message = MessageTest(
-            "no-member",
-            node=node,
-            args=("Module", "xml.etree", "Lala", ""),
-            confidence=INFERENCE,
-        )
-        with self.assertAddsMessages(message):
-            self.checker.visit_attribute(node)
-
     @set_config(ignored_modules=("xml",))
     def test_ignored_modules_root_one_applies_as_well(self) -> None:
         # Check that when a root module is completely ignored, submodules are skipped.
