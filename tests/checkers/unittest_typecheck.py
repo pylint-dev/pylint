@@ -200,59 +200,6 @@ class TestTypeChecker(CheckerTestCase):
         with self.assertAddsMessages(message):
             self.checker.visit_attribute(node)
 
-    def test_invalid_metaclass(self) -> None:
-        module = astroid.parse(
-            """
-        class InvalidAsMetaclass(object):
-            pass
-
-        class FirstInvalid(object, metaclass=int):
-            pass
-
-        class SecondInvalid(object, metaclass=InvalidAsMetaclass):
-            pass
-
-        class ThirdInvalid(object, metaclass=2):
-            pass
-
-        class FourthInvalid(object, metaclass=InvalidAsMetaclass()):
-            pass
-        """
-        )
-        for class_obj, metaclass_name in (
-            ("FourthInvalid", "Instance of .InvalidAsMetaclass"),
-            ("ThirdInvalid", "2"),
-            ("SecondInvalid", "InvalidAsMetaclass"),
-            ("FirstInvalid", "int"),
-        ):
-            classdef = module[class_obj]
-            message = MessageTest(
-                "invalid-metaclass", node=classdef, args=(metaclass_name,)
-            )
-            with self.assertAddsMessages(message):
-                self.checker.visit_classdef(classdef)
-
-    def test_invalid_metaclass_function_metaclasses(self) -> None:
-        module = astroid.parse(
-            """
-        def invalid_metaclass_1(name, bases, attrs):
-            return int
-        def invalid_metaclass_2(name, bases, attrs):
-            return 1
-        class Invalid(metaclass=invalid_metaclass_1):
-            pass
-        class InvalidSecond(metaclass=invalid_metaclass_2):
-            pass
-        """
-        )
-        for class_obj, metaclass_name in (("Invalid", "int"), ("InvalidSecond", "1")):
-            classdef = module[class_obj]
-            message = MessageTest(
-                "invalid-metaclass", node=classdef, args=(metaclass_name,)
-            )
-            with self.assertAddsMessages(message):
-                self.checker.visit_classdef(classdef)
-
     def test_typing_namedtuple_not_callable_issue1295(self) -> None:
         module = astroid.parse(
             """
