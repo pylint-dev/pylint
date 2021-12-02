@@ -49,21 +49,6 @@ class TestTypeChecker(CheckerTestCase):
     "Tests for pylint.checkers.typecheck"
     CHECKER_CLASS = typecheck.TypeChecker
 
-    @set_config(ignored_modules=("argparse",))
-    def test_no_member_in_getattr_ignored(self) -> None:
-        """Make sure that a module attribute access check is omitted with a
-        module that is configured to be ignored.
-        """
-
-        node = astroid.extract_node(
-            """
-        import argparse
-        argparse.THIS_does_not_EXIST
-        """
-        )
-        with self.assertNoMessages():
-            self.checker.visit_attribute(node)
-
     @set_config(ignored_modules=("xml.etree.",))
     def test_ignored_modules_invalid_pattern(self) -> None:
         node = astroid.extract_node(

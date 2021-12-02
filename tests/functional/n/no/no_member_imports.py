@@ -7,3 +7,12 @@ def test_no_member_in_getattr():
     import collections
 
     collections.THIS_does_not_EXIST  # [no-member]
+
+
+def test_no_member_in_getattr_ignored() -> None:
+    """Make sure that a module attribute access check is omitted with a
+    module that is configured to be ignored.
+    """
+    import argparse
+
+    argparse.THIS_does_not_EXIST
