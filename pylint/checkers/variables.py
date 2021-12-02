@@ -739,13 +739,13 @@ class VariablesChecker(BaseChecker):
 
     def open(self) -> None:
         """Called when loading the checker"""
-        self._undefined_variable_is_enabled = self.linter.is_message_enabled(
+        self._is_undefined_variable_enabled = self.linter.is_message_enabled(
             "undefined-variable"
         )
-        self._used_before_assignment_is_enabled = self.linter.is_message_enabled(
+        self._is_used_before_assignment_enabled = self.linter.is_message_enabled(
             "used-before-assignment"
         )
-        self._undefined_loop_variable_is_enabled = self.linter.is_message_enabled(
+        self._is_undefined_loop_variable_enabled = self.linter.is_message_enabled(
             "undefined-loop-variable"
         )
 
