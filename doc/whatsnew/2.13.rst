@@ -30,6 +30,8 @@ Other Changes
 
   Closes #4761
 
+* ``used-before-assignment`` now checks names in try blocks.
+
 * Require Python ``3.6.2`` to run pylint.
 
   Closes #5065
