@@ -200,17 +200,6 @@ class TestTypeChecker(CheckerTestCase):
         with self.assertAddsMessages(message):
             self.checker.visit_attribute(node)
 
-    def test_typing_namedtuple_unsubscriptable_object_issue1295(self) -> None:
-        module = astroid.parse(
-            """
-        import typing
-        MyType = typing.Tuple[str, str]
-        """
-        )
-        subscript = module.body[-1].value
-        with self.assertNoMessages():
-            self.checker.visit_subscript(subscript)
-
 
 class TestTypeCheckerOnDecorators(CheckerTestCase):
     "Tests for pylint.checkers.typecheck on decorated functions."
