@@ -49,17 +49,6 @@ class TestTypeChecker(CheckerTestCase):
     "Tests for pylint.checkers.typecheck"
     CHECKER_CLASS = typecheck.TypeChecker
 
-    @set_config(ignored_modules=("xml.etree*",))
-    def test_ignored_modules_patterns(self) -> None:
-        node = astroid.extract_node(
-            """
-        import xml
-        xml.etree.portocola #@
-        """
-        )
-        with self.assertNoMessages():
-            self.checker.visit_attribute(node)
-
     @set_config(ignored_classes=("xml.*",))
     def test_ignored_classes_no_recursive_pattern(self) -> None:
         node = astroid.extract_node(

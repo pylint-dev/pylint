@@ -1,2 +1,2 @@
 [TYPECHECK]
-ignored-modules=argparse,xml.etree.
+ignored-modules=argparse,xml.etree.,collections.abc*
