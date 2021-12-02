@@ -731,7 +731,7 @@ class VariablesChecker(BaseChecker):
 
     def __init__(self, linter=None):
         super().__init__(linter)
-        self._to_consume: List[NamesConsumer] = None
+        self._to_consume: List[NamesConsumer] = []
         self._checking_mod_attr = None
         self._loop_variables = []
         self._type_annotation_names = []
@@ -1001,8 +1001,10 @@ class VariablesChecker(BaseChecker):
         self.visit_name(node)
 
     def visit_name(self, node: nodes.Name) -> None:
-        """This visit method is not decorated with utils.check_messages
-        as it does a number of smaller checks that would be ignored by it.
+        """Don't add the 'utils.check_messages' decorator here!
+        
+        It's important that all 'Name' nodes are visited, otherwise the
+        'NamesConsumers' won't be correct.
         """
         stmt = node.statement()
         if stmt.fromlineno is None:
@@ -1233,7 +1235,7 @@ class VariablesChecker(BaseChecker):
                         )
                         return (VariableVisitConsumerAction.CONSUME, found_nodes)
 
-            if base_scope_type != "lambda":
+            elif base_scope_type != "lambda":
                 # E0601 may *not* occurs in lambda scope.
 
                 # Handle postponed evaluation of annotations
@@ -1965,7 +1967,6 @@ class VariablesChecker(BaseChecker):
 
         self.add_message("unused-argument", args=name, node=stmt, confidence=confidence)
 
-    @utils.check_messages("cell-var-from-loop")
     def _check_late_binding_closure(self, node: nodes.Name) -> None:
         """Check whether node is a cell var that is assigned within a containing loop.
 
