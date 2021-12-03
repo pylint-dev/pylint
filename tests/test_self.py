@@ -1261,6 +1261,13 @@ class TestRunTC:
         assert sorted(plugins) == sorted(runner.linter._dynamic_plugins)
 
     @staticmethod
+    def test_load_text_repoter_if_not_provided() -> None:
+        """Test if PyLinter.reporter is a TextReporter if no reporter is provided"""
+        linter = PyLinter()
+
+        assert isinstance(linter.reporter, TextReporter)
+
+    @staticmethod
     def test_regex_paths_csv_validator() -> None:
         """Test to see if _regexp_paths_csv_validator works.
         Previously the validator crashed when encountering already validated values.

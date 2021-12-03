@@ -39,10 +39,9 @@
 # Copyright (c) 2021 Samuel Freilich <sfreilich@google.com>
 # Copyright (c) 2021 Nick Pesce <nickpesce22@gmail.com>
 # Copyright (c) 2021 bot <bot@noreply.github.com>
-# Copyright (c) 2021 yushao2 <36848472+yushao2@users.noreply.github.com>
+# Copyright (c) 2021 Yu Shao, Pang <36848472+yushao2@users.noreply.github.com>
 # Copyright (c) 2021 SupImDos <62866982+SupImDos@users.noreply.github.com>
 # Copyright (c) 2021 Kayran Schmidt <59456929+yumasheta@users.noreply.github.com>
-# Copyright (c) 2021 Yu Shao, Pang <p.yushao2@gmail.com>
 # Copyright (c) 2021 Konstantina Saketou <56515303+ksaketou@users.noreply.github.com>
 # Copyright (c) 2021 James Sinclair <james@nurfherder.com>
 # Copyright (c) 2021 tiagohonorato <61059243+tiagohonorato@users.noreply.github.com>

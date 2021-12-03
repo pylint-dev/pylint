@@ -1,6 +1,8 @@
 """Tests for missing-return-doc and missing-return-type-doc for Sphinx style docstrings"""
 # pylint: disable=function-redefined, invalid-name, undefined-variable, missing-function-docstring
-# pylint: disable=unused-argument
+# pylint: disable=unused-argument, disallowed-name, too-few-public-methods, missing-class-docstring
+# pylint: disable=unnecessary-pass
+import abc
 
 
 def my_func(self):
@@ -77,3 +79,31 @@ def my_func_with_yield(self):
     """
     for value in range(3):
         yield value
+
+
+class Foo:
+    """test_ignores_return_in_abstract_method_sphinx
+    Example of an abstract method documenting the return type that an
+    implementation should return.
+    """
+
+    @abc.abstractmethod
+    def foo(self):
+        """docstring ...
+
+        :returns: Ten
+        :rtype: int
+        """
+        return 10
+
+
+class Foo:
+    def test_ignores_ignored_argument_names_sphinx(self, arg, _):
+        """Example of a method documenting the return type that an
+        implementation should return.
+
+
+        :param arg: An argument.
+        :type arg: int
+        """
+        pass

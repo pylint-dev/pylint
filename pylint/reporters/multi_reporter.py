@@ -41,6 +41,7 @@ class MultiReporter:
         self._path_strip_prefix = os.getcwd() + os.sep
         self._linter: Optional[PyLinter] = None
         self.out = output
+        self.messages: List[Message] = []
 
     @property
     def out(self):
