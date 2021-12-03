@@ -1,6 +1,7 @@
 """Tests for missing-raises-doc and missing-raises-type-doc for Sphinx style docstrings"""
 # pylint: disable=function-redefined, invalid-name, undefined-variable, missing-function-docstring
 # pylint: disable=unused-argument, try-except-raise, import-outside-toplevel
+# pylint: disable=missing-class-docstring, too-few-public-methods
 
 
 def test_find_missing_sphinx_raises(self):  # [missing-raises-doc]
@@ -149,3 +150,13 @@ def test_find_invalid_missing_sphinx_attr_raises(self):
     from re import error
 
     raise error("hi")
+
+
+class Foo:
+    def test_ignores_raise_notimplementederror_sphinx(self, arg):
+        """docstring ...
+
+        :param arg: An argument.
+        :type arg: int
+        """
+        raise NotImplementedError()
