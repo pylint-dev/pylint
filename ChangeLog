@@ -14,6 +14,11 @@ Release date: TBA
   Insert your changelog randomly, it will reduce merge conflicts
   (Ie. not necessarily at the end)
 
+* Fixed a false positive for ``assigning-non-slot`` when the slotted class
+  defined ``__setattr__``.
+
+  Closes #3793
+
 
 What's New in Pylint 2.12.3?
 ============================
@@ -43,11 +48,6 @@ Release date: 2021-11-25
 * Specified that the ``ignore-paths`` option considers "\" to represent a
   windows directory delimiter instead of a regular expression escape
   character.
-
-* Fixed a false positive for ``assigning-non-slot`` when the slotted class
-  defined ``__setattr__``.
-
-  Closes #3793
 
 * Fixed a crash with the ``ignore-paths`` option when invoking the option
   via the command line.
