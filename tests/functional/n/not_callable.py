@@ -1,4 +1,5 @@
 # pylint: disable=missing-docstring,no-self-use,too-few-public-methods,wrong-import-position,useless-object-inheritance,use-dict-literal
+# pylint: disable=wrong-import-order, undefined-variable
 
 REVISION = None
 
@@ -117,7 +118,8 @@ PROP1.instance()
 PROP1.does_not_make_sense()
 
 
-import missing # pylint: disable=import-error
+import missing  # pylint: disable=import-error
+
 
 class UnknownBaseCallable(missing.Blah):
     pass
@@ -133,3 +135,56 @@ class ClassWithProperty:
         return 42
 
 CLASS_WITH_PROP = ClassWithProperty().value()  # [not-callable]
+
+# Test typing.Namedtuple not callable
+# See: https://github.com/PyCQA/pylint/issues/1295
+import typing
+
+Named = typing.NamedTuple("Named", [("foo", int), ("bar", int)])
+named = Named(1, 2)
+
+# Test descriptor call
+def func():
+    pass
+
+
+class ADescriptor:
+    def __get__(self, instance, owner):
+        return func
+
+
+class AggregateCls:
+    a = ADescriptor()
+
+
+AggregateCls().a()
+
+
+# Make sure not-callable isn't raised for descriptors
+
+# astroid can't process descriptors correctly so
+# pylint needs to ignore not-callable for them
+# right now
+
+# Test for https://github.com/PyCQA/pylint/issues/1699
+
+import multiprocessing
+
+multiprocessing.current_process()
+
+# Make sure not-callable isn't raised for uninferable properties
+class MyClass:
+    @property
+    def call(self):
+        return undefined
+
+
+a = A()
+a.call()
+
+# Make sure the callable check does not crash when a node's parent cannot be determined.
+def get_number(arg):
+    return 2 * arg
+
+
+get_number(10)()  # [not-callable]

@@ -582,3 +582,6 @@ contributors:
 * Harshil (harshil21): contributor
 
 * Felix von Drigalski (felixvd): contributor
+
+* Allan Chandler (allanc65): contributor
+  - Fixed issue 5452, false positive missing-param-doc for multi-line Google-style params
