@@ -646,16 +646,9 @@ class GoogleDocstring(Docstring):
             if not match:
                 continue
 
-            # check if parameter has description only
-            re_only_desc = re.search(":\n", entry)
-            if re_only_desc:
-                param_name = match.group(1)
-                param_desc = match.group(2)
-                param_type = None
-            else:
-                param_name = match.group(1)
-                param_type = match.group(2)
-                param_desc = match.group(3)
+            param_name = match.group(1)
+            param_type = match.group(2)
+            param_desc = match.group(3)
 
             if param_type:
                 params_with_type.add(param_name)
