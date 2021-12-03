@@ -12,8 +12,8 @@
 # Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 bot <bot@noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -140,7 +140,7 @@ def colorize_ansi(
     style: Optional[str] = None,
     **kwargs: Optional[str],
 ) -> str:
-    """colorize message by wrapping it with ansi escape codes
+    r"""colorize message by wrapping it with ansi escape codes
 
     :param msg: the message string to colorize
 
@@ -149,7 +149,7 @@ def colorize_ansi(
 
     :param style: the message's style elements, this will be deprecated
 
-    :param **kwargs: used to accept `color` parameter while it is being deprecated
+    :param \**kwargs: used to accept `color` parameter while it is being deprecated
 
     :return: the ansi escaped string
     """

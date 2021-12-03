@@ -15,12 +15,22 @@ Release date: TBA
   (Ie. not necessarily at the end)
 
 
-What's New in Pylint 2.12.2?
+What's New in Pylint 2.12.3?
 ============================
 Release date: TBA
 
 ..
   Put bug fixes that should not wait for a new minor version here
+
+
+..
+  Insert your changelog randomly, it will reduce merge conflicts
+  (Ie. not necessarily at the end)
+
+
+What's New in Pylint 2.12.2?
+============================
+Release date: 2021-11-25
 
 * Fixed a false positive for ``unused-import`` where everything
   was not analyzed properly inside typing guards.
@@ -44,15 +54,29 @@ Release date: TBA
 
   Closes #5437
 
+* Fixed handling of Sphinx-style parameter docstrings with asterisks. These
+  should be escaped with by prepending a "\".
+
+  Closes #5406
+
+* Add ``endLine`` and ``endColumn`` keys to output of ``JSONReporter``.
+
+  Closes #5380
+
 * Fixed handling of Google-style parameter specifications where descriptions
   are on the line following the parameter name. These were generating
   false positives for ``missing-param-doc``.
 
   Closes #5452
 
-..
-  Insert your changelog randomly, it will reduce merge conflicts
-  (Ie. not necessarily at the end)
+* Fix false negative for ``consider-iterating-dictionary`` during membership checks encapsulated in iterables
+  or ``not in`` checks
+
+  Closes #5323
+
+* ``unused-import`` now check all ancestors for typing guards
+
+  Closes #5316
 
 
 What's New in Pylint 2.12.1?
@@ -81,11 +105,6 @@ Release date: 2021-11-24
   ``pylint/testutil/`` are still unstable and might be modified in the near future.
 
   Closes #4412 #5287
-
-* Fix false negative for ``consider-iterating-dictionary`` during membership checks encapsulated in iterables
-  or ``not in`` checks
-
-  Closes #5323
 
 * Fix ``install graphiz`` message which isn't needed for puml output format.
 

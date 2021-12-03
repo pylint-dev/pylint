@@ -83,7 +83,7 @@ class RecommendationChecker(checkers.BaseChecker):
             return
         if node.func.attrname != "keys":
             return
-        comp_ancestor = utils.get_node_first_ancestor_of_type(node, (nodes.Compare,))
+        comp_ancestor = utils.get_node_first_ancestor_of_type(node, nodes.Compare)
         if (
             isinstance(node.parent, (nodes.For, nodes.Comprehension))
             or comp_ancestor
