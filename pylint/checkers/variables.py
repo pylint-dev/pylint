@@ -578,6 +578,15 @@ scope_type : {self._atomic.scope_type}
 
     @property
     def consumed_uncertain(self):
+        """
+        Retrieves nodes filtered out by get_next_to_consume() that may not
+        have executed, such as statements in except blocks. Checkers that
+        want to treat the statements as executed (e.g. for unused-variable)
+        may need to add them back.
+
+        TODO: A pending PR will extend this to nodes in try blocks when
+        evaluating their corresponding except and finally blocks.
+        """
         return self._atomic.consumed_uncertain
 
     @property
@@ -601,6 +610,8 @@ scope_type : {self._atomic.scope_type}
     def get_next_to_consume(self, node):
         """
         Return a list of the nodes that define `node` from this scope.
+        If it is uncertain whether a node will be consumed, such as statement in
+        an Except block, add it to self.consumed_uncertain instead of returning it.
         Return None to indicate a special case that needs to be handled by the caller.
         """
         name = node.name
