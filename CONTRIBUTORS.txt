@@ -582,3 +582,5 @@ contributors:
 * Harshil (harshil21): contributor
 
 * Felix von Drigalski (felixvd): contributor
+
+* Eero Vuojolahti: contributor
