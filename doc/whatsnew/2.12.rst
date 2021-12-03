@@ -246,3 +246,12 @@ Other Changes
   ``pylint/testutil/`` are still unstable and might be modified in the near future.
 
   Closes #4412 #5287
+
+* Add ``endLine`` and ``endColumn`` keys to output of ``JSONReporter``.
+
+  Closes #5380
+
+* Fix false negative for ``consider-iterating-dictionary`` during membership checks encapsulated in iterables
+  or ``not in`` checks
+
+  Closes #5323

@@ -271,7 +271,7 @@ We can use the example code that we used for debugging as our test cases.
           self.checker.visit_functiondef(func_node)
           self.checker.visit_return(return_node_a)
           with self.assertAddsMessages(
-              pylint.testutils.Message(
+              pylint.testutils.MessageTest(
                   msg_id='non-unique-returns',
                   node=return_node_b,
               ),
