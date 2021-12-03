@@ -281,8 +281,8 @@ class SphinxDocstring(Docstring):
         )?
 
         ((\\\*{{1,2}}\w+)|(\w+))  # Parameter name with potential asterisks
-        \s*                             # whitespace
-        :                               # final colon
+        \s*                       # whitespace
+        :                         # final colon
         """
     re_param_in_docstring = re.compile(re_param_raw, re.X | re.S)
 
