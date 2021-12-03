@@ -643,7 +643,7 @@ scope_type : {self._atomic.scope_type}
                 or n.statement(future=True).parent_of(node)
             ]
 
-        # Filter out assignments in an Except clause that node is not
+        # Filter out assignments in an Except clause that the node is not
         # contained in, assuming they may fail
         if found_nodes:
             filtered_nodes = [
