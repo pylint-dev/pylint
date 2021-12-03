@@ -17,8 +17,14 @@ Removed checkers
 Extensions
 ==========
 
+* Pyreverse - add output in mermaid-js format and html which is an mermaid js diagram with html boilerplate
+
 Other Changes
 =============
+
+* Fix ``unnecessary_dict_index_lookup`` false positive when deleting a dictionary's entry.
+
+  Closes #4716
 
 * Fix false negative for ``consider-iterating-dictionary`` during membership checks encapsulated in iterables
   or ``not in`` checks
