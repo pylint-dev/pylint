@@ -158,6 +158,7 @@ def test_warns_missing_args_sphinx(  # [missing-param-doc, inconsistent-return-s
 
     :param named_arg: Returned
     :type named_arg: object
+
     :returns: Maybe named_arg
     :rtype: object or None
     """
@@ -172,6 +173,41 @@ def test_warns_missing_kwargs_sphinx(  # [missing-param-doc, inconsistent-return
 
     :param named_arg: Returned
     :type named_arg: object
+
+    :returns: Maybe named_arg
+    :rtype: object or None
+    """
+    if kwargs:
+        return named_arg
+
+
+def test_finds_args_without_type_sphinx(  # [missing-param-doc, inconsistent-return-statements]
+    named_arg, *args
+):
+    """The docstring
+
+    :param named_arg: Returned
+    :type named_arg: object
+
+    :param *args: Optional arguments
+
+    :returns: Maybe named_arg
+    :rtype: object or None
+    """
+    if args:
+        return named_arg
+
+
+def test_finds_kwargs_without_type_sphinx(  # [missing-param-doc, inconsistent-return-statements]
+    named_arg, **kwargs
+):
+    """The docstring
+
+    :param named_arg: Returned
+    :type named_arg: object
+
+    :param **kwargs: Keyword arguments
+
     :returns: Maybe named_arg
     :rtype: object or None
     """
@@ -182,11 +218,15 @@ def test_warns_missing_kwargs_sphinx(  # [missing-param-doc, inconsistent-return
 def test_finds_args_without_type_sphinx(  # [inconsistent-return-statements]
     named_arg, *args
 ):
-    """The docstring
+    r"""The Sphinx docstring
+    In Sphinx docstrings asteriks should be escaped.
+    See https://github.com/PyCQA/pylint/issues/5406
 
     :param named_arg: Returned
     :type named_arg: object
-    :param *args: Optional arguments
+
+    :param \*args: Optional arguments
+
     :returns: Maybe named_arg
     :rtype: object or None
     """
@@ -197,11 +237,15 @@ def test_finds_args_without_type_sphinx(  # [inconsistent-return-statements]
 def test_finds_kwargs_without_type_sphinx(  # [inconsistent-return-statements]
     named_arg, **kwargs
 ):
-    """The docstring
+    r"""The Sphinx docstring
+    In Sphinx docstrings asteriks should be escaped.
+    See https://github.com/PyCQA/pylint/issues/5406
 
     :param named_arg: Returned
     :type named_arg: object
-    :param **kwargs: Keyword arguments
+
+    :param \**kwargs: Keyword arguments
+
     :returns: Maybe named_arg
     :rtype: object or None
     """

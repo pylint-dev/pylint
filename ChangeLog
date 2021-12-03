@@ -39,6 +39,11 @@ Release date: TBA
 
   Closes #5437
 
+* Fixed handling of Sphinx-style parameter docstrings with asterisks. These
+  should be escaped with by prepending a "\".
+
+  Closes #5406
+
 * Add ``endLine`` and ``endColumn`` keys to output of ``JSONReporter``.
 
   Closes #5380

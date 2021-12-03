@@ -280,9 +280,9 @@ class SphinxDocstring(Docstring):
         \s+
         )?
 
-        (\*{{0,2}}\w+)          # Parameter name with potential asterisks
-        \s*                     # whitespace
-        :                       # final colon
+        ((\\\*{{1,2}}\w+)|(\w+))  # Parameter name with potential asterisks
+        \s*                       # whitespace
+        :                         # final colon
         """
     re_param_in_docstring = re.compile(re_param_raw, re.X | re.S)
 
@@ -377,6 +377,8 @@ class SphinxDocstring(Docstring):
 
         for match in re.finditer(self.re_param_in_docstring, self.doc):
             name = match.group(2)
+            # Remove escape characters necessary for asterisks
+            name = name.replace("\\", "")
             params_with_doc.add(name)
             param_type = match.group(1)
             if param_type is not None:
