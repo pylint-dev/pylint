@@ -377,7 +377,7 @@ class SphinxDocstring(Docstring):
 
         for match in re.finditer(self.re_param_in_docstring, self.doc):
             name = match.group(2)
-            # Remove espace characters necessary for asterisks
+            # Remove escape characters necessary for asterisks
             name = name.replace("\\", "")
             params_with_doc.add(name)
             param_type = match.group(1)
