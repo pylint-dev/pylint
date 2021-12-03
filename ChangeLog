@@ -25,6 +25,11 @@ Release date: TBA
 * Fixed a false positive for ``unused-import`` where everything
   was not analyzed properly inside typing guards.
 
+* Fixed a false-positive regression for ``used-before-assignment`` for
+  typed variables in the body of class methods that reference the same class
+
+  Closes #5342
+
 * Specified that the ``ignore-paths`` option considers "\" to represent a
   windows directory delimiter instead of a regular expression escape
   character.
@@ -33,6 +38,12 @@ Release date: TBA
   via the command line.
 
   Closes #5437
+
+* Fixed handling of Google-style parameter specifications where descriptions
+  are on the line following the parameter name. These were generating
+  false positives for ``missing-param-doc``.
+
+  Closes #5452
 
 ..
   Insert your changelog randomly, it will reduce merge conflicts
