@@ -140,7 +140,7 @@ def colorize_ansi(
     style: Optional[str] = None,
     **kwargs: Optional[str],
 ) -> str:
-    """colorize message by wrapping it with ansi escape codes
+    r"""colorize message by wrapping it with ansi escape codes
 
     :param msg: the message string to colorize
 
@@ -149,7 +149,7 @@ def colorize_ansi(
 
     :param style: the message's style elements, this will be deprecated
 
-    :param **kwargs: used to accept `color` parameter while it is being deprecated
+    :param \**kwargs: used to accept `color` parameter while it is being deprecated
 
     :return: the ansi escaped string
     """
