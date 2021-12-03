@@ -17,6 +17,8 @@ Removed checkers
 Extensions
 ==========
 
+* Pyreverse - add output in mermaid-js format and html which is an mermaid js diagram with html boilerplate
+
 Other Changes
 =============
 
