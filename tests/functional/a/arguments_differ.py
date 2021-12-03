@@ -152,7 +152,6 @@ class SuperClass(object):
         return arg1 + arg2
 
     def should_have_been_decorated_as_static(arg1, arg2):  # pylint: disable=no-self-argument
-        # Enum._generate_next_value in stdlib should be static
         return arg1 + arg2
 
 
