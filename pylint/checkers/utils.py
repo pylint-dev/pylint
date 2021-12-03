@@ -297,7 +297,7 @@ def is_inside_lambda(node: nodes.NodeNG) -> bool:
     """Return whether the given node is inside a lambda"""
     warnings.warn(
         "utils.is_inside_lambda will be removed in favour of calling "
-        "utils.get_node_first_ancestor_of_type(x, nodes.Lambda)",
+        "utils.get_node_first_ancestor_of_type(x, nodes.Lambda) in pylint 3.0",
         DeprecationWarning,
     )
     return any(isinstance(parent, nodes.Lambda) for parent in node.node_ancestors())
