@@ -486,3 +486,10 @@ def test_is_empty_literal() -> None:
     assert utils.is_empty_str_literal(string_node.value)
     not_empty_string_node = astroid.extract_node("a = 'hello'")
     assert not utils.is_empty_str_literal(not_empty_string_node.value)
+
+
+def test_deprecation_is_inside_lambda() -> None:
+    """Test that is_inside_lambda is throwing a DeprecationWarning"""
+    with pytest.warns(DeprecationWarning) as records:
+        utils.is_inside_lambda(nodes.NodeNG())
+        assert len(records) == 1

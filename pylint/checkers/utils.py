@@ -64,6 +64,7 @@ import itertools
 import numbers
 import re
 import string
+import warnings
 from functools import lru_cache, partial
 from typing import (
     Callable,
@@ -294,6 +295,11 @@ class InferredTypeError(Exception):
 
 def is_inside_lambda(node: nodes.NodeNG) -> bool:
     """Return whether the given node is inside a lambda"""
+    warnings.warn(
+        "utils.is_inside_lambda will be removed in favour of calling "
+        "utils.get_node_first_ancestor_of_type(x, nodes.Lambda) in pylint 3.0",
+        DeprecationWarning,
+    )
     return any(isinstance(parent, nodes.Lambda) for parent in node.node_ancestors())
 
 
@@ -1696,7 +1702,7 @@ def returns_bool(node: nodes.NodeNG) -> bool:
 
 
 def get_node_first_ancestor_of_type(
-    node: nodes.NodeNG, ancestor_type: Tuple[Type[T_Node]]
+    node: nodes.NodeNG, ancestor_type: Union[Type[T_Node], Tuple[Type[T_Node]]]
 ) -> Optional[T_Node]:
     """Return the first parent node that is any of the provided types (or None)"""
     for ancestor in node.node_ancestors():
