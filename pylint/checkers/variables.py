@@ -577,7 +577,7 @@ scope_type : {self._atomic.scope_type}
         return self._atomic.consumed
 
     @property
-    def consumed_uncertain(self):
+    def consumed_uncertain(self) -> DefaultDict[str, List[nodes.NodeNG]]:
         """
         Retrieves nodes filtered out by get_next_to_consume() that may not
         have executed, such as statements in except blocks. Checkers that
@@ -1082,6 +1082,7 @@ class VariablesChecker(BaseChecker):
             if action is VariableVisitConsumerAction.CONTINUE:
                 continue
             if action is VariableVisitConsumerAction.CONSUME:
+                assert found_nodes is not None, "Cannot consume an empty list of nodes."
                 found_nodes += current_consumer.consumed_uncertain[node.name]
                 current_consumer.mark_as_consumed(node.name, found_nodes)
             if action in {
