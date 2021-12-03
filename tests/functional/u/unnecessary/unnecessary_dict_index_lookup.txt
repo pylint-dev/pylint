@@ -21,3 +21,4 @@ unnecessary-dict-index-lookup:57:10:57:20::Unnecessary dictionary index lookup, 
 unnecessary-dict-index-lookup:60:1:60:11::Unnecessary dictionary index lookup, use 'item[1]' instead:UNDEFINED
 unnecessary-dict-index-lookup:65:10:65:20::Unnecessary dictionary index lookup, use 'item[1]' instead:UNDEFINED
 unnecessary-dict-index-lookup:82:14:82:18::Unnecessary dictionary index lookup, use '_' instead:UNDEFINED
+unnecessary-dict-index-lookup:101:12:101:27::Unnecessary dictionary index lookup, use 'val' instead:UNDEFINED

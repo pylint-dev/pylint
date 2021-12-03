@@ -14,18 +14,14 @@ Release date: TBA
 * Some files in ``pylint.testutils`` were deprecated. In the future imports should be done from the
   ``pylint.testutils.functional`` namespace directly.
 
-..
-  Insert your changelog randomly, it will reduce merge conflicts
-  (Ie. not necessarily at the end)
+* Fix ``unnecessary_dict_index_lookup`` false positive when deleting a dictionary's entry.
 
+  Closes #4716
 
-What's New in Pylint 2.12.3?
-============================
-Release date: TBA
+* Fix false negative for ``consider-iterating-dictionary`` during membership checks encapsulated in iterables
+  or ``not in`` checks
 
-..
-  Put bug fixes that should not wait for a new minor version here
-
+  Closes #5323
 
 ..
   Insert your changelog randomly, it will reduce merge conflicts
