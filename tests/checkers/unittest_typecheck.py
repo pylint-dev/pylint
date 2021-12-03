@@ -63,6 +63,10 @@ class TestTypeChecker(CheckerTestCase):
             node=node,
             args=("Module", "coverage.tracer", "CTracer", ""),
             confidence=INFERENCE,
+            line=3,
+            col_offset=0,
+            end_line=3,
+            end_col_offset=14,
         )
         with self.assertAddsMessages(message):
             self.checker.visit_attribute(node)
@@ -81,6 +85,10 @@ class TestTypeChecker(CheckerTestCase):
             node=node,
             args=("Module", "coverage.tracer", "CTracer", ""),
             confidence=INFERENCE,
+            line=3,
+            col_offset=0,
+            end_line=3,
+            end_col_offset=14,
         )
         with self.assertAddsMessages(message):
             self.checker.visit_attribute(node)
