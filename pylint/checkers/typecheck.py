@@ -630,17 +630,7 @@ def _no_context_variadic_keywords(node, scope):
 
 
 def _no_context_variadic_positional(node, scope):
-    variadics = ()
-    if isinstance(scope, nodes.Lambda) and not isinstance(scope, nodes.FunctionDef):
-        variadics = node.starargs + node.kwargs
-    else:
-        statement = node.statement()
-        if isinstance(
-            statement, (nodes.Expr, nodes.Return, nodes.Assign)
-        ) and isinstance(statement.value, nodes.Call):
-            call = statement.value
-            variadics = call.starargs + call.kwargs
-
+    variadics = node.starargs + node.kwargs
     return _no_context_variadic(node, scope.args.vararg, nodes.Starred, variadics)
 
 

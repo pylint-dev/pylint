@@ -39,6 +39,11 @@ Release date: TBA
 
   Closes #5437
 
+* Fixed false positives for ``no-value-for-parameter`` with variadic
+  positional arguments.
+
+  Closes #5416
+
 ..
   Insert your changelog randomly, it will reduce merge conflicts
   (Ie. not necessarily at the end)
