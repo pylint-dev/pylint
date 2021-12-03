@@ -23,6 +23,11 @@ Release date: TBA
 
   Closes #5323
 
+* Fixed detection of ``arguments-differ`` when superclass static
+  methods lacked a ``@staticmethod`` decorator.
+
+  Closes #5371
+
 ..
   Insert your changelog randomly, it will reduce merge conflicts
   (Ie. not necessarily at the end)
