@@ -6,7 +6,7 @@ repos:
     rev: v4.0.1
     hooks:
       - id: trailing-whitespace
-        exclude: "tests/functional/t/trailing_whitespaces.py"
+        exclude: "tests/functional/t/trailing_whitespaces.py|tests/pyreverse/data/.*.html"
       - id: end-of-file-fixer
         exclude: "tests/functional/m/missing/missing_final_newline.py|tests/functional/t/trailing_newlines.py"
   - repo: https://github.com/myint/autoflake
@@ -94,3 +94,4 @@ repos:
     hooks:
       - id: prettier
         args: [--prose-wrap=always, --print-width=88]
+        exclude: tests(/.*)*/data

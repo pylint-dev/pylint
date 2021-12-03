@@ -9,8 +9,8 @@
 # Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 ruro <ruro.ruro@ya.ru>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -219,6 +219,8 @@ def test_multi_format_output(tmp_path):
             '        "obj": "",\n'
             '        "line": 1,\n'
             '        "column": 0,\n'
+            '        "endLine": null,\n'
+            '        "endColumn": null,\n'
             f'        "path": {escaped_source_file},\n'
             '        "symbol": "missing-module-docstring",\n'
             '        "message": "Missing module docstring",\n'
@@ -230,6 +232,8 @@ def test_multi_format_output(tmp_path):
             '        "obj": "",\n'
             '        "line": 1,\n'
             '        "column": 0,\n'
+            '        "endLine": null,\n'
+            '        "endColumn": null,\n'
             f'        "path": {escaped_source_file},\n'
             '        "symbol": "line-too-long",\n'
             '        "message": "Line too long (1/2)",\n'
