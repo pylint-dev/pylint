@@ -1266,3 +1266,14 @@ class TestRunTC:
         linter = PyLinter()
 
         assert isinstance(linter.reporter, TextReporter)
+
+    @staticmethod
+    def test_regex_paths_csv_validator() -> None:
+        """Test to see if _regexp_paths_csv_validator works.
+        Previously the validator crashed when encountering already validated values.
+        Reported in https://github.com/PyCQA/pylint/issues/5437
+        """
+        with pytest.raises(SystemExit) as ex:
+            Run(["--ignore-paths", "test", join(HERE, "regrtest_data", "empty.py")])
+        assert ex.value.code == 0
+

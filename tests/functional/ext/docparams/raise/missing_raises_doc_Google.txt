@@ -1,0 +1,9 @@
+missing-raises-doc:6:0:13:25:test_find_missing_google_raises:"""RuntimeError"" not documented as being raised":UNDEFINED
+unreachable:13:4:13:25:test_find_missing_google_raises:Unreachable code:UNDEFINED
+missing-raises-doc:38:0:46:21:test_find_valid_missing_google_attr_raises:"""error"" not documented as being raised":UNDEFINED
+unreachable:83:4:83:25:test_find_all_google_raises:Unreachable code:UNDEFINED
+unreachable:94:4:94:25:test_find_multiple_google_raises:Unreachable code:UNDEFINED
+unreachable:95:4:95:30:test_find_multiple_google_raises:Unreachable code:UNDEFINED
+unreachable:96:4:96:27:test_find_multiple_google_raises:Unreachable code:UNDEFINED
+missing-raises-doc:99:0:110:25:test_find_rethrown_google_raises:"""RuntimeError"" not documented as being raised":UNDEFINED
+missing-raises-doc:113:0:124:25:test_find_rethrown_google_multiple_raises:"""RuntimeError, ValueError"" not documented as being raised":UNDEFINED

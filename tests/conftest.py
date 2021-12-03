@@ -75,13 +75,15 @@ def pytest_addoption(parser) -> None:
 
 def pytest_collection_modifyitems(config, items) -> None:
     """Convert command line options to markers"""
-    # Add skip_primer_stdlib mark
+    # Add skip_primer_external mark
     if not config.getoption("--primer-external"):
         skip_primer_external = pytest.mark.skip(
             reason="need --primer-external option to run"
         )
         for item in items:
-            if "primer_external" in item.keywords:
+            if "primer_external_batch_one" in item.keywords:
+                item.add_marker(skip_primer_external)
+            if "primer_external_batch_two" in item.keywords:
                 item.add_marker(skip_primer_external)
 
     # Add skip_primer_stdlib mark
