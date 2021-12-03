@@ -39,6 +39,11 @@ Release date: TBA
 
   Closes #5437
 
+* Fixed handling of Sphinx-style parameter docstrings with asterisks. These
+  should be escaped with by prepending a "\".
+
+  Closes #5406
+
 * Fixed handling of Google-style parameter specifications where descriptions
   are on the line following the parameter name. These were generating
   false positives for ``missing-param-doc``.
