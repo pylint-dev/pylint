@@ -44,6 +44,12 @@ Release date: TBA
 
   Closes #5416
 
+* Fixed handling of Google-style parameter specifications where descriptions
+  are on the line following the parameter name. These were generating
+  false positives for ``missing-param-doc``.
+
+  Closes #5452
+
 ..
   Insert your changelog randomly, it will reduce merge conflicts
   (Ie. not necessarily at the end)
