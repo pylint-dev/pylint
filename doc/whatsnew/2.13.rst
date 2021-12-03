@@ -34,3 +34,6 @@ Other Changes
 * Require Python ``3.6.2`` to run pylint.
 
   Closes #5065
+
+* The ``PyLinter`` class will now be initialiazed with a ``TextReporter``
+  as its reporter if none is provided.

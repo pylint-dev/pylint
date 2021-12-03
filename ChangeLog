@@ -27,6 +27,9 @@ Release date: TBA
   Insert your changelog randomly, it will reduce merge conflicts
   (Ie. not necessarily at the end)
 
+* The ``PyLinter`` class will now be initialiazed with a ``TextReporter``
+  as its reporter if none is provided.
+
 
 What's New in Pylint 2.12.2?
 ============================

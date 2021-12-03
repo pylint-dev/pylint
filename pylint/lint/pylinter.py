@@ -39,6 +39,7 @@ from pylint.lint.utils import (
     prepare_crash_report,
 )
 from pylint.message import Message, MessageDefinition, MessageDefinitionStore
+from pylint.reporters.text import TextReporter
 from pylint.reporters.ureports import nodes as report_nodes
 from pylint.typing import (
     FileItem,
@@ -517,13 +518,25 @@ class PyLinter(
         ("Reports", "Options related to output formatting and reporting"),
     )
 
-    def __init__(self, options=(), reporter=None, option_groups=(), pylintrc=None):
+    def __init__(
+        self,
+        options=(),
+        reporter=None,
+        option_groups=(),
+        pylintrc=None,
+    ):
         """Some stuff has to be done before ancestors initialization...
         messages store / checkers / reporter / astroid manager"""
-        self.msgs_store = MessageDefinitionStore()
-        self.reporter = None
+        # Attributes for reporters
+        self.reporter: Union[reporters.BaseReporter, reporters.MultiReporter]
+        if reporter:
+            self.set_reporter(reporter)
+        else:
+            self.set_reporter(TextReporter())
         self._reporter_names = None
         self._reporters = {}
+
+        self.msgs_store = MessageDefinitionStore()
         self._checkers = collections.defaultdict(list)
         self._pragma_lineno = {}
         self._ignore_file = False
@@ -572,16 +585,10 @@ class PyLinter(
         self._dynamic_plugins = set()
         self._error_mode = False
         self.load_provider_defaults()
-        if reporter:
-            self.set_reporter(reporter)
 
     def load_default_plugins(self):
         checkers.initialize(self)
         reporters.initialize(self)
-        # Make sure to load the default reporter, because
-        # the option has been set before the plugins had been loaded.
-        if not self.reporter:
-            self._load_reporters()
 
     def load_plugin_modules(self, modnames):
         """take a list of module names which are pylint plugins and load
@@ -654,7 +661,9 @@ class PyLinter(
         else:
             return reporter_class()
 
-    def set_reporter(self, reporter):
+    def set_reporter(
+        self, reporter: Union[reporters.BaseReporter, reporters.MultiReporter]
+    ) -> None:
         """set the reporter used to display messages and reports"""
         self.reporter = reporter
         reporter.linter = self
