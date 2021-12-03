@@ -1083,6 +1083,10 @@ class VariablesChecker(BaseChecker):
                 continue
             if action is VariableVisitConsumerAction.CONSUME:
                 assert found_nodes is not None, "Cannot consume an empty list of nodes."
+                # Any nodes added to consumed_uncertain by get_next_to_consume()
+                # should be added back so that they are marked as used.
+                # They will have already had a chance to emit used-before-assignment.
+                # We check here instead of before every single return in _check_consumer()
                 found_nodes += current_consumer.consumed_uncertain[node.name]
                 current_consumer.mark_as_consumed(node.name, found_nodes)
             if action in {
@@ -1178,7 +1182,10 @@ class VariablesChecker(BaseChecker):
         if not found_nodes:
             self.add_message("used-before-assignment", args=node.name, node=node)
             if current_consumer.consumed_uncertain[node.name]:
-                found_nodes += current_consumer.consumed_uncertain[node.name]
+                # If there are nodes added to consumed_uncertain by
+                # get_next_to_consume() because they might not have executed,
+                # return a CONSUME action so that _undefined_and_used_before_checker()
+                # will mark them as used
                 return (VariableVisitConsumerAction.CONSUME, found_nodes)
             return (VariableVisitConsumerAction.RETURN, found_nodes)
 
