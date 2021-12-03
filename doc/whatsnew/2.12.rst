@@ -246,3 +246,7 @@ Other Changes
   ``pylint/testutil/`` are still unstable and might be modified in the near future.
 
   Closes #4412 #5287
+
+* Add ``endLine`` and ``endColumn`` keys to output of ``JSONReporter``.
+
+  Closes #5380

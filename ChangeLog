@@ -44,6 +44,10 @@ Release date: TBA
 
   Closes #5406
 
+* Add ``endLine`` and ``endColumn`` keys to output of ``JSONReporter``.
+
+  Closes #5380
+
 * Fixed handling of Google-style parameter specifications where descriptions
   are on the line following the parameter name. These were generating
   false positives for ``missing-param-doc``.
