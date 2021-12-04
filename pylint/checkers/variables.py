@@ -1082,7 +1082,8 @@ class VariablesChecker(BaseChecker):
             if action is VariableVisitConsumerAction.CONTINUE:
                 continue
             if action is VariableVisitConsumerAction.CONSUME:
-                # TODO: remove assert after _check_counsumer return value better typed
+                # pylint: disable-next=fixme
+                # TODO: remove assert after _check_consumer return value better typed
                 assert found_nodes is not None, "Cannot consume an empty list of nodes."
                 # Any nodes added to consumed_uncertain by get_next_to_consume()
                 # should be added back so that they are marked as used.
