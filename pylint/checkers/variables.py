@@ -609,9 +609,9 @@ scope_type : {self._atomic.scope_type}
 
     def get_next_to_consume(self, node):
         """
-        Return a list of the nodes that define `node` from this scope.
-        If it is uncertain whether a node will be consumed, such as statement in
-        an Except block, add it to self.consumed_uncertain instead of returning it.
+        Return a list of the nodes that define `node` from this scope. If it is
+        uncertain whether a node will be consumed, such as for statements in
+        except blocks, add it to self.consumed_uncertain instead of returning it.
         Return None to indicate a special case that needs to be handled by the caller.
         """
         name = node.name
