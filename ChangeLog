@@ -23,6 +23,10 @@ Release date: TBA
 
   Closes #5323
 
+* Add checker ``unnecessary-ellipsis``
+
+  Closes #5460
+
 * Fixed detection of ``arguments-differ`` when superclass static
   methods lacked a ``@staticmethod`` decorator.
 

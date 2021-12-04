@@ -1,0 +1,3 @@
+unnecessary-ellipsis:9:4:None:None::Unnecessary ellipsis constant:UNDEFINED
+unnecessary-ellipsis:38:4:None:None::Unnecessary ellipsis constant:UNDEFINED
+unnecessary-ellipsis:54:4:None:None::Unnecessary ellipsis constant:UNDEFINED

@@ -673,6 +673,11 @@ class StringConstantChecker(BaseTokenChecker):
             "in Python 2 to indicate a string was Unicode, but since Python 3.0 strings "
             "are Unicode by default.",
         ),
+        "W1407": (
+            "Unnecessary ellipsis constant",
+            "unnecessary-ellipsis",
+            "Used when the ellipsis constant is encountered and can be avoided.",
+        ),
     }
     options = (
         (
@@ -914,6 +919,7 @@ class StringConstantChecker(BaseTokenChecker):
             node.parent, nodes.JoinedStr
         ):
             self._detect_u_string_prefix(node)
+        self._detect_ellipsis(node)
 
     def _detect_u_string_prefix(self, node: nodes.Const):
         """Check whether strings include a 'u' prefix like u'String'"""
@@ -922,6 +928,20 @@ class StringConstantChecker(BaseTokenChecker):
                 "redundant-u-string-prefix",
                 line=node.lineno,
                 col_offset=node.col_offset,
+            )
+
+    def _detect_ellipsis(self, node: nodes.Const) -> None:
+        """Check if the ellipsis constant is used unnecessarily"""
+        if node.value is not Ellipsis or isinstance(
+            node.parent, (nodes.Assign, nodes.AnnAssign)
+        ):
+            return
+        if len(node.parent.parent.child_sequence(node.parent)) > 1 or (
+            isinstance(node.parent.parent, (nodes.ClassDef, nodes.FunctionDef))
+            and (node.parent.parent.doc is not None)
+        ):
+            self.add_message(
+                "unnecessary-ellipsis", line=node.lineno, col_offset=node.col_offset
             )
 
 
