@@ -1260,7 +1260,7 @@ def safe_infer(node: nodes.NodeNG, context=None) -> Optional[nodes.NodeNG]:
             inferred_type = _get_python_type_of_node(inferred)
             if inferred_type not in inferred_types:
                 return None  # If there is ambiguity on the inferred node.
-            if isinstance(inferred, astroid.FunctionDef):
+            if isinstance(inferred, nodes.FunctionDef):
                 if (
                     inferred.args.args is not None
                     and value.args.args is not None
