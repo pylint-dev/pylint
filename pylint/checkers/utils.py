@@ -42,12 +42,17 @@
 # Copyright (c) 2020 Slavfox <slavfoxman@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 bot <bot@noreply.github.com>
+# Copyright (c) 2021 Yu Shao, Pang <36848472+yushao2@users.noreply.github.com>
+# Copyright (c) 2021 Mark Byrne <31762852+mbyrnepr2@users.noreply.github.com>
 # Copyright (c) 2021 Nick Drozd <nicholasdrozd@gmail.com>
+# Copyright (c) 2021 Arianna Y <92831762+areveny@users.noreply.github.com>
+# Copyright (c) 2021 Jaehoon Hwang <jaehoonhwang@users.noreply.github.com>
+# Copyright (c) 2021 Samuel FORESTIER <HorlogeSkynet@users.noreply.github.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 David Liu <david@cs.toronto.edu>
 # Copyright (c) 2021 Matus Valo <matusvalo@users.noreply.github.com>
 # Copyright (c) 2021 Lorena B <46202743+lorena-b@users.noreply.github.com>
-# Copyright (c) 2021 yushao2 <36848472+yushao2@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
@@ -59,6 +64,7 @@ import itertools
 import numbers
 import re
 import string
+import warnings
 from functools import lru_cache, partial
 from typing import (
     Callable,
@@ -70,6 +76,7 @@ from typing import (
     Set,
     Tuple,
     Type,
+    TypeVar,
     Union,
 )
 
@@ -275,6 +282,8 @@ SUBSCRIPTABLE_CLASSES_PEP585 = frozenset(
     )
 )
 
+T_Node = TypeVar("T_Node", bound=nodes.NodeNG)
+
 
 class NoSuchArgumentError(Exception):
     pass
@@ -286,6 +295,11 @@ class InferredTypeError(Exception):
 
 def is_inside_lambda(node: nodes.NodeNG) -> bool:
     """Return whether the given node is inside a lambda"""
+    warnings.warn(
+        "utils.is_inside_lambda will be removed in favour of calling "
+        "utils.get_node_first_ancestor_of_type(x, nodes.Lambda) in pylint 3.0",
+        DeprecationWarning,
+    )
     return any(isinstance(parent, nodes.Lambda) for parent in node.node_ancestors())
 
 
@@ -725,7 +739,7 @@ def inherit_from_std_ex(node: nodes.NodeNG) -> bool:
     """
     ancestors = node.ancestors() if hasattr(node, "ancestors") else []
     return any(
-        ancestor.name in ("Exception", "BaseException")
+        ancestor.name in {"Exception", "BaseException"}
         and ancestor.root().name == EXCEPTIONS_MODULE
         for ancestor in itertools.chain([node], ancestors)
     )
@@ -797,7 +811,7 @@ def is_property_setter_or_deleter(node: nodes.FunctionDef) -> bool:
 def _is_property_decorator(decorator: nodes.Name) -> bool:
     for inferred in decorator.infer():
         if isinstance(inferred, nodes.ClassDef):
-            if inferred.qname() in ("builtins.property", "functools.cached_property"):
+            if inferred.qname() in {"builtins.property", "functools.cached_property"}:
                 return True
             for ancestor in inferred.ancestors():
                 if ancestor.name == "property" and ancestor.root().name == "builtins":
@@ -1683,5 +1697,15 @@ def returns_bool(node: nodes.NodeNG) -> bool:
     return (
         isinstance(node, nodes.Return)
         and isinstance(node.value, nodes.Const)
-        and node.value.value in (True, False)
+        and node.value.value in {True, False}
     )
+
+
+def get_node_first_ancestor_of_type(
+    node: nodes.NodeNG, ancestor_type: Union[Type[T_Node], Tuple[Type[T_Node]]]
+) -> Optional[T_Node]:
+    """Return the first parent node that is any of the provided types (or None)"""
+    for ancestor in node.node_ancestors():
+        if isinstance(ancestor, ancestor_type):
+            return ancestor
+    return None

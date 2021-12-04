@@ -73,11 +73,11 @@ class OutputLine(NamedTuple):
     confidence: str
 
     @classmethod
-    def from_msg(cls, msg: Message) -> "OutputLine":
+    def from_msg(cls, msg: Message, check_endline: bool = True) -> "OutputLine":
         """Create an OutputLine from a Pylint Message"""
         column = cls._get_column(msg.column)
-        end_line = cls._get_py38_none_value(msg.end_line)
-        end_column = cls._get_py38_none_value(msg.end_column)
+        end_line = cls._get_py38_none_value(msg.end_line, check_endline)
+        end_column = cls._get_py38_none_value(msg.end_column, check_endline)
         return cls(
             msg.symbol,
             msg.line,
@@ -100,15 +100,17 @@ class OutputLine(NamedTuple):
         return int(column)
 
     @staticmethod
-    def _get_py38_none_value(value: T) -> Optional[T]:
-        """Handle attributes that are always None on pylint < 3.8 similar to _get_column."""
-        if not PY38_PLUS:
-            # We check the value only for the new better ast parser introduced in python 3.8
+    def _get_py38_none_value(value: T, check_endline: bool) -> Optional[T]:
+        """Used to make end_line and end_column None as indicated by our version compared to
+        `min_pyver_end_position`."""
+        if not check_endline:
             return None  # pragma: no cover
         return value
 
     @classmethod
-    def from_csv(cls, row: Union[Sequence[str], str]) -> "OutputLine":
+    def from_csv(
+        cls, row: Union[Sequence[str], str], check_endline: bool = True
+    ) -> "OutputLine":
         """Create an OutputLine from a comma separated list (the functional tests expected
         output .txt files).
         """
@@ -143,8 +145,8 @@ class OutputLine(NamedTuple):
                         row[0], int(row[1]), column, None, None, row[3], row[4], row[5]
                     )
                 if len(row) == 8:
-                    end_line = cls._get_py38_none_value(row[3])
-                    end_column = cls._get_py38_none_value(row[4])
+                    end_line = cls._get_py38_none_value(row[3], check_endline)
+                    end_column = cls._get_py38_none_value(row[4], check_endline)
                     return cls(
                         row[0],
                         int(row[1]),

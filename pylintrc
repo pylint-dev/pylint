@@ -20,6 +20,7 @@ load-plugins=
     pylint.extensions.check_elif,
     pylint.extensions.bad_builtin,
     pylint.extensions.for_any_all,
+    pylint.extensions.set_membership,
     pylint.extensions.code_style,
     pylint.extensions.overlapping_exceptions,
     pylint.extensions.typing,
@@ -43,7 +44,7 @@ unsafe-load-any-extension=no
 extension-pkg-allow-list=
 
 # Minimum supported python version
-py-version = 3.6
+py-version = 3.6.2
 
 
 [MESSAGES CONTROL]

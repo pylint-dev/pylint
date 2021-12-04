@@ -22,7 +22,9 @@ ignore=CVS
 ignore-patterns=
 
 # Add files or directories matching the regex patterns to the ignore-list.
-# The regex matches against paths.
+# The regex matches against paths. NOTE: Because "\" represents the directory
+# delimiter on Windows systems it can't be used as the escape character
+# in these regular expressions.
 ignore-paths=
 
 # Python code to execute, usually for sys.path manipulation such as

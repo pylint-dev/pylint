@@ -4,6 +4,7 @@
 # Copyright (c) 2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2020 Frank Harrison <frank@doublethefish.com>
 # Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
+# Copyright (c) 2021 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html

@@ -1,5 +1,5 @@
 """Warnings about global statements and usage of global variables."""
-# pylint: disable=invalid-name, redefined-outer-name, missing-function-docstring
+# pylint: disable=invalid-name, redefined-outer-name, missing-function-docstring, import-outside-toplevel
 from __future__ import print_function
 
 global CSTE  # [global-at-module-level]
@@ -65,3 +65,9 @@ def override_func():
         pass
 
     FUNC()
+
+def func():
+    """Overriding a global with an import should only throw a global statement error"""
+    global sys  # [global-statement]
+
+    import sys

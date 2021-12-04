@@ -32,3 +32,35 @@ class ThirdGood(object):
 @six.add_metaclass(ValidAsMetaclass)
 class FourthGood(object):
     pass
+
+
+class FirstInvalid(object, metaclass=int):  # [invalid-metaclass]
+    pass
+
+
+class SecondInvalid(object, metaclass=InvalidAsMetaclass):  # [invalid-metaclass]
+    pass
+
+
+class ThirdInvalid(object, metaclass=2):  # [invalid-metaclass]
+    pass
+
+
+class FourthInvalid(object, metaclass=InvalidAsMetaclass()):  # [invalid-metaclass]
+    pass
+
+
+def invalid_metaclass_1(name, bases, attrs):
+    return int
+
+
+def invalid_metaclass_2(name, bases, attrs):
+    return 1
+
+
+class Invalid(metaclass=invalid_metaclass_1):  # [invalid-metaclass]
+    pass
+
+
+class InvalidSecond(metaclass=invalid_metaclass_2):  # [invalid-metaclass]
+    pass

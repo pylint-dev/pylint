@@ -1,6 +1,7 @@
 """Puts the check_parallel system under test"""
 # Copyright (c) 2020-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2020 Frank Harrison <frank@doublethefish.com>
+# Copyright (c) 2021 Jaehoon Hwang <jaehoonhwang@users.noreply.github.com>
 # Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Julien Palard <julien@palard.fr>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
@@ -19,6 +20,7 @@ from astroid import nodes
 import pylint.interfaces
 import pylint.lint.parallel
 from pylint.checkers.base_checker import BaseChecker
+from pylint.checkers.mapreduce_checker import MapReduceMixin
 from pylint.lint import PyLinter
 from pylint.lint.parallel import _worker_check_single_file as worker_check_single_file
 from pylint.lint.parallel import _worker_initialize as worker_initialize
@@ -72,7 +74,7 @@ class SequentialTestChecker(BaseChecker):
         self.data.append(record)
 
 
-class ParallelTestChecker(BaseChecker):
+class ParallelTestChecker(BaseChecker, MapReduceMixin):
     """A checker that does need to consolidate data.
 
     To simulate the need to consolidate data, this checker only

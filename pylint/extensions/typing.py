@@ -194,11 +194,7 @@ class TypingChecker(BaseChecker):
         inferred = safe_infer(node)
         if not (
             isinstance(inferred, nodes.FunctionDef)
-            and inferred.qname()
-            in (
-                "typing.Optional",
-                "typing.Union",
-            )
+            and inferred.qname() in {"typing.Optional", "typing.Union"}
             or isinstance(inferred, astroid.bases.Instance)
             and inferred.qname() == "typing._SpecialForm"
         ):

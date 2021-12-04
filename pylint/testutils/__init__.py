@@ -21,6 +21,7 @@
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 谭九鼎 <109224573@qq.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Lefteris Karapetsas <lefteris@refu.co>
 
@@ -48,7 +49,7 @@ __all__ = [
 from pylint.testutils.checker_test_case import CheckerTestCase
 from pylint.testutils.constants import UPDATE_FILE, UPDATE_OPTION
 from pylint.testutils.decorator import set_config
-from pylint.testutils.functional_test_file import FunctionalTestFile
+from pylint.testutils.functional import FunctionalTestFile
 from pylint.testutils.get_test_info import _get_tests_info
 from pylint.testutils.global_test_linter import linter
 from pylint.testutils.lint_module_test import LintModuleTest

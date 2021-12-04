@@ -34,11 +34,12 @@
 # Copyright (c) 2020 Peter Kolbus <peter.kolbus@gmail.com>
 # Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 Tushar Sadhwani <tushar.sadhwani000@gmail.com>
 # Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Will Shanks <wsha@posteo.net>
 # Copyright (c) 2021 Matus Valo <matusvalo@users.noreply.github.com>
-# Copyright (c) 2021 yushao2 <36848472+yushao2@users.noreply.github.com>
+# Copyright (c) 2021 Yu Shao, Pang <36848472+yushao2@users.noreply.github.com>
 # Copyright (c) 2021 Andrew Howe <howeaj@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -733,7 +734,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             )
             import_category = isort_driver.place_module(package)
             node_and_package_import = (node, package)
-            if import_category in ("FUTURE", "STDLIB"):
+            if import_category in {"FUTURE", "STDLIB"}:
                 std_imports.append(node_and_package_import)
                 wrong_import = (
                     third_party_not_ignored

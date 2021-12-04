@@ -40,3 +40,11 @@ def j():
 
 def m():
     from math import sin as sign, cos as cosplay  # [import-outside-toplevel]
+
+
+# Test allow-any-import-level setting
+def n():
+    import astroid
+
+def o():
+    import notastroid  # [import-error, import-outside-toplevel]

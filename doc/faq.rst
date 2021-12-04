@@ -48,7 +48,7 @@ supported.
 2.4 What versions of Python is Pylint supporting?
 --------------------------------------------------
 
-The supported running environment since Pylint 2.7.X is Python 3.6+.
+The supported running environment since Pylint 2.12.1 is Python 3.6.2+.
 
 
 3. Running Pylint

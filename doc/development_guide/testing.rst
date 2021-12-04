@@ -72,13 +72,22 @@ You can also use ``# +n: [`` with n an integer if the above syntax would make th
 
 If you need special control over Pylint's configuration, you can also create a .rc file, which
 can have sections of Pylint's configuration.
+The .rc file can also contain a section ``[testoptions]`` to pass options for the functional
+test runner. The following options are currently supported:
+
+    "min_pyver": Minimal python version required to run the test
+    "max_pyver": Python version from which the test won't be run. If the last supported version is 3.9 this setting should be set to 3.10.
+    "min_pyver_end_position": Minimal python version required to check the end_line and end_column attributes of the message
+    "requires": Packages required to be installed locally to run the test
+    "except_implementations": List of python implementations on which the test should not run
+    "exclude_platforms": List of operating systems on which the test should not run
 
 During development, it's sometimes helpful to run all functional tests in your
 current environment in order to have faster feedback. Run from Pylint root directory with::
 
     python tests/test_functional.py
 
-You can use all the options you would use for pytest, for example ``-k "test_functional[len_checks]"``.
+You can use all the options you would use for pytest_, for example ``-k "test_functional[len_checks]"``.
 Furthermore, if required the .txt file with expected messages can be regenerated based
 on the the current output by appending ``--update-functional-output`` to the command line::
 
@@ -128,6 +137,32 @@ specify this by adding a ``.out`` file. This file should have the following name
 and should exit with exit code 2 the ``.out`` file should be named ``bad_configuration.2.out``.
 The content of the ``.out`` file should have a similar pattern as a normal Pylint output. Note that the
 module name should be ``{abspath}`` and the file name ``{relpath}``.
+
+Primer tests
+-------------------------------------------
+
+Pylint also uses what we refer to as ``primer`` tests. These are tests that are run automatically
+in our Continuous Integration and check whether any changes in Pylint lead to crashes or fatal errors
+on the ``stdlib`` and a selection of external repositories.
+
+To run the ``primer`` tests you can add either ``--primer-stdlib`` or ``--primer-external`` to the
+pytest_ command. If you want to only run the ``primer`` you can add either of their marks, for example::
+
+    pytest -m primer_stdlib --primer-stdlib
+
+The external ``primer`` has been split up in two marks to speed up our Continuous Integration. You can run
+either of the two batches or run them both::
+
+    pytest -m primer_external_batch_one --primer-external # Runs batch one
+    pytest -m primer_external_batch_two --primer-external # Runs batch two
+    pytest -m "primer_external_batch_one or primer_external_batch_two" --primer-external # Runs both batches
+
+The list of repositories is created on the basis of three criteria: 1) projects need to use a diverse
+range of language features, 2) projects need to be well maintained and 3) projects should not have a codebase
+that is too repetitive. This guarantees a good balance between speed of our CI and finding potential bugs.
+
+You can find the latest list of repositories and any relevant code for these tests in the ``tests/primer``
+directory.
 
 .. _tox: https://tox.readthedocs.io/en/latest/
 .. _pytest: https://pytest.readthedocs.io/en/latest/

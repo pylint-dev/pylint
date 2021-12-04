@@ -66,3 +66,29 @@ VAR = 1 in {}.keys() # [consider-iterating-dictionary]
 VAR = 1 in {}
 VAR = 1 in dict()
 VAR = [1, 2] == {}.keys() in {False}
+
+# Additional membership checks
+# See: https://github.com/PyCQA/pylint/issues/5323
+metadata = {}
+if "a" not in list(metadata.keys()): # [consider-iterating-dictionary]
+    print(1)
+if "a" not in metadata.keys(): # [consider-iterating-dictionary]
+    print(1)
+if "a" in list(metadata.keys()): # [consider-iterating-dictionary]
+    print(1)
+if "a" in metadata.keys(): # [consider-iterating-dictionary]
+    print(1)
+
+
+class AClass:
+    def a_function(self):
+        class InnerClass:
+            def another_function(self):
+                def inner_function():
+                    another_metadata = {}
+                    print("a" not in list(another_metadata.keys())) # [consider-iterating-dictionary]
+                    print("a" not in another_metadata.keys()) # [consider-iterating-dictionary]
+                    print("a" in list(another_metadata.keys())) # [consider-iterating-dictionary]
+                    print("a" in another_metadata.keys()) # [consider-iterating-dictionary]
+                return  inner_function()
+        return InnerClass().another_function()

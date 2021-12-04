@@ -9,3 +9,4 @@ global-variable-not-assigned:39:4:39:19:global_no_assign:Using global for 'CONST
 global-statement:45:4:45:19:global_operator_assign:Using the global statement:UNDEFINED
 global-statement:52:4:52:19:global_function_assign:Using the global statement:UNDEFINED
 global-statement:62:4:62:15:override_func:Using the global statement:UNDEFINED
+global-statement:71:4:71:14:func:Using the global statement:UNDEFINED

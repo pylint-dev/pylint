@@ -574,7 +574,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             isinstance(infer, astroid.BoundMethod)
             and node.args
             and isinstance(node.args[0], nodes.Const)
-            and infer.name in ["assertTrue", "assertFalse"]
+            and infer.name in {"assertTrue", "assertFalse"}
         ):
             self.add_message(
                 "redundant-unittest-assert",

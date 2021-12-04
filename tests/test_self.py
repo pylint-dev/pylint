@@ -7,11 +7,11 @@
 # Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
 # Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
 # Copyright (c) 2017, 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2017, 2021 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2017, 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017, 2019 Thomas Hisch <t.hisch@gmail.com>
 # Copyright (c) 2017 Daniel Miller <millerdev@gmail.com>
 # Copyright (c) 2017 Bryce Guinta <bryce.paul.guinta@gmail.com>
-# Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
 # Copyright (c) 2018 Jason Owen <jason.a.owen@gmail.com>
 # Copyright (c) 2018 Jace Browning <jacebrowning@gmail.com>
@@ -1259,3 +1259,20 @@ class TestRunTC:
             exit=False,
         )
         assert sorted(plugins) == sorted(runner.linter._dynamic_plugins)
+
+    @staticmethod
+    def test_load_text_repoter_if_not_provided() -> None:
+        """Test if PyLinter.reporter is a TextReporter if no reporter is provided"""
+        linter = PyLinter()
+
+        assert isinstance(linter.reporter, TextReporter)
+
+    @staticmethod
+    def test_regex_paths_csv_validator() -> None:
+        """Test to see if _regexp_paths_csv_validator works.
+        Previously the validator crashed when encountering already validated values.
+        Reported in https://github.com/PyCQA/pylint/issues/5437
+        """
+        with pytest.raises(SystemExit) as ex:
+            Run(["--ignore-paths", "test", join(HERE, "regrtest_data", "empty.py")])
+        assert ex.value.code == 0

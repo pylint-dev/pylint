@@ -1,3 +1,5 @@
+# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -6,6 +8,7 @@
 from typing import Dict, Type
 
 from pylint.pyreverse.dot_printer import DotPrinter
+from pylint.pyreverse.mermaidjs_printer import HTMLMermaidJSPrinter, MermaidJSPrinter
 from pylint.pyreverse.plantuml_printer import PlantUmlPrinter
 from pylint.pyreverse.printer import Printer
 from pylint.pyreverse.vcg_printer import VCGPrinter
@@ -14,6 +17,8 @@ filetype_to_printer: Dict[str, Type[Printer]] = {
     "vcg": VCGPrinter,
     "plantuml": PlantUmlPrinter,
     "puml": PlantUmlPrinter,
+    "mmd": MermaidJSPrinter,
+    "html": HTMLMermaidJSPrinter,
     "dot": DotPrinter,
 }
 

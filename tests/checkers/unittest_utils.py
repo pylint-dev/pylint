@@ -12,6 +12,7 @@
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
+# Copyright (c) 2021 Jaehoon Hwang <jaehoonhwang@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -485,3 +486,10 @@ def test_is_empty_literal() -> None:
     assert utils.is_empty_str_literal(string_node.value)
     not_empty_string_node = astroid.extract_node("a = 'hello'")
     assert not utils.is_empty_str_literal(not_empty_string_node.value)
+
+
+def test_deprecation_is_inside_lambda() -> None:
+    """Test that is_inside_lambda is throwing a DeprecationWarning"""
+    with pytest.warns(DeprecationWarning) as records:
+        utils.is_inside_lambda(nodes.NodeNG())
+        assert len(records) == 1

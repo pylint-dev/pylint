@@ -61,3 +61,7 @@ class NonRegr(object):
     def blop(self):
         """yo"""
         print(self, 'blip')
+
+if TYPE_CHECKING:
+    if sys.version_info >= (3, 6, 2):
+        from typing import NoReturn

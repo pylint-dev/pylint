@@ -18,6 +18,7 @@
 # Copyright (c) 2020 Eli Fine <ejfine@gmail.com>
 # Copyright (c) 2020 Shiv Venkatasubrahmanyam <shvenkat@users.noreply.github.com>
 # Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
+# Copyright (c) 2021 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Maksym Humetskyi <Humetsky@gmail.com>
 # Copyright (c) 2021 bot <bot@noreply.github.com>
@@ -915,17 +916,17 @@ def Run(argv=None):
     ignore_signatures = False
     opts, args = getopt(argv, s_opts, l_opts)
     for opt, val in opts:
-        if opt in ("-d", "--duplicates"):
+        if opt in {"-d", "--duplicates"}:
             min_lines = int(val)
-        elif opt in ("-h", "--help"):
+        elif opt in {"-h", "--help"}:
             usage()
-        elif opt in ("-i", "--ignore-comments"):
+        elif opt in {"-i", "--ignore-comments"}:
             ignore_comments = True
-        elif opt in ("--ignore-docstrings",):
+        elif opt in {"--ignore-docstrings"}:
             ignore_docstrings = True
-        elif opt in ("--ignore-imports",):
+        elif opt in {"--ignore-imports"}:
             ignore_imports = True
-        elif opt in ("--ignore-signatures",):
+        elif opt in {"--ignore-signatures"}:
             ignore_signatures = True
     if not args:
         usage(1)
