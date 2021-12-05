@@ -150,7 +150,13 @@ def _setup(
     writer.write(dd)
     yield
     for fname in (
-        DOT_FILES + COLORIZED_DOT_FILES + VCG_FILES + PUML_FILES + COLORIZED_PUML_FILES
+        DOT_FILES
+        + COLORIZED_DOT_FILES
+        + VCG_FILES
+        + PUML_FILES
+        + COLORIZED_PUML_FILES
+        + MMD_FILES
+        + HTML_FILES
     ):
         try:
             os.remove(fname)
