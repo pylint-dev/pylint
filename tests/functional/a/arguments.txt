@@ -8,8 +8,7 @@ too-many-function-args:53:0:53:41::Too many positional arguments for function ca
 no-value-for-parameter:58:0:58:21::No value for argument 'first_argument' in function call:UNDEFINED
 unexpected-keyword-arg:58:0:58:21::Unexpected keyword argument 'bob' in function call:UNDEFINED
 unexpected-keyword-arg:59:0:59:40::Unexpected keyword argument 'coin' in function call:UNDEFINED
-redundant-keyword-arg:61:0:61:30::Argument 'one' passed by position and keyword in function call:UNDEFINED
-no-value-for-parameter:66:0:66:8::No value for argument 'arg' in lambda call:UNDEFINED
+no-value-for-parameter:65:0:65:8::No value for argument 'arg' in lambda call:UNDEFINED
 no-value-for-parameter:71:4:71:24:method_tests:No value for argument 'arg' in staticmethod call:UNDEFINED
 no-value-for-parameter:72:4:72:29:method_tests:No value for argument 'arg' in staticmethod call:UNDEFINED
 no-value-for-parameter:74:4:74:23:method_tests:No value for argument 'arg' in classmethod call:UNDEFINED
@@ -28,12 +27,12 @@ unexpected-keyword-arg:122:8:122:29:TypeCheckConstructor.test:Unexpected keyword
 no-value-for-parameter:133:8:133:18:Test.test:No value for argument 'icon' in method call:UNDEFINED
 too-many-function-args:134:8:134:25:Test.test:Too many positional arguments for method call:UNDEFINED
 no-value-for-parameter:136:0:136:12::No value for argument 'icon' in method call:UNDEFINED
-no-value-for-parameter:163:4:163:29:no_context_but_redefined:No value for argument 'three' in function call:UNDEFINED
-no-value-for-parameter:163:4:163:29:no_context_but_redefined:No value for argument 'two' in function call:UNDEFINED
-no-value-for-parameter:166:4:166:22:no_context_one_elem:No value for argument 'three' in function call:UNDEFINED
-no-value-for-parameter:166:4:166:22:no_context_one_elem:No value for argument 'two' in function call:UNDEFINED
-unexpected-keyword-arg:202:23:202:56:namedtuple_replace_issue_1036:Unexpected keyword argument 'd' in method call:UNDEFINED
-unexpected-keyword-arg:202:23:202:56:namedtuple_replace_issue_1036:Unexpected keyword argument 'e' in method call:UNDEFINED
-no-value-for-parameter:215:0:215:24::No value for argument 'third' in function call:UNDEFINED
-no-value-for-parameter:216:0:216:30::No value for argument 'second' in function call:UNDEFINED
-unexpected-keyword-arg:217:0:217:43::Unexpected keyword argument 'fourth' in function call:UNDEFINED
+no-value-for-parameter:156:4:156:29:no_context_but_redefined:No value for argument 'three' in function call:UNDEFINED
+no-value-for-parameter:156:4:156:29:no_context_but_redefined:No value for argument 'two' in function call:UNDEFINED
+no-value-for-parameter:159:4:159:22:no_context_one_elem:No value for argument 'three' in function call:UNDEFINED
+no-value-for-parameter:159:4:159:22:no_context_one_elem:No value for argument 'two' in function call:UNDEFINED
+unexpected-keyword-arg:195:23:195:56:namedtuple_replace_issue_1036:Unexpected keyword argument 'd' in method call:UNDEFINED
+unexpected-keyword-arg:195:23:195:56:namedtuple_replace_issue_1036:Unexpected keyword argument 'e' in method call:UNDEFINED
+no-value-for-parameter:208:0:208:24::No value for argument 'third' in function call:UNDEFINED
+no-value-for-parameter:209:0:209:30::No value for argument 'second' in function call:UNDEFINED
+unexpected-keyword-arg:210:0:210:43::Unexpected keyword argument 'fourth' in function call:UNDEFINED

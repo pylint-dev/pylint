@@ -58,12 +58,12 @@ function_default_arg(two=5)
 function_1_arg(bob=4)  # [unexpected-keyword-arg,no-value-for-parameter]
 function_default_arg(1, 4, coin="hello")  # [unexpected-keyword-arg]
 
-function_default_arg(1, one=5)  # [redundant-keyword-arg]
 
 # Remaining tests are for coverage of correct names in messages.
 LAMBDA = lambda arg: 1
 
 LAMBDA()  # [no-value-for-parameter]
+
 
 def method_tests():
     """Method invocations."""
@@ -135,13 +135,6 @@ class Test(object):
 
 Test().lam() # [no-value-for-parameter]
 
-# Don't emit a redundant-keyword-arg for this example,
-# it's perfectly valid
-
-class Issue642(object):
-    attr = 0
-    def __str__(self):
-        return "{self.attr}".format(self=self)
 
 # These should not emit anything regarding the number of arguments,
 # since they have something invalid.
