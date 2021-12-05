@@ -306,10 +306,6 @@ Release date: 2021-11-24
 
   Closes #5208
 
-* ``missing-raises-doc`` will now check the class hierarchy of the raised exceptions
-
-  Closes #4955
-
 * Make yn validator case insensitive, to allow for ``True`` and ``False`` in config files.
 
 * Fix crash on ``open()`` calls when the ``mode`` argument is not a simple string.
