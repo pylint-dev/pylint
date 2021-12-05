@@ -20,6 +20,7 @@ from astroid import nodes
 import pylint.interfaces
 import pylint.lint.parallel
 from pylint.checkers.base_checker import BaseChecker
+from pylint.checkers.mapreduce_checker import MapReduceMixin
 from pylint.lint import PyLinter
 from pylint.lint.parallel import _worker_check_single_file as worker_check_single_file
 from pylint.lint.parallel import _worker_initialize as worker_initialize
@@ -73,7 +74,7 @@ class SequentialTestChecker(BaseChecker):
         self.data.append(record)
 
 
-class ParallelTestChecker(BaseChecker):
+class ParallelTestChecker(BaseChecker, MapReduceMixin):
     """A checker that does need to consolidate data.
 
     To simulate the need to consolidate data, this checker only

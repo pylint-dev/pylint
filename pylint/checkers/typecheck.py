@@ -47,7 +47,7 @@
 # Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 David Liu <david@cs.toronto.edu>
 # Copyright (c) 2021 doranid <ddandd@gmail.com>
-# Copyright (c) 2021 yushao2 <36848472+yushao2@users.noreply.github.com>
+# Copyright (c) 2021 Yu Shao, Pang <36848472+yushao2@users.noreply.github.com>
 # Copyright (c) 2021 Andrew Haigh <nelfin@gmail.com>
 # Copyright (c) 2021 Jens H. Nielsen <Jens.Nielsen@microsoft.com>
 # Copyright (c) 2021 Ikraduya Edian <ikraduya@gmail.com>

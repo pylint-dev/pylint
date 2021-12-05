@@ -15,6 +15,7 @@
 # Copyright (c) 2019 Zeb Nicholls <zebedee.nicholls@climate-energy-college.org>
 # Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
+# Copyright (c) 2021 allanc65 <95424144+allanc65@users.noreply.github.com>
 # Copyright (c) 2021 Konstantina Saketou <56515303+ksaketou@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
@@ -287,9 +288,9 @@ class SphinxDocstring(Docstring):
         \s+
         )?
 
-        (\*{{0,2}}\w+)          # Parameter name with potential asterisks
-        \s*                     # whitespace
-        :                       # final colon
+        ((\\\*{{1,2}}\w+)|(\w+))  # Parameter name with potential asterisks
+        \s*                       # whitespace
+        :                         # final colon
         """
     re_param_in_docstring = re.compile(re_param_raw, re.X | re.S)
 
@@ -384,6 +385,8 @@ class SphinxDocstring(Docstring):
 
         for match in re.finditer(self.re_param_in_docstring, self.doc):
             name = match.group(2)
+            # Remove escape characters necessary for asterisks
+            name = name.replace("\\", "")
             params_with_doc.add(name)
             param_type = match.group(1)
             if param_type is not None:
@@ -653,16 +656,9 @@ class GoogleDocstring(Docstring):
             if not match:
                 continue
 
-            # check if parameter has description only
-            re_only_desc = re.search(":\n", entry)
-            if re_only_desc:
-                param_name = match.group(1)
-                param_desc = match.group(2)
-                param_type = None
-            else:
-                param_name = match.group(1)
-                param_type = match.group(2)
-                param_desc = match.group(3)
+            param_name = match.group(1)
+            param_type = match.group(2)
+            param_desc = match.group(3)
 
             if param_type:
                 params_with_type.add(param_name)

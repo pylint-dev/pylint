@@ -1,0 +1,2 @@
+shallow-copy-environ:7:0:7:21::Using copy.copy(os.environ). Use os.environ.copy() instead. :UNDEFINED
+shallow-copy-environ:17:0:17:18::Using copy.copy(os.environ). Use os.environ.copy() instead. :UNDEFINED

@@ -1,4 +1,4 @@
-[testoptions]
+[DESIGN]
 min-public-methods=10  # to combat inherited methods
 
 exclude-too-few-public-methods=json.*,^.*Control$

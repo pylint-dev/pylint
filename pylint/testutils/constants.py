@@ -4,14 +4,12 @@
 import operator
 import re
 import sys
-from os.path import abspath, dirname
 from pathlib import Path
 
 SYS_VERS_STR = (
     "%d%d%d" % sys.version_info[:3]  # pylint: disable=consider-using-f-string
 )
 TITLE_UNDERLINES = ["", "=", "-", "."]
-PREFIX = abspath(dirname(__file__))
 UPDATE_OPTION = "--update-functional-output"
 UPDATE_FILE = Path("pylint-functional-test-update")
 # Common sub-expressions.
