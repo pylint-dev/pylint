@@ -9,7 +9,7 @@ class CustomChildError(CustomError):
     pass
 
 
-def test_find_missing_raise_for_parent():
+def test_find_missing_raise_for_parent():  # [missing-raises-doc]
     """This is a docstring.
 
     Raises:
