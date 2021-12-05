@@ -18,7 +18,7 @@ Release date: TBA
 
   Closes #4716
 
-* False positive - Allow unpacking of ``self`` in a subclass of ``typing.NamedTuple``
+* Fix false positive - Allow unpacking of ``self`` in a subclass of ``typing.NamedTuple``.
 
   Closes #5312
 

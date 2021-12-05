@@ -2131,7 +2131,7 @@ class VariablesChecker(BaseChecker):
             # Variable-length argument, we can't determine the length.
             return
 
-        # attempt to check unpacking is properly balanced
+        # Attempt to check unpacking is properly balanced
         values: Optional[List] = None
         if isinstance(inferred, (nodes.Tuple, nodes.List)):
             values = inferred.itered()

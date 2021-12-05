@@ -112,7 +112,19 @@ def test_issue_559():
 class MyClass(NamedTuple):
     first: float
     second: float
+    third: float = 1.0
 
-    def sum_3d(self):
-        first, second, third = self # [unbalanced-tuple-unpacking]
+    def my_sum(self):
+        """Unpack 3 variables"""
+        first, second, third = self
         return first + second + third
+
+    def sum_unpack_3_into_4(self):
+        """Attempt to unpack 3 variables into 4"""
+        first, second, third, fourth = self # [unbalanced-tuple-unpacking]
+        return first + second + third + fourth
+
+    def sum_unpack_3_into_2(self):
+        """Attempt to unpack 3 variables into 2"""
+        first, second = self # [unbalanced-tuple-unpacking]
+        return first + second
