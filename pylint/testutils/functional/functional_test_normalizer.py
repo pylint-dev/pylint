@@ -21,10 +21,12 @@ class FunctionalTestNormalizer:
 
     def expected_directories(self, message: MessageDefinition) -> List[Path]:
         """The normalized directory that should contain the functional test for a message"""
-        return [
-            self.base_functional_directory / message.symbol[0] / d
-            for d in (
-                message.symbol,
-                message.symbol.replace("-", "_"),
-            )
-        ]
+        result = []
+        intermediate_dirs = (message.checker_name, message.symbol[0])
+        leaf_dirs = (message.symbol, message.symbol.replace("-", "_"))
+        for intermediate_dir in intermediate_dirs:
+            for leaf_dir in leaf_dirs:
+                result.append(
+                    self.base_functional_directory / intermediate_dir / leaf_dir
+                )
+        return result
