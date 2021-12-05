@@ -23,7 +23,7 @@ All messages in the fatal category:
 All renamed messages in the fatal category:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :titlesonly:
 
    fatal/old-import-error.rst
@@ -149,7 +149,7 @@ All messages in the error category:
 All renamed messages in the error category:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :titlesonly:
 
    error/bad-context-manager.rst
@@ -301,7 +301,7 @@ All messages in the warning category:
 All renamed messages in the warning category:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :titlesonly:
 
    warning/implicit-str-concat-in-sequence.rst
@@ -375,7 +375,7 @@ All messages in the convention category:
 All renamed messages in the convention category:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :titlesonly:
 
    convention/blacklisted-name.rst
@@ -463,7 +463,7 @@ All messages in the refactor category:
 All renamed messages in the refactor category:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :titlesonly:
 
    refactor/old-simplifiable-if-statement.rst
@@ -492,7 +492,7 @@ All messages in the information category:
 All renamed messages in the information category:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :titlesonly:
 
    information/deprecated-disable-all.rst

@@ -75,19 +75,18 @@ def _get_all_messages(
         "refactor": defaultdict(list),
         "information": defaultdict(list),
     }
-    for checker in linter.get_checkers():
-        for message in checker.messages:
-            message_data = MessageData(
-                checker.name, message.msgid, message.symbol, message
-            )
-            messages_dict[MSG_TYPES[message.msgid[0]]].append(message_data)
+    for message in linter.msgs_store.messages:
+        message_data = MessageData(
+            message.checker_name, message.msgid, message.symbol, message
+        )
+        messages_dict[MSG_TYPES[message.msgid[0]]].append(message_data)
 
-            if message.old_names:
-                for old_name in message.old_names:
-                    category = MSG_TYPES[old_name[0][0]]
-                    old_messages[category][(old_name[1], old_name[0])].append(
-                        (message.symbol, MSG_TYPES[message.msgid[0]])
-                    )
+        if message.old_names:
+            for old_name in message.old_names:
+                category = MSG_TYPES[old_name[0][0]]
+                old_messages[category][(old_name[1], old_name[0])].append(
+                    (message.symbol, MSG_TYPES[message.msgid[0]])
+                )
 
     return messages_dict, old_messages
 
