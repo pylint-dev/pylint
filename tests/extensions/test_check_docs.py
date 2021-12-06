@@ -795,27 +795,6 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_finds_annotation_property_return_type_google(self) -> None:
-        """Example of a property having return documentation in
-        a Google style docstring
-        """
-        _, node = astroid.extract_node(
-            """
-        class Foo(object):
-            @property
-            def foo(self) -> int: #@
-                '''docstring ...
-
-                Raises:
-                    RuntimeError: Always
-                '''
-                raise RuntimeError()
-                return 10 #@
-        """
-        )
-        with self.assertNoMessages():
-            self.checker.visit_return(node)
-
     @set_config(accept_no_return_doc="no")
     def test_finds_missing_property_return_type_google(self) -> None:
         """Example of a property having return documentation in

@@ -2,3 +2,4 @@ redundant-returns-doc:42:0:48:15:my_func:Redundant returns documentation:UNDEFIN
 redundant-returns-doc:51:0:57:15:my_func:Redundant returns documentation:UNDEFINED
 redundant-returns-doc:60:0:66:11:my_func:Redundant returns documentation:UNDEFINED
 unreachable:94:8:94:17:Foo.foo_method:Unreachable code:UNDEFINED
+unreachable:111:8:111:17:Foo.foo_method:Unreachable code:UNDEFINED

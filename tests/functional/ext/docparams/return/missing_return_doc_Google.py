@@ -92,3 +92,20 @@ class Foo:
         """
         raise RuntimeError()
         return 10  # [unreachable]
+
+
+class Foo:
+    """test_finds_annotation_property_return_type_google
+    Example of a property having return documentation in
+    a Google style docstring
+    """
+
+    @property
+    def foo_method(self) -> int:
+        """docstring ...
+
+        Raises:
+            RuntimeError: Always
+        """
+        raise RuntimeError()
+        return 10  # [unreachable]
