@@ -916,25 +916,6 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_ignores_ignored_argument_names_google(self) -> None:
-        """Example of a method documenting the return type that an
-        implementation should return.
-        """
-        node = astroid.extract_node(
-            """
-        class Foo(object):
-            def foo(self, arg, _): #@
-                '''docstring ...
-
-                Args:
-                    arg (int): An argument.
-                '''
-                pass
-        """
-        )
-        with self.assertNoMessages():
-            self.checker.visit_functiondef(node)
-
     def test_ignores_ignored_argument_names_numpy(self) -> None:
         """Example of a method documenting the return type that an
         implementation should return.

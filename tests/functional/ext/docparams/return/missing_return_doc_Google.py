@@ -1,6 +1,6 @@
 """Tests for missing-return-doc and missing-return-type-doc for Google style docstrings"""
 # pylint: disable=function-redefined, invalid-name, undefined-variable, missing-function-docstring
-# pylint: disable=unused-argument, too-few-public-methods
+# pylint: disable=unused-argument, too-few-public-methods, unnecessary-pass
 import abc
 
 
@@ -141,3 +141,18 @@ class Foo:
             arg (int): An argument.
         """
         raise NotImplementedError()
+
+
+class Foo:
+    """test_ignores_ignored_argument_names_google
+    Example of a method documenting the return type that an
+    implementation should return.
+    """
+
+    def foo_method(self, arg, _):
+        """docstring ...
+
+        Args:
+            arg (int): An argument.
+        """
+        pass
