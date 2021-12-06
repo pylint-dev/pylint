@@ -45,3 +45,17 @@ def test_missing_func_params_with_annotations_in_google_docstring(x: int, y: boo
         some other stuff
     """
     pass
+
+
+def test_missing_type_doc_google_docstring_exempt_kwonly_args(
+    arg1: int, arg2: int, *, value1: str, value2: str
+):
+    """Code to show failure in missing-type-doc
+
+    Args:
+        arg1: First argument.
+        arg2: Second argument.
+        value1: First kwarg.
+        value2: Second kwarg.
+    """
+    print("NOTE: It doesn't like anything after the '*'.")

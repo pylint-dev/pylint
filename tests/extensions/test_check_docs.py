@@ -48,24 +48,6 @@ class TestParamDocChecker(CheckerTestCase):
         "docstring_min_length": -1,
     }
 
-    def test_missing_type_doc_google_docstring_exempt_kwonly_args(self) -> None:
-        node = astroid.extract_node(
-            """
-        def identifier_kwarg_method(arg1: int, arg2: int, *, value1: str, value2: str):
-            '''Code to show failure in missing-type-doc
-
-            Args:
-                arg1: First argument.
-                arg2: Second argument.
-                value1: First kwarg.
-                value2: Second kwarg.
-            '''
-            print("NOTE: It doesn't like anything after the '*'.")
-        """
-        )
-        with self.assertNoMessages():
-            self.checker.visit_functiondef(node)
-
     def test_default_arg_with_annotations_in_google_docstring(self) -> None:
         """Example of a function with missing Google style parameter
         documentation in the docstring.
