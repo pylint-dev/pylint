@@ -657,8 +657,8 @@ scope_type : {self._atomic.scope_type}
                 )
                 or n.statement(future=True).parent.parent_of(node)
             ]
-            difference = [n for n in found_nodes if n not in filtered_nodes]
-            self.consumed_uncertain[node.name] += difference
+            difference = set(found_nodes) - set(filtered_nodes)
+            self.consumed_uncertain[node.name] += list(difference)
             found_nodes = filtered_nodes
 
         return found_nodes
