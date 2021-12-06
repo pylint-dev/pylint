@@ -31,3 +31,17 @@ def test_missing_func_params_in_google_docstring(  # [missing-param-doc, missing
     some other stuff
     """
     pass
+
+
+def test_missing_func_params_with_annotations_in_google_docstring(x: int, y: bool, z):
+    """Example of a function with missing Google style parameter
+    documentation in the docstring.
+
+        Args:
+            x: bla
+            y: blah blah
+            z (int): bar
+
+        some other stuff
+    """
+    pass
