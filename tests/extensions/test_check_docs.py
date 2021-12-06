@@ -547,26 +547,6 @@ class TestParamDocChecker(CheckerTestCase):
         ):
             self.checker.visit_functiondef(node)
 
-    def test_finds_args_with_xref_type_google(self) -> None:
-        node = astroid.extract_node(
-            '''
-        def my_func(named_arg, **kwargs):
-            """The docstring
-
-            Args:
-                named_arg (`example.value`): Returned
-                **kwargs: Keyword arguments
-
-            Returns:
-                `example.value`: Maybe named_arg
-            """
-            if kwargs:
-                return named_arg
-        '''
-        )
-        with self.assertNoMessages():
-            self.checker.visit_functiondef(node)
-
     def test_finds_args_with_xref_type_numpy(self) -> None:
         node = astroid.extract_node(
             '''

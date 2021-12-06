@@ -330,3 +330,17 @@ def test_finds_kwargs_without_type_google(named_arg, **kwargs):
     """
     if kwargs:
         return named_arg
+
+
+def test_finds_args_with_xref_type_google(named_arg, **kwargs):
+    """The docstring
+
+    Args:
+        named_arg (`example.value`): Returned
+        **kwargs: Keyword arguments
+
+    Returns:
+        `example.value`: Maybe named_arg
+    """
+    if kwargs:
+        return named_arg
