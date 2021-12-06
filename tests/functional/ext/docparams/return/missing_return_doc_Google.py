@@ -156,3 +156,20 @@ class Foo:
             arg (int): An argument.
         """
         pass
+
+
+class Foo:
+    """test_useless_docs_ignored_argument_names_google
+    Example of a method documenting the return type that an
+    implementation should return.
+    """
+
+    def foo_method(self, arg, _, _ignored):  # [useless-type-doc, useless-param-doc]
+        """docstring ...
+
+        Args:
+            arg (int): An argument.
+            _ (float): Another argument.
+            _ignored: Ignored argument.
+        """
+        pass
