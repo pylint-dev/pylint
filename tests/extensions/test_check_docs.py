@@ -251,27 +251,6 @@ class TestParamDocChecker(CheckerTestCase):
         ):
             self.checker.visit_functiondef(node)
 
-    def test_see_sentence_for_func_params_in_google_docstring(self) -> None:
-        """Example for the usage of "For the other parameters, see" to avoid
-        too many repetitions, e.g. in functions or methods adhering to a
-        given interface (Google style)
-        """
-        node = astroid.extract_node(
-            """
-        def function_foo(xarg, yarg):
-            '''function foo ...
-
-            Args:
-                yarg (float): bla yarg
-
-            For the other parameters, see :func:`bla`
-            '''
-            return xarg + yarg
-        """
-        )
-        with self.assertNoMessages():
-            self.checker.visit_functiondef(node)
-
     def test_see_sentence_for_func_params_in_numpy_docstring(self) -> None:
         """Example for the usage of "For the other parameters, see" to avoid
         too many repetitions, e.g. in functions or methods adhering to a
