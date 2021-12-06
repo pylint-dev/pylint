@@ -55,3 +55,20 @@ class Foo:
         """
         raise RuntimeError()
         return 10  # [unreachable]
+
+
+class Foo:
+    """test_ignores_non_property_return_type_google
+    Example of a class function trying to use `type` as return
+    documentation in a Google style docstring
+    """
+
+    def foo_method(self):  # [missing-return-doc, missing-return-type-doc]
+        """int: docstring ...
+
+        Raises:
+            RuntimeError: Always
+        """
+        print(self)
+        raise RuntimeError()
+        return 10  # [unreachable]
