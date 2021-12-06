@@ -5,7 +5,7 @@ Styleguide:
 https://google.github.io/styleguide/pyguide.html#doc-function-args
 """
 # pylint: disable=invalid-name, unused-argument, unnecessary-pass, undefined-variable
-# pylint: disable=line-too-long
+# pylint: disable=line-too-long, too-few-public-methods, missing-class-docstring
 
 
 def test_multi_line_parameters(param: int) -> None:
@@ -144,3 +144,18 @@ def test_func_params_and_wrong_keyword_params_in_google_docstring(  # [missing-p
             these (bool): Printed second
     """
     print(this, that, other)
+
+
+class Foo:
+    def test_missing_method_params_in_google_docstring(  # [missing-param-doc, missing-type-doc]
+        self, x, y
+    ):
+        """Example of a class method with missing parameter documentation in
+        the Google style docstring
+
+        missing parameter documentation
+
+        Args:
+            x: bla
+        """
+        pass

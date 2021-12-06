@@ -139,31 +139,6 @@ class TestParamDocChecker(CheckerTestCase):
             if isinstance(body_item, nodes.FunctionDef) and hasattr(body_item, "name"):
                 self.checker.visit_functiondef(body_item)
 
-    def test_missing_method_params_in_google_docstring(self) -> None:
-        """Example of a class method with missing parameter documentation in
-        the Google style docstring
-        """
-        node = astroid.extract_node(
-            """
-        class Foo(object):
-            def method_foo(self, x, y):
-                '''docstring ...
-
-                missing parameter documentation
-
-                Args:
-                    x: bla
-                '''
-                pass
-        """
-        )
-        method_node = node.body[0]
-        with self.assertAddsMessages(
-            MessageTest(msg_id="missing-param-doc", node=method_node, args=("y",)),
-            MessageTest(msg_id="missing-type-doc", node=method_node, args=("x, y",)),
-        ):
-            self._visit_methods_of_class(node)
-
     def test_missing_method_params_in_numpy_docstring(self) -> None:
         """Example of a class method with missing parameter documentation in
         the Numpy style docstring
