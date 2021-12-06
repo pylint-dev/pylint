@@ -516,26 +516,6 @@ class TestParamDocChecker(CheckerTestCase):
         ):
             self.checker.visit_functiondef(node)
 
-    def test_finds_args_without_type_google(self) -> None:
-        node = astroid.extract_node(
-            '''
-        def my_func(named_arg, *args):
-            """The docstring
-
-            Args:
-                named_arg (object): Returned
-                *args: Optional arguments
-
-            Returns:
-                object or None: Maybe named_arg
-            """
-            if args:
-                return named_arg
-        '''
-        )
-        with self.assertNoMessages():
-            self.checker.visit_functiondef(node)
-
     def test_finds_kwargs_without_type_google(self) -> None:
         node = astroid.extract_node(
             '''

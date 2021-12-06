@@ -302,3 +302,17 @@ def test_warns_missing_kwargs_google(named_arg, **kwargs):  # [missing-param-doc
     """
     if kwargs:
         return named_arg
+
+
+def test_finds_args_without_type_google(named_arg, *args):
+    """The docstring
+
+    Args:
+        named_arg (object): Returned
+        *args: Optional arguments
+
+    Returns:
+        object or None: Maybe named_arg
+    """
+    if args:
+        return named_arg
