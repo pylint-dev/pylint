@@ -113,3 +113,17 @@ def get_midpoint(bottomleft: Point, topright: Point) -> Point:
         topright: top right point of rectangle
     """
     pass
+
+
+def test_func_params_and_keyword_params_in_google_docstring(this, other, that=True):
+    """Example of a function with Google style parameter split
+    in Args and Keyword Args in the docstring
+
+        Args:
+            this (str): Printed first
+            other (int): Other args
+
+        Keyword Args:
+            that (bool): Printed second
+    """
+    print(this, that, other)
