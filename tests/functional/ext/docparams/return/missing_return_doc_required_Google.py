@@ -1,7 +1,7 @@
 """Tests for missing-return-doc and missing-return-type-doc for Google style docstrings
 with accept-no-returns-doc = no"""
 # pylint: disable=function-redefined, invalid-name, undefined-variable, missing-function-docstring
-# pylint: disable=unused-argument
+# pylint: disable=unused-argument, too-few-public-methods
 
 
 def my_func(self):  # [missing-return-type-doc]
@@ -38,3 +38,20 @@ def my_func(self):  # [missing-return-doc]
         list(:class:`mymodule.Class`):
     """
     return [mymodule.Class()]
+
+
+class Foo:
+    """test_finds_missing_property_return_type_google
+    Example of a property having return documentation in
+    a Google style docstring
+    """
+
+    @property
+    def foo_method(self):  # [missing-return-type-doc]
+        """docstring ...
+
+        Raises:
+            RuntimeError: Always
+        """
+        raise RuntimeError()
+        return 10  # [unreachable]

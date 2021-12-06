@@ -796,30 +796,6 @@ class TestParamDocChecker(CheckerTestCase):
             self.checker.visit_functiondef(node)
 
     @set_config(accept_no_return_doc="no")
-    def test_finds_missing_property_return_type_google(self) -> None:
-        """Example of a property having return documentation in
-        a Google style docstring
-        """
-        property_node, node = astroid.extract_node(
-            """
-        class Foo(object):
-            @property
-            def foo(self): #@
-                '''docstring ...
-
-                Raises:
-                    RuntimeError: Always
-                '''
-                raise RuntimeError()
-                return 10 #@
-        """
-        )
-        with self.assertAddsMessages(
-            MessageTest(msg_id="missing-return-type-doc", node=property_node)
-        ):
-            self.checker.visit_return(node)
-
-    @set_config(accept_no_return_doc="no")
     def test_finds_missing_property_return_type_numpy(self) -> None:
         """Example of a property having return documentation in
         a numpy style docstring
