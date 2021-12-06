@@ -597,14 +597,11 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    CONTAINER_TYPES = [
+    COMPLEX_TYPES = [
         "dict(str,str)",
         "dict[str,str]",
         "tuple(int)",
         "list[tokenize.TokenInfo]",
-    ]
-
-    COMPLEX_TYPES = CONTAINER_TYPES + [
         "dict(str, str)",
         "dict[str, str]",
         "int or str",
@@ -612,25 +609,6 @@ class TestParamDocChecker(CheckerTestCase):
         "tuple(int) or list(int)",
         "tuple(int or str) or list(int or str)",
     ]
-
-    @pytest.mark.parametrize("complex_type", COMPLEX_TYPES)
-    def test_finds_multiple_types_google(self, complex_type):
-        node = astroid.extract_node(
-            f'''
-        def my_func(named_arg):
-            """The docstring
-
-            Args:
-                named_arg ({complex_type}): Returned
-
-            Returns:
-                {complex_type}: named_arg
-            """
-            return named_arg
-        '''
-        )
-        with self.assertNoMessages():
-            self.checker.visit_functiondef(node)
 
     @pytest.mark.parametrize("complex_type", COMPLEX_TYPES)
     def test_finds_multiple_types_numpy(self, complex_type):
