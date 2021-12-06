@@ -1,0 +1,2 @@
+missing-param-doc:21:0:33:8:test_missing_func_params_in_google_docstring:"""y"" missing in parameter documentation":UNDEFINED
+missing-type-doc:21:0:33:8:test_missing_func_params_in_google_docstring:"""x, y"" missing in parameter type documentation":UNDEFINED
