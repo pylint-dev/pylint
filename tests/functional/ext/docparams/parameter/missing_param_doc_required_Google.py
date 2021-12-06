@@ -6,6 +6,7 @@ https://google.github.io/styleguide/pyguide.html#doc-function-args
 """
 # pylint: disable=invalid-name, unused-argument, unnecessary-pass, undefined-variable
 # pylint: disable=line-too-long, too-few-public-methods, missing-class-docstring
+# pylint: disable=missing-function-docstring
 
 
 def test_multi_line_parameters(param: int) -> None:
@@ -219,3 +220,20 @@ def test_see_sentence_for_func_params_in_google_docstring(xarg, yarg):
     For the other parameters, see :func:`bla`
     """
     return xarg + yarg
+
+
+class ClassFoo:  # [missing-param-doc, missing-type-doc]
+    """test_constr_params_in_class_google
+    Example of a class with missing constructor parameter documentation
+    (Google style)
+
+    Everything is completely analogous to functions.
+
+    Args:
+        y: bla
+
+    missing constructor parameter documentation
+    """
+
+    def __init__(self, x, y):
+        pass
