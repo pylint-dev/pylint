@@ -15,3 +15,5 @@ differing-param-doc:198:0:209:22:test_wrong_name_of_func_params_in_google_docstr
 differing-type-doc:198:0:209:22:test_wrong_name_of_func_params_in_google_docstring_two:"""yarg1"" differing in parameter type documentation":UNDEFINED
 missing-param-doc:225:0:239:12:ClassFoo:"""x"" missing in parameter documentation":UNDEFINED
 missing-type-doc:225:0:239:12:ClassFoo:"""x, y"" missing in parameter type documentation":UNDEFINED
+missing-param-doc:243:4:253:12:ClassFoo.__init__:"""x"" missing in parameter documentation":UNDEFINED
+missing-type-doc:243:4:253:12:ClassFoo.__init__:"""x, y"" missing in parameter type documentation":UNDEFINED
