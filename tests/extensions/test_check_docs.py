@@ -772,27 +772,6 @@ class TestParamDocChecker(CheckerTestCase):
         ):
             self.checker.visit_raise(node)
 
-    def test_finds_property_return_type_google(self) -> None:
-        """Example of a property having return documentation in
-        a Google style docstring
-        """
-        node = astroid.extract_node(
-            """
-        class Foo(object):
-            @property
-            def foo(self): #@
-                '''int: docstring ...
-
-                Raises:
-                    RuntimeError: Always
-                '''
-                raise RuntimeError()
-                return 10
-        """
-        )
-        with self.assertNoMessages():
-            self.checker.visit_functiondef(node)
-
     def test_finds_property_return_type_numpy(self) -> None:
         """Example of a property having return documentation in
         a numpy style docstring
