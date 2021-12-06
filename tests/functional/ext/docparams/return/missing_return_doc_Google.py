@@ -1,6 +1,7 @@
 """Tests for missing-return-doc and missing-return-type-doc for Google style docstrings"""
 # pylint: disable=function-redefined, invalid-name, undefined-variable, missing-function-docstring
 # pylint: disable=unused-argument, too-few-public-methods
+import abc
 
 
 def my_func(self):
@@ -109,3 +110,19 @@ class Foo:
         """
         raise RuntimeError()
         return 10  # [unreachable]
+
+
+class Foo:
+    """test_ignores_return_in_abstract_method_google
+    Example of an abstract method documenting the return type that an
+    implementation should return.
+    """
+
+    @abc.abstractmethod
+    def foo_method(self):
+        """docstring ...
+
+        Returns:
+            int: Ten
+        """
+        return 10
