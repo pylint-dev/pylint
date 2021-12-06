@@ -103,3 +103,13 @@ def test_non_builtin_annotations_in_google_docstring(
             topright: top right point of rectangle
     """
     pass
+
+
+def get_midpoint(bottomleft: Point, topright: Point) -> Point:
+    """Example of a function with missing Google style parameter
+    documentation in the docstring.
+    Args:
+        bottomleft: bottom left point of rectangle
+        topright: top right point of rectangle
+    """
+    pass
