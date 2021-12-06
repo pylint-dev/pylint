@@ -5,6 +5,7 @@ Styleguide:
 https://google.github.io/styleguide/pyguide.html#doc-function-args
 """
 # pylint: disable=invalid-name, unused-argument, unnecessary-pass, undefined-variable
+# pylint: disable=line-too-long
 
 
 def test_multi_line_parameters(param: int) -> None:
@@ -125,5 +126,21 @@ def test_func_params_and_keyword_params_in_google_docstring(this, other, that=Tr
 
         Keyword Args:
             that (bool): Printed second
+    """
+    print(this, that, other)
+
+
+def test_func_params_and_wrong_keyword_params_in_google_docstring(  # [missing-param-doc, missing-type-doc, differing-param-doc, differing-type-doc]
+    this, other, that=True
+):
+    """Example of a function with Google style parameter split
+    in Args and Keyword Args in the docstring but with wrong keyword args
+
+        Args:
+            this (str): Printed first
+            other (int): Other args
+
+        Keyword Args:
+            these (bool): Printed second
     """
     print(this, that, other)
