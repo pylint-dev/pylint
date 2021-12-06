@@ -161,3 +161,32 @@ class Foo:
     def foo_method(self, value):
         print(self)
         raise AttributeError()
+
+
+class Foo:
+    """test_finds_missing_raises_from_setter_google_2
+    Example of a setter having missing raises documentation in
+    its own Google style docstring of the property.
+    """
+
+    @property
+    def foo_method(self):
+        """int: docstring ...
+
+        Raises:
+            RuntimeError: Always
+        """
+        raise RuntimeError()
+        return 10  # [unreachable]
+
+    @foo_method.setter
+    def foo_method(self, value):  # [missing-raises-doc]
+        """setter docstring ...
+
+        Raises:
+            RuntimeError: Never
+        """
+        print(self)
+        if True:  # [using-constant-test]
+            raise AttributeError()
+        raise RuntimeError()

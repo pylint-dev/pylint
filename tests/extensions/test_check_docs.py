@@ -732,42 +732,6 @@ class TestParamDocChecker(CheckerTestCase):
         ):
             self.checker.visit_raise(node)
 
-    def test_finds_missing_raises_from_setter_google_2(self) -> None:
-        """Example of a setter having missing raises documentation in
-        its own Google style docstring of the property
-        """
-        setter_node, node = astroid.extract_node(
-            """
-        class Foo(object):
-            @property
-            def foo(self):
-                '''int: docstring ...
-
-                Raises:
-                    RuntimeError: Always
-                '''
-                raise RuntimeError()
-                return 10
-
-            @foo.setter
-            def foo(self, value): #@
-                '''setter docstring ...
-
-                Raises:
-                    RuntimeError: Never
-                '''
-                if True:
-                    raise AttributeError() #@
-                raise RuntimeError()
-        """
-        )
-        with self.assertAddsMessages(
-            MessageTest(
-                msg_id="missing-raises-doc", node=setter_node, args=("AttributeError",)
-            )
-        ):
-            self.checker.visit_raise(node)
-
     def test_finds_missing_raises_from_setter_numpy_2(self) -> None:
         """Example of a setter having missing raises documentation in
         its own Numpy style docstring of the property
