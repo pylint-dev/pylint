@@ -198,53 +198,6 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_wrong_name_of_func_params_in_google_docstring(self) -> None:
-        """Example of functions with inconsistent parameter names in the
-        signature and in the Google style documentation
-        """
-        node = astroid.extract_node(
-            """
-        def function_foo(xarg, yarg, zarg):
-            '''function foo ...
-
-            Args:
-                xarg1 (int): bla xarg
-                yarg (float): bla yarg
-
-                zarg1 (str): bla zarg
-            '''
-            return xarg + yarg
-        """
-        )
-        with self.assertAddsMessages(
-            MessageTest(msg_id="missing-param-doc", node=node, args=("xarg, zarg",)),
-            MessageTest(msg_id="missing-type-doc", node=node, args=("xarg, zarg",)),
-            MessageTest(
-                msg_id="differing-param-doc", node=node, args=("xarg1, zarg1",)
-            ),
-            MessageTest(msg_id="differing-type-doc", node=node, args=("xarg1, zarg1",)),
-        ):
-            self.checker.visit_functiondef(node)
-
-        node = astroid.extract_node(
-            """
-        def function_foo(xarg, yarg):
-            '''function foo ...
-
-            Args:
-                yarg1 (float): bla yarg
-
-            For the other parameters, see bla.
-            '''
-            return xarg + yarg
-        """
-        )
-        with self.assertAddsMessages(
-            MessageTest(msg_id="differing-param-doc", node=node, args=("yarg1",)),
-            MessageTest(msg_id="differing-type-doc", node=node, args=("yarg1",)),
-        ):
-            self.checker.visit_functiondef(node)
-
     def test_wrong_name_of_func_params_in_numpy_docstring(self) -> None:
         """Example of functions with inconsistent parameter names in the
         signature and in the Numpy style documentation

@@ -7,3 +7,9 @@ missing-param-doc:133:0:146:28:test_func_params_and_wrong_keyword_params_in_goog
 missing-type-doc:133:0:146:28:test_func_params_and_wrong_keyword_params_in_google_docstring:"""that"" missing in parameter type documentation":UNDEFINED
 missing-param-doc:150:4:161:12:Foo.test_missing_method_params_in_google_docstring:"""y"" missing in parameter documentation":UNDEFINED
 missing-type-doc:150:4:161:12:Foo.test_missing_method_params_in_google_docstring:"""x, y"" missing in parameter type documentation":UNDEFINED
+differing-param-doc:182:0:194:22:test_wrong_name_of_func_params_in_google_docstring_one:"""xarg1, zarg1"" differing in parameter documentation":UNDEFINED
+differing-type-doc:182:0:194:22:test_wrong_name_of_func_params_in_google_docstring_one:"""xarg1, zarg1"" differing in parameter type documentation":UNDEFINED
+missing-param-doc:182:0:194:22:test_wrong_name_of_func_params_in_google_docstring_one:"""xarg, zarg"" missing in parameter documentation":UNDEFINED
+missing-type-doc:182:0:194:22:test_wrong_name_of_func_params_in_google_docstring_one:"""xarg, zarg"" missing in parameter type documentation":UNDEFINED
+differing-param-doc:197:0:208:22:test_wrong_name_of_func_params_in_google_docstring_two:"""yarg1"" differing in parameter documentation":UNDEFINED
+differing-type-doc:197:0:208:22:test_wrong_name_of_func_params_in_google_docstring_two:"""yarg1"" differing in parameter type documentation":UNDEFINED

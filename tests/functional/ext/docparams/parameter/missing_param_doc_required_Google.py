@@ -177,3 +177,32 @@ def test_existing_func_params_in_google_docstring(xarg, yarg, zarg, warg):
         float: sum
     """
     return xarg + yarg
+
+
+def test_wrong_name_of_func_params_in_google_docstring_one(  # [missing-param-doc, missing-type-doc, differing-param-doc, differing-type-doc]
+    xarg, yarg, zarg
+):
+    """Example of functions with inconsistent parameter names in the
+    signature and in the Google style documentation
+
+    Args:
+        xarg1 (int): bla xarg
+        yarg (float): bla yarg
+
+        zarg1 (str): bla zarg
+    """
+    return xarg + yarg
+
+
+def test_wrong_name_of_func_params_in_google_docstring_two(  # [differing-param-doc, differing-type-doc]
+    xarg, yarg
+):
+    """Example of functions with inconsistent parameter names in the
+    signature and in the Google style documentation
+
+    Args:
+        yarg1 (float): bla yarg
+
+    For the other parameters, see bla.
+    """
+    return xarg + yarg
