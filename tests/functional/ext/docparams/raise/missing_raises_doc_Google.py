@@ -1,6 +1,6 @@
 """Tests for missing-raises-doc and missing-raises-type-doc for Google style docstrings"""
 # pylint: disable=function-redefined, invalid-name, undefined-variable, missing-function-docstring
-# pylint: disable=unused-argument, import-outside-toplevel, import-error, try-except-raise
+# pylint: disable=unused-argument, import-outside-toplevel, import-error, try-except-raise, too-few-public-methods
 
 
 def test_find_missing_google_raises(self):  # [missing-raises-doc]
@@ -136,3 +136,28 @@ def test_ignores_caught_google_raises(self):
         pass
 
     raise NameError("hi")
+
+
+class Foo:
+    """test_finds_missing_raises_from_setter_google
+    Example of a setter having missing raises documentation in
+    the Google style docstring of the property
+    """
+
+    @property
+    def foo_method(self):  # [missing-raises-doc]
+        """int: docstring
+
+        Include a "Raises" section so that this is identified
+        as a Google docstring and not a Numpy docstring.
+
+        Raises:
+            RuntimeError: Always
+        """
+        raise RuntimeError()
+        return 10  # [unreachable]
+
+    @foo_method.setter
+    def foo_method(self, value):
+        print(self)
+        raise AttributeError()
