@@ -100,13 +100,21 @@ def _write_message_page(messages_dict: MessagesDict) -> None:
         for message in messages:
             messages_file = os.path.join(category_dir, f"{message.name}.rst")
             with open(messages_file, "w", encoding="utf-8") as stream:
-                stream.write(f".. _{message.name}:\n\n")
-                stream.write(get_rst_title(f"{message.name} / {message.id}", "="))
-                stream.write("**Message emitted:**\n\n")
-                stream.write(f"{message.definition.msg}\n\n")
-                stream.write("**Description:**\n\n")
-                stream.write(f"*{message.definition.description}*\n\n")
-                stream.write(f"Created by ``{message.checker}`` checker\n")
+                stream.write(
+                    f""".. _{message.name}:
+
+{get_rst_title(f"{message.name} / {message.id}", "=")}
+**Message emitted:**
+
+{message.definition.msg}
+
+**Description:**
+
+*{message.definition.description}*
+
+Created by ``{message.checker}`` checker
+"""
+                )
 
 
 def _write_messages_list_page(
@@ -117,11 +125,16 @@ def _write_messages_list_page(
         PYLINT_BASE_PATH, "doc", "messages", "messages_list.rst"
     )
     with open(messages_file, "w", encoding="utf-8") as stream:
-        stream.write(".. _messages-list:\n\n")
-        stream.write(get_rst_title("Pylint Messages", "="))
-        stream.write("\n")
-        stream.write("Pylint can emit the following messages:\n")
-        stream.write("\n")
+        # Write header of file
+        stream.write(
+            f""".. _messages-list:
+
+{get_rst_title("Pylint Messages", "=")}
+Pylint can emit the following messages:
+
+"""
+        )
+
         # Iterate over tuple to keep same order
         for category in (
             "fatal",
@@ -131,26 +144,35 @@ def _write_messages_list_page(
             "refactor",
             "information",
         ):
-            messages = messages_dict[category]
-            old_messages = old_messages_dict[category]
-            stream.write(get_rst_title(category.capitalize(), "-"))
-            stream.write("\n")
-            stream.write(f"All messages in the {category} category:\n\n")
-            stream.write(".. toctree::\n")
-            stream.write("   :maxdepth: 2\n")
-            stream.write("   :titlesonly:\n")
-            stream.write("\n")
-            for message in sorted(messages, key=lambda item: item.name):
-                stream.write(f"   {category}/{message.name}.rst\n")
-            stream.write("\n")
-            stream.write(f"All renamed messages in the {category} category:\n\n")
-            stream.write(".. toctree::\n")
-            stream.write("   :maxdepth: 1\n")
-            stream.write("   :titlesonly:\n")
-            stream.write("\n")
-            for old_message in sorted(old_messages, key=lambda item: item[0]):
-                stream.write(f"   {category}/{old_message[0]}.rst\n")
-            stream.write("\n\n")
+            messages = sorted(messages_dict[category], key=lambda item: item.name)
+            old_messages = sorted(old_messages_dict[category], key=lambda item: item[0])
+            messages_string = "".join(
+                f"   {category}/{message.name}.rst\n" for message in messages
+            )
+            old_messages_string = "".join(
+                f"   {category}/{old_message[0]}.rst\n" for old_message in old_messages
+            )
+
+            # Write list per category
+            stream.write(
+                f"""{get_rst_title(category.capitalize(), "-")}
+All messages in the {category} category:
+
+.. toctree::
+   :maxdepth: 2
+   :titlesonly:
+
+{messages_string}
+All renamed messages in the {category} category:
+
+.. toctree::
+   :maxdepth: 1
+   :titlesonly:
+
+{old_messages_string}
+
+"""
+            )
 
 
 def _write_redirect_pages(old_messages: OldMessagesDict) -> None:
@@ -162,18 +184,21 @@ def _write_redirect_pages(old_messages: OldMessagesDict) -> None:
         for old_name, new_names in old_names.items():
             old_name_file = os.path.join(category_dir, f"{old_name[0]}.rst")
             with open(old_name_file, "w", encoding="utf-8") as stream:
-                stream.write(f".. _{old_name[0]}:\n\n")
-                stream.write(get_rst_title(" / ".join(old_name), "="))
-                stream.write(
-                    f"{old_name[0]} has been renamed. The new message can "
-                    "be found at:\n\n"
+                new_names_string = "".join(
+                    f"   ../{new_name[1]}/{new_name[0]}.rst\n" for new_name in new_names
                 )
-                stream.write(".. toctree::\n")
-                stream.write("   :maxdepth: 2\n")
-                stream.write("   :titlesonly:\n")
-                stream.write("\n")
-                for new_name in new_names:
-                    stream.write(f"   ../{new_name[1]}/{new_name[0]}.rst\n")
+                stream.write(
+                    f""".. _{old_name[0]}:
+
+{get_rst_title(" / ".join(old_name), "=")}
+"{old_name[0]} has been renamed. The new message can be found at:
+
+.. toctree::
+   :maxdepth: 2
+   :titlesonly:
+{new_names_string}
+"""
+                )
 
 
 # pylint: disable-next=unused-argument
@@ -204,4 +229,4 @@ def setup(app: Sphinx) -> None:
 if __name__ == "__main__":
     pass
     # Uncomment to allow running this script by your local python interpreter
-    # build_messages_pages(None)
+    build_messages_pages(None)
