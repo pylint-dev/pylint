@@ -28,10 +28,19 @@ Release date: TBA
 * The ``PyLinter`` class will now be initialiazed with a ``TextReporter``
   as its reporter if none is provided.
 
+* Fix false positive - Allow unpacking of ``self`` in a subclass of ``typing.NamedTuple``.
+
+  Closes #5312
+
 * Fix false negative for ``consider-iterating-dictionary`` during membership checks encapsulated in iterables
   or ``not in`` checks
 
   Closes #5323
+
+* Fixed detection of ``arguments-differ`` when superclass static
+  methods lacked a ``@staticmethod`` decorator.
+
+  Closes #5371
 
 ..
   Insert your changelog randomly, it will reduce merge conflicts

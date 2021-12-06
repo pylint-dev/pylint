@@ -2184,9 +2184,17 @@ class VariablesChecker(BaseChecker):
         ):
             # Variable-length argument, we can't determine the length.
             return
+
+        # Attempt to check unpacking is properly balanced
+        values: Optional[List] = None
         if isinstance(inferred, (nodes.Tuple, nodes.List)):
-            # attempt to check unpacking is properly balanced
             values = inferred.itered()
+        elif isinstance(inferred, astroid.Instance) and any(
+            ancestor.qname() == "typing.NamedTuple" for ancestor in inferred.ancestors()
+        ):
+            values = [i for i in inferred.values() if isinstance(i, nodes.AssignName)]
+
+        if values:
             if len(targets) != len(values):
                 # Check if we have starred nodes.
                 if any(isinstance(target, nodes.Starred) for target in targets):
