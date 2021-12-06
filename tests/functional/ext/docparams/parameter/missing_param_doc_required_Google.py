@@ -7,6 +7,7 @@ https://google.github.io/styleguide/pyguide.html#doc-function-args
 # pylint: disable=invalid-name, unused-argument, unnecessary-pass, undefined-variable
 # pylint: disable=line-too-long, too-few-public-methods, missing-class-docstring
 # pylint: disable=missing-function-docstring, function-redefined, inconsistent-return-statements
+# pylint: disable=dangerous-default-value, too-many-arguments
 
 
 def test_multi_line_parameters(param: int) -> None:
@@ -344,3 +345,22 @@ def test_finds_args_with_xref_type_google(named_arg, **kwargs):
     """
     if kwargs:
         return named_arg
+
+
+def test_ignores_optional_specifier_google(
+    param1, param2, param3=(), param4=[], param5=[], param6=True
+):
+    """Do something.
+
+    Args:
+        param1 (str): Description.
+        param2 (dict(str, int)): Description.
+        param3 (tuple(str), optional): Defaults to empty. Description.
+        param4 (List[str], optional): Defaults to empty. Description.
+        param5 (list[tuple(str)], optional): Defaults to empty. Description.
+        param6 (bool, optional): Defaults to True. Description.
+
+    Returns:
+        int: Description.
+    """
+    return param1, param2, param3, param4, param5, param6
