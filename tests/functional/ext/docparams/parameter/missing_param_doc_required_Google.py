@@ -59,3 +59,19 @@ def test_missing_type_doc_google_docstring_exempt_kwonly_args(
         value2: Second kwarg.
     """
     print("NOTE: It doesn't like anything after the '*'.")
+
+
+def test_default_arg_with_annotations_in_google_docstring(
+    x: int, y: bool, z: int = 786
+):
+    """Example of a function with missing Google style parameter
+        documentation in the docstring.
+
+    Args:
+        x: bla
+        y: blah blah
+        z: bar
+
+    some other stuff
+    """
+    pass
