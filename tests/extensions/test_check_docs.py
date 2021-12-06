@@ -466,27 +466,6 @@ class TestParamDocChecker(CheckerTestCase):
         ):
             self.checker.visit_functiondef(node)
 
-    def test_warns_missing_kwargs_google(self) -> None:
-        node = astroid.extract_node(
-            '''
-        def my_func(named_arg, **kwargs):
-            """The docstring
-
-            Args:
-                named_arg (object): Returned
-
-            Returns:
-                object or None: Maybe named_arg
-            """
-            if kwargs:
-                return named_arg
-        '''
-        )
-        with self.assertAddsMessages(
-            MessageTest(msg_id="missing-param-doc", node=node, args=("**kwargs",))
-        ):
-            self.checker.visit_functiondef(node)
-
     def test_warns_missing_args_numpy(self) -> None:
         node = astroid.extract_node(
             '''

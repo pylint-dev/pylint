@@ -23,3 +23,4 @@ multiple-constructor-doc:256:0:278:12:ClassFoo:"""ClassFoo"" has constructor par
 missing-param-doc:270:4:278:12:ClassFoo.__init__:"""x"" missing in parameter documentation":UNDEFINED
 missing-type-doc:270:4:278:12:ClassFoo.__init__:"""x, y"" missing in parameter type documentation":UNDEFINED
 missing-param-doc:281:0:291:24:test_warns_missing_args_google:"""*args"" missing in parameter documentation":UNDEFINED
+missing-param-doc:294:0:304:24:test_warns_missing_kwargs_google:"""**kwargs"" missing in parameter documentation":UNDEFINED
