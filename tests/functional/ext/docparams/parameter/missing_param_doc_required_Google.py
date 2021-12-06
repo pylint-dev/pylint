@@ -159,3 +159,21 @@ class Foo:
             x: bla
         """
         pass
+
+
+def test_existing_func_params_in_google_docstring(xarg, yarg, zarg, warg):
+    """Example of a function with correctly documented parameters and
+    return values (Google style)
+
+    Args:
+        xarg (int): bla xarg
+        yarg (my.qualified.type): bla
+            bla yarg
+
+        zarg (int): bla zarg
+        warg (my.qualified.type): bla warg
+
+    Returns:
+        float: sum
+    """
+    return xarg + yarg

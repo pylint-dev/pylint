@@ -166,32 +166,6 @@ class TestParamDocChecker(CheckerTestCase):
         ):
             self._visit_methods_of_class(node)
 
-    def test_existing_func_params_in_google_docstring(self) -> None:
-        """Example of a function with correctly documented parameters and
-        return values (Google style)
-        """
-        node = astroid.extract_node(
-            """
-        def function_foo(xarg, yarg, zarg, warg):
-            '''function foo ...
-
-            Args:
-                xarg (int): bla xarg
-                yarg (my.qualified.type): bla
-                    bla yarg
-
-                zarg (int): bla zarg
-                warg (my.qualified.type): bla warg
-
-            Returns:
-                float: sum
-            '''
-            return xarg + yarg
-        """
-        )
-        with self.assertNoMessages():
-            self.checker.visit_functiondef(node)
-
     def test_existing_func_params_in_numpy_docstring(self) -> None:
         """Example of a function with correctly documented parameters and
         return values (Numpy style)
