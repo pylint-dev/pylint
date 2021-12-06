@@ -229,4 +229,4 @@ def setup(app: Sphinx) -> None:
 if __name__ == "__main__":
     pass
     # Uncomment to allow running this script by your local python interpreter
-    build_messages_pages(None)
+    # build_messages_pages(None)
