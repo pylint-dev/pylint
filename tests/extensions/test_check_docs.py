@@ -48,32 +48,6 @@ class TestParamDocChecker(CheckerTestCase):
         "docstring_min_length": -1,
     }
 
-    def test_missing_func_params_with_partial_annotations_in_google_docstring(
-        self,
-    ) -> None:
-        """Example of a function with missing Google style parameter
-        documentation in the docstring.
-        """
-        node = astroid.extract_node(
-            """
-        def function_foo(x, y: bool, z):
-            '''docstring ...
-
-            Args:
-                x: bla
-                y: blah blah
-                z (int): bar
-
-            some other stuff
-            '''
-            pass
-        """
-        )
-        with self.assertAddsMessages(
-            MessageTest(msg_id="missing-type-doc", node=node, args=("x",))
-        ):
-            self.checker.visit_functiondef(node)
-
     def test_non_builtin_annotations_in_google_docstring(self) -> None:
         """Example of a function with missing Google style parameter
         documentation in the docstring.
