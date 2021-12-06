@@ -48,24 +48,6 @@ class TestParamDocChecker(CheckerTestCase):
         "docstring_min_length": -1,
     }
 
-    def test_non_builtin_annotations_in_google_docstring(self) -> None:
-        """Example of a function with missing Google style parameter
-        documentation in the docstring.
-        """
-        node = astroid.extract_node(
-            """
-        def area(bottomleft: Point, topright: Point) -> float:
-            '''Calculate area of fake rectangle.
-                Args:
-                    bottomleft: bottom left point of rectangle
-                    topright: top right point of rectangle
-            '''
-            pass
-        """
-        )
-        with self.assertNoMessages():
-            self.checker.visit_functiondef(node)
-
     def test_non_builtin_annotations_for_returntype_in_google_docstring(self) -> None:
         """Example of a function with missing Google style parameter
         documentation in the docstring.

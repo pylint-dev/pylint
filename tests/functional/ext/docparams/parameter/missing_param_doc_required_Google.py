@@ -4,7 +4,7 @@ with accept-no-param-doc = no
 Styleguide:
 https://google.github.io/styleguide/pyguide.html#doc-function-args
 """
-# pylint: disable=invalid-name, unused-argument, unnecessary-pass
+# pylint: disable=invalid-name, unused-argument, unnecessary-pass, undefined-variable
 
 
 def test_multi_line_parameters(param: int) -> None:
@@ -89,5 +89,17 @@ def test_missing_func_params_with_partial_annotations_in_google_docstring(  # [m
         z (int): bar
 
     some other stuff
+    """
+    pass
+
+
+def test_non_builtin_annotations_in_google_docstring(
+    bottomleft: Point, topright: Point
+) -> float:
+    """Example of a function with missing Google style parameter
+    documentation in the docstring.
+        Args:
+            bottomleft: bottom left point of rectangle
+            topright: top right point of rectangle
     """
     pass
