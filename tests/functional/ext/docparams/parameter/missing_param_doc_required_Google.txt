@@ -22,3 +22,4 @@ missing-type-doc:256:0:278:12:ClassFoo:"""x, y"" missing in parameter type docum
 multiple-constructor-doc:256:0:278:12:ClassFoo:"""ClassFoo"" has constructor parameters documented in class and __init__":UNDEFINED
 missing-param-doc:270:4:278:12:ClassFoo.__init__:"""x"" missing in parameter documentation":UNDEFINED
 missing-type-doc:270:4:278:12:ClassFoo.__init__:"""x, y"" missing in parameter type documentation":UNDEFINED
+missing-param-doc:281:0:291:24:test_warns_missing_args_google:"""*args"" missing in parameter documentation":UNDEFINED

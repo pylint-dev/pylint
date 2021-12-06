@@ -6,7 +6,7 @@ https://google.github.io/styleguide/pyguide.html#doc-function-args
 """
 # pylint: disable=invalid-name, unused-argument, unnecessary-pass, undefined-variable
 # pylint: disable=line-too-long, too-few-public-methods, missing-class-docstring
-# pylint: disable=missing-function-docstring, function-redefined
+# pylint: disable=missing-function-docstring, function-redefined, inconsistent-return-statements
 
 
 def test_multi_line_parameters(param: int) -> None:
@@ -276,3 +276,16 @@ class ClassFoo:  # [multiple-constructor-doc,missing-param-doc, missing-type-doc
         missing constructor parameter documentation
         """
         pass
+
+
+def test_warns_missing_args_google(named_arg, *args):  # [missing-param-doc]
+    """The docstring
+
+    Args:
+        named_arg (object): Returned
+
+    Returns:
+        object or None: Maybe named_arg
+    """
+    if args:
+        return named_arg
