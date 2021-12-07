@@ -103,7 +103,7 @@ def test_non_builtin_annotations_in_google_docstring(
     """
 
 
-def get_midpoint(bottomleft: Point, topright: Point) -> Point:
+def test_non_builtin_annotations_for_returntype_in_google_docstring(bottomleft: Point, topright: Point) -> Point:
     """Example of a function with missing Google style parameter
     documentation in the docstring.
     Args:
