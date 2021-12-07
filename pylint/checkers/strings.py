@@ -919,7 +919,10 @@ class StringConstantChecker(BaseTokenChecker):
             node.parent, nodes.JoinedStr
         ):
             self._detect_u_string_prefix(node)
-        self._detect_ellipsis(node)
+        if node.pytype() == "builtins.Ellipsis" and not isinstance(
+            node.parent, (nodes.Assign, nodes.AnnAssign)
+        ):
+            self._detect_unnecessary_ellipsis(node)
 
     def _detect_u_string_prefix(self, node: nodes.Const):
         """Check whether strings include a 'u' prefix like u'String'"""
@@ -930,12 +933,8 @@ class StringConstantChecker(BaseTokenChecker):
                 col_offset=node.col_offset,
             )
 
-    def _detect_ellipsis(self, node: nodes.Const) -> None:
+    def _detect_unnecessary_ellipsis(self, node: nodes.Const) -> None:
         """Check if the ellipsis constant is used unnecessarily"""
-        if node.value is not Ellipsis or isinstance(
-            node.parent, (nodes.Assign, nodes.AnnAssign)
-        ):
-            return
         if len(node.parent.parent.child_sequence(node.parent)) > 1 or (
             isinstance(node.parent.parent, (nodes.ClassDef, nodes.FunctionDef))
             and (node.parent.parent.doc is not None)
