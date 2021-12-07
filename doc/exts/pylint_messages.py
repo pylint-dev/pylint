@@ -10,6 +10,7 @@ from typing import DefaultDict, Dict, List, NamedTuple, Optional, Tuple
 from sphinx.application import Sphinx
 
 from pylint.checkers import initialize as initialize_checkers
+from pylint.constants import MSG_TYPES
 from pylint.extensions import initialize as initialize_extensions
 from pylint.lint import PyLinter
 from pylint.message import MessageDefinition
@@ -22,14 +23,7 @@ PYLINT_BASE_PATH = os.path.dirname(
 """Base path to the project folder"""
 
 
-MSG_TYPES_DOC = {k:v if v != "info" else "information" for k, v in MSG_TYPES.items()}
-    "I": "information",
-    "C": "convention",
-    "R": "refactor",
-    "W": "warning",
-    "E": "error",
-    "F": "fatal",
-}
+MSG_TYPES_DOC = {k: v if v != "info" else "information" for k, v in MSG_TYPES.items()}
 
 
 class MessageData(NamedTuple):
@@ -79,13 +73,13 @@ def _get_all_messages(
         message_data = MessageData(
             message.checker_name, message.msgid, message.symbol, message
         )
-        messages_dict[MSG_TYPES[message.msgid[0]]].append(message_data)
+        messages_dict[MSG_TYPES_DOC[message.msgid[0]]].append(message_data)
 
         if message.old_names:
             for old_name in message.old_names:
-                category = MSG_TYPES[old_name[0][0]]
+                category = MSG_TYPES_DOC[old_name[0][0]]
                 old_messages[category][(old_name[1], old_name[0])].append(
-                    (message.symbol, MSG_TYPES[message.msgid[0]])
+                    (message.symbol, MSG_TYPES_DOC[message.msgid[0]])
                 )
 
     return messages_dict, old_messages
@@ -196,6 +190,7 @@ def _write_redirect_pages(old_messages: OldMessagesDict) -> None:
 .. toctree::
    :maxdepth: 2
    :titlesonly:
+
 {new_names_string}
 """
                 )
