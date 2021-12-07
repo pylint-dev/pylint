@@ -22,7 +22,7 @@ PYLINT_BASE_PATH = os.path.dirname(
 """Base path to the project folder"""
 
 
-MSG_TYPES = {
+MSG_TYPES_DOC = {k:v if v != "info" else "information" for k, v in MSG_TYPES.items()}
     "I": "information",
     "C": "convention",
     "R": "refactor",
