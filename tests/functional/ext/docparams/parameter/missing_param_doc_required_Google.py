@@ -4,7 +4,7 @@ with accept-no-param-doc = no
 Styleguide:
 https://google.github.io/styleguide/pyguide.html#doc-function-args
 """
-# pylint: disable=invalid-name, unused-argument, unnecessary-pass, undefined-variable
+# pylint: disable=invalid-name, unused-argument, undefined-variable
 # pylint: disable=line-too-long, too-few-public-methods, missing-class-docstring
 # pylint: disable=missing-function-docstring, function-redefined, inconsistent-return-statements
 # pylint: disable=dangerous-default-value, too-many-arguments
@@ -33,7 +33,6 @@ def test_missing_func_params_in_google_docstring(  # [missing-param-doc, missing
 
     some other stuff
     """
-    pass
 
 
 def test_missing_func_params_with_annotations_in_google_docstring(x: int, y: bool, z):
@@ -47,7 +46,6 @@ def test_missing_func_params_with_annotations_in_google_docstring(x: int, y: boo
 
         some other stuff
     """
-    pass
 
 
 def test_missing_type_doc_google_docstring_exempt_kwonly_args(
@@ -77,7 +75,6 @@ def test_default_arg_with_annotations_in_google_docstring(
 
     some other stuff
     """
-    pass
 
 
 def test_missing_func_params_with_partial_annotations_in_google_docstring(  # [missing-type-doc]
@@ -93,7 +90,6 @@ def test_missing_func_params_with_partial_annotations_in_google_docstring(  # [m
 
     some other stuff
     """
-    pass
 
 
 def test_non_builtin_annotations_in_google_docstring(
@@ -105,7 +101,6 @@ def test_non_builtin_annotations_in_google_docstring(
             bottomleft: bottom left point of rectangle
             topright: top right point of rectangle
     """
-    pass
 
 
 def get_midpoint(bottomleft: Point, topright: Point) -> Point:
@@ -115,7 +110,6 @@ def get_midpoint(bottomleft: Point, topright: Point) -> Point:
         bottomleft: bottom left point of rectangle
         topright: top right point of rectangle
     """
-    pass
 
 
 def test_func_params_and_keyword_params_in_google_docstring(this, other, that=True):
@@ -160,7 +154,6 @@ class Foo:
         Args:
             x: bla
         """
-        pass
 
 
 def test_existing_func_params_in_google_docstring(xarg, yarg, zarg, warg):
@@ -251,7 +244,6 @@ class ClassFoo:
 
         missing constructor parameter documentation
         """
-        pass
 
 
 class ClassFoo:  # [multiple-constructor-doc,missing-param-doc, missing-type-doc]
@@ -276,7 +268,6 @@ class ClassFoo:  # [multiple-constructor-doc,missing-param-doc, missing-type-doc
 
         missing constructor parameter documentation
         """
-        pass
 
 
 def test_warns_missing_args_google(named_arg, *args):  # [missing-param-doc]
