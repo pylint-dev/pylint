@@ -357,121 +357,53 @@ def test_ignores_optional_specifier_google(
     return param1, param2, param3, param4, param5, param6
 
 
-def test_finds_multiple_types_google_one(named_arg):
+def test_finds_multiple_complex_types_google(
+    named_arg_one,
+    named_arg_two,
+    named_arg_three,
+    named_arg_four,
+    named_arg_five,
+    named_arg_six,
+    named_arg_seven,
+    named_arg_eight,
+    named_arg_nine,
+    named_arg_ten,
+):
     """The google docstring
 
     Args:
-        named_arg (dict(str, str)): Returned
+        named_arg_one (dict(str, str)): Returned
+        named_arg_two (dict[str, str]): Returned
+        named_arg_three (int or str): Returned
+        named_arg_four (tuple(int or str)): Returned
+        named_arg_five (tuple(int) or list(int)): Returned
+        named_arg_six (tuple(int or str) or list(int or str)): Returned
+        named_arg_seven (dict(str,str)): Returned
+        named_arg_eight (dict[str,str]): Returned
+        named_arg_nine (tuple(int)): Returned
+        named_arg_ten (list[tokenize.TokenInfo]): Returned
 
     Returns:
-        dict(str, str): named_arg
+        dict(str, str): named_arg_one
+        dict[str, str]: named_arg_two
+        int or str: named_arg_three
+        tuple(int or str): named_arg_four
+        tuple(int) or list(int): named_arg_five
+        tuple(int or str) or list(int or str): named_arg_six
+        dict(str,str): named_arg_seven
+        dict[str,str]: named_arg_eight
+        tuple(int): named_arg_nine
+        list[tokenize.TokenInfo]: named_arg_ten
     """
-    return named_arg
-
-
-def test_finds_multiple_types_google_two(named_arg):
-    """The google docstring
-
-    Args:
-        named_arg (dict[str, str]): Returned
-
-    Returns:
-        dict[str, str]: named_arg
-    """
-    return named_arg
-
-
-def test_finds_multiple_types_google_three(named_arg):
-    """The google docstring
-
-    Args:
-        named_arg (int or str): Returned
-
-    Returns:
-        int or str: named_arg
-    """
-    return named_arg
-
-
-def test_finds_multiple_types_google_four(named_arg):
-    """The google docstring
-
-    Args:
-        named_arg (tuple(int or str)): Returned
-
-    Returns:
-        tuple(int or str): named_arg
-    """
-    return named_arg
-
-
-def test_finds_multiple_types_google_five(named_arg):
-    """The google docstring
-
-    Args:
-        named_arg (tuple(int) or list(int)): Returned
-
-    Returns:
-        tuple(int) or list(int): named_arg
-    """
-    return named_arg
-
-
-def test_finds_multiple_types_google_six(named_arg):
-    """The google docstring
-
-    Args:
-        named_arg (tuple(int or str) or list(int or str)): Returned
-
-    Returns:
-        tuple(int or str) or list(int or str): named_arg
-    """
-    return named_arg
-
-
-def test_finds_multiple_types_google_seven(named_arg):
-    """The google docstring
-
-    Args:
-        named_arg (dict(str,str)): Returned
-
-    Returns:
-        dict(str,str): named_arg
-    """
-    return named_arg
-
-
-def test_finds_multiple_types_google_eight(named_arg):
-    """The google docstring
-
-    Args:
-        named_arg (dict[str,str]): Returned
-
-    Returns:
-        dict[str,str]: named_arg
-    """
-    return named_arg
-
-
-def test_finds_multiple_types_google_nine(named_arg):
-    """The google docstring
-
-    Args:
-        named_arg (tuple(int)): Returned
-
-    Returns:
-        tuple(int): named_arg
-    """
-    return named_arg
-
-
-def test_finds_multiple_types_google_ten(named_arg):
-    """The google docstring
-
-    Args:
-        named_arg (list[tokenize.TokenInfo]): Returned
-
-    Returns:
-        list[tokenize.TokenInfo]: named_arg
-    """
-    return named_arg
+    return (
+        named_arg_one,
+        named_arg_two,
+        named_arg_three,
+        named_arg_four,
+        named_arg_five,
+        named_arg_six,
+        named_arg_seven,
+        named_arg_eight,
+        named_arg_nine,
+        named_arg_ten,
+    )
