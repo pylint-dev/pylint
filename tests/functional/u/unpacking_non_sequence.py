@@ -4,6 +4,7 @@
 # pylint: disable=using-constant-test, no-init, missing-docstring, wrong-import-order,wrong-import-position,no-else-return, useless-object-inheritance
 from os import rename as nonseq_func
 from functional.u.unpacking import nonseq
+from typing import NamedTuple
 
 __revision__ = 0
 
@@ -137,3 +138,12 @@ def flow_control_unpacking(var=None):
         var0, var1 = var
         return var0, var1
     return None
+
+
+class MyClass(NamedTuple):
+    x: float
+    y: float
+
+    def sum(self):
+        x, y = self
+        return x + y

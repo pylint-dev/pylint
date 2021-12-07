@@ -36,6 +36,7 @@ CALLS_RETURNING_CONTEXT_MANAGERS = frozenset(
         "tempfile.NamedTemporaryFile",
         "tempfile.SpooledTemporaryFile",
         "tempfile.TemporaryDirectory",
+        "tempfile.TemporaryFile",
         "zipfile.ZipFile",
         "zipfile.PyZipFile",
         "zipfile.ZipFile.open",
