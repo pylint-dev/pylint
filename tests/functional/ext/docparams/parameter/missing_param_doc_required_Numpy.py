@@ -37,3 +37,27 @@ class Foo:
         x:
             bla
         """
+
+
+def test_existing_func_params_in_numpy_docstring(xarg, yarg, zarg, warg):
+    """Example of a function with correctly documented parameters and
+    return values (Numpy style)
+
+    Parameters
+    ----------
+    xarg: int
+        bla xarg
+    yarg: my.qualified.type
+        bla yarg
+
+    zarg: int
+        bla zarg
+    warg: my.qualified.type
+        bla warg
+
+    Returns
+    -------
+    float
+        sum
+    """
+    return xarg + yarg

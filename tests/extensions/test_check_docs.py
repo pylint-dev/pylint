@@ -112,38 +112,6 @@ class TestParamDocChecker(CheckerTestCase):
             if isinstance(body_item, nodes.FunctionDef) and hasattr(body_item, "name"):
                 self.checker.visit_functiondef(body_item)
 
-    def test_existing_func_params_in_numpy_docstring(self) -> None:
-        """Example of a function with correctly documented parameters and
-        return values (Numpy style)
-        """
-        node = astroid.extract_node(
-            """
-        def function_foo(xarg, yarg, zarg, warg):
-            '''function foo ...
-
-            Parameters
-            ----------
-            xarg: int
-                bla xarg
-            yarg: my.qualified.type
-                bla yarg
-
-            zarg: int
-                bla zarg
-            warg: my.qualified.type
-                bla warg
-
-            Returns
-            -------
-            float
-                sum
-            '''
-            return xarg + yarg
-        """
-        )
-        with self.assertNoMessages():
-            self.checker.visit_functiondef(node)
-
     def test_wrong_name_of_func_params_in_numpy_docstring(self) -> None:
         """Example of functions with inconsistent parameter names in the
         signature and in the Numpy style documentation
