@@ -920,7 +920,7 @@ class StringConstantChecker(BaseTokenChecker):
         ):
             self._detect_u_string_prefix(node)
         if node.pytype() == "builtins.Ellipsis" and not isinstance(
-            node.parent, (nodes.Assign, nodes.AnnAssign)
+            node.parent, (nodes.Assign, nodes.AnnAssign, nodes.Call)
         ):
             self._detect_unnecessary_ellipsis(node)
 

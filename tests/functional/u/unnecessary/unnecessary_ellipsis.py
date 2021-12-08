@@ -8,8 +8,13 @@ except ValueError:
     A = 24
     ... # [unnecessary-ellipsis]
 
+# The parent of ellipsis is an assignment
 B = ...
 C = [..., 1, 2, 3]
+
+# The parent of ellipsis is a call
+if "X" is type(...):
+    pass
 
 def docstring_only():
     '''In Python, stubbed functions often have a body that contains just a
