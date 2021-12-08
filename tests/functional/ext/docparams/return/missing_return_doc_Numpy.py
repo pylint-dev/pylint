@@ -121,3 +121,19 @@ class Foo:
             Ten
         """
         return 10
+
+
+class Foo:
+    """test_ignores_return_in_abstract_method_numpy_2
+    Example of a method documenting the return type that an
+    implementation should return."""
+
+    def foo(self, arg):
+        """docstring ...
+
+        Parameters
+        ----------
+        arg : int
+            An argument.
+        """
+        raise NotImplementedError()

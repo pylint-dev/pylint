@@ -360,27 +360,6 @@ class TestParamDocChecker(CheckerTestCase):
         ):
             self.checker.visit_return(node)
 
-    def test_ignores_return_in_abstract_method_numpy_2(self) -> None:
-        """Example of a method documenting the return type that an
-        implementation should return.
-        """
-        node = astroid.extract_node(
-            """
-        class Foo(object):
-            def foo(self, arg): #@
-                '''docstring ...
-
-                Parameters
-                ----------
-                arg : int
-                    An argument.
-                '''
-                raise NotImplementedError()
-        """
-        )
-        with self.assertNoMessages():
-            self.checker.visit_functiondef(node)
-
     def test_ignores_ignored_argument_names_numpy(self) -> None:
         """Example of a method documenting the return type that an
         implementation should return.
