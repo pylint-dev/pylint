@@ -150,3 +150,20 @@ class ClassFoo:
 
     def __init__(self, foobar):
         self.barfoo = None
+
+
+class ClassFoo:
+    def __init__(self, x, y):  # [missing-param-doc, missing-type-doc]
+        """test_constr_params_in_init_numpy
+        Example of a class with missing constructor parameter documentation
+        (Numpy style)
+
+        Everything is completely analogous to functions.
+
+        Parameters
+        ----------
+        y:
+            bla
+
+        missing constructor parameter documentation
+        """

@@ -10,3 +10,5 @@ differing-param-doc:85:0:98:22:test_wrong_name_of_func_params_in_numpy_docstring
 differing-type-doc:85:0:98:22:test_wrong_name_of_func_params_in_numpy_docstring_two:"""yarg1"" differing in parameter type documentation":UNDEFINED
 missing-param-doc:116:0:132:12:ClassFoo:"""x"" missing in parameter documentation":UNDEFINED
 missing-type-doc:116:0:132:12:ClassFoo:"""x, y"" missing in parameter type documentation":UNDEFINED
+missing-param-doc:156:4:169:11:ClassFoo.__init__:"""x"" missing in parameter documentation":UNDEFINED
+missing-type-doc:156:4:169:11:ClassFoo.__init__:"""x, y"" missing in parameter type documentation":UNDEFINED
