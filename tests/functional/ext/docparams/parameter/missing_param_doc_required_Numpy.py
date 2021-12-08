@@ -96,3 +96,18 @@ def test_wrong_name_of_func_params_in_numpy_docstring_two(  # [differing-param-d
     For the other parameters, see bla.
     """
     return xarg + yarg
+
+
+def test_see_sentence_for_func_params_in_numpy_docstring(xarg, yarg):
+    """Example for the usage of "For the other parameters, see" to avoid
+    too many repetitions, e.g. in functions or methods adhering to a
+    given interface (Numpy style)
+
+    Parameters
+    ----------
+    yarg: float
+        bla yarg
+
+    For the other parameters, see :func:`bla`
+    """
+    return xarg + yarg
