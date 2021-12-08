@@ -153,3 +153,25 @@ class Foo:
         arg : int
             An argument.
         """
+
+
+class Foo:
+    """test_useless_docs_ignored_argument_names_numpy
+    Example of a method documenting the return type that an
+    implementation should return.
+    """
+
+    def foo(self, arg, _, _ignored):  # [useless-type-doc, useless-param-doc]
+        """docstring ...
+
+        Parameters
+        ----------
+        arg : int
+            An argument.
+
+        _ : float
+            Another argument.
+
+        _ignored :
+            Ignored Argument
+        """

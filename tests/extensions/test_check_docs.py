@@ -360,36 +360,6 @@ class TestParamDocChecker(CheckerTestCase):
         ):
             self.checker.visit_return(node)
 
-    def test_useless_docs_ignored_argument_names_numpy(self) -> None:
-        """Example of a method documenting the return type that an
-        implementation should return.
-        """
-        node = astroid.extract_node(
-            """
-        class Foo(object):
-            def foo(self, arg, _, _ignored): #@
-                '''docstring ...
-
-                Parameters
-                ----------
-                arg : int
-                    An argument.
-
-                _ : float
-                    Another argument.
-
-                _ignored :
-                    Ignored Argument
-                '''
-                pass
-        """
-        )
-        with self.assertAddsMessages(
-            MessageTest(msg_id="useless-type-doc", node=node, args=("_",)),
-            MessageTest(msg_id="useless-param-doc", node=node, args=("_, _ignored",)),
-        ):
-            self.checker.visit_functiondef(node)
-
     @set_config_directly(no_docstring_rgx=re.compile(r"^_(?!_).*$"))
     def test_skip_no_docstring_rgx(self) -> None:
         """Example of a function that matches the default 'no-docstring-rgx' config option
