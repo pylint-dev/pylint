@@ -354,3 +354,21 @@ def my_func(
         named_arg_seven,
         named_arg_eight,
     )
+
+
+def test_ignores_optional_specifier_numpy(param, param2="all"):
+    """Do something.
+
+    Parameters
+    ----------
+    param : str
+        Description.
+    param2 : str, optional
+        Description (the default is 'all').
+
+    Returns
+    -------
+    int
+        Description.
+    """
+    return param, param2
