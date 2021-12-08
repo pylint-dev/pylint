@@ -130,3 +130,23 @@ class ClassFoo:  # [missing-param-doc, missing-type-doc]
 
     def __init__(self, x, y):
         pass
+
+
+class ClassFoo:
+    """test_constr_params_and_attributes_in_class_numpy
+    Example of a class with correct constructor parameter documentation
+    and an attributes section (Numpy style)
+
+    Parameters
+    ----------
+    foobar : str
+        Something.
+
+    Attributes
+    ----------
+    barfoor : str
+        Something.
+    """
+
+    def __init__(self, foobar):
+        self.barfoo = None
