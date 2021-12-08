@@ -229,3 +229,28 @@ def test_warns_missing_kwargs_numpy(named_arg, **kwargs):  # [missing-param-doc]
     """
     if kwargs:
         return named_arg
+
+
+def test_finds_args_without_type_numpy(  # [missing-type-doc]
+    named_arg, typed_arg: bool, untyped_arg, *args
+):
+    """The docstring
+
+    Args
+    ----
+    named_arg : object
+        Returned
+    typed_arg
+        Other argument without numpy type annotation
+    untyped_arg
+        Other argument without any type annotation
+    *args :
+        Optional Arguments
+
+    Returns
+    -------
+        object or None
+            Maybe named_arg
+    """
+    if args:
+        return named_arg

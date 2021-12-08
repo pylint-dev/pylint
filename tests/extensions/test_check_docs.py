@@ -169,37 +169,6 @@ class TestParamDocChecker(CheckerTestCase):
         ):
             self.checker.visit_functiondef(node)
 
-    def test_finds_args_without_type_numpy(self) -> None:
-        node = astroid.extract_node(
-            '''
-        def my_func(named_arg, typed_arg: bool, untyped_arg, *args):
-            """The docstring
-
-            Args
-            ----
-            named_arg : object
-                Returned
-            typed_arg
-                Other argument without numpy type annotation
-            untyped_arg
-                Other argument without any type annotation
-            *args :
-                Optional Arguments
-
-            Returns
-            -------
-                object or None
-                    Maybe named_arg
-            """
-            if args:
-                return named_arg
-        '''
-        )
-        with self.assertAddsMessages(
-            MessageTest(msg_id="missing-type-doc", node=node, args=("untyped_arg",))
-        ):
-            self.checker.visit_functiondef(node)
-
     def test_finds_args_with_xref_type_numpy(self) -> None:
         node = astroid.extract_node(
             '''

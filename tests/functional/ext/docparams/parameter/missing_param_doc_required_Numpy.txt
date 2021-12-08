@@ -19,3 +19,4 @@ missing-param-doc:188:4:197:11:ClassFoo.__init__:"""x"" missing in parameter doc
 missing-type-doc:188:4:197:11:ClassFoo.__init__:"""x, y"" missing in parameter type documentation":UNDEFINED
 missing-param-doc:200:0:214:24:test_warns_missing_args_numpy:"""*args"" missing in parameter documentation":UNDEFINED
 missing-param-doc:217:0:231:24:test_warns_missing_kwargs_numpy:"""**kwargs"" missing in parameter documentation":UNDEFINED
+missing-type-doc:234:0:256:24:test_finds_args_without_type_numpy:"""untyped_arg"" missing in parameter type documentation":UNDEFINED
