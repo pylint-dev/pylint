@@ -1,7 +1,7 @@
 """Tests for missing-param-doc and missing-type-doc for Numpy style docstrings
 with accept-no-param-doc = no
 """
-# pylint: disable=invalid-name, unused-argument, undefined-variable
+# pylint: disable=invalid-name, unused-argument, undefined-variable, too-many-arguments
 # pylint: disable=line-too-long, too-few-public-methods, missing-class-docstring
 # pylint: disable=missing-function-docstring, function-redefined, inconsistent-return-statements
 
@@ -292,3 +292,65 @@ def test_finds_kwargs_without_type_numpy(named_arg, **kwargs):
     """
     if kwargs:
         return named_arg
+
+
+def my_func(
+    named_arg_one,
+    named_arg_two,
+    named_arg_three,
+    named_arg_four,
+    named_arg_five,
+    named_arg_six,
+    named_arg_seven,
+    named_arg_eight,
+):
+    """The docstring
+
+    Args
+    ----
+    named_arg_one : dict(str,str)
+        Returned
+    named_arg_two : dict[str,str]
+        Returned
+    named_arg_three : tuple(int)
+        Returned
+    named_arg_four : list[tokenize.TokenInfo]
+        Returned
+    named_arg_five : int or str
+        Returned
+    named_arg_six : tuple(int or str)
+        Returned
+    named_arg_seven : tuple(int) or list(int)
+        Returned
+    named_arg_eight : tuple(int or str) or list(int or str)
+        Returned
+
+    Returns
+    -------
+        dict(str,str)
+            named_arg_one
+        dict[str,str]
+            named_arg_two
+        tuple(int)
+            named_arg_three
+        list[tokenize.TokenInfo]
+            named_arg_four
+        int or str
+            named_arg_five
+        tuple(int or str)
+            named_arg_six
+        tuple(int) or list(int)
+            named_arg_seven
+        tuple(int or str) or list(int or str)
+            named_arg_eight
+    """
+    return (
+        named_arg_one,
+        named_arg_two,
+        named_arg_three,
+        named_arg_four,
+        named_arg_five,
+        named_arg_six,
+        named_arg_seven,
+        named_arg_eight,
+    )

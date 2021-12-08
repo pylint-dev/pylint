@@ -29,7 +29,6 @@ in particular the parameter documentation checker `DocstringChecker`
 import re
 
 import astroid
-import pytest
 from astroid import nodes
 
 from pylint.extensions.docparams import DocstringParameterChecker
@@ -166,42 +165,6 @@ class TestParamDocChecker(CheckerTestCase):
             ),
             MessageTest(msg_id="missing-type-doc", node=node, args=("missing_kwonly",)),
         ):
-            self.checker.visit_functiondef(node)
-
-    COMPLEX_TYPES = [
-        "dict(str,str)",
-        "dict[str,str]",
-        "tuple(int)",
-        "list[tokenize.TokenInfo]",
-        "dict(str, str)",
-        "dict[str, str]",
-        "int or str",
-        "tuple(int or str)",
-        "tuple(int) or list(int)",
-        "tuple(int or str) or list(int or str)",
-    ]
-
-    @pytest.mark.parametrize("complex_type", COMPLEX_TYPES)
-    def test_finds_multiple_types_numpy(self, complex_type):
-        node = astroid.extract_node(
-            f'''
-        def my_func(named_arg):
-            """The docstring
-
-            Args
-            ----
-            named_arg : {complex_type}
-                Returned
-
-            Returns
-            -------
-                {complex_type}
-                    named_arg
-            """
-            return named_arg
-        '''
-        )
-        with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
     def test_ignores_optional_specifier_numpy(self) -> None:
