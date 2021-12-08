@@ -254,3 +254,22 @@ def test_finds_args_without_type_numpy(  # [missing-type-doc]
     """
     if args:
         return named_arg
+
+
+def test_finds_args_with_xref_type_numpy(named_arg, *args):
+    """The docstring
+
+    Args
+    ----
+    named_arg : `example.value`
+        Returned
+    *args :
+        Optional Arguments
+
+    Returns
+    -------
+        `example.value`
+            Maybe named_arg
+    """
+    if args:
+        return named_arg
