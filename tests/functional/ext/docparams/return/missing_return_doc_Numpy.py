@@ -137,3 +137,19 @@ class Foo:
             An argument.
         """
         raise NotImplementedError()
+
+
+class Foo:
+    """test_ignores_ignored_argument_names_numpy
+    Example of a method documenting the return type that an
+    implementation should return.
+    """
+
+    def foo(self, arg, _):
+        """docstring ...
+
+        Parameters
+        ----------
+        arg : int
+            An argument.
+        """
