@@ -61,3 +61,38 @@ def test_existing_func_params_in_numpy_docstring(xarg, yarg, zarg, warg):
         sum
     """
     return xarg + yarg
+
+
+def test_wrong_name_of_func_params_in_numpy_docstring(  # [missing-param-doc, missing-type-doc, differing-param-doc, differing-type-doc]
+    xarg, yarg, zarg
+):
+    """Example of functions with inconsistent parameter names in the
+    signature and in the Numpy style documentation
+
+    Parameters
+    ----------
+    xarg1: int
+        bla xarg
+    yarg: float
+        bla yarg
+
+    zarg1: str
+        bla zarg
+    """
+    return xarg + yarg
+
+
+def test_wrong_name_of_func_params_in_numpy_docstring_two(  # [differing-param-doc, differing-type-doc]
+    xarg, yarg
+):
+    """Example of functions with inconsistent parameter names in the
+    signature and in the Numpy style documentation
+
+    Parameters
+    ----------
+    yarg1: float
+        bla yarg
+
+    For the other parameters, see bla.
+    """
+    return xarg + yarg

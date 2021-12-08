@@ -2,3 +2,9 @@ missing-param-doc:9:0:23:7:test_missing_func_params_in_numpy_docstring:"""y"" mi
 missing-type-doc:9:0:23:7:test_missing_func_params_in_numpy_docstring:"""x, y"" missing in parameter type documentation":UNDEFINED
 missing-param-doc:27:4:39:11:Foo.test_missing_method_params_in_numpy_docstring:"""y"" missing in parameter documentation":UNDEFINED
 missing-type-doc:27:4:39:11:Foo.test_missing_method_params_in_numpy_docstring:"""x, y"" missing in parameter type documentation":UNDEFINED
+differing-param-doc:66:0:82:22:test_wrong_name_of_func_params_in_numpy_docstring:"""xarg1, zarg1"" differing in parameter documentation":UNDEFINED
+differing-type-doc:66:0:82:22:test_wrong_name_of_func_params_in_numpy_docstring:"""xarg1, zarg1"" differing in parameter type documentation":UNDEFINED
+missing-param-doc:66:0:82:22:test_wrong_name_of_func_params_in_numpy_docstring:"""xarg, zarg"" missing in parameter documentation":UNDEFINED
+missing-type-doc:66:0:82:22:test_wrong_name_of_func_params_in_numpy_docstring:"""xarg, zarg"" missing in parameter type documentation":UNDEFINED
+differing-param-doc:85:0:98:22:test_wrong_name_of_func_params_in_numpy_docstring_two:"""yarg1"" differing in parameter documentation":UNDEFINED
+differing-type-doc:85:0:98:22:test_wrong_name_of_func_params_in_numpy_docstring_two:"""yarg1"" differing in parameter type documentation":UNDEFINED
