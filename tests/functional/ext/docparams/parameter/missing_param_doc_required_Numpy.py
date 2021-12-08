@@ -195,3 +195,20 @@ class ClassFoo:  # [multiple-constructor-doc, missing-param-doc, missing-type-do
 
         missing constructor parameter documentation
         """
+
+
+def test_warns_missing_args_numpy(named_arg, *args):  # [missing-param-doc]
+    """The docstring
+
+    Args
+    ----
+    named_arg : object
+        Returned
+
+    Returns
+    -------
+        object or None
+            Maybe named_arg
+    """
+    if args:
+        return named_arg
