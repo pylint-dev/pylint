@@ -57,6 +57,7 @@ from typing import List, Pattern
 
 import astroid
 from astroid import nodes
+from astroid.nodes.node_classes import AnnAssign
 
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import (
@@ -1514,11 +1515,14 @@ a metaclass class method.",
                     # Properties circumvent the slots mechanism,
                     # so we should not emit a warning for them.
                     return
-                if node.attrname in klass.locals and _has_data_descriptor(
-                    klass, node.attrname
-                ):
-                    # Descriptors circumvent the slots mechanism as well.
-                    return
+                if node.attrname in klass.locals:
+                    for local_name in klass.locals.get(node.attrname, []):
+                        statement = local_name.statement(future=True)
+                        if isinstance(statement, AnnAssign) and not statement.value:
+                            return
+                    if _has_data_descriptor(klass, node.attrname):
+                        # Descriptors circumvent the slots mechanism as well.
+                        return
                 if node.attrname == "__class__" and _has_same_layout_slots(
                     slots, node.parent.value
                 ):

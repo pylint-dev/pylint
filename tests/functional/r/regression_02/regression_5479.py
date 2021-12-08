@@ -1,0 +1,26 @@
+from __future__ import annotations
+
+import asyncio
+
+
+class Connector:
+    __slots__ = ("_Connector__reader", "_Connector__writer")
+
+    __reader: asyncio.StreamReader
+    __writer: asyncio.StreamWriter
+
+    def __init__(self) -> None:
+        raise TypeError("Use connect() instead")
+
+    @classmethod
+    async def connect(cls, socket: str) -> Connector:
+        self = cls.__new__(cls)
+        self.__reader, self.__writer = await asyncio.open_unix_connection(socket)
+        return self
+
+
+async def main():
+    conn = await Connector.connect("/tmp/mysocket")
+
+
+asyncio.run(main())
