@@ -48,33 +48,6 @@ class TestParamDocChecker(CheckerTestCase):
         "docstring_min_length": -1,
     }
 
-    def test_missing_func_params_in_numpy_docstring(self) -> None:
-        """Example of a function with missing NumPy style parameter
-        documentation in the docstring
-        """
-        node = astroid.extract_node(
-            """
-        def function_foo(x, y, z):
-            '''docstring ...
-
-            Parameters
-            ----------
-            x:
-                bla
-            z: int
-                bar
-
-            some other stuff
-            '''
-            pass
-        """
-        )
-        with self.assertAddsMessages(
-            MessageTest(msg_id="missing-param-doc", node=node, args=("y",)),
-            MessageTest(msg_id="missing-type-doc", node=node, args=("x, y",)),
-        ):
-            self.checker.visit_functiondef(node)
-
     @set_config(accept_no_param_doc=True)
     def test_tolerate_no_param_documentation_at_all(self) -> None:
         """Example of a function with no parameter documentation at all
