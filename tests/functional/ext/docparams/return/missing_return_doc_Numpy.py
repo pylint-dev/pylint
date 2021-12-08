@@ -1,6 +1,7 @@
 """Tests for missing-return-doc and missing-return-type-doc for Numpy style docstrings"""
 # pylint: disable=function-redefined, invalid-name, undefined-variable, missing-function-docstring
-# pylint: disable=unused-argument
+# pylint: disable=unused-argument, too-few-public-methods, disallowed-name
+import abc
 
 
 def my_func(self):
@@ -103,3 +104,20 @@ def my_func(self):  # [redundant-returns-doc]
             One
     """
     yield 1
+
+
+class Foo:
+    """test_ignores_return_in_abstract_method_numpy
+    Example of an abstract method documenting the return type that an
+    implementation should return."""
+
+    @abc.abstractmethod
+    def foo(self):
+        """docstring ...
+
+        Returns
+        -------
+        int
+            Ten
+        """
+        return 10
