@@ -112,36 +112,6 @@ class TestParamDocChecker(CheckerTestCase):
             if isinstance(body_item, nodes.FunctionDef) and hasattr(body_item, "name"):
                 self.checker.visit_functiondef(body_item)
 
-    def test_constr_params_in_class_numpy(self) -> None:
-        """Example of a class with missing constructor parameter documentation
-        (Numpy style)
-
-        Everything is completely analogous to functions.
-        """
-        node = astroid.extract_node(
-            """
-        class ClassFoo(object):
-            '''docstring foo
-
-            Parameters
-            ----------
-            y:
-                bla
-
-            missing constructor parameter documentation
-            '''
-
-            def __init__(self, x, y):
-                pass
-
-        """
-        )
-        with self.assertAddsMessages(
-            MessageTest(msg_id="missing-param-doc", node=node, args=("x",)),
-            MessageTest(msg_id="missing-type-doc", node=node, args=("x, y",)),
-        ):
-            self._visit_methods_of_class(node)
-
     def test_constr_params_and_attributes_in_class_numpy(self) -> None:
         """Example of a class with correct constructor parameter documentation
         and an attributes section (Numpy style)

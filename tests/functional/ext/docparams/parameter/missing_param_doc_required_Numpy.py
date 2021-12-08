@@ -111,3 +111,22 @@ def test_see_sentence_for_func_params_in_numpy_docstring(xarg, yarg):
     For the other parameters, see :func:`bla`
     """
     return xarg + yarg
+
+
+class ClassFoo:  # [missing-param-doc, missing-type-doc]
+    """test_constr_params_in_class_numpy
+    Example of a class with missing constructor parameter documentation
+    (Numpy style)
+
+    Everything is completely analogous to functions.
+
+    Parameters
+    ----------
+    y:
+        bla
+
+    missing constructor parameter documentation
+    """
+
+    def __init__(self, x, y):
+        pass
