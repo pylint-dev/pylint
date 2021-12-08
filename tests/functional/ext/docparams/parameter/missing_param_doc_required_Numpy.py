@@ -273,3 +273,22 @@ def test_finds_args_with_xref_type_numpy(named_arg, *args):
     """
     if args:
         return named_arg
+
+
+def test_finds_kwargs_without_type_numpy(named_arg, **kwargs):
+    """The docstring
+
+    Args
+    ----
+    named_arg : object
+        Returned
+    **kwargs :
+        Keyword arguments
+
+    Returns
+    -------
+        object or None
+            Maybe named_arg
+    """
+    if kwargs:
+        return named_arg

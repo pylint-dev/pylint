@@ -25,7 +25,6 @@
 in particular the parameter documentation checker `DocstringChecker`
 """
 
-# pylint: disable=too-many-public-methods
 
 import re
 
@@ -167,31 +166,6 @@ class TestParamDocChecker(CheckerTestCase):
             ),
             MessageTest(msg_id="missing-type-doc", node=node, args=("missing_kwonly",)),
         ):
-            self.checker.visit_functiondef(node)
-
-    def test_finds_kwargs_without_type_numpy(self) -> None:
-        node = astroid.extract_node(
-            '''
-        def my_func(named_arg, **kwargs):
-            """The docstring
-
-            Args
-            ----
-            named_arg : object
-                Returned
-            **kwargs :
-                Keyword arguments
-
-            Returns
-            -------
-                object or None
-                    Maybe named_arg
-            """
-            if kwargs:
-                return named_arg
-        '''
-        )
-        with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
     COMPLEX_TYPES = [
