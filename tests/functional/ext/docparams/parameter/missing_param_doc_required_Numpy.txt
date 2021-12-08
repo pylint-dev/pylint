@@ -1,2 +1,4 @@
 missing-param-doc:9:0:23:7:test_missing_func_params_in_numpy_docstring:"""y"" missing in parameter documentation":UNDEFINED
 missing-type-doc:9:0:23:7:test_missing_func_params_in_numpy_docstring:"""x, y"" missing in parameter type documentation":UNDEFINED
+missing-param-doc:27:4:39:11:Foo.test_missing_method_params_in_numpy_docstring:"""y"" missing in parameter documentation":UNDEFINED
+missing-type-doc:27:4:39:11:Foo.test_missing_method_params_in_numpy_docstring:"""x, y"" missing in parameter type documentation":UNDEFINED

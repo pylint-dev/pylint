@@ -21,3 +21,19 @@ def test_missing_func_params_in_numpy_docstring(  # [missing-param-doc, missing-
 
     some other stuff
     """
+
+
+class Foo:
+    def test_missing_method_params_in_numpy_docstring(  # [missing-param-doc, missing-type-doc]
+        self, x, y
+    ):
+        """Example of a class method with missing parameter documentation in
+        the Numpy style docstring
+
+        missing parameter documentation
+
+        Parameters
+        ----------
+        x:
+            bla
+        """
