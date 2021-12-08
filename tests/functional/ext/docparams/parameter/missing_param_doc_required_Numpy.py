@@ -167,3 +167,31 @@ class ClassFoo:
 
         missing constructor parameter documentation
         """
+
+
+class ClassFoo:  # [multiple-constructor-doc, missing-param-doc, missing-type-doc]
+    """test_constr_params_in_class_and_init_numpy
+    Example of a class with missing constructor parameter documentation
+    in both the init docstring and the class docstring
+    (Numpy style)
+
+    Everything is completely analogous to functions.
+
+    Parameters
+    ----------
+    y:
+        bla
+
+    missing constructor parameter documentation
+    """
+
+    def __init__(self, x, y):  # [missing-param-doc, missing-type-doc]
+        """docstring foo
+
+        Parameters
+        ----------
+        y:
+            bla
+
+        missing constructor parameter documentation
+        """

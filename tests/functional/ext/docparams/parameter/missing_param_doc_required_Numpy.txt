@@ -12,3 +12,8 @@ missing-param-doc:116:0:132:12:ClassFoo:"""x"" missing in parameter documentatio
 missing-type-doc:116:0:132:12:ClassFoo:"""x, y"" missing in parameter type documentation":UNDEFINED
 missing-param-doc:156:4:169:11:ClassFoo.__init__:"""x"" missing in parameter documentation":UNDEFINED
 missing-type-doc:156:4:169:11:ClassFoo.__init__:"""x, y"" missing in parameter type documentation":UNDEFINED
+missing-param-doc:172:0:197:11:ClassFoo:"""x"" missing in parameter documentation":UNDEFINED
+missing-type-doc:172:0:197:11:ClassFoo:"""x, y"" missing in parameter type documentation":UNDEFINED
+multiple-constructor-doc:172:0:197:11:ClassFoo:"""ClassFoo"" has constructor parameters documented in class and __init__":UNDEFINED
+missing-param-doc:188:4:197:11:ClassFoo.__init__:"""x"" missing in parameter documentation":UNDEFINED
+missing-type-doc:188:4:197:11:ClassFoo.__init__:"""x, y"" missing in parameter type documentation":UNDEFINED
