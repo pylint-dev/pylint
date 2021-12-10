@@ -1,6 +1,7 @@
 """Tests for missing-raises-doc and missing-raises-type-doc for Numpy style docstrings"""
 # pylint: disable=function-redefined, invalid-name, undefined-variable, missing-function-docstring
 # pylint: disable=unused-argument, try-except-raise, import-outside-toplevel
+# pylint: disable=too-few-public-methods, disallowed-name
 
 
 def test_find_missing_numpy_raises(self):  # [missing-raises-doc]
@@ -129,3 +130,30 @@ def test_find_invalid_missing_numpy_attr_raises(self):
     from re import error
 
     raise error("hi")
+
+
+class Foo:
+    """test_finds_missing_raises_from_setter_numpy
+    Example of a setter having missing raises documentation in
+    the Numpy style docstring of the property
+    """
+
+    @property
+    def foo(self):  # [missing-raises-doc]
+        """int: docstring
+
+        Include a "Raises" section so that this is identified
+        as a Numpy docstring and not a Google docstring.
+
+        Raises
+        ------
+        RuntimeError
+            Always
+        """
+        raise RuntimeError()
+        return 10  # [unreachable]
+
+    @foo.setter
+    def foo(self, value):
+        print(self)
+        raise AttributeError()
