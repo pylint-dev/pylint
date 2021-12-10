@@ -1,3 +1,3 @@
-unnecessary-ellipsis:9:4:None:None::Unnecessary ellipsis constant:UNDEFINED
-unnecessary-ellipsis:43:4:None:None::Unnecessary ellipsis constant:UNDEFINED
-unnecessary-ellipsis:59:4:None:None::Unnecessary ellipsis constant:UNDEFINED
+unnecessary-ellipsis:9:4:9:7::Unnecessary ellipsis constant:UNDEFINED
+unnecessary-ellipsis:43:4:43:7:docstring_and_ellipsis:Unnecessary ellipsis constant:UNDEFINED
+unnecessary-ellipsis:59:4:59:7:DocstringAndEllipsis:Unnecessary ellipsis constant:UNDEFINED
