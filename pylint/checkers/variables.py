@@ -656,6 +656,12 @@ scope_type : {self._atomic.scope_type}
                     and isinstance(
                         n.statement(future=True).parent.parent, nodes.TryExcept
                     )
+                    # If the try block returns we assume that assignments in the except
+                    # handlers could have happened.
+                    and not any(
+                        isinstance(try_statement, nodes.Return)
+                        for try_statement in n.statement(future=True).parent.parent.body
+                    )
                 )
                 or n.statement(future=True).parent.parent_of(node)
             ]
