@@ -581,12 +581,10 @@ scope_type : {self._atomic.scope_type}
     def consumed_uncertain(self) -> DefaultDict[str, List[nodes.NodeNG]]:
         """
         Retrieves nodes filtered out by get_next_to_consume() that may not
-        have executed, such as statements in except blocks. Checkers that
-        want to treat the statements as executed (e.g. for unused-variable)
-        may need to add them back.
-
-        TODO: A pending PR will extend this to nodes in try blocks when
-        evaluating their corresponding except and finally blocks.
+        have executed, such as statements in except blocks, or statements
+        in try blocks (when evaluating their corresponding except and finally
+        blocks). Checkers that want to treat the statements as executed
+        (e.g. for unused-variable) may need to add them back.
         """
         return self._atomic.consumed_uncertain
 
