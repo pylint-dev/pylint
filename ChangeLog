@@ -25,6 +25,11 @@ Release date: TBA
 
   Closes #4716
 
+* Fix crash in ``unnecessary-dict-index-lookup`` checker if the output of
+  ``items()`` is assigned to a 1-tuple.
+
+  Closes #5504
+
 * The ``PyLinter`` class will now be initialiazed with a ``TextReporter``
   as its reporter if none is provided.
 
