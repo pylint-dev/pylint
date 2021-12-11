@@ -698,7 +698,6 @@ scope_type : {self._atomic.scope_type}
                     and n.statement(future=True) in n.statement(future=True).parent.body
                     and node.statement(future=True).parent
                     in n.statement(future=True).parent.handlers
-                    and n.statement(future=True) in n.statement(future=True).parent.body
                 )
             ]
             filtered_nodes_set = set(filtered_nodes)
