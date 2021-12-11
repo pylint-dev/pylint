@@ -2270,32 +2270,6 @@ class DocStringChecker(_BasicChecker):
             )
 
 
-class EllipsisChecker(_BasicChecker):
-    msgs = {
-        "W0110": (
-            "Unnecessary ellipsis constant",
-            "unnecessary-ellipsis",
-            "Used when the ellipsis constant is encountered and can be avoided.",
-        )
-    }
-
-    @utils.check_messages("unnecessary-ellipsis")
-    def visit_const(self, node: nodes.Const) -> None:
-        """Check if the ellipsis constant is used unnecessarily"""
-        if (
-            node.pytype() == "builtins.Ellipsis"
-            and not isinstance(node.parent, (nodes.Assign, nodes.AnnAssign, nodes.Call))
-            and (
-                len(node.parent.parent.child_sequence(node.parent)) > 1
-                or (
-                    isinstance(node.parent.parent, (nodes.ClassDef, nodes.FunctionDef))
-                    and (node.parent.parent.doc is not None)
-                )
-            )
-        ):
-            self.add_message("unnecessary-ellipsis", node=node)
-
-
 class PassChecker(_BasicChecker):
     """check if the pass statement is really necessary"""
 
@@ -2613,6 +2587,5 @@ def register(linter):
     linter.register_checker(BasicChecker(linter))
     linter.register_checker(NameChecker(linter))
     linter.register_checker(DocStringChecker(linter))
-    linter.register_checker(EllipsisChecker(linter))
     linter.register_checker(PassChecker(linter))
     linter.register_checker(ComparisonChecker(linter))
