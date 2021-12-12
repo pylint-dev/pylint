@@ -194,3 +194,22 @@ class Foo:
         if True:
             raise AttributeError()
         raise RuntimeError()
+
+
+class Foo:
+    """test_finds_property_return_type_numpy
+    Example of a property having return documentation in
+    a numpy style docstring
+    """
+
+    @property
+    def foo(self):
+        """int: docstring ...
+
+        Raises
+        ------
+        RuntimeError
+            Always
+        """
+        raise RuntimeError()
+        return 10  # [unreachable]
