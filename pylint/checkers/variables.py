@@ -405,7 +405,7 @@ MSGS = {
     "E0601": (
         "Using variable %r before assignment",
         "used-before-assignment",
-        "Used when a local variable is accessed before its assignment or in "
+        "Used when a local variable is accessed before its assignment or within "
         "except or finally blocks without being defined before the try block.",
     ),
     "E0602": (
@@ -616,6 +616,7 @@ scope_type : {self._atomic.scope_type}
         name = node.name
         parent_node = node.parent
         found_nodes = self.to_consume.get(name)
+        node_statement = node.statement(future=True)
         if (
             found_nodes
             and isinstance(parent_node, nodes.Assign)
@@ -665,16 +666,14 @@ scope_type : {self._atomic.scope_type}
         # filter out assignments in the try portion, assuming they may fail
         if (
             found_nodes
-            and isinstance(node.statement(future=True).parent, nodes.TryFinally)
-            and node.statement(future=True)
-            in node.statement(future=True).parent.finalbody
+            and isinstance(node_statement.parent, nodes.TryFinally)
+            and node_statement in node_statement.parent.finalbody
         ):
             filtered_nodes = [
                 n
                 for n in found_nodes
                 if not (
-                    n.statement(future=True).parent
-                    is node.statement(future=True).parent
+                    n.statement(future=True).parent is node_statement.parent
                     and n.statement(future=True) in n.statement(future=True).parent.body
                 )
             ]
@@ -685,16 +684,14 @@ scope_type : {self._atomic.scope_type}
 
         # If this node is in an ExceptHandler,
         # filter out assignments in the try portion, assuming they may fail
-        if found_nodes and isinstance(
-            node.statement(future=True).parent, nodes.ExceptHandler
-        ):
+        if found_nodes and isinstance(node_statement.parent, nodes.ExceptHandler):
             filtered_nodes = [
                 n
                 for n in found_nodes
                 if not (
                     isinstance(n.statement(future=True).parent, nodes.TryExcept)
                     and n.statement(future=True) in n.statement(future=True).parent.body
-                    and node.statement(future=True).parent
+                    and node_statement.parent
                     in n.statement(future=True).parent.handlers
                 )
             ]
