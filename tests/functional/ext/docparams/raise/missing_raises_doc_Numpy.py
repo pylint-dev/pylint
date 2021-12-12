@@ -1,4 +1,8 @@
-"""Tests for missing-raises-doc and missing-raises-type-doc for Numpy style docstrings"""
+"""Tests for missing-raises-doc and missing-raises-type-doc for Numpy style docstrings
+
+Styleguide:
+https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard
+"""
 # pylint: disable=function-redefined, invalid-name, undefined-variable, missing-function-docstring
 # pylint: disable=unused-argument, try-except-raise, import-outside-toplevel
 # pylint: disable=too-few-public-methods, disallowed-name
