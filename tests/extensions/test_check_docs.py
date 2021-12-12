@@ -184,31 +184,6 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    @set_config(accept_no_return_doc="no")
-    def test_non_property_annotation_return_type_numpy(self) -> None:
-        """Example of a class function trying to use `type` as return
-        documentation in a numpy style docstring
-        """
-        func_node, node = astroid.extract_node(
-            """
-        class Foo(object):
-            def foo(self) -> int: #@
-                '''int: docstring ...
-
-                Raises
-                ------
-                RuntimeError
-                    Always
-                '''
-                raise RuntimeError()
-                return 10 #@
-        """
-        )
-        with self.assertAddsMessages(
-            MessageTest(msg_id="missing-return-doc", node=func_node)
-        ):
-            self.checker.visit_return(node)
-
     @set_config_directly(no_docstring_rgx=re.compile(r"^_(?!_).*$"))
     def test_skip_no_docstring_rgx(self) -> None:
         """Example of a function that matches the default 'no-docstring-rgx' config option
