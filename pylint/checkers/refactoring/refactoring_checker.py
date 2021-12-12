@@ -1882,6 +1882,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                     if isinstance(value, nodes.Name):
                         if (
                             not isinstance(node.target, nodes.Tuple)
+                            # Ignore 1-tuples: for k, in d.items()
+                            or len(node.target.elts) < 2
                             or value.name != node.target.elts[0].name
                             or iterating_object_name != subscript.value.as_string()
                         ):
