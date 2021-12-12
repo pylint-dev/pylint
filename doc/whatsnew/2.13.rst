@@ -19,6 +19,13 @@ Extensions
 
 * Pyreverse - add output in mermaid-js format and html which is an mermaid js diagram with html boilerplate
 
+* ``DocstringParameterChecker``
+
+  * Fixed incorrect classification of Numpy-style docstring as Google-style docstring for
+    docstrings with property setter documentation.
+    Docstring classification is now based on the highest amount of matched sections instead
+    of the order in which the docstring styles were tried.
+
 Other Changes
 =============
 

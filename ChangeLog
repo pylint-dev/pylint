@@ -42,6 +42,11 @@ Release date: TBA
 
   Closes #5323
 
+* Fixed incorrect classification of Numpy-style docstring as Google-style docstring for
+  docstrings with property setter documentation.
+  Docstring classification is now based on the highest amount of matched sections instead
+  of the order in which the docstring styles were tried.
+
 * Fixed detection of ``arguments-differ`` when superclass static
   methods lacked a ``@staticmethod`` decorator.
 

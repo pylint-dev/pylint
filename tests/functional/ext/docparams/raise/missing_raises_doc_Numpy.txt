@@ -1,6 +1,8 @@
-missing-raises-doc:6:0:15:25:test_find_missing_numpy_raises:"""RuntimeError"" not documented as being raised":UNDEFINED
-unreachable:15:4:15:25:test_find_missing_numpy_raises:Unreachable code:UNDEFINED
-unreachable:29:4:29:25:test_find_all_numpy_raises:Unreachable code:UNDEFINED
-missing-raises-doc:32:0:45:25:test_find_rethrown_numpy_raises:"""RuntimeError"" not documented as being raised":UNDEFINED
-missing-raises-doc:48:0:61:25:test_find_rethrown_numpy_multiple_raises:"""RuntimeError, ValueError"" not documented as being raised":UNDEFINED
-missing-raises-doc:106:0:116:21:test_find_valid_missing_numpy_attr_raises:"""error"" not documented as being raised":UNDEFINED
+missing-raises-doc:7:0:16:25:test_find_missing_numpy_raises:"""RuntimeError"" not documented as being raised":UNDEFINED
+unreachable:16:4:16:25:test_find_missing_numpy_raises:Unreachable code:UNDEFINED
+unreachable:30:4:30:25:test_find_all_numpy_raises:Unreachable code:UNDEFINED
+missing-raises-doc:33:0:46:25:test_find_rethrown_numpy_raises:"""RuntimeError"" not documented as being raised":UNDEFINED
+missing-raises-doc:49:0:62:25:test_find_rethrown_numpy_multiple_raises:"""RuntimeError, ValueError"" not documented as being raised":UNDEFINED
+missing-raises-doc:107:0:117:21:test_find_valid_missing_numpy_attr_raises:"""error"" not documented as being raised":UNDEFINED
+missing-raises-doc:142:4:154:17:Foo.foo:"""AttributeError"" not documented as being raised":UNDEFINED
+unreachable:154:8:154:17:Foo.foo:Unreachable code:UNDEFINED
