@@ -39,8 +39,7 @@ Base id of standard checkers (used in msg and report ids):
 15: stdlib
 16: python3
 17: refactoring
-18: ellipsis
-19-50: not yet used: reserved for future internal checkers.
+18-50: not yet used: reserved for future internal checkers.
 51-99: perhaps used: reserved for external checkers
 
 The raw_metrics checker has no number associated since it doesn't emit any

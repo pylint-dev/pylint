@@ -12,7 +12,7 @@ class EllipsisChecker(BaseChecker):
     __implements__ = (IAstroidChecker,)
     name = "unnecessary_ellipsis"
     msgs = {
-        "W1801": (
+        "W2301": (
             "Unnecessary ellipsis constant",
             "unnecessary-ellipsis",
             "Used when the ellipsis constant is encountered and can be avoided.",
