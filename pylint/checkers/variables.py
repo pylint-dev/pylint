@@ -408,8 +408,7 @@ MSGS = {
         "Emitted when a local variable is accessed before its assignment took place. "
         "Assignments in try blocks are assumed not to have occurred when evaluating "
         "associated except/finally blocks. Assignments in except blocks are assumed "
-        "not to have occurred, except when the associated try block contains a return "
-        "statement.",
+        "not to have occurred when evaluating statements outside the block.",
     ),
     "E0602": (
         "Undefined variable %r",
