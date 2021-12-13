@@ -107,3 +107,20 @@ def check_config_6(machine, old_conf, new_conf):
         print("Processed old configuration...")
     elif new_conf:
         machine.enable(new_conf.value)
+
+
+def check_config_7(machine, old_conf, new_conf):
+    """Example code must not trigger the message
+
+    Given an if construct without an elif
+    When the body of the if ends with an if
+    Then no message shall be triggered.
+    """
+    if old_conf:
+        if not new_conf:
+            machine.disable()
+        elif old_conf.value != new_conf.value:
+            machine.disable()
+            machine.enable(new_conf.value)
+    else:
+        pass
