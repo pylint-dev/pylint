@@ -10,3 +10,11 @@ def test_don_t_tolerate_no_param_documentation_at_all(x, y):  # [missing-any-par
     Missing documentation error message is emitted.
 
     missing parameter documentation"""
+
+
+def test_see_tolerate_no_param_documentation_at_all(x, y):
+    """Example for the usage of "For the parameters, see"
+    to suppress missing-param warnings.
+
+    For the parameters, see :func:`blah`
+    """

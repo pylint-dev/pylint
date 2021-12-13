@@ -46,23 +46,6 @@ class TestParamDocChecker(CheckerTestCase):
         "docstring_min_length": -1,
     }
 
-    def test_see_tolerate_no_param_documentation_at_all(self) -> None:
-        """Example for the usage of "For the parameters, see"
-        to suppress missing-param warnings.
-        """
-        node = astroid.extract_node(
-            """
-        def function_foo(x, y):
-            '''docstring ...
-
-            For the parameters, see :func:`blah`
-            '''
-            pass
-        """
-        )
-        with self.assertNoMessages():
-            self.checker.visit_functiondef(node)
-
     def _visit_methods_of_class(self, node: nodes.ClassDef) -> None:
         """Visit all methods of a class node
 
