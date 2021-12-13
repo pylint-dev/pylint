@@ -64,6 +64,10 @@ class TestMultiNamingStyle(CheckerTestCase):
                 "the `UP` group in the '(?:(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$' pattern",
             ),
             confidence=HIGH,
+            line=2,
+            col_offset=0,
+            end_line=3,
+            end_col_offset=8,
         )
         with self.assertAddsMessages(message):
             cls = None
@@ -94,6 +98,10 @@ class TestMultiNamingStyle(CheckerTestCase):
                     "'(?:(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$' pattern",
                 ),
                 confidence=HIGH,
+                line=2,
+                col_offset=0,
+                end_line=3,
+                end_col_offset=8,
             ),
             MessageTest(
                 "invalid-name",
@@ -104,6 +112,10 @@ class TestMultiNamingStyle(CheckerTestCase):
                     "the `down` group in the '(?:(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$' pattern",
                 ),
                 confidence=HIGH,
+                line=6,
+                col_offset=0,
+                end_line=7,
+                end_col_offset=8,
             ),
         ]
         with self.assertAddsMessages(*messages):
@@ -139,6 +151,10 @@ class TestMultiNamingStyle(CheckerTestCase):
                 "the `down` group in the '(?:(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$' pattern",
             ),
             confidence=HIGH,
+            line=6,
+            col_offset=0,
+            end_line=7,
+            end_col_offset=8,
         )
         with self.assertAddsMessages(message):
             func = None
@@ -172,6 +188,10 @@ class TestMultiNamingStyle(CheckerTestCase):
                 "the `down` group in the '(?:(?P<ignore>FOO)|(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$' pattern",
             ),
             confidence=HIGH,
+            line=8,
+            col_offset=0,
+            end_line=9,
+            end_col_offset=8,
         )
         with self.assertAddsMessages(message):
             func = None

@@ -67,6 +67,9 @@ Release date: TBA
 
   Closes #5371
 
+* The ``testutils`` for unittests now accept ``end_lineno`` and ``end_column``. Tests
+  without these will trigger a ``DeprecationWarning``.
+
 ..
   Insert your changelog randomly, it will reduce merge conflicts
   (Ie. not necessarily at the end)
