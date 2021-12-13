@@ -223,45 +223,6 @@ class TestComparison(CheckerTestCase):
         with self.assertAddsMessages(message):
             self.checker.visit_compare(node)
 
-        node = astroid.extract_node("True == foo")
-        messages = (
-            MessageTest(
-                "singleton-comparison",
-                node=node,
-                args=(
-                    "'True == foo'",
-                    "'True is foo' if checking for the singleton value True, or 'bool(foo)' if testing for truthiness",
-                ),
-            ),
-        )
-        with self.assertAddsMessages(*messages):
-            self.checker.visit_compare(node)
-
-        node = astroid.extract_node("False == foo")
-        messages = (
-            MessageTest(
-                "singleton-comparison",
-                node=node,
-                args=(
-                    "'False == foo'",
-                    "'False is foo' if checking for the singleton value False, or 'not foo' if testing for falsiness",
-                ),
-            ),
-        )
-        with self.assertAddsMessages(*messages):
-            self.checker.visit_compare(node)
-
-        node = astroid.extract_node("None == foo")
-        messages = (
-            MessageTest(
-                "singleton-comparison",
-                node=node,
-                args=("'None == foo'", "'None is foo'"),
-            ),
-        )
-        with self.assertAddsMessages(*messages):
-            self.checker.visit_compare(node)
-
 
 class TestNamePresets(unittest.TestCase):
     SNAKE_CASE_NAMES = {"tést_snake_case", "test_snake_case11", "test_https_200"}
