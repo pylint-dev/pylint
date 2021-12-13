@@ -11,20 +11,23 @@ for k, v in a_dict.items():
     print(a_dict[k])  # Should not emit warning, v != a_dict[k]
 
 for k, v in b_dict.items():
+    print(k)
     k = "another key"
     print(b_dict[k])  # This is fine, key reassigned
 
 
 # Tests on comprehensions
-{v: 1 for k, v in a_dict.items() if a_dict[k]}  # [unnecessary-dict-index-lookup]
-{v: 1 for k, v in a_dict.items() if k}  # This is fine, no indexing
-{a_dict[k]: 1 for k, v in a_dict.items() if k}  # [unnecessary-dict-index-lookup]
-{a_dict[k]: 1 for k, v in a_dict.items() if a_dict[k]}  # [unnecessary-dict-index-lookup, unnecessary-dict-index-lookup]
+A = {v: 1 for k, v in a_dict.items() if a_dict[k]}  # [unnecessary-dict-index-lookup]
+B = {v: 1 for k, v in a_dict.items() if k}  # This is fine, no indexing
+C = {a_dict[k]: 1 for k, v in a_dict.items() if k}  # [unnecessary-dict-index-lookup]
+# +1: [unnecessary-dict-index-lookup, unnecessary-dict-index-lookup]
+D = {a_dict[k]: 1 for k, v in a_dict.items() if a_dict[k]}
 
-[v for k, v in a_dict.items() if a_dict[k]]  # [unnecessary-dict-index-lookup]
-[v for k, v in a_dict.items() if k]  # This is fine, no indexing
-[a_dict[k] for k, v in a_dict.items() if k]  # [unnecessary-dict-index-lookup]
-[a_dict[k] for k, v in a_dict.items() if a_dict[k]]  # [unnecessary-dict-index-lookup, unnecessary-dict-index-lookup]
+E = [v for k, v in a_dict.items() if a_dict[k]]  # [unnecessary-dict-index-lookup]
+F = [v for k, v in a_dict.items() if k]  # This is fine, no indexing
+G = [a_dict[k] for k, v in a_dict.items() if k]  # [unnecessary-dict-index-lookup]
+# +1: [unnecessary-dict-index-lookup, unnecessary-dict-index-lookup]
+H = [a_dict[k] for k, v in a_dict.items() if a_dict[k]]
 
 
 # Tests on dict attribute of a class
@@ -35,20 +38,22 @@ class Foo:
 for k, v in Foo.c_dict.items():
     print(b_dict[k])  # Should not emit warning, accessing other dictionary
     print(Foo.c_dict[k])  # [unnecessary-dict-index-lookup]
-    unnecessary = 0 # pylint: disable=invalid-name
+    unnecessary = 0  # pylint: disable=invalid-name
     unnecessary += Foo.c_dict[k]  # [unnecessary-dict-index-lookup]
     Foo.c_dict[k] += v  # key access necessary
 
 # Tests on comprehensions
-{v: 1 for k, v in Foo.c_dict.items() if Foo.c_dict[k]}  # [unnecessary-dict-index-lookup]
-{v: 1 for k, v in Foo.c_dict.items() if k}  # This is fine, no indexing
-{Foo.c_dict[k]: 1 for k, v in Foo.c_dict.items() if k}  # [unnecessary-dict-index-lookup]
-{Foo.c_dict[k]: 1 for k, v in Foo.c_dict.items() if Foo.c_dict[k]}  # [unnecessary-dict-index-lookup, unnecessary-dict-index-lookup]
+S = {v: 1 for k, v in Foo.c_dict.items() if Foo.c_dict[k]}  # [unnecessary-dict-index-lookup]
+J = {v: 1 for k, v in Foo.c_dict.items() if k}  # This is fine, no indexing
+K = {Foo.c_dict[k]: 1 for k, v in Foo.c_dict.items() if k}  # [unnecessary-dict-index-lookup]
+# +1: [unnecessary-dict-index-lookup, unnecessary-dict-index-lookup]
+L = {Foo.c_dict[k]: 1 for k, v in Foo.c_dict.items() if Foo.c_dict[k]}
 
-[v for k, v in Foo.c_dict.items() if Foo.c_dict[k]]  # [unnecessary-dict-index-lookup]
-[v for k, v in Foo.c_dict.items() if k]  # This is fine, no indexing
-[Foo.c_dict[k] for k, v in Foo.c_dict.items() if k]  # [unnecessary-dict-index-lookup]
-[Foo.c_dict[k] for k, v in Foo.c_dict.items() if Foo.c_dict[k]]  # [unnecessary-dict-index-lookup, unnecessary-dict-index-lookup]
+M = [v for k, v in Foo.c_dict.items() if Foo.c_dict[k]]  # [unnecessary-dict-index-lookup]
+N = [v for k, v in Foo.c_dict.items() if k]  # This is fine, no indexing
+T = [Foo.c_dict[k] for k, v in Foo.c_dict.items() if k]  # [unnecessary-dict-index-lookup]
+# +1: [unnecessary-dict-index-lookup, unnecessary-dict-index-lookup]
+P = [Foo.c_dict[k] for k, v in Foo.c_dict.items() if Foo.c_dict[k]]
 
 # Test assigning d.items() to a single variable
 d = {1: "a", 2: "b"}
@@ -56,8 +61,8 @@ for item in d.items():
     print(item[0])
     print(d[item[0]])  # [unnecessary-dict-index-lookup]
 
-[item[0] for item in d.items()]
-[d[item[0]] for item in d.items()]  # [unnecessary-dict-index-lookup]
+Q = [item[0] for item in d.items()]
+R = [d[item[0]] for item in d.items()]  # [unnecessary-dict-index-lookup]
 
 # Reassigning single var
 for item in d.items():
