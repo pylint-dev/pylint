@@ -603,7 +603,7 @@ class FormatChecker(BaseTokenChecker):
         ):
             prev_line = node.parent.body[0].tolineno + 1
         elif isinstance(node.parent, nodes.Module):
-            prev_line = None
+            prev_line = 0
         else:
             prev_line = node.parent.statement(future=True).fromlineno
         line = node.fromlineno
