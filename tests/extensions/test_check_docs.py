@@ -32,7 +32,7 @@ import astroid
 from astroid import nodes
 
 from pylint.extensions.docparams import DocstringParameterChecker
-from pylint.testutils import CheckerTestCase, MessageTest, set_config
+from pylint.testutils import CheckerTestCase, MessageTest
 from pylint.testutils.decorator import set_config_directly
 
 
@@ -45,24 +45,6 @@ class TestParamDocChecker(CheckerTestCase):
         "no_docstring_rgx": re.compile("^$"),
         "docstring_min_length": -1,
     }
-
-    @set_config(accept_no_param_doc=True)
-    def test_tolerate_no_param_documentation_at_all(self) -> None:
-        """Example of a function with no parameter documentation at all
-
-        No error message is emitted.
-        """
-        node = astroid.extract_node(
-            """
-        def function_foo(x, y):
-            '''docstring ...
-
-            missing parameter documentation'''
-            pass
-        """
-        )
-        with self.assertNoMessages():
-            self.checker.visit_functiondef(node)
 
     def test_don_t_tolerate_no_param_documentation_at_all(self) -> None:
         """Example of a function with no parameter documentation at all
