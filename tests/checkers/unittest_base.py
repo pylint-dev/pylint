@@ -181,26 +181,6 @@ class TestMultiNamingStyle(CheckerTestCase):
                 self.checker.leave_module(func.root)
 
 
-class TestComparison(CheckerTestCase):
-    CHECKER_CLASS = base.ComparisonChecker
-
-    def test_comparison(self) -> None:
-
-        node = astroid.extract_node(
-            """
-                                import numpy
-                                foo != numpy.NaN
-                                """
-        )
-        message = MessageTest(
-            "nan-comparison",
-            node=node,
-            args=("'foo != numpy.NaN'", "'not math.isnan(foo)'"),
-        )
-        with self.assertAddsMessages(message):
-            self.checker.visit_compare(node)
-
-
 class TestNamePresets(unittest.TestCase):
     SNAKE_CASE_NAMES = {"tést_snake_case", "test_snake_case11", "test_https_200"}
     CAMEL_CASE_NAMES = {"téstCamelCase", "testCamelCase11", "testHTTP200"}
