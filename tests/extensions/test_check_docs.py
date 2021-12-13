@@ -32,7 +32,7 @@ import astroid
 from astroid import nodes
 
 from pylint.extensions.docparams import DocstringParameterChecker
-from pylint.testutils import CheckerTestCase, MessageTest
+from pylint.testutils import CheckerTestCase
 
 
 class TestParamDocChecker(CheckerTestCase):
@@ -92,22 +92,3 @@ class TestParamDocChecker(CheckerTestCase):
         )
         with self.assertNoMessages():
             self._visit_methods_of_class(node)
-
-    def test_kwonlyargs_are_taken_in_account(self) -> None:
-        node = astroid.extract_node(
-            '''
-        def my_func(arg, *, kwonly, missing_kwonly):
-            """The docstring
-
-            :param int arg: The argument.
-            :param bool kwonly: A keyword-arg.
-            """
-        '''
-        )
-        with self.assertAddsMessages(
-            MessageTest(
-                msg_id="missing-param-doc", node=node, args=("missing_kwonly",)
-            ),
-            MessageTest(msg_id="missing-type-doc", node=node, args=("missing_kwonly",)),
-        ):
-            self.checker.visit_functiondef(node)

@@ -18,3 +18,13 @@ def test_see_tolerate_no_param_documentation_at_all(x, y):
 
     For the parameters, see :func:`blah`
     """
+
+
+def test_kwonlyargs_are_taken_in_account(  # [missing-param-doc, missing-type-doc]
+    arg, *, kwonly, missing_kwonly
+):
+    """The docstring
+
+    :param int arg: The argument.
+    :param bool kwonly: A keyword-arg.
+    """
