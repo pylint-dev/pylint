@@ -124,3 +124,20 @@ def check_config_7(machine, old_conf, new_conf):
             machine.enable(new_conf.value)
     else:
         pass
+
+
+def check_config_8(machine, old_conf, new_conf, new_new_conf):
+    """Example code that will trigger the message
+
+    Given an if construct which continues with a new if construct
+    When the body of the first if ends with an if expression
+    Then no message shall be triggered.
+    """
+    if old_conf:
+        if new_new_conf:
+            machine.disable()
+        elif old_conf.value != new_conf.value:
+            machine.disable()
+            machine.enable(new_conf.value)
+    if new_conf:
+        machine.enable(new_conf.value)
