@@ -38,6 +38,12 @@ Release date: TBA
 * The ``PyLinter`` class will now be initialiazed with a ``TextReporter``
   as its reporter if none is provided.
 
+* A perfect score produced from linting a combination of valid and invalid
+  paths now exits with a non-zero code for perfect score runs if the
+  ``--fail-under`` threshold is also 10.0.
+
+  Closes #5451
+
 * Fix false positive - Allow unpacking of ``self`` in a subclass of ``typing.NamedTuple``.
 
   Closes #5312

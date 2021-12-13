@@ -59,5 +59,11 @@ Other Changes
 
   Closes #5065
 
-* The ``PyLinter`` class will now be initialiazed with a ``TextReporter``
+* A perfect score produced from linting a combination of valid and invalid
+  paths now exits with a non-zero code for perfect score runs if the
+  ``--fail-under`` threshold is also 10.0.
+
+  Closes #5451
+
+* The ``PyLinter`` class will now be initialized with a ``TextReporter``
   as its reporter if none is provided.
