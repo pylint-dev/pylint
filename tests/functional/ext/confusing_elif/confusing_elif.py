@@ -1,7 +1,7 @@
 # pylint: disable=missing-module-docstring, missing-function-docstring
 
 
-def check_config(machine, old_conf, new_conf):
+def triggered_if_if_block_ends_with_elif(machine, old_conf, new_conf):
     """Example code that will trigger the message
 
     Given an if-elif construct
@@ -18,7 +18,7 @@ def check_config(machine, old_conf, new_conf):
         machine.enable(new_conf.value)
 
 
-def check_config_2(machine, old_conf, new_conf):
+def not_triggered_if_indented_block_ends_with_else(machine, old_conf, new_conf):
     """Example code must not trigger the message, because the inner block ends with else.
 
     Given an if-elif construct
@@ -37,7 +37,7 @@ def check_config_2(machine, old_conf, new_conf):
         machine.enable(new_conf.value)
 
 
-def check_config_3(machine, old_conf, new_conf):
+def not_triggered_if_indentend_block_ends_with_call(machine, old_conf, new_conf):
     """
     Example code must not trigger the message,
 
@@ -60,7 +60,7 @@ def check_config_3(machine, old_conf, new_conf):
         machine.enable(new_conf.value)
 
 
-def check_config_4(machine, old_conf, new_conf, new_new_conf):
+def triggered_if_elif_block_ends_with_elif(machine, old_conf, new_conf, new_new_conf):
     """Example code that will trigger the message
 
     Given an if-elif-elif construct
@@ -79,7 +79,7 @@ def check_config_4(machine, old_conf, new_conf, new_new_conf):
         machine.enable(new_conf.value)
 
 
-def check_config_5(machine, old_conf, new_conf, new_new_conf):
+def triggered_if_block_ends_with_if(machine, old_conf, new_conf, new_new_conf):
     """Example code that will trigger the message
 
     Given an if-elif construct
@@ -93,7 +93,7 @@ def check_config_5(machine, old_conf, new_conf, new_new_conf):
         machine.enable(new_conf.value)
 
 
-def check_config_6(machine, old_conf, new_conf):
+def not_triggered_if_indented_block_ends_with_ifexp(machine, old_conf, new_conf):
     """
     Example code must not trigger the message,
 
@@ -109,7 +109,7 @@ def check_config_6(machine, old_conf, new_conf):
         machine.enable(new_conf.value)
 
 
-def check_config_7(machine, old_conf, new_conf):
+def not_triggered_if_outer_block_does_not_have_elif(machine, old_conf, new_conf):
     """Example code must not trigger the message
 
     Given an if construct without an elif
@@ -126,7 +126,7 @@ def check_config_7(machine, old_conf, new_conf):
         pass
 
 
-def check_config_8(machine, old_conf, new_conf, new_new_conf):
+def not_triggered_if_outer_block_continues_with_if(machine, old_conf, new_conf, new_new_conf):
     """Example code that will trigger the message
 
     Given an if construct which continues with a new if construct
