@@ -65,3 +65,17 @@ def check_config_4(machine, old_conf, new_conf, new_new_conf):
             machine.enable(new_conf.value)
     elif new_conf:  # [confusing-consecutive-elif]
         machine.enable(new_conf.value)
+
+
+def check_config_5(machine, old_conf, new_conf, new_new_conf):
+    """Example code that will trigger the message
+
+    Given an if-elif construct
+    When the body of the if ends with an if
+    Then the message confusing-consecutive-elif must be triggered.
+    """
+    if old_conf:
+        if new_new_conf:
+            machine.disable()
+    elif new_conf:  # [confusing-consecutive-elif]
+        machine.enable(new_conf.value)

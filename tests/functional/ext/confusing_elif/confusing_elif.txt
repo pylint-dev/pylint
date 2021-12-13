@@ -1,2 +1,3 @@
 confusing-consecutive-elif:17:4:18:38:check_config:Consecutive elif with differing indentation level, consider creating a function to separate the inner elif:UNDEFINED
 confusing-consecutive-elif:66:4:67:38:check_config_4:Consecutive elif with differing indentation level, consider creating a function to separate the inner elif:UNDEFINED
+confusing-consecutive-elif:80:4:81:38:check_config_5:Consecutive elif with differing indentation level, consider creating a function to separate the inner elif:UNDEFINED

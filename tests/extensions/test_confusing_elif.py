@@ -12,7 +12,7 @@
 import astroid
 
 from pylint.extensions.confusing_elif import ConfusingConsecutiveElifChecker
-from pylint.testutils import CheckerTestCase, MessageTest
+from pylint.testutils import CheckerTestCase
 
 MSG_ID_CONFUSING_CONSECUTIVE_ELIF = "confusing-consecutive-elif"
 
@@ -21,26 +21,6 @@ class TestConfusingConsecutiveElifChecker(CheckerTestCase):
     """Tests for pylint.extensions.confusing_elif.ConfusingConsecutiveElifChecker"""
 
     CHECKER_CLASS = ConfusingConsecutiveElifChecker
-
-    def test_triggered_if_block_ends_with_if(self) -> None:
-        """
-        Given an if-elif construct
-        When the body of the if ends with an if
-        Then the message confusing-consecutive-elif must be triggered.
-        """
-        example_code = """
-        def foo(a, b, c):
-            if a > b: #@
-                if a > 0:
-                    return a
-            elif a > c: #@
-                return c
-        """
-        if_node_to_test, elif_node = astroid.extract_node(example_code)
-        with self.assertAddsMessages(
-            MessageTest(msg_id=MSG_ID_CONFUSING_CONSECUTIVE_ELIF, node=elif_node)
-        ):
-            self.checker.visit_if(if_node_to_test)
 
     def test_not_triggered_if_indented_block_ends_with_else(self) -> None:
         """
