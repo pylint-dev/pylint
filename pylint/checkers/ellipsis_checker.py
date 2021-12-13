@@ -29,7 +29,8 @@ class EllipsisChecker(BaseChecker):
          - A line consisting of an ellipsis is preceded by a docstring.
          - A statement exists in the same scope as the ellipsis.
            For example: A function consisting of an ellipsis followed by a
-           return statement on the next line."""
+           return statement on the next line.
+        """
         if (
             node.pytype() == "builtins.Ellipsis"
             and not isinstance(node.parent, (nodes.Assign, nodes.AnnAssign, nodes.Call))

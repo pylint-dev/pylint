@@ -2,6 +2,8 @@
 
 # pylint: disable=missing-docstring, too-few-public-methods
 
+from typing import List, overload, Union
+
 # Ellipsis and preceding statement
 try:
     A = 2
@@ -19,7 +21,7 @@ C = [..., 1, 2, 3]
 
 # The parent of ellipsis is a call
 if "X" is type(...):
-    pass
+    ...
 
 def docstring_only():
     '''In Python, stubbed functions often have a body that contains just a
@@ -62,3 +64,36 @@ class DocstringAndEllipsis:
     '''Whoops! Mark this one as bad too.
     '''
     ... # [unnecessary-ellipsis]
+
+
+# Function overloading
+@overload
+def summarize(data: int) -> float: ...
+
+
+@overload
+def summarize(data: str) -> str: ...
+
+
+def summarize(data):
+    if isinstance(data, str):
+        ...
+    return float(data)
+
+
+
+# Method overloading
+class MyIntegerList(List[int]):
+    @overload
+    def __getitem__(self, index: int) -> int: ...
+
+    @overload
+    def __getitem__(self, index: slice) -> List[int]: ...
+
+    def __getitem__(self, index: Union[int, slice]) -> Union[int, List[int]]:
+        if isinstance(index, int):
+            ...
+        elif isinstance(index, slice):
+            ...
+        else:
+            raise TypeError(...)
