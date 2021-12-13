@@ -11,15 +11,21 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.13.rst'
 
+* ``used-before-assignment`` now considers that assignments in a try block
+  may not have occurred when the except or finally blocks are executed.
+
+  Closes #85, #2615
+
 * ``used-before-assignment`` now assumes that assignments in except blocks
   may not have occurred and warns accordingly.
 
   Closes #4761
 
-* ``used-before-assignment`` now considers that assignments in a try block
-  may not have occurred when the except or finally blocks are executed.
+* When evaluating statements after an except block, ``used-before-assignment``
+  assumes that assignments in the except blocks took place if the
+  corresponding try block contained a return statement.
 
-  Closes #85, #2615
+  Closes #5500
 
 * ``used-before-assignment`` now checks names in try blocks.
 

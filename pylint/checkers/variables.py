@@ -408,7 +408,8 @@ MSGS = {
         "Emitted when a local variable is accessed before its assignment took place. "
         "Assignments in try blocks are assumed not to have occurred when evaluating "
         "associated except/finally blocks. Assignments in except blocks are assumed "
-        "not to have occurred when evaluating statements outside the block.",
+        "not to have occurred when evaluating statements outside the block, except "
+        "when the associated try block contains a return statement.",
     ),
     "E0602": (
         "Undefined variable %r",
@@ -655,6 +656,25 @@ scope_type : {self._atomic.scope_type}
                     isinstance(n.statement(future=True).parent, nodes.ExceptHandler)
                     and isinstance(
                         n.statement(future=True).parent.parent, nodes.TryExcept
+                    )
+                    # If the try block returns we assume that assignments in the except
+                    # handlers could have happened.
+                    and (
+                        not any(
+                            isinstance(try_statement, nodes.Return)
+                            for try_statement in n.statement(
+                                future=True
+                            ).parent.parent.body
+                        )
+                        # But not if this node is in the final block, which will
+                        # execute before the return.
+                        or (
+                            isinstance(node_statement.parent, nodes.TryFinally)
+                            and node_statement in node_statement.parent.finalbody
+                            and n.statement(future=True).parent.parent.parent.parent_of(
+                                node_statement
+                            )
+                        )
                     )
                 )
                 or n.statement(future=True).parent.parent_of(node)
