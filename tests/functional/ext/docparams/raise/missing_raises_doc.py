@@ -99,7 +99,7 @@ def test_no_error_notimplemented_documented():
     raise NotImplementedError
 
 
-def do_somtest_finds_short_name_exceptionething():
+def test_finds_short_name_exception():
     """Do something.
 
     Raises:
