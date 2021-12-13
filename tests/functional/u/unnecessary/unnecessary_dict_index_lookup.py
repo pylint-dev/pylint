@@ -100,3 +100,10 @@ for key, val in outer_dict.items():
     for key_two, val_two in val.items():
         del outer_dict[key][key_two]  # [unnecessary-dict-index-lookup]
         break
+
+# Test partial unpacking of items
+# https://github.com/PyCQA/pylint/issues/5504
+
+d = {}
+for key, in d.items():
+    print(d[key])

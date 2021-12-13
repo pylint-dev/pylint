@@ -3,6 +3,7 @@
 # pylint: disable=unused-argument, import-error, unused-variable, no-member, try-except-raise
 import collections
 
+from fake_package import BadError
 from unknown import Unknown
 
 
@@ -96,3 +97,12 @@ def test_no_error_notimplemented_documented():
         NotImplementedError: When called.
     """
     raise NotImplementedError
+
+
+def test_finds_short_name_exception():
+    """Do something.
+
+    Raises:
+        ~fake_package.exceptions.BadError: When something bad happened.
+    """
+    raise BadError("A bad thing happened.")

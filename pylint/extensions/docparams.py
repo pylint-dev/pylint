@@ -307,7 +307,7 @@ class DocstringParameterChecker(BaseChecker):
                 func_node = property_
 
         doc = utils.docstringify(func_node.doc, self.config.default_docstring_type)
-        if not doc.is_valid():
+        if not doc.matching_sections():
             if doc.doc:
                 self._handle_no_raise_doc(expected_excs, func_node)
             return

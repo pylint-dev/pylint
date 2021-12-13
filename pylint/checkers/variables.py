@@ -405,7 +405,10 @@ MSGS = {
     "E0601": (
         "Using variable %r before assignment",
         "used-before-assignment",
-        "Used when a local variable is accessed before its assignment.",
+        "Emitted when a local variable is accessed before its assignment took place. "
+        "Assignments in try blocks are assumed not to have occurred when evaluating "
+        "associated except/finally blocks. Assignments in except blocks are assumed "
+        "not to have occurred when evaluating statements outside the block.",
     ),
     "E0602": (
         "Undefined variable %r",
@@ -534,7 +537,7 @@ MSGS = {
 
 
 ScopeConsumer = collections.namedtuple(
-    "ScopeConsumer", "to_consume consumed scope_type"
+    "ScopeConsumer", "to_consume consumed consumed_uncertain scope_type"
 )
 
 
@@ -544,17 +547,24 @@ class NamesConsumer:
     """
 
     def __init__(self, node, scope_type):
-        self._atomic = ScopeConsumer(copy.copy(node.locals), {}, scope_type)
+        self._atomic = ScopeConsumer(
+            copy.copy(node.locals), {}, collections.defaultdict(list), scope_type
+        )
         self.node = node
 
     def __repr__(self):
         to_consumes = [f"{k}->{v}" for k, v in self._atomic.to_consume.items()]
         consumed = [f"{k}->{v}" for k, v in self._atomic.consumed.items()]
+        consumed_uncertain = [
+            f"{k}->{v}" for k, v in self._atomic.consumed_uncertain.items()
+        ]
         to_consumes = ", ".join(to_consumes)
         consumed = ", ".join(consumed)
+        consumed_uncertain = ", ".join(consumed_uncertain)
         return f"""
 to_consume : {to_consumes}
 consumed : {consumed}
+consumed_uncertain: {consumed_uncertain}
 scope_type : {self._atomic.scope_type}
 """
 
@@ -568,6 +578,17 @@ scope_type : {self._atomic.scope_type}
     @property
     def consumed(self):
         return self._atomic.consumed
+
+    @property
+    def consumed_uncertain(self) -> DefaultDict[str, List[nodes.NodeNG]]:
+        """
+        Retrieves nodes filtered out by get_next_to_consume() that may not
+        have executed, such as statements in except blocks, or statements
+        in try blocks (when evaluating their corresponding except and finally
+        blocks). Checkers that want to treat the statements as executed
+        (e.g. for unused-variable) may need to add them back.
+        """
+        return self._atomic.consumed_uncertain
 
     @property
     def scope_type(self):
@@ -589,12 +610,15 @@ scope_type : {self._atomic.scope_type}
 
     def get_next_to_consume(self, node):
         """
-        Return a list of the nodes that define `node` from this scope.
+        Return a list of the nodes that define `node` from this scope. If it is
+        uncertain whether a node will be consumed, such as for statements in
+        except blocks, add it to self.consumed_uncertain instead of returning it.
         Return None to indicate a special case that needs to be handled by the caller.
         """
         name = node.name
         parent_node = node.parent
         found_nodes = self.to_consume.get(name)
+        node_statement = node.statement(future=True)
         if (
             found_nodes
             and isinstance(parent_node, nodes.Assign)
@@ -617,9 +641,66 @@ scope_type : {self._atomic.scope_type}
             found_nodes = [
                 n
                 for n in found_nodes
-                if not isinstance(n.statement(), nodes.ExceptHandler)
-                or n.statement().parent_of(node)
+                if not isinstance(n.statement(future=True), nodes.ExceptHandler)
+                or n.statement(future=True).parent_of(node)
             ]
+
+        # Filter out assignments in an Except clause that the node is not
+        # contained in, assuming they may fail
+        if found_nodes:
+            filtered_nodes = [
+                n
+                for n in found_nodes
+                if not (
+                    isinstance(n.statement(future=True).parent, nodes.ExceptHandler)
+                    and isinstance(
+                        n.statement(future=True).parent.parent, nodes.TryExcept
+                    )
+                )
+                or n.statement(future=True).parent.parent_of(node)
+            ]
+            filtered_nodes_set = set(filtered_nodes)
+            difference = [n for n in found_nodes if n not in filtered_nodes_set]
+            self.consumed_uncertain[node.name] += difference
+            found_nodes = filtered_nodes
+
+        # If this node is in a Finally block of a Try/Finally,
+        # filter out assignments in the try portion, assuming they may fail
+        if (
+            found_nodes
+            and isinstance(node_statement.parent, nodes.TryFinally)
+            and node_statement in node_statement.parent.finalbody
+        ):
+            filtered_nodes = [
+                n
+                for n in found_nodes
+                if not (
+                    n.statement(future=True).parent is node_statement.parent
+                    and n.statement(future=True) in n.statement(future=True).parent.body
+                )
+            ]
+            filtered_nodes_set = set(filtered_nodes)
+            difference = [n for n in found_nodes if n not in filtered_nodes_set]
+            self.consumed_uncertain[node.name] += difference
+            found_nodes = filtered_nodes
+
+        # If this node is in an ExceptHandler,
+        # filter out assignments in the try portion, assuming they may fail
+        if found_nodes and isinstance(node_statement.parent, nodes.ExceptHandler):
+            filtered_nodes = [
+                n
+                for n in found_nodes
+                if not (
+                    isinstance(n.statement(future=True).parent, nodes.TryExcept)
+                    and n.statement(future=True) in n.statement(future=True).parent.body
+                    and node_statement.parent
+                    in n.statement(future=True).parent.handlers
+                )
+            ]
+            filtered_nodes_set = set(filtered_nodes)
+            difference = [n for n in found_nodes if n not in filtered_nodes_set]
+            self.consumed_uncertain[node.name] += difference
+            found_nodes = filtered_nodes
 
         return found_nodes
 
@@ -1042,6 +1123,14 @@ class VariablesChecker(BaseChecker):
             if action is VariableVisitConsumerAction.CONTINUE:
                 continue
             if action is VariableVisitConsumerAction.CONSUME:
+                # pylint: disable-next=fixme
+                # TODO: remove assert after _check_consumer return value better typed
+                assert found_nodes is not None, "Cannot consume an empty list of nodes."
+                # Any nodes added to consumed_uncertain by get_next_to_consume()
+                # should be added back so that they are marked as used.
+                # They will have already had a chance to emit used-before-assignment.
+                # We check here instead of before every single return in _check_consumer()
+                found_nodes += current_consumer.consumed_uncertain[node.name]
                 current_consumer.mark_as_consumed(node.name, found_nodes)
             if action in {
                 VariableVisitConsumerAction.RETURN,
@@ -1135,6 +1224,12 @@ class VariablesChecker(BaseChecker):
             return (VariableVisitConsumerAction.CONTINUE, None)
         if not found_nodes:
             self.add_message("used-before-assignment", args=node.name, node=node)
+            if current_consumer.consumed_uncertain[node.name]:
+                # If there are nodes added to consumed_uncertain by
+                # get_next_to_consume() because they might not have executed,
+                # return a CONSUME action so that _undefined_and_used_before_checker()
+                # will mark them as used
+                return (VariableVisitConsumerAction.CONSUME, found_nodes)
             return (VariableVisitConsumerAction.RETURN, found_nodes)
 
         self._check_late_binding_closure(node)
@@ -2370,7 +2465,7 @@ class VariablesChecker(BaseChecker):
         name = METACLASS_NAME_TRANSFORMS.get(name, name)
         if name:
             # check enclosing scopes starting from most local
-            for scope_locals, _, _ in self._to_consume[::-1]:
+            for scope_locals, _, _, _ in self._to_consume[::-1]:
                 found_nodes = scope_locals.get(name, [])
                 for found_node in found_nodes:
                     if found_node.lineno <= klass.lineno:

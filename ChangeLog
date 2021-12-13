@@ -11,12 +11,32 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.13.rst'
 
+* ``used-before-assignment`` now assumes that assignments in except blocks
+  may not have occurred and warns accordingly.
+
+  Closes #4761
+
+* ``used-before-assignment`` now considers that assignments in a try block
+  may not have occurred when the except or finally blocks are executed.
+
+  Closes #85, #2615
+
+* ``used-before-assignment`` now checks names in try blocks.
+
 * Some files in ``pylint.testutils`` were deprecated. In the future imports should be done from the
   ``pylint.testutils.functional`` namespace directly.
 
 * Fix ``unnecessary_dict_index_lookup`` false positive when deleting a dictionary's entry.
 
   Closes #4716
+
+* Fix crash in ``unnecessary-dict-index-lookup`` checker if the output of
+  ``items()`` is assigned to a 1-tuple.
+
+  Closes #5504
+
+* The ``PyLinter`` class will now be initialiazed with a ``TextReporter``
+  as its reporter if none is provided.
 
 * Fix false positive - Allow unpacking of ``self`` in a subclass of ``typing.NamedTuple``.
 
@@ -31,6 +51,11 @@ Release date: TBA
 
   Closes #5460
 
+* Fixed incorrect classification of Numpy-style docstring as Google-style docstring for
+  docstrings with property setter documentation.
+  Docstring classification is now based on the highest amount of matched sections instead
+  of the order in which the docstring styles were tried.
+
 * Fixed detection of ``arguments-differ`` when superclass static
   methods lacked a ``@staticmethod`` decorator.
 
@@ -39,9 +64,6 @@ Release date: TBA
 ..
   Insert your changelog randomly, it will reduce merge conflicts
   (Ie. not necessarily at the end)
-
-* The ``PyLinter`` class will now be initialiazed with a ``TextReporter``
-  as its reporter if none is provided.
 
 
 What's New in Pylint 2.12.2?
