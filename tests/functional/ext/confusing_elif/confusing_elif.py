@@ -1,7 +1,13 @@
 # pylint: disable=missing-module-docstring, missing-function-docstring
 
+
 def check_config(machine, old_conf, new_conf):
-    """Example code that will trigger the message"""
+    """Example code that will trigger the message
+
+    Given an if-elif construct
+    When the body of the if ends with an elif
+    Then the message confusing-consecutive-elif must be triggered.
+    """
     if old_conf:
         if not new_conf:
             machine.disable()
@@ -24,6 +30,7 @@ def check_config_2(machine, old_conf, new_conf):
             pass
     elif new_conf:
         machine.enable(new_conf.value)
+
 
 def check_config_3(machine, old_conf, new_conf):
     """

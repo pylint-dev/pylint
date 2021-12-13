@@ -22,28 +22,6 @@ class TestConfusingConsecutiveElifChecker(CheckerTestCase):
 
     CHECKER_CLASS = ConfusingConsecutiveElifChecker
 
-    def test_triggered_if_if_block_ends_with_elif(self) -> None:
-        """
-        Given an if-elif construct
-        When the body of the if ends with an elif
-        Then the message confusing-consecutive-elif must be triggered.
-        """
-        example_code = """
-        def foo(a, b, c):
-            if a > b: #@
-                if a > 0:
-                    return a
-                elif a < 0:
-                    return 0
-            elif a > c: #@
-                return c
-        """
-        if_node_to_test, elif_node = astroid.extract_node(example_code)
-        with self.assertAddsMessages(
-            MessageTest(msg_id=MSG_ID_CONFUSING_CONSECUTIVE_ELIF, node=elif_node)
-        ):
-            self.checker.visit_if(if_node_to_test)
-
     def test_triggered_if_elif_block_ends_with_elif(self) -> None:
         """
         Given an if-elif-elif construct
