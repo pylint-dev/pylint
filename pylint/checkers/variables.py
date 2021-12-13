@@ -405,7 +405,10 @@ MSGS = {
     "E0601": (
         "Using variable %r before assignment",
         "used-before-assignment",
-        "Used when a local variable is accessed before its assignment.",
+        "Emitted when a local variable is accessed before its assignment took place. "
+        "Assignments in try blocks are assumed not to have occurred when evaluating "
+        "associated except/finally blocks. Assignments in except blocks are assumed "
+        "not to have occurred when evaluating statements outside the block.",
     ),
     "E0602": (
         "Undefined variable %r",
@@ -580,12 +583,10 @@ scope_type : {self._atomic.scope_type}
     def consumed_uncertain(self) -> DefaultDict[str, List[nodes.NodeNG]]:
         """
         Retrieves nodes filtered out by get_next_to_consume() that may not
-        have executed, such as statements in except blocks. Checkers that
-        want to treat the statements as executed (e.g. for unused-variable)
-        may need to add them back.
-
-        TODO: A pending PR will extend this to nodes in try blocks when
-        evaluating their corresponding except and finally blocks.
+        have executed, such as statements in except blocks, or statements
+        in try blocks (when evaluating their corresponding except and finally
+        blocks). Checkers that want to treat the statements as executed
+        (e.g. for unused-variable) may need to add them back.
         """
         return self._atomic.consumed_uncertain
 
@@ -617,6 +618,7 @@ scope_type : {self._atomic.scope_type}
         name = node.name
         parent_node = node.parent
         found_nodes = self.to_consume.get(name)
+        node_statement = node.statement(future=True)
         if (
             found_nodes
             and isinstance(parent_node, nodes.Assign)
@@ -656,6 +658,44 @@ scope_type : {self._atomic.scope_type}
                     )
                 )
                 or n.statement(future=True).parent.parent_of(node)
+            ]
+            filtered_nodes_set = set(filtered_nodes)
+            difference = [n for n in found_nodes if n not in filtered_nodes_set]
+            self.consumed_uncertain[node.name] += difference
+            found_nodes = filtered_nodes
+
+        # If this node is in a Finally block of a Try/Finally,
+        # filter out assignments in the try portion, assuming they may fail
+        if (
+            found_nodes
+            and isinstance(node_statement.parent, nodes.TryFinally)
+            and node_statement in node_statement.parent.finalbody
+        ):
+            filtered_nodes = [
+                n
+                for n in found_nodes
+                if not (
+                    n.statement(future=True).parent is node_statement.parent
+                    and n.statement(future=True) in n.statement(future=True).parent.body
+                )
+            ]
+            filtered_nodes_set = set(filtered_nodes)
+            difference = [n for n in found_nodes if n not in filtered_nodes_set]
+            self.consumed_uncertain[node.name] += difference
+            found_nodes = filtered_nodes
+
+        # If this node is in an ExceptHandler,
+        # filter out assignments in the try portion, assuming they may fail
+        if found_nodes and isinstance(node_statement.parent, nodes.ExceptHandler):
+            filtered_nodes = [
+                n
+                for n in found_nodes
+                if not (
+                    isinstance(n.statement(future=True).parent, nodes.TryExcept)
+                    and n.statement(future=True) in n.statement(future=True).parent.body
+                    and node_statement.parent
+                    in n.statement(future=True).parent.handlers
+                )
             ]
             filtered_nodes_set = set(filtered_nodes)
             difference = [n for n in found_nodes if n not in filtered_nodes_set]

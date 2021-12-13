@@ -48,6 +48,11 @@ Other Changes
 
   Closes #4761
 
+* ``used-before-assignment`` now considers that assignments in a try block
+  may not have occurred when the except or finally blocks are executed.
+
+  Closes #85, #2615
+
 * ``used-before-assignment`` now checks names in try blocks.
 
 * Require Python ``3.6.2`` to run pylint.
