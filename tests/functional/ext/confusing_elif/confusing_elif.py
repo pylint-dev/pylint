@@ -46,3 +46,22 @@ def check_config_3(machine, old_conf, new_conf):
         print("Processed old configuration...")
     elif new_conf:
         machine.enable(new_conf.value)
+
+
+def check_config_4(machine, old_conf, new_conf, new_new_conf):
+    """Example code that will trigger the message
+
+    Given an if-elif-elif construct
+    When the body of the first elif ends with an elif
+    Then the message confusing-consecutive-elif must be triggered.
+    """
+    if old_conf:
+        machine.disable()
+    elif not new_conf:
+        if new_new_conf:
+            machine.disable()
+        elif old_conf.value != new_conf.value:
+            machine.disable()
+            machine.enable(new_conf.value)
+    elif new_conf:  # [confusing-consecutive-elif]
+        machine.enable(new_conf.value)
