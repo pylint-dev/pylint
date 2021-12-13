@@ -19,7 +19,12 @@ def check_config(machine, old_conf, new_conf):
 
 
 def check_config_2(machine, old_conf, new_conf):
-    """Example code must not trigger the message, because the inner block ends with else."""
+    """Example code must not trigger the message, because the inner block ends with else.
+
+    Given an if-elif construct
+    When the body of the if ends with an else
+    Then no message shall be triggered.
+    """
     if old_conf:
         if not new_conf:
             machine.disable()

@@ -22,26 +22,6 @@ class TestConfusingConsecutiveElifChecker(CheckerTestCase):
 
     CHECKER_CLASS = ConfusingConsecutiveElifChecker
 
-    def test_not_triggered_if_indented_block_ends_with_else(self) -> None:
-        """
-        Given an if-elif construct
-        When the body of the if ends with an else
-        Then no message shall be triggered.
-        """
-        example_code = """
-        def foo(a, b, c):
-            if a > b: #@
-                if a > 0:
-                    return a
-                else:
-                    return 0
-            elif a > c:
-                return c
-        """
-        if_node_to_test = astroid.extract_node(example_code)
-        with self.assertNoMessages():
-            self.checker.visit_if(if_node_to_test)
-
     def test_not_triggered_if_indentend_block_ends_with_call(self) -> None:
         """
         Given an if-elif construct
