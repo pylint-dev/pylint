@@ -1,7 +1,7 @@
 """Tests for missing-param-doc and missing-type-doc for non-specified style docstrings
 with accept-no-param-doc = no
 """
-# pylint: disable=invalid-name, unused-argument
+# pylint: disable=invalid-name, unused-argument, too-few-public-methods
 
 
 def test_don_t_tolerate_no_param_documentation_at_all(x, y):  # [missing-any-param-doc]
@@ -18,6 +18,16 @@ def test_see_tolerate_no_param_documentation_at_all(x, y):
 
     For the parameters, see :func:`blah`
     """
+
+
+class ClassFoo:
+    """Example usage of "For the parameters, see" in init docstring"""
+
+    def __init__(self, x, y):
+        """docstring foo constructor
+
+        For the parameters, see :func:`bla`
+        """
 
 
 def test_kwonlyargs_are_taken_in_account(  # [missing-param-doc, missing-type-doc]

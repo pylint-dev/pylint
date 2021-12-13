@@ -73,22 +73,3 @@ class TestParamDocChecker(CheckerTestCase):
         )
         with self.assertNoMessages():
             self._visit_methods_of_class(node)
-
-    def test_see_sentence_for_constr_params_in_init(self) -> None:
-        """Example usage of "For the parameters, see" in init docstring"""
-        node = astroid.extract_node(
-            """
-        class ClassFoo(object):
-            '''foo'''
-
-            def __init__(self, x, y):
-                '''docstring foo constructor
-
-                For the parameters, see :func:`bla`
-                '''
-                pass
-
-        """
-        )
-        with self.assertNoMessages():
-            self._visit_methods_of_class(node)
