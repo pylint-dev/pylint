@@ -49,7 +49,7 @@ class CheckerTestCase:
             f"\nExpected:\n{expected}\n\nGot:\n{got_str}\n"
         )
 
-        assert len(messages) == len(got)
+        assert len(messages) == len(got), msg
 
         for expected_msg, gotten_msg in zip(messages, got):
             assert expected_msg.msg_id == gotten_msg.msg_id, msg
