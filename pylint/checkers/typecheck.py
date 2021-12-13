@@ -1045,6 +1045,8 @@ accessed. Python regular expressions are accepted.",
                     continue
             except exceptions.StatementMissing:
                 continue
+            except AttributeError:
+                continue
             except astroid.DuplicateBasesError:
                 continue
             except astroid.NotFoundError:
