@@ -74,14 +74,12 @@ class LintModuleTest:
             pytest.skip(f"Requires {','.join(missing)} to be present.")
         except_implementations = self._test_file.options["except_implementations"]
         if except_implementations:
-            implementations = [i.strip() for i in except_implementations.split(",")]
-            if platform.python_implementation() in implementations:
+            if platform.python_implementation() in except_implementations:
                 msg = "Test cannot run with Python implementation %r"
                 pytest.skip(msg % platform.python_implementation())
         excluded_platforms = self._test_file.options["exclude_platforms"]
         if excluded_platforms:
-            platforms = [p.strip() for p in excluded_platforms.split(",")]
-            if sys.platform.lower() in platforms:
+            if sys.platform.lower() in excluded_platforms:
                 pytest.skip(f"Test cannot run on platform {sys.platform!r}")
 
     def runTest(self) -> None:
