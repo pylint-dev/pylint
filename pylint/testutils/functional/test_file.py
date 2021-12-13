@@ -49,9 +49,9 @@ class FunctionalTestFile:
         "min_pyver": parse_python_version,
         "max_pyver": parse_python_version,
         "min_pyver_end_position": parse_python_version,
-        "requires": lambda s: s.split(","),
-        "except_implementations": lambda s: s.split(","),
-        "exclude_platforms": lambda s: s.split(","),
+        "requires": lambda s: [i.strip() for i in s.split(",")],
+        "except_implementations": lambda s: [i.strip() for i in s.split(",")],
+        "exclude_platforms": lambda s: [i.strip() for i in s.split(",")],
     }
 
     def __init__(self, directory: str, filename: str) -> None:
