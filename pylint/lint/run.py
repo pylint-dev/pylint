@@ -413,12 +413,7 @@ to search for configuration file.
                 # So we use self.linter.msg_status if that is non-zero, otherwise we just return 1.
                 sys.exit(self.linter.msg_status or 1)
             elif score_value is not None:
-                if score_value == linter.config.fail_under == 10.0:
-                    # A perfect score might come with non-zero exit code if another
-                    # module had zero statements (and thus no score).
-                    # If the threshold is as high as possible, make sure to exit with it.
-                    sys.exit(self.linter.msg_status)
-                elif score_value >= linter.config.fail_under:
+                if score_value >= linter.config.fail_under:
                     sys.exit(0)
                 else:
                     # We need to make sure we return a failing exit code in this case.

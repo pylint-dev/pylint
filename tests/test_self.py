@@ -1154,12 +1154,9 @@ class TestRunTC:
         # and errors that are generated they don't affect the exit code.
         self._runtest([path, "--fail-under=-10"] + args, code=expected)
 
-    def test_fail_despite_perfect_score(self):
+    def test_one_module_fatal_error(self):
         """
-        Fatal errors in modules without statements don't report a score, so
-        linting a valid path and an invalid path will generate a score of 10.
-        Exit with non-zero exit code anyway.
-        https://github.com/PyCQA/pylint/issues/5451
+        Fatal errors in one of several modules linted still exits non-zero.
         """
         valid_path = join(HERE, "conftest.py")
         invalid_path = join(HERE, "garbagePath.py")
