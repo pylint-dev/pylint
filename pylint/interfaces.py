@@ -75,10 +75,10 @@ class IChecker(Interface):
     """
 
     def open(self):
-        """called before visiting project (i.e set of modules)"""
+        """called before visiting project (i.e. set of modules)"""
 
     def close(self):
-        """called after visiting project (i.e set of modules)"""
+        """called after visiting project (i.e. set of modules)"""
 
 
 class IRawChecker(IChecker):
@@ -87,7 +87,7 @@ class IRawChecker(IChecker):
     def process_module(self, node: nodes.Module) -> None:
         """process a module
 
-        the module's content is accessible via astroid.stream
+        the module's content is accessible via ``astroid.stream``
         """
 
 
