@@ -186,15 +186,6 @@ class TestComparison(CheckerTestCase):
 
     def test_comparison(self) -> None:
 
-        node = astroid.extract_node("foo is float('nan')")
-        message = MessageTest(
-            "nan-comparison",
-            node=node,
-            args=("'foo is float('nan')'", "'math.isnan(foo)'"),
-        )
-        with self.assertAddsMessages(message):
-            self.checker.visit_compare(node)
-
         node = astroid.extract_node(
             """
                                 import numpy
@@ -205,20 +196,6 @@ class TestComparison(CheckerTestCase):
             "nan-comparison",
             node=node,
             args=("'foo != numpy.NaN'", "'not math.isnan(foo)'"),
-        )
-        with self.assertAddsMessages(message):
-            self.checker.visit_compare(node)
-
-        node = astroid.extract_node(
-            """
-                                import numpy as nmp
-                                foo is not nmp.NaN
-                                """
-        )
-        message = MessageTest(
-            "nan-comparison",
-            node=node,
-            args=("'foo is not nmp.NaN'", "'not math.isnan(foo)'"),
         )
         with self.assertAddsMessages(message):
             self.checker.visit_compare(node)
