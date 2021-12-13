@@ -39,7 +39,8 @@ Release date: TBA
   as its reporter if none is provided.
 
 * Fatal errors now emit a score of 0.0 regardless if the linted module
-  contained any statements.
+  contained any statements, and ``fatal`` was added to the variables permitted
+  in score evaluation expressions.
 
   Closes #5451
 
