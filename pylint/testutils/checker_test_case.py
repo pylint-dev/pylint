@@ -2,6 +2,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import contextlib
+import warnings
 from typing import Dict, Generator, Optional, Type
 
 from pylint.constants import PY38_PLUS
@@ -58,8 +59,22 @@ class CheckerTestCase:
             assert expected_msg.confidence == gotten_msg.confidence, msg
             assert expected_msg.col_offset == gotten_msg.col_offset, msg
             if PY38_PLUS:
-                assert expected_msg.end_line == gotten_msg.end_line, msg
-                assert expected_msg.end_col_offset == gotten_msg.end_col_offset, msg
+                # pylint: disable=fixme
+                # TODO: Require end_line and end_col_offset and remove the warning
+                if not expected_msg.end_line == gotten_msg.end_line:
+                    warnings.warn(
+                        f"The end_line attribute of {gotten_msg} does not match "
+                        f"the expected value in {expected_msg}. In pylint 3.0 correct end_line "
+                        "attributes will be required for MessageTest.",
+                        DeprecationWarning,
+                    )
+                if not expected_msg.end_col_offset == gotten_msg.end_col_offset:
+                    warnings.warn(
+                        f"The end_col_offset attribute of {gotten_msg} does not match "
+                        f"the expected value in {expected_msg}. In pylint 3.0 correct end_col_offset "
+                        "attributes will be required for MessageTest.",
+                        DeprecationWarning,
+                    )
 
     def walk(self, node):
         """recursive walk on the given node"""

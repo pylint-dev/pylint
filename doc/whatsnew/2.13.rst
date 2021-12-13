@@ -61,3 +61,6 @@ Other Changes
 
 * The ``PyLinter`` class will now be initialiazed with a ``TextReporter``
   as its reporter if none is provided.
+
+* The ``testutils`` for unittests now accept ``end_lineno`` and ``end_column``. Tests
+  without these will trigger a ``DeprecationWarning``.
