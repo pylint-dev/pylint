@@ -40,7 +40,14 @@ def check_config_2(machine, old_conf, new_conf):
 def check_config_3(machine, old_conf, new_conf):
     """
     Example code must not trigger the message,
-    because the inner if is not the final node of the body.
+
+    Given an if-elif construct
+    When the body of the if ends with a function call
+    Then no message shall be triggered.
+
+    Note: There is nothing special about the body ending with a function call.
+    This is just taken as a representative value for the equivalence class of
+    "every node class unrelated to if/elif/else".
     """
     if old_conf:
         if not new_conf:

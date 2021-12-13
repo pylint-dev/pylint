@@ -22,30 +22,6 @@ class TestConfusingConsecutiveElifChecker(CheckerTestCase):
 
     CHECKER_CLASS = ConfusingConsecutiveElifChecker
 
-    def test_not_triggered_if_indentend_block_ends_with_call(self) -> None:
-        """
-        Given an if-elif construct
-        When the body of the if ends with a function call
-        Then no message shall be triggered.
-
-        Note: There is nothing special about the body ending with a function call. This is just taken as a
-        representative value for the equivalence class of "every node class unrelated to if/elif/else".
-        """
-        example_code = """
-        def foo(a, b, c):
-            result = None
-            if a > b: #@
-                if a > 0:
-                    result = a
-                print("result is", result)
-            elif a > c:
-                result = c
-            return result
-        """
-        if_node_to_test = astroid.extract_node(example_code)
-        with self.assertNoMessages():
-            self.checker.visit_if(if_node_to_test)
-
     def test_not_triggered_if_indented_block_ends_with_ifexp(self) -> None:
         """
         Given an if-elif construct
