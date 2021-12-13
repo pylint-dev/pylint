@@ -46,25 +46,6 @@ class TestParamDocChecker(CheckerTestCase):
         "docstring_min_length": -1,
     }
 
-    def test_don_t_tolerate_no_param_documentation_at_all(self) -> None:
-        """Example of a function with no parameter documentation at all
-
-        Missing documentation error message is emitted.
-        """
-        node = astroid.extract_node(
-            """
-        def function_foo(x, y):
-            '''docstring ...
-
-            missing parameter documentation'''
-            pass
-        """
-        )
-        with self.assertAddsMessages(
-            MessageTest(msg_id="missing-any-param-doc", node=node, args=(node.name)),
-        ):
-            self.checker.visit_functiondef(node)
-
     def test_see_tolerate_no_param_documentation_at_all(self) -> None:
         """Example for the usage of "For the parameters, see"
         to suppress missing-param warnings.
