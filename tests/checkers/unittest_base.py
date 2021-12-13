@@ -185,36 +185,6 @@ class TestComparison(CheckerTestCase):
     CHECKER_CLASS = base.ComparisonChecker
 
     def test_comparison(self) -> None:
-        node = astroid.extract_node("foo == True")
-        message = MessageTest(
-            "singleton-comparison",
-            node=node,
-            args=(
-                "'foo == True'",
-                "'foo is True' if checking for the singleton value True, or 'bool(foo)' if testing for truthiness",
-            ),
-        )
-        with self.assertAddsMessages(message):
-            self.checker.visit_compare(node)
-
-        node = astroid.extract_node("foo == False")
-        message = MessageTest(
-            "singleton-comparison",
-            node=node,
-            args=(
-                "'foo == False'",
-                "'foo is False' if checking for the singleton value False, or 'not foo' if testing for falsiness",
-            ),
-        )
-        with self.assertAddsMessages(message):
-            self.checker.visit_compare(node)
-
-        node = astroid.extract_node("foo == None")
-        message = MessageTest(
-            "singleton-comparison", node=node, args=("'foo == None'", "'foo is None'")
-        )
-        with self.assertAddsMessages(message):
-            self.checker.visit_compare(node)
 
         node = astroid.extract_node("foo is float('nan')")
         message = MessageTest(
