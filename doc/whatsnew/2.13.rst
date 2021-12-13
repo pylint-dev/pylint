@@ -10,6 +10,9 @@ Summary -- Release highlights
 
 New checkers
 ============
+* ``unnecessary-ellipsis``: Emmitted when the ellipsis constant is used unnecessarily.
+
+  Closes #5460
 
 Removed checkers
 ================

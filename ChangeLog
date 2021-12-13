@@ -53,6 +53,10 @@ Release date: TBA
 
   Closes #5323
 
+* Add checker ``unnecessary-ellipsis``: Emitted when the ellipsis constant is used unnecessarily.
+
+  Closes #5460
+
 * Fixed incorrect classification of Numpy-style docstring as Google-style docstring for
   docstrings with property setter documentation.
   Docstring classification is now based on the highest amount of matched sections instead
