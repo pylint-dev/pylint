@@ -30,6 +30,17 @@ class ClassFoo:
         """
 
 
+class ClassFooTwo:
+    """test_see_sentence_for_constr_params_in_class
+    Example usage of "For the parameters, see" in class docstring
+
+    For the parameters, see :func:`bla`
+    """
+
+    def __init__(self, x, y):
+        """init"""
+
+
 def test_kwonlyargs_are_taken_in_account(  # [missing-param-doc, missing-type-doc]
     arg, *, kwonly, missing_kwonly
 ):
