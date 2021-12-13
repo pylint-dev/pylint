@@ -72,7 +72,7 @@ from functools import singledispatch
 from typing import Any, Callable, Iterator, List, Optional, Pattern, Tuple
 
 import astroid
-from astroid import bases, nodes
+from astroid import bases, exceptions, nodes
 
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import (
@@ -615,7 +615,7 @@ def _has_parent_of_type(node, node_type, statement):
 
 
 def _no_context_variadic_keywords(node, scope):
-    statement = node.statement()
+    statement = node.statement(future=True)
     variadics = ()
 
     if isinstance(scope, nodes.Lambda) and not isinstance(scope, nodes.FunctionDef):
@@ -634,7 +634,7 @@ def _no_context_variadic_positional(node, scope):
     if isinstance(scope, nodes.Lambda) and not isinstance(scope, nodes.FunctionDef):
         variadics = node.starargs + node.kwargs
     else:
-        statement = node.statement()
+        statement = node.statement(future=True)
         if isinstance(
             statement, (nodes.Expr, nodes.Return, nodes.Assign)
         ) and isinstance(statement.value, nodes.Call):
@@ -659,7 +659,7 @@ def _no_context_variadic(node, variadic_name, variadic_type, variadics):
     is_in_lambda_scope = not isinstance(scope, nodes.FunctionDef) and isinstance(
         scope, nodes.Lambda
     )
-    statement = node.statement()
+    statement = node.statement(future=True)
     for name in statement.nodes_of_class(nodes.Name):
         if name.name != variadic_name:
             continue
@@ -677,7 +677,7 @@ def _no_context_variadic(node, variadic_name, variadic_type, variadics):
             # so we need to go the lambda instead
             inferred_statement = inferred.parent.parent
         else:
-            inferred_statement = inferred.statement()
+            inferred_statement = inferred.statement(future=True)
 
         if not length and isinstance(inferred_statement, nodes.Lambda):
             is_in_starred_context = _has_parent_of_type(node, variadic_type, statement)
@@ -1039,11 +1039,11 @@ accessed. Python regular expressions are accepted.",
                 if not [
                     n
                     for n in owner.getattr(node.attrname)
-                    if not isinstance(n.statement(), nodes.AugAssign)
+                    if not isinstance(n.statement(future=True), nodes.AugAssign)
                 ]:
                     missingattr.add((owner, name))
                     continue
-            except AttributeError:
+            except exceptions.StatementMissing:
                 continue
             except astroid.DuplicateBasesError:
                 continue

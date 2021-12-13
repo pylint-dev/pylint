@@ -602,8 +602,10 @@ class FormatChecker(BaseTokenChecker):
             isinstance(node.parent, nodes.TryFinally) and node in node.parent.finalbody
         ):
             prev_line = node.parent.body[0].tolineno + 1
+        elif isinstance(node.parent, nodes.Module):
+            prev_line = None
         else:
-            prev_line = node.parent.statement().fromlineno
+            prev_line = node.parent.statement(future=True).fromlineno
         line = node.fromlineno
         assert line, node
         if prev_line == line and self._visited_lines.get(line) != 2:

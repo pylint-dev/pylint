@@ -1052,7 +1052,9 @@ a metaclass class method.",
             nodes_lst = [
                 n
                 for n in nodes_lst
-                if not isinstance(n.statement(), (nodes.Delete, nodes.AugAssign))
+                if not isinstance(
+                    n.statement(future=True), (nodes.Delete, nodes.AugAssign)
+                )
                 and n.root() is current_module
             ]
             if not nodes_lst:
@@ -1643,7 +1645,7 @@ a metaclass class method.",
                 # class A:
                 #     b = property(lambda: self._b)
 
-                stmt = node.parent.statement()
+                stmt = node.parent.statement(future=True)
                 if (
                     isinstance(stmt, nodes.Assign)
                     and len(stmt.targets) == 1
@@ -1788,7 +1790,7 @@ a metaclass class method.",
                             _node.frame() is frame
                             and _node.fromlineno < lno
                             and not astroid.are_exclusive(
-                                _node.statement(), defstmt, excs
+                                _node.statement(future=True), defstmt, excs
                             )
                         ):
                             self.add_message(

@@ -606,7 +606,7 @@ class BasicErrorChecker(_BasicChecker):
             # PEP 448 unpacking.
             return
 
-        stmt = node.statement()
+        stmt = node.statement(future=True)
         if not isinstance(stmt, nodes.Assign):
             return
 
