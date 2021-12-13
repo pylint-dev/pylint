@@ -19,11 +19,12 @@
 
 """Interfaces for Pylint objects"""
 from collections import namedtuple
-from typing import TYPE_CHECKING, Tuple
+from typing import TYPE_CHECKING, Tuple, Type, Union
 
 from astroid import nodes
 
 if TYPE_CHECKING:
+    from pylint.checkers import BaseChecker
     from pylint.reporters.ureports.nodes import Section
 
 __all__ = (
@@ -59,7 +60,10 @@ class Interface:
         return implements(instance, cls)
 
 
-def implements(obj: "Interface", interface: Tuple[type, type]) -> bool:
+def implements(
+    obj: "BaseChecker",
+    interface: Union[Type["Interface"], Tuple[Type["Interface"], ...]],
+) -> bool:
     """Return whether the given object (maybe an instance or class) implements
     the interface.
     """
