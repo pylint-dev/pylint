@@ -229,19 +229,3 @@ class TestParamDocChecker(CheckerTestCase):
         )
         with self.assertNoMessages():
             self.checker.visit_functiondef(node.body[0])
-
-    @set_config_directly(docstring_min_length=3)
-    def test_skip_docstring_min_length(self) -> None:
-        """Example of a function that is less than 'docstring-min-length' config option
-
-        No error message is emitted.
-        """
-        node = astroid.extract_node(
-            """
-        def function_foo(x, y):
-            '''function is too short and is missing parameter documentation'''
-            pass
-        """
-        )
-        with self.assertNoMessages():
-            self.checker.visit_functiondef(node)
