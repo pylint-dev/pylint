@@ -1326,7 +1326,7 @@ class PyLinter(
         except Exception as ex:  # pylint: disable=broad-except
             msg = f"An exception occurred while rating: {ex}"
         else:
-            if self.stats.by_msg.get('fatal', 0):
+            if self.stats.by_msg.get("fatal", 0):
                 note = 0.0
             self.stats.global_note = note
             msg = f"Your code has been rated at {note:.2f}/10"
