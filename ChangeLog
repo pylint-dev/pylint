@@ -47,7 +47,8 @@ Release date: TBA
 
   Closes #5323
 
-* Add checker ``unnecessary-ellipsis``
+* Add checker ``unnecessary-ellipsis``: Emitted when the ellipsis constant is
+used unnecessarily.
 
   Closes #5460
 
