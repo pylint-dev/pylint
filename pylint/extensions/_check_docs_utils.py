@@ -149,7 +149,7 @@ def possible_exc_types(node: nodes.NodeNG) -> Set[nodes.ClassDef]:
                     if exc is not astroid.Uninferable:
                         excs.append(exc)
             except astroid.InferenceError:
-                return set()
+                pass
     else:
         target = _get_raise_target(node)
         if isinstance(target, nodes.ClassDef):
