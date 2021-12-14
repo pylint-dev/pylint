@@ -145,7 +145,7 @@ def possible_exc_types(node: nodes.NodeNG) -> Set[nodes.ClassDef]:
 
         if handler and handler.type:
             inferred_excs = astroid.unpack_infer(handler.type)
-            excs = (exc for exc in inferred_excs if exc is not astroid.Uninferable)
+            excs = [exc for exc in inferred_excs if exc is not astroid.Uninferable]
     else:
         target = _get_raise_target(node)
         if isinstance(target, nodes.ClassDef):
@@ -164,17 +164,18 @@ def possible_exc_types(node: nodes.NodeNG) -> Set[nodes.ClassDef]:
                 ):
                     excs.append(val)
 
-    try:
-        final_exceptions = set()
-        for exc in excs:
+    final_exceptions = set()
+    for exc in excs:
+        try:
+            # can fail because it is trying to infer the handler of the exception
             if utils.node_ignores_exception(node, exc.name):
                 continue
-            if not isinstance(exc, nodes.ClassDef):
-                exc = exc.getattr("__class__")[0]
-            final_exceptions.add(exc)
-        return final_exceptions
-    except astroid.InferenceError:
-        return set()
+        except astroid.InferenceError:
+            return set()
+        if not isinstance(exc, nodes.ClassDef):
+            exc = exc.getattr("__class__")[0]
+        final_exceptions.add(exc)
+    return final_exceptions
 
 
 def docstringify(docstring, default_type="default"):
