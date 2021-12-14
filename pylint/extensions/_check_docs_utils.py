@@ -161,12 +161,11 @@ def possible_exc_types(node: nodes.NodeNG) -> Set[nodes.ClassDef]:
                     continue
 
                 val = utils.safe_infer(ret.value)
-                if (
-                    val
-                    and isinstance(val, (astroid.Instance, nodes.ClassDef))
-                    and utils.inherit_from_std_ex(val)
-                ):
-                    excs.append(val)
+                if val and utils.inherit_from_std_ex(val):
+                    if isinstance(val, nodes.ClassDef):
+                        excs.append(val)
+                    elif isinstance(val, astroid.Instance):
+                        excs.append(val.getattr("__class__")[0])
 
     final_exceptions = set()
     for exc in excs:
@@ -176,9 +175,6 @@ def possible_exc_types(node: nodes.NodeNG) -> Set[nodes.ClassDef]:
                 continue
         except astroid.InferenceError:
             continue
-        if not isinstance(exc, nodes.ClassDef):
-            # needed for instances of classes
-            exc = exc.getattr("__class__")[0]
         final_exceptions.add(exc)
     return final_exceptions
 
