@@ -5,7 +5,6 @@ import collections
 import contextlib
 import functools
 import operator
-import optparse  # pylint: disable=deprecated-module
 import os
 import sys
 import tokenize
@@ -693,10 +692,9 @@ class PyLinter(
                     meth(value)
                 return  # no need to call set_option, disable/enable methods do it
         elif optname == "output-format":
-            if not isinstance(value, str):
-                raise optparse.OptionValueError(
-                    "'output-format' should be a comma separated string of reporters"
-                )
+            assert isinstance(
+                value, str
+            ), "'output-format' should be a comma separated string of reporters"
             self._load_reporters(value)
         try:
             checkers.BaseTokenChecker.set_option(self, optname, value, action, optdict)
