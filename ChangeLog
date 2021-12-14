@@ -32,6 +32,11 @@ Release date: TBA
 * Some files in ``pylint.testutils`` were deprecated. In the future imports should be done from the
   ``pylint.testutils.functional`` namespace directly.
 
+* ``safe_infer`` no longer makes an inference when given two function
+  definitions with differing numbers of arguments.
+
+  Closes #3675
+
 * Fix ``unnecessary_dict_index_lookup`` false positive when deleting a dictionary's entry.
 
   Closes #4716
