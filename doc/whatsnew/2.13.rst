@@ -59,11 +59,12 @@ Other Changes
 
   Closes #5065
 
-* Fatal errors now emit a score of 0.0 regardless if the linted module
-  contained any statements, and ``fatal`` was added to the variables permitted
-  in score evaluation expressions.
+* Fatal errors now emit a score of 0.0 regardless of whether the linted module
+  contained any statements
 
   Closes #5451
+
+* ``fatal`` was added to the variables permitted in score evaluation expressions.
 
 * The ``PyLinter`` class will now be initialized with a ``TextReporter``
   as its reporter if none is provided.

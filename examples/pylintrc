@@ -90,7 +90,7 @@ enable=c-extension-no-member
 [REPORTS]
 
 # Python expression which should return a score less than or equal to 10. You
-# have access to the variables 'fatal', 'error', 'warning', 'refactor', and 'convention'
+# have access to the variables 'fatal', 'error', 'warning', 'refactor', 'convention' and 'info'
 # which contain the number of messages in each category, as well as 'statement'
 # which is the total number of statements analyzed. This score is used by the
 # global evaluation report (RP0004).
