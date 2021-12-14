@@ -80,3 +80,17 @@ Other Changes
 
 * The ``testutils`` for unittests now accept ``end_lineno`` and ``end_column``. Tests
   without these will trigger a ``DeprecationWarning``.
+
+* ``missing-raises-doc`` will now check the class hierarchy of the raised exceptions
+
+  .. code-block:: python
+
+    def my_function()
+      """My function.
+
+      Raises:
+        Exception: if something fails
+      """
+      raise ValueError
+
+  Closes #4955
