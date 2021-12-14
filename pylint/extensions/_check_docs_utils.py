@@ -167,10 +167,10 @@ def possible_exc_types(node: nodes.NodeNG) -> Set[nodes.ClassDef]:
                     elif isinstance(val, astroid.Instance):
                         excs.append(val.getattr("__class__")[0])
 
-     try:
-         return {exc for exc in excs if not utils.node_ignores_exception(node, exc.name)}
-     except astroid.InferenceError:
-         return set()
+    try:
+        return {exc for exc in excs if not utils.node_ignores_exception(node, exc.name)}
+    except astroid.InferenceError:
+        return set()
 
 
 def docstringify(docstring, default_type="default"):
