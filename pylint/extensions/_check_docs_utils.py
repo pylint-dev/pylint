@@ -144,8 +144,12 @@ def possible_exc_types(node: nodes.NodeNG) -> Set[nodes.ClassDef]:
             handler = handler.parent
 
         if handler and handler.type:
-            inferred_excs = astroid.unpack_infer(handler.type)
-            excs = [exc for exc in inferred_excs if exc is not astroid.Uninferable]
+            try:
+                for exc in astroid.unpack_infer(handler.type):
+                    if exc is not astroid.Uninferable:
+                        excs.append(exc)
+            except astroid.InferenceError:
+                return set()
     else:
         target = _get_raise_target(node)
         if isinstance(target, nodes.ClassDef):
@@ -173,6 +177,7 @@ def possible_exc_types(node: nodes.NodeNG) -> Set[nodes.ClassDef]:
         except astroid.InferenceError:
             continue
         if not isinstance(exc, nodes.ClassDef):
+            # needed for instances of classes
             exc = exc.getattr("__class__")[0]
         final_exceptions.add(exc)
     return final_exceptions

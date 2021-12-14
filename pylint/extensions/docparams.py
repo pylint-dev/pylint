@@ -26,7 +26,6 @@
 
 """Pylint plugin for checking in Sphinx, Google, or Numpy style docstrings
 """
-import itertools
 import re
 from typing import Optional
 
@@ -320,16 +319,13 @@ class DocstringParameterChecker(BaseChecker):
         found_excs_class_names = {exc.split(".")[-1] for exc in found_excs_full_names}
 
         missing_excs = set()
-        for expected, found_exc in itertools.zip_longest(
-            expected_excs, found_excs_class_names
-        ):
-            if not expected:
-                continue
-            if found_exc == expected.name:
-                break
-            if any(found_exc == ancestor.name for ancestor in expected.ancestors()):
-                break
-            if not found_exc:
+        for expected in expected_excs:
+            for found_exc in found_excs_class_names:
+                if found_exc == expected.name:
+                    break
+                if any(found_exc == ancestor.name for ancestor in expected.ancestors()):
+                    break
+            else:
                 missing_excs.add(expected.name)
 
         self._add_raise_message(missing_excs, func_node)
