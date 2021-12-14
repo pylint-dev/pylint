@@ -1,4 +1,4 @@
-"""Tests for missing-raises-doc for class inheritance."""
+"""Tests for missing-raises-doc for exception class inheritance."""
 # pylint: disable=missing-class-docstring
 
 class CustomError(NameError):
