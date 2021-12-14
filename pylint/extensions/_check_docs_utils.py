@@ -171,7 +171,7 @@ def possible_exc_types(node: nodes.NodeNG) -> Set[nodes.ClassDef]:
             if utils.node_ignores_exception(node, exc.name):
                 continue
         except astroid.InferenceError:
-            return set()
+            continue
         if not isinstance(exc, nodes.ClassDef):
             exc = exc.getattr("__class__")[0]
         final_exceptions.add(exc)
