@@ -120,7 +120,7 @@ def _split_multiple_exc_types(target: str) -> List[str]:
     return re.split(delimiters, target)
 
 
-def possible_exc_types(node):
+def possible_exc_types(node: nodes.NodeNG) -> Set[nodes.ClassDef]:
     """
     Gets all of the possible raised exception types for the given raise node.
 
@@ -130,10 +130,8 @@ def possible_exc_types(node):
 
 
     :param node: The raise node to find exception types for.
-    :type node: nodes.NodeNG
 
     :returns: A list of exception types possibly raised by :param:`node`.
-    :rtype: set(node.ClassDef)
     """
     excs = []
     if isinstance(node.exc, nodes.Name):
