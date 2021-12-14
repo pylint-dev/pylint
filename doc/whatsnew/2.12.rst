@@ -205,20 +205,6 @@ Other Changes
 
   Closes #5216
 
-* ``missing-raises-doc`` will now check the class hierarchy of the raised exceptions
-
-  .. code-block:: python
-
-    def my_function()
-      """My function.
-
-      Raises:
-        Exception: if something fails
-      """
-      raise ValueError
-
-  Closes #4955
-
 * Crashes when a list is encountered in a toml configuration do not happen anymore.
 
   Closes #4580

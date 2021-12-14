@@ -35,6 +35,19 @@ Release date: TBA
 * The ``PyLinter`` class will now be initialiazed with a ``TextReporter``
   as its reporter if none is provided.
 
+* ``missing-raises-doc`` will now check the class hierarchy of the raised exceptions
+
+  .. code-block:: python
+
+    def my_function()
+      """My function.
+
+      Raises:
+        Exception: if something fails
+      """
+      raise ValueError
+
+  Closes #4955
 
 What's New in Pylint 2.12.2?
 ============================
