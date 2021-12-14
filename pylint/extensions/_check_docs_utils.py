@@ -173,7 +173,8 @@ def possible_exc_types(node: nodes.NodeNG) -> Set[nodes.ClassDef]:
         return set()
 
 
-def docstringify(docstring, default_type="default"):
+def docstringify(docstring: str, default_type: str = "default") -> "Docstring":
+    best_match = (0, DOCSTRING_TYPES.get(default_type, Docstring)(docstring))
     for docstring_type in (
         SphinxDocstring,
         EpytextDocstring,
@@ -181,11 +182,11 @@ def docstringify(docstring, default_type="default"):
         NumpyDocstring,
     ):
         instance = docstring_type(docstring)
-        if instance.is_valid():
-            return instance
+        matching_sections = instance.matching_sections()
+        if matching_sections > best_match[0]:
+            best_match = (matching_sections, instance)
 
-    docstring_type = DOCSTRING_TYPES.get(default_type, Docstring)
-    return docstring_type(docstring)
+    return best_match[1]
 
 
 class Docstring:
@@ -211,8 +212,9 @@ class Docstring:
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__}:'''{self.doc}'''>"
 
-    def is_valid(self):
-        return False
+    def matching_sections(self) -> int:
+        """Returns the number of matching docstring sections"""
+        return 0
 
     def exceptions(self):
         return set()
@@ -323,13 +325,17 @@ class SphinxDocstring(Docstring):
 
     supports_yields = False
 
-    def is_valid(self):
-        return bool(
-            self.re_param_in_docstring.search(self.doc)
-            or self.re_raise_in_docstring.search(self.doc)
-            or self.re_rtype_in_docstring.search(self.doc)
-            or self.re_returns_in_docstring.search(self.doc)
-            or self.re_property_type_in_docstring.search(self.doc)
+    def matching_sections(self) -> int:
+        """Returns the number of matching docstring sections"""
+        return sum(
+            bool(i)
+            for i in (
+                self.re_param_in_docstring.search(self.doc),
+                self.re_raise_in_docstring.search(self.doc),
+                self.re_rtype_in_docstring.search(self.doc),
+                self.re_returns_in_docstring.search(self.doc),
+                self.re_property_type_in_docstring.search(self.doc),
+            )
         )
 
     def exceptions(self):
@@ -527,13 +533,17 @@ class GoogleDocstring(Docstring):
 
     supports_yields = True
 
-    def is_valid(self):
-        return bool(
-            self.re_param_section.search(self.doc)
-            or self.re_raise_section.search(self.doc)
-            or self.re_returns_section.search(self.doc)
-            or self.re_yields_section.search(self.doc)
-            or self.re_property_returns_line.search(self._first_line())
+    def matching_sections(self) -> int:
+        """Returns the number of matching docstring sections"""
+        return sum(
+            bool(i)
+            for i in (
+                self.re_param_section.search(self.doc),
+                self.re_raise_section.search(self.doc),
+                self.re_returns_section.search(self.doc),
+                self.re_yields_section.search(self.doc),
+                self.re_property_returns_line.search(self._first_line()),
+            )
         )
 
     def has_params(self):

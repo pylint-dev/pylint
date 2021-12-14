@@ -1,6 +1,11 @@
-"""Tests for missing-raises-doc and missing-raises-type-doc for Numpy style docstrings"""
+"""Tests for missing-raises-doc and missing-raises-type-doc for Numpy style docstrings
+
+Styleguide:
+https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard
+"""
 # pylint: disable=function-redefined, invalid-name, undefined-variable, missing-function-docstring
 # pylint: disable=unused-argument, try-except-raise, import-outside-toplevel
+# pylint: disable=too-few-public-methods, disallowed-name, using-constant-test
 
 
 def test_find_missing_numpy_raises(self):  # [missing-raises-doc]
@@ -129,3 +134,82 @@ def test_find_invalid_missing_numpy_attr_raises(self):
     from re import error
 
     raise error("hi")
+
+
+class Foo:
+    """test_finds_missing_raises_from_setter_numpy
+    Example of a setter having missing raises documentation in
+    the Numpy style docstring of the property
+    """
+
+    @property
+    def foo(self):  # [missing-raises-doc]
+        """int: docstring
+
+        Include a "Raises" section so that this is identified
+        as a Numpy docstring and not a Google docstring.
+
+        Raises
+        ------
+        RuntimeError
+            Always
+        """
+        raise RuntimeError()
+        return 10  # [unreachable]
+
+    @foo.setter
+    def foo(self, value):
+        print(self)
+        raise AttributeError()
+
+
+class Foo:
+    """test_finds_missing_raises_from_setter_numpy_2
+    Example of a setter having missing raises documentation in
+    its own Numpy style docstring of the property
+    """
+
+    @property
+    def foo(self):
+        """int: docstring ...
+
+        Raises
+        ------
+        RuntimeError
+            Always
+        """
+        raise RuntimeError()
+        return 10  # [unreachable]
+
+    @foo.setter
+    def foo(self, value):  # [missing-raises-doc]
+        """setter docstring ...
+
+        Raises
+        ------
+        RuntimeError
+            Never
+        """
+        print(self)
+        if True:
+            raise AttributeError()
+        raise RuntimeError()
+
+
+class Foo:
+    """test_finds_property_return_type_numpy
+    Example of a property having return documentation in
+    a numpy style docstring
+    """
+
+    @property
+    def foo(self):
+        """int: docstring ...
+
+        Raises
+        ------
+        RuntimeError
+            Always
+        """
+        raise RuntimeError()
+        return 10  # [unreachable]

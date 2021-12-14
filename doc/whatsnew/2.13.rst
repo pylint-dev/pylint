@@ -10,6 +10,9 @@ Summary -- Release highlights
 
 New checkers
 ============
+* ``unnecessary-ellipsis``: Emmitted when the ellipsis constant is used unnecessarily.
+
+  Closes #5460
 
 Removed checkers
 ================
@@ -19,6 +22,13 @@ Extensions
 
 * Pyreverse - add output in mermaid-js format and html which is an mermaid js diagram with html boilerplate
 
+* ``DocstringParameterChecker``
+
+  * Fixed incorrect classification of Numpy-style docstring as Google-style docstring for
+    docstrings with property setter documentation.
+    Docstring classification is now based on the highest amount of matched sections instead
+    of the order in which the docstring styles were tried.
+
 Other Changes
 =============
 
@@ -26,17 +36,50 @@ Other Changes
 
   Closes #4716
 
+* Fix crash in ``unnecessary-dict-index-lookup`` checker if the output of
+  ``items()`` is assigned to a 1-tuple.
+
+  Closes #5504
+
 * Fix false negative for ``consider-iterating-dictionary`` during membership checks encapsulated in iterables
   or ``not in`` checks
 
   Closes #5323
 
+* ``used-before-assignment`` now considers that assignments in a try block
+  may not have occurred when the except or finally blocks are executed.
+
+  Closes #85, #2615
+
+* ``used-before-assignment`` now assumes that assignments in except blocks
+  may not have occurred and warns accordingly.
+
+  Closes #4761
+
+* When evaluating statements after an except block, ``used-before-assignment``
+  assumes that assignments in the except blocks took place if the
+  corresponding try block contained a return statement.
+
+  Closes #5500
+
+* ``used-before-assignment`` now checks names in try blocks.
+
 * Require Python ``3.6.2`` to run pylint.
 
   Closes #5065
 
-* The ``PyLinter`` class will now be initialiazed with a ``TextReporter``
+* Fatal errors now emit a score of 0.0 regardless of whether the linted module
+  contained any statements
+
+  Closes #5451
+
+* ``fatal`` was added to the variables permitted in score evaluation expressions.
+
+* The ``PyLinter`` class will now be initialized with a ``TextReporter``
   as its reporter if none is provided.
+
+* The ``testutils`` for unittests now accept ``end_lineno`` and ``end_column``. Tests
+  without these will trigger a ``DeprecationWarning``.
 
 * ``missing-raises-doc`` will now check the class hierarchy of the raised exceptions
 

@@ -11,22 +11,81 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.13.rst'
 
+* ``used-before-assignment`` now considers that assignments in a try block
+  may not have occurred when the except or finally blocks are executed.
+
+  Closes #85, #2615
+
+* ``used-before-assignment`` now assumes that assignments in except blocks
+  may not have occurred and warns accordingly.
+
+  Closes #4761
+
+* When evaluating statements after an except block, ``used-before-assignment``
+  assumes that assignments in the except blocks took place if the
+  corresponding try block contained a return statement.
+
+  Closes #5500
+
+* ``used-before-assignment`` now checks names in try blocks.
+
 * Some files in ``pylint.testutils`` were deprecated. In the future imports should be done from the
   ``pylint.testutils.functional`` namespace directly.
+
+* Fixed false positives for ``no-value-for-parameter`` with variadic
+  positional arguments.
+
+  Closes #5416
+
+* ``safe_infer`` no longer makes an inference when given two function
+  definitions with differing numbers of arguments.
+
+  Closes #3675
 
 * Fix ``unnecessary_dict_index_lookup`` false positive when deleting a dictionary's entry.
 
   Closes #4716
+
+* Fix crash in ``unnecessary-dict-index-lookup`` checker if the output of
+  ``items()`` is assigned to a 1-tuple.
+
+  Closes #5504
+
+* The ``PyLinter`` class will now be initialiazed with a ``TextReporter``
+  as its reporter if none is provided.
+
+* Fatal errors now emit a score of 0.0 regardless of whether the linted module
+  contained any statements
+
+  Closes #5451
+
+* ``fatal`` was added to the variables permitted in score evaluation expressions.
+
+* Fix false positive - Allow unpacking of ``self`` in a subclass of ``typing.NamedTuple``.
+
+  Closes #5312
 
 * Fix false negative for ``consider-iterating-dictionary`` during membership checks encapsulated in iterables
   or ``not in`` checks
 
   Closes #5323
 
+* Add checker ``unnecessary-ellipsis``: Emitted when the ellipsis constant is used unnecessarily.
+
+  Closes #5460
+
+* Fixed incorrect classification of Numpy-style docstring as Google-style docstring for
+  docstrings with property setter documentation.
+  Docstring classification is now based on the highest amount of matched sections instead
+  of the order in which the docstring styles were tried.
+
 * Fixed detection of ``arguments-differ`` when superclass static
   methods lacked a ``@staticmethod`` decorator.
 
   Closes #5371
+
+* The ``testutils`` for unittests now accept ``end_lineno`` and ``end_column``. Tests
+  without these will trigger a ``DeprecationWarning``.
 
 ..
   Insert your changelog randomly, it will reduce merge conflicts

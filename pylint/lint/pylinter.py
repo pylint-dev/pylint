@@ -764,7 +764,7 @@ class PyLinter(
                         self.enable(msg.msgid)
                         self.fail_on_symbols.append(msg.symbol)
                     elif msg.msgid[0] in fail_on_cats:
-                        # message starts with a cateogry value, flag (but do not enable) it
+                        # message starts with a category value, flag (but do not enable) it
                         self.fail_on_symbols.append(msg.symbol)
 
     def any_fail_on_issues(self):
@@ -1315,6 +1315,7 @@ class PyLinter(
         evaluation = self.config.evaluation
         try:
             stats_dict = {
+                "fatal": self.stats.fatal,
                 "error": self.stats.error,
                 "warning": self.stats.warning,
                 "refactor": self.stats.refactor,

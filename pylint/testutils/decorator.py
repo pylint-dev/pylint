@@ -3,6 +3,7 @@
 
 import functools
 import optparse  # pylint: disable=deprecated-module
+import warnings
 
 from pylint.lint import PyLinter
 from pylint.testutils.checker_test_case import CheckerTestCase
@@ -63,6 +64,14 @@ def set_config_directly(**kwargs):
     Passing the args and kwargs back to the test function itself
     allows this decorator to be used on parametrized test cases.
     """
+    # pylint: disable=fixme
+    # TODO: Remove this function in 2.14
+    warnings.warn(
+        "The set_config_directly decorator will be removed in 2.14. To decorate "
+        "unittests you can use set_config. If this causes a duplicate KeyError "
+        "you can consider writing the tests using the functional test framework.",
+        DeprecationWarning,
+    )
 
     def _wrapper(fun):
         @functools.wraps(fun)
