@@ -8,7 +8,9 @@ undefined-variable:31:4:31:10:bad_default:Undefined variable 'augvar':UNDEFINED
 undefined-variable:32:8:32:14:bad_default:Undefined variable 'vardel':UNDEFINED
 undefined-variable:34:19:34:31:<lambda>:Undefined variable 'doesnotexist':UNDEFINED
 undefined-variable:35:23:35:24:<lambda>:Undefined variable 'z':UNDEFINED
+used-before-assignment:38:4:38:9::Using variable 'POUET' before assignment:UNDEFINED
 used-before-assignment:43:4:43:10::Using variable 'POUETT' before assignment:UNDEFINED
+used-before-assignment:48:4:48:11::Using variable 'POUETTT' before assignment:UNDEFINED
 used-before-assignment:56:4:56:9::Using variable 'PLOUF' before assignment:UNDEFINED
 used-before-assignment:65:11:65:14:if_branch_test:Using variable 'xxx' before assignment:UNDEFINED
 used-before-assignment:91:23:91:32:test_arguments:Using variable 'TestClass' before assignment:UNDEFINED

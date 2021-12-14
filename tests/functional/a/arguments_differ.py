@@ -141,7 +141,7 @@ class PropertySetter(Property):
 
 class StaticmethodChild2(Staticmethod):
 
-    def func(self, data):
+    def func(self, data):  # [arguments-differ]
         super().func(data)
 
 
@@ -151,14 +151,22 @@ class SuperClass(object):
     def impl(arg1, arg2, **kwargs):
         return arg1 + arg2
 
+    def should_have_been_decorated_as_static(arg1, arg2):  # pylint: disable=no-self-argument
+        return arg1 + arg2
+
 
 class MyClass(SuperClass):
 
-    def impl(self, *args, **kwargs):
+    @staticmethod
+    def impl(*args, **kwargs):
         """
         Acceptable use of vararg in subclass because it does not violate LSP.
         """
         super().impl(*args, **kwargs)
+
+    @staticmethod
+    def should_have_been_decorated_as_static(arg1, arg2):
+        return arg1 + arg2
 
 
 class FirstHasArgs(object):

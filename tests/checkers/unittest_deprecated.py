@@ -71,6 +71,10 @@ class TestDeprecatedChecker(CheckerTestCase):
                 args=("deprecated_func",),
                 node=node,
                 confidence=UNDEFINED,
+                line=5,
+                col_offset=0,
+                end_line=5,
+                end_col_offset=17,
             )
         ):
             self.checker.visit_call(node)
@@ -93,6 +97,10 @@ class TestDeprecatedChecker(CheckerTestCase):
                 args=("deprecated_method",),
                 node=node,
                 confidence=UNDEFINED,
+                line=7,
+                col_offset=0,
+                end_line=7,
+                end_col_offset=21,
             )
         ):
             self.checker.visit_call(node)
@@ -118,6 +126,10 @@ class TestDeprecatedChecker(CheckerTestCase):
                 args=("deprecated_method",),
                 node=node,
                 confidence=UNDEFINED,
+                line=9,
+                col_offset=0,
+                end_line=9,
+                end_col_offset=21,
             )
         ):
             self.checker.visit_call(node)
@@ -157,6 +169,10 @@ class TestDeprecatedChecker(CheckerTestCase):
                 args=("deprecated_arg1", "myfunction1"),
                 node=node,
                 confidence=UNDEFINED,
+                line=5,
+                col_offset=0,
+                end_line=5,
+                end_col_offset=31,
             )
         ):
             self.checker.visit_call(node)
@@ -177,6 +193,10 @@ class TestDeprecatedChecker(CheckerTestCase):
                 args=("deprecated_arg1", "myfunction1"),
                 node=node,
                 confidence=UNDEFINED,
+                line=5,
+                col_offset=0,
+                end_line=5,
+                end_col_offset=47,
             )
         ):
             self.checker.visit_call(node)
@@ -210,6 +230,10 @@ class TestDeprecatedChecker(CheckerTestCase):
                 args=("deprecated_arg1", "myfunction3"),
                 node=node,
                 confidence=UNDEFINED,
+                line=5,
+                col_offset=0,
+                end_line=5,
+                end_col_offset=47,
             )
         ):
             self.checker.visit_call(node)
@@ -231,6 +255,10 @@ class TestDeprecatedChecker(CheckerTestCase):
                 args=("deprecated_arg1", "mymethod1"),
                 node=node,
                 confidence=UNDEFINED,
+                line=6,
+                col_offset=0,
+                end_line=6,
+                end_col_offset=39,
             )
         ):
             self.checker.visit_call(node)
@@ -252,6 +280,10 @@ class TestDeprecatedChecker(CheckerTestCase):
                 args=("deprecated_arg1", "mymethod1"),
                 node=node,
                 confidence=UNDEFINED,
+                line=6,
+                col_offset=0,
+                end_line=6,
+                end_col_offset=55,
             )
         ):
             self.checker.visit_call(node)
@@ -287,6 +319,10 @@ class TestDeprecatedChecker(CheckerTestCase):
                 args=("deprecated_arg1", "mymethod3"),
                 node=node,
                 confidence=UNDEFINED,
+                line=6,
+                col_offset=0,
+                end_line=6,
+                end_col_offset=55,
             )
         ):
             self.checker.visit_call(node)
@@ -308,12 +344,20 @@ class TestDeprecatedChecker(CheckerTestCase):
                 args=("deprecated_arg1", "myfunction2"),
                 node=node,
                 confidence=UNDEFINED,
+                line=5,
+                col_offset=0,
+                end_line=5,
+                end_col_offset=61,
             ),
             MessageTest(
                 msg_id="deprecated-argument",
                 args=("deprecated_arg2", "myfunction2"),
                 node=node,
                 confidence=UNDEFINED,
+                line=5,
+                col_offset=0,
+                end_line=5,
+                end_col_offset=61,
             ),
         ):
             self.checker.visit_call(node)
@@ -334,12 +378,20 @@ class TestDeprecatedChecker(CheckerTestCase):
                 args=("deprecated_arg1", "myfunction2"),
                 node=node,
                 confidence=UNDEFINED,
+                line=5,
+                col_offset=0,
+                end_line=5,
+                end_col_offset=77,
             ),
             MessageTest(
                 msg_id="deprecated-argument",
                 args=("deprecated_arg2", "myfunction2"),
                 node=node,
                 confidence=UNDEFINED,
+                line=5,
+                col_offset=0,
+                end_line=5,
+                end_col_offset=77,
             ),
         ):
             self.checker.visit_call(node)
@@ -362,12 +414,20 @@ class TestDeprecatedChecker(CheckerTestCase):
                 args=("deprecated_arg1", "mymethod2"),
                 node=node,
                 confidence=UNDEFINED,
+                line=6,
+                col_offset=0,
+                end_line=6,
+                end_col_offset=69,
             ),
             MessageTest(
                 msg_id="deprecated-argument",
                 args=("deprecated_arg2", "mymethod2"),
                 node=node,
                 confidence=UNDEFINED,
+                line=6,
+                col_offset=0,
+                end_line=6,
+                end_col_offset=69,
             ),
         ):
             self.checker.visit_call(node)
@@ -389,12 +449,20 @@ class TestDeprecatedChecker(CheckerTestCase):
                 args=("deprecated_arg1", "mymethod2"),
                 node=node,
                 confidence=UNDEFINED,
+                line=6,
+                col_offset=0,
+                end_line=6,
+                end_col_offset=85,
             ),
             MessageTest(
                 msg_id="deprecated-argument",
                 args=("deprecated_arg2", "mymethod2"),
                 node=node,
                 confidence=UNDEFINED,
+                line=6,
+                col_offset=0,
+                end_line=6,
+                end_col_offset=85,
             ),
         ):
             self.checker.visit_call(node)
@@ -416,6 +484,10 @@ class TestDeprecatedChecker(CheckerTestCase):
                 args=("deprecated_arg", "MyClass"),
                 node=node,
                 confidence=UNDEFINED,
+                line=6,
+                col_offset=0,
+                end_line=6,
+                end_col_offset=10,
             )
         ):
             self.checker.visit_call(node)
@@ -433,6 +505,10 @@ class TestDeprecatedChecker(CheckerTestCase):
                 args="deprecated_module",
                 node=node,
                 confidence=UNDEFINED,
+                line=2,
+                col_offset=0,
+                end_line=2,
+                end_col_offset=24,
             )
         ):
             self.checker.visit_import(node)
@@ -450,6 +526,10 @@ class TestDeprecatedChecker(CheckerTestCase):
                 args="deprecated_module",
                 node=node,
                 confidence=UNDEFINED,
+                line=2,
+                col_offset=0,
+                end_line=2,
+                end_col_offset=40,
             )
         ):
             self.checker.visit_importfrom(node)
@@ -467,6 +547,10 @@ class TestDeprecatedChecker(CheckerTestCase):
                 args=("DeprecatedClass", "deprecated"),
                 node=node,
                 confidence=UNDEFINED,
+                line=2,
+                col_offset=0,
+                end_line=2,
+                end_col_offset=38,
             )
         ):
             self.checker.visit_importfrom(node)
@@ -484,6 +568,10 @@ class TestDeprecatedChecker(CheckerTestCase):
                 args=("DeprecatedClass", "deprecated"),
                 node=node,
                 confidence=UNDEFINED,
+                line=2,
+                col_offset=0,
+                end_line=2,
+                end_col_offset=33,
             )
         ):
             self.checker.visit_import(node)
@@ -502,6 +590,10 @@ class TestDeprecatedChecker(CheckerTestCase):
                 args=("DeprecatedClass", "deprecated"),
                 node=node,
                 confidence=UNDEFINED,
+                line=3,
+                col_offset=0,
+                end_line=3,
+                end_col_offset=28,
             )
         ):
             self.checker.visit_call(node)
@@ -526,6 +618,10 @@ class TestDeprecatedChecker(CheckerTestCase):
                 args=".deprecated_decorator",
                 node=node,
                 confidence=UNDEFINED,
+                line=7,
+                col_offset=0,
+                end_line=7,
+                end_col_offset=21,
             )
         ):
             self.checker.visit_decorators(node)
@@ -552,6 +648,10 @@ class TestDeprecatedChecker(CheckerTestCase):
                 args=".deprecated_decorator",
                 node=node,
                 confidence=UNDEFINED,
+                line=9,
+                col_offset=0,
+                end_line=9,
+                end_col_offset=27,
             )
         ):
             self.checker.visit_decorators(node)

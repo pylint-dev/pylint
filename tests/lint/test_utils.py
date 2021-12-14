@@ -15,7 +15,7 @@ def test_prepare_crash_report(tmp_path: PosixPath) -> None:
         template_path = prepare_crash_report(
             ex, str(python_file), str(tmp_path / "pylint-crash-%Y.txt")
         )
-    assert str(tmp_path) in str(template_path)
+    assert str(tmp_path) in str(template_path)  # pylint: disable=used-before-assignment
     with open(template_path, encoding="utf8") as f:
         template_content = f.read()
     assert python_content in template_content

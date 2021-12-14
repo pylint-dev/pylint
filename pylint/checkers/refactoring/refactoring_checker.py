@@ -36,6 +36,7 @@ CALLS_RETURNING_CONTEXT_MANAGERS = frozenset(
         "tempfile.NamedTemporaryFile",
         "tempfile.SpooledTemporaryFile",
         "tempfile.TemporaryDirectory",
+        "tempfile.TemporaryFile",
         "zipfile.ZipFile",
         "zipfile.PyZipFile",
         "zipfile.ZipFile.open",
@@ -1881,6 +1882,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                     if isinstance(value, nodes.Name):
                         if (
                             not isinstance(node.target, nodes.Tuple)
+                            # Ignore 1-tuples: for k, in d.items()
+                            or len(node.target.elts) < 2
                             or value.name != node.target.elts[0].name
                             or iterating_object_name != subscript.value.as_string()
                         ):
