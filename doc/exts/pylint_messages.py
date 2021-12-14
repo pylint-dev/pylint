@@ -5,6 +5,7 @@
 
 import os
 from collections import defaultdict
+from pathlib import Path
 from typing import DefaultDict, Dict, List, NamedTuple, Optional, Tuple
 
 from sphinx.application import Sphinx
@@ -16,11 +17,11 @@ from pylint.lint import PyLinter
 from pylint.message import MessageDefinition
 from pylint.utils import get_rst_title
 
-# PACKAGE/docs/exts/pylint_extensions.py --> PACKAGE/
-PYLINT_BASE_PATH = os.path.dirname(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-)
+PYLINT_BASE_PATH = Path(__file__).resolve().parent.parent.parent
 """Base path to the project folder"""
+
+PYLINT_MESSAGES_PATH = os.path.join(PYLINT_BASE_PATH, "doc", "messages")
+"""Path to the messages documentation folder"""
 
 
 MSG_TYPES_DOC = {k: v if v != "info" else "information" for k, v in MSG_TYPES.items()}
@@ -88,7 +89,7 @@ def _get_all_messages(
 def _write_message_page(messages_dict: MessagesDict) -> None:
     """Create or overwrite the file for each message."""
     for category, messages in messages_dict.items():
-        category_dir = os.path.join(PYLINT_BASE_PATH, "doc", "messages", category)
+        category_dir = os.path.join(PYLINT_MESSAGES_PATH, category)
         if not os.path.exists(category_dir):
             os.makedirs(category_dir)
         for message in messages:
@@ -115,9 +116,7 @@ def _write_messages_list_page(
     messages_dict: MessagesDict, old_messages_dict: OldMessagesDict
 ) -> None:
     """Create or overwrite the page with the list of all messages."""
-    messages_file = os.path.join(
-        PYLINT_BASE_PATH, "doc", "messages", "messages_list.rst"
-    )
+    messages_file = os.path.join(PYLINT_MESSAGES_PATH, "messages_list.rst")
     with open(messages_file, "w", encoding="utf-8") as stream:
         # Write header of file
         stream.write(
@@ -172,7 +171,7 @@ All renamed messages in the {category} category:
 def _write_redirect_pages(old_messages: OldMessagesDict) -> None:
     """Create redirect pages for old-messages."""
     for category, old_names in old_messages.items():
-        category_dir = os.path.join(PYLINT_BASE_PATH, "doc", "messages", category)
+        category_dir = os.path.join(PYLINT_MESSAGES_PATH, category)
         if not os.path.exists(category_dir):
             os.makedirs(category_dir)
         for old_name, new_names in old_names.items():
