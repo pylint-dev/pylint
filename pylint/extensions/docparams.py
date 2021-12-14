@@ -314,6 +314,7 @@ class DocstringParameterChecker(BaseChecker):
             return
 
         found_excs_full_names = doc.exceptions()
+
         # Extract just the class name, e.g. "error" from "re.error"
         found_excs_class_names = {exc.split(".")[-1] for exc in found_excs_full_names}
 
