@@ -321,13 +321,11 @@ class DocstringParameterChecker(BaseChecker):
 
         missing_excs = set()
         for expected, found_exc in itertools.zip_longest(expected_excs, found_excs_class_names):
-            for found_exc in found_excs_class_names:
-                if found_exc == expected.name:
-                    break
-                if any(found_exc == ancestor.name for ancestor in expected.ancestors()):
-                    break
-            else:
-                missing_excs.add(expected.name)
+            if found_exc == expected.name:
+                break
+            if any(found_exc == ancestor.name for ancestor in expected.ancestors()):
+                break
+            missing_excs.add(expected.name)
 
         self._add_raise_message(missing_excs, func_node)
 
