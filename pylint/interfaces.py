@@ -42,7 +42,7 @@ __all__ = (
 
 Confidence = namedtuple("Confidence", ["name", "description"])
 # Warning Certainties
-HIGH = Confidence("HIGH", "No false positive possible.")
+HIGH = Confidence("HIGH", "Warning that is not based on inference result.")
 INFERENCE = Confidence("INFERENCE", "Warning based on inference result.")
 INFERENCE_FAILURE = Confidence(
     "INFERENCE_FAILURE", "Warning based on inference with failures."
