@@ -319,7 +319,7 @@ class DocstringParameterChecker(BaseChecker):
         found_excs_class_names = {exc.split(".")[-1] for exc in found_excs_full_names}
 
         missing_excs = set()
-        for expected in expected_excs:
+        for expected, found_exc in itertools.zip_longest(expected_excs, found_excs_class_names)
             for found_exc in found_excs_class_names:
                 if found_exc == expected.name:
                     break
