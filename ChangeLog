@@ -87,10 +87,6 @@ Release date: TBA
 * The ``testutils`` for unittests now accept ``end_lineno`` and ``end_column``. Tests
   without these will trigger a ``DeprecationWarning``.
 
-..
-  Insert your changelog randomly, it will reduce merge conflicts
-  (Ie. not necessarily at the end)
-
 * ``missing-raises-doc`` will now check the class hierarchy of the raised exceptions
 
   .. code-block:: python
@@ -104,6 +100,10 @@ Release date: TBA
       raise ValueError
 
   Closes #4955
+
+..
+  Insert your changelog randomly, it will reduce merge conflicts
+  (Ie. not necessarily at the end)
 
 What's New in Pylint 2.12.2?
 ============================
