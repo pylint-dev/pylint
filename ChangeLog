@@ -91,9 +91,6 @@ Release date: TBA
   Insert your changelog randomly, it will reduce merge conflicts
   (Ie. not necessarily at the end)
 
-* The ``PyLinter`` class will now be initialiazed with a ``TextReporter``
-  as its reporter if none is provided.
-
 * ``missing-raises-doc`` will now check the class hierarchy of the raised exceptions
 
   .. code-block:: python
