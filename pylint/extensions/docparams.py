@@ -323,14 +323,14 @@ class DocstringParameterChecker(BaseChecker):
         for expected, found_exc in itertools.zip_longest(
             expected_excs, found_excs_class_names
         ):
-            if not expected or not found_exc:
+            if not expected:
                 continue
             if found_exc == expected.name:
                 break
             if any(found_exc == ancestor.name for ancestor in expected.ancestors()):
                 break
-        else:
-            missing_excs.add(expected.name)
+            if not found_exc:
+                missing_excs.add(expected.name)
 
         self._add_raise_message(missing_excs, func_node)
 
