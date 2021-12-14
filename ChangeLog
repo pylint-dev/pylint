@@ -32,6 +32,11 @@ Release date: TBA
 * Some files in ``pylint.testutils`` were deprecated. In the future imports should be done from the
   ``pylint.testutils.functional`` namespace directly.
 
+* Fixed false positives for ``no-value-for-parameter`` with variadic
+  positional arguments.
+
+  Closes #5416
+
 * ``safe_infer`` no longer makes an inference when given two function
   definitions with differing numbers of arguments.
 
