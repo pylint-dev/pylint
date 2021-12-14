@@ -167,7 +167,7 @@ def possible_exc_types(node: nodes.NodeNG) -> Set[nodes.ClassDef]:
     final_exceptions = set()
     for exc in excs:
         try:
-            # can fail because it is trying to infer the handler of the exception
+            # This block can raise InferenceError because it is inferring the handler of the exception
             if utils.node_ignores_exception(node, exc.name):
                 continue
         except astroid.InferenceError:
