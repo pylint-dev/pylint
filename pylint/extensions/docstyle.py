@@ -16,6 +16,7 @@ from astroid import nodes
 
 from pylint import checkers
 from pylint.checkers.utils import check_messages
+from pylint.constants import PY38_PLUS
 from pylint.interfaces import HIGH, IAstroidChecker
 
 
@@ -77,7 +78,7 @@ class DocStringStyleChecker(checkers.BaseChecker):
                 quotes = "'"
             else:
                 quotes = False
-            if quotes:
+            if quotes and PY38_PLUS:
                 self.add_message(
                     "bad-docstring-quotes",
                     node=node,
