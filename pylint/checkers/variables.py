@@ -1805,7 +1805,7 @@ class VariablesChecker(BaseChecker):
         """
         if (
             node.frame().parent == defstmt
-            and node.statement(future=True) not in node.frame().body
+            and node.statement(future=True) == node.frame()
         ):
             # Check if used as type annotation
             # Break but don't emit message if postponed evaluation is enabled
