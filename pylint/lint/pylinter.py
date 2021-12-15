@@ -11,7 +11,7 @@ import tokenize
 import traceback
 import warnings
 from io import TextIOWrapper
-from typing import Any, Dict, Iterable, Iterator, List, Optional, Sequence, Union
+from typing import Any, Dict, Iterable, Iterator, List, Optional, Sequence, Type, Union
 
 import astroid
 from astroid import AstroidError, nodes
@@ -533,8 +533,8 @@ class PyLinter(
             self.set_reporter(reporter)
         else:
             self.set_reporter(TextReporter())
-        self._reporter_names = None
-        self._reporters = {}
+        self._reporters: Dict[str, Type[reporters.BaseReporter]] = {}
+        """Dictionary of possible but non-initialized reporters"""
 
         self.msgs_store = MessageDefinitionStore()
         self._checkers = collections.defaultdict(list)
@@ -619,19 +619,21 @@ class PyLinter(
             except ModuleNotFoundError as e:
                 self.add_message("bad-plugin-value", args=(modname, e), line=0)
 
-    def _load_reporters(self) -> None:
+    def _load_reporters(self, reporter_names: str) -> None:
+        """Load the reporters if they are available on _reporters"""
+        if not self._reporters:
+            return
         sub_reporters = []
         output_files = []
         with contextlib.ExitStack() as stack:
-            for reporter_name in self._reporter_names.split(","):
+            for reporter_name in reporter_names.split(","):
                 reporter_name, *reporter_output = reporter_name.split(":", 1)
 
                 reporter = self._load_reporter_by_name(reporter_name)
                 sub_reporters.append(reporter)
                 if reporter_output:
-                    (reporter_output,) = reporter_output
                     output_file = stack.enter_context(
-                        open(reporter_output, "w", encoding="utf-8")
+                        open(reporter_output[0], "w", encoding="utf-8")
                     )
                     reporter.out = output_file
                     output_files.append(output_file)
@@ -690,18 +692,17 @@ class PyLinter(
                     meth(value)
                 return  # no need to call set_option, disable/enable methods do it
         elif optname == "output-format":
-            self._reporter_names = value
-            # If the reporters are already available, load
-            # the reporter class.
-            if self._reporters:
-                self._load_reporters()
-
+            assert isinstance(
+                value, str
+            ), "'output-format' should be a comma separated string of reporters"
+            self._load_reporters(value)
         try:
             checkers.BaseTokenChecker.set_option(self, optname, value, action, optdict)
         except config.UnsupportedAction:
             print(f"option {optname} can't be read from config file", file=sys.stderr)
 
-    def register_reporter(self, reporter_class):
+    def register_reporter(self, reporter_class: Type[reporters.BaseReporter]) -> None:
+        """Registers a reporter class on the _reporters attribute."""
         self._reporters[reporter_class.name] = reporter_class
 
     def report_order(self):
