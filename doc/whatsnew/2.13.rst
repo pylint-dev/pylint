@@ -51,6 +51,11 @@ Other Changes
 
   Closes #85, #2615
 
+* Fix a false positive for ``assigning-non-slot`` when the slotted class
+  defined ``__setattr__``.
+
+  Closes #3793
+
 * ``used-before-assignment`` now assumes that assignments in except blocks
   may not have occurred and warns accordingly.
 
