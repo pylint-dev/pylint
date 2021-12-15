@@ -1384,7 +1384,7 @@ class VariablesChecker(BaseChecker):
                     self.add_message(
                         "used-before-assignment",
                         args=node.name,
-                        node=node,
+                        node=node
                     )
 
                 elif current_consumer.scope_type == "lambda":
