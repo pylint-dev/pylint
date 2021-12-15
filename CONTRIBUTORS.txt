@@ -585,6 +585,8 @@ contributors:
 
 * Felix von Drigalski (felixvd): contributor
 
+* Jake Lishman (jakelishman): contributor
+
 * Philipp Albrecht (pylbrecht): contributor
 
 * Allan Chandler (allanc65): contributor
