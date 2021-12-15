@@ -98,11 +98,11 @@ files-output=no
 reports=no
 
 # Python expression which should return a note less than 10 (10 is the highest
-# note). You have access to the variables errors warning, statement which
-# respectively contain the number of errors / warnings messages and the total
-# number of statements analyzed. This is used by the global evaluation report
-# (RP0004).
-evaluation=10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)
+# note). You have access to the variables 'fatal', 'error', 'warning', 'refactor', 'convention'
+# and 'info', which contain the number of messages in each category, as
+# well as 'statement', which is the total number of statements analyzed. This
+# score is used by the global evaluation report (RP0004).
+evaluation=0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)
 
 # Template used to display messages. This is a python new-style format string
 # used to format the message information. See doc for all details
@@ -332,7 +332,7 @@ max-locals=25
 max-returns=11
 
 # Maximum number of branch for function / method body
-max-branches=26
+max-branches=27
 
 # Maximum number of statements in function / method body
 max-statements=100

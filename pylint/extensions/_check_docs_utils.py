@@ -120,7 +120,7 @@ def _split_multiple_exc_types(target: str) -> List[str]:
     return re.split(delimiters, target)
 
 
-def possible_exc_types(node):
+def possible_exc_types(node: nodes.NodeNG) -> Set[nodes.ClassDef]:
     """
     Gets all of the possible raised exception types for the given raise node.
 
@@ -130,28 +130,30 @@ def possible_exc_types(node):
 
 
     :param node: The raise node to find exception types for.
-    :type node: nodes.NodeNG
 
     :returns: A list of exception types possibly raised by :param:`node`.
-    :rtype: set(str)
     """
     excs = []
     if isinstance(node.exc, nodes.Name):
         inferred = utils.safe_infer(node.exc)
         if inferred:
-            excs = [inferred.name]
+            excs = [inferred]
     elif node.exc is None:
         handler = node.parent
         while handler and not isinstance(handler, nodes.ExceptHandler):
             handler = handler.parent
 
         if handler and handler.type:
-            inferred_excs = astroid.unpack_infer(handler.type)
-            excs = (exc.name for exc in inferred_excs if exc is not astroid.Uninferable)
+            try:
+                for exc in astroid.unpack_infer(handler.type):
+                    if exc is not astroid.Uninferable:
+                        excs.append(exc)
+            except astroid.InferenceError:
+                pass
     else:
         target = _get_raise_target(node)
         if isinstance(target, nodes.ClassDef):
-            excs = [target.name]
+            excs = [target]
         elif isinstance(target, nodes.FunctionDef):
             for ret in target.nodes_of_class(nodes.Return):
                 if ret.frame() != target:
@@ -159,20 +161,20 @@ def possible_exc_types(node):
                     continue
 
                 val = utils.safe_infer(ret.value)
-                if (
-                    val
-                    and isinstance(val, (astroid.Instance, nodes.ClassDef))
-                    and utils.inherit_from_std_ex(val)
-                ):
-                    excs.append(val.name)
+                if val and utils.inherit_from_std_ex(val):
+                    if isinstance(val, nodes.ClassDef):
+                        excs.append(val)
+                    elif isinstance(val, astroid.Instance):
+                        excs.append(val.getattr("__class__")[0])
 
     try:
-        return {exc for exc in excs if not utils.node_ignores_exception(node, exc)}
+        return {exc for exc in excs if not utils.node_ignores_exception(node, exc.name)}
     except astroid.InferenceError:
         return set()
 
 
-def docstringify(docstring, default_type="default"):
+def docstringify(docstring: str, default_type: str = "default") -> "Docstring":
+    best_match = (0, DOCSTRING_TYPES.get(default_type, Docstring)(docstring))
     for docstring_type in (
         SphinxDocstring,
         EpytextDocstring,
@@ -180,11 +182,11 @@ def docstringify(docstring, default_type="default"):
         NumpyDocstring,
     ):
         instance = docstring_type(docstring)
-        if instance.is_valid():
-            return instance
+        matching_sections = instance.matching_sections()
+        if matching_sections > best_match[0]:
+            best_match = (matching_sections, instance)
 
-    docstring_type = DOCSTRING_TYPES.get(default_type, Docstring)
-    return docstring_type(docstring)
+    return best_match[1]
 
 
 class Docstring:
@@ -210,8 +212,9 @@ class Docstring:
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__}:'''{self.doc}'''>"
 
-    def is_valid(self):
-        return False
+    def matching_sections(self) -> int:
+        """Returns the number of matching docstring sections"""
+        return 0
 
     def exceptions(self):
         return set()
@@ -322,13 +325,17 @@ class SphinxDocstring(Docstring):
 
     supports_yields = False
 
-    def is_valid(self):
-        return bool(
-            self.re_param_in_docstring.search(self.doc)
-            or self.re_raise_in_docstring.search(self.doc)
-            or self.re_rtype_in_docstring.search(self.doc)
-            or self.re_returns_in_docstring.search(self.doc)
-            or self.re_property_type_in_docstring.search(self.doc)
+    def matching_sections(self) -> int:
+        """Returns the number of matching docstring sections"""
+        return sum(
+            bool(i)
+            for i in (
+                self.re_param_in_docstring.search(self.doc),
+                self.re_raise_in_docstring.search(self.doc),
+                self.re_rtype_in_docstring.search(self.doc),
+                self.re_returns_in_docstring.search(self.doc),
+                self.re_property_type_in_docstring.search(self.doc),
+            )
         )
 
     def exceptions(self):
@@ -526,13 +533,17 @@ class GoogleDocstring(Docstring):
 
     supports_yields = True
 
-    def is_valid(self):
-        return bool(
-            self.re_param_section.search(self.doc)
-            or self.re_raise_section.search(self.doc)
-            or self.re_returns_section.search(self.doc)
-            or self.re_yields_section.search(self.doc)
-            or self.re_property_returns_line.search(self._first_line())
+    def matching_sections(self) -> int:
+        """Returns the number of matching docstring sections"""
+        return sum(
+            bool(i)
+            for i in (
+                self.re_param_section.search(self.doc),
+                self.re_raise_section.search(self.doc),
+                self.re_returns_section.search(self.doc),
+                self.re_yields_section.search(self.doc),
+                self.re_property_returns_line.search(self._first_line()),
+            )
         )
 
     def has_params(self):

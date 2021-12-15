@@ -21,7 +21,7 @@ def test_urlopen():
 
 
 def test_temporary_file():
-    _ = tempfile.TemporaryFile("r")  # [consider-using-with]
+    _ = tempfile.TemporaryFile("r")  # ambiguous with NamedTemporaryFile
 
 
 def test_named_temporary_file():

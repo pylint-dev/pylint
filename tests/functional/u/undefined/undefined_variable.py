@@ -35,7 +35,7 @@ LMBD = lambda x, y=doesnotexist: x+y  # [undefined-variable]
 LMBD2 = lambda x, y: x+z  # [undefined-variable]
 
 try:
-    POUET # don't catch me
+    POUET # [used-before-assignment]
 except NameError:
     POUET = 'something'
 
@@ -45,7 +45,7 @@ except Exception: # pylint:disable = broad-except
     POUETT = 'something'
 
 try:
-    POUETTT # don't catch me
+    POUETTT # [used-before-assignment]
 except: # pylint:disable = bare-except
     POUETTT = 'something'
 

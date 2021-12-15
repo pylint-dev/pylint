@@ -307,16 +307,27 @@ class DocstringParameterChecker(BaseChecker):
                 func_node = property_
 
         doc = utils.docstringify(func_node.doc, self.config.default_docstring_type)
-        if not doc.is_valid():
+        if not doc.matching_sections():
             if doc.doc:
-                self._handle_no_raise_doc(expected_excs, func_node)
+                missing = {exc.name for exc in expected_excs}
+                self._handle_no_raise_doc(missing, func_node)
             return
 
         found_excs_full_names = doc.exceptions()
 
         # Extract just the class name, e.g. "error" from "re.error"
         found_excs_class_names = {exc.split(".")[-1] for exc in found_excs_full_names}
-        missing_excs = expected_excs - found_excs_class_names
+
+        missing_excs = set()
+        for expected in expected_excs:
+            for found_exc in found_excs_class_names:
+                if found_exc == expected.name:
+                    break
+                if any(found_exc == ancestor.name for ancestor in expected.ancestors()):
+                    break
+            else:
+                missing_excs.add(expected.name)
+
         self._add_raise_message(missing_excs, func_node)
 
     def visit_return(self, node: nodes.Return) -> None:

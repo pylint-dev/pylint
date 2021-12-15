@@ -1154,6 +1154,14 @@ class TestRunTC:
         # and errors that are generated they don't affect the exit code.
         self._runtest([path, "--fail-under=-10"] + args, code=expected)
 
+    def test_one_module_fatal_error(self):
+        """
+        Fatal errors in one of several modules linted still exits non-zero.
+        """
+        valid_path = join(HERE, "conftest.py")
+        invalid_path = join(HERE, "garbagePath.py")
+        self._runtest([valid_path, invalid_path], code=1)
+
     @pytest.mark.parametrize(
         "args, expected",
         [
