@@ -16,6 +16,11 @@ Release date: TBA
 
   Closes #85, #2615
 
+* Fixed a false positive for ``assigning-non-slot`` when the slotted class
+  defined ``__setattr__``.
+
+  Closes #3793
+
 * ``used-before-assignment`` now assumes that assignments in except blocks
   may not have occurred and warns accordingly.
 
@@ -32,6 +37,16 @@ Release date: TBA
 * Some files in ``pylint.testutils`` were deprecated. In the future imports should be done from the
   ``pylint.testutils.functional`` namespace directly.
 
+* Fixed false positives for ``no-value-for-parameter`` with variadic
+  positional arguments.
+
+  Closes #5416
+
+* ``safe_infer`` no longer makes an inference when given two function
+  definitions with differing numbers of arguments.
+
+  Closes #3675
+
 * Fix ``unnecessary_dict_index_lookup`` false positive when deleting a dictionary's entry.
 
   Closes #4716
@@ -44,6 +59,13 @@ Release date: TBA
 * The ``PyLinter`` class will now be initialiazed with a ``TextReporter``
   as its reporter if none is provided.
 
+* Fatal errors now emit a score of 0.0 regardless of whether the linted module
+  contained any statements
+
+  Closes #5451
+
+* ``fatal`` was added to the variables permitted in score evaluation expressions.
+
 * Fix false positive - Allow unpacking of ``self`` in a subclass of ``typing.NamedTuple``.
 
   Closes #5312
@@ -52,6 +74,10 @@ Release date: TBA
   or ``not in`` checks
 
   Closes #5323
+
+* Add checker ``unnecessary-ellipsis``: Emitted when the ellipsis constant is used unnecessarily.
+
+  Closes #5460
 
 * Fixed incorrect classification of Numpy-style docstring as Google-style docstring for
   docstrings with property setter documentation.
@@ -62,6 +88,23 @@ Release date: TBA
   methods lacked a ``@staticmethod`` decorator.
 
   Closes #5371
+
+* The ``testutils`` for unittests now accept ``end_lineno`` and ``end_column``. Tests
+  without these will trigger a ``DeprecationWarning``.
+
+* ``missing-raises-doc`` will now check the class hierarchy of the raised exceptions
+
+  .. code-block:: python
+
+    def my_function()
+      """My function.
+
+      Raises:
+        Exception: if something fails
+      """
+      raise ValueError
+
+  Closes #4955
 
 ..
   Insert your changelog randomly, it will reduce merge conflicts

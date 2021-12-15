@@ -3,7 +3,6 @@
 
 class Class:
     attr: int
-    ...
 
 
 # `bar` definitely does not exist here, but in a complex scenario,
