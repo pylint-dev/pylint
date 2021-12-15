@@ -97,3 +97,14 @@ print(assign_assign_4)
 COMPREHENSION_FIVE = {i: (else_assign_2 := i) if False else 0 for i in range(10)}
 
 print(else_assign_2)  # [undefined-variable]
+
+
+# Tests for assignment expressions in lambda statements
+
+things = []
+sorted_things = sorted(
+    things,
+    key=lambda thing: x_0
+    if (x_0 := thing.this_value) < (x_1 := thing.that_value)
+    else x_1,
+)

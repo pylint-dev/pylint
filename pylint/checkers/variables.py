@@ -1389,9 +1389,6 @@ class VariablesChecker(BaseChecker):
                             "undefined-variable", args=node.name, node=node
                         )
                         return (VariableVisitConsumerAction.CONSUME, found_nodes)
-                elif current_consumer.scope_type == "lambda":
-                    self.add_message("undefined-variable", args=node.name, node=node)
-                    return (VariableVisitConsumerAction.CONSUME, found_nodes)
 
         elif self._is_only_type_assignment(node, defstmt):
             self.add_message("undefined-variable", args=node.name, node=node)
