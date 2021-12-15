@@ -1382,9 +1382,7 @@ class VariablesChecker(BaseChecker):
                     and stmt.fromlineno <= defstmt.fromlineno
                 ):
                     self.add_message(
-                        "used-before-assignment",
-                        args=node.name,
-                        node=node
+                        "used-before-assignment", args=node.name, node=node
                     )
 
                 elif current_consumer.scope_type == "lambda":
