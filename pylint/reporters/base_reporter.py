@@ -23,6 +23,9 @@ class BaseReporter:
 
     extension = ""
 
+    name = "base"
+    """Name of the reporter"""
+
     def __init__(self, output: Optional[TextIO] = None) -> None:
         self.linter: "PyLinter"
         self.section = 0

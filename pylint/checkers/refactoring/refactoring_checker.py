@@ -36,6 +36,7 @@ CALLS_RETURNING_CONTEXT_MANAGERS = frozenset(
         "tempfile.NamedTemporaryFile",
         "tempfile.SpooledTemporaryFile",
         "tempfile.TemporaryDirectory",
+        "tempfile.TemporaryFile",
         "zipfile.ZipFile",
         "zipfile.PyZipFile",
         "zipfile.ZipFile.open",
@@ -1873,11 +1874,16 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                         # Ignore this subscript if it is the target of an assignment
                         # Early termination; after reassignment dict index lookup will be necessary
                         return
+                    if isinstance(subscript.parent, nodes.Delete):
+                        # Ignore this subscript if it's used with the delete keyword
+                        return
 
                     # Case where .items is assigned to k,v (i.e., for k, v in d.items())
                     if isinstance(value, nodes.Name):
                         if (
                             not isinstance(node.target, nodes.Tuple)
+                            # Ignore 1-tuples: for k, in d.items()
+                            or len(node.target.elts) < 2
                             or value.name != node.target.elts[0].name
                             or iterating_object_name != subscript.value.as_string()
                         ):

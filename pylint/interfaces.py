@@ -19,16 +19,30 @@
 
 """Interfaces for Pylint objects"""
 from collections import namedtuple
-from typing import TYPE_CHECKING, Tuple
+from typing import TYPE_CHECKING, Tuple, Type, Union
 
 from astroid import nodes
 
 if TYPE_CHECKING:
+    from pylint.checkers import BaseChecker
     from pylint.reporters.ureports.nodes import Section
+
+__all__ = (
+    "IRawChecker",
+    "IAstroidChecker",
+    "ITokenChecker",
+    "IReporter",
+    "IChecker",
+    "HIGH",
+    "INFERENCE",
+    "INFERENCE_FAILURE",
+    "UNDEFINED",
+    "CONFIDENCE_LEVELS",
+)
 
 Confidence = namedtuple("Confidence", ["name", "description"])
 # Warning Certainties
-HIGH = Confidence("HIGH", "No false positive possible.")
+HIGH = Confidence("HIGH", "Warning that is not based on inference result.")
 INFERENCE = Confidence("INFERENCE", "Warning based on inference result.")
 INFERENCE_FAILURE = Confidence(
     "INFERENCE_FAILURE", "Warning based on inference with failures."
@@ -46,7 +60,10 @@ class Interface:
         return implements(instance, cls)
 
 
-def implements(obj: "Interface", interface: Tuple[type, type]) -> bool:
+def implements(
+    obj: "BaseChecker",
+    interface: Union[Type["Interface"], Tuple[Type["Interface"], ...]],
+) -> bool:
     """Return whether the given object (maybe an instance or class) implements
     the interface.
     """
@@ -62,10 +79,10 @@ class IChecker(Interface):
     """
 
     def open(self):
-        """called before visiting project (i.e set of modules)"""
+        """called before visiting project (i.e. set of modules)"""
 
     def close(self):
-        """called after visiting project (i.e set of modules)"""
+        """called after visiting project (i.e. set of modules)"""
 
 
 class IRawChecker(IChecker):
@@ -74,7 +91,7 @@ class IRawChecker(IChecker):
     def process_module(self, node: nodes.Module) -> None:
         """process a module
 
-        the module's content is accessible via astroid.stream
+        the module's content is accessible via ``astroid.stream``
         """
 
 
@@ -102,6 +119,3 @@ class IReporter(Interface):
 
     def display_reports(self, layout: "Section") -> None:
         """display results encapsulated in the layout tree"""
-
-
-__all__ = ("IRawChecker", "IAstroidChecker", "ITokenChecker", "IReporter", "IChecker")

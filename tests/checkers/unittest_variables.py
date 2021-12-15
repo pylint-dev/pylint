@@ -90,7 +90,14 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
         )
         with self.assertAddsMessages(
             MessageTest(
-                "unused-argument", node=node["abc"], args="abc", confidence=HIGH
+                "unused-argument",
+                node=node["abc"],
+                args="abc",
+                confidence=HIGH,
+                line=2,
+                col_offset=16,
+                end_line=2,
+                end_col_offset=19,
             )
         ):
             self.checker.visit_functiondef(node)
@@ -104,7 +111,14 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
         )
         with self.assertAddsMessages(
             MessageTest(
-                "unused-argument", node=node["abc"], args="abc", confidence=HIGH
+                "unused-argument",
+                node=node["abc"],
+                args="abc",
+                confidence=HIGH,
+                line=2,
+                col_offset=12,
+                end_line=2,
+                end_col_offset=15,
             )
         ):
             self.checker.visit_functiondef(node)
@@ -118,7 +132,15 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            MessageTest("redefined-builtin", node=node.body[0], args="open")
+            MessageTest(
+                "redefined-builtin",
+                node=node.body[0],
+                args="open",
+                line=2,
+                col_offset=0,
+                end_line=2,
+                end_col_offset=32,
+            )
         ):
             self.checker.visit_module(node)
 
