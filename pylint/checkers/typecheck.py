@@ -1294,16 +1294,23 @@ accessed. Python regular expressions are accepted.",
         # Ignore instances of descriptors since astroid cannot properly handle them
         # yet
         if called and not called.callable():
-            if isinstance(called, astroid.Instance) and (
-                not has_known_bases(called)
-                or (
-                    called.parent is not None
-                    and isinstance(called.scope(), nodes.ClassDef)
-                    and "__get__" in called.locals
-                )
-            ):
+            if isinstance(called, astroid.Instance):
                 # Don't emit if we can't make sure this object is callable.
-                pass
+                if not has_known_bases(called):
+                    pass
+                elif (
+                    called.parent
+                    and isinstance(called.scope(), nodes.ClassDef)
+                    and (
+                        "__get__" in called.locals
+                        or called.qname() == "typing.NamedTuple"
+                    )
+                ):
+                    pass
+                else:
+                    self.add_message(
+                        "not-callable", node=node, args=node.func.as_string()
+                    )
             else:
                 self.add_message("not-callable", node=node, args=node.func.as_string())
         else:

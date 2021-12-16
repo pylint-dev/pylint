@@ -59,6 +59,10 @@ Release date: TBA
 * The ``PyLinter`` class will now be initialiazed with a ``TextReporter``
   as its reporter if none is provided.
 
+* Fix false positive ``not-callable`` with attributes that alias ``NamedTuple``
+
+  Partially closes #1730
+
 * Fatal errors now emit a score of 0.0 regardless of whether the linted module
   contained any statements
 
