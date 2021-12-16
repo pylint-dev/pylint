@@ -20,7 +20,7 @@ from pylint.utils import get_rst_title
 PYLINT_BASE_PATH = Path(__file__).resolve().parent.parent.parent
 """Base path to the project folder"""
 
-PYLINT_MESSAGES_PATH = os.path.join(PYLINT_BASE_PATH, "doc", "messages")
+PYLINT_MESSAGES_PATH = PYLINT_BASE_PATH / "doc" / "messages"
 """Path to the messages documentation folder"""
 
 
@@ -89,9 +89,9 @@ def _get_all_messages(
 def _write_message_page(messages_dict: MessagesDict) -> None:
     """Create or overwrite the file for each message."""
     for category, messages in messages_dict.items():
-        category_dir = os.path.join(PYLINT_MESSAGES_PATH, category)
-        if not os.path.exists(category_dir):
-            os.makedirs(category_dir)
+        category_dir = PYLINT_MESSAGES_PATH / category
+        if not category_dir.exists():
+            category_dir.mkdir(parents=True, exist_ok=True)
         for message in messages:
             messages_file = os.path.join(category_dir, f"{message.name}.rst")
             with open(messages_file, "w", encoding="utf-8") as stream:
@@ -171,7 +171,7 @@ All renamed messages in the {category} category:
 def _write_redirect_pages(old_messages: OldMessagesDict) -> None:
     """Create redirect pages for old-messages."""
     for category, old_names in old_messages.items():
-        category_dir = os.path.join(PYLINT_MESSAGES_PATH, category)
+        category_dir = PYLINT_MESSAGES_PATH / category
         if not os.path.exists(category_dir):
             os.makedirs(category_dir)
         for old_name, new_names in old_names.items():
