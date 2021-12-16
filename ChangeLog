@@ -37,7 +37,7 @@ Release date: TBA
 * Fixed false positive with ``used-before-assignment`` for assignment expressions
   in lambda statements.
 
-  Closes #5360
+  Closes #5360, #3877
 
 * Some files in ``pylint.testutils`` were deprecated. In the future imports should be done from the
   ``pylint.testutils.functional`` namespace directly.

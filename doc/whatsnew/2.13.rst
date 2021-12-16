@@ -72,7 +72,7 @@ Other Changes
 * Fixed false positive with ``used-before-assignment`` for assignment expressions
   in lambda statements.
 
-  Closes #5360
+  Closes #5360, #3877
 
 * Require Python ``3.6.2`` to run pylint.
 
