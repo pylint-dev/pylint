@@ -72,6 +72,7 @@ from functools import singledispatch
 from typing import Any, Callable, Iterator, List, Optional, Pattern, Tuple
 
 import astroid
+import astroid.exceptions
 from astroid import bases, nodes
 
 from pylint.checkers import BaseChecker, utils
@@ -615,7 +616,7 @@ def _has_parent_of_type(node, node_type, statement):
 
 
 def _no_context_variadic_keywords(node, scope):
-    statement = node.statement()
+    statement = node.statement(future=True)
     variadics = ()
 
     if isinstance(scope, nodes.Lambda) and not isinstance(scope, nodes.FunctionDef):
@@ -649,7 +650,7 @@ def _no_context_variadic(node, variadic_name, variadic_type, variadics):
     is_in_lambda_scope = not isinstance(scope, nodes.FunctionDef) and isinstance(
         scope, nodes.Lambda
     )
-    statement = node.statement()
+    statement = node.statement(future=True)
     for name in statement.nodes_of_class(nodes.Name):
         if name.name != variadic_name:
             continue
@@ -667,7 +668,7 @@ def _no_context_variadic(node, variadic_name, variadic_type, variadics):
             # so we need to go the lambda instead
             inferred_statement = inferred.parent.parent
         else:
-            inferred_statement = inferred.statement()
+            inferred_statement = inferred.statement(future=True)
 
         if not length and isinstance(inferred_statement, nodes.Lambda):
             is_in_starred_context = _has_parent_of_type(node, variadic_type, statement)
@@ -1029,10 +1030,12 @@ accessed. Python regular expressions are accepted.",
                 if not [
                     n
                     for n in owner.getattr(node.attrname)
-                    if not isinstance(n.statement(), nodes.AugAssign)
+                    if not isinstance(n.statement(future=True), nodes.AugAssign)
                 ]:
                     missingattr.add((owner, name))
                     continue
+            except astroid.exceptions.StatementMissing:
+                continue
             except AttributeError:
                 continue
             except astroid.DuplicateBasesError:

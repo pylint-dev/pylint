@@ -1110,7 +1110,7 @@ class VariablesChecker(BaseChecker):
         It's important that all 'Name' nodes are visited, otherwise the
         'NamesConsumers' won't be correct.
         """
-        stmt = node.statement()
+        stmt = node.statement(future=True)
         if stmt.fromlineno is None:
             # name node from an astroid built from live code, skip
             assert not stmt.root().file.endswith(".py")
@@ -1261,7 +1261,7 @@ class VariablesChecker(BaseChecker):
             return (VariableVisitConsumerAction.CONSUME, found_nodes)
 
         defnode = utils.assign_parent(found_nodes[0])
-        defstmt = defnode.statement()
+        defstmt = defnode.statement(future=True)
         defframe = defstmt.frame()
 
         # The class reuses itself in the class scope.
@@ -1515,7 +1515,10 @@ class VariablesChecker(BaseChecker):
     @staticmethod
     def _defined_in_function_definition(node, frame):
         in_annotation_or_default_or_decorator = False
-        if isinstance(frame, nodes.FunctionDef) and node.statement() is frame:
+        if (
+            isinstance(frame, nodes.FunctionDef)
+            and node.statement(future=True) is frame
+        ):
             in_annotation_or_default_or_decorator = (
                 (
                     node in frame.args.annotations
@@ -1563,8 +1566,8 @@ class VariablesChecker(BaseChecker):
     def _is_variable_violation(
         node: nodes.Name,
         defnode,
-        stmt,
-        defstmt,
+        stmt: nodes.Statement,
+        defstmt: nodes.Statement,
         frame,  # scope of statement of node
         defframe,
         base_scope_type,
@@ -1753,12 +1756,8 @@ class VariablesChecker(BaseChecker):
 
         return maybe_before_assign, annotation_return, use_outer_definition
 
-    # pylint: disable-next=fixme
-    # TODO: The typing of `NodeNG.statement()` in astroid is non-specific
-    # After this has been updated the typing of `defstmt` should reflect this
-    # See: https://github.com/PyCQA/astroid/pull/1217
     @staticmethod
-    def _is_only_type_assignment(node: nodes.Name, defstmt: nodes.NodeNG) -> bool:
+    def _is_only_type_assignment(node: nodes.Name, defstmt: nodes.Statement) -> bool:
         """Check if variable only gets assigned a type and never a value"""
         if not isinstance(defstmt, nodes.AnnAssign) or defstmt.value:
             return False
@@ -1866,7 +1865,7 @@ class VariablesChecker(BaseChecker):
         #        ...
 
         name = node.name
-        frame = node.statement().scope()
+        frame = node.statement(future=True).scope()
         in_annotation_or_default_or_decorator = self._defined_in_function_definition(
             node, frame
         )
@@ -1890,29 +1889,36 @@ class VariablesChecker(BaseChecker):
         # the variable is not defined.
         scope = node.scope()
         if isinstance(scope, nodes.FunctionDef) and any(
-            asmt.statement().parent_of(scope) for asmt in astmts
+            asmt.scope().parent_of(scope) for asmt in astmts
         ):
             return
-
-        # filter variables according their respective scope test is_statement
-        # and parent to avoid #74747. This is not a total fix, which would
+        # Filter variables according to their respective scope. Test parent
+        # and statement to avoid #74747. This is not a total fix, which would
         # introduce a mechanism similar to special attribute lookup in
         # modules. Also, in order to get correct inference in this case, the
         # scope lookup rules would need to be changed to return the initial
         # assignment (which does not exist in code per se) as well as any later
         # modifications.
+        # pylint: disable-next=too-many-boolean-expressions
         if (
             not astmts
-            or (astmts[0].is_statement or astmts[0].parent)
-            and astmts[0].statement().parent_of(node)
+            or (
+                astmts[0].parent == astmts[0].root()
+                and astmts[0].parent.parent_of(node)
+            )
+            or (
+                astmts[0].is_statement
+                or not isinstance(astmts[0].parent, nodes.Module)
+                and astmts[0].statement(future=True).parent_of(node)
+            )
         ):
             _astmts = []
         else:
             _astmts = astmts[:1]
         for i, stmt in enumerate(astmts[1:]):
-            if astmts[i].statement().parent_of(stmt) and not in_for_else_branch(
-                astmts[i].statement(), stmt
-            ):
+            if astmts[i].statement(future=True).parent_of(
+                stmt
+            ) and not in_for_else_branch(astmts[i].statement(future=True), stmt):
                 continue
             _astmts.append(stmt)
         astmts = _astmts
@@ -1922,7 +1928,7 @@ class VariablesChecker(BaseChecker):
         assign = astmts[0].assign_type()
         if not (
             isinstance(assign, (nodes.For, nodes.Comprehension, nodes.GeneratorExp))
-            and assign.statement() is not node.statement()
+            and assign.statement(future=True) is not node.statement(future=True)
         ):
             return
 
@@ -2136,7 +2142,8 @@ class VariablesChecker(BaseChecker):
                     maybe_for
                     and maybe_for.parent_of(node_scope)
                     and not utils.is_being_called(node_scope)
-                    and not isinstance(node_scope.statement(), nodes.Return)
+                    and node_scope.parent
+                    and not isinstance(node_scope.statement(future=True), nodes.Return)
                 ):
                     self.add_message("cell-var-from-loop", node=node, args=node.name)
 

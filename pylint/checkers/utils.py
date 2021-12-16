@@ -401,7 +401,7 @@ def is_defined_before(var_node: nodes.Name) -> bool:
         if is_defined_in_scope(var_node, varname, parent):
             return True
     # possibly multiple statements on the same line using semi colon separator
-    stmt = var_node.statement()
+    stmt = var_node.statement(future=True)
     _node = stmt.previous_sibling()
     lineno = stmt.fromlineno
     while _node and _node.fromlineno == lineno:
