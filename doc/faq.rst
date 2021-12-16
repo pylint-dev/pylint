@@ -252,7 +252,7 @@ default value by changing the mixin-class-rgx option.
 Even though the final rating Pylint renders is nominally out of ten, there's no
 lower bound on it. By default, the formula to calculate score is ::
 
-    10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)
+    0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)
 
 However, this option can be changed in the Pylint rc file. If having negative
 values really bugs you, you can set the formula to be the maximum of 0 and the

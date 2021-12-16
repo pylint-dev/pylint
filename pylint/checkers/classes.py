@@ -1489,6 +1489,14 @@ a metaclass class method.",
             return
         if "__slots__" not in klass.locals or not klass.newstyle:
             return
+        # If `__setattr__` is defined on the class, then we can't reason about
+        # what will happen when assigning to an attribute.
+        if any(
+            base.locals.get("__setattr__")
+            for base in klass.mro()
+            if base.qname() != "builtins.object"
+        ):
+            return
 
         # If 'typing.Generic' is a base of bases of klass, the cached version
         # of 'slots()' might have been evaluated incorrectly, thus deleted cache entry.

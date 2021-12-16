@@ -63,6 +63,10 @@ class TestTypeChecker(CheckerTestCase):
             node=node,
             args=("Module", "coverage.tracer", "CTracer", ""),
             confidence=INFERENCE,
+            line=3,
+            col_offset=0,
+            end_line=3,
+            end_col_offset=14,
         )
         with self.assertAddsMessages(message):
             self.checker.visit_attribute(node)
@@ -81,6 +85,10 @@ class TestTypeChecker(CheckerTestCase):
             node=node,
             args=("Module", "coverage.tracer", "CTracer", ""),
             confidence=INFERENCE,
+            line=3,
+            col_offset=0,
+            end_line=3,
+            end_col_offset=14,
         )
         with self.assertAddsMessages(message):
             self.checker.visit_attribute(node)
@@ -128,6 +136,10 @@ class TestTypeCheckerOnDecorators(CheckerTestCase):
                 node=subscript.value,
                 args="collections",
                 confidence=UNDEFINED,
+                line=3,
+                col_offset=7,
+                end_line=3,
+                end_col_offset=18,
             )
         ):
             self.checker.visit_subscript(subscript)
@@ -179,6 +191,10 @@ class TestTypeCheckerOnDecorators(CheckerTestCase):
                 node=subscript.value,
                 args="decorated",
                 confidence=UNDEFINED,
+                line=18,
+                col_offset=7,
+                end_line=18,
+                end_col_offset=16,
             )
         ):
             self.checker.visit_subscript(subscript)
@@ -219,6 +235,10 @@ class TestTypeCheckerOnDecorators(CheckerTestCase):
                 node=subscript.value,
                 args="decorated",
                 confidence=UNDEFINED,
+                line=17,
+                col_offset=7,
+                end_line=17,
+                end_col_offset=16,
             )
         ):
             self.checker.visit_subscript(subscript)

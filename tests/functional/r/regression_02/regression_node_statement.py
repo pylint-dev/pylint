@@ -1,6 +1,6 @@
 """Test to see we don't crash on this code in pandas.
 See: https://github.com/pandas-dev/pandas/blob/master/pandas/core/arrays/sparse/array.py
-Code written van G van Rossum here: https://github.com/python/typing/issues/684"""
+Code written by Guido van Rossum here: https://github.com/python/typing/issues/684"""
 # pylint: disable=no-member, redefined-builtin, invalid-name, missing-class-docstring
 
 from typing import TYPE_CHECKING
