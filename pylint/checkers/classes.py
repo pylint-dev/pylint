@@ -250,9 +250,8 @@ def _has_different_parameters(
             except astroid.NoDefault:
                 return ["Number of parameters "]
 
-        params = (original_param, overridden_param)
         # check for the arguments' name
-        names = [param.name for param in params]
+        names = [param.name for param in (original_param, overridden_param)]
         if any(dummy_parameter_regex.match(name) for name in names):
             continue
         if original_param.name != overridden_param.name:
