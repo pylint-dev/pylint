@@ -49,8 +49,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""classes checker for Python code
-"""
+"""Classes checker for Python code"""
 import collections
 from itertools import chain, zip_longest
 from typing import List, Pattern
