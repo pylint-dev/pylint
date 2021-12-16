@@ -16,6 +16,10 @@ Release date: TBA
 
   Closes #85, #2615
 
+* Fixed extremely long processing of long lines with comma's.
+
+  Closes #5483
+
 * Fixed a false positive for ``assigning-non-slot`` when the slotted class
   defined ``__setattr__``.
 
