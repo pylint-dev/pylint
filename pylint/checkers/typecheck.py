@@ -72,7 +72,8 @@ from functools import singledispatch
 from typing import Any, Callable, Iterator, List, Optional, Pattern, Tuple
 
 import astroid
-from astroid import bases, exceptions, nodes
+import astroid.exceptions
+from astroid import bases, nodes
 
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import (
@@ -1043,7 +1044,7 @@ accessed. Python regular expressions are accepted.",
                 ]:
                     missingattr.add((owner, name))
                     continue
-            except exceptions.StatementMissing:
+            except astroid.exceptions.StatementMissing:
                 continue
             except AttributeError:
                 continue
