@@ -240,10 +240,17 @@ def _has_different_parameters(
     result = []
     zipped = zip_longest(original, overridden)
     for original_param, overridden_param in zipped:
-        params = (original_param, overridden_param)
-        if not all(params):
+        if not overridden_param:
             return ["Number of parameters "]
 
+        if not original_param:
+            try:
+                overridden_param.parent.default_value(overridden_param.name)
+                continue
+            except astroid.NoDefault:
+                return ["Number of parameters "]
+
+        params = (original_param, overridden_param)
         # check for the arguments' name
         names = [param.name for param in params]
         if any(dummy_parameter_regex.match(name) for name in names):
@@ -550,7 +557,8 @@ MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
         "%s %s %r method",
         "arguments-differ",
         "Used when a method has a different number of arguments than in "
-        "the implemented interface or in an overridden method.",
+        "the implemented interface or in an overridden method. Extra arguments "
+        "with default values are ignored.",
     ),
     "W0222": (
         "Signature differs from %s %r method",

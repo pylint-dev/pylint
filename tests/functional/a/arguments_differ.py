@@ -326,3 +326,23 @@ class Foo2(AbstractFoo):
 
     def kwonly_6(self, first, *args, **kwargs):  # valid override
         "One positional with the rest variadics to pass through parent params"
+
+
+# Adding arguments with default values to a child class is valid
+# See:
+# https://github.com/PyCQA/pylint/issues/1556
+# https://github.com/PyCQA/pylint/issues/5338
+
+class BaseClass:
+    def method(self, arg: str):
+        print(self, arg)
+
+
+class DerivedClassWithAnnotation(BaseClass):
+    def method(self, arg: str, param1: int = 42, *, param2: int = 42):
+        print(arg, param1, param2)
+
+
+class DerivedClassWithoutAnnotation(BaseClass):
+    def method(self, arg, param1 = 42, *, param2 = 42):
+        print(arg, param1, param2)
