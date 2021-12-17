@@ -4,6 +4,7 @@ iterating/mapping context.
 """
 # pylint: disable=missing-docstring,invalid-name,too-few-public-methods,no-init,no-self-use,import-error,unused-argument,bad-mcs-method-argument,wrong-import-position,no-else-return, useless-object-inheritance, unnecessary-comprehension,redundant-u-string-prefix
 from __future__ import print_function
+import typing
 
 # primitives
 numbers = [1, 2, 3]
@@ -189,4 +190,10 @@ class HasDynamicGetattr(object):
 
 
 for elem in HasDynamicGetattr():
+    pass
+
+
+Subtype = typing.NewType("Subtype", typing.List[int])
+
+for i in Subtype([1, 2, 3]):
     pass
