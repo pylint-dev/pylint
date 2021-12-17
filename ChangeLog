@@ -9,7 +9,10 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.14.rst'
 
+* Fix false negative for ``no-member`` when attempting to assign an instance
+  attribute to itself without any prior assignment.
 
+  Closes #1555
 
 ..
   Insert your changelog randomly, it will reduce merge conflicts
