@@ -878,7 +878,7 @@ def uninferable_final_decorators(
         elif isinstance(decorator, nodes.Name):
             lookup_values = decorator.lookup(decorator.name)
             if lookup_values[1]:
-                import_node = decorator.lookup(decorator.name)[1][0]
+                import_node = lookup_values[1][0]
             else:
                 continue  # pragma: no cover # Covered on Python < 3.8
         else:
