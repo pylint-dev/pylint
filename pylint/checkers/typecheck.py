@@ -1522,9 +1522,7 @@ accessed. Python regular expressions are accepted.",
             if not isinstance(inferred, nodes.FunctionDef):
                 return False
 
-            return_values = list(inferred.infer_call_result())
-
-            for return_value in return_values:
+            for return_value in inferred.infer_call_result():
                 # infer_call_result() returns nodes.Const.None for None return values
                 # so this also catches non-returning decorators
                 if not isinstance(return_value, nodes.FunctionDef):
