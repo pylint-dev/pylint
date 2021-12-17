@@ -714,13 +714,14 @@ scope_type : {self._atomic.scope_type}
             # If the other node is in the same scope as this node, assume it executes
             if other_node_statement.parent.parent_of(node):
                 continue
-            if try_block_returns := any(
+            try_block_returns = any(
                 isinstance(try_statement, nodes.Return)
                 for try_statement in other_node_statement.parent.parent.body
-            ):
-                # Exception: despite the try block returning, if this node is in the
-                # the final block of the other_node_statement, it will execute before
-                # the try block returns, so assume the except statements are uncertain.
+            )
+            # If the try block returns, assume the except blocks execute.
+            if try_block_returns:
+                # Exception: if this node is in the final block of the other_node_statement,
+                # it will execute before returning. Assume the except statements are uncertain.
                 if (
                     isinstance(node_statement.parent, nodes.TryFinally)
                     and node_statement in node_statement.parent.finalbody
@@ -731,11 +732,11 @@ scope_type : {self._atomic.scope_type}
                     )
                 ):
                     uncertain_nodes.append(other_node)
-            if try_block_returns:
-                # Assume the except handlers execute. Possiblility for a false negative
-                # if one of the except handlers does not define the name in question
-                # or raise or return. See: https://github.com/PyCQA/pylint/issues/5524.
-                continue
+                else:
+                    # Assume the except blocks execute. Possiblility for a false negative
+                    # if one of the except blocks does not define the name in question,
+                    # raise, or return. See: https://github.com/PyCQA/pylint/issues/5524.
+                    continue
             # Passed all tests for uncertain execution
             uncertain_nodes.append(other_node)
         return uncertain_nodes
