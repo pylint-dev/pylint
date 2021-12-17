@@ -1535,6 +1535,7 @@ accessed. Python regular expressions are accepted.",
                 # Check if the keyword is another type of argument
                 if return_value.args.is_argument(keyword):
                     continue
+
                 return False
 
         return True
