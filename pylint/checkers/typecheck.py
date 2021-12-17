@@ -69,7 +69,7 @@ import types
 from collections import deque
 from collections.abc import Sequence
 from functools import singledispatch
-from typing import Any, Callable, Iterator, List, Optional, Pattern, Tuple
+from typing import Any, Callable, Iterator, List, Optional, Pattern, Tuple, Union
 
 import astroid
 import astroid.exceptions
@@ -99,6 +99,14 @@ from pylint.checkers.utils import (
 )
 from pylint.interfaces import INFERENCE, IAstroidChecker
 from pylint.utils import get_global_option
+
+CallableObjects = Union[
+    bases.BoundMethod,
+    bases.UnboundMethod,
+    nodes.FunctionDef,
+    nodes.Lambda,
+    nodes.ClassDef,
+]
 
 STR_FORMAT = {"builtins.str.format"}
 ASYNCIO_COROUTINE = "asyncio.coroutines.coroutine"
@@ -559,16 +567,24 @@ def _emit_no_member(
     return True
 
 
-def _determine_callable(callable_obj):
+def _determine_callable(
+    callable_obj: nodes.NodeNG,
+) -> Tuple[CallableObjects, int, str]:
+    # pylint: disable=fixme
+    # TODO: The typing of the second return variable is actually Literal[0,1]
+    # We need typing on astroid.NodeNG.implicit_parameters for this
+    # TODO: The typing of the third return variable can be narrowed to a Literal
+    # We need typing on astroid.NodeNG.type for this
+
     # Ordering is important, since BoundMethod is a subclass of UnboundMethod,
     # and Function inherits Lambda.
     parameters = 0
     if hasattr(callable_obj, "implicit_parameters"):
         parameters = callable_obj.implicit_parameters()
-    if isinstance(callable_obj, astroid.BoundMethod):
+    if isinstance(callable_obj, bases.BoundMethod):
         # Bound methods have an extra implicit 'self' argument.
         return callable_obj, parameters, callable_obj.type
-    if isinstance(callable_obj, astroid.UnboundMethod):
+    if isinstance(callable_obj, bases.UnboundMethod):
         return callable_obj, parameters, "unbound method"
     if isinstance(callable_obj, nodes.FunctionDef):
         return callable_obj, parameters, callable_obj.type
