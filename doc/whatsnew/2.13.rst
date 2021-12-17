@@ -32,6 +32,10 @@ Extensions
 Other Changes
 =============
 
+* Fixed extremely long processing of long lines with comma's.
+
+  Closes #5483
+
 * Fix ``unnecessary_dict_index_lookup`` false positive when deleting a dictionary's entry.
 
   Closes #4716
