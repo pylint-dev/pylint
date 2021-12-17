@@ -1564,10 +1564,6 @@ accessed. Python regular expressions are accepted.",
             self._check_uninferable_call(node)
             return
 
-        # Ignore non instances
-        if not isinstance(inferred_call, astroid.Instance):
-            return
-
         # Don't emit if we can't make sure this object is callable.
         if not has_known_bases(inferred_call):
             return
