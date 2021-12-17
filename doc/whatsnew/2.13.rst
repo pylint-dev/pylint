@@ -73,6 +73,8 @@ Other Changes
 
   Closes #5065
 
+* Fixed crash on uninferable decorators on Python 3.6 and 3.7
+
 * Fatal errors now emit a score of 0.0 regardless of whether the linted module
   contained any statements
 

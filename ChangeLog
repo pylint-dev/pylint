@@ -79,6 +79,8 @@ Release date: TBA
 
   Closes #5323
 
+* Fixed crash on uninferable decorators on Python 3.6 and 3.7
+
 * Add checker ``unnecessary-ellipsis``: Emitted when the ellipsis constant is used unnecessarily.
 
   Closes #5460
