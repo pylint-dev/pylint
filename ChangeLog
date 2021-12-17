@@ -92,6 +92,10 @@ Release date: TBA
 * The ``testutils`` for unittests now accept ``end_lineno`` and ``end_column``. Tests
   without these will trigger a ``DeprecationWarning``.
 
+* Fixed false positive ``unexpected-keyword-arg`` for decorators.
+
+  Closes #258
+
 * ``missing-raises-doc`` will now check the class hierarchy of the raised exceptions
 
   .. code-block:: python

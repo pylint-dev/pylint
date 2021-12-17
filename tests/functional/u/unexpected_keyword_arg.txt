@@ -1,0 +1,2 @@
+unexpected-keyword-arg:72:4:72:32:function_caller:Unexpected keyword argument 'internal_arg' in function call:UNDEFINED
+unexpected-keyword-arg:75:4:75:49:function_caller:Unexpected keyword argument 'internal_arg' in function call:UNDEFINED

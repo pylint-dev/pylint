@@ -1457,6 +1457,10 @@ accessed. Python regular expressions are accepted.",
             elif called.args.kwarg is not None:
                 # The keyword argument gets assigned to the **kwargs parameter.
                 pass
+            elif isinstance(
+                called, nodes.FunctionDef
+            ) and self._keyword_argument_is_in_all_decorator_returns(called, keyword):
+                pass
             elif not overload_function:
                 # Unexpected keyword argument.
                 self.add_message(
@@ -1495,6 +1499,41 @@ accessed. Python regular expressions are accepted.",
                 and not overload_function
             ):
                 self.add_message("missing-kwoa", node=node, args=(name, callable_name))
+
+    @staticmethod
+    def _keyword_argument_is_in_all_decorator_returns(
+        func: nodes.FunctionDef, keyword: str
+    ) -> bool:
+        """Check if the keyword argument exists in all signatures of the
+        return values of all decorators of the function.
+        """
+        if not func.decorators:
+            return False
+
+        for decorator in func.decorators.nodes:
+            inferred = safe_infer(decorator)
+            if not isinstance(inferred, nodes.FunctionDef):
+                return False
+            return_values = list(inferred.infer_call_result())
+
+            # If there are not return values they also can't be consuming the keyword
+            if not return_values:
+                return False
+
+            for return_value in return_values:
+                if not isinstance(return_value, nodes.FunctionDef):
+                    return False
+
+                # If the return value uses a kwarg the keyword will be consumed
+                if return_value.args.kwarg:
+                    continue
+
+                # Check if the keyword is another type of argument
+                if return_value.args.is_argument(keyword):
+                    continue
+                return False
+
+        return True
 
     def _check_invalid_sequence_index(self, subscript: nodes.Subscript):
         # Look for index operations where the parent is a sequence type.
