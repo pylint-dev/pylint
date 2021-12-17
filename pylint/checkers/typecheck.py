@@ -73,7 +73,6 @@ from typing import Any, Callable, Iterator, List, Optional, Pattern, Tuple
 
 import astroid
 from astroid import bases, nodes
-from astroid.nodes.node_ng import NodeNG
 
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import (
@@ -1553,7 +1552,7 @@ accessed. Python regular expressions are accepted.",
         return None
 
     def _check_not_callable(
-        self, node: nodes.Call, inferred_call: Optional[NodeNG]
+        self, node: nodes.Call, inferred_call: Optional[nodes.NodeNG]
     ) -> None:
         """Checks to see if the not-callable message should be emitted
 
