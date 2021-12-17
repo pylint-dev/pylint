@@ -1559,7 +1559,7 @@ accessed. Python regular expressions are accepted.",
         Only functions, generators and objects defining __call__ are "callable"
         We ignore instances of descriptors since astroid cannot properly handle them yet
         """
-        # Handle uninferrable calls
+        # Handle uninferable calls
         if not inferred_call or inferred_call.callable():
             self._check_uninferable_call(node)
             return
