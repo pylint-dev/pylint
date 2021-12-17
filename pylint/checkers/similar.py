@@ -30,7 +30,7 @@
 """a similarities / code duplication command line tool and pylint checker
 
 The algorithm is based on comparing the hash value of n successive lines of a file.
-First the files are read and any line that doesn't fullfill requirement are removed (comments, docstrings...)
+First the files are read and any line that doesn't fulfill requirement are removed (comments, docstrings...)
 Those stripped lines are stored in the LineSet class which gives access to them.
 Then each index of the stripped lines collection is associated with the hash of n successive entries of the stripped lines starting at the current index
 (n is the minimum common lines option).
@@ -123,7 +123,7 @@ class CplSuccessiveLinesLimits:
         self.effective_cmn_lines_nb = effective_cmn_lines_nb
 
 
-# Links the indices ot the starting line in both lineset's stripped lines to
+# Links the indices to the starting line in both lineset's stripped lines to
 # the start and end lines in both files
 CplIndexToCplLines_T = Dict["LineSetStartCouple", CplSuccessiveLinesLimits]
 

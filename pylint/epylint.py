@@ -125,7 +125,7 @@ def lint(filename, options=()):
             if line.startswith("No config file found"):
                 continue
 
-            # modify the file name thats output to reverse the path traversal we made
+            # modify the file name that's output to reverse the path traversal we made
             parts = line.split(":")
             if parts and parts[0] == child_path:
                 line = ":".join([filename] + parts[1:])

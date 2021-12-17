@@ -127,7 +127,7 @@ class UnknownBaseCallable(missing.Blah):
 UnknownBaseCallable()()
 
 # Regression test for #4426
-# If property is inferrable we shouldn't double emit the message
+# If property is inferable we shouldn't double emit the message
 # See: https://github.com/PyCQA/pylint/issues/4426
 class ClassWithProperty:
     @property

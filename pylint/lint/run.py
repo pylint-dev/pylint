@@ -350,7 +350,7 @@ to search for configuration file.
         if reporter:
             # if a custom reporter is provided as argument, it may be overridden
             # by file parameters, so re-set it here, but before command line
-            # parsing so it's still overrideable by command line option
+            # parsing so it's still overridable by command line option
             linter.set_reporter(reporter)
         try:
             args = linter.load_command_line_configuration(args)

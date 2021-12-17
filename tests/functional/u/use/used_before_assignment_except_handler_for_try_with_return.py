@@ -25,7 +25,7 @@ def func_ok(var):
     except AttributeError:
         msg = "Attribute not defined"
     except ZeroDivisionError:
-        msg = "Devision by 0"
+        msg = "Division by 0"
     print(msg)
 
 
@@ -36,7 +36,7 @@ def func_ok2(var):
     except AttributeError as ex:
         raise Exception from ex
     except ZeroDivisionError:
-        msg = "Devision by 0"
+        msg = "Division by 0"
     print(msg)
 
 
@@ -47,5 +47,5 @@ def func_ok3(var):
     except AttributeError:
         return
     except ZeroDivisionError:
-        msg = "Devision by 0"
+        msg = "Division by 0"
     print(msg)

@@ -12,7 +12,7 @@ class MapReduceMixin(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def get_map_data(self):
-        """Returns mergable/reducible data that will be examined"""
+        """Returns mergeable/reducible data that will be examined"""
 
     @abc.abstractmethod
     def reduce_map_data(self, linter, data):
