@@ -1,4 +1,5 @@
 """Tests for unexpected-keyword-arg"""
+# pylint: disable=undefined-variable, too-few-public-methods, missing-function-docstring, missing-class-docstring
 
 
 def non_param_decorator(func):
@@ -39,16 +40,25 @@ def do_something(junk=None):
     print(junk)
 
 
+do_something(internal_arg=2)  # [unexpected-keyword-arg]
+
+
 @param_decorator
 def do_something_decorated(junk=None):
     """A decorated function. This should be passed a keyword argument"""
     print(junk)
 
 
+do_something_decorated(internal_arg=2)
+
+
 @kwargs_decorator
 def do_something_decorated_too(junk=None):
     """A decorated function. This should be passed a keyword argument"""
     print(junk)
+
+
+do_something_decorated_too(internal_arg=2)
 
 
 @non_param_decorator
@@ -60,6 +70,9 @@ def do_something_double_decorated(junk=None):
     print(junk)
 
 
+do_something_double_decorated(internal_arg=2)  # [unexpected-keyword-arg]
+
+
 @param_decorator
 @kwargs_decorator
 def do_something_double_decorated_correct(junk=None):
@@ -67,10 +80,39 @@ def do_something_double_decorated_correct(junk=None):
     print(junk)
 
 
-def function_caller():
-    """Call the decorated functions and check if they accept keywords"""
-    do_something(internal_arg=2)  # [unexpected-keyword-arg]
-    do_something_decorated(internal_arg=2)
-    do_something_decorated_too(internal_arg=2)
-    do_something_double_decorated(internal_arg=2)  # [unexpected-keyword-arg]
-    do_something_double_decorated_correct(internal_arg=2)
+do_something_double_decorated_correct(internal_arg=2)
+
+
+# Test that we don't crash on Class decoration
+class DecoratorClass:
+    pass
+
+
+@DecoratorClass
+def crash_test():
+    pass
+
+
+crash_test(internal_arg=2)  # [unexpected-keyword-arg]
+
+
+# Test that we don't emit a false positive for uninferable decorators
+@unknown_decorator
+def crash_test_two():
+    pass
+
+
+crash_test_two(internal_arg=2)
+
+
+# Test that we don't crash on decorators that don't return anything
+def no_return_decorator(func):
+    print(func)
+
+
+@no_return_decorator
+def test_no_return():
+    pass
+
+
+test_no_return(internal_arg=2)  # [unexpected-keyword-arg]
