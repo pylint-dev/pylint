@@ -1795,7 +1795,7 @@ class VariablesChecker(BaseChecker):
                 if defstmt_frame == node_frame and not ref_node.lineno < node.lineno:
                     break
 
-                # If the parent of the local refence is anything but a AnnAssign
+                # If the parent of the local reference is anything but a AnnAssign
                 # Or if the AnnAssign adds a value the variable will now have a value
                 #     var = 1  # OR
                 #     var: int = 1

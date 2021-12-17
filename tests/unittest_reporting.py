@@ -92,7 +92,7 @@ def test_template_option_end_line(linter) -> None:
 
 
 def test_template_option_non_exisiting(linter) -> None:
-    """Test the msg-template option with a non exisiting options.
+    """Test the msg-template option with a non existing options.
     This makes sure that this option remains backwards compatible as new
     parameters do not break on previous versions"""
     output = StringIO()

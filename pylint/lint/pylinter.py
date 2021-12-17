@@ -376,7 +376,7 @@ class PyLinter(
                     "(only on the command line, not in the configuration file "
                     "where it should appear only once). "
                     'You can also use "--disable=all" to disable everything first '
-                    "and then reenable specific checks. For example, if you want "
+                    "and then re-enable specific checks. For example, if you want "
                     "to run only the similarities checker, you can use "
                     '"--disable=all --enable=similarities". '
                     "If you want to run only the classes checker, but have no "
@@ -750,7 +750,7 @@ class PyLinter(
         fail_on_cats = set()
         fail_on_msgs = set()
         for val in fail_on_vals:
-            # If value is a cateogry, add category, else add message
+            # If value is a category, add category, else add message
             if val in MSG_TYPES:
                 fail_on_cats.add(val)
             else:
@@ -1607,7 +1607,7 @@ class PyLinter(
         line: Optional[int] = None,
         ignore_unknown: bool = False,
     ) -> None:
-        """Do some tests and then iterate over message defintions to set state"""
+        """Do some tests and then iterate over message definitions to set state"""
         assert scope in {"package", "module"}
         if msgid == "all":
             for _msgid in MSG_TYPES:

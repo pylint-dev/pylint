@@ -56,7 +56,7 @@ Release date: TBA
 
   Closes #5504
 
-* The ``PyLinter`` class will now be initialiazed with a ``TextReporter``
+* The ``PyLinter`` class will now be initialized with a ``TextReporter``
   as its reporter if none is provided.
 
 * Fatal errors now emit a score of 0.0 regardless of whether the linted module
@@ -207,8 +207,8 @@ Release date: 2021-11-24
   output files without these will trigger a ``DeprecationWarning``. Expected output files
   can be easily updated with the ``python tests/test_functional.py --update-functional-output`` command.
 
-* The functional ``testutils`` now correctly check the distinction betweeen ``HIGH`` and
-  ``UNDEFINED`` confidence. Expected output files without defiend ``confidence`` levels will now
+* The functional ``testutils`` now correctly check the distinction between ``HIGH`` and
+  ``UNDEFINED`` confidence. Expected output files without defined ``confidence`` levels will now
   trigger a ``DeprecationWarning``. Expected output files can be easily updated with the
   ``python tests/test_functional.py --update-functional-output`` command.
 
@@ -331,7 +331,7 @@ Release date: 2021-11-24
 
   Closes #5194
 
-* Fix double emitting of ``not-callable`` on inferrable ``properties``
+* Fix double emitting of ``not-callable`` on inferable ``properties``
 
   Closes #4426
 
@@ -495,7 +495,7 @@ Release date: 2021-09-16
   Closes #4776
 
 
-* Added ``py-version`` config key (if ``[MASTER]`` section). Used for version dependant checks.
+* Added ``py-version`` config key (if ``[MASTER]`` section). Used for version dependent checks.
   Will default to whatever Python version pylint is executed with.
 
 * ``CodeStyleChecker``
@@ -514,7 +514,7 @@ Release date: 2021-09-16
 
   Closes #4751
 
-* https is now prefered in the documentation and http://pylint.pycqa.org correctly redirect to https://pylint.pycqa.org
+* https is now preferred in the documentation and http://pylint.pycqa.org correctly redirect to https://pylint.pycqa.org
 
   Closes #3802
 
@@ -728,7 +728,7 @@ Release date: 2021-08-20
 * Fixed bug with ``cell-var-from-loop`` checker: it no longer has false negatives when
   both ``unused-variable`` and ``used-before-assignment`` are disabled.
 
-* Fix false postive for ``invalid-all-format`` if the list or tuple builtin functions are used
+* Fix false positive for ``invalid-all-format`` if the list or tuple builtin functions are used
 
   Closes #4711
 
@@ -1456,7 +1456,7 @@ Release date: 2021-02-21
 
   Close #3862
 
-* Fix linter multiprocessing pool shutdown (triggered warnings when runned in parallels with other pytest plugins)
+* Fix linter multiprocessing pool shutdown (triggered warnings when ran in parallels with other pytest plugins)
 
   Closes #3779
 
@@ -1483,7 +1483,7 @@ Release date: 2021-02-21
 
   Closes #3468
 
-* Fix ``useless-super-delegation`` false positive when default keyword argument is a dictionnary.
+* Fix ``useless-super-delegation`` false positive when default keyword argument is a dictionary.
 
   Close #3773
 
@@ -3484,7 +3484,7 @@ Release date: 2017-04-13
 
       This message is emitted when pylint finds an one-element tuple,
       created by a stray comma. This can suggest a potential problem in the
-      code and it is recommended to use parantheses in order to emphasise the
+      code and it is recommended to use parentheses in order to emphasise the
       creation of a tuple, rather than relying on the comma itself.
 
     * Don't emit not-callable for instances with unknown bases.
@@ -4184,7 +4184,7 @@ Release date: 2015-11-29
       directory 'test/extensions' and documentation file 'doc/extensions.rst'.
 
     * Added new checker 'extensions.check_docs' that verifies parameter
-      documention in Sphinx, Google, and Numpy style.
+      documentation in Sphinx, Google, and Numpy style.
 
     * Detect undefined variable cases, where the "definition" of an undefined
       variable was in del statement. Instead of emitting used-before-assignment,
@@ -4280,7 +4280,7 @@ Release date: 2015-11-29
       two a binary arithmetic operation is executed between two objects
       which don't support it (a number plus a string for instance).
       This is currently disabled, since the it exhibits way too many false
-      positives, but it will be reenabled as soon as possible.
+      positives, but it will be re-enabled as soon as possible.
 
     * New imported features from astroid into pyreverse: pyreverse.inspector.Project,
       pyreverse.inspector.project_from_files and pyreverse.inspector.interfaces.
@@ -5255,7 +5255,7 @@ Release date: 2012-10-05
 
     * #105337: allow custom reporter in output-format (patch by Kevin Jing Qiu)
 
-    * #104420: check for protocol completness and avoid false R0903
+    * #104420: check for protocol completeness and avoid false R0903
       (patch by Peter Hammond)
 
     * #100654: fix grammatical error for W0332 message (using 'l' as
@@ -5283,7 +5283,7 @@ Release date: 2012-07-17
       except handler contains a tuple of names instead of a single name.
       (patch by tmarek@google.com)
 
-    * #7394: W0212 (access to protected member) not emitted on assigments
+    * #7394: W0212 (access to protected member) not emitted on assignments
       (patch by lothiraldan@gmail.com)
 
     * #18772; no prototype consistency check for mangled methods (patch by
@@ -5878,7 +5878,7 @@ Release date: 2006-03-06
         - the C0101 check with its min-name-length option has
           been removed (this can be specified in the regxp after all...)
         - W0103 and W0121 are now handled by the variables checker
-          (W0103 is now W0603 and W0604 has been splitted into different messages)
+          (W0103 is now W0603 and W0604 has been split into different messages)
         - W0131 and W0132 messages  have been reclassified to C0111 and
           C0112 respectively
         - new W0104 message on statement without effect
@@ -5915,7 +5915,7 @@ Release date: 2006-01-10
       or the default ~/.pylintrc or /etc/pylintrc
 
     * fixed W0706 (Identifier used to raise an exception is assigned...)
-      false positive and reraising a catched exception instance
+      false positive and reraising a caught exception instance
 
     * fixed E0611 (No name get in module blabla) false positive when accessing
       to a class'__dict__
