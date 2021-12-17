@@ -72,7 +72,7 @@ class ChildClassWithoutBool(ClassWithoutBool):
 
 @pytest.mark.skipif(not hasattr(signal, "setitimer"), reason="Assumes POSIX signals")
 def test_process_tokens() -> None:
-    with timeout(45.0):
+    with timeout(8.0):
         with pytest.raises(SystemExit) as cm:
             Run([os.path.join(REGR_DATA, "very_long_line.py")], reporter=TextReporter())
         assert cm.value.code == 0
