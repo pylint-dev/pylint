@@ -16,6 +16,10 @@ Release date: TBA
 
   Closes #85, #2615
 
+* Fixed extremely long processing of long lines with comma's.
+
+  Closes #5483
+
 * Fixed a false positive for ``assigning-non-slot`` when the slotted class
   defined ``__setattr__``.
 
@@ -59,6 +63,10 @@ Release date: TBA
 * The ``PyLinter`` class will now be initialized with a ``TextReporter``
   as its reporter if none is provided.
 
+* Fix false positive ``not-callable`` with attributes that alias ``NamedTuple``
+
+  Partially closes #1730
+
 * Fatal errors now emit a score of 0.0 regardless of whether the linted module
   contained any statements
 
@@ -74,6 +82,8 @@ Release date: TBA
   or ``not in`` checks
 
   Closes #5323
+
+* Fixed crash on uninferable decorators on Python 3.6 and 3.7
 
 * Add checker ``unnecessary-ellipsis``: Emitted when the ellipsis constant is used unnecessarily.
 

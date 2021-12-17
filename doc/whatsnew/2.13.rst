@@ -32,6 +32,10 @@ Extensions
 Other Changes
 =============
 
+* Fixed extremely long processing of long lines with comma's.
+
+  Closes #5483
+
 * Fix ``unnecessary_dict_index_lookup`` false positive when deleting a dictionary's entry.
 
   Closes #4716
@@ -73,6 +77,8 @@ Other Changes
 
   Closes #5065
 
+* Fixed crash on uninferable decorators on Python 3.6 and 3.7
+
 * Fatal errors now emit a score of 0.0 regardless of whether the linted module
   contained any statements
 
@@ -82,6 +88,10 @@ Other Changes
 
 * The ``PyLinter`` class will now be initialized with a ``TextReporter``
   as its reporter if none is provided.
+
+* Fix false positive ``not-callable`` with attributes that alias ``NamedTuple``
+
+  Partially closes #1730
 
 * The ``testutils`` for unittests now accept ``end_lineno`` and ``end_column``. Tests
   without these will trigger a ``DeprecationWarning``.
