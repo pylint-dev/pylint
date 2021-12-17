@@ -1559,25 +1559,28 @@ accessed. Python regular expressions are accepted.",
         Only functions, generators and objects defining __call__ are "callable"
         We ignore instances of descriptors since astroid cannot properly handle them yet
         """
-        if inferred_call and not inferred_call.callable():
-            if isinstance(inferred_call, astroid.Instance):
-                # Don't emit if we can't make sure this object is callable.
-                if not has_known_bases(inferred_call):
-                    return
-
-                if inferred_call.parent and isinstance(
-                    inferred_call.scope(), nodes.ClassDef
-                ):
-                    # Ignore descriptor instances
-                    if "__get__" in inferred_call.locals:
-                        return
-                    # NamedTuple instances are callable
-                    if inferred_call.qname() == "typing.NamedTuple":
-                        return
-
-            self.add_message("not-callable", node=node, args=node.func.as_string())
-        else:
+        # Handle uninferrable calls
+        if not inferred_call or inferred_call.callable():
             self._check_uninferable_call(node)
+            return
+
+        # Ignore non instances
+        if not isinstance(inferred_call, astroid.Instance):
+            return
+
+        # Don't emit if we can't make sure this object is callable.
+        if not has_known_bases(inferred_call):
+            return
+
+        if inferred_call.parent and isinstance(inferred_call.scope(), nodes.ClassDef):
+            # Ignore descriptor instances
+            if "__get__" in inferred_call.locals:
+                return
+            # NamedTuple instances are callable
+            if inferred_call.qname() == "typing.NamedTuple":
+                return
+
+        self.add_message("not-callable", node=node, args=node.func.as_string())
 
     @check_messages("invalid-sequence-index")
     def visit_extslice(self, node: nodes.ExtSlice) -> None:
