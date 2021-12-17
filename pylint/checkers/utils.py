@@ -880,7 +880,7 @@ def uninferable_final_decorators(
             if lookup_values[1]:
                 import_node = decorator.lookup(decorator.name)[1][0]
             else:
-                continue
+                continue  # pragma: no cover # Covered on Python < 3.8
         else:
             continue
 
