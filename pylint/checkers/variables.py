@@ -649,40 +649,12 @@ scope_type : {self._atomic.scope_type}
         # Filter out assignments in an Except clause that the node is not
         # contained in, assuming they may fail
         if found_nodes:
-            filtered_nodes = [
-                n
-                for n in found_nodes
-                if not (
-                    isinstance(n.statement(future=True).parent, nodes.ExceptHandler)
-                    and isinstance(
-                        n.statement(future=True).parent.parent, nodes.TryExcept
-                    )
-                    # If the try block returns we assume that assignments in the except
-                    # handlers could have happened.
-                    and (
-                        not any(
-                            isinstance(try_statement, nodes.Return)
-                            for try_statement in n.statement(
-                                future=True
-                            ).parent.parent.body
-                        )
-                        # But not if this node is in the final block, which will
-                        # execute before the return.
-                        or (
-                            isinstance(node_statement.parent, nodes.TryFinally)
-                            and node_statement in node_statement.parent.finalbody
-                            and n.statement(future=True).parent.parent.parent.parent_of(
-                                node_statement
-                            )
-                        )
-                    )
-                )
-                or n.statement(future=True).parent.parent_of(node)
-            ]
-            filtered_nodes_set = set(filtered_nodes)
-            difference = [n for n in found_nodes if n not in filtered_nodes_set]
-            self.consumed_uncertain[node.name] += difference
-            found_nodes = filtered_nodes
+            uncertain_nodes = self._uncertain_nodes_in_except_blocks(
+                found_nodes, node, node_statement
+            )
+            self.consumed_uncertain[node.name] += uncertain_nodes
+            uncertain_nodes_set = set(uncertain_nodes)
+            found_nodes = [n for n in found_nodes if n not in uncertain_nodes_set]
 
         # If this node is in a Finally block of a Try/Finally,
         # filter out assignments in the try portion, assuming they may fail
@@ -723,6 +695,50 @@ scope_type : {self._atomic.scope_type}
             found_nodes = filtered_nodes
 
         return found_nodes
+
+    @staticmethod
+    def _uncertain_nodes_in_except_blocks(found_nodes, node, node_statement):
+        """
+        Return any nodes in ``found_nodes`` that should be treated as uncertain
+        because they are in an except block.
+        """
+        uncertain_nodes = []
+        for other_node in found_nodes:
+            other_node_statement = other_node.statement(future=True)
+            # Only testing for statements in the except block of TryExcept
+            if not (
+                isinstance(other_node_statement.parent, nodes.ExceptHandler)
+                and isinstance(other_node_statement.parent.parent, nodes.TryExcept)
+            ):
+                continue
+            # If the other node is in the same scope as this node, assume it executes
+            if other_node_statement.parent.parent_of(node):
+                continue
+            if try_block_returns := any(
+                isinstance(try_statement, nodes.Return)
+                for try_statement in other_node_statement.parent.parent.body
+            ):
+                # Exception: despite the try block returning, if this node is in the
+                # the final block of the other_node_statement, it will execute before
+                # the try block returns, so assume the except statements are uncertain.
+                if (
+                    isinstance(node_statement.parent, nodes.TryFinally)
+                    and node_statement in node_statement.parent.finalbody
+                    # We have already tested that other_node_statement has two parents
+                    # and it was TryExcept, so getting one more parent is safe.
+                    and other_node_statement.parent.parent.parent.parent_of(
+                        node_statement
+                    )
+                ):
+                    uncertain_nodes.append(other_node)
+            if try_block_returns:
+                # Assume the except handlers execute. Possiblility for a false negative
+                # if one of the except handlers does not define the name in question
+                # or raise or return. See: https://github.com/PyCQA/pylint/issues/5524.
+                continue
+            # Passed all tests for uncertain execution
+            uncertain_nodes.append(other_node)
+        return uncertain_nodes
 
 
 # pylint: disable=too-many-public-methods
