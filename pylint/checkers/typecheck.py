@@ -73,6 +73,7 @@ from typing import Any, Callable, Iterator, List, Optional, Pattern, Tuple
 
 import astroid
 from astroid import bases, nodes
+from astroid.nodes.node_ng import NodeNG
 
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import (
@@ -1290,31 +1291,8 @@ accessed. Python regular expressions are accepted.",
         the inferred function's definition
         """
         called = safe_infer(node.func)
-        # only function, generator and object defining __call__ are allowed
-        # Ignore instances of descriptors since astroid cannot properly handle them
-        # yet
-        if called and not called.callable():
-            if isinstance(called, astroid.Instance):
-                # Don't emit if we can't make sure this object is callable.
-                if not has_known_bases(called):
-                    pass
-                elif (
-                    called.parent
-                    and isinstance(called.scope(), nodes.ClassDef)
-                    and (
-                        "__get__" in called.locals
-                        or called.qname() == "typing.NamedTuple"
-                    )
-                ):
-                    pass
-                else:
-                    self.add_message(
-                        "not-callable", node=node, args=node.func.as_string()
-                    )
-            else:
-                self.add_message("not-callable", node=node, args=node.func.as_string())
-        else:
-            self._check_uninferable_call(node)
+
+        self._check_not_callable(node, called)
 
         try:
             called, implicit_args, callable_name = _determine_callable(called)
@@ -1573,6 +1551,34 @@ accessed. Python regular expressions are accepted.",
         # Anything else is an error
         self.add_message("invalid-sequence-index", node=subscript)
         return None
+
+    def _check_not_callable(
+        self, node: nodes.Call, inferred_call: Optional[NodeNG]
+    ) -> None:
+        """Checks to see if the not-callable message should be emitted
+
+        Only functions, generators and objects defining __call__ are "callable"
+        We ignore instances of descriptors since astroid cannot properly handle them yet
+        """
+        if inferred_call and not inferred_call.callable():
+            if isinstance(inferred_call, astroid.Instance):
+                # Don't emit if we can't make sure this object is callable.
+                if not has_known_bases(inferred_call):
+                    return
+
+                if inferred_call.parent and isinstance(
+                    inferred_call.scope(), nodes.ClassDef
+                ):
+                    # Ignore descriptor instances
+                    if "__get__" in inferred_call.locals:
+                        return
+                    # NamedTuple instances are callable
+                    if inferred_call.qname() == "typing.NamedTuple":
+                        return
+
+            self.add_message("not-callable", node=node, args=node.func.as_string())
+        else:
+            self._check_uninferable_call(node)
 
     @check_messages("invalid-sequence-index")
     def visit_extslice(self, node: nodes.ExtSlice) -> None:
