@@ -726,7 +726,7 @@ scope_type : {self._atomic.scope_type}
                 ):
                     uncertain_nodes.append(other_node)
                 else:
-                    # Assume the except blocks execute. Possiblility for a false negative
+                    # Assume the except blocks execute. Possibility for a false negative
                     # if one of the except blocks does not define the name in question,
                     # raise, or return. See: https://github.com/PyCQA/pylint/issues/5524.
                     continue
@@ -1806,7 +1806,7 @@ class VariablesChecker(BaseChecker):
                 if defstmt_frame == node_frame and not ref_node.lineno < node.lineno:
                     break
 
-                # If the parent of the local reference is anything but a AnnAssign
+                # If the parent of the local reference is anything but an AnnAssign
                 # Or if the AnnAssign adds a value the variable will now have a value
                 #     var = 1  # OR
                 #     var: int = 1
