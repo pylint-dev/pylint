@@ -3,10 +3,10 @@
 
     'E1111': ('Assigning to function call which doesn\'t return',
               'Used when an assignment is done on a function call but the \
-              infered function doesn\'t return anything.'),
+              inferred function doesn\'t return anything.'),
     'W1111': ('Assigning to function call which only returns None',
               'Used when an assignment is done on a function call but the \
-              infered function returns nothing but None.'),
+              inferred function returns nothing but None.'),
 
 """
 from __future__ import generators, print_function

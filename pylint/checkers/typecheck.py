@@ -69,7 +69,7 @@ import types
 from collections import deque
 from collections.abc import Sequence
 from functools import singledispatch
-from typing import Any, Callable, Iterator, List, Optional, Pattern, Tuple
+from typing import Any, Callable, Iterator, List, Optional, Pattern, Tuple, Union
 
 import astroid
 import astroid.exceptions
@@ -99,6 +99,14 @@ from pylint.checkers.utils import (
 )
 from pylint.interfaces import INFERENCE, IAstroidChecker
 from pylint.utils import get_global_option
+
+CallableObjects = Union[
+    bases.BoundMethod,
+    bases.UnboundMethod,
+    nodes.FunctionDef,
+    nodes.Lambda,
+    nodes.ClassDef,
+]
 
 STR_FORMAT = {"builtins.str.format"}
 ASYNCIO_COROUTINE = "asyncio.coroutines.coroutine"
@@ -559,16 +567,24 @@ def _emit_no_member(
     return True
 
 
-def _determine_callable(callable_obj):
+def _determine_callable(
+    callable_obj: nodes.NodeNG,
+) -> Tuple[CallableObjects, int, str]:
+    # pylint: disable=fixme
+    # TODO: The typing of the second return variable is actually Literal[0,1]
+    # We need typing on astroid.NodeNG.implicit_parameters for this
+    # TODO: The typing of the third return variable can be narrowed to a Literal
+    # We need typing on astroid.NodeNG.type for this
+
     # Ordering is important, since BoundMethod is a subclass of UnboundMethod,
     # and Function inherits Lambda.
     parameters = 0
     if hasattr(callable_obj, "implicit_parameters"):
         parameters = callable_obj.implicit_parameters()
-    if isinstance(callable_obj, astroid.BoundMethod):
+    if isinstance(callable_obj, bases.BoundMethod):
         # Bound methods have an extra implicit 'self' argument.
         return callable_obj, parameters, callable_obj.type
-    if isinstance(callable_obj, astroid.UnboundMethod):
+    if isinstance(callable_obj, bases.UnboundMethod):
         return callable_obj, parameters, "unbound method"
     if isinstance(callable_obj, nodes.FunctionDef):
         return callable_obj, parameters, callable_obj.type
@@ -1293,24 +1309,8 @@ accessed. Python regular expressions are accepted.",
         the inferred function's definition
         """
         called = safe_infer(node.func)
-        # only function, generator and object defining __call__ are allowed
-        # Ignore instances of descriptors since astroid cannot properly handle them
-        # yet
-        if called and not called.callable():
-            if isinstance(called, astroid.Instance) and (
-                not has_known_bases(called)
-                or (
-                    called.parent is not None
-                    and isinstance(called.scope(), nodes.ClassDef)
-                    and "__get__" in called.locals
-                )
-            ):
-                # Don't emit if we can't make sure this object is callable.
-                pass
-            else:
-                self.add_message("not-callable", node=node, args=node.func.as_string())
-        else:
-            self._check_uninferable_call(node)
+
+        self._check_not_callable(node, called)
 
         try:
             called, implicit_args, callable_name = _determine_callable(called)
@@ -1569,6 +1569,37 @@ accessed. Python regular expressions are accepted.",
         # Anything else is an error
         self.add_message("invalid-sequence-index", node=subscript)
         return None
+
+    def _check_not_callable(
+        self, node: nodes.Call, inferred_call: Optional[nodes.NodeNG]
+    ) -> None:
+        """Checks to see if the not-callable message should be emitted
+
+        Only functions, generators and objects defining __call__ are "callable"
+        We ignore instances of descriptors since astroid cannot properly handle them yet
+        """
+        # Handle uninferable calls
+        if not inferred_call or inferred_call.callable():
+            self._check_uninferable_call(node)
+            return
+
+        if not isinstance(inferred_call, astroid.Instance):
+            self.add_message("not-callable", node=node, args=node.func.as_string())
+            return
+
+        # Don't emit if we can't make sure this object is callable.
+        if not has_known_bases(inferred_call):
+            return
+
+        if inferred_call.parent and isinstance(inferred_call.scope(), nodes.ClassDef):
+            # Ignore descriptor instances
+            if "__get__" in inferred_call.locals:
+                return
+            # NamedTuple instances are callable
+            if inferred_call.qname() == "typing.NamedTuple":
+                return
+
+        self.add_message("not-callable", node=node, args=node.func.as_string())
 
     @check_messages("invalid-sequence-index")
     def visit_extslice(self, node: nodes.ExtSlice) -> None:

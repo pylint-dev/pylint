@@ -18,4 +18,4 @@ def randint(maximum):
 
     return int(5)
 
-print(randint(1).astype()) # we don't wan't an error for astype access
+print(randint(1).astype()) # we don't want an error for astype access

@@ -219,7 +219,7 @@ def test_finds_args_without_type_sphinx(  # [inconsistent-return-statements]
     named_arg, *args
 ):
     r"""The Sphinx docstring
-    In Sphinx docstrings asteriks should be escaped.
+    In Sphinx docstrings asterisks should be escaped.
     See https://github.com/PyCQA/pylint/issues/5406
 
     :param named_arg: Returned
@@ -238,7 +238,7 @@ def test_finds_kwargs_without_type_sphinx(  # [inconsistent-return-statements]
     named_arg, **kwargs
 ):
     r"""The Sphinx docstring
-    In Sphinx docstrings asteriks should be escaped.
+    In Sphinx docstrings asterisks should be escaped.
     See https://github.com/PyCQA/pylint/issues/5406
 
     :param named_arg: Returned

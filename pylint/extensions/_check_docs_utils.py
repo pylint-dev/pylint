@@ -519,7 +519,7 @@ class GoogleDocstring(Docstring):
 
     re_property_returns_line = re.compile(
         fr"""
-        ^{re_multiple_type}:           # indentifier
+        ^{re_multiple_type}:           # identifier
         \s* (.*)                       # Summary line / description
     """,
         re.X | re.S | re.M,
