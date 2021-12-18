@@ -60,6 +60,11 @@ Other Changes
 
   Closes #3793
 
+* Fixed false positive for ``used-before-assignment`` with self-referential type
+  annotation in conditional statements within class methods.
+
+  Closes #5499
+
 * ``used-before-assignment`` now assumes that assignments in except blocks
   may not have occurred and warns accordingly.
 

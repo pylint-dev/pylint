@@ -61,3 +61,16 @@ class MyOtherClass:
     def self_referential_optional_within_method(self) -> None:
         variable: Optional[MyOtherClass] = self
         print(variable)
+
+
+class MyThirdClass:
+    """Class to test self referential variable typing within conditionals.
+    This regressed, reported in: https://github.com/PyCQA/pylint/issues/5499
+    """
+
+    def function(self, var: int) -> None:
+        if var < 0.5:
+            _x: MyThirdClass = self
+
+    def other_function(self) -> None:
+        _x: MyThirdClass = self
