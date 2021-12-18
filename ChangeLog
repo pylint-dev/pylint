@@ -72,6 +72,12 @@ Release date: TBA
 
   Partially closes #1730
 
+* ``potential-index-error``: Emitted when the index of a list or tuple exceeds its length.
+  This checker is currently quite conservative to avoid false positives. We welcome
+  suggestions for improvements.
+
+  Closes #578
+
 * Fatal errors now emit a score of 0.0 regardless of whether the linted module
   contained any statements
 

@@ -534,6 +534,12 @@ MSGS = {
         "Invalid assignment to self or cls in instance or class method "
         "respectively.",
     ),
+    "E0643": (
+        "Invalid index for iterable length",
+        "potential-index-error",
+        "Emitted when an index used on an iterable goes beyond the length of that "
+        "iterable.",
+    ),
 }
 
 
@@ -2530,6 +2536,32 @@ class VariablesChecker(BaseChecker):
             self.add_message("undefined-variable", node=klass, args=(name,))
 
         return consumed
+
+    def visit_subscript(self, node: nodes.Subscript) -> None:
+        # Slice should always be defined on nodes.Subscript
+        # To be fixed in astroid > https://github.com/PyCQA/astroid/issues/1250
+        assert node.slice
+
+        inferred_slice = utils.safe_infer(node.slice)
+
+        self._check_potential_index_error(node, inferred_slice)
+
+    def _check_potential_index_error(
+        self, node: nodes.Subscript, inferred_slice: Optional[nodes.NodeNG]
+    ) -> None:
+        """Check for the potential-index-error message"""
+        # Currently we only think simple slices of a single integer
+        if not isinstance(inferred_slice, nodes.Const) or not isinstance(
+            inferred_slice.value, int
+        ):
+            return
+
+        # If the node.value is a Tuple or List without inference it is defined in place
+        if isinstance(node.value, (nodes.Tuple, nodes.List)):
+            # Add 1 because iterables are 0-indexed
+            if len(node.value.elts) < inferred_slice.value + 1:
+                self.add_message("potential-index-error", node=node)
+            return
 
 
 def register(linter):
