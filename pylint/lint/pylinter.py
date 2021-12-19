@@ -1028,7 +1028,7 @@ class PyLinter(
 
         The arguments are the same that are documented in _check_files
 
-        The initialize() method should be called before calling this method
+        initialize() should be called before calling this method
         """
         with self._astroid_module_checker() as check_astroid_module:
             self._check_file(self.get_ast, check_astroid_module, file)
