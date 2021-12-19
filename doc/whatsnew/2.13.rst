@@ -32,13 +32,13 @@ Extensions
 Other Changes
 =============
 
-* By default, pylint do not take into account files starting with ``.#`` anymore. Those are
-  considered `emacs file lock`_. This behavior can be reverted by redefining the
+* By default, pylint does no longer take files starting with ``.#`` into account. Those are
+  considered `emacs file locks`_. This behavior can be reverted by redefining the
   ``ignore-patterns`` option.
 
   Closes #367
 
-.. _`emacs file lock`: https://www.gnu.org/software/emacs/manual/html_node/elisp/File-Locks.html
+.. _`emacs file locks`: https://www.gnu.org/software/emacs/manual/html_node/elisp/File-Locks.html
 
 * Fixed extremely long processing of long lines with comma's.
 

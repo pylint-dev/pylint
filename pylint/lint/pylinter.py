@@ -225,7 +225,8 @@ class PyLinter(
                     "dest": "black_list_re",
                     "default": (r"^\.#",),
                     "help": "Files or directories matching the regex patterns are"
-                    " skipped. The regex matches against base names, not paths.",
+                    " skipped. The regex matches against base names, not paths. The default value "
+                    "ignores emacs file locks",
                 },
             ),
             (
