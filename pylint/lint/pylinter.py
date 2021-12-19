@@ -294,11 +294,11 @@ class PyLinter(
                     "metavar": "<python_expression>",
                     "group": "Reports",
                     "level": 1,
-                    "default": "10.0 - ((float(5 * error + warning + refactor + "
+                    "default": "0 if fatal else 10.0 - ((float(5 * error + warning + refactor + "
                     "convention) / statement) * 10)",
                     "help": "Python expression which should return a score less "
-                    "than or equal to 10. You have access to the variables "
-                    "'error', 'warning', 'refactor', and 'convention' which "
+                    "than or equal to 10. You have access to the variables 'fatal', "
+                    "'error', 'warning', 'refactor', 'convention', and 'info' which "
                     "contain the number of messages in each category, as well as "
                     "'statement' which is the total number of statements "
                     "analyzed. This score is used by the global "
