@@ -31,7 +31,7 @@ def get_expected_or_default(
         with open(expected_result_path, encoding="utf8") as f:
             expected = f.read()
         # logging is helpful to realize your file is not taken into
-        # account after a misspell of the file name. The output of the
+        # account after a misspelling of the file name. The output of the
         # program is checked during the test so printing messes with the result.
         logging.info("%s exists.", expected_result_path)
     else:
@@ -139,7 +139,7 @@ def run_using_a_configuration_file(
     # would not be accessible outside the `with` block.
     with unittest.mock.patch("sys.exit") as mocked_exit:
         # Do not actually run checks, that could be slow. We don't mock
-        # `Pylinter.check`: it calls `Pylinter.initialize` which is
+        # `PyLinter.check`: it calls `PyLinter.initialize` which is
         # needed to properly set up messages inclusion/exclusion
         # in `_msg_states`, used by `is_message_enabled`.
         check = "pylint.lint.pylinter.check_parallel"
