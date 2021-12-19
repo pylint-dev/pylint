@@ -32,6 +32,13 @@ Extensions
 Other Changes
 =============
 
+* pylint do not take into account files starting with ``.#`` anymore. Those are
+  considered `emacs file lock`_.
+
+  Closes #367
+
+.. _`emacs file lock`: https://www.gnu.org/software/emacs/manual/html_node/elisp/File-Locks.html
+
 * Fixed extremely long processing of long lines with comma's.
 
   Closes #5483

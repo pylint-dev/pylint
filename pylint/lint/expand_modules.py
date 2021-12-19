@@ -48,11 +48,12 @@ def expand_modules(
     result: List[ModuleDescriptionDict] = []
     errors: List[ErrorDescriptionDict] = []
     path = sys.path.copy()
-
     for something in files_or_modules:
         basename = os.path.basename(something)
         if (
             basename in ignore_list
+            # Emacs file locks see #367
+            or basename.startswith(".#")
             or _is_in_ignore_list_re(os.path.basename(something), ignore_list_re)
             or _is_in_ignore_list_re(something, ignore_list_paths_re)
         ):

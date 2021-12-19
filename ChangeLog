@@ -30,6 +30,12 @@ Release date: TBA
 
   Closes #5499
 
+* pylint do not take into account files starting with ``.#`` anymore. Those are
+  considered `emacs file lock`. See
+  https://www.gnu.org/software/emacs/manual/html_node/elisp/File-Locks.html.
+
+  Closes #367
+
 * ``used-before-assignment`` now assumes that assignments in except blocks
   may not have occurred and warns accordingly.
 
