@@ -48,6 +48,7 @@ def expand_modules(
     result: List[ModuleDescriptionDict] = []
     errors: List[ErrorDescriptionDict] = []
     path = sys.path.copy()
+
     for something in files_or_modules:
         basename = os.path.basename(something)
         if (
