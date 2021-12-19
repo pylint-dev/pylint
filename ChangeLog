@@ -30,9 +30,10 @@ Release date: TBA
 
   Closes #5499
 
-* pylint do not take into account files starting with ``.#`` anymore. Those are
+* By default, pylint do not take into account files starting with ``.#`` anymore. Those are
   considered `emacs file lock`. See
   https://www.gnu.org/software/emacs/manual/html_node/elisp/File-Locks.html.
+  This behavior can be reverted by redefining the ``ignore-patterns`` option.
 
   Closes #367
 

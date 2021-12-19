@@ -32,8 +32,9 @@ Extensions
 Other Changes
 =============
 
-* pylint do not take into account files starting with ``.#`` anymore. Those are
-  considered `emacs file lock`_.
+* By default, pylint do not take into account files starting with ``.#`` anymore. Those are
+  considered `emacs file lock`_. This behavior can be reverted by redefining the
+  ``ignore-patterns`` option.
 
   Closes #367
 
