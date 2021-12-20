@@ -36,13 +36,16 @@
 """Checks for various exception related errors."""
 import builtins
 import inspect
-from typing import Any, List, Optional
+from typing import TYPE_CHECKING, Any, List, Optional
 
 import astroid
 from astroid import nodes, objects
 
 from pylint import checkers, interfaces
 from pylint.checkers import utils
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 
 def _builtin_exceptions():
@@ -571,6 +574,9 @@ class ExceptionsChecker(checkers.BaseChecker):
                 exceptions_classes += [exc for _, exc in exceptions]
 
 
-def register(linter):
-    """required method to auto register this checker"""
+def register(linter: "PyLinter") -> None:
+    """This required method auto registers the checker during initialization.
+
+    :param linter: The linter to register the checker to.
+    """
     linter.register_checker(ExceptionsChecker(linter))

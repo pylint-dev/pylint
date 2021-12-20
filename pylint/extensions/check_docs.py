@@ -9,15 +9,18 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import warnings
+from typing import TYPE_CHECKING
 
 from pylint.extensions import docparams
 
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
-def register(linter):
-    """Required method to auto register this checker.
 
-    :param linter: Main interface object for Pylint plugins
-    :type linter: Pylint object
+def register(linter: "PyLinter") -> None:
+    """This required method auto registers the checker during initialization.
+
+    :param linter: The linter to register the checker to.
     """
     warnings.warn(
         "This plugin is deprecated, use pylint.extensions.docparams instead.",

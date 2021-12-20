@@ -752,10 +752,7 @@ class PyLinter(
     # checkers manipulation methods ############################################
 
     def register_checker(self, checker: checkers.BaseChecker) -> None:
-        """register a new checker
-
-        checker is an object implementing IRawChecker or / and IAstroidChecker
-        """
+        """This method auto registers the checker."""
         assert checker.priority <= 0, "checker priority can't be >= 0"
         self._checkers[checker.name].append(checker)
         for r_id, r_title, r_cb in checker.reports:
@@ -764,7 +761,6 @@ class PyLinter(
         if hasattr(checker, "msgs"):
             self.msgs_store.register_messages_from_checker(checker)
         checker.load_defaults()
-
         # Register the checker, but disable all of its messages.
         if not getattr(checker, "enabled", True):
             self.disable(checker.name)

@@ -1,4 +1,4 @@
-from typing import Dict, List, NamedTuple, Set, Union
+from typing import TYPE_CHECKING, Dict, List, NamedTuple, Set, Union
 
 import astroid.bases
 from astroid import nodes
@@ -10,8 +10,10 @@ from pylint.checkers.utils import (
     safe_infer,
 )
 from pylint.interfaces import IAstroidChecker
-from pylint.lint import PyLinter
 from pylint.utils.utils import get_global_option
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 
 class TypingAlias(NamedTuple):
@@ -132,7 +134,7 @@ class TypingChecker(BaseChecker):
     or Python 3.7+ with postponed evaluation.
     """
 
-    def __init__(self, linter: PyLinter) -> None:
+    def __init__(self, linter: "PyLinter") -> None:
         """Initialize checker instance."""
         super().__init__(linter=linter)
         self._alias_name_collisions: Set[str] = set()
@@ -278,5 +280,9 @@ class TypingChecker(BaseChecker):
         self._consider_using_alias_msgs.clear()
 
 
-def register(linter: PyLinter) -> None:
+def register(linter: "PyLinter") -> None:
+    """This required method auto registers the checker during initialization.
+
+    :param linter: The linter to register the checker to.
+    """
     linter.register_checker(TypingChecker(linter))

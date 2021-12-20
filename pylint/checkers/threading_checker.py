@@ -1,11 +1,16 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
+from typing import TYPE_CHECKING
+
 from astroid import nodes
 
 from pylint import interfaces
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages, safe_infer
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 
 class ThreadingChecker(BaseChecker):
@@ -50,6 +55,9 @@ class ThreadingChecker(BaseChecker):
                     self.add_message("useless-with-lock", node=node, args=qname)
 
 
-def register(linter):
-    """required method to auto register this checker"""
+def register(linter: "PyLinter") -> None:
+    """This required method auto registers the checker during initialization.
+
+    :param linter: The linter to register the checker to.
+    """
     linter.register_checker(ThreadingChecker(linter))

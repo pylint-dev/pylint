@@ -352,7 +352,10 @@ class ColorizedTextReporter(TextReporter):
 
 
 def register(linter: "PyLinter") -> None:
-    """Register the reporter classes with the linter."""
+    """This required method auto registers the checker during initialization.
+
+    :param linter: The linter to register the checker to.
+    """
     linter.register_reporter(TextReporter)
     linter.register_reporter(ParseableTextReporter)
     linter.register_reporter(VSTextReporter)

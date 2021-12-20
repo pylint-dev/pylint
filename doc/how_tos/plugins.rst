@@ -25,7 +25,11 @@ So a basic hello-world plugin can be implemented as:
 .. sourcecode:: python
 
   # Inside hello_plugin.py
-  def register(linter):
+  def register(linter: "PyLinter") -> None:
+    """This required method auto registers the checker during initialization.
+
+    :param linter: The linter to register the checker to.
+    """
     print('Hello world')
 
 
@@ -43,7 +47,11 @@ We can extend hello-world plugin to ignore some specific names using
 .. sourcecode:: python
 
   # Inside hello_plugin.py
-  def register(linter):
+  def register(linter: "PyLinter") -> None:
+    """This required method auto registers the checker during initialization.
+
+    :param linter: The linter to register the checker to.
+    """
     print('Hello world')
 
   def load_configuration(linter):

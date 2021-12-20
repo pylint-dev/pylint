@@ -69,7 +69,17 @@ import types
 from collections import deque
 from collections.abc import Sequence
 from functools import singledispatch
-from typing import Any, Callable, Iterator, List, Optional, Pattern, Tuple, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Iterator,
+    List,
+    Optional,
+    Pattern,
+    Tuple,
+    Union,
+)
 
 import astroid
 import astroid.exceptions
@@ -100,6 +110,8 @@ from pylint.checkers.utils import (
 from pylint.interfaces import INFERENCE, IAstroidChecker
 from pylint.utils import get_global_option
 
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 CallableObjects = Union[
     bases.BoundMethod,
     bases.UnboundMethod,
@@ -2090,7 +2102,10 @@ class IterableChecker(BaseChecker):
         self.add_message("await-outside-async", node=node)
 
 
-def register(linter):
-    """required method to auto register this checker"""
+def register(linter: "PyLinter") -> None:
+    """This required method auto registers the checker during initialization.
+
+    :param linter: The linter to register the checker to.
+    """
     linter.register_checker(TypeChecker(linter))
     linter.register_checker(IterableChecker(linter))

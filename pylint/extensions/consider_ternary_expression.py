@@ -1,9 +1,14 @@
 """Check for if / assign blocks that can be rewritten with if-expressions."""
 
+from typing import TYPE_CHECKING
+
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.interfaces import IAstroidChecker
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 
 class ConsiderTernaryExpressionChecker(BaseChecker):
@@ -44,10 +49,9 @@ class ConsiderTernaryExpressionChecker(BaseChecker):
         self.add_message("consider-ternary-expression", node=node)
 
 
-def register(linter):
-    """Required method to auto register this checker.
+def register(linter: "PyLinter") -> None:
+    """This required method auto registers the checker during initialization.
 
-    :param linter: Main interface object for Pylint plugins
-    :type linter: Pylint object
+    :param linter: The linter to register the checker to.
     """
     linter.register_checker(ConsiderTernaryExpressionChecker(linter))

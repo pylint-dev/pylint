@@ -38,12 +38,17 @@
 """Looks for code which can be refactored."""
 
 
+from typing import TYPE_CHECKING
+
 from pylint.checkers.refactoring.implicit_booleaness_checker import (
     ImplicitBooleanessChecker,
 )
 from pylint.checkers.refactoring.not_checker import NotChecker
 from pylint.checkers.refactoring.recommendation_checker import RecommendationChecker
 from pylint.checkers.refactoring.refactoring_checker import RefactoringChecker
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 __all__ = [
     "ImplicitBooleanessChecker",
@@ -53,8 +58,11 @@ __all__ = [
 ]
 
 
-def register(linter):
-    """Required method to auto register this checker."""
+def register(linter: "PyLinter") -> None:
+    """This required method auto registers the checker during initialization.
+
+    :param linter: The linter to register the checker to.
+    """
     linter.register_checker(RefactoringChecker(linter))
     linter.register_checker(NotChecker(linter))
     linter.register_checker(RecommendationChecker(linter))

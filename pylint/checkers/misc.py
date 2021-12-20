@@ -29,7 +29,7 @@
 
 import re
 import tokenize
-from typing import List, Optional
+from typing import TYPE_CHECKING, List, Optional
 
 from astroid import nodes
 
@@ -37,6 +37,9 @@ from pylint.checkers import BaseChecker
 from pylint.interfaces import IRawChecker, ITokenChecker
 from pylint.typing import ManagedMessage
 from pylint.utils.pragma_parser import OPTION_PO, PragmaParserError, parse_pragma
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 
 class ByIdManagedMessagesChecker(BaseChecker):
@@ -195,7 +198,10 @@ class EncodingChecker(BaseChecker):
                 )
 
 
-def register(linter):
-    """required method to auto register this checker"""
+def register(linter: "PyLinter") -> None:
+    """This required method auto registers the checker during initialization.
+
+    :param linter: The linter to register the checker to.
+    """
     linter.register_checker(EncodingChecker(linter))
     linter.register_checker(ByIdManagedMessagesChecker(linter))

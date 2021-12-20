@@ -33,13 +33,16 @@
 import os
 import re
 import tokenize
-from typing import Pattern
+from typing import TYPE_CHECKING, Pattern
 
 from astroid import nodes
 
 from pylint.checkers import BaseTokenChecker
 from pylint.checkers.utils import check_messages
 from pylint.interfaces import IAstroidChecker, ITokenChecker
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 try:
     import enchant
@@ -470,6 +473,9 @@ class SpellingChecker(BaseTokenChecker):
             self._check_spelling("wrong-spelling-in-docstring", line, start_line + idx)
 
 
-def register(linter):
-    """required method to auto register this checker"""
+def register(linter: "PyLinter") -> None:
+    """This required method auto registers the checker during initialization.
+
+    :param linter: The linter to register the checker to.
+    """
     linter.register_checker(SpellingChecker(linter))

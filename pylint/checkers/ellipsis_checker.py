@@ -46,5 +46,8 @@ class EllipsisChecker(BaseChecker):
 
 
 def register(linter: PyLinter) -> None:
-    """required method to auto register this checker"""
+    """This required method auto registers the checker during initialization.
+
+    :param linter: The linter to register the checker to.
+    """
     linter.register_checker(EllipsisChecker(linter))

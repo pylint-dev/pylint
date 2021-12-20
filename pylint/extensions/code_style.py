@@ -1,14 +1,15 @@
 import sys
-from typing import List, Optional, Set, Tuple, Type, Union, cast
+from typing import TYPE_CHECKING, List, Optional, Set, Tuple, Type, Union, cast
 
 from astroid import nodes
 
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import check_messages, safe_infer
 from pylint.interfaces import IAstroidChecker
-from pylint.lint import PyLinter
 from pylint.utils.utils import get_global_option
 
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 if sys.version_info >= (3, 10):
     from typing import TypeGuard
 else:
@@ -72,7 +73,7 @@ class CodeStyleChecker(BaseChecker):
         ),
     )
 
-    def __init__(self, linter: PyLinter) -> None:
+    def __init__(self, linter: "PyLinter") -> None:
         """Initialize checker instance."""
         super().__init__(linter=linter)
 
@@ -303,5 +304,9 @@ class CodeStyleChecker(BaseChecker):
         return False
 
 
-def register(linter: PyLinter) -> None:
+def register(linter: "PyLinter") -> None:
+    """This required method auto registers the checker during initialization.
+
+    :param linter: The linter to register the checker to.
+    """
     linter.register_checker(CodeStyleChecker(linter))

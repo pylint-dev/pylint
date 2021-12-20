@@ -10,6 +10,7 @@ from pylint.reporters.ureports.nodes import Section
 from pylint.utils import LinterStats
 
 if TYPE_CHECKING:
+    from pylint.checkers import BaseChecker
     from pylint.lint.pylinter import PyLinter
 
 ReportsDict = DefaultDict[checkers.BaseChecker, List[Tuple[str, str, Callable]]]
@@ -29,7 +30,7 @@ class ReportsHandlerMixIn:
         return list(self._reports)
 
     def register_report(
-        self, reportid: str, r_title: str, r_cb: Callable, checker: checkers.BaseChecker
+        self, reportid: str, r_title: str, r_cb: Callable, checker: "BaseChecker"
     ) -> None:
         """register a report
 

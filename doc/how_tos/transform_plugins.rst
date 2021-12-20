@@ -68,8 +68,11 @@ Module, Class, Function etc. In our case we need to transform a class. It can be
 
   import astroid
 
-  def register(linter):
-    # Needed for registering the plugin.
+  def register(linter: "PyLinter") -> None:
+    """This required method auto registers the checker during initialization.
+
+    :param linter: The linter to register the checker to.
+    """
     pass
 
   def transform(cls):

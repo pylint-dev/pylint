@@ -41,7 +41,7 @@ import collections
 import numbers
 import re
 import tokenize
-from typing import Counter, Iterable
+from typing import TYPE_CHECKING, Counter, Iterable
 
 import astroid
 from astroid import nodes
@@ -49,6 +49,9 @@ from astroid import nodes
 from pylint.checkers import BaseChecker, BaseTokenChecker, utils
 from pylint.checkers.utils import check_messages
 from pylint.interfaces import IAstroidChecker, IRawChecker, ITokenChecker
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 _AST_NODE_STR_TYPES = ("__builtin__.unicode", "__builtin__.str", "builtins.str")
 # Prefixes for both strings and bytes literals per
@@ -925,8 +928,11 @@ class StringConstantChecker(BaseTokenChecker):
             )
 
 
-def register(linter):
-    """required method to auto register this checker"""
+def register(linter: "PyLinter") -> None:
+    """This required method auto registers the checker during initialization.
+
+    :param linter: The linter to register the checker to.
+    """
     linter.register_checker(StringFormatChecker(linter))
     linter.register_checker(StringConstantChecker(linter))
 

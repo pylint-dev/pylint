@@ -56,7 +56,7 @@ Some parts of the process_token method is based from The Tab Nanny std module.
 
 import tokenize
 from functools import reduce
-from typing import List
+from typing import TYPE_CHECKING, List
 
 from astroid import nodes
 
@@ -70,6 +70,10 @@ from pylint.checkers.utils import (
 from pylint.constants import WarningScope
 from pylint.interfaces import IAstroidChecker, IRawChecker, ITokenChecker
 from pylint.utils.pragma_parser import OPTION_PO, PragmaParserError, parse_pragma
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
+
 
 _ASYNC_TOKEN = "async"
 _KEYWORD_TOKENS = [
@@ -819,6 +823,9 @@ class FormatChecker(BaseTokenChecker):
             )
 
 
-def register(linter):
-    """required method to auto register this checker"""
+def register(linter: "PyLinter") -> None:
+    """This required method auto registers the checker during initialization.
+
+    :param linter: The linter to register the checker to.
+    """
     linter.register_checker(FormatChecker(linter))

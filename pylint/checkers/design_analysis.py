@@ -32,7 +32,7 @@
 
 import re
 from collections import defaultdict
-from typing import FrozenSet, Iterator, List, Set, cast
+from typing import TYPE_CHECKING, FrozenSet, Iterator, List, Set, cast
 
 import astroid
 from astroid import nodes
@@ -41,6 +41,9 @@ from pylint import utils
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages
 from pylint.interfaces import IAstroidChecker
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
     "R0901": (
@@ -662,6 +665,9 @@ class MisdesignChecker(BaseChecker):
         self._branches[node.scope()] += branchesnum
 
 
-def register(linter):
-    """required method to auto register this checker"""
+def register(linter: "PyLinter") -> None:
+    """This required method auto registers the checker during initialization.
+
+    :param linter: The linter to register the checker to.
+    """
     linter.register_checker(MisdesignChecker(linter))

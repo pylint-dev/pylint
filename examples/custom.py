@@ -1,11 +1,16 @@
+from typing import TYPE_CHECKING
+
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.interfaces import IAstroidChecker
 
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
-# This is our checker class.
 # Checkers should always inherit from `BaseChecker`.
+
+
 class MyAstroidChecker(BaseChecker):
     """Add class member attributes to the class local's dictionary."""
 
@@ -60,10 +65,9 @@ class MyAstroidChecker(BaseChecker):
             in_class.locals[param.name] = node
 
 
-def register(linter):
-    """This required method auto registers the checker.
+def register(linter: "PyLinter") -> None:
+    """This required method auto registers the checker during initialization.
 
     :param linter: The linter to register the checker to.
-    :type linter: pylint.lint.PyLinter
     """
     linter.register_checker(MyAstroidChecker(linter))

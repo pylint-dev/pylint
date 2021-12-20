@@ -38,10 +38,13 @@ from module mymodule:
     ------------------------------------------------------------------
     Your code has been rated at 2.00/10 (previous run: 2.00/10, +0.00)
 """
-from typing import Set, Tuple, Union
+from typing import TYPE_CHECKING, Set, Tuple, Union
 
 from pylint.checkers import BaseChecker, DeprecatedMixin
 from pylint.interfaces import IAstroidChecker
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 
 class DeprecationChecker(DeprecatedMixin, BaseChecker):
@@ -90,10 +93,9 @@ class DeprecationChecker(DeprecatedMixin, BaseChecker):
         return ()
 
 
-def register(linter):
-    """This required method auto registers the checker.
+def register(linter: "PyLinter") -> None:
+    """This required method auto registers the checker during initialization.
 
     :param linter: The linter to register the checker to.
-    :type linter: pylint.lint.PyLinter
     """
     linter.register_checker(DeprecationChecker(linter))
