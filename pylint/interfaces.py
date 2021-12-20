@@ -64,9 +64,7 @@ def implements(
     obj: "BaseChecker",
     interface: Union[Type["Interface"], Tuple[Type["Interface"], ...]],
 ) -> bool:
-    """Return whether the given object (maybe an instance or class) implements
-    the interface.
-    """
+    """Does the given object (maybe an instance or class) implements the interface."""
     kimplements = getattr(obj, "__implements__", ())
     if not isinstance(kimplements, (list, tuple)):
         kimplements = (kimplements,)
@@ -74,9 +72,7 @@ def implements(
 
 
 class IChecker(Interface):
-    """This is a base interface, not designed to be used elsewhere than for
-    sub interfaces definition.
-    """
+    """Base interface, not to be used elsewhere than for sub interfaces definition."""
 
     def open(self):
         """called before visiting project (i.e. set of modules)"""
@@ -86,12 +82,12 @@ class IChecker(Interface):
 
 
 class IRawChecker(IChecker):
-    """interface for checker which need to parse the raw file"""
+    """Interface for checker which need to parse the raw file"""
 
     def process_module(self, node: nodes.Module) -> None:
         """process a module
 
-        the module's content is accessible via ``astroid.stream``
+        The module's content is accessible via ``astroid.stream``
         """
 
 
@@ -101,7 +97,7 @@ class ITokenChecker(IChecker):
     def process_tokens(self, tokens):
         """Process a module.
 
-        tokens is a list of all source code tokens in the file.
+        Tokens is a list of all source code tokens in the file.
         """
 
 
