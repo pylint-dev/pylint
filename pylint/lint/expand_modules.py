@@ -8,8 +8,8 @@ from pylint.typing import ErrorDescriptionDict, ModuleDescriptionDict
 
 
 def _modpath_from_file(filename, is_namespace, path=None):
-    def _is_package_cb(path, parts):
-        return modutils.check_modpath_has_init(path, parts) or is_namespace
+    def _is_package_cb(inner_path, parts):
+        return modutils.check_modpath_has_init(inner_path, parts) or is_namespace
 
     return modutils.modpath_from_file_with_callback(
         filename, path=path, is_package_cb=_is_package_cb

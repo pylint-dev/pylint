@@ -30,6 +30,13 @@ Release date: TBA
 
   Closes #5499
 
+* By default, pylint does no longer take files starting with ``.#`` into account. Those are
+  considered `emacs file locks`. See
+  https://www.gnu.org/software/emacs/manual/html_node/elisp/File-Locks.html.
+  This behavior can be reverted by redefining the ``ignore-patterns`` option.
+
+  Closes #367
+
 * ``used-before-assignment`` now assumes that assignments in except blocks
   may not have occurred and warns accordingly.
 
