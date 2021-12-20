@@ -58,3 +58,12 @@ a = 666
 b = 786
 if a == b:
     pass
+
+
+def eventually_raise():
+    print()
+    raise Exception
+
+
+if a == eventually_raise:
+    pass
