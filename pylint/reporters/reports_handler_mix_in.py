@@ -4,7 +4,6 @@
 import collections
 from typing import TYPE_CHECKING, Callable, DefaultDict, Dict, List, Optional, Tuple
 
-from pylint import checkers
 from pylint.exceptions import EmptyReportError
 from pylint.reporters.ureports.nodes import Section
 from pylint.utils import LinterStats
@@ -13,7 +12,7 @@ if TYPE_CHECKING:
     from pylint.checkers import BaseChecker
     from pylint.lint.pylinter import PyLinter
 
-ReportsDict = DefaultDict[checkers.BaseChecker, List[Tuple[str, str, Callable]]]
+ReportsDict = DefaultDict["BaseChecker", List[Tuple[str, str, Callable]]]
 
 
 class ReportsHandlerMixIn:
@@ -25,7 +24,7 @@ class ReportsHandlerMixIn:
         self._reports: ReportsDict = collections.defaultdict(list)
         self._reports_state: Dict[str, bool] = {}
 
-    def report_order(self) -> List[checkers.BaseChecker]:
+    def report_order(self) -> List["BaseChecker"]:
         """Return a list of reporters"""
         return list(self._reports)
 
