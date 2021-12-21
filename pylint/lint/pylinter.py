@@ -11,7 +11,19 @@ import tokenize
 import traceback
 import warnings
 from io import TextIOWrapper
-from typing import Any, Dict, Iterable, Iterator, List, Optional, Sequence, Type, Union
+from typing import (
+    Any,
+    DefaultDict,
+    Dict,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Sequence,
+    Set,
+    Type,
+    Union,
+)
 
 import astroid
 from astroid import AstroidError, nodes
@@ -537,8 +549,15 @@ class PyLinter(
         self._reporters: Dict[str, Type[reporters.BaseReporter]] = {}
         """Dictionary of possible but non-initialized reporters"""
 
+        # Attributes for checkers and plugins
+        self._checkers: DefaultDict[
+            str, List[checkers.BaseChecker]
+        ] = collections.defaultdict(list)
+        """Dictionary of registered and initialized checkers"""
+        self._dynamic_plugins: Set[str] = set()
+        """Set of loaded plugin names"""
+
         self.msgs_store = MessageDefinitionStore()
-        self._checkers = collections.defaultdict(list)
         self._pragma_lineno = {}
         self._ignore_file = False
         # visit variables
@@ -583,7 +602,6 @@ class PyLinter(
             ("RP0003", "Messages", report_messages_stats),
         )
         self.register_checker(self)
-        self._dynamic_plugins = set()
         self._error_mode = False
         self.load_provider_defaults()
 
@@ -720,7 +738,7 @@ class PyLinter(
 
     # checkers manipulation methods ############################################
 
-    def register_checker(self, checker):
+    def register_checker(self, checker: checkers.BaseChecker) -> None:
         """register a new checker
 
         checker is an object implementing IRawChecker or / and IAstroidChecker
