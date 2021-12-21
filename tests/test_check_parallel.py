@@ -82,7 +82,7 @@ class ParallelTestChecker(BaseChecker, MapReduceMixin):
 
     On non-parallel builds: it works on all the files in a single run.
 
-    On parallel builds: lint.parallel calls ``open`` once per file.
+    On parallel builds: ``lint.parallel`` calls ``open`` once per file.
 
     So if files are treated by separate processes, no messages will be
     raised from the individual process, all messages will be raised
@@ -274,7 +274,7 @@ class TestCheckParallel:
         """Tests original basic types of checker works as expected in -jN
 
         This means that a sequential checker should return the same data for a given
-        file-stream irrespective of whether its run in -j1 or -jN
+        file-stream irrespective of whether it's run in -j1 or -jN
         """
         linter = PyLinter(reporter=Reporter())
 
@@ -443,7 +443,7 @@ class TestCheckParallel:
 
         file_infos = _gen_file_datas(num_files)
 
-        # Loop for single-proc and mult-proc so we can ensure the same linter-config
+        # Loop for single-proc and mult-proc, so we can ensure the same linter-config
         for do_single_proc in range(2):
             linter = PyLinter(reporter=Reporter())
 
@@ -515,7 +515,7 @@ class TestCheckParallel:
         # with the number of files.
         file_infos = _gen_file_datas(num_files)
 
-        # Loop for single-proc and mult-proc so we can ensure the same linter-config
+        # Loop for single-proc and mult-proc, so we can ensure the same linter-config
         for do_single_proc in range(2):
             linter = PyLinter(reporter=Reporter())
 

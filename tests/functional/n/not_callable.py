@@ -127,7 +127,7 @@ class UnknownBaseCallable(missing.Blah):
 UnknownBaseCallable()()
 
 # Regression test for #4426
-# If property is inferrable we shouldn't double emit the message
+# If property is inferable we shouldn't double emit the message
 # See: https://github.com/PyCQA/pylint/issues/4426
 class ClassWithProperty:
     @property
@@ -136,12 +136,24 @@ class ClassWithProperty:
 
 CLASS_WITH_PROP = ClassWithProperty().value()  # [not-callable]
 
-# Test typing.Namedtuple not callable
+# Test typing.Namedtuple is callable
 # See: https://github.com/PyCQA/pylint/issues/1295
 import typing
 
 Named = typing.NamedTuple("Named", [("foo", int), ("bar", int)])
 named = Named(1, 2)
+
+
+# NamedTuple is callable, even if it aliased to a attribute
+# See https://github.com/PyCQA/pylint/issues/1730
+class TestNamedTuple:
+    def __init__(self, field: str) -> None:
+        self.my_tuple = typing.NamedTuple("Tuple", [(field, int)])
+        self.item: self.my_tuple
+
+    def set_item(self, item: int) -> None:
+        self.item = self.my_tuple(item)
+
 
 # Test descriptor call
 def func():

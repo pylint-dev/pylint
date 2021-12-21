@@ -155,7 +155,7 @@ class LinterStats:
         {self.percent_duplicated_lines}"""
 
     def init_single_module(self, module_name: str) -> None:
-        """Use through Pylinter.set_current_module so Pyliner.current_name is consistent."""
+        """Use through PyLinter.set_current_module so PyLinter.current_name is consistent."""
         self.by_module[module_name] = ModuleStats(
             convention=0, error=0, fatal=0, info=0, refactor=0, statement=0, warning=0
         )

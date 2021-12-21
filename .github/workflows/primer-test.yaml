@@ -9,6 +9,7 @@ on:
     paths:
       - "pylint/**"
       - "tests/primer/**"
+      - "requirements*"
 
 env:
   CACHE_VERSION: 3

@@ -16,6 +16,7 @@
 
 import re
 import sre_constants
+import sys
 from typing import Dict, Tuple, Type
 
 import pytest
@@ -25,7 +26,10 @@ from pylint.checkers import BaseChecker
 from pylint.testutils import CheckerTestCase, set_config
 from pylint.utils.utils import get_global_option
 
-RE_PATTERN_TYPE = getattr(re, "Pattern", getattr(re, "_pattern_type", None))
+if sys.version_info >= (3, 7):
+    RE_PATTERN_TYPE = re.Pattern
+else:
+    RE_PATTERN_TYPE = re._pattern_type  # pylint: disable=no-member
 
 
 def test__regexp_validator_valid() -> None:

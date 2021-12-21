@@ -401,7 +401,7 @@ def is_defined_before(var_node: nodes.Name) -> bool:
         if is_defined_in_scope(var_node, varname, parent):
             return True
     # possibly multiple statements on the same line using semi colon separator
-    stmt = var_node.statement()
+    stmt = var_node.statement(future=True)
     _node = stmt.previous_sibling()
     lineno = stmt.fromlineno
     while _node and _node.fromlineno == lineno:
@@ -876,7 +876,11 @@ def uninferable_final_decorators(
             except AttributeError:
                 continue
         elif isinstance(decorator, nodes.Name):
-            import_node = decorator.lookup(decorator.name)[1][0]
+            lookup_values = decorator.lookup(decorator.name)
+            if lookup_values[1]:
+                import_node = lookup_values[1][0]
+            else:
+                continue  # pragma: no cover # Covered on Python < 3.8
         else:
             continue
 

@@ -223,9 +223,10 @@ class PyLinter(
                     "type": "regexp_csv",
                     "metavar": "<pattern>[,<pattern>...]",
                     "dest": "black_list_re",
-                    "default": (),
+                    "default": (r"^\.#",),
                     "help": "Files or directories matching the regex patterns are"
-                    " skipped. The regex matches against base names, not paths.",
+                    " skipped. The regex matches against base names, not paths. The default value "
+                    "ignores emacs file locks",
                 },
             ),
             (
@@ -294,11 +295,11 @@ class PyLinter(
                     "metavar": "<python_expression>",
                     "group": "Reports",
                     "level": 1,
-                    "default": "10.0 - ((float(5 * error + warning + refactor + "
+                    "default": "0 if fatal else 10.0 - ((float(5 * error + warning + refactor + "
                     "convention) / statement) * 10)",
                     "help": "Python expression which should return a score less "
-                    "than or equal to 10. You have access to the variables "
-                    "'error', 'warning', 'refactor', and 'convention' which "
+                    "than or equal to 10. You have access to the variables 'fatal', "
+                    "'error', 'warning', 'refactor', 'convention', and 'info' which "
                     "contain the number of messages in each category, as well as "
                     "'statement' which is the total number of statements "
                     "analyzed. This score is used by the global "
@@ -376,7 +377,7 @@ class PyLinter(
                     "(only on the command line, not in the configuration file "
                     "where it should appear only once). "
                     'You can also use "--disable=all" to disable everything first '
-                    "and then reenable specific checks. For example, if you want "
+                    "and then re-enable specific checks. For example, if you want "
                     "to run only the similarities checker, you can use "
                     '"--disable=all --enable=similarities". '
                     "If you want to run only the classes checker, but have no "
@@ -750,7 +751,7 @@ class PyLinter(
         fail_on_cats = set()
         fail_on_msgs = set()
         for val in fail_on_vals:
-            # If value is a cateogry, add category, else add message
+            # If value is a category, add category, else add message
             if val in MSG_TYPES:
                 fail_on_cats.add(val)
             else:
@@ -1607,7 +1608,7 @@ class PyLinter(
         line: Optional[int] = None,
         ignore_unknown: bool = False,
     ) -> None:
-        """Do some tests and then iterate over message defintions to set state"""
+        """Do some tests and then iterate over message definitions to set state"""
         assert scope in {"package", "module"}
         if msgid == "all":
             for _msgid in MSG_TYPES:

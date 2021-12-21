@@ -16,7 +16,7 @@ class B:
     @property
     def test(self):
         """Overriding implementation of prop which calls the parent"""
-        return A.test.fget(self) + " overriden"
+        return A.test.fget(self) + " overridden"
 
 
 if __name__ == "__main__":
