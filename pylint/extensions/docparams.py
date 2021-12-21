@@ -588,7 +588,7 @@ class DocstringParameterChecker(BaseChecker):
             ):
                 self.add_message(
                     "missing-any-param-doc",
-                    args=warning_node.name,
+                    args=(warning_node.name,),
                     node=warning_node,
                 )
             else:
