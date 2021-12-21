@@ -2514,12 +2514,12 @@ class ComparisonChecker(_BasicChecker):
         number_of_bare_callables = 0
         for operand in left_operand, right_operand:
             inferred = utils.safe_infer(operand)
-            if isinstance(inferred, bare_callables) and not any(
-                # Ignore callables that raise
-                isinstance(x, nodes.Raise)
-                # Or typing constants
-                or "typing._SpecialForm" in inferred.decoratornames()
-                for x in inferred.body
+            # Ignore callables that raise, as well as typing constants
+            # implemented as functions (that raise via their decorator)
+            if (
+                isinstance(inferred, bare_callables)
+                and "typing._SpecialForm" not in inferred.decoratornames()
+                and not any(isinstance(x, nodes.Raise) for x in inferred.body)
             ):
                 number_of_bare_callables += 1
         if number_of_bare_callables == 1:
