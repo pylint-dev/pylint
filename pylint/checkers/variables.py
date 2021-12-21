@@ -678,20 +678,14 @@ scope_type : {self._atomic.scope_type}
         # If this node is in an ExceptHandler,
         # filter out assignments in the try portion, assuming they may fail
         if found_nodes and isinstance(node_statement.parent, nodes.ExceptHandler):
-            filtered_nodes = [
-                n
-                for n in found_nodes
-                if not (
-                    isinstance(n.statement(future=True).parent, nodes.TryExcept)
-                    and n.statement(future=True) in n.statement(future=True).parent.body
-                    and node_statement.parent
-                    in n.statement(future=True).parent.handlers
+            uncertain_nodes = (
+                self._uncertain_nodes_in_try_blocks_when_evaluating_except_blocks(
+                    found_nodes, node_statement
                 )
-            ]
-            filtered_nodes_set = set(filtered_nodes)
-            difference = [n for n in found_nodes if n not in filtered_nodes_set]
-            self.consumed_uncertain[node.name] += difference
-            found_nodes = filtered_nodes
+            )
+            self.consumed_uncertain[node.name] += uncertain_nodes
+            uncertain_nodes_set = set(uncertain_nodes)
+            found_nodes = [n for n in found_nodes if n not in uncertain_nodes_set]
 
         return found_nodes
 
@@ -736,6 +730,26 @@ scope_type : {self._atomic.scope_type}
                     # if one of the except blocks does not define the name in question,
                     # raise, or return. See: https://github.com/PyCQA/pylint/issues/5524.
                     continue
+            # Passed all tests for uncertain execution
+            uncertain_nodes.append(other_node)
+        return uncertain_nodes
+
+    @staticmethod
+    def _uncertain_nodes_in_try_blocks_when_evaluating_except_blocks(
+        found_nodes, node_statement
+    ):
+        uncertain_nodes = []
+        for other_node in found_nodes:
+            other_node_statement = other_node.statement(future=True)
+            other_node_try_ancestor = utils.get_node_first_ancestor_of_type(
+                other_node_statement, nodes.TryExcept
+            )
+            if other_node_try_ancestor is None:
+                continue
+            if other_node_statement not in other_node_try_ancestor.body:
+                continue
+            if node_statement.parent not in other_node_try_ancestor.handlers:
+                continue
             # Passed all tests for uncertain execution
             uncertain_nodes.append(other_node)
         return uncertain_nodes
