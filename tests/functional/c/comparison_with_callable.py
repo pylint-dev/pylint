@@ -66,4 +66,6 @@ def eventually_raise():
 
 
 if a == eventually_raise:
+    # Does not emit comparison-with-callable because the
+    # function (eventually) raises
     pass
