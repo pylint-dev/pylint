@@ -2511,7 +2511,7 @@ class ComparisonChecker(_BasicChecker):
         left_operand, right_operand = node.left, node.ops[0][1]
         # this message should be emitted only when there is comparison of bare callable
         # with non bare callable.
-        number_of_bare_callables: int = 0
+        number_of_bare_callables = 0
         for operand in left_operand, right_operand:
             inferred = utils.safe_infer(operand)
             if isinstance(inferred, bare_callables) and not any(
