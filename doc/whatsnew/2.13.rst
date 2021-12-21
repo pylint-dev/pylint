@@ -10,6 +10,9 @@ Summary -- Release highlights
 
 New checkers
 ============
+* ``unnecessary-ellipsis``: Emitted when the ellipsis constant is used unnecessarily.
+
+  Closes #5460
 
 Removed checkers
 ================
@@ -17,8 +20,38 @@ Removed checkers
 Extensions
 ==========
 
+* Pyreverse - add output in mermaid-js format and html which is an mermaid js diagram with html boilerplate
+
+* ``DocstringParameterChecker``
+
+  * Fixed incorrect classification of Numpy-style docstring as Google-style docstring for
+    docstrings with property setter documentation.
+    Docstring classification is now based on the highest amount of matched sections instead
+    of the order in which the docstring styles were tried.
+
 Other Changes
 =============
+
+* By default, pylint does no longer take files starting with ``.#`` into account. Those are
+  considered `emacs file locks`_. This behavior can be reverted by redefining the
+  ``ignore-patterns`` option.
+
+  Closes #367
+
+.. _`emacs file locks`: https://www.gnu.org/software/emacs/manual/html_node/elisp/File-Locks.html
+
+* Fixed extremely long processing of long lines with comma's.
+
+  Closes #5483
+
+* Fix ``unnecessary_dict_index_lookup`` false positive when deleting a dictionary's entry.
+
+  Closes #4716
+
+* Fix crash in ``unnecessary-dict-index-lookup`` checker if the output of
+  ``items()`` is assigned to a 1-tuple.
+
+  Closes #5504
 
 * Fix false negative for ``consider-iterating-dictionary`` during membership checks encapsulated in iterables
   or ``not in`` checks
@@ -30,6 +63,81 @@ Other Changes
 
   Closes #214
 
+* ``used-before-assignment`` now considers that assignments in a try block
+  may not have occurred when the except or finally blocks are executed.
+
+  Closes #85, #2615
+
+* Fix a false positive for ``assigning-non-slot`` when the slotted class
+  defined ``__setattr__``.
+
+  Closes #3793
+
+* Fixed false positive for ``used-before-assignment`` with self-referential type
+  annotation in conditional statements within class methods.
+
+  Closes #5499
+
+* ``used-before-assignment`` now assumes that assignments in except blocks
+  may not have occurred and warns accordingly.
+
+  Closes #4761
+
+* When evaluating statements after an except block, ``used-before-assignment``
+  assumes that assignments in the except blocks took place if the
+  corresponding try block contained a return statement.
+
+  Closes #5500
+
+* ``used-before-assignment`` now checks names in try blocks.
+
+* Fixed false positive with ``used-before-assignment`` for assignment expressions
+  in lambda statements.
+
+  Closes #5360, #3877
+
 * Require Python ``3.6.2`` to run pylint.
 
   Closes #5065
+
+* Fixed crash on uninferable decorators on Python 3.6 and 3.7
+
+* Fatal errors now emit a score of 0.0 regardless of whether the linted module
+  contained any statements
+
+  Closes #5451
+
+* ``fatal`` was added to the variables permitted in score evaluation expressions.
+
+* Fix ``comparison-with-callable`` false positive for callables that raise, such
+  as typing constants.
+
+  Closes #5557
+
+* The ``PyLinter`` class will now be initialized with a ``TextReporter``
+  as its reporter if none is provided.
+
+* Fix false positive ``not-callable`` with attributes that alias ``NamedTuple``
+
+  Partially closes #1730
+
+* The ``testutils`` for unittests now accept ``end_lineno`` and ``end_column``. Tests
+  without these will trigger a ``DeprecationWarning``.
+
+* Fixed false positive ``unexpected-keyword-arg`` for decorators.
+
+  Closes #258
+
+* ``missing-raises-doc`` will now check the class hierarchy of the raised exceptions
+
+  .. code-block:: python
+
+    def my_function()
+      """My function.
+
+      Raises:
+        Exception: if something fails
+      """
+      raise ValueError
+
+  Closes #4955

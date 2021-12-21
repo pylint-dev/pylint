@@ -10,6 +10,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Looks for try/except statements with too much code in the try clause."""
+from typing import Union
 
 from astroid import nodes
 
@@ -59,7 +60,7 @@ class BroadTryClauseChecker(checkers.BaseChecker):
 
         return statement_count
 
-    def visit_tryexcept(self, node: nodes.TryExcept) -> None:
+    def visit_tryexcept(self, node: Union[nodes.TryExcept, nodes.TryFinally]) -> None:
         try_clause_statements = self._count_statements(node)
         if try_clause_statements > self.config.max_try_statements:
             msg = f"try clause contains {try_clause_statements} statements, expected at most {self.config.max_try_statements}"

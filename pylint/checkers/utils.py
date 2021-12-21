@@ -42,17 +42,17 @@
 # Copyright (c) 2020 Slavfox <slavfoxman@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
+# Copyright (c) 2021 bot <bot@noreply.github.com>
+# Copyright (c) 2021 Yu Shao, Pang <36848472+yushao2@users.noreply.github.com>
 # Copyright (c) 2021 Mark Byrne <31762852+mbyrnepr2@users.noreply.github.com>
 # Copyright (c) 2021 Nick Drozd <nicholasdrozd@gmail.com>
 # Copyright (c) 2021 Arianna Y <92831762+areveny@users.noreply.github.com>
 # Copyright (c) 2021 Jaehoon Hwang <jaehoonhwang@users.noreply.github.com>
 # Copyright (c) 2021 Samuel FORESTIER <HorlogeSkynet@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 bot <bot@noreply.github.com>
 # Copyright (c) 2021 David Liu <david@cs.toronto.edu>
 # Copyright (c) 2021 Matus Valo <matusvalo@users.noreply.github.com>
 # Copyright (c) 2021 Lorena B <46202743+lorena-b@users.noreply.github.com>
-# Copyright (c) 2021 yushao2 <36848472+yushao2@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
@@ -64,6 +64,7 @@ import itertools
 import numbers
 import re
 import string
+import warnings
 from functools import lru_cache, partial
 from typing import (
     Callable,
@@ -294,6 +295,11 @@ class InferredTypeError(Exception):
 
 def is_inside_lambda(node: nodes.NodeNG) -> bool:
     """Return whether the given node is inside a lambda"""
+    warnings.warn(
+        "utils.is_inside_lambda will be removed in favour of calling "
+        "utils.get_node_first_ancestor_of_type(x, nodes.Lambda) in pylint 3.0",
+        DeprecationWarning,
+    )
     return any(isinstance(parent, nodes.Lambda) for parent in node.node_ancestors())
 
 
@@ -395,7 +401,7 @@ def is_defined_before(var_node: nodes.Name) -> bool:
         if is_defined_in_scope(var_node, varname, parent):
             return True
     # possibly multiple statements on the same line using semi colon separator
-    stmt = var_node.statement()
+    stmt = var_node.statement(future=True)
     _node = stmt.previous_sibling()
     lineno = stmt.fromlineno
     while _node and _node.fromlineno == lineno:
@@ -870,7 +876,11 @@ def uninferable_final_decorators(
             except AttributeError:
                 continue
         elif isinstance(decorator, nodes.Name):
-            import_node = decorator.lookup(decorator.name)[1][0]
+            lookup_values = decorator.lookup(decorator.name)
+            if lookup_values[1]:
+                import_node = lookup_values[1][0]
+            else:
+                continue  # pragma: no cover # Covered on Python < 3.8
         else:
             continue
 
@@ -1254,6 +1264,13 @@ def safe_infer(node: nodes.NodeNG, context=None) -> Optional[nodes.NodeNG]:
             inferred_type = _get_python_type_of_node(inferred)
             if inferred_type not in inferred_types:
                 return None  # If there is ambiguity on the inferred node.
+            if (
+                isinstance(inferred, nodes.FunctionDef)
+                and inferred.args.args is not None
+                and value.args.args is not None
+                and len(inferred.args.args) != len(value.args.args)
+            ):
+                return None  # Different number of arguments indicates ambiguity
     except astroid.InferenceError:
         return None  # There is some kind of ambiguity
     except StopIteration:
@@ -1696,7 +1713,7 @@ def returns_bool(node: nodes.NodeNG) -> bool:
 
 
 def get_node_first_ancestor_of_type(
-    node: nodes.NodeNG, ancestor_type: Tuple[Type[T_Node]]
+    node: nodes.NodeNG, ancestor_type: Union[Type[T_Node], Tuple[Type[T_Node]]]
 ) -> Optional[T_Node]:
     """Return the first parent node that is any of the provided types (or None)"""
     for ancestor in node.node_ancestors():

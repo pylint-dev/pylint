@@ -6,9 +6,141 @@ What's New in Pylint 2.13.0?
 ============================
 Release date: TBA
 
+* Pyreverse - add output in mermaidjs format
+
 ..
   Put new features here and also in 'doc/whatsnew/2.13.rst'
 
+* ``used-before-assignment`` now considers that assignments in a try block
+  may not have occurred when the except or finally blocks are executed.
+
+  Closes #85, #2615
+
+* Fixed extremely long processing of long lines with comma's.
+
+  Closes #5483
+
+* Fixed a false positive for ``assigning-non-slot`` when the slotted class
+  defined ``__setattr__``.
+
+  Closes #3793
+
+* Fixed false positive for ``used-before-assignment`` with self-referential type
+  annotation in conditional statements within class methods.
+
+  Closes #5499
+
+* By default, pylint does no longer take files starting with ``.#`` into account. Those are
+  considered `emacs file locks`. See
+  https://www.gnu.org/software/emacs/manual/html_node/elisp/File-Locks.html.
+  This behavior can be reverted by redefining the ``ignore-patterns`` option.
+
+  Closes #367
+
+* ``used-before-assignment`` now assumes that assignments in except blocks
+  may not have occurred and warns accordingly.
+
+  Closes #4761
+
+* When evaluating statements after an except block, ``used-before-assignment``
+  assumes that assignments in the except blocks took place if the
+  corresponding try block contained a return statement.
+
+  Closes #5500
+
+* ``used-before-assignment`` now checks names in try blocks.
+
+* Fixed false positive with ``used-before-assignment`` for assignment expressions
+  in lambda statements.
+
+  Closes #5360, #3877
+
+* Some files in ``pylint.testutils`` were deprecated. In the future imports should be done from the
+  ``pylint.testutils.functional`` namespace directly.
+
+* Fixed false positives for ``no-value-for-parameter`` with variadic
+  positional arguments.
+
+  Closes #5416
+
+* ``safe_infer`` no longer makes an inference when given two function
+  definitions with differing numbers of arguments.
+
+  Closes #3675
+
+* Fix ``comparison-with-callable`` false positive for callables that raise, such
+  as typing constants.
+
+  Closes #5557
+
+* Fix ``unnecessary_dict_index_lookup`` false positive when deleting a dictionary's entry.
+
+  Closes #4716
+
+* Fix crash in ``unnecessary-dict-index-lookup`` checker if the output of
+  ``items()`` is assigned to a 1-tuple.
+
+  Closes #5504
+
+* The ``PyLinter`` class will now be initialized with a ``TextReporter``
+  as its reporter if none is provided.
+
+* Fix false positive ``not-callable`` with attributes that alias ``NamedTuple``
+
+  Partially closes #1730
+
+* Fatal errors now emit a score of 0.0 regardless of whether the linted module
+  contained any statements
+
+  Closes #5451
+
+* ``fatal`` was added to the variables permitted in score evaluation expressions.
+
+* Fix false positive - Allow unpacking of ``self`` in a subclass of ``typing.NamedTuple``.
+
+  Closes #5312
+
+* Fix false negative for ``consider-iterating-dictionary`` during membership checks encapsulated in iterables
+  or ``not in`` checks
+
+  Closes #5323
+
+* Fixed crash on uninferable decorators on Python 3.6 and 3.7
+
+* Add checker ``unnecessary-ellipsis``: Emitted when the ellipsis constant is used unnecessarily.
+
+  Closes #5460
+
+* Fixed incorrect classification of Numpy-style docstring as Google-style docstring for
+  docstrings with property setter documentation.
+  Docstring classification is now based on the highest amount of matched sections instead
+  of the order in which the docstring styles were tried.
+
+* Fixed detection of ``arguments-differ`` when superclass static
+  methods lacked a ``@staticmethod`` decorator.
+
+  Closes #5371
+
+* The ``testutils`` for unittests now accept ``end_lineno`` and ``end_column``. Tests
+  without these will trigger a ``DeprecationWarning``.
+
+* Fixed false positive ``unexpected-keyword-arg`` for decorators.
+
+  Closes #258
+
+* ``missing-raises-doc`` will now check the class hierarchy of the raised exceptions
+
+  .. code-block:: python
+
+    def my_function()
+      """My function.
+
+      Raises:
+        Exception: if something fails
+      """
+      raise ValueError
+
+  Closes #4955
 
 * Allow disabling ``duplicate-code`` with a disable comment when running through
   pylint.
@@ -22,13 +154,15 @@ Release date: TBA
 
 What's New in Pylint 2.12.2?
 ============================
-Release date: TBA
-
-..
-  Put bug fixes that should not wait for a new minor version here
+Release date: 2021-11-25
 
 * Fixed a false positive for ``unused-import`` where everything
   was not analyzed properly inside typing guards.
+
+* Fixed a false-positive regression for ``used-before-assignment`` for
+  typed variables in the body of class methods that reference the same class
+
+  Closes #5342
 
 * Specified that the ``ignore-paths`` option considers "\" to represent a
   windows directory delimiter instead of a regular expression escape
@@ -39,9 +173,29 @@ Release date: TBA
 
   Closes #5437
 
-..
-  Insert your changelog randomly, it will reduce merge conflicts
-  (Ie. not necessarily at the end)
+* Fixed handling of Sphinx-style parameter docstrings with asterisks. These
+  should be escaped with by prepending a "\".
+
+  Closes #5406
+
+* Add ``endLine`` and ``endColumn`` keys to output of ``JSONReporter``.
+
+  Closes #5380
+
+* Fixed handling of Google-style parameter specifications where descriptions
+  are on the line following the parameter name. These were generating
+  false positives for ``missing-param-doc``.
+
+  Closes #5452
+
+* Fix false negative for ``consider-iterating-dictionary`` during membership checks encapsulated in iterables
+  or ``not in`` checks
+
+  Closes #5323
+
+* ``unused-import`` now check all ancestors for typing guards
+
+  Closes #5316
 
 
 What's New in Pylint 2.12.1?
@@ -71,11 +225,6 @@ Release date: 2021-11-24
 
   Closes #4412 #5287
 
-* Fix false negative for ``consider-iterating-dictionary`` during membership checks encapsulated in iterables
-  or ``not in`` checks
-
-  Closes #5323
-
 * Fix ``install graphiz`` message which isn't needed for puml output format.
 
 * ``MessageTest`` of the unittest ``testutil`` now requires the ``confidence`` attribute
@@ -99,8 +248,8 @@ Release date: 2021-11-24
   output files without these will trigger a ``DeprecationWarning``. Expected output files
   can be easily updated with the ``python tests/test_functional.py --update-functional-output`` command.
 
-* The functional ``testutils`` now correctly check the distinction betweeen ``HIGH`` and
-  ``UNDEFINED`` confidence. Expected output files without defiend ``confidence`` levels will now
+* The functional ``testutils`` now correctly check the distinction between ``HIGH`` and
+  ``UNDEFINED`` confidence. Expected output files without defined ``confidence`` levels will now
   trigger a ``DeprecationWarning``. Expected output files can be easily updated with the
   ``python tests/test_functional.py --update-functional-output`` command.
 
@@ -223,7 +372,7 @@ Release date: 2021-11-24
 
   Closes #5194
 
-* Fix double emitting of ``not-callable`` on inferrable ``properties``
+* Fix double emitting of ``not-callable`` on inferable ``properties``
 
   Closes #4426
 
@@ -387,7 +536,7 @@ Release date: 2021-09-16
   Closes #4776
 
 
-* Added ``py-version`` config key (if ``[MASTER]`` section). Used for version dependant checks.
+* Added ``py-version`` config key (if ``[MASTER]`` section). Used for version dependent checks.
   Will default to whatever Python version pylint is executed with.
 
 * ``CodeStyleChecker``
@@ -406,7 +555,7 @@ Release date: 2021-09-16
 
   Closes #4751
 
-* https is now prefered in the documentation and http://pylint.pycqa.org correctly redirect to https://pylint.pycqa.org
+* https is now preferred in the documentation and http://pylint.pycqa.org correctly redirect to https://pylint.pycqa.org
 
   Closes #3802
 
@@ -620,7 +769,7 @@ Release date: 2021-08-20
 * Fixed bug with ``cell-var-from-loop`` checker: it no longer has false negatives when
   both ``unused-variable`` and ``used-before-assignment`` are disabled.
 
-* Fix false postive for ``invalid-all-format`` if the list or tuple builtin functions are used
+* Fix false positive for ``invalid-all-format`` if the list or tuple builtin functions are used
 
   Closes #4711
 
@@ -1348,7 +1497,7 @@ Release date: 2021-02-21
 
   Close #3862
 
-* Fix linter multiprocessing pool shutdown (triggered warnings when runned in parallels with other pytest plugins)
+* Fix linter multiprocessing pool shutdown (triggered warnings when ran in parallels with other pytest plugins)
 
   Closes #3779
 
@@ -1375,7 +1524,7 @@ Release date: 2021-02-21
 
   Closes #3468
 
-* Fix ``useless-super-delegation`` false positive when default keyword argument is a dictionnary.
+* Fix ``useless-super-delegation`` false positive when default keyword argument is a dictionary.
 
   Close #3773
 
@@ -3376,7 +3525,7 @@ Release date: 2017-04-13
 
       This message is emitted when pylint finds an one-element tuple,
       created by a stray comma. This can suggest a potential problem in the
-      code and it is recommended to use parantheses in order to emphasise the
+      code and it is recommended to use parentheses in order to emphasise the
       creation of a tuple, rather than relying on the comma itself.
 
     * Don't emit not-callable for instances with unknown bases.
@@ -4076,7 +4225,7 @@ Release date: 2015-11-29
       directory 'test/extensions' and documentation file 'doc/extensions.rst'.
 
     * Added new checker 'extensions.check_docs' that verifies parameter
-      documention in Sphinx, Google, and Numpy style.
+      documentation in Sphinx, Google, and Numpy style.
 
     * Detect undefined variable cases, where the "definition" of an undefined
       variable was in del statement. Instead of emitting used-before-assignment,
@@ -4172,7 +4321,7 @@ Release date: 2015-11-29
       two a binary arithmetic operation is executed between two objects
       which don't support it (a number plus a string for instance).
       This is currently disabled, since the it exhibits way too many false
-      positives, but it will be reenabled as soon as possible.
+      positives, but it will be re-enabled as soon as possible.
 
     * New imported features from astroid into pyreverse: pyreverse.inspector.Project,
       pyreverse.inspector.project_from_files and pyreverse.inspector.interfaces.
@@ -5147,7 +5296,7 @@ Release date: 2012-10-05
 
     * #105337: allow custom reporter in output-format (patch by Kevin Jing Qiu)
 
-    * #104420: check for protocol completness and avoid false R0903
+    * #104420: check for protocol completeness and avoid false R0903
       (patch by Peter Hammond)
 
     * #100654: fix grammatical error for W0332 message (using 'l' as
@@ -5175,7 +5324,7 @@ Release date: 2012-07-17
       except handler contains a tuple of names instead of a single name.
       (patch by tmarek@google.com)
 
-    * #7394: W0212 (access to protected member) not emitted on assigments
+    * #7394: W0212 (access to protected member) not emitted on assignments
       (patch by lothiraldan@gmail.com)
 
     * #18772; no prototype consistency check for mangled methods (patch by
@@ -5770,7 +5919,7 @@ Release date: 2006-03-06
         - the C0101 check with its min-name-length option has
           been removed (this can be specified in the regxp after all...)
         - W0103 and W0121 are now handled by the variables checker
-          (W0103 is now W0603 and W0604 has been splitted into different messages)
+          (W0103 is now W0603 and W0604 has been split into different messages)
         - W0131 and W0132 messages  have been reclassified to C0111 and
           C0112 respectively
         - new W0104 message on statement without effect
@@ -5807,7 +5956,7 @@ Release date: 2006-01-10
       or the default ~/.pylintrc or /etc/pylintrc
 
     * fixed W0706 (Identifier used to raise an exception is assigned...)
-      false positive and reraising a catched exception instance
+      false positive and reraising a caught exception instance
 
     * fixed E0611 (No name get in module blabla) false positive when accessing
       to a class'__dict__

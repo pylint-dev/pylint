@@ -11,7 +11,19 @@ import tokenize
 import traceback
 import warnings
 from io import TextIOWrapper
-from typing import Any, Dict, Iterable, Iterator, List, Optional, Sequence, Union
+from typing import (
+    Any,
+    DefaultDict,
+    Dict,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Sequence,
+    Set,
+    Type,
+    Union,
+)
 
 import astroid
 from astroid import AstroidError, nodes
@@ -39,6 +51,7 @@ from pylint.lint.utils import (
     prepare_crash_report,
 )
 from pylint.message import Message, MessageDefinition, MessageDefinitionStore
+from pylint.reporters.text import TextReporter
 from pylint.reporters.ureports import nodes as report_nodes
 from pylint.typing import (
     FileItem,
@@ -222,9 +235,10 @@ class PyLinter(
                     "type": "regexp_csv",
                     "metavar": "<pattern>[,<pattern>...]",
                     "dest": "black_list_re",
-                    "default": (),
+                    "default": (r"^\.#",),
                     "help": "Files or directories matching the regex patterns are"
-                    " skipped. The regex matches against base names, not paths.",
+                    " skipped. The regex matches against base names, not paths. The default value "
+                    "ignores emacs file locks",
                 },
             ),
             (
@@ -293,11 +307,11 @@ class PyLinter(
                     "metavar": "<python_expression>",
                     "group": "Reports",
                     "level": 1,
-                    "default": "10.0 - ((float(5 * error + warning + refactor + "
+                    "default": "0 if fatal else 10.0 - ((float(5 * error + warning + refactor + "
                     "convention) / statement) * 10)",
                     "help": "Python expression which should return a score less "
-                    "than or equal to 10. You have access to the variables "
-                    "'error', 'warning', 'refactor', and 'convention' which "
+                    "than or equal to 10. You have access to the variables 'fatal', "
+                    "'error', 'warning', 'refactor', 'convention', and 'info' which "
                     "contain the number of messages in each category, as well as "
                     "'statement' which is the total number of statements "
                     "analyzed. This score is used by the global "
@@ -375,7 +389,7 @@ class PyLinter(
                     "(only on the command line, not in the configuration file "
                     "where it should appear only once). "
                     'You can also use "--disable=all" to disable everything first '
-                    "and then reenable specific checks. For example, if you want "
+                    "and then re-enable specific checks. For example, if you want "
                     "to run only the similarities checker, you can use "
                     '"--disable=all --enable=similarities". '
                     "If you want to run only the classes checker, but have no "
@@ -517,20 +531,41 @@ class PyLinter(
         ("Reports", "Options related to output formatting and reporting"),
     )
 
-    def __init__(self, options=(), reporter=None, option_groups=(), pylintrc=None):
+    def __init__(
+        self,
+        options=(),
+        reporter=None,
+        option_groups=(),
+        pylintrc=None,
+    ):
         """Some stuff has to be done before ancestors initialization...
         messages store / checkers / reporter / astroid manager"""
+        # Attributes for reporters
+        self.reporter: Union[reporters.BaseReporter, reporters.MultiReporter]
+        if reporter:
+            self.set_reporter(reporter)
+        else:
+            self.set_reporter(TextReporter())
+        self._reporters: Dict[str, Type[reporters.BaseReporter]] = {}
+        """Dictionary of possible but non-initialized reporters"""
+
+        # Attributes for checkers and plugins
+        self._checkers: DefaultDict[
+            str, List[checkers.BaseChecker]
+        ] = collections.defaultdict(list)
+        """Dictionary of registered and initialized checkers"""
+        self._dynamic_plugins: Set[str] = set()
+        """Set of loaded plugin names"""
+
         self.msgs_store = MessageDefinitionStore()
-        self.reporter = None
-        self._reporter_names = None
-        self._reporters = {}
-        self._checkers = collections.defaultdict(list)
         self._pragma_lineno = {}
-        self._ignore_file = False
-        # visit variables
+
+        # Attributes related to visiting files
         self.file_state = FileState()
         self.current_name: Optional[str] = None
-        self.current_file = None
+        self.current_file: Optional[str] = None
+        self._ignore_file = False
+
         self.stats = LinterStats()
         self.fail_on_symbols = []
         # init options
@@ -569,19 +604,12 @@ class PyLinter(
             ("RP0003", "Messages", report_messages_stats),
         )
         self.register_checker(self)
-        self._dynamic_plugins = set()
         self._error_mode = False
         self.load_provider_defaults()
-        if reporter:
-            self.set_reporter(reporter)
 
     def load_default_plugins(self):
         checkers.initialize(self)
         reporters.initialize(self)
-        # Make sure to load the default reporter, because
-        # the option has been set before the plugins had been loaded.
-        if not self.reporter:
-            self._load_reporters()
 
     def load_plugin_modules(self, modnames):
         """take a list of module names which are pylint plugins and load
@@ -612,19 +640,21 @@ class PyLinter(
             except ModuleNotFoundError as e:
                 self.add_message("bad-plugin-value", args=(modname, e), line=0)
 
-    def _load_reporters(self) -> None:
+    def _load_reporters(self, reporter_names: str) -> None:
+        """Load the reporters if they are available on _reporters"""
+        if not self._reporters:
+            return
         sub_reporters = []
         output_files = []
         with contextlib.ExitStack() as stack:
-            for reporter_name in self._reporter_names.split(","):
+            for reporter_name in reporter_names.split(","):
                 reporter_name, *reporter_output = reporter_name.split(":", 1)
 
                 reporter = self._load_reporter_by_name(reporter_name)
                 sub_reporters.append(reporter)
                 if reporter_output:
-                    (reporter_output,) = reporter_output
                     output_file = stack.enter_context(
-                        open(reporter_output, "w", encoding="utf-8")
+                        open(reporter_output[0], "w", encoding="utf-8")
                     )
                     reporter.out = output_file
                     output_files.append(output_file)
@@ -654,7 +684,9 @@ class PyLinter(
         else:
             return reporter_class()
 
-    def set_reporter(self, reporter):
+    def set_reporter(
+        self, reporter: Union[reporters.BaseReporter, reporters.MultiReporter]
+    ) -> None:
         """set the reporter used to display messages and reports"""
         self.reporter = reporter
         reporter.linter = self
@@ -681,18 +713,17 @@ class PyLinter(
                     meth(value)
                 return  # no need to call set_option, disable/enable methods do it
         elif optname == "output-format":
-            self._reporter_names = value
-            # If the reporters are already available, load
-            # the reporter class.
-            if self._reporters:
-                self._load_reporters()
-
+            assert isinstance(
+                value, str
+            ), "'output-format' should be a comma separated string of reporters"
+            self._load_reporters(value)
         try:
             checkers.BaseTokenChecker.set_option(self, optname, value, action, optdict)
         except config.UnsupportedAction:
             print(f"option {optname} can't be read from config file", file=sys.stderr)
 
-    def register_reporter(self, reporter_class):
+    def register_reporter(self, reporter_class: Type[reporters.BaseReporter]) -> None:
+        """Registers a reporter class on the _reporters attribute."""
         self._reporters[reporter_class.name] = reporter_class
 
     def report_order(self):
@@ -709,7 +740,7 @@ class PyLinter(
 
     # checkers manipulation methods ############################################
 
-    def register_checker(self, checker):
+    def register_checker(self, checker: checkers.BaseChecker) -> None:
         """register a new checker
 
         checker is an object implementing IRawChecker or / and IAstroidChecker
@@ -740,7 +771,7 @@ class PyLinter(
         fail_on_cats = set()
         fail_on_msgs = set()
         for val in fail_on_vals:
-            # If value is a cateogry, add category, else add message
+            # If value is a category, add category, else add message
             if val in MSG_TYPES:
                 fail_on_cats.add(val)
             else:
@@ -755,7 +786,7 @@ class PyLinter(
                         self.enable(msg.msgid)
                         self.fail_on_symbols.append(msg.symbol)
                     elif msg.msgid[0] in fail_on_cats:
-                        # message starts with a cateogry value, flag (but do not enable) it
+                        # message starts with a category value, flag (but do not enable) it
                         self.fail_on_symbols.append(msg.symbol)
 
     def any_fail_on_issues(self):
@@ -1306,6 +1337,7 @@ class PyLinter(
         evaluation = self.config.evaluation
         try:
             stats_dict = {
+                "fatal": self.stats.fatal,
                 "error": self.stats.error,
                 "warning": self.stats.warning,
                 "refactor": self.stats.refactor,
@@ -1479,7 +1511,7 @@ class PyLinter(
                 message_definition.msgid,
                 message_definition.symbol,
                 MessageLocationTuple(
-                    abspath,
+                    abspath or "",
                     path,
                     module or "",
                     obj,
@@ -1596,7 +1628,7 @@ class PyLinter(
         line: Optional[int] = None,
         ignore_unknown: bool = False,
     ) -> None:
-        """Do some tests and then iterate over message defintions to set state"""
+        """Do some tests and then iterate over message definitions to set state"""
         assert scope in {"package", "module"}
         if msgid == "all":
             for _msgid in MSG_TYPES:

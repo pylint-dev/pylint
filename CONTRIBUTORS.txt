@@ -381,9 +381,9 @@ contributors:
 
 * Damien Baty: contributor
 
-* Daniel R. Neal (danrneal): contributer
+* Daniel R. Neal (danrneal): contributor
 
-* Jeremy Fleischman (jfly): contributer
+* Jeremy Fleischman (jfly): contributor
 
 * Shiv Venkatasubrahmanyam
 
@@ -581,4 +581,17 @@ contributors:
 
 * Harshil (harshil21): contributor
 
+* Jérome Perrin (perrinjerome): contributor
+
 * Felix von Drigalski (felixvd): contributor
+
+* Jake Lishman (jakelishman): contributor
+
+* Philipp Albrecht (pylbrecht): contributor
+
+* Allan Chandler (allanc65): contributor
+  - Fixed issue 5452, false positive missing-param-doc for multi-line Google-style params
+
+* Eero Vuojolahti: contributor
+
+* Kian-Meng, Ang: contributor

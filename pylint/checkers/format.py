@@ -452,7 +452,7 @@ class FormatChecker(BaseTokenChecker):
                 elif token[1] == "for":
                     return
                 # A generator expression can have an 'else' token in it.
-                # We check the rest of the tokens to see if any problems incure after
+                # We check the rest of the tokens to see if any problems incur after
                 # the 'else'.
                 elif token[1] == "else":
                     if "(" in (i.string for i in tokens[i:]):
@@ -602,8 +602,10 @@ class FormatChecker(BaseTokenChecker):
             isinstance(node.parent, nodes.TryFinally) and node in node.parent.finalbody
         ):
             prev_line = node.parent.body[0].tolineno + 1
+        elif isinstance(node.parent, nodes.Module):
+            prev_line = 0
         else:
-            prev_line = node.parent.statement().fromlineno
+            prev_line = node.parent.statement(future=True).fromlineno
         line = node.fromlineno
         assert line, node
         if prev_line == line and self._visited_lines.get(line) != 2:

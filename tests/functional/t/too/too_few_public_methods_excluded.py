@@ -9,6 +9,5 @@ class MyJsonEncoder(JSONEncoder):
     ...
 
 class InheritedInModule(Control):
-    """This class inherits from a class that doesn't have enough mehods,
+    """This class inherits from a class that doesn't have enough methods,
     and its parent is excluded via config, so it doesn't raise."""
-    ...

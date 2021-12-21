@@ -7,7 +7,7 @@ from pylint.interfaces import IAstroidChecker
 # This is our checker class.
 # Checkers should always inherit from `BaseChecker`.
 class MyAstroidChecker(BaseChecker):
-    """Add class member attributes to the class locals dictionary."""
+    """Add class member attributes to the class local's dictionary."""
 
     # This class variable defines the type of checker that we are implementing.
     # In this case, we are implementing an AST checker.
@@ -31,8 +31,7 @@ class MyAstroidChecker(BaseChecker):
     options = (
         # Each option definition has a name which is used on the command line
         # and in config files, and a dictionary of arguments
-        # (similar to those to those to
-        # argparse.ArgumentParser.add_argument).
+        # (similar to argparse.ArgumentParser.add_argument).
         (
             "store-locals-indicator",
             {
@@ -48,10 +47,7 @@ class MyAstroidChecker(BaseChecker):
     def visit_call(self, node: nodes.Call) -> None:
         """Called when a :class:`.nodes.Call` node is visited.
 
-        See :mod:`astroid` for the description of available nodes.
-
-        :param node: The node to check.
-        """
+        See :mod:`astroid` for the description of available nodes."""
         if not (
             isinstance(node.func, nodes.Attribute)
             and isinstance(node.func.expr, nodes.Name)

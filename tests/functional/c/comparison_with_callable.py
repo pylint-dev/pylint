@@ -58,3 +58,14 @@ a = 666
 b = 786
 if a == b:
     pass
+
+
+def eventually_raise():
+    print()
+    raise Exception
+
+
+if a == eventually_raise:
+    # Does not emit comparison-with-callable because the
+    # function (eventually) raises
+    pass
