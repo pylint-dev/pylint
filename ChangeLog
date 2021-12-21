@@ -63,6 +63,11 @@ Release date: TBA
 
   Closes #3675
 
+* Fix ``comparison-with-callable`` false positive for callables that raise, such
+  as typing constants.
+
+  Closes #5557
+
 * Fix ``unnecessary_dict_index_lookup`` false positive when deleting a dictionary's entry.
 
   Closes #4716

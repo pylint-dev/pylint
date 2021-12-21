@@ -99,6 +99,11 @@ Other Changes
 
 * ``fatal`` was added to the variables permitted in score evaluation expressions.
 
+* Fix ``comparison-with-callable`` false positive for callables that raise, such
+  as typing constants.
+
+  Closes #5557
+
 * The ``PyLinter`` class will now be initialized with a ``TextReporter``
   as its reporter if none is provided.
 
