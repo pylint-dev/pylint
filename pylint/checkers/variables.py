@@ -677,7 +677,7 @@ scope_type : {self._atomic.scope_type}
 
         # If this node is in an ExceptHandler,
         # filter out assignments in the try portion, assuming they may fail
-        if found_nodes and isinstance(node_statement.parent, nodes.ExceptHandler):
+        if found_nodes:
             uncertain_nodes = (
                 self._uncertain_nodes_in_try_blocks_when_evaluating_except_blocks(
                     found_nodes, node_statement
@@ -738,17 +738,28 @@ scope_type : {self._atomic.scope_type}
     def _uncertain_nodes_in_try_blocks_when_evaluating_except_blocks(
         found_nodes, node_statement
     ):
+        closest_except_handler = utils.get_node_first_ancestor_of_type(
+            node_statement, nodes.ExceptHandler
+        )
+        if closest_except_handler is None:
+            return []
+        closest_try_ancestor = utils.get_node_first_ancestor_of_type(
+            node_statement, nodes.TryExcept
+        )
         uncertain_nodes = []
         for other_node in found_nodes:
             other_node_statement = other_node.statement(future=True)
+            if other_node_statement is closest_except_handler:
+                continue
             other_node_try_ancestor = utils.get_node_first_ancestor_of_type(
                 other_node_statement, nodes.TryExcept
             )
-            if other_node_try_ancestor is None:
+            if other_node_try_ancestor is not closest_try_ancestor:
                 continue
-            if other_node_statement not in other_node_try_ancestor.body:
-                continue
-            if node_statement.parent not in other_node_try_ancestor.handlers:
+            other_node_except_handler = utils.get_node_first_ancestor_of_type(
+                other_node_statement, nodes.ExceptHandler
+            )
+            if other_node_except_handler is closest_except_handler:
                 continue
             # Passed all tests for uncertain execution
             uncertain_nodes.append(other_node)

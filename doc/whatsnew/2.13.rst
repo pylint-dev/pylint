@@ -63,6 +63,12 @@ Other Changes
 
   Closes #85, #2615
 
+* Fixed false negative for ``used-before-assignment`` when a conditional
+  or context manager intervened before the try statement that suggested
+  it might fail.
+
+  Closes #4045
+
 * Fix a false positive for ``assigning-non-slot`` when the slotted class
   defined ``__setattr__``.
 
