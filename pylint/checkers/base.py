@@ -2519,7 +2519,7 @@ class ComparisonChecker(_BasicChecker):
                 isinstance(x, nodes.Raise)
                 # Or typing constants
                 or "typing._SpecialForm" in inferred.decoratornames()
-                for x in utils.safe_infer(operand).body
+                for x in inferred.body
             ):
                 number_of_bare_callables += 1
         if number_of_bare_callables == 1:
