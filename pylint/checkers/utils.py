@@ -511,8 +511,8 @@ class UnsupportedFormatCharacter(Exception):
 def parse_format_string(
     format_string: str,
 ) -> Tuple[Set[str], int, Dict[str, str], List[str]]:
-    """Parses a format string, returning a tuple of (keys, num_args), where keys
-    are the set of mapping keys in the format string, and num_args is the number
+    """Parses a format string, returning a tuple of (keys, num_args), where 'keys'
+    is the set of mapping keys in the format string, and num_args is the number
     of arguments required by the format string.  Raises
     IncompleteFormatString or UnsupportedFormatCharacter if a
     parse error occurs."""
