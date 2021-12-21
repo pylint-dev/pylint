@@ -122,7 +122,7 @@ def _split_multiple_exc_types(target: str) -> List[str]:
 
 def possible_exc_types(node: nodes.NodeNG) -> Set[nodes.ClassDef]:
     """
-    Gets all of the possible raised exception types for the given raise node.
+    Gets all the possible raised exception types for the given raise node.
 
     .. note::
 
@@ -133,11 +133,11 @@ def possible_exc_types(node: nodes.NodeNG) -> Set[nodes.ClassDef]:
 
     :returns: A list of exception types possibly raised by :param:`node`.
     """
-    excs = []
+    exceptions = []
     if isinstance(node.exc, nodes.Name):
         inferred = utils.safe_infer(node.exc)
         if inferred:
-            excs = [inferred]
+            exceptions = [inferred]
     elif node.exc is None:
         handler = node.parent
         while handler and not isinstance(handler, nodes.ExceptHandler):
@@ -145,15 +145,15 @@ def possible_exc_types(node: nodes.NodeNG) -> Set[nodes.ClassDef]:
 
         if handler and handler.type:
             try:
-                for exc in astroid.unpack_infer(handler.type):
-                    if exc is not astroid.Uninferable:
-                        excs.append(exc)
+                for exception in astroid.unpack_infer(handler.type):
+                    if exception is not astroid.Uninferable:
+                        exceptions.append(exception)
             except astroid.InferenceError:
                 pass
     else:
         target = _get_raise_target(node)
         if isinstance(target, nodes.ClassDef):
-            excs = [target]
+            exceptions = [target]
         elif isinstance(target, nodes.FunctionDef):
             for ret in target.nodes_of_class(nodes.Return):
                 if ret.frame() != target:
@@ -163,12 +163,16 @@ def possible_exc_types(node: nodes.NodeNG) -> Set[nodes.ClassDef]:
                 val = utils.safe_infer(ret.value)
                 if val and utils.inherit_from_std_ex(val):
                     if isinstance(val, nodes.ClassDef):
-                        excs.append(val)
+                        exceptions.append(val)
                     elif isinstance(val, astroid.Instance):
-                        excs.append(val.getattr("__class__")[0])
+                        exceptions.append(val.getattr("__class__")[0])
 
     try:
-        return {exc for exc in excs if not utils.node_ignores_exception(node, exc.name)}
+        return {
+            exc
+            for exc in exceptions
+            if not utils.node_ignores_exception(node, exc.name)
+        }
     except astroid.InferenceError:
         return set()
 

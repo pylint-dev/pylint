@@ -148,7 +148,7 @@ class Title(BaseLayout):
     attributes :
     * BaseLayout attributes
 
-    A title must not contains a section nor a paragraph!
+    A title must not contain a section nor a paragraph!
     """
 
 

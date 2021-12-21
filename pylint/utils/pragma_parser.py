@@ -9,7 +9,7 @@ from typing import Generator, List, Optional
 # so that an option can be continued with the reasons
 # why it is active or disabled.
 OPTION_RGX = r"""
-    \s*                # Any number of whithespace
+    \s*                # Any number of whitespace
     \#?                # One or zero hash
     .*                 # Anything (as much as possible)
     (\s*               # Beginning of first matched group and any number of whitespaces

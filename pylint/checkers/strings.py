@@ -518,7 +518,7 @@ class StringFormatChecker(BaseChecker):
                     # only if the .format got at least one keyword argument.
                     # This means that the format strings accepts both
                     # positional and named fields and we should warn
-                    # when one of the them is missing or is extra.
+                    # when one of them is missing or is extra.
                     check_args = True
         else:
             check_args = True
@@ -961,7 +961,7 @@ def _is_long_string(string_token: str) -> bool:
         string_token: The string token to be parsed.
 
     Returns:
-        A boolean representing whether or not this token matches a longstring
+        A boolean representing whether this token matches a longstring
         regex.
     """
     return bool(
@@ -973,15 +973,14 @@ def _is_long_string(string_token: str) -> bool:
 def _get_quote_delimiter(string_token: str) -> str:
     """Returns the quote character used to delimit this token string.
 
-    This function does little checking for whether the token is a well-formed
-    string.
+    This function checks whether the token is a well-formed string.
 
     Args:
         string_token: The token to be parsed.
 
     Returns:
-        A string containing solely the first quote delimiter character in the passed
-        string.
+        A string containing solely the first quote delimiter character in the
+        given string.
 
     Raises:
       ValueError: No quote delimiter characters are present.

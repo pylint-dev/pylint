@@ -634,9 +634,8 @@ class MisdesignChecker(BaseChecker):
         self._inc_all_stmts(branches)
 
     def _check_boolean_expressions(self, node):
-        """Go through "if" node `node` and counts its boolean expressions
-
-        if the "if" node test is a BoolOp node
+        """Go through "if" node `node` and count its boolean expressions
+        if the 'if' node test is a BoolOp node
         """
         condition = node.test
         if not isinstance(condition, astroid.BoolOp):

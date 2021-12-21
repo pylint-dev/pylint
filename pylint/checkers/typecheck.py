@@ -161,7 +161,7 @@ def _is_owner_ignored(owner, attrname, ignored_classes, ignored_modules):
         if fnmatch.fnmatch(module_qname, ignore):
             return True
 
-        # Otherwise we might have a root module name being ignored,
+        # Otherwise, we might have a root module name being ignored,
         # and the qualified owner has more levels of depth.
         parts = deque(module_name.split("."))
         current_module = ""
@@ -1184,14 +1184,14 @@ accessed. Python regular expressions are accepted.",
         Check a string is assigned to self.__name__
         """
 
-        # Check the left hand side of the assignment is <something>.__name__
+        # Check the left-hand side of the assignment is <something>.__name__
         lhs = node.targets[0]
         if not isinstance(lhs, nodes.AssignAttr):
             return
         if not lhs.attrname == "__name__":
             return
 
-        # If the right hand side is not a string
+        # If the right-hand side is not a string
         rhs = node.value
         if isinstance(rhs, nodes.Const) and isinstance(rhs.value, str):
             return
@@ -1271,7 +1271,7 @@ accessed. Python regular expressions are accepted.",
             # extract argument names, if they have names
             calling_parg_names = [p.name for p in call_site.positional_arguments]
 
-            # Additionally get names of keyword arguments to use in a full match
+            # Additionally, get names of keyword arguments to use in a full match
             # against parameters
             calling_kwarg_names = [
                 arg.name for arg in call_site.keyword_arguments.values()
@@ -1664,7 +1664,7 @@ accessed. Python regular expressions are accepted.",
             if index_type is None or index_type is astroid.Uninferable:
                 continue
 
-            # Constants must of type int or None
+            # Constants must be of type int or None
             if isinstance(index_type, nodes.Const):
                 if isinstance(index_type.value, (int, type(None))):
                     continue
@@ -1733,7 +1733,8 @@ accessed. Python regular expressions are accepted.",
                 # See the test file for not_context_manager for a couple
                 # of self explaining tests.
 
-                # Retrieve node from all previusly visited nodes in the the inference history
+                # Retrieve node from all previously visited nodes in the
+                # inference history
                 context_path_names: Iterator[Any] = filter(
                     None, _unflatten(context.path)
                 )

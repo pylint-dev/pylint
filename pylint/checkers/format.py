@@ -47,7 +47,7 @@
 
 """Python code format's checker.
 
-By default try to follow Guido's style guide :
+By default, try to follow Guido's style guide :
 
 https://www.python.org/doc/essays/styleguide/
 
@@ -594,7 +594,7 @@ class FormatChecker(BaseTokenChecker):
         prev_sibl = node.previous_sibling()
         if prev_sibl is not None:
             prev_line = prev_sibl.fromlineno
-        # The line on which a finally: occurs in a try/finally
+        # The line on which a 'finally': occurs in a 'try/finally'
         # is not directly represented in the AST. We infer it
         # by taking the last line of the body and adding 1, which
         # should be the line of finally:
