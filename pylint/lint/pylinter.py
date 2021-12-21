@@ -562,8 +562,8 @@ class PyLinter(
 
         # Attributes related to visiting files
         self.file_state = FileState()
-        self.current_name: Optional[str] = None
-        self.current_file: Optional[str] = None
+        self.current_name: str
+        self.current_file: str
         self._ignore_file = False
 
         self.stats = LinterStats()
@@ -1511,9 +1511,9 @@ class PyLinter(
                 message_definition.msgid,
                 message_definition.symbol,
                 MessageLocationTuple(
-                    abspath or "",
+                    abspath,
                     path,
-                    module or "",
+                    module,
                     obj,
                     line or 1,
                     col_offset or 0,

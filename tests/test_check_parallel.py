@@ -280,7 +280,6 @@ class TestCheckParallel:
 
         # Add a sequential checker to ensure it records data against some streams
         linter.register_checker(SequentialTestChecker(linter))
-        linter.enable("R9999")
 
         # Create a dummy file, the actual contents of which will be ignored by the
         # register test checkers, but it will trigger at least a single-job to be run.
@@ -289,7 +288,10 @@ class TestCheckParallel:
         # Invoke the lint process in a multiprocess way, although we only specify one
         # job.
         check_parallel(
-            linter, jobs=1, files=iter(single_file_container), arguments=None
+            linter,
+            jobs=1,
+            files=iter(single_file_container),
+            arguments=["--enable", "R9999"],
         )
         assert len(linter.get_checkers()) == 2, (
             "We should only have the 'master' and 'sequential-checker' "
