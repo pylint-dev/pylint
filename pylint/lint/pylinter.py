@@ -21,6 +21,7 @@ from typing import (
     Optional,
     Sequence,
     Set,
+    Tuple,
     Type,
     Union,
 )
@@ -71,6 +72,8 @@ if sys.version_info >= (3, 8):
     from typing import Literal
 else:
     from typing_extensions import Literal
+
+OptionDict = Dict[str, Union[str, bool, int, Iterable[Union[str, int]]]]
 
 MANAGER = astroid.MANAGER
 
@@ -216,7 +219,7 @@ class PyLinter(
     crash_file_path: str = "pylint-crash-%Y-%m-%d-%H.txt"
 
     @staticmethod
-    def make_options():
+    def make_options() -> Tuple[Tuple[str, OptionDict], ...]:
         return (
             (
                 "ignore",
@@ -526,7 +529,7 @@ class PyLinter(
             ),
         )
 
-    option_groups = (
+    base_option_groups = (
         ("Messages control", "Options controlling analysis messages"),
         ("Reports", "Options related to output formatting and reporting"),
     )
@@ -557,21 +560,26 @@ class PyLinter(
         self._dynamic_plugins: Set[str] = set()
         """Set of loaded plugin names"""
 
-        self.msgs_store = MessageDefinitionStore()
-        self._pragma_lineno = {}
-
         # Attributes related to visiting files
         self.file_state = FileState()
         self.current_name: Optional[str] = None
         self.current_file: Optional[str] = None
         self._ignore_file = False
+        self._pragma_lineno: Dict[str, int] = {}
 
+        # Attributes related to stats
         self.stats = LinterStats()
-        self.fail_on_symbols = []
-        # init options
-        self._external_opts = options
-        self.options = options + PyLinter.make_options()
-        self.option_groups = option_groups + PyLinter.option_groups
+
+        # Attributes related to (command-line) options and their parsing
+        # pylint: disable-next=fixme
+        # TODO: Make these implicitly typing when typing for __init__ parameter is added
+        self._external_opts: Tuple[Tuple[str, OptionDict], ...] = options
+        self.options: Tuple[Tuple[str, OptionDict], ...] = (
+            options + PyLinter.make_options()
+        )
+        self.option_groups: Tuple[Tuple[str, str], ...] = (
+            option_groups + PyLinter.base_option_groups
+        )
         self._options_methods = {
             "enable": self.enable,
             "disable": self.disable,
@@ -581,8 +589,12 @@ class PyLinter(
             "disable-msg": self._options_methods["disable"],
             "enable-msg": self._options_methods["enable"],
         }
+        self.fail_on_symbols: List[str] = []
+        """List of message symbols on which pylint should fail, set by --fail-on"""
+        self._error_mode = False
 
-        # Attributes related to message (state) handling
+        # Attributes related to messages (states) and their handling
+        self.msgs_store = MessageDefinitionStore()
         self.msg_status = 0
         self._msgs_state: Dict[str, bool] = {}
         self._by_id_managed_msgs: List[ManagedMessage] = []
@@ -604,7 +616,6 @@ class PyLinter(
             ("RP0003", "Messages", report_messages_stats),
         )
         self.register_checker(self)
-        self._error_mode = False
         self.load_provider_defaults()
 
     def load_default_plugins(self):
