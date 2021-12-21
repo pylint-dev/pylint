@@ -1,1 +1,3 @@
 used-before-assignment:8:14:8:17:main:Using variable 'res' before assignment:UNDEFINED
+used-before-assignment:20:14:20:17:try_except_finally:Using variable 'res' before assignment:UNDEFINED
+used-before-assignment:45:18:45:21:try_except_finally_nested_try_finally_in_try:Using variable 'res' before assignment:UNDEFINED

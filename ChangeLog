@@ -39,6 +39,10 @@ Release date: TBA
 
   Closes #4045
 
+* Fixed false negative for ``used-before-assignment`` in finally blocks
+  if an except handler did not define the assignment that might have failed
+  in the try block.
+
 * Fixed extremely long processing of long lines with comma's.
 
   Closes #5483
