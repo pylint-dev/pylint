@@ -218,7 +218,7 @@ class TypingChecker(BaseChecker):
         - OR: Python 3.7+ with postponed evaluation in
               a type annotation context
 
-        For Python 3.7+: Only emitt message if change doesn't create
+        For Python 3.7+: Only emit message if change doesn't create
             any name collisions, only ever used in a type annotation
             context, and can safely be replaced.
         """

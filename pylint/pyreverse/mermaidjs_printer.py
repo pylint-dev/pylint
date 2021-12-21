@@ -84,7 +84,7 @@ class MermaidJSPrinter(Printer):
 
 
 class HTMLMermaidJSPrinter(MermaidJSPrinter):
-    """Printer for MermaidJS diagrams wrapped in an html boilerplate"""
+    """Printer for MermaidJS diagrams wrapped in a html boilerplate"""
 
     HTML_OPEN_BOILERPLATE = """<html>
   <body>

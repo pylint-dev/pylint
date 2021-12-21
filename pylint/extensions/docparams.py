@@ -521,9 +521,8 @@ class DocstringParameterChecker(BaseChecker):
         :param warning_node: The node to assign the warnings to
         :type warning_node: :class:`astroid.scoped_nodes.Node`
 
-        :param accept_no_param_doc: Whether or not to allow no parameters
-            to be documented.
-            If None then this value is read from the configuration.
+        :param accept_no_param_doc: Whether to allow no parameters to be
+            documented. If None then this value is read from the configuration.
         :type accept_no_param_doc: bool or None
         """
         # Tolerate missing param or type declarations if there is a link to

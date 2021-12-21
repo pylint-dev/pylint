@@ -274,7 +274,7 @@ class CodeStyleChecker(BaseChecker):
     def _check_ignore_assignment_expr_suggestion(
         node: nodes.If, name: Optional[str]
     ) -> bool:
-        """Return True if suggestion for assignment expr should be ignore.
+        """Return True if suggestion for assignment expr should be ignored.
 
         E.g., in cases where a match statement would be a better fit
         (multiple conditions).

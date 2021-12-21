@@ -943,7 +943,7 @@ class PyLinter(
     # pylint: disable=unused-argument
     @staticmethod
     def should_analyze_file(modname, path, is_argument=False):
-        """Returns whether or not a module should be checked.
+        """Returns whether a module should be checked.
 
         This implementation returns True for all python source file, indicating
         that all files should be linted.
@@ -1377,8 +1377,8 @@ class PyLinter(
                 fallback = True
                 lines = self.file_state._raw_module_msgs_state.get(msgid, {})
 
-                # Doesn't consider scopes, as a disable can be in a different scope
-                # than that of the current line.
+                # Doesn't consider scopes, as a 'disable' can be in a
+                # different scope than that of the current line.
                 closest_lines = reversed(
                     [
                         (message_line, enable)

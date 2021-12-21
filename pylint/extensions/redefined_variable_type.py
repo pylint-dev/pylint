@@ -30,7 +30,7 @@ class MultipleTypesChecker(BaseChecker):
     - Currently, if an attribute is set to different types in 2 methods of a
       same class, it won't be detected (see functional test)
     - One could improve the support for inference on assignment with tuples,
-      ifexpr, etc. Also it would be great to have support for inference on
+      ifexpr, etc. Also, it would be great to have support for inference on
       str.split()
     """
 

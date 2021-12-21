@@ -83,14 +83,14 @@ def main(argv: Union[List[str], None] = None) -> int:
     return_value: int = 0
     for file_name in args.filenames:
         with open(file_name, encoding="utf-8") as fp:
-            orignal_content = fp.read()
-        content = orignal_content
+            original_content = fp.read()
+        content = original_content
         # Modify files
         content = fix_inline_code_blocks(content)
         if file_name == args.changelog:
             content = changelog_insert_empty_lines(content, args.subtitle_prefix)
         # If modified, write changes and eventually return 1
-        if orignal_content != content:
+        if original_content != content:
             with open(file_name, "w", encoding="utf-8") as fp:
                 fp.write(content)
             return_value |= 1

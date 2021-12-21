@@ -36,7 +36,7 @@ class BaseWriter:
         """format and write the given layout into the stream object
 
         unicode policy: unicode strings may be found in the layout;
-        try to call stream.write with it, but give it back encoded using
+        try to call 'stream.write' with it, but give it back encoded using
         the given encoding if it fails
         """
         if not encoding:
@@ -69,7 +69,7 @@ class BaseWriter:
         self.section = 0
 
     def end_format(self) -> None:
-        """finished to format a layout"""
+        """Finished formatting a layout"""
 
     def get_table_content(self, table: "Table") -> List[List[str]]:
         """trick to get table content without actually writing it

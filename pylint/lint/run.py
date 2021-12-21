@@ -46,7 +46,7 @@ def cb_list_confidence_levels(option, optname, value, parser):
 
 
 def cb_init_hook(optname, value):
-    """exec arbitrary code to set sys.path for instance"""
+    """Execute arbitrary code to set 'sys.path' for instance"""
     exec(value)  # pylint: disable=exec-used
 
 
@@ -348,9 +348,9 @@ to search for configuration file.
         linter.load_config_file()
 
         if reporter:
-            # if a custom reporter is provided as argument, it may be overridden
+            # If a custom reporter is provided as argument, it may be overridden
             # by file parameters, so re-set it here, but before command line
-            # parsing so it's still overridable by command line option
+            # parsing, so it's still overridable by command line option
             linter.set_reporter(reporter)
         try:
             args = linter.load_command_line_configuration(args)

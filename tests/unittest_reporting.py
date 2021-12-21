@@ -91,8 +91,8 @@ def test_template_option_end_line(linter) -> None:
     assert out_lines[2] == "my_mod:2:0:2:4: C0301: Line too long (3/4) (line-too-long)"
 
 
-def test_template_option_non_exisiting(linter) -> None:
-    """Test the msg-template option with a non existing options.
+def test_template_option_non_existing(linter) -> None:
+    """Test the msg-template option with a non-existing options.
     This makes sure that this option remains backwards compatible as new
     parameters do not break on previous versions"""
     output = StringIO()
