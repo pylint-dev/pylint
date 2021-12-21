@@ -540,11 +540,13 @@ class PyLinter(
         self.msgs_store = MessageDefinitionStore()
         self._checkers = collections.defaultdict(list)
         self._pragma_lineno = {}
-        self._ignore_file = False
-        # visit variables
+
+        # Attributes related to visiting files
         self.file_state = FileState()
         self.current_name: Optional[str] = None
-        self.current_file = None
+        self.current_file: Optional[str] = None
+        self._ignore_file = False
+
         self.stats = LinterStats()
         self.fail_on_symbols = []
         # init options
@@ -1491,7 +1493,7 @@ class PyLinter(
                 message_definition.msgid,
                 message_definition.symbol,
                 MessageLocationTuple(
-                    abspath,
+                    abspath or "",
                     path,
                     module or "",
                     obj,
