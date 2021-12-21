@@ -1,5 +1,4 @@
-"""
-Typing constants are actually implemented as functions, but they
+"""Typing constants are actually implemented as functions, but they
 raise when called, so Pylint uses that to avoid false positives for
 comparison-with-callable.
 """
