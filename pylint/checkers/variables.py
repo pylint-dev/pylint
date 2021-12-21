@@ -1385,6 +1385,10 @@ class VariablesChecker(BaseChecker):
 
             elif base_scope_type == "lambda":
                 # E0601 can occur in class-level scope in lambdas, as in
+                # the following example:
+                #   class A:
+                #      x = lambda attr: f + attr
+                #      f = 42
                 # We check lineno because doing the following is fine:
                 #   class A:
                 #      x = 42
