@@ -1,0 +1,6 @@
+[MASTER]
+load-plugins=pylint.extensions.docstyle,
+py-version=3.8
+
+[testoptions]
+min_pyver=3.8
