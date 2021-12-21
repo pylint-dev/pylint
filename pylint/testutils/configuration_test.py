@@ -30,7 +30,7 @@ if not PY38_PLUS:
 def get_expected_or_default(
     tested_configuration_file: Union[str, Path],
     suffix: str,
-    default: ConfigurationValue,
+    default: str,
 ) -> str:
     """Return the expected value from the file if it exists, or the given default."""
     expected = default
