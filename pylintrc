@@ -371,7 +371,7 @@ property-classes=abc.abstractproperty
 # A class is considered mixin if its name matches the mixin-class-rgx option.
 ignore-mixin-members=yes
 
-# Regex pattern to define which classes are considered mixins ignore-mixin-
+# Regex pattern to define which classes are considered mixins if ignore-mixin-
 # members is set to 'yes'
 mixin-class-rgx=.*MixIn
 
