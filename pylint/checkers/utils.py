@@ -514,7 +514,8 @@ def parse_format_string(
     """Parses a format string, returning a tuple of (keys, num_args), where 'keys'
     is the set of mapping keys in the format string, and 'num_args' is the number
     of arguments required by the format string. Raises IncompleteFormatString or
-    UnsupportedFormatCharacter if a parse error occurs."""
+    UnsupportedFormatCharacter if a parse error occurs.
+    """
     keys = set()
     key_types = {}
     pos_types = []
