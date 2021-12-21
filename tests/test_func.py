@@ -142,8 +142,8 @@ def test_functionality(module_file, messages_file, dependencies, recwarn):
     __test_functionality(module_file, messages_file, dependencies)
     warning = None
     try:
-        # Catch <unknown>:x: DeprecationWarning: invalid escape sequence,
-        # so, it's not shown during tests
+        # Catch <unknown>:x: DeprecationWarning: invalid escape sequence
+        # so it's not shown during tests
         warning = recwarn.pop()
     except AssertionError:
         pass
