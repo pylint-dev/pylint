@@ -86,6 +86,11 @@ Other Changes
 
 * ``used-before-assignment`` now checks names in try blocks.
 
+* Fixed false positive with ``used-before-assignment`` for assignment expressions
+  in lambda statements.
+
+  Closes #5360, #3877
+
 * Require Python ``3.6.2`` to run pylint.
 
   Closes #5065
