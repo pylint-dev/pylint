@@ -1719,3 +1719,19 @@ def get_node_first_ancestor_of_type(
         if isinstance(ancestor, ancestor_type):
             return ancestor
     return None
+
+
+def get_node_first_ancestor_of_type_and_its_child(
+    node: nodes.NodeNG, ancestor_type: Union[Type[T_Node], Tuple[Type[T_Node]]]
+) -> Tuple[Optional[T_Node], Optional[T_Node]]:
+    """Modified version of get_node_first_ancestor_of_type to also return the
+    descendant visited directly before reaching the sought ancestor. Useful
+    for extracting whether a statement is guarded by a try, except, or finally
+    when searching for a TryFinally ancestor.
+    """
+    last_ancestor = node
+    for ancestor in node.node_ancestors():
+        if isinstance(ancestor, ancestor_type):
+            return (ancestor, last_ancestor)
+        last_ancestor = ancestor
+    return None, None
