@@ -748,9 +748,6 @@ scope_type : {self._atomic.scope_type}
         )
         if closest_except_handler is None:
             return uncertain_nodes
-        closest_try_ancestor = utils.get_node_first_ancestor_of_type(
-            node_statement, nodes.TryExcept
-        )
         for other_node in found_nodes:
             other_node_statement = other_node.statement(future=True)
             if other_node_statement is closest_except_handler:
@@ -758,7 +755,12 @@ scope_type : {self._atomic.scope_type}
             other_node_try_ancestor = utils.get_node_first_ancestor_of_type(
                 other_node_statement, nodes.TryExcept
             )
-            if other_node_try_ancestor is not closest_try_ancestor:
+            if not any(
+                closest_except_handler in other_node_try_ancestor.handlers
+                or other_node_try_ancestor_except_handler
+                in closest_except_handler.node_ancestors()
+                for other_node_try_ancestor_except_handler in other_node_try_ancestor.handlers
+            ):
                 continue
             other_node_except_handler = utils.get_node_first_ancestor_of_type(
                 other_node_statement, nodes.ExceptHandler

@@ -27,7 +27,7 @@ def nested_except_blocks():
             more_bad_division = 1 / 0
         except ZeroDivisionError:
             print(more_bad_division)  # [used-before-assignment]
-            print(res)  # currently too nested to make confident inferences
+            print(res)  # [used-before-assignment]
     print(res)
 
 
