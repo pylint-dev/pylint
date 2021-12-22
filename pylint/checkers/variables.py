@@ -777,12 +777,6 @@ scope_type : {self._atomic.scope_type}
                 for other_node_try_ancestor_except_handler in other_node_try_ancestor.handlers
             ):
                 continue
-            # Skip if other_node and this node are guarded by the same except handler
-            other_node_except_handler = utils.get_node_first_ancestor_of_type(
-                other_node_statement, nodes.ExceptHandler
-            )
-            if other_node_except_handler is closest_except_handler:
-                continue
             # Passed all tests for uncertain execution
             uncertain_nodes.append(other_node)
         return uncertain_nodes
