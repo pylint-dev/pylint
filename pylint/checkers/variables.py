@@ -754,12 +754,18 @@ scope_type : {self._atomic.scope_type}
             if other_node_statement is closest_except_handler:
                 continue
             # Ensure other_node is in a try block
-            other_node_try_ancestor, other_node_try_ancestor_visited_child = utils.get_node_first_ancestor_of_type_and_its_child(
+            (
+                other_node_try_ancestor,
+                other_node_try_ancestor_visited_child,
+            ) = utils.get_node_first_ancestor_of_type_and_its_child(
                 other_node_statement, nodes.TryExcept
             )
             if other_node_try_ancestor is None:
                 continue
-            if other_node_try_ancestor_visited_child not in other_node_try_ancestor.body:
+            if (
+                other_node_try_ancestor_visited_child
+                not in other_node_try_ancestor.body
+            ):
                 continue
             # Make sure nesting is correct -- there should be at least one
             # except handler that is a sibling attached to the try ancestor,
