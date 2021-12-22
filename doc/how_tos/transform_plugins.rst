@@ -66,7 +66,13 @@ Module, Class, Function etc. In our case we need to transform a class. It can be
 
 .. sourcecode:: python
 
+  from typing import TYPE_CHECKING
+
   import astroid
+
+  if TYPE_CHECKING:
+      from pylint.lint import PyLinter
+
 
   def register(linter: "PyLinter") -> None:
     """This required method auto registers the checker during initialization.

@@ -25,6 +25,14 @@ So a basic hello-world plugin can be implemented as:
 .. sourcecode:: python
 
   # Inside hello_plugin.py
+  from typing import TYPE_CHECKING
+
+  import astroid
+
+  if TYPE_CHECKING:
+      from pylint.lint import PyLinter
+
+
   def register(linter: "PyLinter") -> None:
     """This required method auto registers the checker during initialization.
 
@@ -47,6 +55,14 @@ We can extend hello-world plugin to ignore some specific names using
 .. sourcecode:: python
 
   # Inside hello_plugin.py
+  from typing import TYPE_CHECKING
+
+  import astroid
+
+  if TYPE_CHECKING:
+      from pylint.lint import PyLinter
+
+
   def register(linter: "PyLinter") -> None:
     """This required method auto registers the checker during initialization.
 
