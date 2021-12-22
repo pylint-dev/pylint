@@ -738,6 +738,11 @@ scope_type : {self._atomic.scope_type}
     def _uncertain_nodes_in_try_blocks_when_evaluating_except_blocks(
         found_nodes, node_statement
     ):
+        """
+        Return any nodes in ``found_nodes`` that should be treated as uncertain
+        because they are in a try block and the ``node_statement`` being evaluated
+        is in one of its except handlers.
+        """
         closest_except_handler = utils.get_node_first_ancestor_of_type(
             node_statement, nodes.ExceptHandler
         )
