@@ -750,13 +750,20 @@ scope_type : {self._atomic.scope_type}
             return uncertain_nodes
         for other_node in found_nodes:
             other_node_statement = other_node.statement(future=True)
+            # If the other statement is the except handler guarding `node`, it executes
             if other_node_statement is closest_except_handler:
                 continue
-            other_node_try_ancestor = utils.get_node_first_ancestor_of_type(
+            # Ensure other_node is in a try block
+            other_node_try_ancestor, other_node_try_ancestor_visited_child = utils.get_node_first_ancestor_of_type_and_its_child(
                 other_node_statement, nodes.TryExcept
             )
             if other_node_try_ancestor is None:
                 continue
+            if other_node_try_ancestor_visited_child not in other_node_try_ancestor.body:
+                continue
+            # Make sure nesting is correct -- there should be at least one
+            # except handler that is a sibling attached to the try ancestor,
+            # or is an ancestor of the try ancestor.
             if not any(
                 closest_except_handler in other_node_try_ancestor.handlers
                 or other_node_try_ancestor_except_handler
@@ -764,6 +771,7 @@ scope_type : {self._atomic.scope_type}
                 for other_node_try_ancestor_except_handler in other_node_try_ancestor.handlers
             ):
                 continue
+            # Skip if other_node and this node are guarded by the same except handler
             other_node_except_handler = utils.get_node_first_ancestor_of_type(
                 other_node_statement, nodes.ExceptHandler
             )
