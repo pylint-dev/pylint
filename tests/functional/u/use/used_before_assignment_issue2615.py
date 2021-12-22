@@ -14,7 +14,8 @@ def main():
 
 
 def nested_except_blocks():
-    """Don't confuse except blocks with each other."""
+    """Assignments in an except are tested against possibly failing
+    assignments in try blocks at two different nesting levels."""
     try:
         res = 1 / 0
         res = 42
@@ -29,6 +30,20 @@ def nested_except_blocks():
             print(more_bad_division)  # [used-before-assignment]
             print(res)  # [used-before-assignment]
     print(res)
+
+
+def consecutive_except_blocks():
+    """An assignment assumed to execute in one TryExcept should continue to be
+    assumed to execute in a consecutive TryExcept.
+    """
+    try:
+        res = 100
+    except ZeroDivisionError:
+        pass
+    try:
+        pass
+    except ValueError:
+        print(res)
 
 
 def name_earlier_in_except_block():
