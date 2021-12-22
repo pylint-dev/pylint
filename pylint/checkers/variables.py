@@ -755,6 +755,8 @@ scope_type : {self._atomic.scope_type}
             other_node_try_ancestor = utils.get_node_first_ancestor_of_type(
                 other_node_statement, nodes.TryExcept
             )
+            if other_node_try_ancestor is None:
+                continue
             if not any(
                 closest_except_handler in other_node_try_ancestor.handlers
                 or other_node_try_ancestor_except_handler
