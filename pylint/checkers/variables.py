@@ -690,7 +690,11 @@ scope_type : {self._atomic.scope_type}
         return found_nodes
 
     @staticmethod
-    def _uncertain_nodes_in_except_blocks(found_nodes, node, node_statement):
+    def _uncertain_nodes_in_except_blocks(
+        found_nodes: List[nodes.NodeNG],
+        node: nodes.NodeNG,
+        node_statement: nodes.Statement,
+    ):
         """
         Return any nodes in ``found_nodes`` that should be treated as uncertain
         because they are in an except block.
@@ -736,7 +740,7 @@ scope_type : {self._atomic.scope_type}
 
     @staticmethod
     def _uncertain_nodes_in_try_blocks_when_evaluating_except_blocks(
-        found_nodes: List[nodes.NodeNG], node_statement
+        found_nodes: List[nodes.NodeNG], node_statement: nodes.Statement
     ) -> List[nodes.NodeNG]:
         """Return any nodes in ``found_nodes`` that should be treated as uncertain
         because they are in a try block and the ``node_statement`` being evaluated
