@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, invalid-name, use-dict-literal
+# pylint: disable=missing-docstring, invalid-name, use-dict-literal, line-too-long
 
 numbers = [1, 2, 3, 4, 5, 6]
 
