@@ -940,7 +940,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                     return
 
                 # If we have an `IfExp` here where both the key AND value
-                # are different, then don't raise the issue.
+                # are different, then don't raise the issue. See #5588
                 if (
                     isinstance(element, nodes.IfExp)
                     and isinstance(element.body, (nodes.Tuple, nodes.List))
