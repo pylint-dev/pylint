@@ -6,6 +6,7 @@ import sys
 import warnings
 
 from pylint import __pkginfo__, extensions, interfaces
+from pylint.config.utils import _config_initialization
 from pylint.constants import DEFAULT_PYLINT_HOME, OLD_DEFAULT_PYLINT_HOME, full_version
 from pylint.lint.pylinter import PyLinter
 from pylint.lint.utils import ArgumentPreprocessingError, preprocess_options
@@ -327,40 +328,8 @@ to search for configuration file.
         # read configuration
         linter.disable("I")
         linter.enable("c-extension-no-member")
-        try:
-            linter.read_config_file(verbose=self.verbose)
-        except OSError as ex:
-            print(ex, file=sys.stderr)
-            sys.exit(32)
 
-        config_parser = linter.cfgfile_parser
-        # run init hook, if present, before loading plugins
-        if config_parser.has_option("MASTER", "init-hook"):
-            cb_init_hook(
-                "init-hook", utils._unquote(config_parser.get("MASTER", "init-hook"))
-            )
-        # is there some additional plugins in the file configuration, in
-        if config_parser.has_option("MASTER", "load-plugins"):
-            plugins = utils._splitstrip(config_parser.get("MASTER", "load-plugins"))
-            linter.load_plugin_modules(plugins)
-        # now we can load file config and command line, plugins (which can
-        # provide options) have been registered
-        linter.load_config_file()
-
-        if reporter:
-            # If a custom reporter is provided as argument, it may be overridden
-            # by file parameters, so re-set it here, but before command line
-            # parsing, so it's still overridable by command line option
-            linter.set_reporter(reporter)
-        try:
-            args = linter.load_command_line_configuration(args)
-        except SystemExit as exc:
-            if exc.code == 2:  # bad options
-                exc.code = 32
-            raise
-        if not args:
-            print(linter.help())
-            sys.exit(32)
+        args = _config_initialization(linter, args, reporter, verbose_mode=self.verbose)
 
         if linter.config.jobs < 0:
             print(
@@ -377,13 +346,6 @@ to search for configuration file.
                 linter.set_option("jobs", 1)
             elif linter.config.jobs == 0:
                 linter.config.jobs = _cpu_count()
-
-        # We have loaded configuration from config file and command line. Now, we can
-        # load plugin specific configuration.
-        linter.load_plugin_configuration()
-
-        # Now that plugins are loaded, get list of all fail_on messages, and enable them
-        linter.enable_fail_on_messages()
 
         if self._output:
             try:
