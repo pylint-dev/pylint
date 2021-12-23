@@ -104,7 +104,7 @@ Other Changes
 
 * ``fatal`` was added to the variables permitted in score evaluation expressions.
 
-* The default score expression now uses a floor of 0.
+* The default score evaluation now uses a floor of 0.
 
   Closes #2399
 

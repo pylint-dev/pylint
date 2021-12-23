@@ -254,10 +254,10 @@ bound. The new default score formula is ::
 
     max(0, 0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10))
 
-If your project contains a pylint rc file created by an earlier version of
-Pylint, you can set ``expression`` to the above expression to get the new
+If your project contains a configuration file created by an earlier version of
+Pylint, you can set ``evaluation`` to the above expression to get the new
 behavior. Likewise, since negative values are still technically supported,
-``expression`` can be set to a version of the above expression that does not
+``evaluation`` can be set to a version of the above expression that does not
 enforce a floor of zero.
 
 6.2 I think I found a bug in Pylint. What should I do?
