@@ -777,6 +777,9 @@ class TestRunTC:
                 f"--fail-on={fo_msgs}",
                 "--enable=all",
                 join(HERE, "regrtest_data", fname),
+                # Use the old form of the evaluation that can go negative
+                "--evaluation",
+                "0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)",
             ],
             code=out,
         )
