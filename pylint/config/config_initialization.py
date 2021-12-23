@@ -2,6 +2,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import sys
+from pathlib import Path
 from typing import TYPE_CHECKING, List, Optional, Union
 
 from pylint import reporters
@@ -15,7 +16,7 @@ def _config_initialization(
     linter: "PyLinter",
     args_list: List[str],
     reporter: Union[reporters.BaseReporter, reporters.MultiReporter, None] = None,
-    config_file: Optional[str] = None,
+    config_file: Union[None, str, Path] = None,
     verbose_mode: Optional[bool] = None,
 ) -> List[str]:
     """Parse all available options, read config files and command line arguments and
