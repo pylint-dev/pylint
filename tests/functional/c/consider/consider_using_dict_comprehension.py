@@ -8,5 +8,9 @@ dict([])
 
 dict([(number, number*2) for number in numbers])  # [consider-using-dict-comprehension]
 
+stuff = {1: 10, 2: -20}
+dict([(k, v) if v > 0 else (k, 0) for k, v in stuff.items()])  # [consider-using-dict-comprehension]
+dict([(k, v) if v > 0 else (k * 2, 0) for k, v in stuff.items()])
+
 # Cannot emit as this cannot be written as a comprehension
 dict([value.split("=") for value in ["a=b", "c=d"]])

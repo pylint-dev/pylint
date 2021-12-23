@@ -1,1 +1,2 @@
 consider-using-dict-comprehension:9:0:9:48::Consider using a dictionary comprehension:UNDEFINED
+consider-using-dict-comprehension:12:0:12:61::Consider using a dictionary comprehension:UNDEFINED
