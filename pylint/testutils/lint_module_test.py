@@ -14,7 +14,7 @@ import pytest
 from _pytest.config import Config
 
 from pylint import checkers
-from pylint.config.utils import _config_initialization
+from pylint.config.config_initialization import _config_initialization
 from pylint.lint import PyLinter
 from pylint.message.message import Message
 from pylint.testutils.constants import _EXPECTED_RE, _OPERATORS, UPDATE_OPTION

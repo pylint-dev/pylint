@@ -6,7 +6,7 @@ import sys
 import warnings
 
 from pylint import __pkginfo__, extensions, interfaces
-from pylint.config.utils import _config_initialization
+from pylint.config.config_initialization import _config_initialization
 from pylint.constants import DEFAULT_PYLINT_HOME, OLD_DEFAULT_PYLINT_HOME, full_version
 from pylint.lint.pylinter import PyLinter
 from pylint.lint.utils import ArgumentPreprocessingError, preprocess_options
