@@ -37,3 +37,5 @@ unexpected-keyword-arg:202:23:202:56:namedtuple_replace_issue_1036:Unexpected ke
 no-value-for-parameter:215:0:215:24::No value for argument 'third' in function call:UNDEFINED
 no-value-for-parameter:216:0:216:30::No value for argument 'second' in function call:UNDEFINED
 unexpected-keyword-arg:217:0:217:43::Unexpected keyword argument 'fourth' in function call:UNDEFINED
+no-value-for-parameter:270:0:270:11::No value for argument 'val' in constructor call:UNDEFINED
+too-many-function-args:272:0:272:15::Too many positional arguments for constructor call:UNDEFINED

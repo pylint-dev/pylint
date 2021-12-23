@@ -595,3 +595,5 @@ contributors:
 * Eero Vuojolahti: contributor
 
 * Kian-Meng, Ang: contributor
+
+* Colin Atkinson (colatkinson): contributor

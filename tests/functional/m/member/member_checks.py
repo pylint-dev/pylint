@@ -231,3 +231,44 @@ for keyy in Animal.__members__.keys():  # pylint: disable=consider-iterating-dic
     print(keyy)
 for vall in Animal.__members__.values():
     print(vall)
+
+
+# Test for false positives on NewType classes
+from typing import NewType
+
+UserId = NewType("UserId", str)
+
+some_id = UserId("id")
+some_id.capitalize()
+some_id.not_a_str_method()  # [no-member]
+
+
+class BaseClass:
+    def __init__(self, value):
+        self.value = value
+
+
+ChildClass = NewType("ChildClass", BaseClass)
+
+
+base = BaseClass(5)
+base.value
+base.bad_attr  # [no-member]
+
+
+child = ChildClass(base)
+child.value
+child.bad_attr  # [no-member]
+
+
+import pathlib
+
+PathChild = NewType("PathChild", pathlib.PurePath)
+
+path = pathlib.PurePath("/")
+path.root
+path.bad_attr  # [no-member]
+
+path_child = PathChild(path)
+path_child.root
+path_child.bad_attr  # [no-member]
