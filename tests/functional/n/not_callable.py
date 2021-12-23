@@ -200,3 +200,12 @@ def get_number(arg):
 
 
 get_number(10)()  # [not-callable]
+
+# `str` is callable
+ATTRIBUTES = {
+    'DOMAIN': ("domain", str),
+    'IMAGE': ("image", str),
+}
+
+for key, (name, validate) in ATTRIBUTES.items():
+    name = validate(1)
