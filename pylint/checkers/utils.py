@@ -337,7 +337,7 @@ def is_builtin_object(node: nodes.NodeNG) -> bool:
 
 def is_builtin(name: str) -> bool:
     """return true if <name> could be considered as a builtin defined by python"""
-    return name in builtins or name in SPECIAL_BUILTINS  # type: ignore[operator]
+    return name in builtins or name in SPECIAL_BUILTINS  # type: ignore[attr-defined]
 
 
 def is_defined_in_scope(
