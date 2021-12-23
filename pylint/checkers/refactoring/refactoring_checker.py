@@ -952,7 +952,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                     key2, value2 = element.orelse.elts
                     if (
                         key1.as_string() != key2.as_string()
-                        and value1.as_string != value2.as_string()
+                        and value1.as_string() != value2.as_string()
                     ):
                         return
 
