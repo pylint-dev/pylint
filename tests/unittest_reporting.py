@@ -332,7 +332,7 @@ def test_multi_format_output(tmp_path):
         "\n"
         "\n"
         "\n"
-        "-------------------------------------\n"
+        "-----------------------------------\n"
         "Your code has been rated at 0.00/10\n"
         "\n"
         "direct output\n"
