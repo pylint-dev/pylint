@@ -249,15 +249,16 @@ default value by changing the mixin-class-rgx option.
 6.1 Pylint gave my code a negative rating out of ten. That can't be right!
 --------------------------------------------------------------------------
 
-Even though the final rating Pylint renders is nominally out of ten, there's no
-lower bound on it. By default, the formula to calculate score is ::
+Prior to Pylint 2.13.0, the score formula used by default had no lower
+bound. The new default score formula is ::
 
-    0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)
+    max(0, 0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10))
 
-However, this option can be changed in the Pylint rc file. If having negative
-values really bugs you, you can set the formula to be the maximum of 0 and the
-above expression.
-
+If your project contains a pylint rc file created by an earlier version of
+Pylint, you can set ``expression`` to the above expression to get the new
+behavior. Likewise, since negative values are still technically supported,
+``expression`` can be set to a version of the above expression that does not
+enforce a floor of zero.
 
 6.2 I think I found a bug in Pylint. What should I do?
 -------------------------------------------------------
