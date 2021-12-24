@@ -9,7 +9,7 @@ from collections import Counter
 from io import StringIO
 from pathlib import Path
 from typing import Counter as CounterType
-from typing import Dict, List, Optional, TextIO, Tuple
+from typing import Dict, List, Optional, TextIO, Tuple, Union
 
 import pytest
 from _pytest.config import Config
@@ -43,36 +43,32 @@ class LintModuleTest:
         self._linter.config.persistent = 0
         checkers.initialize(self._linter)
 
+        rc_file: Union[Path, str] = PYLINTRC
+        # See if test has its own .rc file, if so we use that one
         try:
-            # Load a test with a .rc file
-            _config_initialization(
-                self._linter,
-                [test_file.source],
-                config_file=test_file.option_file,
-                reporter=_test_reporter,
-            )
-            # These are disabled as well in testing_pylintrc
+            rc_file = test_file.option_file
             self._linter.disable("suppressed-message")
             self._linter.disable("locally-disabled")
             self._linter.disable("useless-suppression")
         except NoFileError:
-            try:
-                # If there is no specific .rc file for the test, run with a bare minimum pylintrc
-                _config_initialization(
-                    self._linter,
-                    [test_file.source],
-                    config_file=PYLINTRC,
-                    reporter=_test_reporter,
-                )
-            except NoFileError:
-                # If we're still raising NoFileError the actual source file doesn't exist and
-                # we pass a fake name
-                _config_initialization(
-                    self._linter,
-                    [""],
-                    config_file=PYLINTRC,
-                    reporter=_test_reporter,
-                )
+            pass
+
+        try:
+            _config_initialization(
+                self._linter,
+                [test_file.source],
+                config_file=rc_file,
+                reporter=_test_reporter,
+            )
+        except NoFileError:
+            # If we're still raising NoFileError the actual source file doesn't exist and
+            # we pass a fake name
+            _config_initialization(
+                self._linter,
+                [""],
+                config_file=rc_file,
+                reporter=_test_reporter,
+            )
 
         self._test_file = test_file
         self._config = config
