@@ -46,7 +46,7 @@ use::
         stats.sort_stats("cumtime")
         stats.print_stats("pylint/pylint")
 
-Lastly, the profile a run over your own module or code you can use::
+Lastly, to profile a run over your own module or code you can use::
 
     import cProfile
     import pstats
