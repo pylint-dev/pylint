@@ -718,11 +718,15 @@ class TestRunTC:
             ],
             code=0,
         )
+        # Need the old evaluation formula to test a negative score
+        # failing below a negative --fail-under threshold
         self._runtest(
             [
                 "--fail-under",
                 "-9",
                 "--enable=all",
+                "--evaluation",
+                "0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)",
                 join(HERE, "regrtest_data", "fail_under_minus10.py"),
             ],
             code=22,
@@ -732,6 +736,8 @@ class TestRunTC:
                 "--fail-under",
                 "-5",
                 "--enable=all",
+                "--evaluation",
+                "0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)",
                 join(HERE, "regrtest_data", "fail_under_minus10.py"),
             ],
             code=22,
