@@ -8,7 +8,7 @@
 Performance analysis for Pylint
 -------------------------------
 
-To analysis the performance of Pylint we recommend to use the ``cProfile`` module
+To analyse the performance of Pylint we recommend to use the ``cProfile`` module
 from ``stdlib``. Together with the ``pstats`` module this should give you all the tools
 you need to profile a Pylint run and see which functions take how long to run.
 
