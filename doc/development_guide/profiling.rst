@@ -17,7 +17,7 @@ The documentation for both modules can be found at cProfile_.
 To profile a run of Pylint over itself you can use the following code and run it from the base directory.
 Note that ``cProfile`` will create a document called ``stats`` that is then read by ``pstats``. The
 human-readable output will be stored by ``pstats`` in ``./profiler_stats``. It will be sorted by
-``cumulative time``::
+``cumulative time``:
 
 .. sourcecode:: python
 
@@ -35,7 +35,7 @@ human-readable output will be stored by ``pstats`` in ``./profiler_stats``. It w
 
 You can also interact with the stats object by sorting or restricting the output.
 For example, to only print functions from the ``pylint`` module and sort by cumulative time you could
-use::
+use:
 
 .. sourcecode:: python
 
@@ -51,7 +51,7 @@ use::
         stats.sort_stats("cumtime")
         stats.print_stats("pylint/pylint")
 
-Lastly, to profile a run over your own module or code you can use::
+Lastly, to profile a run over your own module or code you can use:
 
 .. sourcecode:: python
 
