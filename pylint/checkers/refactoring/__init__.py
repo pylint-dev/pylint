@@ -59,10 +59,6 @@ __all__ = [
 
 
 def register(linter: "PyLinter") -> None:
-    """This required method auto registers the checker during initialization.
-
-    :param linter: The linter to register the checker to.
-    """
     linter.register_checker(RefactoringChecker(linter))
     linter.register_checker(NotChecker(linter))
     linter.register_checker(RecommendationChecker(linter))

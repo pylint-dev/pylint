@@ -68,8 +68,5 @@ class MisplacedComparisonConstantChecker(BaseChecker):
 
 
 def register(linter: "PyLinter") -> None:
-    """This required method auto registers the checker during initialization.
 
-    :param linter: The linter to register the checker to.
-    """
     linter.register_checker(MisplacedComparisonConstantChecker(linter))

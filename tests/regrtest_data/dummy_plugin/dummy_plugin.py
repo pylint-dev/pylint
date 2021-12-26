@@ -27,9 +27,5 @@ class DummyPlugin2(BaseChecker):
 
 
 def register(linter: "PyLinter") -> None:
-    """This required method auto registers the checker during initialization.
-
-    :param linter: The linter to register the checker to.
-    """
     linter.register_checker(DummyPlugin1(linter))
     linter.register_checker(DummyPlugin2(linter))

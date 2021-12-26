@@ -2589,10 +2589,6 @@ class ComparisonChecker(_BasicChecker):
 
 
 def register(linter: "PyLinter") -> None:
-    """This required method auto registers the checker during initialization.
-
-    :param linter: The linter to register the checker to.
-    """
     linter.register_checker(BasicErrorChecker(linter))
     linter.register_checker(BasicChecker(linter))
     linter.register_checker(NameChecker(linter))
