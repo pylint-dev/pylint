@@ -101,4 +101,18 @@ allows more detailed analysis of specific functions::
     1    0.000    0.000    0.000    0.000 /MY_PROGRAMMING_DIR/pylint/pylint/checkers/variables.py:1511(_analyse_fallback_blocks)
 
 
+Parsing the profiler stats with other tools
+-------------------------------------------
+
+Often you might want to create a visual representation of your profiling stats. A good tool
+to do this is gprof2dot_. This tool can create a ``.dot`` file from the profiling stats
+created by ``cProfile`` and ``pstats``. You can then convert the ``.dot`` file to a ``.png``
+file with one of the many converters found online.
+
+You can read the gprof2dot_ documentation for installation instructions for your specific environment.
+
+Another option would be snakeviz_.
+
 .. _cProfile: https://docs.python.org/3/library/profile.html
+.. _gprof2dot: https://github.com/jrfonseca/gprof2dot
+.. _snakeviz: https://jiffyclub.github.io/snakeviz/
