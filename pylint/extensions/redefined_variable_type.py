@@ -115,5 +115,4 @@ class MultipleTypesChecker(BaseChecker):
 
 
 def register(linter: "PyLinter") -> None:
-
     linter.register_checker(MultipleTypesChecker(linter))

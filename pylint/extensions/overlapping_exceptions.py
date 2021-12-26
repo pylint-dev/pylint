@@ -85,5 +85,4 @@ class OverlappingExceptionsChecker(checkers.BaseChecker):
 
 
 def register(linter: "PyLinter") -> None:
-
     linter.register_checker(OverlappingExceptionsChecker(linter))

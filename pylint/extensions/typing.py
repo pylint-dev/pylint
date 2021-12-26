@@ -281,5 +281,4 @@ class TypingChecker(BaseChecker):
 
 
 def register(linter: "PyLinter") -> None:
-
     linter.register_checker(TypingChecker(linter))

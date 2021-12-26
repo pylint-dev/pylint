@@ -352,7 +352,6 @@ class ColorizedTextReporter(TextReporter):
 
 
 def register(linter: "PyLinter") -> None:
-
     linter.register_reporter(TextReporter)
     linter.register_reporter(ParseableTextReporter)
     linter.register_reporter(VSTextReporter)

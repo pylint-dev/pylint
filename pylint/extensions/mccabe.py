@@ -200,5 +200,4 @@ class McCabeMethodChecker(checkers.BaseChecker):
 
 
 def register(linter: "PyLinter") -> None:
-
     linter.register_checker(McCabeMethodChecker(linter))

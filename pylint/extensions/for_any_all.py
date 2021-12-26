@@ -66,5 +66,4 @@ class ConsiderUsingAnyOrAllChecker(BaseChecker):
 
 
 def register(linter: "PyLinter") -> None:
-
     linter.register_checker(ConsiderUsingAnyOrAllChecker(linter))

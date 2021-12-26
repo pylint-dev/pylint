@@ -91,5 +91,4 @@ class DocStringStyleChecker(checkers.BaseChecker):
 
 
 def register(linter: "PyLinter") -> None:
-
     linter.register_checker(DocStringStyleChecker(linter))

@@ -60,5 +60,4 @@ class CommentChecker(BaseChecker):
 
 
 def register(linter: "PyLinter") -> None:
-
     linter.register_checker(CommentChecker(linter))

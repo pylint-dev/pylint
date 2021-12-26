@@ -68,5 +68,4 @@ class MisplacedComparisonConstantChecker(BaseChecker):
 
 
 def register(linter: "PyLinter") -> None:
-
     linter.register_checker(MisplacedComparisonConstantChecker(linter))

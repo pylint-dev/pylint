@@ -59,5 +59,4 @@ class JSONReporter(BaseReporter):
 
 
 def register(linter: "PyLinter") -> None:
-
     linter.register_reporter(JSONReporter)
