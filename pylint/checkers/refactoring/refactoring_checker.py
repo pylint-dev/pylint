@@ -1594,7 +1594,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             ):
                 args = (f"{node.iter.as_string()}",)
             if args:
-                self.add_message("unnecessary-comprehension", node=node, args=args)
+                self.add_message("unnecessary-comprehension", node=node.parent, args=args)
                 return
 
             if isinstance(node.parent, nodes.DictComp):
@@ -1608,7 +1608,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
             self.add_message(
                 "unnecessary-comprehension",
-                node=node,
+                node=node.parent,
                 args=(f"{func}({node.iter.as_string()})",),
             )
 
