@@ -73,7 +73,7 @@ import collections
 import itertools
 import re
 import sys
-from typing import Any, Dict, Iterator, Optional, Pattern, cast
+from typing import TYPE_CHECKING, Any, Dict, Iterator, Optional, Pattern, cast
 
 import astroid
 from astroid import nodes
@@ -90,6 +90,9 @@ from pylint.checkers.utils import (
 from pylint.reporters.ureports import nodes as reporter_nodes
 from pylint.utils import LinterStats
 from pylint.utils.utils import get_global_option
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 if sys.version_info >= (3, 8):
     from typing import Literal
@@ -2585,8 +2588,7 @@ class ComparisonChecker(_BasicChecker):
         self.add_message("unidiomatic-typecheck", node=node)
 
 
-def register(linter):
-    """required method to auto register this checker"""
+def register(linter: "PyLinter") -> None:
     linter.register_checker(BasicErrorChecker(linter))
     linter.register_checker(BasicChecker(linter))
     linter.register_checker(NameChecker(linter))

@@ -26,6 +26,6 @@ class DummyPlugin2(BaseChecker):
     )
 
 
-def register(linter: PyLinter) -> None:
+def register(linter: "PyLinter") -> None:
     linter.register_checker(DummyPlugin1(linter))
     linter.register_checker(DummyPlugin2(linter))

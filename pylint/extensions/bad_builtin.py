@@ -11,11 +11,16 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Checker for deprecated builtins."""
+from typing import TYPE_CHECKING
+
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages
 from pylint.interfaces import IAstroidChecker
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 BAD_FUNCTIONS = ["map", "filter"]
 # Some hints regarding the use of bad builtins.
@@ -64,10 +69,5 @@ class BadBuiltinChecker(BaseChecker):
                     self.add_message("bad-builtin", node=node, args=args)
 
 
-def register(linter):
-    """Required method to auto register this checker.
-
-    :param linter: Main interface object for Pylint plugins
-    :type linter: Pylint object
-    """
+def register(linter: "PyLinter") -> None:
     linter.register_checker(BadBuiltinChecker(linter))

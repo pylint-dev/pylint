@@ -2,21 +2,30 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import collections
-from typing import TYPE_CHECKING, Callable, DefaultDict, Dict, List, Optional, Tuple
+from typing import (
+    TYPE_CHECKING,
+    Callable,
+    DefaultDict,
+    Dict,
+    List,
+    MutableSequence,
+    Optional,
+    Tuple,
+)
 
-from pylint import checkers
 from pylint.exceptions import EmptyReportError
 from pylint.reporters.ureports.nodes import Section
 from pylint.utils import LinterStats
 
 if TYPE_CHECKING:
+    from pylint.checkers import BaseChecker
     from pylint.lint.pylinter import PyLinter
 
-ReportsDict = DefaultDict[checkers.BaseChecker, List[Tuple[str, str, Callable]]]
+ReportsDict = DefaultDict["BaseChecker", List[Tuple[str, str, Callable]]]
 
 
 class ReportsHandlerMixIn:
-    """a mix-in class containing all the reports and stats manipulation
+    """A mix-in class containing all the reports and stats manipulation
     related methods for the main lint class
     """
 
@@ -24,37 +33,35 @@ class ReportsHandlerMixIn:
         self._reports: ReportsDict = collections.defaultdict(list)
         self._reports_state: Dict[str, bool] = {}
 
-    def report_order(self) -> List[checkers.BaseChecker]:
+    def report_order(self) -> MutableSequence["BaseChecker"]:
         """Return a list of reporters"""
         return list(self._reports)
 
     def register_report(
-        self, reportid: str, r_title: str, r_cb: Callable, checker: checkers.BaseChecker
+        self, reportid: str, r_title: str, r_cb: Callable, checker: "BaseChecker"
     ) -> None:
-        """register a report
+        """Register a report
 
-        reportid is the unique identifier for the report
-        r_title the report's title
-        r_cb the method to call to make the report
-        checker is the checker defining the report
+        :param reportid: The unique identifier for the report
+        :param r_title: The report's title
+        :param r_cb: The method to call to make the report
+        :param checker: The checker defining the report
         """
         reportid = reportid.upper()
         self._reports[checker].append((reportid, r_title, r_cb))
 
     def enable_report(self, reportid: str) -> None:
-        """disable the report of the given id"""
+        """Enable the report of the given id"""
         reportid = reportid.upper()
         self._reports_state[reportid] = True
 
     def disable_report(self, reportid: str) -> None:
-        """disable the report of the given id"""
+        """Disable the report of the given id"""
         reportid = reportid.upper()
         self._reports_state[reportid] = False
 
     def report_is_enabled(self, reportid: str) -> bool:
-        """return true if the report associated to the given identifier is
-        enabled
-        """
+        """Is the report associated to the given identifier enabled ?"""
         return self._reports_state.get(reportid, True)
 
     def make_reports(  # type: ignore[misc] # ReportsHandlerMixIn is always mixed with PyLinter
@@ -62,7 +69,7 @@ class ReportsHandlerMixIn:
         stats: LinterStats,
         old_stats: Optional[LinterStats],
     ) -> Section:
-        """render registered reports"""
+        """Render registered reports"""
         sect = Section("Report", f"{self.stats.statement} statements analysed.")
         for checker in self.report_order():
             for reportid, r_title, r_cb in self._reports[checker]:
