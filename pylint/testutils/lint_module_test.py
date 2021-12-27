@@ -43,8 +43,8 @@ class LintModuleTest:
         self._linter.config.persistent = 0
         checkers.initialize(self._linter)
 
-        rc_file: Union[Path, str] = PYLINTRC
         # See if test has its own .rc file, if so we use that one
+        rc_file: Union[Path, str] = PYLINTRC
         try:
             rc_file = test_file.option_file
             self._linter.disable("suppressed-message")
@@ -54,22 +54,16 @@ class LintModuleTest:
             pass
 
         try:
-            _config_initialization(
-                self._linter,
-                [test_file.source],
-                config_file=rc_file,
-                reporter=_test_reporter,
-            )
+            sources = [test_file.source]
         except NoFileError:
-            # If we're still raising NoFileError the actual source file doesn't exist and
-            # we pass a fake name
-            _config_initialization(
-                self._linter,
-                [""],
-                config_file=rc_file,
-                reporter=_test_reporter,
-            )
-
+            # If we're still raising NoFileError the actual source file doesn't exist
+            sources = [""]
+        _config_initialization(
+            self._linter,
+            sources,
+            config_file=rc_file,
+            reporter=_test_reporter,
+        )
         self._test_file = test_file
         self._config = config
         self._check_end_position = (
