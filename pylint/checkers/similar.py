@@ -78,6 +78,7 @@ from pylint.utils import LinterStats, decoding_stream
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
+
 DEFAULT_MIN_SIMILARITY_LINE = 4
 
 REGEX_FOR_LINES_WITH_CONTENT = re.compile(r".*\w+")

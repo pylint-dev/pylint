@@ -10,6 +10,7 @@ from pylint.utils.utils import get_global_option
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
+
 if sys.version_info >= (3, 10):
     from typing import TypeGuard
 else:

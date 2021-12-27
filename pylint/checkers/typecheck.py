@@ -112,6 +112,7 @@ from pylint.utils import get_global_option
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
+
 CallableObjects = Union[
     bases.BoundMethod,
     bases.UnboundMethod,
