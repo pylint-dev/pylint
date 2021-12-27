@@ -298,16 +298,17 @@ def _get_break_loop_node(break_node):
 
 def _loop_exits_early(loop):
     """
-    Returns true if a loop may end with a break statement.
+    Returns true if a loop may end with a break or return statement.
 
     Args:
         loop (astroid.For, astroid.While): the loop node inspected.
 
     Returns:
-        bool: True if the loop may end with a break statement, False otherwise.
+        bool: True if the loop may end with a break or return statement, False otherwise.
     """
     loop_nodes = (nodes.For, nodes.While)
     definition_nodes = (nodes.FunctionDef, nodes.ClassDef)
+    break_nodes = (nodes.Break, nodes.Return)
     inner_loop_nodes = [
         _node
         for _node in loop.nodes_of_class(loop_nodes, skip_klass=definition_nodes)
@@ -315,7 +316,7 @@ def _loop_exits_early(loop):
     ]
     return any(
         _node
-        for _node in loop.nodes_of_class(nodes.Break, skip_klass=definition_nodes)
+        for _node in loop.nodes_of_class(break_nodes, skip_klass=definition_nodes)
         if _get_break_loop_node(_node) not in inner_loop_nodes
     )
 
