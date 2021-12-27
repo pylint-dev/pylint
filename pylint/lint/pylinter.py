@@ -1689,13 +1689,13 @@ class PyLinter(
             self._set_one_msg_status(scope, message_definition, line, enable)
 
         # sync configuration object
-        msgs = self._msgs_state
-        self.config.enable = [
-            self._message_symbol(mid) for mid, val in sorted(msgs.items()) if val
-        ]
-        self.config.disable = [
-            self._message_symbol(mid) for mid, val in sorted(msgs.items()) if not val
-        ]
+        self.config.enable = []
+        self.config.disable = []
+        for mid, val in self._msgs_state.items():
+            if val:
+                self.config.enable.append(self._message_symbol(mid))
+            else:
+                self.config.disable.append(self._message_symbol(mid))
 
     def _register_by_id_managed_msg(
         self, msgid_or_symbol: str, line: Optional[int], is_disabled: bool = True
