@@ -59,10 +59,7 @@ class LintModuleTest:
             # If we're still raising NoFileError the actual source file doesn't exist
             sources = [""]
         _config_initialization(
-            self._linter,
-            sources,
-            config_file=rc_file,
-            reporter=_test_reporter,
+            self._linter, sources, config_file=rc_file, reporter=_test_reporter
         )
         self._test_file = test_file
         self._config = config
