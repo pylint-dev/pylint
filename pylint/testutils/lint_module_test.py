@@ -54,12 +54,12 @@ class LintModuleTest:
             pass
 
         try:
-            sources = [test_file.source]
+            args = [test_file.source]
         except NoFileError:
             # If we're still raising NoFileError the actual source file doesn't exist
-            sources = [""]
+            args = [""]
         _config_initialization(
-            self._linter, sources, config_file=rc_file, reporter=_test_reporter
+            self._linter, args_list=args, config_file=rc_file, reporter=_test_reporter
         )
         self._test_file = test_file
         self._config = config
