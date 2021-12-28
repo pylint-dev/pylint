@@ -22,12 +22,17 @@
 
 """check for new / old style related problems
 """
+from typing import TYPE_CHECKING
+
 import astroid
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages, has_known_bases, node_frame_class
 from pylint.interfaces import IAstroidChecker
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 MSGS = {
     "E1003": (
@@ -132,6 +137,5 @@ class NewStyleConflictChecker(BaseChecker):
     visit_asyncfunctiondef = visit_functiondef
 
 
-def register(linter):
-    """required method to auto register this checker"""
+def register(linter: "PyLinter") -> None:
     linter.register_checker(NewStyleConflictChecker(linter))

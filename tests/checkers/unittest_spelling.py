@@ -75,7 +75,7 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     @set_config(max_spelling_suggestions=2)
-    def test_check_bad_coment_custom_suggestion_count(self):
+    def test_check_bad_comment_custom_suggestion_count(self):
         with self.assertAddsMessages(
             MessageTest(
                 "wrong-spelling-in-comment",

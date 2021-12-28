@@ -32,6 +32,14 @@ Extensions
 Other Changes
 =============
 
+* By default, pylint does no longer take files starting with ``.#`` into account. Those are
+  considered `emacs file locks`_. This behavior can be reverted by redefining the
+  ``ignore-patterns`` option.
+
+  Closes #367
+
+.. _`emacs file locks`: https://www.gnu.org/software/emacs/manual/html_node/elisp/File-Locks.html
+
 * Fixed extremely long processing of long lines with comma's.
 
   Closes #5483
@@ -60,6 +68,11 @@ Other Changes
 
   Closes #3793
 
+* Fixed false positive for ``used-before-assignment`` with self-referential type
+  annotation in conditional statements within class methods.
+
+  Closes #5499
+
 * ``used-before-assignment`` now assumes that assignments in except blocks
   may not have occurred and warns accordingly.
 
@@ -73,6 +86,11 @@ Other Changes
 
 * ``used-before-assignment`` now checks names in try blocks.
 
+* Fixed false positive with ``used-before-assignment`` for assignment expressions
+  in lambda statements.
+
+  Closes #5360, #3877
+
 * Require Python ``3.6.2`` to run pylint.
 
   Closes #5065
@@ -85,6 +103,11 @@ Other Changes
   Closes #5451
 
 * ``fatal`` was added to the variables permitted in score evaluation expressions.
+
+* Fix ``comparison-with-callable`` false positive for callables that raise, such
+  as typing constants.
+
+  Closes #5557
 
 * The ``PyLinter`` class will now be initialized with a ``TextReporter``
   as its reporter if none is provided.
@@ -100,6 +123,10 @@ Other Changes
   that have default values.
 
   Closes #1556, #5338
+
+* Fixed false positive ``unexpected-keyword-arg`` for decorators.
+
+  Closes #258
 
 * ``missing-raises-doc`` will now check the class hierarchy of the raised exceptions
 

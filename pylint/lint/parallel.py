@@ -78,7 +78,7 @@ def _worker_check_single_file(
 
 def _merge_mapreduce_data(linter, all_mapreduce_data):
     """Merges map/reduce data across workers, invoking relevant APIs on checkers"""
-    # First collate the data, preparing it so we can send it to the checkers for
+    # First collate the data and prepare it, so we can send it to the checkers for
     # validation. The intent here is to collect all the mapreduce data for all checker-
     # runs across processes - that will then be passed to a static method on the
     # checkers to be reduced and further processed.
@@ -113,7 +113,7 @@ def check_parallel(linter, jobs, files: Iterable[FileItem], arguments=None):
     pool = multiprocessing.Pool(  # pylint: disable=consider-using-with
         jobs, initializer=initializer, initargs=[linter]
     )
-    # ..and now when the workers have inherited the linter, the actual reporter
+    # ...and now when the workers have inherited the linter, the actual reporter
     # can be set back here on the parent process so that results get stored into
     # correct reporter
     linter.set_reporter(original_reporter)

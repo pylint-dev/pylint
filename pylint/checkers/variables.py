@@ -54,8 +54,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""variables checkers for Python code
-"""
+"""Variables checkers for Python code"""
 import collections
 import copy
 import itertools
@@ -64,7 +63,7 @@ import re
 import sys
 from enum import Enum
 from functools import lru_cache
-from typing import Any, DefaultDict, List, Optional, Set, Tuple, Union
+from typing import TYPE_CHECKING, Any, DefaultDict, List, Optional, Set, Tuple, Union
 
 import astroid
 from astroid import nodes
@@ -74,6 +73,9 @@ from pylint.checkers.utils import is_postponed_evaluation_enabled
 from pylint.constants import PY39_PLUS
 from pylint.interfaces import HIGH, INFERENCE, INFERENCE_FAILURE, IAstroidChecker
 from pylint.utils import get_global_option
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 if sys.version_info >= (3, 8):
     from typing import Literal
@@ -1402,10 +1404,6 @@ class VariablesChecker(BaseChecker):
                         "used-before-assignment", args=node.name, node=node
                     )
 
-                elif current_consumer.scope_type == "lambda":
-                    self.add_message("undefined-variable", args=node.name, node=node)
-                    return (VariableVisitConsumerAction.CONSUME, found_nodes)
-
         elif self._is_only_type_assignment(node, defstmt):
             self.add_message("undefined-variable", args=node.name, node=node)
             return (VariableVisitConsumerAction.CONSUME, found_nodes)
@@ -1817,7 +1815,7 @@ class VariablesChecker(BaseChecker):
         """
         if (
             node.frame().parent == defstmt
-            and node.statement(future=True) not in node.frame().body
+            and node.statement(future=True) == node.frame()
         ):
             # Check if used as type annotation
             # Break but don't emit message if postponed evaluation is enabled
@@ -2532,6 +2530,5 @@ class VariablesChecker(BaseChecker):
         return consumed
 
 
-def register(linter):
-    """required method to auto register this checker"""
+def register(linter: "PyLinter") -> None:
     linter.register_checker(VariablesChecker(linter))

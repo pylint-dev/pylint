@@ -73,7 +73,7 @@ import collections
 import itertools
 import re
 import sys
-from typing import Any, Dict, Iterator, Optional, Pattern, cast
+from typing import TYPE_CHECKING, Any, Dict, Iterator, Optional, Pattern, cast
 
 import astroid
 from astroid import nodes
@@ -90,6 +90,9 @@ from pylint.checkers.utils import (
 from pylint.reporters.ureports import nodes as reporter_nodes
 from pylint.utils import LinterStats
 from pylint.utils.utils import get_global_option
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 if sys.version_info >= (3, 8):
     from typing import Literal
@@ -298,13 +301,13 @@ def _get_break_loop_node(break_node):
 
 def _loop_exits_early(loop):
     """
-    Returns true if a loop may ends up in a break statement.
+    Returns true if a loop may end with a break statement.
 
     Args:
         loop (astroid.For, astroid.While): the loop node inspected.
 
     Returns:
-        bool: True if the loop may ends up in a break statement, False otherwise.
+        bool: True if the loop may end with a break statement, False otherwise.
     """
     loop_nodes = (nodes.For, nodes.While)
     definition_nodes = (nodes.FunctionDef, nodes.ClassDef)
@@ -349,7 +352,7 @@ def _get_properties(config):
 
 
 def _determine_function_name_type(node: nodes.FunctionDef, config=None):
-    """Determine the name type whose regex the a function's name should match.
+    """Determine the name type whose regex the function's name should match.
 
     :param node: A function node.
     :param config: Configuration from which to pull additional property classes.
@@ -747,7 +750,7 @@ class BasicErrorChecker(_BasicChecker):
 
     @utils.check_messages("nonexistent-operator")
     def visit_unaryop(self, node: nodes.UnaryOp) -> None:
-        """check use of the non-existent ++ and -- operator operator"""
+        """Check use of the non-existent ++ and -- operators"""
         if (
             (node.op in "+-")
             and isinstance(node.operand, nodes.UnaryOp)
@@ -1244,7 +1247,7 @@ class BasicChecker(_BasicChecker):
 
     @utils.check_messages("unnecessary-lambda")
     def visit_lambda(self, node: nodes.Lambda) -> None:
-        """check whether or not the lambda is suspicious"""
+        """Check whether the lambda is suspicious"""
         # if the body of the lambda is a call expression with the same
         # argument list as the lambda itself, then the lambda is
         # possibly unnecessary and at least suspicious.
@@ -1357,9 +1360,9 @@ class BasicChecker(_BasicChecker):
 
     @utils.check_messages("unreachable", "lost-exception")
     def visit_return(self, node: nodes.Return) -> None:
-        """1 - check is the node has a right sibling (if so, that's some
+        """1 - check if the node has a right sibling (if so, that's some
         unreachable code)
-        2 - check is the node is inside the finally clause of a try...finally
+        2 - check if the node is inside the 'finally' clause of a 'try...finally'
         block
         """
         self._check_unreachable(node)
@@ -1375,9 +1378,9 @@ class BasicChecker(_BasicChecker):
 
     @utils.check_messages("unreachable", "lost-exception")
     def visit_break(self, node: nodes.Break) -> None:
-        """1 - check is the node has a right sibling (if so, that's some
+        """1 - check if the node has a right sibling (if so, that's some
         unreachable code)
-        2 - check is the node is inside the finally clause of a try...finally
+        2 - check if the node is inside the 'finally' clause of a 'try...finally'
         block
         """
         # 1 - Is it right sibling ?
@@ -1490,14 +1493,14 @@ class BasicChecker(_BasicChecker):
             self.add_message("unreachable", node=unreach_stmt)
 
     def _check_not_in_finally(self, node, node_name, breaker_classes=()):
-        """check that a node is not inside a finally clause of a
-        try...finally statement.
-        If we found before a try...finally block a parent which its type is
-        in breaker_classes, we skip the whole check."""
+        """check that a node is not inside a 'finally' clause of a
+        'try...finally' statement.
+        If we find a parent which type is in breaker_classes before
+        a 'try...finally' block we skip the whole check."""
         # if self._tryfinallys is empty, we're not an in try...finally block
         if not self._tryfinallys:
             return
-        # the node could be a grand-grand...-children of the try...finally
+        # the node could be a grand-grand...-child of the 'try...finally'
         _parent = node.parent
         _node = node
         while _parent and not isinstance(_parent, breaker_classes):
@@ -1612,9 +1615,9 @@ class BasicChecker(_BasicChecker):
                 continue
             if not isinstance(target, nodes.AssignName):
                 continue
+            # Check that the scope is different from a class level, which is usually
+            # a pattern to expose module level attributes as class level ones.
             if isinstance(scope, nodes.ClassDef) and target.name in scope_locals:
-                # Check that the scope is different than a class level, which is usually
-                # a pattern to expose module level attributes as class level ones.
                 continue
             if target.name == lhs_name.name:
                 self.add_message(
@@ -2218,7 +2221,7 @@ class DocStringChecker(_BasicChecker):
         report_missing=True,
         confidence=interfaces.HIGH,
     ):
-        """check the node has a non empty docstring"""
+        """Check if the node has a non-empty docstring"""
         docstring = node.doc
         if docstring is None:
             docstring = _infer_dunder_doc_attribute(node)
@@ -2229,7 +2232,7 @@ class DocStringChecker(_BasicChecker):
             lines = utils.get_node_last_lineno(node) - node.lineno
 
             if node_type == "module" and not lines:
-                # If the module has no body, there's no reason
+                # If the module does not have a body, there's no reason
                 # to require a docstring.
                 return
             max_lines = self.config.docstring_min_length
@@ -2469,7 +2472,7 @@ class ComparisonChecker(_BasicChecker):
         is_const = False
         if isinstance(literal, nodes.Const):
             if isinstance(literal.value, bool) or literal.value is None:
-                # Not interested in this values.
+                # Not interested in these values.
                 return
             is_const = isinstance(literal.value, (bytes, str, int, float))
 
@@ -2511,14 +2514,18 @@ class ComparisonChecker(_BasicChecker):
         left_operand, right_operand = node.left, node.ops[0][1]
         # this message should be emitted only when there is comparison of bare callable
         # with non bare callable.
-        if (
-            sum(
-                1
-                for operand in (left_operand, right_operand)
-                if isinstance(utils.safe_infer(operand), bare_callables)
-            )
-            == 1
-        ):
+        number_of_bare_callables = 0
+        for operand in left_operand, right_operand:
+            inferred = utils.safe_infer(operand)
+            # Ignore callables that raise, as well as typing constants
+            # implemented as functions (that raise via their decorator)
+            if (
+                isinstance(inferred, bare_callables)
+                and "typing._SpecialForm" not in inferred.decoratornames()
+                and not any(isinstance(x, nodes.Raise) for x in inferred.body)
+            ):
+                number_of_bare_callables += 1
+        if number_of_bare_callables == 1:
             self.add_message("comparison-with-callable", node=node)
 
     @utils.check_messages(
@@ -2581,8 +2588,7 @@ class ComparisonChecker(_BasicChecker):
         self.add_message("unidiomatic-typecheck", node=node)
 
 
-def register(linter):
-    """required method to auto register this checker"""
+def register(linter: "PyLinter") -> None:
     linter.register_checker(BasicErrorChecker(linter))
     linter.register_checker(BasicChecker(linter))
     linter.register_checker(NameChecker(linter))

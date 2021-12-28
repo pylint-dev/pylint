@@ -52,6 +52,7 @@ from getopt import getopt
 from io import BufferedIOBase, BufferedReader, BytesIO
 from itertools import chain, groupby
 from typing import (
+    TYPE_CHECKING,
     Any,
     Dict,
     FrozenSet,
@@ -74,6 +75,9 @@ from pylint.checkers import BaseChecker, MapReduceMixin, table_lines_from_stats
 from pylint.interfaces import IRawChecker
 from pylint.reporters.ureports.nodes import Table
 from pylint.utils import LinterStats, decoding_stream
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 DEFAULT_MIN_SIMILARITY_LINE = 4
 
@@ -879,8 +883,7 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
         recombined.close()
 
 
-def register(linter):
-    """required method to auto register this checker"""
+def register(linter: "PyLinter") -> None:
     linter.register_checker(SimilarChecker(linter))
 
 

@@ -11,7 +11,20 @@ import tokenize
 import traceback
 import warnings
 from io import TextIOWrapper
-from typing import Any, Dict, Iterable, Iterator, List, Optional, Sequence, Type, Union
+from typing import (
+    Any,
+    DefaultDict,
+    Dict,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Sequence,
+    Set,
+    Tuple,
+    Type,
+    Union,
+)
 
 import astroid
 from astroid import AstroidError, nodes
@@ -59,6 +72,8 @@ if sys.version_info >= (3, 8):
     from typing import Literal
 else:
     from typing_extensions import Literal
+
+OptionDict = Dict[str, Union[str, bool, int, Iterable[Union[str, int]]]]
 
 MANAGER = astroid.MANAGER
 
@@ -204,7 +219,7 @@ class PyLinter(
     crash_file_path: str = "pylint-crash-%Y-%m-%d-%H.txt"
 
     @staticmethod
-    def make_options():
+    def make_options() -> Tuple[Tuple[str, OptionDict], ...]:
         return (
             (
                 "ignore",
@@ -223,9 +238,10 @@ class PyLinter(
                     "type": "regexp_csv",
                     "metavar": "<pattern>[,<pattern>...]",
                     "dest": "black_list_re",
-                    "default": (),
+                    "default": (r"^\.#",),
                     "help": "Files or directories matching the regex patterns are"
-                    " skipped. The regex matches against base names, not paths.",
+                    " skipped. The regex matches against base names, not paths. The default value "
+                    "ignores emacs file locks",
                 },
             ),
             (
@@ -294,11 +310,11 @@ class PyLinter(
                     "metavar": "<python_expression>",
                     "group": "Reports",
                     "level": 1,
-                    "default": "10.0 - ((float(5 * error + warning + refactor + "
+                    "default": "0 if fatal else 10.0 - ((float(5 * error + warning + refactor + "
                     "convention) / statement) * 10)",
                     "help": "Python expression which should return a score less "
-                    "than or equal to 10. You have access to the variables "
-                    "'error', 'warning', 'refactor', and 'convention' which "
+                    "than or equal to 10. You have access to the variables 'fatal', "
+                    "'error', 'warning', 'refactor', 'convention', and 'info' which "
                     "contain the number of messages in each category, as well as "
                     "'statement' which is the total number of statements "
                     "analyzed. This score is used by the global "
@@ -513,7 +529,7 @@ class PyLinter(
             ),
         )
 
-    option_groups = (
+    base_option_groups = (
         ("Messages control", "Options controlling analysis messages"),
         ("Reports", "Options related to output formatting and reporting"),
     )
@@ -536,20 +552,34 @@ class PyLinter(
         self._reporters: Dict[str, Type[reporters.BaseReporter]] = {}
         """Dictionary of possible but non-initialized reporters"""
 
-        self.msgs_store = MessageDefinitionStore()
-        self._checkers = collections.defaultdict(list)
-        self._pragma_lineno = {}
-        self._ignore_file = False
-        # visit variables
+        # Attributes for checkers and plugins
+        self._checkers: DefaultDict[
+            str, List[checkers.BaseChecker]
+        ] = collections.defaultdict(list)
+        """Dictionary of registered and initialized checkers"""
+        self._dynamic_plugins: Set[str] = set()
+        """Set of loaded plugin names"""
+
+        # Attributes related to visiting files
         self.file_state = FileState()
         self.current_name: Optional[str] = None
-        self.current_file = None
+        self.current_file: Optional[str] = None
+        self._ignore_file = False
+        self._pragma_lineno: Dict[str, int] = {}
+
+        # Attributes related to stats
         self.stats = LinterStats()
-        self.fail_on_symbols = []
-        # init options
-        self._external_opts = options
-        self.options = options + PyLinter.make_options()
-        self.option_groups = option_groups + PyLinter.option_groups
+
+        # Attributes related to (command-line) options and their parsing
+        # pylint: disable-next=fixme
+        # TODO: Make these implicitly typing when typing for __init__ parameter is added
+        self._external_opts: Tuple[Tuple[str, OptionDict], ...] = options
+        self.options: Tuple[Tuple[str, OptionDict], ...] = (
+            options + PyLinter.make_options()
+        )
+        self.option_groups: Tuple[Tuple[str, str], ...] = (
+            option_groups + PyLinter.base_option_groups
+        )
         self._options_methods = {
             "enable": self.enable,
             "disable": self.disable,
@@ -559,8 +589,12 @@ class PyLinter(
             "disable-msg": self._options_methods["disable"],
             "enable-msg": self._options_methods["enable"],
         }
+        self.fail_on_symbols: List[str] = []
+        """List of message symbols on which pylint should fail, set by --fail-on"""
+        self._error_mode = False
 
-        # Attributes related to message (state) handling
+        # Attributes related to messages (states) and their handling
+        self.msgs_store = MessageDefinitionStore()
         self.msg_status = 0
         self._msgs_state: Dict[str, bool] = {}
         self._by_id_managed_msgs: List[ManagedMessage] = []
@@ -582,8 +616,6 @@ class PyLinter(
             ("RP0003", "Messages", report_messages_stats),
         )
         self.register_checker(self)
-        self._dynamic_plugins = set()
-        self._error_mode = False
         self.load_provider_defaults()
 
     def load_default_plugins(self):
@@ -719,11 +751,8 @@ class PyLinter(
 
     # checkers manipulation methods ############################################
 
-    def register_checker(self, checker):
-        """register a new checker
-
-        checker is an object implementing IRawChecker or / and IAstroidChecker
-        """
+    def register_checker(self, checker: checkers.BaseChecker) -> None:
+        """This method auto registers the checker."""
         assert checker.priority <= 0, "checker priority can't be >= 0"
         self._checkers[checker.name].append(checker)
         for r_id, r_title, r_cb in checker.reports:
@@ -732,7 +761,6 @@ class PyLinter(
         if hasattr(checker, "msgs"):
             self.msgs_store.register_messages_from_checker(checker)
         checker.load_defaults()
-
         # Register the checker, but disable all of its messages.
         if not getattr(checker, "enabled", True):
             self.disable(checker.name)
@@ -942,7 +970,7 @@ class PyLinter(
     # pylint: disable=unused-argument
     @staticmethod
     def should_analyze_file(modname, path, is_argument=False):
-        """Returns whether or not a module should be checked.
+        """Returns whether a module should be checked.
 
         This implementation returns True for all python source file, indicating
         that all files should be linted.
@@ -1027,7 +1055,7 @@ class PyLinter(
 
         The arguments are the same that are documented in _check_files
 
-        The initialize() method should be called before calling this method
+        initialize() should be called before calling this method
         """
         with self._astroid_module_checker() as check_astroid_module:
             self._check_file(self.get_ast, check_astroid_module, file)
@@ -1376,8 +1404,8 @@ class PyLinter(
                 fallback = True
                 lines = self.file_state._raw_module_msgs_state.get(msgid, {})
 
-                # Doesn't consider scopes, as a disable can be in a different scope
-                # than that of the current line.
+                # Doesn't consider scopes, as a 'disable' can be in a
+                # different scope than that of the current line.
                 closest_lines = reversed(
                     [
                         (message_line, enable)
@@ -1490,7 +1518,7 @@ class PyLinter(
                 message_definition.msgid,
                 message_definition.symbol,
                 MessageLocationTuple(
-                    abspath,
+                    abspath or "",
                     path,
                     module or "",
                     obj,

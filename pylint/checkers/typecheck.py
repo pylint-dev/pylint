@@ -69,7 +69,17 @@ import types
 from collections import deque
 from collections.abc import Sequence
 from functools import singledispatch
-from typing import Any, Callable, Iterator, List, Optional, Pattern, Tuple, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Iterator,
+    List,
+    Optional,
+    Pattern,
+    Tuple,
+    Union,
+)
 
 import astroid
 import astroid.exceptions
@@ -99,6 +109,9 @@ from pylint.checkers.utils import (
 )
 from pylint.interfaces import INFERENCE, IAstroidChecker
 from pylint.utils import get_global_option
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 CallableObjects = Union[
     bases.BoundMethod,
@@ -161,7 +174,7 @@ def _is_owner_ignored(owner, attrname, ignored_classes, ignored_modules):
         if fnmatch.fnmatch(module_qname, ignore):
             return True
 
-        # Otherwise we might have a root module name being ignored,
+        # Otherwise, we might have a root module name being ignored,
         # and the qualified owner has more levels of depth.
         parts = deque(module_name.split("."))
         current_module = ""
@@ -1184,14 +1197,14 @@ accessed. Python regular expressions are accepted.",
         Check a string is assigned to self.__name__
         """
 
-        # Check the left hand side of the assignment is <something>.__name__
+        # Check the left-hand side of the assignment is <something>.__name__
         lhs = node.targets[0]
         if not isinstance(lhs, nodes.AssignAttr):
             return
         if not lhs.attrname == "__name__":
             return
 
-        # If the right hand side is not a string
+        # If the right-hand side is not a string
         rhs = node.value
         if isinstance(rhs, nodes.Const) and isinstance(rhs.value, str):
             return
@@ -1271,7 +1284,7 @@ accessed. Python regular expressions are accepted.",
             # extract argument names, if they have names
             calling_parg_names = [p.name for p in call_site.positional_arguments]
 
-            # Additionally get names of keyword arguments to use in a full match
+            # Additionally, get names of keyword arguments to use in a full match
             # against parameters
             calling_kwarg_names = [
                 arg.name for arg in call_site.keyword_arguments.values()
@@ -1457,6 +1470,10 @@ accessed. Python regular expressions are accepted.",
             elif called.args.kwarg is not None:
                 # The keyword argument gets assigned to the **kwargs parameter.
                 pass
+            elif isinstance(
+                called, nodes.FunctionDef
+            ) and self._keyword_argument_is_in_all_decorator_returns(called, keyword):
+                pass
             elif not overload_function:
                 # Unexpected keyword argument.
                 self.add_message(
@@ -1495,6 +1512,46 @@ accessed. Python regular expressions are accepted.",
                 and not overload_function
             ):
                 self.add_message("missing-kwoa", node=node, args=(name, callable_name))
+
+    @staticmethod
+    def _keyword_argument_is_in_all_decorator_returns(
+        func: nodes.FunctionDef, keyword: str
+    ) -> bool:
+        """Check if the keyword argument exists in all signatures of the
+        return values of all decorators of the function.
+        """
+        if not func.decorators:
+            return False
+
+        for decorator in func.decorators.nodes:
+            inferred = safe_infer(decorator)
+
+            # If we can't infer the decorator we assume it satisfies consumes
+            # the keyword, so we don't raise false positives
+            if not inferred:
+                return True
+
+            # We only check arguments of function decorators
+            if not isinstance(inferred, nodes.FunctionDef):
+                return False
+
+            for return_value in inferred.infer_call_result():
+                # infer_call_result() returns nodes.Const.None for None return values
+                # so this also catches non-returning decorators
+                if not isinstance(return_value, nodes.FunctionDef):
+                    return False
+
+                # If the return value uses a kwarg the keyword will be consumed
+                if return_value.args.kwarg:
+                    continue
+
+                # Check if the keyword is another type of argument
+                if return_value.args.is_argument(keyword):
+                    continue
+
+                return False
+
+        return True
 
     def _check_invalid_sequence_index(self, subscript: nodes.Subscript):
         # Look for index operations where the parent is a sequence type.
@@ -1620,7 +1677,7 @@ accessed. Python regular expressions are accepted.",
             if index_type is None or index_type is astroid.Uninferable:
                 continue
 
-            # Constants must of type int or None
+            # Constants must be of type int or None
             if isinstance(index_type, nodes.Const):
                 if isinstance(index_type.value, (int, type(None))):
                     continue
@@ -1689,7 +1746,8 @@ accessed. Python regular expressions are accepted.",
                 # See the test file for not_context_manager for a couple
                 # of self explaining tests.
 
-                # Retrieve node from all previusly visited nodes in the the inference history
+                # Retrieve node from all previously visited nodes in the
+                # inference history
                 context_path_names: Iterator[Any] = filter(
                     None, _unflatten(context.path)
                 )
@@ -2045,7 +2103,6 @@ class IterableChecker(BaseChecker):
         self.add_message("await-outside-async", node=node)
 
 
-def register(linter):
-    """required method to auto register this checker"""
+def register(linter: "PyLinter") -> None:
     linter.register_checker(TypeChecker(linter))
     linter.register_checker(IterableChecker(linter))

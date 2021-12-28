@@ -14,6 +14,7 @@ import pytest
 from _pytest.config import Config
 
 from pylint import checkers
+from pylint.config.config_initialization import _config_initialization
 from pylint.lint import PyLinter
 from pylint.message.message import Message
 from pylint.testutils.constants import _EXPECTED_RE, _OPERATORS, UPDATE_OPTION
@@ -24,7 +25,6 @@ from pylint.testutils.functional.test_file import (  # need to import from funct
 )
 from pylint.testutils.output_line import OutputLine
 from pylint.testutils.reporter_for_tests import FunctionalTestReporter
-from pylint.utils import utils
 
 MessageCounter = CounterType[Tuple[int, str]]
 
@@ -44,15 +44,14 @@ class LintModuleTest:
         self._linter.disable("locally-disabled")
         self._linter.disable("useless-suppression")
         try:
-            self._linter.read_config_file(test_file.option_file)
-            if self._linter.cfgfile_parser.has_option("MASTER", "load-plugins"):
-                plugins = utils._splitstrip(
-                    self._linter.cfgfile_parser.get("MASTER", "load-plugins")
-                )
-                self._linter.load_plugin_modules(plugins)
-            self._linter.load_config_file()
+            _config_initialization(
+                self._linter,
+                [test_file.source],
+                config_file=test_file.option_file,
+            )
         except NoFileError:
             pass
+
         self._test_file = test_file
         self._config = config
         self._check_end_position = (

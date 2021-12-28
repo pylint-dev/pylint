@@ -25,7 +25,7 @@ def _safe_infer_call_result(node, caller, context=None):
     Safely infer the return value of a function.
 
     Returns None if inference failed or if there is some ambiguity (more than
-    one node has been inferred). Otherwise returns inferred value.
+    one node has been inferred). Otherwise, returns inferred value.
     """
     try:
         inferit = node.infer_call_result(caller, context=context)
