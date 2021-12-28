@@ -1389,7 +1389,10 @@ class PyLinter(
         return None
 
     def _is_one_message_enabled(self, msgid: str, line: Optional[int]) -> bool:
-        """Checks state of a single message"""
+        """Checks state of a single message for the current file
+
+        This function can't be cached it depends on self.file_state that can
+        changes."""
         if line is None:
             return self._msgs_state.get(msgid, True)
         try:
@@ -1426,10 +1429,15 @@ class PyLinter(
         line: Optional[int] = None,
         confidence: Optional[interfaces.Confidence] = None,
     ) -> bool:
-        """return whether the message associated to the given message id is
-        enabled
+        """Is this message enabled for the current file / line / confidence ?
 
-        msgid may be either a numeric or symbolic message id.
+        This function can't be cached right now as the line is the line of
+        the current analysed file (self.file_state), if it changes, then the
+        result for the same msg_descr/line need to change.
+
+        :param msg_descr: may be either the msgid or the symbol for a MessageDefinition.
+        :param line: the line is the line of the currently analysed file
+        :param confidence: The confidence of the message
         """
         if self.config.confidence and confidence:
             if confidence.name not in self.config.confidence:

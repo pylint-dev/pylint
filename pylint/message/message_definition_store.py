@@ -2,6 +2,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import collections
+import functools
 from typing import TYPE_CHECKING, Dict, List, Tuple, ValuesView
 
 from pylint.exceptions import UnknownMessageError
@@ -46,6 +47,7 @@ class MessageDefinitionStore:
         self._messages_definitions[message.msgid] = message
         self._msgs_by_category[message.msgid[0]].append(message.msgid)
 
+    @functools.lru_cache()
     def get_message_definitions(self, msgid_or_symbol: str) -> List[MessageDefinition]:
         """Returns the Message definition for either a numeric or symbolic id."""
         return [

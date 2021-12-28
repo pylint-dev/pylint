@@ -1,5 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+import functools
 from typing import Dict, List, NoReturn, Optional, Tuple
 
 from pylint.exceptions import InvalidMessageError, UnknownMessageError
@@ -101,6 +102,7 @@ class MessageIdStore:
         )
         raise InvalidMessageError(error_message)
 
+    @functools.lru_cache()
     def get_active_msgids(self, msgid_or_symbol: str) -> List[str]:
         """Return msgids but the input can be a symbol."""
         # Only msgid can have a digit as second letter
