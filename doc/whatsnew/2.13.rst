@@ -104,6 +104,10 @@ Other Changes
 
 * ``fatal`` was added to the variables permitted in score evaluation expressions.
 
+* The default score evaluation now uses a floor of 0.
+
+  Closes #2399
+
 * Fix ``comparison-with-callable`` false positive for callables that raise, such
   as typing constants.
 

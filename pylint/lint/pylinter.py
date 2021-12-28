@@ -310,8 +310,8 @@ class PyLinter(
                     "metavar": "<python_expression>",
                     "group": "Reports",
                     "level": 1,
-                    "default": "0 if fatal else 10.0 - ((float(5 * error + warning + refactor + "
-                    "convention) / statement) * 10)",
+                    "default": "max(0, 0 if fatal else 10.0 - ((float(5 * error + warning + refactor + "
+                    "convention) / statement) * 10))",
                     "help": "Python expression which should return a score less "
                     "than or equal to 10. You have access to the variables 'fatal', "
                     "'error', 'warning', 'refactor', 'convention', and 'info' which "

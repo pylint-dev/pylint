@@ -120,7 +120,7 @@ reports=no
 # and 'info', which contain the number of messages in each category, as
 # well as 'statement', which is the total number of statements analyzed. This
 # score is used by the global evaluation report (RP0004).
-evaluation=0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)
+evaluation=max(0, 0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10))
 
 # Template used to display messages. This is a python new-style format string
 # used to format the message information. See doc for all details
