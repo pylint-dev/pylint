@@ -111,7 +111,6 @@ class MessageIdStore:
         take up ~= 1 Mb.
         """
         msgid: Optional[str]
-        symbol: Optional[str]
         if msgid_or_symbol[1:].isdigit():
             # Only msgid can have a digit as second letter
             msgid = msgid_or_symbol.upper()
