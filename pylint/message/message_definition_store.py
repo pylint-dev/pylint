@@ -51,10 +51,9 @@ class MessageDefinitionStore:
     def get_message_definitions(self, msgid_or_symbol: str) -> List[MessageDefinition]:
         """Returns the Message definition for either a numeric or symbolic id.
 
-        The cache has no limit as it will never go very high. It's a set number of
-        message from our own code and from user's checkers. How many message can
-        the user generate ? I guess it will never be more than 1000, and if each
-        messages has around 1000 characters, it's still ~= 1 Mb to cache.
+        The cache has no limit as its size will likely stay minimal. For each message we store
+        about 1000 characters, so even if we would have 1000 messages the cache would only
+        take up ~= 1 Mb.
         """
         return [
             self._messages_definitions[m]

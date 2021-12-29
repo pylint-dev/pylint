@@ -106,10 +106,9 @@ class MessageIdStore:
     def get_active_msgids(self, msgid_or_symbol: str) -> List[str]:
         """Return msgids but the input can be a symbol.
 
-        The cache has no limit as it will never go very high. It's a set number of
-        msgid/symbol pair from our own code and from user's checkers. How many msgid can
-        the user generate ? I guess it will never be more than 1000, and if each
-        msgid/symbol pair has around 50 characters, it's still ~= 5 kb to cache.
+        The cache has no limit as its size will likely stay minimal. For each message we store
+        about 1000 characters, so even if we would have 1000 messages the cache would only
+        take up ~= 1 Mb.
         """
         msgid: Optional[str]
         symbol: Optional[str]
