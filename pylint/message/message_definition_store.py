@@ -49,7 +49,13 @@ class MessageDefinitionStore:
 
     @functools.lru_cache()
     def get_message_definitions(self, msgid_or_symbol: str) -> List[MessageDefinition]:
-        """Returns the Message definition for either a numeric or symbolic id."""
+        """Returns the Message definition for either a numeric or symbolic id.
+
+        The cache has no limit as it will never go very high. It's a set number of
+        message from our own code and from user's checkers. How many message can
+        the user generate ? I guess it will never be more than 1000, and if each
+        messages has around 1000 characters, it's still ~= 1 Mb to cache.
+        """
         return [
             self._messages_definitions[m]
             for m in self.message_id_store.get_active_msgids(msgid_or_symbol)

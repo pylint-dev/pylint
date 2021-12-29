@@ -104,17 +104,23 @@ class MessageIdStore:
 
     @functools.lru_cache()
     def get_active_msgids(self, msgid_or_symbol: str) -> List[str]:
-        """Return msgids but the input can be a symbol."""
-        # Only msgid can have a digit as second letter
-        is_msgid: bool = msgid_or_symbol[1:].isdigit()
-        msgid = None
-        if is_msgid:
+        """Return msgids but the input can be a symbol.
+
+        The cache has no limit as it will never go very high. It's a set number of
+        msgid/symbol pair from our own code and from user's checkers. How many msgid can
+        the user generate ? I guess it will never be more than 1000, and if each
+        msgid/symbol pair has around 50 characters, it's still ~= 5 kb to cache.
+        """
+        msgid: Optional[str]
+        symbol: Optional[str]
+        if msgid_or_symbol[1:].isdigit():
+            # Only msgid can have a digit as second letter
             msgid = msgid_or_symbol.upper()
             symbol = self.__msgid_to_symbol.get(msgid)
         else:
             msgid = self.__symbol_to_msgid.get(msgid_or_symbol)
             symbol = msgid_or_symbol
-        if msgid is None or symbol is None or not msgid or not symbol:
+        if not msgid or not symbol:
             error_msg = f"No such message id or symbol '{msgid_or_symbol}'."
             raise UnknownMessageError(error_msg)
         return self.__old_names.get(msgid, [msgid])
