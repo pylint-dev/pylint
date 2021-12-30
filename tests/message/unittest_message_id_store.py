@@ -2,8 +2,6 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 from pathlib import Path
-
-EMPTY_FILE = str(Path(__file__).parent.parent.resolve() / "regrtest_data" / "empty.py")
 from typing import Dict, ValuesView
 
 import pytest
@@ -13,7 +11,7 @@ from pylint.exceptions import InvalidMessageError, UnknownMessageError
 from pylint.message.message_definition import MessageDefinition
 from pylint.message.message_id_store import MessageIdStore
 
-HERE = abspath(dirname(__file__))
+EMPTY_FILE = str(Path(__file__).parent.parent.resolve() / "regrtest_data" / "empty.py")
 
 
 def test_len_str(msgid_store: MessageIdStore, msgids: Dict[str, str]) -> None:
