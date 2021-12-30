@@ -8,7 +8,7 @@ on:
   pull_request: ~
 
 env:
-  CACHE_VERSION: 4
+  CACHE_VERSION: 4 # Also change this in the primer workflow
   DEFAULT_PYTHON: 3.8
   PRE_COMMIT_CACHE: ~/.cache/pre-commit
 
