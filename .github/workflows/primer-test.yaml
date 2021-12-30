@@ -10,9 +10,11 @@ on:
       - "pylint/**"
       - "tests/primer/**"
       - "requirements*"
+      - ".github/workflows/primer-test.yaml"
 
 env:
-  CACHE_VERSION: 3
+  # Also change CACHE_VERSION in the CI workflow
+  CACHE_VERSION: 4
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
