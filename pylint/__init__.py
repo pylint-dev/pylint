@@ -11,17 +11,22 @@
 
 import os
 import sys
+from typing import List, Optional
 
 from pylint.__pkginfo__ import __version__
 
 # pylint: disable=import-outside-toplevel
 
 
-def run_pylint():
+def run_pylint(*, arguments: Optional[List[str]] = None):
+    """Run pylint
+
+    Arguments can be a list of strings normally supplied as arguments on the command line
+    """
     from pylint.lint import Run as PylintRun
 
     try:
-        PylintRun(sys.argv[1:])
+        PylintRun(arguments or sys.argv[1:])
     except KeyboardInterrupt:
         sys.exit(1)
 
@@ -32,18 +37,24 @@ def run_epylint():
     EpylintRun()
 
 
-def run_pyreverse():
-    """run pyreverse"""
+def run_pyreverse(*, arguments: Optional[List[str]] = None):
+    """Run pyreverse
+
+    Arguments can be a list of strings normally supplied as arguments on the command line
+    """
     from pylint.pyreverse.main import Run as PyreverseRun
 
-    PyreverseRun(sys.argv[1:])
+    PyreverseRun(arguments or sys.argv[1:])
 
 
-def run_symilar():
-    """run symilar"""
+def run_symilar(*, arguments: Optional[List[str]] = None):
+    """Run symilar
+
+    Arguments can be a list of strings normally supplied as arguments on the command line
+    """
     from pylint.checkers.similar import Run as SimilarRun
 
-    SimilarRun(sys.argv[1:])
+    SimilarRun(arguments or sys.argv[1:])
 
 
 def modify_sys_path() -> None:
