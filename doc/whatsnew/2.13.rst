@@ -116,6 +116,11 @@ Other Changes
 
   Closes #5557
 
+* When invoking ``pylint``, ``symilar`` or ``pyreverse`` by importing them in a python file
+  you can now pass an ``arguments`` keyword besides patching ``sys.argv``.
+
+  Closes #5320
+
 * The ``PyLinter`` class will now be initialized with a ``TextReporter``
   as its reporter if none is provided.
 
