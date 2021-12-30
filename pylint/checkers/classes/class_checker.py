@@ -56,7 +56,6 @@ from typing import List, Pattern
 
 import astroid
 from astroid import nodes
-from astroid.nodes.node_classes import AnnAssign
 
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import (
@@ -1501,7 +1500,10 @@ a metaclass class method.",
                 if node.attrname in klass.locals:
                     for local_name in klass.locals.get(node.attrname, []):
                         statement = local_name.statement(future=True)
-                        if isinstance(statement, AnnAssign) and not statement.value:
+                        if (
+                            isinstance(statement, nodes.AnnAssign)
+                            and not statement.value
+                        ):
                             return
                     if _has_data_descriptor(klass, node.attrname):
                         # Descriptors circumvent the slots mechanism as well.
