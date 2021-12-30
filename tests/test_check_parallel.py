@@ -189,10 +189,10 @@ class TestCheckParallelFramework:
         """
         linter = PyLinter(reporter=Reporter())
         linter.attribute = argparse.ArgumentParser()  # type: ignore[attr-defined]
-        pool = multiprocessing.Pool(  # pylint: disable=consider-using-with
+        with multiprocessing.Pool(
             2, initializer=worker_initialize, initargs=[dill.dumps(linter)]
-        )
-        pool.imap_unordered(print, [1, 2])
+        ) as pool:
+            pool.imap_unordered(print, [1, 2])
 
     def test_worker_check_single_file_uninitialised(self) -> None:
         pylint.lint.parallel._worker_linter = None
