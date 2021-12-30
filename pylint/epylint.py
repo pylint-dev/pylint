@@ -64,6 +64,7 @@ import shlex
 import sys
 from io import StringIO
 from subprocess import PIPE, Popen
+from typing import List, Optional
 
 
 def _get_env():
@@ -185,15 +186,17 @@ def py_run(command_options="", return_std=False, stdout=None, stderr=None):
         return None
 
 
-def Run():
-    if len(sys.argv) == 1:
+def Run(*, arguments: Optional[List[str]] = None):
+    if not arguments and len(sys.argv) == 1:
         print(f"Usage: {sys.argv[0]} <filename> [options]")
         sys.exit(1)
-    elif not os.path.exists(sys.argv[1]):
-        print(f"{sys.argv[1]} does not exist")
+
+    args = arguments or sys.argv[1:]
+    if not os.path.exists(args[0]):
+        print(f"{args[0]} does not exist")
         sys.exit(1)
     else:
-        sys.exit(lint(sys.argv[1], sys.argv[2:]))
+        sys.exit(lint(args[0], args[1:]))
 
 
 if __name__ == "__main__":

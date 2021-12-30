@@ -90,7 +90,7 @@ Release date: TBA
 
   Closes #5504
 
-* When invoking ``pylint``, ``symilar`` or ``pyreverse`` by importing them in a python file
+* When invoking ``pylint``, ``epylint``, ``symilar`` or ``pyreverse`` by importing them in a python file
   you can now pass an ``arguments`` keyword besides patching ``sys.argv``.
 
   Closes #5320
