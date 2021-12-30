@@ -63,6 +63,10 @@ Release date: TBA
 
   Closes #5360, #3877
 
+* Fixed crash with slots assignments and annotated assignments.
+
+  Closes #5479
+
 * Some files in ``pylint.testutils`` were deprecated. In the future imports should be done from the
   ``pylint.testutils.functional`` namespace directly.
 

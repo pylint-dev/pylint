@@ -61,6 +61,10 @@ Other Changes
 
   Closes #5504
 
+* Fixed crash with slots assignments and annotated assignments.
+
+  Closes #5479
+
 * Fix false negative for ``consider-iterating-dictionary`` during membership checks encapsulated in iterables
   or ``not in`` checks
 
