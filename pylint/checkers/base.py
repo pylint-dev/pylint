@@ -328,8 +328,9 @@ def _node_in_orelse(loop, node):
             return True
         if any(kid == node for kid in child.get_children()):
             return True
-    
+
     return False
+
 
 def _is_multi_naming_match(match, node_type, confidence):
     return (
