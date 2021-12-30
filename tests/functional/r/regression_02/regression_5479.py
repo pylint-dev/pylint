@@ -1,7 +1,8 @@
 """Test for a regression on slots and annotated assignments.
-Reported in https://github.com/PyCQA/pylint/issues/5479#issuecomment-988798391"""
-
+Reported in https://github.com/PyCQA/pylint/issues/5479
+"""
 # pylint: disable=too-few-public-methods, unused-private-member, missing-class-docstring, missing-function-docstring
+
 from __future__ import annotations
 
 import asyncio
