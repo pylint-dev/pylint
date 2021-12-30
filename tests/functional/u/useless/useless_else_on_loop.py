@@ -3,19 +3,19 @@ from __future__ import print_function
 __revision__ = 0
 
 def test_return_for():
-    """else + return is not acceptable."""
+    """else + return shouldn't raise the issue"""
     for i in range(10):
         if i % 2:
             return i
-    else:  # [useless-else-on-loop]
+    else:
         print('math is broken')
     return None
 
 def test_return_while():
-    """else + return is not acceptable."""
+    """else + return shouldn't raise the issue"""
     while True:
         return 1
-    else:  # [useless-else-on-loop]
+    else:
         print('math is broken')
     return None
 

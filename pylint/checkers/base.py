@@ -276,7 +276,7 @@ def in_nested_list(nested_list, obj):
 
 def _get_break_loop_node(break_node):
     """
-    Returns the loop node that holds the break node in arguments.
+    Returns the loop node that holds the break or return node in arguments.
 
     Args:
         break_node (astroid.Break): the break node of interest.
@@ -318,8 +318,18 @@ def _loop_exits_early(loop):
         _node
         for _node in loop.nodes_of_class(break_nodes, skip_klass=definition_nodes)
         if _get_break_loop_node(_node) not in inner_loop_nodes
+        and not _node_in_orelse(loop, _node)
     )
 
+
+def _node_in_orelse(loop, node):
+    for child in getattr(loop, "orelse", []):
+        if child == node:
+            return True
+        if any(kid == node for kid in child.get_children()):
+            return True
+    
+    return False
 
 def _is_multi_naming_match(match, node_type, confidence):
     return (
