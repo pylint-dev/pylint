@@ -1,3 +1,7 @@
+"""Test for a regression on slots and annotated assignments.
+Reported in https://github.com/PyCQA/pylint/issues/5479#issuecomment-988798391"""
+
+# pylint: disable=too-few-public-methods, unused-private-member, missing-class-docstring, missing-function-docstring
 from __future__ import annotations
 
 import asyncio
@@ -20,7 +24,7 @@ class Connector:
 
 
 async def main():
-    conn = await Connector.connect("/tmp/mysocket")
+    conn = await Connector.connect("/tmp/mysocket")  # [unused-variable]
 
 
 asyncio.run(main())
