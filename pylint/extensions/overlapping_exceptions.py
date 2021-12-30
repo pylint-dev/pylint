@@ -3,7 +3,7 @@
 
 """Looks for overlapping exceptions."""
 
-from typing import Any, List, Tuple
+from typing import TYPE_CHECKING, Any, List, Tuple
 
 import astroid
 from astroid import nodes
@@ -11,6 +11,9 @@ from astroid import nodes
 from pylint import checkers, interfaces
 from pylint.checkers import utils
 from pylint.checkers.exceptions import _annotated_unpack_infer
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 
 class OverlappingExceptionsChecker(checkers.BaseChecker):
@@ -81,6 +84,5 @@ class OverlappingExceptionsChecker(checkers.BaseChecker):
                 handled_in_clause += [(part, exc)]
 
 
-def register(linter):
-    """Required method to auto register this checker."""
+def register(linter: "PyLinter") -> None:
     linter.register_checker(OverlappingExceptionsChecker(linter))

@@ -310,8 +310,8 @@ class PyLinter(
                     "metavar": "<python_expression>",
                     "group": "Reports",
                     "level": 1,
-                    "default": "0 if fatal else 10.0 - ((float(5 * error + warning + refactor + "
-                    "convention) / statement) * 10)",
+                    "default": "max(0, 0 if fatal else 10.0 - ((float(5 * error + warning + refactor + "
+                    "convention) / statement) * 10))",
                     "help": "Python expression which should return a score less "
                     "than or equal to 10. You have access to the variables 'fatal', "
                     "'error', 'warning', 'refactor', 'convention', and 'info' which "
@@ -752,10 +752,7 @@ class PyLinter(
     # checkers manipulation methods ############################################
 
     def register_checker(self, checker: checkers.BaseChecker) -> None:
-        """register a new checker
-
-        checker is an object implementing IRawChecker or / and IAstroidChecker
-        """
+        """This method auto registers the checker."""
         assert checker.priority <= 0, "checker priority can't be >= 0"
         self._checkers[checker.name].append(checker)
         for r_id, r_title, r_cb in checker.reports:
@@ -764,7 +761,6 @@ class PyLinter(
         if hasattr(checker, "msgs"):
             self.msgs_store.register_messages_from_checker(checker)
         checker.load_defaults()
-
         # Register the checker, but disable all of its messages.
         if not getattr(checker, "enabled", True):
             self.disable(checker.name)
@@ -1393,7 +1389,11 @@ class PyLinter(
         return None
 
     def _is_one_message_enabled(self, msgid: str, line: Optional[int]) -> bool:
-        """Checks state of a single message"""
+        """Checks state of a single message for the current file
+
+        This function can't be cached as it depends on self.file_state which can
+        change.
+        """
         if line is None:
             return self._msgs_state.get(msgid, True)
         try:
@@ -1430,17 +1430,21 @@ class PyLinter(
         line: Optional[int] = None,
         confidence: Optional[interfaces.Confidence] = None,
     ) -> bool:
-        """return whether the message associated to the given message id is
-        enabled
+        """Return whether this message is enabled for the current file, line and confidence level.
 
-        msgid may be either a numeric or symbolic message id.
+        This function can't be cached right now as the line is the line of
+        the currently analysed file (self.file_state), if it changes, then the
+        result for the same msg_descr/line might need to change.
+
+        :param msg_descr: Either the msgid or the symbol for a MessageDefinition
+        :param line: The line of the currently analysed file
+        :param confidence: The confidence of the message
         """
         if self.config.confidence and confidence:
             if confidence.name not in self.config.confidence:
                 return False
         try:
-            message_definitions = self.msgs_store.get_message_definitions(msg_descr)
-            msgids = [md.msgid for md in message_definitions]
+            msgids = self.msgs_store.message_id_store.get_active_msgids(msg_descr)
         except exceptions.UnknownMessageError:
             # The linter checks for messages that are not registered
             # due to version mismatch, just treat them as message IDs
@@ -1621,15 +1625,56 @@ class PyLinter(
         else:
             msgs = self._msgs_state
             msgs[msg.msgid] = enable
-            # sync configuration object
-            self.config.enable = [
-                self._message_symbol(mid) for mid, val in sorted(msgs.items()) if val
-            ]
-            self.config.disable = [
-                self._message_symbol(mid)
-                for mid, val in sorted(msgs.items())
-                if not val
-            ]
+
+    def _get_messages_to_set(
+        self, msgid: str, enable: bool, ignore_unknown: bool = False
+    ) -> List[MessageDefinition]:
+        """Do some tests and find the actual messages of which the status should be set."""
+        message_definitions = []
+        if msgid == "all":
+            for _msgid in MSG_TYPES:
+                message_definitions.extend(
+                    self._get_messages_to_set(_msgid, enable, ignore_unknown)
+                )
+            return message_definitions
+
+        # msgid is a category?
+        category_id = msgid.upper()
+        if category_id not in MSG_TYPES:
+            category_id_formatted = MSG_TYPES_LONG.get(category_id)
+        else:
+            category_id_formatted = category_id
+        if category_id_formatted is not None:
+            for _msgid in self.msgs_store._msgs_by_category.get(category_id_formatted):
+                message_definitions.extend(
+                    self._get_messages_to_set(_msgid, enable, ignore_unknown)
+                )
+            return message_definitions
+
+        # msgid is a checker name?
+        if msgid.lower() in self._checkers:
+            for checker in self._checkers[msgid.lower()]:
+                for _msgid in checker.msgs:
+                    message_definitions.extend(
+                        self._get_messages_to_set(_msgid, enable, ignore_unknown)
+                    )
+            return message_definitions
+
+        # msgid is report id?
+        if msgid.lower().startswith("rp"):
+            if enable:
+                self.enable_report(msgid)
+            else:
+                self.disable_report(msgid)
+            return message_definitions
+
+        try:
+            # msgid is a symbolic or numeric msgid.
+            message_definitions = self.msgs_store.get_message_definitions(msgid)
+        except exceptions.UnknownMessageError:
+            if not ignore_unknown:
+                raise
+        return message_definitions
 
     def _set_msg_status(
         self,
@@ -1641,46 +1686,20 @@ class PyLinter(
     ) -> None:
         """Do some tests and then iterate over message definitions to set state"""
         assert scope in {"package", "module"}
-        if msgid == "all":
-            for _msgid in MSG_TYPES:
-                self._set_msg_status(_msgid, enable, scope, line, ignore_unknown)
-            return
 
-        # msgid is a category?
-        category_id = msgid.upper()
-        if category_id not in MSG_TYPES:
-            category_id_formatted = MSG_TYPES_LONG.get(category_id)
-        else:
-            category_id_formatted = category_id
-        if category_id_formatted is not None:
-            for _msgid in self.msgs_store._msgs_by_category.get(category_id_formatted):
-                self._set_msg_status(_msgid, enable, scope, line)
-            return
+        message_definitions = self._get_messages_to_set(msgid, enable, ignore_unknown)
 
-        # msgid is a checker name?
-        if msgid.lower() in self._checkers:
-            for checker in self._checkers[msgid.lower()]:
-                for _msgid in checker.msgs:
-                    self._set_msg_status(_msgid, enable, scope, line)
-            return
-
-        # msgid is report id?
-        if msgid.lower().startswith("rp"):
-            if enable:
-                self.enable_report(msgid)
-            else:
-                self.disable_report(msgid)
-            return
-
-        try:
-            # msgid is a symbolic or numeric msgid.
-            message_definitions = self.msgs_store.get_message_definitions(msgid)
-        except exceptions.UnknownMessageError:
-            if ignore_unknown:
-                return
-            raise
         for message_definition in message_definitions:
             self._set_one_msg_status(scope, message_definition, line, enable)
+
+        # sync configuration object
+        self.config.enable = []
+        self.config.disable = []
+        for mid, val in self._msgs_state.items():
+            if val:
+                self.config.enable.append(self._message_symbol(mid))
+            else:
+                self.config.disable.append(self._message_symbol(mid))
 
     def _register_by_id_managed_msg(
         self, msgid_or_symbol: str, line: Optional[int], is_disabled: bool = True

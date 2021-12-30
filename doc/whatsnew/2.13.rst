@@ -37,6 +37,9 @@ Other Changes
 
   Closes #5588
 
+* When run in parallel mode ``pylint`` now pickles the data passed to subprocesses with
+  the ``dill`` package. The ``dill`` package has therefore been added as a dependency.
+
 * By default, pylint does no longer take files starting with ``.#`` into account. Those are
   considered `emacs file locks`_. This behavior can be reverted by redefining the
   ``ignore-patterns`` option.
@@ -108,6 +111,10 @@ Other Changes
   Closes #5451
 
 * ``fatal`` was added to the variables permitted in score evaluation expressions.
+
+* The default score evaluation now uses a floor of 0.
+
+  Closes #2399
 
 * Fix ``comparison-with-callable`` false positive for callables that raise, such
   as typing constants.

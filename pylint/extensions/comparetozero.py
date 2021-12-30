@@ -13,13 +13,16 @@
 """Looks for comparisons to zero."""
 
 import itertools
-from typing import Any, Iterable
+from typing import TYPE_CHECKING, Any, Iterable
 
 import astroid
 from astroid import nodes
 
 from pylint import checkers, interfaces
 from pylint.checkers import utils
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 
 def _is_constant_zero(node):
@@ -77,6 +80,5 @@ class CompareToZeroChecker(checkers.BaseChecker):
                 self.add_message("compare-to-zero", node=node)
 
 
-def register(linter):
-    """Required method to auto register this checker."""
+def register(linter: "PyLinter") -> None:
     linter.register_checker(CompareToZeroChecker(linter))

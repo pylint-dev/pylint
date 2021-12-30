@@ -63,7 +63,7 @@ import re
 import sys
 from enum import Enum
 from functools import lru_cache
-from typing import Any, DefaultDict, List, Optional, Set, Tuple, Union
+from typing import TYPE_CHECKING, Any, DefaultDict, List, Optional, Set, Tuple, Union
 
 import astroid
 from astroid import nodes
@@ -73,6 +73,9 @@ from pylint.checkers.utils import is_postponed_evaluation_enabled
 from pylint.constants import PY39_PLUS
 from pylint.interfaces import HIGH, INFERENCE, INFERENCE_FAILURE, IAstroidChecker
 from pylint.utils import get_global_option
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 if sys.version_info >= (3, 8):
     from typing import Literal
@@ -2527,6 +2530,5 @@ class VariablesChecker(BaseChecker):
         return consumed
 
 
-def register(linter):
-    """required method to auto register this checker"""
+def register(linter: "PyLinter") -> None:
     linter.register_checker(VariablesChecker(linter))
