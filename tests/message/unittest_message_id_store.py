@@ -1,7 +1,9 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-from os.path import abspath, dirname, join
+from pathlib import Path
+
+EMPTY_FILE = str(Path(__file__).parent.parent.resolve() / "regrtest_data" / "empty.py")
 from typing import Dict, ValuesView
 
 import pytest
@@ -96,21 +98,21 @@ def test_duplicate_msgid(msgid_store: MessageIdStore) -> None:
     )
 
 
-def test_exclusivity_of_msg_ids() -> None:
+def test_exclusivity_of_msgids() -> None:
     """Test to see if all checkers have an exclusive message id prefix"""
     err_msg = (
         "{} has the same prefix ('{}') as the '{}' checker. Please make sure the prefix "
-        + "is unique for each checker. You can use 'script/get_unused_message_id_category.py' "
-        + "to get an unique id."
+        "is unique for each checker. You can use 'script/get_unused_message_id_category.py' "
+        "to get an unique id."
     )
 
     runner = lint.Run(
-        ["--enable-all-extensions", join(HERE, "..", "regrtest_data", "empty.py")],
+        ["--enable-all-extensions", EMPTY_FILE],
         exit=False,
     )
 
     # Some pairs are hard-coded as they are pre-existing and non-exclusive
-    # and we (currently) don't want to rename them
+    # and we don't want to rename them for backwards compatibility
     checker_id_pairs = {
         "00": ("master", "miscellaneous"),
         "01": (
@@ -131,10 +133,10 @@ def test_exclusivity_of_msg_ids() -> None:
         "20": ("compare-to-zero", "refactoring"),
     }
 
-    for msg_id, definition in runner.linter.msgs_store._messages_definitions.items():
-        if msg_id[1:3] in checker_id_pairs:
+    for msgid, definition in runner.linter.msgs_store._messages_definitions.items():
+        if msgid[1:3] in checker_id_pairs:
             assert (
-                definition.checker_name in checker_id_pairs[msg_id[1:3]]
-            ), err_msg.format(msg_id, msg_id[1:3], checker_id_pairs[msg_id[1:3]][0])
+                definition.checker_name in checker_id_pairs[msgid[1:3]]
+            ), err_msg.format(msgid, msgid[1:3], checker_id_pairs[msgid[1:3]][0])
         else:
-            checker_id_pairs[msg_id[1:3]] = (definition.checker_name,)
+            checker_id_pairs[msgid[1:3]] = (definition.checker_name,)
