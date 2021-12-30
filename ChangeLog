@@ -11,6 +11,9 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.13.rst'
 
+* When run in parallel mode ``pylint`` now pickles the data passed to subprocesses with
+  the ``dill`` package. The ``dill`` package has therefore been added as a dependency.
+
 * ``used-before-assignment`` now considers that assignments in a try block
   may not have occurred when the except or finally blocks are executed.
 

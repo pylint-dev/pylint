@@ -32,6 +32,9 @@ Extensions
 Other Changes
 =============
 
+* When run in parallel mode ``pylint`` now pickles the data passed to subprocesses with
+  the ``dill`` package. The ``dill`` package has therefore been added as a dependency.
+
 * By default, pylint does no longer take files starting with ``.#`` into account. Those are
   considered `emacs file locks`_. This behavior can be reverted by redefining the
   ``ignore-patterns`` option.
