@@ -14,6 +14,10 @@ New checkers
 
   Closes #5460
 
+* Add checker ``redefined-slots-in-subclass``: Emitted when a slot is redefined in a subclass.
+
+  Closes #5617
+
 Removed checkers
 ================
 
