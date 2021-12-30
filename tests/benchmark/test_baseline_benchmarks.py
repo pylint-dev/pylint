@@ -176,7 +176,7 @@ class TestEstablishBaselineBenchmarks:
         """Establish a baseline with only 'master' checker being run in -j1
 
         We do not register any checkers except the default 'master', so the cost is just
-        that of the system with a lot of files registerd"""
+        that of the system with a lot of files registered"""
         if benchmark.disabled:
             benchmark(print, "skipping, only benchmark large file counts")
             return  # _only_ run this test is profiling

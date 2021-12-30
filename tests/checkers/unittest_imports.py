@@ -39,7 +39,14 @@ class TestImportsChecker(CheckerTestCase):
         module = astroid.MANAGER.ast_from_module_name("beyond_top", REGR_DATA)
         import_from = module.body[0]
 
-        msg = MessageTest(msg_id="relative-beyond-top-level", node=import_from)
+        msg = MessageTest(
+            msg_id="relative-beyond-top-level",
+            node=import_from,
+            line=1,
+            col_offset=0,
+            end_line=1,
+            end_col_offset=25,
+        )
         with self.assertAddsMessages(msg):
             self.checker.visit_importfrom(import_from)
         with self.assertNoMessages():
@@ -53,8 +60,11 @@ class TestImportsChecker(CheckerTestCase):
             f"{os.path.join(REGR_DATA, 'beyond_top_two')} -d all -e relative-beyond-top-level",
             return_std=True,
         )
+        top_level_function = os.path.join(
+            REGR_DATA, "beyond_top_two/namespace_package/top_level_function.py"
+        )
         output2, errors2 = lint.py_run(
-            f"{os.path.join(REGR_DATA, 'beyond_top_two/namespace_package/top_level_function.py')} -d all -e relative-beyond-top-level",
+            f"{top_level_function} -d all -e relative-beyond-top-level",
             return_std=True,
         )
 
@@ -95,6 +105,10 @@ class TestImportsChecker(CheckerTestCase):
             node=import_from,
             args="empty",
             confidence=UNDEFINED,
+            line=1,
+            col_offset=0,
+            end_line=1,
+            end_col_offset=19,
         )
         with self.assertAddsMessages(msg):
             self.checker.visit_importfrom(import_from)

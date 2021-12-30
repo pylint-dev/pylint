@@ -54,8 +54,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""variables checkers for Python code
-"""
+"""Variables checkers for Python code"""
 import collections
 import copy
 import itertools
@@ -64,7 +63,7 @@ import re
 import sys
 from enum import Enum
 from functools import lru_cache
-from typing import Any, DefaultDict, List, Optional, Set, Tuple, Union
+from typing import TYPE_CHECKING, Any, DefaultDict, List, Optional, Set, Tuple, Union
 
 import astroid
 from astroid import nodes
@@ -74,6 +73,9 @@ from pylint.checkers.utils import is_postponed_evaluation_enabled
 from pylint.constants import PY39_PLUS
 from pylint.interfaces import HIGH, INFERENCE, INFERENCE_FAILURE, IAstroidChecker
 from pylint.utils import get_global_option
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 if sys.version_info >= (3, 8):
     from typing import Literal
@@ -405,7 +407,11 @@ MSGS = {
     "E0601": (
         "Using variable %r before assignment",
         "used-before-assignment",
-        "Used when a local variable is accessed before its assignment.",
+        "Emitted when a local variable is accessed before its assignment took place. "
+        "Assignments in try blocks are assumed not to have occurred when evaluating "
+        "associated except/finally blocks. Assignments in except blocks are assumed "
+        "not to have occurred when evaluating statements outside the block, except "
+        "when the associated try block contains a return statement.",
     ),
     "E0602": (
         "Undefined variable %r",
@@ -534,7 +540,7 @@ MSGS = {
 
 
 ScopeConsumer = collections.namedtuple(
-    "ScopeConsumer", "to_consume consumed scope_type"
+    "ScopeConsumer", "to_consume consumed consumed_uncertain scope_type"
 )
 
 
@@ -544,17 +550,24 @@ class NamesConsumer:
     """
 
     def __init__(self, node, scope_type):
-        self._atomic = ScopeConsumer(copy.copy(node.locals), {}, scope_type)
+        self._atomic = ScopeConsumer(
+            copy.copy(node.locals), {}, collections.defaultdict(list), scope_type
+        )
         self.node = node
 
     def __repr__(self):
         to_consumes = [f"{k}->{v}" for k, v in self._atomic.to_consume.items()]
         consumed = [f"{k}->{v}" for k, v in self._atomic.consumed.items()]
+        consumed_uncertain = [
+            f"{k}->{v}" for k, v in self._atomic.consumed_uncertain.items()
+        ]
         to_consumes = ", ".join(to_consumes)
         consumed = ", ".join(consumed)
+        consumed_uncertain = ", ".join(consumed_uncertain)
         return f"""
 to_consume : {to_consumes}
 consumed : {consumed}
+consumed_uncertain: {consumed_uncertain}
 scope_type : {self._atomic.scope_type}
 """
 
@@ -568,6 +581,17 @@ scope_type : {self._atomic.scope_type}
     @property
     def consumed(self):
         return self._atomic.consumed
+
+    @property
+    def consumed_uncertain(self) -> DefaultDict[str, List[nodes.NodeNG]]:
+        """
+        Retrieves nodes filtered out by get_next_to_consume() that may not
+        have executed, such as statements in except blocks, or statements
+        in try blocks (when evaluating their corresponding except and finally
+        blocks). Checkers that want to treat the statements as executed
+        (e.g. for unused-variable) may need to add them back.
+        """
+        return self._atomic.consumed_uncertain
 
     @property
     def scope_type(self):
@@ -589,12 +613,15 @@ scope_type : {self._atomic.scope_type}
 
     def get_next_to_consume(self, node):
         """
-        Return a list of the nodes that define `node` from this scope.
+        Return a list of the nodes that define `node` from this scope. If it is
+        uncertain whether a node will be consumed, such as for statements in
+        except blocks, add it to self.consumed_uncertain instead of returning it.
         Return None to indicate a special case that needs to be handled by the caller.
         """
         name = node.name
         parent_node = node.parent
         found_nodes = self.to_consume.get(name)
+        node_statement = node.statement(future=True)
         if (
             found_nodes
             and isinstance(parent_node, nodes.Assign)
@@ -617,11 +644,104 @@ scope_type : {self._atomic.scope_type}
             found_nodes = [
                 n
                 for n in found_nodes
-                if not isinstance(n.statement(), nodes.ExceptHandler)
-                or n.statement().parent_of(node)
+                if not isinstance(n.statement(future=True), nodes.ExceptHandler)
+                or n.statement(future=True).parent_of(node)
             ]
 
+        # Filter out assignments in an Except clause that the node is not
+        # contained in, assuming they may fail
+        if found_nodes:
+            uncertain_nodes = self._uncertain_nodes_in_except_blocks(
+                found_nodes, node, node_statement
+            )
+            self.consumed_uncertain[node.name] += uncertain_nodes
+            uncertain_nodes_set = set(uncertain_nodes)
+            found_nodes = [n for n in found_nodes if n not in uncertain_nodes_set]
+
+        # If this node is in a Finally block of a Try/Finally,
+        # filter out assignments in the try portion, assuming they may fail
+        if (
+            found_nodes
+            and isinstance(node_statement.parent, nodes.TryFinally)
+            and node_statement in node_statement.parent.finalbody
+        ):
+            filtered_nodes = [
+                n
+                for n in found_nodes
+                if not (
+                    n.statement(future=True).parent is node_statement.parent
+                    and n.statement(future=True) in n.statement(future=True).parent.body
+                )
+            ]
+            filtered_nodes_set = set(filtered_nodes)
+            difference = [n for n in found_nodes if n not in filtered_nodes_set]
+            self.consumed_uncertain[node.name] += difference
+            found_nodes = filtered_nodes
+
+        # If this node is in an ExceptHandler,
+        # filter out assignments in the try portion, assuming they may fail
+        if found_nodes and isinstance(node_statement.parent, nodes.ExceptHandler):
+            filtered_nodes = [
+                n
+                for n in found_nodes
+                if not (
+                    isinstance(n.statement(future=True).parent, nodes.TryExcept)
+                    and n.statement(future=True) in n.statement(future=True).parent.body
+                    and node_statement.parent
+                    in n.statement(future=True).parent.handlers
+                )
+            ]
+            filtered_nodes_set = set(filtered_nodes)
+            difference = [n for n in found_nodes if n not in filtered_nodes_set]
+            self.consumed_uncertain[node.name] += difference
+            found_nodes = filtered_nodes
+
         return found_nodes
+
+    @staticmethod
+    def _uncertain_nodes_in_except_blocks(found_nodes, node, node_statement):
+        """
+        Return any nodes in ``found_nodes`` that should be treated as uncertain
+        because they are in an except block.
+        """
+        uncertain_nodes = []
+        for other_node in found_nodes:
+            other_node_statement = other_node.statement(future=True)
+            # Only testing for statements in the except block of TryExcept
+            if not (
+                isinstance(other_node_statement.parent, nodes.ExceptHandler)
+                and isinstance(other_node_statement.parent.parent, nodes.TryExcept)
+            ):
+                continue
+            # If the other node is in the same scope as this node, assume it executes
+            if other_node_statement.parent.parent_of(node):
+                continue
+            try_block_returns = any(
+                isinstance(try_statement, nodes.Return)
+                for try_statement in other_node_statement.parent.parent.body
+            )
+            # If the try block returns, assume the except blocks execute.
+            if try_block_returns:
+                # Exception: if this node is in the final block of the other_node_statement,
+                # it will execute before returning. Assume the except statements are uncertain.
+                if (
+                    isinstance(node_statement.parent, nodes.TryFinally)
+                    and node_statement in node_statement.parent.finalbody
+                    # We have already tested that other_node_statement has two parents
+                    # and it was TryExcept, so getting one more parent is safe.
+                    and other_node_statement.parent.parent.parent.parent_of(
+                        node_statement
+                    )
+                ):
+                    uncertain_nodes.append(other_node)
+                else:
+                    # Assume the except blocks execute. Possiblility for a false negative
+                    # if one of the except blocks does not define the name in question,
+                    # raise, or return. See: https://github.com/PyCQA/pylint/issues/5524.
+                    continue
+            # Passed all tests for uncertain execution
+            uncertain_nodes.append(other_node)
+        return uncertain_nodes
 
 
 # pylint: disable=too-many-public-methods
@@ -1009,7 +1129,7 @@ class VariablesChecker(BaseChecker):
         It's important that all 'Name' nodes are visited, otherwise the
         'NamesConsumers' won't be correct.
         """
-        stmt = node.statement()
+        stmt = node.statement(future=True)
         if stmt.fromlineno is None:
             # name node from an astroid built from live code, skip
             assert not stmt.root().file.endswith(".py")
@@ -1042,6 +1162,14 @@ class VariablesChecker(BaseChecker):
             if action is VariableVisitConsumerAction.CONTINUE:
                 continue
             if action is VariableVisitConsumerAction.CONSUME:
+                # pylint: disable-next=fixme
+                # TODO: remove assert after _check_consumer return value better typed
+                assert found_nodes is not None, "Cannot consume an empty list of nodes."
+                # Any nodes added to consumed_uncertain by get_next_to_consume()
+                # should be added back so that they are marked as used.
+                # They will have already had a chance to emit used-before-assignment.
+                # We check here instead of before every single return in _check_consumer()
+                found_nodes += current_consumer.consumed_uncertain[node.name]
                 current_consumer.mark_as_consumed(node.name, found_nodes)
             if action in {
                 VariableVisitConsumerAction.RETURN,
@@ -1135,6 +1263,12 @@ class VariablesChecker(BaseChecker):
             return (VariableVisitConsumerAction.CONTINUE, None)
         if not found_nodes:
             self.add_message("used-before-assignment", args=node.name, node=node)
+            if current_consumer.consumed_uncertain[node.name]:
+                # If there are nodes added to consumed_uncertain by
+                # get_next_to_consume() because they might not have executed,
+                # return a CONSUME action so that _undefined_and_used_before_checker()
+                # will mark them as used
+                return (VariableVisitConsumerAction.CONSUME, found_nodes)
             return (VariableVisitConsumerAction.RETURN, found_nodes)
 
         self._check_late_binding_closure(node)
@@ -1146,7 +1280,7 @@ class VariablesChecker(BaseChecker):
             return (VariableVisitConsumerAction.CONSUME, found_nodes)
 
         defnode = utils.assign_parent(found_nodes[0])
-        defstmt = defnode.statement()
+        defstmt = defnode.statement(future=True)
         defframe = defstmt.frame()
 
         # The class reuses itself in the class scope.
@@ -1257,26 +1391,18 @@ class VariablesChecker(BaseChecker):
                 #   class A:
                 #      x = lambda attr: f + attr
                 #      f = 42
-                if isinstance(frame, nodes.ClassDef) and node.name in frame.locals:
-                    if isinstance(node.parent, nodes.Arguments):
-                        if stmt.fromlineno <= defstmt.fromlineno:
-                            # Doing the following is fine:
-                            #   class A:
-                            #      x = 42
-                            #      y = lambda attr=x: attr
-                            self.add_message(
-                                "used-before-assignment",
-                                args=node.name,
-                                node=node,
-                            )
-                    else:
-                        self.add_message(
-                            "undefined-variable", args=node.name, node=node
-                        )
-                        return (VariableVisitConsumerAction.CONSUME, found_nodes)
-                elif current_consumer.scope_type == "lambda":
-                    self.add_message("undefined-variable", args=node.name, node=node)
-                    return (VariableVisitConsumerAction.CONSUME, found_nodes)
+                # We check lineno because doing the following is fine:
+                #   class A:
+                #      x = 42
+                #      y = lambda attr: x + attr
+                if (
+                    isinstance(frame, nodes.ClassDef)
+                    and node.name in frame.locals
+                    and stmt.fromlineno <= defstmt.fromlineno
+                ):
+                    self.add_message(
+                        "used-before-assignment", args=node.name, node=node
+                    )
 
         elif self._is_only_type_assignment(node, defstmt):
             self.add_message("undefined-variable", args=node.name, node=node)
@@ -1400,7 +1526,10 @@ class VariablesChecker(BaseChecker):
     @staticmethod
     def _defined_in_function_definition(node, frame):
         in_annotation_or_default_or_decorator = False
-        if isinstance(frame, nodes.FunctionDef) and node.statement() is frame:
+        if (
+            isinstance(frame, nodes.FunctionDef)
+            and node.statement(future=True) is frame
+        ):
             in_annotation_or_default_or_decorator = (
                 (
                     node in frame.args.annotations
@@ -1448,8 +1577,8 @@ class VariablesChecker(BaseChecker):
     def _is_variable_violation(
         node: nodes.Name,
         defnode,
-        stmt,
-        defstmt,
+        stmt: nodes.Statement,
+        defstmt: nodes.Statement,
         frame,  # scope of statement of node
         defframe,
         base_scope_type,
@@ -1638,12 +1767,8 @@ class VariablesChecker(BaseChecker):
 
         return maybe_before_assign, annotation_return, use_outer_definition
 
-    # pylint: disable-next=fixme
-    # TODO: The typing of `NodeNG.statement()` in astroid is non-specific
-    # After this has been updated the typing of `defstmt` should reflect this
-    # See: https://github.com/PyCQA/astroid/pull/1217
     @staticmethod
-    def _is_only_type_assignment(node: nodes.Name, defstmt: nodes.NodeNG) -> bool:
+    def _is_only_type_assignment(node: nodes.Name, defstmt: nodes.Statement) -> bool:
         """Check if variable only gets assigned a type and never a value"""
         if not isinstance(defstmt, nodes.AnnAssign) or defstmt.value:
             return False
@@ -1664,7 +1789,7 @@ class VariablesChecker(BaseChecker):
                 if defstmt_frame == node_frame and not ref_node.lineno < node.lineno:
                     break
 
-                # If the parent of the local refence is anything but a AnnAssign
+                # If the parent of the local reference is anything but a AnnAssign
                 # Or if the AnnAssign adds a value the variable will now have a value
                 #     var = 1  # OR
                 #     var: int = 1
@@ -1690,7 +1815,7 @@ class VariablesChecker(BaseChecker):
         """
         if (
             node.frame().parent == defstmt
-            and node.statement(future=True) not in node.frame().body
+            and node.statement(future=True) == node.frame()
         ):
             # Check if used as type annotation
             # Break but don't emit message if postponed evaluation is enabled
@@ -1751,7 +1876,7 @@ class VariablesChecker(BaseChecker):
         #        ...
 
         name = node.name
-        frame = node.statement().scope()
+        frame = node.statement(future=True).scope()
         in_annotation_or_default_or_decorator = self._defined_in_function_definition(
             node, frame
         )
@@ -1775,29 +1900,36 @@ class VariablesChecker(BaseChecker):
         # the variable is not defined.
         scope = node.scope()
         if isinstance(scope, nodes.FunctionDef) and any(
-            asmt.statement().parent_of(scope) for asmt in astmts
+            asmt.scope().parent_of(scope) for asmt in astmts
         ):
             return
-
-        # filter variables according their respective scope test is_statement
-        # and parent to avoid #74747. This is not a total fix, which would
+        # Filter variables according to their respective scope. Test parent
+        # and statement to avoid #74747. This is not a total fix, which would
         # introduce a mechanism similar to special attribute lookup in
         # modules. Also, in order to get correct inference in this case, the
         # scope lookup rules would need to be changed to return the initial
         # assignment (which does not exist in code per se) as well as any later
         # modifications.
+        # pylint: disable-next=too-many-boolean-expressions
         if (
             not astmts
-            or (astmts[0].is_statement or astmts[0].parent)
-            and astmts[0].statement().parent_of(node)
+            or (
+                astmts[0].parent == astmts[0].root()
+                and astmts[0].parent.parent_of(node)
+            )
+            or (
+                astmts[0].is_statement
+                or not isinstance(astmts[0].parent, nodes.Module)
+                and astmts[0].statement(future=True).parent_of(node)
+            )
         ):
             _astmts = []
         else:
             _astmts = astmts[:1]
         for i, stmt in enumerate(astmts[1:]):
-            if astmts[i].statement().parent_of(stmt) and not in_for_else_branch(
-                astmts[i].statement(), stmt
-            ):
+            if astmts[i].statement(future=True).parent_of(
+                stmt
+            ) and not in_for_else_branch(astmts[i].statement(future=True), stmt):
                 continue
             _astmts.append(stmt)
         astmts = _astmts
@@ -1807,7 +1939,7 @@ class VariablesChecker(BaseChecker):
         assign = astmts[0].assign_type()
         if not (
             isinstance(assign, (nodes.For, nodes.Comprehension, nodes.GeneratorExp))
-            and assign.statement() is not node.statement()
+            and assign.statement(future=True) is not node.statement(future=True)
         ):
             return
 
@@ -2021,7 +2153,8 @@ class VariablesChecker(BaseChecker):
                     maybe_for
                     and maybe_for.parent_of(node_scope)
                     and not utils.is_being_called(node_scope)
-                    and not isinstance(node_scope.statement(), nodes.Return)
+                    and node_scope.parent
+                    and not isinstance(node_scope.statement(future=True), nodes.Return)
                 ):
                     self.add_message("cell-var-from-loop", node=node, args=node.name)
 
@@ -2370,7 +2503,7 @@ class VariablesChecker(BaseChecker):
         name = METACLASS_NAME_TRANSFORMS.get(name, name)
         if name:
             # check enclosing scopes starting from most local
-            for scope_locals, _, _ in self._to_consume[::-1]:
+            for scope_locals, _, _, _ in self._to_consume[::-1]:
                 found_nodes = scope_locals.get(name, [])
                 for found_node in found_nodes:
                     if found_node.lineno <= klass.lineno:
@@ -2397,6 +2530,5 @@ class VariablesChecker(BaseChecker):
         return consumed
 
 
-def register(linter):
-    """required method to auto register this checker"""
+def register(linter: "PyLinter") -> None:
     linter.register_checker(VariablesChecker(linter))

@@ -718,11 +718,15 @@ class TestRunTC:
             ],
             code=0,
         )
+        # Need the old evaluation formula to test a negative score
+        # failing below a negative --fail-under threshold
         self._runtest(
             [
                 "--fail-under",
                 "-9",
                 "--enable=all",
+                "--evaluation",
+                "0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)",
                 join(HERE, "regrtest_data", "fail_under_minus10.py"),
             ],
             code=22,
@@ -732,6 +736,8 @@ class TestRunTC:
                 "--fail-under",
                 "-5",
                 "--enable=all",
+                "--evaluation",
+                "0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)",
                 join(HERE, "regrtest_data", "fail_under_minus10.py"),
             ],
             code=22,
@@ -777,6 +783,9 @@ class TestRunTC:
                 f"--fail-on={fo_msgs}",
                 "--enable=all",
                 join(HERE, "regrtest_data", fname),
+                # Use the old form of the evaluation that can go negative
+                "--evaluation",
+                "0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)",
             ],
             code=out,
         )
@@ -1153,6 +1162,14 @@ class TestRunTC:
         # We set fail-under to be something very low so that even with the warnings
         # and errors that are generated they don't affect the exit code.
         self._runtest([path, "--fail-under=-10"] + args, code=expected)
+
+    def test_one_module_fatal_error(self):
+        """
+        Fatal errors in one of several modules linted still exits non-zero.
+        """
+        valid_path = join(HERE, "conftest.py")
+        invalid_path = join(HERE, "garbagePath.py")
+        self._runtest([valid_path, invalid_path], code=1)
 
     @pytest.mark.parametrize(
         "args, expected",

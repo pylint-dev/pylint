@@ -86,7 +86,7 @@ class BaseChecker(OptionsProviderMixIn):
             # Provide anchor to link against
             result += get_rst_title(f"{checker_title} Documentation", "^")
             result += f"{cleandoc(doc)}\n\n"
-        # options might be an empty generator and not be False when casted to boolean
+        # options might be an empty generator and not be False when cast to boolean
         options = list(options)
         if options:
             result += get_rst_title(f"{checker_title} Options", "^")
@@ -186,7 +186,7 @@ class BaseChecker(OptionsProviderMixIn):
         raise InvalidMessageError(error_msg)
 
     def open(self):
-        """called before visiting project (i.e set of modules)"""
+        """called before visiting project (i.e. set of modules)"""
 
     def close(self):
         """called after visiting project (i.e set of modules)"""

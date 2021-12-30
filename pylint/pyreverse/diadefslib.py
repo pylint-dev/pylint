@@ -220,7 +220,7 @@ class DiadefsHandler:
         self.config = config
 
     def get_diadefs(self, project, linker):
-        """Get the diagrams configuration data
+        """Get the diagram's configuration data
 
         :param project:The pyreverse project
         :type project: pyreverse.utils.Project

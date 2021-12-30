@@ -173,3 +173,30 @@ class Cls(Generic[TYPE]):
 
     def __init__(self, value):
         self.value = value
+
+
+class ClassDefiningSetattr(object):
+    __slots__ = ["foobar"]
+
+    def __init__(self):
+        self.foobar = {}
+
+    def __setattr__(self, name, value):
+        if name == "foobar":
+            super().__setattr__(name, value)
+        else:
+            self.foobar[name] = value
+
+
+class ClassWithParentDefiningSetattr(ClassDefiningSetattr):
+    __slots__ = []
+
+
+def dont_emit_for_defined_setattr():
+    inst = ClassDefiningSetattr()
+    # This should not emit because we can't reason about what happens with
+    # classes defining __setattr__
+    inst.non_existent = "non-existent"
+
+    child = ClassWithParentDefiningSetattr()
+    child.non_existent = "non-existent"

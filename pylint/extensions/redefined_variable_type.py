@@ -11,13 +11,16 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-from typing import List
+from typing import TYPE_CHECKING, List
 
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages, is_none, node_type
 from pylint.interfaces import IAstroidChecker
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 
 class MultipleTypesChecker(BaseChecker):
@@ -30,7 +33,7 @@ class MultipleTypesChecker(BaseChecker):
     - Currently, if an attribute is set to different types in 2 methods of a
       same class, it won't be detected (see functional test)
     - One could improve the support for inference on assignment with tuples,
-      ifexpr, etc. Also it would be great to have support for inference on
+      ifexpr, etc. Also, it would be great to have support for inference on
       str.split()
     """
 
@@ -111,10 +114,5 @@ class MultipleTypesChecker(BaseChecker):
             )
 
 
-def register(linter):
-    """Required method to auto register this checker.
-
-    :param linter: Main interface object for Pylint plugins
-    :type linter: Pylint object
-    """
+def register(linter: "PyLinter") -> None:
     linter.register_checker(MultipleTypesChecker(linter))

@@ -119,7 +119,7 @@ KEYS_METHOD = "keys"
 #
 # * None: variable number of parameters
 # * number: exactly that number of parameters
-# * tuple: this are the odd ones. Basically it means that the function
+# * tuple: these are the odd ones. Basically it means that the function
 #          can work with any number of arguments from that tuple,
 #          although it's best to implement it in order to accept
 #          all of them.
@@ -337,7 +337,7 @@ def is_builtin_object(node: nodes.NodeNG) -> bool:
 
 def is_builtin(name: str) -> bool:
     """return true if <name> could be considered as a builtin defined by python"""
-    return name in builtins or name in SPECIAL_BUILTINS  # type: ignore[operator]
+    return name in builtins or name in SPECIAL_BUILTINS  # type: ignore[attr-defined]
 
 
 def is_defined_in_scope(
@@ -400,8 +400,8 @@ def is_defined_before(var_node: nodes.Name) -> bool:
     for parent in var_node.node_ancestors():
         if is_defined_in_scope(var_node, varname, parent):
             return True
-    # possibly multiple statements on the same line using semi colon separator
-    stmt = var_node.statement()
+    # possibly multiple statements on the same line using semicolon separator
+    stmt = var_node.statement(future=True)
     _node = stmt.previous_sibling()
     lineno = stmt.fromlineno
     while _node and _node.fromlineno == lineno:
@@ -511,11 +511,11 @@ class UnsupportedFormatCharacter(Exception):
 def parse_format_string(
     format_string: str,
 ) -> Tuple[Set[str], int, Dict[str, str], List[str]]:
-    """Parses a format string, returning a tuple of (keys, num_args), where keys
-    is the set of mapping keys in the format string, and num_args is the number
-    of arguments required by the format string.  Raises
-    IncompleteFormatString or UnsupportedFormatCharacter if a
-    parse error occurs."""
+    """Parses a format string, returning a tuple of (keys, num_args), where 'keys'
+    is the set of mapping keys in the format string, and 'num_args' is the number
+    of arguments required by the format string. Raises IncompleteFormatString or
+    UnsupportedFormatCharacter if a parse error occurs.
+    """
     keys = set()
     key_types = {}
     pos_types = []
@@ -876,7 +876,11 @@ def uninferable_final_decorators(
             except AttributeError:
                 continue
         elif isinstance(decorator, nodes.Name):
-            import_node = decorator.lookup(decorator.name)[1][0]
+            lookup_values = decorator.lookup(decorator.name)
+            if lookup_values[1]:
+                import_node = lookup_values[1][0]
+            else:
+                continue  # pragma: no cover # Covered on Python < 3.8
         else:
             continue
 
@@ -924,8 +928,7 @@ def unimplemented_abstract_methods(
         # Old style class, it will not have a mro.
         return {}
     except astroid.ResolveError:
-        # Probably inconsistent hierarchy, don'try
-        # to figure this out here.
+        # Probably inconsistent hierarchy, don't try to figure this out here.
         return {}
     for ancestor in mro:
         for obj in ancestor.values():
@@ -1260,6 +1263,13 @@ def safe_infer(node: nodes.NodeNG, context=None) -> Optional[nodes.NodeNG]:
             inferred_type = _get_python_type_of_node(inferred)
             if inferred_type not in inferred_types:
                 return None  # If there is ambiguity on the inferred node.
+            if (
+                isinstance(inferred, nodes.FunctionDef)
+                and inferred.args.args is not None
+                and value.args.args is not None
+                and len(inferred.args.args) != len(value.args.args)
+            ):
+                return None  # Different number of arguments indicates ambiguity
     except astroid.InferenceError:
         return None  # There is some kind of ambiguity
     except StopIteration:
@@ -1450,7 +1460,7 @@ def is_subclass_of(child: nodes.ClassDef, parent: nodes.ClassDef) -> bool:
 
 @lru_cache(maxsize=1024)
 def is_overload_stub(node: nodes.NodeNG) -> bool:
-    """Check if a node if is a function stub decorated with typing.overload.
+    """Check if a node is a function stub decorated with typing.overload.
 
     :param node: Node to check.
     :returns: True if node is an overload function stub. False otherwise.
@@ -1669,7 +1679,7 @@ def is_reassigned_after_current(node: nodes.NodeNG, varname: str) -> bool:
 
 
 def is_function_body_ellipsis(node: nodes.FunctionDef) -> bool:
-    """Checks whether a function body only consisst of a single Ellipsis"""
+    """Checks whether a function body only consists of a single Ellipsis"""
     return (
         len(node.body) == 1
         and isinstance(node.body[0], nodes.Expr)

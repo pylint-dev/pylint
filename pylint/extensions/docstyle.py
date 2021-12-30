@@ -11,12 +11,16 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import linecache
+from typing import TYPE_CHECKING
 
 from astroid import nodes
 
 from pylint import checkers
 from pylint.checkers.utils import check_messages
 from pylint.interfaces import HIGH, IAstroidChecker
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 
 class DocStringStyleChecker(checkers.BaseChecker):
@@ -86,10 +90,5 @@ class DocStringStyleChecker(checkers.BaseChecker):
                 )
 
 
-def register(linter):
-    """Required method to auto register this checker.
-
-    :param linter: Main interface object for Pylint plugins
-    :type linter: Pylint object
-    """
+def register(linter: "PyLinter") -> None:
     linter.register_checker(DocStringStyleChecker(linter))

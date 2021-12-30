@@ -10,10 +10,14 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Looks for try/except statements with too much code in the try clause."""
+from typing import TYPE_CHECKING, Union
 
 from astroid import nodes
 
 from pylint import checkers, interfaces
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 
 class BroadTryClauseChecker(checkers.BaseChecker):
@@ -59,7 +63,7 @@ class BroadTryClauseChecker(checkers.BaseChecker):
 
         return statement_count
 
-    def visit_tryexcept(self, node: nodes.TryExcept) -> None:
+    def visit_tryexcept(self, node: Union[nodes.TryExcept, nodes.TryFinally]) -> None:
         try_clause_statements = self._count_statements(node)
         if try_clause_statements > self.config.max_try_statements:
             msg = f"try clause contains {try_clause_statements} statements, expected at most {self.config.max_try_statements}"
@@ -71,6 +75,5 @@ class BroadTryClauseChecker(checkers.BaseChecker):
         self.visit_tryexcept(node)
 
 
-def register(linter):
-    """Required method to auto register this checker."""
+def register(linter: "PyLinter") -> None:
     linter.register_checker(BroadTryClauseChecker(linter))

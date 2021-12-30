@@ -16,9 +16,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""diagram objects
-"""
-
+"""diagram objects"""
 import astroid
 from astroid import nodes
 
@@ -31,7 +29,7 @@ class Figure:
 
 
 class Relationship(Figure):
-    """a relation ship from an object in the diagram to another"""
+    """A relationship from an object in the diagram to another"""
 
     def __init__(self, from_object, to_object, relation_type, name=None):
         super().__init__()
@@ -85,12 +83,12 @@ class ClassDiagram(Figure, FilterMixIn):
         )
 
     def add_relationship(self, from_object, to_object, relation_type, name=None):
-        """create a relation ship"""
+        """create a relationship"""
         rel = Relationship(from_object, to_object, relation_type, name)
         self.relationships.setdefault(relation_type, []).append(rel)
 
     def get_relationship(self, from_object, relation_type):
-        """return a relation ship or None"""
+        """return a relationship or None"""
         for rel in self.relationships.get(relation_type, ()):
             if rel.from_object is from_object:
                 return rel
@@ -176,7 +174,7 @@ class ClassDiagram(Figure, FilterMixIn):
         raise KeyError(name)
 
     def extract_relationships(self):
-        """extract relation ships between nodes in the diagram"""
+        """Extract relationships between nodes in the diagram"""
         for obj in self.classes():
             node = obj.node
             obj.attrs = self.get_attrs(node)
@@ -256,7 +254,7 @@ class PackageDiagram(ClassDiagram):
             obj.node.depends.append(from_module)
 
     def extract_relationships(self):
-        """extract relation ships between nodes in the diagram"""
+        """Extract relationships between nodes in the diagram"""
         super().extract_relationships()
         for obj in self.classes():
             # ownership

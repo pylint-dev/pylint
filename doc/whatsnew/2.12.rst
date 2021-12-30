@@ -139,8 +139,8 @@ Other Changes
   output files without these will trigger a ``DeprecationWarning``. Expected output files
   can be easily updated with the ``python tests/test_functional.py --update-functional-output`` command.
 
-* The functional ``testutils`` now correctly check the distinction betweeen ``HIGH`` and
-  ``UNDEFINED`` confidence. Expected output files without defiend ``confidence`` levels will now
+* The functional ``testutils`` now correctly check the distinction between ``HIGH`` and
+  ``UNDEFINED`` confidence. Expected output files without defined ``confidence`` levels will now
   trigger a ``DeprecationWarning``. Expected output files can be easily updated with the
   ``python tests/test_functional.py --update-functional-output`` command.
 
@@ -179,7 +179,7 @@ Other Changes
 
   Closes #5261
 
-* Fix double emitting of ``not-callable`` on inferrable ``properties``
+* Fix double emitting of ``not-callable`` on inferable ``properties``
 
   Closes #4426
 

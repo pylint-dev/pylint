@@ -212,8 +212,8 @@ class OptionsManagerMixIn:
                     continue
                 if section not in sections:
                     sections.append(section)
-                alloptions = options_by_section.setdefault(section, [])
-                alloptions += options
+                all_options = options_by_section.setdefault(section, [])
+                all_options += options
         stream = stream or sys.stdout
         printed = False
         for section in sections:
@@ -245,7 +245,7 @@ class OptionsManagerMixIn:
 
     def read_config_file(self, config_file=None, verbose=None):
         """Read the configuration file but do not load it (i.e. dispatching
-        values to each options provider)
+        values to each option's provider)
         """
         for help_level in range(1, self._maxlevel + 1):
             opt = "-".join(["long"] * help_level) + "-help"
@@ -282,7 +282,7 @@ class OptionsManagerMixIn:
                 # Use this encoding in order to strip the BOM marker, if any.
                 with open(config_file, encoding="utf_8_sig") as fp:
                     parser.read_file(fp)
-                # normalize sections'title
+                # normalize each section's title
                 for sect, values in list(parser._sections.items()):
                     if sect.startswith("pylint."):
                         sect = sect[len("pylint.") :]
@@ -332,7 +332,7 @@ class OptionsManagerMixIn:
 
     def load_config_file(self):
         """Dispatch values previously read from a configuration file to each
-        options provider)"""
+        option's provider"""
         parser = self.cfgfile_parser
         for section in parser.sections():
             for option, value in parser.items(section):

@@ -36,13 +36,16 @@
 """Checks for various exception related errors."""
 import builtins
 import inspect
-from typing import Any, List, Optional
+from typing import TYPE_CHECKING, Any, List, Optional
 
 import astroid
 from astroid import nodes, objects
 
 from pylint import checkers, interfaces
 from pylint.checkers import utils
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 
 def _builtin_exceptions():
@@ -447,7 +450,7 @@ class ExceptionsChecker(checkers.BaseChecker):
 
         bare_raise = False
         handler_having_bare_raise = None
-        excs_in_bare_handler = []
+        exceptions_in_bare_handler = []
         for handler in node.handlers:
             if bare_raise:
                 # check that subsequent handler is not parent of handler which had bare raise.
@@ -457,14 +460,14 @@ class ExceptionsChecker(checkers.BaseChecker):
                 excs_in_current_handler = gather_exceptions_from_handler(handler)
                 if not excs_in_current_handler:
                     break
-                if excs_in_bare_handler is None:
+                if exceptions_in_bare_handler is None:
                     # It can be `None` when the inference failed
                     break
                 for exc_in_current_handler in excs_in_current_handler:
                     inferred_current = utils.safe_infer(exc_in_current_handler)
                     if any(
                         utils.is_subclass_of(utils.safe_infer(e), inferred_current)
-                        for e in excs_in_bare_handler
+                        for e in exceptions_in_bare_handler
                     ):
                         bare_raise = False
                         break
@@ -475,7 +478,7 @@ class ExceptionsChecker(checkers.BaseChecker):
                 if handler.body[0].exc is None:
                     bare_raise = True
                     handler_having_bare_raise = handler
-                    excs_in_bare_handler = gather_exceptions_from_handler(handler)
+                    exceptions_in_bare_handler = gather_exceptions_from_handler(handler)
         else:
             if bare_raise:
                 self.add_message("try-except-raise", node=handler_having_bare_raise)
@@ -525,52 +528,51 @@ class ExceptionsChecker(checkers.BaseChecker):
                 )
             else:
                 try:
-                    excs = list(_annotated_unpack_infer(handler.type))
+                    exceptions = list(_annotated_unpack_infer(handler.type))
                 except astroid.InferenceError:
                     continue
 
-                for part, exc in excs:
-                    if exc is astroid.Uninferable:
+                for part, exception in exceptions:
+                    if exception is astroid.Uninferable:
                         continue
-                    if isinstance(exc, astroid.Instance) and utils.inherit_from_std_ex(
-                        exc
-                    ):
-                        exc = exc._proxied
+                    if isinstance(
+                        exception, astroid.Instance
+                    ) and utils.inherit_from_std_ex(exception):
+                        exception = exception._proxied
 
-                    self._check_catching_non_exception(handler, exc, part)
+                    self._check_catching_non_exception(handler, exception, part)
 
-                    if not isinstance(exc, nodes.ClassDef):
+                    if not isinstance(exception, nodes.ClassDef):
                         continue
 
                     exc_ancestors = [
                         anc
-                        for anc in exc.ancestors()
+                        for anc in exception.ancestors()
                         if isinstance(anc, nodes.ClassDef)
                     ]
 
                     for previous_exc in exceptions_classes:
                         if previous_exc in exc_ancestors:
-                            msg = f"{previous_exc.name} is an ancestor class of {exc.name}"
+                            msg = f"{previous_exc.name} is an ancestor class of {exception.name}"
                             self.add_message(
                                 "bad-except-order", node=handler.type, args=msg
                             )
                     if (
-                        exc.name in self.config.overgeneral_exceptions
-                        and exc.root().name == utils.EXCEPTIONS_MODULE
+                        exception.name in self.config.overgeneral_exceptions
+                        and exception.root().name == utils.EXCEPTIONS_MODULE
                         and not _is_raising(handler.body)
                     ):
                         self.add_message(
-                            "broad-except", args=exc.name, node=handler.type
+                            "broad-except", args=exception.name, node=handler.type
                         )
 
-                    if exc in exceptions_classes:
+                    if exception in exceptions_classes:
                         self.add_message(
-                            "duplicate-except", args=exc.name, node=handler.type
+                            "duplicate-except", args=exception.name, node=handler.type
                         )
 
-                exceptions_classes += [exc for _, exc in excs]
+                exceptions_classes += [exc for _, exc in exceptions]
 
 
-def register(linter):
-    """required method to auto register this checker"""
+def register(linter: "PyLinter") -> None:
     linter.register_checker(ExceptionsChecker(linter))

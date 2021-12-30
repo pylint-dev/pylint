@@ -47,7 +47,7 @@
 
 """Python code format's checker.
 
-By default try to follow Guido's style guide :
+By default, try to follow Guido's style guide :
 
 https://www.python.org/doc/essays/styleguide/
 
@@ -56,7 +56,7 @@ Some parts of the process_token method is based from The Tab Nanny std module.
 
 import tokenize
 from functools import reduce
-from typing import List
+from typing import TYPE_CHECKING, List
 
 from astroid import nodes
 
@@ -70,6 +70,10 @@ from pylint.checkers.utils import (
 from pylint.constants import WarningScope
 from pylint.interfaces import IAstroidChecker, IRawChecker, ITokenChecker
 from pylint.utils.pragma_parser import OPTION_PO, PragmaParserError, parse_pragma
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
+
 
 _ASYNC_TOKEN = "async"
 _KEYWORD_TOKENS = [
@@ -452,7 +456,7 @@ class FormatChecker(BaseTokenChecker):
                 elif token[1] == "for":
                     return
                 # A generator expression can have an 'else' token in it.
-                # We check the rest of the tokens to see if any problems incure after
+                # We check the rest of the tokens to see if any problems incur after
                 # the 'else'.
                 elif token[1] == "else":
                     if "(" in (i.string for i in tokens[i:]):
@@ -594,7 +598,7 @@ class FormatChecker(BaseTokenChecker):
         prev_sibl = node.previous_sibling()
         if prev_sibl is not None:
             prev_line = prev_sibl.fromlineno
-        # The line on which a finally: occurs in a try/finally
+        # The line on which a 'finally': occurs in a 'try/finally'
         # is not directly represented in the AST. We infer it
         # by taking the last line of the body and adding 1, which
         # should be the line of finally:
@@ -602,8 +606,10 @@ class FormatChecker(BaseTokenChecker):
             isinstance(node.parent, nodes.TryFinally) and node in node.parent.finalbody
         ):
             prev_line = node.parent.body[0].tolineno + 1
+        elif isinstance(node.parent, nodes.Module):
+            prev_line = 0
         else:
-            prev_line = node.parent.statement().fromlineno
+            prev_line = node.parent.statement(future=True).fromlineno
         line = node.fromlineno
         assert line, node
         if prev_line == line and self._visited_lines.get(line) != 2:
@@ -817,6 +823,5 @@ class FormatChecker(BaseTokenChecker):
             )
 
 
-def register(linter):
-    """required method to auto register this checker"""
+def register(linter: "PyLinter") -> None:
     linter.register_checker(FormatChecker(linter))

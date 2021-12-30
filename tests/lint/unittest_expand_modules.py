@@ -113,7 +113,7 @@ class TestExpandModules(CheckerTestCase):
             files_or_modules,
             ignore_list,
             ignore_list_re,
-            get_global_option(self, "ignore-paths"),
+            get_global_option(self.checker, "ignore-paths"),
         )
         modules.sort(key=lambda d: d["name"])
         assert modules == expected

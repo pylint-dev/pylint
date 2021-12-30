@@ -46,7 +46,8 @@ needs_c_extension = pytest.mark.skipif(
 
 
 class TestTypeChecker(CheckerTestCase):
-    "Tests for pylint.checkers.typecheck"
+    """Tests for pylint.checkers.typecheck"""
+
     CHECKER_CLASS = typecheck.TypeChecker
 
     @set_config(suggestion_mode=False)
@@ -63,6 +64,10 @@ class TestTypeChecker(CheckerTestCase):
             node=node,
             args=("Module", "coverage.tracer", "CTracer", ""),
             confidence=INFERENCE,
+            line=3,
+            col_offset=0,
+            end_line=3,
+            end_col_offset=14,
         )
         with self.assertAddsMessages(message):
             self.checker.visit_attribute(node)
@@ -81,13 +86,18 @@ class TestTypeChecker(CheckerTestCase):
             node=node,
             args=("Module", "coverage.tracer", "CTracer", ""),
             confidence=INFERENCE,
+            line=3,
+            col_offset=0,
+            end_line=3,
+            end_col_offset=14,
         )
         with self.assertAddsMessages(message):
             self.checker.visit_attribute(node)
 
 
 class TestTypeCheckerOnDecorators(CheckerTestCase):
-    "Tests for pylint.checkers.typecheck on decorated functions."
+    """Tests for pylint.checkers.typecheck on decorated functions."""
+
     CHECKER_CLASS = typecheck.TypeChecker
 
     def test_issue3882_class_decorators(self) -> None:
@@ -128,6 +138,10 @@ class TestTypeCheckerOnDecorators(CheckerTestCase):
                 node=subscript.value,
                 args="collections",
                 confidence=UNDEFINED,
+                line=3,
+                col_offset=7,
+                end_line=3,
+                end_col_offset=18,
             )
         ):
             self.checker.visit_subscript(subscript)
@@ -179,6 +193,10 @@ class TestTypeCheckerOnDecorators(CheckerTestCase):
                 node=subscript.value,
                 args="decorated",
                 confidence=UNDEFINED,
+                line=18,
+                col_offset=7,
+                end_line=18,
+                end_col_offset=16,
             )
         ):
             self.checker.visit_subscript(subscript)
@@ -219,6 +237,10 @@ class TestTypeCheckerOnDecorators(CheckerTestCase):
                 node=subscript.value,
                 args="decorated",
                 confidence=UNDEFINED,
+                line=17,
+                col_offset=7,
+                end_line=17,
+                end_col_offset=16,
             )
         ):
             self.checker.visit_subscript(subscript)

@@ -30,7 +30,7 @@
 """a similarities / code duplication command line tool and pylint checker
 
 The algorithm is based on comparing the hash value of n successive lines of a file.
-First the files are read and any line that doesn't fullfill requirement are removed (comments, docstrings...)
+First the files are read and any line that doesn't fulfill requirement are removed (comments, docstrings...)
 Those stripped lines are stored in the LineSet class which gives access to them.
 Then each index of the stripped lines collection is associated with the hash of n successive entries of the stripped lines starting at the current index
 (n is the minimum common lines option).
@@ -52,6 +52,7 @@ from getopt import getopt
 from io import BufferedIOBase, BufferedReader, BytesIO
 from itertools import chain, groupby
 from typing import (
+    TYPE_CHECKING,
     Any,
     Dict,
     FrozenSet,
@@ -74,6 +75,9 @@ from pylint.checkers import BaseChecker, MapReduceMixin, table_lines_from_stats
 from pylint.interfaces import IRawChecker
 from pylint.reporters.ureports.nodes import Table
 from pylint.utils import LinterStats, decoding_stream
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 DEFAULT_MIN_SIMILARITY_LINE = 4
 
@@ -123,7 +127,7 @@ class CplSuccessiveLinesLimits:
         self.effective_cmn_lines_nb = effective_cmn_lines_nb
 
 
-# Links the indices ot the starting line in both lineset's stripped lines to
+# Links the indices to the starting line in both lineset's stripped lines to
 # the start and end lines in both files
 CplIndexToCplLines_T = Dict["LineSetStartCouple", CplSuccessiveLinesLimits]
 
@@ -879,8 +883,7 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
         recombined.close()
 
 
-def register(linter):
-    """required method to auto register this checker"""
+def register(linter: "PyLinter") -> None:
     linter.register_checker(SimilarChecker(linter))
 
 

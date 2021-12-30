@@ -119,10 +119,10 @@ def _patch_sys_path(args):
 
 @contextlib.contextmanager
 def fix_import_path(args):
-    """Prepare sys.path for running the linter checks.
+    """Prepare 'sys.path' for running the linter checks.
 
     Within this context, each of the given arguments is importable.
-    Paths are added to sys.path in corresponding order to the arguments.
+    Paths are added to 'sys.path' in corresponding order to the arguments.
     We avoid adding duplicate directories to sys.path.
     `sys.path` is reset to its original value upon exiting this context.
     """

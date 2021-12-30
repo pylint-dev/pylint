@@ -4,7 +4,7 @@
 import configparser
 import sys
 from os.path import basename, exists, join
-from typing import List, Tuple
+from typing import Callable, Dict, List, Tuple, Union
 
 
 def parse_python_version(ver_str: str) -> Tuple[int, ...]:
@@ -27,8 +27,8 @@ class TestFileOptions(TypedDict):
     max_pyver: Tuple[int, ...]
     min_pyver_end_position: Tuple[int, ...]
     requires: List[str]
-    except_implementations: str  # Type is actually comma separated list of string
-    exclude_platforms: str  # Type is actually comma separated list of string
+    except_implementations: List[str]
+    exclude_platforms: List[str]
 
 
 # mypy need something literal, we can't create this dynamically from TestFileOptions
@@ -39,18 +39,19 @@ POSSIBLE_TEST_OPTIONS = {
     "requires",
     "except_implementations",
     "exclude_platforms",
-    "exclude_platforms",
 }
 
 
 class FunctionalTestFile:
     """A single functional test case file with options."""
 
-    _CONVERTERS = {
+    _CONVERTERS: Dict[str, Callable[[str], Union[Tuple[int, ...], List[str]]]] = {
         "min_pyver": parse_python_version,
         "max_pyver": parse_python_version,
         "min_pyver_end_position": parse_python_version,
-        "requires": lambda s: s.split(","),
+        "requires": lambda s: [i.strip() for i in s.split(",")],
+        "except_implementations": lambda s: [i.strip() for i in s.split(",")],
+        "exclude_platforms": lambda s: [i.strip() for i in s.split(",")],
     }
 
     def __init__(self, directory: str, filename: str) -> None:
@@ -61,8 +62,8 @@ class FunctionalTestFile:
             "max_pyver": (4, 0),
             "min_pyver_end_position": (3, 8),
             "requires": [],
-            "except_implementations": "",
-            "exclude_platforms": "",
+            "except_implementations": [],
+            "exclude_platforms": [],
         }
         self._parse_options()
 

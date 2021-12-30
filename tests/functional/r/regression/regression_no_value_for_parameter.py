@@ -28,9 +28,20 @@ def varargs_good(*parts):
 
 
 def varargs_no_expr(*parts):
-    """False positive below this line"""
+    """False positives below this line"""
     ret = os.path.join(*parts)
-    return ret
+    if ret:
+        return ret
+    print(os.path.join(*parts))
+    if os.path.join(*parts):
+        print()
+    elif os.path.join(*parts):
+        print()
+    while os.path.join(*parts):
+        print()
+    with os.path.join(*parts): # pylint:disable=not-context-manager
+        print()
+    return os.path.join(*parts) + os.path.join(*parts) - os.path.join(*parts)
 
 
 def kwargs_good(**kwargs):
@@ -39,4 +50,15 @@ def kwargs_good(**kwargs):
 
 def kwargs_no_expr(**kwargs):
     ret = func(**kwargs)
-    return ret
+    if ret:
+        return ret
+    print(func(**kwargs))
+    if func(**kwargs):
+        print()
+    elif func(**kwargs):
+        print()
+    while func(**kwargs):
+        print()
+    with func(**kwargs): # pylint:disable=not-context-manager
+        print()
+    return func(**kwargs) + func(**kwargs) - func(**kwargs)

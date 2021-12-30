@@ -39,14 +39,16 @@
 
 import sys
 from collections.abc import Iterable
-from typing import Any, Dict, Optional, Set
+from typing import TYPE_CHECKING, Any, Dict, Optional, Set
 
 import astroid
 from astroid import nodes
 
 from pylint.checkers import BaseChecker, DeprecatedMixin, utils
 from pylint.interfaces import IAstroidChecker
-from pylint.lint import PyLinter
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 OPEN_FILES_MODE = ("open", "file")
 OPEN_FILES_ENCODING = ("open", "read_text", "write_text")
@@ -447,7 +449,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
     }
 
     def __init__(
-        self, linter: Optional[PyLinter] = None
+        self, linter: Optional["PyLinter"] = None
     ):  # pylint: disable=super-init-not-called # See https://github.com/PyCQA/pylint/issues/4941
         BaseChecker.__init__(self, linter)
         self._deprecated_methods: Set[Any] = set()
@@ -723,6 +725,5 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         return self._deprecated_decorators
 
 
-def register(linter):
-    """required method to auto register this checker"""
+def register(linter: "PyLinter") -> None:
     linter.register_checker(StdlibChecker(linter))

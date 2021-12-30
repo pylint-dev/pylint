@@ -67,8 +67,8 @@ from subprocess import PIPE, Popen
 
 
 def _get_env():
-    """Extracts the environment PYTHONPATH and appends the current sys.path to
-    those."""
+    """Extracts the environment PYTHONPATH and appends the current 'sys.path'
+    to it."""
     env = dict(os.environ)
     env["PYTHONPATH"] = os.pathsep.join(sys.path)
     return env
@@ -125,7 +125,7 @@ def lint(filename, options=()):
             if line.startswith("No config file found"):
                 continue
 
-            # modify the file name thats output to reverse the path traversal we made
+            # modify the file name that's put out to reverse the path traversal we made
             parts = line.split(":")
             if parts and parts[0] == child_path:
                 line = ":".join([filename] + parts[1:])

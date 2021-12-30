@@ -18,7 +18,7 @@
 
 import sys
 import tokenize
-from typing import Any, Optional, cast
+from typing import TYPE_CHECKING, Any, Optional, cast
 
 from pylint.checkers import BaseTokenChecker
 from pylint.interfaces import ITokenChecker
@@ -29,6 +29,9 @@ if sys.version_info >= (3, 8):
     from typing import Literal
 else:
     from typing_extensions import Literal
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 
 def report_raw_stats(
@@ -122,6 +125,5 @@ def get_type(tokens, start_index):
     return i, pos[0] - start[0] + 1, line_type
 
 
-def register(linter):
-    """required method to auto register this checker"""
+def register(linter: "PyLinter") -> None:
     linter.register_checker(RawMetricsChecker(linter))
