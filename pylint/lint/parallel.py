@@ -133,11 +133,10 @@ def check_parallel(
     # is identical to the linter object here. This is required so that
     # a custom PyLinter object can be used.
     initializer = functools.partial(_worker_initialize, arguments=arguments)
-    pool = multiprocessing.Pool(  # pylint: disable=consider-using-with
+    with multiprocessing.Pool(
         jobs, initializer=initializer, initargs=[dill.dumps(linter)]
-    )
-    linter.open()
-    try:
+    ) as pool:
+        linter.open()
         all_stats = []
         all_mapreduce_data = collections.defaultdict(list)
 
@@ -164,9 +163,6 @@ def check_parallel(
             all_stats.append(stats)
             all_mapreduce_data[worker_idx].append(mapreduce_data)
             linter.msg_status |= msg_status
-    finally:
-        pool.close()
-        pool.join()
 
     _merge_mapreduce_data(linter, all_mapreduce_data)
     linter.stats = merge_stats([linter.stats] + all_stats)
