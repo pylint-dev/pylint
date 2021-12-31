@@ -31,10 +31,14 @@ def run_pylint(argv: Optional[Sequence[str]] = None):
         sys.exit(1)
 
 
-def run_epylint():
+def run_epylint(argv: Optional[Sequence[str]] = None):
+    """Run epylint
+
+    argv can be a list of strings normally supplied as arguments on the command line
+    """
     from pylint.epylint import Run as EpylintRun
 
-    EpylintRun()
+    EpylintRun(argv)
 
 
 def run_pyreverse(argv: Optional[Sequence[str]] = None):

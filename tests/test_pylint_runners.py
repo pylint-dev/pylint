@@ -23,7 +23,9 @@ def test_runner(runner: Callable, tmpdir: LocalPath) -> None:
             assert err.value.code == 0
 
 
-@pytest.mark.parametrize("runner", [run_pylint, run_pyreverse, run_symilar])
+@pytest.mark.parametrize(
+    "runner", [run_epylint, run_pylint, run_pyreverse, run_symilar]
+)
 def test_runner_with_arguments(runner: Callable, tmpdir: LocalPath) -> None:
     """Check the runners with arguments as parameter instead of sys.argv"""
     filepath = os.path.abspath(__file__)
