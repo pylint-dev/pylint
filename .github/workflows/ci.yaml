@@ -227,7 +227,7 @@ jobs:
           path: .coverage
 
   coverage:
-    name: tests / process coverage
+    name: tests / process / coverage
     runs-on: ubuntu-latest
     needs: ["prepare-tests-linux", "pytest-linux"]
     strategy:
