@@ -1068,7 +1068,7 @@ class VariablesChecker(BaseChecker):
     )
     def visit_global(self, node: nodes.Global) -> None:
         """check names imported exists in the global scope"""
-        frame = node.frame()
+        frame = node.frame(future=True)
         if isinstance(frame, nodes.Module):
             self.add_message("global-at-module-level", node=node)
             return
@@ -1101,7 +1101,7 @@ class VariablesChecker(BaseChecker):
                 ):
                     self.add_message("redefined-builtin", args=name, node=node)
                     break
-                if anode.frame() is module:
+                if anode.frame(future=True) is module:
                     # module level assignment
                     break
                 if isinstance(anode, nodes.FunctionDef) and anode.parent is module:
@@ -1281,7 +1281,7 @@ class VariablesChecker(BaseChecker):
 
         defnode = utils.assign_parent(found_nodes[0])
         defstmt = defnode.statement(future=True)
-        defframe = defstmt.frame()
+        defframe = defstmt.frame(future=True)
 
         # The class reuses itself in the class scope.
         is_recursive_klass = (
@@ -1606,7 +1606,7 @@ class VariablesChecker(BaseChecker):
             # equivalent to frame.statement().scope()
             forbid_lookup = (
                 isinstance(frame, nodes.FunctionDef)
-                or isinstance(node.frame(), nodes.Lambda)
+                or isinstance(node.frame(future=True), nodes.Lambda)
             ) and _assigned_locally(node)
             if not forbid_lookup and defframe.root().lookup(node.name)[1]:
                 maybe_before_assign = False
@@ -1773,8 +1773,8 @@ class VariablesChecker(BaseChecker):
         if not isinstance(defstmt, nodes.AnnAssign) or defstmt.value:
             return False
 
-        defstmt_frame = defstmt.frame()
-        node_frame = node.frame()
+        defstmt_frame = defstmt.frame(future=True)
+        node_frame = node.frame(future=True)
 
         parent = node
         while parent is not defstmt_frame.parent:
@@ -1813,10 +1813,9 @@ class VariablesChecker(BaseChecker):
             1 = Break
             2 = Break + emit message
         """
-        if (
-            node.frame().parent == defstmt
-            and node.statement(future=True) == node.frame()
-        ):
+        if node.frame(future=True).parent == defstmt and node.statement(
+            future=True
+        ) == node.frame(future=True):
             # Check if used as type annotation
             # Break but don't emit message if postponed evaluation is enabled
             if utils.is_node_in_type_annotation_context(node):
@@ -2067,7 +2066,7 @@ class VariablesChecker(BaseChecker):
 
     def _check_unused_arguments(self, name, node, stmt, argnames):
         is_method = node.is_method()
-        klass = node.parent.frame()
+        klass = node.parent.frame(future=True)
         if is_method and isinstance(klass, nodes.ClassDef):
             confidence = (
                 INFERENCE if utils.has_known_bases(klass) else INFERENCE_FAILURE
@@ -2118,12 +2117,12 @@ class VariablesChecker(BaseChecker):
         if not self.linter.is_message_enabled("cell-var-from-loop"):
             return
 
-        node_scope = node.frame()
+        node_scope = node.frame(future=True)
 
         # If node appears in a default argument expression,
         # look at the next enclosing frame instead
         if utils.is_default_argument(node, node_scope):
-            node_scope = node_scope.parent.frame()
+            node_scope = node_scope.parent.frame(future=True)
 
         # Check if node is a cell var
         if (

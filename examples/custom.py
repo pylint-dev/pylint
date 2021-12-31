@@ -60,7 +60,7 @@ class MyAstroidChecker(BaseChecker):
             and node.func.attrname == "create"
         ):
             return
-        in_class = node.frame()
+        in_class = node.frame(future=True)
         for param in node.args:
             in_class.locals[param.name] = node
 

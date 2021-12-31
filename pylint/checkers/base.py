@@ -721,7 +721,7 @@ class BasicErrorChecker(_BasicChecker):
 
     @utils.check_messages("return-outside-function")
     def visit_return(self, node: nodes.Return) -> None:
-        if not isinstance(node.frame(), nodes.FunctionDef):
+        if not isinstance(node.frame(future=True), nodes.FunctionDef):
             self.add_message("return-outside-function", node=node)
 
     @utils.check_messages("yield-outside-function")
@@ -829,7 +829,7 @@ class BasicErrorChecker(_BasicChecker):
             )
 
     def _check_yield_outside_func(self, node):
-        if not isinstance(node.frame(), (nodes.FunctionDef, nodes.Lambda)):
+        if not isinstance(node.frame(future=True), (nodes.FunctionDef, nodes.Lambda)):
             self.add_message("yield-outside-function", node=node)
 
     def _check_else_on_loop(self, node):
@@ -864,7 +864,7 @@ class BasicErrorChecker(_BasicChecker):
 
     def _check_redefinition(self, redeftype, node):
         """check for redefinition of a function / method / class name"""
-        parent_frame = node.parent.frame()
+        parent_frame = node.parent.frame(future=True)
 
         # Ignore function stubs created for type information
         redefinitions = [
@@ -1428,7 +1428,7 @@ class BasicChecker(_BasicChecker):
             name = node.func.name
             # ignore the name if it's not a builtin (i.e. not defined in the
             # locals nor globals scope)
-            if not (name in node.frame() or name in node.root()):
+            if not (name in node.frame(future=True) or name in node.root()):
                 if name == "exec":
                     self.add_message("exec-used", node=node)
                 elif name == "reversed":
@@ -1938,11 +1938,11 @@ class NameChecker(_BasicChecker):
         self._check_assign_to_new_keyword_violation(node.name, node)
         confidence = interfaces.HIGH
         if node.is_method():
-            if utils.overrides_a_method(node.parent.frame(), node.name):
+            if utils.overrides_a_method(node.parent.frame(future=True), node.name):
                 return
             confidence = (
                 interfaces.INFERENCE
-                if utils.has_known_bases(node.parent.frame())
+                if utils.has_known_bases(node.parent.frame(future=True))
                 else interfaces.INFERENCE_FAILURE
             )
 
@@ -1970,7 +1970,7 @@ class NameChecker(_BasicChecker):
     def visit_assignname(self, node: nodes.AssignName) -> None:
         """check module level assigned names"""
         self._check_assign_to_new_keyword_violation(node.name, node)
-        frame = node.frame()
+        frame = node.frame(future=True)
         assign_type = node.assign_type()
         if isinstance(assign_type, nodes.Comprehension):
             self._check_name("inlinevar", node.name, node)
@@ -2188,15 +2188,15 @@ class DocStringChecker(_BasicChecker):
             ):
                 return
 
-            if isinstance(node.parent.frame(), nodes.ClassDef):
+            if isinstance(node.parent.frame(future=True), nodes.ClassDef):
                 overridden = False
                 confidence = (
                     interfaces.INFERENCE
-                    if utils.has_known_bases(node.parent.frame())
+                    if utils.has_known_bases(node.parent.frame(future=True))
                     else interfaces.INFERENCE_FAILURE
                 )
                 # check if node is from a method overridden by its ancestor
-                for ancestor in node.parent.frame().ancestors():
+                for ancestor in node.parent.frame(future=True).ancestors():
                     if ancestor.qname() == "builtins.object":
                         continue
                     if node.name in ancestor and isinstance(
@@ -2207,7 +2207,7 @@ class DocStringChecker(_BasicChecker):
                 self._check_docstring(
                     ftype, node, report_missing=not overridden, confidence=confidence  # type: ignore[arg-type]
                 )
-            elif isinstance(node.parent.frame(), nodes.Module):
+            elif isinstance(node.parent.frame(future=True), nodes.Module):
                 self._check_docstring(ftype, node)  # type: ignore[arg-type]
             else:
                 return

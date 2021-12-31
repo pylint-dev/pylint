@@ -108,7 +108,7 @@ def diff_string(old, new):
 
 def get_module_and_frameid(node):
     """return the module name and the frame id in the module"""
-    frame = node.frame()
+    frame = node.frame(future=True)
     module, obj = "", []
     while frame:
         if isinstance(frame, Module):
@@ -116,7 +116,7 @@ def get_module_and_frameid(node):
         else:
             obj.append(getattr(frame, "name", "<lambda>"))
         try:
-            frame = frame.parent.frame()
+            frame = frame.parent.frame(future=True)
         except AttributeError:
             break
     obj.reverse()

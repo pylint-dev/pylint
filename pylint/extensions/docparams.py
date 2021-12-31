@@ -290,7 +290,7 @@ class DocstringParameterChecker(BaseChecker):
             self.add_message("redundant-yields-doc", node=node)
 
     def visit_raise(self, node: nodes.Raise) -> None:
-        func_node = node.frame()
+        func_node = node.frame(future=True)
         if not isinstance(func_node, astroid.FunctionDef):
             return
 
@@ -337,7 +337,7 @@ class DocstringParameterChecker(BaseChecker):
         if self.config.accept_no_return_doc:
             return
 
-        func_node = node.frame()
+        func_node = node.frame(future=True)
         if not isinstance(func_node, astroid.FunctionDef):
             return
 
@@ -358,7 +358,7 @@ class DocstringParameterChecker(BaseChecker):
         if self.config.accept_no_yields_doc:
             return
 
-        func_node = node.frame()
+        func_node = node.frame(future=True)
         if not isinstance(func_node, astroid.FunctionDef):
             return
 

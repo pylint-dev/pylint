@@ -1035,7 +1035,7 @@ a metaclass class method.",
 
             # Check if any method attr is defined in is a defining method
             # or if we have the attribute defined in a setter.
-            frames = (node.frame() for node in nodes_lst)
+            frames = (node.frame(future=True) for node in nodes_lst)
             if any(
                 frame.name in defining_methods or is_property_setter(frame)
                 for frame in frames
@@ -1047,7 +1047,7 @@ a metaclass class method.",
                 attr_defined = False
                 # check if any parent method attr is defined in is a defining method
                 for node in parent.instance_attrs[attr]:
-                    if node.frame().name in defining_methods:
+                    if node.frame(future=True).name in defining_methods:
                         attr_defined = True
                 if attr_defined:
                     # we're done :)
@@ -1058,12 +1058,12 @@ a metaclass class method.",
                     cnode.local_attr(attr)
                 except astroid.NotFoundError:
                     for node in nodes_lst:
-                        if node.frame().name not in defining_methods:
+                        if node.frame(future=True).name not in defining_methods:
                             # If the attribute was set by a call in any
                             # of the defining methods, then don't emit
                             # the warning.
                             if _called_in_methods(
-                                node.frame(), cnode, defining_methods
+                                node.frame(future=True), cnode, defining_methods
                             ):
                                 continue
                             self.add_message(
@@ -1079,7 +1079,7 @@ a metaclass class method.",
         self._check_useless_super_delegation(node)
         self._check_property_with_parameters(node)
 
-        klass = node.parent.frame()
+        klass = node.parent.frame(future=True)
         self._meth_could_be_func = True
         # check first argument is self if this is actually a method
         self._check_first_arg_for_type(node, klass.type == "metaclass")
@@ -1140,12 +1140,12 @@ a metaclass class method.",
         # check if the method is hidden by an attribute
         try:
             overridden = klass.instance_attr(node.name)[0]
-            overridden_frame = overridden.frame()
+            overridden_frame = overridden.frame(future=True)
             if (
                 isinstance(overridden_frame, nodes.FunctionDef)
                 and overridden_frame.type == "method"
             ):
-                overridden_frame = overridden_frame.parent.frame()
+                overridden_frame = overridden_frame.parent.frame(future=True)
             if not (
                 isinstance(overridden_frame, nodes.ClassDef)
                 and klass.is_subtype_of(overridden_frame.qname())
@@ -1228,7 +1228,7 @@ a metaclass class method.",
             return
 
         # Check values of default args
-        klass = function.parent.frame()
+        klass = function.parent.frame(future=True)
         meth_node = None
         for overridden in klass.local_attr_ancestors(function.name):
             # get astroid for the searched method
@@ -1398,7 +1398,7 @@ a metaclass class method.",
                 self._first_attrs.pop()
             if not self.linter.is_message_enabled("no-self-use"):
                 return
-            class_node = node.parent.frame()
+            class_node = node.parent.frame(future=True)
             if (
                 self._meth_could_be_func
                 and node.type == "method"
@@ -1637,7 +1637,7 @@ a metaclass class method.",
                         return
 
                 if (
-                    self._is_classmethod(node.frame())
+                    self._is_classmethod(node.frame(future=True))
                     and self._is_inferred_instance(node.expr, klass)
                     and self._is_class_attribute(attrname, klass)
                 ):
@@ -1659,7 +1659,7 @@ a metaclass class method.",
         Returns true if the node is located inside a special (aka dunder) method
         """
         try:
-            frame_name = node.frame().name
+            frame_name = node.frame(future=True).name
         except AttributeError:
             return False
         return frame_name and frame_name in PYMETHODS
@@ -1764,11 +1764,11 @@ a metaclass class method.",
                     defstmt = defstmts[0]
                     # check that if the node is accessed in the same method as
                     # it's defined, it's accessed after the initial assignment
-                    frame = defstmt.frame()
+                    frame = defstmt.frame(future=True)
                     lno = defstmt.fromlineno
                     for _node in nodes_lst:
                         if (
-                            _node.frame() is frame
+                            _node.frame(future=True) is frame
                             and _node.fromlineno < lno
                             and not astroid.are_exclusive(
                                 _node.statement(future=True), defstmt, excs
@@ -1873,7 +1873,7 @@ a metaclass class method.",
             key=lambda item: item[0],
         )
         for name, method in methods:
-            owner = method.parent.frame()
+            owner = method.parent.frame(future=True)
             if owner is node:
                 continue
             # owner is not this class, it must be a parent class
@@ -1891,7 +1891,7 @@ a metaclass class method.",
             "super-init-not-called"
         ) and not self.linter.is_message_enabled("non-parent-init-called"):
             return
-        klass_node = node.parent.frame()
+        klass_node = node.parent.frame(future=True)
         to_call = _ancestors_to_call(klass_node)
         not_called_yet = dict(to_call)
         for stmt in node.nodes_of_class(nodes.Call):

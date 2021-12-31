@@ -668,7 +668,7 @@ def node_frame_class(node: nodes.NodeNG) -> Optional[nodes.ClassDef]:
     The function returns a class for a method node (or a staticmethod or a
     classmethod), otherwise it returns `None`.
     """
-    klass = node.frame()
+    klass = node.frame(future=True)
     nodes_to_check = (
         nodes.NodeNG,
         astroid.UnboundMethod,
@@ -682,14 +682,14 @@ def node_frame_class(node: nodes.NodeNG) -> Optional[nodes.ClassDef]:
         if klass.parent is None:
             return None
 
-        klass = klass.parent.frame()
+        klass = klass.parent.frame(future=True)
 
     return klass
 
 
 def get_outer_class(class_node: astroid.ClassDef) -> Optional[astroid.ClassDef]:
     """Return the class that is the outer class of given (nested) class_node"""
-    parent_klass = class_node.parent.frame()
+    parent_klass = class_node.parent.frame(future=True)
 
     return parent_klass if isinstance(parent_klass, astroid.ClassDef) else None
 
@@ -1089,7 +1089,7 @@ def class_is_abstract(node: nodes.ClassDef) -> bool:
             return True
 
     for method in node.methods():
-        if method.parent.frame() is node:
+        if method.parent.frame(future=True) is node:
             if method.is_abstract(pass_is_abstract=False):
                 return True
     return False
