@@ -32,5 +32,5 @@ def test_runner_with_arguments(runner: Callable, tmpdir: LocalPath) -> None:
     testargs = [filepath]
     with tmpdir.as_cwd():
         with pytest.raises(SystemExit) as err:
-            runner(argv=testargs)
+            runner(testargs)
         assert err.value.code == 0
