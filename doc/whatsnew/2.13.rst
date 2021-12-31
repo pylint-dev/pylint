@@ -99,6 +99,10 @@ Other Changes
 
   Closes #5360, #3877
 
+* Fixed crash on list comprehensions that used ``type`` as inner variable name.
+
+  Closes #5461
+
 * Require Python ``3.6.2`` to run pylint.
 
   Closes #5065
