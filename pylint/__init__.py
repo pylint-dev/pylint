@@ -11,7 +11,7 @@
 
 import os
 import sys
-from typing import List, Optional
+from typing import List, Optional, Sequence
 
 from pylint.__pkginfo__ import __version__
 
@@ -31,14 +31,14 @@ def run_pylint(*, arguments: Optional[List[str]] = None):
         sys.exit(1)
 
 
-def run_epylint(*, arguments: Optional[List[str]] = None):
+def run_epylint(argv: Optional[Sequence[str]] = None):
     """Run epylint
 
     Arguments can be a list of strings normally supplied as arguments on the command line
     """
     from pylint.epylint import Run as EpylintRun
 
-    EpylintRun(arguments=arguments)
+    EpylintRun(argv=argv)
 
 
 def run_pyreverse(*, arguments: Optional[List[str]] = None):
