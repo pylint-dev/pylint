@@ -34,7 +34,7 @@ def run_pylint(argv: Optional[Sequence[str]] = None):
 def run_epylint(argv: Optional[Sequence[str]] = None):
     """Run epylint
 
-    Arguments can be a list of strings normally supplied as arguments on the command line
+    argv can be a list of strings normally supplied as arguments on the command line
     """
     from pylint.epylint import Run as EpylintRun
 
