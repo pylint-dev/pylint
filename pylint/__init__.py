@@ -38,7 +38,7 @@ def run_epylint(argv: Optional[Sequence[str]] = None):
     """
     from pylint.epylint import Run as EpylintRun
 
-    EpylintRun(argv=argv)
+    EpylintRun(argv)
 
 
 def run_pyreverse(argv: Optional[Sequence[str]] = None):
