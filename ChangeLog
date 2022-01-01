@@ -9,11 +9,11 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.13.rst'
 
+* Add ``iterating-modified-list`` checker for lists which items are added or removed
+  during iteration while they are iterating through.
 
-* Fixed crash from ``arguments-differ`` and ``arguments-renamed`` when methods were
-  defined outside the top level of a class.
+  Closes #5348
 
-  Closes #5648
 
 * Removed the deprecated ``check_docs`` extension. You can use the ``docparams`` checker
   to get the checks previously included in ``check_docs``.

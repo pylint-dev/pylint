@@ -1,0 +1,2 @@
+iterating-modified-list:3:4:3:26::Iterated list 'item_list' is being modified inside loop body, consider iterating through a copy of it instead.:UNDEFINED
+iterating-modified-list:9:4:9:26::Iterated list 'item_list' is being modified inside loop body, consider iterating through a copy of it instead.:UNDEFINED

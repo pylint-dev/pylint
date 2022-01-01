@@ -19,7 +19,7 @@
 # Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Yilei "Dolee" Yang <yileiyang@google.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 Or Bahari <orbahari@mail.tau.ac.il>
+# Copyright (c) 2021-2022 Or Bahari <or.ba402@gmail.com>
 # Copyright (c) 2021 David Gilman <davidgilman1@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -299,3 +299,81 @@ class TestNoSix(unittest.TestCase):
             has_six = False
 
         self.assertFalse(has_six, "pylint must be able to run without six")
+
+
+class TestModifiedIteratorChecker(CheckerTestCase):
+    CHECKER_CLASS = base.ModifiedIterationChecker
+
+    def test_list_append(self):
+        module = astroid.parse(
+            """
+             item_list = [1, 2, 3]
+             for item in item_list:
+                item_list.append(1)
+                print(item)
+            """
+        )
+        message = MessageTest(
+            "iterating-modified-list",
+            node=module.body[1].body[0],
+            args=("item_list",),
+            line=4,
+            col_offset=3,
+        )
+        with self.assertAddsMessages(message):
+            self.walk(module)
+
+    def test_list_remove(self):
+        module = astroid.parse(
+            """
+             item_list = [1, 2, 3]
+             for item in (item_list):
+                item_list.remove(1)
+                print(item)
+            """
+        )
+        message = MessageTest(
+            "iterating-modified-list",
+            node=module.body[1].body[0],
+            args=("item_list",),
+            line=4,
+            col_offset=3,
+        )
+        with self.assertAddsMessages(message):
+            self.walk(module)
+
+    def test_list_append_false_positive(self):
+        module = astroid.parse(
+            """
+             item_list = [1, 2, 3]
+             for item in (item_list.copy()):
+                item_list.append(1)
+                print(item)
+            """
+        )
+        with self.assertNoMessages():
+            self.walk(module)
+
+    def test_list_remove_false_positive(self):
+        module = astroid.parse(
+            """
+             item_list = [1, 2, 3]
+             for item in item_list.copy():
+                item_list.remove(1)
+                print(item)
+            """
+        )
+        with self.assertNoMessages():
+            self.walk(module)
+
+    def test_list_append_false_positive_1(self):
+        module = astroid.parse(
+            """
+             item_list = [1, 2, 3]
+             for item in item_list[1:5]:
+                item_list.append(1)
+                print(item)
+            """
+        )
+        with self.assertNoMessages():
+            self.walk(module)

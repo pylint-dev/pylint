@@ -37,6 +37,11 @@ New checkers
 
   Closes #5460
 
+
+* ``iterating-modified-list``: Emitted when a list adds or removes its items while being iterated through
+
+  Closes #5348
+
 * Add checker ``redefined-slots-in-subclass``: Emitted when a slot is redefined in a subclass.
 
   Closes #5617

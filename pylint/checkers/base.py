@@ -63,7 +63,7 @@
 # Copyright (c) 2021 Lorena B <46202743+lorena-b@users.noreply.github.com>
 # Copyright (c) 2021 David Liu <david@cs.toronto.edu>
 # Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
-# Copyright (c) 2021 Or Bahari <orbahari@mail.tau.ac.il>
+# Copyright (c) 2021-2022 Or Bahari <or.ba402@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
@@ -2557,6 +2557,73 @@ class ComparisonChecker(_BasicChecker):
         self.add_message("unidiomatic-typecheck", node=node)
 
 
+class ModifiedIterationChecker(_BasicChecker):
+    """Checks for modified for loops iterations
+    Currently supports `for` loops for Sets, Dictionaries and Lists.
+    """
+
+    __implements__ = interfaces.IAstroidChecker
+
+    msgs = {
+        "W4714": (
+            "Iterated list '%s' is being modified inside loop body, consider iterating through a copy of it instead.",
+            "iterating-modified-list",
+            "Used when iterating through a list with items added to or removed from during a loop iteration."
+            "Doing so can result in unexpected behaviour, that is why it is always preferred using a copy of the list.",
+        ),
+        "E4714": (
+            "Iterated dict '%s' is being modified inside loop body, iterate through a copy of it instead.",
+            "iterating-modified-dict",
+            "Used when iterating through a dict with items added to or removed from during a loop iteration."
+            "Doing so results in RuntimeError",
+        ),
+        "E4715": (
+            "Iterated set '%s' is being modified inside loop body, iterate through a copy of it instead.",
+            "iterating-modified-set",
+            "Used when iterating through a set with items added to or removed from during a loop iteration."
+            "Doing so results in RuntimeError",
+        ),
+    }
+
+    options = ()
+    priority = -2
+
+    def __init__(self, linter=None):
+        _BasicChecker.__init__(self, linter)
+
+    @utils.check_messages(
+        "iterating-modified-list", "iterating-modified-dict", "iterating-modified-set"
+    )
+    def visit_for(self, node: nodes.For) -> None:
+        iter_list_obj = node.iter
+        try:
+            for body_node in node.body:
+                if (
+                    self._is_attribute_call_expr(body_node)
+                    and (
+                        next(body_node.value.func.expr.infer())
+                        == iter_list_obj.inferred()[0]
+                    )
+                    and body_node.value.func.attrname in {"append", "remove"}
+                    and body_node.value.func.expr.name == iter_list_obj.name
+                ):
+                    self.add_message(
+                        "iterating-modified-list",
+                        node=body_node,
+                        args=(iter_list_obj.name,),
+                    )
+        except astroid.InferenceError:
+            pass
+
+    @staticmethod
+    def _is_attribute_call_expr(body_node):
+        return (
+            isinstance(body_node, astroid.Expr)
+            and isinstance(body_node.value, astroid.Call)
+            and isinstance(body_node.value.func, astroid.Attribute)
+        )
+
+
 def register(linter: "PyLinter") -> None:
     linter.register_checker(BasicErrorChecker(linter))
     linter.register_checker(BasicChecker(linter))
@@ -2564,3 +2631,4 @@ def register(linter: "PyLinter") -> None:
     linter.register_checker(DocStringChecker(linter))
     linter.register_checker(PassChecker(linter))
     linter.register_checker(ComparisonChecker(linter))
+    linter.register_checker(ModifiedIterationChecker(linter))
