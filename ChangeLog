@@ -9,6 +9,11 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.13.rst'
 
+* Add new optional  extension ``import-private-name``: indicate imports of external packages and objects
+  that are prefixed with ``_`` and likely to be private.
+
+  Closes #5463
+
 * Fixed false positive ``consider-using-dict-comprehension`` when creating a dict
   using a list of tuples where key AND value vary depending on the same condition.
 
