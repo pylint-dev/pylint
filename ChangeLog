@@ -6,10 +6,27 @@ What's New in Pylint 2.13.0?
 ============================
 Release date: TBA
 
-* Pyreverse - add output in mermaidjs format
-
 ..
   Put new features here and also in 'doc/whatsnew/2.13.rst'
+
+* Fixed false positive ``consider-using-dict-comprehension`` when creating a dict
+  using a list of tuples where key AND value vary depending on the same condition.
+
+  Closes #5588
+
+* When run in parallel mode ``pylint`` now pickles the data passed to subprocesses with
+  the ``dill`` package. The ``dill`` package has therefore been added as a dependency.
+
+* An astroid issue where symlinks were not being taken into account
+  was fixed
+
+  Closes #1470
+  Closes #3499
+  Closes #4302
+  Closes #4798
+  Closes #5081
+
+* Pyreverse - add output in mermaidjs format
 
 * ``used-before-assignment`` now considers that assignments in a try block
   may not have occurred when the except or finally blocks are executed.
@@ -61,6 +78,10 @@ Release date: TBA
 
   Closes #5360, #3877
 
+* Fixed crash on list comprehensions that used ``type`` as inner variable name.
+
+  Closes #5461
+
 * Some files in ``pylint.testutils`` were deprecated. In the future imports should be done from the
   ``pylint.testutils.functional`` namespace directly.
 
@@ -88,6 +109,11 @@ Release date: TBA
 
   Closes #5504
 
+* When invoking ``pylint``, ``epylint``, ``symilar`` or ``pyreverse`` by importing them in a python file
+  you can now pass an ``arguments`` keyword besides patching ``sys.argv``.
+
+  Closes #5320
+
 * The ``PyLinter`` class will now be initialized with a ``TextReporter``
   as its reporter if none is provided.
 
@@ -101,6 +127,10 @@ Release date: TBA
   Closes #5451
 
 * ``fatal`` was added to the variables permitted in score evaluation expressions.
+
+* The default score evaluation now uses a floor of 0.
+
+  Closes #2399
 
 * Fix false positive - Allow unpacking of ``self`` in a subclass of ``typing.NamedTuple``.
 

@@ -55,8 +55,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""try to find more bugs in the code using astroid inference capabilities
-"""
+"""try to find more bugs in the code using astroid inference capabilities"""
 
 import fnmatch
 import heapq
@@ -69,7 +68,17 @@ import types
 from collections import deque
 from collections.abc import Sequence
 from functools import singledispatch
-from typing import Any, Callable, Iterator, List, Optional, Pattern, Tuple, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Iterator,
+    List,
+    Optional,
+    Pattern,
+    Tuple,
+    Union,
+)
 
 import astroid
 import astroid.exceptions
@@ -99,6 +108,9 @@ from pylint.checkers.utils import (
 )
 from pylint.interfaces import INFERENCE, IAstroidChecker
 from pylint.utils import get_global_option
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 CallableObjects = Union[
     bases.BoundMethod,
@@ -1124,9 +1136,7 @@ accessed. Python regular expressions are accepted.",
         "non-str-assignment-to-dunder-name",
     )
     def visit_assign(self, node: nodes.Assign) -> None:
-        """
-        Process assignments in the AST.
-        """
+        """Process assignments in the AST."""
 
         self._check_assignment_from_function_call(node)
         self._check_dundername_is_string(node)
@@ -1180,9 +1190,7 @@ accessed. Python regular expressions are accepted.",
                 self.add_message("assignment-from-none", node=node)
 
     def _check_dundername_is_string(self, node):
-        """
-        Check a string is assigned to self.__name__
-        """
+        """Check a string is assigned to self.__name__"""
 
         # Check the left-hand side of the assignment is <something>.__name__
         lhs = node.targets[0]
@@ -1203,8 +1211,7 @@ accessed. Python regular expressions are accepted.",
             self.add_message("non-str-assignment-to-dunder-name", node=node)
 
     def _check_uninferable_call(self, node):
-        """
-        Check that the given uninferable Call node does not
+        """Check that the given uninferable Call node does not
         call an actual function.
         """
         if not isinstance(node.func, nodes.Attribute):
@@ -1966,8 +1973,7 @@ accessed. Python regular expressions are accepted.",
 
 
 class IterableChecker(BaseChecker):
-    """
-    Checks for non-iterables used in an iterable context.
+    """Checks for non-iterables used in an iterable context.
     Contexts include:
     - for-statement
     - starargs in function call
@@ -2090,7 +2096,6 @@ class IterableChecker(BaseChecker):
         self.add_message("await-outside-async", node=node)
 
 
-def register(linter):
-    """required method to auto register this checker"""
+def register(linter: "PyLinter") -> None:
     linter.register_checker(TypeChecker(linter))
     linter.register_checker(IterableChecker(linter))

@@ -32,6 +32,14 @@ Extensions
 Other Changes
 =============
 
+* Fixed false positive ``consider-using-dict-comprehension`` when creating a dict
+  using a list of tuples where key AND value vary depending on the same condition.
+
+  Closes #5588
+
+* When run in parallel mode ``pylint`` now pickles the data passed to subprocesses with
+  the ``dill`` package. The ``dill`` package has therefore been added as a dependency.
+
 * By default, pylint does no longer take files starting with ``.#`` into account. Those are
   considered `emacs file locks`_. This behavior can be reverted by redefining the
   ``ignore-patterns`` option.
@@ -39,6 +47,15 @@ Other Changes
   Closes #367
 
 .. _`emacs file locks`: https://www.gnu.org/software/emacs/manual/html_node/elisp/File-Locks.html
+
+* An astroid issue where symlinks were not being taken into account
+  was fixed
+
+  Closes #1470
+  Closes #3499
+  Closes #4302
+  Closes #4798
+  Closes #5081
 
 * Fixed extremely long processing of long lines with comma's.
 
@@ -97,6 +114,10 @@ Other Changes
 
   Closes #5360, #3877
 
+* Fixed crash on list comprehensions that used ``type`` as inner variable name.
+
+  Closes #5461
+
 * Require Python ``3.6.2`` to run pylint.
 
   Closes #5065
@@ -110,10 +131,19 @@ Other Changes
 
 * ``fatal`` was added to the variables permitted in score evaluation expressions.
 
+* The default score evaluation now uses a floor of 0.
+
+  Closes #2399
+
 * Fix ``comparison-with-callable`` false positive for callables that raise, such
   as typing constants.
 
   Closes #5557
+
+* When invoking ``pylint``, ``epylint``, ``symilar`` or ``pyreverse`` by importing them in a python file
+  you can now pass an ``arguments`` keyword besides patching ``sys.argv``.
+
+  Closes #5320
 
 * The ``PyLinter`` class will now be initialized with a ``TextReporter``
   as its reporter if none is provided.

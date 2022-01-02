@@ -39,7 +39,8 @@ INFO_TEST_RGX = re.compile(r"^func_i\d\d\d\d$")
 
 def exception_str(self, ex) -> str:  # pylint: disable=unused-argument
     """function used to replace default __str__ method of exception instances
-    This function is not typed because it is legacy code"""
+    This function is not typed because it is legacy code
+    """
     return f"in {ex.file}\n:: {', '.join(ex.args)}"
 
 

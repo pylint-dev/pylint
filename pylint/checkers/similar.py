@@ -52,6 +52,7 @@ from getopt import getopt
 from io import BufferedIOBase, BufferedReader, BytesIO
 from itertools import chain, groupby
 from typing import (
+    TYPE_CHECKING,
     Any,
     Dict,
     FrozenSet,
@@ -74,6 +75,9 @@ from pylint.checkers import BaseChecker, MapReduceMixin, table_lines_from_stats
 from pylint.interfaces import IRawChecker
 from pylint.reporters.ureports.nodes import Table
 from pylint.utils import LinterStats, decoding_stream
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 DEFAULT_MIN_SIMILARITY_LINE = 4
 
@@ -104,8 +108,7 @@ STREAM_TYPES = Union[TextIO, BufferedReader, BytesIO]
 
 
 class CplSuccessiveLinesLimits:
-    """
-    This class holds a couple of SuccessiveLinesLimits objects, one for each file compared,
+    """This class holds a couple of SuccessiveLinesLimits objects, one for each file compared,
     and a counter on the number of common lines between both stripped lines collections extracted
     from both files
     """
@@ -129,9 +132,7 @@ CplIndexToCplLines_T = Dict["LineSetStartCouple", CplSuccessiveLinesLimits]
 
 
 class LinesChunk:
-    """
-    The LinesChunk object computes and stores the hash of some consecutive stripped lines of a lineset.
-    """
+    """The LinesChunk object computes and stores the hash of some consecutive stripped lines of a lineset."""
 
     __slots__ = ("_fileid", "_index", "_hash")
 
@@ -166,8 +167,7 @@ class LinesChunk:
 
 
 class SuccessiveLinesLimits:
-    """
-    A class to handle the numbering of begin and end of successive lines.
+    """A class to handle the numbering of begin and end of successive lines.
 
     :note: Only the end line number can be updated.
     """
@@ -195,9 +195,7 @@ class SuccessiveLinesLimits:
 
 
 class LineSetStartCouple(NamedTuple):
-    """
-    Indices in both linesets that mark the beginning of successive lines
-    """
+    """Indices in both linesets that mark the beginning of successive lines"""
 
     fst_lineset_index: Index
     snd_lineset_index: Index
@@ -231,8 +229,7 @@ LinesChunkLimits_T = Tuple["LineSet", LineNumber, LineNumber]
 def hash_lineset(
     lineset: "LineSet", min_common_lines: int = DEFAULT_MIN_SIMILARITY_LINE
 ) -> Tuple[HashToIndex_T, IndexToLines_T]:
-    """
-    Return two dicts. The first associates the hash of successive stripped lines of a lineset
+    """Return two dicts. The first associates the hash of successive stripped lines of a lineset
     to the indices of the starting lines.
     The second dict, associates the index of the starting line in the lineset's stripped lines to the
     couple [start, end] lines number in the corresponding file.
@@ -271,8 +268,7 @@ def hash_lineset(
 
 
 def remove_successives(all_couples: CplIndexToCplLines_T) -> None:
-    """
-    Removes all successive entries in the dictionary in argument
+    """Removes all successive entries in the dictionary in argument
 
     :param all_couples: collection that has to be cleaned up from successives entries.
                         The keys are couples of indices that mark the beginning of common entries
@@ -321,8 +317,7 @@ def filter_noncode_lines(
     stindex_2: Index,
     common_lines_nb: int,
 ) -> int:
-    """
-    Return the effective number of common lines between lineset1 and lineset2 filtered from non code lines, that is to say the number of
+    """Return the effective number of common lines between lineset1 and lineset2 filtered from non code lines, that is to say the number of
     common successive stripped lines except those that do not contain code (for example a ligne with only an
     ending parathensis)
 
@@ -473,8 +468,7 @@ class Similar:
     def _find_common(
         self, lineset1: "LineSet", lineset2: "LineSet"
     ) -> Generator[Commonality, None, None]:
-        """
-        Find similarities in the two given linesets.
+        """Find similarities in the two given linesets.
 
         This the core of the algorithm.
         The idea is to compute the hashes of a minimal number of successive lines of each lineset and then compare the hashes.
@@ -558,7 +552,8 @@ class Similar:
     def combine_mapreduce_data(self, linesets_collection):
         """Reduces and recombines data into a format that we can report on
 
-        The partner function of get_map_data()"""
+        The partner function of get_map_data()
+        """
         self.linesets = [line for lineset in linesets_collection for line in lineset]
 
 
@@ -569,8 +564,7 @@ def stripped_lines(
     ignore_imports: bool,
     ignore_signatures: bool,
 ) -> List[LineSpecifs]:
-    """
-    Return tuples of line/line number/line type with leading/trailing whitespace and any ignored code features removed
+    """Return tuples of line/line number/line type with leading/trailing whitespace and any ignored code features removed
 
     :param lines: a collection of lines
     :param ignore_comments: if true, any comment in the lines collection is removed from the result
@@ -660,8 +654,7 @@ def stripped_lines(
 
 @functools.total_ordering
 class LineSet:
-    """
-    Holds and indexes all the lines of a single source file.
+    """Holds and indexes all the lines of a single source file.
     Allows for correspondence between real lines of the source file and stripped ones, which
     are the real ones from which undesired patterns have been removed.
     """
@@ -867,7 +860,8 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
     def reduce_map_data(self, linter, data):
         """Reduces and recombines data into a format that we can report on
 
-        The partner function of get_map_data()"""
+        The partner function of get_map_data()
+        """
         recombined = SimilarChecker(linter)
         recombined.min_lines = self.min_lines
         recombined.ignore_comments = self.ignore_comments
@@ -879,8 +873,7 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
         recombined.close()
 
 
-def register(linter):
-    """required method to auto register this checker"""
+def register(linter: "PyLinter") -> None:
     linter.register_checker(SimilarChecker(linter))
 
 

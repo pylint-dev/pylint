@@ -73,7 +73,7 @@ import collections
 import itertools
 import re
 import sys
-from typing import Any, Dict, Iterator, Optional, Pattern, cast
+from typing import TYPE_CHECKING, Any, Dict, Iterator, Optional, Pattern, cast
 
 import astroid
 from astroid import nodes
@@ -91,6 +91,9 @@ from pylint.reporters.ureports import nodes as reporter_nodes
 from pylint.utils import LinterStats
 from pylint.utils.utils import get_global_option
 
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
+
 if sys.version_info >= (3, 8):
     from typing import Literal
 else:
@@ -100,7 +103,8 @@ else:
 class NamingStyle:
     """It may seem counterintuitive that single naming style has multiple "accepted"
     forms of regular expressions, but we need to special-case stuff like dunder names
-    in method names."""
+    in method names.
+    """
 
     ANY: Pattern[str] = re.compile(".*")
     CLASS_NAME_RGX: Pattern[str] = ANY
@@ -275,8 +279,7 @@ def in_nested_list(nested_list, obj):
 
 
 def _get_break_loop_node(break_node):
-    """
-    Returns the loop node that holds the break node in arguments.
+    """Returns the loop node that holds the break node in arguments.
 
     Args:
         break_node (astroid.Break): the break node of interest.
@@ -297,8 +300,7 @@ def _get_break_loop_node(break_node):
 
 
 def _loop_exits_early(loop):
-    """
-    Returns true if a loop may end with a break statement.
+    """Returns true if a loop may end with a break statement.
 
     Args:
         loop (astroid.For, astroid.While): the loop node inspected.
@@ -386,8 +388,7 @@ def _determine_function_name_type(node: nodes.FunctionDef, config=None):
 
 
 def _has_abstract_methods(node):
-    """
-    Determine if the given `node` has abstract methods.
+    """Determine if the given `node` has abstract methods.
 
     The methods should be made abstract by decorating them
     with `abc` decorators.
@@ -1493,7 +1494,8 @@ class BasicChecker(_BasicChecker):
         """check that a node is not inside a 'finally' clause of a
         'try...finally' statement.
         If we find a parent which type is in breaker_classes before
-        a 'try...finally' block we skip the whole check."""
+        a 'try...finally' block we skip the whole check.
+        """
         # if self._tryfinallys is empty, we're not an in try...finally block
         if not self._tryfinallys:
             return
@@ -2585,8 +2587,7 @@ class ComparisonChecker(_BasicChecker):
         self.add_message("unidiomatic-typecheck", node=node)
 
 
-def register(linter):
-    """required method to auto register this checker"""
+def register(linter: "PyLinter") -> None:
     linter.register_checker(BasicErrorChecker(linter))
     linter.register_checker(BasicChecker(linter))
     linter.register_checker(NameChecker(linter))

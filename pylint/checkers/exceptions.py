@@ -36,13 +36,16 @@
 """Checks for various exception related errors."""
 import builtins
 import inspect
-from typing import Any, List, Optional
+from typing import TYPE_CHECKING, Any, List, Optional
 
 import astroid
 from astroid import nodes, objects
 
 from pylint import checkers, interfaces
 from pylint.checkers import utils
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 
 def _builtin_exceptions():
@@ -54,8 +57,7 @@ def _builtin_exceptions():
 
 
 def _annotated_unpack_infer(stmt, context=None):
-    """
-    Recursively generate nodes inferred by the given statement.
+    """Recursively generate nodes inferred by the given statement.
     If the inferred value is a list or a tuple, recurse on the elements.
     Returns an iterator which yields tuples in the format
     ('original node', 'inferred node').
@@ -571,6 +573,5 @@ class ExceptionsChecker(checkers.BaseChecker):
                 exceptions_classes += [exc for _, exc in exceptions]
 
 
-def register(linter):
-    """required method to auto register this checker"""
+def register(linter: "PyLinter") -> None:
     linter.register_checker(ExceptionsChecker(linter))

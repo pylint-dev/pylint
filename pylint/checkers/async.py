@@ -11,6 +11,7 @@
 """Checker for anything related to the async protocol (PEP 492)."""
 
 import sys
+from typing import TYPE_CHECKING
 
 import astroid
 from astroid import nodes
@@ -18,6 +19,9 @@ from astroid import nodes
 from pylint import checkers, interfaces, utils
 from pylint.checkers import utils as checker_utils
 from pylint.checkers.utils import decorated_with
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 
 class AsyncChecker(checkers.BaseChecker):
@@ -94,6 +98,5 @@ class AsyncChecker(checkers.BaseChecker):
             )
 
 
-def register(linter):
-    """required method to auto register this checker"""
+def register(linter: "PyLinter") -> None:
     linter.register_checker(AsyncChecker(linter))

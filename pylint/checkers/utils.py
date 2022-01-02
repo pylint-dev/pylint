@@ -57,8 +57,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""some functions that may be useful for various checkers
-"""
+"""some functions that may be useful for various checkers"""
 import builtins
 import itertools
 import numbers
@@ -337,7 +336,7 @@ def is_builtin_object(node: nodes.NodeNG) -> bool:
 
 def is_builtin(name: str) -> bool:
     """return true if <name> could be considered as a builtin defined by python"""
-    return name in builtins or name in SPECIAL_BUILTINS  # type: ignore[operator]
+    return name in builtins or name in SPECIAL_BUILTINS  # type: ignore[attr-defined]
 
 
 def is_defined_in_scope(
@@ -476,7 +475,8 @@ def assign_parent(node: nodes.NodeNG) -> nodes.NodeNG:
 
 def overrides_a_method(class_node: nodes.ClassDef, name: str) -> bool:
     """return True if <name> is a method overridden from an ancestor
-    which is not the base object class"""
+    which is not the base object class
+    """
     for ancestor in class_node.ancestors():
         if ancestor.name == "object":
             continue
@@ -501,7 +501,8 @@ class IncompleteFormatString(Exception):
 
 class UnsupportedFormatCharacter(Exception):
     """A format character in a format string is not one of the supported
-    format characters."""
+    format characters.
+    """
 
     def __init__(self, index):
         super().__init__(index)
@@ -625,8 +626,7 @@ def collect_string_fields(format_string) -> Iterable[Optional[str]]:
 def parse_format_method_string(
     format_string: str,
 ) -> Tuple[List[Tuple[str, List[Tuple[bool, str]]]], int, int]:
-    """
-    Parses a PEP 3101 format string, returning a tuple of
+    """Parses a PEP 3101 format string, returning a tuple of
     (keyword_arguments, implicit_pos_args_cnt, explicit_pos_args),
     where keyword_arguments is the set of mapping keys in the format string, implicit_pos_args_cnt
     is the number of arguments required by the format string and
@@ -733,8 +733,7 @@ def get_argument_from_call(
 
 
 def inherit_from_std_ex(node: nodes.NodeNG) -> bool:
-    """
-    Return whether the given class node is subclass of
+    """Return whether the given class node is subclass of
     exceptions.Exception.
     """
     ancestors = node.ancestors() if hasattr(node, "ancestors") else []
@@ -746,8 +745,7 @@ def inherit_from_std_ex(node: nodes.NodeNG) -> bool:
 
 
 def error_of_type(handler: nodes.ExceptHandler, error_type) -> bool:
-    """
-    Check if the given exception handler catches
+    """Check if the given exception handler catches
     the given error_type.
 
     The *handler* parameter is a node, representing an ExceptHandler node.
@@ -908,8 +906,7 @@ def uninferable_final_decorators(
 def unimplemented_abstract_methods(
     node: nodes.ClassDef, is_abstract_cb: nodes.FunctionDef = None
 ) -> Dict[str, nodes.NodeNG]:
-    """
-    Get the unimplemented abstract methods for the given *node*.
+    """Get the unimplemented abstract methods for the given *node*.
 
     A method can be considered abstract if the callback *is_abstract_cb*
     returns a ``True`` value. The check defaults to verifying that
@@ -1368,8 +1365,7 @@ def is_registered_in_singledispatch_function(node: nodes.FunctionDef) -> bool:
 
 
 def get_node_last_lineno(node: nodes.NodeNG) -> int:
-    """
-    Get the last lineno of the given node. For a simple statement this will just be node.lineno,
+    """Get the last lineno of the given node. For a simple statement this will just be node.lineno,
     but for a node that has child statements (e.g. a method) this will be the lineno of the last
     child statement recursively.
     """
@@ -1440,8 +1436,7 @@ def is_node_in_type_annotation_context(node: nodes.NodeNG) -> bool:
 
 
 def is_subclass_of(child: nodes.ClassDef, parent: nodes.ClassDef) -> bool:
-    """
-    Check if first node is a subclass of second node.
+    """Check if first node is a subclass of second node.
     :param child: Node to check for subclass.
     :param parent: Node to check for superclass.
     :returns: True if child is derived from parent. False otherwise.
@@ -1588,8 +1583,7 @@ def get_iterating_dictionary_name(
 
 
 def get_subscript_const_value(node: nodes.Subscript) -> nodes.Const:
-    """
-    Returns the value 'subscript.slice' of a Subscript node.
+    """Returns the value 'subscript.slice' of a Subscript node.
 
     :param node: Subscript Node to extract value from
     :returns: Const Node containing subscript value

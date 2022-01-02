@@ -1,9 +1,14 @@
 """Check for use of while loops."""
+from typing import TYPE_CHECKING
+
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages
 from pylint.interfaces import IAstroidChecker
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 
 class WhileChecker(BaseChecker):
@@ -23,10 +28,5 @@ class WhileChecker(BaseChecker):
         self.add_message("while-used", node=node)
 
 
-def register(linter):
-    """Required method to auto register this checker.
-
-    :param linter: Main interface object for Pylint plugins
-    :type linter: Pylint object
-    """
+def register(linter: "PyLinter") -> None:
     linter.register_checker(WhileChecker(linter))

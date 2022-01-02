@@ -56,7 +56,7 @@ Some parts of the process_token method is based from The Tab Nanny std module.
 
 import tokenize
 from functools import reduce
-from typing import List
+from typing import TYPE_CHECKING, List
 
 from astroid import nodes
 
@@ -70,6 +70,10 @@ from pylint.checkers.utils import (
 from pylint.constants import WarningScope
 from pylint.interfaces import IAstroidChecker, IRawChecker, ITokenChecker
 from pylint.utils.pragma_parser import OPTION_PO, PragmaParserError, parse_pragma
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
+
 
 _ASYNC_TOKEN = "async"
 _KEYWORD_TOKENS = [
@@ -665,9 +669,7 @@ class FormatChecker(BaseTokenChecker):
         self._visited_lines[line] = 2
 
     def check_line_ending(self, line: str, i: int) -> None:
-        """
-        Check that the final newline is not missing and that there is no trailing whitespace.
-        """
+        """Check that the final newline is not missing and that there is no trailing whitespace."""
         if not line.endswith("\n"):
             self.add_message("missing-final-newline", line=i)
             return
@@ -679,9 +681,7 @@ class FormatChecker(BaseTokenChecker):
             )
 
     def check_line_length(self, line: str, i: int, checker_off: bool) -> None:
-        """
-        Check that the line length is less than the authorized value
-        """
+        """Check that the line length is less than the authorized value"""
         max_chars = self.config.max_line_length
         ignore_long_line = self.config.ignore_long_lines
         line = line.rstrip()
@@ -693,9 +693,7 @@ class FormatChecker(BaseTokenChecker):
 
     @staticmethod
     def remove_pylint_option_from_lines(options_pattern_obj) -> str:
-        """
-        Remove the `# pylint ...` pattern from lines
-        """
+        """Remove the `# pylint ...` pattern from lines"""
         lines = options_pattern_obj.string
         purged_lines = (
             lines[: options_pattern_obj.start(1)].rstrip()
@@ -705,9 +703,7 @@ class FormatChecker(BaseTokenChecker):
 
     @staticmethod
     def is_line_length_check_activated(pylint_pattern_match_object) -> bool:
-        """
-        Return true if the line length check is activated
-        """
+        """Return true if the line length check is activated"""
         try:
             for pragma in parse_pragma(pylint_pattern_match_object.group(2)):
                 if pragma.action == "disable" and "line-too-long" in pragma.messages:
@@ -719,9 +715,7 @@ class FormatChecker(BaseTokenChecker):
 
     @staticmethod
     def specific_splitlines(lines: str) -> List[str]:
-        """
-        Split lines according to universal newlines except those in a specific sets
-        """
+        """Split lines according to universal newlines except those in a specific sets"""
         unsplit_ends = {
             "\v",
             "\x0b",
@@ -745,11 +739,10 @@ class FormatChecker(BaseTokenChecker):
         return res
 
     def check_lines(self, lines: str, lineno: int) -> None:
-        """
-        Check lines have :
-            - a final newline
-            - no trailing whitespace
-            - less than a maximum number of characters
+        """Check lines have :
+        - a final newline
+        - no trailing whitespace
+        - less than a maximum number of characters
         """
         # we're first going to do a rough check whether any lines in this set
         # go over the line limit. If none of them do, then we don't need to
@@ -819,6 +812,5 @@ class FormatChecker(BaseTokenChecker):
             )
 
 
-def register(linter):
-    """required method to auto register this checker"""
+def register(linter: "PyLinter") -> None:
     linter.register_checker(FormatChecker(linter))
