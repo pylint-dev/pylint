@@ -1,5 +1,4 @@
-"""
-Example checker detecting deprecated functions/methods. Following example searches for usages of
+"""Example checker detecting deprecated functions/methods. Following example searches for usages of
 deprecated function `deprecated_function` and deprecated method `MyClass.deprecated_method`
 from module mymodule:
 

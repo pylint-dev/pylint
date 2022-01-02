@@ -333,8 +333,7 @@ def _fix_dot_imports(not_consumed):
 
 
 def _find_frame_imports(name, frame):
-    """
-    Detect imports in the frame, with the required
+    """Detect imports in the frame, with the required
     *name*. Such imports can be considered assignments.
     Returns True if an import for the given name was found.
     """
@@ -369,9 +368,7 @@ def _flattened_scope_names(iterator):
 
 
 def _assigned_locally(name_node):
-    """
-    Checks if name_node has corresponding assign statement in same scope
-    """
+    """Checks if name_node has corresponding assign statement in same scope"""
     assign_stmts = name_node.scope().nodes_of_class(nodes.AssignName)
     return any(a.name == name_node.name for a in assign_stmts)
 
@@ -545,9 +542,7 @@ ScopeConsumer = collections.namedtuple(
 
 
 class NamesConsumer:
-    """
-    A simple class to handle consumed, to consume and scope type info of node locals
-    """
+    """A simple class to handle consumed, to consume and scope type info of node locals"""
 
     def __init__(self, node, scope_type):
         self._atomic = ScopeConsumer(
@@ -584,8 +579,7 @@ scope_type : {self._atomic.scope_type}
 
     @property
     def consumed_uncertain(self) -> DefaultDict[str, List[nodes.NodeNG]]:
-        """
-        Retrieves nodes filtered out by get_next_to_consume() that may not
+        """Retrieves nodes filtered out by get_next_to_consume() that may not
         have executed, such as statements in except blocks, or statements
         in try blocks (when evaluating their corresponding except and finally
         blocks). Checkers that want to treat the statements as executed
@@ -598,8 +592,7 @@ scope_type : {self._atomic.scope_type}
         return self._atomic.scope_type
 
     def mark_as_consumed(self, name, consumed_nodes):
-        """
-        Mark the given nodes as consumed for the name.
+        """Mark the given nodes as consumed for the name.
         If all of the nodes for the name were consumed, delete the name from
         the to_consume dictionary
         """
@@ -612,8 +605,7 @@ scope_type : {self._atomic.scope_type}
             del self.to_consume[name]
 
     def get_next_to_consume(self, node):
-        """
-        Return a list of the nodes that define `node` from this scope. If it is
+        """Return a list of the nodes that define `node` from this scope. If it is
         uncertain whether a node will be consumed, such as for statements in
         except blocks, add it to self.consumed_uncertain instead of returning it.
         Return None to indicate a special case that needs to be handled by the caller.
@@ -700,8 +692,7 @@ scope_type : {self._atomic.scope_type}
 
     @staticmethod
     def _uncertain_nodes_in_except_blocks(found_nodes, node, node_statement):
-        """
-        Return any nodes in ``found_nodes`` that should be treated as uncertain
+        """Return any nodes in ``found_nodes`` that should be treated as uncertain
         because they are in an except block.
         """
         uncertain_nodes = []
@@ -1846,8 +1837,7 @@ class VariablesChecker(BaseChecker):
         return False
 
     def _ignore_class_scope(self, node):
-        """
-        Return True if the node is in a local class scope, as an assignment.
+        """Return True if the node is in a local class scope, as an assignment.
 
         :param node: Node considered
         :type node: astroid.Node
@@ -2169,8 +2159,7 @@ class VariablesChecker(BaseChecker):
     def _has_homonym_in_upper_function_scope(
         self, node: nodes.Name, index: int
     ) -> bool:
-        """
-        Return whether there is a node with the same name in the
+        """Return whether there is a node with the same name in the
         to_consume dict of an upper scope and if that scope is a
         function
 
