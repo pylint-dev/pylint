@@ -19,7 +19,8 @@ if TYPE_CHECKING:
 class OverlappingExceptionsChecker(checkers.BaseChecker):
     """Checks for two or more exceptions in the same exception handler
     clause that are identical or parts of the same inheritance hierarchy
-    (i.e. overlapping)."""
+    (i.e. overlapping).
+    """
 
     __implements__ = interfaces.IAstroidChecker
 

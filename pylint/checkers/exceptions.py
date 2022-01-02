@@ -57,8 +57,7 @@ def _builtin_exceptions():
 
 
 def _annotated_unpack_infer(stmt, context=None):
-    """
-    Recursively generate nodes inferred by the given statement.
+    """Recursively generate nodes inferred by the given statement.
     If the inferred value is a list or a tuple, recurse on the elements.
     Returns an iterator which yields tuples in the format
     ('original node', 'inferred node').

@@ -24,8 +24,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""Pylint plugin for checking in Sphinx, Google, or Numpy style docstrings
-"""
+"""Pylint plugin for checking in Sphinx, Google, or Numpy style docstrings"""
 import re
 from typing import TYPE_CHECKING, Optional
 
@@ -642,8 +641,7 @@ class DocstringParameterChecker(BaseChecker):
         self._add_raise_message(excs, node)
 
     def _add_raise_message(self, missing_excs, node):
-        """
-        Adds a message on :param:`node` for the missing exception type.
+        """Adds a message on :param:`node` for the missing exception type.
 
         :param missing_excs: A list of missing exception types.
         :type missing_excs: set(str)

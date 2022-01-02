@@ -109,7 +109,8 @@ class TestSuperfluousParentheses(CheckerTestCase):
 
     def testNoSuperfluousParensWalrusOperatorIf(self) -> None:
         """Parenthesis change the meaning of assignment in the walrus operator
-        and so are not always superfluous:"""
+        and so are not always superfluous:
+        """
         cases = [
             ("if (odd := is_odd(i))\n"),
             ("not (foo := 5)\n"),
@@ -177,8 +178,7 @@ class TestCheckSpace(CheckerTestCase):
 
 
 def test_disable_global_option_end_of_line() -> None:
-    """
-    Test for issue with disabling tokenizer messages
+    """Test for issue with disabling tokenizer messages
     that extend beyond the scope of the ast tokens
     """
     file_ = tempfile.NamedTemporaryFile("w", delete=False)

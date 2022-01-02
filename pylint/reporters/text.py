@@ -60,8 +60,7 @@ class MessageStyle(NamedTuple):
     or the color number when 256 colors are available
     """
     style: Tuple[str, ...] = ()
-    """Tuple of style strings (see `ANSI_COLORS` for available values).
-    """
+    """Tuple of style strings (see `ANSI_COLORS` for available values)."""
 
 
 ColorMappingDict = Dict[str, MessageStyle]
