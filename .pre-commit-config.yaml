@@ -95,3 +95,8 @@ repos:
       - id: prettier
         args: [--prose-wrap=always, --print-width=88]
         exclude: tests(/.*)*/data
+  - repo: https://github.com/DanielNoord/pydocstringformatter
+    rev: v0.2.0
+    hooks:
+      - id: pydocstringformatter
+        exclude: *fixtures
