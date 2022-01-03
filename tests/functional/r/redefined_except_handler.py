@@ -1,4 +1,7 @@
-"""https://github.com/PyCQA/pylint/issues/5370"""
+"""Tests for except handlers that shadow outer except handlers or exceptions.
+
+See: https://github.com/PyCQA/pylint/issues/5370
+"""
 
 try:
     pass

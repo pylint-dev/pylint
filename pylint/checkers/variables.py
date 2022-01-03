@@ -847,6 +847,7 @@ class VariablesChecker(BaseChecker):
         self._loop_variables = []
         self._type_annotation_names = []
         self._except_handler_names = []
+        """This is a queue, last in first out"""
         self._postponed_evaluation_enabled = False
 
     def open(self) -> None:
