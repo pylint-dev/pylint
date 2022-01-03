@@ -20,8 +20,8 @@ Removed checkers
 
 Extensions
 ==========
-* New extension ``import-private-name``: indicate imports of external packages and objects
-  that are prefixed with ``_`` and likely to be private.
+* New extension ``import-private-name``: indicate imports of external private packages
+  and objects (prefixed with ``_``).
 
   Closes #5463
 
