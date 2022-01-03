@@ -846,7 +846,9 @@ class VariablesChecker(BaseChecker):
         self._checking_mod_attr = None
         self._loop_variables = []
         self._type_annotation_names = []
-        self._except_handler_names = []
+        self._except_handler_names_queue: List[
+            Tuple[nodes.ExceptHandler, nodes.AssignName]
+        ] = []
         """This is a queue, last in first out"""
         self._postponed_evaluation_enabled = False
 
@@ -1137,7 +1139,7 @@ class VariablesChecker(BaseChecker):
         if not node.name or not isinstance(node.name, nodes.AssignName):
             return
 
-        for outer_except, outer_except_assign_name in self._except_handler_names:
+        for outer_except, outer_except_assign_name in self._except_handler_names_queue:
             if node.name.name == outer_except_assign_name.name:
                 self.add_message(
                     "redefined-outer-name",
@@ -1146,13 +1148,13 @@ class VariablesChecker(BaseChecker):
                 )
                 break
 
-        self._except_handler_names.append((node, node.name))
+        self._except_handler_names_queue.append((node, node.name))
 
     @utils.check_messages("redefined-outer-name")
     def leave_excepthandler(self, node: nodes.ExceptHandler) -> None:
         if not node.name or not isinstance(node.name, nodes.AssignName):
             return
-        self._except_handler_names.pop()
+        self._except_handler_names_queue.pop()
 
     def _undefined_and_used_before_checker(
         self, node: nodes.Name, stmt: nodes.NodeNG
