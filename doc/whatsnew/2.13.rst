@@ -118,6 +118,11 @@ Other Changes
 
 * Fixed crash on uninferable decorators on Python 3.6 and 3.7
 
+* Emit ``redefined-outer-name`` when a nested except handler shadows an outer one.
+
+  Closes #4434
+  Closes #5370
+
 * Fatal errors now emit a score of 0.0 regardless of whether the linted module
   contained any statements
 
