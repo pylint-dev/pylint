@@ -1,0 +1,2 @@
+redefined-outer-name:8:4:9:12::Redefining name 'err' from outer scope (line 5):UNDEFINED
+redefined-outer-name:54:8:55:16::Redefining name 'err' from outer scope (line 48):UNDEFINED
