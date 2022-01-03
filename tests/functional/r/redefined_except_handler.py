@@ -54,3 +54,16 @@ except ImportError as err:
         except ImportError as err:  # [redefined-outer-name]
             pass
     print(err)
+
+
+class CustomException(Exception):
+    """https://github.com/PyCQA/pylint/issues/4434"""
+
+
+def func():
+    """Override CustomException by except .. as .."""
+    try:
+        raise CustomException('Test')  # [used-before-assignment]
+    # pylint:disable-next=invalid-name, unused-variable
+    except IOError as CustomException:  # [redefined-outer-name]
+        pass

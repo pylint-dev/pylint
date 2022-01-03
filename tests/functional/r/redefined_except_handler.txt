@@ -1,2 +1,4 @@
 redefined-outer-name:8:4:9:12::Redefining name 'err' from outer scope (line 5):UNDEFINED
 redefined-outer-name:54:8:55:16::Redefining name 'err' from outer scope (line 48):UNDEFINED
+used-before-assignment:66:14:66:29:func:Using variable 'CustomException' before assignment:UNDEFINED
+redefined-outer-name:68:4:69:12:func:Redefining name 'CustomException' from outer scope (line 59):UNDEFINED
