@@ -183,8 +183,7 @@ class TestRunTC:
     def _test_output_file(
         self, args: List[str], filename: LocalPath, expected_output: str
     ) -> None:
-        """
-        Run Pylint with the ``output`` option set (must be included in
+        """Run Pylint with the ``output`` option set (must be included in
         the ``args`` passed to this method!) and check the file content afterwards.
         """
         out = StringIO()
@@ -1164,9 +1163,7 @@ class TestRunTC:
         self._runtest([path, "--fail-under=-10"] + args, code=expected)
 
     def test_one_module_fatal_error(self):
-        """
-        Fatal errors in one of several modules linted still exits non-zero.
-        """
+        """Fatal errors in one of several modules linted still exits non-zero."""
         valid_path = join(HERE, "conftest.py")
         invalid_path = join(HERE, "garbagePath.py")
         self._runtest([valid_path, invalid_path], code=1)

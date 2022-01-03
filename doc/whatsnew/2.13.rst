@@ -48,6 +48,15 @@ Other Changes
 
 .. _`emacs file locks`: https://www.gnu.org/software/emacs/manual/html_node/elisp/File-Locks.html
 
+* An astroid issue where symlinks were not being taken into account
+  was fixed
+
+  Closes #1470
+  Closes #3499
+  Closes #4302
+  Closes #4798
+  Closes #5081
+
 * Fixed extremely long processing of long lines with comma's.
 
   Closes #5483
@@ -103,6 +112,10 @@ Other Changes
 
   Closes #5360, #3877
 
+* Fixed crash on list comprehensions that used ``type`` as inner variable name.
+
+  Closes #5461
+
 * Require Python ``3.6.2`` to run pylint.
 
   Closes #5065
@@ -125,7 +138,7 @@ Other Changes
 
   Closes #5557
 
-* When invoking ``pylint``, ``symilar`` or ``pyreverse`` by importing them in a python file
+* When invoking ``pylint``, ``epylint``, ``symilar`` or ``pyreverse`` by importing them in a python file
   you can now pass an ``arguments`` keyword besides patching ``sys.argv``.
 
   Closes #5320

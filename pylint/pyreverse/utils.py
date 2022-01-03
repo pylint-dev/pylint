@@ -270,7 +270,8 @@ def get_annotation(
 
 def infer_node(node: Union[nodes.AssignAttr, nodes.AssignName]) -> set:
     """Return a set containing the node annotation if it exists
-    otherwise return a set of the inferred types using the NodeNG.infer method"""
+    otherwise return a set of the inferred types using the NodeNG.infer method
+    """
 
     ann = get_annotation(node)
     try:
@@ -286,7 +287,8 @@ def infer_node(node: Union[nodes.AssignAttr, nodes.AssignName]) -> set:
 def check_graphviz_availability():
     """Check if the ``dot`` command is available on the machine.
     This is needed if image output is desired and ``dot`` is used to convert
-    from *.dot or *.gv into the final output format."""
+    from *.dot or *.gv into the final output format.
+    """
     if shutil.which("dot") is None:
         print(
             "The requested output format is currently not available.\n"

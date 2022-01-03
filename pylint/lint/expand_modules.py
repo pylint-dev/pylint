@@ -18,7 +18,8 @@ def _modpath_from_file(filename, is_namespace, path=None):
 
 def get_python_path(filepath: str) -> str:
     """TODO This get the python path with the (bad) assumption that there is always
-    an __init__.py. This is not true since python 3.3 and is causing problem."""
+    an __init__.py. This is not true since python 3.3 and is causing problem.
+    """
     dirname = os.path.realpath(os.path.expanduser(filepath))
     if not os.path.isdir(dirname):
         dirname = os.path.dirname(dirname)

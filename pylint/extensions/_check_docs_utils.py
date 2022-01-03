@@ -121,8 +121,7 @@ def _split_multiple_exc_types(target: str) -> List[str]:
 
 
 def possible_exc_types(node: nodes.NodeNG) -> Set[nodes.ClassDef]:
-    """
-    Gets all the possible raised exception types for the given raise node.
+    """Gets all the possible raised exception types for the given raise node.
 
     .. note::
 
@@ -401,8 +400,7 @@ class SphinxDocstring(Docstring):
 
 
 class EpytextDocstring(SphinxDocstring):
-    """
-    Epytext is similar to Sphinx. See the docs:
+    """Epytext is similar to Sphinx. See the docs:
         http://epydoc.sourceforge.net/epytext.html
         http://epydoc.sourceforge.net/fields.html#fields
 
