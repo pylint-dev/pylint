@@ -52,7 +52,8 @@ class PrivateImportChecker(BaseChecker):
         self, node: nodes.Import, names: List[str], checking_objects: bool
     ) -> bool:
         """Checks if the import is private. Checking an object if checking_objects is True else a module
-        Returns True if a message was emitted"""
+        Returns True if a message was emitted
+        """
         if is_node_in_typing_guarded_import_block(node):
             return True
         if not checking_objects:
