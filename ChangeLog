@@ -9,8 +9,7 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.13.rst'
 
-* Add ``iterating-modified-list`` checker for lists which items are added or removed
-  during iteration while they are iterating through.
+* * Add ``iterating-modified-list``, emitted when items are added or removed to a list being iterated through.
 
   Closes #5348
 

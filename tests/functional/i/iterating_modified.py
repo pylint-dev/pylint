@@ -1,3 +1,6 @@
+"""Tests for iterating-modified messages"""
+# pylint disable=locally-disabled,useless-suppression
+
 item_list = [1, 2, 3]
 for item in item_list:
     item_list.append(item)  # [iterating-modified-list]

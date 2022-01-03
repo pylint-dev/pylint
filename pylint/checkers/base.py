@@ -2568,36 +2568,33 @@ class ModifiedIterationChecker(_BasicChecker):
         "W4714": (
             "Iterated list '%s' is being modified inside loop body, consider iterating through a copy of it instead.",
             "iterating-modified-list",
-            "Used when iterating through a list with items added to or removed from during a loop iteration."
-            "Doing so can result in unexpected behaviour, that is why it is always preferred using a copy of the list.",
+            "Emitted when items are added or removed to a list being iterated through."
+            "Doing so can result in unexpected behaviour, that is why it is preferred to use a copy of the list.",
         ),
         "E4714": (
             "Iterated dict '%s' is being modified inside loop body, iterate through a copy of it instead.",
             "iterating-modified-dict",
-            "Used when iterating through a dict with items added to or removed from during a loop iteration."
-            "Doing so results in RuntimeError",
+            "Emitted when items are added or removed to a dict being iterated through."
+            "Doing so raises a RuntimeError",
         ),
         "E4715": (
             "Iterated set '%s' is being modified inside loop body, iterate through a copy of it instead.",
             "iterating-modified-set",
-            "Used when iterating through a set with items added to or removed from during a loop iteration."
-            "Doing so results in RuntimeError",
+            "Emitted when items are added or removed to a set being iterated through."
+            "Doing so raises a RuntimeError",
         ),
     }
 
     options = ()
     priority = -2
 
-    def __init__(self, linter=None):
-        _BasicChecker.__init__(self, linter)
-
     @utils.check_messages(
         "iterating-modified-list", "iterating-modified-dict", "iterating-modified-set"
     )
     def visit_for(self, node: nodes.For) -> None:
         iter_list_obj = node.iter
-        try:
-            for body_node in node.body:
+        for body_node in node.body:
+            try:
                 if (
                     self._is_attribute_call_expr(body_node)
                     and (
@@ -2612,11 +2609,11 @@ class ModifiedIterationChecker(_BasicChecker):
                         node=body_node,
                         args=(iter_list_obj.name,),
                     )
-        except astroid.InferenceError:
-            pass
+            except astroid.InferenceError:
+                pass
 
     @staticmethod
-    def _is_attribute_call_expr(body_node):
+    def _is_attribute_call_expr(body_node) -> bool:
         return (
             isinstance(body_node, astroid.Expr)
             and isinstance(body_node.value, astroid.Call)
