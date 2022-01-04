@@ -103,7 +103,11 @@ class PrivateImportChecker(BaseChecker):
                         usage_node, all_used_type_annotations
                     )
                 elif isinstance(usage_node, nodes.FunctionDef):
-                    all_used_type_annotations = PrivateImportChecker._populate_type_annotations_function(usage_node, all_used_type_annotations)
+                    all_used_type_annotations = (
+                        PrivateImportChecker._populate_type_annotations_function(
+                            usage_node, all_used_type_annotations
+                        )
+                    )
         return all_used_type_annotations
 
     @staticmethod
@@ -113,14 +117,20 @@ class PrivateImportChecker(BaseChecker):
         """Adds into the set all_used_type_annotations the names of all names used as a type annotation
         in the arguments and return type of the function node
         """
-        if node.args: # pylint: disable=too-many-nested-blocks
+        if node.args:  # pylint: disable=too-many-nested-blocks
             for arg in node.args.args:
                 if arg.parent.annotations:
                     for annotation in arg.parent.annotations:
-                        if isinstance(annotation, nodes.Subscript): # e.g. Optional[type]
-                            while isinstance(annotation, nodes.Subscript): # In the case of Optional[List[type]]
-                                all_used_type_annotations.add(annotation.value.name) # Add the names of slices
-                                annotation = annotation.slice 
+                        if isinstance(
+                            annotation, nodes.Subscript
+                        ):  # e.g. Optional[type]
+                            while isinstance(
+                                annotation, nodes.Subscript
+                            ):  # In the case of Optional[List[type]]
+                                all_used_type_annotations.add(
+                                    annotation.value.name
+                                )  # Add the names of slices
+                                annotation = annotation.slice
                         if isinstance(annotation, nodes.Name):
                             all_used_type_annotations.add(annotation.name)
         if node.returns:
