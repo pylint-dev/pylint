@@ -26,7 +26,8 @@ class PrivateImportChecker(BaseChecker):
 
     def __init__(self, linter: Optional["PyLinter"] = None):
         BaseChecker.__init__(self, linter)
-        self.all_used_type_annotations = None
+        self.all_used_type_annotations: Set[str] = set()
+        self.populated_annotations = False
 
     @check_messages("import-private-name")
     def visit_import(self, node: nodes.Import) -> None:
@@ -44,13 +45,15 @@ class PrivateImportChecker(BaseChecker):
             node, [node.modname], checking_objects=False
         )
         if check_imported_names:
-            if self.all_used_type_annotations is None:
+            if not self.populated_annotations:
                 module_node = node
                 while module_node.parent:
                     module_node = module_node.parent
-                self.all_used_type_annotations = self._populate_type_annotations(
-                    module_node, set()
+                self._populate_type_annotations(
+                    module_node, self.all_used_type_annotations
                 )
+                self.populated_annotations = True
+
             self._check_import_private_name(
                 node,
                 [
@@ -87,8 +90,9 @@ class PrivateImportChecker(BaseChecker):
 
     @staticmethod
     def _populate_type_annotations(
-        node: Union[nodes.Module, nodes.ClassDef], all_used_type_annotations: Set
-    ) -> Set[str]:
+        node: Union[nodes.Module, nodes.ClassDef],
+        all_used_type_annotations: Set,
+    ) -> None:
         """Adds into the set all_used_type_annotations the names of all names ever used as a type annotation
         in the scope and class definition scopes of node
         """
@@ -97,45 +101,56 @@ class PrivateImportChecker(BaseChecker):
                 if isinstance(usage_node, nodes.AssignName) and isinstance(
                     usage_node.parent, nodes.AnnAssign
                 ):
-                    all_used_type_annotations.add(usage_node.parent.annotation.name)
+                    annotation = usage_node.parent.annotation
+                    PrivateImportChecker._populate_type_annotations_annotation(
+                        annotation, all_used_type_annotations
+                    )
                 elif isinstance(usage_node, nodes.ClassDef):
                     PrivateImportChecker._populate_type_annotations(
                         usage_node, all_used_type_annotations
                     )
                 elif isinstance(usage_node, nodes.FunctionDef):
-                    all_used_type_annotations = (
-                        PrivateImportChecker._populate_type_annotations_function(
-                            usage_node, all_used_type_annotations
-                        )
+                    PrivateImportChecker._populate_type_annotations_function(
+                        usage_node, all_used_type_annotations
                     )
-        return all_used_type_annotations
 
     @staticmethod
     def _populate_type_annotations_function(
         node: nodes.FunctionDef, all_used_type_annotations: Set
-    ) -> Set[str]:
+    ) -> None:
         """Adds into the set all_used_type_annotations the names of all names used as a type annotation
         in the arguments and return type of the function node
         """
-        if node.args:  # pylint: disable=too-many-nested-blocks
+        if node.args: 
             for arg in node.args.args:
                 if arg.parent.annotations:
                     for annotation in arg.parent.annotations:
-                        if isinstance(
-                            annotation, nodes.Subscript
-                        ):  # e.g. Optional[type]
-                            while isinstance(
-                                annotation, nodes.Subscript
-                            ):  # In the case of Optional[List[type]]
-                                all_used_type_annotations.add(
-                                    annotation.value.name
-                                )  # Add the names of slices
-                                annotation = annotation.slice
-                        if isinstance(annotation, nodes.Name):
-                            all_used_type_annotations.add(annotation.name)
+                        PrivateImportChecker._populate_type_annotations_annotation(
+                            annotation, all_used_type_annotations
+                        )
         if node.returns:
-            all_used_type_annotations.add(node.returns.name)
-        return all_used_type_annotations
+            PrivateImportChecker._populate_type_annotations_annotation(
+                node.returns, all_used_type_annotations
+            )
+
+    @staticmethod
+    def _populate_type_annotations_annotation(
+        node: Union[nodes.Subscript, nodes.Name], all_used_type_annotations: Set
+    ) -> None:
+        """Handles the possiblity of an annotation either being a Name, i.e. just type,
+        or a Subscript e.g. Optional[type]
+        """
+        if isinstance(node, nodes.Name):
+            all_used_type_annotations.add(node.name)
+        elif isinstance(node, nodes.Subscript):
+            while isinstance(
+                node, nodes.Subscript
+            ):  # In the case of Optional[List[type]]
+                all_used_type_annotations.add(
+                    node.value.name
+                )  # Add the names of slices
+                node = node.slice
+            all_used_type_annotations.add(node.name)
 
     @staticmethod
     def same_root_dir(node: nodes.Import, import_mod_name: str) -> bool:
