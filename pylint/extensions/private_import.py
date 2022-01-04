@@ -1,6 +1,6 @@
 """Check for use of for loops that only check for a condition."""
 import os
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Optional, Set, Union
 
 from astroid import nodes
 
@@ -24,6 +24,10 @@ class PrivateImportChecker(BaseChecker):
         ),
     }
 
+    def __init__(self, linter: Optional["PyLinter"] = None):
+        BaseChecker.__init__(self, linter)
+        self.all_used_type_annotations = None
+
     @check_messages("import-private-name")
     def visit_import(self, node: nodes.Import) -> None:
         if is_node_in_typing_guarded_import_block(node):
@@ -40,8 +44,21 @@ class PrivateImportChecker(BaseChecker):
             node, [node.modname], checking_objects=False
         )
         if check_imported_names:
+            if self.all_used_type_annotations is None:
+                module_node = node
+                while module_node.parent:
+                    module_node = module_node.parent
+                self.all_used_type_annotations = self._populate_type_annotations(
+                    module_node, set()
+                )
             self._check_import_private_name(
-                node, [name[0] for name in node.names], checking_objects=True
+                node,
+                [
+                    name[0]
+                    for name in node.names
+                    if name[0] not in self.all_used_type_annotations
+                ],
+                checking_objects=True,
             )
 
     def _check_import_private_name(
@@ -54,17 +71,61 @@ class PrivateImportChecker(BaseChecker):
             # Check only external modules
             names = [name for name in names if not self.same_root_dir(node, name)]
             if not names:
-                return False # The module is internal, do not have to check imported names
+                return (
+                    False  # The module is internal, do not have to check imported names
+                )
 
         private_names = [name for name in names if self._name_is_private(name)]
         if not private_names:
-            return True # The module name is not private, so check imported names
+            return True  # The module name is not private, so check imported names
         private_imports = ", ".join(private_names)
         type_ = "object" if checking_objects else "module"
         self.add_message(
             "import-private-name", node=node, args=(type_, private_imports)
         )
-        return False # The module name is private and external; short-circuit checking imported names
+        return False  # The module name is private and external; short-circuit checking imported names
+
+    @staticmethod
+    def _populate_type_annotations(
+        node: Union[nodes.Module, nodes.ClassDef], all_used_type_annotations: Set
+    ) -> Set[str]:
+        """Adds into the set all_used_type_annotations the names of all names ever used as a type annotation
+        in the scope and class definition scopes of node
+        """
+        for name in node.locals:
+            for usage_node in node.locals[name]:
+                if isinstance(usage_node, nodes.AssignName) and isinstance(
+                    usage_node.parent, nodes.AnnAssign
+                ):
+                    all_used_type_annotations.add(usage_node.parent.annotation.name)
+                elif isinstance(usage_node, nodes.ClassDef):
+                    PrivateImportChecker._populate_type_annotations(
+                        usage_node, all_used_type_annotations
+                    )
+                elif isinstance(usage_node, nodes.FunctionDef):
+                    all_used_type_annotations = PrivateImportChecker._populate_type_annotations_function(usage_node, all_used_type_annotations)
+        return all_used_type_annotations
+
+    @staticmethod
+    def _populate_type_annotations_function(
+        node: nodes.FunctionDef, all_used_type_annotations: Set
+    ) -> Set[str]:
+        """Adds into the set all_used_type_annotations the names of all names used as a type annotation
+        in the arguments and return type of the function node
+        """
+        if node.args: # pylint: disable=too-many-nested-blocks
+            for arg in node.args.args:
+                if arg.parent.annotations:
+                    for annotation in arg.parent.annotations:
+                        if isinstance(annotation, nodes.Subscript): # e.g. Optional[type]
+                            while isinstance(annotation, nodes.Subscript): # In the case of Optional[List[type]]
+                                all_used_type_annotations.add(annotation.value.name) # Add the names of slices
+                                annotation = annotation.slice 
+                        if isinstance(annotation, nodes.Name):
+                            all_used_type_annotations.add(annotation.name)
+        if node.returns:
+            all_used_type_annotations.add(node.returns.name)
+        return all_used_type_annotations
 
     @staticmethod
     def same_root_dir(node: nodes.Import, import_mod_name: str) -> bool:

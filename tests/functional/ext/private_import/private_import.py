@@ -1,4 +1,4 @@
-# pylint: disable=unused-import, missing-docstring, reimported, import-error, wrong-import-order, no-name-in-module, multiple-imports, ungrouped-imports, misplaced-future
+# pylint: disable=unused-import, missing-docstring, reimported, import-error, wrong-import-order, no-name-in-module, multiple-imports, ungrouped-imports, misplaced-future, wrong-import-position
 
 from _world import hello # [import-private-name]
 from _world import _hello # [import-private-name]
@@ -31,3 +31,12 @@ if TYPE_CHECKING:
     from types import _TreeType
     from _types import TreeType
     from _types import _TreeType
+
+from classes import _PrivateClassA, _PrivateClassB, _PrivateClassC
+
+a: _PrivateClassA
+def b_func(class_b: _PrivateClassB):
+    print(class_b)
+
+def c_func() -> _PrivateClassC:
+    return None
