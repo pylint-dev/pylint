@@ -90,7 +90,7 @@ class PrivateImportChecker(BaseChecker):
 
     @staticmethod
     def _populate_type_annotations(
-        node: Union[nodes.Module, nodes.ClassDef],
+        node: Union[nodes.Module, nodes.LocalsDictNodeNG],
         all_used_type_annotations: Set,
     ) -> None:
         """Adds into the set all_used_type_annotations the names of all names ever used as a type annotation
@@ -101,16 +101,15 @@ class PrivateImportChecker(BaseChecker):
                 if isinstance(usage_node, nodes.AssignName) and isinstance(
                     usage_node.parent, nodes.AnnAssign
                 ):
-                    annotation = usage_node.parent.annotation
                     PrivateImportChecker._populate_type_annotations_annotation(
-                        annotation, all_used_type_annotations
+                        usage_node.parent.annotation, all_used_type_annotations
                     )
-                elif isinstance(usage_node, nodes.ClassDef):
-                    PrivateImportChecker._populate_type_annotations(
+                if isinstance(usage_node, nodes.FunctionDef):
+                    PrivateImportChecker._populate_type_annotations_function(
                         usage_node, all_used_type_annotations
                     )
-                elif isinstance(usage_node, nodes.FunctionDef):
-                    PrivateImportChecker._populate_type_annotations_function(
+                if isinstance(usage_node, nodes.LocalsDictNodeNG):
+                    PrivateImportChecker._populate_type_annotations(
                         usage_node, all_used_type_annotations
                     )
 
@@ -121,7 +120,7 @@ class PrivateImportChecker(BaseChecker):
         """Adds into the set all_used_type_annotations the names of all names used as a type annotation
         in the arguments and return type of the function node
         """
-        if node.args: 
+        if node.args:
             for arg in node.args.args:
                 if arg.parent.annotations:
                     for annotation in arg.parent.annotations:

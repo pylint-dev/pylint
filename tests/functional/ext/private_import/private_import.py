@@ -32,7 +32,9 @@ if TYPE_CHECKING:
     from _types import TreeType
     from _types import _TreeType
 
-from classes import _PrivateClassA, _PrivateClassB, _PrivateClassC
+from classes import _PrivateClassA
+from classes import _PrivateClassB
+from classes import _PrivateClassC
 
 a: _PrivateClassA
 def b_func(class_b: _PrivateClassB):
