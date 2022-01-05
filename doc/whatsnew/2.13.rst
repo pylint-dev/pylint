@@ -123,6 +123,11 @@ Other Changes
   Closes #4434
   Closes #5370
 
+* ``encoding`` can now be supplied as a positional argument to calls that open
+  files without triggering ``unspecified-encoding``.
+
+  Closes #5638
+
 * Fatal errors now emit a score of 0.0 regardless of whether the linted module
   contained any statements
 
