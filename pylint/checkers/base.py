@@ -78,7 +78,7 @@ from typing import TYPE_CHECKING, Any, Dict, Iterator, Optional, Pattern, cast
 import astroid
 from astroid import nodes
 
-from pylint import checkers, interfaces
+from pylint import checkers, constants, interfaces
 from pylint import utils as lint_utils
 from pylint.checkers import utils
 from pylint.checkers.utils import (
@@ -1672,20 +1672,6 @@ KNOWN_NAME_TYPES = {
     "inlinevar",
 }
 
-HUMAN_READABLE_TYPES = {
-    "module": "module",
-    "const": "constant",
-    "class": "class",
-    "function": "function",
-    "method": "method",
-    "attr": "attribute",
-    "argument": "argument",
-    "variable": "variable",
-    "class_attribute": "class attribute",
-    "class_const": "class constant",
-    "inlinevar": "inline iteration",
-}
-
 DEFAULT_NAMING_STYLES = {
     "module": "snake_case",
     "const": "UPPER_CASE",
@@ -1704,7 +1690,7 @@ DEFAULT_NAMING_STYLES = {
 def _create_naming_options():
     name_options = []
     for name_type in sorted(KNOWN_NAME_TYPES):
-        human_readable_name = HUMAN_READABLE_TYPES[name_type]
+        human_readable_name = constants.HUMAN_READABLE_TYPES[name_type]
         default_style = DEFAULT_NAMING_STYLES[name_type]
         name_type = name_type.replace("_", "-")
         name_options.append(
@@ -2025,7 +2011,7 @@ class NameChecker(_BasicChecker):
         confidence,
         warning: str = "invalid-name",
     ) -> None:
-        type_label = HUMAN_READABLE_TYPES[node_type]
+        type_label = constants.HUMAN_READABLE_TYPES[node_type]
         hint = self._name_hints[node_type]
         if prevalent_group:
             # This happens in the multi naming match case. The expected
