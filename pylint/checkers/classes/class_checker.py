@@ -1495,13 +1495,17 @@ a metaclass class method.",
                     # Properties circumvent the slots mechanism,
                     # so we should not emit a warning for them.
                     return
-                for local_name in klass.locals.get(node.attrname, []):
-                    statement = local_name.statement(future=True)
-                    if isinstance(statement, nodes.AnnAssign) and not statement.value:
+                if node.attrname in klass.locals:
+                    for local_name in klass.locals.get(node.attrname, []):
+                        statement = local_name.statement(future=True)
+                        if (
+                            isinstance(statement, nodes.AnnAssign)
+                            and not statement.value
+                        ):
+                            return
+                    if _has_data_descriptor(klass, node.attrname):
+                        # Descriptors circumvent the slots mechanism as well.
                         return
-                if _has_data_descriptor(klass, node.attrname):
-                    # Descriptors circumvent the slots mechanism as well.
-                    return
                 if node.attrname == "__class__" and _has_same_layout_slots(
                     slots, node.parent.value
                 ):
