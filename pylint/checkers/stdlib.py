@@ -636,18 +636,19 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         ):
             encoding_arg = None
             try:
-                if open_module == "pathlib" and node.func.attrname == "read_text":
-                    encoding_arg = utils.get_argument_from_call(
-                        node, position=0, keyword="encoding"
-                    )
-                elif open_module == "pathlib" and node.func.attrname == "write_text":
-                    encoding_arg = utils.get_argument_from_call(
-                        node, position=1, keyword="encoding"
-                    )
-                elif open_module == "pathlib":
-                    encoding_arg = utils.get_argument_from_call(
-                        node, position=2, keyword="encoding"
-                    )
+                if open_module == "pathlib":
+                    if node.func.attrname == "read_text":
+                        encoding_arg = utils.get_argument_from_call(
+                            node, position=0, keyword="encoding"
+                        )
+                    elif node.func.attrname == "write_text":
+                        encoding_arg = utils.get_argument_from_call(
+                            node, position=1, keyword="encoding"
+                        )
+                    else:
+                        encoding_arg = utils.get_argument_from_call(
+                            node, position=2, keyword="encoding"
+                        )
                 else:
                     encoding_arg = utils.get_argument_from_call(
                         node, position=3, keyword="encoding"
