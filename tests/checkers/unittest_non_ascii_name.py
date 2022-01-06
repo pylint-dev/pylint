@@ -1,4 +1,5 @@
 import sys
+from typing import Iterable, Optional
 
 import astroid
 import pytest
@@ -12,21 +13,6 @@ import pylint.testutils
 class TestNonAsciiChecker(pylint.testutils.CheckerTestCase):
     CHECKER_CLASS = pylint.checkers.non_ascii_names.NonAsciiNamesChecker
     checker: pylint.checkers.non_ascii_names.NonAsciiNamesChecker
-
-    EXPECTED_MSG = "non-ascii-name"
-
-    def test_get_module_names(self):
-        """The static function _get_modules_names shall resolve module names correctly"""
-        assert self.CHECKER_CLASS._get_module_names("foo.bar.test") == [
-            "foo",
-            "bar",
-            "test",
-        ]
-        assert self.CHECKER_CLASS._get_module_names("foo.bar", "test") == [
-            "foo",
-            "bar",
-            "test",
-        ]
 
     @pytest.mark.skipif(
         sys.version_info < (3, 8), reason="requires python3.8 or higher"
@@ -58,25 +44,25 @@ class TestNonAsciiChecker(pylint.testutils.CheckerTestCase):
 
         with self.assertAddsMessages(
             pylint.testutils.MessageTest(
-                msg_id=self.EXPECTED_MSG,
+                msg_id="non-ascii-name",
                 node=posargs[1],
                 args=("Argument", "not_økay"),
                 confidence=pylint.interfaces.HIGH,
             ),
             pylint.testutils.MessageTest(
-                msg_id=self.EXPECTED_MSG,
+                msg_id="non-ascii-name",
                 node=posargs[2],
                 args=("Argument", "not_okay_defaułt"),
                 confidence=pylint.interfaces.HIGH,
             ),
             pylint.testutils.MessageTest(
-                msg_id=self.EXPECTED_MSG,
+                msg_id="non-ascii-name",
                 node=args[1],
                 args=("Argument", "p_or_kw_not_økay"),
                 confidence=pylint.interfaces.HIGH,
             ),
             pylint.testutils.MessageTest(
-                msg_id=self.EXPECTED_MSG,
+                msg_id="non-ascii-name",
                 node=kwargs[1],
                 args=("Argument", "kw_arg_not_økay"),
                 confidence=pylint.interfaces.HIGH,
@@ -161,7 +147,7 @@ class TestNonAsciiChecker(pylint.testutils.CheckerTestCase):
 
         with self.assertAddsMessages(
             pylint.testutils.MessageTest(
-                msg_id=self.EXPECTED_MSG,
+                msg_id="non-ascii-name",
                 node=assign_node,
                 args=(assign_type, "łol"),
                 confidence=pylint.interfaces.HIGH,
@@ -181,7 +167,7 @@ class TestNonAsciiChecker(pylint.testutils.CheckerTestCase):
 
         with self.assertAddsMessages(
             pylint.testutils.MessageTest(
-                msg_id=self.EXPECTED_MSG,
+                msg_id="non-ascii-name",
                 node=node,
                 args=("Class", "FooBär"),
                 confidence=pylint.interfaces.HIGH,
@@ -202,3 +188,125 @@ class TestNonAsciiChecker(pylint.testutils.CheckerTestCase):
 
         with self.assertAddsMessages():
             self.walk(node)
+
+    @pytest.mark.parametrize(
+        "import_statement, wrong_name",
+        [
+            pytest.param("import fürimma", "fürimma", id="bad_single_main_module"),
+            pytest.param(
+                "import fürimma as okay",
+                None,
+                id="bad_single_main_module_with_okay_alias",
+            ),
+            pytest.param(
+                "import fürimma, pathlib",
+                "fürimma",
+                id="bad_single_main_module_with_stdlib_import",
+            ),
+            pytest.param(
+                "import pathlib, os, foobar, fürimma",
+                "fürimma",
+                id="stdlib_with_bad_single_main_module",
+            ),
+            pytest.param(
+                "import pathlib, os, foobar, sys as systëm",
+                "systëm",
+                id="stdlib_with_bad_alias",
+            ),
+            pytest.param(
+                "import fürimma as okay, pathlib",
+                None,
+                id="bad_single_main_module_with_okay_alias_with_stdlib_import",
+            ),
+            pytest.param(
+                "import fürimma.submodule", "fürimma.submodule", id="bad_main_module"
+            ),
+            pytest.param(
+                "import fürimma.submodule as submodule",
+                None,
+                id="bad_main_module_with_okay_alias",
+            ),
+            pytest.param(
+                "import main_module.fürimma", "main_module.fürimma", id="bad_submodule"
+            ),
+            pytest.param(
+                "import main_module.fürimma as okay",
+                None,
+                id="bad_submodule_with_okay_alias",
+            ),
+            pytest.param(
+                "import main_module.fürimma as not_økay",
+                "not_økay",
+                id="bad_submodule_with_bad_alias",
+            ),
+            pytest.param(
+                "from foo.bar import function", None, id="from_okay_module_import_okay"
+            ),
+            pytest.param(
+                "from foo.bär import function", None, id="from_bad_module_import_okay"
+            ),
+            pytest.param(
+                "from foo.bar import functiøn",
+                "functiøn",
+                id="from_okay_module_import_bad",
+            ),
+            pytest.param(
+                "from foo.bar import functiøn as function",
+                None,
+                id="from_okay_module_import_bad_as_good",
+            ),
+            pytest.param(
+                "from foo.bär import functiøn as function",
+                None,
+                id="from_bad_module_import_bad_as_good",
+            ),
+            pytest.param(
+                "from foo.bar import functiøn as føl",
+                "føl",
+                id="from_okay_module_import_bad_as_bad",
+            ),
+            pytest.param(
+                "from foo.bar import functiøn as good, bäd",
+                "bäd",
+                id="from_okay_module_import_bad_as_good_and_bad",
+            ),
+            pytest.param(
+                "from foo.bar import functiøn as good, bäd",
+                "bäd",
+                id="from_okay_module_import_bad_as_good_and_bad",
+            ),
+            pytest.param(
+                "from foo.bar import functiøn as good, *",
+                # We still have functiøn within our namespace and could detect this
+                # But to do this properly we would need to check all `*` imports
+                # -> Too much efford!
+                "functiøn",
+                id="from_okay_module_import_bad_as_good_and_star",
+                marks=pytest.mark.xfail(
+                    reason="We don't what is imported when using star"
+                ),
+            ),
+        ],
+    )
+    def test_check_import(self, import_statement: str, wrong_name: Optional[str]):
+        """We expect that for everything that user can change there is a message"""
+        node = astroid.extract_node(f"{import_statement} #@")
+
+        expected_msgs: Iterable[pylint.testutils.MessageTest] = tuple()
+
+        if wrong_name:
+            expected_msgs = (
+                pylint.testutils.MessageTest(
+                    msg_id="non-ascii-module-import",
+                    node=node,
+                    args=("Module", wrong_name),
+                    confidence=pylint.interfaces.HIGH,
+                ),
+            )
+        with self.assertAddsMessages(*expected_msgs, ignore_position=True):
+            if import_statement.startswith("from"):
+                assert isinstance(node, nodes.ImportFrom)
+                self.checker.visit_importfrom(node)
+            else:
+                assert isinstance(node, nodes.Import)
+                self.checker.visit_import(node)

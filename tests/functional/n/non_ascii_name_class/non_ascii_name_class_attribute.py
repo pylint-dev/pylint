@@ -9,7 +9,7 @@ class OkayIsh:
         print(self)
 
     def __init__(self):
-        self.łoopback = "invalid"  # [non-ascii-name]
+        self.łoopback = "invalid"  # [non-ascii-identifier]
 
     def foobar(self):
         """do something"""

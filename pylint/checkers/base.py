@@ -73,7 +73,7 @@ import collections
 import itertools
 import re
 import sys
-from typing import TYPE_CHECKING, Any, Dict, Iterator, Optional, Pattern, cast
+from typing import TYPE_CHECKING, Any, Dict, Iterable, Iterator, Optional, Pattern, cast
 
 import astroid
 from astroid import nodes
@@ -1719,7 +1719,31 @@ def _create_naming_options():
     return tuple(name_options)
 
 
-class NameChecker(_BasicChecker):
+class NameCheckerHelper:
+    """Class containing functions required by NameChecker and NonAsciiNamesChecker"""
+
+    def _check_name(
+        self, node_type: str, name: str, node: nodes.NodeNG, optional_kwarg: Any = None
+    ):
+        """Only Dummy function will be overwritten by implementing classes
+
+        Note: kwarg arguments will be different in implementing classes
+        """
+        raise NotImplementedError
+
+    def _recursive_check_names(self, args: Iterable[nodes.AssignName]):
+        """check names in a possibly recursive list <arg>"""
+        for arg in args:
+            if isinstance(arg, nodes.AssignName):
+                self._check_name("argument", arg.name, arg)
+            else:
+                # pylint: disable-next=fixme
+                # TODO: Check if we can remove this if branch because of
+                #       the up to date astroid version used
+                self._recursive_check_names(arg.elts)
+
+
+class NameChecker(_BasicChecker, NameCheckerHelper):
     msgs = {
         "C0103": (
             '%s name "%s" doesn\'t conform to %s',
@@ -1979,14 +2003,6 @@ class NameChecker(_BasicChecker):
                 else:
                     self._check_name("class_attribute", node.name, node)
 
-    def _recursive_check_names(self, args):
-        """check names in a possibly recursive list <arg>"""
-        for arg in args:
-            if isinstance(arg, nodes.AssignName):
-                self._check_name("argument", arg.name, arg)
-            else:
-                self._recursive_check_names(arg.elts)
-
     def _find_name_group(self, node_type):
         return self._name_group.get(node_type, node_type)
 
@@ -2027,6 +2043,7 @@ class NameChecker(_BasicChecker):
             pattern.match(name) for pattern in self._bad_names_rgxs_compiled
         )
 
+    # pylint: disable-next=arguments-renamed
     def _check_name(self, node_type, name, node, confidence=interfaces.HIGH):
         """check for a name using the type's regexp"""
 

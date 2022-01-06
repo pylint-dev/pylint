@@ -8,7 +8,7 @@ class OkayClass:
         """Say it load"""
 
     @staticmethod
-    def umlaut_ä():  # [non-ascii-name]
+    def umlaut_ä():  # [non-ascii-identifier]
         """Say ä"""
         return "ä"
 

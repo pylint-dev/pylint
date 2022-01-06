@@ -5,7 +5,7 @@ import os
 
 def main():
     """main func"""
-    # +2: [non-ascii-name]
+    # +2: [non-ascii-identifier]
     a_variable = ""
     for łol in os.listdir("."):
         # Usage should not raise a second error

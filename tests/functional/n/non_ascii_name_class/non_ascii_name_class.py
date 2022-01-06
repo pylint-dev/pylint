@@ -2,7 +2,7 @@
 # pylint: disable=too-few-public-methods
 
 
-class НoldIt:  # [non-ascii-name]
+class НoldIt:  # [non-ascii-identifier]
     """nice classs"""
 
     def public(self):

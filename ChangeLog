@@ -14,6 +14,14 @@ Release date: TBA
 
   Closes #5588
 
+* Add ``non-ascii-identifier`` as replacement ``non-ascii-name``
+   to ensure really __all__ Python names are ASCII.
+   Checker now checks properly the names of imports (``non-ascii-module-import``) as
+   well for as of file names (``non-ascii-file-name``).
+   Non ASCII characters could be homoglyphs (look alike characters) and hard to
+   enter on a non specialized keyboard.
+   See `Confusable Characters in PEP 672 <https://www.python.org/dev/peps/pep-0672/#confusable-characters-in-identifiers>`_
+
 * When run in parallel mode ``pylint`` now pickles the data passed to subprocesses with
   the ``dill`` package. The ``dill`` package has therefore been added as a dependency.
 

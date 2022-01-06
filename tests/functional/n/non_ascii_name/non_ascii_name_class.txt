@@ -1,1 +1,0 @@
-non-ascii-name:5:0:10:19:НoldIt:"Class name ""НoldIt"" contains a non-ASCII character":HIGH

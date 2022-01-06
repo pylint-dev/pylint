@@ -1,0 +1,1 @@
+non-ascii-identifier:12:8:12:22:OkayIsh.__init__:"Attribute name ""łoopback"" contains a non-ASCII character, rename it.":HIGH

@@ -12,10 +12,11 @@ The following checkers are intended to make users are aware of these issues.
 
 import re
 import sys
-from typing import Iterable, List, Optional, Union
+from typing import Optional, Union
 
 from astroid import nodes
 
+import pylint.checkers.base
 import pylint.checkers.utils
 from pylint import interfaces
 from pylint.constants import HUMAN_READABLE_TYPES
@@ -43,7 +44,9 @@ class _AsciiOnlyCheckedNode(Protocol):
     _is_ascii_only: bool
 
 
-class NonAsciiNamesChecker(pylint.checkers.BaseChecker):
+class NonAsciiNamesChecker(
+    pylint.checkers.BaseChecker, pylint.checkers.base.NameCheckerHelper
+):
     """A strict name checker only allowing ASCII
 
     If your programming guideline defines that you are programming in English,
@@ -58,9 +61,36 @@ class NonAsciiNamesChecker(pylint.checkers.BaseChecker):
     priority = -1
 
     msgs = {
-        "C0144": (
-            '%s name "%s" contains a non-ASCII character, rename it or use an alias for import',
-            "non-ascii-name",
+        "C2401": (
+            '%s name "%s" contains a non-ASCII character, rename it.',
+            "non-ascii-identifier",
+            (
+                "Used when the name contains at least one non-ASCII unicode character."
+                "See https://www.python.org/dev/peps/pep-0672/#confusable-characters-in-identifiers"
+                " for a background why this could be bad."
+            ),
+            {"old_names": [("C0144", "non-ascii-name")]},
+        ),
+        # First %s will always be "file"
+        "W2402": (
+            '%s name "%s" contains a non-ASCII character. PEP 3131 only allows non-ascii identifiers!',
+            "non-ascii-file-name",
+            (
+                # Some = PyCharm at the time of writing didn't display the non_ascii_name_loł
+                # files. Probably only a bug shows the problem quite good.
+                # That's also why this is a warning and not only a convention!
+                "Some editors don't support non-ASCII file names properly. "
+                "Even so Python supports UTF-8 files since Python 3.5 this isn't recommended for"
+                "interoperability. Further reading: \n"
+                "- https://www.python.org/dev/peps/pep-0489/#export-hook-name \n"
+                "- https://www.python.org/dev/peps/pep-0672/#confusable-characters-in-identifiers\n"
+                "- https://bugs.python.org/issue20485\n"
+            ),
+        ),
+        # First %s will always be "module"
+        "C2403": (
+            '%s name "%s" contains a non-ASCII character, use an ASCII-only alias for import.',
+            "non-ascii-module-import",
             (
                 "Used when the name contains at least one non-ASCII unicode character. "
                 "See https://www.python.org/dev/peps/pep-0672/#confusable-characters-in-identifiers"
@@ -81,18 +111,26 @@ class NonAsciiNamesChecker(pylint.checkers.BaseChecker):
         node_type: str,
         name: str,
     ) -> None:
-        type_label = HUMAN_READABLE_TYPES[node_type]
+        type_label = HUMAN_READABLE_TYPES.get(node_type, node_type)
         args = (type_label.capitalize(), name)
 
-        self.add_message(
-            "non-ascii-name", node=node, args=args, confidence=interfaces.HIGH
-        )
+        msg = "non-ascii-name"
 
+        # Some node types have customized messages
+        if node_type == "file":
+            msg = "non-ascii-file-name"
+        elif node_type == "module":
+            msg = "non-ascii-module-import"
+
+        self.add_message(msg, node=node, args=args, confidence=interfaces.HIGH)
+
+    # pylint: disable-next=arguments-renamed
     def _check_name(
         self,
         node_type: str,
-        names: Union[str, List[str]],
+        name: str,
         node: Union[nodes.NodeNG, _AsciiOnlyCheckedNode],
+        check_string: Optional[str] = None,
     ) -> None:
         """Check whether a name is using non-ASCII characters.
 
@@ -100,46 +138,30 @@ class NonAsciiNamesChecker(pylint.checkers.BaseChecker):
         determine if a node has been already checked, so we don't have to handle
         too many edge cases.
         """
-        if not isinstance(names, list):
-            names = [names]
 
         current_state = getattr(node, "_is_ascii_only", True)
-        for name in names:
-            if name is None:
-                # For some nodes i.e. *kwargs from a dict, the name will be empty
-                continue
-            if not (
-                Py37Str(name).isascii()
-                and self._non_ascii_rgx_compiled.match(name) is None
-            ):
-                # Note that we require the `.isascii` method as it is fast and
-                # handles the complexities of unicode, so we can use simple regex.
-                self._raise_name_warning(node, node_type, name)
-                current_state = False
+
+        if name is None:
+            # For some nodes i.e. *kwargs from a dict, the name will be empty
+            return
+
+        if check_string is None:
+            check_string = name
+
+        if not (
+            Py37Str(check_string).isascii()
+            and self._non_ascii_rgx_compiled.match(check_string) is None
+        ):
+            # Note that we require the `.isascii` method as it is fast and
+            # handles the complexities of unicode, so we can use simple regex.
+            self._raise_name_warning(node, node_type, name)
+            current_state = False
 
         node._is_ascii_only = current_state  # pylint: disable=protected-access
 
-    def _recursive_check_names(self, args: Iterable[nodes.AssignName]) -> None:
-        """check names in a possibly recursive list <arg>"""
-        for arg in args:
-            if isinstance(arg, nodes.AssignName):
-                self._check_name("argument", arg.name, arg)
-            else:
-                # pylint: disable-next=fixme
-                # TODO: Check if we can remove this branch because of
-                #       the up to date astroid version used
-                self._recursive_check_names(arg.elts)
-
     @pylint.checkers.utils.check_messages("non-ascii-name")
     def visit_module(self, node: nodes.Module) -> None:
-        # pylint: disable-next=fixme
-        # TODO check how the node name is defined when calling the real checker
-        #      in the test using the astroid manager the node.name attribute corresponds
-        #      to the filename -> so we always have ".py" as result of the following
-        #      function.
-        #      It would be nice if we could check for an ASCII filename, if not done
-        #      already by other checkers...
-        self._check_name("module", node.name.split(".")[-1], node)
+        self._check_name("file", node.name.split(".")[-1], node)
 
     @pylint.checkers.utils.check_messages("non-ascii-name")
     def visit_functiondef(
@@ -203,22 +225,25 @@ class NonAsciiNamesChecker(pylint.checkers.BaseChecker):
             if not any(node.instance_attr_ancestors(attr)):
                 self._check_name("attr", attr, anodes[0])
 
-    @staticmethod
-    def _get_module_names(module_name: str, alias: Optional[str] = None) -> List[str]:
-        result = module_name.split(".")
-        if alias is not None:
-            result.append(alias)
-        return result
-
     def _check_module_import(
         self, node: Union[nodes.ImportFrom, nodes.Import], is_import_from: bool = False
     ):
-        names = []
         for module_name, alias in node.names:
-            names += self._get_module_names(module_name, alias)
-        if not (is_import_from and names == ["*"]):
-            # Ignore ``from xyz import *``
-            self._check_name("module", names, node)
+            if alias:
+                name = alias
+            else:
+                if is_import_from and module_name == "*":
+                    # Ignore ``from xyz import *``
+                    continue
+                name = module_name
+
+            if is_import_from or alias:
+                self._check_name("module", name, node)
+            else:
+                # Normal module import can contain "." for which we don't want to check
+                self._check_name(
+                    "module", name, node, check_string=name.replace(".", "")
+                )
 
     @pylint.checkers.utils.check_messages("non-ascii-name")
     def visit_import(self, node: nodes.Import) -> None:
@@ -226,7 +251,6 @@ class NonAsciiNamesChecker(pylint.checkers.BaseChecker):
 
     @pylint.checkers.utils.check_messages("non-ascii-name")
     def visit_importfrom(self, node: nodes.ImportFrom) -> None:
-        self._check_name("module", self._get_module_names(node.modname), node)
         self._check_module_import(node, is_import_from=True)
 
     @pylint.checkers.utils.check_messages("non-ascii-name")

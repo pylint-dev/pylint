@@ -9,7 +9,7 @@ class OkayClass:
         print(self)
 
     @classmethod
-    def umlaut_ä(cls):  # [non-ascii-name]
+    def umlaut_ä(cls):  # [non-ascii-identifier]
         """do something"""
         return "ä"
 

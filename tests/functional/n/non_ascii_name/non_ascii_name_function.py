@@ -7,7 +7,7 @@ def sayHello():
     print("Hello, World!")
 
 
-# +3: [non-ascii-name]
+# +3: [non-ascii-identifier]
 
 
 def sayНello():
