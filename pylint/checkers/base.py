@@ -1737,11 +1737,6 @@ class NameChecker(_BasicChecker):
                 ]
             },
         ),
-        "C0144": (
-            '%s name "%s" contains a non-ASCII unicode character',
-            "non-ascii-name",
-            "Used when the name contains at least one non-ASCII unicode character.",
-        ),
         "W0111": (
             "Name %s will become a keyword in Python %s",
             "assign-to-new-keyword",
@@ -1838,7 +1833,6 @@ class NameChecker(_BasicChecker):
         self._name_hints = {}
         self._good_names_rgxs_compiled = []
         self._bad_names_rgxs_compiled = []
-        self._non_ascii_rgx_compiled = re.compile("[^\u0000-\u007F]")
 
     def open(self):
         self.linter.stats.reset_bad_names()
@@ -1878,7 +1872,7 @@ class NameChecker(_BasicChecker):
 
         return regexps, hints
 
-    @utils.check_messages("disallowed-name", "invalid-name", "non-ascii-name")
+    @utils.check_messages("disallowed-name", "invalid-name")
     def visit_module(self, node: nodes.Module) -> None:
         self._check_name("module", node.name.split(".")[-1], node)
         self._bad_names = {}
@@ -1904,9 +1898,7 @@ class NameChecker(_BasicChecker):
             for args in warnings:
                 self._raise_name_warning(prevalent_group, *args)
 
-    @utils.check_messages(
-        "disallowed-name", "invalid-name", "assign-to-new-keyword", "non-ascii-name"
-    )
+    @utils.check_messages("disallowed-name", "invalid-name", "assign-to-new-keyword")
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         self._check_assign_to_new_keyword_violation(node.name, node)
         self._check_name("class", node.name, node)
@@ -1914,9 +1906,7 @@ class NameChecker(_BasicChecker):
             if not any(node.instance_attr_ancestors(attr)):
                 self._check_name("attr", attr, anodes[0])
 
-    @utils.check_messages(
-        "disallowed-name", "invalid-name", "assign-to-new-keyword", "non-ascii-name"
-    )
+    @utils.check_messages("disallowed-name", "invalid-name", "assign-to-new-keyword")
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         # Do not emit any warnings if the method is just an implementation
         # of a base class method.
@@ -1944,14 +1934,12 @@ class NameChecker(_BasicChecker):
 
     visit_asyncfunctiondef = visit_functiondef
 
-    @utils.check_messages("disallowed-name", "invalid-name", "non-ascii-name")
+    @utils.check_messages("disallowed-name", "invalid-name")
     def visit_global(self, node: nodes.Global) -> None:
         for name in node.names:
             self._check_name("const", name, node)
 
-    @utils.check_messages(
-        "disallowed-name", "invalid-name", "assign-to-new-keyword", "non-ascii-name"
-    )
+    @utils.check_messages("disallowed-name", "invalid-name", "assign-to-new-keyword")
     def visit_assignname(self, node: nodes.AssignName) -> None:
         """check module level assigned names"""
         self._check_assign_to_new_keyword_violation(node.name, node)
@@ -2041,11 +2029,6 @@ class NameChecker(_BasicChecker):
 
     def _check_name(self, node_type, name, node, confidence=interfaces.HIGH):
         """check for a name using the type's regexp"""
-        non_ascii_match = self._non_ascii_rgx_compiled.match(name)
-        if non_ascii_match is not None:
-            self._raise_name_warning(
-                None, node, node_type, name, confidence, warning="non-ascii-name"
-            )
 
         def _should_exempt_from_invalid_name(node):
             if node_type == "variable":
