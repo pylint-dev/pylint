@@ -78,7 +78,7 @@ from typing import TYPE_CHECKING, Any, Dict, Iterator, Optional, Pattern, cast
 import astroid
 from astroid import nodes
 
-from pylint import checkers, interfaces
+from pylint import checkers, constants, interfaces
 from pylint import utils as lint_utils
 from pylint.checkers import utils
 from pylint.checkers.utils import (
@@ -103,7 +103,8 @@ else:
 class NamingStyle:
     """It may seem counterintuitive that single naming style has multiple "accepted"
     forms of regular expressions, but we need to special-case stuff like dunder names
-    in method names."""
+    in method names.
+    """
 
     ANY: Pattern[str] = re.compile(".*")
     CLASS_NAME_RGX: Pattern[str] = ANY
@@ -278,8 +279,7 @@ def in_nested_list(nested_list, obj):
 
 
 def _get_break_loop_node(break_node):
-    """
-    Returns the loop node that holds the break node in arguments.
+    """Returns the loop node that holds the break node in arguments.
 
     Args:
         break_node (astroid.Break): the break node of interest.
@@ -300,8 +300,7 @@ def _get_break_loop_node(break_node):
 
 
 def _loop_exits_early(loop):
-    """
-    Returns true if a loop may end with a break statement.
+    """Returns true if a loop may end with a break statement.
 
     Args:
         loop (astroid.For, astroid.While): the loop node inspected.
@@ -389,8 +388,7 @@ def _determine_function_name_type(node: nodes.FunctionDef, config=None):
 
 
 def _has_abstract_methods(node):
-    """
-    Determine if the given `node` has abstract methods.
+    """Determine if the given `node` has abstract methods.
 
     The methods should be made abstract by decorating them
     with `abc` decorators.
@@ -1496,7 +1494,8 @@ class BasicChecker(_BasicChecker):
         """check that a node is not inside a 'finally' clause of a
         'try...finally' statement.
         If we find a parent which type is in breaker_classes before
-        a 'try...finally' block we skip the whole check."""
+        a 'try...finally' block we skip the whole check.
+        """
         # if self._tryfinallys is empty, we're not an in try...finally block
         if not self._tryfinallys:
             return
@@ -1673,20 +1672,6 @@ KNOWN_NAME_TYPES = {
     "inlinevar",
 }
 
-HUMAN_READABLE_TYPES = {
-    "module": "module",
-    "const": "constant",
-    "class": "class",
-    "function": "function",
-    "method": "method",
-    "attr": "attribute",
-    "argument": "argument",
-    "variable": "variable",
-    "class_attribute": "class attribute",
-    "class_const": "class constant",
-    "inlinevar": "inline iteration",
-}
-
 DEFAULT_NAMING_STYLES = {
     "module": "snake_case",
     "const": "UPPER_CASE",
@@ -1705,7 +1690,7 @@ DEFAULT_NAMING_STYLES = {
 def _create_naming_options():
     name_options = []
     for name_type in sorted(KNOWN_NAME_TYPES):
-        human_readable_name = HUMAN_READABLE_TYPES[name_type]
+        human_readable_name = constants.HUMAN_READABLE_TYPES[name_type]
         default_style = DEFAULT_NAMING_STYLES[name_type]
         name_type = name_type.replace("_", "-")
         name_options.append(
@@ -2026,7 +2011,7 @@ class NameChecker(_BasicChecker):
         confidence,
         warning: str = "invalid-name",
     ) -> None:
-        type_label = HUMAN_READABLE_TYPES[node_type]
+        type_label = constants.HUMAN_READABLE_TYPES[node_type]
         hint = self._name_hints[node_type]
         if prevalent_group:
             # This happens in the multi naming match case. The expected

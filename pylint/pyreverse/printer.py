@@ -7,9 +7,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""
-Base class defining the interface for a printer.
-"""
+"""Base class defining the interface for a printer."""
 from abc import ABC, abstractmethod
 from enum import Enum
 from typing import List, NamedTuple, Optional

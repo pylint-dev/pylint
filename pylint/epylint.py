@@ -69,7 +69,8 @@ from typing import Optional, Sequence
 
 def _get_env():
     """Extracts the environment PYTHONPATH and appends the current 'sys.path'
-    to it."""
+    to it.
+    """
     env = dict(os.environ)
     env["PYTHONPATH"] = os.pathsep.join(sys.path)
     return env

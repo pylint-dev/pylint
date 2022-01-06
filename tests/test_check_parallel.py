@@ -359,7 +359,8 @@ class TestCheckParallel:
     def test_invoke_single_job(self) -> None:
         """Tests basic checkers functionality using just a single workderdo
 
-        This is *not* the same -j1 and does not happen under normal operation"""
+        This is *not* the same -j1 and does not happen under normal operation
+        """
         linter = PyLinter(reporter=Reporter())
 
         linter.register_checker(SequentialTestChecker(linter))
@@ -429,7 +430,8 @@ class TestCheckParallel:
         number of checkers applied.
 
         This test becomes more important if we want to change how we parametrise the
-        checkers, for example if we aim to batch the files across jobs."""
+        checkers, for example if we aim to batch the files across jobs.
+        """
 
         # define the stats we expect to get back from the runs, these should only vary
         # with the number of files.

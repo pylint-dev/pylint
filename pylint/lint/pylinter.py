@@ -542,7 +542,8 @@ class PyLinter(
         pylintrc=None,
     ):
         """Some stuff has to be done before ancestors initialization...
-        messages store / checkers / reporter / astroid manager"""
+        messages store / checkers / reporter / astroid manager
+        """
         # Attributes for reporters
         self.reporter: Union[reporters.BaseReporter, reporters.MultiReporter]
         if reporter:
@@ -851,7 +852,8 @@ class PyLinter(
 
     def process_tokens(self, tokens):
         """Process tokens from the current module to search for module/block level
-        options."""
+        options.
+        """
         control_pragmas = {"disable", "disable-next", "enable"}
         prev_line = None
         saw_newline = True
@@ -1464,25 +1466,19 @@ class PyLinter(
         end_col_offset: Optional[int],
     ) -> None:
         """After various checks have passed a single Message is
-        passed to the reporter and added to stats"""
+        passed to the reporter and added to stats
+        """
         message_definition.check_message_definition(line, node)
 
         # Look up "location" data of node if not yet supplied
         if node:
             if not line:
                 line = node.fromlineno
-            # pylint: disable=fixme
-            # TODO: Initialize col_offset on every node (can be None) -> astroid
-            if not col_offset and hasattr(node, "col_offset"):
+            if not col_offset:
                 col_offset = node.col_offset
-            # pylint: disable=fixme
-            # TODO: Initialize end_lineno on every node (can be None) -> astroid
-            # See https://github.com/PyCQA/astroid/issues/1273
-            if not end_lineno and hasattr(node, "end_lineno"):
+            if not end_lineno:
                 end_lineno = node.end_lineno
-            # pylint: disable=fixme
-            # TODO: Initialize end_col_offset on every node (can be None) -> astroid
-            if not end_col_offset and hasattr(node, "end_col_offset"):
+            if not end_col_offset:
                 end_col_offset = node.end_col_offset
 
         # should this message be displayed
@@ -1705,7 +1701,8 @@ class PyLinter(
         self, msgid_or_symbol: str, line: Optional[int], is_disabled: bool = True
     ) -> None:
         """If the msgid is a numeric one, then register it to inform the user
-        it could furnish instead a symbolic msgid."""
+        it could furnish instead a symbolic msgid.
+        """
         if msgid_or_symbol[1:].isdigit():
             try:
                 symbol = self.msgs_store.message_id_store.get_symbol(

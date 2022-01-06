@@ -186,8 +186,7 @@ _DEFAULT_MISSING = _DefaultMissing()
 
 
 def _has_different_parameters_default_value(original, overridden):
-    """
-    Check if original and overridden methods arguments have different default values
+    """Check if original and overridden methods arguments have different default values
 
     Return True if one of the overridden arguments has a default
     value different from the default value of the original argument
@@ -821,8 +820,7 @@ a metaclass class method.",
             pass
 
     def _check_proper_bases(self, node):
-        """
-        Detect that a class inherits something which is not
+        """Detect that a class inherits something which is not
         a class or a type.
         """
         for base in node.bases:
@@ -1655,9 +1653,7 @@ a metaclass class method.",
 
     @staticmethod
     def _is_called_inside_special_method(node: nodes.NodeNG) -> bool:
-        """
-        Returns true if the node is located inside a special (aka dunder) method
-        """
+        """Returns true if the node is located inside a special (aka dunder) method"""
         try:
             frame_name = node.frame(future=True).name
         except AttributeError:

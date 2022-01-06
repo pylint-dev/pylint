@@ -52,7 +52,8 @@ class MessageIdStore:
         """Add valid message id.
 
         There is a little duplication with add_legacy_msgid_and_symbol to avoid a function call,
-        this is called a lot at initialization."""
+        this is called a lot at initialization.
+        """
         self.__msgid_to_symbol[msgid] = symbol
         self.__symbol_to_msgid[symbol] = msgid
 
@@ -62,7 +63,8 @@ class MessageIdStore:
         """Add valid legacy message id.
 
         There is a little duplication with add_msgid_and_symbol to avoid a function call,
-        this is called a lot at initialization."""
+        this is called a lot at initialization.
+        """
         self.__msgid_to_symbol[msgid] = symbol
         self.__symbol_to_msgid[symbol] = msgid
         existing_old_names = self.__old_names.get(msgid, [])

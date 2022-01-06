@@ -34,8 +34,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""Checker for string formatting operations.
-"""
+"""Checker for string formatting operations."""
 
 import collections
 import numbers
@@ -540,8 +539,7 @@ class StringFormatChecker(BaseChecker):
         self._check_new_format_specifiers(node, fields, named_arguments)
 
     def _check_new_format_specifiers(self, node, fields, named):
-        """
-        Check attribute and index access in the format
+        """Check attribute and index access in the format
         string ("{0.a}" and "{0[a]}").
         """
         for key, specifiers in fields:
@@ -934,8 +932,7 @@ def register(linter: "PyLinter") -> None:
 
 
 def str_eval(token):
-    """
-    Mostly replicate `ast.literal_eval(token)` manually to avoid any performance hit.
+    """Mostly replicate `ast.literal_eval(token)` manually to avoid any performance hit.
     This supports f-strings, contrary to `ast.literal_eval`.
     We have to support all string literal notations:
     https://docs.python.org/3/reference/lexical_analysis.html#string-and-bytes-literals

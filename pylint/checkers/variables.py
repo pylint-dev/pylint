@@ -333,8 +333,7 @@ def _fix_dot_imports(not_consumed):
 
 
 def _find_frame_imports(name, frame):
-    """
-    Detect imports in the frame, with the required
+    """Detect imports in the frame, with the required
     *name*. Such imports can be considered assignments.
     Returns True if an import for the given name was found.
     """
@@ -369,9 +368,7 @@ def _flattened_scope_names(iterator):
 
 
 def _assigned_locally(name_node):
-    """
-    Checks if name_node has corresponding assign statement in same scope
-    """
+    """Checks if name_node has corresponding assign statement in same scope"""
     assign_stmts = name_node.scope().nodes_of_class(nodes.AssignName)
     return any(a.name == name_node.name for a in assign_stmts)
 
@@ -545,9 +542,7 @@ ScopeConsumer = collections.namedtuple(
 
 
 class NamesConsumer:
-    """
-    A simple class to handle consumed, to consume and scope type info of node locals
-    """
+    """A simple class to handle consumed, to consume and scope type info of node locals"""
 
     def __init__(self, node, scope_type):
         self._atomic = ScopeConsumer(
@@ -584,8 +579,7 @@ scope_type : {self._atomic.scope_type}
 
     @property
     def consumed_uncertain(self) -> DefaultDict[str, List[nodes.NodeNG]]:
-        """
-        Retrieves nodes filtered out by get_next_to_consume() that may not
+        """Retrieves nodes filtered out by get_next_to_consume() that may not
         have executed, such as statements in except blocks, or statements
         in try blocks (when evaluating their corresponding except and finally
         blocks). Checkers that want to treat the statements as executed
@@ -598,8 +592,7 @@ scope_type : {self._atomic.scope_type}
         return self._atomic.scope_type
 
     def mark_as_consumed(self, name, consumed_nodes):
-        """
-        Mark the given nodes as consumed for the name.
+        """Mark the given nodes as consumed for the name.
         If all of the nodes for the name were consumed, delete the name from
         the to_consume dictionary
         """
@@ -612,8 +605,7 @@ scope_type : {self._atomic.scope_type}
             del self.to_consume[name]
 
     def get_next_to_consume(self, node):
-        """
-        Return a list of the nodes that define `node` from this scope. If it is
+        """Return a list of the nodes that define `node` from this scope. If it is
         uncertain whether a node will be consumed, such as for statements in
         except blocks, add it to self.consumed_uncertain instead of returning it.
         Return None to indicate a special case that needs to be handled by the caller.
@@ -700,8 +692,7 @@ scope_type : {self._atomic.scope_type}
 
     @staticmethod
     def _uncertain_nodes_in_except_blocks(found_nodes, node, node_statement):
-        """
-        Return any nodes in ``found_nodes`` that should be treated as uncertain
+        """Return any nodes in ``found_nodes`` that should be treated as uncertain
         because they are in an except block.
         """
         uncertain_nodes = []
@@ -735,7 +726,7 @@ scope_type : {self._atomic.scope_type}
                 ):
                     uncertain_nodes.append(other_node)
                 else:
-                    # Assume the except blocks execute. Possiblility for a false negative
+                    # Assume the except blocks execute. Possibility for a false negative
                     # if one of the except blocks does not define the name in question,
                     # raise, or return. See: https://github.com/PyCQA/pylint/issues/5524.
                     continue
@@ -855,6 +846,10 @@ class VariablesChecker(BaseChecker):
         self._checking_mod_attr = None
         self._loop_variables = []
         self._type_annotation_names = []
+        self._except_handler_names_queue: List[
+            Tuple[nodes.ExceptHandler, nodes.AssignName]
+        ] = []
+        """This is a queue, last in first out"""
         self._postponed_evaluation_enabled = False
 
     def open(self) -> None:
@@ -1138,6 +1133,28 @@ class VariablesChecker(BaseChecker):
         self._undefined_and_used_before_checker(node, stmt)
         if self._is_undefined_loop_variable_enabled:
             self._loopvar_name(node)
+
+    @utils.check_messages("redefined-outer-name")
+    def visit_excepthandler(self, node: nodes.ExceptHandler) -> None:
+        if not node.name or not isinstance(node.name, nodes.AssignName):
+            return
+
+        for outer_except, outer_except_assign_name in self._except_handler_names_queue:
+            if node.name.name == outer_except_assign_name.name:
+                self.add_message(
+                    "redefined-outer-name",
+                    args=(outer_except_assign_name.name, outer_except.fromlineno),
+                    node=node,
+                )
+                break
+
+        self._except_handler_names_queue.append((node, node.name))
+
+    @utils.check_messages("redefined-outer-name")
+    def leave_excepthandler(self, node: nodes.ExceptHandler) -> None:
+        if not node.name or not isinstance(node.name, nodes.AssignName):
+            return
+        self._except_handler_names_queue.pop()
 
     def _undefined_and_used_before_checker(
         self, node: nodes.Name, stmt: nodes.NodeNG
@@ -1789,7 +1806,7 @@ class VariablesChecker(BaseChecker):
                 if defstmt_frame == node_frame and not ref_node.lineno < node.lineno:
                     break
 
-                # If the parent of the local reference is anything but a AnnAssign
+                # If the parent of the local reference is anything but an AnnAssign
                 # Or if the AnnAssign adds a value the variable will now have a value
                 #     var = 1  # OR
                 #     var: int = 1
@@ -1845,8 +1862,7 @@ class VariablesChecker(BaseChecker):
         return False
 
     def _ignore_class_scope(self, node):
-        """
-        Return True if the node is in a local class scope, as an assignment.
+        """Return True if the node is in a local class scope, as an assignment.
 
         :param node: Node considered
         :type node: astroid.Node
@@ -2168,8 +2184,7 @@ class VariablesChecker(BaseChecker):
     def _has_homonym_in_upper_function_scope(
         self, node: nodes.Name, index: int
     ) -> bool:
-        """
-        Return whether there is a node with the same name in the
+        """Return whether there is a node with the same name in the
         to_consume dict of an upper scope and if that scope is a
         function
 

@@ -104,7 +104,8 @@ class OutputLine(NamedTuple):
     @staticmethod
     def _get_py38_none_value(value: T, check_endline: bool) -> Optional[T]:
         """Used to make end_line and end_column None as indicated by our version compared to
-        `min_pyver_end_position`."""
+        `min_pyver_end_position`.
+        """
         if not check_endline:
             return None  # pragma: no cover
         return value
