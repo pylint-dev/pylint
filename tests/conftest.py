@@ -58,6 +58,11 @@ def reporter():
     return MinimalTestReporter
 
 
+@pytest.fixture
+def unicode_example_dir(tests_directory: Path) -> Path:
+    return tests_directory / "regrtest_data" / "unicode"
+
+
 def pytest_addoption(parser) -> None:
     parser.addoption(
         "--primer-stdlib",
