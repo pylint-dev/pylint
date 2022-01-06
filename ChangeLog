@@ -72,6 +72,10 @@ Release date: TBA
 
   Closes #5360, #3877
 
+* Fixed crash with slots assignments and annotated assignments.
+
+  Closes #5479
+
 * Fixed crash on list comprehensions that used ``type`` as inner variable name.
 
   Closes #5461
