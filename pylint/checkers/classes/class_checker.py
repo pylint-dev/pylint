@@ -1496,7 +1496,7 @@ a metaclass class method.",
                     # so we should not emit a warning for them.
                     return
                 if node.attrname in klass.locals:
-                    for local_name in klass.locals.get(node.attrname, []):
+                    for local_name in klass.locals.get(node.attrname):
                         statement = local_name.statement(future=True)
                         if (
                             isinstance(statement, nodes.AnnAssign)
