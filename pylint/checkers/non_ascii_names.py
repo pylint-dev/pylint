@@ -62,10 +62,10 @@ class NonAsciiNamesChecker(
 
     msgs = {
         "C2401": (
-            '%s name "%s" contains a non-ASCII character, rename it.',
+            '%s name "%s" contains a non-ASCII character, consider renaming it.',
             "non-ascii-identifier",
             (
-                "Used when the name contains at least one non-ASCII unicode character."
+                "Used when the name contains at least one non-ASCII unicode character. "
                 "See https://www.python.org/dev/peps/pep-0672/#confusable-characters-in-identifiers"
                 " for a background why this could be bad."
             ),
@@ -73,16 +73,16 @@ class NonAsciiNamesChecker(
         ),
         # First %s will always be "file"
         "W2402": (
-            '%s name "%s" contains a non-ASCII character. PEP 3131 only allows non-ascii identifiers!',
+            '%s name "%s" contains a non-ASCII character. PEP 3131 only allows non-ascii identifiers.',
             "non-ascii-file-name",
             (
                 # Some = PyCharm at the time of writing didn't display the non_ascii_name_loł
                 # files. Probably only a bug shows the problem quite good.
                 # That's also why this is a warning and not only a convention!
                 "Some editors don't support non-ASCII file names properly. "
-                "Even so Python supports UTF-8 files since Python 3.5 this isn't recommended for"
-                "interoperability. Further reading: \n"
-                "- https://www.python.org/dev/peps/pep-0489/#export-hook-name \n"
+                "Even so Python supports UTF-8 files since Python 3.5 this isn't recommended for "
+                "interoperability. Further reading:\n"
+                "- https://www.python.org/dev/peps/pep-0489/#export-hook-name\n"
                 "- https://www.python.org/dev/peps/pep-0672/#confusable-characters-in-identifiers\n"
                 "- https://bugs.python.org/issue20485\n"
             ),
@@ -173,17 +173,17 @@ class NonAsciiNamesChecker(
         arguments = node.args
 
         # Check position only arguments
-        if arguments.posonlyargs is not None:
+        if arguments.posonlyargs:
             for pos_only_arg in arguments.posonlyargs:
                 self._check_name("argument", pos_only_arg.name, pos_only_arg)
 
         # Check "normal" arguments
         args = arguments.args
-        if args is not None:
+        if args:
             self._recursive_check_names(args)
 
         # Check key word only arguments
-        if arguments.kwonlyargs is not None:
+        if arguments.kwonlyargs:
             for kwarg in arguments.kwonlyargs:
                 self._check_name("argument", kwarg.name, kwarg)
 

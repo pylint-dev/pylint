@@ -1732,7 +1732,7 @@ class NameCheckerHelper:
         raise NotImplementedError
 
     def _recursive_check_names(self, args: Iterable[nodes.AssignName]):
-        """check names in a possibly recursive list <arg>"""
+        """Check names in a possibly recursive list <arg>"""
         for arg in args:
             if isinstance(arg, nodes.AssignName):
                 self._check_name("argument", arg.name, arg)

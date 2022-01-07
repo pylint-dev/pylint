@@ -1,5 +1,8 @@
 """
 Defining non ASCII variables in a function call
+
+This test is 3.9+ and not using 'min_pyver_end_position'
+as the starting column is also incorrect on < 3.9
 """
 
 

@@ -1,5 +1,7 @@
 """
 non ascii variable defined in a function
+
+This test is only for 3.8 as the starting column is incorrect
 """
 
 

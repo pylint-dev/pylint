@@ -1,1 +1,1 @@
-non-ascii-identifier:12:4:14:19:OkayClass.umlaut_ä:"Function name ""umlaut_ä"" contains a non-ASCII character, rename it.":HIGH
+non-ascii-identifier:12:4:14:19:OkayClass.umlaut_ä:"Function name ""umlaut_ä"" contains a non-ASCII character, consider renaming it.":HIGH

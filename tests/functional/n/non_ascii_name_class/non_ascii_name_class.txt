@@ -1,1 +1,1 @@
-non-ascii-identifier:5:0:10:19:НoldIt:"Class name ""НoldIt"" contains a non-ASCII character, rename it.":HIGH
+non-ascii-identifier:5:0:10:19:НoldIt:"Class name ""НoldIt"" contains a non-ASCII character, consider renaming it.":HIGH

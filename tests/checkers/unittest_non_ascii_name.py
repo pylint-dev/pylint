@@ -36,7 +36,7 @@ class TestNonAsciiChecker(pylint.testutils.CheckerTestCase):
             """
         )
         assert isinstance(node, nodes.FunctionDef)
-        arguments: nodes.Arguments = node.args
+        arguments = node.args
 
         posargs = list(arguments.posonlyargs)
         args = list(arguments.args)

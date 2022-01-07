@@ -1,1 +1,1 @@
-non-ascii-file-name:1:0:None:None::"File name ""non_ascii_name_loł"" contains a non-ASCII character. PEP 3131 only allows non-ascii identifiers!":HIGH
+non-ascii-file-name:1:0:None:None::"File name ""non_ascii_name_loł"" contains a non-ASCII character. PEP 3131 only allows non-ascii identifiers.":HIGH
