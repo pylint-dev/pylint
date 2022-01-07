@@ -25,7 +25,6 @@ New checkers
 
 Removed checkers
 ================
-* ``non-ascii-name`` has been renamed to ``non-ascii-identifier``
 
 Extensions
 ==========

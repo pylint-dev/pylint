@@ -73,14 +73,14 @@ import collections
 import itertools
 import re
 import sys
-from typing import TYPE_CHECKING, Any, Dict, Iterable, Iterator, Optional, Pattern, cast
+from typing import TYPE_CHECKING, Any, Dict, Iterator, Optional, Pattern, cast
 
 import astroid
 from astroid import nodes
 
-from pylint import checkers, constants, interfaces
+from pylint import constants, interfaces
 from pylint import utils as lint_utils
-from pylint.checkers import utils
+from pylint.checkers import base_checker, utils
 from pylint.checkers.utils import (
     infer_all,
     is_overload_stub,
@@ -456,12 +456,7 @@ def redefined_by_decorator(node):
     return False
 
 
-class _BasicChecker(checkers.BaseChecker):
-    __implements__ = interfaces.IAstroidChecker
-    name = "basic"
-
-
-class BasicErrorChecker(_BasicChecker):
+class BasicErrorChecker(base_checker._BasicChecker):
     msgs = {
         "E0100": (
             "__init__ method is a generator",
@@ -937,7 +932,7 @@ class BasicErrorChecker(_BasicChecker):
             )
 
 
-class BasicChecker(_BasicChecker):
+class BasicChecker(base_checker._BasicChecker):
     """checks for :
     * doc strings
     * number of arguments, local variables, branches, returns and statements in
@@ -1719,31 +1714,7 @@ def _create_naming_options():
     return tuple(name_options)
 
 
-class NameCheckerHelper:
-    """Class containing functions required by NameChecker and NonAsciiNamesChecker"""
-
-    def _check_name(
-        self, node_type: str, name: str, node: nodes.NodeNG, optional_kwarg: Any = None
-    ):
-        """Only Dummy function will be overwritten by implementing classes
-
-        Note: kwarg arguments will be different in implementing classes
-        """
-        raise NotImplementedError
-
-    def _recursive_check_names(self, args: Iterable[nodes.AssignName]):
-        """Check names in a possibly recursive list <arg>"""
-        for arg in args:
-            if isinstance(arg, nodes.AssignName):
-                self._check_name("argument", arg.name, arg)
-            else:
-                # pylint: disable-next=fixme
-                # TODO: Check if we can remove this if branch because of
-                #       the up to date astroid version used
-                self._recursive_check_names(arg.elts)
-
-
-class NameChecker(_BasicChecker, NameCheckerHelper):
+class NameChecker(base_checker._NameCheckerBase):
     msgs = {
         "C0103": (
             '%s name "%s" doesn\'t conform to %s',
@@ -2043,7 +2014,6 @@ class NameChecker(_BasicChecker, NameCheckerHelper):
             pattern.match(name) for pattern in self._bad_names_rgxs_compiled
         )
 
-    # pylint: disable-next=arguments-renamed
     def _check_name(self, node_type, name, node, confidence=interfaces.HIGH):
         """check for a name using the type's regexp"""
 
@@ -2092,7 +2062,7 @@ class NameChecker(_BasicChecker, NameCheckerHelper):
         return None
 
 
-class DocStringChecker(_BasicChecker):
+class DocStringChecker(base_checker._BasicChecker):
     msgs = {
         "C0112": (
             "Empty %s docstring",
@@ -2258,7 +2228,7 @@ class DocStringChecker(_BasicChecker):
             )
 
 
-class PassChecker(_BasicChecker):
+class PassChecker(base_checker._BasicChecker):
     """check if the pass statement is really necessary"""
 
     msgs = {
@@ -2300,7 +2270,7 @@ def _infer_dunder_doc_attribute(node):
     return docstring.value
 
 
-class ComparisonChecker(_BasicChecker):
+class ComparisonChecker(base_checker._BasicChecker):
     """Checks for comparisons
 
     - singleton comparison: 'expr == True', 'expr == False' and 'expr == None'

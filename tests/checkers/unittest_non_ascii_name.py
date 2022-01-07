@@ -11,8 +11,8 @@ import pylint.testutils
 
 
 class TestNonAsciiChecker(pylint.testutils.CheckerTestCase):
-    CHECKER_CLASS = pylint.checkers.non_ascii_names.NonAsciiNamesChecker
-    checker: pylint.checkers.non_ascii_names.NonAsciiNamesChecker
+    CHECKER_CLASS = pylint.checkers.non_ascii_names.NonAsciiNameChecker
+    checker: pylint.checkers.non_ascii_names.NonAsciiNameChecker
 
     @pytest.mark.skipif(
         sys.version_info < (3, 8), reason="requires python3.8 or higher"

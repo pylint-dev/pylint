@@ -10,23 +10,13 @@ See: https://www.python.org/dev/peps/pep-0672/#confusable-characters-in-identifi
 The following checkers are intended to make users are aware of these issues.
 """
 
-import re
 import sys
 from typing import Optional, Union
 
 from astroid import nodes
 
-import pylint.checkers.base
-import pylint.checkers.utils
-from pylint import interfaces
-from pylint.constants import HUMAN_READABLE_TYPES
-from pylint.lint import PyLinter
-
-if sys.version_info >= (3, 8):
-    from typing import Protocol
-else:
-    from typing_extensions import Protocol
-
+from pylint import constants, interfaces, lint
+from pylint.checkers import base_checker, utils
 
 if sys.version_info[:2] >= (3, 7):
     # pylint: disable-next=fixme
@@ -40,13 +30,7 @@ else:
             return all("\u0000" <= x <= "\u007F" for x in self)
 
 
-class _AsciiOnlyCheckedNode(Protocol):
-    _is_ascii_only: bool
-
-
-class NonAsciiNamesChecker(
-    pylint.checkers.BaseChecker, pylint.checkers.base.NameCheckerHelper
-):
+class NonAsciiNameChecker(base_checker._NameCheckerBase):
     """A strict name checker only allowing ASCII
 
     If your programming guideline defines that you are programming in English,
@@ -101,36 +85,12 @@ class NonAsciiNamesChecker(
 
     name = "NonASCII-Checker"
 
-    def __init__(self, linter: PyLinter) -> None:
-        super().__init__(linter)
-        self._non_ascii_rgx_compiled = re.compile("[^A-Za-z0-9_]")
-
-    def _raise_name_warning(
-        self,
-        node: nodes.NodeNG,
-        node_type: str,
-        name: str,
-    ) -> None:
-        type_label = HUMAN_READABLE_TYPES.get(node_type, node_type)
-        args = (type_label.capitalize(), name)
-
-        msg = "non-ascii-name"
-
-        # Some node types have customized messages
-        if node_type == "file":
-            msg = "non-ascii-file-name"
-        elif node_type == "module":
-            msg = "non-ascii-module-import"
-
-        self.add_message(msg, node=node, args=args, confidence=interfaces.HIGH)
-
-    # pylint: disable-next=arguments-renamed
     def _check_name(
         self,
         node_type: str,
-        name: str,
-        node: Union[nodes.NodeNG, _AsciiOnlyCheckedNode],
-        check_string: Optional[str] = None,
+        name: Optional[str],
+        node: nodes.NodeNG,
+        confidence=interfaces.HIGH,
     ) -> None:
         """Check whether a name is using non-ASCII characters.
 
@@ -139,31 +99,29 @@ class NonAsciiNamesChecker(
         too many edge cases.
         """
 
-        current_state = getattr(node, "_is_ascii_only", True)
-
         if name is None:
             # For some nodes i.e. *kwargs from a dict, the name will be empty
             return
 
-        if check_string is None:
-            check_string = name
+        if not (Py37Str(name).isascii()):
+            type_label = constants.HUMAN_READABLE_TYPES.get(node_type, node_type)
+            args = (type_label.capitalize(), name)
 
-        if not (
-            Py37Str(check_string).isascii()
-            and self._non_ascii_rgx_compiled.match(check_string) is None
-        ):
-            # Note that we require the `.isascii` method as it is fast and
-            # handles the complexities of unicode, so we can use simple regex.
-            self._raise_name_warning(node, node_type, name)
-            current_state = False
+            msg = "non-ascii-name"
 
-        node._is_ascii_only = current_state  # pylint: disable=protected-access
+            # Some node types have customized messages
+            if node_type == "file":
+                msg = "non-ascii-file-name"
+            elif node_type == "module":
+                msg = "non-ascii-module-import"
 
-    @pylint.checkers.utils.check_messages("non-ascii-name")
+            self.add_message(msg, node=node, args=args, confidence=confidence)
+
+    @utils.check_messages("non-ascii-name")
     def visit_module(self, node: nodes.Module) -> None:
         self._check_name("file", node.name.split(".")[-1], node)
 
-    @pylint.checkers.utils.check_messages("non-ascii-name")
+    @utils.check_messages("non-ascii-name")
     def visit_functiondef(
         self, node: Union[nodes.FunctionDef, nodes.AsyncFunctionDef]
     ) -> None:
@@ -189,12 +147,12 @@ class NonAsciiNamesChecker(
 
     visit_asyncfunctiondef = visit_functiondef
 
-    @pylint.checkers.utils.check_messages("non-ascii-name")
+    @utils.check_messages("non-ascii-name")
     def visit_global(self, node: nodes.Global) -> None:
         for name in node.names:
             self._check_name("const", name, node)
 
-    @pylint.checkers.utils.check_messages("non-ascii-name")
+    @utils.check_messages("non-ascii-name")
     def visit_assignname(self, node: nodes.AssignName) -> None:
         """check module level assigned names"""
         # The NameChecker from which this Checker originates knows a lot of different
@@ -202,63 +160,49 @@ class NonAsciiNamesChecker(
         # To simplify we use only `variable` here, as we don't need to apply different
         # rules to different types of variables.
         frame = node.frame()
-        assign_type = node.assign_type()
-        if isinstance(assign_type, nodes.Comprehension):
-            # called inlinevar in NamesChecker
-            self._check_name("variable", node.name, node)
-        elif isinstance(frame, nodes.Module):
-            self._check_name("variable", node.name, node)
-        elif isinstance(frame, nodes.FunctionDef):
-            if not hasattr(node, "_is_ascii_only"):
-                # only check if not already done
+
+        if isinstance(frame, nodes.FunctionDef):
+            if node.parent in frame.body:
+                # Only perform the check if the assigment was done in within the body
+                # of the function (and not the function parameter definition
+                # (will be handled in visit_functiondef)
+                # or within a decorator (handled in visit_call)
                 self._check_name("variable", node.name, node)
         elif isinstance(frame, nodes.ClassDef):
             self._check_name("attr", node.name, node)
         else:
-            # Just to make sure we check EVERYTHING (!)
+            # Possibilities here:
+            # - isinstance(node.assign_type(), nodes.Comprehension) == inlinevar
+            # - isinstance(frame, nodes.Module) == variable (constant?)
+            # - some other kind of assigment missed but still most likely a variable
             self._check_name("variable", node.name, node)
 
-    @pylint.checkers.utils.check_messages("non-ascii-name")
+    @utils.check_messages("non-ascii-name")
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         self._check_name("class", node.name, node)
         for attr, anodes in node.instance_attrs.items():
             if not any(node.instance_attr_ancestors(attr)):
                 self._check_name("attr", attr, anodes[0])
 
-    def _check_module_import(
-        self, node: Union[nodes.ImportFrom, nodes.Import], is_import_from: bool = False
-    ):
+    def _check_module_import(self, node: Union[nodes.ImportFrom, nodes.Import]):
         for module_name, alias in node.names:
-            if alias:
-                name = alias
-            else:
-                if is_import_from and module_name == "*":
-                    # Ignore ``from xyz import *``
-                    continue
-                name = module_name
+            name = alias or module_name
+            self._check_name("module", name, node)
 
-            if is_import_from or alias:
-                self._check_name("module", name, node)
-            else:
-                # Normal module import can contain "." for which we don't want to check
-                self._check_name(
-                    "module", name, node, check_string=name.replace(".", "")
-                )
-
-    @pylint.checkers.utils.check_messages("non-ascii-name")
+    @utils.check_messages("non-ascii-name")
     def visit_import(self, node: nodes.Import) -> None:
         self._check_module_import(node)
 
-    @pylint.checkers.utils.check_messages("non-ascii-name")
+    @utils.check_messages("non-ascii-name")
     def visit_importfrom(self, node: nodes.ImportFrom) -> None:
-        self._check_module_import(node, is_import_from=True)
+        self._check_module_import(node)
 
-    @pylint.checkers.utils.check_messages("non-ascii-name")
+    @utils.check_messages("non-ascii-name")
     def visit_call(self, node: nodes.Call) -> None:
         # lets check if the used keyword args are correct
         for keyword in node.keywords:
             self._check_name("argument", keyword.arg, keyword)
 
 
-def register(linter: PyLinter) -> None:
-    linter.register_checker(NonAsciiNamesChecker(linter))
+def register(linter: lint.PyLinter) -> None:
+    linter.register_checker(NonAsciiNameChecker(linter))

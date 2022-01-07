@@ -19,10 +19,11 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 import functools
 from inspect import cleandoc
-from typing import Any, Optional
+from typing import Any, Iterable, Optional
 
 from astroid import nodes
 
+from pylint import interfaces
 from pylint.config import OptionsProviderMixIn
 from pylint.constants import _MSG_ORDER, WarningScope
 from pylint.exceptions import InvalidMessageError
@@ -201,3 +202,32 @@ class BaseTokenChecker(BaseChecker):
     def process_tokens(self, tokens):
         """Should be overridden by subclasses."""
         raise NotImplementedError()
+
+
+class _BasicChecker(BaseChecker):
+    __implements__ = interfaces.IAstroidChecker
+    name = "basic"
+
+
+class _NameCheckerBase(_BasicChecker):
+    """Class containing functions required by NameChecker and NonAsciiNameChecker"""
+
+    def _check_name(
+        self, node_type: str, name: str, node: nodes.NodeNG, confidence=interfaces.HIGH
+    ):
+        """Only Dummy function will be overwritten by implementing classes
+
+        Note: kwarg arguments will be different in implementing classes
+        """
+        raise NotImplementedError
+
+    def _recursive_check_names(self, args: Iterable[nodes.AssignName]):
+        """Check names in a possibly recursive list <arg>"""
+        for arg in args:
+            if isinstance(arg, nodes.AssignName):
+                self._check_name("argument", arg.name, arg)
+            else:
+                # pylint: disable-next=fixme
+                # TODO: Check if we can remove this if branch because of
+                #       the up to date astroid version used
+                self._recursive_check_names(arg.elts)

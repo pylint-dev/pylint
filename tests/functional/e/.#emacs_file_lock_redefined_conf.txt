@@ -1,2 +1,1 @@
 invalid-name:1:0:None:None::"Module name ""#emacs_file_lock_redefined_conf"" doesn't conform to snake_case naming style":HIGH
-non-ascii-file-name:1:0:None:None::"File name ""#emacs_file_lock_redefined_conf"" contains a non-ASCII character. PEP 3131 only allows non-ascii identifiers.":HIGH
