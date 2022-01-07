@@ -4,5 +4,5 @@ import os
 
 foo = [
     f"{łol}                                                                       "
-    for łol in os.listdir(".")  # [non-ascii-identifier]
+    for łol in os.listdir(".")  # [non-ascii-name]
 ]

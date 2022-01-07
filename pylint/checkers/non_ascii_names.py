@@ -63,13 +63,13 @@ class NonAsciiNamesChecker(
     msgs = {
         "C2401": (
             '%s name "%s" contains a non-ASCII character, consider renaming it.',
-            "non-ascii-identifier",
+            "non-ascii-name",
             (
                 "Used when the name contains at least one non-ASCII unicode character. "
                 "See https://www.python.org/dev/peps/pep-0672/#confusable-characters-in-identifiers"
                 " for a background why this could be bad."
             ),
-            {"old_names": [("C0144", "non-ascii-name")]},
+            {"old_names": [("C0144", "old-non-ascii-name")]},
         ),
         # First %s will always be "file"
         "W2402": (

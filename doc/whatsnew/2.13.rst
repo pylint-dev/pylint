@@ -14,7 +14,7 @@ New checkers
 
   Closes #5460
 
-* Renamed  ``non-ascii-name`` to ``non-ascii-identifier`` and rewrote the checker.
+* Rewrote Checker of ``non-ascii-name``.
    It now ensures __all__ Python names are ASCII and also properly
    checks the names of imports (``non-ascii-module-import``) as
    well as file names (``non-ascii-file-name``) and emits their respective new warnings.

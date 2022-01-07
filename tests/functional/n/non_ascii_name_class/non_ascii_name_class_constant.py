@@ -3,7 +3,7 @@
 
 class OkayIsh:
     """Class docstring"""
-    ŁOOPBACK = "invalid"  # [non-ascii-identifier]
+    ŁOOPBACK = "invalid"  # [non-ascii-name]
 
 
     def more_public(self):
