@@ -1,2 +1,4 @@
-iterating-modified-list:3:4:3:26::Iterated list 'item_list' is being modified inside loop body, consider iterating through a copy of it instead.:UNDEFINED
-iterating-modified-list:9:4:9:26::Iterated list 'item_list' is being modified inside loop body, consider iterating through a copy of it instead.:UNDEFINED
+iterating-modified-list:8:4:8:26::Iterated list 'item_list' is being modified inside loop body, consider iterating through a copy of it instead.:UNDEFINED
+iterating-modified-list:11:4:11:26::Iterated list 'item_list' is being modified inside loop body, consider iterating through a copy of it instead.:UNDEFINED
+iterating-modified-dict:28:4:28:18::Iterated dict 'my_dict' is being modified inside loop body, iterate through a copy of it instead.:UNDEFINED
+iterating-modified-set:38:4:38:27::Iterated set 'item_set' is being modified inside loop body, iterate through a copy of it instead.:UNDEFINED

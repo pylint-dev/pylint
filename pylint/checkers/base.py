@@ -2557,70 +2557,6 @@ class ComparisonChecker(_BasicChecker):
         self.add_message("unidiomatic-typecheck", node=node)
 
 
-class ModifiedIterationChecker(_BasicChecker):
-    """Checks for modified for loops iterations
-    Currently supports `for` loops for Sets, Dictionaries and Lists.
-    """
-
-    __implements__ = interfaces.IAstroidChecker
-
-    msgs = {
-        "W4714": (
-            "Iterated list '%s' is being modified inside loop body, consider iterating through a copy of it instead.",
-            "iterating-modified-list",
-            "Emitted when items are added or removed to a list being iterated through."
-            "Doing so can result in unexpected behaviour, that is why it is preferred to use a copy of the list.",
-        ),
-        "E4714": (
-            "Iterated dict '%s' is being modified inside loop body, iterate through a copy of it instead.",
-            "iterating-modified-dict",
-            "Emitted when items are added or removed to a dict being iterated through."
-            "Doing so raises a RuntimeError",
-        ),
-        "E4715": (
-            "Iterated set '%s' is being modified inside loop body, iterate through a copy of it instead.",
-            "iterating-modified-set",
-            "Emitted when items are added or removed to a set being iterated through."
-            "Doing so raises a RuntimeError",
-        ),
-    }
-
-    options = ()
-    priority = -2
-
-    @utils.check_messages(
-        "iterating-modified-list", "iterating-modified-dict", "iterating-modified-set"
-    )
-    def visit_for(self, node: nodes.For) -> None:
-        iter_list_obj = node.iter
-        for body_node in node.body:
-            try:
-                if (
-                    self._is_attribute_call_expr(body_node)
-                    and (
-                        next(body_node.value.func.expr.infer())
-                        == iter_list_obj.inferred()[0]
-                    )
-                    and body_node.value.func.attrname in {"append", "remove"}
-                    and body_node.value.func.expr.name == iter_list_obj.name
-                ):
-                    self.add_message(
-                        "iterating-modified-list",
-                        node=body_node,
-                        args=(iter_list_obj.name,),
-                    )
-            except astroid.InferenceError:
-                pass
-
-    @staticmethod
-    def _is_attribute_call_expr(body_node) -> bool:
-        return (
-            isinstance(body_node, astroid.Expr)
-            and isinstance(body_node.value, astroid.Call)
-            and isinstance(body_node.value.func, astroid.Attribute)
-        )
-
-
 def register(linter: "PyLinter") -> None:
     linter.register_checker(BasicErrorChecker(linter))
     linter.register_checker(BasicChecker(linter))
@@ -2628,4 +2564,3 @@ def register(linter: "PyLinter") -> None:
     linter.register_checker(DocStringChecker(linter))
     linter.register_checker(PassChecker(linter))
     linter.register_checker(ComparisonChecker(linter))
-    linter.register_checker(ModifiedIterationChecker(linter))
