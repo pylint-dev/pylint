@@ -191,6 +191,15 @@ Release date: TBA
   (Ie. not necessarily at the end)
 
 
+What's New in Pylint 2.12.3?
+============================
+Release date:
+
+* Fixed handling of missing 'ancestors' object attribute.
+
+  Closes #5646
+
+
 What's New in Pylint 2.12.2?
 ============================
 Release date: 2021-11-25

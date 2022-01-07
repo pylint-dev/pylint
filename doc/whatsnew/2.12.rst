@@ -255,3 +255,8 @@ Other Changes
   or ``not in`` checks
 
   Closes #5323
+
+* Fixed handling of missing 'ancestors' object attribute.
+
+  Closes #5646
+

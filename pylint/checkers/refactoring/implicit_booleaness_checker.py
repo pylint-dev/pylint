@@ -213,5 +213,5 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
         """Return all the classes names that a ClassDef inherit from including 'object'."""
         try:
             return [instance.name] + [x.name for x in instance.ancestors()]
-        except TypeError:
+        except (TypeError, AttributeError):
             return [instance.name]

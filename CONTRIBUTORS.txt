@@ -595,3 +595,6 @@ contributors:
 * Eero Vuojolahti: contributor
 
 * Kian-Meng, Ang: contributor
+
+* Julia Eskew (doctoryes): contributor
+  - Fixed issue 5646, handle when the 'ancestors' attribute is not present in an object
