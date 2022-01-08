@@ -16,6 +16,10 @@ Release date: TBA
 
   Closes #578
 
+* Emit ``redefined-outer-name`` when a loop variable is redefined in the loop
+  body. Previously, only redefinitions taking place in nested loops were flagged.
+
+  Closes #5608
 
 * Fix false negative for ``no-member`` when attempting to assign an instance
   attribute to itself without any prior assignment.

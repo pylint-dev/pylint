@@ -467,9 +467,10 @@ MSGS = {
         "`'from X import *'` style import.",
     ),
     "W0621": (
-        "Redefining name %r from outer scope (line %s)",
+        "Redefining name %r from outer scope or loop (line %s)",
         "redefined-outer-name",
-        "Used when a variable's name hides a name defined in the outer scope.",
+        "Used when a variable's name hides a name defined in an outer scope, "
+        "for loop, or except handler.",
     ),
     "W0622": (
         "Redefining built-in %r",
@@ -982,7 +983,7 @@ class VariablesChecker(BaseChecker):
     Checks for
     * unused variables / imports
     * undefined variables
-    * redefinition of variable from builtins or from an outer scope
+    * redefinition of variable from builtins or from an outer scope, for loop, or except handler
     * use of variable before assignment
     * __all__ consistency
     * self/cls assignment
@@ -1358,6 +1359,19 @@ class VariablesChecker(BaseChecker):
             self.add_message("global-statement", node=node)
 
     def visit_assignname(self, node: nodes.AssignName) -> None:
+        if self.linter.is_message_enabled("redefined-outer-name") and isinstance(
+            node.parent, nodes.Assign
+        ):
+            for outer_for, outer_variables in self._loop_variables:
+                if node.name in outer_variables and not in_for_else_branch(
+                    outer_for, node
+                ):
+                    self.add_message(
+                        "redefined-outer-name",
+                        args=(node.name, outer_for.fromlineno),
+                        node=node,
+                    )
+                    break
         if isinstance(node.assign_type(), nodes.AugAssign):
             self.visit_name(node)
 

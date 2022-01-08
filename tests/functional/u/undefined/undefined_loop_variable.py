@@ -21,7 +21,7 @@ B = [B for B in  __revision__ if B.isalpha()]
 VAR2 = B # nor this one
 
 for var1, var2 in TEST_LC:
-    var1 = var2 + 4
+    var1 = var2 + 4  # pylint: disable=redefined-outer-name
 VAR3 = var1 # [undefined-loop-variable]
 
 for note in __revision__:

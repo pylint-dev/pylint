@@ -76,7 +76,7 @@ def good_case10():
     lst = []
     for i in range(10):  # pylint: disable=unused-variable
         def func():
-            i = 100
+            i = 100  # pylint: disable=redefined-outer-name
             def func2(arg=i):
                 return arg
 
