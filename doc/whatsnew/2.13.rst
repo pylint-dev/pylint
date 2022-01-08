@@ -116,7 +116,7 @@ Other Changes
 
   Closes #5461
 
-* Fix false positive for `unused-variable` for a comprehension variable matching
+* Fix false positive for ``unused-variable`` for a comprehension variable matching
   an outer scope type annotation.
 
   Refs #5326
