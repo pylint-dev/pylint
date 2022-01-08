@@ -37,6 +37,11 @@ Release date: TBA
 
   Closes #5483
 
+* Fixed crash on properties and inherited class methods when comparing them for
+  equality against an empty dict.
+
+  Closes #5646
+
 * Fixed a false positive for ``assigning-non-slot`` when the slotted class
   defined ``__setattr__``.
 
