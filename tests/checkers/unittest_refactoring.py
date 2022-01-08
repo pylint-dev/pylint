@@ -46,23 +46,27 @@ class ChildClassWithoutBool(ClassWithoutBool):
 """
     )
     with_bool, without_bool, child_with_bool, child_without_bool = module.body
-    assert ImplicitBooleanessChecker().base_classes_of_node(with_bool) == [
+    assert ImplicitBooleanessChecker().base_classes_and_return_names(with_bool) == [
         "ClassWithBool",
         "list",
         "object",
     ]
-    assert ImplicitBooleanessChecker().base_classes_of_node(without_bool) == [
+    assert ImplicitBooleanessChecker().base_classes_and_return_names(without_bool) == [
         "ClassWithoutBool",
         "dict",
         "object",
     ]
-    assert ImplicitBooleanessChecker().base_classes_of_node(child_with_bool) == [
+    assert ImplicitBooleanessChecker().base_classes_and_return_names(
+        child_with_bool
+    ) == [
         "ChildClassWithBool",
         "ClassWithBool",
         "list",
         "object",
     ]
-    assert ImplicitBooleanessChecker().base_classes_of_node(child_without_bool) == [
+    assert ImplicitBooleanessChecker().base_classes_and_return_names(
+        child_without_bool
+    ) == [
         "ChildClassWithoutBool",
         "ClassWithoutBool",
         "dict",
