@@ -83,7 +83,7 @@ Release date: TBA
 * Fix false positive for ``unused-variable`` for a comprehension variable matching
   an outer scope type annotation.
 
-  Refs #5326
+  Closes #5326
 
 * Some files in ``pylint.testutils`` were deprecated. In the future imports should be done from the
   ``pylint.testutils.functional`` namespace directly.
