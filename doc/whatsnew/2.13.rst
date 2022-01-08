@@ -116,6 +116,11 @@ Other Changes
 
   Closes #5461
 
+* Fix false positive for `unused-variable` for a comprehension variable matching
+  an outer scope type annotation.
+
+  Refs #5326
+
 * Require Python ``3.6.2`` to run pylint.
 
   Closes #5065
