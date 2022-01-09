@@ -98,20 +98,23 @@ class PrivateImportChecker(BaseChecker):
         """
         for name in node.locals:
             for usage_node in node.locals[name]:
-                if isinstance(usage_node, nodes.AssignName) and isinstance(
-                    usage_node.parent, nodes.AnnAssign
-                ):
-                    PrivateImportChecker._populate_type_annotations_annotation(
-                        usage_node.parent.annotation, all_used_type_annotations
-                    )
-                if isinstance(usage_node, nodes.FunctionDef):
-                    PrivateImportChecker._populate_type_annotations_function(
-                        usage_node, all_used_type_annotations
-                    )
-                if isinstance(usage_node, nodes.LocalsDictNodeNG):
-                    PrivateImportChecker._populate_type_annotations(
-                        usage_node, all_used_type_annotations
-                    )
+                try:
+                    if isinstance(usage_node, nodes.AssignName) and isinstance(
+                        usage_node.parent, nodes.AnnAssign
+                    ):
+                        PrivateImportChecker._populate_type_annotations_annotation(
+                            usage_node.parent.annotation, all_used_type_annotations
+                        )
+                    if isinstance(usage_node, nodes.FunctionDef):
+                        PrivateImportChecker._populate_type_annotations_function(
+                            usage_node, all_used_type_annotations
+                        )
+                    if isinstance(usage_node, nodes.LocalsDictNodeNG):
+                        PrivateImportChecker._populate_type_annotations(
+                            usage_node, all_used_type_annotations
+                        )
+                except AttributeError:
+                    continue # Silently prune unexpected missing fields while processing names
 
     @staticmethod
     def _populate_type_annotations_function(
