@@ -114,7 +114,7 @@ class PrivateImportChecker(BaseChecker):
                             usage_node, all_used_type_annotations
                         )
                 except AttributeError:
-                    continue # Silently prune unexpected missing fields while processing names
+                    continue  # Silently prune unexpected missing fields while processing names
 
     @staticmethod
     def _populate_type_annotations_function(
