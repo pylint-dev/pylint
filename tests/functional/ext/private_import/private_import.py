@@ -25,7 +25,7 @@ from astroid import _private # [import-private-name]
 from sys import _private # [import-private-name]
 
 # Ignore typecheck
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Optional
 if TYPE_CHECKING:
     import _TreeType
     from types import _TreeType
@@ -42,3 +42,9 @@ def b_func(class_b: _PrivateClassB):
 
 def c_func() -> _PrivateClassC:
     return None
+
+from classes import _SubScriptA
+from classes import _SubScriptB
+
+a: Optional[_SubScriptA]
+b: Optional[_SubScriptB[List]]
