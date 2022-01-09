@@ -40,6 +40,13 @@ def global_no_assign():
     print(CONSTANT)
 
 
+def global_del():
+    """Deleting the global name prevents `global-variable-not-assigned`"""
+    global CONSTANT  # [global-statement]
+    print(CONSTANT)
+    del CONSTANT
+
+
 def global_operator_assign():
     """Operator assigns should only throw a global statement error"""
     global CONSTANT  # [global-statement]

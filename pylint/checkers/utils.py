@@ -1672,6 +1672,15 @@ def is_reassigned_after_current(node: nodes.NodeNG, varname: str) -> bool:
     )
 
 
+def is_deleted_after_current(node: nodes.NodeNG, varname: str) -> bool:
+    """Check if the given variable name is deleted in the same scope after the current node"""
+    return any(
+        getattr(target, "name", None) == varname and target.lineno > node.lineno
+        for del_node in node.scope().nodes_of_class(nodes.Delete)
+        for target in del_node.targets
+    )
+
+
 def is_function_body_ellipsis(node: nodes.FunctionDef) -> bool:
     """Checks whether a function body only consists of a single Ellipsis"""
     return (
