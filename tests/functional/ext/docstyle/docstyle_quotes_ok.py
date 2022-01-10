@@ -1,6 +1,5 @@
-# pylint: disable=undefined-variable
-
 """Checks of ok-ish docstrings."""
+# pylint: disable=undefined-variable
 
 
 def function2():
