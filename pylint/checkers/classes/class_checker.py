@@ -970,6 +970,9 @@ a metaclass class method.",
                 if attribute.attrname != assign_attr.attrname:
                     continue
 
+                if self._is_type_self_call(attribute.expr):
+                    continue
+
                 if (
                     assign_attr.expr.name
                     in {
@@ -2034,11 +2037,19 @@ a metaclass class method.",
 
         Name is `self` for method, `cls` for classmethod and `mcs` for metaclass.
         """
-        return (
-            self._first_attrs
-            and isinstance(node, nodes.Name)
-            and node.name == self._first_attrs[-1]
-        )
+        if self._first_attrs:
+            first_attr = self._first_attrs[-1]
+        else:
+            # It's possible the function was already unregistered.
+            closest_func = utils.get_node_first_ancestor_of_type(
+                node, nodes.FunctionDef
+            )
+            if closest_func is None:
+                return False
+            if not closest_func.args.args:
+                return False
+            first_attr = closest_func.args.args[0].name
+        return isinstance(node, nodes.Name) and node.name == first_attr
 
 
 def _ancestors_to_call(klass_node, method="__init__"):
