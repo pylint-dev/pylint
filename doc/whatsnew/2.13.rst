@@ -195,3 +195,7 @@ Other Changes
       raise ValueError
 
   Closes #4955
+
+* Fixed false positive for ``global-variable-not-assigned`` when the ``del`` statement is used
+
+  Closes #5333

@@ -1128,6 +1128,7 @@ class VariablesChecker(BaseChecker):
             )
             if (
                 not utils.is_reassigned_after_current(node, name)
+                and not utils.is_deleted_after_current(node, name)
                 and not_defined_locally_by_import
             ):
                 self.add_message("global-variable-not-assigned", args=name, node=node)
