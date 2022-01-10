@@ -30,7 +30,7 @@ else:
             return all("\u0000" <= x <= "\u007F" for x in self)
 
 
-class NonAsciiNameChecker(base_checker._NameCheckerBase):
+class NonAsciiNameChecker(base_checker.BaseChecker):
     """A strict name checker only allowing ASCII
 
     If your programming guideline defines that you are programming in English,
@@ -136,9 +136,9 @@ class NonAsciiNameChecker(base_checker._NameCheckerBase):
                 self._check_name("argument", pos_only_arg.name, pos_only_arg)
 
         # Check "normal" arguments
-        args = arguments.args
-        if args:
-            self._recursive_check_names(args)
+        args = arguments.args or tuple()
+        for arg in args:
+            self._check_name("argument", arg.name, arg)
 
         # Check key word only arguments
         if arguments.kwonlyargs:

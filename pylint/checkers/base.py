@@ -78,9 +78,9 @@ from typing import TYPE_CHECKING, Any, Dict, Iterator, Optional, Pattern, cast
 import astroid
 from astroid import nodes
 
-from pylint import constants, interfaces
+from pylint import checkers, constants, interfaces
 from pylint import utils as lint_utils
-from pylint.checkers import base_checker, utils
+from pylint.checkers import utils
 from pylint.checkers.utils import (
     infer_all,
     is_overload_stub,
@@ -456,7 +456,12 @@ def redefined_by_decorator(node):
     return False
 
 
-class BasicErrorChecker(base_checker._BasicChecker):
+class _BasicChecker(checkers.BaseChecker):
+    __implements__ = interfaces.IAstroidChecker
+    name = "basic"
+
+
+class BasicErrorChecker(_BasicChecker):
     msgs = {
         "E0100": (
             "__init__ method is a generator",
@@ -932,7 +937,7 @@ class BasicErrorChecker(base_checker._BasicChecker):
             )
 
 
-class BasicChecker(base_checker._BasicChecker):
+class BasicChecker(_BasicChecker):
     """checks for :
     * doc strings
     * number of arguments, local variables, branches, returns and statements in
@@ -1714,7 +1719,7 @@ def _create_naming_options():
     return tuple(name_options)
 
 
-class NameChecker(base_checker._NameCheckerBase):
+class NameChecker(_BasicChecker):
     msgs = {
         "C0103": (
             '%s name "%s" doesn\'t conform to %s',
@@ -1974,6 +1979,14 @@ class NameChecker(base_checker._NameCheckerBase):
                 else:
                     self._check_name("class_attribute", node.name, node)
 
+    def _recursive_check_names(self, args):
+        """check names in a possibly recursive list <arg>"""
+        for arg in args:
+            if isinstance(arg, nodes.AssignName):
+                self._check_name("argument", arg.name, arg)
+            else:
+                self._recursive_check_names(arg.elts)
+
     def _find_name_group(self, node_type):
         return self._name_group.get(node_type, node_type)
 
@@ -2062,7 +2075,7 @@ class NameChecker(base_checker._NameCheckerBase):
         return None
 
 
-class DocStringChecker(base_checker._BasicChecker):
+class DocStringChecker(_BasicChecker):
     msgs = {
         "C0112": (
             "Empty %s docstring",
@@ -2228,7 +2241,7 @@ class DocStringChecker(base_checker._BasicChecker):
             )
 
 
-class PassChecker(base_checker._BasicChecker):
+class PassChecker(_BasicChecker):
     """check if the pass statement is really necessary"""
 
     msgs = {
@@ -2270,7 +2283,7 @@ def _infer_dunder_doc_attribute(node):
     return docstring.value
 
 
-class ComparisonChecker(base_checker._BasicChecker):
+class ComparisonChecker(_BasicChecker):
     """Checks for comparisons
 
     - singleton comparison: 'expr == True', 'expr == False' and 'expr == None'
