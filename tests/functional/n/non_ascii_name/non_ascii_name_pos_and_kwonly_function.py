@@ -1,5 +1,8 @@
 """
 Test for names within keyword and position only function
+
+This test is 3.8+ as the columns are not correctly identified
+by the ast parser < 3.8
 """
 # pylint: disable=unused-argument
 
