@@ -123,7 +123,7 @@ class PrivateImportChecker(BaseChecker):
         """Adds into the set all_used_type_annotations the names of all names used as a type annotation
         in the arguments and return type of the function node
         """
-        if node.args:
+        if node.args and hasattr(node.args, "args"):
             for arg in node.args.args:
                 if arg.parent.annotations:
                     for annotation in arg.parent.annotations:
