@@ -30,12 +30,18 @@ else:
             return all("\u0000" <= x <= "\u007F" for x in self)
 
 
+NON_ASCII_HELP = (
+    "Used when the name contains at least one non-ASCII unicode character. "
+    "See https://www.python.org/dev/peps/pep-0672/#confusable-characters-in-identifiers"
+    " for a background why this could be bad. \n"
+    "If your programming guideline defines that you are programming in "
+    "English, then there should be no need for non ASCII characters in "
+    "Python Names. Everybody else can simply disable this check."
+)
+
+
 class NonAsciiNameChecker(base_checker.BaseChecker):
     """A strict name checker only allowing ASCII
-
-    If your programming guideline defines that you are programming in English,
-    then there should be no need for non ASCII characters in Python Names.
-    Everybody else can simply not use this check.
 
     Note: This check only checks Names, so it ignores the content of
           docstrings and comments!
@@ -48,11 +54,7 @@ class NonAsciiNameChecker(base_checker.BaseChecker):
         "C2401": (
             '%s name "%s" contains a non-ASCII character, consider renaming it.',
             "non-ascii-name",
-            (
-                "Used when the name contains at least one non-ASCII unicode character. "
-                "See https://www.python.org/dev/peps/pep-0672/#confusable-characters-in-identifiers"
-                " for a background why this could be bad."
-            ),
+            NON_ASCII_HELP,
             {"old_names": [("C0144", "old-non-ascii-name")]},
         ),
         # First %s will always be "file"
@@ -61,11 +63,12 @@ class NonAsciiNameChecker(base_checker.BaseChecker):
             "non-ascii-file-name",
             (
                 # Some = PyCharm at the time of writing didn't display the non_ascii_name_loł
-                # files. Probably only a bug shows the problem quite good.
+                # files and had big troubles with git.
+                # Probably only a bug shows the problem quite good.
                 # That's also why this is a warning and not only a convention!
                 "Some editors don't support non-ASCII file names properly. "
-                "Even though Python supports UTF-8 files since Python 3.5 this isn't recommended for "
-                "interoperability. Further reading:\n"
+                "Even though Python supports UTF-8 files since Python 3.5 this isn't "
+                "recommended for interoperability. Further reading:\n"
                 "- https://www.python.org/dev/peps/pep-0489/#export-hook-name\n"
                 "- https://www.python.org/dev/peps/pep-0672/#confusable-characters-in-identifiers\n"
                 "- https://bugs.python.org/issue20485\n"
@@ -75,11 +78,7 @@ class NonAsciiNameChecker(base_checker.BaseChecker):
         "C2403": (
             '%s name "%s" contains a non-ASCII character, use an ASCII-only alias for import.',
             "non-ascii-module-import",
-            (
-                "Used when the name contains at least one non-ASCII unicode character. "
-                "See https://www.python.org/dev/peps/pep-0672/#confusable-characters-in-identifiers"
-                " for a background why this could be bad."
-            ),
+            NON_ASCII_HELP,
         ),
     }
 
