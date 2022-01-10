@@ -62,6 +62,11 @@ Release date: TBA
 
   Closes #5460
 
+* Disable checker ``bad-docstring-quotes`` for Python <= 3.7, because in this versions the line
+  numbers decorated functions and classes are not reliable
+
+  Closes #3077
+
 * Fixed incorrect classification of Numpy-style docstring as Google-style docstring for
   docstrings with property setter documentation.
   Docstring classification is now based on the highest amount of matched sections instead
