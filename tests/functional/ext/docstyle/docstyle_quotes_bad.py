@@ -1,6 +1,5 @@
-# pylint: disable=docstring-first-line-empty,missing-class-docstring
-
 """Checks of Dosctrings 'bad-docstring-quotes'"""
+# pylint: disable=docstring-first-line-empty,missing-class-docstring
 
 
 class FFFF:
