@@ -17,7 +17,7 @@ class PrivateImportChecker(BaseChecker):
     __implements__ = (IAstroidChecker,)
     name = "import-private-name"
     msgs = {
-        "C2401": (
+        "C2601": (
             "Imported private %s (%s)",
             "import-private-name",
             "Used when a private module or object prefixed with _ is imported",
