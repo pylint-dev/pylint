@@ -65,7 +65,7 @@ class PackageToLint:
     def pylint_args(self) -> List[str]:
         options: List[str] = []
         if self.pylintrc is not None:
-            # There is an error if rcfile is given but does not exists
+            # There is an error if rcfile is given but does not exist
             options += [f"--rcfile={self.pylintrc}"]
         return self.paths_to_lint + options + self.pylint_additional_args
 

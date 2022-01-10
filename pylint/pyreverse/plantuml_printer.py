@@ -3,9 +3,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""
-Class to generate files in dot format and image formats supported by Graphviz.
-"""
+"""Class to generate files in dot format and image formats supported by Graphviz."""
 from typing import Dict, Optional
 
 from pylint.pyreverse.printer import EdgeType, Layout, NodeProperties, NodeType, Printer

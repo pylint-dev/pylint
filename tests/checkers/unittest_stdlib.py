@@ -45,7 +45,8 @@ class TestStdlibChecker(CheckerTestCase):
 
         While this test might seem weird since it uses a transform, it's actually testing a crash
         that happened in production, but there was no way to retrieve the code for which this
-        occurred (how an AssignAttr got to be the result of a function inference beats me..)"""
+        occurred (how an AssignAttr got to be the result of a function inference beats me...)
+        """
 
         def infer_func(
             node: Name, context: Optional[Any] = None

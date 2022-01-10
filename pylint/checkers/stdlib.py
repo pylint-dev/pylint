@@ -39,14 +39,16 @@
 
 import sys
 from collections.abc import Iterable
-from typing import Any, Dict, Optional, Set
+from typing import TYPE_CHECKING, Any, Dict, Optional, Set
 
 import astroid
 from astroid import nodes
 
 from pylint.checkers import BaseChecker, DeprecatedMixin, utils
 from pylint.interfaces import IAstroidChecker
-from pylint.lint import PyLinter
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 OPEN_FILES_MODE = ("open", "file")
 OPEN_FILES_ENCODING = ("open", "read_text", "write_text")
@@ -447,7 +449,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
     }
 
     def __init__(
-        self, linter: Optional[PyLinter] = None
+        self, linter: Optional["PyLinter"] = None
     ):  # pylint: disable=super-init-not-called # See https://github.com/PyCQA/pylint/issues/4941
         BaseChecker.__init__(self, linter)
         self._deprecated_methods: Set[Any] = set()
@@ -634,13 +636,22 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         ):
             encoding_arg = None
             try:
-                if open_module == "pathlib" and node.func.attrname == "read_text":
-                    encoding_arg = utils.get_argument_from_call(
-                        node, position=0, keyword="encoding"
-                    )
+                if open_module == "pathlib":
+                    if node.func.attrname == "read_text":
+                        encoding_arg = utils.get_argument_from_call(
+                            node, position=0, keyword="encoding"
+                        )
+                    elif node.func.attrname == "write_text":
+                        encoding_arg = utils.get_argument_from_call(
+                            node, position=1, keyword="encoding"
+                        )
+                    else:
+                        encoding_arg = utils.get_argument_from_call(
+                            node, position=2, keyword="encoding"
+                        )
                 else:
                     encoding_arg = utils.get_argument_from_call(
-                        node, position=None, keyword="encoding"
+                        node, position=3, keyword="encoding"
                     )
             except utils.NoSuchArgumentError:
                 self.add_message("unspecified-encoding", node=node)
@@ -723,6 +734,5 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         return self._deprecated_decorators
 
 
-def register(linter):
-    """required method to auto register this checker"""
+def register(linter: "PyLinter") -> None:
     linter.register_checker(StdlibChecker(linter))

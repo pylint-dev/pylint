@@ -12,7 +12,7 @@ def test_return_for():
     return None
 
 def test_return_while():
-    """else + return is not accetable."""
+    """else + return is not acceptable."""
     while True:
         return 1
     else:  # [useless-else-on-loop]

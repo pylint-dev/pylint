@@ -91,10 +91,11 @@ def test_template_option_end_line(linter) -> None:
     assert out_lines[2] == "my_mod:2:0:2:4: C0301: Line too long (3/4) (line-too-long)"
 
 
-def test_template_option_non_exisiting(linter) -> None:
-    """Test the msg-template option with a non exisiting options.
+def test_template_option_non_existing(linter) -> None:
+    """Test the msg-template option with non-existent options.
     This makes sure that this option remains backwards compatible as new
-    parameters do not break on previous versions"""
+    parameters do not break on previous versions
+    """
     output = StringIO()
     linter.reporter.out = output
     linter.set_option(
@@ -332,8 +333,8 @@ def test_multi_format_output(tmp_path):
         "\n"
         "\n"
         "\n"
-        "-------------------------------------\n"
-        "Your code has been rated at -10.00/10\n"
+        "-----------------------------------\n"
+        "Your code has been rated at 0.00/10\n"
         "\n"
         "direct output\n"
     )

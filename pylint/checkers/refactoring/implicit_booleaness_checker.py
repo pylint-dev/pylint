@@ -129,7 +129,8 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
     def visit_unaryop(self, node: nodes.UnaryOp) -> None:
         """`not len(S)` must become `not S` regardless if the parent block
         is a test condition or something else (boolean expression)
-        e.g. `if not len(S):`"""
+        e.g. `if not len(S):`
+        """
         if (
             isinstance(node, nodes.UnaryOp)
             and node.op == "not"
@@ -149,7 +150,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
             node.left
         ) or utils.is_empty_dict_literal(node.left)
 
-        # Check both left hand side and right hand side for literals
+        # Check both left-hand side and right-hand side for literals
         for operator, comparator in node.ops:
             is_right_empty_literal = utils.is_base_container(
                 comparator

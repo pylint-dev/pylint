@@ -51,8 +51,8 @@ def disable():
 
 @pytest.fixture
 def finalize_linter(linter: PyLinter) -> Iterator[PyLinter]:
-    """call reporter.finalize() to cleanup
-    pending messages if a test finished badly
+    """Call reporter.finalize() to clean up pending messages if a test
+    finished badly.
     """
     yield linter
     linter.reporter = cast(  # Due to fixture

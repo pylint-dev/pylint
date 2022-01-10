@@ -66,23 +66,18 @@ def _is_trailing_comma(tokens: List[tokenize.TokenInfo], index: int) -> bool:
     if token.exact_type != tokenize.COMMA:
         return False
     # Must have remaining tokens on the same line such as NEWLINE
-    left_tokens = itertools.islice(tokens, index + 1, None)
+    left_tokens = list(itertools.islice(tokens, index + 1, None))
 
-    def same_start_token(
-        other_token: tokenize.TokenInfo, _token: tokenize.TokenInfo = token
-    ) -> bool:
-        return other_token.start[0] == _token.start[0]
+    more_tokens_on_line = False
+    for remaining_token in left_tokens:
+        if remaining_token.start[0] == token.start[0]:
+            more_tokens_on_line = True
+            # If one of the remaining same line tokens is not NEWLINE or COMMENT
+            # the comma is not trailing.
+            if remaining_token.type not in (tokenize.NEWLINE, tokenize.COMMENT):
+                return False
 
-    same_line_remaining_tokens = list(
-        itertools.takewhile(same_start_token, left_tokens)
-    )
-    # Note: If the newline is tokenize.NEWLINE and not tokenize.NL
-    # then the newline denotes the end of expression
-    is_last_element = all(
-        other_token.type in (tokenize.NEWLINE, tokenize.COMMENT)
-        for other_token in same_line_remaining_tokens
-    )
-    if not same_line_remaining_tokens or not is_last_element:
+    if not more_tokens_on_line:
         return False
 
     def get_curline_index_start():
@@ -102,7 +97,7 @@ def _is_trailing_comma(tokens: List[tokenize.TokenInfo], index: int) -> bool:
 
 
 def _is_inside_context_manager(node: nodes.Call) -> bool:
-    frame = node.frame()
+    frame = node.frame(future=True)
     if not isinstance(
         frame, (nodes.FunctionDef, astroid.BoundMethod, astroid.UnboundMethod)
     ):
@@ -113,7 +108,7 @@ def _is_inside_context_manager(node: nodes.Call) -> bool:
 
 
 def _is_a_return_statement(node: nodes.Call) -> bool:
-    frame = node.frame()
+    frame = node.frame(future=True)
     for parent in node.node_ancestors():
         if parent is frame:
             break
@@ -123,11 +118,10 @@ def _is_a_return_statement(node: nodes.Call) -> bool:
 
 
 def _is_part_of_with_items(node: nodes.Call) -> bool:
-    """
-    Checks if one of the node's parents is a ``nodes.With`` node and that the node itself is located
+    """Checks if one of the node's parents is a ``nodes.With`` node and that the node itself is located
     somewhere under its ``items``.
     """
-    frame = node.frame()
+    frame = node.frame(future=True)
     current = node
     while current != frame:
         if isinstance(current, nodes.With):
@@ -140,7 +134,8 @@ def _is_part_of_with_items(node: nodes.Call) -> bool:
 
 def _will_be_released_automatically(node: nodes.Call) -> bool:
     """Checks if a call that could be used in a ``with`` statement is used in an alternative
-    construct which would ensure that its __exit__ method is called."""
+    construct which would ensure that its __exit__ method is called.
+    """
     callables_taking_care_of_exit = frozenset(
         (
             "contextlib._BaseExitStack.enter_context",
@@ -157,7 +152,8 @@ def _will_be_released_automatically(node: nodes.Call) -> bool:
 
 class ConsiderUsingWithStack(NamedTuple):
     """Stack for objects that may potentially trigger a R1732 message
-    if they are not used in a ``with`` block later on."""
+    if they are not used in a ``with`` block later on.
+    """
 
     module_scope: Dict[str, nodes.NodeNG] = {}
     class_scope: Dict[str, nodes.NodeNG] = {}
@@ -914,7 +910,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def _check_stop_iteration_inside_generator(self, node):
         """Check if an exception of type StopIteration is raised inside a generator"""
-        frame = node.frame()
+        frame = node.frame(future=True)
         if not isinstance(frame, nodes.FunctionDef) or not frame.is_generator():
             return
         if utils.node_ignores_exception(node, StopIteration):
@@ -939,9 +935,28 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             and node.args
             and isinstance(node.args[0], nodes.ListComp)
         ):
-            if node.func.name == "dict" and not isinstance(
-                node.args[0].elt, nodes.Call
-            ):
+            if node.func.name == "dict":
+                element = node.args[0].elt
+                if isinstance(element, nodes.Call):
+                    return
+
+                # If we have an `IfExp` here where both the key AND value
+                # are different, then don't raise the issue. See #5588
+                if (
+                    isinstance(element, nodes.IfExp)
+                    and isinstance(element.body, (nodes.Tuple, nodes.List))
+                    and len(element.body.elts) == 2
+                    and isinstance(element.orelse, (nodes.Tuple, nodes.List))
+                    and len(element.orelse.elts) == 2
+                ):
+                    key1, value1 = element.body.elts
+                    key2, value2 = element.orelse.elts
+                    if (
+                        key1.as_string() != key2.as_string()
+                        and value1.as_string() != value2.as_string()
+                    ):
+                        return
+
                 message_name = "consider-using-dict-comprehension"
                 self.add_message(message_name, node=node)
             elif node.func.name == "set":
@@ -1054,7 +1069,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         inferred = utils.safe_infer(node.func)
         if getattr(inferred, "name", "") == "next":
-            frame = node.frame()
+            frame = node.frame(future=True)
             # The next builtin can only have up to two
             # positional arguments and no keyword arguments
             has_sentinel_value = len(node.args) > 1
@@ -1264,7 +1279,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
            reverse for AND
 
         2) False values in OR expressions are only relevant if all values are
-           false, and the reverse for AND"""
+           false, and the reverse for AND
+        """
         simplified_values = []
 
         for subnode in values:
@@ -1285,7 +1301,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         """Attempts to simplify a boolean operation
 
         Recursively applies simplification on the operator terms,
-        and keeps track of whether reductions have been made."""
+        and keeps track of whether reductions have been made.
+        """
         children = list(bool_op.get_children())
         intermediate = [
             self._simplify_boolean_operation(child)
@@ -1306,7 +1323,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         """Check if a boolean condition can be simplified.
 
         Variables will not be simplified, even in the value can be inferred,
-        and expressions like '3 + 4' will remain expanded."""
+        and expressions like '3 + 4' will remain expanded.
+        """
         if not utils.is_test_condition(node):
             return
 
@@ -1433,7 +1451,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 or not isinstance(assignee, (nodes.AssignName, nodes.AssignAttr))
             ):
                 continue
-            stack = self._consider_using_with_stack.get_stack_for_frame(node.frame())
+            stack = self._consider_using_with_stack.get_stack_for_frame(
+                node.frame(future=True)
+            )
             varname = (
                 assignee.name
                 if isinstance(assignee, nodes.AssignName)
@@ -1461,7 +1481,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if (
             node
             in self._consider_using_with_stack.get_stack_for_frame(
-                node.frame()
+                node.frame(future=True)
             ).values()
         ):
             # the result of this call was already assigned to a variable and will be checked when leaving the scope.
@@ -1492,8 +1512,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                     self.add_message("use-dict-literal", node=node)
 
     def _check_consider_using_join(self, aug_assign):
-        """
-        We start with the augmented assignment and work our way upwards.
+        """We start with the augmented assignment and work our way upwards.
         Names of variables for nodes if match successful:
         result = ''  # assign
         for number in ['1', '2', '3']  # for_loop
@@ -1594,7 +1613,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             ):
                 args = (f"{node.iter.as_string()}",)
             if args:
-                self.add_message("unnecessary-comprehension", node=node, args=args)
+                self.add_message(
+                    "unnecessary-comprehension", node=node.parent, args=args
+                )
                 return
 
             if isinstance(node.parent, nodes.DictComp):
@@ -1608,14 +1629,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
             self.add_message(
                 "unnecessary-comprehension",
-                node=node,
+                node=node.parent,
                 args=(f"{func}({node.iter.as_string()})",),
             )
 
     @staticmethod
     def _is_and_or_ternary(node):
-        """
-        Returns true if node is 'condition and true_value or false_value' form.
+        """Returns true if node is 'condition and true_value or false_value' form.
 
         All of: condition, true_value and false_value should not be a complex boolean expression
         """
@@ -1777,9 +1797,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     @staticmethod
     def _has_return_in_siblings(node: nodes.NodeNG) -> bool:
-        """
-        Returns True if there is at least one return in the node's siblings
-        """
+        """Returns True if there is at least one return in the node's siblings"""
         next_sibling = node.next_sibling()
         while next_sibling:
             if isinstance(next_sibling, nodes.Return):

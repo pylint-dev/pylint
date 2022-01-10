@@ -201,7 +201,19 @@ Add the ``register`` function to the top level of the file.
 
 .. code-block:: python
 
-  def register(linter):
+  from typing import TYPE_CHECKING
+
+  import astroid
+
+  if TYPE_CHECKING:
+      from pylint.lint import PyLinter
+
+
+  def register(linter: "PyLinter") -> None:
+      """This required method auto registers the checker during initialization.
+
+      :param linter: The linter to register the checker to.
+      """
       linter.register_checker(UniqueReturnChecker(linter))
 
 We are now ready to debug and test our checker!

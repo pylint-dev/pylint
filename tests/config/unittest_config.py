@@ -16,6 +16,7 @@
 
 import re
 import sre_constants
+import sys
 from typing import Dict, Tuple, Type
 
 import pytest
@@ -25,7 +26,10 @@ from pylint.checkers import BaseChecker
 from pylint.testutils import CheckerTestCase, set_config
 from pylint.utils.utils import get_global_option
 
-RE_PATTERN_TYPE = getattr(re, "Pattern", getattr(re, "_pattern_type", None))
+if sys.version_info >= (3, 7):
+    RE_PATTERN_TYPE = re.Pattern
+else:
+    RE_PATTERN_TYPE = re._pattern_type  # pylint: disable=no-member
 
 
 def test__regexp_validator_valid() -> None:
@@ -73,7 +77,8 @@ def test__regexp_csv_validator_invalid() -> None:
 
 class TestPyLinterOptionSetters(CheckerTestCase):
     """Class to check the set_config decorator and get_global_option util
-    for options declared in PyLinter."""
+    for options declared in PyLinter.
+    """
 
     class Checker(BaseChecker):
         name = "checker"
@@ -94,7 +99,8 @@ class TestPyLinterOptionSetters(CheckerTestCase):
 
     def test_ignore_paths_with_no_value(self) -> None:
         """Test ignore-paths option with no value.
-        Compare against actual list to see if validator works."""
+        Compare against actual list to see if validator works.
+        """
         options = get_global_option(self.checker, "ignore-paths")
 
         assert options == []

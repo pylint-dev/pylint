@@ -381,9 +381,9 @@ contributors:
 
 * Damien Baty: contributor
 
-* Daniel R. Neal (danrneal): contributer
+* Daniel R. Neal (danrneal): contributor
 
-* Jeremy Fleischman (jfly): contributer
+* Jeremy Fleischman (jfly): contributor
 
 * Shiv Venkatasubrahmanyam
 
@@ -593,3 +593,8 @@ contributors:
   - Fixed issue 5452, false positive missing-param-doc for multi-line Google-style params
 
 * Eero Vuojolahti: contributor
+
+* Kian-Meng, Ang: contributor
+
+* Carli* Freudenberg (CarliJoy): contributor
+  - Improve non-ascii-name checker

@@ -52,7 +52,7 @@ import copy
 import os
 import sys
 from distutils import sysconfig
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple, Union
 
 import astroid
 from astroid import nodes
@@ -69,9 +69,11 @@ from pylint.checkers.utils import (
 from pylint.exceptions import EmptyReportError
 from pylint.graph import DotBackend, get_cycles
 from pylint.interfaces import IAstroidChecker
-from pylint.lint import PyLinter
 from pylint.reporters.ureports.nodes import Paragraph, Section, VerbatimText
 from pylint.utils import IsortDriver, get_global_option
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 
 def _qualified_names(modname):
@@ -426,7 +428,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
     )
 
     def __init__(
-        self, linter: Optional[PyLinter] = None
+        self, linter: Optional["PyLinter"] = None
     ):  # pylint: disable=super-init-not-called # See https://github.com/PyCQA/pylint/issues/4941
         BaseChecker.__init__(self, linter)
         self.import_graph: collections.defaultdict = collections.defaultdict(set)
@@ -908,7 +910,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         if not self.linter.is_message_enabled("reimported"):
             return
 
-        frame = node.frame()
+        frame = node.frame(future=True)
         root = node.root()
         contexts = [(frame, level)]
         if root is not frame:
@@ -1018,6 +1020,5 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             )
 
 
-def register(linter):
-    """required method to auto register this checker"""
+def register(linter: "PyLinter") -> None:
     linter.register_checker(ImportsChecker(linter))

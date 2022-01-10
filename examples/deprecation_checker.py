@@ -1,5 +1,4 @@
-"""
-Example checker detecting deprecated functions/methods. Following example searches for usages of
+"""Example checker detecting deprecated functions/methods. Following example searches for usages of
 deprecated function `deprecated_function` and deprecated method `MyClass.deprecated_method`
 from module mymodule:
 
@@ -38,10 +37,13 @@ from module mymodule:
     ------------------------------------------------------------------
     Your code has been rated at 2.00/10 (previous run: 2.00/10, +0.00)
 """
-from typing import Set, Tuple, Union
+from typing import TYPE_CHECKING, Set, Tuple, Union
 
 from pylint.checkers import BaseChecker, DeprecatedMixin
 from pylint.interfaces import IAstroidChecker
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 
 class DeprecationChecker(DeprecatedMixin, BaseChecker):
@@ -90,10 +92,5 @@ class DeprecationChecker(DeprecatedMixin, BaseChecker):
         return ()
 
 
-def register(linter):
-    """This required method auto registers the checker.
-
-    :param linter: The linter to register the checker to.
-    :type linter: pylint.lint.PyLinter
-    """
+def register(linter: "PyLinter") -> None:
     linter.register_checker(DeprecationChecker(linter))
