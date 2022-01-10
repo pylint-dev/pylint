@@ -36,7 +36,7 @@ NON_ASCII_HELP = (
     " for a background why this could be bad. \n"
     "If your programming guideline defines that you are programming in "
     "English, then there should be no need for non ASCII characters in "
-    "Python Names. Everybody else can simply disable this check."
+    "Python Names. If not you can simply disable this check."
 )
 
 
@@ -97,7 +97,7 @@ class NonAsciiNameChecker(base_checker.BaseChecker):
             return
 
         if not (Py37Str(name).isascii()):
-            type_label = constants.HUMAN_READABLE_TYPES.get(node_type, node_type)
+            type_label = constants.HUMAN_READABLE_TYPES[node_type]
             args = (type_label.capitalize(), name)
 
             msg = "non-ascii-name"
@@ -129,9 +129,9 @@ class NonAsciiNameChecker(base_checker.BaseChecker):
                 self._check_name("argument", pos_only_arg.name, pos_only_arg)
 
         # Check "normal" arguments
-        args = arguments.args or tuple()
-        for arg in args:
-            self._check_name("argument", arg.name, arg)
+        if arguments.args:
+            for arg in arguments.args:
+                self._check_name("argument", arg.name, arg)
 
         # Check key word only arguments
         if arguments.kwonlyargs:
@@ -156,7 +156,7 @@ class NonAsciiNameChecker(base_checker.BaseChecker):
 
         if isinstance(frame, nodes.FunctionDef):
             if node.parent in frame.body:
-                # Only perform the check if the assigment was done in within the body
+                # Only perform the check if the assignment was done in within the body
                 # of the function (and not the function parameter definition
                 # (will be handled in visit_functiondef)
                 # or within a decorator (handled in visit_call)

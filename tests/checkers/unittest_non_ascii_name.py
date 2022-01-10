@@ -246,11 +246,11 @@ class TestNonAsciiChecker(pylint.testutils.CheckerTestCase):
                 "from foo.bar import functiøn as good, *",
                 # We still have functiøn within our namespace and could detect this
                 # But to do this properly we would need to check all `*` imports
-                # -> Too much efford!
+                # -> Too much effort!
                 "functiøn",
                 id="from_okay_module_import_bad_as_good_and_star",
                 marks=pytest.mark.xfail(
-                    reason="We don't what is imported when using star"
+                    reason="We don't know what is imported when using star"
                 ),
             ),
         ],
