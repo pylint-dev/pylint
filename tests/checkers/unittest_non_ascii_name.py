@@ -156,39 +156,6 @@ class TestNonAsciiChecker(pylint.testutils.CheckerTestCase):
         ):
             self.checker.visit_assignname(assign_node)
 
-    def test_class_definition(self):
-        node = astroid.extract_node(
-            """
-            class FooBär: #@
-                ...
-            """
-        )
-        assert isinstance(node, nodes.ClassDef)
-
-        with self.assertAddsMessages(
-            pylint.testutils.MessageTest(
-                msg_id="non-ascii-name",
-                node=node,
-                args=("Class", "FooBär"),
-                confidence=pylint.interfaces.HIGH,
-                line=2,
-                col_offset=0,
-                # pylint: disable-next=fixme
-                # TODO: Maybe we have to select something different
-                #       here, as line 3 is not that thing we expect
-                end_line=3,
-                end_col_offset=7,
-            )
-        ):
-            self.checker.visit_classdef(node)
-
-    def test_import_ignore_star(self):
-        """Special case from xyz import *, where '*' is not A-Za-z0-9 but still valid"""
-        node = astroid.parse("from urllib.parse import *")
-
-        with self.assertAddsMessages():
-            self.walk(node)
-
     @pytest.mark.parametrize(
         "import_statement, wrong_name",
         [
