@@ -57,6 +57,7 @@ astroid {astroid.__version__}
 Python {sys.version}"""
 
 HUMAN_READABLE_TYPES = {
+    "file": "file",
     "module": "module",
     "const": "constant",
     "class": "class",
