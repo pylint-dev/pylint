@@ -1,6 +1,5 @@
-# pylint: disable=too-few-public-methods,bad-docstring-quotes
-
 """Checks of Dosctrings 'docstring-first-line-empty'"""
+# pylint: disable=too-few-public-methods,bad-docstring-quotes
 
 def check_messages(*messages):  # [docstring-first-line-empty]
     """
