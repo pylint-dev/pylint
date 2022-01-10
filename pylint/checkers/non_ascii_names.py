@@ -59,7 +59,10 @@ class NonAsciiNameChecker(base_checker.BaseChecker):
         ),
         # First %s will always be "file"
         "W2402": (
-            '%s name "%s" contains a non-ASCII character. PEP 3131 only allows non-ascii identifiers.',
+            (
+                '%s name "%s" contains a non-ASCII character. PEP 3131 only allows '
+                "non-ascii identifiers, not file names."
+            ),
             "non-ascii-file-name",
             (
                 # Some = PyCharm at the time of writing didn't display the non_ascii_name_loł
