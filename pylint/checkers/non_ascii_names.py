@@ -92,8 +92,7 @@ class NonAsciiNameChecker(base_checker._NameCheckerBase):
         node: nodes.NodeNG,
         confidence=interfaces.HIGH,
     ) -> None:
-        """Check whether a name is using non-ASCII characters.
-        """
+        """Check whether a name is using non-ASCII characters."""
 
         if name is None:
             # For some nodes i.e. *kwargs from a dict, the name will be empty
