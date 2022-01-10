@@ -14,6 +14,15 @@ New checkers
 
   Closes #5460
 
+* Rewrote Checker of ``non-ascii-name``.
+   It now ensures __all__ Python names are ASCII and also properly
+   checks the names of imports (``non-ascii-module-import``) as
+   well as file names (``non-ascii-file-name``) and emits their respective new warnings.
+
+   Non ASCII characters could be homoglyphs (look alike characters) and hard to
+   enter on a non specialized keyboard.
+   See `Confusable Characters in PEP 672 <https://www.python.org/dev/peps/pep-0672/#confusable-characters-in-identifiers>`_
+
 Removed checkers
 ================
 

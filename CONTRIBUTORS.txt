@@ -595,3 +595,6 @@ contributors:
 * Eero Vuojolahti: contributor
 
 * Kian-Meng, Ang: contributor
+
+* Carli* Freudenberg (CarliJoy): contributor
+  - Improve non-ascii-name checker
