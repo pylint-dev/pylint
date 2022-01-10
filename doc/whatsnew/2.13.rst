@@ -37,6 +37,15 @@ Closes #5281
 
   Closes #5460
 
+* Rewrote Checker of ``non-ascii-name``.
+   It now ensures __all__ Python names are ASCII and also properly
+   checks the names of imports (``non-ascii-module-import``) as
+   well as file names (``non-ascii-file-name``) and emits their respective new warnings.
+
+   Non ASCII characters could be homoglyphs (look alike characters) and hard to
+   enter on a non specialized keyboard.
+   See `Confusable Characters in PEP 672 <https://www.python.org/dev/peps/pep-0672/#confusable-characters-in-identifiers>`_
+
 Removed checkers
 ================
 
@@ -106,6 +115,12 @@ Other Changes
   may not have occurred when the except or finally blocks are executed.
 
   Closes #85, #2615
+
+* Fixed false negative for ``used-before-assignment`` when a conditional
+  or context manager intervened before the try statement that suggested
+  it might fail.
+
+  Closes #4045
 
 * Fix a false positive for ``assigning-non-slot`` when the slotted class
   defined ``__setattr__``.

@@ -42,8 +42,9 @@ Base id of standard checkers (used in msg and report ids):
 .
 .
 .
-24: unicode
-25-50: not yet used: reserved for future internal checkers.
+24: non-ascii-names
+25: unicode
+26-50: not yet used: reserved for future internal checkers.
 This file is not updated. Use
    script/get_unused_message_id_category.py
 to get the next free checker id.
