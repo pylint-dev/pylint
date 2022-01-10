@@ -64,7 +64,7 @@ class NonAsciiNameChecker(base_checker._NameCheckerBase):
                 # files. Probably only a bug shows the problem quite good.
                 # That's also why this is a warning and not only a convention!
                 "Some editors don't support non-ASCII file names properly. "
-                "Even so Python supports UTF-8 files since Python 3.5 this isn't recommended for "
+                "Even though Python supports UTF-8 files since Python 3.5 this isn't recommended for "
                 "interoperability. Further reading:\n"
                 "- https://www.python.org/dev/peps/pep-0489/#export-hook-name\n"
                 "- https://www.python.org/dev/peps/pep-0672/#confusable-characters-in-identifiers\n"
@@ -93,10 +93,6 @@ class NonAsciiNameChecker(base_checker._NameCheckerBase):
         confidence=interfaces.HIGH,
     ) -> None:
         """Check whether a name is using non-ASCII characters.
-
-        Also set the dynamic attribute ``_is_ascii_only`` that is used to
-        determine if a node has been already checked, so we don't have to handle
-        too many edge cases.
         """
 
         if name is None:
@@ -184,7 +180,7 @@ class NonAsciiNameChecker(base_checker._NameCheckerBase):
             if not any(node.instance_attr_ancestors(attr)):
                 self._check_name("attr", attr, anodes[0])
 
-    def _check_module_import(self, node: Union[nodes.ImportFrom, nodes.Import]):
+    def _check_module_import(self, node: Union[nodes.ImportFrom, nodes.Import]) -> None:
         for module_name, alias in node.names:
             name = alias or module_name
             self._check_name("module", name, node)
@@ -199,7 +195,7 @@ class NonAsciiNameChecker(base_checker._NameCheckerBase):
 
     @utils.check_messages("non-ascii-name")
     def visit_call(self, node: nodes.Call) -> None:
-        # lets check if the used keyword args are correct
+        """Check if the used keyword args are correct."""
         for keyword in node.keywords:
             self._check_name("argument", keyword.arg, keyword)
 
