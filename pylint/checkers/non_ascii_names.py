@@ -85,11 +85,7 @@ class NonAsciiNameChecker(base_checker.BaseChecker):
     name = "NonASCII-Checker"
 
     def _check_name(
-        self,
-        node_type: str,
-        name: Optional[str],
-        node: nodes.NodeNG,
-        confidence=interfaces.HIGH,
+        self, node_type: str, name: Optional[str], node: nodes.NodeNG
     ) -> None:
         """Check whether a name is using non-ASCII characters."""
 
@@ -109,7 +105,7 @@ class NonAsciiNameChecker(base_checker.BaseChecker):
             elif node_type == "module":
                 msg = "non-ascii-module-import"
 
-            self.add_message(msg, node=node, args=args, confidence=confidence)
+            self.add_message(msg, node=node, args=args, confidence=interfaces.HIGH)
 
     @utils.check_messages("non-ascii-name")
     def visit_module(self, node: nodes.Module) -> None:
