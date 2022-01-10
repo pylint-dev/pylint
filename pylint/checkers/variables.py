@@ -689,7 +689,7 @@ scope_type : {self._atomic.scope_type}
         found_nodes: List[nodes.NodeNG],
         node: nodes.NodeNG,
         node_statement: nodes.Statement,
-    ):
+    ) -> List[nodes.NodeNG]:
         """Return any nodes in ``found_nodes`` that should be treated as uncertain
         because they are in an except block.
         """
