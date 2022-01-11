@@ -1660,10 +1660,7 @@ a metaclass class method.",
     @staticmethod
     def _is_called_inside_special_method(node: nodes.NodeNG) -> bool:
         """Returns true if the node is located inside a special (aka dunder) method"""
-        try:
-            frame_name = node.frame(future=True).name
-        except AttributeError:
-            return False
+        frame_name = node.frame(future=True).name
         return frame_name and frame_name in PYMETHODS
 
     def _is_type_self_call(self, expr):
