@@ -57,7 +57,7 @@ class MessageLocationTuple(NamedTuple):
 
 
 class ManagedMessage(NamedTuple):
-    """Tuple with information ahout a managed message of the linter"""
+    """Tuple with information about a managed message of the linter"""
 
     name: Optional[str]
     msgid: str

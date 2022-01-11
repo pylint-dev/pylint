@@ -22,7 +22,7 @@ PylintConfiguration = Dict[str, ConfigurationValue]
 
 if not PY38_PLUS:
     # We need to deepcopy a compiled regex pattern
-    # In python 3.6 and 3.7 this require a hack
+    # In python 3.6 and 3.7 this requires a hack
     # See https://stackoverflow.com/a/56935186
     copy._deepcopy_dispatch[type(re.compile(""))] = lambda r, _: r  # type: ignore[attr-defined]
 

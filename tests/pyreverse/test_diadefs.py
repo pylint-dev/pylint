@@ -128,9 +128,10 @@ class TestDefaultDiadefGenerator:
         self, default_config: PyreverseConfig, get_project: Callable
     ) -> None:
         """functional test of relations extraction;
-        different classes possibly in different modules"""
+        different classes possibly in different modules
+        """
         # XXX should be catching pyreverse environment problem but doesn't
-        # pyreverse doesn't extracts the relations but this test ok
+        # pyreverse doesn't extract the relations but this test ok
         project = get_project("data")
         handler = DiadefsHandler(default_config)
         diadefs = handler.get_diadefs(project, Linker(project, tag=True))

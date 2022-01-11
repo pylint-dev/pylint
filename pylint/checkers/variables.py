@@ -54,8 +54,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""variables checkers for Python code
-"""
+"""Variables checkers for Python code"""
 import collections
 import copy
 import itertools
@@ -64,7 +63,7 @@ import re
 import sys
 from enum import Enum
 from functools import lru_cache
-from typing import Any, DefaultDict, List, Optional, Set, Tuple, Union
+from typing import TYPE_CHECKING, Any, DefaultDict, List, Optional, Set, Tuple, Union
 
 import astroid
 from astroid import nodes
@@ -74,6 +73,9 @@ from pylint.checkers.utils import is_postponed_evaluation_enabled
 from pylint.constants import PY39_PLUS
 from pylint.interfaces import HIGH, INFERENCE, INFERENCE_FAILURE, IAstroidChecker
 from pylint.utils import get_global_option
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 if sys.version_info >= (3, 8):
     from typing import Literal
@@ -331,8 +333,7 @@ def _fix_dot_imports(not_consumed):
 
 
 def _find_frame_imports(name, frame):
-    """
-    Detect imports in the frame, with the required
+    """Detect imports in the frame, with the required
     *name*. Such imports can be considered assignments.
     Returns True if an import for the given name was found.
     """
@@ -367,9 +368,7 @@ def _flattened_scope_names(iterator):
 
 
 def _assigned_locally(name_node):
-    """
-    Checks if name_node has corresponding assign statement in same scope
-    """
+    """Checks if name_node has corresponding assign statement in same scope"""
     assign_stmts = name_node.scope().nodes_of_class(nodes.AssignName)
     return any(a.name == name_node.name for a in assign_stmts)
 
@@ -543,9 +542,7 @@ ScopeConsumer = collections.namedtuple(
 
 
 class NamesConsumer:
-    """
-    A simple class to handle consumed, to consume and scope type info of node locals
-    """
+    """A simple class to handle consumed, to consume and scope type info of node locals"""
 
     def __init__(self, node, scope_type):
         self._atomic = ScopeConsumer(
@@ -582,8 +579,7 @@ scope_type : {self._atomic.scope_type}
 
     @property
     def consumed_uncertain(self) -> DefaultDict[str, List[nodes.NodeNG]]:
-        """
-        Retrieves nodes filtered out by get_next_to_consume() that may not
+        """Retrieves nodes filtered out by get_next_to_consume() that may not
         have executed, such as statements in except blocks, or statements
         in try blocks (when evaluating their corresponding except and finally
         blocks). Checkers that want to treat the statements as executed
@@ -596,8 +592,7 @@ scope_type : {self._atomic.scope_type}
         return self._atomic.scope_type
 
     def mark_as_consumed(self, name, consumed_nodes):
-        """
-        Mark the given nodes as consumed for the name.
+        """Mark the given nodes as consumed for the name.
         If all of the nodes for the name were consumed, delete the name from
         the to_consume dictionary
         """
@@ -610,8 +605,7 @@ scope_type : {self._atomic.scope_type}
             del self.to_consume[name]
 
     def get_next_to_consume(self, node):
-        """
-        Return a list of the nodes that define `node` from this scope. If it is
+        """Return a list of the nodes that define `node` from this scope. If it is
         uncertain whether a node will be consumed, such as for statements in
         except blocks, add it to self.consumed_uncertain instead of returning it.
         Return None to indicate a special case that needs to be handled by the caller.
@@ -678,28 +672,25 @@ scope_type : {self._atomic.scope_type}
 
         # If this node is in an ExceptHandler,
         # filter out assignments in the try portion, assuming they may fail
-        if found_nodes and isinstance(node_statement.parent, nodes.ExceptHandler):
-            filtered_nodes = [
-                n
-                for n in found_nodes
-                if not (
-                    isinstance(n.statement(future=True).parent, nodes.TryExcept)
-                    and n.statement(future=True) in n.statement(future=True).parent.body
-                    and node_statement.parent
-                    in n.statement(future=True).parent.handlers
+        if found_nodes:
+            uncertain_nodes = (
+                self._uncertain_nodes_in_try_blocks_when_evaluating_except_blocks(
+                    found_nodes, node_statement
                 )
-            ]
-            filtered_nodes_set = set(filtered_nodes)
-            difference = [n for n in found_nodes if n not in filtered_nodes_set]
-            self.consumed_uncertain[node.name] += difference
-            found_nodes = filtered_nodes
+            )
+            self.consumed_uncertain[node.name] += uncertain_nodes
+            uncertain_nodes_set = set(uncertain_nodes)
+            found_nodes = [n for n in found_nodes if n not in uncertain_nodes_set]
 
         return found_nodes
 
     @staticmethod
-    def _uncertain_nodes_in_except_blocks(found_nodes, node, node_statement):
-        """
-        Return any nodes in ``found_nodes`` that should be treated as uncertain
+    def _uncertain_nodes_in_except_blocks(
+        found_nodes: List[nodes.NodeNG],
+        node: nodes.NodeNG,
+        node_statement: nodes.Statement,
+    ) -> List[nodes.NodeNG]:
+        """Return any nodes in ``found_nodes`` that should be treated as uncertain
         because they are in an except block.
         """
         uncertain_nodes = []
@@ -733,10 +724,57 @@ scope_type : {self._atomic.scope_type}
                 ):
                     uncertain_nodes.append(other_node)
                 else:
-                    # Assume the except blocks execute. Possiblility for a false negative
+                    # Assume the except blocks execute. Possibility for a false negative
                     # if one of the except blocks does not define the name in question,
                     # raise, or return. See: https://github.com/PyCQA/pylint/issues/5524.
                     continue
+            # Passed all tests for uncertain execution
+            uncertain_nodes.append(other_node)
+        return uncertain_nodes
+
+    @staticmethod
+    def _uncertain_nodes_in_try_blocks_when_evaluating_except_blocks(
+        found_nodes: List[nodes.NodeNG], node_statement: nodes.Statement
+    ) -> List[nodes.NodeNG]:
+        """Return any nodes in ``found_nodes`` that should be treated as uncertain
+        because they are in a try block and the ``node_statement`` being evaluated
+        is in one of its except handlers.
+        """
+        uncertain_nodes: List[nodes.NodeNG] = []
+        closest_except_handler = utils.get_node_first_ancestor_of_type(
+            node_statement, nodes.ExceptHandler
+        )
+        if closest_except_handler is None:
+            return uncertain_nodes
+        for other_node in found_nodes:
+            other_node_statement = other_node.statement(future=True)
+            # If the other statement is the except handler guarding `node`, it executes
+            if other_node_statement is closest_except_handler:
+                continue
+            # Ensure other_node is in a try block
+            (
+                other_node_try_ancestor,
+                other_node_try_ancestor_visited_child,
+            ) = utils.get_node_first_ancestor_of_type_and_its_child(
+                other_node_statement, nodes.TryExcept
+            )
+            if other_node_try_ancestor is None:
+                continue
+            if (
+                other_node_try_ancestor_visited_child
+                not in other_node_try_ancestor.body
+            ):
+                continue
+            # Make sure nesting is correct -- there should be at least one
+            # except handler that is a sibling attached to the try ancestor,
+            # or is an ancestor of the try ancestor.
+            if not any(
+                closest_except_handler in other_node_try_ancestor.handlers
+                or other_node_try_ancestor_except_handler
+                in closest_except_handler.node_ancestors()
+                for other_node_try_ancestor_except_handler in other_node_try_ancestor.handlers
+            ):
+                continue
             # Passed all tests for uncertain execution
             uncertain_nodes.append(other_node)
         return uncertain_nodes
@@ -853,6 +891,10 @@ class VariablesChecker(BaseChecker):
         self._checking_mod_attr = None
         self._loop_variables = []
         self._type_annotation_names = []
+        self._except_handler_names_queue: List[
+            Tuple[nodes.ExceptHandler, nodes.AssignName]
+        ] = []
+        """This is a queue, last in first out"""
         self._postponed_evaluation_enabled = False
 
     def open(self) -> None:
@@ -1066,7 +1108,7 @@ class VariablesChecker(BaseChecker):
     )
     def visit_global(self, node: nodes.Global) -> None:
         """check names imported exists in the global scope"""
-        frame = node.frame()
+        frame = node.frame(future=True)
         if isinstance(frame, nodes.Module):
             self.add_message("global-at-module-level", node=node)
             return
@@ -1086,6 +1128,7 @@ class VariablesChecker(BaseChecker):
             )
             if (
                 not utils.is_reassigned_after_current(node, name)
+                and not utils.is_deleted_after_current(node, name)
                 and not_defined_locally_by_import
             ):
                 self.add_message("global-variable-not-assigned", args=name, node=node)
@@ -1099,7 +1142,7 @@ class VariablesChecker(BaseChecker):
                 ):
                     self.add_message("redefined-builtin", args=name, node=node)
                     break
-                if anode.frame() is module:
+                if anode.frame(future=True) is module:
                     # module level assignment
                     break
                 if isinstance(anode, nodes.FunctionDef) and anode.parent is module:
@@ -1136,6 +1179,28 @@ class VariablesChecker(BaseChecker):
         self._undefined_and_used_before_checker(node, stmt)
         if self._is_undefined_loop_variable_enabled:
             self._loopvar_name(node)
+
+    @utils.check_messages("redefined-outer-name")
+    def visit_excepthandler(self, node: nodes.ExceptHandler) -> None:
+        if not node.name or not isinstance(node.name, nodes.AssignName):
+            return
+
+        for outer_except, outer_except_assign_name in self._except_handler_names_queue:
+            if node.name.name == outer_except_assign_name.name:
+                self.add_message(
+                    "redefined-outer-name",
+                    args=(outer_except_assign_name.name, outer_except.fromlineno),
+                    node=node,
+                )
+                break
+
+        self._except_handler_names_queue.append((node, node.name))
+
+    @utils.check_messages("redefined-outer-name")
+    def leave_excepthandler(self, node: nodes.ExceptHandler) -> None:
+        if not node.name or not isinstance(node.name, nodes.AssignName):
+            return
+        self._except_handler_names_queue.pop()
 
     def _undefined_and_used_before_checker(
         self, node: nodes.Name, stmt: nodes.NodeNG
@@ -1279,7 +1344,7 @@ class VariablesChecker(BaseChecker):
 
         defnode = utils.assign_parent(found_nodes[0])
         defstmt = defnode.statement(future=True)
-        defframe = defstmt.frame()
+        defframe = defstmt.frame(future=True)
 
         # The class reuses itself in the class scope.
         is_recursive_klass = (
@@ -1604,7 +1669,7 @@ class VariablesChecker(BaseChecker):
             # equivalent to frame.statement().scope()
             forbid_lookup = (
                 isinstance(frame, nodes.FunctionDef)
-                or isinstance(node.frame(), nodes.Lambda)
+                or isinstance(node.frame(future=True), nodes.Lambda)
             ) and _assigned_locally(node)
             if not forbid_lookup and defframe.root().lookup(node.name)[1]:
                 maybe_before_assign = False
@@ -1771,8 +1836,8 @@ class VariablesChecker(BaseChecker):
         if not isinstance(defstmt, nodes.AnnAssign) or defstmt.value:
             return False
 
-        defstmt_frame = defstmt.frame()
-        node_frame = node.frame()
+        defstmt_frame = defstmt.frame(future=True)
+        node_frame = node.frame(future=True)
 
         parent = node
         while parent is not defstmt_frame.parent:
@@ -1784,10 +1849,10 @@ class VariablesChecker(BaseChecker):
                 # Local refs are ordered, so we break.
                 #     print(var)
                 #     var = 1  # <- irrelevant
-                if defstmt_frame == node_frame and not ref_node.lineno < node.lineno:
+                if defstmt_frame == node_frame and ref_node.lineno > node.lineno:
                     break
 
-                # If the parent of the local reference is anything but a AnnAssign
+                # If the parent of the local reference is anything but an AnnAssign
                 # Or if the AnnAssign adds a value the variable will now have a value
                 #     var = 1  # OR
                 #     var: int = 1
@@ -1811,10 +1876,9 @@ class VariablesChecker(BaseChecker):
             1 = Break
             2 = Break + emit message
         """
-        if (
-            node.frame().parent == defstmt
-            and node.statement(future=True) == node.frame()
-        ):
+        if node.frame(future=True).parent == defstmt and node.statement(
+            future=True
+        ) == node.frame(future=True):
             # Check if used as type annotation
             # Break but don't emit message if postponed evaluation is enabled
             if utils.is_node_in_type_annotation_context(node):
@@ -1844,8 +1908,7 @@ class VariablesChecker(BaseChecker):
         return False
 
     def _ignore_class_scope(self, node):
-        """
-        Return True if the node is in a local class scope, as an assignment.
+        """Return True if the node is in a local class scope, as an assignment.
 
         :param node: Node considered
         :type node: astroid.Node
@@ -2065,7 +2128,7 @@ class VariablesChecker(BaseChecker):
 
     def _check_unused_arguments(self, name, node, stmt, argnames):
         is_method = node.is_method()
-        klass = node.parent.frame()
+        klass = node.parent.frame(future=True)
         if is_method and isinstance(klass, nodes.ClassDef):
             confidence = (
                 INFERENCE if utils.has_known_bases(klass) else INFERENCE_FAILURE
@@ -2116,12 +2179,12 @@ class VariablesChecker(BaseChecker):
         if not self.linter.is_message_enabled("cell-var-from-loop"):
             return
 
-        node_scope = node.frame()
+        node_scope = node.frame(future=True)
 
         # If node appears in a default argument expression,
         # look at the next enclosing frame instead
         if utils.is_default_argument(node, node_scope):
-            node_scope = node_scope.parent.frame()
+            node_scope = node_scope.parent.frame(future=True)
 
         # Check if node is a cell var
         if (
@@ -2167,8 +2230,7 @@ class VariablesChecker(BaseChecker):
     def _has_homonym_in_upper_function_scope(
         self, node: nodes.Name, index: int
     ) -> bool:
-        """
-        Return whether there is a node with the same name in the
+        """Return whether there is a node with the same name in the
         to_consume dict of an upper scope and if that scope is a
         function
 
@@ -2528,6 +2590,5 @@ class VariablesChecker(BaseChecker):
         return consumed
 
 
-def register(linter):
-    """required method to auto register this checker"""
+def register(linter: "PyLinter") -> None:
     linter.register_checker(VariablesChecker(linter))

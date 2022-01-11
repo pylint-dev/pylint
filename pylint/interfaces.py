@@ -64,15 +64,15 @@ def implements(
     obj: "BaseChecker",
     interface: Union[Type["Interface"], Tuple[Type["Interface"], ...]],
 ) -> bool:
-    """Does the given object (maybe an instance or class) implements the interface."""
-    kimplements = getattr(obj, "__implements__", ())
-    if not isinstance(kimplements, (list, tuple)):
-        kimplements = (kimplements,)
-    return any(issubclass(i, interface) for i in kimplements)
+    """Does the given object (maybe an instance or class) implement the interface."""
+    implements_ = getattr(obj, "__implements__", ())
+    if not isinstance(implements_, (list, tuple)):
+        implements_ = (implements_,)
+    return any(issubclass(i, interface) for i in implements_)
 
 
 class IChecker(Interface):
-    """Base interface, not to be used elsewhere than for sub interfaces definition."""
+    """Base interface, to be used only for sub interfaces definition."""
 
     def open(self):
         """called before visiting project (i.e. set of modules)"""

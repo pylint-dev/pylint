@@ -249,7 +249,7 @@ def reporter():
 
 
 @pytest.fixture
-def init_linter(linter: PyLinter) -> PyLinter:
+def initialized_linter(linter: PyLinter) -> PyLinter:
     linter.open()
     linter.set_current_module("toto", "mydir/toto")
     linter.file_state = FileState("toto")
@@ -273,8 +273,8 @@ def test_pylint_visit_method_taken_in_account(linter: PyLinter) -> None:
     linter.check(["abc"])
 
 
-def test_enable_message(init_linter: PyLinter) -> None:
-    linter = init_linter
+def test_enable_message(initialized_linter: PyLinter) -> None:
+    linter = initialized_linter
     assert linter.is_message_enabled("W0101")
     assert linter.is_message_enabled("W0102")
     linter.disable("W0101", scope="package")
@@ -290,8 +290,8 @@ def test_enable_message(init_linter: PyLinter) -> None:
     assert linter.is_message_enabled("W0102", 1)
 
 
-def test_enable_message_category(init_linter: PyLinter) -> None:
-    linter = init_linter
+def test_enable_message_category(initialized_linter: PyLinter) -> None:
+    linter = initialized_linter
     assert linter.is_message_enabled("W0101")
     assert linter.is_message_enabled("C0202")
     linter.disable("W", scope="package")
@@ -309,11 +309,11 @@ def test_enable_message_category(init_linter: PyLinter) -> None:
     assert linter.is_message_enabled("C0202", line=1)
 
 
-def test_message_state_scope(init_linter: PyLinter) -> None:
+def test_message_state_scope(initialized_linter: PyLinter) -> None:
     class FakeConfig:
         confidence = ["HIGH"]
 
-    linter = init_linter
+    linter = initialized_linter
     linter.disable("C0202")
     assert MSG_STATE_SCOPE_CONFIG == linter._get_message_state_scope("C0202")
     linter.disable("W0101", scope="module", line=3)
@@ -327,8 +327,8 @@ def test_message_state_scope(init_linter: PyLinter) -> None:
     )
 
 
-def test_enable_message_block(init_linter: PyLinter) -> None:
-    linter = init_linter
+def test_enable_message_block(initialized_linter: PyLinter) -> None:
+    linter = initialized_linter
     linter.open()
     filepath = join(REGRTEST_DATA_DIR, "func_block_disable_msg.py")
     linter.set_current_module("func_block_disable_msg")
@@ -385,12 +385,12 @@ def test_enable_message_block(init_linter: PyLinter) -> None:
     assert fs._suppression_mapping["E1101", 110] == 109
 
 
-def test_enable_by_symbol(init_linter: PyLinter) -> None:
+def test_enable_by_symbol(initialized_linter: PyLinter) -> None:
     """messages can be controlled by symbolic names.
 
     The state is consistent across symbols and numbers.
     """
-    linter = init_linter
+    linter = initialized_linter
     assert linter.is_message_enabled("W0101")
     assert linter.is_message_enabled("unreachable")
     assert linter.is_message_enabled("W0102")
@@ -656,8 +656,10 @@ def test_full_documentation(linter: PyLinter) -> None:
         assert re.search(regexp, output)
 
 
-def test_list_msgs_enabled(init_linter: PyLinter, capsys: CaptureFixture) -> None:
-    linter = init_linter
+def test_list_msgs_enabled(
+    initialized_linter: PyLinter, capsys: CaptureFixture
+) -> None:
+    linter = initialized_linter
     linter.enable("W0101", scope="package")
     linter.disable("W0102", scope="package")
     linter.list_messages_enabled()
@@ -869,12 +871,12 @@ def test_multiprocessing(jobs: int) -> None:
     assert len(messages) == len(set(messages))
 
 
-def test_filename_with__init__(init_linter: PyLinter) -> None:
+def test_filename_with__init__(initialized_linter: PyLinter) -> None:
     # This tracks a regression where a file whose name ends in __init__.py,
     # such as flycheck__init__.py, would accidentally lead to linting the
     # entire containing directory.
     reporter = testutils.GenericTestReporter()
-    linter = init_linter
+    linter = initialized_linter
     linter.open()
     linter.set_reporter(reporter)
     filepath = join(INPUT_DIR, "not__init__.py")
@@ -883,15 +885,15 @@ def test_filename_with__init__(init_linter: PyLinter) -> None:
     assert len(messages) == 0
 
 
-def test_by_module_statement_value(init_linter: PyLinter) -> None:
+def test_by_module_statement_value(initialized_linter: PyLinter) -> None:
     """Test "statement" for each module analyzed of computed correctly."""
-    linter = init_linter
+    linter = initialized_linter
     linter.check([os.path.join(os.path.dirname(__file__), "data")])
 
     by_module_stats = linter.stats.by_module
     for module, module_stats in by_module_stats.items():
 
-        linter2 = init_linter
+        linter2 = initialized_linter
         if module == "data":
             linter2.check([os.path.join(os.path.dirname(__file__), "data/__init__.py")])
         else:

@@ -108,7 +108,7 @@ def diff_string(old, new):
 
 def get_module_and_frameid(node):
     """return the module name and the frame id in the module"""
-    frame = node.frame()
+    frame = node.frame(future=True)
     module, obj = "", []
     while frame:
         if isinstance(frame, Module):
@@ -116,7 +116,7 @@ def get_module_and_frameid(node):
         else:
             obj.append(getattr(frame, "name", "<lambda>"))
         try:
-            frame = frame.parent.frame()
+            frame = frame.parent.frame(future=True)
         except AttributeError:
             break
     obj.reverse()
@@ -129,7 +129,7 @@ def get_rst_title(title, character):
 
 
 def get_rst_section(section, options, doc=None):
-    """format an options section using as a ReStructuredText formatted output"""
+    """format an option's section using as a ReStructuredText formatted output"""
     result = ""
     if section:
         result += get_rst_title(section, "'")
@@ -350,7 +350,7 @@ def _format_option_value(optdict, value):
 def format_section(
     stream: TextIO, section: str, options: List[Tuple], doc: Optional[str] = None
 ) -> None:
-    """format an options section using the INI format"""
+    """Format an option's section using the INI format"""
     if doc:
         print(_comment(doc), file=stream)
     print(f"[{section}]", file=stream)
@@ -386,9 +386,9 @@ class IsortDriver:
     def __init__(self, config):
         if HAS_ISORT_5:
             self.isort5_config = isort.api.Config(
-                # There is not typo here. EXTRA_standard_library is
+                # There is no typo here. EXTRA_standard_library is
                 # what most users want. The option has been named
-                # KNOWN_standard_library for ages in pylint and we
+                # KNOWN_standard_library for ages in pylint, and we
                 # don't want to break compatibility.
                 extra_standard_library=config.known_standard_library,
                 known_third_party=config.known_third_party,

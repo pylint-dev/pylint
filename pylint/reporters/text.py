@@ -60,8 +60,7 @@ class MessageStyle(NamedTuple):
     or the color number when 256 colors are available
     """
     style: Tuple[str, ...] = ()
-    """Tuple of style strings (see `ANSI_COLORS` for available values).
-    """
+    """Tuple of style strings (see `ANSI_COLORS` for available values)."""
 
 
 ColorMappingDict = Dict[str, MessageStyle]
@@ -352,7 +351,6 @@ class ColorizedTextReporter(TextReporter):
 
 
 def register(linter: "PyLinter") -> None:
-    """Register the reporter classes with the linter."""
     linter.register_reporter(TextReporter)
     linter.register_reporter(ParseableTextReporter)
     linter.register_reporter(VSTextReporter)

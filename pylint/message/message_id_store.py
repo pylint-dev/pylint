@@ -1,5 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+import functools
 from typing import Dict, List, NoReturn, Optional, Tuple
 
 from pylint.exceptions import InvalidMessageError, UnknownMessageError
@@ -51,7 +52,8 @@ class MessageIdStore:
         """Add valid message id.
 
         There is a little duplication with add_legacy_msgid_and_symbol to avoid a function call,
-        this is called a lot at initialization."""
+        this is called a lot at initialization.
+        """
         self.__msgid_to_symbol[msgid] = symbol
         self.__symbol_to_msgid[symbol] = msgid
 
@@ -61,7 +63,8 @@ class MessageIdStore:
         """Add valid legacy message id.
 
         There is a little duplication with add_msgid_and_symbol to avoid a function call,
-        this is called a lot at initialization."""
+        this is called a lot at initialization.
+        """
         self.__msgid_to_symbol[msgid] = symbol
         self.__symbol_to_msgid[symbol] = msgid
         existing_old_names = self.__old_names.get(msgid, [])
@@ -101,18 +104,23 @@ class MessageIdStore:
         )
         raise InvalidMessageError(error_message)
 
+    @functools.lru_cache()
     def get_active_msgids(self, msgid_or_symbol: str) -> List[str]:
-        """Return msgids but the input can be a symbol."""
-        # Only msgid can have a digit as second letter
-        is_msgid: bool = msgid_or_symbol[1:].isdigit()
-        msgid = None
-        if is_msgid:
+        """Return msgids but the input can be a symbol.
+
+        The cache has no limit as its size will likely stay minimal. For each message we store
+        about 1000 characters, so even if we would have 1000 messages the cache would only
+        take up ~= 1 Mb.
+        """
+        msgid: Optional[str]
+        if msgid_or_symbol[1:].isdigit():
+            # Only msgid can have a digit as second letter
             msgid = msgid_or_symbol.upper()
             symbol = self.__msgid_to_symbol.get(msgid)
         else:
             msgid = self.__symbol_to_msgid.get(msgid_or_symbol)
             symbol = msgid_or_symbol
-        if msgid is None or symbol is None or not msgid or not symbol:
+        if not msgid or not symbol:
             error_msg = f"No such message id or symbol '{msgid_or_symbol}'."
             raise UnknownMessageError(error_msg)
         return self.__old_names.get(msgid, [msgid])

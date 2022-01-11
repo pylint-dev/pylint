@@ -14,6 +14,15 @@ New checkers
 
   Closes #5460
 
+* Rewrote Checker of ``non-ascii-name``.
+   It now ensures __all__ Python names are ASCII and also properly
+   checks the names of imports (``non-ascii-module-import``) as
+   well as file names (``non-ascii-file-name``) and emits their respective new warnings.
+
+   Non ASCII characters could be homoglyphs (look alike characters) and hard to
+   enter on a non specialized keyboard.
+   See `Confusable Characters in PEP 672 <https://www.python.org/dev/peps/pep-0672/#confusable-characters-in-identifiers>`_
+
 Removed checkers
 ================
 
@@ -32,6 +41,14 @@ Extensions
 Other Changes
 =============
 
+* Fixed false positive ``consider-using-dict-comprehension`` when creating a dict
+  using a list of tuples where key AND value vary depending on the same condition.
+
+  Closes #5588
+
+* When run in parallel mode ``pylint`` now pickles the data passed to subprocesses with
+  the ``dill`` package. The ``dill`` package has therefore been added as a dependency.
+
 * By default, pylint does no longer take files starting with ``.#`` into account. Those are
   considered `emacs file locks`_. This behavior can be reverted by redefining the
   ``ignore-patterns`` option.
@@ -39,6 +56,15 @@ Other Changes
   Closes #367
 
 .. _`emacs file locks`: https://www.gnu.org/software/emacs/manual/html_node/elisp/File-Locks.html
+
+* An astroid issue where symlinks were not being taken into account
+  was fixed
+
+  Closes #1470
+  Closes #3499
+  Closes #4302
+  Closes #4798
+  Closes #5081
 
 * Fixed extremely long processing of long lines with comma's.
 
@@ -53,6 +79,10 @@ Other Changes
 
   Closes #5504
 
+* Fixed crash with slots assignments and annotated assignments.
+
+  Closes #5479
+
 * Fix false negative for ``consider-iterating-dictionary`` during membership checks encapsulated in iterables
   or ``not in`` checks
 
@@ -62,6 +92,12 @@ Other Changes
   may not have occurred when the except or finally blocks are executed.
 
   Closes #85, #2615
+
+* Fixed false negative for ``used-before-assignment`` when a conditional
+  or context manager intervened before the try statement that suggested
+  it might fail.
+
+  Closes #4045
 
 * Fix a false positive for ``assigning-non-slot`` when the slotted class
   defined ``__setattr__``.
@@ -91,11 +127,30 @@ Other Changes
 
   Closes #5360, #3877
 
+* Fixed crash on list comprehensions that used ``type`` as inner variable name.
+
+  Closes #5461
+
+* Fix false positive for ``unused-variable`` for a comprehension variable matching
+  an outer scope type annotation.
+
+  Closes #5326
+
 * Require Python ``3.6.2`` to run pylint.
 
   Closes #5065
 
 * Fixed crash on uninferable decorators on Python 3.6 and 3.7
+
+* Emit ``redefined-outer-name`` when a nested except handler shadows an outer one.
+
+  Closes #4434
+  Closes #5370
+
+* ``encoding`` can now be supplied as a positional argument to calls that open
+  files without triggering ``unspecified-encoding``.
+
+  Closes #5638
 
 * Fatal errors now emit a score of 0.0 regardless of whether the linted module
   contained any statements
@@ -104,10 +159,19 @@ Other Changes
 
 * ``fatal`` was added to the variables permitted in score evaluation expressions.
 
+* The default score evaluation now uses a floor of 0.
+
+  Closes #2399
+
 * Fix ``comparison-with-callable`` false positive for callables that raise, such
   as typing constants.
 
   Closes #5557
+
+* When invoking ``pylint``, ``epylint``, ``symilar`` or ``pyreverse`` by importing them in a python file
+  you can now pass an ``arguments`` keyword besides patching ``sys.argv``.
+
+  Closes #5320
 
 * The ``PyLinter`` class will now be initialized with a ``TextReporter``
   as its reporter if none is provided.
@@ -136,3 +200,7 @@ Other Changes
       raise ValueError
 
   Closes #4955
+
+* Fixed false positive for ``global-variable-not-assigned`` when the ``del`` statement is used
+
+  Closes #5333

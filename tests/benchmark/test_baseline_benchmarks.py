@@ -40,7 +40,8 @@ class SleepingChecker(BaseChecker):
     """A checker that sleeps, the wall-clock time should reduce as we add workers
 
     As we apply a roughly constant amount of "work" in this checker any variance is
-    likely to be caused by the pylint system."""
+    likely to be caused by the pylint system.
+    """
 
     __implements__ = (pylint.interfaces.IRawChecker,)
 
@@ -57,7 +58,8 @@ class SleepingChecker(BaseChecker):
     def process_module(self, _node: nodes.Module) -> None:
         """Sleeps for `sleep_duration` on each call
 
-        This effectively means each file costs ~`sleep_duration`+framework overhead"""
+        This effectively means each file costs ~`sleep_duration`+framework overhead
+        """
         time.sleep(self.sleep_duration)
 
 
@@ -65,7 +67,8 @@ class SleepingCheckerLong(BaseChecker):
     """A checker that sleeps, the wall-clock time should reduce as we add workers
 
     As we apply a roughly constant amount of "work" in this checker any variance is
-    likely to be caused by the pylint system."""
+    likely to be caused by the pylint system.
+    """
 
     __implements__ = (pylint.interfaces.IRawChecker,)
 
@@ -82,7 +85,8 @@ class SleepingCheckerLong(BaseChecker):
     def process_module(self, _node: nodes.Module) -> None:
         """Sleeps for `sleep_duration` on each call
 
-        This effectively means each file costs ~`sleep_duration`+framework overhead"""
+        This effectively means each file costs ~`sleep_duration`+framework overhead
+        """
         time.sleep(self.sleep_duration)
 
 
@@ -111,7 +115,8 @@ class TestEstablishBaselineBenchmarks:
     """Naive benchmarks for the high-level pylint framework
 
     Because this benchmarks the fundamental and common parts and changes seen here will
-    impact everything else"""
+    impact everything else
+    """
 
     empty_filepath = _empty_filepath()
     empty_file_info = FileItem(
@@ -176,7 +181,8 @@ class TestEstablishBaselineBenchmarks:
         """Establish a baseline with only 'master' checker being run in -j1
 
         We do not register any checkers except the default 'master', so the cost is just
-        that of the system with a lot of files registered"""
+        that of the system with a lot of files registered
+        """
         if benchmark.disabled:
             benchmark(print, "skipping, only benchmark large file counts")
             return  # _only_ run this test is profiling
@@ -195,7 +201,8 @@ class TestEstablishBaselineBenchmarks:
 
         As with the -j1 variant above `test_baseline_lots_of_files_j1`, we do not
         register any checkers except the default 'master', so the cost is just that of
-        the check_parallel system across 10 workers, plus the overhead of PyLinter"""
+        the check_parallel system across 10 workers, plus the overhead of PyLinter
+        """
         if benchmark.disabled:
             benchmark(print, "skipping, only benchmark large file counts")
             return  # _only_ run this test is profiling
@@ -213,7 +220,8 @@ class TestEstablishBaselineBenchmarks:
         """Baselines pylint for a single extra checker being run in -j1, for N-files
 
         We use a checker that does no work, so the cost is just that of the system at
-        scale"""
+        scale
+        """
         if benchmark.disabled:
             benchmark(print, "skipping, only benchmark large file counts")
             return  # _only_ run this test is profiling
@@ -232,7 +240,8 @@ class TestEstablishBaselineBenchmarks:
         """Baselines pylint for a single extra checker being run in -j10, for N-files
 
         We use a checker that does no work, so the cost is just that of the system at
-        scale, across workers"""
+        scale, across workers
+        """
         if benchmark.disabled:
             benchmark(print, "skipping, only benchmark large file counts")
             return  # _only_ run this test is profiling
@@ -254,7 +263,8 @@ class TestEstablishBaselineBenchmarks:
         impact of running a simple system with -j1 against the same system with -j10.
 
         We expect this benchmark to take very close to
-        `numfiles*SleepingChecker.sleep_duration`"""
+        `numfiles*SleepingChecker.sleep_duration`
+        """
         if benchmark.disabled:
             benchmark(print, "skipping, do not want to sleep in main tests")
             return  # _only_ run this test is profiling
@@ -279,7 +289,8 @@ class TestEstablishBaselineBenchmarks:
         `error_margin*(1/J)*(numfiles*SleepingChecker.sleep_duration)`
 
         Because of the cost of the framework and system the performance difference will
-        *not* be 1/10 of -j1 versions."""
+        *not* be 1/10 of -j1 versions.
+        """
         if benchmark.disabled:
             benchmark(print, "skipping, do not want to sleep in main tests")
             return  # _only_ run this test is profiling

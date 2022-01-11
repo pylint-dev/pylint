@@ -8,7 +8,8 @@ on:
   pull_request: ~
 
 env:
-  CACHE_VERSION: 3
+  # Also change CACHE_VERSION in the primer workflow
+  CACHE_VERSION: 4
   DEFAULT_PYTHON: 3.8
   PRE_COMMIT_CACHE: ~/.cache/pre-commit
 
@@ -73,7 +74,7 @@ jobs:
           pre-commit install --install-hooks
 
   formatting:
-    name: Run pre-commit checks
+    name: checks / pre-commit
     runs-on: ubuntu-latest
     needs: prepare-base
     steps:
@@ -115,7 +116,7 @@ jobs:
           pre-commit run pylint --all-files
 
   spelling:
-    name: Run spelling checks
+    name: checks / spelling
     runs-on: ubuntu-latest
     needs: prepare-base
     steps:
@@ -145,7 +146,7 @@ jobs:
           pytest tests/ -k unittest_spelling
 
   prepare-tests-linux:
-    name: Prepare tests for Python ${{ matrix.python-version }} (Linux)
+    name: tests / prepare / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -187,7 +188,7 @@ jobs:
           pip install -U -r requirements_test.txt
 
   pytest-linux:
-    name: Run tests Python ${{ matrix.python-version }} (Linux)
+    name: tests / run / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
     needs: prepare-tests-linux
     strategy:
@@ -226,7 +227,7 @@ jobs:
           path: .coverage
 
   coverage:
-    name: Process test coverage
+    name: tests / process / coverage
     runs-on: ubuntu-latest
     needs: ["prepare-tests-linux", "pytest-linux"]
     strategy:
@@ -270,7 +271,7 @@ jobs:
           coveralls --rcfile=${{ env.COVERAGERC_FILE }} --service=github
 
   benchmark-linux:
-    name: Run benchmark tests Python ${{ matrix.python-version }} (Linux)
+    name: tests / run benchmark / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
     needs: prepare-tests-linux
     strategy:
@@ -321,7 +322,7 @@ jobs:
           path: .benchmarks/
 
   prepare-tests-windows:
-    name: Prepare tests for Python ${{ matrix.python-version }} (Windows)
+    name: tests / prepare / ${{ matrix.python-version }} / Windows
     runs-on: windows-latest
     strategy:
       matrix:
@@ -363,7 +364,7 @@ jobs:
           pip install -U -r requirements_test_min.txt
 
   pytest-windows:
-    name: Run tests Python ${{ matrix.python-version }} (Windows)
+    name: tests / run / ${{ matrix.python-version }} / Windows
     runs-on: windows-latest
     needs: prepare-tests-windows
     strategy:
@@ -401,7 +402,7 @@ jobs:
           pytest --benchmark-disable tests/
 
   prepare-tests-pypy:
-    name: Prepare tests for Python ${{ matrix.python-version }}
+    name: tests / prepare / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -443,7 +444,7 @@ jobs:
           pip install -U -r requirements_test_min.txt
 
   pytest-pypy:
-    name: Run tests Python ${{ matrix.python-version }}
+    name: tests / run / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
     needs: prepare-tests-pypy
     strategy:
