@@ -73,9 +73,8 @@ class PrivateImportChecker(BaseChecker):
             # Check only external modules
             names = [name for name in names if not self.same_root_dir(node, name)]
             if not names:
-                return (
-                    False  # The module is internal, do not have to check imported names
-                )
+                # The module is internal, do not have to check imported names
+                return False
 
         private_names = [name for name in names if self._name_is_private(name)]
         if not private_names:
@@ -85,7 +84,8 @@ class PrivateImportChecker(BaseChecker):
         self.add_message(
             "import-private-name", node=node, args=(type_, private_imports)
         )
-        return False  # The module name is private and external; short-circuit checking imported names
+        # The module name is private and external; short-circuit checking imported names
+        return False
 
     @staticmethod
     def _populate_type_annotations(
