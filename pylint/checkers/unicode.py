@@ -78,7 +78,7 @@ BAD_CHARS = [
         "backspace",
         "\b",
         "\\b",
-        "E2410",
+        "E2510",
         (
             "Moves the cursor back, so the character after it will overwrite the "
             "character before."
@@ -88,7 +88,7 @@ BAD_CHARS = [
         "carriage-return",
         "\r",
         "\\r",
-        "E2411",
+        "E2511",
         (
             "Moves the cursor to the start of line, subsequent characters overwrite "
             "the start of the line."
@@ -98,7 +98,7 @@ BAD_CHARS = [
         "sub",
         "\x1A",
         "\\x1A",
-        "E2412",
+        "E2512",
         (
             "Ctrl+Z “End of text” on Windows. Some programs (such as type) ignore "
             "the rest of the file after it."
@@ -108,7 +108,7 @@ BAD_CHARS = [
         "esc",
         "\x1B",
         "\\x1B",
-        "E2413",
+        "E2513",
         (
             "Commonly initiates escape codes which allow arbitrary control "
             "of the terminal."
@@ -118,7 +118,7 @@ BAD_CHARS = [
         "nul",
         "\0",
         "\\0",
-        "E2414",
+        "E2514",
         "Mostly end of input for python.",
     ),
     _BadChar(
@@ -127,7 +127,7 @@ BAD_CHARS = [
         "zero-width-space",
         "\u200B",  # \n{ZERO WIDTH SPACE}
         "\\u200B",
-        "E2415",
+        "E2515",
         "Invisible space character could hide real code execution.",
     ),
 ]
@@ -320,7 +320,7 @@ class UnicodeChecker(pylint.checkers.BaseChecker):
     name = "unicode_checker"
 
     msgs = {
-        "E2401": (
+        "E2501": (
             # This error will be only displayed to users once Python Supports
             # UTF-16/UTF-32 (if at all)
             "UTF-16 and UTF-32 aren't backward compatible. Use UTF-8 instead",
@@ -333,7 +333,7 @@ class UnicodeChecker(pylint.checkers.BaseChecker):
                 "for some possible problems when using UTF-16 for instance."
             ),
         ),
-        "E2402": (
+        "E2502": (
             (
                 "Contains control characters that can permit obfuscated code "
                 "executed differently than displayed"
@@ -353,7 +353,7 @@ class UnicodeChecker(pylint.checkers.BaseChecker):
                 "https://trojansource.codes/"
             ),
         ),
-        "C2403": (
+        "C2503": (
             "PEP8 recommends UTF-8 as encoding for Python files",
             "bad-file-encoding",
             (
