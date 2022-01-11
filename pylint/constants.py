@@ -8,6 +8,12 @@ import platformdirs
 
 from pylint.__pkginfo__ import __version__
 
+if sys.version_info >= (3, 8):
+    from typing import Final
+else:
+    from typing_extensions import Final
+
+
 PY37_PLUS = sys.version_info[:2] >= (3, 7)
 PY38_PLUS = sys.version_info[:2] >= (3, 8)
 PY39_PLUS = sys.version_info[:2] >= (3, 9)
@@ -24,7 +30,7 @@ MSG_STATE_SCOPE_MODULE = 1
 # The line/node distinction does not apply to fatal errors and reports.
 _SCOPE_EXEMPT = "FR"
 
-MSG_TYPES = {
+MSG_TYPES: Final = {
     "I": "info",
     "C": "convention",
     "R": "refactor",
