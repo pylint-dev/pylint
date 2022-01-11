@@ -30,7 +30,7 @@ class DocStringStyleChecker(checkers.BaseChecker):
         "C0198": (
             'Bad docstring quotes in %s, expected """, given %s',
             "bad-docstring-quotes",
-            "Used when a docstring does not have triple double quotes.",
+            "Used when a docstring does not have triple double quotes. Only for Python 3.8+.",
         ),
         "C0199": (
             "First line empty in %s docstring",
