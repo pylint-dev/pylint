@@ -434,8 +434,8 @@ def test_set_unsupported_reporter(linter: PyLinter) -> None:
         linter.set_option("output-format", "missing.module.Class")
 
 
-def test_set_option_1(init_linter: PyLinter) -> None:
-    linter = init_linter
+def test_set_option_1(initialized_linter: PyLinter) -> None:
+    linter = initialized_linter
     linter.set_option("disable", "C0111,W0234")
     assert not linter.is_message_enabled("C0111")
     assert not linter.is_message_enabled("W0234")
@@ -444,8 +444,8 @@ def test_set_option_1(init_linter: PyLinter) -> None:
     assert not linter.is_message_enabled("non-iterator-returned")
 
 
-def test_set_option_2(init_linter: PyLinter) -> None:
-    linter = init_linter
+def test_set_option_2(initialized_linter: PyLinter) -> None:
+    linter = initialized_linter
     linter.set_option("disable", ("C0111", "W0234"))
     assert not linter.is_message_enabled("C0111")
     assert not linter.is_message_enabled("W0234")
@@ -461,8 +461,8 @@ def test_enable_checkers(linter: PyLinter) -> None:
     assert "design" in [c.name for c in linter.prepare_checkers()]
 
 
-def test_errors_only(init_linter: PyLinter) -> None:
-    linter = init_linter
+def test_errors_only(initialized_linter: PyLinter) -> None:
+    linter = initialized_linter
     linter.error_mode()
     checkers = linter.prepare_checkers()
     checker_names = {c.name for c in checkers}
@@ -470,8 +470,8 @@ def test_errors_only(init_linter: PyLinter) -> None:
     assert set() == should_not & checker_names
 
 
-def test_disable_similar(init_linter: PyLinter) -> None:
-    linter = init_linter
+def test_disable_similar(initialized_linter: PyLinter) -> None:
+    linter = initialized_linter
     linter.set_option("disable", "RP0801")
     linter.set_option("disable", "R0801")
     assert not ("similarities" in [c.name for c in linter.prepare_checkers()])
