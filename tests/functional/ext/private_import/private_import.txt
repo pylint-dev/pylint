@@ -7,5 +7,5 @@ import-private-name:8:0:8:28::Imported private object (_d):UNDEFINED
 import-private-name:10:0:10:13::Imported private module (_house):UNDEFINED
 import-private-name:11:0:11:29::Imported private module (_house, _chair, _stair):UNDEFINED
 import-private-name:12:0:12:28::Imported private module (_chair, _stair):UNDEFINED
-import-private-name:24:0:24:28::Imported private object (_private):UNDEFINED
-import-private-name:25:0:25:24::Imported private object (_private):UNDEFINED
+import-private-name:30:0:30:28::Imported private object (_private):UNDEFINED
+import-private-name:31:0:31:24::Imported private object (_private):UNDEFINED
