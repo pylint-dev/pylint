@@ -6,7 +6,8 @@ undefined-variable:22:10:22:13:other:Undefined variable 'HOP':UNDEFINED
 global-variable-undefined:27:4:27:18:define_constant:Global variable 'SOMEVAR' undefined at the module level:UNDEFINED
 global-statement:33:4:33:14:global_with_import:Using the global statement:UNDEFINED
 global-variable-not-assigned:39:4:39:19:global_no_assign:Using global for 'CONSTANT' but no assignment is done:UNDEFINED
-global-statement:45:4:45:19:global_operator_assign:Using the global statement:UNDEFINED
-global-statement:52:4:52:19:global_function_assign:Using the global statement:UNDEFINED
-global-statement:62:4:62:15:override_func:Using the global statement:UNDEFINED
-global-statement:71:4:71:14:func:Using the global statement:UNDEFINED
+global-statement:45:4:45:19:global_del:Using the global statement:UNDEFINED
+global-statement:52:4:52:19:global_operator_assign:Using the global statement:UNDEFINED
+global-statement:59:4:59:19:global_function_assign:Using the global statement:UNDEFINED
+global-statement:69:4:69:15:override_func:Using the global statement:UNDEFINED
+global-statement:78:4:78:14:func:Using the global statement:UNDEFINED

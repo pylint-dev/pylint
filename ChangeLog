@@ -14,6 +14,15 @@ Release date: TBA
 
   Closes #5588
 
+* Rewrote checker for ``non-ascii-name``.
+   It now ensures __all__ Python names are ASCII and also properly
+   checks the names of imports (``non-ascii-module-import``) as
+   well as file names (``non-ascii-file-name``) and emits their respective new warnings.
+
+   Non ASCII characters could be homoglyphs (look alike characters) and hard to
+   enter on a non specialized keyboard.
+   See `Confusable Characters in PEP 672 <https://www.python.org/dev/peps/pep-0672/#confusable-characters-in-identifiers>`_
+
 * When run in parallel mode ``pylint`` now pickles the data passed to subprocesses with
   the ``dill`` package. The ``dill`` package has therefore been added as a dependency.
 
@@ -26,12 +35,23 @@ Release date: TBA
   Closes #4798
   Closes #5081
 
+* Fix a crash in ``unused-private-member`` checker when analyzing code using
+  ``type(self)`` in bound methods.
+
+  Closes #5569
+
 * Pyreverse - add output in mermaidjs format
 
 * ``used-before-assignment`` now considers that assignments in a try block
   may not have occurred when the except or finally blocks are executed.
 
   Closes #85, #2615
+
+* Fixed false negative for ``used-before-assignment`` when a conditional
+  or context manager intervened before the try statement that suggested
+  it might fail.
+
+  Closes #4045
 
 * Fixed extremely long processing of long lines with comma's.
 
@@ -50,6 +70,10 @@ Release date: TBA
 * Add checker ``redefined-slots-in-subclass``: Emitted when a slot is redefined in a subclass.
 
   Closes #5617
+
+* Fixed false positive for ``global-variable-not-assigned`` when the ``del`` statement is used
+
+  Closes #5333
 
 * By default, pylint does no longer take files starting with ``.#`` into account. Those are
   considered `emacs file locks`. See
@@ -76,9 +100,18 @@ Release date: TBA
 
   Closes #5360, #3877
 
+* Fixed crash with slots assignments and annotated assignments.
+
+  Closes #5479
+
 * Fixed crash on list comprehensions that used ``type`` as inner variable name.
 
   Closes #5461
+
+* Fix false positive for ``unused-variable`` for a comprehension variable matching
+  an outer scope type annotation.
+
+  Closes #5326
 
 * Some files in ``pylint.testutils`` were deprecated. In the future imports should be done from the
   ``pylint.testutils.functional`` namespace directly.
@@ -123,6 +156,11 @@ Release date: TBA
 
   Closes #4434
   Closes #5370
+
+* ``encoding`` can now be supplied as a positional argument to calls that open
+  files without triggering ``unspecified-encoding``.
+
+  Closes #5638
 
 * Fatal errors now emit a score of 0.0 regardless of whether the linted module
   contained any statements

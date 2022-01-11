@@ -309,3 +309,13 @@ class Foo:
 
     def method(self):
         print(self.__class__.__ham)
+
+
+class TypeSelfCallInMethod:
+    """Regression test for issue 5569"""
+    @classmethod
+    def b(cls) -> None:
+        cls.__a = ''  # [unused-private-member]
+
+    def a(self):
+        return type(self).__a

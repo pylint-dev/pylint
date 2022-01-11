@@ -1,4 +1,4 @@
-name: Primer tests
+name: Primer
 
 on:
   push:
@@ -22,7 +22,7 @@ concurrency:
 
 jobs:
   prepare-tests-linux:
-    name: Prepare tests for Python ${{ matrix.python-version }} (Linux)
+    name: prepare / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -64,7 +64,7 @@ jobs:
           pip install -U -r requirements_test.txt
 
   pytest-primer-stdlib:
-    name: Run primer tests on stdlib Python ${{ matrix.python-version }} (Linux)
+    name: run on stdlib / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
     needs: prepare-tests-linux
     strategy:
@@ -98,9 +98,7 @@ jobs:
           pytest -m primer_stdlib --primer-stdlib -n auto
 
   pytest-primer-external-batch-one:
-    name:
-      Run primer tests batch one on external libs Python ${{ matrix.python-version }}
-      (Linux)
+    name: run on batch one / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
     needs: prepare-tests-linux
     strategy:
@@ -134,9 +132,7 @@ jobs:
           pytest -m primer_external_batch_one --primer-external -n auto
 
   pytest-primer-external-batch-two:
-    name:
-      Run primer tests batch two on external libs Python ${{ matrix.python-version }}
-      (Linux)
+    name: run on batch two / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
     needs: prepare-tests-linux
     strategy:

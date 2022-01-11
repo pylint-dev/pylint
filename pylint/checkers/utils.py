@@ -668,7 +668,7 @@ def node_frame_class(node: nodes.NodeNG) -> Optional[nodes.ClassDef]:
     The function returns a class for a method node (or a staticmethod or a
     classmethod), otherwise it returns `None`.
     """
-    klass = node.frame()
+    klass = node.frame(future=True)
     nodes_to_check = (
         nodes.NodeNG,
         astroid.UnboundMethod,
@@ -682,14 +682,14 @@ def node_frame_class(node: nodes.NodeNG) -> Optional[nodes.ClassDef]:
         if klass.parent is None:
             return None
 
-        klass = klass.parent.frame()
+        klass = klass.parent.frame(future=True)
 
     return klass
 
 
 def get_outer_class(class_node: astroid.ClassDef) -> Optional[astroid.ClassDef]:
     """Return the class that is the outer class of given (nested) class_node"""
-    parent_klass = class_node.parent.frame()
+    parent_klass = class_node.parent.frame(future=True)
 
     return parent_klass if isinstance(parent_klass, astroid.ClassDef) else None
 
@@ -1086,7 +1086,7 @@ def class_is_abstract(node: nodes.ClassDef) -> bool:
             return True
 
     for method in node.methods():
-        if method.parent.frame() is node:
+        if method.parent.frame(future=True) is node:
             if method.is_abstract(pass_is_abstract=False):
                 return True
     return False
@@ -1672,6 +1672,15 @@ def is_reassigned_after_current(node: nodes.NodeNG, varname: str) -> bool:
     )
 
 
+def is_deleted_after_current(node: nodes.NodeNG, varname: str) -> bool:
+    """Check if the given variable name is deleted in the same scope after the current node"""
+    return any(
+        getattr(target, "name", None) == varname and target.lineno > node.lineno
+        for del_node in node.scope().nodes_of_class(nodes.Delete)
+        for target in del_node.targets
+    )
+
+
 def is_function_body_ellipsis(node: nodes.FunctionDef) -> bool:
     """Checks whether a function body only consists of a single Ellipsis"""
     return (
@@ -1713,3 +1722,19 @@ def get_node_first_ancestor_of_type(
         if isinstance(ancestor, ancestor_type):
             return ancestor
     return None
+
+
+def get_node_first_ancestor_of_type_and_its_child(
+    node: nodes.NodeNG, ancestor_type: Union[Type[T_Node], Tuple[Type[T_Node]]]
+) -> Union[Tuple[None, None], Tuple[T_Node, nodes.NodeNG]]:
+    """Modified version of get_node_first_ancestor_of_type to also return the
+    descendant visited directly before reaching the sought ancestor. Useful
+    for extracting whether a statement is guarded by a try, except, or finally
+    when searching for a TryFinally ancestor.
+    """
+    child = node
+    for ancestor in node.node_ancestors():
+        if isinstance(ancestor, ancestor_type):
+            return (ancestor, child)
+        child = ancestor
+    return None, None
