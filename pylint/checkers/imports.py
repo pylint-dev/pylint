@@ -910,7 +910,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         if not self.linter.is_message_enabled("reimported"):
             return
 
-        frame = node.frame()
+        frame = node.frame(future=True)
         root = node.root()
         contexts = [(frame, level)]
         if root is not frame:

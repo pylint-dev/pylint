@@ -15,6 +15,15 @@ New checkers
 
   Closes #5460
 
+* Rewrote Checker of ``non-ascii-name``.
+   It now ensures __all__ Python names are ASCII and also properly
+   checks the names of imports (``non-ascii-module-import``) as
+   well as file names (``non-ascii-file-name``) and emits their respective new warnings.
+
+   Non ASCII characters could be homoglyphs (look alike characters) and hard to
+   enter on a non specialized keyboard.
+   See `Confusable Characters in PEP 672 <https://www.python.org/dev/peps/pep-0672/#confusable-characters-in-identifiers>`_
+
 Removed checkers
 ================
 
@@ -70,6 +79,11 @@ Other Changes
 
   Closes #4716
 
+* Fix a crash in ``unused-private-member`` checker when analyzing code using
+  ``type(self)`` in bound methods.
+
+  Closes #5569
+
 * Fix crash in ``unnecessary-dict-index-lookup`` checker if the output of
   ``items()`` is assigned to a 1-tuple.
 
@@ -88,6 +102,12 @@ Other Changes
   may not have occurred when the except or finally blocks are executed.
 
   Closes #85, #2615
+
+* Fixed false negative for ``used-before-assignment`` when a conditional
+  or context manager intervened before the try statement that suggested
+  it might fail.
+
+  Closes #4045
 
 * Fix a false positive for ``assigning-non-slot`` when the slotted class
   defined ``__setattr__``.
@@ -120,6 +140,11 @@ Other Changes
 * Fixed crash on list comprehensions that used ``type`` as inner variable name.
 
   Closes #5461
+
+* Fix false positive for ``unused-variable`` for a comprehension variable matching
+  an outer scope type annotation.
+
+  Closes #5326
 
 * Require Python ``3.6.2`` to run pylint.
 
@@ -185,3 +210,7 @@ Other Changes
       raise ValueError
 
   Closes #4955
+
+* Fixed false positive for ``global-variable-not-assigned`` when the ``del`` statement is used
+
+  Closes #5333

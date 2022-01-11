@@ -49,7 +49,7 @@ def interfaces(node, herited=True, handler_func=_iface_hdlr):
         implements = astroid.bases.Instance(node).getattr("__implements__")[0]
     except astroid.exceptions.NotFoundError:
         return
-    if not herited and implements.frame() is not node:
+    if not herited and implements.frame(future=True) is not node:
         return
     found = set()
     missing = False
@@ -222,8 +222,8 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         if hasattr(node, "_handled"):
             return
         node._handled = True
-        if node.name in node.frame():
-            frame = node.frame()
+        if node.name in node.frame(future=True):
+            frame = node.frame(future=True)
         else:
             # the name has been defined as 'global' in the frame and belongs
             # there.
