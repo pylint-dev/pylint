@@ -22,7 +22,7 @@ from __future__ import __print_function__
 the name of the module we are importing from. The use of `__init__.py` to indicate Python modules is deprecated
 so this is a heuristic solution.
 If we were importing from `pylint`, it would be counted as a valid internal private import and not emit
-a message as long as this file has a parent directory called `pylint`, even though 
+a message as long as this file has a parent directory called `pylint`, even though
 we are not importing from that directory. (We would be importing from `pylint/pylint`.)
 """
 from private_import import _private # pylint: disable=import-self
