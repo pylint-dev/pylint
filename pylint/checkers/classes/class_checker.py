@@ -1669,7 +1669,7 @@ a metaclass class method.",
             return False
         return frame_name and frame_name in PYMETHODS
 
-    def _is_type_self_call(self, expr):
+    def _is_type_self_call(self, expr: nodes.NodeNG) -> bool:
         return (
             isinstance(expr, nodes.Call)
             and isinstance(expr.func, nodes.Name)
@@ -2032,7 +2032,7 @@ a metaclass class method.",
         """
         return self._is_mandatory_method_param(node.expr)
 
-    def _is_mandatory_method_param(self, node):
+    def _is_mandatory_method_param(self, node: nodes.NodeNG) -> bool:
         """Check if nodes.Name corresponds to first attribute variable name
 
         Name is `self` for method, `cls` for classmethod and `mcs` for metaclass.
