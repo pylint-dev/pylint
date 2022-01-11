@@ -1,22 +1,9 @@
-"""Checks of Dosctrings 'docstring-first-line-empty' 'bad-docstring-quotes'"""
+"""Checks of Dosctrings 'bad-docstring-quotes'"""
+# pylint: disable=docstring-first-line-empty,missing-class-docstring, undefined-variable
 
 
-def check_messages(*messages):  # [docstring-first-line-empty]
-    """
-    docstring"""
-    return messages
-
-
-def function2():
-    """Test Ok"""
-
-
-class FFFF:  # [docstring-first-line-empty]
-    """
-    Test Docstring First Line Empty
-    """
-
-    def method1(self):  # [docstring-first-line-empty, bad-docstring-quotes]
+class FFFF:
+    def method1(self):  # [bad-docstring-quotes]
         '''
         Test Triple Single Quotes docstring
         '''
@@ -39,3 +26,7 @@ class FFFF:  # [docstring-first-line-empty]
 
     def method7(self):
         u"""Test OK 3 with unicode string"""
+
+
+def function2():
+    """Test Ok"""
