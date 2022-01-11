@@ -237,6 +237,12 @@ Release date: 2021-11-25
 
   Closes #5342
 
+* Fixed a false positive (affecting unreleased development) for
+  ``used-before-assignment`` involving homonyms between filtered comprehensions
+  and assignments in except blocks.
+
+  Closes #5586
+
 * Specified that the ``ignore-paths`` option considers "\" to represent a
   windows directory delimiter instead of a regular expression escape
   character.
