@@ -1,11 +1,10 @@
-"""Check for use of for loops that only check for a condition."""
+"""Check for imports on private external modules and names"""
 import os
-from typing import TYPE_CHECKING, List, Optional, Set, Union
+from typing import TYPE_CHECKING, List, Set, Union
 
 from astroid import nodes
 
-from pylint.checkers import BaseChecker
-from pylint.checkers.utils import check_messages, is_node_in_typing_guarded_import_block
+from pylint.checkers import BaseChecker, utils
 from pylint.interfaces import IAstroidChecker
 
 if TYPE_CHECKING:
@@ -20,37 +19,36 @@ class PrivateImportChecker(BaseChecker):
         "C2601": (
             "Imported private %s (%s)",
             "import-private-name",
-            "Used when a private module or object prefixed with _ is imported",
+            "Used when a private module or object prefixed with _ is imported."
+            "PEP8 guidence on Naming Conventions states that public attributes "
+            "should not have leading underscores.",
         ),
     }
 
-    def __init__(self, linter: Optional["PyLinter"] = None):
+    def __init__(self, linter: "PyLinter") -> None:
         BaseChecker.__init__(self, linter)
         self.all_used_type_annotations: Set[str] = set()
         self.populated_annotations = False
 
-    @check_messages("import-private-name")
+    @utils.check_messages("import-private-name")
     def visit_import(self, node: nodes.Import) -> None:
-        if is_node_in_typing_guarded_import_block(node):
+        if utils.is_node_in_typing_guarded_import_block(node):
             return
         self._check_import_private_name(
             node, [name[0] for name in node.names], checking_objects=False
         )
 
-    @check_messages("import-private-name")
+    @utils.check_messages("import-private-name")
     def visit_importfrom(self, node: nodes.ImportFrom) -> None:
-        if is_node_in_typing_guarded_import_block(node):
+        if utils.is_node_in_typing_guarded_import_block(node):
             return
         check_imported_names = self._check_import_private_name(
             node, [node.modname], checking_objects=False
         )
         if check_imported_names:
             if not self.populated_annotations:
-                module_node = node
-                while module_node.parent:
-                    module_node = module_node.parent
                 self._populate_type_annotations(
-                    module_node, self.all_used_type_annotations
+                    node.root(), self.all_used_type_annotations
                 )
                 self.populated_annotations = True
 
@@ -90,7 +88,7 @@ class PrivateImportChecker(BaseChecker):
     @staticmethod
     def _populate_type_annotations(
         node: Union[nodes.Module, nodes.LocalsDictNodeNG],
-        all_used_type_annotations: Set,
+        all_used_type_annotations: Set[str],
     ) -> None:
         """Adds into the set all_used_type_annotations the names of all names ever used as a type annotation
         in the scope and class definition scopes of node
@@ -117,7 +115,7 @@ class PrivateImportChecker(BaseChecker):
 
     @staticmethod
     def _populate_type_annotations_function(
-        node: nodes.FunctionDef, all_used_type_annotations: Set
+        node: nodes.FunctionDef, all_used_type_annotations: Set[str]
     ) -> None:
         """Adds into the set all_used_type_annotations the names of all names used as a type annotation
         in the arguments and return type of the function node
@@ -160,10 +158,8 @@ class PrivateImportChecker(BaseChecker):
             return True
 
         base_import_package = import_mod_name.split(".")[0]
-        while node.parent:
-            node = node.parent
 
-        return base_import_package in os.path.dirname(node.file).split(os.sep)
+        return base_import_package in os.path.dirname(node.root().file).split(os.sep)
 
     @staticmethod
     def _name_is_private(name: str) -> bool:
