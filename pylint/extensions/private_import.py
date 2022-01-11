@@ -54,13 +54,12 @@ class PrivateImportChecker(BaseChecker):
                 )
                 self.populated_annotations = True
 
+            names = [
+                n[0] for n in node.names if n[0] not in self.all_used_type_annotations
+            ]
             self._check_import_private_name(
                 node,
-                [
-                    name[0]
-                    for name in node.names
-                    if name[0] not in self.all_used_type_annotations
-                ],
+                names,
                 checking_objects=True,
             )
 

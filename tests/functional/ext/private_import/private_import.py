@@ -18,8 +18,15 @@ from __future__ import print_function
 from __future__ import __print_function__
 
 # Ignore local modules
-from pylint import _private
-from pylint.checkers import _private
+"""The check for local modules compares directory names in the path of the file being linted to
+the name of the module we are importing from. The use of `__init__.py` to indicate Python modules is deprecated
+so this is a heuristic solution.
+If we were importing from `pylint`, it would be counted as a valid internal private import and not emit
+a message as long as this file has a parent directory called `pylint`, even though 
+we are not importing from that directory. (We would be importing from `pylint/pylint`.)
+"""
+from private_import import _private # pylint: disable=import-self
+from private_import.other_file import _private
 from . import _private
 from astroid import _private # [import-private-name]
 from sys import _private # [import-private-name]
@@ -32,6 +39,7 @@ if TYPE_CHECKING:
     from _types import TreeType
     from _types import _TreeType
 
+# No error since imports are used as typing
 from classes import _PrivateClassA
 from classes import _PrivateClassB
 from classes import _PrivateClassC
