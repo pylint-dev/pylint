@@ -52,7 +52,7 @@
 """Classes checker for Python code"""
 import collections
 from itertools import chain, zip_longest
-from typing import List, Pattern, Set
+from typing import List, Pattern
 
 import astroid
 from astroid import nodes
@@ -1332,7 +1332,7 @@ a metaclass class method.",
                 node=function_node,
             )
 
-    def _check_slots(self, node: nodes.ClassDef):
+    def _check_slots(self, node: nodes.ClassDef) -> None:
         if "__slots__" not in node.locals:
             return
         for slots in node.igetattr("__slots__"):
@@ -1371,17 +1371,17 @@ a metaclass class method.",
         slots_list: List[nodes.NodeNG],
     ) -> None:
         """Check if `node` redefines a slot which is defined in an ancestor class"""
-        slots_names: List[str] = [getattr(slot, "value", "") for slot in slots_list]
+        slots_names = [getattr(slot, "value", "") for slot in slots_list]
 
         # Slots of all parent classes
-        ancestors_slots_names: Set[str] = {
+        ancestors_slots_names = {
             slot.value
             for ancestor in node.local_attr_ancestors("__slots__")
             for slot in ancestor.slots() or []
         }
 
         # Slots which are common to `node` and its parent classes
-        redefined_slots: Set[str] = ancestors_slots_names.intersection(slots_names)
+        redefined_slots = ancestors_slots_names.intersection(slots_names)
 
         if redefined_slots:
             self.add_message(
