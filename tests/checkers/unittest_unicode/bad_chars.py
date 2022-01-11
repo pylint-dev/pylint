@@ -256,6 +256,7 @@ class TestBadCharsChecker(pylint.testutils.CheckerTestCase):
         ],
     )
     def test___check_invalid_chars(self, char: str, msg: str, codec: str) -> None:
+        """Check function should deliver correct column no matter which codec we used"""
         with self.assertAddsMessages(
             pylint.testutils.MessageTest(
                 msg_id=msg,
