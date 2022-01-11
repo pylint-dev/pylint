@@ -1,4 +1,7 @@
-"""Checks of Dosctrings 'bad-docstring-quotes'"""
+"""Checks of Dosctrings 'bad-docstring-quotes'
+
+Check that the checker is not enabled on python <= 3.7
+"""
 # pylint: disable=docstring-first-line-empty,missing-class-docstring, undefined-variable
 
 
