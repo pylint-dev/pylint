@@ -186,14 +186,15 @@ def test__normalize_codec_name(codec: str, expected: str):
 
 
 @pytest.mark.parametrize(
-    "codec, line_ending",
+    "codec, line_ending, final_new_line",
     [
         pytest.param(
             codec,
             line_ending[0],
-            id=f"{codec}_{line_ending[1]}",
+            final_nl[0],
+            id=f"{codec}_{line_ending[1]}_{final_nl[1]}",
         )
-        for codec, line_ending in itertools.product(
+        for codec, line_ending, final_nl in itertools.product(
             (
                 "utf-8",
                 "utf-16",
@@ -204,10 +205,13 @@ def test__normalize_codec_name(codec: str, expected: str):
                 "utf-32be",
             ),
             (("\n", "linux"), ("\r\n", "windows")),
+            ((True, "final_nl"), (False, "no_final_nl")),
         )
     ],
 )
-def test___fix_utf16_32_line_stream(tmp_path: Path, codec: str, line_ending: str):
+def test___fix_utf16_32_line_stream(
+    tmp_path: Path, codec: str, line_ending: str, final_new_line: bool
+):
     """content of stream should be the same as should be the length"""
 
     def decode_line(line: bytes, codec: str) -> str:
@@ -219,7 +223,7 @@ def test___fix_utf16_32_line_stream(tmp_path: Path, codec: str, line_ending: str
         f"line1{line_ending}",
         f"# Line 2{line_ending}",
         f"łöł{line_ending}",
-        f"last line{line_ending}",
+        f"last line{line_ending if final_new_line else ''}",
     ]
 
     text = "".join(content)
@@ -228,13 +232,15 @@ def test___fix_utf16_32_line_stream(tmp_path: Path, codec: str, line_ending: str
     file.write_bytes(encoded)
 
     gathered = b""
+    collected = []
     with file.open("rb") as f:
-        for line, expected in zip(
-            pylint.checkers.unicode._fix_utf16_32_line_stream(f, codec), content
-        ):
+        for line in pylint.checkers.unicode._fix_utf16_32_line_stream(f, codec):
             gathered += line
-            assert decode_line(line, codec) == expected
+            collected.append(decode_line(line, codec))
 
+    # Test content equality
+    assert collected == content
+    # Test byte equality
     assert gathered == encoded
 
 

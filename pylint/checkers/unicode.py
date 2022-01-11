@@ -266,7 +266,8 @@ def _fix_utf16_32_line_stream(steam: Iterable[bytes], codec: str) -> Iterable[by
                 yield content[start : pos + len(new_line)]
             else:
                 # Yield the rest and finish
-                yield content[start:]
+                if content[start:]:
+                    yield content[start:]
                 break
 
             start = pos + len(new_line)
