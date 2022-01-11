@@ -40,7 +40,7 @@ BIDI_UNICODE = [
     "\u2067",  # \N{RIGHT-TO-LEFT ISOLATE}
     "\u2068",  # \N{FIRST STRONG ISOLATE}
     "\u2069",  # \N{POP DIRECTIONAL ISOLATE}
-    # The following was part of the PEP 672:
+    # The following was part of PEP 672:
     # https://www.python.org/dev/peps/pep-0672/
     # so the list above might not be complete
     "\u200F",  # \n{RIGHT-TO-LEFT MARK}
@@ -81,7 +81,7 @@ BAD_CHARS = [
         "E2410",
         (
             "Moves the cursor back, so the character after it will overwrite the "
-            "character before"
+            "character before."
         ),
     ),
     _BadChar(
@@ -197,7 +197,7 @@ UNICODE_BOMS = {
     "utf-32be": codecs.BOM_UTF32_BE,
 }
 BOM_SORTED_TO_CODEC = OrderedDict(
-    # Sorted by length of BOM giving the codec
+    # Sorted by length of BOM of each codec
     (UNICODE_BOMS[codec], codec)
     for codec in ("utf-32le", "utf-32be", "utf-8", "utf-16le", "utf-16be")
 )
@@ -252,7 +252,7 @@ def _fix_utf16_32_line_stream(steam: Iterable[bytes], codec: str) -> Iterable[by
     if not codec.startswith("utf-16") and not codec.startswith("utf-32"):
         yield from steam
     else:
-        # UTF 16 and UTF-32 are sucking, so first get all the bytes in memory
+        # First we get all the bytes in memory
         content = b"".join(line for line in steam)
 
         new_line = _cached_encode_search("\n", codec)
@@ -334,8 +334,8 @@ class UnicodeChecker(pylint.checkers.BaseChecker):
         ),
         "E2402": (
             (
-                "contains control characters that can permit obfuscated code "
-                "executed differently as displayed"
+                "Contains control characters that can permit obfuscated code "
+                "executed differently than displayed"
             ),
             "bidirectional-unicode",
             (
@@ -345,7 +345,7 @@ class UnicodeChecker(pylint.checkers.BaseChecker):
                 "So can you trust this code? "
                 "Are you sure it displayed correctly in all editors? "
                 "If you did not write it or your language is not RTL,"
-                " remove the special characters, as they could be used to trick you into executing code,"
+                " remove the special characters, as they could be used to trick you into executing code, "
                 "that does something else than what it looks like.\n"
                 "More Information:\n"
                 "https://en.wikipedia.org/wiki/Bidirectional_text\n"
@@ -457,7 +457,7 @@ class UnicodeChecker(pylint.checkers.BaseChecker):
 
         return _normalize_codec_name(codec), codec_definition_line
 
-    def _check_codec(self, codec: str, codec_definition_line: int):
+    def _check_codec(self, codec: str, codec_definition_line: int) -> None:
         """Check validity of the codec"""
         if codec != "utf-8":
             msg = "bad-file-encoding"
@@ -474,7 +474,7 @@ class UnicodeChecker(pylint.checkers.BaseChecker):
                 end_col_offset=None,
             )
 
-    def _check_invalid_chars(self, line: bytes, lineno: int, codec: str):
+    def _check_invalid_chars(self, line: bytes, lineno: int, codec: str) -> None:
         """Look for chars considered bad"""
         matches = self._find_line_matches(line, codec)
         for col, char in matches.items():
@@ -489,7 +489,7 @@ class UnicodeChecker(pylint.checkers.BaseChecker):
                 end_col_offset=col + len(char.unescaped) + 1,
             )
 
-    def _check_bidi_chars(self, line: bytes, lineno: int, codec: str):
+    def _check_bidi_chars(self, line: bytes, lineno: int, codec: str) -> None:
         """Look for Bidirectional Unicode, if we use unicode"""
         if not self._is_unicode(codec):
             return

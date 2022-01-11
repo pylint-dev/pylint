@@ -14,7 +14,7 @@ Release date: TBA
   `PEP 672 <https://www.python.org/dev/peps/pep-0672/>`_ for details) that also
   concern the readability of the code. In detail the following checks were added:
 
-  * ``bad-file-encoding`` checks that the file is encoded in UTF-8 as suggest by
+  * ``bad-file-encoding`` checks that the file is encoded in UTF-8 as suggested by
     `PEP8 <https://www.python.org/dev/peps/pep-0008/#id20>`_.
     UTF-16 and UTF-32 are `not supported by Python <https://bugs.python.org/issue1503789>`_
     at the moment. If this ever changes
@@ -27,9 +27,9 @@ Release date: TBA
   * ``invalid-character-backspace``, ``invalid-character-carriage-return``,
     ``invalid-character-sub``, ``invalid-character-esc``,
     ``invalid-character-zero-width-space`` and ``invalid-character-nul``
-    to check for possibly harmful not escaped characters.
+    to check for possibly harmful unescaped characters.
 
-Closes #5281
+  Closes #5281
 
 * Fixed false positive ``consider-using-dict-comprehension`` when creating a dict
   using a list of tuples where key AND value vary depending on the same condition.
