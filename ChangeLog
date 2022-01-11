@@ -96,6 +96,12 @@ Release date: TBA
 
   Closes #5360, #3877
 
+* Fixed a false positive (affecting unreleased development) for
+  ``used-before-assignment`` involving homonyms between filtered comprehensions
+  and assignments in except blocks.
+
+  Closes #5586
+
 * Fixed crash with slots assignments and annotated assignments.
 
   Closes #5479
@@ -236,12 +242,6 @@ Release date: 2021-11-25
   typed variables in the body of class methods that reference the same class
 
   Closes #5342
-
-* Fixed a false positive (affecting unreleased development) for
-  ``used-before-assignment`` involving homonyms between filtered comprehensions
-  and assignments in except blocks.
-
-  Closes #5586
 
 * Specified that the ``ignore-paths`` option considers "\" to represent a
   windows directory delimiter instead of a regular expression escape
