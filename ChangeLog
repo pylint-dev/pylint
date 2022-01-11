@@ -35,6 +35,11 @@ Release date: TBA
   Closes #4798
   Closes #5081
 
+* Fix a crash in ``unused-private-member`` checker when analyzing code using
+  ``type(self)`` in bound methods.
+
+  Closes #5569
+
 * Pyreverse - add output in mermaidjs format
 
 * ``used-before-assignment`` now considers that assignments in a try block
