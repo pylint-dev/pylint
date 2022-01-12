@@ -57,7 +57,7 @@ class TestInvalidEncoding(pylint.testutils.CheckerTestCase):
         # is not really working at all in in Python, but checking it now already
         # is future save in case that changes....
 
-        module = FakeNode(target)
+        module = FakeNode(Path(target).read_bytes())
 
         with self.assertAddsMessages(
             pylint.testutils.MessageTest(
