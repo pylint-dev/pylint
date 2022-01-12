@@ -1316,6 +1316,13 @@ class VariablesChecker(BaseChecker):
             if utils.is_func_decorator(current_consumer.node) or not (
                 current_consumer.scope_type == "comprehension"
                 and self._has_homonym_in_upper_function_scope(node, consumer_level)
+                # But don't catch homonyms against the filter of a comprehension,
+                # (like "if x" in "[x for x in expr() if x]")
+                # https://github.com/PyCQA/pylint/issues/5586
+                and not (
+                    isinstance(node.parent.parent, nodes.Comprehension)
+                    and node.parent in node.parent.parent.ifs
+                )
             ):
                 self._check_late_binding_closure(node)
                 self._loopvar_name(node)
