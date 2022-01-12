@@ -34,56 +34,66 @@ class PrivateImportChecker(BaseChecker):
     def visit_import(self, node: nodes.Import) -> None:
         if utils.is_node_in_typing_guarded_import_block(node):
             return
-        self._check_import_private_name(
-            node, [name[0] for name in node.names], checking_objects=False
-        )
+        names = [name[0] for name in node.names]
+        private_names = self._get_private_imports(names)
+        if private_names:
+            private_name_string = ", ".join(private_names)
+            self.add_message(
+                "import-private-name", node=node, args=("module", private_name_string)
+            )
 
     @utils.check_messages("import-private-name")
     def visit_importfrom(self, node: nodes.ImportFrom) -> None:
         if utils.is_node_in_typing_guarded_import_block(node):
             return
-        check_imported_names = self._check_import_private_name(
-            node, [node.modname], checking_objects=False
-        )
-        if check_imported_names:
+        private_module_imports = self._get_private_imports([node.modname])
+        if private_module_imports:  # If module is private, do not check imported names
+            self.add_message(
+                "import-private-name",
+                node=node,
+                args=("module", private_module_imports[0]),
+            )
+        elif not self.same_root_dir(
+            node, node.modname
+        ):  # Only check imported names if the module is external
+
+            # Only check names not used as type annotations
             if not self.populated_annotations:
                 self._populate_type_annotations(
                     node.root(), self.all_used_type_annotations
                 )
                 self.populated_annotations = True
-
             names = [
                 n[0] for n in node.names if n[0] not in self.all_used_type_annotations
             ]
-            self._check_import_private_name(
-                node,
-                names,
-                checking_objects=True,
-            )
 
-    def _check_import_private_name(
-        self, node: nodes.Import, names: List[str], checking_objects: bool
-    ) -> bool:
-        """Checks if the import is private. Checking an object if checking_objects is True else a module
-        Returns True if the module is external and public because we want to check a module's imported names
-        """
-        if not checking_objects:
-            # Check only external modules
-            names = [name for name in names if not self.same_root_dir(node, name)]
-            if not names:
-                # The module is internal, do not have to check imported names
-                return False
+            private_names = self._get_private_imports(names)
+            if private_names:
+                private_name_string = ", ".join(private_names)
+                self.add_message(
+                    "import-private-name",
+                    node=node,
+                    args=("object", private_name_string),
+                )
 
+    def _get_private_imports(
+        self,
+        names: List[str],
+    ) -> List[str]:
+        """Returns the private names from input names by a simple string check"""
         private_names = [name for name in names if self._name_is_private(name)]
-        if not private_names:
-            return True  # The module name is not private, so check imported names
-        private_imports = ", ".join(private_names)
-        type_ = "object" if checking_objects else "module"
-        self.add_message(
-            "import-private-name", node=node, args=(type_, private_imports)
+        return private_names
+
+    @staticmethod
+    def _name_is_private(name: str) -> bool:
+        """Returns true if the name exists, starts with `_`, and if len(name) > 4
+        it is not a dunder, i.e. it does not begin and end with two underscores
+        """
+        return (
+            bool(name)
+            and name[0] == "_"
+            and (len(name) <= 4 or (name[1] != "_" and name[-2:] != "__"))
         )
-        # The module name is private and external; short-circuit checking imported names
-        return False
 
     @staticmethod
     def _populate_type_annotations(
@@ -95,23 +105,20 @@ class PrivateImportChecker(BaseChecker):
         """
         for name in node.locals:
             for usage_node in node.locals[name]:
-                try:
-                    if isinstance(usage_node, nodes.AssignName) and isinstance(
-                        usage_node.parent, nodes.AnnAssign
-                    ):
-                        PrivateImportChecker._populate_type_annotations_annotation(
-                            usage_node.parent.annotation, all_used_type_annotations
-                        )
-                    if isinstance(usage_node, nodes.FunctionDef):
-                        PrivateImportChecker._populate_type_annotations_function(
-                            usage_node, all_used_type_annotations
-                        )
-                    if isinstance(usage_node, nodes.LocalsDictNodeNG):
-                        PrivateImportChecker._populate_type_annotations(
-                            usage_node, all_used_type_annotations
-                        )
-                except AttributeError:
-                    continue  # Silently prune unexpected missing fields while processing names
+                if isinstance(usage_node, nodes.AssignName) and isinstance(
+                    usage_node.parent, nodes.AnnAssign
+                ):
+                    PrivateImportChecker._populate_type_annotations_annotation(
+                        usage_node.parent.annotation, all_used_type_annotations
+                    )
+                if isinstance(usage_node, nodes.FunctionDef):
+                    PrivateImportChecker._populate_type_annotations_function(
+                        usage_node, all_used_type_annotations
+                    )
+                if isinstance(usage_node, nodes.LocalsDictNodeNG):
+                    PrivateImportChecker._populate_type_annotations(
+                        usage_node, all_used_type_annotations
+                    )
 
     @staticmethod
     def _populate_type_annotations_function(
@@ -160,17 +167,6 @@ class PrivateImportChecker(BaseChecker):
         base_import_package = import_mod_name.split(".")[0]
 
         return base_import_package in os.path.dirname(node.root().file).split(os.sep)
-
-    @staticmethod
-    def _name_is_private(name: str) -> bool:
-        """Returns true if the name exists, starts with `_`, and if len(name) > 4
-        it is not a dunder, i.e. it does not begin and end with two underscores
-        """
-        return (
-            bool(name)
-            and name[0] == "_"
-            and (len(name) <= 4 or (name[1] != "_" and name[-2:] != "__"))
-        )
 
 
 def register(linter: "PyLinter") -> None:
