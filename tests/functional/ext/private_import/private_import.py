@@ -1,3 +1,4 @@
+"""Tests for import-private-name."""
 # pylint: disable=unused-import, missing-docstring, reimported, import-error, wrong-import-order
 # pylint: disable=no-name-in-module, multiple-imports, ungrouped-imports, misplaced-future
 # pylint: disable=wrong-import-position

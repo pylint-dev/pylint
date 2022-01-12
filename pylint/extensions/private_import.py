@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, List, Set, Union
 from astroid import nodes
 
 from pylint.checkers import BaseChecker, utils
-from pylint.interfaces import IAstroidChecker
+from pylint.interfaces import HIGH, IAstroidChecker
 
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
@@ -19,9 +19,9 @@ class PrivateImportChecker(BaseChecker):
         "C2601": (
             "Imported private %s (%s)",
             "import-private-name",
-            "Used when a private module or object prefixed with _ is imported."
-            "PEP8 guidence on Naming Conventions states that public attributes "
-            "should not have leading underscores.",
+            "Used when a private module or object prefixed with _ is imported. "
+            "PEP8 guidance on Naming Conventions states that public attributes with"
+            "leading underscores should be considered private.",
         ),
     }
 
@@ -37,9 +37,10 @@ class PrivateImportChecker(BaseChecker):
         names = [name[0] for name in node.names]
         private_names = self._get_private_imports(names)
         if private_names:
+            imported_identifier = "modules" if len(private_names) > 1 else "module"
             private_name_string = ", ".join(private_names)
             self.add_message(
-                "import-private-name", node=node, args=("module", private_name_string)
+                "import-private-name", node=node, args=(imported_identifier, private_name_string)
             )
 
     @utils.check_messages("import-private-name")
@@ -69,11 +70,13 @@ class PrivateImportChecker(BaseChecker):
 
             private_names = self._get_private_imports(names)
             if private_names:
+                imported_identifier = "objects" if len(private_names) > 1 else "object"
                 private_name_string = ", ".join(private_names)
                 self.add_message(
                     "import-private-name",
                     node=node,
-                    args=("object", private_name_string),
+                    args=(imported_identifier, private_name_string),
+                    confidence=HIGH,
                 )
 
     def _get_private_imports(
@@ -92,12 +95,12 @@ class PrivateImportChecker(BaseChecker):
         return (
             bool(name)
             and name[0] == "_"
-            and (len(name) <= 4 or (name[1] != "_" and name[-2:] != "__"))
+            and (len(name) <= 4 or name[1] != "_" or name[-2:] != "__")
         )
 
     @staticmethod
     def _populate_type_annotations(
-        node: Union[nodes.Module, nodes.LocalsDictNodeNG],
+        node: nodes.LocalsDictNodeNG,
         all_used_type_annotations: Set[str],
     ) -> None:
         """Adds into the set all_used_type_annotations the names of all names ever used as a type annotation
@@ -127,13 +130,11 @@ class PrivateImportChecker(BaseChecker):
         """Adds into the set all_used_type_annotations the names of all names used as a type annotation
         in the arguments and return type of the function node
         """
-        if node.args and node.args.args:
-            for arg in node.args.args:
-                if arg.parent.annotations:
-                    for annotation in arg.parent.annotations:
-                        PrivateImportChecker._populate_type_annotations_annotation(
-                            annotation, all_used_type_annotations
-                        )
+        if node.args.annotations:
+            for annotation in node.args.annotations:
+                PrivateImportChecker._populate_type_annotations_annotation(
+                    annotation, all_used_type_annotations
+                )
         if node.returns:
             PrivateImportChecker._populate_type_annotations_annotation(
                 node.returns, all_used_type_annotations

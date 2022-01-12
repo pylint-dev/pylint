@@ -1,11 +1,11 @@
-import-private-name:5:0:5:24::Imported private module (_world):UNDEFINED
-import-private-name:6:0:6:25::Imported private module (_world):UNDEFINED
-import-private-name:7:0:7:23::Imported private object (_house):UNDEFINED
-import-private-name:8:0:8:29::Imported private object (_b, _d):UNDEFINED
-import-private-name:9:0:9:30::Imported private module (_city):UNDEFINED
-import-private-name:10:0:10:28::Imported private object (_d):UNDEFINED
-import-private-name:12:0:12:13::Imported private module (_house):UNDEFINED
-import-private-name:13:0:13:29::Imported private module (_house, _chair, _stair):UNDEFINED
-import-private-name:14:0:14:28::Imported private module (_chair, _stair):UNDEFINED
-import-private-name:32:0:32:28::Imported private object (_private):UNDEFINED
-import-private-name:33:0:33:24::Imported private object (_private):UNDEFINED
+import-private-name:6:0:6:24::Imported private module (_world):UNDEFINED
+import-private-name:7:0:7:25::Imported private module (_world):UNDEFINED
+import-private-name:8:0:8:23::Imported private object (_house):HIGH
+import-private-name:9:0:9:29::Imported private objects (_b, _d):HIGH
+import-private-name:10:0:10:30::Imported private module (_city):UNDEFINED
+import-private-name:11:0:11:28::Imported private object (_d):HIGH
+import-private-name:13:0:13:13::Imported private module (_house):UNDEFINED
+import-private-name:14:0:14:29::Imported private modules (_house, _chair, _stair):UNDEFINED
+import-private-name:15:0:15:28::Imported private modules (_chair, _stair):UNDEFINED
+import-private-name:33:0:33:28::Imported private object (_private):HIGH
+import-private-name:34:0:34:24::Imported private object (_private):HIGH
