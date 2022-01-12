@@ -395,7 +395,6 @@ class UnicodeChecker(pylint.checkers.BaseChecker):
         try:
             line_search = line.decode(codec, errors="strict")
             search_dict = BAD_ASCII_SEARCH_DICT
-            # If everything is correctly decoded, the BOM will be removed automatically
             return _map_positions_to_result(line_search, search_dict, "\n")
         except UnicodeDecodeError:
             # If we can't decode properly, we simply use bytes, even so the column offsets

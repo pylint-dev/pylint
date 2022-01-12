@@ -37,11 +37,11 @@ def bad_char_file_generator(tmp_path: Path) -> Callable[[str, bool, str], Path]:
         byte_suffix = b""
         if add_invalid_bytes:
             if codec == "utf-8":
-                byte_suffix = b"\x80abc"
+                byte_suffix = b"BAD:\x80abc"
             elif codec == "utf-16":
-                byte_suffix = b"\n"  # Generates Truncated Data
+                byte_suffix = b"BAD:\n"  # Generates Truncated Data
             else:
-                byte_suffix = b"\xc3\x28 "
+                byte_suffix = b"BAD:\xc3\x28 "
             byte_suffix = encode_without_bom(" foobar ", codec) + byte_suffix
 
         line_ending_encoded = encode_without_bom(line_ending, codec)
@@ -52,9 +52,7 @@ def bad_char_file_generator(tmp_path: Path) -> Callable[[str, bool, str], Path]:
         # Generate context with the given codec and line ending
         for lineno, line in enumerate(lines):
             byte_line = encode_without_bom(line, codec)
-            if byte_suffix:
-                byte_line += byte_suffix
-            byte_line += line_ending_encoded
+            byte_line += byte_suffix + line_ending_encoded
             content += byte_line
 
             # Directly test the generated content
