@@ -210,7 +210,6 @@ class TestBadCharsChecker(pylint.testutils.CheckerTestCase):
         codec_and_msg: Tuple[str, Tuple[pylint.testutils.MessageTest]],
     ):
         """Special test for a file containing chars that lead to
-
         Python or Astroid crashes (which causes Pylint to exit early)
         """
         codec, start_msg = codec_and_msg

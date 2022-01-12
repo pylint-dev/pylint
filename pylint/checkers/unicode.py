@@ -326,7 +326,7 @@ class UnicodeChecker(pylint.checkers.BaseChecker):
             "UTF-16 and UTF-32 aren't backward compatible. Use UTF-8 instead",
             "invalid-unicode-codec",
             (
-                "For compatibility use UTF-8 instead of UTF-16/UTF-32."
+                "For compatibility use UTF-8 instead of UTF-16/UTF-32. "
                 "See also https://bugs.python.org/issue1503789 for a history "
                 "of this issue. And "
                 "https://softwareengineering.stackexchange.com/questions/102205/should-utf-16-be-considered-harmful "
@@ -401,7 +401,7 @@ class UnicodeChecker(pylint.checkers.BaseChecker):
             # If we can't decode properly, we simply use bytes, even so the column offsets
             # might be wrong a bit, but it is still better then nothing
             line_search_byte = line
-            search_dict_byte = {}
+            search_dict_byte: Dict[bytes, str] = {}
             for char in BAD_CHARS:
                 # Some characters might not exist in all encodings
                 with contextlib.suppress(UnicodeDecodeError):
@@ -445,8 +445,7 @@ class UnicodeChecker(pylint.checkers.BaseChecker):
         except SyntaxError as e:
             # Codec could not be detected by Python, we try manually to check for
             # UTF 16/32 BOMs, which aren't supported by Python at the time of writing.
-            # We do this only in order to test the behavior of our functions with
-            # these codecs, in order to be future save
+            # This is only included to be future save and handle these codecs as well
             stream.seek(0)
             try:
                 codec = extract_codec_from_bom(stream.readline())
