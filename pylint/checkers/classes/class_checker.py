@@ -1374,7 +1374,9 @@ a metaclass class method.",
         slots_list: List[nodes.NodeNG],
     ) -> None:
         """Check if `node` redefines a slot which is defined in an ancestor class"""
-        slots_names = [getattr(slot, "value", "") for slot in slots_list]
+        slots_names = [
+            slot.value for slot in slots_list if isinstance(slot, nodes.Const)
+        ]
 
         # Slots of all parent classes
         ancestors_slots_names = {
