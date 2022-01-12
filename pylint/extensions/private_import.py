@@ -142,22 +142,21 @@ class PrivateImportChecker(BaseChecker):
 
     @staticmethod
     def _populate_type_annotations_annotation(
-        node: Union[nodes.Subscript, nodes.Name], all_used_type_annotations: Set
+        node: Union[nodes.Attribute, nodes.Subscript, nodes.Name], all_used_type_annotations: Set
     ) -> None:
         """Handles the possiblity of an annotation either being a Name, i.e. just type,
-        or a Subscript e.g. Optional[type]
+        or a Subscript e.g. Optional[type] or an Attribute, e.g. pylint.lint.linter
         """
         if isinstance(node, nodes.Name):
             all_used_type_annotations.add(node.name)
-        elif isinstance(node, nodes.Subscript):
-            while isinstance(
-                node, nodes.Subscript
-            ):  # In the case of Optional[List[type]]
-                all_used_type_annotations.add(
-                    node.value.name
-                )  # Add the names of slices
-                node = node.slice
-            all_used_type_annotations.add(node.name)
+        elif isinstance(node, nodes.Subscript): # e.g. Optional[List[str]]
+            # value is the current type name: could be a Name or Attribute
+            PrivateImportChecker._populate_type_annotations_annotation(node.value, all_used_type_annotations)
+            # slice is the next nested type
+            PrivateImportChecker._populate_type_annotations_annotation(node.slice, all_used_type_annotations)
+        elif isinstance(node, nodes.Attribute):
+            # An attribute is a type like `pylint.lint.pylinter`. node.expr is the next level up, could be another attribute
+            PrivateImportChecker._populate_type_annotations_annotation(node.expr, all_used_type_annotations)
 
     @staticmethod
     def same_root_dir(node: nodes.Import, import_mod_name: str) -> bool:
