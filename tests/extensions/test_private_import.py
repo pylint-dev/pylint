@@ -6,6 +6,7 @@ from unittest.mock import patch
 import astroid
 
 from pylint.extensions import private_import
+from pylint.interfaces import HIGH
 from pylint.testutils import CheckerTestCase, MessageTest
 
 
@@ -63,6 +64,7 @@ class TestPrivateImport(CheckerTestCase):
             end_line=1,
             end_col_offset=24,
             args=("object", "_file"),
+            confidence=HIGH,
         )
         with self.assertAddsMessages(msg):
             self.checker.visit_importfrom(import_from)

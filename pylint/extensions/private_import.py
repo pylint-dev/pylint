@@ -43,6 +43,7 @@ class PrivateImportChecker(BaseChecker):
                 "import-private-name",
                 node=node,
                 args=(imported_identifier, private_name_string),
+                confidence=HIGH,
             )
 
     @utils.check_messages("import-private-name")
@@ -55,10 +56,18 @@ class PrivateImportChecker(BaseChecker):
                 "import-private-name",
                 node=node,
                 args=("module", private_module_imports[0]),
+                confidence=HIGH,
             )
         elif not self.same_root_dir(
             node, node.modname
         ):  # Only check imported names if the module is external
+
+            names = [n[0] for n in node.names]
+            private_names = self._get_private_imports(names)
+            if (
+                not private_names
+            ):  # No private names, don't have to check against typing annotations
+                return
 
             # Only check names not used as type annotations
             if not self.populated_annotations:
@@ -66,11 +75,11 @@ class PrivateImportChecker(BaseChecker):
                     node.root(), self.all_used_type_annotations
                 )
                 self.populated_annotations = True
-            names = [
-                n[0] for n in node.names if n[0] not in self.all_used_type_annotations
+
+            private_names = [
+                n for n in private_names if n not in self.all_used_type_annotations
             ]
 
-            private_names = self._get_private_imports(names)
             if private_names:
                 imported_identifier = "objects" if len(private_names) > 1 else "object"
                 private_name_string = ", ".join(private_names)
