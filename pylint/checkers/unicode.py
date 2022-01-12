@@ -401,7 +401,7 @@ class UnicodeChecker(pylint.checkers.BaseChecker):
             # If we can't decode properly, we simply use bytes, even so the column offsets
             # might be wrong a bit, but it is still better then nothing
             line_search_byte = line
-            search_dict_byte: Dict[bytes, str] = {}
+            search_dict_byte: Dict[bytes, _BadChar] = {}
             for char in BAD_CHARS:
                 # Some characters might not exist in all encodings
                 with contextlib.suppress(UnicodeDecodeError):
