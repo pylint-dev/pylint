@@ -40,7 +40,9 @@ class PrivateImportChecker(BaseChecker):
             imported_identifier = "modules" if len(private_names) > 1 else "module"
             private_name_string = ", ".join(private_names)
             self.add_message(
-                "import-private-name", node=node, args=(imported_identifier, private_name_string)
+                "import-private-name",
+                node=node,
+                args=(imported_identifier, private_name_string),
             )
 
     @utils.check_messages("import-private-name")
@@ -142,21 +144,28 @@ class PrivateImportChecker(BaseChecker):
 
     @staticmethod
     def _populate_type_annotations_annotation(
-        node: Union[nodes.Attribute, nodes.Subscript, nodes.Name], all_used_type_annotations: Set
+        node: Union[nodes.Attribute, nodes.Subscript, nodes.Name],
+        all_used_type_annotations: Set,
     ) -> None:
         """Handles the possiblity of an annotation either being a Name, i.e. just type,
         or a Subscript e.g. Optional[type] or an Attribute, e.g. pylint.lint.linter
         """
         if isinstance(node, nodes.Name):
             all_used_type_annotations.add(node.name)
-        elif isinstance(node, nodes.Subscript): # e.g. Optional[List[str]]
+        elif isinstance(node, nodes.Subscript):  # e.g. Optional[List[str]]
             # value is the current type name: could be a Name or Attribute
-            PrivateImportChecker._populate_type_annotations_annotation(node.value, all_used_type_annotations)
+            PrivateImportChecker._populate_type_annotations_annotation(
+                node.value, all_used_type_annotations
+            )
             # slice is the next nested type
-            PrivateImportChecker._populate_type_annotations_annotation(node.slice, all_used_type_annotations)
+            PrivateImportChecker._populate_type_annotations_annotation(
+                node.slice, all_used_type_annotations
+            )
         elif isinstance(node, nodes.Attribute):
             # An attribute is a type like `pylint.lint.pylinter`. node.expr is the next level up, could be another attribute
-            PrivateImportChecker._populate_type_annotations_annotation(node.expr, all_used_type_annotations)
+            PrivateImportChecker._populate_type_annotations_annotation(
+                node.expr, all_used_type_annotations
+            )
 
     @staticmethod
     def same_root_dir(node: nodes.Import, import_mod_name: str) -> bool:
