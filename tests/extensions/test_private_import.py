@@ -14,47 +14,44 @@ class TestPrivateImport(CheckerTestCase):
 
     CHECKER_CLASS = private_import.PrivateImportChecker
 
-    @patch("os.path.dirname")
-    def test_internal_module(self, dirname) -> None:
-        dirname.return_value = os.path.join("", "dir", "module")
+    @patch("pathlib.Path.parent")
+    def test_internal_module(self, parent) -> None:
+        parent.parts = ("", "dir", "module")
+        import_from = astroid.extract_node("""from module import _file""")
+
+        with self.assertNoMessages():
+            self.checker.visit_importfrom(import_from)
+
+    @patch("pathlib.Path.parent")
+    def test_external_module_nested(self, parent) -> None:
+        parent.parts = os.path.join("", "dir", "module", "module_files", "util")
 
         import_from = astroid.extract_node("""from module import _file""")
 
         with self.assertNoMessages():
             self.checker.visit_importfrom(import_from)
 
-    @patch("os.path.dirname")
-    def test_external_module_nested(self, dirname) -> None:
-        dirname.return_value = os.path.join("", "dir", "module", "module_files", "util")
-
-        import_from = astroid.extract_node("""from module import _file""")
-
-        with self.assertNoMessages():
-            self.checker.visit_importfrom(import_from)
-
-    @patch("os.path.dirname")
-    def test_external_module_dot_import(self, dirname) -> None:
-        dirname.return_value = os.path.join(
-            "", "dir", "outer", "inner", "module_files", "util"
-        )
+    @patch("pathlib.Path.parent")
+    def test_external_module_dot_import(self, parent) -> None:
+        parent.parts = os.path.join("", "dir", "outer", "inner", "module_files", "util")
 
         import_from = astroid.extract_node("""from outer.inner import _file""")
 
         with self.assertNoMessages():
             self.checker.visit_importfrom(import_from)
 
-    @patch("os.path.dirname")
-    def test_external_module_dot_import_outer_only(self, dirname) -> None:
-        dirname.return_value = os.path.join("", "dir", "outer", "extensions")
+    @patch("pathlib.Path.parent")
+    def test_external_module_dot_import_outer_only(self, parent) -> None:
+        parent.parts = os.path.join("", "dir", "outer", "extensions")
 
         import_from = astroid.extract_node("""from outer.inner import _file""")
 
         with self.assertNoMessages():
             self.checker.visit_importfrom(import_from)
 
-    @patch("os.path.dirname")
-    def test_external_module(self, dirname) -> None:
-        dirname.return_value = os.path.join("", "dir", "other")
+    @patch("pathlib.Path.parent")
+    def test_external_module(self, parent) -> None:
+        parent.parts = os.path.join("", "dir", "other")
 
         import_from = astroid.extract_node("""from module import _file""")
 

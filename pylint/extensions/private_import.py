@@ -1,5 +1,5 @@
 """Check for imports on private external modules and names"""
-import os
+from pathlib import Path
 from typing import TYPE_CHECKING, List, Set, Union
 
 from astroid import nodes
@@ -160,13 +160,13 @@ class PrivateImportChecker(BaseChecker):
 
     @staticmethod
     def same_root_dir(node: nodes.Import, import_mod_name: str) -> bool:
-        """Returns if the path of the file of node has a directory with same name as the base name of import_mod_name"""
+        """Does the node's file's path contain the base name of 'import_mod_name'?"""
         if not import_mod_name:  # from . import ...
             return True
 
         base_import_package = import_mod_name.split(".")[0]
 
-        return base_import_package in os.path.dirname(node.root().file).split(os.sep)
+        return base_import_package in Path(node.root().file).parent.parts
 
 
 def register(linter: "PyLinter") -> None:

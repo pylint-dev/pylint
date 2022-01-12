@@ -1,4 +1,6 @@
-# pylint: disable=unused-import, missing-docstring, reimported, import-error, wrong-import-order, no-name-in-module, multiple-imports, ungrouped-imports, misplaced-future, wrong-import-position
+# pylint: disable=unused-import, missing-docstring, reimported, import-error, wrong-import-order
+# pylint: disable=no-name-in-module, multiple-imports, ungrouped-imports, misplaced-future
+# pylint: disable=wrong-import-position
 
 from _world import hello  # [import-private-name]
 from _world import _hello  # [import-private-name]
