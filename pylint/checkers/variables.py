@@ -1317,7 +1317,7 @@ class VariablesChecker(BaseChecker):
                 current_consumer.scope_type == "comprehension"
                 and self._has_homonym_in_upper_function_scope(node, consumer_level)
                 # But don't catch homonyms against the filter of a comprehension,
-                # "if x" in [x for x in expr() if x]
+                # (like "if x" in "[x for x in expr() if x]")
                 # https://github.com/PyCQA/pylint/issues/5586
                 and not (
                     isinstance(node.parent.parent, nodes.Comprehension)
