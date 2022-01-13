@@ -14,10 +14,6 @@ def my_func(param):
 
 class MyClassWithMethods:
     @lru_cache
-    def my_func(self, param):  # [lru-cache-decorating-method]
-        return param + 1
-
-    @lru_cache
     @staticmethod
     def my_func(param):
         return param + 1
@@ -27,10 +23,26 @@ class MyClassWithMethods:
     def my_func(cls, param):
         return param + 1
 
+    @lru_cache
+    def my_func(self, param):  # [lru-cache-decorating-method]
+        return param + 1
+
     @functools.lru_cache
     def my_func(self, param):  # [lru-cache-decorating-method]
         return param + 1
 
     @aliased_cache
+    def my_func(self, param):  # [lru-cache-decorating-method]
+        return param + 1
+
+    @lru_cache()
+    def my_func(self, param):  # [lru-cache-decorating-method]
+        return param + 1
+
+    @functools.lru_cache()
+    def my_func(self, param):  # [lru-cache-decorating-method]
+        return param + 1
+
+    @aliased_cache()
     def my_func(self, param):  # [lru-cache-decorating-method]
         return param + 1

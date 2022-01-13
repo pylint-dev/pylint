@@ -62,6 +62,7 @@ SUBPROCESS_POPEN = "subprocess.Popen"
 SUBPROCESS_RUN = "subprocess.run"
 OPEN_MODULE = {"_io", "pathlib"}
 DEBUG_BREAKPOINTS = ("builtins.breakpoint", "sys.breakpointhook", "pdb.set_trace")
+LRU_CACHE = {"functools.lru_cache", "functools._lru_cache_wrapper.wrapper"}
 
 
 DEPRECATED_MODULES = {
@@ -583,7 +584,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         if node.decorators and isinstance(node.parent, nodes.ClassDef):
             decorator_names = node.decoratornames()
-            if "functools.lru_cache" in decorator_names and not (
+            if any(i in LRU_CACHE for i in decorator_names) and not (
                 "builtins.staticmethod" in decorator_names
                 or "builtins.classmethod" in decorator_names
             ):
