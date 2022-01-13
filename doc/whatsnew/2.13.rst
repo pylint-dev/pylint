@@ -79,6 +79,11 @@ Other Changes
 * When run in parallel mode ``pylint`` now pickles the data passed to subprocesses with
   the ``dill`` package. The ``dill`` package has therefore been added as a dependency.
 
+* Fixed crash on properties and inherited class methods when comparing them for
+  equality against an empty dict.
+
+  Closes #5646
+
 * By default, pylint does no longer take files starting with ``.#`` into account. Those are
   considered `emacs file locks`_. This behavior can be reverted by redefining the
   ``ignore-patterns`` option.
