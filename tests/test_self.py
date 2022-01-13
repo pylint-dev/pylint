@@ -1203,7 +1203,7 @@ class TestRunTC:
             ),
             (
                 "colorized",
-                "tests/regrtest_data/unused_variable.py:4:4: W0612: [35mUnused variable 'variable'[0m ([35munused-variable[0m)",
+                "tests/regrtest_data/unused_variable.py:4:4: W0612: \x1B[35mUnused variable 'variable'\x1B[0m (\x1B[35munused-variable\x1B[0m)",
             ),
             ("json", '"message": "Unused variable \'variable\'",'),
         ],

@@ -13,6 +13,27 @@ Release date: TBA
   and objects (prefixed with ``_``).
 
   Closes #5463
+* Added several checkers to deal with unicode security issues
+  (see `Trojan Sources <https://trojansource.codes/>`_ and
+  `PEP 672 <https://www.python.org/dev/peps/pep-0672/>`_ for details) that also
+  concern the readability of the code. In detail the following checks were added:
+
+  * ``bad-file-encoding`` checks that the file is encoded in UTF-8 as suggested by
+    `PEP8 <https://www.python.org/dev/peps/pep-0008/#id20>`_.
+    UTF-16 and UTF-32 are `not supported by Python <https://bugs.python.org/issue1503789>`_
+    at the moment. If this ever changes
+    ``invalid-unicode-codec`` checks that they aren't used, to allow for backwards
+    compatibility.
+
+  * ``bidirectional-unicode`` checks for bidirectional unicode characters that
+    could make code execution different than what the user expects.
+
+  * ``invalid-character-backspace``, ``invalid-character-carriage-return``,
+    ``invalid-character-sub``, ``invalid-character-esc``,
+    ``invalid-character-zero-width-space`` and ``invalid-character-nul``
+    to check for possibly harmful unescaped characters.
+
+  Closes #5281
 
 * Fixed false positive ``consider-using-dict-comprehension`` when creating a dict
   using a list of tuples where key AND value vary depending on the same condition.
@@ -101,6 +122,12 @@ Release date: TBA
 
   Closes #5360, #3877
 
+* Fixed a false positive (affecting unreleased development) for
+  ``used-before-assignment`` involving homonyms between filtered comprehensions
+  and assignments in except blocks.
+
+  Closes #5586
+
 * Fixed crash with slots assignments and annotated assignments.
 
   Closes #5479
@@ -188,6 +215,11 @@ Release date: TBA
 * Add checker ``unnecessary-ellipsis``: Emitted when the ellipsis constant is used unnecessarily.
 
   Closes #5460
+
+* Disable checker ``bad-docstring-quotes`` for Python <= 3.7, because in these versions the line
+  numbers for decorated functions and classes are not reliable which interferes with the checker.
+
+  Closes #3077
 
 * Fixed incorrect classification of Numpy-style docstring as Google-style docstring for
   docstrings with property setter documentation.
