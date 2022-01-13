@@ -2,7 +2,6 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import collections
-import functools
 from typing import TYPE_CHECKING, Dict, List, Tuple, ValuesView
 
 from pylint.exceptions import UnknownMessageError
@@ -47,14 +46,8 @@ class MessageDefinitionStore:
         self._messages_definitions[message.msgid] = message
         self._msgs_by_category[message.msgid[0]].append(message.msgid)
 
-    @functools.lru_cache()
     def get_message_definitions(self, msgid_or_symbol: str) -> List[MessageDefinition]:
-        """Returns the Message definition for either a numeric or symbolic id.
-
-        The cache has no limit as its size will likely stay minimal. For each message we store
-        about 1000 characters, so even if we would have 1000 messages the cache would only
-        take up ~= 1 Mb.
-        """
+        """Returns the Message definition for either a numeric or symbolic id."""
         return [
             self._messages_definitions[m]
             for m in self.message_id_store.get_active_msgids(msgid_or_symbol)
