@@ -39,7 +39,7 @@ from pylint.constants import (
     MSG_TYPES_LONG,
     MSG_TYPES_STATUS,
 )
-from pylint.lint.expand_modules import expand_modules
+from pylint.lint.expand_modules import discover_modules, expand_modules
 from pylint.lint.parallel import check_parallel
 from pylint.lint.report_functions import (
     report_messages_by_module_stats,
@@ -513,6 +513,13 @@ class PyLinter(
                         "Interpret the stdin as a python script, whose filename "
                         "needs to be passed as the module_or_package argument."
                     ),
+                },
+            ),
+            (
+                "discover-files",
+                {
+                    "action": "store_true",
+                    "help": ("Discover python files in file system subtree."),
                 },
             ),
             (
@@ -1143,12 +1150,20 @@ class PyLinter(
 
     def _expand_files(self, modules) -> List[ModuleDescriptionDict]:
         """get modules and errors from a list of modules and handle errors"""
-        result, errors = expand_modules(
-            modules,
-            self.config.black_list,
-            self.config.black_list_re,
-            self._ignore_paths,
-        )
+        if self.config.discover_files:
+            result, errors = discover_modules(
+                modules,
+                self.config.black_list,
+                self.config.black_list_re,
+                self._ignore_paths,
+            )
+        else:
+            result, errors = expand_modules(
+                modules,
+                self.config.black_list,
+                self.config.black_list_re,
+                self._ignore_paths,
+            )
         for error in errors:
             message = modname = error["mod"]
             key = error["key"]

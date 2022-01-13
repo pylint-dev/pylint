@@ -6,6 +6,8 @@ from astroid import modutils
 
 from pylint.typing import ErrorDescriptionDict, ModuleDescriptionDict
 
+PATH = sys.path.copy()
+
 
 def _modpath_from_file(filename, is_namespace, path=None):
     def _is_package_cb(inner_path, parts):
@@ -37,6 +39,11 @@ def _is_in_ignore_list_re(element: str, ignore_list_re: List[Pattern]) -> bool:
     return any(file_pattern.match(element) for file_pattern in ignore_list_re)
 
 
+def _get_additional_search_path(something):
+    module_path = get_python_path(something)
+    return [".", module_path] + PATH
+
+
 def expand_modules(
     files_or_modules: List[str],
     ignore_list: List[str],
@@ -48,18 +55,12 @@ def expand_modules(
     """
     result: List[ModuleDescriptionDict] = []
     errors: List[ErrorDescriptionDict] = []
-    path = sys.path.copy()
 
     for something in files_or_modules:
         basename = os.path.basename(something)
-        if (
-            basename in ignore_list
-            or _is_in_ignore_list_re(os.path.basename(something), ignore_list_re)
-            or _is_in_ignore_list_re(something, ignore_list_paths_re)
-        ):
+        if _skip_file(something, ignore_list, ignore_list_re, ignore_list_paths_re):
             continue
-        module_path = get_python_path(something)
-        additional_search_path = [".", module_path] + path
+        additional_search_path = _get_additional_search_path(something)
         if os.path.exists(something):
             # this is a file or a directory
             try:
@@ -137,4 +138,77 @@ def expand_modules(
                         "basename": modname,
                     }
                 )
+    return result, errors
+
+
+def _skip_file(filepath, ignore_list, ignore_list_re, ignore_list_paths_re):
+    return (
+        os.path.basename(filepath) in ignore_list
+        or _is_in_ignore_list_re(os.path.basename(filepath), ignore_list_re)
+        or _is_in_ignore_list_re(filepath, ignore_list_paths_re)
+    )
+
+
+def _discover_module(filename):
+    result = None
+    error = None
+    modname = ".".join(
+        modutils.modpath_from_file(filename, path=_get_additional_search_path(filename))
+    )
+    try:
+        filepath = modutils.file_from_modpath(
+            modname.split("."), path=_get_additional_search_path(filename)
+        )
+    except (ImportError, SyntaxError) as ex:
+        # The SyntaxError is a Python bug and should be
+        # removed once we move away from imp.find_module: https://bugs.python.org/issue10588
+        error = {"key": "fatal", "mod": modname, "ex": ex}
+    else:
+        result = {
+            "path": os.path.normpath(filepath),
+            "name": modname,
+            "isarg": False,
+            "basepath": os.path.normpath(filepath),
+            "basename": modname,
+        }
+    return result, error
+
+
+def discover_modules(
+    files_or_modules: List[str],
+    ignore_list: List[str],
+    ignore_list_re: List[Pattern],
+    ignore_list_paths_re: List[Pattern[str]],
+) -> Tuple[List[ModuleDescriptionDict], List[ErrorDescriptionDict]]:
+    result: List[ModuleDescriptionDict] = []
+    errors: List[ErrorDescriptionDict] = []
+    for something in files_or_modules:
+        if _skip_file(something, ignore_list, ignore_list_re, ignore_list_paths_re):
+            continue
+        if os.path.isfile(something):
+            moddesc, error = _discover_module(something)
+            if error:
+                errors.append(error)
+                continue
+            if moddesc:
+                result.append(moddesc)
+        else:
+            for root, _, files in os.walk(top=something, topdown=True):
+                for f in files:
+                    filepath = os.path.join(root, f)
+                    if _skip_file(
+                        filepath,
+                        ignore_list,
+                        ignore_list_re,
+                        ignore_list_paths_re,
+                    ):
+                        continue
+                    if not f.endswith(".py"):
+                        continue
+                    moddesc, error = _discover_module(filepath)
+                    if error:
+                        errors.append(error)
+                        continue
+                    if moddesc:
+                        result.append(moddesc)
     return result, errors
