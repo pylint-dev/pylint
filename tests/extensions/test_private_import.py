@@ -25,7 +25,7 @@ class TestPrivateImport(CheckerTestCase):
 
     @patch("pathlib.Path.parent")
     def test_external_module_nested(self, parent) -> None:
-        parent.parts = os.path.join("", "dir", "module", "module_files", "util")
+        parent.parts = ("", "dir", "module", "module_files", "util")
 
         import_from = astroid.extract_node("""from module import _file""")
 
@@ -34,7 +34,7 @@ class TestPrivateImport(CheckerTestCase):
 
     @patch("pathlib.Path.parent")
     def test_external_module_dot_import(self, parent) -> None:
-        parent.parts = os.path.join("", "dir", "outer", "inner", "module_files", "util")
+        parent.parts = ("", "dir", "outer", "inner", "module_files", "util")
 
         import_from = astroid.extract_node("""from outer.inner import _file""")
 
@@ -43,7 +43,7 @@ class TestPrivateImport(CheckerTestCase):
 
     @patch("pathlib.Path.parent")
     def test_external_module_dot_import_outer_only(self, parent) -> None:
-        parent.parts = os.path.join("", "dir", "outer", "extensions")
+        parent.parts = ("", "dir", "outer", "extensions")
 
         import_from = astroid.extract_node("""from outer.inner import _file""")
 
@@ -52,7 +52,7 @@ class TestPrivateImport(CheckerTestCase):
 
     @patch("pathlib.Path.parent")
     def test_external_module(self, parent) -> None:
-        parent.parts = os.path.join("", "dir", "other")
+        parent.parts = ("", "dir", "other")
 
         import_from = astroid.extract_node("""from module import _file""")
 
