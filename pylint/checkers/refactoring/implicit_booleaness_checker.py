@@ -107,7 +107,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
         except astroid.InferenceError:
             # Probably undefined-variable, abort check
             return
-        mother_classes = self.base_names_of_base_node(instance)
+        mother_classes = self.base_names_of_instance(instance)
         affected_by_pep8 = any(
             t in mother_classes for t in ("str", "tuple", "list", "set")
         )
@@ -165,7 +165,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
                 target_instance = utils.safe_infer(target_node)
                 if target_instance is None:
                     continue
-                mother_classes = self.base_names_of_base_node(target_instance)
+                mother_classes = self.base_names_of_instance(target_instance)
                 is_base_comprehension_type = any(
                     t in mother_classes for t in ("tuple", "list", "dict", "set")
                 )
@@ -209,17 +209,13 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
                     )
 
     @staticmethod
-    def base_names_of_base_node(
-        node: Union[bases.UnboundMethod, bases.Instance]
+    def base_names_of_instance(
+        node: Union[bases.Uninferable, bases.Instance]
     ) -> List[str]:
         """Return all names inherited by a class instance or those returned by a function.
 
         The inherited names include 'object'.
         """
-        if isinstance(node, bases.UnboundMethod):
-            return [i.name for i in node.infer_call_result(node)]
         if isinstance(node, bases.Instance):
             return [node.name] + [x.name for x in node.ancestors()]
-
-        # For example for astroid.nodes.Uninferable
         return []
