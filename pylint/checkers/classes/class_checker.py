@@ -588,7 +588,7 @@ MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
         "subclassed-final-class",
         "Used when a class decorated with typing.final has been subclassed.",
     ),
-    "W0241": (
+    "W0244": (
         "Redefined slots %r in subclass",
         "redefined-slots-in-subclass",
         "Used when a slot is re-defined in a subclass.",
