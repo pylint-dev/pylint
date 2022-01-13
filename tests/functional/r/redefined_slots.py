@@ -2,15 +2,17 @@
 
 # pylint: disable=too-few-public-methods
 
+from collections import deque
+
 
 class Base:
-    """Class defining the `a`, `b` & `c` slots"""
-    __slots__ = ("a", "b", "c")
+    """Class defining the `a`, `b` & `deque.__name__` slots"""
+    __slots__ = ("a", "b", deque.__name__)
 
 
 class Subclass1(Base):
-    """Redefining the `a` slot & adding the `d` & `e` slots"""
-    __slots__ = ("a", "d", "e")  # [redefined-slots-in-subclass]
+    """Redefining the `a` & `deque.__name__` slots & adding the `d` & `e` slots"""
+    __slots__ = ("a", deque.__name__, "d", "e")  # [redefined-slots-in-subclass]
 
 
 class Subclass2(Base):

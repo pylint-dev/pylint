@@ -1375,7 +1375,8 @@ a metaclass class method.",
     ) -> None:
         """Check if `node` redefines a slot which is defined in an ancestor class"""
         slots_names = [
-            slot.value for slot in slots_list if isinstance(slot, nodes.Const)
+            slot.value if isinstance(slot, nodes.Const) else next(slot.infer()).value
+            for slot in slots_list
         ]
 
         # Slots of all parent classes
