@@ -1,6 +1,8 @@
-lru-cache-decorating-method:27:4:28:24:MyClassWithMethods.my_func:lru_cache shouldn't be used on a method as it creates memory leaks:INFERENCE
-lru-cache-decorating-method:31:4:32:24:MyClassWithMethods.my_func:lru_cache shouldn't be used on a method as it creates memory leaks:INFERENCE
-lru-cache-decorating-method:35:4:36:24:MyClassWithMethods.my_func:lru_cache shouldn't be used on a method as it creates memory leaks:INFERENCE
-lru-cache-decorating-method:39:4:40:24:MyClassWithMethods.my_func:lru_cache shouldn't be used on a method as it creates memory leaks:INFERENCE
-lru-cache-decorating-method:43:4:44:24:MyClassWithMethods.my_func:lru_cache shouldn't be used on a method as it creates memory leaks:INFERENCE
-lru-cache-decorating-method:47:4:48:24:MyClassWithMethods.my_func:lru_cache shouldn't be used on a method as it creates memory leaks:INFERENCE
+lru-cache-decorating-method:28:4:29:24:MyClassWithMethods.my_func:lru_cache shouldn't be used on a method as it creates memory leaks:INFERENCE
+lru-cache-decorating-method:32:4:33:24:MyClassWithMethods.my_func:lru_cache shouldn't be used on a method as it creates memory leaks:INFERENCE
+lru-cache-decorating-method:36:4:37:24:MyClassWithMethods.my_func:lru_cache shouldn't be used on a method as it creates memory leaks:INFERENCE
+lru-cache-decorating-method:40:4:41:24:MyClassWithMethods.my_func:lru_cache shouldn't be used on a method as it creates memory leaks:INFERENCE
+lru-cache-decorating-method:44:4:45:24:MyClassWithMethods.my_func:lru_cache shouldn't be used on a method as it creates memory leaks:INFERENCE
+lru-cache-decorating-method:48:4:49:24:MyClassWithMethods.my_func:lru_cache shouldn't be used on a method as it creates memory leaks:INFERENCE
+lru-cache-decorating-method:52:4:53:24:MyClassWithMethods.my_func:lru_cache shouldn't be used on a method as it creates memory leaks:INFERENCE
+lru-cache-decorating-method:56:4:57:24:MyClassWithMethods.my_func:lru_cache shouldn't be used on a method as it creates memory leaks:INFERENCE

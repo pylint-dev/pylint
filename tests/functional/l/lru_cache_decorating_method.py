@@ -3,6 +3,7 @@
 # pylint: disable=missing-class-docstring, function-redefined
 
 import functools
+import functools as aliased_functools
 from functools import lru_cache
 from functools import lru_cache as aliased_cache
 
@@ -31,6 +32,10 @@ class MyClassWithMethods:
     def my_func(self, param):  # [lru-cache-decorating-method]
         return param + 1
 
+    @aliased_functools.lru_cache
+    def my_func(self, param):  # [lru-cache-decorating-method]
+        return param + 1
+
     @aliased_cache
     def my_func(self, param):  # [lru-cache-decorating-method]
         return param + 1
@@ -40,6 +45,10 @@ class MyClassWithMethods:
         return param + 1
 
     @functools.lru_cache()
+    def my_func(self, param):  # [lru-cache-decorating-method]
+        return param + 1
+
+    @aliased_functools.lru_cache()
     def my_func(self, param):  # [lru-cache-decorating-method]
         return param + 1
 
