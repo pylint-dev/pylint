@@ -1,6 +1,5 @@
 """Tests the local module directory comparison logic which requires mocking file directories"""
 
-import os
 from unittest.mock import patch
 
 import astroid

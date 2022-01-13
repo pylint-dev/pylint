@@ -109,8 +109,8 @@ class PrivateImportChecker(BaseChecker):
             and (len(name) <= 4 or name[1] != "_" or name[-2:] != "__")
         )
 
-    @staticmethod
     def _populate_type_annotations(
+        self,
         node: nodes.LocalsDictNodeNG,
         all_used_type_annotations: Set[str],
     ) -> None:
@@ -122,37 +122,36 @@ class PrivateImportChecker(BaseChecker):
                 if isinstance(usage_node, nodes.AssignName) and isinstance(
                     usage_node.parent, nodes.AnnAssign
                 ):
-                    PrivateImportChecker._populate_type_annotations_annotation(
+                    self._populate_type_annotations_annotation(
                         usage_node.parent.annotation, all_used_type_annotations
                     )
                 if isinstance(usage_node, nodes.FunctionDef):
-                    PrivateImportChecker._populate_type_annotations_function(
+                    self._populate_type_annotations_function(
                         usage_node, all_used_type_annotations
                     )
                 if isinstance(usage_node, nodes.LocalsDictNodeNG):
-                    PrivateImportChecker._populate_type_annotations(
+                    self._populate_type_annotations(
                         usage_node, all_used_type_annotations
                     )
 
-    @staticmethod
     def _populate_type_annotations_function(
-        node: nodes.FunctionDef, all_used_type_annotations: Set[str]
+        self, node: nodes.FunctionDef, all_used_type_annotations: Set[str]
     ) -> None:
         """Adds into the set all_used_type_annotations the names of all names used as a type annotation
         in the arguments and return type of the function node
         """
-        if node.args.annotations:
+        if node.args and node.args.annotations:
             for annotation in node.args.annotations:
-                PrivateImportChecker._populate_type_annotations_annotation(
+                self._populate_type_annotations_annotation(
                     annotation, all_used_type_annotations
                 )
         if node.returns:
-            PrivateImportChecker._populate_type_annotations_annotation(
+            self._populate_type_annotations_annotation(
                 node.returns, all_used_type_annotations
             )
 
-    @staticmethod
     def _populate_type_annotations_annotation(
+        self,
         node: Union[nodes.Attribute, nodes.Subscript, nodes.Name],
         all_used_type_annotations: Set,
     ) -> None:
@@ -163,16 +162,16 @@ class PrivateImportChecker(BaseChecker):
             all_used_type_annotations.add(node.name)
         elif isinstance(node, nodes.Subscript):  # e.g. Optional[List[str]]
             # value is the current type name: could be a Name or Attribute
-            PrivateImportChecker._populate_type_annotations_annotation(
+            self._populate_type_annotations_annotation(
                 node.value, all_used_type_annotations
             )
             # slice is the next nested type
-            PrivateImportChecker._populate_type_annotations_annotation(
+            self._populate_type_annotations_annotation(
                 node.slice, all_used_type_annotations
             )
         elif isinstance(node, nodes.Attribute):
             # An attribute is a type like `pylint.lint.pylinter`. node.expr is the next level up, could be another attribute
-            PrivateImportChecker._populate_type_annotations_annotation(
+            self._populate_type_annotations_annotation(
                 node.expr, all_used_type_annotations
             )
 
