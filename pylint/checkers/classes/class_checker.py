@@ -1374,12 +1374,14 @@ a metaclass class method.",
         slots_list: List[nodes.NodeNG],
     ) -> None:
         """Check if `node` redefines a slot which is defined in an ancestor class"""
-        slots_names = [
-            slot.value
-            if isinstance(slot, nodes.Const)
-            else getattr(safe_infer(slot), "value", "")
-            for slot in slots_list
-        ]
+        slots_names: List[str] = []
+        for slot in slots_list:
+            if isinstance(slot, nodes.Const):
+                slots_names.append(slot.value)
+            else:
+                inferred_slot = safe_infer(slot)
+                if inferred_slot:
+                    slots_names.append(inferred_slot.value)
 
         # Slots of all parent classes
         ancestors_slots_names = {
