@@ -62,7 +62,11 @@ SUBPROCESS_POPEN = "subprocess.Popen"
 SUBPROCESS_RUN = "subprocess.run"
 OPEN_MODULE = {"_io", "pathlib"}
 DEBUG_BREAKPOINTS = ("builtins.breakpoint", "sys.breakpointhook", "pdb.set_trace")
-LRU_CACHE = {"functools.lru_cache", "functools._lru_cache_wrapper.wrapper"}
+LRU_CACHE = {
+    "functools.lru_cache",  # Inferred for @lru_cache
+    "functools._lru_cache_wrapper.wrapper",  # Inferred for @lru_cache() on >= Python 3.8
+    "functools.lru_cache.decorating_function",  # Inferred for @lru_cache() on <= Python 3.7
+}
 
 
 DEPRECATED_MODULES = {
