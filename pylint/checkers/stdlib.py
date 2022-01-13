@@ -39,7 +39,7 @@
 
 import sys
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any, Dict, Optional, Set
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set
 
 import astroid
 from astroid import nodes
@@ -67,6 +67,7 @@ LRU_CACHE = {
     "functools._lru_cache_wrapper.wrapper",  # Inferred for @lru_cache() on >= Python 3.8
     "functools.lru_cache.decorating_function",  # Inferred for @lru_cache() on <= Python 3.7
 }
+NON_INSTANCE_METHODS = {"builtins.staticmethod", "builtins.classmethod"}
 
 
 DEPRECATED_MODULES = {
@@ -587,16 +588,25 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
     @utils.check_messages("lru-cache-decorating-method")
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         if node.decorators and isinstance(node.parent, nodes.ClassDef):
-            decorator_names = node.decoratornames()
-            if any(d in LRU_CACHE for d in decorator_names) and not (
-                "builtins.staticmethod" in decorator_names
-                or "builtins.classmethod" in decorator_names
-            ):
-                self.add_message(
-                    "lru-cache-decorating-method",
-                    node=node,
-                    confidence=interfaces.INFERENCE,
-                )
+            self._check_lru_cache_decorators(node.decorators)
+
+    def _check_lru_cache_decorators(self, decorators: nodes.Decorators) -> None:
+        """Check if instance methods are decorated with functools.lru_cache."""
+        lru_cache_nodes: List[nodes.NodeNG] = []
+        for d_node in decorators.nodes:
+            for infered_node in d_node.infer():
+                q_name = infered_node.qname()
+                if q_name in NON_INSTANCE_METHODS:
+                    return
+                if q_name in LRU_CACHE:
+                    lru_cache_nodes.append(d_node)
+                    break
+        for lru_cache_node in lru_cache_nodes:
+            self.add_message(
+                "lru-cache-decorating-method",
+                node=lru_cache_node,
+                confidence=interfaces.INFERENCE,
+            )
 
     def _check_redundant_assert(self, node, infer):
         if (
