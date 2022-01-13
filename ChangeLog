@@ -36,6 +36,12 @@ Release date: TBA
 
   Closes #5588
 
+* Added ``lru-cache-decorating-method`` checker with checks for the use of ``functools.lru_cache``
+  on class methods. This is unrecommended as it creates memory leaks by never letting the instance
+  getting garbage collected.
+
+  Closes #5670
+
 * Rewrote checker for ``non-ascii-name``.
    It now ensures __all__ Python names are ASCII and also properly
    checks the names of imports (``non-ascii-module-import``) as

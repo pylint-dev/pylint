@@ -44,6 +44,7 @@ from typing import TYPE_CHECKING, Any, Dict, Optional, Set
 import astroid
 from astroid import nodes
 
+from pylint import interfaces
 from pylint.checkers import BaseChecker, DeprecatedMixin, utils
 from pylint.interfaces import IAstroidChecker
 
@@ -446,6 +447,13 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "Calls to breakpoint(), sys.breakpointhook() and pdb.set_trace() should be removed "
             "from code that is not actively being debugged.",
         ),
+        "W1516": (
+            "lru_cache shouldn't be used on a method as it creates memory leaks",
+            "lru-cache-decorating-method",
+            "By decorating a method with lru_cache the 'self' argument will be linked to "
+            "to the lru_cache function and therefore never garbage collected. It is recommended "
+            "to refactor code to avoid this pattern.",
+        ),
     }
 
     def __init__(
@@ -570,6 +578,20 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
     def visit_boolop(self, node: nodes.BoolOp) -> None:
         for value in node.values:
             self._check_datetime(value)
+
+    @utils.check_messages("lru-cache-decorating-method")
+    def visit_functiondef(self, node: nodes.FunctionDef) -> None:
+        if node.decorators and isinstance(node.parent, nodes.ClassDef):
+            decorator_names = node.decoratornames()
+            if "functools.lru_cache" in decorator_names and not (
+                "builtins.staticmethod" in decorator_names
+                or "builtins.classmethod" in decorator_names
+            ):
+                self.add_message(
+                    "lru-cache-decorating-method",
+                    node=node,
+                    confidence=interfaces.INFERENCE,
+                )
 
     def _check_redundant_assert(self, node, infer):
         if (
