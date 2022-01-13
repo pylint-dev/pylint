@@ -588,7 +588,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         if node.decorators and isinstance(node.parent, nodes.ClassDef):
             decorator_names = node.decoratornames()
-            if any(i in LRU_CACHE for i in decorator_names) and not (
+            if any(d in LRU_CACHE for d in decorator_names) and not (
                 "builtins.staticmethod" in decorator_names
                 or "builtins.classmethod" in decorator_names
             ):
