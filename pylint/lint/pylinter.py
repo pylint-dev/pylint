@@ -516,7 +516,7 @@ class PyLinter(
                 },
             ),
             (
-                "discover-files",
+                "recursive",
                 {
                     "action": "store_true",
                     "help": ("Discover python files in file system subtree."),
@@ -1150,7 +1150,7 @@ class PyLinter(
 
     def _expand_files(self, modules) -> List[ModuleDescriptionDict]:
         """get modules and errors from a list of modules and handle errors"""
-        if self.config.discover_files:
+        if self.config.recursive:
             result, errors = discover_modules(
                 modules,
                 self.config.black_list,
