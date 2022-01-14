@@ -37,7 +37,7 @@ New checkers
 
   Closes #5460
 
-* ``iterating-modified-list``: Emitted when items are added or removed to a list being iterated through.
+* ``modified-iterating-list/dict/set``: Emitted when items are added to or removed from a list/dict/set being iterated through.
 
   Closes #5348
 
