@@ -1014,17 +1014,23 @@ class PyLinter(
 
     def _discover_files(self, files_or_modules):
         for something in files_or_modules:
-            if os.path.isdir(something) and not os.path.isfile(os.path.join(something, '__init__.py')):
+            if os.path.isdir(something) and not os.path.isfile(
+                os.path.join(something, "__init__.py")
+            ):
                 skip_subtrees = []
                 for root, dirs, files in os.walk(something):
                     if any(root.startswith(s) for s in skip_subtrees):
                         # Skip subtree of already discovered package
                         continue
-                    elif '__init__.py' in files:
+                    elif "__init__.py" in files:
                         skip_subtrees.append(root)
                         yield root
                     else:
-                        yield from (os.path.join(root, file) for file in files if file.endswith('.py'))
+                        yield from (
+                            os.path.join(root, file)
+                            for file in files
+                            if file.endswith(".py")
+                        )
             else:
                 yield something
 
