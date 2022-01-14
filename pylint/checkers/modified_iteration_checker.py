@@ -20,22 +20,22 @@ class ModifiedIterationChecker(checkers.BaseChecker):
     name = "modified_iteration"
 
     msgs = {
-        "W4714": (
+        "W4701": (
             "Iterated list '%s' is being modified inside loop body, consider iterating through a copy of it instead.",
-            "iterating-modified-list",
-            "Emitted when items are added or removed to a list being iterated through."
-            "Doing so can result in unexpected behaviour, that is why it is preferred to use a copy of the list.",
+            "modified-iterating-list",
+            "Emitted when items are added or removed to a list being iterated through. "
+            "Doing so ccan result in unexpected behaviour, that is why it is preferred to use a copy of the list.",
         ),
-        "E4714": (
+        "E4702": (
             "Iterated dict '%s' is being modified inside loop body, iterate through a copy of it instead.",
-            "iterating-modified-dict",
-            "Emitted when items are added or removed to a dict being iterated through."
+            "modified-iterating-dict",
+            "Emitted when items are added or removed to a dict being iterated through. "
             "Doing so raises a RuntimeError",
         ),
-        "E4715": (
+        "E4703": (
             "Iterated set '%s' is being modified inside loop body, iterate through a copy of it instead.",
-            "iterating-modified-set",
-            "Emitted when items are added or removed to a set being iterated through."
+            "modified-iterating-set",
+            "Emitted when items are added or removed to a set being iterated through. "
             "Doing so raises a RuntimeError",
         ),
     }
@@ -44,26 +44,26 @@ class ModifiedIterationChecker(checkers.BaseChecker):
     priority = -2
 
     @utils.check_messages(
-        "iterating-modified-list", "iterating-modified-dict", "iterating-modified-set"
+        "modified-iterating-list", "modified-iterating-dict", "modified-iterating-set"
     )
     def visit_for(self, node: nodes.For) -> None:
         iter_obj = node.iter
         for body_node in node.body:
-            if self._iterating_modified_list_cond(body_node, iter_obj):
+            if self._modified_iterating_list_cond(body_node, iter_obj):
                 self.add_message(
-                    "iterating-modified-list",
+                    "modified-iterating-list",
                     node=body_node,
                     args=(iter_obj.name,),
                 )
-            elif self._iterating_modified_dict_cond(body_node, iter_obj):
+            elif self._modified_iterating_dict_cond(body_node, iter_obj):
                 self.add_message(
-                    "iterating-modified-dict",
+                    "modified-iterating-dict",
                     node=body_node,
                     args=(iter_obj.name,),
                 )
-            elif self._iterating_modified_set_cond(body_node, iter_obj):
+            elif self._modified_iterating_set_cond(body_node, iter_obj):
                 self.add_message(
-                    "iterating-modified-set",
+                    "modified-iterating-set",
                     node=body_node,
                     args=(iter_obj.name,),
                 )
@@ -77,25 +77,26 @@ class ModifiedIterationChecker(checkers.BaseChecker):
         )
 
     @classmethod
-    def _common_cond_list_set(cls, node, list_obj, infer_val):
+    def _common_cond_list_set(cls, node, list_obj, infer_val) -> bool:
         return (
             cls._is_attribute_call_expr(node)
-            and (infer_val == list_obj.inferred()[0])
+            and (infer_val == utils.safe_infer(list_obj))
             and (node.value.func.expr.name == list_obj.name)
         )
 
     @staticmethod
-    def _dict_node_cond(node):
+    def _dict_node_cond(node) -> bool:
         return isinstance(node, astroid.Assign) and (
             isinstance(node.targets[0], astroid.Subscript)
         )
 
     @classmethod
-    def _iterating_modified_list_cond(cls, node, list_obj):
+    def _modified_iterating_list_cond(cls, node, list_obj) -> bool:
         try:
-            infer_val = next(node.value.func.expr.infer())
+            infer_val = utils.safe_infer(node.value.func.expr)
             return (
                 cls._common_cond_list_set(node, list_obj, infer_val)
+                and (infer_val is not None)
                 and (infer_val.pytype() == "builtins.list")
                 and node.value.func.attrname in {"append", "remove"}
             )
@@ -103,11 +104,12 @@ class ModifiedIterationChecker(checkers.BaseChecker):
             return False
 
     @classmethod
-    def _iterating_modified_dict_cond(cls, node, list_obj):
+    def _modified_iterating_dict_cond(cls, node, list_obj) -> bool:
         try:
-            infer_val = next(node.targets[0].value.infer())
+            infer_val = utils.safe_infer(node.targets[0].value)
             return (
                 cls._dict_node_cond(node)
+                and (infer_val is not None)
                 and (infer_val.pytype() == "builtins.dict")
                 and (infer_val == list_obj.inferred()[0])
                 and (node.targets[0].value.name == list_obj.name)
@@ -116,11 +118,12 @@ class ModifiedIterationChecker(checkers.BaseChecker):
             return False
 
     @classmethod
-    def _iterating_modified_set_cond(cls, node, list_obj):
+    def _modified_iterating_set_cond(cls, node, list_obj) -> bool:
         try:
-            infer_val = next(node.value.func.expr.infer())
+            infer_val = utils.safe_infer(node.value.func.expr)
             return (
                 cls._common_cond_list_set(node, list_obj, infer_val)
+                and (infer_val is not None)
                 and (infer_val.pytype() == "builtins.set")
                 and node.value.func.attrname in {"add", "remove"}
             )

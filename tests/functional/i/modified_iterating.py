@@ -1,5 +1,5 @@
 """Tests for iterating-modified messages"""
-# pylint: disable=locally-disabled,not-callable,unnecessary-comprehension,suppressed-message,useless-suppression
+# pylint: disable=locally-disabled,suppressed-message,useless-suppression,not-callable,unnecessary-comprehension
 
 import copy
 
