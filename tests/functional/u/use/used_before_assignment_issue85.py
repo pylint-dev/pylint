@@ -52,16 +52,75 @@ def try_except_finally_nested_try_finally_in_try():
     print(res)
 
 
-def try_except_finally_nested_try_finally_in_finally():
-    """Don't confuse assignments in different finally statements where
-    one is nested inside a finally.
+def try_except_finally_nested_in_finally():
+    """Until Pylint comes to a consensus on requiring all except handlers to
+    define a name, raise, or return (https://github.com/PyCQA/pylint/issues/5524),
+    Pylint assumes statements in try blocks succeed when accessed *after*
+    except or finally blocks and fail when accessed *in* except or finally
+    blocks.)
     """
     try:
-        pass
+        outer_times = 1
     finally:
         try:
-            times = 1
+            inner_times = 1
         except TypeError:
             pass
-        # Don't emit: only assume the outer try failed
-        print(times)
+        finally:
+            print(outer_times)  # [used-before-assignment]
+        print(inner_times)  # see docstring: might emit in a future version
+
+
+def try_except_finally_nested_in_finally_2():
+    """Neither name is accessed after a finally block."""
+    try:
+        outer_times = 1
+    finally:
+        try:
+            inner_times = 1
+        except TypeError:
+            pass
+        finally:
+            print(inner_times)  # [used-before-assignment]
+        print(outer_times)  # [used-before-assignment]
+
+
+def try_except_finally_nested_in_finally_3():
+    """Neither name is accessed after a finally block, but just emit
+    once per name.
+    """
+    try:
+        outer_times = 1
+    finally:
+        try:
+            inner_times = 1
+        except TypeError:
+            pass
+        finally:
+            print(inner_times)  # [used-before-assignment]
+            print(outer_times)  # [used-before-assignment]
+        # used-before-assignment is only raised once per name
+        print(inner_times)
+        print(outer_times)
+
+
+def try_except_finally_nested_in_finally_4():
+    """Triple nesting: don't assume direct parentages of outer try/finally
+    and inner try/finally.
+    """
+    try:
+        outer_times = 1
+    finally:
+        try:
+            pass
+        finally:
+            try:
+                inner_times = 1
+            except TypeError:
+                pass
+            finally:
+                print(inner_times)  # [used-before-assignment]
+                print(outer_times)  # [used-before-assignment]
+            # used-before-assignment is only raised once per name
+            print(inner_times)
+            print(outer_times)

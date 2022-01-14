@@ -797,11 +797,25 @@ scope_type : {self._atomic.scope_type}
             ) = utils.get_node_first_ancestor_of_type_and_its_child(
                 other_node_statement, nodes.TryFinally
             )
-            if other_node_try_finally_ancestor is not closest_try_finally_ancestor:
-                continue
+            # other_node needs to descend from the try of a try/finally.
             if (
                 child_of_other_node_try_finally_ancestor
                 not in other_node_try_finally_ancestor.body
+            ):
+                continue
+            # If the two try/finally ancestors are not the same, then
+            # node_statement's closest try/finally ancestor needs to be in
+            # the final body of other_node's try/finally ancestor, or
+            # descend from one of the statements in that final body.
+            if (
+                other_node_try_finally_ancestor is not closest_try_finally_ancestor
+                and not any(
+                    other_node_final_statement is closest_try_finally_ancestor
+                    or other_node_final_statement.parent_of(
+                        closest_try_finally_ancestor
+                    )
+                    for other_node_final_statement in other_node_try_finally_ancestor.finalbody
+                )
             ):
                 continue
             # Passed all tests for uncertain execution
