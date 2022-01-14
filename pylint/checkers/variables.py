@@ -619,7 +619,7 @@ scope_type : {self._atomic.scope_type}
         else:
             del self.to_consume[name]
 
-    def get_next_to_consume(self, node):
+    def get_next_to_consume(self, node: nodes.Name) -> Optional[List[nodes.NodeNG]]:
         """Return a list of the nodes that define `node` from this scope. If it is
         uncertain whether a node will be consumed, such as for statements in
         except blocks, add it to self.consumed_uncertain instead of returning it.
@@ -1236,18 +1236,14 @@ class VariablesChecker(BaseChecker):
             action, found_nodes = self._check_consumer(
                 node, stmt, frame, current_consumer, i, base_scope_type
             )
-
             if action is VariableVisitConsumerAction.CONTINUE:
                 continue
             if action is VariableVisitConsumerAction.CONSUME:
-                # pylint: disable-next=fixme
-                # TODO: remove assert after _check_consumer return value better typed
-                assert found_nodes is not None, "Cannot consume an empty list of nodes."
                 # Any nodes added to consumed_uncertain by get_next_to_consume()
                 # should be added back so that they are marked as used.
                 # They will have already had a chance to emit used-before-assignment.
                 # We check here instead of before every single return in _check_consumer()
-                found_nodes += current_consumer.consumed_uncertain[node.name]
+                found_nodes += current_consumer.consumed_uncertain[node.name]  # type: ignore[operator]
                 current_consumer.mark_as_consumed(node.name, found_nodes)
             if action in {
                 VariableVisitConsumerAction.RETURN,
@@ -1321,7 +1317,16 @@ class VariablesChecker(BaseChecker):
         current_consumer: NamesConsumer,
         consumer_level: int,
         base_scope_type: Any,
-    ) -> Tuple[VariableVisitConsumerAction, Optional[Any]]:
+    ) -> Union[
+        Tuple[
+            Union[
+                Literal[VariableVisitConsumerAction.CONTINUE],
+                Literal[VariableVisitConsumerAction.RETURN],
+            ],
+            None,
+        ],
+        Tuple[Literal[VariableVisitConsumerAction.CONSUME], List[nodes.NodeNG]],
+    ]:
         """Checks a consumer for conditions that should trigger messages"""
         # If the name has already been consumed, only check it's not a loop
         # variable used outside the loop.
@@ -1354,7 +1359,7 @@ class VariablesChecker(BaseChecker):
                 # return a CONSUME action so that _undefined_and_used_before_checker()
                 # will mark them as used
                 return (VariableVisitConsumerAction.CONSUME, found_nodes)
-            return (VariableVisitConsumerAction.RETURN, found_nodes)
+            return (VariableVisitConsumerAction.RETURN, None)
 
         self._check_late_binding_closure(node)
 
