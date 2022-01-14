@@ -53,7 +53,6 @@ a: _PrivateClassA
 def b_func(class_b: _PrivateClassB):
     print(class_b)
 
-
 def c_func() -> _PrivateClassC:
     return None
 
@@ -63,3 +62,15 @@ from classes import _SubScriptB
 
 a: Optional[_SubScriptA]
 b: Optional[_SubScriptB[List]]
+
+import _TypeContainerA
+import _TypeContainerB
+import _TypeContainerC
+
+a2: _TypeContainerA.A
+
+def b_func2(class_b2: _TypeContainerB.B):
+    print(class_b2)
+
+def c2_func() -> _TypeContainerC.C:
+    return None

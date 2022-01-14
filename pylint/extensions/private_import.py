@@ -36,6 +36,7 @@ class PrivateImportChecker(BaseChecker):
             return
         names = [name[0] for name in node.names]
         private_names = self._get_private_imports(names)
+        private_names = self._get_type_annotation_names(node, private_names)
         if private_names:
             imported_identifier = "modules" if len(private_names) > 1 else "module"
             private_name_string = ", ".join(private_names)
@@ -51,6 +52,9 @@ class PrivateImportChecker(BaseChecker):
         if utils.is_node_in_typing_guarded_import_block(node):
             return
         private_module_imports = self._get_private_imports([node.modname])
+        private_module_imports = self._get_type_annotation_names(
+            node, private_module_imports
+        )
         if private_module_imports:  # If module is private, do not check imported names
             self.add_message(
                 "import-private-name",
@@ -61,21 +65,9 @@ class PrivateImportChecker(BaseChecker):
         # Only check imported names if the module is external
         elif not self.same_root_dir(node, node.modname):
             names = [n[0] for n in node.names]
+
             private_names = self._get_private_imports(names)
-            # No private names, don't have to check against typing annotations
-            if not private_names:
-                return
-
-            # Only check names not used as type annotations
-            if not self.populated_annotations:
-                self._populate_type_annotations(
-                    node.root(), self.all_used_type_annotations
-                )
-                self.populated_annotations = True
-
-            private_names = [
-                n for n in private_names if n not in self.all_used_type_annotations
-            ]
+            private_names = self._get_type_annotation_names(node, private_names)
 
             if private_names:
                 imported_identifier = "objects" if len(private_names) > 1 else "object"
@@ -101,6 +93,16 @@ class PrivateImportChecker(BaseChecker):
             and name[0] == "_"
             and (len(name) <= 4 or name[1] != "_" or name[-2:] != "__")
         )
+
+    def _get_type_annotation_names(
+        self, node: nodes.Import, names: List[str]
+    ) -> List[str]:
+        """Removes from names any names that are used as type annotations in node.root()."""
+        if names and not self.populated_annotations:
+            self._populate_type_annotations(node.root(), self.all_used_type_annotations)
+            self.populated_annotations = True
+
+        return [n for n in names if n not in self.all_used_type_annotations]
 
     def _populate_type_annotations(
         self,
