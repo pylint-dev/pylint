@@ -51,10 +51,8 @@ class MessageDefinitionStore:
     # initialized once and due to the size of the class does not run the
     # risk of creating a large memory leak.
     # See discussion in: https://github.com/PyCQA/pylint/pull/5673
-    @functools.lru_cache()
-    def get_message_definitions(  # pylint: disable=lru-cache-decorating-method
-        self, msgid_or_symbol: str
-    ) -> List[MessageDefinition]:
+    @functools.lru_cache()  # pylint: disable=lru-cache-decorating-method
+    def get_message_definitions(self, msgid_or_symbol: str) -> List[MessageDefinition]:
         """Returns the Message definition for either a numeric or symbolic id.
 
         The cache has no limit as its size will likely stay minimal. For each message we store
