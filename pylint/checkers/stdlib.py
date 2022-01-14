@@ -39,11 +39,12 @@
 
 import sys
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any, Dict, Optional, Set
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set
 
 import astroid
 from astroid import nodes
 
+from pylint import interfaces
 from pylint.checkers import BaseChecker, DeprecatedMixin, utils
 from pylint.interfaces import IAstroidChecker
 
@@ -61,6 +62,12 @@ SUBPROCESS_POPEN = "subprocess.Popen"
 SUBPROCESS_RUN = "subprocess.run"
 OPEN_MODULE = {"_io", "pathlib"}
 DEBUG_BREAKPOINTS = ("builtins.breakpoint", "sys.breakpointhook", "pdb.set_trace")
+LRU_CACHE = {
+    "functools.lru_cache",  # Inferred for @lru_cache
+    "functools._lru_cache_wrapper.wrapper",  # Inferred for @lru_cache() on >= Python 3.8
+    "functools.lru_cache.decorating_function",  # Inferred for @lru_cache() on <= Python 3.7
+}
+NON_INSTANCE_METHODS = {"builtins.staticmethod", "builtins.classmethod"}
 
 
 DEPRECATED_MODULES = {
@@ -446,6 +453,14 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "Calls to breakpoint(), sys.breakpointhook() and pdb.set_trace() should be removed "
             "from code that is not actively being debugged.",
         ),
+        "W1516": (
+            "lru_cache shouldn't be used on a method as it creates memory leaks",
+            "lru-cache-decorating-method",
+            "By decorating a method with lru_cache the 'self' argument will be linked to "
+            "to the lru_cache function and therefore never garbage collected. Unless your instance "
+            "will never need to be garbage collected (singleton) it is recommended to refactor "
+            "code to avoid this pattern.",
+        ),
     }
 
     def __init__(
@@ -570,6 +585,32 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
     def visit_boolop(self, node: nodes.BoolOp) -> None:
         for value in node.values:
             self._check_datetime(value)
+
+    @utils.check_messages("lru-cache-decorating-method")
+    def visit_functiondef(self, node: nodes.FunctionDef) -> None:
+        if node.decorators and isinstance(node.parent, nodes.ClassDef):
+            self._check_lru_cache_decorators(node.decorators)
+
+    def _check_lru_cache_decorators(self, decorators: nodes.Decorators) -> None:
+        """Check if instance methods are decorated with functools.lru_cache."""
+        lru_cache_nodes: List[nodes.NodeNG] = []
+        for d_node in decorators.nodes:
+            try:
+                for infered_node in d_node.infer():
+                    q_name = infered_node.qname()
+                    if q_name in NON_INSTANCE_METHODS:
+                        return
+                    if q_name in LRU_CACHE:
+                        lru_cache_nodes.append(d_node)
+                        break
+            except astroid.InferenceError:
+                pass
+        for lru_cache_node in lru_cache_nodes:
+            self.add_message(
+                "lru-cache-decorating-method",
+                node=lru_cache_node,
+                confidence=interfaces.INFERENCE,
+            )
 
     def _check_redundant_assert(self, node, infer):
         if (

@@ -9,10 +9,17 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.13.rst'
 
+
 * New extension ``import-private-name``: indicate imports of external private packages
   and objects (prefixed with ``_``).
 
   Closes #5463
+
+* Fixed crash from ``arguments-differ`` and ``arguments-renamed`` when methods were
+  defined outside the top level of a class.
+
+  Closes #5648
+
 * Added several checkers to deal with unicode security issues
   (see `Trojan Sources <https://trojansource.codes/>`_ and
   `PEP 672 <https://www.python.org/dev/peps/pep-0672/>`_ for details) that also
@@ -39,6 +46,12 @@ Release date: TBA
   using a list of tuples where key AND value vary depending on the same condition.
 
   Closes #5588
+
+* Added ``lru-cache-decorating-method`` checker with checks for the use of ``functools.lru_cache``
+  on class methods. This is unrecommended as it creates memory leaks by never letting the instance
+  getting garbage collected.
+
+  Closes #5670
 
 * Rewrote checker for ``non-ascii-name``.
    It now ensures __all__ Python names are ASCII and also properly
@@ -82,6 +95,11 @@ Release date: TBA
 * Fixed extremely long processing of long lines with comma's.
 
   Closes #5483
+
+* Fixed crash on properties and inherited class methods when comparing them for
+  equality against an empty dict.
+
+  Closes #5646
 
 * Fixed a false positive for ``assigning-non-slot`` when the slotted class
   defined ``__setattr__``.

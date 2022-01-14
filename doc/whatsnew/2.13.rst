@@ -46,6 +46,12 @@ New checkers
    enter on a non specialized keyboard.
    See `Confusable Characters in PEP 672 <https://www.python.org/dev/peps/pep-0672/#confusable-characters-in-identifiers>`_
 
+* Added ``lru-cache-decorating-method`` checker with checks for the use of ``functools.lru_cache``
+  on class methods. This is unrecommended as it creates memory leaks by never letting the instance
+  getting garbage collected.
+
+  Closes #5670
+
 Removed checkers
 ================
 
@@ -75,6 +81,11 @@ Extensions
 Other Changes
 =============
 
+* Fixed crash from ``arguments-differ`` and ``arguments-renamed`` when methods were
+  defined outside the top level of a class.
+
+  Closes #5648
+
 * Fixed false positive ``consider-using-dict-comprehension`` when creating a dict
   using a list of tuples where key AND value vary depending on the same condition.
 
@@ -82,6 +93,11 @@ Other Changes
 
 * When run in parallel mode ``pylint`` now pickles the data passed to subprocesses with
   the ``dill`` package. The ``dill`` package has therefore been added as a dependency.
+
+* Fixed crash on properties and inherited class methods when comparing them for
+  equality against an empty dict.
+
+  Closes #5646
 
 * By default, pylint does no longer take files starting with ``.#`` into account. Those are
   considered `emacs file locks`_. This behavior can be reverted by redefining the

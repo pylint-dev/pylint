@@ -194,3 +194,46 @@ if data or not data:
 long_test = {}
 if long_test == {        }: # [use-implicit-booleaness-not-comparison]
     pass
+
+
+# Check for properties and uninferable class methods
+# See https://github.com/PyCQA/pylint/issues/5646
+from xyz import AnotherClassWithProperty
+
+
+class ParentWithProperty:
+
+    @classmethod
+    @property
+    def parent_function(cls):
+        return {}
+
+
+class MyClassWithProxy(ParentWithProperty):
+
+    attribute = True
+
+    @property
+    @classmethod
+    def my_property(cls):
+        return {}
+
+    @property
+    @classmethod
+    def my_difficult_property(cls):
+        if cls.attribute:
+            return {}
+        return MyClassWithProxy()
+
+
+
+def test_func():
+    """Some assertions against empty dicts."""
+    my_class = MyClassWithProxy()
+    assert my_class.parent_function == {}  # [use-implicit-booleaness-not-comparison]
+    assert my_class.my_property == {}  # [use-implicit-booleaness-not-comparison]
+
+    # If the return value is not always implicit boolean, don't raise
+    assert my_class.my_difficult_property == {}
+    # Uninferable does not raise
+    assert AnotherClassWithProperty().my_property == {}

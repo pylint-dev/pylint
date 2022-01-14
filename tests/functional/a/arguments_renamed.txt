@@ -7,3 +7,5 @@ arguments-renamed:48:4:49:22:Child2.test:Parameter 'arg' has been renamed to 'va
 arguments-differ:51:4:52:58:Child2.kwargs_test:Number of parameters was 4 in 'Parent.kwargs_test' and is now 3 in overridden 'Child2.kwargs_test' method:UNDEFINED
 arguments-renamed:51:4:52:58:Child2.kwargs_test:Parameter 'var2' has been renamed to 'kw2' in overridden 'Child2.kwargs_test' method:UNDEFINED
 arguments-renamed:67:4:68:56:ChildDefaults.test1:Parameter 'barg' has been renamed to 'param2' in overridden 'ChildDefaults.test1' method:UNDEFINED
+arguments-renamed:95:8:96:59:FruitOverrideConditional.brew:Parameter 'fruit_name' has been renamed to 'orange_name' in overridden 'FruitOverrideConditional.brew' method:UNDEFINED
+arguments-differ:99:12:100:76:FruitOverrideConditional.eat_with_condiment:Number of parameters was 3 in 'FruitConditional.eat_with_condiment' and is now 4 in overridden 'FruitOverrideConditional.eat_with_condiment' method:UNDEFINED
