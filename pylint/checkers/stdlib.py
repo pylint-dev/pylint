@@ -595,13 +595,16 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         """Check if instance methods are decorated with functools.lru_cache."""
         lru_cache_nodes: List[nodes.NodeNG] = []
         for d_node in decorators.nodes:
-            for infered_node in d_node.infer():
-                q_name = infered_node.qname()
-                if q_name in NON_INSTANCE_METHODS:
-                    return
-                if q_name in LRU_CACHE:
-                    lru_cache_nodes.append(d_node)
-                    break
+            try:
+                for infered_node in d_node.infer():
+                    q_name = infered_node.qname()
+                    if q_name in NON_INSTANCE_METHODS:
+                        return
+                    if q_name in LRU_CACHE:
+                        lru_cache_nodes.append(d_node)
+                        break
+            except astroid.InferenceError:
+                pass
         for lru_cache_node in lru_cache_nodes:
             self.add_message(
                 "lru-cache-decorating-method",
