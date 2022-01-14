@@ -457,8 +457,9 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "lru_cache shouldn't be used on a method as it creates memory leaks",
             "lru-cache-decorating-method",
             "By decorating a method with lru_cache the 'self' argument will be linked to "
-            "to the lru_cache function and therefore never garbage collected. It is recommended "
-            "to refactor code to avoid this pattern.",
+            "to the lru_cache function and therefore never garbage collected. Unless your instance "
+            "will never need to be garbage collected (singleton) it is recommended to refactor "
+            "code to avoid this pattern.",
         ),
     }
 
