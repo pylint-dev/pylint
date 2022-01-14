@@ -63,7 +63,18 @@ import re
 import sys
 from enum import Enum
 from functools import lru_cache
-from typing import TYPE_CHECKING, Any, DefaultDict, List, Optional, Set, Tuple, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    DefaultDict,
+    Dict,
+    List,
+    NamedTuple,
+    Optional,
+    Set,
+    Tuple,
+    Union,
+)
 
 import astroid
 from astroid import nodes
@@ -536,9 +547,13 @@ MSGS = {
 }
 
 
-ScopeConsumer = collections.namedtuple(
-    "ScopeConsumer", "to_consume consumed consumed_uncertain scope_type"
-)
+class ScopeConsumer(NamedTuple):
+    """Store nodes and their consumption states."""
+
+    to_consume: Dict[str, List[nodes.NodeNG]]
+    consumed: Dict[str, List[nodes.NodeNG]]
+    consumed_uncertain: DefaultDict[str, List[nodes.NodeNG]]
+    scope_type: str
 
 
 class NamesConsumer:
