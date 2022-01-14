@@ -78,10 +78,8 @@ class ModifiedIterationChecker(checkers.BaseChecker):
 
     @classmethod
     def _common_cond_list_set(cls, node, list_obj, infer_val) -> bool:
-        return (
-            cls._is_attribute_call_expr(node)
-            and (infer_val == utils.safe_infer(list_obj))
-            and (node.value.func.expr.name == list_obj.name)
+        return (infer_val == utils.safe_infer(list_obj)) and (
+            node.value.func.expr.name == list_obj.name
         )
 
     @staticmethod
@@ -92,6 +90,8 @@ class ModifiedIterationChecker(checkers.BaseChecker):
 
     @classmethod
     def _modified_iterating_list_cond(cls, node, list_obj) -> bool:
+        if not cls._is_attribute_call_expr(node):
+            return False
         try:
             infer_val = utils.safe_infer(node.value.func.expr)
             return (
@@ -105,11 +105,12 @@ class ModifiedIterationChecker(checkers.BaseChecker):
 
     @classmethod
     def _modified_iterating_dict_cond(cls, node, list_obj) -> bool:
+        if not cls._dict_node_cond(node):
+            return False
         try:
             infer_val = utils.safe_infer(node.targets[0].value)
             return (
-                cls._dict_node_cond(node)
-                and (infer_val is not None)
+                (infer_val is not None)
                 and (infer_val.pytype() == "builtins.dict")
                 and (infer_val == list_obj.inferred()[0])
                 and (node.targets[0].value.name == list_obj.name)
@@ -119,6 +120,8 @@ class ModifiedIterationChecker(checkers.BaseChecker):
 
     @classmethod
     def _modified_iterating_set_cond(cls, node, list_obj) -> bool:
+        if not cls._is_attribute_call_expr(node):
+            return False
         try:
             infer_val = utils.safe_infer(node.value.func.expr)
             return (
