@@ -1,4 +1,4 @@
-"""Check for imports on private external modules and names"""
+"""Check for imports on private external modules and names."""
 from pathlib import Path
 from typing import TYPE_CHECKING, List, Set, Union
 
@@ -20,7 +20,7 @@ class PrivateImportChecker(BaseChecker):
             "Imported private %s (%s)",
             "import-private-name",
             "Used when a private module or object prefixed with _ is imported. "
-            "PEP8 guidance on Naming Conventions states that public attributes with"
+            "PEP8 guidance on Naming Conventions states that public attributes with "
             "leading underscores should be considered private.",
         ),
     }
@@ -58,15 +58,12 @@ class PrivateImportChecker(BaseChecker):
                 args=("module", private_module_imports[0]),
                 confidence=HIGH,
             )
-        elif not self.same_root_dir(
-            node, node.modname
-        ):  # Only check imported names if the module is external
-
+        # Only check imported names if the module is external
+        elif not self.same_root_dir(node, node.modname):
             names = [n[0] for n in node.names]
             private_names = self._get_private_imports(names)
-            if (
-                not private_names
-            ):  # No private names, don't have to check against typing annotations
+            # No private names, don't have to check against typing annotations
+            if not private_names:
                 return
 
             # Only check names not used as type annotations
@@ -90,18 +87,14 @@ class PrivateImportChecker(BaseChecker):
                     confidence=HIGH,
                 )
 
-    def _get_private_imports(
-        self,
-        names: List[str],
-    ) -> List[str]:
-        """Returns the private names from input names by a simple string check"""
-        private_names = [name for name in names if self._name_is_private(name)]
-        return private_names
+    def _get_private_imports(self, names: List[str]) -> List[str]:
+        """Returns the private names from input names by a simple string check."""
+        return [name for name in names if self._name_is_private(name)]
 
     @staticmethod
     def _name_is_private(name: str) -> bool:
         """Returns true if the name exists, starts with `_`, and if len(name) > 4
-        it is not a dunder, i.e. it does not begin and end with two underscores
+        it is not a dunder, i.e. it does not begin and end with two underscores.
         """
         return (
             bool(name)
@@ -115,7 +108,7 @@ class PrivateImportChecker(BaseChecker):
         all_used_type_annotations: Set[str],
     ) -> None:
         """Adds into the set all_used_type_annotations the names of all names ever used as a type annotation
-        in the scope and class definition scopes of node
+        in the scope and class definition scopes of node.
         """
         for name in node.locals:
             for usage_node in node.locals[name]:
@@ -138,7 +131,7 @@ class PrivateImportChecker(BaseChecker):
         self, node: nodes.FunctionDef, all_used_type_annotations: Set[str]
     ) -> None:
         """Adds into the set all_used_type_annotations the names of all names used as a type annotation
-        in the arguments and return type of the function node
+        in the arguments and return type of the function node.
         """
         if node.args and node.args.annotations:
             for annotation in node.args.annotations:
@@ -153,10 +146,10 @@ class PrivateImportChecker(BaseChecker):
     def _populate_type_annotations_annotation(
         self,
         node: Union[nodes.Attribute, nodes.Subscript, nodes.Name],
-        all_used_type_annotations: Set,
+        all_used_type_annotations: Set[str],
     ) -> None:
         """Handles the possiblity of an annotation either being a Name, i.e. just type,
-        or a Subscript e.g. Optional[type] or an Attribute, e.g. pylint.lint.linter
+        or a Subscript e.g. Optional[type] or an Attribute, e.g. pylint.lint.linter.
         """
         if isinstance(node, nodes.Name):
             all_used_type_annotations.add(node.name)
