@@ -797,6 +797,8 @@ scope_type : {self._atomic.scope_type}
             ) = utils.get_node_first_ancestor_of_type_and_its_child(
                 other_node_statement, nodes.TryFinally
             )
+            if other_node_try_finally_ancestor is None:
+                continue
             # other_node needs to descend from the try of a try/finally.
             if (
                 child_of_other_node_try_finally_ancestor
