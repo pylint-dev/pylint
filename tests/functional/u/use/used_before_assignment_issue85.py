@@ -86,7 +86,7 @@ def try_except_finally_nested_in_finally_2():
 
 
 def try_except_finally_nested_in_finally_3():
-    """Neither name is accessed after a finally block, but just emit
+    """One name is never accessed after a finally block, but just emit
     once per name.
     """
     try:
@@ -99,8 +99,8 @@ def try_except_finally_nested_in_finally_3():
         finally:
             print(inner_times)  # [used-before-assignment]
             print(outer_times)  # [used-before-assignment]
-        # used-before-assignment is only raised once per name
         print(inner_times)
+        # used-before-assignment is only raised once per name
         print(outer_times)
 
 
@@ -121,6 +121,6 @@ def try_except_finally_nested_in_finally_4():
             finally:
                 print(inner_times)  # [used-before-assignment]
                 print(outer_times)  # [used-before-assignment]
-            # used-before-assignment is only raised once per name
             print(inner_times)
+            # used-before-assignment is only raised once per name
             print(outer_times)
