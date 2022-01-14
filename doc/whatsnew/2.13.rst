@@ -46,6 +46,12 @@ New checkers
    enter on a non specialized keyboard.
    See `Confusable Characters in PEP 672 <https://www.python.org/dev/peps/pep-0672/#confusable-characters-in-identifiers>`_
 
+* Added ``lru-cache-decorating-method`` checker with checks for the use of ``functools.lru_cache``
+  on class methods. This is unrecommended as it creates memory leaks by never letting the instance
+  getting garbage collected.
+
+  Closes #5670
+
 Removed checkers
 ================
 
