@@ -516,6 +516,13 @@ class PyLinter(
                 },
             ),
             (
+                "recursive",
+                {
+                    "action": "store_true",
+                    "help": ("Discover python files in file system subtree."),
+                },
+            ),
+            (
                 "py-version",
                 {
                     "default": sys.version_info[:2],
@@ -1005,6 +1012,22 @@ class PyLinter(
             if not msg.may_be_emitted():
                 self._msgs_state[msg.msgid] = False
 
+    def _discover_files(self, files_or_modules):
+        for something in files_or_modules:
+            if os.path.isdir(something) and not os.path.isfile(os.path.join(something, '__init__.py')):
+                skip_subtrees = []
+                for root, dirs, files in os.walk(something):
+                    if any(root.startswith(s) for s in skip_subtrees):
+                        # Skip subtree of already discovered package
+                        continue
+                    elif '__init__.py' in files:
+                        skip_subtrees.append(root)
+                        yield root
+                    else:
+                        yield from (os.path.join(root, file) for file in files if file.endswith('.py'))
+            else:
+                yield something
+
     def check(self, files_or_modules: Union[Sequence[str], str]) -> None:
         """main checking entry: check a list of files or modules from their name.
 
@@ -1019,6 +1042,8 @@ class PyLinter(
                 DeprecationWarning,
             )
             files_or_modules = (files_or_modules,)  # type: ignore[assignment]
+        if self.config.recursive:
+            files_or_modules = tuple(self._discover_files(files_or_modules))
         if self.config.from_stdin:
             if len(files_or_modules) != 1:
                 raise exceptions.InvalidArgsError(
