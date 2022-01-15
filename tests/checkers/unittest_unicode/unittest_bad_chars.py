@@ -260,6 +260,7 @@ class TestBadCharsChecker(pylint.testutils.CheckerTestCase):
                 line=55,
                 args=None,
                 confidence=pylint.interfaces.HIGH,
+                end_line=55,
                 col_offset=5,
                 end_col_offset=6,
             )

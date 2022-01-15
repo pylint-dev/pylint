@@ -1,5 +1,6 @@
 import itertools
 import unicodedata
+from pathlib import Path
 from typing import cast
 
 import astroid
@@ -12,22 +13,22 @@ import pylint.testutils
 
 from . import FakeNode
 
+UNICODE_TESTS = Path(__file__).parent.parent.parent / "regrtest_data" / "unicode"
+
 
 class TestBidirectionalUnicodeChecker(pylint.testutils.CheckerTestCase):
     CHECKER_CLASS = pylint.checkers.unicode.UnicodeChecker
 
     checker: pylint.checkers.unicode.UnicodeChecker
 
-    def test_finds_bidirectional_unicode_that_currently_not_parsed(
-        self, unicode_example_dir
-    ):
+    def test_finds_bidirectional_unicode_that_currently_not_parsed(self):
         """Test an example from https://github.com/nickboucher/trojan-source/tree/main/Python
         that is currently not working Python but producing a syntax error
 
         So we test this to make sure it stays like this
         """
 
-        test_file = unicode_example_dir / "invisible_function.txt"
+        test_file = UNICODE_TESTS / "invisible_function.txt"
 
         with pytest.raises(astroid.AstroidSyntaxError):
             astroid.MANAGER.ast_from_string(test_file.read_text("utf-8"))
