@@ -1,14 +1,14 @@
 """Tests for iterating-modified messages"""
-# pylint: disable=locally-disabled,suppressed-message,useless-suppression,not-callable,unnecessary-comprehension
+# pylint: disable=not-callable,unnecessary-comprehension
 
 import copy
 
 item_list = [1, 2, 3]
 for item in item_list:
-    item_list.append(item)  # [iterating-modified-list]
+    item_list.append(item)  # [modified-iterating-list]
 
 for item in item_list:
-    item_list.remove(item)  # [iterating-modified-list]
+    item_list.remove(item)  # [modified-iterating-list]
 
 for item in item_list.copy():
     item_list.append(item)
@@ -25,7 +25,7 @@ for item in [k for k in item_list]:
 my_dict = {"1": 1, "2": 2, "3": 3}
 i = 1
 for item in my_dict:
-    my_dict[i] = 1      # [iterating-modified-dict]
+    my_dict[i] = 1      # [modified-iterating-dict]
     i += 1
 
 i = 1
@@ -35,7 +35,7 @@ for item in my_dict.copy():
 
 item_set = {1, 2, 3}
 for item in item_set:
-    item_set.add(item + 10)  # [iterating-modified-set]
+    item_set.add(item + 10)  # [modified-iterating-set]
 
 for item in item_set.copy():
     item_set.add(item + 10)
