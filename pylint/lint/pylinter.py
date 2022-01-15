@@ -1012,17 +1012,22 @@ class PyLinter(
             if not msg.may_be_emitted():
                 self._msgs_state[msg.msgid] = False
 
-    def _discover_files(self, files_or_modules):
+    @staticmethod
+    def _discover_files(files_or_modules: Sequence[str]) -> Iterator[str]:
+        """Discover python modules and packages in subdirectory.
+
+        Returns iterator of paths to discovered modules and packages.
+        """
         for something in files_or_modules:
             if os.path.isdir(something) and not os.path.isfile(
                 os.path.join(something, "__init__.py")
             ):
-                skip_subtrees = []
-                for root, dirs, files in os.walk(something):
+                skip_subtrees: List[str] = []
+                for root, _, files in os.walk(something):
                     if any(root.startswith(s) for s in skip_subtrees):
-                        # Skip subtree of already discovered package
+                        # Skip subtree of already discovered package.
                         continue
-                    elif "__init__.py" in files:
+                    if "__init__.py" in files:
                         skip_subtrees.append(root)
                         yield root
                     else:
