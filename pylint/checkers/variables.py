@@ -667,23 +667,15 @@ scope_type : {self._atomic.scope_type}
 
         # If this node is in a Finally block of a Try/Finally,
         # filter out assignments in the try portion, assuming they may fail
-        if (
-            found_nodes
-            and isinstance(node_statement.parent, nodes.TryFinally)
-            and node_statement in node_statement.parent.finalbody
-        ):
-            filtered_nodes = [
-                n
-                for n in found_nodes
-                if not (
-                    n.statement(future=True).parent is node_statement.parent
-                    and n.statement(future=True) in n.statement(future=True).parent.body
+        if found_nodes:
+            uncertain_nodes = (
+                self._uncertain_nodes_in_try_blocks_when_evaluating_finally_blocks(
+                    found_nodes, node_statement
                 )
-            ]
-            filtered_nodes_set = set(filtered_nodes)
-            difference = [n for n in found_nodes if n not in filtered_nodes_set]
-            self.consumed_uncertain[node.name] += difference
-            found_nodes = filtered_nodes
+            )
+            self.consumed_uncertain[node.name] += uncertain_nodes
+            uncertain_nodes_set = set(uncertain_nodes)
+            found_nodes = [n for n in found_nodes if n not in uncertain_nodes_set]
 
         # If this node is in an ExceptHandler,
         # filter out assignments in the try portion, assuming they may fail
@@ -788,6 +780,59 @@ scope_type : {self._atomic.scope_type}
                 or other_node_try_ancestor_except_handler
                 in closest_except_handler.node_ancestors()
                 for other_node_try_ancestor_except_handler in other_node_try_ancestor.handlers
+            ):
+                continue
+            # Passed all tests for uncertain execution
+            uncertain_nodes.append(other_node)
+        return uncertain_nodes
+
+    @staticmethod
+    def _uncertain_nodes_in_try_blocks_when_evaluating_finally_blocks(
+        found_nodes: List[nodes.NodeNG], node_statement: nodes.Statement
+    ) -> List[nodes.NodeNG]:
+        uncertain_nodes: List[nodes.NodeNG] = []
+        (
+            closest_try_finally_ancestor,
+            child_of_closest_try_finally_ancestor,
+        ) = utils.get_node_first_ancestor_of_type_and_its_child(
+            node_statement, nodes.TryFinally
+        )
+        if closest_try_finally_ancestor is None:
+            return uncertain_nodes
+        if (
+            child_of_closest_try_finally_ancestor
+            not in closest_try_finally_ancestor.finalbody
+        ):
+            return uncertain_nodes
+        for other_node in found_nodes:
+            other_node_statement = other_node.statement(future=True)
+            (
+                other_node_try_finally_ancestor,
+                child_of_other_node_try_finally_ancestor,
+            ) = utils.get_node_first_ancestor_of_type_and_its_child(
+                other_node_statement, nodes.TryFinally
+            )
+            if other_node_try_finally_ancestor is None:
+                continue
+            # other_node needs to descend from the try of a try/finally.
+            if (
+                child_of_other_node_try_finally_ancestor
+                not in other_node_try_finally_ancestor.body
+            ):
+                continue
+            # If the two try/finally ancestors are not the same, then
+            # node_statement's closest try/finally ancestor needs to be in
+            # the final body of other_node's try/finally ancestor, or
+            # descend from one of the statements in that final body.
+            if (
+                other_node_try_finally_ancestor is not closest_try_finally_ancestor
+                and not any(
+                    other_node_final_statement is closest_try_finally_ancestor
+                    or other_node_final_statement.parent_of(
+                        closest_try_finally_ancestor
+                    )
+                    for other_node_final_statement in other_node_try_finally_ancestor.finalbody
+                )
             ):
                 continue
             # Passed all tests for uncertain execution

@@ -13,6 +13,11 @@ Release date: TBA
 
   Closes #352
 
+* Fixed crash from ``arguments-differ`` and ``arguments-renamed`` when methods were
+  defined outside the top level of a class.
+
+  Closes #5648
+
 * Added several checkers to deal with unicode security issues
   (see `Trojan Sources <https://trojansource.codes/>`_ and
   `PEP 672 <https://www.python.org/dev/peps/pep-0672/>`_ for details) that also
@@ -84,6 +89,10 @@ Release date: TBA
   it might fail.
 
   Closes #4045
+
+* Fixed false negative for ``used-before-assignment`` in finally blocks
+  if an except handler did not define the assignment that might have failed
+  in the try block.
 
 * Fixed extremely long processing of long lines with comma's.
 
