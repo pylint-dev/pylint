@@ -1290,3 +1290,15 @@ class TestRunTC:
         with pytest.raises(SystemExit) as ex:
             Run(["--ignore-paths", "test", join(HERE, "regrtest_data", "empty.py")])
         assert ex.value.code == 0
+
+    def test_regression_recursive(self):
+        self._test_output(
+            [join(HERE, "regrtest_data", "directory", "subdirectory")],
+            expected_output="No such file or directory",
+        )
+
+    def test_recursive(self):
+        self._runtest(
+            [join(HERE, "regrtest_data", "directory", "subdirectory"), "--recursive"],
+            code=0,
+        )
