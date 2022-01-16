@@ -139,6 +139,11 @@ Other Changes
 
   Closes #5323
 
+* Fix false positive for ``undefined-variable`` when ``namedtuple`` class
+  attributes are used as return annotations.
+
+  Closes #5568
+
 * ``used-before-assignment`` now considers that assignments in a try block
   may not have occurred when the except or finally blocks are executed.
 

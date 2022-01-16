@@ -74,6 +74,11 @@ Release date: TBA
 
   Closes #5569
 
+* Fix false positive for ``undefined-variable`` when ``namedtuple`` class
+  attributes are used as return annotations.
+
+  Closes #5568
+
 * Pyreverse - add output in mermaidjs format
 
 * ``used-before-assignment`` now considers that assignments in a try block
