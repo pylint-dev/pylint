@@ -1781,20 +1781,18 @@ class VariablesChecker(BaseChecker):
             frame, nodes.FunctionDef
         ):
             # Special rule for function return annotations,
-            # which uses the same name as the class where
-            # the function lives.
+            # using a name defined earlier in the class containing the function.
             if node is frame.returns and defframe.parent_of(frame.returns):
-                maybe_before_assign = annotation_return = True
-
-            if (
-                maybe_before_assign
-                and defframe.name in defframe.locals
-                and defframe.locals[node.name][0].lineno < frame.lineno
-            ):
-                # Detect class assignments with the same
-                # name as the class. In this case, no warning
-                # should be raised.
-                maybe_before_assign = False
+                annotation_return = True
+                if (
+                    frame.returns.name in defframe.locals
+                    and defframe.locals[node.name][0].lineno < frame.lineno
+                ):
+                    # Detect class assignments with a name defined earlier in the
+                    # class. In this case, no warning should be raised.
+                    maybe_before_assign = False
+                else:
+                    maybe_before_assign = True
             if isinstance(node.parent, nodes.Arguments):
                 maybe_before_assign = stmt.fromlineno <= defstmt.fromlineno
         elif is_recursive_klass:
