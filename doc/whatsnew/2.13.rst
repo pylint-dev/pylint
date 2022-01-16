@@ -94,6 +94,10 @@ Other Changes
 * When run in parallel mode ``pylint`` now pickles the data passed to subprocesses with
   the ``dill`` package. The ``dill`` package has therefore been added as a dependency.
 
+* Fixed false positive for ``global-variable-undefined`` when ``global`` is used with a class name
+
+  Closes #3088
+
 * Fixed crash on properties and inherited class methods when comparing them for
   equality against an empty dict.
 

@@ -1205,7 +1205,10 @@ class VariablesChecker(BaseChecker):
                 if anode.frame(future=True) is module:
                     # module level assignment
                     break
-                if isinstance(anode, nodes.FunctionDef) and anode.parent is module:
+                if (
+                    isinstance(anode, (nodes.ClassDef, nodes.FunctionDef))
+                    and anode.parent is module
+                ):
                     # module level function assignment
                     break
             else:
