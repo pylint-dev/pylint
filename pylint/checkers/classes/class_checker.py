@@ -1325,7 +1325,7 @@ a metaclass class method.",
         ) and self._py38_plus:
             self.add_message(
                 "overridden-final-method",
-                args=(function_node.name, parent_function_node.parent.name),
+                args=(function_node.name, parent_function_node.parent.frame().name),
                 node=function_node,
             )
 
@@ -1997,24 +1997,24 @@ a metaclass class method.",
                     error_type = "arguments-differ"
                     msg_args = (
                         msg
-                        + f"was {total_args_refmethod} in '{refmethod.parent.name}.{refmethod.name}' and "
+                        + f"was {total_args_refmethod} in '{refmethod.parent.frame().name}.{refmethod.name}' and "
                         f"is now {total_args_method1} in",
                         class_type,
-                        f"{method1.parent.name}.{method1.name}",
+                        f"{method1.parent.frame().name}.{method1.name}",
                     )
                 elif "renamed" in msg:
                     error_type = "arguments-renamed"
                     msg_args = (
                         msg,
                         class_type,
-                        f"{method1.parent.name}.{method1.name}",
+                        f"{method1.parent.frame().name}.{method1.name}",
                     )
                 else:
                     error_type = "arguments-differ"
                     msg_args = (
                         msg,
                         class_type,
-                        f"{method1.parent.name}.{method1.name}",
+                        f"{method1.parent.frame().name}.{method1.name}",
                     )
                 self.add_message(error_type, args=msg_args, node=method1)
         elif (

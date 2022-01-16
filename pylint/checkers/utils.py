@@ -1715,7 +1715,7 @@ def returns_bool(node: nodes.NodeNG) -> bool:
 
 
 def get_node_first_ancestor_of_type(
-    node: nodes.NodeNG, ancestor_type: Union[Type[T_Node], Tuple[Type[T_Node]]]
+    node: nodes.NodeNG, ancestor_type: Union[Type[T_Node], Tuple[Type[T_Node], ...]]
 ) -> Optional[T_Node]:
     """Return the first parent node that is any of the provided types (or None)"""
     for ancestor in node.node_ancestors():
@@ -1725,7 +1725,7 @@ def get_node_first_ancestor_of_type(
 
 
 def get_node_first_ancestor_of_type_and_its_child(
-    node: nodes.NodeNG, ancestor_type: Union[Type[T_Node], Tuple[Type[T_Node]]]
+    node: nodes.NodeNG, ancestor_type: Union[Type[T_Node], Tuple[Type[T_Node], ...]]
 ) -> Union[Tuple[None, None], Tuple[T_Node, nodes.NodeNG]]:
     """Modified version of get_node_first_ancestor_of_type to also return the
     descendant visited directly before reaching the sought ancestor. Useful

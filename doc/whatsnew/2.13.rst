@@ -83,6 +83,11 @@ Other Changes
 
   Closes #352
 
+* Fixed crash from ``arguments-differ`` and ``arguments-renamed`` when methods were
+  defined outside the top level of a class.
+
+  Closes #5648
+
 * Fixed false positive ``consider-using-dict-comprehension`` when creating a dict
   using a list of tuples where key AND value vary depending on the same condition.
 
@@ -150,6 +155,10 @@ Other Changes
   it might fail.
 
   Closes #4045
+
+* Fixed false negative for ``used-before-assignment`` in finally blocks
+  if an except handler did not define the assignment that might have failed
+  in the try block.
 
 * Fix a false positive for ``assigning-non-slot`` when the slotted class
   defined ``__setattr__``.
