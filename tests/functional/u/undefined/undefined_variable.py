@@ -429,7 +429,7 @@ def typing_and_value_assignment_with_tuple_assignment():
 
 def nested_class_as_return_annotation():
     """A namedtuple as a class attribute is used as a return annotation
-    
+
     Taken from https://github.com/PyCQA/pylint/issues/5568"""
     from collections import namedtuple
 
