@@ -37,6 +37,10 @@ New checkers
 
   Closes #5460
 
+* Add checker ``redefined-slots-in-subclass``: Emitted when a slot is redefined in a subclass.
+
+  Closes #5617
+
 * Rewrote Checker of ``non-ascii-name``.
    It now ensures __all__ Python names are ASCII and also properly
    checks the names of imports (``non-ascii-module-import``) as

@@ -115,6 +115,10 @@ Release date: TBA
 
   Closes #5499
 
+* Add checker ``redefined-slots-in-subclass``: Emitted when a slot is redefined in a subclass.
+
+  Closes #5617
+
 * Fixed false positive for ``global-variable-not-assigned`` when the ``del`` statement is used
 
   Closes #5333
