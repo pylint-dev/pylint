@@ -72,6 +72,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    Dict,
     Iterator,
     List,
     Optional,
@@ -790,6 +791,8 @@ class TypeChecker(BaseChecker):
     # messages
     msgs = MSGS
     priority = -1
+
+    node_exists: Dict[str, bool] = {}
     # configuration options
     options = (
         (
@@ -1013,6 +1016,24 @@ accessed. Python regular expressions are accepted.",
 
         function/method, super call and metaclasses are ignored
         """
+
+        outer = ""
+        expr = node.expr
+        if isinstance(expr, nodes.Call):
+            expr = expr.func
+            outer = "()"
+        if isinstance(expr, nodes.Name):
+            outer = expr.name + outer
+        elif isinstance(expr, nodes.Attribute):
+            outer = expr.attrname + outer
+        name_with_expr = f"{outer}.{node.attrname}"
+        if (
+            outer != ""
+            and name_with_expr in self.node_exists
+            and self.node_exists[name_with_expr]
+        ):
+            return
+        self.node_exists[name_with_expr] = True
         if any(
             pattern.match(name)
             for name in (node.attrname, node.as_string())
@@ -1090,6 +1111,7 @@ accessed. Python regular expressions are accepted.",
             # stop on the first found
             break
         else:
+            self.node_exists[name_with_expr] = False
             # we have not found any node with the attributes, display the
             # message for inferred nodes
             done = set()
