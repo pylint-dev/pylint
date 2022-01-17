@@ -128,7 +128,7 @@ directory which is not a package results in an error::
     [Errno 2] No such file or directory: 'mydir/__init__.py' (parse-error)
 
 To execute pylint over all modules and packages under the directory, ``--recursive`` option must
-be provided. This option causes that pylint tries to discover all modules (files ending with ``.py`` extention)
+be provided. This option causes that pylint tries to discover all modules (files ending with ``.py`` extension)
 and all packages (all directories containing ``__init__.py`` file).
 Those modules and packages are then subject for analysis::
 
