@@ -42,6 +42,10 @@ Release date: TBA
 
   Closes #5588
 
+* Fixed false positive for ``global-variable-undefined`` when ``global`` is used with a class name
+
+  Closes #3088
+
 * Added ``lru-cache-decorating-method`` checker with checks for the use of ``functools.lru_cache``
   on class methods. This is unrecommended as it creates memory leaks by never letting the instance
   getting garbage collected.
