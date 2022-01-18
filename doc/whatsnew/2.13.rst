@@ -111,6 +111,10 @@ Other Changes
 
 .. _`emacs file locks`: https://www.gnu.org/software/emacs/manual/html_node/elisp/File-Locks.html
 
+* Fix ``super-init-not-called`` when parent or ``self`` is a ``Protocol``
+
+  Closes #4790
+
 * An astroid issue where symlinks were not being taken into account
   was fixed
 

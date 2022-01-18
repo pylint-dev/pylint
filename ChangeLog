@@ -206,6 +206,10 @@ Release date: TBA
 * The ``PyLinter`` class will now be initialized with a ``TextReporter``
   as its reporter if none is provided.
 
+* Fix ``super-init-not-called`` when parent or ``self`` is a ``Protocol``
+
+  Closes #4790
+
 * Fix false positive ``not-callable`` with attributes that alias ``NamedTuple``
 
   Partially closes #1730

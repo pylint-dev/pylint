@@ -52,10 +52,10 @@
 """Classes checker for Python code"""
 import collections
 from itertools import chain, zip_longest
-from typing import List, Pattern
+from typing import Dict, List, Pattern
 
 import astroid
-from astroid import nodes
+from astroid import bases, nodes
 
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import (
@@ -81,7 +81,7 @@ from pylint.checkers.utils import (
     unimplemented_abstract_methods,
     uninferable_final_decorators,
 )
-from pylint.interfaces import IAstroidChecker
+from pylint.interfaces import INFERENCE, IAstroidChecker
 from pylint.utils import get_global_option
 
 INVALID_BASE_CLASSES = {"bool", "range", "slice", "memoryview"}
@@ -94,6 +94,7 @@ ASTROID_TYPE_COMPARATORS = {
     nodes.Dict: lambda a, b: a.items == b.items,
     nodes.Name: lambda a, b: set(a.infer()) == set(b.infer()),
 }
+PROTOCOLS = {"typing.Protocol", "typing_extensions.Protocol"}
 
 # Dealing with useless override detection, with regard
 # to parameters vs arguments
@@ -1086,12 +1087,12 @@ a metaclass class method.",
         self._check_useless_super_delegation(node)
         self._check_property_with_parameters(node)
 
-        klass = node.parent.frame(future=True)
+        klass = node.parent.frame(future=True)  # type: nodes.ClassDef # See is_method()
         self._meth_could_be_func = True
         # check first argument is self if this is actually a method
         self._check_first_arg_for_type(node, klass.type == "metaclass")
         if node.name == "__init__":
-            self._check_init(node)
+            self._check_init(node, klass)
             return
         # check signature if the method overloads inherited method
         for overridden in klass.local_attr_ancestors(node.name):
@@ -1928,7 +1929,7 @@ a metaclass class method.",
                 continue
             self.add_message("abstract-method", node=node, args=(name, owner.name))
 
-    def _check_init(self, node):
+    def _check_init(self, node: nodes.FunctionDef, klass_node: nodes.ClassDef) -> None:
         """check that the __init__ method call super or ancestors'__init__
         method (unless it is used for type hinting with `typing.overload`)
         """
@@ -1936,7 +1937,6 @@ a metaclass class method.",
             "super-init-not-called"
         ) and not self.linter.is_message_enabled("non-parent-init-called"):
             return
-        klass_node = node.parent.frame(future=True)
         to_call = _ancestors_to_call(klass_node)
         not_called_yet = dict(to_call)
         for stmt in node.nodes_of_class(nodes.Call):
@@ -1980,12 +1980,27 @@ a metaclass class method.",
             except astroid.InferenceError:
                 continue
         for klass, method in not_called_yet.items():
+            # Return if klass is protocol
+            if klass.qname() in PROTOCOLS:
+                return
+
+            # Return if any of the klass' first-order bases is protocol
+            for base in klass.bases:
+                inferred_base = safe_infer(base)
+                if inferred_base and inferred_base.qname() in PROTOCOLS:
+                    return
+
             if decorated_with(node, ["typing.overload"]):
                 continue
             cls = node_frame_class(method)
             if klass.name == "object" or (cls and cls.name == "object"):
                 continue
-            self.add_message("super-init-not-called", args=klass.name, node=node)
+            self.add_message(
+                "super-init-not-called",
+                args=klass.name,
+                node=node,
+                confidence=INFERENCE,
+            )
 
     def _check_signature(self, method1, refmethod, class_type, cls):
         """check that the signature of the two given methods match"""
@@ -2092,11 +2107,13 @@ a metaclass class method.",
         return isinstance(node, nodes.Name) and node.name == first_attr
 
 
-def _ancestors_to_call(klass_node, method="__init__"):
+def _ancestors_to_call(
+    klass_node: nodes.ClassDef, method="__init__"
+) -> Dict[nodes.ClassDef, bases.UnboundMethod]:
     """return a dictionary where keys are the list of base classes providing
     the queried method, and so that should/may be called from the method node
     """
-    to_call = {}
+    to_call: Dict[nodes.ClassDef, bases.UnboundMethod] = {}
     for base_node in klass_node.ancestors(recurs=False):
         try:
             to_call[base_node] = next(base_node.igetattr(method))
