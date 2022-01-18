@@ -124,6 +124,11 @@ Other Changes
 
   Closes #5483
 
+* Fix false positive ``super-init-not-called`` for classes that inherit their ``init`` from
+  a parent.
+
+  Closes #4941
+
 * Fix ``unnecessary_dict_index_lookup`` false positive when deleting a dictionary's entry.
 
   Closes #4716

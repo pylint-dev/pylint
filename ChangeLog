@@ -215,6 +215,11 @@ Release date: TBA
   Closes #4434
   Closes #5370
 
+* Fix false positive ``super-init-not-called`` for classes that inherit their ``init`` from
+  a parent.
+
+  Closes #4941
+
 * ``encoding`` can now be supplied as a positional argument to calls that open
   files without triggering ``unspecified-encoding``.
 
