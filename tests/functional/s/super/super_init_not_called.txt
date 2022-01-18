@@ -1,1 +1,1 @@
-super-init-not-called:51:4:52:11:TestChild.__init__:__init__ method from base class 'TestParent' is not called:INFERENCE
+super-init-not-called:34:4:35:11:TestChild.__init__:__init__ method from base class 'TestParent' is not called:INFERENCE

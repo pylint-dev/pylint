@@ -2,8 +2,6 @@
 # pylint: disable=too-few-public-methods
 
 import ctypes
-from abc import abstractmethod
-from typing import Protocol
 
 from typing_extensions import Protocol as ExtensionProtocol
 
@@ -17,21 +15,6 @@ class Foo(ctypes.BigEndianStructure):
 
     def __init__(self):
         ctypes.BigEndianStructure.__init__(self)
-
-
-class MyProtocol(Protocol):
-    """A protocol."""
-
-    @abstractmethod
-    def __init__(self) -> None:
-        raise NotImplementedError
-
-
-class ProtocolImplimentation(MyProtocol):
-    """An implementation."""
-
-    def __init__(self) -> None:
-        ...
 
 
 class TestProto(ExtensionProtocol):
