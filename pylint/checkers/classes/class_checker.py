@@ -94,7 +94,6 @@ ASTROID_TYPE_COMPARATORS = {
     nodes.Dict: lambda a, b: a.items == b.items,
     nodes.Name: lambda a, b: set(a.infer()) == set(b.infer()),
 }
-PROTOCOLS = {"typing.Protocol", "typing_extensions.Protocol"}
 
 # Dealing with useless override detection, with regard
 # to parameters vs arguments
@@ -1982,14 +1981,18 @@ a metaclass class method.",
                 continue
         for klass, method in not_called_yet.items():
             # Return if klass is protocol
-            if klass.qname() in PROTOCOLS:
+            if klass.qname() in utils.TYPING_PROTOCOLS:
                 return
 
             # Return if any of the klass' first-order bases is protocol
             for base in klass.bases:
-                inferred_base = safe_infer(base)
-                if inferred_base and inferred_base.qname() in PROTOCOLS:
-                    return
+                try:
+                    inferred_base = base.infer()
+                except astroid.InferenceError:
+                    continue
+                for inf_base in inferred_base:
+                    if inf_base.qname() in utils.TYPING_PROTOCOLS:
+                        return
 
             if decorated_with(node, ["typing.overload"]):
                 continue
