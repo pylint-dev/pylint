@@ -35,8 +35,8 @@ class TestChild(TestParent):
         ...
 
 
-class UninferableChild(UninferableParent):
-    """An implementation which should could the init of TestParent."""
+class UninferableChild(UninferableParent):  # [undefined-variable]
+    """An implementation that test if we don't crash on uninferable parents."""
 
-    def __init__(self):  # [super-init-not-called]
+    def __init__(self):
         ...
