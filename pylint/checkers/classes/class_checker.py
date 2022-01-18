@@ -1087,7 +1087,8 @@ a metaclass class method.",
         self._check_useless_super_delegation(node)
         self._check_property_with_parameters(node)
 
-        klass = node.parent.frame(future=True)  # type: nodes.ClassDef # See is_method()
+        # 'is_method()' is called and makes sure that this is a 'nodes.ClassDef'
+        klass = node.parent.frame(future=True)  # type: nodes.ClassDef
         self._meth_could_be_func = True
         # check first argument is self if this is actually a method
         self._check_first_arg_for_type(node, klass.type == "metaclass")
