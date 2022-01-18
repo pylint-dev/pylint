@@ -1293,12 +1293,12 @@ class TestRunTC:
 
     def test_regression_recursive(self):
         self._test_output(
-            [join(HERE, "regrtest_data", "directory", "subdirectory")],
+            [join(HERE, "regrtest_data", "directory", "subdirectory"), "--recursive=n"],
             expected_output="No such file or directory",
         )
 
     def test_recursive(self):
         self._runtest(
-            [join(HERE, "regrtest_data", "directory", "subdirectory"), "--recursive"],
+            [join(HERE, "regrtest_data", "directory", "subdirectory"), "--recursive=y"],
             code=0,
         )

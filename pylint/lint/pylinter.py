@@ -518,7 +518,9 @@ class PyLinter(
             (
                 "recursive",
                 {
-                    "action": "store_true",
+                    "type": "yn",
+                    "metavar": "<yn>",
+                    "default": False,
                     "help": "Discover python modules and packages in file system subtree.",
                 },
             ),

@@ -35,7 +35,7 @@ python path.
 
 By default, pylint will result with an error when one of the arguments is directory which is not
 a python package. In order to run pylint over all modules and packages within file system
-subtree of directory, ``--recursive`` option must be provided.
+subtree of directory, ``--recursive=y`` option must be provided.
 
 For more details on this see the :ref:`faq`.
 
