@@ -1986,11 +1986,9 @@ a metaclass class method.",
 
             # Return if any of the klass' first-order bases is protocol
             for base in klass.bases:
-                try:
-                    inferred_base = base.infer()
-                except astroid.InferenceError:
-                    continue
-                for inf_base in inferred_base:
+                # We don't need to catch InferenceError here as _ancestors_to_call
+                # already does this for us.
+                for inf_base in base.infer():
                     if inf_base.qname() in utils.TYPING_PROTOCOLS:
                         return
 

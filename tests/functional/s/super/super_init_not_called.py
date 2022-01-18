@@ -29,6 +29,13 @@ class TestParent(TestProto):
 
 
 class TestChild(TestParent):
+    """An implementation which should call the init of TestParent."""
+
+    def __init__(self):  # [super-init-not-called]
+        ...
+
+
+class UninferableChild(UninferableParent):
     """An implementation which should could the init of TestParent."""
 
     def __init__(self):  # [super-init-not-called]
