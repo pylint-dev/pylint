@@ -440,3 +440,16 @@ def nested_class_as_return_annotation():
             pass
 
     print(MyObject)
+
+
+def function():
+    a, b = 0, []
+
+    print(b)
+
+    def inner():
+        nonlocal a
+        b.append(a)
+        a += 1
+
+    return inner()
