@@ -47,6 +47,14 @@ Release date: TBA
 
   Closes #5588
 
+* Fixed false positive for ``global-variable-undefined`` when ``global`` is used with a class name
+
+  Closes #3088
+
+* Fixed false positive for ``unused-variable`` when a ``nonlocal`` name is assigned as part of a multi-name assignment.
+
+  Closes #3781
+
 * Added ``lru-cache-decorating-method`` checker with checks for the use of ``functools.lru_cache``
   on class methods. This is unrecommended as it creates memory leaks by never letting the instance
   getting garbage collected.
@@ -79,6 +87,11 @@ Release date: TBA
 
   Closes #5569
 
+* Fix false positive for ``undefined-variable`` when ``namedtuple`` class
+  attributes are used as return annotations.
+
+  Closes #5568
+
 * Pyreverse - add output in mermaidjs format
 
 * ``used-before-assignment`` now considers that assignments in a try block
@@ -91,6 +104,10 @@ Release date: TBA
   it might fail.
 
   Closes #4045
+
+* Fixed false negative for ``used-before-assignment`` in finally blocks
+  if an except handler did not define the assignment that might have failed
+  in the try block.
 
 * Fixed extremely long processing of long lines with comma's.
 
@@ -110,6 +127,10 @@ Release date: TBA
   annotation in conditional statements within class methods.
 
   Closes #5499
+
+* Add checker ``redefined-slots-in-subclass``: Emitted when a slot is redefined in a subclass.
+
+  Closes #5617
 
 * Fixed false positive for ``global-variable-not-assigned`` when the ``del`` statement is used
 

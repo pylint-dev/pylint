@@ -13,6 +13,8 @@ import pylint.testutils
 
 from . import CODEC_AND_MSG, FakeNode
 
+UNICODE_TESTS = Path(__file__).parent.parent.parent / "regrtest_data" / "unicode"
+
 
 class TestInvalidEncoding(pylint.testutils.CheckerTestCase):
     CHECKER_CLASS = pylint.checkers.unicode.UnicodeChecker
@@ -44,10 +46,8 @@ class TestInvalidEncoding(pylint.testutils.CheckerTestCase):
             ("pep_bidirectional_utf_32_bom.txt", 1),
         ],
     )
-    def test_invalid_unicode_files(
-        self, unicode_example_dir: Path, tmp_path: Path, test_file: str, line_no: int
-    ):
-        test_file_path = unicode_example_dir / test_file
+    def test_invalid_unicode_files(self, tmp_path: Path, test_file: str, line_no: int):
+        test_file_path = UNICODE_TESTS / test_file
         target = shutil.copy(
             test_file_path, tmp_path / test_file.replace(".txt", ".py")
         )

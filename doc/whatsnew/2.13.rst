@@ -37,6 +37,10 @@ New checkers
 
   Closes #5460
 
+* Add checker ``redefined-slots-in-subclass``: Emitted when a slot is redefined in a subclass.
+
+  Closes #5617
+
 * Rewrote Checker of ``non-ascii-name``.
    It now ensures __all__ Python names are ASCII and also properly
    checks the names of imports (``non-ascii-module-import``) as
@@ -94,6 +98,10 @@ Other Changes
 * When run in parallel mode ``pylint`` now pickles the data passed to subprocesses with
   the ``dill`` package. The ``dill`` package has therefore been added as a dependency.
 
+* Fixed false positive for ``global-variable-undefined`` when ``global`` is used with a class name
+
+  Closes #3088
+
 * Fixed crash on properties and inherited class methods when comparing them for
   equality against an empty dict.
 
@@ -143,6 +151,11 @@ Other Changes
 
   Closes #5323
 
+* Fix false positive for ``undefined-variable`` when ``namedtuple`` class
+  attributes are used as return annotations.
+
+  Closes #5568
+
 * ``used-before-assignment`` now considers that assignments in a try block
   may not have occurred when the except or finally blocks are executed.
 
@@ -153,6 +166,10 @@ Other Changes
   it might fail.
 
   Closes #4045
+
+* Fixed false negative for ``used-before-assignment`` in finally blocks
+  if an except handler did not define the assignment that might have failed
+  in the try block.
 
 * Fix a false positive for ``assigning-non-slot`` when the slotted class
   defined ``__setattr__``.
@@ -261,6 +278,10 @@ Other Changes
       raise ValueError
 
   Closes #4955
+
+* Fixed false positive for ``unused-variable`` when a ``nonlocal`` name is assigned as part of a multi-name assignment.
+
+  Closes #3781
 
 * Fixed false positive for ``global-variable-not-assigned`` when the ``del`` statement is used
 
