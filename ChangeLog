@@ -48,7 +48,7 @@ Release date: TBA
 
 * Fixed false positive for ``unused-variable`` when a ``nonlocal`` name is assigned as part of a multi-name assignment.
 
-  Cloases #3781
+  Closes #3781
 
 * Added ``lru-cache-decorating-method`` checker with checks for the use of ``functools.lru_cache``
   on class methods. This is unrecommended as it creates memory leaks by never letting the instance
