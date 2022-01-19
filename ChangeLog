@@ -46,7 +46,7 @@ Release date: TBA
 
   Closes #3088
 
-* Fixed false positive for ``unused-variable`` when a `nonlocal` name is assigned as part of a multi-name assignment.
+* Fixed false positive for ``unused-variable`` when a ``nonlocal`` name is assigned as part of a multi-name assignment.
 
   Cloases #3781
 
