@@ -275,6 +275,10 @@ Other Changes
 
   Closes #4955
 
+* Fixed false positive for ``unused-variable`` when a ``nonlocal`` name is assigned as part of a multi-name assignment.
+
+  Closes #3781
+
 * Fixed false positive for ``global-variable-not-assigned`` when the ``del`` statement is used
 
   Closes #5333
