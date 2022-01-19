@@ -1055,7 +1055,10 @@ class PyLinter(
                 DeprecationWarning,
             )
             files_or_modules = (files_or_modules,)  # type: ignore[assignment]
-        if self.config.recursive:
+        # We enable recursive mode when --recursive=y is set or when running command: pylint .
+        if self.config.recursive or (
+            len(files_or_modules) == 1 and files_or_modules[0] == "."
+        ):
             files_or_modules = tuple(self._discover_files(files_or_modules))
         if self.config.from_stdin:
             if len(files_or_modules) != 1:

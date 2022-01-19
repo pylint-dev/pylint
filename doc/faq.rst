@@ -138,6 +138,10 @@ When ``--recursive=y`` option is used, also module and packages are accepted as 
 
     pylint --recursive=y mydir mymodule mypackage
 
+Recursive mode is enabled by default only when pylint scans current directory::
+
+    pylint .
+
 4. Message Control
 ==================
 

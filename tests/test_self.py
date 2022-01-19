@@ -1297,6 +1297,16 @@ class TestRunTC:
             expected_output="No such file or directory",
         )
 
+    def test_recursive_current_dir(self):
+        os.chdir(join(HERE, "regrtest_data", "directory"))
+        try:
+            self._runtest(
+                ["."],
+                code=0,
+            )
+        finally:
+            os.chdir(HERE)
+
     def test_recursive(self):
         self._runtest(
             [join(HERE, "regrtest_data", "directory", "subdirectory"), "--recursive=y"],
