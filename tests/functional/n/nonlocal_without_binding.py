@@ -44,13 +44,13 @@ def func2():
 
 def function():
     """Test for `unused-variable` when multiple-assignment contains a `nonlocal`"""
-    a, b = 0, []
+    myint, mylist = 0, []
 
-    print(b)
+    print(mylist)
 
     def inner():
-        nonlocal a
-        b.append(a)
-        a += 1
+        nonlocal myint
+        mylist.append(myint)
+        myint += 1
 
     return inner()
