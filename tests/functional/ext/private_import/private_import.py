@@ -75,6 +75,15 @@ def b_func2(class_b2: _TypeContainerB.B):
 def c2_func() -> _TypeContainerC.C:
     return None
 
+# This is allowed since all the imports are used for typing
+from _TypeContainerExtra import TypeExtraA, TypeExtraB
+extraA: TypeExtraA
+extraB: TypeExtraB
+
+# This is not allowed because there is an import not used for typing
+from _TypeContainerExtra2 import TypeExtra2, NotTypeExtra # [import-private-name]
+extra2: TypeExtra2
+
 # Try many cases to ensure that type annotation usages of a private import
 # do not mask other illegal usages of the import
 import _private_module # [import-private-name]

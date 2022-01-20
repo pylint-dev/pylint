@@ -53,33 +53,42 @@ class PrivateImportChecker(BaseChecker):
     def visit_importfrom(self, node: nodes.ImportFrom) -> None:
         if utils.is_node_in_typing_guarded_import_block(node):
             return
+        # Only check imported names if the module is external
+        if self.same_root_dir(node, node.modname):
+            return
+
+        names = [n[0] for n in node.names]
+
+        # Check the imported objects first. If they are all valid type annotations, the package can be private
+        private_names = self._get_type_annotation_names(node, names)
+        if not private_names:
+            return
+
+        # There are invalid imported objects, so check the name of the package
         private_module_imports = self._get_private_imports([node.modname])
         private_module_imports = self._get_type_annotation_names(
             node, private_module_imports
         )
-        if private_module_imports:  # If module is private, do not check imported names
+        if private_module_imports:
             self.add_message(
                 "import-private-name",
                 node=node,
                 args=("module", private_module_imports[0]),
                 confidence=HIGH,
             )
-        # Only check imported names if the module is external
-        elif not self.same_root_dir(node, node.modname):
-            names = [n[0] for n in node.names]
+            return  # Do not emit messages on the objects if the package is private
 
-            private_names = self._get_private_imports(names)
-            private_names = self._get_type_annotation_names(node, private_names)
+        private_names = self._get_private_imports(private_names)
 
-            if private_names:
-                imported_identifier = "objects" if len(private_names) > 1 else "object"
-                private_name_string = ", ".join(private_names)
-                self.add_message(
-                    "import-private-name",
-                    node=node,
-                    args=(imported_identifier, private_name_string),
-                    confidence=HIGH,
-                )
+        if private_names:
+            imported_identifier = "objects" if len(private_names) > 1 else "object"
+            private_name_string = ", ".join(private_names)
+            self.add_message(
+                "import-private-name",
+                node=node,
+                args=(imported_identifier, private_name_string),
+                confidence=HIGH,
+            )
 
     def _get_private_imports(self, names: List[str]) -> List[str]:
         """Returns the private names from input names by a simple string check."""
@@ -87,7 +96,7 @@ class PrivateImportChecker(BaseChecker):
 
     @staticmethod
     def _name_is_private(name: str) -> bool:
-        """Returns true if the name exists, starts with `_`, and if len(name) > 4
+        """Returns true if the name exists, starts with '_', and if len(name) > 4
         it is not a dunder, i.e. it does not begin and end with two underscores.
         """
         return (
@@ -99,7 +108,7 @@ class PrivateImportChecker(BaseChecker):
     def _get_type_annotation_names(
         self, node: nodes.Import, names: List[str]
     ) -> List[str]:
-        """Removes from names any names that are used as type annotations in node.root()."""
+        """Removes from names any names that are used as type annotations with no other illegal usages."""
         if names and not self.populated_annotations:
             self._populate_type_annotations(node.root(), self.all_used_type_annotations)
             self.populated_annotations = True
@@ -117,8 +126,8 @@ class PrivateImportChecker(BaseChecker):
     def _populate_type_annotations(
         self, node: nodes.LocalsDictNodeNG, all_used_type_annotations: Dict[str, bool]
     ) -> None:
-        """Adds into the set all_used_type_annotations the names of all names ever used as a type annotation
-        in the scope and class definition scopes of node.
+        """Adds into the dict 'all_used_type_annotations' the names of all names ever used as a type annotation
+        in the scope and nested scopes of node and whether these names are only used for type checking.
         """
         for name in node.locals:
             # If we find a private type annotation, make sure we do not mask illegal usages
@@ -155,7 +164,7 @@ class PrivateImportChecker(BaseChecker):
     def _populate_type_annotations_function(
         self, node: nodes.FunctionDef, all_used_type_annotations: Dict[str, bool]
     ) -> None:
-        """Adds into the set all_used_type_annotations the names of all names used as a type annotation
+        """Adds into the dict 'all_used_type_annotations' the names of all names used as a type annotation
         in the arguments and return type of the function node.
         """
         if node.args and node.args.annotations:
@@ -174,13 +183,9 @@ class PrivateImportChecker(BaseChecker):
         all_used_type_annotations: Dict[str, bool],
     ) -> Union[str, None]:
         """Handles the possiblity of an annotation either being a Name, i.e. just type,
-        or a Subscript e.g. Optional[type] or an Attribute, e.g. pylint.lint.linter.
+        or a Subscript e.g. 'Optional[type]' or an Attribute, e.g. 'pylint.lint.linter'.
         """
-        if (
-            isinstance(node, nodes.Name)
-            and self._name_is_private(node.name)
-            and node.name not in all_used_type_annotations
-        ):
+        if isinstance(node, nodes.Name) and node.name not in all_used_type_annotations:
             all_used_type_annotations[node.name] = True
             return node.name
         if isinstance(node, nodes.Subscript):  # e.g. Optional[List[str]]
@@ -203,7 +208,7 @@ class PrivateImportChecker(BaseChecker):
     def _assignments_call_private_name(
         assignments: List[Union[nodes.AnnAssign, nodes.Assign]], private_name: str
     ) -> bool:
-        """Returns True if no assignments involve accessing `private_name`."""
+        """Returns True if no assignments involve accessing 'private_name'."""
         for assignment in assignments:
             current_attribute = None
             if isinstance(assignment.value, nodes.Call):
