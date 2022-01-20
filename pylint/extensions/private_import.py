@@ -209,6 +209,9 @@ class PrivateImportChecker(BaseChecker):
         assignments: List[Union[nodes.AnnAssign, nodes.Assign]], private_name: str
     ) -> bool:
         """Returns True if no assignments involve accessing `private_name`."""
+        if all(not assignment.value for assignment in assignments):
+            # Variable annotated but unassigned is unallowed because there may be a possible illegal access elsewhere
+            return False
         for assignment in assignments:
             current_attribute = None
             if isinstance(assignment.value, nodes.Call):

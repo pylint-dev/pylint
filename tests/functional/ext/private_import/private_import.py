@@ -44,11 +44,11 @@ if TYPE_CHECKING:
     from _types import _TreeType
 
 # No error since imports are used as type annotations
-from classes import _PrivateClassA
+from classes import _PrivateClassA, safe_get_A
 from classes import _PrivateClassB
 from classes import _PrivateClassC
 
-a: _PrivateClassA
+a_var: _PrivateClassA = safe_get_A()
 
 def b_func(class_b: _PrivateClassB):
     print(class_b)
@@ -67,7 +67,8 @@ import _TypeContainerA
 import _TypeContainerB
 import _TypeContainerC
 
-a2: _TypeContainerA.A
+import SafeContainerA
+a2: _TypeContainerA.A = SafeContainerA.safe_get_a()
 
 def b_func2(class_b2: _TypeContainerB.B):
     print(class_b2)
@@ -77,8 +78,9 @@ def c2_func() -> _TypeContainerC.C:
 
 # This is allowed since all the imports are used for typing
 from _TypeContainerExtra import TypeExtraA, TypeExtraB
-extraA: TypeExtraA
-extraB: TypeExtraB
+from MakerContainerExtra import GetA, GetB
+extraA: TypeExtraA = GetA()
+extraB: TypeExtraB = GetB()
 
 # This is not allowed because there is an import not used for typing
 from _TypeContainerExtra2 import TypeExtra2, NotTypeExtra # [import-private-name]
@@ -112,9 +114,8 @@ my_var6: PrivateClass2 = PrivateClass2()
 from public_module import _PrivateClass3 # [import-private-name]
 my_var7: _PrivateClass3 = _PrivateClass3()
 
-# In this final case, the type annotation masks the access of a private name
-# However, this depends on annotating a variable and never using it.
-# This would be strange and in function bodies emits `unused-variable`
-import _private_module_unreachable
+# Even though we do not see the private call, the type check does not keep us from emitting
+# because we do not use that variable
+import _private_module_unreachable # [import-private-name]
 my_var8: _private_module_unreachable.Thing8
 _private_module_unreachable.Thing8()
