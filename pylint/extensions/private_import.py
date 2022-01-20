@@ -2,7 +2,7 @@
 from pathlib import Path
 from typing import TYPE_CHECKING, Dict, List, Union
 
-from astroid import nodes, objects
+from astroid import nodes
 
 from pylint.checkers import BaseChecker, utils
 from pylint.interfaces import HIGH, IAstroidChecker
@@ -167,11 +167,7 @@ class PrivateImportChecker(BaseChecker):
         """Adds into the dict `all_used_type_annotations` the names of all names used as a type annotation
         in the arguments and return type of the function node.
         """
-        if (
-            not isinstance(node, objects.Property)
-            and node.args
-            and node.args.annotations
-        ):
+        if node.args and node.args.annotations:
             for annotation in node.args.annotations:
                 self._populate_type_annotations_annotation(
                     annotation, all_used_type_annotations
