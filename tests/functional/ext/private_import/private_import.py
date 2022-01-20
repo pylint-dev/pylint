@@ -3,6 +3,7 @@
 # pylint: disable=no-name-in-module, multiple-imports, ungrouped-imports, misplaced-future
 # pylint: disable=wrong-import-position
 
+# Basic cases
 from _world import hello  # [import-private-name]
 from _world import _hello  # [import-private-name]
 from city import _house  # [import-private-name]
@@ -42,13 +43,12 @@ if TYPE_CHECKING:
     from _types import TreeType
     from _types import _TreeType
 
-# No error since imports are used as typing
+# No error since imports are used as type annotations
 from classes import _PrivateClassA
 from classes import _PrivateClassB
 from classes import _PrivateClassC
 
 a: _PrivateClassA
-
 
 def b_func(class_b: _PrivateClassB):
     print(class_b)
@@ -56,7 +56,7 @@ def b_func(class_b: _PrivateClassB):
 def c_func() -> _PrivateClassC:
     return None
 
-
+# Used as typing in slices
 from classes import _SubScriptA
 from classes import _SubScriptB
 
@@ -74,3 +74,38 @@ def b_func2(class_b2: _TypeContainerB.B):
 
 def c2_func() -> _TypeContainerC.C:
     return None
+
+# Try many cases to ensure that type annotation usages of a private import
+# do not mask other illegal usages of the import
+import _private_module # [import-private-name]
+my_var: _private_module.Thing = _private_module.Thing()
+
+import _private_module2 # [import-private-name]
+my_var2: _private_module2.Thing2
+my_var2 = _private_module2.Thing2()
+
+import _private_module3 # [import-private-name]
+my_var3: _private_module3.Thing3
+my_var3 = _private_module3.Thing3
+my_var3_2: _private_module3.Thing3
+
+import _private_module4 # [import-private-name]
+my_var4: _private_module4.Thing4
+my_var4 = _private_module4.get_callers().get_thing4()
+
+from _private_module5 import PrivateClass # [import-private-name]
+my_var5: PrivateClass
+my_var5 = PrivateClass()
+
+from _private_module6 import PrivateClass2 # [import-private-name]
+my_var6: PrivateClass2 = PrivateClass2()
+
+from public_module import _PrivateClass3 # [import-private-name]
+my_var7: _PrivateClass3 = _PrivateClass3()
+
+# In this final case, the type annotation masks the access of a private name
+# However, this depends on annotating a variable and never using it.
+# This would be strange and in function bodies emits `unused-variable`
+import _private_module_unreachable
+my_var8: _private_module_unreachable.Thing8
+_private_module_unreachable.Thing8()
