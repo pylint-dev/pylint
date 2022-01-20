@@ -2,7 +2,7 @@
 from pathlib import Path
 from typing import TYPE_CHECKING, Dict, List, Union
 
-from astroid import nodes
+from astroid import nodes, objects
 
 from pylint.checkers import BaseChecker, utils
 from pylint.interfaces import HIGH, IAstroidChecker
@@ -96,7 +96,7 @@ class PrivateImportChecker(BaseChecker):
 
     @staticmethod
     def _name_is_private(name: str) -> bool:
-        """Returns true if the name exists, starts with '_', and if len(name) > 4
+        """Returns true if the name exists, starts with `_`, and if len(name) > 4
         it is not a dunder, i.e. it does not begin and end with two underscores.
         """
         return (
@@ -126,7 +126,7 @@ class PrivateImportChecker(BaseChecker):
     def _populate_type_annotations(
         self, node: nodes.LocalsDictNodeNG, all_used_type_annotations: Dict[str, bool]
     ) -> None:
-        """Adds into the dict 'all_used_type_annotations' the names of all names ever used as a type annotation
+        """Adds into the dict `all_used_type_annotations` the names of all names ever used as a type annotation
         in the scope and nested scopes of node and whether these names are only used for type checking.
         """
         for name in node.locals:
@@ -164,10 +164,14 @@ class PrivateImportChecker(BaseChecker):
     def _populate_type_annotations_function(
         self, node: nodes.FunctionDef, all_used_type_annotations: Dict[str, bool]
     ) -> None:
-        """Adds into the dict 'all_used_type_annotations' the names of all names used as a type annotation
+        """Adds into the dict `all_used_type_annotations` the names of all names used as a type annotation
         in the arguments and return type of the function node.
         """
-        if node.args and node.args.annotations:
+        if (
+            not isinstance(node, objects.Property)
+            and node.args
+            and node.args.annotations
+        ):
             for annotation in node.args.annotations:
                 self._populate_type_annotations_annotation(
                     annotation, all_used_type_annotations
@@ -183,7 +187,7 @@ class PrivateImportChecker(BaseChecker):
         all_used_type_annotations: Dict[str, bool],
     ) -> Union[str, None]:
         """Handles the possiblity of an annotation either being a Name, i.e. just type,
-        or a Subscript e.g. 'Optional[type]' or an Attribute, e.g. 'pylint.lint.linter'.
+        or a Subscript e.g. `Optional[type]` or an Attribute, e.g. `pylint.lint.linter`.
         """
         if isinstance(node, nodes.Name) and node.name not in all_used_type_annotations:
             all_used_type_annotations[node.name] = True
@@ -208,7 +212,7 @@ class PrivateImportChecker(BaseChecker):
     def _assignments_call_private_name(
         assignments: List[Union[nodes.AnnAssign, nodes.Assign]], private_name: str
     ) -> bool:
-        """Returns True if no assignments involve accessing 'private_name'."""
+        """Returns True if no assignments involve accessing `private_name`."""
         for assignment in assignments:
             current_attribute = None
             if isinstance(assignment.value, nodes.Call):
@@ -232,7 +236,7 @@ class PrivateImportChecker(BaseChecker):
 
     @staticmethod
     def same_root_dir(node: nodes.Import, import_mod_name: str) -> bool:
-        """Does the node's file's path contain the base name of 'import_mod_name'?"""
+        """Does the node's file's path contain the base name of `import_mod_name`?"""
         if not import_mod_name:  # from . import ...
             return True
 
