@@ -1,3 +1,6 @@
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+
 from typing import TYPE_CHECKING
 
 import astroid
@@ -49,24 +52,20 @@ class ModifiedIterationChecker(checkers.BaseChecker):
     def visit_for(self, node: nodes.For) -> None:
         iter_obj = node.iter
         for body_node in node.body:
+            msg_id = None
             if self._modified_iterating_list_cond(body_node, iter_obj):
-                self.add_message(
-                    "modified-iterating-list",
-                    node=body_node,
-                    args=(iter_obj.name,),
-                )
+                msg_id = "modified-iterating-list"
             elif self._modified_iterating_dict_cond(body_node, iter_obj):
-                self.add_message(
-                    "modified-iterating-dict",
-                    node=body_node,
-                    args=(iter_obj.name,),
-                )
+                msg_id = "modified-iterating-dict"
             elif self._modified_iterating_set_cond(body_node, iter_obj):
+                msg_id = "modified-iterating-set"
+            if msg_id is not None:
                 self.add_message(
-                    "modified-iterating-set",
-                    node=body_node,
+                    msg_id,
+                    node=node,
                     args=(iter_obj.name,),
                 )
+                break  # since the msg is raised for the `for` node no further check is needed
 
     @staticmethod
     def _is_attribute_call_expr(body_node) -> bool:
@@ -78,9 +77,12 @@ class ModifiedIterationChecker(checkers.BaseChecker):
 
     @classmethod
     def _common_cond_list_set(cls, node, list_obj, infer_val) -> bool:
-        return (infer_val == utils.safe_infer(list_obj)) and (
-            node.value.func.expr.name == list_obj.name
-        )
+        try:
+            return (infer_val == utils.safe_infer(list_obj)) and (
+                node.value.func.expr.name == list_obj.name
+            )
+        except AttributeError:
+            return False
 
     @staticmethod
     def _dict_node_cond(node) -> bool:
@@ -92,46 +94,40 @@ class ModifiedIterationChecker(checkers.BaseChecker):
     def _modified_iterating_list_cond(cls, node, list_obj) -> bool:
         if not cls._is_attribute_call_expr(node):
             return False
-        try:
-            infer_val = utils.safe_infer(node.value.func.expr)
-            return (
-                cls._common_cond_list_set(node, list_obj, infer_val)
-                and (infer_val is not None)
-                and (infer_val.pytype() == "builtins.list")
-                and node.value.func.attrname in {"append", "remove"}
-            )
-        except (astroid.InferenceError, AttributeError):
+        infer_val = utils.safe_infer(node.value.func.expr)
+        if infer_val is None or infer_val.pytype() != "builtins.list":
+            # Uninferable or not a list
             return False
+        return cls._common_cond_list_set(
+            node, list_obj, infer_val
+        ) and node.value.func.attrname in {"append", "remove"}
 
     @classmethod
     def _modified_iterating_dict_cond(cls, node, list_obj) -> bool:
         if not cls._dict_node_cond(node):
             return False
+        infer_val = utils.safe_infer(node.targets[0].value)
+        if infer_val is None or infer_val.pytype() != "builtins.dict":
+            # Uninferable or not a dict
+            return False
+        if infer_val != utils.safe_infer(list_obj):
+            return False
         try:
-            infer_val = utils.safe_infer(node.targets[0].value)
-            return (
-                (infer_val is not None)
-                and (infer_val.pytype() == "builtins.dict")
-                and (infer_val == list_obj.inferred()[0])
-                and (node.targets[0].value.name == list_obj.name)
-            )
-        except (astroid.InferenceError, AttributeError):
+            return node.targets[0].value.name == list_obj.name
+        except AttributeError:
             return False
 
     @classmethod
     def _modified_iterating_set_cond(cls, node, list_obj) -> bool:
         if not cls._is_attribute_call_expr(node):
             return False
-        try:
-            infer_val = utils.safe_infer(node.value.func.expr)
-            return (
-                cls._common_cond_list_set(node, list_obj, infer_val)
-                and (infer_val is not None)
-                and (infer_val.pytype() == "builtins.set")
-                and node.value.func.attrname in {"add", "remove"}
-            )
-        except (astroid.InferenceError, AttributeError):
+        infer_val = utils.safe_infer(node.value.func.expr)
+        if infer_val is None or infer_val.pytype() != "builtins.set":
+            # Uninferable or not a set
             return False
+        return cls._common_cond_list_set(
+            node, list_obj, infer_val
+        ) and node.value.func.attrname in {"add", "remove"}
 
 
 def register(linter: "PyLinter") -> None:
