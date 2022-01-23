@@ -2400,14 +2400,7 @@ class VariablesChecker(BaseChecker):
             return
 
         # Attempt to check unpacking is properly balanced
-        values: Optional[List] = None
-        if isinstance(inferred, (nodes.Tuple, nodes.List)):
-            values = inferred.itered()
-        elif isinstance(inferred, astroid.Instance) and any(
-            ancestor.qname() == "typing.NamedTuple" for ancestor in inferred.ancestors()
-        ):
-            values = [i for i in inferred.values() if isinstance(i, nodes.AssignName)]
-
+        values = self._get_values_to_unpack(node)
         if values is not None:
             if len(targets) != len(values):
                 # Check if we have starred nodes.
@@ -2429,6 +2422,17 @@ class VariablesChecker(BaseChecker):
                 node=node,
                 args=(_get_unpacking_extra_info(node, inferred),),
             )
+
+    @staticmethod
+    def _get_values_to_unpack(node: nodes.Assign) -> Optional[List]:
+        """Return the list of values of the `Assign` node"""
+        if isinstance(node, (nodes.Tuple, nodes.List)):
+            return node.itered()
+        if isinstance(node, astroid.Instance) and any(
+            ancestor.qname() == "typing.NamedTuple" for ancestor in node.ancestors()
+        ):
+            return [i for i in node.values() if isinstance(i, nodes.AssignName)]
+        return None
 
     def _check_module_attrs(self, node, module, module_names):
         """check that module_names (list of string) are accessible through the
