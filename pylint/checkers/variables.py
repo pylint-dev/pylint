@@ -2400,7 +2400,7 @@ class VariablesChecker(BaseChecker):
             return
 
         # Attempt to check unpacking is properly balanced
-        values = self._get_values_to_unpack(node)
+        values = self._get_values_to_unpack(inferred)
         if values is not None:
             if len(targets) != len(values):
                 # Check if we have starred nodes.
