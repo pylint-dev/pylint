@@ -2408,7 +2408,7 @@ class VariablesChecker(BaseChecker):
         ):
             values = [i for i in inferred.values() if isinstance(i, nodes.AssignName)]
 
-        if values:
+        if values is not None:
             if len(targets) != len(values):
                 # Check if we have starred nodes.
                 if any(isinstance(target, nodes.Starred) for target in targets):
