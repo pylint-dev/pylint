@@ -82,7 +82,13 @@ from astroid import nodes
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import is_postponed_evaluation_enabled
 from pylint.constants import PY39_PLUS
-from pylint.interfaces import HIGH, INFERENCE, INFERENCE_FAILURE, IAstroidChecker
+from pylint.interfaces import (
+    CONTROL_FLOW,
+    HIGH,
+    INFERENCE,
+    INFERENCE_FAILURE,
+    IAstroidChecker,
+)
 from pylint.utils import get_global_option
 
 if TYPE_CHECKING:
@@ -1408,7 +1414,16 @@ class VariablesChecker(BaseChecker):
         if found_nodes is None:
             return (VariableVisitConsumerAction.CONTINUE, None)
         if not found_nodes:
-            self.add_message("used-before-assignment", args=node.name, node=node)
+            if node.name in current_consumer.consumed_uncertain:
+                confidence = CONTROL_FLOW
+            else:
+                confidence = HIGH
+            self.add_message(
+                "used-before-assignment",
+                args=node.name,
+                node=node,
+                confidence=confidence,
+            )
             if current_consumer.consumed_uncertain[node.name]:
                 # If there are nodes added to consumed_uncertain by
                 # get_next_to_consume() because they might not have executed,
@@ -1527,7 +1542,10 @@ class VariablesChecker(BaseChecker):
                     and isinstance(stmt, (nodes.AnnAssign, nodes.FunctionDef))
                 ):
                     self.add_message(
-                        "used-before-assignment", args=node.name, node=node
+                        "used-before-assignment",
+                        args=node.name,
+                        node=node,
+                        confidence=HIGH,
                     )
                     return (VariableVisitConsumerAction.CONSUME, found_nodes)
 
@@ -1547,7 +1565,10 @@ class VariablesChecker(BaseChecker):
                     and stmt.fromlineno <= defstmt.fromlineno
                 ):
                     self.add_message(
-                        "used-before-assignment", args=node.name, node=node
+                        "used-before-assignment",
+                        args=node.name,
+                        node=node,
+                        confidence=HIGH,
                     )
 
         elif self._is_only_type_assignment(node, defstmt):
@@ -1564,14 +1585,21 @@ class VariablesChecker(BaseChecker):
         elif isinstance(defstmt, nodes.ClassDef):
             is_first_level_ref = self._is_first_level_self_reference(node, defstmt)
             if is_first_level_ref == 2:
-                self.add_message("used-before-assignment", node=node, args=node.name)
+                self.add_message(
+                    "used-before-assignment", node=node, args=node.name, confidence=HIGH
+                )
             if is_first_level_ref:
                 return (VariableVisitConsumerAction.RETURN, None)
 
         elif isinstance(defnode, nodes.NamedExpr):
             if isinstance(defnode.parent, nodes.IfExp):
                 if self._is_never_evaluated(defnode, defnode.parent):
-                    self.add_message("undefined-variable", args=node.name, node=node)
+                    self.add_message(
+                        "undefined-variable",
+                        args=node.name,
+                        node=node,
+                        confidence=INFERENCE,
+                    )
                     return (VariableVisitConsumerAction.CONSUME, found_nodes)
 
         return (VariableVisitConsumerAction.CONSUME, found_nodes)
