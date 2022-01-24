@@ -52,7 +52,7 @@
 """Classes checker for Python code"""
 import collections
 from itertools import chain, zip_longest
-from typing import Dict, List, Pattern
+from typing import Dict, List, Pattern, Set
 
 import astroid
 from astroid import bases, nodes
@@ -1939,6 +1939,7 @@ a metaclass class method.",
             return
         to_call = _ancestors_to_call(klass_node)
         not_called_yet = dict(to_call)
+        parents_with_called_inits: Set[bases.UnboundMethod] = set()
         for stmt in node.nodes_of_class(nodes.Call):
             expr = stmt.func
             if not isinstance(expr, nodes.Attribute) or expr.attrname != "__init__":
@@ -1971,7 +1972,9 @@ a metaclass class method.",
                     if isinstance(klass, astroid.objects.Super):
                         return
                     try:
-                        del not_called_yet[klass]
+                        method = not_called_yet.pop(klass)
+                        # Record that the class' init has been called
+                        parents_with_called_inits.add(node_frame_class(method))
                     except KeyError:
                         if klass not in to_call:
                             self.add_message(
@@ -1980,6 +1983,11 @@ a metaclass class method.",
             except astroid.InferenceError:
                 continue
         for klass, method in not_called_yet.items():
+            # Check if the init of the class that defines this init has already
+            # been called.
+            if node_frame_class(method) in parents_with_called_inits:
+                return
+
             # Return if klass is protocol
             if klass.qname() in utils.TYPING_PROTOCOLS:
                 return
