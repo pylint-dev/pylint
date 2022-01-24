@@ -1,2 +1,1 @@
-super-init-not-called:34:4:35:11:TestChild.__init__:__init__ method from base class 'TestParent' is not called:INFERENCE
-undefined-variable:38:23:38:40:UninferableChild:Undefined variable 'UninferableParent':UNDEFINED
+undefined-variable:18:23:18:40:UninferableChild:Undefined variable 'UninferableParent':UNDEFINED
