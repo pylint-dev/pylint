@@ -9,7 +9,6 @@ for item in item_list:  # [modified-iterating-list]
 
 for item in item_list:  # [modified-iterating-list]
     item_list.remove(item)
-    item_list.append(1)
 
 for item in item_list.copy():
     item_list.append(item)
@@ -40,3 +39,9 @@ for item in item_set:  # [modified-iterating-set]
 
 for item in item_set.copy():
     item_set.add(item + 10)
+
+for l in item_list:  # [modified-iterating-list]
+    for s in item_set:  # [modified-iterating-set]
+        item_list.append(1)
+        item_set.remove(4)
+    item_list.remove(1)

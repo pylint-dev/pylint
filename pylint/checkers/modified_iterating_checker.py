@@ -3,7 +3,6 @@
 
 from typing import TYPE_CHECKING
 
-import astroid
 from astroid import nodes
 
 from pylint import checkers, interfaces
@@ -11,6 +10,10 @@ from pylint.checkers import utils
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
+
+
+__SET_MODIFIER_METHODS__ = {"add", "remove"}
+__LIST_MODIFIER_METHODS__ = {"append", "remove"}
 
 
 class ModifiedIterationChecker(checkers.BaseChecker):
@@ -64,30 +67,30 @@ class ModifiedIterationChecker(checkers.BaseChecker):
                     msg_id,
                     node=node,
                     args=(iter_obj.name,),
+                    confidence=interfaces.INFERENCE
                 )
                 break  # since the msg is raised for the `for` node no further check is needed
 
     @staticmethod
-    def _is_attribute_call_expr(body_node) -> bool:
+    def _is_attribute_call_expr(node) -> bool:
         return (
-            isinstance(body_node, astroid.Expr)
-            and isinstance(body_node.value, astroid.Call)
-            and isinstance(body_node.value.func, astroid.Attribute)
+            isinstance(node, nodes.Expr)
+            and isinstance(node.value, nodes.Call)
+            and isinstance(node.value.func, nodes.Attribute)
+            and isinstance(node.value.func.expr, nodes.Name)
         )
 
     @classmethod
     def _common_cond_list_set(cls, node, list_obj, infer_val) -> bool:
-        try:
-            return (infer_val == utils.safe_infer(list_obj)) and (
-                node.value.func.expr.name == list_obj.name
-            )
-        except AttributeError:
-            return False
+        return (infer_val == utils.safe_infer(list_obj)) and (
+            node.value.func.expr.name == list_obj.name)
 
     @staticmethod
     def _dict_node_cond(node) -> bool:
-        return isinstance(node, astroid.Assign) and (
-            isinstance(node.targets[0], astroid.Subscript)
+        return isinstance(node, nodes.Assign) and (
+            isinstance(node.targets[0], nodes.Subscript) and (
+            isinstance(node.targets[0].value, nodes.Name)
+        )
         )
 
     @classmethod
@@ -95,39 +98,33 @@ class ModifiedIterationChecker(checkers.BaseChecker):
         if not cls._is_attribute_call_expr(node):
             return False
         infer_val = utils.safe_infer(node.value.func.expr)
-        if infer_val is None or infer_val.pytype() != "builtins.list":
-            # Uninferable or not a list
+        if not isinstance(infer_val, nodes.List):
             return False
         return cls._common_cond_list_set(
             node, list_obj, infer_val
-        ) and node.value.func.attrname in {"append", "remove"}
+        ) and node.value.func.attrname in __MODIFYING_LIST_METHODS__
 
     @classmethod
     def _modified_iterating_dict_cond(cls, node, list_obj) -> bool:
         if not cls._dict_node_cond(node):
             return False
         infer_val = utils.safe_infer(node.targets[0].value)
-        if infer_val is None or infer_val.pytype() != "builtins.dict":
-            # Uninferable or not a dict
+        if not isinstance(infer_val, nodes.Dict):
             return False
         if infer_val != utils.safe_infer(list_obj):
             return False
-        try:
-            return node.targets[0].value.name == list_obj.name
-        except AttributeError:
-            return False
+        return node.targets[0].value.name == list_obj.name
 
     @classmethod
     def _modified_iterating_set_cond(cls, node, list_obj) -> bool:
         if not cls._is_attribute_call_expr(node):
             return False
         infer_val = utils.safe_infer(node.value.func.expr)
-        if infer_val is None or infer_val.pytype() != "builtins.set":
-            # Uninferable or not a set
+        if not isinstance(infer_val, nodes.Set):
             return False
         return cls._common_cond_list_set(
             node, list_obj, infer_val
-        ) and node.value.func.attrname in {"add", "remove"}
+        ) and node.value.func.attrname in __MODIFYING_SET_METHODS__
 
 
 def register(linter: "PyLinter") -> None:
