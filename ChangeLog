@@ -46,6 +46,10 @@ Release date: TBA
 
   Closes #3088
 
+* Fixed false positive for ``unused-variable`` when a ``nonlocal`` name is assigned as part of a multi-name assignment.
+
+  Closes #3781
+
 * Added ``lru-cache-decorating-method`` checker with checks for the use of ``functools.lru_cache``
   on class methods. This is unrecommended as it creates memory leaks by never letting the instance
   getting garbage collected.
@@ -205,6 +209,10 @@ Release date: TBA
 
 * The ``PyLinter`` class will now be initialized with a ``TextReporter``
   as its reporter if none is provided.
+
+* Fix ``super-init-not-called`` when parent or ``self`` is a ``Protocol``
+
+  Closes #4790
 
 * Fix false positive ``not-callable`` with attributes that alias ``NamedTuple``
 

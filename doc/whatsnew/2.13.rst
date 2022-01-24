@@ -111,6 +111,10 @@ Other Changes
 
 .. _`emacs file locks`: https://www.gnu.org/software/emacs/manual/html_node/elisp/File-Locks.html
 
+* Fix ``super-init-not-called`` when parent or ``self`` is a ``Protocol``
+
+  Closes #4790
+
 * An astroid issue where symlinks were not being taken into account
   was fixed
 
@@ -279,6 +283,10 @@ Other Changes
       raise ValueError
 
   Closes #4955
+
+* Fixed false positive for ``unused-variable`` when a ``nonlocal`` name is assigned as part of a multi-name assignment.
+
+  Closes #3781
 
 * Fixed false positive for ``global-variable-not-assigned`` when the ``del`` statement is used
 

@@ -2136,7 +2136,9 @@ class VariablesChecker(BaseChecker):
         if name in argnames:
             self._check_unused_arguments(name, node, stmt, argnames)
         else:
-            if stmt.parent and isinstance(stmt.parent, (nodes.Assign, nodes.AnnAssign)):
+            if stmt.parent and isinstance(
+                stmt.parent, (nodes.Assign, nodes.AnnAssign, nodes.Tuple)
+            ):
                 if name in nonlocal_names:
                     return
 
