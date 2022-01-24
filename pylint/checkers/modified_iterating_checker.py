@@ -12,8 +12,8 @@ if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
 
-__SET_MODIFIER_METHODS__ = {"add", "remove"}
 __LIST_MODIFIER_METHODS__ = {"append", "remove"}
+__SET_MODIFIER_METHODS__ = {"add", "remove"}
 
 
 class ModifiedIterationChecker(checkers.BaseChecker):
@@ -67,7 +67,7 @@ class ModifiedIterationChecker(checkers.BaseChecker):
                     msg_id,
                     node=node,
                     args=(iter_obj.name,),
-                    confidence=interfaces.INFERENCE
+                    confidence=interfaces.INFERENCE,
                 )
                 break  # since the msg is raised for the `for` node no further check is needed
 
@@ -83,14 +83,14 @@ class ModifiedIterationChecker(checkers.BaseChecker):
     @classmethod
     def _common_cond_list_set(cls, node, list_obj, infer_val) -> bool:
         return (infer_val == utils.safe_infer(list_obj)) and (
-            node.value.func.expr.name == list_obj.name)
+            node.value.func.expr.name == list_obj.name
+        )
 
     @staticmethod
     def _dict_node_cond(node) -> bool:
         return isinstance(node, nodes.Assign) and (
-            isinstance(node.targets[0], nodes.Subscript) and (
-            isinstance(node.targets[0].value, nodes.Name)
-        )
+            isinstance(node.targets[0], nodes.Subscript)
+            and (isinstance(node.targets[0].value, nodes.Name))
         )
 
     @classmethod
@@ -100,9 +100,10 @@ class ModifiedIterationChecker(checkers.BaseChecker):
         infer_val = utils.safe_infer(node.value.func.expr)
         if not isinstance(infer_val, nodes.List):
             return False
-        return cls._common_cond_list_set(
-            node, list_obj, infer_val
-        ) and node.value.func.attrname in __MODIFYING_LIST_METHODS__
+        return (
+            cls._common_cond_list_set(node, list_obj, infer_val)
+            and node.value.func.attrname in __LIST_MODIFIER_METHODS__
+        )
 
     @classmethod
     def _modified_iterating_dict_cond(cls, node, list_obj) -> bool:
@@ -122,9 +123,10 @@ class ModifiedIterationChecker(checkers.BaseChecker):
         infer_val = utils.safe_infer(node.value.func.expr)
         if not isinstance(infer_val, nodes.Set):
             return False
-        return cls._common_cond_list_set(
-            node, list_obj, infer_val
-        ) and node.value.func.attrname in __MODIFYING_SET_METHODS__
+        return (
+            cls._common_cond_list_set(node, list_obj, infer_val)
+            and node.value.func.attrname in __SET_MODIFIER_METHODS__
+        )
 
 
 def register(linter: "PyLinter") -> None:
