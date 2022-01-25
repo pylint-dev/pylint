@@ -1393,7 +1393,7 @@ class VariablesChecker(BaseChecker):
                         and node.parent in node.parent.parent.ifs
                     )
                     # Or homonyms against values to keyword arguments
-                    # (like "var" in [func(arg=var) for var in expr()])
+                    # (like "var" in "[func(arg=var) for var in expr()]")
                     or (
                         isinstance(node.scope(), nodes.ComprehensionScope)
                         and isinstance(node.parent, (nodes.Call, nodes.Keyword))
