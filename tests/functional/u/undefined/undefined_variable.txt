@@ -32,7 +32,4 @@ undefined-variable:293:27:293:28:undefined_annotation:Undefined variable 'x':UND
 used-before-assignment:294:7:294:8:undefined_annotation:Using variable 'x' before assignment:UNDEFINED
 undefined-variable:324:11:324:12:decorated3:Undefined variable 'x':UNDEFINED
 undefined-variable:329:19:329:20:decorated4:Undefined variable 'y':UNDEFINED
-undefined-variable:354:10:354:18:only_type_assignment:Undefined variable 'variable':UNDEFINED
-undefined-variable:367:10:367:18:value_assignment_after_access:Undefined variable 'variable':UNDEFINED
-undefined-variable:384:10:384:20:global_var_mixed_assignment:Undefined variable 'GLOBAL_VAR':UNDEFINED
-undefined-variable:415:14:415:17:decorator_returning_incorrect_function.wrapper_with_type_and_no_value:Undefined variable 'var':UNDEFINED
+undefined-variable:350:10:350:20:global_var_mixed_assignment:Undefined variable 'GLOBAL_VAR':UNDEFINED

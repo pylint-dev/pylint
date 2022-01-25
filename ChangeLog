@@ -89,6 +89,11 @@ Release date: TBA
 
 * Pyreverse - add output in mermaidjs format
 
+* Emit ``used-before-assignment`` instead of ``undefined-variable`` when attempting
+  to access unused type annotations.
+
+  Closes #5713
+
 * ``used-before-assignment`` now considers that assignments in a try block
   may not have occurred when the except or finally blocks are executed.
 
