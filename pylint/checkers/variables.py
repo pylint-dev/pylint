@@ -1544,9 +1544,13 @@ class VariablesChecker(BaseChecker):
 
         elif self._is_only_type_assignment(node, defstmt):
             if node.scope().locals.get(node.name):
-                self.add_message("used-before-assignment", args=node.name, node=node, confidence=HIGH)
+                self.add_message(
+                    "used-before-assignment", args=node.name, node=node, confidence=HIGH
+                )
             else:
-                self.add_message("undefined-variable", args=node.name, node=node, confidence=HIGH)
+                self.add_message(
+                    "undefined-variable", args=node.name, node=node, confidence=HIGH
+                )
             return (VariableVisitConsumerAction.CONSUME, found_nodes)
 
         elif isinstance(defstmt, nodes.ClassDef):
