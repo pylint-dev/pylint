@@ -1,7 +1,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from astroid import nodes
 
@@ -18,6 +18,7 @@ __SET_MODIFIER_METHODS__ = {"add", "remove"}
 
 class ModifiedIterationChecker(checkers.BaseChecker):
     """Checks for modified for loops iterations
+
     Currently supports `for` loops for Sets, Dictionaries and Lists.
     """
 
@@ -30,19 +31,19 @@ class ModifiedIterationChecker(checkers.BaseChecker):
             "Iterated list '%s' is being modified inside loop body, consider iterating through a copy of it instead.",
             "modified-iterating-list",
             "Emitted when items are added or removed to a list being iterated through. "
-            "Doing so ccan result in unexpected behaviour, that is why it is preferred to use a copy of the list.",
+            "Doing so can result in unexpected behaviour, that is why it is preferred to use a copy of the list.",
         ),
         "E4702": (
             "Iterated dict '%s' is being modified inside loop body, iterate through a copy of it instead.",
             "modified-iterating-dict",
             "Emitted when items are added or removed to a dict being iterated through. "
-            "Doing so raises a RuntimeError",
+            "Doing so raises a RuntimeError.",
         ),
         "E4703": (
             "Iterated set '%s' is being modified inside loop body, iterate through a copy of it instead.",
             "modified-iterating-set",
             "Emitted when items are added or removed to a set being iterated through. "
-            "Doing so raises a RuntimeError",
+            "Doing so raises a RuntimeError.",
         ),
     }
 
@@ -72,7 +73,7 @@ class ModifiedIterationChecker(checkers.BaseChecker):
                 break  # since the msg is raised for the `for` node no further check is needed
 
     @staticmethod
-    def _is_attribute_call_expr(node) -> bool:
+    def _is_node_expr_calls_attribute_name(node: nodes.NodeNG) -> bool:
         return (
             isinstance(node, nodes.Expr)
             and isinstance(node.value, nodes.Call)
@@ -81,21 +82,28 @@ class ModifiedIterationChecker(checkers.BaseChecker):
         )
 
     @classmethod
-    def _common_cond_list_set(cls, node, list_obj, infer_val) -> bool:
+    def _common_cond_list_set(
+        cls,
+        node: nodes.NodeNG,
+        list_obj: nodes.NodeNG,
+        infer_val: Optional[nodes.NodeNG],
+    ) -> bool:
         return (infer_val == utils.safe_infer(list_obj)) and (
             node.value.func.expr.name == list_obj.name
         )
 
     @staticmethod
-    def _dict_node_cond(node) -> bool:
+    def _is_node_assigns_subscript_name(node: nodes.NodeNG) -> bool:
         return isinstance(node, nodes.Assign) and (
             isinstance(node.targets[0], nodes.Subscript)
             and (isinstance(node.targets[0].value, nodes.Name))
         )
 
     @classmethod
-    def _modified_iterating_list_cond(cls, node, list_obj) -> bool:
-        if not cls._is_attribute_call_expr(node):
+    def _modified_iterating_list_cond(
+        cls, node: nodes.NodeNG, list_obj: nodes.NodeNG
+    ) -> bool:
+        if not cls._is_node_expr_calls_attribute_name(node):
             return False
         infer_val = utils.safe_infer(node.value.func.expr)
         if not isinstance(infer_val, nodes.List):
@@ -106,8 +114,10 @@ class ModifiedIterationChecker(checkers.BaseChecker):
         )
 
     @classmethod
-    def _modified_iterating_dict_cond(cls, node, list_obj) -> bool:
-        if not cls._dict_node_cond(node):
+    def _modified_iterating_dict_cond(
+        cls, node: nodes.NodeNG, list_obj: nodes.NodeNG
+    ) -> bool:
+        if not cls._is_node_assigns_subscript_name(node):
             return False
         infer_val = utils.safe_infer(node.targets[0].value)
         if not isinstance(infer_val, nodes.Dict):
@@ -117,8 +127,10 @@ class ModifiedIterationChecker(checkers.BaseChecker):
         return node.targets[0].value.name == list_obj.name
 
     @classmethod
-    def _modified_iterating_set_cond(cls, node, list_obj) -> bool:
-        if not cls._is_attribute_call_expr(node):
+    def _modified_iterating_set_cond(
+        cls, node: nodes.NodeNG, list_obj: nodes.NodeNG
+    ) -> bool:
+        if not cls._is_node_expr_calls_attribute_name(node):
             return False
         infer_val = utils.safe_infer(node.value.func.expr)
         if not isinstance(infer_val, nodes.Set):
