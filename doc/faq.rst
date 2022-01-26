@@ -119,7 +119,7 @@ Much probably. Read :ref:`ide-integration`
 3.5 I need to run pylint over all modules and packages in my project directory.
 -------------------------------------------------------------------------------
 
-``pylint`` command by default accepts only list of python modules and packages. Putting
+By default the ``pylint`` command only accepts a list of python modules and packages. Using a
 directory which is not a package results in an error::
 
     pylint mydir
