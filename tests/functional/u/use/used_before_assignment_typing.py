@@ -9,17 +9,17 @@ class MyClass:
     """Type annotation or default values for first level methods can't refer to their own class"""
 
     def incorrect_typing_method(
-        self, other: MyClass  # [used-before-assignment]
+        self, other: MyClass  # [undefined-variable]
     ) -> bool:
         return self == other
 
     def incorrect_nested_typing_method(
-        self, other: List[MyClass]  # [used-before-assignment]
+        self, other: List[MyClass]  # [undefined-variable]
     ) -> bool:
         return self == other[0]
 
     def incorrect_default_method(
-        self, other=MyClass()  # [used-before-assignment]
+        self, other=MyClass()  # [undefined-variable]
     ) -> bool:
         return self == other
 

@@ -28,8 +28,8 @@ def bad_default(var, default=unknown2):  # [undefined-variable]
     """function with default arg's value set to an nonexistent name"""
     print(var, default)
     print(xxxx)  # [undefined-variable]
-    augvar += 1  # [undefined-variable]
-    del vardel  # [undefined-variable]
+    augvar += 1  # [undefined-variable, unused-variable]
+    del vardel  # [undefined-variable, unused-variable]
 
 LMBD = lambda x, y=doesnotexist: x+y  # [undefined-variable]
 LMBD2 = lambda x, y: x+z  # [undefined-variable]
@@ -133,7 +133,7 @@ class Ancestor1(object):
     """ No op """
 
 NANA = BAT # [undefined-variable]
-del BAT
+del BAT  # [undefined-variable]
 
 
 class KeywordArgument(object):
@@ -356,3 +356,12 @@ GLOBAL_VAR_TWO = 2
 
 GLOBAL_VAR: int
 GLOBAL_VAR_TWO: int
+
+
+class RepeatedReturnAnnotations:
+    def x(self, o: RepeatedReturnAnnotations) -> bool:  # [undefined-variable]
+        pass
+    def y(self) -> RepeatedReturnAnnotations:  # [undefined-variable]
+        pass
+    def z(self) -> RepeatedReturnAnnotations:  # [undefined-variable]
+        pass

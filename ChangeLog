@@ -87,6 +87,12 @@ Release date: TBA
 
   Closes #5568
 
+* Fix false negative for ``undefined-variable`` and related variable messages
+  when the same undefined variable is used as a type annotation and is
+  accessed multiple times, or is used as a default argument to a function.
+
+  Closes #5399
+
 * Pyreverse - add output in mermaidjs format
 
 * Emit ``used-before-assignment`` instead of ``undefined-variable`` when attempting

@@ -1528,10 +1528,7 @@ class VariablesChecker(BaseChecker):
                         )
                         and node.name in node.root().locals
                     ):
-                        self.add_message(
-                            "undefined-variable", args=node.name, node=node
-                        )
-                        return (VariableVisitConsumerAction.CONSUME, found_nodes)
+                        return (VariableVisitConsumerAction.CONTINUE, None)
 
             elif base_scope_type != "lambda":
                 # E0601 may *not* occurs in lambda scope.
@@ -1585,9 +1582,7 @@ class VariablesChecker(BaseChecker):
         elif isinstance(defstmt, nodes.ClassDef):
             is_first_level_ref = self._is_first_level_self_reference(node, defstmt)
             if is_first_level_ref == 2:
-                self.add_message(
-                    "used-before-assignment", node=node, args=node.name, confidence=HIGH
-                )
+                return (VariableVisitConsumerAction.CONTINUE, None)
             if is_first_level_ref:
                 return (VariableVisitConsumerAction.RETURN, None)
 
@@ -1988,15 +1983,15 @@ class VariablesChecker(BaseChecker):
         refers to its own class.
 
         Return values correspond to:
-            0 = Continue
+            0 = Continue and consume names
             1 = Break
-            2 = Break + emit message
+            2 = Continue without consuming names
         """
         if node.frame(future=True).parent == defstmt and node.statement(
             future=True
         ) == node.frame(future=True):
             # Check if used as type annotation
-            # Break but don't emit message if postponed evaluation is enabled
+            # Break if postponed evaluation is enabled
             if utils.is_node_in_type_annotation_context(node):
                 if not utils.is_postponed_evaluation_enabled(node):
                     return 2

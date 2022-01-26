@@ -5,7 +5,9 @@ undefined-variable:23:8:23:20::Undefined variable '__revision__':UNDEFINED
 undefined-variable:27:29:27:37:bad_default:Undefined variable 'unknown2':UNDEFINED
 undefined-variable:30:10:30:14:bad_default:Undefined variable 'xxxx':UNDEFINED
 undefined-variable:31:4:31:10:bad_default:Undefined variable 'augvar':UNDEFINED
+unused-variable:31:4:31:10:bad_default:Unused variable 'augvar':UNDEFINED
 undefined-variable:32:8:32:14:bad_default:Undefined variable 'vardel':UNDEFINED
+unused-variable:32:8:32:14:bad_default:Unused variable 'vardel':UNDEFINED
 undefined-variable:34:19:34:31:<lambda>:Undefined variable 'doesnotexist':UNDEFINED
 undefined-variable:35:23:35:24:<lambda>:Undefined variable 'z':UNDEFINED
 used-before-assignment:38:4:38:9::Using variable 'POUET' before assignment:CONTROL_FLOW
@@ -19,6 +21,7 @@ used-before-assignment:98:26:98:35:TestClass.MissingAncestor:Using variable 'Anc
 used-before-assignment:105:36:105:41:TestClass.test1.UsingBeforeDefinition:Using variable 'Empty' before assignment:HIGH
 undefined-variable:119:10:119:14:Self:Undefined variable 'Self':UNDEFINED
 undefined-variable:135:7:135:10::Undefined variable 'BAT':UNDEFINED
+undefined-variable:136:4:136:7::Undefined variable 'BAT':UNDEFINED
 used-before-assignment:146:31:146:38:KeywordArgument.test1:Using variable 'enabled' before assignment:HIGH
 undefined-variable:149:32:149:40:KeywordArgument.test2:Undefined variable 'disabled':UNDEFINED
 undefined-variable:154:22:154:25:KeywordArgument.<lambda>:Undefined variable 'arg':UNDEFINED
@@ -33,3 +36,6 @@ used-before-assignment:294:7:294:8:undefined_annotation:Using variable 'x' befor
 undefined-variable:324:11:324:12:decorated3:Undefined variable 'x':UNDEFINED
 undefined-variable:329:19:329:20:decorated4:Undefined variable 'y':UNDEFINED
 undefined-variable:350:10:350:20:global_var_mixed_assignment:Undefined variable 'GLOBAL_VAR':HIGH
+undefined-variable:362:19:362:44:RepeatedReturnAnnotations.x:Undefined variable 'RepeatedReturnAnnotations':UNDEFINED
+undefined-variable:364:19:364:44:RepeatedReturnAnnotations.y:Undefined variable 'RepeatedReturnAnnotations':UNDEFINED
+undefined-variable:366:19:366:44:RepeatedReturnAnnotations.z:Undefined variable 'RepeatedReturnAnnotations':UNDEFINED
