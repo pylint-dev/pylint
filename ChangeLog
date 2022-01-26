@@ -94,6 +94,9 @@ Release date: TBA
 
   Closes #5713
 
+* Added confidence level ``CONTROL_FLOW`` for warnings relying on assumptions
+  about control flow.
+
 * ``used-before-assignment`` now considers that assignments in a try block
   may not have occurred when the except or finally blocks are executed.
 
