@@ -130,7 +130,7 @@ directory which is not a package results in an error::
 To execute pylint over all modules and packages under the directory, the ``--recursive=y`` option must
 be provided. This option makes ``pylint`` attempt to discover all modules (files ending with ``.py`` extension)
 and all packages (all directories containing a ``__init__.py`` file).
-Those modules and packages are then subject for analysis::
+Those modules and packages are then analyzed::
 
     pylint --recursive=y mydir
 
