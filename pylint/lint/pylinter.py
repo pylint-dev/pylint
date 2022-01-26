@@ -521,7 +521,7 @@ class PyLinter(
                     "type": "yn",
                     "metavar": "<yn>",
                     "default": False,
-                    "help": "Discover python modules and packages in file system subtree.",
+                    "help": "Discover python modules and packages in the file system subtree.",
                 },
             ),
             (

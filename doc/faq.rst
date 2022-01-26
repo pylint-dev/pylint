@@ -119,7 +119,7 @@ Much probably. Read :ref:`ide-integration`
 3.5 I need to run pylint over all modules and packages in my project directory.
 -------------------------------------------------------------------------------
 
-``pylint`` command by default accepts only list of python modules and packages. Putting
+By default the ``pylint`` command only accepts a list of python modules and packages. Using a
 directory which is not a package results in an error::
 
     pylint mydir
@@ -127,10 +127,10 @@ directory which is not a package results in an error::
     mydir/__init__.py:1:0: F0010: error while code parsing: Unable to load file mydir/__init__.py:
     [Errno 2] No such file or directory: 'mydir/__init__.py' (parse-error)
 
-To execute pylint over all modules and packages under the directory, ``--recursive=y`` option must
-be provided. This option causes that pylint tries to discover all modules (files ending with ``.py`` extension)
-and all packages (all directories containing ``__init__.py`` file).
-Those modules and packages are then subject for analysis::
+To execute pylint over all modules and packages under the directory, the ``--recursive=y`` option must
+be provided. This option makes ``pylint`` attempt to discover all modules (files ending with ``.py`` extension)
+and all packages (all directories containing a ``__init__.py`` file).
+Those modules and packages are then analyzed::
 
     pylint --recursive=y mydir
 
