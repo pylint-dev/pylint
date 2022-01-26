@@ -2,3 +2,6 @@ undefined-variable:42:6:42:16::Undefined variable 'no_default':UNDEFINED
 undefined-variable:50:6:50:22::Undefined variable 'again_no_default':UNDEFINED
 undefined-variable:76:6:76:19::Undefined variable 'else_assign_1':UNDEFINED
 undefined-variable:99:6:99:19::Undefined variable 'else_assign_2':UNDEFINED
+unused-variable:126:4:126:10:type_annotation_unused_after_comprehension:Unused variable 'my_int':UNDEFINED
+undefined-variable:135:10:135:16:type_annotation_used_improperly_after_comprehension:Undefined variable 'my_int':UNDEFINED
+undefined-variable:142:10:142:16:type_annotation_used_improperly_after_comprehension_2:Undefined variable 'my_int':UNDEFINED

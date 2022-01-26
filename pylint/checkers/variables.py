@@ -1388,8 +1388,16 @@ class VariablesChecker(BaseChecker):
                 # (like "if x" in "[x for x in expr() if x]")
                 # https://github.com/PyCQA/pylint/issues/5586
                 and not (
-                    isinstance(node.parent.parent, nodes.Comprehension)
-                    and node.parent in node.parent.parent.ifs
+                    (
+                        isinstance(node.parent.parent, nodes.Comprehension)
+                        and node.parent in node.parent.parent.ifs
+                    )
+                    # Or homonyms against values to keyword arguments
+                    # (like "var" in "[func(arg=var) for var in expr()]")
+                    or (
+                        isinstance(node.scope(), nodes.ComprehensionScope)
+                        and isinstance(node.parent, (nodes.Call, nodes.Keyword))
+                    )
                 )
             ):
                 self._check_late_binding_closure(node)
