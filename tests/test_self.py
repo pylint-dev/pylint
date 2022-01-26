@@ -1290,3 +1290,24 @@ class TestRunTC:
         with pytest.raises(SystemExit) as ex:
             Run(["--ignore-paths", "test", join(HERE, "regrtest_data", "empty.py")])
         assert ex.value.code == 0
+
+    @staticmethod
+    def test_max_inferred_for_complicated_class_hierarchy() -> None:
+        """Regression test for a crash reported in https://github.com/PyCQA/pylint/issues/5679.
+
+        The class hierarchy of 'sqlalchemy' is so intricate that it becomes uninferable with
+        the standard max_inferred of 100. We used to crash when this happened.
+        """
+        with pytest.raises(SystemExit) as ex:
+            Run(
+                [
+                    join(
+                        HERE,
+                        "regrtest_data",
+                        "max_inferable_limit_for_classes",
+                        "main.py",
+                    ),
+                ]
+            )
+        # Error code should not include bit-value 1 for crash
+        assert not ex.value.code % 2
