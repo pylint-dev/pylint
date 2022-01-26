@@ -124,6 +124,11 @@ Other Changes
   Closes #4798
   Closes #5081
 
+* Emit ``used-before-assignment`` instead of ``undefined-variable`` when attempting
+  to access unused type annotations.
+
+  Closes #5713
+
 * Fixed extremely long processing of long lines with comma's.
 
   Closes #5483
