@@ -9,7 +9,7 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.13.rst'
 
-* Add ``--recursive`` option to allow linting recursively all modules and packages in subtree.
+* Add ``--recursive`` option to allow recursive discovery of all modules and packages in subtree.
 
   Closes #352
 

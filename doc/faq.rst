@@ -134,7 +134,7 @@ Those modules and packages are then analyzed::
 
     pylint --recursive=y mydir
 
-When ``--recursive=y`` option is used, also module and packages are accepted as parameters::
+When ``--recursive=y`` option is used, modules and packages are also accepted as parameters::
 
     pylint --recursive=y mydir mymodule mypackage
 
