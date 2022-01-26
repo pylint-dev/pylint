@@ -34,7 +34,7 @@ file or it is an implicit namespace package) or if "directory" is in the
 python path.
 
 By default, pylint will result with an error when one of the arguments is directory which is not
-a python package. In order to run pylint over all modules and packages within file system
+a python package. In order to run pylint over all modules and packages within the provided
 subtree of a directory, the ``--recursive=y`` option must be provided.
 
 For more details on this see the :ref:`faq`.
