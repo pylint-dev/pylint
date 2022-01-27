@@ -8,7 +8,8 @@ from typing import List, Optional, Tuple
 # A NamedTuple is not possible as some tests need to modify attributes during the test.
 class PyreverseConfig:  # pylint: disable=too-many-instance-attributes, too-many-arguments
     """Holds the configuration options for Pyreverse.
-    The default values correspond to the defaults of the options parser."""
+    The default values correspond to the defaults of the options' parser.
+    """
 
     def __init__(
         self,

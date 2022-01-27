@@ -28,18 +28,20 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""Checker for spelling errors in comments and docstrings.
-"""
+"""Checker for spelling errors in comments and docstrings."""
 import os
 import re
 import tokenize
-from typing import Pattern
+from typing import TYPE_CHECKING, Pattern
 
 from astroid import nodes
 
 from pylint.checkers import BaseTokenChecker
 from pylint.checkers.utils import check_messages
 from pylint.interfaces import IAstroidChecker, ITokenChecker
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 try:
     import enchant
@@ -144,9 +146,7 @@ class SphinxDirectives(RegExFilter):
 
 
 class ForwardSlashChunker(Chunker):
-    """
-    This chunker allows splitting words like 'before/after' into 'before' and 'after'
-    """
+    """This chunker allows splitting words like 'before/after' into 'before' and 'after'"""
 
     def next(self):
         while True:
@@ -191,7 +191,8 @@ def _strip_code_flanked_in_backticks(line: str) -> str:
     """Alter line so code flanked in backticks is ignored.
 
     Pyenchant automatically strips backticks when parsing tokens,
-    so this cannot be done at the individual filter level."""
+    so this cannot be done at the individual filter level.
+    """
 
     def replace_code_but_leave_surrounding_characters(match_obj) -> str:
         return match_obj.group(1) + match_obj.group(5)
@@ -470,6 +471,5 @@ class SpellingChecker(BaseTokenChecker):
             self._check_spelling("wrong-spelling-in-docstring", line, start_line + idx)
 
 
-def register(linter):
-    """required method to auto register this checker"""
+def register(linter: "PyLinter") -> None:
     linter.register_checker(SpellingChecker(linter))

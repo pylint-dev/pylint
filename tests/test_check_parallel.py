@@ -11,9 +11,12 @@
 
 # pylint: disable=protected-access,missing-function-docstring,no-self-use
 
+import argparse
+import multiprocessing
 import os
 from typing import List
 
+import dill
 import pytest
 from astroid import nodes
 
@@ -82,7 +85,7 @@ class ParallelTestChecker(BaseChecker, MapReduceMixin):
 
     On non-parallel builds: it works on all the files in a single run.
 
-    On parallel builds: lint.parallel calls ``open`` once per file.
+    On parallel builds: ``lint.parallel`` calls ``open`` once per file.
 
     So if files are treated by separate processes, no messages will be
     raised from the individual process, all messages will be raised
@@ -174,8 +177,22 @@ class TestCheckParallelFramework:
 
     def test_worker_initialize(self) -> None:
         linter = PyLinter(reporter=Reporter())
-        worker_initialize(linter=linter)
-        assert pylint.lint.parallel._worker_linter == linter
+        worker_initialize(linter=dill.dumps(linter))
+        assert isinstance(pylint.lint.parallel._worker_linter, type(linter))
+
+    def test_worker_initialize_pickling(self) -> None:
+        """Test that we can pickle objects that standard pickling in multiprocessing can't.
+
+        See:
+        https://stackoverflow.com/questions/8804830/python-multiprocessing-picklingerror-cant-pickle-type-function
+        https://github.com/PyCQA/pylint/pull/5584
+        """
+        linter = PyLinter(reporter=Reporter())
+        linter.attribute = argparse.ArgumentParser()  # type: ignore[attr-defined]
+        with multiprocessing.Pool(
+            2, initializer=worker_initialize, initargs=[dill.dumps(linter)]
+        ) as pool:
+            pool.imap_unordered(print, [1, 2])
 
     def test_worker_check_single_file_uninitialised(self) -> None:
         pylint.lint.parallel._worker_linter = None
@@ -186,7 +203,7 @@ class TestCheckParallelFramework:
 
     def test_worker_check_single_file_no_checkers(self) -> None:
         linter = PyLinter(reporter=Reporter())
-        worker_initialize(linter=linter)
+        worker_initialize(linter=dill.dumps(linter))
 
         (
             _,  # proc-id
@@ -225,7 +242,7 @@ class TestCheckParallelFramework:
     def test_worker_check_sequential_checker(self) -> None:
         """Same as test_worker_check_single_file_no_checkers with SequentialTestChecker"""
         linter = PyLinter(reporter=Reporter())
-        worker_initialize(linter=linter)
+        worker_initialize(linter=dill.dumps(linter))
 
         # Add the only checker we care about in this test
         linter.register_checker(SequentialTestChecker(linter))
@@ -274,13 +291,12 @@ class TestCheckParallel:
         """Tests original basic types of checker works as expected in -jN
 
         This means that a sequential checker should return the same data for a given
-        file-stream irrespective of whether its run in -j1 or -jN
+        file-stream irrespective of whether it's run in -j1 or -jN
         """
         linter = PyLinter(reporter=Reporter())
 
         # Add a sequential checker to ensure it records data against some streams
         linter.register_checker(SequentialTestChecker(linter))
-        linter.enable("R9999")
 
         # Create a dummy file, the actual contents of which will be ignored by the
         # register test checkers, but it will trigger at least a single-job to be run.
@@ -289,7 +305,10 @@ class TestCheckParallel:
         # Invoke the lint process in a multiprocess way, although we only specify one
         # job.
         check_parallel(
-            linter, jobs=1, files=iter(single_file_container), arguments=None
+            linter,
+            jobs=1,
+            files=iter(single_file_container),
+            arguments=["--enable", "R9999"],
         )
         assert len(linter.get_checkers()) == 2, (
             "We should only have the 'master' and 'sequential-checker' "
@@ -342,7 +361,8 @@ class TestCheckParallel:
     def test_invoke_single_job(self) -> None:
         """Tests basic checkers functionality using just a single workderdo
 
-        This is *not* the same -j1 and does not happen under normal operation"""
+        This is *not* the same -j1 and does not happen under normal operation
+        """
         linter = PyLinter(reporter=Reporter())
 
         linter.register_checker(SequentialTestChecker(linter))
@@ -412,7 +432,8 @@ class TestCheckParallel:
         number of checkers applied.
 
         This test becomes more important if we want to change how we parametrise the
-        checkers, for example if we aim to batch the files across jobs."""
+        checkers, for example if we aim to batch the files across jobs.
+        """
 
         # define the stats we expect to get back from the runs, these should only vary
         # with the number of files.
@@ -443,7 +464,7 @@ class TestCheckParallel:
 
         file_infos = _gen_file_datas(num_files)
 
-        # Loop for single-proc and mult-proc so we can ensure the same linter-config
+        # Loop for single-proc and mult-proc, so we can ensure the same linter-config
         for do_single_proc in range(2):
             linter = PyLinter(reporter=Reporter())
 
@@ -515,7 +536,7 @@ class TestCheckParallel:
         # with the number of files.
         file_infos = _gen_file_datas(num_files)
 
-        # Loop for single-proc and mult-proc so we can ensure the same linter-config
+        # Loop for single-proc and mult-proc, so we can ensure the same linter-config
         for do_single_proc in range(2):
             linter = PyLinter(reporter=Reporter())
 

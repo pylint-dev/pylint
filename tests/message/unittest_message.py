@@ -11,13 +11,13 @@ from pylint.typing import MessageLocationTuple
 
 def test_new_message(message_definitions: ValuesView[MessageDefinition]) -> None:
     def build_message(
-        message_definition: MessageDefinition, location_value: MessageLocationTuple
+        message_definition_: MessageDefinition, location_value: MessageLocationTuple
     ) -> Message:
         return Message(
-            symbol=message_definition.symbol,
-            msg_id=message_definition.msgid,
+            symbol=message_definition_.symbol,
+            msg_id=message_definition_.msgid,
             location=location_value,
-            msg=message_definition.msg,
+            msg=message_definition_.msg,
             confidence=HIGH,
         )
 

@@ -8,8 +8,8 @@ from pylint.typing import ErrorDescriptionDict, ModuleDescriptionDict
 
 
 def _modpath_from_file(filename, is_namespace, path=None):
-    def _is_package_cb(path, parts):
-        return modutils.check_modpath_has_init(path, parts) or is_namespace
+    def _is_package_cb(inner_path, parts):
+        return modutils.check_modpath_has_init(inner_path, parts) or is_namespace
 
     return modutils.modpath_from_file_with_callback(
         filename, path=path, is_package_cb=_is_package_cb
@@ -18,7 +18,8 @@ def _modpath_from_file(filename, is_namespace, path=None):
 
 def get_python_path(filepath: str) -> str:
     """TODO This get the python path with the (bad) assumption that there is always
-    an __init__.py. This is not true since python 3.3 and is causing problem."""
+    an __init__.py. This is not true since python 3.3 and is causing problem.
+    """
     dirname = os.path.realpath(os.path.expanduser(filepath))
     if not os.path.isdir(dirname):
         dirname = os.path.dirname(dirname)

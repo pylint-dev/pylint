@@ -11,10 +11,10 @@ def typing_and_assignment_expression():
         print(var)
 
 
-def typing_and_self_referncing_assignment_expression():
+def typing_and_self_referencing_assignment_expression():
     """The variable gets assigned in an assignment expression that references itself"""
     var: int
-    if (var := var ** 2): # [undefined-variable]
+    if (var := var ** 2):  # false negative--walrus operator!
         print(var)
 
 
@@ -97,3 +97,46 @@ print(assign_assign_4)
 COMPREHENSION_FIVE = {i: (else_assign_2 := i) if False else 0 for i in range(10)}
 
 print(else_assign_2)  # [undefined-variable]
+
+
+# Tests for assignment expressions in lambda statements
+
+things = []
+sorted_things = sorted(
+    things,
+    key=lambda thing: x_0
+    if (x_0 := thing.this_value) < (x_1 := thing.that_value)
+    else x_1,
+)
+
+
+# Tests for type annotation reused in comprehension
+
+def type_annotation_used_after_comprehension():
+    """https://github.com/PyCQA/pylint/issues/5326#issuecomment-982635371"""
+    my_int: int
+    ints = [my_int + 1 for my_int in range(5)]
+
+    for my_int in ints:
+        print(my_int)
+
+
+def type_annotation_unused_after_comprehension():
+    """https://github.com/PyCQA/pylint/issues/5326"""
+    my_int: int  # [unused-variable]
+    _ = [print(sep=my_int, end=my_int) for my_int in range(10)]
+
+
+def type_annotation_used_improperly_after_comprehension():
+    # TO-DO follow up in https://github.com/PyCQA/pylint/issues/5713
+    """https://github.com/PyCQA/pylint/issues/5654"""
+    my_int: int
+    _ = [print(sep=my_int, end=my_int) for my_int in range(10)]
+    print(my_int)  # [used-before-assignment]
+
+
+def type_annotation_used_improperly_after_comprehension_2():
+    """Same case as above but with positional arguments"""
+    my_int: int
+    _ = [print(my_int, my_int) for my_int in range(10)]
+    print(my_int)  # [used-before-assignment]

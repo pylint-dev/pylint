@@ -55,3 +55,18 @@ class WarningScope:
 full_version = f"""pylint {__version__}
 astroid {astroid.__version__}
 Python {sys.version}"""
+
+HUMAN_READABLE_TYPES = {
+    "file": "file",
+    "module": "module",
+    "const": "constant",
+    "class": "class",
+    "function": "function",
+    "method": "method",
+    "attr": "attribute",
+    "argument": "argument",
+    "variable": "variable",
+    "class_attribute": "class attribute",
+    "class_const": "class constant",
+    "inlinevar": "inline iteration",
+}

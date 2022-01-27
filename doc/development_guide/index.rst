@@ -8,3 +8,4 @@ Development
 
    contribute
    testing
+   profiling

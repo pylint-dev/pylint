@@ -64,11 +64,13 @@ import shlex
 import sys
 from io import StringIO
 from subprocess import PIPE, Popen
+from typing import Optional, Sequence
 
 
 def _get_env():
-    """Extracts the environment PYTHONPATH and appends the current sys.path to
-    those."""
+    """Extracts the environment PYTHONPATH and appends the current 'sys.path'
+    to it.
+    """
     env = dict(os.environ)
     env["PYTHONPATH"] = os.pathsep.join(sys.path)
     return env
@@ -125,7 +127,7 @@ def lint(filename, options=()):
             if line.startswith("No config file found"):
                 continue
 
-            # modify the file name thats output to reverse the path traversal we made
+            # modify the file name that's put out to reverse the path traversal we made
             parts = line.split(":")
             if parts and parts[0] == child_path:
                 line = ":".join([filename] + parts[1:])
@@ -185,15 +187,17 @@ def py_run(command_options="", return_std=False, stdout=None, stderr=None):
         return None
 
 
-def Run():
-    if len(sys.argv) == 1:
+def Run(argv: Optional[Sequence[str]] = None):
+    if not argv and len(sys.argv) == 1:
         print(f"Usage: {sys.argv[0]} <filename> [options]")
         sys.exit(1)
-    elif not os.path.exists(sys.argv[1]):
-        print(f"{sys.argv[1]} does not exist")
+
+    argv = argv or sys.argv[1:]
+    if not os.path.exists(argv[0]):
+        print(f"{argv[0]} does not exist")
         sys.exit(1)
     else:
-        sys.exit(lint(sys.argv[1], sys.argv[2:]))
+        sys.exit(lint(argv[0], argv[1:]))
 
 
 if __name__ == "__main__":

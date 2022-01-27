@@ -1,11 +1,14 @@
-"""Ellipsis checker for Python code
-"""
+"""Ellipsis checker for Python code"""
+from typing import TYPE_CHECKING
+
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages
 from pylint.interfaces import IAstroidChecker
-from pylint.lint import PyLinter
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 
 class EllipsisChecker(BaseChecker):
@@ -45,6 +48,5 @@ class EllipsisChecker(BaseChecker):
             self.add_message("unnecessary-ellipsis", node=node)
 
 
-def register(linter: PyLinter) -> None:
-    """required method to auto register this checker"""
+def register(linter: "PyLinter") -> None:
     linter.register_checker(EllipsisChecker(linter))

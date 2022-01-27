@@ -10,6 +10,8 @@ indicated by the py-version setting.
 """
 
 
+from typing import TYPE_CHECKING
+
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
@@ -19,8 +21,10 @@ from pylint.checkers.utils import (
     uninferable_final_decorators,
 )
 from pylint.interfaces import IAstroidChecker
-from pylint.lint import PyLinter
 from pylint.utils import get_global_option
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 
 class UnsupportedVersionChecker(BaseChecker):
@@ -64,7 +68,8 @@ class UnsupportedVersionChecker(BaseChecker):
 
     def _check_typing_final(self, node: nodes.Decorators) -> None:
         """Add a message when the `typing.final` decorator is used and the
-        py-version is lower than 3.8"""
+        py-version is lower than 3.8
+        """
         if self._py38_plus:
             return
 
@@ -80,6 +85,5 @@ class UnsupportedVersionChecker(BaseChecker):
             )
 
 
-def register(linter: PyLinter) -> None:
-    """Required method to auto register this checker"""
+def register(linter: "PyLinter") -> None:
     linter.register_checker(UnsupportedVersionChecker(linter))

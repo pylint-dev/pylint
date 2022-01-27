@@ -3,9 +3,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""
-Class to generate files in mermaidjs format
-"""
+"""Class to generate files in mermaidjs format"""
 from typing import Dict, Optional
 
 from pylint.pyreverse.printer import EdgeType, NodeProperties, NodeType, Printer
@@ -84,7 +82,7 @@ class MermaidJSPrinter(Printer):
 
 
 class HTMLMermaidJSPrinter(MermaidJSPrinter):
-    """Printer for MermaidJS diagrams wrapped in an html boilerplate"""
+    """Printer for MermaidJS diagrams wrapped in a html boilerplate"""
 
     HTML_OPEN_BOILERPLATE = """<html>
   <body>

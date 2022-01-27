@@ -19,8 +19,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""handle diagram generation options for class diagram or default diagrams
-"""
+"""handle diagram generation options for class diagram or default diagrams"""
 
 from typing import Any, Optional
 
@@ -220,7 +219,7 @@ class DiadefsHandler:
         self.config = config
 
     def get_diadefs(self, project, linker):
-        """Get the diagrams configuration data
+        """Get the diagram's configuration data
 
         :param project:The pyreverse project
         :type project: pyreverse.utils.Project

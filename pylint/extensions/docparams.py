@@ -24,10 +24,9 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""Pylint plugin for checking in Sphinx, Google, or Numpy style docstrings
-"""
+"""Pylint plugin for checking in Sphinx, Google, or Numpy style docstrings"""
 import re
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 import astroid
 from astroid import nodes
@@ -38,6 +37,9 @@ from pylint.extensions import _check_docs_utils as utils
 from pylint.extensions._check_docs_utils import Docstring
 from pylint.interfaces import IAstroidChecker
 from pylint.utils import get_global_option
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 
 class DocstringParameterChecker(BaseChecker):
@@ -59,9 +61,6 @@ class DocstringParameterChecker(BaseChecker):
         load-plugins=pylint.extensions.docparams
 
     to the ``MASTER`` section of your ``.pylintrc``.
-
-    :param linter: linter object
-    :type linter: :class:`pylint.lint.PyLinter`
     """
 
     __implements__ = IAstroidChecker
@@ -290,7 +289,7 @@ class DocstringParameterChecker(BaseChecker):
             self.add_message("redundant-yields-doc", node=node)
 
     def visit_raise(self, node: nodes.Raise) -> None:
-        func_node = node.frame()
+        func_node = node.frame(future=True)
         if not isinstance(func_node, astroid.FunctionDef):
             return
 
@@ -337,7 +336,7 @@ class DocstringParameterChecker(BaseChecker):
         if self.config.accept_no_return_doc:
             return
 
-        func_node = node.frame()
+        func_node = node.frame(future=True)
         if not isinstance(func_node, astroid.FunctionDef):
             return
 
@@ -358,7 +357,7 @@ class DocstringParameterChecker(BaseChecker):
         if self.config.accept_no_yields_doc:
             return
 
-        func_node = node.frame()
+        func_node = node.frame(future=True)
         if not isinstance(func_node, astroid.FunctionDef):
             return
 
@@ -521,9 +520,8 @@ class DocstringParameterChecker(BaseChecker):
         :param warning_node: The node to assign the warnings to
         :type warning_node: :class:`astroid.scoped_nodes.Node`
 
-        :param accept_no_param_doc: Whether or not to allow no parameters
-            to be documented.
-            If None then this value is read from the configuration.
+        :param accept_no_param_doc: Whether to allow no parameters to be
+            documented. If None then this value is read from the configuration.
         :type accept_no_param_doc: bool or None
         """
         # Tolerate missing param or type declarations if there is a link to
@@ -589,7 +587,7 @@ class DocstringParameterChecker(BaseChecker):
             ):
                 self.add_message(
                     "missing-any-param-doc",
-                    args=(warning_node.name),
+                    args=(warning_node.name,),
                     node=warning_node,
                 )
             else:
@@ -643,8 +641,7 @@ class DocstringParameterChecker(BaseChecker):
         self._add_raise_message(excs, node)
 
     def _add_raise_message(self, missing_excs, node):
-        """
-        Adds a message on :param:`node` for the missing exception type.
+        """Adds a message on :param:`node` for the missing exception type.
 
         :param missing_excs: A list of missing exception types.
         :type missing_excs: set(str)
@@ -666,10 +663,5 @@ class DocstringParameterChecker(BaseChecker):
         )
 
 
-def register(linter):
-    """Required method to auto register this checker.
-
-    :param linter: Main interface object for Pylint plugins
-    :type linter: Pylint object
-    """
+def register(linter: "PyLinter") -> None:
     linter.register_checker(DocstringParameterChecker(linter))

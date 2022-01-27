@@ -1,16 +1,20 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""
-Checks for yoda comparisons (variable before constant)
+"""Checks for yoda comparisons (variable before constant)
 See https://en.wikipedia.org/wiki/Yoda_conditions
 """
 
+
+from typing import TYPE_CHECKING
 
 from astroid import nodes
 
 from pylint.checkers import BaseChecker, utils
 from pylint.interfaces import IAstroidChecker
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 REVERSED_COMPS = {"<": ">", "<=": ">=", ">": "<", ">=": "<="}
 COMPARISON_OPERATORS = frozenset(("==", "!=", "<", ">", "<=", ">="))
@@ -62,6 +66,5 @@ class MisplacedComparisonConstantChecker(BaseChecker):
             self._check_misplaced_constant(node, left, right, operator)
 
 
-def register(linter):
-    """Required method to auto register this checker."""
+def register(linter: "PyLinter") -> None:
     linter.register_checker(MisplacedComparisonConstantChecker(linter))

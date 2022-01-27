@@ -60,8 +60,11 @@ class TestImportsChecker(CheckerTestCase):
             f"{os.path.join(REGR_DATA, 'beyond_top_two')} -d all -e relative-beyond-top-level",
             return_std=True,
         )
+        top_level_function = os.path.join(
+            REGR_DATA, "beyond_top_two/namespace_package/top_level_function.py"
+        )
         output2, errors2 = lint.py_run(
-            f"{os.path.join(REGR_DATA, 'beyond_top_two/namespace_package/top_level_function.py')} -d all -e relative-beyond-top-level",
+            f"{top_level_function} -d all -e relative-beyond-top-level",
             return_std=True,
         )
 

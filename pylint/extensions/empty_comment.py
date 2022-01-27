@@ -1,7 +1,12 @@
+from typing import TYPE_CHECKING
+
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.interfaces import IRawChecker
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 
 def is_line_commented(line):
@@ -54,5 +59,5 @@ class CommentChecker(BaseChecker):
                         self.add_message("empty-comment", line=line_num + 1)
 
 
-def register(linter):
+def register(linter: "PyLinter") -> None:
     linter.register_checker(CommentChecker(linter))

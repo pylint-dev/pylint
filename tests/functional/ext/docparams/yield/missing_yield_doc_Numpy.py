@@ -3,7 +3,7 @@
 # pylint: disable=invalid-name, undefined-variable
 
 
-# Test redudant yields docstring variants
+# Test redundant yields docstring variants
 def my_func(self):
     """This is a docstring.
 

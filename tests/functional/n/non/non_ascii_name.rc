@@ -1,3 +1,0 @@
-[testoptions]
-# This test cannot run on Windows due to Unicode error formatting.
-exclude_platforms=win32

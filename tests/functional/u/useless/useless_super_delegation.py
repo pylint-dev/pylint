@@ -205,7 +205,7 @@ class NotUselessSuper(Base):
         super(NotUselessSuper, self).with_default_arg_quad(first, default_arg + "_and_modified")
 
     def with_default_unhandled(self, first, default_arg=lambda: True):
-        # Not useless because the default value type is not explictely handled (Lambda), so assume they are different
+        # Not useless because the default value type is not explicitly handled (Lambda), so assume they are different
         super(NotUselessSuper, self).with_default_unhandled(first, default_arg)
 
 

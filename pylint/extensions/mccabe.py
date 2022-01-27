@@ -13,6 +13,8 @@
 
 """Module to add McCabe checker class for pylint. """
 
+from typing import TYPE_CHECKING
+
 from astroid import nodes
 from mccabe import PathGraph as Mccabe_PathGraph
 from mccabe import PathGraphingAstVisitor as Mccabe_PathGraphingAstVisitor
@@ -20,6 +22,9 @@ from mccabe import PathGraphingAstVisitor as Mccabe_PathGraphingAstVisitor
 from pylint import checkers
 from pylint.checkers.utils import check_messages
 from pylint.interfaces import HIGH, IAstroidChecker
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 
 class PathGraph(Mccabe_PathGraph):
@@ -176,7 +181,8 @@ class McCabeMethodChecker(checkers.BaseChecker):
     @check_messages("too-complex")
     def visit_module(self, node: nodes.Module) -> None:
         """visit an astroid.Module node to check too complex rating and
-        add message if is greater than max_complexity stored from options"""
+        add message if is greater than max_complexity stored from options
+        """
         visitor = PathGraphingAstVisitor()
         for child in node.body:
             visitor.preorder(child, visitor)
@@ -194,10 +200,5 @@ class McCabeMethodChecker(checkers.BaseChecker):
             )
 
 
-def register(linter):
-    """Required method to auto register this checker.
-
-    :param linter: Main interface object for Pylint plugins
-    :type linter: Pylint object
-    """
+def register(linter: "PyLinter") -> None:
     linter.register_checker(McCabeMethodChecker(linter))
