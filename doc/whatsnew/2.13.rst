@@ -156,6 +156,11 @@ Other Changes
 
   Closes #5479
 
+* Fixed a crash in ``unspecified-encoding`` checker when providing ``None``
+  to the ``mode`` argument of an ``open()`` call.
+
+  Closes #5731
+
 * Fix false negative for ``consider-iterating-dictionary`` during membership checks encapsulated in iterables
   or ``not in`` checks
 

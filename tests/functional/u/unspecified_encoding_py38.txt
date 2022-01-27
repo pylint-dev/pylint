@@ -27,3 +27,5 @@ unspecified-encoding:149:0:149:23::Using open without explicitly specifying an e
 unspecified-encoding:152:0:152:28::Using open without explicitly specifying an encoding:UNDEFINED
 unspecified-encoding:155:0:155:26::Using open without explicitly specifying an encoding:UNDEFINED
 unspecified-encoding:158:0:158:35::Using open without explicitly specifying an encoding:UNDEFINED
+bad-open-mode:161:0:161:25::"""%s"" is not a valid mode for open.":UNDEFINED
+unspecified-encoding:161:0:161:25::Using open without explicitly specifying an encoding:UNDEFINED
