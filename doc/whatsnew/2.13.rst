@@ -59,6 +59,11 @@ New checkers
 Removed checkers
 ================
 
+* Removed the deprecated ``check_docs`` extension. You can use the ``docparams`` checker
+  to get the checks previously included in ``check_docs``.
+
+  Closes #5322
+
 Extensions
 ==========
 
