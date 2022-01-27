@@ -170,7 +170,8 @@ TYPING_NAMES = frozenset(
 
 
 class VariableVisitConsumerAction(Enum):
-    """Used after _check_consumer to determine the action to be taken
+    """Reported by _check_consumer() and its sub-methods to determine the
+    subsequent action to take in _undefined_and_used_before_checker().
 
     Continue -> continue loop to next consumer
     Return -> return and thereby break the loop
