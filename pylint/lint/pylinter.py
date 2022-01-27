@@ -1165,6 +1165,15 @@ class PyLinter(
         if not modname and filepath is None:
             return
         self.reporter.on_set_current_module(modname, filepath)
+        if modname is None:
+            warnings.warn(
+                (
+                    "In pylint 3.0 modname should be a string so that it can be used to "
+                    "correctly set the current_name attribute of the linter instance. "
+                    "If unknown it should be initialized as an empty string."
+                ),
+                DeprecationWarning,
+            )
         self.current_name = modname
         self.current_file = filepath or modname
         self.stats.init_single_module(modname)
