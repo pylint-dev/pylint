@@ -1304,6 +1304,7 @@ class TestRunTC:
         )
 
     def test_recursive_current_dir(self):
+        _dir = os.getcwd()
         os.chdir(join(HERE, "regrtest_data", "directory"))
         try:
             self._runtest(
@@ -1311,9 +1312,10 @@ class TestRunTC:
                 code=0,
             )
         finally:
-            os.chdir(HERE)
+            os.chdir(_dir)
 
     def test_regression_recursive_current_dir(self):
+        _dir = os.getcwd()
         os.chdir(join(HERE, "regrtest_data", "directory"))
         try:
             self._test_output(
@@ -1321,4 +1323,4 @@ class TestRunTC:
                 expected_output="No such file or directory",
             )
         finally:
-            os.chdir(HERE)
+            os.chdir(_dir)
