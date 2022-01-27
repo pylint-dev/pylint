@@ -1161,16 +1161,21 @@ accessed. Python regular expressions are accepted.",
 
         # Make sure that it's a valid function that we can analyze.
         # Ordered from less expensive to more expensive checks.
-        # pylint: disable=too-many-boolean-expressions
         if (
-            not function_node.is_function
+            function_node.decorators is not None
+            or self._is_ignored_function(function_node)
             or isinstance(function_node, nodes.AsyncFunctionDef)
-            or function_node.decorators
-            or function_node.is_generator()
-            or function_node.is_abstract(pass_is_abstract=False)
             or utils.is_error(function_node)
-            or not function_node.root().fully_defined()
         ):
+            return
+
+        if self._list_sort_method(
+            node.value
+        ):  # false-negative case fix, see issue #5722
+            self.add_message("assignment-from-none", node=node)
+            return
+
+        if not function_node.root().fully_defined():
             return
 
         returns = list(
@@ -1188,6 +1193,26 @@ accessed. Python regular expressions are accepted.",
                     break
             else:
                 self.add_message("assignment-from-none", node=node)
+
+    @staticmethod
+    def _is_ignored_function(
+        function_node: Union[
+            nodes.FunctionDef, astroid.UnboundMethod, astroid.BoundMethod
+        ]
+    ):
+        return (
+            not function_node.is_function
+            or function_node.is_generator()
+            or function_node.is_abstract(pass_is_abstract=False)
+        )
+
+    @staticmethod
+    def _list_sort_method(node: nodes.Call):
+        return (
+            isinstance(node.func, nodes.Attribute)
+            and node.func.attrname == "sort"
+            and isinstance(utils.safe_infer(node.func.expr), nodes.List)
+        )
 
     def _check_dundername_is_string(self, node):
         """Check a string is assigned to self.__name__"""

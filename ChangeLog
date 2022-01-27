@@ -10,6 +10,10 @@ Release date: TBA
   Put new features here and also in 'doc/whatsnew/2.13.rst'
 
 
+* Fix false-negative for ``assignment-from-none`` checker using list.sort() method.
+
+  closes #5722
+
 * Fixed crash from ``arguments-differ`` and ``arguments-renamed`` when methods were
   defined outside the top level of a class.
 

@@ -86,6 +86,10 @@ Extensions
 Other Changes
 =============
 
+* Fix false-negative for ``assignment-from-none`` checker with list.sort() method.
+
+  Closes #5722
+
 * Fixed crash from ``arguments-differ`` and ``arguments-renamed`` when methods were
   defined outside the top level of a class.
 
