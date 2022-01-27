@@ -741,9 +741,107 @@ scope_type : {self._atomic.scope_type}
                     # if one of the except blocks does not define the name in question,
                     # raise, or return. See: https://github.com/PyCQA/pylint/issues/5524.
                     continue
+
+            if NamesConsumer._check_loop_finishes_via_except(
+                node, other_node_statement.parent.parent
+            ):
+                continue
+
             # Passed all tests for uncertain execution
             uncertain_nodes.append(other_node)
         return uncertain_nodes
+
+    @staticmethod
+    def _check_loop_finishes_via_except(
+        node: nodes.NodeNG, other_node_try_except: nodes.TryExcept
+    ) -> bool:
+        """Check for a case described in https://github.com/PyCQA/pylint/issues/5683.
+        It consists of a specific control flow scenario where the only
+        non-break exit from a loop consists of the very except handler we are
+        examining, such that code in the `else` branch of the loop can depend on it
+        being assigned.
+
+        Example:
+
+        for _ in range(3):
+            try:
+                do_something()
+            except:
+                name = 1  <-- only non-break exit from loop
+            else:
+                break
+        else:
+            print(name)
+        """
+        if not other_node_try_except.orelse:
+            return False
+        closest_loop: Optional[
+            Union[nodes.For, nodes.While]
+        ] = utils.get_node_first_ancestor_of_type(node, (nodes.For, nodes.While))
+        if closest_loop is None:
+            return False
+        if not any(
+            else_statement is node or else_statement.parent_of(node)
+            for else_statement in closest_loop.orelse
+        ):
+            # `node` not guarded by `else`
+            return False
+        for inner_else_statement in other_node_try_except.orelse:
+            if isinstance(inner_else_statement, nodes.Break):
+                break_stmt = inner_else_statement
+                break
+        else:
+            # No break statement
+            return False
+
+        def _try_in_loop_body(
+            other_node_try_except: nodes.TryExcept, loop: Union[nodes.For, nodes.While]
+        ) -> bool:
+            """Return True if `other_node_try_except` is a descendant of `loop`."""
+            return any(
+                loop_body_statement is other_node_try_except
+                or loop_body_statement.parent_of(other_node_try_except)
+                for loop_body_statement in loop.body
+            )
+
+        if not _try_in_loop_body(other_node_try_except, closest_loop):
+            for ancestor in closest_loop.node_ancestors():
+                if isinstance(ancestor, (nodes.For, nodes.While)):
+                    if _try_in_loop_body(other_node_try_except, ancestor):
+                        break
+            else:
+                # `other_node_try_except` didn't have a shared ancestor loop
+                return False
+
+        for loop_stmt in closest_loop.body:
+            if NamesConsumer._recursive_search_for_continue_before_break(
+                loop_stmt, break_stmt
+            ):
+                break
+        else:
+            # No continue found, so we arrived at our special case!
+            return True
+        return False
+
+    @staticmethod
+    def _recursive_search_for_continue_before_break(
+        stmt: nodes.Statement, break_stmt: nodes.Break
+    ) -> bool:
+        """Return True if any Continue node can be found in descendants of `stmt`
+        before encountering `break_stmt`, ignoring any nested loops.
+        """
+        if stmt is break_stmt:
+            return False
+        if isinstance(stmt, nodes.Continue):
+            return True
+        for child in stmt.get_children():
+            if isinstance(stmt, (nodes.For, nodes.While)):
+                continue
+            if NamesConsumer._recursive_search_for_continue_before_break(
+                child, break_stmt
+            ):
+                return True
+        return False
 
     @staticmethod
     def _uncertain_nodes_in_try_blocks_when_evaluating_except_blocks(

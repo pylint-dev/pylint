@@ -205,6 +205,13 @@ Other Changes
 
   Closes #5500
 
+* When evaluating statements in the ``else`` clause of a loop, ``used-before-assignment``
+  assumes that assignments in the except blocks took place if the
+  except handlers constituted the only ways for the loop to finish without
+  breaking early.
+
+  Closes #5683
+
 * ``used-before-assignment`` now checks names in try blocks.
 
 * Fixed false positive with ``used-before-assignment`` for assignment expressions
