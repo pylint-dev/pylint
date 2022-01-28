@@ -239,7 +239,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "with statement assignment and exception handler assignment.",
         ),
         "R1705": (
-            'Unnecessary "%s" after "return"',
+            'Unnecessary "%s" after "return" remove it and de-indent all the code inside it',
             "no-else-return",
             "Used in order to highlight an unnecessary block of "
             "code following an if containing a return statement. "
@@ -339,7 +339,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "Used when an if expression can be replaced with 'bool(test)'. ",
         ),
         "R1720": (
-            'Unnecessary "%s" after "raise"',
+            'Unnecessary "%s" after "raise" remove it and de-indent all the code inside it',
             "no-else-raise",
             "Used in order to highlight an unnecessary block of "
             "code following an if containing a raise statement. "
@@ -360,7 +360,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "Instead of using exit() or quit(), consider using the sys.exit().",
         ),
         "R1723": (
-            'Unnecessary "%s" after "break"',
+            'Unnecessary "%s" after "break" remove it and de-indent all the code inside it',
             "no-else-break",
             "Used in order to highlight an unnecessary block of "
             "code following an if containing a break statement. "
@@ -369,7 +369,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "break statement.",
         ),
         "R1724": (
-            'Unnecessary "%s" after "continue"',
+            'Unnecessary "%s" after "continue" remove it and de-indent all the code inside it',
             "no-else-continue",
             "Used in order to highlight an unnecessary block of "
             "code following an if containing a continue statement. "

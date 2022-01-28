@@ -31,7 +31,8 @@ class ElseifUsedChecker(BaseTokenChecker):
     name = "else_if_used"
     msgs = {
         "R5501": (
-            'Consider using "elif" instead of "else if"',
+            'Consider using "elif" instead of "else", replace the "else" by an "elif"'
+            ' then de-indent the code and switch from "if" to "elif" inside the else',
             "else-if-used",
             "Used when an else statement is immediately followed by "
             "an if statement and does not contain statements that "
