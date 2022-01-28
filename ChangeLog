@@ -9,9 +9,8 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.13.rst'
 
-* Add ``modified-iterating-list``, emitted when items are added to or removed from a list being iterated through.
-* Add ``modified-iterating-dict``, emitted when items are added to or removed from a dictionary being iterated through.
-* Add ``modified-iterating-set``, emitted when items are added to or removed from a set being iterated through.
+* Add ``modified-iterating-list``, ``modified-iterating-dict`` and ``modified-iterating-set`` messages emitted when
+  items are added to or removed from a list being iterated through.
 
   Closes #5348
 

@@ -4,11 +4,11 @@
 import copy
 
 item_list = [1, 2, 3]
-for item in item_list:  # [modified-iterating-list]
-    item_list.append(item)
+for item in item_list:
+    item_list.append(item)  # [modified-iterating-list]
 
-for item in item_list:  # [modified-iterating-list]
-    item_list.remove(item)
+for item in item_list:
+    item_list.remove(item)  # [modified-iterating-list]
 
 for item in item_list.copy():
     item_list.append(item)
@@ -24,8 +24,9 @@ for item in [k for k in item_list]:
 
 my_dict = {"1": 1, "2": 2, "3": 3}
 i = 1
-for item in my_dict:      # [modified-iterating-dict]
-    my_dict[i] = 1
+for item in my_dict:
+    item_list[0] = i  # for coverage, see reference at /pull/5628#discussion_r792181642
+    my_dict[i] = 1      # [modified-iterating-dict]
     i += 1
 
 i = 1
@@ -34,14 +35,14 @@ for item in my_dict.copy():
     i += 1
 
 item_set = {1, 2, 3}
-for item in item_set:  # [modified-iterating-set]
-    item_set.add(item + 10)
+for item in item_set:
+    item_set.add(item + 10)  # [modified-iterating-set]
 
 for item in item_set.copy():
     item_set.add(item + 10)
 
-for l in item_list:  # [modified-iterating-list]
-    for s in item_set:  # [modified-iterating-set]
-        item_list.append(1)
-        item_set.remove(4)
-    item_list.remove(1)
+for l in item_list:
+    for s in item_set:
+        item_list.append(1)  # [modified-iterating-list]
+        item_set.remove(4)  # [modified-iterating-set]
+    item_list.remove(1)  # [modified-iterating-list]

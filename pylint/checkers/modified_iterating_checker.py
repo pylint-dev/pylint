@@ -12,12 +12,12 @@ if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
 
-__LIST_MODIFIER_METHODS__ = {"append", "remove"}
-__SET_MODIFIER_METHODS__ = {"add", "remove"}
+_LIST_MODIFIER_METHODS = {"append", "remove"}
+_SET_MODIFIER_METHODS = {"add", "remove"}
 
 
 class ModifiedIterationChecker(checkers.BaseChecker):
-    """Checks for modified for loops iterations
+    """Checks for modified iterators in for loops iterations.
 
     Currently supports `for` loops for Sets, Dictionaries and Lists.
     """
@@ -28,19 +28,20 @@ class ModifiedIterationChecker(checkers.BaseChecker):
 
     msgs = {
         "W4701": (
-            "Iterated list '%s' is being modified inside loop body, consider iterating through a copy of it instead.",
+            "Iterated list '%s' is being modified inside for loop body, consider iterating through a copy of it "
+            "instead.",
             "modified-iterating-list",
             "Emitted when items are added or removed to a list being iterated through. "
             "Doing so can result in unexpected behaviour, that is why it is preferred to use a copy of the list.",
         ),
         "E4702": (
-            "Iterated dict '%s' is being modified inside loop body, iterate through a copy of it instead.",
+            "Iterated dict '%s' is being modified inside for loop body, iterate through a copy of it instead.",
             "modified-iterating-dict",
             "Emitted when items are added or removed to a dict being iterated through. "
             "Doing so raises a RuntimeError.",
         ),
         "E4703": (
-            "Iterated set '%s' is being modified inside loop body, iterate through a copy of it instead.",
+            "Iterated set '%s' is being modified inside for loop body, iterate through a copy of it instead.",
             "modified-iterating-set",
             "Emitted when items are added or removed to a set being iterated through. "
             "Doing so raises a RuntimeError.",
@@ -56,24 +57,31 @@ class ModifiedIterationChecker(checkers.BaseChecker):
     def visit_for(self, node: nodes.For) -> None:
         iter_obj = node.iter
         for body_node in node.body:
-            msg_id = None
-            if self._modified_iterating_list_cond(body_node, iter_obj):
-                msg_id = "modified-iterating-list"
-            elif self._modified_iterating_dict_cond(body_node, iter_obj):
-                msg_id = "modified-iterating-dict"
-            elif self._modified_iterating_set_cond(body_node, iter_obj):
-                msg_id = "modified-iterating-set"
-            if msg_id is not None:
-                self.add_message(
-                    msg_id,
-                    node=node,
-                    args=(iter_obj.name,),
-                    confidence=interfaces.INFERENCE,
-                )
-                break  # since the msg is raised for the `for` node no further check is needed
+            message_raised = self._modified_iterating_check(body_node, iter_obj)
+            if not message_raised:  # needs further check when message not raised
+                for child in body_node.get_children():
+                    self._modified_iterating_check(child, iter_obj)
+
+    def _modified_iterating_check(self, node, iter_obj):
+        msg_id = None
+        if self._modified_iterating_list_cond(node, iter_obj):
+            msg_id = "modified-iterating-list"
+        elif self._modified_iterating_dict_cond(node, iter_obj):
+            msg_id = "modified-iterating-dict"
+        elif self._modified_iterating_set_cond(node, iter_obj):
+            msg_id = "modified-iterating-set"
+        if msg_id is not None:
+            self.add_message(
+                msg_id,
+                node=node,
+                args=(iter_obj.name,),
+                confidence=interfaces.INFERENCE,
+            )
+            return True
+        return False
 
     @staticmethod
-    def _is_node_expr_calls_attribute_name(node: nodes.NodeNG) -> bool:
+    def _is_node_expr_that_calls_attribute_name(node: nodes.NodeNG) -> bool:
         return (
             isinstance(node, nodes.Expr)
             and isinstance(node.value, nodes.Call)
@@ -84,7 +92,7 @@ class ModifiedIterationChecker(checkers.BaseChecker):
     @classmethod
     def _common_cond_list_set(
         cls,
-        node: nodes.NodeNG,
+        node: nodes.Expr,
         list_obj: nodes.NodeNG,
         infer_val: Optional[nodes.NodeNG],
     ) -> bool:
@@ -103,14 +111,14 @@ class ModifiedIterationChecker(checkers.BaseChecker):
     def _modified_iterating_list_cond(
         cls, node: nodes.NodeNG, list_obj: nodes.NodeNG
     ) -> bool:
-        if not cls._is_node_expr_calls_attribute_name(node):
+        if not cls._is_node_expr_that_calls_attribute_name(node):
             return False
         infer_val = utils.safe_infer(node.value.func.expr)
         if not isinstance(infer_val, nodes.List):
             return False
         return (
             cls._common_cond_list_set(node, list_obj, infer_val)
-            and node.value.func.attrname in __LIST_MODIFIER_METHODS__
+            and node.value.func.attrname in _LIST_MODIFIER_METHODS
         )
 
     @classmethod
@@ -130,14 +138,14 @@ class ModifiedIterationChecker(checkers.BaseChecker):
     def _modified_iterating_set_cond(
         cls, node: nodes.NodeNG, list_obj: nodes.NodeNG
     ) -> bool:
-        if not cls._is_node_expr_calls_attribute_name(node):
+        if not cls._is_node_expr_that_calls_attribute_name(node):
             return False
         infer_val = utils.safe_infer(node.value.func.expr)
         if not isinstance(infer_val, nodes.Set):
             return False
         return (
             cls._common_cond_list_set(node, list_obj, infer_val)
-            and node.value.func.attrname in __SET_MODIFIER_METHODS__
+            and node.value.func.attrname in _SET_MODIFIER_METHODS
         )
 
 
