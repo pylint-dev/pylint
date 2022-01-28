@@ -37,7 +37,7 @@ Release date: TBA
 
   Closes #5281
 
-* Better warning messages for useless else or elif when a function return early.
+* Better warning messages for useless else or elif when a function returns early.
 
   Closes #5614
 

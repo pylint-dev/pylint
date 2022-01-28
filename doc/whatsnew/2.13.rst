@@ -86,7 +86,7 @@ Other Changes
 
   Closes #5648
 
-* Better warning messages for useless else or elif when a function return early.
+* Better warning messages for useless else or elif when a function returns early.
 
   Closes #5614
 
