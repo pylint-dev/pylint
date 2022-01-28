@@ -37,6 +37,10 @@ Release date: TBA
 
   Closes #5281
 
+* Better warning messages for useless else or elif when a function return early.
+
+  Closes #5614
+
 * Fixed false positive ``consider-using-dict-comprehension`` when creating a dict
   using a list of tuples where key AND value vary depending on the same condition.
 
