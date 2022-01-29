@@ -60,6 +60,11 @@ Release date: TBA
 
   Closes #5731
 
+* Improved ``bad-open-mode`` message when providing ``None`` to the ``mode``
+  argument of an ``open()`` call.
+
+  Closes #5733
+
 * Added ``lru-cache-decorating-method`` checker with checks for the use of ``functools.lru_cache``
   on class methods. This is unrecommended as it creates memory leaks by never letting the instance
   getting garbage collected.

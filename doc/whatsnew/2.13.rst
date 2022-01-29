@@ -166,6 +166,11 @@ Other Changes
 
   Closes #5731
 
+* Improved ``bad-open-mode`` message when providing ``None`` to the ``mode``
+  argument of an ``open()`` call.
+
+  Closes #5733
+
 * Fix false negative for ``consider-iterating-dictionary`` during membership checks encapsulated in iterables
   or ``not in`` checks
 

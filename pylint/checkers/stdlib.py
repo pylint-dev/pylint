@@ -648,7 +648,11 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             if isinstance(mode_arg, nodes.Const) and not _check_mode_str(
                 mode_arg.value
             ):
-                self.add_message("bad-open-mode", node=node, args=mode_arg.value)
+                self.add_message(
+                    "bad-open-mode",
+                    node=node,
+                    args=mode_arg.value or str(mode_arg.value),
+                )
 
     def _check_open_encoded(self, node: nodes.Call, open_module: str) -> None:
         """Check that the encoded argument of an open call is valid."""
