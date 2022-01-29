@@ -1141,10 +1141,8 @@ accessed. Python regular expressions are accepted.",
         self._check_assignment_from_function_call(node)
         self._check_dundername_is_string(node)
 
-    def _check_assignment_from_function_call(self, node):
-        """check that if assigning to a function call, the function is
-        possibly returning something valuable
-        """
+    def _check_assignment_from_function_call(self, node) -> None:
+        """When assigning to a function call, check that the function returns a valuable value"""
         if not isinstance(node.value, nodes.Call):
             return
 
@@ -1153,7 +1151,7 @@ accessed. Python regular expressions are accepted.",
         if not isinstance(function_node, funcs):
             return
 
-        # Unwrap to get the actual function object
+        # Unwrap to get the actual function node object
         if isinstance(function_node, astroid.BoundMethod) and isinstance(
             function_node._proxied, astroid.UnboundMethod
         ):
@@ -1162,33 +1160,31 @@ accessed. Python regular expressions are accepted.",
         # Make sure that it's a valid function that we can analyze.
         # Ordered from less expensive to more expensive checks.
         if (
-            function_node.decorators is not None
+            not function_node.is_function
+            or function_node.decorators is not None
             or self._is_ignored_function(function_node)
-            or isinstance(function_node, nodes.AsyncFunctionDef)
-            or utils.is_error(function_node)
         ):
             return
 
-        if self._list_sort_method(
-            node.value
-        ):  # false-negative case fix, see issue #5722
+        # Fix a false-negative for list.sort(), see issue #5722
+        if self._list_sort_method(node.value):
             self.add_message("assignment-from-none", node=node)
             return
 
         if not function_node.root().fully_defined():
             return
 
-        returns = list(
+        return_nodes = list(
             function_node.nodes_of_class(nodes.Return, skip_klass=nodes.FunctionDef)
         )
-        if not returns:
+        if not return_nodes:
             self.add_message("assignment-from-no-return", node=node)
         else:
-            for rnode in returns:
+            for ret_node in return_nodes:
                 if not (
-                    isinstance(rnode.value, nodes.Const)
-                    and rnode.value.value is None
-                    or rnode.value is None
+                    isinstance(ret_node.value, nodes.Const)
+                    and ret_node.value.value is None
+                    or ret_node.value is None
                 ):
                     break
             else:
@@ -1199,22 +1195,23 @@ accessed. Python regular expressions are accepted.",
         function_node: Union[
             nodes.FunctionDef, astroid.UnboundMethod, astroid.BoundMethod
         ]
-    ):
+    ) -> bool:
         return (
-            not function_node.is_function
-            or function_node.is_generator()
+            function_node.is_generator()
             or function_node.is_abstract(pass_is_abstract=False)
+            or isinstance(function_node, nodes.AsyncFunctionDef)
+            or utils.is_error(function_node)
         )
 
     @staticmethod
-    def _list_sort_method(node: nodes.Call):
+    def _list_sort_method(node: nodes.Call) -> bool:
         return (
             isinstance(node.func, nodes.Attribute)
             and node.func.attrname == "sort"
             and isinstance(utils.safe_infer(node.func.expr), nodes.List)
         )
 
-    def _check_dundername_is_string(self, node):
+    def _check_dundername_is_string(self, node) -> None:
         """Check a string is assigned to self.__name__"""
 
         # Check the left-hand side of the assignment is <something>.__name__
