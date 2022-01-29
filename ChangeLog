@@ -71,6 +71,11 @@ Release date: TBA
 
   Closes #5670
 
+* The issue template for crashes is now created for crashes which were previously not covered
+  by this mechanism.
+
+  Closes #5668
+
 * Rewrote checker for ``non-ascii-name``.
    It now ensures __all__ Python names are ASCII and also properly
    checks the names of imports (``non-ascii-module-import``) as
@@ -238,7 +243,7 @@ Release date: TBA
   Closes #5504
 
 * When invoking ``pylint``, ``epylint``, ``symilar`` or ``pyreverse`` by importing them in a python file
-  you can now pass an ``arguments`` keyword besides patching ``sys.argv``.
+  you can now pass an ``argv`` keyword besides patching ``sys.argv``.
 
   Closes #5320
 
