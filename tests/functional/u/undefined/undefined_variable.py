@@ -28,8 +28,8 @@ def bad_default(var, default=unknown2):  # [undefined-variable]
     """function with default arg's value set to an nonexistent name"""
     print(var, default)
     print(xxxx)  # [undefined-variable]
-    augvar += 1  # [undefined-variable, unused-variable]
-    del vardel  # [undefined-variable, unused-variable]
+    augvar += 1  # [undefined-variable]
+    del vardel  # [undefined-variable]
 
 LMBD = lambda x, y=doesnotexist: x+y  # [undefined-variable]
 LMBD2 = lambda x, y: x+z  # [undefined-variable]

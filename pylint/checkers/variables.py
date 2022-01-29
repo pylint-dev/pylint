@@ -1532,6 +1532,8 @@ class VariablesChecker(BaseChecker):
                         )
                         and node.name in node.root().locals
                     ):
+                        if defined_by_stmt:
+                            current_consumer.mark_as_consumed(node.name, [node])
                         return (VariableVisitConsumerAction.CONTINUE, None)
 
             elif base_scope_type != "lambda":
