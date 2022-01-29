@@ -1,5 +1,8 @@
 .. _messages-list:
 
+# NOTE: Thie file is auto-generated. Make any changes to the assosciated
+# docs extenstion.
+
 Overview of all Pylint messages
 =================================
 
