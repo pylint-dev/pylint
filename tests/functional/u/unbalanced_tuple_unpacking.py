@@ -156,4 +156,4 @@ def my_function(mystring):
 
 a, b = my_function("12")  # [unbalanced-tuple-unpacking]
 c = my_function("12")
-d, *_ = my_function("12") 
+d, *_ = my_function("12")
