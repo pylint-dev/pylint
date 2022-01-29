@@ -282,7 +282,6 @@ Other Changes
 * Fix false positive - Allow unpacking of ``self`` in a subclass of ``typing.NamedTuple``.
 
   Closes #5312
-  Closes #5671
 
 * Fixed false negative ``unpacking-non-sequence`` when value is an empty list.
 
