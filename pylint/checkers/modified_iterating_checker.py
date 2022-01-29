@@ -62,7 +62,9 @@ class ModifiedIterationChecker(checkers.BaseChecker):
                 for child in body_node.get_children():
                     self._modified_iterating_check(child, iter_obj)
 
-    def _modified_iterating_check(self, node, iter_obj):
+    def _modified_iterating_check(
+        self, node: nodes.NodeNG, iter_obj: nodes.NodeNG
+    ) -> bool:
         msg_id = None
         if self._modified_iterating_list_cond(node, iter_obj):
             msg_id = "modified-iterating-list"
