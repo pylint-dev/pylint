@@ -286,6 +286,7 @@ Other Changes
 * Fixed false negative ``unpacking-non-sequence`` when value is an empty list.
 
   Closes #5707
+
 * Fixed false positive for ``global-variable-not-assigned`` when the ``del`` statement is used
 
   Closes #5333
