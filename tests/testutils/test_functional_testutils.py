@@ -8,7 +8,10 @@ from pathlib import Path
 import pytest
 
 from pylint import testutils
-from pylint.testutils.functional import FunctionalTestFile
+from pylint.testutils.functional import (
+    FunctionalTestFile,
+    get_functional_test_files_from_directory,
+)
 
 HERE = Path(__file__).parent
 DATA_DIRECTORY = HERE / "data"
@@ -19,3 +22,11 @@ def test_parsing_of_pylintrc_init_hook() -> None:
     with pytest.raises(RuntimeError):
         test_file = FunctionalTestFile(str(DATA_DIRECTORY), "init_hook.py")
         testutils.LintModuleTest(test_file)
+
+
+def test_get_functional_test_files_from_directory():
+    assert len(get_functional_test_files_from_directory(DATA_DIRECTORY)) == 5
+
+
+def test_get_functional_test_files_from_directory():
+    assert len(get_functional_test_files_from_directory(DATA_DIRECTORY)) == 1
