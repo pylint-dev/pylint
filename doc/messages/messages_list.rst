@@ -1,7 +1,7 @@
 .. _messages-list:
 
-Pylint Messages
-===============
+Overview of all Pylint messages
+=================================
 
 Pylint can emit the following messages:
 
