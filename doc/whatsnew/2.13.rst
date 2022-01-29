@@ -120,6 +120,11 @@ Other Changes
 
   Closes #4790
 
+* The issue template for crashes is now created for crashes which were previously not covered
+  by this mechanism.
+
+  Closes #5668
+
 * An astroid issue where symlinks were not being taken into account
   was fixed
 
