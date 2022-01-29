@@ -1315,7 +1315,11 @@ class TestRunTC:
 
     def test_recursive_current_dir(self):
         with _test_sys_path():
-            sys.path = [path for path in sys.path if not os.path.basename(path) == 'regrtest_data']
+            sys.path = [
+                path
+                for path in sys.path
+                if not os.path.basename(path) == "regrtest_data"
+            ]
             # pytest is including directory HERE/regrtest_data to sys.path which causes
             # astroid believe that directory is a package.
             with _test_cwd():
@@ -1329,7 +1333,11 @@ class TestRunTC:
         with _test_sys_path():
             # pytest is including directory HERE/regrtest_data to sys.path which causes
             # astroid believe that directory is a package.
-            sys.path = [path for path in sys.path if not os.path.basename(path) == 'regrtest_data']
+            sys.path = [
+                path
+                for path in sys.path
+                if not os.path.basename(path) == "regrtest_data"
+            ]
             with _test_cwd():
                 os.chdir(join(HERE, "regrtest_data", "directory"))
                 self._test_output(
