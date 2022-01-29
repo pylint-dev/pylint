@@ -12,6 +12,14 @@ Test your code!
 
 Pylint is very well tested and has a high code coverage. New contributions are not accepted
 unless they include tests.
+
+Before you start testing your code, you need to install your source-code package locally.
+The best way to do so is running this terminal command:
+
+ python setup.py develop
+
+This ensures your testing environment is similar to Pylint's testing environment on GitHub.
+
 Pylint uses two types of tests: unittests and functional tests.
 
   - The unittests can be found in the ``/pylint/test`` directory and they can

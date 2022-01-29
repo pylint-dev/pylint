@@ -47,12 +47,11 @@ class LintModuleTest:
         rc_file: Union[Path, str] = PYLINTRC
         try:
             rc_file = test_file.option_file
-        except NoFileError:
-            pass
-        finally:
             self._linter.disable("suppressed-message")
             self._linter.disable("locally-disabled")
             self._linter.disable("useless-suppression")
+        except NoFileError:
+            pass
 
         try:
             args = [test_file.source]
