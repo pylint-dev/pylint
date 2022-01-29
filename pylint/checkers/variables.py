@@ -170,7 +170,8 @@ TYPING_NAMES = frozenset(
 
 
 class VariableVisitConsumerAction(Enum):
-    """Used after _visit_consumer to determine the action to be taken
+    """Reported by _check_consumer() and its sub-methods to determine the
+    subsequent action to take in _undefined_and_used_before_checker().
 
     Continue -> continue loop to next consumer
     Return -> return and thereby break the loop
@@ -180,6 +181,18 @@ class VariableVisitConsumerAction(Enum):
     CONTINUE = 0
     RETURN = 1
     CONSUME = 2
+
+
+VariableVisitConsumerActionAndOptionalNodesType = Union[
+    Tuple[
+        Union[
+            Literal[VariableVisitConsumerAction.CONTINUE],
+            Literal[VariableVisitConsumerAction.RETURN],
+        ],
+        None,
+    ],
+    Tuple[Literal[VariableVisitConsumerAction.CONSUME], List[nodes.NodeNG]],
+]
 
 
 def _is_from_future_import(stmt, name):
@@ -1469,16 +1482,7 @@ class VariablesChecker(BaseChecker):
         current_consumer: NamesConsumer,
         consumer_level: int,
         base_scope_type: Any,
-    ) -> Union[
-        Tuple[
-            Union[
-                Literal[VariableVisitConsumerAction.CONTINUE],
-                Literal[VariableVisitConsumerAction.RETURN],
-            ],
-            None,
-        ],
-        Tuple[Literal[VariableVisitConsumerAction.CONSUME], List[nodes.NodeNG]],
-    ]:
+    ) -> VariableVisitConsumerActionAndOptionalNodesType:
         """Checks a consumer for conditions that should trigger messages"""
         # If the name has already been consumed, only check it's not a loop
         # variable used outside the loop.
@@ -1626,10 +1630,9 @@ class VariablesChecker(BaseChecker):
                         )
                         and node.name in node.root().locals
                     ):
-                        self.add_message(
-                            "undefined-variable", args=node.name, node=node
-                        )
-                        return (VariableVisitConsumerAction.CONSUME, found_nodes)
+                        if defined_by_stmt:
+                            current_consumer.mark_as_consumed(node.name, [node])
+                        return (VariableVisitConsumerAction.CONTINUE, None)
 
             elif base_scope_type != "lambda":
                 # E0601 may *not* occurs in lambda scope.
@@ -1681,13 +1684,7 @@ class VariablesChecker(BaseChecker):
             return (VariableVisitConsumerAction.CONSUME, found_nodes)
 
         elif isinstance(defstmt, nodes.ClassDef):
-            is_first_level_ref = self._is_first_level_self_reference(node, defstmt)
-            if is_first_level_ref == 2:
-                self.add_message(
-                    "used-before-assignment", node=node, args=node.name, confidence=HIGH
-                )
-            if is_first_level_ref:
-                return (VariableVisitConsumerAction.RETURN, None)
+            return self._is_first_level_self_reference(node, defstmt, found_nodes)
 
         elif isinstance(defnode, nodes.NamedExpr):
             if isinstance(defnode.parent, nodes.IfExp):
@@ -2080,31 +2077,26 @@ class VariablesChecker(BaseChecker):
 
     @staticmethod
     def _is_first_level_self_reference(
-        node: nodes.Name, defstmt: nodes.ClassDef
-    ) -> Literal[0, 1, 2]:
+        node: nodes.Name, defstmt: nodes.ClassDef, found_nodes: List[nodes.NodeNG]
+    ) -> VariableVisitConsumerActionAndOptionalNodesType:
         """Check if a first level method's annotation or default values
-        refers to its own class.
-
-        Return values correspond to:
-            0 = Continue
-            1 = Break
-            2 = Break + emit message
+        refers to its own class, and return a consumer action
         """
         if node.frame(future=True).parent == defstmt and node.statement(
             future=True
         ) == node.frame(future=True):
             # Check if used as type annotation
-            # Break but don't emit message if postponed evaluation is enabled
+            # Break if postponed evaluation is enabled
             if utils.is_node_in_type_annotation_context(node):
                 if not utils.is_postponed_evaluation_enabled(node):
-                    return 2
-                return 1
+                    return (VariableVisitConsumerAction.CONTINUE, None)
+                return (VariableVisitConsumerAction.RETURN, None)
             # Check if used as default value by calling the class
             if isinstance(node.parent, nodes.Call) and isinstance(
                 node.parent.parent, nodes.Arguments
             ):
-                return 2
-        return 0
+                return (VariableVisitConsumerAction.CONTINUE, None)
+        return (VariableVisitConsumerAction.CONSUME, found_nodes)
 
     @staticmethod
     def _is_never_evaluated(

@@ -133,7 +133,7 @@ class Ancestor1(object):
     """ No op """
 
 NANA = BAT # [undefined-variable]
-del BAT
+del BAT  # [undefined-variable]
 
 
 class KeywordArgument(object):
@@ -356,3 +356,12 @@ GLOBAL_VAR_TWO = 2
 
 GLOBAL_VAR: int
 GLOBAL_VAR_TWO: int
+
+
+class RepeatedReturnAnnotations:
+    def x(self, o: RepeatedReturnAnnotations) -> bool:  # [undefined-variable]
+        pass
+    def y(self) -> RepeatedReturnAnnotations:  # [undefined-variable]
+        pass
+    def z(self) -> RepeatedReturnAnnotations:  # [undefined-variable]
+        pass

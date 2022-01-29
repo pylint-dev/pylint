@@ -134,6 +134,12 @@ Other Changes
   Closes #4798
   Closes #5081
 
+* Fix false negative for ``undefined-variable`` and related variable messages
+  when the same undefined variable is used as a type annotation and is
+  accessed multiple times, or is used as a default argument to a function.
+
+  Closes #5399
+
 * Emit ``used-before-assignment`` instead of ``undefined-variable`` when attempting
   to access unused type annotations.
 
