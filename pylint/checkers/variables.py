@@ -1517,10 +1517,8 @@ class VariablesChecker(BaseChecker):
                 node=node,
                 confidence=confidence,
             )
-            # If there are nodes added to consumed_uncertain by
-            # get_next_to_consume() because they might not have executed,
-            # return a CONSUME action so that _undefined_and_used_before_checker()
-            # will mark them as used
+            # Mark for consumption any nodes added to consumed_uncertain by
+            # get_next_to_consume() because they might not have executed.
             return (
                 VariableVisitConsumerAction.RETURN,
                 current_consumer.consumed_uncertain[node.name],
