@@ -121,8 +121,6 @@ def _write_messages_list_page(
         # Write header of file
         stream.write(
             f""".. _messages-list:
-
-..
   NOTE: This file is auto-generated. Make any changes to the associated
   docs extension in '{__name__}.py'.
 
