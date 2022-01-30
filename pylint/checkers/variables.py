@@ -182,11 +182,8 @@ class VariableVisitConsumerAction(Enum):
 
 
 VariableVisitConsumerActionAndOptionalNodesType = Tuple[
-    Union[
-        Literal[VariableVisitConsumerAction.CONTINUE],
-        Literal[VariableVisitConsumerAction.RETURN],
-    ],
-    Optional[List[nodes.NodeNG]],
+    VariableVisitConsumerAction,
+    Optional[List[nodes.NodeNG]]
 ]
 
 
