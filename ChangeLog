@@ -102,6 +102,12 @@ Release date: TBA
 
   Closes #5569
 
+* Fix false positives for ``used-before-assignment`` from using named
+  expressions in a ternary operator test and using that expression as
+  a call argument.
+
+  Closes #5177, #5212
+
 * Fix false positive for ``undefined-variable`` when ``namedtuple`` class
   attributes are used as return annotations.
 

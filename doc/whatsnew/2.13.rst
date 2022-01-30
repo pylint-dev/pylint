@@ -154,6 +154,12 @@ Other Changes
 
   Closes #4941
 
+* Fix false positives for ``used-before-assignment`` from using named
+  expressions in a ternary operator test and using that expression as
+  a call argument.
+
+  Closes #5177, #5212
+
 * Fix ``unnecessary_dict_index_lookup`` false positive when deleting a dictionary's entry.
 
   Closes #4716

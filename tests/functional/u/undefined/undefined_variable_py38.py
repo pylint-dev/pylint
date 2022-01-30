@@ -140,3 +140,19 @@ def type_annotation_used_improperly_after_comprehension_2():
     my_int: int
     _ = [print(my_int, my_int) for my_int in range(10)]
     print(my_int)  # [used-before-assignment]
+
+
+# Tests for named expressions (walrus operator)
+
+# Expression in ternary operator: positional argument
+print(sep=colon if (colon := ":") else None)
+
+
+class Dummy:
+    """Expression in ternary operator: keyword argument"""
+    # pylint: disable=too-few-public-methods
+    def __init__(self, value):
+        self.value = value
+
+
+dummy = Dummy(value=val if (val := 'something') else 'anything')
