@@ -122,8 +122,9 @@ def _write_messages_list_page(
         stream.write(
             f""".. _messages-list:
 
-.. NOTE: This file is auto-generated. Make any changes to the associated
-.. docs extension in '{__name__}.py'.
+..
+  NOTE: This file is auto-generated. Make any changes to the associated
+  docs extension in '{__name__}.py'.
 
 {get_rst_title("Overview of all Pylint messages", "=")}
 Pylint can emit the following messages:

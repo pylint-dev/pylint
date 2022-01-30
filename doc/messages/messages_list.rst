@@ -1,10 +1,11 @@
 .. _messages-list:
 
-.. NOTE: This file is auto-generated. Make any changes to the associated
-.. docs extension in 'pylint_messages.py'.
+..
+  NOTE: This file is auto-generated. Make any changes to the associated
+  docs extension in 'pylint_messages.py'.
 
 Overview of all Pylint messages
-=================================
+===============================
 
 Pylint can emit the following messages:
 
