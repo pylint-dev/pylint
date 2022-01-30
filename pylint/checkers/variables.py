@@ -94,11 +94,6 @@ from pylint.utils import get_global_option
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
-if sys.version_info >= (3, 8):
-    pass
-else:
-    pass
-
 SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
 FUTURE = "__future__"
 # regexp for ignored argument name
