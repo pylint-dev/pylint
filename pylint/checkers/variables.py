@@ -60,7 +60,6 @@ import copy
 import itertools
 import os
 import re
-import sys
 from enum import Enum
 from functools import lru_cache
 from typing import (
