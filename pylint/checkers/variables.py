@@ -175,11 +175,6 @@ class VariableVisitConsumerAction(Enum):
     RETURN = 1
 
 
-VariableVisitConsumerActionAndOptionalNodesType = Tuple[
-    VariableVisitConsumerAction, Optional[List[nodes.NodeNG]]
-]
-
-
 def _is_from_future_import(stmt, name):
     """Check if the name is a future import from another module."""
     try:
@@ -1464,7 +1459,8 @@ class VariablesChecker(BaseChecker):
         current_consumer: NamesConsumer,
         consumer_level: int,
         base_scope_type: Any,
-    ) -> VariableVisitConsumerActionAndOptionalNodesType:
+    ) -> Tuple[VariableVisitConsumerAction, Optional[List[nodes.NodeNG]]]:
+        """Checks a consumer for conditions that should trigger messages"""
         # If the name has already been consumed, only check it's not a loop
         # variable used outside the loop.
         # Avoid the case where there are homonyms inside function scope and
@@ -2058,7 +2054,7 @@ class VariablesChecker(BaseChecker):
     @staticmethod
     def _is_first_level_self_reference(
         node: nodes.Name, defstmt: nodes.ClassDef, found_nodes: List[nodes.NodeNG]
-    ) -> VariableVisitConsumerActionAndOptionalNodesType:
+    ) -> Tuple[VariableVisitConsumerAction, Optional[List[nodes.NodeNG]]]:
         """Check if a first level method's annotation or default values
         refers to its own class, and return a consumer action
         """
