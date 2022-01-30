@@ -14,7 +14,7 @@ def typing_and_assignment_expression():
 def typing_and_self_referencing_assignment_expression():
     """The variable gets assigned in an assignment expression that references itself"""
     var: int
-    if (var := var ** 2):  # false negative--walrus operator!
+    if (var := var ** 2):  # false negative: https://github.com/PyCQA/pylint/issues/5653
         print(var)
 
 
@@ -128,7 +128,6 @@ def type_annotation_unused_after_comprehension():
 
 
 def type_annotation_used_improperly_after_comprehension():
-    # TO-DO follow up in https://github.com/PyCQA/pylint/issues/5713
     """https://github.com/PyCQA/pylint/issues/5654"""
     my_int: int
     _ = [print(sep=my_int, end=my_int) for my_int in range(10)]
