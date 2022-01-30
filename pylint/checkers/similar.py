@@ -47,6 +47,7 @@ import itertools
 import operator
 import re
 import sys
+import warnings
 from collections import defaultdict
 from getopt import getopt
 from io import BufferedIOBase, BufferedReader, BytesIO
@@ -829,8 +830,16 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
 
         stream must implement the readlines method
         """
+        if self.linter.current_name is None:
+            warnings.warn(
+                (
+                    "In pylint 3.0 the current_name attribute of the linter object should be a string. "
+                    "If unknown it should be initialized as an empty string."
+                ),
+                DeprecationWarning,
+            )
         with node.stream() as stream:
-            self.append_stream(self.linter.current_name, stream, node.file_encoding)
+            self.append_stream(self.linter.current_name, stream, node.file_encoding)  # type: ignore[arg-type]
 
     def close(self):
         """compute and display similarities on closing (i.e. end of parsing)"""

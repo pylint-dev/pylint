@@ -15,6 +15,11 @@ Release date: TBA
 
   Closes #5648
 
+* Removed the deprecated ``check_docs`` extension. You can use the ``docparams`` checker
+  to get the checks previously included in ``check_docs``.
+
+  Closes #5322
+
 * Added several checkers to deal with unicode security issues
   (see `Trojan Sources <https://trojansource.codes/>`_ and
   `PEP 672 <https://www.python.org/dev/peps/pep-0672/>`_ for details) that also
@@ -45,6 +50,10 @@ Release date: TBA
 
  Closes #5707
 
+* Better warning messages for useless else or elif when a function returns early.
+
+  Closes #5614
+
 * Fixed false positive ``consider-using-dict-comprehension`` when creating a dict
   using a list of tuples where key AND value vary depending on the same condition.
 
@@ -58,11 +67,26 @@ Release date: TBA
 
   Closes #3781
 
+* Fixed a crash in ``unspecified-encoding`` checker when providing ``None``
+  to the ``mode`` argument of an ``open()`` call.
+
+  Closes #5731
+
+* Improved ``bad-open-mode`` message when providing ``None`` to the ``mode``
+  argument of an ``open()`` call.
+
+  Closes #5733
+
 * Added ``lru-cache-decorating-method`` checker with checks for the use of ``functools.lru_cache``
   on class methods. This is unrecommended as it creates memory leaks by never letting the instance
   getting garbage collected.
 
   Closes #5670
+
+* The issue template for crashes is now created for crashes which were previously not covered
+  by this mechanism.
+
+  Closes #5668
 
 * Rewrote checker for ``non-ascii-name``.
    It now ensures __all__ Python names are ASCII and also properly
@@ -95,7 +119,21 @@ Release date: TBA
 
   Closes #5568
 
+* Fix false negative for ``undefined-variable`` and related variable messages
+  when the same undefined variable is used as a type annotation and is
+  accessed multiple times, or is used as a default argument to a function.
+
+  Closes #5399
+
 * Pyreverse - add output in mermaidjs format
+
+* Emit ``used-before-assignment`` instead of ``undefined-variable`` when attempting
+  to access unused type annotations.
+
+  Closes #5713
+
+* Added confidence level ``CONTROL_FLOW`` for warnings relying on assumptions
+  about control flow.
 
 * ``used-before-assignment`` now considers that assignments in a try block
   may not have occurred when the except or finally blocks are executed.
@@ -157,6 +195,13 @@ Release date: TBA
 
   Closes #5500
 
+* When evaluating statements in the ``else`` clause of a loop, ``used-before-assignment``
+  assumes that assignments in the except blocks took place if the
+  except handlers constituted the only ways for the loop to finish without
+  breaking early.
+
+  Closes #5683
+
 * ``used-before-assignment`` now checks names in try blocks.
 
 * Fixed false positive with ``used-before-assignment`` for assignment expressions
@@ -182,6 +227,11 @@ Release date: TBA
   an outer scope type annotation.
 
   Closes #5326
+
+* Fix false negative for ``undefined-variable`` for a variable used multiple times
+  in a comprehension matching an unused outer scope type annotation.
+
+  Closes #5654
 
 * Some files in ``pylint.testutils`` were deprecated. In the future imports should be done from the
   ``pylint.testutils.functional`` namespace directly.
@@ -211,12 +261,16 @@ Release date: TBA
   Closes #5504
 
 * When invoking ``pylint``, ``epylint``, ``symilar`` or ``pyreverse`` by importing them in a python file
-  you can now pass an ``arguments`` keyword besides patching ``sys.argv``.
+  you can now pass an ``argv`` keyword besides patching ``sys.argv``.
 
   Closes #5320
 
 * The ``PyLinter`` class will now be initialized with a ``TextReporter``
   as its reporter if none is provided.
+
+* Fix ``super-init-not-called`` when parent or ``self`` is a ``Protocol``
+
+  Closes #4790
 
 * Fix false positive ``not-callable`` with attributes that alias ``NamedTuple``
 
@@ -226,6 +280,11 @@ Release date: TBA
 
   Closes #4434
   Closes #5370
+
+* Fix false positive ``super-init-not-called`` for classes that inherit their ``init`` from
+  a parent.
+
+  Closes #4941
 
 * ``encoding`` can now be supplied as a positional argument to calls that open
   files without triggering ``unspecified-encoding``.
