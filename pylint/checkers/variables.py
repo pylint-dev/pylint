@@ -2400,7 +2400,7 @@ class VariablesChecker(BaseChecker):
             return
 
         # Attempt to check unpacking is properly balanced
-        values = self._get_values_to_unpack(inferred)
+        values = self._nodes_to_unpack(inferred)
         if values is not None:
             if len(targets) != len(values):
                 # Check if we have starred nodes.
@@ -2424,7 +2424,7 @@ class VariablesChecker(BaseChecker):
             )
 
     @staticmethod
-    def _get_values_to_unpack(node: nodes.Assign) -> Optional[List]:
+    def _nodes_to_unpack(node: nodes.NodeNG) -> Optional[List[nodes.NodeNG]]:
         """Return the list of values of the `Assign` node"""
         if isinstance(node, (nodes.Tuple, nodes.List)):
             return node.itered()
