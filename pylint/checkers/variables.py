@@ -95,9 +95,9 @@ if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
 if sys.version_info >= (3, 8):
-    from typing import Literal
+    pass
 else:
-    from typing_extensions import Literal
+    pass
 
 SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
 FUTURE = "__future__"
@@ -182,8 +182,7 @@ class VariableVisitConsumerAction(Enum):
 
 
 VariableVisitConsumerActionAndOptionalNodesType = Tuple[
-    VariableVisitConsumerAction,
-    Optional[List[nodes.NodeNG]]
+    VariableVisitConsumerAction, Optional[List[nodes.NodeNG]]
 ]
 
 
