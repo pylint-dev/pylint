@@ -46,3 +46,12 @@ for l in item_list:
         item_list.append(1)  # [modified-iterating-list]
         item_set.remove(4)  # [modified-iterating-set]
     item_list.remove(1)  # [modified-iterating-list]
+
+# Check for nested for loops and changes to iterators
+for l in item_list:
+    item_list.append(1)  # [modified-iterating-list]
+    for _ in []:
+        for _ in []:
+            item_list.remove(1)  # [modified-iterating-list]
+            for _ in []:
+                item_list.append(1)  # [modified-iterating-list]
