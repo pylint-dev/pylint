@@ -24,7 +24,7 @@ jobs:
   prepare-tests-linux:
     name: prepare / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 15
     strategy:
       matrix:
         python-version: [3.8, 3.9, "3.10"]
@@ -67,7 +67,7 @@ jobs:
   pytest-primer-stdlib:
     name: run on stdlib / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     needs: prepare-tests-linux
     strategy:
       matrix:
@@ -102,7 +102,7 @@ jobs:
   pytest-primer-external-batch-one:
     name: run on batch one / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
     needs: prepare-tests-linux
     strategy:
       matrix:
@@ -137,7 +137,7 @@ jobs:
   pytest-primer-external-batch-two:
     name: run on batch two / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
     needs: prepare-tests-linux
     strategy:
       matrix:
