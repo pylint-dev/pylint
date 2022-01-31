@@ -1397,7 +1397,7 @@ a metaclass class method.",
         if redefined_slots:
             self.add_message(
                 "redefined-slots-in-subclass",
-                args=", ".join(name for name in slots_names if name in redefined_slots),
+                args=([name for name in slots_names if name in redefined_slots],),
                 node=slots_node,
             )
 
