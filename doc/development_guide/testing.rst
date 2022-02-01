@@ -14,12 +14,8 @@ Pylint is very well tested and has a high code coverage. New contributions are n
 unless they include tests.
 
 Before you start testing your code, you need to install your source-code package locally.
-There are 2 ways we recommend to do so and you can do it in either way:
+To set up your environment for testing, open a terminal outside of your forked repository and run:
 
-1. inside your forked repository run:
-      python setup.py develop
-
-2. outside your forked repository run:
       pip install -e <forked_repo_dir_name>
 
 This ensures your testing environment is similar to Pylint's testing environment on GitHub.
