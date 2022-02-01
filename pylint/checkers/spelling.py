@@ -409,7 +409,7 @@ class SpellingChecker(BaseTokenChecker):
                 suggestions = self.spelling_dict.suggest(word)
                 del suggestions[self.config.max_spelling_suggestions :]
                 line_segment = line[word_start_at:]
-                match = re.search(fr"(\W|^)({word})(\W|$)", line_segment)
+                match = re.search(rf"(\W|^)({word})(\W|$)", line_segment)
                 if match:
                     # Start position of second group in regex.
                     col = match.regs[2][0]

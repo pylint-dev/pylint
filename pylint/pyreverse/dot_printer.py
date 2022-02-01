@@ -105,7 +105,7 @@ class DotPrinter(Printer):
         methods: List[nodes.FunctionDef] = properties.methods or []
         for func in methods:
             args = self._get_method_arguments(func)
-            label += fr"{func.name}({', '.join(args)})"
+            label += rf"{func.name}({', '.join(args)})"
             if func.returns:
                 label += ": " + get_annotation_label(func.returns)
             label += r"\l"

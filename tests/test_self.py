@@ -246,7 +246,7 @@ class TestRunTC:
         output = out.getvalue()
         # Get rid of the pesky messages that pylint emits if the
         # configuration file is not found.
-        pattern = fr"\[{MAIN_CHECKER_NAME.upper()}"
+        pattern = rf"\[{MAIN_CHECKER_NAME.upper()}"
         master = re.search(pattern, output)
         assert master is not None, f"{pattern} not found in {output}"
         out = StringIO(output[master.start() :])
