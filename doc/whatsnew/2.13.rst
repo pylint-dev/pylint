@@ -37,6 +37,12 @@ New checkers
 
   Closes #5460
 
+* Add ``modified-iterating-list``, ``modified-iterating-dict``, and ``modified-iterating-set``,
+  emitted when items are added to or removed from respectively a list, dictionary or
+  set being iterated through.
+
+  Closes #5348
+
 * Add checker ``redefined-slots-in-subclass``: Emitted when a slot is redefined in a subclass.
 
   Closes #5617

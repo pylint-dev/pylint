@@ -19,7 +19,7 @@
 # Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Yilei "Dolee" Yang <yileiyang@google.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 Or Bahari <orbahari@mail.tau.ac.il>
+# Copyright (c) 2021-2022 Or Bahari <or.ba402@gmail.com>
 # Copyright (c) 2021 David Gilman <davidgilman1@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
