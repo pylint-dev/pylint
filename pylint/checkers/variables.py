@@ -60,7 +60,6 @@ import copy
 import itertools
 import os
 import re
-import sys
 from enum import Enum
 from functools import lru_cache
 from typing import (
@@ -93,11 +92,6 @@ from pylint.utils import get_global_option
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
 FUTURE = "__future__"
@@ -175,24 +169,10 @@ class VariableVisitConsumerAction(Enum):
 
     Continue -> continue loop to next consumer
     Return -> return and thereby break the loop
-    Consume -> consume the found nodes (second return value) and return
     """
 
     CONTINUE = 0
     RETURN = 1
-    CONSUME = 2
-
-
-VariableVisitConsumerActionAndOptionalNodesType = Union[
-    Tuple[
-        Union[
-            Literal[VariableVisitConsumerAction.CONTINUE],
-            Literal[VariableVisitConsumerAction.RETURN],
-        ],
-        None,
-    ],
-    Tuple[Literal[VariableVisitConsumerAction.CONSUME], List[nodes.NodeNG]],
-]
 
 
 def _is_from_future_import(stmt, name):
@@ -1398,22 +1378,19 @@ class VariablesChecker(BaseChecker):
             if self._should_node_be_skipped(node, current_consumer, i == start_index):
                 continue
 
-            action, found_nodes = self._check_consumer(
+            action, nodes_to_consume = self._check_consumer(
                 node, stmt, frame, current_consumer, i, base_scope_type
             )
-            if action is VariableVisitConsumerAction.CONTINUE:
-                continue
-            if action is VariableVisitConsumerAction.CONSUME:
+            if nodes_to_consume:
                 # Any nodes added to consumed_uncertain by get_next_to_consume()
                 # should be added back so that they are marked as used.
                 # They will have already had a chance to emit used-before-assignment.
                 # We check here instead of before every single return in _check_consumer()
-                found_nodes += current_consumer.consumed_uncertain[node.name]  # type: ignore[operator]
-                current_consumer.mark_as_consumed(node.name, found_nodes)
-            if action in {
-                VariableVisitConsumerAction.RETURN,
-                VariableVisitConsumerAction.CONSUME,
-            }:
+                nodes_to_consume += current_consumer.consumed_uncertain[node.name]
+                current_consumer.mark_as_consumed(node.name, nodes_to_consume)
+            if action is VariableVisitConsumerAction.CONTINUE:
+                continue
+            if action is VariableVisitConsumerAction.RETURN:
                 return
 
         # we have not found the name, if it isn't a builtin, that's an
@@ -1482,7 +1459,7 @@ class VariablesChecker(BaseChecker):
         current_consumer: NamesConsumer,
         consumer_level: int,
         base_scope_type: Any,
-    ) -> VariableVisitConsumerActionAndOptionalNodesType:
+    ) -> Tuple[VariableVisitConsumerAction, Optional[List[nodes.NodeNG]]]:
         """Checks a consumer for conditions that should trigger messages"""
         # If the name has already been consumed, only check it's not a loop
         # variable used outside the loop.
@@ -1526,13 +1503,12 @@ class VariablesChecker(BaseChecker):
                 node=node,
                 confidence=confidence,
             )
-            if current_consumer.consumed_uncertain[node.name]:
-                # If there are nodes added to consumed_uncertain by
-                # get_next_to_consume() because they might not have executed,
-                # return a CONSUME action so that _undefined_and_used_before_checker()
-                # will mark them as used
-                return (VariableVisitConsumerAction.CONSUME, found_nodes)
-            return (VariableVisitConsumerAction.RETURN, None)
+            # Mark for consumption any nodes added to consumed_uncertain by
+            # get_next_to_consume() because they might not have executed.
+            return (
+                VariableVisitConsumerAction.RETURN,
+                current_consumer.consumed_uncertain[node.name],
+            )
 
         self._check_late_binding_closure(node)
 
@@ -1540,7 +1516,7 @@ class VariablesChecker(BaseChecker):
             self._is_undefined_variable_enabled
             or self._is_used_before_assignment_enabled
         ):
-            return (VariableVisitConsumerAction.CONSUME, found_nodes)
+            return (VariableVisitConsumerAction.RETURN, found_nodes)
 
         defnode = utils.assign_parent(found_nodes[0])
         defstmt = defnode.statement(future=True)
@@ -1631,7 +1607,7 @@ class VariablesChecker(BaseChecker):
                         and node.name in node.root().locals
                     ):
                         if defined_by_stmt:
-                            current_consumer.mark_as_consumed(node.name, [node])
+                            return (VariableVisitConsumerAction.CONTINUE, [node])
                         return (VariableVisitConsumerAction.CONTINUE, None)
 
             elif base_scope_type != "lambda":
@@ -1648,7 +1624,7 @@ class VariablesChecker(BaseChecker):
                         node=node,
                         confidence=HIGH,
                     )
-                    return (VariableVisitConsumerAction.CONSUME, found_nodes)
+                    return (VariableVisitConsumerAction.RETURN, found_nodes)
 
             elif base_scope_type == "lambda":
                 # E0601 can occur in class-level scope in lambdas, as in
@@ -1681,7 +1657,7 @@ class VariablesChecker(BaseChecker):
                 self.add_message(
                     "undefined-variable", args=node.name, node=node, confidence=HIGH
                 )
-            return (VariableVisitConsumerAction.CONSUME, found_nodes)
+            return (VariableVisitConsumerAction.RETURN, found_nodes)
 
         elif isinstance(defstmt, nodes.ClassDef):
             return self._is_first_level_self_reference(node, defstmt, found_nodes)
@@ -1695,9 +1671,9 @@ class VariablesChecker(BaseChecker):
                         node=node,
                         confidence=INFERENCE,
                     )
-                    return (VariableVisitConsumerAction.CONSUME, found_nodes)
+                    return (VariableVisitConsumerAction.RETURN, found_nodes)
 
-        return (VariableVisitConsumerAction.CONSUME, found_nodes)
+        return (VariableVisitConsumerAction.RETURN, found_nodes)
 
     @utils.check_messages("no-name-in-module")
     def visit_import(self, node: nodes.Import) -> None:
@@ -2078,7 +2054,7 @@ class VariablesChecker(BaseChecker):
     @staticmethod
     def _is_first_level_self_reference(
         node: nodes.Name, defstmt: nodes.ClassDef, found_nodes: List[nodes.NodeNG]
-    ) -> VariableVisitConsumerActionAndOptionalNodesType:
+    ) -> Tuple[VariableVisitConsumerAction, Optional[List[nodes.NodeNG]]]:
         """Check if a first level method's annotation or default values
         refers to its own class, and return a consumer action
         """
@@ -2096,7 +2072,7 @@ class VariablesChecker(BaseChecker):
                 node.parent.parent, nodes.Arguments
             ):
                 return (VariableVisitConsumerAction.CONTINUE, None)
-        return (VariableVisitConsumerAction.CONSUME, found_nodes)
+        return (VariableVisitConsumerAction.RETURN, found_nodes)
 
     @staticmethod
     def _is_never_evaluated(
