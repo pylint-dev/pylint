@@ -1141,8 +1141,8 @@ accessed. Python regular expressions are accepted.",
         self._check_assignment_from_function_call(node)
         self._check_dundername_is_string(node)
 
-    def _check_assignment_from_function_call(self, node) -> None:
-        """When assigning to a function call, check that the function returns a valuable value"""
+    def _check_assignment_from_function_call(self, node: nodes.Assign) -> None:
+        """When assigning to a function call, check that the function returns a valuable value."""
         if not isinstance(node.value, nodes.Call):
             return
 
@@ -1161,14 +1161,14 @@ accessed. Python regular expressions are accepted.",
         # Ordered from less expensive to more expensive checks.
         if (
             not function_node.is_function
-            or function_node.decorators is not None
+            or function_node.decorators
             or self._is_ignored_function(function_node)
         ):
             return
 
         # Fix a false-negative for list.sort(), see issue #5722
-        if self._list_sort_method(node.value):
-            self.add_message("assignment-from-none", node=node)
+        if self._is_list_sort_method(node.value):
+            self.add_message("assignment-from-none", node=node, confidence=INFERENCE)
             return
 
         if not function_node.root().fully_defined():
@@ -1192,19 +1192,17 @@ accessed. Python regular expressions are accepted.",
 
     @staticmethod
     def _is_ignored_function(
-        function_node: Union[
-            nodes.FunctionDef, astroid.UnboundMethod, astroid.BoundMethod
-        ]
+        function_node: Union[nodes.FunctionDef, bases.UnboundMethod]
     ) -> bool:
         return (
-            function_node.is_generator()
-            or function_node.is_abstract(pass_is_abstract=False)
-            or isinstance(function_node, nodes.AsyncFunctionDef)
+            isinstance(function_node, nodes.AsyncFunctionDef)
             or utils.is_error(function_node)
+            or function_node.is_generator()
+            or function_node.is_abstract(pass_is_abstract=False)
         )
 
     @staticmethod
-    def _list_sort_method(node: nodes.Call) -> bool:
+    def _is_list_sort_method(node: nodes.Call) -> bool:
         return (
             isinstance(node.func, nodes.Attribute)
             and node.func.attrname == "sort"
