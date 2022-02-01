@@ -69,7 +69,7 @@ class ModifiedIterationChecker(checkers.BaseChecker):
 
     def _modified_iterating_check(
         self, node: nodes.NodeNG, iter_obj: nodes.NodeNG
-    ) -> bool:
+    ) -> None:
         msg_id = None
         if self._modified_iterating_list_cond(node, iter_obj):
             msg_id = "modified-iterating-list"
@@ -77,15 +77,13 @@ class ModifiedIterationChecker(checkers.BaseChecker):
             msg_id = "modified-iterating-dict"
         elif self._modified_iterating_set_cond(node, iter_obj):
             msg_id = "modified-iterating-set"
-        if msg_id is not None:
+        if msg_id:
             self.add_message(
                 msg_id,
                 node=node,
                 args=(iter_obj.name,),
                 confidence=interfaces.INFERENCE,
             )
-            return True
-        return False
 
     @staticmethod
     def _is_node_expr_that_calls_attribute_name(node: nodes.NodeNG) -> bool:
@@ -96,9 +94,8 @@ class ModifiedIterationChecker(checkers.BaseChecker):
             and isinstance(node.value.func.expr, nodes.Name)
         )
 
-    @classmethod
+    @staticmethod
     def _common_cond_list_set(
-        cls,
         node: nodes.Expr,
         iter_obj: nodes.NodeNG,
         infer_val: Union[nodes.List, nodes.Set],
@@ -114,25 +111,23 @@ class ModifiedIterationChecker(checkers.BaseChecker):
             and (isinstance(node.targets[0].value, nodes.Name))
         )
 
-    @classmethod
     def _modified_iterating_list_cond(
-        cls, node: nodes.NodeNG, iter_obj: nodes.NodeNG
+        self, node: nodes.NodeNG, iter_obj: nodes.NodeNG
     ) -> bool:
-        if not cls._is_node_expr_that_calls_attribute_name(node):
+        if not self._is_node_expr_that_calls_attribute_name(node):
             return False
         infer_val = utils.safe_infer(node.value.func.expr)
         if not isinstance(infer_val, nodes.List):
             return False
         return (
-            cls._common_cond_list_set(node, iter_obj, infer_val)
+            self._common_cond_list_set(node, iter_obj, infer_val)
             and node.value.func.attrname in _LIST_MODIFIER_METHODS
         )
 
-    @classmethod
     def _modified_iterating_dict_cond(
-        cls, node: nodes.NodeNG, iter_obj: nodes.NodeNG
+        self, node: nodes.NodeNG, iter_obj: nodes.NodeNG
     ) -> bool:
-        if not cls._is_node_assigns_subscript_name(node):
+        if not self._is_node_assigns_subscript_name(node):
             return False
         infer_val = utils.safe_infer(node.targets[0].value)
         if not isinstance(infer_val, nodes.Dict):
@@ -141,17 +136,16 @@ class ModifiedIterationChecker(checkers.BaseChecker):
             return False
         return node.targets[0].value.name == iter_obj.name
 
-    @classmethod
     def _modified_iterating_set_cond(
-        cls, node: nodes.NodeNG, iter_obj: nodes.NodeNG
+        self, node: nodes.NodeNG, iter_obj: nodes.NodeNG
     ) -> bool:
-        if not cls._is_node_expr_that_calls_attribute_name(node):
+        if not self._is_node_expr_that_calls_attribute_name(node):
             return False
         infer_val = utils.safe_infer(node.value.func.expr)
         if not isinstance(infer_val, nodes.Set):
             return False
         return (
-            cls._common_cond_list_set(node, iter_obj, infer_val)
+            self._common_cond_list_set(node, iter_obj, infer_val)
             and node.value.func.attrname in _SET_MODIFIER_METHODS
         )
 
