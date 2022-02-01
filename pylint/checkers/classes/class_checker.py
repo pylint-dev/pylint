@@ -981,7 +981,7 @@ a metaclass class method.",
 
                 if assign_attr.expr.name in {
                     "cls",
-                    node.name
+                    node.name,
                 } and attribute.expr.name in {"cls", "self", node.name}:
                     # If assigned to cls or class name, can be accessed by cls/self/class name
                     break
