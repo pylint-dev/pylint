@@ -49,3 +49,51 @@ def func_ok3(var):
     except ZeroDivisionError:
         msg = "Division by 0"
     print(msg)
+
+
+def func_ok4(var):
+    """'msg' is defined in one handler with a named expression under an if."""
+    try:
+        return 1 / var.some_other_func()
+    except AttributeError:
+        if (msg := var.get_msg()):
+            pass
+    except ZeroDivisionError:
+        msg = "Division by 0"
+    print(msg)
+
+
+def func_ok5(var):
+    """'msg' is defined in one handler with a named expression occurring
+    in a call used in an if test.
+    """
+    try:
+        return 1 / var.some_other_func()
+    except AttributeError:
+        if print(msg := var.get_msg()):
+            pass
+    except ZeroDivisionError:
+        msg = "Division by 0"
+    print(msg)
+
+
+def func_invalid1(var):
+    """'msg' is not defined in one handler."""
+    try:
+        return 1 / var.some_other_func()
+    except AttributeError:
+        pass
+    except ZeroDivisionError:
+        msg = "Division by 0"
+    print(msg)  # [used-before-assignment]
+
+
+def func_invalid2(var):
+    """'msg' is not defined in one handler."""
+    try:
+        return 1 / var.some_other_func()
+    except AttributeError:
+        msg: str
+    except ZeroDivisionError:
+        msg = "Division by 0"
+    print(msg)  # [used-before-assignment]

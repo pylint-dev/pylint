@@ -729,10 +729,12 @@ scope_type : {self._atomic.scope_type}
                     )
                 ):
                     uncertain_nodes.append(other_node)
-                else:
-                    # Assume the except blocks execute. Possibility for a false negative
-                    # if one of the except blocks does not define the name in question,
-                    # raise, or return. See: https://github.com/PyCQA/pylint/issues/5524.
+                # Assume the except blocks execute, so long as each handler
+                # defines the name, raises, or returns.
+                elif all(
+                    NamesConsumer._defines_name_raises_or_returns(node.name, handler)
+                    for handler in other_node_statement.parent.parent.handlers
+                ):
                     continue
 
             if NamesConsumer._check_loop_finishes_via_except(
@@ -743,6 +745,26 @@ scope_type : {self._atomic.scope_type}
             # Passed all tests for uncertain execution
             uncertain_nodes.append(other_node)
         return uncertain_nodes
+
+    @staticmethod
+    def _defines_name_raises_or_returns(
+        name: str, handler: nodes.ExceptHandler
+    ) -> bool:
+        """Return True if some child of `handler` defines the name `name`,
+        raises, or returns.
+        """
+        for stmt in handler.get_children():
+            if isinstance(stmt, (nodes.Raise, nodes.Return)):
+                return True
+            if isinstance(stmt, nodes.Assign) and stmt.targets[0].as_string() == name:
+                return True
+            if isinstance(stmt, nodes.If):
+                if isinstance(stmt.test, nodes.NamedExpr) and stmt.test.target.name == name:
+                    return True
+                for arg_or_kwarg in stmt.test.args + stmt.test.keywords:
+                    if isinstance(arg_or_kwarg, nodes.NamedExpr) and arg_or_kwarg.target.name == name:
+                        return True
+        return False
 
     @staticmethod
     def _check_loop_finishes_via_except(

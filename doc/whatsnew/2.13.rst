@@ -251,6 +251,12 @@ Other Changes
 
   Closes #5500
 
+* Fixed a false negative for ``used-before-assignment`` when some but not all
+  except handlers defined a name relied upon after an except block when the
+  corresponding try block contained a return statement.
+
+  Partially closes #5524
+
 * When evaluating statements in the ``else`` clause of a loop, ``used-before-assignment``
   assumes that assignments in the except blocks took place if the
   except handlers constituted the only ways for the loop to finish without
