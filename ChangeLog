@@ -15,6 +15,10 @@ Release date: TBA
 
   Closes #5348
 
+* Fix false-negative for ``assignment-from-none`` checker using list.sort() method.
+
+  closes #5722
+
 * Fixed crash from ``arguments-differ`` and ``arguments-renamed`` when methods were
   defined outside the top level of a class.
 
