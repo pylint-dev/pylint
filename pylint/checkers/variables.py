@@ -764,12 +764,13 @@ scope_type : {self._atomic.scope_type}
                     and stmt.test.target.name == name
                 ):
                     return True
-                for arg_or_kwarg in stmt.test.args + stmt.test.keywords:
-                    if (
-                        isinstance(arg_or_kwarg, nodes.NamedExpr)
-                        and arg_or_kwarg.target.name == name
-                    ):
-                        return True
+                if isinstance(stmt.test, nodes.Call):
+                    for arg_or_kwarg in stmt.test.args + stmt.test.keywords:
+                        if (
+                            isinstance(arg_or_kwarg, nodes.NamedExpr)
+                            and arg_or_kwarg.target.name == name
+                        ):
+                            return True
         return False
 
     @staticmethod
