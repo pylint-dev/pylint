@@ -759,10 +759,16 @@ scope_type : {self._atomic.scope_type}
             if isinstance(stmt, nodes.Assign) and stmt.targets[0].as_string() == name:
                 return True
             if isinstance(stmt, nodes.If):
-                if isinstance(stmt.test, nodes.NamedExpr) and stmt.test.target.name == name:
+                if (
+                    isinstance(stmt.test, nodes.NamedExpr)
+                    and stmt.test.target.name == name
+                ):
                     return True
                 for arg_or_kwarg in stmt.test.args + stmt.test.keywords:
-                    if isinstance(arg_or_kwarg, nodes.NamedExpr) and arg_or_kwarg.target.name == name:
+                    if (
+                        isinstance(arg_or_kwarg, nodes.NamedExpr)
+                        and arg_or_kwarg.target.name == name
+                    ):
                         return True
         return False
 
