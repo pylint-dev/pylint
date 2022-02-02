@@ -1941,8 +1941,23 @@ class VariablesChecker(BaseChecker):
                     )
                     and (
                         isinstance(defstmt.value, nodes.IfExp)
-                        or isinstance(defstmt.value, nodes.Lambda)
-                        and isinstance(defstmt.value.body, nodes.IfExp)
+                        or (
+                            isinstance(defstmt.value, nodes.Lambda)
+                            and isinstance(defstmt.value.body, nodes.IfExp)
+                        )
+                        or (
+                            isinstance(defstmt.value, nodes.Call)
+                            and (
+                                any(
+                                    isinstance(kwarg.value, nodes.IfExp)
+                                    for kwarg in defstmt.value.keywords
+                                )
+                                or any(
+                                    isinstance(arg, nodes.IfExp)
+                                    for arg in defstmt.value.args
+                                )
+                            )
+                        )
                     )
                     and frame is defframe
                     and defframe.parent_of(node)
