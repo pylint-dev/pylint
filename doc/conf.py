@@ -36,6 +36,7 @@ sys.path.append(os.path.abspath("exts"))
 extensions = [
     "pylint_features",
     "pylint_extensions",
+    "pylint_messages",
     "sphinx.ext.autosectionlabel",
     "sphinx.ext.intersphinx",
 ]

@@ -1,1 +1,1 @@
-used-before-assignment:17:20:17:27:MyClass.incorrect_default_method:Using variable 'MyClass' before assignment:UNDEFINED
+undefined-variable:17:20:17:27:MyClass.incorrect_default_method:Undefined variable 'MyClass':UNDEFINED

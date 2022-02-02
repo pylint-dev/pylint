@@ -386,27 +386,27 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "bad-thread-instantiation",
             "The warning is emitted when a threading.Thread class "
             "is instantiated without the target function being passed. "
-            "By default, the first parameter is the group param, not the target param. ",
+            "By default, the first parameter is the group param, not the target param.",
         ),
         "W1507": (
             "Using copy.copy(os.environ). Use os.environ.copy() instead. ",
             "shallow-copy-environ",
             "os.environ is not a dict object but proxy object, so "
             "shallow copy has still effects on original object. "
-            "See https://bugs.python.org/issue15373 for reference. ",
+            "See https://bugs.python.org/issue15373 for reference.",
         ),
         "E1507": (
             "%s does not support %s type argument",
             "invalid-envvar-value",
             "Env manipulation functions support only string type arguments. "
-            "See https://docs.python.org/3/library/os.html#os.getenv. ",
+            "See https://docs.python.org/3/library/os.html#os.getenv.",
         ),
         "W1508": (
             "%s default type is %s. Expected str or None.",
             "invalid-envvar-default",
             "Env manipulation functions return None or str values. "
             "Supplying anything different as a default may cause bugs. "
-            "See https://docs.python.org/3/library/os.html#os.getenv. ",
+            "See https://docs.python.org/3/library/os.html#os.getenv.",
         ),
         "W1509": (
             "Using preexec_fn keyword which may be unsafe in the presence "
@@ -463,9 +463,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         ),
     }
 
-    def __init__(
-        self, linter: Optional["PyLinter"] = None
-    ):  # pylint: disable=super-init-not-called # See https://github.com/PyCQA/pylint/issues/4941
+    def __init__(self, linter: Optional["PyLinter"] = None) -> None:
         BaseChecker.__init__(self, linter)
         self._deprecated_methods: Set[Any] = set()
         self._deprecated_methods.update(DEPRECATED_METHODS[0])
@@ -650,7 +648,11 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             if isinstance(mode_arg, nodes.Const) and not _check_mode_str(
                 mode_arg.value
             ):
-                self.add_message("bad-open-mode", node=node, args=mode_arg.value)
+                self.add_message(
+                    "bad-open-mode",
+                    node=node,
+                    args=mode_arg.value or str(mode_arg.value),
+                )
 
     def _check_open_encoded(self, node: nodes.Call, open_module: str) -> None:
         """Check that the encoded argument of an open call is valid."""
@@ -673,7 +675,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         if (
             not mode_arg
             or isinstance(mode_arg, nodes.Const)
-            and "b" not in mode_arg.value
+            and (not mode_arg.value or "b" not in mode_arg.value)
         ):
             encoding_arg = None
             try:

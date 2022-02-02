@@ -37,6 +37,16 @@ New checkers
 
   Closes #5460
 
+* Add ``modified-iterating-list``, ``modified-iterating-dict``, and ``modified-iterating-set``,
+  emitted when items are added to or removed from respectively a list, dictionary or
+  set being iterated through.
+
+  Closes #5348
+
+* Add checker ``redefined-slots-in-subclass``: Emitted when a slot is redefined in a subclass.
+
+  Closes #5617
+
 * Rewrote Checker of ``non-ascii-name``.
    It now ensures __all__ Python names are ASCII and also properly
    checks the names of imports (``non-ascii-module-import``) as
@@ -54,6 +64,11 @@ New checkers
 
 Removed checkers
 ================
+
+* Removed the deprecated ``check_docs`` extension. You can use the ``docparams`` checker
+  to get the checks previously included in ``check_docs``.
+
+  Closes #5322
 
 Extensions
 ==========
@@ -88,6 +103,10 @@ Other Changes
 
   Closes #5648
 
+* Better warning messages for useless else or elif when a function returns early.
+
+  Closes #5614
+
 * Fixed false positive ``consider-using-dict-comprehension`` when creating a dict
   using a list of tuples where key AND value vary depending on the same condition.
 
@@ -95,6 +114,10 @@ Other Changes
 
 * When run in parallel mode ``pylint`` now pickles the data passed to subprocesses with
   the ``dill`` package. The ``dill`` package has therefore been added as a dependency.
+
+* Fixed false positive for ``global-variable-undefined`` when ``global`` is used with a class name
+
+  Closes #3088
 
 * Fixed crash on properties and inherited class methods when comparing them for
   equality against an empty dict.
@@ -109,6 +132,15 @@ Other Changes
 
 .. _`emacs file locks`: https://www.gnu.org/software/emacs/manual/html_node/elisp/File-Locks.html
 
+* Fix ``super-init-not-called`` when parent or ``self`` is a ``Protocol``
+
+  Closes #4790
+
+* The issue template for crashes is now created for crashes which were previously not covered
+  by this mechanism.
+
+  Closes #5668
+
 * An astroid issue where symlinks were not being taken into account
   was fixed
 
@@ -118,9 +150,31 @@ Other Changes
   Closes #4798
   Closes #5081
 
+* Fix false negative for ``undefined-variable`` and related variable messages
+  when the same undefined variable is used as a type annotation and is
+  accessed multiple times, or is used as a default argument to a function.
+
+  Closes #5399
+
+* Emit ``used-before-assignment`` instead of ``undefined-variable`` when attempting
+  to access unused type annotations.
+
+  Closes #5713
+
 * Fixed extremely long processing of long lines with comma's.
 
   Closes #5483
+
+* Fix false positive ``super-init-not-called`` for classes that inherit their ``init`` from
+  a parent.
+
+  Closes #4941
+
+* Fix false positives for ``used-before-assignment`` from using named
+  expressions in a ternary operator test and using that expression as
+  a call argument.
+
+  Closes #5177, #5212
 
 * Fix ``unnecessary_dict_index_lookup`` false positive when deleting a dictionary's entry.
 
@@ -140,10 +194,28 @@ Other Changes
 
   Closes #5479
 
+* Fixed a crash in ``unspecified-encoding`` checker when providing ``None``
+  to the ``mode`` argument of an ``open()`` call.
+
+  Closes #5731
+
+* Improved ``bad-open-mode`` message when providing ``None`` to the ``mode``
+  argument of an ``open()`` call.
+
+  Closes #5733
+
 * Fix false negative for ``consider-iterating-dictionary`` during membership checks encapsulated in iterables
   or ``not in`` checks
 
   Closes #5323
+
+* Fix false positive for ``undefined-variable`` when ``namedtuple`` class
+  attributes are used as return annotations.
+
+  Closes #5568
+
+* Added confidence level ``CONTROL_FLOW`` for warnings relying on assumptions
+  about control flow.
 
 * ``used-before-assignment`` now considers that assignments in a try block
   may not have occurred when the except or finally blocks are executed.
@@ -181,6 +253,13 @@ Other Changes
 
   Closes #5500
 
+* When evaluating statements in the ``else`` clause of a loop, ``used-before-assignment``
+  assumes that assignments in the except blocks took place if the
+  except handlers constituted the only ways for the loop to finish without
+  breaking early.
+
+  Closes #5683
+
 * ``used-before-assignment`` now checks names in try blocks.
 
 * Fixed false positive with ``used-before-assignment`` for assignment expressions
@@ -202,6 +281,11 @@ Other Changes
   an outer scope type annotation.
 
   Closes #5326
+
+* Fix false negative for ``undefined-variable`` for a variable used multiple times
+  in a comprehension matching an unused outer scope type annotation.
+
+  Closes #5654
 
 * Require Python ``3.6.2`` to run pylint.
 
@@ -236,7 +320,7 @@ Other Changes
   Closes #5557
 
 * When invoking ``pylint``, ``epylint``, ``symilar`` or ``pyreverse`` by importing them in a python file
-  you can now pass an ``arguments`` keyword besides patching ``sys.argv``.
+  you can now pass an ``argv`` keyword besides patching ``sys.argv``.
 
   Closes #5320
 
@@ -267,6 +351,18 @@ Other Changes
       raise ValueError
 
   Closes #4955
+
+* Fixed false positive for ``unused-variable`` when a ``nonlocal`` name is assigned as part of a multi-name assignment.
+
+  Closes #3781
+
+* Fix false positive - Allow unpacking of ``self`` in a subclass of ``typing.NamedTuple``.
+
+  Closes #5312
+
+* Fixed false negative ``unpacking-non-sequence`` when value is an empty list.
+
+  Closes #5707
 
 * Fixed false positive for ``global-variable-not-assigned`` when the ``del`` statement is used
 

@@ -1203,6 +1203,15 @@ class PyLinter(
         if not modname and filepath is None:
             return
         self.reporter.on_set_current_module(modname, filepath)
+        if modname is None:
+            warnings.warn(
+                (
+                    "In pylint 3.0 modname should be a string so that it can be used to "
+                    "correctly set the current_name attribute of the linter instance. "
+                    "If unknown it should be initialized as an empty string."
+                ),
+                DeprecationWarning,
+            )
         self.current_name = modname
         self.current_file = filepath or modname
         self.stats.init_single_module(modname)
@@ -1241,7 +1250,9 @@ class PyLinter(
         for checker in reversed(_checkers):
             checker.close()
 
-    def get_ast(self, filepath, modname, data=None):
+    def get_ast(
+        self, filepath: str, modname: str, data: Optional[str] = None
+    ) -> nodes.Module:
         """Return an ast(roid) representation of a module or a string.
 
         :param str filepath: path to checked file.
@@ -1249,6 +1260,7 @@ class PyLinter(
         :param str data: optional contents of the checked file.
         :returns: the AST
         :rtype: astroid.nodes.Module
+        :raises AstroidBuildingError: Whenever we encounter an unexpected exception
         """
         try:
             if data is None:
@@ -1264,11 +1276,17 @@ class PyLinter(
                 col_offset=getattr(ex.error, "offset", None),
                 args=str(ex.error),
             )
-        except astroid.AstroidBuildingException as ex:
+        except astroid.AstroidBuildingError as ex:
             self.add_message("parse-error", args=ex)
-        except Exception as ex:  # pylint: disable=broad-except
+        except Exception as ex:
             traceback.print_exc()
-            self.add_message("astroid-error", args=(ex.__class__, ex))
+            # We raise BuildingError here as this is essentially an astroid issue
+            # Creating an issue template and adding the 'astroid-error' message is handled
+            # by caller: _check_files
+            raise astroid.AstroidBuildingError(
+                "Building error when trying to create ast representation of module '{modname}'",
+                modname=modname,
+            ) from ex
         return None
 
     def check_astroid_module(self, ast_node, walker, rawcheckers, tokencheckers):

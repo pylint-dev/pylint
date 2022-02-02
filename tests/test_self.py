@@ -264,7 +264,7 @@ class TestRunTC:
         output = out.getvalue()
         # Get rid of the pesky messages that pylint emits if the
         # configuration file is not found.
-        pattern = fr"\[{MAIN_CHECKER_NAME.upper()}"
+        pattern = rf"\[{MAIN_CHECKER_NAME.upper()}"
         master = re.search(pattern, output)
         assert master is not None, f"{pattern} not found in {output}"
         out = StringIO(output[master.start() :])
@@ -1268,13 +1268,7 @@ class TestRunTC:
         # Record all extensions
         plugins = []
         for filename in os.listdir(os.path.dirname(extensions.__file__)):
-            # pylint: disable=fixme
-            # TODO: Remove the check for deprecated check_docs after the extension has been removed
-            if (
-                filename.endswith(".py")
-                and not filename.startswith("_")
-                and not filename.startswith("check_docs")
-            ):
+            if filename.endswith(".py") and not filename.startswith("_"):
                 plugins.append(f"pylint.extensions.{filename[:-3]}")
 
         # Check if they are loaded
