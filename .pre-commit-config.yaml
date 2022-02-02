@@ -44,7 +44,7 @@ repos:
     rev: 4.0.1
     hooks:
       - id: flake8
-        additional_dependencies: [flake8-typing-imports==1.10.1]
+        additional_dependencies: [flake8-typing-imports==1.12.0]
         exclude: *fixtures
   - repo: local
     hooks:
