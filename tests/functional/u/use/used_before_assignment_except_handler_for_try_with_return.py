@@ -71,3 +71,20 @@ def func_invalid2(var):
     except ZeroDivisionError:
         msg = "Division by 0"
     print(msg)  # [used-before-assignment]
+
+
+def func_invalid3(var):
+    """'msg' is not defined in one handler, but is defined in another
+    nested under an if.
+    """
+    err_message = False
+    try:
+        return 1 / var.some_other_func()
+    except AttributeError:
+        msg: str
+    except ZeroDivisionError:
+        if err_message:
+            msg = "Division by 0"
+        else:
+            msg = None
+    print(msg)  # [used-before-assignment]

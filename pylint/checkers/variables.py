@@ -703,17 +703,18 @@ scope_type : {self._atomic.scope_type}
         for other_node in found_nodes:
             other_node_statement = other_node.statement(future=True)
             # Only testing for statements in the except block of TryExcept
-            if not (
-                isinstance(other_node_statement.parent, nodes.ExceptHandler)
-                and isinstance(other_node_statement.parent.parent, nodes.TryExcept)
-            ):
+            closest_except_handler = utils.get_node_first_ancestor_of_type(
+                other_node_statement, nodes.ExceptHandler
+            )
+            if not closest_except_handler:
                 continue
+            closest_try_except: nodes.TryExcept = closest_except_handler.parent
             # If the other node is in the same scope as this node, assume it executes
-            if other_node_statement.parent.parent_of(node):
+            if closest_except_handler.parent_of(node):
                 continue
             try_block_returns = any(
                 isinstance(try_statement, nodes.Return)
-                for try_statement in other_node_statement.parent.parent.body
+                for try_statement in closest_try_except.body
             )
             # If the try block returns, assume the except blocks execute.
             if try_block_returns:
@@ -722,24 +723,18 @@ scope_type : {self._atomic.scope_type}
                 if (
                     isinstance(node_statement.parent, nodes.TryFinally)
                     and node_statement in node_statement.parent.finalbody
-                    # We have already tested that other_node_statement has two parents
-                    # and it was TryExcept, so getting one more parent is safe.
-                    and other_node_statement.parent.parent.parent.parent_of(
-                        node_statement
-                    )
+                    and closest_try_except.parent.parent_of(node_statement)
                 ):
                     uncertain_nodes.append(other_node)
                 # Assume the except blocks execute, so long as each handler
                 # defines the name, raises, or returns.
                 elif all(
                     NamesConsumer._defines_name_raises_or_returns(node.name, handler)
-                    for handler in other_node_statement.parent.parent.handlers
+                    for handler in closest_try_except.handlers
                 ):
                     continue
 
-            if NamesConsumer._check_loop_finishes_via_except(
-                node, other_node_statement.parent.parent
-            ):
+            if NamesConsumer._check_loop_finishes_via_except(node, closest_try_except):
                 continue
 
             # Passed all tests for uncertain execution
