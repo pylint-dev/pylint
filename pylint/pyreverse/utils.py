@@ -258,7 +258,7 @@ def get_annotation(
     label = get_annotation_label(ann)
     if ann:
         label = (
-            fr"Optional[{label}]"
+            rf"Optional[{label}]"
             if getattr(default, "value", "value") is None
             and not label.startswith("Optional")
             else label

@@ -74,7 +74,7 @@ class NonAsciiNameChecker(base_checker.BaseChecker):
                 "recommended for interoperability. Further reading:\n"
                 "- https://www.python.org/dev/peps/pep-0489/#export-hook-name\n"
                 "- https://www.python.org/dev/peps/pep-0672/#confusable-characters-in-identifiers\n"
-                "- https://bugs.python.org/issue20485\n"
+                "- https://bugs.python.org/issue20485"
             ),
         ),
         # First %s will always be "module"

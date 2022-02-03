@@ -57,7 +57,7 @@ called by the command line. You can either patch ``sys.argv`` or supply argument
 
   # Or:
 
-  pylint.run_pylint(arguments=["your_file"])
+  pylint.run_pylint(argv=["your_file"])
 
 To silently run Pylint on a ``module_name.py`` module,
 and get its standard output and error:

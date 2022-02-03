@@ -1,4 +1,4 @@
-""" Test that superfluous else return are detected. """
+""" Test that superfluous else break are detected. """
 
 # pylint:disable=invalid-name,missing-docstring,unused-variable
 

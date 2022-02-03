@@ -52,10 +52,10 @@
 """Classes checker for Python code"""
 import collections
 from itertools import chain, zip_longest
-from typing import List, Pattern
+from typing import Dict, List, Pattern, Set
 
 import astroid
-from astroid import nodes
+from astroid import bases, nodes
 
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import (
@@ -81,7 +81,7 @@ from pylint.checkers.utils import (
     unimplemented_abstract_methods,
     uninferable_final_decorators,
 )
-from pylint.interfaces import IAstroidChecker
+from pylint.interfaces import INFERENCE, IAstroidChecker
 from pylint.utils import get_global_option
 
 INVALID_BASE_CLASSES = {"bool", "range", "slice", "memoryview"}
@@ -588,6 +588,11 @@ MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
         "subclassed-final-class",
         "Used when a class decorated with typing.final has been subclassed.",
     ),
+    "W0244": (
+        "Redefined slots %r in subclass",
+        "redefined-slots-in-subclass",
+        "Used when a slot is re-defined in a subclass.",
+    ),
     "E0236": (
         "Invalid object %r in __slots__, must contain only non empty strings",
         "invalid-slots-object",
@@ -792,6 +797,7 @@ a metaclass class method.",
         "useless-object-inheritance",
         "inconsistent-mro",
         "duplicate-bases",
+        "redefined-slots-in-subclass",
     )
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         """init visit variable _accessed"""
@@ -970,14 +976,13 @@ a metaclass class method.",
                 if attribute.attrname != assign_attr.attrname:
                     continue
 
-                if (
-                    assign_attr.expr.name
-                    in {
-                        "cls",
-                        node.name,
-                    }
-                    and attribute.expr.name in {"cls", "self", node.name}
-                ):
+                if self._is_type_self_call(attribute.expr):
+                    continue
+
+                if assign_attr.expr.name in {
+                    "cls",
+                    node.name,
+                } and attribute.expr.name in {"cls", "self", node.name}:
                     # If assigned to cls or class name, can be accessed by cls/self/class name
                     break
 
@@ -1077,12 +1082,13 @@ a metaclass class method.",
         self._check_useless_super_delegation(node)
         self._check_property_with_parameters(node)
 
-        klass = node.parent.frame(future=True)
+        # 'is_method()' is called and makes sure that this is a 'nodes.ClassDef'
+        klass = node.parent.frame(future=True)  # type: nodes.ClassDef
         self._meth_could_be_func = True
         # check first argument is self if this is actually a method
         self._check_first_arg_for_type(node, klass.type == "metaclass")
         if node.name == "__init__":
-            self._check_init(node)
+            self._check_init(node, klass)
             return
         # check signature if the method overloads inherited method
         for overridden in klass.local_attr_ancestors(node.name):
@@ -1322,11 +1328,11 @@ a metaclass class method.",
         ) and self._py38_plus:
             self.add_message(
                 "overridden-final-method",
-                args=(function_node.name, parent_function_node.parent.name),
+                args=(function_node.name, parent_function_node.parent.frame().name),
                 node=function_node,
             )
 
-    def _check_slots(self, node):
+    def _check_slots(self, node: nodes.ClassDef) -> None:
         if "__slots__" not in node.locals:
             return
         for slots in node.igetattr("__slots__"):
@@ -1356,6 +1362,40 @@ a metaclass class method.",
                     self._check_slots_elt(elt, node)
                 except astroid.InferenceError:
                     continue
+            self._check_redefined_slots(node, slots, values)
+
+    def _check_redefined_slots(
+        self,
+        node: nodes.ClassDef,
+        slots_node: nodes.NodeNG,
+        slots_list: List[nodes.NodeNG],
+    ) -> None:
+        """Check if `node` redefines a slot which is defined in an ancestor class"""
+        slots_names: List[str] = []
+        for slot in slots_list:
+            if isinstance(slot, nodes.Const):
+                slots_names.append(slot.value)
+            else:
+                inferred_slot = safe_infer(slot)
+                if inferred_slot:
+                    slots_names.append(inferred_slot.value)
+
+        # Slots of all parent classes
+        ancestors_slots_names = {
+            slot.value
+            for ancestor in node.local_attr_ancestors("__slots__")
+            for slot in ancestor.slots() or []
+        }
+
+        # Slots which are common to `node` and its parent classes
+        redefined_slots = ancestors_slots_names.intersection(slots_names)
+
+        if redefined_slots:
+            self.add_message(
+                "redefined-slots-in-subclass",
+                args=([name for name in slots_names if name in redefined_slots],),
+                node=slots_node,
+            )
 
     def _check_slots_elt(self, elt, node):
         for inferred in elt.infer():
@@ -1660,13 +1700,10 @@ a metaclass class method.",
     @staticmethod
     def _is_called_inside_special_method(node: nodes.NodeNG) -> bool:
         """Returns true if the node is located inside a special (aka dunder) method"""
-        try:
-            frame_name = node.frame(future=True).name
-        except AttributeError:
-            return False
+        frame_name = node.frame(future=True).name
         return frame_name and frame_name in PYMETHODS
 
-    def _is_type_self_call(self, expr):
+    def _is_type_self_call(self, expr: nodes.NodeNG) -> bool:
         return (
             isinstance(expr, nodes.Call)
             and isinstance(expr.func, nodes.Name)
@@ -1885,7 +1922,7 @@ a metaclass class method.",
                 continue
             self.add_message("abstract-method", node=node, args=(name, owner.name))
 
-    def _check_init(self, node):
+    def _check_init(self, node: nodes.FunctionDef, klass_node: nodes.ClassDef) -> None:
         """check that the __init__ method call super or ancestors'__init__
         method (unless it is used for type hinting with `typing.overload`)
         """
@@ -1893,9 +1930,9 @@ a metaclass class method.",
             "super-init-not-called"
         ) and not self.linter.is_message_enabled("non-parent-init-called"):
             return
-        klass_node = node.parent.frame(future=True)
         to_call = _ancestors_to_call(klass_node)
         not_called_yet = dict(to_call)
+        parents_with_called_inits: Set[bases.UnboundMethod] = set()
         for stmt in node.nodes_of_class(nodes.Call):
             expr = stmt.func
             if not isinstance(expr, nodes.Attribute) or expr.attrname != "__init__":
@@ -1928,7 +1965,9 @@ a metaclass class method.",
                     if isinstance(klass, astroid.objects.Super):
                         return
                     try:
-                        del not_called_yet[klass]
+                        method = not_called_yet.pop(klass)
+                        # Record that the class' init has been called
+                        parents_with_called_inits.add(node_frame_class(method))
                     except KeyError:
                         if klass not in to_call:
                             self.add_message(
@@ -1937,12 +1976,34 @@ a metaclass class method.",
             except astroid.InferenceError:
                 continue
         for klass, method in not_called_yet.items():
+            # Check if the init of the class that defines this init has already
+            # been called.
+            if node_frame_class(method) in parents_with_called_inits:
+                return
+
+            # Return if klass is protocol
+            if klass.qname() in utils.TYPING_PROTOCOLS:
+                return
+
+            # Return if any of the klass' first-order bases is protocol
+            for base in klass.bases:
+                # We don't need to catch InferenceError here as _ancestors_to_call
+                # already does this for us.
+                for inf_base in base.infer():
+                    if inf_base.qname() in utils.TYPING_PROTOCOLS:
+                        return
+
             if decorated_with(node, ["typing.overload"]):
                 continue
             cls = node_frame_class(method)
             if klass.name == "object" or (cls and cls.name == "object"):
                 continue
-            self.add_message("super-init-not-called", args=klass.name, node=node)
+            self.add_message(
+                "super-init-not-called",
+                args=klass.name,
+                node=node,
+                confidence=INFERENCE,
+            )
 
     def _check_signature(self, method1, refmethod, class_type, cls):
         """check that the signature of the two given methods match"""
@@ -1994,24 +2055,24 @@ a metaclass class method.",
                     error_type = "arguments-differ"
                     msg_args = (
                         msg
-                        + f"was {total_args_refmethod} in '{refmethod.parent.name}.{refmethod.name}' and "
+                        + f"was {total_args_refmethod} in '{refmethod.parent.frame().name}.{refmethod.name}' and "
                         f"is now {total_args_method1} in",
                         class_type,
-                        f"{method1.parent.name}.{method1.name}",
+                        f"{method1.parent.frame().name}.{method1.name}",
                     )
                 elif "renamed" in msg:
                     error_type = "arguments-renamed"
                     msg_args = (
                         msg,
                         class_type,
-                        f"{method1.parent.name}.{method1.name}",
+                        f"{method1.parent.frame().name}.{method1.name}",
                     )
                 else:
                     error_type = "arguments-differ"
                     msg_args = (
                         msg,
                         class_type,
-                        f"{method1.parent.name}.{method1.name}",
+                        f"{method1.parent.frame().name}.{method1.name}",
                     )
                 self.add_message(error_type, args=msg_args, node=method1)
         elif (
@@ -2029,23 +2090,33 @@ a metaclass class method.",
         """
         return self._is_mandatory_method_param(node.expr)
 
-    def _is_mandatory_method_param(self, node):
+    def _is_mandatory_method_param(self, node: nodes.NodeNG) -> bool:
         """Check if nodes.Name corresponds to first attribute variable name
 
         Name is `self` for method, `cls` for classmethod and `mcs` for metaclass.
         """
-        return (
-            self._first_attrs
-            and isinstance(node, nodes.Name)
-            and node.name == self._first_attrs[-1]
-        )
+        if self._first_attrs:
+            first_attr = self._first_attrs[-1]
+        else:
+            # It's possible the function was already unregistered.
+            closest_func = utils.get_node_first_ancestor_of_type(
+                node, nodes.FunctionDef
+            )
+            if closest_func is None:
+                return False
+            if not closest_func.args.args:
+                return False
+            first_attr = closest_func.args.args[0].name
+        return isinstance(node, nodes.Name) and node.name == first_attr
 
 
-def _ancestors_to_call(klass_node, method="__init__"):
+def _ancestors_to_call(
+    klass_node: nodes.ClassDef, method="__init__"
+) -> Dict[nodes.ClassDef, bases.UnboundMethod]:
     """return a dictionary where keys are the list of base classes providing
     the queried method, and so that should/may be called from the method node
     """
-    to_call = {}
+    to_call: Dict[nodes.ClassDef, bases.UnboundMethod] = {}
     for base_node in klass_node.ancestors(recurs=False):
         try:
             to_call[base_node] = next(base_node.igetattr(method))
