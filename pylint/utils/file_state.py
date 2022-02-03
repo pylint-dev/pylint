@@ -139,8 +139,8 @@ class FileState:
         or globally.
         """
         if state_scope == MSG_STATE_SCOPE_MODULE:
-            if not isinstance(line, int):
-                raise ValueError
+            assert isinstance(line, int)
+
             try:
                 orig_line = self._suppression_mapping[(msgid, line)]
                 self._ignored_msgs[(msgid, orig_line)].add(line)
