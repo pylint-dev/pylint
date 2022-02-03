@@ -1659,7 +1659,7 @@ class PyLinter(
         else:
             category_id_formatted = category_id
         if category_id_formatted is not None:
-            for _msgid in self.msgs_store._msgs_by_category.get(category_id_formatted):
+            for _msgid in self.msgs_store._msgs_by_category[category_id_formatted]:
                 message_definitions.extend(
                     self._get_messages_to_set(_msgid, enable, ignore_unknown)
                 )
