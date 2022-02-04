@@ -68,7 +68,7 @@ def test_get_annotation_annassign(assign, label):
 )
 def test_get_annotation_assignattr(init_method, label):
     """AssignAttr"""
-    assign = fr"""
+    assign = rf"""
         class A:
             {init_method}
     """
@@ -109,7 +109,8 @@ def test_infer_node_2(mock_infer: Any, mock_get_annotation: Any) -> None:
 
 def test_infer_node_3() -> None:
     """Return a set containing a nodes.ClassDef object when the attribute
-    has a type annotation"""
+    has a type annotation
+    """
     node = astroid.extract_node(
         """
         class Component:

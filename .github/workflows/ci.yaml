@@ -17,6 +17,7 @@ jobs:
   prepare-base:
     name: Prepare base dependencies
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     outputs:
       python-key: ${{ steps.generate-python-key.outputs.key }}
       pre-commit-key: ${{ steps.generate-pre-commit-key.outputs.key }}
@@ -74,8 +75,9 @@ jobs:
           pre-commit install --install-hooks
 
   formatting:
-    name: Run pre-commit checks
+    name: checks / pre-commit
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: prepare-base
     steps:
       - name: Check out code from GitHub
@@ -116,8 +118,9 @@ jobs:
           pre-commit run pylint --all-files
 
   spelling:
-    name: Run spelling checks
+    name: checks / spelling
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: prepare-base
     steps:
       - name: Check out code from GitHub
@@ -146,8 +149,9 @@ jobs:
           pytest tests/ -k unittest_spelling
 
   prepare-tests-linux:
-    name: Prepare tests for Python ${{ matrix.python-version }} (Linux)
+    name: tests / prepare / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     strategy:
       matrix:
         python-version: [3.6, 3.7, 3.8, 3.9, "3.10"]
@@ -188,8 +192,9 @@ jobs:
           pip install -U -r requirements_test.txt
 
   pytest-linux:
-    name: Run tests Python ${{ matrix.python-version }} (Linux)
+    name: tests / run / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: prepare-tests-linux
     strategy:
       fail-fast: false
@@ -227,8 +232,9 @@ jobs:
           path: .coverage
 
   coverage:
-    name: Process test coverage
+    name: tests / process / coverage
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     needs: ["prepare-tests-linux", "pytest-linux"]
     strategy:
       matrix:
@@ -271,8 +277,9 @@ jobs:
           coveralls --rcfile=${{ env.COVERAGERC_FILE }} --service=github
 
   benchmark-linux:
-    name: Run benchmark tests Python ${{ matrix.python-version }} (Linux)
+    name: tests / run benchmark / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     needs: prepare-tests-linux
     strategy:
       fail-fast: false
@@ -322,8 +329,9 @@ jobs:
           path: .benchmarks/
 
   prepare-tests-windows:
-    name: Prepare tests for Python ${{ matrix.python-version }} (Windows)
+    name: tests / prepare / ${{ matrix.python-version }} / Windows
     runs-on: windows-latest
+    timeout-minutes: 15
     strategy:
       matrix:
         python-version: [3.6, 3.7, 3.8, 3.9, "3.10"]
@@ -364,8 +372,9 @@ jobs:
           pip install -U -r requirements_test_min.txt
 
   pytest-windows:
-    name: Run tests Python ${{ matrix.python-version }} (Windows)
+    name: tests / run / ${{ matrix.python-version }} / Windows
     runs-on: windows-latest
+    timeout-minutes: 30
     needs: prepare-tests-windows
     strategy:
       fail-fast: false
@@ -402,8 +411,9 @@ jobs:
           pytest --benchmark-disable tests/
 
   prepare-tests-pypy:
-    name: Prepare tests for Python ${{ matrix.python-version }}
+    name: tests / prepare / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     strategy:
       matrix:
         python-version: ["pypy3"]
@@ -444,8 +454,9 @@ jobs:
           pip install -U -r requirements_test_min.txt
 
   pytest-pypy:
-    name: Run tests Python ${{ matrix.python-version }}
+    name: tests / run / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: prepare-tests-pypy
     strategy:
       fail-fast: false

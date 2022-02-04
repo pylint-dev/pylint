@@ -40,7 +40,7 @@ ALL_KEYWORDS = "|".join(
 
 
 TOKEN_SPECIFICATION = [
-    ("KEYWORD", fr"\b({ALL_KEYWORDS:s})\b"),
+    ("KEYWORD", rf"\b({ALL_KEYWORDS:s})\b"),
     ("MESSAGE_STRING", r"[0-9A-Za-z\-\_]{2,}"),  # Identifiers
     ("ASSIGN", r"="),  # Assignment operator
     ("MESSAGE_NUMBER", r"[CREIWF]{1}\d*"),
@@ -61,13 +61,10 @@ def emit_pragma_representer(action: str, messages: List[str]) -> PragmaRepresent
 
 
 class PragmaParserError(Exception):
-    """
-    A class for exceptions thrown by pragma_parser module
-    """
+    """A class for exceptions thrown by pragma_parser module"""
 
     def __init__(self, message: str, token: str) -> None:
-        """
-        :args message: explain the reason why the exception has been thrown
+        """:args message: explain the reason why the exception has been thrown
         :args token: token concerned by the exception
         """
         self.message = message
@@ -76,15 +73,11 @@ class PragmaParserError(Exception):
 
 
 class UnRecognizedOptionError(PragmaParserError):
-    """
-    Thrown in case the of a valid but unrecognized option
-    """
+    """Thrown in case the of a valid but unrecognized option"""
 
 
 class InvalidPragmaError(PragmaParserError):
-    """
-    Thrown in case the pragma is invalid
-    """
+    """Thrown in case the pragma is invalid"""
 
 
 def parse_pragma(pylint_pragma: str) -> Generator[PragmaRepresenter, None, None]:

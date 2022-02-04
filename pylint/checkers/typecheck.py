@@ -55,8 +55,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""try to find more bugs in the code using astroid inference capabilities
-"""
+"""try to find more bugs in the code using astroid inference capabilities"""
 
 import fnmatch
 import heapq
@@ -1137,17 +1136,13 @@ accessed. Python regular expressions are accepted.",
         "non-str-assignment-to-dunder-name",
     )
     def visit_assign(self, node: nodes.Assign) -> None:
-        """
-        Process assignments in the AST.
-        """
+        """Process assignments in the AST."""
 
         self._check_assignment_from_function_call(node)
         self._check_dundername_is_string(node)
 
-    def _check_assignment_from_function_call(self, node):
-        """check that if assigning to a function call, the function is
-        possibly returning something valuable
-        """
+    def _check_assignment_from_function_call(self, node: nodes.Assign) -> None:
+        """When assigning to a function call, check that the function returns a valid value."""
         if not isinstance(node.value, nodes.Call):
             return
 
@@ -1156,7 +1151,7 @@ accessed. Python regular expressions are accepted.",
         if not isinstance(function_node, funcs):
             return
 
-        # Unwrap to get the actual function object
+        # Unwrap to get the actual function node object
         if isinstance(function_node, astroid.BoundMethod) and isinstance(
             function_node._proxied, astroid.UnboundMethod
         ):
@@ -1164,38 +1159,58 @@ accessed. Python regular expressions are accepted.",
 
         # Make sure that it's a valid function that we can analyze.
         # Ordered from less expensive to more expensive checks.
-        # pylint: disable=too-many-boolean-expressions
         if (
             not function_node.is_function
-            or isinstance(function_node, nodes.AsyncFunctionDef)
             or function_node.decorators
-            or function_node.is_generator()
-            or function_node.is_abstract(pass_is_abstract=False)
-            or utils.is_error(function_node)
-            or not function_node.root().fully_defined()
+            or self._is_ignored_function(function_node)
         ):
             return
 
-        returns = list(
+        # Fix a false-negative for list.sort(), see issue #5722
+        if self._is_list_sort_method(node.value):
+            self.add_message("assignment-from-none", node=node, confidence=INFERENCE)
+            return
+
+        if not function_node.root().fully_defined():
+            return
+
+        return_nodes = list(
             function_node.nodes_of_class(nodes.Return, skip_klass=nodes.FunctionDef)
         )
-        if not returns:
+        if not return_nodes:
             self.add_message("assignment-from-no-return", node=node)
         else:
-            for rnode in returns:
+            for ret_node in return_nodes:
                 if not (
-                    isinstance(rnode.value, nodes.Const)
-                    and rnode.value.value is None
-                    or rnode.value is None
+                    isinstance(ret_node.value, nodes.Const)
+                    and ret_node.value.value is None
+                    or ret_node.value is None
                 ):
                     break
             else:
                 self.add_message("assignment-from-none", node=node)
 
-    def _check_dundername_is_string(self, node):
-        """
-        Check a string is assigned to self.__name__
-        """
+    @staticmethod
+    def _is_ignored_function(
+        function_node: Union[nodes.FunctionDef, bases.UnboundMethod]
+    ) -> bool:
+        return (
+            isinstance(function_node, nodes.AsyncFunctionDef)
+            or utils.is_error(function_node)
+            or function_node.is_generator()
+            or function_node.is_abstract(pass_is_abstract=False)
+        )
+
+    @staticmethod
+    def _is_list_sort_method(node: nodes.Call) -> bool:
+        return (
+            isinstance(node.func, nodes.Attribute)
+            and node.func.attrname == "sort"
+            and isinstance(utils.safe_infer(node.func.expr), nodes.List)
+        )
+
+    def _check_dundername_is_string(self, node) -> None:
+        """Check a string is assigned to self.__name__"""
 
         # Check the left-hand side of the assignment is <something>.__name__
         lhs = node.targets[0]
@@ -1216,8 +1231,7 @@ accessed. Python regular expressions are accepted.",
             self.add_message("non-str-assignment-to-dunder-name", node=node)
 
     def _check_uninferable_call(self, node):
-        """
-        Check that the given uninferable Call node does not
+        """Check that the given uninferable Call node does not
         call an actual function.
         """
         if not isinstance(node.func, nodes.Attribute):
@@ -1591,7 +1605,7 @@ accessed. Python regular expressions are accepted.",
             not isinstance(itemmethod, nodes.FunctionDef)
             or itemmethod.root().name != "builtins"
             or not itemmethod.parent
-            or itemmethod.parent.name not in SEQUENCE_TYPES
+            or itemmethod.parent.frame().name not in SEQUENCE_TYPES
         ):
             return None
 
@@ -1979,8 +1993,7 @@ accessed. Python regular expressions are accepted.",
 
 
 class IterableChecker(BaseChecker):
-    """
-    Checks for non-iterables used in an iterable context.
+    """Checks for non-iterables used in an iterable context.
     Contexts include:
     - for-statement
     - starargs in function call

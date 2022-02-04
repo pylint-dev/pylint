@@ -162,7 +162,7 @@ def _repr_tree_defs(data, indent_str=None):
             lines.append(f"{mod} {files}")
             sub_indent_str = "  "
         else:
-            lines.append(fr"{indent_str}\-{mod} {files}")
+            lines.append(rf"{indent_str}\-{mod} {files}")
             if i == len(nodes_items) - 1:
                 sub_indent_str = f"{indent_str}  "
             else:
@@ -427,9 +427,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         ),
     )
 
-    def __init__(
-        self, linter: Optional["PyLinter"] = None
-    ):  # pylint: disable=super-init-not-called # See https://github.com/PyCQA/pylint/issues/4941
+    def __init__(self, linter: Optional["PyLinter"] = None) -> None:
         BaseChecker.__init__(self, linter)
         self.import_graph: collections.defaultdict = collections.defaultdict(set)
         self._imports_stack: List[Tuple[Any, Any]] = []
@@ -910,7 +908,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         if not self.linter.is_message_enabled("reimported"):
             return
 
-        frame = node.frame()
+        frame = node.frame(future=True)
         root = node.root()
         contexts = [(frame, level)]
         if root is not frame:

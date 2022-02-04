@@ -121,8 +121,7 @@ def _split_multiple_exc_types(target: str) -> List[str]:
 
 
 def possible_exc_types(node: nodes.NodeNG) -> Set[nodes.ClassDef]:
-    """
-    Gets all the possible raised exception types for the given raise node.
+    """Gets all the possible raised exception types for the given raise node.
 
     .. note::
 
@@ -156,7 +155,7 @@ def possible_exc_types(node: nodes.NodeNG) -> Set[nodes.ClassDef]:
             exceptions = [target]
         elif isinstance(target, nodes.FunctionDef):
             for ret in target.nodes_of_class(nodes.Return):
-                if ret.frame() != target:
+                if ret.frame(future=True) != target:
                     # return from inner function - ignore it
                     continue
 
@@ -257,7 +256,7 @@ class SphinxDocstring(Docstring):
         \w(?:\w|\.[^\.])*    # Valid python name
         """
 
-    re_simple_container_type = fr"""
+    re_simple_container_type = rf"""
         {re_type}                     # a container type
         [\(\[] [^\n\s]+ [\)\]]        # with the contents of the container
     """
@@ -269,12 +268,12 @@ class SphinxDocstring(Docstring):
         type=re_type, container_type=re_simple_container_type
     )
 
-    re_xref = fr"""
+    re_xref = rf"""
         (?::\w+:)?                    # optional tag
         `{re_type}`                   # what to reference
         """
 
-    re_param_raw = fr"""
+    re_param_raw = rf"""
         :                       # initial colon
         (?:                     # Sphinx keywords
         param|parameter|
@@ -294,7 +293,7 @@ class SphinxDocstring(Docstring):
         """
     re_param_in_docstring = re.compile(re_param_raw, re.X | re.S)
 
-    re_type_raw = fr"""
+    re_type_raw = rf"""
         :type                           # Sphinx keyword
         \s+                             # whitespace
         ({re_multiple_simple_type})     # Parameter name
@@ -303,14 +302,14 @@ class SphinxDocstring(Docstring):
         """
     re_type_in_docstring = re.compile(re_type_raw, re.X | re.S)
 
-    re_property_type_raw = fr"""
+    re_property_type_raw = rf"""
         :type:                      # Sphinx keyword
         \s+                         # whitespace
         {re_multiple_simple_type}   # type declaration
         """
     re_property_type_in_docstring = re.compile(re_property_type_raw, re.X | re.S)
 
-    re_raise_raw = fr"""
+    re_raise_raw = rf"""
         :                               # initial colon
         (?:                             # Sphinx keyword
         raises?|
@@ -401,8 +400,7 @@ class SphinxDocstring(Docstring):
 
 
 class EpytextDocstring(SphinxDocstring):
-    """
-    Epytext is similar to Sphinx. See the docs:
+    """Epytext is similar to Sphinx. See the docs:
         http://epydoc.sourceforge.net/epytext.html
         http://epydoc.sourceforge.net/fields.html#fields
 
@@ -458,7 +456,7 @@ class GoogleDocstring(Docstring):
 
     re_xref = SphinxDocstring.re_xref
 
-    re_container_type = fr"""
+    re_container_type = rf"""
         (?:{re_type}|{re_xref})       # a container type
         [\(\[] [^\n]+ [\)\]]          # with the contents of the container
     """
@@ -486,7 +484,7 @@ class GoogleDocstring(Docstring):
     )
 
     re_param_line = re.compile(
-        fr"""
+        rf"""
         \s*  (\*{{0,2}}\w+)             # identifier potentially with asterisks
         \s*  ( [(]
             {re_multiple_type}
@@ -502,7 +500,7 @@ class GoogleDocstring(Docstring):
     )
 
     re_raise_line = re.compile(
-        fr"""
+        rf"""
         \s*  ({re_multiple_type}) \s* :  # identifier
         \s*  (.*)                        # beginning of optional description
     """,
@@ -514,7 +512,7 @@ class GoogleDocstring(Docstring):
     )
 
     re_returns_line = re.compile(
-        fr"""
+        rf"""
         \s* ({re_multiple_type}:)?        # identifier
         \s* (.*)                          # beginning of description
     """,
@@ -522,7 +520,7 @@ class GoogleDocstring(Docstring):
     )
 
     re_property_returns_line = re.compile(
-        fr"""
+        rf"""
         ^{re_multiple_type}:           # identifier
         \s* (.*)                       # Summary line / description
     """,
@@ -742,7 +740,7 @@ class NumpyDocstring(GoogleDocstring):
     )
 
     re_param_line = re.compile(
-        fr"""
+        rf"""
         \s*  (\*{{0,2}}\w+)(\s?(:|\n))                                      # identifier with potential asterisks
         \s*  (?:({GoogleDocstring.re_multiple_type})(?:,\s+optional)?\n)?   # optional type declaration
         \s* (.*)                                                            # optional description
@@ -755,7 +753,7 @@ class NumpyDocstring(GoogleDocstring):
     )
 
     re_raise_line = re.compile(
-        fr"""
+        rf"""
         \s* ({GoogleDocstring.re_type})$   # type declaration
         \s* (.*)                           # optional description
     """,
@@ -767,7 +765,7 @@ class NumpyDocstring(GoogleDocstring):
     )
 
     re_returns_line = re.compile(
-        fr"""
+        rf"""
         \s* (?:\w+\s+:\s+)? # optional name
         ({GoogleDocstring.re_multiple_type})$   # type declaration
         \s* (.*)                                # optional description

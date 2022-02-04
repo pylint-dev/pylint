@@ -332,7 +332,8 @@ class OptionsManagerMixIn:
 
     def load_config_file(self):
         """Dispatch values previously read from a configuration file to each
-        option's provider"""
+        option's provider
+        """
         parser = self.cfgfile_parser
         for section in parser.sections():
             for option, value in parser.items(section):

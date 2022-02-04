@@ -17,3 +17,4 @@ unused-private-member:243:12:243:50:FalsePositive4681.__init__:Unused private me
 unused-private-member:274:4:275:26:FalsePositive4849.__unused_private_method:Unused private member `FalsePositive4849.__unused_private_method()`:UNDEFINED
 unused-private-member:291:4:294:44:Pony.__init_defaults:Unused private member `Pony.__init_defaults(self)`:UNDEFINED
 unused-private-member:296:4:298:20:Pony.__get_fur_color:Unused private member `Pony.__get_fur_color(self)`:UNDEFINED
+unused-private-member:318:8:318:15:TypeSelfCallInMethod.b:Unused private member `TypeSelfCallInMethod.__a`:UNDEFINED

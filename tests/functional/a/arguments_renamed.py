@@ -72,3 +72,29 @@ class ChildDefaults(ParentDefaults):
 
     def test3(self, dummy_param, arg2): # no error here
         print(f"arguments: {arg2}")
+
+# Check for crash on method definitions not at top level of class
+# https://github.com/PyCQA/pylint/issues/5648
+class FruitConditional:
+
+    define_eat = True
+
+    def brew(self, fruit_name: str):
+        print(f"Brewing a fruit named {fruit_name}")
+
+    if define_eat:
+        def eat_with_condiment(self, fruit_name:str, condiment: Condiment):
+            print(f"Eating a fruit named {fruit_name} with {condiment}")
+
+class FruitOverrideConditional(FruitConditional):
+
+    fruit = "orange"
+    override_condiment = True
+
+    if fruit == "orange":
+        def brew(self, orange_name: str): # [arguments-renamed]
+            print(f"Brewing an orange named {orange_name}")
+
+        if override_condiment:
+            def eat_with_condiment(self, fruit_name: str, condiment: Condiment, error: str): # [arguments-differ]
+                print(f"Eating a fruit named {fruit_name} with {condiment}")

@@ -63,7 +63,7 @@
 # Copyright (c) 2021 Lorena B <46202743+lorena-b@users.noreply.github.com>
 # Copyright (c) 2021 David Liu <david@cs.toronto.edu>
 # Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
-# Copyright (c) 2021 Or Bahari <orbahari@mail.tau.ac.il>
+# Copyright (c) 2021-2022 Or Bahari <or.ba402@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
@@ -78,7 +78,7 @@ from typing import TYPE_CHECKING, Any, Dict, Iterator, Optional, Pattern, cast
 import astroid
 from astroid import nodes
 
-from pylint import checkers, interfaces
+from pylint import checkers, constants, interfaces
 from pylint import utils as lint_utils
 from pylint.checkers import utils
 from pylint.checkers.utils import (
@@ -103,7 +103,8 @@ else:
 class NamingStyle:
     """It may seem counterintuitive that single naming style has multiple "accepted"
     forms of regular expressions, but we need to special-case stuff like dunder names
-    in method names."""
+    in method names.
+    """
 
     ANY: Pattern[str] = re.compile(".*")
     CLASS_NAME_RGX: Pattern[str] = ANY
@@ -278,8 +279,7 @@ def in_nested_list(nested_list, obj):
 
 
 def _get_break_loop_node(break_node):
-    """
-    Returns the loop node that holds the break node in arguments.
+    """Returns the loop node that holds the break node in arguments.
 
     Args:
         break_node (astroid.Break): the break node of interest.
@@ -300,8 +300,7 @@ def _get_break_loop_node(break_node):
 
 
 def _loop_exits_early(loop):
-    """
-    Returns true if a loop may end with a break statement.
+    """Returns true if a loop may end with a break statement.
 
     Args:
         loop (astroid.For, astroid.While): the loop node inspected.
@@ -389,8 +388,7 @@ def _determine_function_name_type(node: nodes.FunctionDef, config=None):
 
 
 def _has_abstract_methods(node):
-    """
-    Determine if the given `node` has abstract methods.
+    """Determine if the given `node` has abstract methods.
 
     The methods should be made abstract by decorating them
     with `abc` decorators.
@@ -523,7 +521,8 @@ class BasicErrorChecker(_BasicChecker):
             "has abstract methods and is instantiated.",
         ),
         "W0120": (
-            "Else clause on loop without a break statement",
+            "Else clause on loop without a break statement, remove the else and"
+            " de-indent all the code inside it",
             "useless-else-on-loop",
             "Loops should only have an else clause if they can exit early "
             "with a break statement, otherwise the statements under else "
@@ -721,7 +720,7 @@ class BasicErrorChecker(_BasicChecker):
 
     @utils.check_messages("return-outside-function")
     def visit_return(self, node: nodes.Return) -> None:
-        if not isinstance(node.frame(), nodes.FunctionDef):
+        if not isinstance(node.frame(future=True), nodes.FunctionDef):
             self.add_message("return-outside-function", node=node)
 
     @utils.check_messages("yield-outside-function")
@@ -829,7 +828,7 @@ class BasicErrorChecker(_BasicChecker):
             )
 
     def _check_yield_outside_func(self, node):
-        if not isinstance(node.frame(), (nodes.FunctionDef, nodes.Lambda)):
+        if not isinstance(node.frame(future=True), (nodes.FunctionDef, nodes.Lambda)):
             self.add_message("yield-outside-function", node=node)
 
     def _check_else_on_loop(self, node):
@@ -864,7 +863,7 @@ class BasicErrorChecker(_BasicChecker):
 
     def _check_redefinition(self, redeftype, node):
         """check for redefinition of a function / method / class name"""
-        parent_frame = node.parent.frame()
+        parent_frame = node.parent.frame(future=True)
 
         # Ignore function stubs created for type information
         redefinitions = [
@@ -1011,7 +1010,7 @@ class BasicChecker(_BasicChecker):
             'Used when you use the "eval" function, to discourage its '
             "usage. Consider using `ast.literal_eval` for safely evaluating "
             "strings containing Python expressions "
-            "from untrusted sources. ",
+            "from untrusted sources.",
         ),
         "W0150": (
             "%s statement in finally block may swallow exception",
@@ -1428,7 +1427,7 @@ class BasicChecker(_BasicChecker):
             name = node.func.name
             # ignore the name if it's not a builtin (i.e. not defined in the
             # locals nor globals scope)
-            if not (name in node.frame() or name in node.root()):
+            if not (name in node.frame(future=True) or name in node.root()):
                 if name == "exec":
                     self.add_message("exec-used", node=node)
                 elif name == "reversed":
@@ -1496,7 +1495,8 @@ class BasicChecker(_BasicChecker):
         """check that a node is not inside a 'finally' clause of a
         'try...finally' statement.
         If we find a parent which type is in breaker_classes before
-        a 'try...finally' block we skip the whole check."""
+        a 'try...finally' block we skip the whole check.
+        """
         # if self._tryfinallys is empty, we're not an in try...finally block
         if not self._tryfinallys:
             return
@@ -1673,20 +1673,6 @@ KNOWN_NAME_TYPES = {
     "inlinevar",
 }
 
-HUMAN_READABLE_TYPES = {
-    "module": "module",
-    "const": "constant",
-    "class": "class",
-    "function": "function",
-    "method": "method",
-    "attr": "attribute",
-    "argument": "argument",
-    "variable": "variable",
-    "class_attribute": "class attribute",
-    "class_const": "class constant",
-    "inlinevar": "inline iteration",
-}
-
 DEFAULT_NAMING_STYLES = {
     "module": "snake_case",
     "const": "UPPER_CASE",
@@ -1705,7 +1691,7 @@ DEFAULT_NAMING_STYLES = {
 def _create_naming_options():
     name_options = []
     for name_type in sorted(KNOWN_NAME_TYPES):
-        human_readable_name = HUMAN_READABLE_TYPES[name_type]
+        human_readable_name = constants.HUMAN_READABLE_TYPES[name_type]
         default_style = DEFAULT_NAMING_STYLES[name_type]
         name_type = name_type.replace("_", "-")
         name_options.append(
@@ -1751,11 +1737,6 @@ class NameChecker(_BasicChecker):
                     ("C0102", "blacklisted-name"),
                 ]
             },
-        ),
-        "C0144": (
-            '%s name "%s" contains a non-ASCII unicode character',
-            "non-ascii-name",
-            "Used when the name contains at least one non-ASCII unicode character.",
         ),
         "W0111": (
             "Name %s will become a keyword in Python %s",
@@ -1853,7 +1834,6 @@ class NameChecker(_BasicChecker):
         self._name_hints = {}
         self._good_names_rgxs_compiled = []
         self._bad_names_rgxs_compiled = []
-        self._non_ascii_rgx_compiled = re.compile("[^\u0000-\u007F]")
 
     def open(self):
         self.linter.stats.reset_bad_names()
@@ -1893,7 +1873,7 @@ class NameChecker(_BasicChecker):
 
         return regexps, hints
 
-    @utils.check_messages("disallowed-name", "invalid-name", "non-ascii-name")
+    @utils.check_messages("disallowed-name", "invalid-name")
     def visit_module(self, node: nodes.Module) -> None:
         self._check_name("module", node.name.split(".")[-1], node)
         self._bad_names = {}
@@ -1919,9 +1899,7 @@ class NameChecker(_BasicChecker):
             for args in warnings:
                 self._raise_name_warning(prevalent_group, *args)
 
-    @utils.check_messages(
-        "disallowed-name", "invalid-name", "assign-to-new-keyword", "non-ascii-name"
-    )
+    @utils.check_messages("disallowed-name", "invalid-name", "assign-to-new-keyword")
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         self._check_assign_to_new_keyword_violation(node.name, node)
         self._check_name("class", node.name, node)
@@ -1929,20 +1907,18 @@ class NameChecker(_BasicChecker):
             if not any(node.instance_attr_ancestors(attr)):
                 self._check_name("attr", attr, anodes[0])
 
-    @utils.check_messages(
-        "disallowed-name", "invalid-name", "assign-to-new-keyword", "non-ascii-name"
-    )
+    @utils.check_messages("disallowed-name", "invalid-name", "assign-to-new-keyword")
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         # Do not emit any warnings if the method is just an implementation
         # of a base class method.
         self._check_assign_to_new_keyword_violation(node.name, node)
         confidence = interfaces.HIGH
         if node.is_method():
-            if utils.overrides_a_method(node.parent.frame(), node.name):
+            if utils.overrides_a_method(node.parent.frame(future=True), node.name):
                 return
             confidence = (
                 interfaces.INFERENCE
-                if utils.has_known_bases(node.parent.frame())
+                if utils.has_known_bases(node.parent.frame(future=True))
                 else interfaces.INFERENCE_FAILURE
             )
 
@@ -1959,18 +1935,16 @@ class NameChecker(_BasicChecker):
 
     visit_asyncfunctiondef = visit_functiondef
 
-    @utils.check_messages("disallowed-name", "invalid-name", "non-ascii-name")
+    @utils.check_messages("disallowed-name", "invalid-name")
     def visit_global(self, node: nodes.Global) -> None:
         for name in node.names:
             self._check_name("const", name, node)
 
-    @utils.check_messages(
-        "disallowed-name", "invalid-name", "assign-to-new-keyword", "non-ascii-name"
-    )
+    @utils.check_messages("disallowed-name", "invalid-name", "assign-to-new-keyword")
     def visit_assignname(self, node: nodes.AssignName) -> None:
         """check module level assigned names"""
         self._check_assign_to_new_keyword_violation(node.name, node)
-        frame = node.frame()
+        frame = node.frame(future=True)
         assign_type = node.assign_type()
         if isinstance(assign_type, nodes.Comprehension):
             self._check_name("inlinevar", node.name, node)
@@ -2026,7 +2000,7 @@ class NameChecker(_BasicChecker):
         confidence,
         warning: str = "invalid-name",
     ) -> None:
-        type_label = HUMAN_READABLE_TYPES[node_type]
+        type_label = constants.HUMAN_READABLE_TYPES[node_type]
         hint = self._name_hints[node_type]
         if prevalent_group:
             # This happens in the multi naming match case. The expected
@@ -2056,11 +2030,6 @@ class NameChecker(_BasicChecker):
 
     def _check_name(self, node_type, name, node, confidence=interfaces.HIGH):
         """check for a name using the type's regexp"""
-        non_ascii_match = self._non_ascii_rgx_compiled.match(name)
-        if non_ascii_match is not None:
-            self._raise_name_warning(
-                None, node, node_type, name, confidence, warning="non-ascii-name"
-            )
 
         def _should_exempt_from_invalid_name(node):
             if node_type == "variable":
@@ -2188,15 +2157,15 @@ class DocStringChecker(_BasicChecker):
             ):
                 return
 
-            if isinstance(node.parent.frame(), nodes.ClassDef):
+            if isinstance(node.parent.frame(future=True), nodes.ClassDef):
                 overridden = False
                 confidence = (
                     interfaces.INFERENCE
-                    if utils.has_known_bases(node.parent.frame())
+                    if utils.has_known_bases(node.parent.frame(future=True))
                     else interfaces.INFERENCE_FAILURE
                 )
                 # check if node is from a method overridden by its ancestor
-                for ancestor in node.parent.frame().ancestors():
+                for ancestor in node.parent.frame(future=True).ancestors():
                     if ancestor.qname() == "builtins.object":
                         continue
                     if node.name in ancestor and isinstance(
@@ -2207,7 +2176,7 @@ class DocStringChecker(_BasicChecker):
                 self._check_docstring(
                     ftype, node, report_missing=not overridden, confidence=confidence  # type: ignore[arg-type]
                 )
-            elif isinstance(node.parent.frame(), nodes.Module):
+            elif isinstance(node.parent.frame(future=True), nodes.Module):
                 self._check_docstring(ftype, node)  # type: ignore[arg-type]
             else:
                 return

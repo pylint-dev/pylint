@@ -1,5 +1,5 @@
 """Warnings about global statements and usage of global variables."""
-# pylint: disable=invalid-name, redefined-outer-name, missing-function-docstring, import-outside-toplevel
+# pylint: disable=invalid-name, redefined-outer-name, missing-function-docstring, missing-class-docstring, import-outside-toplevel, too-few-public-methods
 from __future__ import print_function
 
 global CSTE  # [global-at-module-level]
@@ -7,6 +7,9 @@ print(CSTE)  # [undefined-variable]
 
 CONSTANT = 1
 def FUNC():
+    pass
+
+class CLASS:
     pass
 
 def fix_contant(value):
@@ -40,6 +43,13 @@ def global_no_assign():
     print(CONSTANT)
 
 
+def global_del():
+    """Deleting the global name prevents `global-variable-not-assigned`"""
+    global CONSTANT  # [global-statement]
+    print(CONSTANT)
+    del CONSTANT
+
+
 def global_operator_assign():
     """Operator assigns should only throw a global statement error"""
     global CONSTANT  # [global-statement]
@@ -71,3 +81,12 @@ def func():
     global sys  # [global-statement]
 
     import sys
+
+def override_class():
+    """Overriding a class should only throw a global statement error"""
+    global CLASS  # [global-statement]
+
+    class CLASS():
+        pass
+
+    CLASS()

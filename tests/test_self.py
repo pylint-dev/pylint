@@ -183,8 +183,7 @@ class TestRunTC:
     def _test_output_file(
         self, args: List[str], filename: LocalPath, expected_output: str
     ) -> None:
-        """
-        Run Pylint with the ``output`` option set (must be included in
+        """Run Pylint with the ``output`` option set (must be included in
         the ``args`` passed to this method!) and check the file content afterwards.
         """
         out = StringIO()
@@ -247,7 +246,7 @@ class TestRunTC:
         output = out.getvalue()
         # Get rid of the pesky messages that pylint emits if the
         # configuration file is not found.
-        pattern = fr"\[{MAIN_CHECKER_NAME.upper()}"
+        pattern = rf"\[{MAIN_CHECKER_NAME.upper()}"
         master = re.search(pattern, output)
         assert master is not None, f"{pattern} not found in {output}"
         out = StringIO(output[master.start() :])
@@ -1164,9 +1163,7 @@ class TestRunTC:
         self._runtest([path, "--fail-under=-10"] + args, code=expected)
 
     def test_one_module_fatal_error(self):
-        """
-        Fatal errors in one of several modules linted still exits non-zero.
-        """
+        """Fatal errors in one of several modules linted still exits non-zero."""
         valid_path = join(HERE, "conftest.py")
         invalid_path = join(HERE, "garbagePath.py")
         self._runtest([valid_path, invalid_path], code=1)
@@ -1206,7 +1203,7 @@ class TestRunTC:
             ),
             (
                 "colorized",
-                "tests/regrtest_data/unused_variable.py:4:4: W0612: [35mUnused variable 'variable'[0m ([35munused-variable[0m)",
+                "tests/regrtest_data/unused_variable.py:4:4: W0612: \x1B[35mUnused variable 'variable'\x1B[0m (\x1B[35munused-variable\x1B[0m)",
             ),
             ("json", '"message": "Unused variable \'variable\'",'),
         ],
@@ -1261,13 +1258,7 @@ class TestRunTC:
         # Record all extensions
         plugins = []
         for filename in os.listdir(os.path.dirname(extensions.__file__)):
-            # pylint: disable=fixme
-            # TODO: Remove the check for deprecated check_docs after the extension has been removed
-            if (
-                filename.endswith(".py")
-                and not filename.startswith("_")
-                and not filename.startswith("check_docs")
-            ):
+            if filename.endswith(".py") and not filename.startswith("_"):
                 plugins.append(f"pylint.extensions.{filename[:-3]}")
 
         # Check if they are loaded

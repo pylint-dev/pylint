@@ -20,8 +20,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""check for new / old style related problems
-"""
+"""check for new / old style related problems"""
 from typing import TYPE_CHECKING
 
 import astroid
@@ -67,7 +66,7 @@ class NewStyleConflictChecker(BaseChecker):
         # ignore actual functions or method within a new style class
         if not node.is_method():
             return
-        klass = node.parent.frame()
+        klass = node.parent.frame(future=True)
         for stmt in node.nodes_of_class(nodes.Call):
             if node_frame_class(stmt) != node_frame_class(node):
                 # Don't look down in other scopes.

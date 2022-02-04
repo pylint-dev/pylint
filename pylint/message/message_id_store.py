@@ -1,6 +1,5 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-import functools
 from typing import Dict, List, NoReturn, Optional, Tuple
 
 from pylint.exceptions import InvalidMessageError, UnknownMessageError
@@ -14,6 +13,7 @@ class MessageIdStore:
         self.__msgid_to_symbol: Dict[str, str] = {}
         self.__symbol_to_msgid: Dict[str, str] = {}
         self.__old_names: Dict[str, List[str]] = {}
+        self.__active_msgids: Dict[str, List[str]] = {}
 
     def __len__(self) -> int:
         return len(self.__msgid_to_symbol)
@@ -52,7 +52,8 @@ class MessageIdStore:
         """Add valid message id.
 
         There is a little duplication with add_legacy_msgid_and_symbol to avoid a function call,
-        this is called a lot at initialization."""
+        this is called a lot at initialization.
+        """
         self.__msgid_to_symbol[msgid] = symbol
         self.__symbol_to_msgid[symbol] = msgid
 
@@ -62,7 +63,8 @@ class MessageIdStore:
         """Add valid legacy message id.
 
         There is a little duplication with add_msgid_and_symbol to avoid a function call,
-        this is called a lot at initialization."""
+        this is called a lot at initialization.
+        """
         self.__msgid_to_symbol[msgid] = symbol
         self.__symbol_to_msgid[symbol] = msgid
         existing_old_names = self.__old_names.get(msgid, [])
@@ -102,14 +104,17 @@ class MessageIdStore:
         )
         raise InvalidMessageError(error_message)
 
-    @functools.lru_cache()
     def get_active_msgids(self, msgid_or_symbol: str) -> List[str]:
         """Return msgids but the input can be a symbol.
 
-        The cache has no limit as its size will likely stay minimal. For each message we store
-        about 1000 characters, so even if we would have 1000 messages the cache would only
-        take up ~= 1 Mb.
+        self.__active_msgids is used to implement a primitive cache for this function.
         """
+        try:
+            return self.__active_msgids[msgid_or_symbol]
+        except KeyError:
+            pass
+
+        # If we don't have a cached value yet we compute it
         msgid: Optional[str]
         if msgid_or_symbol[1:].isdigit():
             # Only msgid can have a digit as second letter
@@ -121,4 +126,8 @@ class MessageIdStore:
         if not msgid or not symbol:
             error_msg = f"No such message id or symbol '{msgid_or_symbol}'."
             raise UnknownMessageError(error_msg)
-        return self.__old_names.get(msgid, [msgid])
+        ids = self.__old_names.get(msgid, [msgid])
+
+        # Add to cache
+        self.__active_msgids[msgid_or_symbol] = ids
+        return ids

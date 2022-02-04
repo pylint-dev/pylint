@@ -542,7 +542,8 @@ class PyLinter(
         pylintrc=None,
     ):
         """Some stuff has to be done before ancestors initialization...
-        messages store / checkers / reporter / astroid manager"""
+        messages store / checkers / reporter / astroid manager
+        """
         # Attributes for reporters
         self.reporter: Union[reporters.BaseReporter, reporters.MultiReporter]
         if reporter:
@@ -851,7 +852,8 @@ class PyLinter(
 
     def process_tokens(self, tokens):
         """Process tokens from the current module to search for module/block level
-        options."""
+        options.
+        """
         control_pragmas = {"disable", "disable-next", "enable"}
         prev_line = None
         saw_newline = True
@@ -1163,6 +1165,15 @@ class PyLinter(
         if not modname and filepath is None:
             return
         self.reporter.on_set_current_module(modname, filepath)
+        if modname is None:
+            warnings.warn(
+                (
+                    "In pylint 3.0 modname should be a string so that it can be used to "
+                    "correctly set the current_name attribute of the linter instance. "
+                    "If unknown it should be initialized as an empty string."
+                ),
+                DeprecationWarning,
+            )
         self.current_name = modname
         self.current_file = filepath or modname
         self.stats.init_single_module(modname)
@@ -1201,7 +1212,9 @@ class PyLinter(
         for checker in reversed(_checkers):
             checker.close()
 
-    def get_ast(self, filepath, modname, data=None):
+    def get_ast(
+        self, filepath: str, modname: str, data: Optional[str] = None
+    ) -> nodes.Module:
         """Return an ast(roid) representation of a module or a string.
 
         :param str filepath: path to checked file.
@@ -1209,6 +1222,7 @@ class PyLinter(
         :param str data: optional contents of the checked file.
         :returns: the AST
         :rtype: astroid.nodes.Module
+        :raises AstroidBuildingError: Whenever we encounter an unexpected exception
         """
         try:
             if data is None:
@@ -1224,11 +1238,17 @@ class PyLinter(
                 col_offset=getattr(ex.error, "offset", None),
                 args=str(ex.error),
             )
-        except astroid.AstroidBuildingException as ex:
+        except astroid.AstroidBuildingError as ex:
             self.add_message("parse-error", args=ex)
-        except Exception as ex:  # pylint: disable=broad-except
+        except Exception as ex:
             traceback.print_exc()
-            self.add_message("astroid-error", args=(ex.__class__, ex))
+            # We raise BuildingError here as this is essentially an astroid issue
+            # Creating an issue template and adding the 'astroid-error' message is handled
+            # by caller: _check_files
+            raise astroid.AstroidBuildingError(
+                "Building error when trying to create ast representation of module '{modname}'",
+                modname=modname,
+            ) from ex
         return None
 
     def check_astroid_module(self, ast_node, walker, rawcheckers, tokencheckers):
@@ -1464,25 +1484,19 @@ class PyLinter(
         end_col_offset: Optional[int],
     ) -> None:
         """After various checks have passed a single Message is
-        passed to the reporter and added to stats"""
+        passed to the reporter and added to stats
+        """
         message_definition.check_message_definition(line, node)
 
         # Look up "location" data of node if not yet supplied
         if node:
             if not line:
                 line = node.fromlineno
-            # pylint: disable=fixme
-            # TODO: Initialize col_offset on every node (can be None) -> astroid
-            if not col_offset and hasattr(node, "col_offset"):
+            if not col_offset:
                 col_offset = node.col_offset
-            # pylint: disable=fixme
-            # TODO: Initialize end_lineno on every node (can be None) -> astroid
-            # See https://github.com/PyCQA/astroid/issues/1273
-            if not end_lineno and hasattr(node, "end_lineno"):
+            if not end_lineno:
                 end_lineno = node.end_lineno
-            # pylint: disable=fixme
-            # TODO: Initialize end_col_offset on every node (can be None) -> astroid
-            if not end_col_offset and hasattr(node, "end_col_offset"):
+            if not end_col_offset:
                 end_col_offset = node.end_col_offset
 
         # should this message be displayed
@@ -1645,7 +1659,7 @@ class PyLinter(
         else:
             category_id_formatted = category_id
         if category_id_formatted is not None:
-            for _msgid in self.msgs_store._msgs_by_category.get(category_id_formatted):
+            for _msgid in self.msgs_store._msgs_by_category[category_id_formatted]:
                 message_definitions.extend(
                     self._get_messages_to_set(_msgid, enable, ignore_unknown)
                 )
@@ -1705,7 +1719,8 @@ class PyLinter(
         self, msgid_or_symbol: str, line: Optional[int], is_disabled: bool = True
     ) -> None:
         """If the msgid is a numeric one, then register it to inform the user
-        it could furnish instead a symbolic msgid."""
+        it could furnish instead a symbolic msgid.
+        """
         if msgid_or_symbol[1:].isdigit():
             try:
                 symbol = self.msgs_store.message_id_store.get_symbol(
