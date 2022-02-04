@@ -767,7 +767,9 @@ scope_type : {self._atomic.scope_type}
                 ):
                     return True
                 if isinstance(stmt.test, nodes.Call):
-                    for arg_or_kwarg in stmt.test.args + stmt.test.keywords:
+                    for arg_or_kwarg in stmt.test.args + [
+                        kw.value for kw in stmt.test.keywords
+                    ]:
                         if (
                             isinstance(arg_or_kwarg, nodes.NamedExpr)
                             and arg_or_kwarg.target.name == name

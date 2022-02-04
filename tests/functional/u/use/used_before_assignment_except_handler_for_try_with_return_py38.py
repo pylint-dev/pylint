@@ -30,3 +30,17 @@ def func_ok_namedexpr_2(var):
     except ZeroDivisionError:
         msg = "Division by 0"
     print(msg)
+
+
+def func_ok_namedexpr_3(var):
+    """'msg' is defined in one handler with a named expression occurring
+    as a keyword in a call used in an if test.
+    """
+    try:
+        return 1 / var.some_other_func()
+    except AttributeError:
+        if print("zero!", "here", sep=(msg := var.get_sep())):
+            pass
+    except ZeroDivisionError:
+        msg = "Division by 0"
+    print(msg)
