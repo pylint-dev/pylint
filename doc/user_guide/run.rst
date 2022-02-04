@@ -33,7 +33,7 @@ will work if ``directory`` is a python package (i.e. has an __init__.py
 file or it is an implicit namespace package) or if "directory" is in the
 python path.
 
-By default, pylint will exits an error when one of the arguments is a directory which is not
+By default, pylint will exit with an error when one of the arguments is a directory which is not
 a python package. In order to run pylint over all modules and packages within the provided
 subtree of a directory, the ``--recursive=y`` option must be provided.
 

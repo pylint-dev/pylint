@@ -1310,7 +1310,7 @@ class TestRunTC:
     def test_recursive_current_dir(self):
         with _test_sys_path():
             # pytest is including directory HERE/regrtest_data to sys.path which causes
-            # astroid believe that directory is a package.
+            # astroid believe to that directory is a package.
             sys.path = [
                 path
                 for path in sys.path
@@ -1326,7 +1326,7 @@ class TestRunTC:
     def test_regression_recursive_current_dir(self):
         with _test_sys_path():
             # pytest is including directory HERE/regrtest_data to sys.path which causes
-            # astroid believe that directory is a package.
+            # astroid believe to that directory is a package.
             sys.path = [
                 path
                 for path in sys.path
