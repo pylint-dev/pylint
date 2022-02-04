@@ -751,7 +751,14 @@ scope_type : {self._atomic.scope_type}
         for stmt in handler.get_children():
             if isinstance(stmt, (nodes.Raise, nodes.Return)):
                 return True
-            if isinstance(stmt, nodes.Assign) and stmt.targets[0].as_string() == name:
+            if isinstance(stmt, nodes.Assign):
+                 for target in stmt.targets:
+                     if isinstance(target, nodes.AssignName) and target.name == name:
+                         return True
+                     if isinstance(target, (nodes.Tuple, nodes.List)):
+                         for elt in utils.get_all_elements(target):
+                             if isinstance(elt, nodes.Const) and elt.value == name:
+                                 return True
                 return True
             if isinstance(stmt, nodes.If):
                 if (
