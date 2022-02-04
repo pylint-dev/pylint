@@ -708,10 +708,10 @@ scope_type : {self._atomic.scope_type}
             )
             if not closest_except_handler:
                 continue
-            closest_try_except: nodes.TryExcept = closest_except_handler.parent
             # If the other node is in the same scope as this node, assume it executes
             if closest_except_handler.parent_of(node):
                 continue
+            closest_try_except: nodes.TryExcept = closest_except_handler.parent
             try_block_returns = any(
                 isinstance(try_statement, nodes.Return)
                 for try_statement in closest_try_except.body
