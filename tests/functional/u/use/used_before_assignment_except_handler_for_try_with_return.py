@@ -51,6 +51,30 @@ def func_ok3(var):
     print(msg)
 
 
+def func_ok4(var):
+    """Define "msg" with a chained assignment."""
+    try:
+        return 1 / var.some_other_func()
+    except AttributeError:
+        msg2 = msg = "Division by 0"
+        print(msg2)
+    except ZeroDivisionError:
+        msg = "Division by 0"
+    print(msg)
+
+
+def func_ok5(var):
+    """Define 'msg' via unpacked iterable."""
+    try:
+        return 1 / var.some_other_func()
+    except AttributeError:
+        msg, msg2 = ["Division by 0", "Division by 0"]
+        print(msg2)
+    except ZeroDivisionError:
+        msg = "Division by 0"
+    print(msg)
+
+
 def func_invalid1(var):
     """'msg' is not defined in one handler."""
     try:
