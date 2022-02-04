@@ -753,13 +753,8 @@ scope_type : {self._atomic.scope_type}
                 return True
             if isinstance(stmt, nodes.Assign):
                 for target in stmt.targets:
-                    if isinstance(target, nodes.AssignName) and target.name == name:
-                        return True
-                    if isinstance(target, (nodes.Tuple, nodes.List)):
-                        if any(
-                            isinstance(elt, nodes.Const) and elt.value == name
-                            for elt in utils.get_all_elements(target)
-                        ):
+                    for elt in utils.get_all_elements(target):
+                        if isinstance(elt, nodes.AssignName) and elt.name == name:
                             return True
             if isinstance(stmt, nodes.If):
                 if (
