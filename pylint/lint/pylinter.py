@@ -1516,7 +1516,7 @@ class PyLinter(
         self.stats.increase_single_message_count(msg_cat, 1)
         self.stats.increase_single_module_message_count(
             self.current_name,  # type: ignore[arg-type] # Should be removable after https://github.com/PyCQA/pylint/pull/5580
-            msg_cat,  # type: ignore[arg-type] # Mypy doesn't see a Final dict as dict of literals
+            msg_cat,
             1,
         )
         try:

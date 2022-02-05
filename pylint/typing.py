@@ -64,3 +64,9 @@ class ManagedMessage(NamedTuple):
     symbol: str
     line: Optional[int]
     is_disabled: bool
+
+
+MessageTypesFullName = Literal[
+    "convention", "error", "fatal", "info", "refactor", "statement", "warning"
+]
+"""All possible message categories."""

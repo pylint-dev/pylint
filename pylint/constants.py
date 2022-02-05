@@ -2,11 +2,13 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 import platform
 import sys
+from typing import Dict
 
 import astroid
 import platformdirs
 
 from pylint.__pkginfo__ import __version__
+from pylint.typing import MessageTypesFullName
 
 PY37_PLUS = sys.version_info[:2] >= (3, 7)
 PY38_PLUS = sys.version_info[:2] >= (3, 8)
@@ -24,7 +26,7 @@ MSG_STATE_SCOPE_MODULE = 1
 # The line/node distinction does not apply to fatal errors and reports.
 _SCOPE_EXEMPT = "FR"
 
-MSG_TYPES = {
+MSG_TYPES: Dict[str, MessageTypesFullName] = {
     "I": "info",
     "C": "convention",
     "R": "refactor",
@@ -32,7 +34,7 @@ MSG_TYPES = {
     "E": "error",
     "F": "fatal",
 }
-MSG_TYPES_LONG = {v: k for k, v in MSG_TYPES.items()}
+MSG_TYPES_LONG: Dict[str, str] = {v: k for k, v in MSG_TYPES.items()}
 
 MSG_TYPES_STATUS = {"I": 0, "C": 16, "R": 8, "W": 4, "E": 2, "F": 1}
 
