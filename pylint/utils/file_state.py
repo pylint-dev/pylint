@@ -139,7 +139,7 @@ class FileState:
         or globally.
         """
         if state_scope == MSG_STATE_SCOPE_MODULE:
-            assert isinstance(line, int)
+            assert isinstance(line, int)  # should always be int inside module scope
 
             try:
                 orig_line = self._suppression_mapping[(msgid, line)]

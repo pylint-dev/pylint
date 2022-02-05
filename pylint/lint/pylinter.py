@@ -1635,7 +1635,7 @@ class PyLinter(
     ) -> None:
         """Set the status of an individual message"""
         if scope == "module":
-            assert isinstance(line, int)
+            assert isinstance(line, int)  # should always be int inside module scope
 
             self.file_state.set_msg_status(msg, line, enable)
             if not enable and msg.symbol != "locally-disabled":
