@@ -222,7 +222,7 @@ You can see the plugin you need to explicitly `load in the technical reference`_
 4.8 I am using another popular linter alongside pylint. Which messages should I disable to avoid duplicates?
 ------------------------------------------------------------------------------------------------------------
 
-pycodestyle_: unneeded-not, line-too-long, unnecessary-semicolon, trailing-whitespace, missing-final-newline, bad-indentation, multiple-statements, bare-except
+pycodestyle_: unneeded-not, line-too-long, unnecessary-semicolon, trailing-whitespace, missing-final-newline, bad-indentation, multiple-statements, bare-except, wrong-import-position
 
 pyflakes_: undefined-variable, unused-import, unused-variable
 
