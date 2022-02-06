@@ -100,6 +100,24 @@ def _configure_lc_ctype(lc_ctype: str) -> Iterator:
             os.environ[lc_ctype_env] = original_lctype
 
 
+@contextlib.contextmanager
+def _test_sys_path() -> Generator[None, None, None]:
+    original_path = sys.path
+    try:
+        yield
+    finally:
+        sys.path = original_path
+
+
+@contextlib.contextmanager
+def _test_cwd() -> Generator[None, None, None]:
+    original_dir = os.getcwd()
+    try:
+        yield
+    finally:
+        os.chdir(original_dir)
+
+
 class MultiReporter(BaseReporter):
     def __init__(self, reporters: List[BaseReporter]) -> None:
         # pylint: disable=super-init-not-called
@@ -811,14 +829,6 @@ class TestRunTC:
     @staticmethod
     def test_modify_sys_path() -> None:
         @contextlib.contextmanager
-        def test_sys_path() -> Generator[None, None, None]:
-            original_path = sys.path
-            try:
-                yield
-            finally:
-                sys.path = original_path
-
-        @contextlib.contextmanager
         def test_environ_pythonpath(
             new_pythonpath: Optional[str],
         ) -> Generator[None, None, None]:
@@ -837,7 +847,7 @@ class TestRunTC:
                     # Only delete PYTHONPATH if new_pythonpath wasn't None
                     del os.environ["PYTHONPATH"]
 
-        with test_sys_path(), patch("os.getcwd") as mock_getcwd:
+        with _test_sys_path(), patch("os.getcwd") as mock_getcwd:
             cwd = "/tmp/pytest-of-root/pytest-0/test_do_not_import_files_from_0"
             mock_getcwd.return_value = cwd
             default_paths = [
@@ -1284,3 +1294,47 @@ class TestRunTC:
         with pytest.raises(SystemExit) as ex:
             Run(["--ignore-paths", "test", join(HERE, "regrtest_data", "empty.py")])
         assert ex.value.code == 0
+
+    def test_regression_recursive(self):
+        self._test_output(
+            [join(HERE, "regrtest_data", "directory", "subdirectory"), "--recursive=n"],
+            expected_output="No such file or directory",
+        )
+
+    def test_recursive(self):
+        self._runtest(
+            [join(HERE, "regrtest_data", "directory", "subdirectory"), "--recursive=y"],
+            code=0,
+        )
+
+    def test_recursive_current_dir(self):
+        with _test_sys_path():
+            # pytest is including directory HERE/regrtest_data to sys.path which causes
+            # astroid to believe that directory is a package.
+            sys.path = [
+                path
+                for path in sys.path
+                if not os.path.basename(path) == "regrtest_data"
+            ]
+            with _test_cwd():
+                os.chdir(join(HERE, "regrtest_data", "directory"))
+                self._runtest(
+                    [".", "--recursive=y"],
+                    code=0,
+                )
+
+    def test_regression_recursive_current_dir(self):
+        with _test_sys_path():
+            # pytest is including directory HERE/regrtest_data to sys.path which causes
+            # astroid to believe that directory is a package.
+            sys.path = [
+                path
+                for path in sys.path
+                if not os.path.basename(path) == "regrtest_data"
+            ]
+            with _test_cwd():
+                os.chdir(join(HERE, "regrtest_data", "directory"))
+                self._test_output(
+                    ["."],
+                    expected_output="No such file or directory",
+                )
