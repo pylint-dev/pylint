@@ -244,6 +244,11 @@ Release date: TBA
 
   Closes #5461
 
+* Fixed crash in ``use-maxsplit-arg`` checker when providing the ``sep`` argument
+  to ``str.split()`` by keyword.
+
+  Closes #5737
+
 * Fix false positive for ``unused-variable`` for a comprehension variable matching
   an outer scope type annotation.
 
