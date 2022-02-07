@@ -1,6 +1,8 @@
 .. _messages-list:
+
+..
   NOTE: This file is auto-generated. Make any changes to the associated
-  docs extension in 'pylint_messages.py'.
+  docs extension in '{__name__}.py'.
 
 Overview of all Pylint messages
 ===============================
