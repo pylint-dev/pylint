@@ -979,14 +979,10 @@ a metaclass class method.",
                 if self._is_type_self_call(attribute.expr):
                     continue
 
-                if (
-                    assign_attr.expr.name
-                    in {
-                        "cls",
-                        node.name,
-                    }
-                    and attribute.expr.name in {"cls", "self", node.name}
-                ):
+                if assign_attr.expr.name in {
+                    "cls",
+                    node.name,
+                } and attribute.expr.name in {"cls", "self", node.name}:
                     # If assigned to cls or class name, can be accessed by cls/self/class name
                     break
 
@@ -1397,7 +1393,7 @@ a metaclass class method.",
         if redefined_slots:
             self.add_message(
                 "redefined-slots-in-subclass",
-                args=", ".join(name for name in slots_names if name in redefined_slots),
+                args=([name for name in slots_names if name in redefined_slots],),
                 node=slots_node,
             )
 
@@ -1704,10 +1700,7 @@ a metaclass class method.",
     @staticmethod
     def _is_called_inside_special_method(node: nodes.NodeNG) -> bool:
         """Returns true if the node is located inside a special (aka dunder) method"""
-        try:
-            frame_name = node.frame(future=True).name
-        except AttributeError:
-            return False
+        frame_name = node.frame(future=True).name
         return frame_name and frame_name in PYMETHODS
 
     def _is_type_self_call(self, expr: nodes.NodeNG) -> bool:

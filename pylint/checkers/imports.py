@@ -162,7 +162,7 @@ def _repr_tree_defs(data, indent_str=None):
             lines.append(f"{mod} {files}")
             sub_indent_str = "  "
         else:
-            lines.append(fr"{indent_str}\-{mod} {files}")
+            lines.append(rf"{indent_str}\-{mod} {files}")
             if i == len(nodes_items) - 1:
                 sub_indent_str = f"{indent_str}  "
             else:

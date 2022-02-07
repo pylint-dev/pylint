@@ -1263,6 +1263,7 @@ def safe_infer(node: nodes.NodeNG, context=None) -> Optional[nodes.NodeNG]:
             if (
                 isinstance(inferred, nodes.FunctionDef)
                 and inferred.args.args is not None
+                and isinstance(value, nodes.FunctionDef)
                 and value.args.args is not None
                 and len(inferred.args.args) != len(value.args.args)
             ):

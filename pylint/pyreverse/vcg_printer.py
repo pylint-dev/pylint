@@ -228,7 +228,7 @@ class VCGPrinter(Printer):
     @staticmethod
     def _build_label_for_node(properties: NodeProperties) -> str:
         fontcolor = "\f09" if properties.fontcolor == "red" else ""
-        label = fr"\fb{fontcolor}{properties.label}\fn"
+        label = rf"\fb{fontcolor}{properties.label}\fn"
         if properties.attrs is None and properties.methods is None:
             # return a compact form which only displays the classname in a box
             return label
@@ -238,13 +238,13 @@ class VCGPrinter(Printer):
         # box width for UML like diagram
         maxlen = max(len(name) for name in [properties.label] + method_names + attrs)
         line = "_" * (maxlen + 2)
-        label = fr"{label}\n\f{line}"
+        label = rf"{label}\n\f{line}"
         for attr in attrs:
-            label = fr"{label}\n\f08{attr}"
+            label = rf"{label}\n\f08{attr}"
         if attrs:
-            label = fr"{label}\n\f{line}"
+            label = rf"{label}\n\f{line}"
         for func in method_names:
-            label = fr"{label}\n\f10{func}()"
+            label = rf"{label}\n\f10{func}()"
         return label
 
     def emit_edge(
