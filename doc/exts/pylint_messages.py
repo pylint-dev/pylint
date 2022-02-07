@@ -122,11 +122,11 @@ def _write_messages_list_page(
         stream.write(
             f""".. _messages-list:
 
+{get_rst_title("Overview of all Pylint messages", "=")}
 ..
   NOTE This file is auto-generated. Make any changes to the associated
   docs extension in 'pylint_messages.py'.
 
-{get_rst_title("Overview of all Pylint messages", "=")}
 Pylint can emit the following messages:
 
 """
