@@ -151,3 +151,27 @@ def func_invalid4(var):
             msg = "Division by 0"
             my_file.write("****")
     print(msg)  # [used-before-assignment]
+
+
+def func_invalid5(var):
+    """Define 'msg' in one handler only via chained assignment."""
+    try:
+        return 1 / var.some_other_func()
+    except AttributeError:
+        pass
+    except ZeroDivisionError:
+        msg2 = msg = "Division by 0"
+        print(msg2)
+    print(msg)  # [used-before-assignment]
+
+
+def func_invalid6(var):
+    """Define 'msg' in one handler only via unpacked iterable."""
+    try:
+        return 1 / var.some_other_func()
+    except AttributeError:
+        pass
+    except ZeroDivisionError:
+        msg, msg2 = ["Division by 0"] * 2
+        print(msg2)
+    print(msg)  # [used-before-assignment]
