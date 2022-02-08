@@ -749,7 +749,7 @@ scope_type : {self._atomic.scope_type}
         raises, or returns.
         """
 
-        def _define_raise_or_return(stmt) -> bool:
+        def _define_raise_or_return(stmt: nodes.NodeNG) -> bool:
             if isinstance(stmt, (nodes.Raise, nodes.Return)):
                 return True
             if isinstance(stmt, nodes.Assign):
@@ -758,6 +758,7 @@ scope_type : {self._atomic.scope_type}
                         if isinstance(elt, nodes.AssignName) and elt.name == name:
                             return True
             if isinstance(stmt, nodes.If):
+                # Check for assignments inside the test
                 if (
                     isinstance(stmt.test, nodes.NamedExpr)
                     and stmt.test.target.name == name
