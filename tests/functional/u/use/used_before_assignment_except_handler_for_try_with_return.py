@@ -99,13 +99,15 @@ def func_invalid2(var):
 
 def func_invalid3(var):
     """'msg' is not defined in one handler, but is defined in another
-    nested under an if.
+    nested under an if. Nesting under an if tests that the implementation
+    does not assume direct parentage between `msg=` and `except`, and
+    the prior except is necessary to raise the message.
     """
     err_message = False
     try:
         return 1 / var.some_other_func()
     except AttributeError:
-        msg: str
+        pass
     except ZeroDivisionError:
         if err_message:
             msg = "Division by 0"
