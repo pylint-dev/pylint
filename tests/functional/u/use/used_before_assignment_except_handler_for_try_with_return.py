@@ -138,3 +138,16 @@ def func_invalid3(var):
         else:
             msg = None
     print(msg)  # [used-before-assignment]
+
+
+def func_invalid4(var):
+    """Define 'msg' in one handler nested under with statement."""
+    try:
+        return 1 / var.some_other_func()
+    except AttributeError:
+        pass
+    except ZeroDivisionError:
+        with open(__file__, encoding='utf-8') as my_file:
+            msg = "Division by 0"
+            my_file.write("****")
+    print(msg)  # [used-before-assignment]
