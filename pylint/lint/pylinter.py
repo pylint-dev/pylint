@@ -545,11 +545,11 @@ class PyLinter(
 
     def __init__(
         self,
-        options=(),
+        options: Tuple[Tuple[str, OptionDict], ...] = (),
         reporter: Union[reporters.BaseReporter, reporters.MultiReporter, None] = None,
-        option_groups=(),
-        pylintrc=None,
-    ):
+        option_groups: Tuple[Tuple[str, str], ...] = (),
+        pylintrc: Optional[str] = None,
+    ) -> None:
         """Some stuff has to be done before ancestors initialization...
         messages store / checkers / reporter / astroid manager
         """
@@ -581,9 +581,7 @@ class PyLinter(
         self.stats = LinterStats()
 
         # Attributes related to (command-line) options and their parsing
-        # pylint: disable-next=fixme
-        # TODO: Make these implicitly typing when typing for __init__ parameter is added
-        self._external_opts: Tuple[Tuple[str, OptionDict], ...] = options
+        self._external_opts = options
         self.options: Tuple[Tuple[str, OptionDict], ...] = (
             options + PyLinter.make_options()
         )
