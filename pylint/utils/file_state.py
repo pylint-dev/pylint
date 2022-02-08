@@ -130,7 +130,7 @@ class FileState:
             self._module_msgs_state[msg.msgid] = {line: status}
 
     def handle_ignored_message(
-        self, state_scope: Optional[Literal[0, 1, 2]], msgid: str, line: int
+        self, state_scope: Optional[Literal[0, 1, 2]], msgid: str, line: Optional[int]
     ) -> None:
         """Report an ignored message.
 
@@ -139,6 +139,8 @@ class FileState:
         or globally.
         """
         if state_scope == MSG_STATE_SCOPE_MODULE:
+            assert isinstance(line, int)  # should always be int inside module scope
+
             try:
                 orig_line = self._suppression_mapping[(msgid, line)]
                 self._ignored_msgs[(msgid, orig_line)].add(line)

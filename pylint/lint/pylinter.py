@@ -546,7 +546,7 @@ class PyLinter(
     def __init__(
         self,
         options=(),
-        reporter=None,
+        reporter: Union[reporters.BaseReporter, reporters.MultiReporter, None] = None,
         option_groups=(),
         pylintrc=None,
     ):
@@ -1552,7 +1552,11 @@ class PyLinter(
         msg_cat = MSG_TYPES[message_definition.msgid[0]]
         self.msg_status |= MSG_TYPES_STATUS[message_definition.msgid[0]]
         self.stats.increase_single_message_count(msg_cat, 1)
-        self.stats.increase_single_module_message_count(self.current_name, msg_cat, 1)
+        self.stats.increase_single_module_message_count(
+            self.current_name,  # type: ignore[arg-type] # Should be removable after https://github.com/PyCQA/pylint/pull/5580
+            msg_cat,
+            1,
+        )
         try:
             self.stats.by_msg[message_definition.symbol] += 1
         except KeyError:
@@ -1669,6 +1673,8 @@ class PyLinter(
     ) -> None:
         """Set the status of an individual message"""
         if scope == "module":
+            assert isinstance(line, int)  # should always be int inside module scope
+
             self.file_state.set_msg_status(msg, line, enable)
             if not enable and msg.symbol != "locally-disabled":
                 self.add_message(

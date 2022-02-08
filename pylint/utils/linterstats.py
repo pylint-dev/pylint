@@ -4,6 +4,8 @@
 import sys
 from typing import Dict, List, Optional, Set, cast
 
+from pylint.typing import MessageTypesFullName
+
 if sys.version_info >= (3, 8):
     from typing import Literal, TypedDict
 else:
@@ -71,11 +73,6 @@ class ModuleStats(TypedDict):
     refactor: int
     statement: int
     warning: int
-
-
-ModuleStatsAttribute = Literal[
-    "convention", "error", "fatal", "info", "refactor", "statement", "warning"
-]
 
 
 # pylint: disable-next=too-many-instance-attributes
@@ -290,7 +287,7 @@ class LinterStats:
         setattr(self, type_name, getattr(self, type_name) + increase)
 
     def increase_single_module_message_count(
-        self, modname: str, type_name: ModuleStatsAttribute, increase: int
+        self, modname: str, type_name: MessageTypesFullName, increase: int
     ) -> None:
         """Increase the message type count of an individual message type of a module"""
         self.by_module[modname][type_name] += increase
