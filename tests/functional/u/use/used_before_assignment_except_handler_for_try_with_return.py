@@ -75,6 +75,30 @@ def func_ok5(var):
     print(msg)
 
 
+def func_ok6(var):
+    """Define 'msg' in one handler nested under if block."""
+    err_message = False
+    try:
+        return 1 / var.some_other_func()
+    except ZeroDivisionError:
+        if err_message:
+            msg = "Division by 0"
+        else:
+            msg = None
+    print(msg)
+
+
+def func_ok7(var):
+    """Define 'msg' in one handler nested under with statement."""
+    try:
+        return 1 / var.some_other_func()
+    except ZeroDivisionError:
+        with open(__file__, encoding='utf-8') as my_file:
+            msg = "Division by 0"
+            my_file.write(msg)
+    print(msg)
+
+
 def func_invalid1(var):
     """'msg' is not defined in one handler."""
     try:

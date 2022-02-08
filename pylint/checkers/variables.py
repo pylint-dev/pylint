@@ -748,7 +748,8 @@ scope_type : {self._atomic.scope_type}
         """Return True if some child of `handler` defines the name `name`,
         raises, or returns.
         """
-        for stmt in handler.get_children():
+
+        def _define_raise_or_return(stmt) -> bool:
             if isinstance(stmt, (nodes.Raise, nodes.Return)):
                 return True
             if isinstance(stmt, nodes.Assign):
@@ -771,6 +772,17 @@ scope_type : {self._atomic.scope_type}
                             and arg_or_kwarg.target.name == name
                         ):
                             return True
+            return False
+
+        for stmt in handler.get_children():
+            if _define_raise_or_return(stmt):
+                return True
+            if isinstance(stmt, (nodes.If, nodes.With)):
+                if any(
+                    _define_raise_or_return(nested_stmt)
+                    for nested_stmt in stmt.get_children()
+                ):
+                    return True
         return False
 
     @staticmethod
