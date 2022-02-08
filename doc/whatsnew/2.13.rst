@@ -255,7 +255,7 @@ Other Changes
   except handlers defined a name relied upon after an except block when the
   corresponding try block contained a return statement.
 
-  Partially closes #5524
+  Closes #5524
 
 * When evaluating statements in the ``else`` clause of a loop, ``used-before-assignment``
   assumes that assignments in the except blocks took place if the
