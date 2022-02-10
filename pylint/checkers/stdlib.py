@@ -454,12 +454,12 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "from code that is not actively being debugged.",
         ),
         "W1516": (
-            "lru_cache shouldn't be used on a method as it creates memory leaks",
+            "lru_cache keeps method arguments alive for the duration of the program",
             "lru-cache-decorating-method",
             "By decorating a method with lru_cache the 'self' argument will be linked to "
-            "to the lru_cache function and therefore never garbage collected. Unless your instance "
+            "the lru_cache function and therefore never garbage collected. Unless your instance "
             "will never need to be garbage collected (singleton) it is recommended to refactor "
-            "code to avoid this pattern.",
+            "code to avoid this pattern or add a maxsize to the cache.",
         ),
     }
 
@@ -598,9 +598,21 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                     q_name = infered_node.qname()
                     if q_name in NON_INSTANCE_METHODS:
                         return
-                    if q_name in LRU_CACHE:
-                        lru_cache_nodes.append(d_node)
-                        break
+                    if q_name not in LRU_CACHE:
+                        return
+
+                    # Check if there is a maxsize argument to the call
+                    if isinstance(d_node, nodes.Call):
+                        try:
+                            utils.get_argument_from_call(
+                                d_node, position=0, keyword="maxsize"
+                            )
+                            return
+                        except utils.NoSuchArgumentError:
+                            pass
+
+                    lru_cache_nodes.append(d_node)
+                    break
             except astroid.InferenceError:
                 pass
         for lru_cache_node in lru_cache_nodes:
