@@ -55,10 +55,7 @@ UNUSED_PARAM_SENTINEL = object()
 
 
 class Run:
-    """Helper class to use as main for pylint :
-
-    run(*sys.argv[1:])
-    """
+    """Helper class to use as main for pylint with 'run(*sys.argv[1:])'."""
 
     LinterClass = PyLinter
     option_groups = (

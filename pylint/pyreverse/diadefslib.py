@@ -210,10 +210,7 @@ class ClassDiadefGenerator(DiaDefGenerator):
 
 
 class DiadefsHandler:
-    """Handle diagram definitions :
-
-    get it from user (i.e. xml files) or generate them
-    """
+    """Get diagram definitions from user (i.e. xml files) or generate them."""
 
     def __init__(self, config):
         self.config = config
