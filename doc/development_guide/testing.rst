@@ -90,6 +90,22 @@ test runner. The following options are currently supported:
     "except_implementations": List of python implementations on which the test should not run
     "exclude_platforms": List of operating systems on which the test should not run
 
+For existing checkers, new test cases should preferably be appended to the existing test file.
+For new checkers, a new file ``new_checker_message.py`` should be created (Note the use of
+underscores). This file should then be placed in the ``test/functional/n`` sub-directory.
+
+Some additional notes:
+
+- If the checker is part of an extension the test should go in ``test/functional/ext/extension_name``
+- If the test is a regression test it should go in ``test/r/regression`` or ``test/r/regression_02``.
+  The file name should start with ``regression_``.
+- For some sub-directories, such as ``test/functional/u``, there are additional sub-directories (``test/functional/u/use``).
+  Please check if your test file should be placed in any of these directories. It should be placed there
+  if the sub-directory name matches the word before the first underscore of your test file name.
+
+The folder structure is enforced when running the test suite, so you might be directed to put the file
+in a different sub-directory.
+
 During development, it's sometimes helpful to run all functional tests in your
 current environment in order to have faster feedback. Run from Pylint root directory with::
 
