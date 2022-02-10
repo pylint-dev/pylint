@@ -37,10 +37,11 @@ def _empty_filepath():
 
 
 class SleepingChecker(BaseChecker):
-    """A checker that sleeps, the wall-clock time should reduce as we add workers.
+    """A checker that sleeps, the wall-clock time should reduce as we add
+    workers.
 
-    As we apply a roughly constant amount of "work" in this checker any variance is
-    likely to be caused by the pylint system.
+    As we apply a roughly constant amount of "work" in this checker any
+    variance is likely to be caused by the pylint system.
     """
 
     __implements__ = (pylint.interfaces.IRawChecker,)
@@ -58,16 +59,18 @@ class SleepingChecker(BaseChecker):
     def process_module(self, _node: nodes.Module) -> None:
         """Sleeps for `sleep_duration` on each call.
 
-        This effectively means each file costs ~`sleep_duration`+framework overhead
+        This effectively means each file costs
+        ~`sleep_duration`+framework overhead
         """
         time.sleep(self.sleep_duration)
 
 
 class SleepingCheckerLong(BaseChecker):
-    """A checker that sleeps, the wall-clock time should reduce as we add workers.
+    """A checker that sleeps, the wall-clock time should reduce as we add
+    workers.
 
-    As we apply a roughly constant amount of "work" in this checker any variance is
-    likely to be caused by the pylint system.
+    As we apply a roughly constant amount of "work" in this checker any
+    variance is likely to be caused by the pylint system.
     """
 
     __implements__ = (pylint.interfaces.IRawChecker,)
@@ -85,13 +88,16 @@ class SleepingCheckerLong(BaseChecker):
     def process_module(self, _node: nodes.Module) -> None:
         """Sleeps for `sleep_duration` on each call.
 
-        This effectively means each file costs ~`sleep_duration`+framework overhead
+        This effectively means each file costs
+        ~`sleep_duration`+framework overhead
         """
         time.sleep(self.sleep_duration)
 
 
 class NoWorkChecker(BaseChecker):
-    """A checker that sleeps, the wall-clock time should change as we add threads."""
+    """A checker that sleeps, the wall-clock time should change as we add
+    threads.
+    """
 
     __implements__ = (pylint.interfaces.IRawChecker,)
 
@@ -114,8 +120,8 @@ class NoWorkChecker(BaseChecker):
 class TestEstablishBaselineBenchmarks:
     """Naive benchmarks for the high-level pylint framework.
 
-    Because this benchmarks the fundamental and common parts and changes seen here will
-    impact everything else
+    Because this benchmarks the fundamental and common parts and changes
+    seen here will impact everything else
     """
 
     empty_filepath = _empty_filepath()
@@ -180,8 +186,9 @@ class TestEstablishBaselineBenchmarks:
     def test_baseline_lots_of_files_j1(self, benchmark):
         """Establish a baseline with only 'master' checker being run in -j1.
 
-        We do not register any checkers except the default 'master', so the cost is just
-        that of the system with a lot of files registered
+        We do not register any checkers except the default 'master', so
+        the cost is just that of the system with a lot of files
+        registered
         """
         if benchmark.disabled:
             benchmark(print, "skipping, only benchmark large file counts")
@@ -217,10 +224,11 @@ class TestEstablishBaselineBenchmarks:
         ), f"Expected no errors to be thrown: {pprint.pformat(linter.reporter.messages)}"
 
     def test_baseline_lots_of_files_j1_empty_checker(self, benchmark):
-        """Baselines pylint for a single extra checker being run in -j1, for N-files.
+        """Baselines pylint for a single extra checker being run in -j1, for
+        N-files.
 
-        We use a checker that does no work, so the cost is just that of the system at
-        scale
+        We use a checker that does no work, so the cost is just that of
+        the system at scale
         """
         if benchmark.disabled:
             benchmark(print, "skipping, only benchmark large file counts")
@@ -239,8 +247,8 @@ class TestEstablishBaselineBenchmarks:
     def test_baseline_lots_of_files_j2_empty_checker(self, benchmark):
         """Baselines pylint for a single extra checker being run in -j2, for N-files.
 
-        We use a checker that does no work, so the cost is just that of the system at
-        scale, across workers
+        We use a checker that does no work, so the cost is just that of
+        the system at scale, across workers
         """
         if benchmark.disabled:
             benchmark(print, "skipping, only benchmark large file counts")

@@ -235,8 +235,8 @@ def _string_distance(seq1, seq2):
 def _similar_names(owner, attrname, distance_threshold, max_choices):
     """Given an owner and a name, try to find similar names.
 
-    The similar names are searched given a distance metric and only
-    a given number of choices will be returned.
+    The similar names are searched given a distance metric and only a
+    given number of choices will be returned.
     """
     possible_names = []
     names = _node_names(owner)
@@ -667,12 +667,11 @@ def _no_context_variadic(node, variadic_name, variadic_type, variadics):
     """Verify if the given call node has variadic nodes without context.
 
     This is a workaround for handling cases of nested call functions
-    which don't have the specific call context at hand.
-    Variadic arguments (variable positional arguments and variable
-    keyword arguments) are inferred, inherently wrong, by astroid
-    as a Tuple, respectively a Dict with empty elements.
-    This can lead pylint to believe that a function call receives
-    too few arguments.
+    which don't have the specific call context at hand. Variadic
+    arguments (variable positional arguments and variable keyword
+    arguments) are inferred, inherently wrong, by astroid as a Tuple,
+    respectively a Dict with empty elements. This can lead pylint to
+    believe that a function call receives too few arguments.
     """
     scope = node.scope()
     is_in_lambda_scope = not isinstance(scope, nodes.FunctionDef) and isinstance(
@@ -1142,8 +1141,8 @@ accessed. Python regular expressions are accepted.",
         self._check_dundername_is_string(node)
 
     def _check_assignment_from_function_call(self, node: nodes.Assign) -> None:
-        """Check that if assigning to a function call, the function is
-        possibly returning something valuable
+        """Check that if assigning to a function call, the function is possibly
+        returning something valuable.
         """
         if not isinstance(node.value, nodes.Call):
             return
@@ -1233,8 +1232,8 @@ accessed. Python regular expressions are accepted.",
             self.add_message("non-str-assignment-to-dunder-name", node=node)
 
     def _check_uninferable_call(self, node):
-        """Check that the given uninferable Call node does not
-        call an actual function.
+        """Check that the given uninferable Call node does not call an actual
+        function.
         """
         if not isinstance(node.func, nodes.Attribute):
             return
@@ -1284,8 +1283,9 @@ accessed. Python regular expressions are accepted.",
 
     def _check_argument_order(self, node, call_site, called, called_param_names):
         """Match the supplied argument names against the function parameters.
-        Warn if some argument names are not in the same order as they are in
-        the function signature.
+
+        Warn if some argument names are not in the same order as they
+        are in the function signature.
         """
         # Check for called function being an object instance function
         # If so, ignore the initial 'self' argument in the signature
@@ -1333,9 +1333,9 @@ accessed. Python regular expressions are accepted.",
     # pylint: disable=too-many-branches,too-many-locals
     @check_messages(*(list(MSGS.keys())))
     def visit_call(self, node: nodes.Call) -> None:
-        """Check that called functions/methods are inferred to callable objects,
-        and that the arguments passed to the function match the parameters in
-        the inferred function's definition
+        """Check that called functions/methods are inferred to callable
+        objects, and that the arguments passed to the function match the
+        parameters in the inferred function's definition.
         """
         called = safe_infer(node.func)
 
@@ -1533,8 +1533,8 @@ accessed. Python regular expressions are accepted.",
     def _keyword_argument_is_in_all_decorator_returns(
         func: nodes.FunctionDef, keyword: str
     ) -> bool:
-        """Check if the keyword argument exists in all signatures of the
-        return values of all decorators of the function.
+        """Check if the keyword argument exists in all signatures of the return
+        values of all decorators of the function.
         """
         if not func.decorators:
             return False
@@ -1648,8 +1648,9 @@ accessed. Python regular expressions are accepted.",
     ) -> None:
         """Checks to see if the not-callable message should be emitted.
 
-        Only functions, generators and objects defining __call__ are "callable"
-        We ignore instances of descriptors since astroid cannot properly handle them yet
+        Only functions, generators and objects defining __call__ are
+        "callable" We ignore instances of descriptors since astroid
+        cannot properly handle them yet
         """
         # Handle uninferable calls
         if not inferred_call or inferred_call.callable():
@@ -1815,7 +1816,9 @@ accessed. Python regular expressions are accepted.",
             self._detect_unsupported_alternative_union_syntax(node)
 
     def _detect_unsupported_alternative_union_syntax(self, node: nodes.BinOp) -> None:
-        """Detect if unsupported alternative Union syntax (PEP 604) was used."""
+        """Detect if unsupported alternative Union syntax (PEP 604) was
+        used.
+        """
         if self._py310_plus:  # 310+ supports the new syntax
             return
 
@@ -1995,8 +1998,8 @@ accessed. Python regular expressions are accepted.",
 
 
 class IterableChecker(BaseChecker):
-    """Checks for non-iterables used in an iterable context.
-    Contexts include:
+    """Checks for non-iterables used in an iterable context. Contexts include:.
+
     - for-statement
     - starargs in function call
     - `yield from`-statement

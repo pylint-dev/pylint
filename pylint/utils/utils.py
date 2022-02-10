@@ -99,7 +99,7 @@ def cmp(a, b):
 
 def diff_string(old, new):
     """Given an old and new int value, return a string representing the
-    difference
+    difference.
     """
     diff = abs(old - new)
     diff_str = f"{CMPS[cmp(old, new)]}{diff and f'{diff:.2f}' or ''}"
@@ -124,12 +124,16 @@ def get_module_and_frameid(node):
 
 
 def get_rst_title(title, character):
-    """Permit to get a title formatted as ReStructuredText test (underlined with a chosen character)."""
+    """Permit to get a title formatted as ReStructuredText test (underlined
+    with a chosen character).
+    """
     return f"{title}\n{character * len(title)}\n"
 
 
 def get_rst_section(section, options, doc=None):
-    """Format an option's section using as a ReStructuredText formatted output."""
+    """Format an option's section using as a ReStructuredText formatted
+    output.
+    """
     result = ""
     if section:
         result += get_rst_title(section, "'")
@@ -168,7 +172,7 @@ def tokenize_module(node: nodes.Module) -> List[tokenize.TokenInfo]:
 
 def register_plugins(linter, directory):
     """Load all module and package in the given directory, looking for a
-    'register' function in each one, used to register pylint checkers
+    'register' function in each one, used to register pylint checkers.
     """
     imported = {}
     for filename in os.listdir(directory):
@@ -254,12 +258,12 @@ def get_global_option(
     option: GLOBAL_OPTION_NAMES,
     default: Optional[T_GlobalOptionReturnTypes] = None,
 ) -> Optional[T_GlobalOptionReturnTypes]:
-    """Retrieve an option defined by the given *checker* or
-    by all known option providers.
+    """Retrieve an option defined by the given *checker* or by all known option
+    providers.
 
-    It will look in the list of all options providers
-    until the given *option* will be found.
-    If the option wasn't found, the *default* value will be returned.
+    It will look in the list of all options providers until the given
+    *option* will be found. If the option wasn't found, the *default*
+    value will be returned.
     """
     # First, try in the given checker's config.
     # After that, look in the options providers.

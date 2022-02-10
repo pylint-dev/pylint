@@ -35,7 +35,9 @@ def test_package_to_lint() -> None:
 
 
 def test_package_to_lint_default_value() -> None:
-    """Test that the PackageToLint is instantiated correctly with default value."""
+    """Test that the PackageToLint is instantiated correctly with default
+    value.
+    """
     package_to_lint = PackageToLint(
         url="https://github.com/pallets/flask.git",
         branch="main",

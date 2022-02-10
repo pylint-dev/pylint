@@ -22,7 +22,7 @@
 
 """%prog [options] <packages>.
 
-  create UML diagrams for classes and modules in <packages>
+create UML diagrams for classes and modules in <packages>
 """
 import sys
 from typing import Iterable

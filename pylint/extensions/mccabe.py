@@ -180,8 +180,8 @@ class McCabeMethodChecker(checkers.BaseChecker):
 
     @check_messages("too-complex")
     def visit_module(self, node: nodes.Module) -> None:
-        """Visit an astroid.Module node to check too complex rating and
-        add message if is greater than max_complexity stored from options
+        """Visit an astroid.Module node to check too complex rating and add
+        message if is greater than max_complexity stored from options.
         """
         visitor = PathGraphingAstVisitor()
         for child in node.body:

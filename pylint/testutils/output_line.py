@@ -104,8 +104,8 @@ class OutputLine(NamedTuple):
 
     @staticmethod
     def _get_py38_none_value(value: T, check_endline: bool) -> Optional[T]:
-        """Used to make end_line and end_column None as indicated by our version
-        compared to `min_pyver_end_position`.
+        """Used to make end_line and end_column None as indicated by our
+        version compared to `min_pyver_end_position`.
         """
         if not check_endline:
             return None  # pragma: no cover
@@ -115,8 +115,8 @@ class OutputLine(NamedTuple):
     def from_csv(
         cls, row: Union[Sequence[str], str], check_endline: bool = True
     ) -> "OutputLine":
-        """Create an OutputLine from a comma separated list (the functional tests
-        expected output .txt files).
+        """Create an OutputLine from a comma separated list (the functional
+        tests expected output .txt files).
         """
         if isinstance(row, str):
             row = row.split(",")
@@ -167,7 +167,9 @@ class OutputLine(NamedTuple):
             raise MalformedOutputLineException(row, e) from e
 
     def to_csv(self) -> Tuple[str, str, str, str, str, str, str, str]:
-        """Convert an OutputLine to a tuple of string to be written by a csv- writer."""
+        """Convert an OutputLine to a tuple of string to be written by a csv-
+        writer.
+        """
         return (
             str(self.symbol),
             str(self.lineno),
@@ -181,7 +183,9 @@ class OutputLine(NamedTuple):
 
     @staticmethod
     def _value_to_optional_int(value: Optional[str]) -> Optional[int]:
-        """Checks if a (stringified) value should be None or a Python integer."""
+        """Checks if a (stringified) value should be None or a Python
+        integer.
+        """
         if value == "None" or not value:
             return None
         return int(value)

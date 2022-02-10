@@ -62,7 +62,9 @@ class ModifiedIterationChecker(checkers.BaseChecker):
     def _modified_iterating_check_on_node_and_children(
         self, body_node: nodes.NodeNG, iter_obj: nodes.NodeNG
     ) -> None:
-        """See if node or any of its children raises modified iterating messages."""
+        """See if node or any of its children raises modified iterating
+        messages.
+        """
         self._modified_iterating_check(body_node, iter_obj)
         for child in body_node.get_children():
             self._modified_iterating_check_on_node_and_children(child, iter_obj)

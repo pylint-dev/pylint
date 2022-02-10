@@ -13,8 +13,8 @@
 
 """Universal report objects and some formatting drivers.
 
-A way to create simple reports using python objects, primarily designed to be
-formatted as text and html.
+A way to create simple reports using python objects, primarily designed
+to be formatted as text and html.
 """
 import sys
 from io import StringIO
@@ -35,8 +35,8 @@ class BaseWriter:
     def format(self, layout, stream: TextIO = sys.stdout, encoding=None) -> None:
         """Format and write the given layout into the stream object.
 
-        unicode policy: unicode strings may be found in the layout;
-        try to call 'stream.write' with it, but give it back encoded using
+        unicode policy: unicode strings may be found in the layout; try
+        to call 'stream.write' with it, but give it back encoded using
         the given encoding if it fails
         """
         if not encoding:
@@ -50,8 +50,8 @@ class BaseWriter:
     def format_children(
         self, layout: Union["EvaluationSection", "Paragraph", "Section"]
     ) -> None:
-        """Recurse on the layout children and call their accept method
-        (see the Visitor pattern)
+        """Recurse on the layout children and call their accept method (see the
+        Visitor pattern)
         """
         for child in getattr(layout, "children", ()):
             child.accept(self)
@@ -74,7 +74,8 @@ class BaseWriter:
     def get_table_content(self, table: "Table") -> List[List[str]]:
         """Trick to get table content without actually writing it.
 
-        return an aligned list of lists containing table cells values as string
+        return an aligned list of lists containing table cells values as
+        string
         """
         result: List[List[str]] = [[]]
         cols = table.cols
@@ -90,7 +91,7 @@ class BaseWriter:
 
     def compute_content(self, layout) -> Iterator[str]:
         """Trick to compute the formatting of children layout before actually
-        writing it
+        writing it.
 
         return an iterator on strings (one for each child element)
         """

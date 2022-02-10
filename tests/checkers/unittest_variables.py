@@ -196,7 +196,9 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
 
     @set_config(ignored_argument_names=re.compile("arg"))
     def test_ignored_argument_names_no_message(self) -> None:
-        """Make sure is_ignored_argument_names properly ignores function arguments."""
+        """Make sure is_ignored_argument_names properly ignores function
+        arguments.
+        """
         node = astroid.parse(
             """
         def fooby(arg):

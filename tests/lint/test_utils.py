@@ -38,7 +38,9 @@ def test_get_fatal_error_message() -> None:
 
 
 def test_issue_template_on_fatal_errors(capsys: pytest.CaptureFixture) -> None:
-    """Test that we also create an issue template if the offending exception isn't from astroid."""
+    """Test that we also create an issue template if the offending exception
+    isn't from astroid.
+    """
     with pytest.raises(SystemExit):
         with unittest.mock.patch(
             "astroid.MANAGER.ast_from_file", side_effect=RecursionError()

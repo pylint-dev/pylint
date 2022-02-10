@@ -2,8 +2,8 @@
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-"""Unicode and some other ASCII characters can be used to create programs that run
-much different compared to what a human reader would expect from them.
+"""Unicode and some other ASCII characters can be used to create programs that
+run much different compared to what a human reader would expect from them.
 
 PEP 672 lists some examples.
 See: https://www.python.org/dev/peps/pep-0672/
@@ -158,8 +158,8 @@ def _map_positions_to_result(
     """Get all occurrences of search dict keys within line.
 
     Ignores Windows end of line and can handle bytes as well as string.
-    Also takes care of encodings for which the length of an encoded code point does not
-    default to 8 Bit.
+    Also takes care of encodings for which the length of an encoded code
+    point does not default to 8 Bit.
     """
 
     result: Dict[int, _BadChar] = {}

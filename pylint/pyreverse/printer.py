@@ -71,7 +71,9 @@ class Printer(ABC):
 
     @abstractmethod
     def _open_graph(self) -> None:
-        """Emit the header lines, i.e. all boilerplate code that defines things like layout etc."""
+        """Emit the header lines, i.e. all boilerplate code that defines things
+        like layout etc.
+        """
 
     def emit(self, line: str, force_newline: Optional[bool] = True) -> None:
         if force_newline and not line.endswith("\n"):
@@ -85,7 +87,10 @@ class Printer(ABC):
         type_: NodeType,
         properties: Optional[NodeProperties] = None,
     ) -> None:
-        """Create a new node. Nodes can be classes, packages, participants etc."""
+        """Create a new node.
+
+        Nodes can be classes, packages, participants etc.
+        """
 
     @abstractmethod
     def emit_edge(

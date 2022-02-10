@@ -57,7 +57,9 @@ def _patch_optparse():
 
 
 class OptionsManagerMixIn:
-    """Handle configuration from both a configuration file and command line options."""
+    """Handle configuration from both a configuration file and command line
+    options.
+    """
 
     def __init__(self, usage, config_file=None):
         self.config_file = config_file
@@ -143,7 +145,7 @@ class OptionsManagerMixIn:
 
     def optik_option(self, provider, opt, optdict):
         """Get our personal option definition and return a suitable form for
-        use with optik/optparse
+        use with optik/optparse.
         """
         optdict = copy.copy(optdict)
         if "action" in optdict:
@@ -193,7 +195,7 @@ class OptionsManagerMixIn:
         self, stream: Optional[TextIO] = None, skipsections: Tuple[str, ...] = ()
     ) -> None:
         """Write a configuration file according to the current configuration
-        into the given stream or stdout
+        into the given stream or stdout.
         """
         options_by_section: Dict[str, List[Tuple]] = {}
         sections = []
@@ -332,7 +334,7 @@ class OptionsManagerMixIn:
 
     def load_config_file(self):
         """Dispatch values previously read from a configuration file to each
-        option's provider
+        option's provider.
         """
         parser = self.cfgfile_parser
         for section in parser.sections():

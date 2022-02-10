@@ -13,10 +13,11 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""Functions to generate files readable with Georg Sander's vcg
-(Visualization of Compiler Graphs).
-You can download vcg at https://rw4.cs.uni-sb.de/~sander/html/gshome.html
-Note that vcg exists as a debian package.
+"""Functions to generate files readable with Georg Sander's vcg (Visualization
+of Compiler Graphs).
+
+You can download vcg at https://rw4.cs.uni-
+sb.de/~sander/html/gshome.html Note that vcg exists as a debian package.
 See vcg's documentation for explanation about the different values that
 maybe used for the functions parameters.
 """
@@ -212,7 +213,10 @@ class VCGPrinter(Printer):
         type_: NodeType,
         properties: Optional[NodeProperties] = None,
     ) -> None:
-        """Create a new node. Nodes can be classes, packages, participants etc."""
+        """Create a new node.
+
+        Nodes can be classes, packages, participants etc.
+        """
         if properties is None:
             properties = NodeProperties(label=name)
         elif properties.label is None:

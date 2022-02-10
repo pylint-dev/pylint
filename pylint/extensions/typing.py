@@ -257,8 +257,8 @@ class TypingChecker(BaseChecker):
 
     @check_messages("consider-using-alias")
     def leave_module(self, node: nodes.Module) -> None:
-        """After parsing of module is complete, add messages for 'consider- using-alias'
-        check.
+        """After parsing of module is complete, add messages for 'consider-
+        using-alias' check.
 
         Make sure results are safe to recommend / collision free.
         """

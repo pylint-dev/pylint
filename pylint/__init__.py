@@ -21,7 +21,8 @@ from pylint.__pkginfo__ import __version__
 def run_pylint(argv: Optional[Sequence[str]] = None):
     """Run pylint.
 
-    argv can be a sequence of strings normally supplied as arguments on the command line
+    argv can be a sequence of strings normally supplied as arguments on
+    the command line
     """
     from pylint.lint import Run as PylintRun
 
@@ -34,7 +35,8 @@ def run_pylint(argv: Optional[Sequence[str]] = None):
 def run_epylint(argv: Optional[Sequence[str]] = None):
     """Run epylint.
 
-    argv can be a list of strings normally supplied as arguments on the command line
+    argv can be a list of strings normally supplied as arguments on the
+    command line
     """
     from pylint.epylint import Run as EpylintRun
 
@@ -44,7 +46,8 @@ def run_epylint(argv: Optional[Sequence[str]] = None):
 def run_pyreverse(argv: Optional[Sequence[str]] = None):
     """Run pyreverse.
 
-    argv can be a sequence of strings normally supplied as arguments on the command line
+    argv can be a sequence of strings normally supplied as arguments on
+    the command line
     """
     from pylint.pyreverse.main import Run as PyreverseRun
 
@@ -54,7 +57,8 @@ def run_pyreverse(argv: Optional[Sequence[str]] = None):
 def run_symilar(argv: Optional[Sequence[str]] = None):
     """Run symilar.
 
-    argv can be a sequence of strings normally supplied as arguments on the command line
+    argv can be a sequence of strings normally supplied as arguments on
+    the command line
     """
     from pylint.checkers.similar import Run as SimilarRun
 

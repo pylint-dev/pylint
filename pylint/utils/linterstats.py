@@ -291,7 +291,9 @@ class LinterStats:
     def increase_single_module_message_count(
         self, modname: str, type_name: MessageTypesFullName, increase: int
     ) -> None:
-        """Increase the message type count of an individual message type of a module."""
+        """Increase the message type count of an individual message type of a
+        module.
+        """
         self.by_module[modname][type_name] += increase
 
     def reset_message_count(self) -> None:
@@ -305,8 +307,8 @@ class LinterStats:
 
 
 def merge_stats(stats: List[LinterStats]):
-    """Used to merge multiple stats objects into a new one when pylint is run in
-    parallel mode.
+    """Used to merge multiple stats objects into a new one when pylint is run
+    in parallel mode.
     """
     merged = LinterStats()
     for stat in stats:

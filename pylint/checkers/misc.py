@@ -44,7 +44,9 @@ if TYPE_CHECKING:
 
 class ByIdManagedMessagesChecker(BaseChecker):
 
-    """Checks for messages that are enabled or disabled by id instead of symbol."""
+    """Checks for messages that are enabled or disabled by id instead of
+    symbol.
+    """
 
     __implements__ = IRawChecker
     name = "miscellaneous"
@@ -64,7 +66,9 @@ class ByIdManagedMessagesChecker(BaseChecker):
         return self.linter._by_id_managed_msgs
 
     def process_module(self, node: nodes.Module) -> None:
-        """Inspect the source file to find messages activated or deactivated by id."""
+        """Inspect the source file to find messages activated or deactivated by
+        id.
+        """
         managed_msgs = self._get_by_id_managed_msgs()
         for (mod_name, msgid, symbol, lineno, is_disabled) in managed_msgs:
             if mod_name == node.name:

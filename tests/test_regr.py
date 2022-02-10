@@ -18,7 +18,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Non regression tests for pylint, which requires a too specific configuration
-to be incorporated in the automatic functional test framework
+to be incorporated in the automatic functional test framework.
 """
 # pylint: disable=redefined-outer-name
 
@@ -51,8 +51,8 @@ def disable():
 
 @pytest.fixture
 def finalize_linter(linter: PyLinter) -> Iterator[PyLinter]:
-    """Call reporter.finalize() to clean up pending messages if a test
-    finished badly.
+    """Call reporter.finalize() to clean up pending messages if a test finished
+    badly.
     """
     yield linter
     linter.reporter = cast(  # Due to fixture

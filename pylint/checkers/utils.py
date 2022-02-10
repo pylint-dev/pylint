@@ -330,12 +330,16 @@ SPECIAL_BUILTINS = ("__builtins__",)  # '__path__', '__file__')
 
 
 def is_builtin_object(node: nodes.NodeNG) -> bool:
-    """Returns True if the given node is an object from the __builtin__ module."""
+    """Returns True if the given node is an object from the __builtin__
+    module.
+    """
     return node and node.root().name == "builtins"
 
 
 def is_builtin(name: str) -> bool:
-    """Return true if <name> could be considered as a builtin defined by python."""
+    """Return true if <name> could be considered as a builtin defined by
+    python.
+    """
     return name in builtins or name in SPECIAL_BUILTINS  # type: ignore[attr-defined]
 
 
@@ -390,10 +394,10 @@ def is_defined_in_scope(
 def is_defined_before(var_node: nodes.Name) -> bool:
     """Check if the given variable node is defined before.
 
-    Verify that the variable node is defined by a parent node
-    (list, set, dict, or generator comprehension, lambda)
-    or in a previous sibling node on the same line
-    (statement_defining ; statement_using).
+    Verify that the variable node is defined by a parent node (list,
+    set, dict, or generator comprehension, lambda) or in a previous
+    sibling node on the same line (statement_defining ;
+    statement_using).
     """
     varname = var_node.name
     for parent in var_node.node_ancestors():
@@ -417,8 +421,8 @@ def is_defined_before(var_node: nodes.Name) -> bool:
 def is_default_argument(
     node: nodes.NodeNG, scope: Optional[nodes.NodeNG] = None
 ) -> bool:
-    """Return true if the given Name node is used in function or lambda
-    default argument's value
+    """Return true if the given Name node is used in function or lambda default
+    argument's value.
     """
     if not scope:
         scope = node.scope()
@@ -454,7 +458,7 @@ def is_func_decorator(node: nodes.NodeNG) -> bool:
 
 def is_ancestor_name(frame: nodes.ClassDef, node: nodes.NodeNG) -> bool:
     """Return whether `frame` is an astroid.Class node with `node` in the
-    subtree of its bases attribute
+    subtree of its bases attribute.
     """
     if not isinstance(frame, nodes.ClassDef):
         return False
@@ -467,15 +471,17 @@ def is_being_called(node: nodes.NodeNG) -> bool:
 
 
 def assign_parent(node: nodes.NodeNG) -> nodes.NodeNG:
-    """Return the higher parent which is not an AssignName, Tuple or List node."""
+    """Return the higher parent which is not an AssignName, Tuple or List
+    node.
+    """
     while node and isinstance(node, (nodes.AssignName, nodes.Tuple, nodes.List)):
         node = node.parent
     return node
 
 
 def overrides_a_method(class_node: nodes.ClassDef, name: str) -> bool:
-    """Return True if <name> is a method overridden from an ancestor
-    which is not the base object class
+    """Return True if <name> is a method overridden from an ancestor which is
+    not the base object class.
     """
     for ancestor in class_node.ancestors():
         if ancestor.name == "object":
@@ -500,8 +506,8 @@ class IncompleteFormatString(Exception):
 
 
 class UnsupportedFormatCharacter(Exception):
-    """A format character in a format string is not one of the supported
-    format characters.
+    """A format character in a format string is not one of the supported format
+    characters.
     """
 
     def __init__(self, index):
@@ -512,10 +518,12 @@ class UnsupportedFormatCharacter(Exception):
 def parse_format_string(
     format_string: str,
 ) -> Tuple[Set[str], int, Dict[str, str], List[str]]:
-    """Parses a format string, returning a tuple of (keys, num_args), where 'keys'
-    is the set of mapping keys in the format string, and 'num_args' is the number
-    of arguments required by the format string. Raises IncompleteFormatString or
-    UnsupportedFormatCharacter if a parse error occurs.
+    """Parses a format string, returning a tuple of (keys, num_args), where
+    'keys' is the set of mapping keys in the format string, and 'num_args' is
+    the number of arguments required by the format string.
+
+    Raises IncompleteFormatString or UnsupportedFormatCharacter if a
+    parse error occurs.
     """
     keys = set()
     key_types = {}
@@ -592,9 +600,10 @@ def split_format_field_names(format_string) -> Tuple[str, Iterable[Tuple[bool, s
 
 
 def collect_string_fields(format_string) -> Iterable[Optional[str]]:
-    """Given a format string, return an iterator
-    of all the valid format fields. It handles nested fields
-    as well.
+    """Given a format string, return an iterator of all the valid format
+    fields.
+
+    It handles nested fields as well.
     """
     formatter = string.Formatter()
     try:
@@ -627,10 +636,11 @@ def parse_format_method_string(
     format_string: str,
 ) -> Tuple[List[Tuple[str, List[Tuple[bool, str]]]], int, int]:
     """Parses a PEP 3101 format string, returning a tuple of
-    (keyword_arguments, implicit_pos_args_cnt, explicit_pos_args),
-    where keyword_arguments is the set of mapping keys in the format string, implicit_pos_args_cnt
-    is the number of arguments required by the format string and
-    explicit_pos_args is the number of arguments passed with the position.
+    (keyword_arguments, implicit_pos_args_cnt, explicit_pos_args), where
+    keyword_arguments is the set of mapping keys in the format string,
+    implicit_pos_args_cnt is the number of arguments required by the format
+    string and explicit_pos_args is the number of arguments passed with the
+    position.
     """
     keyword_arguments = []
     implicit_pos_args_cnt = 0
@@ -665,8 +675,8 @@ def is_attr_protected(attrname: str) -> bool:
 def node_frame_class(node: nodes.NodeNG) -> Optional[nodes.ClassDef]:
     """Return the class that is wrapping the given node.
 
-    The function returns a class for a method node (or a staticmethod or a
-    classmethod), otherwise it returns `None`.
+    The function returns a class for a method node (or a staticmethod or
+    a classmethod), otherwise it returns `None`.
     """
     klass = node.frame(future=True)
     nodes_to_check = (
@@ -688,7 +698,9 @@ def node_frame_class(node: nodes.NodeNG) -> Optional[nodes.ClassDef]:
 
 
 def get_outer_class(class_node: astroid.ClassDef) -> Optional[astroid.ClassDef]:
-    """Return the class that is the outer class of given (nested) class_node."""
+    """Return the class that is the outer class of given (nested)
+    class_node.
+    """
     parent_klass = class_node.parent.frame(future=True)
 
     return parent_klass if isinstance(parent_klass, astroid.ClassDef) else None
@@ -745,14 +757,13 @@ def inherit_from_std_ex(node: nodes.NodeNG) -> bool:
 
 
 def error_of_type(handler: nodes.ExceptHandler, error_type) -> bool:
-    """Check if the given exception handler catches
-    the given error_type.
+    """Check if the given exception handler catches the given error_type.
 
-    The *handler* parameter is a node, representing an ExceptHandler node.
-    The *error_type* can be an exception, such as AttributeError,
-    the name of an exception, or it can be a tuple of errors.
-    The function will return True if the handler catches any of the
-    given errors.
+    The *handler* parameter is a node, representing an ExceptHandler
+    node. The *error_type* can be an exception, such as AttributeError,
+    the name of an exception, or it can be a tuple of errors. The
+    function will return True if the handler catches any of the given
+    errors.
     """
 
     def stringify_error(error):
@@ -839,7 +850,9 @@ def decorated_with(
     ],
     qnames: Iterable[str],
 ) -> bool:
-    """Determine if the `func` node has a decorator with the qualified name `qname`."""
+    """Determine if the `func` node has a decorator with the qualified name
+    `qname`.
+    """
     decorators = func.decorators.nodes if func.decorators else []
     for decorator_node in decorators:
         if isinstance(decorator_node, nodes.Call):
@@ -862,9 +875,9 @@ def uninferable_final_decorators(
 ) -> List[Optional[Union[nodes.Attribute, nodes.Name]]]:
     """Return a list of uninferable `typing.final` decorators in `node`.
 
-    This function is used to determine if the `typing.final` decorator is used
-    with an unsupported Python version; the decorator cannot be inferred when
-    using a Python version lower than 3.8.
+    This function is used to determine if the `typing.final` decorator
+    is used with an unsupported Python version; the decorator cannot be
+    inferred when using a Python version lower than 3.8.
     """
     decorators = []
     for decorator in getattr(node, "nodes", []):
@@ -909,12 +922,11 @@ def unimplemented_abstract_methods(
     """Get the unimplemented abstract methods for the given *node*.
 
     A method can be considered abstract if the callback *is_abstract_cb*
-    returns a ``True`` value. The check defaults to verifying that
-    a method is decorated with abstract methods.
-    The function will work only for new-style classes. For old-style
-    classes, it will simply return an empty dictionary.
-    For the rest of them, it will return a dictionary of abstract method
-    names and their inferred objects.
+    returns a ``True`` value. The check defaults to verifying that a
+    method is decorated with abstract methods. The function will work
+    only for new-style classes. For old-style classes, it will simply
+    return an empty dictionary. For the rest of them, it will return a
+    dictionary of abstract method names and their inferred objects.
     """
     if is_abstract_cb is None:
         is_abstract_cb = partial(decorated_with, qnames=ABC_METHODS)
@@ -977,7 +989,9 @@ def find_try_except_wrapper_node(
 def find_except_wrapper_node_in_scope(
     node: nodes.NodeNG,
 ) -> Optional[Union[nodes.ExceptHandler, nodes.TryExcept]]:
-    """Return the ExceptHandler in which the node is, without going out of scope."""
+    """Return the ExceptHandler in which the node is, without going out of
+    scope.
+    """
     for current in node.node_ancestors():
         if isinstance(current, astroid.scoped_nodes.LocalsDictNodeNG):
             # If we're inside a function/class definition, we don't want to keep checking
@@ -1034,7 +1048,6 @@ def get_exception_handlers(
 
     Returns:
         list: the collection of handlers that are handling the exception or None.
-
     """
     context = find_try_except_wrapper_node(node)
     if isinstance(context, nodes.TryExcept):
@@ -1045,8 +1058,8 @@ def get_exception_handlers(
 
 
 def is_node_inside_try_except(node: nodes.Raise) -> bool:
-    """Check if the node is directly under a Try/Except statement.
-    (but not under an ExceptHandler!)
+    """Check if the node is directly under a Try/Except statement. (but not
+    under an ExceptHandler!)
 
     Args:
         node (nodes.Raise): the node raising the exception.
@@ -1061,8 +1074,8 @@ def is_node_inside_try_except(node: nodes.Raise) -> bool:
 def node_ignores_exception(node: nodes.NodeNG, exception=Exception) -> bool:
     """Check if the node is in a TryExcept which handles the given exception.
 
-    If the exception is not given, the function is going to look for bare
-    excepts.
+    If the exception is not given, the function is going to look for
+    bare excepts.
     """
     managing_handlers = get_exception_handlers(node, exception)
     if not managing_handlers:
@@ -1072,7 +1085,7 @@ def node_ignores_exception(node: nodes.NodeNG, exception=Exception) -> bool:
 
 def class_is_abstract(node: nodes.ClassDef) -> bool:
     """Return true if the given class node should be considered as an abstract
-    class
+    class.
     """
     # Only check for explicit metaclass=ABCMeta on this specific class
     meta = node.declared_metaclass()
@@ -1242,8 +1255,8 @@ def _get_python_type_of_node(node):
 def safe_infer(node: nodes.NodeNG, context=None) -> Optional[nodes.NodeNG]:
     """Return the inferred value for the given node.
 
-    Return None if inference failed or if there is some ambiguity (more than
-    one node has been inferred of different types).
+    Return None if inference failed or if there is some ambiguity (more
+    than one node has been inferred of different types).
     """
     inferred_types = set()
     try:
@@ -1315,8 +1328,8 @@ def is_none(node: nodes.NodeNG) -> bool:
 def node_type(node: nodes.NodeNG) -> Optional[nodes.NodeNG]:
     """Return the inferred type for `node`.
 
-    If there is more than one possible type, or if inferred type is Uninferable or None,
-    return None
+    If there is more than one possible type, or if inferred type is
+    Uninferable or None, return None
     """
     # check there is only one possible type for the assign node. Else we
     # don't handle it for now
@@ -1366,9 +1379,11 @@ def is_registered_in_singledispatch_function(node: nodes.FunctionDef) -> bool:
 
 
 def get_node_last_lineno(node: nodes.NodeNG) -> int:
-    """Get the last lineno of the given node. For a simple statement this will just be node.lineno,
-    but for a node that has child statements (e.g. a method) this will be the lineno of the last
-    child statement recursively.
+    """Get the last lineno of the given node.
+
+    For a simple statement this will just be node.lineno, but for a node
+    that has child statements (e.g. a method) this will be the lineno of
+    the last child statement recursively.
     """
     # 'finalbody' is always the last clause in a try statement, if present
     if getattr(node, "finalbody", False):
@@ -1396,8 +1411,8 @@ def is_postponed_evaluation_enabled(node: nodes.NodeNG) -> bool:
 def is_class_subscriptable_pep585_with_postponed_evaluation_enabled(
     value: nodes.ClassDef, node: nodes.NodeNG
 ) -> bool:
-    """Check if class is subscriptable with PEP 585 and
-    postponed evaluation enabled.
+    """Check if class is subscriptable with PEP 585 and postponed evaluation
+    enabled.
     """
     return (
         is_postponed_evaluation_enabled(node)
@@ -1409,8 +1424,8 @@ def is_class_subscriptable_pep585_with_postponed_evaluation_enabled(
 def is_node_in_type_annotation_context(node: nodes.NodeNG) -> bool:
     """Check if node is in type annotation context.
 
-    Check for 'AnnAssign', function 'Arguments',
-    or part of function return type anntation.
+    Check for 'AnnAssign', function 'Arguments', or part of function
+    return type anntation.
     """
     # pylint: disable=too-many-boolean-expressions
     current_node, parent_node = node, node.parent
@@ -1438,6 +1453,7 @@ def is_node_in_type_annotation_context(node: nodes.NodeNG) -> bool:
 
 def is_subclass_of(child: nodes.ClassDef, parent: nodes.ClassDef) -> bool:
     """Check if first node is a subclass of second node.
+
     :param child: Node to check for subclass.
     :param parent: Node to check for superclass.
     :returns: True if child is derived from parent. False otherwise.
@@ -1511,8 +1527,8 @@ def is_classdef_type(node: nodes.ClassDef) -> bool:
 def is_attribute_typed_annotation(
     node: Union[nodes.ClassDef, astroid.Instance], attr_name: str
 ) -> bool:
-    """Test if attribute is typed annotation in current node
-    or any base nodes.
+    """Test if attribute is typed annotation in current node or any base
+    nodes.
     """
     attribute = node.locals.get(attr_name, [None])[0]
     if (
@@ -1556,11 +1572,11 @@ def is_assign_name_annotated_with(node: nodes.AssignName, typing_name: str) -> b
 def get_iterating_dictionary_name(
     node: Union[nodes.For, nodes.Comprehension]
 ) -> Optional[str]:
-    """Get the name of the dictionary which keys are being iterated over on
-    a ``nodes.For`` or ``nodes.Comprehension`` node.
+    """Get the name of the dictionary which keys are being iterated over on a
+    ``nodes.For`` or ``nodes.Comprehension`` node.
 
-    If the iterating object is not either the keys method of a dictionary
-    or a dictionary itself, this returns None.
+    If the iterating object is not either the keys method of a
+    dictionary or a dictionary itself, this returns None.
     """
     # Is it a proper keys call?
     if (
@@ -1658,6 +1674,7 @@ def is_typing_guard(node: nodes.If) -> bool:
 
 def is_node_in_guarded_import_block(node: nodes.NodeNG) -> bool:
     """Return True if node is part for guarded if block.
+
     I.e. `sys.version_info` or `typing.TYPE_CHECKING`
     """
     return isinstance(node.parent, nodes.If) and (
@@ -1666,7 +1683,9 @@ def is_node_in_guarded_import_block(node: nodes.NodeNG) -> bool:
 
 
 def is_reassigned_after_current(node: nodes.NodeNG, varname: str) -> bool:
-    """Check if the given variable name is reassigned in the same scope after the current node."""
+    """Check if the given variable name is reassigned in the same scope after
+    the current node.
+    """
     return any(
         a.name == varname and a.lineno > node.lineno
         for a in node.scope().nodes_of_class(
@@ -1676,7 +1695,9 @@ def is_reassigned_after_current(node: nodes.NodeNG, varname: str) -> bool:
 
 
 def is_deleted_after_current(node: nodes.NodeNG, varname: str) -> bool:
-    """Check if the given variable name is deleted in the same scope after the current node."""
+    """Check if the given variable name is deleted in the same scope after the
+    current node.
+    """
     return any(
         getattr(target, "name", None) == varname and target.lineno > node.lineno
         for del_node in node.scope().nodes_of_class(nodes.Delete)
@@ -1720,7 +1741,9 @@ def returns_bool(node: nodes.NodeNG) -> bool:
 def get_node_first_ancestor_of_type(
     node: nodes.NodeNG, ancestor_type: Union[Type[T_Node], Tuple[Type[T_Node], ...]]
 ) -> Optional[T_Node]:
-    """Return the first parent node that is any of the provided types (or None)."""
+    """Return the first parent node that is any of the provided types (or
+    None).
+    """
     for ancestor in node.node_ancestors():
         if isinstance(ancestor, ancestor_type):
             return ancestor
@@ -1731,9 +1754,10 @@ def get_node_first_ancestor_of_type_and_its_child(
     node: nodes.NodeNG, ancestor_type: Union[Type[T_Node], Tuple[Type[T_Node], ...]]
 ) -> Union[Tuple[None, None], Tuple[T_Node, nodes.NodeNG]]:
     """Modified version of get_node_first_ancestor_of_type to also return the
-    descendant visited directly before reaching the sought ancestor. Useful
-    for extracting whether a statement is guarded by a try, except, or finally
-    when searching for a TryFinally ancestor.
+    descendant visited directly before reaching the sought ancestor.
+
+    Useful for extracting whether a statement is guarded by a try,
+    except, or finally when searching for a TryFinally ancestor.
     """
     child = node
     for ancestor in node.node_ancestors():

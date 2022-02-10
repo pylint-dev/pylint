@@ -36,7 +36,9 @@ class SetMembershipChecker(BaseChecker):
                 self._check_in_comparison(comparator)
 
     def _check_in_comparison(self, comparator: nodes.NodeNG) -> None:
-        """Checks for membership comparisons with in-place container objects."""
+        """Checks for membership comparisons with in-place container
+        objects.
+        """
         if not isinstance(comparator, nodes.BaseContainer) or isinstance(
             comparator, nodes.Set
         ):

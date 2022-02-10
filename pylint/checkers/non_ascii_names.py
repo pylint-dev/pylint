@@ -2,8 +2,8 @@
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-"""All alphanumeric unicode character are allowed in Python but due
-to similarities in how they look they can be confused.
+"""All alphanumeric unicode character are allowed in Python but due to
+similarities in how they look they can be confused.
 
 See: https://www.python.org/dev/peps/pep-0672/#confusable-characters-in-identifiers
 

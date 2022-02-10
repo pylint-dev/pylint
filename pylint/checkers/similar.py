@@ -29,17 +29,23 @@
 
 """A similarities / code duplication command line tool and pylint checker.
 
-The algorithm is based on comparing the hash value of n successive lines of a file.
-First the files are read and any line that doesn't fulfill requirement are removed (comments, docstrings...)
-Those stripped lines are stored in the LineSet class which gives access to them.
-Then each index of the stripped lines collection is associated with the hash of n successive entries of the stripped lines starting at the current index
-(n is the minimum common lines option).
-The common hashes between both linesets are then looked for. If there are matches, then the match indices in both linesets are stored and associated
-with the corresponding couples (start line number/end line number) in both files.
-This association is then postprocessed to handle the case of successive matches. For example if the minimum common lines setting is set to four, then
-the hashes are computed with four lines. If one of match indices couple (12, 34) is the successor of another one (11, 33) then it means that there are
-in fact five lines which are common.
-Once postprocessed the values of association table are the result looked for, i.e start and end lines numbers of common lines in both files.
+The algorithm is based on comparing the hash value of n successive lines
+of a file. First the files are read and any line that doesn't fulfill
+requirement are removed (comments, docstrings...) Those stripped lines
+are stored in the LineSet class which gives access to them. Then each
+index of the stripped lines collection is associated with the hash of n
+successive entries of the stripped lines starting at the current index
+(n is the minimum common lines option). The common hashes between both
+linesets are then looked for. If there are matches, then the match
+indices in both linesets are stored and associated with the
+corresponding couples (start line number/end line number) in both files.
+This association is then postprocessed to handle the case of successive
+matches. For example if the minimum common lines setting is set to four,
+then the hashes are computed with four lines. If one of match indices
+couple (12, 34) is the successor of another one (11, 33) then it means
+that there are in fact five lines which are common. Once postprocessed
+the values of association table are the result looked for, i.e start and
+end lines numbers of common lines in both files.
 """
 import copy
 import functools
@@ -109,9 +115,9 @@ STREAM_TYPES = Union[TextIO, BufferedReader, BytesIO]
 
 
 class CplSuccessiveLinesLimits:
-    """This class holds a couple of SuccessiveLinesLimits objects, one for each file compared,
-    and a counter on the number of common lines between both stripped lines collections extracted
-    from both files
+    """This class holds a couple of SuccessiveLinesLimits objects, one for each
+    file compared, and a counter on the number of common lines between both
+    stripped lines collections extracted from both files.
     """
 
     __slots__ = ("first_file", "second_file", "effective_cmn_lines_nb")
@@ -133,7 +139,9 @@ CplIndexToCplLines_T = Dict["LineSetStartCouple", CplSuccessiveLinesLimits]
 
 
 class LinesChunk:
-    """The LinesChunk object computes and stores the hash of some consecutive stripped lines of a lineset."""
+    """The LinesChunk object computes and stores the hash of some consecutive
+    stripped lines of a lineset.
+    """
 
     __slots__ = ("_fileid", "_index", "_hash")
 
@@ -230,10 +238,10 @@ LinesChunkLimits_T = Tuple["LineSet", LineNumber, LineNumber]
 def hash_lineset(
     lineset: "LineSet", min_common_lines: int = DEFAULT_MIN_SIMILARITY_LINE
 ) -> Tuple[HashToIndex_T, IndexToLines_T]:
-    """Return two dicts. The first associates the hash of successive stripped lines of a lineset
-    to the indices of the starting lines.
-    The second dict, associates the index of the starting line in the lineset's stripped lines to the
-    couple [start, end] lines number in the corresponding file.
+    """Return two dicts. The first associates the hash of successive stripped
+    lines of a lineset to the indices of the starting lines. The second dict,
+    associates the index of the starting line in the lineset's stripped lines
+    to the couple [start, end] lines number in the corresponding file.
 
     :param lineset: lineset object (i.e the lines in a file)
     :param min_common_lines: number of successive lines that are used to compute the hash
@@ -318,9 +326,10 @@ def filter_noncode_lines(
     stindex_2: Index,
     common_lines_nb: int,
 ) -> int:
-    """Return the effective number of common lines between lineset1 and lineset2 filtered from non code lines, that is to say the number of
-    common successive stripped lines except those that do not contain code (for example a ligne with only an
-    ending parathensis)
+    """Return the effective number of common lines between lineset1 and
+    lineset2 filtered from non code lines, that is to say the number of common
+    successive stripped lines except those that do not contain code (for
+    example a ligne with only an ending parathensis)
 
     :param ls_1: first lineset
     :param stindex_1: first lineset starting index
@@ -471,12 +480,15 @@ class Similar:
     ) -> Generator[Commonality, None, None]:
         """Find similarities in the two given linesets.
 
-        This the core of the algorithm.
-        The idea is to compute the hashes of a minimal number of successive lines of each lineset and then compare the hashes.
-        Every match of such comparison is stored in a dict that links the couple of starting indices in both linesets to
-        the couple of corresponding starting and ending lines in both files.
-        Last regroups all successive couples in a bigger one. It allows to take into account common chunk of lines that have more
-        than the minimal number of successive lines required.
+        This the core of the algorithm. The idea is to compute the
+        hashes of a minimal number of successive lines of each lineset
+        and then compare the hashes. Every match of such comparison is
+        stored in a dict that links the couple of starting indices in
+        both linesets to the couple of corresponding starting and ending
+        lines in both files. Last regroups all successive couples in a
+        bigger one. It allows to take into account common chunk of lines
+        that have more than the minimal number of successive lines
+        required.
         """
         hash_to_index_1: HashToIndex_T
         hash_to_index_2: HashToIndex_T
@@ -536,7 +548,7 @@ class Similar:
 
     def _iter_sims(self) -> Generator[Commonality, None, None]:
         """Iterate on similarities among all files, by making a cartesian
-        product
+        product.
         """
         for idx, lineset in enumerate(self.linesets[:-1]):
             for lineset2 in self.linesets[idx + 1 :]:
@@ -545,8 +557,8 @@ class Similar:
     def get_map_data(self):
         """Returns the data we can use for a map/reduce process.
 
-        In this case we are returning this instance's Linesets, that is all file
-        information that will later be used for vectorisation.
+        In this case we are returning this instance's Linesets, that is
+        all file information that will later be used for vectorisation.
         """
         return self.linesets
 
@@ -565,7 +577,8 @@ def stripped_lines(
     ignore_imports: bool,
     ignore_signatures: bool,
 ) -> List[LineSpecifs]:
-    """Return tuples of line/line number/line type with leading/trailing whitespace and any ignored code features removed.
+    """Return tuples of line/line number/line type with leading/trailing
+    whitespace and any ignored code features removed.
 
     :param lines: a collection of lines
     :param ignore_comments: if true, any comment in the lines collection is removed from the result
@@ -593,7 +606,9 @@ def stripped_lines(
         def _get_functions(
             functions: List[nodes.NodeNG], tree: nodes.NodeNG
         ) -> List[nodes.NodeNG]:
-            """Recursively get all functions including nested in the classes from the tree."""
+            """Recursively get all functions including nested in the classes
+            from the tree.
+            """
 
             for node in tree.body:
                 if isinstance(node, (nodes.FunctionDef, nodes.AsyncFunctionDef)):
@@ -656,8 +671,10 @@ def stripped_lines(
 @functools.total_ordering
 class LineSet:
     """Holds and indexes all the lines of a single source file.
-    Allows for correspondence between real lines of the source file and stripped ones, which
-    are the real ones from which undesired patterns have been removed.
+
+    Allows for correspondence between real lines of the source file and
+    stripped ones, which are the real ones from which undesired patterns
+    have been removed.
     """
 
     def __init__(
@@ -728,9 +745,10 @@ def report_similarities(
 
 # wrapper to get a pylint checker from the similar class
 class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
-    """Checks for similarities and duplicated code. This computation may be
-    memory / CPU intensive, so you should disable it if you experiment some
-    problems.
+    """Checks for similarities and duplicated code.
+
+    This computation may be memory / CPU intensive, so you should
+    disable it if you experiment some problems.
     """
 
     __implements__ = (IRawChecker,)
@@ -842,7 +860,9 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
             self.append_stream(self.linter.current_name, stream, node.file_encoding)  # type: ignore[arg-type]
 
     def close(self):
-        """Compute and display similarities on closing (i.e. end of parsing)."""
+        """Compute and display similarities on closing (i.e. end of
+        parsing).
+        """
         total = sum(len(lineset) for lineset in self.linesets)
         duplicated = 0
         stats = self.linter.stats

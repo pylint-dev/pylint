@@ -127,8 +127,8 @@ class TestDefaultDiadefGenerator:
     def test_functional_relation_extraction(
         self, default_config: PyreverseConfig, get_project: Callable
     ) -> None:
-        """Functional test of relations extraction;
-        different classes possibly in different modules
+        """Functional test of relations extraction; different classes possibly
+        in different modules.
         """
         # XXX should be catching pyreverse environment problem but doesn't
         # pyreverse doesn't extract the relations but this test ok

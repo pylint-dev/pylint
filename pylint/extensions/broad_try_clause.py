@@ -23,8 +23,9 @@ if TYPE_CHECKING:
 class BroadTryClauseChecker(checkers.BaseChecker):
     """Checks for try clauses with too many lines.
 
-    According to PEP 8, ``try`` clauses shall contain the absolute minimum amount of
-    code. This checker enforces a maximum number of statements within ``try`` clauses.
+    According to PEP 8, ``try`` clauses shall contain the absolute
+    minimum amount of code. This checker enforces a maximum number of
+    statements within ``try`` clauses.
     """
 
     __implements__ = interfaces.IAstroidChecker

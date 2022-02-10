@@ -188,7 +188,9 @@ class TextReporter(BaseReporter):
         """The output format template with any unrecognized arguments removed."""
 
     def on_set_current_module(self, module: str, filepath: Optional[str]) -> None:
-        """Set the format template to be used and check for unrecognized arguments."""
+        """Set the format template to be used and check for unrecognized
+        arguments.
+        """
         template = str(self.linter.config.msg_template or self._template)
 
         # Return early if the template is the same as the previous one
@@ -210,7 +212,9 @@ class TextReporter(BaseReporter):
         self._fixed_template = template
 
     def write_message(self, msg: Message) -> None:
-        """Convenience method to write a formatted message with class default template."""
+        """Convenience method to write a formatted message with class default
+        template.
+        """
         self_dict = msg._asdict()
         for key in ("end_line", "end_column"):
             self_dict[key] = self_dict[key] or ""
@@ -328,8 +332,8 @@ class ColorizedTextReporter(TextReporter):
         return self.color_mapping.get(msg_id[0]) or MessageStyle(None)
 
     def handle_message(self, msg: Message) -> None:
-        """Manage message of different types, and colorize output
-        using ansi escape codes
+        """Manage message of different types, and colorize output using ansi
+        escape codes.
         """
         if msg.module not in self._modules:
             msg_style = self._get_decoration("S")

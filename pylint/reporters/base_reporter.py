@@ -69,12 +69,11 @@ class BaseReporter:
     def display_messages(self, layout: Optional["Section"]) -> None:
         """Hook for displaying the messages of the reporter.
 
-        This will be called whenever the underlying messages
-        needs to be displayed. For some reporters, it probably
-        doesn't make sense to display messages as soon as they
-        are available, so some mechanism of storing them could be used.
-        This method can be implemented to display them after they've
-        been aggregated.
+        This will be called whenever the underlying messages needs to be
+        displayed. For some reporters, it probably doesn't make sense to
+        display messages as soon as they are available, so some
+        mechanism of storing them could be used. This method can be
+        implemented to display them after they've been aggregated.
         """
 
     # Event callbacks

@@ -76,8 +76,8 @@ def test__regexp_csv_validator_invalid() -> None:
 
 
 class TestPyLinterOptionSetters(CheckerTestCase):
-    """Class to check the set_config decorator and get_global_option util for options
-    declared in PyLinter.
+    """Class to check the set_config decorator and get_global_option util for
+    options declared in PyLinter.
     """
 
     class Checker(BaseChecker):

@@ -118,8 +118,8 @@ def _is_a_return_statement(node: nodes.Call) -> bool:
 
 
 def _is_part_of_with_items(node: nodes.Call) -> bool:
-    """Checks if one of the node's parents is a ``nodes.With`` node and that the node
-    itself is located somewhere under its ``items``.
+    """Checks if one of the node's parents is a ``nodes.With`` node and that
+    the node itself is located somewhere under its ``items``.
     """
     frame = node.frame(future=True)
     current = node
@@ -133,8 +133,9 @@ def _is_part_of_with_items(node: nodes.Call) -> bool:
 
 
 def _will_be_released_automatically(node: nodes.Call) -> bool:
-    """Checks if a call that could be used in a ``with`` statement is used in an
-    alternative construct which would ensure that its __exit__ method is called.
+    """Checks if a call that could be used in a ``with`` statement is used in
+    an alternative construct which would ensure that its __exit__ method is
+    called.
     """
     callables_taking_care_of_exit = frozenset(
         (
@@ -151,8 +152,8 @@ def _will_be_released_automatically(node: nodes.Call) -> bool:
 
 
 class ConsiderUsingWithStack(NamedTuple):
-    """Stack for objects that may potentially trigger a R1732 message if they are not
-    used in a ``with`` block later on.
+    """Stack for objects that may potentially trigger a R1732 message if they
+    are not used in a ``with`` block later on.
     """
 
     module_scope: Dict[str, nodes.NodeNG] = {}
@@ -181,9 +182,9 @@ class ConsiderUsingWithStack(NamedTuple):
 class RefactoringChecker(checkers.BaseTokenChecker):
     """Looks for code which can be refactored.
 
-    This checker also mixes the astroid and the token approaches in order to create
-    knowledge about whether an "else if" node is a true "else if" node, or an "elif"
-    node.
+    This checker also mixes the astroid and the token approaches in
+    order to create knowledge about whether an "else if" node is a true
+    "else if" node, or an "elif" node.
     """
 
     __implements__ = (interfaces.ITokenChecker, interfaces.IAstroidChecker)
@@ -488,9 +489,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def _is_actual_elif(self, node):
         """Check if the given node is an actual elif.
 
-        This is a problem we're having with the builtin ast module, which splits `elif`
-        branches into a separate if statement. Unfortunately we need to know the exact
-        type in certain cases.
+        This is a problem we're having with the builtin ast module,
+        which splits `elif` branches into a separate if statement.
+        Unfortunately we need to know the exact type in certain cases.
         """
         if isinstance(node.parent, nodes.If):
             orelse = node.parent.orelse
@@ -503,10 +504,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def _check_simplifiable_if(self, node):
         """Check if the given if node can be simplified.
 
-        The if statement can be reduced to a boolean expression in some cases. For
-        instance, if there are two branches and both of them return a boolean value that
-        depends on the result of the statement's test, then this can be reduced to
-        `bool(test)` without losing any functionality.
+        The if statement can be reduced to a boolean expression in some
+        cases. For instance, if there are two branches and both of them
+        return a boolean value that depends on the result of the
+        statement's test, then this can be reduced to `bool(test)`
+        without losing any functionality.
         """
 
         if self._is_actual_elif(node):
@@ -766,7 +768,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_consider_using_min_max_builtin(node)
 
     def _check_consider_using_min_max_builtin(self, node: nodes.If):
-        """Check if the given if node can be refactored as a min/max python builtin."""
+        """Check if the given if node can be refactored as a min/max python
+        builtin.
+        """
         if self._is_actual_elif(node) or node.orelse:
             # Not interested in if statements with multiple branches.
             return
@@ -908,7 +912,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_stop_iteration_inside_generator(node)
 
     def _check_stop_iteration_inside_generator(self, node):
-        """Check if an exception of type StopIteration is raised inside a generator."""
+        """Check if an exception of type StopIteration is raised inside a
+        generator.
+        """
         frame = node.frame(future=True)
         if not isinstance(frame, nodes.FunctionDef) or not frame.is_generator():
             return
@@ -924,7 +930,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     @staticmethod
     def _check_exception_inherit_from_stopiteration(exc):
-        """Return True if the exception node in argument inherit from StopIteration."""
+        """Return True if the exception node in argument inherit from
+        StopIteration.
+        """
         stopiteration_qname = f"{utils.EXCEPTIONS_MODULE}.StopIteration"
         return any(_class.qname() == stopiteration_qname for _class in exc.mro())
 
@@ -1048,7 +1056,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self.add_message("super-with-arguments", node=node)
 
     def _check_raising_stopiteration_in_generator_next_call(self, node):
-        """Check if a StopIteration exception is raised by the call to next function.
+        """Check if a StopIteration exception is raised by the call to next
+        function.
 
         If the next value has a default value, then do not add message.
 
@@ -1299,8 +1308,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def _simplify_boolean_operation(self, bool_op):
         """Attempts to simplify a boolean operation.
 
-        Recursively applies simplification on the operator terms, and keeps track of
-        whether reductions have been made.
+        Recursively applies simplification on the operator terms, and
+        keeps track of whether reductions have been made.
         """
         children = list(bool_op.get_children())
         intermediate = [
@@ -1321,8 +1330,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def _check_simplifiable_condition(self, node):
         """Check if a boolean condition can be simplified.
 
-        Variables will not be simplified, even in the value can be inferred, and
-        expressions like '3 + 4' will remain expanded.
+        Variables will not be simplified, even in the value can be
+        inferred, and expressions like '3 + 4' will remain expanded.
         """
         if not utils.is_test_condition(node):
             return
@@ -1635,10 +1644,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     @staticmethod
     def _is_and_or_ternary(node):
-        """Returns true if node is 'condition and true_value or false_value' form.
+        """Returns true if node is 'condition and true_value or false_value'
+        form.
 
-        All of: condition, true_value and false_value should not be a complex boolean
-        expression
+        All of: condition, true_value and false_value should not be a
+        complex boolean expression
         """
         return (
             isinstance(node, nodes.BoolOp)
@@ -1796,7 +1806,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     @staticmethod
     def _has_return_in_siblings(node: nodes.NodeNG) -> bool:
-        """Returns True if there is at least one return in the node's siblings."""
+        """Returns True if there is at least one return in the node's
+        siblings.
+        """
         next_sibling = node.next_sibling()
         while next_sibling:
             if isinstance(next_sibling, nodes.Return):
@@ -1826,9 +1838,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return False
 
     def _check_return_at_the_end(self, node):
-        """Check for presence of a *single* return statement at the end of a function.
-        "return" or "return None" are useless because None is the default return type if
-        they are missing.
+        """Check for presence of a *single* return statement at the end of a
+        function. "return" or "return None" are useless because None is the
+        default return type if they are missing.
 
         NOTE: produces a message only if there is a single return statement
         in the function body. Otherwise _check_consistent_returns() is called!

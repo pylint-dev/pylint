@@ -25,8 +25,8 @@ ReportsDict = DefaultDict["BaseChecker", List[Tuple[str, str, Callable]]]
 
 
 class ReportsHandlerMixIn:
-    """A mix-in class containing all the reports and stats manipulation related methods
-    for the main lint class.
+    """A mix-in class containing all the reports and stats manipulation related
+    methods for the main lint class.
     """
 
     def __init__(self) -> None:

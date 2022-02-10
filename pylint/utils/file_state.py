@@ -61,8 +61,8 @@ class FileState:
         node: nodes.NodeNG,
         msg_state: MessageStateDict,
     ) -> None:
-        """Recursively walk (depth first) AST to collect block level options line
-        numbers.
+        """Recursively walk (depth first) AST to collect block level options
+        line numbers.
         """
         for child in node.get_children():
             self._collect_block_lines(msgs_store, child, msg_state)
@@ -134,9 +134,9 @@ class FileState:
     ) -> None:
         """Report an ignored message.
 
-        state_scope is either MSG_STATE_SCOPE_MODULE or MSG_STATE_SCOPE_CONFIG,
-        depending on whether the message was disabled locally in the module, or
-        globally.
+        state_scope is either MSG_STATE_SCOPE_MODULE or
+        MSG_STATE_SCOPE_CONFIG, depending on whether the message was
+        disabled locally in the module, or globally.
         """
         if state_scope == MSG_STATE_SCOPE_MODULE:
             assert isinstance(line, int)  # should always be int inside module scope

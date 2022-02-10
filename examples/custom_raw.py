@@ -10,8 +10,8 @@ if TYPE_CHECKING:
 
 
 class MyRawChecker(BaseChecker):
-    """Check for line continuations with '\' instead of using triple
-    quoted string or parenthesis
+    """Check for line continuations with '\' instead of using triple quoted
+    string or parenthesis.
     """
 
     __implements__ = IRawChecker

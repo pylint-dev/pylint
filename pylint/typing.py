@@ -44,7 +44,9 @@ class ErrorDescriptionDict(TypedDict):
 
 
 class MessageLocationTuple(NamedTuple):
-    """Tuple with information about the location of a to-be-displayed message."""
+    """Tuple with information about the location of a to-be-displayed
+    message.
+    """
 
     abspath: str
     path: str

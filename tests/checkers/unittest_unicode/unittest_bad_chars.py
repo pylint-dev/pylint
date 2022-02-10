@@ -113,11 +113,12 @@ class TestBadCharsChecker(pylint.testutils.CheckerTestCase):
         line_ending: str,
         add_invalid_bytes: bool,
     ):
-        """All combinations of bad characters that are accepted by Python at the moment
-        are tested in all possible combinations of
-          - line ending
-          - encoding
-          - including not encode-able byte (or not)
+        """All combinations of bad characters that are accepted by Python at
+        the moment are tested in all possible combinations of.
+
+        - line ending
+        - encoding
+        - including not encode-able byte (or not)
         """
         codec, start_msg = codec_and_msg
 
@@ -207,8 +208,8 @@ class TestBadCharsChecker(pylint.testutils.CheckerTestCase):
         msg_id: str,
         codec_and_msg: Tuple[str, Tuple[pylint.testutils.MessageTest]],
     ):
-        """Special test for a file containing chars that lead to
-        Python or Astroid crashes (which causes Pylint to exit early)
+        """Special test for a file containing chars that lead to Python or
+        Astroid crashes (which causes Pylint to exit early)
         """
         codec, start_msg = codec_and_msg
         # Create file that will fail loading in astroid.
@@ -253,7 +254,9 @@ class TestBadCharsChecker(pylint.testutils.CheckerTestCase):
         ],
     )
     def test___check_invalid_chars(self, char: str, msg: str, codec: str) -> None:
-        """Check function should deliver correct column no matter which codec we used."""
+        """Check function should deliver correct column no matter which codec
+        we used.
+        """
         with self.assertAddsMessages(
             pylint.testutils.MessageTest(
                 msg_id=msg,

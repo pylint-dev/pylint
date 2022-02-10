@@ -53,7 +53,6 @@ to get the next free checker id.
 
 The raw_metrics checker has no number associated since it doesn't emit any
 messages nor reports. XXX not true, emit a 07 report !
-
 """
 
 import sys
@@ -75,9 +74,9 @@ def table_lines_from_stats(
     old_stats: Optional[LinterStats],
     stat_type: Literal["duplicated_lines", "message_types"],
 ) -> List[str]:
-    """Get values listed in <columns> from <stats> and <old_stats>,
-    and return a formatted list of values, designed to be given to a
-    ureport.Table object
+    """Get values listed in <columns> from <stats> and <old_stats>, and return
+    a formatted list of values, designed to be given to a ureport.Table
+    object.
     """
     lines: List[str] = []
     if stat_type == "duplicated_lines":

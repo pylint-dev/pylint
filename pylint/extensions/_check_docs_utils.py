@@ -782,7 +782,9 @@ class NumpyDocstring(GoogleDocstring):
     supports_yields = True
 
     def match_param_docs(self) -> Tuple[Set[str], Set[str]]:
-        """Matches parameter documentation section to parameter documentation rules."""
+        """Matches parameter documentation section to parameter documentation
+        rules.
+        """
         params_with_doc = set()
         params_with_type = set()
 

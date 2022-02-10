@@ -201,8 +201,9 @@ class TestRunTC:
     def _test_output_file(
         self, args: List[str], filename: LocalPath, expected_output: str
     ) -> None:
-        """Run Pylint with the ``output`` option set (must be included in
-        the ``args`` passed to this method!) and check the file content afterwards.
+        """Run Pylint with the ``output`` option set (must be included in the
+        ``args`` passed to this method!) and check the file content
+        afterwards.
         """
         out = StringIO()
         self._run_pylint(args, out=out)
@@ -1173,7 +1174,9 @@ class TestRunTC:
         self._runtest([path, "--fail-under=-10"] + args, code=expected)
 
     def test_one_module_fatal_error(self):
-        """Fatal errors in one of several modules linted still exits non-zero."""
+        """Fatal errors in one of several modules linted still exits non-
+        zero.
+        """
         valid_path = join(HERE, "conftest.py")
         invalid_path = join(HERE, "garbagePath.py")
         self._runtest([valid_path, invalid_path], code=1)
@@ -1264,7 +1267,9 @@ class TestRunTC:
 
     @staticmethod
     def test_enable_all_extensions() -> None:
-        """Test to see if --enable-all-extensions does indeed load all extensions."""
+        """Test to see if --enable-all-extensions does indeed load all
+        extensions.
+        """
         # Record all extensions
         plugins = []
         for filename in os.listdir(os.path.dirname(extensions.__file__)):
@@ -1280,7 +1285,9 @@ class TestRunTC:
 
     @staticmethod
     def test_load_text_repoter_if_not_provided() -> None:
-        """Test if PyLinter.reporter is a TextReporter if no reporter is provided."""
+        """Test if PyLinter.reporter is a TextReporter if no reporter is
+        provided.
+        """
         linter = PyLinter()
 
         assert isinstance(linter.reporter, TextReporter)
@@ -1288,8 +1295,10 @@ class TestRunTC:
     @staticmethod
     def test_regex_paths_csv_validator() -> None:
         """Test to see if _regexp_paths_csv_validator works.
-        Previously the validator crashed when encountering already validated values.
-        Reported in https://github.com/PyCQA/pylint/issues/5437
+
+        Previously the validator crashed when encountering already
+        validated values. Reported in
+        https://github.com/PyCQA/pylint/issues/5437
         """
         with pytest.raises(SystemExit) as ex:
             Run(["--ignore-paths", "test", join(HERE, "regrtest_data", "empty.py")])

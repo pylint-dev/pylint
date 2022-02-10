@@ -106,7 +106,9 @@ class CodeStyleChecker(BaseChecker):
             self._check_consider_using_assignment_expr(node)
 
     def _check_dict_consider_namedtuple_dataclass(self, node: nodes.Dict) -> None:
-        """Check if dictionary values can be replaced by Namedtuple or Dataclass."""
+        """Check if dictionary values can be replaced by Namedtuple or
+        Dataclass.
+        """
         if not (
             isinstance(node.parent, (nodes.Assign, nodes.AnnAssign))
             and isinstance(node.parent.parent, nodes.Module)
@@ -279,8 +281,8 @@ class CodeStyleChecker(BaseChecker):
     ) -> bool:
         """Return True if suggestion for assignment expr should be ignored.
 
-        E.g., in cases where a match statement would be a better fit (multiple
-        conditions).
+        E.g., in cases where a match statement would be a better fit
+        (multiple conditions).
         """
         if isinstance(node.test, nodes.Compare):
             next_if_node: Optional[nodes.If] = None

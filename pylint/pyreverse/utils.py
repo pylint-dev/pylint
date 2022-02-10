@@ -61,7 +61,9 @@ PROTECTED = re.compile(r"^_\w*$")
 
 
 def get_visibility(name):
-    """Return the visibility from a name: public, protected, private or special."""
+    """Return the visibility from a name: public, protected, private or
+    special.
+    """
     if SPECIAL.match(name):
         visibility = "special"
     elif PRIVATE.match(name):
@@ -80,14 +82,14 @@ FINAL = re.compile(r"^[^\W\da-z]*$")
 
 def is_abstract(node):
     """Return true if the given class node correspond to an abstract class
-    definition
+    definition.
     """
     return ABSTRACT.match(node.name)
 
 
 def is_final(node):
     """Return true if the given class/function node correspond to final
-    definition
+    definition.
     """
     return FINAL.match(node.name)
 
@@ -269,8 +271,8 @@ def get_annotation(
 
 
 def infer_node(node: Union[nodes.AssignAttr, nodes.AssignName]) -> set:
-    """Return a set containing the node annotation if it exists
-    otherwise return a set of the inferred types using the NodeNG.infer method
+    """Return a set containing the node annotation if it exists otherwise
+    return a set of the inferred types using the NodeNG.infer method.
     """
 
     ann = get_annotation(node)
@@ -286,8 +288,9 @@ def infer_node(node: Union[nodes.AssignAttr, nodes.AssignName]) -> set:
 
 def check_graphviz_availability():
     """Check if the ``dot`` command is available on the machine.
-    This is needed if image output is desired and ``dot`` is used to convert
-    from *.dot or *.gv into the final output format.
+
+    This is needed if image output is desired and ``dot`` is used to
+    convert from *.dot or *.gv into the final output format.
     """
     if shutil.which("dot") is None:
         print(

@@ -184,12 +184,12 @@ class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
 
 class ClassDiadefGenerator(DiaDefGenerator):
     """Generate a class diagram definition including all classes related to a
-    given class
+    given class.
     """
 
     def class_diagram(self, project, klass):
         """Return a class diagram definition for the given klass and its
-        related klasses
+        related klasses.
         """
 
         self.classdiagram = ClassDiagram(klass, self.config.mode)

@@ -51,7 +51,9 @@ def _gen_file_datas(count: int = 1) -> List[FileItem]:
 
 
 class SequentialTestChecker(BaseChecker):
-    """A checker that does not need to consolidate data across run invocations."""
+    """A checker that does not need to consolidate data across run
+    invocations.
+    """
 
     __implements__ = (pylint.interfaces.IRawChecker,)
 
@@ -139,7 +141,9 @@ class ParallelTestChecker(BaseChecker, MapReduceMixin):
 
 
 class ExtraSequentialTestChecker(SequentialTestChecker):
-    """A checker that does not need to consolidate data across run invocations."""
+    """A checker that does not need to consolidate data across run
+    invocations.
+    """
 
     name = "extra-sequential-checker"
     test_data = "extra-sequential"
@@ -153,7 +157,9 @@ class ExtraParallelTestChecker(ParallelTestChecker):
 
 
 class ThirdSequentialTestChecker(SequentialTestChecker):
-    """A checker that does not need to consolidate data across run invocations."""
+    """A checker that does not need to consolidate data across run
+    invocations.
+    """
 
     name = "third-sequential-checker"
     test_data = "third-sequential"
@@ -181,7 +187,8 @@ class TestCheckParallelFramework:
         assert isinstance(pylint.lint.parallel._worker_linter, type(linter))
 
     def test_worker_initialize_pickling(self) -> None:
-        """Test that we can pickle objects that standard pickling in multiprocessing can't.
+        """Test that we can pickle objects that standard pickling in
+        multiprocessing can't.
 
         See:
         https://stackoverflow.com/questions/8804830/python-multiprocessing-picklingerror-cant-pickle-type-function
@@ -240,7 +247,9 @@ class TestCheckParallelFramework:
         assert stats.warning == 0
 
     def test_worker_check_sequential_checker(self) -> None:
-        """Same as test_worker_check_single_file_no_checkers with SequentialTestChecker."""
+        """Same as test_worker_check_single_file_no_checkers with
+        SequentialTestChecker.
+        """
         linter = PyLinter(reporter=Reporter())
         worker_initialize(linter=dill.dumps(linter))
 
@@ -290,8 +299,9 @@ class TestCheckParallel:
     def test_sequential_checkers_work(self) -> None:
         """Tests original basic types of checker works as expected in -jN.
 
-        This means that a sequential checker should return the same data for a given
-        file-stream irrespective of whether it's run in -j1 or -jN
+        This means that a sequential checker should return the same data
+        for a given file-stream irrespective of whether it's run in -j1
+        or -jN
         """
         linter = PyLinter(reporter=Reporter())
 
@@ -361,7 +371,8 @@ class TestCheckParallel:
     def test_invoke_single_job(self) -> None:
         """Tests basic checkers functionality using just a single workderdo.
 
-        This is *not* the same -j1 and does not happen under normal operation
+        This is *not* the same -j1 and does not happen under normal
+        operation
         """
         linter = PyLinter(reporter=Reporter())
 
@@ -419,7 +430,8 @@ class TestCheckParallel:
         ],
     )
     def test_compare_workers_to_single_proc(self, num_files, num_jobs, num_checkers):
-        """Compares the 3 key parameters for check_parallel() produces the same results.
+        """Compares the 3 key parameters for check_parallel() produces the same
+        results.
 
         The intent here is to ensure that the check_parallel() operates on each file,
         without ordering issues, irrespective of the number of workers used and the
@@ -513,7 +525,8 @@ class TestCheckParallel:
         ],
     )
     def test_map_reduce(self, num_files, num_jobs, num_checkers):
-        """Compares the 3 key parameters for check_parallel() produces the same results.
+        """Compares the 3 key parameters for check_parallel() produces the same
+        results.
 
         The intent here is to validate the reduce step: no stats should be lost.
 

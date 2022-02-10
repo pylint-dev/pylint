@@ -40,8 +40,8 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""Some various utilities and helper classes, most of them used in the
-main pylint class
+"""Some various utilities and helper classes, most of them used in the main
+pylint class.
 """
 
 from pylint.utils.ast_walker import ASTWalker

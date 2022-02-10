@@ -551,6 +551,7 @@ class PyLinter(
         pylintrc: Optional[str] = None,
     ) -> None:
         """Some stuff has to be done before ancestors initialization...
+
         messages store / checkers / reporter / astroid manager
         """
         # Attributes for reporters
@@ -631,8 +632,8 @@ class PyLinter(
         reporters.initialize(self)
 
     def load_plugin_modules(self, modnames):
-        """Take a list of module names which are pylint plugins and load
-        and register them
+        """Take a list of module names which are pylint plugins and load and
+        register them.
         """
         for modname in modnames:
             if modname in self._dynamic_plugins:
@@ -647,9 +648,9 @@ class PyLinter(
     def load_plugin_configuration(self):
         """Call the configuration hook for plugins.
 
-        This walks through the list of plugins, grabs the "load_configuration"
-        hook, if exposed, and calls it to allow plugins to configure specific
-        settings.
+        This walks through the list of plugins, grabs the
+        "load_configuration" hook, if exposed, and calls it to allow
+        plugins to configure specific settings.
         """
         for modname in self._dynamic_plugins:
             try:
@@ -711,8 +712,8 @@ class PyLinter(
         reporter.linter = self
 
     def set_option(self, optname, value, action=None, optdict=None):
-        """Overridden from config.OptionsProviderMixin to handle some
-        special options
+        """Overridden from config.OptionsProviderMixin to handle some special
+        options.
         """
         if optname in self._options_methods or optname in self._bw_options_methods:
             if value:
@@ -776,8 +777,9 @@ class PyLinter(
     def enable_fail_on_messages(self):
         """Enable 'fail on' msgs.
 
-        Convert values in config.fail_on (which might be msg category, msg id,
-        or symbol) to specific msgs, then enable and flag them for later.
+        Convert values in config.fail_on (which might be msg category,
+        msg id, or symbol) to specific msgs, then enable and flag them
+        for later.
         """
         fail_on_vals = self.config.fail_on
         if not fail_on_vals:
@@ -858,8 +860,8 @@ class PyLinter(
     # see func_block_disable_msg.py test case for expected behaviour
 
     def process_tokens(self, tokens):
-        """Process tokens from the current module to search for module/block level
-        options.
+        """Process tokens from the current module to search for module/block
+        level options.
         """
         control_pragmas = {"disable", "disable-next", "enable"}
         prev_line = None
@@ -1040,9 +1042,11 @@ class PyLinter(
                 yield something
 
     def check(self, files_or_modules: Union[Sequence[str], str]) -> None:
-        """Main checking entry: check a list of files or modules from their name.
+        """Main checking entry: check a list of files or modules from their
+        name.
 
-        files_or_modules is either a string or list of strings presenting modules to check.
+        files_or_modules is either a string or list of strings
+        presenting modules to check.
         """
         self.initialize()
         if not isinstance(files_or_modules, (list, tuple)):
@@ -1121,7 +1125,8 @@ class PyLinter(
                         self.add_message(symbol, args=msg)
 
     def _check_file(self, get_ast, check_astroid_module, file: FileItem):
-        """Check a file using the passed utility functions (get_ast and check_astroid_module).
+        """Check a file using the passed utility functions (get_ast and
+        check_astroid_module).
 
         :param callable get_ast: callable returning AST from defined file taking the following arguments
         - filepath: path to the file to check
@@ -1152,10 +1157,11 @@ class PyLinter(
 
     @staticmethod
     def _get_file_descr_from_stdin(filepath: str) -> FileItem:
-        """Return file description (tuple of module name, file path, base name) from given file path.
+        """Return file description (tuple of module name, file path, base name)
+        from given file path.
 
-        This method is used for creating suitable file description for _check_files when the
-        source is standard input.
+        This method is used for creating suitable file description for
+        _check_files when the source is standard input.
         """
         try:
             # Note that this function does not really perform an
@@ -1168,9 +1174,11 @@ class PyLinter(
         return FileItem(modname, filepath, filepath)
 
     def _iterate_file_descrs(self, files_or_modules) -> Iterator[FileItem]:
-        """Return generator yielding file descriptions (tuples of module name, file path, base name).
+        """Return generator yielding file descriptions (tuples of module name,
+        file path, base name).
 
-        The returned generator yield one item for each Python module that should be linted.
+        The returned generator yield one item for each Python module
+        that should be linted.
         """
         for descr in self._expand_files(files_or_modules):
             name, filepath, is_arg = descr["name"], descr["path"], descr["isarg"]
@@ -1195,8 +1203,8 @@ class PyLinter(
         return result
 
     def set_current_module(self, modname, filepath: Optional[str] = None):
-        """Set the name of the currently analyzed module and
-        init statistics for it
+        """Set the name of the currently analyzed module and init statistics
+        for it.
         """
         if not modname and filepath is None:
             return
@@ -1218,7 +1226,8 @@ class PyLinter(
     def _astroid_module_checker(self):
         """Context manager for checking ASTs.
 
-        The value in the context is callable accepting AST as its only argument.
+        The value in the context is callable accepting AST as its only
+        argument.
         """
         walker = ASTWalker(self)
         _checkers = self.prepare_checkers()
@@ -1447,8 +1456,8 @@ class PyLinter(
     def _is_one_message_enabled(self, msgid: str, line: Optional[int]) -> bool:
         """Checks state of a single message for the current file.
 
-        This function can't be cached as it depends on self.file_state which can
-        change.
+        This function can't be cached as it depends on self.file_state
+        which can change.
         """
         if line is None:
             return self._msgs_state.get(msgid, True)
@@ -1486,7 +1495,8 @@ class PyLinter(
         line: Optional[int] = None,
         confidence: Optional[interfaces.Confidence] = None,
     ) -> bool:
-        """Return whether this message is enabled for the current file, line and confidence level.
+        """Return whether this message is enabled for the current file, line
+        and confidence level.
 
         This function can't be cached right now as the line is the line of
         the currently analysed file (self.file_state), if it changes, then the
@@ -1519,8 +1529,8 @@ class PyLinter(
         end_lineno: Optional[int],
         end_col_offset: Optional[int],
     ) -> None:
-        """After various checks have passed a single Message is
-        passed to the reporter and added to stats
+        """After various checks have passed a single Message is passed to the
+        reporter and added to stats.
         """
         message_definition.check_message_definition(line, node)
 
@@ -1637,10 +1647,11 @@ class PyLinter(
     ) -> None:
         """Prepares a message to be added to the ignored message storage.
 
-        Some checks return early in special cases and never reach add_message(),
-        even though they would normally issue a message.
-        This creates false positives for useless-suppression.
-        This function avoids this by adding those message to the ignored msgs attribute
+        Some checks return early in special cases and never reach
+        add_message(), even though they would normally issue a message.
+        This creates false positives for useless-suppression. This
+        function avoids this by adding those message to the ignored msgs
+        attribute
         """
         message_definitions = self.msgs_store.get_message_definitions(msgid)
         for message_definition in message_definitions:
@@ -1658,8 +1669,7 @@ class PyLinter(
     def _message_symbol(self, msgid: str) -> List[str]:
         """Get the message symbol of the given message id.
 
-        Return the original message id if the message does not
-        exist.
+        Return the original message id if the message does not exist.
         """
         try:
             return [md.symbol for md in self.msgs_store.get_message_definitions(msgid)]
@@ -1685,7 +1695,9 @@ class PyLinter(
     def _get_messages_to_set(
         self, msgid: str, enable: bool, ignore_unknown: bool = False
     ) -> List[MessageDefinition]:
-        """Do some tests and find the actual messages of which the status should be set."""
+        """Do some tests and find the actual messages of which the status
+        should be set.
+        """
         message_definitions = []
         if msgid == "all":
             for _msgid in MSG_TYPES:
@@ -1740,7 +1752,9 @@ class PyLinter(
         line: Optional[int] = None,
         ignore_unknown: bool = False,
     ) -> None:
-        """Do some tests and then iterate over message definitions to set state."""
+        """Do some tests and then iterate over message definitions to set
+        state.
+        """
         assert scope in {"package", "module"}
 
         message_definitions = self._get_messages_to_set(msgid, enable, ignore_unknown)

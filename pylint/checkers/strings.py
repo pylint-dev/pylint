@@ -256,8 +256,8 @@ def arg_matches_format_type(arg_type, format_type):
 
 
 class StringFormatChecker(BaseChecker):
-    """Checks string formatting operations to ensure that the format string is valid and
-    the arguments match the format string.
+    """Checks string formatting operations to ensure that the format string is
+    valid and the arguments match the format string.
     """
 
     __implements__ = (IAstroidChecker,)
@@ -932,7 +932,8 @@ def register(linter: "PyLinter") -> None:
 
 
 def str_eval(token):
-    """Mostly replicate `ast.literal_eval(token)` manually to avoid any performance hit.
+    """Mostly replicate `ast.literal_eval(token)` manually to avoid any
+    performance hit.
 
     This supports f-strings, contrary to `ast.literal_eval`.
     We have to support all string literal notations:

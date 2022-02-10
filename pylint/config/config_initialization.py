@@ -19,8 +19,8 @@ def _config_initialization(
     config_file: Union[None, str, Path] = None,
     verbose_mode: Optional[bool] = None,
 ) -> List[str]:
-    """Parse all available options, read config files and command line arguments and set
-    options accordingly.
+    """Parse all available options, read config files and command line
+    arguments and set options accordingly.
     """
 
     # Read the config file. The parser is stored on linter.cfgfile_parser

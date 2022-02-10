@@ -43,10 +43,11 @@ class TestStdlibChecker(CheckerTestCase):
     def test_deprecated_no_qname_on_unexpected_nodes(self) -> None:
         """Test that we don't crash on nodes which don't have a qname method.
 
-        While this test might seem weird since it uses a transform, it's actually
-        testing a crash that happened in production, but there was no way to retrieve
-        the code for which this occurred (how an AssignAttr got to be the result of a
-        function inference beats me...)
+        While this test might seem weird since it uses a transform, it's
+        actually testing a crash that happened in production, but there
+        was no way to retrieve the code for which this occurred (how an
+        AssignAttr got to be the result of a function inference beats
+        me...)
         """
 
         def infer_func(

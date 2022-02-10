@@ -7,8 +7,8 @@ from pylint.exceptions import InvalidMessageError, UnknownMessageError
 
 class MessageIdStore:
 
-    """The MessageIdStore store MessageId and make sure that there is a 1-1 relation
-    between msgid and symbol.
+    """The MessageIdStore store MessageId and make sure that there is a 1-1
+    relation between msgid and symbol.
     """
 
     def __init__(self) -> None:
@@ -53,8 +53,9 @@ class MessageIdStore:
     def add_msgid_and_symbol(self, msgid: str, symbol: str) -> None:
         """Add valid message id.
 
-        There is a little duplication with add_legacy_msgid_and_symbol to avoid a
-        function call, this is called a lot at initialization.
+        There is a little duplication with add_legacy_msgid_and_symbol
+        to avoid a function call, this is called a lot at
+        initialization.
         """
         self.__msgid_to_symbol[msgid] = symbol
         self.__symbol_to_msgid[symbol] = msgid
@@ -64,8 +65,8 @@ class MessageIdStore:
     ) -> None:
         """Add valid legacy message id.
 
-        There is a little duplication with add_msgid_and_symbol to avoid a function
-        call, this is called a lot at initialization.
+        There is a little duplication with add_msgid_and_symbol to avoid
+        a function call, this is called a lot at initialization.
         """
         self.__msgid_to_symbol[msgid] = symbol
         self.__symbol_to_msgid[symbol] = msgid
@@ -109,7 +110,8 @@ class MessageIdStore:
     def get_active_msgids(self, msgid_or_symbol: str) -> List[str]:
         """Return msgids but the input can be a symbol.
 
-        self.__active_msgids is used to implement a primitive cache for this function.
+        self.__active_msgids is used to implement a primitive cache for
+        this function.
         """
         try:
             return self.__active_msgids[msgid_or_symbol]

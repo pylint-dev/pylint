@@ -124,7 +124,9 @@ class TestTypeCheckerOnDecorators(CheckerTestCase):
         self.decorated_by_unsubscriptable_then_subscriptable_class(decorators)
 
     def getitem_on_modules(self) -> None:
-        """Mainly validate the code won't crash if we're not having a function."""
+        """Mainly validate the code won't crash if we're not having a
+        function.
+        """
         module = astroid.parse(
             """
         import collections

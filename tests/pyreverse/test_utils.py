@@ -84,8 +84,8 @@ def test_get_annotation_assignattr(init_method, label):
 @patch("pylint.pyreverse.utils.get_annotation")
 @patch("astroid.node_classes.NodeNG.infer", side_effect=astroid.InferenceError)
 def test_infer_node_1(mock_infer: Any, mock_get_annotation: Any) -> None:
-    """Return set() when astroid.InferenceError is raised and an annotation has not been
-    returned.
+    """Return set() when astroid.InferenceError is raised and an annotation has
+    not been returned.
     """
     mock_get_annotation.return_value = None
     node = astroid.extract_node("a: str = 'mystr'")
@@ -97,8 +97,8 @@ def test_infer_node_1(mock_infer: Any, mock_get_annotation: Any) -> None:
 @patch("pylint.pyreverse.utils.get_annotation")
 @patch("astroid.node_classes.NodeNG.infer")
 def test_infer_node_2(mock_infer: Any, mock_get_annotation: Any) -> None:
-    """Return set(node.infer()) when InferenceError is not raised and an annotation has
-    not been returned.
+    """Return set(node.infer()) when InferenceError is not raised and an
+    annotation has not been returned.
     """
     mock_get_annotation.return_value = None
     node = astroid.extract_node("a: str = 'mystr'")
@@ -108,8 +108,8 @@ def test_infer_node_2(mock_infer: Any, mock_get_annotation: Any) -> None:
 
 
 def test_infer_node_3() -> None:
-    """Return a set containing a nodes.ClassDef object when the attribute has a type
-    annotation.
+    """Return a set containing a nodes.ClassDef object when the attribute has a
+    type annotation.
     """
     node = astroid.extract_node(
         """
@@ -127,7 +127,9 @@ def test_infer_node_3() -> None:
 
 
 def test_infer_node_4() -> None:
-    """Verify the label for an argument with a typehint of the type nodes.Subscript."""
+    """Verify the label for an argument with a typehint of the type
+    nodes.Subscript.
+    """
     node = astroid.extract_node(
         """
         class MyClass:

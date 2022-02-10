@@ -58,7 +58,9 @@ class MessageDefinition:
         return f"{repr(self)}:\n{self.msg} {self.description}"
 
     def may_be_emitted(self) -> bool:
-        """Return True if message may be emitted using the current interpreter."""
+        """Return True if message may be emitted using the current
+        interpreter.
+        """
         if self.minversion is not None and self.minversion > sys.version_info:
             return False
         if self.maxversion is not None and self.maxversion <= sys.version_info:

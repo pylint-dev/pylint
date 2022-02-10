@@ -43,7 +43,9 @@ class LintModuleOutputUpdate(LintModuleTest):
         expected_output: List[OutputLine],
         actual_output: List[OutputLine],
     ) -> None:
-        """Overwrite or remove the expected output file based on actual output."""
+        """Overwrite or remove the expected output file based on actual
+        output.
+        """
         # Remove the file if no output is actually expected and a file exists
         if not expected_output and not actual_output:
             if os.path.exists(self._test_file.expected_output):

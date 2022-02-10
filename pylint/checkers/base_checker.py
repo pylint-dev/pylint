@@ -67,8 +67,10 @@ class BaseChecker(OptionsProviderMixIn):
         return f"{status} '{self.name}' (responsible for '{msgs}')"
 
     def __str__(self):
-        """This might be incomplete because multiple class inheriting BaseChecker
-        can have the same name. Cf MessageHandlerMixIn.get_full_documentation()
+        """This might be incomplete because multiple class inheriting
+        BaseChecker can have the same name.
+
+        Cf MessageHandlerMixIn.get_full_documentation()
         """
         return self.get_full_documentation(
             msgs=self.msgs, options=self.options_and_values(), reports=self.reports

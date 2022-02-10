@@ -102,8 +102,8 @@ class RecommendationChecker(checkers.BaseChecker):
             self.add_message("consider-iterating-dictionary", node=node)
 
     def _check_use_maxsplit_arg(self, node: nodes.Call) -> None:
-        """Add message when accessing first or last elements of a str.split() or
-        str.rsplit().
+        """Add message when accessing first or last elements of a str.split()
+        or str.rsplit().
         """
 
         # Check if call is split() or rsplit()
@@ -338,8 +338,8 @@ class RecommendationChecker(checkers.BaseChecker):
                 self._detect_replacable_format_call(node)
 
     def _detect_replacable_format_call(self, node: nodes.Const) -> None:
-        """Check whether a string is used in a call to format() or '%' and whether it
-        can be replaced by an f-string.
+        """Check whether a string is used in a call to format() or '%' and
+        whether it can be replaced by an f-string.
         """
         if (
             isinstance(node.parent, nodes.Attribute)

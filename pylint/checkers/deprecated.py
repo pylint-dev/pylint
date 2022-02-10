@@ -22,6 +22,7 @@ ACCEPTABLE_NODES = (
 
 class DeprecatedMixin(BaseChecker):
     """A mixin implementing logic for checking deprecated symbols.
+
     A class implementing mixin must define "deprecated-method" Message.
     """
 
@@ -180,8 +181,10 @@ class DeprecatedMixin(BaseChecker):
                 self.add_message("deprecated-module", node=node, args=mod_path)
 
     def check_deprecated_method(self, node, inferred):
-        """Executes the checker for the given node. This method should
-        be called from the checker implementing this mixin.
+        """Executes the checker for the given node.
+
+        This method should be called from the checker implementing this
+        mixin.
         """
 
         # Reject nodes which aren't of interest to us.

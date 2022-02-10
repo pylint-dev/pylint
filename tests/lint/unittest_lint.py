@@ -814,8 +814,8 @@ class _CustomPyLinter(PyLinter):
 
 
 def test_custom_should_analyze_file() -> None:
-    """Check that we can write custom should_analyze_file that work
-    even for arguments.
+    """Check that we can write custom should_analyze_file that work even for
+    arguments.
     """
     package_dir = os.path.join(REGRTEST_DATA_DIR, "bad_package")
     wrong_file = os.path.join(package_dir, "wrong.py")

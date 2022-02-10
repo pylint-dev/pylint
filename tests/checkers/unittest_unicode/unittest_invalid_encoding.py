@@ -121,7 +121,9 @@ class TestInvalidEncoding(pylint.testutils.CheckerTestCase):
         ],
     )
     def test__determine_codec(self, content: bytes, codec: str, line: int):
-        """The codec determined should be exact no matter what we throw at it."""
+        """The codec determined should be exact no matter what we throw at
+        it.
+        """
         assert self.checker._determine_codec(io.BytesIO(content)) == (codec, line)
 
     def test__determine_codec_raises_syntax_error_on_invalid_input(self):

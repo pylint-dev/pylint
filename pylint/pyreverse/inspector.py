@@ -15,6 +15,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Visitor doing some postprocessing on the astroid tree.
+
 Try to resolve definitions (namespace) dictionary, relationship...
 """
 import collections

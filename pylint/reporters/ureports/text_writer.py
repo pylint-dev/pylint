@@ -32,8 +32,8 @@ BULLETS = ["*", "-"]
 
 
 class TextWriter(BaseWriter):
-    """Format layouts as text
-    (ReStructured inspiration but not totally handled yet)
+    """Format layouts as text (ReStructured inspiration but not totally handled
+    yet)
     """
 
     def __init__(self):

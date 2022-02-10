@@ -20,7 +20,9 @@ except ImportError:
 
 
 def _cpu_count() -> int:
-    """Use sched_affinity if available for virtualized or containerized environments."""
+    """Use sched_affinity if available for virtualized or containerized
+    environments.
+    """
     sched_getaffinity = getattr(os, "sched_getaffinity", None)
     # pylint: disable=not-callable,using-constant-test,useless-suppression
     if sched_getaffinity:
@@ -398,7 +400,8 @@ to search for configuration file.
         self._plugins.extend(utils._splitstrip(value))
 
     def cb_error_mode(self, *args, **kwargs):
-        """Error mode:
+        """Error mode:.
+
         * disable all but error messages
         * disable the 'miscellaneous' checker which can be safely deactivated in
           debug
@@ -440,8 +443,8 @@ to search for configuration file.
     def cb_list_groups(self, *args, **kwargs):
         """List all the check groups that pylint knows about.
 
-        These should be useful to know what check groups someone can disable
-        or enable.
+        These should be useful to know what check groups someone can
+        disable or enable.
         """
         for check in self.linter.get_checker_names():
             print(check)

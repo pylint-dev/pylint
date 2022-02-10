@@ -28,11 +28,12 @@ class EllipsisChecker(BaseChecker):
     @check_messages("unnecessary-ellipsis")
     def visit_const(self, node: nodes.Const) -> None:
         """Check if the ellipsis constant is used unnecessarily.
+
         Emit a warning when:
-         - A line consisting of an ellipsis is preceded by a docstring.
-         - A statement exists in the same scope as the ellipsis.
-           For example: A function consisting of an ellipsis followed by a
-           return statement on the next line.
+          - A line consisting of an ellipsis is preceded by a docstring.
+          - A statement exists in the same scope as the ellipsis.
+            For example: A function consisting of an ellipsis followed by a
+            return statement on the next line.
         """
         if (
             node.pytype() == "builtins.Ellipsis"

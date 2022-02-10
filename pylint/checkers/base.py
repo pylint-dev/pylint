@@ -101,9 +101,9 @@ else:
 
 
 class NamingStyle:
-    """It may seem counterintuitive that single naming style has multiple "accepted"
-    forms of regular expressions, but we need to special-case stuff like dunder names
-    in method names.
+    """It may seem counterintuitive that single naming style has multiple
+    "accepted" forms of regular expressions, but we need to special-case stuff
+    like dunder names in method names.
     """
 
     ANY: Pattern[str] = re.compile(".*")
@@ -231,8 +231,9 @@ TYPING_FORWARD_REF_QNAME = "typing.ForwardRef"
 
 
 def _redefines_import(node):
-    """Detect that the given node (AssignName) is inside an
-    exception handler and redefines an import from the tryexcept body.
+    """Detect that the given node (AssignName) is inside an exception handler
+    and redefines an import from the tryexcept body.
+
     Returns True if the node redefines an import, False otherwise.
     """
     current = node
@@ -267,7 +268,7 @@ def in_loop(node: nodes.NodeNG) -> bool:
 
 def in_nested_list(nested_list, obj):
     """Return true if the object is an element of <nested_list> or of a nested
-    list
+    list.
     """
     for elmt in nested_list:
         if isinstance(elmt, (list, tuple)):
@@ -337,8 +338,8 @@ BUILTIN_PROPERTY = "builtins.property"
 def _get_properties(config):
     """Returns a tuple of property classes and names.
 
-    Property classes are fully qualified, such as 'abc.abstractproperty' and
-    property names are the actual names, such as 'abstract_property'.
+    Property classes are fully qualified, i.e. 'abc.abstractproperty'
+    and property names are the actual names, i.e. 'abstract_property'.
     """
     property_classes = {BUILTIN_PROPERTY}
     property_names = set()  # Not returning 'property', it has its own check.
@@ -390,8 +391,8 @@ def _determine_function_name_type(node: nodes.FunctionDef, config=None):
 def _has_abstract_methods(node):
     """Determine if the given `node` has abstract methods.
 
-    The methods should be made abstract by decorating them
-    with `abc` decorators.
+    The methods should be made abstract by decorating them with `abc`
+    decorators.
     """
     return len(utils.unimplemented_abstract_methods(node)) > 0
 
@@ -784,9 +785,7 @@ class BasicErrorChecker(_BasicChecker):
 
     @utils.check_messages("abstract-class-instantiated")
     def visit_call(self, node: nodes.Call) -> None:
-        """Check instantiating abstract class with
-        abc.ABCMeta as metaclass.
-        """
+        """Check instantiating abstract class with abc.ABCMeta as metaclass."""
         for inferred in infer_all(node.func):
             self._check_inferred_class_is_abstract(inferred, node)
 
@@ -1167,8 +1166,8 @@ class BasicChecker(_BasicChecker):
         self.linter.stats.node_count["module"] += 1
 
     def visit_classdef(self, _: nodes.ClassDef) -> None:
-        """Check module name, docstring and redefinition
-        increment branch counter
+        """Check module name, docstring and redefinition increment branch
+        counter.
         """
         self.linter.stats.node_count["klass"] += 1
 
@@ -1306,8 +1305,8 @@ class BasicChecker(_BasicChecker):
 
     @utils.check_messages("dangerous-default-value")
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
-        """Check function name, docstring, arguments, redefinition,
-        variable names, max locals
+        """Check function name, docstring, arguments, redefinition, variable
+        names, max locals.
         """
         if node.is_method():
             self.linter.stats.node_count["method"] += 1
@@ -1370,8 +1369,8 @@ class BasicChecker(_BasicChecker):
 
     @utils.check_messages("unreachable")
     def visit_continue(self, node: nodes.Continue) -> None:
-        """Check is the node has a right sibling (if so, that's some unreachable
-        code)
+        """Check is the node has a right sibling (if so, that's some
+        unreachable code)
         """
         self._check_unreachable(node)
 
@@ -1389,8 +1388,8 @@ class BasicChecker(_BasicChecker):
 
     @utils.check_messages("unreachable")
     def visit_raise(self, node: nodes.Raise) -> None:
-        """Check if the node has a right sibling (if so, that's some unreachable
-        code)
+        """Check if the node has a right sibling (if so, that's some
+        unreachable code)
         """
         self._check_unreachable(node)
 
@@ -1419,7 +1418,8 @@ class BasicChecker(_BasicChecker):
         "eval-used", "exec-used", "bad-reversed-sequence", "misplaced-format-function"
     )
     def visit_call(self, node: nodes.Call) -> None:
-        """Visit a Call node -> check if this is not a disallowed builtin
+        """Visit a Call node -> check if this is not a disallowed builtin.
+
         call and check for * or ** use
         """
         self._check_misplaced_format_function(node)
@@ -1494,8 +1494,9 @@ class BasicChecker(_BasicChecker):
     def _check_not_in_finally(self, node, node_name, breaker_classes=()):
         """Check that a node is not inside a 'finally' clause of a
         'try...finally' statement.
-        If we find a parent which type is in breaker_classes before
-        a 'try...finally' block we skip the whole check.
+
+        If we find a parent which type is in breaker_classes before a
+        'try...finally' block we skip the whole check.
         """
         # if self._tryfinallys is empty, we're not an in try...finally block
         if not self._tryfinallys:
@@ -2263,8 +2264,8 @@ class PassChecker(_BasicChecker):
 
 
 def _is_one_arg_pos_call(call):
-    """Is this a call with exactly 1 argument,
-    where that argument is positional?
+    """Is this a call with exactly 1 argument, where that argument is
+    positional?
     """
     return isinstance(call, nodes.Call) and len(call.args) == 1 and not call.keywords
 
@@ -2436,7 +2437,9 @@ class ComparisonChecker(_BasicChecker):
         )
 
     def _check_literal_comparison(self, literal, node: nodes.Compare):
-        """Check if we compare to a literal, which is usually what we do not want to do."""
+        """Check if we compare to a literal, which is usually what we do not
+        want to do.
+        """
         is_other_literal = isinstance(literal, (nodes.List, nodes.Dict, nodes.Set))
         is_const = False
         if isinstance(literal, nodes.Const):
@@ -2450,6 +2453,7 @@ class ComparisonChecker(_BasicChecker):
 
     def _check_logical_tautology(self, node: nodes.Compare):
         """Check if identifier is compared against itself.
+
         :param node: Compare node
         :Example:
         val = 786

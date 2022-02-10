@@ -1,6 +1,6 @@
-"""Example checker detecting deprecated functions/methods. Following example searches
-for usages of deprecated function `deprecated_function` and deprecated method
-`MyClass.deprecated_method` from module mymodule:
+"""Example checker detecting deprecated functions/methods. Following example
+searches for usages of deprecated function `deprecated_function` and deprecated
+method `MyClass.deprecated_method` from module mymodule:
 
 .. code-block:: console
     $ cat mymodule.py
@@ -59,8 +59,8 @@ class DeprecationChecker(DeprecatedMixin, BaseChecker):
     name = "deprecated"
 
     def deprecated_methods(self) -> Set[str]:
-        """Callback method called by DeprecatedMixin for every method/function found in
-        the code.
+        """Callback method called by DeprecatedMixin for every method/function
+        found in the code.
 
         Returns:
             collections.abc.Container of deprecated function/method names.

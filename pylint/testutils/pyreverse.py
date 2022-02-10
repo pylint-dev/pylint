@@ -9,7 +9,8 @@ from typing import List, Optional, Tuple
 class PyreverseConfig:  # pylint: disable=too-many-instance-attributes, too-many-arguments
     """Holds the configuration options for Pyreverse.
 
-    The default values correspond to the defaults of the options' parser.
+    The default values correspond to the defaults of the options'
+    parser.
     """
 
     def __init__(

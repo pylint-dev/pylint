@@ -53,7 +53,9 @@ def test_output_line() -> None:
 
 
 def test_output_line_from_message(message: Callable) -> None:
-    """Test that the OutputLine NamedTuple is instantiated correctly with from_msg."""
+    """Test that the OutputLine NamedTuple is instantiated correctly with
+    from_msg.
+    """
     expected_column = 2 if PY38_PLUS else 0
 
     output_line = OutputLine.from_msg(message())
@@ -89,8 +91,8 @@ def test_output_line_from_message(message: Callable) -> None:
 
 @pytest.mark.parametrize("confidence", [HIGH, INFERENCE])
 def test_output_line_to_csv(confidence: Confidence, message: Callable) -> None:
-    """Test that the OutputLine NamedTuple is instantiated correctly with from_msg and
-    then converted to csv.
+    """Test that the OutputLine NamedTuple is instantiated correctly with
+    from_msg and then converted to csv.
     """
     output_line = OutputLine.from_msg(message(confidence), True)
     csv = output_line.to_csv()
@@ -152,7 +154,8 @@ def test_output_line_from_csv_error() -> None:
 def test_output_line_from_csv_deprecated(
     confidence: Optional[str], expected_confidence: str
 ) -> None:
-    """Test that the OutputLine NamedTuple is instantiated correctly with from_csv.
+    """Test that the OutputLine NamedTuple is instantiated correctly with
+    from_csv.
 
     Test OutputLine's of length 5 or 6.
     """
@@ -185,7 +188,8 @@ def test_output_line_from_csv_deprecated(
 
 
 def test_output_line_from_csv() -> None:
-    """Test that the OutputLine NamedTuple is instantiated correctly with from_csv.
+    """Test that the OutputLine NamedTuple is instantiated correctly with
+    from_csv.
 
     Test OutputLine of length 8.
     """

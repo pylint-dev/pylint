@@ -32,7 +32,9 @@ def get_expected_or_default(
     suffix: str,
     default: str,
 ) -> str:
-    """Return the expected value from the file if it exists, or the given default."""
+    """Return the expected value from the file if it exists, or the given
+    default.
+    """
     expected = default
     path = Path(tested_configuration_file)
     expected_result_path = path.parent / f"{path.stem}.{suffix}"
@@ -55,7 +57,9 @@ EXPECTED_CONF_REMOVE_KEY = "functional_remove"
 def get_expected_configuration(
     configuration_path: str, default_configuration: PylintConfiguration
 ) -> PylintConfiguration:
-    """Get the expected parsed configuration of a configuration functional test."""
+    """Get the expected parsed configuration of a configuration functional
+    test.
+    """
     result = copy.deepcopy(default_configuration)
     config_as_json = get_expected_or_default(
         configuration_path, suffix="result.json", default="{}"
@@ -141,7 +145,9 @@ def get_expected_output(
 def run_using_a_configuration_file(
     configuration_path: Union[Path, str], file_to_lint: str = __file__
 ) -> Tuple[Mock, Mock, Run]:
-    """Simulate a run with a configuration without really launching the checks."""
+    """Simulate a run with a configuration without really launching the
+    checks.
+    """
     configuration_path = str(configuration_path)
     args = ["--rcfile", configuration_path, file_to_lint]
     # We do not capture the `SystemExit` as then the `runner` variable

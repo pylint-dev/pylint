@@ -102,7 +102,9 @@ def test_map_positions_to_result(
     expected: Dict[int, pylint.checkers.unicode._BadChar],
     search_dict,
 ):
-    """Test all possible outcomes for map position function in UTF-8 and ASCII."""
+    """Test all possible outcomes for map position function in UTF-8 and
+    ASCII.
+    """
     if isinstance(line, bytes):
         newline = b"\n"
     else:

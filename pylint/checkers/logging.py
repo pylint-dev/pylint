@@ -276,7 +276,9 @@ class LoggingChecker(checkers.BaseChecker):
             )
 
     def _helper_string(self, node):
-        """Create a string that lists the valid types of formatting for this node."""
+        """Create a string that lists the valid types of formatting for this
+        node.
+        """
         valid_types = ["lazy %"]
 
         if not self.linter.is_message_enabled(
@@ -371,7 +373,9 @@ class LoggingChecker(checkers.BaseChecker):
 
 
 def is_complex_format_str(node: nodes.NodeNG) -> bool:
-    """Return whether the node represents a string with complex formatting specs."""
+    """Return whether the node represents a string with complex formatting
+    specs.
+    """
     inferred = utils.safe_infer(node)
     if inferred is None or not (
         isinstance(inferred, nodes.Const) and isinstance(inferred.value, str)

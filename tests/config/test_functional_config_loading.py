@@ -1,8 +1,8 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""This launches the configuration functional tests. This permits to test configuration
-files by providing a file with the appropriate extension in the
+"""This launches the configuration functional tests. This permits to test
+configuration files by providing a file with the appropriate extension in the
 ``tests/config/functional`` directory.
 
 Let's say you have a regression_list_crash.toml file to test. Then, if there is an error in the conf,

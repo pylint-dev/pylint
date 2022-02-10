@@ -12,8 +12,8 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""Unit tests for the pylint checkers in :mod:`pylint.extensions.check_docs`, in
-particular the parameter documentation checker `DocstringChecker`
+"""Unit tests for the pylint checkers in :mod:`pylint.extensions.check_docs`,
+in particular the parameter documentation checker `DocstringChecker`
 """
 import astroid
 import pytest

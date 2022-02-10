@@ -68,9 +68,10 @@ CODEC_AND_MSG = [
 class FakeNode:
     """Simple Faker representing a Module node.
 
-    Astroid crashes in a number of cases if we want to lint unsupported encodings.
-    So, this is used to test the behaviour of the encoding checker.
-    This shall ensure that our checks keep working once Python supports UTF16/32.
+    Astroid crashes in a number of cases if we want to lint unsupported
+    encodings. So, this is used to test the behaviour of the encoding
+    checker. This shall ensure that our checks keep working once Python
+    supports UTF16/32.
     """
 
     file: Path

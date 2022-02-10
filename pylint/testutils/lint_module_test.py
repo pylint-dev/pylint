@@ -142,7 +142,8 @@ class LintModuleTest:
     ) -> Tuple[MessageCounter, Dict[Tuple[int, str], int]]:
         """Takes two multisets and compares them.
 
-        A multiset is a dict with the cardinality of the key as the value.
+        A multiset is a dict with the cardinality of the key as the
+        value.
         """
         missing = expected_entries.copy()
         missing.subtract(actual_entries)
