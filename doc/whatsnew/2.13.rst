@@ -180,6 +180,10 @@ Other Changes
 
   Closes #5177, #5212
 
+* Fix parsing of long lines when ``missing-final-newline`` is enabled.
+
+  Closes #5724
+
 * Fix ``unnecessary_dict_index_lookup`` false positive when deleting a dictionary's entry.
 
   Closes #4716
