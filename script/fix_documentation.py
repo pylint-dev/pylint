@@ -1,4 +1,7 @@
-"""Small script to fix various issues with the documentation. Used by pre-commit."""
+"""Small script to fix various issues with the documentation.
+
+Used by pre-commit.
+"""
 import argparse
 import re
 import sys

@@ -1142,7 +1142,9 @@ accessed. Python regular expressions are accepted.",
         self._check_dundername_is_string(node)
 
     def _check_assignment_from_function_call(self, node: nodes.Assign) -> None:
-        """When assigning to a function call, check that the function returns a valid value."""
+        """Check that if assigning to a function call, the function is
+        possibly returning something valuable
+        """
         if not isinstance(node.value, nodes.Call):
             return
 

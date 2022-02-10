@@ -73,7 +73,9 @@ URL="." node[shape="box"]
     any(shutil.which(x) for x in ("dot", "gv")), reason="dot or gv is installed"
 )
 def test_missing_graphviz(filename: str) -> None:
-    """Raises if graphviz is not installed, and defaults to png if no extension given."""
+    """Raises if graphviz is not installed, and defaults to png if no extension
+    given.
+    """
     with pytest.raises(RuntimeError, match=r"Cannot generate `graph\.png`.*"):
         imports._dependencies_graph(filename, {"a": {"b", "c"}, "b": {"c"}})
 

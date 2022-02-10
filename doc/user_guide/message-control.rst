@@ -112,7 +112,7 @@ Here's an example with all these rules in a single place:
             pass
 
         def meth1(self, arg):
-            """this issues a message"""
+            """This issues a message"""
             print(self)
 
         def meth2(self, arg):
@@ -122,14 +122,14 @@ Here's an example with all these rules in a single place:
                   + "foo")
 
         def meth3(self):
-            """test one line disabling"""
+            """Test one line disabling"""
             # no error
             print(self.bla) # pylint: disable=no-member
             # error
             print(self.blop)
 
         def meth4(self):
-            """test re-enabling"""
+            """Test re-enabling"""
             # pylint: disable=no-member
             # no error
             print(self.bla)
@@ -139,7 +139,7 @@ Here's an example with all these rules in a single place:
             print(self.blip)
 
         def meth5(self):
-            """test IF sub-block re-enabling"""
+            """Test IF sub-block re-enabling"""
             # pylint: disable=no-member
             # no error
             print(self.bla)
@@ -154,7 +154,7 @@ Here's an example with all these rules in a single place:
             print(self.blip)
 
         def meth6(self):
-            """test TRY/EXCEPT sub-block re-enabling"""
+            """Test TRY/EXCEPT sub-block re-enabling"""
             # pylint: disable=no-member
             # no error
             print(self.bla)
@@ -169,7 +169,7 @@ Here's an example with all these rules in a single place:
             print(self.blip)
 
         def meth7(self):
-            """test one line block opening disabling"""
+            """Test one line block opening disabling"""
             if self.blop: # pylint: disable=no-member
                 # error
                 print(self.blip)
@@ -180,7 +180,7 @@ Here's an example with all these rules in a single place:
             print(self.blip)
 
         def meth8(self):
-            """test late disabling"""
+            """Test late disabling"""
             # error
             print(self.blip)
             # pylint: disable=no-member
@@ -189,7 +189,7 @@ Here's an example with all these rules in a single place:
             print(self.blop)
 
         def meth9(self):
-            """test next line disabling"""
+            """Test next line disabling"""
             # no error
             # pylint: disable-next=no-member
             print(self.bla)

@@ -387,8 +387,8 @@ class DocstringParameterChecker(BaseChecker):
         expected_argument_names,
         warning_node,
     ):
-        """Compare the found argument names with the expected ones and
-        generate a message if there are arguments missing.
+        """Compare the found argument names with the expected ones and generate a
+        message if there are arguments missing.
 
         :param found_argument_names: argument names found in the docstring
         :type found_argument_names: set
@@ -423,8 +423,8 @@ class DocstringParameterChecker(BaseChecker):
         expected_argument_names,
         warning_node,
     ):
-        """Compare the found argument names with the expected ones and
-        generate a message if there are extra arguments found.
+        """Compare the found argument names with the expected ones and generate a
+        message if there are extra arguments found.
 
         :param found_argument_names: argument names found in the docstring
         :type found_argument_names: set
@@ -461,8 +461,8 @@ class DocstringParameterChecker(BaseChecker):
         ignored_argument_names,
         warning_node,
     ):
-        """Compare the found argument names with the ignored ones and
-        generate a message if there are ignored arguments found.
+        """Compare the found argument names with the ignored ones and generate a message
+        if there are ignored arguments found.
 
         :param found_argument_names: argument names found in the docstring
         :type found_argument_names: set
@@ -492,10 +492,10 @@ class DocstringParameterChecker(BaseChecker):
         warning_node: astroid.NodeNG,
         accept_no_param_doc: Optional[bool] = None,
     ):
-        """Check that all parameters in a function, method or class constructor
-        on the one hand and the parameters mentioned in the parameter
-        documentation (e.g. the Sphinx tags 'param' and 'type') on the other
-        hand are consistent with each other.
+        """Check that all parameters in a function, method or class constructor on the
+        one hand and the parameters mentioned in the parameter documentation (e.g. the
+        Sphinx tags 'param' and 'type') on the other hand are consistent with each
+        other.
 
         * Undocumented parameters except 'self' are noticed.
         * Undocumented parameter types except for 'self' and the ``*<args>``

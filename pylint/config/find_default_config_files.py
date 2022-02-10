@@ -71,7 +71,9 @@ def find_default_config_files() -> Iterator[str]:
 
 
 def find_pylintrc() -> Optional[str]:
-    """Search the pylint rc file and return its path if it finds it, else return None."""
+    """Search the pylint rc file and return its path if it finds it, else return
+    None.
+    """
     for config_file in find_default_config_files():
         if config_file.endswith("pylintrc"):
             return config_file

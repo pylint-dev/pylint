@@ -226,8 +226,8 @@ OTHER_NODES = (
 
 
 def get_access_path(key, parts):
-    """Given a list of format specifiers, returns
-    the final access path (e.g. a.b.c[0][1]).
+    """Given a list of format specifiers, returns the final access path (e.g.
+    a.b.c[0][1]).
     """
     path = []
     for is_attribute, specifier in parts:
@@ -256,8 +256,8 @@ def arg_matches_format_type(arg_type, format_type):
 
 
 class StringFormatChecker(BaseChecker):
-    """Checks string formatting operations to ensure that the format string
-    is valid and the arguments match the format string.
+    """Checks string formatting operations to ensure that the format string is valid and
+    the arguments match the format string.
     """
 
     __implements__ = (IAstroidChecker,)
@@ -539,8 +539,8 @@ class StringFormatChecker(BaseChecker):
         self._check_new_format_specifiers(node, fields, named_arguments)
 
     def _check_new_format_specifiers(self, node, fields, named):
-        """Check attribute and index access in the format
-        string ("{0.a}" and "{0[a]}").
+        """Check attribute and index access in the format string ("{0.a}" and
+        "{0[a]}").
         """
         for key, specifiers in fields:
             # Obtain the argument. If it can't be obtained
@@ -933,6 +933,7 @@ def register(linter: "PyLinter") -> None:
 
 def str_eval(token):
     """Mostly replicate `ast.literal_eval(token)` manually to avoid any performance hit.
+
     This supports f-strings, contrary to `ast.literal_eval`.
     We have to support all string literal notations:
     https://docs.python.org/3/reference/lexical_analysis.html#string-and-bytes-literals

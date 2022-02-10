@@ -70,10 +70,9 @@ class TestPrimer:
     def _primer_test(package: PackageToLint, caplog: LogCaptureFixture) -> None:
         """Runs pylint over external packages to check for crashes and fatal messages.
 
-        We only check for crashes (bit-encoded exit code 32) and fatal messages
-        (bit-encoded exit code 1). We assume that these external repositories do not
-        have any fatal errors in their code so that any fatal errors are pylint false
-        positives
+        We only check for crashes (bit-encoded exit code 32) and fatal messages (bit-
+        encoded exit code 1). We assume that these external repositories do not have any
+        fatal errors in their code so that any fatal errors are pylint false positives
         """
         caplog.set_level(logging.INFO)
         package.lazy_clone()

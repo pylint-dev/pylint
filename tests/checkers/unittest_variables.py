@@ -182,8 +182,7 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
             self.walk(node)
 
     def test_nested_lambda(self) -> None:
-        """Make sure variables from parent lambdas
-        aren't noted as undefined
+        """Make sure variables from parent lambdas aren't noted as undefined.
 
         https://github.com/PyCQA/pylint/issues/760
         """
@@ -197,9 +196,7 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
 
     @set_config(ignored_argument_names=re.compile("arg"))
     def test_ignored_argument_names_no_message(self) -> None:
-        """Make sure is_ignored_argument_names properly ignores
-        function arguments
-        """
+        """Make sure is_ignored_argument_names properly ignores function arguments."""
         node = astroid.parse(
             """
         def fooby(arg):

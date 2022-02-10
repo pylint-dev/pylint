@@ -108,8 +108,8 @@ class TestSuperfluousParentheses(CheckerTestCase):
                 self.checker._check_keyword_parentheses(_tokenize_str(code), offset)
 
     def testNoSuperfluousParensWalrusOperatorIf(self) -> None:
-        """Parenthesis change the meaning of assignment in the walrus operator
-        and so are not always superfluous:
+        """Parenthesis change the meaning of assignment in the walrus operator and so
+        are not always superfluous:
         """
         cases = [
             ("if (odd := is_odd(i))\n"),
@@ -164,8 +164,7 @@ class TestCheckSpace(CheckerTestCase):
     def test_encoding_token(self) -> None:
         """Make sure the encoding token doesn't change the checker's behavior.
 
-        _tokenize_str doesn't produce an encoding token, but
-        reading a file does
+        _tokenize_str doesn't produce an encoding token, but reading a file does
         """
         with self.assertNoMessages():
             encoding_token = tokenize.TokenInfo(
@@ -178,8 +177,8 @@ class TestCheckSpace(CheckerTestCase):
 
 
 def test_disable_global_option_end_of_line() -> None:
-    """Test for issue with disabling tokenizer messages
-    that extend beyond the scope of the ast tokens
+    """Test for issue with disabling tokenizer messages that extend beyond the scope of
+    the ast tokens.
     """
     file_ = tempfile.NamedTemporaryFile("w", delete=False)
     with file_:

@@ -12,8 +12,8 @@ from pylint.testutils.checker_test_case import CheckerTestCase
 def set_config(**kwargs):
     """Decorator for setting config values on a checker.
 
-    Passing the args and kwargs back to the test function itself
-    allows this decorator to be used on parametrized test cases.
+    Passing the args and kwargs back to the test function itself allows this decorator
+    to be used on parametrized test cases.
     """
 
     def _wrapper(fun):

@@ -152,7 +152,9 @@ class LinterStats:
         {self.percent_duplicated_lines}"""
 
     def init_single_module(self, module_name: str) -> None:
-        """Use through PyLinter.set_current_module so PyLinter.current_name is consistent."""
+        """Use through PyLinter.set_current_module so PyLinter.current_name is
+        consistent.
+        """
         self.by_module[module_name] = ModuleStats(
             convention=0, error=0, fatal=0, info=0, refactor=0, statement=0, warning=0
         )
@@ -303,7 +305,9 @@ class LinterStats:
 
 
 def merge_stats(stats: List[LinterStats]):
-    """Used to merge multiple stats objects into a new one when pylint is run in parallel mode."""
+    """Used to merge multiple stats objects into a new one when pylint is run in
+    parallel mode.
+    """
     merged = LinterStats()
     for stat in stats:
         merged.bad_names["argument"] += stat.bad_names["argument"]

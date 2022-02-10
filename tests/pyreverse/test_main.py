@@ -25,6 +25,7 @@ def setup_path(request) -> Iterator:
 @pytest.mark.usefixtures("setup_path")
 def test_project_root_in_sys_path():
     """Test the context manager adds the project root directory to sys.path.
+
     This should happen when pyreverse is run from any directory
     """
     with fix_import_path([TEST_DATA_DIR]):

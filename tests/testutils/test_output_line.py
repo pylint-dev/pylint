@@ -89,8 +89,8 @@ def test_output_line_from_message(message: Callable) -> None:
 
 @pytest.mark.parametrize("confidence", [HIGH, INFERENCE])
 def test_output_line_to_csv(confidence: Confidence, message: Callable) -> None:
-    """Test that the OutputLine NamedTuple is instantiated correctly with from_msg
-    and then converted to csv.
+    """Test that the OutputLine NamedTuple is instantiated correctly with from_msg and
+    then converted to csv.
     """
     output_line = OutputLine.from_msg(message(confidence), True)
     csv = output_line.to_csv()
@@ -153,6 +153,7 @@ def test_output_line_from_csv_deprecated(
     confidence: Optional[str], expected_confidence: str
 ) -> None:
     """Test that the OutputLine NamedTuple is instantiated correctly with from_csv.
+
     Test OutputLine's of length 5 or 6.
     """
     if confidence:
@@ -185,6 +186,7 @@ def test_output_line_from_csv_deprecated(
 
 def test_output_line_from_csv() -> None:
     """Test that the OutputLine NamedTuple is instantiated correctly with from_csv.
+
     Test OutputLine of length 8.
     """
     proper_csv = [

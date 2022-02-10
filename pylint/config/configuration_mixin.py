@@ -6,8 +6,8 @@ from pylint.config.options_provider_mixin import OptionsProviderMixIn
 
 
 class ConfigurationMixIn(OptionsManagerMixIn, OptionsProviderMixIn):
-    """Basic mixin for simple configurations which don't need the
-    manager / providers model
+    """Basic mixin for simple configurations which don't need the manager / providers
+    model.
     """
 
     def __init__(self, *args, **kwargs):

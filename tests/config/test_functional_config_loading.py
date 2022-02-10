@@ -2,8 +2,8 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """This launches the configuration functional tests. This permits to test configuration
-files by providing a file with the appropriate extension in the ``tests/config/functional``
-directory.
+files by providing a file with the appropriate extension in the
+``tests/config/functional`` directory.
 
 Let's say you have a regression_list_crash.toml file to test. Then, if there is an error in the conf,
 add ``regression_list_crash.out`` alongside your file with the expected output of pylint in it. Use

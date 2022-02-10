@@ -401,8 +401,8 @@ class SphinxDocstring(Docstring):
 
 class EpytextDocstring(SphinxDocstring):
     """Epytext is similar to Sphinx. See the docs:
-        http://epydoc.sourceforge.net/epytext.html
-        http://epydoc.sourceforge.net/fields.html#fields
+    http://epydoc.sourceforge.net/epytext.html
+    http://epydoc.sourceforge.net/fields.html#fields.
 
     It's used in PyCharm:
         https://www.jetbrains.com/help/pycharm/2016.1/creating-documentation-comments.html#d848203e314

@@ -2,7 +2,9 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""Script used to generate the extensions file before building the actual documentation."""
+"""Script used to generate the extensions file before building the actual
+documentation.
+"""
 
 import os
 import re

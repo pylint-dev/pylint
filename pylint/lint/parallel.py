@@ -51,7 +51,8 @@ def _get_new_args(message):
 def _worker_initialize(
     linter: bytes, arguments: Union[None, str, Sequence[str]] = None
 ) -> None:
-    """Function called to initialize a worker for a Process within a multiprocessing Pool.
+    """Function called to initialize a worker for a Process within a multiprocessing
+    Pool.
 
     :param linter: A linter-class (PyLinter) instance pickled with dill
     :param arguments: File or module name(s) to lint and to be added to sys.path
@@ -133,10 +134,11 @@ def check_parallel(
     files: Iterable[FileItem],
     arguments: Union[None, str, Sequence[str]] = None,
 ) -> None:
-    """Use the given linter to lint the files with given amount of workers (jobs)
-    This splits the work filestream-by-filestream. If you need to do work across
-    multiple files, as in the similarity-checker, then inherit from MapReduceMixin and
-    implement the map/reduce mixin functionality.
+    """Use the given linter to lint the files with given amount of workers (jobs) This
+    splits the work filestream-by-filestream.
+
+    If you need to do work across multiple files, as in the similarity- checker, then
+    inherit from MapReduceMixin and implement the map/reduce mixin functionality.
     """
     # The linter is inherited by all the pool's workers, i.e. the linter
     # is identical to the linter object here. This is required so that
