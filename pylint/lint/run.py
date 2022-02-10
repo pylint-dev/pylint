@@ -55,7 +55,7 @@ UNUSED_PARAM_SENTINEL = object()
 
 
 class Run:
-    """Helper class to use as main for pylint :.
+    """Helper class to use as main for pylint :
 
     run(*sys.argv[1:])
     """

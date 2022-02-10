@@ -96,7 +96,7 @@ repos:
         args: [--prose-wrap=always, --print-width=88]
         exclude: tests(/.*)*/data
   - repo: https://github.com/DanielNoord/pydocstringformatter
-    rev: v0.4.0
+    rev: a9f94bf13b08fe33f784ed7f0a0fc39e2a8549e2
     hooks:
       - id: pydocstringformatter
         exclude: *fixtures

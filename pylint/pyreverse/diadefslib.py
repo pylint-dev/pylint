@@ -126,7 +126,7 @@ class DiaDefGenerator:
 
 
 class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
-    """Generate minimum diagram definition for the project :.
+    """Generate minimum diagram definition for the project :
 
     * a package diagram including project's modules
     * a class diagram including project's classes
@@ -210,7 +210,7 @@ class ClassDiadefGenerator(DiaDefGenerator):
 
 
 class DiadefsHandler:
-    """Handle diagram definitions :.
+    """Handle diagram definitions :
 
     get it from user (i.e. xml files) or generate them
     """

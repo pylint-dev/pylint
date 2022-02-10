@@ -471,7 +471,7 @@ class FormatChecker(BaseTokenChecker):
         return dispatch
 
     def process_tokens(self, tokens):
-        """Process tokens and search for :.
+        """Process tokens and search for :
 
         _ too long lines (i.e. longer than <max_chars>)
         _ optionally bad construct (if given, bad_construct must be a compiled
