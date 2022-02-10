@@ -11,7 +11,7 @@ from typing import Generator, List, Optional
 OPTION_RGX = r"""
     (                  # Beginning of first matched group and any number of whitespaces
     \#                 # Beginning of comment
-    .*?                # Anything (as little as possible)
+    \s*?               # Any whitespaces (as little as possible)
     \bpylint:          # pylint word and column
     \s*                # Any number of whitespaces
     ([^;#\n]+))        # Anything except semicolon or hash or newline (it is the second matched group)
