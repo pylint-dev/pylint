@@ -54,7 +54,7 @@ def _if_statement_is_always_returning(if_node, returning_node_class) -> bool:
 
 
 def _is_trailing_comma(tokens: List[tokenize.TokenInfo], index: int) -> bool:
-    """Check if the given token is a trailing comma
+    """Check if the given token is a trailing comma.
 
     :param tokens: Sequence of modules tokens
     :type tokens: list[tokenize.TokenInfo]
@@ -81,7 +81,7 @@ def _is_trailing_comma(tokens: List[tokenize.TokenInfo], index: int) -> bool:
         return False
 
     def get_curline_index_start():
-        """Get the index denoting the start of the current line"""
+        """Get the index denoting the start of the current line."""
         for subindex, token in enumerate(reversed(tokens[:index])):
             # See Lib/tokenize.py and Lib/token.py in cpython for more info
             if token.type == tokenize.NEWLINE:
@@ -173,13 +173,13 @@ class ConsiderUsingWithStack(NamedTuple):
         return self.module_scope
 
     def clear_all(self) -> None:
-        """Convenience method to clear all stacks"""
+        """Convenience method to clear all stacks."""
         for stack in self:
             stack.clear()
 
 
 class RefactoringChecker(checkers.BaseTokenChecker):
-    """Looks for code which can be refactored
+    """Looks for code which can be refactored.
 
     This checker also mixes the astroid and the token approaches
     in order to create knowledge about whether an "else if" node
@@ -486,7 +486,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         )
 
     def _is_actual_elif(self, node):
-        """Check if the given node is an actual elif
+        """Check if the given node is an actual elif.
 
         This is a problem we're having with the builtin ast module,
         which splits `elif` branches into a separate if statement.
@@ -910,7 +910,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_stop_iteration_inside_generator(node)
 
     def _check_stop_iteration_inside_generator(self, node):
-        """Check if an exception of type StopIteration is raised inside a generator"""
+        """Check if an exception of type StopIteration is raised inside a generator."""
         frame = node.frame(future=True)
         if not isinstance(frame, nodes.FunctionDef) or not frame.is_generator():
             return
@@ -926,7 +926,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     @staticmethod
     def _check_exception_inherit_from_stopiteration(exc):
-        """Return True if the exception node in argument inherit from StopIteration"""
+        """Return True if the exception node in argument inherit from StopIteration."""
         stopiteration_qname = f"{utils.EXCEPTIONS_MODULE}.StopIteration"
         return any(_class.qname() == stopiteration_qname for _class in exc.mro())
 
@@ -1050,7 +1050,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self.add_message("super-with-arguments", node=node)
 
     def _check_raising_stopiteration_in_generator_next_call(self, node):
-        """Check if a StopIteration exception is raised by the call to next function
+        """Check if a StopIteration exception is raised by the call to next function.
 
         If the next value has a default value, then do not add message.
 
@@ -1084,7 +1084,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 self.add_message("stop-iteration-return", node=node)
 
     def _check_nested_blocks(self, node):
-        """Update and check the number of nested blocks"""
+        """Update and check the number of nested blocks."""
         # only check block levels inside functions or methods
         if not isinstance(node.scope(), nodes.FunctionDef):
             return
@@ -1273,7 +1273,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     @staticmethod
     def _apply_boolean_simplification_rules(operator, values):
-        """Removes irrelevant values or returns shortcircuiting values
+        """Removes irrelevant values or returns shortcircuiting values.
 
         This function applies the following two rules:
         1) an OR expression with True in it will always be true, and the
@@ -1299,7 +1299,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         return simplified_values or [nodes.Const(operator == "and")]
 
     def _simplify_boolean_operation(self, bool_op):
-        """Attempts to simplify a boolean operation
+        """Attempts to simplify a boolean operation.
 
         Recursively applies simplification on the operator terms,
         and keeps track of whether reductions have been made.
@@ -1503,7 +1503,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             self.add_message("consider-using-with", node=node)
 
     def _check_use_list_or_dict_literal(self, node: nodes.Call) -> None:
-        """Check if empty list or dict is created by using the literal [] or {}"""
+        """Check if empty list or dict is created by using the literal [] or {}."""
         if node.as_string() in {"list()", "dict()"}:
             inferred = utils.safe_infer(node.func)
             if isinstance(inferred, nodes.ClassDef) and not node.args:
@@ -1798,7 +1798,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     @staticmethod
     def _has_return_in_siblings(node: nodes.NodeNG) -> bool:
-        """Returns True if there is at least one return in the node's siblings"""
+        """Returns True if there is at least one return in the node's siblings."""
         next_sibling = node.next_sibling()
         while next_sibling:
             if isinstance(next_sibling, nodes.Return):

@@ -16,7 +16,7 @@ from pylint.utils import get_rst_title
 
 
 def builder_inited(app):
-    """Output full documentation in ReST format for all extension modules"""
+    """Output full documentation in ReST format for all extension modules."""
     # PACKAGE/docs/exts/pylint_extensions.py --> PACKAGE/
     base_path = os.path.dirname(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

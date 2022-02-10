@@ -51,7 +51,7 @@ class DotPrinter(Printer):
         super().__init__(title, layout, use_automatic_namespace)
 
     def _open_graph(self) -> None:
-        """Emit the header lines"""
+        """Emit the header lines."""
         self.emit(f'digraph "{self.title}" {{')
         if self.layout:
             self.emit(f"rankdir={self.layout.value}")

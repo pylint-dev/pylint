@@ -1,4 +1,4 @@
-""" Profiles basic -jX functionality """
+"""Profiles basic -jX functionality."""
 # Copyright (c) 2020-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2020 Frank Harrison <frank@doublethefish.com>
 # Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
@@ -42,7 +42,7 @@ def _get_py_files(scanpath):
     "name,git_repo", [("numpy", "https://github.com/numpy/numpy.git")]
 )
 def test_run(tmp_path, name, git_repo):
-    """Runs pylint against external sources"""
+    """Runs pylint against external sources."""
     checkoutdir = tmp_path / name
     checkoutdir.mkdir()
     os.system(f"git clone --depth=1 {git_repo} {checkoutdir}")

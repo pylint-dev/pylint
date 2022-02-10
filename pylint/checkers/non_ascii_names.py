@@ -41,7 +41,7 @@ NON_ASCII_HELP = (
 
 
 class NonAsciiNameChecker(base_checker.BaseChecker):
-    """A strict name checker only allowing ASCII
+    """A strict name checker only allowing ASCII.
 
     Note: This check only checks Names, so it ignores the content of
           docstrings and comments!
@@ -147,7 +147,7 @@ class NonAsciiNameChecker(base_checker.BaseChecker):
 
     @utils.check_messages("non-ascii-name")
     def visit_assignname(self, node: nodes.AssignName) -> None:
-        """check module level assigned names"""
+        """Check module level assigned names."""
         # The NameChecker from which this Checker originates knows a lot of different
         # versions of variables, i.e. constants, inline variables etc.
         # To simplify we use only `variable` here, as we don't need to apply different

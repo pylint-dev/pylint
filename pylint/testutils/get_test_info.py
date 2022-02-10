@@ -11,7 +11,7 @@ from pylint.testutils.constants import SYS_VERS_STR
 def _get_tests_info(
     input_dir: str, msg_dir: str, prefix: str, suffix: str
 ) -> List[Tuple[str, str]]:
-    """get python input examples and output messages
+    """Get python input examples and output messages.
 
     We use following conventions for input files and messages:
     for different inputs:

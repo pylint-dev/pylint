@@ -30,7 +30,7 @@ PACKAGE_TO_LINT_JSON_BATCH_ONE = (
 PACKAGES_TO_LINT_BATCH_ONE = get_packages_to_lint_from_json(
     PACKAGE_TO_LINT_JSON_BATCH_ONE
 )
-"""Dictionary of external packages used during the primer test in batch one"""
+"""Dictionary of external packages used during the primer test in batch one."""
 
 PACKAGE_TO_LINT_JSON_BATCH_TWO = (
     Path(__file__).parent / "packages_to_lint_batch_two.json"
@@ -38,7 +38,7 @@ PACKAGE_TO_LINT_JSON_BATCH_TWO = (
 PACKAGES_TO_LINT_BATCH_TWO = get_packages_to_lint_from_json(
     PACKAGE_TO_LINT_JSON_BATCH_TWO
 )
-"""Dictionary of external packages used during the primer test in batch two"""
+"""Dictionary of external packages used during the primer test in batch two."""
 
 
 class TestPrimer:
@@ -68,7 +68,7 @@ class TestPrimer:
 
     @staticmethod
     def _primer_test(package: PackageToLint, caplog: LogCaptureFixture) -> None:
-        """Runs pylint over external packages to check for crashes and fatal messages
+        """Runs pylint over external packages to check for crashes and fatal messages.
 
         We only check for crashes (bit-encoded exit code 32) and fatal messages
         (bit-encoded exit code 1). We assume that these external repositories do not

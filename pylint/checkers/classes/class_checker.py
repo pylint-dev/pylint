@@ -49,7 +49,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""Classes checker for Python code"""
+"""Classes checker for Python code."""
 import collections
 from itertools import chain, zip_longest
 from typing import Dict, List, Pattern, Set
@@ -186,7 +186,7 @@ _DEFAULT_MISSING = _DefaultMissing()
 
 
 def _has_different_parameters_default_value(original, overridden):
-    """Check if original and overridden methods arguments have different default values
+    """Check if original and overridden methods arguments have different default values.
 
     Return True if one of the overridden arguments has a default
     value different from the default value of the original argument
@@ -257,7 +257,7 @@ def _different_parameters(
     overridden: nodes.FunctionDef,
     dummy_parameter_regex: Pattern,
 ) -> List[str]:
-    """Determine if the two methods have different parameters
+    """Determine if the two methods have different parameters.
 
     They are considered to have different parameters if:
 
@@ -690,7 +690,7 @@ class ScopeAccessMap:
 
 
 class ClassChecker(BaseChecker):
-    """checks for :
+    """Checks for :
     * methods without self as first argument
     * overridden methods signature
     * access only to existent members via self
@@ -800,7 +800,7 @@ a metaclass class method.",
         "redefined-slots-in-subclass",
     )
     def visit_classdef(self, node: nodes.ClassDef) -> None:
-        """init visit variable _accessed"""
+        """Init visit variable _accessed."""
         self._check_bases_classes(node)
         # if not an exception or a metaclass
         if node.type == "class" and has_known_bases(node):
@@ -849,7 +849,7 @@ a metaclass class method.",
                 )
 
     def _check_typing_final(self, node: nodes.ClassDef) -> None:
-        """Detect that a class does not subclass a class decorated with `typing.final`"""
+        """Detect that a class does not subclass a class decorated with `typing.final`."""
         if not self._py38_plus:
             return
         for base in node.bases:
@@ -869,7 +869,7 @@ a metaclass class method.",
 
     @check_messages("unused-private-member", "attribute-defined-outside-init")
     def leave_classdef(self, node: nodes.ClassDef) -> None:
-        """close a class node:
+        """Close a class node:
         check that instance attributes are defined in __init__ and check
         access to existent members
         """
@@ -929,7 +929,7 @@ a metaclass class method.",
                 )
 
     def _check_unused_private_variables(self, node: nodes.ClassDef) -> None:
-        """Check if private variables are never used within a class"""
+        """Check if private variables are never used within a class."""
         for assign_name in node.nodes_of_class(nodes.AssignName):
             if isinstance(assign_name.parent, nodes.Arguments):
                 continue  # Ignore function arguments
@@ -1074,7 +1074,7 @@ a metaclass class method.",
                             )
 
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
-        """check method arguments, overriding"""
+        """Check method arguments, overriding."""
         # ignore actual functions
         if not node.is_method():
             return
@@ -1171,7 +1171,7 @@ a metaclass class method.",
     visit_asyncfunctiondef = visit_functiondef
 
     def _check_useless_super_delegation(self, function):
-        """Check if the given function node is an useless method override
+        """Check if the given function node is an useless method override.
 
         We consider it *useless* if it uses the super() builtin, but having
         nothing additional whatsoever than not implementing the method at all.
@@ -1370,7 +1370,7 @@ a metaclass class method.",
         slots_node: nodes.NodeNG,
         slots_list: List[nodes.NodeNG],
     ) -> None:
-        """Check if `node` redefines a slot which is defined in an ancestor class"""
+        """Check if `node` redefines a slot which is defined in an ancestor class."""
         slots_names: List[str] = []
         for slot in slots_list:
             if isinstance(slot, nodes.Const):
@@ -1426,7 +1426,7 @@ a metaclass class method.",
                 )
 
     def leave_functiondef(self, node: nodes.FunctionDef) -> None:
-        """on method node, check if this method couldn't be a function
+        """On method node, check if this method couldn't be a function.
 
         ignore class, static and abstract methods, initializer,
         methods overridden from a parent class.
@@ -1455,7 +1455,7 @@ a metaclass class method.",
     leave_asyncfunctiondef = leave_functiondef
 
     def visit_attribute(self, node: nodes.Attribute) -> None:
-        """check if the getattr is an access to a class member
+        """Check if the getattr is an access to a class member
         if so, register it. Also check for access to protected
         class member from outside its class (but ignore __special__
         methods)
@@ -1566,7 +1566,7 @@ a metaclass class method.",
         self._check_protected_attribute_access(node)
 
     def _check_classmethod_declaration(self, node):
-        """Checks for uses of classmethod() or staticmethod()
+        """Checks for uses of classmethod() or staticmethod().
 
         When a @classmethod or @staticmethod decorator should be used instead.
         A message will be emitted only if the assignment is at a class scope
@@ -1699,7 +1699,7 @@ a metaclass class method.",
 
     @staticmethod
     def _is_called_inside_special_method(node: nodes.NodeNG) -> bool:
-        """Returns true if the node is located inside a special (aka dunder) method"""
+        """Returns true if the node is located inside a special (aka dunder) method."""
         frame_name = node.frame(future=True).name
         return frame_name and frame_name in PYMETHODS
 
@@ -1751,7 +1751,7 @@ a metaclass class method.",
             return False
 
     def visit_name(self, node: nodes.Name) -> None:
-        """check if the name handle an access to a class member
+        """Check if the name handle an access to a class member
         if so, register it
         """
         if self._first_attrs and (
@@ -1760,7 +1760,7 @@ a metaclass class method.",
             self._meth_could_be_func = False
 
     def _check_accessed_members(self, node, accessed):
-        """check that accessed members are defined"""
+        """Check that accessed members are defined."""
         excs = ("AttributeError", "Exception", "BaseException")
         for attr, nodes_lst in accessed.items():
             try:
@@ -1820,7 +1820,7 @@ a metaclass class method.",
                             )
 
     def _check_first_arg_for_type(self, node, metaclass=0):
-        """check the name of first argument, expect:
+        """Check the name of first argument, expect:.
 
         * 'self' for a regular method
         * 'cls' for a class method or a metaclass regular method (actually
@@ -1896,7 +1896,7 @@ a metaclass class method.",
             self.add_message(message, args=(method_name, valid), node=node)
 
     def _check_bases_classes(self, node):
-        """check that the given class node implements abstract methods from
+        """Check that the given class node implements abstract methods from
         base classes
         """
 
@@ -1923,7 +1923,7 @@ a metaclass class method.",
             self.add_message("abstract-method", node=node, args=(name, owner.name))
 
     def _check_init(self, node: nodes.FunctionDef, klass_node: nodes.ClassDef) -> None:
-        """check that the __init__ method call super or ancestors'__init__
+        """Check that the __init__ method call super or ancestors'__init__
         method (unless it is used for type hinting with `typing.overload`)
         """
         if not self.linter.is_message_enabled(
@@ -2006,7 +2006,7 @@ a metaclass class method.",
             )
 
     def _check_signature(self, method1, refmethod, class_type, cls):
-        """check that the signature of the two given methods match"""
+        """Check that the signature of the two given methods match."""
         if not (
             isinstance(method1, nodes.FunctionDef)
             and isinstance(refmethod, nodes.FunctionDef)
@@ -2084,14 +2084,14 @@ a metaclass class method.",
             )
 
     def _uses_mandatory_method_param(self, node):
-        """Check that attribute lookup name use first attribute variable name
+        """Check that attribute lookup name use first attribute variable name.
 
         Name is `self` for method, `cls` for classmethod and `mcs` for metaclass.
         """
         return self._is_mandatory_method_param(node.expr)
 
     def _is_mandatory_method_param(self, node: nodes.NodeNG) -> bool:
-        """Check if nodes.Name corresponds to first attribute variable name
+        """Check if nodes.Name corresponds to first attribute variable name.
 
         Name is `self` for method, `cls` for classmethod and `mcs` for metaclass.
         """
@@ -2113,7 +2113,7 @@ a metaclass class method.",
 def _ancestors_to_call(
     klass_node: nodes.ClassDef, method="__init__"
 ) -> Dict[nodes.ClassDef, bases.UnboundMethod]:
-    """return a dictionary where keys are the list of base classes providing
+    """Return a dictionary where keys are the list of base classes providing
     the queried method, and so that should/may be called from the method node
     """
     to_call: Dict[nodes.ClassDef, bases.UnboundMethod] = {}

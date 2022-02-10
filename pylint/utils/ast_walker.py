@@ -22,7 +22,7 @@ class ASTWalker:
         return any(self.linter.is_message_enabled(m) for m in method.checks_msgs)
 
     def add_checker(self, checker):
-        """walk to the checker's dir and collect visit and leave methods"""
+        """Walk to the checker's dir and collect visit and leave methods."""
         vcids = set()
         lcids = set()
         visits = self.visit_events

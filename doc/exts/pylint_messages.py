@@ -18,10 +18,10 @@ from pylint.message import MessageDefinition
 from pylint.utils import get_rst_title
 
 PYLINT_BASE_PATH = Path(__file__).resolve().parent.parent.parent
-"""Base path to the project folder"""
+"""Base path to the project folder."""
 
 PYLINT_MESSAGES_PATH = PYLINT_BASE_PATH / "doc" / "messages"
-"""Path to the messages documentation folder"""
+"""Path to the messages documentation folder."""
 
 
 MSG_TYPES_DOC = {k: v if v != "info" else "information" for k, v in MSG_TYPES.items()}
@@ -218,7 +218,7 @@ def build_messages_pages(app: Optional[Sphinx]) -> None:
 
 
 def setup(app: Sphinx) -> None:
-    """Connects the extension to the Sphinx process"""
+    """Connects the extension to the Sphinx process."""
     # Register callback at the builder-inited Sphinx event
     # See https://www.sphinx-doc.org/en/master/extdev/appapi.html
     app.connect("builder-inited", build_messages_pages)

@@ -76,7 +76,7 @@ class OutputLine(NamedTuple):
 
     @classmethod
     def from_msg(cls, msg: Message, check_endline: bool = True) -> "OutputLine":
-        """Create an OutputLine from a Pylint Message"""
+        """Create an OutputLine from a Pylint Message."""
         column = cls._get_column(msg.column)
         end_line = cls._get_py38_none_value(msg.end_line, check_endline)
         end_column = cls._get_py38_none_value(msg.end_column, check_endline)
@@ -182,7 +182,7 @@ class OutputLine(NamedTuple):
 
     @staticmethod
     def _value_to_optional_int(value: Optional[str]) -> Optional[int]:
-        """Checks if a (stringified) value should be None or a Python integer"""
+        """Checks if a (stringified) value should be None or a Python integer."""
         if value == "None" or not value:
             return None
         return int(value)

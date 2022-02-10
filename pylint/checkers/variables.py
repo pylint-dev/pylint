@@ -54,7 +54,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""Variables checkers for Python code"""
+"""Variables checkers for Python code."""
 import collections
 import copy
 import itertools
@@ -197,7 +197,7 @@ def in_for_else_branch(parent, stmt):
 
 @lru_cache(maxsize=1000)
 def overridden_method(klass, name):
-    """get overridden method if any"""
+    """Get overridden method if any."""
     try:
         parent = next(klass.local_attr_ancestors(name))
     except (StopIteration, KeyError):
@@ -214,7 +214,7 @@ def overridden_method(klass, name):
 
 
 def _get_unpacking_extra_info(node, inferred):
-    """return extra information to add to the message for unpacking-non-sequence
+    """Return extra information to add to the message for unpacking-non-sequence
     and unbalanced-tuple-unpacking errors
     """
     more = ""
@@ -378,13 +378,13 @@ def _flattened_scope_names(iterator):
 
 
 def _assigned_locally(name_node):
-    """Checks if name_node has corresponding assign statement in same scope"""
+    """Checks if name_node has corresponding assign statement in same scope."""
     assign_stmts = name_node.scope().nodes_of_class(nodes.AssignName)
     return any(a.name == name_node.name for a in assign_stmts)
 
 
 def _is_type_checking_import(node: Union[nodes.Import, nodes.ImportFrom]) -> bool:
-    """Check if an import node is guarded by a TYPE_CHECKS guard"""
+    """Check if an import node is guarded by a TYPE_CHECKS guard."""
     return any(
         isinstance(ancestor, nodes.If)
         and ancestor.test.as_string() in TYPING_TYPE_CHECKS_GUARDS
@@ -556,7 +556,7 @@ class ScopeConsumer(NamedTuple):
 
 
 class NamesConsumer:
-    """A simple class to handle consumed, to consume and scope type info of node locals"""
+    """A simple class to handle consumed, to consume and scope type info of node locals."""
 
     def __init__(self, node, scope_type):
         self._atomic = ScopeConsumer(
@@ -981,7 +981,7 @@ scope_type : {self._atomic.scope_type}
 
 # pylint: disable=too-many-public-methods
 class VariablesChecker(BaseChecker):
-    """checks for
+    """Checks for
     * unused variables / imports
     * undefined variables
     * redefinition of variable from builtins or from an outer scope
@@ -1093,11 +1093,11 @@ class VariablesChecker(BaseChecker):
         self._except_handler_names_queue: List[
             Tuple[nodes.ExceptHandler, nodes.AssignName]
         ] = []
-        """This is a queue, last in first out"""
+        """This is a queue, last in first out."""
         self._postponed_evaluation_enabled = False
 
     def open(self) -> None:
-        """Called when loading the checker"""
+        """Called when loading the checker."""
         self._is_undefined_variable_enabled = self.linter.is_message_enabled(
             "undefined-variable"
         )
@@ -1136,7 +1136,7 @@ class VariablesChecker(BaseChecker):
         self._store_type_annotation_names(node)
 
     def visit_module(self, node: nodes.Module) -> None:
-        """visit module : update consumption analysis variable
+        """Visit module : update consumption analysis variable
         checks globals doesn't overrides builtins
         """
         self._to_consume = [NamesConsumer(node, "module")]
@@ -1158,7 +1158,7 @@ class VariablesChecker(BaseChecker):
         "unused-variable",
     )
     def leave_module(self, node: nodes.Module) -> None:
-        """leave module: check globals"""
+        """Leave module: check globals."""
         assert len(self._to_consume) == 1
 
         self._check_metaclasses(node)
@@ -1177,52 +1177,52 @@ class VariablesChecker(BaseChecker):
         self._check_imports(not_consumed)
 
     def visit_classdef(self, node: nodes.ClassDef) -> None:
-        """visit class: update consumption analysis variable"""
+        """Visit class: update consumption analysis variable."""
         self._to_consume.append(NamesConsumer(node, "class"))
 
     def leave_classdef(self, _: nodes.ClassDef) -> None:
-        """leave class: update consumption analysis variable"""
+        """Leave class: update consumption analysis variable."""
         # do not check for not used locals here (no sense)
         self._to_consume.pop()
 
     def visit_lambda(self, node: nodes.Lambda) -> None:
-        """visit lambda: update consumption analysis variable"""
+        """Visit lambda: update consumption analysis variable."""
         self._to_consume.append(NamesConsumer(node, "lambda"))
 
     def leave_lambda(self, _: nodes.Lambda) -> None:
-        """leave lambda: update consumption analysis variable"""
+        """Leave lambda: update consumption analysis variable."""
         # do not check for not used locals here
         self._to_consume.pop()
 
     def visit_generatorexp(self, node: nodes.GeneratorExp) -> None:
-        """visit genexpr: update consumption analysis variable"""
+        """Visit genexpr: update consumption analysis variable."""
         self._to_consume.append(NamesConsumer(node, "comprehension"))
 
     def leave_generatorexp(self, _: nodes.GeneratorExp) -> None:
-        """leave genexpr: update consumption analysis variable"""
+        """Leave genexpr: update consumption analysis variable."""
         # do not check for not used locals here
         self._to_consume.pop()
 
     def visit_dictcomp(self, node: nodes.DictComp) -> None:
-        """visit dictcomp: update consumption analysis variable"""
+        """Visit dictcomp: update consumption analysis variable."""
         self._to_consume.append(NamesConsumer(node, "comprehension"))
 
     def leave_dictcomp(self, _: nodes.DictComp) -> None:
-        """leave dictcomp: update consumption analysis variable"""
+        """Leave dictcomp: update consumption analysis variable."""
         # do not check for not used locals here
         self._to_consume.pop()
 
     def visit_setcomp(self, node: nodes.SetComp) -> None:
-        """visit setcomp: update consumption analysis variable"""
+        """Visit setcomp: update consumption analysis variable."""
         self._to_consume.append(NamesConsumer(node, "comprehension"))
 
     def leave_setcomp(self, _: nodes.SetComp) -> None:
-        """leave setcomp: update consumption analysis variable"""
+        """Leave setcomp: update consumption analysis variable."""
         # do not check for not used locals here
         self._to_consume.pop()
 
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
-        """visit function: update consumption analysis variable and check locals"""
+        """Visit function: update consumption analysis variable and check locals."""
         self._to_consume.append(NamesConsumer(node, "function"))
         if not (
             self.linter.is_message_enabled("redefined-outer-name")
@@ -1264,7 +1264,7 @@ class VariablesChecker(BaseChecker):
                 self.add_message("redefined-builtin", args=name, node=stmt)
 
     def leave_functiondef(self, node: nodes.FunctionDef) -> None:
-        """leave function: check function's locals are consumed"""
+        """Leave function: check function's locals are consumed."""
         self._check_metaclasses(node)
 
         if node.type_comment_returns:
@@ -1306,7 +1306,7 @@ class VariablesChecker(BaseChecker):
         "redefined-builtin",
     )
     def visit_global(self, node: nodes.Global) -> None:
-        """check names imported exists in the global scope"""
+        """Check names imported exists in the global scope."""
         frame = node.frame(future=True)
         if isinstance(frame, nodes.Module):
             self.add_message("global-at-module-level", node=node)
@@ -1502,7 +1502,7 @@ class VariablesChecker(BaseChecker):
         consumer_level: int,
         base_scope_type: Any,
     ) -> Tuple[VariableVisitConsumerAction, Optional[List[nodes.NodeNG]]]:
-        """Checks a consumer for conditions that should trigger messages"""
+        """Checks a consumer for conditions that should trigger messages."""
         # If the name has already been consumed, only check it's not a loop
         # variable used outside the loop.
         # Avoid the case where there are homonyms inside function scope and
@@ -1719,7 +1719,7 @@ class VariablesChecker(BaseChecker):
 
     @utils.check_messages("no-name-in-module")
     def visit_import(self, node: nodes.Import) -> None:
-        """check modules attribute accesses"""
+        """Check modules attribute accesses."""
         if not self._analyse_fallback_blocks and utils.is_from_fallback_block(node):
             # No need to verify this, since ImportError is already
             # handled by the client code.
@@ -1741,7 +1741,7 @@ class VariablesChecker(BaseChecker):
 
     @utils.check_messages("no-name-in-module")
     def visit_importfrom(self, node: nodes.ImportFrom) -> None:
-        """check modules attribute accesses"""
+        """Check modules attribute accesses."""
         if not self._analyse_fallback_blocks and utils.is_from_fallback_block(node):
             # No need to verify this, since ImportError is already
             # handled by the client code.
@@ -1786,11 +1786,11 @@ class VariablesChecker(BaseChecker):
 
     # listcomp have now also their scope
     def visit_listcomp(self, node: nodes.ListComp) -> None:
-        """visit dictcomp: update consumption analysis variable"""
+        """Visit dictcomp: update consumption analysis variable."""
         self._to_consume.append(NamesConsumer(node, "comprehension"))
 
     def leave_listcomp(self, _: nodes.ListComp) -> None:
-        """leave dictcomp: update consumption analysis variable"""
+        """Leave dictcomp: update consumption analysis variable."""
         # do not check for not used locals here
         self._to_consume.pop()
 
@@ -1845,7 +1845,7 @@ class VariablesChecker(BaseChecker):
     def _in_lambda_or_comprehension_body(
         node: nodes.NodeNG, frame: nodes.NodeNG
     ) -> bool:
-        """return True if node within a lambda/comprehension body (or similar) and thus should not have access to class attributes in frame"""
+        """Return True if node within a lambda/comprehension body (or similar) and thus should not have access to class attributes in frame."""
         child = node
         parent = node.parent
         while parent is not None:
@@ -2076,7 +2076,7 @@ class VariablesChecker(BaseChecker):
 
     @staticmethod
     def _is_only_type_assignment(node: nodes.Name, defstmt: nodes.Statement) -> bool:
-        """Check if variable only gets assigned a type and never a value"""
+        """Check if variable only gets assigned a type and never a value."""
         if not isinstance(defstmt, nodes.AnnAssign) or defstmt.value:
             return False
 
@@ -2487,7 +2487,7 @@ class VariablesChecker(BaseChecker):
         )
 
     def _store_type_annotation_node(self, type_annotation):
-        """Given a type annotation, store all the name nodes it refers to"""
+        """Given a type annotation, store all the name nodes it refers to."""
         if isinstance(type_annotation, nodes.Name):
             self._type_annotation_names.append(type_annotation.name)
             return
@@ -2518,7 +2518,7 @@ class VariablesChecker(BaseChecker):
         self._store_type_annotation_node(node.type_annotation)
 
     def _check_self_cls_assign(self, node: nodes.Assign) -> None:
-        """Check that self/cls don't get assigned"""
+        """Check that self/cls don't get assigned."""
         assign_names: Set[Optional[str]] = set()
         for target in node.targets:
             if isinstance(target, nodes.AssignName):
@@ -2591,7 +2591,7 @@ class VariablesChecker(BaseChecker):
 
     @staticmethod
     def _nodes_to_unpack(node: nodes.NodeNG) -> Optional[List[nodes.NodeNG]]:
-        """Return the list of values of the `Assign` node"""
+        """Return the list of values of the `Assign` node."""
         if isinstance(node, (nodes.Tuple, nodes.List)):
             return node.itered()
         if isinstance(node, astroid.Instance) and any(
@@ -2601,7 +2601,7 @@ class VariablesChecker(BaseChecker):
         return None
 
     def _check_module_attrs(self, node, module, module_names):
-        """check that module_names (list of string) are accessible through the
+        """Check that module_names (list of string) are accessible through the
         given module
         if the latest access name corresponds to a module, return it
         """

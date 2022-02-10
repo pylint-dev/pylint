@@ -24,7 +24,7 @@ from pylint.extensions import _check_docs_utils as utils
     [("abc", 0), ("", 0), ("  abc", 2), ("\n  abc", 0), ("   \n  abc", 3)],
 )
 def test_space_indentation(string: str, count: int) -> None:
-    """Test for pylint_plugin.ParamDocChecker"""
+    """Test for pylint_plugin.ParamDocChecker."""
     assert utils.space_indentation(string) == count
 
 

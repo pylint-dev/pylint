@@ -34,7 +34,7 @@ from pylint.checkers import utils
 
 
 def space_indentation(s):
-    """The number of leading spaces in a string
+    """The number of leading spaces in a string.
 
     :param str s: input string
 
@@ -216,7 +216,7 @@ class Docstring:
         return f"<{self.__class__.__name__}:'''{self.doc}'''>"
 
     def matching_sections(self) -> int:
-        """Returns the number of matching docstring sections"""
+        """Returns the number of matching docstring sections."""
         return 0
 
     def exceptions(self):
@@ -329,7 +329,7 @@ class SphinxDocstring(Docstring):
     supports_yields = False
 
     def matching_sections(self) -> int:
-        """Returns the number of matching docstring sections"""
+        """Returns the number of matching docstring sections."""
         return sum(
             bool(i)
             for i in (
@@ -536,7 +536,7 @@ class GoogleDocstring(Docstring):
     supports_yields = True
 
     def matching_sections(self) -> int:
-        """Returns the number of matching docstring sections"""
+        """Returns the number of matching docstring sections."""
         return sum(
             bool(i)
             for i in (
@@ -782,7 +782,7 @@ class NumpyDocstring(GoogleDocstring):
     supports_yields = True
 
     def match_param_docs(self) -> Tuple[Set[str], Set[str]]:
-        """Matches parameter documentation section to parameter documentation rules"""
+        """Matches parameter documentation section to parameter documentation rules."""
         params_with_doc = set()
         params_with_type = set()
 

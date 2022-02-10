@@ -48,7 +48,7 @@ class BaseChecker(OptionsProviderMixIn):
     enabled: bool = True
 
     def __init__(self, linter=None):
-        """checker instances should have the linter as argument
+        """Checker instances should have the linter as argument.
 
         :param ILinter linter: is an object implementing ILinter.
         """
@@ -189,10 +189,10 @@ class BaseChecker(OptionsProviderMixIn):
         raise InvalidMessageError(error_msg)
 
     def open(self):
-        """called before visiting project (i.e. set of modules)"""
+        """Called before visiting project (i.e. set of modules)."""
 
     def close(self):
-        """called after visiting project (i.e set of modules)"""
+        """Called after visiting project (i.e set of modules)."""
 
 
 class BaseTokenChecker(BaseChecker):

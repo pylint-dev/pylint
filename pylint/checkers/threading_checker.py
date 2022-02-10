@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 
 class ThreadingChecker(BaseChecker):
-    """Checks for threading module
+    """Checks for threading module.
 
     - useless with lock - locking used in wrong way that has no effect (with threading.Lock():)
     """

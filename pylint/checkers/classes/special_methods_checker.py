@@ -1,7 +1,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""Special methods checker and helper function's module"""
+"""Special methods checker and helper function's module."""
 
 import astroid
 from astroid import nodes
