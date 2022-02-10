@@ -9,12 +9,9 @@ from typing import Generator, List, Optional
 # so that an option can be continued with the reasons
 # why it is active or disabled.
 OPTION_RGX = r"""
-    \s*                # Any number of whitespace
-    \#?                # One or zero hash
-    .*                 # Anything (as much as possible)
-    (\s*               # Beginning of first matched group and any number of whitespaces
+    (                  # Beginning of first matched group and any number of whitespaces
     \#                 # Beginning of comment
-    .*?                # Anything (as little as possible)
+    \s*?               # Any whitespaces (as little as possible)
     \bpylint:          # pylint word and column
     \s*                # Any number of whitespaces
     ([^;#\n]+))        # Anything except semicolon or hash or newline (it is the second matched group)
