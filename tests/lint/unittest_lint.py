@@ -386,7 +386,7 @@ def test_enable_message_block(initialized_linter: PyLinter) -> None:
 
 
 def test_enable_by_symbol(initialized_linter: PyLinter) -> None:
-    """messages can be controlled by symbolic names.
+    """Messages can be controlled by symbolic names.
 
     The state is consistent across symbols and numbers.
     """
@@ -478,7 +478,7 @@ def test_disable_similar(initialized_linter: PyLinter) -> None:
 
 
 def test_disable_alot(linter: PyLinter) -> None:
-    """check that we disabled a lot of checkers"""
+    """Check that we disabled a lot of checkers."""
     linter.set_option("reports", False)
     linter.set_option("disable", "R,C,W")
     checker_names = [c.name for c in linter.prepare_checkers()]

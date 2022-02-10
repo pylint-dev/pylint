@@ -52,7 +52,7 @@ BIDI_UNICODE = [
 
 
 class _BadChar(NamedTuple):
-    """Representation of an ASCII char considered bad"""
+    """Representation of an ASCII char considered bad."""
 
     name: str
     unescaped: str
@@ -61,14 +61,14 @@ class _BadChar(NamedTuple):
     help_text: str
 
     def description(self) -> str:
-        """Used for the detailed error message description"""
+        """Used for the detailed error message description."""
         return (
             f"Invalid unescaped character {self.name}, "
             f'use "{self.escaped}" instead.'
         )
 
     def human_code(self) -> str:
-        """Used to generate the human readable error message"""
+        """Used to generate the human readable error message."""
         return f"invalid-character-{self.name}"
 
 
@@ -135,7 +135,7 @@ BAD_ASCII_SEARCH_DICT = {char.unescaped: char for char in BAD_CHARS}
 
 
 def _line_length(line: _StrLike, codec: str) -> int:
-    """Get the length of a string like line as displayed in an editor"""
+    """Get the length of a string like line as displayed in an editor."""
     if isinstance(line, bytes):
         decoded = _remove_bom(line, codec).decode(codec, "replace")
     else:
@@ -155,7 +155,7 @@ def _map_positions_to_result(
     new_line: _StrLike,
     byte_str_length: int = 1,
 ) -> Dict[int, _BadChar]:
-    """Get all occurrences of search dict keys within line
+    """Get all occurrences of search dict keys within line.
 
     Ignores Windows end of line and can handle bytes as well as string.
     Also takes care of encodings for which the length of an encoded code point does not
@@ -208,12 +208,12 @@ UTF_NAME_REGEX_COMPILED = re.compile(
 
 
 def _normalize_codec_name(codec: str) -> str:
-    """Make sure the codec name is always given as defined in the BOM dict"""
+    """Make sure the codec name is always given as defined in the BOM dict."""
     return UTF_NAME_REGEX_COMPILED.sub(r"utf-\1\2", codec).lower()
 
 
 def _remove_bom(encoded: bytes, encoding: str) -> bytes:
-    """remove the bom if given from a line"""
+    """Remove the bom if given from a line."""
     if not encoding.startswith("utf"):
         return encoded
     bom = UNICODE_BOMS[encoding]
@@ -223,12 +223,12 @@ def _remove_bom(encoded: bytes, encoding: str) -> bytes:
 
 
 def _encode_without_bom(string: str, encoding: str) -> bytes:
-    """Encode a string but remove the BOM"""
+    """Encode a string but remove the BOM."""
     return _remove_bom(string.encode(encoding), encoding)
 
 
 def _byte_to_str_length(codec: str) -> int:
-    """return how many byte are usually(!) a character point"""
+    """Return how many byte are usually(!) a character point."""
     if codec.startswith("utf-32"):
         return 4
     if codec.startswith("utf-16"):
@@ -239,12 +239,12 @@ def _byte_to_str_length(codec: str) -> int:
 
 @lru_cache(maxsize=1000)
 def _cached_encode_search(string: str, encoding: str) -> bytes:
-    """A cached version of encode used for search pattern"""
+    """A cached version of encode used for search pattern."""
     return _encode_without_bom(string, encoding)
 
 
 def _fix_utf16_32_line_stream(steam: Iterable[bytes], codec: str) -> Iterable[bytes]:
-    """Handle line ending for UTF16 and UTF32 correctly
+    """Handle line ending for UTF16 and UTF32 correctly.
 
     Currently Python simply strips the required zeros after \n after the
     line ending. Leading to lines that can't be decoded propery
@@ -274,7 +274,7 @@ def _fix_utf16_32_line_stream(steam: Iterable[bytes], codec: str) -> Iterable[by
 
 
 def extract_codec_from_bom(first_line: bytes) -> str:
-    """Try to extract the codec (unicode only) by checking for the BOM
+    """Try to extract the codec (unicode only) by checking for the BOM.
 
     For details about BOM see https://unicode.org/faq/utf_bom.html#BOM
 
@@ -295,7 +295,7 @@ def extract_codec_from_bom(first_line: bytes) -> str:
 
 
 class UnicodeChecker(pylint.checkers.BaseChecker):
-    """Check characters that could be used to hide bad code to humans
+    """Check characters that could be used to hide bad code to humans.
 
     This includes:
 
@@ -381,7 +381,7 @@ class UnicodeChecker(pylint.checkers.BaseChecker):
 
     @classmethod
     def _find_line_matches(cls, line: bytes, codec: str) -> Dict[int, _BadChar]:
-        """Find all matches of BAD_CHARS within line
+        """Find all matches of BAD_CHARS within line.
 
         Args:
             line: the input
@@ -417,7 +417,7 @@ class UnicodeChecker(pylint.checkers.BaseChecker):
 
     @staticmethod
     def _determine_codec(stream: io.BytesIO) -> Tuple[str, int]:
-        """determine the codec from the given stream
+        """Determine the codec from the given stream.
 
         first tries https://www.python.org/dev/peps/pep-0263/
         and if this fails also checks for BOMs of UTF-16 and UTF-32
@@ -457,7 +457,7 @@ class UnicodeChecker(pylint.checkers.BaseChecker):
         return _normalize_codec_name(codec), codec_definition_line
 
     def _check_codec(self, codec: str, codec_definition_line: int) -> None:
-        """Check validity of the codec"""
+        """Check validity of the codec."""
         if codec != "utf-8":
             msg = "bad-file-encoding"
             if self._is_invalid_codec(codec):
@@ -474,7 +474,7 @@ class UnicodeChecker(pylint.checkers.BaseChecker):
             )
 
     def _check_invalid_chars(self, line: bytes, lineno: int, codec: str) -> None:
-        """Look for chars considered bad"""
+        """Look for chars considered bad."""
         matches = self._find_line_matches(line, codec)
         for col, char in matches.items():
             self.add_message(
@@ -489,7 +489,7 @@ class UnicodeChecker(pylint.checkers.BaseChecker):
             )
 
     def _check_bidi_chars(self, line: bytes, lineno: int, codec: str) -> None:
-        """Look for Bidirectional Unicode, if we use unicode"""
+        """Look for Bidirectional Unicode, if we use unicode."""
         if not self._is_unicode(codec):
             return
         for dangerous in BIDI_UNICODE:

@@ -292,7 +292,7 @@ class TestRunTC:
         self._runtest([], code=32)
 
     def test_no_out_encoding(self) -> None:
-        """test redirection of stdout with non ascii characters"""
+        """Test redirection of stdout with non ascii characters."""
         # This test reproduces bug #48066 ; it happens when stdout is redirected
         # through '>' : the sys.stdout.encoding becomes then None, and if the
         # output contains non ascii, pylint will crash
@@ -1264,7 +1264,7 @@ class TestRunTC:
 
     @staticmethod
     def test_enable_all_extensions() -> None:
-        """Test to see if --enable-all-extensions does indeed load all extensions"""
+        """Test to see if --enable-all-extensions does indeed load all extensions."""
         # Record all extensions
         plugins = []
         for filename in os.listdir(os.path.dirname(extensions.__file__)):
@@ -1280,7 +1280,7 @@ class TestRunTC:
 
     @staticmethod
     def test_load_text_repoter_if_not_provided() -> None:
-        """Test if PyLinter.reporter is a TextReporter if no reporter is provided"""
+        """Test if PyLinter.reporter is a TextReporter if no reporter is provided."""
         linter = PyLinter()
 
         assert isinstance(linter.reporter, TextReporter)

@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 
 
 class DocStringStyleChecker(checkers.BaseChecker):
-    """Checks format of docstrings based on PEP 0257"""
+    """Checks format of docstrings based on PEP 0257."""
 
     __implements__ = IAstroidChecker
     name = "docstyle"

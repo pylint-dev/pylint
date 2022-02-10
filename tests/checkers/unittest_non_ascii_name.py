@@ -18,7 +18,7 @@ class TestNonAsciiChecker(pylint.testutils.CheckerTestCase):
         sys.version_info < (3, 8), reason="requires python3.8 or higher"
     )
     def test_kwargs_and_position_only(self):
-        """Even the new position only and keyword only should be found"""
+        """Even the new position only and keyword only should be found."""
         node = astroid.extract_node(
             """
                 def name(
@@ -131,7 +131,7 @@ class TestNonAsciiChecker(pylint.testutils.CheckerTestCase):
         code: str,
         assign_type: str,
     ):
-        """Variables defined no matter where, should be checked for non ascii"""
+        """Variables defined no matter where, should be checked for non ascii."""
         assign_node = astroid.extract_node(code)
 
         if not isinstance(assign_node, nodes.AssignName):
@@ -256,7 +256,7 @@ class TestNonAsciiChecker(pylint.testutils.CheckerTestCase):
         ],
     )
     def test_check_import(self, import_statement: str, wrong_name: Optional[str]):
-        """We expect that for everything that user can change there is a message"""
+        """We expect that for everything that user can change there is a message."""
         node = astroid.extract_node(f"{import_statement} #@")
 
         expected_msgs: Iterable[pylint.testutils.MessageTest] = tuple()

@@ -19,7 +19,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""utilities methods and classes for checkers
+"""Utilities methods and classes for checkers.
 
 Base id of standard checkers (used in msg and report ids):
 01: base
@@ -75,7 +75,7 @@ def table_lines_from_stats(
     old_stats: Optional[LinterStats],
     stat_type: Literal["duplicated_lines", "message_types"],
 ) -> List[str]:
-    """get values listed in <columns> from <stats> and <old_stats>,
+    """Get values listed in <columns> from <stats> and <old_stats>,
     and return a formatted list of values, designed to be given to a
     ureport.Table object
     """
@@ -138,7 +138,7 @@ def table_lines_from_stats(
 
 
 def initialize(linter):
-    """initialize linter with checkers in this package"""
+    """Initialize linter with checkers in this package."""
     register_plugins(linter, __path__[0])
 
 

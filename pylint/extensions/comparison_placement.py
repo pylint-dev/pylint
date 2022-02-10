@@ -21,7 +21,7 @@ COMPARISON_OPERATORS = frozenset(("==", "!=", "<", ">", "<=", ">="))
 
 
 class MisplacedComparisonConstantChecker(BaseChecker):
-    """Checks the placement of constants in comparisons"""
+    """Checks the placement of constants in comparisons."""
 
     __implements__ = (IAstroidChecker,)
 

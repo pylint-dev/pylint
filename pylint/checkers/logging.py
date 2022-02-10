@@ -23,7 +23,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""checker for use of Python logging"""
+"""Checker for use of Python logging."""
 import string
 from typing import TYPE_CHECKING, Set
 
@@ -294,7 +294,7 @@ class LoggingChecker(checkers.BaseChecker):
 
     @staticmethod
     def _is_operand_literal_str(operand):
-        """Return True if the operand in argument is a literal string"""
+        """Return True if the operand in argument is a literal string."""
         return isinstance(operand, nodes.Const) and operand.name == "str"
 
     def _check_call_func(self, node: nodes.Call):

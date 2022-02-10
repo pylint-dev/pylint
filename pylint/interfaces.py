@@ -17,7 +17,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""Interfaces for Pylint objects"""
+"""Interfaces for Pylint objects."""
 from collections import namedtuple
 from typing import TYPE_CHECKING, Tuple, Type, Union
 
@@ -79,17 +79,17 @@ class IChecker(Interface):
     """Base interface, to be used only for sub interfaces definition."""
 
     def open(self):
-        """called before visiting project (i.e. set of modules)"""
+        """Called before visiting project (i.e. set of modules)."""
 
     def close(self):
-        """called after visiting project (i.e. set of modules)"""
+        """Called after visiting project (i.e. set of modules)."""
 
 
 class IRawChecker(IChecker):
-    """Interface for checker which need to parse the raw file"""
+    """Interface for checker which need to parse the raw file."""
 
     def process_module(self, node: nodes.Module) -> None:
-        """process a module
+        """Process a module.
 
         The module's content is accessible via ``astroid.stream``
         """
@@ -106,16 +106,16 @@ class ITokenChecker(IChecker):
 
 
 class IAstroidChecker(IChecker):
-    """interface for checker which prefers receive events according to
+    """Interface for checker which prefers receive events according to
     statement type
     """
 
 
 class IReporter(Interface):
-    """reporter collect messages and display results encapsulated in a layout"""
+    """Reporter collect messages and display results encapsulated in a layout."""
 
     def handle_message(self, msg) -> None:
         """Handle the given message object."""
 
     def display_reports(self, layout: "Section") -> None:
-        """display results encapsulated in the layout tree"""
+        """Display results encapsulated in the layout tree."""

@@ -19,7 +19,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""Generic classes/functions for pyreverse core/extensions. """
+"""Generic classes/functions for pyreverse core/extensions."""
 import os
 import re
 import shutil
@@ -47,7 +47,7 @@ def get_default_options():
 
 
 def insert_default_options():
-    """insert default options to sys.argv"""
+    """Insert default options to sys.argv."""
     options = get_default_options()
     options.reverse()
     for arg in options:
@@ -61,7 +61,7 @@ PROTECTED = re.compile(r"^_\w*$")
 
 
 def get_visibility(name):
-    """return the visibility from a name: public, protected, private or special"""
+    """Return the visibility from a name: public, protected, private or special."""
     if SPECIAL.match(name):
         visibility = "special"
     elif PRIVATE.match(name):
@@ -79,14 +79,14 @@ FINAL = re.compile(r"^[^\W\da-z]*$")
 
 
 def is_abstract(node):
-    """return true if the given class node correspond to an abstract class
+    """Return true if the given class node correspond to an abstract class
     definition
     """
     return ABSTRACT.match(node.name)
 
 
 def is_final(node):
-    """return true if the given class/function node correspond to final
+    """Return true if the given class/function node correspond to final
     definition
     """
     return FINAL.match(node.name)
@@ -123,10 +123,10 @@ VIS_MOD = {
 
 
 class FilterMixIn:
-    """filter nodes according to a mode and nodes' visibility"""
+    """Filter nodes according to a mode and nodes' visibility."""
 
     def __init__(self, mode):
-        "init filter modes"
+        """Init filter modes."""
         __mode = 0
         for nummod in mode.split("+"):
             try:
@@ -136,13 +136,13 @@ class FilterMixIn:
         self.__mode = __mode
 
     def show_attr(self, node):
-        """return true if the node should be treated"""
+        """Return true if the node should be treated."""
         visibility = get_visibility(getattr(node, "name", node))
         return not self.__mode & VIS_MOD[visibility]
 
 
 class ASTWalker:
-    """a walker visiting a tree in preorder, calling on the handler:
+    """A walker visiting a tree in preorder, calling on the handler:.
 
     * visit_<class name> on entering a node, where class name is the class of
     the node in lower case
@@ -156,7 +156,7 @@ class ASTWalker:
         self._cache = {}
 
     def walk(self, node, _done=None):
-        """walk on the tree from <node>, getting callbacks from handler"""
+        """Walk on the tree from <node>, getting callbacks from handler."""
         if _done is None:
             _done = set()
         if node in _done:
@@ -170,7 +170,7 @@ class ASTWalker:
         assert node.parent is not node
 
     def get_callbacks(self, node):
-        """get callbacks from handler for the visited node"""
+        """Get callbacks from handler for the visited node."""
         klass = node.__class__
         methods = self._cache.get(klass)
         if methods is None:
@@ -188,27 +188,27 @@ class ASTWalker:
         return e_method, l_method
 
     def visit(self, node):
-        """walk on the tree from <node>, getting callbacks from handler"""
+        """Walk on the tree from <node>, getting callbacks from handler."""
         method = self.get_callbacks(node)[0]
         if method is not None:
             method(node)
 
     def leave(self, node):
-        """walk on the tree from <node>, getting callbacks from handler"""
+        """Walk on the tree from <node>, getting callbacks from handler."""
         method = self.get_callbacks(node)[1]
         if method is not None:
             method(node)
 
 
 class LocalsVisitor(ASTWalker):
-    """visit a project by traversing the locals dictionary"""
+    """Visit a project by traversing the locals dictionary."""
 
     def __init__(self):
         super().__init__(self)
         self._visited = set()
 
     def visit(self, node):
-        """launch the visit starting from the given node"""
+        """Launch the visit starting from the given node."""
         if node in self._visited:
             return None
 
@@ -236,7 +236,7 @@ def get_annotation_label(ann: Union[nodes.Name, nodes.Subscript]) -> str:
 def get_annotation(
     node: Union[nodes.AssignAttr, nodes.AssignName]
 ) -> Optional[Union[nodes.Name, nodes.Subscript]]:
-    """return the annotation for `node`"""
+    """Return the annotation for `node`."""
     ann = None
     if isinstance(node.parent, nodes.AnnAssign):
         ann = node.parent.annotation

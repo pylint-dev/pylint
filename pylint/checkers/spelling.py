@@ -146,7 +146,7 @@ class SphinxDirectives(RegExFilter):
 
 
 class ForwardSlashChunker(Chunker):
-    """This chunker allows splitting words like 'before/after' into 'before' and 'after'"""
+    """This chunker allows splitting words like 'before/after' into 'before' and 'after'."""
 
     def next(self):
         while True:
@@ -203,7 +203,7 @@ def _strip_code_flanked_in_backticks(line: str) -> str:
 
 
 class SpellingChecker(BaseTokenChecker):
-    """Check spelling in comments and docstrings"""
+    """Check spelling in comments and docstrings."""
 
     __implements__ = (ITokenChecker, IAstroidChecker)
     name = "spelling"
@@ -459,7 +459,7 @@ class SpellingChecker(BaseTokenChecker):
     visit_asyncfunctiondef = visit_functiondef
 
     def _check_docstring(self, node):
-        """check the node has any spelling errors"""
+        """Check the node has any spelling errors."""
         docstring = node.doc
         if not docstring:
             return

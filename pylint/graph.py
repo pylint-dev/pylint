@@ -74,7 +74,7 @@ class DotBackend:
             self.emit("=".join(param))
 
     def get_source(self):
-        """returns self._source"""
+        """Returns self._source."""
         if self._source is None:
             self.emit("}\n")
             self._source = "\n".join(self.lines)
@@ -151,7 +151,7 @@ class DotBackend:
         self.lines.append(line)
 
     def emit_edge(self, name1, name2, **props):
-        """emit an edge from <name1> to <name2>.
+        """Emit an edge from <name1> to <name2>.
         edge properties: see https://www.graphviz.org/doc/info/attrs.html
         """
         attrs = [f'{prop}="{value}"' for prop, value in props.items()]
@@ -159,7 +159,7 @@ class DotBackend:
         self.emit(f"{n_from} -> {n_to} [{', '.join(sorted(attrs))}];")
 
     def emit_node(self, name, **props):
-        """emit a node with given properties.
+        """Emit a node with given properties.
         node properties: see https://www.graphviz.org/doc/info/attrs.html
         """
         attrs = [f'{prop}="{value}"' for prop, value in props.items()]
@@ -172,7 +172,7 @@ def normalize_node_id(nid):
 
 
 def get_cycles(graph_dict, vertices=None):
-    """given a dictionary representing an ordered graph (i.e. key are vertices
+    """Given a dictionary representing an ordered graph (i.e. key are vertices
     and values is a list of destination vertices representing edges), return a
     list of detected cycles
     """
@@ -187,7 +187,7 @@ def get_cycles(graph_dict, vertices=None):
 
 
 def _get_cycles(graph_dict, path, visited, result, vertice):
-    """recursive function doing the real work for get_cycles"""
+    """Recursive function doing the real work for get_cycles."""
     if vertice in path:
         cycle = [vertice]
         for node in path[::-1]:

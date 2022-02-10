@@ -31,7 +31,7 @@ def _cpu_count() -> int:
 
 
 def cb_list_extensions(option, optname, value, parser):
-    """List all the extensions under pylint.extensions"""
+    """List all the extensions under pylint.extensions."""
 
     for filename in os.listdir(os.path.dirname(extensions.__file__)):
         if filename.endswith(".py") and not filename.startswith("_"):
@@ -47,7 +47,7 @@ def cb_list_confidence_levels(option, optname, value, parser):
 
 
 def cb_init_hook(optname, value):
-    """Execute arbitrary code to set 'sys.path' for instance"""
+    """Execute arbitrary code to set 'sys.path' for instance."""
     exec(value)  # pylint: disable=exec-used
 
 
@@ -55,7 +55,7 @@ UNUSED_PARAM_SENTINEL = object()
 
 
 class Run:
-    """helper class to use as main for pylint :
+    """Helper class to use as main for pylint :.
 
     run(*sys.argv[1:])
     """
@@ -385,23 +385,23 @@ to search for configuration file.
                 sys.exit(self.linter.msg_status)
 
     def version_asked(self, _, __):
-        """callback for version (i.e. before option parsing)"""
+        """Callback for version (i.e. before option parsing)."""
         self._version_asked = True
 
     def cb_set_rcfile(self, name, value):
-        """callback for option preprocessing (i.e. before option parsing)"""
+        """Callback for option preprocessing (i.e. before option parsing)."""
         self._rcfile = value
 
     def cb_set_output(self, name, value):
-        """callback for option preprocessing (i.e. before option parsing)"""
+        """Callback for option preprocessing (i.e. before option parsing)."""
         self._output = value
 
     def cb_add_plugins(self, name, value):
-        """callback for option preprocessing (i.e. before option parsing)"""
+        """Callback for option preprocessing (i.e. before option parsing)."""
         self._plugins.extend(utils._splitstrip(value))
 
     def cb_error_mode(self, *args, **kwargs):
-        """error mode:
+        """Error mode:
         * disable all but error messages
         * disable the 'miscellaneous' checker which can be safely deactivated in
           debug
@@ -411,37 +411,37 @@ to search for configuration file.
         self.linter.error_mode()
 
     def cb_generate_config(self, *args, **kwargs):
-        """optik callback for sample config file generation"""
+        """Optik callback for sample config file generation."""
         self.linter.generate_config(skipsections=("COMMANDS",))
         sys.exit(0)
 
     def cb_generate_manpage(self, *args, **kwargs):
-        """optik callback for sample config file generation"""
+        """Optik callback for sample config file generation."""
         self.linter.generate_manpage(__pkginfo__)
         sys.exit(0)
 
     def cb_help_message(self, option, optname, value, parser):
-        """optik callback for printing some help about a particular message"""
+        """Optik callback for printing some help about a particular message."""
         self.linter.msgs_store.help_message(utils._splitstrip(value))
         sys.exit(0)
 
     def cb_full_documentation(self, option, optname, value, parser):
-        """optik callback for printing full documentation"""
+        """Optik callback for printing full documentation."""
         print_full_documentation(self.linter)
         sys.exit(0)
 
     def cb_list_messages(self, option, optname, value, parser):
-        """optik callback for printing available messages"""
+        """Optik callback for printing available messages."""
         self.linter.msgs_store.list_messages()
         sys.exit(0)
 
     def cb_list_messages_enabled(self, option, optname, value, parser):
-        """optik callback for printing available messages"""
+        """Optik callback for printing available messages."""
         self.linter.list_messages_enabled()
         sys.exit(0)
 
     def cb_list_groups(self, *args, **kwargs):
-        """List all the check groups that pylint knows about
+        """List all the check groups that pylint knows about.
 
         These should be useful to know what check groups someone can disable
         or enable.
@@ -454,7 +454,7 @@ to search for configuration file.
         self.verbose = True
 
     def cb_enable_all_extensions(self, option_name: str, value: None) -> None:
-        """Callback to load and enable all available extensions"""
+        """Callback to load and enable all available extensions."""
         for filename in os.listdir(os.path.dirname(extensions.__file__)):
             if filename.endswith(".py") and not filename.startswith("_"):
                 extension_name = f"pylint.extensions.{filename[:-3]}"

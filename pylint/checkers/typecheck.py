@@ -55,7 +55,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""try to find more bugs in the code using astroid inference capabilities"""
+"""Try to find more bugs in the code using astroid inference capabilities."""
 
 import fnmatch
 import heapq
@@ -149,7 +149,7 @@ def _flatten_container(iterable):
 
 
 def _is_owner_ignored(owner, attrname, ignored_classes, ignored_modules):
-    """Check if the given owner should be ignored
+    """Check if the given owner should be ignored.
 
     This will verify if the owner's module is in *ignored_modules*
     or the owner's module fully qualified name is in *ignored_modules*
@@ -233,7 +233,7 @@ def _string_distance(seq1, seq2):
 
 
 def _similar_names(owner, attrname, distance_threshold, max_choices):
-    """Given an owner and a name, try to find similar names
+    """Given an owner and a name, try to find similar names.
 
     The similar names are searched given a distance metric and only
     a given number of choices will be returned.
@@ -664,7 +664,7 @@ def _no_context_variadic_positional(node, scope):
 
 
 def _no_context_variadic(node, variadic_name, variadic_type, variadics):
-    """Verify if the given call node has variadic nodes without context
+    """Verify if the given call node has variadic nodes without context.
 
     This is a workaround for handling cases of nested call functions
     which don't have the specific call context at hand.
@@ -722,7 +722,7 @@ def _is_invalid_metaclass(metaclass):
 
 
 def _infer_from_metaclass_constructor(cls, func: nodes.FunctionDef):
-    """Try to infer what the given *func* constructor is building
+    """Try to infer what the given *func* constructor is building.
 
     :param astroid.FunctionDef func:
         A metaclass constructor. Metaclass definitions can be
@@ -781,7 +781,7 @@ def _is_invalid_isinstance_type(arg):
 
 
 class TypeChecker(BaseChecker):
-    """try to find bugs in the code using type inference"""
+    """Try to find bugs in the code using type inference."""
 
     __implements__ = (IAstroidChecker,)
 
@@ -1006,7 +1006,7 @@ accessed. Python regular expressions are accepted.",
 
     @check_messages("no-member", "c-extension-no-member")
     def visit_attribute(self, node: nodes.Attribute) -> None:
-        """check that the accessed attribute exists
+        """Check that the accessed attribute exists.
 
         to avoid too much false positives for now, we'll consider the code as
         correct if a single of the inferred nodes has the accessed attribute.
@@ -1210,7 +1210,7 @@ accessed. Python regular expressions are accepted.",
         )
 
     def _check_dundername_is_string(self, node) -> None:
-        """Check a string is assigned to self.__name__"""
+        """Check a string is assigned to self.__name__."""
 
         # Check the left-hand side of the assignment is <something>.__name__
         lhs = node.targets[0]
@@ -1331,7 +1331,7 @@ accessed. Python regular expressions are accepted.",
     # pylint: disable=too-many-branches,too-many-locals
     @check_messages(*(list(MSGS.keys())))
     def visit_call(self, node: nodes.Call) -> None:
-        """check that called functions/methods are inferred to callable objects,
+        """Check that called functions/methods are inferred to callable objects,
         and that the arguments passed to the function match the parameters in
         the inferred function's definition
         """
@@ -1644,7 +1644,7 @@ accessed. Python regular expressions are accepted.",
     def _check_not_callable(
         self, node: nodes.Call, inferred_call: Optional[nodes.NodeNG]
     ) -> None:
-        """Checks to see if the not-callable message should be emitted
+        """Checks to see if the not-callable message should be emitted.
 
         Only functions, generators and objects defining __call__ are "callable"
         We ignore instances of descriptors since astroid cannot properly handle them yet

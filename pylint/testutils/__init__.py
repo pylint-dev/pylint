@@ -28,7 +28,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""Functional/non regression tests for pylint"""
+"""Functional/non regression tests for pylint."""
 
 __all__ = [
     "_get_tests_info",

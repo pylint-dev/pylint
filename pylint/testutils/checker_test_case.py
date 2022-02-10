@@ -88,7 +88,7 @@ class CheckerTestCase:
                     )
 
     def walk(self, node):
-        """recursive walk on the given node"""
+        """Recursive walk on the given node."""
         walker = ASTWalker(linter)
         walker.add_checker(self.checker)
         walker.walk(node)

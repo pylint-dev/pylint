@@ -31,7 +31,7 @@ MessageStateDict = Dict[str, Dict[int, bool]]
 
 
 class FileState:
-    """Hold internal state specific to the currently analyzed file"""
+    """Hold internal state specific to the currently analyzed file."""
 
     def __init__(self, modname: Optional[str] = None) -> None:
         self.base_name = modname
@@ -122,7 +122,7 @@ class FileState:
                 del lines[lineno]
 
     def set_msg_status(self, msg: "MessageDefinition", line: int, status: bool) -> None:
-        """Set status (enabled/disable) for a given message at a given line"""
+        """Set status (enabled/disable) for a given message at a given line."""
         assert line > 0
         try:
             self._module_msgs_state[msg.msgid][line] = status

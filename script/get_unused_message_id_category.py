@@ -1,4 +1,4 @@
-"""Small script to get a new unused message id category"""
+"""Small script to get a new unused message id category."""
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
@@ -10,7 +10,7 @@ from pylint.lint.pylinter import PyLinter
 
 
 def register_all_checkers_and_plugins(linter: "PyLinter") -> None:
-    """Registers all checkers and plugins"""
+    """Registers all checkers and plugins."""
     linter.cmdline_parser.set_conflict_handler("resolve")
     initialize_checkers(linter)
     initialize_extensions(linter)
