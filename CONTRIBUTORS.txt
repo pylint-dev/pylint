@@ -417,7 +417,7 @@ contributors:
 
 * Luigi Bertaco Cristofolini (luigibertaco): contributor
 
-* Or Bahari
+* Or Bahari: contributor
 
 * Joshua Cannon: contributor
 

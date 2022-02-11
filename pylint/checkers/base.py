@@ -521,7 +521,8 @@ class BasicErrorChecker(_BasicChecker):
             "has abstract methods and is instantiated.",
         ),
         "W0120": (
-            "Else clause on loop without a break statement",
+            "Else clause on loop without a break statement, remove the else and"
+            " de-indent all the code inside it",
             "useless-else-on-loop",
             "Loops should only have an else clause if they can exit early "
             "with a break statement, otherwise the statements under else "
@@ -1009,7 +1010,7 @@ class BasicChecker(_BasicChecker):
             'Used when you use the "eval" function, to discourage its '
             "usage. Consider using `ast.literal_eval` for safely evaluating "
             "strings containing Python expressions "
-            "from untrusted sources. ",
+            "from untrusted sources.",
         ),
         "W0150": (
             "%s statement in finally block may swallow exception",

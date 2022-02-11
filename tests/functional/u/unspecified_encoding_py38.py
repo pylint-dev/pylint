@@ -156,3 +156,6 @@ Path(FILENAME).read_text()  # [unspecified-encoding]
 
 Path(FILENAME).write_text("string", "utf-8")
 Path(FILENAME).write_text("string")  # [unspecified-encoding]
+
+# Test for crash reported in https://github.com/PyCQA/pylint/issues/5731
+open(FILENAME, mode=None)  # [bad-open-mode, unspecified-encoding]

@@ -1,5 +1,9 @@
+import unittest.mock
 from pathlib import Path, PosixPath
 
+import pytest
+
+from pylint.lint import Run
 from pylint.lint.utils import get_fatal_error_message, prepare_crash_report
 
 
@@ -31,3 +35,16 @@ def test_get_fatal_error_message() -> None:
     assert python_path in msg
     assert crash_path in msg
     assert "open an issue" in msg
+
+
+def test_issue_template_on_fatal_errors(capsys: pytest.CaptureFixture) -> None:
+    """Test that we also create an issue template if the offending exception isn't from astroid."""
+    with pytest.raises(SystemExit):
+        with unittest.mock.patch(
+            "astroid.MANAGER.ast_from_file", side_effect=RecursionError()
+        ):
+            Run([__file__])
+    captured = capsys.readouterr()
+    assert "Fatal error while checking" in captured.out
+    assert "Please open an issue" in captured.out
+    assert "Traceback" in captured.err

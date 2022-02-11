@@ -1607,7 +1607,7 @@ accessed. Python regular expressions are accepted.",
             not isinstance(itemmethod, nodes.FunctionDef)
             or itemmethod.root().name != "builtins"
             or not itemmethod.parent
-            or itemmethod.parent.name not in SEQUENCE_TYPES
+            or itemmethod.parent.frame().name not in SEQUENCE_TYPES
         ):
             return None
 

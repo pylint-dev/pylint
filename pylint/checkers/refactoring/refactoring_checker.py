@@ -227,7 +227,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "R1703": (
             "The if statement can be replaced with %s",
             "simplifiable-if-statement",
-            "Used when an if statement can be replaced with 'bool(test)'. ",
+            "Used when an if statement can be replaced with 'bool(test)'.",
             {"old_names": [("R0102", "old-simplifiable-if-statement")]},
         ),
         "R1704": (
@@ -239,7 +239,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "with statement assignment and exception handler assignment.",
         ),
         "R1705": (
-            'Unnecessary "%s" after "return"',
+            'Unnecessary "%s" after "return", %s',
             "no-else-return",
             "Used in order to highlight an unnecessary block of "
             "code following an if containing a return statement. "
@@ -336,10 +336,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "R1719": (
             "The if expression can be replaced with %s",
             "simplifiable-if-expression",
-            "Used when an if expression can be replaced with 'bool(test)'. ",
+            "Used when an if expression can be replaced with 'bool(test)'.",
         ),
         "R1720": (
-            'Unnecessary "%s" after "raise"',
+            'Unnecessary "%s" after "raise", %s',
             "no-else-raise",
             "Used in order to highlight an unnecessary block of "
             "code following an if containing a raise statement. "
@@ -360,7 +360,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "Instead of using exit() or quit(), consider using the sys.exit().",
         ),
         "R1723": (
-            'Unnecessary "%s" after "break"',
+            'Unnecessary "%s" after "break", %s',
             "no-else-break",
             "Used in order to highlight an unnecessary block of "
             "code following an if containing a break statement. "
@@ -369,7 +369,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "break statement.",
         ),
         "R1724": (
-            'Unnecessary "%s" after "continue"',
+            'Unnecessary "%s" after "continue", %s',
             "no-else-continue",
             "Used in order to highlight an unnecessary block of "
             "code following an if containing a continue statement. "
@@ -667,10 +667,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         if _if_statement_is_always_returning(node, returning_node_class):
             orelse = node.orelse[0]
-            followed_by_elif = (orelse.lineno, orelse.col_offset) in self._elifs
-            self.add_message(
-                msg_id, node=node, args="elif" if followed_by_elif else "else"
-            )
+            if (orelse.lineno, orelse.col_offset) in self._elifs:
+                args = ("elif", 'remove the leading "el" from "elif"')
+            else:
+                args = ("else", 'remove the "else" and de-indent the code inside it')
+            self.add_message(msg_id, node=node, args=args)
 
     def _check_superfluous_else_return(self, node):
         return self._check_superfluous_else(

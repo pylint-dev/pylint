@@ -34,6 +34,7 @@ __all__ = (
     "IReporter",
     "IChecker",
     "HIGH",
+    "CONTROL_FLOW",
     "INFERENCE",
     "INFERENCE_FAILURE",
     "UNDEFINED",
@@ -43,13 +44,16 @@ __all__ = (
 Confidence = namedtuple("Confidence", ["name", "description"])
 # Warning Certainties
 HIGH = Confidence("HIGH", "Warning that is not based on inference result.")
+CONTROL_FLOW = Confidence(
+    "CONTROL_FLOW", "Warning based on assumptions about control flow."
+)
 INFERENCE = Confidence("INFERENCE", "Warning based on inference result.")
 INFERENCE_FAILURE = Confidence(
     "INFERENCE_FAILURE", "Warning based on inference with failures."
 )
 UNDEFINED = Confidence("UNDEFINED", "Warning without any associated confidence level.")
 
-CONFIDENCE_LEVELS = [HIGH, INFERENCE, INFERENCE_FAILURE, UNDEFINED]
+CONFIDENCE_LEVELS = [HIGH, CONTROL_FLOW, INFERENCE, INFERENCE_FAILURE, UNDEFINED]
 
 
 class Interface:

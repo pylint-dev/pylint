@@ -3,6 +3,7 @@
 
 import collections
 import functools
+import warnings
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -85,6 +86,14 @@ def _worker_check_single_file(
         mapreduce_data[checker.name].append(data)
     msgs = [_get_new_args(m) for m in _worker_linter.reporter.messages]
     _worker_linter.reporter.reset()
+    if _worker_linter.current_name is None:
+        warnings.warn(
+            (
+                "In pylint 3.0 the current_name attribute of the linter object should be a string. "
+                "If unknown it should be initialized as an empty string."
+            ),
+            DeprecationWarning,
+        )
     return (
         id(multiprocessing.current_process()),
         _worker_linter.current_name,

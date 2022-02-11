@@ -456,13 +456,7 @@ to search for configuration file.
     def cb_enable_all_extensions(self, option_name: str, value: None) -> None:
         """Callback to load and enable all available extensions"""
         for filename in os.listdir(os.path.dirname(extensions.__file__)):
-            # pylint: disable=fixme
-            # TODO: Remove the check for deprecated check_docs after the extension has been removed
-            if (
-                filename.endswith(".py")
-                and not filename.startswith("_")
-                and not filename.startswith("check_docs")
-            ):
+            if filename.endswith(".py") and not filename.startswith("_"):
                 extension_name = f"pylint.extensions.{filename[:-3]}"
                 if extension_name not in self._plugins:
                     self._plugins.append(extension_name)
