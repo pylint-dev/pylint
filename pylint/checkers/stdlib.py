@@ -454,7 +454,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "from code that is not actively being debugged.",
         ),
         "W1516": (
-            "lru_cache keeps method arguments alive for the duration of the program",
+            "'lru_cache' used without 'maxsize' will keeps all method args alive indefinitely, including 'self'"
             "lru-cache-decorating-method",
             "By decorating a method with lru_cache the 'self' argument will be linked to "
             "the lru_cache function and therefore never garbage collected. Unless your instance "
