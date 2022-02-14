@@ -792,7 +792,7 @@ class TypeChecker(BaseChecker):
     msgs = MSGS
     priority = -1
 
-    node_exists: Dict[str, bool] = {}
+    node_exists: Dict[Tuple[str, str], bool] = {}
     # configuration options
     options = (
         (
@@ -1017,23 +1017,42 @@ accessed. Python regular expressions are accepted.",
         function/method, super call and metaclasses are ignored
         """
 
-        outer = ""
+        outer = expr_name = ""
         expr = node.expr
         if isinstance(expr, nodes.Call):
             expr = expr.func
             outer = "()"
         if isinstance(expr, nodes.Name):
-            outer = expr.name + outer
+            expr_name = expr.name
         elif isinstance(expr, nodes.Attribute):
-            outer = expr.attrname + outer
+            expr_name = expr.attrname
+        outer = expr_name + outer
         name_with_expr = f"{outer}.{node.attrname}"
+
+        defined_name = expr_name if expr_name != "self" else node.attrname
+
+        root = expr.root()
+        containing_scope = None
+        if defined_name in root.locals:
+            containing_scope = root.name
+        else:
+            cur_scope = expr.frame()
+            while cur_scope.parent and defined_name not in cur_scope.locals:
+                cur_scope = cur_scope.parent.frame()
+            if cur_scope.parent:  # cur_scope is not root
+                containing_scope = cur_scope.name
+            else:
+                containing_scope = None
+
+        cache_key = (containing_scope, name_with_expr)
+
         if (
-            outer != ""
-            and name_with_expr in self.node_exists
-            and self.node_exists[name_with_expr]
+            outer
+            and cache_key in self.node_exists
+            and self.node_exists.get(cache_key)
         ):
             return
-        self.node_exists[name_with_expr] = True
+        self.node_exists[cache_key] = True
         if any(
             pattern.match(name)
             for name in (node.attrname, node.as_string())
@@ -1111,7 +1130,7 @@ accessed. Python regular expressions are accepted.",
             # stop on the first found
             break
         else:
-            self.node_exists[name_with_expr] = False
+            self.node_exists[cache_key] = False
             # we have not found any node with the attributes, display the
             # message for inferred nodes
             done = set()
