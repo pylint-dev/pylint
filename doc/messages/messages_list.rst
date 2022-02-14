@@ -1,7 +1,11 @@
 .. _messages-list:
 
-Pylint Messages
-===============
+Overview of all Pylint messages
+===============================
+
+..
+  NOTE This file is auto-generated. Make any changes to the associated
+  docs extension in 'pylint_messages.py'.
 
 Pylint can emit the following messages:
 
@@ -54,6 +58,7 @@ All messages in the error category:
    error/bad-str-strip-call.rst
    error/bad-string-format-type.rst
    error/bad-super-call.rst
+   error/bidirectional-unicode.rst
    error/catching-non-exception.rst
    error/class-variable-slots-conflict.rst
    error/continue-in-finally.rst
@@ -70,6 +75,12 @@ All messages in the error category:
    error/invalid-all-object.rst
    error/invalid-bool-returned.rst
    error/invalid-bytes-returned.rst
+   error/invalid-character-backspace.rst
+   error/invalid-character-carriage-return.rst
+   error/invalid-character-esc.rst
+   error/invalid-character-nul.rst
+   error/invalid-character-sub.rst
+   error/invalid-character-zero-width-space.rst
    error/invalid-class-object.rst
    error/invalid-envvar-value.rst
    error/invalid-format-returned.rst
@@ -88,6 +99,7 @@ All messages in the error category:
    error/invalid-star-assignment-target.rst
    error/invalid-str-returned.rst
    error/invalid-unary-operand-type.rst
+   error/invalid-unicode-codec.rst
    error/logging-format-truncated.rst
    error/logging-too-few-args.rst
    error/logging-too-many-args.rst
@@ -98,6 +110,8 @@ All messages in the error category:
    error/missing-format-string-key.rst
    error/missing-kwoa.rst
    error/mixed-format-string.rst
+   error/modified-iterating-dict.rst
+   error/modified-iterating-set.rst
    error/no-member.rst
    error/no-method-argument.rst
    error/no-name-in-module.rst
@@ -228,6 +242,7 @@ All messages in the warning category:
    warning/logging-fstring-interpolation.rst
    warning/logging-not-lazy.rst
    warning/lost-exception.rst
+   warning/lru-cache-decorating-method.rst
    warning/misplaced-future.rst
    warning/missing-any-param-doc.rst
    warning/missing-format-argument-key.rst
@@ -240,9 +255,11 @@ All messages in the warning category:
    warning/missing-type-doc.rst
    warning/missing-yield-doc.rst
    warning/missing-yield-type-doc.rst
+   warning/modified-iterating-list.rst
    warning/multiple-constructor-doc.rst
    warning/nan-comparison.rst
    warning/no-init.rst
+   warning/non-ascii-file-name.rst
    warning/non-parent-init-called.rst
    warning/non-str-assignment-to-dunder-name.rst
    warning/overlapping-except.rst
@@ -257,6 +274,7 @@ All messages in the warning category:
    warning/redeclared-assigned-name.rst
    warning/redefined-builtin.rst
    warning/redefined-outer-name.rst
+   warning/redefined-slots-in-subclass.rst
    warning/redundant-returns-doc.rst
    warning/redundant-u-string-prefix.rst
    warning/redundant-unittest-assert.rst
@@ -274,6 +292,7 @@ All messages in the warning category:
    warning/try-except-raise.rst
    warning/unbalanced-tuple-unpacking.rst
    warning/undefined-loop-variable.rst
+   warning/unnecessary-ellipsis.rst
    warning/unnecessary-lambda.rst
    warning/unnecessary-pass.rst
    warning/unnecessary-semicolon.rst
@@ -327,6 +346,7 @@ All messages in the convention category:
 
    convention/bad-classmethod-argument.rst
    convention/bad-docstring-quotes.rst
+   convention/bad-file-encoding.rst
    convention/bad-mcs-classmethod-argument.rst
    convention/bad-mcs-method-argument.rst
    convention/compare-to-empty-string.rst
@@ -351,6 +371,7 @@ All messages in the convention category:
    convention/mixed-line-endings.rst
    convention/multiple-imports.rst
    convention/multiple-statements.rst
+   convention/non-ascii-module-import.rst
    convention/non-ascii-name.rst
    convention/single-string-used-for-slots.rst
    convention/singleton-comparison.rst
@@ -382,6 +403,7 @@ All renamed messages in the convention category:
    convention/len-as-condition.rst
    convention/missing-docstring.rst
    convention/old-misplaced-comparison-constant.rst
+   convention/old-non-ascii-name.rst
 
 
 Refactor

@@ -39,7 +39,7 @@ class VNode:
 
 
 class BaseLayout(VNode):
-    """base container node
+    """Base container node.
 
     attributes
     * children : components in this table (i.e. the table's cells)
@@ -54,25 +54,25 @@ class BaseLayout(VNode):
                 self.add_text(child)
 
     def append(self, child: VNode) -> None:
-        """add a node to children"""
+        """Add a node to children."""
         assert child not in self.parents()
         self.children.append(child)
         child.parent = self
 
     def insert(self, index: int, child: VNode) -> None:
-        """insert a child node"""
+        """Insert a child node."""
         self.children.insert(index, child)
         child.parent = self
 
     def parents(self) -> List["BaseLayout"]:
-        """return the ancestor nodes"""
+        """Return the ancestor nodes."""
         assert self.parent is not self
         if self.parent is None:
             return []
         return [self.parent] + self.parent.parents()
 
     def add_text(self, text: str) -> None:
-        """shortcut to add text data"""
+        """Shortcut to add text data."""
         self.children.append(Text(text))
 
 
@@ -80,7 +80,7 @@ class BaseLayout(VNode):
 
 
 class Text(VNode):
-    """a text portion
+    """A text portion.
 
     attributes :
     * data : the text value as an encoded or unicode string
@@ -93,7 +93,7 @@ class Text(VNode):
 
 
 class VerbatimText(Text):
-    """a verbatim text, display the raw data
+    """A verbatim text, display the raw data.
 
     attributes :
     * data : the text value as an encoded or unicode string
@@ -104,7 +104,7 @@ class VerbatimText(Text):
 
 
 class Section(BaseLayout):
-    """a section
+    """A section.
 
     attributes :
     * BaseLayout attributes
@@ -143,7 +143,7 @@ class EvaluationSection(Section):
 
 
 class Title(BaseLayout):
-    """a title
+    """A title.
 
     attributes :
     * BaseLayout attributes
@@ -153,7 +153,7 @@ class Title(BaseLayout):
 
 
 class Paragraph(BaseLayout):
-    """a simple text paragraph
+    """A simple text paragraph.
 
     attributes :
     * BaseLayout attributes
@@ -163,7 +163,7 @@ class Paragraph(BaseLayout):
 
 
 class Table(BaseLayout):
-    """some tabular data
+    """Some tabular data.
 
     attributes :
     * BaseLayout attributes

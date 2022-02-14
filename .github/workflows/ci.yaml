@@ -17,6 +17,7 @@ jobs:
   prepare-base:
     name: Prepare base dependencies
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     outputs:
       python-key: ${{ steps.generate-python-key.outputs.key }}
       pre-commit-key: ${{ steps.generate-pre-commit-key.outputs.key }}
@@ -27,7 +28,7 @@ jobs:
           fetch-depth: 0
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@v2.3.1
+        uses: actions/setup-python@v2.3.2
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
       - name: Generate partial Python venv restore key
@@ -76,13 +77,14 @@ jobs:
   formatting:
     name: checks / pre-commit
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: prepare-base
     steps:
       - name: Check out code from GitHub
         uses: actions/checkout@v2.4.0
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@v2.3.1
+        uses: actions/setup-python@v2.3.2
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
       - name: Restore Python virtual environment
@@ -118,13 +120,14 @@ jobs:
   spelling:
     name: checks / spelling
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: prepare-base
     steps:
       - name: Check out code from GitHub
         uses: actions/checkout@v2.4.0
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@v2.3.1
+        uses: actions/setup-python@v2.3.2
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
       - name: Restore Python virtual environment
@@ -148,6 +151,7 @@ jobs:
   prepare-tests-linux:
     name: tests / prepare / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     strategy:
       matrix:
         python-version: [3.6, 3.7, 3.8, 3.9, "3.10"]
@@ -160,7 +164,7 @@ jobs:
           fetch-depth: 0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v2.3.1
+        uses: actions/setup-python@v2.3.2
         with:
           python-version: ${{ matrix.python-version }}
       - name: Generate partial Python venv restore key
@@ -190,6 +194,7 @@ jobs:
   pytest-linux:
     name: tests / run / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: prepare-tests-linux
     strategy:
       fail-fast: false
@@ -200,7 +205,7 @@ jobs:
         uses: actions/checkout@v2.4.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v2.3.1
+        uses: actions/setup-python@v2.3.2
         with:
           python-version: ${{ matrix.python-version }}
       - name: Restore Python virtual environment
@@ -229,6 +234,7 @@ jobs:
   coverage:
     name: tests / process / coverage
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     needs: ["prepare-tests-linux", "pytest-linux"]
     strategy:
       matrix:
@@ -240,7 +246,7 @@ jobs:
         uses: actions/checkout@v2.4.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v2.3.1
+        uses: actions/setup-python@v2.3.2
         with:
           python-version: ${{ matrix.python-version }}
       - name: Restore Python virtual environment
@@ -273,6 +279,7 @@ jobs:
   benchmark-linux:
     name: tests / run benchmark / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     needs: prepare-tests-linux
     strategy:
       fail-fast: false
@@ -283,7 +290,7 @@ jobs:
         uses: actions/checkout@v2.4.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v2.3.1
+        uses: actions/setup-python@v2.3.2
         with:
           python-version: ${{ matrix.python-version }}
       - name: Restore Python virtual environment
@@ -324,6 +331,7 @@ jobs:
   prepare-tests-windows:
     name: tests / prepare / ${{ matrix.python-version }} / Windows
     runs-on: windows-latest
+    timeout-minutes: 15
     strategy:
       matrix:
         python-version: [3.6, 3.7, 3.8, 3.9, "3.10"]
@@ -336,7 +344,7 @@ jobs:
           fetch-depth: 0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v2.3.1
+        uses: actions/setup-python@v2.3.2
         with:
           python-version: ${{ matrix.python-version }}
       - name: Generate partial Python venv restore key
@@ -366,6 +374,7 @@ jobs:
   pytest-windows:
     name: tests / run / ${{ matrix.python-version }} / Windows
     runs-on: windows-latest
+    timeout-minutes: 30
     needs: prepare-tests-windows
     strategy:
       fail-fast: false
@@ -380,7 +389,7 @@ jobs:
         uses: actions/checkout@v2.4.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v2.3.1
+        uses: actions/setup-python@v2.3.2
         with:
           python-version: ${{ matrix.python-version }}
       - name: Restore Python virtual environment
@@ -404,6 +413,7 @@ jobs:
   prepare-tests-pypy:
     name: tests / prepare / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     strategy:
       matrix:
         python-version: ["pypy3"]
@@ -416,7 +426,7 @@ jobs:
           fetch-depth: 0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v2.3.1
+        uses: actions/setup-python@v2.3.2
         with:
           python-version: ${{ matrix.python-version }}
       - name: Generate partial Python venv restore key
@@ -446,6 +456,7 @@ jobs:
   pytest-pypy:
     name: tests / run / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: prepare-tests-pypy
     strategy:
       fail-fast: false
@@ -456,7 +467,7 @@ jobs:
         uses: actions/checkout@v2.4.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v2.3.1
+        uses: actions/setup-python@v2.3.2
         with:
           python-version: ${{ matrix.python-version }}
       - name: Restore Python virtual environment

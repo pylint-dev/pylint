@@ -37,6 +37,12 @@ New checkers
 
   Closes #5460
 
+* Add ``modified-iterating-list``, ``modified-iterating-dict``, and ``modified-iterating-set``,
+  emitted when items are added to or removed from respectively a list, dictionary or
+  set being iterated through.
+
+  Closes #5348
+
 * Add checker ``redefined-slots-in-subclass``: Emitted when a slot is redefined in a subclass.
 
   Closes #5617
@@ -85,6 +91,16 @@ Extensions
 
 Other Changes
 =============
+
+* Add ``--recursive`` option to allow recursive discovery of all modules and packages in subtree. Running pylint with
+  ``--recursive=y`` option will check all discovered ``.py`` files and packages found inside subtree of directory provided
+  as parameter to pylint.
+
+  Closes #352
+
+* Fix false-negative for ``assignment-from-none`` checker with list.sort() method.
+
+  Closes #5722
 
 * Fixed crash from ``arguments-differ`` and ``arguments-renamed`` when methods were
   defined outside the top level of a class.
@@ -157,6 +173,12 @@ Other Changes
   a parent.
 
   Closes #4941
+
+* Fix false positives for ``used-before-assignment`` from using named
+  expressions in a ternary operator test and using that expression as
+  a call argument.
+
+  Closes #5177, #5212
 
 * Fix ``unnecessary_dict_index_lookup`` false positive when deleting a dictionary's entry.
 
@@ -235,6 +257,12 @@ Other Changes
 
   Closes #5500
 
+* Fixed a false negative for ``used-before-assignment`` when some but not all
+  except handlers defined a name relied upon after an except block when the
+  corresponding try block contained a return statement.
+
+  Closes #5524
+
 * When evaluating statements in the ``else`` clause of a loop, ``used-before-assignment``
   assumes that assignments in the except blocks took place if the
   except handlers constituted the only ways for the loop to finish without
@@ -258,6 +286,11 @@ Other Changes
 * Fixed crash on list comprehensions that used ``type`` as inner variable name.
 
   Closes #5461
+
+* Fixed crash in ``use-maxsplit-arg`` checker when providing the ``sep`` argument
+  to ``str.split()`` by keyword.
+
+  Closes #5737
 
 * Fix false positive for ``unused-variable`` for a comprehension variable matching
   an outer scope type annotation.
@@ -337,6 +370,14 @@ Other Changes
 * Fixed false positive for ``unused-variable`` when a ``nonlocal`` name is assigned as part of a multi-name assignment.
 
   Closes #3781
+
+* Fix false positive - Allow unpacking of ``self`` in a subclass of ``typing.NamedTuple``.
+
+  Closes #5312
+
+* Fixed false negative ``unpacking-non-sequence`` when value is an empty list.
+
+  Closes #5707
 
 * Fixed false positive for ``global-variable-not-assigned`` when the ``del`` statement is used
 

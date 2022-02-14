@@ -10,7 +10,7 @@ from pylint.checkers import utils
 
 
 class NotChecker(checkers.BaseChecker):
-    """checks for too many not in comparison expressions
+    """Checks for too many not in comparison expressions.
 
     - "not not" should trigger a warning
     - "not" followed by a comparison should trigger a warning

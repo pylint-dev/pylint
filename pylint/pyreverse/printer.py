@@ -46,7 +46,7 @@ class NodeProperties(NamedTuple):
 
 
 class Printer(ABC):
-    """Base class defining the interface for a printer"""
+    """Base class defining the interface for a printer."""
 
     def __init__(
         self,
@@ -62,11 +62,11 @@ class Printer(ABC):
         self._open_graph()
 
     def _inc_indent(self) -> None:
-        """increment indentation"""
+        """Increment indentation."""
         self._indent += "  "
 
     def _dec_indent(self) -> None:
-        """decrement indentation"""
+        """Decrement indentation."""
         self._indent = self._indent[:-2]
 
     @abstractmethod

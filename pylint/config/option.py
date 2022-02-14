@@ -128,7 +128,7 @@ def _call_validator(opttype, optdict, option, value):
 
 
 def _validate(value, optdict, name=""):
-    """return a validated value for an option according to its type
+    """Return a validated value for an option according to its type.
 
     optional argument name is only used for error message formatting
     """

@@ -3,7 +3,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""Class to generate files in mermaidjs format"""
+"""Class to generate files in mermaidjs format."""
 from typing import Dict, Optional
 
 from pylint.pyreverse.printer import EdgeType, NodeProperties, NodeType, Printer
@@ -11,7 +11,7 @@ from pylint.pyreverse.utils import get_annotation_label
 
 
 class MermaidJSPrinter(Printer):
-    """Printer for MermaidJS diagrams"""
+    """Printer for MermaidJS diagrams."""
 
     DEFAULT_COLOR = "black"
 
@@ -28,7 +28,7 @@ class MermaidJSPrinter(Printer):
     }
 
     def _open_graph(self) -> None:
-        """Emit the header lines"""
+        """Emit the header lines."""
         self.emit("classDiagram")
         self._inc_indent()
 
@@ -82,7 +82,7 @@ class MermaidJSPrinter(Printer):
 
 
 class HTMLMermaidJSPrinter(MermaidJSPrinter):
-    """Printer for MermaidJS diagrams wrapped in a html boilerplate"""
+    """Printer for MermaidJS diagrams wrapped in a html boilerplate."""
 
     HTML_OPEN_BOILERPLATE = """<html>
   <body>

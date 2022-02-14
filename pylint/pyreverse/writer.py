@@ -16,7 +16,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""Utilities for creating VCG and Dot diagrams"""
+"""Utilities for creating VCG and Dot diagrams."""
 
 import itertools
 import os
@@ -36,7 +36,7 @@ from pylint.pyreverse.utils import is_exception
 
 
 class DiagramWriter:
-    """base class for writing project diagrams"""
+    """Base class for writing project diagrams."""
 
     def __init__(self, config):
         self.config = config
@@ -68,7 +68,7 @@ class DiagramWriter:
         self.used_colors = {}
 
     def write(self, diadefs):
-        """write files for <project> according to <diadefs>"""
+        """Write files for <project> according to <diadefs>."""
         for diagram in diadefs:
             basename = diagram.title.strip().replace(" ", "_")
             file_name = f"{basename}.{self.config.output_format}"
@@ -82,7 +82,7 @@ class DiagramWriter:
             self.save()
 
     def write_packages(self, diagram: PackageDiagram) -> None:
-        """write a package diagram"""
+        """Write a package diagram."""
         # sorted to get predictable (hence testable) results
         for module in sorted(diagram.modules(), key=lambda x: x.title):
             module.fig_id = module.node.qname()
@@ -100,7 +100,7 @@ class DiagramWriter:
             )
 
     def write_classes(self, diagram: ClassDiagram) -> None:
-        """write a class diagram"""
+        """Write a class diagram."""
         # sorted to get predictable (hence testable) results
         for obj in sorted(diagram.objects, key=lambda x: x.title):
             obj.fig_id = obj.node.qname()
@@ -132,19 +132,19 @@ class DiagramWriter:
             )
 
     def set_printer(self, file_name: str, basename: str) -> None:
-        """set printer"""
+        """Set printer."""
         self.printer = self.printer_class(basename)
         self.file_name = file_name
 
     def get_package_properties(self, obj: PackageEntity) -> NodeProperties:
-        """get label and shape for packages."""
+        """Get label and shape for packages."""
         return NodeProperties(
             label=obj.title,
             color=self.get_shape_color(obj) if self.config.colorized else "black",
         )
 
     def get_class_properties(self, obj: ClassEntity) -> NodeProperties:
-        """get label and shape for classes."""
+        """Get label and shape for classes."""
         properties = NodeProperties(
             label=obj.title,
             attrs=obj.attrs if not self.config.only_classnames else None,
@@ -155,7 +155,7 @@ class DiagramWriter:
         return properties
 
     def get_shape_color(self, obj: DiagramEntity) -> str:
-        """get shape color"""
+        """Get shape color."""
         qualified_name = obj.node.qname()
         if modutils.is_standard_module(qualified_name.split(".", maxsplit=1)[0]):
             return "grey"
@@ -171,5 +171,5 @@ class DiagramWriter:
         return self.used_colors[base_name]
 
     def save(self) -> None:
-        """write to disk"""
+        """Write to disk."""
         self.printer.generate(self.file_name)

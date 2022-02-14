@@ -102,7 +102,7 @@ def test_map_positions_to_result(
     expected: Dict[int, pylint.checkers.unicode._BadChar],
     search_dict,
 ):
-    """test all possible outcomes for map position function in UTF-8 and ASCII"""
+    """Test all possible outcomes for map position function in UTF-8 and ASCII."""
     if isinstance(line, bytes):
         newline = b"\n"
     else:
@@ -212,7 +212,7 @@ def test__normalize_codec_name(codec: str, expected: str):
 def test___fix_utf16_32_line_stream(
     tmp_path: Path, codec: str, line_ending: str, final_new_line: bool
 ):
-    """content of stream should be the same as should be the length"""
+    """Content of stream should be the same as should be the length."""
 
     def decode_line(line: bytes, codec: str) -> str:
         return line.decode(codec)

@@ -89,7 +89,7 @@ class TestPyLinterOptionSetters(CheckerTestCase):
 
     @set_config(ignore_paths=".*/tests/.*,.*\\ignore\\.*")
     def test_ignore_paths_with_value(self) -> None:
-        """Test ignore-paths option with value"""
+        """Test ignore-paths option with value."""
         options = get_global_option(self.checker, "ignore-paths")
 
         assert any(i.match("dir/tests/file.py") for i in options)

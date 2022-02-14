@@ -635,7 +635,7 @@ class StringFormatChecker(BaseChecker):
 
 
 class StringConstantChecker(BaseTokenChecker):
-    """Check string literals"""
+    """Check string literals."""
 
     __implements__ = (IAstroidChecker, ITokenChecker, IRawChecker)
     name = "string"
@@ -850,7 +850,7 @@ class StringConstantChecker(BaseTokenChecker):
     def process_non_raw_string_token(
         self, prefix, string_body, start_row, string_start_col
     ):
-        """check for bad escapes in a non-raw string.
+        """Check for bad escapes in a non-raw string.
 
         prefix: lowercase string of eg 'ur' string prefix markers.
         string_body: the un-parsed body of the string, not including the quote
@@ -917,7 +917,7 @@ class StringConstantChecker(BaseTokenChecker):
             self._detect_u_string_prefix(node)
 
     def _detect_u_string_prefix(self, node: nodes.Const):
-        """Check whether strings include a 'u' prefix like u'String'"""
+        """Check whether strings include a 'u' prefix like u'String'."""
         if node.kind == "u":
             self.add_message(
                 "redundant-u-string-prefix",
