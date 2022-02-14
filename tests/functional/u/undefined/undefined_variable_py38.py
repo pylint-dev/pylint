@@ -155,3 +155,12 @@ class Dummy:
 
 
 dummy = Dummy(value=val if (val := 'something') else 'anything')
+
+def expression_in_ternary_operator_inside_container():
+    """Named expression in ternary operator: inside container"""
+    return [val2 if (val2 := 'something') else 'anything']
+
+
+def expression_in_ternary_operator_inside_container_wrong_position():
+    """Same case, but named expression comes too late"""
+    return [val3, val3 if (val3 := 'something') else 'anything']  # [used-before-assignment]
