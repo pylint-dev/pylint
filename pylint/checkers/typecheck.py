@@ -1046,11 +1046,7 @@ accessed. Python regular expressions are accepted.",
 
         cache_key = (containing_scope, name_with_expr)
 
-        if (
-            outer
-            and cache_key in self.node_exists
-            and self.node_exists.get(cache_key)
-        ):
+        if outer and cache_key in self.node_exists and self.node_exists.get(cache_key):
             return
         self.node_exists[cache_key] = True
         if any(
