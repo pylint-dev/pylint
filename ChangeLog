@@ -9,6 +9,10 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.13.rst'
 
+* Cache attribute lookups in ``no-member`` checker to improve performance on repeated attributes.
+
+  Closes #5695
+
 * Add ``--recursive`` option to allow recursive discovery of all modules and packages in subtree. Running pylint with
   ``--recursive=y`` option will check all discovered ``.py`` files and packages found inside subtree of directory provided
   as parameter to pylint.
