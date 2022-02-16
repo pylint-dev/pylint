@@ -2071,12 +2071,10 @@ class VariablesChecker(BaseChecker):
             return True
         if isinstance(value, nodes.Lambda) and isinstance(value.body, nodes.IfExp):
             return True
-        if isinstance(value, nodes.Call) and (
+        return isinstance(value, nodes.Call) and (
             any(isinstance(kwarg.value, nodes.IfExp) for kwarg in value.keywords)
             or any(isinstance(arg, nodes.IfExp) for arg in value.args)
-        ):
-            return True
-        return False
+        )
 
     @staticmethod
     def _is_only_type_assignment(node: nodes.Name, defstmt: nodes.Statement) -> bool:
