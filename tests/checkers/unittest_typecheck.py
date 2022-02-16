@@ -279,7 +279,7 @@ class TestTypeCheckerNoMemberCache(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_attribute(nodes[0])
         assert len(self.checker.node_exists) == 1
-        assert self.checker.node_exists.get(("", "Object1().method")) is True
+        assert self.checker.node_exists.get(("", 0, "Object1().method")) is True
 
         # 1: Object2().method
         with self.assertAddsMessages(
@@ -296,7 +296,7 @@ class TestTypeCheckerNoMemberCache(CheckerTestCase):
         ):
             self.checker.visit_attribute(nodes[1])
         assert len(self.checker.node_exists) == 2
-        assert self.checker.node_exists.get(("", "Object2().method")) is False
+        assert self.checker.node_exists.get(("", 0, "Object2().method")) is False
 
         # 2: Object1.val
         with self.assertAddsMessages(
@@ -313,20 +313,20 @@ class TestTypeCheckerNoMemberCache(CheckerTestCase):
         ):
             self.checker.visit_attribute(nodes[2])
         assert len(self.checker.node_exists) == 3
-        assert self.checker.node_exists.get(("", "Object1.val")) is False
+        assert self.checker.node_exists.get(("", 0, "Object1.val")) is False
 
         # 3: Object2.val
         with self.assertNoMessages():
             self.checker.visit_attribute(nodes[3])
         assert len(self.checker.node_exists) == 4
-        assert self.checker.node_exists.get(("", "Object2.val")) is True
+        assert self.checker.node_exists.get(("", 0, "Object2.val")) is True
 
         # 4: obj1.method()
         obj1_method_attr = nodes[4].func
         with self.assertNoMessages():
             self.checker.visit_attribute(obj1_method_attr)
         assert len(self.checker.node_exists) == 5
-        assert self.checker.node_exists.get(("", "obj1.method")) is True
+        assert self.checker.node_exists.get(("", 0, "obj1.method")) is True
 
         # 5: obj2.method()
         obj2_method_attr = nodes[5].func
@@ -344,7 +344,7 @@ class TestTypeCheckerNoMemberCache(CheckerTestCase):
         ):
             self.checker.visit_attribute(obj2_method_attr)
         assert len(self.checker.node_exists) == 6
-        assert self.checker.node_exists.get(("", "obj2.method")) is False
+        assert self.checker.node_exists.get(("", 0, "obj2.method")) is False
 
     def test_cache_hit(self) -> None:
         """Tests basic functionality for cache hits."""
@@ -364,13 +364,13 @@ class TestTypeCheckerNoMemberCache(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_attribute(nodes[0])
         assert len(self.checker.node_exists) == 1
-        assert self.checker.node_exists.get(("", "Counter().elements")) is True
+        assert self.checker.node_exists.get(("", 0, "Counter().elements")) is True
 
         # Cache hit
         with self.assertNoMessages():
             self.checker.visit_attribute(nodes[1])
         assert len(self.checker.node_exists) == 1
-        assert self.checker.node_exists.get(("", "Counter().elements")) is True
+        assert self.checker.node_exists.get(("", 0, "Counter().elements")) is True
 
         with self.assertAddsMessages(
             MessageTest(
@@ -386,7 +386,7 @@ class TestTypeCheckerNoMemberCache(CheckerTestCase):
         ):
             self.checker.visit_attribute(nodes[2])
         assert len(self.checker.node_exists) == 2
-        assert self.checker.node_exists.get(("", "Counter().b")) is False
+        assert self.checker.node_exists.get(("", 0, "Counter().b")) is False
 
         # Technically a cache hit but we execute the rest of the function anyways
         with self.assertAddsMessages(
@@ -403,7 +403,7 @@ class TestTypeCheckerNoMemberCache(CheckerTestCase):
         ):
             self.checker.visit_attribute(nodes[3])
         assert len(self.checker.node_exists) == 2
-        assert self.checker.node_exists.get(("", "Counter().b")) is False
+        assert self.checker.node_exists.get(("", 0, "Counter().b")) is False
 
     def test_scoped_cache(self) -> None:
         """Tests scoped cache."""
@@ -438,7 +438,7 @@ class TestTypeCheckerNoMemberCache(CheckerTestCase):
             self.checker.visit_attribute(nodes[0])
         assert len(self.checker.node_exists) == 1
         assert (
-            self.checker.node_exists.get(("CounterContainerA", "counter.elements"))
+            self.checker.node_exists.get(("CounterContainerA", 2, "counter.elements"))
             is True
         )
 
@@ -456,17 +456,21 @@ class TestTypeCheckerNoMemberCache(CheckerTestCase):
         ):
             self.checker.visit_attribute(nodes[1])
         assert len(self.checker.node_exists) == 2
-        assert self.checker.node_exists.get(("CounterContainerA", "counter.b")) is False
+        assert (
+            self.checker.node_exists.get(("CounterContainerA", 2, "counter.b")) is False
+        )
 
         with self.assertNoMessages():
             self.checker.visit_attribute(nodes[2])
         assert len(self.checker.node_exists) == 3
         assert (
-            self.checker.node_exists.get(("CounterContainerB", "counter.elements"))
+            self.checker.node_exists.get(("CounterContainerB", 12, "counter.elements"))
             is True
         )
 
         with self.assertNoMessages():
             self.checker.visit_attribute(nodes[3])
         assert len(self.checker.node_exists) == 4
-        assert self.checker.node_exists.get(("CounterContainerB", "counter.b")) is True
+        assert (
+            self.checker.node_exists.get(("CounterContainerB", 12, "counter.b")) is True
+        )

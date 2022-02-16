@@ -792,7 +792,7 @@ class TypeChecker(BaseChecker):
     msgs = MSGS
     priority = -1
 
-    node_exists: Dict[Tuple[str, str], bool] = {}
+    node_exists: Dict[Tuple[str, int, str], bool] = {}
     # configuration options
     options = (
         (
@@ -1127,7 +1127,9 @@ accessed. Python regular expressions are accepted.",
                 )
 
     # pylint: disable=no-self-use
-    def _get_cache_key(self, node: nodes.Attribute) -> Union[Tuple[str, str], None]:
+    def _get_cache_key(
+        self, node: nodes.Attribute
+    ) -> Union[Tuple[str, int, str], None]:
         """Returns the cache key to identify an attribute and its scope, or None if it cannot be cached."""
         outer = expr_name = ""
         expr = node.expr
@@ -1147,19 +1149,20 @@ accessed. Python regular expressions are accepted.",
         defined_name = expr_name if expr_name != "self" else node.attrname
 
         root = expr.root()
-        containing_scope = None
-        if defined_name in root.locals:
+        containing_scope = ""
+        containing_scope_line = -1
+        if expr_name != "self" and defined_name in root.locals:
             containing_scope = root.name
+            containing_scope_line = root.lineno
         else:
             cur_scope = expr.frame()
             while cur_scope.parent and defined_name not in cur_scope.locals:
                 cur_scope = cur_scope.parent.frame()
             if cur_scope.parent:  # cur_scope is not root
                 containing_scope = cur_scope.name
-            else:
-                containing_scope = None
+                containing_scope_line = cur_scope.lineno
 
-        return (containing_scope, name_with_expr)
+        return (containing_scope, containing_scope_line, name_with_expr)
 
     def _get_nomember_msgid_hint(self, node, owner):
         suggestions_are_possible = self._suggestion_mode and isinstance(
