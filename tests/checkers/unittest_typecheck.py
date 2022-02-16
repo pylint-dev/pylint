@@ -244,3 +244,229 @@ class TestTypeCheckerOnDecorators(CheckerTestCase):
             )
         ):
             self.checker.visit_subscript(subscript)
+
+
+class TestTypeCheckerNoMemberCache(CheckerTestCase):
+    """Tests for the no-member checker cache."""
+
+    CHECKER_CLASS = typecheck.TypeChecker
+
+    def test_cache_fill(self) -> None:
+        """Tests a variety of formats for cache keys."""
+        self.checker.node_exists = {}
+
+        nodes = astroid.extract_node(
+            """
+        class Object1:
+            def method(self):
+                return
+
+        class Object2:
+            val = 3
+
+        Object1().method  #@
+        Object2().method  #@
+        Object1.val  #@
+        Object2.val  #@
+        obj1 = Object1()
+        obj2 = Object2()
+        obj1.method()  #@
+        obj2.method()  #@
+        """
+        )
+
+        # 0: Object1().method
+        with self.assertNoMessages():
+            self.checker.visit_attribute(nodes[0])
+        assert len(self.checker.node_exists) == 1
+        assert self.checker.node_exists.get(("", "Object1().method")) is True
+
+        # 1: Object2().method
+        with self.assertAddsMessages(
+            MessageTest(
+                "no-member",
+                node=nodes[1],
+                args=("Instance of", "Object2", "method", ""),
+                confidence=INFERENCE,
+                line=10,
+                col_offset=0,
+                end_line=10,
+                end_col_offset=16,
+            )
+        ):
+            self.checker.visit_attribute(nodes[1])
+        assert len(self.checker.node_exists) == 2
+        assert self.checker.node_exists.get(("", "Object2().method")) is False
+
+        # 2: Object1.val
+        with self.assertAddsMessages(
+            MessageTest(
+                "no-member",
+                node=nodes[2],
+                args=("Class", "Object1", "val", ""),
+                confidence=INFERENCE,
+                line=11,
+                col_offset=0,
+                end_line=11,
+                end_col_offset=11,
+            )
+        ):
+            self.checker.visit_attribute(nodes[2])
+        assert len(self.checker.node_exists) == 3
+        assert self.checker.node_exists.get(("", "Object1.val")) is False
+
+        # 3: Object2.val
+        with self.assertNoMessages():
+            self.checker.visit_attribute(nodes[3])
+        assert len(self.checker.node_exists) == 4
+        assert self.checker.node_exists.get(("", "Object2.val")) is True
+
+        # 4: obj1.method()
+        obj1_method_attr = nodes[4].func
+        with self.assertNoMessages():
+            self.checker.visit_attribute(obj1_method_attr)
+        assert len(self.checker.node_exists) == 5
+        assert self.checker.node_exists.get(("", "obj1.method")) is True
+
+        # 5: obj2.method()
+        obj2_method_attr = nodes[5].func
+        with self.assertAddsMessages(
+            MessageTest(
+                "no-member",
+                node=obj2_method_attr,
+                args=("Instance of", "Object2", "method", ""),
+                confidence=INFERENCE,
+                line=16,
+                col_offset=0,
+                end_line=16,
+                end_col_offset=11,
+            )
+        ):
+            self.checker.visit_attribute(obj2_method_attr)
+        assert len(self.checker.node_exists) == 6
+        assert self.checker.node_exists.get(("", "obj2.method")) is False
+
+    def test_cache_hit(self) -> None:
+        """Tests basic functionality for cache hits."""
+        self.checker.node_exists = {}
+
+        nodes = astroid.extract_node(
+            """
+        from collections import Counter
+
+        Counter().elements  #@
+        Counter().elements  #@
+        Counter().b  #@
+        Counter().b  #@
+        """
+        )
+
+        with self.assertNoMessages():
+            self.checker.visit_attribute(nodes[0])
+        assert len(self.checker.node_exists) == 1
+        assert self.checker.node_exists.get(("", "Counter().elements")) is True
+
+        # Cache hit
+        with self.assertNoMessages():
+            self.checker.visit_attribute(nodes[1])
+        assert len(self.checker.node_exists) == 1
+        assert self.checker.node_exists.get(("", "Counter().elements")) is True
+
+        with self.assertAddsMessages(
+            MessageTest(
+                "no-member",
+                node=nodes[2],
+                args=("Instance of", "Counter", "b", ""),
+                confidence=INFERENCE,
+                line=6,
+                col_offset=0,
+                end_line=6,
+                end_col_offset=11,
+            )
+        ):
+            self.checker.visit_attribute(nodes[2])
+        assert len(self.checker.node_exists) == 2
+        assert self.checker.node_exists.get(("", "Counter().b")) is False
+
+        # Technically a cache hit but we execute the rest of the function anyways
+        with self.assertAddsMessages(
+            MessageTest(
+                "no-member",
+                node=nodes[3],
+                args=("Instance of", "Counter", "b", ""),
+                confidence=INFERENCE,
+                line=7,
+                col_offset=0,
+                end_line=7,
+                end_col_offset=11,
+            )
+        ):
+            self.checker.visit_attribute(nodes[3])
+        assert len(self.checker.node_exists) == 2
+        assert self.checker.node_exists.get(("", "Counter().b")) is False
+
+    def test_scoped_cache(self) -> None:
+        """Tests scoped cache."""
+        self.checker.node_exists = {}
+
+        nodes = astroid.extract_node(
+            """
+        class CounterContainerA:
+            class SpecialCounter:
+                elements = [1, 2, 3]
+
+            counter = SpecialCounter()
+
+            def get_b(self):
+                self.counter.elements  #@
+                self.counter.b  #@
+
+        class CounterContainerB:
+            class SpecialCounter:
+                elements = [1, 2, 3]
+                b = 12
+
+            counter = SpecialCounter()
+
+            def get_b(self):
+                self.counter.elements  #@
+                self.counter.b  #@
+        """
+        )
+
+        with self.assertNoMessages():
+            self.checker.visit_attribute(nodes[0])
+        assert len(self.checker.node_exists) == 1
+        assert (
+            self.checker.node_exists.get(("CounterContainerA", "counter.elements"))
+            is True
+        )
+
+        with self.assertAddsMessages(
+            MessageTest(
+                "no-member",
+                node=nodes[1],
+                args=("Instance of", "SpecialCounter", "b", ""),
+                confidence=INFERENCE,
+                line=10,
+                col_offset=8,
+                end_line=10,
+                end_col_offset=22,
+            )
+        ):
+            self.checker.visit_attribute(nodes[1])
+        assert len(self.checker.node_exists) == 2
+        assert self.checker.node_exists.get(("CounterContainerA", "counter.b")) is False
+
+        with self.assertNoMessages():
+            self.checker.visit_attribute(nodes[2])
+        assert len(self.checker.node_exists) == 3
+        assert (
+            self.checker.node_exists.get(("CounterContainerB", "counter.elements"))
+            is True
+        )
+
+        with self.assertNoMessages():
+            self.checker.visit_attribute(nodes[3])
+        assert len(self.checker.node_exists) == 4
+        assert self.checker.node_exists.get(("CounterContainerB", "counter.b")) is True
