@@ -1016,43 +1016,17 @@ accessed. Python regular expressions are accepted.",
 
         function/method, super call and metaclasses are ignored
         """
-
-        outer = expr_name = ""
-        expr = node.expr
-        if isinstance(expr, nodes.Call):
-            expr = expr.func
-            outer = "()"
-        if isinstance(expr, nodes.Name):
-            expr_name = expr.name
-        elif isinstance(expr, nodes.Attribute):
-            expr_name = expr.attrname
-        outer = expr_name + outer
-        name_with_expr = f"{outer}.{node.attrname}"
-
-        defined_name = expr_name if expr_name != "self" else node.attrname
-
-        root = expr.root()
-        containing_scope = None
-        if defined_name in root.locals:
-            containing_scope = root.name
-        else:
-            cur_scope = expr.frame()
-            while cur_scope.parent and defined_name not in cur_scope.locals:
-                cur_scope = cur_scope.parent.frame()
-            if cur_scope.parent:  # cur_scope is not root
-                containing_scope = cur_scope.name
-            else:
-                containing_scope = None
-
-        cache_key = (containing_scope, name_with_expr)
-
+        cache_key = self._get_cache_key(node)
         if (
-            outer
+            cache_key
             and cache_key in self.node_exists
             and self.node_exists.get(cache_key)
         ):
             return
-        self.node_exists[cache_key] = True
+
+        if cache_key:
+            self.node_exists[cache_key] = True
+
         if any(
             pattern.match(name)
             for name in (node.attrname, node.as_string())
@@ -1130,7 +1104,8 @@ accessed. Python regular expressions are accepted.",
             # stop on the first found
             break
         else:
-            self.node_exists[cache_key] = False
+            if cache_key:
+                self.node_exists[cache_key] = False
             # we have not found any node with the attributes, display the
             # message for inferred nodes
             done = set()
@@ -1150,6 +1125,41 @@ accessed. Python regular expressions are accepted.",
                     args=(owner.display_type(), name, node.attrname, hint),
                     confidence=INFERENCE,
                 )
+
+    # pylint: disable=no-self-use
+    def _get_cache_key(self, node: nodes.Attribute) -> Union[Tuple[str, str], None]:
+        """Returns the cache key to identify an attribute and its scope, or None if it cannot be cached."""
+        outer = expr_name = ""
+        expr = node.expr
+        if isinstance(expr, nodes.Call):
+            expr = expr.func
+            outer = "()"
+        if isinstance(expr, nodes.Name):
+            expr_name = expr.name
+        elif isinstance(expr, nodes.Attribute):
+            expr_name = expr.attrname
+        outer = expr_name + outer
+        if not outer:
+            return None
+
+        name_with_expr = f"{outer}.{node.attrname}"
+
+        defined_name = expr_name if expr_name != "self" else node.attrname
+
+        root = expr.root()
+        containing_scope = None
+        if defined_name in root.locals:
+            containing_scope = root.name
+        else:
+            cur_scope = expr.frame()
+            while cur_scope.parent and defined_name not in cur_scope.locals:
+                cur_scope = cur_scope.parent.frame()
+            if cur_scope.parent:  # cur_scope is not root
+                containing_scope = cur_scope.name
+            else:
+                containing_scope = None
+
+        return (containing_scope, name_with_expr)
 
     def _get_nomember_msgid_hint(self, node, owner):
         suggestions_are_possible = self._suggestion_mode and isinstance(
