@@ -205,6 +205,11 @@ Release date: TBA
 
   Closes #367
 
+* Fixed a false positive for ``used-before-assignment`` when a named expression
+  appears as the first value in a container.
+
+  Closes #5112
+
 * ``used-before-assignment`` now assumes that assignments in except blocks
   may not have occurred and warns accordingly.
 

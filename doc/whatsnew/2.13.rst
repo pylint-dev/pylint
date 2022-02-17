@@ -246,6 +246,11 @@ Other Changes
 
   Closes #3793
 
+* Fixed a false positive for ``used-before-assignment`` when a named expression
+  appears as the first value in a container.
+
+  Closes #5112
+
 * Fixed false positive for ``used-before-assignment`` with self-referential type
   annotation in conditional statements within class methods.
 
