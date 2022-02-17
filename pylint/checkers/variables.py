@@ -2062,8 +2062,8 @@ class VariablesChecker(BaseChecker):
         """
         if isinstance(defstmt.value, nodes.BaseContainer) and defstmt.value.elts:
             # The assignment must happen as part of the first element
-            # e.g. "assert x:= True, x"
-            # NOT "assert x, x:= True"
+            # e.g. "assert (x:= True), x"
+            # NOT "assert x, (x:= True)"
             value = defstmt.value.elts[0]
         else:
             value = defstmt.value
