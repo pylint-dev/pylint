@@ -184,6 +184,11 @@ Other Changes
 
   Closes #4716
 
+* Fix false positive for ``used-before-assignment`` when an except handler
+  shares a name with a test in a filtered comprehension.
+
+  Closes #5817
+
 * Fix a crash in ``unused-private-member`` checker when analyzing code using
   ``type(self)`` in bound methods.
 

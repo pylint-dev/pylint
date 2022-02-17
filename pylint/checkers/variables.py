@@ -646,7 +646,12 @@ scope_type : {self._atomic.scope_type}
             found_nodes = None
 
         # Filter out assignments in ExceptHandlers that node is not contained in
-        if found_nodes:
+        # unless this is a test in a filtered comprehension
+        # Example: [e for e in range(3) if e] <--- followed by except e:
+        if found_nodes and (
+            not isinstance(parent_node, nodes.Comprehension)
+            or node not in parent_node.ifs
+        ):
             found_nodes = [
                 n
                 for n in found_nodes
