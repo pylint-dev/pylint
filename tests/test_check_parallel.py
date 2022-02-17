@@ -413,15 +413,9 @@ class TestCheckParallel:
             (3, 1, 1),
             (3, 1, 2),
             (3, 1, 3),
-            (3, 5, 1),
-            (3, 5, 2),
-            (3, 5, 3),
             (10, 2, 1),
             (10, 2, 2),
             (10, 2, 3),
-            (2, 10, 1),
-            (2, 10, 2),
-            (2, 10, 3),
         ],
     )
     def test_compare_workers_to_single_proc(self, num_files, num_jobs, num_checkers):
@@ -513,15 +507,9 @@ class TestCheckParallel:
             (3, 1, 1),
             (3, 1, 2),
             (3, 1, 3),
-            (3, 5, 1),
-            (3, 5, 2),
-            (3, 5, 3),
             (10, 2, 1),
             (10, 2, 2),
             (10, 2, 3),
-            (2, 10, 1),
-            (2, 10, 2),
-            (2, 10, 3),
         ],
     )
     def test_map_reduce(self, num_files, num_jobs, num_checkers):
