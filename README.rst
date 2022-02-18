@@ -157,7 +157,7 @@ You can place this badge in your README to let others know your project uses pyl
     .. image:: https://img.shields.io/badge/linting-pylint-green
         :target: https://github.com/PyCQA/pylint
 
-Use the badge in your project's README.md::
+Use the badge in your project's README.md (or any other Markdown file)::
 
     ![linting: pylint](https://img.shields.io/badge/linting-pylint-green)](https://github.com/PyCQA/pylint)
 
