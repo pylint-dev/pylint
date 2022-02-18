@@ -161,7 +161,7 @@ Use the badge in your project's README.md (or any other Markdown file)::
 
     ![linting: pylint](https://img.shields.io/badge/linting-pylint-green)](https://github.com/PyCQA/pylint)
 
-Use the badge in your projects README.rst::
+Use the badge in your projects README.rst (or any other rst file)::
 
     .. image:: https://img.shields.io/badge/linting-pylint-green
         :target: https://github.com/PyCQA/pylint
