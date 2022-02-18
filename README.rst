@@ -152,7 +152,7 @@ Do not forget to clone astroid_ and install the last version::
 Show your usage
 -----------------
 
-Place this badge at the top of your repository to let others know your project uses pylint.
+You can place this badge in your README to let others know your project uses pylint.
 
     .. image:: https://img.shields.io/badge/linting-pylint-green
         :target: https://github.com/PyCQA/pylint
