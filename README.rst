@@ -149,8 +149,8 @@ Do not forget to clone astroid_ and install the last version::
     cd astroid
     python3 -m pip install -e .
 
-Share your code style
--------
+Show your usage
+-----------------
 
 Place this badge at the top of your repository to let others know your project uses pylint.
 
