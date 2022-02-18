@@ -148,6 +148,23 @@ Do not forget to clone astroid_ and install the last version::
     # Using an editable installation
     cd astroid
     python3 -m pip install -e .
+    
+Share your code style
+-------
+
+Place this badge at the top of your repository to let others know your project uses pylint.
+
+    .. image:: https://img.shields.io/badge/linting-pylint-green
+        :target: https://github.com/PyCQA/pylint
+
+Use the badge in your project's README.md::
+
+    ![linting: pylint](https://img.shields.io/badge/linting-pylint-green)](https://github.com/PyCQA/pylint)
+ 
+Use the badge in your projects README.rst::
+
+    .. image:: https://img.shields.io/badge/linting-pylint-green
+        :target: https://github.com/PyCQA/pylint
 
 
 For more detailed information, check the documentation.
