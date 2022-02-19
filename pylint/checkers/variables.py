@@ -236,27 +236,41 @@ def _get_unpacking_extra_info(node, inferred):
 
 
 def _detect_global_scope(node, frame, defframe):
-    """Detect that the given frames shares a global
-    scope.
+    """Detect that the given frames share a global scope.
 
-    Two frames shares a global scope when neither
+    Two frames share a global scope when neither
     of them are hidden under a function scope, as well
-    as any of parent scope of them, until the root scope.
+    as any parent scope of them, until the root scope.
     In this case, depending from something defined later on
-    will not work, because it is still undefined.
+    will only work if guarded by a nested function definition.
 
     Example:
         class A:
             # B has the same global scope as `C`, leading to a NameError.
+            # Return True to indicate a shared scope.
             class B(C): ...
         class C: ...
 
+    Whereas this does not lead to a NameError:
+        class A:
+            def guard():
+                # Return False to indicate no scope sharing.
+                class B(C): ...
+        class C: ...
     """
     def_scope = scope = None
     if frame and frame.parent:
         scope = frame.parent.scope()
     if defframe and defframe.parent:
         def_scope = defframe.parent.scope()
+    if (
+        isinstance(frame, nodes.ClassDef)
+        and scope is not def_scope
+        and scope is utils.get_node_first_ancestor_of_type(node, nodes.FunctionDef)
+    ):
+        # If the current node's scope is a class nested under a function,
+        # and the def_scope is something else, then they aren't shared.
+        return False
     if isinstance(frame, nodes.FunctionDef):
         # If the parent of the current node is a
         # function, then it can be under its scope
@@ -290,12 +304,12 @@ def _detect_global_scope(node, frame, defframe):
     if break_scopes and len(set(break_scopes)) != 1:
         # Store different scopes than expected.
         # If the stored scopes are, in fact, the very same, then it means
-        # that the two frames (frame and defframe) shares the same scope,
+        # that the two frames (frame and defframe) share the same scope,
         # and we could apply our lineno analysis over them.
         # For instance, this works when they are inside a function, the node
         # that uses a definition and the definition itself.
         return False
-    # At this point, we are certain that frame and defframe shares a scope
+    # At this point, we are certain that frame and defframe share a scope
     # and the definition of the first depends on the second.
     return frame.lineno < defframe.lineno
 
