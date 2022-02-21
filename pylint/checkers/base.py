@@ -2176,8 +2176,6 @@ class NameChecker(_BasicChecker):
             keywords = (
                 node.assign_type().value.elts[node.parent.elts.index(node)].keywords
             )
-        else:
-            return args_to_display
 
         if keywords:
             for kw in keywords:

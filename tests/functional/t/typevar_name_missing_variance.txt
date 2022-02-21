@@ -5,7 +5,9 @@ typevar-name-incorrect-variance:17:0:17:5::"Type variable ""CT_co"" is contravar
 typevar-name-incorrect-variance:18:0:18:9::"Type variable ""CT_contra"" is invariant, use ""CT"" instead":HIGH
 typevar-name-incorrect-variance:22:0:22:2::"Type variable ""VT"" is covariant, use ""VT_co"" instead":HIGH
 typevar-name-incorrect-variance:23:0:23:9::"Type variable ""VT_contra"" is covariant, use ""VT_co"" instead":HIGH
-typevar-name-incorrect-variance:28:4:28:6::"Type variable ""VT"" is covariant, use ""VT_co"" instead":HIGH
-typevar-name-incorrect-variance:29:4:29:13::"Type variable ""VT_contra"" is covariant, use ""VT_co"" instead":HIGH
-typevar-name-incorrect-variance:31:7:31:16::"Type variable ""VT_contra"" is covariant, use ""VT_co"" instead":HIGH
-typevar-name-incorrect-variance:34:5:34:14::"Type variable ""VT_contra"" is covariant, use ""VT_co"" instead":HIGH
+typevar-name-incorrect-variance:28:0:28:5::"Type variable ""VT_co"" is invariant, use ""VT"" instead":HIGH
+typevar-name-incorrect-variance:29:0:29:9::"Type variable ""VT_contra"" is invariant, use ""VT"" instead":HIGH
+typevar-name-incorrect-variance:33:4:33:6::"Type variable ""VT"" is covariant, use ""VT_co"" instead":HIGH
+typevar-name-incorrect-variance:34:4:34:13::"Type variable ""VT_contra"" is covariant, use ""VT_co"" instead":HIGH
+typevar-name-incorrect-variance:36:7:36:16::"Type variable ""VT_contra"" is covariant, use ""VT_co"" instead":HIGH
+typevar-name-incorrect-variance:39:5:39:14::"Type variable ""VT_contra"" is covariant, use ""VT_co"" instead":HIGH
