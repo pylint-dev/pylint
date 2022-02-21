@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, too-many-ancestors,too-few-public-methods
+# pylint: disable=missing-docstring, too-many-ancestors,too-few-public-methods, typevar-name-incorrect-variance
 from typing import Generic, TypeVar
 
 IN = TypeVar('IN', contravariant=True)

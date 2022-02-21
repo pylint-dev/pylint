@@ -395,6 +395,10 @@ Release date: TBA
   Insert your changelog randomly, it will reduce merge conflicts
   (Ie. not necessarily at the end)
 
+* Added new checker ``typevar-name-missing-variance``. Emitted when a covariant
+  or contravariant ``TypeVar`` does not include  ``_co`` or ``_contra`` respectively or
+  when a ``TypeVar`` is not either but has a suffix.
+
 
 What's New in Pylint 2.12.2?
 ============================

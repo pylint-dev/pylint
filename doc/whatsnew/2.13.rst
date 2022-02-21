@@ -37,6 +37,10 @@ New checkers
 
   Closes #5460
 
+* Added new checker ``typevar-name-missing-variance``. Emitted when a covariant
+  or contravariant ``TypeVar`` does not include  ``_co`` or ``_contra`` respectively or
+  when a ``TypeVar`` is not either but has a suffix.
+
 * Add ``modified-iterating-list``, ``modified-iterating-dict``, and ``modified-iterating-set``,
   emitted when items are added to or removed from respectively a list, dictionary or
   set being iterated through.

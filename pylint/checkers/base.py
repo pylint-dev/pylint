@@ -73,7 +73,17 @@ import collections
 import itertools
 import re
 import sys
-from typing import TYPE_CHECKING, Any, Dict, Iterator, Optional, Pattern, cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    Iterator,
+    List,
+    Optional,
+    Pattern,
+    Tuple,
+    cast,
+)
 
 import astroid
 from astroid import nodes
@@ -228,6 +238,7 @@ COMPARISON_OPERATORS = frozenset(("==", "!=", "<", ">", "<=", ">="))
 # List of methods which can be redefined
 REDEFINABLE_METHODS = frozenset(("__module__",))
 TYPING_FORWARD_REF_QNAME = "typing.ForwardRef"
+TYPING_TYPE_VAR_QNAME = "typing.TypeVar"
 
 
 def _redefines_import(node):
@@ -1738,6 +1749,16 @@ class NameChecker(_BasicChecker):
                 ]
             },
         ),
+        "C0105": (
+            'Type variable "%s" is %s, use "%s" instead',
+            "typevar-name-incorrect-variance",
+            "Emitted when a TypeVar name doesn't reflect its type variant. "
+            "According to PEP8, it is recommended to add suffixes '_co' and "
+            "'_contra' to the variables used to declare covariant or "
+            "contravariant behaviour respectively. Invariant (default) variables "
+            "do not require a suffix. The message is also emitted when invariant "
+            "variables do have a suffix.",
+        ),
         "W0111": (
             "Name %s will become a keyword in Python %s",
             "assign-to-new-keyword",
@@ -1940,33 +1961,69 @@ class NameChecker(_BasicChecker):
         for name in node.names:
             self._check_name("const", name, node)
 
-    @utils.check_messages("disallowed-name", "invalid-name", "assign-to-new-keyword")
+    @utils.check_messages(
+        "disallowed-name",
+        "invalid-name",
+        "assign-to-new-keyword",
+        "typevar-name-incorrect-variance",
+    )
     def visit_assignname(self, node: nodes.AssignName) -> None:
         """Check module level assigned names."""
         self._check_assign_to_new_keyword_violation(node.name, node)
         frame = node.frame(future=True)
         assign_type = node.assign_type()
+
+        # Check names defined in comprehensions
         if isinstance(assign_type, nodes.Comprehension):
             self._check_name("inlinevar", node.name, node)
+
+        # Check names defined in module scope
         elif isinstance(frame, nodes.Module):
+            # Check names defined in Assign nodes
             if isinstance(assign_type, nodes.Assign):
-                if isinstance(utils.safe_infer(assign_type.value), nodes.ClassDef):
+                inferred_assign_type = utils.safe_infer(assign_type.value)
+
+                # Check TypeVar's assigned alone or in tuple assignment
+                if isinstance(node.parent, nodes.Assign) and self._assigns_typevar(
+                    assign_type.value
+                ):
+                    self._check_name("typevar", assign_type.targets[0].name, node)
+                elif (
+                    isinstance(node.parent, nodes.Tuple)
+                    and isinstance(assign_type.value, nodes.Tuple)
+                    and self._assigns_typevar(
+                        assign_type.value.elts[node.parent.elts.index(node)]
+                    )
+                ):
+                    self._check_name(
+                        "typevar",
+                        assign_type.targets[0].elts[node.parent.elts.index(node)].name,
+                        node,
+                    )
+
+                # Check classes (TypeVar's are classes so they need to be excluded first)
+                elif isinstance(inferred_assign_type, nodes.ClassDef):
                     self._check_name("class", node.name, node)
-                # Don't emit if the name redefines an import
-                # in an ImportError except handler.
+
+                # Don't emit if the name redefines an import in an ImportError except handler.
                 elif not _redefines_import(node) and isinstance(
-                    utils.safe_infer(assign_type.value), nodes.Const
+                    inferred_assign_type, nodes.Const
                 ):
                     self._check_name("const", node.name, node)
+            # Check names defined in AnnAssign nodes
             elif isinstance(
                 assign_type, nodes.AnnAssign
             ) and utils.is_assign_name_annotated_with(node, "Final"):
                 self._check_name("const", node.name, node)
+
+        # Check names defined in function scopes
         elif isinstance(frame, nodes.FunctionDef):
             # global introduced variable aren't in the function locals
             if node.name in frame and node.name not in frame.argnames():
                 if not _redefines_import(node):
                     self._check_name("variable", node.name, node)
+
+        # Check names defined in class scopes
         elif isinstance(frame, nodes.ClassDef):
             if not list(frame.local_attr_ancestors(node.name)):
                 for ancestor in frame.ancestors():
@@ -2031,6 +2088,21 @@ class NameChecker(_BasicChecker):
     def _check_name(self, node_type, name, node, confidence=interfaces.HIGH):
         """Check for a name using the type's regexp."""
 
+        # pylint: disable=fixme
+        # TODO: move this down in the function and check TypeVar
+        # for name patterns as well.
+        # Check TypeVar names for variance suffixes
+        if node_type == "typevar":
+            args = self._check_typevar_variance(name, node)
+            for arg in args:
+                self.add_message(
+                    "typevar-name-incorrect-variance",
+                    node=node,
+                    args=arg,
+                    confidence=interfaces.HIGH,
+                )
+            return
+
         def _should_exempt_from_invalid_name(node):
             if node_type == "variable":
                 inferred = utils.safe_infer(node)
@@ -2074,6 +2146,68 @@ class NameChecker(_BasicChecker):
             if name in keywords and sys.version_info < version:
                 return ".".join(str(v) for v in version)
         return None
+
+    @staticmethod
+    def _assigns_typevar(node: Optional[nodes.NodeNG]) -> bool:
+        """Check if a node is assigning a TypeVar."""
+        if isinstance(node, astroid.Call):
+            inferred = utils.safe_infer(node.func)
+            if (
+                inferred
+                and isinstance(inferred, astroid.ClassDef)
+                and inferred.qname() == TYPING_TYPE_VAR_QNAME
+            ):
+                return True
+        return False
+
+    @staticmethod
+    def _check_typevar_variance(
+        name: str, node: nodes.AssignName
+    ) -> List[Tuple[str, str, str]]:
+        """Check if a TypeVar has a variance and if it's included in the name.
+
+        Returns the args for the message to be displayed.
+        """
+        args_to_display: List[Tuple[str, str, str]] = []
+
+        if isinstance(node.parent, nodes.Assign):
+            keywords = node.assign_type().value.keywords
+        elif isinstance(node.parent, nodes.Tuple):
+            keywords = (
+                node.assign_type().value.elts[node.parent.elts.index(node)].keywords
+            )
+        else:
+            return args_to_display
+
+        if keywords:
+            for kw in keywords:
+                if (
+                    kw.arg == "covariant"
+                    and kw.value.value
+                    and not name.endswith("_co")
+                ):
+                    suggest_name = re.sub("_contra$", "", name)
+                    suggest_name += "_co"
+                    args_to_display.append((name, "covariant", suggest_name))
+                if (
+                    kw.arg == "contravariant"
+                    and kw.value.value
+                    and not name.endswith("_contra")
+                ):
+                    suggest_name = re.sub("_co$", "", name)
+                    suggest_name += "_contra"
+                    args_to_display.append((name, "contravariant", suggest_name))
+                if (
+                    kw.arg == "bound"
+                    and len(keywords) == 1
+                    and (name.endswith("_co") or name.endswith("_contra"))
+                ):
+                    suggest_name = re.sub("_contra$|_co$", "", name)
+                    args_to_display.append((name, "invariant", suggest_name))
+        elif name.endswith("_co") or name.endswith("_contra"):
+            suggest_name = re.sub("_contra$|_co$", "", name)
+            args_to_display.append((name, "invariant", suggest_name))
+        return args_to_display
 
 
 class DocStringChecker(_BasicChecker):

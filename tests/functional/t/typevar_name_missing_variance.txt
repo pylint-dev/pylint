@@ -1,0 +1,11 @@
+typevar-name-incorrect-variance:7:0:7:4::"Type variable ""T_co"" is invariant, use ""T"" instead":HIGH
+typevar-name-incorrect-variance:8:0:8:8::"Type variable ""T_contra"" is invariant, use ""T"" instead":HIGH
+typevar-name-incorrect-variance:9:0:9:15::"Type variable ""T_scores_contra"" is invariant, use ""T_scores"" instead":HIGH
+typevar-name-incorrect-variance:17:0:17:5::"Type variable ""CT_co"" is contravariant, use ""CT_contra"" instead":HIGH
+typevar-name-incorrect-variance:18:0:18:9::"Type variable ""CT_contra"" is invariant, use ""CT"" instead":HIGH
+typevar-name-incorrect-variance:22:0:22:2::"Type variable ""VT"" is covariant, use ""VT_co"" instead":HIGH
+typevar-name-incorrect-variance:23:0:23:9::"Type variable ""VT_contra"" is covariant, use ""VT_co"" instead":HIGH
+typevar-name-incorrect-variance:28:4:28:6::"Type variable ""VT"" is covariant, use ""VT_co"" instead":HIGH
+typevar-name-incorrect-variance:29:4:29:13::"Type variable ""VT_contra"" is covariant, use ""VT_co"" instead":HIGH
+typevar-name-incorrect-variance:31:7:31:16::"Type variable ""VT_contra"" is covariant, use ""VT_co"" instead":HIGH
+typevar-name-incorrect-variance:34:5:34:14::"Type variable ""VT_contra"" is covariant, use ""VT_co"" instead":HIGH
