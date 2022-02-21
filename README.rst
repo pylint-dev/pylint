@@ -167,6 +167,10 @@ Use the badge in your project's README.rst (or any other rst file)::
         :target: https://github.com/PyCQA/pylint
 
 
+If you use GitHub Actions, and one of your CI workflows begins with "name: pylint", you
+can use GitHub's
+[workflow status badges](https://docs.github.com/en/actions/monitoring-and-troubleshooting-workflows/adding-a-workflow-status-badge#using-the-workflow-file-name)
+to show an up-to-date indication of whether pushes to your default branch pass pylint.
 For more detailed information, check the documentation.
 
 .. _here: https://pylint.pycqa.org/en/latest/user_guide/installation.html
