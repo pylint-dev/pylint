@@ -2195,10 +2195,8 @@ class NameChecker(_BasicChecker):
                     suggest_name = re.sub("_co$", "", name)
                     suggest_name += "_contra"
                     args_to_display.append((name, "contravariant", suggest_name))
-                if (
-                    kw.arg == "bound"
-                    and len(keywords) == 1
-                    and (name.endswith("_co") or name.endswith("_contra"))
+                if kw.arg == "bound" and (
+                    name.endswith("_co") or name.endswith("_contra")
                 ):
                     suggest_name = re.sub("_contra$|_co$", "", name)
                     args_to_display.append((name, "invariant", suggest_name))
