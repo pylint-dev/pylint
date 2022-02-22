@@ -151,7 +151,7 @@ jobs:
   prepare-tests-linux:
     name: tests / prepare / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
-    timeout-minutes: 6
+    timeout-minutes: 5
     strategy:
       matrix:
         python-version: [3.6, 3.7, 3.8, 3.9, "3.10"]
