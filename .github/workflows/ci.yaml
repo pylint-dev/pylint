@@ -17,7 +17,7 @@ jobs:
   prepare-base:
     name: Prepare base dependencies
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 5
     outputs:
       python-key: ${{ steps.generate-python-key.outputs.key }}
       pre-commit-key: ${{ steps.generate-pre-commit-key.outputs.key }}
@@ -77,7 +77,7 @@ jobs:
   formatting:
     name: checks / pre-commit
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 5
     needs: prepare-base
     steps:
       - name: Check out code from GitHub
@@ -120,7 +120,7 @@ jobs:
   spelling:
     name: checks / spelling
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 5
     needs: prepare-base
     steps:
       - name: Check out code from GitHub
@@ -151,7 +151,7 @@ jobs:
   prepare-tests-linux:
     name: tests / prepare / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 5
     strategy:
       matrix:
         python-version: [3.6, 3.7, 3.8, 3.9, "3.10"]
@@ -194,7 +194,7 @@ jobs:
   pytest-linux:
     name: tests / run / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 10
     needs: prepare-tests-linux
     strategy:
       fail-fast: false
@@ -279,7 +279,7 @@ jobs:
   benchmark-linux:
     name: tests / run benchmark / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 5
     needs: prepare-tests-linux
     strategy:
       fail-fast: false
@@ -331,7 +331,7 @@ jobs:
   prepare-tests-windows:
     name: tests / prepare / ${{ matrix.python-version }} / Windows
     runs-on: windows-latest
-    timeout-minutes: 15
+    timeout-minutes: 5
     strategy:
       matrix:
         python-version: [3.6, 3.7, 3.8, 3.9, "3.10"]
@@ -374,7 +374,7 @@ jobs:
   pytest-windows:
     name: tests / run / ${{ matrix.python-version }} / Windows
     runs-on: windows-latest
-    timeout-minutes: 30
+    timeout-minutes: 10
     needs: prepare-tests-windows
     strategy:
       fail-fast: false
@@ -413,7 +413,7 @@ jobs:
   prepare-tests-pypy:
     name: tests / prepare / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 5
     strategy:
       matrix:
         python-version: ["pypy3"]
@@ -456,7 +456,7 @@ jobs:
   pytest-pypy:
     name: tests / run / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 10
     needs: prepare-tests-pypy
     strategy:
       fail-fast: false
