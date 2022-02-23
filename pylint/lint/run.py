@@ -1,9 +1,12 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
+import io
 import os
 import sys
 import warnings
+from collections import defaultdict
+from typing import Sequence, Iterator
 
 from pylint import __pkginfo__, extensions, interfaces
 from pylint.config.config_initialization import _config_initialization
@@ -54,7 +57,7 @@ def cb_init_hook(optname, value):
 UNUSED_PARAM_SENTINEL = object()
 
 
-class Run:
+class RunLinter:
     """Helper class to use as main for pylint with 'run(*sys.argv[1:])'."""
 
     LinterClass = PyLinter
@@ -70,18 +73,18 @@ group are mutually exclusive.",
     def _return_one(*args):  # pylint: disable=unused-argument
         return 1
 
-    def __init__(
-        self,
-        args,
-        reporter=None,
-        exit=True,
-        do_exit=UNUSED_PARAM_SENTINEL,
-    ):  # pylint: disable=redefined-builtin
-        self._rcfile = None
+    def __init__(self, rcfile=None):
+        self._rcfile = rcfile
         self._output = None
         self._version_asked = False
         self._plugins = []
         self.verbose = None
+
+    def initialize(
+        self,
+        args,
+        reporter=None,
+    ):  # pylint: disable=redefined-builtin
         try:
             preprocess_options(
                 args,
@@ -106,7 +109,7 @@ group are mutually exclusive.",
                     "rcfile",
                     {
                         "action": "callback",
-                        "callback": Run._return_one,
+                        "callback": RunLinter._return_one,
                         "group": "Commands",
                         "type": "string",
                         "metavar": "<file>",
@@ -117,7 +120,7 @@ group are mutually exclusive.",
                     "output",
                     {
                         "action": "callback",
-                        "callback": Run._return_one,
+                        "callback": RunLinter._return_one,
                         "group": "Commands",
                         "type": "string",
                         "metavar": "<file>",
@@ -128,7 +131,7 @@ group are mutually exclusive.",
                     "init-hook",
                     {
                         "action": "callback",
-                        "callback": Run._return_one,
+                        "callback": RunLinter._return_one,
                         "type": "string",
                         "metavar": "<code>",
                         "level": 1,
@@ -327,7 +330,9 @@ to search for configuration file.
         linter.enable("c-extension-no-member")
 
         args = _config_initialization(linter, args, reporter, verbose_mode=self.verbose)
+        return linter, args
 
+    def initialize_jobs(self, linter: PyLinter) -> None:
         if linter.config.jobs < 0:
             print(
                 f"Jobs number ({linter.config.jobs}) should be greater than or equal to 0",
@@ -344,6 +349,9 @@ to search for configuration file.
             elif linter.config.jobs == 0:
                 linter.config.jobs = _cpu_count()
 
+    def run(
+        self, linter: PyLinter, args: list, do_exit, exit: bool
+    ) -> None:  # pylint: disable=redefined-builtin
         if self._output:
             try:
                 with open(self._output, "w", encoding="utf-8") as output:
@@ -354,8 +362,11 @@ to search for configuration file.
                 print(ex, file=sys.stderr)
                 sys.exit(32)
         else:
+            output = io.StringIO()
+            linter.reporter.out = output
             linter.check(args)
             score_value = linter.generate_reports()
+            print(output.getvalue())
 
         if do_exit is not UNUSED_PARAM_SENTINEL:
             warnings.warn(
@@ -457,3 +468,93 @@ to search for configuration file.
                 extension_name = f"pylint.extensions.{filename[:-3]}"
                 if extension_name not in self._plugins:
                     self._plugins.append(extension_name)
+
+
+class RunSubLinter(RunLinter):
+
+    def cb_set_rcfile(self, name, value):
+        # Sublinter ignores rcfile option from CLI
+        pass
+
+
+class Run:
+    def __init__(
+        self,
+        args,
+        reporter=None,
+        exit=True,
+        do_exit=UNUSED_PARAM_SENTINEL,
+    ):  # pylint: disable=redefined-builtin
+
+        self.sub_linter_files = defaultdict(list) # rcfile -> [files]
+        self.root_linter_files = []
+
+        self.root_linter_runner = RunLinter()
+        root_linter, files_or_modules = self.root_linter_runner.initialize([*args], reporter)
+        self.root_linter_runner.initialize_jobs(root_linter)
+
+        if root_linter.config.recursive is True:
+            files_or_modules = tuple(self._discover_files(files_or_modules))
+
+
+        for path in files_or_modules:
+            self.register_linter(path)
+
+        self.root_linter_runner.run(root_linter, self.root_linter_files, do_exit, exit=False)
+
+        for rcfile, files in self.sub_linter_files.items():
+            sub_linter_runner = RunSubLinter(rcfile)
+
+            sublinter, _ = sub_linter_runner.initialize([*args], reporter)
+
+            sub_linter_runner.initialize_jobs(sublinter)
+            sub_linter_runner.run(sublinter, files, do_exit, exit=False)
+
+
+    def register_linter(self, path):
+        rcfile = self._search_rcfile(path)
+        if rcfile:
+            self.sub_linter_files[rcfile].append(path)
+        else:
+            self.root_linter_files.append(path)
+
+
+    def _search_rcfile(self, path):
+        if not os.path.isdir(path):
+            path = os.path.dirname(path)
+        while True:
+            rcfile = os.path.join(path, '.pylintrc')
+            if os.path.exists(rcfile):
+                return rcfile
+            path = os.path.dirname(path)
+            if path in ('/', ''):
+                break
+
+    @staticmethod
+    def _discover_files(files_or_modules: Sequence[str]) -> Iterator[str]:
+        """Discover python modules and packages in subdirectory.
+
+        Returns iterator of paths to discovered modules and packages.
+        """
+        for something in files_or_modules:
+            if os.path.isdir(something) and not os.path.isfile(
+                os.path.join(something, "__init__.py")
+            ):
+                skip_subtrees: List[str] = []
+                for root, _, files in os.walk(something):
+                    if any(root.startswith(s) for s in skip_subtrees):
+                        # Skip subtree of already discovered package.
+                        continue
+                    if "__init__.py" in files:
+                        skip_subtrees.append(root)
+                        yield root
+                    else:
+                        yield from (
+                            os.path.join(root, file)
+                            for file in files
+                            if file.endswith(".py")
+                        )
+            else:
+                yield something
+
+
