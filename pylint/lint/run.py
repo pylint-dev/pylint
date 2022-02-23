@@ -6,7 +6,7 @@ import os
 import sys
 import warnings
 from collections import defaultdict
-from typing import Sequence, Iterator
+from typing import Iterator, Sequence
 
 from pylint import __pkginfo__, extensions, interfaces
 from pylint.config.config_initialization import _config_initialization
@@ -471,7 +471,6 @@ to search for configuration file.
 
 
 class RunSubLinter(RunLinter):
-
     def cb_set_rcfile(self, name, value):
         # Sublinter ignores rcfile option from CLI
         pass
@@ -486,21 +485,24 @@ class Run:
         do_exit=UNUSED_PARAM_SENTINEL,
     ):  # pylint: disable=redefined-builtin
 
-        self.sub_linter_files = defaultdict(list) # rcfile -> [files]
+        self.sub_linter_files = defaultdict(list)  # rcfile -> [files]
         self.root_linter_files = []
 
         self.root_linter_runner = RunLinter()
-        root_linter, files_or_modules = self.root_linter_runner.initialize([*args], reporter)
+        root_linter, files_or_modules = self.root_linter_runner.initialize(
+            [*args], reporter
+        )
         self.root_linter_runner.initialize_jobs(root_linter)
 
         if root_linter.config.recursive is True:
             files_or_modules = tuple(self._discover_files(files_or_modules))
 
-
         for path in files_or_modules:
             self.register_linter(path)
 
-        self.root_linter_runner.run(root_linter, self.root_linter_files, do_exit, exit=False)
+        self.root_linter_runner.run(
+            root_linter, self.root_linter_files, do_exit, exit=False
+        )
 
         for rcfile, files in self.sub_linter_files.items():
             sub_linter_runner = RunSubLinter(rcfile)
@@ -510,7 +512,6 @@ class Run:
             sub_linter_runner.initialize_jobs(sublinter)
             sub_linter_runner.run(sublinter, files, do_exit, exit=False)
 
-
     def register_linter(self, path):
         rcfile = self._search_rcfile(path)
         if rcfile:
@@ -518,16 +519,15 @@ class Run:
         else:
             self.root_linter_files.append(path)
 
-
     def _search_rcfile(self, path):
         if not os.path.isdir(path):
             path = os.path.dirname(path)
         while True:
-            rcfile = os.path.join(path, '.pylintrc')
+            rcfile = os.path.join(path, ".pylintrc")
             if os.path.exists(rcfile):
                 return rcfile
             path = os.path.dirname(path)
-            if path in ('/', ''):
+            if path in ("/", ""):
                 break
 
     @staticmethod
@@ -556,5 +556,3 @@ class Run:
                         )
             else:
                 yield something
-
-
