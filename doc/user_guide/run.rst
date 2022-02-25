@@ -2,8 +2,8 @@
  Running Pylint
 ================
 
-Invoking Pylint
----------------
+From the command line
+---------------------
 
 Pylint is meant to be called from the command line. The usage is ::
 
@@ -38,6 +38,9 @@ a python package. In order to run pylint over all modules and packages within th
 subtree of a directory, the ``--recursive=y`` option must be provided.
 
 For more details on this see the :ref:`faq`.
+
+From another python program
+---------------------------
 
 It is also possible to call Pylint from another Python program,
 thanks to the ``Run()`` function in the ``pylint.lint`` module
