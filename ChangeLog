@@ -15,6 +15,15 @@ Release date: TBA
 
   Closes #352
 
+* ``using-f-string-in-unsupported-version`` and ``using-final-decorator-in-unsupported-version`` msgids
+    were renamed from ``W1601`` and ``W1602`` to ``W2601`` and ``W2602``. Disabling using these msgids will break.
+    This is done in order to restore consistency with the already existing msgids for ``apply-builtin`` and
+    ``basestring-builtin`` from the now deleted python 3K+ checker. There is now a check that we're not using
+    existing msgids or symbols from deleted checkers.
+
+  Closes #5729
+
+
 * Add ``modified-iterating-list``, ``modified-iterating-dict`` and ``modified-iterating-set``,
   emitted when items are added to or removed from respectively a list, dictionary or
   set being iterated through.
