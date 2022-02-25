@@ -186,24 +186,19 @@ initialization hooks (i.e. the ``--init-hook`` option).
 Exit codes
 ----------
 
-Pylint returns bit-encoded exit codes. If applicable, the table below lists the related
-stderr stream message output.
+Pylint returns bit-encoded exit codes.
 
-=========  =========================  ==========================================
-exit code  meaning                    stderr stream message
-=========  =========================  ==========================================
+=========  =========================
+exit code  meaning
+=========  =========================
 0          no error
 1          fatal message issued
 2          error message issued
 4          warning message issued
 8          refactor message issued
 16         convention message issued
-32         usage error                - "internal error while receiving results\
-                                        from child linter" "Error occurred,
-                                        stopping the linter."
-                                      - "<return of linter.help()>"
-                                      - "Jobs number <#> should be greater \
-                                        than 0"
-                                      - "<IOError message when trying to open \
-                                        output file>"
-=========  =========================  ==========================================
+32         usage error
+=========  =========================
+
+For example, an exit code of ``20`` means there was at least one warning message (4)
+and at least one convention message (16) and nothing else.
