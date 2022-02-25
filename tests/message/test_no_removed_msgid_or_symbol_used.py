@@ -13,6 +13,8 @@ class DeletedMessage(NamedTuple):
 
 
 OLD_MSGID_SYMBOL_PAIR = [
+    # Everything until the next comment is from the
+    # PY3K+ checker, see https://github.com/PyCQA/pylint/pull/4942
     DeletedMessage("W1601", "apply-builtin"),
     DeletedMessage("E1601", "print-statement"),
     DeletedMessage("E1602", "parameter-unpacking"),
@@ -87,6 +89,20 @@ OLD_MSGID_SYMBOL_PAIR = [
     DeletedMessage("W1660", "deprecated-sys-function"),
     DeletedMessage("W1661", "exception-escape"),
     DeletedMessage("W1662", "comprehension-escape"),
+    # https://github.com/PyCQA/pylint/pull/3578
+    DeletedMessage("W0312", "mixed-indentation"),
+    # https://github.com/PyCQA/pylint/pull/3577
+    DeletedMessage(
+        "C0326",
+        "bad-whitespace",
+        [
+            ("C0323", "no-space-after-operator"),
+            ("C0324", "no-space-after-comma"),
+            ("C0322", "no-space-before-operator"),
+        ],
+    ),
+    # https://github.com/PyCQA/pylint/pull/3571
+    DeletedMessage("C0330", "bad-continuation"),
 ]
 
 
