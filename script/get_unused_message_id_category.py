@@ -18,6 +18,8 @@ def register_all_checkers_and_plugins(linter: "PyLinter") -> None:
 
 def get_next_code_category(message_ids: List[str]) -> int:
     categories = sorted({int(i[:2]) for i in message_ids})
+    # 16 was the deleted python 3k+ checker.
+    categories.append(16)
     for i in categories:
         if i + 1 not in categories:
             return i + 1
