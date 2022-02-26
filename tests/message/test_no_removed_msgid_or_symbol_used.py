@@ -11,8 +11,8 @@ if TYPE_CHECKING:
 def test_no_removed_msgid_or_symbol_used(linter: "PyLinter") -> None:
     """Tests that we're not using deleted msgid or symbol.
 
-    This would be causing occasional bug, but more than that confusion and inconsistencies
-    when searching for the msgid online. See https://github.com/PyCQA/pylint/issues/5729
+    This could cause occasional bugs, but more importantly confusion and inconsistencies
+    when searching for old msgids online. See https://github.com/PyCQA/pylint/issues/5729
     """
     for msgid, symbol, old_names in DELETED_MESSAGES:
         linter.msgs_store.message_id_store.register_message_definition(
