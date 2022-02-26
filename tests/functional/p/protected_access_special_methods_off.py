@@ -6,7 +6,7 @@ inside special methods occur
 # pylint: disable=too-few-public-methods
 
 
-class Protected:
+class Protected:  # [eq-without-hash]
     """A class"""
 
     def __init__(self):

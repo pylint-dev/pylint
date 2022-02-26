@@ -7,7 +7,7 @@ def sayHello(someArgument):
     return [someArgument * someValue for someValue in range(10)]
 
 
-class MyClass:  # [invalid-name]
+class MyClass:  # [invalid-name, eq-without-hash]
     def __init__(self, argX):
         self._mySecretX = argX
 

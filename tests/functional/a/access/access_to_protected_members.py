@@ -59,7 +59,7 @@ class Issue1031(object):
         return None
 
 
-class Issue1802(object):
+class Issue1802(object): # [eq-without-hash]
     """Test for GitHub issue 1802"""
     def __init__(self, value):
         self._foo = value

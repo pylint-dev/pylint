@@ -1,0 +1,1 @@
+eq-without-hash:6:0:11:62:AClass:Implementing __eq__ without also implementing __hash__:UNDEFINED

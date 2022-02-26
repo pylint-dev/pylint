@@ -80,8 +80,9 @@ class DeletedMessage(NamedTuple):
     old_names: List[Tuple[str, str]] = []
 
 
-DELETED_MSGID_PREFIXES = [
-    16,  # the PY3K+ checker, see https://github.com/PyCQA/pylint/pull/4942
+DELETED_MSGID_PREFIXES: List[int] = [
+    # The PY3K+ checker was deleted see https://github.com/PyCQA/pylint/pull/4942
+    # And then reinstated see https://github.com/PyCQA/pylint/issues/5025
 ]
 
 DELETED_MESSAGES = [
@@ -139,7 +140,6 @@ DELETED_MESSAGES = [
     DeletedMessage("W1638", "range-builtin-not-iterating"),
     DeletedMessage("W1639", "filter-builtin-not-iterating"),
     DeletedMessage("W1640", "using-cmp-argument"),
-    DeletedMessage("W1641", "eq-without-hash"),
     DeletedMessage("W1642", "div-method"),
     DeletedMessage("W1643", "idiv-method"),
     DeletedMessage("W1644", "rdiv-method"),

@@ -1,3 +1,4 @@
+eq-without-hash:9:0:23:40:Protected:Implementing __eq__ without also implementing __hash__:UNDEFINED
 unused-private-member:15:8:15:22:Protected.__init__:Unused private member `Protected.__private`:UNDEFINED
 protected-access:22:22:22:38:Protected._fake_special_:Access to a protected member _protected of a client class:UNDEFINED
 protected-access:23:25:23:40:Protected._fake_special_:Access to a protected member __private of a client class:UNDEFINED

@@ -6,6 +6,6 @@ class MyClass:
     pass
 
 
-class Child(MyClass):
+class Child(MyClass):  # [eq-without-hash]
     def __eq__(self, other):  # [missing-function-docstring]
         return True
