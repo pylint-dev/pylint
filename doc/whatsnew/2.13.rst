@@ -92,12 +92,6 @@ Extensions
 Other Changes
 =============
 
-* Add ``--recursive`` option to allow recursive discovery of all modules and packages in subtree. Running pylint with
-  ``--recursive=y`` option will check all discovered ``.py`` files and packages found inside subtree of directory provided
-  as parameter to pylint.
-
-  Closes #352
-
 * ``using-f-string-in-unsupported-version`` and ``using-final-decorator-in-unsupported-version`` msgids
     were renamed from ``W1601`` and ``W1602`` to ``W2601`` and ``W2602``. Disables using these msgids will break.
     This is done in order to restore consistency with the already existing msgids for ``apply-builtin`` and
@@ -105,6 +99,12 @@ Other Changes
     existing msgids or symbols from deleted checkers.
 
   Closes #5729
+
+* Add ``--recursive`` option to allow recursive discovery of all modules and packages in subtree. Running pylint with
+  ``--recursive=y`` option will check all discovered ``.py`` files and packages found inside subtree of directory provided
+  as parameter to pylint.
+
+  Closes #352
 
 * Fix false-negative for ``assignment-from-none`` checker with list.sort() method.
 
