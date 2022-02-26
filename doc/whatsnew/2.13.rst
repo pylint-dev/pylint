@@ -110,6 +110,11 @@ Other Changes
 
   Closes #352
 
+* Reinstated checks from the python3 checker that are still useful for python 3
+  (``eq-without-hash``)
+
+  Closes #5025
+
 * Fix false-negative for ``assignment-from-none`` checker with list.sort() method.
 
   Closes #5722
