@@ -224,7 +224,7 @@ jobs:
       - name: Run pytest
         run: |
           . venv/bin/activate
-          pytest --benchmark-disable --cov --cov-report= tests/
+          pytest -vv --durations=20 --benchmark-disable --cov --cov-report= tests/
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v2.3.1
         with:
@@ -408,7 +408,7 @@ jobs:
       - name: Run pytest
         run: |
           . venv\\Scripts\\activate
-          pytest --benchmark-disable tests/
+          pytest -vv --durations=20 --benchmark-disable tests/
 
   prepare-tests-pypy:
     name: tests / prepare / ${{ matrix.python-version }} / Linux
@@ -486,4 +486,4 @@ jobs:
       - name: Run pytest
         run: |
           . venv/bin/activate
-          pytest --benchmark-disable tests/
+          pytest -vv --durations=20 --benchmark-disable tests/
