@@ -1,1 +1,2 @@
-no-member:22:6:22:20::Instance of 'FRIDAY' has no 'foo' member:INFERENCE
+no-member:25:6:25:20::Instance of 'FRIDAY' has no 'foo' member:INFERENCE
+no-member:42:6:42:21::Instance of 'MILE' has no 'foo' member:INFERENCE

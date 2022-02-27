@@ -525,6 +525,21 @@ def _emit_no_member(
     return True
 
 
+def _get_all_attribute_assignments(
+    node: astroid.FunctionDef, name: str | None = None
+) -> set[str]:
+    attributes = set()
+    for child in node.nodes_of_class(astroid.Assign):
+        for assign_target in child.targets:
+            if not isinstance(assign_target, astroid.AssignAttr):
+                continue
+            if not isinstance(assign_target.expr, astroid.Name):
+                continue
+            if name is None or assign_target.expr.name == name:
+                attributes.add(assign_target.attrname)
+    return attributes
+
+
 def _enum_has_attribute(
     owner: Union[astroid.Instance, nodes.ClassDef], node: nodes.Attribute
 ) -> bool:
@@ -533,31 +548,38 @@ def _enum_has_attribute(
     while not isinstance(enum_def, astroid.ClassDef):
         enum_def = enum_def.parent
 
-    # Find __new__
+    # Find __new__ and __init__
     dunder_new = next((m for m in enum_def.methods() if m.name == "__new__"), None)
-    if dunder_new is None:
-        return False
-
-    # Get the returned object
-    returned_obj_name = next(
-        (c.value for c in dunder_new.get_children() if isinstance(c, astroid.Return)),
-        None,
-    )
-    if returned_obj_name is None:
+    dunder_init = next((m for m in enum_def.methods() if m.name == "__init__"), None)
+    if dunder_new is None and dunder_init is None:
         return False
 
     enum_attributes = set()
-    # Iterate over children and find Enum attr assignments
-    for child in dunder_new.get_children():
-        if not isinstance(child, astroid.Assign):
-            continue
-        for assign_target in child.targets:
-            if not isinstance(assign_target, astroid.AssignAttr):
-                continue
-            if not isinstance(assign_target.expr, astroid.Name):
-                continue
-            if assign_target.expr.name == returned_obj_name.name:
-                enum_attributes.add(assign_target.attrname)
+
+    # Find attributes defined in __new__
+    if dunder_new:
+        # Get the object returned in __new__
+        returned_obj_name = next(
+            (
+                c.value
+                for c in dunder_new.get_children()
+                if isinstance(c, astroid.Return)
+            ),
+            None,
+        )
+        if returned_obj_name is not None:
+            # Find all attribute assignments to the returned object
+            enum_attributes |= _get_all_attribute_assignments(
+                dunder_new, returned_obj_name.name
+            )
+
+    # Find attributes defined in __init__
+    if dunder_init and dunder_init.body and dunder_init.args:
+        # Grab the name referring to `self` from the function def
+        enum_attributes |= _get_all_attribute_assignments(
+            dunder_init, dunder_init.args.arguments[0].name
+        )
+
     return node.attrname in enum_attributes
 
 
