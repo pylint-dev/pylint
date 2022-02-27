@@ -450,9 +450,9 @@ def _emit_no_member(
             except astroid.MroError:
                 return False
             if metaclass:
-                # Renamed in Python 3.10 to `EnumType`
                 if _enum_has_attribute(owner, node):
                     return False
+                # Renamed in Python 3.10 to `EnumType`
                 return metaclass.qname() in {"enum.EnumMeta", "enum.EnumType"}
             return False
         if not has_known_bases(owner):
@@ -525,7 +525,9 @@ def _emit_no_member(
     return True
 
 
-def _enum_has_attribute(owner, node) -> bool:
+def _enum_has_attribute(
+    owner: Union[astroid.Instance, nodes.ClassDef], node: nodes.Attribute
+) -> bool:
     enum_def = owner
     # Traverse the AST to find the Enum ClassDef
     while not isinstance(enum_def, astroid.ClassDef):

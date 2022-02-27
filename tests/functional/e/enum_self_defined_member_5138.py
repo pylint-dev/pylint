@@ -1,8 +1,8 @@
-# [missing-module-docstring]
+# pylint: disable=missing-docstring
 from enum import IntEnum
 
 
-class Day(IntEnum):  # [missing-class-docstring]
+class Day(IntEnum):
     MONDAY = (1, "Mon")
     TUESDAY = (2, "Tue")
     WEDNESDAY = (3, "Wed")
