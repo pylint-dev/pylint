@@ -1,6 +1,6 @@
-# Releasing an astroid version
+# Releasing a pylint version
 
-So, you want to release the `X.Y.Z` version of astroid ?
+So, you want to release the `X.Y.Z` version of pylint ?
 
 ## Releasing a major or minor version
 
@@ -16,6 +16,8 @@ the maintenance branch. If so, release a last patch release first. See
 - Bump the version and release by using `tbump X.Y.0 --no-push --no-tag`. (For example:
   `tbump 2.4.0 --no-push --no-tag`)
 - Check the commit created with `git show` amend the commit if required.
+- Create a new `What's new in Pylint X.Y+1` document. Add it to `doc/index.rst`. Take a
+  look at the examples from `doc/whatsnew`. Commit that with `git commit -am "wip"`.
 - Move the `main` branch up to a dev version with `tbump`:
 
 ```bash
@@ -30,7 +32,8 @@ tbump 2.5.0-dev0 --no-tag --no-push
 git commit -am "Upgrade the version to 2.5.0-dev0 following 2.4.0 release"
 ```
 
-Check the commit and then push to a release branch
+Check the commit, fixup the 'wip' commit with the what's new then push to a release
+branch
 
 - Open a merge request with the two commits (no one can push directly on `main`)
 - Trigger the "release tests" workflow in GitHub Actions.
