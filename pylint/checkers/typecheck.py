@@ -451,6 +451,8 @@ def _emit_no_member(
                 return False
             if metaclass:
                 # Renamed in Python 3.10 to `EnumType`
+                if _enum_has_attribute(owner, node):
+                    return False
                 return metaclass.qname() in {"enum.EnumMeta", "enum.EnumType"}
             return False
         if not has_known_bases(owner):
@@ -521,6 +523,40 @@ def _emit_no_member(
         node_origin, parent = parent, parent.parent
 
     return True
+
+
+def _enum_has_attribute(owner, node) -> bool:
+    enum_def = owner
+    # Traverse the AST to find the Enum ClassDef
+    while not isinstance(enum_def, astroid.ClassDef):
+        enum_def = enum_def.parent
+
+    # Find __new__
+    dunder_new = next((m for m in enum_def.methods() if m.name == "__new__"), None)
+    if dunder_new is None:
+        return False
+
+    # Get the returned object
+    returned_obj_name = next(
+        (c.value for c in dunder_new.get_children() if isinstance(c, astroid.Return)),
+        None,
+    )
+    if returned_obj_name is None:
+        return False
+
+    enum_attributes = set()
+    # Iterate over children and find Enum attr assignments
+    for child in dunder_new.get_children():
+        if not isinstance(child, astroid.Assign):
+            continue
+        for assign_target in child.targets:
+            if not isinstance(assign_target, astroid.AssignAttr):
+                continue
+            if not isinstance(assign_target.expr, astroid.Name):
+                continue
+            if assign_target.expr.name == returned_obj_name.name:
+                enum_attributes.add(assign_target.attrname)
+    return node.attrname in enum_attributes
 
 
 def _determine_callable(
