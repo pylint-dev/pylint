@@ -101,6 +101,11 @@ Release date: TBA
 
   Closes #5731
 
+* Fixed a crash involving a ``NewType`` named with an f-string.
+
+  Closes #5770
+  Ref PyCQA/astroid#1400
+
 * Improved ``bad-open-mode`` message when providing ``None`` to the ``mode``
   argument of an ``open()`` call.
 
