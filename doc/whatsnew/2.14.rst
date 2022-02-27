@@ -260,6 +260,10 @@ Other Changes
 
   Closes #5219
 
+* Fixed false positive ``no-member`` for Enums with self-defined members.
+
+  Closes #5138
+
 * Fix false negative for ``no-member`` when attempting to assign an instance
   attribute to itself without any prior assignment.
 
