@@ -254,6 +254,12 @@ Other Changes
 
   Closes #3793
 
+* Added a ``testutil`` extra require to the packaging, as ``gitpython`` should not be a dependency
+  all the time but is still required to use the primer helper code in ``pylint.testutil``. You can
+  install it with ``pip install pylint[testutil]``.
+
+  Closes #5486
+
 * Fixed a false positive for ``used-before-assignment`` when a named expression
   appears as the first value in a container.
 
