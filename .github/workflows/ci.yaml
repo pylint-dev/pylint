@@ -452,6 +452,11 @@ jobs:
           . venv/bin/activate
           python -m pip install -U pip setuptools wheel
           pip install -U -r requirements_test_min.txt
+      - name: Install pytest
+        run: |
+          python -m venv venv
+          . venv/bin/activate
+          python -m pip install --force-reinstall pytest
 
   pytest-pypy:
     name: tests / run / ${{ matrix.python-version }} / Linux
