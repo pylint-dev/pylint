@@ -416,7 +416,7 @@ jobs:
     timeout-minutes: 5
     strategy:
       matrix:
-        python-version: ["pypy3"]
+        python-version: ["pypy-3.8"]
     outputs:
       python-key: ${{ steps.generate-python-key.outputs.key }}
     steps:
@@ -461,7 +461,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["pypy3"]
+        python-version: ["pypy-3.8"]
     steps:
       - name: Check out code from GitHub
         uses: actions/checkout@v2.4.0
