@@ -28,7 +28,7 @@ jobs:
           fetch-depth: 0
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v3.0.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
       - name: Generate partial Python venv restore key
@@ -84,7 +84,7 @@ jobs:
         uses: actions/checkout@v2.4.0
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v3.0.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
       - name: Restore Python virtual environment
@@ -127,7 +127,7 @@ jobs:
         uses: actions/checkout@v2.4.0
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v3.0.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
       - name: Restore Python virtual environment
@@ -164,7 +164,7 @@ jobs:
           fetch-depth: 0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v3.0.0
         with:
           python-version: ${{ matrix.python-version }}
       - name: Generate partial Python venv restore key
@@ -205,7 +205,7 @@ jobs:
         uses: actions/checkout@v2.4.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v3.0.0
         with:
           python-version: ${{ matrix.python-version }}
       - name: Restore Python virtual environment
@@ -246,7 +246,7 @@ jobs:
         uses: actions/checkout@v2.4.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v3.0.0
         with:
           python-version: ${{ matrix.python-version }}
       - name: Restore Python virtual environment
@@ -290,7 +290,7 @@ jobs:
         uses: actions/checkout@v2.4.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v3.0.0
         with:
           python-version: ${{ matrix.python-version }}
       - name: Restore Python virtual environment
@@ -344,7 +344,7 @@ jobs:
           fetch-depth: 0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v3.0.0
         with:
           python-version: ${{ matrix.python-version }}
       - name: Generate partial Python venv restore key
@@ -389,7 +389,7 @@ jobs:
         uses: actions/checkout@v2.4.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v3.0.0
         with:
           python-version: ${{ matrix.python-version }}
       - name: Restore Python virtual environment
@@ -416,7 +416,7 @@ jobs:
     timeout-minutes: 5
     strategy:
       matrix:
-        python-version: ["pypy-3.7"]
+        python-version: ["pypy-3.6"]
     outputs:
       python-key: ${{ steps.generate-python-key.outputs.key }}
     steps:
@@ -426,7 +426,7 @@ jobs:
           fetch-depth: 0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v3.0.0
         with:
           python-version: ${{ matrix.python-version }}
       - name: Generate partial Python venv restore key
@@ -452,11 +452,6 @@ jobs:
           . venv/bin/activate
           python -m pip install -U pip setuptools wheel
           pip install -U -r requirements_test_min.txt
-      - name: Install pytest
-        run: |
-          python -m venv venv
-          . venv/bin/activate
-          python -m pip install --force-reinstall pytest
 
   pytest-pypy:
     name: tests / run / ${{ matrix.python-version }} / Linux
@@ -466,13 +461,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["pypy-3.7"]
+        python-version: ["pypy-3.6"]
     steps:
       - name: Check out code from GitHub
         uses: actions/checkout@v2.4.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v3.0.0
         with:
           python-version: ${{ matrix.python-version }}
       - name: Restore Python virtual environment
