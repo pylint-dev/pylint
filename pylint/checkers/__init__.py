@@ -124,8 +124,8 @@ def table_lines_from_stats(
                 ("error", "NC"),
             ]
 
-    for index, _ in enumerate(new):
-        new_value = new[index][1]
+    for index, value in enumerate(new):
+        new_value = value[1]
         old_value = old[index][1]
         diff_str = (
             diff_string(old_value, new_value)
@@ -134,7 +134,7 @@ def table_lines_from_stats(
         )
         new_str = f"{new_value:.3f}" if isinstance(new_value, float) else str(new_value)
         old_str = f"{old_value:.3f}" if isinstance(old_value, float) else str(old_value)
-        lines.extend((new[index][0].replace("_", " "), new_str, old_str, diff_str))
+        lines.extend((value[0].replace("_", " "), new_str, old_str, diff_str))
     return lines
 
 
