@@ -13,13 +13,20 @@ repos:
     rev: v1.4
     hooks:
       - id: autoflake
-        exclude: &fixtures tests/functional/|tests/input|tests/regrtest_data/|tests/data/|doc/data/messages
+        exclude: &fixtures tests/functional/|tests/input|tests/regrtest_data/|tests/data/|doc/data/messages|tests/testutils/data/
         args:
           - --in-place
           - --remove-all-unused-imports
           - --expand-star-imports
           - --remove-duplicate-keys
           - --remove-unused-variables
+  - repo: https://github.com/Pierre-Sassoulas/copyright_notice_precommit
+    rev: f683ab7d10d5f7e779c75aea17197007583d14e4
+    hooks:
+      - id: copyright-notice
+        args: ["--notice=script/copyright.txt", "--enforce-all"]
+        exclude: tests/functional/|tests/input|tests/regrtest_data/|tests/data/|doc/data/messages|tests/testutils/data/|examples/|setup.py
+        types: [python]
   - repo: https://github.com/asottile/pyupgrade
     rev: v2.31.1
     hooks:
