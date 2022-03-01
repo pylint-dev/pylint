@@ -435,7 +435,6 @@ jobs:
           echo "::set-output name=key::venv-${{ env.CACHE_VERSION }}-${{
             hashFiles('setup.cfg', 'requirements_test_min.txt')
           }}"
-            - name: Generate partial Python venv restore key
       - name: Restore Python virtual environment
         id: cache-venv
         uses: actions/cache@v2.1.7
