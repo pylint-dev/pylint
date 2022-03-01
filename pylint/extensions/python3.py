@@ -17,7 +17,6 @@ from pylint.lint import PyLinter
 class Python3Checker(checkers.BaseChecker):
 
     __implements__ = interfaces.IAstroidChecker
-    enabled = False
     name = "python3"
 
     msgs = {

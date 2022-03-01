@@ -6,7 +6,7 @@ inside special methods.
 # pylint: disable=too-few-public-methods
 
 
-class Protected:  # [eq-without-hash]
+class Protected:
     """A class"""
 
     def __init__(self):

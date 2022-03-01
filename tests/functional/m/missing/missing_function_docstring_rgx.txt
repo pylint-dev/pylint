@@ -1,2 +1,1 @@
-eq-without-hash:9:0:11:19:Child:Implementing __eq__ without also implementing __hash__:UNDEFINED
 missing-function-docstring:10:4:11:19:Child.__eq__:Missing function or method docstring:INFERENCE

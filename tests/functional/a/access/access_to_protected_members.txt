@@ -4,7 +4,6 @@ protected-access:42:6:42:21::Access to a protected member _protected of a client
 protected-access:43:0:43:19::Access to a protected member _cls_protected of a client class:UNDEFINED
 protected-access:44:6:44:25::Access to a protected member _cls_protected of a client class:UNDEFINED
 protected-access:58:19:58:40:Issue1031.incorrect_access:Access to a protected member _protected of a client class:UNDEFINED
-eq-without-hash:62:0:101:20:Issue1802:Implementing __eq__ without also implementing __hash__:UNDEFINED
 protected-access:72:48:72:63:Issue1802.__eq__:Access to a protected member __private of a client class:UNDEFINED
 protected-access:80:32:80:42:Issue1802.not_in_special:Access to a protected member _foo of a client class:UNDEFINED
 protected-access:100:32:100:42:Issue1802.__fake_special__:Access to a protected member _foo of a client class:UNDEFINED

@@ -1,0 +1,2 @@
+[MASTER]
+load-plugins=pylint.extensions.python3,
