@@ -9,6 +9,10 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.13.rst'
 
+* Fix matching ``--notes`` options that end in a non-word character.
+
+  Closes #5840
+
 * ``using-f-string-in-unsupported-version`` and ``using-final-decorator-in-unsupported-version`` msgids
     were renamed from ``W1601`` and ``W1602`` to ``W2601`` and ``W2602``. Disabling using these msgids will break.
     This is done in order to restore consistency with the already existing msgids for ``apply-builtin`` and
