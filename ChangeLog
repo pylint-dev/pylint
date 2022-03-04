@@ -409,6 +409,11 @@ Release date: TBA
 
   Closes #4955
 
+* Allow disabling ``duplicate-code`` with a disable comment when running through
+  pylint.
+
+  Closes #214
+
 ..
   Insert your changelog randomly, it will reduce merge conflicts
   (Ie. not necessarily at the end)
