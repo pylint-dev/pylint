@@ -30,13 +30,13 @@ if TYPE_CHECKING:
 
 
 class BaseWriter:
-    """base class for ureport writers"""
+    """Base class for ureport writers."""
 
     def format(self, layout, stream: TextIO = sys.stdout, encoding=None) -> None:
-        """format and write the given layout into the stream object
+        """Format and write the given layout into the stream object.
 
         unicode policy: unicode strings may be found in the layout;
-        try to call stream.write with it, but give it back encoded using
+        try to call 'stream.write' with it, but give it back encoded using
         the given encoding if it fails
         """
         if not encoding:
@@ -50,29 +50,29 @@ class BaseWriter:
     def format_children(
         self, layout: Union["EvaluationSection", "Paragraph", "Section"]
     ) -> None:
-        """recurse on the layout children and call their accept method
+        """Recurse on the layout children and call their accept method
         (see the Visitor pattern)
         """
         for child in getattr(layout, "children", ()):
             child.accept(self)
 
     def writeln(self, string: str = "") -> None:
-        """write a line in the output buffer"""
+        """Write a line in the output buffer."""
         self.write(string + "\n")
 
     def write(self, string: str) -> None:
-        """write a string in the output buffer"""
+        """Write a string in the output buffer."""
         self.out.write(string)
 
     def begin_format(self) -> None:
-        """begin to format a layout"""
+        """Begin to format a layout."""
         self.section = 0
 
     def end_format(self) -> None:
-        """finished to format a layout"""
+        """Finished formatting a layout."""
 
     def get_table_content(self, table: "Table") -> List[List[str]]:
-        """trick to get table content without actually writing it
+        """Trick to get table content without actually writing it.
 
         return an aligned list of lists containing table cells values as string
         """
@@ -89,7 +89,7 @@ class BaseWriter:
         return result
 
     def compute_content(self, layout) -> Iterator[str]:
-        """trick to compute the formatting of children layout before actually
+        """Trick to compute the formatting of children layout before actually
         writing it
 
         return an iterator on strings (one for each child element)

@@ -58,7 +58,7 @@ class MessageDefinition:
         return f"{repr(self)}:\n{self.msg} {self.description}"
 
     def may_be_emitted(self) -> bool:
-        """return True if message may be emitted using the current interpreter"""
+        """Return True if message may be emitted using the current interpreter."""
         if self.minversion is not None and self.minversion > sys.version_info:
             return False
         if self.maxversion is not None and self.maxversion <= sys.version_info:
@@ -66,7 +66,7 @@ class MessageDefinition:
         return True
 
     def format_help(self, checkerref: bool = False) -> str:
-        """return the help string for the given message id"""
+        """Return the help string for the given message id."""
         desc = self.description
         if checkerref:
             desc += f" This message belongs to the {self.checker_name} checker."
@@ -94,7 +94,7 @@ class MessageDefinition:
     def check_message_definition(
         self, line: Optional[int], node: Optional[nodes.NodeNG]
     ) -> None:
-        """Check MessageDefinition for possible errors"""
+        """Check MessageDefinition for possible errors."""
         if self.msgid[0] not in _SCOPE_EXEMPT:
             # Fatal messages and reports are special, the node/scope distinction
             # does not apply to them.

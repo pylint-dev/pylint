@@ -100,6 +100,24 @@ def _configure_lc_ctype(lc_ctype: str) -> Iterator:
             os.environ[lc_ctype_env] = original_lctype
 
 
+@contextlib.contextmanager
+def _test_sys_path() -> Generator[None, None, None]:
+    original_path = sys.path
+    try:
+        yield
+    finally:
+        sys.path = original_path
+
+
+@contextlib.contextmanager
+def _test_cwd() -> Generator[None, None, None]:
+    original_dir = os.getcwd()
+    try:
+        yield
+    finally:
+        os.chdir(original_dir)
+
+
 class MultiReporter(BaseReporter):
     def __init__(self, reporters: List[BaseReporter]) -> None:
         # pylint: disable=super-init-not-called
@@ -183,8 +201,7 @@ class TestRunTC:
     def _test_output_file(
         self, args: List[str], filename: LocalPath, expected_output: str
     ) -> None:
-        """
-        Run Pylint with the ``output`` option set (must be included in
+        """Run Pylint with the ``output`` option set (must be included in
         the ``args`` passed to this method!) and check the file content afterwards.
         """
         out = StringIO()
@@ -247,7 +264,7 @@ class TestRunTC:
         output = out.getvalue()
         # Get rid of the pesky messages that pylint emits if the
         # configuration file is not found.
-        pattern = fr"\[{MAIN_CHECKER_NAME.upper()}"
+        pattern = rf"\[{MAIN_CHECKER_NAME.upper()}"
         master = re.search(pattern, output)
         assert master is not None, f"{pattern} not found in {output}"
         out = StringIO(output[master.start() :])
@@ -275,7 +292,7 @@ class TestRunTC:
         self._runtest([], code=32)
 
     def test_no_out_encoding(self) -> None:
-        """test redirection of stdout with non ascii characters"""
+        """Test redirection of stdout with non ascii characters."""
         # This test reproduces bug #48066 ; it happens when stdout is redirected
         # through '>' : the sys.stdout.encoding becomes then None, and if the
         # output contains non ascii, pylint will crash
@@ -718,11 +735,15 @@ class TestRunTC:
             ],
             code=0,
         )
+        # Need the old evaluation formula to test a negative score
+        # failing below a negative --fail-under threshold
         self._runtest(
             [
                 "--fail-under",
                 "-9",
                 "--enable=all",
+                "--evaluation",
+                "0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)",
                 join(HERE, "regrtest_data", "fail_under_minus10.py"),
             ],
             code=22,
@@ -732,6 +753,8 @@ class TestRunTC:
                 "--fail-under",
                 "-5",
                 "--enable=all",
+                "--evaluation",
+                "0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)",
                 join(HERE, "regrtest_data", "fail_under_minus10.py"),
             ],
             code=22,
@@ -777,6 +800,9 @@ class TestRunTC:
                 f"--fail-on={fo_msgs}",
                 "--enable=all",
                 join(HERE, "regrtest_data", fname),
+                # Use the old form of the evaluation that can go negative
+                "--evaluation",
+                "0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)",
             ],
             code=out,
         )
@@ -803,14 +829,6 @@ class TestRunTC:
     @staticmethod
     def test_modify_sys_path() -> None:
         @contextlib.contextmanager
-        def test_sys_path() -> Generator[None, None, None]:
-            original_path = sys.path
-            try:
-                yield
-            finally:
-                sys.path = original_path
-
-        @contextlib.contextmanager
         def test_environ_pythonpath(
             new_pythonpath: Optional[str],
         ) -> Generator[None, None, None]:
@@ -829,7 +847,7 @@ class TestRunTC:
                     # Only delete PYTHONPATH if new_pythonpath wasn't None
                     del os.environ["PYTHONPATH"]
 
-        with test_sys_path(), patch("os.getcwd") as mock_getcwd:
+        with _test_sys_path(), patch("os.getcwd") as mock_getcwd:
             cwd = "/tmp/pytest-of-root/pytest-0/test_do_not_import_files_from_0"
             mock_getcwd.return_value = cwd
             default_paths = [
@@ -1147,9 +1165,7 @@ class TestRunTC:
         self._runtest([path, "--fail-under=-10"] + args, code=expected)
 
     def test_one_module_fatal_error(self):
-        """
-        Fatal errors in one of several modules linted still exits non-zero.
-        """
+        """Fatal errors in one of several modules linted still exits non-zero."""
         valid_path = join(HERE, "conftest.py")
         invalid_path = join(HERE, "garbagePath.py")
         self._runtest([valid_path, invalid_path], code=1)
@@ -1189,7 +1205,7 @@ class TestRunTC:
             ),
             (
                 "colorized",
-                "tests/regrtest_data/unused_variable.py:4:4: W0612: [35mUnused variable 'variable'[0m ([35munused-variable[0m)",
+                "tests/regrtest_data/unused_variable.py:4:4: W0612: \x1B[35mUnused variable 'variable'\x1B[0m (\x1B[35munused-variable\x1B[0m)",
             ),
             ("json", '"message": "Unused variable \'variable\'",'),
         ],
@@ -1240,17 +1256,11 @@ class TestRunTC:
 
     @staticmethod
     def test_enable_all_extensions() -> None:
-        """Test to see if --enable-all-extensions does indeed load all extensions"""
+        """Test to see if --enable-all-extensions does indeed load all extensions."""
         # Record all extensions
         plugins = []
         for filename in os.listdir(os.path.dirname(extensions.__file__)):
-            # pylint: disable=fixme
-            # TODO: Remove the check for deprecated check_docs after the extension has been removed
-            if (
-                filename.endswith(".py")
-                and not filename.startswith("_")
-                and not filename.startswith("check_docs")
-            ):
+            if filename.endswith(".py") and not filename.startswith("_"):
                 plugins.append(f"pylint.extensions.{filename[:-3]}")
 
         # Check if they are loaded
@@ -1262,7 +1272,7 @@ class TestRunTC:
 
     @staticmethod
     def test_load_text_repoter_if_not_provided() -> None:
-        """Test if PyLinter.reporter is a TextReporter if no reporter is provided"""
+        """Test if PyLinter.reporter is a TextReporter if no reporter is provided."""
         linter = PyLinter()
 
         assert isinstance(linter.reporter, TextReporter)
@@ -1276,3 +1286,47 @@ class TestRunTC:
         with pytest.raises(SystemExit) as ex:
             Run(["--ignore-paths", "test", join(HERE, "regrtest_data", "empty.py")])
         assert ex.value.code == 0
+
+    def test_regression_recursive(self):
+        self._test_output(
+            [join(HERE, "regrtest_data", "directory", "subdirectory"), "--recursive=n"],
+            expected_output="No such file or directory",
+        )
+
+    def test_recursive(self):
+        self._runtest(
+            [join(HERE, "regrtest_data", "directory", "subdirectory"), "--recursive=y"],
+            code=0,
+        )
+
+    def test_recursive_current_dir(self):
+        with _test_sys_path():
+            # pytest is including directory HERE/regrtest_data to sys.path which causes
+            # astroid to believe that directory is a package.
+            sys.path = [
+                path
+                for path in sys.path
+                if not os.path.basename(path) == "regrtest_data"
+            ]
+            with _test_cwd():
+                os.chdir(join(HERE, "regrtest_data", "directory"))
+                self._runtest(
+                    [".", "--recursive=y"],
+                    code=0,
+                )
+
+    def test_regression_recursive_current_dir(self):
+        with _test_sys_path():
+            # pytest is including directory HERE/regrtest_data to sys.path which causes
+            # astroid to believe that directory is a package.
+            sys.path = [
+                path
+                for path in sys.path
+                if not os.path.basename(path) == "regrtest_data"
+            ]
+            with _test_cwd():
+                os.chdir(join(HERE, "regrtest_data", "directory"))
+                self._test_output(
+                    ["."],
+                    expected_output="No such file or directory",
+                )

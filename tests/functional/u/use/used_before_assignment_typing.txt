@@ -1,3 +1,0 @@
-used-before-assignment:12:21:12:28:MyClass.incorrect_typing_method:Using variable 'MyClass' before assignment:UNDEFINED
-used-before-assignment:17:26:17:33:MyClass.incorrect_nested_typing_method:Using variable 'MyClass' before assignment:UNDEFINED
-used-before-assignment:22:20:22:27:MyClass.incorrect_default_method:Using variable 'MyClass' before assignment:UNDEFINED

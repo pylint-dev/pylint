@@ -23,10 +23,9 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""checker for use of Python logging
-"""
+"""Checker for use of Python logging."""
 import string
-from typing import Set
+from typing import TYPE_CHECKING, Set
 
 import astroid
 from astroid import nodes
@@ -34,6 +33,9 @@ from astroid import nodes
 from pylint import checkers, interfaces
 from pylint.checkers import utils
 from pylint.checkers.utils import check_messages, infer_all
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
     "W1201": (
@@ -292,9 +294,7 @@ class LoggingChecker(checkers.BaseChecker):
 
     @staticmethod
     def _is_operand_literal_str(operand):
-        """
-        Return True if the operand in argument is a literal string
-        """
+        """Return True if the operand in argument is a literal string."""
         return isinstance(operand, nodes.Const) and operand.name == "str"
 
     def _check_call_func(self, node: nodes.Call):
@@ -401,6 +401,5 @@ def _count_supplied_tokens(args):
     return sum(1 for arg in args if not isinstance(arg, nodes.Keyword))
 
 
-def register(linter):
-    """Required method to auto-register this checker."""
+def register(linter: "PyLinter") -> None:
     linter.register_checker(LoggingChecker(linter))

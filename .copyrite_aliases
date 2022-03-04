@@ -108,5 +108,15 @@
     ],
     "authoritative_mail": "bot@noreply.github.com",
     "name": "bot"
+  },
+  {
+    "mails": ["tushar.sadhwani000@gmail.com", "tushar@deepsource.io"],
+    "authoritative_mail": "tushar.sadhwani000@gmail.com",
+    "name": "Tushar Sadhwani"
+  },
+  {
+    "mails": ["or.ba402@gmail.com", "orbahari@mail.tau.ac.il"],
+    "name": "Or Bahari",
+    "authoritative_mail": "or.ba402@gmail.com"
   }
 ]

@@ -216,6 +216,8 @@ contributors:
 
 * Kosarchuk Sergey: contributor
 
+* Kurian Benoy: contributor
+
 * Carey Metcalfe: demoted `try-except-raise` from error to warning
 
 * Marcus Näslund (naslundx): contributor
@@ -417,7 +419,7 @@ contributors:
 
 * Luigi Bertaco Cristofolini (luigibertaco): contributor
 
-* Or Bahari
+* Or Bahari: contributor
 
 * Joshua Cannon: contributor
 
@@ -595,3 +597,9 @@ contributors:
 * Eero Vuojolahti: contributor
 
 * Kian-Meng, Ang: contributor
+
+* Carli Freudenberg (CarliJoy): contributor
+  - Fixed issue 5281, added Unicode checker
+  - Improve non-ascii-name checker
+
+* Daniel Brookman: contributor

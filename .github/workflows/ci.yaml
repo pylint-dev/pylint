@@ -8,7 +8,8 @@ on:
   pull_request: ~
 
 env:
-  CACHE_VERSION: 3
+  # Also change CACHE_VERSION in the primer workflow
+  CACHE_VERSION: 5
   DEFAULT_PYTHON: 3.8
   PRE_COMMIT_CACHE: ~/.cache/pre-commit
 
@@ -16,6 +17,7 @@ jobs:
   prepare-base:
     name: Prepare base dependencies
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     outputs:
       python-key: ${{ steps.generate-python-key.outputs.key }}
       pre-commit-key: ${{ steps.generate-pre-commit-key.outputs.key }}
@@ -26,7 +28,7 @@ jobs:
           fetch-depth: 0
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@v2.3.1
+        uses: actions/setup-python@v3.0.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
       - name: Generate partial Python venv restore key
@@ -73,15 +75,16 @@ jobs:
           pre-commit install --install-hooks
 
   formatting:
-    name: Run pre-commit checks
+    name: checks / pre-commit
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     needs: prepare-base
     steps:
       - name: Check out code from GitHub
         uses: actions/checkout@v2.4.0
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@v2.3.1
+        uses: actions/setup-python@v3.0.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
       - name: Restore Python virtual environment
@@ -115,15 +118,16 @@ jobs:
           pre-commit run pylint --all-files
 
   spelling:
-    name: Run spelling checks
+    name: checks / spelling
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     needs: prepare-base
     steps:
       - name: Check out code from GitHub
         uses: actions/checkout@v2.4.0
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@v2.3.1
+        uses: actions/setup-python@v3.0.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
       - name: Restore Python virtual environment
@@ -145,8 +149,9 @@ jobs:
           pytest tests/ -k unittest_spelling
 
   prepare-tests-linux:
-    name: Prepare tests for Python ${{ matrix.python-version }} (Linux)
+    name: tests / prepare / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     strategy:
       matrix:
         python-version: [3.6, 3.7, 3.8, 3.9, "3.10"]
@@ -159,7 +164,7 @@ jobs:
           fetch-depth: 0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v2.3.1
+        uses: actions/setup-python@v3.0.0
         with:
           python-version: ${{ matrix.python-version }}
       - name: Generate partial Python venv restore key
@@ -187,8 +192,9 @@ jobs:
           pip install -U -r requirements_test.txt
 
   pytest-linux:
-    name: Run tests Python ${{ matrix.python-version }} (Linux)
+    name: tests / run / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: prepare-tests-linux
     strategy:
       fail-fast: false
@@ -199,7 +205,7 @@ jobs:
         uses: actions/checkout@v2.4.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v2.3.1
+        uses: actions/setup-python@v3.0.0
         with:
           python-version: ${{ matrix.python-version }}
       - name: Restore Python virtual environment
@@ -218,7 +224,7 @@ jobs:
       - name: Run pytest
         run: |
           . venv/bin/activate
-          pytest --benchmark-disable --cov --cov-report= tests/
+          pytest -vv --durations=20 --benchmark-disable --cov --cov-report= tests/
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v2.3.1
         with:
@@ -226,8 +232,9 @@ jobs:
           path: .coverage
 
   coverage:
-    name: Process test coverage
+    name: tests / process / coverage
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     needs: ["prepare-tests-linux", "pytest-linux"]
     strategy:
       matrix:
@@ -239,7 +246,7 @@ jobs:
         uses: actions/checkout@v2.4.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v2.3.1
+        uses: actions/setup-python@v3.0.0
         with:
           python-version: ${{ matrix.python-version }}
       - name: Restore Python virtual environment
@@ -270,8 +277,9 @@ jobs:
           coveralls --rcfile=${{ env.COVERAGERC_FILE }} --service=github
 
   benchmark-linux:
-    name: Run benchmark tests Python ${{ matrix.python-version }} (Linux)
+    name: tests / run benchmark / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     needs: prepare-tests-linux
     strategy:
       fail-fast: false
@@ -282,7 +290,7 @@ jobs:
         uses: actions/checkout@v2.4.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v2.3.1
+        uses: actions/setup-python@v3.0.0
         with:
           python-version: ${{ matrix.python-version }}
       - name: Restore Python virtual environment
@@ -321,8 +329,9 @@ jobs:
           path: .benchmarks/
 
   prepare-tests-windows:
-    name: Prepare tests for Python ${{ matrix.python-version }} (Windows)
+    name: tests / prepare / ${{ matrix.python-version }} / Windows
     runs-on: windows-latest
+    timeout-minutes: 5
     strategy:
       matrix:
         python-version: [3.6, 3.7, 3.8, 3.9, "3.10"]
@@ -335,7 +344,7 @@ jobs:
           fetch-depth: 0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v2.3.1
+        uses: actions/setup-python@v3.0.0
         with:
           python-version: ${{ matrix.python-version }}
       - name: Generate partial Python venv restore key
@@ -363,8 +372,9 @@ jobs:
           pip install -U -r requirements_test_min.txt
 
   pytest-windows:
-    name: Run tests Python ${{ matrix.python-version }} (Windows)
+    name: tests / run / ${{ matrix.python-version }} / Windows
     runs-on: windows-latest
+    timeout-minutes: 10
     needs: prepare-tests-windows
     strategy:
       fail-fast: false
@@ -379,7 +389,7 @@ jobs:
         uses: actions/checkout@v2.4.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v2.3.1
+        uses: actions/setup-python@v3.0.0
         with:
           python-version: ${{ matrix.python-version }}
       - name: Restore Python virtual environment
@@ -398,14 +408,15 @@ jobs:
       - name: Run pytest
         run: |
           . venv\\Scripts\\activate
-          pytest --benchmark-disable tests/
+          pytest -vv --durations=20 --benchmark-disable tests/
 
   prepare-tests-pypy:
-    name: Prepare tests for Python ${{ matrix.python-version }}
+    name: tests / prepare / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     strategy:
       matrix:
-        python-version: ["pypy3"]
+        python-version: ["pypy-3.6"]
     outputs:
       python-key: ${{ steps.generate-python-key.outputs.key }}
     steps:
@@ -415,7 +426,7 @@ jobs:
           fetch-depth: 0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v2.3.1
+        uses: actions/setup-python@v3.0.0
         with:
           python-version: ${{ matrix.python-version }}
       - name: Generate partial Python venv restore key
@@ -443,19 +454,20 @@ jobs:
           pip install -U -r requirements_test_min.txt
 
   pytest-pypy:
-    name: Run tests Python ${{ matrix.python-version }}
+    name: tests / run / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: prepare-tests-pypy
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["pypy3"]
+        python-version: ["pypy-3.6"]
     steps:
       - name: Check out code from GitHub
         uses: actions/checkout@v2.4.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v2.3.1
+        uses: actions/setup-python@v3.0.0
         with:
           python-version: ${{ matrix.python-version }}
       - name: Restore Python virtual environment
@@ -474,4 +486,4 @@ jobs:
       - name: Run pytest
         run: |
           . venv/bin/activate
-          pytest --benchmark-disable tests/
+          pytest -vv --durations=20 --benchmark-disable tests/

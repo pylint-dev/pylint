@@ -22,7 +22,7 @@ PylintConfiguration = Dict[str, ConfigurationValue]
 
 if not PY38_PLUS:
     # We need to deepcopy a compiled regex pattern
-    # In python 3.6 and 3.7 this require a hack
+    # In python 3.6 and 3.7 this requires a hack
     # See https://stackoverflow.com/a/56935186
     copy._deepcopy_dispatch[type(re.compile(""))] = lambda r, _: r  # type: ignore[attr-defined]
 
@@ -55,7 +55,7 @@ EXPECTED_CONF_REMOVE_KEY = "functional_remove"
 def get_expected_configuration(
     configuration_path: str, default_configuration: PylintConfiguration
 ) -> PylintConfiguration:
-    """Get the expected parsed configuration of a configuration functional test"""
+    """Get the expected parsed configuration of a configuration functional test."""
     result = copy.deepcopy(default_configuration)
     config_as_json = get_expected_or_default(
         configuration_path, suffix="result.json", default="{}"

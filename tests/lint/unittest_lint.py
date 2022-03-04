@@ -386,7 +386,7 @@ def test_enable_message_block(initialized_linter: PyLinter) -> None:
 
 
 def test_enable_by_symbol(initialized_linter: PyLinter) -> None:
-    """messages can be controlled by symbolic names.
+    """Messages can be controlled by symbolic names.
 
     The state is consistent across symbols and numbers.
     """
@@ -434,7 +434,8 @@ def test_set_unsupported_reporter(linter: PyLinter) -> None:
         linter.set_option("output-format", "missing.module.Class")
 
 
-def test_set_option_1(linter: PyLinter) -> None:
+def test_set_option_1(initialized_linter: PyLinter) -> None:
+    linter = initialized_linter
     linter.set_option("disable", "C0111,W0234")
     assert not linter.is_message_enabled("C0111")
     assert not linter.is_message_enabled("W0234")
@@ -443,7 +444,8 @@ def test_set_option_1(linter: PyLinter) -> None:
     assert not linter.is_message_enabled("non-iterator-returned")
 
 
-def test_set_option_2(linter: PyLinter) -> None:
+def test_set_option_2(initialized_linter: PyLinter) -> None:
+    linter = initialized_linter
     linter.set_option("disable", ("C0111", "W0234"))
     assert not linter.is_message_enabled("C0111")
     assert not linter.is_message_enabled("W0234")
@@ -459,7 +461,8 @@ def test_enable_checkers(linter: PyLinter) -> None:
     assert "design" in [c.name for c in linter.prepare_checkers()]
 
 
-def test_errors_only(linter: PyLinter) -> None:
+def test_errors_only(initialized_linter: PyLinter) -> None:
+    linter = initialized_linter
     linter.error_mode()
     checkers = linter.prepare_checkers()
     checker_names = {c.name for c in checkers}
@@ -467,14 +470,15 @@ def test_errors_only(linter: PyLinter) -> None:
     assert set() == should_not & checker_names
 
 
-def test_disable_similar(linter: PyLinter) -> None:
+def test_disable_similar(initialized_linter: PyLinter) -> None:
+    linter = initialized_linter
     linter.set_option("disable", "RP0801")
     linter.set_option("disable", "R0801")
     assert not ("similarities" in [c.name for c in linter.prepare_checkers()])
 
 
 def test_disable_alot(linter: PyLinter) -> None:
-    """check that we disabled a lot of checkers"""
+    """Check that we disabled a lot of checkers."""
     linter.set_option("reports", False)
     linter.set_option("disable", "R,C,W")
     checker_names = [c.name for c in linter.prepare_checkers()]

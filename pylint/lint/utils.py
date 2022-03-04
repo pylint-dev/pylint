@@ -69,7 +69,7 @@ def get_fatal_error_message(filepath: str, issue_template_path: Path) -> str:
 
 
 def preprocess_options(args, search_for):
-    """look for some options (keys of <search_for>) which have to be processed
+    """Look for some options (keys of <search_for>) which have to be processed
     before others
 
     values of <search_for> are callback functions to call when the option is
@@ -119,10 +119,10 @@ def _patch_sys_path(args):
 
 @contextlib.contextmanager
 def fix_import_path(args):
-    """Prepare sys.path for running the linter checks.
+    """Prepare 'sys.path' for running the linter checks.
 
     Within this context, each of the given arguments is importable.
-    Paths are added to sys.path in corresponding order to the arguments.
+    Paths are added to 'sys.path' in corresponding order to the arguments.
     We avoid adding duplicate directories to sys.path.
     `sys.path` is reset to its original value upon exiting this context.
     """

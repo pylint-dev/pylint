@@ -10,7 +10,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""Text formatting drivers for ureports"""
+"""Text formatting drivers for ureports."""
 
 from typing import TYPE_CHECKING, List
 
@@ -32,7 +32,7 @@ BULLETS = ["*", "-"]
 
 
 class TextWriter(BaseWriter):
-    """format layouts as text
+    """Format layouts as text
     (ReStructured inspiration but not totally handled yet)
     """
 
@@ -41,7 +41,7 @@ class TextWriter(BaseWriter):
         self.list_level = 0
 
     def visit_section(self, layout: "Section") -> None:
-        """display a section as text"""
+        """Display a section as text."""
         self.section += 1
         self.writeln()
         self.format_children(layout)
@@ -64,12 +64,12 @@ class TextWriter(BaseWriter):
             print("FIXME TITLE TOO DEEP. TURNING TITLE INTO TEXT")
 
     def visit_paragraph(self, layout: "Paragraph") -> None:
-        """enter a paragraph"""
+        """Enter a paragraph."""
         self.format_children(layout)
         self.writeln()
 
     def visit_table(self, layout: "Table") -> None:
-        """display a table as text"""
+        """Display a table as text."""
         table_content = self.get_table_content(layout)
         # get columns width
         cols_width = [0] * len(table_content[0])
@@ -82,7 +82,7 @@ class TextWriter(BaseWriter):
     def default_table(
         self, layout: "Table", table_content: List[List[str]], cols_width: List[int]
     ) -> None:
-        """format a table"""
+        """Format a table."""
         cols_width = [size + 1 for size in cols_width]
         format_strings = " ".join(["%%-%ss"] * len(cols_width))
         format_strings %= tuple(cols_width)
@@ -103,12 +103,12 @@ class TextWriter(BaseWriter):
                 self.write(table_linesep)
 
     def visit_verbatimtext(self, layout: "VerbatimText") -> None:
-        """display a verbatim layout as text (so difficult ;)"""
+        """Display a verbatim layout as text (so difficult ;)."""
         self.writeln("::\n")
         for line in layout.data.splitlines():
             self.writeln("    " + line)
         self.writeln()
 
     def visit_text(self, layout: "Text") -> None:
-        """add some text"""
+        """Add some text."""
         self.write(f"{layout.data}")

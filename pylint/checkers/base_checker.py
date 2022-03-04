@@ -48,9 +48,10 @@ class BaseChecker(OptionsProviderMixIn):
     enabled: bool = True
 
     def __init__(self, linter=None):
-        """checker instances should have the linter as argument
+        """Checker instances should have the linter as argument.
 
-        :param ILinter linter: is an object implementing ILinter."""
+        :param ILinter linter: is an object implementing ILinter.
+        """
         if self.name is not None:
             self.name = self.name.lower()
         super().__init__()
@@ -67,7 +68,8 @@ class BaseChecker(OptionsProviderMixIn):
 
     def __str__(self):
         """This might be incomplete because multiple class inheriting BaseChecker
-        can have the same name. Cf MessageHandlerMixIn.get_full_documentation()"""
+        can have the same name. Cf MessageHandlerMixIn.get_full_documentation()
+        """
         return self.get_full_documentation(
             msgs=self.msgs, options=self.options_and_values(), reports=self.reports
         )
@@ -86,7 +88,7 @@ class BaseChecker(OptionsProviderMixIn):
             # Provide anchor to link against
             result += get_rst_title(f"{checker_title} Documentation", "^")
             result += f"{cleandoc(doc)}\n\n"
-        # options might be an empty generator and not be False when casted to boolean
+        # options might be an empty generator and not be False when cast to boolean
         options = list(options)
         if options:
             result += get_rst_title(f"{checker_title} Options", "^")
@@ -132,7 +134,8 @@ class BaseChecker(OptionsProviderMixIn):
         checker.
 
         :raises InvalidMessageError: If the checker id in the messages are not
-        always the same."""
+        always the same.
+        """
         checker_id = None
         existing_ids = []
         for message in self.messages:
@@ -186,10 +189,10 @@ class BaseChecker(OptionsProviderMixIn):
         raise InvalidMessageError(error_msg)
 
     def open(self):
-        """called before visiting project (i.e set of modules)"""
+        """Called before visiting project (i.e. set of modules)."""
 
     def close(self):
-        """called after visiting project (i.e set of modules)"""
+        """Called after visiting project (i.e set of modules)."""
 
 
 class BaseTokenChecker(BaseChecker):

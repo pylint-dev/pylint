@@ -18,7 +18,7 @@
 
 import sys
 import tokenize
-from typing import Any, Optional, cast
+from typing import TYPE_CHECKING, Any, Optional, cast
 
 from pylint.checkers import BaseTokenChecker
 from pylint.interfaces import ITokenChecker
@@ -30,13 +30,16 @@ if sys.version_info >= (3, 8):
 else:
     from typing_extensions import Literal
 
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
+
 
 def report_raw_stats(
     sect,
     stats: LinterStats,
     old_stats: Optional[LinterStats],
 ) -> None:
-    """calculate percentage of code / doc / comment / empty"""
+    """Calculate percentage of code / doc / comment / empty."""
     total_lines = stats.code_type_count["total"]
     sect.description = f"{total_lines} lines have been analyzed"
     lines = ["type", "number", "%", "previous", "difference"]
@@ -57,7 +60,7 @@ def report_raw_stats(
 
 
 class RawMetricsChecker(BaseTokenChecker):
-    """does not check anything but gives some raw metrics :
+    """Does not check anything but gives some raw metrics :
     * total number of lines
     * total number of code lines
     * total number of docstring lines
@@ -80,11 +83,11 @@ class RawMetricsChecker(BaseTokenChecker):
         super().__init__(linter)
 
     def open(self):
-        """init statistics"""
+        """Init statistics."""
         self.linter.stats.reset_code_count()
 
     def process_tokens(self, tokens):
-        """update stats"""
+        """Update stats."""
         i = 0
         tokens = list(tokens)
         while i < len(tokens):
@@ -97,7 +100,7 @@ JUNK = (tokenize.NL, tokenize.INDENT, tokenize.NEWLINE, tokenize.ENDMARKER)
 
 
 def get_type(tokens, start_index):
-    """return the line type : docstring, comment, code, empty"""
+    """Return the line type : docstring, comment, code, empty."""
     i = start_index
     start = tokens[i][2]
     pos = start
@@ -122,6 +125,5 @@ def get_type(tokens, start_index):
     return i, pos[0] - start[0] + 1, line_type
 
 
-def register(linter):
-    """required method to auto register this checker"""
+def register(linter: "PyLinter") -> None:
     linter.register_checker(RawMetricsChecker(linter))

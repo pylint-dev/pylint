@@ -6,19 +6,197 @@ What's New in Pylint 2.13.0?
 ============================
 Release date: TBA
 
-* Pyreverse - add output in mermaidjs format
-
 ..
   Put new features here and also in 'doc/whatsnew/2.13.rst'
+
+* Fix matching ``--notes`` options that end in a non-word character.
+
+  Closes #5840
+
+* ``using-f-string-in-unsupported-version`` and ``using-final-decorator-in-unsupported-version`` msgids
+    were renamed from ``W1601`` and ``W1602`` to ``W2601`` and ``W2602``. Disabling using these msgids will break.
+    This is done in order to restore consistency with the already existing msgids for ``apply-builtin`` and
+    ``basestring-builtin`` from the now deleted python 3K+ checker. There is now a check that we're not using
+    existing msgids or symbols from deleted checkers.
+
+  Closes #5729
+
+* Add ``--recursive`` option to allow recursive discovery of all modules and packages in subtree. Running pylint with
+  ``--recursive=y`` option will check all discovered ``.py`` files and packages found inside subtree of directory provided
+  as parameter to pylint.
+
+  Closes #352
+
+* Add ``modified-iterating-list``, ``modified-iterating-dict`` and ``modified-iterating-set``,
+  emitted when items are added to or removed from respectively a list, dictionary or
+  set being iterated through.
+
+  Closes #5348
+
+* Fix false-negative for ``assignment-from-none`` checker using list.sort() method.
+
+  closes #5722
+
+* Fixed crash from ``arguments-differ`` and ``arguments-renamed`` when methods were
+  defined outside the top level of a class.
+
+  Closes #5648
+
+* Removed the deprecated ``check_docs`` extension. You can use the ``docparams`` checker
+  to get the checks previously included in ``check_docs``.
+
+  Closes #5322
+
+* Added a ``testutil`` extra require to the packaging, as ``gitpython`` should not be a dependency
+  all the time but is still required to use the primer helper code in ``pylint.testutil``. You can
+  install it with ``pip install pylint[testutil]``.
+
+  Closes #5486
+
+* Added several checkers to deal with unicode security issues
+  (see `Trojan Sources <https://trojansource.codes/>`_ and
+  `PEP 672 <https://www.python.org/dev/peps/pep-0672/>`_ for details) that also
+  concern the readability of the code. In detail the following checks were added:
+
+  * ``bad-file-encoding`` checks that the file is encoded in UTF-8 as suggested by
+    `PEP8 <https://www.python.org/dev/peps/pep-0008/#id20>`_.
+    UTF-16 and UTF-32 are `not supported by Python <https://bugs.python.org/issue1503789>`_
+    at the moment. If this ever changes
+    ``invalid-unicode-codec`` checks that they aren't used, to allow for backwards
+    compatibility.
+
+  * ``bidirectional-unicode`` checks for bidirectional unicode characters that
+    could make code execution different than what the user expects.
+
+  * ``invalid-character-backspace``, ``invalid-character-carriage-return``,
+    ``invalid-character-sub``, ``invalid-character-esc``,
+    ``invalid-character-zero-width-space`` and ``invalid-character-nul``
+    to check for possibly harmful unescaped characters.
+
+  Closes #5281
+
+* Fix false positive - Allow unpacking of ``self`` in a subclass of ``typing.NamedTuple``.
+
+ Closes #5312
+
+* Fixed false negative ``unpacking-non-sequence`` when value is an empty list.
+
+ Closes #5707
+
+* Better warning messages for useless else or elif when a function returns early.
+
+  Closes #5614
+
+* Fixed false positive ``consider-using-dict-comprehension`` when creating a dict
+  using a list of tuples where key AND value vary depending on the same condition.
+
+  Closes #5588
+
+* Fixed false positive for ``global-variable-undefined`` when ``global`` is used with a class name
+
+  Closes #3088
+
+* Fixed false positive for ``unused-variable`` when a ``nonlocal`` name is assigned as part of a multi-name assignment.
+
+  Closes #3781
+
+* Fixed a crash in ``unspecified-encoding`` checker when providing ``None``
+  to the ``mode`` argument of an ``open()`` call.
+
+  Closes #5731
+
+* Improved ``bad-open-mode`` message when providing ``None`` to the ``mode``
+  argument of an ``open()`` call.
+
+  Closes #5733
+
+* Added ``lru-cache-decorating-method`` checker with checks for the use of ``functools.lru_cache``
+  on class methods. This is unrecommended as it creates memory leaks by never letting the instance
+  getting garbage collected.
+
+  Closes #5670
+
+* The issue template for crashes is now created for crashes which were previously not covered
+  by this mechanism.
+
+  Closes #5668
+
+* Rewrote checker for ``non-ascii-name``.
+   It now ensures __all__ Python names are ASCII and also properly
+   checks the names of imports (``non-ascii-module-import``) as
+   well as file names (``non-ascii-file-name``) and emits their respective new warnings.
+
+   Non ASCII characters could be homoglyphs (look alike characters) and hard to
+   enter on a non specialized keyboard.
+   See `Confusable Characters in PEP 672 <https://www.python.org/dev/peps/pep-0672/#confusable-characters-in-identifiers>`_
+
+* When run in parallel mode ``pylint`` now pickles the data passed to subprocesses with
+  the ``dill`` package. The ``dill`` package has therefore been added as a dependency.
+
+* An astroid issue where symlinks were not being taken into account
+  was fixed
+
+  Closes #1470
+  Closes #3499
+  Closes #4302
+  Closes #4798
+  Closes #5081
+
+* Fix a crash in ``unused-private-member`` checker when analyzing code using
+  ``type(self)`` in bound methods.
+
+  Closes #5569
+
+* Fix false positives for ``used-before-assignment`` from using named
+  expressions in a ternary operator test and using that expression as
+  a call argument.
+
+  Closes #5177, #5212
+
+* Fix false positive for ``undefined-variable`` when ``namedtuple`` class
+  attributes are used as return annotations.
+
+  Closes #5568
+
+* Fix false negative for ``undefined-variable`` and related variable messages
+  when the same undefined variable is used as a type annotation and is
+  accessed multiple times, or is used as a default argument to a function.
+
+  Closes #5399
+
+* Pyreverse - add output in mermaidjs format
+
+* Emit ``used-before-assignment`` instead of ``undefined-variable`` when attempting
+  to access unused type annotations.
+
+  Closes #5713
+
+* Added confidence level ``CONTROL_FLOW`` for warnings relying on assumptions
+  about control flow.
 
 * ``used-before-assignment`` now considers that assignments in a try block
   may not have occurred when the except or finally blocks are executed.
 
   Closes #85, #2615
 
+* Fixed false negative for ``used-before-assignment`` when a conditional
+  or context manager intervened before the try statement that suggested
+  it might fail.
+
+  Closes #4045
+
+* Fixed false negative for ``used-before-assignment`` in finally blocks
+  if an except handler did not define the assignment that might have failed
+  in the try block.
+
 * Fixed extremely long processing of long lines with comma's.
 
   Closes #5483
+
+* Fixed crash on properties and inherited class methods when comparing them for
+  equality against an empty dict.
+
+  Closes #5646
 
 * Fixed a false positive for ``assigning-non-slot`` when the slotted class
   defined ``__setattr__``.
@@ -30,12 +208,25 @@ Release date: TBA
 
   Closes #5499
 
+* Add checker ``redefined-slots-in-subclass``: Emitted when a slot is redefined in a subclass.
+
+  Closes #5617
+
+* Fixed false positive for ``global-variable-not-assigned`` when the ``del`` statement is used
+
+  Closes #5333
+
 * By default, pylint does no longer take files starting with ``.#`` into account. Those are
   considered `emacs file locks`. See
   https://www.gnu.org/software/emacs/manual/html_node/elisp/File-Locks.html.
   This behavior can be reverted by redefining the ``ignore-patterns`` option.
 
   Closes #367
+
+* Fixed a false positive for ``used-before-assignment`` when a named expression
+  appears as the first value in a container.
+
+  Closes #5112
 
 * ``used-before-assignment`` now assumes that assignments in except blocks
   may not have occurred and warns accordingly.
@@ -48,12 +239,54 @@ Release date: TBA
 
   Closes #5500
 
+* Fixed a false negative for ``used-before-assignment`` when some but not all
+  except handlers defined a name relied upon after an except block when the
+  corresponding try block contained a return statement.
+
+  Closes #5524
+
+* When evaluating statements in the ``else`` clause of a loop, ``used-before-assignment``
+  assumes that assignments in the except blocks took place if the
+  except handlers constituted the only ways for the loop to finish without
+  breaking early.
+
+  Closes #5683
+
 * ``used-before-assignment`` now checks names in try blocks.
 
 * Fixed false positive with ``used-before-assignment`` for assignment expressions
   in lambda statements.
 
   Closes #5360, #3877
+
+* Fixed a false positive (affecting unreleased development) for
+  ``used-before-assignment`` involving homonyms between filtered comprehensions
+  and assignments in except blocks.
+
+  Closes #5586
+
+* Fixed crash with slots assignments and annotated assignments.
+
+  Closes #5479
+
+* Fixed crash on list comprehensions that used ``type`` as inner variable name.
+
+  Closes #5461
+
+* Fixed crash in ``use-maxsplit-arg`` checker when providing the ``sep`` argument
+  to ``str.split()`` by keyword.
+
+  Closes #5737
+
+* Fix false positive for ``unused-variable`` for a comprehension variable matching
+  an outer scope type annotation.
+
+  Closes #5326
+
+* Fix false negative for ``undefined-variable`` for a variable used multiple times
+  in a comprehension matching an unused outer scope type annotation.
+
+  Closes #5654
 
 * Some files in ``pylint.testutils`` were deprecated. In the future imports should be done from the
   ``pylint.testutils.functional`` namespace directly.
@@ -77,17 +310,46 @@ Release date: TBA
 
   Closes #4716
 
+* Fix false positive for ``used-before-assignment`` when an except handler
+  shares a name with a test in a filtered comprehension.
+
+  Closes #5817
+
 * Fix crash in ``unnecessary-dict-index-lookup`` checker if the output of
   ``items()`` is assigned to a 1-tuple.
 
   Closes #5504
 
+* When invoking ``pylint``, ``epylint``, ``symilar`` or ``pyreverse`` by importing them in a python file
+  you can now pass an ``argv`` keyword besides patching ``sys.argv``.
+
+  Closes #5320
+
 * The ``PyLinter`` class will now be initialized with a ``TextReporter``
   as its reporter if none is provided.
+
+* Fix ``super-init-not-called`` when parent or ``self`` is a ``Protocol``
+
+  Closes #4790
 
 * Fix false positive ``not-callable`` with attributes that alias ``NamedTuple``
 
   Partially closes #1730
+
+* Emit ``redefined-outer-name`` when a nested except handler shadows an outer one.
+
+  Closes #4434
+  Closes #5370
+
+* Fix false positive ``super-init-not-called`` for classes that inherit their ``init`` from
+  a parent.
+
+  Closes #4941
+
+* ``encoding`` can now be supplied as a positional argument to calls that open
+  files without triggering ``unspecified-encoding``.
+
+  Closes #5638
 
 * Fatal errors now emit a score of 0.0 regardless of whether the linted module
   contained any statements
@@ -96,9 +358,9 @@ Release date: TBA
 
 * ``fatal`` was added to the variables permitted in score evaluation expressions.
 
-* Fix false positive - Allow unpacking of ``self`` in a subclass of ``typing.NamedTuple``.
+* The default score evaluation now uses a floor of 0.
 
-  Closes #5312
+  Closes #2399
 
 * Fix false negative for ``consider-iterating-dictionary`` during membership checks encapsulated in iterables
   or ``not in`` checks
@@ -110,6 +372,11 @@ Release date: TBA
 * Add checker ``unnecessary-ellipsis``: Emitted when the ellipsis constant is used unnecessarily.
 
   Closes #5460
+
+* Disable checker ``bad-docstring-quotes`` for Python <= 3.7, because in these versions the line
+  numbers for decorated functions and classes are not reliable which interferes with the checker.
+
+  Closes #3077
 
 * Fixed incorrect classification of Numpy-style docstring as Google-style docstring for
   docstrings with property setter documentation.

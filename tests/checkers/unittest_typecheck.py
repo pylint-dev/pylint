@@ -46,7 +46,8 @@ needs_c_extension = pytest.mark.skipif(
 
 
 class TestTypeChecker(CheckerTestCase):
-    "Tests for pylint.checkers.typecheck"
+    """Tests for pylint.checkers.typecheck."""
+
     CHECKER_CLASS = typecheck.TypeChecker
 
     @set_config(suggestion_mode=False)
@@ -95,7 +96,8 @@ class TestTypeChecker(CheckerTestCase):
 
 
 class TestTypeCheckerOnDecorators(CheckerTestCase):
-    "Tests for pylint.checkers.typecheck on decorated functions."
+    """Tests for pylint.checkers.typecheck on decorated functions."""
+
     CHECKER_CLASS = typecheck.TypeChecker
 
     def test_issue3882_class_decorators(self) -> None:

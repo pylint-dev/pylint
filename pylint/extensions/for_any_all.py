@@ -66,8 +66,4 @@ class ConsiderUsingAnyOrAllChecker(BaseChecker):
 
 
 def register(linter: "PyLinter") -> None:
-    """Required method to auto register this checker.
-
-    :param linter: Main interface object for Pylint plugins
-    """
     linter.register_checker(ConsiderUsingAnyOrAllChecker(linter))

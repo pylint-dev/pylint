@@ -3,9 +3,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""
-Class to generate files in dot format and image formats supported by Graphviz.
-"""
+"""Class to generate files in dot format and image formats supported by Graphviz."""
 from typing import Dict, Optional
 
 from pylint.pyreverse.printer import EdgeType, Layout, NodeProperties, NodeType, Printer
@@ -13,7 +11,7 @@ from pylint.pyreverse.utils import get_annotation_label
 
 
 class PlantUmlPrinter(Printer):
-    """Printer for PlantUML diagrams"""
+    """Printer for PlantUML diagrams."""
 
     DEFAULT_COLOR = "black"
 
@@ -30,7 +28,7 @@ class PlantUmlPrinter(Printer):
     }
 
     def _open_graph(self) -> None:
-        """Emit the header lines"""
+        """Emit the header lines."""
         self.emit("@startuml " + self.title)
         if not self.use_automatic_namespace:
             self.emit("set namespaceSeparator none")

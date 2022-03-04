@@ -1,13 +1,15 @@
 import sys
-from typing import List, Optional, Set, Tuple, Type, Union, cast
+from typing import TYPE_CHECKING, List, Optional, Set, Tuple, Type, Union, cast
 
 from astroid import nodes
 
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import check_messages, safe_infer
 from pylint.interfaces import IAstroidChecker
-from pylint.lint import PyLinter
 from pylint.utils.utils import get_global_option
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 if sys.version_info >= (3, 10):
     from typing import TypeGuard
@@ -72,7 +74,7 @@ class CodeStyleChecker(BaseChecker):
         ),
     )
 
-    def __init__(self, linter: PyLinter) -> None:
+    def __init__(self, linter: "PyLinter") -> None:
         """Initialize checker instance."""
         super().__init__(linter=linter)
 
@@ -274,7 +276,7 @@ class CodeStyleChecker(BaseChecker):
     def _check_ignore_assignment_expr_suggestion(
         node: nodes.If, name: Optional[str]
     ) -> bool:
-        """Return True if suggestion for assignment expr should be ignore.
+        """Return True if suggestion for assignment expr should be ignored.
 
         E.g., in cases where a match statement would be a better fit
         (multiple conditions).
@@ -303,5 +305,5 @@ class CodeStyleChecker(BaseChecker):
         return False
 
 
-def register(linter: PyLinter) -> None:
+def register(linter: "PyLinter") -> None:
     linter.register_checker(CodeStyleChecker(linter))

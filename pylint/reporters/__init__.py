@@ -21,7 +21,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""utilities methods and classes for reporters"""
+"""Utilities methods and classes for reporters."""
 from typing import TYPE_CHECKING
 
 from pylint import utils
@@ -36,7 +36,7 @@ if TYPE_CHECKING:
 
 
 def initialize(linter: "PyLinter") -> None:
-    """initialize linter with reporters in this package"""
+    """Initialize linter with reporters in this package."""
     utils.register_plugins(linter, __path__[0])
 
 

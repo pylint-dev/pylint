@@ -1,0 +1,3 @@
+[MASTER]
+
+init-hook=raise RuntimeError

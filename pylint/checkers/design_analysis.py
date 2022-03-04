@@ -28,11 +28,11 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""check for signs of poor design"""
+"""Check for signs of poor design."""
 
 import re
 from collections import defaultdict
-from typing import FrozenSet, Iterator, List, Set, cast
+from typing import TYPE_CHECKING, FrozenSet, Iterator, List, Set, cast
 
 import astroid
 from astroid import nodes
@@ -41,6 +41,9 @@ from pylint import utils
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages
 from pylint.interfaces import IAstroidChecker
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
     "R0901": (
@@ -190,7 +193,7 @@ STDLIB_CLASSES_IGNORE_ANCESTOR = frozenset(
 
 
 def _is_exempt_from_public_methods(node: astroid.ClassDef) -> bool:
-    """Check if a class is exempt from too-few-public-methods"""
+    """Check if a class is exempt from too-few-public-methods."""
 
     # If it's a typing.Namedtuple, typing.TypedDict or an Enum
     for ancestor in node.ancestors():
@@ -222,7 +225,7 @@ def _is_exempt_from_public_methods(node: astroid.ClassDef) -> bool:
 
 
 def _count_boolean_expressions(bool_op):
-    """Counts the number of boolean expressions in BoolOp `bool_op` (recursive)
+    """Counts the number of boolean expressions in BoolOp `bool_op` (recursive).
 
     example: a and (b or c or (d and e)) ==> 5 boolean expressions
     """
@@ -288,7 +291,7 @@ def _get_parents(
 
 
 class MisdesignChecker(BaseChecker):
-    """checks for sign of poor/misdesign:
+    """Checks for sign of poor/misdesign:
     * number of methods, attributes, local variables...
     * size, complexity of functions, methods
     """
@@ -425,7 +428,7 @@ class MisdesignChecker(BaseChecker):
         self._stmts = None
 
     def open(self):
-        """initialize visit variables"""
+        """Initialize visit variables."""
         self.linter.stats.reset_node_count()
         self._returns = []
         self._branches = defaultdict(int)
@@ -449,7 +452,7 @@ class MisdesignChecker(BaseChecker):
         "too-many-public-methods",
     )
     def visit_classdef(self, node: nodes.ClassDef) -> None:
-        """check size of inheritance hierarchy and number of instance attributes"""
+        """Check size of inheritance hierarchy and number of instance attributes."""
         parents = _get_parents(
             node, STDLIB_CLASSES_IGNORE_ANCESTOR.union(self.config.ignored_parents)
         )
@@ -470,7 +473,7 @@ class MisdesignChecker(BaseChecker):
 
     @check_messages("too-few-public-methods", "too-many-public-methods")
     def leave_classdef(self, node: nodes.ClassDef) -> None:
-        """check number of public methods"""
+        """Check number of public methods."""
         my_methods = sum(
             1 for method in node.mymethods() if not method.name.startswith("_")
         )
@@ -523,7 +526,7 @@ class MisdesignChecker(BaseChecker):
         "keyword-arg-before-vararg",
     )
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
-        """check function name, docstring, arguments, redefinition,
+        """Check function name, docstring, arguments, redefinition,
         variable names, max locals
         """
         # init branch and returns counters
@@ -566,7 +569,7 @@ class MisdesignChecker(BaseChecker):
         "too-many-statements",
     )
     def leave_functiondef(self, node: nodes.FunctionDef) -> None:
-        """most of the work is done here on close:
+        """Most of the work is done here on close:
         checks for max returns, branch, return in __init__
         """
         returns = self._returns.pop()
@@ -595,20 +598,20 @@ class MisdesignChecker(BaseChecker):
     leave_asyncfunctiondef = leave_functiondef
 
     def visit_return(self, _: nodes.Return) -> None:
-        """count number of returns"""
+        """Count number of returns."""
         if not self._returns:
             return  # return outside function, reported by the base checker
         self._returns[-1] += 1
 
     def visit_default(self, node: nodes.NodeNG) -> None:
-        """default visit method -> increments the statements counter if
+        """Default visit method -> increments the statements counter if
         necessary
         """
         if node.is_statement:
             self._inc_all_stmts(1)
 
     def visit_tryexcept(self, node: nodes.TryExcept) -> None:
-        """increments the branches counter"""
+        """Increments the branches counter."""
         branches = len(node.handlers)
         if node.orelse:
             branches += 1
@@ -616,13 +619,13 @@ class MisdesignChecker(BaseChecker):
         self._inc_all_stmts(branches)
 
     def visit_tryfinally(self, node: nodes.TryFinally) -> None:
-        """increments the branches counter"""
+        """Increments the branches counter."""
         self._inc_branch(node, 2)
         self._inc_all_stmts(2)
 
     @check_messages("too-many-boolean-expressions")
     def visit_if(self, node: nodes.If) -> None:
-        """increments the branches counter and checks boolean expressions"""
+        """Increments the branches counter and checks boolean expressions."""
         self._check_boolean_expressions(node)
         branches = 1
         # don't double count If nodes coming from some 'elif'
@@ -634,9 +637,8 @@ class MisdesignChecker(BaseChecker):
         self._inc_all_stmts(branches)
 
     def _check_boolean_expressions(self, node):
-        """Go through "if" node `node` and counts its boolean expressions
-
-        if the "if" node test is a BoolOp node
+        """Go through "if" node `node` and count its boolean expressions
+        if the 'if' node test is a BoolOp node
         """
         condition = node.test
         if not isinstance(condition, astroid.BoolOp):
@@ -650,7 +652,7 @@ class MisdesignChecker(BaseChecker):
             )
 
     def visit_while(self, node: nodes.While) -> None:
-        """increments the branches counter"""
+        """Increments the branches counter."""
         branches = 1
         if node.orelse:
             branches += 1
@@ -659,10 +661,9 @@ class MisdesignChecker(BaseChecker):
     visit_for = visit_while
 
     def _inc_branch(self, node, branchesnum=1):
-        """increments the branches counter"""
+        """Increments the branches counter."""
         self._branches[node.scope()] += branchesnum
 
 
-def register(linter):
-    """required method to auto register this checker"""
+def register(linter: "PyLinter") -> None:
     linter.register_checker(MisdesignChecker(linter))
