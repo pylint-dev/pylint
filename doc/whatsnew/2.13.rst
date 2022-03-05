@@ -382,6 +382,10 @@ Other Changes
 * The ``testutils`` for unittests now accept ``end_lineno`` and ``end_column``. Tests
   without these will trigger a ``DeprecationWarning``.
 
+* Importing the deprecated stdlib module ``xml.etree.cElementTree`` now emits ``deprecated_module``.
+
+  Closes #5862
+
 * Fixed false positive ``unexpected-keyword-arg`` for decorators.
 
   Closes #258

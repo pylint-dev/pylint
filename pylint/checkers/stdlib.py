@@ -73,6 +73,7 @@ NON_INSTANCE_METHODS = {"builtins.staticmethod", "builtins.classmethod"}
 DEPRECATED_MODULES = {
     (0, 0, 0): {"tkinter.tix", "fpectl"},
     (3, 2, 0): {"optparse"},
+    (3, 3, 0): {"xml.etree.cElementTree"},
     (3, 4, 0): {"imp"},
     (3, 5, 0): {"formatter"},
     (3, 6, 0): {"asynchat", "asyncore"},
