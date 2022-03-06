@@ -395,6 +395,10 @@ Release date: TBA
 
   Closes #258
 
+* Importing the deprecated stdlib module ``xml.etree.cElementTree`` now emits ``deprecated_module``.
+
+  Closes #5862
+
 * ``missing-raises-doc`` will now check the class hierarchy of the raised exceptions
 
   .. code-block:: python
