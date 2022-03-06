@@ -20,6 +20,9 @@ class Day(IntEnum):
             obj.abbr = ""
         return obj
 
+    def __repr__(self):
+        return f"{self._value_}: {self.foo}"  # [no-member]
+
 
 print(Day.FRIDAY.abbr)
 print(Day.FRIDAY.foo)  # [no-member]

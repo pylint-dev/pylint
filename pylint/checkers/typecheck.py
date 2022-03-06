@@ -543,7 +543,15 @@ def _get_all_attribute_assignments(
 def _enum_has_attribute(
     owner: Union[astroid.Instance, nodes.ClassDef], node: nodes.Attribute
 ) -> bool:
-    enum_def = owner
+    if isinstance(owner, astroid.Instance):
+        enum_def = next(
+            (b.parent for b in owner.bases if isinstance(b.parent, nodes.ClassDef)),
+            None,
+        )
+        if enum_def is None:
+            return False
+    else:
+        enum_def = owner
     # Traverse the AST to find the Enum ClassDef
     while not isinstance(enum_def, astroid.ClassDef):
         enum_def = enum_def.parent

@@ -1,2 +1,3 @@
-no-member:25:6:25:20::Instance of 'FRIDAY' has no 'foo' member:INFERENCE
-no-member:42:6:42:21::Instance of 'MILE' has no 'foo' member:INFERENCE
+no-member:24:34:24:42:Day.__repr__:Instance of 'Day' has no 'foo' member:INFERENCE
+no-member:28:6:28:20::Instance of 'FRIDAY' has no 'foo' member:INFERENCE
+no-member:45:6:45:21::Instance of 'MILE' has no 'foo' member:INFERENCE
