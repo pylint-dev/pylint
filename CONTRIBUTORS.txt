@@ -603,3 +603,5 @@ contributors:
   - Improve non-ascii-name checker
 
 * Daniel Brookman: contributor
+
+* Téo Bouvard: contributor
