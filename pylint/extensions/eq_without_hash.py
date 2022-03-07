@@ -14,10 +14,10 @@ from pylint.checkers import utils
 from pylint.lint import PyLinter
 
 
-class Python3Checker(checkers.BaseChecker):
+class EqWithoutHash(checkers.BaseChecker):
 
     __implements__ = interfaces.IAstroidChecker
-    name = "python3"
+    name = "eq-without-hash"
 
     msgs = {
         "W1641": (
@@ -36,4 +36,4 @@ class Python3Checker(checkers.BaseChecker):
 
 
 def register(linter: PyLinter) -> None:
-    linter.register_checker(Python3Checker(linter))
+    linter.register_checker(EqWithoutHash(linter))
