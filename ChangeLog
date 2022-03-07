@@ -399,6 +399,8 @@ Release date: TBA
 
   Closes #5862
 
+* Importing the deprecated stdlib module ``distutils`` now emits ``deprecated_module``.
+
 * ``missing-raises-doc`` will now check the class hierarchy of the raised exceptions
 
   .. code-block:: python

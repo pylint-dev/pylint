@@ -386,6 +386,8 @@ Other Changes
 
   Closes #5862
 
+* Importing the deprecated stdlib module ``distutils`` now emits ``deprecated_module``.
+
 * Fixed false positive ``unexpected-keyword-arg`` for decorators.
 
   Closes #258
