@@ -51,7 +51,7 @@ import collections
 import copy
 import os
 import sys
-import sysconfig
+from distutils import sysconfig  # pylint: disable=deprecated-module
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple, Union
 
 import astroid
@@ -449,13 +449,14 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             return os.path.normcase(os.path.abspath(path))
 
         paths = set()
-        path = sysconfig.get_path("purelib")
-        path = _normalized_path(path)
-        paths.add(path)
+        real_prefix = getattr(sys, "real_prefix", None)
+        for prefix in filter(None, (real_prefix, sys.prefix)):
+            path = sysconfig.get_python_lib(prefix=prefix)
+            path = _normalized_path(path)
+            paths.add(path)
 
         # Handle Debian's derivatives /usr/local.
         if os.path.isfile("/etc/debian_version"):
-            real_prefix = getattr(sys, "real_prefix", None)
             for prefix in filter(None, (real_prefix, sys.prefix)):
                 libpython = os.path.join(
                     prefix,
