@@ -226,7 +226,7 @@ jobs:
           . venv/bin/activate
           pytest -vv --durations=20 --benchmark-disable --cov --cov-report= tests/
       - name: Upload coverage artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v3.0.0
         with:
           name: coverage-${{ matrix.python-version }}
           path: .coverage
@@ -321,7 +321,7 @@ jobs:
         run: >-
           echo "::set-output name=datetime::"$(date "+%Y%m%d_%H%M")
       - name: Upload benchmark artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v3.0.0
         with:
           name:
             benchmark-${{ runner.os }}-${{ matrix.python-version }}_${{
