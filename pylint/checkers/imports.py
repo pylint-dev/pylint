@@ -442,7 +442,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         self._site_packages = self._compute_site_packages()
 
     @staticmethod
-    def _compute_site_packages():
+    def _compute_site_packages() -> Set[str]:
         def _normalized_path(path):
             return os.path.normcase(os.path.abspath(path))
 
