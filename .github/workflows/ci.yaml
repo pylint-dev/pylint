@@ -441,10 +441,10 @@ jobs:
         with:
           path: venv
           key: >-
-            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
+            ${{ runner.os }}-${{ matrix.python-version }}-${{
             steps.generate-python-key.outputs.key }}
           restore-keys: |
-            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-venv-${{ env.CACHE_VERSION }}-
+            ${{ runner.os }}-${{ matrix.python-version }}-venv-${{ env.CACHE_VERSION }}-
       - name: Create Python virtual environment
         if: steps.cache-venv.outputs.cache-hit != 'true'
         run: |
@@ -476,7 +476,7 @@ jobs:
         with:
           path: venv
           key:
-            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
+            ${{ runner.os }}-${{ matrix.python-version }}-${{
             needs.prepare-tests-pypy.outputs.python-key }}
       - name: Fail job if Python cache restore failed
         if: steps.cache-venv.outputs.cache-hit != 'true'
