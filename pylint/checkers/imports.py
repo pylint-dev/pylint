@@ -51,7 +51,7 @@ import collections
 import copy
 import os
 import sys
-from distutils import sysconfig  # pylint: disable=deprecated-module
+from distutils import sysconfig
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple, Union
 
 import astroid
