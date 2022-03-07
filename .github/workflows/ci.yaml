@@ -280,7 +280,7 @@ jobs:
     name: tests / run benchmark / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: prepare-tests-linux
+    needs: ["prepare-tests-linux", "pytest-linux"]
     strategy:
       fail-fast: false
       matrix:
@@ -332,6 +332,7 @@ jobs:
     name: tests / prepare / ${{ matrix.python-version }} / Windows
     runs-on: windows-latest
     timeout-minutes: 10
+    needs: pytest-linux
     strategy:
       matrix:
         python-version: [3.6, 3.7, 3.8, 3.9, "3.10"]
