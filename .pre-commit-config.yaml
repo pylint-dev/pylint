@@ -36,7 +36,7 @@ repos:
       - id: black
         args: [--safe, --quiet]
         exclude: *fixtures
-  - repo: https://github.com/Pierre-Sassoulas/black-disable-checker/
+  - repo: https://github.com/Pierre-Sassoulas/black-disable-checker
     rev: 1.0.1
     hooks:
       - id: black-disable-checker
