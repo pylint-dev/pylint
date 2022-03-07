@@ -399,7 +399,7 @@ Release date: TBA
 
   Closes #5862
 
-* Importing the deprecated stdlib module ``distutils`` now emits ``deprecated_module``.
+* Importing the deprecated stdlib module ``distutils`` now emits ``deprecated_module`` on Python 3.10+.
 
 * ``missing-raises-doc`` will now check the class hierarchy of the raised exceptions
 
