@@ -168,8 +168,7 @@ Use the badge in your project's README.rst (or any other rst file)::
 
 
 If you use GitHub Actions, and one of your CI workflows begins with "name: pylint", you
-can use GitHub's
-[workflow status badges](https://docs.github.com/en/actions/monitoring-and-troubleshooting-workflows/adding-a-workflow-status-badge#using-the-workflow-file-name)
+can use GitHub's `workflow status badges <https://docs.github.com/en/actions/monitoring-and-troubleshooting-workflows/adding-a-workflow-status-badge#using-the-workflow-file-name>`_
 to show an up-to-date indication of whether pushes to your default branch pass pylint.
 For more detailed information, check the documentation.
 
