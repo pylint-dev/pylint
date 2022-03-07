@@ -17,7 +17,7 @@ jobs:
   prepare-base:
     name: Prepare base dependencies
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     outputs:
       python-key: ${{ steps.generate-python-key.outputs.key }}
       pre-commit-key: ${{ steps.generate-pre-commit-key.outputs.key }}
@@ -77,7 +77,7 @@ jobs:
   formatting:
     name: checks / pre-commit
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     needs: prepare-base
     steps:
       - name: Check out code from GitHub
@@ -151,7 +151,7 @@ jobs:
   prepare-tests-linux:
     name: tests / prepare / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     strategy:
       matrix:
         python-version: [3.6, 3.7, 3.8, 3.9, "3.10"]
@@ -194,7 +194,7 @@ jobs:
   pytest-linux:
     name: tests / run / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     needs: prepare-tests-linux
     strategy:
       fail-fast: false
@@ -279,8 +279,8 @@ jobs:
   benchmark-linux:
     name: tests / run benchmark / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
-    timeout-minutes: 5
-    needs: prepare-tests-linux
+    timeout-minutes: 10
+    needs: ["prepare-tests-linux", "pytest-linux"]
     strategy:
       fail-fast: false
       matrix:
@@ -331,7 +331,8 @@ jobs:
   prepare-tests-windows:
     name: tests / prepare / ${{ matrix.python-version }} / Windows
     runs-on: windows-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
+    needs: pytest-linux
     strategy:
       matrix:
         python-version: [3.6, 3.7, 3.8, 3.9, "3.10"]
@@ -374,7 +375,7 @@ jobs:
   pytest-windows:
     name: tests / run / ${{ matrix.python-version }} / Windows
     runs-on: windows-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     needs: prepare-tests-windows
     strategy:
       fail-fast: false
@@ -413,7 +414,7 @@ jobs:
   prepare-tests-pypy:
     name: tests / prepare / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     strategy:
       matrix:
         python-version: ["pypy-3.6"]
@@ -441,10 +442,10 @@ jobs:
         with:
           path: venv
           key: >-
-            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
+            ${{ runner.os }}-${{ matrix.python-version }}-${{
             steps.generate-python-key.outputs.key }}
           restore-keys: |
-            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-venv-${{ env.CACHE_VERSION }}-
+            ${{ runner.os }}-${{ matrix.python-version }}-venv-${{ env.CACHE_VERSION }}-
       - name: Create Python virtual environment
         if: steps.cache-venv.outputs.cache-hit != 'true'
         run: |
@@ -456,7 +457,7 @@ jobs:
   pytest-pypy:
     name: tests / run / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     needs: prepare-tests-pypy
     strategy:
       fail-fast: false
@@ -476,7 +477,7 @@ jobs:
         with:
           path: venv
           key:
-            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
+            ${{ runner.os }}-${{ matrix.python-version }}-${{
             needs.prepare-tests-pypy.outputs.python-key }}
       - name: Fail job if Python cache restore failed
         if: steps.cache-venv.outputs.cache-hit != 'true'
