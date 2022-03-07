@@ -443,7 +443,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
     @staticmethod
     def _compute_site_packages() -> Set[str]:
-        def _normalized_path(path):
+        def _normalized_path(path: str) -> str:
             return os.path.normcase(os.path.abspath(path))
 
         return {_normalized_path(path) for path in astroid.modutils.STD_LIB_DIRS}
