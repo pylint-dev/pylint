@@ -467,7 +467,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
     def __init__(self, linter: Optional["PyLinter"] = None) -> None:
         BaseChecker.__init__(self, linter)
         self._deprecated_methods: Set[str] = set()
-        self._deprecated_attributes: Dict[
+        self._deprecated_arguments: Dict[
             str, Tuple[Tuple[Optional[int], str], ...]
         ] = {}
         self._deprecated_classes: Dict[str, Set[str]] = {}
@@ -484,7 +484,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                 self._deprecated_methods.update(func_list)
         for since_vers, func_list in DEPRECATED_ARGUMENTS.items():
             if since_vers <= py_version:
-                self._deprecated_attributes.update(func_list)
+                self._deprecated_arguments.update(func_list)
         for since_vers, class_list in DEPRECATED_CLASSES.items():
             if since_vers <= py_version:
                 self._deprecated_classes.update(class_list)
@@ -788,7 +788,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         return self._deprecated_methods
 
     def deprecated_arguments(self, method: str):
-        return self._deprecated_attributes.get(method, ())
+        return self._deprecated_arguments.get(method, ())
 
     def deprecated_classes(self, module: str):
         return self._deprecated_classes.get(module, ())
