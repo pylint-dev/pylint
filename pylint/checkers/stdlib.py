@@ -38,7 +38,7 @@
 """Checkers for various standard library functions."""
 
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple
 
 import astroid
 from astroid import nodes
