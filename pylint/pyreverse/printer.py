@@ -100,7 +100,7 @@ class Printer(ABC):
     @staticmethod
     def _get_method_arguments(method: nodes.FunctionDef) -> List[str]:
         if method.args.args:
-            first_arg = 0 if method.type in ("function", "staticmethod") else 1
+            first_arg = 0 if method.type in {"function", "staticmethod"} else 1
             arguments: List[nodes.AssignName] = method.args.args[first_arg:]
         else:
             first_arg = 0
