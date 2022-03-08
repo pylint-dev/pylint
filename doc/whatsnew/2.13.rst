@@ -382,6 +382,9 @@ Other Changes
 * The ``testutils`` for unittests now accept ``end_lineno`` and ``end_column``. Tests
   without these will trigger a ``DeprecationWarning``.
 
+* Emit warnings for deprecated names according to the ``py-version`` setting
+  instead of the Python interpreter version.
+
 * Importing the deprecated stdlib module ``xml.etree.cElementTree`` now emits ``deprecated_module``.
 
   Closes #5862

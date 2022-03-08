@@ -395,6 +395,9 @@ Release date: TBA
 
   Closes #258
 
+* Emit warnings for deprecated names according to the ``py-version`` setting
+  instead of the Python interpreter version.
+
 * Importing the deprecated stdlib module ``xml.etree.cElementTree`` now emits ``deprecated_module``.
 
   Closes #5862

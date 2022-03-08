@@ -1,0 +1,5 @@
+[master]
+py-version=3.9
+
+[Messages Control]
+enable=deprecated-module
