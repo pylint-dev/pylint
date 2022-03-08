@@ -439,15 +439,6 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             ("RP0402", "Modules dependencies graph", self._report_dependencies_graph),
         )
 
-        self._site_packages = self._compute_site_packages()
-
-    @staticmethod
-    def _compute_site_packages() -> Set[str]:
-        def _normalized_path(path: str) -> str:
-            return os.path.normcase(os.path.abspath(path))
-
-        return {_normalized_path(path) for path in astroid.modutils.STD_LIB_DIRS}
-
     def open(self):
         """Called before visiting project (i.e set of modules)."""
         self.linter.stats.dependencies = {}
