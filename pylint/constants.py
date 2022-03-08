@@ -80,10 +80,7 @@ class DeletedMessage(NamedTuple):
     old_names: List[Tuple[str, str]] = []
 
 
-DELETED_MSGID_PREFIXES: List[int] = [
-    # The PY3K+ checker was deleted see https://github.com/PyCQA/pylint/pull/4942
-    # And then reinstated see https://github.com/PyCQA/pylint/issues/5025
-]
+DELETED_MSGID_PREFIXES: List[int] = []
 
 DELETED_MESSAGES = [
     # Everything until the next comment is from the

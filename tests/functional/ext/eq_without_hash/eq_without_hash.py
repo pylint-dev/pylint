@@ -1,6 +1,6 @@
 """Regression test for #5025"""
 
-# pylint: disable=invalid-name,missing-docstring, too-few-public-methods
+# pylint: disable=invalid-name, missing-docstring, too-few-public-methods
 
 
 class AClass:  # [eq-without-hash]
