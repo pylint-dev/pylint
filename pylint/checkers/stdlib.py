@@ -38,7 +38,7 @@
 """Checkers for various standard library functions."""
 
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple
+from typing import TYPE_CHECKING, Dict, List, Optional, Set, Tuple
 
 import astroid
 from astroid import nodes
@@ -467,7 +467,9 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
     def __init__(self, linter: Optional["PyLinter"] = None) -> None:
         BaseChecker.__init__(self, linter)
         self._deprecated_methods: Set[str] = set()
-        self._deprecated_attributes: Dict[str, Tuple[Tuple[Optional[int], str], ...]] = {}
+        self._deprecated_attributes: Dict[
+            str, Tuple[Tuple[Optional[int], str], ...]
+        ] = {}
         self._deprecated_classes: Dict[str, Set[str]] = {}
         self._deprecated_modules: Set[str] = set()
         self._deprecated_decorators: Set[str] = set()
