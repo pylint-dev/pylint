@@ -466,19 +466,16 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
 
     def __init__(self, linter: Optional["PyLinter"] = None) -> None:
         BaseChecker.__init__(self, linter)
-        self._deprecated_names_populated = False
         self._deprecated_methods: Set[Any] = set()
         self._deprecated_attributes: Dict = {}
         self._deprecated_classes: Dict = {}
         self._deprecated_modules: Set[Any] = set()
         self._deprecated_decorators: Set[Any] = set()
 
-    def _ensure_deprecated_names_populated(self):
-        if self._deprecated_names_populated:
-            return
+    def open(self):
         # In all versions
         self._deprecated_methods.update(DEPRECATED_METHODS[0])
-        # Pad (X.Y) -> (X.Y.0), since the constants are 3-tuples
+        # Pad (X, Y) -> (X, Y, 0) since the constants are 3-tuples
         py_version = (*get_global_option(self, "py-version"), 0)
         for since_vers, func_list in DEPRECATED_METHODS[py_version[0]].items():
             if since_vers <= py_version:
@@ -495,7 +492,6 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         for since_vers, decorator_list in DEPRECATED_DECORATORS.items():
             if since_vers <= py_version:
                 self._deprecated_decorators.update(decorator_list)
-        self._deprecated_names_populated = True
 
     def _check_bad_thread_instantiation(self, node):
         if not node.kwargs and not node.keywords and len(node.args) <= 1:
@@ -784,23 +780,18 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
 
     def deprecated_modules(self):
         """Callback returning the deprecated modules."""
-        self._ensure_deprecated_names_populated()
         return self._deprecated_modules
 
     def deprecated_methods(self):
-        self._ensure_deprecated_names_populated()
         return self._deprecated_methods
 
     def deprecated_arguments(self, method: str):
-        self._ensure_deprecated_names_populated()
         return self._deprecated_attributes.get(method, ())
 
     def deprecated_classes(self, module: str):
-        self._ensure_deprecated_names_populated()
         return self._deprecated_classes.get(module, ())
 
     def deprecated_decorators(self) -> Iterable:
-        self._ensure_deprecated_names_populated()
         return self._deprecated_decorators
 
 
