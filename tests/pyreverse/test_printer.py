@@ -8,6 +8,7 @@
 from typing import Type
 
 import pytest
+from astroid import nodes
 
 from pylint.pyreverse.dot_printer import DotPrinter
 from pylint.pyreverse.plantuml_printer import PlantUmlPrinter
@@ -44,6 +45,15 @@ def test_explicit_layout(
 def test_unsupported_layout(layout: Layout, printer_class: Type[Printer]):
     with pytest.raises(ValueError):
         printer_class(title="unittest", layout=layout)
+
+
+def test_method_arguments_none():
+    func = nodes.FunctionDef()
+    args = nodes.Arguments()
+    args.args = None
+    func.postinit(args, body=None)
+    parsed_args = Printer._get_method_arguments(func)
+    assert parsed_args == []
 
 
 class TestPlantUmlPrinter:
