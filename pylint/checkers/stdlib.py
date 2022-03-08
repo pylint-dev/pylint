@@ -466,11 +466,11 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
 
     def __init__(self, linter: Optional["PyLinter"] = None) -> None:
         BaseChecker.__init__(self, linter)
-        self._deprecated_methods: Set[Any] = set()
-        self._deprecated_attributes: Dict = {}
-        self._deprecated_classes: Dict = {}
-        self._deprecated_modules: Set[Any] = set()
-        self._deprecated_decorators: Set[Any] = set()
+        self._deprecated_methods: Set[str] = set()
+        self._deprecated_attributes: Dict[str, Tuple[Tuple[Optional[int], str], ...]] = {}
+        self._deprecated_classes: Dict[str, Set[str]] = {}
+        self._deprecated_modules: Set[str] = set()
+        self._deprecated_decorators: Set[str] = set()
 
     def open(self):
         # In all versions
