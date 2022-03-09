@@ -5,4 +5,4 @@ This test can be run on all Python versions, but it will lack value when
 Pylint drops support for 3.9."""
 # pylint: disable=import-error, unused-import
 
-import _sqlite3.enable_shared_cache  # pylint: disable=deprecated-method
+import threading.current_thread  # pylint: disable=deprecated-method
