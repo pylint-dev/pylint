@@ -1,2 +1,2 @@
-[master]
-py-version=3.9
+[testoptions]
+min_pyver=3.9

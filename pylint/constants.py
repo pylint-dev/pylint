@@ -176,3 +176,13 @@ DELETED_MESSAGES = [
     # https://github.com/PyCQA/pylint/pull/3571
     DeletedMessage("C0330", "bad-continuation"),
 ]
+
+
+INCOMPATIBLE_WITH_USELESS_SUPPRESSION = [
+    "R0401",  # cyclic-import
+    "W0402",  # deprecated-module
+    "W1505",  # deprecated-method
+    "W1511",  # deprecated-argument
+    "W1512",  # deprecated-class
+    "W1513",  # deprecated-decorator
+]

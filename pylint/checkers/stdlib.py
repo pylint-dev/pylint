@@ -36,7 +36,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Checkers for various standard library functions."""
-
+import sys
 from collections.abc import Iterable
 from typing import TYPE_CHECKING, Dict, List, Optional, Set, Tuple
 
@@ -46,7 +46,6 @@ from astroid import nodes
 from pylint import interfaces
 from pylint.checkers import BaseChecker, DeprecatedMixin, utils
 from pylint.interfaces import IAstroidChecker
-from pylint.utils import get_global_option
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -474,25 +473,20 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         self._deprecated_modules: Set[str] = set()
         self._deprecated_decorators: Set[str] = set()
 
-    def open(self):
-        # In all versions
-        self._deprecated_methods.update(DEPRECATED_METHODS[0])
-        # Pad (X, Y) -> (X, Y, 0) since the constants are 3-tuples
-        py_version = (*get_global_option(self, "py-version"), 0)
-        for since_vers, func_list in DEPRECATED_METHODS[py_version[0]].items():
-            if since_vers <= py_version:
+        for since_vers, func_list in DEPRECATED_METHODS[sys.version_info[0]].items():
+            if since_vers <= sys.version_info:
                 self._deprecated_methods.update(func_list)
         for since_vers, func_list in DEPRECATED_ARGUMENTS.items():
-            if since_vers <= py_version:
+            if since_vers <= sys.version_info:
                 self._deprecated_arguments.update(func_list)
         for since_vers, class_list in DEPRECATED_CLASSES.items():
-            if since_vers <= py_version:
+            if since_vers <= sys.version_info:
                 self._deprecated_classes.update(class_list)
         for since_vers, mod_list in DEPRECATED_MODULES.items():
-            if since_vers <= py_version:
+            if since_vers <= sys.version_info:
                 self._deprecated_modules.update(mod_list)
         for since_vers, decorator_list in DEPRECATED_DECORATORS.items():
-            if since_vers <= py_version:
+            if since_vers <= sys.version_info:
                 self._deprecated_decorators.update(decorator_list)
 
     def _check_bad_thread_instantiation(self, node):

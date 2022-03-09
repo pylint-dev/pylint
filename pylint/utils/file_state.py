@@ -16,7 +16,11 @@ from typing import (
 
 from astroid import nodes
 
-from pylint.constants import MSG_STATE_SCOPE_MODULE, WarningScope
+from pylint.constants import (
+    INCOMPATIBLE_WITH_USELESS_SUPPRESSION,
+    MSG_STATE_SCOPE_MODULE,
+    WarningScope,
+)
 
 if sys.version_info >= (3, 8):
     from typing import Literal
@@ -162,7 +166,10 @@ class FileState:
                 if not enable and (warning, line) not in self._ignored_msgs:
                     # ignore cyclic-import check which can show false positives
                     # here due to incomplete context
-                    if warning != "R0401":
+                    # and deprecated-{module, argument, class, method, decorator}
+                    # which can cause false positives for multi-interpreter projects
+                    # when linting with an interpreter on a lower python version
+                    if warning not in INCOMPATIBLE_WITH_USELESS_SUPPRESSION:
                         yield "useless-suppression", line, (
                             msgs_store.get_msg_display_string(warning),
                         )
