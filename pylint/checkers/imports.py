@@ -50,8 +50,6 @@
 import collections
 import copy
 import os
-import sys
-from distutils import sysconfig
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple, Union
 
 import astroid
@@ -440,33 +438,6 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             ("RP0401", "External dependencies", self._report_external_dependencies),
             ("RP0402", "Modules dependencies graph", self._report_dependencies_graph),
         )
-
-        self._site_packages = self._compute_site_packages()
-
-    @staticmethod
-    def _compute_site_packages():
-        def _normalized_path(path):
-            return os.path.normcase(os.path.abspath(path))
-
-        paths = set()
-        real_prefix = getattr(sys, "real_prefix", None)
-        for prefix in filter(None, (real_prefix, sys.prefix)):
-            path = sysconfig.get_python_lib(prefix=prefix)
-            path = _normalized_path(path)
-            paths.add(path)
-
-        # Handle Debian's derivatives /usr/local.
-        if os.path.isfile("/etc/debian_version"):
-            for prefix in filter(None, (real_prefix, sys.prefix)):
-                libpython = os.path.join(
-                    prefix,
-                    "local",
-                    "lib",
-                    "python" + sysconfig.get_python_version(),
-                    "dist-packages",
-                )
-                paths.add(libpython)
-        return paths
 
     def open(self):
         """Called before visiting project (i.e set of modules)."""

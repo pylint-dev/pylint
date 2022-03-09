@@ -53,6 +53,12 @@ Release date: TBA
 
   Closes #5486
 
+* Reinstated checks from the python3 checker that are still useful for python 3
+  (``eq-without-hash``). This is now in the ``pylint.extensions.eq_without_hash`` optional
+  extension.
+
+  Closes #5025
+
 * Added several checkers to deal with unicode security issues
   (see `Trojan Sources <https://trojansource.codes/>`_ and
   `PEP 672 <https://www.python.org/dev/peps/pep-0672/>`_ for details) that also
@@ -405,6 +411,8 @@ Release date: TBA
 * Disables for ``deprecated-module`` and similar warnings for stdlib features deprecated
   in newer versions of Python no longer raise ``useless-suppression`` when linting with
   older Python interpreters where those features are not yet deprecated.
+
+* Importing the deprecated stdlib module ``distutils`` now emits ``deprecated_module`` on Python 3.10+.
 
 * ``missing-raises-doc`` will now check the class hierarchy of the raised exceptions
 

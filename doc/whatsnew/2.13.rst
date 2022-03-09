@@ -110,6 +110,12 @@ Other Changes
 
   Closes #352
 
+* Reinstated checks from the python3 checker that are still useful for python 3
+  (``eq-without-hash``). This is now in the ``pylint.extensions.eq_without_hash`` optional
+  extension.
+
+  Closes #5025
+
 * Fix false-negative for ``assignment-from-none`` checker with list.sort() method.
 
   Closes #5722
@@ -389,6 +395,8 @@ Other Changes
 * Importing the deprecated stdlib module ``xml.etree.cElementTree`` now emits ``deprecated_module``.
 
   Closes #5862
+
+* Importing the deprecated stdlib module ``distutils`` now emits ``deprecated_module`` on Python 3.10+.
 
 * Fixed false positive ``unexpected-keyword-arg`` for decorators.
 
