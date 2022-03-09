@@ -36,6 +36,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Checkers for various standard library functions."""
+
 import sys
 from collections.abc import Iterable
 from typing import TYPE_CHECKING, Dict, List, Optional, Set, Tuple
