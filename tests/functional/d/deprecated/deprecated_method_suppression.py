@@ -2,7 +2,7 @@
 disabling deprecated-method (on a method deprecated in Py3.10.
 
 This test can be run on all Python versions, but it will lack value when
-Pylint drops support for 3.9"""
+Pylint drops support for 3.9."""
 # pylint: disable=import-error, unused-import
 
-import pathlib.Path.link_to  # pylint: disable=deprecated-method
+import _sqlite3.enable_shared_cache  # pylint: disable=deprecated-method
