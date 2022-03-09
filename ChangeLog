@@ -9,6 +9,8 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.13.rst'
 
+* Fix pyreverse diagrams type hinting for classmethods and staticmethods.
+
 * Fix matching ``--notes`` options that end in a non-word character.
 
   Closes #5840
