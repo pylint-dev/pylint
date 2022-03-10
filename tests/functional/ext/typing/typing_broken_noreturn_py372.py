@@ -3,6 +3,8 @@
 https://bugs.python.org/issue34921
 
 If no runtime introspection is required, use string annotations instead.
+
+Don't emit errors if py-version set to >= 3.7.2.
 """
 # pylint: disable=missing-docstring
 import typing
@@ -14,19 +16,19 @@ import typing_extensions
 def func1() -> NoReturn:
     raise Exception
 
-def func2() -> Union[None, NoReturn]:  # [broken-noreturn]
+def func2() -> Union[None, NoReturn]:
     pass
 
 def func3() -> Union[None, "NoReturn"]:
     pass
 
-def func4() -> Union[None, typing.NoReturn]:  # [broken-noreturn]
+def func4() -> Union[None, typing.NoReturn]:
     pass
 
-def func5() -> Union[None, typing_extensions.NoReturn]:  # [broken-noreturn]
+def func5() -> Union[None, typing_extensions.NoReturn]:
     pass
 
 
 Alias1 = NoReturn
-Alias2 = Callable[..., NoReturn]  # [broken-noreturn]
+Alias2 = Callable[..., NoReturn]
 Alias3 = Callable[..., "NoReturn"]
