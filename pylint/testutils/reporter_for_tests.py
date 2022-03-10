@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 
 class GenericTestReporter(BaseReporter):
-    """reporter storing plain text messages"""
+    """Reporter storing plain text messages."""
 
     __implements__ = interfaces.IReporter
     out: StringIO
@@ -30,11 +30,11 @@ class GenericTestReporter(BaseReporter):
         self.messages: List[Message] = []
 
     def handle_message(self, msg: Message) -> None:
-        """Append messages to the list of messages of the reporter"""
+        """Append messages to the list of messages of the reporter."""
         self.messages.append(msg)
 
     def finalize(self) -> str:
-        """Format and print messages in the context of the path"""
+        """Format and print messages in the context of the path."""
         messages: List[str] = []
         for msg in self.messages:
             obj = ""
@@ -56,7 +56,7 @@ class GenericTestReporter(BaseReporter):
     # pylint: enable=unused-argument
 
     def display_reports(self, layout: "Section") -> None:
-        """ignore layouts"""
+        """Ignore layouts."""
 
     def _display(self, layout: "Section") -> None:
         pass

@@ -97,7 +97,7 @@ def test_duplicate_msgid(msgid_store: MessageIdStore) -> None:
 
 
 def test_exclusivity_of_msgids() -> None:
-    """Test to see if all checkers have an exclusive message id prefix"""
+    """Test to see if all checkers have an exclusive message id prefix."""
     err_msg = (
         "{} has the same prefix ('{}') as the '{}' checker. Please make sure the prefix "
         "is unique for each checker. You can use 'script/get_unused_message_id_category.py' "

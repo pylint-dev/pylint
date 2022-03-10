@@ -8,7 +8,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
-"""Tests for pylint.pyreverse.utils"""
+"""Tests for pylint.pyreverse.utils."""
 
 from typing import Any
 from unittest.mock import patch
@@ -48,7 +48,7 @@ def test_get_visibility(names, expected):
     ],
 )
 def test_get_annotation_annassign(assign, label):
-    """AnnAssign"""
+    """AnnAssign."""
     node = astroid.extract_node(assign)
     got = get_annotation(node.value).name
     assert isinstance(node, nodes.AnnAssign)
@@ -67,8 +67,8 @@ def test_get_annotation_annassign(assign, label):
     ],
 )
 def test_get_annotation_assignattr(init_method, label):
-    """AssignAttr"""
-    assign = fr"""
+    """AssignAttr."""
+    assign = rf"""
         class A:
             {init_method}
     """

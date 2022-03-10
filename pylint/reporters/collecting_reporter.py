@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 
 class CollectingReporter(BaseReporter):
-    """collects messages"""
+    """Collects messages."""
 
     name = "collector"
 

@@ -68,6 +68,16 @@ class TestFixme(CheckerTestCase):
         ):
             self.checker.process_tokens(_tokenize_str(code))
 
+    @set_config(notes=["???"])
+    def test_non_alphanumeric_codetag(self) -> None:
+        code = """a = 1
+                #???
+                """
+        with self.assertAddsMessages(
+            MessageTest(msg_id="fixme", line=2, args="???", col_offset=17)
+        ):
+            self.checker.process_tokens(_tokenize_str(code))
+
     @set_config(notes=[])
     def test_absent_codetag(self) -> None:
         code = """a = 1

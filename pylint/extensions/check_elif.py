@@ -25,13 +25,13 @@ if TYPE_CHECKING:
 
 
 class ElseifUsedChecker(BaseTokenChecker):
-    """Checks for use of "else if" when an "elif" could be used"""
+    """Checks for use of "else if" when an "elif" could be used."""
 
     __implements__ = (ITokenChecker, IAstroidChecker)
     name = "else_if_used"
     msgs = {
         "R5501": (
-            'Consider using "elif" instead of "else if"',
+            'Consider using "elif" instead of "else" then "if" to remove one indentation level',
             "else-if-used",
             "Used when an else statement is immediately followed by "
             "an if statement and does not contain statements that "
@@ -47,7 +47,7 @@ class ElseifUsedChecker(BaseTokenChecker):
         self._elifs = {}
 
     def process_tokens(self, tokens):
-        """Process tokens and look for 'if' or 'elif'"""
+        """Process tokens and look for 'if' or 'elif'."""
         self._elifs = {
             begin: token for _, token, begin, _, _ in tokens if token in {"elif", "if"}
         }
@@ -57,7 +57,7 @@ class ElseifUsedChecker(BaseTokenChecker):
 
     @check_messages("else-if-used")
     def visit_if(self, node: nodes.If) -> None:
-        """Current if node must directly follow an 'else'"""
+        """Current if node must directly follow an 'else'."""
         if (
             isinstance(node.parent, nodes.If)
             and node.parent.orelse == [node]

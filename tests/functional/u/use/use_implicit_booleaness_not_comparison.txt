@@ -28,3 +28,5 @@ use-implicit-booleaness-not-comparison:160:3:160:20::'numpy_array >= ()' can be 
 use-implicit-booleaness-not-comparison:185:3:185:13::'data == {}' can be simplified to 'not data' as an empty sequence is falsey:UNDEFINED
 use-implicit-booleaness-not-comparison:187:3:187:13::'data != {}' can be simplified to 'data' as an empty sequence is falsey:UNDEFINED
 use-implicit-booleaness-not-comparison:195:3:195:26::'long_test == {}' can be simplified to 'not long_test' as an empty sequence is falsey:UNDEFINED
+use-implicit-booleaness-not-comparison:233:11:233:41:test_func:'my_class.parent_function == {}' can be simplified to 'not my_class.parent_function' as an empty sequence is falsey:UNDEFINED
+use-implicit-booleaness-not-comparison:234:11:234:37:test_func:'my_class.my_property == {}' can be simplified to 'not my_class.my_property' as an empty sequence is falsey:UNDEFINED

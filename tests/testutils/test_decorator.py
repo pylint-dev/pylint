@@ -8,7 +8,7 @@ from pylint.testutils.decorator import set_config_directly
 
 
 def test_deprecation_of_set_config_directly() -> None:
-    """Test that the deprecation of set_config_directly works as expected"""
+    """Test that the deprecation of set_config_directly works as expected."""
 
     with pytest.warns(DeprecationWarning) as records:
         set_config_directly()

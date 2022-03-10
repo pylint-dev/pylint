@@ -12,7 +12,7 @@ else:
 
 
 class FileItem(NamedTuple):
-    """Represents data about a file handled by pylint
+    """Represents data about a file handled by pylint.
 
     Each file item has:
     - name: full name of the module
@@ -26,7 +26,7 @@ class FileItem(NamedTuple):
 
 
 class ModuleDescriptionDict(TypedDict):
-    """Represents data about a checked module"""
+    """Represents data about a checked module."""
 
     path: str
     name: str
@@ -36,7 +36,7 @@ class ModuleDescriptionDict(TypedDict):
 
 
 class ErrorDescriptionDict(TypedDict):
-    """Represents data about errors collected during checking of a module"""
+    """Represents data about errors collected during checking of a module."""
 
     key: Literal["fatal"]
     mod: str
@@ -44,7 +44,7 @@ class ErrorDescriptionDict(TypedDict):
 
 
 class MessageLocationTuple(NamedTuple):
-    """Tuple with information about the location of a to-be-displayed message"""
+    """Tuple with information about the location of a to-be-displayed message."""
 
     abspath: str
     path: str
@@ -57,10 +57,16 @@ class MessageLocationTuple(NamedTuple):
 
 
 class ManagedMessage(NamedTuple):
-    """Tuple with information about a managed message of the linter"""
+    """Tuple with information about a managed message of the linter."""
 
     name: Optional[str]
     msgid: str
     symbol: str
     line: Optional[int]
     is_disabled: bool
+
+
+MessageTypesFullName = Literal[
+    "convention", "error", "fatal", "info", "refactor", "statement", "warning"
+]
+"""All possible message categories."""

@@ -1,0 +1,1 @@
+bidirectional-unicode:8:0:8:43::Contains control characters that can permit obfuscated code executed differently than displayed:HIGH

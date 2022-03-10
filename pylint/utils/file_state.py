@@ -31,7 +31,7 @@ MessageStateDict = Dict[str, Dict[int, bool]]
 
 
 class FileState:
-    """Hold internal state specific to the currently analyzed file"""
+    """Hold internal state specific to the currently analyzed file."""
 
     def __init__(self, modname: Optional[str] = None) -> None:
         self.base_name = modname
@@ -122,7 +122,7 @@ class FileState:
                 del lines[lineno]
 
     def set_msg_status(self, msg: "MessageDefinition", line: int, status: bool) -> None:
-        """Set status (enabled/disable) for a given message at a given line"""
+        """Set status (enabled/disable) for a given message at a given line."""
         assert line > 0
         try:
             self._module_msgs_state[msg.msgid][line] = status
@@ -130,7 +130,7 @@ class FileState:
             self._module_msgs_state[msg.msgid] = {line: status}
 
     def handle_ignored_message(
-        self, state_scope: Optional[Literal[0, 1, 2]], msgid: str, line: int
+        self, state_scope: Optional[Literal[0, 1, 2]], msgid: str, line: Optional[int]
     ) -> None:
         """Report an ignored message.
 
@@ -139,6 +139,8 @@ class FileState:
         or globally.
         """
         if state_scope == MSG_STATE_SCOPE_MODULE:
+            assert isinstance(line, int)  # should always be int inside module scope
+
             try:
                 orig_line = self._suppression_mapping[(msgid, line)]
                 self._ignored_msgs[(msgid, orig_line)].add(line)
