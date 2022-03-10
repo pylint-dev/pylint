@@ -400,6 +400,12 @@ Release date: TBA
 
   Closes #5371
 
+* ``TypingChecker``
+
+  * Added new check ``broken-noreturn`` to detect broken uses of ``typing.NoReturn``
+    if ``py-version`` is set to Python ``3.7.1`` or below.
+    https://bugs.python.org/issue34921
+
 * The ``testutils`` for unittests now accept ``end_lineno`` and ``end_column``. Tests
   without these will trigger a ``DeprecationWarning``.
 
@@ -555,6 +561,7 @@ Release date: 2021-11-24
 * Properly identify parameters with no documentation and add new message called ``missing-any-param-doc``
 
   Closes #3799
+
 * Add checkers ``overridden-final-method`` & ``subclassed-final-class``
 
   Closes #3197
