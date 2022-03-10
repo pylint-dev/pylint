@@ -1,5 +1,2 @@
 [testoptions]
 min_pyver=3.9
-
-[Messages Control]
-enable=deprecated-module

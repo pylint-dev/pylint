@@ -163,16 +163,14 @@ class FileState:
     ]:
         for warning, lines in self._raw_module_msgs_state.items():
             for line, enable in lines.items():
-                if not enable and (warning, line) not in self._ignored_msgs:
-                    # ignore cyclic-import check which can show false positives
-                    # here due to incomplete context
-                    # and deprecated-{module, argument, class, method, decorator}
-                    # which can cause false positives for multi-interpreter projects
-                    # when linting with an interpreter on a lower python version
-                    if warning not in INCOMPATIBLE_WITH_USELESS_SUPPRESSION:
-                        yield "useless-suppression", line, (
-                            msgs_store.get_msg_display_string(warning),
-                        )
+                if (
+                    not enable
+                    and (warning, line) not in self._ignored_msgs
+                    and warning not in INCOMPATIBLE_WITH_USELESS_SUPPRESSION
+                ):
+                    yield "useless-suppression", line, (
+                        msgs_store.get_msg_display_string(warning),
+                    )
         # don't use iteritems here, _ignored_msgs may be modified by add_message
         for (warning, from_), ignored_lines in list(self._ignored_msgs.items()):
             for line in ignored_lines:
