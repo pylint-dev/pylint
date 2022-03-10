@@ -9,7 +9,7 @@ from pylint.checkers.utils import (
     is_node_in_type_annotation_context,
     safe_infer,
 )
-from pylint.interfaces import IAstroidChecker
+from pylint.interfaces import INFERENCE, IAstroidChecker
 from pylint.utils.utils import get_global_option
 
 if TYPE_CHECKING:
@@ -113,7 +113,7 @@ class TypingChecker(BaseChecker):
             "'NoReturn' inside compound types is broken in 3.7.0 / 3.7.1",
             "broken-noreturn",
             "``typing.NoReturn`` inside compound types is broken in "
-            "Python 3.7.0 and 3.7.1. If not dependend on runtime introspection, "
+            "Python 3.7.0 and 3.7.1. If not dependent on runtime introspection, "
             "use string annotation instead. E.g. "
             "``Callable[..., 'NoReturn']``. https://bugs.python.org/issue34921",
         ),
@@ -319,7 +319,7 @@ class TypingChecker(BaseChecker):
                 and inferred._proxied.qname()
                 in {"typing._NoReturn", "typing._SpecialForm"}
             ):
-                self.add_message("broken-noreturn", node=node)
+                self.add_message("broken-noreturn", node=node, confidence=INFERENCE)
                 break
 
 
