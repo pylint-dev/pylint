@@ -81,6 +81,10 @@ Extensions
     if ``py-version`` is set to Python ``3.7.1`` or below.
     https://bugs.python.org/issue34921
 
+  * Added new check ``broken-collections-callable`` to detect broken uses of ``collections.abc.Callable``
+    if ``py-version`` is set to Python ``3.9.1`` or below.
+    https://bugs.python.org/issue42965
+
 * ``DocstringParameterChecker``
 
   * Fixed incorrect classification of Numpy-style docstring as Google-style docstring for
