@@ -7,6 +7,7 @@ from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
     check_messages,
     is_node_in_type_annotation_context,
+    is_postponed_evaluation_enabled,
     safe_infer,
 )
 from pylint.interfaces import INFERENCE, IAstroidChecker
@@ -305,6 +306,11 @@ class TypingChecker(BaseChecker):
         """Check for 'NoReturn' inside compound types."""
         if not isinstance(node.parent, nodes.BaseContainer):
             # NoReturn not part of a Union or Callable type
+            return
+
+        if is_postponed_evaluation_enabled(node) and is_node_in_type_annotation_context(
+            node
+        ):
             return
 
         for inferred in node.infer():
