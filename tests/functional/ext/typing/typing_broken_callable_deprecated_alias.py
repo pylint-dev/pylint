@@ -16,6 +16,7 @@ Alias2 = Union[Callable[[int], None], None]
 Alias3 = Optional[Callable[..., None]]
 Alias4 = Union[Callable[..., None], None]
 Alias5 = list[Callable[[int], None]]
+Alias6 = Callable[[int], None]
 
 
 def func1() -> Optional[Callable[[int], None]]:
