@@ -14,12 +14,15 @@ from pathlib import Path
 from types import ModuleType
 from typing import Dict, List, Optional, TextIO, Tuple, Union
 
-import toml
-
 from pylint import utils
 from pylint.config.man_help_formatter import _ManHelpFormatter
 from pylint.config.option import Option
 from pylint.config.option_parser import OptionParser
+
+if sys.version_info >= (3, 11):
+    import tomllib
+else:
+    import tomli as tomllib
 
 
 def _expand_default(self, option):
@@ -276,7 +279,7 @@ class OptionsManagerMixIn:
             if config_file.endswith(".toml"):
                 try:
                     self._parse_toml(config_file, parser)
-                except toml.TomlDecodeError as e:
+                except tomllib.TOMLDecodeError as e:
                     self.add_message("config-parse-error", line=0, args=str(e))
             else:
                 # Use this encoding in order to strip the BOM marker, if any.
@@ -300,8 +303,8 @@ class OptionsManagerMixIn:
         self, config_file: Union[Path, str], parser: configparser.ConfigParser
     ) -> None:
         """Parse and handle errors of a toml configuration file."""
-        with open(config_file, encoding="utf-8") as fp:
-            content = toml.load(fp)
+        with open(config_file, mode="rb") as fp:
+            content = tomllib.load(fp)
         try:
             sections_values = content["tool"]["pylint"]
         except KeyError:

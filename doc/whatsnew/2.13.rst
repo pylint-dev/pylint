@@ -129,6 +129,10 @@ Other Changes
 
   Closes #5614
 
+* Use the ``tomli`` package instead of ``toml`` to parse ``.toml`` files.
+
+ Closes #5885
+
 * Fixed false positive ``consider-using-dict-comprehension`` when creating a dict
   using a list of tuples where key AND value vary depending on the same condition.
 

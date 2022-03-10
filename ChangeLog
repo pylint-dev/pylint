@@ -83,6 +83,10 @@ Release date: TBA
 
   Closes #5281
 
+* Use the ``tomli`` package instead of ``toml`` to parse ``.toml`` files.
+
+ Closes #5885
+
 * Fix false positive - Allow unpacking of ``self`` in a subclass of ``typing.NamedTuple``.
 
  Closes #5312
