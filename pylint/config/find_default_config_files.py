@@ -13,7 +13,7 @@ else:
 
 
 def _toml_has_config(path):
-    with open(path, mode="r+b") as toml_handle:
+    with open(path, mode="rb") as toml_handle:
         try:
             content = tomllib.load(toml_handle)
         except tomllib.TOMLDecodeError as error:

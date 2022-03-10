@@ -303,7 +303,7 @@ class OptionsManagerMixIn:
         self, config_file: Union[Path, str], parser: configparser.ConfigParser
     ) -> None:
         """Parse and handle errors of a toml configuration file."""
-        with open(config_file, mode="r+b") as fp:
+        with open(config_file, mode="rb") as fp:
             content = tomllib.load(fp)
         try:
             sections_values = content["tool"]["pylint"]
