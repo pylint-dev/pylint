@@ -6,7 +6,7 @@ from typing import TypeVar
 T = TypeVar("T")
 T_co = TypeVar("T_co")  # [typevar-name-incorrect-variance]
 T_contra = TypeVar("T_contra")  # [typevar-name-incorrect-variance]
-T_scores_contra = TypeVar("T_scores_contra")  # [typevar-name-incorrect-variance]
+Tscores_contra = TypeVar("Tscores_contra")  # [typevar-name-incorrect-variance]
 
 # Type variables not starting with T
 N = TypeVar("N")
