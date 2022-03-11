@@ -353,6 +353,13 @@ method-rgx=[a-z_][a-z0-9_]{2,}$
 # Naming hint for method names
 method-name-hint=[a-z_][a-z0-9_]{2,}$
 
+# Naming style used for type variables. Default is PascalCase.
+typevar-naming-style=PascalCase
+
+# Regular expression which can overwrite the naming style set by typevar-naming-style.
+# If left empty, type variables will be checked with the set naming style.
+typevar-rgx=
+
 # Regular expression which should only match function or class names that do
 # not require a docstring. Use ^(?!__init__$)_ to also check __init__.
 no-docstring-rgx=__.*__
@@ -363,7 +370,6 @@ docstring-min-length=-1
 
 # List of decorators that define properties, such as abc.abstractproperty.
 property-classes=abc.abstractproperty
-
 
 [TYPECHECK]
 
