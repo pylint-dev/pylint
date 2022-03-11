@@ -73,7 +73,7 @@ import collections
 import itertools
 import re
 import sys
-from typing import TYPE_CHECKING, Any, Dict, Iterator, Optional, Pattern, cast
+from typing import TYPE_CHECKING, Any, Dict, Iterator, Optional, Pattern, Tuple, cast
 
 import astroid
 from astroid import nodes
@@ -187,6 +187,13 @@ NAMING_STYLES = {
     "PascalCase": PascalCaseStyle,
     "UPPER_CASE": UpperCaseStyle,
     "any": AnyStyle,
+}
+
+# Default patterns for name types that do not have styles
+DEFAULT_PATTERNS = {
+    "typevar": re.compile(
+        r"^_{0,2}(?:[^\W\da-z_]+|(?:[^\W\da-z_][^\WA-Z_]+)+T?(?<!Type))(?:_co(?:ntra)?)?$"
+    )
 }
 
 # do not require a doc string on private/system methods
@@ -1660,7 +1667,8 @@ class BasicChecker(_BasicChecker):
         self._check_redeclared_assign_name([node.target])
 
 
-KNOWN_NAME_TYPES = {
+# Name types that hae a style option
+KNOWN_NAME_TYPES_WITH_STYLE = {
     "module",
     "const",
     "class",
@@ -1672,6 +1680,12 @@ KNOWN_NAME_TYPES = {
     "class_attribute",
     "class_const",
     "inlinevar",
+}
+
+# Name types that only have a 'rgx' option
+KNOWN_NAME_TYPES = {
+    *KNOWN_NAME_TYPES_WITH_STYLE,
+    "typevar",
 }
 
 DEFAULT_NAMING_STYLES = {
@@ -1693,28 +1707,31 @@ def _create_naming_options():
     name_options = []
     for name_type in sorted(KNOWN_NAME_TYPES):
         human_readable_name = constants.HUMAN_READABLE_TYPES[name_type]
-        default_style = DEFAULT_NAMING_STYLES[name_type]
-        name_type = name_type.replace("_", "-")
-        name_options.append(
-            (
-                f"{name_type}-naming-style",
-                {
-                    "default": default_style,
-                    "type": "choice",
-                    "choices": list(NAMING_STYLES.keys()),
-                    "metavar": "<style>",
-                    "help": f"Naming style matching correct {human_readable_name} names.",
-                },
+        name_type_hyphened = name_type.replace("_", "-")
+
+        if name_type in KNOWN_NAME_TYPES_WITH_STYLE:
+            default_style = DEFAULT_NAMING_STYLES[name_type]
+            name_options.append(
+                (
+                    f"{name_type_hyphened}-naming-style",
+                    {
+                        "default": default_style,
+                        "type": "choice",
+                        "choices": list(NAMING_STYLES.keys()),
+                        "metavar": "<style>",
+                        "help": f"Naming style matching correct {human_readable_name} names.",
+                    },
+                )
             )
-        )
+
         name_options.append(
             (
-                f"{name_type}-rgx",
+                f"{name_type_hyphened}-rgx",
                 {
                     "default": None,
                     "type": "regexp",
                     "metavar": "<regexp>",
-                    "help": f"Regular expression matching correct {human_readable_name} names. Overrides {name_type}-naming-style.",
+                    "help": f"Regular expression matching correct {human_readable_name} names. Overrides {name_type_hyphened}-naming-style.",
                 },
             )
         )
@@ -1862,15 +1879,19 @@ class NameChecker(_BasicChecker):
             re.compile(rgxp) for rgxp in self.config.bad_names_rgxs
         ]
 
-    def _create_naming_rules(self):
-        regexps = {}
-        hints = {}
+    def _create_naming_rules(self) -> Tuple[Dict[str, Pattern[str]], Dict[str, str]]:
+        regexps: Dict[str, Pattern[str]] = {}
+        hints: Dict[str, str] = {}
 
         for name_type in KNOWN_NAME_TYPES:
-            naming_style_option_name = f"{name_type}_naming_style"
-            naming_style_name = getattr(self.config, naming_style_option_name)
-
-            regexps[name_type] = NAMING_STYLES[naming_style_name].get_regex(name_type)
+            if name_type in KNOWN_NAME_TYPES_WITH_STYLE:
+                naming_style_option_name = f"{name_type}_naming_style"
+                naming_style_name = getattr(self.config, naming_style_option_name)
+                regexps[name_type] = NAMING_STYLES[naming_style_name].get_regex(
+                    name_type
+                )
+            else:
+                regexps[name_type] = DEFAULT_PATTERNS[name_type]
 
             custom_regex_setting_name = f"{name_type}_rgx"
             custom_regex = getattr(self.config, custom_regex_setting_name, None)
@@ -1880,6 +1901,7 @@ class NameChecker(_BasicChecker):
             if custom_regex is not None:
                 hints[name_type] = f"{custom_regex.pattern!r} pattern"
             else:
+                assert naming_style_name
                 hints[name_type] = f"{naming_style_name} naming style"
 
         return regexps, hints
@@ -2078,14 +2100,6 @@ class NameChecker(_BasicChecker):
     def _check_name(self, node_type, name, node, confidence=interfaces.HIGH):
         """Check for a name using the type's regexp."""
 
-        # pylint: disable=fixme
-        # TODO: move this down in the function and check TypeVar
-        # for name patterns as well.
-        # Check TypeVar names for variance suffixes
-        if node_type == "typevar":
-            self._check_typevar_variance(name, node)
-            return
-
         def _should_exempt_from_invalid_name(node):
             if node_type == "variable":
                 inferred = utils.safe_infer(node)
@@ -2110,6 +2124,10 @@ class NameChecker(_BasicChecker):
 
         if match is None and not _should_exempt_from_invalid_name(node):
             self._raise_name_warning(None, node, node_type, name, confidence)
+
+        # Check TypeVar names for variance suffixes
+        if node_type == "typevar":
+            self._check_typevar_variance(name, node)
 
     def _check_assign_to_new_keyword_violation(self, name, node):
         keyword_first_version = self._name_became_keyword_in_version(

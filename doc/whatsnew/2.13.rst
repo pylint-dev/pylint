@@ -334,6 +334,11 @@ Other Changes
 
   Closes #5360, #3877
 
+* ``invalid-name`` check now also checks ``TypeVar`` for a pattern set with the new option
+  ``--typevar-rgx`` option or a default ``PascalCase`` based style.
+
+  Closes #3401
+
 * Fixed a false positive (affecting unreleased development) for
   ``used-before-assignment`` involving homonyms between filtered comprehensions
   and assignments in except blocks.

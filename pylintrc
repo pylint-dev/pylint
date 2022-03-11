@@ -353,6 +353,10 @@ method-rgx=[a-z_][a-z0-9_]{2,}$
 # Naming hint for method names
 method-name-hint=[a-z_][a-z0-9_]{2,}$
 
+# Regular expression which can overwrite the naming style set by typevar-naming-style.
+# If left empty, type variables will be checked with the set naming style.
+typevar-rgx=
+
 # Regular expression which should only match function or class names that do
 # not require a docstring. Use ^(?!__init__$)_ to also check __init__.
 no-docstring-rgx=__.*__

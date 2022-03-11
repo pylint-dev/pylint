@@ -26,6 +26,7 @@ class BadNames(TypedDict):
     method: int
     module: int
     variable: int
+    typevar: int
 
 
 class CodeTypeCount(TypedDict):
@@ -102,6 +103,7 @@ class LinterStats:
             method=0,
             module=0,
             variable=0,
+            typevar=0,
         )
         self.by_module: Dict[str, ModuleStats] = by_module or {}
         self.by_msg: Dict[str, int] = by_msg or {}
@@ -171,6 +173,7 @@ class LinterStats:
             "method",
             "module",
             "variable",
+            "typevar",
         ],
     ) -> int:
         """Get a bad names node count."""
@@ -192,6 +195,7 @@ class LinterStats:
             "method",
             "module",
             "variable",
+            "typevar",
         }:
             raise ValueError("Node type not part of the bad_names stat")
 
@@ -208,6 +212,7 @@ class LinterStats:
                 "method",
                 "module",
                 "variable",
+                "typevar",
             ],
             node_name,
         )
@@ -230,6 +235,7 @@ class LinterStats:
             method=0,
             module=0,
             variable=0,
+            typevar=0,
         )
 
     def get_code_count(
@@ -317,6 +323,7 @@ def merge_stats(stats: List[LinterStats]):
         merged.bad_names["method"] += stat.bad_names["method"]
         merged.bad_names["module"] += stat.bad_names["module"]
         merged.bad_names["variable"] += stat.bad_names["variable"]
+        merged.bad_names["typevar"] += stat.bad_names["typevar"]
 
         for mod_key, mod_value in stat.by_module.items():
             merged.by_module[mod_key] = mod_value
