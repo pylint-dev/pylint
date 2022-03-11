@@ -28,6 +28,20 @@ VT = TypeVar("VT", bound=int)
 VT_co = TypeVar("VT_co", bound=int)  # [typevar-name-incorrect-variance]
 VT_contra = TypeVar("VT_contra", bound=int)  # [typevar-name-incorrect-variance]
 
+VT = TypeVar("VT", bound=int, covariant=True)  # [typevar-name-incorrect-variance]
+VT_co = TypeVar("VT_co", bound=int, covariant=True)
+VT_contra = TypeVar(  # [typevar-name-incorrect-variance]
+    "VT_contra", bound=int, covariant=True
+)
+
+VT = TypeVar("VT", bound=int, covariant=False)
+VT_co = TypeVar(  # [typevar-name-incorrect-variance]
+    "VT_co", bound=int, covariant=False
+)
+VT_contra = TypeVar(  # [typevar-name-incorrect-variance]
+    "VT_contra", bound=int, covariant=False
+)
+
 # Tests for combinations with tuple assignment
 (
     VT,  # [typevar-name-incorrect-variance]

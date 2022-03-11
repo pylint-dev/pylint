@@ -73,17 +73,7 @@ import collections
 import itertools
 import re
 import sys
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Dict,
-    Iterator,
-    List,
-    Optional,
-    Pattern,
-    Tuple,
-    cast,
-)
+from typing import TYPE_CHECKING, Any, Dict, Iterator, Optional, Pattern, cast
 
 import astroid
 from astroid import nodes
@@ -2157,8 +2147,6 @@ class NameChecker(_BasicChecker):
 
         Returns the args for the message to be displayed.
         """
-        args_to_display: List[Tuple[str, str, str]] = []
-
         if isinstance(node.parent, nodes.Assign):
             keywords = node.assign_type().value.keywords
         elif isinstance(node.parent, nodes.Tuple):
@@ -2166,39 +2154,35 @@ class NameChecker(_BasicChecker):
                 node.assign_type().value.elts[node.parent.elts.index(node)].keywords
             )
 
-        if keywords:
-            for kw in keywords:
-                if (
-                    kw.arg == "covariant"
-                    and kw.value.value
-                    and not name.endswith("_co")
-                ):
+        for kw in keywords:
+            if kw.arg == "covariant" and kw.value.value:
+                if not name.endswith("_co"):
                     suggest_name = f"{re.sub('_contra$', '', name)}_co"
-                    args_to_display.append((name, "covariant", suggest_name))
+                    self.add_message(
+                        "typevar-name-incorrect-variance",
+                        node=node,
+                        args=(name, "covariant", suggest_name),
+                        confidence=interfaces.HIGH,
+                    )
+                return
 
-                if (
-                    kw.arg == "contravariant"
-                    and kw.value.value
-                    and not name.endswith("_contra")
-                ):
+            if kw.arg == "contravariant" and kw.value.value:
+                if not name.endswith("_contra"):
                     suggest_name = f"{re.sub('_co$', '', name)}_contra"
-                    args_to_display.append((name, "contravariant", suggest_name))
+                    self.add_message(
+                        "typevar-name-incorrect-variance",
+                        node=node,
+                        args=(name, "contravariant", suggest_name),
+                        confidence=interfaces.HIGH,
+                    )
+                return
 
-                if kw.arg == "bound" and (
-                    name.endswith("_co") or name.endswith("_contra")
-                ):
-                    suggest_name = re.sub("_contra$|_co$", "", name)
-                    args_to_display.append((name, "invariant", suggest_name))
-
-        elif name.endswith("_co") or name.endswith("_contra"):
+        if name.endswith("_co") or name.endswith("_contra"):
             suggest_name = re.sub("_contra$|_co$", "", name)
-            args_to_display.append((name, "invariant", suggest_name))
-
-        for arg in args_to_display:
             self.add_message(
                 "typevar-name-incorrect-variance",
                 node=node,
-                args=arg,
+                args=(name, "invariant", suggest_name),
                 confidence=interfaces.HIGH,
             )
 
