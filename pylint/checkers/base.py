@@ -1752,7 +1752,7 @@ class NameChecker(_BasicChecker):
         "C0105": (
             'Type variable "%s" is %s, use "%s" instead',
             "typevar-name-incorrect-variance",
-            "Emitted when a TypeVar name doesn't reflect its type variant. "
+            "Emitted when a TypeVar name doesn't reflect its type variance. "
             "According to PEP8, it is recommended to add suffixes '_co' and "
             "'_contra' to the variables used to declare covariant or "
             "contravariant behaviour respectively. Invariant (default) variables "
@@ -2146,8 +2146,7 @@ class NameChecker(_BasicChecker):
         if isinstance(node, astroid.Call):
             inferred = utils.safe_infer(node.func)
             if (
-                inferred
-                and isinstance(inferred, astroid.ClassDef)
+                isinstance(inferred, astroid.ClassDef)
                 and inferred.qname() == TYPING_TYPE_VAR_QNAME
             ):
                 return True
