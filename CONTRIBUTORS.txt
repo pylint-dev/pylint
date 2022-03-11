@@ -605,3 +605,5 @@ contributors:
 * Daniel Brookman: contributor
 
 * Téo Bouvard: contributor
+
+* Konrad Weihmann: contributor

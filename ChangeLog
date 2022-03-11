@@ -492,6 +492,10 @@ Release date: 2021-11-25
 
   Closes #5316
 
+* Allow usage of mccabe 0.7.x release
+
+  Closes #5878
+
 
 What's New in Pylint 2.12.1?
 ============================
