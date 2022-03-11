@@ -77,14 +77,14 @@ repos:
         types: [text] # necessary to include ChangeLog file
         files: ^(ChangeLog|doc/(.*/)*.*\.rst)
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.931
+    rev: v0.940
     hooks:
       - id: mypy
         name: mypy
         entry: mypy
         language: python
         types: [python]
-        args: []
+        args: [--enable-error-code ignore-without-code]
         require_serial: true
         additional_dependencies: ["platformdirs==2.2.0", "types-pkg_resources==0.1.3"]
         exclude: tests/functional/|tests/input|tests(/.*)*/data|tests/regrtest_data/|tests/data/|tests(/.*)+/conftest.py|doc/|bin/
