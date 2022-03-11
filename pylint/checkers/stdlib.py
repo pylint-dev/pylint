@@ -39,7 +39,7 @@
 
 import sys
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set
+from typing import TYPE_CHECKING, Dict, List, Optional, Set, Tuple
 
 import astroid
 from astroid import nodes
@@ -473,24 +473,26 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
 
     def __init__(self, linter: Optional["PyLinter"] = None) -> None:
         BaseChecker.__init__(self, linter)
-        self._deprecated_methods: Set[Any] = set()
-        self._deprecated_methods.update(DEPRECATED_METHODS[0])
+        self._deprecated_methods: Set[str] = set()
+        self._deprecated_arguments: Dict[
+            str, Tuple[Tuple[Optional[int], str], ...]
+        ] = {}
+        self._deprecated_classes: Dict[str, Set[str]] = {}
+        self._deprecated_modules: Set[str] = set()
+        self._deprecated_decorators: Set[str] = set()
+
         for since_vers, func_list in DEPRECATED_METHODS[sys.version_info[0]].items():
             if since_vers <= sys.version_info:
                 self._deprecated_methods.update(func_list)
-        self._deprecated_attributes = {}
         for since_vers, func_list in DEPRECATED_ARGUMENTS.items():
             if since_vers <= sys.version_info:
-                self._deprecated_attributes.update(func_list)
-        self._deprecated_classes = {}
+                self._deprecated_arguments.update(func_list)
         for since_vers, class_list in DEPRECATED_CLASSES.items():
             if since_vers <= sys.version_info:
                 self._deprecated_classes.update(class_list)
-        self._deprecated_modules = set()
         for since_vers, mod_list in DEPRECATED_MODULES.items():
             if since_vers <= sys.version_info:
                 self._deprecated_modules.update(mod_list)
-        self._deprecated_decorators = set()
         for since_vers, decorator_list in DEPRECATED_DECORATORS.items():
             if since_vers <= sys.version_info:
                 self._deprecated_decorators.update(decorator_list)
@@ -788,7 +790,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         return self._deprecated_methods
 
     def deprecated_arguments(self, method: str):
-        return self._deprecated_attributes.get(method, ())
+        return self._deprecated_arguments.get(method, ())
 
     def deprecated_classes(self, module: str):
         return self._deprecated_classes.get(module, ())

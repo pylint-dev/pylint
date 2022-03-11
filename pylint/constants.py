@@ -173,3 +173,20 @@ DELETED_MESSAGES = [
     # https://github.com/PyCQA/pylint/pull/3571
     DeletedMessage("C0330", "bad-continuation"),
 ]
+
+
+# ignore some messages when emitting useless-suppression:
+# - cyclic-import: can show false positives due to incomplete context
+# - deprecated-{module, argument, class, method, decorator}:
+#   can cause false positives for multi-interpreter projects
+#   when linting with an interpreter on a lower python version
+INCOMPATIBLE_WITH_USELESS_SUPPRESSION = frozenset(
+    [
+        "R0401",  # cyclic-import
+        "W0402",  # deprecated-module
+        "W1505",  # deprecated-method
+        "W1511",  # deprecated-argument
+        "W1512",  # deprecated-class
+        "W1513",  # deprecated-decorator
+    ]
+)

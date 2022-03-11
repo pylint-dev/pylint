@@ -421,6 +421,10 @@ Release date: TBA
 
   Closes #5862
 
+* Disables for ``deprecated-module`` and similar warnings for stdlib features deprecated
+  in newer versions of Python no longer raise ``useless-suppression`` when linting with
+  older Python interpreters where those features are not yet deprecated.
+
 * Importing the deprecated stdlib module ``distutils`` now emits ``deprecated_module`` on Python 3.10+.
 
 * ``missing-raises-doc`` will now check the class hierarchy of the raised exceptions
