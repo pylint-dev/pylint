@@ -2162,7 +2162,7 @@ class NameChecker(_BasicChecker):
                         "typevar-name-incorrect-variance",
                         node=node,
                         args=(name, "covariant", suggest_name),
-                        confidence=interfaces.HIGH,
+                        confidence=interfaces.INFERENCE,
                     )
                 return
 
@@ -2173,7 +2173,7 @@ class NameChecker(_BasicChecker):
                         "typevar-name-incorrect-variance",
                         node=node,
                         args=(name, "contravariant", suggest_name),
-                        confidence=interfaces.HIGH,
+                        confidence=interfaces.INFERENCE,
                     )
                 return
 
@@ -2183,7 +2183,7 @@ class NameChecker(_BasicChecker):
                 "typevar-name-incorrect-variance",
                 node=node,
                 args=(name, "invariant", suggest_name),
-                confidence=interfaces.HIGH,
+                confidence=interfaces.INFERENCE,
             )
 
 
