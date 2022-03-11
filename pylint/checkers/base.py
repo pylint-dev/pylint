@@ -2093,14 +2093,7 @@ class NameChecker(_BasicChecker):
         # for name patterns as well.
         # Check TypeVar names for variance suffixes
         if node_type == "typevar":
-            args = self._check_typevar_variance(name, node)
-            for arg in args:
-                self.add_message(
-                    "typevar-name-incorrect-variance",
-                    node=node,
-                    args=arg,
-                    confidence=interfaces.HIGH,
-                )
+            self._check_typevar_variance(name, node)
             return
 
         def _should_exempt_from_invalid_name(node):
@@ -2160,10 +2153,7 @@ class NameChecker(_BasicChecker):
                 return True
         return False
 
-    @staticmethod
-    def _check_typevar_variance(
-        name: str, node: nodes.AssignName
-    ) -> List[Tuple[str, str, str]]:
+    def _check_typevar_variance(self, name: str, node: nodes.AssignName) -> None:
         """Check if a TypeVar has a variance and if it's included in the name.
 
         Returns the args for the message to be displayed.
@@ -2184,26 +2174,34 @@ class NameChecker(_BasicChecker):
                     and kw.value.value
                     and not name.endswith("_co")
                 ):
-                    suggest_name = re.sub("_contra$", "", name)
-                    suggest_name += "_co"
+                    suggest_name = f"{re.sub('_contra$', '', name)}_co"
                     args_to_display.append((name, "covariant", suggest_name))
+
                 if (
                     kw.arg == "contravariant"
                     and kw.value.value
                     and not name.endswith("_contra")
                 ):
-                    suggest_name = re.sub("_co$", "", name)
-                    suggest_name += "_contra"
+                    suggest_name = f"{re.sub('_co$', '', name)}_contra"
                     args_to_display.append((name, "contravariant", suggest_name))
+
                 if kw.arg == "bound" and (
                     name.endswith("_co") or name.endswith("_contra")
                 ):
                     suggest_name = re.sub("_contra$|_co$", "", name)
                     args_to_display.append((name, "invariant", suggest_name))
+
         elif name.endswith("_co") or name.endswith("_contra"):
             suggest_name = re.sub("_contra$|_co$", "", name)
             args_to_display.append((name, "invariant", suggest_name))
-        return args_to_display
+
+        for arg in args_to_display:
+            self.add_message(
+                "typevar-name-incorrect-variance",
+                node=node,
+                args=arg,
+                confidence=interfaces.HIGH,
+            )
 
 
 class DocStringChecker(_BasicChecker):
