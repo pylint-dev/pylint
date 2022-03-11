@@ -247,6 +247,7 @@ class TypingChecker(BaseChecker):
             "consider-alternative-union-syntax",
             node=node,
             args=(name, self._msg_postponed_eval_hint(node)),
+            confidence=INFERENCE,
         )
 
     def _check_for_typing_alias(
@@ -318,6 +319,7 @@ class TypingChecker(BaseChecker):
                     "deprecated-typing-alias",
                     node=msg.node,
                     args=(msg.qname, msg.alias),
+                    confidence=INFERENCE,
                 )
 
         elif self._py37_plus:
@@ -333,6 +335,7 @@ class TypingChecker(BaseChecker):
                         msg.alias,
                         msg_future_import if msg.parent_subscript else "",
                     ),
+                    confidence=INFERENCE,
                 )
 
         # Clear all module cache variables
