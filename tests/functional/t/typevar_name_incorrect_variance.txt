@@ -11,7 +11,11 @@ typevar-name-incorrect-variance:31:0:31:2::"Type variable ""VT"" is covariant, u
 typevar-name-incorrect-variance:33:0:33:9::"Type variable ""VT_contra"" is covariant, use ""VT_co"" instead":INFERENCE
 typevar-name-incorrect-variance:38:0:38:5::"Type variable ""VT_co"" is invariant, use ""VT"" instead":INFERENCE
 typevar-name-incorrect-variance:41:0:41:9::"Type variable ""VT_contra"" is invariant, use ""VT"" instead":INFERENCE
-typevar-name-incorrect-variance:47:4:47:6::"Type variable ""VT"" is covariant, use ""VT_co"" instead":INFERENCE
-typevar-name-incorrect-variance:48:4:48:13::"Type variable ""VT_contra"" is covariant, use ""VT_co"" instead":INFERENCE
-typevar-name-incorrect-variance:50:7:50:16::"Type variable ""VT_contra"" is covariant, use ""VT_co"" instead":INFERENCE
-typevar-name-incorrect-variance:53:5:53:14::"Type variable ""VT_contra"" is covariant, use ""VT_co"" instead":INFERENCE
+typevar-name-incorrect-variance:45:0:45:2::"Type variable ""VT"" is contravariant, use ""VT_contra"" instead":INFERENCE
+typevar-name-incorrect-variance:46:0:46:5::"Type variable ""VT_co"" is contravariant, use ""VT_contra"" instead":INFERENCE
+typevar-name-incorrect-variance:52:0:52:5::"Type variable ""VT_co"" is invariant, use ""VT"" instead":INFERENCE
+typevar-name-incorrect-variance:55:0:55:9::"Type variable ""VT_contra"" is invariant, use ""VT"" instead":INFERENCE
+typevar-name-incorrect-variance:61:4:61:6::"Type variable ""VT"" is covariant, use ""VT_co"" instead":INFERENCE
+typevar-name-incorrect-variance:62:4:62:13::"Type variable ""VT_contra"" is covariant, use ""VT_co"" instead":INFERENCE
+typevar-name-incorrect-variance:64:7:64:16::"Type variable ""VT_contra"" is covariant, use ""VT_co"" instead":INFERENCE
+typevar-name-incorrect-variance:67:5:67:14::"Type variable ""VT_contra"" is covariant, use ""VT_co"" instead":INFERENCE
