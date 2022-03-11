@@ -71,6 +71,7 @@ HUMAN_READABLE_TYPES = {
     "class_attribute": "class attribute",
     "class_const": "class constant",
     "inlinevar": "inline iteration",
+    "typevar": "type variable",
 }
 
 

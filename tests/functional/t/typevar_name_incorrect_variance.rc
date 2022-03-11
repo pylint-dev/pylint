@@ -1,0 +1,3 @@
+[BASIC]
+# TODO: Remove this option and use default style
+typevar-rgx=^_{0,2}(?:[^\W\da-z_]+|(?:[^\W\da-z_][^\WA-Z_]+)+T?(?<!Type))(?:_co(?:ntra)?)?$

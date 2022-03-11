@@ -128,6 +128,8 @@ class NamingStyle:
             "class_attribute": cls.CLASS_ATTRIBUTE_RGX,
             "class_const": cls.CONST_NAME_RGX,
             "inlinevar": cls.COMP_VAR_RGX,
+            # TODO: Create dedicated TypeVar pattern # pylint: disable=fixme
+            "typevar": cls.CLASS_NAME_RGX,
         }[name_type]
 
 
@@ -1672,6 +1674,7 @@ KNOWN_NAME_TYPES = {
     "class_attribute",
     "class_const",
     "inlinevar",
+    "typevar",
 }
 
 DEFAULT_NAMING_STYLES = {
@@ -1686,6 +1689,7 @@ DEFAULT_NAMING_STYLES = {
     "class_attribute": "any",
     "class_const": "UPPER_CASE",
     "inlinevar": "any",
+    "typevar": "PascalCase",
 }
 
 
@@ -2078,14 +2082,6 @@ class NameChecker(_BasicChecker):
     def _check_name(self, node_type, name, node, confidence=interfaces.HIGH):
         """Check for a name using the type's regexp."""
 
-        # pylint: disable=fixme
-        # TODO: move this down in the function and check TypeVar
-        # for name patterns as well.
-        # Check TypeVar names for variance suffixes
-        if node_type == "typevar":
-            self._check_typevar_variance(name, node)
-            return
-
         def _should_exempt_from_invalid_name(node):
             if node_type == "variable":
                 inferred = utils.safe_infer(node)
@@ -2110,6 +2106,10 @@ class NameChecker(_BasicChecker):
 
         if match is None and not _should_exempt_from_invalid_name(node):
             self._raise_name_warning(None, node, node_type, name, confidence)
+
+        # Check TypeVar names for variance suffixes
+        if node_type == "typevar":
+            self._check_typevar_variance(name, node)
 
     def _check_assign_to_new_keyword_violation(self, name, node):
         keyword_first_version = self._name_became_keyword_in_version(
