@@ -1897,6 +1897,7 @@ class NameChecker(_BasicChecker):
                 )
             else:
                 regexps[name_type] = DEFAULT_PATTERNS[name_type]
+                naming_style_name = "predefined"
 
             custom_regex_setting_name = f"{name_type}_rgx"
             custom_regex = getattr(self.config, custom_regex_setting_name, None)
@@ -1906,7 +1907,6 @@ class NameChecker(_BasicChecker):
             if custom_regex is not None:
                 hints[name_type] = f"{custom_regex.pattern!r} pattern"
             else:
-                assert naming_style_name
                 hints[name_type] = f"{naming_style_name} naming style"
 
         return regexps, hints
