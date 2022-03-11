@@ -303,7 +303,7 @@ class ColorizedTextReporter(TextReporter):
             list(color_mapping.values())[0], MessageStyle
         ):
             warnings.warn(
-                "In pylint 3.0, the ColoreziedTextReporter will only accept ColorMappingDict as color_mapping parameter",
+                "In pylint 3.0, the ColorizedTextReporter will only accept ColorMappingDict as color_mapping parameter",
                 DeprecationWarning,
             )
             temp_color_mapping: ColorMappingDict = {}

@@ -73,11 +73,13 @@ NON_INSTANCE_METHODS = {"builtins.staticmethod", "builtins.classmethod"}
 DEPRECATED_MODULES = {
     (0, 0, 0): {"tkinter.tix", "fpectl"},
     (3, 2, 0): {"optparse"},
+    (3, 3, 0): {"xml.etree.cElementTree"},
     (3, 4, 0): {"imp"},
     (3, 5, 0): {"formatter"},
     (3, 6, 0): {"asynchat", "asyncore"},
     (3, 7, 0): {"macpath"},
     (3, 9, 0): {"lib2to3", "parser", "symbol", "binhex"},
+    (3, 10, 0): {"distutils"},
 }
 
 DEPRECATED_ARGUMENTS = {
@@ -125,6 +127,7 @@ DEPRECATED_DECORATORS = {
         "abc.abstractstaticmethod",
         "abc.abstractproperty",
     },
+    (3, 4, 0): {"importlib.util.module_for_loader"},
 }
 
 
@@ -204,6 +207,10 @@ DEPRECATED_METHODS: Dict = {
         },
         (3, 4, 0): {
             "importlib.find_loader",
+            "importlib.abc.Loader.load_module",
+            "importlib.abc.Loader.module_repr",
+            "importlib.abc.PathEntryFinder.find_loader",
+            "importlib.abc.PathEntryFinder.find_module",
             "plistlib.readPlist",
             "plistlib.writePlist",
             "plistlib.readPlistFromBytes",
@@ -252,6 +259,7 @@ DEPRECATED_METHODS: Dict = {
         },
         (3, 10, 0): {
             "_sqlite3.enable_shared_cache",
+            "importlib.abc.Finder.find_module",
             "pathlib.Path.link_to",
             "zipimport.zipimporter.load_module",
             "zipimport.zipimporter.find_module",

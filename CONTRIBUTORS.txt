@@ -603,3 +603,7 @@ contributors:
 * Carli Freudenberg (CarliJoy): contributor
   - Fixed issue 5281, added Unicode checker
   - Improve non-ascii-name checker
+
+* Daniel Brookman: contributor
+
+* Téo Bouvard: contributor

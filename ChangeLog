@@ -9,6 +9,20 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.13.rst'
 
+* Fix pyreverse diagrams type hinting for classmethods and staticmethods.
+
+* Fix matching ``--notes`` options that end in a non-word character.
+
+  Closes #5840
+
+* ``using-f-string-in-unsupported-version`` and ``using-final-decorator-in-unsupported-version`` msgids
+    were renamed from ``W1601`` and ``W1602`` to ``W2601`` and ``W2602``. Disabling using these msgids will break.
+    This is done in order to restore consistency with the already existing msgids for ``apply-builtin`` and
+    ``basestring-builtin`` from the now deleted python 3K+ checker. There is now a check that we're not using
+    existing msgids or symbols from deleted checkers.
+
+  Closes #5729
+
 * Add ``--recursive`` option to allow recursive discovery of all modules and packages in subtree. Running pylint with
   ``--recursive=y`` option will check all discovered ``.py`` files and packages found inside subtree of directory provided
   as parameter to pylint.
@@ -35,6 +49,18 @@ Release date: TBA
 
   Closes #5322
 
+* Added a ``testutil`` extra require to the packaging, as ``gitpython`` should not be a dependency
+  all the time but is still required to use the primer helper code in ``pylint.testutil``. You can
+  install it with ``pip install pylint[testutil]``.
+
+  Closes #5486
+
+* Reinstated checks from the python3 checker that are still useful for python 3
+  (``eq-without-hash``). This is now in the ``pylint.extensions.eq_without_hash`` optional
+  extension.
+
+  Closes #5025
+
 * Added several checkers to deal with unicode security issues
   (see `Trojan Sources <https://trojansource.codes/>`_ and
   `PEP 672 <https://www.python.org/dev/peps/pep-0672/>`_ for details) that also
@@ -56,6 +82,10 @@ Release date: TBA
     to check for possibly harmful unescaped characters.
 
   Closes #5281
+
+* Use the ``tomli`` package instead of ``toml`` to parse ``.toml`` files.
+
+ Closes #5885
 
 * Fix false positive - Allow unpacking of ``self`` in a subclass of ``typing.NamedTuple``.
 
@@ -370,12 +400,28 @@ Release date: TBA
 
   Closes #5371
 
+* ``TypingChecker``
+
+  * Added new check ``broken-noreturn`` to detect broken uses of ``typing.NoReturn``
+    if ``py-version`` is set to Python ``3.7.1`` or below.
+    https://bugs.python.org/issue34921
+
+  * Added new check ``broken-collections-callable`` to detect broken uses of ``collections.abc.Callable``
+    if ``py-version`` is set to Python ``3.9.1`` or below.
+    https://bugs.python.org/issue42965
+
 * The ``testutils`` for unittests now accept ``end_lineno`` and ``end_column``. Tests
   without these will trigger a ``DeprecationWarning``.
 
 * Fixed false positive ``unexpected-keyword-arg`` for decorators.
 
   Closes #258
+
+* Importing the deprecated stdlib module ``xml.etree.cElementTree`` now emits ``deprecated_module``.
+
+  Closes #5862
+
+* Importing the deprecated stdlib module ``distutils`` now emits ``deprecated_module`` on Python 3.10+.
 
 * ``missing-raises-doc`` will now check the class hierarchy of the raised exceptions
 
@@ -390,6 +436,11 @@ Release date: TBA
       raise ValueError
 
   Closes #4955
+
+* Allow disabling ``duplicate-code`` with a disable comment when running through
+  pylint.
+
+  Closes #214
 
 ..
   Insert your changelog randomly, it will reduce merge conflicts
@@ -518,6 +569,7 @@ Release date: 2021-11-24
 * Properly identify parameters with no documentation and add new message called ``missing-any-param-doc``
 
   Closes #3799
+
 * Add checkers ``overridden-final-method`` & ``subclassed-final-class``
 
   Closes #3197
