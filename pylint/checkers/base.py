@@ -1667,7 +1667,7 @@ class BasicChecker(_BasicChecker):
         self._check_redeclared_assign_name([node.target])
 
 
-# Name types that hae a style option
+# Name types that have a style option
 KNOWN_NAME_TYPES_WITH_STYLE = {
     "module",
     "const",
@@ -1708,9 +1708,11 @@ def _create_naming_options():
     for name_type in sorted(KNOWN_NAME_TYPES):
         human_readable_name = constants.HUMAN_READABLE_TYPES[name_type]
         name_type_hyphened = name_type.replace("_", "-")
+        help_msg = f"Regular expression matching correct {human_readable_name} names."
 
         if name_type in KNOWN_NAME_TYPES_WITH_STYLE:
             default_style = DEFAULT_NAMING_STYLES[name_type]
+            help_msg += f" Overrides {name_type_hyphened}-naming-style."
             name_options.append(
                 (
                     f"{name_type_hyphened}-naming-style",
@@ -1724,6 +1726,9 @@ def _create_naming_options():
                 )
             )
 
+        help_msg += (
+            " If left empty, type variables will be checked with the set naming style."
+        )
         name_options.append(
             (
                 f"{name_type_hyphened}-rgx",
@@ -1731,7 +1736,7 @@ def _create_naming_options():
                     "default": None,
                     "type": "regexp",
                     "metavar": "<regexp>",
-                    "help": f"Regular expression matching correct {human_readable_name} names. Overrides {name_type_hyphened}-naming-style.",
+                    "help": help_msg,
                 },
             )
         )
