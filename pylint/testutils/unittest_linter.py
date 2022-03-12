@@ -46,14 +46,24 @@ class UnittestLinter:
 
         # Look up "location" data of node if not yet supplied
         if node:
-            if not line:
-                line = node.fromlineno
-            if not col_offset:
-                col_offset = node.col_offset
-            if not end_lineno:
-                end_lineno = node.end_lineno
-            if not end_col_offset:
-                end_col_offset = node.end_col_offset
+            if node.position:
+                if not line:
+                    line = node.position.lineno
+                if not col_offset:
+                    col_offset = node.position.col_offset
+                if not end_lineno:
+                    end_lineno = node.position.end_lineno
+                if not end_col_offset:
+                    end_col_offset = node.position.end_col_offset
+            else:
+                if not line:
+                    line = node.fromlineno
+                if not col_offset:
+                    col_offset = node.col_offset
+                if not end_lineno:
+                    end_lineno = node.end_lineno
+                if not end_col_offset:
+                    end_col_offset = node.end_col_offset
 
         self._messages.append(
             MessageTest(
