@@ -14,16 +14,9 @@ from pylint.constants import MAIN_CHECKER_NAME
 from pylint.lint import PyLinter
 from pylint.utils import get_rst_title
 
-# Some modules have been renamed and deprecated under their old names.
-# Skip documenting these modules since:
-# 1) They are deprecated, why document them moving forward?
-# 2) We can't load the deprecated module and the newly renamed module at the
-# same time without getting naming conflicts
-DEPRECATED_MODULES = ["check_docs"]  # ==> docparams
-
 
 def builder_inited(app):
-    """Output full documentation in ReST format for all extension modules"""
+    """Output full documentation in ReST format for all extension modules."""
     # PACKAGE/docs/exts/pylint_extensions.py --> PACKAGE/
     base_path = os.path.dirname(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -34,7 +27,7 @@ def builder_inited(app):
     doc_files = {}
     for filename in os.listdir(ext_path):
         name, ext = os.path.splitext(filename)
-        if name[0] == "_" or name in DEPRECATED_MODULES:
+        if name[0] == "_":
             continue
         if ext == ".py":
             modules.append(f"pylint.extensions.{name}")

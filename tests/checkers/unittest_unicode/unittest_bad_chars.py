@@ -16,7 +16,7 @@ from . import CODEC_AND_MSG, FakeNode
 
 @pytest.fixture()
 def bad_char_file_generator(tmp_path: Path) -> Callable[[str, bool, str], Path]:
-    """generates a test file for bad chars
+    """Generates a test file for bad chars.
 
     The generator also ensures that file generated is correct
     """
@@ -130,6 +130,7 @@ class TestBadCharsChecker(pylint.testutils.CheckerTestCase):
             # string
             module = astroid.MANAGER.ast_from_string(file)
         except AstroidBuildingError:
+            # pylint: disable-next=redefined-variable-type
             module = cast(nodes.Module, FakeNode(file.read_bytes()))
 
         expected = [
@@ -253,7 +254,7 @@ class TestBadCharsChecker(pylint.testutils.CheckerTestCase):
         ],
     )
     def test___check_invalid_chars(self, char: str, msg: str, codec: str) -> None:
-        """Check function should deliver correct column no matter which codec we used"""
+        """Check function should deliver correct column no matter which codec we used."""
         with self.assertAddsMessages(
             pylint.testutils.MessageTest(
                 msg_id=msg,

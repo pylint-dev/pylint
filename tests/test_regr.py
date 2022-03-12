@@ -17,7 +17,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""non regression tests for pylint, which requires a too specific configuration
+"""Non regression tests for pylint, which requires a too specific configuration
 to be incorporated in the automatic functional test framework
 """
 # pylint: disable=redefined-outer-name

@@ -12,9 +12,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""Unit tests for the pylint checkers in :mod:`pylint.extensions.check_docs`,
-in particular the parameter documentation checker `DocstringChecker`
-"""
+"""Unit tests for utils functions in :mod:`pylint.extensions._check_docs_utils`."""
 import astroid
 import pytest
 
@@ -26,7 +24,7 @@ from pylint.extensions import _check_docs_utils as utils
     [("abc", 0), ("", 0), ("  abc", 2), ("\n  abc", 0), ("   \n  abc", 3)],
 )
 def test_space_indentation(string: str, count: int) -> None:
-    """Test for pylint_plugin.ParamDocChecker"""
+    """Test for pylint_plugin.ParamDocChecker."""
     assert utils.space_indentation(string) == count
 
 

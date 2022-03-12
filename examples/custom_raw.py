@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 
 class MyRawChecker(BaseChecker):
-    """check for line continuations with '\' instead of using triple
+    """Check for line continuations with '\' instead of using triple
     quoted string or parenthesis
     """
 
@@ -30,7 +30,7 @@ class MyRawChecker(BaseChecker):
     options = ()
 
     def process_module(self, node: nodes.Module) -> None:
-        """process a module
+        """Process a module.
 
         the module's content is accessible via node.stream() function
         """

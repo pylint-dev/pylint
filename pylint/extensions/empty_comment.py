@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 
 def is_line_commented(line):
-    """Checks if a `# symbol that is not part of a string was found in line"""
+    """Checks if a `# symbol that is not part of a string was found in line."""
 
     comment_idx = line.find(b"#")
     if comment_idx == -1:
@@ -21,7 +21,7 @@ def is_line_commented(line):
 
 
 def comment_part_of_string(line, comment_idx):
-    """checks if the symbol at comment_idx is part of a string"""
+    """Checks if the symbol at comment_idx is part of a string."""
 
     if (
         line[:comment_idx].count(b"'") % 2 == 1

@@ -45,13 +45,11 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""imports checkers for Python code"""
+"""Imports checkers for Python code."""
 
 import collections
 import copy
 import os
-import sys
-from distutils import sysconfig
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple, Union
 
 import astroid
@@ -77,7 +75,7 @@ if TYPE_CHECKING:
 
 
 def _qualified_names(modname):
-    """Split the names of the given module into subparts
+    """Split the names of the given module into subparts.
 
     For example,
         _qualified_names('pylint.checkers.ImportsChecker')
@@ -89,7 +87,7 @@ def _qualified_names(modname):
 
 
 def _get_first_import(node, context, name, base, level, alias):
-    """return the node where [base.]<name> is imported or None if not found"""
+    """Return the node where [base.]<name> is imported or None if not found."""
     fullname = f"{base}.{name}" if base else name
 
     first = None
@@ -140,7 +138,7 @@ def _ignore_import_failure(node, modname, ignored_modules):
 
 
 def _make_tree_defs(mod_files_list):
-    """get a list of 2-uple (module, list_of_files_which_import_this_module),
+    """Get a list of 2-uple (module, list_of_files_which_import_this_module),
     it will return a dictionary to represent this as a tree
     """
     tree_defs = {}
@@ -153,7 +151,7 @@ def _make_tree_defs(mod_files_list):
 
 
 def _repr_tree_defs(data, indent_str=None):
-    """return a string which represents imports as a tree"""
+    """Return a string which represents imports as a tree."""
     lines = []
     nodes_items = data.items()
     for i, (mod, (sub, files)) in enumerate(sorted(nodes_items, key=lambda x: x[0])):
@@ -162,7 +160,7 @@ def _repr_tree_defs(data, indent_str=None):
             lines.append(f"{mod} {files}")
             sub_indent_str = "  "
         else:
-            lines.append(fr"{indent_str}\-{mod} {files}")
+            lines.append(rf"{indent_str}\-{mod} {files}")
             if i == len(nodes_items) - 1:
                 sub_indent_str = f"{indent_str}  "
             else:
@@ -173,7 +171,7 @@ def _repr_tree_defs(data, indent_str=None):
 
 
 def _dependencies_graph(filename: str, dep_info: Dict[str, Set[str]]) -> str:
-    """write dependencies as a dot (graphviz) file"""
+    """Write dependencies as a dot (graphviz) file."""
     done = {}
     printer = DotBackend(os.path.splitext(os.path.basename(filename))[0], rankdir="LR")
     printer.emit('URL="." node[shape="box"]')
@@ -194,7 +192,7 @@ def _dependencies_graph(filename: str, dep_info: Dict[str, Set[str]]) -> str:
 def _make_graph(
     filename: str, dep_info: Dict[str, Set[str]], sect: Section, gtype: str
 ):
-    """generate a dependencies graph and add some information about it in the
+    """Generate a dependencies graph and add some information about it in the
     report's section
     """
     outputfile = _dependencies_graph(filename, dep_info)
@@ -302,7 +300,7 @@ DEFAULT_PREFERRED_MODULES = ()
 
 
 class ImportsChecker(DeprecatedMixin, BaseChecker):
-    """checks for
+    """Checks for
     * external modules dependencies
     * relative / wildcard imports
     * cyclic imports
@@ -441,35 +439,8 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             ("RP0402", "Modules dependencies graph", self._report_dependencies_graph),
         )
 
-        self._site_packages = self._compute_site_packages()
-
-    @staticmethod
-    def _compute_site_packages():
-        def _normalized_path(path):
-            return os.path.normcase(os.path.abspath(path))
-
-        paths = set()
-        real_prefix = getattr(sys, "real_prefix", None)
-        for prefix in filter(None, (real_prefix, sys.prefix)):
-            path = sysconfig.get_python_lib(prefix=prefix)
-            path = _normalized_path(path)
-            paths.add(path)
-
-        # Handle Debian's derivatives /usr/local.
-        if os.path.isfile("/etc/debian_version"):
-            for prefix in filter(None, (real_prefix, sys.prefix)):
-                libpython = os.path.join(
-                    prefix,
-                    "local",
-                    "lib",
-                    "python" + sysconfig.get_python_version(),
-                    "dist-packages",
-                )
-                paths.add(libpython)
-        return paths
-
     def open(self):
-        """called before visiting project (i.e set of modules)"""
+        """Called before visiting project (i.e set of modules)."""
         self.linter.stats.dependencies = {}
         self.linter.stats = self.linter.stats
         self.import_graph = collections.defaultdict(set)
@@ -491,7 +462,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         return filtered_graph
 
     def close(self):
-        """called before visiting project (i.e set of modules)"""
+        """Called before visiting project (i.e set of modules)."""
         if self.linter.is_message_enabled("cyclic-import"):
             graph = self._import_graph_without_ignored_edges()
             vertices = list(graph)
@@ -504,7 +475,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
     @check_messages(*MSGS)
     def visit_import(self, node: nodes.Import) -> None:
-        """triggered when an import statement is seen"""
+        """Triggered when an import statement is seen."""
         self._check_reimport(node)
         self._check_import_as_rename(node)
         self._check_toplevel(node)
@@ -530,7 +501,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
     @check_messages(*MSGS)
     def visit_importfrom(self, node: nodes.ImportFrom) -> None:
-        """triggered when a from statement is seen"""
+        """Triggered when a from statement is seen."""
         basename = node.modname
         imported_module = self._get_imported_module(node, basename)
 
@@ -673,7 +644,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 self.add_message("reimported", node=node, args=(name, node.fromlineno))
 
     def _check_position(self, node):
-        """Check `node` import or importfrom node position is correct
+        """Check `node` import or importfrom node position is correct.
 
         Send a message  if `node` comes before another instruction
         """
@@ -683,7 +654,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             self.add_message("wrong-import-position", node=node, args=node.as_string())
 
     def _record_import(self, node, importedmodnode):
-        """Record the package `node` imports from"""
+        """Record the package `node` imports from."""
         if isinstance(node, nodes.ImportFrom):
             importedname = node.modname
         else:
@@ -709,7 +680,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         return any(astroid.are_exclusive(import_node, node) for import_node in imports)
 
     def _check_imports_order(self, _module_node):
-        """Checks imports of module `node` are grouped by category
+        """Checks imports of module `node` are grouped by category.
 
         Imports must follow this order: standard, 3rd party, local
         """
@@ -831,7 +802,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
     def _add_imported_module(
         self, node: Union[nodes.Import, nodes.ImportFrom], importedmodname: str
     ) -> None:
-        """notify an imported module, used to analyze dependencies"""
+        """Notify an imported module, used to analyze dependencies."""
         module_file = node.root().file
         context_name = node.root().name
         base = os.path.splitext(os.path.basename(module_file))[0]
@@ -858,7 +829,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 self._module_pkg[context_name] = context_name.rsplit(".", 1)[0]
 
             # handle dependencies
-            dependencies_stat: Dict[str, Union[Set]] = self.linter.stats.dependencies
+            dependencies_stat: Dict[str, Set[str]] = self.linter.stats.dependencies
             importedmodnames = dependencies_stat.setdefault(importedmodname, set())
             if context_name not in importedmodnames:
                 importedmodnames.add(context_name)
@@ -872,7 +843,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 self._excluded_edges[context_name].add(importedmodname)
 
     def _check_preferred_module(self, node, mod_path):
-        """check if the module has a preferred replacement"""
+        """Check if the module has a preferred replacement."""
         if mod_path in self.preferred_modules:
             self.add_message(
                 "preferred-module",
@@ -904,7 +875,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 )
 
     def _check_reimport(self, node, basename=None, level=None):
-        """check if the import is necessary (i.e. not already done)"""
+        """Check if the import is necessary (i.e. not already done)."""
         if not self.linter.is_message_enabled("reimported"):
             return
 
@@ -925,7 +896,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                     )
 
     def _report_external_dependencies(self, sect, _, _dummy):
-        """return a verbatim layout for displaying dependencies"""
+        """Return a verbatim layout for displaying dependencies."""
         dep_info = _make_tree_defs(self._external_dependencies_info().items())
         if not dep_info:
             raise EmptyReportError()
@@ -933,7 +904,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         sect.append(VerbatimText(tree_str))
 
     def _report_dependencies_graph(self, sect, _, _dummy):
-        """write dependencies as a dot (graphviz) file"""
+        """Write dependencies as a dot (graphviz) file."""
         dep_info = self.linter.stats.dependencies
         if not dep_info or not (
             self.config.import_graph
@@ -952,7 +923,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             _make_graph(filename, self._internal_dependencies_info(), sect, "internal ")
 
     def _filter_dependencies_graph(self, internal):
-        """build the internal or the external dependency graph"""
+        """Build the internal or the external dependency graph."""
         graph = collections.defaultdict(set)
         for importee, importers in self.linter.stats.dependencies.items():
             for importer in importers:
@@ -964,14 +935,14 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
     @astroid.decorators.cached
     def _external_dependencies_info(self):
-        """return cached external dependencies information or build and
+        """Return cached external dependencies information or build and
         cache them
         """
         return self._filter_dependencies_graph(internal=False)
 
     @astroid.decorators.cached
     def _internal_dependencies_info(self):
-        """return cached internal dependencies information or build and
+        """Return cached internal dependencies information or build and
         cache them
         """
         return self._filter_dependencies_graph(internal=True)

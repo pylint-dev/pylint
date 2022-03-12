@@ -69,7 +69,7 @@ def get_fatal_error_message(filepath: str, issue_template_path: Path) -> str:
 
 
 def preprocess_options(args, search_for):
-    """look for some options (keys of <search_for>) which have to be processed
+    """Look for some options (keys of <search_for>) which have to be processed
     before others
 
     values of <search_for> are callback functions to call when the option is
