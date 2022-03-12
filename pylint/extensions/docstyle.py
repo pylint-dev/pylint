@@ -58,7 +58,7 @@ class DocStringStyleChecker(checkers.BaseChecker):
     visit_asyncfunctiondef = visit_functiondef
 
     def _check_docstring(self, node_type, node):
-        docstring = node.doc
+        docstring = node.doc_node.value if node.doc_node else None
         if docstring and docstring[0] == "\n":
             self.add_message(
                 "docstring-first-line-empty",
