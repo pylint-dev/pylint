@@ -137,6 +137,12 @@ Release date: TBA
 
   Closes #5670
 
+* Fixed crash with recursion error for inference of class attributes that referenced
+  the class itself.
+
+  Closes #5408
+  Ref PyCQA/astroid#1392
+
 * The issue template for crashes is now created for crashes which were previously not covered
   by this mechanism.
 

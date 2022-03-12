@@ -225,6 +225,12 @@ Other Changes
 
   Closes #5177, #5212
 
+* Fixed crash with recursion error for inference of class attributes that referenced
+  the class itself.
+
+  Closes #5408
+  Ref PyCQA/astroid#1392
+
 * Fix ``unnecessary_dict_index_lookup`` false positive when deleting a dictionary's entry.
 
   Closes #4716
