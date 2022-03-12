@@ -87,7 +87,7 @@ class PackageToLint:
                 "depth": 1,
             }
             logging.info("Directory does not exists, cloning: %s", options)
-            git.Repo.clone_from(**options)  # type: ignore[arg-type]
+            git.Repo.clone_from(**options)
             return
 
         remote_sha1_commit = (
