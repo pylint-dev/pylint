@@ -1,41 +1,7 @@
-# Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2011-2014 Google, Inc.
-# Copyright (c) 2012 Kevin Jing Qiu <kevin.jing.qiu@gmail.com>
-# Copyright (c) 2012 Anthony VEREZ <anthony.verez.external@cassidian.com>
-# Copyright (c) 2012 FELD Boris <lothiraldan@gmail.com>
-# Copyright (c) 2013-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015 Florian Bruhin <me@the-compiler.org>
-# Copyright (c) 2015 Noam Yorav-Raphael <noamraph@gmail.com>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016-2017 Derek Gustafson <degustaf@gmail.com>
-# Copyright (c) 2016 Glenn Matthews <glenn@e-dad.net>
-# Copyright (c) 2016 Glenn Matthews <glmatthe@cisco.com>
-# Copyright (c) 2017-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2017, 2021 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2017 Craig Citro <craigcitro@gmail.com>
-# Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
-# Copyright (c) 2018, 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2018 Matus Valo <matusvalo@users.noreply.github.com>
-# Copyright (c) 2018 Scott Worley <scottworley@scottworley.com>
-# Copyright (c) 2018 Randall Leeds <randall@bleeds.info>
-# Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
-# Copyright (c) 2018 Reverb C <reverbc@users.noreply.github.com>
-# Copyright (c) 2019 Janne Rönkkö <jannero@users.noreply.github.com>
-# Copyright (c) 2019 Trevor Bekolay <tbekolay@gmail.com>
-# Copyright (c) 2019 Andres Perez Hortal <andresperezcba@gmail.com>
-# Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2020 Martin Vielsmaier <martin@vielsmaier.net>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Michal Vasilek <michal@vasilek.cz>
-# Copyright (c) 2021 Eisuke Kawashima <e-kwsm@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/graphs/contributors
+
 # pylint: disable=redefined-outer-name
 
 import os

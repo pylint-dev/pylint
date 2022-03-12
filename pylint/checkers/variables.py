@@ -1,58 +1,6 @@
-# Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2009 Mads Kiilerich <mads@kiilerich.com>
-# Copyright (c) 2010 Daniel Harding <dharding@gmail.com>
-# Copyright (c) 2011-2014, 2017 Google, Inc.
-# Copyright (c) 2012 FELD Boris <lothiraldan@gmail.com>
-# Copyright (c) 2013-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2014 Michal Nowikowski <godfryd@gmail.com>
-# Copyright (c) 2014 Brett Cannon <brett@python.org>
-# Copyright (c) 2014 Ricardo Gemignani <ricardo.gemignani@gmail.com>
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015 Dmitry Pribysh <dmand@yandex.ru>
-# Copyright (c) 2015 Radu Ciorba <radu@devrandom.ro>
-# Copyright (c) 2015 Simu Toni <simutoni@gmail.com>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016, 2018-2019 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2016, 2018 Jakub Wilk <jwilk@jwilk.net>
-# Copyright (c) 2016-2017 Derek Gustafson <degustaf@gmail.com>
-# Copyright (c) 2016-2017 Łukasz Rogalski <rogalski.91@gmail.com>
-# Copyright (c) 2016 Grant Welch <gwelch925+github@gmail.com>
-# Copyright (c) 2017-2018, 2021 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2017-2018, 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2017 Dan Garrette <dhgarrette@gmail.com>
-# Copyright (c) 2018-2019 Jim Robertson <jrobertson98atx@gmail.com>
-# Copyright (c) 2018 Mike Miller <mtmiller@users.noreply.github.com>
-# Copyright (c) 2018 Lucas Cimon <lucas.cimon@gmail.com>
-# Copyright (c) 2018 Drew <drewrisinger@users.noreply.github.com>
-# Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
-# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
-# Copyright (c) 2018 Bryce Guinta <bryce.guinta@protonmail.com>
-# Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
-# Copyright (c) 2018 Mike Frysinger <vapier@gmail.com>
-# Copyright (c) 2018 Marianna Polatoglou <mpolatoglou@bloomberg.net>
-# Copyright (c) 2018 mar-chi-pan <mar.polatoglou@gmail.com>
-# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019, 2021 Nick Drozd <nicholasdrozd@gmail.com>
-# Copyright (c) 2019 Djailla <bastien.vallet@gmail.com>
-# Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2020 Andrew Simmons <anjsimmo@gmail.com>
-# Copyright (c) 2020 Andrew Simmons <a.simmons@deakin.edu.au>
-# Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2020 Ashley Whetter <ashleyw@activestate.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Tushar Sadhwani <tushar.sadhwani000@gmail.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 bot <bot@noreply.github.com>
-# Copyright (c) 2021 David Liu <david@cs.toronto.edu>
-# Copyright (c) 2021 kasium <15907922+kasium@users.noreply.github.com>
-# Copyright (c) 2021 Marcin Kurczewski <rr-@sakuya.pl>
-# Copyright (c) 2021 Sergei Lebedev <185856+superbobry@users.noreply.github.com>
-# Copyright (c) 2021 Lorena B <46202743+lorena-b@users.noreply.github.com>
-# Copyright (c) 2021 haasea <44787650+haasea@users.noreply.github.com>
-# Copyright (c) 2021 Alexander Kapshuna <kapsh@kap.sh>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/graphs/contributors
 
 """Variables checkers for Python code."""
 import collections

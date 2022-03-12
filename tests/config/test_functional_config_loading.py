@@ -1,5 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/graphs/contributors
 
 """This launches the configuration functional tests. This permits to test configuration
 files by providing a file with the appropriate extension in the ``tests/config/functional``

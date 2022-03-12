@@ -1,59 +1,6 @@
-# Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2009 James Lingard <jchl@aristanetworks.com>
-# Copyright (c) 2012-2014 Google, Inc.
-# Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2014 David Shea <dshea@redhat.com>
-# Copyright (c) 2014 Steven Myint <hg@stevenmyint.com>
-# Copyright (c) 2014 Holger Peters <email@holger-peters.de>
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015 Anentropic <ego@anentropic.com>
-# Copyright (c) 2015 Dmitry Pribysh <dmand@yandex.ru>
-# Copyright (c) 2015 Rene Zhang <rz99@cornell.edu>
-# Copyright (c) 2015 Radu Ciorba <radu@devrandom.ro>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016, 2019 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2016 Alexander Todorov <atodorov@otb.bg>
-# Copyright (c) 2016 Jürgen Hermann <jh@web.de>
-# Copyright (c) 2016 Jakub Wilk <jwilk@jwilk.net>
-# Copyright (c) 2016 Filipe Brandenburger <filbranden@google.com>
-# Copyright (c) 2017, 2021 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2017-2018, 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
-# Copyright (c) 2017 Derek Gustafson <degustaf@gmail.com>
-# Copyright (c) 2018-2019, 2021 Nick Drozd <nicholasdrozd@gmail.com>
-# Copyright (c) 2018 Pablo Galindo <Pablogsal@gmail.com>
-# Copyright (c) 2018 Jim Robertson <jrobertson98atx@gmail.com>
-# Copyright (c) 2018 Lucas Cimon <lucas.cimon@gmail.com>
-# Copyright (c) 2018 Mike Frysinger <vapier@gmail.com>
-# Copyright (c) 2018 Ben Green <benhgreen@icloud.com>
-# Copyright (c) 2018 Konstantin <Github@pheanex.de>
-# Copyright (c) 2018 Justin Li <justinnhli@users.noreply.github.com>
-# Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
-# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019 Andy Palmer <25123779+ninezerozeronine@users.noreply.github.com>
-# Copyright (c) 2019 mattlbeck <17108752+mattlbeck@users.noreply.github.com>
-# Copyright (c) 2019 Martin Vielsmaier <martin.vielsmaier@gmail.com>
-# Copyright (c) 2019 Santiago Castro <bryant@montevideo.com.uy>
-# Copyright (c) 2019 yory8 <39745367+yory8@users.noreply.github.com>
-# Copyright (c) 2019 Federico Bond <federicobond@gmail.com>
-# Copyright (c) 2019 Pascal Corpet <pcorpet@users.noreply.github.com>
-# Copyright (c) 2020 Peter Kolbus <peter.kolbus@gmail.com>
-# Copyright (c) 2020 Julien Palard <julien@palard.fr>
-# Copyright (c) 2020 Ram Rachum <ram@rachum.com>
-# Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2020 Anubhav <35621759+anubh-v@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 Tushar Sadhwani <tushar.sadhwani000@gmail.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 David Liu <david@cs.toronto.edu>
-# Copyright (c) 2021 doranid <ddandd@gmail.com>
-# Copyright (c) 2021 Yu Shao, Pang <36848472+yushao2@users.noreply.github.com>
-# Copyright (c) 2021 Andrew Haigh <nelfin@gmail.com>
-# Copyright (c) 2021 Jens H. Nielsen <Jens.Nielsen@microsoft.com>
-# Copyright (c) 2021 Ikraduya Edian <ikraduya@gmail.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/graphs/contributors
 
 """Try to find more bugs in the code using astroid inference capabilities."""
 
