@@ -204,6 +204,9 @@ Other Changes
 
   Closes #5713
 
+* Fixed an issue where ``ungrouped-imports`` could not be disabled without raising
+  ``useless-suppression``.
+
 * Fixed extremely long processing of long lines with comma's.
 
   Closes #5483
