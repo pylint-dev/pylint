@@ -42,7 +42,7 @@ class EllipsisChecker(BaseChecker):
                 len(node.parent.parent.child_sequence(node.parent)) > 1
                 or (
                     isinstance(node.parent.parent, (nodes.ClassDef, nodes.FunctionDef))
-                    and (node.parent.parent.doc is not None)
+                    and node.parent.parent.doc_node
                 )
             )
         ):

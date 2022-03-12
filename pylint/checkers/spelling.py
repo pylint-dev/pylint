@@ -460,14 +460,13 @@ class SpellingChecker(BaseTokenChecker):
 
     def _check_docstring(self, node):
         """Check the node has any spelling errors."""
-        docstring = node.doc
-        if not docstring:
+        if not node.doc_node:
             return
 
         start_line = node.lineno + 1
 
         # Go through lines of docstring
-        for idx, line in enumerate(docstring.splitlines()):
+        for idx, line in enumerate(node.doc_node.value.splitlines()):
             self._check_spelling("wrong-spelling-in-docstring", line, start_line + idx)
 
 

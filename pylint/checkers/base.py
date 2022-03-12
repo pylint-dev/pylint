@@ -2309,7 +2309,7 @@ class DocStringChecker(_BasicChecker):
         confidence=interfaces.HIGH,
     ):
         """Check if the node has a non-empty docstring."""
-        docstring = node.doc
+        docstring = node.doc_node.value if node.doc_node else None
         if docstring is None:
             docstring = _infer_dunder_doc_attribute(node)
 
@@ -2375,7 +2375,7 @@ class PassChecker(_BasicChecker):
     def visit_pass(self, node: nodes.Pass) -> None:
         if len(node.parent.child_sequence(node)) > 1 or (
             isinstance(node.parent, (nodes.ClassDef, nodes.FunctionDef))
-            and (node.parent.doc is not None)
+            and node.parent.doc_node
         ):
             self.add_message("unnecessary-pass", node=node)
 
