@@ -84,6 +84,15 @@ Following options are exposed:
 
 .. option:: --inlinevar-naming-style=<style>
 
+Predefined Naming Patterns
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Pylint provides predefined naming patterns for some names. These patterns are often
+based on a Naming Style but there is no option to choose one of the styles mentioned above.
+The pattern can be overwritten with the options discussed below.
+
+The following type of names are checked with a predefined pattern:
+
+- TypeVars. Accepted names include: `T`, `TypeVar`, `_CallableT`, `_T_co`.
 
 Custom regular expressions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
