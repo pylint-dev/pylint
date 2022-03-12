@@ -76,6 +76,11 @@ Release date: TBA
 
   Closes #5025
 
+* Fixed an issue where ``ungrouped-imports`` could not be disabled without raising
+  ``useless-suppression``.
+
+  Ref #2366
+
 * Added several checkers to deal with unicode security issues
   (see `Trojan Sources <https://trojansource.codes/>`_ and
   `PEP 672 <https://www.python.org/dev/peps/pep-0672/>`_ for details) that also
