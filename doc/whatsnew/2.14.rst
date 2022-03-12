@@ -23,3 +23,8 @@ Extensions
 
 Other Changes
 =============
+
+* Fixed false positive for ``unused-argument`` when a ``nonlocal`` name is used
+  in a nested function that is returned without being called by its parent.
+
+  Closes #5187
