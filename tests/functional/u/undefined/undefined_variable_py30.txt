@@ -4,7 +4,7 @@ undefined-variable:36:25:36:28:Undefined1.InnerScope.test1:Undefined variable 'A
 undefined-variable:51:28:51:32:FalsePositive342.test_bad:Undefined variable 'trop':UNDEFINED
 undefined-variable:54:31:54:36:FalsePositive342.test_bad1:Undefined variable 'trop1':UNDEFINED
 undefined-variable:57:31:57:36:FalsePositive342.test_bad2:Undefined variable 'trop2':UNDEFINED
-undefined-variable:63:0:64:27:Bad:Undefined variable 'ABCMet':UNDEFINED
-undefined-variable:66:0:67:35:SecondBad:Undefined variable 'ab':UNDEFINED
+undefined-variable:63:0:63:9:Bad:Undefined variable 'ABCMet':UNDEFINED
+undefined-variable:66:0:66:15:SecondBad:Undefined variable 'ab':UNDEFINED
 undefined-variable:97:53:97:61:InheritingClass:Undefined variable 'variable':UNDEFINED
-undefined-variable:103:0:104:8:Inheritor:Undefined variable 'DefinedTooLate':UNDEFINED
+undefined-variable:103:0:103:15:Inheritor:Undefined variable 'DefinedTooLate':UNDEFINED
