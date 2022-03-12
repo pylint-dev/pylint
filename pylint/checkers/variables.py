@@ -60,6 +60,7 @@ import copy
 import itertools
 import os
 import re
+import sys
 from enum import Enum
 from functools import lru_cache
 from typing import (
@@ -89,6 +90,13 @@ from pylint.interfaces import (
     IAstroidChecker,
 )
 from pylint.utils import get_global_option
+
+if sys.version_info >= (3, 8) or TYPE_CHECKING:
+    # pylint: disable-next=ungrouped-imports
+    from functools import cached_property
+else:
+    # pylint: disable-next=ungrouped-imports
+    from astroid.decorators import cachedproperty as cached_property
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -1810,15 +1818,15 @@ class VariablesChecker(BaseChecker):
             self._store_type_annotation_node(annotation)
 
     # Relying on other checker's options, which might not have been initialized yet.
-    @astroid.decorators.cachedproperty
+    @cached_property
     def _analyse_fallback_blocks(self):
         return get_global_option(self, "analyse-fallback-blocks", default=False)
 
-    @astroid.decorators.cachedproperty
+    @cached_property
     def _ignored_modules(self):
         return get_global_option(self, "ignored-modules", default=[])
 
-    @astroid.decorators.cachedproperty
+    @cached_property
     def _allow_global_unused_variables(self):
         return get_global_option(self, "allow-global-unused-variables", default=True)
 
