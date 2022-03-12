@@ -1708,11 +1708,13 @@ def _create_naming_options():
     for name_type in sorted(KNOWN_NAME_TYPES):
         human_readable_name = constants.HUMAN_READABLE_TYPES[name_type]
         name_type_hyphened = name_type.replace("_", "-")
+
         help_msg = f"Regular expression matching correct {human_readable_name} names. "
         if name_type in KNOWN_NAME_TYPES_WITH_STYLE:
             help_msg += f"Overrides {name_type_hyphened}-naming-style. "
         help_msg += f"If left empty, {human_readable_name} will be checked with the set naming style."
 
+        # Add style option for names that support it
         if name_type in KNOWN_NAME_TYPES_WITH_STYLE:
             default_style = DEFAULT_NAMING_STYLES[name_type]
             name_options.append(
@@ -1889,14 +1891,13 @@ class NameChecker(_BasicChecker):
 
         for name_type in KNOWN_NAME_TYPES:
             if name_type in KNOWN_NAME_TYPES_WITH_STYLE:
-                naming_style_option_name = f"{name_type}_naming_style"
-                naming_style_name = getattr(self.config, naming_style_option_name)
+                naming_style_name = getattr(self.config, f"{name_type}_naming_style")
                 regexps[name_type] = NAMING_STYLES[naming_style_name].get_regex(
                     name_type
                 )
             else:
-                regexps[name_type] = DEFAULT_PATTERNS[name_type]
                 naming_style_name = "predefined"
+                regexps[name_type] = DEFAULT_PATTERNS[name_type]
 
             custom_regex_setting_name = f"{name_type}_rgx"
             custom_regex = getattr(self.config, custom_regex_setting_name, None)
