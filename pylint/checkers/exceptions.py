@@ -57,8 +57,7 @@ def _builtin_exceptions():
 
 
 def _annotated_unpack_infer(stmt, context=None):
-    """
-    Recursively generate nodes inferred by the given statement.
+    """Recursively generate nodes inferred by the given statement.
     If the inferred value is a list or a tuple, recurse on the elements.
     Returns an iterator which yields tuples in the format
     ('original node', 'inferred node').
@@ -76,7 +75,7 @@ def _annotated_unpack_infer(stmt, context=None):
 
 
 def _is_raising(body: List) -> bool:
-    """Return whether the given statement node raises an exception"""
+    """Return whether the given statement node raises an exception."""
     return any(isinstance(node, nodes.Raise) for node in body)
 
 
@@ -507,7 +506,7 @@ class ExceptionsChecker(checkers.BaseChecker):
         "duplicate-except",
     )
     def visit_tryexcept(self, node: nodes.TryExcept) -> None:
-        """check for empty except"""
+        """Check for empty except."""
         self._check_try_except_raise(node)
         exceptions_classes: List[Any] = []
         nb_handlers = len(node.handlers)

@@ -45,13 +45,12 @@ class TestStdlibChecker(CheckerTestCase):
 
         While this test might seem weird since it uses a transform, it's actually testing a crash
         that happened in production, but there was no way to retrieve the code for which this
-        occurred (how an AssignAttr got to be the result of a function inference beats me...)"""
+        occurred (how an AssignAttr got to be the result of a function inference beats me...)
+        """
 
         def infer_func(
-            node: Name, context: Optional[Any] = None
-        ) -> Iterator[
-            Union[Iterator, Iterator[AssignAttr]]
-        ]:  # pylint: disable=unused-argument
+            node: Name, context: Optional[Any] = None  # pylint: disable=unused-argument
+        ) -> Iterator[Union[Iterator, Iterator[AssignAttr]]]:
             new_node = nodes.AssignAttr(attrname="alpha", parent=node)
             yield new_node
 

@@ -3,17 +3,20 @@
 
 import configparser
 import os
+import sys
 from typing import Iterator, Optional
 
-import toml
-from toml import TomlDecodeError
+if sys.version_info >= (3, 11):
+    import tomllib
+else:
+    import tomli as tomllib
 
 
 def _toml_has_config(path):
-    with open(path, encoding="utf-8") as toml_handle:
+    with open(path, mode="rb") as toml_handle:
         try:
-            content = toml.load(toml_handle)
-        except TomlDecodeError as error:
+            content = tomllib.load(toml_handle)
+        except tomllib.TOMLDecodeError as error:
             print(f"Failed to load '{path}': {error}")
             return False
 
@@ -71,7 +74,7 @@ def find_default_config_files() -> Iterator[str]:
 
 
 def find_pylintrc() -> Optional[str]:
-    """Search the pylint rc file and return its path if it finds it, else return None"""
+    """Search the pylint rc file and return its path if it finds it, else return None."""
     for config_file in find_default_config_files():
         if config_file.endswith("pylintrc"):
             return config_file

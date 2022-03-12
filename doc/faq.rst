@@ -116,6 +116,27 @@ For example::
 
 Much probably. Read :ref:`ide-integration`
 
+3.5 I need to run pylint over all modules and packages in my project directory.
+-------------------------------------------------------------------------------
+
+By default the ``pylint`` command only accepts a list of python modules and packages. Using a
+directory which is not a package results in an error::
+
+    pylint mydir
+    ************* Module mydir
+    mydir/__init__.py:1:0: F0010: error while code parsing: Unable to load file mydir/__init__.py:
+    [Errno 2] No such file or directory: 'mydir/__init__.py' (parse-error)
+
+To execute pylint over all modules and packages under the directory, the ``--recursive=y`` option must
+be provided. This option makes ``pylint`` attempt to discover all modules (files ending with ``.py`` extension)
+and all packages (all directories containing a ``__init__.py`` file).
+Those modules and packages are then analyzed::
+
+    pylint --recursive=y mydir
+
+When ``--recursive=y`` option is used, modules and packages are also accepted as parameters::
+
+    pylint --recursive=y mydir mymodule mypackage
 
 4. Message Control
 ==================
@@ -201,7 +222,7 @@ You can see the plugin you need to explicitly `load in the technical reference`_
 4.8 I am using another popular linter alongside pylint. Which messages should I disable to avoid duplicates?
 ------------------------------------------------------------------------------------------------------------
 
-pycodestyle_: unneeded-not, line-too-long, unnecessary-semicolon, trailing-whitespace, missing-final-newline, bad-indentation, multiple-statements, bare-except
+pycodestyle_: unneeded-not, line-too-long, unnecessary-semicolon, trailing-whitespace, missing-final-newline, bad-indentation, multiple-statements, bare-except, wrong-import-position
 
 pyflakes_: undefined-variable, unused-import, unused-variable
 
@@ -249,15 +270,16 @@ default value by changing the mixin-class-rgx option.
 6.1 Pylint gave my code a negative rating out of ten. That can't be right!
 --------------------------------------------------------------------------
 
-Even though the final rating Pylint renders is nominally out of ten, there's no
-lower bound on it. By default, the formula to calculate score is ::
+Prior to Pylint 2.13.0, the score formula used by default had no lower
+bound. The new default score formula is ::
 
-    0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)
+    max(0, 0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10))
 
-However, this option can be changed in the Pylint rc file. If having negative
-values really bugs you, you can set the formula to be the maximum of 0 and the
-above expression.
-
+If your project contains a configuration file created by an earlier version of
+Pylint, you can set ``evaluation`` to the above expression to get the new
+behavior. Likewise, since negative values are still technically supported,
+``evaluation`` can be set to a version of the above expression that does not
+enforce a floor of zero.
 
 6.2 I think I found a bug in Pylint. What should I do?
 -------------------------------------------------------

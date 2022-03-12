@@ -1,0 +1,5 @@
+[master]
+py-version=3.8
+
+[testoptions]
+min_pyver=3.9

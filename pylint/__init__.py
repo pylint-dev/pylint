@@ -11,39 +11,54 @@
 
 import os
 import sys
+from typing import Optional, Sequence
 
 from pylint.__pkginfo__ import __version__
 
 # pylint: disable=import-outside-toplevel
 
 
-def run_pylint():
+def run_pylint(argv: Optional[Sequence[str]] = None):
+    """Run pylint.
+
+    argv can be a sequence of strings normally supplied as arguments on the command line
+    """
     from pylint.lint import Run as PylintRun
 
     try:
-        PylintRun(sys.argv[1:])
+        PylintRun(argv or sys.argv[1:])
     except KeyboardInterrupt:
         sys.exit(1)
 
 
-def run_epylint():
+def run_epylint(argv: Optional[Sequence[str]] = None):
+    """Run epylint.
+
+    argv can be a list of strings normally supplied as arguments on the command line
+    """
     from pylint.epylint import Run as EpylintRun
 
-    EpylintRun()
+    EpylintRun(argv)
 
 
-def run_pyreverse():
-    """run pyreverse"""
+def run_pyreverse(argv: Optional[Sequence[str]] = None):
+    """Run pyreverse.
+
+    argv can be a sequence of strings normally supplied as arguments on the command line
+    """
     from pylint.pyreverse.main import Run as PyreverseRun
 
-    PyreverseRun(sys.argv[1:])
+    PyreverseRun(argv or sys.argv[1:])
 
 
-def run_symilar():
-    """run symilar"""
+def run_symilar(argv: Optional[Sequence[str]] = None):
+    """Run symilar.
+
+    argv can be a sequence of strings normally supplied as arguments on the command line
+    """
     from pylint.checkers.similar import Run as SimilarRun
 
-    SimilarRun(sys.argv[1:])
+    SimilarRun(argv or sys.argv[1:])
 
 
 def modify_sys_path() -> None:

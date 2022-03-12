@@ -12,7 +12,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""JSON reporter"""
+"""JSON reporter."""
 import json
 from typing import TYPE_CHECKING, Optional
 
@@ -32,7 +32,7 @@ class JSONReporter(BaseReporter):
     extension = "json"
 
     def display_messages(self, layout: Optional["Section"]) -> None:
-        """Launch layouts display"""
+        """Launch layouts display."""
         json_dumpable = [
             {
                 "type": msg.category,

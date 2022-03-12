@@ -8,9 +8,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""
-Class to generate files in dot format and image formats supported by Graphviz.
-"""
+"""Class to generate files in dot format and image formats supported by Graphviz."""
 import os
 import subprocess
 import sys
@@ -53,7 +51,7 @@ class DotPrinter(Printer):
         super().__init__(title, layout, use_automatic_namespace)
 
     def _open_graph(self) -> None:
-        """Emit the header lines"""
+        """Emit the header lines."""
         self.emit(f'digraph "{self.title}" {{')
         if self.layout:
             self.emit(f"rankdir={self.layout.value}")
@@ -107,7 +105,7 @@ class DotPrinter(Printer):
         methods: List[nodes.FunctionDef] = properties.methods or []
         for func in methods:
             args = self._get_method_arguments(func)
-            label += fr"{func.name}({', '.join(args)})"
+            label += rf"{func.name}({', '.join(args)})"
             if func.returns:
                 label += ": " + get_annotation_label(func.returns)
             label += r"\l"

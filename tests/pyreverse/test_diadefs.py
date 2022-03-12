@@ -21,7 +21,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""Unit test for the extensions.diadefslib modules"""
+"""Unit test for the extensions.diadefslib modules."""
 # pylint: disable=redefined-outer-name
 import sys
 from pathlib import Path
@@ -42,14 +42,14 @@ from pylint.testutils.pyreverse import PyreverseConfig
 
 
 def _process_classes(classes: List[DiagramEntity]) -> List[Tuple[bool, str]]:
-    """extract class names of a list"""
+    """Extract class names of a list."""
     return sorted((isinstance(c.node, nodes.ClassDef), c.title) for c in classes)
 
 
 def _process_relations(
     relations: Dict[str, List[Relationship]]
 ) -> List[Tuple[str, str, str]]:
-    """extract relation indices from a relation list"""
+    """Extract relation indices from a relation list."""
     result = []
     for rel_type, rels in relations.items():
         for rel in rels:
@@ -71,7 +71,7 @@ def PROJECT(get_project):
 def test_option_values(
     default_config: PyreverseConfig, HANDLER: DiadefsHandler, PROJECT: Project
 ) -> None:
-    """test for ancestor, associated and module options"""
+    """Test for ancestor, associated and module options."""
     df_h = DiaDefGenerator(Linker(PROJECT), HANDLER)
     cl_config = default_config
     cl_config.classes = ["Specialization"]
@@ -102,7 +102,7 @@ def test_option_values(
 
 
 def test_default_values() -> None:
-    """test default values for package or class diagrams"""
+    """Test default values for package or class diagrams."""
     # TODO : should test difference between default values for package or class diagrams pylint: disable=fixme
 
 
@@ -118,7 +118,7 @@ class TestDefaultDiadefGenerator:
     def test_exctract_relations(
         self, HANDLER: DiadefsHandler, PROJECT: Project
     ) -> None:
-        """test extract_relations between classes"""
+        """Test extract_relations between classes."""
         cd = DefaultDiadefGenerator(Linker(PROJECT), HANDLER).visit(PROJECT)[1]
         cd.extract_relationships()
         relations = _process_relations(cd.relationships)
@@ -127,8 +127,9 @@ class TestDefaultDiadefGenerator:
     def test_functional_relation_extraction(
         self, default_config: PyreverseConfig, get_project: Callable
     ) -> None:
-        """functional test of relations extraction;
-        different classes possibly in different modules"""
+        """Functional test of relations extraction;
+        different classes possibly in different modules
+        """
         # XXX should be catching pyreverse environment problem but doesn't
         # pyreverse doesn't extract the relations but this test ok
         project = get_project("data")

@@ -1,5 +1,4 @@
-"""Ellipsis checker for Python code
-"""
+"""Ellipsis checker for Python code."""
 from typing import TYPE_CHECKING
 
 from astroid import nodes

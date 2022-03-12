@@ -107,7 +107,7 @@ Please report bugs on the project\'s mailing list:
         return tail
 
     def format_usage(self, usage):
-        """Taken from optparse.IndentedHelpFormatter"""
+        """Taken from optparse.IndentedHelpFormatter."""
         return f"Usage: {usage}\n"
 
 

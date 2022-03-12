@@ -11,7 +11,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""Module to add McCabe checker class for pylint. """
+"""Module to add McCabe checker class for pylint."""
 
 from typing import TYPE_CHECKING
 
@@ -115,7 +115,7 @@ class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):
         return node
 
     def _subgraph(self, node, name, extra_blocks=()):
-        """create the subgraphs representing any `if` and `for` statements"""
+        """Create the subgraphs representing any `if` and `for` statements."""
         if self.graph is None:
             # global loop
             self.graph = PathGraph(node)
@@ -127,7 +127,7 @@ class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):
             self._subgraph_parse(node, node, extra_blocks)
 
     def _subgraph_parse(self, node, pathnode, extra_blocks):
-        """parse the body and any `else` block of `if` and `for` statements"""
+        """Parse the body and any `else` block of `if` and `for` statements."""
         loose_ends = []
         self.tail = node
         self.dispatch_list(node.body)
@@ -180,8 +180,9 @@ class McCabeMethodChecker(checkers.BaseChecker):
 
     @check_messages("too-complex")
     def visit_module(self, node: nodes.Module) -> None:
-        """visit an astroid.Module node to check too complex rating and
-        add message if is greater than max_complexity stored from options"""
+        """Visit an astroid.Module node to check too complex rating and
+        add message if is greater than max_complexity stored from options
+        """
         visitor = PathGraphingAstVisitor()
         for child in node.body:
             visitor.preorder(child, visitor)

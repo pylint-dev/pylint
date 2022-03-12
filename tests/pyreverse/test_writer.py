@@ -17,9 +17,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""
-Unit test for ``DiagramWriter``
-"""
+"""Unit test for ``DiagramWriter``."""
 
 
 import codecs
@@ -63,7 +61,7 @@ HTML_FILES = ["packages_No_Name.html", "classes_No_Name.html"]
 
 
 class Config:
-    """config object for tests"""
+    """Config object for tests."""
 
     def __init__(self):
         for attr, value in _DEFAULTS.items():

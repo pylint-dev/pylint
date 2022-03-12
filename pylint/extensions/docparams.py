@@ -24,8 +24,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""Pylint plugin for checking in Sphinx, Google, or Numpy style docstrings
-"""
+"""Pylint plugin for checking in Sphinx, Google, or Numpy style docstrings."""
 import re
 from typing import TYPE_CHECKING, Optional
 
@@ -44,7 +43,7 @@ if TYPE_CHECKING:
 
 
 class DocstringParameterChecker(BaseChecker):
-    """Checker for Sphinx, Google, or Numpy style docstrings
+    """Checker for Sphinx, Google, or Numpy style docstrings.
 
     * Check that all function, method and constructor parameters are mentioned
       in the params and types part of the docstring.  Constructor parameters
@@ -290,7 +289,7 @@ class DocstringParameterChecker(BaseChecker):
             self.add_message("redundant-yields-doc", node=node)
 
     def visit_raise(self, node: nodes.Raise) -> None:
-        func_node = node.frame()
+        func_node = node.frame(future=True)
         if not isinstance(func_node, astroid.FunctionDef):
             return
 
@@ -337,7 +336,7 @@ class DocstringParameterChecker(BaseChecker):
         if self.config.accept_no_return_doc:
             return
 
-        func_node = node.frame()
+        func_node = node.frame(future=True)
         if not isinstance(func_node, astroid.FunctionDef):
             return
 
@@ -358,7 +357,7 @@ class DocstringParameterChecker(BaseChecker):
         if self.config.accept_no_yields_doc:
             return
 
-        func_node = node.frame()
+        func_node = node.frame(future=True)
         if not isinstance(func_node, astroid.FunctionDef):
             return
 
@@ -642,8 +641,7 @@ class DocstringParameterChecker(BaseChecker):
         self._add_raise_message(excs, node)
 
     def _add_raise_message(self, missing_excs, node):
-        """
-        Adds a message on :param:`node` for the missing exception type.
+        """Adds a message on :param:`node` for the missing exception type.
 
         :param missing_excs: A list of missing exception types.
         :type missing_excs: set(str)

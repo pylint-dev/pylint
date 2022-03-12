@@ -18,7 +18,8 @@ def _modpath_from_file(filename, is_namespace, path=None):
 
 def get_python_path(filepath: str) -> str:
     """TODO This get the python path with the (bad) assumption that there is always
-    an __init__.py. This is not true since python 3.3 and is causing problem."""
+    an __init__.py. This is not true since python 3.3 and is causing problem.
+    """
     dirname = os.path.realpath(os.path.expanduser(filepath))
     if not os.path.isdir(dirname):
         dirname = os.path.dirname(dirname)
@@ -32,7 +33,7 @@ def get_python_path(filepath: str) -> str:
 
 
 def _is_in_ignore_list_re(element: str, ignore_list_re: List[Pattern]) -> bool:
-    """determines if the element is matched in a regex ignore-list"""
+    """Determines if the element is matched in a regex ignore-list."""
     return any(file_pattern.match(element) for file_pattern in ignore_list_re)
 
 
@@ -42,7 +43,7 @@ def expand_modules(
     ignore_list_re: List[Pattern],
     ignore_list_paths_re: List[Pattern[str]],
 ) -> Tuple[List[ModuleDescriptionDict], List[ErrorDescriptionDict]]:
-    """take a list of files/modules/packages and return the list of tuple
+    """Take a list of files/modules/packages and return the list of tuple
     (file, module name) which have to be actually checked
     """
     result: List[ModuleDescriptionDict] = []

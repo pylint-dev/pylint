@@ -28,7 +28,7 @@ expected_score_message = "Expected score message"
 
 
 def test_simple_json_output_no_score() -> None:
-    """Test JSON reporter with no score"""
+    """Test JSON reporter with no score."""
     message = {
         "msg": "line-too-long",
         "line": 1,
@@ -57,7 +57,7 @@ def test_simple_json_output_no_score() -> None:
 
 
 def test_simple_json_output_no_score_with_end_line() -> None:
-    """Test JSON reporter with no score with end_line and end_column"""
+    """Test JSON reporter with no score with end_line and end_column."""
     message = {
         "msg": "line-too-long",
         "line": 1,

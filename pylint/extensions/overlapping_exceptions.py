@@ -19,7 +19,8 @@ if TYPE_CHECKING:
 class OverlappingExceptionsChecker(checkers.BaseChecker):
     """Checks for two or more exceptions in the same exception handler
     clause that are identical or parts of the same inheritance hierarchy
-    (i.e. overlapping)."""
+    (i.e. overlapping).
+    """
 
     __implements__ = interfaces.IAstroidChecker
 
@@ -36,7 +37,7 @@ class OverlappingExceptionsChecker(checkers.BaseChecker):
 
     @utils.check_messages("overlapping-except")
     def visit_tryexcept(self, node: nodes.TryExcept) -> None:
-        """check for empty except"""
+        """Check for empty except."""
         for handler in node.handlers:
             if handler.type is None:
                 continue

@@ -20,8 +20,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""check for new / old style related problems
-"""
+"""Check for new / old style related problems."""
 from typing import TYPE_CHECKING
 
 import astroid
@@ -45,7 +44,7 @@ MSGS = {
 
 
 class NewStyleConflictChecker(BaseChecker):
-    """checks for usage of new style capabilities on old style classes and
+    """Checks for usage of new style capabilities on old style classes and
     other new/old styles conflicts problems
     * use of property, __slots__, super
     * "super" usage
@@ -63,11 +62,11 @@ class NewStyleConflictChecker(BaseChecker):
 
     @check_messages("bad-super-call")
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
-        """check use of super"""
+        """Check use of super."""
         # ignore actual functions or method within a new style class
         if not node.is_method():
             return
-        klass = node.parent.frame()
+        klass = node.parent.frame(future=True)
         for stmt in node.nodes_of_class(nodes.Call):
             if node_frame_class(stmt) != node_frame_class(node):
                 # Don't look down in other scopes.

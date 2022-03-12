@@ -77,7 +77,8 @@ def test__regexp_csv_validator_invalid() -> None:
 
 class TestPyLinterOptionSetters(CheckerTestCase):
     """Class to check the set_config decorator and get_global_option util
-    for options declared in PyLinter."""
+    for options declared in PyLinter.
+    """
 
     class Checker(BaseChecker):
         name = "checker"
@@ -88,7 +89,7 @@ class TestPyLinterOptionSetters(CheckerTestCase):
 
     @set_config(ignore_paths=".*/tests/.*,.*\\ignore\\.*")
     def test_ignore_paths_with_value(self) -> None:
-        """Test ignore-paths option with value"""
+        """Test ignore-paths option with value."""
         options = get_global_option(self.checker, "ignore-paths")
 
         assert any(i.match("dir/tests/file.py") for i in options)
@@ -98,7 +99,8 @@ class TestPyLinterOptionSetters(CheckerTestCase):
 
     def test_ignore_paths_with_no_value(self) -> None:
         """Test ignore-paths option with no value.
-        Compare against actual list to see if validator works."""
+        Compare against actual list to see if validator works.
+        """
         options = get_global_option(self.checker, "ignore-paths")
 
         assert options == []

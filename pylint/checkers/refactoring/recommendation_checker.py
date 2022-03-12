@@ -113,7 +113,7 @@ class RecommendationChecker(checkers.BaseChecker):
             return
 
         try:
-            utils.get_argument_from_call(node, 0, "sep")
+            sep = utils.get_argument_from_call(node, 0, "sep")
         except utils.NoSuchArgumentError:
             return
 
@@ -154,7 +154,7 @@ class RecommendationChecker(checkers.BaseChecker):
                 new_name = (
                     node.func.as_string().rsplit(fn_name, maxsplit=1)[0]
                     + new_fn
-                    + f"({node.args[0].as_string()}, maxsplit=1)[{subscript_value}]"
+                    + f"({sep.as_string()}, maxsplit=1)[{subscript_value}]"
                 )
                 self.add_message("use-maxsplit-arg", node=node, args=(new_name,))
 
@@ -337,7 +337,8 @@ class RecommendationChecker(checkers.BaseChecker):
 
     def _detect_replacable_format_call(self, node: nodes.Const) -> None:
         """Check whether a string is used in a call to format() or '%' and whether it
-        can be replaced by an f-string"""
+        can be replaced by an f-string
+        """
         if (
             isinstance(node.parent, nodes.Attribute)
             and node.parent.attrname == "format"

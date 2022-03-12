@@ -5,7 +5,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""Unit test for the diagrams modules"""
+"""Unit test for the diagrams modules."""
 from typing import Callable
 
 from pylint.pyreverse.diadefslib import DefaultDiadefGenerator, DiadefsHandler

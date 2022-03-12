@@ -28,8 +28,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""Checker for spelling errors in comments and docstrings.
-"""
+"""Checker for spelling errors in comments and docstrings."""
 import os
 import re
 import tokenize
@@ -147,9 +146,7 @@ class SphinxDirectives(RegExFilter):
 
 
 class ForwardSlashChunker(Chunker):
-    """
-    This chunker allows splitting words like 'before/after' into 'before' and 'after'
-    """
+    """This chunker allows splitting words like 'before/after' into 'before' and 'after'."""
 
     def next(self):
         while True:
@@ -194,7 +191,8 @@ def _strip_code_flanked_in_backticks(line: str) -> str:
     """Alter line so code flanked in backticks is ignored.
 
     Pyenchant automatically strips backticks when parsing tokens,
-    so this cannot be done at the individual filter level."""
+    so this cannot be done at the individual filter level.
+    """
 
     def replace_code_but_leave_surrounding_characters(match_obj) -> str:
         return match_obj.group(1) + match_obj.group(5)
@@ -205,7 +203,7 @@ def _strip_code_flanked_in_backticks(line: str) -> str:
 
 
 class SpellingChecker(BaseTokenChecker):
-    """Check spelling in comments and docstrings"""
+    """Check spelling in comments and docstrings."""
 
     __implements__ = (ITokenChecker, IAstroidChecker)
     name = "spelling"
@@ -411,7 +409,7 @@ class SpellingChecker(BaseTokenChecker):
                 suggestions = self.spelling_dict.suggest(word)
                 del suggestions[self.config.max_spelling_suggestions :]
                 line_segment = line[word_start_at:]
-                match = re.search(fr"(\W|^)({word})(\W|$)", line_segment)
+                match = re.search(rf"(\W|^)({word})(\W|$)", line_segment)
                 if match:
                     # Start position of second group in regex.
                     col = match.regs[2][0]
@@ -461,7 +459,7 @@ class SpellingChecker(BaseTokenChecker):
     visit_asyncfunctiondef = visit_functiondef
 
     def _check_docstring(self, node):
-        """check the node has any spelling errors"""
+        """Check the node has any spelling errors."""
         docstring = node.doc
         if not docstring:
             return
