@@ -21,6 +21,12 @@ Release date: TBA
 
   Closes #5840
 
+* Updated the position of messages for class and function defintions to no longer cover
+  the complete definition. Only the ``def`` or ``class`` + the name of the class/function
+  are covered.
+
+  Closes #5466
+
 * ``using-f-string-in-unsupported-version`` and ``using-final-decorator-in-unsupported-version`` msgids
     were renamed from ``W1601`` and ``W1602`` to ``W2601`` and ``W2602``. Disabling using these msgids will break.
     This is done in order to restore consistency with the already existing msgids for ``apply-builtin`` and

@@ -1,5 +1,5 @@
-missing-yield-doc:34:0:40:28:my_func:Missing yield documentation:UNDEFINED
-missing-yield-type-doc:43:0:49:15:my_func:Missing yield type documentation:UNDEFINED
-missing-yield-doc:52:0:58:15:my_func:Missing yield documentation:UNDEFINED
-missing-yield-doc:61:0:67:15:my_func:Missing yield documentation:UNDEFINED
-missing-yield-type-doc:61:0:67:15:my_func:Missing yield type documentation:UNDEFINED
+missing-yield-doc:34:0:34:11:my_func:Missing yield documentation:UNDEFINED
+missing-yield-type-doc:43:0:43:11:my_func:Missing yield type documentation:UNDEFINED
+missing-yield-doc:52:0:52:11:my_func:Missing yield documentation:UNDEFINED
+missing-yield-doc:61:0:61:11:my_func:Missing yield documentation:UNDEFINED
+missing-yield-type-doc:61:0:61:11:my_func:Missing yield type documentation:UNDEFINED
