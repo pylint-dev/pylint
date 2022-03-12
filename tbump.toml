@@ -41,10 +41,6 @@ name = "Upgrade the contributors list"
 cmd = "python3 script/create_contributor_list.py"
 
 [[before_commit]]
-name = "Upgrade copyrights"
-cmd = "pip3 install copyrite;copyrite --contribution-threshold 1 --change-threshold 3 --backend-type git --aliases=.copyrite_aliases . --jobs=8"
-
-[[before_commit]]
 name = "Apply pre-commit"
 cmd = "pre-commit run --all-files||echo 'Hack so this command does not fail'"
 

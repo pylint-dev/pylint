@@ -12,7 +12,7 @@ So, you want to release the `X.Y.Z` version of pylint ?
 5. Move back to a dev version for pylint with `tbump`:
 
 ```bash
-tbump X.Y.Z+1-dev0 --no-tag --no-push # You can interrupt during copyrite
+tbump X.Y.Z+1-dev0 --no-tag --no-push # You can interrupt after the first step
 git commit -am "Move back to a dev version following X.Y.Z release"
 ```
 

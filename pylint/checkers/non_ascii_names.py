@@ -1,7 +1,7 @@
-# Copyright (c) 2021-2022 Carli Freudenberg <carli.freudenberg@energymeteo.de>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/graphs/contributors
+
 """All alphanumeric unicode character are allowed in Python but due
 to similarities in how they look they can be confused.
 
