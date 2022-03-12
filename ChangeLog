@@ -10,7 +10,7 @@ Release date: TBA
   Put new features here and also in 'doc/whatsnew/2.13.rst'
 
 * No longer emit ``no-member`` in for loops that reference ``self`` if the binary operation that
-  started the for loop used references a ``self`` that is encapsulated in tuples or lists.
+  started the for loop uses a ``self`` that is encapsulated in tuples or lists.
 
   Ref PyCQA/astroid#1360
   Closes #4826
