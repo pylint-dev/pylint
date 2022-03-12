@@ -109,6 +109,13 @@ from pylint.checkers.utils import (
 from pylint.interfaces import INFERENCE, IAstroidChecker
 from pylint.utils import get_global_option
 
+if sys.version_info >= (3, 8) or TYPE_CHECKING:
+    # pylint: disable-next=ungrouped-imports
+    from functools import cached_property
+else:
+    # pylint: disable-next=ungrouped-imports
+    from astroid.decorators import cachedproperty as cached_property
+
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
@@ -937,11 +944,11 @@ accessed. Python regular expressions are accepted.",
         self._py310_plus = py_version >= (3, 10)
         self._mixin_class_rgx = get_global_option(self, "mixin-class-rgx")
 
-    @astroid.decorators.cachedproperty
+    @cached_property
     def _suggestion_mode(self):
         return get_global_option(self, "suggestion-mode", default=True)
 
-    @astroid.decorators.cachedproperty
+    @cached_property
     def _compiled_generated_members(self) -> Tuple[Pattern, ...]:
         # do this lazily since config not fully initialized in __init__
         # generated_members may contain regular expressions

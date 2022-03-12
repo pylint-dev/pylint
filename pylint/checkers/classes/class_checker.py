@@ -51,8 +51,9 @@
 
 """Classes checker for Python code."""
 import collections
+import sys
 from itertools import chain, zip_longest
-from typing import Dict, List, Pattern, Set
+from typing import TYPE_CHECKING, Dict, List, Pattern, Set
 
 import astroid
 from astroid import bases, nodes
@@ -83,6 +84,12 @@ from pylint.checkers.utils import (
 )
 from pylint.interfaces import INFERENCE, IAstroidChecker
 from pylint.utils import get_global_option
+
+if sys.version_info >= (3, 8) or TYPE_CHECKING:
+    from functools import cached_property
+else:
+    # pylint: disable-next=ungrouped-imports
+    from astroid.decorators import cachedproperty as cached_property
 
 INVALID_BASE_CLASSES = {"bool", "range", "slice", "memoryview"}
 BUILTIN_DECORATORS = {"builtins.property", "builtins.classmethod"}
@@ -778,11 +785,11 @@ a metaclass class method.",
         py_version = get_global_option(self, "py-version")
         self._py38_plus = py_version >= (3, 8)
 
-    @astroid.decorators.cachedproperty
+    @cached_property
     def _dummy_rgx(self):
         return get_global_option(self, "dummy-variables-rgx", default=None)
 
-    @astroid.decorators.cachedproperty
+    @cached_property
     def _ignore_mixin(self):
         return get_global_option(self, "ignore-mixin-members", default=True)
 
