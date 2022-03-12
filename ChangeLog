@@ -450,8 +450,8 @@ Release date: TBA
   Insert your changelog randomly, it will reduce merge conflicts
   (Ie. not necessarily at the end)
 
-* ``invalid-name`` check now also checks ``TypeVar`` for a pattern set with the new option
-  ``--typevar-rgx`` option or a default ``PascalCase`` based style.
+* Improve ``invalid-name`` check for ``TypeVar`` names.
+  The accepted pattern can be customized with ``--typevar-rgx``.
 
   Closes #3401
 

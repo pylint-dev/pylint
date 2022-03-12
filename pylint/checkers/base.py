@@ -1682,7 +1682,7 @@ KNOWN_NAME_TYPES_WITH_STYLE = {
     "inlinevar",
 }
 
-# Name types that only have a 'rgx' option
+# Name types that have a 'rgx' option
 KNOWN_NAME_TYPES = {
     *KNOWN_NAME_TYPES_WITH_STYLE,
     "typevar",
