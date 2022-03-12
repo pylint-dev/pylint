@@ -9,6 +9,12 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.13.rst'
 
+* No longer emit ``no-member`` in for loops that reference ``self`` if the binary operation that
+  started the for loop uses a ``self`` that is encapsulated in tuples or lists.
+
+  Ref PyCQA/astroid#1360
+  Closes #4826
+
 * Fix pyreverse diagrams type hinting for classmethods and staticmethods.
 
 * Fix matching ``--notes`` options that end in a non-word character.
@@ -227,6 +233,9 @@ Release date: TBA
 
   Closes #3793
 
+* Fixed a false positive for ``invalid-class-object`` when the object
+  being assigned to the ``__class__`` attribute is uninferable.
+
 * Fixed false positive for ``used-before-assignment`` with self-referential type
   annotation in conditional statements within class methods.
 
@@ -329,6 +338,11 @@ Release date: TBA
   as typing constants.
 
   Closes #5557
+
+* Fixed a crash on ``__init__`` nodes when the attribute was previously uninferable due to a cache
+  limit size. This limit can be hit when the inheritance pattern of a class (and therefore of the ``__init__`` attribute) is very large.
+
+  Closes #5679
 
 * Fix ``unnecessary_dict_index_lookup`` false positive when deleting a dictionary's entry.
 

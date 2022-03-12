@@ -1482,8 +1482,12 @@ a metaclass class method.",
         if not node.attrname == "__class__":
             return
         inferred = safe_infer(node.parent.value)
-        if isinstance(inferred, nodes.ClassDef) or inferred is astroid.Uninferable:
-            # If is uninferrable, we allow it to prevent false positives
+        if (
+            isinstance(inferred, nodes.ClassDef)
+            or inferred is astroid.Uninferable
+            or inferred is None
+        ):
+            # If is uninferable, we allow it to prevent false positives
             return
         self.add_message("invalid-class-object", node=node)
 

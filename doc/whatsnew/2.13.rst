@@ -106,6 +106,12 @@ Extensions
 Other Changes
 =============
 
+* No longer emit ``no-member`` in for loops that reference ``self`` if the binary operation that
+  started the for loop uses a ``self`` that is encapsulated in tuples or lists.
+
+  Ref PyCQA/astroid#1360
+  Closes #4826
+
 * Fix matching ``--notes`` options that end in a non-word character.
 
   Closes #5840
@@ -207,6 +213,11 @@ Other Changes
 * Fixed an issue where ``ungrouped-imports`` could not be disabled without raising
   ``useless-suppression``.
 
+* Fixed a crash on ``__init__`` nodes when the attribute was previously uninferable due to a cache
+  limit size. This limit can be hit when the inheritance pattern of a class (and therefore of the ``__init__`` attribute) is very large.
+
+  Closes #5679
+
 * Fixed extremely long processing of long lines with comma's.
 
   Closes #5483
@@ -298,6 +309,9 @@ Other Changes
   defined ``__setattr__``.
 
   Closes #3793
+
+* Fixed a false positive for ``invalid-class-object`` when the object
+  being assigned to the ``__class__`` attribute is uninferable.
 
 * Added a ``testutil`` extra require to the packaging, as ``gitpython`` should not be a dependency
   all the time but is still required to use the primer helper code in ``pylint.testutil``. You can
