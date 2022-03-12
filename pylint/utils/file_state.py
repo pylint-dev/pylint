@@ -16,7 +16,11 @@ from typing import (
 
 from astroid import nodes
 
-from pylint.constants import MSG_STATE_SCOPE_MODULE, WarningScope
+from pylint.constants import (
+    INCOMPATIBLE_WITH_USELESS_SUPPRESSION,
+    MSG_STATE_SCOPE_MODULE,
+    WarningScope,
+)
 
 if sys.version_info >= (3, 8):
     from typing import Literal
@@ -159,13 +163,14 @@ class FileState:
     ]:
         for warning, lines in self._raw_module_msgs_state.items():
             for line, enable in lines.items():
-                if not enable and (warning, line) not in self._ignored_msgs:
-                    # ignore cyclic-import check which can show false positives
-                    # here due to incomplete context
-                    if warning != "R0401":
-                        yield "useless-suppression", line, (
-                            msgs_store.get_msg_display_string(warning),
-                        )
+                if (
+                    not enable
+                    and (warning, line) not in self._ignored_msgs
+                    and warning not in INCOMPATIBLE_WITH_USELESS_SUPPRESSION
+                ):
+                    yield "useless-suppression", line, (
+                        msgs_store.get_msg_display_string(warning),
+                    )
         # don't use iteritems here, _ignored_msgs may be modified by add_message
         for (warning, from_), ignored_lines in list(self._ignored_msgs.items()):
             for line in ignored_lines:

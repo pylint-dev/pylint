@@ -578,12 +578,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             token_string = token[1]
             if token_string == "elif":
                 # AST exists by the time process_tokens is called, so
-                # it's safe to assume tokens[index+1]
-                # exists. tokens[index+1][2] is the elif's position as
+                # it's safe to assume tokens[index+1] exists.
+                # tokens[index+1][2] is the elif's position as
                 # reported by CPython and PyPy,
-                # tokens[index][2] is the actual position and also is
+                # token[2] is the actual position and also is
                 # reported by IronPython.
-                self._elifs.extend([tokens[index][2], tokens[index + 1][2]])
+                self._elifs.extend([token[2], tokens[index + 1][2]])
             elif _is_trailing_comma(tokens, index):
                 if self.linter.is_message_enabled("trailing-comma-tuple"):
                     self.add_message("trailing-comma-tuple", line=token.start[0])

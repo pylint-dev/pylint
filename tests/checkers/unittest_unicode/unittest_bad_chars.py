@@ -130,6 +130,7 @@ class TestBadCharsChecker(pylint.testutils.CheckerTestCase):
             # string
             module = astroid.MANAGER.ast_from_string(file)
         except AstroidBuildingError:
+            # pylint: disable-next=redefined-variable-type
             module = cast(nodes.Module, FakeNode(file.read_bytes()))
 
         expected = [

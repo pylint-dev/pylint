@@ -28,3 +28,11 @@ class Specialization(Ancestor):
         self._id = _id
         self.relation = DoNothing()
         self.relation2 = relation2
+
+    @classmethod
+    def from_value(cls, value: int):
+        return cls(value, 0, DoNothing2())
+
+    @staticmethod
+    def transform_value(value: int) -> int:
+        return value * 2

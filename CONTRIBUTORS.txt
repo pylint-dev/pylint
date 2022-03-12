@@ -598,6 +598,14 @@ contributors:
 
 * Kian-Meng, Ang: contributor
 
+* Nuzula H. Yudaka (Nuzhuka): contributor
+
 * Carli Freudenberg (CarliJoy): contributor
   - Fixed issue 5281, added Unicode checker
   - Improve non-ascii-name checker
+
+* Daniel Brookman: contributor
+
+* Téo Bouvard: contributor
+
+* Konrad Weihmann: contributor
