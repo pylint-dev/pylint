@@ -547,6 +547,10 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             ):
                 self.add_message("ungrouped-imports", node=import_node, args=package)
             current_package = package
+            if not self.linter.is_message_enabled(
+                "ungrouped-imports", import_node.fromlineno
+            ):
+                continue
             met.add(package)
 
         self._imports_stack = []
