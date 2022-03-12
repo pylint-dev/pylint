@@ -1708,11 +1708,13 @@ def _create_naming_options():
     for name_type in sorted(KNOWN_NAME_TYPES):
         human_readable_name = constants.HUMAN_READABLE_TYPES[name_type]
         name_type_hyphened = name_type.replace("_", "-")
-        help_msg = f"Regular expression matching correct {human_readable_name} names."
+        help_msg = f"Regular expression matching correct {human_readable_name} names. "
+        if name_type in KNOWN_NAME_TYPES_WITH_STYLE:
+            help_msg += f"Overrides {name_type_hyphened}-naming-style. "
+        help_msg += f"If left empty, {human_readable_name} will be checked with the set naming style."
 
         if name_type in KNOWN_NAME_TYPES_WITH_STYLE:
             default_style = DEFAULT_NAMING_STYLES[name_type]
-            help_msg += f" Overrides {name_type_hyphened}-naming-style."
             name_options.append(
                 (
                     f"{name_type_hyphened}-naming-style",
@@ -1726,9 +1728,6 @@ def _create_naming_options():
                 )
             )
 
-        help_msg += (
-            " If left empty, type variables will be checked with the set naming style."
-        )
         name_options.append(
             (
                 f"{name_type_hyphened}-rgx",
