@@ -215,6 +215,9 @@ Release date: TBA
 
   Closes #3793
 
+* Fixed a false positive for ``invalid-class-object`` when the object
+  being assigned to the ``__class__`` attribute is uninferable.
+
 * Fixed false positive for ``used-before-assignment`` with self-referential type
   annotation in conditional statements within class methods.
 
