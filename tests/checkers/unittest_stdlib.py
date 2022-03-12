@@ -49,10 +49,8 @@ class TestStdlibChecker(CheckerTestCase):
         """
 
         def infer_func(
-            node: Name, context: Optional[Any] = None
-        ) -> Iterator[
-            Union[Iterator, Iterator[AssignAttr]]
-        ]:  # pylint: disable=unused-argument
+            node: Name, context: Optional[Any] = None  # pylint: disable=unused-argument
+        ) -> Iterator[Union[Iterator, Iterator[AssignAttr]]]:
             new_node = nodes.AssignAttr(attrname="alpha", parent=node)
             yield new_node
 
