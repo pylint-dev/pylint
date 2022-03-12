@@ -210,6 +210,11 @@ Other Changes
 
   Closes #5713
 
+* Fixed a crash on ``__init__`` nodes when the attribute was previously uninferable due to a cache
+  limit size. This limit can be hit when the inheritance pattern of a class (and therefore of the ``__init__`` attribute) is very large.
+
+  Closes #5679
+
 * Fixed extremely long processing of long lines with comma's.
 
   Closes #5483

@@ -333,6 +333,11 @@ Release date: TBA
 
   Closes #5557
 
+* Fixed a crash on ``__init__`` nodes when the attribute was previously uninferable due to a cache
+  limit size. This limit can be hit when the inheritance pattern of a class (and therefore of the ``__init__`` attribute) is very large.
+
+  Closes #5679
+
 * Fix ``unnecessary_dict_index_lookup`` false positive when deleting a dictionary's entry.
 
   Closes #4716
