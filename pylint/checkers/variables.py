@@ -646,7 +646,12 @@ scope_type : {self._atomic.scope_type}
             found_nodes = None
 
         # Filter out assignments in ExceptHandlers that node is not contained in
-        if found_nodes:
+        # unless this is a test in a filtered comprehension
+        # Example: [e for e in range(3) if e] <--- followed by except e:
+        if found_nodes and (
+            not isinstance(parent_node, nodes.Comprehension)
+            or node not in parent_node.ifs
+        ):
             found_nodes = [
                 n
                 for n in found_nodes
@@ -1971,7 +1976,7 @@ class VariablesChecker(BaseChecker):
                     # same line as the function definition
                     maybe_before_assign = False
                 elif (
-                    isinstance(  # pylint: disable=too-many-boolean-expressions
+                    isinstance(
                         defstmt,
                         (
                             nodes.Assign,
@@ -1981,26 +1986,7 @@ class VariablesChecker(BaseChecker):
                             nodes.Return,
                         ),
                     )
-                    and (
-                        isinstance(defstmt.value, nodes.IfExp)
-                        or (
-                            isinstance(defstmt.value, nodes.Lambda)
-                            and isinstance(defstmt.value.body, nodes.IfExp)
-                        )
-                        or (
-                            isinstance(defstmt.value, nodes.Call)
-                            and (
-                                any(
-                                    isinstance(kwarg.value, nodes.IfExp)
-                                    for kwarg in defstmt.value.keywords
-                                )
-                                or any(
-                                    isinstance(arg, nodes.IfExp)
-                                    for arg in defstmt.value.args
-                                )
-                            )
-                        )
-                    )
+                    and VariablesChecker._maybe_used_and_assigned_at_once(defstmt)
                     and frame is defframe
                     and defframe.parent_of(node)
                     and stmt is defstmt
@@ -2073,6 +2059,27 @@ class VariablesChecker(BaseChecker):
                         maybe_before_assign = True
 
         return maybe_before_assign, annotation_return, use_outer_definition
+
+    @staticmethod
+    def _maybe_used_and_assigned_at_once(defstmt: nodes.Statement) -> bool:
+        """Check if `defstmt` has the potential to use and assign a name in the
+        same statement.
+        """
+        if isinstance(defstmt.value, nodes.BaseContainer) and defstmt.value.elts:
+            # The assignment must happen as part of the first element
+            # e.g. "assert (x:= True), x"
+            # NOT "assert x, (x:= True)"
+            value = defstmt.value.elts[0]
+        else:
+            value = defstmt.value
+        if isinstance(value, nodes.IfExp):
+            return True
+        if isinstance(value, nodes.Lambda) and isinstance(value.body, nodes.IfExp):
+            return True
+        return isinstance(value, nodes.Call) and (
+            any(isinstance(kwarg.value, nodes.IfExp) for kwarg in value.keywords)
+            or any(isinstance(arg, nodes.IfExp) for arg in value.args)
+        )
 
     @staticmethod
     def _is_only_type_assignment(node: nodes.Name, defstmt: nodes.Statement) -> bool:

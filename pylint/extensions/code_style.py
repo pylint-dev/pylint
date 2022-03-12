@@ -28,7 +28,7 @@ class CodeStyleChecker(BaseChecker):
        i.e. detect a common issue or improve performance
        => it should probably be part of the core checker classes
     2. Is it something that would improve code consistency,
-       maybe because it's slightly better with regards to performance
+       maybe because it's slightly better with regard to performance
        and therefore preferred => this is the right place
     3. Everything else should go into another extension
     """

@@ -37,6 +37,10 @@ New checkers
 
   Closes #5460
 
+* Added new checker ``typevar-name-missing-variance``. Emitted when a covariant
+  or contravariant ``TypeVar`` does not end with  ``_co`` or ``_contra`` respectively or
+  when a ``TypeVar`` is not either but has a suffix.
+
 * Add ``modified-iterating-list``, ``modified-iterating-dict``, and ``modified-iterating-set``,
   emitted when items are added to or removed from respectively a list, dictionary or
   set being iterated through.
@@ -75,6 +79,16 @@ Extensions
 
 * Pyreverse - add output in mermaid-js format and html which is an mermaid js diagram with html boilerplate
 
+* ``TypingChecker``
+
+  * Added new check ``broken-noreturn`` to detect broken uses of ``typing.NoReturn``
+    if ``py-version`` is set to Python ``3.7.1`` or below.
+    https://bugs.python.org/issue34921
+
+  * Added new check ``broken-collections-callable`` to detect broken uses of ``collections.abc.Callable``
+    if ``py-version`` is set to Python ``3.9.1`` or below.
+    https://bugs.python.org/issue42965
+
 * ``DocstringParameterChecker``
 
   * Fixed incorrect classification of Numpy-style docstring as Google-style docstring for
@@ -92,11 +106,32 @@ Extensions
 Other Changes
 =============
 
+* Fix matching ``--notes`` options that end in a non-word character.
+
+  Closes #5840
+
+* The line numbering for messages related to function arguments is now more accurate. This can
+  require some message disables to be relocated to updated positions.
+
+* ``using-f-string-in-unsupported-version`` and ``using-final-decorator-in-unsupported-version`` msgids
+    were renamed from ``W1601`` and ``W1602`` to ``W2601`` and ``W2602``. Disables using these msgids will break.
+    This is done in order to restore consistency with the already existing msgids for ``apply-builtin`` and
+    ``basestring-builtin`` from the now deleted python 3K+ checker. There is now a check that we're not using
+    existing msgids or symbols from deleted checkers.
+
+  Closes #5729
+
 * Add ``--recursive`` option to allow recursive discovery of all modules and packages in subtree. Running pylint with
   ``--recursive=y`` option will check all discovered ``.py`` files and packages found inside subtree of directory provided
   as parameter to pylint.
 
   Closes #352
+
+* Reinstated checks from the python3 checker that are still useful for python 3
+  (``eq-without-hash``). This is now in the ``pylint.extensions.eq_without_hash`` optional
+  extension.
+
+  Closes #5025
 
 * Fix false-negative for ``assignment-from-none`` checker with list.sort() method.
 
@@ -110,6 +145,10 @@ Other Changes
 * Better warning messages for useless else or elif when a function returns early.
 
   Closes #5614
+
+* Use the ``tomli`` package instead of ``toml`` to parse ``.toml`` files.
+
+ Closes #5885
 
 * Fixed false positive ``consider-using-dict-comprehension`` when creating a dict
   using a list of tuples where key AND value vary depending on the same condition.
@@ -190,6 +229,11 @@ Other Changes
 
   Closes #4716
 
+* Fix false positive for ``used-before-assignment`` when an except handler
+  shares a name with a test in a filtered comprehension.
+
+  Closes #5817
+
 * Fix a crash in ``unused-private-member`` checker when analyzing code using
   ``type(self)`` in bound methods.
 
@@ -219,6 +263,11 @@ Other Changes
 
   Closes #5323
 
+* Allow disabling ``duplicate-code`` with a disable comment when running through
+  pylint.
+
+  Closes #214
+
 * Fix false positive for ``undefined-variable`` when ``namedtuple`` class
   attributes are used as return annotations.
 
@@ -246,6 +295,17 @@ Other Changes
   defined ``__setattr__``.
 
   Closes #3793
+
+* Added a ``testutil`` extra require to the packaging, as ``gitpython`` should not be a dependency
+  all the time but is still required to use the primer helper code in ``pylint.testutil``. You can
+  install it with ``pip install pylint[testutil]``.
+
+  Closes #5486
+
+* Fixed a false positive for ``used-before-assignment`` when a named expression
+  appears as the first value in a container.
+
+  Closes #5112
 
 * Fixed false positive for ``used-before-assignment`` with self-referential type
   annotation in conditional statements within class methods.
@@ -354,6 +414,16 @@ Other Changes
 
 * The ``testutils`` for unittests now accept ``end_lineno`` and ``end_column``. Tests
   without these will trigger a ``DeprecationWarning``.
+
+* Disables for ``deprecated-module`` and similar warnings for stdlib features deprecated
+  in newer versions of Python no longer raise ``useless-suppression`` when linting with
+  older Python interpreters where those features are not yet deprecated.
+
+* Importing the deprecated stdlib module ``xml.etree.cElementTree`` now emits ``deprecated_module``.
+
+  Closes #5862
+
+* Importing the deprecated stdlib module ``distutils`` now emits ``deprecated_module`` on Python 3.10+.
 
 * Fixed false positive ``unexpected-keyword-arg`` for decorators.
 

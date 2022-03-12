@@ -99,14 +99,13 @@ class Printer(ABC):
 
     @staticmethod
     def _get_method_arguments(method: nodes.FunctionDef) -> List[str]:
-        if method.args.args:
-            arguments: List[nodes.AssignName] = [
-                arg for arg in method.args.args if arg.name != "self"
-            ]
-        else:
-            arguments = []
+        if method.args.args is None:
+            return []
 
-        annotations = dict(zip(arguments, method.args.annotations[1:]))
+        first_arg = 0 if method.type in {"function", "staticmethod"} else 1
+        arguments: List[nodes.AssignName] = method.args.args[first_arg:]
+
+        annotations = dict(zip(arguments, method.args.annotations[first_arg:]))
         for arg in arguments:
             annotation_label = ""
             ann = annotations.get(arg)

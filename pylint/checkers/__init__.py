@@ -37,14 +37,15 @@ Base id of standard checkers (used in msg and report ids):
 13: string_format
 14: string_constant
 15: stdlib
-16: python3
+16: python3 (This one was deleted but needs to be reserved for consistency with old messages)
 17: refactoring
 .
 .
 .
 24: non-ascii-names
 25: unicode
-26-50: not yet used: reserved for future internal checkers.
+26: unsupported_version
+27-50: not yet used: reserved for future internal checkers.
 This file is not updated. Use
    script/get_unused_message_id_category.py
 to get the next free checker id.
@@ -123,8 +124,8 @@ def table_lines_from_stats(
                 ("error", "NC"),
             ]
 
-    for index, _ in enumerate(new):
-        new_value = new[index][1]
+    for index, value in enumerate(new):
+        new_value = value[1]
         old_value = old[index][1]
         diff_str = (
             diff_string(old_value, new_value)
@@ -133,7 +134,7 @@ def table_lines_from_stats(
         )
         new_str = f"{new_value:.3f}" if isinstance(new_value, float) else str(new_value)
         old_str = f"{old_value:.3f}" if isinstance(old_value, float) else str(old_value)
-        lines.extend((new[index][0].replace("_", " "), new_str, old_str, diff_str))
+        lines.extend((value[0].replace("_", " "), new_str, old_str, diff_str))
     return lines
 
 
