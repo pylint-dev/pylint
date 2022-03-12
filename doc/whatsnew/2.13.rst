@@ -307,6 +307,9 @@ Other Changes
 
   Closes #3793
 
+* Fixed a false positive for ``invalid-class-object`` when the object
+  being assigned to the ``__class__`` attribute is uninferable.
+
 * Added a ``testutil`` extra require to the packaging, as ``gitpython`` should not be a dependency
   all the time but is still required to use the primer helper code in ``pylint.testutil``. You can
   install it with ``pip install pylint[testutil]``.
