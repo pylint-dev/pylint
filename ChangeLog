@@ -23,6 +23,9 @@ Release date: TBA
 
   Closes #5729
 
+* The line numbering for messages related to function arguments is now more accurate. This can
+  require some message disables to be relocated to updated positions.
+
 * Add ``--recursive`` option to allow recursive discovery of all modules and packages in subtree. Running pylint with
   ``--recursive=y`` option will check all discovered ``.py`` files and packages found inside subtree of directory provided
   as parameter to pylint.

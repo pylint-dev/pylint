@@ -110,6 +110,9 @@ Other Changes
 
   Closes #5840
 
+* The line numbering for messages related to function arguments is now more accurate. This can
+  require some message disables to be relocated to updated positions.
+
 * ``using-f-string-in-unsupported-version`` and ``using-final-decorator-in-unsupported-version`` msgids
     were renamed from ``W1601`` and ``W1602`` to ``W2601`` and ``W2602``. Disables using these msgids will break.
     This is done in order to restore consistency with the already existing msgids for ``apply-builtin`` and
