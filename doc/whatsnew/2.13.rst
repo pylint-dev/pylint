@@ -106,6 +106,12 @@ Extensions
 Other Changes
 =============
 
+* No longer emit ``no-member`` in for loops that reference ``self`` if the binary operation that
+  started the for loop uses a ``self`` that is encapsulated in tuples or lists.
+
+  Ref PyCQA/astroid#1360
+  Closes #4826
+
 * Fix matching ``--notes`` options that end in a non-word character.
 
   Closes #5840
