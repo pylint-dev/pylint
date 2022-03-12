@@ -34,13 +34,13 @@ class ReportsHandlerMixIn:
         self._reports_state: Dict[str, bool] = {}
 
     def report_order(self) -> MutableSequence["BaseChecker"]:
-        """Return a list of reporters"""
+        """Return a list of reporters."""
         return list(self._reports)
 
     def register_report(
         self, reportid: str, r_title: str, r_cb: Callable, checker: "BaseChecker"
     ) -> None:
-        """Register a report
+        """Register a report.
 
         :param reportid: The unique identifier for the report
         :param r_title: The report's title
@@ -51,12 +51,12 @@ class ReportsHandlerMixIn:
         self._reports[checker].append((reportid, r_title, r_cb))
 
     def enable_report(self, reportid: str) -> None:
-        """Enable the report of the given id"""
+        """Enable the report of the given id."""
         reportid = reportid.upper()
         self._reports_state[reportid] = True
 
     def disable_report(self, reportid: str) -> None:
-        """Disable the report of the given id"""
+        """Disable the report of the given id."""
         reportid = reportid.upper()
         self._reports_state[reportid] = False
 
@@ -69,7 +69,7 @@ class ReportsHandlerMixIn:
         stats: LinterStats,
         old_stats: Optional[LinterStats],
     ) -> Section:
-        """Render registered reports"""
+        """Render registered reports."""
         sect = Section("Report", f"{self.stats.statement} statements analysed.")
         for checker in self.report_order():
             for reportid, r_title, r_cb in self._reports[checker]:

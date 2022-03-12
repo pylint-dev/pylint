@@ -26,7 +26,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""Check format checker helper functions"""
+"""Check format checker helper functions."""
 
 import os
 import tempfile
@@ -120,7 +120,7 @@ class TestSuperfluousParentheses(CheckerTestCase):
                 self.checker.process_tokens(_tokenize_str(code))
 
     def testPositiveSuperfluousParensWalrusOperatorIf(self) -> None:
-        """Test positive superfluous parens cases with the walrus operator"""
+        """Test positive superfluous parens cases with the walrus operator."""
         cases = [
             (
                 MessageTest("superfluous-parens", line=1, args="if"),
@@ -162,7 +162,7 @@ class TestCheckSpace(CheckerTestCase):
     CHECKER_CLASS = FormatChecker
 
     def test_encoding_token(self) -> None:
-        """Make sure the encoding token doesn't change the checker's behavior
+        """Make sure the encoding token doesn't change the checker's behavior.
 
         _tokenize_str doesn't produce an encoding token, but
         reading a file does

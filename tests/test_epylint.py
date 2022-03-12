@@ -1,4 +1,4 @@
-"""Test for issue https://github.com/PyCQA/pylint/issues/4286"""
+"""Test for issue https://github.com/PyCQA/pylint/issues/4286."""
 # pylint: disable=redefined-outer-name
 from pathlib import PosixPath
 

@@ -25,7 +25,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 
-"""Check source code is ascii only or has an encoding declaration (PEP 263)"""
+"""Check source code is ascii only or has an encoding declaration (PEP 263)."""
 
 import re
 import tokenize
@@ -76,7 +76,7 @@ class ByIdManagedMessagesChecker(BaseChecker):
 
 class EncodingChecker(BaseChecker):
 
-    """checks for:
+    """Checks for:
     * warning notes in the code like FIXME, XXX
     * encoding issues.
     """
@@ -121,9 +121,9 @@ class EncodingChecker(BaseChecker):
 
         notes = "|".join(re.escape(note) for note in self.config.notes)
         if self.config.notes_rgx:
-            regex_string = fr"#\s*({notes}|{self.config.notes_rgx})\b"
+            regex_string = rf"#\s*({notes}|{self.config.notes_rgx})(?=(:|\s|\Z))"
         else:
-            regex_string = fr"#\s*({notes})\b"
+            regex_string = rf"#\s*({notes})(?=(:|\s|\Z))"
 
         self._fixme_pattern = re.compile(regex_string, re.I)
 
@@ -145,7 +145,7 @@ class EncodingChecker(BaseChecker):
         return None
 
     def process_module(self, node: nodes.Module) -> None:
-        """inspect the source file to find encoding problem"""
+        """Inspect the source file to find encoding problem."""
         encoding = node.file_encoding if node.file_encoding else "ascii"
 
         with node.stream() as stream:
@@ -153,7 +153,7 @@ class EncodingChecker(BaseChecker):
                 self._check_encoding(lineno + 1, line, encoding)
 
     def process_tokens(self, tokens):
-        """inspect the source to find fixme problems"""
+        """Inspect the source to find fixme problems."""
         if not self.config.notes:
             return
         comments = (

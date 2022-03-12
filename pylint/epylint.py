@@ -138,7 +138,7 @@ def lint(filename, options=()):
 
 
 def py_run(command_options="", return_std=False, stdout=None, stderr=None):
-    """Run pylint from python
+    """Run pylint from python.
 
     ``command_options`` is a string containing ``pylint`` command line options;
     ``return_std`` (boolean) indicates return of created standard output

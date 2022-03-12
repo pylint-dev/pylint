@@ -75,7 +75,7 @@ class TestBidirectionalUnicodeChecker(pylint.testutils.CheckerTestCase):
         ],
     )
     def test_find_bidi_string(self, bad_string: str, codec: str):
-        """Ensure that all Bidirectional strings are detected
+        """Ensure that all Bidirectional strings are detected.
 
         Tests also UTF-16 and UTF-32.
         """

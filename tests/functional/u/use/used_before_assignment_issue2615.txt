@@ -1,3 +1,0 @@
-used-before-assignment:12:14:12:17:main:Using variable 'res' before assignment:UNDEFINED
-used-before-assignment:30:18:30:35:nested_except_blocks:Using variable 'more_bad_division' before assignment:UNDEFINED
-used-before-assignment:31:18:31:21:nested_except_blocks:Using variable 'res' before assignment:UNDEFINED

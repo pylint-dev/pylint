@@ -9,6 +9,7 @@
 /pylint.egg-info/
 .tox
 *.sw[a-z]
+doc/messages/
 doc/technical_reference/extensions.rst
 doc/technical_reference/features.rst
 pyve

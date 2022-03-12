@@ -19,7 +19,7 @@ from pylint.__pkginfo__ import __version__
 
 
 def run_pylint(argv: Optional[Sequence[str]] = None):
-    """Run pylint
+    """Run pylint.
 
     argv can be a sequence of strings normally supplied as arguments on the command line
     """
@@ -32,7 +32,7 @@ def run_pylint(argv: Optional[Sequence[str]] = None):
 
 
 def run_epylint(argv: Optional[Sequence[str]] = None):
-    """Run epylint
+    """Run epylint.
 
     argv can be a list of strings normally supplied as arguments on the command line
     """
@@ -42,7 +42,7 @@ def run_epylint(argv: Optional[Sequence[str]] = None):
 
 
 def run_pyreverse(argv: Optional[Sequence[str]] = None):
-    """Run pyreverse
+    """Run pyreverse.
 
     argv can be a sequence of strings normally supplied as arguments on the command line
     """
@@ -52,7 +52,7 @@ def run_pyreverse(argv: Optional[Sequence[str]] = None):
 
 
 def run_symilar(argv: Optional[Sequence[str]] = None):
-    """Run symilar
+    """Run symilar.
 
     argv can be a sequence of strings normally supplied as arguments on the command line
     """
