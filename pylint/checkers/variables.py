@@ -2310,9 +2310,7 @@ class VariablesChecker(BaseChecker):
             if global_names and _import_name_is_global(stmt, global_names):
                 return
 
-        argnames = list(
-            itertools.chain(node.argnames(), [arg.name for arg in node.args.kwonlyargs])
-        )
+        argnames = node.argnames()
         # Care about functions with unknown argument (builtins)
         if name in argnames:
             self._check_unused_arguments(name, node, stmt, argnames)
