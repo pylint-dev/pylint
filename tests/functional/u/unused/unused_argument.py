@@ -87,3 +87,16 @@ class BBBB(object):
     def __init__(self, arg):  # [unused-argument]
         """Constructor with an extra parameter. Should raise a warning"""
         self.spam = 1
+
+
+class Ancestor:
+    def __init__(self):
+        self.thing = None
+
+    def set_thing(self, thing, *, other=None):  # [unused-argument]
+        self.thing = thing
+
+class Descendant(Ancestor):
+    def set_thing(self, thing, *, other=None):
+        """Subclass does not raise unused-argument"""
+        self.thing = thing

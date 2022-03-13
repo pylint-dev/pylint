@@ -247,6 +247,12 @@ Other Changes
   Closes #5408
   Ref PyCQA/astroid#1392
 
+* Fixed false positive for ``unused-argument`` when a method overridden in a subclass
+  does nothing with the value of a keyword-only argument.
+
+  Closes #5771
+  Ref PyCQA/astroid#1382
+
 * Fix ``unnecessary_dict_index_lookup`` false positive when deleting a dictionary's entry.
 
   Closes #4716

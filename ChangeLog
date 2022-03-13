@@ -154,6 +154,12 @@ Release date: TBA
   Closes #5408
   Ref PyCQA/astroid#1392
 
+* Fixed false positive for ``unused-argument`` when a method overridden in a subclass
+  does nothing with the value of a keyword-only argument.
+
+  Closes #5771
+  Ref PyCQA/astroid#1382
+
 * The issue template for crashes is now created for crashes which were previously not covered
   by this mechanism.
 
