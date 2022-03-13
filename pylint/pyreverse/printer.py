@@ -85,7 +85,10 @@ class Printer(ABC):
         type_: NodeType,
         properties: Optional[NodeProperties] = None,
     ) -> None:
-        """Create a new node. Nodes can be classes, packages, participants etc."""
+        """Create a new node.
+
+        Nodes can be classes, packages, participants etc.
+        """
 
     @abstractmethod
     def emit_edge(

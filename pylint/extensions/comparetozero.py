@@ -31,6 +31,7 @@ def _is_constant_zero(node):
 
 class CompareToZeroChecker(checkers.BaseChecker):
     """Checks for comparisons to zero.
+
     Most of the time you should use the fact that integers with a value of 0 are false.
     An exception to this rule is when 0 is allowed in the program and has a
     different meaning than None!

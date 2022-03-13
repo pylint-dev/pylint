@@ -305,8 +305,9 @@ class TypingChecker(BaseChecker):
     @check_messages("consider-using-alias")
     def leave_module(self, node: nodes.Module) -> None:
         """After parsing of module is complete, add messages for
-        'consider-using-alias' check. Make sure results are safe
-        to recommend / collision free.
+        'consider-using-alias' check.
+
+        Make sure results are safe to recommend / collision free.
         """
         if self._py39_plus:
             for msg in self._deprecated_typing_alias_msgs:

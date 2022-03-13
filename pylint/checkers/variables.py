@@ -310,7 +310,9 @@ def _infer_name_module(node, name):
 
 def _fix_dot_imports(not_consumed):
     """Try to fix imports with multiple dots, by returning a dictionary
-    with the import names expanded. The function unflattens root imports,
+    with the import names expanded.
+
+    The function unflattens root imports,
     like 'xml' (when we have both 'xml.etree' and 'xml.sax'), to 'xml.etree'
     and 'xml.sax' respectively.
     """
@@ -351,8 +353,9 @@ def _fix_dot_imports(not_consumed):
 
 
 def _find_frame_imports(name, frame):
-    """Detect imports in the frame, with the required
-    *name*. Such imports can be considered assignments.
+    """Detect imports in the frame, with the required *name*.
+
+    Such imports can be considered assignments.
     Returns True if an import for the given name was found.
     """
     imports = frame.nodes_of_class((nodes.Import, nodes.ImportFrom))
@@ -603,6 +606,7 @@ scope_type : {self._atomic.scope_type}
     def consumed_uncertain(self) -> DefaultDict[str, List[nodes.NodeNG]]:
         """Retrieves nodes filtered out by get_next_to_consume() that may not
         have executed, such as statements in except blocks, or statements
+
         in try blocks (when evaluating their corresponding except and finally
         blocks). Checkers that want to treat the statements as executed
         (e.g. for unused-variable) may need to add them back.
@@ -615,6 +619,7 @@ scope_type : {self._atomic.scope_type}
 
     def mark_as_consumed(self, name, consumed_nodes):
         """Mark the given nodes as consumed for the name.
+
         If all of the nodes for the name were consumed, delete the name from
         the to_consume dictionary
         """
@@ -627,8 +632,9 @@ scope_type : {self._atomic.scope_type}
             del self.to_consume[name]
 
     def get_next_to_consume(self, node: nodes.Name) -> Optional[List[nodes.NodeNG]]:
-        """Return a list of the nodes that define `node` from this scope. If it is
-        uncertain whether a node will be consumed, such as for statements in
+        """Return a list of the nodes that define `node` from this scope.
+
+        If it is uncertain whether a node will be consumed, such as for statements in
         except blocks, add it to self.consumed_uncertain instead of returning it.
         Return None to indicate a special case that needs to be handled by the caller.
         """
@@ -804,6 +810,7 @@ scope_type : {self._atomic.scope_type}
         node: nodes.NodeNG, other_node_try_except: nodes.TryExcept
     ) -> bool:
         """Check for a case described in https://github.com/PyCQA/pylint/issues/5683.
+
         It consists of a specific control flow scenario where the only
         non-break exit from a loop consists of the very except handler we are
         examining, such that code in the `else` branch of the loop can depend on it
@@ -895,9 +902,8 @@ scope_type : {self._atomic.scope_type}
     def _uncertain_nodes_in_try_blocks_when_evaluating_except_blocks(
         found_nodes: List[nodes.NodeNG], node_statement: nodes.Statement
     ) -> List[nodes.NodeNG]:
-        """Return any nodes in ``found_nodes`` that should be treated as uncertain
-        because they are in a try block and the ``node_statement`` being evaluated
-        is in one of its except handlers.
+        """Return any nodes in ``found_nodes`` that should be treated as uncertain because they
+        are in a try block and the ``node_statement`` being evaluated is in one of its except handlers.
         """
         uncertain_nodes: List[nodes.NodeNG] = []
         closest_except_handler = utils.get_node_first_ancestor_of_type(
@@ -994,7 +1000,9 @@ scope_type : {self._atomic.scope_type}
 
 # pylint: disable=too-many-public-methods
 class VariablesChecker(BaseChecker):
-    """Checks for
+    """BaseChecker for variables.
+
+    Checks for
     * unused variables / imports
     * undefined variables
     * redefinition of variable from builtins or from an outer scope
@@ -1781,9 +1789,8 @@ class VariablesChecker(BaseChecker):
         "unbalanced-tuple-unpacking", "unpacking-non-sequence", "self-cls-assignment"
     )
     def visit_assign(self, node: nodes.Assign) -> None:
-        """Check unbalanced tuple unpacking for assignments
-        and unpacking non-sequences as well as in case self/cls
-        get assigned.
+        """Check unbalanced tuple unpacking for assignments and unpacking
+        non-sequences as well as in case self/cls get assigned.
         """
         self._check_self_cls_assign(node)
         if not isinstance(node.targets[0], (nodes.Tuple, nodes.List)):
@@ -2485,8 +2492,7 @@ class VariablesChecker(BaseChecker):
         self, node: nodes.Name, index: int
     ) -> bool:
         """Return whether there is a node with the same name in the
-        to_consume dict of an upper scope and if that scope is a
-        function
+        to_consume dict of an upper scope and if that scope is a function
 
         :param node: node to check for
         :param index: index of the current consumer inside self._to_consume
@@ -2615,8 +2621,7 @@ class VariablesChecker(BaseChecker):
 
     def _check_module_attrs(self, node, module, module_names):
         """Check that module_names (list of string) are accessible through the
-        given module
-        if the latest access name corresponds to a module, return it
+        given module, if the latest access name corresponds to a module, return it
         """
         while module_names:
             name = module_names.pop(0)

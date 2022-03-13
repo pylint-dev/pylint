@@ -1,9 +1,10 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""This is the remnant of the python3 checker. It was removed because
-the transition from python 2 to python3 is behind us, but some checks
-are still useful in python3 after all.
+"""This is the remnant of the python3 checker.
+
+It was removed because the transition from python 2 to python3 is
+behind us, but some checks are still useful in python3 after all.
 See https://github.com/PyCQA/pylint/issues/5025
 """
 

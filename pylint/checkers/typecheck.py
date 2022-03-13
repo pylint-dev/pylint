@@ -1289,6 +1289,7 @@ accessed. Python regular expressions are accepted.",
 
     def _check_argument_order(self, node, call_site, called, called_param_names):
         """Match the supplied argument names against the function parameters.
+
         Warn if some argument names are not in the same order as they are in
         the function signature.
         """
@@ -1339,8 +1340,7 @@ accessed. Python regular expressions are accepted.",
     @check_messages(*(list(MSGS.keys())))
     def visit_call(self, node: nodes.Call) -> None:
         """Check that called functions/methods are inferred to callable objects,
-        and that the arguments passed to the function match the parameters in
-        the inferred function's definition
+        and that passed arguments match the parameters in the inferred function.
         """
         called = safe_infer(node.func)
 
@@ -2001,6 +2001,7 @@ accessed. Python regular expressions are accepted.",
 
 class IterableChecker(BaseChecker):
     """Checks for non-iterables used in an iterable context.
+
     Contexts include:
     - for-statement
     - starargs in function call

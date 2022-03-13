@@ -362,7 +362,9 @@ def _has_data_descriptor(cls, attr):
 
 def _called_in_methods(func, klass, methods):
     """Check if the func was called in any of the given methods,
-    belonging to the *klass*. Returns True if so, False otherwise.
+    belonging to the *klass*.
+
+    Returns True if so, False otherwise.
     """
     if not isinstance(func, nodes.FunctionDef):
         return False
@@ -697,7 +699,9 @@ class ScopeAccessMap:
 
 
 class ClassChecker(BaseChecker):
-    """Checks for :
+    """Checker for class nodes.
+
+    Checks for :
     * methods without self as first argument
     * overridden methods signature
     * access only to existent members via self
@@ -876,7 +880,8 @@ a metaclass class method.",
 
     @check_messages("unused-private-member", "attribute-defined-outside-init")
     def leave_classdef(self, node: nodes.ClassDef) -> None:
-        """Close a class node:
+        """Checker for Class nodes.
+
         check that instance attributes are defined in __init__ and check
         access to existent members
         """
@@ -1463,7 +1468,9 @@ a metaclass class method.",
 
     def visit_attribute(self, node: nodes.Attribute) -> None:
         """Check if the getattr is an access to a class member
-        if so, register it. Also check for access to protected
+        if so, register it
+
+        Also check for access to protected
         class member from outside its class (but ignore __special__
         methods)
         """
@@ -1617,7 +1624,9 @@ a metaclass class method.",
 
     def _check_protected_attribute_access(self, node: nodes.Attribute):
         """Given an attribute access node (set or get), check if attribute
-        access is legitimate. Call _check_first_attr with node before calling
+        access is legitimate.
+
+        Call _check_first_attr with node before calling
         this method. Valid cases are:
         * self._attr in a method or cls._attr in a classmethod. Checked by
         _check_first_attr.

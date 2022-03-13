@@ -400,7 +400,9 @@ class SphinxDocstring(Docstring):
 
 
 class EpytextDocstring(SphinxDocstring):
-    """Epytext is similar to Sphinx. See the docs:
+    """Epytext is similar to Sphinx.
+
+    See the docs:
         http://epydoc.sourceforge.net/epytext.html
         http://epydoc.sourceforge.net/fields.html#fields
 

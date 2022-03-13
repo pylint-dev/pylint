@@ -23,7 +23,10 @@ class MessageTest(NamedTuple):
     col_offset: Optional[int] = None
     end_line: Optional[int] = None
     end_col_offset: Optional[int] = None
-    """Used to test messages produced by pylint. Class name cannot start with Test as pytest doesn't allow constructors in test classes."""
+    """Used to test messages produced by pylint.
+
+    Class name cannot start with Test as pytest doesn't allow constructors in test classes.
+    """
 
 
 class MalformedOutputLineException(Exception):
@@ -93,8 +96,9 @@ class OutputLine(NamedTuple):
 
     @staticmethod
     def _get_column(column: str) -> int:
-        """Handle column numbers except for python < 3.8. The ast parser in those versions doesn't
-        return them.
+        """Handle column numbers except for python < 3.8.
+
+        The ast parser in those versions doesn't return them.
         """
         if not PY38_PLUS:
             # We check the column only for the new better ast parser introduced in python 3.8

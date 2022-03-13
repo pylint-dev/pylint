@@ -492,10 +492,8 @@ class DocstringParameterChecker(BaseChecker):
         warning_node: astroid.NodeNG,
         accept_no_param_doc: Optional[bool] = None,
     ):
-        """Check that all parameters in a function, method or class constructor
-        on the one hand and the parameters mentioned in the parameter
-        documentation (e.g. the Sphinx tags 'param' and 'type') on the other
-        hand are consistent with each other.
+        """Check that all parameters are consistent with the parameters mentioned
+        in the parameter documentation (e.g. the Sphinx tags 'param' and 'type').
 
         * Undocumented parameters except 'self' are noticed.
         * Undocumented parameter types except for 'self' and the ``*<args>``

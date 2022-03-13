@@ -52,6 +52,7 @@ def _get_all_messages(
 ) -> Tuple[MessagesDict, OldMessagesDict]:
     """Get all messages registered to a linter and return a dictionary indexed by message
     type.
+
     Also return a dictionary of old message and the new messages they can be mapped to.
     """
     messages_dict: MessagesDict = {
@@ -202,6 +203,7 @@ def _write_redirect_pages(old_messages: OldMessagesDict) -> None:
 # pylint: disable-next=unused-argument
 def build_messages_pages(app: Optional[Sphinx]) -> None:
     """Overwrite messages files by printing the documentation to a stream.
+
     Documentation is written in ReST format.
     """
     # Create linter, register all checkers and extensions and get all messages
