@@ -1234,7 +1234,7 @@ def supports_delitem(value: nodes.NodeNG, _: nodes.NodeNG) -> bool:
     return _supports_protocol(value, _supports_delitem_protocol)
 
 
-def _get_python_type_of_node(node):
+def _get_python_type_of_node(node: nodes.NodeNG) -> Optional[str]:
     pytype = getattr(node, "pytype", None)
     if callable(pytype):
         return pytype()
@@ -1242,13 +1242,15 @@ def _get_python_type_of_node(node):
 
 
 @lru_cache(maxsize=1024)
-def safe_infer(node: nodes.NodeNG, context=None) -> Optional[nodes.NodeNG]:
+def safe_infer(
+    node: nodes.NodeNG, context: Optional[InferenceContext] = None
+) -> Union[nodes.NodeNG, Type[astroid.Uninferable], None]:
     """Return the inferred value for the given node.
 
     Return None if inference failed or if there is some ambiguity (more than
     one node has been inferred of different types).
     """
-    inferred_types = set()
+    inferred_types: Set[Optional[str]] = set()
     try:
         infer_gen = node.infer(context=context)
         value = next(infer_gen)
