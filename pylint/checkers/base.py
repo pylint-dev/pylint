@@ -102,9 +102,7 @@ else:
 
 class NamingStyle:
     """It may seem counterintuitive that single naming style has multiple "accepted"
-    forms of regular expressions, but we need to special-case stuff like dunder names
-
-    in method names.
+    forms of regular expressions, but we need to special-case stuff like dunder names in method names.
     """
 
     ANY: Pattern[str] = re.compile(".*")
@@ -942,9 +940,10 @@ class BasicErrorChecker(_BasicChecker):
 
 
 class BasicChecker(_BasicChecker):
-    """Checks for :
-    * doc strings
+    """Basic checker.
 
+    Checks for :
+    * doc strings
     * number of arguments, local variables, branches, returns and statements in
     functions, methods
     * required module attributes
@@ -1363,9 +1362,10 @@ class BasicChecker(_BasicChecker):
 
     @utils.check_messages("unreachable", "lost-exception")
     def visit_return(self, node: nodes.Return) -> None:
-        """1 - check if the node has a right sibling (if so, that's some
-        unreachable code)
+        """Return node visitor.
 
+        1 - check if the node has a right sibling (if so, that's some
+        unreachable code)
         2 - check if the node is inside the 'finally' clause of a 'try...finally'
         block
         """
@@ -1382,9 +1382,10 @@ class BasicChecker(_BasicChecker):
 
     @utils.check_messages("unreachable", "lost-exception")
     def visit_break(self, node: nodes.Break) -> None:
-        """1 - check if the node has a right sibling (if so, that's some
-        unreachable code)
+        """Break node visitor.
 
+        1 - check if the node has a right sibling (if so, that's some
+        unreachable code)
         2 - check if the node is inside the 'finally' clause of a 'try...finally'
         block
         """
