@@ -300,7 +300,9 @@ DEFAULT_PREFERRED_MODULES = ()
 
 
 class ImportsChecker(DeprecatedMixin, BaseChecker):
-    """Checks for
+    """BaseChecker for import statements.
+
+    Checks for
     * external modules dependencies
     * relative / wildcard imports
     * cyclic imports

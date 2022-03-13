@@ -252,6 +252,7 @@ class CodeStyleChecker(BaseChecker):
         prev_sibling: Optional[nodes.NodeNG], name: Optional[str]
     ) -> TypeGuard[Union[nodes.Assign, nodes.AnnAssign]]:
         """Check if previous sibling is an assignment with the same name.
+
         Ignore statements which span multiple lines.
         """
         if prev_sibling is None or prev_sibling.tolineno - prev_sibling.fromlineno != 0:

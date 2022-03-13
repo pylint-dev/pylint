@@ -298,7 +298,9 @@ def _get_parents(
 
 
 class MisdesignChecker(BaseChecker):
-    """Checks for sign of poor/misdesign:
+    """Checker of potential misdesigns.
+
+    Checks for sign of poor/misdesign:
     * number of methods, attributes, local variables...
     * size, complexity of functions, methods
     """

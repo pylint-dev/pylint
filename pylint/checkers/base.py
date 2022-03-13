@@ -102,8 +102,7 @@ else:
 
 class NamingStyle:
     """It may seem counterintuitive that single naming style has multiple "accepted"
-    forms of regular expressions, but we need to special-case stuff like dunder names
-    in method names.
+    forms of regular expressions, but we need to special-case stuff like dunder names in method names.
     """
 
     ANY: Pattern[str] = re.compile(".*")
@@ -234,6 +233,7 @@ TYPING_TYPE_VAR_QNAME = "typing.TypeVar"
 def _redefines_import(node):
     """Detect that the given node (AssignName) is inside an
     exception handler and redefines an import from the tryexcept body.
+
     Returns True if the node redefines an import, False otherwise.
     """
     current = node
@@ -940,7 +940,9 @@ class BasicErrorChecker(_BasicChecker):
 
 
 class BasicChecker(_BasicChecker):
-    """Checks for :
+    """Basic checker.
+
+    Checks for :
     * doc strings
     * number of arguments, local variables, branches, returns and statements in
     functions, methods
@@ -1360,7 +1362,9 @@ class BasicChecker(_BasicChecker):
 
     @utils.check_messages("unreachable", "lost-exception")
     def visit_return(self, node: nodes.Return) -> None:
-        """1 - check if the node has a right sibling (if so, that's some
+        """Return node visitor.
+
+        1 - check if the node has a right sibling (if so, that's some
         unreachable code)
         2 - check if the node is inside the 'finally' clause of a 'try...finally'
         block
@@ -1378,7 +1382,9 @@ class BasicChecker(_BasicChecker):
 
     @utils.check_messages("unreachable", "lost-exception")
     def visit_break(self, node: nodes.Break) -> None:
-        """1 - check if the node has a right sibling (if so, that's some
+        """Break node visitor.
+
+        1 - check if the node has a right sibling (if so, that's some
         unreachable code)
         2 - check if the node is inside the 'finally' clause of a 'try...finally'
         block
@@ -1495,6 +1501,7 @@ class BasicChecker(_BasicChecker):
     def _check_not_in_finally(self, node, node_name, breaker_classes=()):
         """Check that a node is not inside a 'finally' clause of a
         'try...finally' statement.
+
         If we find a parent which type is in breaker_classes before
         a 'try...finally' block we skip the whole check.
         """
@@ -2561,6 +2568,7 @@ class ComparisonChecker(_BasicChecker):
 
     def _check_logical_tautology(self, node: nodes.Compare):
         """Check if identifier is compared against itself.
+
         :param node: Compare node
         :Example:
         val = 786

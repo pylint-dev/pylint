@@ -1531,6 +1531,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def _check_consider_using_join(self, aug_assign):
         """We start with the augmented assignment and work our way upwards.
+
         Names of variables for nodes if match successful:
         result = ''  # assign
         for number in ['1', '2', '3']  # for_loop
@@ -1824,7 +1825,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         return False
 
     def _is_function_def_never_returning(self, node: nodes.FunctionDef) -> bool:
-        """Return True if the function never returns. False otherwise.
+        """Return True if the function never returns, False otherwise.
 
         Args:
             node (nodes.FunctionDef): function definition node to be analyzed.
@@ -1846,7 +1847,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def _check_return_at_the_end(self, node):
         """Check for presence of a *single* return statement at the end of a
-        function. "return" or "return None" are useless because None is the
+        function.
+
+        "return" or "return None" are useless because None is the
         default return type if they are missing.
 
         NOTE: produces a message only if there is a single return statement

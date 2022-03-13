@@ -133,7 +133,8 @@ def check_parallel(
     files: Iterable[FileItem],
     arguments: Union[None, str, Sequence[str]] = None,
 ) -> None:
-    """Use the given linter to lint the files with given amount of workers (jobs)
+    """Use the given linter to lint the files with given amount of workers (jobs).
+
     This splits the work filestream-by-filestream. If you need to do work across
     multiple files, as in the similarity-checker, then inherit from MapReduceMixin and
     implement the map/reduce mixin functionality.

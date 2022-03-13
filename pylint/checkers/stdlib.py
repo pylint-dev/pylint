@@ -646,9 +646,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             )
 
     def _check_datetime(self, node):
-        """Check that a datetime was inferred.
-        If so, emit boolean-datetime warning.
-        """
+        """Check that a datetime was inferred, if so, emit boolean-datetime warning."""
         try:
             inferred = next(node.infer())
         except astroid.InferenceError:
