@@ -59,7 +59,7 @@ The supported running environment since Pylint 2.12.1 is Python 3.6.2+.
 
 Pylint expects the name of a package or module as its argument. As a
 convenience, you can give it a file name if it's possible to guess a module name from
-the file's path using the python path. Some examples :
+the file's path using the python path. Some examples:
 
 "pylint mymodule.py" should always work since the current working
 directory is automatically added on top of the python path
@@ -142,23 +142,22 @@ When ``--recursive=y`` option is used, modules and packages are also accepted as
 ==================
 
 4.1 How to disable a particular message?
------------------------------------------------------------
+----------------------------------------
 
-For a single line : Add ``#pylint: disable=some-message,another-one`` at the
-end of the desired line of code. Since Pylint 2.10 you can also use
-``#pylint: disable-next=...`` on the line just above the problem.
-``...`` in the following example is a short hand for the list of
-messages you want to disable.
+For just a single line, add ``#pylint: disable=some-message,another-one`` at the end of
+the desired line of code. Since Pylint 2.10 you can also use ``#pylint: disable-next=...``
+on the line just above the problem. ``...`` in the following example is short for the
+list of messages you want to disable.
 
-For larger disable : You can add ``#pylint: disable=...`` at the block level to
-disable for the block. It's possible to enable for the reminder of the block
-with ``#pylint: enable=...`` A block is either a scope (say a function, a module),
-or a multiline statement (try, finally, if statements, for loops).
-`It's currently impossible to disable inside an else block`_
+For larger amounts of code, you can add ``#pylint: disable=...`` at the block level
+to disable messages for the entire block. It's possible to re-enable a message for the
+remainder of the block with ``#pylint: enable=...``. A block is either a scope (say a
+function, a module) or a multiline statement (try, finally, if statements, for loops).
+Note: It's currently impossible to `disable inside an else block`_.
 
 Read :ref:`message-control` for details and examples.
 
-.. _`It's currently impossible to disable inside an else block`: https://github.com/PyCQA/pylint/issues/872
+.. _`disable inside an else block`: https://github.com/PyCQA/pylint/issues/872
 
 4.2 Is there a way to disable a message for a particular module only?
 ---------------------------------------------------------------------
