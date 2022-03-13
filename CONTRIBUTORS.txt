@@ -1,47 +1,42 @@
+Maintainers
+-----------
+- Claudiu Popa <pcmanticore@gmail.com>
+- Pierre Sassoulas <pierre.sassoulas@gmail.com>
+- Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
+- Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+- Hippo91 <guillaume.peillex@gmail.com>
+- Łukasz Rogalski <rogalski.91@gmail.com>
+- Ashley Whetter <ashley@awhetter.co.uk>
+- Bryce Guinta <bryce.paul.guinta@gmail.com>
+- Jacob Walls <jacobtylerwalls@gmail.com>
+- Dimitri Prybysh <dmand@yandex.ru>
+  - multiple-imports, not-iterable, not-a-mapping, various patches.
+
+- Roy Williams <roy.williams.iii@gmail.com> (Lyft)
+  - added check for implementing __eq__ without implementing __hash__,
+  - Added Python 3 check for accessing Exception.message.
+  - Added Python 3 check for calling encode/decode with invalid codecs.
+  - Added Python 3 check for accessing sys.maxint.
+  - Added Python 3 check for bad import statements.
+  - Added Python 3 check for accessing deprecated methods on the 'string' module,
+    various patches.
+
+- Florian Bruhin <me@the-compiler.org>
+- Andreas Finkler <3929834+DudeNr33@users.noreply.github.com>
+- Yu Shao, Pang <36848472+yushao2@users.noreply.github.com>
+- Arianna Yang <areveny@protonmail.com>
+
+Ex-maintainers
+--------------
+- Sylvain Thénault <thenault@gmail.com> : main author / maintainer
+- Torsten Marek <tmarek@google.com>
+
 Contributors
 ------------
-
-Current team:
-
-* Ashley Whetter: maintainer, contributor
-
-* Bryce Guinta: maintainer, contributor
-
-* Claudiu Popa: maintainer, contributor
-
-* Cara Vinson: astroid committer.
-
-* Guillaume Peillex: committer
-
-* Łukasz Rogalski: committer.
-
-* Roy Williams (Lyft): committer
-
-  added check for implementing __eq__ without implementing __hash__,
-  Added Python 3 check for accessing Exception.message.
-  Added Python 3 check for calling encode/decode with invalid codecs.
-  Added Python 3 check for accessing sys.maxint.
-  Added Python 3 check for bad import statements.
-  Added Python 3 check for accessing deprecated methods on the 'string' module,
-  various patches.
-
-* Dmitri Prybysh: committer
-
-  multiple-imports, not-iterable, not-a-mapping, various patches.
-
-* Jim Robertson: committer
-
-Ex-maintainers:
-
-* Sylvain Thenault (Logilab): main author / maintainer
-
-* Torsten Marek (Google): committer / contributor
-
 
 We would not be here without folks that contributed patches, pull requests,
 issues and their time to pylint. We're incredibly grateful to all of these
 contributors:
-
 
 * Daniel Balparda (Google): GPyLint maintainer (Google's pylint variant),
   various patches
@@ -149,8 +144,6 @@ contributors:
 * Ahirnish Pareek, 'keyword-arg-before-var-arg' check
 
 * Daniel Miller: contributor.
-
-* Bryce Guinta: contributor
 
 * Martin Bašti: contributor
   Added new check for shallow copy of os.environ
@@ -288,8 +281,6 @@ contributors:
 * Bluesheeptoken: contributor
 
 * Michael Scott Cuthbert: contributor
-
-* Pierre Sassoulas : maintainer, contributor
 
 * Nathan Marrow
 
@@ -447,8 +438,6 @@ contributors:
 
 * Matthew Suozzo: contributor
 
-* Marc Mueller (cdce8p): contributor
-
 * David Gilman: contributor
 
 * Ikraduya Edian: contributor
@@ -472,8 +461,6 @@ contributors:
 
 * James Sinclair (irgeek): contributor
 
-* Andreas Finkler: contributor
-
 * Aidan Haase, Elizabeth Bott: contributor
 
 * Sebastian Müller: contributor
@@ -490,12 +477,8 @@ contributors:
 
 * Andrew Haigh (nelfin): contributor
 
-* Pang Yu Shao (yushao2): contributor
-
 * Aditya Gupta (adityagupta1089) : contributor
   - Added ignore_signatures to duplicate checker
-
-* Jacob Walls: contributor
 
 * ruro: contributor
 
@@ -536,8 +519,6 @@ contributors:
 
 * Eisuke Kawashima (e-kwsm): contributor
 
-* Daniel van Noord (DanielNoord): contributor
-
 * Michal Vasilek: contributor
 
 * Kai Mueller (kasium): contributor
@@ -566,8 +547,6 @@ contributors:
 * James DesLauriers: contributor
 
 * Youngsoo Sung: contributor
-
-* Arianna Yang: contributor
 
 * Samuel Freilich (sfreilich): contributor
 
