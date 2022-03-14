@@ -49,15 +49,9 @@ AnyStr = TypeVar("AnyStr")
 DeviceTypeT = TypeVar("DeviceTypeT")
 CALLABLE_T = TypeVar("CALLABLE_T")  # [invalid-name]
 DeviceType = TypeVar("DeviceType")  # [invalid-name]
-GoodNameWithoutContra = TypeVar(  # [typevar-name-incorrect-variance]
-    "GoodNameWithoutContra", contravariant=True
-)
 
 # camelCase names with prefix
 badName = TypeVar("badName")  # [invalid-name]
-badNameWithoutContra = TypeVar(  # [invalid-name, typevar-name-incorrect-variance]]
-    "badNameWithoutContra", contravariant=True
-)
 badName_co = TypeVar("badName_co", covariant=True)  # [invalid-name]
 badName_contra = TypeVar("badName_contra", contravariant=True)  # [invalid-name]
 
