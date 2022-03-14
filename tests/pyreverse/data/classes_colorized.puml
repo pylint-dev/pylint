@@ -32,6 +32,7 @@ class "Specialization" as data.clientmodule_test.Specialization #aliceblue {
   relation2
   top : str
   from_value(value: int)
+  increment_value() -> None
   transform_value(value: int) -> int
 }
 data.clientmodule_test.Specialization --|> data.clientmodule_test.Ancestor
