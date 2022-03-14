@@ -1,19 +1,12 @@
 typevar-name-incorrect-variance:11:0:11:21::"Type variable ""GoodNameWithoutContra"" is contravariant, use ""GoodNameWithoutContra_contra"" instead":INFERENCE
-typevar-name-incorrect-variance:17:0:17:17::"Type variable ""GoodBoundNameT_co"" is invariant, use ""GoodBoundNameT"" instead":INFERENCE
-typevar-name-incorrect-variance:20:0:20:21::"Type variable ""GoodBoundNameT_contra"" is invariant, use ""GoodBoundNameT"" instead":INFERENCE
-typevar-name-incorrect-variance:27:0:27:17::"Type variable ""GoodBoundNameT_co"" is contravariant, use ""GoodBoundNameT_contra"" instead":INFERENCE
-typevar-name-incorrect-variance:31:0:31:21::"Type variable ""GoodBoundNameT_contra"" is covariant, use ""GoodBoundNameT_co"" instead":INFERENCE
-typevar-name-incorrect-variance:36:0:36:1::"Type variable ""T"" is covariant, use ""T_co"" instead":INFERENCE
-typevar-name-incorrect-variance:41:0:41:8::"Type variable ""T_contra"" is covariant, use ""T_co"" instead":INFERENCE
-invalid-name:50:0:50:10::"Type variable name ""CALLABLE_T"" doesn't conform to predefined naming style":HIGH
-invalid-name:51:0:51:10::"Type variable name ""DeviceType"" doesn't conform to predefined naming style":HIGH
-typevar-name-incorrect-variance:52:0:52:21::"Type variable ""GoodNameWithoutContra"" is contravariant, use ""GoodNameWithoutContra_contra"" instead":INFERENCE
-invalid-name:57:0:57:7::"Type variable name ""badName"" doesn't conform to predefined naming style":HIGH
-invalid-name:58:0:58:20::"Type variable name ""badNameWithoutContra"" doesn't conform to predefined naming style":HIGH
-typevar-name-incorrect-variance:58:0:58:20::"Type variable ""badNameWithoutContra"" is contravariant, use ""badNameWithoutContra_contra"" instead":INFERENCE
-invalid-name:61:0:61:10::"Type variable name ""badName_co"" doesn't conform to predefined naming style":HIGH
-invalid-name:62:0:62:14::"Type variable name ""badName_contra"" doesn't conform to predefined naming style":HIGH
-invalid-name:66:4:66:13::"Type variable name ""a_BadName"" doesn't conform to predefined naming style":HIGH
-invalid-name:67:4:67:26::"Type variable name ""a_BadNameWithoutContra"" doesn't conform to predefined naming style":HIGH
-typevar-name-incorrect-variance:67:4:67:26::"Type variable ""a_BadNameWithoutContra"" is contravariant, use ""a_BadNameWithoutContra_contra"" instead":INFERENCE
-invalid-name:69:13:69:29::"Type variable name ""a_BadName_contra"" doesn't conform to predefined naming style":HIGH
+typevar-name-incorrect-variance:19:0:19:1::"Type variable ""T"" is covariant, use ""T_co"" instead":INFERENCE
+typevar-name-incorrect-variance:24:0:24:8::"Type variable ""T_contra"" is covariant, use ""T_co"" instead":INFERENCE
+invalid-name:33:0:33:10::"Type variable name ""CALLABLE_T"" doesn't conform to predefined naming style":HIGH
+invalid-name:34:0:34:10::"Type variable name ""DeviceType"" doesn't conform to predefined naming style":HIGH
+invalid-name:37:0:37:7::"Type variable name ""badName"" doesn't conform to predefined naming style":HIGH
+invalid-name:38:0:38:10::"Type variable name ""badName_co"" doesn't conform to predefined naming style":HIGH
+invalid-name:39:0:39:14::"Type variable name ""badName_contra"" doesn't conform to predefined naming style":HIGH
+invalid-name:43:4:43:13::"Type variable name ""a_BadName"" doesn't conform to predefined naming style":HIGH
+invalid-name:44:4:44:26::"Type variable name ""a_BadNameWithoutContra"" doesn't conform to predefined naming style":HIGH
+typevar-name-incorrect-variance:44:4:44:26::"Type variable ""a_BadNameWithoutContra"" is contravariant, use ""a_BadNameWithoutContra_contra"" instead":INFERENCE
+invalid-name:46:13:46:29::"Type variable name ""a_BadName_contra"" doesn't conform to predefined naming style":HIGH
