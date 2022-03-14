@@ -92,7 +92,11 @@ The pattern can be overwritten with the options discussed below.
 
 The following type of names are checked with a predefined pattern:
 
-- TypeVars. Accepted names include: `T`, `TypeVar`, `_CallableT`, `_T_co`.
++--------------------+---------------------------------------------------+------------------------------------------------------------+
+| Name type          | Good names                                        | Bad names                                                  |
++====================+===================================================+============================================================+
+| ``TypeVar``        |`T`, `_CallableT`, `_T_co`, `AnyStr`, `DeviceTypeT`| `DICT_T`, `CALLABLE_T`, `ENUM_T`, `DeviceType`, `_StrType` |
++--------------------+---------------------------------------------------+------------------------------------------------------------+
 
 Custom regular expressions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
