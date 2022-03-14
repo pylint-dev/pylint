@@ -7,16 +7,7 @@ import itertools
 import sys
 import tokenize
 from functools import reduce
-from typing import (
-    TYPE_CHECKING,
-    Dict,
-    Iterator,
-    List,
-    NamedTuple,
-    Optional,
-    Tuple,
-    Union,
-)
+from typing import Dict, Iterator, List, NamedTuple, Optional, Tuple, Union
 
 import astroid
 from astroid import nodes
@@ -27,11 +18,9 @@ from pylint import utils as lint_utils
 from pylint.checkers import utils
 from pylint.checkers.utils import node_frame_class
 
-if sys.version_info >= (3, 8) or TYPE_CHECKING:
-    # pylint: disable-next=ungrouped-imports
+if sys.version_info >= (3, 8):
     from functools import cached_property
 else:
-    # pylint: disable-next=ungrouped-imports
     from astroid.decorators import cachedproperty as cached_property
 
 KNOWN_INFINITE_ITERATORS = {"itertools.count"}
