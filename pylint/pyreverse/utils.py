@@ -224,9 +224,9 @@ class LocalsVisitor(ASTWalker):
         return None
 
 
-def get_annotation_label(ann: Union[nodes.Name, nodes.Subscript]) -> str:
+def get_annotation_label(ann: Union[nodes.Name, nodes.NodeNG]) -> str:
     label = ""
-    if isinstance(ann, nodes.Subscript):
+    if isinstance(ann, nodes.NodeNG):
         label = ann.as_string()
     elif isinstance(ann, nodes.Name):
         label = ann.name
