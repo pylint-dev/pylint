@@ -17,6 +17,8 @@ Release date: TBA
 
 * Fix pyreverse diagrams type hinting for classmethods and staticmethods.
 
+* Fix pyreverse diagrams type hinting for methods returning None.
+
 * Fix matching ``--notes`` options that end in a non-word character.
 
   Closes #5840
