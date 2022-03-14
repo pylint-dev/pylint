@@ -110,6 +110,13 @@ from pylint.checkers.utils import (
 from pylint.interfaces import INFERENCE, IAstroidChecker
 from pylint.utils import get_global_option
 
+if sys.version_info >= (3, 8) or TYPE_CHECKING:
+    # pylint: disable-next=ungrouped-imports
+    from functools import cached_property
+else:
+    # pylint: disable-next=ungrouped-imports
+    from astroid.decorators import cachedproperty as cached_property
+
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
@@ -940,11 +947,11 @@ accessed. Python regular expressions are accepted.",
         self._py310_plus = py_version >= (3, 10)
         self._mixin_class_rgx = get_global_option(self, "mixin-class-rgx")
 
-    @astroid.decorators.cachedproperty
+    @cached_property
     def _suggestion_mode(self):
         return get_global_option(self, "suggestion-mode", default=True)
 
-    @astroid.decorators.cachedproperty
+    @cached_property
     def _compiled_generated_members(self) -> Tuple[Pattern, ...]:
         # do this lazily since config not fully initialized in __init__
         # generated_members may contain regular expressions
@@ -1336,6 +1343,7 @@ accessed. Python regular expressions are accepted.",
 
     def _check_argument_order(self, node, call_site, called, called_param_names):
         """Match the supplied argument names against the function parameters.
+
         Warn if some argument names are not in the same order as they are in
         the function signature.
         """
@@ -1386,8 +1394,7 @@ accessed. Python regular expressions are accepted.",
     @check_messages(*(list(MSGS.keys())))
     def visit_call(self, node: nodes.Call) -> None:
         """Check that called functions/methods are inferred to callable objects,
-        and that the arguments passed to the function match the parameters in
-        the inferred function's definition
+        and that passed arguments match the parameters in the inferred function.
         """
         called = safe_infer(node.func)
 
@@ -2048,6 +2055,7 @@ accessed. Python regular expressions are accepted.",
 
 class IterableChecker(BaseChecker):
     """Checks for non-iterables used in an iterable context.
+
     Contexts include:
     - for-statement
     - starargs in function call

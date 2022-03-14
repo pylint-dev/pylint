@@ -76,7 +76,9 @@ class ByIdManagedMessagesChecker(BaseChecker):
 
 class EncodingChecker(BaseChecker):
 
-    """Checks for:
+    """BaseChecker for encoding issues.
+
+    Checks for:
     * warning notes in the code like FIXME, XXX
     * encoding issues.
     """
@@ -121,9 +123,9 @@ class EncodingChecker(BaseChecker):
 
         notes = "|".join(re.escape(note) for note in self.config.notes)
         if self.config.notes_rgx:
-            regex_string = rf"#\s*({notes}|{self.config.notes_rgx})\b"
+            regex_string = rf"#\s*({notes}|{self.config.notes_rgx})(?=(:|\s|\Z))"
         else:
-            regex_string = rf"#\s*({notes})\b"
+            regex_string = rf"#\s*({notes})(?=(:|\s|\Z))"
 
         self._fixme_pattern = re.compile(regex_string, re.I)
 

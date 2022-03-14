@@ -60,7 +60,9 @@ def report_raw_stats(
 
 
 class RawMetricsChecker(BaseTokenChecker):
-    """Does not check anything but gives some raw metrics :
+    """Checker that provides raw metrics instead of checking anything.
+
+    Provides:
     * total number of lines
     * total number of code lines
     * total number of docstring lines

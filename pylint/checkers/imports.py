@@ -50,8 +50,6 @@
 import collections
 import copy
 import os
-import sys
-from distutils import sysconfig
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple, Union
 
 import astroid
@@ -302,7 +300,9 @@ DEFAULT_PREFERRED_MODULES = ()
 
 
 class ImportsChecker(DeprecatedMixin, BaseChecker):
-    """Checks for
+    """BaseChecker for import statements.
+
+    Checks for
     * external modules dependencies
     * relative / wildcard imports
     * cyclic imports
@@ -441,33 +441,6 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             ("RP0402", "Modules dependencies graph", self._report_dependencies_graph),
         )
 
-        self._site_packages = self._compute_site_packages()
-
-    @staticmethod
-    def _compute_site_packages():
-        def _normalized_path(path):
-            return os.path.normcase(os.path.abspath(path))
-
-        paths = set()
-        real_prefix = getattr(sys, "real_prefix", None)
-        for prefix in filter(None, (real_prefix, sys.prefix)):
-            path = sysconfig.get_python_lib(prefix=prefix)
-            path = _normalized_path(path)
-            paths.add(path)
-
-        # Handle Debian's derivatives /usr/local.
-        if os.path.isfile("/etc/debian_version"):
-            for prefix in filter(None, (real_prefix, sys.prefix)):
-                libpython = os.path.join(
-                    prefix,
-                    "local",
-                    "lib",
-                    "python" + sysconfig.get_python_version(),
-                    "dist-packages",
-                )
-                paths.add(libpython)
-        return paths
-
     def open(self):
         """Called before visiting project (i.e set of modules)."""
         self.linter.stats.dependencies = {}
@@ -566,10 +539,6 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         met_from: Set[str] = set()  # set for 'from x import y' style
         current_package = None
         for import_node, import_name in std_imports + ext_imports + loc_imports:
-            if not self.linter.is_message_enabled(
-                "ungrouped-imports", import_node.fromlineno
-            ):
-                continue
             met = met_from if isinstance(import_node, nodes.ImportFrom) else met_import
             package, _, _ = import_name.partition(".")
             if (
@@ -580,6 +549,10 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             ):
                 self.add_message("ungrouped-imports", node=import_node, args=package)
             current_package = package
+            if not self.linter.is_message_enabled(
+                "ungrouped-imports", import_node.fromlineno
+            ):
+                continue
             met.add(package)
 
         self._imports_stack = []
@@ -858,7 +831,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 self._module_pkg[context_name] = context_name.rsplit(".", 1)[0]
 
             # handle dependencies
-            dependencies_stat: Dict[str, Union[Set]] = self.linter.stats.dependencies
+            dependencies_stat: Dict[str, Set[str]] = self.linter.stats.dependencies
             importedmodnames = dependencies_stat.setdefault(importedmodname, set())
             if context_name not in importedmodnames:
                 importedmodnames.add(context_name)

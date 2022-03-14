@@ -933,6 +933,7 @@ def register(linter: "PyLinter") -> None:
 
 def str_eval(token):
     """Mostly replicate `ast.literal_eval(token)` manually to avoid any performance hit.
+
     This supports f-strings, contrary to `ast.literal_eval`.
     We have to support all string literal notations:
     https://docs.python.org/3/reference/lexical_analysis.html#string-and-bytes-literals

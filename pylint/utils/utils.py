@@ -277,7 +277,7 @@ def get_global_option(
 
 def _splitstrip(string, sep=","):
     """Return a list of stripped string by splitting the string given as
-    argument on `sep` (',' by default). Empty string are discarded.
+    argument on `sep` (',' by default), empty strings are discarded.
 
     >>> _splitstrip('a, b, c   ,  4,,')
     ['a', 'b', 'c', '4']

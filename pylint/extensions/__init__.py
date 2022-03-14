@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 
 def initialize(linter: "PyLinter") -> None:
-    """Initialize linter with checkers in the extensions directory."""
+    """Initialize linter with checkers in the extensions' directory."""
     register_plugins(linter, __path__[0])
 
 

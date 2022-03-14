@@ -109,9 +109,8 @@ STREAM_TYPES = Union[TextIO, BufferedReader, BytesIO]
 
 
 class CplSuccessiveLinesLimits:
-    """This class holds a couple of SuccessiveLinesLimits objects, one for each file compared,
-    and a counter on the number of common lines between both stripped lines collections extracted
-    from both files
+    """Holds a SuccessiveLinesLimits object for each file compared and a
+    counter on the number of common lines between both stripped lines collections extracted from both files
     """
 
     __slots__ = ("first_file", "second_file", "effective_cmn_lines_nb")
@@ -230,7 +229,9 @@ LinesChunkLimits_T = Tuple["LineSet", LineNumber, LineNumber]
 def hash_lineset(
     lineset: "LineSet", min_common_lines: int = DEFAULT_MIN_SIMILARITY_LINE
 ) -> Tuple[HashToIndex_T, IndexToLines_T]:
-    """Return two dicts. The first associates the hash of successive stripped lines of a lineset
+    """Return two dicts.
+
+    The first associates the hash of successive stripped lines of a lineset
     to the indices of the starting lines.
     The second dict, associates the index of the starting line in the lineset's stripped lines to the
     couple [start, end] lines number in the corresponding file.
@@ -318,9 +319,12 @@ def filter_noncode_lines(
     stindex_2: Index,
     common_lines_nb: int,
 ) -> int:
-    """Return the effective number of common lines between lineset1 and lineset2 filtered from non code lines, that is to say the number of
-    common successive stripped lines except those that do not contain code (for example a ligne with only an
-    ending parathensis)
+    """Return the effective number of common lines between lineset1
+    and lineset2 filtered from non code lines.
+
+    That is to say the number of common successive stripped
+    lines except those that do not contain code (for example
+    a line with only an ending parathensis)
 
     :param ls_1: first lineset
     :param stindex_1: first lineset starting index
@@ -381,10 +385,19 @@ class Similar:
         else:
             readlines = stream.readlines  # type: ignore[assignment] # hint parameter is incorrectly typed as non-optional
         try:
+            active_lines: List[str] = []
+            if hasattr(self, "linter"):
+                # Remove those lines that should be ignored because of disables
+                for index, line in enumerate(readlines()):
+                    if self.linter._is_one_message_enabled("R0801", index + 1):  # type: ignore[attr-defined]
+                        active_lines.append(line)
+            else:
+                active_lines = readlines()
+
             self.linesets.append(
                 LineSet(
                     streamid,
-                    readlines(),
+                    active_lines,
                     self.ignore_comments,
                     self.ignore_docstrings,
                     self.ignore_imports,
@@ -656,6 +669,7 @@ def stripped_lines(
 @functools.total_ordering
 class LineSet:
     """Holds and indexes all the lines of a single source file.
+
     Allows for correspondence between real lines of the source file and stripped ones, which
     are the real ones from which undesired patterns have been removed.
     """
@@ -728,9 +742,10 @@ def report_similarities(
 
 # wrapper to get a pylint checker from the similar class
 class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
-    """Checks for similarities and duplicated code. This computation may be
-    memory / CPU intensive, so you should disable it if you experiment some
-    problems.
+    """Checks for similarities and duplicated code.
+
+    This computation may be memory / CPU intensive, so you
+    should disable it if you experiment some problems.
     """
 
     __implements__ = (IRawChecker,)

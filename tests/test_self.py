@@ -1121,14 +1121,6 @@ class TestRunTC:
         expected = "Your code has been rated at 7.50/10"
         self._test_output([path, "--jobs=2", "-ry"], expected_output=expected)
 
-    def test_duplicate_code_raw_strings(self) -> None:
-        path = join(HERE, "regrtest_data", "duplicate_data_raw_strings")
-        expected_output = "Similar lines in 2 files"
-        self._test_output(
-            [path, "--disable=all", "--enable=duplicate-code"],
-            expected_output=expected_output,
-        )
-
     def test_regression_parallel_mode_without_filepath(self) -> None:
         # Test that parallel mode properly passes filepath
         # https://github.com/PyCQA/pylint/issues/3564
@@ -1294,6 +1286,27 @@ class TestRunTC:
         with pytest.raises(SystemExit) as ex:
             Run(["--ignore-paths", "test", join(HERE, "regrtest_data", "empty.py")])
         assert ex.value.code == 0
+
+    @staticmethod
+    def test_max_inferred_for_complicated_class_hierarchy() -> None:
+        """Regression test for a crash reported in https://github.com/PyCQA/pylint/issues/5679.
+
+        The class hierarchy of 'sqlalchemy' is so intricate that it becomes uninferable with
+        the standard max_inferred of 100. We used to crash when this happened.
+        """
+        with pytest.raises(SystemExit) as ex:
+            Run(
+                [
+                    join(
+                        HERE,
+                        "regrtest_data",
+                        "max_inferable_limit_for_classes",
+                        "main.py",
+                    ),
+                ]
+            )
+        # Error code should not include bit-value 1 for crash
+        assert not ex.value.code % 2
 
     def test_regression_recursive(self):
         self._test_output(

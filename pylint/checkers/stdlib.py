@@ -39,7 +39,7 @@
 
 import sys
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set
+from typing import TYPE_CHECKING, Dict, List, Optional, Set, Tuple
 
 import astroid
 from astroid import nodes
@@ -73,11 +73,13 @@ NON_INSTANCE_METHODS = {"builtins.staticmethod", "builtins.classmethod"}
 DEPRECATED_MODULES = {
     (0, 0, 0): {"tkinter.tix", "fpectl"},
     (3, 2, 0): {"optparse"},
+    (3, 3, 0): {"xml.etree.cElementTree"},
     (3, 4, 0): {"imp"},
     (3, 5, 0): {"formatter"},
     (3, 6, 0): {"asynchat", "asyncore"},
     (3, 7, 0): {"macpath"},
     (3, 9, 0): {"lib2to3", "parser", "symbol", "binhex"},
+    (3, 10, 0): {"distutils"},
 }
 
 DEPRECATED_ARGUMENTS = {
@@ -125,6 +127,7 @@ DEPRECATED_DECORATORS = {
         "abc.abstractstaticmethod",
         "abc.abstractproperty",
     },
+    (3, 4, 0): {"importlib.util.module_for_loader"},
 }
 
 
@@ -204,6 +207,10 @@ DEPRECATED_METHODS: Dict = {
         },
         (3, 4, 0): {
             "importlib.find_loader",
+            "importlib.abc.Loader.load_module",
+            "importlib.abc.Loader.module_repr",
+            "importlib.abc.PathEntryFinder.find_loader",
+            "importlib.abc.PathEntryFinder.find_module",
             "plistlib.readPlist",
             "plistlib.writePlist",
             "plistlib.readPlistFromBytes",
@@ -252,6 +259,7 @@ DEPRECATED_METHODS: Dict = {
         },
         (3, 10, 0): {
             "_sqlite3.enable_shared_cache",
+            "importlib.abc.Finder.find_module",
             "pathlib.Path.link_to",
             "zipimport.zipimporter.load_module",
             "zipimport.zipimporter.find_module",
@@ -465,24 +473,26 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
 
     def __init__(self, linter: Optional["PyLinter"] = None) -> None:
         BaseChecker.__init__(self, linter)
-        self._deprecated_methods: Set[Any] = set()
-        self._deprecated_methods.update(DEPRECATED_METHODS[0])
+        self._deprecated_methods: Set[str] = set()
+        self._deprecated_arguments: Dict[
+            str, Tuple[Tuple[Optional[int], str], ...]
+        ] = {}
+        self._deprecated_classes: Dict[str, Set[str]] = {}
+        self._deprecated_modules: Set[str] = set()
+        self._deprecated_decorators: Set[str] = set()
+
         for since_vers, func_list in DEPRECATED_METHODS[sys.version_info[0]].items():
             if since_vers <= sys.version_info:
                 self._deprecated_methods.update(func_list)
-        self._deprecated_attributes = {}
         for since_vers, func_list in DEPRECATED_ARGUMENTS.items():
             if since_vers <= sys.version_info:
-                self._deprecated_attributes.update(func_list)
-        self._deprecated_classes = {}
+                self._deprecated_arguments.update(func_list)
         for since_vers, class_list in DEPRECATED_CLASSES.items():
             if since_vers <= sys.version_info:
                 self._deprecated_classes.update(class_list)
-        self._deprecated_modules = set()
         for since_vers, mod_list in DEPRECATED_MODULES.items():
             if since_vers <= sys.version_info:
                 self._deprecated_modules.update(mod_list)
-        self._deprecated_decorators = set()
         for since_vers, decorator_list in DEPRECATED_DECORATORS.items():
             if since_vers <= sys.version_info:
                 self._deprecated_decorators.update(decorator_list)
@@ -636,9 +646,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             )
 
     def _check_datetime(self, node):
-        """Check that a datetime was inferred.
-        If so, emit boolean-datetime warning.
-        """
+        """Check that a datetime was inferred, if so, emit boolean-datetime warning."""
         try:
             inferred = next(node.infer())
         except astroid.InferenceError:
@@ -780,7 +788,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         return self._deprecated_methods
 
     def deprecated_arguments(self, method: str):
-        return self._deprecated_attributes.get(method, ())
+        return self._deprecated_arguments.get(method, ())
 
     def deprecated_classes(self, module: str):
         return self._deprecated_classes.get(module, ())

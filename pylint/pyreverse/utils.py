@@ -286,6 +286,7 @@ def infer_node(node: Union[nodes.AssignAttr, nodes.AssignName]) -> set:
 
 def check_graphviz_availability():
     """Check if the ``dot`` command is available on the machine.
+
     This is needed if image output is desired and ``dot`` is used to convert
     from *.dot or *.gv into the final output format.
     """

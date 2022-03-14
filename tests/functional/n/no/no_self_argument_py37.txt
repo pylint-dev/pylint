@@ -1,1 +1,1 @@
-no-self-argument:13:4:15:12:Toto.__class_other__:"Method should have ""self"" as first argument":UNDEFINED
+no-self-argument:13:4:13:23:Toto.__class_other__:"Method should have ""self"" as first argument":UNDEFINED

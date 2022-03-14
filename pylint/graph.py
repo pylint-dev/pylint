@@ -152,7 +152,8 @@ class DotBackend:
 
     def emit_edge(self, name1, name2, **props):
         """Emit an edge from <name1> to <name2>.
-        edge properties: see https://www.graphviz.org/doc/info/attrs.html
+
+        For edge properties: see https://www.graphviz.org/doc/info/attrs.html
         """
         attrs = [f'{prop}="{value}"' for prop, value in props.items()]
         n_from, n_to = normalize_node_id(name1), normalize_node_id(name2)
@@ -160,7 +161,8 @@ class DotBackend:
 
     def emit_node(self, name, **props):
         """Emit a node with given properties.
-        node properties: see https://www.graphviz.org/doc/info/attrs.html
+
+        For node properties: see https://www.graphviz.org/doc/info/attrs.html
         """
         attrs = [f'{prop}="{value}"' for prop, value in props.items()]
         self.emit(f"{normalize_node_id(name)} [{', '.join(sorted(attrs))}];")
@@ -172,9 +174,8 @@ def normalize_node_id(nid):
 
 
 def get_cycles(graph_dict, vertices=None):
-    """Given a dictionary representing an ordered graph (i.e. key are vertices
-    and values is a list of destination vertices representing edges), return a
-    list of detected cycles
+    """Return a list of detected cycles in a dictionary representing an ordered graph
+    (i.e. key are vertices and values is a list of destination vertices representing edges)
     """
     if not graph_dict:
         return ()

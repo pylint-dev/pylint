@@ -49,9 +49,10 @@ class MultiReporter:
 
     @out.setter
     def out(self, output: Optional[AnyFile] = None):
-        """MultiReporter doesn't have its own output. This method is only
-        provided for API parity with BaseReporter and should not be called
-        with non-None values for 'output'.
+        """MultiReporter doesn't have its own output.
+
+        This method is only provided for API parity with BaseReporter
+        and should not be called with non-None values for 'output'.
         """
         self.__out = None
         if output is not None:

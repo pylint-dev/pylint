@@ -31,6 +31,7 @@
 """Check for signs of poor design."""
 
 import re
+import sys
 from collections import defaultdict
 from typing import TYPE_CHECKING, FrozenSet, Iterator, List, Set, cast
 
@@ -41,6 +42,12 @@ from pylint import utils
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages
 from pylint.interfaces import IAstroidChecker
+
+if sys.version_info >= (3, 8) or TYPE_CHECKING:
+    from functools import cached_property
+else:
+    # pylint: disable-next=ungrouped-imports
+    from astroid.decorators import cachedproperty as cached_property
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -291,7 +298,9 @@ def _get_parents(
 
 
 class MisdesignChecker(BaseChecker):
-    """Checks for sign of poor/misdesign:
+    """Checker of potential misdesigns.
+
+    Checks for sign of poor/misdesign:
     * number of methods, attributes, local variables...
     * size, complexity of functions, methods
     """
@@ -441,7 +450,7 @@ class MisdesignChecker(BaseChecker):
         for i, _ in enumerate(self._stmts):
             self._stmts[i] += amount
 
-    @astroid.decorators.cachedproperty
+    @cached_property
     def _ignored_argument_names(self):
         return utils.get_global_option(self, "ignored-argument-names", default=None)
 

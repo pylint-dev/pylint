@@ -4,9 +4,19 @@
 import collections
 import copy
 import itertools
+import sys
 import tokenize
 from functools import reduce
-from typing import Dict, Iterator, List, NamedTuple, Optional, Tuple, Union
+from typing import (
+    TYPE_CHECKING,
+    Dict,
+    Iterator,
+    List,
+    NamedTuple,
+    Optional,
+    Tuple,
+    Union,
+)
 
 import astroid
 from astroid import nodes
@@ -16,6 +26,13 @@ from pylint import checkers, interfaces
 from pylint import utils as lint_utils
 from pylint.checkers import utils
 from pylint.checkers.utils import node_frame_class
+
+if sys.version_info >= (3, 8) or TYPE_CHECKING:
+    # pylint: disable-next=ungrouped-imports
+    from functools import cached_property
+else:
+    # pylint: disable-next=ungrouped-imports
+    from astroid.decorators import cachedproperty as cached_property
 
 KNOWN_INFINITE_ITERATORS = {"itertools.count"}
 BUILTIN_EXIT_FUNCS = frozenset(("quit", "exit"))
@@ -475,7 +492,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         # do this in open since config not fully initialized in __init__
         self._never_returning_functions = set(self.config.never_returning_functions)
 
-    @astroid.decorators.cachedproperty
+    @cached_property
     def _dummy_rgx(self):
         return lint_utils.get_global_option(self, "dummy-variables-rgx", default=None)
 
@@ -578,12 +595,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             token_string = token[1]
             if token_string == "elif":
                 # AST exists by the time process_tokens is called, so
-                # it's safe to assume tokens[index+1]
-                # exists. tokens[index+1][2] is the elif's position as
+                # it's safe to assume tokens[index+1] exists.
+                # tokens[index+1][2] is the elif's position as
                 # reported by CPython and PyPy,
-                # tokens[index][2] is the actual position and also is
+                # token[2] is the actual position and also is
                 # reported by IronPython.
-                self._elifs.extend([tokens[index][2], tokens[index + 1][2]])
+                self._elifs.extend([token[2], tokens[index + 1][2]])
             elif _is_trailing_comma(tokens, index):
                 if self.linter.is_message_enabled("trailing-comma-tuple"):
                     self.add_message("trailing-comma-tuple", line=token.start[0])
@@ -1514,6 +1531,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def _check_consider_using_join(self, aug_assign):
         """We start with the augmented assignment and work our way upwards.
+
         Names of variables for nodes if match successful:
         result = ''  # assign
         for number in ['1', '2', '3']  # for_loop
@@ -1807,7 +1825,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         return False
 
     def _is_function_def_never_returning(self, node: nodes.FunctionDef) -> bool:
-        """Return True if the function never returns. False otherwise.
+        """Return True if the function never returns, False otherwise.
 
         Args:
             node (nodes.FunctionDef): function definition node to be analyzed.
@@ -1829,7 +1847,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def _check_return_at_the_end(self, node):
         """Check for presence of a *single* return statement at the end of a
-        function. "return" or "return None" are useless because None is the
+        function.
+
+        "return" or "return None" are useless because None is the
         default return type if they are missing.
 
         NOTE: produces a message only if there is a single return statement

@@ -5,6 +5,7 @@
 from typing import List
 
 from pylint.checkers import initialize as initialize_checkers
+from pylint.constants import DELETED_MSGID_PREFIXES
 from pylint.extensions import initialize as initialize_extensions
 from pylint.lint.pylinter import PyLinter
 
@@ -18,6 +19,8 @@ def register_all_checkers_and_plugins(linter: "PyLinter") -> None:
 
 def get_next_code_category(message_ids: List[str]) -> int:
     categories = sorted({int(i[:2]) for i in message_ids})
+    # We add the prefixes for deleted checkers
+    categories += DELETED_MSGID_PREFIXES
     for i in categories:
         if i + 1 not in categories:
             return i + 1

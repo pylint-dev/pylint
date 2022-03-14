@@ -2,6 +2,17 @@
 Pylint's ChangeLog
 ------------------
 
+What's New in Pylint 2.14.0?
+============================
+Release date: TBA
+
+..
+  Put new features here and also in 'doc/whatsnew/2.14.rst'
+
+* Cache attribute lookups in ``no-member`` checker to improve performance on repeated attributes.
+
+  Closes #5695
+
 What's New in Pylint 2.13.0?
 ============================
 Release date: TBA
@@ -9,9 +20,34 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.13.rst'
 
-* Cache attribute lookups in ``no-member`` checker to improve performance on repeated attributes.
+* No longer emit ``no-member`` in for loops that reference ``self`` if the binary operation that
+  started the for loop uses a ``self`` that is encapsulated in tuples or lists.
 
-  Closes #5695
+  Ref PyCQA/astroid#1360
+  Closes #4826
+
+* Fix pyreverse diagrams type hinting for classmethods and staticmethods.
+
+* Fix matching ``--notes`` options that end in a non-word character.
+
+  Closes #5840
+
+* Updated the position of messages for class and function defintions to no longer cover
+  the complete definition. Only the ``def`` or ``class`` + the name of the class/function
+  are covered.
+
+  Closes #5466
+
+* ``using-f-string-in-unsupported-version`` and ``using-final-decorator-in-unsupported-version`` msgids
+    were renamed from ``W1601`` and ``W1602`` to ``W2601`` and ``W2602``. Disabling using these msgids will break.
+    This is done in order to restore consistency with the already existing msgids for ``apply-builtin`` and
+    ``basestring-builtin`` from the now deleted python 3K+ checker. There is now a check that we're not using
+    existing msgids or symbols from deleted checkers.
+
+  Closes #5729
+
+* The line numbering for messages related to function arguments is now more accurate. This can
+  require some message disables to be relocated to updated positions.
 
 * Add ``--recursive`` option to allow recursive discovery of all modules and packages in subtree. Running pylint with
   ``--recursive=y`` option will check all discovered ``.py`` files and packages found inside subtree of directory provided
@@ -39,6 +75,23 @@ Release date: TBA
 
   Closes #5322
 
+* Added a ``testutil`` extra require to the packaging, as ``gitpython`` should not be a dependency
+  all the time but is still required to use the primer helper code in ``pylint.testutil``. You can
+  install it with ``pip install pylint[testutil]``.
+
+  Closes #5486
+
+* Reinstated checks from the python3 checker that are still useful for python 3
+  (``eq-without-hash``). This is now in the ``pylint.extensions.eq_without_hash`` optional
+  extension.
+
+  Closes #5025
+
+* Fixed an issue where ``ungrouped-imports`` could not be disabled without raising
+  ``useless-suppression``.
+
+  Ref #2366
+
 * Added several checkers to deal with unicode security issues
   (see `Trojan Sources <https://trojansource.codes/>`_ and
   `PEP 672 <https://www.python.org/dev/peps/pep-0672/>`_ for details) that also
@@ -60,6 +113,10 @@ Release date: TBA
     to check for possibly harmful unescaped characters.
 
   Closes #5281
+
+* Use the ``tomli`` package instead of ``toml`` to parse ``.toml`` files.
+
+ Closes #5885
 
 * Fix false positive - Allow unpacking of ``self`` in a subclass of ``typing.NamedTuple``.
 
@@ -91,6 +148,11 @@ Release date: TBA
 
   Closes #5731
 
+* Fixed a crash involving a ``NewType`` named with an f-string.
+
+  Closes #5770
+  Ref PyCQA/astroid#1400
+
 * Improved ``bad-open-mode`` message when providing ``None`` to the ``mode``
   argument of an ``open()`` call.
 
@@ -101,6 +163,18 @@ Release date: TBA
   getting garbage collected.
 
   Closes #5670
+
+* Fixed crash with recursion error for inference of class attributes that referenced
+  the class itself.
+
+  Closes #5408
+  Ref PyCQA/astroid#1392
+
+* Fixed false positive for ``unused-argument`` when a method overridden in a subclass
+  does nothing with the value of a keyword-only argument.
+
+  Closes #5771
+  Ref PyCQA/astroid#1382
 
 * The issue template for crashes is now created for crashes which were previously not covered
   by this mechanism.
@@ -189,6 +263,9 @@ Release date: TBA
 
   Closes #3793
 
+* Fixed a false positive for ``invalid-class-object`` when the object
+  being assigned to the ``__class__`` attribute is uninferable.
+
 * Fixed false positive for ``used-before-assignment`` with self-referential type
   annotation in conditional statements within class methods.
 
@@ -208,6 +285,11 @@ Release date: TBA
   This behavior can be reverted by redefining the ``ignore-patterns`` option.
 
   Closes #367
+
+* Fixed a false positive for ``used-before-assignment`` when a named expression
+  appears as the first value in a container.
+
+  Closes #5112
 
 * ``used-before-assignment`` now assumes that assignments in except blocks
   may not have occurred and warns accordingly.
@@ -287,9 +369,19 @@ Release date: TBA
 
   Closes #5557
 
+* Fixed a crash on ``__init__`` nodes when the attribute was previously uninferable due to a cache
+  limit size. This limit can be hit when the inheritance pattern of a class (and therefore of the ``__init__`` attribute) is very large.
+
+  Closes #5679
+
 * Fix ``unnecessary_dict_index_lookup`` false positive when deleting a dictionary's entry.
 
   Closes #4716
+
+* Fix false positive for ``used-before-assignment`` when an except handler
+  shares a name with a test in a filtered comprehension.
+
+  Closes #5817
 
 * Fix crash in ``unnecessary-dict-index-lookup`` checker if the output of
   ``items()`` is assigned to a 1-tuple.
@@ -364,12 +456,32 @@ Release date: TBA
 
   Closes #5371
 
+* ``TypingChecker``
+
+  * Added new check ``broken-noreturn`` to detect broken uses of ``typing.NoReturn``
+    if ``py-version`` is set to Python ``3.7.1`` or below.
+    https://bugs.python.org/issue34921
+
+  * Added new check ``broken-collections-callable`` to detect broken uses of ``collections.abc.Callable``
+    if ``py-version`` is set to Python ``3.9.1`` or below.
+    https://bugs.python.org/issue42965
+
 * The ``testutils`` for unittests now accept ``end_lineno`` and ``end_column``. Tests
   without these will trigger a ``DeprecationWarning``.
 
 * Fixed false positive ``unexpected-keyword-arg`` for decorators.
 
   Closes #258
+
+* Importing the deprecated stdlib module ``xml.etree.cElementTree`` now emits ``deprecated_module``.
+
+  Closes #5862
+
+* Disables for ``deprecated-module`` and similar warnings for stdlib features deprecated
+  in newer versions of Python no longer raise ``useless-suppression`` when linting with
+  older Python interpreters where those features are not yet deprecated.
+
+* Importing the deprecated stdlib module ``distutils`` now emits ``deprecated_module`` on Python 3.10+.
 
 * ``missing-raises-doc`` will now check the class hierarchy of the raised exceptions
 
@@ -385,9 +497,18 @@ Release date: TBA
 
   Closes #4955
 
+* Allow disabling ``duplicate-code`` with a disable comment when running through
+  pylint.
+
+  Closes #214
+
 ..
   Insert your changelog randomly, it will reduce merge conflicts
   (Ie. not necessarily at the end)
+
+* Added new checker ``typevar-name-missing-variance``. Emitted when a covariant
+  or contravariant ``TypeVar`` does not end with  ``_co`` or ``_contra`` respectively or
+  when a ``TypeVar`` is not either but has a suffix.
 
 
 What's New in Pylint 2.12.2?
@@ -434,6 +555,10 @@ Release date: 2021-11-25
 * ``unused-import`` now check all ancestors for typing guards
 
   Closes #5316
+
+* Allow usage of mccabe 0.7.x release
+
+  Closes #5878
 
 
 What's New in Pylint 2.12.1?
@@ -508,6 +633,7 @@ Release date: 2021-11-24
 * Properly identify parameters with no documentation and add new message called ``missing-any-param-doc``
 
   Closes #3799
+
 * Add checkers ``overridden-final-method`` & ``subclassed-final-class``
 
   Closes #3197

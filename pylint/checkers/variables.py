@@ -60,6 +60,7 @@ import copy
 import itertools
 import os
 import re
+import sys
 from enum import Enum
 from functools import lru_cache
 from typing import (
@@ -89,6 +90,13 @@ from pylint.interfaces import (
     IAstroidChecker,
 )
 from pylint.utils import get_global_option
+
+if sys.version_info >= (3, 8) or TYPE_CHECKING:
+    # pylint: disable-next=ungrouped-imports
+    from functools import cached_property
+else:
+    # pylint: disable-next=ungrouped-imports
+    from astroid.decorators import cachedproperty as cached_property
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -302,7 +310,9 @@ def _infer_name_module(node, name):
 
 def _fix_dot_imports(not_consumed):
     """Try to fix imports with multiple dots, by returning a dictionary
-    with the import names expanded. The function unflattens root imports,
+    with the import names expanded.
+
+    The function unflattens root imports,
     like 'xml' (when we have both 'xml.etree' and 'xml.sax'), to 'xml.etree'
     and 'xml.sax' respectively.
     """
@@ -343,8 +353,9 @@ def _fix_dot_imports(not_consumed):
 
 
 def _find_frame_imports(name, frame):
-    """Detect imports in the frame, with the required
-    *name*. Such imports can be considered assignments.
+    """Detect imports in the frame, with the required *name*.
+
+    Such imports can be considered assignments.
     Returns True if an import for the given name was found.
     """
     imports = frame.nodes_of_class((nodes.Import, nodes.ImportFrom))
@@ -595,6 +606,7 @@ scope_type : {self._atomic.scope_type}
     def consumed_uncertain(self) -> DefaultDict[str, List[nodes.NodeNG]]:
         """Retrieves nodes filtered out by get_next_to_consume() that may not
         have executed, such as statements in except blocks, or statements
+
         in try blocks (when evaluating their corresponding except and finally
         blocks). Checkers that want to treat the statements as executed
         (e.g. for unused-variable) may need to add them back.
@@ -607,6 +619,7 @@ scope_type : {self._atomic.scope_type}
 
     def mark_as_consumed(self, name, consumed_nodes):
         """Mark the given nodes as consumed for the name.
+
         If all of the nodes for the name were consumed, delete the name from
         the to_consume dictionary
         """
@@ -619,8 +632,9 @@ scope_type : {self._atomic.scope_type}
             del self.to_consume[name]
 
     def get_next_to_consume(self, node: nodes.Name) -> Optional[List[nodes.NodeNG]]:
-        """Return a list of the nodes that define `node` from this scope. If it is
-        uncertain whether a node will be consumed, such as for statements in
+        """Return a list of the nodes that define `node` from this scope.
+
+        If it is uncertain whether a node will be consumed, such as for statements in
         except blocks, add it to self.consumed_uncertain instead of returning it.
         Return None to indicate a special case that needs to be handled by the caller.
         """
@@ -646,7 +660,12 @@ scope_type : {self._atomic.scope_type}
             found_nodes = None
 
         # Filter out assignments in ExceptHandlers that node is not contained in
-        if found_nodes:
+        # unless this is a test in a filtered comprehension
+        # Example: [e for e in range(3) if e] <--- followed by except e:
+        if found_nodes and (
+            not isinstance(parent_node, nodes.Comprehension)
+            or node not in parent_node.ifs
+        ):
             found_nodes = [
                 n
                 for n in found_nodes
@@ -791,6 +810,7 @@ scope_type : {self._atomic.scope_type}
         node: nodes.NodeNG, other_node_try_except: nodes.TryExcept
     ) -> bool:
         """Check for a case described in https://github.com/PyCQA/pylint/issues/5683.
+
         It consists of a specific control flow scenario where the only
         non-break exit from a loop consists of the very except handler we are
         examining, such that code in the `else` branch of the loop can depend on it
@@ -882,9 +902,8 @@ scope_type : {self._atomic.scope_type}
     def _uncertain_nodes_in_try_blocks_when_evaluating_except_blocks(
         found_nodes: List[nodes.NodeNG], node_statement: nodes.Statement
     ) -> List[nodes.NodeNG]:
-        """Return any nodes in ``found_nodes`` that should be treated as uncertain
-        because they are in a try block and the ``node_statement`` being evaluated
-        is in one of its except handlers.
+        """Return any nodes in ``found_nodes`` that should be treated as uncertain because they
+        are in a try block and the ``node_statement`` being evaluated is in one of its except handlers.
         """
         uncertain_nodes: List[nodes.NodeNG] = []
         closest_except_handler = utils.get_node_first_ancestor_of_type(
@@ -981,7 +1000,9 @@ scope_type : {self._atomic.scope_type}
 
 # pylint: disable=too-many-public-methods
 class VariablesChecker(BaseChecker):
-    """Checks for
+    """BaseChecker for variables.
+
+    Checks for
     * unused variables / imports
     * undefined variables
     * redefinition of variable from builtins or from an outer scope
@@ -1768,9 +1789,8 @@ class VariablesChecker(BaseChecker):
         "unbalanced-tuple-unpacking", "unpacking-non-sequence", "self-cls-assignment"
     )
     def visit_assign(self, node: nodes.Assign) -> None:
-        """Check unbalanced tuple unpacking for assignments
-        and unpacking non-sequences as well as in case self/cls
-        get assigned.
+        """Check unbalanced tuple unpacking for assignments and unpacking
+        non-sequences as well as in case self/cls get assigned.
         """
         self._check_self_cls_assign(node)
         if not isinstance(node.targets[0], (nodes.Tuple, nodes.List)):
@@ -1805,15 +1825,15 @@ class VariablesChecker(BaseChecker):
             self._store_type_annotation_node(annotation)
 
     # Relying on other checker's options, which might not have been initialized yet.
-    @astroid.decorators.cachedproperty
+    @cached_property
     def _analyse_fallback_blocks(self):
         return get_global_option(self, "analyse-fallback-blocks", default=False)
 
-    @astroid.decorators.cachedproperty
+    @cached_property
     def _ignored_modules(self):
         return get_global_option(self, "ignored-modules", default=[])
 
-    @astroid.decorators.cachedproperty
+    @cached_property
     def _allow_global_unused_variables(self):
         return get_global_option(self, "allow-global-unused-variables", default=True)
 
@@ -1971,7 +1991,7 @@ class VariablesChecker(BaseChecker):
                     # same line as the function definition
                     maybe_before_assign = False
                 elif (
-                    isinstance(  # pylint: disable=too-many-boolean-expressions
+                    isinstance(
                         defstmt,
                         (
                             nodes.Assign,
@@ -1981,26 +2001,7 @@ class VariablesChecker(BaseChecker):
                             nodes.Return,
                         ),
                     )
-                    and (
-                        isinstance(defstmt.value, nodes.IfExp)
-                        or (
-                            isinstance(defstmt.value, nodes.Lambda)
-                            and isinstance(defstmt.value.body, nodes.IfExp)
-                        )
-                        or (
-                            isinstance(defstmt.value, nodes.Call)
-                            and (
-                                any(
-                                    isinstance(kwarg.value, nodes.IfExp)
-                                    for kwarg in defstmt.value.keywords
-                                )
-                                or any(
-                                    isinstance(arg, nodes.IfExp)
-                                    for arg in defstmt.value.args
-                                )
-                            )
-                        )
-                    )
+                    and VariablesChecker._maybe_used_and_assigned_at_once(defstmt)
                     and frame is defframe
                     and defframe.parent_of(node)
                     and stmt is defstmt
@@ -2073,6 +2074,27 @@ class VariablesChecker(BaseChecker):
                         maybe_before_assign = True
 
         return maybe_before_assign, annotation_return, use_outer_definition
+
+    @staticmethod
+    def _maybe_used_and_assigned_at_once(defstmt: nodes.Statement) -> bool:
+        """Check if `defstmt` has the potential to use and assign a name in the
+        same statement.
+        """
+        if isinstance(defstmt.value, nodes.BaseContainer) and defstmt.value.elts:
+            # The assignment must happen as part of the first element
+            # e.g. "assert (x:= True), x"
+            # NOT "assert x, (x:= True)"
+            value = defstmt.value.elts[0]
+        else:
+            value = defstmt.value
+        if isinstance(value, nodes.IfExp):
+            return True
+        if isinstance(value, nodes.Lambda) and isinstance(value.body, nodes.IfExp):
+            return True
+        return isinstance(value, nodes.Call) and (
+            any(isinstance(kwarg.value, nodes.IfExp) for kwarg in value.keywords)
+            or any(isinstance(arg, nodes.IfExp) for arg in value.args)
+        )
 
     @staticmethod
     def _is_only_type_assignment(node: nodes.Name, defstmt: nodes.Statement) -> bool:
@@ -2295,9 +2317,7 @@ class VariablesChecker(BaseChecker):
             if global_names and _import_name_is_global(stmt, global_names):
                 return
 
-        argnames = list(
-            itertools.chain(node.argnames(), [arg.name for arg in node.args.kwonlyargs])
-        )
+        argnames = node.argnames()
         # Care about functions with unknown argument (builtins)
         if name in argnames:
             self._check_unused_arguments(name, node, stmt, argnames)
@@ -2472,8 +2492,7 @@ class VariablesChecker(BaseChecker):
         self, node: nodes.Name, index: int
     ) -> bool:
         """Return whether there is a node with the same name in the
-        to_consume dict of an upper scope and if that scope is a
-        function
+        to_consume dict of an upper scope and if that scope is a function
 
         :param node: node to check for
         :param index: index of the current consumer inside self._to_consume
@@ -2602,8 +2621,7 @@ class VariablesChecker(BaseChecker):
 
     def _check_module_attrs(self, node, module, module_names):
         """Check that module_names (list of string) are accessible through the
-        given module
-        if the latest access name corresponds to a module, return it
+        given module, if the latest access name corresponds to a module, return it
         """
         while module_names:
             name = module_names.pop(0)

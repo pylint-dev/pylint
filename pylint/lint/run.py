@@ -398,7 +398,9 @@ to search for configuration file.
         self._plugins.extend(utils._splitstrip(value))
 
     def cb_error_mode(self, *args, **kwargs):
-        """Error mode:
+        """Callback for --errors-only.
+
+        Error mode:
         * disable all but error messages
         * disable the 'miscellaneous' checker which can be safely deactivated in
           debug
