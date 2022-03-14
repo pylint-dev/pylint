@@ -9,6 +9,10 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.14.rst'
 
+* Avoid emitting ``raising-bad-type`` when there is inference ambiguity on
+  the variable being raised.
+
+  Closes #2793
 
 
 ..
