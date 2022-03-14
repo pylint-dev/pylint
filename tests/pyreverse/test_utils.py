@@ -17,7 +17,12 @@ import astroid
 import pytest
 from astroid import nodes
 
-from pylint.pyreverse.utils import get_annotation, get_visibility, infer_node
+from pylint.pyreverse.utils import (
+    get_annotation,
+    get_annotation_label,
+    get_visibility,
+    infer_node,
+)
 
 
 @pytest.mark.parametrize(
@@ -79,6 +84,23 @@ def test_get_annotation_assignattr(init_method, label):
             got = get_annotation(assign_attr).name
             assert isinstance(assign_attr, nodes.AssignAttr)
             assert got == label, f"got {got} instead of {label} for value {node}"
+
+
+@pytest.mark.parametrize(
+    "node_text, expected_label",
+    [
+        ("int", "int"),
+        ("float", "float"),
+        ("str", "str"),
+        ("True", "True"),
+        ("False", "False"),
+        ("None", "None"),
+    ],
+)
+def test_get_annotation_label_for_node(node_text: str, expected_label: str):
+    node = astroid.extract_node(node_text)
+    assert isinstance(node, nodes.NodeNG)
+    assert get_annotation_label(node) == expected_label
 
 
 @patch("pylint.pyreverse.utils.get_annotation")
