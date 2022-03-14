@@ -77,7 +77,7 @@ Removed checkers
 Extensions
 ==========
 * New extension ``import-private-name``: indicate imports of external private packages
-  and objects (prefixed with ``_``).
+  and objects (prefixed with ``_``). It can be loaded using ``load-plugins=pylint.extensions.private_import``.
 
   Closes #5463
 
