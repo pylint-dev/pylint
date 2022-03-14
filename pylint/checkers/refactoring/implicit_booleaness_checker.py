@@ -128,8 +128,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
     @utils.check_messages("use-implicit-booleaness-not-len")
     def visit_unaryop(self, node: nodes.UnaryOp) -> None:
         """`not len(S)` must become `not S` regardless if the parent block
-        is a test condition or something else (boolean expression)
-        e.g. `if not len(S):`
+        is a test condition or something else (boolean expression) e.g. `if not len(S):`
         """
         if (
             isinstance(node, nodes.UnaryOp)
@@ -145,7 +144,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
     def _check_use_implicit_booleaness_not_comparison(
         self, node: nodes.Compare
     ) -> None:
-        """Check for left side and right side of the node for empty literals"""
+        """Check for left side and right side of the node for empty literals."""
         is_left_empty_literal = utils.is_base_container(
             node.left
         ) or utils.is_empty_dict_literal(node.left)

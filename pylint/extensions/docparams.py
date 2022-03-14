@@ -24,7 +24,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""Pylint plugin for checking in Sphinx, Google, or Numpy style docstrings"""
+"""Pylint plugin for checking in Sphinx, Google, or Numpy style docstrings."""
 import re
 from typing import TYPE_CHECKING, Optional
 
@@ -43,7 +43,7 @@ if TYPE_CHECKING:
 
 
 class DocstringParameterChecker(BaseChecker):
-    """Checker for Sphinx, Google, or Numpy style docstrings
+    """Checker for Sphinx, Google, or Numpy style docstrings.
 
     * Check that all function, method and constructor parameters are mentioned
       in the params and types part of the docstring.  Constructor parameters
@@ -492,10 +492,8 @@ class DocstringParameterChecker(BaseChecker):
         warning_node: astroid.NodeNG,
         accept_no_param_doc: Optional[bool] = None,
     ):
-        """Check that all parameters in a function, method or class constructor
-        on the one hand and the parameters mentioned in the parameter
-        documentation (e.g. the Sphinx tags 'param' and 'type') on the other
-        hand are consistent with each other.
+        """Check that all parameters are consistent with the parameters mentioned
+        in the parameter documentation (e.g. the Sphinx tags 'param' and 'type').
 
         * Undocumented parameters except 'self' are noticed.
         * Undocumented parameter types except for 'self' and the ``*<args>``

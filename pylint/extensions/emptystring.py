@@ -26,6 +26,7 @@ if TYPE_CHECKING:
 
 class CompareToEmptyStringChecker(checkers.BaseChecker):
     """Checks for comparisons to empty string.
+
     Most of the time you should use the fact that empty strings are false.
     An exception to this rule is when an empty string value is allowed in the program
     and has a different meaning than None!

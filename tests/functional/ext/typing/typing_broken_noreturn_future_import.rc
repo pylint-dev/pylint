@@ -1,0 +1,6 @@
+[master]
+py-version=3.7
+load-plugins=pylint.extensions.typing
+
+[testoptions]
+min_pyver=3.7

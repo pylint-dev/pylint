@@ -19,7 +19,7 @@
 # Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Yilei "Dolee" Yang <yileiyang@google.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 Or Bahari <orbahari@mail.tau.ac.il>
+# Copyright (c) 2021-2022 Or Bahari <or.ba402@gmail.com>
 # Copyright (c) 2021 David Gilman <davidgilman1@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -66,8 +66,8 @@ class TestMultiNamingStyle(CheckerTestCase):
             confidence=HIGH,
             line=2,
             col_offset=0,
-            end_line=3,
-            end_col_offset=8,
+            end_line=2,
+            end_col_offset=12,
         )
         with self.assertAddsMessages(message):
             cls = None
@@ -100,8 +100,8 @@ class TestMultiNamingStyle(CheckerTestCase):
                 confidence=HIGH,
                 line=2,
                 col_offset=0,
-                end_line=3,
-                end_col_offset=8,
+                end_line=2,
+                end_col_offset=13,
             ),
             MessageTest(
                 "invalid-name",
@@ -114,8 +114,8 @@ class TestMultiNamingStyle(CheckerTestCase):
                 confidence=HIGH,
                 line=6,
                 col_offset=0,
-                end_line=7,
-                end_col_offset=8,
+                end_line=6,
+                end_col_offset=12,
             ),
         ]
         with self.assertAddsMessages(*messages):
@@ -153,7 +153,7 @@ class TestMultiNamingStyle(CheckerTestCase):
             confidence=HIGH,
             line=6,
             col_offset=0,
-            end_line=7,
+            end_line=6,
             end_col_offset=8,
         )
         with self.assertAddsMessages(message):
@@ -190,8 +190,8 @@ class TestMultiNamingStyle(CheckerTestCase):
             confidence=HIGH,
             line=8,
             col_offset=0,
-            end_line=9,
-            end_col_offset=8,
+            end_line=8,
+            end_col_offset=9,
         )
         with self.assertAddsMessages(message):
             func = None

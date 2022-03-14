@@ -8,7 +8,10 @@ from pathlib import Path
 import pytest
 
 from pylint import testutils
-from pylint.testutils.functional import FunctionalTestFile
+from pylint.testutils.functional import (
+    FunctionalTestFile,
+    get_functional_test_files_from_directory,
+)
 
 HERE = Path(__file__).parent
 DATA_DIRECTORY = HERE / "data"
@@ -19,3 +22,9 @@ def test_parsing_of_pylintrc_init_hook() -> None:
     with pytest.raises(RuntimeError):
         test_file = FunctionalTestFile(str(DATA_DIRECTORY), "init_hook.py")
         testutils.LintModuleTest(test_file)
+
+
+def test_get_functional_test_files_from_directory() -> None:
+    """Test that we correctly check the functional test directory structures."""
+    with pytest.raises(AssertionError, match="using_dir.py should not go in"):
+        get_functional_test_files_from_directory(DATA_DIRECTORY)

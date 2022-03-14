@@ -6,7 +6,7 @@ __version__ = "2.13.0-dev0"
 
 
 def get_numversion_from_version(v: str) -> Tuple:
-    """Kept for compatibility reason
+    """Kept for compatibility reason.
 
     See https://github.com/PyCQA/pylint/issues/4399
     https://github.com/PyCQA/pylint/issues/4420,

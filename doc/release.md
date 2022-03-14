@@ -6,7 +6,7 @@ So, you want to release the `X.Y.Z` version of pylint ?
 
 1. Check if the dependencies of the package are correct, make sure that astroid is
    pinned to the latest version.
-2. Install the release dependencies `pip3 install pre-commit tbump`
+2. Install the release dependencies `pip3 install pre-commit tbump tox`
 3. Bump the version by using `tbump X.Y.Z --no-tag --no-push`
 4. Check the result (Do `git diff vX.Y.Z-1 ChangeLog doc/whatsnew/` in particular).
 5. Move back to a dev version for pylint with `tbump`:

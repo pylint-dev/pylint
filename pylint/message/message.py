@@ -32,7 +32,7 @@ _MsgBase = collections.namedtuple(
 
 
 class Message(_MsgBase):
-    """This class represent a message to be issued by the reporters"""
+    """This class represent a message to be issued by the reporters."""
 
     @overload
     def __new__(

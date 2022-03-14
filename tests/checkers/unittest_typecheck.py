@@ -46,7 +46,7 @@ needs_c_extension = pytest.mark.skipif(
 
 
 class TestTypeChecker(CheckerTestCase):
-    """Tests for pylint.checkers.typecheck"""
+    """Tests for pylint.checkers.typecheck."""
 
     CHECKER_CLASS = typecheck.TypeChecker
 

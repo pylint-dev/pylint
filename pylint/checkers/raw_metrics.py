@@ -39,7 +39,7 @@ def report_raw_stats(
     stats: LinterStats,
     old_stats: Optional[LinterStats],
 ) -> None:
-    """calculate percentage of code / doc / comment / empty"""
+    """Calculate percentage of code / doc / comment / empty."""
     total_lines = stats.code_type_count["total"]
     sect.description = f"{total_lines} lines have been analyzed"
     lines = ["type", "number", "%", "previous", "difference"]
@@ -60,7 +60,9 @@ def report_raw_stats(
 
 
 class RawMetricsChecker(BaseTokenChecker):
-    """does not check anything but gives some raw metrics :
+    """Checker that provides raw metrics instead of checking anything.
+
+    Provides:
     * total number of lines
     * total number of code lines
     * total number of docstring lines
@@ -83,11 +85,11 @@ class RawMetricsChecker(BaseTokenChecker):
         super().__init__(linter)
 
     def open(self):
-        """init statistics"""
+        """Init statistics."""
         self.linter.stats.reset_code_count()
 
     def process_tokens(self, tokens):
-        """update stats"""
+        """Update stats."""
         i = 0
         tokens = list(tokens)
         while i < len(tokens):
@@ -100,7 +102,7 @@ JUNK = (tokenize.NL, tokenize.INDENT, tokenize.NEWLINE, tokenize.ENDMARKER)
 
 
 def get_type(tokens, start_index):
-    """return the line type : docstring, comment, code, empty"""
+    """Return the line type : docstring, comment, code, empty."""
     i = start_index
     start = tokens[i][2]
     pos = start

@@ -15,6 +15,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Visitor doing some postprocessing on the astroid tree.
+
 Try to resolve definitions (namespace) dictionary, relationship...
 """
 import collections
@@ -71,17 +72,17 @@ class IdGeneratorMixIn:
         self.id_count = start_value
 
     def init_counter(self, start_value=0):
-        """init the id counter"""
+        """Init the id counter."""
         self.id_count = start_value
 
     def generate_id(self):
-        """generate a new identifier"""
+        """Generate a new identifier."""
         self.id_count += 1
         return self.id_count
 
 
 class Project:
-    """a project handle a set of modules / packages"""
+    """A project handle a set of modules / packages."""
 
     def __init__(self, name=""):
         self.name = name
@@ -143,7 +144,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         self.project = project
 
     def visit_project(self, node: Project) -> None:
-        """visit a pyreverse.utils.Project node
+        """Visit a pyreverse.utils.Project node.
 
         * optionally tag the node with a unique id
         """
@@ -153,7 +154,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             self.visit(module)
 
     def visit_module(self, node: nodes.Module) -> None:
-        """visit an astroid.Module node
+        """Visit an astroid.Module node.
 
         * set the locals_type mapping
         * set the depends mapping
@@ -167,7 +168,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             node.uid = self.generate_id()
 
     def visit_classdef(self, node: nodes.ClassDef) -> None:
-        """visit an astroid.Class node
+        """Visit an astroid.Class node.
 
         * set the locals_type and instance_attrs_type mappings
         * set the implements list and build it
@@ -196,7 +197,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             node.implements = []
 
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
-        """visit an astroid.Function node
+        """Visit an astroid.Function node.
 
         * set the locals_type mapping
         * optionally tag the node with a unique id
@@ -213,7 +214,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
     link_function = visit_functiondef
 
     def visit_assignname(self, node: nodes.AssignName) -> None:
-        """visit an astroid.AssignName node
+        """Visit an astroid.AssignName node.
 
         handle locals_type
         """
@@ -244,7 +245,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
 
     @staticmethod
     def handle_assignattr_type(node, parent):
-        """handle an astroid.assignattr node
+        """Handle an astroid.assignattr node.
 
         handle instance_attrs_type
         """
@@ -254,7 +255,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         )
 
     def visit_import(self, node: nodes.Import) -> None:
-        """visit an astroid.Import node
+        """Visit an astroid.Import node.
 
         resolve module dependencies
         """
@@ -264,7 +265,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             self._imported_module(node, name[0], relative)
 
     def visit_importfrom(self, node: nodes.ImportFrom) -> None:
-        """visit an astroid.ImportFrom node
+        """Visit an astroid.ImportFrom node.
 
         resolve module dependencies
         """
@@ -288,7 +289,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
                 self._imported_module(node, fullname, relative)
 
     def compute_module(self, context_name, mod_path):
-        """return true if the module should be added to dependencies"""
+        """Return true if the module should be added to dependencies."""
         package_dir = os.path.dirname(self.project.path)
         if context_name == mod_path:
             return 0
@@ -297,7 +298,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         return 0
 
     def _imported_module(self, node, mod_path, relative):
-        """Notify an imported module, used to analyze dependencies"""
+        """Notify an imported module, used to analyze dependencies."""
         module = node.root()
         context_name = module.name
         if relative:
@@ -314,7 +315,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
 def project_from_files(
     files, func_wrapper=_astroid_wrapper, project_name="no name", black_list=("CVS",)
 ):
-    """return a Project from a list of files or modules"""
+    """Return a Project from a list of files or modules."""
     # build the project representation
     astroid_manager = astroid.manager.AstroidManager()
     project = Project(project_name)

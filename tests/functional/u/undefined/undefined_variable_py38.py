@@ -14,7 +14,7 @@ def typing_and_assignment_expression():
 def typing_and_self_referencing_assignment_expression():
     """The variable gets assigned in an assignment expression that references itself"""
     var: int
-    if (var := var ** 2):  # false negative--walrus operator!
+    if (var := var ** 2):  # false negative: https://github.com/PyCQA/pylint/issues/5653
         print(var)
 
 
@@ -123,5 +123,49 @@ def type_annotation_used_after_comprehension():
 
 def type_annotation_unused_after_comprehension():
     """https://github.com/PyCQA/pylint/issues/5326"""
+    my_int: int  # [unused-variable]
+    _ = [print(sep=my_int, end=my_int) for my_int in range(10)]
+
+
+def type_annotation_used_improperly_after_comprehension():
+    """https://github.com/PyCQA/pylint/issues/5654"""
     my_int: int
-    _ = [print(kwarg1=my_int, kwarg2=my_int) for my_int in range(10)]
+    _ = [print(sep=my_int, end=my_int) for my_int in range(10)]
+    print(my_int)  # [used-before-assignment]
+
+
+def type_annotation_used_improperly_after_comprehension_2():
+    """Same case as above but with positional arguments"""
+    my_int: int
+    _ = [print(my_int, my_int) for my_int in range(10)]
+    print(my_int)  # [used-before-assignment]
+
+
+# Tests for named expressions (walrus operator)
+
+# Expression in ternary operator: positional argument
+print(sep=colon if (colon := ":") else None)
+
+
+class Dummy:
+    """Expression in ternary operator: keyword argument"""
+    # pylint: disable=too-few-public-methods
+    def __init__(self, value):
+        self.value = value
+
+
+dummy = Dummy(value=val if (val := 'something') else 'anything')
+
+def expression_in_ternary_operator_inside_container():
+    """Named expression in ternary operator: inside container"""
+    return [val2 if (val2 := 'something') else 'anything']
+
+
+def expression_in_ternary_operator_inside_container_tuple():
+    """Same case, using a tuple inside a 1-element list"""
+    return [(val3, val3) if (val3 := 'something') else 'anything']
+
+
+def expression_in_ternary_operator_inside_container_wrong_position():
+    """2-element list where named expression comes too late"""
+    return [val3, val3 if (val3 := 'something') else 'anything']  # [used-before-assignment]
