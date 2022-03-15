@@ -32,7 +32,7 @@ Before writing a new test it is often a good idea to ensure that your change isn
 breaking a current test. You can run our tests using the tox_ package, as in::
 
     python -m tox
-    python -m tox -epy36 # for Python 3.6 suite only
+    python -m tox -epy38 # for Python 3.8 suite only
     python -m tox -epylint # for running Pylint over Pylint's codebase
     python -m tox -eformatting # for running formatting checks over Pylint's codebase
 
