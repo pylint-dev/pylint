@@ -901,7 +901,7 @@ a metaclass class method.",
                 ):
                     continue
             for child in node.nodes_of_class((nodes.Name, nodes.Attribute)):
-                # Check for cases where the functions are used as a variable instead of as a method call```
+                # Check for cases where the functions are used as a variable instead of as a method call
                 if isinstance(child, nodes.Name) and child.name == function_def.name:
                     break
                 if isinstance(child, nodes.Attribute):
