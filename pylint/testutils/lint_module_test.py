@@ -7,26 +7,29 @@ import platform
 import sys
 from collections import Counter
 from io import StringIO
+from pathlib import Path
 from typing import Counter as CounterType
-from typing import Dict, List, Optional, TextIO, Tuple
+from typing import Dict, List, Optional, TextIO, Tuple, Union
 
 import pytest
 from _pytest.config import Config
 
 from pylint import checkers
+from pylint.config.config_initialization import _config_initialization
 from pylint.lint import PyLinter
 from pylint.message.message import Message
 from pylint.testutils.constants import _EXPECTED_RE, _OPERATORS, UPDATE_OPTION
-from pylint.testutils.functional_test_file import (
+from pylint.testutils.functional.test_file import (  # need to import from functional.test_file to avoid cyclic import
     FunctionalTestFile,
     NoFileError,
     parse_python_version,
 )
 from pylint.testutils.output_line import OutputLine
 from pylint.testutils.reporter_for_tests import FunctionalTestReporter
-from pylint.utils import utils
 
 MessageCounter = CounterType[Tuple[int, str]]
+
+PYLINTRC = Path(__file__).parent / "testing_pylintrc"
 
 
 class LintModuleTest:
@@ -37,22 +40,27 @@ class LintModuleTest:
     ) -> None:
         _test_reporter = FunctionalTestReporter()
         self._linter = PyLinter()
-        self._linter.set_reporter(_test_reporter)
         self._linter.config.persistent = 0
         checkers.initialize(self._linter)
-        self._linter.disable("suppressed-message")
-        self._linter.disable("locally-disabled")
-        self._linter.disable("useless-suppression")
+
+        # See if test has its own .rc file, if so we use that one
+        rc_file: Union[Path, str] = PYLINTRC
         try:
-            self._linter.read_config_file(test_file.option_file)
-            if self._linter.cfgfile_parser.has_option("MASTER", "load-plugins"):
-                plugins = utils._splitstrip(
-                    self._linter.cfgfile_parser.get("MASTER", "load-plugins")
-                )
-                self._linter.load_plugin_modules(plugins)
-            self._linter.load_config_file()
+            rc_file = test_file.option_file
+            self._linter.disable("suppressed-message")
+            self._linter.disable("locally-disabled")
+            self._linter.disable("useless-suppression")
         except NoFileError:
             pass
+
+        try:
+            args = [test_file.source]
+        except NoFileError:
+            # If we're still raising NoFileError the actual source file doesn't exist
+            args = [""]
+        _config_initialization(
+            self._linter, args_list=args, config_file=rc_file, reporter=_test_reporter
+        )
         self._test_file = test_file
         self._config = config
         self._check_end_position = (
@@ -74,14 +82,12 @@ class LintModuleTest:
             pytest.skip(f"Requires {','.join(missing)} to be present.")
         except_implementations = self._test_file.options["except_implementations"]
         if except_implementations:
-            implementations = [i.strip() for i in except_implementations.split(",")]
-            if platform.python_implementation() in implementations:
+            if platform.python_implementation() in except_implementations:
                 msg = "Test cannot run with Python implementation %r"
                 pytest.skip(msg % platform.python_implementation())
         excluded_platforms = self._test_file.options["exclude_platforms"]
         if excluded_platforms:
-            platforms = [p.strip() for p in excluded_platforms.split(",")]
-            if sys.platform.lower() in platforms:
+            if sys.platform.lower() in excluded_platforms:
                 pytest.skip(f"Test cannot run on platform {sys.platform!r}")
 
     def runTest(self) -> None:
@@ -136,7 +142,8 @@ class LintModuleTest:
     ) -> Tuple[MessageCounter, Dict[Tuple[int, str], int]]:
         """Takes two multisets and compares them.
 
-        A multiset is a dict with the cardinality of the key as the value."""
+        A multiset is a dict with the cardinality of the key as the value.
+        """
         missing = expected_entries.copy()
         missing.subtract(actual_entries)
         unexpected = {}
@@ -252,7 +259,7 @@ class LintModuleTest:
         expected_output: List[OutputLine],
         actual_output: List[OutputLine],
     ) -> None:
-        """This is a function because we want to be able to update the text in LintModuleOutputUpdate"""
+        """This is a function because we want to be able to update the text in LintModuleOutputUpdate."""
         assert expected_output == actual_output, self.error_msg_for_unequal_output(
             expected_output, actual_output
         )

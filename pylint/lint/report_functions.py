@@ -14,7 +14,7 @@ def report_total_messages_stats(
     stats: LinterStats,
     previous_stats: LinterStats,
 ):
-    """make total errors / warnings report"""
+    """Make total errors / warnings report."""
     lines = ["type", "number", "previous", "difference"]
     lines += checkers.table_lines_from_stats(stats, previous_stats, "message_types")
     sect.append(Table(children=lines, cols=4, rheaders=1))
@@ -25,7 +25,7 @@ def report_messages_stats(
     stats: LinterStats,
     _: LinterStats,
 ):
-    """make messages type report"""
+    """Make messages type report."""
     by_msg_stats = stats.by_msg
     in_order = sorted(
         (value, msg_id)
@@ -44,7 +44,7 @@ def report_messages_by_module_stats(
     stats: LinterStats,
     _: LinterStats,
 ):
-    """make errors / warnings by modules report"""
+    """Make errors / warnings by modules report."""
     module_stats = stats.by_module
     if len(module_stats) == 1:
         # don't print this report when we are analysing a single module

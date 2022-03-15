@@ -12,6 +12,14 @@ Test your code!
 
 Pylint is very well tested and has a high code coverage. New contributions are not accepted
 unless they include tests.
+
+Before you start testing your code, you need to install your source-code package locally.
+To set up your environment for testing, open a terminal outside of your forked repository and run:
+
+      pip install -e <forked_repo_dir_name>
+
+This ensures your testing environment is similar to Pylint's testing environment on GitHub.
+
 Pylint uses two types of tests: unittests and functional tests.
 
   - The unittests can be found in the ``/pylint/test`` directory and they can
@@ -75,12 +83,32 @@ can have sections of Pylint's configuration.
 The .rc file can also contain a section ``[testoptions]`` to pass options for the functional
 test runner. The following options are currently supported:
 
-    "min_pyver": Minimal python version required to run the test
-    "max_pyver": Python version from which the test won't be run. If the last supported version is 3.9 this setting should be set to 3.10.
-    "min_pyver_end_position": Minimal python version required to check the end_line and end_column attributes of the message
-    "requires": Packages required to be installed locally to run the test
-    "except_implementations": List of python implementations on which the test should not run
-    "exclude_platforms": List of operating systems on which the test should not run
+- "min_pyver": Minimal python version required to run the test
+- "max_pyver": Python version from which the test won't be run. If the last supported version is 3.9 this setting should be set to 3.10.
+- "min_pyver_end_position": Minimal python version required to check the end_line and end_column attributes of the message
+- "requires": Packages required to be installed locally to run the test
+- "except_implementations": List of python implementations on which the test should not run
+- "exclude_platforms": List of operating systems on which the test should not run
+
+**Functional test file locations**
+
+For existing checkers, new test cases should preferably be appended to the existing test file.
+For new checkers, a new file ``new_checker_message.py`` should be created (Note the use of
+underscores). This file should then be placed in the ``test/functional/n`` sub-directory.
+
+Some additional notes:
+
+- If the checker is part of an extension the test should go in ``test/functional/ext/extension_name``
+- If the test is a regression test it should go in ``test/r/regression`` or ``test/r/regression_02``.
+  The file name should start with ``regression_``.
+- For some sub-directories, such as ``test/functional/u``, there are additional sub-directories (``test/functional/u/use``).
+  Please check if your test file should be placed in any of these directories. It should be placed there
+  if the sub-directory name matches the word before the first underscore of your test file name.
+
+The folder structure is enforced when running the test suite, so you might be directed to put the file
+in a different sub-directory.
+
+**Running and updating functional tests**
 
 During development, it's sometimes helpful to run all functional tests in your
 current environment in order to have faster feedback. Run from Pylint root directory with::
@@ -148,7 +176,14 @@ on the ``stdlib`` and a selection of external repositories.
 To run the ``primer`` tests you can add either ``--primer-stdlib`` or ``--primer-external`` to the
 pytest_ command. If you want to only run the ``primer`` you can add either of their marks, for example::
 
-    pytest -m primer_external --primer-external
+    pytest -m primer_stdlib --primer-stdlib
+
+The external ``primer`` has been split up in two marks to speed up our Continuous Integration. You can run
+either of the two batches or run them both::
+
+    pytest -m primer_external_batch_one --primer-external # Runs batch one
+    pytest -m primer_external_batch_two --primer-external # Runs batch two
+    pytest -m "primer_external_batch_one or primer_external_batch_two" --primer-external # Runs both batches
 
 The list of repositories is created on the basis of three criteria: 1) projects need to use a diverse
 range of language features, 2) projects need to be well maintained and 3) projects should not have a codebase

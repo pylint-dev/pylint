@@ -2,9 +2,12 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import contextlib
-from typing import Dict, Optional, Type
+import warnings
+from typing import Dict, Generator, Optional, Type
 
+from pylint.constants import PY38_PLUS
 from pylint.testutils.global_test_linter import linter
+from pylint.testutils.output_line import MessageTest
 from pylint.testutils.unittest_linter import UnittestLinter
 from pylint.utils import ASTWalker
 
@@ -29,12 +32,18 @@ class CheckerTestCase:
             yield
 
     @contextlib.contextmanager
-    def assertAddsMessages(self, *messages):
+    def assertAddsMessages(
+        self, *messages: MessageTest, ignore_position: bool = False
+    ) -> Generator[None, None, None]:
         """Assert that exactly the given method adds the given messages.
 
         The list of messages must exactly match *all* the messages added by the
         method. Additionally, we check to see whether the args in each message can
         actually be substituted into the message string.
+
+        Using the keyword argument `ignore_position`, all checks for position
+        arguments (line, col_offset, ...) will be skipped. This can be used to
+        just test messages for the correct node.
         """
         yield
         got = self.linter.release_messages()
@@ -45,10 +54,41 @@ class CheckerTestCase:
             "Expected messages did not match actual.\n"
             f"\nExpected:\n{expected}\n\nGot:\n{got_str}\n"
         )
-        assert got == list(messages), msg
+
+        assert len(messages) == len(got), msg
+
+        for expected_msg, gotten_msg in zip(messages, got):
+            assert expected_msg.msg_id == gotten_msg.msg_id, msg
+            assert expected_msg.node == gotten_msg.node, msg
+            assert expected_msg.args == gotten_msg.args, msg
+            assert expected_msg.confidence == gotten_msg.confidence, msg
+
+            if ignore_position:
+                # Do not check for line, col_offset etc...
+                continue
+
+            assert expected_msg.line == gotten_msg.line, msg
+            assert expected_msg.col_offset == gotten_msg.col_offset, msg
+            if PY38_PLUS:
+                # pylint: disable=fixme
+                # TODO: Require end_line and end_col_offset and remove the warning
+                if not expected_msg.end_line == gotten_msg.end_line:
+                    warnings.warn(  # pragma: no cover
+                        f"The end_line attribute of {gotten_msg} does not match "
+                        f"the expected value in {expected_msg}. In pylint 3.0 correct end_line "
+                        "attributes will be required for MessageTest.",
+                        DeprecationWarning,
+                    )
+                if not expected_msg.end_col_offset == gotten_msg.end_col_offset:
+                    warnings.warn(  # pragma: no cover
+                        f"The end_col_offset attribute of {gotten_msg} does not match "
+                        f"the expected value in {expected_msg}. In pylint 3.0 correct end_col_offset "
+                        "attributes will be required for MessageTest.",
+                        DeprecationWarning,
+                    )
 
     def walk(self, node):
-        """recursive walk on the given node"""
+        """Recursive walk on the given node."""
         walker = ASTWalker(linter)
         walker.add_checker(self.checker)
         walker.walk(node)

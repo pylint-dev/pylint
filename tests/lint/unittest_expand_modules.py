@@ -78,10 +78,10 @@ init_of_package = {
 
 
 class TestExpandModules(CheckerTestCase):
-    """Test the expand_modules function while allowing options to be set"""
+    """Test the expand_modules function while allowing options to be set."""
 
     class Checker(BaseChecker):
-        """This dummy checker is needed to allow options to be set"""
+        """This dummy checker is needed to allow options to be set."""
 
         name = "checker"
         msgs: Dict[str, Tuple[str, ...]] = {}
@@ -107,13 +107,13 @@ class TestExpandModules(CheckerTestCase):
     )
     @set_config(ignore_paths="")
     def test_expand_modules(self, files_or_modules, expected):
-        """Test expand_modules with the default value of ignore-paths"""
+        """Test expand_modules with the default value of ignore-paths."""
         ignore_list, ignore_list_re = [], []
         modules, errors = expand_modules(
             files_or_modules,
             ignore_list,
             ignore_list_re,
-            get_global_option(self, "ignore-paths"),
+            get_global_option(self.checker, "ignore-paths"),
         )
         modules.sort(key=lambda d: d["name"])
         assert modules == expected
@@ -133,7 +133,7 @@ class TestExpandModules(CheckerTestCase):
     )
     @set_config(ignore_paths=".*/lint/.*")
     def test_expand_modules_with_ignore(self, files_or_modules, expected):
-        """Test expand_modules with a non-default value of ignore-paths"""
+        """Test expand_modules with a non-default value of ignore-paths."""
         ignore_list, ignore_list_re = [], []
         modules, errors = expand_modules(
             files_or_modules,

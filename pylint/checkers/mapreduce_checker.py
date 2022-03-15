@@ -8,13 +8,12 @@ import abc
 
 
 class MapReduceMixin(metaclass=abc.ABCMeta):
-    """A mixin design to allow multiprocess/threaded runs of a Checker"""
+    """A mixin design to allow multiprocess/threaded runs of a Checker."""
 
     @abc.abstractmethod
     def get_map_data(self):
-        """Returns mergable/reducible data that will be examined"""
+        """Returns mergeable/reducible data that will be examined."""
 
-    @classmethod
     @abc.abstractmethod
-    def reduce_map_data(cls, linter, data):
-        """For a given Checker, receives data for all mapped runs"""
+    def reduce_map_data(self, linter, data):
+        """For a given Checker, receives data for all mapped runs."""

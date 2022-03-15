@@ -43,10 +43,26 @@ def colorized_puml_config() -> PyreverseConfig:
     )
 
 
+@pytest.fixture()
+def mmd_config() -> PyreverseConfig:
+    return PyreverseConfig(
+        output_format="mmd",
+        colorized=False,
+    )
+
+
+@pytest.fixture()
+def html_config() -> PyreverseConfig:
+    return PyreverseConfig(
+        output_format="html",
+        colorized=False,
+    )
+
+
 @pytest.fixture(scope="session")
 def get_project() -> Callable:
     def _get_project(module: str, name: Optional[str] = "No Name") -> Project:
-        """return an astroid project representation"""
+        """Return an astroid project representation."""
 
         def _astroid_wrapper(func: Callable, modname: str) -> Module:
             return func(modname)

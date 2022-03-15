@@ -28,7 +28,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""Functional/non regression tests for pylint"""
+"""Functional/non regression tests for pylint."""
 
 __all__ = [
     "_get_tests_info",
@@ -49,7 +49,7 @@ __all__ = [
 from pylint.testutils.checker_test_case import CheckerTestCase
 from pylint.testutils.constants import UPDATE_FILE, UPDATE_OPTION
 from pylint.testutils.decorator import set_config
-from pylint.testutils.functional_test_file import FunctionalTestFile
+from pylint.testutils.functional import FunctionalTestFile
 from pylint.testutils.get_test_info import _get_tests_info
 from pylint.testutils.global_test_linter import linter
 from pylint.testutils.lint_module_test import LintModuleTest

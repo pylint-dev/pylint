@@ -98,7 +98,7 @@ def cmp(a, b):
 
 
 def diff_string(old, new):
-    """given an old and new int value, return a string representing the
+    """Given an old and new int value, return a string representing the
     difference
     """
     diff = abs(old - new)
@@ -107,8 +107,8 @@ def diff_string(old, new):
 
 
 def get_module_and_frameid(node):
-    """return the module name and the frame id in the module"""
-    frame = node.frame()
+    """Return the module name and the frame id in the module."""
+    frame = node.frame(future=True)
     module, obj = "", []
     while frame:
         if isinstance(frame, Module):
@@ -116,7 +116,7 @@ def get_module_and_frameid(node):
         else:
             obj.append(getattr(frame, "name", "<lambda>"))
         try:
-            frame = frame.parent.frame()
+            frame = frame.parent.frame(future=True)
         except AttributeError:
             break
     obj.reverse()
@@ -129,7 +129,7 @@ def get_rst_title(title, character):
 
 
 def get_rst_section(section, options, doc=None):
-    """format an options section using as a ReStructuredText formatted output"""
+    """Format an option's section using as a ReStructuredText formatted output."""
     result = ""
     if section:
         result += get_rst_title(section, "'")
@@ -167,7 +167,7 @@ def tokenize_module(node: nodes.Module) -> List[tokenize.TokenInfo]:
 
 
 def register_plugins(linter, directory):
-    """load all module and package in the given directory, looking for a
+    """Load all module and package in the given directory, looking for a
     'register' function in each one, used to register pylint checkers
     """
     imported = {}
@@ -276,8 +276,8 @@ def get_global_option(
 
 
 def _splitstrip(string, sep=","):
-    """return a list of stripped string by splitting the string given as
-    argument on `sep` (',' by default). Empty string are discarded.
+    """Return a list of stripped string by splitting the string given as
+    argument on `sep` (',' by default), empty strings are discarded.
 
     >>> _splitstrip('a, b, c   ,  4,,')
     ['a', 'b', 'c', '4']
@@ -299,7 +299,7 @@ def _splitstrip(string, sep=","):
 
 
 def _unquote(string):
-    """remove optional quotes (simple or double) from the string
+    """Remove optional quotes (simple or double) from the string.
 
     :type string: str or unicode
     :param string: an optionally quoted string
@@ -323,14 +323,14 @@ def _check_csv(value):
 
 
 def _comment(string: str) -> str:
-    """return string as a comment"""
+    """Return string as a comment."""
     lines = [line.strip() for line in string.splitlines()]
     sep = "\n"
     return "# " + f"{sep}# ".join(lines)
 
 
 def _format_option_value(optdict, value):
-    """return the user input's value from a 'compiled' value"""
+    """Return the user input's value from a 'compiled' value."""
     if optdict.get("type", None) == "py_version":
         value = ".".join(str(item) for item in value)
     elif isinstance(value, (list, tuple)):
@@ -350,7 +350,7 @@ def _format_option_value(optdict, value):
 def format_section(
     stream: TextIO, section: str, options: List[Tuple], doc: Optional[str] = None
 ) -> None:
-    """format an options section using the INI format"""
+    """Format an option's section using the INI format."""
     if doc:
         print(_comment(doc), file=stream)
     print(f"[{section}]", file=stream)
@@ -358,7 +358,7 @@ def format_section(
 
 
 def _ini_format(stream: TextIO, options: List[Tuple]) -> None:
-    """format options using the INI format"""
+    """Format options using the INI format."""
     for optname, optdict, value in options:
         value = _format_option_value(optdict, value)
         help_opt = optdict.get("help")
@@ -386,9 +386,9 @@ class IsortDriver:
     def __init__(self, config):
         if HAS_ISORT_5:
             self.isort5_config = isort.api.Config(
-                # There is not typo here. EXTRA_standard_library is
+                # There is no typo here. EXTRA_standard_library is
                 # what most users want. The option has been named
-                # KNOWN_standard_library for ages in pylint and we
+                # KNOWN_standard_library for ages in pylint, and we
                 # don't want to break compatibility.
                 extra_standard_library=config.known_standard_library,
                 known_third_party=config.known_third_party,

@@ -20,8 +20,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""
-  %prog [options] <packages>
+"""%prog [options] <packages>.
 
   create UML diagrams for classes and modules in <packages>
 """
@@ -198,7 +197,7 @@ OPTIONS = (
 
 
 class Run(ConfigurationMixIn):
-    """base class providing common behaviour for pyreverse commands"""
+    """Base class providing common behaviour for pyreverse commands."""
 
     options = OPTIONS
 
@@ -206,13 +205,20 @@ class Run(ConfigurationMixIn):
         super().__init__(usage=__doc__)
         insert_default_options()
         args = self.load_command_line_configuration(args)
-        if self.config.output_format not in ("dot", "vcg", "puml", "plantuml"):
+        if self.config.output_format not in (
+            "dot",
+            "vcg",
+            "puml",
+            "plantuml",
+            "mmd",
+            "html",
+        ):
             check_graphviz_availability()
 
         sys.exit(self.run(args))
 
     def run(self, args):
-        """checking arguments and run project"""
+        """Checking arguments and run project."""
         if not args:
             print(self.help())
             return 1

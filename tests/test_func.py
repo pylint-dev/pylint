@@ -18,7 +18,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""functional/non regression tests for pylint"""
+"""Functional/non regression tests for pylint."""
 
 import re
 import sys
@@ -38,8 +38,9 @@ INFO_TEST_RGX = re.compile(r"^func_i\d\d\d\d$")
 
 
 def exception_str(self, ex) -> str:  # pylint: disable=unused-argument
-    """function used to replace default __str__ method of exception instances
-    This function is not typed because it is legacy code"""
+    """Function used to replace default __str__ method of exception instances
+    This function is not typed because it is legacy code
+    """
     return f"in {ex.file}\n:: {', '.join(ex.args)}"
 
 

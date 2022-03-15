@@ -1,6 +1,7 @@
 # pylint: disable=missing-docstring, invalid-name, too-few-public-methods, no-self-use, line-too-long, unused-argument, protected-access
 from functools import partialmethod
 
+
 class AnotherClass():
     def __test(self):  # [unused-private-member]
         pass
@@ -333,3 +334,13 @@ class FalsePositive4756b:
         pass
 
     prop = property(__get_prop, __set_prop, __del_prop)
+
+
+class TypeSelfCallInMethod:
+    """Regression test for issue 5569"""
+    @classmethod
+    def b(cls) -> None:
+        cls.__a = ''  # [unused-private-member]
+
+    def a(self):
+        return type(self).__a

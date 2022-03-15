@@ -1,9 +1,9 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-from typing import List
+from typing import List, Union
 
 import astroid
-from astroid import nodes
+from astroid import bases, nodes
 
 from pylint import checkers, interfaces
 from pylint.checkers import utils
@@ -107,7 +107,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
         except astroid.InferenceError:
             # Probably undefined-variable, abort check
             return
-        mother_classes = self.base_classes_of_node(instance)
+        mother_classes = self.base_names_of_instance(instance)
         affected_by_pep8 = any(
             t in mother_classes for t in ("str", "tuple", "list", "set")
         )
@@ -128,8 +128,8 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
     @utils.check_messages("use-implicit-booleaness-not-len")
     def visit_unaryop(self, node: nodes.UnaryOp) -> None:
         """`not len(S)` must become `not S` regardless if the parent block
-        is a test condition or something else (boolean expression)
-        e.g. `if not len(S):`"""
+        is a test condition or something else (boolean expression) e.g. `if not len(S):`
+        """
         if (
             isinstance(node, nodes.UnaryOp)
             and node.op == "not"
@@ -144,12 +144,12 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
     def _check_use_implicit_booleaness_not_comparison(
         self, node: nodes.Compare
     ) -> None:
-        """Check for left side and right side of the node for empty literals"""
+        """Check for left side and right side of the node for empty literals."""
         is_left_empty_literal = utils.is_base_container(
             node.left
         ) or utils.is_empty_dict_literal(node.left)
 
-        # Check both left hand side and right hand side for literals
+        # Check both left-hand side and right-hand side for literals
         for operator, comparator in node.ops:
             is_right_empty_literal = utils.is_base_container(
                 comparator
@@ -164,7 +164,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
                 target_instance = utils.safe_infer(target_node)
                 if target_instance is None:
                     continue
-                mother_classes = self.base_classes_of_node(target_instance)
+                mother_classes = self.base_names_of_instance(target_instance)
                 is_base_comprehension_type = any(
                     t in mother_classes for t in ("tuple", "list", "dict", "set")
                 )
@@ -208,9 +208,13 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
                     )
 
     @staticmethod
-    def base_classes_of_node(instance: nodes.ClassDef) -> List[str]:
-        """Return all the classes names that a ClassDef inherit from including 'object'."""
-        try:
-            return [instance.name] + [x.name for x in instance.ancestors()]
-        except TypeError:
-            return [instance.name]
+    def base_names_of_instance(
+        node: Union[bases.Uninferable, bases.Instance]
+    ) -> List[str]:
+        """Return all names inherited by a class instance or those returned by a function.
+
+        The inherited names include 'object'.
+        """
+        if isinstance(node, bases.Instance):
+            return [node.name] + [x.name for x in node.ancestors()]
+        return []

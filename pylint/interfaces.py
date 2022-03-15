@@ -17,25 +17,43 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""Interfaces for Pylint objects"""
+"""Interfaces for Pylint objects."""
 from collections import namedtuple
-from typing import TYPE_CHECKING, Tuple
+from typing import TYPE_CHECKING, Tuple, Type, Union
 
 from astroid import nodes
 
 if TYPE_CHECKING:
+    from pylint.checkers import BaseChecker
     from pylint.reporters.ureports.nodes import Section
+
+__all__ = (
+    "IRawChecker",
+    "IAstroidChecker",
+    "ITokenChecker",
+    "IReporter",
+    "IChecker",
+    "HIGH",
+    "CONTROL_FLOW",
+    "INFERENCE",
+    "INFERENCE_FAILURE",
+    "UNDEFINED",
+    "CONFIDENCE_LEVELS",
+)
 
 Confidence = namedtuple("Confidence", ["name", "description"])
 # Warning Certainties
-HIGH = Confidence("HIGH", "No false positive possible.")
+HIGH = Confidence("HIGH", "Warning that is not based on inference result.")
+CONTROL_FLOW = Confidence(
+    "CONTROL_FLOW", "Warning based on assumptions about control flow."
+)
 INFERENCE = Confidence("INFERENCE", "Warning based on inference result.")
 INFERENCE_FAILURE = Confidence(
     "INFERENCE_FAILURE", "Warning based on inference with failures."
 )
 UNDEFINED = Confidence("UNDEFINED", "Warning without any associated confidence level.")
 
-CONFIDENCE_LEVELS = [HIGH, INFERENCE, INFERENCE_FAILURE, UNDEFINED]
+CONFIDENCE_LEVELS = [HIGH, CONTROL_FLOW, INFERENCE, INFERENCE_FAILURE, UNDEFINED]
 
 
 class Interface:
@@ -46,35 +64,34 @@ class Interface:
         return implements(instance, cls)
 
 
-def implements(obj: "Interface", interface: Tuple[type, type]) -> bool:
-    """Return whether the given object (maybe an instance or class) implements
-    the interface.
-    """
-    kimplements = getattr(obj, "__implements__", ())
-    if not isinstance(kimplements, (list, tuple)):
-        kimplements = (kimplements,)
-    return any(issubclass(i, interface) for i in kimplements)
+def implements(
+    obj: "BaseChecker",
+    interface: Union[Type["Interface"], Tuple[Type["Interface"], ...]],
+) -> bool:
+    """Does the given object (maybe an instance or class) implement the interface."""
+    implements_ = getattr(obj, "__implements__", ())
+    if not isinstance(implements_, (list, tuple)):
+        implements_ = (implements_,)
+    return any(issubclass(i, interface) for i in implements_)
 
 
 class IChecker(Interface):
-    """This is a base interface, not designed to be used elsewhere than for
-    sub interfaces definition.
-    """
+    """Base interface, to be used only for sub interfaces definition."""
 
     def open(self):
-        """called before visiting project (i.e set of modules)"""
+        """Called before visiting project (i.e. set of modules)."""
 
     def close(self):
-        """called after visiting project (i.e set of modules)"""
+        """Called after visiting project (i.e. set of modules)."""
 
 
 class IRawChecker(IChecker):
-    """interface for checker which need to parse the raw file"""
+    """Interface for checker which need to parse the raw file."""
 
     def process_module(self, node: nodes.Module) -> None:
-        """process a module
+        """Process a module.
 
-        the module's content is accessible via astroid.stream
+        The module's content is accessible via ``astroid.stream``
         """
 
 
@@ -84,24 +101,21 @@ class ITokenChecker(IChecker):
     def process_tokens(self, tokens):
         """Process a module.
 
-        tokens is a list of all source code tokens in the file.
+        Tokens is a list of all source code tokens in the file.
         """
 
 
 class IAstroidChecker(IChecker):
-    """interface for checker which prefers receive events according to
+    """Interface for checker which prefers receive events according to
     statement type
     """
 
 
 class IReporter(Interface):
-    """reporter collect messages and display results encapsulated in a layout"""
+    """Reporter collect messages and display results encapsulated in a layout."""
 
     def handle_message(self, msg) -> None:
         """Handle the given message object."""
 
     def display_reports(self, layout: "Section") -> None:
-        """display results encapsulated in the layout tree"""
-
-
-__all__ = ("IRawChecker", "IAstroidChecker", "ITokenChecker", "IReporter", "IChecker")
+        """Display results encapsulated in the layout tree."""

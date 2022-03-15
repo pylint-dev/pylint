@@ -1,4 +1,4 @@
-"""Unittest for the main module"""
+"""Unittest for the main module."""
 import os
 import sys
 from typing import Iterator

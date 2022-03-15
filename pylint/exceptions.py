@@ -16,24 +16,24 @@
 
 
 class InvalidMessageError(Exception):
-    """raised when a message creation, registration or addition is rejected"""
+    """Raised when a message creation, registration or addition is rejected."""
 
 
 class UnknownMessageError(Exception):
-    """raised when an unregistered message id is encountered"""
+    """Raised when an unregistered message id is encountered."""
 
 
 class EmptyReportError(Exception):
-    """raised when a report is empty and so should not be displayed"""
+    """Raised when a report is empty and so should not be displayed."""
 
 
 class InvalidReporterError(Exception):
-    """raised when selected reporter is invalid (e.g. not found)"""
+    """Raised when selected reporter is invalid (e.g. not found)."""
 
 
 class InvalidArgsError(ValueError):
-    """raised when passed arguments are invalid, e.g., have the wrong length"""
+    """Raised when passed arguments are invalid, e.g., have the wrong length."""
 
 
 class NoLineSuppliedError(Exception):
-    """raised when trying to disable a message on a next line without supplying a line number"""
+    """Raised when trying to disable a message on a next line without supplying a line number."""

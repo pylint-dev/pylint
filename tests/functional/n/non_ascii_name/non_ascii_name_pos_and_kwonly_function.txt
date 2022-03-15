@@ -1,0 +1,4 @@
+non-ascii-name:12:4:12:17:name:"Argument name ""not_okay_łol"" contains a non-ASCII character, consider renaming it.":HIGH
+non-ascii-name:13:4:13:21:name:"Argument name ""not_okay_defaułt"" contains a non-ASCII character, consider renaming it.":HIGH
+non-ascii-name:16:4:16:21:name:"Argument name ""p_or_kw_not_økay"" contains a non-ASCII character, consider renaming it.":HIGH
+non-ascii-name:19:4:19:20:name:"Argument name ""kw_arg_not_økay"" contains a non-ASCII character, consider renaming it.":HIGH

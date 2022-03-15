@@ -26,129 +26,17 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""Check format checker helper functions"""
+"""Check format checker helper functions."""
 
 import os
 import tempfile
 import tokenize
-from typing import Any
 
 import astroid
 
 from pylint import lint, reporters
 from pylint.checkers.format import FormatChecker
 from pylint.testutils import CheckerTestCase, MessageTest, _tokenize_str
-
-
-class TestMultiStatementLine(CheckerTestCase):
-    CHECKER_CLASS = FormatChecker
-
-    def testSingleLineIfStmts(self) -> None:
-        stmt = astroid.extract_node(
-            """
-        if True: pass  #@
-        """
-        )
-        self.checker.config.single_line_if_stmt = False
-        with self.assertAddsMessages(
-            MessageTest("multiple-statements", node=stmt.body[0])
-        ):
-            self.visitFirst(stmt)
-        self.checker.config.single_line_if_stmt = True
-        with self.assertNoMessages():
-            self.visitFirst(stmt)
-        stmt = astroid.extract_node(
-            """
-        if True: pass  #@
-        else:
-            pass
-        """
-        )
-        with self.assertAddsMessages(
-            MessageTest("multiple-statements", node=stmt.body[0])
-        ):
-            self.visitFirst(stmt)
-
-    def testSingleLineClassStmts(self) -> None:
-        stmt = astroid.extract_node(
-            """
-        class MyError(Exception): pass  #@
-        """
-        )
-        self.checker.config.single_line_class_stmt = False
-        with self.assertAddsMessages(
-            MessageTest("multiple-statements", node=stmt.body[0])
-        ):
-            self.visitFirst(stmt)
-        self.checker.config.single_line_class_stmt = True
-        with self.assertNoMessages():
-            self.visitFirst(stmt)
-
-        stmt = astroid.extract_node(
-            """
-        class MyError(Exception): a='a'  #@
-        """
-        )
-        self.checker.config.single_line_class_stmt = False
-        with self.assertAddsMessages(
-            MessageTest("multiple-statements", node=stmt.body[0])
-        ):
-            self.visitFirst(stmt)
-        self.checker.config.single_line_class_stmt = True
-        with self.assertNoMessages():
-            self.visitFirst(stmt)
-
-        stmt = astroid.extract_node(
-            """
-        class MyError(Exception): a='a'; b='b'  #@
-        """
-        )
-        self.checker.config.single_line_class_stmt = False
-        with self.assertAddsMessages(
-            MessageTest("multiple-statements", node=stmt.body[0])
-        ):
-            self.visitFirst(stmt)
-        self.checker.config.single_line_class_stmt = True
-        with self.assertAddsMessages(
-            MessageTest("multiple-statements", node=stmt.body[0])
-        ):
-            self.visitFirst(stmt)
-
-    def testTryExceptFinallyNoMultipleStatement(self) -> None:
-        tree = astroid.extract_node(
-            """
-        try:  #@
-            pass
-        except:
-            pass
-        finally:
-            pass"""
-        )
-        with self.assertNoMessages():
-            self.visitFirst(tree)
-
-    def visitFirst(self, tree: Any) -> None:
-        self.checker.process_tokens([])
-        self.checker.visit_default(tree.body[0])
-
-    def test_ellipsis_is_ignored(self) -> None:
-        code = """
-        from typing import overload
-        @overload
-        def concat2(arg1: str) -> str: ...
-        """
-        tree = astroid.extract_node(code)
-        with self.assertNoMessages():
-            self.visitFirst(tree)
-
-        code = """
-        def concat2(arg1: str) -> str: ...
-        """
-        stmt = astroid.extract_node(code)
-        with self.assertAddsMessages(
-            MessageTest("multiple-statements", node=stmt.body[0])
-        ):
-            self.visitFirst(stmt)
 
 
 class TestSuperfluousParentheses(CheckerTestCase):
@@ -221,7 +109,8 @@ class TestSuperfluousParentheses(CheckerTestCase):
 
     def testNoSuperfluousParensWalrusOperatorIf(self) -> None:
         """Parenthesis change the meaning of assignment in the walrus operator
-        and so are not always superfluous:"""
+        and so are not always superfluous:
+        """
         cases = [
             ("if (odd := is_odd(i))\n"),
             ("not (foo := 5)\n"),
@@ -231,7 +120,7 @@ class TestSuperfluousParentheses(CheckerTestCase):
                 self.checker.process_tokens(_tokenize_str(code))
 
     def testPositiveSuperfluousParensWalrusOperatorIf(self) -> None:
-        """Test positive superfluous parens cases with the walrus operator"""
+        """Test positive superfluous parens cases with the walrus operator."""
         cases = [
             (
                 MessageTest("superfluous-parens", line=1, args="if"),
@@ -273,7 +162,7 @@ class TestCheckSpace(CheckerTestCase):
     CHECKER_CLASS = FormatChecker
 
     def test_encoding_token(self) -> None:
-        """Make sure the encoding token doesn't change the checker's behavior
+        """Make sure the encoding token doesn't change the checker's behavior.
 
         _tokenize_str doesn't produce an encoding token, but
         reading a file does
@@ -289,8 +178,7 @@ class TestCheckSpace(CheckerTestCase):
 
 
 def test_disable_global_option_end_of_line() -> None:
-    """
-    Test for issue with disabling tokenizer messages
+    """Test for issue with disabling tokenizer messages
     that extend beyond the scope of the ast tokens
     """
     file_ = tempfile.NamedTemporaryFile("w", delete=False)

@@ -22,9 +22,8 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Functional full-module tests for PyLint."""
-import csv
-import os
 import sys
+from pathlib import Path
 from typing import Union
 
 import pytest
@@ -33,59 +32,26 @@ from _pytest.recwarn import WarningsRecorder
 
 from pylint import testutils
 from pylint.testutils import UPDATE_FILE, UPDATE_OPTION
-from pylint.testutils.functional_test_file import FunctionalTestFile
+from pylint.testutils.functional import (
+    FunctionalTestFile,
+    LintModuleOutputUpdate,
+    get_functional_test_files_from_directory,
+)
 from pylint.utils import HAS_ISORT_5
 
 # TODOs
 #  - implement exhaustivity tests
 
-# 'Wet finger' number of files that are reasonable to display by an IDE
-# 'Wet finger' as in 'in my settings there are precisely this many'.
-REASONABLY_DISPLAYABLE_VERTICALLY = 48
+
+FUNCTIONAL_DIR = Path(__file__).parent.resolve() / "functional"
 
 
-class LintModuleOutputUpdate(testutils.LintModuleTest):
-    """If message files should be updated instead of checked."""
-
-    class TestDialect(csv.excel):
-        delimiter = ":"
-        lineterminator = "\n"
-
-    csv.register_dialect("test", TestDialect)
-
-    def _check_output_text(self, _, expected_output, actual_output):
-        if not expected_output and not actual_output:
-            if os.path.exists(self._test_file.expected_output):
-                os.remove(self._test_file.expected_output)
-            return
-        with open(self._test_file.expected_output, "w", encoding="utf-8") as f:
-            writer = csv.writer(f, dialect="test")
-            for line in actual_output:
-                writer.writerow(line.to_csv())
-
-
-def get_tests():
-    input_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "functional")
-    suite = []
-    for dirpath, _, filenames in os.walk(input_dir):
-        if dirpath.endswith("__pycache__"):
-            continue
-
-        assert (
-            len(filenames) <= REASONABLY_DISPLAYABLE_VERTICALLY
-        ), f"{dirpath} contain too much functional tests files."
-
-        for filename in filenames:
-            if filename != "__init__.py" and filename.endswith(".py"):
-                # isort 5 has slightly different rules as isort 4. Testing
-                # both would be hard: test with isort 5 only.
-                if filename == "wrong_import_order.py" and not HAS_ISORT_5:
-                    continue
-                suite.append(testutils.FunctionalTestFile(dirpath, filename))
-    return suite
-
-
-TESTS = get_tests()
+# isort 5 has slightly different rules as isort 4. Testing both would be hard: test with isort 5 only.
+TESTS = [
+    t
+    for t in get_functional_test_files_from_directory(FUNCTIONAL_DIR)
+    if not (t.base == "wrong_import_order" and not HAS_ISORT_5)
+]
 TESTS_NAMES = [t.base for t in TESTS]
 TEST_WITH_EXPECTED_DEPRECATION = [
     "future_unicode_literals",
@@ -108,8 +74,8 @@ def test_functional(
     lint_test.runTest()
     warning = None
     try:
-        # Catch <unknown>:x: DeprecationWarning: invalid escape sequence
-        # so it's not shown during tests
+        # Catch <unknown>:x: DeprecationWarning: invalid escape sequence,
+        # so, it's not shown during tests
         warning = recwarn.pop()
     except AssertionError:
         pass

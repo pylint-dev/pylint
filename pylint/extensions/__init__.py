@@ -10,8 +10,8 @@ if TYPE_CHECKING:
 
 
 def initialize(linter: "PyLinter") -> None:
-    """Initialize linter with checkers in the extensions directory"""
-    register_plugins(linter, __path__[0])  # type: ignore[name-defined] # Fixed in https://github.com/python/mypy/pull/9454
+    """Initialize linter with checkers in the extensions' directory."""
+    register_plugins(linter, __path__[0])
 
 
 __all__ = ["initialize"]

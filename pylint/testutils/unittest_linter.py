@@ -30,6 +30,8 @@ class UnittestLinter:
         self,
         msg_id: str,
         line: Optional[int] = None,
+        # pylint: disable=fixme
+        # TODO: Make node non optional
         node: Optional[nodes.NodeNG] = None,
         args: Any = None,
         confidence: Optional[Confidence] = None,
@@ -41,16 +43,39 @@ class UnittestLinter:
         # If confidence is None we set it to UNDEFINED as well in PyLinter
         if confidence is None:
             confidence = UNDEFINED
-        # pylint: disable=fixme
-        # TODO: Test col_offset
-        # pylint: disable=fixme
-        # TODO: Initialize col_offset on every node (can be None) -> astroid
-        # if col_offset is None and hasattr(node, "col_offset"):
-        #     col_offset = node.col_offset
-        # pylint: disable=fixme
-        # TODO: Test end_lineno and end_col_offset :)
+
+        # Look up "location" data of node if not yet supplied
+        if node:
+            if node.position:
+                if not line:
+                    line = node.position.lineno
+                if not col_offset:
+                    col_offset = node.position.col_offset
+                if not end_lineno:
+                    end_lineno = node.position.end_lineno
+                if not end_col_offset:
+                    end_col_offset = node.position.end_col_offset
+            else:
+                if not line:
+                    line = node.fromlineno
+                if not col_offset:
+                    col_offset = node.col_offset
+                if not end_lineno:
+                    end_lineno = node.end_lineno
+                if not end_col_offset:
+                    end_col_offset = node.end_col_offset
+
         self._messages.append(
-            MessageTest(msg_id, line, node, args, confidence, col_offset)
+            MessageTest(
+                msg_id,
+                line,
+                node,
+                args,
+                confidence,
+                col_offset,
+                end_lineno,
+                end_col_offset,
+            )
         )
 
     @staticmethod

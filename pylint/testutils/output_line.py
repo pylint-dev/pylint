@@ -21,7 +21,12 @@ class MessageTest(NamedTuple):
     args: Optional[Any] = None
     confidence: Optional[Confidence] = UNDEFINED
     col_offset: Optional[int] = None
-    """Used to test messages produced by pylint. Class name cannot start with Test as pytest doesn't allow constructors in test classes."""
+    end_line: Optional[int] = None
+    end_col_offset: Optional[int] = None
+    """Used to test messages produced by pylint.
+
+    Class name cannot start with Test as pytest doesn't allow constructors in test classes.
+    """
 
 
 class MalformedOutputLineException(Exception):
@@ -74,7 +79,7 @@ class OutputLine(NamedTuple):
 
     @classmethod
     def from_msg(cls, msg: Message, check_endline: bool = True) -> "OutputLine":
-        """Create an OutputLine from a Pylint Message"""
+        """Create an OutputLine from a Pylint Message."""
         column = cls._get_column(msg.column)
         end_line = cls._get_py38_none_value(msg.end_line, check_endline)
         end_column = cls._get_py38_none_value(msg.end_column, check_endline)
@@ -91,8 +96,9 @@ class OutputLine(NamedTuple):
 
     @staticmethod
     def _get_column(column: str) -> int:
-        """Handle column numbers with the exception of pylint < 3.8 not having them
-        in the ast parser.
+        """Handle column numbers except for python < 3.8.
+
+        The ast parser in those versions doesn't return them.
         """
         if not PY38_PLUS:
             # We check the column only for the new better ast parser introduced in python 3.8
@@ -102,7 +108,8 @@ class OutputLine(NamedTuple):
     @staticmethod
     def _get_py38_none_value(value: T, check_endline: bool) -> Optional[T]:
         """Used to make end_line and end_column None as indicated by our version compared to
-        `min_pyver_end_position`."""
+        `min_pyver_end_position`.
+        """
         if not check_endline:
             return None  # pragma: no cover
         return value
@@ -114,49 +121,50 @@ class OutputLine(NamedTuple):
         """Create an OutputLine from a comma separated list (the functional tests expected
         output .txt files).
         """
+        if isinstance(row, str):
+            row = row.split(",")
         try:
-            if isinstance(row, Sequence):
-                column = cls._get_column(row[2])
-                if len(row) == 5:
-                    warnings.warn(
-                        "In pylint 3.0 functional tests expected output should always include the "
-                        "expected confidence level, expected end_line and expected end_column. "
-                        "An OutputLine should thus have a length of 8.",
-                        DeprecationWarning,
-                    )
-                    return cls(
-                        row[0],
-                        int(row[1]),
-                        column,
-                        None,
-                        None,
-                        row[3],
-                        row[4],
-                        UNDEFINED.name,
-                    )
-                if len(row) == 6:
-                    warnings.warn(
-                        "In pylint 3.0 functional tests expected output should always include the "
-                        "expected end_line and expected end_column. An OutputLine should thus have "
-                        "a length of 8.",
-                        DeprecationWarning,
-                    )
-                    return cls(
-                        row[0], int(row[1]), column, None, None, row[3], row[4], row[5]
-                    )
-                if len(row) == 8:
-                    end_line = cls._get_py38_none_value(row[3], check_endline)
-                    end_column = cls._get_py38_none_value(row[4], check_endline)
-                    return cls(
-                        row[0],
-                        int(row[1]),
-                        column,
-                        cls._value_to_optional_int(end_line),
-                        cls._value_to_optional_int(end_column),
-                        row[5],
-                        row[6],
-                        row[7],
-                    )
+            column = cls._get_column(row[2])
+            if len(row) == 5:
+                warnings.warn(
+                    "In pylint 3.0 functional tests expected output should always include the "
+                    "expected confidence level, expected end_line and expected end_column. "
+                    "An OutputLine should thus have a length of 8.",
+                    DeprecationWarning,
+                )
+                return cls(
+                    row[0],
+                    int(row[1]),
+                    column,
+                    None,
+                    None,
+                    row[3],
+                    row[4],
+                    UNDEFINED.name,
+                )
+            if len(row) == 6:
+                warnings.warn(
+                    "In pylint 3.0 functional tests expected output should always include the "
+                    "expected end_line and expected end_column. An OutputLine should thus have "
+                    "a length of 8.",
+                    DeprecationWarning,
+                )
+                return cls(
+                    row[0], int(row[1]), column, None, None, row[3], row[4], row[5]
+                )
+            if len(row) == 8:
+                end_line = cls._get_py38_none_value(row[3], check_endline)
+                end_column = cls._get_py38_none_value(row[4], check_endline)
+                return cls(
+                    row[0],
+                    int(row[1]),
+                    column,
+                    cls._value_to_optional_int(end_line),
+                    cls._value_to_optional_int(end_column),
+                    row[5],
+                    row[6],
+                    row[7],
+                )
             raise IndexError
         except Exception as e:
             raise MalformedOutputLineException(row, e) from e
@@ -178,7 +186,7 @@ class OutputLine(NamedTuple):
 
     @staticmethod
     def _value_to_optional_int(value: Optional[str]) -> Optional[int]:
-        """Checks if a (stringified) value should be None or a Python integer"""
+        """Checks if a (stringified) value should be None or a Python integer."""
         if value == "None" or not value:
             return None
         return int(value)

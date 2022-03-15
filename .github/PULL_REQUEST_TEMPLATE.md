@@ -3,7 +3,7 @@ Thank you for submitting a PR to pylint!
 
 To ease the process of reviewing your PR, do make sure to complete the following boxes.
 
-- [ ] Add yourself to CONTRIBUTORS if you are a new contributor.
+- [ ] Add yourself to ``CONTRIBUTORS.txt`` if you are a new contributor.
 - [ ] Add a ChangeLog entry describing what your PR does.
 - [ ] If it's a new feature, or an important bug fix, add a What's New entry in
       `doc/whatsnew/<current release.rst>`.

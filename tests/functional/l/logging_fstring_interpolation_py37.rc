@@ -1,0 +1,5 @@
+[testoptions]
+min_pyver=3.7
+
+[LOGGING]
+logging-format-style=new

@@ -1,0 +1,5 @@
+[MASTER]
+load-plugins = pylint.extensions.docparams
+
+[BASIC]
+accept-no-yields-doc=no

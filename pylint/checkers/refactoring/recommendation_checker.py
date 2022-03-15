@@ -83,13 +83,15 @@ class RecommendationChecker(checkers.BaseChecker):
             return
         if node.func.attrname != "keys":
             return
+        comp_ancestor = utils.get_node_first_ancestor_of_type(node, nodes.Compare)
         if (
             isinstance(node.parent, (nodes.For, nodes.Comprehension))
-            or isinstance(node.parent, nodes.Compare)
+            or comp_ancestor
             and any(
                 op
-                for op, comparator in node.parent.ops
-                if op == "in" and comparator is node
+                for op, comparator in comp_ancestor.ops
+                if op in {"in", "not in"}
+                and (comparator in node.node_ancestors() or comparator is node)
             )
         ):
             inferred = utils.safe_infer(node.func)
@@ -97,7 +99,6 @@ class RecommendationChecker(checkers.BaseChecker):
                 inferred.bound, nodes.Dict
             ):
                 return
-
             self.add_message("consider-iterating-dictionary", node=node)
 
     def _check_use_maxsplit_arg(self, node: nodes.Call) -> None:
@@ -112,7 +113,7 @@ class RecommendationChecker(checkers.BaseChecker):
             return
 
         try:
-            utils.get_argument_from_call(node, 0, "sep")
+            sep = utils.get_argument_from_call(node, 0, "sep")
         except utils.NoSuchArgumentError:
             return
 
@@ -153,7 +154,7 @@ class RecommendationChecker(checkers.BaseChecker):
                 new_name = (
                     node.func.as_string().rsplit(fn_name, maxsplit=1)[0]
                     + new_fn
-                    + f"({node.args[0].as_string()}, maxsplit=1)[{subscript_value}]"
+                    + f"({sep.as_string()}, maxsplit=1)[{subscript_value}]"
                 )
                 self.add_message("use-maxsplit-arg", node=node, args=(new_name,))
 
@@ -336,7 +337,8 @@ class RecommendationChecker(checkers.BaseChecker):
 
     def _detect_replacable_format_call(self, node: nodes.Const) -> None:
         """Check whether a string is used in a call to format() or '%' and whether it
-        can be replaced by a f-string"""
+        can be replaced by an f-string
+        """
         if (
             isinstance(node.parent, nodes.Attribute)
             and node.parent.attrname == "format"

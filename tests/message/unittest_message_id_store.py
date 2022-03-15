@@ -1,13 +1,17 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
+from pathlib import Path
 from typing import Dict, ValuesView
 
 import pytest
 
+from pylint import lint
 from pylint.exceptions import InvalidMessageError, UnknownMessageError
 from pylint.message.message_definition import MessageDefinition
 from pylint.message.message_id_store import MessageIdStore
+
+EMPTY_FILE = str(Path(__file__).parent.parent.resolve() / "regrtest_data" / "empty.py")
 
 
 def test_len_str(msgid_store: MessageIdStore, msgids: Dict[str, str]) -> None:
@@ -90,3 +94,47 @@ def test_duplicate_msgid(msgid_store: MessageIdStore) -> None:
         "Message symbol 'warning-symbol' cannot be used for 'W1234' and 'W1235'"
         in str(error.value)
     )
+
+
+def test_exclusivity_of_msgids() -> None:
+    """Test to see if all checkers have an exclusive message id prefix."""
+    err_msg = (
+        "{} has the same prefix ('{}') as the '{}' checker. Please make sure the prefix "
+        "is unique for each checker. You can use 'script/get_unused_message_id_category.py' "
+        "to get an unique id."
+    )
+
+    runner = lint.Run(
+        ["--enable-all-extensions", EMPTY_FILE],
+        exit=False,
+    )
+
+    # Some pairs are hard-coded as they are pre-existing and non-exclusive
+    # and we don't want to rename them for backwards compatibility
+    checker_id_pairs = {
+        "00": ("master", "miscellaneous"),
+        "01": (
+            "basic",
+            "refactoring",
+            "consider_ternary_expression",
+            "while_used",
+            "docstyle",
+            "deprecated_builtins",
+        ),
+        "02": ("classes", "refactoring", "multiple_types"),
+        "03": ("classes", "format"),
+        "04": ("imports", "spelling"),
+        "05": ("consider-using-any-or-all", "miscellaneous"),
+        "07": ("exceptions", "broad_try_clause", "overlap-except"),
+        "12": ("design", "logging"),
+        "17": ("async", "refactoring"),
+        "20": ("compare-to-zero", "refactoring"),
+    }
+
+    for msgid, definition in runner.linter.msgs_store._messages_definitions.items():
+        if msgid[1:3] in checker_id_pairs:
+            assert (
+                definition.checker_name in checker_id_pairs[msgid[1:3]]
+            ), err_msg.format(msgid, msgid[1:3], checker_id_pairs[msgid[1:3]][0])
+        else:
+            checker_id_pairs[msgid[1:3]] = (definition.checker_name,)
