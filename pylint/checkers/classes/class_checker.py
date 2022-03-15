@@ -913,11 +913,11 @@ a metaclass class method.",
                         continue
 
                     # Check self.__attrname, cls.__attrname, node_name.__attrname
-                    if isinstance(child.expr, nodes.Name) and child.expr.name in (
+                    if isinstance(child.expr, nodes.Name) and child.expr.name in {
                         "self",
                         "cls",
                         node.name,
-                    ):
+                    }:
 
                         break
 
