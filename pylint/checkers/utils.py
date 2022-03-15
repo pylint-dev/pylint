@@ -1189,6 +1189,9 @@ def _supports_protocol(
         if protocol_callback(value):
             return True
 
+    if isinstance(value, nodes.ComprehensionScope):
+        return True
+
     if (
         isinstance(value, astroid.bases.Proxy)
         and isinstance(value._proxied, astroid.BaseInstance)

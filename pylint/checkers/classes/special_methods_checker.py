@@ -289,6 +289,9 @@ class SpecialMethodsChecker(BaseChecker):
         if isinstance(node, astroid.bases.Generator):
             # Generators can be iterated.
             return True
+        if isinstance(node, nodes.ComprehensionScope):
+            # Comprehensions can be iterated.
+            return True
 
         if isinstance(node, astroid.Instance):
             try:
