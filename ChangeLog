@@ -582,7 +582,7 @@ Release date: 2021-11-24
 
   Closes #4412 #5287
 
-* Fix ``unused-private-member`` false positive when accessing private methods through ``property``
+* Fix ``unused-private-member`` false positive when accessing private methods through ``property``.
 
   Closes #4756
 

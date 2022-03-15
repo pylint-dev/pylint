@@ -904,25 +904,25 @@ a metaclass class method.",
                 # Check for cases where the functions are used as a Name (variable) -- without dot.method
                 if isinstance(child, nodes.Name) and child.name == function_def.name:
                     break
-                if isinstance(
-                    child, nodes.Attribute
-                ):  # child is instance of  nodes.Attribute
+                if isinstance(child, nodes.Attribute):
+                    # Ignore recursive calls
                     if (
                         child.attrname != function_def.name
-                        or child.scope() == function_def  # We ignore recursive calls
+                        or child.scope() == function_def
                     ):
                         continue
+
+                    # Check self.__attrname, cls.__attrname, node_name.__attrname
                     if isinstance(child.expr, nodes.Name) and child.expr.name in (
                         "self",
                         "cls",
                         node.name,
                     ):
-                        # self.__attrname
-                        # cls.__attrname
-                        # node_name.__attrname
+
                         break
+
+                    # Check type(self).__attrname
                     if isinstance(child.expr, nodes.Call):
-                        # type(self).__attrname
                         inferred = safe_infer(child.expr)
                         if (
                             isinstance(inferred, nodes.ClassDef)
