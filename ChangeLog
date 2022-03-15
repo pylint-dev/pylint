@@ -9,8 +9,6 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.13.rst'
 
-* Remove primer test on ``black-primer``, since it was removed from black repository.
-
 * No longer emit ``no-member`` in for loops that reference ``self`` if the binary operation that
   started the for loop uses a ``self`` that is encapsulated in tuples or lists.
 
