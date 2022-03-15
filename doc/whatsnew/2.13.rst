@@ -153,6 +153,10 @@ Other Changes
 
   Closes #5722
 
+* Fix ``unused-private-member`` false positive when accessing private methods through ``property``.
+
+  Closes #4756
+
 * Fixed crash from ``arguments-differ`` and ``arguments-renamed`` when methods were
   defined outside the top level of a class.
 
