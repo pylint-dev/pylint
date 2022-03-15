@@ -1189,6 +1189,11 @@ def _supports_protocol(
         if protocol_callback(value):
             return True
 
+    # pylint: disable-next=fixme
+    # TODO: Should be covered by https://github.com/PyCQA/astroid/pull/1475
+    if isinstance(value, nodes.ComprehensionScope):
+        return True
+
     if (
         isinstance(value, astroid.bases.Proxy)
         and isinstance(value._proxied, astroid.BaseInstance)

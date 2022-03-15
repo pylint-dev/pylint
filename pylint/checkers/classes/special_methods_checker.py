@@ -289,6 +289,11 @@ class SpecialMethodsChecker(BaseChecker):
         if isinstance(node, astroid.bases.Generator):
             # Generators can be iterated.
             return True
+        # pylint: disable-next=fixme
+        # TODO: Should be covered by https://github.com/PyCQA/astroid/pull/1475
+        if isinstance(node, nodes.ComprehensionScope):
+            # Comprehensions can be iterated.
+            return True
 
         if isinstance(node, astroid.Instance):
             try:
