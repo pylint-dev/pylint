@@ -103,6 +103,18 @@ def test_get_annotation_label_for_node(node_text: str, expected_label: str):
     assert get_annotation_label(node) == expected_label
 
 
+@pytest.mark.parametrize(
+    "node, expected_label",
+    [
+        (nodes.Name("int"), "int"),
+        (nodes.Name("any_name"), "any_name"),
+    ],
+)
+def test_get_annotation_label_for_name(node: nodes.Name, expected_label: str):
+    actual_label = get_annotation_label(node)
+    assert actual_label == expected_label
+
+
 @patch("pylint.pyreverse.utils.get_annotation")
 @patch("astroid.node_classes.NodeNG.infer", side_effect=astroid.InferenceError)
 def test_infer_node_1(mock_infer: Any, mock_get_annotation: Any) -> None:
