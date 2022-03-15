@@ -315,7 +315,7 @@ class Foo:
 
 # https://github.com/PyCQA/pylint/issues/4756
 # Check for false positives emitted when private functions are not referenced in the class body
-# with with standard calls but passed as arguments to other functions.
+# with standard calls but passed as arguments to other functions.
 class FalsePositive4756a:
     def __bar(self, x):
         print(x)
