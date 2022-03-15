@@ -95,7 +95,7 @@ The following type of names are checked with a predefined pattern:
 +--------------------+---------------------------------------------------+------------------------------------------------------------+
 | Name type          | Good names                                        | Bad names                                                  |
 +====================+===================================================+============================================================+
-| ``TypeVar``        |`T`, `_CallableT`, `_T_co`, `AnyStr`, `DeviceTypeT`| `DICT_T`, `CALLABLE_T`, `ENUM_T`, `DeviceType`, `_StrType` |
+| ``typevar``        |`T`, `_CallableT`, `_T_co`, `AnyStr`, `DeviceTypeT`| `DICT_T`, `CALLABLE_T`, `ENUM_T`, `DeviceType`, `_StrType` |
 +--------------------+---------------------------------------------------+------------------------------------------------------------+
 
 Custom regular expressions
