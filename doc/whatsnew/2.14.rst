@@ -23,3 +23,8 @@ Extensions
 
 Other Changes
 =============
+
+* Fix false positive for ``superfluous-parens`` for patterns like
+  "return (a or b) in iterable".
+
+  Closes #5803

@@ -9,6 +9,10 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.14.rst'
 
+* Fix false positive for ``superfluous-parens`` for patterns like
+  "return (a or b) in iterable".
+
+  Closes #5803
 
 
 ..
