@@ -11,6 +11,10 @@ Release date: TBA
 
 * Fix pyreverse diagrams type hinting for classmethods and staticmethods.
 
+* Add new message ``duplicate-value`` for identifying duplicate values inside sets.
+
+  Closes #5880
+
 * Fix matching ``--notes`` options that end in a non-word character.
 
   Closes #5840
