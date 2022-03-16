@@ -261,6 +261,10 @@ Other Changes
   Closes #5771
   Ref PyCQA/astroid#1382
 
+* Optimize parsing of long lines when ``missing-final-newline`` is enabled.
+
+  Closes #5724
+
 * Fix ``unnecessary_dict_index_lookup`` false positive when deleting a dictionary's entry.
 
   Closes #4716

@@ -201,6 +201,10 @@ Release date: TBA
 
   Closes #5569
 
+* Optimize parsing of long lines when ``missing-final-newline`` is enabled.
+
+  Closes #5724
+
 * Fix false positives for ``used-before-assignment`` from using named
   expressions in a ternary operator test and using that expression as
   a call argument.
