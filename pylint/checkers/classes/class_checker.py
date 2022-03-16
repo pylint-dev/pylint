@@ -53,7 +53,7 @@
 import collections
 import sys
 from itertools import chain, zip_longest
-from typing import TYPE_CHECKING, Dict, List, Pattern, Set
+from typing import Dict, List, Pattern, Set
 
 import astroid
 from astroid import bases, nodes
@@ -85,10 +85,9 @@ from pylint.checkers.utils import (
 from pylint.interfaces import INFERENCE, IAstroidChecker
 from pylint.utils import get_global_option
 
-if sys.version_info >= (3, 8) or TYPE_CHECKING:
+if sys.version_info >= (3, 8):
     from functools import cached_property
 else:
-    # pylint: disable-next=ungrouped-imports
     from astroid.decorators import cachedproperty as cached_property
 
 INVALID_BASE_CLASSES = {"bool", "range", "slice", "memoryview"}
@@ -901,29 +900,35 @@ a metaclass class method.",
                     n.name for n in parent_scope.nodes_of_class(nodes.Name)
                 ):
                     continue
-            for attribute in node.nodes_of_class(nodes.Attribute):
-                if (
-                    attribute.attrname != function_def.name
-                    or attribute.scope() == function_def  # We ignore recursive calls
-                ):
-                    continue
-                if isinstance(attribute.expr, nodes.Name) and attribute.expr.name in (
-                    "self",
-                    "cls",
-                    node.name,
-                ):
-                    # self.__attrname
-                    # cls.__attrname
-                    # node_name.__attrname
+            for child in node.nodes_of_class((nodes.Name, nodes.Attribute)):
+                # Check for cases where the functions are used as a variable instead of as a method call
+                if isinstance(child, nodes.Name) and child.name == function_def.name:
                     break
-                if isinstance(attribute.expr, nodes.Call):
-                    # type(self).__attrname
-                    inferred = safe_infer(attribute.expr)
+                if isinstance(child, nodes.Attribute):
+                    # Ignore recursive calls
                     if (
-                        isinstance(inferred, nodes.ClassDef)
-                        and inferred.name == node.name
+                        child.attrname != function_def.name
+                        or child.scope() == function_def
                     ):
+                        continue
+
+                    # Check self.__attrname, cls.__attrname, node_name.__attrname
+                    if isinstance(child.expr, nodes.Name) and child.expr.name in {
+                        "self",
+                        "cls",
+                        node.name,
+                    }:
+
                         break
+
+                    # Check type(self).__attrname
+                    if isinstance(child.expr, nodes.Call):
+                        inferred = safe_infer(child.expr)
+                        if (
+                            isinstance(inferred, nodes.ClassDef)
+                            and inferred.name == node.name
+                        ):
+                            break
             else:
                 name_stack = []
                 curr = parent_scope

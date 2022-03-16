@@ -1189,6 +1189,11 @@ def _supports_protocol(
         if protocol_callback(value):
             return True
 
+    # pylint: disable-next=fixme
+    # TODO: Should be covered by https://github.com/PyCQA/astroid/pull/1475
+    if isinstance(value, nodes.ComprehensionScope):
+        return True
+
     if (
         isinstance(value, astroid.bases.Proxy)
         and isinstance(value._proxied, astroid.BaseInstance)
@@ -1662,6 +1667,11 @@ def is_typing_guard(node: nodes.If) -> bool:
     return isinstance(
         node.test, (nodes.Name, nodes.Attribute)
     ) and node.test.as_string().endswith("TYPE_CHECKING")
+
+
+def is_node_in_typing_guarded_import_block(node: nodes.NodeNG) -> bool:
+    """Return True if node is part for guarded `typing.TYPE_CHECKING` if block."""
+    return isinstance(node.parent, nodes.If) and is_typing_guard(node.parent)
 
 
 def is_node_in_guarded_import_block(node: nodes.NodeNG) -> bool:

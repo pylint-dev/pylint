@@ -76,6 +76,10 @@ Removed checkers
 
 Extensions
 ==========
+* New extension ``import-private-name``: indicate imports of external private packages
+  and objects (prefixed with ``_``). It can be loaded using ``load-plugins=pylint.extensions.private_import``.
+
+  Closes #5463
 
 * Pyreverse - add output in mermaid-js format and html which is an mermaid js diagram with html boilerplate
 
@@ -148,6 +152,10 @@ Other Changes
 * Fix false-negative for ``assignment-from-none`` checker with list.sort() method.
 
   Closes #5722
+
+* Fix ``unused-private-member`` false positive when accessing private methods through ``property``.
+
+  Closes #4756
 
 * Fixed crash from ``arguments-differ`` and ``arguments-renamed`` when methods were
   defined outside the top level of a class.

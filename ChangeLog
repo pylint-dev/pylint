@@ -56,6 +56,11 @@ Release date: TBA
 
   closes #5722
 
+* New extension ``import-private-name``: indicate imports of external private packages
+  and objects (prefixed with ``_``). It can be loaded using ``load-plugins=pylint.extensions.private_import``.
+
+  Closes #5463
+
 * Fixed crash from ``arguments-differ`` and ``arguments-renamed`` when methods were
   defined outside the top level of a class.
 
@@ -578,6 +583,10 @@ Release date: 2021-11-24
   ``pylint/testutil/`` are still unstable and might be modified in the near future.
 
   Closes #4412 #5287
+
+* Fix ``unused-private-member`` false positive when accessing private methods through ``property``.
+
+  Closes #4756
 
 * Fix ``install graphiz`` message which isn't needed for puml output format.
 
