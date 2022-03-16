@@ -38,6 +38,11 @@ def test_process_tokens() -> None:
 def test_issue_5724() -> None:
     with timeout(25.0):
         with pytest.raises(SystemExit) as cm:
-            Run([os.path.join(REGR_DATA, "issue_5724.py"),
-                 "--enable=missing-final-newline"], reporter=TextReporter())
+            Run(
+                [
+                    os.path.join(REGR_DATA, "issue_5724.py"),
+                    "--enable=missing-final-newline",
+                ],
+                reporter=TextReporter(),
+            )
         assert cm.value.code == 0
