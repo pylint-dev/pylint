@@ -261,7 +261,7 @@ Other Changes
   Closes #5771
   Ref PyCQA/astroid#1382
 
-* Fix parsing of long lines when ``missing-final-newline`` is enabled.
+* Optimize parsing of long lines when ``missing-final-newline`` is enabled.
 
   Closes #5724
 

@@ -32,3 +32,12 @@ def test_process_tokens() -> None:
         with pytest.raises(SystemExit) as cm:
             Run([os.path.join(REGR_DATA, "very_long_line.py")], reporter=TextReporter())
         assert cm.value.code == 0
+
+
+@pytest.mark.skipif(not hasattr(signal, "setitimer"), reason="Assumes POSIX signals")
+def test_issue_5724() -> None:
+    with timeout(25.0):
+        with pytest.raises(SystemExit) as cm:
+            Run([os.path.join(REGR_DATA, "issue_5724.py"),
+                 "--enable=missing-final-newline"], reporter=TextReporter())
+        assert cm.value.code == 0

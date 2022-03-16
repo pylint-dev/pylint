@@ -355,3 +355,4 @@ contributors:
 - Daniel Brookman
 - Téo Bouvard
 - Konrad Weihmann
+- Sergey B Kirpichev

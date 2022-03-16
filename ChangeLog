@@ -201,7 +201,7 @@ Release date: TBA
 
   Closes #5569
 
-* Fix parsing of long lines when ``missing-final-newline`` is enabled.
+* Optimize parsing of long lines when ``missing-final-newline`` is enabled.
 
   Closes #5724
 
