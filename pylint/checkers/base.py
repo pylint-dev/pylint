@@ -1080,6 +1080,11 @@ class BasicChecker(_BasicChecker):
             "Used when an assert statement has a string literal as its first argument, which will "
             "cause the assert to always pass.",
         ),
+        "W0130": (
+            "Duplicate value %r in set",
+            "duplicate-value",
+            "Used when a set contains the same value multiple times.",
+        ),
     }
 
     reports = (("RP0101", "Statistics by type", report_by_type_stats),)
@@ -1466,6 +1471,19 @@ class BasicChecker(_BasicChecker):
             if key in keys:
                 self.add_message("duplicate-key", node=node, args=key)
             keys.add(key)
+
+    @utils.check_messages("duplicate-value")
+    def visit_set(self, node: nodes.Set) -> None:
+        """Check duplicate value in set."""
+        values = set()
+        for v in node.elts:
+            if isinstance(v, nodes.Const):
+                value = v.value
+            else:
+                continue
+            if value in values:
+                self.add_message("duplicate-value", node=node, args=value)
+            values.add(value)
 
     def visit_tryfinally(self, node: nodes.TryFinally) -> None:
         """Update try...finally flag."""
