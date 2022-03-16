@@ -36,6 +36,7 @@ def test_process_tokens() -> None:
 
 @pytest.mark.skipif(not hasattr(signal, "setitimer"), reason="Assumes POSIX signals")
 def test_issue_5724() -> None:
+    """Regression test for parsing of pylint disable pragma's."""
     with timeout(25.0):
         with pytest.raises(SystemExit) as cm:
             Run(

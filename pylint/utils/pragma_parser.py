@@ -9,18 +9,17 @@ from typing import Generator, List, Optional
 # so that an option can be continued with the reasons
 # why it is active or disabled.
 OPTION_RGX = r"""
-    (?:^\s*\#.*           # Comment line or
-      |\s*                # any number of whitespaces or
-      |\s*\#.*            # a beginning of line comment
-     (?=\#.*?\bpylint:))  # with a following next "pylint:" pragma
-    (\#                   # Beginning of comment
-    .*?                   # Anything (as little as possible)
-    \bpylint:             # pylint word and column
-    \s*                   # Any number of whitespaces
-    ([^;#\n]+))           # Anything except semicolon or hash or
-                          # newline (it is the second matched group)
-                          # and end of the first matched group
-    [;#]{0,1}             # From 0 to 1 repetition of semicolon or hash
+    (?:^\s*\#.*|\s*|               # Comment line, or whitespaces,
+       \s*\#.*(?=\#.*?\bpylint:))  # or a beginning of an inline comment
+                                   # followed by "pylint:" pragma
+    (\#                            # Beginning of comment
+    .*?                            # Anything (as little as possible)
+    \bpylint:                      # pylint word and column
+    \s*                            # Any number of whitespaces
+    ([^;#\n]+))                    # Anything except semicolon or hash or
+                                   # newline (it is the second matched group)
+                                   # and end of the first matched group
+    [;#]{0,1}                      # From 0 to 1 repetition of semicolon or hash
 """
 OPTION_PO = re.compile(OPTION_RGX, re.VERBOSE)
 
