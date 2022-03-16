@@ -185,6 +185,7 @@ class ForwardSlashChunker(Chunker):
 
 
 CODE_FLANKED_IN_BACKTICK_REGEX = re.compile(r"(\s|^)(`{1,2})([^`]+)(\2)([^`]|$)")
+MYPY_IGNORE_DIRECTIVE_RULE_REGEX = re.compile(r"(\s|^)(type\: ignore\[)([^\]]+)(\].*)")
 
 
 def _strip_code_flanked_in_backticks(line: str) -> str:
@@ -199,6 +200,21 @@ def _strip_code_flanked_in_backticks(line: str) -> str:
 
     return CODE_FLANKED_IN_BACKTICK_REGEX.sub(
         replace_code_but_leave_surrounding_characters, line
+    )
+
+
+def _strip_mypy_ignore_directive_rule(line: str) -> str:
+    """Alter line so mypy rule name is ignored.
+
+    Pyenchant parses anything flanked by spaces as an individual token,
+    so this cannot be done at the individual filter level.
+    """
+
+    def replace_rule_name_but_leave_surrounding_characters(match_obj) -> str:
+        return match_obj.group(1) + match_obj.group(2) + match_obj.group(4)
+
+    return MYPY_IGNORE_DIRECTIVE_RULE_REGEX.sub(
+        replace_rule_name_but_leave_surrounding_characters, line
     )
 
 
@@ -368,6 +384,7 @@ class SpellingChecker(BaseTokenChecker):
             starts_with_comment = False
 
         line = _strip_code_flanked_in_backticks(line)
+        line = _strip_mypy_ignore_directive_rule(line)
 
         for word, word_start_at in self.tokenizer(line.strip()):
             word_start_at += initial_space
