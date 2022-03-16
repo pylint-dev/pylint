@@ -310,7 +310,7 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
             ("noqa", ":", "flake8 / zimports directive"),
             ("nosec", "", "bandit directive"),
             ("isort", ":skip", "isort directive"),
-            ("mypy", ":", "mypy top of filedirective"),
+            ("mypy", ":", "mypy top of file directive"),
         ),
     )
     def test_skip_tool_directives_at_beginning_of_comments_but_still_raise_error_if_directive_appears_later_in_comment(  # pylint:disable=unused-argument
