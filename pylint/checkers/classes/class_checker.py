@@ -269,7 +269,6 @@ def _has_different_keyword_parameters(
     overridden: List[nodes.AssignName],
 ) -> List[str]:
     """Determine if the two methods have different keyword only parameters."""
-    result: List[str] = []
     original_names = [i.name for i in original]
     overridden_names = [i.name for i in overridden]
 
@@ -286,7 +285,7 @@ def _has_different_keyword_parameters(
         except astroid.NoDefault:
             return ["Number of parameters "]
 
-    return result
+    return []
 
 
 def _different_parameters(
