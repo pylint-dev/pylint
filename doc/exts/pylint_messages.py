@@ -53,7 +53,7 @@ def _register_all_checkers_and_extensions(linter: PyLinter) -> None:
     initialize_extensions(linter)
 
 
-def _get_message_data(data_path: Path) -> Tuple[str, str, str]:
+def _get_message_data(data_path: Path) -> Tuple[str, str, str, str]:
     """Get the message data from the specified path."""
     good_code, bad_code, details, related = "", "", "", ""
 
@@ -61,7 +61,7 @@ def _get_message_data(data_path: Path) -> Tuple[str, str, str]:
         return good_code, bad_code, details, related
 
     if (data_path / "good.py").exists():
-        with open(data_path / "good.py") as file:
+        with open(data_path / "good.py", encoding="utf-8") as file:
             file_content = file.readlines()
             indented_file_content = "".join("  " + i for i in file_content)
             good_code = f"""
@@ -72,7 +72,7 @@ def _get_message_data(data_path: Path) -> Tuple[str, str, str]:
 {indented_file_content}"""
 
     if (data_path / "bad.py").exists():
-        with open(data_path / "bad.py") as file:
+        with open(data_path / "bad.py", encoding="utf-8") as file:
             file_content = file.readlines()
             indented_file_content = "".join("  " + i for i in file_content)
             bad_code = f"""
@@ -83,20 +83,20 @@ def _get_message_data(data_path: Path) -> Tuple[str, str, str]:
 {indented_file_content}"""
 
     if (data_path / "details.rst").exists():
-        with open(data_path / "details.rst") as file:
-            file_content = file.read()
-            related = f"""
+        with open(data_path / "details.rst", encoding="utf-8") as file:
+            file_content_string = file.read()
+            details = f"""
 **Additional details:**
 
-{file_content}"""
+{file_content_string}"""
 
     if (data_path / "related.rst").exists():
-        with open(data_path / "related.rst") as file:
-            file_content = file.read()
+        with open(data_path / "related.rst", encoding="utf-8") as file:
+            file_content_string = file.read()
             related = f"""
 **Related links:**
 
-{file_content}"""
+{file_content_string}"""
 
     return good_code, bad_code, details, related
 
