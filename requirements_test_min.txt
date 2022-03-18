@@ -4,3 +4,4 @@ astroid==2.11.0  # Pinned to a specific version for tests
 typing-extensions~=4.1
 pytest~=7.0
 pytest-benchmark~=3.4
+pytest-timeout~=2.1
