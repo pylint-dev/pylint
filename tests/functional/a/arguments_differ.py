@@ -252,6 +252,7 @@ class ChildClass(ParentClass):
 import typing  # pylint: disable=wrong-import-position
 from typing import Dict  # pylint: disable=wrong-import-position
 
+
 class ParentT1:
     def func(self, user_input: Dict[str, int]) -> None:
         pass
@@ -333,6 +334,7 @@ class Foo2(AbstractFoo):
 # https://github.com/PyCQA/pylint/issues/1556
 # https://github.com/PyCQA/pylint/issues/5338
 
+
 class BaseClass:
     def method(self, arg: str):
         print(self, arg)
@@ -344,5 +346,15 @@ class DerivedClassWithAnnotation(BaseClass):
 
 
 class DerivedClassWithoutAnnotation(BaseClass):
-    def method(self, arg, param1 = 42, *, param2 = 42):
+    def method(self, arg, param1=42, *, param2=42):
         print(arg, param1, param2)
+
+
+class AClass:
+    def method(self, *, arg1):  # [no-self-use]
+        ...
+
+
+class ClassWithNewNonDefaultKeywordOnly(AClass):
+    def method(self, *, arg2, arg1=None):  # [arguments-differ]
+        ...
