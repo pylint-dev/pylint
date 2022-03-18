@@ -252,7 +252,6 @@ class ChildClass(ParentClass):
 import typing  # pylint: disable=wrong-import-position
 from typing import Dict  # pylint: disable=wrong-import-position
 
-
 class ParentT1:
     def func(self, user_input: Dict[str, int]) -> None:
         pass
