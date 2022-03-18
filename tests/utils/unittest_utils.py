@@ -25,7 +25,7 @@ from pylint.utils import utils
 
 
 def test_decoding_stream_unknown_encoding() -> None:
-    """decoding_stream should fall back to *some* decoding when given an
+    """Decoding_stream should fall back to *some* decoding when given an
     unknown encoding.
     """
     binary_io = io.BytesIO(b"foo\nbar")

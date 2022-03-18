@@ -4,7 +4,7 @@
 import configparser
 import sys
 from os.path import basename, exists, join
-from typing import List, Tuple
+from typing import Callable, Dict, List, Tuple, Union
 
 
 def parse_python_version(ver_str: str) -> Tuple[int, ...]:
@@ -45,7 +45,7 @@ POSSIBLE_TEST_OPTIONS = {
 class FunctionalTestFile:
     """A single functional test case file with options."""
 
-    _CONVERTERS = {
+    _CONVERTERS: Dict[str, Callable[[str], Union[Tuple[int, ...], List[str]]]] = {
         "min_pyver": parse_python_version,
         "max_pyver": parse_python_version,
         "min_pyver_end_position": parse_python_version,
@@ -84,7 +84,7 @@ class FunctionalTestFile:
             assert (
                 name in POSSIBLE_TEST_OPTIONS
             ), f"[testoptions]' can only contains one of {POSSIBLE_TEST_OPTIONS}"
-            self.options[name] = conv(value)  # type: ignore[misc]
+            self.options[name] = conv(value)  # type: ignore[literal-required]
 
     @property
     def option_file(self) -> str:

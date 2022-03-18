@@ -74,8 +74,8 @@ def test_functional(
     lint_test.runTest()
     warning = None
     try:
-        # Catch <unknown>:x: DeprecationWarning: invalid escape sequence
-        # so it's not shown during tests
+        # Catch <unknown>:x: DeprecationWarning: invalid escape sequence,
+        # so, it's not shown during tests
         warning = recwarn.pop()
     except AssertionError:
         pass

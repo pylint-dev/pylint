@@ -489,7 +489,7 @@ def test_is_empty_literal() -> None:
 
 
 def test_deprecation_is_inside_lambda() -> None:
-    """Test that is_inside_lambda is throwing a DeprecationWarning"""
+    """Test that is_inside_lambda is throwing a DeprecationWarning."""
     with pytest.warns(DeprecationWarning) as records:
         utils.is_inside_lambda(nodes.NodeNG())
         assert len(records) == 1

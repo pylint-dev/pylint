@@ -13,17 +13,21 @@
 """Looks for  comparisons to empty string."""
 
 import itertools
-from typing import Any, Iterable
+from typing import TYPE_CHECKING, Any, Iterable
 
 from astroid import nodes
 
 from pylint import checkers, interfaces
 from pylint.checkers import utils
 
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
+
 
 class CompareToEmptyStringChecker(checkers.BaseChecker):
     """Checks for comparisons to empty string.
-    Most of the times you should use the fact that empty strings are false.
+
+    Most of the time you should use the fact that empty strings are false.
     An exception to this rule is when an empty string value is allowed in the program
     and has a different meaning than None!
     """
@@ -72,6 +76,5 @@ class CompareToEmptyStringChecker(checkers.BaseChecker):
                 self.add_message("compare-to-empty-string", node=node)
 
 
-def register(linter):
-    """Required method to auto register this checker."""
+def register(linter: "PyLinter") -> None:
     linter.register_checker(CompareToEmptyStringChecker(linter))

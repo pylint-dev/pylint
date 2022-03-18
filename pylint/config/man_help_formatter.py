@@ -6,7 +6,6 @@ import sys
 import time
 
 
-# pylint: disable=abstract-method; by design?
 class _ManHelpFormatter(optparse.HelpFormatter):
     def __init__(
         self, indent_increment=0, max_help_position=24, width=79, short_first=0
@@ -106,6 +105,10 @@ Please report bugs on the project\'s mailing list:
 {pkginfo.copyright}
 """
         return tail
+
+    def format_usage(self, usage):
+        """Taken from optparse.IndentedHelpFormatter."""
+        return f"Usage: {usage}\n"
 
 
 def _generate_manpage(optparser, pkginfo, section=1, stream=sys.stdout, level=0):

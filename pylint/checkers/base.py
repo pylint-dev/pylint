@@ -63,22 +63,22 @@
 # Copyright (c) 2021 Lorena B <46202743+lorena-b@users.noreply.github.com>
 # Copyright (c) 2021 David Liu <david@cs.toronto.edu>
 # Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
-# Copyright (c) 2021 Or Bahari <orbahari@mail.tau.ac.il>
+# Copyright (c) 2021-2022 Or Bahari <or.ba402@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""basic checker for Python code"""
+"""Basic checker for Python code."""
 import collections
 import itertools
 import re
 import sys
-from typing import Any, Dict, Iterator, Optional, Pattern, cast
+from typing import TYPE_CHECKING, Any, Dict, Iterator, Optional, Pattern, cast
 
 import astroid
 from astroid import nodes
 
-from pylint import checkers, interfaces
+from pylint import checkers, constants, interfaces
 from pylint import utils as lint_utils
 from pylint.checkers import utils
 from pylint.checkers.utils import (
@@ -91,6 +91,9 @@ from pylint.reporters.ureports import nodes as reporter_nodes
 from pylint.utils import LinterStats
 from pylint.utils.utils import get_global_option
 
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
+
 if sys.version_info >= (3, 8):
     from typing import Literal
 else:
@@ -99,8 +102,8 @@ else:
 
 class NamingStyle:
     """It may seem counterintuitive that single naming style has multiple "accepted"
-    forms of regular expressions, but we need to special-case stuff like dunder names
-    in method names."""
+    forms of regular expressions, but we need to special-case stuff like dunder names in method names.
+    """
 
     ANY: Pattern[str] = re.compile(".*")
     CLASS_NAME_RGX: Pattern[str] = ANY
@@ -224,11 +227,13 @@ COMPARISON_OPERATORS = frozenset(("==", "!=", "<", ">", "<=", ">="))
 # List of methods which can be redefined
 REDEFINABLE_METHODS = frozenset(("__module__",))
 TYPING_FORWARD_REF_QNAME = "typing.ForwardRef"
+TYPING_TYPE_VAR_QNAME = "typing.TypeVar"
 
 
 def _redefines_import(node):
     """Detect that the given node (AssignName) is inside an
     exception handler and redefines an import from the tryexcept body.
+
     Returns True if the node redefines an import, False otherwise.
     """
     current = node
@@ -257,12 +262,12 @@ LOOPLIKE_NODES = (
 
 
 def in_loop(node: nodes.NodeNG) -> bool:
-    """Return whether the node is inside a kind of for loop"""
+    """Return whether the node is inside a kind of for loop."""
     return any(isinstance(parent, LOOPLIKE_NODES) for parent in node.node_ancestors())
 
 
 def in_nested_list(nested_list, obj):
-    """return true if the object is an element of <nested_list> or of a nested
+    """Return true if the object is an element of <nested_list> or of a nested
     list
     """
     for elmt in nested_list:
@@ -275,8 +280,7 @@ def in_nested_list(nested_list, obj):
 
 
 def _get_break_loop_node(break_node):
-    """
-    Returns the loop node that holds the break node in arguments.
+    """Returns the loop node that holds the break node in arguments.
 
     Args:
         break_node (astroid.Break): the break node of interest.
@@ -297,14 +301,13 @@ def _get_break_loop_node(break_node):
 
 
 def _loop_exits_early(loop):
-    """
-    Returns true if a loop may ends up in a break statement.
+    """Returns true if a loop may end with a break statement.
 
     Args:
         loop (astroid.For, astroid.While): the loop node inspected.
 
     Returns:
-        bool: True if the loop may ends up in a break statement, False otherwise.
+        bool: True if the loop may end with a break statement, False otherwise.
     """
     loop_nodes = (nodes.For, nodes.While)
     definition_nodes = (nodes.FunctionDef, nodes.ClassDef)
@@ -349,7 +352,7 @@ def _get_properties(config):
 
 
 def _determine_function_name_type(node: nodes.FunctionDef, config=None):
-    """Determine the name type whose regex the a function's name should match.
+    """Determine the name type whose regex the function's name should match.
 
     :param node: A function node.
     :param config: Configuration from which to pull additional property classes.
@@ -386,8 +389,7 @@ def _determine_function_name_type(node: nodes.FunctionDef, config=None):
 
 
 def _has_abstract_methods(node):
-    """
-    Determine if the given `node` has abstract methods.
+    """Determine if the given `node` has abstract methods.
 
     The methods should be made abstract by decorating them
     with `abc` decorators.
@@ -400,7 +402,7 @@ def report_by_type_stats(
     stats: LinterStats,
     old_stats: Optional[LinterStats],
 ):
-    """make a report of
+    """Make a report of.
 
     * percentage of different types documented
     * percentage of different types with a bad name
@@ -437,7 +439,7 @@ def report_by_type_stats(
 
 
 def redefined_by_decorator(node):
-    """return True if the object is a method redefined via decorator.
+    """Return True if the object is a method redefined via decorator.
 
     For example:
         @property
@@ -520,7 +522,8 @@ class BasicErrorChecker(_BasicChecker):
             "has abstract methods and is instantiated.",
         ),
         "W0120": (
-            "Else clause on loop without a break statement",
+            "Else clause on loop without a break statement, remove the else and"
+            " de-indent all the code inside it",
             "useless-else-on-loop",
             "Loops should only have an else clause if they can exit early "
             "with a break statement, otherwise the statements under else "
@@ -718,7 +721,7 @@ class BasicErrorChecker(_BasicChecker):
 
     @utils.check_messages("return-outside-function")
     def visit_return(self, node: nodes.Return) -> None:
-        if not isinstance(node.frame(), nodes.FunctionDef):
+        if not isinstance(node.frame(future=True), nodes.FunctionDef):
             self.add_message("return-outside-function", node=node)
 
     @utils.check_messages("yield-outside-function")
@@ -747,7 +750,7 @@ class BasicErrorChecker(_BasicChecker):
 
     @utils.check_messages("nonexistent-operator")
     def visit_unaryop(self, node: nodes.UnaryOp) -> None:
-        """check use of the non-existent ++ and -- operator operator"""
+        """Check use of the non-existent ++ and -- operators."""
         if (
             (node.op in "+-")
             and isinstance(node.operand, nodes.UnaryOp)
@@ -826,7 +829,7 @@ class BasicErrorChecker(_BasicChecker):
             )
 
     def _check_yield_outside_func(self, node):
-        if not isinstance(node.frame(), (nodes.FunctionDef, nodes.Lambda)):
+        if not isinstance(node.frame(future=True), (nodes.FunctionDef, nodes.Lambda)):
             self.add_message("yield-outside-function", node=node)
 
     def _check_else_on_loop(self, node):
@@ -842,7 +845,7 @@ class BasicErrorChecker(_BasicChecker):
             )
 
     def _check_in_loop(self, node, node_name):
-        """check that a node is inside a for or while loop"""
+        """Check that a node is inside a for or while loop."""
         for parent in node.node_ancestors():
             if isinstance(parent, (nodes.For, nodes.While)):
                 if node not in parent.orelse:
@@ -860,8 +863,8 @@ class BasicErrorChecker(_BasicChecker):
         self.add_message("not-in-loop", node=node, args=node_name)
 
     def _check_redefinition(self, redeftype, node):
-        """check for redefinition of a function / method / class name"""
-        parent_frame = node.parent.frame()
+        """Check for redefinition of a function / method / class name."""
+        parent_frame = node.parent.frame(future=True)
 
         # Ignore function stubs created for type information
         redefinitions = [
@@ -937,7 +940,9 @@ class BasicErrorChecker(_BasicChecker):
 
 
 class BasicChecker(_BasicChecker):
-    """checks for :
+    """Basic checker.
+
+    Checks for :
     * doc strings
     * number of arguments, local variables, branches, returns and statements in
     functions, methods
@@ -1008,7 +1013,7 @@ class BasicChecker(_BasicChecker):
             'Used when you use the "eval" function, to discourage its '
             "usage. Consider using `ast.literal_eval` for safely evaluating "
             "strings containing Python expressions "
-            "from untrusted sources. ",
+            "from untrusted sources.",
         ),
         "W0150": (
             "%s statement in finally block may swallow exception",
@@ -1087,7 +1092,7 @@ class BasicChecker(_BasicChecker):
         self._tryfinallys = None
 
     def open(self):
-        """initialize visit variables and statistics"""
+        """Initialize visit variables and statistics."""
         py_version = get_global_option(self, "py-version")
         self._py38_plus = py_version >= (3, 8)
         self._tryfinallys = []
@@ -1161,11 +1166,11 @@ class BasicChecker(_BasicChecker):
             self.add_message("using-constant-test", node=node)
 
     def visit_module(self, _: nodes.Module) -> None:
-        """check module name, docstring and required arguments"""
+        """Check module name, docstring and required arguments."""
         self.linter.stats.node_count["module"] += 1
 
     def visit_classdef(self, _: nodes.ClassDef) -> None:
-        """check module name, docstring and redefinition
+        """Check module name, docstring and redefinition
         increment branch counter
         """
         self.linter.stats.node_count["klass"] += 1
@@ -1174,7 +1179,7 @@ class BasicChecker(_BasicChecker):
         "pointless-statement", "pointless-string-statement", "expression-not-assigned"
     )
     def visit_expr(self, node: nodes.Expr) -> None:
-        """Check for various kind of statements without effect"""
+        """Check for various kind of statements without effect."""
         expr = node.value
         if isinstance(expr, nodes.Const) and isinstance(expr.value, str):
             # treat string statement in a separated message
@@ -1244,7 +1249,7 @@ class BasicChecker(_BasicChecker):
 
     @utils.check_messages("unnecessary-lambda")
     def visit_lambda(self, node: nodes.Lambda) -> None:
-        """check whether or not the lambda is suspicious"""
+        """Check whether the lambda is suspicious."""
         # if the body of the lambda is a call expression with the same
         # argument list as the lambda itself, then the lambda is
         # possibly unnecessary and at least suspicious.
@@ -1304,7 +1309,7 @@ class BasicChecker(_BasicChecker):
 
     @utils.check_messages("dangerous-default-value")
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
-        """check function name, docstring, arguments, redefinition,
+        """Check function name, docstring, arguments, redefinition,
         variable names, max locals
         """
         if node.is_method():
@@ -1357,9 +1362,11 @@ class BasicChecker(_BasicChecker):
 
     @utils.check_messages("unreachable", "lost-exception")
     def visit_return(self, node: nodes.Return) -> None:
-        """1 - check is the node has a right sibling (if so, that's some
+        """Return node visitor.
+
+        1 - check if the node has a right sibling (if so, that's some
         unreachable code)
-        2 - check is the node is inside the finally clause of a try...finally
+        2 - check if the node is inside the 'finally' clause of a 'try...finally'
         block
         """
         self._check_unreachable(node)
@@ -1368,16 +1375,18 @@ class BasicChecker(_BasicChecker):
 
     @utils.check_messages("unreachable")
     def visit_continue(self, node: nodes.Continue) -> None:
-        """check is the node has a right sibling (if so, that's some unreachable
+        """Check is the node has a right sibling (if so, that's some unreachable
         code)
         """
         self._check_unreachable(node)
 
     @utils.check_messages("unreachable", "lost-exception")
     def visit_break(self, node: nodes.Break) -> None:
-        """1 - check is the node has a right sibling (if so, that's some
+        """Break node visitor.
+
+        1 - check if the node has a right sibling (if so, that's some
         unreachable code)
-        2 - check is the node is inside the finally clause of a try...finally
+        2 - check if the node is inside the 'finally' clause of a 'try...finally'
         block
         """
         # 1 - Is it right sibling ?
@@ -1387,7 +1396,7 @@ class BasicChecker(_BasicChecker):
 
     @utils.check_messages("unreachable")
     def visit_raise(self, node: nodes.Raise) -> None:
-        """check if the node has a right sibling (if so, that's some unreachable
+        """Check if the node has a right sibling (if so, that's some unreachable
         code)
         """
         self._check_unreachable(node)
@@ -1417,7 +1426,7 @@ class BasicChecker(_BasicChecker):
         "eval-used", "exec-used", "bad-reversed-sequence", "misplaced-format-function"
     )
     def visit_call(self, node: nodes.Call) -> None:
-        """visit a Call node -> check if this is not a disallowed builtin
+        """Visit a Call node -> check if this is not a disallowed builtin
         call and check for * or ** use
         """
         self._check_misplaced_format_function(node)
@@ -1425,7 +1434,7 @@ class BasicChecker(_BasicChecker):
             name = node.func.name
             # ignore the name if it's not a builtin (i.e. not defined in the
             # locals nor globals scope)
-            if not (name in node.frame() or name in node.root()):
+            if not (name in node.frame(future=True) or name in node.root()):
                 if name == "exec":
                     self.add_message("exec-used", node=node)
                 elif name == "reversed":
@@ -1435,7 +1444,7 @@ class BasicChecker(_BasicChecker):
 
     @utils.check_messages("assert-on-tuple", "assert-on-string-literal")
     def visit_assert(self, node: nodes.Assert) -> None:
-        """check whether assert is used on a tuple or string literal."""
+        """Check whether assert is used on a tuple or string literal."""
         if (
             node.fail is None
             and isinstance(node.test, nodes.Tuple)
@@ -1452,7 +1461,7 @@ class BasicChecker(_BasicChecker):
 
     @utils.check_messages("duplicate-key")
     def visit_dict(self, node: nodes.Dict) -> None:
-        """check duplicate key in dictionary"""
+        """Check duplicate key in dictionary."""
         keys = set()
         for k, _ in node.items:
             if isinstance(k, nodes.Const):
@@ -1466,15 +1475,15 @@ class BasicChecker(_BasicChecker):
             keys.add(key)
 
     def visit_tryfinally(self, node: nodes.TryFinally) -> None:
-        """update try...finally flag"""
+        """Update try...finally flag."""
         self._tryfinallys.append(node)
 
     def leave_tryfinally(self, _: nodes.TryFinally) -> None:
-        """update try...finally flag"""
+        """Update try...finally flag."""
         self._tryfinallys.pop()
 
     def _check_unreachable(self, node):
-        """check unreachable code"""
+        """Check unreachable code."""
         unreach_stmt = node.next_sibling()
         if unreach_stmt is not None:
             if (
@@ -1490,14 +1499,16 @@ class BasicChecker(_BasicChecker):
             self.add_message("unreachable", node=unreach_stmt)
 
     def _check_not_in_finally(self, node, node_name, breaker_classes=()):
-        """check that a node is not inside a finally clause of a
-        try...finally statement.
-        If we found before a try...finally block a parent which its type is
-        in breaker_classes, we skip the whole check."""
+        """Check that a node is not inside a 'finally' clause of a
+        'try...finally' statement.
+
+        If we find a parent which type is in breaker_classes before
+        a 'try...finally' block we skip the whole check.
+        """
         # if self._tryfinallys is empty, we're not an in try...finally block
         if not self._tryfinallys:
             return
-        # the node could be a grand-grand...-children of the try...finally
+        # the node could be a grand-grand...-child of the 'try...finally'
         _parent = node.parent
         _node = node
         while _parent and not isinstance(_parent, breaker_classes):
@@ -1508,7 +1519,7 @@ class BasicChecker(_BasicChecker):
             _parent = _node.parent
 
     def _check_reversed(self, node):
-        """check that the argument to `reversed` is a sequence"""
+        """Check that the argument to `reversed` is a sequence."""
         try:
             argument = utils.safe_infer(utils.get_argument_from_call(node, position=0))
         except utils.NoSuchArgumentError:
@@ -1612,9 +1623,9 @@ class BasicChecker(_BasicChecker):
                 continue
             if not isinstance(target, nodes.AssignName):
                 continue
+            # Check that the scope is different from a class level, which is usually
+            # a pattern to expose module level attributes as class level ones.
             if isinstance(scope, nodes.ClassDef) and target.name in scope_locals:
-                # Check that the scope is different than a class level, which is usually
-                # a pattern to expose module level attributes as class level ones.
                 continue
             if target.name == lhs_name.name:
                 self.add_message(
@@ -1670,20 +1681,6 @@ KNOWN_NAME_TYPES = {
     "inlinevar",
 }
 
-HUMAN_READABLE_TYPES = {
-    "module": "module",
-    "const": "constant",
-    "class": "class",
-    "function": "function",
-    "method": "method",
-    "attr": "attribute",
-    "argument": "argument",
-    "variable": "variable",
-    "class_attribute": "class attribute",
-    "class_const": "class constant",
-    "inlinevar": "inline iteration",
-}
-
 DEFAULT_NAMING_STYLES = {
     "module": "snake_case",
     "const": "UPPER_CASE",
@@ -1702,7 +1699,7 @@ DEFAULT_NAMING_STYLES = {
 def _create_naming_options():
     name_options = []
     for name_type in sorted(KNOWN_NAME_TYPES):
-        human_readable_name = HUMAN_READABLE_TYPES[name_type]
+        human_readable_name = constants.HUMAN_READABLE_TYPES[name_type]
         default_style = DEFAULT_NAMING_STYLES[name_type]
         name_type = name_type.replace("_", "-")
         name_options.append(
@@ -1749,10 +1746,15 @@ class NameChecker(_BasicChecker):
                 ]
             },
         ),
-        "C0144": (
-            '%s name "%s" contains a non-ASCII unicode character',
-            "non-ascii-name",
-            "Used when the name contains at least one non-ASCII unicode character.",
+        "C0105": (
+            'Type variable "%s" is %s, use "%s" instead',
+            "typevar-name-incorrect-variance",
+            "Emitted when a TypeVar name doesn't reflect its type variance. "
+            "According to PEP8, it is recommended to add suffixes '_co' and "
+            "'_contra' to the variables used to declare covariant or "
+            "contravariant behaviour respectively. Invariant (default) variables "
+            "do not require a suffix. The message is also emitted when invariant "
+            "variables do have a suffix.",
         ),
         "W0111": (
             "Name %s will become a keyword in Python %s",
@@ -1850,7 +1852,6 @@ class NameChecker(_BasicChecker):
         self._name_hints = {}
         self._good_names_rgxs_compiled = []
         self._bad_names_rgxs_compiled = []
-        self._non_ascii_rgx_compiled = re.compile("[^\u0000-\u007F]")
 
     def open(self):
         self.linter.stats.reset_bad_names()
@@ -1890,7 +1891,7 @@ class NameChecker(_BasicChecker):
 
         return regexps, hints
 
-    @utils.check_messages("disallowed-name", "invalid-name", "non-ascii-name")
+    @utils.check_messages("disallowed-name", "invalid-name")
     def visit_module(self, node: nodes.Module) -> None:
         self._check_name("module", node.name.split(".")[-1], node)
         self._bad_names = {}
@@ -1916,9 +1917,7 @@ class NameChecker(_BasicChecker):
             for args in warnings:
                 self._raise_name_warning(prevalent_group, *args)
 
-    @utils.check_messages(
-        "disallowed-name", "invalid-name", "assign-to-new-keyword", "non-ascii-name"
-    )
+    @utils.check_messages("disallowed-name", "invalid-name", "assign-to-new-keyword")
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         self._check_assign_to_new_keyword_violation(node.name, node)
         self._check_name("class", node.name, node)
@@ -1926,20 +1925,18 @@ class NameChecker(_BasicChecker):
             if not any(node.instance_attr_ancestors(attr)):
                 self._check_name("attr", attr, anodes[0])
 
-    @utils.check_messages(
-        "disallowed-name", "invalid-name", "assign-to-new-keyword", "non-ascii-name"
-    )
+    @utils.check_messages("disallowed-name", "invalid-name", "assign-to-new-keyword")
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         # Do not emit any warnings if the method is just an implementation
         # of a base class method.
         self._check_assign_to_new_keyword_violation(node.name, node)
         confidence = interfaces.HIGH
         if node.is_method():
-            if utils.overrides_a_method(node.parent.frame(), node.name):
+            if utils.overrides_a_method(node.parent.frame(future=True), node.name):
                 return
             confidence = (
                 interfaces.INFERENCE
-                if utils.has_known_bases(node.parent.frame())
+                if utils.has_known_bases(node.parent.frame(future=True))
                 else interfaces.INFERENCE_FAILURE
             )
 
@@ -1956,40 +1953,74 @@ class NameChecker(_BasicChecker):
 
     visit_asyncfunctiondef = visit_functiondef
 
-    @utils.check_messages("disallowed-name", "invalid-name", "non-ascii-name")
+    @utils.check_messages("disallowed-name", "invalid-name")
     def visit_global(self, node: nodes.Global) -> None:
         for name in node.names:
             self._check_name("const", name, node)
 
     @utils.check_messages(
-        "disallowed-name", "invalid-name", "assign-to-new-keyword", "non-ascii-name"
+        "disallowed-name",
+        "invalid-name",
+        "assign-to-new-keyword",
+        "typevar-name-incorrect-variance",
     )
     def visit_assignname(self, node: nodes.AssignName) -> None:
-        """check module level assigned names"""
+        """Check module level assigned names."""
         self._check_assign_to_new_keyword_violation(node.name, node)
-        frame = node.frame()
+        frame = node.frame(future=True)
         assign_type = node.assign_type()
+
+        # Check names defined in comprehensions
         if isinstance(assign_type, nodes.Comprehension):
             self._check_name("inlinevar", node.name, node)
+
+        # Check names defined in module scope
         elif isinstance(frame, nodes.Module):
+            # Check names defined in Assign nodes
             if isinstance(assign_type, nodes.Assign):
-                if isinstance(utils.safe_infer(assign_type.value), nodes.ClassDef):
+                inferred_assign_type = utils.safe_infer(assign_type.value)
+
+                # Check TypeVar's assigned alone or in tuple assignment
+                if isinstance(node.parent, nodes.Assign) and self._assigns_typevar(
+                    assign_type.value
+                ):
+                    self._check_name("typevar", assign_type.targets[0].name, node)
+                elif (
+                    isinstance(node.parent, nodes.Tuple)
+                    and isinstance(assign_type.value, nodes.Tuple)
+                    and self._assigns_typevar(
+                        assign_type.value.elts[node.parent.elts.index(node)]
+                    )
+                ):
+                    self._check_name(
+                        "typevar",
+                        assign_type.targets[0].elts[node.parent.elts.index(node)].name,
+                        node,
+                    )
+
+                # Check classes (TypeVar's are classes so they need to be excluded first)
+                elif isinstance(inferred_assign_type, nodes.ClassDef):
                     self._check_name("class", node.name, node)
-                # Don't emit if the name redefines an import
-                # in an ImportError except handler.
+
+                # Don't emit if the name redefines an import in an ImportError except handler.
                 elif not _redefines_import(node) and isinstance(
-                    utils.safe_infer(assign_type.value), nodes.Const
+                    inferred_assign_type, nodes.Const
                 ):
                     self._check_name("const", node.name, node)
+            # Check names defined in AnnAssign nodes
             elif isinstance(
                 assign_type, nodes.AnnAssign
             ) and utils.is_assign_name_annotated_with(node, "Final"):
                 self._check_name("const", node.name, node)
+
+        # Check names defined in function scopes
         elif isinstance(frame, nodes.FunctionDef):
             # global introduced variable aren't in the function locals
             if node.name in frame and node.name not in frame.argnames():
                 if not _redefines_import(node):
                     self._check_name("variable", node.name, node)
+
+        # Check names defined in class scopes
         elif isinstance(frame, nodes.ClassDef):
             if not list(frame.local_attr_ancestors(node.name)):
                 for ancestor in frame.ancestors():
@@ -2004,7 +2035,7 @@ class NameChecker(_BasicChecker):
                     self._check_name("class_attribute", node.name, node)
 
     def _recursive_check_names(self, args):
-        """check names in a possibly recursive list <arg>"""
+        """Check names in a possibly recursive list <arg>."""
         for arg in args:
             if isinstance(arg, nodes.AssignName):
                 self._check_name("argument", arg.name, arg)
@@ -2023,7 +2054,7 @@ class NameChecker(_BasicChecker):
         confidence,
         warning: str = "invalid-name",
     ) -> None:
-        type_label = HUMAN_READABLE_TYPES[node_type]
+        type_label = constants.HUMAN_READABLE_TYPES[node_type]
         hint = self._name_hints[node_type]
         if prevalent_group:
             # This happens in the multi naming match case. The expected
@@ -2052,12 +2083,15 @@ class NameChecker(_BasicChecker):
         )
 
     def _check_name(self, node_type, name, node, confidence=interfaces.HIGH):
-        """check for a name using the type's regexp"""
-        non_ascii_match = self._non_ascii_rgx_compiled.match(name)
-        if non_ascii_match is not None:
-            self._raise_name_warning(
-                None, node, node_type, name, confidence, warning="non-ascii-name"
-            )
+        """Check for a name using the type's regexp."""
+
+        # pylint: disable=fixme
+        # TODO: move this down in the function and check TypeVar
+        # for name patterns as well.
+        # Check TypeVar names for variance suffixes
+        if node_type == "typevar":
+            self._check_typevar_variance(name, node)
+            return
 
         def _should_exempt_from_invalid_name(node):
             if node_type == "variable":
@@ -2102,6 +2136,62 @@ class NameChecker(_BasicChecker):
             if name in keywords and sys.version_info < version:
                 return ".".join(str(v) for v in version)
         return None
+
+    @staticmethod
+    def _assigns_typevar(node: Optional[nodes.NodeNG]) -> bool:
+        """Check if a node is assigning a TypeVar."""
+        if isinstance(node, astroid.Call):
+            inferred = utils.safe_infer(node.func)
+            if (
+                isinstance(inferred, astroid.ClassDef)
+                and inferred.qname() == TYPING_TYPE_VAR_QNAME
+            ):
+                return True
+        return False
+
+    def _check_typevar_variance(self, name: str, node: nodes.AssignName) -> None:
+        """Check if a TypeVar has a variance and if it's included in the name.
+
+        Returns the args for the message to be displayed.
+        """
+        if isinstance(node.parent, nodes.Assign):
+            keywords = node.assign_type().value.keywords
+        elif isinstance(node.parent, nodes.Tuple):
+            keywords = (
+                node.assign_type().value.elts[node.parent.elts.index(node)].keywords
+            )
+
+        for kw in keywords:
+            if kw.arg == "covariant" and kw.value.value:
+                if not name.endswith("_co"):
+                    suggest_name = f"{re.sub('_contra$', '', name)}_co"
+                    self.add_message(
+                        "typevar-name-incorrect-variance",
+                        node=node,
+                        args=(name, "covariant", suggest_name),
+                        confidence=interfaces.INFERENCE,
+                    )
+                return
+
+            if kw.arg == "contravariant" and kw.value.value:
+                if not name.endswith("_contra"):
+                    suggest_name = f"{re.sub('_co$', '', name)}_contra"
+                    self.add_message(
+                        "typevar-name-incorrect-variance",
+                        node=node,
+                        args=(name, "contravariant", suggest_name),
+                        confidence=interfaces.INFERENCE,
+                    )
+                return
+
+        if name.endswith("_co") or name.endswith("_contra"):
+            suggest_name = re.sub("_contra$|_co$", "", name)
+            self.add_message(
+                "typevar-name-incorrect-variance",
+                node=node,
+                args=(name, "invariant", suggest_name),
+                confidence=interfaces.INFERENCE,
+            )
 
 
 class DocStringChecker(_BasicChecker):
@@ -2185,15 +2275,15 @@ class DocStringChecker(_BasicChecker):
             ):
                 return
 
-            if isinstance(node.parent.frame(), nodes.ClassDef):
+            if isinstance(node.parent.frame(future=True), nodes.ClassDef):
                 overridden = False
                 confidence = (
                     interfaces.INFERENCE
-                    if utils.has_known_bases(node.parent.frame())
+                    if utils.has_known_bases(node.parent.frame(future=True))
                     else interfaces.INFERENCE_FAILURE
                 )
                 # check if node is from a method overridden by its ancestor
-                for ancestor in node.parent.frame().ancestors():
+                for ancestor in node.parent.frame(future=True).ancestors():
                     if ancestor.qname() == "builtins.object":
                         continue
                     if node.name in ancestor and isinstance(
@@ -2204,7 +2294,7 @@ class DocStringChecker(_BasicChecker):
                 self._check_docstring(
                     ftype, node, report_missing=not overridden, confidence=confidence  # type: ignore[arg-type]
                 )
-            elif isinstance(node.parent.frame(), nodes.Module):
+            elif isinstance(node.parent.frame(future=True), nodes.Module):
                 self._check_docstring(ftype, node)  # type: ignore[arg-type]
             else:
                 return
@@ -2218,8 +2308,8 @@ class DocStringChecker(_BasicChecker):
         report_missing=True,
         confidence=interfaces.HIGH,
     ):
-        """check the node has a non empty docstring"""
-        docstring = node.doc
+        """Check if the node has a non-empty docstring."""
+        docstring = node.doc_node.value if node.doc_node else None
         if docstring is None:
             docstring = _infer_dunder_doc_attribute(node)
 
@@ -2229,7 +2319,7 @@ class DocStringChecker(_BasicChecker):
             lines = utils.get_node_last_lineno(node) - node.lineno
 
             if node_type == "module" and not lines:
-                # If the module has no body, there's no reason
+                # If the module does not have a body, there's no reason
                 # to require a docstring.
                 return
             max_lines = self.config.docstring_min_length
@@ -2271,7 +2361,7 @@ class DocStringChecker(_BasicChecker):
 
 
 class PassChecker(_BasicChecker):
-    """check if the pass statement is really necessary"""
+    """Check if the pass statement is really necessary."""
 
     msgs = {
         "W0107": (
@@ -2285,7 +2375,7 @@ class PassChecker(_BasicChecker):
     def visit_pass(self, node: nodes.Pass) -> None:
         if len(node.parent.child_sequence(node)) > 1 or (
             isinstance(node.parent, (nodes.ClassDef, nodes.FunctionDef))
-            and (node.parent.doc is not None)
+            and node.parent.doc_node
         ):
             self.add_message("unnecessary-pass", node=node)
 
@@ -2313,7 +2403,7 @@ def _infer_dunder_doc_attribute(node):
 
 
 class ComparisonChecker(_BasicChecker):
-    """Checks for comparisons
+    """Checks for comparisons.
 
     - singleton comparison: 'expr == True', 'expr == False' and 'expr == None'
     - yoda condition: 'const "comp" right' where comp can be '==', '!=', '<',
@@ -2367,7 +2457,7 @@ class ComparisonChecker(_BasicChecker):
     def _check_singleton_comparison(
         self, left_value, right_value, root_node, checking_for_absence: bool = False
     ):
-        """Check if == or != is being used to compare a singleton value"""
+        """Check if == or != is being used to compare a singleton value."""
         singleton_values = (True, False, None)
 
         def _is_singleton_const(node) -> bool:
@@ -2469,7 +2559,7 @@ class ComparisonChecker(_BasicChecker):
         is_const = False
         if isinstance(literal, nodes.Const):
             if isinstance(literal.value, bool) or literal.value is None:
-                # Not interested in this values.
+                # Not interested in these values.
                 return
             is_const = isinstance(literal.value, (bytes, str, int, float))
 
@@ -2478,6 +2568,7 @@ class ComparisonChecker(_BasicChecker):
 
     def _check_logical_tautology(self, node: nodes.Compare):
         """Check if identifier is compared against itself.
+
         :param node: Compare node
         :Example:
         val = 786
@@ -2511,14 +2602,18 @@ class ComparisonChecker(_BasicChecker):
         left_operand, right_operand = node.left, node.ops[0][1]
         # this message should be emitted only when there is comparison of bare callable
         # with non bare callable.
-        if (
-            sum(
-                1
-                for operand in (left_operand, right_operand)
-                if isinstance(utils.safe_infer(operand), bare_callables)
-            )
-            == 1
-        ):
+        number_of_bare_callables = 0
+        for operand in left_operand, right_operand:
+            inferred = utils.safe_infer(operand)
+            # Ignore callables that raise, as well as typing constants
+            # implemented as functions (that raise via their decorator)
+            if (
+                isinstance(inferred, bare_callables)
+                and "typing._SpecialForm" not in inferred.decoratornames()
+                and not any(isinstance(x, nodes.Raise) for x in inferred.body)
+            ):
+                number_of_bare_callables += 1
+        if number_of_bare_callables == 1:
             self.add_message("comparison-with-callable", node=node)
 
     @utils.check_messages(
@@ -2581,8 +2676,7 @@ class ComparisonChecker(_BasicChecker):
         self.add_message("unidiomatic-typecheck", node=node)
 
 
-def register(linter):
-    """required method to auto register this checker"""
+def register(linter: "PyLinter") -> None:
     linter.register_checker(BasicErrorChecker(linter))
     linter.register_checker(BasicChecker(linter))
     linter.register_checker(NameChecker(linter))

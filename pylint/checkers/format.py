@@ -47,7 +47,7 @@
 
 """Python code format's checker.
 
-By default try to follow Guido's style guide :
+By default, try to follow Guido's style guide :
 
 https://www.python.org/doc/essays/styleguide/
 
@@ -56,7 +56,7 @@ Some parts of the process_token method is based from The Tab Nanny std module.
 
 import tokenize
 from functools import reduce
-from typing import List
+from typing import TYPE_CHECKING, List
 
 from astroid import nodes
 
@@ -70,6 +70,10 @@ from pylint.checkers.utils import (
 from pylint.constants import WarningScope
 from pylint.interfaces import IAstroidChecker, IRawChecker, ITokenChecker
 from pylint.utils.pragma_parser import OPTION_PO, PragmaParserError, parse_pragma
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
+
 
 _ASYNC_TOKEN = "async"
 _KEYWORD_TOKENS = [
@@ -233,7 +237,9 @@ class TokenWrapper:
 
 
 class FormatChecker(BaseTokenChecker):
-    """checks for :
+    """Formatting checker.
+
+    Checks for :
     * unauthorized constructions
     * strict indentation
     * line length
@@ -344,7 +350,7 @@ class FormatChecker(BaseTokenChecker):
         self._bracket_stack = [None]
 
     def new_line(self, tokens, line_end, line_start):
-        """a new line has been encountered, process it if necessary"""
+        """A new line has been encountered, process it if necessary."""
         if _last_token_on_line_is(tokens, line_end, ";"):
             self.add_message("unnecessary-semicolon", line=tokens.start_line(line_end))
 
@@ -467,7 +473,7 @@ class FormatChecker(BaseTokenChecker):
         return dispatch
 
     def process_tokens(self, tokens):
-        """process tokens and search for :
+        """Process tokens and search for :
 
         _ too long lines (i.e. longer than <max_chars>)
         _ optionally bad construct (if given, bad_construct must be a compiled
@@ -586,7 +592,7 @@ class FormatChecker(BaseTokenChecker):
 
     @check_messages("multiple-statements")
     def visit_default(self, node: nodes.NodeNG) -> None:
-        """check the node line number and check it if not yet done"""
+        """Check the node line number and check it if not yet done."""
         if not node.is_statement:
             return
         if not node.root().pure_python:
@@ -594,7 +600,7 @@ class FormatChecker(BaseTokenChecker):
         prev_sibl = node.previous_sibling()
         if prev_sibl is not None:
             prev_line = prev_sibl.fromlineno
-        # The line on which a finally: occurs in a try/finally
+        # The line on which a 'finally': occurs in a 'try/finally'
         # is not directly represented in the AST. We infer it
         # by taking the last line of the body and adding 1, which
         # should be the line of finally:
@@ -657,7 +663,7 @@ class FormatChecker(BaseTokenChecker):
             and isinstance(node.value, nodes.Const)
             and node.value.value is Ellipsis
         ):
-            frame = node.frame()
+            frame = node.frame(future=True)
             if is_overload_stub(frame) or is_protocol_class(node_frame_class(frame)):
                 return
 
@@ -665,9 +671,7 @@ class FormatChecker(BaseTokenChecker):
         self._visited_lines[line] = 2
 
     def check_line_ending(self, line: str, i: int) -> None:
-        """
-        Check that the final newline is not missing and that there is no trailing whitespace.
-        """
+        """Check that the final newline is not missing and that there is no trailing whitespace."""
         if not line.endswith("\n"):
             self.add_message("missing-final-newline", line=i)
             return
@@ -679,9 +683,7 @@ class FormatChecker(BaseTokenChecker):
             )
 
     def check_line_length(self, line: str, i: int, checker_off: bool) -> None:
-        """
-        Check that the line length is less than the authorized value
-        """
+        """Check that the line length is less than the authorized value."""
         max_chars = self.config.max_line_length
         ignore_long_line = self.config.ignore_long_lines
         line = line.rstrip()
@@ -693,9 +695,7 @@ class FormatChecker(BaseTokenChecker):
 
     @staticmethod
     def remove_pylint_option_from_lines(options_pattern_obj) -> str:
-        """
-        Remove the `# pylint ...` pattern from lines
-        """
+        """Remove the `# pylint ...` pattern from lines."""
         lines = options_pattern_obj.string
         purged_lines = (
             lines[: options_pattern_obj.start(1)].rstrip()
@@ -705,9 +705,7 @@ class FormatChecker(BaseTokenChecker):
 
     @staticmethod
     def is_line_length_check_activated(pylint_pattern_match_object) -> bool:
-        """
-        Return true if the line length check is activated
-        """
+        """Return true if the line length check is activated."""
         try:
             for pragma in parse_pragma(pylint_pattern_match_object.group(2)):
                 if pragma.action == "disable" and "line-too-long" in pragma.messages:
@@ -719,9 +717,7 @@ class FormatChecker(BaseTokenChecker):
 
     @staticmethod
     def specific_splitlines(lines: str) -> List[str]:
-        """
-        Split lines according to universal newlines except those in a specific sets
-        """
+        """Split lines according to universal newlines except those in a specific sets."""
         unsplit_ends = {
             "\v",
             "\x0b",
@@ -745,11 +741,12 @@ class FormatChecker(BaseTokenChecker):
         return res
 
     def check_lines(self, lines: str, lineno: int) -> None:
-        """
+        """Check given lines for potential messages.
+
         Check lines have :
-            - a final newline
-            - no trailing whitespace
-            - less than a maximum number of characters
+        - a final newline
+        - no trailing whitespace
+        - less than a maximum number of characters
         """
         # we're first going to do a rough check whether any lines in this set
         # go over the line limit. If none of them do, then we don't need to
@@ -795,7 +792,7 @@ class FormatChecker(BaseTokenChecker):
             self.check_line_length(line, lineno + offset, checker_off)
 
     def check_indent_level(self, string, expected, line_num):
-        """return the indent level of the string"""
+        """Return the indent level of the string."""
         indent = self.config.indent_string
         if indent == "\\t":  # \t is not interpreted in the configuration file
             indent = "\t"
@@ -819,6 +816,5 @@ class FormatChecker(BaseTokenChecker):
             )
 
 
-def register(linter):
-    """required method to auto register this checker"""
+def register(linter: "PyLinter") -> None:
     linter.register_checker(FormatChecker(linter))

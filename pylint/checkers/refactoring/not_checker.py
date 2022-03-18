@@ -10,7 +10,7 @@ from pylint.checkers import utils
 
 
 class NotChecker(checkers.BaseChecker):
-    """checks for too many not in comparison expressions
+    """Checks for too many not in comparison expressions.
 
     - "not not" should trigger a warning
     - "not" followed by a comparison should trigger a warning
@@ -62,7 +62,7 @@ class NotChecker(checkers.BaseChecker):
             if operator not in self.reverse_op:
                 return
             # Ignore __ne__ as function of __eq__
-            frame = node.frame()
+            frame = node.frame(future=True)
             if frame.name == "__ne__" and operator == "==":
                 return
             for _type in (utils.node_type(left), utils.node_type(right)):
