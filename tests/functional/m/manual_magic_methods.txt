@@ -1,0 +1,4 @@
+manual-magic-methods:2:10:2:28::Manually invokes __str__ magic method.:UNDEFINED
+manual-magic-methods:3:11:3:30::Manually invokes __add__ magic method.:UNDEFINED
+manual-magic-methods:4:10:4:40::Manually invokes __repr__ magic method.:UNDEFINED
+manual-magic-methods:6:12:6:34::Manually invokes __woohoo__ magic method.:UNDEFINED
