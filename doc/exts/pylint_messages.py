@@ -24,7 +24,7 @@ PYLINT_MESSAGES_PATH = PYLINT_BASE_PATH / "doc" / "messages"
 """Path to the messages documentation folder."""
 
 PYLINT_MESSAGES_DATA_PATH = PYLINT_BASE_PATH / "doc" / "data" / "messages"
-"""Path to the messages documentation folder."""
+"""Path to the folder with data for the messages documentation."""
 
 MSG_TYPES_DOC = {k: v if v != "info" else "information" for k, v in MSG_TYPES.items()}
 
