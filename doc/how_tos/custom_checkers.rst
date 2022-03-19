@@ -37,30 +37,36 @@ Firstly we will need to fill in some required boilerplate:
 
   import astroid
   from astroid import nodes
+  from typing import TYPE_CHECKING
 
   from pylint.checkers import BaseChecker
   from pylint.interfaces import IAstroidChecker
-  from pylint.lint import PyLinter
+
+  if TYPE_CHECKING:
+      from pylint.lint import PyLinter
+
 
   class UniqueReturnChecker(BaseChecker):
       __implements__ = IAstroidChecker
 
-      name = 'unique-returns'
+      name = "unique-returns"
       priority = -1
       msgs = {
-          'W0001': (
-              'Returns a non-unique constant.',
-              'non-unique-returns',
-              'All constants returned in a function should be unique.'
+          "W0001": (
+              "Returns a non-unique constant.",
+              "non-unique-returns",
+              "All constants returned in a function should be unique.",
           ),
       }
       options = (
           (
-              'ignore-ints',
+              "ignore-ints",
               {
-                  'default': False, 'type': 'yn', 'metavar' : '<y or n>',
-                  'help': 'Allow returning non-unique integers',
-              }
+                  "default": False,
+                  "type": "yn",
+                  "metavar": "<y or n>",
+                  "help": "Allow returning non-unique integers",
+              },
           ),
       )
 
@@ -79,20 +85,19 @@ So far we have defined the following required components of our checker:
    going to emit. It has the following format::
 
        msgs = {
-           'message-id': (
-               'displayed-message', 'message-symbol', 'message-help'
+           "message-id": (
+               "displayed-message", "message-symbol", "message-help"
            )
        }
+
 
    * The ``message-id`` should be a 4-digit number,
      prefixed with a **message category**.
      There are multiple message categories,
      these being ``C``, ``W``, ``E``, ``F``, ``R``,
      standing for ``Convention``, ``Warning``, ``Error``, ``Fatal`` and ``Refactoring``.
-     The rest of the 5 digits should not conflict with existing checkers
-     and they should be consistent across the checker.
-     For instance,
-     the first two digits should not be different across the checker.
+     The 4 digits should not conflict with existing checkers
+     and the first 2 digits should consistent across the checker.
 
    * The ``displayed-message`` is used for displaying the message to the user,
      once it is emitted.
@@ -107,8 +112,9 @@ The options list defines any user configurable options.
 It has the following format::
 
     options = (
-        'option-symbol': {'argparse-like-kwarg': 'value'},
+        ("option-symbol", {"argparse-like-kwarg": "value"}),
     )
+
 
 * The ``option-symbol`` is a unique name for the option.
   This is used on the command line and in config files.
@@ -119,8 +125,8 @@ Next we'll track when we enter and leave a function.
 
 .. code-block:: python
 
-  def __init__(self, linter: PyLinter =None) -> None:
-      super(UniqueReturnChecker, self).__init__(linter)
+  def __init__(self, linter: "PyLinter" = None) -> None:
+      super().__init__(linter)
       self._function_stack = []
 
   def visit_functiondef(self, node: nodes.FunctionDef) -> None:
@@ -145,7 +151,7 @@ which is called with an :class:`.astroid.nodes.Return` node.
 .. _astroid_extract_node:
 .. TODO We can shorten/remove this bit once astroid has API docs.
 
-We'll need to be able to figure out what attributes a
+We'll need to be able to figure out what attributes an
 :class:`.astroid.nodes.Return` node has available.
 We can use :func:`astroid.extract_node` for this::
 
@@ -163,7 +169,7 @@ We could also construct a more complete example::
   ...     if True:
   ...         return 5 #@
   ...     return 5 #@
-  """)
+  ... """)
   >>> node_a.value
   <Const.int l.4 at 0x7efe621a74e0>
   >>> node_a.value.value
@@ -183,13 +189,14 @@ Now we know how to use the astroid node, we can implement our check.
   def visit_return(self, node: nodes.Return) -> None:
       if not isinstance(node.value, nodes.Const):
           return
-
       for other_return in self._function_stack[-1]:
-         if (node.value.value == other_return.value.value and
-             not (self.config.ignore_ints and node.value.pytype() == int)):
-             self.add_message(
-                 'non-unique-returns', node=node,
-             )
+          if node.value.value == other_return.value.value and not (
+              self.config.ignore_ints and node.value.pytype() == int
+          ):
+              self.add_message(
+                  "non-unique-returns",
+                  node=node,
+              )
 
       self._function_stack[-1].append(node)
 
@@ -201,17 +208,8 @@ Add the ``register`` function to the top level of the file.
 
 .. code-block:: python
 
-  from typing import TYPE_CHECKING
-
-  import astroid
-
-  if TYPE_CHECKING:
-      from pylint.lint import PyLinter
-
-
   def register(linter: "PyLinter") -> None:
       """This required method auto registers the checker during initialization.
-
       :param linter: The linter to register the checker to.
       """
       linter.register_checker(UniqueReturnChecker(linter))
@@ -269,6 +267,7 @@ We can use the example code that we used for debugging as our test cases.
   import my_plugin
   import pylint.testutils
 
+
   class TestUniqueReturnChecker(pylint.testutils.CheckerTestCase):
       CHECKER_CLASS = my_plugin.UniqueReturnChecker
 
@@ -284,7 +283,7 @@ We can use the example code that we used for debugging as our test cases.
           self.checker.visit_return(return_node_a)
           with self.assertAddsMessages(
               pylint.testutils.MessageTest(
-                  msg_id='non-unique-returns',
+                  msg_id="non-unique-returns",
                   node=return_node_b,
               ),
           ):
