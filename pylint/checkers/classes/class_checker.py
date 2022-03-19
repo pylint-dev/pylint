@@ -281,7 +281,6 @@ def _has_different_keyword_only_parameters(
 
         try:
             overridden[0].parent.default_value(name)
-            continue
         except astroid.NoDefault:
             return ["Number of parameters "]
 
@@ -330,7 +329,7 @@ def _different_parameters(
     different_positional = _has_different_parameters(
         original_parameters, overridden_parameters, dummy_parameter_regex
     )
-    different_kwonly = _has_different_keyword_parameters(
+    different_kwonly = _has_different_keyword_only_parameters(
         original_kwonlyargs, overridden.args.kwonlyargs
     )
     if different_kwonly and different_positional:
