@@ -89,30 +89,18 @@ def test_get_annotation_assignattr(init_method, label):
 @pytest.mark.parametrize(
     "node_text, expected_label",
     [
-        ("int", "int"),
-        ("float", "float"),
-        ("str", "str"),
-        ("True", "True"),
-        ("False", "False"),
-        ("None", "None"),
+        ("def f() -> None: pass", "None"),
+        ("def f() -> int: pass", "int"),
+        ("def f(a) -> Optional[int]: return 1 if a else None", "Optional[int]"),
+        ("def f() -> 'MyType': pass", "'MyType'"),
     ],
 )
-def test_get_annotation_label_for_node(node_text: str, expected_label: str):
-    node = astroid.extract_node(node_text)
-    assert isinstance(node, nodes.NodeNG)
-    assert get_annotation_label(node) == expected_label
-
-
-@pytest.mark.parametrize(
-    "node, expected_label",
-    [
-        (nodes.Name("int"), "int"),
-        (nodes.Name("any_name"), "any_name"),
-    ],
-)
-def test_get_annotation_label_for_name(node: nodes.Name, expected_label: str):
-    actual_label = get_annotation_label(node)
-    assert actual_label == expected_label
+def test_get_annotation_label_of_return_type(
+    node_text: str, expected_label: str
+) -> None:
+    func = astroid.extract_node(node_text)
+    assert isinstance(func, nodes.FunctionDef)
+    assert get_annotation_label(func.returns) == expected_label
 
 
 @patch("pylint.pyreverse.utils.get_annotation")
