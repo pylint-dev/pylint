@@ -264,7 +264,7 @@ def _has_different_parameters(
     return result
 
 
-def _has_different_keyword_parameters(
+def _has_different_keyword_only_parameters(
     original: List[nodes.AssignName],
     overridden: List[nodes.AssignName],
 ) -> List[str]:
