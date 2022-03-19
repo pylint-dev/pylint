@@ -37,7 +37,7 @@ Firstly we will need to fill in some required boilerplate:
 
   import astroid
   from astroid import nodes
-  from typing import TYPE_CHECKING
+  from typing import TYPE_CHECKING, Optional
 
   from pylint.checkers import BaseChecker
   from pylint.interfaces import IAstroidChecker
@@ -125,7 +125,7 @@ Next we'll track when we enter and leave a function.
 
 .. code-block:: python
 
-  def __init__(self, linter: "PyLinter" = None) -> None:
+  def __init__(self, linter: Optional["PyLinter"] = None) -> None:
       super().__init__(linter)
       self._function_stack = []
 
