@@ -160,6 +160,8 @@ _SPECIAL_METHODS_PARAMS = {
         "__aiter__",
         "__anext__",
         "__fspath__",
+        "__subclasses__",
+        "__init_subclass__",
     ),
     1: (
         "__format__",
