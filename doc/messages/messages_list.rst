@@ -59,6 +59,8 @@ All messages in the error category:
    error/bad-string-format-type.rst
    error/bad-super-call.rst
    error/bidirectional-unicode.rst
+   error/broken-collections-callable.rst
+   error/broken-noreturn.rst
    error/catching-non-exception.rst
    error/class-variable-slots-conflict.rst
    error/continue-in-finally.rst
@@ -218,6 +220,7 @@ All messages in the warning category:
    warning/duplicate-except.rst
    warning/duplicate-key.rst
    warning/duplicate-string-formatting-argument.rst
+   warning/eq-without-hash.rst
    warning/eval-used.rst
    warning/exec-used.rst
    warning/expression-not-assigned.rst
@@ -360,6 +363,7 @@ All messages in the convention category:
    convention/docstring-first-line-empty.rst
    convention/empty-docstring.rst
    convention/import-outside-toplevel.rst
+   convention/import-private-name.rst
    convention/invalid-characters-in-docstring.rst
    convention/invalid-name.rst
    convention/line-too-long.rst
@@ -379,6 +383,7 @@ All messages in the convention category:
    convention/too-many-lines.rst
    convention/trailing-newlines.rst
    convention/trailing-whitespace.rst
+   convention/typevar-name-incorrect-variance.rst
    convention/unexpected-line-ending-format.rst
    convention/ungrouped-imports.rst
    convention/unidiomatic-typecheck.rst
