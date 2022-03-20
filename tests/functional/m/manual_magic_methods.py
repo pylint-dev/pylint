@@ -1,9 +1,12 @@
 # pylint: disable=too-few-public-methods, missing-docstring, undefined-variable, useless-object-inheritance
+
+# Test includelisted magic methods raise lint when manually called.
 num_str = some_num.__str__() # [manual-magic-methods]
 num_repr = some_num.__add__(2) # [manual-magic-methods]
 my_repr = my_module.my_object.__repr__() # [manual-magic-methods]
-# match all methods using magic method naming convention.
-my_woohoo = my_object.__woohoo__() # [manual-magic-methods]
+
+# Test unknown/user-defined magic methods don't raise lint.
+my_woohoo = my_object.__woohoo__()
 
 # Test allowed magic methods don't raise lint.
 class Foo1(object):
