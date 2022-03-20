@@ -193,10 +193,7 @@ Now we know how to use the astroid node, we can implement our check.
           if node.value.value == other_return.value.value and not (
               self.config.ignore_ints and node.value.pytype() == int
           ):
-              self.add_message(
-                  "non-unique-returns",
-                  node=node,
-              )
+              self.add_message("non-unique-returns", node=node)
 
       self._function_stack[-1].append(node)
 
