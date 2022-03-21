@@ -33,6 +33,14 @@ name = "Upgrade and check doc"
 cmd = "tox -e docs||echo 'Hack so this command does not fail'"
 
 [[before_commit]]
+name = "Normalize the contributors-txt configuration"
+cmd = "contributors-txt-normalize-configuration -a script/.contributors_aliases.json -o script/.contributors_aliases.json"
+
+[[before_commit]]
+name = "Upgrade the contributors list"
+cmd = "python3 script/create_contributor_list.py"
+
+[[before_commit]]
 name = "Upgrade copyrights"
 cmd = "pip3 install copyrite;copyrite --contribution-threshold 1 --change-threshold 3 --backend-type git --aliases=.copyrite_aliases . --jobs=8"
 
