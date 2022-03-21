@@ -76,7 +76,9 @@ class ByIdManagedMessagesChecker(BaseChecker):
 
 class EncodingChecker(BaseChecker):
 
-    """Checks for:
+    """BaseChecker for encoding issues.
+
+    Checks for:
     * warning notes in the code like FIXME, XXX
     * encoding issues.
     """

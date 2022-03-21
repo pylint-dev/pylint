@@ -45,7 +45,8 @@ MSGS = {
 
 class NewStyleConflictChecker(BaseChecker):
     """Checks for usage of new style capabilities on old style classes and
-    other new/old styles conflicts problems
+    other new/old styles conflicts problems.
+
     * use of property, __slots__, super
     * "super" usage
     """

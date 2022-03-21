@@ -300,7 +300,9 @@ DEFAULT_PREFERRED_MODULES = ()
 
 
 class ImportsChecker(DeprecatedMixin, BaseChecker):
-    """Checks for
+    """BaseChecker for import statements.
+
+    Checks for
     * external modules dependencies
     * relative / wildcard imports
     * cyclic imports
@@ -537,10 +539,6 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         met_from: Set[str] = set()  # set for 'from x import y' style
         current_package = None
         for import_node, import_name in std_imports + ext_imports + loc_imports:
-            if not self.linter.is_message_enabled(
-                "ungrouped-imports", import_node.fromlineno
-            ):
-                continue
             met = met_from if isinstance(import_node, nodes.ImportFrom) else met_import
             package, _, _ = import_name.partition(".")
             if (
@@ -551,6 +549,10 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             ):
                 self.add_message("ungrouped-imports", node=import_node, args=package)
             current_package = package
+            if not self.linter.is_message_enabled(
+                "ungrouped-imports", import_node.fromlineno
+            ):
+                continue
             met.add(package)
 
         self._imports_stack = []

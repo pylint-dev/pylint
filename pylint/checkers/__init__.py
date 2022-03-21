@@ -45,7 +45,8 @@ Base id of standard checkers (used in msg and report ids):
 24: non-ascii-names
 25: unicode
 26: unsupported_version
-27-50: not yet used: reserved for future internal checkers.
+27: private-import
+28-50: not yet used: reserved for future internal checkers.
 This file is not updated. Use
    script/get_unused_message_id_category.py
 to get the next free checker id.
@@ -77,8 +78,9 @@ def table_lines_from_stats(
     stat_type: Literal["duplicated_lines", "message_types"],
 ) -> List[str]:
     """Get values listed in <columns> from <stats> and <old_stats>,
-    and return a formatted list of values, designed to be given to a
-    ureport.Table object
+    and return a formatted list of values.
+
+    The return value is designed to be given to a ureport.Table object
     """
     lines: List[str] = []
     if stat_type == "duplicated_lines":

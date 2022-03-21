@@ -21,7 +21,7 @@ repos:
           - --remove-duplicate-keys
           - --remove-unused-variables
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.31.0
+    rev: v2.31.1
     hooks:
       - id: pyupgrade
         args: [--py36-plus]
@@ -77,7 +77,7 @@ repos:
         types: [text] # necessary to include ChangeLog file
         files: ^(ChangeLog|doc/(.*/)*.*\.rst)
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.931
+    rev: v0.940
     hooks:
       - id: mypy
         name: mypy
@@ -95,7 +95,9 @@ repos:
         args: [--prose-wrap=always, --print-width=88]
         exclude: tests(/.*)*/data
   - repo: https://github.com/DanielNoord/pydocstringformatter
-    rev: a9f94bf13b08fe33f784ed7f0a0fc39e2a8549e2
+    rev: v0.5.3
     hooks:
       - id: pydocstringformatter
         exclude: *fixtures
+        args: ["--split-summary-body", "--max-summary-lines=2"]
+        files: "pylint"

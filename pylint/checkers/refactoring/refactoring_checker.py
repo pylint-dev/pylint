@@ -4,6 +4,7 @@
 import collections
 import copy
 import itertools
+import sys
 import tokenize
 from functools import reduce
 from typing import Dict, Iterator, List, NamedTuple, Optional, Tuple, Union
@@ -16,6 +17,11 @@ from pylint import checkers, interfaces
 from pylint import utils as lint_utils
 from pylint.checkers import utils
 from pylint.checkers.utils import node_frame_class
+
+if sys.version_info >= (3, 8):
+    from functools import cached_property
+else:
+    from astroid.decorators import cachedproperty as cached_property
 
 KNOWN_INFINITE_ITERATORS = {"itertools.count"}
 BUILTIN_EXIT_FUNCS = frozenset(("quit", "exit"))
@@ -475,7 +481,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         # do this in open since config not fully initialized in __init__
         self._never_returning_functions = set(self.config.never_returning_functions)
 
-    @astroid.decorators.cachedproperty
+    @cached_property
     def _dummy_rgx(self):
         return lint_utils.get_global_option(self, "dummy-variables-rgx", default=None)
 
@@ -1514,6 +1520,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def _check_consider_using_join(self, aug_assign):
         """We start with the augmented assignment and work our way upwards.
+
         Names of variables for nodes if match successful:
         result = ''  # assign
         for number in ['1', '2', '3']  # for_loop
@@ -1807,7 +1814,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         return False
 
     def _is_function_def_never_returning(self, node: nodes.FunctionDef) -> bool:
-        """Return True if the function never returns. False otherwise.
+        """Return True if the function never returns, False otherwise.
 
         Args:
             node (nodes.FunctionDef): function definition node to be analyzed.
@@ -1829,7 +1836,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def _check_return_at_the_end(self, node):
         """Check for presence of a *single* return statement at the end of a
-        function. "return" or "return None" are useless because None is the
+        function.
+
+        "return" or "return None" are useless because None is the
         default return type if they are missing.
 
         NOTE: produces a message only if there is a single return statement

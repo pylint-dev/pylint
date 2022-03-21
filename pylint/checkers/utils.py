@@ -160,6 +160,8 @@ _SPECIAL_METHODS_PARAMS = {
         "__aiter__",
         "__anext__",
         "__fspath__",
+        "__subclasses__",
+        "__init_subclass__",
     ),
     1: (
         "__format__",
@@ -512,8 +514,9 @@ class UnsupportedFormatCharacter(Exception):
 def parse_format_string(
     format_string: str,
 ) -> Tuple[Set[str], int, Dict[str, str], List[str]]:
-    """Parses a format string, returning a tuple of (keys, num_args), where 'keys'
-    is the set of mapping keys in the format string, and 'num_args' is the number
+    """Parses a format string, returning a tuple (keys, num_args).
+
+    Where 'keys' is the set of mapping keys in the format string, and 'num_args' is the number
     of arguments required by the format string. Raises IncompleteFormatString or
     UnsupportedFormatCharacter if a parse error occurs.
     """
@@ -593,8 +596,9 @@ def split_format_field_names(format_string) -> Tuple[str, Iterable[Tuple[bool, s
 
 def collect_string_fields(format_string) -> Iterable[Optional[str]]:
     """Given a format string, return an iterator
-    of all the valid format fields. It handles nested fields
-    as well.
+    of all the valid format fields.
+
+    It handles nested fields as well.
     """
     formatter = string.Formatter()
     try:
@@ -627,8 +631,9 @@ def parse_format_method_string(
     format_string: str,
 ) -> Tuple[List[Tuple[str, List[Tuple[bool, str]]]], int, int]:
     """Parses a PEP 3101 format string, returning a tuple of
-    (keyword_arguments, implicit_pos_args_cnt, explicit_pos_args),
-    where keyword_arguments is the set of mapping keys in the format string, implicit_pos_args_cnt
+    (keyword_arguments, implicit_pos_args_cnt, explicit_pos_args).
+
+    keyword_arguments is the set of mapping keys in the format string, implicit_pos_args_cnt
     is the number of arguments required by the format string and
     explicit_pos_args is the number of arguments passed with the position.
     """
@@ -1045,8 +1050,8 @@ def get_exception_handlers(
 
 
 def is_node_inside_try_except(node: nodes.Raise) -> bool:
-    """Check if the node is directly under a Try/Except statement.
-    (but not under an ExceptHandler!)
+    """Check if the node is directly under a Try/Except statement
+    (but not under an ExceptHandler!).
 
     Args:
         node (nodes.Raise): the node raising the exception.
@@ -1186,6 +1191,11 @@ def _supports_protocol(
         if protocol_callback(value):
             return True
 
+    # pylint: disable-next=fixme
+    # TODO: Should be covered by https://github.com/PyCQA/astroid/pull/1475
+    if isinstance(value, nodes.ComprehensionScope):
+        return True
+
     if (
         isinstance(value, astroid.bases.Proxy)
         and isinstance(value._proxied, astroid.BaseInstance)
@@ -1231,7 +1241,7 @@ def supports_delitem(value: nodes.NodeNG, _: nodes.NodeNG) -> bool:
     return _supports_protocol(value, _supports_delitem_protocol)
 
 
-def _get_python_type_of_node(node):
+def _get_python_type_of_node(node: nodes.NodeNG) -> Optional[str]:
     pytype = getattr(node, "pytype", None)
     if callable(pytype):
         return pytype()
@@ -1239,13 +1249,15 @@ def _get_python_type_of_node(node):
 
 
 @lru_cache(maxsize=1024)
-def safe_infer(node: nodes.NodeNG, context=None) -> Optional[nodes.NodeNG]:
+def safe_infer(
+    node: nodes.NodeNG, context: Optional[InferenceContext] = None
+) -> Union[nodes.NodeNG, Type[astroid.Uninferable], None]:
     """Return the inferred value for the given node.
 
     Return None if inference failed or if there is some ambiguity (more than
     one node has been inferred of different types).
     """
-    inferred_types = set()
+    inferred_types: Set[Optional[str]] = set()
     try:
         infer_gen = node.infer(context=context)
         value = next(infer_gen)
@@ -1366,7 +1378,9 @@ def is_registered_in_singledispatch_function(node: nodes.FunctionDef) -> bool:
 
 
 def get_node_last_lineno(node: nodes.NodeNG) -> int:
-    """Get the last lineno of the given node. For a simple statement this will just be node.lineno,
+    """Get the last lineno of the given node.
+
+    For a simple statement this will just be node.lineno,
     but for a node that has child statements (e.g. a method) this will be the lineno of the last
     child statement recursively.
     """
@@ -1438,6 +1452,7 @@ def is_node_in_type_annotation_context(node: nodes.NodeNG) -> bool:
 
 def is_subclass_of(child: nodes.ClassDef, parent: nodes.ClassDef) -> bool:
     """Check if first node is a subclass of second node.
+
     :param child: Node to check for subclass.
     :param parent: Node to check for superclass.
     :returns: True if child is derived from parent. False otherwise.
@@ -1656,8 +1671,14 @@ def is_typing_guard(node: nodes.If) -> bool:
     ) and node.test.as_string().endswith("TYPE_CHECKING")
 
 
+def is_node_in_typing_guarded_import_block(node: nodes.NodeNG) -> bool:
+    """Return True if node is part for guarded `typing.TYPE_CHECKING` if block."""
+    return isinstance(node.parent, nodes.If) and is_typing_guard(node.parent)
+
+
 def is_node_in_guarded_import_block(node: nodes.NodeNG) -> bool:
     """Return True if node is part for guarded if block.
+
     I.e. `sys.version_info` or `typing.TYPE_CHECKING`
     """
     return isinstance(node.parent, nodes.If) and (
@@ -1731,8 +1752,9 @@ def get_node_first_ancestor_of_type_and_its_child(
     node: nodes.NodeNG, ancestor_type: Union[Type[T_Node], Tuple[Type[T_Node], ...]]
 ) -> Union[Tuple[None, None], Tuple[T_Node, nodes.NodeNG]]:
     """Modified version of get_node_first_ancestor_of_type to also return the
-    descendant visited directly before reaching the sought ancestor. Useful
-    for extracting whether a statement is guarded by a try, except, or finally
+    descendant visited directly before reaching the sought ancestor
+
+    Useful for extracting whether a statement is guarded by a try, except, or finally
     when searching for a TryFinally ancestor.
     """
     child = node

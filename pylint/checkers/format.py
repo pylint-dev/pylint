@@ -237,7 +237,9 @@ class TokenWrapper:
 
 
 class FormatChecker(BaseTokenChecker):
-    """Checks for :
+    """Formatting checker.
+
+    Checks for :
     * unauthorized constructions
     * strict indentation
     * line length
@@ -737,7 +739,9 @@ class FormatChecker(BaseTokenChecker):
         return res
 
     def check_lines(self, lines: str, lineno: int) -> None:
-        """Check lines have :
+        """Check given lines for potential messages.
+
+        Check lines have :
         - a final newline
         - no trailing whitespace
         - less than a maximum number of characters

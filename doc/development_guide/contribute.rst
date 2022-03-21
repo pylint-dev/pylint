@@ -87,8 +87,7 @@ of Pylint as it gives you access to the latest ``ast`` parser.
 
 - Add a short entry in :file:`doc/whatsnew/VERSION.rst`.
 
-- Add yourself to the `CONTRIBUTORS` file, flag yourself appropriately
-  (if in doubt, you're a ``contributor``).
+- Add yourself to the `CONTRIBUTORS.txt` file.
 
 - Write a comprehensive commit message
 

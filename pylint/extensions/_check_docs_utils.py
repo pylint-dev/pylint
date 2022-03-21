@@ -25,7 +25,7 @@
 """Utility methods for docstring checking."""
 
 import re
-from typing import List, Set, Tuple
+from typing import List, Optional, Set, Tuple
 
 import astroid
 from astroid import nodes
@@ -176,7 +176,9 @@ def possible_exc_types(node: nodes.NodeNG) -> Set[nodes.ClassDef]:
         return set()
 
 
-def docstringify(docstring: str, default_type: str = "default") -> "Docstring":
+def docstringify(
+    docstring: Optional[nodes.Const], default_type: str = "default"
+) -> "Docstring":
     best_match = (0, DOCSTRING_TYPES.get(default_type, Docstring)(docstring))
     for docstring_type in (
         SphinxDocstring,
@@ -208,9 +210,9 @@ class Docstring:
 
     # These methods are designed to be overridden
     # pylint: disable=no-self-use
-    def __init__(self, doc):
-        doc = doc or ""
-        self.doc = doc.expandtabs()
+    def __init__(self, doc: Optional[nodes.Const]) -> None:
+        docstring = doc.value if doc else ""
+        self.doc = docstring.expandtabs()
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__}:'''{self.doc}'''>"
@@ -400,7 +402,9 @@ class SphinxDocstring(Docstring):
 
 
 class EpytextDocstring(SphinxDocstring):
-    """Epytext is similar to Sphinx. See the docs:
+    """Epytext is similar to Sphinx.
+
+    See the docs:
         http://epydoc.sourceforge.net/epytext.html
         http://epydoc.sourceforge.net/fields.html#fields
 

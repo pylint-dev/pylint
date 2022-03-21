@@ -38,7 +38,10 @@ class MermaidJSPrinter(Printer):
         type_: NodeType,
         properties: Optional[NodeProperties] = None,
     ) -> None:
-        """Create a new node. Nodes can be classes, packages, participants etc."""
+        """Create a new node.
+
+        Nodes can be classes, packages, participants etc.
+        """
         if properties is None:
             properties = NodeProperties(label=name)
         stereotype = "~~Interface~~" if type_ is NodeType.INTERFACE else ""

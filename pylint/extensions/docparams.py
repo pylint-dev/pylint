@@ -219,7 +219,7 @@ class DocstringParameterChecker(BaseChecker):
         :param node: Node for a function or method definition in the AST
         :type node: :class:`astroid.scoped_nodes.Function`
         """
-        node_doc = utils.docstringify(node.doc, self.config.default_docstring_type)
+        node_doc = utils.docstringify(node.doc_node, self.config.default_docstring_type)
 
         # skip functions that match the 'no-docstring-rgx' config option
         no_docstring_rgx = get_global_option(self, "no-docstring-rgx")
@@ -244,7 +244,7 @@ class DocstringParameterChecker(BaseChecker):
             class_node = checker_utils.node_frame_class(node)
             if class_node is not None:
                 class_doc = utils.docstringify(
-                    class_node.doc, self.config.default_docstring_type
+                    class_node.doc_node, self.config.default_docstring_type
                 )
                 self.check_single_constructor_params(class_doc, node_doc, class_node)
 
@@ -298,14 +298,14 @@ class DocstringParameterChecker(BaseChecker):
         if not expected_excs:
             return
 
-        if not func_node.doc:
+        if not func_node.doc_node:
             # If this is a property setter,
             # the property should have the docstring instead.
             property_ = utils.get_setters_property(func_node)
             if property_:
                 func_node = property_
 
-        doc = utils.docstringify(func_node.doc, self.config.default_docstring_type)
+        doc = utils.docstringify(func_node.doc_node, self.config.default_docstring_type)
         if not doc.matching_sections():
             if doc.doc:
                 missing = {exc.name for exc in expected_excs}
@@ -340,7 +340,7 @@ class DocstringParameterChecker(BaseChecker):
         if not isinstance(func_node, astroid.FunctionDef):
             return
 
-        doc = utils.docstringify(func_node.doc, self.config.default_docstring_type)
+        doc = utils.docstringify(func_node.doc_node, self.config.default_docstring_type)
 
         is_property = checker_utils.decorated_with_property(func_node)
 
@@ -361,7 +361,7 @@ class DocstringParameterChecker(BaseChecker):
         if not isinstance(func_node, astroid.FunctionDef):
             return
 
-        doc = utils.docstringify(func_node.doc, self.config.default_docstring_type)
+        doc = utils.docstringify(func_node.doc_node, self.config.default_docstring_type)
 
         if doc.supports_yields:
             doc_has_yields = doc.has_yields()
@@ -492,10 +492,8 @@ class DocstringParameterChecker(BaseChecker):
         warning_node: astroid.NodeNG,
         accept_no_param_doc: Optional[bool] = None,
     ):
-        """Check that all parameters in a function, method or class constructor
-        on the one hand and the parameters mentioned in the parameter
-        documentation (e.g. the Sphinx tags 'param' and 'type') on the other
-        hand are consistent with each other.
+        """Check that all parameters are consistent with the parameters mentioned
+        in the parameter documentation (e.g. the Sphinx tags 'param' and 'type').
 
         * Undocumented parameters except 'self' are noticed.
         * Undocumented parameter types except for 'self' and the ``*<args>``

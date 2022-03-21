@@ -1,0 +1,107 @@
+{
+  "31762852+mbyrnepr2@users.noreply.github.com": {
+    "mails": ["31762852+mbyrnepr2@users.noreply.github.com", "mbyrnepr2@gmail.com"],
+    "name": "Mark Byrne"
+  },
+  "36848472+yushao2@users.noreply.github.com": {
+    "mails": ["36848472+yushao2@users.noreply.github.com", "p.yushao2@gmail.com"],
+    "name": "Yu Shao, Pang"
+  },
+  "andi.finkler@gmail.com": {
+    "mails": ["andi.finkler@gmail.com", "3929834+DudeNr33@users.noreply.github.com"],
+    "name": "Andreas Finkler"
+  },
+  "ashley@awhetter.co.uk": {
+    "mails": [
+      "ashley@awhetter.co.uk",
+      "awhetter.2011@my.bristol.ac.uk",
+      "asw@dneg.com",
+      "AWhetter@users.noreply.github.com"
+    ],
+    "name": "Ashley Whetter"
+  },
+  "bot@noreply.github.com": {
+    "mails": [
+      "66853113+pre-commit-ci[bot]@users.noreply.github.com",
+      "49699333+dependabot[bot]@users.noreply.github.com"
+    ],
+    "name": "bot"
+  },
+  "contact@logilab.fr": {
+    "mails": [
+      "alexandre.fayolle@logilab.fr",
+      "emile.anclin@logilab.fr",
+      "david.douard@logilab.fr",
+      "laura.medioni@logilab.fr",
+      "anthony.truchet@logilab.fr",
+      "alain.leufroy@logilab.fr",
+      "julien.cristau@logilab.fr",
+      "Adrien.DiMascio@logilab.fr",
+      "emile@crater.logilab.fr",
+      "sylvain.thenault@logilab.fr",
+      "pierre-yves.david@logilab.fr",
+      "nicolas.chauvat@logilab.fr",
+      "afayolle.ml@free.fr",
+      "aurelien.campeas@logilab.fr",
+      "charles.hebert@logilab.fr",
+      "julien.jehannet@logilab.fr",
+      "lmedioni@logilab.fr"
+    ],
+    "name": "LOGILAB S.A. (Paris, FRANCE)"
+  },
+  "ejfine@gmail.com": {
+    "mails": [
+      "ubuntu@ip-172-31-89-59.ec2.internal",
+      "eli88fine@gmail.com",
+      "ejfine@gmail.com"
+    ],
+    "name": "Eli Fine"
+  },
+  "matusvalo@users.noreply.github.com": {
+    "mails": ["matusvalo@users.noreply.github.com", "matusvalo@gmail.com"],
+    "name": "Matus Valo"
+  },
+  "moylop260@vauxoo.com": {
+    "mails": ["moylop260@vauxoo.com"],
+    "name": "Moises Lopez"
+  },
+  "nickpesce22@gmail.com": {
+    "mails": ["nickpesce22@gmail.com", "npesce@terpmail.umd.edu"],
+    "name": "Nick Pesce"
+  },
+  "no-reply@google.com": {
+    "mails": [
+      "nathaniel@google.com",
+      "mbp@google.com",
+      "tmarek@google.com",
+      "shlomme@gmail.com",
+      "balparda@google.com",
+      "dlindquist@google.com"
+    ],
+    "name": "Google, Inc."
+  },
+  "or.ba402@gmail.com": {
+    "mails": ["or.ba402@gmail.com", "orbahari@mail.tau.ac.il"],
+    "name": "Or Bahari"
+  },
+  "pcmanticore@gmail.com": {
+    "mails": ["cpopa@cloudbasesolutions.com", "pcmanticore@gmail.com"],
+    "name": "Claudiu Popa"
+  },
+  "pierre.sassoulas@gmail.com": {
+    "mails": [
+      "pierre.sassoulas@gmail.com",
+      "pierre.sassoulas@cea.fr",
+      "pierre.sassoulas@wisebim.fr"
+    ],
+    "name": "Pierre Sassoulas"
+  },
+  "tushar.sadhwani000@gmail.com": {
+    "mails": ["tushar.sadhwani000@gmail.com", "tushar@deepsource.io"],
+    "name": "Tushar Sadhwani"
+  },
+  "ville.skytta@iki.fi": {
+    "mails": ["ville.skytta@iki.fi", "ville.skytta@upcloud.com"],
+    "name": "Ville Skyttä"
+  }
+}

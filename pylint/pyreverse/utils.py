@@ -224,13 +224,12 @@ class LocalsVisitor(ASTWalker):
         return None
 
 
-def get_annotation_label(ann: Union[nodes.Name, nodes.Subscript]) -> str:
-    label = ""
-    if isinstance(ann, nodes.Subscript):
-        label = ann.as_string()
-    elif isinstance(ann, nodes.Name):
-        label = ann.name
-    return label
+def get_annotation_label(ann: Union[nodes.Name, nodes.NodeNG]) -> str:
+    if isinstance(ann, nodes.Name) and ann.name is not None:
+        return ann.name
+    if isinstance(ann, nodes.NodeNG):
+        return ann.as_string()
+    return ""
 
 
 def get_annotation(
@@ -286,6 +285,7 @@ def infer_node(node: Union[nodes.AssignAttr, nodes.AssignName]) -> set:
 
 def check_graphviz_availability():
     """Check if the ``dot`` command is available on the machine.
+
     This is needed if image output is desired and ``dot`` is used to convert
     from *.dot or *.gv into the final output format.
     """
