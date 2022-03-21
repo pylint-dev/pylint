@@ -4,6 +4,7 @@ coveralls~=3.3
 coverage~=6.2
 pre-commit~=2.17;python_full_version>="3.6.2"
 tbump~=6.6.0
+contributors-txt>=0.7.3
 pyenchant~=3.2
 pytest-cov~=3.0
 pytest-profiling~=1.7
