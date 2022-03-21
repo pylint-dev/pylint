@@ -1,19 +1,17 @@
-[
-  {
+{
+  "pcmanticore@gmail.com": {
     "mails": ["cpopa@cloudbasesolutions.com", "pcmanticore@gmail.com"],
-    "authoritative_mail": "pcmanticore@gmail.com",
     "name": "Claudiu Popa"
   },
-  {
+  "pierre.sassoulas@gmail.com": {
     "mails": [
       "pierre.sassoulas@gmail.com",
       "pierre.sassoulas@cea.fr",
       "pierre.sassoulas@wisebim.fr"
     ],
-    "authoritative_mail": "pierre.sassoulas@gmail.com",
     "name": "Pierre Sassoulas"
   },
-  {
+  "contact@logilab.fr": {
     "mails": [
       "alexandre.fayolle@logilab.fr",
       "emile.anclin@logilab.fr",
@@ -33,15 +31,13 @@
       "julien.jehannet@logilab.fr",
       "lmedioni@logilab.fr"
     ],
-    "authoritative_mail": "contact@logilab.fr",
     "name": "LOGILAB S.A. (Paris, FRANCE)"
   },
-  {
+  "moylop260@vauxoo.com": {
     "mails": ["moylop260@vauxoo.com"],
-    "name": "Moises Lopez",
-    "authoritative_mail": "moylop260@vauxoo.com"
+    "name": "Moises Lopez"
   },
-  {
+  "no-reply@google.com": {
     "mails": [
       "nathaniel@google.com",
       "mbp@google.com",
@@ -52,71 +48,60 @@
     ],
     "name": "Google, Inc."
   },
-  {
+  "ashley@awhetter.co.uk": {
     "mails": [
       "ashley@awhetter.co.uk",
       "awhetter.2011@my.bristol.ac.uk",
       "asw@dneg.com",
       "AWhetter@users.noreply.github.com"
     ],
-    "name": "Ashley Whetter",
-    "authoritative_mail": "ashley@awhetter.co.uk"
+    "name": "Ashley Whetter"
   },
-  {
+  "ville.skytta@iki.fi": {
     "mails": ["ville.skytta@iki.fi", "ville.skytta@upcloud.com"],
-    "authoritative_mail": "ville.skytta@iki.fi",
     "name": "Ville Skyttä"
   },
-  {
+  "ejfine@gmail.com": {
     "mails": [
       "ubuntu@ip-172-31-89-59.ec2.internal",
       "eli88fine@gmail.com",
       "ejfine@gmail.com"
     ],
-    "authoritative_mail": "ejfine@gmail.com",
     "name": "Eli Fine"
   },
-  {
+  "andi.finkler@gmail.com": {
     "mails": ["andi.finkler@gmail.com", "3929834+DudeNr33@users.noreply.github.com"],
-    "authoritative_mail": "andi.finkler@gmail.com",
     "name": "Andreas Finkler"
   },
-  {
+  "matusvalo@users.noreply.github.com": {
     "mails": ["matusvalo@users.noreply.github.com", "matusvalo@gmail.com"],
-    "authoritative_mail": "matusvalo@users.noreply.github.com",
     "name": "Matus Valo"
   },
-  {
+  "nickpesce22@gmail.com": {
     "mails": ["nickpesce22@gmail.com", "npesce@terpmail.umd.edu"],
-    "authoritative_mail": "nickpesce22@gmail.com",
     "name": "Nick Pesce"
   },
-  {
+  "31762852+mbyrnepr2@users.noreply.github.com": {
     "mails": ["31762852+mbyrnepr2@users.noreply.github.com", "mbyrnepr2@gmail.com"],
-    "authoritative_mail": "31762852+mbyrnepr2@users.noreply.github.com",
     "name": "Mark Byrne"
   },
-  {
+  "36848472+yushao2@users.noreply.github.com": {
     "mails": ["36848472+yushao2@users.noreply.github.com", "p.yushao2@gmail.com"],
-    "authoritative_mail": "36848472+yushao2@users.noreply.github.com",
     "name": "Yu Shao, Pang"
   },
-  {
+  "bot@noreply.github.com": {
     "mails": [
       "66853113+pre-commit-ci[bot]@users.noreply.github.com",
       "49699333+dependabot[bot]@users.noreply.github.com"
     ],
-    "authoritative_mail": "bot@noreply.github.com",
     "name": "bot"
   },
-  {
+  "tushar.sadhwani000@gmail.com": {
     "mails": ["tushar.sadhwani000@gmail.com", "tushar@deepsource.io"],
-    "authoritative_mail": "tushar.sadhwani000@gmail.com",
     "name": "Tushar Sadhwani"
   },
-  {
+  "or.ba402@gmail.com": {
     "mails": ["or.ba402@gmail.com", "orbahari@mail.tau.ac.il"],
-    "name": "Or Bahari",
-    "authoritative_mail": "or.ba402@gmail.com"
+    "name": "Or Bahari"
   }
-]
+}
