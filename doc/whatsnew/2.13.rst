@@ -267,6 +267,11 @@ Other Changes
 
   Closes #5724
 
+* Fix false positive for ``used-before-assignment`` from a class definition
+  nested under a function subclassing a class defined outside the function.
+
+  Closes #4590
+
 * Fix ``unnecessary_dict_index_lookup`` false positive when deleting a dictionary's entry.
 
   Closes #4716
