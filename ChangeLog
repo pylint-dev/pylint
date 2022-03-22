@@ -17,6 +17,10 @@ Release date: TBA
   Ref PyCQA/astroid#1360
   Closes #4826
 
+* Output better error message if unsupported file formats are used with ``pyreverse``.
+
+  Closes #5950
+
 * Fix pyreverse diagrams type hinting for classmethods and staticmethods.
 
 * Fix pyreverse diagrams type hinting for methods returning None.
