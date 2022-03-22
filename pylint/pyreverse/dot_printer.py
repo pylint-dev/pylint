@@ -19,7 +19,7 @@ from typing import Dict, FrozenSet, List, Optional
 from astroid import nodes
 
 from pylint.pyreverse.printer import EdgeType, Layout, NodeProperties, NodeType, Printer
-from pylint.pyreverse.utils import check_graphviz_availability, get_annotation_label
+from pylint.pyreverse.utils import get_annotation_label
 
 ALLOWED_CHARSETS: FrozenSet[str] = frozenset(("utf-8", "iso-8859-1", "latin1"))
 SHAPES: Dict[NodeType, str] = {
@@ -152,7 +152,6 @@ class DotPrinter(Printer):
         with open(dot_sourcepath, "w", encoding="utf8") as outfile:
             outfile.writelines(self.lines)
         if target not in graphviz_extensions:
-            check_graphviz_availability()
             use_shell = sys.platform == "win32"
             subprocess.call(
                 ["dot", "-T", target, dot_sourcepath, "-o", outputfile],

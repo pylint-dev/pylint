@@ -32,7 +32,20 @@ from pylint.lint.utils import fix_import_path
 from pylint.pyreverse import writer
 from pylint.pyreverse.diadefslib import DiadefsHandler
 from pylint.pyreverse.inspector import Linker, project_from_files
-from pylint.pyreverse.utils import check_graphviz_availability, insert_default_options
+from pylint.pyreverse.utils import (
+    check_graphviz_availability,
+    check_if_graphviz_supports_format,
+    insert_default_options,
+)
+
+DIRECTLY_SUPPORTED_FORMATS = (
+    "dot",
+    "vcg",
+    "puml",
+    "plantuml",
+    "mmd",
+    "html",
+)
 
 OPTIONS = (
     (
@@ -139,7 +152,10 @@ OPTIONS = (
             action="store",
             default="dot",
             metavar="<format>",
-            help="create a *.<format> output file if format available.",
+            help=(
+                f"create a *.<format> output file if format is available. Available formats are: {', '.join(DIRECTLY_SUPPORTED_FORMATS)}. "
+                f"Any other format will be tried to create by means of the 'dot' command line tool, which requires a graphviz installation."
+            ),
         ),
     ),
     (
@@ -205,15 +221,12 @@ class Run(ConfigurationMixIn):
         super().__init__(usage=__doc__)
         insert_default_options()
         args = self.load_command_line_configuration(args)
-        if self.config.output_format not in (
-            "dot",
-            "vcg",
-            "puml",
-            "plantuml",
-            "mmd",
-            "html",
-        ):
+        if self.config.output_format not in DIRECTLY_SUPPORTED_FORMATS:
             check_graphviz_availability()
+            print(
+                f"Format {self.config.output_format} is not supported natively. Pyreverse will try to generate it using Graphviz..."
+            )
+            check_if_graphviz_supports_format(self.config.output_format)
 
         sys.exit(self.run(args))
 
