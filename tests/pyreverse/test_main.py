@@ -61,7 +61,7 @@ def test_project_root_in_sys_path():
 @pytest.mark.usefixtures("mock_graphviz")
 def test_graphviz_supported_image_format(mock_writer, capsys):
     """Test that Graphviz is used if the image format is supported."""
-    with pytest.raises(SystemExit):
+    with pytest.raises(SystemExit) as wrapped_sysexit:
         # we have to catch the SystemExit so the test execution does not stop
         main.Run(["-o", "png", TEST_DATA_DIR])
     # Check that the right info message is shown to the user
@@ -69,8 +69,9 @@ def test_graphviz_supported_image_format(mock_writer, capsys):
         "Format png is not supported natively. Pyreverse will try to generate it using Graphviz..."
         in capsys.readouterr().out
     )
-    # Check that pyreverse actually made the call to create the diagram
+    # Check that pyreverse actually made the call to create the diagram and we exit cleanly
     mock_writer.DiagramWriter().write.assert_called_once()
+    assert wrapped_sysexit.value.code == 0
 
 
 @mock.patch("pylint.pyreverse.main.Linker", new=mock.MagicMock())
@@ -82,7 +83,7 @@ def test_graphviz_cant_determine_supported_formats(
 ):
     """Test that Graphviz is used if the image format is supported."""
     mock_subprocess.run.return_value.stderr = "..."
-    with pytest.raises(SystemExit):
+    with pytest.raises(SystemExit) as wrapped_sysexit:
         # we have to catch the SystemExit so the test execution does not stop
         main.Run(["-o", "png", TEST_DATA_DIR])
     # Check that the right info message is shown to the user
@@ -90,8 +91,9 @@ def test_graphviz_cant_determine_supported_formats(
         "Unable to determine Graphviz supported output formats."
         in capsys.readouterr().out
     )
-    # Check that pyreverse actually made the call to create the diagram
+    # Check that pyreverse actually made the call to create the diagram and we exit cleanly
     mock_writer.DiagramWriter().write.assert_called_once()
+    assert wrapped_sysexit.value.code == 0
 
 
 @mock.patch("pylint.pyreverse.main.Linker", new=mock.MagicMock())

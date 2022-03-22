@@ -291,10 +291,7 @@ def check_graphviz_availability():
     from *.dot or *.gv into the final output format.
     """
     if shutil.which("dot") is None:
-        print(
-            "The requested output format is currently not available.\n"
-            "Please install 'Graphviz' to have image output formats."
-        )
+        print("'Graphviz' needs to be installed for your chosen output format.")
         sys.exit(32)
 
 
