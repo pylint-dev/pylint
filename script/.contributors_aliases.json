@@ -472,6 +472,10 @@
     "name": "Pierre Sassoulas",
     "team": "Maintainers"
   },
+  "pnlbagan@gmail.com": {
+    "mails": ["pnlbagan@gmail.com"],
+    "name": "Sasha Bagan"
+  },
   "raphael@makeleaps.com": {
     "mails": ["raphael@rtpg.co", "raphael@makeleaps.com"],
     "name": "Raphael Gaschignard"
@@ -529,7 +533,7 @@
   },
   "tanant@users.noreply.github.com": {
     "mails": ["tanant@users.noreply.github.com"],
-    "name": "Anthony"
+    "name": "Anthony Tan"
   },
   "thenault@gmail.com": {
     "mails": ["thenault@gmail.com", "sylvain.thenault@logilab.fr"],
