@@ -12,9 +12,10 @@ from typing import TYPE_CHECKING, Any, Dict, Iterator, Optional, Pattern, Tuple,
 import astroid
 from astroid import nodes
 
-from pylint import checkers, constants, interfaces
+from pylint import constants, interfaces
 from pylint import utils as lint_utils
 from pylint.checkers import utils
+from pylint.checkers.base.basic_checker import _BasicChecker
 from pylint.checkers.utils import (
     infer_all,
     is_overload_stub,
@@ -396,11 +397,6 @@ def redefined_by_decorator(node):
             ):
                 return True
     return False
-
-
-class _BasicChecker(checkers.BaseChecker):
-    __implements__ = interfaces.IAstroidChecker
-    name = "basic"
 
 
 class BasicErrorChecker(_BasicChecker):
