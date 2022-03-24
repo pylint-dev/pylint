@@ -1,9 +1,11 @@
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
 # ORIGINAL here: https://github.com/PyCQA/astroid/blob/main/script/bump_changelog.py
 # DO NOT MODIFY DIRECTLY
 
-"""
-This script permits to upgrade the changelog in astroid or pylint when releasing a version.
-"""
+"""This script permits to upgrade the changelog in astroid or pylint when releasing a version."""
 # pylint: disable=logging-fstring-interpolation
 import argparse
 import enum

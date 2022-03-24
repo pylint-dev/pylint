@@ -1,0 +1,3 @@
+[MASTER]
+ignore-patterns=""
+disable=non-ascii-name

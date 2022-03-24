@@ -1,5 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 import copy
 import optparse  # pylint: disable=deprecated-module
@@ -128,7 +129,7 @@ def _call_validator(opttype, optdict, option, value):
 
 
 def _validate(value, optdict, name=""):
-    """return a validated value for an option according to its type
+    """Return a validated value for an option according to its type.
 
     optional argument name is only used for error message formatting
     """

@@ -1,13 +1,19 @@
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
 import sys
-from typing import List, Optional, Set, Tuple, Type, Union, cast
+from typing import TYPE_CHECKING, List, Optional, Set, Tuple, Type, Union, cast
 
 from astroid import nodes
 
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import check_messages, safe_infer
 from pylint.interfaces import IAstroidChecker
-from pylint.lint import PyLinter
 from pylint.utils.utils import get_global_option
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 if sys.version_info >= (3, 10):
     from typing import TypeGuard
@@ -26,7 +32,7 @@ class CodeStyleChecker(BaseChecker):
        i.e. detect a common issue or improve performance
        => it should probably be part of the core checker classes
     2. Is it something that would improve code consistency,
-       maybe because it's slightly better with regards to performance
+       maybe because it's slightly better with regard to performance
        and therefore preferred => this is the right place
     3. Everything else should go into another extension
     """
@@ -72,7 +78,7 @@ class CodeStyleChecker(BaseChecker):
         ),
     )
 
-    def __init__(self, linter: PyLinter) -> None:
+    def __init__(self, linter: "PyLinter") -> None:
         """Initialize checker instance."""
         super().__init__(linter=linter)
 
@@ -250,6 +256,7 @@ class CodeStyleChecker(BaseChecker):
         prev_sibling: Optional[nodes.NodeNG], name: Optional[str]
     ) -> TypeGuard[Union[nodes.Assign, nodes.AnnAssign]]:
         """Check if previous sibling is an assignment with the same name.
+
         Ignore statements which span multiple lines.
         """
         if prev_sibling is None or prev_sibling.tolineno - prev_sibling.fromlineno != 0:
@@ -274,7 +281,7 @@ class CodeStyleChecker(BaseChecker):
     def _check_ignore_assignment_expr_suggestion(
         node: nodes.If, name: Optional[str]
     ) -> bool:
-        """Return True if suggestion for assignment expr should be ignore.
+        """Return True if suggestion for assignment expr should be ignored.
 
         E.g., in cases where a match statement would be a better fit
         (multiple conditions).
@@ -303,5 +310,5 @@ class CodeStyleChecker(BaseChecker):
         return False
 
 
-def register(linter: PyLinter) -> None:
+def register(linter: "PyLinter") -> None:
     linter.register_checker(CodeStyleChecker(linter))

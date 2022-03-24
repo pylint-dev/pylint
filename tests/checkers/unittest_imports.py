@@ -1,21 +1,6 @@
-# Copyright (c) 2015-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2015 Dmitry Pribysh <dmand@yandex.ru>
-# Copyright (c) 2015 Cezar <celnazli@bitdefender.com>
-# Copyright (c) 2015 James Morgensen <james.morgensen@gmail.com>
-# Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
-# Copyright (c) 2018 Hornwitser <github@hornwitser.no>
-# Copyright (c) 2018 Marianna Polatoglou <mpolatoglou@bloomberg.net>
-# Copyright (c) 2018 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019 Nick Drozd <nicholasdrozd@gmail.com>
-# Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Unit tests for the imports checker."""
 
@@ -60,8 +45,11 @@ class TestImportsChecker(CheckerTestCase):
             f"{os.path.join(REGR_DATA, 'beyond_top_two')} -d all -e relative-beyond-top-level",
             return_std=True,
         )
+        top_level_function = os.path.join(
+            REGR_DATA, "beyond_top_two/namespace_package/top_level_function.py"
+        )
         output2, errors2 = lint.py_run(
-            f"{os.path.join(REGR_DATA, 'beyond_top_two/namespace_package/top_level_function.py')} -d all -e relative-beyond-top-level",
+            f"{top_level_function} -d all -e relative-beyond-top-level",
             return_std=True,
         )
 

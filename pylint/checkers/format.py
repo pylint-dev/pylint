@@ -1,53 +1,10 @@
-# Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2012-2015 Google, Inc.
-# Copyright (c) 2013 moxian <aleftmail@inbox.ru>
-# Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2014 frost-nzcr4 <frost.nzcr4@jagmort.com>
-# Copyright (c) 2014 Brett Cannon <brett@python.org>
-# Copyright (c) 2014 Michal Nowikowski <godfryd@gmail.com>
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015 Mike Frysinger <vapier@gentoo.org>
-# Copyright (c) 2015 Fabio Natali <me@fabionatali.com>
-# Copyright (c) 2015 Harut <yes@harutune.name>
-# Copyright (c) 2015 Mihai Balint <balint.mihai@gmail.com>
-# Copyright (c) 2015 Pavel Roskin <proski@gnu.org>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016 Petr Pulc <petrpulc@gmail.com>
-# Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
-# Copyright (c) 2016 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2017, 2019-2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2017-2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
-# Copyright (c) 2017 Krzysztof Czapla <k.czapla68@gmail.com>
-# Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
-# Copyright (c) 2017 James M. Allen <james.m.allen@gmail.com>
-# Copyright (c) 2017 vinnyrose <vinnyrose@users.noreply.github.com>
-# Copyright (c) 2018-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2018, 2020 Bryce Guinta <bryce.guinta@protonmail.com>
-# Copyright (c) 2018, 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2018 Lucas Cimon <lucas.cimon@gmail.com>
-# Copyright (c) 2018 Michael Hudson-Doyle <michael.hudson@canonical.com>
-# Copyright (c) 2018 Natalie Serebryakova <natalie.serebryakova@Natalies-MacBook-Pro.local>
-# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
-# Copyright (c) 2018 Marcus Näslund <naslundx@gmail.com>
-# Copyright (c) 2018 Mike Frysinger <vapier@gmail.com>
-# Copyright (c) 2018 Fureigh <rhys.fureigh@gsa.gov>
-# Copyright (c) 2018 Andreas Freimuth <andreas.freimuth@united-bits.de>
-# Copyright (c) 2018 Jakub Wilk <jwilk@jwilk.net>
-# Copyright (c) 2019 Nick Drozd <nicholasdrozd@gmail.com>
-# Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2020 Raphael Gaschignard <raphael@rtpg.co>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Tushar Sadhwani <tushar.sadhwani000@gmail.com>
-# Copyright (c) 2021 bot <bot@noreply.github.com>
-# Copyright (c) 2021 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Python code format's checker.
 
-By default try to follow Guido's style guide :
+By default, try to follow Guido's style guide :
 
 https://www.python.org/doc/essays/styleguide/
 
@@ -56,7 +13,7 @@ Some parts of the process_token method is based from The Tab Nanny std module.
 
 import tokenize
 from functools import reduce
-from typing import List
+from typing import TYPE_CHECKING, List
 
 from astroid import nodes
 
@@ -70,6 +27,10 @@ from pylint.checkers.utils import (
 from pylint.constants import WarningScope
 from pylint.interfaces import IAstroidChecker, IRawChecker, ITokenChecker
 from pylint.utils.pragma_parser import OPTION_PO, PragmaParserError, parse_pragma
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
+
 
 _ASYNC_TOKEN = "async"
 _KEYWORD_TOKENS = [
@@ -233,7 +194,9 @@ class TokenWrapper:
 
 
 class FormatChecker(BaseTokenChecker):
-    """checks for :
+    """Formatting checker.
+
+    Checks for :
     * unauthorized constructions
     * strict indentation
     * line length
@@ -344,7 +307,7 @@ class FormatChecker(BaseTokenChecker):
         self._bracket_stack = [None]
 
     def new_line(self, tokens, line_end, line_start):
-        """a new line has been encountered, process it if necessary"""
+        """A new line has been encountered, process it if necessary."""
         if _last_token_on_line_is(tokens, line_end, ";"):
             self.add_message("unnecessary-semicolon", line=tokens.start_line(line_end))
 
@@ -467,7 +430,7 @@ class FormatChecker(BaseTokenChecker):
         return dispatch
 
     def process_tokens(self, tokens):
-        """process tokens and search for :
+        """Process tokens and search for :
 
         _ too long lines (i.e. longer than <max_chars>)
         _ optionally bad construct (if given, bad_construct must be a compiled
@@ -586,7 +549,7 @@ class FormatChecker(BaseTokenChecker):
 
     @check_messages("multiple-statements")
     def visit_default(self, node: nodes.NodeNG) -> None:
-        """check the node line number and check it if not yet done"""
+        """Check the node line number and check it if not yet done."""
         if not node.is_statement:
             return
         if not node.root().pure_python:
@@ -594,7 +557,7 @@ class FormatChecker(BaseTokenChecker):
         prev_sibl = node.previous_sibling()
         if prev_sibl is not None:
             prev_line = prev_sibl.fromlineno
-        # The line on which a finally: occurs in a try/finally
+        # The line on which a 'finally': occurs in a 'try/finally'
         # is not directly represented in the AST. We infer it
         # by taking the last line of the body and adding 1, which
         # should be the line of finally:
@@ -657,7 +620,7 @@ class FormatChecker(BaseTokenChecker):
             and isinstance(node.value, nodes.Const)
             and node.value.value is Ellipsis
         ):
-            frame = node.frame()
+            frame = node.frame(future=True)
             if is_overload_stub(frame) or is_protocol_class(node_frame_class(frame)):
                 return
 
@@ -665,9 +628,7 @@ class FormatChecker(BaseTokenChecker):
         self._visited_lines[line] = 2
 
     def check_line_ending(self, line: str, i: int) -> None:
-        """
-        Check that the final newline is not missing and that there is no trailing whitespace.
-        """
+        """Check that the final newline is not missing and that there is no trailing whitespace."""
         if not line.endswith("\n"):
             self.add_message("missing-final-newline", line=i)
             return
@@ -679,9 +640,7 @@ class FormatChecker(BaseTokenChecker):
             )
 
     def check_line_length(self, line: str, i: int, checker_off: bool) -> None:
-        """
-        Check that the line length is less than the authorized value
-        """
+        """Check that the line length is less than the authorized value."""
         max_chars = self.config.max_line_length
         ignore_long_line = self.config.ignore_long_lines
         line = line.rstrip()
@@ -693,9 +652,7 @@ class FormatChecker(BaseTokenChecker):
 
     @staticmethod
     def remove_pylint_option_from_lines(options_pattern_obj) -> str:
-        """
-        Remove the `# pylint ...` pattern from lines
-        """
+        """Remove the `# pylint ...` pattern from lines."""
         lines = options_pattern_obj.string
         purged_lines = (
             lines[: options_pattern_obj.start(1)].rstrip()
@@ -705,9 +662,7 @@ class FormatChecker(BaseTokenChecker):
 
     @staticmethod
     def is_line_length_check_activated(pylint_pattern_match_object) -> bool:
-        """
-        Return true if the line length check is activated
-        """
+        """Return true if the line length check is activated."""
         try:
             for pragma in parse_pragma(pylint_pattern_match_object.group(2)):
                 if pragma.action == "disable" and "line-too-long" in pragma.messages:
@@ -719,9 +674,7 @@ class FormatChecker(BaseTokenChecker):
 
     @staticmethod
     def specific_splitlines(lines: str) -> List[str]:
-        """
-        Split lines according to universal newlines except those in a specific sets
-        """
+        """Split lines according to universal newlines except those in a specific sets."""
         unsplit_ends = {
             "\v",
             "\x0b",
@@ -745,11 +698,12 @@ class FormatChecker(BaseTokenChecker):
         return res
 
     def check_lines(self, lines: str, lineno: int) -> None:
-        """
+        """Check given lines for potential messages.
+
         Check lines have :
-            - a final newline
-            - no trailing whitespace
-            - less than a maximum number of characters
+        - a final newline
+        - no trailing whitespace
+        - less than a maximum number of characters
         """
         # we're first going to do a rough check whether any lines in this set
         # go over the line limit. If none of them do, then we don't need to
@@ -795,7 +749,7 @@ class FormatChecker(BaseTokenChecker):
             self.check_line_length(line, lineno + offset, checker_off)
 
     def check_indent_level(self, string, expected, line_num):
-        """return the indent level of the string"""
+        """Return the indent level of the string."""
         indent = self.config.indent_string
         if indent == "\\t":  # \t is not interpreted in the configuration file
             indent = "\t"
@@ -819,6 +773,5 @@ class FormatChecker(BaseTokenChecker):
             )
 
 
-def register(linter):
-    """required method to auto register this checker"""
+def register(linter: "PyLinter") -> None:
     linter.register_checker(FormatChecker(linter))

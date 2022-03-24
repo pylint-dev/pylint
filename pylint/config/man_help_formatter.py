@@ -1,12 +1,12 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 import optparse  # pylint: disable=deprecated-module
 import sys
 import time
 
 
-# pylint: disable=abstract-method; by design?
 class _ManHelpFormatter(optparse.HelpFormatter):
     def __init__(
         self, indent_increment=0, max_help_position=24, width=79, short_first=0
@@ -106,6 +106,10 @@ Please report bugs on the project\'s mailing list:
 {pkginfo.copyright}
 """
         return tail
+
+    def format_usage(self, usage):
+        """Taken from optparse.IndentedHelpFormatter."""
+        return f"Usage: {usage}\n"
 
 
 def _generate_manpage(optparser, pkginfo, section=1, stream=sys.stdout, level=0):

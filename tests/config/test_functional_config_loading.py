@@ -1,12 +1,12 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-"""
-This launches the configuration functional tests. This permits to test configuration
+"""This launches the configuration functional tests. This permits to test configuration
 files by providing a file with the appropriate extension in the ``tests/config/functional``
 directory.
 
-Let's say you have a regression_list_crash.toml file to test. Then if there is an error in the conf,
+Let's say you have a regression_list_crash.toml file to test. Then, if there is an error in the conf,
 add ``regression_list_crash.out`` alongside your file with the expected output of pylint in it. Use
 ``{relpath}`` and ``{abspath}`` for the path of the file. The exit code will have to be 2 (error)
 if this file exists.
@@ -34,8 +34,8 @@ from pylint.testutils.configuration_test import (
 HERE = Path(__file__).parent
 USER_SPECIFIC_PATH = HERE.parent.parent
 FUNCTIONAL_DIR = HERE / "functional"
-# We use string then recast to path so we can use -k in pytest.
-# Otherwise we get 'configuration_path0' as a test name. The path is relative to the functional
+# We use string then recast to path, so we can use -k in pytest.
+# Otherwise, we get 'configuration_path0' as a test name. The path is relative to the functional
 # directory because otherwise the string would be very lengthy.
 ACCEPTED_CONFIGURATION_EXTENSIONS = ("toml", "ini", "cfg")
 CONFIGURATION_PATHS = [
@@ -83,7 +83,7 @@ def test_functional_config_loading(
     )
     mock_exit.assert_called_once_with(expected_code)
     out, err = capsys.readouterr()
-    # rstrip() applied so we can have a final newline in the expected test file
+    # 'rstrip()' applied, so we can have a final newline in the expected test file
     assert expected_output.rstrip() == out.rstrip(), msg
     assert sorted(expected_loaded_configuration.keys()) == sorted(
         runner.linter.config.__dict__.keys()

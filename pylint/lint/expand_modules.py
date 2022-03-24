@@ -1,3 +1,7 @@
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
 import os
 import sys
 from typing import List, Pattern, Tuple
@@ -8,8 +12,8 @@ from pylint.typing import ErrorDescriptionDict, ModuleDescriptionDict
 
 
 def _modpath_from_file(filename, is_namespace, path=None):
-    def _is_package_cb(path, parts):
-        return modutils.check_modpath_has_init(path, parts) or is_namespace
+    def _is_package_cb(inner_path, parts):
+        return modutils.check_modpath_has_init(inner_path, parts) or is_namespace
 
     return modutils.modpath_from_file_with_callback(
         filename, path=path, is_package_cb=_is_package_cb
@@ -18,7 +22,10 @@ def _modpath_from_file(filename, is_namespace, path=None):
 
 def get_python_path(filepath: str) -> str:
     """TODO This get the python path with the (bad) assumption that there is always
-    an __init__.py. This is not true since python 3.3 and is causing problem."""
+    an __init__.py
+
+    This is not true since python 3.3 and is causing problem.
+    """
     dirname = os.path.realpath(os.path.expanduser(filepath))
     if not os.path.isdir(dirname):
         dirname = os.path.dirname(dirname)
@@ -32,7 +39,7 @@ def get_python_path(filepath: str) -> str:
 
 
 def _is_in_ignore_list_re(element: str, ignore_list_re: List[Pattern]) -> bool:
-    """determines if the element is matched in a regex ignore-list"""
+    """Determines if the element is matched in a regex ignore-list."""
     return any(file_pattern.match(element) for file_pattern in ignore_list_re)
 
 
@@ -42,7 +49,7 @@ def expand_modules(
     ignore_list_re: List[Pattern],
     ignore_list_paths_re: List[Pattern[str]],
 ) -> Tuple[List[ModuleDescriptionDict], List[ErrorDescriptionDict]]:
-    """take a list of files/modules/packages and return the list of tuple
+    """Take a list of files/modules/packages and return the list of tuple
     (file, module name) which have to be actually checked
     """
     result: List[ModuleDescriptionDict] = []

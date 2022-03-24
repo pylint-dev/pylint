@@ -1,7 +1,8 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-"""Special methods checker and helper function's module"""
+"""Special methods checker and helper function's module."""
 
 import astroid
 from astroid import nodes
@@ -21,11 +22,10 @@ NEXT_METHOD = "__next__"
 
 
 def _safe_infer_call_result(node, caller, context=None):
-    """
-    Safely infer the return value of a function.
+    """Safely infer the return value of a function.
 
     Returns None if inference failed or if there is some ambiguity (more than
-    one node has been inferred). Otherwise returns inferred value.
+    one node has been inferred). Otherwise, returns inferred value.
     """
     try:
         inferit = node.infer_call_result(caller, context=context)
@@ -289,6 +289,11 @@ class SpecialMethodsChecker(BaseChecker):
             return True
         if isinstance(node, astroid.bases.Generator):
             # Generators can be iterated.
+            return True
+        # pylint: disable-next=fixme
+        # TODO: Should be covered by https://github.com/PyCQA/astroid/pull/1475
+        if isinstance(node, nodes.ComprehensionScope):
+            # Comprehensions can be iterated.
             return True
 
         if isinstance(node, astroid.Instance):

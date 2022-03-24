@@ -1,13 +1,15 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 from pylint.config.option_manager_mixin import OptionsManagerMixIn
 from pylint.config.options_provider_mixin import OptionsProviderMixIn
 
 
 class ConfigurationMixIn(OptionsManagerMixIn, OptionsProviderMixIn):
-    """basic mixin for simple configurations which don't need the
-    manager / providers model"""
+    """Basic mixin for simple configurations which don't need the
+    manager / providers model
+    """
 
     def __init__(self, *args, **kwargs):
         if not args:

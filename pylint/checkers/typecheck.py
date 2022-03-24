@@ -1,62 +1,8 @@
-# Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2009 James Lingard <jchl@aristanetworks.com>
-# Copyright (c) 2012-2014 Google, Inc.
-# Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2014 David Shea <dshea@redhat.com>
-# Copyright (c) 2014 Steven Myint <hg@stevenmyint.com>
-# Copyright (c) 2014 Holger Peters <email@holger-peters.de>
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015 Anentropic <ego@anentropic.com>
-# Copyright (c) 2015 Dmitry Pribysh <dmand@yandex.ru>
-# Copyright (c) 2015 Rene Zhang <rz99@cornell.edu>
-# Copyright (c) 2015 Radu Ciorba <radu@devrandom.ro>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016, 2019 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2016 Alexander Todorov <atodorov@otb.bg>
-# Copyright (c) 2016 Jürgen Hermann <jh@web.de>
-# Copyright (c) 2016 Jakub Wilk <jwilk@jwilk.net>
-# Copyright (c) 2016 Filipe Brandenburger <filbranden@google.com>
-# Copyright (c) 2017, 2021 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2017-2018, 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
-# Copyright (c) 2017 Derek Gustafson <degustaf@gmail.com>
-# Copyright (c) 2018-2019, 2021 Nick Drozd <nicholasdrozd@gmail.com>
-# Copyright (c) 2018 Pablo Galindo <Pablogsal@gmail.com>
-# Copyright (c) 2018 Jim Robertson <jrobertson98atx@gmail.com>
-# Copyright (c) 2018 Lucas Cimon <lucas.cimon@gmail.com>
-# Copyright (c) 2018 Mike Frysinger <vapier@gmail.com>
-# Copyright (c) 2018 Ben Green <benhgreen@icloud.com>
-# Copyright (c) 2018 Konstantin <Github@pheanex.de>
-# Copyright (c) 2018 Justin Li <justinnhli@users.noreply.github.com>
-# Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
-# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019 Andy Palmer <25123779+ninezerozeronine@users.noreply.github.com>
-# Copyright (c) 2019 mattlbeck <17108752+mattlbeck@users.noreply.github.com>
-# Copyright (c) 2019 Martin Vielsmaier <martin.vielsmaier@gmail.com>
-# Copyright (c) 2019 Santiago Castro <bryant@montevideo.com.uy>
-# Copyright (c) 2019 yory8 <39745367+yory8@users.noreply.github.com>
-# Copyright (c) 2019 Federico Bond <federicobond@gmail.com>
-# Copyright (c) 2019 Pascal Corpet <pcorpet@users.noreply.github.com>
-# Copyright (c) 2020 Peter Kolbus <peter.kolbus@gmail.com>
-# Copyright (c) 2020 Julien Palard <julien@palard.fr>
-# Copyright (c) 2020 Ram Rachum <ram@rachum.com>
-# Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2020 Anubhav <35621759+anubh-v@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 Tushar Sadhwani <tushar.sadhwani000@gmail.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 David Liu <david@cs.toronto.edu>
-# Copyright (c) 2021 doranid <ddandd@gmail.com>
-# Copyright (c) 2021 Yu Shao, Pang <36848472+yushao2@users.noreply.github.com>
-# Copyright (c) 2021 Andrew Haigh <nelfin@gmail.com>
-# Copyright (c) 2021 Jens H. Nielsen <Jens.Nielsen@microsoft.com>
-# Copyright (c) 2021 Ikraduya Edian <ikraduya@gmail.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-"""try to find more bugs in the code using astroid inference capabilities
-"""
+"""Try to find more bugs in the code using astroid inference capabilities."""
 
 import fnmatch
 import heapq
@@ -69,7 +15,17 @@ import types
 from collections import deque
 from collections.abc import Sequence
 from functools import singledispatch
-from typing import Any, Callable, Iterator, List, Optional, Pattern, Tuple, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Iterator,
+    List,
+    Optional,
+    Pattern,
+    Tuple,
+    Union,
+)
 
 import astroid
 import astroid.exceptions
@@ -99,6 +55,14 @@ from pylint.checkers.utils import (
 )
 from pylint.interfaces import INFERENCE, IAstroidChecker
 from pylint.utils import get_global_option
+
+if sys.version_info >= (3, 8):
+    from functools import cached_property
+else:
+    from astroid.decorators import cachedproperty as cached_property
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 CallableObjects = Union[
     bases.BoundMethod,
@@ -137,7 +101,7 @@ def _flatten_container(iterable):
 
 
 def _is_owner_ignored(owner, attrname, ignored_classes, ignored_modules):
-    """Check if the given owner should be ignored
+    """Check if the given owner should be ignored.
 
     This will verify if the owner's module is in *ignored_modules*
     or the owner's module fully qualified name is in *ignored_modules*
@@ -161,7 +125,7 @@ def _is_owner_ignored(owner, attrname, ignored_classes, ignored_modules):
         if fnmatch.fnmatch(module_qname, ignore):
             return True
 
-        # Otherwise we might have a root module name being ignored,
+        # Otherwise, we might have a root module name being ignored,
         # and the qualified owner has more levels of depth.
         parts = deque(module_name.split("."))
         current_module = ""
@@ -221,7 +185,7 @@ def _string_distance(seq1, seq2):
 
 
 def _similar_names(owner, attrname, distance_threshold, max_choices):
-    """Given an owner and a name, try to find similar names
+    """Given an owner and a name, try to find similar names.
 
     The similar names are searched given a distance metric and only
     a given number of choices will be returned.
@@ -256,11 +220,11 @@ def _missing_member_hint(owner, attrname, distance_threshold, max_choices):
 
     names = [repr(name) for name in names]
     if len(names) == 1:
-        names = ", ".join(names)
+        names_hint = ", ".join(names)
     else:
-        names = f"one of {', '.join(names[:-1])} or {names[-1]}"
+        names_hint = f"one of {', '.join(names[:-1])} or {names[-1]}"
 
-    return f"; maybe {names}?"
+    return f"; maybe {names_hint}?"
 
 
 MSGS = {
@@ -652,7 +616,7 @@ def _no_context_variadic_positional(node, scope):
 
 
 def _no_context_variadic(node, variadic_name, variadic_type, variadics):
-    """Verify if the given call node has variadic nodes without context
+    """Verify if the given call node has variadic nodes without context.
 
     This is a workaround for handling cases of nested call functions
     which don't have the specific call context at hand.
@@ -710,7 +674,7 @@ def _is_invalid_metaclass(metaclass):
 
 
 def _infer_from_metaclass_constructor(cls, func: nodes.FunctionDef):
-    """Try to infer what the given *func* constructor is building
+    """Try to infer what the given *func* constructor is building.
 
     :param astroid.FunctionDef func:
         A metaclass constructor. Metaclass definitions can be
@@ -769,7 +733,7 @@ def _is_invalid_isinstance_type(arg):
 
 
 class TypeChecker(BaseChecker):
-    """try to find bugs in the code using type inference"""
+    """Try to find bugs in the code using type inference."""
 
     __implements__ = (IAstroidChecker,)
 
@@ -925,11 +889,11 @@ accessed. Python regular expressions are accepted.",
         self._py310_plus = py_version >= (3, 10)
         self._mixin_class_rgx = get_global_option(self, "mixin-class-rgx")
 
-    @astroid.decorators.cachedproperty
+    @cached_property
     def _suggestion_mode(self):
         return get_global_option(self, "suggestion-mode", default=True)
 
-    @astroid.decorators.cachedproperty
+    @cached_property
     def _compiled_generated_members(self) -> Tuple[Pattern, ...]:
         # do this lazily since config not fully initialized in __init__
         # generated_members may contain regular expressions
@@ -994,7 +958,7 @@ accessed. Python regular expressions are accepted.",
 
     @check_messages("no-member", "c-extension-no-member")
     def visit_attribute(self, node: nodes.Attribute) -> None:
-        """check that the accessed attribute exists
+        """Check that the accessed attribute exists.
 
         to avoid too much false positives for now, we'll consider the code as
         correct if a single of the inferred nodes has the accessed attribute.
@@ -1124,17 +1088,13 @@ accessed. Python regular expressions are accepted.",
         "non-str-assignment-to-dunder-name",
     )
     def visit_assign(self, node: nodes.Assign) -> None:
-        """
-        Process assignments in the AST.
-        """
+        """Process assignments in the AST."""
 
         self._check_assignment_from_function_call(node)
         self._check_dundername_is_string(node)
 
-    def _check_assignment_from_function_call(self, node):
-        """check that if assigning to a function call, the function is
-        possibly returning something valuable
-        """
+    def _check_assignment_from_function_call(self, node: nodes.Assign) -> None:
+        """When assigning to a function call, check that the function returns a valid value."""
         if not isinstance(node.value, nodes.Call):
             return
 
@@ -1143,7 +1103,7 @@ accessed. Python regular expressions are accepted.",
         if not isinstance(function_node, funcs):
             return
 
-        # Unwrap to get the actual function object
+        # Unwrap to get the actual function node object
         if isinstance(function_node, astroid.BoundMethod) and isinstance(
             function_node._proxied, astroid.UnboundMethod
         ):
@@ -1151,47 +1111,67 @@ accessed. Python regular expressions are accepted.",
 
         # Make sure that it's a valid function that we can analyze.
         # Ordered from less expensive to more expensive checks.
-        # pylint: disable=too-many-boolean-expressions
         if (
             not function_node.is_function
-            or isinstance(function_node, nodes.AsyncFunctionDef)
             or function_node.decorators
-            or function_node.is_generator()
-            or function_node.is_abstract(pass_is_abstract=False)
-            or utils.is_error(function_node)
-            or not function_node.root().fully_defined()
+            or self._is_ignored_function(function_node)
         ):
             return
 
-        returns = list(
+        # Fix a false-negative for list.sort(), see issue #5722
+        if self._is_list_sort_method(node.value):
+            self.add_message("assignment-from-none", node=node, confidence=INFERENCE)
+            return
+
+        if not function_node.root().fully_defined():
+            return
+
+        return_nodes = list(
             function_node.nodes_of_class(nodes.Return, skip_klass=nodes.FunctionDef)
         )
-        if not returns:
+        if not return_nodes:
             self.add_message("assignment-from-no-return", node=node)
         else:
-            for rnode in returns:
+            for ret_node in return_nodes:
                 if not (
-                    isinstance(rnode.value, nodes.Const)
-                    and rnode.value.value is None
-                    or rnode.value is None
+                    isinstance(ret_node.value, nodes.Const)
+                    and ret_node.value.value is None
+                    or ret_node.value is None
                 ):
                     break
             else:
                 self.add_message("assignment-from-none", node=node)
 
-    def _check_dundername_is_string(self, node):
-        """
-        Check a string is assigned to self.__name__
-        """
+    @staticmethod
+    def _is_ignored_function(
+        function_node: Union[nodes.FunctionDef, bases.UnboundMethod]
+    ) -> bool:
+        return (
+            isinstance(function_node, nodes.AsyncFunctionDef)
+            or utils.is_error(function_node)
+            or function_node.is_generator()
+            or function_node.is_abstract(pass_is_abstract=False)
+        )
 
-        # Check the left hand side of the assignment is <something>.__name__
+    @staticmethod
+    def _is_list_sort_method(node: nodes.Call) -> bool:
+        return (
+            isinstance(node.func, nodes.Attribute)
+            and node.func.attrname == "sort"
+            and isinstance(utils.safe_infer(node.func.expr), nodes.List)
+        )
+
+    def _check_dundername_is_string(self, node) -> None:
+        """Check a string is assigned to self.__name__."""
+
+        # Check the left-hand side of the assignment is <something>.__name__
         lhs = node.targets[0]
         if not isinstance(lhs, nodes.AssignAttr):
             return
         if not lhs.attrname == "__name__":
             return
 
-        # If the right hand side is not a string
+        # If the right-hand side is not a string
         rhs = node.value
         if isinstance(rhs, nodes.Const) and isinstance(rhs.value, str):
             return
@@ -1203,8 +1183,7 @@ accessed. Python regular expressions are accepted.",
             self.add_message("non-str-assignment-to-dunder-name", node=node)
 
     def _check_uninferable_call(self, node):
-        """
-        Check that the given uninferable Call node does not
+        """Check that the given uninferable Call node does not
         call an actual function.
         """
         if not isinstance(node.func, nodes.Attribute):
@@ -1255,6 +1234,7 @@ accessed. Python regular expressions are accepted.",
 
     def _check_argument_order(self, node, call_site, called, called_param_names):
         """Match the supplied argument names against the function parameters.
+
         Warn if some argument names are not in the same order as they are in
         the function signature.
         """
@@ -1271,7 +1251,7 @@ accessed. Python regular expressions are accepted.",
             # extract argument names, if they have names
             calling_parg_names = [p.name for p in call_site.positional_arguments]
 
-            # Additionally get names of keyword arguments to use in a full match
+            # Additionally, get names of keyword arguments to use in a full match
             # against parameters
             calling_kwarg_names = [
                 arg.name for arg in call_site.keyword_arguments.values()
@@ -1304,9 +1284,8 @@ accessed. Python regular expressions are accepted.",
     # pylint: disable=too-many-branches,too-many-locals
     @check_messages(*(list(MSGS.keys())))
     def visit_call(self, node: nodes.Call) -> None:
-        """check that called functions/methods are inferred to callable objects,
-        and that the arguments passed to the function match the parameters in
-        the inferred function's definition
+        """Check that called functions/methods are inferred to callable objects,
+        and that passed arguments match the parameters in the inferred function.
         """
         called = safe_infer(node.func)
 
@@ -1578,7 +1557,7 @@ accessed. Python regular expressions are accepted.",
             not isinstance(itemmethod, nodes.FunctionDef)
             or itemmethod.root().name != "builtins"
             or not itemmethod.parent
-            or itemmethod.parent.name not in SEQUENCE_TYPES
+            or itemmethod.parent.frame().name not in SEQUENCE_TYPES
         ):
             return None
 
@@ -1617,7 +1596,7 @@ accessed. Python regular expressions are accepted.",
     def _check_not_callable(
         self, node: nodes.Call, inferred_call: Optional[nodes.NodeNG]
     ) -> None:
-        """Checks to see if the not-callable message should be emitted
+        """Checks to see if the not-callable message should be emitted.
 
         Only functions, generators and objects defining __call__ are "callable"
         We ignore instances of descriptors since astroid cannot properly handle them yet
@@ -1664,7 +1643,7 @@ accessed. Python regular expressions are accepted.",
             if index_type is None or index_type is astroid.Uninferable:
                 continue
 
-            # Constants must of type int or None
+            # Constants must be of type int or None
             if isinstance(index_type, nodes.Const):
                 if isinstance(index_type.value, (int, type(None))):
                     continue
@@ -1733,7 +1712,8 @@ accessed. Python regular expressions are accepted.",
                 # See the test file for not_context_manager for a couple
                 # of self explaining tests.
 
-                # Retrieve node from all previusly visited nodes in the the inference history
+                # Retrieve node from all previously visited nodes in the
+                # inference history
                 context_path_names: Iterator[Any] = filter(
                     None, _unflatten(context.path)
                 )
@@ -1965,8 +1945,8 @@ accessed. Python regular expressions are accepted.",
 
 
 class IterableChecker(BaseChecker):
-    """
-    Checks for non-iterables used in an iterable context.
+    """Checks for non-iterables used in an iterable context.
+
     Contexts include:
     - for-statement
     - starargs in function call
@@ -2014,10 +1994,10 @@ class IterableChecker(BaseChecker):
         return False
 
     def _check_iterable(self, node, check_async=False):
-        if is_inside_abstract_class(node) or is_comprehension(node):
+        if is_inside_abstract_class(node):
             return
         inferred = safe_infer(node)
-        if not inferred:
+        if not inferred or is_comprehension(inferred):
             return
         if not is_iterable(inferred, check_async=check_async):
             self.add_message("not-an-iterable", args=node.as_string(), node=node)
@@ -2089,7 +2069,6 @@ class IterableChecker(BaseChecker):
         self.add_message("await-outside-async", node=node)
 
 
-def register(linter):
-    """required method to auto register this checker"""
+def register(linter: "PyLinter") -> None:
     linter.register_checker(TypeChecker(linter))
     linter.register_checker(IterableChecker(linter))

@@ -1,0 +1,30 @@
+***************************
+ What's New in Pylint 2.14
+***************************
+
+:Release: 2.14
+:Date: TBA
+
+Summary -- Release highlights
+=============================
+
+
+New checkers
+============
+
+* ``potential-index-error``: Emitted when the index of a list or tuple exceeds its length.
+  This checker is currently quite conservative to avoid false positives. We welcome
+  suggestions for improvements.
+
+  Closes #578
+
+Removed checkers
+================
+
+
+Extensions
+==========
+
+
+Other Changes
+=============

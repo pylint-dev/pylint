@@ -1,5 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 from typing import List, Optional, Tuple
 
@@ -8,7 +9,9 @@ from typing import List, Optional, Tuple
 # A NamedTuple is not possible as some tests need to modify attributes during the test.
 class PyreverseConfig:  # pylint: disable=too-many-instance-attributes, too-many-arguments
     """Holds the configuration options for Pyreverse.
-    The default values correspond to the defaults of the options parser."""
+
+    The default values correspond to the defaults of the options' parser.
+    """
 
     def __init__(
         self,

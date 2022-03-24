@@ -1,0 +1,1 @@
+invalid-name:1:0:None:None::"Module name ""#emacs_file_lock_redefined_conf"" doesn't conform to snake_case naming style":HIGH

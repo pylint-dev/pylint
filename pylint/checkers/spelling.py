@@ -1,45 +1,21 @@
-# Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2014 Michal Nowikowski <godfryd@gmail.com>
-# Copyright (c) 2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2015 Pavel Roskin <proski@gnu.org>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016-2017, 2020 Pedro Algarvio <pedro@algarvio.me>
-# Copyright (c) 2016 Alexander Todorov <atodorov@otb.bg>
-# Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
-# Copyright (c) 2017 Mikhail Fesenko <proggga@gmail.com>
-# Copyright (c) 2018, 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
-# Copyright (c) 2018 Mike Frysinger <vapier@gmail.com>
-# Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
-# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019 Peter Kolbus <peter.kolbus@gmail.com>
-# Copyright (c) 2019 agutole <toldo_carp@hotmail.com>
-# Copyright (c) 2020 Ganden Schaffner <gschaffner@pm.me>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Tushar Sadhwani <tushar.sadhwani000@gmail.com>
-# Copyright (c) 2021 Nick Drozd <nicholasdrozd@gmail.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 bot <bot@noreply.github.com>
-# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
-# Copyright (c) 2021 Eli Fine <ejfine@gmail.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-"""Checker for spelling errors in comments and docstrings.
-"""
+"""Checker for spelling errors in comments and docstrings."""
 import os
 import re
 import tokenize
-from typing import Pattern
+from typing import TYPE_CHECKING, Pattern
 
 from astroid import nodes
 
 from pylint.checkers import BaseTokenChecker
 from pylint.checkers.utils import check_messages
 from pylint.interfaces import IAstroidChecker, ITokenChecker
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 try:
     import enchant
@@ -144,9 +120,7 @@ class SphinxDirectives(RegExFilter):
 
 
 class ForwardSlashChunker(Chunker):
-    """
-    This chunker allows splitting words like 'before/after' into 'before' and 'after'
-    """
+    """This chunker allows splitting words like 'before/after' into 'before' and 'after'."""
 
     def next(self):
         while True:
@@ -191,7 +165,8 @@ def _strip_code_flanked_in_backticks(line: str) -> str:
     """Alter line so code flanked in backticks is ignored.
 
     Pyenchant automatically strips backticks when parsing tokens,
-    so this cannot be done at the individual filter level."""
+    so this cannot be done at the individual filter level.
+    """
 
     def replace_code_but_leave_surrounding_characters(match_obj) -> str:
         return match_obj.group(1) + match_obj.group(5)
@@ -202,7 +177,7 @@ def _strip_code_flanked_in_backticks(line: str) -> str:
 
 
 class SpellingChecker(BaseTokenChecker):
-    """Check spelling in comments and docstrings"""
+    """Check spelling in comments and docstrings."""
 
     __implements__ = (ITokenChecker, IAstroidChecker)
     name = "spelling"
@@ -408,7 +383,7 @@ class SpellingChecker(BaseTokenChecker):
                 suggestions = self.spelling_dict.suggest(word)
                 del suggestions[self.config.max_spelling_suggestions :]
                 line_segment = line[word_start_at:]
-                match = re.search(fr"(\W|^)({word})(\W|$)", line_segment)
+                match = re.search(rf"(\W|^)({word})(\W|$)", line_segment)
                 if match:
                     # Start position of second group in regex.
                     col = match.regs[2][0]
@@ -458,18 +433,16 @@ class SpellingChecker(BaseTokenChecker):
     visit_asyncfunctiondef = visit_functiondef
 
     def _check_docstring(self, node):
-        """check the node has any spelling errors"""
-        docstring = node.doc
-        if not docstring:
+        """Check the node has any spelling errors."""
+        if not node.doc_node:
             return
 
         start_line = node.lineno + 1
 
         # Go through lines of docstring
-        for idx, line in enumerate(docstring.splitlines()):
+        for idx, line in enumerate(node.doc_node.value.splitlines()):
             self._check_spelling("wrong-spelling-in-docstring", line, start_line + idx)
 
 
-def register(linter):
-    """required method to auto register this checker"""
+def register(linter: "PyLinter") -> None:
     linter.register_checker(SpellingChecker(linter))

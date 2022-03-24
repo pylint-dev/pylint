@@ -1,16 +1,11 @@
-# Copyright (c) 2015-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2017 Derek Gustafson <degustaf@gmail.com>
-# Copyright (c) 2019, 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Checker for anything related to the async protocol (PEP 492)."""
 
 import sys
+from typing import TYPE_CHECKING
 
 import astroid
 from astroid import nodes
@@ -18,6 +13,9 @@ from astroid import nodes
 from pylint import checkers, interfaces, utils
 from pylint.checkers import utils as checker_utils
 from pylint.checkers.utils import decorated_with
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 
 class AsyncChecker(checkers.BaseChecker):
@@ -94,6 +92,5 @@ class AsyncChecker(checkers.BaseChecker):
             )
 
 
-def register(linter):
-    """required method to auto register this checker"""
+def register(linter: "PyLinter") -> None:
     linter.register_checker(AsyncChecker(linter))

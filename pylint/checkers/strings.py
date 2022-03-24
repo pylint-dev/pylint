@@ -1,47 +1,14 @@
-# Copyright (c) 2009-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2010 Daniel Harding <dharding@gmail.com>
-# Copyright (c) 2012-2014 Google, Inc.
-# Copyright (c) 2013-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2014 Brett Cannon <brett@python.org>
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015 Rene Zhang <rz99@cornell.edu>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016, 2018 Jakub Wilk <jwilk@jwilk.net>
-# Copyright (c) 2016 Peter Dawyndt <Peter.Dawyndt@UGent.be>
-# Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
-# Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2018, 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2018-2019 Lucas Cimon <lucas.cimon@gmail.com>
-# Copyright (c) 2018 Alan Chan <achan961117@gmail.com>
-# Copyright (c) 2018 Yury Gribov <tetra2005@gmail.com>
-# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
-# Copyright (c) 2018 Nick Drozd <nicholasdrozd@gmail.com>
-# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019 Wes Turner <westurner@google.com>
-# Copyright (c) 2019 Djailla <bastien.vallet@gmail.com>
-# Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2020 Matthew Suozzo <msuozzo@google.com>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2020 谭九鼎 <109224573@qq.com>
-# Copyright (c) 2020 Anthony <tanant@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 Tushar Sadhwani <tushar.sadhwani000@gmail.com>
-# Copyright (c) 2021 Jaehoon Hwang <jaehoonhwang@users.noreply.github.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Peter Kolbus <peter.kolbus@garmin.com>
-
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-"""Checker for string formatting operations.
-"""
+"""Checker for string formatting operations."""
 
 import collections
 import numbers
 import re
 import tokenize
-from typing import Counter, Iterable
+from typing import TYPE_CHECKING, Counter, Iterable
 
 import astroid
 from astroid import nodes
@@ -49,6 +16,9 @@ from astroid import nodes
 from pylint.checkers import BaseChecker, BaseTokenChecker, utils
 from pylint.checkers.utils import check_messages
 from pylint.interfaces import IAstroidChecker, IRawChecker, ITokenChecker
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 _AST_NODE_STR_TYPES = ("__builtin__.unicode", "__builtin__.str", "builtins.str")
 # Prefixes for both strings and bytes literals per
@@ -150,7 +120,7 @@ MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
     "E1310": (
         "Suspicious argument in %s.%s call",
         "bad-str-strip-call",
-        "The argument to a str.{l,r,}strip call contains a duplicate character, ",
+        "The argument to a str.{l,r,}strip call contains a duplicate character,",
     ),
     "W1302": (
         "Invalid format string",
@@ -518,7 +488,7 @@ class StringFormatChecker(BaseChecker):
                     # only if the .format got at least one keyword argument.
                     # This means that the format strings accepts both
                     # positional and named fields and we should warn
-                    # when one of the them is missing or is extra.
+                    # when one of them is missing or is extra.
                     check_args = True
         else:
             check_args = True
@@ -537,8 +507,7 @@ class StringFormatChecker(BaseChecker):
         self._check_new_format_specifiers(node, fields, named_arguments)
 
     def _check_new_format_specifiers(self, node, fields, named):
-        """
-        Check attribute and index access in the format
+        """Check attribute and index access in the format
         string ("{0.a}" and "{0[a]}").
         """
         for key, specifiers in fields:
@@ -634,7 +603,7 @@ class StringFormatChecker(BaseChecker):
 
 
 class StringConstantChecker(BaseTokenChecker):
-    """Check string literals"""
+    """Check string literals."""
 
     __implements__ = (IAstroidChecker, ITokenChecker, IRawChecker)
     name = "string"
@@ -849,7 +818,7 @@ class StringConstantChecker(BaseTokenChecker):
     def process_non_raw_string_token(
         self, prefix, string_body, start_row, string_start_col
     ):
-        """check for bad escapes in a non-raw string.
+        """Check for bad escapes in a non-raw string.
 
         prefix: lowercase string of eg 'ur' string prefix markers.
         string_body: the un-parsed body of the string, not including the quote
@@ -916,7 +885,7 @@ class StringConstantChecker(BaseTokenChecker):
             self._detect_u_string_prefix(node)
 
     def _detect_u_string_prefix(self, node: nodes.Const):
-        """Check whether strings include a 'u' prefix like u'String'"""
+        """Check whether strings include a 'u' prefix like u'String'."""
         if node.kind == "u":
             self.add_message(
                 "redundant-u-string-prefix",
@@ -925,15 +894,14 @@ class StringConstantChecker(BaseTokenChecker):
             )
 
 
-def register(linter):
-    """required method to auto register this checker"""
+def register(linter: "PyLinter") -> None:
     linter.register_checker(StringFormatChecker(linter))
     linter.register_checker(StringConstantChecker(linter))
 
 
 def str_eval(token):
-    """
-    Mostly replicate `ast.literal_eval(token)` manually to avoid any performance hit.
+    """Mostly replicate `ast.literal_eval(token)` manually to avoid any performance hit.
+
     This supports f-strings, contrary to `ast.literal_eval`.
     We have to support all string literal notations:
     https://docs.python.org/3/reference/lexical_analysis.html#string-and-bytes-literals
@@ -961,7 +929,7 @@ def _is_long_string(string_token: str) -> bool:
         string_token: The string token to be parsed.
 
     Returns:
-        A boolean representing whether or not this token matches a longstring
+        A boolean representing whether this token matches a longstring
         regex.
     """
     return bool(
@@ -973,15 +941,14 @@ def _is_long_string(string_token: str) -> bool:
 def _get_quote_delimiter(string_token: str) -> str:
     """Returns the quote character used to delimit this token string.
 
-    This function does little checking for whether the token is a well-formed
-    string.
+    This function checks whether the token is a well-formed string.
 
     Args:
         string_token: The token to be parsed.
 
     Returns:
-        A string containing solely the first quote delimiter character in the passed
-        string.
+        A string containing solely the first quote delimiter character in the
+        given string.
 
     Raises:
       ValueError: No quote delimiter characters are present.

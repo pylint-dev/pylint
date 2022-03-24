@@ -1,22 +1,7 @@
-# Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2013-2014 Google, Inc.
-# Copyright (c) 2013 buck@yelp.com <buck@yelp.com>
-# Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2014 Brett Cannon <brett@python.org>
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
-# Copyright (c) 2017-2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
-# Copyright (c) 2018-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
-# Copyright (c) 2019 Bruno P. Kinoshita <kinow@users.noreply.github.com>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 bot <bot@noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
 import functools
 from inspect import cleandoc
 from typing import Any, Optional
@@ -48,9 +33,10 @@ class BaseChecker(OptionsProviderMixIn):
     enabled: bool = True
 
     def __init__(self, linter=None):
-        """checker instances should have the linter as argument
+        """Checker instances should have the linter as argument.
 
-        :param ILinter linter: is an object implementing ILinter."""
+        :param ILinter linter: is an object implementing ILinter.
+        """
         if self.name is not None:
             self.name = self.name.lower()
         super().__init__()
@@ -66,8 +52,11 @@ class BaseChecker(OptionsProviderMixIn):
         return f"{status} '{self.name}' (responsible for '{msgs}')"
 
     def __str__(self):
-        """This might be incomplete because multiple class inheriting BaseChecker
-        can have the same name. Cf MessageHandlerMixIn.get_full_documentation()"""
+        """This might be incomplete because multiple classes inheriting BaseChecker
+        can have the same name.
+
+        See: MessageHandlerMixIn.get_full_documentation()
+        """
         return self.get_full_documentation(
             msgs=self.msgs, options=self.options_and_values(), reports=self.reports
         )
@@ -86,7 +75,7 @@ class BaseChecker(OptionsProviderMixIn):
             # Provide anchor to link against
             result += get_rst_title(f"{checker_title} Documentation", "^")
             result += f"{cleandoc(doc)}\n\n"
-        # options might be an empty generator and not be False when casted to boolean
+        # options might be an empty generator and not be False when cast to boolean
         options = list(options)
         if options:
             result += get_rst_title(f"{checker_title} Options", "^")
@@ -132,7 +121,8 @@ class BaseChecker(OptionsProviderMixIn):
         checker.
 
         :raises InvalidMessageError: If the checker id in the messages are not
-        always the same."""
+        always the same.
+        """
         checker_id = None
         existing_ids = []
         for message in self.messages:
@@ -186,10 +176,10 @@ class BaseChecker(OptionsProviderMixIn):
         raise InvalidMessageError(error_msg)
 
     def open(self):
-        """called before visiting project (i.e set of modules)"""
+        """Called before visiting project (i.e. set of modules)."""
 
     def close(self):
-        """called after visiting project (i.e set of modules)"""
+        """Called after visiting project (i.e set of modules)."""
 
 
 class BaseTokenChecker(BaseChecker):

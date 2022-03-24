@@ -1,11 +1,20 @@
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
+from typing import TYPE_CHECKING
+
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.interfaces import IRawChecker
 
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
+
 
 def is_line_commented(line):
-    """Checks if a `# symbol that is not part of a string was found in line"""
+    """Checks if a `# symbol that is not part of a string was found in line."""
 
     comment_idx = line.find(b"#")
     if comment_idx == -1:
@@ -16,7 +25,7 @@ def is_line_commented(line):
 
 
 def comment_part_of_string(line, comment_idx):
-    """checks if the symbol at comment_idx is part of a string"""
+    """Checks if the symbol at comment_idx is part of a string."""
 
     if (
         line[:comment_idx].count(b"'") % 2 == 1
@@ -54,5 +63,5 @@ class CommentChecker(BaseChecker):
                         self.add_message("empty-comment", line=line_num + 1)
 
 
-def register(linter):
+def register(linter: "PyLinter") -> None:
     linter.register_checker(CommentChecker(linter))

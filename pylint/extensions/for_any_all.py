@@ -1,3 +1,7 @@
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
 """Check for use of for loops that only check for a condition."""
 from typing import TYPE_CHECKING
 
@@ -66,8 +70,4 @@ class ConsiderUsingAnyOrAllChecker(BaseChecker):
 
 
 def register(linter: "PyLinter") -> None:
-    """Required method to auto register this checker.
-
-    :param linter: Main interface object for Pylint plugins
-    """
     linter.register_checker(ConsiderUsingAnyOrAllChecker(linter))

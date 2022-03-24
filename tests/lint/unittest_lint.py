@@ -1,41 +1,7 @@
-# Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2011-2014 Google, Inc.
-# Copyright (c) 2012 Kevin Jing Qiu <kevin.jing.qiu@gmail.com>
-# Copyright (c) 2012 Anthony VEREZ <anthony.verez.external@cassidian.com>
-# Copyright (c) 2012 FELD Boris <lothiraldan@gmail.com>
-# Copyright (c) 2013-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015 Florian Bruhin <me@the-compiler.org>
-# Copyright (c) 2015 Noam Yorav-Raphael <noamraph@gmail.com>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016-2017 Derek Gustafson <degustaf@gmail.com>
-# Copyright (c) 2016 Glenn Matthews <glenn@e-dad.net>
-# Copyright (c) 2016 Glenn Matthews <glmatthe@cisco.com>
-# Copyright (c) 2017-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2017, 2021 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2017 Craig Citro <craigcitro@gmail.com>
-# Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
-# Copyright (c) 2018, 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2018 Matus Valo <matusvalo@users.noreply.github.com>
-# Copyright (c) 2018 Scott Worley <scottworley@scottworley.com>
-# Copyright (c) 2018 Randall Leeds <randall@bleeds.info>
-# Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
-# Copyright (c) 2018 Reverb C <reverbc@users.noreply.github.com>
-# Copyright (c) 2019 Janne Rönkkö <jannero@users.noreply.github.com>
-# Copyright (c) 2019 Trevor Bekolay <tbekolay@gmail.com>
-# Copyright (c) 2019 Andres Perez Hortal <andresperezcba@gmail.com>
-# Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2020 Martin Vielsmaier <martin@vielsmaier.net>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Michal Vasilek <michal@vasilek.cz>
-# Copyright (c) 2021 Eisuke Kawashima <e-kwsm@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
 # pylint: disable=redefined-outer-name
 
 import os
@@ -249,9 +215,9 @@ def reporter():
 
 
 @pytest.fixture
-def init_linter(linter: PyLinter) -> PyLinter:
+def initialized_linter(linter: PyLinter) -> PyLinter:
     linter.open()
-    linter.set_current_module("toto")
+    linter.set_current_module("toto", "mydir/toto")
     linter.file_state = FileState("toto")
     return linter
 
@@ -273,8 +239,8 @@ def test_pylint_visit_method_taken_in_account(linter: PyLinter) -> None:
     linter.check(["abc"])
 
 
-def test_enable_message(init_linter: PyLinter) -> None:
-    linter = init_linter
+def test_enable_message(initialized_linter: PyLinter) -> None:
+    linter = initialized_linter
     assert linter.is_message_enabled("W0101")
     assert linter.is_message_enabled("W0102")
     linter.disable("W0101", scope="package")
@@ -290,8 +256,8 @@ def test_enable_message(init_linter: PyLinter) -> None:
     assert linter.is_message_enabled("W0102", 1)
 
 
-def test_enable_message_category(init_linter: PyLinter) -> None:
-    linter = init_linter
+def test_enable_message_category(initialized_linter: PyLinter) -> None:
+    linter = initialized_linter
     assert linter.is_message_enabled("W0101")
     assert linter.is_message_enabled("C0202")
     linter.disable("W", scope="package")
@@ -309,11 +275,11 @@ def test_enable_message_category(init_linter: PyLinter) -> None:
     assert linter.is_message_enabled("C0202", line=1)
 
 
-def test_message_state_scope(init_linter: PyLinter) -> None:
+def test_message_state_scope(initialized_linter: PyLinter) -> None:
     class FakeConfig:
         confidence = ["HIGH"]
 
-    linter = init_linter
+    linter = initialized_linter
     linter.disable("C0202")
     assert MSG_STATE_SCOPE_CONFIG == linter._get_message_state_scope("C0202")
     linter.disable("W0101", scope="module", line=3)
@@ -327,8 +293,8 @@ def test_message_state_scope(init_linter: PyLinter) -> None:
     )
 
 
-def test_enable_message_block(init_linter: PyLinter) -> None:
-    linter = init_linter
+def test_enable_message_block(initialized_linter: PyLinter) -> None:
+    linter = initialized_linter
     linter.open()
     filepath = join(REGRTEST_DATA_DIR, "func_block_disable_msg.py")
     linter.set_current_module("func_block_disable_msg")
@@ -385,12 +351,12 @@ def test_enable_message_block(init_linter: PyLinter) -> None:
     assert fs._suppression_mapping["E1101", 110] == 109
 
 
-def test_enable_by_symbol(init_linter: PyLinter) -> None:
-    """messages can be controlled by symbolic names.
+def test_enable_by_symbol(initialized_linter: PyLinter) -> None:
+    """Messages can be controlled by symbolic names.
 
     The state is consistent across symbols and numbers.
     """
-    linter = init_linter
+    linter = initialized_linter
     assert linter.is_message_enabled("W0101")
     assert linter.is_message_enabled("unreachable")
     assert linter.is_message_enabled("W0102")
@@ -434,7 +400,8 @@ def test_set_unsupported_reporter(linter: PyLinter) -> None:
         linter.set_option("output-format", "missing.module.Class")
 
 
-def test_set_option_1(linter: PyLinter) -> None:
+def test_set_option_1(initialized_linter: PyLinter) -> None:
+    linter = initialized_linter
     linter.set_option("disable", "C0111,W0234")
     assert not linter.is_message_enabled("C0111")
     assert not linter.is_message_enabled("W0234")
@@ -443,7 +410,8 @@ def test_set_option_1(linter: PyLinter) -> None:
     assert not linter.is_message_enabled("non-iterator-returned")
 
 
-def test_set_option_2(linter: PyLinter) -> None:
+def test_set_option_2(initialized_linter: PyLinter) -> None:
+    linter = initialized_linter
     linter.set_option("disable", ("C0111", "W0234"))
     assert not linter.is_message_enabled("C0111")
     assert not linter.is_message_enabled("W0234")
@@ -459,7 +427,8 @@ def test_enable_checkers(linter: PyLinter) -> None:
     assert "design" in [c.name for c in linter.prepare_checkers()]
 
 
-def test_errors_only(linter: PyLinter) -> None:
+def test_errors_only(initialized_linter: PyLinter) -> None:
+    linter = initialized_linter
     linter.error_mode()
     checkers = linter.prepare_checkers()
     checker_names = {c.name for c in checkers}
@@ -467,14 +436,15 @@ def test_errors_only(linter: PyLinter) -> None:
     assert set() == should_not & checker_names
 
 
-def test_disable_similar(linter: PyLinter) -> None:
+def test_disable_similar(initialized_linter: PyLinter) -> None:
+    linter = initialized_linter
     linter.set_option("disable", "RP0801")
     linter.set_option("disable", "R0801")
     assert not ("similarities" in [c.name for c in linter.prepare_checkers()])
 
 
 def test_disable_alot(linter: PyLinter) -> None:
-    """check that we disabled a lot of checkers"""
+    """Check that we disabled a lot of checkers."""
     linter.set_option("reports", False)
     linter.set_option("disable", "R,C,W")
     checker_names = [c.name for c in linter.prepare_checkers()]
@@ -652,8 +622,10 @@ def test_full_documentation(linter: PyLinter) -> None:
         assert re.search(regexp, output)
 
 
-def test_list_msgs_enabled(init_linter: PyLinter, capsys: CaptureFixture) -> None:
-    linter = init_linter
+def test_list_msgs_enabled(
+    initialized_linter: PyLinter, capsys: CaptureFixture
+) -> None:
+    linter = initialized_linter
     linter.enable("W0101", scope="package")
     linter.disable("W0102", scope="package")
     linter.list_messages_enabled()
@@ -865,12 +837,12 @@ def test_multiprocessing(jobs: int) -> None:
     assert len(messages) == len(set(messages))
 
 
-def test_filename_with__init__(init_linter: PyLinter) -> None:
+def test_filename_with__init__(initialized_linter: PyLinter) -> None:
     # This tracks a regression where a file whose name ends in __init__.py,
     # such as flycheck__init__.py, would accidentally lead to linting the
     # entire containing directory.
     reporter = testutils.GenericTestReporter()
-    linter = init_linter
+    linter = initialized_linter
     linter.open()
     linter.set_reporter(reporter)
     filepath = join(INPUT_DIR, "not__init__.py")
@@ -879,15 +851,15 @@ def test_filename_with__init__(init_linter: PyLinter) -> None:
     assert len(messages) == 0
 
 
-def test_by_module_statement_value(init_linter: PyLinter) -> None:
+def test_by_module_statement_value(initialized_linter: PyLinter) -> None:
     """Test "statement" for each module analyzed of computed correctly."""
-    linter = init_linter
+    linter = initialized_linter
     linter.check([os.path.join(os.path.dirname(__file__), "data")])
 
     by_module_stats = linter.stats.by_module
     for module, module_stats in by_module_stats.items():
 
-        linter2 = init_linter
+        linter2 = initialized_linter
         if module == "data":
             linter2.check([os.path.join(os.path.dirname(__file__), "data/__init__.py")])
         else:

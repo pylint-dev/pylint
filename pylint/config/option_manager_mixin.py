@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 import collections
 import configparser
@@ -14,16 +14,19 @@ from pathlib import Path
 from types import ModuleType
 from typing import Dict, List, Optional, TextIO, Tuple, Union
 
-import toml
-
 from pylint import utils
 from pylint.config.man_help_formatter import _ManHelpFormatter
 from pylint.config.option import Option
 from pylint.config.option_parser import OptionParser
 
+if sys.version_info >= (3, 11):
+    import tomllib
+else:
+    import tomli as tomllib
+
 
 def _expand_default(self, option):
-    """Patch OptionParser.expand_default with custom behaviour
+    """Patch OptionParser.expand_default with custom behaviour.
 
     This will handle defaults to avoid overriding values in the
     configuration file.
@@ -57,7 +60,7 @@ def _patch_optparse():
 
 
 class OptionsManagerMixIn:
-    """Handle configuration from both a configuration file and command line options"""
+    """Handle configuration from both a configuration file and command line options."""
 
     def __init__(self, usage, config_file=None):
         self.config_file = config_file
@@ -83,7 +86,7 @@ class OptionsManagerMixIn:
         self._optik_option_attrs = set(self.cmdline_parser.option_class.ATTRS)
 
     def register_options_provider(self, provider, own_group=True):
-        """register an options provider"""
+        """Register an options provider."""
         assert provider.priority <= 0, "provider's priority can't be >= 0"
         for i, options_provider in enumerate(self.options_providers):
             if provider.priority > options_provider.priority:
@@ -142,7 +145,7 @@ class OptionsManagerMixIn:
         self._maxlevel = max(self._maxlevel, option.level or 0)
 
     def optik_option(self, provider, opt, optdict):
-        """get our personal option definition and return a suitable form for
+        """Get our personal option definition and return a suitable form for
         use with optik/optparse
         """
         optdict = copy.copy(optdict)
@@ -173,7 +176,7 @@ class OptionsManagerMixIn:
         return args, optdict
 
     def cb_set_provider_option(self, option, opt, value, parser):
-        """optik callback for option setting"""
+        """Optik callback for option setting."""
         if opt.startswith("--"):
             # remove -- on long option
             opt = opt[2:]
@@ -186,13 +189,13 @@ class OptionsManagerMixIn:
         self.global_set_option(opt, value)
 
     def global_set_option(self, opt, value):
-        """set option on the correct option provider"""
+        """Set option on the correct option provider."""
         self._all_options[opt].set_option(opt, value)
 
     def generate_config(
         self, stream: Optional[TextIO] = None, skipsections: Tuple[str, ...] = ()
     ) -> None:
-        """write a configuration file according to the current configuration
+        """Write a configuration file according to the current configuration
         into the given stream or stdout
         """
         options_by_section: Dict[str, List[Tuple]] = {}
@@ -212,8 +215,8 @@ class OptionsManagerMixIn:
                     continue
                 if section not in sections:
                     sections.append(section)
-                alloptions = options_by_section.setdefault(section, [])
-                alloptions += options
+                all_options = options_by_section.setdefault(section, [])
+                all_options += options
         stream = stream or sys.stdout
         printed = False
         for section in sections:
@@ -239,13 +242,13 @@ class OptionsManagerMixIn:
             print(formatter.format_tail(pkginfo), file=stream)
 
     def load_provider_defaults(self):
-        """initialize configuration using default values"""
+        """Initialize configuration using default values."""
         for provider in self.options_providers:
             provider.load_defaults()
 
     def read_config_file(self, config_file=None, verbose=None):
         """Read the configuration file but do not load it (i.e. dispatching
-        values to each options provider)
+        values to each option's provider)
         """
         for help_level in range(1, self._maxlevel + 1):
             opt = "-".join(["long"] * help_level) + "-help"
@@ -276,13 +279,13 @@ class OptionsManagerMixIn:
             if config_file.endswith(".toml"):
                 try:
                     self._parse_toml(config_file, parser)
-                except toml.TomlDecodeError as e:
+                except tomllib.TOMLDecodeError as e:
                     self.add_message("config-parse-error", line=0, args=str(e))
             else:
                 # Use this encoding in order to strip the BOM marker, if any.
                 with open(config_file, encoding="utf_8_sig") as fp:
                     parser.read_file(fp)
-                # normalize sections'title
+                # normalize each section's title
                 for sect, values in list(parser._sections.items()):
                     if sect.startswith("pylint."):
                         sect = sect[len("pylint.") :]
@@ -300,8 +303,8 @@ class OptionsManagerMixIn:
         self, config_file: Union[Path, str], parser: configparser.ConfigParser
     ) -> None:
         """Parse and handle errors of a toml configuration file."""
-        with open(config_file, encoding="utf-8") as fp:
-            content = toml.load(fp)
+        with open(config_file, mode="rb") as fp:
+            content = tomllib.load(fp)
         try:
             sections_values = content["tool"]["pylint"]
         except KeyError:
@@ -332,7 +335,8 @@ class OptionsManagerMixIn:
 
     def load_config_file(self):
         """Dispatch values previously read from a configuration file to each
-        options provider)"""
+        option's provider
+        """
         parser = self.cfgfile_parser
         for section in parser.sections():
             for option, value in parser.items(section):
@@ -342,7 +346,7 @@ class OptionsManagerMixIn:
                     continue
 
     def load_configuration(self, **kwargs):
-        """override configuration according to given parameters"""
+        """Override configuration according to given parameters."""
         return self.load_configuration_from_config(kwargs)
 
     def load_configuration_from_config(self, config):
@@ -352,7 +356,7 @@ class OptionsManagerMixIn:
             provider.set_option(opt, opt_value)
 
     def load_command_line_configuration(self, args=None) -> List[str]:
-        """Override configuration according to command line parameters
+        """Override configuration according to command line parameters.
 
         return additional arguments
         """
@@ -369,7 +373,7 @@ class OptionsManagerMixIn:
             return args
 
     def add_help_section(self, title, description, level=0):
-        """add a dummy option section for help purpose"""
+        """Add a dummy option section for help purpose."""
         group = optparse.OptionGroup(
             self.cmdline_parser, title=title.capitalize(), description=description
         )
@@ -378,7 +382,7 @@ class OptionsManagerMixIn:
         self.cmdline_parser.add_option_group(group)
 
     def help(self, level=0):
-        """return the usage string for available options"""
+        """Return the usage string for available options."""
         self.cmdline_parser.formatter.output_level = level
         with _patch_optparse():
             return self.cmdline_parser.format_help()

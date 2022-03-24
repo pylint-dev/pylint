@@ -1,5 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Checker mixin for deprecated functionality."""
 from itertools import chain
@@ -22,6 +23,7 @@ ACCEPTABLE_NODES = (
 
 class DeprecatedMixin(BaseChecker):
     """A mixin implementing logic for checking deprecated symbols.
+
     A class implementing mixin must define "deprecated-method" Message.
     """
 
@@ -70,7 +72,7 @@ class DeprecatedMixin(BaseChecker):
         "deprecated-class",
     )
     def visit_import(self, node: nodes.Import) -> None:
-        """triggered when an import statement is seen"""
+        """Triggered when an import statement is seen."""
         for name in (name for name, _ in node.names):
             self.check_deprecated_module(node, name)
             if "." in name:
@@ -89,7 +91,7 @@ class DeprecatedMixin(BaseChecker):
 
     @utils.check_messages("deprecated-decorator")
     def visit_decorators(self, node: nodes.Decorators) -> None:
-        """Triggered when a decorator statement is seen"""
+        """Triggered when a decorator statement is seen."""
         children = list(node.get_children())
         if not children:
             return
@@ -106,7 +108,7 @@ class DeprecatedMixin(BaseChecker):
         "deprecated-class",
     )
     def visit_importfrom(self, node: nodes.ImportFrom) -> None:
-        """triggered when a from statement is seen"""
+        """Triggered when a from statement is seen."""
         basename = node.modname
         basename = get_import_name(node, basename)
         self.check_deprecated_module(node, basename)
@@ -174,14 +176,15 @@ class DeprecatedMixin(BaseChecker):
         return ()
 
     def check_deprecated_module(self, node, mod_path):
-        """Checks if the module is deprecated"""
+        """Checks if the module is deprecated."""
         for mod_name in self.deprecated_modules():
             if mod_path == mod_name or mod_path.startswith(mod_name + "."):
                 self.add_message("deprecated-module", node=node, args=mod_path)
 
     def check_deprecated_method(self, node, inferred):
-        """Executes the checker for the given node. This method should
-        be called from the checker implementing this mixin.
+        """Executes the checker for the given node.
+
+        This method should be called from the checker implementing this mixin.
         """
 
         # Reject nodes which aren't of interest to us.
@@ -225,7 +228,7 @@ class DeprecatedMixin(BaseChecker):
                 )
 
     def check_deprecated_class(self, node, mod_name, class_names):
-        """Checks if the class is deprecated"""
+        """Checks if the class is deprecated."""
 
         for class_name in class_names:
             if class_name in self.deprecated_classes(mod_name):
@@ -234,7 +237,7 @@ class DeprecatedMixin(BaseChecker):
                 )
 
     def check_deprecated_class_in_call(self, node):
-        """Checks if call the deprecated class"""
+        """Checks if call the deprecated class."""
 
         if isinstance(node.func, nodes.Attribute) and isinstance(
             node.func.expr, nodes.Name

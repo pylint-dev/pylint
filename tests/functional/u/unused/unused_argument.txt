@@ -6,3 +6,4 @@ unused-argument:61:21:61:24:AAAA.method:Unused argument 'arg':INFERENCE
 unused-argument:68:0:None:None:AAAA.selected:Unused argument 'args':INFERENCE
 unused-argument:68:0:None:None:AAAA.selected:Unused argument 'kwargs':INFERENCE
 unused-argument:87:23:87:26:BBBB.__init__:Unused argument 'arg':INFERENCE
+unused-argument:98:34:98:39:Ancestor.set_thing:Unused argument 'other':INFERENCE
