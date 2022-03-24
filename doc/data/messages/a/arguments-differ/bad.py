@@ -1,10 +1,10 @@
 class Square:
-    def __init__(self, length):
+    def set_size(self, length):
         self.length = length
 
 
 class Rectangle(Square):
-    def __init__(self, length, width):  # [arguments-differ]
+    def set_size(self, length, width):  # [arguments-differ]
         self.length = length
         self.width = width
 
