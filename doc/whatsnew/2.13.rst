@@ -398,6 +398,11 @@ Other Changes
 
   Closes #5360, #3877
 
+* Improve ``invalid-name`` check for ``TypeVar`` names.
+  The accepted pattern can be customized with ``--typevar-rgx``.
+
+  Closes #3401
+
 * Fixed a false positive (affecting unreleased development) for
   ``used-before-assignment`` involving homonyms between filtered comprehensions
   and assignments in except blocks.

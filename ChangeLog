@@ -522,6 +522,11 @@ Release date: TBA
   Insert your changelog randomly, it will reduce merge conflicts
   (Ie. not necessarily at the end)
 
+* Improve ``invalid-name`` check for ``TypeVar`` names.
+  The accepted pattern can be customized with ``--typevar-rgx``.
+
+  Closes #3401
+
 * Added new checker ``typevar-name-missing-variance``. Emitted when a covariant
   or contravariant ``TypeVar`` does not end with  ``_co`` or ``_contra`` respectively or
   when a ``TypeVar`` is not either but has a suffix.

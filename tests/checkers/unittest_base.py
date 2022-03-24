@@ -190,13 +190,13 @@ class TestNamePresets(unittest.TestCase):
     def _test_name_is_correct_for_all_name_types(
         self, naming_style: Type[base.NamingStyle], name: str
     ) -> None:
-        for name_type in base.KNOWN_NAME_TYPES:
+        for name_type in base.KNOWN_NAME_TYPES_WITH_STYLE:
             self._test_is_correct(naming_style, name, name_type)
 
     def _test_name_is_incorrect_for_all_name_types(
         self, naming_style: Type[base.NamingStyle], name: str
     ) -> None:
-        for name_type in base.KNOWN_NAME_TYPES:
+        for name_type in base.KNOWN_NAME_TYPES_WITH_STYLE:
             self._test_is_incorrect(naming_style, name, name_type)
 
     def _test_should_always_pass(self, naming_style: Type[base.NamingStyle]) -> None:
