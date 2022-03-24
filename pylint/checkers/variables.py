@@ -2819,10 +2819,6 @@ class VariablesChecker(BaseChecker):
         return consumed
 
     def visit_subscript(self, node: nodes.Subscript) -> None:
-        # Slice should always be defined on nodes.Subscript
-        # To be fixed in astroid > https://github.com/PyCQA/astroid/issues/1250
-        assert node.slice
-
         inferred_slice = utils.safe_infer(node.slice)
 
         self._check_potential_index_error(node, inferred_slice)
@@ -2831,7 +2827,7 @@ class VariablesChecker(BaseChecker):
         self, node: nodes.Subscript, inferred_slice: Optional[nodes.NodeNG]
     ) -> None:
         """Check for the potential-index-error message."""
-        # Currently we only think simple slices of a single integer
+        # Currently we only check simple slices of a single integer
         if not isinstance(inferred_slice, nodes.Const) or not isinstance(
             inferred_slice.value, int
         ):
