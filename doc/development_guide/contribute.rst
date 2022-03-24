@@ -87,7 +87,8 @@ of Pylint as it gives you access to the latest ``ast`` parser.
 
 - Add a short entry in :file:`doc/whatsnew/VERSION.rst`.
 
-- Add yourself to the `CONTRIBUTORS.txt` file.
+- If you used multiple emails or multiple names when contributing, add your mails
+  and preferred name in the ``script/.contributors_aliases.json`` file.
 
 - Write a comprehensive commit message
 
@@ -99,8 +100,6 @@ of Pylint as it gives you access to the latest ``ast`` parser.
 
 - Send a pull request from GitHub (see `About pull requests`_ for more insight
   about this topic)
-
-
 
 .. _`Closing issues via commit messages`: https://help.github.com/articles/closing-issues-via-commit-messages/
 .. _`About pull requests`: https://help.github.com/articles/using-pull-requests/
