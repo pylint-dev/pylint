@@ -830,7 +830,11 @@ a metaclass class method.",
                     node=node,
                 )
 
-    @check_messages("unused-private-member", "attribute-defined-outside-init")
+    @check_messages(
+        "unused-private-member",
+        "attribute-defined-outside-init",
+        "access-member-before-definition",
+    )
     def leave_classdef(self, node: nodes.ClassDef) -> None:
         """Checker for Class nodes.
 
