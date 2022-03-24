@@ -1,1 +1,1 @@
-assert (1, 2)  # [assert-on-tuple]
+assert (1, None)  # [assert-on-tuple]

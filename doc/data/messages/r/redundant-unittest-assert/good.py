@@ -3,6 +3,4 @@ import unittest
 
 class DummyTestCase(unittest.TestCase):
     def test_dummy(self):
-        value = "foo"
-
-        self.assertTrue(value)
+        # Nothing, as an assert of a string literal will always pass

@@ -1,3 +1,3 @@
-x, y = (1, 2)
+x, y = (1, None)
 assert x
 assert y
