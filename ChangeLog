@@ -480,6 +480,11 @@ Release date: TBA
 * The ``testutils`` for unittests now accept ``end_lineno`` and ``end_column``. Tests
   without these will trigger a ``DeprecationWarning``.
 
+* ``arguments-differ`` will no longer complain about method redefinitions with extra parameters
+  that have default values.
+
+  Closes #1556, #5338
+
 * Fixed false positive ``unexpected-keyword-arg`` for decorators.
 
   Closes #258

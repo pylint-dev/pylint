@@ -191,15 +191,21 @@ def _has_different_parameters(
     overridden: List[nodes.AssignName],
     dummy_parameter_regex: Pattern,
 ) -> List[str]:
-    result = []
+    result: List[str] = []
     zipped = zip_longest(original, overridden)
     for original_param, overridden_param in zipped:
-        params = (original_param, overridden_param)
-        if not all(params):
+        if not overridden_param:
             return ["Number of parameters "]
 
+        if not original_param:
+            try:
+                overridden_param.parent.default_value(overridden_param.name)
+                continue
+            except astroid.NoDefault:
+                return ["Number of parameters "]
+
         # check for the arguments' name
-        names = [param.name for param in params]
+        names = [param.name for param in (original_param, overridden_param)]
         if any(dummy_parameter_regex.match(name) for name in names):
             continue
         if original_param.name != overridden_param.name:
@@ -209,6 +215,29 @@ def _has_different_parameters(
             )
 
     return result
+
+
+def _has_different_keyword_only_parameters(
+    original: List[nodes.AssignName],
+    overridden: List[nodes.AssignName],
+) -> List[str]:
+    """Determine if the two methods have different keyword only parameters."""
+    original_names = [i.name for i in original]
+    overridden_names = [i.name for i in overridden]
+
+    if any(name not in overridden_names for name in original_names):
+        return ["Number of parameters "]
+
+    for name in overridden_names:
+        if name in original_names:
+            continue
+
+        try:
+            overridden[0].parent.default_value(name)
+        except astroid.NoDefault:
+            return ["Number of parameters "]
+
+    return []
 
 
 def _different_parameters(
@@ -253,8 +282,8 @@ def _different_parameters(
     different_positional = _has_different_parameters(
         original_parameters, overridden_parameters, dummy_parameter_regex
     )
-    different_kwonly = _has_different_parameters(
-        original_kwonlyargs, overridden.args.kwonlyargs, dummy_parameter_regex
+    different_kwonly = _has_different_keyword_only_parameters(
+        original_kwonlyargs, overridden.args.kwonlyargs
     )
     if different_kwonly and different_positional:
         if "Number " in different_positional[0] and "Number " in different_kwonly[0]:
@@ -483,7 +512,8 @@ MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
         "%s %s %r method",
         "arguments-differ",
         "Used when a method has a different number of arguments than in "
-        "the implemented interface or in an overridden method.",
+        "the implemented interface or in an overridden method. Extra arguments "
+        "with default values are ignored.",
     ),
     "W0222": (
         "Signature differs from %s %r method",
