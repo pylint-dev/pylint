@@ -3,10 +3,28 @@
 ***************************
 
 :Release: 2.13
-:Date: TBA
+:Date: 2022-03-24
 
 Summary -- Release highlights
 =============================
+
+In 2.13, we introduced a new check to deal with unicode security issues. On top of that a lot of work was
+done inside the unicode checker by @CarliJoy. We also introduced a new check when importing private name
+and for unnecessary ellipsis among other.
+
+We fixed long standing issues related to duplicate code that could not be disabled, line numbers
+that were not accurate some of the time, and added the ability to lint all files in a directory without
+specifying each one. One of the most anticipated issue from the repository. Thank you @matusvalo !
+
+A lot of ``undefined-variables`` and ``used-before-assignment`` issues were resolved thanks to @jacobtylerwalls.
+
+We started integrating ``pylint-error`` the documentation created by @vald-phoenix a developer from Hlyniane,
+Ukraine. We hope he's doing well despite the current situation. The deployment is set up but `there's still a lot to do so we welcome any community effort
+help to review, integrate, and add good/bad examples <https://github.com/PyCQA/pylint/issues/5953>`_. This should be doable
+without any pylint or astroid knowledge, so this is the perfect entrypoint if you want to contribute
+to pylint without investing any time learning the internals.
+
+This release is the last one to support interpreter below 3.7.2, 3.6 end of life was reached in december 2021.
 
 New checkers
 ============
