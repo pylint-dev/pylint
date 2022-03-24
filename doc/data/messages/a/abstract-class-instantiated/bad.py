@@ -1,10 +1,10 @@
 import abc
 
 
-class BaseClass(abc.ABC):
+class Animal(abc.ABC):
     @abc.abstractmethod
-    def get_something(self):
+    def make_sound(self):
         pass
 
 
-foo = BaseClass()  # [abstract-class-instantiated]
+sheep = Animal()  # [abstract-class-instantiated]

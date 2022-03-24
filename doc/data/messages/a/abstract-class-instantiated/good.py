@@ -1,15 +1,15 @@
 import abc
 
 
-class BaseClass(abc.ABC):
+class Animal(abc.ABC):
     @abc.abstractmethod
-    def get_something(self):
+    def make_sound(self):
         pass
 
 
-class MyClass(BaseClass):
-    def get_something(self):
-        pass
+class Sheep(Animal):
+    def make_sound(self):
+        print("bhaaaaa")
 
 
-foo = MyClass()
+sheep = Sheep()

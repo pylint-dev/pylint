@@ -1,20 +1,20 @@
-class MyClass:
-    def my_abstract_method(self):
+class Pet:
+    def make_sound(self):
         raise NotImplementedError
 
 
-class ParentClass(MyClass):  # [abstract-method]
+class Cat(Pet):  # [abstract-method]
     pass
 
 
 import abc
 
 
-class AnotherClass:
+class WildAnimal:
     @abc.abstractmethod
-    def my_abstract_method(self):
+    def make_sound(self):
         pass
 
 
-class AnotherParentClass(AnotherClass):  # [abstract-method]
+class Panther(WildAnimal):  # [abstract-method]
     pass
