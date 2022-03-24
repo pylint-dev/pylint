@@ -2,7 +2,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-"""Permits separating multiple checks with the same checker name into classes/file."""
+"""Basic checker for Python code."""
 
 import collections
 import itertools
@@ -30,6 +30,8 @@ else:
 
 
 class _BasicChecker(BaseChecker):
+    """Permits separating multiple checks with the same checker name into classes/file."""
+
     __implements__ = IAstroidChecker
     name = "basic"
 
