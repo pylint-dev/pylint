@@ -17,6 +17,7 @@ from pylint import utils as lint_utils
 from pylint.checkers import utils
 from pylint.checkers.base.basic_checker import _BasicChecker
 from pylint.checkers.base.comparison_checker import ComparisonChecker
+from pylint.checkers.base.pass_checker import PassChecker
 from pylint.checkers.utils import (
     infer_all,
     is_overload_stub,
@@ -2309,26 +2310,6 @@ class DocStringChecker(_BasicChecker):
             self.add_message(
                 "empty-docstring", node=node, args=(node_type,), confidence=confidence
             )
-
-
-class PassChecker(_BasicChecker):
-    """Check if the pass statement is really necessary."""
-
-    msgs = {
-        "W0107": (
-            "Unnecessary pass statement",
-            "unnecessary-pass",
-            'Used when a "pass" statement that can be avoided is encountered.',
-        )
-    }
-
-    @utils.check_messages("unnecessary-pass")
-    def visit_pass(self, node: nodes.Pass) -> None:
-        if len(node.parent.child_sequence(node)) > 1 or (
-            isinstance(node.parent, (nodes.ClassDef, nodes.FunctionDef))
-            and node.parent.doc_node
-        ):
-            self.add_message("unnecessary-pass", node=node)
 
 
 def _infer_dunder_doc_attribute(node):
