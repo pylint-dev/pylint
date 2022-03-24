@@ -2,7 +2,6 @@
 similarity when compared to its sister file
 
 As with the sister file, we use lorm-ipsum to generate 'random' code. """
-# Copyright (c) 2020 Frank Harrison <frank@doublethefish.com>
 
 
 class Nulla:

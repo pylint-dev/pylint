@@ -1,4 +1,7 @@
-#
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
 # Pylint documentation build configuration file, created by
 # sphinx-quickstart on Thu Apr  4 20:31:25 2013.
 #
@@ -73,7 +76,7 @@ release = __version__
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ["_build"]
+exclude_patterns = ["_build", "data/**"]
 
 # The reST default role (used for this markup: `text`) to use for all documents.
 # default_role = None

@@ -1,24 +1,6 @@
-# Copyright (c) 2008-2010, 2012-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2014 Brett Cannon <brett@python.org>
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016 Alexander Pervakov <frost.nzcr4@jagmort.com>
-# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
-# Copyright (c) 2019, 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2020 Peter Kolbus <peter.kolbus@gmail.com>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2021 Antonio Quarta <sgheppy88@gmail.com>
-# Copyright (c) 2021 Tushar Sadhwani <tushar.sadhwani000@gmail.com>
-# Copyright (c) 2021 Mark Byrne <31762852+mbyrnepr2@users.noreply.github.com>
-# Copyright (c) 2021 bot <bot@noreply.github.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """%prog [options] <packages>.
 
@@ -32,7 +14,20 @@ from pylint.lint.utils import fix_import_path
 from pylint.pyreverse import writer
 from pylint.pyreverse.diadefslib import DiadefsHandler
 from pylint.pyreverse.inspector import Linker, project_from_files
-from pylint.pyreverse.utils import check_graphviz_availability, insert_default_options
+from pylint.pyreverse.utils import (
+    check_graphviz_availability,
+    check_if_graphviz_supports_format,
+    insert_default_options,
+)
+
+DIRECTLY_SUPPORTED_FORMATS = (
+    "dot",
+    "vcg",
+    "puml",
+    "plantuml",
+    "mmd",
+    "html",
+)
 
 OPTIONS = (
     (
@@ -139,7 +134,10 @@ OPTIONS = (
             action="store",
             default="dot",
             metavar="<format>",
-            help="create a *.<format> output file if format available.",
+            help=(
+                f"create a *.<format> output file if format is available. Available formats are: {', '.join(DIRECTLY_SUPPORTED_FORMATS)}. "
+                f"Any other format will be tried to create by means of the 'dot' command line tool, which requires a graphviz installation."
+            ),
         ),
     ),
     (
@@ -205,15 +203,12 @@ class Run(ConfigurationMixIn):
         super().__init__(usage=__doc__)
         insert_default_options()
         args = self.load_command_line_configuration(args)
-        if self.config.output_format not in (
-            "dot",
-            "vcg",
-            "puml",
-            "plantuml",
-            "mmd",
-            "html",
-        ):
+        if self.config.output_format not in DIRECTLY_SUPPORTED_FORMATS:
             check_graphviz_availability()
+            print(
+                f"Format {self.config.output_format} is not supported natively. Pyreverse will try to generate it using Graphviz..."
+            )
+            check_if_graphviz_supports_format(self.config.output_format)
 
         sys.exit(self.run(args))
 

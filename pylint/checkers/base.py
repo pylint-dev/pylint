@@ -1,79 +1,13 @@
-# Copyright (c) 2006-2016 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2010 Daniel Harding <dharding@gmail.com>
-# Copyright (c) 2012-2014 Google, Inc.
-# Copyright (c) 2013-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2014 Brett Cannon <brett@python.org>
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015 Nick Bastin <nick.bastin@gmail.com>
-# Copyright (c) 2015 Michael Kefeder <oss@multiwave.ch>
-# Copyright (c) 2015 Dmitry Pribysh <dmand@yandex.ru>
-# Copyright (c) 2015 Stephane Wirtel <stephane@wirtel.be>
-# Copyright (c) 2015 Cosmin Poieana <cmin@ropython.org>
-# Copyright (c) 2015 Florian Bruhin <me@the-compiler.org>
-# Copyright (c) 2015 Radu Ciorba <radu@devrandom.ro>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016, 2019 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2016, 2018 Jakub Wilk <jwilk@jwilk.net>
-# Copyright (c) 2016-2017 Łukasz Rogalski <rogalski.91@gmail.com>
-# Copyright (c) 2016 Glenn Matthews <glenn@e-dad.net>
-# Copyright (c) 2016 Elias Dorneles <eliasdorneles@gmail.com>
-# Copyright (c) 2016 Yannack <yannack@users.noreply.github.com>
-# Copyright (c) 2016 Alex Jurkiewicz <alex@jurkiewi.cz>
-# Copyright (c) 2017, 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2017, 2019-2021 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2017 danields <danields761@gmail.com>
-# Copyright (c) 2017 Jacques Kvam <jwkvam@gmail.com>
-# Copyright (c) 2017 ttenhoeve-aa <ttenhoeve@appannie.com>
-# Copyright (c) 2018-2019, 2021 Nick Drozd <nicholasdrozd@gmail.com>
-# Copyright (c) 2018-2019, 2021 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2018 Sergei Lebedev <185856+superbobry@users.noreply.github.com>
-# Copyright (c) 2018 Lucas Cimon <lucas.cimon@gmail.com>
-# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
-# Copyright (c) 2018 Natalie Serebryakova <natalie.serebryakova@Natalies-MacBook-Pro.local>
-# Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
-# Copyright (c) 2018 SergeyKosarchuk <sergeykosarchuk@gmail.com>
-# Copyright (c) 2018 Steven M. Vascellaro <svascellaro@gmail.com>
-# Copyright (c) 2018 Mike Frysinger <vapier@gmail.com>
-# Copyright (c) 2018 Chris Lamb <chris@chris-lamb.co.uk>
-# Copyright (c) 2018 glmdgrielson <32415403+glmdgrielson@users.noreply.github.com>
-# Copyright (c) 2019 Daniel Draper <Germandrummer92@users.noreply.github.com>
-# Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2019 Niko Wenselowski <niko@nerdno.de>
-# Copyright (c) 2019 Nikita Sobolev <mail@sobolevn.me>
-# Copyright (c) 2019 Oisín Moran <OisinMoran@users.noreply.github.com>
-# Copyright (c) 2019 Fantix King <fantix@uchicago.edu>
-# Copyright (c) 2020 Peter Kolbus <peter.kolbus@gmail.com>
-# Copyright (c) 2020 ethan-leba <ethanleba5@gmail.com>
-# Copyright (c) 2020 へーさん <hira9603859504@gmail.com>
-# Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
-# Copyright (c) 2020 Ram Rachum <ram@rachum.com>
-# Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2020 bernie gray <bfgray3@users.noreply.github.com>
-# Copyright (c) 2020 Gabriel R Sezefredo <g@briel.dev>
-# Copyright (c) 2020 Benny <benny.mueller91@gmail.com>
-# Copyright (c) 2020 Anubhav <35621759+anubh-v@users.noreply.github.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Tushar Sadhwani <tushar.sadhwani000@gmail.com>
-# Copyright (c) 2021 Tim Martin <tim@asymptotic.co.uk>
-# Copyright (c) 2021 Jaehoon Hwang <jaehoonhwang@users.noreply.github.com>
-# Copyright (c) 2021 jaydesl <35102795+jaydesl@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 bot <bot@noreply.github.com>
-# Copyright (c) 2021 Yilei "Dolee" Yang <yileiyang@google.com>
-# Copyright (c) 2021 Lorena B <46202743+lorena-b@users.noreply.github.com>
-# Copyright (c) 2021 David Liu <david@cs.toronto.edu>
-# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
-# Copyright (c) 2021-2022 Or Bahari <or.ba402@gmail.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Basic checker for Python code."""
 import collections
 import itertools
 import re
 import sys
-from typing import TYPE_CHECKING, Any, Dict, Iterator, Optional, Pattern, cast
+from typing import TYPE_CHECKING, Any, Dict, Iterator, Optional, Pattern, Tuple, cast
 
 import astroid
 from astroid import nodes
@@ -186,6 +120,13 @@ NAMING_STYLES = {
     "PascalCase": PascalCaseStyle,
     "UPPER_CASE": UpperCaseStyle,
     "any": AnyStyle,
+}
+
+# Default patterns for name types that do not have styles
+DEFAULT_PATTERNS = {
+    "typevar": re.compile(
+        r"^_{0,2}(?:[^\W\da-z_]+|(?:[^\W\da-z_][^\WA-Z_]+)+T?(?<!Type))(?:_co(?:ntra)?)?$"
+    )
 }
 
 # do not require a doc string on private/system methods
@@ -1667,7 +1608,8 @@ class BasicChecker(_BasicChecker):
         self._check_redeclared_assign_name([node.target])
 
 
-KNOWN_NAME_TYPES = {
+# Name types that have a style option
+KNOWN_NAME_TYPES_WITH_STYLE = {
     "module",
     "const",
     "class",
@@ -1679,6 +1621,12 @@ KNOWN_NAME_TYPES = {
     "class_attribute",
     "class_const",
     "inlinevar",
+}
+
+# Name types that have a 'rgx' option
+KNOWN_NAME_TYPES = {
+    *KNOWN_NAME_TYPES_WITH_STYLE,
+    "typevar",
 }
 
 DEFAULT_NAMING_STYLES = {
@@ -1700,28 +1648,37 @@ def _create_naming_options():
     name_options = []
     for name_type in sorted(KNOWN_NAME_TYPES):
         human_readable_name = constants.HUMAN_READABLE_TYPES[name_type]
-        default_style = DEFAULT_NAMING_STYLES[name_type]
-        name_type = name_type.replace("_", "-")
-        name_options.append(
-            (
-                f"{name_type}-naming-style",
-                {
-                    "default": default_style,
-                    "type": "choice",
-                    "choices": list(NAMING_STYLES.keys()),
-                    "metavar": "<style>",
-                    "help": f"Naming style matching correct {human_readable_name} names.",
-                },
+        name_type_hyphened = name_type.replace("_", "-")
+
+        help_msg = f"Regular expression matching correct {human_readable_name} names. "
+        if name_type in KNOWN_NAME_TYPES_WITH_STYLE:
+            help_msg += f"Overrides {name_type_hyphened}-naming-style. "
+        help_msg += f"If left empty, {human_readable_name} names will be checked with the set naming style."
+
+        # Add style option for names that support it
+        if name_type in KNOWN_NAME_TYPES_WITH_STYLE:
+            default_style = DEFAULT_NAMING_STYLES[name_type]
+            name_options.append(
+                (
+                    f"{name_type_hyphened}-naming-style",
+                    {
+                        "default": default_style,
+                        "type": "choice",
+                        "choices": list(NAMING_STYLES.keys()),
+                        "metavar": "<style>",
+                        "help": f"Naming style matching correct {human_readable_name} names.",
+                    },
+                )
             )
-        )
+
         name_options.append(
             (
-                f"{name_type}-rgx",
+                f"{name_type_hyphened}-rgx",
                 {
                     "default": None,
                     "type": "regexp",
                     "metavar": "<regexp>",
-                    "help": f"Regular expression matching correct {human_readable_name} names. Overrides {name_type}-naming-style.",
+                    "help": help_msg,
                 },
             )
         )
@@ -1869,15 +1826,19 @@ class NameChecker(_BasicChecker):
             re.compile(rgxp) for rgxp in self.config.bad_names_rgxs
         ]
 
-    def _create_naming_rules(self):
-        regexps = {}
-        hints = {}
+    def _create_naming_rules(self) -> Tuple[Dict[str, Pattern[str]], Dict[str, str]]:
+        regexps: Dict[str, Pattern[str]] = {}
+        hints: Dict[str, str] = {}
 
         for name_type in KNOWN_NAME_TYPES:
-            naming_style_option_name = f"{name_type}_naming_style"
-            naming_style_name = getattr(self.config, naming_style_option_name)
-
-            regexps[name_type] = NAMING_STYLES[naming_style_name].get_regex(name_type)
+            if name_type in KNOWN_NAME_TYPES_WITH_STYLE:
+                naming_style_name = getattr(self.config, f"{name_type}_naming_style")
+                regexps[name_type] = NAMING_STYLES[naming_style_name].get_regex(
+                    name_type
+                )
+            else:
+                naming_style_name = "predefined"
+                regexps[name_type] = DEFAULT_PATTERNS[name_type]
 
             custom_regex_setting_name = f"{name_type}_rgx"
             custom_regex = getattr(self.config, custom_regex_setting_name, None)
@@ -2085,14 +2046,6 @@ class NameChecker(_BasicChecker):
     def _check_name(self, node_type, name, node, confidence=interfaces.HIGH):
         """Check for a name using the type's regexp."""
 
-        # pylint: disable=fixme
-        # TODO: move this down in the function and check TypeVar
-        # for name patterns as well.
-        # Check TypeVar names for variance suffixes
-        if node_type == "typevar":
-            self._check_typevar_variance(name, node)
-            return
-
         def _should_exempt_from_invalid_name(node):
             if node_type == "variable":
                 inferred = utils.safe_infer(node)
@@ -2117,6 +2070,10 @@ class NameChecker(_BasicChecker):
 
         if match is None and not _should_exempt_from_invalid_name(node):
             self._raise_name_warning(None, node, node_type, name, confidence)
+
+        # Check TypeVar names for variance suffixes
+        if node_type == "typevar":
+            self._check_typevar_variance(name, node)
 
     def _check_assign_to_new_keyword_violation(self, name, node):
         keyword_first_version = self._name_became_keyword_in_version(

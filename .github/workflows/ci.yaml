@@ -39,7 +39,7 @@ jobs:
           }}"
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v2.1.7
+        uses: actions/cache@v3.0.0
         with:
           path: venv
           key: >-
@@ -61,7 +61,7 @@ jobs:
             hashFiles('.pre-commit-config.yaml') }}"
       - name: Restore pre-commit environment
         id: cache-precommit
-        uses: actions/cache@v2.1.7
+        uses: actions/cache@v3.0.0
         with:
           path: ${{ env.PRE_COMMIT_CACHE }}
           key: >-
@@ -89,7 +89,7 @@ jobs:
           python-version: ${{ env.DEFAULT_PYTHON }}
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v2.1.7
+        uses: actions/cache@v3.0.0
         with:
           path: venv
           key:
@@ -102,7 +102,7 @@ jobs:
           exit 1
       - name: Restore pre-commit environment
         id: cache-precommit
-        uses: actions/cache@v2.1.7
+        uses: actions/cache@v3.0.0
         with:
           path: ${{ env.PRE_COMMIT_CACHE }}
           key: ${{ runner.os }}-${{ needs.prepare-base.outputs.pre-commit-key }}
@@ -132,7 +132,7 @@ jobs:
           python-version: ${{ env.DEFAULT_PYTHON }}
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v2.1.7
+        uses: actions/cache@v3.0.0
         with:
           path: venv
           key:
@@ -147,6 +147,37 @@ jobs:
         run: |
           . venv/bin/activate
           pytest tests/ -k unittest_spelling
+
+  documentation:
+    name: checks / documentation
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: prepare-base
+    steps:
+      - name: Check out code from GitHub
+        uses: actions/checkout@v3.0.0
+      - name: Set up Python ${{ env.DEFAULT_PYTHON }}
+        id: python
+        uses: actions/setup-python@v3.0.0
+        with:
+          python-version: ${{ env.DEFAULT_PYTHON }}
+      - name: Restore Python virtual environment
+        id: cache-venv
+        uses: actions/cache@v3.0.0
+        with:
+          path: venv
+          key:
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
+            needs.prepare-base.outputs.python-key }}
+      - name: Fail job if Python cache restore failed
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: |
+          echo "Failed to restore Python venv from cache"
+          exit 1
+      - name: Run checks on documentation code examples
+        run: |
+          . venv/bin/activate
+          pytest doc/test_messages_documentation.py
 
   prepare-tests-linux:
     name: tests / prepare / ${{ matrix.python-version }} / Linux
@@ -175,7 +206,7 @@ jobs:
           }}"
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v2.1.7
+        uses: actions/cache@v3.0.0
         with:
           path: venv
           key: >-
@@ -210,7 +241,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v2.1.7
+        uses: actions/cache@v3.0.0
         with:
           path: venv
           key:
@@ -251,7 +282,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v2.1.7
+        uses: actions/cache@v3.0.0
         with:
           path: venv
           key:
@@ -295,7 +326,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v2.1.7
+        uses: actions/cache@v3.0.0
         with:
           path: venv
           key:
@@ -356,7 +387,7 @@ jobs:
           }}"
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v2.1.7
+        uses: actions/cache@v3.0.0
         with:
           path: venv
           key: >-
@@ -395,7 +426,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v2.1.7
+        uses: actions/cache@v3.0.0
         with:
           path: venv
           key:
@@ -438,7 +469,7 @@ jobs:
           }}"
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v2.1.7
+        uses: actions/cache@v3.0.0
         with:
           path: venv
           key: >-
@@ -473,7 +504,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v2.1.7
+        uses: actions/cache@v3.0.0
         with:
           path: venv
           key:

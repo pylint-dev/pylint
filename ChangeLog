@@ -2,6 +2,15 @@
 Pylint's ChangeLog
 ------------------
 
+What's New in Pylint 2.14.0?
+============================
+Release date: TBA
+
+* Add new check (C2801) for the use of manual ``__magic__`` methods.
+
+  Closes #5936
+
+
 What's New in Pylint 2.13.0?
 ============================
 Release date: TBA
@@ -9,9 +18,8 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.13.rst'
 
-* Add new check (C2801) for the use of manual ``__magic__`` methods.
 
-  Closes #5936
+* Add missing dunder methods to ``unexpected-special-method-signature`` check.
 
 * No longer emit ``no-member`` in for loops that reference ``self`` if the binary operation that
   started the for loop uses a ``self`` that is encapsulated in tuples or lists.
@@ -19,7 +27,13 @@ Release date: TBA
   Ref PyCQA/astroid#1360
   Closes #4826
 
+* Output better error message if unsupported file formats are used with ``pyreverse``.
+
+  Closes #5950
+
 * Fix pyreverse diagrams type hinting for classmethods and staticmethods.
+
+* Fix pyreverse diagrams type hinting for methods returning None.
 
 * Fix matching ``--notes`` options that end in a non-word character.
 
@@ -376,6 +390,11 @@ Release date: TBA
 
   Closes #5679
 
+* Fix false positive for ``used-before-assignment`` from a class definition
+  nested under a function subclassing a class defined outside the function.
+
+  Closes #4590
+
 * Fix ``unnecessary_dict_index_lookup`` false positive when deleting a dictionary's entry.
 
   Closes #4716
@@ -471,6 +490,11 @@ Release date: TBA
 * The ``testutils`` for unittests now accept ``end_lineno`` and ``end_column``. Tests
   without these will trigger a ``DeprecationWarning``.
 
+* ``arguments-differ`` will no longer complain about method redefinitions with extra parameters
+  that have default values.
+
+  Closes #1556, #5338
+
 * Fixed false positive ``unexpected-keyword-arg`` for decorators.
 
   Closes #258
@@ -507,6 +531,11 @@ Release date: TBA
 ..
   Insert your changelog randomly, it will reduce merge conflicts
   (Ie. not necessarily at the end)
+
+* Improve ``invalid-name`` check for ``TypeVar`` names.
+  The accepted pattern can be customized with ``--typevar-rgx``.
+
+  Closes #3401
 
 * Added new checker ``typevar-name-missing-variance``. Emitted when a covariant
   or contravariant ``TypeVar`` does not end with  ``_co`` or ``_contra`` respectively or

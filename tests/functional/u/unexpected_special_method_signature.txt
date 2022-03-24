@@ -6,11 +6,13 @@ unexpected-special-method-signature:20:4:20:17:Invalid.__round__:The special met
 unexpected-special-method-signature:23:4:23:20:Invalid.__deepcopy__:The special method '__deepcopy__' expects 1 param(s), 2 were given:UNDEFINED
 no-method-argument:26:4:26:16:Invalid.__iter__:Method has no argument:UNDEFINED
 unexpected-special-method-signature:30:4:30:19:Invalid.__getattr__:The special method '__getattr__' expects 1 param(s), 2 were given:UNDEFINED
-unexpected-special-method-signature:37:4:37:16:FirstBadContextManager.__exit__:The special method '__exit__' expects 3 param(s), 1 was given:UNDEFINED
-unexpected-special-method-signature:43:4:43:16:SecondBadContextManager.__exit__:The special method '__exit__' expects 3 param(s), 4 were given:UNDEFINED
-unexpected-special-method-signature:51:4:51:16:ThirdBadContextManager.__exit__:The special method '__exit__' expects 3 param(s), 4 were given:UNDEFINED
-unexpected-special-method-signature:57:4:57:17:Async.__aiter__:The special method '__aiter__' expects 0 param(s), 1 was given:UNDEFINED
-unexpected-special-method-signature:59:4:59:17:Async.__anext__:The special method '__anext__' expects 0 param(s), 2 were given:UNDEFINED
-unexpected-special-method-signature:61:4:61:17:Async.__await__:The special method '__await__' expects 0 param(s), 1 was given:UNDEFINED
-unexpected-special-method-signature:63:4:63:18:Async.__aenter__:The special method '__aenter__' expects 0 param(s), 1 was given:UNDEFINED
-unexpected-special-method-signature:65:4:65:17:Async.__aexit__:The special method '__aexit__' expects 3 param(s), 0 was given:UNDEFINED
+unexpected-special-method-signature:33:4:33:22:Invalid.__subclasses__:The special method '__subclasses__' expects 0 param(s), 1 was given:UNDEFINED
+unexpected-special-method-signature:37:4:37:25:Invalid.__init_subclass__:The special method '__init_subclass__' expects 0 param(s), 1 was given:UNDEFINED
+unexpected-special-method-signature:43:4:43:16:FirstBadContextManager.__exit__:The special method '__exit__' expects 3 param(s), 1 was given:UNDEFINED
+unexpected-special-method-signature:49:4:49:16:SecondBadContextManager.__exit__:The special method '__exit__' expects 3 param(s), 4 were given:UNDEFINED
+unexpected-special-method-signature:57:4:57:16:ThirdBadContextManager.__exit__:The special method '__exit__' expects 3 param(s), 4 were given:UNDEFINED
+unexpected-special-method-signature:63:4:63:17:Async.__aiter__:The special method '__aiter__' expects 0 param(s), 1 was given:UNDEFINED
+unexpected-special-method-signature:65:4:65:17:Async.__anext__:The special method '__anext__' expects 0 param(s), 2 were given:UNDEFINED
+unexpected-special-method-signature:67:4:67:17:Async.__await__:The special method '__await__' expects 0 param(s), 1 was given:UNDEFINED
+unexpected-special-method-signature:69:4:69:18:Async.__aenter__:The special method '__aenter__' expects 0 param(s), 1 was given:UNDEFINED
+unexpected-special-method-signature:71:4:71:17:Async.__aexit__:The special method '__aexit__' expects 3 param(s), 0 was given:UNDEFINED
