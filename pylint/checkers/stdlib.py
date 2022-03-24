@@ -330,7 +330,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "bad-open-mode",
             "Python supports: r, w, a[, x] modes with b, +, "
             "and U (only with r) options. "
-            "See https://docs.python.org/2/library/functions.html#open",
+            "See https://docs.python.org/3/library/functions.html#open",
         ),
         "W1502": (
             "Using datetime.time in a boolean context.",
