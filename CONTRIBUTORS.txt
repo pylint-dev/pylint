@@ -536,3 +536,12 @@ under this name, or we did not manage to find their commits in the history.
 - Mirko Friedenhagen
 - Nicholas Smith
 - Nuzula H. Yudaka (Nuzhuka)
+- Pek Chhan
+- Peter Hammond
+- Pierre Rouleau
+- Richard Goodman: simplifiable-if-expression (with Tomer Chachamu)
+- Sebastian Ulrich
+- Takashi Hirashima
+- Thomas Snowden: fix missing-docstring for inner functions
+- Wolfgang Grafen
+- Yannick Brehon

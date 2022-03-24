@@ -18,7 +18,6 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.13.rst'
 
-
 * Add missing dunder methods to ``unexpected-special-method-signature`` check.
 
 * No longer emit ``no-member`` in for loops that reference ``self`` if the binary operation that
