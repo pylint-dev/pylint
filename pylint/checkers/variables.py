@@ -2837,7 +2837,9 @@ class VariablesChecker(BaseChecker):
         if isinstance(node.value, (nodes.Tuple, nodes.List)):
             # Add 1 because iterables are 0-indexed
             if len(node.value.elts) < inferred_slice.value + 1:
-                self.add_message("potential-index-error", node=node)
+                self.add_message(
+                    "potential-index-error", node=node, confidence=INFERENCE
+                )
             return
 
 
