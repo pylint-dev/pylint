@@ -109,6 +109,7 @@ class LintModuleTest:
 
 
 @pytest.mark.parametrize("test_file", TESTS, ids=TESTS_NAMES)
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_code_examples(test_file: Tuple[str, Path]) -> None:
     lint_test = LintModuleTest(test_file)
     lint_test.runTest()
