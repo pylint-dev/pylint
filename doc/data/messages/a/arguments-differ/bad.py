@@ -1,8 +1,22 @@
-class Foo:
-    def bar(self, arg):
-        pass
+class Square:
+    def __init__(self, length):
+        self.length = length
 
 
-class Baz(Foo):
-    def bar(self, arg, arg2):  # [arguments-differ]
-        pass
+class Rectangle(Square):
+    def __init__(self, length, width):  # [arguments-differ]
+        self.length = length
+        self.width = width
+
+
+class Duck:
+    def quack(self, decibel):
+        print(f"Qu{'a' * decibel}ck")
+
+
+class PlasticDuck(Duck):
+    def quack(self, decibel, battery):  # [arguments-differ]
+        if battery:
+            print(f"Qu{'a' * decibel}ck")
+        else:
+            print("")
