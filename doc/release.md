@@ -8,6 +8,8 @@ So, you want to release the `X.Y.Z` version of pylint ?
 the maintenance branch. If so, release a last patch release first. See
 `Releasing a patch version`.**
 
+- Write the `Summary -- Release highlights` in `doc/whatsnew` and upgrade the release
+  date.
 - Remove the empty changelog for the last unreleased patch version `X.Y-1.Z'`. (For
   example: `v2.3.5`)
 - Check the result of `git diff vX.Y-1.Z' ChangeLog`. (For example:
@@ -36,7 +38,6 @@ Check the commit, fixup the 'wip' commit with the what's new then push to a rele
 branch
 
 - Open a merge request with the two commits (no one can push directly on `main`)
-- Trigger the "release tests" workflow in GitHub Actions.
 - After the merge, recover the merged commits on `main` and tag the first one (the
   version should be `X.Y.Z`) as `vX.Y.Z` (For example: `v2.4.0`)
 - Push the tag.

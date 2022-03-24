@@ -2,12 +2,29 @@
 Pylint's ChangeLog
 ------------------
 
-What's New in Pylint 2.13.0?
+What's New in Pylint 2.14.0?
 ============================
 Release date: TBA
 
 ..
-  Put new features here and also in 'doc/whatsnew/2.13.rst'
+  Put new features here and also in 'doc/whatsnew/2.14.rst'
+
+
+
+..
+  Insert your changelog randomly, it will reduce merge conflicts
+  (Ie. not necessarily at the end)
+
+
+What's New in Pylint 2.13.1?
+============================
+Release date: TBA
+
+
+
+What's New in Pylint 2.13.0?
+============================
+Release date: 2022-03-24
 
 * Add missing dunder methods to ``unexpected-special-method-signature`` check.
 
@@ -518,10 +535,6 @@ Release date: TBA
 
   Closes #214
 
-..
-  Insert your changelog randomly, it will reduce merge conflicts
-  (Ie. not necessarily at the end)
-
 * Improve ``invalid-name`` check for ``TypeVar`` names.
   The accepted pattern can be customized with ``--typevar-rgx``.
 
@@ -530,6 +543,14 @@ Release date: TBA
 * Added new checker ``typevar-name-missing-variance``. Emitted when a covariant
   or contravariant ``TypeVar`` does not end with  ``_co`` or ``_contra`` respectively or
   when a ``TypeVar`` is not either but has a suffix.
+
+* Allow usage of mccabe 0.7.x release
+
+  Closes #5878
+
+* Fix ``unused-private-member`` false positive when accessing private methods through ``property``.
+
+  Closes #4756
 
 
 What's New in Pylint 2.12.2?
@@ -577,10 +598,6 @@ Release date: 2021-11-25
 
   Closes #5316
 
-* Allow usage of mccabe 0.7.x release
-
-  Closes #5878
-
 
 What's New in Pylint 2.12.1?
 ============================
@@ -608,10 +625,6 @@ Release date: 2021-11-24
   ``pylint/testutil/`` are still unstable and might be modified in the near future.
 
   Closes #4412 #5287
-
-* Fix ``unused-private-member`` false positive when accessing private methods through ``property``.
-
-  Closes #4756
 
 * Fix ``install graphiz`` message which isn't needed for puml output format.
 
