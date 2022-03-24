@@ -16,7 +16,8 @@ class Duck:
 
 
 class PlasticDuck:
-    def quack(self, decibel, battery=None):
+    """A plastic Duck is not a Duck, they should not inherit from each other."""
+    def quack(self, decibel, battery): 
         if battery:
             print(f"Qu{'a' * decibel}ck")
         else:
