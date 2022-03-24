@@ -1,2 +1,2 @@
-def foo():
-    pass  # [emtpy-docstring]
+def foo():  # [empty-docstring]
+    """"""
