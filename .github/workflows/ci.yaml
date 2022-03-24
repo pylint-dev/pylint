@@ -174,7 +174,7 @@ jobs:
         run: |
           echo "Failed to restore Python venv from cache"
           exit 1
-      - name: Run spelling checks
+      - name: Run checks on documentation code examples
         run: |
           . venv/bin/activate
           pytest doc/test_messages_documentation.py
