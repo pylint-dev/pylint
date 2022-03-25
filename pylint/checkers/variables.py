@@ -619,6 +619,13 @@ scope_type : {self._atomic.scope_type}
         ):
             found_nodes = None
 
+        # Before filtering, check that this node's name is not a nonlocal
+        if any(
+            isinstance(child, nodes.Nonlocal) and node.name in child.names
+            for child in node.frame(future=True).get_children()
+        ):
+            return found_nodes
+
         # Filter out assignments in ExceptHandlers that node is not contained in
         # unless this is a test in a filtered comprehension
         # Example: [e for e in range(3) if e] <--- followed by except e:
