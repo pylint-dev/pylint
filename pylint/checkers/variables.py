@@ -16,6 +16,8 @@ from typing import (
     Any,
     DefaultDict,
     Dict,
+    Iterable,
+    Iterator,
     List,
     NamedTuple,
     Optional,
@@ -343,7 +345,9 @@ def _import_name_is_global(stmt, global_names):
     return False
 
 
-def _flattened_scope_names(iterator):
+def _flattened_scope_names(
+    iterator: Iterator[Union[nodes.Global, nodes.Nonlocal]]
+) -> Set[str]:
     values = (set(stmt.names) for stmt in iterator)
     return set(itertools.chain.from_iterable(values))
 
@@ -2271,7 +2275,9 @@ class VariablesChecker(BaseChecker):
             if not elements:
                 self.add_message("undefined-loop-variable", args=node.name, node=node)
 
-    def _check_is_unused(self, name, node, stmt, global_names, nonlocal_names):
+    def _check_is_unused(
+        self, name, node, stmt, global_names, nonlocal_names: Iterable[str]
+    ):
         # Ignore some special names specified by user configuration.
         if self._is_name_ignored(stmt, name):
             return
@@ -2293,7 +2299,7 @@ class VariablesChecker(BaseChecker):
         argnames = node.argnames()
         # Care about functions with unknown argument (builtins)
         if name in argnames:
-            self._check_unused_arguments(name, node, stmt, argnames)
+            self._check_unused_arguments(name, node, stmt, argnames, nonlocal_names)
         else:
             if stmt.parent and isinstance(
                 stmt.parent, (nodes.Assign, nodes.AnnAssign, nodes.Tuple)
@@ -2360,7 +2366,9 @@ class VariablesChecker(BaseChecker):
             regex = authorized_rgx
         return regex and regex.match(name)
 
-    def _check_unused_arguments(self, name, node, stmt, argnames):
+    def _check_unused_arguments(
+        self, name, node, stmt, argnames, nonlocal_names: Iterable[str]
+    ):
         is_method = node.is_method()
         klass = node.parent.frame(future=True)
         if is_method and isinstance(klass, nodes.ClassDef):
@@ -2399,6 +2407,9 @@ class VariablesChecker(BaseChecker):
 
         # Don't check protocol classes
         if utils.is_protocol_class(klass):
+            return
+
+        if name in nonlocal_names:
             return
 
         self.add_message("unused-argument", args=name, node=stmt, confidence=confidence)
