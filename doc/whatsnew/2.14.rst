@@ -12,6 +12,11 @@ Summary -- Release highlights
 New checkers
 ============
 
+* ``potential-index-error``: Emitted when the index of a list or tuple exceeds its length.
+  This checker is currently quite conservative to avoid false positives. We welcome
+  suggestions for improvements.
+
+  Closes #578
 
 Removed checkers
 ================
@@ -28,3 +33,8 @@ Other Changes
   the variable being raised.
 
   Closes #2793
+
+* Fix false negative for ``no-member`` when attempting to assign an instance
+  attribute to itself without any prior assignment.
+
+  Closes #1555
