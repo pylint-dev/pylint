@@ -1007,15 +1007,7 @@ accessed. Python regular expressions are accepted.",
                 return
 
             try:
-                if not [
-                    n
-                    for n in owner.getattr(node.attrname)
-                    if not isinstance(n.statement(future=True), nodes.AugAssign)
-                ]:
-                    missingattr.add((owner, name))
-                    continue
-            except astroid.exceptions.StatementMissing:
-                continue
+                attr_nodes = owner.getattr(node.attrname)
             except AttributeError:
                 continue
             except astroid.DuplicateBasesError:
@@ -1039,6 +1031,24 @@ accessed. Python regular expressions are accepted.",
                     continue
                 missingattr.add((owner, name))
                 continue
+            else:
+                for attr_node in attr_nodes:
+                    attr_parent = attr_node.parent
+                    # Skip augmented assignments
+                    try:
+                        if isinstance(
+                            attr_node.statement(future=True), nodes.AugAssign
+                        ):
+                            continue
+                    except astroid.exceptions.StatementMissing:
+                        break
+                    # Skip self-referencing assignments
+                    if attr_parent is node.parent:
+                        continue
+                    break
+                else:
+                    missingattr.add((owner, name))
+                    continue
             # stop on the first found
             break
         else:
