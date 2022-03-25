@@ -10,7 +10,6 @@ Release date: TBA
   Put new features here and also in 'doc/whatsnew/2.14.rst'
 
 
-
 ..
   Insert your changelog randomly, it will reduce merge conflicts
   (Ie. not necessarily at the end)
@@ -29,6 +28,12 @@ Release date: TBA
   the variable being raised.
 
   Closes #2793
+
+* Fixed false positive for ``unused-argument`` when a ``nonlocal`` name is used
+  in a nested function that is returned without being called by its parent.
+
+  Closes #5187
+
 
 What's New in Pylint 2.13.0?
 ============================
