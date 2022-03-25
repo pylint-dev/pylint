@@ -28,7 +28,7 @@ class TextWriter(BaseWriter):
     (ReStructured inspiration but not totally handled yet)
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.list_level = 0
 
