@@ -16,6 +16,10 @@ Release date: TBA
 
   Closes #578
 
+* Added new checker ``unnecessary-list-index-lookup`` for indexing into a list while
+  iterating over ``enumerate()``.
+
+  Closes #4525
 
 * Fix false negative for ``no-member`` when attempting to assign an instance
   attribute to itself without any prior assignment.
