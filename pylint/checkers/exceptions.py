@@ -62,8 +62,8 @@ MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
     "E0702": (
         "Raising %s while only classes or instances are allowed",
         "raising-bad-type",
-        "Used when something which is neither a class, an instance or a "
-        "string is raised (i.e. a `TypeError` will be raised).",
+        "Used when something which is neither a class nor an instance "
+        "is raised (i.e. a `TypeError` will be raised).",
     ),
     "E0703": (
         "Exception context set to something which is not an exception, nor None",
@@ -272,13 +272,10 @@ class ExceptionsChecker(checkers.BaseChecker):
         expr = node.exc
         ExceptionRaiseRefVisitor(self, node).visit(expr)
 
-        try:
-            inferred_value = expr.inferred()[-1]
-        except astroid.InferenceError:
-            pass
-        else:
-            if inferred_value:
-                ExceptionRaiseLeafVisitor(self, node).visit(inferred_value)
+        inferred = utils.safe_infer(expr)
+        if inferred is None or inferred is astroid.Uninferable:
+            return
+        ExceptionRaiseLeafVisitor(self, node).visit(inferred)
 
     def _check_misplaced_bare_raise(self, node):
         # Filter out if it's present in __exit__.
