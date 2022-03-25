@@ -547,3 +547,13 @@ Other Changes
 * Output better error message if unsupported file formats are used with ``pyreverse``.
 
   Closes #5950
+
+* Fixed false positive for ``unused-argument`` when a ``nonlocal`` name is used
+  in a nested function that is returned without being called by its parent.
+
+  Closes #5187
+
+* Avoid emitting ``raising-bad-type`` when there is inference ambiguity on
+  the variable being raised.
+
+  Closes #2793
