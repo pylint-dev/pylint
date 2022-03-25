@@ -31,6 +31,10 @@ What's New in Pylint 2.13.1?
 ============================
 Release date: TBA
 
+* Fix a regression in 2.13.0 where ``used-before-assignment`` was emitted for
+  the usage of a nonlocal in a try block.
+
+  Fixes #5965
 
 
 What's New in Pylint 2.13.0?
