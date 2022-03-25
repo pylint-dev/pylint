@@ -3,7 +3,7 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 import os
-from typing import IO, TYPE_CHECKING, Any, AnyStr, Callable, List, Optional
+from typing import TYPE_CHECKING, Callable, List, Optional, TextIO
 
 from pylint.interfaces import IReporter
 from pylint.message import Message
@@ -11,10 +11,8 @@ from pylint.reporters.base_reporter import BaseReporter
 from pylint.utils import LinterStats
 
 if TYPE_CHECKING:
+    from pylint.lint import PyLinter
     from pylint.reporters.ureports.nodes import Section
-
-AnyFile = IO[AnyStr]
-PyLinter = Any
 
 
 class MultiReporter:
@@ -34,21 +32,21 @@ class MultiReporter:
         self,
         sub_reporters: List[BaseReporter],
         close_output_files: Callable[[], None],
-        output: Optional[AnyFile] = None,
+        output: Optional[TextIO] = None,
     ):
         self._sub_reporters = sub_reporters
         self.close_output_files = close_output_files
         self._path_strip_prefix = os.getcwd() + os.sep
-        self._linter: Optional[PyLinter] = None
+        self._linter: Optional["PyLinter"] = None
         self.out = output
         self.messages: List[Message] = []
 
     @property
-    def out(self):
+    def out(self) -> Optional[TextIO]:
         return self.__out
 
     @out.setter
-    def out(self, output: Optional[AnyFile] = None):
+    def out(self, output: Optional[TextIO] = None) -> None:
         """MultiReporter doesn't have its own output.
 
         This method is only provided for API parity with BaseReporter
@@ -66,11 +64,11 @@ class MultiReporter:
         return self._path_strip_prefix
 
     @property
-    def linter(self) -> Optional[PyLinter]:
+    def linter(self) -> Optional["PyLinter"]:
         return self._linter
 
     @linter.setter
-    def linter(self, value: PyLinter) -> None:
+    def linter(self, value: "PyLinter") -> None:
         self._linter = value
         for rep in self._sub_reporters:
             rep.linter = value
