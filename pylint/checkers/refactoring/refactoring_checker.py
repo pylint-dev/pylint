@@ -1990,10 +1990,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         ):
             return
 
-        if (
-            not isinstance(node.target, nodes.Tuple)
-            or len(node.target.elts) < 2
-        ):
+        if not isinstance(node.target, nodes.Tuple) or len(node.target.elts) < 2:
             # enumerate() result is being assigned without destructuring
             return
 
