@@ -9,10 +9,18 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.14.rst'
 
+
+* ``potential-index-error``: Emitted when the index of a list or tuple exceeds its length.
+  This checker is currently quite conservative to avoid false positives. We welcome
+  suggestions for improvements.
+
+  Closes #578
+
 * Fix false negative for ``no-member`` when attempting to assign an instance
   attribute to itself without any prior assignment.
 
   Closes #1555
+
 
 ..
   Insert your changelog randomly, it will reduce merge conflicts
