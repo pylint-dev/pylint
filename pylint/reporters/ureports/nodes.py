@@ -25,11 +25,15 @@ class VNode:
         return iter(self.children)
 
     def accept(self: VNodeT, visitor: BaseWriter, *args: Any, **kwargs: Any) -> None:
-        func: VisitLeaveFunction[VNodeT] = getattr(visitor, f"visit_{self.visitor_name}")
+        func: VisitLeaveFunction[VNodeT] = getattr(
+            visitor, f"visit_{self.visitor_name}"
+        )
         return func(self, *args, **kwargs)
 
     def leave(self: VNodeT, visitor: BaseWriter, *args: Any, **kwargs: Any) -> None:
-        func: VisitLeaveFunction[VNodeT] = getattr(visitor, f"leave_{self.visitor_name}")
+        func: VisitLeaveFunction[VNodeT] = getattr(
+            visitor, f"leave_{self.visitor_name}"
+        )
         return func(self, *args, **kwargs)
 
 
