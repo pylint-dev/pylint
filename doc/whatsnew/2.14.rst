@@ -12,6 +12,11 @@ Summary -- Release highlights
 New checkers
 ============
 
+* ``potential-index-error``: Emitted when the index of a list or tuple exceeds its length.
+  This checker is currently quite conservative to avoid false positives. We welcome
+  suggestions for improvements.
+
+  Closes #578
 
 Removed checkers
 ================
@@ -24,7 +29,7 @@ Extensions
 Other Changes
 =============
 
-* Fixed false positive for ``unused-argument`` when a ``nonlocal`` name is used
-  in a nested function that is returned without being called by its parent.
+* Fix false negative for ``no-member`` when attempting to assign an instance
+  attribute to itself without any prior assignment.
 
-  Closes #5187
+  Closes #1555

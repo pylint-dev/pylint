@@ -59,7 +59,7 @@ master_doc = "index"
 # General information about the project.
 project = "Pylint"
 current_year = datetime.utcnow().year
-copyright = f"2003-{current_year}, Logilab, PyCQA and contributors"
+copyright = f"2003-{current_year}, Logilab, PyCQA and contributors"  # pylint: disable=redefined-builtin
 
 # The full version, including alpha/beta/rc tags.
 release = __version__
@@ -236,6 +236,7 @@ man_pages = [
     ("index", "pylint", "Pylint Documentation", ["Logilab, PyCQA and contributors"], 1)
 ]
 
+# pylint: disable-next=consider-using-namedtuple-or-dataclass
 intersphinx_mapping = {
     "astroid": ("https://astroid.readthedocs.io/en/latest/", None),
     "python": ("https://docs.python.org/3", None),

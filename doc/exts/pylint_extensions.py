@@ -9,15 +9,18 @@
 import os
 import re
 import sys
+from typing import Optional
 
 import sphinx
+from sphinx.application import Sphinx
 
 from pylint.constants import MAIN_CHECKER_NAME
 from pylint.lint import PyLinter
 from pylint.utils import get_rst_title
 
 
-def builder_inited(app):
+# pylint: disable-next=unused-argument
+def builder_inited(app: Optional[Sphinx]) -> None:
     """Output full documentation in ReST format for all extension modules."""
     # PACKAGE/docs/exts/pylint_extensions.py --> PACKAGE/
     base_path = os.path.dirname(
@@ -45,7 +48,7 @@ def builder_inited(app):
     extensions_doc = os.path.join(
         base_path, "doc", "technical_reference", "extensions.rst"
     )
-    with open(extensions_doc, "w") as stream:
+    with open(extensions_doc, "w", encoding="utf-8") as stream:
         stream.write(
             get_rst_title("Optional Pylint checkers in the extensions module", "=")
         )
@@ -84,7 +87,7 @@ def get_plugins_info(linter, doc_files):
         doc = ""
         doc_file = doc_files.get(module)
         if doc_file:
-            with open(doc_file) as f:
+            with open(doc_file, encoding="utf-8") as f:
                 doc = f.read()
         try:
             by_checker[checker]["checker"] = checker
