@@ -29,11 +29,6 @@ Extensions
 Other Changes
 =============
 
-* Fix false positive for ``superfluous-parens`` for patterns like
-  "return (a or b) in iterable".
-
-  Closes #5803
-
 * Fix false negative for ``no-member`` when attempting to assign an instance
   attribute to itself without any prior assignment.
 
