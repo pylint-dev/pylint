@@ -27,6 +27,7 @@ persistent=yes
 load-plugins=
     pylint.extensions.check_elif,
     pylint.extensions.bad_builtin,
+    pylint.extensions.docparams,
     pylint.extensions.for_any_all,
     pylint.extensions.set_membership,
     pylint.extensions.code_style,
