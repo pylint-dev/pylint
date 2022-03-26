@@ -11,6 +11,7 @@ from datetime import datetime
 from pylint.config.argument import _Argument
 from pylint.config.arguments_manager import _ArgumentsManager
 from pylint.config.configuration_mixin import ConfigurationMixIn
+from pylint.config.environment_variable import PYLINTRC
 from pylint.config.find_default_config_files import (
     find_default_config_files,
     find_pylintrc,
@@ -28,12 +29,14 @@ __all__ = [
     "_ArgumentsManager",
     "ConfigurationMixIn",
     "find_default_config_files",
+    "find_pylintrc",
     "_ManHelpFormatter",
     "Option",
     "OptionsManagerMixIn",
     "OptionParser",
     "OptionsProviderMixIn",
     "UnsupportedAction",
+    "PYLINTRC",
 ]
 
 USER_HOME = os.path.expanduser("~")
@@ -111,6 +114,3 @@ def save_results(results, base):
             pickle.dump(results, stream)
     except OSError as ex:
         print(f"Unable to create file {data_file}: {ex}", file=sys.stderr)
-
-
-PYLINTRC = find_pylintrc()
