@@ -9,6 +9,10 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.14.rst'
 
+* Fix program crash for ``modified_iterating-list/set/dict`` when the list/dict/set
+  being iterated through is a function call.
+
+  Closes #5969
 
 * ``potential-index-error``: Emitted when the index of a list or tuple exceeds its length.
   This checker is currently quite conservative to avoid false positives. We welcome

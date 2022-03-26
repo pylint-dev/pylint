@@ -34,6 +34,11 @@ Extensions
 Other Changes
 =============
 
+* Fix program crash for ``modified_iterating-list/set/dict`` when the list/dict/set
+  being iterated through is a function call.
+
+  Closes #5969
+
 * Fix false negative for ``no-member`` when attempting to assign an instance
   attribute to itself without any prior assignment.
 
