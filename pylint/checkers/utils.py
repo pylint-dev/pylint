@@ -30,6 +30,8 @@ import astroid.objects
 from astroid import TooManyLevelsError, nodes
 from astroid.context import InferenceContext
 
+from pylint.constants import TYPING_TYPE_CHECKS_GUARDS
+
 COMP_NODE_TYPES = (
     nodes.ListComp,
     nodes.SetComp,
@@ -1708,3 +1710,12 @@ def get_node_first_ancestor_of_type_and_its_child(
             return (ancestor, child)
         child = ancestor
     return None, None
+
+
+def in_type_checking_block(node: nodes.NodeNG) -> bool:
+    """Check if a node is guarded by a TYPE_CHECKS guard."""
+    return any(
+        isinstance(ancestor, nodes.If)
+        and ancestor.test.as_string() in TYPING_TYPE_CHECKS_GUARDS
+        for ancestor in node.node_ancestors()
+    )
