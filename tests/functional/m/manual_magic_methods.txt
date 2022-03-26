@@ -1,3 +1,0 @@
-manual-magic-methods:4:10:4:28::Manually invokes magic method __str__. Use str built-in function.:UNDEFINED
-manual-magic-methods:5:11:5:30::Manually invokes magic method __add__. Use + operator.:UNDEFINED
-manual-magic-methods:6:10:6:40::Manually invokes magic method __repr__. Use repr built-in function.:UNDEFINED

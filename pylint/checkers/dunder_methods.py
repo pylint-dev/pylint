@@ -13,19 +13,18 @@ if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
 
-class ManualMagicMethodChecker(BaseChecker):
-    """Check for manual __magic__ method calls.
-
-    Docs: https://docs.python.org/3/reference/datamodel.html#basic-customization
-    We exclude __init__, __new__, __subclasses__, __init_subclass__,
-    __set_name__, __class_getitem__, __missing__, __exit__, __await__,
-    __del__, __aexit__, __getnewargs_ex__, __getnewargs__, __getstate__,
-    __setstate__, __reduce__, __reduce_ex__
-    since these either have no alternative method of being called or
-    have a genuine use case for being called manually.
-    """
+class DunderCallChecker(BaseChecker):
+    """Check for unnecessary dunder method calls."""
 
     __implements__ = IAstroidChecker
+
+    # Docs: https://docs.python.org/3/reference/datamodel.html#basic-customization
+    # We exclude __init__, __new__, __subclasses__, __init_subclass__,
+    # __set_name__, __class_getitem__, __missing__, __exit__, __await__,
+    # __del__, __aexit__, __getnewargs_ex__, __getnewargs__, __getstate__,
+    # __setstate__, __reduce__, __reduce_ex__
+    # since these either have no alternative method of being called or
+    # have a genuine use case for being called manually.
     includedict = {
         "__repr__": "Use repr built-in function",
         "__str__": "Use str built-in function",
@@ -120,30 +119,30 @@ class ManualMagicMethodChecker(BaseChecker):
         "__deepcopy__": "Use copy.deepcopy function",
         "__fspath__": "Use os.fspath function instead",
     }
-    name = "manual-magic-methods"
+    name = "unnecessary-dunder-call"
     priority = -1
     msgs = {
         "C2801": (
-            "Manually invokes magic method %s. %s.",
-            "manual-magic-methods",
-            "Used when a __magic__ method is manually invoked instead "
+            "Unnecessarily calls dunder method %s. %s.",
+            "unnecessary-dunder-call",
+            "Used when a dunder method is manually called instead "
             "of using the corresponding function/method/operator.",
         ),
     }
     options = ()
 
     def visit_call(self, node: nodes.Call) -> None:
-        """Check if method being called uses __magic__ method naming convention."""
+        """Check if method being called is an unnecessary dunder method."""
         if (
             isinstance(node.func, nodes.Attribute)
             and node.func.attrname in self.includedict
         ):
             self.add_message(
-                "manual-magic-methods",
+                "unnecessary-dunder-call",
                 node=node,
                 args=(node.func.attrname, self.includedict[node.func.attrname]),
             )
 
 
 def register(linter: "PyLinter") -> None:
-    linter.register_checker(ManualMagicMethodChecker(linter))
+    linter.register_checker(DunderCallChecker(linter))

@@ -1,0 +1,3 @@
+unnecessary-dunder-call:4:10:4:28::Unnecessarily calls dunder method __str__. Use str built-in function.:UNDEFINED
+unnecessary-dunder-call:5:11:5:30::Unnecessarily calls dunder method __add__. Use + operator.:UNDEFINED
+unnecessary-dunder-call:6:10:6:40::Unnecessarily calls dunder method __repr__. Use repr built-in function.:UNDEFINED
