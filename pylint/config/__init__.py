@@ -21,7 +21,7 @@ from pylint.config.option import Option
 from pylint.config.option_manager_mixin import OptionsManagerMixIn
 from pylint.config.option_parser import OptionParser
 from pylint.config.options_provider_mixin import OptionsProviderMixIn, UnsupportedAction
-from pylint.constants import DEFAULT_PYLINT_HOME, OLD_DEFAULT_PYLINT_HOME
+from pylint.constants import DEFAULT_PYLINT_HOME, OLD_DEFAULT_PYLINT_HOME, USER_HOME
 from pylint.utils import LinterStats
 
 __all__ = [
@@ -37,15 +37,12 @@ __all__ = [
     "OptionsProviderMixIn",
     "UnsupportedAction",
     "PYLINTRC",
+    "USER_HOME",
 ]
 
-USER_HOME = os.path.expanduser("~")
+
 if "PYLINTHOME" in os.environ:
     PYLINT_HOME = os.environ["PYLINTHOME"]
-    if USER_HOME == "~":
-        USER_HOME = os.path.dirname(PYLINT_HOME)
-elif USER_HOME == "~":
-    PYLINT_HOME = OLD_DEFAULT_PYLINT_HOME
 else:
     PYLINT_HOME = DEFAULT_PYLINT_HOME
     # The spam prevention is due to pylint being used in parallel by
