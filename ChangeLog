@@ -36,6 +36,9 @@ What's New in Pylint 2.13.2?
 ============================
 Release date: TBA
 
+* Fix crash when subclassing a ``namedtuple``.
+
+  Closes #5982
 
 
 What's New in Pylint 2.13.1?
