@@ -10,6 +10,7 @@ from astroid import nodes
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
     check_messages,
+    in_type_checking_block,
     is_node_in_type_annotation_context,
     is_postponed_evaluation_enabled,
     safe_infer,
@@ -355,8 +356,10 @@ class TypingChecker(BaseChecker):
             # NoReturn not part of a Union or Callable type
             return
 
-        if is_postponed_evaluation_enabled(node) and is_node_in_type_annotation_context(
-            node
+        if (
+            in_type_checking_block(node)
+            or is_postponed_evaluation_enabled(node)
+            and is_node_in_type_annotation_context(node)
         ):
             return
 
@@ -391,8 +394,10 @@ class TypingChecker(BaseChecker):
         self, node: Union[nodes.Name, nodes.Attribute]
     ) -> bool:
         """Check if node would be a broken location for collections.abc.Callable."""
-        if is_postponed_evaluation_enabled(node) and is_node_in_type_annotation_context(
-            node
+        if (
+            in_type_checking_block(node)
+            or is_postponed_evaluation_enabled(node)
+            and is_node_in_type_annotation_context(node)
         ):
             return False
 

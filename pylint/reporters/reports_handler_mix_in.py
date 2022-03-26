@@ -22,7 +22,8 @@ if TYPE_CHECKING:
     from pylint.checkers import BaseChecker
     from pylint.lint.pylinter import PyLinter
 
-ReportsDict = DefaultDict["BaseChecker", List[Tuple[str, str, Callable]]]
+ReportsCallable = Callable[[Section, LinterStats, Optional[LinterStats]], None]
+ReportsDict = DefaultDict["BaseChecker", List[Tuple[str, str, ReportsCallable]]]
 
 
 class ReportsHandlerMixIn:
@@ -39,7 +40,7 @@ class ReportsHandlerMixIn:
         return list(self._reports)
 
     def register_report(
-        self, reportid: str, r_title: str, r_cb: Callable, checker: "BaseChecker"
+        self, reportid: str, r_title: str, r_cb: ReportsCallable, checker: "BaseChecker"
     ) -> None:
         """Register a report.
 

@@ -6,9 +6,13 @@
 
 A micro report is a tree of layout and content objects.
 """
-from typing import Any, Iterable, Iterator, List, Optional, Union
+from typing import Any, Callable, Iterable, Iterator, List, Optional, TypeVar, Union
 
-from pylint.reporters.ureports.text_writer import TextWriter
+from pylint.reporters.ureports.base_writer import BaseWriter
+
+T = TypeVar("T")
+VNodeT = TypeVar("VNodeT", bound="VNode")
+VisitLeaveFunction = Callable[[T, Any, Any], None]
 
 
 class VNode:
@@ -20,12 +24,16 @@ class VNode:
     def __iter__(self) -> Iterator["VNode"]:
         return iter(self.children)
 
-    def accept(self, visitor: TextWriter, *args: Any, **kwargs: Any) -> None:
-        func = getattr(visitor, f"visit_{self.visitor_name}")
+    def accept(self: VNodeT, visitor: BaseWriter, *args: Any, **kwargs: Any) -> None:
+        func: VisitLeaveFunction[VNodeT] = getattr(
+            visitor, f"visit_{self.visitor_name}"
+        )
         return func(self, *args, **kwargs)
 
-    def leave(self, visitor, *args, **kwargs):
-        func = getattr(visitor, f"leave_{self.visitor_name}")
+    def leave(self: VNodeT, visitor: BaseWriter, *args: Any, **kwargs: Any) -> None:
+        func: VisitLeaveFunction[VNodeT] = getattr(
+            visitor, f"leave_{self.visitor_name}"
+        )
         return func(self, *args, **kwargs)
 
 

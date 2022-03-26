@@ -18,6 +18,11 @@ New checkers
 
   Closes #578
 
+* Added new checker ``unnecessary-list-index-lookup`` for indexing into a list while
+  iterating over ``enumerate()``.
+
+  Closes #4525
+
 Removed checkers
 ================
 
