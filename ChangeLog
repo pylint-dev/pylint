@@ -6,18 +6,13 @@ What's New in Pylint 2.14.0?
 ============================
 Release date: TBA
 
-* Add new check (C2801) for the use of manual ``__magic__`` methods.
-
-  Closes #5936
-
-
-What's New in Pylint 2.13.0?
-============================
-Release date: TBA
-
 ..
   Put new features here and also in 'doc/whatsnew/2.14.rst'
 
+
+* Add new check (C2801) for the use of manual ``__magic__`` methods.
+
+  Closes #5936
 
 * ``potential-index-error``: Emitted when the index of a list or tuple exceeds its length.
   This checker is currently quite conservative to avoid false positives. We welcome
