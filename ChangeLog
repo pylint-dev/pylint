@@ -56,6 +56,11 @@ Release date: TBA
 
   Closes #5187
 
+* Fix program crash for ``modified_iterating-list/set/dict`` when the list/dict/set
+  being iterated through is a function call.
+
+  Closes #5969
+
 * Don't emit ``broken-noreturn`` and ``broken-collections-callable`` errors
   inside ``if TYPE_CHECKING`` blocks.
 
