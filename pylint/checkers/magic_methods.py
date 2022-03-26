@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 class ManualMagicMethodChecker(BaseChecker):
     """Check for manual __magic__ method calls.
-    
+
     Docs: https://docs.python.org/3/reference/datamodel.html#basic-customization
     We exclude __init__, __new__, __subclasses__, __init_subclass__,
     __set_name__, __class_getitem__, __missing__, __exit__, __await__,
