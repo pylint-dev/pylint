@@ -3,4 +3,3 @@ def add(x, y):
 
 
 value = add(10, 10)  # [assignment-from-no-return]
-print(value)
