@@ -1,6 +1,5 @@
 """Tests for annotation of variables and potential use before assignment"""
 # pylint: disable=too-few-public-methods, global-variable-not-assigned
-from __future__ import annotations
 from collections import namedtuple
 from typing import List
 
@@ -89,9 +88,3 @@ def nested_class_as_return_annotation():
             pass
 
     print(MyObject)
-
-
-class NamedTupleSubclass(namedtuple("NamedTupleSubclass", [])):
-    """Taken from https://github.com/PyCQA/pylint/issues/5982"""
-    def method(self) -> NamedTupleSubclass:
-        """Variables checker crashed when astroid did not supply a lineno"""
