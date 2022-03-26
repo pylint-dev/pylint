@@ -40,6 +40,11 @@ Release date: TBA
 
   Closes #5982
 
+* Fix false positive for ``superfluous-parens`` for patterns like
+  "return (a or b) in iterable".
+
+  Closes #5803
+
 
 What's New in Pylint 2.13.1?
 ============================
