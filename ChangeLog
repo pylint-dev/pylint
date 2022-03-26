@@ -19,16 +19,65 @@ Release date: TBA
   Put new features here and also in 'doc/whatsnew/2.14.rst'
 
 
+* ``potential-index-error``: Emitted when the index of a list or tuple exceeds its length.
+  This checker is currently quite conservative to avoid false positives. We welcome
+  suggestions for improvements.
+
+  Closes #578
+
+* Added new checker ``unnecessary-list-index-lookup`` for indexing into a list while
+  iterating over ``enumerate()``.
+
+  Closes #4525
+
+* Fix false negative for ``no-member`` when attempting to assign an instance
+  attribute to itself without any prior assignment.
+
+  Closes #1555
+
 
 ..
   Insert your changelog randomly, it will reduce merge conflicts
   (Ie. not necessarily at the end)
 
 
-What's New in Pylint 2.13.1?
+What's New in Pylint 2.13.2?
 ============================
 Release date: TBA
 
+
+
+What's New in Pylint 2.13.1?
+============================
+Release date: 2022-03-26
+
+* Fix a regression in 2.13.0 where ``used-before-assignment`` was emitted for
+  the usage of a nonlocal in a try block.
+
+  Fixes #5965
+
+* Avoid emitting ``raising-bad-type`` when there is inference ambiguity on
+  the variable being raised.
+
+  Closes #2793
+
+* Loosen TypeVar default name pattern a bit to allow names with multiple uppercase
+  characters. E.g. ``HVACModeT`` or ``IPAddressT``.
+
+  Closes #5981
+
+* Fixed false positive for ``unused-argument`` when a ``nonlocal`` name is used
+  in a nested function that is returned without being called by its parent.
+
+  Closes #5187
+
+* Fix program crash for ``modified_iterating-list/set/dict`` when the list/dict/set
+  being iterated through is a function call.
+
+  Closes #5969
+
+* Don't emit ``broken-noreturn`` and ``broken-collections-callable`` errors
+  inside ``if TYPE_CHECKING`` blocks.
 
 
 What's New in Pylint 2.13.0?

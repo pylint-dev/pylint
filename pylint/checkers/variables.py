@@ -16,6 +16,8 @@ from typing import (
     Any,
     DefaultDict,
     Dict,
+    Iterable,
+    Iterator,
     List,
     NamedTuple,
     Optional,
@@ -28,8 +30,11 @@ import astroid
 from astroid import nodes
 
 from pylint.checkers import BaseChecker, utils
-from pylint.checkers.utils import is_postponed_evaluation_enabled
-from pylint.constants import PY39_PLUS
+from pylint.checkers.utils import (
+    in_type_checking_block,
+    is_postponed_evaluation_enabled,
+)
+from pylint.constants import PY39_PLUS, TYPING_TYPE_CHECKS_GUARDS
 from pylint.interfaces import (
     CONTROL_FLOW,
     HIGH,
@@ -55,7 +60,6 @@ IGNORED_ARGUMENT_NAMES = re.compile("_.*|^ignored_|^unused_")
 # by astroid. Unfortunately this also messes up our explicit checks
 # for `abc`
 METACLASS_NAME_TRANSFORMS = {"_py_abc": "abc"}
-TYPING_TYPE_CHECKS_GUARDS = frozenset({"typing.TYPE_CHECKING", "TYPE_CHECKING"})
 BUILTIN_RANGE = "builtins.range"
 TYPING_MODULE = "typing"
 TYPING_NAMES = frozenset(
@@ -343,7 +347,9 @@ def _import_name_is_global(stmt, global_names):
     return False
 
 
-def _flattened_scope_names(iterator):
+def _flattened_scope_names(
+    iterator: Iterator[Union[nodes.Global, nodes.Nonlocal]]
+) -> Set[str]:
     values = (set(stmt.names) for stmt in iterator)
     return set(itertools.chain.from_iterable(values))
 
@@ -352,15 +358,6 @@ def _assigned_locally(name_node):
     """Checks if name_node has corresponding assign statement in same scope."""
     assign_stmts = name_node.scope().nodes_of_class(nodes.AssignName)
     return any(a.name == name_node.name for a in assign_stmts)
-
-
-def _is_type_checking_import(node: Union[nodes.Import, nodes.ImportFrom]) -> bool:
-    """Check if an import node is guarded by a TYPE_CHECKS guard."""
-    return any(
-        isinstance(ancestor, nodes.If)
-        and ancestor.test.as_string() in TYPING_TYPE_CHECKS_GUARDS
-        for ancestor in node.node_ancestors()
-    )
 
 
 def _has_locals_call_after_node(stmt, scope):
@@ -514,6 +511,12 @@ MSGS = {
         "Invalid assignment to self or cls in instance or class method "
         "respectively.",
     ),
+    "E0643": (
+        "Invalid index for iterable length",
+        "potential-index-error",
+        "Emitted when an index used on an iterable goes beyond the length of that "
+        "iterable.",
+    ),
 }
 
 
@@ -618,6 +621,13 @@ scope_type : {self._atomic.scope_type}
             and parent_node.target in found_nodes
         ):
             found_nodes = None
+
+        # Before filtering, check that this node's name is not a nonlocal
+        if any(
+            isinstance(child, nodes.Nonlocal) and node.name in child.names
+            for child in node.frame(future=True).get_children()
+        ):
+            return found_nodes
 
         # Filter out assignments in ExceptHandlers that node is not contained in
         # unless this is a test in a filtered comprehension
@@ -2258,7 +2268,9 @@ class VariablesChecker(BaseChecker):
             if not elements:
                 self.add_message("undefined-loop-variable", args=node.name, node=node)
 
-    def _check_is_unused(self, name, node, stmt, global_names, nonlocal_names):
+    def _check_is_unused(
+        self, name, node, stmt, global_names, nonlocal_names: Iterable[str]
+    ):
         # Ignore some special names specified by user configuration.
         if self._is_name_ignored(stmt, name):
             return
@@ -2280,7 +2292,7 @@ class VariablesChecker(BaseChecker):
         argnames = node.argnames()
         # Care about functions with unknown argument (builtins)
         if name in argnames:
-            self._check_unused_arguments(name, node, stmt, argnames)
+            self._check_unused_arguments(name, node, stmt, argnames, nonlocal_names)
         else:
             if stmt.parent and isinstance(
                 stmt.parent, (nodes.Assign, nodes.AnnAssign, nodes.Tuple)
@@ -2347,7 +2359,9 @@ class VariablesChecker(BaseChecker):
             regex = authorized_rgx
         return regex and regex.match(name)
 
-    def _check_unused_arguments(self, name, node, stmt, argnames):
+    def _check_unused_arguments(
+        self, name, node, stmt, argnames, nonlocal_names: Iterable[str]
+    ):
         is_method = node.is_method()
         klass = node.parent.frame(future=True)
         if is_method and isinstance(klass, nodes.ClassDef):
@@ -2386,6 +2400,9 @@ class VariablesChecker(BaseChecker):
 
         # Don't check protocol classes
         if utils.is_protocol_class(klass):
+            return
+
+        if name in nonlocal_names:
             return
 
         self.add_message("unused-argument", args=name, node=stmt, confidence=confidence)
@@ -2711,7 +2728,7 @@ class VariablesChecker(BaseChecker):
                         msg = f"import {imported_name}"
                     else:
                         msg = f"{imported_name} imported as {as_name}"
-                    if not _is_type_checking_import(stmt):
+                    if not in_type_checking_block(stmt):
                         self.add_message("unused-import", args=msg, node=stmt)
                 elif isinstance(stmt, nodes.ImportFrom) and stmt.modname != FUTURE:
                     if SPECIAL_OBJ.search(imported_name):
@@ -2735,7 +2752,7 @@ class VariablesChecker(BaseChecker):
                             msg = f"{imported_name} imported from {stmt.modname}"
                         else:
                             msg = f"{imported_name} imported from {stmt.modname} as {as_name}"
-                        if not _is_type_checking_import(stmt):
+                        if not in_type_checking_block(stmt):
                             self.add_message("unused-import", args=msg, node=stmt)
 
         # Construct string for unused-wildcard-import message
@@ -2811,6 +2828,30 @@ class VariablesChecker(BaseChecker):
             self.add_message("undefined-variable", node=klass, args=(name,))
 
         return consumed
+
+    def visit_subscript(self, node: nodes.Subscript) -> None:
+        inferred_slice = utils.safe_infer(node.slice)
+
+        self._check_potential_index_error(node, inferred_slice)
+
+    def _check_potential_index_error(
+        self, node: nodes.Subscript, inferred_slice: Optional[nodes.NodeNG]
+    ) -> None:
+        """Check for the potential-index-error message."""
+        # Currently we only check simple slices of a single integer
+        if not isinstance(inferred_slice, nodes.Const) or not isinstance(
+            inferred_slice.value, int
+        ):
+            return
+
+        # If the node.value is a Tuple or List without inference it is defined in place
+        if isinstance(node.value, (nodes.Tuple, nodes.List)):
+            # Add 1 because iterables are 0-indexed
+            if len(node.value.elts) < inferred_slice.value + 1:
+                self.add_message(
+                    "potential-index-error", node=node, confidence=INFERENCE
+                )
+            return
 
 
 def register(linter: "PyLinter") -> None:

@@ -12,6 +12,34 @@ def function():
     return some_message
 
 
+def uses_nonlocal():
+    """https://github.com/PyCQA/pylint/issues/5965"""
+    count = 0
+    def inner():
+        nonlocal count
+        try:
+            print(count)
+        except ValueError:
+            count +=1
+
+    return inner()
+
+
+def uses_unrelated_nonlocal():
+    """Unrelated nonlocals still let messages emit"""
+    count = 0
+    unrelated = 0
+    def inner():
+        nonlocal unrelated
+        try:
+            print(count)  # [used-before-assignment]
+        except ValueError:
+            count += 1
+
+    print(count)
+    return inner()
+
+
 # Cases related to a specific control flow where
 # the `else` of a loop can depend on a name only defined
 # in a single except handler because that except handler is the

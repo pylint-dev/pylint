@@ -67,7 +67,7 @@ def table_lines_from_stats(
     """
     lines: List[str] = []
     if stat_type == "duplicated_lines":
-        new: List[Tuple[str, Union[str, int, float]]] = [
+        new: List[Tuple[str, Union[int, float]]] = [
             ("nb_duplicated_lines", stats.duplicated_lines["nb_duplicated_lines"]),
             (
                 "percent_duplicated_lines",
