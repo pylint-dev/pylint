@@ -41,6 +41,11 @@ Release date: TBA
 
   Closes #5803
 
+* Fix a false negative regression in 2.13.0 where ``protected-access`` was not
+  raised on functions.
+
+  Fixes #5989
+
 
 What's New in Pylint 2.13.1?
 ============================
