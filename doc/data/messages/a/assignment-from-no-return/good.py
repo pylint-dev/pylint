@@ -3,4 +3,3 @@ def add(x, y):
 
 
 value = add(10, 10)
-print(value)
