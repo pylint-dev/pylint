@@ -65,3 +65,9 @@ def format_manifest_serializer_errors(errors):
             error_message = f"{key}: {message}"
             errors_messages.append(error_message)
     return errors_messages
+
+
+dict1 = {"1": 1}
+dict2 = {"2": 2}
+for item in dict1:
+    dict2[item] = 1
