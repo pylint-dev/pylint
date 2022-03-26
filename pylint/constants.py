@@ -193,3 +193,6 @@ INCOMPATIBLE_WITH_USELESS_SUPPRESSION = frozenset(
         "W1513",  # deprecated-decorator
     ]
 )
+
+
+TYPING_TYPE_CHECKS_GUARDS = frozenset({"typing.TYPE_CHECKING", "TYPE_CHECKING"})
