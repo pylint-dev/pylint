@@ -46,6 +46,11 @@ Release date: TBA
 
   Closes #2793
 
+* Loosen TypeVar default name pattern a bit to allow names with multiple uppercase
+  characters. E.g. ``HVACModeT`` or ``IPAddressT``.
+
+  Closes #5981
+
 * Fixed false positive for ``unused-argument`` when a ``nonlocal`` name is used
   in a nested function that is returned without being called by its parent.
 

@@ -30,8 +30,11 @@ T_contra = TypeVar("T_contra", covariant=False, contravariant=True)
 # PascalCase names without prefix
 AnyStr = TypeVar("AnyStr")
 DeviceTypeT = TypeVar("DeviceTypeT")
+HVACModeT = TypeVar("HVACModeT")
+_IPAddress = TypeVar("_IPAddress")
 CALLABLE_T = TypeVar("CALLABLE_T")  # [invalid-name]
 DeviceType = TypeVar("DeviceType")  # [invalid-name]
+IPAddressU = TypeVar("IPAddressU")  # [invalid-name]
 
 # camelCase names with prefix
 badName = TypeVar("badName")  # [invalid-name]
