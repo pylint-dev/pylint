@@ -16,6 +16,7 @@ Release date: TBA
 
   Closes #578
 
+
 * Fix false negative for ``no-member`` when attempting to assign an instance
   attribute to itself without any prior assignment.
 
