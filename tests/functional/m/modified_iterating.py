@@ -58,7 +58,7 @@ for l in item_list:
 
 
 def format_manifest_serializer_errors(errors):
-    """Regression test for issue #5969 - iter_obj is a function call"""
+    """Regression test for issue #5969 - iter_obj is a function call."""
     errors_messages = []
     for key, value in errors.items():
         for message in format_manifest_serializer_errors(value):
