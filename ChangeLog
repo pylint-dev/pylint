@@ -39,6 +39,9 @@ Release date: TBA
 
   Closes #5187
 
+* Don't emit ``broken-noreturn`` and ``broken-collections-callable`` errors
+  inside ``if TYPE_CHECKING`` blocks.
+
 
 What's New in Pylint 2.13.0?
 ============================

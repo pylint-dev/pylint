@@ -30,8 +30,11 @@ import astroid
 from astroid import nodes
 
 from pylint.checkers import BaseChecker, utils
-from pylint.checkers.utils import is_postponed_evaluation_enabled
-from pylint.constants import PY39_PLUS
+from pylint.checkers.utils import (
+    in_type_checking_block,
+    is_postponed_evaluation_enabled,
+)
+from pylint.constants import PY39_PLUS, TYPING_TYPE_CHECKS_GUARDS
 from pylint.interfaces import (
     CONTROL_FLOW,
     HIGH,
@@ -57,7 +60,6 @@ IGNORED_ARGUMENT_NAMES = re.compile("_.*|^ignored_|^unused_")
 # by astroid. Unfortunately this also messes up our explicit checks
 # for `abc`
 METACLASS_NAME_TRANSFORMS = {"_py_abc": "abc"}
-TYPING_TYPE_CHECKS_GUARDS = frozenset({"typing.TYPE_CHECKING", "TYPE_CHECKING"})
 BUILTIN_RANGE = "builtins.range"
 TYPING_MODULE = "typing"
 TYPING_NAMES = frozenset(
@@ -356,15 +358,6 @@ def _assigned_locally(name_node):
     """Checks if name_node has corresponding assign statement in same scope."""
     assign_stmts = name_node.scope().nodes_of_class(nodes.AssignName)
     return any(a.name == name_node.name for a in assign_stmts)
-
-
-def _is_type_checking_import(node: Union[nodes.Import, nodes.ImportFrom]) -> bool:
-    """Check if an import node is guarded by a TYPE_CHECKS guard."""
-    return any(
-        isinstance(ancestor, nodes.If)
-        and ancestor.test.as_string() in TYPING_TYPE_CHECKS_GUARDS
-        for ancestor in node.node_ancestors()
-    )
 
 
 def _has_locals_call_after_node(stmt, scope):
@@ -2729,7 +2722,7 @@ class VariablesChecker(BaseChecker):
                         msg = f"import {imported_name}"
                     else:
                         msg = f"{imported_name} imported as {as_name}"
-                    if not _is_type_checking_import(stmt):
+                    if not in_type_checking_block(stmt):
                         self.add_message("unused-import", args=msg, node=stmt)
                 elif isinstance(stmt, nodes.ImportFrom) and stmt.modname != FUTURE:
                     if SPECIAL_OBJ.search(imported_name):
@@ -2753,7 +2746,7 @@ class VariablesChecker(BaseChecker):
                             msg = f"{imported_name} imported from {stmt.modname}"
                         else:
                             msg = f"{imported_name} imported from {stmt.modname} as {as_name}"
-                        if not _is_type_checking_import(stmt):
+                        if not in_type_checking_block(stmt):
                             self.add_message("unused-import", args=msg, node=stmt)
 
         # Construct string for unused-wildcard-import message
