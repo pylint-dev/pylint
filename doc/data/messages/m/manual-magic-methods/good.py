@@ -1,1 +1,1 @@
-var_str = str(var) # [manual-magic-methods]
+var_str = str(var)
