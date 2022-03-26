@@ -320,6 +320,7 @@ class FormatChecker(BaseTokenChecker):
     def process_module(self, _node: nodes.Module) -> None:
         pass
 
+    # pylint: disable-next=too-many-return-statements
     def _check_keyword_parentheses(
         self, tokens: List[tokenize.TokenInfo], start: int
     ) -> None:
@@ -382,19 +383,15 @@ class FormatChecker(BaseTokenChecker):
                     # The empty tuple () is always accepted.
                     if i == start + 2:
                         return
-                    if keyword_token == "not":
-                        if not found_and_or:
-                            self.add_message(
-                                "superfluous-parens", line=line_num, args=keyword_token
-                            )
-                    elif keyword_token in {"return", "yield"}:
-                        self.add_message(
-                            "superfluous-parens", line=line_num, args=keyword_token
-                        )
-                    elif not found_and_or and keyword_token != "in":
-                        self.add_message(
-                            "superfluous-parens", line=line_num, args=keyword_token
-                        )
+                    if found_and_or:
+                        return
+                    if keyword_token == "in":
+                        # This special case was added in https://github.com/PyCQA/pylint/pull/4948
+                        # but it could be removed in the future. Avoid churn for now.
+                        return
+                    self.add_message(
+                        "superfluous-parens", line=line_num, args=keyword_token
+                    )
                 return
             elif depth == 1:
                 # This is a tuple, which is always acceptable.
