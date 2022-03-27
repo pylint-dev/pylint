@@ -1,6 +1,6 @@
 """Check invalid value returned by __hash__ """
 
-# pylint: disable=too-few-public-methods,missing-docstring,no-self-use,import-error, useless-object-inheritance
+# pylint: disable=too-few-public-methods,missing-docstring,no-self-use,import-error, useless-object-inheritance, unnecessary-lambda-assignment
 import six
 
 from missing import Missing
