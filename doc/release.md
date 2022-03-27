@@ -57,6 +57,7 @@ maintenance branch we cherry-pick the commit from `main`.
   version `X.Y-1.Z'`. (For example: `v2.3.5`)
 - After the PR is merged on `main` cherry-pick the commits on the `maintenance/X.Y.x`
   branch (For example: from `maintenance/2.4.x` cherry-pick a commit from `main`)
+- Remove the "need backport" label from cherry-picked issues
 - Release a patch version
 
 ## Releasing a patch version
