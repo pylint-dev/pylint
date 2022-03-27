@@ -386,6 +386,8 @@ class NameChecker(_BasicChecker):
                 elif (
                     isinstance(node.parent, nodes.Tuple)
                     and isinstance(assign_type.value, nodes.Tuple)
+                    # protect against unbalanced tuple unpacking
+                    and node.parent.elts.index(node) < len(assign_type.value.elts)
                     and self._assigns_typevar(
                         assign_type.value.elts[node.parent.elts.index(node)]
                     )
