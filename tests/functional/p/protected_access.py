@@ -27,3 +27,17 @@ class MC:
 class Application(metaclass=MC):
     def __no_special__(cls):
         nargs = obj._nargs  # [protected-access]
+
+
+class Light:
+    @property
+    def _light_internal(self) -> None:
+        return None
+
+    @staticmethod
+    def func(light) -> None:
+        print(light._light_internal)  # [protected-access]
+
+
+def func(light: Light) -> None:
+    print(light._light_internal)  # [protected-access]
