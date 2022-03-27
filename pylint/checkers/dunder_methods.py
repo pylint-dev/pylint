@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
-from pylint.interfaces import IAstroidChecker
+from pylint.interfaces import IAstroidChecker, HIGH
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
