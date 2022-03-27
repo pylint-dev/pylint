@@ -7,24 +7,26 @@ from typing import TYPE_CHECKING
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
-from pylint.interfaces import IAstroidChecker
+from pylint.interfaces import HIGH, IAstroidChecker
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
 
 class DunderCallChecker(BaseChecker):
-    """Check for unnecessary dunder method calls."""
+    """Check for unnecessary dunder method calls.
+
+    Docs: https://docs.python.org/3/reference/datamodel.html#basic-customization
+    We exclude __init__, __new__, __subclasses__, __init_subclass__,
+    __set_name__, __class_getitem__, __missing__, __exit__, __await__,
+    __del__, __aexit__, __getnewargs_ex__, __getnewargs__, __getstate__,
+    __setstate__, __reduce__, __reduce_ex__
+    since these either have no alternative method of being called or
+    have a genuine use case for being called manually.
+    """
 
     __implements__ = IAstroidChecker
 
-    # Docs: https://docs.python.org/3/reference/datamodel.html#basic-customization
-    # We exclude __init__, __new__, __subclasses__, __init_subclass__,
-    # __set_name__, __class_getitem__, __missing__, __exit__, __await__,
-    # __del__, __aexit__, __getnewargs_ex__, __getnewargs__, __getstate__,
-    # __setstate__, __reduce__, __reduce_ex__
-    # since these either have no alternative method of being called or
-    # have a genuine use case for being called manually.
     includedict = {
         "__repr__": "Use repr built-in function",
         "__str__": "Use str built-in function",
