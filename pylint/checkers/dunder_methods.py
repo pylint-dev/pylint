@@ -141,6 +141,7 @@ class DunderCallChecker(BaseChecker):
                 "unnecessary-dunder-call",
                 node=node,
                 args=(node.func.attrname, self.includedict[node.func.attrname]),
+                confidence=HIGH,
             )
 
 
