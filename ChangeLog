@@ -36,6 +36,9 @@ What's New in Pylint 2.13.3?
 ============================
 Release date: TBA
 
+* Fix crash involving unbalanced tuple unpacking.
+
+  Closes #5998
 
 
 What's New in Pylint 2.13.2?
