@@ -2,6 +2,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from itertools import zip_longest
 from typing import TYPE_CHECKING
 
 from astroid import nodes
@@ -14,7 +15,7 @@ if TYPE_CHECKING:
 
 
 class LambdaExpressionChecker(BaseChecker):
-    """Check for manual __magic__ method calls."""
+    """Check for unnecessary usage of lambda expressions."""
 
     __implements__ = IAstroidChecker
 
@@ -22,30 +23,56 @@ class LambdaExpressionChecker(BaseChecker):
     priority = -1
     msgs = {
         "C2901": (
-            'Lambda expression is assigned to a variable. '
+            "Lambda expression assigned to a variable. "
             'Define a function using the "def" keyword instead.',
-            "lambda-assignment",
-            'Used when a lambda expression is assigned to variable '
+            "unnecessary-lambda-assignment",
+            "Used when a lambda expression is assigned to variable "
             'rather than defining a standard function with the "def" keyword.',
         ),
         "C2902": (
-            "Lambda expression is called directly. If the lambda expression is "
-            "used only once then just put the expression inline instead.",
-            "lambda-call",
+            "Lambda expression called directly. Execute the expression inline instead.",
+            "unnecessary-direct-lambda-call",
             "Used when a lambda expression is directly called "
             "rather than executing it's contents inline.",
         ),
     }
     options = ()
 
-    def visit_lambda(self, node: nodes.Call) -> None:
-        """Check if method being called uses __magic__ method naming convention."""
-        if (
-            isinstance(node.func, nodes.Attribute)
-            and node.func.attrname in self.includedict
+    def visit_assign(self, node: nodes.Assign) -> None:
+        """Check if lambda expression is assigned to a variable."""
+        if isinstance(node.targets[0], nodes.AssignName) and isinstance(
+            node.value, nodes.Lambda
         ):
             self.add_message(
-                "lambda-assignment",
+                "unnecessary-lambda-assignment",
+                node=node.value,
+            )
+        elif isinstance(node.targets[0], nodes.Tuple) and isinstance(
+            node.value, (nodes.Tuple, nodes.List)
+        ):
+            # Iterate over tuple unpacking assignment elements and
+            # see if any lambdas are assinged to a variable.
+            # N.B. We may encounter W0632 (unbalanced-tuple-unpacking)
+            # and still need to flag the lambdas that are being assigned.
+            for lhs_elem, rhs_elem in zip_longest(
+                node.targets[0].elts, node.value.elts
+            ):
+                if lhs_elem is None or rhs_elem is None:
+                    # unbalanced tuple unpacking. stop checking.
+                    break
+                if isinstance(lhs_elem, nodes.AssignName) and isinstance(
+                    rhs_elem, nodes.Lambda
+                ):
+                    self.add_message(
+                        "unnecessary-lambda-assignment",
+                        node=rhs_elem,
+                    )
+
+    def visit_call(self, node: nodes.Call) -> None:
+        """Check if lambda expression is called directly."""
+        if isinstance(node.func, nodes.Lambda):
+            self.add_message(
+                "unnecessary-direct-lambda-call",
                 node=node,
             )
 
