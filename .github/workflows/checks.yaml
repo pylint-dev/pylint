@@ -78,8 +78,8 @@ jobs:
           . venv/bin/activate
           pre-commit install --install-hooks
 
-  pre-commit:
-    name: pre-commit
+  pylint:
+    name: pylint
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: prepare-base
@@ -115,7 +115,7 @@ jobs:
         run: |
           echo "Failed to restore pre-commit environment from cache"
           exit 1
-      - name: Run formatting check
+      - name: Run pylint checks
         run: |
           . venv/bin/activate
           pip install -e .
