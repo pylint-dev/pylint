@@ -21,7 +21,7 @@ repos:
           - --remove-duplicate-keys
           - --remove-unused-variables
   - repo: https://github.com/Pierre-Sassoulas/copyright_notice_precommit
-    rev: 0.1.1
+    rev: 0.1.2
     hooks:
       - id: copyright-notice
         args: ["--notice=script/copyright.txt", "--enforce-all"]
