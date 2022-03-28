@@ -16,6 +16,11 @@ Release date: TBA
 
   Closes #578
 
+* Fix false positive for 'nonexistent-operator' when repeated '-' are
+  separated (e.g. by parens).
+
+  Closes #5769
+
 * Added new checker ``unnecessary-list-index-lookup`` for indexing into a list while
   iterating over ``enumerate()``.
 
