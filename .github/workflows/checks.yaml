@@ -13,6 +13,10 @@ env:
   DEFAULT_PYTHON: 3.8
   PRE_COMMIT_CACHE: ~/.cache/pre-commit
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   prepare-base:
     name: Prepare base dependencies
@@ -75,7 +79,7 @@ jobs:
           pre-commit install --install-hooks
 
   pre-commit:
-    name: checks / pre-commit
+    name: pre-commit
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: prepare-base
@@ -118,7 +122,7 @@ jobs:
           pre-commit run pylint --all-files
 
   spelling:
-    name: checks / spelling
+    name: spelling
     runs-on: ubuntu-latest
     timeout-minutes: 5
     needs: prepare-base
@@ -149,7 +153,7 @@ jobs:
           pytest tests/ -k unittest_spelling
 
   documentation:
-    name: checks / documentation
+    name: documentation
     runs-on: ubuntu-latest
     timeout-minutes: 5
     needs: prepare-base
