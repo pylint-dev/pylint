@@ -128,6 +128,10 @@ Extensions
 Other Changes
 =============
 
+* Fix false positive for ``unnecessary-ellipsis`` when using an ellipsis as a default argument.
+
+  Closes #5973
+
 * Add missing dunder methods to ``unexpected-special-method-signature`` check.
 
 * No longer emit ``no-member`` in for loops that reference ``self`` if the binary operation that
@@ -557,3 +561,8 @@ Other Changes
   the variable being raised.
 
   Closes #2793
+
+* Fix false positive for ``superfluous-parens`` for patterns like
+  "return (a or b) in iterable".
+
+  Closes #5803

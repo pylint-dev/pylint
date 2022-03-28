@@ -1,6 +1,7 @@
 """Tests for used-before-assignment with functions added in python 3.7"""
 # pylint: disable=missing-function-docstring
 from __future__ import annotations
+from collections import namedtuple
 from typing import List
 
 
@@ -26,3 +27,9 @@ class MyClass:
             return self == other
 
         return inner_method(self, MyClass())
+
+
+class NamedTupleSubclass(namedtuple("NamedTupleSubclass", [])):
+    """Taken from https://github.com/PyCQA/pylint/issues/5982"""
+    def method(self) -> NamedTupleSubclass:
+        """Variables checker crashed when astroid did not supply a lineno"""

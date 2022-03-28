@@ -71,11 +71,10 @@ else:
             pathlib.Path(PYLINT_HOME).mkdir(parents=True, exist_ok=True)
             with open(spam_prevention_file, "w", encoding="utf8") as f:
                 f.write("")
-        except Exception:  # pylint: disable=broad-except
-            # Can't write in PYLINT_HOME ?
+        except Exception as exc:  # pylint: disable=broad-except
             print(
                 "Can't write the file that was supposed to "
-                f"prevent pylint.d deprecation spam in {PYLINT_HOME}."
+                f"prevent 'pylint.d' deprecation spam in {PYLINT_HOME} because of {exc}."
             )
 
 

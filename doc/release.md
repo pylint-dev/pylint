@@ -45,6 +45,8 @@ branch
   appropriate changelog in the description. This triggers the PyPI release.
 - Delete the `maintenance/X.Y-1.x` branch. (For example: `maintenance/2.3.x`)
 - Create a `maintenance/X.Y.x` (For example: `maintenance/2.4.x` from the `v2.4.0` tag.)
+- Close the current milestone and create the new ones (For example: close `2.4.0`,
+  create `2.4.1` and `2.6.0`)
 
 ## Backporting a fix from `main` to the maintenance branch
 
@@ -55,6 +57,7 @@ maintenance branch we cherry-pick the commit from `main`.
   version `X.Y-1.Z'`. (For example: `v2.3.5`)
 - After the PR is merged on `main` cherry-pick the commits on the `maintenance/X.Y.x`
   branch (For example: from `maintenance/2.4.x` cherry-pick a commit from `main`)
+- Remove the "need backport" label from cherry-picked issues
 - Release a patch version
 
 ## Releasing a patch version
@@ -67,8 +70,7 @@ cherry-picked on the maintenance branch.
 - Install the release dependencies: `pip3 install -r requirements_test.txt`
 - Bump the version and release by using `tbump X.Y-1.Z --no-push`. (For example:
   `tbump 2.3.5 --no-push`)
-- Check the result visually and then by triggering the "release tests" workflow in
-  GitHub Actions first.
+- Check the result visually with `git show`.
 - Push the tag.
 - Release the version on GitHub with the same name as the tag and copy and paste the
   appropriate changelog in the description. This triggers the PyPI release.
@@ -77,6 +79,8 @@ cherry-picked on the maintenance branch.
   `pre-commit autoupdate` works for pylint.
 - Fix version conflicts properly, or bump the version to `X.Y.0-devZ` (For example:
   `2.4.0-dev6`) before pushing on the main branch
+- Close the current milestone and create the new one (For example: close `2.3.5`, create
+  `2.3.6`)
 
 ## Milestone handling
 

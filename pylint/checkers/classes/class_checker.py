@@ -980,7 +980,7 @@ a metaclass class method.",
                 if attribute.attrname != assign_attr.attrname:
                     continue
 
-                if self._is_type_self_call(attribute.expr):
+                if isinstance(attribute.expr, nodes.Call):
                     continue
 
                 if assign_attr.expr.name in {
@@ -2106,6 +2106,7 @@ a metaclass class method.",
         """Check if nodes.Name corresponds to first attribute variable name.
 
         Name is `self` for method, `cls` for classmethod and `mcs` for metaclass.
+        Static methods return False.
         """
         if self._first_attrs:
             first_attr = self._first_attrs[-1]
@@ -2115,6 +2116,8 @@ a metaclass class method.",
                 node, nodes.FunctionDef
             )
             if closest_func is None:
+                return False
+            if not closest_func.is_bound():
                 return False
             if not closest_func.args.args:
                 return False

@@ -121,6 +121,7 @@ contributors:
 - David Gilman <davidgilman1@gmail.com>
 - Andrew Haigh <nelfin@gmail.com> (nelfin)
 - へーさん <hira9603859504@gmail.com>
+- orSolocate <38433858+orSolocate@users.noreply.github.com>
 - Thomas Hisch <t.hisch@gmail.com>
 - Marianna Polatoglou <mpolatoglou@bloomberg.net>: minor contribution for wildcard import check
 - Manuel Vázquez Acosta <mva.led@gmail.com>
@@ -138,7 +139,6 @@ contributors:
   * Added new extension which detects comparing integers to zero,
   * Added new useless-return checker,
   * Added new try-except-raise checker
-- orSolocate <38433858+orSolocate@users.noreply.github.com>
 - Téo Bouvard <teobouvard@gmail.com>
 - Tushar Sadhwani <tushar.sadhwani000@gmail.com> (tusharsadhwani)
 - Mihai Balint <balint.mihai@gmail.com>

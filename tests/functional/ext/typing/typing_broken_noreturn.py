@@ -6,7 +6,7 @@ If no runtime introspection is required, use string annotations instead.
 """
 # pylint: disable=missing-docstring
 import typing
-from typing import Callable, NoReturn, Union
+from typing import TYPE_CHECKING, Callable, NoReturn, Union
 
 import typing_extensions
 
@@ -30,3 +30,7 @@ def func5() -> Union[None, typing_extensions.NoReturn]:  # [broken-noreturn]
 Alias1 = NoReturn
 Alias2 = Callable[..., NoReturn]  # [broken-noreturn]
 Alias3 = Callable[..., "NoReturn"]
+
+if TYPE_CHECKING:
+    # ok inside TYPE_CHECKING block
+    Alias4 = Callable[..., NoReturn]
