@@ -36,6 +36,10 @@ What's New in Pylint 2.13.3?
 ============================
 Release date: TBA
 
+* Fix false positive for ``unnecessary-ellipsis`` when using an ellipsis as a default argument.
+
+  Closes #5973
+
 * Fix crash involving unbalanced tuple unpacking.
 
   Closes #5998
