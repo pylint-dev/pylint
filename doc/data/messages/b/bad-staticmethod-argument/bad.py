@@ -1,4 +1,4 @@
-class Klass:
+class Wolf:
     @staticmethod
-    def mymethod(self):  # [bad-staticmethod-argument]
+    def eat(self):  # [bad-staticmethod-argument]
         pass

@@ -1,4 +1,4 @@
-class Klass:
+class Wolf:
     @staticmethod
-    def mymethod(arg):
+    def eat(sheep):
         pass
