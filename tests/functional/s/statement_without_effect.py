@@ -53,7 +53,7 @@ class ClassLevelAttributeTest(object):
         """ Still a good __init__ level attribute docstring. """
         val = 0
         for val in range(42):
-            val += attr
+            val += attr  # pylint: disable=redefined-outer-name
         # +1:[pointless-string-statement]
         """ Invalid attribute docstring """
         self.val = val

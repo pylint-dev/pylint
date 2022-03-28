@@ -9,7 +9,7 @@ def my_function():
                 while True:
                     try:
                         if True:
-                            i += 1
+                            print(i)
                     except IOError:
                         pass
 
@@ -18,7 +18,7 @@ def my_function():
             if i == 2:
                 while True:
                     try:
-                        i += 1
+                        print(i)
                     except IOError:
                         pass
 
