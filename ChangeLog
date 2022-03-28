@@ -26,6 +26,7 @@ Release date: TBA
 
   Closes #1555
 
+* Fix bug where specifically enabling just ``await-outside-async`` was not possible.
 
 ..
   Insert your changelog randomly, it will reduce merge conflicts
