@@ -38,8 +38,3 @@ Other Changes
   attribute to itself without any prior assignment.
 
   Closes #1555
-
-* Fix false positive for 'nonexistent-operator' when repeated '-' are
-  separated (e.g. by parens).
-
-  Closes #5769
