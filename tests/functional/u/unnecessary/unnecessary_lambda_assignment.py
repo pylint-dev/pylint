@@ -22,12 +22,7 @@ a, b = (
     lambda y: y,  # [unnecessary-lambda-assignment]
     lambda z: z,  # This isn't assigned so don't flag.
 )
-# Example below is currently commented out due to
-# https://github.com/PyCQA/pylint/issues/5998
-# N.B. should raise 'unnecessary-lambda-assignment'
-# I've just removed the inline comment for now as
-# it's confusing the tester whilst commented out!
-# a, b, c = lambda x: x, lambda y: y
+a, b, c = lambda x: x, lambda y: y  # [unnecessary-lambda-assignment,unnecessary-lambda-assignment]
 
 # Only flag lambdas directly assigned to variables.
 d["key"] = lambda x: x

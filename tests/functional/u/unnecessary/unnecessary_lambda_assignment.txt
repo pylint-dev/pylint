@@ -10,3 +10,5 @@ unnecessary-lambda-assignment:19:7:19:18:<lambda>:"Lambda expression assigned to
 unnecessary-lambda-assignment:19:20:19:31:<lambda>:"Lambda expression assigned to a variable. Define a function using the ""def"" keyword instead.":UNDEFINED
 unnecessary-lambda-assignment:21:4:21:15:<lambda>:"Lambda expression assigned to a variable. Define a function using the ""def"" keyword instead.":UNDEFINED
 unnecessary-lambda-assignment:22:4:22:15:<lambda>:"Lambda expression assigned to a variable. Define a function using the ""def"" keyword instead.":UNDEFINED
+unnecessary-lambda-assignment:25:10:25:21:<lambda>:"Lambda expression assigned to a variable. Define a function using the ""def"" keyword instead.":UNDEFINED
+unnecessary-lambda-assignment:25:23:25:34:<lambda>:"Lambda expression assigned to a variable. Define a function using the ""def"" keyword instead.":UNDEFINED
