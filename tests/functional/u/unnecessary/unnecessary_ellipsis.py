@@ -1,6 +1,6 @@
 """Emit a warning when the ellipsis constant is used and can be avoided"""
 
-# pylint: disable=missing-docstring, too-few-public-methods
+# pylint: disable=missing-docstring, too-few-public-methods, invalid-name, unused-argument
 
 from typing import List, overload, Union
 
@@ -97,3 +97,7 @@ class MyIntegerList(List[int]):
             ...
         else:
             raise TypeError(...)
+
+# Ellipsis is allowed as a default argument
+def func_with_ellipsis_default_arg(a = ...) -> None:
+    "Some docstring."

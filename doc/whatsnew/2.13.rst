@@ -128,6 +128,10 @@ Extensions
 Other Changes
 =============
 
+* Fix false positive for ``unnecessary-ellipsis`` when using an ellipsis as a default argument.
+
+  Closes #5973
+
 * Add missing dunder methods to ``unexpected-special-method-signature`` check.
 
 * No longer emit ``no-member`` in for loops that reference ``self`` if the binary operation that
