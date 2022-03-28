@@ -1953,6 +1953,20 @@ accessed. Python regular expressions are accepted.",
 
         self.add_message("dict-iter-missing-items", node=node)
 
+    @check_messages("await-outside-async")
+    def visit_await(self, node: nodes.Await) -> None:
+        self._check_await_outside_coroutine(node)
+
+    def _check_await_outside_coroutine(self, node: nodes.Await) -> None:
+        node_scope = node.scope()
+        while not isinstance(node_scope, nodes.Module):
+            if isinstance(node_scope, nodes.AsyncFunctionDef):
+                return
+            if isinstance(node_scope, nodes.FunctionDef):
+                break
+            node_scope = node_scope.parent.scope()
+        self.add_message("await-outside-async", node=node)
+
 
 class IterableChecker(BaseChecker):
     """Checks for non-iterables used in an iterable context.
@@ -2063,20 +2077,6 @@ class IterableChecker(BaseChecker):
     def visit_generatorexp(self, node: nodes.GeneratorExp) -> None:
         for gen in node.generators:
             self._check_iterable(gen.iter, check_async=gen.is_async)
-
-    @check_messages("await-outside-async")
-    def visit_await(self, node: nodes.Await) -> None:
-        self._check_await_outside_coroutine(node)
-
-    def _check_await_outside_coroutine(self, node: nodes.Await) -> None:
-        node_scope = node.scope()
-        while not isinstance(node_scope, nodes.Module):
-            if isinstance(node_scope, nodes.AsyncFunctionDef):
-                return
-            if isinstance(node_scope, nodes.FunctionDef):
-                break
-            node_scope = node_scope.parent.scope()
-        self.add_message("await-outside-async", node=node)
 
 
 def register(linter: "PyLinter") -> None:
