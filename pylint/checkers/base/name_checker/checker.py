@@ -7,6 +7,7 @@ import collections
 import itertools
 import re
 import sys
+from enum import Enum, auto
 from typing import Dict, Optional, Pattern, Tuple
 
 import astroid
@@ -32,6 +33,13 @@ DEFAULT_PATTERNS = {
 
 BUILTIN_PROPERTY = "builtins.property"
 TYPING_TYPE_VAR_QNAME = "typing.TypeVar"
+
+
+class TypeVarVariance(Enum):
+    invariant = auto()
+    covariant = auto()
+    contravariant = auto()
+    double_variant = auto()
 
 
 def _get_properties(config):
@@ -149,6 +157,12 @@ class NameChecker(_BasicChecker):
             "contravariant behaviour respectively. Invariant (default) variables "
             "do not require a suffix. The message is also emitted when invariant "
             "variables do have a suffix.",
+        ),
+        "C0106": (
+            "TypeVar cannot be both covariant and contravariant",
+            "typevar-double-variance",
+            'Emitted when both the "covariant" and "contravariant" '
+            'keyword arguments are set to "True" in a TypeVar.',
         ),
         "W0111": (
             "Name %s will become a keyword in Python %s",
@@ -512,7 +526,7 @@ class NameChecker(_BasicChecker):
 
         # Check TypeVar names for variance suffixes
         if node_type == "typevar":
-            self._check_typevar_variance(name, node)
+            self._check_typevar(name, node)
 
     def _check_assign_to_new_keyword_violation(self, name, node):
         keyword_first_version = self._name_became_keyword_in_version(
@@ -545,11 +559,8 @@ class NameChecker(_BasicChecker):
                 return True
         return False
 
-    def _check_typevar_variance(self, name: str, node: nodes.AssignName) -> None:
-        """Check if a TypeVar has a variance and if it's included in the name.
-
-        Returns the args for the message to be displayed.
-        """
+    def _check_typevar(self, name: str, node: nodes.AssignName) -> None:
+        """Check for TypeVar lint violations."""
         if isinstance(node.parent, nodes.Assign):
             keywords = node.assign_type().value.keywords
         elif isinstance(node.parent, nodes.Tuple):
@@ -557,30 +568,51 @@ class NameChecker(_BasicChecker):
                 node.assign_type().value.elts[node.parent.elts.index(node)].keywords
             )
 
+        variance = TypeVarVariance.invariant
         for kw in keywords:
             if kw.arg == "covariant" and kw.value.value:
-                if not name.endswith("_co"):
-                    suggest_name = f"{re.sub('_contra$', '', name)}_co"
-                    self.add_message(
-                        "typevar-name-incorrect-variance",
-                        node=node,
-                        args=(name, "covariant", suggest_name),
-                        confidence=interfaces.INFERENCE,
+                variance = (
+                    TypeVarVariance.covariant
+                    if variance
+                    not in (
+                        TypeVarVariance.contravariant,
+                        TypeVarVariance.double_variant,
                     )
-                return
+                    else TypeVarVariance.double_variant
+                )
+            elif kw.arg == "contravariant" and kw.value.value:
+                variance = (
+                    TypeVarVariance.contravariant
+                    if variance
+                    not in (TypeVarVariance.covariant, TypeVarVariance.double_variant)
+                    else TypeVarVariance.double_variant
+                )
 
-            if kw.arg == "contravariant" and kw.value.value:
-                if not name.endswith("_contra"):
-                    suggest_name = f"{re.sub('_co$', '', name)}_contra"
-                    self.add_message(
-                        "typevar-name-incorrect-variance",
-                        node=node,
-                        args=(name, "contravariant", suggest_name),
-                        confidence=interfaces.INFERENCE,
-                    )
-                return
-
-        if name.endswith("_co") or name.endswith("_contra"):
+        if variance == TypeVarVariance.double_variant:
+            self.add_message(
+                "typevar-double-variance",
+                node=node,
+                confidence=interfaces.INFERENCE,
+            )
+        elif variance == TypeVarVariance.covariant and not name.endswith("_co"):
+            suggest_name = f"{re.sub('_contra$', '', name)}_co"
+            self.add_message(
+                "typevar-name-incorrect-variance",
+                node=node,
+                args=(name, "covariant", suggest_name),
+                confidence=interfaces.INFERENCE,
+            )
+        elif variance == TypeVarVariance.contravariant and not name.endswith("_contra"):
+            suggest_name = f"{re.sub('_co$', '', name)}_contra"
+            self.add_message(
+                "typevar-name-incorrect-variance",
+                node=node,
+                args=(name, "contravariant", suggest_name),
+                confidence=interfaces.INFERENCE,
+            )
+        elif variance == TypeVarVariance.invariant and (
+            name.endswith("_co") or name.endswith("_contra")
+        ):
             suggest_name = re.sub("_contra$|_co$", "", name)
             self.add_message(
                 "typevar-name-incorrect-variance",

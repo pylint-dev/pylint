@@ -12,6 +12,11 @@ Summary -- Release highlights
 New checkers
 ============
 
+* Added new checker ``typevar-double-variance``: The "covariant" and "contravariant" keyword arguments
+  cannot both be set to "True" in a TypeVar.
+
+  Closes ##5895
+
 * ``potential-index-error``: Emitted when the index of a list or tuple exceeds its length.
   This checker is currently quite conservative to avoid false positives. We welcome
   suggestions for improvements.

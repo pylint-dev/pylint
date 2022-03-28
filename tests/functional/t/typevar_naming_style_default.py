@@ -16,12 +16,12 @@ GoodNameT_contra = TypeVar("GoodNameT_contra", contravariant=True)
 GoodBoundNameT = TypeVar("GoodBoundNameT", bound=int)
 
 # Some of these will create a RunTime error but serve as a regression test
-T = TypeVar(  # [typevar-name-incorrect-variance]
+T = TypeVar(  # [typevar-double-variance]
     "T", covariant=True, contravariant=True
 )
 T = TypeVar("T", covariant=False, contravariant=False)
-T_co = TypeVar("T_co", covariant=True, contravariant=True)
-T_contra = TypeVar(  # [typevar-name-incorrect-variance]
+T_co = TypeVar("T_co", covariant=True, contravariant=True) # [typevar-double-variance]
+T_contra = TypeVar(  # [typevar-double-variance]
     "T_contra", covariant=True, contravariant=True
 )
 T_co = TypeVar("T_co", covariant=True, contravariant=False)
