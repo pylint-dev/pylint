@@ -37,4 +37,4 @@ Other Changes
 * Emit ``redefined-outer-name`` when a loop variable is redefined in the loop
   body. Previously, only redefinitions taking place in nested loops were flagged.
 
-  Closes #5608
+  Closes #5608, #5072

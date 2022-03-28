@@ -1360,7 +1360,7 @@ class VariablesChecker(BaseChecker):
 
     def visit_assignname(self, node: nodes.AssignName) -> None:
         if self.linter.is_message_enabled("redefined-outer-name") and isinstance(
-            node.parent, nodes.Assign
+            node.parent, (nodes.Assign, nodes.AugAssign)
         ):
             for outer_for, outer_variables in self._loop_variables:
                 if node.name in outer_variables and not in_for_else_branch(

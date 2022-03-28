@@ -13,3 +13,6 @@ for i, line in lines:
     line = line.strip()  # [redefined-outer-name]
 
 line = "no warning"
+
+for i in range(10):
+    i += 1  # [redefined-outer-name]

@@ -1,2 +1,3 @@
 redefined-outer-name:9:4:9:8::Redefining name 'line' from outer scope or loop (line 8):UNDEFINED
 redefined-outer-name:13:4:13:8::Redefining name 'line' from outer scope or loop (line 12):UNDEFINED
+redefined-outer-name:18:4:18:5::Redefining name 'i' from outer scope or loop (line 17):UNDEFINED
