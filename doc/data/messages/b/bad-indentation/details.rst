@@ -1,1 +1,1 @@
-Option ``--indent-string`` is used as indentation unit for this check.
+The option ``--indent-string`` can be used to set the indentation unit for this check.
