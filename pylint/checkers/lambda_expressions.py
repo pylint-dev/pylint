@@ -51,7 +51,7 @@ class LambdaExpressionChecker(BaseChecker):
             node.value, (nodes.Tuple, nodes.List)
         ):
             # Iterate over tuple unpacking assignment elements and
-            # see if any lambdas are assinged to a variable.
+            # see if any lambdas are assigned to a variable.
             # N.B. We may encounter W0632 (unbalanced-tuple-unpacking)
             # and still need to flag the lambdas that are being assigned.
             for lhs_elem, rhs_elem in zip_longest(
