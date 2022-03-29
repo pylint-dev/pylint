@@ -114,6 +114,14 @@ the stream outputs to a file:
 This would be useful to capture pylint output in an open stream which
 can be passed onto another program.
 
+If your program expects that the files being linted might be edited
+between runs, you will need to clear pylint's inference cache:
+
+.. sourcecode:: python
+
+    from pylint.lint import pylinter
+    pylinter.MANAGER.clear_cache()
+
 
 Command line options
 --------------------
