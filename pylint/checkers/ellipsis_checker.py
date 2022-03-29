@@ -39,7 +39,7 @@ class EllipsisChecker(BaseChecker):
            For example: A function consisting of an ellipsis followed by a
            return statement on the next line.
         """
-        #breakpoint()
+        # breakpoint()
         if (
             node.pytype() == "builtins.Ellipsis"
             and not isinstance(
