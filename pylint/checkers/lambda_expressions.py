@@ -86,6 +86,7 @@ class LambdaExpressionChecker(BaseChecker):
             self.add_message(
                 "unnecessary-direct-lambda-call",
                 node=node,
+                confidence=HIGH
             )
 
 
