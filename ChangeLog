@@ -41,7 +41,8 @@ Release date: TBA
 
   Closes #6028
 
-* Fix crash for ``unneccessary-ellipsis`` checker when an ellipsis is used inside of a list.
+* Fix crash for ``unneccessary-ellipsis`` checker when an ellipsis is used
+inside of a container.
 
   Closes #6037
 

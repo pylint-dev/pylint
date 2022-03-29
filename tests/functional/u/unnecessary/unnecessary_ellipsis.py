@@ -103,6 +103,12 @@ def func_with_ellipsis_default_arg(a = ...) -> None:
     "Some docstring."
 
 
-# Ignore if the ellipsis is inside a list
-x = [...]
-y = {'a': [...]}
+# Ignore if the ellipsis is inside a container:
+my_list = [...]
+my_tuple = (...,)
+my_set = {...}
+
+# Ellipsis inside a container which is a value in a dictionary
+a = {'x': [...]}
+b = {'x': {...}}
+c = {'x': (...,)}
