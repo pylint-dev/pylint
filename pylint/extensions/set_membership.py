@@ -19,7 +19,6 @@ class SetMembershipChecker(BaseChecker):
     __implements__ = (IAstroidChecker,)
 
     name = "set_membership"
-    priority = -1
     msgs = {
         "R6201": (
             "Consider using set for membership test",

@@ -50,7 +50,6 @@ Firstly we will need to fill in some required boilerplate:
       __implements__ = IAstroidChecker
 
       name = "unique-returns"
-      priority = -1
       msgs = {
           "W0001": (
               "Returns a non-unique constant.",
@@ -75,9 +74,6 @@ So far we have defined the following required components of our checker:
 
 * A name. The name is used to generate a special configuration
    section for the checker, when options have been provided.
-
-* A priority. This must be to be lower than 0. The checkers are ordered by
-   the priority when run, from the most negative to the most positive.
 
 * A message dictionary. Each checker is being used for finding problems
    in your code, the problems being displayed to the user through **messages**.

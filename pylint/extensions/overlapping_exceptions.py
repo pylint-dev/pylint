@@ -34,7 +34,6 @@ class OverlappingExceptionsChecker(checkers.BaseChecker):
             "Used when exceptions in handler overlap or are identical",
         )
     }
-    priority = -2
     options = ()
 
     @utils.check_messages("overlapping-except")

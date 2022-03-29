@@ -52,7 +52,6 @@ class CommentChecker(BaseChecker):
         )
     }
     options = ()
-    priority = -1  # low priority
 
     def process_module(self, node: nodes.Module) -> None:
         with node.stream() as stream:

@@ -16,7 +16,6 @@ class OptionsProviderMixIn:
     """Mixin to provide options to an OptionsManager."""
 
     # those attributes should be overridden
-    priority = -1
     name = "default"
     options: Tuple[Tuple[str, Dict[str, Any]], ...] = ()
     level = 0

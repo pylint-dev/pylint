@@ -26,6 +26,7 @@ New checkers
 Removed checkers
 ================
 
+* The concept of checker priority has been removed.
 
 Extensions
 ==========

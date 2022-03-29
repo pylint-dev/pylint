@@ -985,7 +985,6 @@ class VariablesChecker(BaseChecker):
 
     name = "variables"
     msgs = MSGS
-    priority = -1
     options = (
         (
             "init-import",

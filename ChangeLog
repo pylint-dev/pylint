@@ -26,6 +26,8 @@ Release date: TBA
 
   Closes #1555
 
+* The concept of checker priority has been removed.
+
 * Fix bug where specifically enabling just ``await-outside-async`` was not possible.
 
 ..
