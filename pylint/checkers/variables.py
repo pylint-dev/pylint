@@ -1355,7 +1355,10 @@ class VariablesChecker(BaseChecker):
         if self.linter.is_message_enabled("redefined-outer-name") and isinstance(
             node.parent, (nodes.Assign, nodes.AugAssign)
         ):
+            node_scope = node.scope()
             for outer_for, outer_variables in self._loop_variables:
+                if node_scope is not outer_for.scope():
+                    continue
                 if node.name in outer_variables and not in_for_else_branch(
                     outer_for, node
                 ):
