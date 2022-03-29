@@ -3,5 +3,5 @@ def divide(x, y):
     try:
         result = x / y
     except ZeroDivisionError as exc:
-        raise Exception("Can't divide by zero!") from exc
+        raise ValueError(f"Division by zero when dividing {x} by {y} !") from exc
     return result
