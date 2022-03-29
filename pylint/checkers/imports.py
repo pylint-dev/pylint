@@ -7,7 +7,7 @@
 import collections
 import copy
 import os
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Set, Tuple, Union
 
 import astroid
 from astroid import nodes
@@ -384,8 +384,8 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         ),
     )
 
-    def __init__(self, linter: Optional["PyLinter"] = None) -> None:
-        BaseChecker.__init__(self, linter)
+    def __init__(self, linter: "PyLinter") -> None:
+        BaseChecker.__init__(self, linter, future_option_parsing=True)
         self.import_graph: collections.defaultdict = collections.defaultdict(set)
         self._imports_stack: List[Tuple[Any, Any]] = []
         self._first_non_import_node = None
@@ -409,10 +409,10 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         # Build a mapping {'module': 'preferred-module'}
         self.preferred_modules = dict(
             module.split(":")
-            for module in self.config.preferred_modules
+            for module in self.linter.namespace.preferred_modules
             if ":" in module
         )
-        self._allow_any_import_level = set(self.config.allow_any_import_level)
+        self._allow_any_import_level = set(self.linter.namespace.allow_any_import_level)
 
     def _import_graph_without_ignored_edges(self):
         filtered_graph = copy.deepcopy(self.import_graph)
@@ -430,7 +430,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
     def deprecated_modules(self):
         """Callback returning the deprecated modules."""
-        return self.config.deprecated_modules
+        return self.linter.namespace.deprecated_modules
 
     @check_messages(*MSGS)
     def visit_import(self, node: nodes.Import) -> None:
@@ -652,7 +652,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         third_party_not_ignored = []
         first_party_not_ignored = []
         local_not_ignored = []
-        isort_driver = IsortDriver(self.config)
+        isort_driver = IsortDriver(self.linter.namespace)
         for node, modname in self._imports_stack:
             if modname.startswith("."):
                 package = "." + modname.split(".")[1]
@@ -749,8 +749,9 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 return None
             if _ignore_import_failure(importnode, modname, self._ignored_modules):
                 return None
-            if not self.config.analyse_fallback_blocks and is_from_fallback_block(
-                importnode
+            if (
+                not self.linter.namespace.analyse_fallback_blocks
+                and is_from_fallback_block(importnode)
             ):
                 return None
 
@@ -866,18 +867,18 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         """Write dependencies as a dot (graphviz) file."""
         dep_info = self.linter.stats.dependencies
         if not dep_info or not (
-            self.config.import_graph
-            or self.config.ext_import_graph
-            or self.config.int_import_graph
+            self.linter.namespace.import_graph
+            or self.linter.namespace.ext_import_graph
+            or self.linter.namespace.int_import_graph
         ):
             raise EmptyReportError()
-        filename = self.config.import_graph
+        filename = self.linter.namespace.import_graph
         if filename:
             _make_graph(filename, dep_info, sect, "")
-        filename = self.config.ext_import_graph
+        filename = self.linter.namespace.ext_import_graph
         if filename:
             _make_graph(filename, self._external_dependencies_info(), sect, "external ")
-        filename = self.config.int_import_graph
+        filename = self.linter.namespace.int_import_graph
         if filename:
             _make_graph(filename, self._internal_dependencies_info(), sect, "internal ")
 
@@ -918,7 +919,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
     def _wildcard_import_is_allowed(self, imported_module):
         return (
-            self.config.allow_wildcard_with_all
+            self.linter.namespace.allow_wildcard_with_all
             and imported_module is not None
             and "__all__" in imported_module.locals
         )

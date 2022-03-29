@@ -8,11 +8,12 @@ An Argument instance represents a pylint option to be handled by an argparse.Arg
 """
 
 
+import argparse
 from typing import Any, Callable, Dict, List, Optional, Union
 
 from pylint import utils as pylint_utils
 
-_ArgumentTypes = Union[str, List[str]]
+_ArgumentTypes = Union[str, List[str], bool]
 """List of possible argument types."""
 
 
@@ -21,9 +22,30 @@ def _csv_validator(value: Union[str, List[str]]) -> List[str]:
     return pylint_utils._check_csv(value)
 
 
+YES_VALUES = {"y", "yes", "true"}
+NO_VALUES = {"n", "no", "false"}
+
+
+def _yes_no_validator(value: Union[str, bool]) -> bool:
+    """Validates a yes-no value and returns a bool."""
+    if isinstance(value, bool):
+        return value
+    value = value.lower()
+    if value in YES_VALUES:
+        return True
+    if value in NO_VALUES:
+        return False
+    raise argparse.ArgumentError(
+        None,
+        f"{value} is not a supported value. Please choose from any in {*YES_VALUES, *NO_VALUES}",
+    )
+
+
 _ASSIGNMENT_VALIDATORS: Dict[str, Callable[[Any], _ArgumentTypes]] = {
     "choice": str,
     "csv": _csv_validator,
+    "string": str,
+    "yn": _yes_no_validator,
 }
 """Validators for all assignment types."""
 
@@ -55,7 +77,7 @@ class _Argument:
         self.type = _ASSIGNMENT_VALIDATORS[arg_type]
         """A validator function that returns and checks the type of the argument."""
 
-        self.default = self.type(default)
+        self.default = default
         """The default value of the argument."""
 
         self.choices = choices
