@@ -149,7 +149,7 @@ class NameChecker(_BasicChecker):
             },
         ),
         "C0105": (
-            'Type variable "%s" is %s, use "%s" instead',
+            "Type variable name does not reflect variance%s",
             "typevar-name-incorrect-variance",
             "Emitted when a TypeVar name doesn't reflect its type variance. "
             "According to PEP8, it is recommended to add suffixes '_co' and "
@@ -592,12 +592,18 @@ class NameChecker(_BasicChecker):
                 node=node,
                 confidence=interfaces.INFERENCE,
             )
+            self.add_message(
+                "typevar-name-incorrect-variance",
+                node=node,
+                args=(""),
+                confidence=interfaces.INFERENCE,
+            )
         elif variance == TypeVarVariance.covariant and not name.endswith("_co"):
             suggest_name = f"{re.sub('_contra$', '', name)}_co"
             self.add_message(
                 "typevar-name-incorrect-variance",
                 node=node,
-                args=(name, "covariant", suggest_name),
+                args=(f'. "{name}" is covariant, use "{suggest_name}" instead'),
                 confidence=interfaces.INFERENCE,
             )
         elif variance == TypeVarVariance.contravariant and not name.endswith("_contra"):
@@ -605,7 +611,7 @@ class NameChecker(_BasicChecker):
             self.add_message(
                 "typevar-name-incorrect-variance",
                 node=node,
-                args=(name, "contravariant", suggest_name),
+                args=(f'. "{name}" is contravariant, use "{suggest_name}" instead'),
                 confidence=interfaces.INFERENCE,
             )
         elif variance == TypeVarVariance.invariant and (
@@ -615,6 +621,6 @@ class NameChecker(_BasicChecker):
             self.add_message(
                 "typevar-name-incorrect-variance",
                 node=node,
-                args=(name, "invariant", suggest_name),
+                args=(f'. "{name}" is invariant, use "{suggest_name}" instead'),
                 confidence=interfaces.INFERENCE,
             )
