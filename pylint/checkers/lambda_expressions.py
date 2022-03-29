@@ -46,6 +46,7 @@ class LambdaExpressionChecker(BaseChecker):
             self.add_message(
                 "unnecessary-lambda-assignment",
                 node=node.value,
+                confidence=HIGH
             )
         elif isinstance(node.targets[0], nodes.Tuple) and isinstance(
             node.value, (nodes.Tuple, nodes.List)
