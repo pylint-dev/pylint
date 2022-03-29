@@ -7,3 +7,7 @@ class UnrecognizedArgumentAction(Exception):
     """Raised if an ArgumentManager instance tries to add an argument for which the action
     is not recognized.
     """
+
+
+class MissingArgumentManager(Exception):
+    """Raised if an ArgumentManager instance to register options to is missing."""
