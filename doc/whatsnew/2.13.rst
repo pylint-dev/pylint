@@ -566,3 +566,8 @@ Other Changes
   "return (a or b) in iterable".
 
   Closes #5803
+
+* Fix false positive for 'nonexistent-operator' when repeated '-' are
+  separated (e.g. by parens).
+
+  Closes #5769

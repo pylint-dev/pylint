@@ -387,6 +387,7 @@ class BasicErrorChecker(_BasicChecker):
             (node.op in "+-")
             and isinstance(node.operand, nodes.UnaryOp)
             and (node.operand.op == node.op)
+            and (node.col_offset + 1 == node.operand.col_offset)
         ):
             self.add_message("nonexistent-operator", node=node, args=node.op * 2)
 
