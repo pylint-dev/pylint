@@ -2,7 +2,6 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-import functools
 from inspect import cleandoc
 from typing import Any, Optional
 
@@ -16,7 +15,6 @@ from pylint.message.message_definition import MessageDefinition
 from pylint.utils import get_rst_section, get_rst_title
 
 
-@functools.total_ordering
 class BaseChecker(OptionsProviderMixIn):
 
     # checker name (you may reuse an existing one)
@@ -41,10 +39,6 @@ class BaseChecker(OptionsProviderMixIn):
             self.name = self.name.lower()
         super().__init__()
         self.linter = linter
-
-    def __gt__(self, other):
-        """Permit to sort a list of Checker by name."""
-        return f"{self.name}{self.msgs}".__gt__(f"{other.name}{other.msgs}")
 
     def __repr__(self):
         status = "Checker" if self.enabled else "Disabled checker"
