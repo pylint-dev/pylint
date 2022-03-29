@@ -1366,6 +1366,7 @@ class VariablesChecker(BaseChecker):
                         "redefined-outer-name",
                         args=(node.name, outer_for.fromlineno),
                         node=node,
+                        confidence=HIGH
                     )
                     break
         if isinstance(node.assign_type(), nodes.AugAssign):
