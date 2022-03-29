@@ -19,6 +19,7 @@ for i in range(8):
         for k in range(j):
             k = (i, j)  # [redefined-outer-name]
             print(i, j, k)
+
 lines = [(1, "1\t"), (2, "2\t")]
 for i, line in lines:
     line = line.strip()  # [redefined-outer-name]
