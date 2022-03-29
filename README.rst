@@ -2,7 +2,7 @@
 README for Pylint - https://pylint.pycqa.org/
 =============================================
 
-.. image:: https://github.com/PyCQA/pylint/actions/workflows/ci.yaml/badge.svg?branch=main
+.. image:: https://github.com/PyCQA/pylint/actions/workflows/tests.yaml/badge.svg?branch=main
     :target: https://github.com/PyCQA/pylint/actions
 
 .. image:: https://coveralls.io/repos/github/PyCQA/pylint/badge.svg?branch=main
