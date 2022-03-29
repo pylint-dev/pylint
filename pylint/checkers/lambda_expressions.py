@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
-from pylint.interfaces import IAstroidChecker
+from pylint.interfaces import HIGH, IAstroidChecker
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -20,7 +20,6 @@ class LambdaExpressionChecker(BaseChecker):
     __implements__ = IAstroidChecker
 
     name = "lambda-expressions"
-    priority = -1
     msgs = {
         "C2901": (
             "Lambda expression assigned to a variable. "
@@ -44,7 +43,9 @@ class LambdaExpressionChecker(BaseChecker):
             node.value, nodes.Lambda
         ):
             self.add_message(
-                "unnecessary-lambda-assignment", node=node.value, confidence=HIGH
+                "unnecessary-lambda-assignment",
+                node=node.value,
+                confidence=HIGH,
             )
         elif isinstance(node.targets[0], nodes.Tuple) and isinstance(
             node.value, (nodes.Tuple, nodes.List)
@@ -63,7 +64,9 @@ class LambdaExpressionChecker(BaseChecker):
                     rhs_elem, nodes.Lambda
                 ):
                     self.add_message(
-                        "unnecessary-lambda-assignment", node=rhs_elem, confidence=HIGH
+                        "unnecessary-lambda-assignment",
+                        node=rhs_elem,
+                        confidence=HIGH,
                     )
 
     def visit_namedexpr(self, node: nodes.NamedExpr) -> None:
@@ -71,14 +74,18 @@ class LambdaExpressionChecker(BaseChecker):
             node.value, nodes.Lambda
         ):
             self.add_message(
-                "unnecessary-lambda-assignment", node=node.value, confidence=HIGH
+                "unnecessary-lambda-assignment",
+                node=node.value,
+                confidence=HIGH,
             )
 
     def visit_call(self, node: nodes.Call) -> None:
         """Check if lambda expression is called directly."""
         if isinstance(node.func, nodes.Lambda):
             self.add_message(
-                "unnecessary-direct-lambda-call", node=node, confidence=HIGH
+                "unnecessary-direct-lambda-call",
+                node=node,
+                confidence=HIGH,
             )
 
 

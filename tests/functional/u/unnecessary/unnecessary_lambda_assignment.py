@@ -28,3 +28,7 @@ a, b, c = lambda x: x, lambda y: y  # [unnecessary-lambda-assignment,unnecessary
 # Only flag lambdas directly assigned to variables.
 d["key"] = lambda x: x
 squares = list(map(lambda x: x**2, range(10)))
+
+DICT = {1: lambda x: x, 2: lambda x: x + 1}
+for key, value in DICT.items():
+    print(value(key))
