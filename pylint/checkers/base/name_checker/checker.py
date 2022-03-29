@@ -158,7 +158,7 @@ class NameChecker(_BasicChecker):
             "do not require a suffix. The message is also emitted when invariant "
             "variables do have a suffix.",
         ),
-        "C0106": (
+        "C0130": (
             "TypeVar cannot be both covariant and contravariant",
             "typevar-double-variance",
             'Emitted when both the "covariant" and "contravariant" '
@@ -571,21 +571,18 @@ class NameChecker(_BasicChecker):
 
         variance = TypeVarVariance.invariant
         for kw in keywords:
-            if kw.arg == "covariant" and kw.value.value:
+            if variance == TypeVarVariance.double_variant:
+                pass
+            elif kw.arg == "covariant" and kw.value.value:
                 variance = (
                     TypeVarVariance.covariant
-                    if variance
-                    not in (
-                        TypeVarVariance.contravariant,
-                        TypeVarVariance.double_variant,
-                    )
+                    if variance != TypeVarVariance.contravariant
                     else TypeVarVariance.double_variant
                 )
             elif kw.arg == "contravariant" and kw.value.value:
                 variance = (
                     TypeVarVariance.contravariant
-                    if variance
-                    not in (TypeVarVariance.covariant, TypeVarVariance.double_variant)
+                    if variance != TypeVarVariance.covariant
                     else TypeVarVariance.double_variant
                 )
 
