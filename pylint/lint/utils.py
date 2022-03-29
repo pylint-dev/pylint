@@ -1,5 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 import contextlib
 import sys
@@ -50,13 +51,16 @@ When parsing the following file:
 pylint crashed with a ``{ex.__class__.__name__}`` and with the following stacktrace:
 ```
 """
+    template += traceback.format_exc()
+    template += "```\n"
     try:
         with open(issue_template_path, "a", encoding="utf8") as f:
             f.write(template)
-            traceback.print_exc(file=f)
-            f.write("```\n")
-    except FileNotFoundError:
-        print(f"Can't write the issue template for the crash in {issue_template_path}.")
+    except Exception as exc:  # pylint: disable=broad-except
+        print(
+            f"Can't write the issue template for the crash in {issue_template_path} "
+            f"because of: '{exc}'\nHere's the content anyway:\n{template}."
+        )
     return issue_template_path
 
 

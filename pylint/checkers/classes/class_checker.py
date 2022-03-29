@@ -1,53 +1,6 @@
-# Copyright (c) 2006-2016 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2010 Maarten ter Huurne <maarten@treewalker.org>
-# Copyright (c) 2012-2014 Google, Inc.
-# Copyright (c) 2012 FELD Boris <lothiraldan@gmail.com>
-# Copyright (c) 2013-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2014 Michal Nowikowski <godfryd@gmail.com>
-# Copyright (c) 2014 Brett Cannon <brett@python.org>
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2014 David Pursehouse <david.pursehouse@gmail.com>
-# Copyright (c) 2015 Dmitry Pribysh <dmand@yandex.ru>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016-2017 Łukasz Rogalski <rogalski.91@gmail.com>
-# Copyright (c) 2016 Alexander Todorov <atodorov@otb.bg>
-# Copyright (c) 2016 Anthony Foglia <afoglia@users.noreply.github.com>
-# Copyright (c) 2016 Florian Bruhin <me@the-compiler.org>
-# Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
-# Copyright (c) 2016 Jakub Wilk <jwilk@jwilk.net>
-# Copyright (c) 2017, 2019-2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2018, 2021 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2018, 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2018-2019 Nick Drozd <nicholasdrozd@gmail.com>
-# Copyright (c) 2018-2019 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2018 Lucas Cimon <lucas.cimon@gmail.com>
-# Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
-# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
-# Copyright (c) 2018 Ben Green <benhgreen@icloud.com>
-# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019 mattlbeck <17108752+mattlbeck@users.noreply.github.com>
-# Copyright (c) 2019-2020 craig-sh <craig-sh@users.noreply.github.com>
-# Copyright (c) 2019 Janne Rönkkö <jannero@users.noreply.github.com>
-# Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2019 Grygorii Iermolenko <gyermolenko@gmail.com>
-# Copyright (c) 2019 Andrzej Klajnert <github@aklajnert.pl>
-# Copyright (c) 2019 Pascal Corpet <pcorpet@users.noreply.github.com>
-# Copyright (c) 2020 GergelyKalmar <gergely.kalmar@logikal.jp>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 Mark Byrne <31762852+mbyrnepr2@users.noreply.github.com>
-# Copyright (c) 2021 Samuel Freilich <sfreilich@google.com>
-# Copyright (c) 2021 Nick Pesce <nickpesce22@gmail.com>
-# Copyright (c) 2021 bot <bot@noreply.github.com>
-# Copyright (c) 2021 Yu Shao, Pang <36848472+yushao2@users.noreply.github.com>
-# Copyright (c) 2021 SupImDos <62866982+SupImDos@users.noreply.github.com>
-# Copyright (c) 2021 Kayran Schmidt <59456929+yumasheta@users.noreply.github.com>
-# Copyright (c) 2021 Konstantina Saketou <56515303+ksaketou@users.noreply.github.com>
-# Copyright (c) 2021 James Sinclair <james@nurfherder.com>
-# Copyright (c) 2021 tiagohonorato <61059243+tiagohonorato@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Classes checker for Python code."""
 import collections
@@ -238,15 +191,21 @@ def _has_different_parameters(
     overridden: List[nodes.AssignName],
     dummy_parameter_regex: Pattern,
 ) -> List[str]:
-    result = []
+    result: List[str] = []
     zipped = zip_longest(original, overridden)
     for original_param, overridden_param in zipped:
-        params = (original_param, overridden_param)
-        if not all(params):
+        if not overridden_param:
             return ["Number of parameters "]
 
+        if not original_param:
+            try:
+                overridden_param.parent.default_value(overridden_param.name)
+                continue
+            except astroid.NoDefault:
+                return ["Number of parameters "]
+
         # check for the arguments' name
-        names = [param.name for param in params]
+        names = [param.name for param in (original_param, overridden_param)]
         if any(dummy_parameter_regex.match(name) for name in names):
             continue
         if original_param.name != overridden_param.name:
@@ -256,6 +215,29 @@ def _has_different_parameters(
             )
 
     return result
+
+
+def _has_different_keyword_only_parameters(
+    original: List[nodes.AssignName],
+    overridden: List[nodes.AssignName],
+) -> List[str]:
+    """Determine if the two methods have different keyword only parameters."""
+    original_names = [i.name for i in original]
+    overridden_names = [i.name for i in overridden]
+
+    if any(name not in overridden_names for name in original_names):
+        return ["Number of parameters "]
+
+    for name in overridden_names:
+        if name in original_names:
+            continue
+
+        try:
+            overridden[0].parent.default_value(name)
+        except astroid.NoDefault:
+            return ["Number of parameters "]
+
+    return []
 
 
 def _different_parameters(
@@ -300,8 +282,8 @@ def _different_parameters(
     different_positional = _has_different_parameters(
         original_parameters, overridden_parameters, dummy_parameter_regex
     )
-    different_kwonly = _has_different_parameters(
-        original_kwonlyargs, overridden.args.kwonlyargs, dummy_parameter_regex
+    different_kwonly = _has_different_keyword_only_parameters(
+        original_kwonlyargs, overridden.args.kwonlyargs
     )
     if different_kwonly and different_positional:
         if "Number " in different_positional[0] and "Number " in different_kwonly[0]:
@@ -530,7 +512,8 @@ MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
         "%s %s %r method",
         "arguments-differ",
         "Used when a method has a different number of arguments than in "
-        "the implemented interface or in an overridden method.",
+        "the implemented interface or in an overridden method. Extra arguments "
+        "with default values are ignored.",
     ),
     "W0222": (
         "Signature differs from %s %r method",
@@ -877,7 +860,11 @@ a metaclass class method.",
                     node=node,
                 )
 
-    @check_messages("unused-private-member", "attribute-defined-outside-init")
+    @check_messages(
+        "unused-private-member",
+        "attribute-defined-outside-init",
+        "access-member-before-definition",
+    )
     def leave_classdef(self, node: nodes.ClassDef) -> None:
         """Checker for Class nodes.
 
@@ -993,7 +980,7 @@ a metaclass class method.",
                 if attribute.attrname != assign_attr.attrname:
                     continue
 
-                if self._is_type_self_call(attribute.expr):
+                if isinstance(attribute.expr, nodes.Call):
                     continue
 
                 if assign_attr.expr.name in {
@@ -2119,6 +2106,7 @@ a metaclass class method.",
         """Check if nodes.Name corresponds to first attribute variable name.
 
         Name is `self` for method, `cls` for classmethod and `mcs` for metaclass.
+        Static methods return False.
         """
         if self._first_attrs:
             first_attr = self._first_attrs[-1]
@@ -2128,6 +2116,8 @@ a metaclass class method.",
                 node, nodes.FunctionDef
             )
             if closest_func is None:
+                return False
+            if not closest_func.is_bound():
                 return False
             if not closest_func.args.args:
                 return False

@@ -1,4 +1,7 @@
-#
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
 # Pylint documentation build configuration file, created by
 # sphinx-quickstart on Thu Apr  4 20:31:25 2013.
 #
@@ -56,7 +59,7 @@ master_doc = "index"
 # General information about the project.
 project = "Pylint"
 current_year = datetime.utcnow().year
-copyright = f"2003-{current_year}, Logilab, PyCQA and contributors"
+copyright = f"2003-{current_year}, Logilab, PyCQA and contributors"  # pylint: disable=redefined-builtin
 
 # The full version, including alpha/beta/rc tags.
 release = __version__
@@ -73,7 +76,7 @@ release = __version__
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ["_build"]
+exclude_patterns = ["_build", "data/**"]
 
 # The reST default role (used for this markup: `text`) to use for all documents.
 # default_role = None
@@ -233,6 +236,7 @@ man_pages = [
     ("index", "pylint", "Pylint Documentation", ["Logilab, PyCQA and contributors"], 1)
 ]
 
+# pylint: disable-next=consider-using-namedtuple-or-dataclass
 intersphinx_mapping = {
     "astroid": ("https://astroid.readthedocs.io/en/latest/", None),
     "python": ("https://docs.python.org/3", None),

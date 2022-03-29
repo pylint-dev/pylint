@@ -1,5 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 import sys
 from pathlib import Path
@@ -54,7 +55,7 @@ def _config_initialization(
 
     # Load command line arguments
     try:
-        args_list = linter.load_command_line_configuration(args_list)
+        parsed_args_list = linter.load_command_line_configuration(args_list)
     except SystemExit as exc:
         if exc.code == 2:  # bad options
             exc.code = 32
@@ -62,7 +63,7 @@ def _config_initialization(
 
     # args_list should now only be a list of files/directories to lint. All options have
     # been removed from the list
-    if not args_list:
+    if not parsed_args_list:
         print(linter.help())
         sys.exit(32)
 
@@ -70,7 +71,21 @@ def _config_initialization(
     # load plugin specific configuration.
     linter.load_plugin_configuration()
 
+    # pylint: disable-next=fixme
+    # TODO: Start of the implemenation of argument parsing with argparse
+    # When finished this should replace the implementation based on optparse
+
+    # First we parse any options from a configuration file
+    linter._parse_configuration_file(config_parser)
+
+    # Second we parse any options from the command line, so they can override
+    # the configuration file
+    linter._parse_command_line_configuration(args_list)
+
+    # Lastly we parse any options from plugins
+    linter._parse_plugin_configuration()
+
     # Now that plugins are loaded, get list of all fail_on messages, and enable them
     linter.enable_fail_on_messages()
 
-    return args_list
+    return parsed_args_list

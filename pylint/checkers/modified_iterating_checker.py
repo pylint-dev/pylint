@@ -1,5 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 from typing import TYPE_CHECKING, Union
 
@@ -56,8 +57,9 @@ class ModifiedIterationChecker(checkers.BaseChecker):
     )
     def visit_for(self, node: nodes.For) -> None:
         iter_obj = node.iter
-        for body_node in node.body:
-            self._modified_iterating_check_on_node_and_children(body_node, iter_obj)
+        if isinstance(iter_obj, nodes.Name):
+            for body_node in node.body:
+                self._modified_iterating_check_on_node_and_children(body_node, iter_obj)
 
     def _modified_iterating_check_on_node_and_children(
         self, body_node: nodes.NodeNG, iter_obj: nodes.NodeNG

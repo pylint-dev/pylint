@@ -1,34 +1,26 @@
-# Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2013-2014 Google, Inc.
-# Copyright (c) 2013 buck@yelp.com <buck@yelp.com>
-# Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2014 Brett Cannon <brett@python.org>
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
-# Copyright (c) 2017-2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
-# Copyright (c) 2018-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
-# Copyright (c) 2019 Bruno P. Kinoshita <kinow@users.noreply.github.com>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 bot <bot@noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
 import functools
+import sys
 from inspect import cleandoc
 from typing import Any, Optional
 
 from astroid import nodes
 
 from pylint.config import OptionsProviderMixIn
+from pylint.config.exceptions import MissingArgumentManager
 from pylint.constants import _MSG_ORDER, WarningScope
 from pylint.exceptions import InvalidMessageError
 from pylint.interfaces import Confidence, IRawChecker, ITokenChecker, implements
 from pylint.message.message_definition import MessageDefinition
 from pylint.utils import get_rst_section, get_rst_title
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
 
 @functools.total_ordering
@@ -47,15 +39,25 @@ class BaseChecker(OptionsProviderMixIn):
     # mark this checker as enabled or not.
     enabled: bool = True
 
-    def __init__(self, linter=None):
+    def __init__(
+        self, linter=None, *, future_option_parsing: Literal[None, True] = None
+    ):
         """Checker instances should have the linter as argument.
 
         :param ILinter linter: is an object implementing ILinter.
+        :raises MissingArgumentManager: If no linter object is passed.
         """
         if self.name is not None:
             self.name = self.name.lower()
         super().__init__()
         self.linter = linter
+
+        if future_option_parsing:
+            # We need a PyLinter object that subclasses _ArgumentsManager to register options
+            if not self.linter:
+                raise MissingArgumentManager
+
+            self.linter._register_options_provider(self)
 
     def __gt__(self, other):
         """Permit to sort a list of Checker by name."""

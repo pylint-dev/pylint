@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 try:
     import isort.api
@@ -41,6 +41,7 @@ else:
 
 if TYPE_CHECKING:
     from pylint.checkers.base_checker import BaseChecker
+    from pylint.lint import PyLinter
 
 DEFAULT_LINE_LENGTH = 79
 
@@ -93,11 +94,11 @@ CMPS = ["=", "-", "+"]
 
 
 # py3k has no more cmp builtin
-def cmp(a, b):
+def cmp(a: Union[int, float], b: Union[int, float]) -> int:
     return (a > b) - (a < b)
 
 
-def diff_string(old, new):
+def diff_string(old: Union[int, float], new: Union[int, float]) -> str:
     """Given an old and new int value, return a string representing the
     difference
     """
@@ -106,7 +107,7 @@ def diff_string(old, new):
     return diff_str
 
 
-def get_module_and_frameid(node):
+def get_module_and_frameid(node: nodes.NodeNG) -> Tuple[str, str]:
     """Return the module name and the frame id in the module."""
     frame = node.frame(future=True)
     module, obj = "", []
@@ -166,7 +167,7 @@ def tokenize_module(node: nodes.Module) -> List[tokenize.TokenInfo]:
         return list(tokenize.tokenize(readline))
 
 
-def register_plugins(linter, directory):
+def register_plugins(linter: "PyLinter", directory: str) -> None:
     """Load all module and package in the given directory, looking for a
     'register' function in each one, used to register pylint checkers
     """
@@ -298,13 +299,10 @@ def _splitstrip(string, sep=","):
     return [word.strip() for word in string.split(sep) if word.strip()]
 
 
-def _unquote(string):
+def _unquote(string: str) -> str:
     """Remove optional quotes (simple or double) from the string.
 
-    :type string: str or unicode
     :param string: an optionally quoted string
-
-    :rtype: str or unicode
     :return: the unquoted string (or the input string if it wasn't quoted)
     """
     if not string:
@@ -383,7 +381,7 @@ def _ini_format(stream: TextIO, options: List[Tuple]) -> None:
 class IsortDriver:
     """A wrapper around isort API that changed between versions 4 and 5."""
 
-    def __init__(self, config):
+    def __init__(self, config) -> None:
         if HAS_ISORT_5:
             self.isort5_config = isort.api.Config(
                 # There is no typo here. EXTRA_standard_library is
@@ -400,7 +398,7 @@ class IsortDriver:
                 known_third_party=config.known_third_party,
             )
 
-    def place_module(self, package):
+    def place_module(self, package: str) -> str:
         if HAS_ISORT_5:
             return isort.api.place_module(package, self.isort5_config)
         return self.isort4_obj.place_module(package)

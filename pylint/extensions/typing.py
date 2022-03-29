@@ -1,3 +1,7 @@
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
 from typing import TYPE_CHECKING, Dict, List, NamedTuple, Set, Union
 
 import astroid.bases
@@ -6,6 +10,7 @@ from astroid import nodes
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
     check_messages,
+    in_type_checking_block,
     is_node_in_type_annotation_context,
     is_postponed_evaluation_enabled,
     safe_infer,
@@ -351,8 +356,10 @@ class TypingChecker(BaseChecker):
             # NoReturn not part of a Union or Callable type
             return
 
-        if is_postponed_evaluation_enabled(node) and is_node_in_type_annotation_context(
-            node
+        if (
+            in_type_checking_block(node)
+            or is_postponed_evaluation_enabled(node)
+            and is_node_in_type_annotation_context(node)
         ):
             return
 
@@ -387,8 +394,10 @@ class TypingChecker(BaseChecker):
         self, node: Union[nodes.Name, nodes.Attribute]
     ) -> bool:
         """Check if node would be a broken location for collections.abc.Callable."""
-        if is_postponed_evaluation_enabled(node) and is_node_in_type_annotation_context(
-            node
+        if (
+            in_type_checking_block(node)
+            or is_postponed_evaluation_enabled(node)
+            and is_node_in_type_annotation_context(node)
         ):
             return False
 
