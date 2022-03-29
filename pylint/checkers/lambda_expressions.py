@@ -67,6 +67,7 @@ class LambdaExpressionChecker(BaseChecker):
                     self.add_message(
                         "unnecessary-lambda-assignment",
                         node=rhs_elem,
+                        confidence=HIGH
                     )
 
     def visit_namedexpr(self, node: nodes.NamedExpr) -> None:
