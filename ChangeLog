@@ -41,6 +41,10 @@ Release date: TBA
 
   Closes #6028
 
+* Fix crash in ``super-init-not-called`` checker.
+
+  Closes #6027
+
 
 What's New in Pylint 2.13.3?
 ============================

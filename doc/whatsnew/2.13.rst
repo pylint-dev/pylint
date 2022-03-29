@@ -575,3 +575,7 @@ Other Changes
   separated (e.g. by parens).
 
   Closes #5769
+
+* Fix crash in ``super-init-not-called`` checker.
+
+  Closes #6027
