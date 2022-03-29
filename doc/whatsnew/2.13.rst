@@ -132,6 +132,10 @@ Extensions
 Other Changes
 =============
 
+* Include ``testing_pylintrc`` in source and wheel distributions.
+
+  Closes #6028
+
 * Fix false positive for ``unnecessary-ellipsis`` when using an ellipsis as a default argument.
 
   Closes #5973
