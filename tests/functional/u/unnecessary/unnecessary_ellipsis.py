@@ -109,6 +109,6 @@ my_tuple = (...,)
 my_set = {...}
 
 # Ellipsis inside a container which is a value in a dictionary
-a = {'x': [...]}
-b = {'x': {...}}
-c = {'x': (...,)}
+mydict1 = {'x': [...]}
+mydict2 = {'x': {...}}
+mydict3 = {'x': (...,)}
