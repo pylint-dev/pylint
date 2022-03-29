@@ -33,7 +33,7 @@ class LambdaExpressionChecker(BaseChecker):
             "Lambda expression called directly. Execute the expression inline instead.",
             "unnecessary-direct-lambda-call",
             "Used when a lambda expression is directly called "
-            "rather than executing it's contents inline.",
+            "rather than executing its contents inline.",
         ),
     }
     options = ()
