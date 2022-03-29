@@ -9,7 +9,7 @@ An Argument instance represents a pylint option to be handled by an argparse.Arg
 
 
 import argparse
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Callable, Dict, List, Optional, Union
 
 from pylint import utils as pylint_utils
 
@@ -17,7 +17,7 @@ _ArgumentTypes = Union[str, List[str], bool]
 """List of possible argument types."""
 
 
-def _csv_validator(value: Union[str, List[str]]) -> List[str]:
+def _csv_validator(value: str) -> List[str]:
     """Validates a comma separated string."""
     return pylint_utils._check_csv(value)
 
@@ -26,10 +26,8 @@ YES_VALUES = {"y", "yes", "true"}
 NO_VALUES = {"n", "no", "false"}
 
 
-def _yes_no_validator(value: Union[str, bool]) -> bool:
+def _yes_no_validator(value: str) -> bool:
     """Validates a yes-no value and returns a bool."""
-    if isinstance(value, bool):
-        return value
     value = value.lower()
     if value in YES_VALUES:
         return True
@@ -41,7 +39,7 @@ def _yes_no_validator(value: Union[str, bool]) -> bool:
     )
 
 
-_ASSIGNMENT_VALIDATORS: Dict[str, Callable[[Any], _ArgumentTypes]] = {
+_ASSIGNMENT_VALIDATORS: Dict[str, Callable[[str], _ArgumentTypes]] = {
     "choice": str,
     "csv": _csv_validator,
     "string": str,
