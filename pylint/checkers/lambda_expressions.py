@@ -77,6 +77,7 @@ class LambdaExpressionChecker(BaseChecker):
             self.add_message(
                 "unnecessary-lambda-assignment",
                 node=node.value,
+                confidence=HIGH
             )
 
     def visit_call(self, node: nodes.Call) -> None:
