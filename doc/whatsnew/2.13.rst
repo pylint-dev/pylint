@@ -575,3 +575,9 @@ Other Changes
   separated (e.g. by parens).
 
   Closes #5769
+
+* Fix false positive regression in 2.13.0 for ``used-before-assignment`` for
+  homonyms between variable assignments in except blocks and earlier attribute
+  access in the test of a filtered comprehension.
+
+  Closes #6035

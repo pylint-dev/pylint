@@ -49,3 +49,14 @@ def main5():
         print([e for e in range(3) if e])
     except ValueError as e:
         print(e)
+
+
+def main6():
+    """https://github.com/PyCQA/pylint/issues/6035"""
+    assets = [asset for asset in range(3) if asset.name == "filename"]
+
+    try:
+        raise ValueError
+    except ValueError:
+        asset = assets[0]
+        print(asset)

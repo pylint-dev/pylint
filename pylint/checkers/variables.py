@@ -629,13 +629,25 @@ scope_type : {self._atomic.scope_type}
         ):
             return found_nodes
 
-        # Filter out assignments in ExceptHandlers that node is not contained in
-        # unless this is a test in a filtered comprehension
-        # Example: [e for e in range(3) if e] <--- followed by except e:
-        if found_nodes and (
-            not isinstance(parent_node, nodes.Comprehension)
-            or node not in parent_node.ifs
+        # And is not part of a test in a filtered comprehension
+        # Examples:
+        #   [e for e in range(3) if e] <--- followed by except e:
+        #   [e for e in range(3) if e.num == 1] <--- followed by except e:
+        closest_comprehension = utils.get_node_first_ancestor_of_type(
+            node, nodes.Comprehension
+        )
+        if (
+            closest_comprehension
+            and node.frame().parent_of(closest_comprehension)
+            and any(
+                test is node or test.parent_of(node)
+                for test in closest_comprehension.ifs
+            )
         ):
+            return found_nodes
+
+        # Filter out assignments in ExceptHandlers that node is not contained in
+        if found_nodes:
             found_nodes = [
                 n
                 for n in found_nodes
