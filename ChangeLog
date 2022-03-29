@@ -28,10 +28,6 @@ Release date: TBA
 
 * Fix bug where specifically enabling just ``await-outside-async`` was not possible.
 
-* Fix crash for ``unneccessary-ellipsis`` checker when an ellipsis is used inside of a list.
-
-  Closes #6037
-
 ..
   Insert your changelog randomly, it will reduce merge conflicts
   (Ie. not necessarily at the end)
@@ -44,6 +40,10 @@ Release date: TBA
 * Include ``testing_pylintrc`` in source and wheel distributions.
 
   Closes #6028
+
+* Fix crash for ``unneccessary-ellipsis`` checker when an ellipsis is used inside of a list.
+
+  Closes #6037
 
 
 What's New in Pylint 2.13.3?
