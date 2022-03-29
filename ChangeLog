@@ -45,6 +45,11 @@ Release date: TBA
 
   Closes #5998
 
+* Fix false positive for 'nonexistent-operator' when repeated '-' are
+  separated (e.g. by parens).
+
+  Closes #5769
+
 
 What's New in Pylint 2.13.2?
 ============================
