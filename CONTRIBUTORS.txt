@@ -184,6 +184,7 @@ contributors:
 - Tim Martin <tim@asymptotic.co.uk>
 - Tiago Honorato <61059243+tiagohonorato@users.noreply.github.com>
 - Steven M. Vascellaro <svascellaro@gmail.com>
+- Sergey B Kirpichev <skirpichev@gmail.com>
 - Roberto Leinardi <leinardi@gmail.com>: PyCharm plugin maintainer
 - Ricardo Gemignani <ricardo.gemignani@gmail.com>
 - Pieter Engelbrecht <pengelbrecht@rems2.com>
@@ -201,6 +202,7 @@ contributors:
 - Konstantin Manna <Konstantin@Manna.uno>
 - Kai Mueller <15907922+kasium@users.noreply.github.com> (kasium)
 - Joshua Cannon <joshdcannon@gmail.com>
+- Joseph Young <80432516+jpy-git@users.noreply.github.com> (jpy-git)
 - John Leach <jfleach@jfleach.com>
 - James Morgensen <james.morgensen@gmail.com>: ignored-modules option applies to import errors.
 - Jaehoon Hwang <jaehoonhwang@users.noreply.github.com> (jaehoonhwang)
@@ -225,7 +227,6 @@ contributors:
 - Tobias Hernstig <30827238+thernstig@users.noreply.github.com>
 - Thomas Grainger <tagrain@gmail.com>
 - Simu Toni <simutoni@gmail.com>
-- Sergey B Kirpichev <skirpichev@gmail.com>
 - Sergei Lebedev <185856+superbobry@users.noreply.github.com> (superbobry)
 - Scott Worley <scottworley@scottworley.com>
 - Rémi Cardona <remi.cardona@polyconseil.fr>
@@ -247,7 +248,6 @@ contributors:
 - Lefteris Karapetsas <lefteris@refu.co>
 - LCD 47 <lcd047@gmail.com>
 - Justin Li <justinnhli@gmail.com> (justinnhli)
-- Joseph Young <80432516+jpy-git@users.noreply.github.com> (jpy-git)
 - John Kirkham <jakirkham@gmail.com>
 - Jens H. Nielsen <Jens.Nielsen@microsoft.com>
 - Ioana Tagirta <ioana.tagirta@gmail.com>: fix bad thread instantiation check
