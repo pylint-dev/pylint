@@ -41,6 +41,10 @@ Release date: TBA
 
   Closes #6028
 
+* Fix false positive for the ``unnecessary-ellipsis`` checker when an ellipsis is used in a lambda expression.
+
+  Closes #6036
+
 
 What's New in Pylint 2.13.3?
 ============================

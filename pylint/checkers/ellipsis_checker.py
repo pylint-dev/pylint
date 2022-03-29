@@ -43,7 +43,7 @@ class EllipsisChecker(BaseChecker):
             node.pytype() == "builtins.Ellipsis"
             and not isinstance(
                 node.parent,
-                (nodes.Assign, nodes.AnnAssign, nodes.Call, nodes.Arguments),
+                (nodes.Assign, nodes.AnnAssign, nodes.Call, nodes.Arguments, nodes.Lambda),
             )
             and (
                 len(node.parent.parent.child_sequence(node.parent)) > 1

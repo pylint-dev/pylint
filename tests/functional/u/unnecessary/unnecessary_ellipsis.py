@@ -101,3 +101,6 @@ class MyIntegerList(List[int]):
 # Ellipsis is allowed as a default argument
 def func_with_ellipsis_default_arg(a = ...) -> None:
     "Some docstring."
+
+# Ignore if the ellipsis is used with a lambda expression
+print("x", lambda: ...)
