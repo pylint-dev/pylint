@@ -37,7 +37,9 @@ What's New in Pylint 2.13.4?
 ============================
 Release date: TBA
 
+* Include ``testing_pylintrc`` in source and wheel distributions.
 
+  Closes #6028
 
 
 What's New in Pylint 2.13.3?

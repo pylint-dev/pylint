@@ -2,17 +2,24 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+import sys
 from inspect import cleandoc
 from typing import Any, Optional
 
 from astroid import nodes
 
 from pylint.config import OptionsProviderMixIn
+from pylint.config.exceptions import MissingArgumentManager
 from pylint.constants import _MSG_ORDER, WarningScope
 from pylint.exceptions import InvalidMessageError
 from pylint.interfaces import Confidence, IRawChecker, ITokenChecker, implements
 from pylint.message.message_definition import MessageDefinition
 from pylint.utils import get_rst_section, get_rst_title
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
 
 class BaseChecker(OptionsProviderMixIn):
@@ -30,15 +37,25 @@ class BaseChecker(OptionsProviderMixIn):
     # mark this checker as enabled or not.
     enabled: bool = True
 
-    def __init__(self, linter=None):
+    def __init__(
+        self, linter=None, *, future_option_parsing: Literal[None, True] = None
+    ):
         """Checker instances should have the linter as argument.
 
         :param ILinter linter: is an object implementing ILinter.
+        :raises MissingArgumentManager: If no linter object is passed.
         """
         if self.name is not None:
             self.name = self.name.lower()
         super().__init__()
         self.linter = linter
+
+        if future_option_parsing:
+            # We need a PyLinter object that subclasses _ArgumentsManager to register options
+            if not self.linter:
+                raise MissingArgumentManager
+
+            self.linter._register_options_provider(self)
 
     def __repr__(self):
         status = "Checker" if self.enabled else "Disabled checker"
