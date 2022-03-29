@@ -1,4 +1,5 @@
-# pylint: disable=too-few-public-methods, missing-docstring, undefined-variable, useless-object-inheritance
+"""Checks for unnecessary-dunder-call."""
+# pylint: disable=too-few-public-methods, undefined-variable, useless-object-inheritance
 
 # Test includelisted dunder methods raise lint when manually called.
 num_str = some_num.__str__() # [unnecessary-dunder-call]
