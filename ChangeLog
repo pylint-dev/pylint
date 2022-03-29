@@ -10,7 +10,7 @@ Release date: TBA
   Put new features here and also in 'doc/whatsnew/2.14.rst'
 
 
-* Add new check (C2801) for unnecessary dunder method calls.
+* Add new check ``unnecessary-dunder-call`` for unnecessary dunder method calls.
 
   Closes #5936
 
