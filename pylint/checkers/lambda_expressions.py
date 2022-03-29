@@ -68,6 +68,15 @@ class LambdaExpressionChecker(BaseChecker):
                         node=rhs_elem,
                     )
 
+    def visit_namedexpr(self, node: nodes.NamedExpr) -> None:
+        if isinstance(node.target, nodes.AssignName) and isinstance(
+            node.value, nodes.Lambda
+        ):
+            self.add_message(
+                "unnecessary-lambda-assignment",
+                node=node.value,
+            )
+
     def visit_call(self, node: nodes.Call) -> None:
         """Check if lambda expression is called directly."""
         if isinstance(node.func, nodes.Lambda):
