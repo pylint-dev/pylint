@@ -8,6 +8,8 @@ import pickle
 import sys
 from datetime import datetime
 
+from pylint.config.argument import _Argument
+from pylint.config.arguments_manager import _ArgumentsManager
 from pylint.config.configuration_mixin import ConfigurationMixIn
 from pylint.config.find_default_config_files import (
     find_default_config_files,
@@ -22,6 +24,8 @@ from pylint.constants import DEFAULT_PYLINT_HOME, OLD_DEFAULT_PYLINT_HOME
 from pylint.utils import LinterStats
 
 __all__ = [
+    "_Argument",
+    "_ArgumentsManager",
     "ConfigurationMixIn",
     "find_default_config_files",
     "_ManHelpFormatter",

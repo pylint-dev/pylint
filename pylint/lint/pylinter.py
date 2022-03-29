@@ -193,6 +193,7 @@ class PyLinter(
     config.OptionsManagerMixIn,
     reporters.ReportsHandlerMixIn,
     checkers.BaseTokenChecker,
+    config._ArgumentsManager,
 ):
     """Lint Python modules using external checkers.
 
@@ -551,9 +552,11 @@ class PyLinter(
         option_groups: Tuple[Tuple[str, str], ...] = (),
         pylintrc: Optional[str] = None,
     ) -> None:
-        """Some stuff has to be done before ancestors initialization...
-        messages store / checkers / reporter / astroid manager
-        """
+        config._ArgumentsManager.__init__(self)
+
+        # Some stuff has to be done before initialization of other ancestors...
+        # messages store / checkers / reporter / astroid manager
+
         # Attributes for reporters
         self.reporter: Union[reporters.BaseReporter, reporters.MultiReporter]
         if reporter:
