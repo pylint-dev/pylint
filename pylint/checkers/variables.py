@@ -638,7 +638,7 @@ scope_type : {self._atomic.scope_type}
         )
         if (
             closest_comprehension
-            and node.frame().parent_of(closest_comprehension)
+            and node.frame(future=True).parent_of(closest_comprehension)
             and any(
                 test is node or test.parent_of(node)
                 for test in closest_comprehension.ifs
