@@ -1352,24 +1352,22 @@ class VariablesChecker(BaseChecker):
             self.add_message("global-statement", node=node)
 
     def visit_assignname(self, node: nodes.AssignName) -> None:
-        if self.linter.is_message_enabled("redefined-outer-name") and isinstance(
-            node.parent, (nodes.Assign, nodes.AugAssign)
-        ):
-            node_scope = node.scope()
-            for outer_for, outer_variables in self._loop_variables:
-                if node_scope is not outer_for.scope():
-                    continue
-                if node.name in outer_variables and not in_for_else_branch(
-                    outer_for, node
-                ):
-                    self.add_message(
-                        "redefined-outer-name",
-                        args=(node.name, outer_for.fromlineno),
-                        node=node,
-                        confidence=HIGH,
-                    )
-                    break
-        if isinstance(node.assign_type(), nodes.AugAssign):
+        assign_type = node.assign_type()
+        if not isinstance(assign_type, (nodes.Assign, nodes.AugAssign)):
+            return
+        node_scope = node.scope()
+        for outer_for, outer_variables in self._loop_variables:
+            if node_scope is not outer_for.scope():
+                continue
+            if node.name in outer_variables and not in_for_else_branch(outer_for, node):
+                self.add_message(
+                    "redefined-outer-name",
+                    args=(node.name, outer_for.fromlineno),
+                    node=node,
+                    confidence=HIGH,
+                )
+                break
+        if isinstance(assign_type, nodes.AugAssign):
             self.visit_name(node)
 
     def visit_delname(self, node: nodes.DelName) -> None:
