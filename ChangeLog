@@ -28,6 +28,10 @@ Release date: TBA
 
 * Fix bug where specifically enabling just ``await-outside-async`` was not possible.
 
+* Fix crash for ``unneccessary-ellipsis`` checker when an ellipsis is used inside of a list.
+
+  Closes #6037
+
 ..
   Insert your changelog randomly, it will reduce merge conflicts
   (Ie. not necessarily at the end)
