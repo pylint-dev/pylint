@@ -6,6 +6,7 @@
 
 import os
 from collections import defaultdict
+from itertools import chain
 from pathlib import Path
 from typing import DefaultDict, Dict, List, NamedTuple, Optional, Tuple
 
@@ -39,6 +40,7 @@ class MessageData(NamedTuple):
     bad_code: str
     details: str
     related_links: str
+    checker_module: str
 
 
 MessagesDict = Dict[str, List[MessageData]]
@@ -126,7 +128,11 @@ def _get_all_messages(
         "refactor": defaultdict(list),
         "information": defaultdict(list),
     }
-    for message in linter.msgs_store.messages:
+    checker_message_mapping = chain.from_iterable(
+        ((checker, msg) for msg in checker.messages)
+        for checker in linter.get_checkers()
+    )
+    for checker, message in checker_message_mapping:
         message_data_path = (
             PYLINT_MESSAGES_DATA_PATH / message.symbol[0] / message.symbol
         )
@@ -141,6 +147,7 @@ def _get_all_messages(
             bad_code,
             details,
             related,
+            checker.__class__.__module__,
         )
         messages_dict[MSG_TYPES_DOC[message.msgid[0]]].append(message_data)
 
@@ -179,10 +186,17 @@ def _write_message_page(messages_dict: MessagesDict) -> None:
 {message.bad_code}
 {message.details}
 {message.related_links}
-
-Created by ``{message.checker}`` checker
 """
                 )
+                if message.checker_module.startswith("pylint.extensions."):
+                    stream.write(
+                        f"""
+.. note::
+  This check requires ``{message.checker_module}`` plugin to be loaded. See: :ref:`{message.checker_module}`
+
+"""
+                    )
+                stream.write(f"""Created by ``{message.checker}`` checker""")
 
 
 def _write_messages_list_page(
