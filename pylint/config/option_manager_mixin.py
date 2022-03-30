@@ -265,7 +265,7 @@ class OptionsManagerMixIn:
                 with open(config_file, encoding="utf_8_sig") as fp:
                     self.cfgfile_parser.read_file(fp)
                 # normalize each section's title
-                for sect, values in list(parser._sections.items()):
+                for sect, values in list(self.cfgfile_parser._sections.items()):
                     if sect.startswith("pylint."):
                         sect = sect[len("pylint.") :]
                     if not sect.isupper() and values:
