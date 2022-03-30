@@ -1,1 +1,1 @@
-unnecessary-lambda-assignment:3:9:3:18:<lambda>:"Lambda expression assigned to a variable. Define a function using the ""def"" keyword instead.":UNDEFINED
+unnecessary-lambda-assignment:3:9:3:18:<lambda>:"Lambda expression assigned to a variable. Define a function using the ""def"" keyword instead.":HIGH
