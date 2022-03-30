@@ -26,7 +26,6 @@ New checkers
 Removed checkers
 ================
 
-* The concept of checker priority has been removed.
 
 Extensions
 ==========
@@ -34,6 +33,8 @@ Extensions
 
 Other Changes
 =============
+
+* The concept of checker priority has been removed.
 
 * Fix false negative for ``no-member`` when attempting to assign an instance
   attribute to itself without any prior assignment.
