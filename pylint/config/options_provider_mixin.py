@@ -67,8 +67,7 @@ class OptionsProviderMixIn:
                 if isinstance(value, (list, tuple)):
                     _list = value
                 elif value is not None:
-                    _list = []
-                    _list.append(value)
+                    _list = [value]
                 setattr(self.config, optname, _list)
             elif isinstance(_list, tuple):
                 setattr(self.config, optname, _list + (value,))
