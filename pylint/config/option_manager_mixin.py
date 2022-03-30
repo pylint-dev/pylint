@@ -257,7 +257,7 @@ class OptionsManagerMixIn:
 
             if config_file.suffix == ".toml":
                 try:
-                    self._parse_toml(config_file, parser)
+                    self._parse_toml(config_file, self.cfgfile_parser)
                 except tomllib.TOMLDecodeError as e:
                     self.add_message("config-parse-error", line=0, args=str(e))  # type: ignore[attr-defined]
             else:
