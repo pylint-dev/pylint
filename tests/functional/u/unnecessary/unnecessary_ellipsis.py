@@ -101,3 +101,14 @@ class MyIntegerList(List[int]):
 # Ellipsis is allowed as a default argument
 def func_with_ellipsis_default_arg(a = ...) -> None:
     "Some docstring."
+
+
+# Ignore if the ellipsis is inside a container:
+my_list = [...]
+my_tuple = (...,)
+my_set = {...}
+
+# Ellipsis inside a container which is a value in a dictionary
+mydict1 = {'x': [...]}
+mydict2 = {'x': {...}}
+mydict3 = {'x': (...,)}
