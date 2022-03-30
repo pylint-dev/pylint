@@ -2,11 +2,13 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+import optparse  # pylint: disable=deprecated-module
 import os
 import sys
 import warnings
+from typing import NoReturn
 
-from pylint import __pkginfo__, extensions, interfaces
+from pylint import __pkginfo__, config, extensions, interfaces
 from pylint.config.config_initialization import _config_initialization
 from pylint.constants import DEFAULT_PYLINT_HOME, OLD_DEFAULT_PYLINT_HOME, full_version
 from pylint.lint.pylinter import PyLinter
@@ -267,6 +269,15 @@ group are mutually exclusive.",
                         "Use --list-extensions to see a list all available extensions.",
                     },
                 ),
+                (
+                    "long-help",
+                    {
+                        "action": "callback",
+                        "callback": self.cb_helpfunc,
+                        "help": "Show more verbose help.",
+                        "group": "Commands",
+                    },
+                ),
             ),
             option_groups=self.option_groups,
             pylintrc=self._rcfile,
@@ -460,3 +471,13 @@ to search for configuration file.
                 extension_name = f"pylint.extensions.{filename[:-3]}"
                 if extension_name not in self._plugins:
                     self._plugins.append(extension_name)
+
+    def cb_helpfunc(
+        self,
+        option: optparse.Option,
+        optname: str,
+        value: None,
+        parser: config.OptionParser,
+    ) -> NoReturn:
+        print(self.linter.help(1))
+        sys.exit(0)
