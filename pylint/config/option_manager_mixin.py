@@ -11,7 +11,7 @@ import os
 import sys
 from pathlib import Path
 from types import ModuleType
-from typing import Dict, List, Optional, TextIO, Tuple, Union
+from typing import Dict, List, Optional, TextIO, Tuple
 
 from pylint import utils
 from pylint.config.man_help_formatter import _ManHelpFormatter
@@ -61,8 +61,7 @@ def _patch_optparse():
 class OptionsManagerMixIn:
     """Handle configuration from both a configuration file and command line options."""
 
-    def __init__(self, usage, config_file=None):
-        self.config_file = config_file
+    def __init__(self, usage):
         self.reset_parsers(usage)
         # list of registered options providers
         self.options_providers = []
@@ -245,25 +244,23 @@ class OptionsManagerMixIn:
         for provider in self.options_providers:
             provider.load_defaults()
 
-    def read_config_file(self, config_file=None, verbose=None):
+    def read_config_file(
+        self, config_file: Optional[Path] = None, verbose: bool = False
+    ) -> None:
         """Read the configuration file but do not load it (i.e. dispatching
         values to each option's provider)
         """
-        if config_file is None:
-            config_file = self.config_file
-        if config_file is not None:
-            config_file = os.path.expandvars(os.path.expanduser(config_file))
-            if not os.path.exists(config_file):
-                raise OSError(f"The config file {config_file} doesn't exist!")
+        if config_file:
+            config_file = Path(os.path.expandvars(config_file)).expanduser()
+            if not config_file.exists():
+                raise OSError(f"The config file {str(config_file)} doesn't exist!")
 
-        use_config_file = config_file and os.path.exists(config_file)
-        if use_config_file:
             parser = self.cfgfile_parser
-            if config_file.endswith(".toml"):
+            if config_file.suffix == ".toml":
                 try:
                     self._parse_toml(config_file, parser)
                 except tomllib.TOMLDecodeError as e:
-                    self.add_message("config-parse-error", line=0, args=str(e))
+                    self.add_message("config-parse-error", line=0, args=str(e))  # type: ignore[attr-defined]
             else:
                 # Use this encoding in order to strip the BOM marker, if any.
                 with open(config_file, encoding="utf_8_sig") as fp:
@@ -274,17 +271,16 @@ class OptionsManagerMixIn:
                         sect = sect[len("pylint.") :]
                     if not sect.isupper() and values:
                         parser._sections[sect.upper()] = values
+
         if not verbose:
             return
-        if use_config_file:
-            msg = f"Using config file {os.path.abspath(config_file)}"
+        if config_file and config_file.exists():
+            msg = f"Using config file {str(config_file)}"
         else:
             msg = "No config file found, using default configuration"
         print(msg, file=sys.stderr)
 
-    def _parse_toml(
-        self, config_file: Union[Path, str], parser: configparser.ConfigParser
-    ) -> None:
+    def _parse_toml(self, config_file: Path, parser: configparser.ConfigParser) -> None:
         """Parse and handle errors of a toml configuration file."""
         with open(config_file, mode="rb") as fp:
             content = tomllib.load(fp)
