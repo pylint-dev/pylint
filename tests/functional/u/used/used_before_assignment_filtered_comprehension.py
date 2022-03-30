@@ -25,3 +25,27 @@ def func3():
     except ZeroDivisionError:
         value = 1
         print(value)
+
+
+def func4():
+    """https://github.com/PyCQA/pylint/issues/6035"""
+    assets = [asset for asset in range(3) if asset.name == "filename"]
+
+    try:
+        raise ValueError
+    except ValueError:
+        asset = assets[0]
+        print(asset)
+
+
+def func5():
+    """Similar, but with subscript notation"""
+    results = {}
+    # pylint: disable-next=consider-using-dict-items
+    filtered =  [k for k in results if isinstance(results[k], dict)]
+
+    try:
+        1 / 0
+    except ZeroDivisionError:
+        k = None
+        print(k, filtered)
