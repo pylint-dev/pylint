@@ -1,4 +1,4 @@
-# pylint: disable=too-few-public-methods, useless-object-inheritance, unnecessary-pass
+# pylint: disable=too-few-public-methods, useless-object-inheritance, unnecessary-pass, unnecessary-dunder-call
 """Backend Base Classes for the schwelm user DB"""
 
 __revision__ = "alpha"

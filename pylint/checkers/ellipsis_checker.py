@@ -44,10 +44,11 @@ class EllipsisChecker(BaseChecker):
             and not isinstance(
                 node.parent,
                 (
-                    nodes.Assign,
                     nodes.AnnAssign,
-                    nodes.Call,
                     nodes.Arguments,
+                    nodes.Assign,
+                    nodes.BaseContainer,
+                    nodes.Call,
                     nodes.Lambda,
                 ),
             )

@@ -2,6 +2,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+import os
 import platform
 import sys
 from typing import Dict, List, NamedTuple, Tuple
@@ -45,6 +46,7 @@ MSG_TYPES_STATUS = {"I": 0, "C": 16, "R": 8, "W": 4, "E": 2, "F": 1}
 # on all project using [MASTER] in their rcfile.
 MAIN_CHECKER_NAME = "master"
 
+USER_HOME = os.path.expanduser("~")
 # pylint: disable-next=fixme
 # TODO Remove in 3.0 with all the surrounding code
 OLD_DEFAULT_PYLINT_HOME = ".pylint.d"
