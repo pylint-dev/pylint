@@ -24,8 +24,9 @@ Release date: TBA
 
   Closes #6028
 
-* Fix crash for ``unneccessary-ellipsis`` checker when an ellipsis is used inside of a container.
+* Fix crash for ``unneccessary-ellipsis`` checker when an ellipsis is used inside of a container or a lambda expression.
 
+  Closes #6036
   Closes #6037
   Closes #6048
 
