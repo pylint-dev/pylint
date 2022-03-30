@@ -107,4 +107,4 @@ class OptionsProviderMixIn:
         if options is None:
             options = self.options
         for optname, optdict in options:
-            yield (optname, optdict, self.option_value(optname))
+            yield optname, optdict, self.option_value(optname)
