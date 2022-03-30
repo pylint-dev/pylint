@@ -42,8 +42,8 @@ Release date: TBA
   Closes #6028
 
 * Fix false positive regression in 2.13.0 for ``used-before-assignment`` for
-  homonyms between variable assignments in except blocks and earlier attribute
-  access in the test of a filtered comprehension.
+  homonyms between variable assignments in try/except blocks and variables in
+  a comprehension's filter.
 
   Closes #6035
 

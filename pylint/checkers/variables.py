@@ -630,20 +630,7 @@ scope_type : {self._atomic.scope_type}
             return found_nodes
 
         # And is not part of a test in a filtered comprehension
-        # Examples:
-        #   [e for e in range(3) if e] <--- followed by except e:
-        #   [e for e in range(3) if e.num == 1] <--- followed by except e:
-        closest_comprehension = utils.get_node_first_ancestor_of_type(
-            node, nodes.Comprehension
-        )
-        if (
-            closest_comprehension
-            and node.frame(future=True).parent_of(closest_comprehension)
-            and any(
-                test is node or test.parent_of(node)
-                for test in closest_comprehension.ifs
-            )
-        ):
+        if VariablesChecker._has_homonym_in_comprehension_test(node):
             return found_nodes
 
         # Filter out assignments in ExceptHandlers that node is not contained in
@@ -1518,10 +1505,7 @@ class VariablesChecker(BaseChecker):
                 # (like "if x" in "[x for x in expr() if x]")
                 # https://github.com/PyCQA/pylint/issues/5586
                 and not (
-                    (
-                        isinstance(node.parent.parent, nodes.Comprehension)
-                        and node.parent in node.parent.parent.ifs
-                    )
+                    self._has_homonym_in_comprehension_test(node)
                     # Or homonyms against values to keyword arguments
                     # (like "var" in "[func(arg=var) for var in expr()]")
                     or (
@@ -2492,6 +2476,31 @@ class VariablesChecker(BaseChecker):
         return any(
             _consumer.scope_type == "function" and node.name in _consumer.to_consume
             for _consumer in self._to_consume[index - 1 :: -1]
+        )
+
+    @staticmethod
+    def _has_homonym_in_comprehension_test(node: nodes.Name) -> bool:
+        """
+        Return True if `node`'s frame contains a comprehension having
+
+        an "if" test employing an identical name. The use of the name
+        in the if test could come in several levels of nesting:
+
+        Examples:
+            [x for x in range(3) if name]
+            [x for x in range(3) if name.num == 1]
+            [x for x in range(3)] if call(name.num)]
+        """
+        closest_comprehension = utils.get_node_first_ancestor_of_type(
+            node, nodes.Comprehension
+        )
+        return (
+            closest_comprehension is not None
+            and node.frame(future=True).parent_of(closest_comprehension)
+            and any(
+                test is node or test.parent_of(node)
+                for test in closest_comprehension.ifs
+            )
         )
 
     def _store_type_annotation_node(self, type_annotation):
