@@ -2480,11 +2480,10 @@ class VariablesChecker(BaseChecker):
 
     @staticmethod
     def _has_homonym_in_comprehension_test(node: nodes.Name) -> bool:
-        """
-        Return True if `node`'s frame contains a comprehension having
+        """Return True if `node`'s frame contains a comprehension employing an
+        identical name in a test.
 
-        an "if" test employing an identical name. The use of the name
-        in the if test could come in several levels of nesting:
+        The name in the test could appear at varying depths:
 
         Examples:
             [x for x in range(3) if name]
