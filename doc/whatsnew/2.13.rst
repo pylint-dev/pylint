@@ -576,6 +576,6 @@ Other Changes
 
   Closes #5769
 
-* Fix crash in ``super-init-not-called`` checker.
+* Fix crash in ``super-init-not-called`` checker when using ``ctypes.Union``.
 
   Closes #6027

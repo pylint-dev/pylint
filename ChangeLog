@@ -41,7 +41,7 @@ Release date: TBA
 
   Closes #6028
 
-* Fix crash in ``super-init-not-called`` checker.
+* Fix crash in ``super-init-not-called`` checker when using ``ctypes.Union``.
 
   Closes #6027
 
