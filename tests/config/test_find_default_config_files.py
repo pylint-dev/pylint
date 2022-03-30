@@ -41,6 +41,7 @@ def test_toml_has_config(content: str, expected: bool, tmp_path: Path) -> None:
     "content,expected",
     [
         ["", False],
+        ["(not valid .cfg)", False],
         [
             """
 [metadata]

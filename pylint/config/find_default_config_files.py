@@ -27,7 +27,10 @@ def _toml_has_config(path: Union[Path, str]) -> bool:
 
 def _cfg_has_config(path: Union[Path, str]) -> bool:
     parser = configparser.ConfigParser()
-    parser.read(path, encoding="utf-8")
+    try:
+        parser.read(path, encoding="utf-8")
+    except configparser.Error:
+        return False
     return any(section.startswith("pylint.") for section in parser.sections())
 
 
