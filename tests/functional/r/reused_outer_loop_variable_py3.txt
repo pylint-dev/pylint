@@ -1,1 +1,1 @@
-redefined-outer-name:4:4:5:16::Redefining name 'j' from outer scope or loop (line 3):UNDEFINED
+redefined-loop-name:4:4:5:16::Redefining 'j' from loop (line 3):UNDEFINED

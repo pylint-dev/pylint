@@ -13,7 +13,7 @@ def titii():
 
 def tataa(kdict):
     for key in ['1', '2', '3']:
-        # pylint: disable=redefined-outer-name
+        # pylint: disable=redefined-loop-name
         key = key.lower()
 
         if key in kdict:

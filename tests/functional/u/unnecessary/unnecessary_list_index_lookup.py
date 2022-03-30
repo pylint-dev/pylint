@@ -24,12 +24,12 @@ for vals in enumerate(my_list):
 
 def process_list(data):
     for index, value in enumerate(data):
-        index = 1  # pylint: disable=redefined-outer-name
+        index = 1  # pylint: disable=redefined-loop-name
         print(data[index])
 
 def process_list_again(data):
     for index, value in enumerate(data):
-        value = 1  # pylint: disable=redefined-outer-name
+        value = 1  # pylint: disable=redefined-loop-name
         print(data[index]) # Can't use value here, it's been redefined
 
 other_list = [1, 2]

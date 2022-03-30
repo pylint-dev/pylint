@@ -23,6 +23,10 @@ New checkers
 
   Closes #4525
 
+* ``redefined-loop-name``: Emitted when a loop variable is redefined in the loop body.
+
+  Closes #5072
+
 Removed checkers
 ================
 
@@ -39,7 +43,7 @@ Other Changes
 
   Closes #1555
 
-* Emit ``redefined-outer-name`` when a loop variable is redefined in the loop
-  body. Previously, only redefinitions taking place in nested loops were flagged.
+* Changed message type from ``redefined-outer-name`` to ``redefined-loop-name`` for
+  redefinitions of outer loop variables by inner loops.
 
-  Closes #5608, #5072
+  Closes #5608

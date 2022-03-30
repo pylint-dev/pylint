@@ -16,10 +16,14 @@ Release date: TBA
 
   Closes #578
 
-* Emit ``redefined-outer-name`` when a loop variable is redefined in the loop
-  body. Previously, only redefinitions taking place in nested loops were flagged.
+* ``redefined-loop-name``: Emitted when a loop variable is redefined in the loop body.
 
-  Closes #5608, #5072
+  Closes #5072
+
+* Changed message type from ``redefined-outer-name`` to ``redefined-loop-name`` for
+  redefinitions of outer loop variables by inner loops.
+
+  Closes #5608
 
 * Added new checker ``unnecessary-list-index-lookup`` for indexing into a list while
   iterating over ``enumerate()``.

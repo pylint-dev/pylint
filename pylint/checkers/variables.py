@@ -460,7 +460,7 @@ MSGS = {
         "`'from X import *'` style import.",
     ),
     "W0621": (
-        "Redefining name %r from outer scope or loop (line %s)",
+        "Redefining name %r from outer scope (line %s)",
         "redefined-outer-name",
         "Used when a variable's name hides a name defined in an outer scope, "
         "for loop, or except handler.",
@@ -469,6 +469,11 @@ MSGS = {
         "Redefining built-in %r",
         "redefined-builtin",
         "Used when a variable or function override a built-in.",
+    ),
+    "W0623": (
+        "Redefining %r from loop (line %s)",
+        "redefined-loop-name",
+        "Used when a loop variable is overwritten in the loop body.",
     ),
     "W0631": (
         "Using possibly undefined loop variable %r",
@@ -1100,7 +1105,7 @@ class VariablesChecker(BaseChecker):
             "undefined-loop-variable"
         )
 
-    @utils.check_messages("redefined-outer-name")
+    @utils.check_messages("redefined-loop-name")
     def visit_for(self, node: nodes.For) -> None:
         assigned_to = [a.name for a in node.target.nodes_of_class(nodes.AssignName)]
 
@@ -1114,7 +1119,7 @@ class VariablesChecker(BaseChecker):
                     outer_for, node
                 ):
                     self.add_message(
-                        "redefined-outer-name",
+                        "redefined-loop-name",
                         args=(variable, outer_for.fromlineno),
                         node=node,
                     )
@@ -1361,7 +1366,7 @@ class VariablesChecker(BaseChecker):
                 continue
             if node.name in outer_variables and not in_for_else_branch(outer_for, node):
                 self.add_message(
-                    "redefined-outer-name",
+                    "redefined-loop-name",
                     args=(node.name, outer_for.fromlineno),
                     node=node,
                     confidence=HIGH,

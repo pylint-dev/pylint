@@ -170,7 +170,7 @@ class MyClass1(object):
         pass
         for count in range(6):
             with open("myfile") as fp:
-                count += 1
+                count += 1  # pylint: disable=redefined-loop-name
             pass
         pass
         try:
