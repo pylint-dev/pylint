@@ -6,6 +6,7 @@
 
 import os
 from collections import defaultdict
+from inspect import getmodule
 from itertools import chain
 from pathlib import Path
 from typing import DefaultDict, Dict, List, NamedTuple, Optional, Tuple
@@ -30,6 +31,8 @@ PYLINT_MESSAGES_DATA_PATH = PYLINT_BASE_PATH / "doc" / "data" / "messages"
 
 MSG_TYPES_DOC = {k: v if v != "info" else "information" for k, v in MSG_TYPES.items()}
 
+BASE_PATH = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 
 class MessageData(NamedTuple):
     checker: str
@@ -40,7 +43,8 @@ class MessageData(NamedTuple):
     bad_code: str
     details: str
     related_links: str
-    checker_module: str
+    checker_module_name: str
+    checker_module_path: str
 
 
 MessagesDict = Dict[str, List[MessageData]]
@@ -138,6 +142,8 @@ def _get_all_messages(
         )
         good_code, bad_code, details, related = _get_message_data(message_data_path)
 
+        checker_module = getmodule(checker)
+
         message_data = MessageData(
             message.checker_name,
             message.msgid,
@@ -147,7 +153,8 @@ def _get_all_messages(
             bad_code,
             details,
             related,
-            checker.__class__.__module__,
+            checker_module.__name__,
+            checker_module.__file__,
         )
         messages_dict[MSG_TYPES_DOC[message.msgid[0]]].append(message_data)
 
@@ -168,6 +175,9 @@ def _write_message_page(messages_dict: MessagesDict) -> None:
         if not category_dir.exists():
             category_dir.mkdir(parents=True, exist_ok=True)
         for message in messages:
+            checker_module_rel_path = os.path.relpath(
+                message.checker_module_path, BASE_PATH
+            )
             messages_file = os.path.join(category_dir, f"{message.name}.rst")
             with open(messages_file, "w", encoding="utf-8") as stream:
                 stream.write(
@@ -188,15 +198,16 @@ def _write_message_page(messages_dict: MessagesDict) -> None:
 {message.related_links}
 """
                 )
-                if message.checker_module.startswith("pylint.extensions."):
+                if message.checker_module_name.startswith("pylint.extensions."):
                     stream.write(
                         f"""
 .. note::
-  This message is emited by the checker which requires the ``{message.checker_module}`` plugin to be loaded. See: :ref:`{message.checker_module}`
+  This message is emited by the checker which requires the ``{message.checker_module_name}`` plugin to be loaded. See: :ref:`{message.checker_module_name}`
 
 """
                     )
-                stream.write(f"""Created by ``{message.checker}`` checker""")
+                checker_url = f"https://github.com/PyCQA/pylint/blob/main/{checker_module_rel_path}"
+                stream.write(f"Created by `{message.checker} <{checker_url}>`_ checker")
 
 
 def _write_messages_list_page(
