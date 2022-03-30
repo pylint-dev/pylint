@@ -192,7 +192,7 @@ def _write_message_page(messages_dict: MessagesDict) -> None:
                     stream.write(
                         f"""
 .. note::
-  This check requires ``{message.checker_module}`` plugin to be loaded. See: :ref:`{message.checker_module}`
+  This check requires the ``{message.checker_module}`` plugin to be loaded. See: :ref:`{message.checker_module}`
 
 """
                     )
