@@ -33,6 +33,17 @@ class LessBasicChecker(OtherBasicChecker):
     )
 
 
+class DifferentBasicChecker(BaseChecker):
+    name = "different"
+    msgs = {
+        "W0002": (
+            "Blah blah example.",
+            "blah-blah-example",
+            "I only exist to be different to OtherBasicChecker :(",
+        )
+    }
+
+
 def test_base_checker_doc() -> None:
     basic = OtherBasicChecker()
     expected_beginning = """\
@@ -65,3 +76,11 @@ Basic checker Messages
 
     assert str(less_basic) == expected_beginning + expected_middle + expected_end
     assert repr(less_basic) == repr(basic)
+
+
+def test_base_checker_ordering():
+    fake_checker_1 = OtherBasicChecker()
+    fake_checker_2 = LessBasicChecker()
+    fake_checker_3 = DifferentBasicChecker()
+    assert fake_checker_1 < fake_checker_3
+    assert fake_checker_2 < fake_checker_3
