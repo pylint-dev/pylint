@@ -10,6 +10,10 @@ Release date: TBA
   Put new features here and also in 'doc/whatsnew/2.14.rst'
 
 
+* Add new check ``unnecessary-dunder-call`` for unnecessary dunder method calls.
+
+  Closes #5936
+
 * ``potential-index-error``: Emitted when the index of a list or tuple exceeds its length.
   This checker is currently quite conservative to avoid false positives. We welcome
   suggestions for improvements.
