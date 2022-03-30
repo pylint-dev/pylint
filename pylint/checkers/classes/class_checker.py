@@ -2004,7 +2004,7 @@ a metaclass class method.",
                         if inf_base.qname() in utils.TYPING_PROTOCOLS:
                             return
                 except astroid.InferenceError:
-                    return
+                    continue
 
             if decorated_with(node, ["typing.overload"]):
                 continue
