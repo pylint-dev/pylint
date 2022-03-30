@@ -22,13 +22,7 @@ def _toml_has_config(path: Union[Path, str]) -> bool:
         except tomllib.TOMLDecodeError as error:
             print(f"Failed to load '{path}': {error}")
             return False
-
-        try:
-            content["tool"]["pylint"]
-        except KeyError:
-            return False
-
-    return True
+    return "pylint" in content.get("tool", [])
 
 
 def _cfg_has_config(path: Union[Path, str]) -> bool:
