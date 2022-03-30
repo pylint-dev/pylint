@@ -49,6 +49,7 @@ class EllipsisChecker(BaseChecker):
                     nodes.Assign,
                     nodes.BaseContainer,
                     nodes.Call,
+                    nodes.Lambda,
                 ),
             )
             and (

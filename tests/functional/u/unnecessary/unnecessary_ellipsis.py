@@ -102,7 +102,6 @@ class MyIntegerList(List[int]):
 def func_with_ellipsis_default_arg(a = ...) -> None:
     "Some docstring."
 
-
 # Ignore if the ellipsis is inside a container:
 my_list = [...]
 my_tuple = (...,)
@@ -112,3 +111,6 @@ my_set = {...}
 mydict1 = {'x': [...]}
 mydict2 = {'x': {...}}
 mydict3 = {'x': (...,)}
+
+# Ignore if the ellipsis is used with a lambda expression
+print("x", lambda: ...)
