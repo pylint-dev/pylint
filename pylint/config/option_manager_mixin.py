@@ -275,7 +275,7 @@ class OptionsManagerMixIn:
         if not verbose:
             return
         if config_file and config_file.exists():
-            msg = f"Using config file {str(config_file)}"
+            msg = f"Using config file '{config_file}'"
         else:
             msg = "No config file found, using default configuration"
         print(msg, file=sys.stderr)
