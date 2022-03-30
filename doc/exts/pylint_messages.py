@@ -5,6 +5,7 @@
 """Script used to generate the messages files."""
 
 import os
+import sys
 from collections import defaultdict
 from inspect import getmodule
 from itertools import chain
@@ -142,6 +143,9 @@ def _get_all_messages(
 
         checker_module = getmodule(checker)
 
+        if not checker_module or not checker_module.__file__:
+            sys.exit(f"Cannot find module for hecker {checker}")
+
         message_data = MessageData(
             message.checker_name,
             message.msgid,
@@ -205,7 +209,7 @@ def _write_message_page(messages_dict: MessagesDict) -> None:
 """
                     )
                 checker_url = f"https://github.com/PyCQA/pylint/blob/main/{checker_module_rel_path}"
-                stream.write(f"Created by `{message.checker} <{checker_url}>`_ checker")
+                stream.write(f"Created by `{message.checker} <{checker_url}>`__ checker")
 
 
 def _write_messages_list_page(
