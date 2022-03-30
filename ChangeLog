@@ -45,6 +45,11 @@ Release date: TBA
 
   Closes #6028
 
+* Fix crash for ``unneccessary-ellipsis`` checker when an ellipsis is used inside of a container.
+
+  Closes #6037
+  Closes #6048
+
 
 What's New in Pylint 2.13.3?
 ============================
