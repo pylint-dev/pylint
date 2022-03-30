@@ -6,7 +6,8 @@ import configparser
 import os
 import sys
 import warnings
-from typing import Iterator, Optional
+from pathlib import Path
+from typing import Iterator, Optional, Union
 
 if sys.version_info >= (3, 11):
     import tomllib
@@ -14,7 +15,7 @@ else:
     import tomli as tomllib
 
 
-def _toml_has_config(path):
+def _toml_has_config(path: Union[Path, str]) -> bool:
     with open(path, mode="rb") as toml_handle:
         try:
             content = tomllib.load(toml_handle)
@@ -30,7 +31,7 @@ def _toml_has_config(path):
     return True
 
 
-def _cfg_has_config(path):
+def _cfg_has_config(path: Union[Path, str]) -> bool:
     parser = configparser.ConfigParser()
     parser.read(path, encoding="utf-8")
     return any(section.startswith("pylint.") for section in parser.sections())
