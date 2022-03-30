@@ -255,6 +255,7 @@ class OptionsManagerMixIn:
             if not config_file.exists():
                 raise OSError(f"The config file {str(config_file)} doesn't exist!")
 
+            parser = self.cfgfile_parser
             if config_file.suffix == ".toml":
                 try:
                     self._parse_toml(config_file, self.cfgfile_parser)
@@ -263,13 +264,13 @@ class OptionsManagerMixIn:
             else:
                 # Use this encoding in order to strip the BOM marker, if any.
                 with open(config_file, encoding="utf_8_sig") as fp:
-                    self.cfgfile_parser.read_file(fp)
+                    parser.read_file(fp)
                 # normalize each section's title
-                for sect, values in list(self.cfgfile_parser._sections.items()):
+                for sect, values in list(parser._sections.items()):
                     if sect.startswith("pylint."):
                         sect = sect[len("pylint.") :]
                     if not sect.isupper() and values:
-                        self.cfgfile_parser._sections[sect.upper()] = values
+                        parser._sections[sect.upper()] = values
 
         if not verbose:
             return
