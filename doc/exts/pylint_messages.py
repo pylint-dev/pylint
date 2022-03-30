@@ -31,8 +31,6 @@ PYLINT_MESSAGES_DATA_PATH = PYLINT_BASE_PATH / "doc" / "data" / "messages"
 
 MSG_TYPES_DOC = {k: v if v != "info" else "information" for k, v in MSG_TYPES.items()}
 
-BASE_PATH = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 
 class MessageData(NamedTuple):
     checker: str
@@ -176,7 +174,7 @@ def _write_message_page(messages_dict: MessagesDict) -> None:
             category_dir.mkdir(parents=True, exist_ok=True)
         for message in messages:
             checker_module_rel_path = os.path.relpath(
-                message.checker_module_path, BASE_PATH
+                message.checker_module_path, PYLINT_BASE_PATH
             )
             messages_file = os.path.join(category_dir, f"{message.name}.rst")
             with open(messages_file, "w", encoding="utf-8") as stream:
