@@ -209,7 +209,9 @@ def _write_message_page(messages_dict: MessagesDict) -> None:
 """
                     )
                 checker_url = f"https://github.com/PyCQA/pylint/blob/main/{checker_module_rel_path}"
-                stream.write(f"Created by `{message.checker} <{checker_url}>`__ checker")
+                stream.write(
+                    f"Created by `{message.checker} <{checker_url}>`__ checker"
+                )
 
 
 def _write_messages_list_page(
