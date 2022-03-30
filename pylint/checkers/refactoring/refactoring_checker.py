@@ -1994,6 +1994,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             # enumerate() result is being assigned without destructuring
             return
 
+        if not isinstance(node.target.elts[1], nodes.AssignName):
+            # The value is not being assigned to a single variable, e.g. being
+            # destructured, so we can't necessarily use it.
+            return
+
         iterating_object_name = node.iter.args[0].name
         value_variable = node.target.elts[1]
 
