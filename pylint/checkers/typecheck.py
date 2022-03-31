@@ -1229,23 +1229,24 @@ accessed. Python regular expressions are accepted.",
             if decorated_with_property(attr):
                 try:
                     call_results = list(attr.infer_call_result(node))
-
-                    if all(
-                        return_node is astroid.Uninferable
-                        for return_node in call_results
-                    ):
-                        # We were unable to infer return values of the call, skipping
-                        continue
-
-                    if any(return_node.callable() for return_node in call_results):
-                        # Only raise this issue if *all* the inferred values are not callable
-                        continue
-
-                    self.add_message(
-                        "not-callable", node=node, args=node.func.as_string()
-                    )
                 except astroid.InferenceError:
                     continue
+
+                if all(
+                    return_node is astroid.Uninferable
+                    for return_node in call_results
+                ):
+                    # We were unable to infer return values of the call, skipping
+                    continue
+
+                if any(return_node.callable() for return_node in call_results):
+                    # Only raise this issue if *all* the inferred values are not callable
+                    continue
+
+                self.add_message(
+                    "not-callable", node=node, args=node.func.as_string()
+                )
+                
 
     def _check_argument_order(self, node, call_site, called, called_param_names):
         """Match the supplied argument names against the function parameters.
