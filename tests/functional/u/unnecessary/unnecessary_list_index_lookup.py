@@ -44,3 +44,8 @@ result = [val for idx, val in enumerate(my_list) if my_list[idx] == 'a'] # [unne
 result = [val for idx, val in enumerate(my_list) if idx > 0 and my_list[idx - 1] == 'a']
 result = [val for idx, val in enumerate(my_list) if other_list[idx] == 'a']
 result = [my_list[idx] for idx, val in enumerate(my_list)] # [unnecessary-list-index-lookup]
+
+# Regression test for https://github.com/PyCQA/pylint/issues/6049
+pairs = [(0, 0)]
+for i, (a, b) in enumerate(pairs):
+    print(pairs[i][0])

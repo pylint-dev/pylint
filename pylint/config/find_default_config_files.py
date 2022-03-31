@@ -5,7 +5,9 @@
 import configparser
 import os
 import sys
-from typing import Iterator, Optional
+import warnings
+from pathlib import Path
+from typing import Iterator, Optional, Union
 
 if sys.version_info >= (3, 11):
     import tomllib
@@ -13,25 +15,22 @@ else:
     import tomli as tomllib
 
 
-def _toml_has_config(path):
+def _toml_has_config(path: Union[Path, str]) -> bool:
     with open(path, mode="rb") as toml_handle:
         try:
             content = tomllib.load(toml_handle)
         except tomllib.TOMLDecodeError as error:
             print(f"Failed to load '{path}': {error}")
             return False
-
-        try:
-            content["tool"]["pylint"]
-        except KeyError:
-            return False
-
-    return True
+    return "pylint" in content.get("tool", [])
 
 
-def _cfg_has_config(path):
+def _cfg_has_config(path: Union[Path, str]) -> bool:
     parser = configparser.ConfigParser()
-    parser.read(path, encoding="utf-8")
+    try:
+        parser.read(path, encoding="utf-8")
+    except configparser.Error:
+        return False
     return any(section.startswith("pylint.") for section in parser.sections())
 
 
@@ -76,6 +75,14 @@ def find_default_config_files() -> Iterator[str]:
 
 def find_pylintrc() -> Optional[str]:
     """Search the pylint rc file and return its path if it finds it, else return None."""
+    # pylint: disable-next=fixme
+    # TODO: Remove this function in 3.0
+    warnings.warn(
+        "find_pylintrc and the PYLINTRC constant have been deprecated. "
+        "Use find_default_config_files if you want access to pylint's configuration file "
+        "finding logic.",
+        DeprecationWarning,
+    )
     for config_file in find_default_config_files():
         if config_file.endswith("pylintrc"):
             return config_file
