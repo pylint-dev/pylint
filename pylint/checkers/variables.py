@@ -1514,8 +1514,9 @@ class VariablesChecker(BaseChecker):
                         and isinstance(
                             node.parent,
                             (
-                                nodes.Call,
                                 nodes.BaseContainer,
+                                nodes.BinOp,
+                                nodes.Call,
                                 nodes.Compare,
                                 nodes.Keyword,
                                 nodes.Subscript,
