@@ -779,6 +779,7 @@ class _CustomPyLinter(PyLinter):
         )
 
 
+@pytest.mark.needs_two_cores
 def test_custom_should_analyze_file() -> None:
     """Check that we can write custom should_analyze_file that work
     even for arguments.
@@ -807,6 +808,7 @@ def test_custom_should_analyze_file() -> None:
 
 # we do the check with jobs=1 as well, so that we are sure that the duplicates
 # are created by the multiprocessing problem.
+@pytest.mark.needs_two_cores
 @pytest.mark.parametrize("jobs", [1, 2])
 def test_multiprocessing(jobs: int) -> None:
     """Check that multiprocessing does not create duplicates."""
