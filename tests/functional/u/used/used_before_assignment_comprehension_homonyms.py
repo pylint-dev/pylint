@@ -49,3 +49,15 @@ def func5():
     except ZeroDivisionError:
         k = None
         print(k, filtered)
+
+
+def func6(data, keys):
+    """Similar, but with a subscript in a key-value pair rather than the test
+    See https://github.com/PyCQA/pylint/issues/6069"""
+    try:
+        results = {key: data[key] for key in keys}
+    except KeyError as exc:
+        key, *_ = exc.args
+        raise Exception(f"{key} not found") from exc
+
+    return results

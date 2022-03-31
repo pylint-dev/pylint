@@ -1508,9 +1508,12 @@ class VariablesChecker(BaseChecker):
                     self._has_homonym_in_comprehension_test(node)
                     # Or homonyms against values to keyword arguments
                     # (like "var" in "[func(arg=var) for var in expr()]")
+                    # (or "var" in "{var: data[var] for var in expr()}")
                     or (
                         isinstance(node.scope(), nodes.ComprehensionScope)
-                        and isinstance(node.parent, (nodes.Call, nodes.Keyword))
+                        and isinstance(
+                            node.parent, (nodes.Call, nodes.Keyword, nodes.Subscript)
+                        )
                     )
                 )
             ):
