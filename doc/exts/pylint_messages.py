@@ -6,6 +6,8 @@
 
 import os
 from collections import defaultdict
+from inspect import getmodule
+from itertools import chain
 from pathlib import Path
 from typing import DefaultDict, Dict, List, NamedTuple, Optional, Tuple
 
@@ -39,6 +41,8 @@ class MessageData(NamedTuple):
     bad_code: str
     details: str
     related_links: str
+    checker_module_name: str
+    checker_module_path: str
 
 
 MessagesDict = Dict[str, List[MessageData]]
@@ -126,11 +130,21 @@ def _get_all_messages(
         "refactor": defaultdict(list),
         "information": defaultdict(list),
     }
-    for message in linter.msgs_store.messages:
+    checker_message_mapping = chain.from_iterable(
+        ((checker, msg) for msg in checker.messages)
+        for checker in linter.get_checkers()
+    )
+    for checker, message in checker_message_mapping:
         message_data_path = (
             PYLINT_MESSAGES_DATA_PATH / message.symbol[0] / message.symbol
         )
         good_code, bad_code, details, related = _get_message_data(message_data_path)
+
+        checker_module = getmodule(checker)
+
+        assert (
+            checker_module and checker_module.__file__
+        ), f"Cannot find module for checker {checker}"
 
         message_data = MessageData(
             message.checker_name,
@@ -141,6 +155,8 @@ def _get_all_messages(
             bad_code,
             details,
             related,
+            checker_module.__name__,
+            checker_module.__file__,
         )
         messages_dict[MSG_TYPES_DOC[message.msgid[0]]].append(message_data)
 
@@ -161,6 +177,9 @@ def _write_message_page(messages_dict: MessagesDict) -> None:
         if not category_dir.exists():
             category_dir.mkdir(parents=True, exist_ok=True)
         for message in messages:
+            checker_module_rel_path = os.path.relpath(
+                message.checker_module_path, PYLINT_BASE_PATH
+            )
             messages_file = os.path.join(category_dir, f"{message.name}.rst")
             with open(messages_file, "w", encoding="utf-8") as stream:
                 stream.write(
@@ -179,9 +198,19 @@ def _write_message_page(messages_dict: MessagesDict) -> None:
 {message.bad_code}
 {message.details}
 {message.related_links}
-
-Created by ``{message.checker}`` checker
 """
+                )
+                if message.checker_module_name.startswith("pylint.extensions."):
+                    stream.write(
+                        f"""
+.. note::
+  This message is emitted by an optional checker which requires the ``{message.checker_module_name}`` plugin to be loaded. See: :ref:`{message.checker_module_name}`.
+
+"""
+                    )
+                checker_url = f"https://github.com/PyCQA/pylint/blob/main/{checker_module_rel_path}"
+                stream.write(
+                    f"Created by the `{message.checker} <{checker_url}>`__ checker."
                 )
 
 
