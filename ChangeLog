@@ -37,9 +37,15 @@ Release date: TBA
   (Ie. not necessarily at the end)
 
 
-What's New in Pylint 2.13.4?
+What's New in Pylint 2.13.5?
 ============================
 Release date: TBA
+
+
+
+What's New in Pylint 2.13.4?
+============================
+Release date: 2022-03-31
 
 * Fix false positive regression in 2.13.0 for ``used-before-assignment`` for
   homonyms between variable assignments in try/except blocks and variables in
