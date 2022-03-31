@@ -629,8 +629,8 @@ scope_type : {self._atomic.scope_type}
         ):
             return found_nodes
 
-        # And is not part of a test in a filtered comprehension
-        if VariablesChecker._has_homonym_in_comprehension_test(node):
+        # And no comprehension is under the node's frame
+        if VariablesChecker._comprehension_under_frame(node):
             return found_nodes
 
         # Filter out assignments in ExceptHandlers that node is not contained in
@@ -1525,7 +1525,7 @@ class VariablesChecker(BaseChecker):
                 current_consumer.scope_type == "comprehension"
                 and self._has_homonym_in_upper_function_scope(node, consumer_level)
                 and not any(
-                    self._has_homonym_in_comprehension_test(comprehension)
+                    self._comprehension_under_frame(comprehension)
                     for comprehension in (node, *node.scope().generators)
                 )
             ):
@@ -2501,23 +2501,8 @@ class VariablesChecker(BaseChecker):
         )
 
     @staticmethod
-    def _has_homonym_in_comprehension_test(node: nodes.Name) -> bool:
-        """Return True if `node`'s frame contains a comprehension employing an
-        identical name in a test.
-
-        The name in the test could appear at varying depths, and in the `if` test or not:
-
-        Examples:
-            [x for x in range(3) if x]
-            [x for x in range(3) if x.num == 1]
-            [x for x in range(3)] if call(x.num)]
-            [0 | x for x in range(3)]
-
-        See:
-        https://github.com/PyCQA/pylint/issues/5586
-        https://github.com/PyCQA/pylint/issues/6035
-        https://github.com/PyCQA/pylint/issues/6069
-        """
+    def _comprehension_under_frame(node: nodes.Name) -> bool:
+        """Return True if `node`'s frame contains a ComprehensionScope."""
         closest_comprehension_scope = utils.get_node_first_ancestor_of_type(
             node, nodes.ComprehensionScope
         )
