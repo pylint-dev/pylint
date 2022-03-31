@@ -61,7 +61,15 @@ class BaseChecker(OptionsProviderMixIn):
 
     def __gt__(self, other):
         """Permit to sort a list of Checker by name."""
-        return f"{self.name}{self.msgs}" > (f"{other.name}{other.msgs}")
+        return f"{self.name}{self.msgs}" > f"{other.name}{other.msgs}"
+
+    def __eq__(self, other):
+        """Permit to assert Checkers are equal."""
+        return f"{self.name}{self.msgs}" == f"{other.name}{other.msgs}"
+
+    def __hash__(self):
+        """Make Checker hashable."""
+        return hash(f"{self.name}{self.msgs}")
 
     def __repr__(self):
         status = "Checker" if self.enabled else "Disabled checker"
