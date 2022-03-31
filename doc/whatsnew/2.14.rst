@@ -23,6 +23,10 @@ New checkers
 
   Closes #4525
 
+* Added new message called ``duplicate-value`` which identifies duplicate values inside sets.
+
+  Closes #5880
+
 Removed checkers
 ================
 

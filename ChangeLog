@@ -28,6 +28,10 @@ Release date: TBA
 
 * Fix bug where specifically enabling just ``await-outside-async`` was not possible.
 
+* Added new message called ``duplicate-value`` which identifies duplicate values inside sets.
+
+  Closes #5880
+
 ..
   Insert your changelog randomly, it will reduce merge conflicts
   (Ie. not necessarily at the end)
