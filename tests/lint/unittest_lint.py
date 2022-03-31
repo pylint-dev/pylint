@@ -681,11 +681,14 @@ def test_pylintrc() -> None:
         current_dir = getcwd()
         chdir(os.path.dirname(os.path.abspath(sys.executable)))
         try:
-            assert config.find_pylintrc() is None
+            with pytest.warns(DeprecationWarning):
+                assert config.find_pylintrc() is None
             os.environ["PYLINTRC"] = join(tempfile.gettempdir(), ".pylintrc")
-            assert config.find_pylintrc() is None
+            with pytest.warns(DeprecationWarning):
+                assert config.find_pylintrc() is None
             os.environ["PYLINTRC"] = "."
-            assert config.find_pylintrc() is None
+            with pytest.warns(DeprecationWarning):
+                assert config.find_pylintrc() is None
         finally:
             chdir(current_dir)
             reload(config)
@@ -706,7 +709,8 @@ def test_pylintrc_parentdir() -> None:
             ]
         )
         with fake_home():
-            assert config.find_pylintrc() is None
+            with pytest.warns(DeprecationWarning):
+                assert config.find_pylintrc() is None
         results = {
             "a": join(chroot, "a", "pylintrc"),
             "a/b": join(chroot, "a", "b", "pylintrc"),
@@ -716,7 +720,8 @@ def test_pylintrc_parentdir() -> None:
         }
         for basedir, expected in results.items():
             os.chdir(join(chroot, basedir))
-            assert config.find_pylintrc() == expected
+            with pytest.warns(DeprecationWarning):
+                assert config.find_pylintrc() == expected
 
 
 @pytest.mark.usefixtures("pop_pylintrc")
@@ -724,7 +729,8 @@ def test_pylintrc_parentdir_no_package() -> None:
     with tempdir() as chroot:
         with fake_home():
             create_files(["a/pylintrc", "a/b/pylintrc", "a/b/c/d/__init__.py"])
-            assert config.find_pylintrc() is None
+            with pytest.warns(DeprecationWarning):
+                assert config.find_pylintrc() is None
             results = {
                 "a": join(chroot, "a", "pylintrc"),
                 "a/b": join(chroot, "a", "b", "pylintrc"),
@@ -733,7 +739,8 @@ def test_pylintrc_parentdir_no_package() -> None:
             }
             for basedir, expected in results.items():
                 os.chdir(join(chroot, basedir))
-                assert config.find_pylintrc() == expected
+                with pytest.warns(DeprecationWarning):
+                    assert config.find_pylintrc() == expected
 
 
 class TestPreprocessOptions:
