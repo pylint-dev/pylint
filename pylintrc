@@ -113,7 +113,6 @@ disable=
     loop-invariant-global-usage,
     use-list-comprehension,
     use-list-copy,
-    incorrect-dictionary-iterator,
     use-dict-comprehension,
 
 

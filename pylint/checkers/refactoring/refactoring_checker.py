@@ -1280,7 +1280,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             if isinstance(comparison_node, nodes.Compare):
                 _find_lower_upper_bounds(comparison_node, uses)
 
-        for _, bounds in uses.items():
+        for bounds in uses.values():
             num_shared = len(bounds["lower_bound"].intersection(bounds["upper_bound"]))
             num_lower_bounds = len(bounds["lower_bound"])
             num_upper_bounds = len(bounds["upper_bound"])
