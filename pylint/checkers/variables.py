@@ -1282,8 +1282,31 @@ class VariablesChecker(BaseChecker):
 
         global_names = _flattened_scope_names(node.nodes_of_class(nodes.Global))
         nonlocal_names = _flattened_scope_names(node.nodes_of_class(nodes.Nonlocal))
+        comprehension_target_names = []
+
+        def find_assigned_names_recursive(
+            target: Union[nodes.AssignName, nodes.BaseContainer]
+        ):
+            nonlocal comprehension_target_names
+            if isinstance(target, nodes.AssignName):
+                comprehension_target_names.append(target.name)
+            elif isinstance(target, nodes.BaseContainer):
+                for elt in target.elts:
+                    find_assigned_names_recursive(elt)
+
+        for comprehension_scope in node.nodes_of_class(nodes.ComprehensionScope):
+            for generator in comprehension_scope.generators:
+                find_assigned_names_recursive(generator.target)
+
         for name, stmts in not_consumed.items():
-            self._check_is_unused(name, node, stmts[0], global_names, nonlocal_names)
+            self._check_is_unused(
+                name,
+                node,
+                stmts[0],
+                global_names,
+                nonlocal_names,
+                comprehension_target_names,
+            )
 
     visit_asyncfunctiondef = visit_functiondef
     leave_asyncfunctiondef = leave_functiondef
@@ -1501,28 +1524,9 @@ class VariablesChecker(BaseChecker):
             if utils.is_func_decorator(current_consumer.node) or not (
                 current_consumer.scope_type == "comprehension"
                 and self._has_homonym_in_upper_function_scope(node, consumer_level)
-                # But don't catch homonyms against the filter of a comprehension,
-                # (like "if x" in "[x for x in expr() if x]")
-                # https://github.com/PyCQA/pylint/issues/5586
-                and not (
-                    self._has_homonym_in_comprehension_test(node)
-                    # Or homonyms against values to keyword arguments
-                    # (like "var" in "[func(arg=var) for var in expr()]")
-                    # (or "var" in "{var: data[var] for var in expr()}")
-                    or (
-                        isinstance(node.scope(), nodes.ComprehensionScope)
-                        and isinstance(
-                            node.parent,
-                            (
-                                nodes.BaseContainer,
-                                nodes.BinOp,
-                                nodes.Call,
-                                nodes.Compare,
-                                nodes.Keyword,
-                                nodes.Subscript,
-                            ),
-                        )
-                    )
+                and not any(
+                    self._has_homonym_in_comprehension_test(comprehension)
+                    for comprehension in (node, *node.scope().generators)
                 )
             ):
                 self._check_late_binding_closure(node)
@@ -2276,7 +2280,13 @@ class VariablesChecker(BaseChecker):
                 self.add_message("undefined-loop-variable", args=node.name, node=node)
 
     def _check_is_unused(
-        self, name, node, stmt, global_names, nonlocal_names: Iterable[str]
+        self,
+        name,
+        node,
+        stmt,
+        global_names,
+        nonlocal_names: Iterable[str],
+        comprehension_target_names: Iterable[str],
     ):
         # Ignore some special names specified by user configuration.
         if self._is_name_ignored(stmt, name):
@@ -2299,7 +2309,8 @@ class VariablesChecker(BaseChecker):
         argnames = node.argnames()
         # Care about functions with unknown argument (builtins)
         if name in argnames:
-            self._check_unused_arguments(name, node, stmt, argnames, nonlocal_names)
+            if name not in comprehension_target_names:
+                self._check_unused_arguments(name, node, stmt, argnames, nonlocal_names)
         else:
             if stmt.parent and isinstance(
                 stmt.parent, (nodes.Assign, nodes.AnnAssign, nodes.Tuple)
@@ -2494,24 +2505,25 @@ class VariablesChecker(BaseChecker):
         """Return True if `node`'s frame contains a comprehension employing an
         identical name in a test.
 
-        The name in the test could appear at varying depths:
+        The name in the test could appear at varying depths, and in the `if` test or not:
 
         Examples:
-            [x for x in range(3) if name]
-            [x for x in range(3) if name.num == 1]
-            [x for x in range(3)] if call(name.num)]
+            [x for x in range(3) if x]
+            [x for x in range(3) if x.num == 1]
+            [x for x in range(3)] if call(x.num)]
+            [0 | x for x in range(3)]
+
+        See:
+        https://github.com/PyCQA/pylint/issues/5586
+        https://github.com/PyCQA/pylint/issues/6035
+        https://github.com/PyCQA/pylint/issues/6069
         """
-        closest_comprehension = utils.get_node_first_ancestor_of_type(
-            node, nodes.Comprehension
+        closest_comprehension_scope = utils.get_node_first_ancestor_of_type(
+            node, nodes.ComprehensionScope
         )
-        return (
-            closest_comprehension is not None
-            and node.frame(future=True).parent_of(closest_comprehension)
-            and any(
-                test is node or test.parent_of(node)
-                for test in closest_comprehension.ifs
-            )
-        )
+        return closest_comprehension_scope is not None and node.frame(
+            future=True
+        ).parent_of(closest_comprehension_scope)
 
     def _store_type_annotation_node(self, type_annotation):
         """Given a type annotation, store all the name nodes it refers to."""
