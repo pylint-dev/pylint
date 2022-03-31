@@ -35,6 +35,7 @@ load-plugins=
     pylint.extensions.typing,
     pylint.extensions.redefined_variable_type,
     pylint.extensions.comparison_placement,
+    perflint,
 
 # Use multiple processes to speed up Pylint. Specifying 0 will auto-detect the
 # number of processors available to use.
@@ -103,7 +104,17 @@ disable=
     protected-access,
     too-few-public-methods,
     # handled by black
-    format
+    format,
+    # new perflint check
+    dotted-import-in-loop, # namespaces are nice
+    use-tuple-over-list,
+    loop-try-except-usage,
+    loop-invariant-statement,
+    loop-invariant-global-usage,
+    use-list-comprehension,
+    use-list-copy,
+    incorrect-dictionary-iterator,
+    use-dict-comprehension,
 
 
 [REPORTS]
