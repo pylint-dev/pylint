@@ -2,6 +2,10 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+import warnings
+
 from pylint.config.find_default_config_files import find_pylintrc
 
-PYLINTRC = find_pylintrc()
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    PYLINTRC = find_pylintrc()
