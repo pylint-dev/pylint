@@ -204,13 +204,13 @@ def _write_message_page(messages_dict: MessagesDict) -> None:
                     stream.write(
                         f"""
 .. note::
-  This message is emitted by an optional checker which requires the ``{message.checker_module_name}`` plugin to be loaded. See: :ref:`{message.checker_module_name}`
+  This message is emitted by an optional checker which requires the ``{message.checker_module_name}`` plugin to be loaded. See: :ref:`{message.checker_module_name}`.
 
 """
                     )
                 checker_url = f"https://github.com/PyCQA/pylint/blob/main/{checker_module_rel_path}"
                 stream.write(
-                    f"Created by `{message.checker} <{checker_url}>`__ checker"
+                    f"Created by the `{message.checker} <{checker_url}>`__ checker."
                 )
 
 
