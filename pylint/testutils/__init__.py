@@ -18,6 +18,7 @@ __all__ = [
     "UPDATE_FILE",
     "UPDATE_OPTION",
     "UnittestLinter",
+    "create_files",
 ]
 
 from pylint.testutils.checker_test_case import CheckerTestCase
@@ -31,3 +32,4 @@ from pylint.testutils.output_line import MessageTest
 from pylint.testutils.reporter_for_tests import GenericTestReporter, MinimalTestReporter
 from pylint.testutils.tokenize_str import _tokenize_str
 from pylint.testutils.unittest_linter import UnittestLinter
+from pylint.testutils.utils import create_files

@@ -612,9 +612,10 @@ class PyLinter(
         self._by_id_managed_msgs: List[ManagedMessage] = []
 
         reporters.ReportsHandlerMixIn.__init__(self)
+        config_file = next(config.find_default_config_files(), None)
         super().__init__(
             usage=__doc__,
-            config_file=pylintrc or next(config.find_default_config_files(), None),
+            config_file=pylintrc or str(config_file) if config_file else None,
         )
         checkers.BaseTokenChecker.__init__(self)
         # provided reports
