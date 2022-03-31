@@ -9,10 +9,10 @@ try:
     A = 2
 except ValueError:
     A = 24
-    ... # [unnecessary-ellipsis]
+    ...
 
 def ellipsis_and_subsequent_statement():
-    ... # [unnecessary-ellipsis]
+    ...
     return 0
 
 # The parent of ellipsis is an assignment

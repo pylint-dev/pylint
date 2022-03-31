@@ -41,6 +41,8 @@ What's New in Pylint 2.13.5?
 ============================
 Release date: TBA
 
+* Narrow the scope of the ``unnecessary-ellipsis`` checker to functions & classes which contain both a docstring and an ellipsis.
+
 
 
 What's New in Pylint 2.13.4?

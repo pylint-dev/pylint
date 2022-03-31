@@ -24,8 +24,7 @@ class EllipsisChecker(BaseChecker):
             "unnecessary-ellipsis",
             "Used when the ellipsis constant is encountered and can be avoided. "
             "A line of code consisting of an ellipsis is unnecessary if "
-            "there is a docstring on the preceding line or if there is a "
-            "statement in the same scope.",
+            "there is a docstring on the preceding line.",
         )
     }
 
@@ -35,29 +34,13 @@ class EllipsisChecker(BaseChecker):
 
         Emits a warning when:
          - A line consisting of an ellipsis is preceded by a docstring.
-         - A statement exists in the same scope as the ellipsis.
-           For example: A function consisting of an ellipsis followed by a
-           return statement on the next line.
         """
         if (
             node.pytype() == "builtins.Ellipsis"
-            and not isinstance(
-                node.parent,
-                (
-                    nodes.AnnAssign,
-                    nodes.Arguments,
-                    nodes.Assign,
-                    nodes.BaseContainer,
-                    nodes.Call,
-                    nodes.Lambda,
-                ),
-            )
+            and isinstance(node.parent, nodes.Expr)
             and (
-                len(node.parent.parent.child_sequence(node.parent)) > 1
-                or (
-                    isinstance(node.parent.parent, (nodes.ClassDef, nodes.FunctionDef))
-                    and node.parent.parent.doc_node
-                )
+                isinstance(node.parent.parent, (nodes.ClassDef, nodes.FunctionDef))
+                and node.parent.parent.doc_node
             )
         ):
             self.add_message("unnecessary-ellipsis", node=node)
