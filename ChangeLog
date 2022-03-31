@@ -20,6 +20,12 @@ What's New in Pylint 2.13.4?
 ============================
 Release date: TBA
 
+* Fix false positive regression in 2.13.0 for ``used-before-assignment`` for
+  homonyms between variable assignments in try/except blocks and variables in
+  a comprehension's filter.
+
+  Closes #6035
+
 * Include ``testing_pylintrc`` in source and wheel distributions.
 
   Closes #6028
