@@ -5,7 +5,6 @@
 """Script used to generate the messages files."""
 
 import os
-import sys
 from collections import defaultdict
 from inspect import getmodule
 from itertools import chain
@@ -143,8 +142,7 @@ def _get_all_messages(
 
         checker_module = getmodule(checker)
 
-        if not checker_module or not checker_module.__file__:
-            sys.exit(f"Cannot find module for hecker {checker}")
+        assert checker_module and checker_module.__file__, f"Cannot find module for checker {checker}"
 
         message_data = MessageData(
             message.checker_name,
