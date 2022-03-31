@@ -15,7 +15,7 @@ from astroid import nodes
 from pylint import interfaces
 from pylint import utils as lint_utils
 from pylint.checkers import BaseChecker, utils
-from pylint.interfaces import IAstroidChecker
+from pylint.interfaces import HIGH, IAstroidChecker
 from pylint.reporters.ureports import nodes as reporter_nodes
 from pylint.utils import LinterStats
 from pylint.utils.utils import get_global_option
@@ -245,6 +245,11 @@ class BasicChecker(_BasicChecker):
             "assert-on-string-literal",
             "Used when an assert statement has a string literal as its first argument, which will "
             "cause the assert to always pass.",
+        ),
+        "W0130": (
+            "Duplicate value %r in set",
+            "duplicate-value",
+            "Used when a set contains the same value multiple times.",
         ),
     }
 
@@ -636,6 +641,21 @@ class BasicChecker(_BasicChecker):
             if key in keys:
                 self.add_message("duplicate-key", node=node, args=key)
             keys.add(key)
+
+    @utils.check_messages("duplicate-value")
+    def visit_set(self, node: nodes.Set) -> None:
+        """Check duplicate value in set."""
+        values = set()
+        for v in node.elts:
+            if isinstance(v, nodes.Const):
+                value = v.value
+            else:
+                continue
+            if value in values:
+                self.add_message(
+                    "duplicate-value", node=node, args=value, confidence=HIGH
+                )
+            values.add(value)
 
     def visit_tryfinally(self, node: nodes.TryFinally) -> None:
         """Update try...finally flag."""
