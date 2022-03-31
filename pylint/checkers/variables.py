@@ -1512,7 +1512,8 @@ class VariablesChecker(BaseChecker):
                     or (
                         isinstance(node.scope(), nodes.ComprehensionScope)
                         and isinstance(
-                            node.parent, (nodes.Call, nodes.Keyword, nodes.Subscript)
+                            node.parent,
+                            (nodes.Call, nodes.Compare, nodes.Keyword, nodes.Subscript),
                         )
                     )
                 )

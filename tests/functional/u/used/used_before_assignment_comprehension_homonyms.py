@@ -61,3 +61,14 @@ def func6(data, keys):
         raise Exception(f"{key} not found") from exc
 
     return results
+
+
+def func7():
+    """Similar, but with a comparison"""
+    bools = [str(i) == i for i in range(3)]
+
+    try:
+        1 / 0
+    except ZeroDivisionError:
+        i = None
+        print(i, bools)
