@@ -142,7 +142,9 @@ def _get_all_messages(
 
         checker_module = getmodule(checker)
 
-        assert checker_module and checker_module.__file__, f"Cannot find module for checker {checker}"
+        assert (
+            checker_module and checker_module.__file__
+        ), f"Cannot find module for checker {checker}"
 
         message_data = MessageData(
             message.checker_name,
