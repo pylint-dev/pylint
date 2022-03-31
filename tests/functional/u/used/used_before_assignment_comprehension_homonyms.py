@@ -72,3 +72,14 @@ def func7():
     except ZeroDivisionError:
         i = None
         print(i, bools)
+
+
+def func8():
+    """Similar, but with a container"""
+    pairs = [(i, i) for i in range(3)]
+
+    try:
+        1 / 0
+    except ZeroDivisionError:
+        i = None
+        print(i, pairs)

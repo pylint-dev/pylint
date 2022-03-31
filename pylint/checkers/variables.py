@@ -1513,7 +1513,13 @@ class VariablesChecker(BaseChecker):
                         isinstance(node.scope(), nodes.ComprehensionScope)
                         and isinstance(
                             node.parent,
-                            (nodes.Call, nodes.Compare, nodes.Keyword, nodes.Subscript),
+                            (
+                                nodes.Call,
+                                nodes.BaseContainer,
+                                nodes.Compare,
+                                nodes.Keyword,
+                                nodes.Subscript,
+                            ),
                         )
                     )
                 )
