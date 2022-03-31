@@ -1227,20 +1227,25 @@ accessed. Python regular expressions are accepted.",
             # Decorated, see if it is decorated with a property.
             # Also, check the returns and see if they are callable.
             if decorated_with_property(attr):
+                call_results = attr.infer_call_result(node)
 
                 try:
-                    all_returns_are_callable = all(
-                        return_node.callable() or return_node is astroid.Uninferable
-                        for return_node in attr.infer_call_result(node)
-                    )
-                except astroid.InferenceError:
-                    continue
+                    if all(
+                        return_node is astroid.Uninferable
+                        for return_node in call_results
+                    ):
+                        # We were unable to infer return values of the call, skipping
+                        continue
 
-                if not all_returns_are_callable:
+                    if any(return_node.callable() for return_node in call_results):
+                        # Only raise this issue if *all* the inferred values are not callable
+                        continue
+
                     self.add_message(
                         "not-callable", node=node, args=node.func.as_string()
                     )
-                    break
+                except astroid.InferenceError:
+                    continue
 
     def _check_argument_order(self, node, call_site, called, called_param_names):
         """Match the supplied argument names against the function parameters.
