@@ -41,6 +41,9 @@ What's New in Pylint 2.13.5?
 ============================
 Release date: TBA
 
+* Fix false positive for ``unnecessary-ellipsis`` checker in comparisons.
+
+  Closes #6071.
 
 
 What's New in Pylint 2.13.4?
