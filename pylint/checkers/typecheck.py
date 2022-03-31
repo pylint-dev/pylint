@@ -1227,7 +1227,7 @@ accessed. Python regular expressions are accepted.",
             # Decorated, see if it is decorated with a property.
             # Also, check the returns and see if they are callable.
             if decorated_with_property(attr):
-                call_results = attr.infer_call_result(node)
+                call_results = list(attr.infer_call_result(node))
 
                 try:
                     if all(
