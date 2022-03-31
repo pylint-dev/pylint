@@ -10,6 +10,10 @@ Release date: TBA
   Put new features here and also in 'doc/whatsnew/2.14.rst'
 
 
+* Add new check ``unnecessary-dunder-call`` for unnecessary dunder method calls.
+
+  Closes #5936
+
 * ``potential-index-error``: Emitted when the index of a list or tuple exceeds its length.
   This checker is currently quite conservative to avoid false positives. We welcome
   suggestions for improvements.
@@ -40,6 +44,12 @@ Release date: TBA
 * Include ``testing_pylintrc`` in source and wheel distributions.
 
   Closes #6028
+
+* Fix crash for ``unneccessary-ellipsis`` checker when an ellipsis is used inside of a container or a lambda expression.
+
+  Closes #6036
+  Closes #6037
+  Closes #6048
 
 
 What's New in Pylint 2.13.3?

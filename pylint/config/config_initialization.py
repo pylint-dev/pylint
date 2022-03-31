@@ -23,6 +23,9 @@ def _config_initialization(
     """Parse all available options, read config files and command line arguments and
     set options accordingly.
     """
+    # Set the current module to the configuration file
+    # to allow raising messages on the configuration file.
+    linter.set_current_module(linter.config_file)
 
     # Read the config file. The parser is stored on linter.cfgfile_parser
     try:
