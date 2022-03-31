@@ -78,7 +78,8 @@ Basic checker Messages
     assert repr(less_basic) == repr(basic)
 
 
-def test_base_checker_ordering():
+def test_base_checker_ordering() -> None:
+    """Test ordering of checkers based on their __gt__ method."""
     fake_checker_1 = OtherBasicChecker()
     fake_checker_2 = LessBasicChecker()
     fake_checker_3 = DifferentBasicChecker()
