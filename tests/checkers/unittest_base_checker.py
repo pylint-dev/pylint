@@ -85,3 +85,4 @@ def test_base_checker_ordering() -> None:
     fake_checker_3 = DifferentBasicChecker()
     assert fake_checker_1 < fake_checker_3
     assert fake_checker_2 < fake_checker_3
+    assert fake_checker_1 == fake_checker_2
