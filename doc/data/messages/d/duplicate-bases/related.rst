@@ -1,1 +1,0 @@
-`Issue Tracker <https://github.com/PyCQA/pylint/issues?q=is%3Aissue+%22inconsistent-mro%22+OR+%22E0240%22>`_
