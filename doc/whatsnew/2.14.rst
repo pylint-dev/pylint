@@ -38,7 +38,7 @@ Extensions
 Other Changes
 =============
 
-* Only raise ``not-callable`` when all the inferred values of an expression are not callable.
+* Only raise ``not-callable`` when all the inferred values of a property are not callable.
 
   Closes #5931
 

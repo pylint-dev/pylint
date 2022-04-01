@@ -9,7 +9,7 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.14.rst'
 
-* Only raise ``not-callable`` when all the inferred values of an expression are not callable.
+* Only raise ``not-callable`` when all the inferred values of a property are not callable.
 
   Closes #5931
 
