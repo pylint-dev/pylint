@@ -34,7 +34,6 @@ class BroadTryClauseChecker(checkers.BaseChecker):
         )
     }
 
-    priority = -2
     options = (
         (
             "max-try-statements",

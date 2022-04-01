@@ -95,7 +95,6 @@ class TypingChecker(BaseChecker):
     __implements__ = (IAstroidChecker,)
 
     name = "typing"
-    priority = -1
     msgs = {
         "W6001": (
             "'%s' is deprecated, use '%s' instead",

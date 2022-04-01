@@ -20,7 +20,6 @@ class ConfusingConsecutiveElifChecker(BaseChecker):
     __implements__ = IAstroidChecker
 
     name = "confusing_elif"
-    priority = -1
     msgs = {
         "R5601": (
             "Consecutive elif with differing indentation level, consider creating a function to separate the inner elif",

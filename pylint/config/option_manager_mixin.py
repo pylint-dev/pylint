@@ -85,13 +85,7 @@ class OptionsManagerMixIn:
 
     def register_options_provider(self, provider, own_group=True):
         """Register an options provider."""
-        assert provider.priority <= 0, "provider's priority can't be >= 0"
-        for i, options_provider in enumerate(self.options_providers):
-            if provider.priority > options_provider.priority:
-                self.options_providers.insert(i, provider)
-                break
-        else:
-            self.options_providers.append(provider)
+        self.options_providers.append(provider)
         non_group_spec_options = [
             option for option in provider.options if "group" not in option[1]
         ]

@@ -697,7 +697,6 @@ class ClassChecker(BaseChecker):
     name = "classes"
     # messages
     msgs = MSGS
-    priority = -2
     # configuration options
     options = (
         (

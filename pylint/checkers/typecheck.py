@@ -741,7 +741,6 @@ class TypeChecker(BaseChecker):
     name = "typecheck"
     # messages
     msgs = MSGS
-    priority = -1
     # configuration options
     options = (
         (

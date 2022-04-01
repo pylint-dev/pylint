@@ -40,7 +40,6 @@ class CodeStyleChecker(BaseChecker):
     __implements__ = (IAstroidChecker,)
 
     name = "code_style"
-    priority = -1
     msgs = {
         "R6101": (
             "Consider using namedtuple or dataclass for dictionary values",

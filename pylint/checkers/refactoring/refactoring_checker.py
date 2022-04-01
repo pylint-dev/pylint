@@ -469,8 +469,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         ),
     )
 
-    priority = 0
-
     def __init__(self, linter=None):
         super().__init__(linter)
         self._return_nodes = {}
