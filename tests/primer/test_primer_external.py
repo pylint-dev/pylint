@@ -18,11 +18,11 @@ PRIMER_DIRECTORY = Path(".pylint_primer_tests/").resolve()
 
 
 def get_packages_to_lint_from_json(json_path: Path | str) -> dict[str, PackageToLint]:
-    result: dict[str, PackageToLint] = {}
     with open(json_path, encoding="utf8") as f:
-        for name, package_data in json.load(f).items():
-            result[name] = PackageToLint(**package_data)
-    return result
+        return {
+            name: PackageToLint(**package_data)
+            for name, package_data in json.load(f).items()
+        }
 
 
 PACKAGE_TO_LINT_JSON_BATCH_ONE = (

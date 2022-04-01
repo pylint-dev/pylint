@@ -14,6 +14,7 @@ Some parts of the process_token method is based from The Tab Nanny std module.
 from __future__ import annotations
 
 import tokenize
+from collections.abc import Callable
 from functools import reduce
 from typing import TYPE_CHECKING
 
@@ -418,12 +419,14 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                         self._check_keyword_parentheses(tokens[i:], 0)
                     return
 
-    def _prepare_token_dispatcher(self):
-        dispatch = {}
-        for tokens, handler in ((_KEYWORD_TOKENS, self._check_keyword_parentheses),):
-            for token in tokens:
-                dispatch[token] = handler
-        return dispatch
+    def _prepare_token_dispatcher(
+        self,
+    ) -> dict[str, Callable[[list[tokenize.TokenInfo], int], None]]:
+        return {
+            token: handler
+            for tokens, handler in ((_KEYWORD_TOKENS, self._check_keyword_parentheses),)
+            for token in tokens
+        }
 
     def process_tokens(self, tokens: list[tokenize.TokenInfo]) -> None:
         """Process tokens and search for :
