@@ -1,2 +1,17 @@
-def foo(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p):  # [too-many-arguments]
+def three_d_chess_move(
+    x_white,
+    y_white,
+    z_white,
+    piece_white,
+    x_black,
+    y_black,
+    z_black,
+    piece_black,
+    x_blue,
+    y_blue,
+    z_blue,
+    piece_blue,
+    current_player,
+):  # [too-many-arguments]
     pass
+
