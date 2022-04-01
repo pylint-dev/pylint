@@ -253,8 +253,8 @@ class OptionsManagerMixIn:
             if config_file.suffix == ".toml":
                 try:
                     self._parse_toml(config_file, parser)
-                except tomllib.TOMLDecodeError as e:
-                    self.add_message("config-parse-error", line=0, args=str(e))  # type: ignore[attr-defined]
+                except tomllib.TOMLDecodeError:
+                    pass
             else:
                 # Use this encoding in order to strip the BOM marker, if any.
                 with open(config_file, encoding="utf_8_sig") as fp:
