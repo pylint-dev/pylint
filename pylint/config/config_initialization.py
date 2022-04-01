@@ -6,7 +6,7 @@ import sys
 from pathlib import Path
 from typing import TYPE_CHECKING, List, Union
 
-from pylint import reporters
+from pylint import config, reporters
 from pylint.utils import utils
 
 if TYPE_CHECKING:
@@ -39,6 +39,13 @@ def _config_initialization(
         print(ex, file=sys.stderr)
         sys.exit(32)
     config_parser = linter.cfgfile_parser
+
+    config_file_parser = config._ConfigurationFileParser(verbose_mode, linter)
+    try:
+        config_data = config_file_parser.parse_config_file(file_path=config_file_path)
+    except OSError as ex:
+        print(ex, file=sys.stderr)
+        sys.exit(32)
 
     # Run init hook, if present, before loading plugins
     if config_parser.has_option("MASTER", "init-hook"):
@@ -84,7 +91,7 @@ def _config_initialization(
     # When finished this should replace the implementation based on optparse
 
     # First we parse any options from a configuration file
-    linter._parse_configuration_file(config_parser)
+    linter._parse_configuration_file(config_data)
 
     # Second we parse any options from the command line, so they can override
     # the configuration file

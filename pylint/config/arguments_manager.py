@@ -5,7 +5,6 @@
 """Arguments manager class used to handle command-line arguments and options."""
 
 import argparse
-import configparser
 from typing import TYPE_CHECKING, Dict, List
 
 from pylint.config.argument import _Argument
@@ -75,14 +74,11 @@ class _ArgumentsManager:
         """Loads the default values of all registered options."""
         self.namespace = self._arg_parser.parse_args([], self.namespace)
 
-    def _parse_configuration_file(
-        self, config_parser: configparser.ConfigParser
-    ) -> None:
+    def _parse_configuration_file(self, config_data: Dict[str, str]) -> None:
         """Parse the arguments found in a configuration file into the namespace."""
         arguments = []
-        for section in config_parser.sections():
-            for opt, value in config_parser.items(section):
-                arguments.extend([f"--{opt}", value])
+        for opt, value in config_data.items():
+            arguments.extend([f"--{opt}", value])
         # pylint: disable-next=fixme
         # TODO: This should parse_args instead of parse_known_args
         self.namespace = self._arg_parser.parse_known_args(arguments, self.namespace)[0]
