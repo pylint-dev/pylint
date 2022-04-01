@@ -550,7 +550,9 @@ class PyLinter(
         options: Tuple[Tuple[str, OptionDict], ...] = (),
         reporter: Union[reporters.BaseReporter, reporters.MultiReporter, None] = None,
         option_groups: Tuple[Tuple[str, str], ...] = (),
-        pylintrc: Optional[str] = None,
+        # pylint: disable-next=fixme
+        # TODO: Deprecate passing the pylintrc parameter
+        pylintrc: Optional[str] = None,  # pylint: disable=unused-argument
     ) -> None:
         config._ArgumentsManager.__init__(self)
 
@@ -612,10 +614,7 @@ class PyLinter(
         self._by_id_managed_msgs: List[ManagedMessage] = []
 
         reporters.ReportsHandlerMixIn.__init__(self)
-        super().__init__(
-            usage=__doc__,
-            config_file=pylintrc or next(config.find_default_config_files(), None),
-        )
+        config.OptionsManagerMixIn.__init__(self, usage=__doc__)
         checkers.BaseTokenChecker.__init__(self)
         # provided reports
         self.reports = (
