@@ -1520,8 +1520,8 @@ class VariablesChecker(BaseChecker):
         if node.name in current_consumer.consumed:
             # Avoid the case where there are homonyms inside function scope and
             # comprehension current scope (avoid bug #1731)
-            if utils.is_func_decorator(current_consumer.node) or not (
-                isinstance(node, nodes.ComprehensionScope)
+            if utils.is_func_decorator(current_consumer.node) or not isinstance(
+                node, nodes.ComprehensionScope
             ):
                 self._check_late_binding_closure(node)
                 self._loopvar_name(node)
