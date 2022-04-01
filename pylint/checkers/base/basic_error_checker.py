@@ -4,7 +4,6 @@
 
 """Basic Error checker from the basic checker."""
 
-import collections
 import itertools
 from typing import Any, Iterator
 
@@ -15,6 +14,7 @@ from pylint import utils as lint_utils
 from pylint.checkers import utils
 from pylint.checkers.base.basic_checker import _BasicChecker
 from pylint.checkers.utils import infer_all
+from pylint.interfaces import HIGH
 
 ABC_METACLASSES = {"_py_abc.ABCMeta", "abc.ABCMeta"}  # Python 3.7+,
 # List of methods which can be redefined
@@ -277,22 +277,18 @@ class BasicErrorChecker(_BasicChecker):
                 if any(v for v in values if not utils.is_none(v)):
                     self.add_message("return-in-init", node=node)
         # Check for duplicate names by clustering args with same name for detailed report
-        arg_clusters = collections.defaultdict(list)
+        arg_clusters = {}
         arguments: Iterator[Any] = filter(None, [node.args.args, node.args.kwonlyargs])
-
         for arg in itertools.chain.from_iterable(arguments):
-            arg_clusters[arg.name].append(arg)
-
-        # provide detailed report about each repeated argument
-        for argument_duplicates in arg_clusters.values():
-            if len(argument_duplicates) != 1:
-                for argument in argument_duplicates:
-                    self.add_message(
-                        "duplicate-argument-name",
-                        line=argument.lineno,
-                        node=argument,
-                        args=(argument.name,),
-                    )
+            if arg.name in arg_clusters:
+                self.add_message(
+                    "duplicate-argument-name",
+                    node=arg,
+                    args=(arg.name,),
+                    confidence=HIGH,
+                )
+            else:
+                arg_clusters[arg.name] = arg
 
     visit_asyncfunctiondef = visit_functiondef
 

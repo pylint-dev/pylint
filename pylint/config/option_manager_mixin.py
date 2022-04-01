@@ -6,7 +6,6 @@ import collections
 import configparser
 import contextlib
 import copy
-import functools
 import optparse  # pylint: disable=deprecated-module
 import os
 import sys
@@ -244,21 +243,6 @@ class OptionsManagerMixIn:
         """Read the configuration file but do not load it (i.e. dispatching
         values to each option's provider)
         """
-        for help_level in range(1, self._maxlevel + 1):
-            opt = "-".join(["long"] * help_level) + "-help"
-            if opt in self._all_options:
-                break  # already processed
-            help_function = functools.partial(self.helpfunc, level=help_level)
-            help_msg = f"{' '.join(['more'] * help_level)} verbose help."
-            optdict = {
-                "action": "callback",
-                "callback": help_function,
-                "help": help_msg,
-            }
-            provider = self.options_providers[0]
-            self.add_optik_option(provider, self.cmdline_parser, opt, optdict)
-            provider.options += ((opt, optdict),)
-
         if config_file is None:
             config_file = self.config_file
         if config_file is not None:
@@ -268,7 +252,6 @@ class OptionsManagerMixIn:
 
         use_config_file = config_file and os.path.exists(config_file)
         if use_config_file:
-            self.set_current_module(config_file)
             parser = self.cfgfile_parser
             if config_file.endswith(".toml"):
                 try:
@@ -380,7 +363,3 @@ class OptionsManagerMixIn:
         self.cmdline_parser.formatter.output_level = level
         with _patch_optparse():
             return self.cmdline_parser.format_help()
-
-    def helpfunc(self, option, opt, val, p, level):  # pylint: disable=unused-argument
-        print(self.help(level))
-        sys.exit(0)

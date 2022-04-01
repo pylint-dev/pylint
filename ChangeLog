@@ -10,6 +10,10 @@ Release date: TBA
   Put new features here and also in 'doc/whatsnew/2.14.rst'
 
 
+* Add new check ``unnecessary-dunder-call`` for unnecessary dunder method calls.
+
+  Closes #5936
+
 * ``potential-index-error``: Emitted when the index of a list or tuple exceeds its length.
   This checker is currently quite conservative to avoid false positives. We welcome
   suggestions for improvements.
@@ -28,6 +32,8 @@ Release date: TBA
 
 * The concept of checker priority has been removed.
 
+* ``duplicate-argument-name`` now only raises once for each set of duplicated arguments.
+
 * Fix bug where specifically enabling just ``await-outside-async`` was not possible.
 
 ..
@@ -35,11 +41,36 @@ Release date: TBA
   (Ie. not necessarily at the end)
 
 
-What's New in Pylint 2.13.4?
+What's New in Pylint 2.13.5?
 ============================
 Release date: TBA
 
 
+
+What's New in Pylint 2.13.4?
+============================
+Release date: 2022-03-31
+
+* Fix false positive regression in 2.13.0 for ``used-before-assignment`` for
+  homonyms between variable assignments in try/except blocks and variables in
+  a comprehension's filter.
+
+  Closes #6035
+
+* Include ``testing_pylintrc`` in source and wheel distributions.
+
+  Closes #6028
+
+* Fix crash in ``super-init-not-called`` checker when using ``ctypes.Union``.
+
+  Closes #6027
+
+
+* Fix crash for ``unneccessary-ellipsis`` checker when an ellipsis is used inside of a container or a lambda expression.
+
+  Closes #6036
+  Closes #6037
+  Closes #6048
 
 
 What's New in Pylint 2.13.3?

@@ -170,6 +170,7 @@ contributors:
   * Added new check for useless `with threading.Lock():` statement
 - Marcus Näslund <naslundx@gmail.com> (naslundx)
 - Marco Forte <fortemarco.irl@gmail.com>
+- Joseph Young <80432516+jpy-git@users.noreply.github.com> (jpy-git)
 - Ionel Maries Cristian <contact@ionelmc.ro>
 - Gergely Kalmár <gergely.kalmar@logikal.jp>
 - Daniel Harding <dharding@gmail.com>
@@ -202,7 +203,6 @@ contributors:
 - Konstantin Manna <Konstantin@Manna.uno>
 - Kai Mueller <15907922+kasium@users.noreply.github.com> (kasium)
 - Joshua Cannon <joshdcannon@gmail.com>
-- Joseph Young <80432516+jpy-git@users.noreply.github.com> (jpy-git)
 - John Leach <jfleach@jfleach.com>
 - James Morgensen <james.morgensen@gmail.com>: ignored-modules option applies to import errors.
 - Jaehoon Hwang <jaehoonhwang@users.noreply.github.com> (jaehoonhwang)
