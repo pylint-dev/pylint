@@ -6,7 +6,7 @@ import optparse  # pylint: disable=deprecated-module
 import os
 import sys
 import warnings
-from typing import NoReturn
+from typing import NoReturn, Optional
 
 from pylint import __pkginfo__, config, extensions, interfaces
 from pylint.config.config_initialization import _config_initialization
@@ -14,6 +14,11 @@ from pylint.constants import DEFAULT_PYLINT_HOME, OLD_DEFAULT_PYLINT_HOME, full_
 from pylint.lint.pylinter import PyLinter
 from pylint.lint.utils import ArgumentPreprocessingError, preprocess_options
 from pylint.utils import print_full_documentation, utils
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
 try:
     import multiprocessing
@@ -80,7 +85,7 @@ group are mutually exclusive.",
         exit=True,
         do_exit=UNUSED_PARAM_SENTINEL,
     ):  # pylint: disable=redefined-builtin
-        self._rcfile = None
+        self._rcfile: Optional[str] = None
         self._output = None
         self._version_asked = False
         self._plugins = []
@@ -102,6 +107,10 @@ group are mutually exclusive.",
         except ArgumentPreprocessingError as ex:
             print(ex, file=sys.stderr)
             sys.exit(32)
+
+        # Determine configuration file
+        if self._rcfile is None:
+            self._rcfile = next(config.find_default_config_files(), None)
 
         self.linter = linter = self.LinterClass(
             (
@@ -338,7 +347,9 @@ to search for configuration file.
         linter.disable("I")
         linter.enable("c-extension-no-member")
 
-        args = _config_initialization(linter, args, reporter, verbose_mode=self.verbose)
+        args = _config_initialization(
+            linter, args, reporter, config_file=self._rcfile, verbose_mode=self.verbose
+        )
 
         if linter.config.jobs < 0:
             print(
@@ -397,7 +408,7 @@ to search for configuration file.
         """Callback for version (i.e. before option parsing)."""
         self._version_asked = True
 
-    def cb_set_rcfile(self, name, value):
+    def cb_set_rcfile(self, name: Literal["rcfile"], value: str) -> None:
         """Callback for option preprocessing (i.e. before option parsing)."""
         self._rcfile = value
 
