@@ -1,6 +1,6 @@
 """Checks for unnecessary-dunder-call."""
 # pylint: disable=too-few-public-methods, undefined-variable, useless-object-inheritance
-# pylint: disable=missing-class-docstring, missing-function-docstring
+# pylint: disable=missing-class-docstring, missing-function-docstring, invalid-name
 
 # Test includelisted dunder methods raise lint when manually called.
 num_str = some_num.__str__() # [unnecessary-dunder-call]
@@ -44,3 +44,14 @@ class PluginBase(object):
 # Test no lint raised for attributes.
 my_instance_name = x.__class__.__name__
 my_pkg_version = pkg.__version__
+
+# Allow use of dunder methods on super()
+# since there is no alternate method to call them
+class MyClass(list):
+    def __contains__(self, item):
+        print("do some special checks")
+        return super().__contains__(item)
+
+# But still flag them in other contexts
+my_test_bad = {1, 2, 3}.__contains__(1) # [unnecessary-dunder-call]
+my_test_good = 1 in {1, 2, 3}

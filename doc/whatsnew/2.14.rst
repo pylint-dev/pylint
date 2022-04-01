@@ -38,6 +38,10 @@ Extensions
 Other Changes
 =============
 
+* Exclude dunder calls on super() from raising ``unnecessary-dunder-call``.
+
+  Closes #6074
+
 * The concept of checker priority has been removed.
 
 * Fix false negative for ``no-member`` when attempting to assign an instance
