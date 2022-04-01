@@ -14,7 +14,7 @@ from typing import Callable, Dict, List, Optional, Pattern, Sequence, Union
 
 from pylint import utils as pylint_utils
 
-_ArgumentTypes = Union[str, List[str], int, Pattern[str], bool]
+_ArgumentTypes = Union[str, Sequence[str], int, Pattern[str], bool]
 """List of possible argument types."""
 
 
@@ -35,7 +35,7 @@ def _yn_transformer(value: str) -> bool:
     if value in NO_VALUES:
         return False
     raise argparse.ArgumentError(
-        None, f"Invalid yn value '{value}', should be in (y, yes, true, n, no, false)"
+        None, f"Invalid yn value '{value}', should be in {*YES_VALUES, *NO_VALUES}"
     )
 
 
