@@ -18,7 +18,7 @@ RC_NAMES = (Path("pylintrc"), Path(".pylintrc"))
 CONFIG_NAMES = RC_NAMES + (Path("pyproject.toml"), Path("setup.cfg"))
 
 
-def _toml_has_config(path: Path) -> bool:
+def _toml_has_config(path: Union[Path, str]) -> bool:
     with open(path, mode="rb") as toml_handle:
         try:
             content = tomllib.load(toml_handle)
@@ -28,7 +28,7 @@ def _toml_has_config(path: Path) -> bool:
     return "pylint" in content.get("tool", [])
 
 
-def _cfg_has_config(path: Path) -> bool:
+def _cfg_has_config(path: Union[Path, str]) -> bool:
     parser = configparser.ConfigParser()
     try:
         parser.read(path, encoding="utf-8")
@@ -61,7 +61,7 @@ def find_default_config_files() -> Iterator[Path]:
         if Path(os.environ["PYLINTRC"]).is_file():
             yield Path(os.environ["PYLINTRC"]).resolve()
     else:
-        user_home = Path("~").expanduser()
+        user_home = Path.home()
         if str(user_home) not in ("~", "/root"):
             home_rc = user_home / ".pylintrc"
             if home_rc.is_file():
