@@ -171,9 +171,6 @@ Release date: 2022-03-24
 
 * Fix pyreverse diagrams type hinting for classmethods and staticmethods.
 
-* Add new message ``duplicate-value`` for identifying duplicate values inside sets.
-
-  Closes #5880
 * Fix pyreverse diagrams type hinting for methods returning None.
 
 * Fix matching ``--notes`` options that end in a non-word character.
