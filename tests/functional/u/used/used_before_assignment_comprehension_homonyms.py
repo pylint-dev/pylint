@@ -85,12 +85,11 @@ def func8():
         print(i, pairs)
 
 
-def func9():
-    """Similar, but with a binary op"""
-    bools = [str(i) | i for i in range(3)]
+# Module level cases
 
-    try:
-        1 / 0
-    except ZeroDivisionError:
-        i = None
-        print(i, bools)
+module_ints = [j | j for j in range(3)]
+try:
+    1 / 0
+except ZeroDivisionError:
+    j = None
+    print(j, module_ints)
