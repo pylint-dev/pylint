@@ -23,6 +23,10 @@ Release date: TBA
 
   Closes #5936
 
+* Fix false positive for ``unused-import`` when disabling both ``used-before-assignment`` and ``undefined-variable``.
+
+  Closes #6089
+
 * ``potential-index-error``: Emitted when the index of a list or tuple exceeds its length.
   This checker is currently quite conservative to avoid false positives. We welcome
   suggestions for improvements.

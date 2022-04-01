@@ -59,3 +59,7 @@ Other Changes
   attribute to itself without any prior assignment.
 
   Closes #1555
+
+* Fix false positive for ``unused-import`` when disabling both ``used-before-assignment`` and ``undefined-variable``.
+
+  Closes #6089

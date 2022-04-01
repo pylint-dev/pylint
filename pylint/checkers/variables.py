@@ -1555,12 +1555,6 @@ class VariablesChecker(BaseChecker):
 
         self._check_late_binding_closure(node)
 
-        if not (
-            self._is_undefined_variable_enabled
-            or self._is_used_before_assignment_enabled
-        ):
-            return (VariableVisitConsumerAction.RETURN, found_nodes)
-
         defnode = utils.assign_parent(found_nodes[0])
         defstmt = defnode.statement(future=True)
         defframe = defstmt.frame(future=True)
@@ -1617,6 +1611,12 @@ class VariablesChecker(BaseChecker):
 
         if use_outer_definition:
             return (VariableVisitConsumerAction.CONTINUE, None)
+
+        if not (
+            self._is_undefined_variable_enabled
+            or self._is_used_before_assignment_enabled
+        ):
+            return (VariableVisitConsumerAction.RETURN, found_nodes)
 
         if (
             maybe_before_assign
