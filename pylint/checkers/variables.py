@@ -630,7 +630,7 @@ scope_type : {self._atomic.scope_type}
             return found_nodes
 
         # And no comprehension is under the node's frame
-        if VariablesChecker._comprehension_under_frame(node):
+        if VariablesChecker._comprehension_between_frame_and_node(node):
             return found_nodes
 
         # Filter out assignments in ExceptHandlers that node is not contained in
@@ -2478,8 +2478,8 @@ class VariablesChecker(BaseChecker):
         return name in self.config.allowed_redefined_builtins
 
     @staticmethod
-    def _comprehension_under_frame(node: nodes.Name) -> bool:
-        """Return True if `node`'s frame contains a ComprehensionScope."""
+    def _comprehension_between_frame_and_node(node: nodes.Name) -> bool:
+        """Return True if a ComprehensionScope intervenes between `node` and its frame."""
         closest_comprehension_scope = utils.get_node_first_ancestor_of_type(
             node, nodes.ComprehensionScope
         )
