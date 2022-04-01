@@ -36,7 +36,6 @@ class CompareToEmptyStringChecker(checkers.BaseChecker):
         )
     }
 
-    priority = -2
     options = ()
 
     @utils.check_messages("compare-to-empty-string")

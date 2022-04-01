@@ -4,7 +4,7 @@
 
 import sys
 from pathlib import Path
-from typing import TYPE_CHECKING, List, Optional, Union
+from typing import TYPE_CHECKING, List, Union
 
 from pylint import reporters
 from pylint.utils import utils
@@ -18,18 +18,23 @@ def _config_initialization(
     args_list: List[str],
     reporter: Union[reporters.BaseReporter, reporters.MultiReporter, None] = None,
     config_file: Union[None, str, Path] = None,
-    verbose_mode: Optional[bool] = None,
+    verbose_mode: bool = False,
 ) -> List[str]:
     """Parse all available options, read config files and command line arguments and
     set options accordingly.
     """
+    # Convert config_file in a Path and string
+    config_file_path = Path(config_file) if config_file else None
+    config_file = str(config_file) if config_file else None
+
     # Set the current module to the configuration file
     # to allow raising messages on the configuration file.
-    linter.set_current_module(linter.config_file)
+    linter.set_current_module(config_file)
 
-    # Read the config file. The parser is stored on linter.cfgfile_parser
+    # Read the configuration file
     try:
-        linter.read_config_file(config_file=config_file, verbose=verbose_mode)
+        # The parser is stored on linter.cfgfile_parser
+        linter.read_config_file(config_file=config_file_path, verbose=verbose_mode)
     except OSError as ex:
         print(ex, file=sys.stderr)
         sys.exit(32)

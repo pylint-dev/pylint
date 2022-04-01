@@ -12,7 +12,7 @@ from contextlib import contextmanager
 from importlib import reload
 from io import StringIO
 from os import chdir, getcwd
-from os.path import abspath, basename, dirname, isdir, join, sep
+from os.path import abspath, dirname, join, sep
 from shutil import rmtree
 from typing import Iterable, Iterator, List, Optional, Tuple
 
@@ -32,6 +32,7 @@ from pylint.exceptions import InvalidMessageError
 from pylint.lint import ArgumentPreprocessingError, PyLinter, Run, preprocess_options
 from pylint.message import Message
 from pylint.reporters import text
+from pylint.testutils import create_files
 from pylint.typing import MessageLocationTuple
 from pylint.utils import FileState, print_full_documentation, tokenize_module
 
@@ -93,44 +94,6 @@ def tempdir() -> Iterator[str]:
     finally:
         chdir(current_dir)
         rmtree(abs_tmp)
-
-
-def create_files(paths: List[str], chroot: str = ".") -> None:
-    """Creates directories and files found in <path>.
-
-    :param list paths: list of relative paths to files or directories
-    :param str chroot: the root directory in which paths will be created
-
-    >>> from os.path import isdir, isfile
-    >>> isdir('/tmp/a')
-    False
-    >>> create_files(['a/b/foo.py', 'a/b/c/', 'a/b/c/d/e.py'], '/tmp')
-    >>> isdir('/tmp/a')
-    True
-    >>> isdir('/tmp/a/b/c')
-    True
-    >>> isfile('/tmp/a/b/c/d/e.py')
-    True
-    >>> isfile('/tmp/a/b/foo.py')
-    True
-    """
-    dirs, files = set(), set()
-    for path in paths:
-        path = join(chroot, path)
-        filename = basename(path)
-        # path is a directory path
-        if filename == "":
-            dirs.add(path)
-        # path is a filename path
-        else:
-            dirs.add(dirname(path))
-            files.add(path)
-    for dirpath in dirs:
-        if not isdir(dirpath):
-            os.makedirs(dirpath)
-    for filepath in files:
-        with open(filepath, "w", encoding="utf-8"):
-            pass
 
 
 @pytest.fixture

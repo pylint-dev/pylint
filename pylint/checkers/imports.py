@@ -271,7 +271,6 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
     name = "imports"
     msgs = MSGS
-    priority = -2
     default_deprecated_modules = ()
 
     options = (

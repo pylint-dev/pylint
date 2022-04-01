@@ -186,8 +186,6 @@ class DocstringParameterChecker(BaseChecker):
         ),
     )
 
-    priority = -2
-
     constructor_names = {"__init__", "__new__"}
     not_needed_param_in_docstring = {"self", "cls"}
 
