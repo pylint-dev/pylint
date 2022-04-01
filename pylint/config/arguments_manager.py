@@ -38,8 +38,6 @@ class _ArgumentsManager:
             self._add_arguments_to_parser(provider.name, argument)
 
         # pylint: disable-next=fixme
-        # TODO: Do something with option provider priorities (see OptionsManagerMixIn.register_options_provider)
-        # pylint: disable-next=fixme
         # TODO: Do something with option groups within optdicts (see OptionsManagerMixIn.register_options_provider)
 
         # pylint: disable-next=fixme

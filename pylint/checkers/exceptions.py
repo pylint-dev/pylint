@@ -231,7 +231,6 @@ class ExceptionsChecker(checkers.BaseChecker):
 
     name = "exceptions"
     msgs = MSGS
-    priority = -4
     options = (
         (
             "overgeneral-exceptions",

@@ -42,6 +42,8 @@ Other Changes
 
   Closes #5931
 
+* The concept of checker priority has been removed.
+
 * Fix false negative for ``no-member`` when attempting to assign an instance
   attribute to itself without any prior assignment.
 

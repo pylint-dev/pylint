@@ -41,10 +41,9 @@ class NamingStyle:
 class SnakeCaseStyle(NamingStyle):
     """Regex rules for snake_case naming style."""
 
-    CLASS_NAME_RGX = re.compile(r"[^\W\dA-Z][^\WA-Z]+$")
+    CLASS_NAME_RGX = COMP_VAR_RGX = re.compile(r"[^\W\dA-Z][^\WA-Z]+$")
     MOD_NAME_RGX = re.compile(r"[^\W\dA-Z][^\WA-Z]*$")
     CONST_NAME_RGX = re.compile(r"([^\W\dA-Z][^\WA-Z]*|__.*__)$")
-    COMP_VAR_RGX = re.compile(r"[^\W\dA-Z][^\WA-Z]*$")
     DEFAULT_NAME_RGX = re.compile(
         r"([^\W\dA-Z][^\WA-Z]{2,}|_[^\WA-Z]*|__[^\WA-Z\d_][^\WA-Z]+__)$"
     )
@@ -55,9 +54,8 @@ class CamelCaseStyle(NamingStyle):
     """Regex rules for camelCase naming style."""
 
     CLASS_NAME_RGX = re.compile(r"[^\W\dA-Z][^\W_]+$")
-    MOD_NAME_RGX = re.compile(r"[^\W\dA-Z][^\W_]*$")
+    MOD_NAME_RGX = COMP_VAR_RGX = re.compile(r"[^\W\dA-Z][^\W_]*$")
     CONST_NAME_RGX = re.compile(r"([^\W\dA-Z][^\W_]*|__.*__)$")
-    COMP_VAR_RGX = re.compile(r"[^\W\dA-Z][^\W_]*$")
     DEFAULT_NAME_RGX = re.compile(r"([^\W\dA-Z][^\W_]{2,}|__[^\W\dA-Z_]\w+__)$")
     CLASS_ATTRIBUTE_RGX = re.compile(r"([^\W\dA-Z][^\W_]{2,}|__.*__)$")
 
@@ -65,10 +63,8 @@ class CamelCaseStyle(NamingStyle):
 class PascalCaseStyle(NamingStyle):
     """Regex rules for PascalCase naming style."""
 
-    CLASS_NAME_RGX = re.compile(r"[^\W\da-z][^\W_]+$")
-    MOD_NAME_RGX = re.compile(r"[^\W\da-z][^\W_]+$")
+    CLASS_NAME_RGX = MOD_NAME_RGX = COMP_VAR_RGX = re.compile(r"[^\W\da-z][^\W_]+$")
     CONST_NAME_RGX = re.compile(r"([^\W\da-z][^\W_]*|__.*__)$")
-    COMP_VAR_RGX = re.compile(r"[^\W\da-z][^\W_]+$")
     DEFAULT_NAME_RGX = re.compile(r"([^\W\da-z][^\W_]{2,}|__[^\W\dA-Z_]\w+__)$")
     CLASS_ATTRIBUTE_RGX = re.compile(r"[^\W\da-z][^\W_]{2,}$")
 
@@ -76,10 +72,8 @@ class PascalCaseStyle(NamingStyle):
 class UpperCaseStyle(NamingStyle):
     """Regex rules for UPPER_CASE naming style."""
 
-    CLASS_NAME_RGX = re.compile(r"[^\W\da-z][^\Wa-z]+$")
-    MOD_NAME_RGX = re.compile(r"[^\W\da-z][^\Wa-z]+$")
+    CLASS_NAME_RGX = MOD_NAME_RGX = COMP_VAR_RGX = re.compile(r"[^\W\da-z][^\Wa-z]+$")
     CONST_NAME_RGX = re.compile(r"([^\W\da-z][^\Wa-z]*|__.*__)$")
-    COMP_VAR_RGX = re.compile(r"[^\W\da-z][^\Wa-z]+$")
     DEFAULT_NAME_RGX = re.compile(r"([^\W\da-z][^\Wa-z]{2,}|__[^\W\dA-Z_]\w+__)$")
     CLASS_ATTRIBUTE_RGX = re.compile(r"[^\W\da-z][^\Wa-z]{2,}$")
 

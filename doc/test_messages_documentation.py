@@ -11,7 +11,7 @@ from typing import List, TextIO, Tuple
 
 import pytest
 
-from pylint import checkers
+from pylint import checkers, config
 from pylint.config.config_initialization import _config_initialization
 from pylint.lint import PyLinter
 from pylint.message.message import Message
@@ -53,6 +53,8 @@ class LintModuleTest:
         self._linter.config.persistent = 0
         checkers.initialize(self._linter)
 
+        config_file = next(config.find_default_config_files(), None)
+
         _config_initialization(
             self._linter,
             args_list=[
@@ -61,6 +63,7 @@ class LintModuleTest:
                 f"--enable={test_file[0]}",
             ],
             reporter=_test_reporter,
+            config_file=config_file,
         )
 
     def runTest(self) -> None:

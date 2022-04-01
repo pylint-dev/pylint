@@ -14,6 +14,9 @@ if sys.version_info >= (3, 11):
 else:
     import tomli as tomllib
 
+RC_NAMES = (Path("pylintrc"), Path(".pylintrc"))
+CONFIG_NAMES = RC_NAMES + (Path("pyproject.toml"), Path("setup.cfg"))
+
 
 def _toml_has_config(path: Union[Path, str]) -> bool:
     with open(path, mode="rb") as toml_handle:
@@ -34,43 +37,41 @@ def _cfg_has_config(path: Union[Path, str]) -> bool:
     return any(section.startswith("pylint.") for section in parser.sections())
 
 
-def find_default_config_files() -> Iterator[str]:
+def find_default_config_files() -> Iterator[Path]:
     """Find all possible config files."""
-    rc_names = ("pylintrc", ".pylintrc")
-    config_names = rc_names + ("pyproject.toml", "setup.cfg")
-    for config_name in config_names:
-        if os.path.isfile(config_name):
-            if config_name.endswith(".toml") and not _toml_has_config(config_name):
+    for config_name in CONFIG_NAMES:
+        if config_name.is_file():
+            if config_name.suffix == ".toml" and not _toml_has_config(config_name):
                 continue
-            if config_name.endswith(".cfg") and not _cfg_has_config(config_name):
+            if config_name.suffix == ".cfg" and not _cfg_has_config(config_name):
                 continue
 
-            yield os.path.abspath(config_name)
+            yield config_name.resolve()
 
-    if os.path.isfile("__init__.py"):
-        curdir = os.path.abspath(os.getcwd())
-        while os.path.isfile(os.path.join(curdir, "__init__.py")):
-            curdir = os.path.abspath(os.path.join(curdir, ".."))
-            for rc_name in rc_names:
-                rc_path = os.path.join(curdir, rc_name)
-                if os.path.isfile(rc_path):
-                    yield rc_path
+    if Path("__init__.py").is_file():
+        curdir = Path(os.getcwd()).resolve()
+        while (curdir / "__init__.py").is_file():
+            curdir = curdir.parent
+            for rc_name in RC_NAMES:
+                rc_path = curdir / rc_name
+                if rc_path.is_file():
+                    yield rc_path.resolve()
 
-    if "PYLINTRC" in os.environ and os.path.exists(os.environ["PYLINTRC"]):
-        if os.path.isfile(os.environ["PYLINTRC"]):
-            yield os.environ["PYLINTRC"]
+    if "PYLINTRC" in os.environ and Path(os.environ["PYLINTRC"]).exists():
+        if Path(os.environ["PYLINTRC"]).is_file():
+            yield Path(os.environ["PYLINTRC"]).resolve()
     else:
-        user_home = os.path.expanduser("~")
-        if user_home not in ("~", "/root"):
-            home_rc = os.path.join(user_home, ".pylintrc")
-            if os.path.isfile(home_rc):
-                yield home_rc
-            home_rc = os.path.join(user_home, ".config", "pylintrc")
-            if os.path.isfile(home_rc):
-                yield home_rc
+        user_home = Path.home()
+        if str(user_home) not in ("~", "/root"):
+            home_rc = user_home / ".pylintrc"
+            if home_rc.is_file():
+                yield home_rc.resolve()
+            home_rc = user_home / ".config" / "pylintrc"
+            if home_rc.is_file():
+                yield home_rc.resolve()
 
     if os.path.isfile("/etc/pylintrc"):
-        yield "/etc/pylintrc"
+        yield Path("/etc/pylintrc").resolve()
 
 
 def find_pylintrc() -> Optional[str]:
@@ -84,6 +85,6 @@ def find_pylintrc() -> Optional[str]:
         DeprecationWarning,
     )
     for config_file in find_default_config_files():
-        if config_file.endswith("pylintrc"):
-            return config_file
+        if str(config_file).endswith("pylintrc"):
+            return str(config_file)
     return None
