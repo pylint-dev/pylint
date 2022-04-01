@@ -2,5 +2,5 @@ class Animal:
     pass
 
 
-class Cat(Animal, Animal):
+class Cat(Animal, Animal):  # [duplicate-bases]
     pass
