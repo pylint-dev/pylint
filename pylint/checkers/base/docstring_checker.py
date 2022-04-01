@@ -101,6 +101,11 @@ class DocStringChecker(_BasicChecker):
         ),
     )
 
+    def __init__(
+        self, linter=None, *, future_option_parsing: Literal[None, True] = None
+    ):
+        _BasicChecker.__init__(self, linter, future_option_parsing=True)
+
     def open(self):
         self.linter.stats.reset_undocumented()
 
