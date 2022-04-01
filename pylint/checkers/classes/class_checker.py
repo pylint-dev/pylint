@@ -613,7 +613,7 @@ MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
     "E0241": (
         "Duplicate bases for class %r",
         "duplicate-bases",
-        "Used when a class has duplicate bases.",
+        "Duplicate use of base class in derived class are TypeError.",
     ),
     "E0242": (
         "Value %r in slots conflicts with class variable",
