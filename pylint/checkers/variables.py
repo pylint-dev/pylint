@@ -1609,6 +1609,12 @@ class VariablesChecker(BaseChecker):
         if use_outer_definition:
             return (VariableVisitConsumerAction.CONTINUE, None)
 
+        if not (
+            self._is_undefined_variable_enabled
+            or self._is_used_before_assignment_enabled
+        ):
+            return (VariableVisitConsumerAction.RETURN, found_nodes)
+
         if (
             maybe_before_assign
             and not utils.is_defined_before(node)
