@@ -1,2 +1,4 @@
-my_string = "Hello World"
-my_string.strip("Hello")  # [bad-str-strip-call]
+"Hello World".strip("Hello")  # [bad-str-strip-call]
+# >>> ' World'
+"abcbc def bacabc".strip("abcbc ")  # [bad-str-strip-call]
+# >>> 'def'
