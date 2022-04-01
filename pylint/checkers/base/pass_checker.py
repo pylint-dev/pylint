@@ -4,13 +4,16 @@
 
 from astroid import nodes
 
-from pylint.checkers import utils
-from pylint.checkers.base.basic_checker import _BasicChecker
+from pylint.checkers import BaseChecker, utils
+from pylint.interfaces import IAstroidChecker
 
 
-class PassChecker(_BasicChecker):
+class PassChecker(BaseChecker):
     """Check if the pass statement is really necessary."""
 
+    __implements__ = IAstroidChecker
+
+    name = "basic"
     msgs = {
         "W0107": (
             "Unnecessary pass statement",

@@ -11,8 +11,7 @@ import astroid
 from astroid import nodes
 
 from pylint import interfaces
-from pylint.checkers import utils
-from pylint.checkers.base.basic_checker import _BasicChecker
+from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import (
     is_overload_stub,
     is_property_deleter,
@@ -43,7 +42,10 @@ def _infer_dunder_doc_attribute(node):
     return docstring.value
 
 
-class DocStringChecker(_BasicChecker):
+class DocStringChecker(BaseChecker):
+    __implements__ = interfaces.IAstroidChecker
+
+    name = "basic"
     msgs = {
         "C0112": (
             "Empty %s docstring",

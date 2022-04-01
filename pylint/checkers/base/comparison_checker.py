@@ -7,8 +7,8 @@
 import astroid
 from astroid import nodes
 
-from pylint.checkers import utils
-from pylint.checkers.base.basic_checker import _BasicChecker
+from pylint.checkers import BaseChecker, utils
+from pylint.interfaces import IAstroidChecker
 
 LITERAL_NODE_TYPES = (nodes.Const, nodes.Dict, nodes.List, nodes.Set)
 COMPARISON_OPERATORS = frozenset(("==", "!=", "<", ">", "<=", ">="))
@@ -21,7 +21,7 @@ def _is_one_arg_pos_call(call):
     return isinstance(call, nodes.Call) and len(call.args) == 1 and not call.keywords
 
 
-class ComparisonChecker(_BasicChecker):
+class ComparisonChecker(BaseChecker):
     """Checks for comparisons.
 
     - singleton comparison: 'expr == True', 'expr == False' and 'expr == None'
@@ -30,6 +30,9 @@ class ComparisonChecker(_BasicChecker):
       a function
     """
 
+    __implements__ = IAstroidChecker
+
+    name = "basic"
     msgs = {
         "C0121": (
             "Comparison %s should be %s",

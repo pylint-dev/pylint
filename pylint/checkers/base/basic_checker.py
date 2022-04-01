@@ -15,7 +15,6 @@ from astroid import nodes
 from pylint import interfaces
 from pylint import utils as lint_utils
 from pylint.checkers import BaseChecker, utils
-from pylint.interfaces import IAstroidChecker
 from pylint.reporters.ureports import nodes as reporter_nodes
 from pylint.utils import LinterStats
 from pylint.utils.utils import get_global_option
@@ -27,13 +26,6 @@ if sys.version_info >= (3, 8):
     from typing import Literal
 else:
     from typing_extensions import Literal
-
-
-class _BasicChecker(BaseChecker):
-    """Permits separating multiple checks with the same checker name into classes/file."""
-
-    __implements__ = IAstroidChecker
-    name = "basic"
 
 
 REVERSED_PROTOCOL_METHOD = "__reversed__"
@@ -102,7 +94,7 @@ def report_by_type_stats(
     sect.append(reporter_nodes.Table(children=lines, cols=6, rheaders=1))
 
 
-class BasicChecker(_BasicChecker):
+class BasicChecker(BaseChecker):
     """Basic checker.
 
     Checks for :

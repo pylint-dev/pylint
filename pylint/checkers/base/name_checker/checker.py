@@ -13,8 +13,7 @@ import astroid
 from astroid import nodes
 
 from pylint import constants, interfaces
-from pylint.checkers import utils
-from pylint.checkers.base.basic_checker import _BasicChecker
+from pylint.checkers import BaseChecker, utils
 from pylint.checkers.base.name_checker.naming_style import (
     KNOWN_NAME_TYPES,
     KNOWN_NAME_TYPES_WITH_STYLE,
@@ -24,6 +23,8 @@ from pylint.checkers.base.name_checker.naming_style import (
 from pylint.checkers.utils import is_property_deleter, is_property_setter
 
 # Default patterns for name types that do not have styles
+from pylint.interfaces import IAstroidChecker
+
 DEFAULT_PATTERNS = {
     "typevar": re.compile(
         r"^_{0,2}(?:[^\W\da-z_]+|(?:[^\W\da-z_]+[^\WA-Z_]+)+T?(?<!Type))(?:_co(?:ntra)?)?$"
@@ -122,7 +123,10 @@ def _is_multi_naming_match(match, node_type, confidence):
     )
 
 
-class NameChecker(_BasicChecker):
+class NameChecker(BaseChecker):
+    __implements__ = IAstroidChecker
+
+    name = "basic"
     msgs = {
         "C0103": (
             '%s name "%s" doesn\'t conform to %s',

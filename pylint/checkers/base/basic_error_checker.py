@@ -12,9 +12,9 @@ import astroid
 from astroid import nodes
 
 from pylint import utils as lint_utils
-from pylint.checkers import utils
-from pylint.checkers.base.basic_checker import _BasicChecker
+from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import infer_all
+from pylint.interfaces import IAstroidChecker
 
 ABC_METACLASSES = {"_py_abc.ABCMeta", "abc.ABCMeta"}  # Python 3.7+,
 # List of methods which can be redefined
@@ -94,7 +94,10 @@ def redefined_by_decorator(node):
     return False
 
 
-class BasicErrorChecker(_BasicChecker):
+class BasicErrorChecker(BaseChecker):
+
+    __implements__ = IAstroidChecker
+    name = "basic"
     msgs = {
         "E0100": (
             "__init__ method is a generator",
