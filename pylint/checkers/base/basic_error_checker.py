@@ -285,14 +285,17 @@ class BasicErrorChecker(_BasicChecker):
 
         # provide detailed report about each repeated argument
         for argument_duplicates in arg_clusters.values():
+            already_warned = set()
             if len(argument_duplicates) != 1:
                 for argument in argument_duplicates:
-                    self.add_message(
-                        "duplicate-argument-name",
-                        line=argument.lineno,
-                        node=argument,
-                        args=(argument.name,),
-                    )
+                    if argument.name not in already_warned:
+                        self.add_message(
+                            "duplicate-argument-name",
+                            line=argument.lineno,
+                            node=argument,
+                            args=(argument.name,),
+                        )
+                        already_warned.add(argument.name)
 
     visit_asyncfunctiondef = visit_functiondef
 

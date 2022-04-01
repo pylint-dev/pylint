@@ -30,6 +30,8 @@ Release date: TBA
 
   Closes #1555
 
+* ``duplicate-argument-name`` now only raises once for each set of duplicated arguments.
+
 * Fix bug where specifically enabling just ``await-outside-async`` was not possible.
 
 ..
