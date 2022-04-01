@@ -84,7 +84,6 @@ New checkers
 
   Closes #5670
 
-
 Removed checkers
 ================
 
