@@ -175,6 +175,9 @@ def check_parallel(
             all_mapreduce_data[worker_idx].append(mapreduce_data)
             linter.msg_status |= msg_status
 
+        pool.close()
+        pool.join()
+
     _merge_mapreduce_data(linter, all_mapreduce_data)
     linter.stats = merge_stats([linter.stats] + all_stats)
 
