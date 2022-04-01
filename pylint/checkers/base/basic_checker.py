@@ -249,7 +249,7 @@ class BasicChecker(_BasicChecker):
         "W0130": (
             "Duplicate value %r in set",
             "duplicate-value",
-            "Used when a set contains the same value multiple times.",
+            "This message is emitted when a set contains the same value two or more times.",
         ),
     }
 
