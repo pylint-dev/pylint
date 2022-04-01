@@ -14,4 +14,3 @@ def three_d_chess_move(
     current_player,
 ):  # [too-many-arguments]
     pass
-
