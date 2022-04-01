@@ -1434,7 +1434,7 @@ class VariablesChecker(BaseChecker):
                 continue
 
             action, nodes_to_consume = self._check_consumer(
-                node, stmt, frame, current_consumer, i, base_scope_type
+                node, stmt, frame, current_consumer, base_scope_type
             )
             if nodes_to_consume:
                 # Any nodes added to consumed_uncertain by get_next_to_consume()
@@ -1512,22 +1512,16 @@ class VariablesChecker(BaseChecker):
         stmt: nodes.NodeNG,
         frame: nodes.LocalsDictNodeNG,
         current_consumer: NamesConsumer,
-        consumer_level: int,
         base_scope_type: Any,
     ) -> Tuple[VariableVisitConsumerAction, Optional[List[nodes.NodeNG]]]:
         """Checks a consumer for conditions that should trigger messages."""
         # If the name has already been consumed, only check it's not a loop
         # variable used outside the loop.
-        # Avoid the case where there are homonyms inside function scope and
-        # comprehension current scope (avoid bug #1731)
         if node.name in current_consumer.consumed:
+            # Avoid the case where there are homonyms inside function scope and
+            # comprehension current scope (avoid bug #1731)
             if utils.is_func_decorator(current_consumer.node) or not (
-                current_consumer.scope_type == "comprehension"
-                and self._has_homonym_in_upper_function_scope(node, consumer_level)
-                and not any(
-                    self._comprehension_under_frame(comprehension)
-                    for comprehension in (node, *node.scope().generators)
-                )
+                isinstance(node, nodes.ComprehensionScope)
             ):
                 self._check_late_binding_closure(node)
                 self._loopvar_name(node)
@@ -2482,23 +2476,6 @@ class VariablesChecker(BaseChecker):
 
     def _allowed_redefined_builtin(self, name):
         return name in self.config.allowed_redefined_builtins
-
-    def _has_homonym_in_upper_function_scope(
-        self, node: nodes.Name, index: int
-    ) -> bool:
-        """Return whether there is a node with the same name in the
-        to_consume dict of an upper scope and if that scope is a function
-
-        :param node: node to check for
-        :param index: index of the current consumer inside self._to_consume
-        :return: True if there is a node with the same name in the
-                 to_consume dict of an upper scope and if that scope
-                 is a function, False otherwise
-        """
-        return any(
-            _consumer.scope_type == "function" and node.name in _consumer.to_consume
-            for _consumer in self._to_consume[index - 1 :: -1]
-        )
 
     @staticmethod
     def _comprehension_under_frame(node: nodes.Name) -> bool:
