@@ -22,14 +22,38 @@ except ImportError:
     multiprocessing = None  # type: ignore[assignment]
 
 
+def query_cpu():
+    if os.path.isfile("/sys/fs/cgroup/cpu/cpu.cfs_quota_us"):
+        with open("/sys/fs/cgroup/cpu/cpu.cfs_quota_us", encoding="utf-8") as file:
+            # Not useful for AWS Batch based jobs as result is -1, but works on local linux systems
+            cpu_quota = int(file.read().rstrip())
+    if cpu_quota != -1 and os.path.isfile("/sys/fs/cgroup/cpu/cpu.cfs_period_us"):
+        with open("/sys/fs/cgroup/cpu/cpu.cfs_period_us", encoding="utf-8") as file:
+            cpu_period = int(file.read().rstrip())
+        # Divide quota by period and you should get num of allotted CPU to the container, rounded down if fractional.
+        avail_cpu = int(cpu_quota / cpu_period)
+    elif os.path.isfile("/sys/fs/cgroup/cpu/cpu.shares"):
+        with open("/sys/fs/cgroup/cpu/cpu.shares", encoding="utf-8") as file:
+            cpu_shares = int(file.read().rstrip())
+        # For AWS, gives correct value * 1024.
+        avail_cpu = int(cpu_shares / 1024)
+    return avail_cpu
+
+
 def _cpu_count() -> int:
     """Use sched_affinity if available for virtualized or containerized environments."""
+    cpu_share = query_cpu()
     sched_getaffinity = getattr(os, "sched_getaffinity", None)
     # pylint: disable=not-callable,using-constant-test,useless-suppression
     if sched_getaffinity:
-        return len(sched_getaffinity(0))
+        print("DEBUG-PYLINT: len(sched_getaffinity(0)):", len(sched_getaffinity(0)))
+        print("DEBUG-PYLINT: cpu_share:", cpu_share)
+        return min(len(sched_getaffinity(0)), cpu_share)
     if multiprocessing:
-        return multiprocessing.cpu_count()
+        print("DEBUG-PYLINT: multiprocessing.cpu_count():", multiprocessing.cpu_count())
+        print("DEBUG-PYLINT: cpu_share:", cpu_share)
+        return min(multiprocessing.cpu_count(), cpu_share)
+    print("DEBUG-PYLINT: None:", 1)
     return 1
 
 
