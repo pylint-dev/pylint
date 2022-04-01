@@ -8,22 +8,40 @@ An Argument instance represents a pylint option to be handled by an argparse.Arg
 """
 
 
-from typing import Callable, Dict, List, Optional, Union
+import argparse
+from typing import Callable, Dict, List, Optional, Sequence, Union
 
 from pylint import utils as pylint_utils
 
-_ArgumentTypes = Union[str, List[str]]
+_ArgumentTypes = Union[str, Sequence[str], bool]
 """List of possible argument types."""
 
 
-def _csv_transformer(value: str) -> List[str]:
+def _csv_transformer(value: str) -> Sequence[str]:
     """Transforms a comma separated string."""
     return pylint_utils._check_csv(value)
+
+
+YES_VALUES = {"y", "yes", "true"}
+NO_VALUES = {"n", "no", "false"}
+
+
+def _yn_transformer(value: str) -> bool:
+    """Transforms a yes/no or stringified bool into a bool."""
+    value = value.lower()
+    if value in YES_VALUES:
+        return True
+    if value in NO_VALUES:
+        return False
+    raise argparse.ArgumentError(
+        None, f"Invalid yn value '{value}', should be in (y, yes, true, n, no, false)"
+    )
 
 
 _TYPE_TRANSFORMERS: Dict[str, Callable[[str], _ArgumentTypes]] = {
     "choice": str,
     "csv": _csv_transformer,
+    "yn": _yn_transformer,
 }
 """Type transformers for all argument types.
 
