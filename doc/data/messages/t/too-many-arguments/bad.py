@@ -1,4 +1,4 @@
-def three_d_chess_move(
+def three_d_chess_move(  # [too-many-arguments]
     x_white,
     y_white,
     z_white,
@@ -12,5 +12,5 @@ def three_d_chess_move(
     z_blue,
     piece_blue,
     current_player,
-):  # [too-many-arguments]
+):
     pass

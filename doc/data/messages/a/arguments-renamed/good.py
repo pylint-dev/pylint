@@ -6,7 +6,7 @@ class Apple(Fruit):
     ...
 
 class Orange(Fruit):
-    def brew(self, ingredient_name: str):  # [arguments-renamed]
+    def brew(self, ingredient_name: str):
         print(f"Brewing an orange with {ingredient_name}")
 
 for fruit, ingredient_name in [[Orange(), "thyme"], [Apple(), "cinnamon"]]:
