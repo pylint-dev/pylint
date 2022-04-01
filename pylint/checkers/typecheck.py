@@ -1232,10 +1232,8 @@ accessed. Python regular expressions are accepted.",
                 except astroid.InferenceError:
                     continue
 
-                if all(
-                    return_node is astroid.Uninferable for return_node in call_results
-                ):
-                    # We were unable to infer return values of the call, skipping
+                if astroid.Uninferable in call_results:
+                    # We were unable to infer some return value of the call, skipping
                     continue
 
                 if any(return_node.callable() for return_node in call_results):
