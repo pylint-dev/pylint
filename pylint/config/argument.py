@@ -8,11 +8,12 @@ An Argument instance represents a pylint option to be handled by an argparse.Arg
 """
 
 
-from typing import Callable, Dict, List, Optional, Union
+import re
+from typing import Callable, Dict, List, Optional, Pattern, Union
 
 from pylint import utils as pylint_utils
 
-_ArgumentTypes = Union[str, List[str]]
+_ArgumentTypes = Union[str, List[str], int, Pattern[str]]
 """List of possible argument types."""
 
 
@@ -24,6 +25,8 @@ def _csv_transformer(value: str) -> List[str]:
 _TYPE_TRANSFORMERS: Dict[str, Callable[[str], _ArgumentTypes]] = {
     "choice": str,
     "csv": _csv_transformer,
+    "int": int,
+    "regexp": re.compile,
 }
 """Type transformers for all argument types.
 
