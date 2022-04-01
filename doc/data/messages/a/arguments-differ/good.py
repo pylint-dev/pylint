@@ -1,23 +1,24 @@
-class Rectangle:
-    def __init__(self, length):
-        self.length = length
+class Drink:
+    def mix(self, fluid_one, fluid_two):
+        return fluid_one + fluid_two
 
 
-class Square(Rectangle):
-    def __init__(self, length, width=None):
-        self.length = length
-        self.width = width
+class Cocktail(Drink):
+    def mix(self, fluid_one, fluid_two, alcoholic_fluid_one="Beer")
+        return fluid_one + fluid_two + alcoholic_fluid_one
 
 
-class Duck:
-    def quack(self, decibel):
-        print(f"Qu{'a' * decibel}ck")
+class Car:
+    tank = 0
+
+    def fill_tank(self, gas):
+        self.tank += gas
 
 
-class PlasticDuck:
-    """A plastic Duck is not a Duck, they should not inherit from each other."""
-    def quack(self, decibel, battery):
-        if battery:
-            print(f"Qu{'a' * decibel}ck")
-        else:
-            print("")
+class Airplane:
+    tank = 0
+    kerosine_tank = 0
+
+    def fill_tank(self, gas, kerosine):
+        self.tank += gas
+        self.kerosine_tank += kerosine
