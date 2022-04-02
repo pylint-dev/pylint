@@ -49,3 +49,47 @@ def func5():
     except ZeroDivisionError:
         k = None
         print(k, filtered)
+
+
+def func6(data, keys):
+    """Similar, but with a subscript in a key-value pair rather than the test
+    See https://github.com/PyCQA/pylint/issues/6069"""
+    try:
+        results = {key: data[key] for key in keys}
+    except KeyError as exc:
+        key, *_ = exc.args
+        raise Exception(f"{key} not found") from exc
+
+    return results
+
+
+def func7():
+    """Similar, but with a comparison"""
+    bools = [str(i) == i for i in range(3)]
+
+    try:
+        1 / 0
+    except ZeroDivisionError:
+        i = None
+        print(i, bools)
+
+
+def func8():
+    """Similar, but with a container"""
+    pairs = [(i, i) for i in range(3)]
+
+    try:
+        1 / 0
+    except ZeroDivisionError:
+        i = None
+        print(i, pairs)
+
+
+# Module level cases
+
+module_ints = [j | j for j in range(3)]
+try:
+    1 / 0
+except ZeroDivisionError:
+    j = None
+    print(j, module_ints)
