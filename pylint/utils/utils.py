@@ -23,6 +23,7 @@ from typing import (
     List,
     Optional,
     Pattern,
+    Sequence,
     TextIO,
     Tuple,
     TypeVar,
@@ -276,7 +277,7 @@ def get_global_option(
     return default
 
 
-def _splitstrip(string, sep=","):
+def _splitstrip(string: str, sep: str = ",") -> List[str]:
     """Return a list of stripped string by splitting the string given as
     argument on `sep` (',' by default), empty strings are discarded.
 
@@ -314,7 +315,7 @@ def _unquote(string: str) -> str:
     return string
 
 
-def _check_csv(value):
+def _check_csv(value: Union[List[str], Tuple[str], str]) -> Sequence[str]:
     if isinstance(value, (list, tuple)):
         return value
     return _splitstrip(value)

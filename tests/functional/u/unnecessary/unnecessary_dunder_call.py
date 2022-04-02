@@ -44,3 +44,14 @@ class PluginBase(object):
 # Test no lint raised for attributes.
 my_instance_name = x.__class__.__name__
 my_pkg_version = pkg.__version__
+
+# Allow use of dunder methods on super()
+# since there is no alternate method to call them
+class MyClass(list):
+    def __contains__(self, item):
+        print("do some special checks")
+        return super().__contains__(item)
+
+# But still flag them in other contexts
+MY_TEST_BAD = {1, 2, 3}.__contains__(1) # [unnecessary-dunder-call]
+MY_TEST_GOOD = 1 in {1, 2, 3}

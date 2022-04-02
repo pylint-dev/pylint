@@ -23,6 +23,9 @@ class DunderCallChecker(BaseChecker):
     __setstate__, __reduce__, __reduce_ex__
     since these either have no alternative method of being called or
     have a genuine use case for being called manually.
+
+    Additionally we exclude dunder method calls on super() since
+    these can't be written in an alternative manner.
     """
 
     __implements__ = IAstroidChecker
@@ -138,6 +141,11 @@ class DunderCallChecker(BaseChecker):
         if (
             isinstance(node.func, nodes.Attribute)
             and node.func.attrname in self.includedict
+            and not (
+                isinstance(node.func.expr, nodes.Call)
+                and isinstance(node.func.expr.func, nodes.Name)
+                and node.func.expr.func.name == "super"
+            )
         ):
             self.add_message(
                 "unnecessary-dunder-call",
