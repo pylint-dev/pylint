@@ -151,13 +151,19 @@ class _Argument:
     https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.add_argument
     """
 
-    def __init__(self, *, flags: List[str], arg_help: str) -> None:
+    def __init__(self, *, flags: List[str], arg_help: str, hide_help: bool) -> None:
         self.flags = flags
         """The name of the argument."""
+
+        self.hide_help = hide_help
+        """Whether to hide this argument in the help message."""
 
         # argparse uses % formatting on help strings, so a % needs to be escaped
         self.help = arg_help.replace("%", "%%")
         """The description of the argument."""
+
+        if hide_help:
+            self.help = argparse.SUPPRESS
 
 
 class _BaseStoreArgument(_Argument):
@@ -175,8 +181,9 @@ class _BaseStoreArgument(_Argument):
         action: str,
         default: _ArgumentTypes,
         arg_help: str,
+        hide_help: bool,
     ) -> None:
-        super().__init__(flags=flags, arg_help=arg_help)
+        super().__init__(flags=flags, arg_help=arg_help, hide_help=hide_help)
 
         self.action = action
         """The action to perform with the argument."""
@@ -203,8 +210,15 @@ class _StoreArgument(_BaseStoreArgument):
         choices: Optional[List[str]],
         arg_help: str,
         metavar: str,
+        hide_help: bool,
     ) -> None:
-        super().__init__(flags=flags, action=action, default=default, arg_help=arg_help)
+        super().__init__(
+            flags=flags,
+            action=action,
+            default=default,
+            arg_help=arg_help,
+            hide_help=hide_help,
+        )
 
         self.type = _TYPE_TRANSFORMERS[arg_type]
         """A transformer function that returns a transformed type of the argument."""
@@ -239,8 +253,15 @@ class _StoreTrueArgument(_BaseStoreArgument):
         action: Literal["store_true"],
         default: _ArgumentTypes,
         arg_help: str,
+        hide_help: bool,
     ) -> None:
-        super().__init__(flags=flags, action=action, default=default, arg_help=arg_help)
+        super().__init__(
+            flags=flags,
+            action=action,
+            default=default,
+            arg_help=arg_help,
+            hide_help=hide_help,
+        )
 
 
 class _CallableArgument(_Argument):
@@ -258,8 +279,9 @@ class _CallableArgument(_Argument):
         action: Type[_CallbackAction],
         arg_help: str,
         kwargs: Dict[str, Any],
+        hide_help: bool,
     ) -> None:
-        super().__init__(flags=flags, arg_help=arg_help)
+        super().__init__(flags=flags, arg_help=arg_help, hide_help=hide_help)
 
         self.action = action
         """The action to perform with the argument."""

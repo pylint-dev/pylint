@@ -262,7 +262,6 @@ class PyLinter(
                     "default": True,
                     "type": "yn",
                     "metavar": "<y or n>",
-                    "level": 1,
                     "help": "Pickle collected data for later comparisons.",
                 },
             ),
@@ -272,7 +271,6 @@ class PyLinter(
                     "type": "csv",
                     "metavar": "<modules>",
                     "default": (),
-                    "level": 1,
                     "help": "List of plugins (as comma separated values of "
                     "python module names) to load, usually to register "
                     "additional checkers.",
@@ -310,7 +308,6 @@ class PyLinter(
                     "type": "string",
                     "metavar": "<python_expression>",
                     "group": "Reports",
-                    "level": 1,
                     "default": "max(0, 0 if fatal else 10.0 - ((float(5 * error + warning + refactor + "
                     "convention) / statement) * 10))",
                     "help": "Python expression which should return a score less "

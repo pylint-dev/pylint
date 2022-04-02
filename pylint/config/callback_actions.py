@@ -2,7 +2,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-# pylint: disable=too-many-arguments
+# pylint: disable=too-many-arguments, redefined-builtin
 
 """Callback actions for various options."""
 
@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING, Any, Optional, Sequence, Union
 from pylint import extensions, interfaces, utils
 
 if TYPE_CHECKING:
+    from pylint.config.help_formatter import _HelpFormatter
     from pylint.lint.run import Run
 
 
@@ -59,10 +60,10 @@ class _AccessRunObjectAction(_CallbackAction):
         nargs: None = None,
         const: None = None,
         default: None = None,
-        arg_type: None = None,
+        type: None = None,
         choices: None = None,
         required: bool = False,
-        help_msg: str = "",
+        help: str = "",
         metavar: str = "",
         **kwargs: "Run",
     ) -> None:
@@ -74,10 +75,10 @@ class _AccessRunObjectAction(_CallbackAction):
             0,
             const,
             default,
-            arg_type,
+            type,
             choices,
             required,
-            help_msg,
+            help,
             metavar,
         )
 
@@ -102,10 +103,10 @@ class _MessageHelpAction(_CallbackAction):
         nargs: None = None,
         const: None = None,
         default: None = None,
-        arg_type: None = None,
+        type: None = None,
         choices: None = None,
         required: bool = False,
-        help_msg: str = "",
+        help: str = "",
         metavar: str = "",
         **kwargs: "Run",
     ) -> None:
@@ -116,10 +117,10 @@ class _MessageHelpAction(_CallbackAction):
             "+",
             const,
             default,
-            arg_type,
+            type,
             choices,
             required,
-            help_msg,
+            help,
             metavar,
         )
 
@@ -299,5 +300,10 @@ class _LongHelpAction(_AccessRunObjectAction):
         values: Union[str, Sequence[Any], None],
         option_string: Optional[str] = "--long-help",
     ) -> None:
-        print(self.run.linter.help(1))
+        formatter: "_HelpFormatter" = self.run.linter._arg_parser._get_formatter()
+
+        # Add extra info as epilog to the help message
+        self.run.linter._arg_parser.epilog = formatter.get_long_description()
+        self.run.linter._arg_parser.print_help()
+
         sys.exit(0)
