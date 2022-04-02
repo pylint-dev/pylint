@@ -5,7 +5,6 @@
 import collections
 import contextlib
 import functools
-import operator
 import os
 import sys
 import tokenize
@@ -193,6 +192,7 @@ class PyLinter(
     config.OptionsManagerMixIn,
     reporters.ReportsHandlerMixIn,
     checkers.BaseTokenChecker,
+    config._ArgumentsManager,
 ):
     """Lint Python modules using external checkers.
 
@@ -213,7 +213,6 @@ class PyLinter(
     __implements__ = (interfaces.ITokenChecker,)
 
     name = MAIN_CHECKER_NAME
-    priority = 0
     level = 0
     msgs = MSGS
     # Will be used like this : datetime.now().strftime(crash_file_path)
@@ -549,11 +548,15 @@ class PyLinter(
         options: Tuple[Tuple[str, OptionDict], ...] = (),
         reporter: Union[reporters.BaseReporter, reporters.MultiReporter, None] = None,
         option_groups: Tuple[Tuple[str, str], ...] = (),
-        pylintrc: Optional[str] = None,
+        # pylint: disable-next=fixme
+        # TODO: Deprecate passing the pylintrc parameter
+        pylintrc: Optional[str] = None,  # pylint: disable=unused-argument
     ) -> None:
-        """Some stuff has to be done before ancestors initialization...
-        messages store / checkers / reporter / astroid manager
-        """
+        config._ArgumentsManager.__init__(self)
+
+        # Some stuff has to be done before initialization of other ancestors...
+        # messages store / checkers / reporter / astroid manager
+
         # Attributes for reporters
         self.reporter: Union[reporters.BaseReporter, reporters.MultiReporter]
         if reporter:
@@ -609,10 +612,7 @@ class PyLinter(
         self._by_id_managed_msgs: List[ManagedMessage] = []
 
         reporters.ReportsHandlerMixIn.__init__(self)
-        super().__init__(
-            usage=__doc__,
-            config_file=pylintrc or next(config.find_default_config_files(), None),
-        )
+        config.OptionsManagerMixIn.__init__(self, usage=__doc__)
         checkers.BaseTokenChecker.__init__(self)
         # provided reports
         self.reports = (
@@ -762,7 +762,6 @@ class PyLinter(
 
     def register_checker(self, checker: checkers.BaseChecker) -> None:
         """This method auto registers the checker."""
-        assert checker.priority <= 0, "checker priority can't be >= 0"
         self._checkers[checker.name].append(checker)
         for r_id, r_title, r_cb in checker.reports:
             self.register_report(r_id, r_title, r_cb, checker)
@@ -971,10 +970,6 @@ class PyLinter(
             messages = {msg for msg in checker.msgs if self.is_message_enabled(msg)}
             if messages or any(self.report_is_enabled(r[0]) for r in checker.reports):
                 needed_checkers.append(checker)
-        # Sort checkers by priority
-        needed_checkers = sorted(
-            needed_checkers, key=operator.attrgetter("priority"), reverse=True
-        )
         return needed_checkers
 
     # pylint: disable=unused-argument

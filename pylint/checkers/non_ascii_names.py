@@ -48,7 +48,6 @@ class NonAsciiNameChecker(base_checker.BaseChecker):
     """
 
     __implements__ = interfaces.IAstroidChecker
-    priority = -1
 
     msgs = {
         "C2401": (

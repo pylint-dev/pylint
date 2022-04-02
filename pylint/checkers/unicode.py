@@ -315,7 +315,6 @@ class UnicodeChecker(pylint.checkers.BaseChecker):
     """
 
     __implements__ = pylint.interfaces.IRawChecker
-    priority = -1
 
     name = "unicode_checker"
 

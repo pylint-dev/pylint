@@ -11,6 +11,7 @@ except ImportError:  # isort < 5
 
     HAS_ISORT_5 = False
 
+import argparse
 import codecs
 import os
 import re
@@ -23,6 +24,7 @@ from typing import (
     List,
     Optional,
     Pattern,
+    Sequence,
     TextIO,
     Tuple,
     TypeVar,
@@ -276,7 +278,7 @@ def get_global_option(
     return default
 
 
-def _splitstrip(string, sep=","):
+def _splitstrip(string: str, sep: str = ",") -> List[str]:
     """Return a list of stripped string by splitting the string given as
     argument on `sep` (',' by default), empty strings are discarded.
 
@@ -314,7 +316,7 @@ def _unquote(string: str) -> str:
     return string
 
 
-def _check_csv(value):
+def _check_csv(value: Union[List[str], Tuple[str], str]) -> Sequence[str]:
     if isinstance(value, (list, tuple)):
         return value
     return _splitstrip(value)
@@ -381,7 +383,7 @@ def _ini_format(stream: TextIO, options: List[Tuple]) -> None:
 class IsortDriver:
     """A wrapper around isort API that changed between versions 4 and 5."""
 
-    def __init__(self, config) -> None:
+    def __init__(self, config: argparse.Namespace) -> None:
         if HAS_ISORT_5:
             self.isort5_config = isort.api.Config(
                 # There is no typo here. EXTRA_standard_library is

@@ -74,7 +74,6 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
         ),
     }
 
-    priority = -2
     options = ()
 
     @utils.check_messages("use-implicit-booleaness-not-len")
