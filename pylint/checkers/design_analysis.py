@@ -284,7 +284,6 @@ class MisdesignChecker(BaseChecker):
     name = "design"
     # messages
     msgs = MSGS
-    priority = -2
     # configuration options
     options = (
         (

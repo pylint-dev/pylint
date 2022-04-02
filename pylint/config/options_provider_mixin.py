@@ -16,7 +16,6 @@ class OptionsProviderMixIn:
     """Mixin to provide options to an OptionsManager."""
 
     # those attributes should be overridden
-    priority = -1
     name = "default"
     options: Tuple[Tuple[str, Dict[str, Any]], ...] = ()
     level = 0
@@ -67,8 +66,7 @@ class OptionsProviderMixIn:
                 if isinstance(value, (list, tuple)):
                     _list = value
                 elif value is not None:
-                    _list = []
-                    _list.append(value)
+                    _list = [value]
                 setattr(self.config, optname, _list)
             elif isinstance(_list, tuple):
                 setattr(self.config, optname, _list + (value,))
@@ -108,4 +106,4 @@ class OptionsProviderMixIn:
         if options is None:
             options = self.options
         for optname, optdict in options:
-            yield (optname, optdict, self.option_value(optname))
+            yield optname, optdict, self.option_value(optname)

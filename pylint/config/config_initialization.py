@@ -4,9 +4,9 @@
 
 import sys
 from pathlib import Path
-from typing import TYPE_CHECKING, List, Optional, Union
+from typing import TYPE_CHECKING, List, Union
 
-from pylint import reporters
+from pylint import config, reporters
 from pylint.utils import utils
 
 if TYPE_CHECKING:
@@ -18,22 +18,34 @@ def _config_initialization(
     args_list: List[str],
     reporter: Union[reporters.BaseReporter, reporters.MultiReporter, None] = None,
     config_file: Union[None, str, Path] = None,
-    verbose_mode: Optional[bool] = None,
+    verbose_mode: bool = False,
 ) -> List[str]:
     """Parse all available options, read config files and command line arguments and
     set options accordingly.
     """
+    # Convert config_file in a Path and string
+    config_file_path = Path(config_file) if config_file else None
+    config_file = str(config_file) if config_file else None
+
     # Set the current module to the configuration file
     # to allow raising messages on the configuration file.
-    linter.set_current_module(linter.config_file)
+    linter.set_current_module(config_file)
 
-    # Read the config file. The parser is stored on linter.cfgfile_parser
+    # Read the configuration file
     try:
-        linter.read_config_file(config_file=config_file, verbose=verbose_mode)
+        # The parser is stored on linter.cfgfile_parser
+        linter.read_config_file(config_file=config_file_path, verbose=verbose_mode)
     except OSError as ex:
         print(ex, file=sys.stderr)
         sys.exit(32)
     config_parser = linter.cfgfile_parser
+
+    config_file_parser = config._ConfigurationFileParser(verbose_mode, linter)
+    try:
+        config_data = config_file_parser.parse_config_file(file_path=config_file_path)
+    except OSError as ex:
+        print(ex, file=sys.stderr)
+        sys.exit(32)
 
     # Run init hook, if present, before loading plugins
     if config_parser.has_option("MASTER", "init-hook"):
@@ -79,7 +91,7 @@ def _config_initialization(
     # When finished this should replace the implementation based on optparse
 
     # First we parse any options from a configuration file
-    linter._parse_configuration_file(config_parser)
+    linter._parse_configuration_file(config_data)
 
     # Second we parse any options from the command line, so they can override
     # the configuration file

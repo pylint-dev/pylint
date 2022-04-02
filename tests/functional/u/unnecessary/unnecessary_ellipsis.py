@@ -9,10 +9,10 @@ try:
     A = 2
 except ValueError:
     A = 24
-    ... # [unnecessary-ellipsis]
+    ...  # [unnecessary-ellipsis]
 
 def ellipsis_and_subsequent_statement():
-    ... # [unnecessary-ellipsis]
+    ...  # [unnecessary-ellipsis]
     return 0
 
 # The parent of ellipsis is an assignment
@@ -114,3 +114,18 @@ mydict3 = {'x': (...,)}
 
 # Ignore if the ellipsis is used with a lambda expression
 print("x", lambda: ...)
+
+
+def func1(val1, _):
+    if val1 is not ...:
+        pass
+
+
+def func2(val1, val2):
+    """Ignore if ellipsis is used on comparisons.
+    See https://github.com/PyCQA/pylint/issues/6071."""
+    if val1 is not ... and val2:
+        pass
+
+
+assert "x" != ...

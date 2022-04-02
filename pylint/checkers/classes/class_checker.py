@@ -613,7 +613,7 @@ MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
     "E0241": (
         "Duplicate bases for class %r",
         "duplicate-bases",
-        "Used when a class has duplicate bases.",
+        "Duplicate use of base classes in derived classes raise TypeErrors.",
     ),
     "E0242": (
         "Value %r in slots conflicts with class variable",
@@ -697,7 +697,6 @@ class ClassChecker(BaseChecker):
     name = "classes"
     # messages
     msgs = MSGS
-    priority = -2
     # configuration options
     options = (
         (
