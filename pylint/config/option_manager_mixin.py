@@ -10,11 +10,9 @@ import optparse  # pylint: disable=deprecated-module
 import os
 import sys
 from pathlib import Path
-from types import ModuleType
 from typing import Dict, List, Optional, TextIO, Tuple
 
 from pylint import utils
-from pylint.config.man_help_formatter import _ManHelpFormatter
 from pylint.config.option import Option
 from pylint.config.option_parser import OptionParser
 
@@ -218,20 +216,6 @@ class OptionsManagerMixIn:
                 stream, section.upper(), sorted(options_by_section[section])
             )
             printed = True
-
-    def generate_manpage(
-        self, pkginfo: ModuleType, section: int = 1, stream: TextIO = sys.stdout
-    ) -> None:
-        with _patch_optparse():
-            formatter = _ManHelpFormatter()
-            formatter.output_level = self._maxlevel
-            formatter.parser = self.cmdline_parser
-            print(
-                formatter.format_head(self.cmdline_parser, pkginfo, section),
-                file=stream,
-            )
-            print(self.cmdline_parser.format_option_help(formatter), file=stream)
-            print(formatter.format_tail(pkginfo), file=stream)
 
     def load_provider_defaults(self):
         """Initialize configuration using default values."""

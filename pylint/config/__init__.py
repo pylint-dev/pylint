@@ -17,7 +17,6 @@ from pylint.config.find_default_config_files import (
     find_default_config_files,
     find_pylintrc,
 )
-from pylint.config.man_help_formatter import _ManHelpFormatter
 from pylint.config.option import Option
 from pylint.config.option_manager_mixin import OptionsManagerMixIn
 from pylint.config.option_parser import OptionParser
@@ -32,7 +31,6 @@ __all__ = [
     "ConfigurationMixIn",
     "find_default_config_files",
     "find_pylintrc",
-    "_ManHelpFormatter",
     "Option",
     "OptionsManagerMixIn",
     "OptionParser",
