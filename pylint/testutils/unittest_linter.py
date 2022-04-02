@@ -6,13 +6,14 @@ from typing import Any, Optional
 
 from astroid import nodes
 
+from pylint import config
 from pylint.interfaces import UNDEFINED, Confidence
 from pylint.testutils.global_test_linter import linter
 from pylint.testutils.output_line import MessageTest
 from pylint.utils import LinterStats
 
 
-class UnittestLinter:
+class UnittestLinter(config._ArgumentsManager):
     """A fake linter class to capture checker messages."""
 
     # pylint: disable=unused-argument
@@ -20,6 +21,7 @@ class UnittestLinter:
     def __init__(self):
         self._messages = []
         self.stats = LinterStats()
+        config._ArgumentsManager.__init__(self)
 
     def release_messages(self):
         try:

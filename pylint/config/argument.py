@@ -34,7 +34,7 @@ def _yn_transformer(value: str) -> bool:
         return True
     if value in NO_VALUES:
         return False
-    raise argparse.ArgumentError(
+    raise argparse.ArgumentTypeError(
         None, f"Invalid yn value '{value}', should be in {*YES_VALUES, *NO_VALUES}"
     )
 
@@ -44,6 +44,7 @@ _TYPE_TRANSFORMERS: Dict[str, Callable[[str], _ArgumentTypes]] = {
     "csv": _csv_transformer,
     "int": int,
     "regexp": re.compile,
+    "string": str,
     "yn": _yn_transformer,
 }
 """Type transformers for all argument types.

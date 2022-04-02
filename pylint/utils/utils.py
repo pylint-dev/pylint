@@ -11,6 +11,7 @@ except ImportError:  # isort < 5
 
     HAS_ISORT_5 = False
 
+import argparse
 import codecs
 import os
 import re
@@ -382,7 +383,7 @@ def _ini_format(stream: TextIO, options: List[Tuple]) -> None:
 class IsortDriver:
     """A wrapper around isort API that changed between versions 4 and 5."""
 
-    def __init__(self, config) -> None:
+    def __init__(self, config: argparse.Namespace) -> None:
         if HAS_ISORT_5:
             self.isort5_config = isort.api.Config(
                 # There is no typo here. EXTRA_standard_library is
