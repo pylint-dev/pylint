@@ -76,8 +76,6 @@ class _ArgumentsManager:
                 action=argument.action,
                 default=argument.default,
                 help=argument.help,
-                metavar=argument.metavar,
-                choices=argument.choices,
             )
         else:
             raise UnrecognizedArgumentAction
