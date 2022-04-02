@@ -7,7 +7,7 @@
 import argparse
 from typing import TYPE_CHECKING, Dict, List, Union
 
-from pylint.config.argument import _Argument, _StoreTrueArgument
+from pylint.config.argument import _Argument, _CallableArgument, _StoreTrueArgument
 from pylint.config.exceptions import UnrecognizedArgumentAction
 from pylint.config.utils import _convert_option_to_argument
 
@@ -44,7 +44,9 @@ class _ArgumentsManager:
         self._load_default_argument_values()
 
     def _add_arguments_to_parser(
-        self, section: str, argument: Union[_Argument, _StoreTrueArgument]
+        self,
+        section: str,
+        argument: Union[_Argument, _StoreTrueArgument, _CallableArgument],
     ) -> None:
         """Iterates over all argument sections and add them to the parser object."""
         try:
@@ -57,7 +59,7 @@ class _ArgumentsManager:
     @staticmethod
     def _add_parser_option(
         section_group: argparse._ArgumentGroup,
-        argument: Union[_Argument, _StoreTrueArgument],
+        argument: Union[_Argument, _StoreTrueArgument, _CallableArgument],
     ) -> None:
         """Add an argument."""
         if isinstance(argument, _Argument):
@@ -75,6 +77,13 @@ class _ArgumentsManager:
                 *argument.flags,
                 action=argument.action,
                 default=argument.default,
+                help=argument.help,
+            )
+        elif isinstance(argument, _CallableArgument):
+            section_group.add_argument(
+                *argument.flags,
+                **argument.kwargs,
+                action=argument.action,
                 help=argument.help,
             )
         else:

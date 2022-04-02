@@ -11,10 +11,22 @@ An Argument instance represents a pylint option to be handled by an argparse.Arg
 import argparse
 import pathlib
 import re
-from typing import Callable, Dict, List, Optional, Pattern, Sequence, Tuple, Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    Pattern,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+)
 
 from pylint import interfaces
 from pylint import utils as pylint_utils
+from pylint.config.callback_actions import _CallbackAction
 
 _ArgumentTypes = Union[
     str,
@@ -199,3 +211,32 @@ class _StoreTrueArgument:
         # argparse uses % formatting on help strings, so a % needs to be escaped
         self.help = arg_help.replace("%", "%%")
         """The description of the argument."""
+
+
+class _CallableArgument:
+    """Class representing an callable argument to be parsed by an argparse.ArgumentsParser.
+
+    This is based on the parameters passed to argparse.ArgumentsParser.add_message.
+    See:
+    https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.add_argument
+    """
+
+    def __init__(
+        self,
+        flags: List[str],
+        action: Type[_CallbackAction],
+        arg_help: str,
+        kwargs: Dict[str, Any],
+    ) -> None:
+        self.flags = flags
+        """The name of the argument."""
+
+        self.action = action
+        """The action to perform with the argument."""
+
+        # argparse uses % formatting on help strings, so a % needs to be escaped
+        self.help = arg_help.replace("%", "%%")
+        """The description of the argument."""
+
+        self.kwargs = kwargs
+        """Any additional arguments passed to the action."""
