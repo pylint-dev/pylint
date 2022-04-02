@@ -9,7 +9,21 @@ import warnings
 from typing import NoReturn, Optional
 
 from pylint import config, extensions, interfaces
-from pylint.config.callback_actions import _DoNothingAction
+from pylint.config.callback_actions import (
+    _DoNothingAction,
+    _EnableAllExtensionsAction,
+    _ErrorsOnlyModeAction,
+    _FullDocumentationAction,
+    _GenerateRCFileAction,
+    _ListCheckGroupsAction,
+    _ListConfidenceLevelsAction,
+    _ListExtensionsAction,
+    _ListMessagesAction,
+    _ListMessagesEnabledAction,
+    _LongHelpAction,
+    _MessageHelpAction,
+    _VerboseModeAction,
+)
 from pylint.config.config_initialization import _config_initialization
 from pylint.constants import DEFAULT_PYLINT_HOME, OLD_DEFAULT_PYLINT_HOME, full_version
 from pylint.lint.pylinter import PyLinter
@@ -119,10 +133,9 @@ group are mutually exclusive.",
                     "rcfile",
                     {
                         "action": _DoNothingAction,
+                        "kwargs": {},
                         "callback": Run._return_one,
                         "group": "Commands",
-                        "type": "string",
-                        "metavar": "<file>",
                         "help": "Specify a configuration file to load.",
                     },
                 ),
@@ -130,10 +143,9 @@ group are mutually exclusive.",
                     "output",
                     {
                         "action": _DoNothingAction,
+                        "kwargs": {},
                         "callback": Run._return_one,
                         "group": "Commands",
-                        "type": "string",
-                        "metavar": "<file>",
                         "help": "Specify an output file.",
                     },
                 ),
@@ -141,9 +153,8 @@ group are mutually exclusive.",
                     "init-hook",
                     {
                         "action": _DoNothingAction,
+                        "kwargs": {},
                         "callback": Run._return_one,
-                        "type": "string",
-                        "metavar": "<code>",
                         "level": 1,
                         "help": "Python code to execute, usually for sys.path "
                         "manipulation such as pygtk.require().",
@@ -152,9 +163,8 @@ group are mutually exclusive.",
                 (
                     "help-msg",
                     {
-                        "action": "callback",
-                        "type": "string",
-                        "metavar": "<msg-id>",
+                        "action": _MessageHelpAction,
+                        "kwargs": {"Run": self},
                         "callback": self.cb_help_message,
                         "group": "Commands",
                         "help": "Display a help message for the given message id and "
@@ -164,8 +174,8 @@ group are mutually exclusive.",
                 (
                     "list-msgs",
                     {
-                        "action": "callback",
-                        "metavar": "<msg-id>",
+                        "action": _ListMessagesAction,
+                        "kwargs": {"Run": self},
                         "callback": self.cb_list_messages,
                         "group": "Commands",
                         "level": 1,
@@ -176,8 +186,8 @@ group are mutually exclusive.",
                 (
                     "list-msgs-enabled",
                     {
-                        "action": "callback",
-                        "metavar": "<msg-id>",
+                        "action": _ListMessagesEnabledAction,
+                        "kwargs": {"Run": self},
                         "callback": self.cb_list_messages_enabled,
                         "group": "Commands",
                         "level": 1,
@@ -188,8 +198,8 @@ group are mutually exclusive.",
                 (
                     "list-groups",
                     {
-                        "action": "callback",
-                        "metavar": "<msg-id>",
+                        "action": _ListCheckGroupsAction,
+                        "kwargs": {"Run": self},
                         "callback": self.cb_list_groups,
                         "group": "Commands",
                         "level": 1,
@@ -199,8 +209,9 @@ group are mutually exclusive.",
                 (
                     "list-conf-levels",
                     {
-                        "action": "callback",
+                        "action": _ListConfidenceLevelsAction,
                         "callback": cb_list_confidence_levels,
+                        "kwargs": {"Run": self},
                         "group": "Commands",
                         "level": 1,
                         "help": "Generate pylint's confidence levels.",
@@ -209,7 +220,8 @@ group are mutually exclusive.",
                 (
                     "list-extensions",
                     {
-                        "action": "callback",
+                        "action": _ListExtensionsAction,
+                        "kwargs": {"Run": self},
                         "callback": cb_list_extensions,
                         "group": "Commands",
                         "level": 1,
@@ -219,8 +231,8 @@ group are mutually exclusive.",
                 (
                     "full-documentation",
                     {
-                        "action": "callback",
-                        "metavar": "<msg-id>",
+                        "action": _FullDocumentationAction,
+                        "kwargs": {"Run": self},
                         "callback": self.cb_full_documentation,
                         "group": "Commands",
                         "level": 1,
@@ -230,7 +242,8 @@ group are mutually exclusive.",
                 (
                     "generate-rcfile",
                     {
-                        "action": "callback",
+                        "action": _GenerateRCFileAction,
+                        "kwargs": {"Run": self},
                         "callback": self.cb_generate_config,
                         "group": "Commands",
                         "help": "Generate a sample configuration file according to "
@@ -242,7 +255,8 @@ group are mutually exclusive.",
                 (
                     "errors-only",
                     {
-                        "action": "callback",
+                        "action": _ErrorsOnlyModeAction,
+                        "kwargs": {"Run": self},
                         "callback": self.cb_error_mode,
                         "short": "E",
                         "help": "In error mode, checkers without error messages are "
@@ -253,7 +267,8 @@ group are mutually exclusive.",
                 (
                     "verbose",
                     {
-                        "action": "callback",
+                        "action": _VerboseModeAction,
+                        "kwargs": {"Run": self},
                         "callback": self.cb_verbose_mode,
                         "short": "v",
                         "help": "In verbose mode, extra non-checker-related info "
@@ -263,7 +278,8 @@ group are mutually exclusive.",
                 (
                     "enable-all-extensions",
                     {
-                        "action": "callback",
+                        "action": _EnableAllExtensionsAction,
+                        "kwargs": {"Run": self},
                         "callback": self.cb_enable_all_extensions,
                         "help": "Load and enable all available extensions. "
                         "Use --list-extensions to see a list all available extensions.",
@@ -272,7 +288,8 @@ group are mutually exclusive.",
                 (
                     "long-help",
                     {
-                        "action": "callback",
+                        "action": _LongHelpAction,
+                        "kwargs": {"Run": self},
                         "callback": self.cb_helpfunc,
                         "help": "Show more verbose help.",
                         "group": "Commands",
