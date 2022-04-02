@@ -44,7 +44,7 @@ class _ConfigurationFileParser:
     @staticmethod
     def _parse_toml_value(value: Any) -> str:
         """Parse rich toml types into strings."""
-        if isinstance(value, list):
+        if isinstance(value, (list, tuple)):
             return ",".join(value)
         return str(value)
 
