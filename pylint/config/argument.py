@@ -41,6 +41,13 @@ def _yn_transformer(value: str) -> bool:
     )
 
 
+def _non_empty_string_transformer(value: str) -> str:
+    """Check that a string is not empty and remove quotes."""
+    if not value:
+        raise argparse.ArgumentTypeError("Option cannot be an empty string.")
+    return pylint_utils._unquote(value)
+
+
 def _regexp_csv_transfomer(value: str) -> Sequence[Pattern[str]]:
     """Transforms a comma separated list of regular expressions."""
     patterns: List[Pattern[str]] = []
@@ -53,6 +60,7 @@ _TYPE_TRANSFORMERS: Dict[str, Callable[[str], _ArgumentTypes]] = {
     "choice": str,
     "csv": _csv_transformer,
     "int": int,
+    "non_empty_string": _non_empty_string_transformer,
     "regexp": re.compile,
     "regexp_csv": _regexp_csv_transfomer,
     "string": str,
