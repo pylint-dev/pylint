@@ -1,2 +1,3 @@
-import setuptools
 import argparse
+
+import setuptools
