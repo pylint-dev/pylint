@@ -8,7 +8,7 @@ import sys
 import warnings
 from typing import NoReturn, Optional
 
-from pylint import __pkginfo__, config, extensions, interfaces
+from pylint import config, extensions, interfaces
 from pylint.config.config_initialization import _config_initialization
 from pylint.constants import DEFAULT_PYLINT_HOME, OLD_DEFAULT_PYLINT_HOME, full_version
 from pylint.lint.pylinter import PyLinter
@@ -239,16 +239,6 @@ group are mutually exclusive.",
                     },
                 ),
                 (
-                    "generate-man",
-                    {
-                        "action": "callback",
-                        "callback": self.cb_generate_manpage,
-                        "group": "Commands",
-                        "help": "Generate pylint's man page.",
-                        "hide": True,
-                    },
-                ),
-                (
                     "errors-only",
                     {
                         "action": "callback",
@@ -435,11 +425,6 @@ to search for configuration file.
     def cb_generate_config(self, *args, **kwargs):
         """Optik callback for sample config file generation."""
         self.linter.generate_config(skipsections=("COMMANDS",))
-        sys.exit(0)
-
-    def cb_generate_manpage(self, *args, **kwargs):
-        """Optik callback for sample config file generation."""
-        self.linter.generate_manpage(__pkginfo__)
         sys.exit(0)
 
     def cb_help_message(self, option, optname, value, parser):
