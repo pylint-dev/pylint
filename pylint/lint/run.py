@@ -9,6 +9,7 @@ import warnings
 from typing import NoReturn, Optional
 
 from pylint import config, extensions, interfaces
+from pylint.config.callback_actions import _DoNothingAction
 from pylint.config.config_initialization import _config_initialization
 from pylint.constants import DEFAULT_PYLINT_HOME, OLD_DEFAULT_PYLINT_HOME, full_version
 from pylint.lint.pylinter import PyLinter
@@ -117,7 +118,7 @@ group are mutually exclusive.",
                 (
                     "rcfile",
                     {
-                        "action": "callback",
+                        "action": _DoNothingAction,
                         "callback": Run._return_one,
                         "group": "Commands",
                         "type": "string",
@@ -128,7 +129,7 @@ group are mutually exclusive.",
                 (
                     "output",
                     {
-                        "action": "callback",
+                        "action": _DoNothingAction,
                         "callback": Run._return_one,
                         "group": "Commands",
                         "type": "string",
@@ -139,7 +140,7 @@ group are mutually exclusive.",
                 (
                     "init-hook",
                     {
-                        "action": "callback",
+                        "action": _DoNothingAction,
                         "callback": Run._return_one,
                         "type": "string",
                         "metavar": "<code>",
