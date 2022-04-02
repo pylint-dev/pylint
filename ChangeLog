@@ -53,6 +53,9 @@ Release date: TBA
   * functions & classes which contain both a docstring and an ellipsis.
   * A body which contains an ellipsis ``nodes.Expr`` node & at least one other statement.
 
+* Only raise ``not-callable`` when all the inferred values of a property are not callable.
+
+  Closes #5931
 
 
 What's New in Pylint 2.13.4?

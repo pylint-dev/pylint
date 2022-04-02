@@ -38,6 +38,10 @@ Extensions
 Other Changes
 =============
 
+* Only raise ``not-callable`` when all the inferred values of a property are not callable.
+
+  Closes #5931
+
 * The concept of checker priority has been removed.
 
 * Fix false negative for ``no-member`` when attempting to assign an instance
