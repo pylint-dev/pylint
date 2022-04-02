@@ -7,7 +7,8 @@
 
 from typing import Any, Dict, Union
 
-from pylint.config.argument import _Argument, _StoreTrueArgument
+from pylint.config.argument import _Argument, _CallableArgument, _StoreTrueArgument
+from pylint.config.callback_actions import _CallbackAction
 
 IMPLEMENTED_OPTDICT_KEYS = {"action", "default", "type", "choices", "help", "metavar"}
 """This is used to track our progress on accepting all optdict keys."""
@@ -15,7 +16,7 @@ IMPLEMENTED_OPTDICT_KEYS = {"action", "default", "type", "choices", "help", "met
 
 def _convert_option_to_argument(
     opt: str, optdict: Dict[str, Any]
-) -> Union[_Argument, _StoreTrueArgument]:
+) -> Union[_Argument, _StoreTrueArgument, _CallableArgument]:
     """Convert an optdict to an Argument class instance."""
     # See if the optdict contains any keys we don't yet implement
     # pylint: disable-next=fixme
@@ -45,6 +46,13 @@ def _convert_option_to_argument(
             action=action,
             default=optdict["default"],
             arg_help=optdict["help"],
+        )
+    if not isinstance(action, str) and issubclass(action, _CallbackAction):
+        return _CallableArgument(
+            flags=flags,
+            action=action,
+            arg_help=optdict["help"],
+            kwargs=optdict["kwargs"],
         )
     return _Argument(
         flags=flags,
