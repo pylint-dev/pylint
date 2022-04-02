@@ -355,10 +355,10 @@ class PyLinter(
             (
                 "confidence",
                 {
-                    "type": "multiple_choice",
+                    "type": "confidence",
                     "metavar": "<levels>",
-                    "default": "",
-                    "choices": [c.name for c in interfaces.CONFIDENCE_LEVELS],
+                    "default": interfaces.CONFIDENCE_LEVEL_NAMES,
+                    "choices": interfaces.CONFIDENCE_LEVEL_NAMES,
                     "group": "Messages control",
                     "help": "Only show warnings with the listed confidence levels."
                     f" Leave empty to show all. Valid levels: {', '.join(c.name for c in interfaces.CONFIDENCE_LEVELS)}.",
