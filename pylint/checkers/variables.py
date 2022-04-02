@@ -2286,7 +2286,7 @@ class VariablesChecker(BaseChecker):
         global_names,
         nonlocal_names: Iterable[str],
         comprehension_target_names: List[str],
-    ):
+    ) -> None:
         # Ignore some special names specified by user configuration.
         if self._is_name_ignored(stmt, name):
             return
