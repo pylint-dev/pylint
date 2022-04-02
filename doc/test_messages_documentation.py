@@ -11,7 +11,7 @@ if sys.version_info[:2] >= (3, 9):
 else:
     from collections import Counter as _Counter
 
-    class Counter(_Counter):  # type: ignore
+    class Counter(_Counter):
         def total(self):
             return len(tuple(self.elements()))
 
@@ -126,9 +126,9 @@ class LintModuleTest:
         expected_messages = self._get_expected()
         actual_messages = self._get_actual()
         if self.is_good_test_file():
-            assert actual_messages.total() == 0  # type: ignore
+            assert actual_messages.total() == 0  # type: ignore[attr-defined]
         if self.is_bad_test_file():
-            assert actual_messages.total() > 0  # type: ignore
+            assert actual_messages.total() > 0  # type: ignore[attr-defined]
         assert expected_messages == actual_messages
 
 
