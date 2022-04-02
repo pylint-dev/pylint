@@ -5,7 +5,7 @@
 import functools
 import optparse  # pylint: disable=deprecated-module
 
-from pylint import config
+from pylint.config.utils import _parse_rich_type_value
 from pylint.lint import PyLinter
 from pylint.testutils.checker_test_case import CheckerTestCase
 
@@ -48,13 +48,9 @@ def set_config(**kwargs):
             # Set option via argparse
             # pylint: disable-next=fixme
             # TODO: Revisit this decorator after all checkers have switched
-            config_file_parser = config._ConfigurationFileParser(False, self.linter)
             options = []
             for key, value in kwargs.items():
-                options += [
-                    f"--{key.replace('_', '-')}",
-                    config_file_parser._parse_toml_value(value),
-                ]
+                options += [f"--{key.replace('_', '-')}", _parse_rich_type_value(value)]
             self.linter.namespace = self.linter._arg_parser.parse_known_args(
                 options, self.linter.namespace
             )[0]
