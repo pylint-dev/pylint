@@ -25,20 +25,33 @@ def _convert_option_to_argument(
             print("Unhandled key found in Argument creation:", key)  # pragma: no cover
             print("It's value is:", value)  # pragma: no cover
 
+    # Get the long and short flags
+    flags = [f"--{opt}"]
+    if "short" in optdict:
+        flags += [f"-{optdict['short']}"]
+
+    # Get the action type
     action = optdict.get("action", "store")
+
+    # pylint: disable-next=fixme
+    # TODO: Remove this handling after we have deprecated multiple-choice arguments
+    choices = optdict.get("choices", None)
+    if opt == "confidence":
+        choices = None
+
     if action == "store_true":
         return _StoreTrueArgument(
-            flags=[f"--{opt}"],
+            flags=flags,
             action=action,
             default=optdict["default"],
             arg_help=optdict["help"],
         )
     return _Argument(
-        flags=[f"--{opt}"],
+        flags=flags,
         action=action,
         default=optdict["default"],
         arg_type=optdict["type"],
-        choices=optdict.get("choices", None),
+        choices=choices,
         arg_help=optdict["help"],
         metavar=optdict["metavar"],
     )
