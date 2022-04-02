@@ -136,7 +136,7 @@ Non-string default values are assumed to be of the correct type.
 """
 
 
-class _Argument:
+class _StoreArgument:
     """Class representing an argument to be passed by an argparse.ArgumentsParser.
 
     This is based on the parameters passed to argparse.ArgumentsParser.add_message.

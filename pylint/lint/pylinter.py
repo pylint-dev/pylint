@@ -30,6 +30,7 @@ import astroid
 from astroid import AstroidError, nodes
 
 from pylint import checkers, config, exceptions, interfaces, reporters
+from pylint.config.arguments_manager import _ArgumentsManager
 from pylint.constants import (
     MAIN_CHECKER_NAME,
     MSG_STATE_CONFIDENCE,
@@ -192,7 +193,7 @@ class PyLinter(
     config.OptionsManagerMixIn,
     reporters.ReportsHandlerMixIn,
     checkers.BaseTokenChecker,
-    config._ArgumentsManager,
+    _ArgumentsManager,
 ):
     """Lint Python modules using external checkers.
 
@@ -559,7 +560,7 @@ class PyLinter(
         # TODO: Deprecate passing the pylintrc parameter
         pylintrc: Optional[str] = None,  # pylint: disable=unused-argument
     ) -> None:
-        config._ArgumentsManager.__init__(self)
+        _ArgumentsManager.__init__(self)
 
         # Some stuff has to be done before initialization of other ancestors...
         # messages store / checkers / reporter / astroid manager
