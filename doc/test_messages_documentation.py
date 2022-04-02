@@ -128,7 +128,7 @@ class LintModuleTest:
         if self.is_good_test_file():
             assert actual_messages.total() == 0  # type: ignore
         if self.is_bad_test_file():
-            assert actual_messages.total() > 0   # type: ignore
+            assert actual_messages.total() > 0  # type: ignore
         assert expected_messages == actual_messages
 
 
