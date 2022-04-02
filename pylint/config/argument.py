@@ -9,15 +9,15 @@ An Argument instance represents a pylint option to be handled by an argparse.Arg
 
 
 import re
-from typing import Callable, Dict, List, Optional, Pattern, Union
+from typing import Callable, Dict, List, Optional, Pattern, Sequence, Union
 
 from pylint import utils as pylint_utils
 
-_ArgumentTypes = Union[str, List[str], int, Pattern[str]]
+_ArgumentTypes = Union[str, Sequence[str], int, Pattern[str]]
 """List of possible argument types."""
 
 
-def _csv_transformer(value: str) -> List[str]:
+def _csv_transformer(value: str) -> Sequence[str]:
     """Transforms a comma separated string."""
     return pylint_utils._check_csv(value)
 
