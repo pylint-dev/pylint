@@ -475,7 +475,9 @@ class TestRunTC:
         self._test_output(
             [
                 f"--rcfile={config_path}",
-                "--help-msg=dummy-message-01,dummy-message-02",
+                "--help-msg",
+                "dummy-message-01",
+                "dummy-message-02",
             ],
             expected_output=expected,
         )
