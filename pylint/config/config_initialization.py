@@ -32,6 +32,13 @@ def _config_initialization(
     linter.set_current_module(config_file)
 
     # Read the configuration file
+    config_file_parser = config._ConfigurationFileParser(verbose_mode, linter)
+    try:
+        config_data = config_file_parser.parse_config_file(file_path=config_file_path)
+    except OSError as ex:
+        print(ex, file=sys.stderr)
+        sys.exit(32)
+
     try:
         # The parser is stored on linter.cfgfile_parser
         linter.read_config_file(config_file=config_file_path, verbose=verbose_mode)
@@ -39,13 +46,6 @@ def _config_initialization(
         print(ex, file=sys.stderr)
         sys.exit(32)
     config_parser = linter.cfgfile_parser
-
-    config_file_parser = config._ConfigurationFileParser(verbose_mode, linter)
-    try:
-        config_data = config_file_parser.parse_config_file(file_path=config_file_path)
-    except OSError as ex:
-        print(ex, file=sys.stderr)
-        sys.exit(32)
 
     # Run init hook, if present, before loading plugins
     if config_parser.has_option("MASTER", "init-hook"):

@@ -677,8 +677,8 @@ class StringConstantChecker(BaseTokenChecker):
     # Unicode strings.
     UNICODE_ESCAPE_CHARACTERS = "uUN"
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, linter):
+        super().__init__(linter, future_option_parsing=True)
         self.string_tokens = {}  # token position -> (token value, next token)
 
     def process_module(self, node: nodes.Module) -> None:
@@ -709,7 +709,7 @@ class StringConstantChecker(BaseTokenChecker):
                     start = (start[0], len(line[: start[1]].encode(encoding)))
                 self.string_tokens[start] = (str_eval(token), next_token)
 
-        if self.config.check_quote_consistency:
+        if self.linter.namespace.check_quote_consistency:
             self.check_for_consistent_string_delimiters(tokens)
 
     @check_messages("implicit-str-concat")
@@ -783,7 +783,7 @@ class StringConstantChecker(BaseTokenChecker):
             if matching_token != elt.value and next_token is not None:
                 if next_token.type == tokenize.STRING and (
                     next_token.start[0] == elt.lineno
-                    or self.config.check_str_concat_over_line_jumps
+                    or self.linter.namespace.check_str_concat_over_line_jumps
                 ):
                     self.add_message(
                         "implicit-str-concat", line=elt.lineno, args=(iterable_type,)

@@ -760,7 +760,7 @@ a metaclass class method.",
     )
 
     def __init__(self, linter=None):
-        super().__init__(linter)
+        super().__init__(linter, future_option_parsing=True)
         self._accessed = ScopeAccessMap()
         self._first_attrs = []
         self._meth_could_be_func = None
@@ -1019,7 +1019,7 @@ a metaclass class method.",
         # checks attributes are defined in an allowed method such as __init__
         if not self.linter.is_message_enabled("attribute-defined-outside-init"):
             return
-        defining_methods = self.config.defining_attr_methods
+        defining_methods = self.linter.namespace.defining_attr_methods
         current_module = cnode.root()
         for attr, nodes_lst in cnode.instance_attrs.items():
             # Exclude `__dict__` as it is already defined.
@@ -1630,7 +1630,7 @@ a metaclass class method.",
 
         if (
             is_attr_protected(attrname)
-            and attrname not in self.config.exclude_protected
+            and attrname not in self.linter.namespace.exclude_protected
         ):
 
             klass = node_frame_class(node)
@@ -1701,7 +1701,7 @@ a metaclass class method.",
 
                 licit_protected_member = not attrname.startswith("__")
                 if (
-                    not self.config.check_protected_access_in_special_methods
+                    not self.linter.namespace.check_protected_access_in_special_methods
                     and licit_protected_member
                     and self._is_called_inside_special_method(node)
                 ):
@@ -1856,8 +1856,9 @@ a metaclass class method.",
         if node.type == "staticmethod":
             if (
                 first_arg == "self"
-                or first_arg in self.config.valid_classmethod_first_arg
-                or first_arg in self.config.valid_metaclass_classmethod_first_arg
+                or first_arg in self.linter.namespace.valid_classmethod_first_arg
+                or first_arg
+                in self.linter.namespace.valid_metaclass_classmethod_first_arg
             ):
                 self.add_message("bad-staticmethod-argument", args=first, node=node)
                 return
@@ -1871,7 +1872,7 @@ a metaclass class method.",
             if node.type == "classmethod":
                 self._check_first_arg_config(
                     first,
-                    self.config.valid_metaclass_classmethod_first_arg,
+                    self.linter.namespace.valid_metaclass_classmethod_first_arg,
                     node,
                     "bad-mcs-classmethod-argument",
                     node.name,
@@ -1880,7 +1881,7 @@ a metaclass class method.",
             else:
                 self._check_first_arg_config(
                     first,
-                    self.config.valid_classmethod_first_arg,
+                    self.linter.namespace.valid_classmethod_first_arg,
                     node,
                     "bad-mcs-method-argument",
                     node.name,
@@ -1889,7 +1890,7 @@ a metaclass class method.",
         elif node.type == "classmethod" or node.name == "__class_getitem__":
             self._check_first_arg_config(
                 first,
-                self.config.valid_classmethod_first_arg,
+                self.linter.namespace.valid_classmethod_first_arg,
                 node,
                 "bad-classmethod-argument",
                 node.name,
