@@ -13,6 +13,7 @@ import pathlib
 import re
 from typing import Callable, Dict, List, Optional, Pattern, Sequence, Tuple, Union
 
+from pylint import interfaces
 from pylint import utils as pylint_utils
 
 _ArgumentTypes = Union[
@@ -26,6 +27,17 @@ _ArgumentTypes = Union[
     Tuple[int, ...],
 ]
 """List of possible argument types."""
+
+
+def _confidence_transformer(value: str) -> Sequence[str]:
+    """Transforms a comma separated string of confidence values."""
+    values = pylint_utils._check_csv(value)
+    for confidence in values:
+        if confidence not in interfaces.CONFIDENCE_LEVEL_NAMES:
+            raise argparse.ArgumentTypeError(
+                f"{value} should be in {*interfaces.CONFIDENCE_LEVEL_NAMES,}"
+            )
+    return values
 
 
 def _csv_transformer(value: str) -> Sequence[str]:
@@ -94,7 +106,7 @@ _TYPE_TRANSFORMERS: Dict[str, Callable[[str], _ArgumentTypes]] = {
     "csv": _csv_transformer,
     "float": float,
     "int": int,
-    "multiple_choice": _csv_transformer,
+    "confidence": _confidence_transformer,
     "non_empty_string": _non_empty_string_transformer,
     "py_version": _py_version_transformer,
     "regexp": re.compile,
