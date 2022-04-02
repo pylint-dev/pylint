@@ -200,3 +200,27 @@ def get_number(arg):
 
 
 get_number(10)()  # [not-callable]
+
+class Klass:
+    def __init__(self):
+        self._x = None
+
+    @property
+    def myproperty(self):
+        if self._x is None:
+            self._x = lambda: None
+        return self._x
+
+myobject = Klass()
+myobject.myproperty()
+
+class Klass2:
+    @property
+    def something(self):
+        if __file__.startswith('s'):
+            return str
+
+        return 'abcd'
+
+obj2 = Klass2()
+obj2.something()
