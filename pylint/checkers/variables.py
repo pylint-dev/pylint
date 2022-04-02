@@ -1090,9 +1090,6 @@ class VariablesChecker(BaseChecker):
         self._is_undefined_variable_enabled = self.linter.is_message_enabled(
             "undefined-variable"
         )
-        self._is_used_before_assignment_enabled = self.linter.is_message_enabled(
-            "used-before-assignment"
-        )
         self._is_undefined_loop_variable_enabled = self.linter.is_message_enabled(
             "undefined-loop-variable"
         )
@@ -1611,12 +1608,6 @@ class VariablesChecker(BaseChecker):
 
         if use_outer_definition:
             return (VariableVisitConsumerAction.CONTINUE, None)
-
-        if not (
-            self._is_undefined_variable_enabled
-            or self._is_used_before_assignment_enabled
-        ):
-            return (VariableVisitConsumerAction.RETURN, found_nodes)
 
         if (
             maybe_before_assign
