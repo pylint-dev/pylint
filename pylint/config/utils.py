@@ -32,3 +32,10 @@ def _convert_option_to_argument(opt: str, optdict: Dict[str, Any]) -> _Argument:
         arg_help=optdict["help"],
         metavar=optdict["metavar"],
     )
+
+
+def _parse_rich_type_value(value: Any) -> str:
+    """Parse rich (toml) types into strings."""
+    if isinstance(value, (list, tuple)):
+        return ",".join(value)
+    return str(value)
