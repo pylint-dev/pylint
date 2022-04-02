@@ -5,9 +5,14 @@
 """Arguments manager class used to handle command-line arguments and options."""
 
 import argparse
-from typing import TYPE_CHECKING, Dict, List, Union
+from typing import TYPE_CHECKING, Dict, List
 
-from pylint.config.argument import _CallableArgument, _StoreArgument, _StoreTrueArgument
+from pylint.config.argument import (
+    _Argument,
+    _CallableArgument,
+    _StoreArgument,
+    _StoreTrueArgument,
+)
 from pylint.config.exceptions import UnrecognizedArgumentAction
 from pylint.config.utils import _convert_option_to_argument
 
@@ -43,11 +48,7 @@ class _ArgumentsManager:
         # TODO: Investigate performance impact of loading default arguments on every call
         self._load_default_argument_values()
 
-    def _add_arguments_to_parser(
-        self,
-        section: str,
-        argument: Union[_StoreArgument, _StoreTrueArgument, _CallableArgument],
-    ) -> None:
+    def _add_arguments_to_parser(self, section: str, argument: _Argument) -> None:
         """Iterates over all argument sections and add them to the parser object."""
         try:
             section_group = self._argument_groups_dict[section]
@@ -58,8 +59,7 @@ class _ArgumentsManager:
 
     @staticmethod
     def _add_parser_option(
-        section_group: argparse._ArgumentGroup,
-        argument: Union[_StoreArgument, _StoreTrueArgument, _CallableArgument],
+        section_group: argparse._ArgumentGroup, argument: _Argument
     ) -> None:
         """Add an argument."""
         if isinstance(argument, _StoreArgument):
