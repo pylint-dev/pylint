@@ -368,6 +368,7 @@ class PyLinter(
                 "enable",
                 {
                     "type": "csv",
+                    "default": (),
                     "metavar": "<msg ids>",
                     "short": "e",
                     "group": "Messages control",
@@ -384,6 +385,7 @@ class PyLinter(
                 {
                     "type": "csv",
                     "metavar": "<msg ids>",
+                    "default": (),
                     "short": "d",
                     "group": "Messages control",
                     "help": "Disable the message, report, category or checker "
@@ -404,6 +406,7 @@ class PyLinter(
                 "msg-template",
                 {
                     "type": "string",
+                    "default": "",
                     "metavar": "<template>",
                     "group": "Reports",
                     "help": (
@@ -498,6 +501,8 @@ class PyLinter(
                 "exit-zero",
                 {
                     "action": "store_true",
+                    "default": False,
+                    "metavar": "<flag>",
                     "help": (
                         "Always return a 0 (non-error) status code, even if "
                         "lint errors are found. This is primarily useful in "
@@ -509,6 +514,8 @@ class PyLinter(
                 "from-stdin",
                 {
                     "action": "store_true",
+                    "default": False,
+                    "metavar": "<flag>",
                     "help": (
                         "Interpret the stdin as a python script, whose filename "
                         "needs to be passed as the module_or_package argument."
