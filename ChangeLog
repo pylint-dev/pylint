@@ -17,6 +17,7 @@ Release date: TBA
 * Removed the broken ``generate-man`` option.
 
   Closes #5283
+  Closes #1887
 
 * Add new check ``unnecessary-dunder-call`` for unnecessary dunder method calls.
 

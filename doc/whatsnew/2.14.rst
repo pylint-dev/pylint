@@ -49,6 +49,7 @@ Other Changes
 * Removed the broken ``generate-man`` option.
 
   Closes #5283
+  Closes #1887
 
 * The concept of checker priority has been removed.
 
