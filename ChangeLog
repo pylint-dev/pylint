@@ -60,6 +60,10 @@ What's New in Pylint 2.13.5?
 ============================
 Release date: TBA
 
+* Re-enable checker ``bad-docstring-quotes`` for Python <= 3.7.
+
+  Closes #6087
+
 * Fix false positive regression in 2.13.0 for ``used-before-assignment`` for
   homonyms between variable assignments in try/except blocks and variables in
   subscripts in comprehensions.
