@@ -5,9 +5,9 @@
 """Arguments manager class used to handle command-line arguments and options."""
 
 import argparse
-from typing import TYPE_CHECKING, Dict, List
+from typing import TYPE_CHECKING, Dict, List, Union
 
-from pylint.config.argument import _Argument
+from pylint.config.argument import _Argument, _StoreTrueArgument
 from pylint.config.exceptions import UnrecognizedArgumentAction
 from pylint.config.utils import _convert_option_to_argument
 
@@ -43,7 +43,9 @@ class _ArgumentsManager:
         # TODO: Investigate performance impact of loading default arguments on every call
         self._load_default_argument_values()
 
-    def _add_arguments_to_parser(self, section: str, argument: _Argument) -> None:
+    def _add_arguments_to_parser(
+        self, section: str, argument: Union[_Argument, _StoreTrueArgument]
+    ) -> None:
         """Iterates over all argument sections and add them to the parser object."""
         try:
             section_group = self._argument_groups_dict[section]
@@ -54,15 +56,25 @@ class _ArgumentsManager:
 
     @staticmethod
     def _add_parser_option(
-        section_group: argparse._ArgumentGroup, argument: _Argument
+        section_group: argparse._ArgumentGroup,
+        argument: Union[_Argument, _StoreTrueArgument],
     ) -> None:
         """Add an argument."""
-        if argument.action == "store":
+        if isinstance(argument, _Argument):
             section_group.add_argument(
                 *argument.flags,
                 action=argument.action,
                 default=argument.default,
                 type=argument.type,  # type: ignore[arg-type] # incorrect typing in typeshed
+                help=argument.help,
+                metavar=argument.metavar,
+                choices=argument.choices,
+            )
+        elif isinstance(argument, _StoreTrueArgument):
+            section_group.add_argument(
+                *argument.flags,
+                action=argument.action,
+                default=argument.default,
                 help=argument.help,
                 metavar=argument.metavar,
                 choices=argument.choices,

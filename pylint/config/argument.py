@@ -121,3 +121,47 @@ class _Argument:
         See:
         https://docs.python.org/3/library/argparse.html#metavar
         """
+
+
+class _StoreTrueArgument:
+    """Class representing a 'store_true' argument to be passed by an argparse.ArgumentsParser.
+
+    This is based on the parameters passed to argparse.ArgumentsParser.add_message.
+    See:
+    https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.add_argument
+    """
+
+    def __init__(
+        self,
+        flags: List[str],
+        action: str,
+        default: _ArgumentTypes,
+        choices: Optional[List[str]],
+        arg_help: str,
+        metavar: str,
+    ) -> None:
+        self.flags = flags
+        """The name of the argument."""
+
+        self.action = action
+        """The action to perform with the argument."""
+
+        self.default = default
+        """The default value of the argument."""
+
+        self.choices = choices
+        """A list of possible choices for the argument.
+
+        None if there are no restrictions.
+        """
+
+        # argparse uses % formatting on help strings, so a % needs to be escaped
+        self.help = arg_help.replace("%", "%%")
+        """The description of the argument."""
+
+        self.metavar = metavar
+        """The metavar of the argument.
+
+        See:
+        https://docs.python.org/3/library/argparse.html#metavar
+        """
