@@ -6,7 +6,7 @@
 
 import sys
 
-if sys.version_info.major > 3 and sys.version_info.minor > 9:
+if sys.version_info[:2] >= (3, 9):
     from collections import Counter
 else:
     from collections import Counter as _Counter
@@ -80,10 +80,10 @@ class LintModuleTest:
     def runTest(self) -> None:
         self._runTest()
 
-    def is_good_test_file(self):
+    def is_good_test_file(self) -> bool:
         return self._test_file[1].name == "good.py"
 
-    def is_bad_test_file(self):
+    def is_bad_test_file(self) -> bool:
         return self._test_file[1].name == "bad.py"
 
     @staticmethod
