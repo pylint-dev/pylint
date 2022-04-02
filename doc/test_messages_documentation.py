@@ -5,13 +5,13 @@
 """Functional tests for the code examples in the messages documentation."""
 
 import sys
+
 if sys.version_info.major > 3 and sys.version_info.minor > 9:
     from collections import Counter
 else:
     from collections import Counter as _Counter
 
     class Counter(_Counter):
-
         def total(self):
             return len(tuple(self.elements()))
 
@@ -81,11 +81,10 @@ class LintModuleTest:
         self._runTest()
 
     def is_good_test_file(self):
-        return self._test_file[1].name == 'good.py'
+        return self._test_file[1].name == "good.py"
 
     def is_bad_test_file(self):
-        return self._test_file[1].name == 'bad.py'
-
+        return self._test_file[1].name == "bad.py"
 
     @staticmethod
     def get_expected_messages(stream: TextIO) -> MessageCounter:
