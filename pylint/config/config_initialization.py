@@ -6,7 +6,7 @@ import sys
 from pathlib import Path
 from typing import TYPE_CHECKING, List, Union
 
-from pylint import reporters
+from pylint import config, reporters
 from pylint.utils import utils
 
 if TYPE_CHECKING:
@@ -32,6 +32,13 @@ def _config_initialization(
     linter.set_current_module(config_file)
 
     # Read the configuration file
+    config_file_parser = config._ConfigurationFileParser(verbose_mode, linter)
+    try:
+        config_data = config_file_parser.parse_config_file(file_path=config_file_path)
+    except OSError as ex:
+        print(ex, file=sys.stderr)
+        sys.exit(32)
+
     try:
         # The parser is stored on linter.cfgfile_parser
         linter.read_config_file(config_file=config_file_path, verbose=verbose_mode)
@@ -84,7 +91,7 @@ def _config_initialization(
     # When finished this should replace the implementation based on optparse
 
     # First we parse any options from a configuration file
-    linter._parse_configuration_file(config_parser)
+    linter._parse_configuration_file(config_data)
 
     # Second we parse any options from the command line, so they can override
     # the configuration file

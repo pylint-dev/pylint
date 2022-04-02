@@ -10,6 +10,10 @@ Release date: TBA
   Put new features here and also in 'doc/whatsnew/2.14.rst'
 
 
+* Exclude dunder calls on super() from raising ``unnecessary-dunder-call``.
+
+  Closes #6074
+
 * Add new check ``unnecessary-dunder-call`` for unnecessary dunder method calls.
 
   Closes #5936
@@ -36,6 +40,12 @@ Release date: TBA
 
 * Fix bug where specifically enabling just ``await-outside-async`` was not possible.
 
+* The ``set_config_directly`` decorator has been removed.
+
+* Added new message called ``duplicate-value`` which identifies duplicate values inside sets.
+
+  Closes #5880
+
 ..
   Insert your changelog randomly, it will reduce merge conflicts
   (Ie. not necessarily at the end)
@@ -49,6 +59,13 @@ Release date: TBA
   * functions & classes which contain both a docstring and an ellipsis.
   * A body which contains an ellipsis ``nodes.Expr`` node & at least one other statement.
 
+* Fix crash for ``redefined-slots-in-subclass`` when the type of the slot is not a const or a string.
+
+  Closes #6100
+
+* Only raise ``not-callable`` when all the inferred values of a property are not callable.
+
+  Closes #5931
 
 
 What's New in Pylint 2.13.4?

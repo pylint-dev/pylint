@@ -108,7 +108,7 @@ def colorize_ansi(
 def colorize_ansi(
     msg: str,
     msg_style: Optional[str] = None,
-    style: Optional[str] = None,
+    style: str = "",
     *,
     color: Optional[str] = None,
 ) -> str:
@@ -119,7 +119,7 @@ def colorize_ansi(
 def colorize_ansi(
     msg: str,
     msg_style: Union[MessageStyle, str, None] = None,
-    style: Optional[str] = None,
+    style: str = "",
     **kwargs: Optional[str],
 ) -> str:
     r"""colorize message by wrapping it with ansi escape codes
@@ -267,7 +267,7 @@ class ColorizedTextReporter(TextReporter):
     def __init__(
         self,
         output: Optional[TextIO] = None,
-        color_mapping: Optional[Dict[str, Tuple[Optional[str], Optional[str]]]] = None,
+        color_mapping: Optional[Dict[str, Tuple[Optional[str], str]]] = None,
     ) -> None:
         # Remove for pylint 3.0
         ...
@@ -276,7 +276,7 @@ class ColorizedTextReporter(TextReporter):
         self,
         output: Optional[TextIO] = None,
         color_mapping: Union[
-            ColorMappingDict, Dict[str, Tuple[Optional[str], Optional[str]]], None
+            ColorMappingDict, Dict[str, Tuple[Optional[str], str]], None
         ] = None,
     ) -> None:
         super().__init__(output)
@@ -292,7 +292,7 @@ class ColorizedTextReporter(TextReporter):
             temp_color_mapping: ColorMappingDict = {}
             for key, value in color_mapping.items():
                 color = value[0]
-                style_attrs = tuple(_splitstrip(value[1]))
+                style_attrs = tuple(_splitstrip(value[1]))  # type: ignore[arg-type]
                 temp_color_mapping[key] = MessageStyle(color, style_attrs)
             color_mapping = temp_color_mapping
         else:

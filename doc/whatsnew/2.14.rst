@@ -27,6 +27,10 @@ New checkers
 
   Closes #4525
 
+* Added new message called ``duplicate-value`` which identifies duplicate values inside sets.
+
+  Closes #5880
+
 Removed checkers
 ================
 
@@ -38,7 +42,13 @@ Extensions
 Other Changes
 =============
 
+* Only raise ``not-callable`` when all the inferred values of a property are not callable.
+
+  Closes #5931
+
 * The concept of checker priority has been removed.
+
+* The ``set_config_directly`` decorator has been removed.
 
 * Fix false negative for ``no-member`` when attempting to assign an instance
   attribute to itself without any prior assignment.

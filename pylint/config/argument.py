@@ -8,24 +8,71 @@ An Argument instance represents a pylint option to be handled by an argparse.Arg
 """
 
 
-from typing import Any, Callable, Dict, List, Optional, Union
+import argparse
+import re
+from typing import Callable, Dict, List, Optional, Pattern, Sequence, Union
 
 from pylint import utils as pylint_utils
 
-_ArgumentTypes = Union[str, List[str]]
+_ArgumentTypes = Union[
+    str, Sequence[str], int, Pattern[str], bool, Sequence[Pattern[str]]
+]
 """List of possible argument types."""
 
 
-def _csv_validator(value: Union[str, List[str]]) -> List[str]:
-    """Validates a comma separated string."""
+def _csv_transformer(value: str) -> Sequence[str]:
+    """Transforms a comma separated string."""
     return pylint_utils._check_csv(value)
 
 
-_ASSIGNMENT_VALIDATORS: Dict[str, Callable[[Any], _ArgumentTypes]] = {
+YES_VALUES = {"y", "yes", "true"}
+NO_VALUES = {"n", "no", "false"}
+
+
+def _yn_transformer(value: str) -> bool:
+    """Transforms a yes/no or stringified bool into a bool."""
+    value = value.lower()
+    if value in YES_VALUES:
+        return True
+    if value in NO_VALUES:
+        return False
+    raise argparse.ArgumentTypeError(
+        None, f"Invalid yn value '{value}', should be in {*YES_VALUES, *NO_VALUES}"
+    )
+
+
+def _non_empty_string_transformer(value: str) -> str:
+    """Check that a string is not empty and remove quotes."""
+    if not value:
+        raise argparse.ArgumentTypeError("Option cannot be an empty string.")
+    return pylint_utils._unquote(value)
+
+
+def _regexp_csv_transfomer(value: str) -> Sequence[Pattern[str]]:
+    """Transforms a comma separated list of regular expressions."""
+    patterns: List[Pattern[str]] = []
+    for pattern in _csv_transformer(value):
+        patterns.append(re.compile(pattern))
+    return patterns
+
+
+_TYPE_TRANSFORMERS: Dict[str, Callable[[str], _ArgumentTypes]] = {
     "choice": str,
-    "csv": _csv_validator,
+    "csv": _csv_transformer,
+    "int": int,
+    "non_empty_string": _non_empty_string_transformer,
+    "regexp": re.compile,
+    "regexp_csv": _regexp_csv_transfomer,
+    "string": str,
+    "yn": _yn_transformer,
 }
-"""Validators for all assignment types."""
+"""Type transformers for all argument types.
+
+A transformer should accept a string and return one of the supported
+Argument types. It will only be called when parsing 1) command-line,
+2) configuration files and 3) a string default value.
+Non-string default values are assumed to be of the correct type.
+"""
 
 
 class _Argument:
@@ -52,10 +99,10 @@ class _Argument:
         self.action = action
         """The action to perform with the argument."""
 
-        self.type = _ASSIGNMENT_VALIDATORS[arg_type]
-        """A validator function that returns and checks the type of the argument."""
+        self.type = _TYPE_TRANSFORMERS[arg_type]
+        """A transformer function that returns a transformed type of the argument."""
 
-        self.default = self.type(default)
+        self.default = default
         """The default value of the argument."""
 
         self.choices = choices
