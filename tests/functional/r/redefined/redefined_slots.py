@@ -1,6 +1,6 @@
 """Checks that a subclass does not redefine a slot which has been defined in a parent class."""
 
-# pylint: disable=too-few-public-methods
+# pylint: disable=too-few-public-methods, invalid-slots-object
 
 from collections import deque
 
