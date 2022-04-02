@@ -108,13 +108,8 @@ html_theme = "furo"
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-# TO-DO: Disable thme options too see how Furo themes look in default config
-# html_theme_options = {
-#     "collapsiblesidebar": True,
-#     "issues_url": "https://github.com/pycqa/pylint/issues/new",
-#     "root_name": "PyCQA",
-#     "root_url": "https://meta.pycqa.org/en/latest/",
-# }
+# Currently we use the default Furo configuration
+# html_theme_options = {}
 
 # Add any paths that contain custom themes here, relative to this directory.
 # html_theme_path = []
@@ -147,10 +142,8 @@ html_last_updated_fmt = "%b %d, %Y"
 smartquotes = False
 
 # Custom sidebar templates, maps document names to template names.
-# Use Default Furo Sidebar
-# html_sidebars = {
-#     "**": ["localtoc.html", "globaltoc.html", "relations.html", "sourcelink.html"]
-# }
+# Currently we use the default Furo Sidebar
+# html_sidebars = {}
 
 # Additional templates that should be rendered to pages, maps page names to
 # template names.
