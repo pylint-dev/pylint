@@ -22,7 +22,7 @@ class _ArgumentsManager:
         self.namespace = argparse.Namespace()
         """Namespace for all options."""
 
-        self._arg_parser = argparse.ArgumentParser(prog="pylint")
+        self._arg_parser = argparse.ArgumentParser(prog="pylint", allow_abbrev=False)
         """The command line argument parser."""
 
         self._argument_groups_dict: Dict[str, argparse._ArgumentGroup] = {}
