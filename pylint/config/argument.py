@@ -39,10 +39,18 @@ def _yn_transformer(value: str) -> bool:
     )
 
 
+def _non_empty_string_transformer(value: str) -> str:
+    """Check that a string is not empty and remove quotes."""
+    if not value:
+        raise argparse.ArgumentTypeError("Option cannot be an empty string.")
+    return pylint_utils._unquote(value)
+
+
 _TYPE_TRANSFORMERS: Dict[str, Callable[[str], _ArgumentTypes]] = {
     "choice": str,
     "csv": _csv_transformer,
     "int": int,
+    "non_empty_string": _non_empty_string_transformer,
     "regexp": re.compile,
     "string": str,
     "yn": _yn_transformer,
