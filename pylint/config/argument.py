@@ -2,20 +2,28 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-"""Definition of an Argument class and validators for various argument types.
+"""Definition of an Argument class and transformers for various argument types.
 
 An Argument instance represents a pylint option to be handled by an argparse.ArgumentParser
 """
 
 
 import argparse
+import pathlib
 import re
-from typing import Callable, Dict, List, Optional, Pattern, Sequence, Union
+from typing import Callable, Dict, List, Optional, Pattern, Sequence, Tuple, Union
 
 from pylint import utils as pylint_utils
 
 _ArgumentTypes = Union[
-    str, Sequence[str], int, Pattern[str], bool, Sequence[Pattern[str]]
+    str,
+    int,
+    float,
+    bool,
+    Pattern[str],
+    Sequence[str],
+    Sequence[Pattern[str]],
+    Tuple[int, ...],
 ]
 """List of possible argument types."""
 
@@ -48,6 +56,17 @@ def _non_empty_string_transformer(value: str) -> str:
     return pylint_utils._unquote(value)
 
 
+def _py_version_transformer(value: str) -> Tuple[int, ...]:
+    """Transforms a version string into a version tuple."""
+    try:
+        version = tuple(int(val) for val in value.split("."))
+    except ValueError:
+        raise argparse.ArgumentTypeError(
+            f"{value} has an invalid format, should be a version string. E.g., '3.8'"
+        ) from None
+    return version
+
+
 def _regexp_csv_transfomer(value: str) -> Sequence[Pattern[str]]:
     """Transforms a comma separated list of regular expressions."""
     patterns: List[Pattern[str]] = []
@@ -56,14 +75,32 @@ def _regexp_csv_transfomer(value: str) -> Sequence[Pattern[str]]:
     return patterns
 
 
+def _regexp_paths_csv_transfomer(value: str) -> Sequence[Pattern[str]]:
+    """Transforms a comma separated list of regular expressions paths."""
+    patterns: List[Pattern[str]] = []
+    for pattern in _csv_transformer(value):
+        patterns.append(
+            re.compile(
+                str(pathlib.PureWindowsPath(pattern)).replace("\\", "\\\\")
+                + "|"
+                + pathlib.PureWindowsPath(pattern).as_posix()
+            )
+        )
+    return patterns
+
+
 _TYPE_TRANSFORMERS: Dict[str, Callable[[str], _ArgumentTypes]] = {
     "choice": str,
     "csv": _csv_transformer,
+    "float": float,
     "int": int,
+    "multiple_choice": _csv_transformer,
     "non_empty_string": _non_empty_string_transformer,
+    "py_version": _py_version_transformer,
     "regexp": re.compile,
     "regexp_csv": _regexp_csv_transfomer,
-    "string": str,
+    "regexp_paths_csv": _regexp_paths_csv_transfomer,
+    "string": pylint_utils._unquote,
     "yn": _yn_transformer,
 }
 """Type transformers for all argument types.
