@@ -629,8 +629,8 @@ scope_type : {self._atomic.scope_type}
         ):
             return found_nodes
 
-        # And is not part of a test in a filtered comprehension
-        if VariablesChecker._has_homonym_in_comprehension_test(node):
+        # And no comprehension is under the node's frame
+        if VariablesChecker._comprehension_between_frame_and_node(node):
             return found_nodes
 
         # Filter out assignments in ExceptHandlers that node is not contained in
@@ -1281,8 +1281,23 @@ class VariablesChecker(BaseChecker):
 
         global_names = _flattened_scope_names(node.nodes_of_class(nodes.Global))
         nonlocal_names = _flattened_scope_names(node.nodes_of_class(nodes.Nonlocal))
+        comprehension_target_names: List[str] = []
+
+        for comprehension_scope in node.nodes_of_class(nodes.ComprehensionScope):
+            for generator in comprehension_scope.generators:
+                self._find_assigned_names_recursive(
+                    generator.target, comprehension_target_names
+                )
+
         for name, stmts in not_consumed.items():
-            self._check_is_unused(name, node, stmts[0], global_names, nonlocal_names)
+            self._check_is_unused(
+                name,
+                node,
+                stmts[0],
+                global_names,
+                nonlocal_names,
+                comprehension_target_names,
+            )
 
     visit_asyncfunctiondef = visit_functiondef
     leave_asyncfunctiondef = leave_functiondef
@@ -1410,7 +1425,7 @@ class VariablesChecker(BaseChecker):
                 continue
 
             action, nodes_to_consume = self._check_consumer(
-                node, stmt, frame, current_consumer, i, base_scope_type
+                node, stmt, frame, current_consumer, base_scope_type
             )
             if nodes_to_consume:
                 # Any nodes added to consumed_uncertain by get_next_to_consume()
@@ -1481,6 +1496,20 @@ class VariablesChecker(BaseChecker):
 
         return False
 
+    def _find_assigned_names_recursive(
+        self,
+        target: Union[nodes.AssignName, nodes.BaseContainer],
+        target_names: List[str],
+    ) -> None:
+        """Update `target_names` in place with the names of assignment
+        targets, recursively (to account for nested assignments).
+        """
+        if isinstance(target, nodes.AssignName):
+            target_names.append(target.name)
+        elif isinstance(target, nodes.BaseContainer):
+            for elt in target.elts:
+                self._find_assigned_names_recursive(elt, target_names)
+
     # pylint: disable=too-many-return-statements
     def _check_consumer(
         self,
@@ -1488,30 +1517,16 @@ class VariablesChecker(BaseChecker):
         stmt: nodes.NodeNG,
         frame: nodes.LocalsDictNodeNG,
         current_consumer: NamesConsumer,
-        consumer_level: int,
         base_scope_type: Any,
     ) -> Tuple[VariableVisitConsumerAction, Optional[List[nodes.NodeNG]]]:
         """Checks a consumer for conditions that should trigger messages."""
         # If the name has already been consumed, only check it's not a loop
         # variable used outside the loop.
-        # Avoid the case where there are homonyms inside function scope and
-        # comprehension current scope (avoid bug #1731)
         if node.name in current_consumer.consumed:
-            if utils.is_func_decorator(current_consumer.node) or not (
-                current_consumer.scope_type == "comprehension"
-                and self._has_homonym_in_upper_function_scope(node, consumer_level)
-                # But don't catch homonyms against the filter of a comprehension,
-                # (like "if x" in "[x for x in expr() if x]")
-                # https://github.com/PyCQA/pylint/issues/5586
-                and not (
-                    self._has_homonym_in_comprehension_test(node)
-                    # Or homonyms against values to keyword arguments
-                    # (like "var" in "[func(arg=var) for var in expr()]")
-                    or (
-                        isinstance(node.scope(), nodes.ComprehensionScope)
-                        and isinstance(node.parent, (nodes.Call, nodes.Keyword))
-                    )
-                )
+            # Avoid the case where there are homonyms inside function scope and
+            # comprehension current scope (avoid bug #1731)
+            if utils.is_func_decorator(current_consumer.node) or not isinstance(
+                node, nodes.ComprehensionScope
             ):
                 self._check_late_binding_closure(node)
                 self._loopvar_name(node)
@@ -2264,8 +2279,14 @@ class VariablesChecker(BaseChecker):
                 self.add_message("undefined-loop-variable", args=node.name, node=node)
 
     def _check_is_unused(
-        self, name, node, stmt, global_names, nonlocal_names: Iterable[str]
-    ):
+        self,
+        name,
+        node,
+        stmt,
+        global_names,
+        nonlocal_names: Iterable[str],
+        comprehension_target_names: List[str],
+    ) -> None:
         # Ignore some special names specified by user configuration.
         if self._is_name_ignored(stmt, name):
             return
@@ -2287,7 +2308,8 @@ class VariablesChecker(BaseChecker):
         argnames = node.argnames()
         # Care about functions with unknown argument (builtins)
         if name in argnames:
-            self._check_unused_arguments(name, node, stmt, argnames, nonlocal_names)
+            if name not in comprehension_target_names:
+                self._check_unused_arguments(name, node, stmt, argnames, nonlocal_names)
         else:
             if stmt.parent and isinstance(
                 stmt.parent, (nodes.Assign, nodes.AnnAssign, nodes.Tuple)
@@ -2460,46 +2482,15 @@ class VariablesChecker(BaseChecker):
     def _allowed_redefined_builtin(self, name):
         return name in self.config.allowed_redefined_builtins
 
-    def _has_homonym_in_upper_function_scope(
-        self, node: nodes.Name, index: int
-    ) -> bool:
-        """Return whether there is a node with the same name in the
-        to_consume dict of an upper scope and if that scope is a function
-
-        :param node: node to check for
-        :param index: index of the current consumer inside self._to_consume
-        :return: True if there is a node with the same name in the
-                 to_consume dict of an upper scope and if that scope
-                 is a function, False otherwise
-        """
-        return any(
-            _consumer.scope_type == "function" and node.name in _consumer.to_consume
-            for _consumer in self._to_consume[index - 1 :: -1]
-        )
-
     @staticmethod
-    def _has_homonym_in_comprehension_test(node: nodes.Name) -> bool:
-        """Return True if `node`'s frame contains a comprehension employing an
-        identical name in a test.
-
-        The name in the test could appear at varying depths:
-
-        Examples:
-            [x for x in range(3) if name]
-            [x for x in range(3) if name.num == 1]
-            [x for x in range(3)] if call(name.num)]
-        """
-        closest_comprehension = utils.get_node_first_ancestor_of_type(
-            node, nodes.Comprehension
+    def _comprehension_between_frame_and_node(node: nodes.Name) -> bool:
+        """Return True if a ComprehensionScope intervenes between `node` and its frame."""
+        closest_comprehension_scope = utils.get_node_first_ancestor_of_type(
+            node, nodes.ComprehensionScope
         )
-        return (
-            closest_comprehension is not None
-            and node.frame(future=True).parent_of(closest_comprehension)
-            and any(
-                test is node or test.parent_of(node)
-                for test in closest_comprehension.ifs
-            )
-        )
+        return closest_comprehension_scope is not None and node.frame(
+            future=True
+        ).parent_of(closest_comprehension_scope)
 
     def _store_type_annotation_node(self, type_annotation):
         """Given a type annotation, store all the name nodes it refers to."""
