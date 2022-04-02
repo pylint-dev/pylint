@@ -24,6 +24,10 @@ Release date: TBA
   * functions & classes which contain both a docstring and an ellipsis.
   * A body which contains an ellipsis ``nodes.Expr`` node & at least one other statement.
 
+* Fix crash for ``redefined-slots-in-subclass`` when the type of the slot is not a const or a string.
+
+  Closes #6100
+
 * Only raise ``not-callable`` when all the inferred values of a property are not callable.
 
   Closes #5931
