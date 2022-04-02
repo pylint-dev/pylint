@@ -4,9 +4,10 @@
 
 from typing import TYPE_CHECKING
 
-from astroid import nodes
+from astroid import Instance, nodes
 
 from pylint.checkers import BaseChecker
+from pylint.checkers.utils import safe_infer
 from pylint.interfaces import HIGH, IAstroidChecker
 
 if TYPE_CHECKING:
@@ -24,8 +25,9 @@ class DunderCallChecker(BaseChecker):
     since these either have no alternative method of being called or
     have a genuine use case for being called manually.
 
-    Additionally we exclude dunder method calls on super() since
-    these can't be written in an alternative manner.
+    Additionally we exclude dunder method calls on super()
+    and uninstantiated classes since these can't be
+    written in an alternative manner.
     """
 
     __implements__ = IAstroidChecker
@@ -141,18 +143,19 @@ class DunderCallChecker(BaseChecker):
         if (
             isinstance(node.func, nodes.Attribute)
             and node.func.attrname in self.includedict
-            and not (
-                isinstance(node.func.expr, nodes.Call)
-                and isinstance(node.func.expr.func, nodes.Name)
-                and node.func.expr.func.name == "super"
-            )
         ):
+            inf_expr = safe_infer(node.func.expr)
+            if inf_expr is not None and not isinstance(inf_expr, Instance):
+                # Skip dunder calls to uninstantiated classes and super().
+                return None
+
             self.add_message(
                 "unnecessary-dunder-call",
                 node=node,
                 args=(node.func.attrname, self.includedict[node.func.attrname]),
                 confidence=HIGH,
             )
+        return None
 
 
 def register(linter: "PyLinter") -> None:

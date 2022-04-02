@@ -1,6 +1,7 @@
 """Checks for unnecessary-dunder-call."""
 # pylint: disable=too-few-public-methods, undefined-variable, useless-object-inheritance
 # pylint: disable=missing-class-docstring, missing-function-docstring
+from collections import OrderedDict
 
 # Test includelisted dunder methods raise lint when manually called.
 num_str = some_num.__str__() # [unnecessary-dunder-call]
@@ -55,3 +56,17 @@ class MyClass(list):
 # But still flag them in other contexts
 MY_TEST_BAD = {1, 2, 3}.__contains__(1) # [unnecessary-dunder-call]
 MY_TEST_GOOD = 1 in {1, 2, 3}
+
+# Allow use of dunder methods on uninstantiated classes
+MANUAL_SELF = int.__add__(1, 1)
+
+class CustomDict(OrderedDict):
+    def __init__(self, *args, **kwds):
+        OrderedDict.__init__(self, *args, **kwds)
+
+    def __setitem__(self, key, value):
+        OrderedDict.__setitem__(self, key, value)
+
+# Still flag instantiated classes
+INSTANTIATED_SELF = int("1").__add__(1) # [unnecessary-dunder-call]
+OrderedDict().__setitem__("key", "value") # [unnecessary-dunder-call]

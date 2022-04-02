@@ -1,4 +1,5 @@
-unnecessary-dunder-call:6:10:6:28::Unnecessarily calls dunder method __str__. Use str built-in function.:HIGH
-unnecessary-dunder-call:7:11:7:30::Unnecessarily calls dunder method __add__. Use + operator.:HIGH
-unnecessary-dunder-call:8:10:8:40::Unnecessarily calls dunder method __repr__. Use repr built-in function.:HIGH
-unnecessary-dunder-call:56:14:56:39::Unnecessarily calls dunder method __contains__. Use in keyword.:HIGH
+unnecessary-dunder-call:7:10:7:28::Unnecessarily calls dunder method __str__. Use str built-in function.:HIGH
+unnecessary-dunder-call:8:11:8:30::Unnecessarily calls dunder method __add__. Use + operator.:HIGH
+unnecessary-dunder-call:9:10:9:40::Unnecessarily calls dunder method __repr__. Use repr built-in function.:HIGH
+unnecessary-dunder-call:57:14:57:39::Unnecessarily calls dunder method __contains__. Use in keyword.:HIGH
+unnecessary-dunder-call:71:0:71:41::Unnecessarily calls dunder method __setitem__. Set item via subscript.:HIGH
