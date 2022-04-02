@@ -7,7 +7,7 @@
 from collections import Counter
 from pathlib import Path
 from typing import Counter as CounterType
-from typing import List, TextIO, Tuple
+from typing import List, Optional, TextIO, Tuple
 
 import pytest
 
@@ -53,7 +53,13 @@ class LintModuleTest:
         self._linter.config.persistent = 0
         checkers.initialize(self._linter)
 
-        config_file = next(config.find_default_config_files(), None)
+        # Check if this message has a custom configuration file (e.g. for enabling optional checkers).
+        # If not, use the default configuration.
+        config_file: Optional[Path]
+        if (test_file[1].parent / "pylintrc").exists():
+            config_file = test_file[1].parent / "pylintrc"
+        else:
+            config_file = next(config.find_default_config_files(), None)
 
         _config_initialization(
             self._linter,
