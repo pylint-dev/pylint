@@ -1281,21 +1281,13 @@ class VariablesChecker(BaseChecker):
 
         global_names = _flattened_scope_names(node.nodes_of_class(nodes.Global))
         nonlocal_names = _flattened_scope_names(node.nodes_of_class(nodes.Nonlocal))
-        comprehension_target_names = []
-
-        def find_assigned_names_recursive(
-            target: Union[nodes.AssignName, nodes.BaseContainer]
-        ):
-            nonlocal comprehension_target_names
-            if isinstance(target, nodes.AssignName):
-                comprehension_target_names.append(target.name)
-            elif isinstance(target, nodes.BaseContainer):
-                for elt in target.elts:
-                    find_assigned_names_recursive(elt)
+        comprehension_target_names: List[str] = []
 
         for comprehension_scope in node.nodes_of_class(nodes.ComprehensionScope):
             for generator in comprehension_scope.generators:
-                find_assigned_names_recursive(generator.target)
+                self._find_assigned_names_recursive(
+                    generator.target, comprehension_target_names
+                )
 
         for name, stmts in not_consumed.items():
             self._check_is_unused(
@@ -1503,6 +1495,20 @@ class VariablesChecker(BaseChecker):
             return True
 
         return False
+
+    def _find_assigned_names_recursive(
+        self,
+        target: Union[nodes.AssignName, nodes.BaseContainer],
+        target_names: List[str],
+    ) -> None:
+        """Update `target_names` in place with the names of assignment
+        targets, recursively (to account for nested assignments).
+        """
+        if isinstance(target, nodes.AssignName):
+            target_names.append(target.name)
+        elif isinstance(target, nodes.BaseContainer):
+            for elt in target.elts:
+                self._find_assigned_names_recursive(elt, target_names)
 
     # pylint: disable=too-many-return-statements
     def _check_consumer(
@@ -2279,7 +2285,7 @@ class VariablesChecker(BaseChecker):
         stmt,
         global_names,
         nonlocal_names: Iterable[str],
-        comprehension_target_names: Iterable[str],
+        comprehension_target_names: List[str],
     ):
         # Ignore some special names specified by user configuration.
         if self._is_name_ignored(stmt, name):
