@@ -49,8 +49,8 @@ class BaseChecker(OptionsProviderMixIn):
         """
         if self.name is not None:
             self.name = self.name.lower()
-        super().__init__()
         self.linter = linter
+        super().__init__()
 
         if future_option_parsing:
             # We need a PyLinter object that subclasses _ArgumentsManager to register options
