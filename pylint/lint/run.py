@@ -101,9 +101,13 @@ group are mutually exclusive.",
         exit=True,
         do_exit=UNUSED_PARAM_SENTINEL,
     ):  # pylint: disable=redefined-builtin
+        # Immediately exit if user asks for version
+        if "--version" in args:
+            print(full_version)
+            sys.exit(0)
+
         self._rcfile: Optional[str] = None
         self._output = None
-        self._version_asked = False
         self._plugins = []
         self.verbose = None
         try:
@@ -111,7 +115,6 @@ group are mutually exclusive.",
                 args,
                 {
                     # option: (callback, takearg)
-                    "version": (self.version_asked, False),
                     "init-hook": (cb_init_hook, True),
                     "rcfile": (self.cb_set_rcfile, True),
                     "load-plugins": (self.cb_add_plugins, True),
@@ -301,9 +304,6 @@ group are mutually exclusive.",
             pylintrc=self._rcfile,
         )
         # register standard checkers
-        if self._version_asked:
-            print(full_version)
-            sys.exit(0)
         linter.load_default_plugins()
         # load command line plugins
         linter.load_plugin_modules(self._plugins)
@@ -412,10 +412,6 @@ to search for configuration file.
                     sys.exit(self.linter.msg_status or 1)
             else:
                 sys.exit(self.linter.msg_status)
-
-    def version_asked(self, _, __):
-        """Callback for version (i.e. before option parsing)."""
-        self._version_asked = True
 
     def cb_set_rcfile(self, name: Literal["rcfile"], value: str) -> None:
         """Callback for option preprocessing (i.e. before option parsing)."""
