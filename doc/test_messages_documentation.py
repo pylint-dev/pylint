@@ -4,7 +4,18 @@
 
 """Functional tests for the code examples in the messages documentation."""
 
-from collections import Counter
+import sys
+if sys.version_info.major > 3 and sys.version_info.minor > 9:
+    from collections import Counter
+else:
+    from collections import Counter as _Counter
+
+    class Counter(_Counter):
+
+        def total(self):
+            return len(tuple(self.elements()))
+
+
 from pathlib import Path
 from typing import Counter as CounterType
 from typing import List, TextIO, Tuple
@@ -69,6 +80,13 @@ class LintModuleTest:
     def runTest(self) -> None:
         self._runTest()
 
+    def is_good_test_file(self):
+        return self._test_file[1].name == 'good.py'
+
+    def is_bad_test_file(self):
+        return self._test_file[1].name == 'bad.py'
+
+
     @staticmethod
     def get_expected_messages(stream: TextIO) -> MessageCounter:
         """Parse a file and get expected messages."""
@@ -108,6 +126,10 @@ class LintModuleTest:
         self._linter.check([str(self._test_file[1])])
         expected_messages = self._get_expected()
         actual_messages = self._get_actual()
+        if self.is_good_test_file():
+            assert actual_messages.total() == 0
+        if self.is_bad_test_file():
+            assert actual_messages.total() > 0
         assert expected_messages == actual_messages
 
 
