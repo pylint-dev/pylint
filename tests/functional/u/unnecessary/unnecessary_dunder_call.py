@@ -11,6 +11,10 @@ my_repr = my_module.my_object.__repr__() # [unnecessary-dunder-call]
 # Test unknown/user-defined dunder methods don't raise lint.
 my_woohoo = my_object.__woohoo__()
 
+# Test lint raised within function.
+def is_bigger_than_two(val):
+    return val.__gt__(2)  # [unnecessary-dunder-call]
+
 # Test allowed dunder methods don't raise lint.
 class Foo1(object):
     def __init__(self):

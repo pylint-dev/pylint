@@ -4,7 +4,7 @@
 
 from typing import TYPE_CHECKING
 
-from astroid import Instance, nodes
+from astroid import Instance, Uninferable, nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import safe_infer
@@ -145,7 +145,9 @@ class DunderCallChecker(BaseChecker):
             and node.func.attrname in self.includedict
         ):
             inf_expr = safe_infer(node.func.expr)
-            if inf_expr is not None and not isinstance(inf_expr, Instance):
+            if inf_expr not in (None, Uninferable) and not isinstance(
+                inf_expr, Instance
+            ):
                 # Skip dunder calls to uninstantiated classes and super().
                 return None
 
