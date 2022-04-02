@@ -7,13 +7,13 @@
 
 from typing import Any, Dict, Union
 
-from pylint.config.argument import _Argument, _CallableArgument, _StoreTrueArgument
+from pylint.config.argument import _CallableArgument, _StoreArgument, _StoreTrueArgument
 from pylint.config.callback_actions import _CallbackAction
 
 
 def _convert_option_to_argument(
     opt: str, optdict: Dict[str, Any]
-) -> Union[_Argument, _StoreTrueArgument, _CallableArgument]:
+) -> Union[_StoreArgument, _StoreTrueArgument, _CallableArgument]:
     """Convert an optdict to an Argument class instance."""
     # pylint: disable-next=fixme
     # TODO: Do something with the 'group', 'level' and 'hide' keys of optdicts
@@ -49,7 +49,7 @@ def _convert_option_to_argument(
             arg_help=optdict["help"],
             kwargs=optdict["kwargs"],
         )
-    return _Argument(
+    return _StoreArgument(
         flags=flags,
         action=action,
         default=optdict["default"],
