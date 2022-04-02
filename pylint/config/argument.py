@@ -14,7 +14,9 @@ from typing import Callable, Dict, List, Optional, Pattern, Sequence, Union
 
 from pylint import utils as pylint_utils
 
-_ArgumentTypes = Union[str, Sequence[str], int, Pattern[str], bool]
+_ArgumentTypes = Union[
+    str, Sequence[str], int, Pattern[str], bool, Sequence[Pattern[str]]
+]
 """List of possible argument types."""
 
 
@@ -39,11 +41,20 @@ def _yn_transformer(value: str) -> bool:
     )
 
 
+def _regexp_csv_transfomer(value: str) -> Sequence[Pattern[str]]:
+    """Transforms a comma separated list of regular expressions."""
+    patterns: List[Pattern[str]] = []
+    for pattern in _csv_transformer(value):
+        patterns.append(re.compile(pattern))
+    return patterns
+
+
 _TYPE_TRANSFORMERS: Dict[str, Callable[[str], _ArgumentTypes]] = {
     "choice": str,
     "csv": _csv_transformer,
     "int": int,
     "regexp": re.compile,
+    "regexp_csv": _regexp_csv_transfomer,
     "string": str,
     "yn": _yn_transformer,
 }
