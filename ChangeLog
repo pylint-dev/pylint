@@ -40,6 +40,8 @@ Release date: TBA
 
 * Fix bug where specifically enabling just ``await-outside-async`` was not possible.
 
+* The ``set_config_directly`` decorator has been removed.
+
 * Added new message called ``duplicate-value`` which identifies duplicate values inside sets.
 
   Closes #5880
