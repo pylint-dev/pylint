@@ -1380,8 +1380,9 @@ a metaclass class method.",
                 slots_names.append(slot.value)
             else:
                 inferred_slot = safe_infer(slot)
-                if isinstance(inferred_slot, str):
-                    slots_names.append(inferred_slot.value)
+                inferred_slot_value = getattr(inferred_slot, "value", None)
+                if isinstance(inferred_slot_value, str):
+                    slots_names.append(inferred_slot_value)
 
         # Slots of all parent classes
         ancestors_slots_names = {
