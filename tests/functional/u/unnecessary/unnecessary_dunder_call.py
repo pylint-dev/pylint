@@ -53,5 +53,5 @@ class MyClass(list):
         return super().__contains__(item)
 
 # But still flag them in other contexts
-my_test_bad = {1, 2, 3}.__contains__(1) # [unnecessary-dunder-call]
-my_test_good = 1 in {1, 2, 3}
+MY_TEST_BAD = {1, 2, 3}.__contains__(1) # [unnecessary-dunder-call]
+MY_TEST_GOOD = 1 in {1, 2, 3}
