@@ -673,10 +673,8 @@ class FormatChecker(BaseTokenChecker):
     def specific_splitlines(lines: str) -> List[str]:
         """Split lines according to universal newlines except those in a specific sets."""
         unsplit_ends = {
-            "\v",
-            "\x0b",
-            "\f",
-            "\x0c",
+            "\x0b",  # synonym of \v
+            "\x0c",  # synonym of \f
             "\x1c",
             "\x1d",
             "\x1e",
