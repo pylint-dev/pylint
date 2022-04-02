@@ -5,6 +5,7 @@
 """Utils for arguments/options parsing and handling."""
 
 
+import warnings
 from typing import Any, Dict, Union
 
 from pylint.config.argument import _CallableArgument, _StoreArgument, _StoreTrueArgument
@@ -15,8 +16,14 @@ def _convert_option_to_argument(
     opt: str, optdict: Dict[str, Any]
 ) -> Union[_StoreArgument, _StoreTrueArgument, _CallableArgument]:
     """Convert an optdict to an Argument class instance."""
+    if "level" in optdict and "hide" not in optdict:
+        warnings.warn(
+            "The 'level' key in optdicts has been deprecated. "
+            "Use 'hide' with a boolean to hide an option from the help message.",
+            DeprecationWarning,
+        )
     # pylint: disable-next=fixme
-    # TODO: Do something with the 'group', 'level' and 'hide' keys of optdicts
+    # TODO: Do something with the 'group' keys of optdicts
 
     # pylint: disable-next=fixme
     # TODO: Do something with the 'dest' key and deprecation of options
@@ -41,6 +48,7 @@ def _convert_option_to_argument(
             action=action,
             default=optdict["default"],
             arg_help=optdict["help"],
+            hide_help=optdict.get("hide", False),
         )
     if not isinstance(action, str) and issubclass(action, _CallbackAction):
         return _CallableArgument(
@@ -48,6 +56,7 @@ def _convert_option_to_argument(
             action=action,
             arg_help=optdict["help"],
             kwargs=optdict["kwargs"],
+            hide_help=optdict.get("hide", False),
         )
     return _StoreArgument(
         flags=flags,
@@ -57,6 +66,7 @@ def _convert_option_to_argument(
         choices=choices,
         arg_help=optdict["help"],
         metavar=optdict["metavar"],
+        hide_help=optdict.get("hide", False),
     )
 
 

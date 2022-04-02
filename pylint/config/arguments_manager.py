@@ -14,6 +14,7 @@ from pylint.config.argument import (
     _StoreTrueArgument,
 )
 from pylint.config.exceptions import UnrecognizedArgumentAction
+from pylint.config.help_formatter import _HelpFormatter
 from pylint.config.utils import _convert_option_to_argument
 
 if TYPE_CHECKING:
@@ -27,7 +28,12 @@ class _ArgumentsManager:
         self.namespace = argparse.Namespace()
         """Namespace for all options."""
 
-        self._arg_parser = argparse.ArgumentParser(prog="pylint", allow_abbrev=False)
+        self._arg_parser = argparse.ArgumentParser(
+            prog="pylint",
+            usage="%(prog)s [options]",
+            allow_abbrev=False,
+            formatter_class=_HelpFormatter,
+        )
         """The command line argument parser."""
 
         self._argument_groups_dict: Dict[str, argparse._ArgumentGroup] = {}

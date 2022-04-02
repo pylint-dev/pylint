@@ -331,15 +331,6 @@ class OptionsManagerMixIn:
                     setattr(config, attr, value)
             return args
 
-    def add_help_section(self, title, description, level=0):
-        """Add a dummy option section for help purpose."""
-        group = optparse.OptionGroup(
-            self.cmdline_parser, title=title.capitalize(), description=description
-        )
-        group.level = level
-        self._maxlevel = max(self._maxlevel, level)
-        self.cmdline_parser.add_option_group(group)
-
     def help(self, level=0):
         """Return the usage string for available options."""
         self.cmdline_parser.formatter.output_level = level

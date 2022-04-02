@@ -100,7 +100,7 @@ def _config_initialization(
     # args_list should now only be a list of files/directories to lint. All options have
     # been removed from the list
     if not parsed_args_list:
-        print(linter.help())
+        linter._arg_parser.print_help()
         sys.exit(32)
 
     return parsed_args_list

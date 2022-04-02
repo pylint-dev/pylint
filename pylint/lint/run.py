@@ -24,7 +24,7 @@ from pylint.config.callback_actions import (
     _VerboseModeAction,
 )
 from pylint.config.config_initialization import _config_initialization
-from pylint.constants import DEFAULT_PYLINT_HOME, OLD_DEFAULT_PYLINT_HOME, full_version
+from pylint.constants import full_version
 from pylint.lint.pylinter import PyLinter
 from pylint.lint.utils import ArgumentPreprocessingError, preprocess_options
 from pylint.utils import utils
@@ -159,7 +159,6 @@ group are mutually exclusive.",
                         "action": _DoNothingAction,
                         "kwargs": {},
                         "callback": Run._not_implemented_callback,
-                        "level": 1,
                         "help": "Python code to execute, usually for sys.path "
                         "manipulation such as pygtk.require().",
                     },
@@ -182,7 +181,6 @@ group are mutually exclusive.",
                         "kwargs": {"Run": self},
                         "callback": Run._not_implemented_callback,
                         "group": "Commands",
-                        "level": 1,
                         "help": "Display a list of all pylint's messages divided by whether "
                         "they are emittable with the given interpreter.",
                     },
@@ -194,7 +192,6 @@ group are mutually exclusive.",
                         "kwargs": {"Run": self},
                         "callback": Run._not_implemented_callback,
                         "group": "Commands",
-                        "level": 1,
                         "help": "Display a list of what messages are enabled, "
                         "disabled and non-emittable with the given configuration.",
                     },
@@ -206,7 +203,6 @@ group are mutually exclusive.",
                         "kwargs": {"Run": self},
                         "callback": Run._not_implemented_callback,
                         "group": "Commands",
-                        "level": 1,
                         "help": "List pylint's message groups.",
                     },
                 ),
@@ -217,7 +213,6 @@ group are mutually exclusive.",
                         "callback": Run._not_implemented_callback,
                         "kwargs": {"Run": self},
                         "group": "Commands",
-                        "level": 1,
                         "help": "Generate pylint's confidence levels.",
                     },
                 ),
@@ -228,7 +223,6 @@ group are mutually exclusive.",
                         "kwargs": {"Run": self},
                         "callback": Run._not_implemented_callback,
                         "group": "Commands",
-                        "level": 1,
                         "help": "List available extensions.",
                     },
                 ),
@@ -239,7 +233,6 @@ group are mutually exclusive.",
                         "kwargs": {"Run": self},
                         "callback": Run._not_implemented_callback,
                         "group": "Commands",
-                        "level": 1,
                         "help": "Generate pylint's full documentation.",
                     },
                 ),
@@ -307,52 +300,7 @@ group are mutually exclusive.",
         linter.load_default_plugins()
         # load command line plugins
         linter.load_plugin_modules(self._plugins)
-        # add some help section
-        linter.add_help_section(
-            "Environment variables",
-            f"""
-The following environment variables are used:
-    * PYLINTHOME
-    Path to the directory where persistent data for the run will be stored. If
-not found, it defaults to '{DEFAULT_PYLINT_HOME}' or '{OLD_DEFAULT_PYLINT_HOME}'
-(in the current working directory).
-    * PYLINTRC
-    Path to the configuration file. See the documentation for the method used
-to search for configuration file.
-""",
-            level=1,
-        )
-        linter.add_help_section(
-            "Output",
-            "Using the default text output, the message format is :                          \n"
-            "                                                                                \n"
-            "        MESSAGE_TYPE: LINE_NUM:[OBJECT:] MESSAGE                                \n"
-            "                                                                                \n"
-            "There are 5 kind of message types :                                             \n"
-            "    * (C) convention, for programming standard violation                        \n"
-            "    * (R) refactor, for bad code smell                                          \n"
-            "    * (W) warning, for python specific problems                                 \n"
-            "    * (E) error, for probable bugs in the code                                  \n"
-            "    * (F) fatal, if an error occurred which prevented pylint from doing further\n"
-            "processing.\n",
-            level=1,
-        )
-        linter.add_help_section(
-            "Output status code",
-            "Pylint should leave with following status code:                                 \n"
-            "    * 0 if everything went fine                                                 \n"
-            "    * 1 if a fatal message was issued                                           \n"
-            "    * 2 if an error message was issued                                          \n"
-            "    * 4 if a warning message was issued                                         \n"
-            "    * 8 if a refactor message was issued                                        \n"
-            "    * 16 if a convention message was issued                                     \n"
-            "    * 32 on usage error                                                         \n"
-            "                                                                                \n"
-            "status 1 to 16 will be bit-ORed so you can know which different categories has\n"
-            "been issued by analysing pylint output status code\n",
-            level=1,
-        )
-        # read configuration
+
         linter.disable("I")
         linter.enable("c-extension-no-member")
 
