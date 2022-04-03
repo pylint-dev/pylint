@@ -104,3 +104,8 @@ dict.__setitem__(MY_DICT, "key", "value")
 # Still flag instantiated classes
 INSTANTIATED_SELF = int("1").__add__(1) # [unnecessary-dunder-call]
 {"a": 1, "b": 2}.__setitem__("key", "value") # [unnecessary-dunder-call]
+
+# We also exclude dunder methods called on super
+# since we can't apply alternate operators/functions here.
+a = [1, 2, 3]
+assert super(type(a), a).__str__() == "[1, 2, 3]"

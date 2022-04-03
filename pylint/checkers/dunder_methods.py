@@ -27,12 +27,14 @@ class DunderCallChecker(BaseChecker):
 
     Additionally we exclude uninstantiated classes since these
     might be used to access the dunder methods of a base class of an instance.
+    We also exclude dunder method calls on super() since
+    these can't be written in an alternative manner.
     """
 
     __implements__ = IAstroidChecker
 
     includedict = {
-        "__init__": "Instatiate class directly",
+        "__init__": "Instantiate class directly",
         "__del__": "Use del keyword",
         "__repr__": "Use repr built-in function",
         "__str__": "Use str built-in function",
@@ -159,6 +161,11 @@ class DunderCallChecker(BaseChecker):
             isinstance(node.func, nodes.Attribute)
             and node.func.attrname in self.includedict
             and not self.within_dunder_def(node)
+            and not (
+                isinstance(node.func.expr, nodes.Call)
+                and isinstance(node.func.expr.func, nodes.Name)
+                and node.func.expr.func.name == "super"
+            )
         ):
             inf_expr = safe_infer(node.func.expr)
             if inf_expr not in (None, Uninferable) and not isinstance(
