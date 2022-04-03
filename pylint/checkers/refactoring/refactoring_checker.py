@@ -469,8 +469,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         ),
     )
 
-    priority = 0
-
     def __init__(self, linter=None):
         super().__init__(linter)
         self._return_nodes = {}
@@ -1280,7 +1278,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             if isinstance(comparison_node, nodes.Compare):
                 _find_lower_upper_bounds(comparison_node, uses)
 
-        for _, bounds in uses.items():
+        for bounds in uses.values():
             num_shared = len(bounds["lower_bound"].intersection(bounds["upper_bound"]))
             num_lower_bounds = len(bounds["lower_bound"])
             num_upper_bounds = len(bounds["upper_bound"])
@@ -1992,6 +1990,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         if not isinstance(node.target, nodes.Tuple) or len(node.target.elts) < 2:
             # enumerate() result is being assigned without destructuring
+            return
+
+        if not isinstance(node.target.elts[1], nodes.AssignName):
+            # The value is not being assigned to a single variable, e.g. being
+            # destructured, so we can't necessarily use it.
             return
 
         iterating_object_name = node.iter.args[0].name

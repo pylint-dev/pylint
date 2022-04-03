@@ -41,16 +41,13 @@ class EllipsisChecker(BaseChecker):
         """
         if (
             node.pytype() == "builtins.Ellipsis"
-            and not isinstance(
-                node.parent,
-                (nodes.Assign, nodes.AnnAssign, nodes.Call, nodes.Arguments),
-            )
+            and isinstance(node.parent, nodes.Expr)
             and (
-                len(node.parent.parent.child_sequence(node.parent)) > 1
-                or (
+                (
                     isinstance(node.parent.parent, (nodes.ClassDef, nodes.FunctionDef))
                     and node.parent.parent.doc_node
                 )
+                or len(node.parent.parent.body) > 1
             )
         ):
             self.add_message("unnecessary-ellipsis", node=node)

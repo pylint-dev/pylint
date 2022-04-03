@@ -781,14 +781,14 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
     reports = (("RP0801", "Duplication", report_similarities),)
 
     def __init__(self, linter=None) -> None:
-        BaseChecker.__init__(self, linter)
+        BaseChecker.__init__(self, linter, future_option_parsing=True)
         Similar.__init__(
             self,
-            min_lines=self.config.min_similarity_lines,
-            ignore_comments=self.config.ignore_comments,
-            ignore_docstrings=self.config.ignore_docstrings,
-            ignore_imports=self.config.ignore_imports,
-            ignore_signatures=self.config.ignore_signatures,
+            min_lines=self.linter.namespace.min_similarity_lines,
+            ignore_comments=self.linter.namespace.ignore_comments,
+            ignore_docstrings=self.linter.namespace.ignore_docstrings,
+            ignore_imports=self.linter.namespace.ignore_imports,
+            ignore_signatures=self.linter.namespace.ignore_signatures,
         )
 
     def set_option(self, optname, value, action=None, optdict=None):
@@ -796,17 +796,34 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
 
         Overridden to report options setting to Similar
         """
+        # pylint: disable-next=fixme
+        # TODO: Refactor after OptionProvider has been moved to argparse
         BaseChecker.set_option(self, optname, value, action, optdict)
         if optname == "min-similarity-lines":
-            self.min_lines = self.config.min_similarity_lines
+            self.min_lines = (
+                getattr(self.linter.namespace, "min_similarity_lines", None)
+                or self.config.min_similarity_lines
+            )
         elif optname == "ignore-comments":
-            self.ignore_comments = self.config.ignore_comments
+            self.ignore_comments = (
+                getattr(self.linter.namespace, "ignore_comments", None)
+                or self.config.ignore_comments
+            )
         elif optname == "ignore-docstrings":
-            self.ignore_docstrings = self.config.ignore_docstrings
+            self.ignore_docstrings = (
+                getattr(self.linter.namespace, "ignore_docstrings", None)
+                or self.config.ignore_docstrings
+            )
         elif optname == "ignore-imports":
-            self.ignore_imports = self.config.ignore_imports
+            self.ignore_imports = (
+                getattr(self.linter.namespace, "ignore_imports", None)
+                or self.config.ignore_imports
+            )
         elif optname == "ignore-signatures":
-            self.ignore_signatures = self.config.ignore_signatures
+            self.ignore_signatures = (
+                getattr(self.linter.namespace, "ignore_signatures", None)
+                or self.config.ignore_signatures
+            )
 
     def open(self):
         """Init the checkers: reset linesets and statistics information."""
@@ -861,15 +878,7 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
 
         The partner function of get_map_data()
         """
-        recombined = SimilarChecker(linter)
-        recombined.min_lines = self.min_lines
-        recombined.ignore_comments = self.ignore_comments
-        recombined.ignore_docstrings = self.ignore_docstrings
-        recombined.ignore_imports = self.ignore_imports
-        recombined.ignore_signatures = self.ignore_signatures
-        recombined.open()
-        Similar.combine_mapreduce_data(recombined, linesets_collection=data)
-        recombined.close()
+        Similar.combine_mapreduce_data(self, linesets_collection=data)
 
 
 def register(linter: "PyLinter") -> None:

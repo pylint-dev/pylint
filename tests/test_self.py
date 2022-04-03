@@ -1318,3 +1318,12 @@ class TestRunTC:
                     ["."],
                     expected_output="No such file or directory",
                 )
+
+    @staticmethod
+    def test_long_help(capsys: pytest.CaptureFixture[str]) -> None:
+        """Test the long help flag."""
+        with pytest.raises(SystemExit) as ex:
+            Run(["--long-help"])
+        assert ex.value.code == 0
+        output = capsys.readouterr()
+        assert "Environment variables:" in output.out

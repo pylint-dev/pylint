@@ -50,7 +50,6 @@ class ModifiedIterationChecker(checkers.BaseChecker):
     }
 
     options = ()
-    priority = -2
 
     @utils.check_messages(
         "modified-iterating-list", "modified-iterating-dict", "modified-iterating-set"

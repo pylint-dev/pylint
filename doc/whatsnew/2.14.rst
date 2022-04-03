@@ -16,6 +16,10 @@ New checkers
 
   Closes #5501
 
+* Add new check ``unnecessary-dunder-call`` for unnecessary dunder method calls.
+
+  Closes #5936
+
 * ``potential-index-error``: Emitted when the index of a list or tuple exceeds its length.
   This checker is currently quite conservative to avoid false positives. We welcome
   suggestions for improvements.
@@ -27,6 +31,10 @@ New checkers
 
   Closes #4525
 
+* Added new message called ``duplicate-value`` which identifies duplicate values inside sets.
+
+  Closes #5880
+
 Removed checkers
 ================
 
@@ -34,9 +42,27 @@ Removed checkers
 Extensions
 ==========
 
+* ``DocStringStyleChecker``
+
+    * Re-enable checker ``bad-docstring-quotes`` for Python <= 3.7.
+
+      Closes #6087
 
 Other Changes
 =============
+
+* Only raise ``not-callable`` when all the inferred values of a property are not callable.
+
+  Closes #5931
+
+* Removed the broken ``generate-man`` option.
+
+  Closes #5283
+  Closes #1887
+
+* The concept of checker priority has been removed.
+
+* The ``set_config_directly`` decorator has been removed.
 
 * Fix false negative for ``no-member`` when attempting to assign an instance
   attribute to itself without any prior assignment.

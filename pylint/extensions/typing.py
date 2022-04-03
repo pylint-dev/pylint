@@ -95,7 +95,6 @@ class TypingChecker(BaseChecker):
     __implements__ = (IAstroidChecker,)
 
     name = "typing"
-    priority = -1
     msgs = {
         "W6001": (
             "'%s' is deprecated, use '%s' instead",
@@ -164,7 +163,7 @@ class TypingChecker(BaseChecker):
 
     def __init__(self, linter: "PyLinter") -> None:
         """Initialize checker instance."""
-        super().__init__(linter=linter)
+        super().__init__(linter=linter, future_option_parsing=True)
         self._found_broken_callable_location: bool = False
         self._alias_name_collisions: Set[str] = set()
         self._deprecated_typing_alias_msgs: List[DeprecatedTypingAliasMsg] = []
@@ -177,10 +176,10 @@ class TypingChecker(BaseChecker):
         self._py310_plus = py_version >= (3, 10)
 
         self._should_check_typing_alias = self._py39_plus or (
-            self._py37_plus and self.config.runtime_typing is False
+            self._py37_plus and self.linter.namespace.runtime_typing is False
         )
         self._should_check_alternative_union_syntax = self._py310_plus or (
-            self._py37_plus and self.config.runtime_typing is False
+            self._py37_plus and self.linter.namespace.runtime_typing is False
         )
 
         self._should_check_noreturn = py_version < (3, 7, 2)

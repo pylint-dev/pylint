@@ -24,6 +24,7 @@ __all__ = (
     "INFERENCE_FAILURE",
     "UNDEFINED",
     "CONFIDENCE_LEVELS",
+    "CONFIDENCE_LEVEL_NAMES",
 )
 
 Confidence = namedtuple("Confidence", ["name", "description"])
@@ -39,6 +40,7 @@ INFERENCE_FAILURE = Confidence(
 UNDEFINED = Confidence("UNDEFINED", "Warning without any associated confidence level.")
 
 CONFIDENCE_LEVELS = [HIGH, CONTROL_FLOW, INFERENCE, INFERENCE_FAILURE, UNDEFINED]
+CONFIDENCE_LEVEL_NAMES = [i.name for i in CONFIDENCE_LEVELS]
 
 
 class Interface:

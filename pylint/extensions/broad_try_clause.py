@@ -34,7 +34,6 @@ class BroadTryClauseChecker(checkers.BaseChecker):
         )
     }
 
-    priority = -2
     options = (
         (
             "max-try-statements",
@@ -47,6 +46,9 @@ class BroadTryClauseChecker(checkers.BaseChecker):
         ),
     )
 
+    def __init__(self, linter: "PyLinter") -> None:
+        super().__init__(linter, future_option_parsing=True)
+
     def _count_statements(self, try_node):
         statement_count = len(try_node.body)
 
@@ -58,8 +60,8 @@ class BroadTryClauseChecker(checkers.BaseChecker):
 
     def visit_tryexcept(self, node: Union[nodes.TryExcept, nodes.TryFinally]) -> None:
         try_clause_statements = self._count_statements(node)
-        if try_clause_statements > self.config.max_try_statements:
-            msg = f"try clause contains {try_clause_statements} statements, expected at most {self.config.max_try_statements}"
+        if try_clause_statements > self.linter.namespace.max_try_statements:
+            msg = f"try clause contains {try_clause_statements} statements, expected at most {self.linter.namespace.max_try_statements}"
             self.add_message(
                 "too-many-try-statements", node.lineno, node=node, args=msg
             )
