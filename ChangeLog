@@ -25,6 +25,7 @@ Release date: TBA
   subscripts in comprehensions.
 
   Closes #6069
+  Closes #6136
 
 * Narrow the scope of the ``unnecessary-ellipsis`` checker to:
   * functions & classes which contain both a docstring and an ellipsis.
