@@ -1,1 +1,1 @@
-import pandas as pandas
+import pandas as pandas  # [useless-import-alias]
