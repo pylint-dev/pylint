@@ -6,7 +6,7 @@
 
 import sys
 
-if sys.version_info[:2] >= (3, 9):
+if sys.version_info[:2] > (3, 9):
     from collections import Counter
 else:
     from collections import Counter as _Counter
