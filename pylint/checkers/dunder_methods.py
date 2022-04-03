@@ -18,21 +18,22 @@ class DunderCallChecker(BaseChecker):
     """Check for unnecessary dunder method calls.
 
     Docs: https://docs.python.org/3/reference/datamodel.html#basic-customization
-    We exclude __init__, __new__, __subclasses__, __init_subclass__,
-    __set_name__, __class_getitem__, __missing__, __exit__, __await__,
-    __del__, __aexit__, __getnewargs_ex__, __getnewargs__, __getstate__,
+    We exclude __new__, __subclasses__, __init_subclass__, __set_name__,
+    __class_getitem__, __missing__, __exit__, __await__,
+    __aexit__, __getnewargs_ex__, __getnewargs__, __getstate__,
     __setstate__, __reduce__, __reduce_ex__
     since these either have no alternative method of being called or
     have a genuine use case for being called manually.
 
-    Additionally we exclude dunder method calls on super()
-    and uninstantiated classes since these can't be
-    written in an alternative manner.
+    Additionally we exclude uninstantiated classes since these
+    might be used to access the dunder methods of a base class of an instance.
     """
 
     __implements__ = IAstroidChecker
 
     includedict = {
+        "__init__": "Instatiate class directly",
+        "__del__": "Use del keyword",
         "__repr__": "Use repr built-in function",
         "__str__": "Use str built-in function",
         "__bytes__": "Use bytes built-in function",
@@ -138,17 +139,32 @@ class DunderCallChecker(BaseChecker):
     }
     options = ()
 
+    @staticmethod
+    def within_dunder_def(node: nodes.NodeNG) -> bool:
+        """Check if dunder method call is within a dunder method definition."""
+        parent = node.parent
+        while parent is not None:
+            if (
+                isinstance(parent, nodes.FunctionDef)
+                and parent.name.startswith("__")
+                and parent.name.endswith("__")
+            ):
+                return True
+            parent = parent.parent
+        return False
+
     def visit_call(self, node: nodes.Call) -> None:
         """Check if method being called is an unnecessary dunder method."""
         if (
             isinstance(node.func, nodes.Attribute)
             and node.func.attrname in self.includedict
+            and not self.within_dunder_def(node)
         ):
             inf_expr = safe_infer(node.func.expr)
             if inf_expr not in (None, Uninferable) and not isinstance(
                 inf_expr, Instance
             ):
-                # Skip dunder calls to uninstantiated classes and super().
+                # Skip dunder calls to uninstantiated classes.
                 return None
 
             self.add_message(
