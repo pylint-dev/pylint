@@ -2356,12 +2356,6 @@ class VariablesChecker(BaseChecker):
             if utils.is_overload_stub(node):
                 return
 
-            # Special case for exception variable
-            if isinstance(stmt.parent, nodes.ExceptHandler) and any(
-                n.name == name for n in stmt.parent.nodes_of_class(nodes.Name)
-            ):
-                return
-
             self.add_message(message_name, args=name, node=stmt)
 
     def _is_name_ignored(self, stmt, name):
