@@ -1567,7 +1567,7 @@ class PyLinter(
             self.stats.by_msg[message_definition.symbol] = 1
         # Interpolate arguments into message string
         msg = message_definition.msg
-        if args:
+        if args is not None:
             msg %= args
         # get module and object
         if node is None:

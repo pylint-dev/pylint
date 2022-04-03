@@ -595,7 +595,7 @@ class NameChecker(_BasicChecker):
             self.add_message(
                 "typevar-name-incorrect-variance",
                 node=node,
-                args=(""),
+                args=("",),
                 confidence=interfaces.INFERENCE,
             )
         elif variance == TypeVarVariance.covariant and not name.endswith("_co"):
