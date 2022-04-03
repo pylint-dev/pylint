@@ -1,12 +1,4 @@
-__all__ = [
-    "pet",
-    "age",
-    "get_fruit_color",  # [undefined-all-variable]
-]
+__all__ = ["get_fruit_colour"]  # [undefined-all-variable]
 
-pet = "Cat"
-age = 10
-
-
-def get_pet_age():
+def get_fruit_color():
     pass
