@@ -172,3 +172,10 @@ def main(lst):
     print(e)  # [undefined-loop-variable]
 
 main([])
+
+
+def func5():
+    """No unused-variable for a container if iterated in comprehension"""
+    x = []
+    # Test case requires homonym between "for x" and "in x"
+    assert [True for x in x]
