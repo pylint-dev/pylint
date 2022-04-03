@@ -12,6 +12,11 @@ Summary -- Release highlights
 New checkers
 ============
 
+* Added new checker ``typevar-double-variance``: The "covariant" and "contravariant" keyword arguments
+  cannot both be set to "True" in a TypeVar.
+
+  Closes ##5895
+
 * Add new check ``unnecessary-dunder-call`` for unnecessary dunder method calls.
 
   Closes #5936
