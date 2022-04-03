@@ -132,6 +132,10 @@ Other Changes
 
   Closes #6028
 
+* Fix false positive for ``unused-import`` when disabling both ``used-before-assignment`` and ``undefined-variable``.
+
+  Closes #6089
+
 * Fix false positive for ``unnecessary-ellipsis`` when using an ellipsis as a default argument.
 
   Closes #5973
