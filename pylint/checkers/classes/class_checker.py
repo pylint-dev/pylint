@@ -848,7 +848,7 @@ a metaclass class method.",
                 and any(isinstance(stmt, nodes.Assign) for stmt in ancestor.body)
             ):
                 self.add_message(
-                    "invalid-enum-extension", args=ancestor.name, node=node
+                    "invalid-enum-extension", args=ancestor.name, node=node, confidence=HIGH
                 )
 
             if ancestor.name == object.__name__:
