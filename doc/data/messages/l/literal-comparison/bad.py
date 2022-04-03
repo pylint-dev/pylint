@@ -1,3 +1,2 @@
-value = 25
-if value is 25:  # [literal-comparison]
-    pass
+def is_an_orange(fruit):
+    return fruit is "orange" # [literal-comparison]

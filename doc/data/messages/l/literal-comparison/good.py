@@ -1,3 +1,2 @@
-value = 25
-if value == 25:
-    pass
+def is_an_orange(fruit):
+    return fruit == "orange"
