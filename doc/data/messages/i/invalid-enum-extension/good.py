@@ -1,12 +1,12 @@
 from enum import Enum
 
 
-class A(Enum):
-    x = 1
-    y = 2
+class Color(Enum):
+    ORANGE = 1
+    CHERRY = 2
 
 
-class B(Enum):
-    x = 1
-    y = 2
-    z = 3
+class Fruit(Enum):
+    ORANGE = 1
+    CHERRY = 2
+    APPLE = 3
