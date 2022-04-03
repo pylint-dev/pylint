@@ -1,7 +1,7 @@
 __all__ = [
     "pet",
     "age",
-    "get_pet_age",  # [undefined-all-variable]
+    "get_pet_age",
 ]
 
 pet = "Cat"
