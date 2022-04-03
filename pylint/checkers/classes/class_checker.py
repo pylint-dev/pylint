@@ -35,7 +35,7 @@ from pylint.checkers.utils import (
     unimplemented_abstract_methods,
     uninferable_final_decorators,
 )
-from pylint.interfaces import INFERENCE, IAstroidChecker
+from pylint.interfaces import HIGH, INFERENCE, IAstroidChecker
 from pylint.utils import get_global_option
 
 if sys.version_info >= (3, 8):
@@ -848,7 +848,10 @@ a metaclass class method.",
                 and any(isinstance(stmt, nodes.Assign) for stmt in ancestor.body)
             ):
                 self.add_message(
-                    "invalid-enum-extension", args=ancestor.name, node=node, confidence=HIGH
+                    "invalid-enum-extension",
+                    args=ancestor.name,
+                    node=node,
+                    confidence=HIGH,
                 )
 
             if ancestor.name == object.__name__:
