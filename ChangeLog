@@ -10,13 +10,6 @@ Release date: TBA
   Put new features here and also in 'doc/whatsnew/2.14.rst'
 
 
-* Exclude ``unnecessary-dunder-call`` on uninstantiated classes and within dunder funcdefs.
-
-  Closes #6074
-
-* Exclude dunder calls on super() from raising ``unnecessary-dunder-call``.
-
-  Closes #6074
 
 * Removed the broken ``generate-man`` option.
 
