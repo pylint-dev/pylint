@@ -1219,6 +1219,14 @@ def safe_infer(
             inferred_type = _get_python_type_of_node(inferred)
             if inferred_type not in inferred_types:
                 return None  # If there is ambiguity on the inferred node.
+            if (
+                isinstance(inferred, nodes.FunctionDef)
+                and inferred.args.args is not None
+                and isinstance(value, nodes.FunctionDef)
+                and value.args.args is not None
+                and len(inferred.args.args) != len(value.args.args)
+            ):
+                return None  # Different number of arguments indicates ambiguity
             if isinstance(inferred, astroid.objects.PartialFunction):
                 # Before https://github.com/PyCQA/astroid/pull/1097,
                 # partials got placed into the same scope as parents
