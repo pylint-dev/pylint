@@ -83,6 +83,18 @@ class PluginBase(object):
         super().__init_subclass__(**kwargs)
         cls.subclasses.append(cls)
 
+# Validate that dunder call is allowed
+# at any depth within dunder definition
+class SomeClass:
+    def __init__(self):
+        self.my_attr = object()
+
+    def __setattr__(self, name, value):
+        def nested_function():
+            self.my_attr.__setattr__(name, value)
+
+        nested_function()
+
 # Allow use of dunder methods that don't
 # have an alternate method of being called
 class Base:
