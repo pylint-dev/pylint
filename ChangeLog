@@ -10,6 +10,10 @@ Release date: TBA
   Put new features here and also in 'doc/whatsnew/2.14.rst'
 
 
+* Re-enable checker ``bad-docstring-quotes`` for Python <= 3.7.
+
+  Closes #6087
+
 * Exclude dunder calls on super() from raising ``unnecessary-dunder-call``.
 
   Closes #6074
@@ -59,10 +63,6 @@ Release date: TBA
 What's New in Pylint 2.13.5?
 ============================
 Release date: TBA
-
-* Re-enable checker ``bad-docstring-quotes`` for Python <= 3.7.
-
-  Closes #6087
 
 * Fix false positive regression in 2.13.0 for ``used-before-assignment`` for
   homonyms between variable assignments in try/except blocks and variables in

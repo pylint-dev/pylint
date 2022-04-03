@@ -120,10 +120,6 @@ Extensions
 
 * ``DocStringStyleChecker``
 
-    * Re-enable checker ``bad-docstring-quotes`` for Python <= 3.7.
-
-      Closes #6087
-
     * Disable checker ``bad-docstring-quotes`` for Python <= 3.7, because in these versions the line
       numbers for decorated functions and classes are not reliable which interferes with the checker.
 
