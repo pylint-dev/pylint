@@ -1227,15 +1227,6 @@ def safe_infer(
                 and len(inferred.args.args) != len(value.args.args)
             ):
                 return None  # Different number of arguments indicates ambiguity
-            if isinstance(inferred, astroid.objects.PartialFunction):
-                # Before https://github.com/PyCQA/astroid/pull/1097,
-                # partials got placed into the same scope as parents
-                # even though they usually have different names and may be
-                # defined elsewhere.
-                # We do not select the later value in this case.
-                # This condition can be removed if astroid#1097 is
-                # guaranteed to be present.
-                continue
             # For multiple inferences of the same type, select the last one
             value = inferred
     except astroid.InferenceError:
