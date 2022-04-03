@@ -2305,11 +2305,14 @@ class VariablesChecker(BaseChecker):
             if global_names and _import_name_is_global(stmt, global_names):
                 return
 
+        # Ignore names in comprehension targets
+        if name in comprehension_target_names:
+            return
+
         argnames = node.argnames()
         # Care about functions with unknown argument (builtins)
         if name in argnames:
-            if name not in comprehension_target_names:
-                self._check_unused_arguments(name, node, stmt, argnames, nonlocal_names)
+            self._check_unused_arguments(name, node, stmt, argnames, nonlocal_names)
         else:
             if stmt.parent and isinstance(
                 stmt.parent, (nodes.Assign, nodes.AnnAssign, nodes.Tuple)

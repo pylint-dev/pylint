@@ -66,6 +66,11 @@ Release date: TBA
 
   Closes #6069
 
+* Fix false positive for ``unused-variable`` (in unreleased development) for
+  patterns like ``[_ for same_name in same_name]``.
+
+  Closes #6136
+
 * Narrow the scope of the ``unnecessary-ellipsis`` checker to:
   * functions & classes which contain both a docstring and an ellipsis.
   * A body which contains an ellipsis ``nodes.Expr`` node & at least one other statement.
