@@ -28,3 +28,11 @@ b"test".format(1, 2) # [no-member]
 "%(key)x" % {"key": 1.1}  # [bad-string-format-type]
 "%d" % []  # [bad-string-format-type]
 "%(key)d" % {"key": []}  # [bad-string-format-type]
+
+WORD = "abc"
+"%d" % WORD  # [bad-string-format-type]
+"%d %s" % (WORD, WORD)  # [bad-string-format-type]
+
+VALUES_TO_FORMAT = (1, "2", 3.0)
+"%d %s %f" % VALUES_TO_FORMAT
+"%d %d %f" % VALUES_TO_FORMAT  # [bad-string-format-type]
