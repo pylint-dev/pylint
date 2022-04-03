@@ -1,3 +1,3 @@
-foo = True
-if foo == True:  # [singleton-comparison]
-    pass
+game_won = True
+if game_won == True:  # [singleton-comparison]
+    print("Game won !")

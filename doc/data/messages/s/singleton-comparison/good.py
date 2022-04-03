@@ -1,3 +1,3 @@
-foo = True
-if foo:
-    pass
+game_won = True
+if game_won:
+    print("Game won !")
