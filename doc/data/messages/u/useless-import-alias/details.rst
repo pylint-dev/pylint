@@ -1,8 +1,10 @@
 Known issue
 -----------
 
-If you prefer to use `from ... import ... as ...` because using
-`__all__` in `__init__.py` give error from other linter like `mypy`.
-Use `pylint` Message Control `pylint: disable=useless-import-alias`
-before any imports.
-`GiHub Issue #6006 <https://github.com/PyCQA/pylint/issues/6006>`_
+If you prefer to use "from-as" to explicitly reexport in API (`from fruit import orange as orange`)
+instead of using `__all__` this message will be a false positive.
+
+If that's the case use `pylint: disable=useless-import-alias` before your imports in your API files.
+`False positive 'useless-import-alias' error for mypy-compatible explicit re-exports #6006 <https://github.com/PyCQA/pylint/issues/6006>`_
+`mypy --no-implicit-reexport option: <https://mypy.readthedocs.io/en/stable/command_line.html#cmdoption-mypy-no-implicit-reexport>`_
+
