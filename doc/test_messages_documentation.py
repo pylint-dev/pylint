@@ -4,10 +4,21 @@
 
 """Functional tests for the code examples in the messages documentation."""
 
-from collections import Counter
+import sys
+
+if sys.version_info[:2] > (3, 9):
+    from collections import Counter
+else:
+    from collections import Counter as _Counter
+
+    class Counter(_Counter):
+        def total(self):
+            return len(tuple(self.elements()))
+
+
 from pathlib import Path
 from typing import Counter as CounterType
-from typing import List, TextIO, Tuple
+from typing import List, Optional, TextIO, Tuple
 
 import pytest
 
@@ -53,7 +64,13 @@ class LintModuleTest:
         self._linter.config.persistent = 0
         checkers.initialize(self._linter)
 
-        config_file = next(config.find_default_config_files(), None)
+        # Check if this message has a custom configuration file (e.g. for enabling optional checkers).
+        # If not, use the default configuration.
+        config_file: Optional[Path]
+        if (test_file[1].parent / "pylintrc").exists():
+            config_file = test_file[1].parent / "pylintrc"
+        else:
+            config_file = next(config.find_default_config_files(), None)
 
         _config_initialization(
             self._linter,
@@ -68,6 +85,12 @@ class LintModuleTest:
 
     def runTest(self) -> None:
         self._runTest()
+
+    def is_good_test_file(self) -> bool:
+        return self._test_file[1].name == "good.py"
+
+    def is_bad_test_file(self) -> bool:
+        return self._test_file[1].name == "bad.py"
 
     @staticmethod
     def get_expected_messages(stream: TextIO) -> MessageCounter:
@@ -108,6 +131,10 @@ class LintModuleTest:
         self._linter.check([str(self._test_file[1])])
         expected_messages = self._get_expected()
         actual_messages = self._get_actual()
+        if self.is_good_test_file():
+            assert actual_messages.total() == 0  # type: ignore[attr-defined]
+        if self.is_bad_test_file():
+            assert actual_messages.total() > 0  # type: ignore[attr-defined]
         assert expected_messages == actual_messages
 
 

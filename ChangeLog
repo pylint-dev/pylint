@@ -15,6 +15,10 @@ Release date: TBA
 
   Closes ##5895
 
+* Re-enable checker ``bad-docstring-quotes`` for Python <= 3.7.
+
+  Closes #6087
+
 * Exclude dunder calls on super() from raising ``unnecessary-dunder-call``.
 
   Closes #6074
@@ -70,6 +74,11 @@ Release date: TBA
   subscripts in comprehensions.
 
   Closes #6069
+  Closes #6136
+
+* Fix false positive for ``unused-import`` when disabling both ``used-before-assignment`` and ``undefined-variable``.
+
+  Closes #6089
 
 * Narrow the scope of the ``unnecessary-ellipsis`` checker to:
   * functions & classes which contain both a docstring and an ellipsis.

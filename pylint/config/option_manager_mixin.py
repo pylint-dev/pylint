@@ -126,6 +126,8 @@ class OptionsManagerMixIn:
                 self.cfgfile_parser.add_section(group_name)
         # add provider's specific options
         for opt, optdict in options:
+            if not isinstance(optdict.get("action", "store"), str):
+                optdict["action"] = "callback"
             self.add_optik_option(provider, group, opt, optdict)
 
     def add_optik_option(self, provider, optikcontainer, opt, optdict):

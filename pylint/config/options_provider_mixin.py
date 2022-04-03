@@ -74,6 +74,8 @@ class OptionsProviderMixIn:
                 _list.append(value)
         elif action == "callback":
             optdict["callback"](None, optname, value, None)
+        elif not isinstance(action, str):
+            optdict["callback"](None, optname, value, None)
         else:
             raise UnsupportedAction(action)
 

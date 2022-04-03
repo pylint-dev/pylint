@@ -2,22 +2,42 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-"""Definition of an Argument class and validators for various argument types.
+"""Definition of an Argument class and transformers for various argument types.
 
 An Argument instance represents a pylint option to be handled by an argparse.ArgumentParser
 """
 
 
 import argparse
+import pathlib
 import re
-from typing import Callable, Dict, List, Optional, Pattern, Sequence, Union
+from typing import Callable, Dict, List, Optional, Pattern, Sequence, Tuple, Union
 
+from pylint import interfaces
 from pylint import utils as pylint_utils
 
 _ArgumentTypes = Union[
-    str, Sequence[str], int, Pattern[str], bool, Sequence[Pattern[str]]
+    str,
+    int,
+    float,
+    bool,
+    Pattern[str],
+    Sequence[str],
+    Sequence[Pattern[str]],
+    Tuple[int, ...],
 ]
 """List of possible argument types."""
+
+
+def _confidence_transformer(value: str) -> Sequence[str]:
+    """Transforms a comma separated string of confidence values."""
+    values = pylint_utils._check_csv(value)
+    for confidence in values:
+        if confidence not in interfaces.CONFIDENCE_LEVEL_NAMES:
+            raise argparse.ArgumentTypeError(
+                f"{value} should be in {*interfaces.CONFIDENCE_LEVEL_NAMES,}"
+            )
+    return values
 
 
 def _csv_transformer(value: str) -> Sequence[str]:
@@ -48,6 +68,17 @@ def _non_empty_string_transformer(value: str) -> str:
     return pylint_utils._unquote(value)
 
 
+def _py_version_transformer(value: str) -> Tuple[int, ...]:
+    """Transforms a version string into a version tuple."""
+    try:
+        version = tuple(int(val) for val in value.split("."))
+    except ValueError:
+        raise argparse.ArgumentTypeError(
+            f"{value} has an invalid format, should be a version string. E.g., '3.8'"
+        ) from None
+    return version
+
+
 def _regexp_csv_transfomer(value: str) -> Sequence[Pattern[str]]:
     """Transforms a comma separated list of regular expressions."""
     patterns: List[Pattern[str]] = []
@@ -56,14 +87,32 @@ def _regexp_csv_transfomer(value: str) -> Sequence[Pattern[str]]:
     return patterns
 
 
+def _regexp_paths_csv_transfomer(value: str) -> Sequence[Pattern[str]]:
+    """Transforms a comma separated list of regular expressions paths."""
+    patterns: List[Pattern[str]] = []
+    for pattern in _csv_transformer(value):
+        patterns.append(
+            re.compile(
+                str(pathlib.PureWindowsPath(pattern)).replace("\\", "\\\\")
+                + "|"
+                + pathlib.PureWindowsPath(pattern).as_posix()
+            )
+        )
+    return patterns
+
+
 _TYPE_TRANSFORMERS: Dict[str, Callable[[str], _ArgumentTypes]] = {
     "choice": str,
     "csv": _csv_transformer,
+    "float": float,
     "int": int,
+    "confidence": _confidence_transformer,
     "non_empty_string": _non_empty_string_transformer,
+    "py_version": _py_version_transformer,
     "regexp": re.compile,
     "regexp_csv": _regexp_csv_transfomer,
-    "string": str,
+    "regexp_paths_csv": _regexp_paths_csv_transfomer,
+    "string": pylint_utils._unquote,
     "yn": _yn_transformer,
 }
 """Type transformers for all argument types.
@@ -121,3 +170,32 @@ class _Argument:
         See:
         https://docs.python.org/3/library/argparse.html#metavar
         """
+
+
+class _StoreTrueArgument:
+    """Class representing a 'store_true' argument to be passed by an argparse.ArgumentsParser.
+
+    This is based on the parameters passed to argparse.ArgumentsParser.add_message.
+    See:
+    https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.add_argument
+    """
+
+    def __init__(
+        self,
+        flags: List[str],
+        action: str,
+        default: _ArgumentTypes,
+        arg_help: str,
+    ) -> None:
+        self.flags = flags
+        """The name of the argument."""
+
+        self.action = action
+        """The action to perform with the argument."""
+
+        self.default = default
+        """The default value of the argument."""
+
+        # argparse uses % formatting on help strings, so a % needs to be escaped
+        self.help = arg_help.replace("%", "%%")
+        """The description of the argument."""
