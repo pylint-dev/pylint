@@ -1,7 +1,7 @@
-class Foo:
+class Animal:
     pass
 
 
-class Bar(Foo):
+class Cat(Animal):
     def __init__(self):
-        super(Foo, self).__init__()  # [bad-super-call]
+        super(Animal, self).__init__()  # [bad-super-call]
