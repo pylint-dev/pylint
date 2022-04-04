@@ -12,7 +12,7 @@ Summary -- Release highlights
 New checkers
 ============
 
-* ``invalid-enum-extension``: Used when class tries to extend an inherited Enum class.
+* ``invalid-enum-extension``: Used when a class tries to extend an inherited Enum class.
 
   Closes #5501
 

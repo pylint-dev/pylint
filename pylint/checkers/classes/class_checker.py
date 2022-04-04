@@ -629,7 +629,7 @@ MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
     "E0244": (
         'Extending inherited Enum class "%s"',
         "invalid-enum-extension",
-        "Used when class tries to extend an inherited Enum class. "
+        "Used when a class tries to extend an inherited Enum class. "
         "Doing so will raise a TypeError at runtime.",
     ),
     "R0202": (
