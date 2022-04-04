@@ -10,7 +10,6 @@ from typing import Optional
 from pylint import config, extensions, interfaces
 from pylint.config.callback_actions import (
     _DoNothingAction,
-    _EnableAllExtensionsAction,
     _ErrorsOnlyModeAction,
     _FullDocumentationAction,
     _GenerateRCFileAction,
@@ -21,7 +20,6 @@ from pylint.config.callback_actions import (
     _ListMessagesEnabledAction,
     _LongHelpAction,
     _MessageHelpAction,
-    _VerboseModeAction,
 )
 from pylint.config.config_initialization import _config_initialization
 from pylint.constants import full_version
@@ -264,8 +262,8 @@ group are mutually exclusive.",
                 (
                     "verbose",
                     {
-                        "action": _VerboseModeAction,
-                        "kwargs": {"Run": self},
+                        "action": _DoNothingAction,
+                        "kwargs": {},
                         "callback": Run._not_implemented_callback,
                         "short": "v",
                         "help": "In verbose mode, extra non-checker-related info "
@@ -275,8 +273,8 @@ group are mutually exclusive.",
                 (
                     "enable-all-extensions",
                     {
-                        "action": _EnableAllExtensionsAction,
-                        "kwargs": {"Run": self},
+                        "action": _DoNothingAction,
+                        "kwargs": {},
                         "callback": Run._not_implemented_callback,
                         "help": "Load and enable all available extensions. "
                         "Use --list-extensions to see a list all available extensions.",
