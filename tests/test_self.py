@@ -1377,6 +1377,10 @@ class TestCallbackOptions:
             run = Run(["--verbose"])
             assert run.verbose
 
+        with pytest.raises(SystemExit):
+            run = Run(["--verbose=True"])
+            assert run.verbose
+
     @staticmethod
     def test_enable_all_extensions() -> None:
         """Test to see if --enable-all-extensions does indeed load all extensions."""
