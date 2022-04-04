@@ -40,7 +40,6 @@ class CodeStyleChecker(BaseChecker):
     __implements__ = (IAstroidChecker,)
 
     name = "code_style"
-    priority = -1
     msgs = {
         "R6101": (
             "Consider using namedtuple or dataclass for dictionary values",
@@ -67,6 +66,7 @@ class CodeStyleChecker(BaseChecker):
             "max-line-length-suggestions",
             {
                 "type": "int",
+                "default": 0,
                 "metavar": "<int>",
                 "help": (
                     "Max line length for which to sill emit suggestions. "
@@ -80,13 +80,13 @@ class CodeStyleChecker(BaseChecker):
 
     def __init__(self, linter: "PyLinter") -> None:
         """Initialize checker instance."""
-        super().__init__(linter=linter)
+        super().__init__(linter=linter, future_option_parsing=True)
 
     def open(self) -> None:
         py_version = get_global_option(self, "py-version")
         self._py38_plus = py_version >= (3, 8)
         self._max_length: int = (
-            self.config.max_line_length_suggestions
+            self.linter.namespace.max_line_length_suggestions
             or get_global_option(self, "max-line-length")
         )
 

@@ -91,16 +91,22 @@ class EncodingChecker(BaseChecker):
                 "type": "string",
                 "metavar": "<regexp>",
                 "help": "Regular expression of note tags to take in consideration.",
+                "default": "",
             },
         ),
     )
 
+    def __init__(self, linter: "PyLinter") -> None:
+        super().__init__(linter, future_option_parsing=True)
+
     def open(self):
         super().open()
 
-        notes = "|".join(re.escape(note) for note in self.config.notes)
-        if self.config.notes_rgx:
-            regex_string = rf"#\s*({notes}|{self.config.notes_rgx})(?=(:|\s|\Z))"
+        notes = "|".join(re.escape(note) for note in self.linter.namespace.notes)
+        if self.linter.namespace.notes_rgx:
+            regex_string = (
+                rf"#\s*({notes}|{self.linter.namespace.notes_rgx})(?=(:|\s|\Z))"
+            )
         else:
             regex_string = rf"#\s*({notes})(?=(:|\s|\Z))"
 
@@ -133,7 +139,7 @@ class EncodingChecker(BaseChecker):
 
     def process_tokens(self, tokens):
         """Inspect the source to find fixme problems."""
-        if not self.config.notes:
+        if not self.linter.namespace.notes:
             return
         comments = (
             token_info for token_info in tokens if token_info.type == tokenize.COMMENT
@@ -156,7 +162,7 @@ class EncodingChecker(BaseChecker):
                     except PragmaParserError:
                         # Printing useful information dealing with this error is done in the lint package
                         pass
-                    if set(values) & set(self.config.notes):
+                    if set(values) & set(self.linter.namespace.notes):
                         continue
                 except ValueError:
                     self.add_message(

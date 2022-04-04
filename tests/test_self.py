@@ -209,18 +209,6 @@ class TestRunTC:
             ["--exit-zero", join(HERE, "regrtest_data", "syntax_error.py")], code=0
         )
 
-    def test_generate_config_option(self) -> None:
-        self._runtest(["--generate-rcfile"], code=0)
-
-    def test_generate_config_option_order(self) -> None:
-        out1 = StringIO()
-        out2 = StringIO()
-        self._runtest(["--generate-rcfile"], code=0, out=out1)
-        self._runtest(["--generate-rcfile"], code=0, out=out2)
-        output1 = out1.getvalue()
-        output2 = out2.getvalue()
-        assert output1 == output2
-
     def test_generate_config_disable_symbolic_names(self) -> None:
         # Test that --generate-rcfile puts symbolic names in the --disable
         # option.
@@ -240,20 +228,8 @@ class TestRunTC:
         messages = utils._splitstrip(parser.get("MESSAGES CONTROL", "disable"))
         assert "suppressed-message" in messages
 
-    def test_generate_rcfile_no_obsolete_methods(self) -> None:
-        out = StringIO()
-        self._run_pylint(["--generate-rcfile"], out=out)
-        output = out.getvalue()
-        assert "profile" not in output
-
     def test_nonexistent_config_file(self) -> None:
         self._runtest(["--rcfile=/tmp/this_file_does_not_exist"], code=32)
-
-    def test_help_message_option(self) -> None:
-        self._runtest(["--help-msg", "W0101"], code=0)
-
-    def test_error_help_message_option(self) -> None:
-        self._runtest(["--help-msg", "WX101"], code=0)
 
     def test_error_missing_arguments(self) -> None:
         self._runtest([], code=32)
@@ -475,7 +451,9 @@ class TestRunTC:
         self._test_output(
             [
                 f"--rcfile={config_path}",
-                "--help-msg=dummy-message-01,dummy-message-02",
+                "--help-msg",
+                "dummy-message-01",
+                "dummy-message-02",
             ],
             expected_output=expected,
         )
@@ -1222,22 +1200,6 @@ class TestRunTC:
         )
 
     @staticmethod
-    def test_enable_all_extensions() -> None:
-        """Test to see if --enable-all-extensions does indeed load all extensions."""
-        # Record all extensions
-        plugins = []
-        for filename in os.listdir(os.path.dirname(extensions.__file__)):
-            if filename.endswith(".py") and not filename.startswith("_"):
-                plugins.append(f"pylint.extensions.{filename[:-3]}")
-
-        # Check if they are loaded
-        runner = Run(
-            ["--enable-all-extensions", join(HERE, "regrtest_data", "empty.py")],
-            exit=False,
-        )
-        assert sorted(plugins) == sorted(runner.linter._dynamic_plugins)
-
-    @staticmethod
     def test_load_text_repoter_if_not_provided() -> None:
         """Test if PyLinter.reporter is a TextReporter if no reporter is provided."""
         linter = PyLinter()
@@ -1318,3 +1280,119 @@ class TestRunTC:
                     ["."],
                     expected_output="No such file or directory",
                 )
+
+
+class TestCallbackOptions:
+    """Test for all callback options we support."""
+
+    @staticmethod
+    @pytest.mark.parametrize(
+        "command,expected",
+        [
+            (["--list-msgs"], "Emittable messages with current interpreter:"),
+            (["--list-msgs-enabled"], "Enabled messages:"),
+            (["--list-groups"], "nonascii-checker"),
+            (["--list-conf-levels"], "Confidence(name='HIGH', description="),
+            (["--list-extensions"], "pylint.extensions.empty_comment"),
+            (["--full-documentation"], "Pylint global options and switches"),
+            (["--long-help"], "Environment variables:"),
+        ],
+    )
+    def test_output_of_callback_options(command: List[str], expected: str) -> None:
+        """Test whether certain strings are in the output of a callback command."""
+
+        process = subprocess.run(
+            [sys.executable, "-m", "pylint"] + command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            encoding="utf-8",
+            check=False,
+        )
+        assert expected in process.stdout
+
+    @staticmethod
+    def test_help_msg() -> None:
+        """Test the --help-msg flag."""
+
+        process = subprocess.run(
+            [sys.executable, "-m", "pylint", "--help-msg", "W0101"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            encoding="utf-8",
+            check=False,
+        )
+        assert ":unreachable (W0101)" in process.stdout
+
+        process = subprocess.run(
+            [sys.executable, "-m", "pylint", "--help-msg", "WX101"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            encoding="utf-8",
+            check=False,
+        )
+        assert "No such message id" in process.stdout
+
+        process = subprocess.run(
+            [sys.executable, "-m", "pylint", "--help-msg"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            encoding="utf-8",
+            check=False,
+        )
+        assert "--help-msg: expected at least one argumen" in process.stderr
+
+    @staticmethod
+    def test_generate_rcfile() -> None:
+        """Test the --generate-rcfile flag."""
+        process = subprocess.run(
+            [sys.executable, "-m", "pylint", "--generate-rcfile"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            encoding="utf-8",
+            check=False,
+        )
+        assert "[MASTER]" in process.stdout
+        assert "profile" not in process.stdout
+
+        process_two = subprocess.run(
+            [sys.executable, "-m", "pylint", "--generate-rcfile"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            encoding="utf-8",
+            check=False,
+        )
+        assert process.stdout == process_two.stdout
+
+    @staticmethod
+    def test_errors_only() -> None:
+        """Test the --errors-only flag."""
+        with pytest.raises(SystemExit):
+            run = Run(["--errors-only"])
+            assert run.linter._error_mode
+
+    @staticmethod
+    def test_verbose() -> None:
+        """Test the --verbose flag."""
+        with pytest.raises(SystemExit):
+            run = Run(["--verbose"])
+            assert run.verbose
+
+        with pytest.raises(SystemExit):
+            run = Run(["--verbose=True"])
+            assert run.verbose
+
+    @staticmethod
+    def test_enable_all_extensions() -> None:
+        """Test to see if --enable-all-extensions does indeed load all extensions."""
+        # Record all extensions
+        plugins = []
+        for filename in os.listdir(os.path.dirname(extensions.__file__)):
+            if filename.endswith(".py") and not filename.startswith("_"):
+                plugins.append(f"pylint.extensions.{filename[:-3]}")
+
+        # Check if they are loaded
+        runner = Run(
+            ["--enable-all-extensions", join(HERE, "regrtest_data", "empty.py")],
+            exit=False,
+        )
+        assert sorted(plugins) == sorted(runner.linter._dynamic_plugins)

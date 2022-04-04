@@ -132,7 +132,6 @@ class SpecialMethodsChecker(BaseChecker):
             "of the form tuple(tuple, dict)",
         ),
     }
-    priority = -2
 
     def __init__(self, linter=None):
         super().__init__(linter)

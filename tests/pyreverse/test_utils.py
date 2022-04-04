@@ -73,7 +73,7 @@ def test_get_annotation_assignattr(init_method, label):
     """
     node = astroid.extract_node(assign)
     instance_attrs = node.instance_attrs
-    for _, assign_attrs in instance_attrs.items():
+    for assign_attrs in instance_attrs.values():
         for assign_attr in assign_attrs:
             got = get_annotation(assign_attr).name
             assert isinstance(assign_attr, nodes.AssignAttr)

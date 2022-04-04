@@ -231,7 +231,6 @@ class ExceptionsChecker(checkers.BaseChecker):
 
     name = "exceptions"
     msgs = MSGS
-    priority = -4
     options = (
         (
             "overgeneral-exceptions",
@@ -245,6 +244,9 @@ class ExceptionsChecker(checkers.BaseChecker):
             },
         ),
     )
+
+    def __init__(self, linter: "PyLinter") -> None:
+        super().__init__(linter, future_option_parsing=True)
 
     def open(self):
         self._builtin_exceptions = _builtin_exceptions()
@@ -524,7 +526,7 @@ class ExceptionsChecker(checkers.BaseChecker):
                                 "bad-except-order", node=handler.type, args=msg
                             )
                     if (
-                        exception.name in self.config.overgeneral_exceptions
+                        exception.name in self.linter.namespace.overgeneral_exceptions
                         and exception.root().name == utils.EXCEPTIONS_MODULE
                         and not _is_raising(handler.body)
                     ):

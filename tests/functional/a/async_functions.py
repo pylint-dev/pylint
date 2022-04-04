@@ -53,7 +53,7 @@ async def complex_function(this, function, has, more, arguments, than,
         pass
 
 
-# +1: [duplicate-argument-name, duplicate-argument-name, dangerous-default-value]
+# +1: [duplicate-argument-name, dangerous-default-value]
 async def func(a, a, b=[]):
     return a, b
 

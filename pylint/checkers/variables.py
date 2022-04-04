@@ -634,13 +634,12 @@ scope_type : {self._atomic.scope_type}
         ):
             return found_nodes
 
+        # And no comprehension is under the node's frame
+        if VariablesChecker._comprehension_between_frame_and_node(node):
+            return found_nodes
+
         # Filter out assignments in ExceptHandlers that node is not contained in
-        # unless this is a test in a filtered comprehension
-        # Example: [e for e in range(3) if e] <--- followed by except e:
-        if found_nodes and (
-            not isinstance(parent_node, nodes.Comprehension)
-            or node not in parent_node.ifs
-        ):
+        if found_nodes:
             found_nodes = [
                 n
                 for n in found_nodes
@@ -990,7 +989,6 @@ class VariablesChecker(BaseChecker):
 
     name = "variables"
     msgs = MSGS
-    priority = -1
     options = (
         (
             "init-import",
@@ -1096,9 +1094,6 @@ class VariablesChecker(BaseChecker):
         """Called when loading the checker."""
         self._is_undefined_variable_enabled = self.linter.is_message_enabled(
             "undefined-variable"
-        )
-        self._is_used_before_assignment_enabled = self.linter.is_message_enabled(
-            "used-before-assignment"
         )
         self._is_undefined_loop_variable_enabled = self.linter.is_message_enabled(
             "undefined-loop-variable"
@@ -1288,8 +1283,23 @@ class VariablesChecker(BaseChecker):
 
         global_names = _flattened_scope_names(node.nodes_of_class(nodes.Global))
         nonlocal_names = _flattened_scope_names(node.nodes_of_class(nodes.Nonlocal))
+        comprehension_target_names: List[str] = []
+
+        for comprehension_scope in node.nodes_of_class(nodes.ComprehensionScope):
+            for generator in comprehension_scope.generators:
+                self._find_assigned_names_recursive(
+                    generator.target, comprehension_target_names
+                )
+
         for name, stmts in not_consumed.items():
-            self._check_is_unused(name, node, stmts[0], global_names, nonlocal_names)
+            self._check_is_unused(
+                name,
+                node,
+                stmts[0],
+                global_names,
+                nonlocal_names,
+                comprehension_target_names,
+            )
 
     visit_asyncfunctiondef = visit_functiondef
     leave_asyncfunctiondef = leave_functiondef
@@ -1432,7 +1442,7 @@ class VariablesChecker(BaseChecker):
                 continue
 
             action, nodes_to_consume = self._check_consumer(
-                node, stmt, frame, current_consumer, i, base_scope_type
+                node, stmt, frame, current_consumer, base_scope_type
             )
             if nodes_to_consume:
                 # Any nodes added to consumed_uncertain by get_next_to_consume()
@@ -1503,6 +1513,20 @@ class VariablesChecker(BaseChecker):
 
         return False
 
+    def _find_assigned_names_recursive(
+        self,
+        target: Union[nodes.AssignName, nodes.BaseContainer],
+        target_names: List[str],
+    ) -> None:
+        """Update `target_names` in place with the names of assignment
+        targets, recursively (to account for nested assignments).
+        """
+        if isinstance(target, nodes.AssignName):
+            target_names.append(target.name)
+        elif isinstance(target, nodes.BaseContainer):
+            for elt in target.elts:
+                self._find_assigned_names_recursive(elt, target_names)
+
     # pylint: disable=too-many-return-statements
     def _check_consumer(
         self,
@@ -1510,33 +1534,16 @@ class VariablesChecker(BaseChecker):
         stmt: nodes.NodeNG,
         frame: nodes.LocalsDictNodeNG,
         current_consumer: NamesConsumer,
-        consumer_level: int,
         base_scope_type: Any,
     ) -> Tuple[VariableVisitConsumerAction, Optional[List[nodes.NodeNG]]]:
         """Checks a consumer for conditions that should trigger messages."""
         # If the name has already been consumed, only check it's not a loop
         # variable used outside the loop.
-        # Avoid the case where there are homonyms inside function scope and
-        # comprehension current scope (avoid bug #1731)
         if node.name in current_consumer.consumed:
-            if utils.is_func_decorator(current_consumer.node) or not (
-                current_consumer.scope_type == "comprehension"
-                and self._has_homonym_in_upper_function_scope(node, consumer_level)
-                # But don't catch homonyms against the filter of a comprehension,
-                # (like "if x" in "[x for x in expr() if x]")
-                # https://github.com/PyCQA/pylint/issues/5586
-                and not (
-                    (
-                        isinstance(node.parent.parent, nodes.Comprehension)
-                        and node.parent in node.parent.parent.ifs
-                    )
-                    # Or homonyms against values to keyword arguments
-                    # (like "var" in "[func(arg=var) for var in expr()]")
-                    or (
-                        isinstance(node.scope(), nodes.ComprehensionScope)
-                        and isinstance(node.parent, (nodes.Call, nodes.Keyword))
-                    )
-                )
+            # Avoid the case where there are homonyms inside function scope and
+            # comprehension current scope (avoid bug #1731)
+            if utils.is_func_decorator(current_consumer.node) or not isinstance(
+                node, nodes.ComprehensionScope
             ):
                 self._check_late_binding_closure(node)
                 self._loopvar_name(node)
@@ -1564,12 +1571,6 @@ class VariablesChecker(BaseChecker):
             )
 
         self._check_late_binding_closure(node)
-
-        if not (
-            self._is_undefined_variable_enabled
-            or self._is_used_before_assignment_enabled
-        ):
-            return (VariableVisitConsumerAction.RETURN, found_nodes)
 
         defnode = utils.assign_parent(found_nodes[0])
         defstmt = defnode.statement(future=True)
@@ -2289,8 +2290,14 @@ class VariablesChecker(BaseChecker):
                 self.add_message("undefined-loop-variable", args=node.name, node=node)
 
     def _check_is_unused(
-        self, name, node, stmt, global_names, nonlocal_names: Iterable[str]
-    ):
+        self,
+        name,
+        node,
+        stmt,
+        global_names,
+        nonlocal_names: Iterable[str],
+        comprehension_target_names: List[str],
+    ) -> None:
         # Ignore some special names specified by user configuration.
         if self._is_name_ignored(stmt, name):
             return
@@ -2308,6 +2315,10 @@ class VariablesChecker(BaseChecker):
             # Detect imports, assigned to global statements.
             if global_names and _import_name_is_global(stmt, global_names):
                 return
+
+        # Ignore names in comprehension targets
+        if name in comprehension_target_names:
+            return
 
         argnames = node.argnames()
         # Care about functions with unknown argument (builtins)
@@ -2485,22 +2496,15 @@ class VariablesChecker(BaseChecker):
     def _allowed_redefined_builtin(self, name):
         return name in self.config.allowed_redefined_builtins
 
-    def _has_homonym_in_upper_function_scope(
-        self, node: nodes.Name, index: int
-    ) -> bool:
-        """Return whether there is a node with the same name in the
-        to_consume dict of an upper scope and if that scope is a function
-
-        :param node: node to check for
-        :param index: index of the current consumer inside self._to_consume
-        :return: True if there is a node with the same name in the
-                 to_consume dict of an upper scope and if that scope
-                 is a function, False otherwise
-        """
-        return any(
-            _consumer.scope_type == "function" and node.name in _consumer.to_consume
-            for _consumer in self._to_consume[index - 1 :: -1]
+    @staticmethod
+    def _comprehension_between_frame_and_node(node: nodes.Name) -> bool:
+        """Return True if a ComprehensionScope intervenes between `node` and its frame."""
+        closest_comprehension_scope = utils.get_node_first_ancestor_of_type(
+            node, nodes.ComprehensionScope
         )
+        return closest_comprehension_scope is not None and node.frame(
+            future=True
+        ).parent_of(closest_comprehension_scope)
 
     def _store_type_annotation_node(self, type_annotation):
         """Given a type annotation, store all the name nodes it refers to."""

@@ -39,7 +39,6 @@ class NewStyleConflictChecker(BaseChecker):
     name = "newstyle"
     # messages
     msgs = MSGS
-    priority = -2
     # configuration options
     options = ()
 

@@ -12,10 +12,6 @@ from pylint.config import PYLINT_HOME
 from pylint.lint.expand_modules import get_python_path
 
 
-class ArgumentPreprocessingError(Exception):
-    """Raised if an error occurs during argument preprocessing."""
-
-
 def prepare_crash_report(ex: Exception, filepath: str, crash_file_path: str) -> Path:
     issue_template_path = (
         Path(PYLINT_HOME) / datetime.now().strftime(str(crash_file_path))
@@ -70,41 +66,6 @@ def get_fatal_error_message(filepath: str, issue_template_path: Path) -> str:
         f"Please open an issue in our bug tracker so we address this. "
         f"There is a pre-filled template that you can use in '{issue_template_path}'."
     )
-
-
-def preprocess_options(args, search_for):
-    """Look for some options (keys of <search_for>) which have to be processed
-    before others
-
-    values of <search_for> are callback functions to call when the option is
-    found
-    """
-    i = 0
-    while i < len(args):
-        arg = args[i]
-        if not arg.startswith("--"):
-            i += 1
-        else:
-            try:
-                option, val = arg[2:].split("=", 1)
-            except ValueError:
-                option, val = arg[2:], None
-            try:
-                cb, takearg = search_for[option]
-            except KeyError:
-                i += 1
-            else:
-                del args[i]
-                if takearg and val is None:
-                    if i >= len(args) or args[i].startswith("-"):
-                        msg = f"Option {option} expects a value"
-                        raise ArgumentPreprocessingError(msg)
-                    val = args[i]
-                    del args[i]
-                elif not takearg and val is not None:
-                    msg = f"Option {option} doesn't expects a value"
-                    raise ArgumentPreprocessingError(msg)
-                cb(option, val)
 
 
 def _patch_sys_path(args):
