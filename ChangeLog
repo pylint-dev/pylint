@@ -10,6 +10,14 @@ Release date: TBA
   Put new features here and also in 'doc/whatsnew/2.14.rst'
 
 
+* Added new checker ``typevar-double-variance``: The "covariant" and "contravariant" keyword arguments
+  cannot both be set to "True" in a TypeVar.
+
+  Closes ##5895
+
+* Re-enable checker ``bad-docstring-quotes`` for Python <= 3.7.
+
+  Closes #6087
 
 * Removed the broken ``generate-man`` option.
 
@@ -63,6 +71,11 @@ Release date: TBA
   subscripts in comprehensions.
 
   Closes #6069
+  Closes #6136
+
+* Fix false positive for ``unused-import`` when disabling both ``used-before-assignment`` and ``undefined-variable``.
+
+  Closes #6089
 
 * Narrow the scope of the ``unnecessary-ellipsis`` checker to:
   * functions & classes which contain both a docstring and an ellipsis.

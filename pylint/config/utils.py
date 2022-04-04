@@ -31,9 +31,7 @@ def _convert_option_to_argument(
             flags=[f"--{opt}"],
             action=action,
             default=optdict["default"],
-            choices=optdict.get("choices", None),
             arg_help=optdict["help"],
-            metavar=optdict["metavar"],
         )
     return _Argument(
         flags=[f"--{opt}"],
