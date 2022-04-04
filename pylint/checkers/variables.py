@@ -462,8 +462,7 @@ MSGS = {
     "W0621": (
         "Redefining name %r from outer scope (line %s)",
         "redefined-outer-name",
-        "Used when a variable's name hides a name defined in an outer scope, "
-        "for loop, or except handler.",
+        "Used when a variable's name hides a name defined in an outer scope or except handler.",
     ),
     "W0622": (
         "Redefining built-in %r",
