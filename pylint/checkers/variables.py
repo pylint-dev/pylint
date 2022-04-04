@@ -469,11 +469,6 @@ MSGS = {
         "redefined-builtin",
         "Used when a variable or function override a built-in.",
     ),
-    "W0623": (
-        "Redefining %r from loop (line %s)",
-        "redefined-loop-name",
-        "Used when a loop variable is overwritten in the loop body.",
-    ),
     "W0631": (
         "Using possibly undefined loop variable %r",
         "undefined-loop-variable",
