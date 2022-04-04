@@ -10,7 +10,13 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, Union
 
 from pylint import extensions, utils
-from pylint.config.argument import _CallableArgument, _StoreArgument, _StoreTrueArgument
+from pylint.config.argument import (
+    _CallableArgument,
+    _StoreArgument,
+    _StoreNewNamesArgument,
+    _StoreOldNamesArgument,
+    _StoreTrueArgument,
+)
 from pylint.config.callback_actions import _CallbackAction
 from pylint.config.exceptions import ArgumentPreprocessingError
 
@@ -20,7 +26,13 @@ if TYPE_CHECKING:
 
 def _convert_option_to_argument(
     opt: str, optdict: Dict[str, Any]
-) -> Union[_StoreArgument, _StoreTrueArgument, _CallableArgument]:
+) -> Union[
+    _StoreArgument,
+    _StoreTrueArgument,
+    _CallableArgument,
+    _StoreOldNamesArgument,
+    _StoreNewNamesArgument,
+]:
     """Convert an optdict to an Argument class instance."""
     if "level" in optdict and "hide" not in optdict:
         warnings.warn(
@@ -30,9 +42,6 @@ def _convert_option_to_argument(
         )
     # pylint: disable-next=fixme
     # TODO: Do something with the 'group' keys of optdicts
-
-    # pylint: disable-next=fixme
-    # TODO: Do something with the 'dest' key and deprecation of options
 
     # Get the long and short flags
     flags = [f"--{opt}"]
@@ -63,6 +72,40 @@ def _convert_option_to_argument(
             arg_help=optdict["help"],
             kwargs=optdict["kwargs"],
             hide_help=optdict.get("hide", False),
+        )
+    if "kwargs" in optdict:
+        if "old_names" in optdict["kwargs"]:
+            return _StoreOldNamesArgument(
+                flags=flags,
+                default=optdict["default"],
+                arg_type=optdict["type"],
+                choices=choices,
+                arg_help=optdict["help"],
+                metavar=optdict["metavar"],
+                hide_help=optdict.get("hide", False),
+                kwargs=optdict["kwargs"],
+            )
+        if "new_names" in optdict["kwargs"]:
+            return _StoreNewNamesArgument(
+                flags=flags,
+                default=optdict["default"],
+                arg_type=optdict["type"],
+                choices=choices,
+                arg_help=optdict["help"],
+                metavar=optdict["metavar"],
+                hide_help=optdict.get("hide", False),
+                kwargs=optdict["kwargs"],
+            )
+    if "dest" in optdict:
+        return _StoreOldNamesArgument(
+            flags=flags,
+            default=optdict["default"],
+            arg_type=optdict["type"],
+            choices=choices,
+            arg_help=optdict["help"],
+            metavar=optdict["metavar"],
+            hide_help=optdict.get("hide", False),
+            kwargs={"old_names": [optdict["dest"]]},
         )
     return _StoreArgument(
         flags=flags,
