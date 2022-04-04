@@ -257,7 +257,7 @@ class _ErrorsOnlyModeAction(_AccessRunObjectAction):
         values: Union[str, Sequence[Any], None],
         option_string: Optional[str] = "--errors-only",
     ) -> None:
-        self.run.linter.error_mode()
+        self.run.linter._error_mode = True
 
 
 class _LongHelpAction(_AccessRunObjectAction):
