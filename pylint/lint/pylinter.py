@@ -361,7 +361,7 @@ class PyLinter(
                     "choices": interfaces.CONFIDENCE_LEVEL_NAMES,
                     "group": "Messages control",
                     "help": "Only show warnings with the listed confidence levels."
-                    f" Leave empty to show all. Valid levels: {', '.join(c.name for c in interfaces.CONFIDENCE_LEVELS)}.",
+                    f" Leave empty to show all. Valid levels: {', '.join(interfaces.CONFIDENCE_LEVEL_NAMES)}.",
                 },
             ),
             (
@@ -620,7 +620,7 @@ class PyLinter(
 
         reporters.ReportsHandlerMixIn.__init__(self)
         config.OptionsManagerMixIn.__init__(self, usage=__doc__)
-        checkers.BaseTokenChecker.__init__(self)
+        checkers.BaseTokenChecker.__init__(self, self, future_option_parsing=True)
         # provided reports
         self.reports = (
             ("RP0001", "Messages by category", report_total_messages_stats),

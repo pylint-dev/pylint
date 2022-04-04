@@ -194,6 +194,8 @@ class Option(optparse.Option):
     optparse.Option.CHECK_METHODS[2] = _check_choice  # type: ignore[index]
 
     def process(self, opt, value, values, parser):
+        if self.callback and self.callback.__module__ == "pylint.lint.run":
+            return 1
         # First, convert the value(s) to the right type.  Howl if any
         # value(s) are bogus.
         value = self.convert_value(opt, value)

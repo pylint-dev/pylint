@@ -7,38 +7,54 @@
 
 from typing import Any, Dict, Union
 
-from pylint.config.argument import _Argument, _StoreTrueArgument
-
-IMPLEMENTED_OPTDICT_KEYS = {"action", "default", "type", "choices", "help", "metavar"}
-"""This is used to track our progress on accepting all optdict keys."""
+from pylint.config.argument import _Argument, _CallableArgument, _StoreTrueArgument
+from pylint.config.callback_actions import _CallbackAction
 
 
 def _convert_option_to_argument(
     opt: str, optdict: Dict[str, Any]
-) -> Union[_Argument, _StoreTrueArgument]:
+) -> Union[_Argument, _StoreTrueArgument, _CallableArgument]:
     """Convert an optdict to an Argument class instance."""
-    # See if the optdict contains any keys we don't yet implement
     # pylint: disable-next=fixme
-    # TODO: This should be removed once the migration to argparse is finished
-    for key, value in optdict.items():
-        if key not in IMPLEMENTED_OPTDICT_KEYS:
-            print("Unhandled key found in Argument creation:", key)  # pragma: no cover
-            print("It's value is:", value)  # pragma: no cover
+    # TODO: Do something with the 'group', 'level' and 'hide' keys of optdicts
 
+    # pylint: disable-next=fixme
+    # TODO: Do something with the 'dest' key and deprecation of options
+
+    # Get the long and short flags
+    flags = [f"--{opt}"]
+    if "short" in optdict:
+        flags += [f"-{optdict['short']}"]
+
+    # Get the action type
     action = optdict.get("action", "store")
+
+    # pylint: disable-next=fixme
+    # TODO: Remove this handling after we have deprecated multiple-choice arguments
+    choices = optdict.get("choices", None)
+    if opt == "confidence":
+        choices = None
+
     if action == "store_true":
         return _StoreTrueArgument(
-            flags=[f"--{opt}"],
+            flags=flags,
             action=action,
             default=optdict["default"],
             arg_help=optdict["help"],
         )
+    if not isinstance(action, str) and issubclass(action, _CallbackAction):
+        return _CallableArgument(
+            flags=flags,
+            action=action,
+            arg_help=optdict["help"],
+            kwargs=optdict["kwargs"],
+        )
     return _Argument(
-        flags=[f"--{opt}"],
+        flags=flags,
         action=action,
         default=optdict["default"],
         arg_type=optdict["type"],
-        choices=optdict.get("choices", None),
+        choices=choices,
         arg_help=optdict["help"],
         metavar=optdict["metavar"],
     )

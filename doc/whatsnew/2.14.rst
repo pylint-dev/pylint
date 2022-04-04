@@ -16,6 +16,10 @@ New checkers
 
   Closes #5224
 
+* ``invalid-enum-extension``: Used when a class tries to extend an inherited Enum class.
+
+  Closes #5501
+
 * Added new checker ``typevar-double-variance``: The "covariant" and "contravariant" keyword arguments
   cannot both be set to "True" in a TypeVar.
 
