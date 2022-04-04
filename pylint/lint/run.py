@@ -7,7 +7,7 @@ import sys
 import warnings
 from typing import Optional
 
-from pylint import config, extensions, interfaces
+from pylint import config, extensions
 from pylint.config.callback_actions import (
     _DoNothingAction,
     _ErrorsOnlyModeAction,
@@ -48,22 +48,6 @@ def _cpu_count() -> int:
     if multiprocessing:
         return multiprocessing.cpu_count()
     return 1
-
-
-def cb_list_extensions(option, optname, value, parser):
-    """List all the extensions under pylint.extensions."""
-
-    for filename in os.listdir(os.path.dirname(extensions.__file__)):
-        if filename.endswith(".py") and not filename.startswith("_"):
-            extension_name, _, _ = filename.partition(".")
-            print(f"pylint.extensions.{extension_name}")
-    sys.exit(0)
-
-
-def cb_list_confidence_levels(option, optname, value, parser):
-    for level in interfaces.CONFIDENCE_LEVELS:
-        print(f"%-18s: {level}")
-    sys.exit(0)
 
 
 def cb_init_hook(optname, value):
