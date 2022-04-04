@@ -14,6 +14,11 @@ Release date: TBA
 
   Closes #5501
 
+* Added new checker ``typevar-double-variance``: The "covariant" and "contravariant" keyword arguments
+  cannot both be set to "True" in a TypeVar.
+
+  Closes ##5895
+
 * Re-enable checker ``bad-docstring-quotes`` for Python <= 3.7.
 
   Closes #6087
