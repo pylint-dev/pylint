@@ -36,6 +36,8 @@ Release date: TBA
 
   Closes #5936
 
+* Add ``subclassed-final-class`` message to the ``check_messages`` decorator of ``visit_classdef``.
+
 * ``potential-index-error``: Emitted when the index of a list or tuple exceeds its length.
   This checker is currently quite conservative to avoid false positives. We welcome
   suggestions for improvements.
