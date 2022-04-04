@@ -91,7 +91,7 @@ def _non_empty_string_transformer(value: str) -> str:
 def _py_version_transformer(value: str) -> Tuple[int, ...]:
     """Transforms a version string into a version tuple."""
     try:
-        version = tuple(int(val) for val in value.split("."))
+        version = tuple(int(val) for val in value.replace(",", ".").split("."))
     except ValueError:
         raise argparse.ArgumentTypeError(
             f"{value} has an invalid format, should be a version string. E.g., '3.8'"
