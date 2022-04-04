@@ -158,13 +158,13 @@ class NameChecker(_BasicChecker):
             "do not require a suffix. The message is also emitted when invariant "
             "variables do have a suffix.",
         ),
-        "C0130": (
+        "C0131": (
             "TypeVar cannot be both covariant and contravariant",
             "typevar-double-variance",
             'Emitted when both the "covariant" and "contravariant" '
             'keyword arguments are set to "True" in a TypeVar.',
         ),
-        "C0131": (
+        "C0132": (
             'TypeVar name "%s" does not match assigned variable name "%s"',
             "typevar-name-mismatch",
             "Emitted when a TypeVar is assigned to a variable "
