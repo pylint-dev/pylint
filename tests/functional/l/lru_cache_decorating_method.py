@@ -14,51 +14,33 @@ def my_func(param):
 
 
 class MyClassWithMethods:
-    @lru_cache
-    @staticmethod
-    def my_func(param):
-        return param + 1
-
-    @lru_cache
-    @classmethod
-    def my_func(cls, param):
-        return param + 1
-
-    @lru_cache  # [lru-cache-decorating-method]
+    @lru_cache()
     def my_func(self, param):
         return param + 1
 
-    @functools.lru_cache  # [lru-cache-decorating-method]
+    @lru_cache(1)
     def my_func(self, param):
         return param + 1
 
-    @aliased_functools.lru_cache  # [lru-cache-decorating-method]
+    @lru_cache(None)  # [lru-cache-decorating-method]
     def my_func(self, param):
         return param + 1
 
-    @aliased_cache  # [lru-cache-decorating-method]
+    @functools.lru_cache(None)  # [lru-cache-decorating-method]
     def my_func(self, param):
         return param + 1
 
-    @lru_cache()  # [lru-cache-decorating-method]
+    @aliased_functools.lru_cache(None)  # [lru-cache-decorating-method]
     def my_func(self, param):
         return param + 1
 
-    @functools.lru_cache()  # [lru-cache-decorating-method]
-    def my_func(self, param):
-        return param + 1
-
-    @aliased_functools.lru_cache()  # [lru-cache-decorating-method]
-    def my_func(self, param):
-        return param + 1
-
-    @aliased_cache()  # [lru-cache-decorating-method]
+    @aliased_cache(None)  # [lru-cache-decorating-method]
     def my_func(self, param):
         return param + 1
 
     # Check double decorating to check robustness of checker itself
-    @aliased_cache()  # [lru-cache-decorating-method]
-    @aliased_cache()  # [lru-cache-decorating-method]
+    @aliased_cache(None)  # [lru-cache-decorating-method]
+    @aliased_cache(None)  # [lru-cache-decorating-method]
     def my_func(self, param):
         return param + 1
 
@@ -72,19 +54,11 @@ class MyClassWithMethodsAndMaxSize:
     def my_func(self, param):
         return param + 1
 
-    @lru_cache(typed=True)  # [lru-cache-decorating-method]
+    @lru_cache(typed=True)
     def my_func(self, param):
         return param + 1
 
-    @lru_cache(typed=True)  # [lru-cache-decorating-method]
-    def my_func(self, param):
-        return param + 1
-
-    @lru_cache(1)
-    def my_func(self, param):
-        return param + 1
-
-    @lru_cache(1)
+    @lru_cache(typed=True)
     def my_func(self, param):
         return param + 1
 
@@ -96,30 +70,6 @@ class MyClassWithMethodsAndMaxSize:
     def my_func(self, param):
         return param + 1
 
-    @functools.lru_cache(1)
-    def my_func(self, param):
-        return param + 1
-
-    @aliased_functools.lru_cache(1)
-    def my_func(self, param):
-        return param + 1
-
-    @aliased_cache(1)
-    def my_func(self, param):
-        return param + 1
-
-    @lru_cache(1)
-    @staticmethod
-    def my_func(param):
-        return param + 1
-
-    @lru_cache(1)
-    @classmethod
-    def my_func(cls, param):
-        return param + 1
-
-    # Check double decorating to check robustness of checker itself
-    @aliased_cache(1)
-    @aliased_cache(1)
+    @lru_cache(typed=True, maxsize=None)  # [lru-cache-decorating-method]
     def my_func(self, param):
         return param + 1
