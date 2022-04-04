@@ -190,10 +190,10 @@ MSGS = {
 
 # pylint: disable=too-many-instance-attributes,too-many-public-methods
 class PyLinter(
+    _ArgumentsManager,
     config.OptionsManagerMixIn,
     reporters.ReportsHandlerMixIn,
     checkers.BaseTokenChecker,
-    _ArgumentsManager,
 ):
     """Lint Python modules using external checkers.
 
