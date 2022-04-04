@@ -1,3 +1,7 @@
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
 import logging
 from pathlib import Path
 from typing import Dict, List, Optional, Union
@@ -8,25 +12,25 @@ PRIMER_DIRECTORY_PATH = Path(".pylint_primer_tests")
 
 
 class PackageToLint:
-    """Represents data about a package to be tested during primer tests"""
+    """Represents data about a package to be tested during primer tests."""
 
     url: str
-    """URL of the repository to clone"""
+    """URL of the repository to clone."""
 
     branch: str
-    """Branch of the repository to clone"""
+    """Branch of the repository to clone."""
 
     directories: List[str]
-    """Directories within the repository to run pylint over"""
+    """Directories within the repository to run pylint over."""
 
     commit: Optional[str]
-    """Commit hash to pin the repository on"""
+    """Commit hash to pin the repository on."""
 
     pylint_additional_args: List[str]
-    """Arguments to give to pylint"""
+    """Arguments to give to pylint."""
 
     pylintrc_relpath: Optional[str]
-    """Path relative to project's main directory to the pylintrc if it exists"""
+    """Path relative to project's main directory to the pylintrc if it exists."""
 
     def __init__(
         self,
@@ -52,13 +56,13 @@ class PackageToLint:
 
     @property
     def clone_directory(self) -> Path:
-        """Directory to clone repository into"""
+        """Directory to clone repository into."""
         clone_name = "/".join(self.url.split("/")[-2:]).replace(".git", "")
         return PRIMER_DIRECTORY_PATH / clone_name
 
     @property
     def paths_to_lint(self) -> List[str]:
-        """The paths we need to lint"""
+        """The paths we need to lint."""
         return [str(self.clone_directory / path) for path in self.directories]
 
     @property
@@ -70,7 +74,7 @@ class PackageToLint:
         return self.paths_to_lint + options + self.pylint_additional_args
 
     def lazy_clone(self) -> None:  # pragma: no cover
-        """Concatenates the target directory and clones the file
+        """Concatenates the target directory and clones the file.
 
         Not expected to be tested as the primer won't work if it doesn't.
         It's tested in the continuous integration primers, only the coverage

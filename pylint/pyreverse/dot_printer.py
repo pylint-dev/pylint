@@ -1,12 +1,6 @@
-# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2021 Nick Drozd <nicholasdrozd@gmail.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Class to generate files in dot format and image formats supported by Graphviz."""
 import os
@@ -19,7 +13,7 @@ from typing import Dict, FrozenSet, List, Optional
 from astroid import nodes
 
 from pylint.pyreverse.printer import EdgeType, Layout, NodeProperties, NodeType, Printer
-from pylint.pyreverse.utils import check_graphviz_availability, get_annotation_label
+from pylint.pyreverse.utils import get_annotation_label
 
 ALLOWED_CHARSETS: FrozenSet[str] = frozenset(("utf-8", "iso-8859-1", "latin1"))
 SHAPES: Dict[NodeType, str] = {
@@ -51,7 +45,7 @@ class DotPrinter(Printer):
         super().__init__(title, layout, use_automatic_namespace)
 
     def _open_graph(self) -> None:
-        """Emit the header lines"""
+        """Emit the header lines."""
         self.emit(f'digraph "{self.title}" {{')
         if self.layout:
             self.emit(f"rankdir={self.layout.value}")
@@ -67,7 +61,10 @@ class DotPrinter(Printer):
         type_: NodeType,
         properties: Optional[NodeProperties] = None,
     ) -> None:
-        """Create a new node. Nodes can be classes, packages, participants etc."""
+        """Create a new node.
+
+        Nodes can be classes, packages, participants etc.
+        """
         if properties is None:
             properties = NodeProperties(label=name)
         shape = SHAPES[type_]
@@ -149,7 +146,6 @@ class DotPrinter(Printer):
         with open(dot_sourcepath, "w", encoding="utf8") as outfile:
             outfile.writelines(self.lines)
         if target not in graphviz_extensions:
-            check_graphviz_availability()
             use_shell = sys.platform == "win32"
             subprocess.call(
                 ["dot", "-T", target, dot_sourcepath, "-o", outputfile],

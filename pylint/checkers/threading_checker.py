@@ -1,5 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 from typing import TYPE_CHECKING
 
@@ -14,7 +15,7 @@ if TYPE_CHECKING:
 
 
 class ThreadingChecker(BaseChecker):
-    """Checks for threading module
+    """Checks for threading module.
 
     - useless with lock - locking used in wrong way that has no effect (with threading.Lock():)
     """

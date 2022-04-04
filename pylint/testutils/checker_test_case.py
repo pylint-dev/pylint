@@ -1,5 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 import contextlib
 import warnings
@@ -73,14 +74,14 @@ class CheckerTestCase:
                 # pylint: disable=fixme
                 # TODO: Require end_line and end_col_offset and remove the warning
                 if not expected_msg.end_line == gotten_msg.end_line:
-                    warnings.warn(
+                    warnings.warn(  # pragma: no cover
                         f"The end_line attribute of {gotten_msg} does not match "
                         f"the expected value in {expected_msg}. In pylint 3.0 correct end_line "
                         "attributes will be required for MessageTest.",
                         DeprecationWarning,
                     )
                 if not expected_msg.end_col_offset == gotten_msg.end_col_offset:
-                    warnings.warn(
+                    warnings.warn(  # pragma: no cover
                         f"The end_col_offset attribute of {gotten_msg} does not match "
                         f"the expected value in {expected_msg}. In pylint 3.0 correct end_col_offset "
                         "attributes will be required for MessageTest.",
@@ -88,7 +89,7 @@ class CheckerTestCase:
                     )
 
     def walk(self, node):
-        """recursive walk on the given node"""
+        """Recursive walk on the given node."""
         walker = ASTWalker(linter)
         walker.add_checker(self.checker)
         walker.walk(node)

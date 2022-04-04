@@ -1,5 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 import csv
 import operator
@@ -259,7 +260,7 @@ class LintModuleTest:
         expected_output: List[OutputLine],
         actual_output: List[OutputLine],
     ) -> None:
-        """This is a function because we want to be able to update the text in LintModuleOutputUpdate"""
+        """This is a function because we want to be able to update the text in LintModuleOutputUpdate."""
         assert expected_output == actual_output, self.error_msg_for_unequal_output(
             expected_output, actual_output
         )

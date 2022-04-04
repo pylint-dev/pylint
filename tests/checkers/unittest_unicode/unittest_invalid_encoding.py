@@ -1,3 +1,7 @@
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
 import codecs
 import io
 import shutil
@@ -121,11 +125,11 @@ class TestInvalidEncoding(pylint.testutils.CheckerTestCase):
         ],
     )
     def test__determine_codec(self, content: bytes, codec: str, line: int):
-        """The codec determined should be exact no matter what we throw at it"""
+        """The codec determined should be exact no matter what we throw at it."""
         assert self.checker._determine_codec(io.BytesIO(content)) == (codec, line)
 
     def test__determine_codec_raises_syntax_error_on_invalid_input(self):
-        """invalid input should lead to a SyntaxError"""
+        """Invalid input should lead to a SyntaxError."""
         with pytest.raises(SyntaxError):
             self.checker._determine_codec(io.BytesIO(b"\x80abc"))
 

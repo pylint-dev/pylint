@@ -1,5 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Looks for overlapping exceptions."""
 
@@ -19,6 +20,7 @@ if TYPE_CHECKING:
 class OverlappingExceptionsChecker(checkers.BaseChecker):
     """Checks for two or more exceptions in the same exception handler
     clause that are identical or parts of the same inheritance hierarchy
+
     (i.e. overlapping).
     """
 
@@ -32,12 +34,11 @@ class OverlappingExceptionsChecker(checkers.BaseChecker):
             "Used when exceptions in handler overlap or are identical",
         )
     }
-    priority = -2
     options = ()
 
     @utils.check_messages("overlapping-except")
     def visit_tryexcept(self, node: nodes.TryExcept) -> None:
-        """check for empty except"""
+        """Check for empty except."""
         for handler in node.handlers:
             if handler.type is None:
                 continue

@@ -1,7 +1,7 @@
 """Check possible unbalanced tuple unpacking """
 from __future__ import absolute_import
 from typing import NamedTuple
-from functional.u.unpacking import unpack
+from functional.u.unpacking.unpacking import unpack
 
 # pylint: disable=missing-class-docstring, missing-function-docstring, using-constant-test, useless-object-inheritance,import-outside-toplevel
 
@@ -157,3 +157,6 @@ def my_function(mystring):
 a, b = my_function("12")  # [unbalanced-tuple-unpacking]
 c = my_function("12")
 d, *_ = my_function("12")
+
+# https://github.com/PyCQA/pylint/issues/5998
+x, y, z = (1, 2)  # [unbalanced-tuple-unpacking]

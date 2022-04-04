@@ -1,7 +1,7 @@
-# Copyright (c) 2021-2022 Carli Freudenberg <carli.freudenberg@energymeteo.de>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
 """All alphanumeric unicode character are allowed in Python but due
 to similarities in how they look they can be confused.
 
@@ -41,14 +41,13 @@ NON_ASCII_HELP = (
 
 
 class NonAsciiNameChecker(base_checker.BaseChecker):
-    """A strict name checker only allowing ASCII
+    """A strict name checker only allowing ASCII.
 
     Note: This check only checks Names, so it ignores the content of
           docstrings and comments!
     """
 
     __implements__ = interfaces.IAstroidChecker
-    priority = -1
 
     msgs = {
         "C2401": (
@@ -147,7 +146,7 @@ class NonAsciiNameChecker(base_checker.BaseChecker):
 
     @utils.check_messages("non-ascii-name")
     def visit_assignname(self, node: nodes.AssignName) -> None:
-        """check module level assigned names"""
+        """Check module level assigned names."""
         # The NameChecker from which this Checker originates knows a lot of different
         # versions of variables, i.e. constants, inline variables etc.
         # To simplify we use only `variable` here, as we don't need to apply different

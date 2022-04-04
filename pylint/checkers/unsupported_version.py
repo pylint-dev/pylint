@@ -1,9 +1,6 @@
-# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2021 Mark Byrne <31762852+mbyrnepr2@users.noreply.github.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Checker for features used that are not supported by all python versions
 indicated by the py-version setting.
@@ -35,13 +32,13 @@ class UnsupportedVersionChecker(BaseChecker):
     __implements__ = (IAstroidChecker,)
     name = "unsupported_version"
     msgs = {
-        "W1601": (
+        "W2601": (
             "F-strings are not supported by all versions included in the py-version setting",
             "using-f-string-in-unsupported-version",
             "Used when the py-version set by the user is lower than 3.6 and pylint encounters "
             "a f-string.",
         ),
-        "W1602": (
+        "W2602": (
             "typing.final is not supported by all versions included in the py-version setting",
             "using-final-decorator-in-unsupported-version",
             "Used when the py-version set by the user is lower than 3.8 and pylint encounters "
@@ -57,13 +54,13 @@ class UnsupportedVersionChecker(BaseChecker):
 
     @check_messages("using-f-string-in-unsupported-version")
     def visit_joinedstr(self, node: nodes.JoinedStr) -> None:
-        """Check f-strings"""
+        """Check f-strings."""
         if not self._py36_plus:
             self.add_message("using-f-string-in-unsupported-version", node=node)
 
     @check_messages("using-final-decorator-in-unsupported-version")
     def visit_decorators(self, node: nodes.Decorators) -> None:
-        """Check decorators"""
+        """Check decorators."""
         self._check_typing_final(node)
 
     def _check_typing_final(self, node: nodes.Decorators) -> None:

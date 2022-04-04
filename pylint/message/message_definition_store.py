@@ -1,5 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 import collections
 import functools
@@ -72,7 +73,7 @@ class MessageDefinitionStore:
         return repr([md.symbol for md in message_definitions])
 
     def help_message(self, msgids_or_symbols: List[str]) -> None:
-        """Display help messages for the given message identifiers"""
+        """Display help messages for the given message identifiers."""
         for msgids_or_symbol in msgids_or_symbols:
             try:
                 for message_definition in self.get_message_definitions(
@@ -99,7 +100,7 @@ class MessageDefinitionStore:
     def find_emittable_messages(
         self,
     ) -> Tuple[List[MessageDefinition], List[MessageDefinition]]:
-        """Finds all emittable and non-emittable messages"""
+        """Finds all emittable and non-emittable messages."""
         messages = sorted(self._messages_definitions.values(), key=lambda m: m.msgid)
         emittable = []
         non_emittable = []

@@ -1,39 +1,6 @@
-# Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2014 Vlad Temian <vladtemian@gmail.com>
-# Copyright (c) 2014 Google, Inc.
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
-# Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
-# Copyright (c) 2017, 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2017, 2021 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2017, 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2017, 2019 Thomas Hisch <t.hisch@gmail.com>
-# Copyright (c) 2017 Daniel Miller <millerdev@gmail.com>
-# Copyright (c) 2017 Bryce Guinta <bryce.paul.guinta@gmail.com>
-# Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
-# Copyright (c) 2018 Jason Owen <jason.a.owen@gmail.com>
-# Copyright (c) 2018 Jace Browning <jacebrowning@gmail.com>
-# Copyright (c) 2018 Reverb C <reverbc@users.noreply.github.com>
-# Copyright (c) 2019 Hugues <hugues.bruant@affirm.com>
-# Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2020 Frank Harrison <frank@doublethefish.com>
-# Copyright (c) 2020 Matěj Grabovský <mgrabovs@redhat.com>
-# Copyright (c) 2020 Pieter Engelbrecht <pengelbrecht@rems2.com>
-# Copyright (c) 2020 Clément Pit-Claudel <cpitclaudel@users.noreply.github.com>
-# Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Mark Bell <mark00bell@googlemail.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 Dr. Nick <das-intensity@users.noreply.github.com>
-# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
-# Copyright (c) 2021 chohner <mail@chohner.com>
-# Copyright (c) 2021 Louis Sautier <sautier.louis@gmail.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 # pylint: disable=too-many-public-methods
 
@@ -98,6 +65,24 @@ def _configure_lc_ctype(lc_ctype: str) -> Iterator:
         os.environ.pop(lc_ctype_env)
         if original_lctype:
             os.environ[lc_ctype_env] = original_lctype
+
+
+@contextlib.contextmanager
+def _test_sys_path() -> Generator[None, None, None]:
+    original_path = sys.path
+    try:
+        yield
+    finally:
+        sys.path = original_path
+
+
+@contextlib.contextmanager
+def _test_cwd() -> Generator[None, None, None]:
+    original_dir = os.getcwd()
+    try:
+        yield
+    finally:
+        os.chdir(original_dir)
 
 
 class MultiReporter(BaseReporter):
@@ -224,18 +209,6 @@ class TestRunTC:
             ["--exit-zero", join(HERE, "regrtest_data", "syntax_error.py")], code=0
         )
 
-    def test_generate_config_option(self) -> None:
-        self._runtest(["--generate-rcfile"], code=0)
-
-    def test_generate_config_option_order(self) -> None:
-        out1 = StringIO()
-        out2 = StringIO()
-        self._runtest(["--generate-rcfile"], code=0, out=out1)
-        self._runtest(["--generate-rcfile"], code=0, out=out2)
-        output1 = out1.getvalue()
-        output2 = out2.getvalue()
-        assert output1 == output2
-
     def test_generate_config_disable_symbolic_names(self) -> None:
         # Test that --generate-rcfile puts symbolic names in the --disable
         # option.
@@ -255,26 +228,14 @@ class TestRunTC:
         messages = utils._splitstrip(parser.get("MESSAGES CONTROL", "disable"))
         assert "suppressed-message" in messages
 
-    def test_generate_rcfile_no_obsolete_methods(self) -> None:
-        out = StringIO()
-        self._run_pylint(["--generate-rcfile"], out=out)
-        output = out.getvalue()
-        assert "profile" not in output
-
     def test_nonexistent_config_file(self) -> None:
         self._runtest(["--rcfile=/tmp/this_file_does_not_exist"], code=32)
-
-    def test_help_message_option(self) -> None:
-        self._runtest(["--help-msg", "W0101"], code=0)
-
-    def test_error_help_message_option(self) -> None:
-        self._runtest(["--help-msg", "WX101"], code=0)
 
     def test_error_missing_arguments(self) -> None:
         self._runtest([], code=32)
 
     def test_no_out_encoding(self) -> None:
-        """test redirection of stdout with non ascii characters"""
+        """Test redirection of stdout with non ascii characters."""
         # This test reproduces bug #48066 ; it happens when stdout is redirected
         # through '>' : the sys.stdout.encoding becomes then None, and if the
         # output contains non ascii, pylint will crash
@@ -490,7 +451,9 @@ class TestRunTC:
         self._test_output(
             [
                 f"--rcfile={config_path}",
-                "--help-msg=dummy-message-01,dummy-message-02",
+                "--help-msg",
+                "dummy-message-01",
+                "dummy-message-02",
             ],
             expected_output=expected,
         )
@@ -811,14 +774,6 @@ class TestRunTC:
     @staticmethod
     def test_modify_sys_path() -> None:
         @contextlib.contextmanager
-        def test_sys_path() -> Generator[None, None, None]:
-            original_path = sys.path
-            try:
-                yield
-            finally:
-                sys.path = original_path
-
-        @contextlib.contextmanager
         def test_environ_pythonpath(
             new_pythonpath: Optional[str],
         ) -> Generator[None, None, None]:
@@ -837,7 +792,7 @@ class TestRunTC:
                     # Only delete PYTHONPATH if new_pythonpath wasn't None
                     del os.environ["PYTHONPATH"]
 
-        with test_sys_path(), patch("os.getcwd") as mock_getcwd:
+        with _test_sys_path(), patch("os.getcwd") as mock_getcwd:
             cwd = "/tmp/pytest-of-root/pytest-0/test_do_not_import_files_from_0"
             mock_getcwd.return_value = cwd
             default_paths = [
@@ -1111,14 +1066,6 @@ class TestRunTC:
         expected = "Your code has been rated at 7.50/10"
         self._test_output([path, "--jobs=2", "-ry"], expected_output=expected)
 
-    def test_duplicate_code_raw_strings(self) -> None:
-        path = join(HERE, "regrtest_data", "duplicate_data_raw_strings")
-        expected_output = "Similar lines in 2 files"
-        self._test_output(
-            [path, "--disable=all", "--enable=duplicate-code"],
-            expected_output=expected_output,
-        )
-
     def test_regression_parallel_mode_without_filepath(self) -> None:
         # Test that parallel mode properly passes filepath
         # https://github.com/PyCQA/pylint/issues/3564
@@ -1253,24 +1200,8 @@ class TestRunTC:
         )
 
     @staticmethod
-    def test_enable_all_extensions() -> None:
-        """Test to see if --enable-all-extensions does indeed load all extensions"""
-        # Record all extensions
-        plugins = []
-        for filename in os.listdir(os.path.dirname(extensions.__file__)):
-            if filename.endswith(".py") and not filename.startswith("_"):
-                plugins.append(f"pylint.extensions.{filename[:-3]}")
-
-        # Check if they are loaded
-        runner = Run(
-            ["--enable-all-extensions", join(HERE, "regrtest_data", "empty.py")],
-            exit=False,
-        )
-        assert sorted(plugins) == sorted(runner.linter._dynamic_plugins)
-
-    @staticmethod
     def test_load_text_repoter_if_not_provided() -> None:
-        """Test if PyLinter.reporter is a TextReporter if no reporter is provided"""
+        """Test if PyLinter.reporter is a TextReporter if no reporter is provided."""
         linter = PyLinter()
 
         assert isinstance(linter.reporter, TextReporter)
@@ -1284,3 +1215,184 @@ class TestRunTC:
         with pytest.raises(SystemExit) as ex:
             Run(["--ignore-paths", "test", join(HERE, "regrtest_data", "empty.py")])
         assert ex.value.code == 0
+
+    @staticmethod
+    def test_max_inferred_for_complicated_class_hierarchy() -> None:
+        """Regression test for a crash reported in https://github.com/PyCQA/pylint/issues/5679.
+
+        The class hierarchy of 'sqlalchemy' is so intricate that it becomes uninferable with
+        the standard max_inferred of 100. We used to crash when this happened.
+        """
+        with pytest.raises(SystemExit) as ex:
+            Run(
+                [
+                    join(
+                        HERE,
+                        "regrtest_data",
+                        "max_inferable_limit_for_classes",
+                        "main.py",
+                    ),
+                ]
+            )
+        # Error code should not include bit-value 1 for crash
+        assert not ex.value.code % 2
+
+    def test_regression_recursive(self):
+        self._test_output(
+            [join(HERE, "regrtest_data", "directory", "subdirectory"), "--recursive=n"],
+            expected_output="No such file or directory",
+        )
+
+    def test_recursive(self):
+        self._runtest(
+            [join(HERE, "regrtest_data", "directory", "subdirectory"), "--recursive=y"],
+            code=0,
+        )
+
+    def test_recursive_current_dir(self):
+        with _test_sys_path():
+            # pytest is including directory HERE/regrtest_data to sys.path which causes
+            # astroid to believe that directory is a package.
+            sys.path = [
+                path
+                for path in sys.path
+                if not os.path.basename(path) == "regrtest_data"
+            ]
+            with _test_cwd():
+                os.chdir(join(HERE, "regrtest_data", "directory"))
+                self._runtest(
+                    [".", "--recursive=y"],
+                    code=0,
+                )
+
+    def test_regression_recursive_current_dir(self):
+        with _test_sys_path():
+            # pytest is including directory HERE/regrtest_data to sys.path which causes
+            # astroid to believe that directory is a package.
+            sys.path = [
+                path
+                for path in sys.path
+                if not os.path.basename(path) == "regrtest_data"
+            ]
+            with _test_cwd():
+                os.chdir(join(HERE, "regrtest_data", "directory"))
+                self._test_output(
+                    ["."],
+                    expected_output="No such file or directory",
+                )
+
+
+class TestCallbackOptions:
+    """Test for all callback options we support."""
+
+    @staticmethod
+    @pytest.mark.parametrize(
+        "command,expected",
+        [
+            (["--list-msgs"], "Emittable messages with current interpreter:"),
+            (["--list-msgs-enabled"], "Enabled messages:"),
+            (["--list-groups"], "nonascii-checker"),
+            (["--list-conf-levels"], "Confidence(name='HIGH', description="),
+            (["--list-extensions"], "pylint.extensions.empty_comment"),
+            (["--full-documentation"], "Pylint global options and switches"),
+            (["--long-help"], "Environment variables:"),
+        ],
+    )
+    def test_output_of_callback_options(command: List[str], expected: str) -> None:
+        """Test whether certain strings are in the output of a callback command."""
+
+        process = subprocess.run(
+            [sys.executable, "-m", "pylint"] + command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            encoding="utf-8",
+            check=False,
+        )
+        assert expected in process.stdout
+
+    @staticmethod
+    def test_help_msg() -> None:
+        """Test the --help-msg flag."""
+
+        process = subprocess.run(
+            [sys.executable, "-m", "pylint", "--help-msg", "W0101"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            encoding="utf-8",
+            check=False,
+        )
+        assert ":unreachable (W0101)" in process.stdout
+
+        process = subprocess.run(
+            [sys.executable, "-m", "pylint", "--help-msg", "WX101"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            encoding="utf-8",
+            check=False,
+        )
+        assert "No such message id" in process.stdout
+
+        process = subprocess.run(
+            [sys.executable, "-m", "pylint", "--help-msg"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            encoding="utf-8",
+            check=False,
+        )
+        assert "--help-msg: expected at least one argumen" in process.stderr
+
+    @staticmethod
+    def test_generate_rcfile() -> None:
+        """Test the --generate-rcfile flag."""
+        process = subprocess.run(
+            [sys.executable, "-m", "pylint", "--generate-rcfile"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            encoding="utf-8",
+            check=False,
+        )
+        assert "[MASTER]" in process.stdout
+        assert "profile" not in process.stdout
+
+        process_two = subprocess.run(
+            [sys.executable, "-m", "pylint", "--generate-rcfile"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            encoding="utf-8",
+            check=False,
+        )
+        assert process.stdout == process_two.stdout
+
+    @staticmethod
+    def test_errors_only() -> None:
+        """Test the --errors-only flag."""
+        with pytest.raises(SystemExit):
+            run = Run(["--errors-only"])
+            assert run.linter._error_mode
+
+    @staticmethod
+    def test_verbose() -> None:
+        """Test the --verbose flag."""
+        with pytest.raises(SystemExit):
+            run = Run(["--verbose"])
+            assert run.verbose
+
+        with pytest.raises(SystemExit):
+            run = Run(["--verbose=True"])
+            assert run.verbose
+
+    @staticmethod
+    def test_enable_all_extensions() -> None:
+        """Test to see if --enable-all-extensions does indeed load all extensions."""
+        # Record all extensions
+        plugins = []
+        for filename in os.listdir(os.path.dirname(extensions.__file__)):
+            if filename.endswith(".py") and not filename.startswith("_"):
+                plugins.append(f"pylint.extensions.{filename[:-3]}")
+
+        # Check if they are loaded
+        runner = Run(
+            ["--enable-all-extensions", join(HERE, "regrtest_data", "empty.py")],
+            exit=False,
+        )
+        assert sorted(plugins) == sorted(runner.linter._dynamic_plugins)

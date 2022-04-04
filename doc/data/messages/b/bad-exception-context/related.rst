@@ -1,0 +1,2 @@
+- `The raise statement <https://docs.python.org/3/reference/simple_stmts.html#the-raise-statement>`_
+- `Explicit Exception Chaining <https://peps.python.org/pep-3134/#explicit-exception-chaining>`_ per PEP 3134

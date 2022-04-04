@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 import collections
 from typing import Optional, Tuple, Union, overload
@@ -32,7 +32,7 @@ _MsgBase = collections.namedtuple(
 
 
 class Message(_MsgBase):
-    """This class represent a message to be issued by the reporters"""
+    """This class represent a message to be issued by the reporters."""
 
     @overload
     def __new__(

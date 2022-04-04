@@ -1,5 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 import contextlib
 import io
@@ -46,7 +47,7 @@ MODULES_NAMES = [m[1] for m in MODULES_TO_CHECK]
 def test_primer_stdlib_no_crash(
     test_module_location: str, test_module_name: str, capsys: CaptureFixture
 ) -> None:
-    """Test that pylint does not produce any crashes or fatal errors on stdlib modules"""
+    """Test that pylint does not produce any crashes or fatal errors on stdlib modules."""
     __tracebackhide__ = True  # pylint: disable=unused-variable
     os.chdir(test_module_location)
     with _patch_stdout(io.StringIO()):

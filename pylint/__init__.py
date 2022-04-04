@@ -1,13 +1,6 @@
-# Copyright (c) 2008, 2012 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2014, 2016-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2018 Nick Drozd <nicholasdrozd@gmail.com>
-# Copyright (c) 2020-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 import os
 import sys
@@ -19,7 +12,7 @@ from pylint.__pkginfo__ import __version__
 
 
 def run_pylint(argv: Optional[Sequence[str]] = None):
-    """Run pylint
+    """Run pylint.
 
     argv can be a sequence of strings normally supplied as arguments on the command line
     """
@@ -32,7 +25,7 @@ def run_pylint(argv: Optional[Sequence[str]] = None):
 
 
 def run_epylint(argv: Optional[Sequence[str]] = None):
-    """Run epylint
+    """Run epylint.
 
     argv can be a list of strings normally supplied as arguments on the command line
     """
@@ -42,7 +35,7 @@ def run_epylint(argv: Optional[Sequence[str]] = None):
 
 
 def run_pyreverse(argv: Optional[Sequence[str]] = None):
-    """Run pyreverse
+    """Run pyreverse.
 
     argv can be a sequence of strings normally supplied as arguments on the command line
     """
@@ -52,7 +45,7 @@ def run_pyreverse(argv: Optional[Sequence[str]] = None):
 
 
 def run_symilar(argv: Optional[Sequence[str]] = None):
-    """Run symilar
+    """Run symilar.
 
     argv can be a sequence of strings normally supplied as arguments on the command line
     """

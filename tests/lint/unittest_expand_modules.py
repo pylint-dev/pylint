@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 import re
 from pathlib import Path
@@ -78,10 +78,10 @@ init_of_package = {
 
 
 class TestExpandModules(CheckerTestCase):
-    """Test the expand_modules function while allowing options to be set"""
+    """Test the expand_modules function while allowing options to be set."""
 
     class Checker(BaseChecker):
-        """This dummy checker is needed to allow options to be set"""
+        """This dummy checker is needed to allow options to be set."""
 
         name = "checker"
         msgs: Dict[str, Tuple[str, ...]] = {}
@@ -107,7 +107,7 @@ class TestExpandModules(CheckerTestCase):
     )
     @set_config(ignore_paths="")
     def test_expand_modules(self, files_or_modules, expected):
-        """Test expand_modules with the default value of ignore-paths"""
+        """Test expand_modules with the default value of ignore-paths."""
         ignore_list, ignore_list_re = [], []
         modules, errors = expand_modules(
             files_or_modules,
@@ -133,7 +133,7 @@ class TestExpandModules(CheckerTestCase):
     )
     @set_config(ignore_paths=".*/lint/.*")
     def test_expand_modules_with_ignore(self, files_or_modules, expected):
-        """Test expand_modules with a non-default value of ignore-paths"""
+        """Test expand_modules with a non-default value of ignore-paths."""
         ignore_list, ignore_list_re = [], []
         modules, errors = expand_modules(
             files_or_modules,

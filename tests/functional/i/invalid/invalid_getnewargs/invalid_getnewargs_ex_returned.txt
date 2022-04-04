@@ -1,0 +1,6 @@
+invalid-getnewargs-ex-returned:36:4:36:25:FirstBadGetNewArgsEx.__getnewargs_ex__:__getnewargs_ex__ does not return a tuple containing (tuple, dict):UNDEFINED
+invalid-getnewargs-ex-returned:43:4:43:25:SecondBadGetNewArgsEx.__getnewargs_ex__:__getnewargs_ex__ does not return a tuple containing (tuple, dict):UNDEFINED
+invalid-getnewargs-ex-returned:50:4:50:25:ThirdBadGetNewArgsEx.__getnewargs_ex__:__getnewargs_ex__ does not return a tuple containing (tuple, dict):UNDEFINED
+invalid-getnewargs-ex-returned:57:4:57:25:FourthBadGetNewArgsEx.__getnewargs_ex__:__getnewargs_ex__ does not return a tuple containing (tuple, dict):UNDEFINED
+invalid-getnewargs-ex-returned:64:4:64:25:FifthBadGetNewArgsEx.__getnewargs_ex__:__getnewargs_ex__ does not return a tuple containing (tuple, dict):UNDEFINED
+invalid-getnewargs-ex-returned:71:4:71:25:SixthBadGetNewArgsEx.__getnewargs_ex__:__getnewargs_ex__ does not return a tuple containing (tuple, dict):UNDEFINED

@@ -1,38 +1,6 @@
-# Copyright (c) 2009-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2010 Daniel Harding <dharding@gmail.com>
-# Copyright (c) 2012-2014 Google, Inc.
-# Copyright (c) 2013-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2014 Brett Cannon <brett@python.org>
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015 Rene Zhang <rz99@cornell.edu>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016, 2018 Jakub Wilk <jwilk@jwilk.net>
-# Copyright (c) 2016 Peter Dawyndt <Peter.Dawyndt@UGent.be>
-# Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
-# Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2018, 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2018-2019 Lucas Cimon <lucas.cimon@gmail.com>
-# Copyright (c) 2018 Alan Chan <achan961117@gmail.com>
-# Copyright (c) 2018 Yury Gribov <tetra2005@gmail.com>
-# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
-# Copyright (c) 2018 Nick Drozd <nicholasdrozd@gmail.com>
-# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019 Wes Turner <westurner@google.com>
-# Copyright (c) 2019 Djailla <bastien.vallet@gmail.com>
-# Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2020 Matthew Suozzo <msuozzo@google.com>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2020 谭九鼎 <109224573@qq.com>
-# Copyright (c) 2020 Anthony <tanant@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 Tushar Sadhwani <tushar.sadhwani000@gmail.com>
-# Copyright (c) 2021 Jaehoon Hwang <jaehoonhwang@users.noreply.github.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Peter Kolbus <peter.kolbus@garmin.com>
-
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Checker for string formatting operations."""
 
@@ -635,7 +603,7 @@ class StringFormatChecker(BaseChecker):
 
 
 class StringConstantChecker(BaseTokenChecker):
-    """Check string literals"""
+    """Check string literals."""
 
     __implements__ = (IAstroidChecker, ITokenChecker, IRawChecker)
     name = "string"
@@ -709,8 +677,8 @@ class StringConstantChecker(BaseTokenChecker):
     # Unicode strings.
     UNICODE_ESCAPE_CHARACTERS = "uUN"
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, linter):
+        super().__init__(linter, future_option_parsing=True)
         self.string_tokens = {}  # token position -> (token value, next token)
 
     def process_module(self, node: nodes.Module) -> None:
@@ -741,7 +709,7 @@ class StringConstantChecker(BaseTokenChecker):
                     start = (start[0], len(line[: start[1]].encode(encoding)))
                 self.string_tokens[start] = (str_eval(token), next_token)
 
-        if self.config.check_quote_consistency:
+        if self.linter.namespace.check_quote_consistency:
             self.check_for_consistent_string_delimiters(tokens)
 
     @check_messages("implicit-str-concat")
@@ -815,7 +783,7 @@ class StringConstantChecker(BaseTokenChecker):
             if matching_token != elt.value and next_token is not None:
                 if next_token.type == tokenize.STRING and (
                     next_token.start[0] == elt.lineno
-                    or self.config.check_str_concat_over_line_jumps
+                    or self.linter.namespace.check_str_concat_over_line_jumps
                 ):
                     self.add_message(
                         "implicit-str-concat", line=elt.lineno, args=(iterable_type,)
@@ -850,7 +818,7 @@ class StringConstantChecker(BaseTokenChecker):
     def process_non_raw_string_token(
         self, prefix, string_body, start_row, string_start_col
     ):
-        """check for bad escapes in a non-raw string.
+        """Check for bad escapes in a non-raw string.
 
         prefix: lowercase string of eg 'ur' string prefix markers.
         string_body: the un-parsed body of the string, not including the quote
@@ -917,7 +885,7 @@ class StringConstantChecker(BaseTokenChecker):
             self._detect_u_string_prefix(node)
 
     def _detect_u_string_prefix(self, node: nodes.Const):
-        """Check whether strings include a 'u' prefix like u'String'"""
+        """Check whether strings include a 'u' prefix like u'String'."""
         if node.kind == "u":
             self.add_message(
                 "redundant-u-string-prefix",
@@ -933,6 +901,7 @@ def register(linter: "PyLinter") -> None:
 
 def str_eval(token):
     """Mostly replicate `ast.literal_eval(token)` manually to avoid any performance hit.
+
     This supports f-strings, contrary to `ast.literal_eval`.
     We have to support all string literal notations:
     https://docs.python.org/3/reference/lexical_analysis.html#string-and-bytes-literals

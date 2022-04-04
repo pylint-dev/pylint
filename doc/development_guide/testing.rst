@@ -83,12 +83,32 @@ can have sections of Pylint's configuration.
 The .rc file can also contain a section ``[testoptions]`` to pass options for the functional
 test runner. The following options are currently supported:
 
-    "min_pyver": Minimal python version required to run the test
-    "max_pyver": Python version from which the test won't be run. If the last supported version is 3.9 this setting should be set to 3.10.
-    "min_pyver_end_position": Minimal python version required to check the end_line and end_column attributes of the message
-    "requires": Packages required to be installed locally to run the test
-    "except_implementations": List of python implementations on which the test should not run
-    "exclude_platforms": List of operating systems on which the test should not run
+- "min_pyver": Minimal python version required to run the test
+- "max_pyver": Python version from which the test won't be run. If the last supported version is 3.9 this setting should be set to 3.10.
+- "min_pyver_end_position": Minimal python version required to check the end_line and end_column attributes of the message
+- "requires": Packages required to be installed locally to run the test
+- "except_implementations": List of python implementations on which the test should not run
+- "exclude_platforms": List of operating systems on which the test should not run
+
+**Functional test file locations**
+
+For existing checkers, new test cases should preferably be appended to the existing test file.
+For new checkers, a new file ``new_checker_message.py`` should be created (Note the use of
+underscores). This file should then be placed in the ``test/functional/n`` sub-directory.
+
+Some additional notes:
+
+- If the checker is part of an extension the test should go in ``test/functional/ext/extension_name``
+- If the test is a regression test it should go in ``test/r/regression`` or ``test/r/regression_02``.
+  The file name should start with ``regression_``.
+- For some sub-directories, such as ``test/functional/u``, there are additional sub-directories (``test/functional/u/use``).
+  Please check if your test file should be placed in any of these directories. It should be placed there
+  if the sub-directory name matches the word before the first underscore of your test file name.
+
+The folder structure is enforced when running the test suite, so you might be directed to put the file
+in a different sub-directory.
+
+**Running and updating functional tests**
 
 During development, it's sometimes helpful to run all functional tests in your
 current environment in order to have faster feedback. Run from Pylint root directory with::
