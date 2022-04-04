@@ -2,11 +2,10 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-import optparse  # pylint: disable=deprecated-module
 import os
 import sys
 import warnings
-from typing import NoReturn, Optional
+from typing import Optional
 
 from pylint import config, extensions, interfaces
 from pylint.config.callback_actions import (
@@ -28,7 +27,7 @@ from pylint.config.config_initialization import _config_initialization
 from pylint.constants import DEFAULT_PYLINT_HOME, OLD_DEFAULT_PYLINT_HOME, full_version
 from pylint.lint.pylinter import PyLinter
 from pylint.lint.utils import ArgumentPreprocessingError, preprocess_options
-from pylint.utils import print_full_documentation, utils
+from pylint.utils import utils
 
 if sys.version_info >= (3, 8):
     from typing import Literal
@@ -90,8 +89,10 @@ group are mutually exclusive.",
     )
 
     @staticmethod
-    def _return_one(*args):  # pylint: disable=unused-argument
-        return 1
+    def _not_implemented_callback(*args, **kwargs):
+        # pylint: disable-next=fixme
+        # TODO: Remove after optparse has been deprecated
+        raise NotImplementedError
 
     def __init__(
         self,
@@ -134,7 +135,7 @@ group are mutually exclusive.",
                     {
                         "action": _DoNothingAction,
                         "kwargs": {},
-                        "callback": Run._return_one,
+                        "callback": Run._not_implemented_callback,
                         "group": "Commands",
                         "help": "Specify a configuration file to load.",
                     },
@@ -144,7 +145,7 @@ group are mutually exclusive.",
                     {
                         "action": _DoNothingAction,
                         "kwargs": {},
-                        "callback": Run._return_one,
+                        "callback": Run._not_implemented_callback,
                         "group": "Commands",
                         "help": "Specify an output file.",
                     },
@@ -154,7 +155,7 @@ group are mutually exclusive.",
                     {
                         "action": _DoNothingAction,
                         "kwargs": {},
-                        "callback": Run._return_one,
+                        "callback": Run._not_implemented_callback,
                         "level": 1,
                         "help": "Python code to execute, usually for sys.path "
                         "manipulation such as pygtk.require().",
@@ -165,7 +166,7 @@ group are mutually exclusive.",
                     {
                         "action": _MessageHelpAction,
                         "kwargs": {"Run": self},
-                        "callback": self.cb_help_message,
+                        "callback": Run._not_implemented_callback,
                         "group": "Commands",
                         "help": "Display a help message for the given message id and "
                         "exit. The value may be a comma separated list of message ids.",
@@ -176,7 +177,7 @@ group are mutually exclusive.",
                     {
                         "action": _ListMessagesAction,
                         "kwargs": {"Run": self},
-                        "callback": self.cb_list_messages,
+                        "callback": Run._not_implemented_callback,
                         "group": "Commands",
                         "level": 1,
                         "help": "Display a list of all pylint's messages divided by whether "
@@ -188,7 +189,7 @@ group are mutually exclusive.",
                     {
                         "action": _ListMessagesEnabledAction,
                         "kwargs": {"Run": self},
-                        "callback": self.cb_list_messages_enabled,
+                        "callback": Run._not_implemented_callback,
                         "group": "Commands",
                         "level": 1,
                         "help": "Display a list of what messages are enabled, "
@@ -200,7 +201,7 @@ group are mutually exclusive.",
                     {
                         "action": _ListCheckGroupsAction,
                         "kwargs": {"Run": self},
-                        "callback": self.cb_list_groups,
+                        "callback": Run._not_implemented_callback,
                         "group": "Commands",
                         "level": 1,
                         "help": "List pylint's message groups.",
@@ -210,7 +211,7 @@ group are mutually exclusive.",
                     "list-conf-levels",
                     {
                         "action": _ListConfidenceLevelsAction,
-                        "callback": cb_list_confidence_levels,
+                        "callback": Run._not_implemented_callback,
                         "kwargs": {"Run": self},
                         "group": "Commands",
                         "level": 1,
@@ -222,7 +223,7 @@ group are mutually exclusive.",
                     {
                         "action": _ListExtensionsAction,
                         "kwargs": {"Run": self},
-                        "callback": cb_list_extensions,
+                        "callback": Run._not_implemented_callback,
                         "group": "Commands",
                         "level": 1,
                         "help": "List available extensions.",
@@ -233,7 +234,7 @@ group are mutually exclusive.",
                     {
                         "action": _FullDocumentationAction,
                         "kwargs": {"Run": self},
-                        "callback": self.cb_full_documentation,
+                        "callback": Run._not_implemented_callback,
                         "group": "Commands",
                         "level": 1,
                         "help": "Generate pylint's full documentation.",
@@ -244,7 +245,7 @@ group are mutually exclusive.",
                     {
                         "action": _GenerateRCFileAction,
                         "kwargs": {"Run": self},
-                        "callback": self.cb_generate_config,
+                        "callback": Run._not_implemented_callback,
                         "group": "Commands",
                         "help": "Generate a sample configuration file according to "
                         "the current configuration. You can put other options "
@@ -257,7 +258,7 @@ group are mutually exclusive.",
                     {
                         "action": _ErrorsOnlyModeAction,
                         "kwargs": {"Run": self},
-                        "callback": self.cb_error_mode,
+                        "callback": Run._not_implemented_callback,
                         "short": "E",
                         "help": "In error mode, checkers without error messages are "
                         "disabled and for others, only the ERROR messages are "
@@ -269,7 +270,7 @@ group are mutually exclusive.",
                     {
                         "action": _VerboseModeAction,
                         "kwargs": {"Run": self},
-                        "callback": self.cb_verbose_mode,
+                        "callback": Run._not_implemented_callback,
                         "short": "v",
                         "help": "In verbose mode, extra non-checker-related info "
                         "will be displayed.",
@@ -280,7 +281,7 @@ group are mutually exclusive.",
                     {
                         "action": _EnableAllExtensionsAction,
                         "kwargs": {"Run": self},
-                        "callback": self.cb_enable_all_extensions,
+                        "callback": Run._not_implemented_callback,
                         "help": "Load and enable all available extensions. "
                         "Use --list-extensions to see a list all available extensions.",
                     },
@@ -290,7 +291,7 @@ group are mutually exclusive.",
                     {
                         "action": _LongHelpAction,
                         "kwargs": {"Run": self},
-                        "callback": self.cb_helpfunc,
+                        "callback": Run._not_implemented_callback,
                         "help": "Show more verbose help.",
                         "group": "Commands",
                     },
@@ -428,53 +429,6 @@ to search for configuration file.
         """Callback for option preprocessing (i.e. before option parsing)."""
         self._plugins.extend(utils._splitstrip(value))
 
-    def cb_error_mode(self, *args, **kwargs):
-        """Callback for --errors-only.
-
-        Error mode:
-        * disable all but error messages
-        * disable the 'miscellaneous' checker which can be safely deactivated in
-          debug
-        * disable reports
-        * do not save execution information
-        """
-        self.linter.error_mode()
-
-    def cb_generate_config(self, *args, **kwargs):
-        """Optik callback for sample config file generation."""
-        self.linter.generate_config(skipsections=("COMMANDS",))
-        sys.exit(0)
-
-    def cb_help_message(self, option, optname, value, parser):
-        """Optik callback for printing some help about a particular message."""
-        self.linter.msgs_store.help_message(utils._splitstrip(value))
-        sys.exit(0)
-
-    def cb_full_documentation(self, option, optname, value, parser):
-        """Optik callback for printing full documentation."""
-        print_full_documentation(self.linter)
-        sys.exit(0)
-
-    def cb_list_messages(self, option, optname, value, parser):
-        """Optik callback for printing available messages."""
-        self.linter.msgs_store.list_messages()
-        sys.exit(0)
-
-    def cb_list_messages_enabled(self, option, optname, value, parser):
-        """Optik callback for printing available messages."""
-        self.linter.list_messages_enabled()
-        sys.exit(0)
-
-    def cb_list_groups(self, *args, **kwargs):
-        """List all the check groups that pylint knows about.
-
-        These should be useful to know what check groups someone can disable
-        or enable.
-        """
-        for check in self.linter.get_checker_names():
-            print(check)
-        sys.exit(0)
-
     def cb_verbose_mode(self, *args, **kwargs):
         self.verbose = True
 
@@ -485,13 +439,3 @@ to search for configuration file.
                 extension_name = f"pylint.extensions.{filename[:-3]}"
                 if extension_name not in self._plugins:
                     self._plugins.append(extension_name)
-
-    def cb_helpfunc(
-        self,
-        option: optparse.Option,
-        optname: str,
-        value: None,
-        parser: config.OptionParser,
-    ) -> NoReturn:
-        print(self.linter.help(1))
-        sys.exit(0)

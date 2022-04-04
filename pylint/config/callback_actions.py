@@ -130,12 +130,8 @@ class _MessageHelpAction(_CallbackAction):
         values: Union[str, Sequence[str], None],
         option_string: Optional[str] = "--help-msg",
     ) -> None:
-        if isinstance(values, (list, tuple)):
-            self.run.linter.msgs_store.help_message(values)
-        elif isinstance(values, str):
-            self.run.linter.msgs_store.help_message(utils._splitstrip(values))
-        else:
-            raise argparse.ArgumentTypeError(f"{values} should be a string.")
+        assert isinstance(values, (list, tuple))
+        self.run.linter.msgs_store.help_message(values)
         sys.exit(0)
 
 
