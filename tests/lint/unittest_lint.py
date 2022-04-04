@@ -392,7 +392,8 @@ def test_enable_checkers(linter: PyLinter) -> None:
 
 def test_errors_only(initialized_linter: PyLinter) -> None:
     linter = initialized_linter
-    linter.error_mode()
+    linter._error_mode = True
+    linter._parse_error_mode()
     checkers = linter.prepare_checkers()
     checker_names = {c.name for c in checkers}
     should_not = {"design", "format", "metrics", "miscellaneous", "similarities"}

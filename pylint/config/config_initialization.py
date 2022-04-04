@@ -103,4 +103,6 @@ def _config_initialization(
         linter._arg_parser.print_help()
         sys.exit(32)
 
+    linter._parse_error_mode()
+
     return parsed_args_list
