@@ -100,7 +100,7 @@ BAD_CHARS = [
         "\\x1A",
         "E2512",
         (
-            "Ctrl+Z “End of text” on Windows. Some programs (such as type) ignore "
+            'Ctrl+Z "End of text" on Windows. Some programs (such as type) ignore '
             "the rest of the file after it."
         ),
     ),
