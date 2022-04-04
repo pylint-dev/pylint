@@ -1099,31 +1099,7 @@ class VariablesChecker(BaseChecker):
             "undefined-loop-variable"
         )
 
-    @utils.check_messages("redefined-loop-name")
-    def visit_for(self, node: nodes.For) -> None:
-        assigned_to = [a.name for a in node.target.nodes_of_class(nodes.AssignName)]
-
-        # Only check variables that are used
-        dummy_rgx = self.config.dummy_variables_rgx
-        assigned_to = [var for var in assigned_to if not dummy_rgx.match(var)]
-
-        for variable in assigned_to:
-            for outer_for, outer_variables in self._loop_variables:
-                if variable in outer_variables and not in_for_else_branch(
-                    outer_for, node
-                ):
-                    self.add_message(
-                        "redefined-loop-name",
-                        args=(variable, outer_for.fromlineno),
-                        node=node,
-                    )
-                    break
-
-        self._loop_variables.append((node, assigned_to))
-
-    @utils.check_messages("redefined-outer-name")
     def leave_for(self, node: nodes.For) -> None:
-        self._loop_variables.pop()
         self._store_type_annotation_names(node)
 
     def visit_module(self, node: nodes.Module) -> None:

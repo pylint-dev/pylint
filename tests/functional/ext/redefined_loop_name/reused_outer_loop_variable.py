@@ -35,3 +35,8 @@ else:
 for _ in range(10):
     for _ in range(10):
         print("Hello")
+
+# Unpacking
+for i, *j in [(1, 2, 3, 4)]:
+    for j in range(i):  # [redefined-loop-name]
+        print(j)

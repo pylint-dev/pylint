@@ -42,12 +42,13 @@ Release date: TBA
 
   Closes #578
 
-* ``redefined-loop-name``: Emitted when a loop variable is redefined in the loop body.
+* Added optional extension ``redefined-loop-name`` to emit messages when a loop variable
+  is redefined in the loop body.
 
   Closes #5072
 
-* Changed message type from ``redefined-outer-name`` to ``redefined-loop-name`` for
-  redefinitions of outer loop variables by inner loops.
+* Changed message type from ``redefined-outer-name`` to ``redefined-loop-name``
+  (optional extension) for redefinitions of outer loop variables by inner loops.
 
   Closes #5608
 
