@@ -164,6 +164,12 @@ class NameChecker(_BasicChecker):
             'Emitted when both the "covariant" and "contravariant" '
             'keyword arguments are set to "True" in a TypeVar.',
         ),
+        "C0131": (
+            'TypeVar name "%s" does not match assigned variable name "%s"',
+            "typevar-name-mismatch",
+            "Emitted when a TypeVar is assigned to a variable "
+            "that does not match its name argument.",
+        ),
         "W0111": (
             "Name %s will become a keyword in Python %s",
             "assign-to-new-keyword",
@@ -376,6 +382,7 @@ class NameChecker(_BasicChecker):
         "assign-to-new-keyword",
         "typevar-name-incorrect-variance",
         "typevar-double-variance",
+        "typevar-name-mismatch",
     )
     def visit_assignname(self, node: nodes.AssignName) -> None:
         """Check module level assigned names."""
@@ -564,12 +571,15 @@ class NameChecker(_BasicChecker):
         """Check for TypeVar lint violations."""
         if isinstance(node.parent, nodes.Assign):
             keywords = node.assign_type().value.keywords
+            args = node.assign_type().value.args
         elif isinstance(node.parent, nodes.Tuple):
             keywords = (
                 node.assign_type().value.elts[node.parent.elts.index(node)].keywords
             )
+            args = node.assign_type().value.elts[node.parent.elts.index(node)].args
 
         variance = TypeVarVariance.invariant
+        name_arg = None
         for kw in keywords:
             if variance == TypeVarVariance.double_variant:
                 pass
@@ -585,6 +595,12 @@ class NameChecker(_BasicChecker):
                     if variance != TypeVarVariance.covariant
                     else TypeVarVariance.double_variant
                 )
+
+            if kw.arg == "name" and isinstance(kw.value, nodes.Const):
+                name_arg = kw.value.value
+
+        if name_arg is None and args and isinstance(args[0], nodes.Const):
+            name_arg = args[0].value
 
         if variance == TypeVarVariance.double_variant:
             self.add_message(
@@ -622,5 +638,13 @@ class NameChecker(_BasicChecker):
                 "typevar-name-incorrect-variance",
                 node=node,
                 args=(f'. "{name}" is invariant, use "{suggest_name}" instead'),
+                confidence=interfaces.INFERENCE,
+            )
+
+        if name_arg is not None and name_arg != name:
+            self.add_message(
+                "typevar-name-mismatch",
+                node=node,
+                args=(name_arg, name),
                 confidence=interfaces.INFERENCE,
             )
