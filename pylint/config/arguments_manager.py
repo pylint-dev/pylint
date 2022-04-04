@@ -11,6 +11,8 @@ from pylint.config.argument import (
     _Argument,
     _CallableArgument,
     _StoreArgument,
+    _StoreNewNamesArgument,
+    _StoreOldNamesArgument,
     _StoreTrueArgument,
 )
 from pylint.config.exceptions import UnrecognizedArgumentAction
@@ -71,6 +73,41 @@ class _ArgumentsManager:
         if isinstance(argument, _StoreArgument):
             section_group.add_argument(
                 *argument.flags,
+                action=argument.action,
+                default=argument.default,
+                type=argument.type,  # type: ignore[arg-type] # incorrect typing in typeshed
+                help=argument.help,
+                metavar=argument.metavar,
+                choices=argument.choices,
+            )
+        elif isinstance(argument, _StoreOldNamesArgument):
+            section_group.add_argument(
+                *argument.flags,
+                **argument.kwargs,
+                action=argument.action,
+                default=argument.default,
+                type=argument.type,  # type: ignore[arg-type] # incorrect typing in typeshed
+                help=argument.help,
+                metavar=argument.metavar,
+                choices=argument.choices,
+            )
+            # We add the old name as hidden option to make it's default value gets loaded when
+            # argparse initializes all options from the checker
+            assert argument.kwargs["old_names"]
+            for old_name in argument.kwargs["old_names"]:
+                section_group.add_argument(
+                    f"--{old_name}",
+                    action="store",
+                    default=argument.default,
+                    type=argument.type,  # type: ignore[arg-type] # incorrect typing in typeshed
+                    help=argparse.SUPPRESS,
+                    metavar=argument.metavar,
+                    choices=argument.choices,
+                )
+        elif isinstance(argument, _StoreNewNamesArgument):
+            section_group.add_argument(
+                *argument.flags,
+                **argument.kwargs,
                 action=argument.action,
                 default=argument.default,
                 type=argument.type,  # type: ignore[arg-type] # incorrect typing in typeshed
