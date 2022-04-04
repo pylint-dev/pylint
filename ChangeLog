@@ -71,6 +71,11 @@ Release date: TBA
   * functions & classes which contain both a docstring and an ellipsis.
   * A body which contains an ellipsis ``nodes.Expr`` node & at least one other statement.
 
+* Fix false positive for ``used-before-assignment`` for assignments taking place via
+  nonlocal declarations after an earlier type annotation.
+
+  Closes #5394
+
 * Fix crash for ``redefined-slots-in-subclass`` when the type of the slot is not a const or a string.
 
   Closes #6100
