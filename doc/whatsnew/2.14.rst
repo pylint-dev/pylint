@@ -69,6 +69,11 @@ Other Changes
 
 * The ``set_config_directly`` decorator has been removed.
 
+* The ``ignore-mixin-members`` option has been deprecated. You should now use the new
+  ``ignored-checks-for-mixins`` option.
+
+  Closes #5205
+
 * Fix false negative for ``no-member`` when attempting to assign an instance
   attribute to itself without any prior assignment.
 
