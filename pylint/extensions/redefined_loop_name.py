@@ -20,7 +20,7 @@ class RedefinedLoopName(checkers.BaseChecker):
     name = "redefined-loop-name"
 
     msgs = {
-        "W0623": (
+        "W2901": (
             "Redefining %r from loop (line %s)",
             "redefined-loop-name",
             "Used when a loop variable is overwritten in the loop body.",
