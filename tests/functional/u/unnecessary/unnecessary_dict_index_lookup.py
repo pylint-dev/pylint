@@ -12,7 +12,7 @@ for k, v in a_dict.items():
 
 for k, v in b_dict.items():
     print(k)
-    k = "another key"  # pylint: disable=redefined-loop-name
+    k = "another key"
     print(b_dict[k])  # This is fine, key reassigned
 
 
@@ -68,7 +68,7 @@ R = [d[item[0]] for item in d.items()]  # [unnecessary-dict-index-lookup]
 for item in d.items():
     print(item[0])
     print(d[item[0]])  # [unnecessary-dict-index-lookup]
-    item = (2, "b")  # pylint: disable=redefined-loop-name
+    item = (2, "b")
     print(d[item[0]])  # This is fine, no warning thrown as key has been reassigned
 
 

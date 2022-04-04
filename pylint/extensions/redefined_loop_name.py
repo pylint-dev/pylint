@@ -67,6 +67,7 @@ class RedefinedLoopName(checkers.BaseChecker):
                         "redefined-loop-name",
                         args=(variable, outer_for.fromlineno),
                         node=node,
+                        confidence=HIGH,
                     )
                     break
 
