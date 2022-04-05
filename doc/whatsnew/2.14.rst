@@ -69,6 +69,9 @@ Other Changes
   Closes #5283
   Closes #1887
 
+* Fix false negative for ``bad-string-format-type`` if the value to be formatted is passed in
+  as a variable holding a constant.
+
 * The concept of checker priority has been removed.
 
 * The ``set_config_directly`` decorator has been removed.
