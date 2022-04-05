@@ -1408,10 +1408,20 @@ a metaclass class method.",
             if not isinstance(inferred, nodes.Const) or not isinstance(
                 inferred.value, str
             ):
-                self.add_message("invalid-slots-object", args=elt.as_string(), node=elt)
+                self.add_message(
+                    "invalid-slots-object",
+                    args=elt.as_string(),
+                    node=elt,
+                    confidence=INFERENCE,
+                )
                 continue
             if not inferred.value:
-                self.add_message("invalid-slots-object", args=elt.as_string(), node=elt)
+                self.add_message(
+                    "invalid-slots-object",
+                    args=elt.as_string(),
+                    node=elt,
+                    confidence=INFERENCE,
+                )
 
             # Check if we have a conflict with a class variable.
             class_variable = node.locals.get(inferred.value)
