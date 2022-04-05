@@ -39,24 +39,20 @@ def _config_initialization(
         print(ex, file=sys.stderr)
         sys.exit(32)
 
+    # Run init hook, if present, before loading plugins
+    if "init-hook" in config_data:
+        exec(utils._unquote(config_data["init-hook"]))  # pylint: disable=exec-used
+
+    # Load plugins if specified in the config file
+    if "load-plugins" in config_data:
+        linter.load_plugin_modules(utils._splitstrip(config_data["load-plugins"]))
+
     try:
         # The parser is stored on linter.cfgfile_parser
         linter.read_config_file(config_file=config_file_path, verbose=verbose_mode)
     except OSError as ex:
         print(ex, file=sys.stderr)
         sys.exit(32)
-    config_parser = linter.cfgfile_parser
-
-    # Run init hook, if present, before loading plugins
-    if config_parser.has_option("MASTER", "init-hook"):
-        exec(  # pylint: disable=exec-used
-            utils._unquote(config_parser.get("MASTER", "init-hook"))
-        )
-
-    # Load plugins if specified in the config file
-    if config_parser.has_option("MASTER", "load-plugins"):
-        plugins = utils._splitstrip(config_parser.get("MASTER", "load-plugins"))
-        linter.load_plugin_modules(plugins)
 
     # Now we can load file config, plugins (which can
     # provide options) have been registered
