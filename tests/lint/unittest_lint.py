@@ -732,7 +732,7 @@ def test_custom_should_analyze_file() -> None:
         reporter = testutils.GenericTestReporter()
         linter = _CustomPyLinter()
         linter.namespace.jobs = jobs
-        linter.config.persistent = 0
+        linter.namespace.persistent = 0
         linter.open()
         linter.set_reporter(reporter)
 
@@ -765,7 +765,7 @@ def test_multiprocessing(jobs: int) -> None:
     reporter = testutils.GenericTestReporter()
     linter = PyLinter()
     linter.namespace.jobs = jobs
-    linter.config.persistent = 0
+    linter.namespace.persistent = 0
     linter.open()
     linter.set_reporter(reporter)
 

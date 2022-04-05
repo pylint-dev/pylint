@@ -839,6 +839,12 @@ class PyLinter(
 
         self.disable_noerror_messages()
         self.disable("miscellaneous")
+        self._arg_parser.parse_args(
+            ["--reports", "no", "--score", "no", "--persistent", "no"], self.namespace
+        )
+
+        # pylint: disable-next=fixme
+        # TODO: Potentially remove after 'set_option' has been refactored
         self.set_option("reports", False)
         self.set_option("persistent", False)
         self.set_option("score", False)
@@ -1060,7 +1066,7 @@ class PyLinter(
             files_or_modules = (files_or_modules,)  # type: ignore[assignment]
         if self.namespace.recursive:
             files_or_modules = tuple(self._discover_files(files_or_modules))
-        if self.config.from_stdin:
+        if self.namespace.from_stdin:
             if len(files_or_modules) != 1:
                 raise exceptions.InvalidArgsError(
                     "Missing filename required for --from-stdin"
@@ -1354,12 +1360,14 @@ class PyLinter(
     def open(self):
         """Initialize counters."""
         self.stats = LinterStats()
-        MANAGER.always_load_extensions = self.config.unsafe_load_any_extension
-        MANAGER.max_inferable_values = self.config.limit_inference_results
-        MANAGER.extension_package_whitelist.update(self.config.extension_pkg_allow_list)
-        if self.config.extension_pkg_whitelist:
+        MANAGER.always_load_extensions = self.namespace.unsafe_load_any_extension
+        MANAGER.max_inferable_values = self.namespace.limit_inference_results
+        MANAGER.extension_package_whitelist.update(
+            self.namespace.extension_pkg_allow_list
+        )
+        if self.namespace.extension_pkg_whitelist:
             MANAGER.extension_package_whitelist.update(
-                self.config.extension_pkg_whitelist
+                self.namespace.extension_pkg_whitelist
             )
         self.stats.reset_message_count()
         self._ignore_paths = get_global_option(self, "ignore-paths")
@@ -1385,7 +1393,7 @@ class PyLinter(
                 self.reporter.display_reports(sect)
             score_value = self._report_evaluation()
             # save results if persistent run
-            if self.config.persistent:
+            if self.namespace.persistent:
                 config.save_results(self.stats, self.file_state.base_name)
         else:
             self.reporter.on_close(self.stats, LinterStats())
@@ -1424,7 +1432,7 @@ class PyLinter(
                 if pnote is not None:
                     msg += f" (previous run: {pnote:.2f}/10, {note - pnote:+.2f})"
 
-        if self.config.score:
+        if self.namespace.score:
             sect = report_nodes.EvaluationSection(msg)
             self.reporter.display_reports(sect)
         return note

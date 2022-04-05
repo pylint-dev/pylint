@@ -41,7 +41,7 @@ class LintModuleTest:
     ) -> None:
         _test_reporter = FunctionalTestReporter()
         self._linter = PyLinter()
-        self._linter.config.persistent = 0
+        self._linter.namespace.persistent = 0
         checkers.initialize(self._linter)
 
         # See if test has its own .rc file, if so we use that one
