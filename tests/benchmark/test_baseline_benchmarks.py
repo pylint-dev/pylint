@@ -129,7 +129,7 @@ class TestEstablishBaselineBenchmarks:
         """
         linter = PyLinter(reporter=Reporter())
         fileinfos = [self.empty_filepath]  # Single file to end-to-end the system
-        assert linter.config.jobs == 1
+        assert linter.namespace.jobs == 1
         assert len(linter._checkers) == 1, "Should just have 'master'"
         benchmark(linter.check, fileinfos)
         assert (
@@ -146,12 +146,12 @@ class TestEstablishBaselineBenchmarks:
         happened.
         """
         linter = PyLinter(reporter=Reporter())
-        linter.config.jobs = 2
+        linter.namespace.jobs = 2
 
         # Create file per worker, using all workers
-        fileinfos = [self.empty_filepath for _ in range(linter.config.jobs)]
+        fileinfos = [self.empty_filepath for _ in range(linter.namespace.jobs)]
 
-        assert linter.config.jobs == 2
+        assert linter.namespace.jobs == 2
         assert len(linter._checkers) == 1, "Should have 'master'"
         benchmark(linter.check, fileinfos)
         assert (
@@ -163,7 +163,7 @@ class TestEstablishBaselineBenchmarks:
         linter = PyLinter(reporter=Reporter())
 
         # Create file per worker, using all workers
-        fileinfos = [self.empty_file_info for _ in range(linter.config.jobs)]
+        fileinfos = [self.empty_file_info for _ in range(linter.namespace.jobs)]
 
         assert len(linter._checkers) == 1, "Should have 'master'"
         benchmark(check_parallel, linter, jobs=2, files=fileinfos)
@@ -181,9 +181,9 @@ class TestEstablishBaselineBenchmarks:
             benchmark(print, "skipping, only benchmark large file counts")
             return  # _only_ run this test is profiling
         linter = PyLinter(reporter=Reporter())
-        linter.config.jobs = 1
+        linter.namespace.jobs = 1
         fileinfos = [self.empty_filepath for _ in range(self.lot_of_files)]
-        assert linter.config.jobs == 1
+        assert linter.namespace.jobs == 1
         assert len(linter._checkers) == 1, "Should have 'master'"
         benchmark(linter.check, fileinfos)
         assert (
@@ -201,9 +201,9 @@ class TestEstablishBaselineBenchmarks:
             benchmark(print, "skipping, only benchmark large file counts")
             return  # _only_ run this test is profiling
         linter = PyLinter(reporter=Reporter())
-        linter.config.jobs = 2
+        linter.namespace.jobs = 2
         fileinfos = [self.empty_filepath for _ in range(self.lot_of_files)]
-        assert linter.config.jobs == 2
+        assert linter.namespace.jobs == 2
         assert len(linter._checkers) == 1, "Should have 'master'"
         benchmark(linter.check, fileinfos)
         assert (
@@ -220,10 +220,10 @@ class TestEstablishBaselineBenchmarks:
             benchmark(print, "skipping, only benchmark large file counts")
             return  # _only_ run this test is profiling
         linter = PyLinter(reporter=Reporter())
-        linter.config.jobs = 1
+        linter.namespace.jobs = 1
         linter.register_checker(NoWorkChecker(linter))
         fileinfos = [self.empty_filepath for _ in range(self.lot_of_files)]
-        assert linter.config.jobs == 1
+        assert linter.namespace.jobs == 1
         assert len(linter._checkers) == 2, "Should have 'master' and 'sleeper'"
         benchmark(linter.check, fileinfos)
         assert (
@@ -240,10 +240,10 @@ class TestEstablishBaselineBenchmarks:
             benchmark(print, "skipping, only benchmark large file counts")
             return  # _only_ run this test is profiling
         linter = PyLinter(reporter=Reporter())
-        linter.config.jobs = 2
+        linter.namespace.jobs = 2
         linter.register_checker(NoWorkChecker(linter))
         fileinfos = [self.empty_filepath for _ in range(self.lot_of_files)]
-        assert linter.config.jobs == 2
+        assert linter.namespace.jobs == 2
         assert len(linter._checkers) == 2, "Should have 'master' and 'sleeper'"
         benchmark(linter.check, fileinfos)
         assert (
@@ -269,7 +269,7 @@ class TestEstablishBaselineBenchmarks:
         # `test_baseline_benchmark_j2_single_working_checker`
         fileinfos = [self.empty_filepath for _ in range(2)]
 
-        assert linter.config.jobs == 1
+        assert linter.namespace.jobs == 1
         assert len(linter._checkers) == 2, "Should have 'master' and 'sleeper'"
         benchmark(linter.check, fileinfos)
         assert (
@@ -289,14 +289,14 @@ class TestEstablishBaselineBenchmarks:
             benchmark(print, "skipping, do not want to sleep in main tests")
             return  # _only_ run this test is profiling
         linter = PyLinter(reporter=Reporter())
-        linter.config.jobs = 2
+        linter.namespace.jobs = 2
         linter.register_checker(SleepingChecker(linter))
 
         # Check the same number of files as
         # `test_baseline_benchmark_j1_single_working_checker`
         fileinfos = [self.empty_filepath for _ in range(2)]
 
-        assert linter.config.jobs == 2
+        assert linter.namespace.jobs == 2
         assert len(linter._checkers) == 2, "Should have 'master' and 'sleeper'"
         benchmark(linter.check, fileinfos)
         assert (
@@ -312,7 +312,7 @@ class TestEstablishBaselineBenchmarks:
         fileinfos = [self.empty_filepath]
 
         runner = benchmark(Run, fileinfos, reporter=Reporter(), exit=False)
-        assert runner.linter.config.jobs == 1
+        assert runner.linter.namespace.jobs == 1
         print("len(runner.linter._checkers)", len(runner.linter._checkers))
         assert len(runner.linter._checkers) > 1, "Should have more than 'master'"
 
@@ -342,7 +342,7 @@ class TestEstablishBaselineBenchmarks:
         # Just 1 file, but all Checkers/Extensions
         fileinfos = [self.empty_filepath for _ in range(self.lot_of_files)]
 
-        assert linter.config.jobs == 1
+        assert linter.namespace.jobs == 1
         print("len(linter._checkers)", len(linter._checkers))
         assert len(linter._checkers) > 1, "Should have more than 'master'"
         benchmark(linter.check, fileinfos)
