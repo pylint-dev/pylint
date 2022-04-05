@@ -434,7 +434,7 @@ def overrides_a_method(class_node: nodes.ClassDef, name: str) -> bool:
     return False
 
 
-def only_required_for(*messages: str) -> Callable:
+def only_required_for(*messages: str) -> Callable[[nodes.NodeNG], None]:
     """Decorator to store messages that are handled by a checker method as an
     attribute of the function object.
 
@@ -452,7 +452,7 @@ def only_required_for(*messages: str) -> Callable:
     return store_messages
 
 
-def check_messages(*messages: str) -> Callable:
+def check_messages(*messages: str) -> Callable[[nodes.NodeNG], None]:
     """Kept for backwards compatibility, deprecated.
 
     Use only_required_for instead, which conveys the intent of the decorator much clearer.
