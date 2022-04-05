@@ -1,12 +1,12 @@
 from typing import final
 
 
-class Base:
+class Animal:
     @final
-    def my_method(self):
-        pass
+    def can_breathe(self):
+        return True
 
 
-class Subclass(Base):
-    def my_other_method(self):
-        pass
+class Cat(Animal):
+    def can_purr(self):
+        return True
