@@ -48,11 +48,11 @@ class MessageDefinitionStore:
         self._messages_definitions[message.msgid] = message
         self._msgs_by_category[message.msgid[0]].append(message.msgid)
 
-    # We disable the message here because MessageDefinitionStore is only
-    # initialized once and due to the size of the class does not run the
+    # Since MessageDefinitionStore is only initialized once
+    # and the arguments are relatively small in size we do not run the
     # risk of creating a large memory leak.
     # See discussion in: https://github.com/PyCQA/pylint/pull/5673
-    @functools.lru_cache()  # pylint: disable=lru-cache-decorating-method
+    @functools.lru_cache(maxsize=None)  # pylint: disable=cache-max-size-none
     def get_message_definitions(self, msgid_or_symbol: str) -> List[MessageDefinition]:
         """Returns the Message definition for either a numeric or symbolic id.
 

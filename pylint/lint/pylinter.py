@@ -637,10 +637,8 @@ class PyLinter(
         checkers.initialize(self)
         reporters.initialize(self)
 
-    def load_plugin_modules(self, modnames):
-        """Take a list of module names which are pylint plugins and load
-        and register them
-        """
+    def load_plugin_modules(self, modnames: List[str]) -> None:
+        """Check a list pylint plugins modules, load and register them."""
         for modname in modnames:
             if modname in self._dynamic_plugins:
                 continue
@@ -651,7 +649,7 @@ class PyLinter(
             except ModuleNotFoundError:
                 pass
 
-    def load_plugin_configuration(self):
+    def load_plugin_configuration(self) -> None:
         """Call the configuration hook for plugins.
 
         This walks through the list of plugins, grabs the "load_configuration"
@@ -785,7 +783,7 @@ class PyLinter(
         Convert values in config.fail_on (which might be msg category, msg id,
         or symbol) to specific msgs, then enable and flag them for later.
         """
-        fail_on_vals = self.config.fail_on
+        fail_on_vals = self.namespace.fail_on
         if not fail_on_vals:
             return
 
@@ -841,6 +839,12 @@ class PyLinter(
 
         self.disable_noerror_messages()
         self.disable("miscellaneous")
+        self._arg_parser.parse_args(
+            ["--reports", "no", "--score", "no", "--persistent", "no"], self.namespace
+        )
+
+        # pylint: disable-next=fixme
+        # TODO: Potentially remove after 'set_option' has been refactored
         self.set_option("reports", False)
         self.set_option("persistent", False)
         self.set_option("score", False)
@@ -1060,9 +1064,9 @@ class PyLinter(
                 DeprecationWarning,
             )
             files_or_modules = (files_or_modules,)  # type: ignore[assignment]
-        if self.config.recursive:
+        if self.namespace.recursive:
             files_or_modules = tuple(self._discover_files(files_or_modules))
-        if self.config.from_stdin:
+        if self.namespace.from_stdin:
             if len(files_or_modules) != 1:
                 raise exceptions.InvalidArgsError(
                     "Missing filename required for --from-stdin"
@@ -1074,7 +1078,7 @@ class PyLinter(
                     functools.partial(self.get_ast, data=_read_stdin()),
                     [self._get_file_descr_from_stdin(filepath)],
                 )
-        elif self.config.jobs == 1:
+        elif self.namespace.jobs == 1:
             with fix_import_path(files_or_modules):
                 self._check_files(
                     self.get_ast, self._iterate_file_descrs(files_or_modules)
@@ -1082,7 +1086,7 @@ class PyLinter(
         else:
             check_parallel(
                 self,
-                self.config.jobs,
+                self.namespace.jobs,
                 self._iterate_file_descrs(files_or_modules),
                 files_or_modules,
             )
@@ -1356,12 +1360,14 @@ class PyLinter(
     def open(self):
         """Initialize counters."""
         self.stats = LinterStats()
-        MANAGER.always_load_extensions = self.config.unsafe_load_any_extension
-        MANAGER.max_inferable_values = self.config.limit_inference_results
-        MANAGER.extension_package_whitelist.update(self.config.extension_pkg_allow_list)
-        if self.config.extension_pkg_whitelist:
+        MANAGER.always_load_extensions = self.namespace.unsafe_load_any_extension
+        MANAGER.max_inferable_values = self.namespace.limit_inference_results
+        MANAGER.extension_package_whitelist.update(
+            self.namespace.extension_pkg_allow_list
+        )
+        if self.namespace.extension_pkg_whitelist:
             MANAGER.extension_package_whitelist.update(
-                self.config.extension_pkg_whitelist
+                self.namespace.extension_pkg_whitelist
             )
         self.stats.reset_message_count()
         self._ignore_paths = get_global_option(self, "ignore-paths")
@@ -1387,7 +1393,7 @@ class PyLinter(
                 self.reporter.display_reports(sect)
             score_value = self._report_evaluation()
             # save results if persistent run
-            if self.config.persistent:
+            if self.namespace.persistent:
                 config.save_results(self.stats, self.file_state.base_name)
         else:
             self.reporter.on_close(self.stats, LinterStats())
@@ -1404,7 +1410,7 @@ class PyLinter(
             return note
 
         # get a global note for the code
-        evaluation = self.config.evaluation
+        evaluation = self.namespace.evaluation
         try:
             stats_dict = {
                 "fatal": self.stats.fatal,
@@ -1426,7 +1432,7 @@ class PyLinter(
                 if pnote is not None:
                     msg += f" (previous run: {pnote:.2f}/10, {note - pnote:+.2f})"
 
-        if self.config.score:
+        if self.namespace.score:
             sect = report_nodes.EvaluationSection(msg)
             self.reporter.display_reports(sect)
         return note
@@ -1442,7 +1448,7 @@ class PyLinter(
         """Returns the scope at which a message was enabled/disabled."""
         if confidence is None:
             confidence = interfaces.UNDEFINED
-        if self.config.confidence and confidence.name not in self.config.confidence:
+        if confidence.name not in self.namespace.confidence:
             return MSG_STATE_CONFIDENCE  # type: ignore[return-value] # mypy does not infer Literal correctly
         try:
             if line in self.file_state._module_msgs_state[msgid]:
@@ -1503,9 +1509,8 @@ class PyLinter(
         :param line: The line of the currently analysed file
         :param confidence: The confidence of the message
         """
-        if self.config.confidence and confidence:
-            if confidence.name not in self.config.confidence:
-                return False
+        if confidence and confidence.name not in self.namespace.confidence:
+            return False
         try:
             msgids = self.msgs_store.message_id_store.get_active_msgids(msg_descr)
         except exceptions.UnknownMessageError:
