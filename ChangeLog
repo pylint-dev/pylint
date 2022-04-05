@@ -36,6 +36,8 @@ Release date: TBA
   Closes #5283
   Closes #1887
 
+* Add ``subclassed-final-class`` message to the ``check_messages`` decorator of ``visit_classdef``.
+
 * Add new check ``unnecessary-dunder-call`` for unnecessary dunder method calls.
 
   Closes #5936
