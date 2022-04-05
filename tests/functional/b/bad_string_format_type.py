@@ -36,3 +36,11 @@ WORD = "abc"
 VALUES_TO_FORMAT = (1, "2", 3.0)
 "%d %s %f" % VALUES_TO_FORMAT
 "%d %d %f" % VALUES_TO_FORMAT  # [bad-string-format-type]
+
+
+def test_format(my_input_value, my_other_input_value):
+    """In some cases it is not possible to determine the content of the input variable.
+    Pylint must not crash or yield false positives in such cases.
+    """
+    print("%d" % my_input_value)
+    print("%d %s" % (my_input_value, my_other_input_value))
