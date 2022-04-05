@@ -76,10 +76,6 @@ def _config_initialization(
             exc.code = 32
         raise
 
-    # We have loaded configuration from config file and command line. Now, we can
-    # load plugin specific configuration.
-    linter.load_plugin_configuration()
-
     # pylint: disable-next=fixme
     # TODO: Start of the implemenation of argument parsing with argparse
     # When finished this should replace the implementation based on optparse
@@ -91,17 +87,18 @@ def _config_initialization(
     # the configuration file
     parsed_args_list = linter._parse_command_line_configuration(args_list)
 
-    # Lastly we parse any options from plugins
-    linter._parse_plugin_configuration()
-
-    # Now that plugins are loaded, get list of all fail_on messages, and enable them
-    linter.enable_fail_on_messages()
+    # We have loaded configuration from config file and command line. Now, we can
+    # load plugin specific configuration.
+    linter.load_plugin_configuration()
 
     # args_list should now only be a list of files/directories to lint. All options have
     # been removed from the list
     if not parsed_args_list:
         linter._arg_parser.print_help()
         sys.exit(32)
+
+    # Now that plugins are loaded, get list of all fail_on messages, and enable them
+    linter.enable_fail_on_messages()
 
     linter._parse_error_mode()
 

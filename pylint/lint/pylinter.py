@@ -651,7 +651,7 @@ class PyLinter(
             except ModuleNotFoundError:
                 pass
 
-    def load_plugin_configuration(self):
+    def load_plugin_configuration(self) -> None:
         """Call the configuration hook for plugins.
 
         This walks through the list of plugins, grabs the "load_configuration"
