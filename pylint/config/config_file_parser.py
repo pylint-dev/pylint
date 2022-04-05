@@ -8,7 +8,9 @@ import configparser
 import os
 import sys
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, Optional
+from typing import TYPE_CHECKING, Dict, Optional
+
+from pylint.config.utils import _parse_rich_type_value
 
 if sys.version_info >= (3, 11):
     import tomllib
@@ -41,13 +43,6 @@ class _ConfigurationFileParser:
                 config_content[opt] = parser[section][opt]
         return config_content
 
-    @staticmethod
-    def _parse_toml_value(value: Any) -> str:
-        """Parse rich toml types into strings."""
-        if isinstance(value, (list, tuple)):
-            return ",".join(value)
-        return str(value)
-
     def _parse_toml_file(self, file_path: Path) -> Dict[str, str]:
         """Parse and handle errors of a toml configuration file."""
         try:
@@ -66,9 +61,9 @@ class _ConfigurationFileParser:
         for opt, values in sections_values.items():
             if isinstance(values, dict):
                 for config, value in values.items():
-                    config_content[config] = self._parse_toml_value(value)
+                    config_content[config] = _parse_rich_type_value(value)
             else:
-                config_content[opt] = self._parse_toml_value(values)
+                config_content[opt] = _parse_rich_type_value(values)
         return config_content
 
     def parse_config_file(self, file_path: Optional[Path]) -> Dict[str, str]:

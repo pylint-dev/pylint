@@ -76,12 +76,6 @@ def _config_initialization(
             exc.code = 32
         raise
 
-    # args_list should now only be a list of files/directories to lint. All options have
-    # been removed from the list
-    if not parsed_args_list:
-        print(linter.help())
-        sys.exit(32)
-
     # We have loaded configuration from config file and command line. Now, we can
     # load plugin specific configuration.
     linter.load_plugin_configuration()
@@ -102,5 +96,13 @@ def _config_initialization(
 
     # Now that plugins are loaded, get list of all fail_on messages, and enable them
     linter.enable_fail_on_messages()
+
+    # args_list should now only be a list of files/directories to lint. All options have
+    # been removed from the list
+    if not parsed_args_list:
+        linter._arg_parser.print_help()
+        sys.exit(32)
+
+    linter._parse_error_mode()
 
     return parsed_args_list

@@ -14,7 +14,7 @@ from io import StringIO
 from os import chdir, getcwd
 from os.path import abspath, dirname, join, sep
 from shutil import rmtree
-from typing import Iterable, Iterator, List, Optional, Tuple
+from typing import Iterable, Iterator, List
 
 import platformdirs
 import pytest
@@ -29,7 +29,7 @@ from pylint.constants import (
     OLD_DEFAULT_PYLINT_HOME,
 )
 from pylint.exceptions import InvalidMessageError
-from pylint.lint import ArgumentPreprocessingError, PyLinter, Run, preprocess_options
+from pylint.lint import PyLinter, Run
 from pylint.message import Message
 from pylint.reporters import text
 from pylint.testutils import create_files
@@ -392,7 +392,8 @@ def test_enable_checkers(linter: PyLinter) -> None:
 
 def test_errors_only(initialized_linter: PyLinter) -> None:
     linter = initialized_linter
-    linter.error_mode()
+    linter._error_mode = True
+    linter._parse_error_mode()
     checkers = linter.prepare_checkers()
     checker_names = {c.name for c in checkers}
     should_not = {"design", "format", "metrics", "miscellaneous", "similarities"}
@@ -538,6 +539,8 @@ def test_init_hooks_called_before_load_plugins() -> None:
         Run(["--load-plugins", "unexistant", "--init-hook", "raise RuntimeError"])
     with pytest.raises(RuntimeError):
         Run(["--init-hook", "raise RuntimeError", "--load-plugins", "unexistant"])
+    with pytest.raises(SystemExit):
+        Run(["--init-hook"])
 
 
 def test_analyze_explicit_script(linter: PyLinter) -> None:
@@ -704,38 +707,6 @@ def test_pylintrc_parentdir_no_package() -> None:
                 os.chdir(join(chroot, basedir))
                 with pytest.warns(DeprecationWarning):
                     assert config.find_pylintrc() == expected
-
-
-class TestPreprocessOptions:
-    def _callback(self, name: str, value: Optional[str]) -> None:
-        self.args.append((name, value))
-
-    def test_value_equal(self) -> None:
-        self.args: List[Tuple[str, Optional[str]]] = []
-        preprocess_options(
-            ["--foo", "--bar=baz", "--qu=ux"],
-            {"foo": (self._callback, False), "qu": (self._callback, True)},
-        )
-        assert [("foo", None), ("qu", "ux")] == self.args
-
-    def test_value_space(self) -> None:
-        self.args = []
-        preprocess_options(["--qu", "ux"], {"qu": (self._callback, True)})
-        assert [("qu", "ux")] == self.args
-
-    @staticmethod
-    def test_error_missing_expected_value() -> None:
-        with pytest.raises(ArgumentPreprocessingError):
-            preprocess_options(["--foo", "--bar", "--qu=ux"], {"bar": (None, True)})
-        with pytest.raises(ArgumentPreprocessingError):
-            preprocess_options(["--foo", "--bar"], {"bar": (None, True)})
-
-    @staticmethod
-    def test_error_unexpected_value() -> None:
-        with pytest.raises(ArgumentPreprocessingError):
-            preprocess_options(
-                ["--foo", "--bar=spam", "--qu=ux"], {"bar": (None, False)}
-            )
 
 
 class _CustomPyLinter(PyLinter):

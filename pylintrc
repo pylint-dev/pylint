@@ -74,7 +74,7 @@ fail-on=
 
 # Only show warnings with the listed confidence levels. Leave empty to show
 # all. Valid levels: HIGH, INFERENCE, INFERENCE_FAILURE, UNDEFINED
-confidence=
+# confidence=
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
@@ -370,10 +370,6 @@ property-classes=abc.abstractproperty
 
 
 [TYPECHECK]
-
-# Tells whether missing members accessed in mixin class should be ignored.
-# A class is considered mixin if its name matches the mixin-class-rgx option.
-ignore-mixin-members=yes
 
 # Regex pattern to define which classes are considered mixins if ignore-mixin-
 # members is set to 'yes'

@@ -5,6 +5,7 @@
 import optparse  # pylint: disable=deprecated-module
 from typing import Any, Dict, Tuple
 
+from pylint.config.callback_actions import _CallbackAction
 from pylint.config.option import _validate
 
 
@@ -72,8 +73,12 @@ class OptionsProviderMixIn:
                 setattr(self.config, optname, _list + (value,))
             else:
                 _list.append(value)
-        elif action == "callback":
-            optdict["callback"](None, optname, value, None)
+        elif (
+            action == "callback"
+            or (not isinstance(action, str))
+            and issubclass(action, _CallbackAction)
+        ):
+            return
         else:
             raise UnsupportedAction(action)
 

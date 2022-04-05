@@ -30,6 +30,7 @@ import astroid
 from astroid import AstroidError, nodes
 
 from pylint import checkers, config, exceptions, interfaces, reporters
+from pylint.config.arguments_manager import _ArgumentsManager
 from pylint.constants import (
     MAIN_CHECKER_NAME,
     MSG_STATE_CONFIDENCE,
@@ -189,10 +190,10 @@ MSGS = {
 
 # pylint: disable=too-many-instance-attributes,too-many-public-methods
 class PyLinter(
+    _ArgumentsManager,
     config.OptionsManagerMixIn,
     reporters.ReportsHandlerMixIn,
     checkers.BaseTokenChecker,
-    config._ArgumentsManager,
 ):
     """Lint Python modules using external checkers.
 
@@ -227,6 +228,7 @@ class PyLinter(
                     "type": "csv",
                     "metavar": "<file>[,<file>...]",
                     "dest": "black_list",
+                    "kwargs": {"old_names": ["black_list"]},
                     "default": ("CVS",),
                     "help": "Files or directories to be skipped. "
                     "They should be base names, not paths.",
@@ -261,7 +263,6 @@ class PyLinter(
                     "default": True,
                     "type": "yn",
                     "metavar": "<y or n>",
-                    "level": 1,
                     "help": "Pickle collected data for later comparisons.",
                 },
             ),
@@ -271,7 +272,6 @@ class PyLinter(
                     "type": "csv",
                     "metavar": "<modules>",
                     "default": (),
-                    "level": 1,
                     "help": "List of plugins (as comma separated values of "
                     "python module names) to load, usually to register "
                     "additional checkers.",
@@ -309,7 +309,6 @@ class PyLinter(
                     "type": "string",
                     "metavar": "<python_expression>",
                     "group": "Reports",
-                    "level": 1,
                     "default": "max(0, 0 if fatal else 10.0 - ((float(5 * error + warning + refactor + "
                     "convention) / statement) * 10))",
                     "help": "Python expression which should return a score less "
@@ -355,19 +354,20 @@ class PyLinter(
             (
                 "confidence",
                 {
-                    "type": "multiple_choice",
+                    "type": "confidence",
                     "metavar": "<levels>",
-                    "default": "",
-                    "choices": [c.name for c in interfaces.CONFIDENCE_LEVELS],
+                    "default": interfaces.CONFIDENCE_LEVEL_NAMES,
+                    "choices": interfaces.CONFIDENCE_LEVEL_NAMES,
                     "group": "Messages control",
                     "help": "Only show warnings with the listed confidence levels."
-                    f" Leave empty to show all. Valid levels: {', '.join(c.name for c in interfaces.CONFIDENCE_LEVELS)}.",
+                    f" Leave empty to show all. Valid levels: {', '.join(interfaces.CONFIDENCE_LEVEL_NAMES)}.",
                 },
             ),
             (
                 "enable",
                 {
                     "type": "csv",
+                    "default": (),
                     "metavar": "<msg ids>",
                     "short": "e",
                     "group": "Messages control",
@@ -384,6 +384,7 @@ class PyLinter(
                 {
                     "type": "csv",
                     "metavar": "<msg ids>",
+                    "default": (),
                     "short": "d",
                     "group": "Messages control",
                     "help": "Disable the message, report, category or checker "
@@ -404,6 +405,7 @@ class PyLinter(
                 "msg-template",
                 {
                     "type": "string",
+                    "default": "",
                     "metavar": "<template>",
                     "group": "Reports",
                     "help": (
@@ -498,6 +500,8 @@ class PyLinter(
                 "exit-zero",
                 {
                     "action": "store_true",
+                    "default": False,
+                    "metavar": "<flag>",
                     "help": (
                         "Always return a 0 (non-error) status code, even if "
                         "lint errors are found. This is primarily useful in "
@@ -509,6 +513,8 @@ class PyLinter(
                 "from-stdin",
                 {
                     "action": "store_true",
+                    "default": False,
+                    "metavar": "<flag>",
                     "help": (
                         "Interpret the stdin as a python script, whose filename "
                         "needs to be passed as the module_or_package argument."
@@ -552,7 +558,7 @@ class PyLinter(
         # TODO: Deprecate passing the pylintrc parameter
         pylintrc: Optional[str] = None,  # pylint: disable=unused-argument
     ) -> None:
-        config._ArgumentsManager.__init__(self)
+        _ArgumentsManager.__init__(self)
 
         # Some stuff has to be done before initialization of other ancestors...
         # messages store / checkers / reporter / astroid manager
@@ -613,7 +619,7 @@ class PyLinter(
 
         reporters.ReportsHandlerMixIn.__init__(self)
         config.OptionsManagerMixIn.__init__(self, usage=__doc__)
-        checkers.BaseTokenChecker.__init__(self)
+        checkers.BaseTokenChecker.__init__(self, self, future_option_parsing=True)
         # provided reports
         self.reports = (
             ("RP0001", "Messages by category", report_total_messages_stats),
@@ -825,9 +831,14 @@ class PyLinter(
             for report_id, _, _ in _reporters:
                 self.disable_report(report_id)
 
-    def error_mode(self):
-        """Error mode: enable only errors; no reports, no persistent."""
-        self._error_mode = True
+    def _parse_error_mode(self) -> None:
+        """Parse the current state of the error mode.
+
+        Error mode: enable only errors; no reports, no persistent.
+        """
+        if not self._error_mode:
+            return
+
         self.disable_noerror_messages()
         self.disable("miscellaneous")
         self.set_option("reports", False)
@@ -1567,7 +1578,7 @@ class PyLinter(
             self.stats.by_msg[message_definition.symbol] = 1
         # Interpolate arguments into message string
         msg = message_definition.msg
-        if args:
+        if args is not None:
             msg %= args
         # get module and object
         if node is None:
