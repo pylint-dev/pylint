@@ -23,18 +23,16 @@ def _config_initialization(
     """Parse all available options, read config files and command line arguments and
     set options accordingly.
     """
-    # Convert config_file in a Path and string
-    config_file_path = Path(config_file) if config_file else None
-    config_file = str(config_file) if config_file else None
+    config_file = Path(config_file) if config_file else None
 
     # Set the current module to the configuration file
     # to allow raising messages on the configuration file.
-    linter.set_current_module(config_file)
+    linter.set_current_module(str(config_file) if config_file else None)
 
     # Read the configuration file
     config_file_parser = config._ConfigurationFileParser(verbose_mode, linter)
     try:
-        config_data = config_file_parser.parse_config_file(file_path=config_file_path)
+        config_data = config_file_parser.parse_config_file(file_path=config_file)
     except OSError as ex:
         print(ex, file=sys.stderr)
         sys.exit(32)
@@ -47,9 +45,13 @@ def _config_initialization(
     if "load-plugins" in config_data:
         linter.load_plugin_modules(utils._splitstrip(config_data["load-plugins"]))
 
+    # pylint: disable-next=fixme
+    # TODO: Remove everything until set_reporter once the optparse
+    # implementation is no longer needed
+    # Load optparse command line arguments
     try:
         # The parser is stored on linter.cfgfile_parser
-        linter.read_config_file(config_file=config_file_path, verbose=verbose_mode)
+        linter.read_config_file(config_file=config_file, verbose=verbose_mode)
     except OSError as ex:
         print(ex, file=sys.stderr)
         sys.exit(32)
@@ -58,13 +60,6 @@ def _config_initialization(
     # provide options) have been registered
     linter.load_config_file()
 
-    if reporter:
-        # If a custom reporter is provided as argument, it may be overridden
-        # by file parameters, so re-set it here, but before command line
-        # parsing, so it's still overridable by command line option
-        linter.set_reporter(reporter)
-
-    # Load command line arguments
     try:
         linter.load_command_line_configuration(args_list)
     except SystemExit as exc:
@@ -72,9 +67,11 @@ def _config_initialization(
             exc.code = 32
         raise
 
-    # pylint: disable-next=fixme
-    # TODO: Start of the implemenation of argument parsing with argparse
-    # When finished this should replace the implementation based on optparse
+    if reporter:
+        # If a custom reporter is provided as argument, it may be overridden
+        # by file parameters, so re-set it here, but before command line
+        # parsing, so it's still overridable by command line option
+        linter.set_reporter(reporter)
 
     # First we parse any options from a configuration file
     linter._parse_configuration_file(config_data)
@@ -87,8 +84,8 @@ def _config_initialization(
     # load plugin specific configuration.
     linter.load_plugin_configuration()
 
-    # args_list should now only be a list of files/directories to lint. All options have
-    # been removed from the list
+    # parsed_args_list should now only be a list of files/directories to lint.
+    # All other options have been removed from the list.
     if not parsed_args_list:
         linter._arg_parser.print_help()
         sys.exit(32)
