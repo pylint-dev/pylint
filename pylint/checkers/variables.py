@@ -974,7 +974,7 @@ class VariablesChecker(BaseChecker):
     Checks for
     * unused variables / imports
     * undefined variables
-    * redefinition of variable from builtins or from an outer scope, for loop, or except handler
+    * redefinition of variable from builtins or from an outer scope or except handler
     * use of variable before assignment
     * __all__ consistency
     * self/cls assignment
