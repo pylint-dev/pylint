@@ -44,3 +44,5 @@ def test_format(my_input_value, my_other_input_value):
     """
     print("%d" % my_input_value)
     print("%d %s" % (my_input_value, my_other_input_value))
+    to_be_formatted = (my_input_value, my_other_input_value)
+    print("%d %s" % to_be_formatted)
