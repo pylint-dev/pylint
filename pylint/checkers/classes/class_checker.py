@@ -797,7 +797,6 @@ a metaclass class method.",
         "duplicate-bases",
         "redefined-slots-in-subclass",
         "invalid-enum-extension",
-        "subclassed-final-class",
     )
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         """Init visit variable _accessed."""
