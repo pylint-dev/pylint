@@ -109,6 +109,7 @@ Release date: TBA
 * Fix a false negative for ``subclassed-final-class`` when a set of other messages
  where disabled.
 
+
 What's New in Pylint 2.13.4?
 ============================
 Release date: 2022-03-31
