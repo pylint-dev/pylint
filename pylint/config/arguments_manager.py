@@ -21,7 +21,7 @@ from pylint.config.help_formatter import _HelpFormatter
 from pylint.config.utils import _convert_option_to_argument
 
 if TYPE_CHECKING:
-    from pylint import checkers
+    from pylint.config.arguments_provider import _ArgumentsProvider
 
 
 class _ArgumentsManager:
@@ -41,7 +41,7 @@ class _ArgumentsManager:
         self._argument_groups_dict: Dict[str, argparse._ArgumentGroup] = {}
         """Dictionary of all the argument groups."""
 
-    def _register_options_provider(self, provider: "checkers.BaseChecker") -> None:
+    def _register_options_provider(self, provider: "_ArgumentsProvider") -> None:
         """Register an options provider and load its defaults."""
         for opt, optdict in provider.options:
             argument = _convert_option_to_argument(opt, optdict)

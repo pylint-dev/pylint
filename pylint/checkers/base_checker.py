@@ -10,6 +10,7 @@ from typing import Any, Optional
 from astroid import nodes
 
 from pylint.config import OptionsProviderMixIn
+from pylint.config.arguments_provider import _ArgumentsProvider
 from pylint.config.exceptions import MissingArgumentManager
 from pylint.constants import _MSG_ORDER, WarningScope
 from pylint.exceptions import InvalidMessageError
@@ -25,7 +26,7 @@ else:
 
 
 @functools.total_ordering
-class BaseChecker(OptionsProviderMixIn):
+class BaseChecker(_ArgumentsProvider, OptionsProviderMixIn):
 
     # checker name (you may reuse an existing one)
     name: str = ""
@@ -51,14 +52,14 @@ class BaseChecker(OptionsProviderMixIn):
         if self.name is not None:
             self.name = self.name.lower()
         self.linter = linter
-        super().__init__()
+        OptionsProviderMixIn.__init__(self)
 
         if future_option_parsing:
             # We need a PyLinter object that subclasses _ArgumentsManager to register options
-            if not self.linter:
+            if not linter:
                 raise MissingArgumentManager
 
-            self.linter._register_options_provider(self)
+            _ArgumentsProvider.__init__(self, linter)
 
     def __gt__(self, other):
         """Permit to sort a list of Checker by name."""
