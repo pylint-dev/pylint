@@ -76,8 +76,7 @@ def type_annotation_only_gets_value_via_nonlocal_nested():
     def inner():
         def inner2():
             nonlocal some_num
-            if (some_num := 5):
-                pass
+            some_num = 5
         inner2()
     inner()
     print(some_num)
