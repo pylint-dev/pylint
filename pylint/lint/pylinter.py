@@ -785,7 +785,7 @@ class PyLinter(
         Convert values in config.fail_on (which might be msg category, msg id,
         or symbol) to specific msgs, then enable and flag them for later.
         """
-        fail_on_vals = self.config.fail_on
+        fail_on_vals = self.namespace.fail_on
         if not fail_on_vals:
             return
 
@@ -1060,7 +1060,7 @@ class PyLinter(
                 DeprecationWarning,
             )
             files_or_modules = (files_or_modules,)  # type: ignore[assignment]
-        if self.config.recursive:
+        if self.namespace.recursive:
             files_or_modules = tuple(self._discover_files(files_or_modules))
         if self.config.from_stdin:
             if len(files_or_modules) != 1:
@@ -1074,7 +1074,7 @@ class PyLinter(
                     functools.partial(self.get_ast, data=_read_stdin()),
                     [self._get_file_descr_from_stdin(filepath)],
                 )
-        elif self.config.jobs == 1:
+        elif self.namespace.jobs == 1:
             with fix_import_path(files_or_modules):
                 self._check_files(
                     self.get_ast, self._iterate_file_descrs(files_or_modules)
@@ -1082,7 +1082,7 @@ class PyLinter(
         else:
             check_parallel(
                 self,
-                self.config.jobs,
+                self.namespace.jobs,
                 self._iterate_file_descrs(files_or_modules),
                 files_or_modules,
             )
@@ -1404,7 +1404,7 @@ class PyLinter(
             return note
 
         # get a global note for the code
-        evaluation = self.config.evaluation
+        evaluation = self.namespace.evaluation
         try:
             stats_dict = {
                 "fatal": self.stats.fatal,
@@ -1442,7 +1442,7 @@ class PyLinter(
         """Returns the scope at which a message was enabled/disabled."""
         if confidence is None:
             confidence = interfaces.UNDEFINED
-        if self.config.confidence and confidence.name not in self.config.confidence:
+        if confidence.name not in self.namespace.confidence:
             return MSG_STATE_CONFIDENCE  # type: ignore[return-value] # mypy does not infer Literal correctly
         try:
             if line in self.file_state._module_msgs_state[msgid]:
@@ -1503,9 +1503,8 @@ class PyLinter(
         :param line: The line of the currently analysed file
         :param confidence: The confidence of the message
         """
-        if self.config.confidence and confidence:
-            if confidence.name not in self.config.confidence:
-                return False
+        if confidence and confidence.name not in self.namespace.confidence:
+            return False
         try:
             msgids = self.msgs_store.message_id_store.get_active_msgids(msg_descr)
         except exceptions.UnknownMessageError:

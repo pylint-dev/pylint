@@ -6,6 +6,7 @@ import contextlib
 import warnings
 from typing import Dict, Generator, Optional, Type
 
+from pylint.checkers.base_checker import BaseChecker
 from pylint.constants import PY38_PLUS
 from pylint.testutils.global_test_linter import linter
 from pylint.testutils.output_line import MessageTest
@@ -16,13 +17,16 @@ from pylint.utils import ASTWalker
 class CheckerTestCase:
     """A base testcase class for unit testing individual checker classes."""
 
-    CHECKER_CLASS: Optional[Type] = None
+    CHECKER_CLASS: Optional[Type[BaseChecker]]
     CONFIG: Dict = {}
 
     def setup_method(self):
         self.linter = UnittestLinter()
-        self.checker = self.CHECKER_CLASS(self.linter)  # pylint: disable=not-callable
+        self.checker = self.CHECKER_CLASS(self.linter)
         for key, value in self.CONFIG.items():
+            setattr(self.checker.linter.namespace, key, value)
+            # pylint: disable-next=fixme
+            # TODO: Remove after deprecation of the config attribute
             setattr(self.checker.config, key, value)
         self.checker.open()
 
