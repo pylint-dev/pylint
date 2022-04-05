@@ -34,7 +34,6 @@ class _ArgumentsManager:
         self._arg_parser = argparse.ArgumentParser(
             prog="pylint",
             usage="%(prog)s [options]",
-            allow_abbrev=False,
             formatter_class=_HelpFormatter,
         )
         """The command line argument parser."""
