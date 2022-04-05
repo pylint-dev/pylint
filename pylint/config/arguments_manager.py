@@ -27,13 +27,13 @@ if TYPE_CHECKING:
 class _ArgumentsManager:
     """Arguments manager class used to handle command-line arguments and options."""
 
-    def __init__(self) -> None:
+    def __init__(self, prog: str, usage: Optional[str] = None) -> None:
         self.namespace = argparse.Namespace()
         """Namespace for all options."""
 
         self._arg_parser = argparse.ArgumentParser(
-            prog="pylint",
-            usage="%(prog)s [options]",
+            prog=prog,
+            usage=usage or "%(prog)s [options]",
             formatter_class=_HelpFormatter,
         )
         """The command line argument parser."""
