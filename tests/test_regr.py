@@ -128,6 +128,7 @@ def test_pylint_config_attr() -> None:
         "ReportsHandlerMixIn",
         "BaseTokenChecker",
         "BaseChecker",
+        "_ArgumentsProvider",
         "OptionsProviderMixIn",
     ]
     assert [c.name for c in pylinter.ancestors()] == expect
