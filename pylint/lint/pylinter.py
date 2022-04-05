@@ -190,10 +190,10 @@ MSGS = {
 
 # pylint: disable=too-many-instance-attributes,too-many-public-methods
 class PyLinter(
+    _ArgumentsManager,
     config.OptionsManagerMixIn,
     reporters.ReportsHandlerMixIn,
     checkers.BaseTokenChecker,
-    _ArgumentsManager,
 ):
     """Lint Python modules using external checkers.
 
@@ -228,6 +228,7 @@ class PyLinter(
                     "type": "csv",
                     "metavar": "<file>[,<file>...]",
                     "dest": "black_list",
+                    "kwargs": {"old_names": ["black_list"]},
                     "default": ("CVS",),
                     "help": "Files or directories to be skipped. "
                     "They should be base names, not paths.",
@@ -830,9 +831,14 @@ class PyLinter(
             for report_id, _, _ in _reporters:
                 self.disable_report(report_id)
 
-    def error_mode(self):
-        """Error mode: enable only errors; no reports, no persistent."""
-        self._error_mode = True
+    def _parse_error_mode(self) -> None:
+        """Parse the current state of the error mode.
+
+        Error mode: enable only errors; no reports, no persistent.
+        """
+        if not self._error_mode:
+            return
+
         self.disable_noerror_messages()
         self.disable("miscellaneous")
         self.set_option("reports", False)

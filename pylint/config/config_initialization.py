@@ -70,7 +70,7 @@ def _config_initialization(
 
     # Load command line arguments
     try:
-        parsed_args_list = linter.load_command_line_configuration(args_list)
+        linter.load_command_line_configuration(args_list)
     except SystemExit as exc:
         if exc.code == 2:  # bad options
             exc.code = 32
@@ -89,7 +89,7 @@ def _config_initialization(
 
     # Second we parse any options from the command line, so they can override
     # the configuration file
-    linter._parse_command_line_configuration(args_list)
+    parsed_args_list = linter._parse_command_line_configuration(args_list)
 
     # Lastly we parse any options from plugins
     linter._parse_plugin_configuration()
@@ -102,5 +102,7 @@ def _config_initialization(
     if not parsed_args_list:
         linter._arg_parser.print_help()
         sys.exit(32)
+
+    linter._parse_error_mode()
 
     return parsed_args_list

@@ -5,12 +5,11 @@
 import os
 import sys
 import warnings
-from typing import Optional
+from typing import List, Optional
 
-from pylint import config, extensions, interfaces
+from pylint import config
 from pylint.config.callback_actions import (
     _DoNothingAction,
-    _EnableAllExtensionsAction,
     _ErrorsOnlyModeAction,
     _FullDocumentationAction,
     _GenerateRCFileAction,
@@ -21,18 +20,12 @@ from pylint.config.callback_actions import (
     _ListMessagesEnabledAction,
     _LongHelpAction,
     _MessageHelpAction,
-    _VerboseModeAction,
 )
 from pylint.config.config_initialization import _config_initialization
+from pylint.config.exceptions import ArgumentPreprocessingError
+from pylint.config.utils import _preprocess_options
 from pylint.constants import full_version
 from pylint.lint.pylinter import PyLinter
-from pylint.lint.utils import ArgumentPreprocessingError, preprocess_options
-from pylint.utils import utils
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 try:
     import multiprocessing
@@ -50,27 +43,6 @@ def _cpu_count() -> int:
     if multiprocessing:
         return multiprocessing.cpu_count()
     return 1
-
-
-def cb_list_extensions(option, optname, value, parser):
-    """List all the extensions under pylint.extensions."""
-
-    for filename in os.listdir(os.path.dirname(extensions.__file__)):
-        if filename.endswith(".py") and not filename.startswith("_"):
-            extension_name, _, _ = filename.partition(".")
-            print(f"pylint.extensions.{extension_name}")
-    sys.exit(0)
-
-
-def cb_list_confidence_levels(option, optname, value, parser):
-    for level in interfaces.CONFIDENCE_LEVELS:
-        print(f"%-18s: {level}")
-    sys.exit(0)
-
-
-def cb_init_hook(optname, value):
-    """Execute arbitrary code to set 'sys.path' for instance."""
-    exec(value)  # pylint: disable=exec-used
 
 
 UNUSED_PARAM_SENTINEL = object()
@@ -107,22 +79,13 @@ group are mutually exclusive.",
             sys.exit(0)
 
         self._rcfile: Optional[str] = None
-        self._output = None
-        self._plugins = []
-        self.verbose = None
+        self._output: Optional[str] = None
+        self._plugins: List[str] = []
+        self.verbose: bool = False
+
+        # Preprocess certain options and remove them from args list
         try:
-            preprocess_options(
-                args,
-                {
-                    # option: (callback, takearg)
-                    "init-hook": (cb_init_hook, True),
-                    "rcfile": (self.cb_set_rcfile, True),
-                    "load-plugins": (self.cb_add_plugins, True),
-                    "enable-all-extensions": (self.cb_enable_all_extensions, False),
-                    "verbose": (self.cb_verbose_mode, False),
-                    "output": (self.cb_set_output, True),
-                },
-            )
+            args = _preprocess_options(self, args)
         except ArgumentPreprocessingError as ex:
             print(ex, file=sys.stderr)
             sys.exit(32)
@@ -264,8 +227,8 @@ group are mutually exclusive.",
                 (
                     "verbose",
                     {
-                        "action": _VerboseModeAction,
-                        "kwargs": {"Run": self},
+                        "action": _DoNothingAction,
+                        "kwargs": {},
                         "callback": Run._not_implemented_callback,
                         "short": "v",
                         "help": "In verbose mode, extra non-checker-related info "
@@ -275,8 +238,8 @@ group are mutually exclusive.",
                 (
                     "enable-all-extensions",
                     {
-                        "action": _EnableAllExtensionsAction,
-                        "kwargs": {"Run": self},
+                        "action": _DoNothingAction,
+                        "kwargs": {},
                         "callback": Run._not_implemented_callback,
                         "help": "Load and enable all available extensions. "
                         "Use --list-extensions to see a list all available extensions.",
@@ -360,26 +323,3 @@ group are mutually exclusive.",
                     sys.exit(self.linter.msg_status or 1)
             else:
                 sys.exit(self.linter.msg_status)
-
-    def cb_set_rcfile(self, name: Literal["rcfile"], value: str) -> None:
-        """Callback for option preprocessing (i.e. before option parsing)."""
-        self._rcfile = value
-
-    def cb_set_output(self, name, value):
-        """Callback for option preprocessing (i.e. before option parsing)."""
-        self._output = value
-
-    def cb_add_plugins(self, name, value):
-        """Callback for option preprocessing (i.e. before option parsing)."""
-        self._plugins.extend(utils._splitstrip(value))
-
-    def cb_verbose_mode(self, *args, **kwargs):
-        self.verbose = True
-
-    def cb_enable_all_extensions(self, option_name: str, value: None) -> None:
-        """Callback to load and enable all available extensions."""
-        for filename in os.listdir(os.path.dirname(extensions.__file__)):
-            if filename.endswith(".py") and not filename.startswith("_"):
-                extension_name = f"pylint.extensions.{filename[:-3]}"
-                if extension_name not in self._plugins:
-                    self._plugins.append(extension_name)

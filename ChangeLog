@@ -10,6 +10,10 @@ Release date: TBA
   Put new features here and also in 'doc/whatsnew/2.14.rst'
 
 
+* Added new checker ``typevar-name-mismatch``: TypeVar must be assigned to a variable with the same name as its name argument.
+
+  Closes #5224
+
 * ``invalid-enum-extension``: Used when a class tries to extend an inherited Enum class.
 
   Closes #5501
@@ -17,7 +21,7 @@ Release date: TBA
 * Added new checker ``typevar-double-variance``: The "covariant" and "contravariant" keyword arguments
   cannot both be set to "True" in a TypeVar.
 
-  Closes ##5895
+  Closes #5895
 
 * Re-enable checker ``bad-docstring-quotes`` for Python <= 3.7.
 
@@ -41,6 +45,11 @@ Release date: TBA
   suggestions for improvements.
 
   Closes #578
+
+* The ``ignore-mixin-members`` option has been deprecated. You should now use the new
+  ``ignored-checks-for-mixins`` option.
+
+  Closes #5205
 
 * Added new checker ``unnecessary-list-index-lookup`` for indexing into a list while
   iterating over ``enumerate()``.

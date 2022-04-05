@@ -5,12 +5,15 @@
 """Arguments manager class used to handle command-line arguments and options."""
 
 import argparse
-from typing import TYPE_CHECKING, Dict, List
+import sys
+from typing import TYPE_CHECKING, Dict, List, Optional
 
 from pylint.config.argument import (
     _Argument,
     _CallableArgument,
     _StoreArgument,
+    _StoreNewNamesArgument,
+    _StoreOldNamesArgument,
     _StoreTrueArgument,
 )
 from pylint.config.exceptions import UnrecognizedArgumentAction
@@ -31,7 +34,6 @@ class _ArgumentsManager:
         self._arg_parser = argparse.ArgumentParser(
             prog="pylint",
             usage="%(prog)s [options]",
-            allow_abbrev=False,
             formatter_class=_HelpFormatter,
         )
         """The command line argument parser."""
@@ -78,6 +80,41 @@ class _ArgumentsManager:
                 metavar=argument.metavar,
                 choices=argument.choices,
             )
+        elif isinstance(argument, _StoreOldNamesArgument):
+            section_group.add_argument(
+                *argument.flags,
+                **argument.kwargs,
+                action=argument.action,
+                default=argument.default,
+                type=argument.type,  # type: ignore[arg-type] # incorrect typing in typeshed
+                help=argument.help,
+                metavar=argument.metavar,
+                choices=argument.choices,
+            )
+            # We add the old name as hidden option to make it's default value gets loaded when
+            # argparse initializes all options from the checker
+            assert argument.kwargs["old_names"]
+            for old_name in argument.kwargs["old_names"]:
+                section_group.add_argument(
+                    f"--{old_name}",
+                    action="store",
+                    default=argument.default,
+                    type=argument.type,  # type: ignore[arg-type] # incorrect typing in typeshed
+                    help=argparse.SUPPRESS,
+                    metavar=argument.metavar,
+                    choices=argument.choices,
+                )
+        elif isinstance(argument, _StoreNewNamesArgument):
+            section_group.add_argument(
+                *argument.flags,
+                **argument.kwargs,
+                action=argument.action,
+                default=argument.default,
+                type=argument.type,  # type: ignore[arg-type] # incorrect typing in typeshed
+                help=argument.help,
+                metavar=argument.metavar,
+                choices=argument.choices,
+            )
         elif isinstance(argument, _StoreTrueArgument):
             section_group.add_argument(
                 *argument.flags,
@@ -108,15 +145,17 @@ class _ArgumentsManager:
         # TODO: This should parse_args instead of parse_known_args
         self.namespace = self._arg_parser.parse_known_args(arguments, self.namespace)[0]
 
-    def _parse_command_line_configuration(self, arguments: List[str]) -> None:
+    def _parse_command_line_configuration(
+        self, arguments: Optional[List[str]] = None
+    ) -> List[str]:
         """Parse the arguments found on the command line into the namespace."""
-        # pylint: disable-next=fixme
-        # TODO: This should parse_args instead of parse_known_args
-        self.namespace = self._arg_parser.parse_known_args(arguments, self.namespace)[0]
+        arguments = sys.argv[1:] if arguments is None else arguments
 
-        # pylint: disable-next=fixme
-        # TODO: This should return a list of arguments with the option arguments removed
-        # just as PyLinter.load_command_line_configuration does
+        self.namespace, parsed_args = self._arg_parser.parse_known_args(
+            arguments, self.namespace
+        )
+
+        return parsed_args
 
     def _parse_plugin_configuration(self) -> None:
         # pylint: disable-next=fixme

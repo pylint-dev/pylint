@@ -780,10 +780,6 @@ a metaclass class method.",
     def _dummy_rgx(self):
         return get_global_option(self, "dummy-variables-rgx", default=None)
 
-    @cached_property
-    def _ignore_mixin(self):
-        return get_global_option(self, "ignore-mixin-members", default=True)
-
     @check_messages(
         "abstract-method",
         "no-init",
@@ -1026,7 +1022,11 @@ a metaclass class method.",
 
     def _check_attribute_defined_outside_init(self, cnode: nodes.ClassDef) -> None:
         # check access to existent members on non metaclass classes
-        if self._ignore_mixin and self._mixin_class_rgx.match(cnode.name):
+        if (
+            "attribute-defined-outside-init"
+            in self.linter.namespace.ignored_checks_for_mixins
+            and self._mixin_class_rgx.match(cnode.name)
+        ):
             # We are in a mixin class. No need to try to figure out if
             # something is missing, since it is most likely that it will
             # miss.

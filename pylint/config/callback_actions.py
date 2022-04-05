@@ -257,37 +257,7 @@ class _ErrorsOnlyModeAction(_AccessRunObjectAction):
         values: Union[str, Sequence[Any], None],
         option_string: Optional[str] = "--errors-only",
     ) -> None:
-        self.run.linter.error_mode()
-
-
-class _VerboseModeAction(_AccessRunObjectAction):
-    """Turn on verbose mode."""
-
-    def __call__(
-        self,
-        parser: argparse.ArgumentParser,
-        namespace: argparse.Namespace,
-        values: Union[str, Sequence[Any], None],
-        option_string: Optional[str] = "--verbose",
-    ) -> None:
-        self.run.verbose = True
-
-
-class _EnableAllExtensionsAction(_AccessRunObjectAction):
-    """Turn on all extensions."""
-
-    def __call__(
-        self,
-        parser: argparse.ArgumentParser,
-        namespace: argparse.Namespace,
-        values: Union[str, Sequence[Any], None],
-        option_string: Optional[str] = "--enable-all-extensions",
-    ) -> None:
-        for filename in Path(extensions.__file__).parent.iterdir():
-            if filename.suffix == (".py") and not filename.stem.startswith("_"):
-                extension_name = f"pylint.extensions.{filename.stem}"
-                if extension_name not in self.run._plugins:
-                    self.run._plugins.append(extension_name)
+        self.run.linter._error_mode = True
 
 
 class _LongHelpAction(_AccessRunObjectAction):
