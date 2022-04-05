@@ -21,7 +21,7 @@ class UnittestLinter(_ArgumentsManager):
     def __init__(self):
         self._messages = []
         self.stats = LinterStats()
-        _ArgumentsManager.__init__(self)
+        _ArgumentsManager.__init__(self, "pylint")
 
     def release_messages(self):
         try:
