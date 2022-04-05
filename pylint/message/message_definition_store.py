@@ -48,7 +48,7 @@ class MessageDefinitionStore:
         self._messages_definitions[message.msgid] = message
         self._msgs_by_category[message.msgid[0]].append(message.msgid)
 
-    # Since MessageDefinitionStore is only initialized once and due
+    # Since MessageDefinitionStore is only initialized once
     # and the arguments are relatively small in size we do not run the
     # risk of creating a large memory leak.
     # See discussion in: https://github.com/PyCQA/pylint/pull/5673
