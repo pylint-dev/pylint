@@ -71,8 +71,8 @@ class TestDeprecationOptions:
     @staticmethod
     def test_old_names() -> None:
         """Check that we correctly double assign old name options."""
-        run = Run([EMPTY_MODULE, "--ignore=test"], exit=False)
-        assert run.linter.namespace.ignore == ["test"]
+        run = Run([EMPTY_MODULE, "--ignore=test,test_two"], exit=False)
+        assert run.linter.namespace.ignore == ["test", "test_two"]
         assert run.linter.namespace.ignore == run.linter.namespace.black_list
         assert run.linter.namespace.ignore_patterns == [re.compile("^\\.#")]
         assert (
