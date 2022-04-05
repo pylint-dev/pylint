@@ -49,7 +49,6 @@ DEFAULT_LINE_LENGTH = 79
 
 # These are types used to overload get_global_option() and refer to the options type
 GLOBAL_OPTION_BOOL = Literal[
-    "ignore-mixin-members",
     "suggestion-mode",
     "analyse-fallback-blocks",
     "allow-global-unused-variables",

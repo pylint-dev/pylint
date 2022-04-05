@@ -4,6 +4,7 @@
 
 """Test for the (new) implementation of option parsing with argparse"""
 
+import re
 from os.path import abspath, dirname, join
 
 import pytest
@@ -54,3 +55,26 @@ class TestArgparseOptionsProviderMixin:
         with pytest.raises(SystemExit) as ex:
             Run([LOGGING_TEST, f"--rcfile={LOGGING_TEST.replace('.py', '.rc')}"])
         assert ex.value.code == 0
+
+
+class TestDeprecationOptions:
+    @staticmethod
+    def test_new_names() -> None:
+        """Check that we correctly emit DeprecationWarnings for deprecated options."""
+        with pytest.raises(SystemExit) as ex:
+            with pytest.warns(DeprecationWarning) as records:
+                Run([EMPTY_MODULE, "--ignore-mixin-members=yes"])
+            assert len(records) == 1
+            assert "--ignore-mixin-members has been deprecated" in records[0]
+        assert ex.value.code == 0
+
+    @staticmethod
+    def test_old_names() -> None:
+        """Check that we correctly double assign old name options."""
+        run = Run([EMPTY_MODULE, "--ignore=test"], exit=False)
+        assert run.linter.namespace.ignore == ["test"]
+        assert run.linter.namespace.ignore == run.linter.namespace.black_list
+        assert run.linter.namespace.ignore_patterns == [re.compile("^\\.#")]
+        assert (
+            run.linter.namespace.ignore_patterns == run.linter.namespace.black_list_re
+        )

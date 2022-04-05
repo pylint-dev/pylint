@@ -257,10 +257,9 @@ methods is doing nothing but raising NotImplementedError.
 5.2 How do I avoid "access to undefined member" messages in my mixin classes?
 -------------------------------------------------------------------------------
 
-To do so you have to set the ignore-mixin-members option to
-"yes" (this is the default value) and name your mixin class with
-a name which ends with "Mixin" or "mixin" (default) or change the
-default value by changing the mixin-class-rgx option.
+You should add the ``no-member`` message to your ``ignored-checks-for-mixins`` option
+and name your mixin class with a name which ends with "Mixin" or "mixin" (default)
+or change the default value by changing the ``mixin-class-rgx`` option.
 
 
 6. Troubleshooting
