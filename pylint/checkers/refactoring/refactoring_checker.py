@@ -461,6 +461,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             {
                 "default": ("sys.exit", "argparse.parse_error"),
                 "type": "csv",
+                "metavar": "<members names>",
                 "help": "Complete name of functions that never returns. When checking "
                 "for inconsistent-return-statements if a never returning function is "
                 "called then it will be considered as an explicit return statement "
@@ -469,8 +470,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         ),
     )
 
-    def __init__(self, linter=None):
-        super().__init__(linter)
+    def __init__(self, linter):
+        super().__init__(linter, future_option_parsing=True)
         self._return_nodes = {}
         self._consider_using_with_stack = ConsiderUsingWithStack()
         self._init()
@@ -486,7 +487,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def open(self):
         # do this in open since config not fully initialized in __init__
-        self._never_returning_functions = set(self.config.never_returning_functions)
+        self._never_returning_functions = set(
+            self.linter.namespace.never_returning_functions
+        )
 
     @cached_property
     def _dummy_rgx(self):
@@ -1125,11 +1128,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             self._emit_nested_blocks_message_if_needed(nested_blocks)
 
     def _emit_nested_blocks_message_if_needed(self, nested_blocks):
-        if len(nested_blocks) > self.config.max_nested_blocks:
+        if len(nested_blocks) > self.linter.namespace.max_nested_blocks:
             self.add_message(
                 "too-many-nested-blocks",
                 node=nested_blocks[0],
-                args=(len(nested_blocks), self.config.max_nested_blocks),
+                args=(len(nested_blocks), self.linter.namespace.max_nested_blocks),
             )
 
     def _emit_consider_using_with_if_needed(self, stack: Dict[str, nodes.NodeNG]):
