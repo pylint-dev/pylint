@@ -106,8 +106,7 @@ Release date: TBA
   Closes #5931
 
 
-* Fix a false negative for ``subclassed-final-class`` when a set of other messages
- where disabled.
+* Fix a false negative for ``subclassed-final-class`` when a set of other messages were disabled.
 
 
 What's New in Pylint 2.13.4?
