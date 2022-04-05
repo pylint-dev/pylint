@@ -156,10 +156,3 @@ class _ArgumentsManager:
         )
 
         return parsed_args
-
-    def _parse_plugin_configuration(self) -> None:
-        # pylint: disable-next=fixme
-        # TODO: This is not currently implemented.
-        # Perhaps we should also change the name to distuingish it better?
-        # See PyLinter.load_plugin_configuration
-        pass
