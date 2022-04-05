@@ -73,3 +73,7 @@ class MyClassWithMethodsAndMaxSize:
     @lru_cache(typed=True, maxsize=None)  # [cache-max-size-none]
     def my_func(self, param):
         return param + 1
+
+@lru_cache(maxsize=None)
+def my_func(param):
+    return param + 1
