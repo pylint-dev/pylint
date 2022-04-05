@@ -27,6 +27,11 @@ Release date: TBA
   Closes #6069
   Closes #6136
 
+* ``lru-cache-decorating-method`` has been renamed to ``cache-max-size-none`` and
+  will only be emitted when ``maxsize`` is ``None``.
+
+  Closes #6180
+
 * Fix false positive for ``unused-import`` when disabling both ``used-before-assignment`` and ``undefined-variable``.
 
   Closes #6089
