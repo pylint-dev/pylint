@@ -5,7 +5,7 @@
 import functools
 import sys
 from inspect import cleandoc
-from typing import Any, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 from astroid import nodes
 
@@ -21,6 +21,9 @@ if sys.version_info >= (3, 8):
     from typing import Literal
 else:
     from typing_extensions import Literal
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 
 @functools.total_ordering
@@ -40,13 +43,9 @@ class BaseChecker(OptionsProviderMixIn):
     enabled: bool = True
 
     def __init__(
-        self, linter=None, *, future_option_parsing: Literal[None, True] = None
+        self, linter: "PyLinter", *, future_option_parsing: Literal[None, True] = None
     ):
-        """Checker instances should have the linter as argument.
-
-        :param ILinter linter: is an object implementing ILinter.
-        :raises MissingArgumentManager: If no linter object is passed.
-        """
+        """Checker instances should have the linter as argument."""
         if self.name is not None:
             self.name = self.name.lower()
         self.linter = linter
