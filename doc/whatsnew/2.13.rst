@@ -576,6 +576,11 @@ Other Changes
 
   Closes #5803
 
+* Fix false positive for ``used-before-assignment`` for assignments taking place via
+  nonlocal declarations after an earlier type annotation.
+
+  Closes #5394
+
 * Fix false positive for 'nonexistent-operator' when repeated '-' are
   separated (e.g. by parens).
 
