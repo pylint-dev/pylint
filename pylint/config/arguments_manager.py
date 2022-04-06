@@ -47,11 +47,7 @@ class _ArgumentsManager:
             argument = _convert_option_to_argument(opt, optdict)
             section = argument.section or provider.name.capitalize()
 
-            # pylint: disable-next=fixme
-            # TODO: Optparse: Always define option_groups_descs on ArgumentsProvider
-            section_desc = None
-            if hasattr(provider, "option_groups_descs"):
-                section_desc = provider.option_groups_descs.get(section, None)  # type: ignore[attr-defined]
+            section_desc = provider.option_groups_descs.get(section, None)
             self._add_arguments_to_parser(section, section_desc, argument)
 
         self._load_default_argument_values()
