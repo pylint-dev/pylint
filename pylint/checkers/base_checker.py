@@ -15,6 +15,7 @@ from pylint.constants import _MSG_ORDER, WarningScope
 from pylint.exceptions import InvalidMessageError
 from pylint.interfaces import Confidence, IRawChecker, ITokenChecker, implements
 from pylint.message.message_definition import MessageDefinition
+from pylint.typing import Options
 from pylint.utils import get_rst_section, get_rst_title
 
 if sys.version_info >= (3, 8):
@@ -31,7 +32,7 @@ class BaseChecker(OptionsProviderMixIn):
     # options level (0 will be displaying in --help, 1 in --long-help)
     level = 1
     # ordered list of options to control the checker behaviour
-    options: Any = ()
+    options: Options = ()
     # messages issued by this checker
     msgs: Any = {}
     # reports issued by this checker
