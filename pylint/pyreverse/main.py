@@ -69,6 +69,7 @@ OPTIONS = (
             action="store",
             metavar="<ancestor>",
             type="int",
+            default=None,
             help="show <ancestor> generations of ancestor classes not in <projects>",
         ),
     ),
@@ -77,6 +78,8 @@ OPTIONS = (
         dict(
             short="A",
             default=None,
+            type="yn",
+            metavar="<y or n>",
             help="show all ancestors off all classes in <projects>",
         ),
     ),
@@ -87,6 +90,7 @@ OPTIONS = (
             action="store",
             metavar="<association_level>",
             type="int",
+            default=None,
             help="show <association_level> levels of associated classes not in <projects>",
         ),
     ),
@@ -95,6 +99,8 @@ OPTIONS = (
         dict(
             short="S",
             default=None,
+            type="yn",
+            metavar="<y or n>",
             help="show recursively all associated off all associated classes",
         ),
     ),
@@ -104,6 +110,7 @@ OPTIONS = (
             short="b",
             action="store_true",
             default=False,
+            metavar="<y or n>",
             help="include builtin objects in representation of classes",
         ),
     ),
@@ -123,6 +130,7 @@ OPTIONS = (
             short="k",
             action="store_true",
             default=False,
+            metavar="<y or no>",
             help="don't show attributes and methods in the class boxes; this disables -f values",
         ),
     ),
@@ -134,6 +142,7 @@ OPTIONS = (
             action="store",
             default="dot",
             metavar="<format>",
+            type="string",
             help=(
                 f"create a *.<format> output file if format is available. Available formats are: {', '.join(DIRECTLY_SUPPORTED_FORMATS)}. "
                 f"Any other format will be tried to create by means of the 'dot' command line tool, which requires a graphviz installation."
@@ -146,6 +155,7 @@ OPTIONS = (
             dest="colorized",
             action="store_true",
             default=False,
+            metavar="<y or n>",
             help="Use colored output. Classes/modules of the same package get the same color.",
         ),
     ),
