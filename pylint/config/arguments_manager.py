@@ -52,8 +52,6 @@ class _ArgumentsManager:
         # pylint: disable-next=fixme
         # TODO: Do something with option groups within optdicts (see OptionsManagerMixIn.register_options_provider)
 
-        # pylint: disable-next=fixme
-        # TODO: Investigate performance impact of loading default arguments on every call
         self._load_default_argument_values()
 
     def _add_arguments_to_parser(self, section: str, argument: _Argument) -> None:
