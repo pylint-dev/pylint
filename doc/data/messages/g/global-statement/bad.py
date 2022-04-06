@@ -1,7 +1,6 @@
 price = 25
 
 
-def add_cost():
+def add_vat():
     global price  # [global-statement]
-    price = price + 10
-    return price
+    return price * 0.20
