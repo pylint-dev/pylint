@@ -108,7 +108,6 @@ OPTIONS = (
             short="b",
             action="store_true",
             default=False,
-            action="store_true",
             help="include builtin objects in representation of classes",
         ),
     ),
