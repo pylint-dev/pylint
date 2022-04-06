@@ -56,6 +56,7 @@ OPTIONS = (
             short="c",
             action="append",
             metavar="<class>",
+            type="csv",
             dest="classes",
             default=[],
             help="create a class diagram with all classes related to <class>;\
@@ -126,7 +127,6 @@ OPTIONS = (
             short="k",
             action="store_true",
             default=False,
-            action="store_true",
             help="don't show attributes and methods in the class boxes; this disables -f values",
         ),
     ),
