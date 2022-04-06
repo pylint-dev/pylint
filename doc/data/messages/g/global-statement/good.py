@@ -1,6 +1,2 @@
-price = 25
-
-
-def add_cost():
-    total_cost = price + 10
-    return total_cost
+def add_vat(price):
+    return price * 0.20
