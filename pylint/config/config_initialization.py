@@ -32,7 +32,9 @@ def _config_initialization(
     # Read the configuration file
     config_file_parser = config._ConfigurationFileParser(verbose_mode, linter)
     try:
-        config_data = config_file_parser.parse_config_file(file_path=config_file)
+        config_data, config_args = config_file_parser.parse_config_file(
+            file_path=config_file
+        )
     except OSError as ex:
         print(ex, file=sys.stderr)
         sys.exit(32)
@@ -74,7 +76,7 @@ def _config_initialization(
         linter.set_reporter(reporter)
 
     # First we parse any options from a configuration file
-    linter._parse_configuration_file(config_data)
+    linter._parse_configuration_file(config_args)
 
     # Second we parse any options from the command line, so they can override
     # the configuration file

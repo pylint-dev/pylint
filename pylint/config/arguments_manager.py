@@ -136,11 +136,8 @@ class _ArgumentsManager:
         """Loads the default values of all registered options."""
         self.namespace = self._arg_parser.parse_args([], self.namespace)
 
-    def _parse_configuration_file(self, config_data: Dict[str, str]) -> None:
+    def _parse_configuration_file(self, arguments: List[str]) -> None:
         """Parse the arguments found in a configuration file into the namespace."""
-        arguments = []
-        for opt, value in config_data.items():
-            arguments.extend([f"--{opt}", value])
         # pylint: disable-next=fixme
         # TODO: This should parse_args instead of parse_known_args
         self.namespace = self._arg_parser.parse_known_args(arguments, self.namespace)[0]
