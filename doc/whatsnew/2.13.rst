@@ -585,3 +585,7 @@ Other Changes
   separated (e.g. by parens).
 
   Closes #5769
+
+* Only raise ``not-callable`` when all the inferred values of a property are not callable.
+
+  Closes #5931
