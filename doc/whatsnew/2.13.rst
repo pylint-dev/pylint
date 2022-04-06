@@ -78,11 +78,12 @@ New checkers
    enter on a non specialized keyboard.
    See `Confusable Characters in PEP 672 <https://www.python.org/dev/peps/pep-0672/#confusable-characters-in-identifiers>`_
 
-* Added ``lru-cache-decorating-method`` checker with checks for the use of ``functools.lru_cache``
-  on class methods. This is unrecommended as it creates memory leaks by never letting the instance
-  getting garbage collected.
+* Added ``cache-max-size-none`` checker with checks for the use of ``functools.lru_cache``
+  on class methods with a ``maxsize`` of ``None``. This is unrecommended as it
+  creates memory leaks by never letting the instance get garbage collected.
 
   Closes #5670
+  Clsoes #6180
 
 Removed checkers
 ================
@@ -575,7 +576,16 @@ Other Changes
 
   Closes #5803
 
+* Fix false positive for ``used-before-assignment`` for assignments taking place via
+  nonlocal declarations after an earlier type annotation.
+
+  Closes #5394
+
 * Fix false positive for 'nonexistent-operator' when repeated '-' are
   separated (e.g. by parens).
 
   Closes #5769
+
+* Only raise ``not-callable`` when all the inferred values of a property are not callable.
+
+  Closes #5931
