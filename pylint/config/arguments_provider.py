@@ -5,6 +5,8 @@
 """Arguments provider class used to expose options."""
 
 
+from typing import Dict
+
 from pylint.config.arguments_manager import _ArgumentsManager
 from pylint.typing import Options
 
@@ -13,8 +15,13 @@ class _ArgumentsProvider:
     """Base class for classes that provide arguments."""
 
     name: str
+    """Name of the provider."""
 
     options: Options = ()
+    """Options provided by this provider."""
+
+    option_groups_descs: Dict[str, str] = {}
+    """Option groups of this provider and their descriptions."""
 
     def __init__(self, arguments_manager: _ArgumentsManager) -> None:
         self._arguments_manager = arguments_manager
