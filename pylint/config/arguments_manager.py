@@ -54,8 +54,6 @@ class _ArgumentsManager:
                 section_desc = provider.option_groups_descs.get(section, None)  # type: ignore[attr-defined]
             self._add_arguments_to_parser(section, section_desc, argument)
 
-        # pylint: disable-next=fixme
-        # TODO: Investigate performance impact of loading default arguments on every call
         self._load_default_argument_values()
 
     def _add_arguments_to_parser(
