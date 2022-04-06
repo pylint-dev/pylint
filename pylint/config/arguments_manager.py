@@ -43,25 +43,34 @@ class _ArgumentsManager:
 
     def _register_options_provider(self, provider: "checkers.BaseChecker") -> None:
         """Register an options provider and load its defaults."""
-        # pylint: disable-next=fixme
-        # TODO: Do something own_group parameter (see OptionsManagerMixIn.register_options_provider)
         for opt, optdict in provider.options:
             argument = _convert_option_to_argument(opt, optdict)
-            self._add_arguments_to_parser(provider.name, argument)
+            section = argument.section or provider.name.capitalize()
 
-        # pylint: disable-next=fixme
-        # TODO: Do something with option groups within optdicts (see OptionsManagerMixIn.register_options_provider)
+            # pylint: disable-next=fixme
+            # TODO: Optparse: Always define option_groups_descs on ArgumentsProvider
+            section_desc = None
+            if hasattr(provider, "option_groups_descs"):
+                section_desc = provider.option_groups_descs.get(section, None)  # type: ignore[attr-defined]
+            self._add_arguments_to_parser(section, section_desc, argument)
 
         # pylint: disable-next=fixme
         # TODO: Investigate performance impact of loading default arguments on every call
         self._load_default_argument_values()
 
-    def _add_arguments_to_parser(self, section: str, argument: _Argument) -> None:
-        """Iterates over all argument sections and add them to the parser object."""
+    def _add_arguments_to_parser(
+        self, section: str, section_desc: Optional[str], argument: _Argument
+    ) -> None:
+        """Add an argument to the correct argument section/group."""
         try:
             section_group = self._argument_groups_dict[section]
         except KeyError:
-            section_group = self._arg_parser.add_argument_group(title=section)
+            if section_desc:
+                section_group = self._arg_parser.add_argument_group(
+                    section, section_desc
+                )
+            else:
+                section_group = self._arg_parser.add_argument_group(title=section)
             self._argument_groups_dict[section] = section_group
         self._add_parser_option(section_group, argument)
 

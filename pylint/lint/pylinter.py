@@ -544,10 +544,10 @@ class PyLinter(
             ),
         )
 
-    base_option_groups = (
-        ("Messages control", "Options controlling analysis messages"),
-        ("Reports", "Options related to output formatting and reporting"),
-    )
+    option_groups_descs: Dict[str, str] = {
+        "Messages control": "Options controlling analysis messages",
+        "Reports": "Options related to output formatting and reporting",
+    }
 
     def __init__(
         self,
@@ -595,8 +595,13 @@ class PyLinter(
         self.options: Tuple[Tuple[str, OptionDict], ...] = (
             options + PyLinter.make_options()
         )
-        self.option_groups: Tuple[Tuple[str, str], ...] = (
-            option_groups + PyLinter.base_option_groups
+        for opt_group in option_groups:
+            self.option_groups_descs[opt_group[0]] = opt_group[1]
+        # pylint: disable-next=fixme
+        # TODO: Optparse: Remove this assignment after option_groups has been deprecated
+        self.option_groups: Tuple[Tuple[str, str], ...] = option_groups + (
+            ("Messages control", "Options controlling analysis messages"),
+            ("Reports", "Options related to output formatting and reporting"),
         )
         self._options_methods = {
             "enable": self.enable,
