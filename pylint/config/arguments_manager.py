@@ -5,10 +5,19 @@
 """Arguments manager class used to handle command-line arguments and options."""
 
 import argparse
-from typing import TYPE_CHECKING, Dict, List, Union
+import sys
+from typing import TYPE_CHECKING, Dict, List, Optional
 
-from pylint.config.argument import _Argument, _StoreTrueArgument
+from pylint.config.argument import (
+    _Argument,
+    _CallableArgument,
+    _StoreArgument,
+    _StoreNewNamesArgument,
+    _StoreOldNamesArgument,
+    _StoreTrueArgument,
+)
 from pylint.config.exceptions import UnrecognizedArgumentAction
+from pylint.config.help_formatter import _HelpFormatter
 from pylint.config.utils import _convert_option_to_argument
 
 if TYPE_CHECKING:
@@ -22,7 +31,11 @@ class _ArgumentsManager:
         self.namespace = argparse.Namespace()
         """Namespace for all options."""
 
-        self._arg_parser = argparse.ArgumentParser(prog="pylint", allow_abbrev=False)
+        self._arg_parser = argparse.ArgumentParser(
+            prog="pylint",
+            usage="%(prog)s [options]",
+            formatter_class=_HelpFormatter,
+        )
         """The command line argument parser."""
 
         self._argument_groups_dict: Dict[str, argparse._ArgumentGroup] = {}
@@ -43,9 +56,7 @@ class _ArgumentsManager:
         # TODO: Investigate performance impact of loading default arguments on every call
         self._load_default_argument_values()
 
-    def _add_arguments_to_parser(
-        self, section: str, argument: Union[_Argument, _StoreTrueArgument]
-    ) -> None:
+    def _add_arguments_to_parser(self, section: str, argument: _Argument) -> None:
         """Iterates over all argument sections and add them to the parser object."""
         try:
             section_group = self._argument_groups_dict[section]
@@ -56,13 +67,47 @@ class _ArgumentsManager:
 
     @staticmethod
     def _add_parser_option(
-        section_group: argparse._ArgumentGroup,
-        argument: Union[_Argument, _StoreTrueArgument],
+        section_group: argparse._ArgumentGroup, argument: _Argument
     ) -> None:
         """Add an argument."""
-        if isinstance(argument, _Argument):
+        if isinstance(argument, _StoreArgument):
             section_group.add_argument(
                 *argument.flags,
+                action=argument.action,
+                default=argument.default,
+                type=argument.type,  # type: ignore[arg-type] # incorrect typing in typeshed
+                help=argument.help,
+                metavar=argument.metavar,
+                choices=argument.choices,
+            )
+        elif isinstance(argument, _StoreOldNamesArgument):
+            section_group.add_argument(
+                *argument.flags,
+                **argument.kwargs,
+                action=argument.action,
+                default=argument.default,
+                type=argument.type,  # type: ignore[arg-type] # incorrect typing in typeshed
+                help=argument.help,
+                metavar=argument.metavar,
+                choices=argument.choices,
+            )
+            # We add the old name as hidden option to make it's default value gets loaded when
+            # argparse initializes all options from the checker
+            assert argument.kwargs["old_names"]
+            for old_name in argument.kwargs["old_names"]:
+                section_group.add_argument(
+                    f"--{old_name}",
+                    action="store",
+                    default=argument.default,
+                    type=argument.type,  # type: ignore[arg-type] # incorrect typing in typeshed
+                    help=argparse.SUPPRESS,
+                    metavar=argument.metavar,
+                    choices=argument.choices,
+                )
+        elif isinstance(argument, _StoreNewNamesArgument):
+            section_group.add_argument(
+                *argument.flags,
+                **argument.kwargs,
                 action=argument.action,
                 default=argument.default,
                 type=argument.type,  # type: ignore[arg-type] # incorrect typing in typeshed
@@ -75,6 +120,13 @@ class _ArgumentsManager:
                 *argument.flags,
                 action=argument.action,
                 default=argument.default,
+                help=argument.help,
+            )
+        elif isinstance(argument, _CallableArgument):
+            section_group.add_argument(
+                *argument.flags,
+                **argument.kwargs,
+                action=argument.action,
                 help=argument.help,
             )
         else:
@@ -93,19 +145,14 @@ class _ArgumentsManager:
         # TODO: This should parse_args instead of parse_known_args
         self.namespace = self._arg_parser.parse_known_args(arguments, self.namespace)[0]
 
-    def _parse_command_line_configuration(self, arguments: List[str]) -> None:
+    def _parse_command_line_configuration(
+        self, arguments: Optional[List[str]] = None
+    ) -> List[str]:
         """Parse the arguments found on the command line into the namespace."""
-        # pylint: disable-next=fixme
-        # TODO: This should parse_args instead of parse_known_args
-        self.namespace = self._arg_parser.parse_known_args(arguments, self.namespace)[0]
+        arguments = sys.argv[1:] if arguments is None else arguments
 
-        # pylint: disable-next=fixme
-        # TODO: This should return a list of arguments with the option arguments removed
-        # just as PyLinter.load_command_line_configuration does
+        self.namespace, parsed_args = self._arg_parser.parse_known_args(
+            arguments, self.namespace
+        )
 
-    def _parse_plugin_configuration(self) -> None:
-        # pylint: disable-next=fixme
-        # TODO: This is not currently implemented.
-        # Perhaps we should also change the name to distuingish it better?
-        # See PyLinter.load_plugin_configuration
-        pass
+        return parsed_args

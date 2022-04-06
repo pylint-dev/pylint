@@ -122,13 +122,13 @@ def test_pylint_config_attr() -> None:
     mod = astroid.MANAGER.ast_from_module_name("pylint.lint.pylinter")
     pylinter = mod["PyLinter"]
     expect = [
-        "OptionsManagerMixIn",
+        "_ArgumentsManager",
         "object",
+        "OptionsManagerMixIn",
         "ReportsHandlerMixIn",
         "BaseTokenChecker",
         "BaseChecker",
         "OptionsProviderMixIn",
-        "_ArgumentsManager",
     ]
     assert [c.name for c in pylinter.ancestors()] == expect
     assert list(astroid.Instance(pylinter).getattr("config"))

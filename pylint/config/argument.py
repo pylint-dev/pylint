@@ -11,10 +11,30 @@ An Argument instance represents a pylint option to be handled by an argparse.Arg
 import argparse
 import pathlib
 import re
-from typing import Callable, Dict, List, Optional, Pattern, Sequence, Tuple, Union
+import sys
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    Pattern,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+)
 
 from pylint import interfaces
 from pylint import utils as pylint_utils
+from pylint.config.callback_actions import _CallbackAction
+from pylint.config.deprecation_actions import _NewNamesAction, _OldNamesAction
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
+
 
 _ArgumentTypes = Union[
     str,
@@ -71,7 +91,7 @@ def _non_empty_string_transformer(value: str) -> str:
 def _py_version_transformer(value: str) -> Tuple[int, ...]:
     """Transforms a version string into a version tuple."""
     try:
-        version = tuple(int(val) for val in value.split("."))
+        version = tuple(int(val) for val in value.replace(",", ".").split("."))
     except ValueError:
         raise argparse.ArgumentTypeError(
             f"{value} has an invalid format, should be a version string. E.g., '3.8'"
@@ -125,7 +145,30 @@ Non-string default values are assumed to be of the correct type.
 
 
 class _Argument:
-    """Class representing an argument to be passed by an argparse.ArgumentsParser.
+    """Class representing an argument to be parsed by an argparse.ArgumentsParser.
+
+    This is based on the parameters passed to argparse.ArgumentsParser.add_message.
+    See:
+    https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.add_argument
+    """
+
+    def __init__(self, *, flags: List[str], arg_help: str, hide_help: bool) -> None:
+        self.flags = flags
+        """The name of the argument."""
+
+        self.hide_help = hide_help
+        """Whether to hide this argument in the help message."""
+
+        # argparse uses % formatting on help strings, so a % needs to be escaped
+        self.help = arg_help.replace("%", "%%")
+        """The description of the argument."""
+
+        if hide_help:
+            self.help = argparse.SUPPRESS
+
+
+class _BaseStoreArgument(_Argument):
+    """Base class for store arguments to be parsed by an argparse.ArgumentsParser.
 
     This is based on the parameters passed to argparse.ArgumentsParser.add_message.
     See:
@@ -134,6 +177,33 @@ class _Argument:
 
     def __init__(
         self,
+        *,
+        flags: List[str],
+        action: str,
+        default: _ArgumentTypes,
+        arg_help: str,
+        hide_help: bool,
+    ) -> None:
+        super().__init__(flags=flags, arg_help=arg_help, hide_help=hide_help)
+
+        self.action = action
+        """The action to perform with the argument."""
+
+        self.default = default
+        """The default value of the argument."""
+
+
+class _StoreArgument(_BaseStoreArgument):
+    """Class representing a store argument to be parsed by an argparse.ArgumentsParser.
+
+    This is based on the parameters passed to argparse.ArgumentsParser.add_message.
+    See:
+    https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.add_argument
+    """
+
+    def __init__(
+        self,
+        *,
         flags: List[str],
         action: str,
         default: _ArgumentTypes,
@@ -141,28 +211,24 @@ class _Argument:
         choices: Optional[List[str]],
         arg_help: str,
         metavar: str,
+        hide_help: bool,
     ) -> None:
-        self.flags = flags
-        """The name of the argument."""
-
-        self.action = action
-        """The action to perform with the argument."""
+        super().__init__(
+            flags=flags,
+            action=action,
+            default=default,
+            arg_help=arg_help,
+            hide_help=hide_help,
+        )
 
         self.type = _TYPE_TRANSFORMERS[arg_type]
         """A transformer function that returns a transformed type of the argument."""
-
-        self.default = default
-        """The default value of the argument."""
 
         self.choices = choices
         """A list of possible choices for the argument.
 
         None if there are no restrictions.
         """
-
-        # argparse uses % formatting on help strings, so a % needs to be escaped
-        self.help = arg_help.replace("%", "%%")
-        """The description of the argument."""
 
         self.metavar = metavar
         """The metavar of the argument.
@@ -172,8 +238,35 @@ class _Argument:
         """
 
 
-class _StoreTrueArgument:
-    """Class representing a 'store_true' argument to be passed by an argparse.ArgumentsParser.
+class _StoreTrueArgument(_BaseStoreArgument):
+    """Class representing a 'store_true' argument to be parsed by an argparse.ArgumentsParser.
+
+    This is based on the parameters passed to argparse.ArgumentsParser.add_message.
+    See:
+    https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.add_argument
+    """
+
+    # pylint: disable-next=useless-super-delegation # We narrow down the type of action
+    def __init__(
+        self,
+        *,
+        flags: List[str],
+        action: Literal["store_true"],
+        default: _ArgumentTypes,
+        arg_help: str,
+        hide_help: bool,
+    ) -> None:
+        super().__init__(
+            flags=flags,
+            action=action,
+            default=default,
+            arg_help=arg_help,
+            hide_help=hide_help,
+        )
+
+
+class _DeprecationArgument(_Argument):
+    """Store arguments while also handling deprecation warnings for old and new names.
 
     This is based on the parameters passed to argparse.ArgumentsParser.add_message.
     See:
@@ -182,13 +275,17 @@ class _StoreTrueArgument:
 
     def __init__(
         self,
+        *,
         flags: List[str],
-        action: str,
+        action: Type[argparse._StoreAction],
         default: _ArgumentTypes,
+        arg_type: str,
+        choices: Optional[List[str]],
         arg_help: str,
+        metavar: str,
+        hide_help: bool,
     ) -> None:
-        self.flags = flags
-        """The name of the argument."""
+        super().__init__(flags=flags, arg_help=arg_help, hide_help=hide_help)
 
         self.action = action
         """The action to perform with the argument."""
@@ -196,6 +293,114 @@ class _StoreTrueArgument:
         self.default = default
         """The default value of the argument."""
 
-        # argparse uses % formatting on help strings, so a % needs to be escaped
-        self.help = arg_help.replace("%", "%%")
-        """The description of the argument."""
+        self.type = _TYPE_TRANSFORMERS[arg_type]
+        """A transformer function that returns a transformed type of the argument."""
+
+        self.choices = choices
+        """A list of possible choices for the argument.
+
+        None if there are no restrictions.
+        """
+
+        self.metavar = metavar
+        """The metavar of the argument.
+
+        See:
+        https://docs.python.org/3/library/argparse.html#metavar
+        """
+
+
+class _StoreOldNamesArgument(_DeprecationArgument):
+    """Store arguments while also handling old names.
+
+    This is based on the parameters passed to argparse.ArgumentsParser.add_message.
+    See:
+    https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.add_argument
+    """
+
+    def __init__(
+        self,
+        *,
+        flags: List[str],
+        default: _ArgumentTypes,
+        arg_type: str,
+        choices: Optional[List[str]],
+        arg_help: str,
+        metavar: str,
+        hide_help: bool,
+        kwargs: Dict[str, Any],
+    ) -> None:
+        super().__init__(
+            flags=flags,
+            action=_OldNamesAction,
+            default=default,
+            arg_type=arg_type,
+            choices=choices,
+            arg_help=arg_help,
+            metavar=metavar,
+            hide_help=hide_help,
+        )
+
+        self.kwargs = kwargs
+        """Any additional arguments passed to the action."""
+
+
+class _StoreNewNamesArgument(_DeprecationArgument):
+    """Store arguments while also emitting deprecation warnings.
+
+    This is based on the parameters passed to argparse.ArgumentsParser.add_message.
+    See:
+    https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.add_argument
+    """
+
+    def __init__(
+        self,
+        *,
+        flags: List[str],
+        default: _ArgumentTypes,
+        arg_type: str,
+        choices: Optional[List[str]],
+        arg_help: str,
+        metavar: str,
+        hide_help: bool,
+        kwargs: Dict[str, Any],
+    ) -> None:
+        super().__init__(
+            flags=flags,
+            action=_NewNamesAction,
+            default=default,
+            arg_type=arg_type,
+            choices=choices,
+            arg_help=arg_help,
+            metavar=metavar,
+            hide_help=hide_help,
+        )
+
+        self.kwargs = kwargs
+        """Any additional arguments passed to the action."""
+
+
+class _CallableArgument(_Argument):
+    """Class representing an callable argument to be parsed by an argparse.ArgumentsParser.
+
+    This is based on the parameters passed to argparse.ArgumentsParser.add_message.
+    See:
+    https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.add_argument
+    """
+
+    def __init__(
+        self,
+        *,
+        flags: List[str],
+        action: Type[_CallbackAction],
+        arg_help: str,
+        kwargs: Dict[str, Any],
+        hide_help: bool,
+    ) -> None:
+        super().__init__(flags=flags, arg_help=arg_help, hide_help=hide_help)
+
+        self.action = action
+        """The action to perform with the argument."""
+
+        self.kwargs = kwargs
+        """Any additional arguments passed to the action."""
