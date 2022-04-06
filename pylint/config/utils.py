@@ -84,7 +84,7 @@ def _convert_option_to_argument(
                 metavar=optdict["metavar"],
                 hide_help=optdict.get("hide", False),
                 kwargs=optdict["kwargs"],
-                section=optdict.get("group", None),
+                section=optdict.get("group"),
             )
         if "new_names" in optdict["kwargs"]:
             return _StoreNewNamesArgument(
