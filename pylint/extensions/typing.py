@@ -1,3 +1,7 @@
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
 from typing import TYPE_CHECKING, Dict, List, NamedTuple, Set, Union
 
 import astroid.bases
@@ -6,6 +10,7 @@ from astroid import nodes
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
     check_messages,
+    in_type_checking_block,
     is_node_in_type_annotation_context,
     is_postponed_evaluation_enabled,
     safe_infer,
@@ -90,7 +95,6 @@ class TypingChecker(BaseChecker):
     __implements__ = (IAstroidChecker,)
 
     name = "typing"
-    priority = -1
     msgs = {
         "W6001": (
             "'%s' is deprecated, use '%s' instead",
@@ -159,7 +163,7 @@ class TypingChecker(BaseChecker):
 
     def __init__(self, linter: "PyLinter") -> None:
         """Initialize checker instance."""
-        super().__init__(linter=linter)
+        super().__init__(linter=linter, future_option_parsing=True)
         self._found_broken_callable_location: bool = False
         self._alias_name_collisions: Set[str] = set()
         self._deprecated_typing_alias_msgs: List[DeprecatedTypingAliasMsg] = []
@@ -172,10 +176,10 @@ class TypingChecker(BaseChecker):
         self._py310_plus = py_version >= (3, 10)
 
         self._should_check_typing_alias = self._py39_plus or (
-            self._py37_plus and self.config.runtime_typing is False
+            self._py37_plus and self.linter.namespace.runtime_typing is False
         )
         self._should_check_alternative_union_syntax = self._py310_plus or (
-            self._py37_plus and self.config.runtime_typing is False
+            self._py37_plus and self.linter.namespace.runtime_typing is False
         )
 
         self._should_check_noreturn = py_version < (3, 7, 2)
@@ -351,8 +355,10 @@ class TypingChecker(BaseChecker):
             # NoReturn not part of a Union or Callable type
             return
 
-        if is_postponed_evaluation_enabled(node) and is_node_in_type_annotation_context(
-            node
+        if (
+            in_type_checking_block(node)
+            or is_postponed_evaluation_enabled(node)
+            and is_node_in_type_annotation_context(node)
         ):
             return
 
@@ -384,8 +390,10 @@ class TypingChecker(BaseChecker):
         self, node: Union[nodes.Name, nodes.Attribute]
     ) -> bool:
         """Check if node would be a broken location for collections.abc.Callable."""
-        if is_postponed_evaluation_enabled(node) and is_node_in_type_annotation_context(
-            node
+        if (
+            in_type_checking_block(node)
+            or is_postponed_evaluation_enabled(node)
+            and is_node_in_type_annotation_context(node)
         ):
             return False
 

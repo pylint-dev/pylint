@@ -1,17 +1,19 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 from typing import Any, Optional
 
 from astroid import nodes
 
+from pylint.config.arguments_manager import _ArgumentsManager
 from pylint.interfaces import UNDEFINED, Confidence
 from pylint.testutils.global_test_linter import linter
 from pylint.testutils.output_line import MessageTest
 from pylint.utils import LinterStats
 
 
-class UnittestLinter:
+class UnittestLinter(_ArgumentsManager):
     """A fake linter class to capture checker messages."""
 
     # pylint: disable=unused-argument
@@ -19,6 +21,7 @@ class UnittestLinter:
     def __init__(self):
         self._messages = []
         self.stats = LinterStats()
+        _ArgumentsManager.__init__(self)
 
     def release_messages(self):
         try:

@@ -1,15 +1,6 @@
-# Copyright (c) 2015-2016, 2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
-# Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
-# Copyright (c) 2018 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2019, 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Nick Drozd <nicholasdrozd@gmail.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Universal report objects and some formatting drivers.
 
@@ -18,10 +9,11 @@ formatted as text and html.
 """
 import sys
 from io import StringIO
-from typing import TYPE_CHECKING, Iterator, List, TextIO, Union
+from typing import TYPE_CHECKING, Iterator, List, Optional, TextIO, Union
 
 if TYPE_CHECKING:
     from pylint.reporters.ureports.nodes import (
+        BaseLayout,
         EvaluationSection,
         Paragraph,
         Section,
@@ -32,7 +24,12 @@ if TYPE_CHECKING:
 class BaseWriter:
     """Base class for ureport writers."""
 
-    def format(self, layout, stream: TextIO = sys.stdout, encoding=None) -> None:
+    def format(
+        self,
+        layout: "BaseLayout",
+        stream: TextIO = sys.stdout,
+        encoding: Optional[str] = None,
+    ) -> None:
         """Format and write the given layout into the stream object.
 
         unicode policy: unicode strings may be found in the layout;
@@ -88,7 +85,7 @@ class BaseWriter:
         result[-1] += [""] * (cols - len(result[-1]))
         return result
 
-    def compute_content(self, layout) -> Iterator[str]:
+    def compute_content(self, layout: "BaseLayout") -> Iterator[str]:
         """Trick to compute the formatting of children layout before actually
         writing it
 

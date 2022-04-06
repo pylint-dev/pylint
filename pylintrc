@@ -27,6 +27,7 @@ persistent=yes
 load-plugins=
     pylint.extensions.check_elif,
     pylint.extensions.bad_builtin,
+    pylint.extensions.docparams,
     pylint.extensions.for_any_all,
     pylint.extensions.set_membership,
     pylint.extensions.code_style,
@@ -73,7 +74,7 @@ fail-on=
 
 # Only show warnings with the listed confidence levels. Leave empty to show
 # all. Valid levels: HIGH, INFERENCE, INFERENCE_FAILURE, UNDEFINED
-confidence=
+# confidence=
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
@@ -102,7 +103,7 @@ disable=
     protected-access,
     too-few-public-methods,
     # handled by black
-    format
+    format,
 
 
 [REPORTS]
@@ -353,6 +354,9 @@ method-rgx=[a-z_][a-z0-9_]{2,}$
 # Naming hint for method names
 method-name-hint=[a-z_][a-z0-9_]{2,}$
 
+# Regular expression which can overwrite the naming style set by typevar-naming-style.
+#typevar-rgx=
+
 # Regular expression which should only match function or class names that do
 # not require a docstring. Use ^(?!__init__$)_ to also check __init__.
 no-docstring-rgx=__.*__
@@ -366,10 +370,6 @@ property-classes=abc.abstractproperty
 
 
 [TYPECHECK]
-
-# Tells whether missing members accessed in mixin class should be ignored.
-# A class is considered mixin if its name matches the mixin-class-rgx option.
-ignore-mixin-members=yes
 
 # Regex pattern to define which classes are considered mixins if ignore-mixin-
 # members is set to 'yes'
@@ -389,7 +389,7 @@ ignored-classes=SQLObject, optparse.Values, thread._local, _thread._local
 # List of members which are set dynamically and missed by pylint inference
 # system, and so shouldn't trigger E1101 when accessed. Python regular
 # expressions are accepted.
-generated-members=REQUEST,acl_users,aq_parent
+generated-members=REQUEST,acl_users,aq_parent,argparse.Namespace
 
 # List of decorators that create context managers from functions, such as
 # contextlib.contextmanager.

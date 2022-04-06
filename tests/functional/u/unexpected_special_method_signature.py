@@ -30,6 +30,12 @@ class Invalid(object):
     def __getattr__(self, nanana): # [unexpected-special-method-signature]
         pass
 
+    def __subclasses__(self, blabla):  # [unexpected-special-method-signature]
+        pass
+
+    @classmethod
+    def __init_subclass__(cls, blabla):  # [unexpected-special-method-signature]
+        pass
 
 class FirstBadContextManager(object):
     def __enter__(self):

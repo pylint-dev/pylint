@@ -1,3 +1,7 @@
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
 """Ellipsis checker for Python code."""
 from typing import TYPE_CHECKING
 
@@ -37,13 +41,13 @@ class EllipsisChecker(BaseChecker):
         """
         if (
             node.pytype() == "builtins.Ellipsis"
-            and not isinstance(node.parent, (nodes.Assign, nodes.AnnAssign, nodes.Call))
+            and isinstance(node.parent, nodes.Expr)
             and (
-                len(node.parent.parent.child_sequence(node.parent)) > 1
-                or (
+                (
                     isinstance(node.parent.parent, (nodes.ClassDef, nodes.FunctionDef))
                     and node.parent.parent.doc_node
                 )
+                or len(node.parent.parent.body) > 1
             )
         ):
             self.add_message("unnecessary-ellipsis", node=node)

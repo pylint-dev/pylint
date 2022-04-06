@@ -1,7 +1,6 @@
 """ A file designed to have lines of similarity when compared to similar_lines_b
 
 We use lorm-ipsum to generate 'random' code. """
-# Copyright (c) 2020 Frank Harrison <frank@doublethefish.com>
 
 
 def adipiscing(elit):

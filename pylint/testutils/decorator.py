@@ -1,10 +1,11 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 import functools
 import optparse  # pylint: disable=deprecated-module
-import warnings
 
+from pylint.config.utils import _parse_rich_type_value
 from pylint.lint import PyLinter
 from pylint.testutils.checker_test_case import CheckerTestCase
 
@@ -43,44 +44,21 @@ def set_config(**kwargs):
                             value,
                             optdict={},
                         )
-            if isinstance(self, CheckerTestCase):
-                # reopen checker in case, it may be interested in configuration change
-                self.checker.open()
-            fun(self, *args, **test_function_kwargs)
 
-        return _forward
-
-    return _wrapper
-
-
-def set_config_directly(**kwargs):
-    """Decorator for setting config values on a checker without validation.
-
-    Some options should be declared in two different checkers. This is
-    impossible without duplicating the option key. For example:
-    "no-docstring-rgx" in DocstringParameterChecker & DocStringChecker
-    This decorator allows to directly set such options.
-
-    Passing the args and kwargs back to the test function itself
-    allows this decorator to be used on parametrized test cases.
-    """
-    # pylint: disable=fixme
-    # TODO: Remove this function in 2.14
-    warnings.warn(
-        "The set_config_directly decorator will be removed in 2.14. To decorate "
-        "unittests you can use set_config. If this causes a duplicate KeyError "
-        "you can consider writing the tests using the functional test framework.",
-        DeprecationWarning,
-    )
-
-    def _wrapper(fun):
-        @functools.wraps(fun)
-        def _forward(self, *args, **test_function_kwargs):
+            # Set option via argparse
+            # pylint: disable-next=fixme
+            # TODO: Revisit this decorator after all checkers have switched
+            options = []
             for key, value in kwargs.items():
-                setattr(self.checker.config, key, value)
+                options += [f"--{key.replace('_', '-')}", _parse_rich_type_value(value)]
+            self.linter.namespace = self.linter._arg_parser.parse_known_args(
+                options, self.linter.namespace
+            )[0]
+
             if isinstance(self, CheckerTestCase):
                 # reopen checker in case, it may be interested in configuration change
                 self.checker.open()
+
             fun(self, *args, **test_function_kwargs)
 
         return _forward

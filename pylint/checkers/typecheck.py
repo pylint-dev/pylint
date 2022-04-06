@@ -1,59 +1,6 @@
-# Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2009 James Lingard <jchl@aristanetworks.com>
-# Copyright (c) 2012-2014 Google, Inc.
-# Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2014 David Shea <dshea@redhat.com>
-# Copyright (c) 2014 Steven Myint <hg@stevenmyint.com>
-# Copyright (c) 2014 Holger Peters <email@holger-peters.de>
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015 Anentropic <ego@anentropic.com>
-# Copyright (c) 2015 Dmitry Pribysh <dmand@yandex.ru>
-# Copyright (c) 2015 Rene Zhang <rz99@cornell.edu>
-# Copyright (c) 2015 Radu Ciorba <radu@devrandom.ro>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016, 2019 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2016 Alexander Todorov <atodorov@otb.bg>
-# Copyright (c) 2016 Jürgen Hermann <jh@web.de>
-# Copyright (c) 2016 Jakub Wilk <jwilk@jwilk.net>
-# Copyright (c) 2016 Filipe Brandenburger <filbranden@google.com>
-# Copyright (c) 2017, 2021 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2017-2018, 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
-# Copyright (c) 2017 Derek Gustafson <degustaf@gmail.com>
-# Copyright (c) 2018-2019, 2021 Nick Drozd <nicholasdrozd@gmail.com>
-# Copyright (c) 2018 Pablo Galindo <Pablogsal@gmail.com>
-# Copyright (c) 2018 Jim Robertson <jrobertson98atx@gmail.com>
-# Copyright (c) 2018 Lucas Cimon <lucas.cimon@gmail.com>
-# Copyright (c) 2018 Mike Frysinger <vapier@gmail.com>
-# Copyright (c) 2018 Ben Green <benhgreen@icloud.com>
-# Copyright (c) 2018 Konstantin <Github@pheanex.de>
-# Copyright (c) 2018 Justin Li <justinnhli@users.noreply.github.com>
-# Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
-# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019 Andy Palmer <25123779+ninezerozeronine@users.noreply.github.com>
-# Copyright (c) 2019 mattlbeck <17108752+mattlbeck@users.noreply.github.com>
-# Copyright (c) 2019 Martin Vielsmaier <martin.vielsmaier@gmail.com>
-# Copyright (c) 2019 Santiago Castro <bryant@montevideo.com.uy>
-# Copyright (c) 2019 yory8 <39745367+yory8@users.noreply.github.com>
-# Copyright (c) 2019 Federico Bond <federicobond@gmail.com>
-# Copyright (c) 2019 Pascal Corpet <pcorpet@users.noreply.github.com>
-# Copyright (c) 2020 Peter Kolbus <peter.kolbus@gmail.com>
-# Copyright (c) 2020 Julien Palard <julien@palard.fr>
-# Copyright (c) 2020 Ram Rachum <ram@rachum.com>
-# Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2020 Anubhav <35621759+anubh-v@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 Tushar Sadhwani <tushar.sadhwani000@gmail.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 David Liu <david@cs.toronto.edu>
-# Copyright (c) 2021 doranid <ddandd@gmail.com>
-# Copyright (c) 2021 Yu Shao, Pang <36848472+yushao2@users.noreply.github.com>
-# Copyright (c) 2021 Andrew Haigh <nelfin@gmail.com>
-# Copyright (c) 2021 Jens H. Nielsen <Jens.Nielsen@microsoft.com>
-# Copyright (c) 2021 Ikraduya Edian <ikraduya@gmail.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Try to find more bugs in the code using astroid inference capabilities."""
 
@@ -273,11 +220,11 @@ def _missing_member_hint(owner, attrname, distance_threshold, max_choices):
 
     names = [repr(name) for name in names]
     if len(names) == 1:
-        names = ", ".join(names)
+        names_hint = ", ".join(names)
     else:
-        names = f"one of {', '.join(names[:-1])} or {names[-1]}"
+        names_hint = f"one of {', '.join(names[:-1])} or {names[-1]}"
 
-    return f"; maybe {names}?"
+    return f"; maybe {names_hint}?"
 
 
 MSGS = {
@@ -794,7 +741,6 @@ class TypeChecker(BaseChecker):
     name = "typecheck"
     # messages
     msgs = MSGS
-    priority = -1
     # configuration options
     options = (
         (
@@ -818,8 +764,7 @@ class TypeChecker(BaseChecker):
                 "default": ".*[Mm]ixin",
                 "type": "regexp",
                 "metavar": "<regexp>",
-                "help": "Regex pattern to define which classes are considered mixins "
-                "ignore-mixin-members is set to 'yes'",
+                "help": "Regex pattern to define which classes are considered mixins.",
             },
         ),
         (
@@ -831,6 +776,21 @@ class TypeChecker(BaseChecker):
                 "help": "Tells whether missing members accessed in mixin "
                 "class should be ignored. A class is considered mixin if its name matches "
                 "the mixin-class-rgx option.",
+                "kwargs": {"new_names": ["ignore-checks-for-mixin"]},
+            },
+        ),
+        (
+            "ignored-checks-for-mixins",
+            {
+                "default": [
+                    "no-member",
+                    "not-async-context-manager",
+                    "not-context-manager",
+                    "attribute-defined-outside-init",
+                ],
+                "type": "csv",
+                "metavar": "<list of messages names>",
+                "help": "List of symbolic message names to ignore for Mixin members.",
             },
         ),
         (
@@ -937,6 +897,9 @@ accessed. Python regular expressions are accepted.",
         ),
     )
 
+    def __init__(self, linter: "PyLinter") -> None:
+        super().__init__(linter, future_option_parsing=True)
+
     def open(self) -> None:
         py_version = get_global_option(self, "py-version")
         self._py310_plus = py_version >= (3, 10)
@@ -953,7 +916,7 @@ accessed. Python regular expressions are accepted.",
         # (surrounded by quote `"` and followed by a comma `,`)
         # REQUEST,aq_parent,"[a-zA-Z]+_set{1,2}"' =>
         # ('REQUEST', 'aq_parent', '[a-zA-Z]+_set{1,2}')
-        generated_members = self.config.generated_members
+        generated_members = self.linter.namespace.generated_members
         if isinstance(generated_members, str):
             gen = shlex.shlex(generated_members)
             gen.whitespace += ","
@@ -1040,7 +1003,7 @@ accessed. Python regular expressions are accepted.",
         ]
         if (
             len(non_opaque_inference_results) != len(inferred)
-            and self.config.ignore_on_opaque_inference
+            and self.linter.namespace.ignore_on_opaque_inference
         ):
             # There is an ambiguity in the inference. Since we can't
             # make sure that we won't emit a false positive, we just stop
@@ -1049,7 +1012,10 @@ accessed. Python regular expressions are accepted.",
         for owner in non_opaque_inference_results:
             name = getattr(owner, "name", None)
             if _is_owner_ignored(
-                owner, name, self.config.ignored_classes, self.config.ignored_modules
+                owner,
+                name,
+                self.linter.namespace.ignored_classes,
+                self.linter.namespace.ignored_modules,
             ):
                 continue
 
@@ -1060,15 +1026,7 @@ accessed. Python regular expressions are accepted.",
                 return
 
             try:
-                if not [
-                    n
-                    for n in owner.getattr(node.attrname)
-                    if not isinstance(n.statement(future=True), nodes.AugAssign)
-                ]:
-                    missingattr.add((owner, name))
-                    continue
-            except astroid.exceptions.StatementMissing:
-                continue
+                attr_nodes = owner.getattr(node.attrname)
             except AttributeError:
                 continue
             except astroid.DuplicateBasesError:
@@ -1086,12 +1044,32 @@ accessed. Python regular expressions are accepted.",
                     owner,
                     name,
                     self._mixin_class_rgx,
-                    ignored_mixins=self.config.ignore_mixin_members,
-                    ignored_none=self.config.ignore_none,
+                    ignored_mixins=(
+                        "no-member" in self.linter.namespace.ignored_checks_for_mixins
+                    ),
+                    ignored_none=self.linter.namespace.ignore_none,
                 ):
                     continue
                 missingattr.add((owner, name))
                 continue
+            else:
+                for attr_node in attr_nodes:
+                    attr_parent = attr_node.parent
+                    # Skip augmented assignments
+                    try:
+                        if isinstance(
+                            attr_node.statement(future=True), nodes.AugAssign
+                        ):
+                            continue
+                    except astroid.exceptions.StatementMissing:
+                        break
+                    # Skip self-referencing assignments
+                    if attr_parent is node.parent:
+                        continue
+                    break
+                else:
+                    missingattr.add((owner, name))
+                    continue
             # stop on the first found
             break
         else:
@@ -1124,12 +1102,12 @@ accessed. Python regular expressions are accepted.",
             hint = ""
         else:
             msg = "no-member"
-            if self.config.missing_member_hint:
+            if self.linter.namespace.missing_member_hint:
                 hint = _missing_member_hint(
                     owner,
                     node.attrname,
-                    self.config.missing_member_hint_distance,
-                    self.config.missing_member_max_choices,
+                    self.linter.namespace.missing_member_hint_distance,
+                    self.linter.namespace.missing_member_max_choices,
                 )
             else:
                 hint = ""
@@ -1270,20 +1248,22 @@ accessed. Python regular expressions are accepted.",
             # Decorated, see if it is decorated with a property.
             # Also, check the returns and see if they are callable.
             if decorated_with_property(attr):
-
                 try:
-                    all_returns_are_callable = all(
-                        return_node.callable() or return_node is astroid.Uninferable
-                        for return_node in attr.infer_call_result(node)
-                    )
+                    call_results = list(attr.infer_call_result(node))
                 except astroid.InferenceError:
                     continue
 
-                if not all_returns_are_callable:
-                    self.add_message(
-                        "not-callable", node=node, args=node.func.as_string()
-                    )
-                    break
+                if all(
+                    return_node is astroid.Uninferable for return_node in call_results
+                ):
+                    # We were unable to infer return values of the call, skipping
+                    continue
+
+                if any(return_node.callable() for return_node in call_results):
+                    # Only raise this issue if *all* the inferred values are not callable
+                    continue
+
+                self.add_message("not-callable", node=node, args=node.func.as_string())
 
     def _check_argument_order(self, node, call_site, called, called_param_names):
         """Match the supplied argument names against the function parameters.
@@ -1377,7 +1357,7 @@ accessed. Python regular expressions are accepted.",
 
         # Has the function signature changed in ways we cannot reliably detect?
         if hasattr(called, "decorators") and decorated_with(
-            called, self.config.signature_mutators
+            called, self.linter.namespace.signature_mutators
         ):
             return
 
@@ -1751,7 +1731,7 @@ accessed. Python regular expressions are accepted.",
                 # Check if we are dealing with a function decorated
                 # with contextlib.contextmanager.
                 if decorated_with(
-                    inferred.parent, self.config.contextmanager_decorators
+                    inferred.parent, self.linter.namespace.contextmanager_decorators
                 ):
                     continue
                 # If the parent of the generator is not the context manager itself,
@@ -1779,7 +1759,9 @@ accessed. Python regular expressions are accepted.",
                     scope = inferred_path.scope()
                     if not isinstance(scope, nodes.FunctionDef):
                         continue
-                    if decorated_with(scope, self.config.contextmanager_decorators):
+                    if decorated_with(
+                        scope, self.linter.namespace.contextmanager_decorators
+                    ):
                         break
                 else:
                     self.add_message(
@@ -1796,7 +1778,10 @@ accessed. Python regular expressions are accepted.",
                         if not has_known_bases(inferred):
                             continue
                         # Just ignore mixin classes.
-                        if self.config.ignore_mixin_members:
+                        if (
+                            "not-context-manager"
+                            in self.linter.namespace.ignored_checks_for_mixins
+                        ):
                             if inferred.name[-5:].lower() == "mixin":
                                 continue
 
@@ -1996,6 +1981,20 @@ accessed. Python regular expressions are accepted.",
 
         self.add_message("dict-iter-missing-items", node=node)
 
+    @check_messages("await-outside-async")
+    def visit_await(self, node: nodes.Await) -> None:
+        self._check_await_outside_coroutine(node)
+
+    def _check_await_outside_coroutine(self, node: nodes.Await) -> None:
+        node_scope = node.scope()
+        while not isinstance(node_scope, nodes.Module):
+            if isinstance(node_scope, nodes.AsyncFunctionDef):
+                return
+            if isinstance(node_scope, nodes.FunctionDef):
+                break
+            node_scope = node_scope.parent.scope()
+        self.add_message("await-outside-async", node=node)
+
 
 class IterableChecker(BaseChecker):
     """Checks for non-iterables used in an iterable context.
@@ -2027,6 +2026,9 @@ class IterableChecker(BaseChecker):
         ),
     }
 
+    def __init__(self, linter: "PyLinter") -> None:
+        super().__init__(linter, future_option_parsing=True)
+
     @staticmethod
     def _is_asyncio_coroutine(node):
         if not isinstance(node, nodes.Call):
@@ -2047,10 +2049,10 @@ class IterableChecker(BaseChecker):
         return False
 
     def _check_iterable(self, node, check_async=False):
-        if is_inside_abstract_class(node) or is_comprehension(node):
+        if is_inside_abstract_class(node):
             return
         inferred = safe_infer(node)
-        if not inferred:
+        if not inferred or is_comprehension(inferred):
             return
         if not is_iterable(inferred, check_async=check_async):
             self.add_message("not-an-iterable", args=node.as_string(), node=node)
@@ -2106,20 +2108,6 @@ class IterableChecker(BaseChecker):
     def visit_generatorexp(self, node: nodes.GeneratorExp) -> None:
         for gen in node.generators:
             self._check_iterable(gen.iter, check_async=gen.is_async)
-
-    @check_messages("await-outside-async")
-    def visit_await(self, node: nodes.Await) -> None:
-        self._check_await_outside_coroutine(node)
-
-    def _check_await_outside_coroutine(self, node: nodes.Await) -> None:
-        node_scope = node.scope()
-        while not isinstance(node_scope, nodes.Module):
-            if isinstance(node_scope, nodes.AsyncFunctionDef):
-                return
-            if isinstance(node_scope, nodes.FunctionDef):
-                break
-            node_scope = node_scope.parent.scope()
-        self.add_message("await-outside-async", node=node)
 
 
 def register(linter: "PyLinter") -> None:

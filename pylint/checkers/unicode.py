@@ -1,7 +1,7 @@
-# Copyright (c) 2021-2022 Carli Freudenberg <carli.freudenberg@energymeteo.de>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
 """Unicode and some other ASCII characters can be used to create programs that run
 much different compared to what a human reader would expect from them.
 
@@ -100,7 +100,7 @@ BAD_CHARS = [
         "\\x1A",
         "E2512",
         (
-            "Ctrl+Z “End of text” on Windows. Some programs (such as type) ignore "
+            'Ctrl+Z "End of text" on Windows. Some programs (such as type) ignore '
             "the rest of the file after it."
         ),
     ),
@@ -315,7 +315,6 @@ class UnicodeChecker(pylint.checkers.BaseChecker):
     """
 
     __implements__ = pylint.interfaces.IRawChecker
-    priority = -1
 
     name = "unicode_checker"
 

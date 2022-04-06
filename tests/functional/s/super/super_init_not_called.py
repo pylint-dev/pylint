@@ -48,3 +48,10 @@ class ChildTwo(ParentWithoutInit):
 class ChildThree(ParentWithoutInit):
     def __init__(self):  # [super-init-not-called]
         ...
+
+
+# Regression test as reported in
+# https://github.com/PyCQA/pylint/issues/6027
+class MyUnion(ctypes.Union):
+    def __init__(self):  # [super-init-not-called]
+        pass

@@ -1,53 +1,6 @@
-# Copyright (c) 2006-2016 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2010 Maarten ter Huurne <maarten@treewalker.org>
-# Copyright (c) 2012-2014 Google, Inc.
-# Copyright (c) 2012 FELD Boris <lothiraldan@gmail.com>
-# Copyright (c) 2013-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2014 Michal Nowikowski <godfryd@gmail.com>
-# Copyright (c) 2014 Brett Cannon <brett@python.org>
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2014 David Pursehouse <david.pursehouse@gmail.com>
-# Copyright (c) 2015 Dmitry Pribysh <dmand@yandex.ru>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016-2017 Łukasz Rogalski <rogalski.91@gmail.com>
-# Copyright (c) 2016 Alexander Todorov <atodorov@otb.bg>
-# Copyright (c) 2016 Anthony Foglia <afoglia@users.noreply.github.com>
-# Copyright (c) 2016 Florian Bruhin <me@the-compiler.org>
-# Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
-# Copyright (c) 2016 Jakub Wilk <jwilk@jwilk.net>
-# Copyright (c) 2017, 2019-2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2018, 2021 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2018, 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2018-2019 Nick Drozd <nicholasdrozd@gmail.com>
-# Copyright (c) 2018-2019 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2018 Lucas Cimon <lucas.cimon@gmail.com>
-# Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
-# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
-# Copyright (c) 2018 Ben Green <benhgreen@icloud.com>
-# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019 mattlbeck <17108752+mattlbeck@users.noreply.github.com>
-# Copyright (c) 2019-2020 craig-sh <craig-sh@users.noreply.github.com>
-# Copyright (c) 2019 Janne Rönkkö <jannero@users.noreply.github.com>
-# Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2019 Grygorii Iermolenko <gyermolenko@gmail.com>
-# Copyright (c) 2019 Andrzej Klajnert <github@aklajnert.pl>
-# Copyright (c) 2019 Pascal Corpet <pcorpet@users.noreply.github.com>
-# Copyright (c) 2020 GergelyKalmar <gergely.kalmar@logikal.jp>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 Mark Byrne <31762852+mbyrnepr2@users.noreply.github.com>
-# Copyright (c) 2021 Samuel Freilich <sfreilich@google.com>
-# Copyright (c) 2021 Nick Pesce <nickpesce22@gmail.com>
-# Copyright (c) 2021 bot <bot@noreply.github.com>
-# Copyright (c) 2021 Yu Shao, Pang <36848472+yushao2@users.noreply.github.com>
-# Copyright (c) 2021 SupImDos <62866982+SupImDos@users.noreply.github.com>
-# Copyright (c) 2021 Kayran Schmidt <59456929+yumasheta@users.noreply.github.com>
-# Copyright (c) 2021 Konstantina Saketou <56515303+ksaketou@users.noreply.github.com>
-# Copyright (c) 2021 James Sinclair <james@nurfherder.com>
-# Copyright (c) 2021 tiagohonorato <61059243+tiagohonorato@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Classes checker for Python code."""
 import collections
@@ -238,15 +191,21 @@ def _has_different_parameters(
     overridden: List[nodes.AssignName],
     dummy_parameter_regex: Pattern,
 ) -> List[str]:
-    result = []
+    result: List[str] = []
     zipped = zip_longest(original, overridden)
     for original_param, overridden_param in zipped:
-        params = (original_param, overridden_param)
-        if not all(params):
+        if not overridden_param:
             return ["Number of parameters "]
 
+        if not original_param:
+            try:
+                overridden_param.parent.default_value(overridden_param.name)
+                continue
+            except astroid.NoDefault:
+                return ["Number of parameters "]
+
         # check for the arguments' name
-        names = [param.name for param in params]
+        names = [param.name for param in (original_param, overridden_param)]
         if any(dummy_parameter_regex.match(name) for name in names):
             continue
         if original_param.name != overridden_param.name:
@@ -256,6 +215,29 @@ def _has_different_parameters(
             )
 
     return result
+
+
+def _has_different_keyword_only_parameters(
+    original: List[nodes.AssignName],
+    overridden: List[nodes.AssignName],
+) -> List[str]:
+    """Determine if the two methods have different keyword only parameters."""
+    original_names = [i.name for i in original]
+    overridden_names = [i.name for i in overridden]
+
+    if any(name not in overridden_names for name in original_names):
+        return ["Number of parameters "]
+
+    for name in overridden_names:
+        if name in original_names:
+            continue
+
+        try:
+            overridden[0].parent.default_value(name)
+        except astroid.NoDefault:
+            return ["Number of parameters "]
+
+    return []
 
 
 def _different_parameters(
@@ -300,8 +282,8 @@ def _different_parameters(
     different_positional = _has_different_parameters(
         original_parameters, overridden_parameters, dummy_parameter_regex
     )
-    different_kwonly = _has_different_parameters(
-        original_kwonlyargs, overridden.args.kwonlyargs, dummy_parameter_regex
+    different_kwonly = _has_different_keyword_only_parameters(
+        original_kwonlyargs, overridden.args.kwonlyargs
     )
     if different_kwonly and different_positional:
         if "Number " in different_positional[0] and "Number " in different_kwonly[0]:
@@ -530,7 +512,8 @@ MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
         "%s %s %r method",
         "arguments-differ",
         "Used when a method has a different number of arguments than in "
-        "the implemented interface or in an overridden method.",
+        "the implemented interface or in an overridden method. Extra arguments "
+        "with default values are ignored.",
     ),
     "W0222": (
         "Signature differs from %s %r method",
@@ -630,7 +613,7 @@ MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
     "E0241": (
         "Duplicate bases for class %r",
         "duplicate-bases",
-        "Used when a class has duplicate bases.",
+        "Duplicate use of base classes in derived classes raise TypeErrors.",
     ),
     "E0242": (
         "Value %r in slots conflicts with class variable",
@@ -642,6 +625,12 @@ MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
         "invalid-class-object",
         "Used when an invalid object is assigned to a __class__ property. "
         "Only a class is permitted.",
+    ),
+    "E0244": (
+        'Extending inherited Enum class "%s"',
+        "invalid-enum-extension",
+        "Used when a class tries to extend an inherited Enum class. "
+        "Doing so will raise a TypeError at runtime.",
     ),
     "R0202": (
         "Consider using a decorator instead of calling classmethod",
@@ -714,7 +703,6 @@ class ClassChecker(BaseChecker):
     name = "classes"
     # messages
     msgs = MSGS
-    priority = -2
     # configuration options
     options = (
         (
@@ -778,7 +766,7 @@ a metaclass class method.",
     )
 
     def __init__(self, linter=None):
-        super().__init__(linter)
+        super().__init__(linter, future_option_parsing=True)
         self._accessed = ScopeAccessMap()
         self._first_attrs = []
         self._meth_could_be_func = None
@@ -792,10 +780,6 @@ a metaclass class method.",
     def _dummy_rgx(self):
         return get_global_option(self, "dummy-variables-rgx", default=None)
 
-    @cached_property
-    def _ignore_mixin(self):
-        return get_global_option(self, "ignore-mixin-members", default=True)
-
     @check_messages(
         "abstract-method",
         "no-init",
@@ -808,6 +792,7 @@ a metaclass class method.",
         "inconsistent-mro",
         "duplicate-bases",
         "redefined-slots-in-subclass",
+        "invalid-enum-extension",
     )
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         """Init visit variable _accessed."""
@@ -853,6 +838,18 @@ a metaclass class method.",
             ):
                 self.add_message("inherit-non-class", args=base.as_string(), node=node)
 
+            if (
+                isinstance(ancestor, nodes.ClassDef)
+                and ancestor.is_subtype_of("enum.Enum")
+                and any(isinstance(stmt, nodes.Assign) for stmt in ancestor.body)
+            ):
+                self.add_message(
+                    "invalid-enum-extension",
+                    args=ancestor.name,
+                    node=node,
+                    confidence=INFERENCE,
+                )
+
             if ancestor.name == object.__name__:
                 self.add_message(
                     "useless-object-inheritance", args=node.name, node=node
@@ -877,7 +874,11 @@ a metaclass class method.",
                     node=node,
                 )
 
-    @check_messages("unused-private-member", "attribute-defined-outside-init")
+    @check_messages(
+        "unused-private-member",
+        "attribute-defined-outside-init",
+        "access-member-before-definition",
+    )
     def leave_classdef(self, node: nodes.ClassDef) -> None:
         """Checker for Class nodes.
 
@@ -993,7 +994,7 @@ a metaclass class method.",
                 if attribute.attrname != assign_attr.attrname:
                     continue
 
-                if self._is_type_self_call(attribute.expr):
+                if isinstance(attribute.expr, nodes.Call):
                     continue
 
                 if assign_attr.expr.name in {
@@ -1021,7 +1022,11 @@ a metaclass class method.",
 
     def _check_attribute_defined_outside_init(self, cnode: nodes.ClassDef) -> None:
         # check access to existent members on non metaclass classes
-        if self._ignore_mixin and self._mixin_class_rgx.match(cnode.name):
+        if (
+            "attribute-defined-outside-init"
+            in self.linter.namespace.ignored_checks_for_mixins
+            and self._mixin_class_rgx.match(cnode.name)
+        ):
             # We are in a mixin class. No need to try to figure out if
             # something is missing, since it is most likely that it will
             # miss.
@@ -1033,7 +1038,7 @@ a metaclass class method.",
         # checks attributes are defined in an allowed method such as __init__
         if not self.linter.is_message_enabled("attribute-defined-outside-init"):
             return
-        defining_methods = self.config.defining_attr_methods
+        defining_methods = self.linter.namespace.defining_attr_methods
         current_module = cnode.root()
         for attr, nodes_lst in cnode.instance_attrs.items():
             # Exclude `__dict__` as it is already defined.
@@ -1394,8 +1399,9 @@ a metaclass class method.",
                 slots_names.append(slot.value)
             else:
                 inferred_slot = safe_infer(slot)
-                if inferred_slot:
-                    slots_names.append(inferred_slot.value)
+                inferred_slot_value = getattr(inferred_slot, "value", None)
+                if isinstance(inferred_slot_value, str):
+                    slots_names.append(inferred_slot_value)
 
         # Slots of all parent classes
         ancestors_slots_names = {
@@ -1643,7 +1649,7 @@ a metaclass class method.",
 
         if (
             is_attr_protected(attrname)
-            and attrname not in self.config.exclude_protected
+            and attrname not in self.linter.namespace.exclude_protected
         ):
 
             klass = node_frame_class(node)
@@ -1714,7 +1720,7 @@ a metaclass class method.",
 
                 licit_protected_member = not attrname.startswith("__")
                 if (
-                    not self.config.check_protected_access_in_special_methods
+                    not self.linter.namespace.check_protected_access_in_special_methods
                     and licit_protected_member
                     and self._is_called_inside_special_method(node)
                 ):
@@ -1869,8 +1875,9 @@ a metaclass class method.",
         if node.type == "staticmethod":
             if (
                 first_arg == "self"
-                or first_arg in self.config.valid_classmethod_first_arg
-                or first_arg in self.config.valid_metaclass_classmethod_first_arg
+                or first_arg in self.linter.namespace.valid_classmethod_first_arg
+                or first_arg
+                in self.linter.namespace.valid_metaclass_classmethod_first_arg
             ):
                 self.add_message("bad-staticmethod-argument", args=first, node=node)
                 return
@@ -1884,7 +1891,7 @@ a metaclass class method.",
             if node.type == "classmethod":
                 self._check_first_arg_config(
                     first,
-                    self.config.valid_metaclass_classmethod_first_arg,
+                    self.linter.namespace.valid_metaclass_classmethod_first_arg,
                     node,
                     "bad-mcs-classmethod-argument",
                     node.name,
@@ -1893,7 +1900,7 @@ a metaclass class method.",
             else:
                 self._check_first_arg_config(
                     first,
-                    self.config.valid_classmethod_first_arg,
+                    self.linter.namespace.valid_classmethod_first_arg,
                     node,
                     "bad-mcs-method-argument",
                     node.name,
@@ -1902,7 +1909,7 @@ a metaclass class method.",
         elif node.type == "classmethod" or node.name == "__class_getitem__":
             self._check_first_arg_config(
                 first,
-                self.config.valid_classmethod_first_arg,
+                self.linter.namespace.valid_classmethod_first_arg,
                 node,
                 "bad-classmethod-argument",
                 node.name,
@@ -2012,11 +2019,12 @@ a metaclass class method.",
 
             # Return if any of the klass' first-order bases is protocol
             for base in klass.bases:
-                # We don't need to catch InferenceError here as _ancestors_to_call
-                # already does this for us.
-                for inf_base in base.infer():
-                    if inf_base.qname() in utils.TYPING_PROTOCOLS:
-                        return
+                try:
+                    for inf_base in base.infer():
+                        if inf_base.qname() in utils.TYPING_PROTOCOLS:
+                            return
+                except astroid.InferenceError:
+                    continue
 
             if decorated_with(node, ["typing.overload"]):
                 continue
@@ -2119,6 +2127,7 @@ a metaclass class method.",
         """Check if nodes.Name corresponds to first attribute variable name.
 
         Name is `self` for method, `cls` for classmethod and `mcs` for metaclass.
+        Static methods return False.
         """
         if self._first_attrs:
             first_attr = self._first_attrs[-1]
@@ -2128,6 +2137,8 @@ a metaclass class method.",
                 node, nodes.FunctionDef
             )
             if closest_func is None:
+                return False
+            if not closest_func.is_bound():
                 return False
             if not closest_func.args.args:
                 return False

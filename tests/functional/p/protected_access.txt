@@ -1,2 +1,4 @@
 protected-access:17:0:17:9::Access to a protected member _teta of a client class:UNDEFINED
 protected-access:29:16:29:26:Application.__no_special__:Access to a protected member _nargs of a client class:UNDEFINED
+protected-access:39:14:39:35:Light.func:Access to a protected member _light_internal of a client class:UNDEFINED
+protected-access:43:10:43:31:func:Access to a protected member _light_internal of a client class:UNDEFINED
