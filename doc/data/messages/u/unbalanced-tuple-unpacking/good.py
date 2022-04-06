@@ -1,2 +1,2 @@
-t = (1, 2, 3, 4)
-a, b, *c = t
+fruits = ("orange", "apple", "strawberry", "peer")
+orange, apple, *remaining_fruits = fruits
