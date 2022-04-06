@@ -19,6 +19,7 @@ from pylint.config.argument import (
 from pylint.config.exceptions import UnrecognizedArgumentAction
 from pylint.config.help_formatter import _HelpFormatter
 from pylint.config.utils import _convert_option_to_argument
+from pylint.typing import OptionDict
 
 if TYPE_CHECKING:
     from pylint.config.arguments_provider import _ArgumentsProvider
@@ -41,9 +42,13 @@ class _ArgumentsManager:
         self._argument_groups_dict: Dict[str, argparse._ArgumentGroup] = {}
         """Dictionary of all the argument groups."""
 
+        self._option_dicts: Dict[str, OptionDict] = {}
+        """All option dictionaries that have been registered."""
+
     def _register_options_provider(self, provider: "_ArgumentsProvider") -> None:
         """Register an options provider and load its defaults."""
         for opt, optdict in provider.options:
+            self._option_dicts[opt] = optdict
             argument = _convert_option_to_argument(opt, optdict)
             section = argument.section or provider.name.capitalize()
 
