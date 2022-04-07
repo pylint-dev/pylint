@@ -4,7 +4,7 @@
 
 """Pylint plugin for checking in Sphinx, Google, or Numpy style docstrings."""
 import re
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Set
 
 import astroid
 from astroid import nodes
@@ -359,33 +359,36 @@ class DocstringParameterChecker(BaseChecker):
 
     def _compare_missing_args(
         self,
-        found_argument_names,
-        message_id,
-        not_needed_names,
-        expected_argument_names,
-        warning_node,
-    ):
+        found_argument_names: Set[str],
+        message_id: str,
+        not_needed_names: Set[str],
+        expected_argument_names: Set[str],
+        warning_node: nodes.NodeNG,
+    ) -> None:
         """Compare the found argument names with the expected ones and
         generate a message if there are arguments missing.
 
         :param found_argument_names: argument names found in the docstring
-        :type found_argument_names: set
 
         :param message_id: pylint message id
-        :type message_id: str
 
         :param not_needed_names: names that may be omitted
-        :type not_needed_names: set
 
         :param expected_argument_names: Expected argument names
-        :type expected_argument_names: set
 
         :param warning_node: The node to be analyzed
-        :type warning_node: :class:`astroid.scoped_nodes.Node`
         """
-        missing_argument_names = (
+        potential_missing_argument_names = (
             expected_argument_names - found_argument_names
         ) - not_needed_names
+
+        # Handle variadic and keyword args without asterisks
+        missing_argument_names = set()
+        for name in potential_missing_argument_names:
+            if name.replace("*", "") in found_argument_names:
+                continue
+            missing_argument_names.add(name)
+
         if missing_argument_names:
             self.add_message(
                 message_id,
@@ -395,32 +398,35 @@ class DocstringParameterChecker(BaseChecker):
 
     def _compare_different_args(
         self,
-        found_argument_names,
-        message_id,
-        not_needed_names,
-        expected_argument_names,
-        warning_node,
-    ):
+        found_argument_names: Set[str],
+        message_id: str,
+        not_needed_names: Set[str],
+        expected_argument_names: Set[str],
+        warning_node: nodes.NodeNG,
+    ) -> None:
         """Compare the found argument names with the expected ones and
         generate a message if there are extra arguments found.
 
         :param found_argument_names: argument names found in the docstring
-        :type found_argument_names: set
 
         :param message_id: pylint message id
-        :type message_id: str
 
         :param not_needed_names: names that may be omitted
-        :type not_needed_names: set
 
         :param expected_argument_names: Expected argument names
-        :type expected_argument_names: set
 
         :param warning_node: The node to be analyzed
-        :type warning_node: :class:`astroid.scoped_nodes.Node`
         """
+        # Handle variadic and keyword args without asterisks
+        modified_expected_argument_names: Set[str] = set()
+        for name in expected_argument_names:
+            if name.replace("*", "") in found_argument_names:
+                modified_expected_argument_names.add(name.replace("*", ""))
+            else:
+                modified_expected_argument_names.add(name)
+
         differing_argument_names = (
-            (expected_argument_names ^ found_argument_names)
+            (modified_expected_argument_names ^ found_argument_names)
             - not_needed_names
             - expected_argument_names
         )

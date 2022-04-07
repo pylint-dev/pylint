@@ -269,7 +269,7 @@ class SphinxDocstring(Docstring):
         \s+
         )?
 
-        ((\\\*{{1,2}}\w+)|(\w+))  # Parameter name with potential asterisks
+        ((\\\*{{0,2}}\w+)|(\w+))  # Parameter name with potential asterisks
         \s*                       # whitespace
         :                         # final colon
         """
@@ -469,7 +469,7 @@ class GoogleDocstring(Docstring):
 
     re_param_line = re.compile(
         rf"""
-        \s*  (\*{{0,2}}\w+)             # identifier potentially with asterisks
+        \s*  ((?:\\?\*{{0,2}})?\w+)     # identifier potentially with asterisks
         \s*  ( [(]
             {re_multiple_type}
             (?:,\s+optional)?
@@ -647,6 +647,9 @@ class GoogleDocstring(Docstring):
                 continue
 
             param_name = match.group(1)
+            # Remove escape characters necessary for asterisks
+            param_name = param_name.replace("\\", "")
+
             param_type = match.group(2)
             param_desc = match.group(3)
 

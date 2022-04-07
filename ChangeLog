@@ -20,7 +20,11 @@ What's New in Pylint 2.13.6?
 ============================
 Release date: TBA
 
+* Asterisks are no longer required in Sphinx and Google style parameter documentation
+  for ``missing-param-doc`` and are parsed correctly.
 
+  Closes #5815
+  Closes #5406
 
 What's New in Pylint 2.13.5?
 ============================

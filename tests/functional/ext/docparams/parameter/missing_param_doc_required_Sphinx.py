@@ -253,6 +253,42 @@ def test_finds_kwargs_without_type_sphinx(  # [inconsistent-return-statements]
         return named_arg
 
 
+def test_finds_args_without_type_sphinx(  # [inconsistent-return-statements]
+    named_arg, *args
+):
+    r"""The Sphinx docstring
+    We can leave the asterisk out.
+
+    :param named_arg: Returned
+    :type named_arg: object
+
+    :param args: Optional arguments
+
+    :returns: Maybe named_arg
+    :rtype: object or None
+    """
+    if args:
+        return named_arg
+
+
+def test_finds_kwargs_without_type_sphinx(  # [inconsistent-return-statements]
+    named_arg, **kwargs
+):
+    r"""The Sphinx docstring
+    We can leave the asterisk out.
+
+    :param named_arg: Returned
+    :type named_arg: object
+
+    :param kwargs: Keyword arguments
+
+    :returns: Maybe named_arg
+    :rtype: object or None
+    """
+    if kwargs:
+        return named_arg
+
+
 class Foo:
     """test_finds_missing_raises_from_setter_sphinx
     Example of a setter having missing raises documentation in
