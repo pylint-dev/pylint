@@ -14,7 +14,7 @@ import os
 import sys
 import warnings
 from pathlib import Path
-from typing import TYPE_CHECKING, Dict, List, Optional, TextIO, Tuple, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, TextIO, Tuple, Union
 
 from pylint import utils
 from pylint.config.argument import (
@@ -517,15 +517,14 @@ class _ArgumentsManager:
                     parser.add_section(section_name)
                     parser.set(section_name, option, value=value)
 
-    # pylint: disable-next=fixme
-    # TODO: Optparse: All methods below this line are copied to keep API-parity with
-    # OptionsManagerMixIn. They should either be deprecated or moved above this line
-    # to keep them in _ArgumentsManager
-
-    def load_config_file(self):
+    def load_config_file(self) -> None:
         """Dispatch values previously read from a configuration file to each
         option's provider
         """
+        warnings.warn(
+            "load_config_file has been deprecated. It will be removed in pylint 3.0.",
+            DeprecationWarning,
+        )
         parser = self.cfgfile_parser
         for section in parser.sections():
             for option, value in parser.items(section):
@@ -534,15 +533,30 @@ class _ArgumentsManager:
                 except (KeyError, optparse.OptionError):
                     continue
 
-    def load_configuration(self, **kwargs):
+    def load_configuration(self, **kwargs: Any) -> None:
         """Override configuration according to given parameters."""
-        return self.load_configuration_from_config(kwargs)
+        warnings.warn(
+            "load_configuration has been deprecated. It will be removed in pylint 3.0.",
+            DeprecationWarning,
+        )
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            return self.load_configuration_from_config(kwargs)
 
-    def load_configuration_from_config(self, config):
+    def load_configuration_from_config(self, config: Dict[str, Any]) -> None:
+        warnings.warn(
+            "load_configuration_from_config has been deprecated. It will be removed in pylint 3.0.",
+            DeprecationWarning,
+        )
         for opt, opt_value in config.items():
             opt = opt.replace("_", "-")
             provider = self._all_options[opt]
             provider.set_option(opt, opt_value)
+
+    # pylint: disable-next=fixme
+    # TODO: Optparse: All methods below this line are copied to keep API-parity with
+    # OptionsManagerMixIn. They should either be deprecated or moved above this line
+    # to keep them in _ArgumentsManager
 
     def load_command_line_configuration(self, args=None) -> List[str]:
         """Override configuration according to command line parameters.
