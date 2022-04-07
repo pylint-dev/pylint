@@ -39,3 +39,15 @@ def outer():
                 print(i1)
         print(i1)
         inner()
+
+
+def outer2():
+    """Similar, but with an assignment instead of homonymous loop variables"""
+    for i1 in range(5):
+        def inner():
+            """No warning, because i has a new scope"""
+            for _ in range(3):
+                i1 = 0
+                print(i1)
+        print(i1)
+        inner()
