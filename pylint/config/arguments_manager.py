@@ -110,7 +110,7 @@ class _ArgumentsManager:
         self._all_options = collections.OrderedDict()  # type: ignore[var-annotated]
         self._short_options = {}  # type: ignore[var-annotated]
         self._nocallback_options = {}  # type: ignore[var-annotated]
-        self._mygroups = {}  # type: ignore[var-annotated]
+        self._mygroups: Dict[str, optparse.OptionGroup] = {}
         # verbosity
         self._maxlevel = 0
 
@@ -257,7 +257,7 @@ class _ArgumentsManager:
         """Register an options provider."""
         warnings.warn(
             "register_options_provider has been deprecated. Options providers and "
-            "arguments providers should be registered by initializing ArgumentsProvider."
+            "arguments providers should be registered by initializing ArgumentsProvider. "
             "This automatically registers the provider on the ArgumentsManager.",
             DeprecationWarning,
         )
@@ -267,12 +267,14 @@ class _ArgumentsManager:
         ]
         groups = getattr(provider, "option_groups", ())
         if own_group and non_group_spec_options:
-            self.add_option_group(
-                provider.name.upper(),
-                provider.__doc__,
-                non_group_spec_options,
-                provider,
-            )
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=DeprecationWarning)
+                self.add_option_group(
+                    provider.name.upper(),
+                    provider.__doc__,
+                    non_group_spec_options,
+                    provider,
+                )
         else:
             for opt, optdict in non_group_spec_options:
                 self.add_optik_option(provider, self.cmdline_parser, opt, optdict)
@@ -283,14 +285,23 @@ class _ArgumentsManager:
                 for option in provider.options
                 if option[1].get("group", "").upper() == gname  # type: ignore[union-attr]
             ]
-            self.add_option_group(gname, gdoc, goptions, provider)
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=DeprecationWarning)
+                self.add_option_group(gname, gdoc, goptions, provider)
 
-    # pylint: disable-next=fixme
-    # TODO: Optparse: All methods below this line are copied to keep API-parity with
-    # OptionsManagerMixIn. They should either be deprecated or moved above this line
-    # to keep them in _ArgumentsManager
-
-    def add_option_group(self, group_name, _, options, provider):
+    def add_option_group(
+        self,
+        group_name: str,
+        _: Optional[str],
+        options: List[Tuple[str, OptionDict]],
+        provider: OptionsProviderMixIn,
+    ) -> None:
+        warnings.warn(
+            "add_option_group has been deprecated. Option groups should be "
+            "registered by initializing ArgumentsProvider. "
+            "This automatically registers the group on the ArgumentsManager.",
+            DeprecationWarning,
+        )
         # add option group to the command line parser
         if group_name in self._mygroups:
             group = self._mygroups[group_name]
@@ -299,12 +310,12 @@ class _ArgumentsManager:
                 self.cmdline_parser, title=group_name.capitalize()
             )
             self.cmdline_parser.add_option_group(group)
-            group.level = provider.level
+            group.level = provider.level  # type: ignore[attr-defined]
             self._mygroups[group_name] = group
             # add section to the config file
             if (
                 group_name != "DEFAULT"
-                and group_name not in self.cfgfile_parser._sections
+                and group_name not in self.cfgfile_parser._sections  # type: ignore[attr-defined]
             ):
                 self.cfgfile_parser.add_section(group_name)
         # add provider's specific options
@@ -312,6 +323,11 @@ class _ArgumentsManager:
             if not isinstance(optdict.get("action", "store"), str):
                 optdict["action"] = "callback"
             self.add_optik_option(provider, group, opt, optdict)
+
+    # pylint: disable-next=fixme
+    # TODO: Optparse: All methods below this line are copied to keep API-parity with
+    # OptionsManagerMixIn. They should either be deprecated or moved above this line
+    # to keep them in _ArgumentsManager
 
     def add_optik_option(self, provider, optikcontainer, opt, optdict):
         args, optdict = self.optik_option(provider, opt, optdict)
