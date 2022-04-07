@@ -1,1 +1,1 @@
-* `Python assignment statement <https://docs.python.org/3/reference/simple_stmts.html#assignment-statements>`_
+- `Python assignment statement <https://docs.python.org/3/reference/simple_stmts.html#assignment-statements>`_
