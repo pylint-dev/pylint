@@ -575,11 +575,15 @@ class _ArgumentsManager:
                     setattr(config, attr, value)
             return args
 
-    def help(self, level=0):
-        """Return the usage string for available options."""
-        self.cmdline_parser.formatter.output_level = level
-        with _patch_optparse():
-            return self.cmdline_parser.format_help()
+    def help(self, level: Optional[int] = None) -> str:
+        """Return the usage string based on the available options."""
+        if level is not None:
+            warnings.warn(
+                "Supplying a 'level' argument to help() has been deprecated."
+                "You can call help() without any arguments.",
+                DeprecationWarning,
+            )
+        return self._arg_parser.format_help()
 
     def cb_set_provider_option(self, option, opt, value, parser):
         """Optik callback for option setting."""
