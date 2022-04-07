@@ -69,6 +69,12 @@ Other Changes
   Closes #5283
   Closes #1887
 
+* ``OptionsManagerMixIn`` has been replaced with ``ArgumentsManager``. ``ArgumentsManager`` is considered
+  private API and most methods that were public on ``OptionsManagerMixIn`` have now been deprecated and will
+  be removed in a future release.
+
+  Ref #5392
+
 * Fix false negative for ``bad-string-format-type`` if the value to be formatted is passed in
   as a variable holding a constant.
 
