@@ -29,6 +29,7 @@ from pylint.config.exceptions import UnrecognizedArgumentAction
 from pylint.config.help_formatter import _HelpFormatter
 from pylint.config.option import Option
 from pylint.config.option_parser import OptionParser
+from pylint.config.options_provider_mixin import OptionsProviderMixIn
 from pylint.config.utils import _convert_option_to_argument
 from pylint.typing import OptionDict
 
@@ -103,7 +104,7 @@ class _ArgumentsManager:
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             self.reset_parsers(usage or "")
         # list of registered options providers
-        self.options_providers = []  # type: ignore[var-annotated]
+        self.options_providers: List[OptionsProviderMixIn] = []
         # dictionary associating option name to checker
         self._all_options = collections.OrderedDict()  # type: ignore[var-annotated]
         self._short_options = {}  # type: ignore[var-annotated]
@@ -120,6 +121,11 @@ class _ArgumentsManager:
             section = argument.section or provider.name.capitalize()
 
             section_desc = provider.option_groups_descs.get(section, None)
+
+            # We exclude master since its docstring comes from PyLinter
+            if provider.name != "master" and provider.__doc__:
+                section_desc = provider.__doc__.split("\n\n")[0]
+
             self._add_arguments_to_parser(section, section_desc, argument)
 
         self._load_default_argument_values()
@@ -244,13 +250,16 @@ class _ArgumentsManager:
         self.cmdline_parser.options_manager = self  # type: ignore[attr-defined]
         self._optik_option_attrs = set(self.cmdline_parser.option_class.ATTRS)
 
-    # pylint: disable-next=fixme
-    # TODO: Optparse: All methods below this line are copied to keep API-parity with
-    # OptionsManagerMixIn. They should either be deprecated or moved above this line
-    # to keep them in _ArgumentsManager
-
-    def register_options_provider(self, provider, own_group=True):
+    def register_options_provider(
+        self, provider: OptionsProviderMixIn, own_group: bool = True
+    ) -> None:
         """Register an options provider."""
+        warnings.warn(
+            "register_options_provider has been deprecated. Options providers and "
+            "arguments providers should be registered by initializing ArgumentsProvider."
+            "This automatically registers the provider on the ArgumentsManager.",
+            DeprecationWarning,
+        )
         self.options_providers.append(provider)
         non_group_spec_options = [
             option for option in provider.options if "group" not in option[1]
@@ -271,9 +280,14 @@ class _ArgumentsManager:
             goptions = [
                 option
                 for option in provider.options
-                if option[1].get("group", "").upper() == gname
+                if option[1].get("group", "").upper() == gname  # type: ignore[union-attr]
             ]
             self.add_option_group(gname, gdoc, goptions, provider)
+
+    # pylint: disable-next=fixme
+    # TODO: Optparse: All methods below this line are copied to keep API-parity with
+    # OptionsManagerMixIn. They should either be deprecated or moved above this line
+    # to keep them in _ArgumentsManager
 
     def add_option_group(self, group_name, _, options, provider):
         # add option group to the command line parser
