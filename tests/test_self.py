@@ -35,6 +35,7 @@ from pylint.lint.pylinter import PyLinter
 from pylint.message import Message
 from pylint.reporters import JSONReporter
 from pylint.reporters.text import BaseReporter, ColorizedTextReporter, TextReporter
+from pylint.testutils.utils import _patch_streams
 from pylint.utils import utils
 
 if sys.version_info >= (3, 11):
@@ -51,16 +52,6 @@ CLEAN_PATH = re.escape(dirname(dirname(__file__)) + os.path.sep)
 UNNECESSARY_LAMBDA = join(
     HERE, "functional", "u", "unnecessary", "unnecessary_lambda.py"
 )
-
-
-@contextlib.contextmanager
-def _patch_streams(out: TextIO) -> Iterator:
-    sys.stderr = sys.stdout = out
-    try:
-        yield
-    finally:
-        sys.stderr = sys.__stderr__
-        sys.stdout = sys.__stdout__
 
 
 @contextlib.contextmanager

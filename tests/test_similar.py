@@ -4,12 +4,9 @@
 
 from __future__ import annotations
 
-import contextlib
 import os
 import re
-import sys
 import warnings
-from collections.abc import Iterator
 from io import StringIO
 from os.path import abspath, dirname, join
 from typing import TextIO
@@ -17,20 +14,11 @@ from typing import TextIO
 import pytest
 
 from pylint.lint import Run
+from pylint.testutils.utils import _patch_streams
 
 HERE = abspath(dirname(__file__))
 DATA = join(HERE, "regrtest_data", "duplicate_code")
 CLEAN_PATH = re.escape(dirname(dirname(__file__)) + os.path.sep)
-
-
-@contextlib.contextmanager
-def _patch_streams(out: TextIO) -> Iterator:
-    sys.stderr = sys.stdout = out
-    try:
-        yield
-    finally:
-        sys.stderr = sys.__stderr__
-        sys.stdout = sys.__stdout__
 
 
 class TestSimilarCodeChecker:

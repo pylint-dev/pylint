@@ -4,7 +4,22 @@
 
 from __future__ import annotations
 
+import contextlib
 import os
+import sys
+from collections.abc import Iterator
+from typing import TextIO
+
+
+@contextlib.contextmanager
+def _patch_streams(out: TextIO) -> Iterator[None]:
+    """Patch and subsequently reset a text stream."""
+    sys.stderr = sys.stdout = out
+    try:
+        yield
+    finally:
+        sys.stderr = sys.__stderr__
+        sys.stdout = sys.__stdout__
 
 
 def create_files(paths: list[str], chroot: str = ".") -> None:
