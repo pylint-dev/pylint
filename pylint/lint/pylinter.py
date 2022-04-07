@@ -191,7 +191,6 @@ MSGS = {
 # pylint: disable=too-many-instance-attributes,too-many-public-methods
 class PyLinter(
     _ArgumentsManager,
-    config.OptionsManagerMixIn,
     reporters.ReportsHandlerMixIn,
     checkers.BaseTokenChecker,
 ):
@@ -621,7 +620,6 @@ class PyLinter(
         self._by_id_managed_msgs: List[ManagedMessage] = []
 
         reporters.ReportsHandlerMixIn.__init__(self)
-        config.OptionsManagerMixIn.__init__(self, usage=__doc__)
         checkers.BaseTokenChecker.__init__(self, self, future_option_parsing=True)
         # provided reports
         self.reports = (

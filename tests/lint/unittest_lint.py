@@ -710,7 +710,7 @@ def test_pylintrc_parentdir_no_package() -> None:
                     assert config.find_pylintrc() == expected
 
 
-class _CustomPyLinter(PyLinter):  # pylint: disable=too-many-ancestors
+class _CustomPyLinter(PyLinter):
     @staticmethod
     def should_analyze_file(modname: str, path: str, is_argument: bool = False) -> bool:
         if os.path.basename(path) == "wrong.py":
