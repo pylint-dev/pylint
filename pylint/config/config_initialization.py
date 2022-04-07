@@ -68,7 +68,9 @@ def _config_initialization(
         linter.load_config_file()
 
     try:
-        linter.load_command_line_configuration(args_list)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            linter.load_command_line_configuration(args_list)
     except SystemExit as exc:
         if exc.code == 2:  # bad options
             exc.code = 32
