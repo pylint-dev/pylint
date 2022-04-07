@@ -39,6 +39,11 @@ if sys.version_info >= (3, 11):
 else:
     import tomli as tomllib
 
+if sys.version_info <= (3, 7, 1):
+    from typing_extensions import OrderedDict
+else:
+    from typing import OrderedDict
+
 if TYPE_CHECKING:
     from pylint.config.arguments_provider import _ArgumentsProvider
 
@@ -107,7 +112,7 @@ class _ArgumentsManager:
         # list of registered options providers
         self.options_providers: List[OptionsProviderMixIn] = []
         # dictionary associating option name to checker
-        self._all_options: collections.OrderedDict[
+        self._all_options: OrderedDict[
             str, OptionsProviderMixIn
         ] = collections.OrderedDict()
         self._short_options: Dict[str, str] = {}
