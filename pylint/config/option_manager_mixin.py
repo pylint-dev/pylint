@@ -60,6 +60,9 @@ class OptionsManagerMixIn:
     """Handle configuration from both a configuration file and command line options."""
 
     def __init__(self, usage):
+        # pylint: disable-next=fixme
+        # TODO: Optparse: Deprecate this class when we don't use ConfigurationMixIn
+        # internally anymore
         self.reset_parsers(usage)
         # list of registered options providers
         self.options_providers = []

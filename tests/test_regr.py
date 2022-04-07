@@ -124,7 +124,6 @@ def test_pylint_config_attr() -> None:
     expect = [
         "_ArgumentsManager",
         "object",
-        "OptionsManagerMixIn",
         "ReportsHandlerMixIn",
         "BaseTokenChecker",
         "BaseChecker",
