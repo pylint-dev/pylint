@@ -12,6 +12,7 @@ import copy
 import optparse  # pylint: disable=deprecated-module
 import os
 import sys
+import warnings
 from pathlib import Path
 from typing import TYPE_CHECKING, Dict, List, Optional, TextIO, Tuple
 
@@ -98,7 +99,9 @@ class _ArgumentsManager:
         # pylint: disable=fixme
         # TODO: Optparse: Added to keep API parity with OptionsManger
         # They should be removed/deprecated when refactoring the copied methods
-        self.reset_parsers(usage)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            self.reset_parsers(usage or "")
         # list of registered options providers
         self.options_providers = []  # type: ignore[var-annotated]
         # dictionary associating option name to checker
@@ -226,20 +229,25 @@ class _ArgumentsManager:
 
         return parsed_args
 
-    # pylint: disable-next=fixme
-    # TODO: Optparse: All methods below this line are copied to keep API-parity with
-    # OptionsManagerMixIn. They should either be deprecated or moved above this line
-    # to keep them in _ArgumentsManager
-
-    def reset_parsers(self, usage=""):
+    def reset_parsers(self, usage: str = "") -> None:
+        warnings.warn(
+            "reset_parsers has been deprecated. Parsers should be instantiated "
+            "once during initialization and do not need to be reset.",
+            DeprecationWarning,
+        )
         # configuration file parser
         self.cfgfile_parser = configparser.ConfigParser(
             inline_comment_prefixes=("#", ";")
         )
         # command line parser
         self.cmdline_parser = OptionParser(Option, usage=usage)
-        self.cmdline_parser.options_manager = self
+        self.cmdline_parser.options_manager = self  # type: ignore[attr-defined]
         self._optik_option_attrs = set(self.cmdline_parser.option_class.ATTRS)
+
+    # pylint: disable-next=fixme
+    # TODO: Optparse: All methods below this line are copied to keep API-parity with
+    # OptionsManagerMixIn. They should either be deprecated or moved above this line
+    # to keep them in _ArgumentsManager
 
     def register_options_provider(self, provider, own_group=True):
         """Register an options provider."""
@@ -410,11 +418,11 @@ class _ArgumentsManager:
             with open(config_file, encoding="utf_8_sig") as fp:
                 parser.read_file(fp)
             # normalize each section's title
-            for sect, values in list(parser._sections.items()):
+            for sect, values in list(parser._sections.items()):  # type: ignore[attr-defined]
                 if sect.startswith("pylint."):
                     sect = sect[len("pylint.") :]
                 if not sect.isupper() and values:
-                    parser._sections[sect.upper()] = values
+                    parser._sections[sect.upper()] = values  # type: ignore[attr-defined]
 
         if verbose:
             print(f"Using config file '{config_file}'", file=sys.stderr)
