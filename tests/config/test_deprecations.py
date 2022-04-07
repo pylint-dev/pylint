@@ -5,6 +5,8 @@
 """Test for deprecation warnings in the config module."""
 
 
+import warnings
+
 import pytest
 
 from pylint.checkers import BaseChecker
@@ -34,3 +36,15 @@ class TestDeprecationArgumentsManager:
         """Test that load_configuration_from_config emits a DeprecationWarning."""
         with pytest.warns(DeprecationWarning):
             self.linter.load_configuration_from_config({"test_opt": True})
+
+    def test_help_with_level(self) -> None:
+        """Test that help with a level argument raises a DeprecationWarning."""
+        with pytest.warns(DeprecationWarning):
+            self.linter.help(1)
+
+        with pytest.warns(DeprecationWarning):
+            self.linter.help(level=1)
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            self.linter.help()
