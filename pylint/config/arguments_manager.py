@@ -390,35 +390,32 @@ class _ArgumentsManager:
         """Read the configuration file but do not load it (i.e. dispatching
         values to each option's provider)
         """
-        if config_file:
-            config_file = Path(os.path.expandvars(config_file)).expanduser()
-            if not config_file.exists():
-                raise OSError(f"The config file {str(config_file)} doesn't exist!")
-
-            parser = self.cfgfile_parser
-            if config_file.suffix == ".toml":
-                try:
-                    self._parse_toml(config_file, parser)
-                except tomllib.TOMLDecodeError:
-                    pass
-            else:
-                # Use this encoding in order to strip the BOM marker, if any.
-                with open(config_file, encoding="utf_8_sig") as fp:
-                    parser.read_file(fp)
-                # normalize each section's title
-                for sect, values in list(parser._sections.items()):
-                    if sect.startswith("pylint."):
-                        sect = sect[len("pylint.") :]
-                    if not sect.isupper() and values:
-                        parser._sections[sect.upper()] = values
-
-        if not verbose:
+        if not config_file:
+            if verbose:
+                print("No config file found, using default configuration", file=sys.stderr)
             return
-        if config_file and config_file.exists():
-            msg = f"Using config file '{config_file}'"
+        config_file = Path(os.path.expandvars(config_file)).expanduser()
+        if not config_file.exists():
+            raise OSError(f"The config file {str(config_file)} doesn't exist!")
+        parser = self.cfgfile_parser
+        if config_file.suffix == ".toml":
+            try:
+                self._parse_toml(config_file, parser)
+            except tomllib.TOMLDecodeError:
+                pass
         else:
-            msg = "No config file found, using default configuration"
-        print(msg, file=sys.stderr)
+            # Use this encoding in order to strip the BOM marker, if any.
+            with open(config_file, encoding="utf_8_sig") as fp:
+                parser.read_file(fp)
+            # normalize each section's title
+            for sect, values in list(parser._sections.items()):
+                if sect.startswith("pylint."):
+                    sect = sect[len("pylint.") :]
+                if not sect.isupper() and values:
+                    parser._sections[sect.upper()] = values
+
+        if verbose:
+             print(f"Using config file '{config_file}'", file=sys.stderr)     
 
     def _parse_toml(self, config_file: Path, parser: configparser.ConfigParser) -> None:
         """Parse and handle errors of a toml configuration file."""
