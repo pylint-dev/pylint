@@ -31,7 +31,7 @@ from pylint.config.option import Option
 from pylint.config.option_parser import OptionParser
 from pylint.config.options_provider_mixin import OptionsProviderMixIn
 from pylint.config.utils import _convert_option_to_argument
-from pylint.constant import MAIN_LINTER_NAME 
+from pylint.constant import MAIN_LINTER_NAME
 from pylint.typing import OptionDict
 
 if sys.version_info >= (3, 11):
@@ -124,7 +124,7 @@ class _ArgumentsManager:
             section_desc = provider.option_groups_descs.get(section, None)
 
             # We exclude master since its docstring comes from PyLinter
-            if provider.name !=MAIN_LINTER_NAME and provider.__doc__:
+            if provider.name != MAIN_LINTER_NAME and provider.__doc__:
                 section_desc = provider.__doc__.split("\n\n")[0]
 
             self._add_arguments_to_parser(section, section_desc, argument)
