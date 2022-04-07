@@ -397,23 +397,6 @@ class _ArgumentsManager:
     # OptionsManagerMixIn. They should either be deprecated or moved above this line
     # to keep them in _ArgumentsManager
 
-    def cb_set_provider_option(self, option, opt, value, parser):
-        """Optik callback for option setting."""
-        if opt.startswith("--"):
-            # remove -- on long option
-            opt = opt[2:]
-        else:
-            # short option, get its long equivalent
-            opt = self._short_options[opt[1:]]
-        # trick since we can't set action='store_true' on options
-        if value is None:
-            value = 1
-        self.global_set_option(opt, value)
-
-    def global_set_option(self, opt, value):
-        """Set option on the correct option provider."""
-        self._all_options[opt].set_option(opt, value)
-
     def generate_config(
         self, stream: Optional[TextIO] = None, skipsections: Tuple[str, ...] = ()
     ) -> None:
@@ -565,3 +548,20 @@ class _ArgumentsManager:
         self.cmdline_parser.formatter.output_level = level
         with _patch_optparse():
             return self.cmdline_parser.format_help()
+
+    def cb_set_provider_option(self, option, opt, value, parser):
+        """Optik callback for option setting."""
+        if opt.startswith("--"):
+            # remove -- on long option
+            opt = opt[2:]
+        else:
+            # short option, get its long equivalent
+            opt = self._short_options[opt[1:]]
+        # trick since we can't set action='store_true' on options
+        if value is None:
+            value = 1
+        self.global_set_option(opt, value)
+
+    def global_set_option(self, opt, value):
+        """Set option on the correct option provider."""
+        self._all_options[opt].set_option(opt, value)
