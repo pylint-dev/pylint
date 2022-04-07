@@ -31,7 +31,7 @@ from pylint.config.option import Option
 from pylint.config.option_parser import OptionParser
 from pylint.config.options_provider_mixin import OptionsProviderMixIn
 from pylint.config.utils import _convert_option_to_argument
-from pylint.constant import MAIN_LINTER_NAME
+from pylint.constants import MAIN_LINTER_NAME
 from pylint.typing import OptionDict
 
 if sys.version_info >= (3, 11):
