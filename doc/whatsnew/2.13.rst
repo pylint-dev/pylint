@@ -199,6 +199,12 @@ Other Changes
 
   Closes #5614
 
+* Asterisks are no longer required in Sphinx and Google style parameter documentation
+  for ``missing-param-doc`` and are parsed correctly.
+
+  Closes #5815
+  Closes #5406
+
 * Use the ``tomli`` package instead of ``toml`` to parse ``.toml`` files.
 
  Closes #5885
