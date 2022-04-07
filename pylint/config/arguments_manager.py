@@ -392,34 +392,16 @@ class _ArgumentsManager:
                 optdict.pop(key)
         return args, optdict
 
-    # pylint: disable-next=fixme
-    # TODO: Optparse: All methods below this line are copied to keep API-parity with
-    # OptionsManagerMixIn. They should either be deprecated or moved above this line
-    # to keep them in _ArgumentsManager
-
-    def cb_set_provider_option(self, option, opt, value, parser):
-        """Optik callback for option setting."""
-        if opt.startswith("--"):
-            # remove -- on long option
-            opt = opt[2:]
-        else:
-            # short option, get its long equivalent
-            opt = self._short_options[opt[1:]]
-        # trick since we can't set action='store_true' on options
-        if value is None:
-            value = 1
-        self.global_set_option(opt, value)
-
-    def global_set_option(self, opt, value):
-        """Set option on the correct option provider."""
-        self._all_options[opt].set_option(opt, value)
-
     def generate_config(
         self, stream: Optional[TextIO] = None, skipsections: Tuple[str, ...] = ()
     ) -> None:
         """Write a configuration file according to the current configuration
         into the given stream or stdout
         """
+        warnings.warn(
+            "generate_config has been deprecated. It will be removed in pylint 3.0.",
+            DeprecationWarning,
+        )
         options_by_section: Dict[str, List[Tuple]] = {}
         sections = []
         for provider in self.options_providers:
@@ -444,10 +426,17 @@ class _ArgumentsManager:
         for section in sections:
             if printed:
                 print("\n", file=stream)
-            utils.format_section(
-                stream, section.upper(), sorted(options_by_section[section])
-            )
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=DeprecationWarning)
+                utils.format_section(
+                    stream, section.upper(), sorted(options_by_section[section])
+                )
             printed = True
+
+    # pylint: disable-next=fixme
+    # TODO: Optparse: All methods below this line are copied to keep API-parity with
+    # OptionsManagerMixIn. They should either be deprecated or moved above this line
+    # to keep them in _ArgumentsManager
 
     def load_provider_defaults(self):
         """Initialize configuration using default values."""
@@ -565,3 +554,20 @@ class _ArgumentsManager:
         self.cmdline_parser.formatter.output_level = level
         with _patch_optparse():
             return self.cmdline_parser.format_help()
+
+    def cb_set_provider_option(self, option, opt, value, parser):
+        """Optik callback for option setting."""
+        if opt.startswith("--"):
+            # remove -- on long option
+            opt = opt[2:]
+        else:
+            # short option, get its long equivalent
+            opt = self._short_options[opt[1:]]
+        # trick since we can't set action='store_true' on options
+        if value is None:
+            value = 1
+        self.global_set_option(opt, value)
+
+    def global_set_option(self, opt, value):
+        """Set option on the correct option provider."""
+        self._all_options[opt].set_option(opt, value)
