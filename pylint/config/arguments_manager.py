@@ -392,7 +392,9 @@ class _ArgumentsManager:
         """
         if not config_file:
             if verbose:
-                print("No config file found, using default configuration", file=sys.stderr)
+                print(
+                    "No config file found, using default configuration", file=sys.stderr
+                )
             return
         config_file = Path(os.path.expandvars(config_file)).expanduser()
         if not config_file.exists():
@@ -415,7 +417,7 @@ class _ArgumentsManager:
                     parser._sections[sect.upper()] = values
 
         if verbose:
-             print(f"Using config file '{config_file}'", file=sys.stderr)     
+            print(f"Using config file '{config_file}'", file=sys.stderr)
 
     def _parse_toml(self, config_file: Path, parser: configparser.ConfigParser) -> None:
         """Parse and handle errors of a toml configuration file."""
