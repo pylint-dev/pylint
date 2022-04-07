@@ -632,7 +632,9 @@ class PyLinter(
             ("RP0003", "Messages", report_messages_stats),
         )
         self.register_checker(self)
-        self.load_provider_defaults()
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            self.load_provider_defaults()
 
     def load_default_plugins(self):
         checkers.initialize(self)

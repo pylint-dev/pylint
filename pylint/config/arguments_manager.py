@@ -433,13 +433,13 @@ class _ArgumentsManager:
                 )
             printed = True
 
-    # pylint: disable-next=fixme
-    # TODO: Optparse: All methods below this line are copied to keep API-parity with
-    # OptionsManagerMixIn. They should either be deprecated or moved above this line
-    # to keep them in _ArgumentsManager
-
-    def load_provider_defaults(self):
+    def load_provider_defaults(self) -> None:
         """Initialize configuration using default values."""
+        warnings.warn(
+            "load_provider_defaults has been deprecated. Parsing of option defaults should be done "
+            "automatically by initializing an ArgumentsProvider.",
+            DeprecationWarning,
+        )
         for provider in self.options_providers:
             provider.load_defaults()
 
@@ -449,6 +449,10 @@ class _ArgumentsManager:
         """Read the configuration file but do not load it (i.e. dispatching
         values to each option's provider)
         """
+        warnings.warn(
+            "read_config_file has been deprecated. It will be removed in pylint 3.0.",
+            DeprecationWarning,
+        )
         if not config_file:
             if verbose:
                 print(
@@ -479,7 +483,10 @@ class _ArgumentsManager:
             print(f"Using config file '{config_file}'", file=sys.stderr)
 
     def _parse_toml(self, config_file: Path, parser: configparser.ConfigParser) -> None:
-        """Parse and handle errors of a toml configuration file."""
+        """Parse and handle errors of a toml configuration file.
+
+        TODO: Remove after read_config_file has been removed.
+        """
         with open(config_file, mode="rb") as fp:
             content = tomllib.load(fp)
         try:
@@ -509,6 +516,11 @@ class _ArgumentsManager:
                 except configparser.NoSectionError:
                     parser.add_section(section_name)
                     parser.set(section_name, option, value=value)
+
+    # pylint: disable-next=fixme
+    # TODO: Optparse: All methods below this line are copied to keep API-parity with
+    # OptionsManagerMixIn. They should either be deprecated or moved above this line
+    # to keep them in _ArgumentsManager
 
     def load_config_file(self):
         """Dispatch values previously read from a configuration file to each

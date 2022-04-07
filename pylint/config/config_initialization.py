@@ -3,6 +3,7 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 import sys
+import warnings
 from pathlib import Path
 from typing import TYPE_CHECKING, List, Union
 
@@ -53,7 +54,9 @@ def _config_initialization(
     # Load optparse command line arguments
     try:
         # The parser is stored on linter.cfgfile_parser
-        linter.read_config_file(config_file=config_file, verbose=verbose_mode)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            linter.read_config_file(config_file=config_file, verbose=verbose_mode)
     except OSError as ex:
         print(ex, file=sys.stderr)
         sys.exit(32)
