@@ -392,17 +392,16 @@ class _ArgumentsManager:
                 optdict.pop(key)
         return args, optdict
 
-    # pylint: disable-next=fixme
-    # TODO: Optparse: All methods below this line are copied to keep API-parity with
-    # OptionsManagerMixIn. They should either be deprecated or moved above this line
-    # to keep them in _ArgumentsManager
-
     def generate_config(
         self, stream: Optional[TextIO] = None, skipsections: Tuple[str, ...] = ()
     ) -> None:
         """Write a configuration file according to the current configuration
         into the given stream or stdout
         """
+        warnings.warn(
+            "generate_config has been deprecated. It will be removed in pylint 3.0.",
+            DeprecationWarning,
+        )
         options_by_section: Dict[str, List[Tuple]] = {}
         sections = []
         for provider in self.options_providers:
@@ -427,10 +426,17 @@ class _ArgumentsManager:
         for section in sections:
             if printed:
                 print("\n", file=stream)
-            utils.format_section(
-                stream, section.upper(), sorted(options_by_section[section])
-            )
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=DeprecationWarning)
+                utils.format_section(
+                    stream, section.upper(), sorted(options_by_section[section])
+                )
             printed = True
+
+    # pylint: disable-next=fixme
+    # TODO: Optparse: All methods below this line are copied to keep API-parity with
+    # OptionsManagerMixIn. They should either be deprecated or moved above this line
+    # to keep them in _ArgumentsManager
 
     def load_provider_defaults(self):
         """Initialize configuration using default values."""
