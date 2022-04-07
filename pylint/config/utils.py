@@ -40,8 +40,6 @@ def _convert_option_to_argument(
             "Use 'hide' with a boolean to hide an option from the help message.",
             DeprecationWarning,
         )
-    # pylint: disable-next=fixme
-    # TODO: Do something with the 'group' keys of optdicts
 
     # Get the long and short flags
     flags = [f"--{opt}"]
@@ -64,6 +62,7 @@ def _convert_option_to_argument(
             default=optdict["default"],
             arg_help=optdict["help"],
             hide_help=optdict.get("hide", False),
+            section=optdict.get("group", None),
         )
     if not isinstance(action, str) and issubclass(action, _CallbackAction):
         return _CallableArgument(
@@ -72,6 +71,7 @@ def _convert_option_to_argument(
             arg_help=optdict["help"],
             kwargs=optdict["kwargs"],
             hide_help=optdict.get("hide", False),
+            section=optdict.get("group", None),
         )
     if "kwargs" in optdict:
         if "old_names" in optdict["kwargs"]:
@@ -84,6 +84,7 @@ def _convert_option_to_argument(
                 metavar=optdict["metavar"],
                 hide_help=optdict.get("hide", False),
                 kwargs=optdict["kwargs"],
+                section=optdict.get("group"),
             )
         if "new_names" in optdict["kwargs"]:
             return _StoreNewNamesArgument(
@@ -95,6 +96,7 @@ def _convert_option_to_argument(
                 metavar=optdict["metavar"],
                 hide_help=optdict.get("hide", False),
                 kwargs=optdict["kwargs"],
+                section=optdict.get("group", None),
             )
     if "dest" in optdict:
         return _StoreOldNamesArgument(
@@ -106,6 +108,7 @@ def _convert_option_to_argument(
             metavar=optdict["metavar"],
             hide_help=optdict.get("hide", False),
             kwargs={"old_names": [optdict["dest"]]},
+            section=optdict.get("group", None),
         )
     return _StoreArgument(
         flags=flags,
@@ -116,6 +119,7 @@ def _convert_option_to_argument(
         arg_help=optdict["help"],
         metavar=optdict["metavar"],
         hide_help=optdict.get("hide", False),
+        section=optdict.get("group", None),
     )
 
 

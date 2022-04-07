@@ -19,21 +19,22 @@ from pylint.config.argument import (
 from pylint.config.exceptions import UnrecognizedArgumentAction
 from pylint.config.help_formatter import _HelpFormatter
 from pylint.config.utils import _convert_option_to_argument
+from pylint.typing import OptionDict
 
 if TYPE_CHECKING:
-    from pylint import checkers
+    from pylint.config.arguments_provider import _ArgumentsProvider
 
 
 class _ArgumentsManager:
     """Arguments manager class used to handle command-line arguments and options."""
 
-    def __init__(self) -> None:
+    def __init__(self, prog: str, usage: Optional[str] = None) -> None:
         self.namespace = argparse.Namespace()
         """Namespace for all options."""
 
         self._arg_parser = argparse.ArgumentParser(
-            prog="pylint",
-            usage="%(prog)s [options]",
+            prog=prog,
+            usage=usage or "%(prog)s [options]",
             formatter_class=_HelpFormatter,
         )
         """The command line argument parser."""
@@ -41,27 +42,34 @@ class _ArgumentsManager:
         self._argument_groups_dict: Dict[str, argparse._ArgumentGroup] = {}
         """Dictionary of all the argument groups."""
 
-    def _register_options_provider(self, provider: "checkers.BaseChecker") -> None:
+        self._option_dicts: Dict[str, OptionDict] = {}
+        """All option dictionaries that have been registered."""
+
+    def _register_options_provider(self, provider: "_ArgumentsProvider") -> None:
         """Register an options provider and load its defaults."""
-        # pylint: disable-next=fixme
-        # TODO: Do something own_group parameter (see OptionsManagerMixIn.register_options_provider)
         for opt, optdict in provider.options:
+            self._option_dicts[opt] = optdict
             argument = _convert_option_to_argument(opt, optdict)
-            self._add_arguments_to_parser(provider.name, argument)
+            section = argument.section or provider.name.capitalize()
 
-        # pylint: disable-next=fixme
-        # TODO: Do something with option groups within optdicts (see OptionsManagerMixIn.register_options_provider)
+            section_desc = provider.option_groups_descs.get(section, None)
+            self._add_arguments_to_parser(section, section_desc, argument)
 
-        # pylint: disable-next=fixme
-        # TODO: Investigate performance impact of loading default arguments on every call
         self._load_default_argument_values()
 
-    def _add_arguments_to_parser(self, section: str, argument: _Argument) -> None:
-        """Iterates over all argument sections and add them to the parser object."""
+    def _add_arguments_to_parser(
+        self, section: str, section_desc: Optional[str], argument: _Argument
+    ) -> None:
+        """Add an argument to the correct argument section/group."""
         try:
             section_group = self._argument_groups_dict[section]
         except KeyError:
-            section_group = self._arg_parser.add_argument_group(title=section)
+            if section_desc:
+                section_group = self._arg_parser.add_argument_group(
+                    section, section_desc
+                )
+            else:
+                section_group = self._arg_parser.add_argument_group(title=section)
             self._argument_groups_dict[section] = section_group
         self._add_parser_option(section_group, argument)
 
@@ -136,11 +144,8 @@ class _ArgumentsManager:
         """Loads the default values of all registered options."""
         self.namespace = self._arg_parser.parse_args([], self.namespace)
 
-    def _parse_configuration_file(self, config_data: Dict[str, str]) -> None:
+    def _parse_configuration_file(self, arguments: List[str]) -> None:
         """Parse the arguments found in a configuration file into the namespace."""
-        arguments = []
-        for opt, value in config_data.items():
-            arguments.extend([f"--{opt}", value])
         # pylint: disable-next=fixme
         # TODO: This should parse_args instead of parse_known_args
         self.namespace = self._arg_parser.parse_known_args(arguments, self.namespace)[0]

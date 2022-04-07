@@ -60,6 +60,7 @@ from pylint.typing import (
     ManagedMessage,
     MessageLocationTuple,
     ModuleDescriptionDict,
+    Options,
 )
 from pylint.utils import ASTWalker, FileState, LinterStats, get_global_option, utils
 from pylint.utils.pragma_parser import (
@@ -74,7 +75,6 @@ if sys.version_info >= (3, 8):
 else:
     from typing_extensions import Literal
 
-OptionDict = Dict[str, Union[str, bool, int, Iterable[Union[str, int]]]]
 
 MANAGER = astroid.MANAGER
 
@@ -220,7 +220,7 @@ class PyLinter(
     crash_file_path: str = "pylint-crash-%Y-%m-%d-%H.txt"
 
     @staticmethod
-    def make_options() -> Tuple[Tuple[str, OptionDict], ...]:
+    def make_options() -> Options:
         return (
             (
                 "ignore",
@@ -544,21 +544,21 @@ class PyLinter(
             ),
         )
 
-    base_option_groups = (
-        ("Messages control", "Options controlling analysis messages"),
-        ("Reports", "Options related to output formatting and reporting"),
-    )
+    option_groups_descs = {
+        "Messages control": "Options controlling analysis messages",
+        "Reports": "Options related to output formatting and reporting",
+    }
 
     def __init__(
         self,
-        options: Tuple[Tuple[str, OptionDict], ...] = (),
+        options: Options = (),
         reporter: Union[reporters.BaseReporter, reporters.MultiReporter, None] = None,
         option_groups: Tuple[Tuple[str, str], ...] = (),
         # pylint: disable-next=fixme
         # TODO: Deprecate passing the pylintrc parameter
         pylintrc: Optional[str] = None,  # pylint: disable=unused-argument
     ) -> None:
-        _ArgumentsManager.__init__(self)
+        _ArgumentsManager.__init__(self, prog="pylint")
 
         # Some stuff has to be done before initialization of other ancestors...
         # messages store / checkers / reporter / astroid manager
@@ -592,11 +592,14 @@ class PyLinter(
 
         # Attributes related to (command-line) options and their parsing
         self._external_opts = options
-        self.options: Tuple[Tuple[str, OptionDict], ...] = (
-            options + PyLinter.make_options()
-        )
-        self.option_groups: Tuple[Tuple[str, str], ...] = (
-            option_groups + PyLinter.base_option_groups
+        self.options: Options = options + PyLinter.make_options()
+        for opt_group in option_groups:
+            self.option_groups_descs[opt_group[0]] = opt_group[1]
+        # pylint: disable-next=fixme
+        # TODO: Optparse: Remove this assignment after option_groups has been deprecated
+        self.option_groups: Tuple[Tuple[str, str], ...] = option_groups + (
+            ("Messages control", "Options controlling analysis messages"),
+            ("Reports", "Options related to output formatting and reporting"),
         )
         self._options_methods = {
             "enable": self.enable,
