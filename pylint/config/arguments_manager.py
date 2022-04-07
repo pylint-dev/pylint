@@ -209,6 +209,7 @@ class _ArgumentsManager:
         return parsed_args
 
     def reset_parsers(self, usage: str = "") -> None:
+        """DEPRECATED."""
         warnings.warn(
             "reset_parsers has been deprecated. Parsers should be instantiated "
             "once during initialization and do not need to be reset.",
@@ -226,7 +227,7 @@ class _ArgumentsManager:
     def register_options_provider(
         self, provider: OptionsProviderMixIn, own_group: bool = True
     ) -> None:
-        """Register an options provider."""
+        """DEPRECATED: Register an options provider."""
         warnings.warn(
             "register_options_provider has been deprecated. Options providers and "
             "arguments providers should be registered by initializing ArgumentsProvider. "
@@ -270,6 +271,7 @@ class _ArgumentsManager:
         options: List[Tuple[str, OptionDict]],
         provider: OptionsProviderMixIn,
     ) -> None:
+        """DEPRECATED."""
         warnings.warn(
             "add_option_group has been deprecated. Option groups should be "
             "registered by initializing ArgumentsProvider. "
@@ -307,6 +309,7 @@ class _ArgumentsManager:
         opt: str,
         optdict: OptionDict,
     ) -> None:
+        """DEPRECATED."""
         warnings.warn(
             "add_optik_option has been deprecated. Options should be automatically "
             "added by initializing an ArgumentsProvider.",
@@ -322,7 +325,7 @@ class _ArgumentsManager:
     def optik_option(
         self, provider: OptionsProviderMixIn, opt: str, optdict: OptionDict
     ) -> Tuple[List[str], OptionDict]:
-        """Get our personal option definition and return a suitable form for
+        """DEPRECATED: Get our personal option definition and return a suitable form for
         use with optik/optparse
         """
         warnings.warn(
@@ -360,7 +363,7 @@ class _ArgumentsManager:
     def generate_config(
         self, stream: Optional[TextIO] = None, skipsections: Tuple[str, ...] = ()
     ) -> None:
-        """Write a configuration file according to the current configuration
+        """DEPRECATED: Write a configuration file according to the current configuration
         into the given stream or stdout
         """
         warnings.warn(
@@ -399,7 +402,7 @@ class _ArgumentsManager:
             printed = True
 
     def load_provider_defaults(self) -> None:
-        """Initialize configuration using default values."""
+        """DEPRECATED: Initialize configuration using default values."""
         warnings.warn(
             "load_provider_defaults has been deprecated. Parsing of option defaults should be done "
             "automatically by initializing an ArgumentsProvider.",
@@ -411,8 +414,10 @@ class _ArgumentsManager:
     def read_config_file(
         self, config_file: Optional[Path] = None, verbose: bool = False
     ) -> None:
-        """Read the configuration file but do not load it (i.e. dispatching
+        """DEPRECATED: Read the configuration file but do not load it (i.e. dispatching
         values to each option's provider)
+
+        :raises OSError: Whem the specified config file doesn't exist
         """
         warnings.warn(
             "read_config_file has been deprecated. It will be removed in pylint 3.0.",
@@ -448,7 +453,7 @@ class _ArgumentsManager:
             print(f"Using config file '{config_file}'", file=sys.stderr)
 
     def _parse_toml(self, config_file: Path, parser: configparser.ConfigParser) -> None:
-        """Parse and handle errors of a toml configuration file.
+        """DEPRECATED: Parse and handle errors of a toml configuration file.
 
         TODO: Remove after read_config_file has been removed.
         """
@@ -483,7 +488,7 @@ class _ArgumentsManager:
                     parser.set(section_name, option, value=value)
 
     def load_config_file(self) -> None:
-        """Dispatch values previously read from a configuration file to each
+        """DEPRECATED: Dispatch values previously read from a configuration file to each
         option's provider
         """
         warnings.warn(
@@ -499,7 +504,7 @@ class _ArgumentsManager:
                     continue
 
     def load_configuration(self, **kwargs: Any) -> None:
-        """Override configuration according to given parameters."""
+        """DEPRECATED: Override configuration according to given parameters."""
         warnings.warn(
             "load_configuration has been deprecated. It will be removed in pylint 3.0.",
             DeprecationWarning,
@@ -510,7 +515,7 @@ class _ArgumentsManager:
 
     def load_configuration_from_config(self, config: Dict[str, Any]) -> None:
         warnings.warn(
-            "load_configuration_from_config has been deprecated. It will be removed in pylint 3.0.",
+            "DEPRECATED: load_configuration_from_config has been deprecated. It will be removed in pylint 3.0.",
             DeprecationWarning,
         )
         for opt, opt_value in config.items():
@@ -521,7 +526,7 @@ class _ArgumentsManager:
     def load_command_line_configuration(
         self, args: Optional[List[str]] = None
     ) -> List[str]:
-        """Override configuration according to command line parameters.
+        """DEPRECATED: Override configuration according to command line parameters.
 
         return additional arguments
         """
@@ -551,10 +556,7 @@ class _ArgumentsManager:
         return self._arg_parser.format_help()
 
     # pylint: disable-next=fixme
-    # TODO: Optparse: All methods below this line are copied to keep API-parity with
-    # OptionsManagerMixIn. They should either be deprecated or moved above this line
-    # to keep them in _ArgumentsManager
-
+    # TODO: Optparse: Refactor and potentially deprecate cb_set_provider_option
     def cb_set_provider_option(self, option, opt, value, parser):
         """Optik callback for option setting."""
         if opt.startswith("--"):
@@ -568,6 +570,8 @@ class _ArgumentsManager:
             value = 1
         self.global_set_option(opt, value)
 
+    # pylint: disable-next=fixme
+    # TODO: Optparse: Refactor and potentially deprecate global_set_option
     def global_set_option(self, opt, value):
         """Set option on the correct option provider."""
         self._all_options[opt].set_option(opt, value)
