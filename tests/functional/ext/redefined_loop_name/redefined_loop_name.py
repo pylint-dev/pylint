@@ -28,3 +28,14 @@ line = "no warning"
 
 for i in range(10):
     i += 1  # [redefined-loop-name]
+
+
+def outer():
+    """No redefined-loop-name for variables in nested scopes"""
+    for i1 in range(5):
+        def inner():
+            """No warning, because i has a new scope"""
+            for i1 in range(3):
+                print(i1)
+        print(i1)
+        inner()

@@ -58,8 +58,11 @@ class RedefinedLoopName(checkers.BaseChecker):
         )
         assigned_to = [var for var in assigned_to if not dummy_rgx.match(var)]
 
+        node_scope = node.scope()
         for variable in assigned_to:
             for outer_for, outer_variables in self._loop_variables:
+                if node_scope is not outer_for.scope():
+                    continue
                 if variable in outer_variables and not in_for_else_branch(
                     outer_for, node
                 ):
