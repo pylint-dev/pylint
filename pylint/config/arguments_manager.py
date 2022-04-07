@@ -14,7 +14,7 @@ import os
 import sys
 import warnings
 from pathlib import Path
-from typing import TYPE_CHECKING, Dict, List, Optional, TextIO, Tuple
+from typing import TYPE_CHECKING, Dict, List, Optional, TextIO, Tuple, Union
 
 from pylint import utils
 from pylint.config.argument import (
@@ -107,12 +107,14 @@ class _ArgumentsManager:
         # list of registered options providers
         self.options_providers: List[OptionsProviderMixIn] = []
         # dictionary associating option name to checker
-        self._all_options = collections.OrderedDict()  # type: ignore[var-annotated]
-        self._short_options = {}  # type: ignore[var-annotated]
-        self._nocallback_options = {}  # type: ignore[var-annotated]
+        self._all_options: collections.OrderedDict[
+            str, OptionsProviderMixIn
+        ] = collections.OrderedDict()
+        self._short_options: Dict[str, str] = {}
+        self._nocallback_options: Dict[OptionsProviderMixIn, str] = {}
         self._mygroups: Dict[str, optparse.OptionGroup] = {}
         # verbosity
-        self._maxlevel = 0
+        self._maxlevel: int = 0
 
     def _register_options_provider(self, provider: "_ArgumentsProvider") -> None:
         """Register an options provider and load its defaults."""
@@ -277,7 +279,9 @@ class _ArgumentsManager:
                 )
         else:
             for opt, optdict in non_group_spec_options:
-                self.add_optik_option(provider, self.cmdline_parser, opt, optdict)
+                with warnings.catch_warnings():
+                    warnings.filterwarnings("ignore", category=DeprecationWarning)
+                    self.add_optik_option(provider, self.cmdline_parser, opt, optdict)
         for gname, gdoc in groups:
             gname = gname.upper()
             goptions = [
@@ -322,29 +326,46 @@ class _ArgumentsManager:
         for opt, optdict in options:
             if not isinstance(optdict.get("action", "store"), str):
                 optdict["action"] = "callback"
-            self.add_optik_option(provider, group, opt, optdict)
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=DeprecationWarning)
+                self.add_optik_option(provider, group, opt, optdict)
 
-    # pylint: disable-next=fixme
-    # TODO: Optparse: All methods below this line are copied to keep API-parity with
-    # OptionsManagerMixIn. They should either be deprecated or moved above this line
-    # to keep them in _ArgumentsManager
-
-    def add_optik_option(self, provider, optikcontainer, opt, optdict):
-        args, optdict = self.optik_option(provider, opt, optdict)
+    def add_optik_option(
+        self,
+        provider: OptionsProviderMixIn,
+        optikcontainer: Union[optparse.OptionParser, optparse.OptionGroup],
+        opt: str,
+        optdict: OptionDict,
+    ) -> None:
+        warnings.warn(
+            "add_optik_option has been deprecated. Options should be automatically "
+            "added by initializing an ArgumentsProvider.",
+            DeprecationWarning,
+        )
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            args, optdict = self.optik_option(provider, opt, optdict)
         option = optikcontainer.add_option(*args, **optdict)
         self._all_options[opt] = provider
         self._maxlevel = max(self._maxlevel, option.level or 0)
 
-    def optik_option(self, provider, opt, optdict):
+    def optik_option(
+        self, provider: OptionsProviderMixIn, opt: str, optdict: OptionDict
+    ) -> Tuple[List[str], OptionDict]:
         """Get our personal option definition and return a suitable form for
         use with optik/optparse
         """
+        warnings.warn(
+            "optik_option has been deprecated. Parsing of option dictionaries should be done "
+            "automatically by initializing an ArgumentsProvider.",
+            DeprecationWarning,
+        )
         optdict = copy.copy(optdict)
         if "action" in optdict:
             self._nocallback_options[provider] = opt
         else:
             optdict["action"] = "callback"
-            optdict["callback"] = self.cb_set_provider_option
+            optdict["callback"] = self.cb_set_provider_option  # type: ignore[assignment]
         # default is handled here and *must not* be given to optik if you
         # want the whole machinery to work
         if "default" in optdict:
@@ -353,18 +374,23 @@ class _ArgumentsManager:
                 and optdict.get("default") is not None
                 and optdict["action"] not in ("store_true", "store_false")
             ):
-                optdict["help"] += " [current: %default]"
+                optdict["help"] += " [current: %default]"  # type: ignore[operator]
             del optdict["default"]
         args = ["--" + str(opt)]
         if "short" in optdict:
-            self._short_options[optdict["short"]] = opt
-            args.append("-" + optdict["short"])
+            self._short_options[optdict["short"]] = opt  # type: ignore[index]
+            args.append("-" + optdict["short"])  # type: ignore[operator]
             del optdict["short"]
         # cleanup option definition dict before giving it to optik
         for key in list(optdict.keys()):
             if key not in self._optik_option_attrs:
                 optdict.pop(key)
         return args, optdict
+
+    # pylint: disable-next=fixme
+    # TODO: Optparse: All methods below this line are copied to keep API-parity with
+    # OptionsManagerMixIn. They should either be deprecated or moved above this line
+    # to keep them in _ArgumentsManager
 
     def cb_set_provider_option(self, option, opt, value, parser):
         """Optik callback for option setting."""
