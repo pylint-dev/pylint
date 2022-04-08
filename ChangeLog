@@ -81,9 +81,20 @@ Release date: TBA
   (Ie. not necessarily at the end)
 
 
-What's New in Pylint 2.13.5?
+What's New in Pylint 2.13.6?
 ============================
 Release date: TBA
+
+* Asterisks are no longer required in Sphinx and Google style parameter documentation
+  for ``missing-param-doc`` and are parsed correctly.
+
+  Closes #5815
+  Closes #5406
+
+
+What's New in Pylint 2.13.5?
+============================
+Release date: 2022-04-06
 
 * Fix false positive regression in 2.13.0 for ``used-before-assignment`` for
   homonyms between variable assignments in try/except blocks and variables in
@@ -105,6 +116,11 @@ Release date: TBA
   * functions & classes which contain both a docstring and an ellipsis.
   * A body which contains an ellipsis ``nodes.Expr`` node & at least one other statement.
 
+* Fix false positive for ``used-before-assignment`` for assignments taking place via
+  nonlocal declarations after an earlier type annotation.
+
+  Closes #5394
+
 * Fix crash for ``redefined-slots-in-subclass`` when the type of the slot is not a const or a string.
 
   Closes #6100
@@ -112,6 +128,9 @@ Release date: TBA
 * Only raise ``not-callable`` when all the inferred values of a property are not callable.
 
   Closes #5931
+
+
+* Fix a false negative for ``subclassed-final-class`` when a set of other messages were disabled.
 
 
 What's New in Pylint 2.13.4?
