@@ -64,6 +64,11 @@ Release date: TBA
 
   Closes #1555
 
+* Fix crash (in unreleased development) in ``c-extension-no-member`` check when inspecting living objects
+  with ``extension-pkg-allow-list``.
+
+  Closes #6221
+
 * The concept of checker priority has been removed.
 
 * ``duplicate-argument-name`` now only raises once for each set of duplicated arguments.

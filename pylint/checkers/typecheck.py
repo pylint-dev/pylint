@@ -1053,6 +1053,10 @@ accessed. Python regular expressions are accepted.",
                 missingattr.add((owner, name))
                 continue
             else:
+                if isinstance(attr_nodes, nodes.NodeNG):
+                    # If owner was a living object, attr_nodes might be a node itself
+                    # Faster than retrieving the module object and testing _is_c_extension()
+                    break
                 for attr_node in attr_nodes:
                     attr_parent = attr_node.parent
                     # Skip augmented assignments
