@@ -64,8 +64,8 @@ Release date: TBA
 
   Closes #1555
 
-* Fix crash (in unreleased development) in ``c-extension-no-member`` check when inspecting living objects
-  with ``extension-pkg-allow-list``.
+* Fix crash (in unreleased development) in ``no-member`` check when inspecting C
+  extension modules with ``extension-pkg-allow-list``.
 
   Closes #6221
 
