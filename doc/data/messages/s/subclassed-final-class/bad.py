@@ -2,9 +2,12 @@ from typing import final
 
 
 @final
-class Base:
-    ...
+class PlatypusData:
+    """General Platypus data."""
+
+    average_length = 46
+    average_body_temperature = 32
 
 
-class MyClass(Base):  # [subclassed-final-class]
-    ...
+class FluorescentPlaytipus(PlatypusData):  # [subclassed-final-class]
+    """Playtipus with fluorescent fur."""
