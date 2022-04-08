@@ -1057,7 +1057,7 @@ accessed. Python regular expressions are accepted.",
                     # If owner was a living object, attr_nodes might be a node itself
                     # Faster than retrieving the module object and testing _is_c_extension()
                     # https://github.com/PyCQA/pylint/pull/6235#issuecomment-1093098869
-                    break   # pragma: no cover
+                    break  # pragma: no cover
                 for attr_node in attr_nodes:
                     attr_parent = attr_node.parent
                     # Skip augmented assignments
