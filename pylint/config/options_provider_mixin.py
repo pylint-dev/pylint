@@ -3,9 +3,10 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 import optparse  # pylint: disable=deprecated-module
-from typing import Any, Dict, Tuple
 
+from pylint.config.callback_actions import _CallbackAction
 from pylint.config.option import _validate
+from pylint.typing import Options
 
 
 class UnsupportedAction(Exception):
@@ -17,7 +18,7 @@ class OptionsProviderMixIn:
 
     # those attributes should be overridden
     name = "default"
-    options: Tuple[Tuple[str, Dict[str, Any]], ...] = ()
+    options: Options = ()
     level = 0
 
     def __init__(self):
@@ -72,10 +73,12 @@ class OptionsProviderMixIn:
                 setattr(self.config, optname, _list + (value,))
             else:
                 _list.append(value)
-        elif action == "callback":
-            optdict["callback"](None, optname, value, None)
-        elif not isinstance(action, str):
-            optdict["callback"](None, optname, value, None)
+        elif (
+            action == "callback"
+            or (not isinstance(action, str))
+            and issubclass(action, _CallbackAction)
+        ):
+            return
         else:
             raise UnsupportedAction(action)
 

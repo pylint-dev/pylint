@@ -22,7 +22,7 @@ def check_configuration_file_reader(
         expected_disabled = {"W1201", "W1202"}
     for msgid in expected_disabled:
         assert not runner.linter.is_message_enabled(msgid)
-    assert runner.linter.config.jobs == expected_jobs
+    assert runner.linter.namespace.jobs == expected_jobs
     assert bool(runner.linter.config.reports) == expected_reports_truthey
 
 

@@ -4,7 +4,7 @@
 
 """A collection of typing utilities."""
 import sys
-from typing import NamedTuple, Optional, Union
+from typing import Dict, Iterable, NamedTuple, Optional, Pattern, Tuple, Union
 
 if sys.version_info >= (3, 8):
     from typing import Literal, TypedDict
@@ -71,3 +71,9 @@ MessageTypesFullName = Literal[
     "convention", "error", "fatal", "info", "refactor", "statement", "warning"
 ]
 """All possible message categories."""
+
+
+OptionDict = Dict[
+    str, Union[None, str, bool, int, Pattern[str], Iterable[Union[str, int]]]
+]
+Options = Tuple[Tuple[str, OptionDict], ...]

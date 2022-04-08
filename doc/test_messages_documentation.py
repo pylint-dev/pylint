@@ -33,7 +33,10 @@ MessageCounter = CounterType[Tuple[int, str]]
 
 
 def get_functional_test_files_from_directory(input_dir: Path) -> List[Tuple[str, Path]]:
-    """Get all functional tests in the input_dir."""
+    """Get all functional tests in the input_dir.
+
+    This also checks the formatting of related.rst files.
+    """
     suite: List[Tuple[str, Path]] = []
 
     for subdirectory in input_dir.iterdir():
@@ -46,6 +49,12 @@ def get_functional_test_files_from_directory(input_dir: Path) -> List[Tuple[str,
                 suite.append(
                     (message_dir.stem, message_dir / "bad.py"),
                 )
+            if (message_dir / "related.rst").exists():
+                with open(message_dir / "related.rst", encoding="utf-8") as file:
+                    text = file.read()
+                    assert text.startswith(
+                        "-"
+                    ), f"{message_dir / 'related.rst'} should be a list using '-'."
     return suite
 
 
@@ -61,7 +70,7 @@ class LintModuleTest:
         _test_reporter = FunctionalTestReporter()
 
         self._linter = PyLinter()
-        self._linter.config.persistent = 0
+        self._linter.namespace.persistent = 0
         checkers.initialize(self._linter)
 
         # Check if this message has a custom configuration file (e.g. for enabling optional checkers).
