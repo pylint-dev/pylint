@@ -63,6 +63,7 @@ Release date: TBA
   attribute to itself without any prior assignment.
 
   Closes #1555
+  Closes #6221
 
 * The concept of checker priority has been removed.
 
