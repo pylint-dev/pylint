@@ -434,7 +434,7 @@ def overrides_a_method(class_node: nodes.ClassDef, name: str) -> bool:
     return False
 
 
-def only_required_for(*messages: str) -> Callable[[nodes.NodeNG], None]:
+def only_required_for_messages(*messages: str) -> Callable[[nodes.NodeNG], None]:
     """Decorator to store messages that are handled by a checker method as an
     attribute of the function object.
 
@@ -455,18 +455,15 @@ def only_required_for(*messages: str) -> Callable[[nodes.NodeNG], None]:
 def check_messages(*messages: str) -> Callable[[nodes.NodeNG], None]:
     """Kept for backwards compatibility, deprecated.
 
-    Use only_required_for instead, which conveys the intent of the decorator much clearer.
+    Use only_required_for_messages instead, which conveys the intent of the decorator much clearer.
     """
-    # Uncomment the following warning once all 'check_messages' calls have been replaced
-    # in pylints codebase.
+    warnings.warn(
+        "utils.check_messages will be removed in favour of calling "
+        "utils.only_required_for_messages in pylint 3.0",
+        DeprecationWarning,
+    )
 
-    # warnings.warn(
-    #     "utils.check_messages will be removed in favour of calling "
-    #     "utils.only_required_for in pylint 3.0",
-    #     DeprecationWarning,
-    # )
-
-    return only_required_for(*messages)
+    return only_required_for_messages(*messages)
 
 
 class IncompleteFormatString(Exception):
