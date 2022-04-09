@@ -7,7 +7,7 @@ from typing import Dict, Set
 
 import astroid
 
-from pylint.checkers.utils import only_required_for
+from pylint.checkers.utils import only_required_for_messages
 from pylint.utils import ASTWalker
 
 
@@ -23,23 +23,23 @@ class TestASTWalker:
         def __init__(self) -> None:
             self.called: Set[str] = set()
 
-        @only_required_for("first-message")
+        @only_required_for_messages("first-message")
         def visit_module(self, module):  # pylint: disable=unused-argument
             self.called.add("module")
 
-        @only_required_for("second-message")
+        @only_required_for_messages("second-message")
         def visit_call(self, module):
             raise NotImplementedError
 
-        @only_required_for("second-message", "third-message")
+        @only_required_for_messages("second-message", "third-message")
         def visit_assignname(self, module):  # pylint: disable=unused-argument
             self.called.add("assignname")
 
-        @only_required_for("second-message")
+        @only_required_for_messages("second-message")
         def leave_assignname(self, module):
             raise NotImplementedError
 
-    def test_only_required_for(self) -> None:
+    def test_only_required_for_messages(self) -> None:
         linter = self.MockLinter(
             {"first-message": True, "second-message": False, "third-message": True}
         )
@@ -54,7 +54,7 @@ class TestASTWalker:
             def __init__(self) -> None:
                 self.called = False
 
-            @only_required_for("first-message")
+            @only_required_for_messages("first-message")
             def visit_assname(self, node):  # pylint: disable=unused-argument
                 self.called = True
 
