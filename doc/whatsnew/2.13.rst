@@ -630,6 +630,11 @@ Other Changes
 
   Closes #6419
 
+* Fix false positive for ``unsubscriptable-object`` in Python 3.8 and below for
+  statements guarded by ``if TYPE_CHECKING``.
+
+  Closes #3979
+
 * Fix a crash when linting a file that passes an integer ``mode=`` to
   ``open``
 
