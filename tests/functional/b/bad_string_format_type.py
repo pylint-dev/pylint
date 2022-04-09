@@ -28,3 +28,21 @@ b"test".format(1, 2) # [no-member]
 "%(key)x" % {"key": 1.1}  # [bad-string-format-type]
 "%d" % []  # [bad-string-format-type]
 "%(key)d" % {"key": []}  # [bad-string-format-type]
+
+WORD = "abc"
+"%d" % WORD  # [bad-string-format-type]
+"%d %s" % (WORD, WORD)  # [bad-string-format-type]
+
+VALUES_TO_FORMAT = (1, "2", 3.0)
+"%d %s %f" % VALUES_TO_FORMAT
+"%d %d %f" % VALUES_TO_FORMAT  # [bad-string-format-type]
+
+
+def test_format(my_input_value, my_other_input_value):
+    """In some cases it is not possible to determine the content of the input variable.
+    Pylint must not crash or yield false positives in such cases.
+    """
+    print("%d" % my_input_value)
+    print("%d %s" % (my_input_value, my_other_input_value))
+    to_be_formatted = (my_input_value, my_other_input_value)
+    print("%d %s" % to_be_formatted)

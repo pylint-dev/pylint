@@ -60,6 +60,9 @@ class OptionsManagerMixIn:
     """Handle configuration from both a configuration file and command line options."""
 
     def __init__(self, usage):
+        # pylint: disable-next=fixme
+        # TODO: Optparse: Deprecate this class when we don't use ConfigurationMixIn
+        # internally anymore
         self.reset_parsers(usage)
         # list of registered options providers
         self.options_providers = []
@@ -330,15 +333,6 @@ class OptionsManagerMixIn:
                         continue
                     setattr(config, attr, value)
             return args
-
-    def add_help_section(self, title, description, level=0):
-        """Add a dummy option section for help purpose."""
-        group = optparse.OptionGroup(
-            self.cmdline_parser, title=title.capitalize(), description=description
-        )
-        group.level = level
-        self._maxlevel = max(self._maxlevel, level)
-        self.cmdline_parser.add_option_group(group)
 
     def help(self, level=0):
         """Return the usage string for available options."""

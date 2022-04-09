@@ -626,6 +626,12 @@ MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
         "Used when an invalid object is assigned to a __class__ property. "
         "Only a class is permitted.",
     ),
+    "E0244": (
+        'Extending inherited Enum class "%s"',
+        "invalid-enum-extension",
+        "Used when a class tries to extend an inherited Enum class. "
+        "Doing so will raise a TypeError at runtime.",
+    ),
     "R0202": (
         "Consider using a decorator instead of calling classmethod",
         "no-classmethod-decorator",
@@ -774,10 +780,6 @@ a metaclass class method.",
     def _dummy_rgx(self):
         return get_global_option(self, "dummy-variables-rgx", default=None)
 
-    @cached_property
-    def _ignore_mixin(self):
-        return get_global_option(self, "ignore-mixin-members", default=True)
-
     @check_messages(
         "abstract-method",
         "no-init",
@@ -790,6 +792,8 @@ a metaclass class method.",
         "inconsistent-mro",
         "duplicate-bases",
         "redefined-slots-in-subclass",
+        "invalid-enum-extension",
+        "subclassed-final-class",
     )
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         """Init visit variable _accessed."""
@@ -834,6 +838,18 @@ a metaclass class method.",
                 ancestor
             ):
                 self.add_message("inherit-non-class", args=base.as_string(), node=node)
+
+            if (
+                isinstance(ancestor, nodes.ClassDef)
+                and ancestor.is_subtype_of("enum.Enum")
+                and any(isinstance(stmt, nodes.Assign) for stmt in ancestor.body)
+            ):
+                self.add_message(
+                    "invalid-enum-extension",
+                    args=ancestor.name,
+                    node=node,
+                    confidence=INFERENCE,
+                )
 
             if ancestor.name == object.__name__:
                 self.add_message(
@@ -1007,7 +1023,11 @@ a metaclass class method.",
 
     def _check_attribute_defined_outside_init(self, cnode: nodes.ClassDef) -> None:
         # check access to existent members on non metaclass classes
-        if self._ignore_mixin and self._mixin_class_rgx.match(cnode.name):
+        if (
+            "attribute-defined-outside-init"
+            in self.linter.namespace.ignored_checks_for_mixins
+            and self._mixin_class_rgx.match(cnode.name)
+        ):
             # We are in a mixin class. No need to try to figure out if
             # something is missing, since it is most likely that it will
             # miss.
