@@ -60,6 +60,10 @@ Extensions
 Other Changes
 =============
 
+* Update ``invalid-slots-object`` message to show bad object rather than its inferred value.
+
+  Closes #6101
+
 * Removed the broken ``generate-man`` option.
 
   Closes #5283
