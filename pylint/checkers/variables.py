@@ -1090,9 +1090,6 @@ class VariablesChecker(BaseChecker):
         self._is_undefined_variable_enabled = self.linter.is_message_enabled(
             "undefined-variable"
         )
-        self._is_used_before_assignment_enabled = self.linter.is_message_enabled(
-            "used-before-assignment"
-        )
         self._is_undefined_loop_variable_enabled = self.linter.is_message_enabled(
             "undefined-loop-variable"
         )
@@ -1554,12 +1551,6 @@ class VariablesChecker(BaseChecker):
             )
 
         self._check_late_binding_closure(node)
-
-        if not (
-            self._is_undefined_variable_enabled
-            or self._is_used_before_assignment_enabled
-        ):
-            return (VariableVisitConsumerAction.RETURN, found_nodes)
 
         defnode = utils.assign_parent(found_nodes[0])
         defstmt = defnode.statement(future=True)
@@ -2088,6 +2079,20 @@ class VariablesChecker(BaseChecker):
         parent = node
         while parent is not defstmt_frame.parent:
             parent_scope = parent.scope()
+
+            # Find out if any nonlocals receive values in nested functions
+            for inner_func in parent_scope.nodes_of_class(nodes.FunctionDef):
+                if inner_func is parent_scope:
+                    continue
+                if any(
+                    node.name in nl.names
+                    for nl in inner_func.nodes_of_class(nodes.Nonlocal)
+                ) and any(
+                    node.name == an.name
+                    for an in inner_func.nodes_of_class(nodes.AssignName)
+                ):
+                    return False
+
             local_refs = parent_scope.locals.get(node.name, [])
             for ref_node in local_refs:
                 # If local ref is in the same frame as our node, but on a later lineno
@@ -2305,11 +2310,14 @@ class VariablesChecker(BaseChecker):
             if global_names and _import_name_is_global(stmt, global_names):
                 return
 
+        # Ignore names in comprehension targets
+        if name in comprehension_target_names:
+            return
+
         argnames = node.argnames()
         # Care about functions with unknown argument (builtins)
         if name in argnames:
-            if name not in comprehension_target_names:
-                self._check_unused_arguments(name, node, stmt, argnames, nonlocal_names)
+            self._check_unused_arguments(name, node, stmt, argnames, nonlocal_names)
         else:
             if stmt.parent and isinstance(
                 stmt.parent, (nodes.Assign, nodes.AnnAssign, nodes.Tuple)

@@ -79,8 +79,8 @@ def get_linter_result(score: bool, message: Dict[str, Any]) -> List[Dict[str, An
     reporter = JSONReporter(output)
     linter = PyLinter(reporter=reporter)
     checkers.initialize(linter)
-    linter.config.persistent = 0
-    linter.config.score = score
+    linter.namespace.persistent = 0
+    linter.namespace.score = score
     linter.open()
     linter.set_current_module("0123")
     linter.add_message(
