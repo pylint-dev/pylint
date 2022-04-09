@@ -1,3 +1,7 @@
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
 import sys
 from typing import TYPE_CHECKING, List, Optional, Set, Tuple, Type, Union, cast
 
@@ -28,7 +32,7 @@ class CodeStyleChecker(BaseChecker):
        i.e. detect a common issue or improve performance
        => it should probably be part of the core checker classes
     2. Is it something that would improve code consistency,
-       maybe because it's slightly better with regards to performance
+       maybe because it's slightly better with regard to performance
        and therefore preferred => this is the right place
     3. Everything else should go into another extension
     """
@@ -36,7 +40,6 @@ class CodeStyleChecker(BaseChecker):
     __implements__ = (IAstroidChecker,)
 
     name = "code_style"
-    priority = -1
     msgs = {
         "R6101": (
             "Consider using namedtuple or dataclass for dictionary values",
@@ -63,6 +66,7 @@ class CodeStyleChecker(BaseChecker):
             "max-line-length-suggestions",
             {
                 "type": "int",
+                "default": 0,
                 "metavar": "<int>",
                 "help": (
                     "Max line length for which to sill emit suggestions. "
@@ -76,13 +80,13 @@ class CodeStyleChecker(BaseChecker):
 
     def __init__(self, linter: "PyLinter") -> None:
         """Initialize checker instance."""
-        super().__init__(linter=linter)
+        super().__init__(linter=linter, future_option_parsing=True)
 
     def open(self) -> None:
         py_version = get_global_option(self, "py-version")
         self._py38_plus = py_version >= (3, 8)
         self._max_length: int = (
-            self.config.max_line_length_suggestions
+            self.linter.namespace.max_line_length_suggestions
             or get_global_option(self, "max-line-length")
         )
 
@@ -252,6 +256,7 @@ class CodeStyleChecker(BaseChecker):
         prev_sibling: Optional[nodes.NodeNG], name: Optional[str]
     ) -> TypeGuard[Union[nodes.Assign, nodes.AnnAssign]]:
         """Check if previous sibling is an assignment with the same name.
+
         Ignore statements which span multiple lines.
         """
         if prev_sibling is None or prev_sibling.tolineno - prev_sibling.fromlineno != 0:

@@ -1,5 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Utility functions for configuration testing."""
 import copy
@@ -55,7 +56,7 @@ EXPECTED_CONF_REMOVE_KEY = "functional_remove"
 def get_expected_configuration(
     configuration_path: str, default_configuration: PylintConfiguration
 ) -> PylintConfiguration:
-    """Get the expected parsed configuration of a configuration functional test"""
+    """Get the expected parsed configuration of a configuration functional test."""
     result = copy.deepcopy(default_configuration)
     config_as_json = get_expected_or_default(
         configuration_path, suffix="result.json", default="{}"

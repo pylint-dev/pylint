@@ -1,5 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 import os
 import sys
@@ -16,7 +17,7 @@ if TYPE_CHECKING:
 
 
 class BaseReporter:
-    """base class for reporters
+    """Base class for reporters.
 
     symbols: show short symbolic names for messages.
     """
@@ -24,7 +25,7 @@ class BaseReporter:
     extension = ""
 
     name = "base"
-    """Name of the reporter"""
+    """Name of the reporter."""
 
     def __init__(self, output: Optional[TextIO] = None) -> None:
         self.linter: "PyLinter"
@@ -39,7 +40,7 @@ class BaseReporter:
         self.messages.append(msg)
 
     def set_output(self, output: Optional[TextIO] = None) -> None:
-        """set output stream"""
+        """Set output stream."""
         # pylint: disable-next=fixme
         # TODO: Remove this method after depreciation
         warn(
@@ -49,11 +50,11 @@ class BaseReporter:
         self.out = output or sys.stdout
 
     def writeln(self, string: str = "") -> None:
-        """write a line in the output buffer"""
+        """Write a line in the output buffer."""
         print(string, file=self.out)
 
     def display_reports(self, layout: "Section") -> None:
-        """display results encapsulated in the layout tree"""
+        """Display results encapsulated in the layout tree."""
         self.section = 0
         if layout.report_id:
             if isinstance(layout.children[0].children[0], Text):
@@ -63,11 +64,11 @@ class BaseReporter:
         self._display(layout)
 
     def _display(self, layout: "Section") -> None:
-        """display the layout"""
+        """Display the layout."""
         raise NotImplementedError()
 
     def display_messages(self, layout: Optional["Section"]) -> None:
-        """Hook for displaying the messages of the reporter
+        """Hook for displaying the messages of the reporter.
 
         This will be called whenever the underlying messages
         needs to be displayed. For some reporters, it probably

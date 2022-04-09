@@ -1,5 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Checks for yoda comparisons (variable before constant)
 See https://en.wikipedia.org/wiki/Yoda_conditions
@@ -21,7 +22,7 @@ COMPARISON_OPERATORS = frozenset(("==", "!=", "<", ">", "<=", ">="))
 
 
 class MisplacedComparisonConstantChecker(BaseChecker):
-    """Checks the placement of constants in comparisons"""
+    """Checks the placement of constants in comparisons."""
 
     __implements__ = (IAstroidChecker,)
 

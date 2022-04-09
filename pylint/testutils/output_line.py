@@ -1,5 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 import warnings
 from typing import Any, NamedTuple, Optional, Sequence, Tuple, TypeVar, Union
@@ -23,7 +24,10 @@ class MessageTest(NamedTuple):
     col_offset: Optional[int] = None
     end_line: Optional[int] = None
     end_col_offset: Optional[int] = None
-    """Used to test messages produced by pylint. Class name cannot start with Test as pytest doesn't allow constructors in test classes."""
+    """Used to test messages produced by pylint.
+
+    Class name cannot start with Test as pytest doesn't allow constructors in test classes.
+    """
 
 
 class MalformedOutputLineException(Exception):
@@ -76,7 +80,7 @@ class OutputLine(NamedTuple):
 
     @classmethod
     def from_msg(cls, msg: Message, check_endline: bool = True) -> "OutputLine":
-        """Create an OutputLine from a Pylint Message"""
+        """Create an OutputLine from a Pylint Message."""
         column = cls._get_column(msg.column)
         end_line = cls._get_py38_none_value(msg.end_line, check_endline)
         end_column = cls._get_py38_none_value(msg.end_column, check_endline)
@@ -93,8 +97,9 @@ class OutputLine(NamedTuple):
 
     @staticmethod
     def _get_column(column: str) -> int:
-        """Handle column numbers except for python < 3.8. The ast parser in those versions doesn't
-        return them.
+        """Handle column numbers except for python < 3.8.
+
+        The ast parser in those versions doesn't return them.
         """
         if not PY38_PLUS:
             # We check the column only for the new better ast parser introduced in python 3.8
@@ -182,7 +187,7 @@ class OutputLine(NamedTuple):
 
     @staticmethod
     def _value_to_optional_int(value: Optional[str]) -> Optional[int]:
-        """Checks if a (stringified) value should be None or a Python integer"""
+        """Checks if a (stringified) value should be None or a Python integer."""
         if value == "None" or not value:
             return None
         return int(value)

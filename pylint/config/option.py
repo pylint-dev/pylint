@@ -1,5 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 import copy
 import optparse  # pylint: disable=deprecated-module
@@ -105,6 +106,9 @@ VALIDATORS = {
     "csv": _csv_validator,
     "yn": _yn_validator,
     "choice": lambda opt, name, value: _choice_validator(opt["choices"], name, value),
+    "confidence": lambda opt, name, value: _multiple_choice_validator(
+        opt["choices"], name, value
+    ),
     "multiple_choice": lambda opt, name, value: _multiple_choice_validator(
         opt["choices"], name, value
     ),
@@ -128,7 +132,7 @@ def _call_validator(opttype, optdict, option, value):
 
 
 def _validate(value, optdict, name=""):
-    """return a validated value for an option according to its type
+    """Return a validated value for an option according to its type.
 
     optional argument name is only used for error message formatting
     """
@@ -147,6 +151,7 @@ class Option(optparse.Option):
         "regexp_paths_csv",
         "csv",
         "yn",
+        "confidence",
         "multiple_choice",
         "non_empty_string",
         "py_version",
@@ -158,6 +163,7 @@ class Option(optparse.Option):
     TYPE_CHECKER["regexp_paths_csv"] = _regexp_paths_csv_validator
     TYPE_CHECKER["csv"] = _csv_validator
     TYPE_CHECKER["yn"] = _yn_validator
+    TYPE_CHECKER["confidence"] = _multiple_choices_validating_option
     TYPE_CHECKER["multiple_choice"] = _multiple_choices_validating_option
     TYPE_CHECKER["non_empty_string"] = _non_empty_string_validator
     TYPE_CHECKER["py_version"] = _py_version_validator
@@ -168,7 +174,7 @@ class Option(optparse.Option):
             self.help = optparse.SUPPRESS_HELP
 
     def _check_choice(self):
-        if self.type in {"choice", "multiple_choice"}:
+        if self.type in {"choice", "multiple_choice", "confidence"}:
             if self.choices is None:
                 raise optparse.OptionError(
                     "must supply a list of choices for type 'choice'", self
@@ -188,6 +194,8 @@ class Option(optparse.Option):
     optparse.Option.CHECK_METHODS[2] = _check_choice  # type: ignore[index]
 
     def process(self, opt, value, values, parser):
+        if self.callback and self.callback.__module__ == "pylint.lint.run":
+            return 1
         # First, convert the value(s) to the right type.  Howl if any
         # value(s) are bogus.
         value = self.convert_value(opt, value)

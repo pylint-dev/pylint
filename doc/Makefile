@@ -150,6 +150,8 @@ features.rst: $(shell find ../pylint/checkers -type f -regex '.*\.py')
 	rm -f features.rst
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON) ./exts/pylint_features.py
 
+messages: $(PYTHONPATH) $(PYTHON) ./exts/pylint_messages.py
+
 gen-examples:
 	chmod u+w ../examples/pylintrc
 	pylint --rcfile=/dev/null --generate-rcfile > ../examples/pylintrc

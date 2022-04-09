@@ -1,11 +1,6 @@
-# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Base class defining the interface for a printer."""
 from abc import ABC, abstractmethod
@@ -46,7 +41,7 @@ class NodeProperties(NamedTuple):
 
 
 class Printer(ABC):
-    """Base class defining the interface for a printer"""
+    """Base class defining the interface for a printer."""
 
     def __init__(
         self,
@@ -62,11 +57,11 @@ class Printer(ABC):
         self._open_graph()
 
     def _inc_indent(self) -> None:
-        """increment indentation"""
+        """Increment indentation."""
         self._indent += "  "
 
     def _dec_indent(self) -> None:
-        """decrement indentation"""
+        """Decrement indentation."""
         self._indent = self._indent[:-2]
 
     @abstractmethod
@@ -85,7 +80,10 @@ class Printer(ABC):
         type_: NodeType,
         properties: Optional[NodeProperties] = None,
     ) -> None:
-        """Create a new node. Nodes can be classes, packages, participants etc."""
+        """Create a new node.
+
+        Nodes can be classes, packages, participants etc.
+        """
 
     @abstractmethod
     def emit_edge(
@@ -99,14 +97,13 @@ class Printer(ABC):
 
     @staticmethod
     def _get_method_arguments(method: nodes.FunctionDef) -> List[str]:
-        if method.args.args:
-            arguments: List[nodes.AssignName] = [
-                arg for arg in method.args.args if arg.name != "self"
-            ]
-        else:
-            arguments = []
+        if method.args.args is None:
+            return []
 
-        annotations = dict(zip(arguments, method.args.annotations[1:]))
+        first_arg = 0 if method.type in {"function", "staticmethod"} else 1
+        arguments: List[nodes.AssignName] = method.args.args[first_arg:]
+
+        annotations = dict(zip(arguments, method.args.annotations[first_arg:]))
         for arg in arguments:
             annotation_label = ""
             ann = annotations.get(arg)

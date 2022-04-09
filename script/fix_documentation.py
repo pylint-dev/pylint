@@ -1,3 +1,7 @@
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
 """Small script to fix various issues with the documentation. Used by pre-commit."""
 import argparse
 import re
@@ -23,7 +27,7 @@ def fix_inline_code_blocks(file_content: str) -> str:
 
 
 def changelog_insert_empty_lines(file_content: str, subtitle_text: str) -> str:
-    """Insert up to two empty lines before `What's New` entry in ChangeLog"""
+    """Insert up to two empty lines before `What's New` entry in ChangeLog."""
     lines = file_content.split("\n")
     subtitle_count = 0
     for i, line in enumerate(lines):

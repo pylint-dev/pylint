@@ -1,3 +1,7 @@
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
 # pylint: disable=redefined-outer-name
 import os
 from pathlib import Path
@@ -74,7 +78,7 @@ def pytest_addoption(parser) -> None:
 
 
 def pytest_collection_modifyitems(config, items) -> None:
-    """Convert command line options to markers"""
+    """Convert command line options to markers."""
     # Add skip_primer_external mark
     if not config.getoption("--primer-external"):
         skip_primer_external = pytest.mark.skip(

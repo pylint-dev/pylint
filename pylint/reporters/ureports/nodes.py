@@ -1,23 +1,18 @@
-# Copyright (c) 2015-2016, 2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
-# Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
-# Copyright (c) 2018 Nick Drozd <nicholasdrozd@gmail.com>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Micro reports objects.
 
 A micro report is a tree of layout and content objects.
 """
-from typing import Any, Iterable, Iterator, List, Optional, Union
+from typing import Any, Callable, Iterable, Iterator, List, Optional, TypeVar, Union
 
-from pylint.reporters.ureports.text_writer import TextWriter
+from pylint.reporters.ureports.base_writer import BaseWriter
+
+T = TypeVar("T")
+VNodeT = TypeVar("VNodeT", bound="VNode")
+VisitLeaveFunction = Callable[[T, Any, Any], None]
 
 
 class VNode:
@@ -29,17 +24,21 @@ class VNode:
     def __iter__(self) -> Iterator["VNode"]:
         return iter(self.children)
 
-    def accept(self, visitor: TextWriter, *args: Any, **kwargs: Any) -> None:
-        func = getattr(visitor, f"visit_{self.visitor_name}")
+    def accept(self: VNodeT, visitor: BaseWriter, *args: Any, **kwargs: Any) -> None:
+        func: VisitLeaveFunction[VNodeT] = getattr(
+            visitor, f"visit_{self.visitor_name}"
+        )
         return func(self, *args, **kwargs)
 
-    def leave(self, visitor, *args, **kwargs):
-        func = getattr(visitor, f"leave_{self.visitor_name}")
+    def leave(self: VNodeT, visitor: BaseWriter, *args: Any, **kwargs: Any) -> None:
+        func: VisitLeaveFunction[VNodeT] = getattr(
+            visitor, f"leave_{self.visitor_name}"
+        )
         return func(self, *args, **kwargs)
 
 
 class BaseLayout(VNode):
-    """base container node
+    """Base container node.
 
     attributes
     * children : components in this table (i.e. the table's cells)
@@ -54,25 +53,25 @@ class BaseLayout(VNode):
                 self.add_text(child)
 
     def append(self, child: VNode) -> None:
-        """add a node to children"""
+        """Add a node to children."""
         assert child not in self.parents()
         self.children.append(child)
         child.parent = self
 
     def insert(self, index: int, child: VNode) -> None:
-        """insert a child node"""
+        """Insert a child node."""
         self.children.insert(index, child)
         child.parent = self
 
     def parents(self) -> List["BaseLayout"]:
-        """return the ancestor nodes"""
+        """Return the ancestor nodes."""
         assert self.parent is not self
         if self.parent is None:
             return []
         return [self.parent] + self.parent.parents()
 
     def add_text(self, text: str) -> None:
-        """shortcut to add text data"""
+        """Shortcut to add text data."""
         self.children.append(Text(text))
 
 
@@ -80,7 +79,7 @@ class BaseLayout(VNode):
 
 
 class Text(VNode):
-    """a text portion
+    """A text portion.
 
     attributes :
     * data : the text value as an encoded or unicode string
@@ -93,7 +92,7 @@ class Text(VNode):
 
 
 class VerbatimText(Text):
-    """a verbatim text, display the raw data
+    """A verbatim text, display the raw data.
 
     attributes :
     * data : the text value as an encoded or unicode string
@@ -104,7 +103,7 @@ class VerbatimText(Text):
 
 
 class Section(BaseLayout):
-    """a section
+    """A section.
 
     attributes :
     * BaseLayout attributes
@@ -143,7 +142,7 @@ class EvaluationSection(Section):
 
 
 class Title(BaseLayout):
-    """a title
+    """A title.
 
     attributes :
     * BaseLayout attributes
@@ -153,7 +152,7 @@ class Title(BaseLayout):
 
 
 class Paragraph(BaseLayout):
-    """a simple text paragraph
+    """A simple text paragraph.
 
     attributes :
     * BaseLayout attributes
@@ -163,7 +162,7 @@ class Paragraph(BaseLayout):
 
 
 class Table(BaseLayout):
-    """some tabular data
+    """Some tabular data.
 
     attributes :
     * BaseLayout attributes

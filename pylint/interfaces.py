@@ -1,23 +1,8 @@
-# Copyright (c) 2009-2010, 2012-2013 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2013-2014 Google, Inc.
-# Copyright (c) 2014 Michal Nowikowski <godfryd@gmail.com>
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2015 Florian Bruhin <me@the-compiler.org>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
-# Copyright (c) 2018 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2020-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2021 Nick Drozd <nicholasdrozd@gmail.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-"""Interfaces for Pylint objects"""
+"""Interfaces for Pylint objects."""
 from collections import namedtuple
 from typing import TYPE_CHECKING, Tuple, Type, Union
 
@@ -34,22 +19,28 @@ __all__ = (
     "IReporter",
     "IChecker",
     "HIGH",
+    "CONTROL_FLOW",
     "INFERENCE",
     "INFERENCE_FAILURE",
     "UNDEFINED",
     "CONFIDENCE_LEVELS",
+    "CONFIDENCE_LEVEL_NAMES",
 )
 
 Confidence = namedtuple("Confidence", ["name", "description"])
 # Warning Certainties
 HIGH = Confidence("HIGH", "Warning that is not based on inference result.")
+CONTROL_FLOW = Confidence(
+    "CONTROL_FLOW", "Warning based on assumptions about control flow."
+)
 INFERENCE = Confidence("INFERENCE", "Warning based on inference result.")
 INFERENCE_FAILURE = Confidence(
     "INFERENCE_FAILURE", "Warning based on inference with failures."
 )
 UNDEFINED = Confidence("UNDEFINED", "Warning without any associated confidence level.")
 
-CONFIDENCE_LEVELS = [HIGH, INFERENCE, INFERENCE_FAILURE, UNDEFINED]
+CONFIDENCE_LEVELS = [HIGH, CONTROL_FLOW, INFERENCE, INFERENCE_FAILURE, UNDEFINED]
+CONFIDENCE_LEVEL_NAMES = [i.name for i in CONFIDENCE_LEVELS]
 
 
 class Interface:
@@ -75,17 +66,17 @@ class IChecker(Interface):
     """Base interface, to be used only for sub interfaces definition."""
 
     def open(self):
-        """called before visiting project (i.e. set of modules)"""
+        """Called before visiting project (i.e. set of modules)."""
 
     def close(self):
-        """called after visiting project (i.e. set of modules)"""
+        """Called after visiting project (i.e. set of modules)."""
 
 
 class IRawChecker(IChecker):
-    """Interface for checker which need to parse the raw file"""
+    """Interface for checker which need to parse the raw file."""
 
     def process_module(self, node: nodes.Module) -> None:
-        """process a module
+        """Process a module.
 
         The module's content is accessible via ``astroid.stream``
         """
@@ -102,16 +93,16 @@ class ITokenChecker(IChecker):
 
 
 class IAstroidChecker(IChecker):
-    """interface for checker which prefers receive events according to
+    """Interface for checker which prefers receive events according to
     statement type
     """
 
 
 class IReporter(Interface):
-    """reporter collect messages and display results encapsulated in a layout"""
+    """Reporter collect messages and display results encapsulated in a layout."""
 
     def handle_message(self, msg) -> None:
         """Handle the given message object."""
 
     def display_reports(self, layout: "Section") -> None:
-        """display results encapsulated in the layout tree"""
+        """Display results encapsulated in the layout tree."""
