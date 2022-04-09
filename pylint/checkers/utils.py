@@ -11,6 +11,7 @@ import string
 import warnings
 from functools import lru_cache, partial
 from typing import (
+    Any,
     Callable,
     Dict,
     Iterable,
@@ -434,7 +435,11 @@ def overrides_a_method(class_node: nodes.ClassDef, name: str) -> bool:
     return False
 
 
-def only_required_for_messages(*messages: str) -> Callable[[nodes.NodeNG], None]:
+def only_required_for_messages(
+    *messages: str,
+) -> Callable[
+    [Callable[[Any, nodes.NodeNG], None]], Callable[[Any, nodes.NodeNG], None]
+]:
     """Decorator to store messages that are handled by a checker method as an
     attribute of the function object.
 
@@ -452,7 +457,11 @@ def only_required_for_messages(*messages: str) -> Callable[[nodes.NodeNG], None]
     return store_messages
 
 
-def check_messages(*messages: str) -> Callable[[nodes.NodeNG], None]:
+def check_messages(
+    *messages: str,
+) -> Callable[
+    [Callable[[Any, nodes.NodeNG], None]], Callable[[Any, nodes.NodeNG], None]
+]:
     """Kept for backwards compatibility, deprecated.
 
     Use only_required_for_messages instead, which conveys the intent of the decorator much clearer.
