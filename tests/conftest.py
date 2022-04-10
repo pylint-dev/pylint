@@ -75,6 +75,17 @@ def pytest_addoption(parser) -> None:
         default=False,
         help="Run primer external tests",
     )
+    parser.addoption(
+        "--minimal-messages-config",
+        action="store_true",
+        default=False,
+        help=(
+            "Disable all messages that are not explicitly expected when running functional tests. "
+            "This is useful for finding problems with the @only_required_for_messages / @check_messages "
+            "decorator, but can also produce false negatives if a functional test file only tests for "
+            "false positive of messages and thus does not declare which messages are expected."
+        ),
+    )
 
 
 def pytest_collection_modifyitems(config, items) -> None:

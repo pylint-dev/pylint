@@ -74,6 +74,9 @@ Release date: TBA
 
 * The concept of checker priority has been removed.
 
+* Add a new command line option ``--minimal-messages-config`` for ``pytest``, which disables all
+  irrelevant messages when running the functional tests.
+
 * ``duplicate-argument-name`` now only raises once for each set of duplicated arguments.
 
 * Fix bug where specifically enabling just ``await-outside-async`` was not possible.

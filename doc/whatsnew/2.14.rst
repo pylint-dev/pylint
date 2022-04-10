@@ -74,6 +74,9 @@ Other Changes
 
 * The concept of checker priority has been removed.
 
+* Add a new command line option ``--minimal-messages-config`` for ``pytest``, which disables all
+  irrelevant messages when running the functional tests.
+
 * The ``set_config_directly`` decorator has been removed.
 
 * The ``ignore-mixin-members`` option has been deprecated. You should now use the new
