@@ -659,7 +659,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if node.name and isinstance(node.name, nodes.AssignName):
             self._check_redefined_argument_from_local(node.name)
 
-    @utils.check_messages("redefined-argument-from-local")
+    @utils.check_messages("redefined-argument-from-local", "consider-using-with")
     def visit_with(self, node: nodes.With) -> None:
         for var, names in node.items:
             if isinstance(var, nodes.Name):
