@@ -607,7 +607,7 @@ class MisdesignChecker(BaseChecker):
         self._inc_branch(node, 2)
         self._inc_all_stmts(2)
 
-    @check_messages("too-many-boolean-expressions")
+    @check_messages("too-many-boolean-expressions", "too-many-branches")
     def visit_if(self, node: nodes.If) -> None:
         """Increments the branches counter and checks boolean expressions."""
         self._check_boolean_expressions(node)
