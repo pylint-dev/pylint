@@ -1762,11 +1762,11 @@ class VariablesChecker(BaseChecker):
 
     # listcomp have now also their scope
     def visit_listcomp(self, node: nodes.ListComp) -> None:
-        """Visit dictcomp: update consumption analysis variable."""
+        """Visit listcomp: update consumption analysis variable."""
         self._to_consume.append(NamesConsumer(node, "comprehension"))
 
     def leave_listcomp(self, _: nodes.ListComp) -> None:
-        """Leave dictcomp: update consumption analysis variable."""
+        """Leave listcomp: update consumption analysis variable."""
         # do not check for not used locals here
         self._to_consume.pop()
 
