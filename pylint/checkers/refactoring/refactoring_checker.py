@@ -1346,7 +1346,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def _check_simplifiable_condition(self, node):
         """Check if a boolean condition can be simplified.
 
-        Variables will not be simplified, even in the value can be inferred,
+        Variables will not be simplified, even if the value can be inferred,
         and expressions like '3 + 4' will remain expanded.
         """
         if not utils.is_test_condition(node):
