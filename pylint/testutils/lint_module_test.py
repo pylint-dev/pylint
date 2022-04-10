@@ -94,6 +94,12 @@ class LintModuleTest:
         if excluded_platforms:
             if sys.platform.lower() in excluded_platforms:
                 pytest.skip(f"Test cannot run on platform {sys.platform!r}")
+        if (
+            self._config
+            and self._config.getoption("minimal_messages_config")
+            and self._test_file.options["exclude_from_minimal_messages_config"]
+        ):
+            pytest.skip("Test excluded from --minimal-messages-config")
 
     def runTest(self) -> None:
         self._runTest()
