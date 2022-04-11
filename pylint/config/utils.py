@@ -141,6 +141,8 @@ def _parse_rich_type_value(value: Any) -> str:
         return ",".join(value)
     if isinstance(value, re.Pattern):
         return value.pattern
+    if isinstance(value, dict):
+        return ",".join(f"{k}:{v}" for k, v in value.items())
     return str(value)
 
 
