@@ -103,7 +103,9 @@ def test_non_builtin_annotations_in_google_docstring(
     """
 
 
-def test_non_builtin_annotations_for_returntype_in_google_docstring(bottomleft: Point, topright: Point) -> Point:
+def test_non_builtin_annotations_for_returntype_in_google_docstring(
+    bottomleft: Point, topright: Point
+) -> Point:
     """Example of a function with missing Google style parameter
     documentation in the docstring.
     Args:
@@ -322,6 +324,30 @@ def test_finds_kwargs_without_type_google(named_arg, **kwargs):
     """
     if kwargs:
         return named_arg
+
+
+def test_finds_kwargs_without_asterisk_google(named_arg, **kwargs):
+    """The docstring
+
+    Args:
+        named_arg (object): Returned
+        kwargs: Keyword arguments
+
+    Returns:
+        object or None: Maybe named_arg
+    """
+    if kwargs:
+        return named_arg
+
+
+def test_finds_escaped_args_google(value: int, *args: Any) -> None:
+    """This is myfunc.
+
+    Args:
+        \\*args: this is args
+        value: this is value
+    """
+    print(*args, value)
 
 
 def test_finds_args_with_xref_type_google(named_arg, **kwargs):
