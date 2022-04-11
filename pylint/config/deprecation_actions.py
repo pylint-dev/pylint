@@ -33,7 +33,7 @@ class _OldNamesAction(argparse._StoreAction):
         super().__init__(
             option_strings,
             dest,
-            "+",
+            1,
             const,
             default,
             type,
@@ -78,7 +78,7 @@ class _NewNamesAction(argparse._StoreAction):
         super().__init__(
             option_strings,
             dest,
-            "+",
+            1,
             const,
             default,
             type,

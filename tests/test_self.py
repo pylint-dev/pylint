@@ -209,25 +209,6 @@ class TestRunTC:
             ["--exit-zero", join(HERE, "regrtest_data", "syntax_error.py")], code=0
         )
 
-    def test_generate_config_disable_symbolic_names(self) -> None:
-        # Test that --generate-rcfile puts symbolic names in the --disable
-        # option.
-
-        out = StringIO()
-        self._run_pylint(["--generate-rcfile", "--rcfile="], out=out)
-
-        output = out.getvalue()
-        # Get rid of the pesky messages that pylint emits if the
-        # configuration file is not found.
-        pattern = rf"\[{MAIN_CHECKER_NAME.upper()}"
-        master = re.search(pattern, output)
-        assert master is not None, f"{pattern} not found in {output}"
-        out = StringIO(output[master.start() :])
-        parser = configparser.RawConfigParser()
-        parser.read_file(out)
-        messages = utils._splitstrip(parser.get("MESSAGES CONTROL", "disable"))
-        assert "suppressed-message" in messages
-
     def test_nonexistent_config_file(self) -> None:
         self._runtest(["--rcfile=/tmp/this_file_does_not_exist"], code=32)
 
@@ -1362,6 +1343,29 @@ class TestCallbackOptions:
             check=False,
         )
         assert process.stdout == process_two.stdout
+
+    @staticmethod
+    def test_generate_config_disable_symbolic_names() -> None:
+        """Test that --generate-rcfile puts symbolic names in the --disable option."""
+        out = StringIO()
+        with _patch_streams(out):
+            with pytest.raises(SystemExit):
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
+                    Run(["--generate-rcfile", "--rcfile=", "--persistent=no"])
+        output = out.getvalue()
+
+        # Get rid of the pesky messages that pylint emits if the
+        # configuration file is not found.
+        pattern = rf"\[{MAIN_CHECKER_NAME.upper()}"
+        master = re.search(pattern, output)
+        assert master is not None, f"{pattern} not found in {output}"
+
+        out = StringIO(output[master.start() :])
+        parser = configparser.RawConfigParser()
+        parser.read_file(out)
+        messages = utils._splitstrip(parser.get("MESSAGES CONTROL", "disable"))
+        assert "suppressed-message" in messages
 
     @staticmethod
     def test_errors_only() -> None:

@@ -10,11 +10,13 @@ from typing import TYPE_CHECKING, Any, Optional
 from astroid import nodes
 
 from pylint.config import OptionsProviderMixIn
+from pylint.config.arguments_provider import _ArgumentsProvider
 from pylint.config.exceptions import MissingArgumentManager
 from pylint.constants import _MSG_ORDER, WarningScope
 from pylint.exceptions import InvalidMessageError
 from pylint.interfaces import Confidence, IRawChecker, ITokenChecker, implements
 from pylint.message.message_definition import MessageDefinition
+from pylint.typing import Options
 from pylint.utils import get_rst_section, get_rst_title
 
 if sys.version_info >= (3, 8):
@@ -27,14 +29,14 @@ if TYPE_CHECKING:
 
 
 @functools.total_ordering
-class BaseChecker(OptionsProviderMixIn):
+class BaseChecker(_ArgumentsProvider, OptionsProviderMixIn):
 
     # checker name (you may reuse an existing one)
     name: str = ""
     # options level (0 will be displaying in --help, 1 in --long-help)
     level = 1
     # ordered list of options to control the checker behaviour
-    options: Any = ()
+    options: Options = ()
     # messages issued by this checker
     msgs: Any = {}
     # reports issued by this checker
@@ -49,14 +51,14 @@ class BaseChecker(OptionsProviderMixIn):
         if self.name is not None:
             self.name = self.name.lower()
         self.linter = linter
-        super().__init__()
+        OptionsProviderMixIn.__init__(self)
 
         if future_option_parsing:
             # We need a PyLinter object that subclasses _ArgumentsManager to register options
-            if not self.linter:
+            if not linter:
                 raise MissingArgumentManager
 
-            self.linter._register_options_provider(self)
+            _ArgumentsProvider.__init__(self, linter)
 
     def __gt__(self, other):
         """Permit to sort a list of Checker by name."""

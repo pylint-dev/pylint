@@ -793,6 +793,7 @@ a metaclass class method.",
         "duplicate-bases",
         "redefined-slots-in-subclass",
         "invalid-enum-extension",
+        "subclassed-final-class",
     )
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         """Init visit variable _accessed."""
@@ -1428,12 +1429,18 @@ a metaclass class method.",
                 inferred.value, str
             ):
                 self.add_message(
-                    "invalid-slots-object", args=inferred.as_string(), node=elt
+                    "invalid-slots-object",
+                    args=elt.as_string(),
+                    node=elt,
+                    confidence=INFERENCE,
                 )
                 continue
             if not inferred.value:
                 self.add_message(
-                    "invalid-slots-object", args=inferred.as_string(), node=elt
+                    "invalid-slots-object",
+                    args=elt.as_string(),
+                    node=elt,
+                    confidence=INFERENCE,
                 )
 
             # Check if we have a conflict with a class variable.

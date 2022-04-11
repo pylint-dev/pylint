@@ -9,6 +9,11 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.14.rst'
 
+* ``BaseChecker`` classes now require the ``linter`` argument to be passed.
+
+* Update ``invalid-slots-object`` message to show bad object rather than its inferred value.
+
+  Closes #6101
 
 * Added new checker ``typevar-name-mismatch``: TypeVar must be assigned to a variable with the same name as its name argument.
 
@@ -36,6 +41,9 @@ Release date: TBA
   Closes #5283
   Closes #1887
 
+* Fix false negative for ``bad-string-format-type`` if the value to be formatted is passed in
+  as a variable holding a constant.
+
 * Add new check ``unnecessary-dunder-call`` for unnecessary dunder method calls.
 
   Closes #5936
@@ -56,7 +64,10 @@ Release date: TBA
 
   Closes #4525
 
-* ``BaseChecker`` classes now require the ``linter`` argument to be passed.
+* Fix false positive for ``unsubscriptable-object`` in Python 3.8 and below for
+  statements guarded by ``if TYPE_CHECKING``.
+
+  Closes #3979
 
 * Fix false negative for ``no-member`` when attempting to assign an instance
   attribute to itself without any prior assignment.
@@ -80,9 +91,20 @@ Release date: TBA
   (Ie. not necessarily at the end)
 
 
-What's New in Pylint 2.13.5?
+What's New in Pylint 2.13.6?
 ============================
 Release date: TBA
+
+* Asterisks are no longer required in Sphinx and Google style parameter documentation
+  for ``missing-param-doc`` and are parsed correctly.
+
+  Closes #5815
+  Closes #5406
+
+
+What's New in Pylint 2.13.5?
+============================
+Release date: 2022-04-06
 
 * Fix false positive regression in 2.13.0 for ``used-before-assignment`` for
   homonyms between variable assignments in try/except blocks and variables in
@@ -90,6 +112,11 @@ Release date: TBA
 
   Closes #6069
   Closes #6136
+
+* ``lru-cache-decorating-method`` has been renamed to ``cache-max-size-none`` and
+  will only be emitted when ``maxsize`` is ``None``.
+
+  Closes #6180
 
 * Fix false positive for ``unused-import`` when disabling both ``used-before-assignment`` and ``undefined-variable``.
 
@@ -99,6 +126,11 @@ Release date: TBA
   * functions & classes which contain both a docstring and an ellipsis.
   * A body which contains an ellipsis ``nodes.Expr`` node & at least one other statement.
 
+* Fix false positive for ``used-before-assignment`` for assignments taking place via
+  nonlocal declarations after an earlier type annotation.
+
+  Closes #5394
+
 * Fix crash for ``redefined-slots-in-subclass`` when the type of the slot is not a const or a string.
 
   Closes #6100
@@ -106,6 +138,9 @@ Release date: TBA
 * Only raise ``not-callable`` when all the inferred values of a property are not callable.
 
   Closes #5931
+
+
+* Fix a false negative for ``subclassed-final-class`` when a set of other messages were disabled.
 
 
 What's New in Pylint 2.13.4?

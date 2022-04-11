@@ -152,7 +152,14 @@ class _Argument:
     https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.add_argument
     """
 
-    def __init__(self, *, flags: List[str], arg_help: str, hide_help: bool) -> None:
+    def __init__(
+        self,
+        *,
+        flags: List[str],
+        arg_help: str,
+        hide_help: bool,
+        section: Optional[str],
+    ) -> None:
         self.flags = flags
         """The name of the argument."""
 
@@ -165,6 +172,9 @@ class _Argument:
 
         if hide_help:
             self.help = argparse.SUPPRESS
+
+        self.section = section
+        """The section to add this argument to."""
 
 
 class _BaseStoreArgument(_Argument):
@@ -183,8 +193,11 @@ class _BaseStoreArgument(_Argument):
         default: _ArgumentTypes,
         arg_help: str,
         hide_help: bool,
+        section: Optional[str],
     ) -> None:
-        super().__init__(flags=flags, arg_help=arg_help, hide_help=hide_help)
+        super().__init__(
+            flags=flags, arg_help=arg_help, hide_help=hide_help, section=section
+        )
 
         self.action = action
         """The action to perform with the argument."""
@@ -212,6 +225,7 @@ class _StoreArgument(_BaseStoreArgument):
         arg_help: str,
         metavar: str,
         hide_help: bool,
+        section: Optional[str],
     ) -> None:
         super().__init__(
             flags=flags,
@@ -219,6 +233,7 @@ class _StoreArgument(_BaseStoreArgument):
             default=default,
             arg_help=arg_help,
             hide_help=hide_help,
+            section=section,
         )
 
         self.type = _TYPE_TRANSFORMERS[arg_type]
@@ -255,6 +270,7 @@ class _StoreTrueArgument(_BaseStoreArgument):
         default: _ArgumentTypes,
         arg_help: str,
         hide_help: bool,
+        section: Optional[str],
     ) -> None:
         super().__init__(
             flags=flags,
@@ -262,6 +278,7 @@ class _StoreTrueArgument(_BaseStoreArgument):
             default=default,
             arg_help=arg_help,
             hide_help=hide_help,
+            section=section,
         )
 
 
@@ -284,8 +301,11 @@ class _DeprecationArgument(_Argument):
         arg_help: str,
         metavar: str,
         hide_help: bool,
+        section: Optional[str],
     ) -> None:
-        super().__init__(flags=flags, arg_help=arg_help, hide_help=hide_help)
+        super().__init__(
+            flags=flags, arg_help=arg_help, hide_help=hide_help, section=section
+        )
 
         self.action = action
         """The action to perform with the argument."""
@@ -329,6 +349,7 @@ class _StoreOldNamesArgument(_DeprecationArgument):
         metavar: str,
         hide_help: bool,
         kwargs: Dict[str, Any],
+        section: Optional[str],
     ) -> None:
         super().__init__(
             flags=flags,
@@ -339,6 +360,7 @@ class _StoreOldNamesArgument(_DeprecationArgument):
             arg_help=arg_help,
             metavar=metavar,
             hide_help=hide_help,
+            section=section,
         )
 
         self.kwargs = kwargs
@@ -364,6 +386,7 @@ class _StoreNewNamesArgument(_DeprecationArgument):
         metavar: str,
         hide_help: bool,
         kwargs: Dict[str, Any],
+        section: Optional[str],
     ) -> None:
         super().__init__(
             flags=flags,
@@ -374,6 +397,7 @@ class _StoreNewNamesArgument(_DeprecationArgument):
             arg_help=arg_help,
             metavar=metavar,
             hide_help=hide_help,
+            section=section,
         )
 
         self.kwargs = kwargs
@@ -396,8 +420,11 @@ class _CallableArgument(_Argument):
         arg_help: str,
         kwargs: Dict[str, Any],
         hide_help: bool,
+        section: Optional[str],
     ) -> None:
-        super().__init__(flags=flags, arg_help=arg_help, hide_help=hide_help)
+        super().__init__(
+            flags=flags, arg_help=arg_help, hide_help=hide_help, section=section
+        )
 
         self.action = action
         """The action to perform with the argument."""
