@@ -12,7 +12,7 @@ from pylint.lint import PyLinter
 
 
 class SampleChecker(BaseChecker):
-    options = (("test-opt", {"action": "store_true"}),)
+    options = (("test-opt", {"action": "store_true", "help": "help message"}),)
 
 
 class TestDeprecationArgumentsManager:
