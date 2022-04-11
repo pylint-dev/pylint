@@ -5,7 +5,6 @@
 """A collection of typing utilities."""
 import sys
 from typing import (
-    TYPE_CHECKING,
     Any,
     Callable,
     Dict,
@@ -21,9 +20,6 @@ if sys.version_info >= (3, 8):
     from typing import Literal, TypedDict
 else:
     from typing_extensions import Literal, TypedDict
-
-if TYPE_CHECKING:
-    pass
 
 
 class FileItem(NamedTuple):
