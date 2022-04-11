@@ -42,7 +42,7 @@ jobs:
           }}"
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.1
+        uses: actions/cache@v3.0.2
         with:
           path: venv
           key: >-
@@ -87,7 +87,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.1
+        uses: actions/cache@v3.0.2
         with:
           path: venv
           key:
@@ -131,7 +131,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.1
+        uses: actions/cache@v3.0.2
         with:
           path: venv
           key:
@@ -197,7 +197,7 @@ jobs:
           }}"
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.1
+        uses: actions/cache@v3.0.2
         with:
           path: venv
           key: >-
@@ -245,7 +245,7 @@ jobs:
           }}"
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.1
+        uses: actions/cache@v3.0.2
         with:
           path: venv
           key: >-
