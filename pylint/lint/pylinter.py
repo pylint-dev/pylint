@@ -520,7 +520,7 @@ class PyLinter(
     # block level option handling #############################################
     # see func_block_disable_msg.py test case for expected behaviour
 
-    def process_tokens(self, tokens):
+    def process_tokens(self, tokens: list[tokenize.TokenInfo]) -> None:
         """Process tokens from the current module to search for module/block level
         options.
         """

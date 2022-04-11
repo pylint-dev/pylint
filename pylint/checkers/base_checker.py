@@ -7,6 +7,7 @@ from __future__ import annotations
 import functools
 import warnings
 from inspect import cleandoc
+from tokenize import TokenInfo
 from typing import TYPE_CHECKING, Any
 
 from astroid import nodes
@@ -210,6 +211,6 @@ class BaseChecker(_ArgumentsProvider):
 class BaseTokenChecker(BaseChecker):
     """Base class for checkers that want to have access to the token stream."""
 
-    def process_tokens(self, tokens):
+    def process_tokens(self, tokens: list[TokenInfo]) -> None:
         """Should be overridden by subclasses."""
         raise NotImplementedError()

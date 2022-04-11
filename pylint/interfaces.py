@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from collections import namedtuple
+from tokenize import TokenInfo
 from typing import TYPE_CHECKING
 
 from astroid import nodes
@@ -88,7 +89,7 @@ class IRawChecker(IChecker):
 class ITokenChecker(IChecker):
     """Interface for checkers that need access to the token list."""
 
-    def process_tokens(self, tokens):
+    def process_tokens(self, tokens: list[TokenInfo]) -> None:
         """Process a module.
 
         Tokens is a list of all source code tokens in the file.
