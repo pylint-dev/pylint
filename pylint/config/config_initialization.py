@@ -76,16 +76,16 @@ def _config_initialization(
             exc.code = 32
         raise
 
-    if reporter:
-        # If a custom reporter is provided as argument, it may be overridden
-        # by file parameters, so re-set it here, but before command line
-        # parsing, so it's still overridable by command line option
-        linter.set_reporter(reporter)
-
     # First we parse any options from a configuration file
     linter._parse_configuration_file(config_args)
 
-    # Second we parse any options from the command line, so they can override
+    # Then, if a custom reporter is provided as argument, it may be overridden
+    # by file parameters, so we re-set it here. We do this before command line
+    # parsing, so it's still overridable by command line options
+    if reporter:
+        linter.set_reporter(reporter)
+
+    # Now we parse any options from the command line, so they can override
     # the configuration file
     parsed_args_list = linter._parse_command_line_configuration(args_list)
 

@@ -6,6 +6,7 @@ import collections
 import contextlib
 import functools
 import os
+import re
 import sys
 import tokenize
 import traceback
@@ -239,7 +240,7 @@ class PyLinter(
                     "type": "regexp_csv",
                     "metavar": "<pattern>[,<pattern>...]",
                     "dest": "black_list_re",
-                    "default": (r"^\.#",),
+                    "default": (re.compile(r"^\.#"),),
                     "help": "Files or directories matching the regex patterns are"
                     " skipped. The regex matches against base names, not paths. The default value "
                     "ignores emacs file locks",
