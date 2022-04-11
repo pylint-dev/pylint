@@ -18,6 +18,7 @@ import re
 import sys
 import textwrap
 import tokenize
+import warnings
 from io import BufferedReader, BytesIO
 from typing import (
     TYPE_CHECKING,
@@ -49,7 +50,6 @@ DEFAULT_LINE_LENGTH = 79
 
 # These are types used to overload get_global_option() and refer to the options type
 GLOBAL_OPTION_BOOL = Literal[
-    "ignore-mixin-members",
     "suggestion-mode",
     "analyse-fallback-blocks",
     "allow-global-unused-variables",
@@ -330,7 +330,10 @@ def _comment(string: str) -> str:
 
 
 def _format_option_value(optdict, value):
-    """Return the user input's value from a 'compiled' value."""
+    """Return the user input's value from a 'compiled' value.
+
+    TODO: Remove in pylint 3.0.
+    """
     if optdict.get("type", None) == "py_version":
         value = ".".join(str(item) for item in value)
     elif isinstance(value, (list, tuple)):
@@ -351,14 +354,24 @@ def format_section(
     stream: TextIO, section: str, options: List[Tuple], doc: Optional[str] = None
 ) -> None:
     """Format an option's section using the INI format."""
+    warnings.warn(
+        "format_section has been deprecated. It will be removed in pylint 3.0.",
+        DeprecationWarning,
+    )
     if doc:
         print(_comment(doc), file=stream)
     print(f"[{section}]", file=stream)
-    _ini_format(stream, options)
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
+        _ini_format(stream, options)
 
 
 def _ini_format(stream: TextIO, options: List[Tuple]) -> None:
     """Format options using the INI format."""
+    warnings.warn(
+        "_ini_format has been deprecated. It will be removed in pylint 3.0.",
+        DeprecationWarning,
+    )
     for optname, optdict, value in options:
         value = _format_option_value(optdict, value)
         help_opt = optdict.get("help")

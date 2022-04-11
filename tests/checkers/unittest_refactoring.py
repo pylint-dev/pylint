@@ -20,7 +20,7 @@ def test_process_tokens() -> None:
     assert cm.value.code == 0
 
 
-@pytest.mark.timeout(25)
+@pytest.mark.timeout(60)
 def test_issue_5724() -> None:
     """Regression test for parsing of pylint disable pragma's."""
     with pytest.raises(SystemExit) as cm:

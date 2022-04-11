@@ -9,6 +9,7 @@
 import abc
 import argparse
 import sys
+import warnings
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Optional, Sequence, Union
 
@@ -235,7 +236,12 @@ class _GenerateRCFileAction(_AccessRunObjectAction):
         values: Union[str, Sequence[Any], None],
         option_string: Optional[str] = "--generate-rcfile",
     ) -> None:
-        self.run.linter.generate_config(skipsections=("COMMANDS",))
+        # pylint: disable-next=fixme
+        # TODO: Optparse: Deprecate this function and raise a warning.
+        # This is (obviously) dependent on a --generate-toml-config flag.
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            self.run.linter.generate_config(skipsections=("COMMANDS",))
         sys.exit(0)
 
 
@@ -257,7 +263,7 @@ class _ErrorsOnlyModeAction(_AccessRunObjectAction):
         values: Union[str, Sequence[Any], None],
         option_string: Optional[str] = "--errors-only",
     ) -> None:
-        self.run.linter.error_mode()
+        self.run.linter._error_mode = True
 
 
 class _LongHelpAction(_AccessRunObjectAction):
@@ -274,6 +280,6 @@ class _LongHelpAction(_AccessRunObjectAction):
 
         # Add extra info as epilog to the help message
         self.run.linter._arg_parser.epilog = formatter.get_long_description()
-        self.run.linter._arg_parser.print_help()
+        print(self.run.linter.help())
 
         sys.exit(0)

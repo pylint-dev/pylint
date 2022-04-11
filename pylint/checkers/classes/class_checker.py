@@ -766,7 +766,7 @@ a metaclass class method.",
     )
 
     def __init__(self, linter=None):
-        super().__init__(linter, future_option_parsing=True)
+        super().__init__(linter)
         self._accessed = ScopeAccessMap()
         self._first_attrs = []
         self._meth_could_be_func = None
@@ -779,10 +779,6 @@ a metaclass class method.",
     @cached_property
     def _dummy_rgx(self):
         return get_global_option(self, "dummy-variables-rgx", default=None)
-
-    @cached_property
-    def _ignore_mixin(self):
-        return get_global_option(self, "ignore-mixin-members", default=True)
 
     @check_messages(
         "abstract-method",
@@ -797,6 +793,7 @@ a metaclass class method.",
         "duplicate-bases",
         "redefined-slots-in-subclass",
         "invalid-enum-extension",
+        "subclassed-final-class",
     )
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         """Init visit variable _accessed."""
@@ -1026,7 +1023,11 @@ a metaclass class method.",
 
     def _check_attribute_defined_outside_init(self, cnode: nodes.ClassDef) -> None:
         # check access to existent members on non metaclass classes
-        if self._ignore_mixin and self._mixin_class_rgx.match(cnode.name):
+        if (
+            "attribute-defined-outside-init"
+            in self.linter.namespace.ignored_checks_for_mixins
+            and self._mixin_class_rgx.match(cnode.name)
+        ):
             # We are in a mixin class. No need to try to figure out if
             # something is missing, since it is most likely that it will
             # miss.
@@ -1428,12 +1429,18 @@ a metaclass class method.",
                 inferred.value, str
             ):
                 self.add_message(
-                    "invalid-slots-object", args=inferred.as_string(), node=elt
+                    "invalid-slots-object",
+                    args=elt.as_string(),
+                    node=elt,
+                    confidence=INFERENCE,
                 )
                 continue
             if not inferred.value:
                 self.add_message(
-                    "invalid-slots-object", args=inferred.as_string(), node=elt
+                    "invalid-slots-object",
+                    args=elt.as_string(),
+                    node=elt,
+                    confidence=INFERENCE,
                 )
 
             # Check if we have a conflict with a class variable.

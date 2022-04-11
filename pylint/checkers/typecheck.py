@@ -764,8 +764,7 @@ class TypeChecker(BaseChecker):
                 "default": ".*[Mm]ixin",
                 "type": "regexp",
                 "metavar": "<regexp>",
-                "help": "Regex pattern to define which classes are considered mixins "
-                "ignore-mixin-members is set to 'yes'",
+                "help": "Regex pattern to define which classes are considered mixins.",
             },
         ),
         (
@@ -777,6 +776,21 @@ class TypeChecker(BaseChecker):
                 "help": "Tells whether missing members accessed in mixin "
                 "class should be ignored. A class is considered mixin if its name matches "
                 "the mixin-class-rgx option.",
+                "kwargs": {"new_names": ["ignore-checks-for-mixin"]},
+            },
+        ),
+        (
+            "ignored-checks-for-mixins",
+            {
+                "default": [
+                    "no-member",
+                    "not-async-context-manager",
+                    "not-context-manager",
+                    "attribute-defined-outside-init",
+                ],
+                "type": "csv",
+                "metavar": "<list of messages names>",
+                "help": "List of symbolic message names to ignore for Mixin members.",
             },
         ),
         (
@@ -882,9 +896,6 @@ accessed. Python regular expressions are accepted.",
             },
         ),
     )
-
-    def __init__(self, linter: "PyLinter") -> None:
-        super().__init__(linter, future_option_parsing=True)
 
     def open(self) -> None:
         py_version = get_global_option(self, "py-version")
@@ -1030,7 +1041,9 @@ accessed. Python regular expressions are accepted.",
                     owner,
                     name,
                     self._mixin_class_rgx,
-                    ignored_mixins=self.linter.namespace.ignore_mixin_members,
+                    ignored_mixins=(
+                        "no-member" in self.linter.namespace.ignored_checks_for_mixins
+                    ),
                     ignored_none=self.linter.namespace.ignore_none,
                 ):
                     continue
@@ -1762,7 +1775,10 @@ accessed. Python regular expressions are accepted.",
                         if not has_known_bases(inferred):
                             continue
                         # Just ignore mixin classes.
-                        if self.linter.namespace.ignore_mixin_members:
+                        if (
+                            "not-context-manager"
+                            in self.linter.namespace.ignored_checks_for_mixins
+                        ):
                             if inferred.name[-5:].lower() == "mixin":
                                 continue
 
@@ -1932,7 +1948,11 @@ accessed. Python regular expressions are accepted.",
                 return  # It would be better to handle function
                 # decorators, but let's start slow.
 
-        if supported_protocol and not supported_protocol(inferred, node):
+        if (
+            supported_protocol
+            and not supported_protocol(inferred, node)
+            and not utils.in_type_checking_block(node)
+        ):
             self.add_message(msg, args=node.value.as_string(), node=node.value)
 
     @check_messages("dict-items-missing-iter")
@@ -2006,9 +2026,6 @@ class IterableChecker(BaseChecker):
             "mapping is expected",
         ),
     }
-
-    def __init__(self, linter: "PyLinter") -> None:
-        super().__init__(linter, future_option_parsing=True)
 
     @staticmethod
     def _is_asyncio_coroutine(node):
