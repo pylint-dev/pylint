@@ -57,9 +57,9 @@ class OptionsProviderMixIn:
         if action == "store":
             setattr(self.config, self.option_attrname(optname, optdict), value)
         elif action in {"store_true", "count"}:
-            setattr(self.config, self.option_attrname(optname, optdict), 0)
+            setattr(self.config, self.option_attrname(optname, optdict), value)
         elif action == "store_false":
-            setattr(self.config, self.option_attrname(optname, optdict), 1)
+            setattr(self.config, self.option_attrname(optname, optdict), value)
         elif action == "append":
             optname = self.option_attrname(optname, optdict)
             _list = getattr(self.config, optname, None)
