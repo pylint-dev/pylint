@@ -1,23 +1,18 @@
-# Copyright (c) 2015-2016, 2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
-# Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
-# Copyright (c) 2018 Nick Drozd <nicholasdrozd@gmail.com>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Micro reports objects.
 
 A micro report is a tree of layout and content objects.
 """
-from typing import Any, Iterable, Iterator, List, Optional, Union
+from typing import Any, Callable, Iterable, Iterator, List, Optional, TypeVar, Union
 
-from pylint.reporters.ureports.text_writer import TextWriter
+from pylint.reporters.ureports.base_writer import BaseWriter
+
+T = TypeVar("T")
+VNodeT = TypeVar("VNodeT", bound="VNode")
+VisitLeaveFunction = Callable[[T, Any, Any], None]
 
 
 class VNode:
@@ -29,12 +24,16 @@ class VNode:
     def __iter__(self) -> Iterator["VNode"]:
         return iter(self.children)
 
-    def accept(self, visitor: TextWriter, *args: Any, **kwargs: Any) -> None:
-        func = getattr(visitor, f"visit_{self.visitor_name}")
+    def accept(self: VNodeT, visitor: BaseWriter, *args: Any, **kwargs: Any) -> None:
+        func: VisitLeaveFunction[VNodeT] = getattr(
+            visitor, f"visit_{self.visitor_name}"
+        )
         return func(self, *args, **kwargs)
 
-    def leave(self, visitor, *args, **kwargs):
-        func = getattr(visitor, f"leave_{self.visitor_name}")
+    def leave(self: VNodeT, visitor: BaseWriter, *args: Any, **kwargs: Any) -> None:
+        func: VisitLeaveFunction[VNodeT] = getattr(
+            visitor, f"leave_{self.visitor_name}"
+        )
         return func(self, *args, **kwargs)
 
 

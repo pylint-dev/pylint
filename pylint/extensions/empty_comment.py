@@ -1,3 +1,7 @@
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
 from typing import TYPE_CHECKING
 
 from astroid import nodes
@@ -48,7 +52,6 @@ class CommentChecker(BaseChecker):
         )
     }
     options = ()
-    priority = -1  # low priority
 
     def process_module(self, node: nodes.Module) -> None:
         with node.stream() as stream:

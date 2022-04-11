@@ -1,1 +1,1 @@
-undefined-variable:17:20:17:27:MyClass.incorrect_default_method:Undefined variable 'MyClass':UNDEFINED
+undefined-variable:18:20:18:27:MyClass.incorrect_default_method:Undefined variable 'MyClass':UNDEFINED

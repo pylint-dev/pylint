@@ -1,7 +1,7 @@
-# Copyright (c) 2021-2022 Carli Freudenberg <carli.freudenberg@energymeteo.de>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
 """All alphanumeric unicode character are allowed in Python but due
 to similarities in how they look they can be confused.
 
@@ -10,25 +10,12 @@ See: https://www.python.org/dev/peps/pep-0672/#confusable-characters-in-identifi
 The following checkers are intended to make users are aware of these issues.
 """
 
-import sys
 from typing import Optional, Union
 
 from astroid import nodes
 
 from pylint import constants, interfaces, lint
 from pylint.checkers import base_checker, utils
-
-if sys.version_info[:2] >= (3, 7):
-    # pylint: disable-next=fixme
-    # TODO: Remove after 3.6 has been deprecated
-    Py37Str = str
-else:
-
-    class Py37Str(str):
-        # Allow Python 3.6 compatibility
-        def isascii(self: str) -> bool:
-            return all("\u0000" <= x <= "\u007F" for x in self)
-
 
 NON_ASCII_HELP = (
     "Used when the name contains at least one non-ASCII unicode character. "
@@ -48,7 +35,6 @@ class NonAsciiNameChecker(base_checker.BaseChecker):
     """
 
     __implements__ = interfaces.IAstroidChecker
-    priority = -1
 
     msgs = {
         "C2401": (
@@ -96,7 +82,7 @@ class NonAsciiNameChecker(base_checker.BaseChecker):
             # For some nodes i.e. *kwargs from a dict, the name will be empty
             return
 
-        if not (Py37Str(name).isascii()):
+        if not str(name).isascii():
             type_label = constants.HUMAN_READABLE_TYPES[node_type]
             args = (type_label.capitalize(), name)
 

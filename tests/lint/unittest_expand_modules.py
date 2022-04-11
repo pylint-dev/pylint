@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 import re
 from pathlib import Path
@@ -85,7 +85,7 @@ class TestExpandModules(CheckerTestCase):
 
         name = "checker"
         msgs: Dict[str, Tuple[str, ...]] = {}
-        options = (("An option", {"An option": "dict"}),)
+        options = (("test-opt", {"action": "store_true", "help": "help message"}),)
 
     CHECKER_CLASS: Type = Checker
 

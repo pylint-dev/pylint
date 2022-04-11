@@ -1,23 +1,6 @@
-# Copyright (c) 2006-2007, 2010-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2012-2014 Google, Inc.
-# Copyright (c) 2014 Brett Cannon <brett@python.org>
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2015 Florian Bruhin <me@the-compiler.org>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016 y2kbugger <y2kbugger@users.noreply.github.com>
-# Copyright (c) 2018-2019 Nick Drozd <nicholasdrozd@gmail.com>
-# Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
-# Copyright (c) 2018 Jace Browning <jacebrowning@gmail.com>
-# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 bot <bot@noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Plain text reporters:.
 
@@ -125,7 +108,7 @@ def colorize_ansi(
 def colorize_ansi(
     msg: str,
     msg_style: Optional[str] = None,
-    style: Optional[str] = None,
+    style: str = "",
     *,
     color: Optional[str] = None,
 ) -> str:
@@ -136,7 +119,7 @@ def colorize_ansi(
 def colorize_ansi(
     msg: str,
     msg_style: Union[MessageStyle, str, None] = None,
-    style: Optional[str] = None,
+    style: str = "",
     **kwargs: Optional[str],
 ) -> str:
     r"""colorize message by wrapping it with ansi escape codes
@@ -189,7 +172,7 @@ class TextReporter(BaseReporter):
 
     def on_set_current_module(self, module: str, filepath: Optional[str]) -> None:
         """Set the format template to be used and check for unrecognized arguments."""
-        template = str(self.linter.config.msg_template or self._template)
+        template = str(self.linter.namespace.msg_template or self._template)
 
         # Return early if the template is the same as the previous one
         if template == self._template:
@@ -284,7 +267,7 @@ class ColorizedTextReporter(TextReporter):
     def __init__(
         self,
         output: Optional[TextIO] = None,
-        color_mapping: Optional[Dict[str, Tuple[Optional[str], Optional[str]]]] = None,
+        color_mapping: Optional[Dict[str, Tuple[Optional[str], str]]] = None,
     ) -> None:
         # Remove for pylint 3.0
         ...
@@ -293,7 +276,7 @@ class ColorizedTextReporter(TextReporter):
         self,
         output: Optional[TextIO] = None,
         color_mapping: Union[
-            ColorMappingDict, Dict[str, Tuple[Optional[str], Optional[str]]], None
+            ColorMappingDict, Dict[str, Tuple[Optional[str], str]], None
         ] = None,
     ) -> None:
         super().__init__(output)
@@ -309,7 +292,7 @@ class ColorizedTextReporter(TextReporter):
             temp_color_mapping: ColorMappingDict = {}
             for key, value in color_mapping.items():
                 color = value[0]
-                style_attrs = tuple(_splitstrip(value[1]))
+                style_attrs = tuple(_splitstrip(value[1]))  # type: ignore[arg-type]
                 temp_color_mapping[key] = MessageStyle(color, style_attrs)
             color_mapping = temp_color_mapping
         else:

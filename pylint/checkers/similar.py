@@ -1,31 +1,6 @@
-# Copyright (c) 2006, 2008-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2012 Ry4an Brase <ry4an-hg@ry4an.org>
-# Copyright (c) 2012 Google, Inc.
-# Copyright (c) 2012 Anthony VEREZ <anthony.verez.external@cassidian.com>
-# Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2014 Brett Cannon <brett@python.org>
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2017, 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2017 Mikhail Fesenko <proggga@gmail.com>
-# Copyright (c) 2018 Scott Worley <scottworley@scottworley.com>
-# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
-# Copyright (c) 2019, 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2019 Taewon D. Kim <kimt33@mcmaster.ca>
-# Copyright (c) 2020-2021 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2020 Frank Harrison <frank@doublethefish.com>
-# Copyright (c) 2020 Eli Fine <ejfine@gmail.com>
-# Copyright (c) 2020 Shiv Venkatasubrahmanyam <shvenkat@users.noreply.github.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 Maksym Humetskyi <Humetsky@gmail.com>
-# Copyright (c) 2021 bot <bot@noreply.github.com>
-# Copyright (c) 2021 Aditya Gupta <adityagupta1089@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """A similarities / code duplication command line tool and pylint checker.
 
@@ -75,6 +50,7 @@ from astroid import nodes
 from pylint.checkers import BaseChecker, MapReduceMixin, table_lines_from_stats
 from pylint.interfaces import IRawChecker
 from pylint.reporters.ureports.nodes import Table
+from pylint.typing import Options
 from pylint.utils import LinterStats, decoding_stream
 
 if TYPE_CHECKING:
@@ -755,7 +731,7 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
     msgs = MSGS
     # configuration options
     # for available dict keys/values see the optik parser 'add_option' method
-    options = (
+    options: Options = (
         (
             "min-similarity-lines",
             {
@@ -809,11 +785,11 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
         BaseChecker.__init__(self, linter)
         Similar.__init__(
             self,
-            min_lines=self.config.min_similarity_lines,
-            ignore_comments=self.config.ignore_comments,
-            ignore_docstrings=self.config.ignore_docstrings,
-            ignore_imports=self.config.ignore_imports,
-            ignore_signatures=self.config.ignore_signatures,
+            min_lines=self.linter.namespace.min_similarity_lines,
+            ignore_comments=self.linter.namespace.ignore_comments,
+            ignore_docstrings=self.linter.namespace.ignore_docstrings,
+            ignore_imports=self.linter.namespace.ignore_imports,
+            ignore_signatures=self.linter.namespace.ignore_signatures,
         )
 
     def set_option(self, optname, value, action=None, optdict=None):
@@ -821,17 +797,34 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
 
         Overridden to report options setting to Similar
         """
+        # pylint: disable-next=fixme
+        # TODO: Refactor after OptionProvider has been moved to argparse
         BaseChecker.set_option(self, optname, value, action, optdict)
         if optname == "min-similarity-lines":
-            self.min_lines = self.config.min_similarity_lines
+            self.min_lines = (
+                getattr(self.linter.namespace, "min_similarity_lines", None)
+                or self.config.min_similarity_lines
+            )
         elif optname == "ignore-comments":
-            self.ignore_comments = self.config.ignore_comments
+            self.ignore_comments = (
+                getattr(self.linter.namespace, "ignore_comments", None)
+                or self.config.ignore_comments
+            )
         elif optname == "ignore-docstrings":
-            self.ignore_docstrings = self.config.ignore_docstrings
+            self.ignore_docstrings = (
+                getattr(self.linter.namespace, "ignore_docstrings", None)
+                or self.config.ignore_docstrings
+            )
         elif optname == "ignore-imports":
-            self.ignore_imports = self.config.ignore_imports
+            self.ignore_imports = (
+                getattr(self.linter.namespace, "ignore_imports", None)
+                or self.config.ignore_imports
+            )
         elif optname == "ignore-signatures":
-            self.ignore_signatures = self.config.ignore_signatures
+            self.ignore_signatures = (
+                getattr(self.linter.namespace, "ignore_signatures", None)
+                or self.config.ignore_signatures
+            )
 
     def open(self):
         """Init the checkers: reset linesets and statistics information."""
@@ -886,15 +879,7 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
 
         The partner function of get_map_data()
         """
-        recombined = SimilarChecker(linter)
-        recombined.min_lines = self.min_lines
-        recombined.ignore_comments = self.ignore_comments
-        recombined.ignore_docstrings = self.ignore_docstrings
-        recombined.ignore_imports = self.ignore_imports
-        recombined.ignore_signatures = self.ignore_signatures
-        recombined.open()
-        Similar.combine_mapreduce_data(recombined, linesets_collection=data)
-        recombined.close()
+        Similar.combine_mapreduce_data(self, linesets_collection=data)
 
 
 def register(linter: "PyLinter") -> None:

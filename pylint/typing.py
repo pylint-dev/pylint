@@ -1,9 +1,10 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """A collection of typing utilities."""
 import sys
-from typing import NamedTuple, Optional, Union
+from typing import Dict, Iterable, NamedTuple, Optional, Pattern, Tuple, Union
 
 if sys.version_info >= (3, 8):
     from typing import Literal, TypedDict
@@ -70,3 +71,9 @@ MessageTypesFullName = Literal[
     "convention", "error", "fatal", "info", "refactor", "statement", "warning"
 ]
 """All possible message categories."""
+
+
+OptionDict = Dict[
+    str, Union[None, str, bool, int, Pattern[str], Iterable[Union[str, int]]]
+]
+Options = Tuple[Tuple[str, OptionDict], ...]

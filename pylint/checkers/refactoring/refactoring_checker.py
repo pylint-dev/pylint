@@ -1,5 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 import collections
 import copy
@@ -7,16 +8,7 @@ import itertools
 import sys
 import tokenize
 from functools import reduce
-from typing import (
-    TYPE_CHECKING,
-    Dict,
-    Iterator,
-    List,
-    NamedTuple,
-    Optional,
-    Tuple,
-    Union,
-)
+from typing import Dict, Iterator, List, NamedTuple, Optional, Tuple, Union
 
 import astroid
 from astroid import nodes
@@ -26,12 +18,11 @@ from pylint import checkers, interfaces
 from pylint import utils as lint_utils
 from pylint.checkers import utils
 from pylint.checkers.utils import node_frame_class
+from pylint.interfaces import HIGH
 
-if sys.version_info >= (3, 8) or TYPE_CHECKING:
-    # pylint: disable-next=ungrouped-imports
+if sys.version_info >= (3, 8):
     from functools import cached_property
 else:
-    # pylint: disable-next=ungrouped-imports
     from astroid.decorators import cachedproperty as cached_property
 
 KNOWN_INFINITE_ITERATORS = {"itertools.count"}
@@ -447,6 +438,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "Emitted when using dict() to create an empty dictionary instead of the literal {}. "
             "The literal is faster as it avoids an additional function call.",
         ),
+        "R1736": (
+            "Unnecessary list index lookup, use '%s' instead",
+            "unnecessary-list-index-lookup",
+            "Emitted when iterating over an enumeration and accessing the "
+            "value by index lookup. "
+            "The value can be accessed directly instead.",
+        ),
     }
     options = (
         (
@@ -463,6 +461,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             {
                 "default": ("sys.exit", "argparse.parse_error"),
                 "type": "csv",
+                "metavar": "<members names>",
                 "help": "Complete name of functions that never returns. When checking "
                 "for inconsistent-return-statements if a never returning function is "
                 "called then it will be considered as an explicit return statement "
@@ -471,9 +470,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         ),
     )
 
-    priority = 0
-
-    def __init__(self, linter=None):
+    def __init__(self, linter):
         super().__init__(linter)
         self._return_nodes = {}
         self._consider_using_with_stack = ConsiderUsingWithStack()
@@ -490,7 +487,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def open(self):
         # do this in open since config not fully initialized in __init__
-        self._never_returning_functions = set(self.config.never_returning_functions)
+        self._never_returning_functions = set(
+            self.linter.namespace.never_returning_functions
+        )
 
     @cached_property
     def _dummy_rgx(self):
@@ -645,10 +644,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "redefined-argument-from-local",
         "too-many-nested-blocks",
         "unnecessary-dict-index-lookup",
+        "unnecessary-list-index-lookup",
     )
     def visit_for(self, node: nodes.For) -> None:
         self._check_nested_blocks(node)
         self._check_unnecessary_dict_index_lookup(node)
+        self._check_unnecessary_list_index_lookup(node)
 
         for name in node.target.nodes_of_class(nodes.AssignName):
             self._check_redefined_argument_from_local(name)
@@ -1127,11 +1128,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             self._emit_nested_blocks_message_if_needed(nested_blocks)
 
     def _emit_nested_blocks_message_if_needed(self, nested_blocks):
-        if len(nested_blocks) > self.config.max_nested_blocks:
+        if len(nested_blocks) > self.linter.namespace.max_nested_blocks:
             self.add_message(
                 "too-many-nested-blocks",
                 node=nested_blocks[0],
-                args=(len(nested_blocks), self.config.max_nested_blocks),
+                args=(len(nested_blocks), self.linter.namespace.max_nested_blocks),
             )
 
     def _emit_consider_using_with_if_needed(self, stack: Dict[str, nodes.NodeNG]):
@@ -1280,7 +1281,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             if isinstance(comparison_node, nodes.Compare):
                 _find_lower_upper_bounds(comparison_node, uses)
 
-        for _, bounds in uses.items():
+        for bounds in uses.values():
             num_shared = len(bounds["lower_bound"].intersection(bounds["upper_bound"]))
             num_lower_bounds = len(bounds["lower_bound"])
             num_upper_bounds = len(bounds["upper_bound"])
@@ -1566,10 +1567,15 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def visit_augassign(self, node: nodes.AugAssign) -> None:
         self._check_consider_using_join(node)
 
-    @utils.check_messages("unnecessary-comprehension", "unnecessary-dict-index-lookup")
+    @utils.check_messages(
+        "unnecessary-comprehension",
+        "unnecessary-dict-index-lookup",
+        "unnecessary-list-index-lookup",
+    )
     def visit_comprehension(self, node: nodes.Comprehension) -> None:
         self._check_unnecessary_comprehension(node)
         self._check_unnecessary_dict_index_lookup(node)
+        self._check_unnecessary_list_index_lookup(node)
 
     def _check_unnecessary_comprehension(self, node: nodes.Comprehension) -> None:
         if (
@@ -1973,3 +1979,77 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                             node=subscript,
                             args=("1".join(value.as_string().rsplit("0", maxsplit=1)),),
                         )
+
+    def _check_unnecessary_list_index_lookup(
+        self, node: Union[nodes.For, nodes.Comprehension]
+    ) -> None:
+        if (
+            not isinstance(node.iter, nodes.Call)
+            or not isinstance(node.iter.func, nodes.Name)
+            or not node.iter.func.name == "enumerate"
+            or not isinstance(node.iter.args[0], nodes.Name)
+        ):
+            return
+
+        if not isinstance(node.target, nodes.Tuple) or len(node.target.elts) < 2:
+            # enumerate() result is being assigned without destructuring
+            return
+
+        if not isinstance(node.target.elts[1], nodes.AssignName):
+            # The value is not being assigned to a single variable, e.g. being
+            # destructured, so we can't necessarily use it.
+            return
+
+        iterating_object_name = node.iter.args[0].name
+        value_variable = node.target.elts[1]
+
+        children = (
+            node.body if isinstance(node, nodes.For) else node.parent.get_children()
+        )
+        for child in children:
+            for subscript in child.nodes_of_class(nodes.Subscript):
+                if isinstance(node, nodes.For) and (
+                    isinstance(subscript.parent, nodes.Assign)
+                    and subscript in subscript.parent.targets
+                    or isinstance(subscript.parent, nodes.AugAssign)
+                    and subscript == subscript.parent.target
+                ):
+                    # Ignore this subscript if it is the target of an assignment
+                    # Early termination; after reassignment index lookup will be necessary
+                    return
+
+                if isinstance(subscript.parent, nodes.Delete):
+                    # Ignore this subscript if it's used with the delete keyword
+                    return
+
+                index = subscript.slice
+                if isinstance(index, nodes.Name):
+                    if (
+                        index.name != node.target.elts[0].name
+                        or iterating_object_name != subscript.value.as_string()
+                    ):
+                        continue
+
+                    if (
+                        isinstance(node, nodes.For)
+                        and index.lookup(index.name)[1][-1].lineno > node.lineno
+                    ):
+                        # Ignore this subscript if it has been redefined after
+                        # the for loop.
+                        continue
+
+                    if (
+                        isinstance(node, nodes.For)
+                        and index.lookup(value_variable.name)[1][-1].lineno
+                        > node.lineno
+                    ):
+                        # The variable holding the value from iteration has been
+                        # reassigned on a later line, so it can't be used.
+                        continue
+
+                    self.add_message(
+                        "unnecessary-list-index-lookup",
+                        node=subscript,
+                        args=(node.target.elts[1].name,),
+                        confidence=HIGH,
+                    )

@@ -1,58 +1,6 @@
-# Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2009 Mads Kiilerich <mads@kiilerich.com>
-# Copyright (c) 2010 Daniel Harding <dharding@gmail.com>
-# Copyright (c) 2011-2014, 2017 Google, Inc.
-# Copyright (c) 2012 FELD Boris <lothiraldan@gmail.com>
-# Copyright (c) 2013-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2014 Michal Nowikowski <godfryd@gmail.com>
-# Copyright (c) 2014 Brett Cannon <brett@python.org>
-# Copyright (c) 2014 Ricardo Gemignani <ricardo.gemignani@gmail.com>
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015 Dmitry Pribysh <dmand@yandex.ru>
-# Copyright (c) 2015 Radu Ciorba <radu@devrandom.ro>
-# Copyright (c) 2015 Simu Toni <simutoni@gmail.com>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016, 2018-2019 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2016, 2018 Jakub Wilk <jwilk@jwilk.net>
-# Copyright (c) 2016-2017 Derek Gustafson <degustaf@gmail.com>
-# Copyright (c) 2016-2017 Łukasz Rogalski <rogalski.91@gmail.com>
-# Copyright (c) 2016 Grant Welch <gwelch925+github@gmail.com>
-# Copyright (c) 2017-2018, 2021 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2017-2018, 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2017 Dan Garrette <dhgarrette@gmail.com>
-# Copyright (c) 2018-2019 Jim Robertson <jrobertson98atx@gmail.com>
-# Copyright (c) 2018 Mike Miller <mtmiller@users.noreply.github.com>
-# Copyright (c) 2018 Lucas Cimon <lucas.cimon@gmail.com>
-# Copyright (c) 2018 Drew <drewrisinger@users.noreply.github.com>
-# Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
-# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
-# Copyright (c) 2018 Bryce Guinta <bryce.guinta@protonmail.com>
-# Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
-# Copyright (c) 2018 Mike Frysinger <vapier@gmail.com>
-# Copyright (c) 2018 Marianna Polatoglou <mpolatoglou@bloomberg.net>
-# Copyright (c) 2018 mar-chi-pan <mar.polatoglou@gmail.com>
-# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019, 2021 Nick Drozd <nicholasdrozd@gmail.com>
-# Copyright (c) 2019 Djailla <bastien.vallet@gmail.com>
-# Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2020 Andrew Simmons <anjsimmo@gmail.com>
-# Copyright (c) 2020 Andrew Simmons <a.simmons@deakin.edu.au>
-# Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2020 Ashley Whetter <ashleyw@activestate.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Tushar Sadhwani <tushar.sadhwani000@gmail.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 bot <bot@noreply.github.com>
-# Copyright (c) 2021 David Liu <david@cs.toronto.edu>
-# Copyright (c) 2021 kasium <15907922+kasium@users.noreply.github.com>
-# Copyright (c) 2021 Marcin Kurczewski <rr-@sakuya.pl>
-# Copyright (c) 2021 Sergei Lebedev <185856+superbobry@users.noreply.github.com>
-# Copyright (c) 2021 Lorena B <46202743+lorena-b@users.noreply.github.com>
-# Copyright (c) 2021 haasea <44787650+haasea@users.noreply.github.com>
-# Copyright (c) 2021 Alexander Kapshuna <kapsh@kap.sh>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Variables checkers for Python code."""
 import collections
@@ -68,6 +16,8 @@ from typing import (
     Any,
     DefaultDict,
     Dict,
+    Iterable,
+    Iterator,
     List,
     NamedTuple,
     Optional,
@@ -80,8 +30,11 @@ import astroid
 from astroid import nodes
 
 from pylint.checkers import BaseChecker, utils
-from pylint.checkers.utils import is_postponed_evaluation_enabled
-from pylint.constants import PY39_PLUS
+from pylint.checkers.utils import (
+    in_type_checking_block,
+    is_postponed_evaluation_enabled,
+)
+from pylint.constants import PY39_PLUS, TYPING_TYPE_CHECKS_GUARDS
 from pylint.interfaces import (
     CONTROL_FLOW,
     HIGH,
@@ -91,11 +44,9 @@ from pylint.interfaces import (
 )
 from pylint.utils import get_global_option
 
-if sys.version_info >= (3, 8) or TYPE_CHECKING:
-    # pylint: disable-next=ungrouped-imports
+if sys.version_info >= (3, 8):
     from functools import cached_property
 else:
-    # pylint: disable-next=ungrouped-imports
     from astroid.decorators import cachedproperty as cached_property
 
 if TYPE_CHECKING:
@@ -109,7 +60,6 @@ IGNORED_ARGUMENT_NAMES = re.compile("_.*|^ignored_|^unused_")
 # by astroid. Unfortunately this also messes up our explicit checks
 # for `abc`
 METACLASS_NAME_TRANSFORMS = {"_py_abc": "abc"}
-TYPING_TYPE_CHECKS_GUARDS = frozenset({"typing.TYPE_CHECKING", "TYPE_CHECKING"})
 BUILTIN_RANGE = "builtins.range"
 TYPING_MODULE = "typing"
 TYPING_NAMES = frozenset(
@@ -238,27 +188,41 @@ def _get_unpacking_extra_info(node, inferred):
 
 
 def _detect_global_scope(node, frame, defframe):
-    """Detect that the given frames shares a global
-    scope.
+    """Detect that the given frames share a global scope.
 
-    Two frames shares a global scope when neither
+    Two frames share a global scope when neither
     of them are hidden under a function scope, as well
-    as any of parent scope of them, until the root scope.
+    as any parent scope of them, until the root scope.
     In this case, depending from something defined later on
-    will not work, because it is still undefined.
+    will only work if guarded by a nested function definition.
 
     Example:
         class A:
             # B has the same global scope as `C`, leading to a NameError.
+            # Return True to indicate a shared scope.
             class B(C): ...
         class C: ...
 
+    Whereas this does not lead to a NameError:
+        class A:
+            def guard():
+                # Return False to indicate no scope sharing.
+                class B(C): ...
+        class C: ...
     """
     def_scope = scope = None
     if frame and frame.parent:
         scope = frame.parent.scope()
     if defframe and defframe.parent:
         def_scope = defframe.parent.scope()
+    if (
+        isinstance(frame, nodes.ClassDef)
+        and scope is not def_scope
+        and scope is utils.get_node_first_ancestor_of_type(node, nodes.FunctionDef)
+    ):
+        # If the current node's scope is a class nested under a function,
+        # and the def_scope is something else, then they aren't shared.
+        return False
     if isinstance(frame, nodes.FunctionDef):
         # If the parent of the current node is a
         # function, then it can be under its scope
@@ -292,12 +256,12 @@ def _detect_global_scope(node, frame, defframe):
     if break_scopes and len(set(break_scopes)) != 1:
         # Store different scopes than expected.
         # If the stored scopes are, in fact, the very same, then it means
-        # that the two frames (frame and defframe) shares the same scope,
+        # that the two frames (frame and defframe) share the same scope,
         # and we could apply our lineno analysis over them.
         # For instance, this works when they are inside a function, the node
         # that uses a definition and the definition itself.
         return False
-    # At this point, we are certain that frame and defframe shares a scope
+    # At this point, we are certain that frame and defframe share a scope
     # and the definition of the first depends on the second.
     return frame.lineno < defframe.lineno
 
@@ -383,7 +347,9 @@ def _import_name_is_global(stmt, global_names):
     return False
 
 
-def _flattened_scope_names(iterator):
+def _flattened_scope_names(
+    iterator: Iterator[Union[nodes.Global, nodes.Nonlocal]]
+) -> Set[str]:
     values = (set(stmt.names) for stmt in iterator)
     return set(itertools.chain.from_iterable(values))
 
@@ -392,15 +358,6 @@ def _assigned_locally(name_node):
     """Checks if name_node has corresponding assign statement in same scope."""
     assign_stmts = name_node.scope().nodes_of_class(nodes.AssignName)
     return any(a.name == name_node.name for a in assign_stmts)
-
-
-def _is_type_checking_import(node: Union[nodes.Import, nodes.ImportFrom]) -> bool:
-    """Check if an import node is guarded by a TYPE_CHECKS guard."""
-    return any(
-        isinstance(ancestor, nodes.If)
-        and ancestor.test.as_string() in TYPING_TYPE_CHECKS_GUARDS
-        for ancestor in node.node_ancestors()
-    )
 
 
 def _has_locals_call_after_node(stmt, scope):
@@ -554,6 +511,12 @@ MSGS = {
         "Invalid assignment to self or cls in instance or class method "
         "respectively.",
     ),
+    "E0643": (
+        "Invalid index for iterable length",
+        "potential-index-error",
+        "Emitted when an index used on an iterable goes beyond the length of that "
+        "iterable.",
+    ),
 }
 
 
@@ -659,13 +622,19 @@ scope_type : {self._atomic.scope_type}
         ):
             found_nodes = None
 
-        # Filter out assignments in ExceptHandlers that node is not contained in
-        # unless this is a test in a filtered comprehension
-        # Example: [e for e in range(3) if e] <--- followed by except e:
-        if found_nodes and (
-            not isinstance(parent_node, nodes.Comprehension)
-            or node not in parent_node.ifs
+        # Before filtering, check that this node's name is not a nonlocal
+        if any(
+            isinstance(child, nodes.Nonlocal) and node.name in child.names
+            for child in node.frame(future=True).get_children()
         ):
+            return found_nodes
+
+        # And no comprehension is under the node's frame
+        if VariablesChecker._comprehension_between_frame_and_node(node):
+            return found_nodes
+
+        # Filter out assignments in ExceptHandlers that node is not contained in
+        if found_nodes:
             found_nodes = [
                 n
                 for n in found_nodes
@@ -1015,7 +984,6 @@ class VariablesChecker(BaseChecker):
 
     name = "variables"
     msgs = MSGS
-    priority = -1
     options = (
         (
             "init-import",
@@ -1121,9 +1089,6 @@ class VariablesChecker(BaseChecker):
         """Called when loading the checker."""
         self._is_undefined_variable_enabled = self.linter.is_message_enabled(
             "undefined-variable"
-        )
-        self._is_used_before_assignment_enabled = self.linter.is_message_enabled(
-            "used-before-assignment"
         )
         self._is_undefined_loop_variable_enabled = self.linter.is_message_enabled(
             "undefined-loop-variable"
@@ -1313,8 +1278,23 @@ class VariablesChecker(BaseChecker):
 
         global_names = _flattened_scope_names(node.nodes_of_class(nodes.Global))
         nonlocal_names = _flattened_scope_names(node.nodes_of_class(nodes.Nonlocal))
+        comprehension_target_names: List[str] = []
+
+        for comprehension_scope in node.nodes_of_class(nodes.ComprehensionScope):
+            for generator in comprehension_scope.generators:
+                self._find_assigned_names_recursive(
+                    generator.target, comprehension_target_names
+                )
+
         for name, stmts in not_consumed.items():
-            self._check_is_unused(name, node, stmts[0], global_names, nonlocal_names)
+            self._check_is_unused(
+                name,
+                node,
+                stmts[0],
+                global_names,
+                nonlocal_names,
+                comprehension_target_names,
+            )
 
     visit_asyncfunctiondef = visit_functiondef
     leave_asyncfunctiondef = leave_functiondef
@@ -1442,7 +1422,7 @@ class VariablesChecker(BaseChecker):
                 continue
 
             action, nodes_to_consume = self._check_consumer(
-                node, stmt, frame, current_consumer, i, base_scope_type
+                node, stmt, frame, current_consumer, base_scope_type
             )
             if nodes_to_consume:
                 # Any nodes added to consumed_uncertain by get_next_to_consume()
@@ -1513,6 +1493,20 @@ class VariablesChecker(BaseChecker):
 
         return False
 
+    def _find_assigned_names_recursive(
+        self,
+        target: Union[nodes.AssignName, nodes.BaseContainer],
+        target_names: List[str],
+    ) -> None:
+        """Update `target_names` in place with the names of assignment
+        targets, recursively (to account for nested assignments).
+        """
+        if isinstance(target, nodes.AssignName):
+            target_names.append(target.name)
+        elif isinstance(target, nodes.BaseContainer):
+            for elt in target.elts:
+                self._find_assigned_names_recursive(elt, target_names)
+
     # pylint: disable=too-many-return-statements
     def _check_consumer(
         self,
@@ -1520,33 +1514,16 @@ class VariablesChecker(BaseChecker):
         stmt: nodes.NodeNG,
         frame: nodes.LocalsDictNodeNG,
         current_consumer: NamesConsumer,
-        consumer_level: int,
         base_scope_type: Any,
     ) -> Tuple[VariableVisitConsumerAction, Optional[List[nodes.NodeNG]]]:
         """Checks a consumer for conditions that should trigger messages."""
         # If the name has already been consumed, only check it's not a loop
         # variable used outside the loop.
-        # Avoid the case where there are homonyms inside function scope and
-        # comprehension current scope (avoid bug #1731)
         if node.name in current_consumer.consumed:
-            if utils.is_func_decorator(current_consumer.node) or not (
-                current_consumer.scope_type == "comprehension"
-                and self._has_homonym_in_upper_function_scope(node, consumer_level)
-                # But don't catch homonyms against the filter of a comprehension,
-                # (like "if x" in "[x for x in expr() if x]")
-                # https://github.com/PyCQA/pylint/issues/5586
-                and not (
-                    (
-                        isinstance(node.parent.parent, nodes.Comprehension)
-                        and node.parent in node.parent.parent.ifs
-                    )
-                    # Or homonyms against values to keyword arguments
-                    # (like "var" in "[func(arg=var) for var in expr()]")
-                    or (
-                        isinstance(node.scope(), nodes.ComprehensionScope)
-                        and isinstance(node.parent, (nodes.Call, nodes.Keyword))
-                    )
-                )
+            # Avoid the case where there are homonyms inside function scope and
+            # comprehension current scope (avoid bug #1731)
+            if utils.is_func_decorator(current_consumer.node) or not isinstance(
+                node, nodes.ComprehensionScope
             ):
                 self._check_late_binding_closure(node)
                 self._loopvar_name(node)
@@ -1574,12 +1551,6 @@ class VariablesChecker(BaseChecker):
             )
 
         self._check_late_binding_closure(node)
-
-        if not (
-            self._is_undefined_variable_enabled
-            or self._is_used_before_assignment_enabled
-        ):
-            return (VariableVisitConsumerAction.RETURN, found_nodes)
 
         defnode = utils.assign_parent(found_nodes[0])
         defstmt = defnode.statement(future=True)
@@ -2108,6 +2079,20 @@ class VariablesChecker(BaseChecker):
         parent = node
         while parent is not defstmt_frame.parent:
             parent_scope = parent.scope()
+
+            # Find out if any nonlocals receive values in nested functions
+            for inner_func in parent_scope.nodes_of_class(nodes.FunctionDef):
+                if inner_func is parent_scope:
+                    continue
+                if any(
+                    node.name in nl.names
+                    for nl in inner_func.nodes_of_class(nodes.Nonlocal)
+                ) and any(
+                    node.name == an.name
+                    for an in inner_func.nodes_of_class(nodes.AssignName)
+                ):
+                    return False
+
             local_refs = parent_scope.locals.get(node.name, [])
             for ref_node in local_refs:
                 # If local ref is in the same frame as our node, but on a later lineno
@@ -2298,7 +2283,15 @@ class VariablesChecker(BaseChecker):
             if not elements:
                 self.add_message("undefined-loop-variable", args=node.name, node=node)
 
-    def _check_is_unused(self, name, node, stmt, global_names, nonlocal_names):
+    def _check_is_unused(
+        self,
+        name,
+        node,
+        stmt,
+        global_names,
+        nonlocal_names: Iterable[str],
+        comprehension_target_names: List[str],
+    ) -> None:
         # Ignore some special names specified by user configuration.
         if self._is_name_ignored(stmt, name):
             return
@@ -2317,10 +2310,14 @@ class VariablesChecker(BaseChecker):
             if global_names and _import_name_is_global(stmt, global_names):
                 return
 
+        # Ignore names in comprehension targets
+        if name in comprehension_target_names:
+            return
+
         argnames = node.argnames()
         # Care about functions with unknown argument (builtins)
         if name in argnames:
-            self._check_unused_arguments(name, node, stmt, argnames)
+            self._check_unused_arguments(name, node, stmt, argnames, nonlocal_names)
         else:
             if stmt.parent and isinstance(
                 stmt.parent, (nodes.Assign, nodes.AnnAssign, nodes.Tuple)
@@ -2387,7 +2384,9 @@ class VariablesChecker(BaseChecker):
             regex = authorized_rgx
         return regex and regex.match(name)
 
-    def _check_unused_arguments(self, name, node, stmt, argnames):
+    def _check_unused_arguments(
+        self, name, node, stmt, argnames, nonlocal_names: Iterable[str]
+    ):
         is_method = node.is_method()
         klass = node.parent.frame(future=True)
         if is_method and isinstance(klass, nodes.ClassDef):
@@ -2426,6 +2425,9 @@ class VariablesChecker(BaseChecker):
 
         # Don't check protocol classes
         if utils.is_protocol_class(klass):
+            return
+
+        if name in nonlocal_names:
             return
 
         self.add_message("unused-argument", args=name, node=stmt, confidence=confidence)
@@ -2488,22 +2490,15 @@ class VariablesChecker(BaseChecker):
     def _allowed_redefined_builtin(self, name):
         return name in self.config.allowed_redefined_builtins
 
-    def _has_homonym_in_upper_function_scope(
-        self, node: nodes.Name, index: int
-    ) -> bool:
-        """Return whether there is a node with the same name in the
-        to_consume dict of an upper scope and if that scope is a function
-
-        :param node: node to check for
-        :param index: index of the current consumer inside self._to_consume
-        :return: True if there is a node with the same name in the
-                 to_consume dict of an upper scope and if that scope
-                 is a function, False otherwise
-        """
-        return any(
-            _consumer.scope_type == "function" and node.name in _consumer.to_consume
-            for _consumer in self._to_consume[index - 1 :: -1]
+    @staticmethod
+    def _comprehension_between_frame_and_node(node: nodes.Name) -> bool:
+        """Return True if a ComprehensionScope intervenes between `node` and its frame."""
+        closest_comprehension_scope = utils.get_node_first_ancestor_of_type(
+            node, nodes.ComprehensionScope
         )
+        return closest_comprehension_scope is not None and node.frame(
+            future=True
+        ).parent_of(closest_comprehension_scope)
 
     def _store_type_annotation_node(self, type_annotation):
         """Given a type annotation, store all the name nodes it refers to."""
@@ -2751,7 +2746,7 @@ class VariablesChecker(BaseChecker):
                         msg = f"import {imported_name}"
                     else:
                         msg = f"{imported_name} imported as {as_name}"
-                    if not _is_type_checking_import(stmt):
+                    if not in_type_checking_block(stmt):
                         self.add_message("unused-import", args=msg, node=stmt)
                 elif isinstance(stmt, nodes.ImportFrom) and stmt.modname != FUTURE:
                     if SPECIAL_OBJ.search(imported_name):
@@ -2775,7 +2770,7 @@ class VariablesChecker(BaseChecker):
                             msg = f"{imported_name} imported from {stmt.modname}"
                         else:
                             msg = f"{imported_name} imported from {stmt.modname} as {as_name}"
-                        if not _is_type_checking_import(stmt):
+                        if not in_type_checking_block(stmt):
                             self.add_message("unused-import", args=msg, node=stmt)
 
         # Construct string for unused-wildcard-import message
@@ -2851,6 +2846,30 @@ class VariablesChecker(BaseChecker):
             self.add_message("undefined-variable", node=klass, args=(name,))
 
         return consumed
+
+    def visit_subscript(self, node: nodes.Subscript) -> None:
+        inferred_slice = utils.safe_infer(node.slice)
+
+        self._check_potential_index_error(node, inferred_slice)
+
+    def _check_potential_index_error(
+        self, node: nodes.Subscript, inferred_slice: Optional[nodes.NodeNG]
+    ) -> None:
+        """Check for the potential-index-error message."""
+        # Currently we only check simple slices of a single integer
+        if not isinstance(inferred_slice, nodes.Const) or not isinstance(
+            inferred_slice.value, int
+        ):
+            return
+
+        # If the node.value is a Tuple or List without inference it is defined in place
+        if isinstance(node.value, (nodes.Tuple, nodes.List)):
+            # Add 1 because iterables are 0-indexed
+            if len(node.value.elts) < inferred_slice.value + 1:
+                self.add_message(
+                    "potential-index-error", node=node, confidence=INFERENCE
+                )
+            return
 
 
 def register(linter: "PyLinter") -> None:

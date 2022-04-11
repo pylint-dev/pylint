@@ -1,39 +1,6 @@
-# Copyright (c) 2013-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2013-2014 Google, Inc.
-# Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2014 Cosmin Poieana <cmin@ropython.org>
-# Copyright (c) 2014 Vlad Temian <vladtemian@gmail.com>
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015 Cezar <celnazli@bitdefender.com>
-# Copyright (c) 2015 Chris Rebert <code@rebertia.com>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016 Jared Garst <cultofjared@gmail.com>
-# Copyright (c) 2017 Renat Galimov <renat2017@gmail.com>
-# Copyright (c) 2017 Martin <MartinBasti@users.noreply.github.com>
-# Copyright (c) 2017 Christopher Zurcher <zurcher@users.noreply.github.com>
-# Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
-# Copyright (c) 2018 Lucas Cimon <lucas.cimon@gmail.com>
-# Copyright (c) 2018 Banjamin Freeman <befreeman@users.noreply.github.com>
-# Copyright (c) 2018 Ioana Tagirta <ioana.tagirta@gmail.com>
-# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019 Julien Palard <julien@palard.fr>
-# Copyright (c) 2019 laike9m <laike9m@users.noreply.github.com>
-# Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2019 Robert Schweizer <robert_schweizer@gmx.de>
-# Copyright (c) 2019 fadedDexofan <fadedDexofan@gmail.com>
-# Copyright (c) 2020 Sorin Sbarnea <ssbarnea@redhat.com>
-# Copyright (c) 2020 Federico Bond <federicobond@gmail.com>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2020 谭九鼎 <109224573@qq.com>
-# Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 Yilei "Dolee" Yang <yileiyang@google.com>
-# Copyright (c) 2021 Matus Valo <matusvalo@users.noreply.github.com>
-# Copyright (c) 2021 victor <16359131+jiajunsu@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Checkers for various standard library functions."""
 
@@ -363,7 +330,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "bad-open-mode",
             "Python supports: r, w, a[, x] modes with b, +, "
             "and U (only with r) options. "
-            "See https://docs.python.org/2/library/functions.html#open",
+            "See https://docs.python.org/3/library/functions.html#open",
         ),
         "W1502": (
             "Using datetime.time in a boolean context.",
@@ -461,17 +428,19 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "Calls to breakpoint(), sys.breakpointhook() and pdb.set_trace() should be removed "
             "from code that is not actively being debugged.",
         ),
-        "W1516": (
-            "'lru_cache' without 'maxsize' will keep all method args alive indefinitely, including 'self'",
-            "lru-cache-decorating-method",
+        "W1517": (
+            "'lru_cache(maxsize=None)' will keep all method args alive indefinitely, including 'self'",
+            "cache-max-size-none",
             "By decorating a method with lru_cache the 'self' argument will be linked to "
             "the lru_cache function and therefore never garbage collected. Unless your instance "
             "will never need to be garbage collected (singleton) it is recommended to refactor "
-            "code to avoid this pattern or add a maxsize to the cache.",
+            "code to avoid this pattern or add a maxsize to the cache."
+            "The default value for maxsize is 128.",
+            {"old_names": [("W1516", "lru-cache-decorating-method")]},
         ),
     }
 
-    def __init__(self, linter: Optional["PyLinter"] = None) -> None:
+    def __init__(self, linter: "PyLinter") -> None:
         BaseChecker.__init__(self, linter)
         self._deprecated_methods: Set[str] = set()
         self._deprecated_arguments: Dict[
@@ -594,7 +563,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         for value in node.values:
             self._check_datetime(value)
 
-    @utils.check_messages("lru-cache-decorating-method")
+    @utils.check_messages("cache-max-size-none")
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         if node.decorators and isinstance(node.parent, nodes.ClassDef):
             self._check_lru_cache_decorators(node.decorators)
@@ -606,20 +575,20 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             try:
                 for infered_node in d_node.infer():
                     q_name = infered_node.qname()
-                    if q_name in NON_INSTANCE_METHODS:
-                        return
-                    if q_name not in LRU_CACHE:
+                    if q_name in NON_INSTANCE_METHODS or q_name not in LRU_CACHE:
                         return
 
-                    # Check if there is a maxsize argument to the call
+                    # Check if there is a maxsize argument set to None in the call
                     if isinstance(d_node, nodes.Call):
                         try:
-                            utils.get_argument_from_call(
+                            arg = utils.get_argument_from_call(
                                 d_node, position=0, keyword="maxsize"
                             )
-                            return
                         except utils.NoSuchArgumentError:
-                            pass
+                            return
+
+                        if not isinstance(arg, nodes.Const) or arg.value is not None:
+                            return
 
                     lru_cache_nodes.append(d_node)
                     break
@@ -627,7 +596,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                 pass
         for lru_cache_node in lru_cache_nodes:
             self.add_message(
-                "lru-cache-decorating-method",
+                "cache-max-size-none",
                 node=lru_cache_node,
                 confidence=interfaces.INFERENCE,
             )

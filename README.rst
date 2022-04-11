@@ -2,7 +2,7 @@
 README for Pylint - https://pylint.pycqa.org/
 =============================================
 
-.. image:: https://github.com/PyCQA/pylint/actions/workflows/ci.yaml/badge.svg?branch=main
+.. image:: https://github.com/PyCQA/pylint/actions/workflows/tests.yaml/badge.svg?branch=main
     :target: https://github.com/PyCQA/pylint/actions
 
 .. image:: https://coveralls.io/repos/github/PyCQA/pylint/badge.svg?branch=main
@@ -25,8 +25,7 @@ README for Pylint - https://pylint.pycqa.org/
    :alt: pre-commit.ci status
 
 .. |tideliftlogo| image:: https://raw.githubusercontent.com/PyCQA/pylint/main/doc/media/Tidelift_Logos_RGB_Tidelift_Shorthand_On-White.png
-   :width: 75
-   :height: 60
+   :width: 200
    :alt: Tidelift
 
 .. list-table::
@@ -75,7 +74,7 @@ Pylint can be simply installed by running::
 
     pip install pylint
 
-If you are using Python 3.6.2+, upgrade to get full support for your version::
+If you are using Python 3.7.2+, upgrade to get full support for your version::
 
     pip install pylint --upgrade
 

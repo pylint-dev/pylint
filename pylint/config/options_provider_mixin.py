@@ -1,11 +1,12 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 import optparse  # pylint: disable=deprecated-module
-from typing import Any, Dict, Tuple
 
+from pylint.config.callback_actions import _CallbackAction
 from pylint.config.option import _validate
+from pylint.typing import Options
 
 
 class UnsupportedAction(Exception):
@@ -16,9 +17,8 @@ class OptionsProviderMixIn:
     """Mixin to provide options to an OptionsManager."""
 
     # those attributes should be overridden
-    priority = -1
     name = "default"
-    options: Tuple[Tuple[str, Dict[str, Any]], ...] = ()
+    options: Options = ()
     level = 0
 
     def __init__(self):
@@ -67,15 +67,18 @@ class OptionsProviderMixIn:
                 if isinstance(value, (list, tuple)):
                     _list = value
                 elif value is not None:
-                    _list = []
-                    _list.append(value)
+                    _list = [value]
                 setattr(self.config, optname, _list)
             elif isinstance(_list, tuple):
                 setattr(self.config, optname, _list + (value,))
             else:
                 _list.append(value)
-        elif action == "callback":
-            optdict["callback"](None, optname, value, None)
+        elif (
+            action == "callback"
+            or (not isinstance(action, str))
+            and issubclass(action, _CallbackAction)
+        ):
+            return
         else:
             raise UnsupportedAction(action)
 
@@ -108,4 +111,4 @@ class OptionsProviderMixIn:
         if options is None:
             options = self.options
         for optname, optdict in options:
-            yield (optname, optdict, self.option_value(optname))
+            yield optname, optdict, self.option_value(optname)

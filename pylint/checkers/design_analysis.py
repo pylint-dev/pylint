@@ -1,32 +1,6 @@
-# Copyright (c) 2006, 2009-2010, 2012-2015 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2012, 2014 Google, Inc.
-# Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016 Łukasz Rogalski <rogalski.91@gmail.com>
-# Copyright (c) 2017 ahirnish <ahirnish@gmail.com>
-# Copyright (c) 2018 Lucas Cimon <lucas.cimon@gmail.com>
-# Copyright (c) 2018 Mike Frysinger <vapier@gmail.com>
-# Copyright (c) 2018 Mark Miller <725mrm@gmail.com>
-# Copyright (c) 2018 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2018 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2018 Jakub Wilk <jwilk@jwilk.net>
-# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019 Michael Scott Cuthbert <cuthbert@mit.edu>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2021 Mike Fiedler <miketheman@gmail.com>
-# Copyright (c) 2021 Youngsoo Sung <ysung@bepro11.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 bot <bot@noreply.github.com>
-# Copyright (c) 2021 Andrew Haigh <hello@nelf.in>
-# Copyright (c) 2021 Melvin <31448155+melvio@users.noreply.github.com>
-# Copyright (c) 2021 Rebecca Turner <rbt@sent.as>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 Yu Shao, Pang <36848472+yushao2@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Check for signs of poor design."""
 
@@ -43,10 +17,9 @@ from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages
 from pylint.interfaces import IAstroidChecker
 
-if sys.version_info >= (3, 8) or TYPE_CHECKING:
+if sys.version_info >= (3, 8):
     from functools import cached_property
 else:
-    # pylint: disable-next=ungrouped-imports
     from astroid.decorators import cachedproperty as cached_property
 
 if TYPE_CHECKING:
@@ -311,7 +284,6 @@ class MisdesignChecker(BaseChecker):
     name = "design"
     # messages
     msgs = MSGS
-    priority = -2
     # configuration options
     options = (
         (
@@ -463,21 +435,22 @@ class MisdesignChecker(BaseChecker):
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         """Check size of inheritance hierarchy and number of instance attributes."""
         parents = _get_parents(
-            node, STDLIB_CLASSES_IGNORE_ANCESTOR.union(self.config.ignored_parents)
+            node,
+            STDLIB_CLASSES_IGNORE_ANCESTOR.union(self.linter.namespace.ignored_parents),
         )
         nb_parents = len(parents)
-        if nb_parents > self.config.max_parents:
+        if nb_parents > self.linter.namespace.max_parents:
             self.add_message(
                 "too-many-ancestors",
                 node=node,
-                args=(nb_parents, self.config.max_parents),
+                args=(nb_parents, self.linter.namespace.max_parents),
             )
 
-        if len(node.instance_attrs) > self.config.max_attributes:
+        if len(node.instance_attrs) > self.linter.namespace.max_attributes:
             self.add_message(
                 "too-many-instance-attributes",
                 node=node,
-                args=(len(node.instance_attrs), self.config.max_attributes),
+                args=(len(node.instance_attrs), self.linter.namespace.max_attributes),
             )
 
     @check_messages("too-few-public-methods", "too-many-public-methods")
@@ -494,11 +467,11 @@ class MisdesignChecker(BaseChecker):
         # for classes such as unittest.TestCase, which provides
         # a lot of assert methods. It doesn't make sense to warn
         # when the user subclasses TestCase to add his own tests.
-        if my_methods > self.config.max_public_methods:
+        if my_methods > self.linter.namespace.max_public_methods:
             self.add_message(
                 "too-many-public-methods",
                 node=node,
-                args=(my_methods, self.config.max_public_methods),
+                args=(my_methods, self.linter.namespace.max_public_methods),
             )
 
         # Stop here if the class is excluded via configuration.
@@ -519,11 +492,11 @@ class MisdesignChecker(BaseChecker):
         # This checks all the methods defined by ancestors and
         # by the current class.
         all_methods = _count_methods_in_class(node)
-        if all_methods < self.config.min_public_methods:
+        if all_methods < self.linter.namespace.min_public_methods:
             self.add_message(
                 "too-few-public-methods",
                 node=node,
-                args=(all_methods, self.config.min_public_methods),
+                args=(all_methods, self.linter.namespace.min_public_methods),
             )
 
     @check_messages(
@@ -551,19 +524,21 @@ class MisdesignChecker(BaseChecker):
                 )
 
             argnum = len(args) - ignored_args_num
-            if argnum > self.config.max_args:
+            if argnum > self.linter.namespace.max_args:
                 self.add_message(
                     "too-many-arguments",
                     node=node,
-                    args=(len(args), self.config.max_args),
+                    args=(len(args), self.linter.namespace.max_args),
                 )
         else:
             ignored_args_num = 0
         # check number of local variables
         locnum = len(node.locals) - ignored_args_num
-        if locnum > self.config.max_locals:
+        if locnum > self.linter.namespace.max_locals:
             self.add_message(
-                "too-many-locals", node=node, args=(locnum, self.config.max_locals)
+                "too-many-locals",
+                node=node,
+                args=(locnum, self.linter.namespace.max_locals),
             )
         # init new statements counter
         self._stmts.append(1)
@@ -582,26 +557,26 @@ class MisdesignChecker(BaseChecker):
         checks for max returns, branch, return in __init__
         """
         returns = self._returns.pop()
-        if returns > self.config.max_returns:
+        if returns > self.linter.namespace.max_returns:
             self.add_message(
                 "too-many-return-statements",
                 node=node,
-                args=(returns, self.config.max_returns),
+                args=(returns, self.linter.namespace.max_returns),
             )
         branches = self._branches[node]
-        if branches > self.config.max_branches:
+        if branches > self.linter.namespace.max_branches:
             self.add_message(
                 "too-many-branches",
                 node=node,
-                args=(branches, self.config.max_branches),
+                args=(branches, self.linter.namespace.max_branches),
             )
         # check number of statements
         stmts = self._stmts.pop()
-        if stmts > self.config.max_statements:
+        if stmts > self.linter.namespace.max_statements:
             self.add_message(
                 "too-many-statements",
                 node=node,
-                args=(stmts, self.config.max_statements),
+                args=(stmts, self.linter.namespace.max_statements),
             )
 
     leave_asyncfunctiondef = leave_functiondef
@@ -653,11 +628,11 @@ class MisdesignChecker(BaseChecker):
         if not isinstance(condition, astroid.BoolOp):
             return
         nb_bool_expr = _count_boolean_expressions(condition)
-        if nb_bool_expr > self.config.max_bool_expr:
+        if nb_bool_expr > self.linter.namespace.max_bool_expr:
             self.add_message(
                 "too-many-boolean-expressions",
                 node=condition,
-                args=(nb_bool_expr, self.config.max_bool_expr),
+                args=(nb_bool_expr, self.linter.namespace.max_bool_expr),
             )
 
     def visit_while(self, node: nodes.While) -> None:

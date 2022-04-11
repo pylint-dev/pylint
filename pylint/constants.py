@@ -1,5 +1,8 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
+import os
 import platform
 import sys
 from typing import Dict, List, NamedTuple, Tuple
@@ -10,7 +13,6 @@ import platformdirs
 from pylint.__pkginfo__ import __version__
 from pylint.typing import MessageTypesFullName
 
-PY37_PLUS = sys.version_info[:2] >= (3, 7)
 PY38_PLUS = sys.version_info[:2] >= (3, 8)
 PY39_PLUS = sys.version_info[:2] >= (3, 9)
 
@@ -43,6 +45,7 @@ MSG_TYPES_STATUS = {"I": 0, "C": 16, "R": 8, "W": 4, "E": 2, "F": 1}
 # on all project using [MASTER] in their rcfile.
 MAIN_CHECKER_NAME = "master"
 
+USER_HOME = os.path.expanduser("~")
 # pylint: disable-next=fixme
 # TODO Remove in 3.0 with all the surrounding code
 OLD_DEFAULT_PYLINT_HOME = ".pylint.d"
@@ -71,6 +74,7 @@ HUMAN_READABLE_TYPES = {
     "class_attribute": "class attribute",
     "class_const": "class constant",
     "inlinevar": "inline iteration",
+    "typevar": "type variable",
 }
 
 
@@ -190,3 +194,6 @@ INCOMPATIBLE_WITH_USELESS_SUPPRESSION = frozenset(
         "W1513",  # deprecated-decorator
     ]
 )
+
+
+TYPING_TYPE_CHECKS_GUARDS = frozenset({"typing.TYPE_CHECKING", "TYPE_CHECKING"})

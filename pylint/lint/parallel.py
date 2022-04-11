@@ -1,5 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 import collections
 import functools
@@ -173,6 +174,9 @@ def check_parallel(
             all_stats.append(stats)
             all_mapreduce_data[worker_idx].append(mapreduce_data)
             linter.msg_status |= msg_status
+
+        pool.close()
+        pool.join()
 
     _merge_mapreduce_data(linter, all_mapreduce_data)
     linter.stats = merge_stats([linter.stats] + all_stats)

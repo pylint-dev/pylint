@@ -1,5 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 import collections
 from typing import (
@@ -21,7 +22,8 @@ if TYPE_CHECKING:
     from pylint.checkers import BaseChecker
     from pylint.lint.pylinter import PyLinter
 
-ReportsDict = DefaultDict["BaseChecker", List[Tuple[str, str, Callable]]]
+ReportsCallable = Callable[[Section, LinterStats, Optional[LinterStats]], None]
+ReportsDict = DefaultDict["BaseChecker", List[Tuple[str, str, ReportsCallable]]]
 
 
 class ReportsHandlerMixIn:
@@ -38,7 +40,7 @@ class ReportsHandlerMixIn:
         return list(self._reports)
 
     def register_report(
-        self, reportid: str, r_title: str, r_cb: Callable, checker: "BaseChecker"
+        self, reportid: str, r_title: str, r_cb: ReportsCallable, checker: "BaseChecker"
     ) -> None:
         """Register a report.
 

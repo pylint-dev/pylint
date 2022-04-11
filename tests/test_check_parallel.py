@@ -1,13 +1,8 @@
-"""Puts the check_parallel system under test."""
-# Copyright (c) 2020-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2020 Frank Harrison <frank@doublethefish.com>
-# Copyright (c) 2021 Jaehoon Hwang <jaehoonhwang@users.noreply.github.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Julien Palard <julien@palard.fr>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
+"""Puts the check_parallel system under test."""
 
 # pylint: disable=protected-access,missing-function-docstring,no-self-use
 
@@ -473,7 +468,7 @@ class TestCheckParallel:
             if do_single_proc:
                 # establish the baseline
                 assert (
-                    linter.config.jobs == 1
+                    linter.namespace.jobs == 1
                 ), "jobs>1 are ignored when calling _check_files"
                 linter._check_files(linter.get_ast, file_infos)
                 assert linter.msg_status == 0, "We should not fail the lint"
@@ -539,7 +534,7 @@ class TestCheckParallel:
             if do_single_proc:
                 # establish the baseline
                 assert (
-                    linter.config.jobs == 1
+                    linter.namespace.jobs == 1
                 ), "jobs>1 are ignored when calling _check_files"
                 linter._check_files(linter.get_ast, file_infos)
                 stats_single_proc = linter.stats

@@ -1,61 +1,6 @@
-# Copyright (c) 2006-2007, 2009-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2009 Mads Kiilerich <mads@kiilerich.com>
-# Copyright (c) 2010 Daniel Harding <dharding@gmail.com>
-# Copyright (c) 2012-2014 Google, Inc.
-# Copyright (c) 2012 FELD Boris <lothiraldan@gmail.com>
-# Copyright (c) 2013-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2014 Brett Cannon <brett@python.org>
-# Copyright (c) 2014 Ricardo Gemignani <ricardo.gemignani@gmail.com>
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015 Dmitry Pribysh <dmand@yandex.ru>
-# Copyright (c) 2015 Florian Bruhin <me@the-compiler.org>
-# Copyright (c) 2015 Radu Ciorba <radu@devrandom.ro>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016, 2018-2019 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2016-2017 Łukasz Rogalski <rogalski.91@gmail.com>
-# Copyright (c) 2016-2017 Moises Lopez <moylop260@vauxoo.com>
-# Copyright (c) 2016 Brian C. Lane <bcl@redhat.com>
-# Copyright (c) 2017-2018, 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2017 ttenhoeve-aa <ttenhoeve@appannie.com>
-# Copyright (c) 2018 Alan Chan <achan961117@gmail.com>
-# Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
-# Copyright (c) 2018 Yury Gribov <tetra2005@gmail.com>
-# Copyright (c) 2018 Caio Carrara <ccarrara@redhat.com>
-# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
-# Copyright (c) 2018 Bryce Guinta <bryce.guinta@protonmail.com>
-# Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
-# Copyright (c) 2018 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2018 Brian Shaginaw <brian.shaginaw@warbyparker.com>
-# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019 Matthijs Blom <19817960+MatthijsBlom@users.noreply.github.com>
-# Copyright (c) 2019 Djailla <bastien.vallet@gmail.com>
-# Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2019 Nathan Marrow <nmarrow@google.com>
-# Copyright (c) 2019 Svet <svet@hyperscience.com>
-# Copyright (c) 2019 Pascal Corpet <pcorpet@users.noreply.github.com>
-# Copyright (c) 2020 Batuhan Taskaya <batuhanosmantaskaya@gmail.com>
-# Copyright (c) 2020 Luigi <luigi.cristofolini@q-ctrl.com>
-# Copyright (c) 2020 ethan-leba <ethanleba5@gmail.com>
-# Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
-# Copyright (c) 2020 Andrew Simmons <anjsimmo@gmail.com>
-# Copyright (c) 2020 Ram Rachum <ram@rachum.com>
-# Copyright (c) 2020 Slavfox <slavfoxman@gmail.com>
-# Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 bot <bot@noreply.github.com>
-# Copyright (c) 2021 Yu Shao, Pang <36848472+yushao2@users.noreply.github.com>
-# Copyright (c) 2021 Mark Byrne <31762852+mbyrnepr2@users.noreply.github.com>
-# Copyright (c) 2021 Nick Drozd <nicholasdrozd@gmail.com>
-# Copyright (c) 2021 Arianna Y <92831762+areveny@users.noreply.github.com>
-# Copyright (c) 2021 Jaehoon Hwang <jaehoonhwang@users.noreply.github.com>
-# Copyright (c) 2021 Samuel FORESTIER <HorlogeSkynet@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 David Liu <david@cs.toronto.edu>
-# Copyright (c) 2021 Matus Valo <matusvalo@users.noreply.github.com>
-# Copyright (c) 2021 Lorena B <46202743+lorena-b@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Some functions that may be useful for various checkers."""
 import builtins
@@ -84,6 +29,8 @@ import astroid
 import astroid.objects
 from astroid import TooManyLevelsError, nodes
 from astroid.context import InferenceContext
+
+from pylint.constants import TYPING_TYPE_CHECKS_GUARDS
 
 COMP_NODE_TYPES = (
     nodes.ListComp,
@@ -160,6 +107,8 @@ _SPECIAL_METHODS_PARAMS = {
         "__aiter__",
         "__anext__",
         "__fspath__",
+        "__subclasses__",
+        "__init_subclass__",
     ),
     1: (
         "__format__",
@@ -1189,6 +1138,11 @@ def _supports_protocol(
         if protocol_callback(value):
             return True
 
+    # pylint: disable-next=fixme
+    # TODO: Should be covered by https://github.com/PyCQA/astroid/pull/1475
+    if isinstance(value, nodes.ComprehensionScope):
+        return True
+
     if (
         isinstance(value, astroid.bases.Proxy)
         and isinstance(value._proxied, astroid.BaseInstance)
@@ -1664,6 +1618,11 @@ def is_typing_guard(node: nodes.If) -> bool:
     ) and node.test.as_string().endswith("TYPE_CHECKING")
 
 
+def is_node_in_typing_guarded_import_block(node: nodes.NodeNG) -> bool:
+    """Return True if node is part for guarded `typing.TYPE_CHECKING` if block."""
+    return isinstance(node.parent, nodes.If) and is_typing_guard(node.parent)
+
+
 def is_node_in_guarded_import_block(node: nodes.NodeNG) -> bool:
     """Return True if node is part for guarded if block.
 
@@ -1751,3 +1710,12 @@ def get_node_first_ancestor_of_type_and_its_child(
             return (ancestor, child)
         child = ancestor
     return None, None
+
+
+def in_type_checking_block(node: nodes.NodeNG) -> bool:
+    """Check if a node is guarded by a TYPE_CHECKS guard."""
+    return any(
+        isinstance(ancestor, nodes.If)
+        and ancestor.test.as_string() in TYPING_TYPE_CHECKS_GUARDS
+        for ancestor in node.node_ancestors()
+    )

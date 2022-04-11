@@ -1,5 +1,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
 # pylint: disable=redefined-outer-name
 
 
@@ -8,6 +10,7 @@ from typing import Dict, ValuesView
 import pytest
 
 from pylint.checkers import BaseChecker
+from pylint.lint.pylinter import PyLinter
 from pylint.message import MessageDefinition, MessageDefinitionStore, MessageIdStore
 
 
@@ -31,6 +34,9 @@ def store() -> MessageDefinitionStore:
     store_ = MessageDefinitionStore()
 
     class Checker(BaseChecker):
+        def __init__(self) -> None:
+            super().__init__(PyLinter())
+
         name = "achecker"
         msgs = {
             "W1234": (
