@@ -60,6 +60,7 @@ class _ArgumentsManager:
         self._arg_parser = argparse.ArgumentParser(
             prog=prog,
             usage=usage or "%(prog)s [options]",
+            allow_abbrev=False,
             formatter_class=_HelpFormatter,
         )
         """The command line argument parser."""
@@ -452,7 +453,8 @@ class _ArgumentsManager:
         if verbose:
             print(f"Using config file '{config_file}'", file=sys.stderr)
 
-    def _parse_toml(self, config_file: Path, parser: configparser.ConfigParser) -> None:
+    @staticmethod
+    def _parse_toml(config_file: Path, parser: configparser.ConfigParser) -> None:
         """DEPRECATED: Parse and handle errors of a toml configuration file.
 
         TODO: Remove after read_config_file has been removed.
@@ -468,10 +470,6 @@ class _ArgumentsManager:
             # TOML has rich types, convert values to
             # strings as ConfigParser expects.
             if not isinstance(values, dict):
-                # This class is a mixin: add_message comes from the `PyLinter` class
-                self.add_message(  # type: ignore[attr-defined] # pylint: disable=no-member
-                    "bad-configuration-section", line=0, args=(section, values)
-                )
                 continue
             for option, value in values.items():
                 if isinstance(value, bool):
