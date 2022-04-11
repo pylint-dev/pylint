@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING, Any, Optional
 
 from astroid import nodes
 
-from pylint.config import OptionsProviderMixIn
 from pylint.config.arguments_provider import _ArgumentsProvider
 from pylint.constants import _MSG_ORDER, WarningScope
 from pylint.exceptions import InvalidMessageError
@@ -22,7 +21,7 @@ if TYPE_CHECKING:
 
 
 @functools.total_ordering
-class BaseChecker(_ArgumentsProvider, OptionsProviderMixIn):
+class BaseChecker(_ArgumentsProvider):
 
     # checker name (you may reuse an existing one)
     name: str = ""
@@ -44,7 +43,6 @@ class BaseChecker(_ArgumentsProvider, OptionsProviderMixIn):
         self.linter = linter
 
         _ArgumentsProvider.__init__(self, linter)
-        OptionsProviderMixIn.__init__(self)
 
     def __gt__(self, other):
         """Permit to sort a list of Checker by name."""

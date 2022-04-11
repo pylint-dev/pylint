@@ -41,6 +41,7 @@ class _ArgumentsProvider:
         # They should be removed/deprecated when refactoring the copied methods
         self.config = optparse.Values()
         self.load_defaults()
+        self.level = 0
 
     # pylint: disable-next=fixme
     # TODO: Optparse: All methods below this line are copied to keep API-parity with

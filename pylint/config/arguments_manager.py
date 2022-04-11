@@ -46,6 +46,8 @@ else:
 if TYPE_CHECKING:
     from pylint.config.arguments_provider import _ArgumentsProvider
 
+ConfigProvider = Union["_ArgumentsProvider", OptionsProviderMixIn]
+
 
 # pylint: disable-next=too-many-instance-attributes
 class _ArgumentsManager:
@@ -75,13 +77,11 @@ class _ArgumentsManager:
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             self.reset_parsers(usage or "")
         # list of registered options providers
-        self.options_providers: List[OptionsProviderMixIn] = []
+        self.options_providers: List[ConfigProvider] = []
         # dictionary associating option name to checker
-        self._all_options: OrderedDict[
-            str, OptionsProviderMixIn
-        ] = collections.OrderedDict()
+        self._all_options: OrderedDict[str, ConfigProvider] = collections.OrderedDict()
         self._short_options: Dict[str, str] = {}
-        self._nocallback_options: Dict[OptionsProviderMixIn, str] = {}
+        self._nocallback_options: Dict[ConfigProvider, str] = {}
         self._mygroups: Dict[str, optparse.OptionGroup] = {}
         # verbosity
         self._maxlevel: int = 0
@@ -225,7 +225,7 @@ class _ArgumentsManager:
         self._optik_option_attrs = set(self.cmdline_parser.option_class.ATTRS)
 
     def register_options_provider(
-        self, provider: OptionsProviderMixIn, own_group: bool = True
+        self, provider: ConfigProvider, own_group: bool = True
     ) -> None:
         """DEPRECATED: Register an options provider."""
         warnings.warn(
@@ -269,7 +269,7 @@ class _ArgumentsManager:
         group_name: str,
         _: Optional[str],
         options: List[Tuple[str, OptionDict]],
-        provider: OptionsProviderMixIn,
+        provider: ConfigProvider,
     ) -> None:
         """DEPRECATED."""
         warnings.warn(
@@ -304,7 +304,7 @@ class _ArgumentsManager:
 
     def add_optik_option(
         self,
-        provider: OptionsProviderMixIn,
+        provider: ConfigProvider,
         optikcontainer: Union[optparse.OptionParser, optparse.OptionGroup],
         opt: str,
         optdict: OptionDict,
@@ -323,7 +323,7 @@ class _ArgumentsManager:
         self._maxlevel = max(self._maxlevel, option.level or 0)
 
     def optik_option(
-        self, provider: OptionsProviderMixIn, opt: str, optdict: OptionDict
+        self, provider: ConfigProvider, opt: str, optdict: OptionDict
     ) -> Tuple[List[str], OptionDict]:
         """DEPRECATED: Get our personal option definition and return a suitable form for
         use with optik/optparse
