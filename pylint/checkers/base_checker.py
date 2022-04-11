@@ -41,8 +41,9 @@ class BaseChecker(_ArgumentsProvider, OptionsProviderMixIn):
         """Checker instances should have the linter as argument."""
         if self.name is not None:
             self.name = self.name.lower()
-        _ArgumentsProvider.__init__(self, linter)
         self.linter = linter
+
+        _ArgumentsProvider.__init__(self, linter)
         OptionsProviderMixIn.__init__(self)
 
     def __gt__(self, other):
