@@ -179,7 +179,7 @@ DELETED_MESSAGES = [
     # No PR
     DeletedMessage("R0921", "abstract-class-not-used"),
     # https://github.com/PyCQA/pylint/pull/3577
-    DeletedMessage("C0326", "abstract-class-not-used"),
+    DeletedMessage("C0326", "bad-whitespace"),
 ]
 
 
