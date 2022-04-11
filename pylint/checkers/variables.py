@@ -2113,35 +2113,30 @@ class VariablesChecker(BaseChecker):
                 return True
         return False
 
-    def _ignore_class_scope(self, node):
+    def _ignore_class_scope(self, node: nodes.NodeNG) -> bool:
         """Return True if the node is in a local class scope, as an assignment.
 
-        :param node: Node considered
-        :type node: astroid.Node
-        :return: True if the node is in a local class scope, as an assignment. False otherwise.
-        :rtype: bool
-        """
-        # Detect if we are in a local class scope, as an assignment.
-        # For example, the following is fair game.
-        #
-        # class A:
-        #    b = 1
-        #    c = lambda b=b: b * b
-        #
-        # class B:
-        #    tp = 1
-        #    def func(self, arg: tp):
-        #        ...
-        # class C:
-        #    tp = 2
-        #    def func(self, arg=tp):
-        #        ...
-        # class C:
-        #    class Tp:
-        #        pass
-        #    class D(Tp):
-        #        ...
+        Detect if we are in a local class scope, as an assignment.
+        For example, the following is fair game.
 
+        class A:
+           b = 1
+           c = lambda b=b: b * b
+
+        class B:
+           tp = 1
+           def func(self, arg: tp):
+               ...
+        class C:
+           tp = 2
+           def func(self, arg=tp):
+               ...
+        class C:
+           class Tp:
+               pass
+           class D(Tp):
+               ...
+        """
         name = node.name
         frame = node.statement(future=True).scope()
         in_annotation_or_default_or_decorator = self._defined_in_function_definition(

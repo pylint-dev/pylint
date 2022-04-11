@@ -265,7 +265,7 @@ class SpellingChecker(BaseTokenChecker):
         ),
     )
 
-    def open(self):
+    def open(self) -> None:
         self.initialized = False
         self.private_dict_file = None
 
@@ -304,7 +304,7 @@ class SpellingChecker(BaseTokenChecker):
             self.spelling_dict = enchant.Dict(dict_name)
 
         if self.linter.config.spelling_store_unknown_words:
-            self.unknown_words = set()
+            self.unknown_words: set[str] = set()
 
         self.tokenizer = get_tokenizer(
             dict_name,
@@ -321,14 +321,15 @@ class SpellingChecker(BaseTokenChecker):
         )
         self.initialized = True
 
-    def close(self):
+    def close(self) -> None:
         if self.private_dict_file:
             self.private_dict_file.close()
 
-    def _check_spelling(self, msgid, line, line_num):
+    def _check_spelling(self, msgid: str, line: str, line_num: int) -> None:
         original_line = line
         try:
-            initial_space = re.search(r"^[^\S]\s*", line).regs[0][1]
+            # The mypy warning is caught by the except statement
+            initial_space = re.search(r"^[^\S]\s*", line).regs[0][1]  # type: ignore[union-attr]
         except (IndexError, AttributeError):
             initial_space = 0
         if line.strip().startswith("#") and "docstring" not in msgid:
@@ -378,7 +379,10 @@ class SpellingChecker(BaseTokenChecker):
 
             # Store word to private dict or raise a message.
             if self.linter.config.spelling_store_unknown_words:
-                if lower_cased_word not in self.unknown_words:
+                if (
+                    lower_cased_word not in self.unknown_words
+                    and self.private_dict_file is not None
+                ):
                     self.private_dict_file.write(f"{lower_cased_word}\n")
                     self.unknown_words.add(lower_cased_word)
             else:
@@ -428,14 +432,22 @@ class SpellingChecker(BaseTokenChecker):
         self._check_docstring(node)
 
     @only_required_for_messages("wrong-spelling-in-docstring")
-    def visit_functiondef(self, node: nodes.FunctionDef) -> None:
+    def visit_functiondef(
+        self, node: nodes.FunctionDef | nodes.AsyncFunctionDef
+    ) -> None:
         if not self.initialized:
             return
         self._check_docstring(node)
 
     visit_asyncfunctiondef = visit_functiondef
 
-    def _check_docstring(self, node):
+    def _check_docstring(
+        self,
+        node: nodes.FunctionDef
+        | nodes.AsyncFunctionDef
+        | nodes.ClassDef
+        | nodes.Module,
+    ) -> None:
         """Check the node has any spelling errors."""
         if not node.doc_node:
             return
