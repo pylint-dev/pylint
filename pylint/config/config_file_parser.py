@@ -41,6 +41,7 @@ class _ConfigurationFileParser:
         options: List[str] = []
         for section in parser.sections():
             for opt, value in parser[section].items():
+                value = value.replace("\n", "")
                 config_content[opt] = value
                 options += [f"--{opt}", value]
         return config_content, options
