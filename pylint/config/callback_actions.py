@@ -329,6 +329,38 @@ class _AccessLinterObjectAction(_CallbackAction):
         raise NotImplementedError
 
 
+class _DisableAction(_AccessLinterObjectAction):
+    """Callback action for disabling a message."""
+
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: Union[str, Sequence[Any], None],
+        option_string: Optional[str] = "--disable",
+    ) -> None:
+        assert isinstance(values, (tuple, list))
+        values = utils._check_csv(values[0])
+        for msgid in values:
+            self.linter.disable(msgid)
+
+
+class _EnableAction(_AccessLinterObjectAction):
+    """Callback action for enabling a message."""
+
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: Union[str, Sequence[Any], None],
+        option_string: Optional[str] = "--enable",
+    ) -> None:
+        assert isinstance(values, (tuple, list))
+        values = utils._check_csv(values[0])
+        for msgid in values:
+            self.linter.enable(msgid)
+
+
 class _OutputFormatAction(_AccessLinterObjectAction):
     """Callback action for setting the output format."""
 
