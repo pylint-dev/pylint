@@ -5,6 +5,7 @@
 """A collection of typing utilities."""
 import sys
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     Dict,
@@ -13,6 +14,7 @@ from typing import (
     Optional,
     Pattern,
     Tuple,
+    Type,
     Union,
 )
 
@@ -20,6 +22,9 @@ if sys.version_info >= (3, 8):
     from typing import Literal, TypedDict
 else:
     from typing_extensions import Literal, TypedDict
+
+if TYPE_CHECKING:
+    from pylint.config.callback_actions import _CallbackAction
 
 
 class FileItem(NamedTuple):
@@ -92,6 +97,8 @@ OptionDict = Dict[
         int,
         Pattern[str],
         Iterable[Union[str, int, Pattern[str]]],
+        Type["_CallbackAction"],
+        Callable[[Any], Any],
         Callable[[Any, Any, Any, Any], Any],
     ],
 ]

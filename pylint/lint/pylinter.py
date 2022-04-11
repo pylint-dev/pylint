@@ -219,8 +219,7 @@ class PyLinter(
     # Will be used like this : datetime.now().strftime(crash_file_path)
     crash_file_path: str = "pylint-crash-%Y-%m-%d-%H.txt"
 
-    @staticmethod
-    def make_options() -> Options:
+    def make_options(self) -> Options:
         return (
             (
                 "ignore",
@@ -282,6 +281,10 @@ class PyLinter(
                 {
                     "default": "text",
                     "type": "string",
+                    # pylint: disable-next=fixme
+                    # TODO: Optparse: Uncomment these lines.
+                    # "action": _OutputFormatAction,
+                    # "callback": lambda x: x,
                     "metavar": "<format>",
                     "short": "f",
                     "group": "Reports",
@@ -289,6 +292,7 @@ class PyLinter(
                     " parseable, colorized, json and msvs (visual studio)."
                     " You can also give a reporter class, e.g. mypackage.mymodule."
                     "MyReporterClass.",
+                    "kwargs": {"linter": self},
                 },
             ),
             (
@@ -592,7 +596,7 @@ class PyLinter(
 
         # Attributes related to (command-line) options and their parsing
         self._external_opts = options
-        self.options: Options = options + PyLinter.make_options()
+        self.options: Options = options + self.make_options()
         for opt_group in option_groups:
             self.option_groups_descs[opt_group[0]] = opt_group[1]
         # pylint: disable-next=fixme
