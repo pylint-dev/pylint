@@ -532,7 +532,7 @@ def test_load_plugin_configuration() -> None:
         ],
         exit=False,
     )
-    assert run.linter.config.black_list == ["foo", "bar", "bin"]
+    assert run.linter.namespace.ignore == ["foo", "bar", "bin"]
 
 
 def test_init_hooks_called_before_load_plugins() -> None:

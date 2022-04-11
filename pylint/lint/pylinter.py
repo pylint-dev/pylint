@@ -1202,8 +1202,8 @@ class PyLinter(
         """Get modules and errors from a list of modules and handle errors."""
         result, errors = expand_modules(
             modules,
-            self.config.black_list,
-            self.config.black_list_re,
+            self.namespace.ignore,
+            self.namespace.ignore_patterns,
             self._ignore_paths,
         )
         for error in errors:
