@@ -13,7 +13,6 @@ import platformdirs
 from pylint.__pkginfo__ import __version__
 from pylint.typing import MessageTypesFullName
 
-PY37_PLUS = sys.version_info[:2] >= (3, 7)
 PY38_PLUS = sys.version_info[:2] >= (3, 8)
 PY39_PLUS = sys.version_info[:2] >= (3, 9)
 

@@ -48,7 +48,7 @@ supported.
 2.4 What versions of Python is Pylint supporting?
 --------------------------------------------------
 
-The supported running environment since Pylint 2.12.1 is Python 3.6.2+.
+The supported running environment since Pylint 2.14.0 is Python 3.7.2+.
 
 
 3. Running Pylint
@@ -257,10 +257,9 @@ methods is doing nothing but raising NotImplementedError.
 5.2 How do I avoid "access to undefined member" messages in my mixin classes?
 -------------------------------------------------------------------------------
 
-To do so you have to set the ignore-mixin-members option to
-"yes" (this is the default value) and name your mixin class with
-a name which ends with "Mixin" or "mixin" (default) or change the
-default value by changing the mixin-class-rgx option.
+You should add the ``no-member`` message to your ``ignored-checks-for-mixins`` option
+and name your mixin class with a name which ends with "Mixin" or "mixin" (default)
+or change the default value by changing the ``mixin-class-rgx`` option.
 
 
 6. Troubleshooting

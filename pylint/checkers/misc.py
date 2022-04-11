@@ -96,9 +96,6 @@ class EncodingChecker(BaseChecker):
         ),
     )
 
-    def __init__(self, linter: "PyLinter") -> None:
-        super().__init__(linter, future_option_parsing=True)
-
     def open(self):
         super().open()
 

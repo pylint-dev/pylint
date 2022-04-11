@@ -9,9 +9,5 @@ class UnrecognizedArgumentAction(Exception):
     """
 
 
-class MissingArgumentManager(Exception):
-    """Raised if an ArgumentManager instance to register options to is missing."""
-
-
 class ArgumentPreprocessingError(Exception):
     """Raised if an error occurs during argument preprocessing."""

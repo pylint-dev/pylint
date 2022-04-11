@@ -28,6 +28,7 @@ from typing import (
 from pylint import interfaces
 from pylint import utils as pylint_utils
 from pylint.config.callback_actions import _CallbackAction
+from pylint.config.deprecation_actions import _NewNamesAction, _OldNamesAction
 
 if sys.version_info >= (3, 8):
     from typing import Literal
@@ -90,7 +91,7 @@ def _non_empty_string_transformer(value: str) -> str:
 def _py_version_transformer(value: str) -> Tuple[int, ...]:
     """Transforms a version string into a version tuple."""
     try:
-        version = tuple(int(val) for val in value.split("."))
+        version = tuple(int(val) for val in value.replace(",", ".").split("."))
     except ValueError:
         raise argparse.ArgumentTypeError(
             f"{value} has an invalid format, should be a version string. E.g., '3.8'"
@@ -151,7 +152,14 @@ class _Argument:
     https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.add_argument
     """
 
-    def __init__(self, *, flags: List[str], arg_help: str, hide_help: bool) -> None:
+    def __init__(
+        self,
+        *,
+        flags: List[str],
+        arg_help: str,
+        hide_help: bool,
+        section: Optional[str],
+    ) -> None:
         self.flags = flags
         """The name of the argument."""
 
@@ -164,6 +172,9 @@ class _Argument:
 
         if hide_help:
             self.help = argparse.SUPPRESS
+
+        self.section = section
+        """The section to add this argument to."""
 
 
 class _BaseStoreArgument(_Argument):
@@ -182,8 +193,11 @@ class _BaseStoreArgument(_Argument):
         default: _ArgumentTypes,
         arg_help: str,
         hide_help: bool,
+        section: Optional[str],
     ) -> None:
-        super().__init__(flags=flags, arg_help=arg_help, hide_help=hide_help)
+        super().__init__(
+            flags=flags, arg_help=arg_help, hide_help=hide_help, section=section
+        )
 
         self.action = action
         """The action to perform with the argument."""
@@ -211,6 +225,7 @@ class _StoreArgument(_BaseStoreArgument):
         arg_help: str,
         metavar: str,
         hide_help: bool,
+        section: Optional[str],
     ) -> None:
         super().__init__(
             flags=flags,
@@ -218,6 +233,7 @@ class _StoreArgument(_BaseStoreArgument):
             default=default,
             arg_help=arg_help,
             hide_help=hide_help,
+            section=section,
         )
 
         self.type = _TYPE_TRANSFORMERS[arg_type]
@@ -254,6 +270,7 @@ class _StoreTrueArgument(_BaseStoreArgument):
         default: _ArgumentTypes,
         arg_help: str,
         hide_help: bool,
+        section: Optional[str],
     ) -> None:
         super().__init__(
             flags=flags,
@@ -261,7 +278,130 @@ class _StoreTrueArgument(_BaseStoreArgument):
             default=default,
             arg_help=arg_help,
             hide_help=hide_help,
+            section=section,
         )
+
+
+class _DeprecationArgument(_Argument):
+    """Store arguments while also handling deprecation warnings for old and new names.
+
+    This is based on the parameters passed to argparse.ArgumentsParser.add_message.
+    See:
+    https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.add_argument
+    """
+
+    def __init__(
+        self,
+        *,
+        flags: List[str],
+        action: Type[argparse._StoreAction],
+        default: _ArgumentTypes,
+        arg_type: str,
+        choices: Optional[List[str]],
+        arg_help: str,
+        metavar: str,
+        hide_help: bool,
+        section: Optional[str],
+    ) -> None:
+        super().__init__(
+            flags=flags, arg_help=arg_help, hide_help=hide_help, section=section
+        )
+
+        self.action = action
+        """The action to perform with the argument."""
+
+        self.default = default
+        """The default value of the argument."""
+
+        self.type = _TYPE_TRANSFORMERS[arg_type]
+        """A transformer function that returns a transformed type of the argument."""
+
+        self.choices = choices
+        """A list of possible choices for the argument.
+
+        None if there are no restrictions.
+        """
+
+        self.metavar = metavar
+        """The metavar of the argument.
+
+        See:
+        https://docs.python.org/3/library/argparse.html#metavar
+        """
+
+
+class _StoreOldNamesArgument(_DeprecationArgument):
+    """Store arguments while also handling old names.
+
+    This is based on the parameters passed to argparse.ArgumentsParser.add_message.
+    See:
+    https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.add_argument
+    """
+
+    def __init__(
+        self,
+        *,
+        flags: List[str],
+        default: _ArgumentTypes,
+        arg_type: str,
+        choices: Optional[List[str]],
+        arg_help: str,
+        metavar: str,
+        hide_help: bool,
+        kwargs: Dict[str, Any],
+        section: Optional[str],
+    ) -> None:
+        super().__init__(
+            flags=flags,
+            action=_OldNamesAction,
+            default=default,
+            arg_type=arg_type,
+            choices=choices,
+            arg_help=arg_help,
+            metavar=metavar,
+            hide_help=hide_help,
+            section=section,
+        )
+
+        self.kwargs = kwargs
+        """Any additional arguments passed to the action."""
+
+
+class _StoreNewNamesArgument(_DeprecationArgument):
+    """Store arguments while also emitting deprecation warnings.
+
+    This is based on the parameters passed to argparse.ArgumentsParser.add_message.
+    See:
+    https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.add_argument
+    """
+
+    def __init__(
+        self,
+        *,
+        flags: List[str],
+        default: _ArgumentTypes,
+        arg_type: str,
+        choices: Optional[List[str]],
+        arg_help: str,
+        metavar: str,
+        hide_help: bool,
+        kwargs: Dict[str, Any],
+        section: Optional[str],
+    ) -> None:
+        super().__init__(
+            flags=flags,
+            action=_NewNamesAction,
+            default=default,
+            arg_type=arg_type,
+            choices=choices,
+            arg_help=arg_help,
+            metavar=metavar,
+            hide_help=hide_help,
+            section=section,
+        )
+
+        self.kwargs = kwargs
+        """Any additional arguments passed to the action."""
 
 
 class _CallableArgument(_Argument):
@@ -280,8 +420,11 @@ class _CallableArgument(_Argument):
         arg_help: str,
         kwargs: Dict[str, Any],
         hide_help: bool,
+        section: Optional[str],
     ) -> None:
-        super().__init__(flags=flags, arg_help=arg_help, hide_help=hide_help)
+        super().__init__(
+            flags=flags, arg_help=arg_help, hide_help=hide_help, section=section
+        )
 
         self.action = action
         """The action to perform with the argument."""

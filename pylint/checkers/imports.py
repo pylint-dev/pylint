@@ -384,7 +384,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
     )
 
     def __init__(self, linter: "PyLinter") -> None:
-        BaseChecker.__init__(self, linter, future_option_parsing=True)
+        BaseChecker.__init__(self, linter)
         self.import_graph: collections.defaultdict = collections.defaultdict(set)
         self._imports_stack: List[Tuple[Any, Any]] = []
         self._first_non_import_node = None

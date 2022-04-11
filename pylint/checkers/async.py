@@ -39,9 +39,6 @@ class AsyncChecker(checkers.BaseChecker):
     }
 
     def open(self):
-        self._ignore_mixin_members = utils.get_global_option(
-            self, "ignore-mixin-members"
-        )
         self._mixin_class_rgx = utils.get_global_option(self, "mixin-class-rgx")
         self._async_generators = ["contextlib.asynccontextmanager"]
 
@@ -81,8 +78,10 @@ class AsyncChecker(checkers.BaseChecker):
                         if not checker_utils.has_known_bases(inferred):
                             continue
                         # Ignore mixin classes if they match the rgx option.
-                        if self._ignore_mixin_members and self._mixin_class_rgx.match(
-                            inferred.name
+                        if (
+                            "not-async-context-manager"
+                            in self.linter.namespace.ignored_checks_for_mixins
+                            and self._mixin_class_rgx.match(inferred.name)
                         ):
                             continue
                 else:
