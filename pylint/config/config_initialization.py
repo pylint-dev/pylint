@@ -67,14 +67,17 @@ def _config_initialization(
         warnings.filterwarnings("ignore", category=DeprecationWarning)
         linter.load_config_file()
 
-    try:
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            linter.load_command_line_configuration(args_list)
-    except SystemExit as exc:
-        if exc.code == 2:  # bad options
-            exc.code = 32
-        raise
+    # pylint: disable-next=fixme
+    # TODO: Optparse: This has been disabled pre-maturely because it interferes with
+    # argparse option parsing for 'disable' and 'enable'.
+    # try:
+    #     with warnings.catch_warnings():
+    #         warnings.filterwarnings("ignore", category=DeprecationWarning)
+    #         linter.load_command_line_configuration(args_list)
+    # except SystemExit as exc:
+    #     if exc.code == 2:  # bad options
+    #         exc.code = 32
+    #     raise
 
     # First we parse any options from a configuration file
     linter._parse_configuration_file(config_args)
