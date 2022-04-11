@@ -338,7 +338,7 @@ class _ArgumentsManager:
             self._nocallback_options[provider] = opt
         else:
             optdict["action"] = "callback"
-            optdict["callback"] = self.cb_set_provider_option  # type: ignore[assignment]
+            optdict["callback"] = self.cb_set_provider_option
         # default is handled here and *must not* be given to optik if you
         # want the whole machinery to work
         if "default" in optdict:
