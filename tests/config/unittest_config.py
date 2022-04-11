@@ -1,16 +1,6 @@
-# Copyright (c) 2015 Aru Sahni <arusahni@gmail.com>
-# Copyright (c) 2016-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
-# Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Unit tests for the config module."""
 
@@ -83,13 +73,13 @@ class TestPyLinterOptionSetters(CheckerTestCase):
     class Checker(BaseChecker):
         name = "checker"
         msgs: Dict[str, Tuple[str, ...]] = {}
-        options = (("An option", {"An option": "dict"}),)
+        options = (("test-opt", {"action": "store_true", "help": "help message"}),)
 
     CHECKER_CLASS: Type = Checker
 
     @set_config(ignore_paths=".*/tests/.*,.*\\ignore\\.*")
     def test_ignore_paths_with_value(self) -> None:
-        """Test ignore-paths option with value"""
+        """Test ignore-paths option with value."""
         options = get_global_option(self.checker, "ignore-paths")
 
         assert any(i.match("dir/tests/file.py") for i in options)

@@ -1,11 +1,11 @@
-inherit-non-class:21:0:22:40:Bad:Inheriting '1', which is not a class.:UNDEFINED
-inherit-non-class:24:0:25:38:Bad1:"Inheriting 'lambda abc: 42', which is not a class.":UNDEFINED
-inherit-non-class:27:0:28:53:Bad2:Inheriting 'object()', which is not a class.:UNDEFINED
-inherit-non-class:30:0:31:40:Bad3:Inheriting 'return_class', which is not a class.:UNDEFINED
-inherit-non-class:33:0:34:40:Bad4:Inheriting 'Empty()', which is not a class.:UNDEFINED
-inherit-non-class:68:0:69:8:NotInheritableBool:Inheriting 'bool', which is not a class.:UNDEFINED
-inherit-non-class:72:0:73:8:NotInheritableRange:Inheriting 'range', which is not a class.:UNDEFINED
-inherit-non-class:76:0:77:8:NotInheritableSlice:Inheriting 'slice', which is not a class.:UNDEFINED
-inherit-non-class:80:0:81:8:NotInheritableMemoryView:Inheriting 'memoryview', which is not a class.:UNDEFINED
-inherit-non-class:99:0:100:8:Child2:Inheriting 'ParentBad[int]', which is not a class.:UNDEFINED
-unsubscriptable-object:103:13:103:18:Child3:Value 'Empty' is unsubscriptable:UNDEFINED
+inherit-non-class:21:0:21:9:Bad:Inheriting '1', which is not a class.:UNDEFINED
+inherit-non-class:24:0:24:10:Bad1:"Inheriting 'lambda abc: 42', which is not a class.":UNDEFINED
+inherit-non-class:27:0:27:10:Bad2:Inheriting 'object()', which is not a class.:UNDEFINED
+inherit-non-class:30:0:30:10:Bad3:Inheriting 'return_class', which is not a class.:UNDEFINED
+inherit-non-class:33:0:33:10:Bad4:Inheriting 'Empty()', which is not a class.:UNDEFINED
+inherit-non-class:68:0:68:24:NotInheritableBool:Inheriting 'bool', which is not a class.:UNDEFINED
+inherit-non-class:72:0:72:25:NotInheritableRange:Inheriting 'range', which is not a class.:UNDEFINED
+inherit-non-class:76:0:76:25:NotInheritableSlice:Inheriting 'slice', which is not a class.:UNDEFINED
+inherit-non-class:80:0:80:30:NotInheritableMemoryView:Inheriting 'memoryview', which is not a class.:UNDEFINED
+inherit-non-class:98:0:98:12:Child2:Inheriting 'ParentBad[int]', which is not a class.:UNDEFINED
+unsubscriptable-object:102:13:102:18:Child3:Value 'Empty' is unsubscriptable:UNDEFINED

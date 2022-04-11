@@ -1,25 +1,8 @@
-# Copyright (c) 2006-2007, 2010-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2012-2014 Google, Inc.
-# Copyright (c) 2014 Brett Cannon <brett@python.org>
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2015 Florian Bruhin <me@the-compiler.org>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016 y2kbugger <y2kbugger@users.noreply.github.com>
-# Copyright (c) 2018-2019 Nick Drozd <nicholasdrozd@gmail.com>
-# Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
-# Copyright (c) 2018 Jace Browning <jacebrowning@gmail.com>
-# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 bot <bot@noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-"""Plain text reporters:
+"""Plain text reporters:.
 
 :text: the default one grouping messages by module
 :colorized: an ANSI colorized text reporter
@@ -53,7 +36,7 @@ if TYPE_CHECKING:
 
 
 class MessageStyle(NamedTuple):
-    """Styling of a message"""
+    """Styling of a message."""
 
     color: Optional[str]
     """The color name (see `ANSI_COLORS` for available values)
@@ -93,7 +76,7 @@ ANSI_COLORS = {
 
 
 def _get_ansi_code(msg_style: MessageStyle) -> str:
-    """return ansi escape code corresponding to color and style
+    """Return ansi escape code corresponding to color and style.
 
     :param msg_style: the message style
 
@@ -125,7 +108,7 @@ def colorize_ansi(
 def colorize_ansi(
     msg: str,
     msg_style: Optional[str] = None,
-    style: Optional[str] = None,
+    style: str = "",
     *,
     color: Optional[str] = None,
 ) -> str:
@@ -136,7 +119,7 @@ def colorize_ansi(
 def colorize_ansi(
     msg: str,
     msg_style: Union[MessageStyle, str, None] = None,
-    style: Optional[str] = None,
+    style: str = "",
     **kwargs: Optional[str],
 ) -> str:
     r"""colorize message by wrapping it with ansi escape codes
@@ -173,7 +156,7 @@ def colorize_ansi(
 
 
 class TextReporter(BaseReporter):
-    """Reports messages and layouts in plain text"""
+    """Reports messages and layouts in plain text."""
 
     __implements__ = IReporter
     name = "text"
@@ -185,11 +168,11 @@ class TextReporter(BaseReporter):
         self._modules: Set[str] = set()
         self._template = self.line_format
         self._fixed_template = self.line_format
-        """The output format template with any unrecognized arguments removed"""
+        """The output format template with any unrecognized arguments removed."""
 
     def on_set_current_module(self, module: str, filepath: Optional[str]) -> None:
         """Set the format template to be used and check for unrecognized arguments."""
-        template = str(self.linter.config.msg_template or self._template)
+        template = str(self.linter.namespace.msg_template or self._template)
 
         # Return early if the template is the same as the previous one
         if template == self._template:
@@ -210,7 +193,7 @@ class TextReporter(BaseReporter):
         self._fixed_template = template
 
     def write_message(self, msg: Message) -> None:
-        """Convenience method to write a formatted message with class default template"""
+        """Convenience method to write a formatted message with class default template."""
         self_dict = msg._asdict()
         for key in ("end_line", "end_column"):
             self_dict[key] = self_dict[key] or ""
@@ -218,7 +201,7 @@ class TextReporter(BaseReporter):
         self.writeln(self._fixed_template.format(**self_dict))
 
     def handle_message(self, msg: Message) -> None:
-        """manage message of different type and in the context of path"""
+        """Manage message of different type and in the context of path."""
         if msg.module not in self._modules:
             if msg.module:
                 self.writeln(f"************* Module {msg.module}")
@@ -228,13 +211,13 @@ class TextReporter(BaseReporter):
         self.write_message(msg)
 
     def _display(self, layout: "Section") -> None:
-        """launch layouts display"""
+        """Launch layouts display."""
         print(file=self.out)
         TextWriter().format(layout, self.out)
 
 
 class ParseableTextReporter(TextReporter):
-    """a reporter very similar to TextReporter, but display messages in a form
+    """A reporter very similar to TextReporter, but display messages in a form
     recognized by most text editors :
 
     <filename>:<linenum>:<msg>
@@ -252,14 +235,14 @@ class ParseableTextReporter(TextReporter):
 
 
 class VSTextReporter(ParseableTextReporter):
-    """Visual studio text reporter"""
+    """Visual studio text reporter."""
 
     name = "msvs"
     line_format = "{path}({line}): [{msg_id}({symbol}){obj}] {msg}"
 
 
 class ColorizedTextReporter(TextReporter):
-    """Simple TextReporter that colorizes text output"""
+    """Simple TextReporter that colorizes text output."""
 
     name = "colorized"
     COLOR_MAPPING: ColorMappingDict = {
@@ -284,7 +267,7 @@ class ColorizedTextReporter(TextReporter):
     def __init__(
         self,
         output: Optional[TextIO] = None,
-        color_mapping: Optional[Dict[str, Tuple[Optional[str], Optional[str]]]] = None,
+        color_mapping: Optional[Dict[str, Tuple[Optional[str], str]]] = None,
     ) -> None:
         # Remove for pylint 3.0
         ...
@@ -293,7 +276,7 @@ class ColorizedTextReporter(TextReporter):
         self,
         output: Optional[TextIO] = None,
         color_mapping: Union[
-            ColorMappingDict, Dict[str, Tuple[Optional[str], Optional[str]]], None
+            ColorMappingDict, Dict[str, Tuple[Optional[str], str]], None
         ] = None,
     ) -> None:
         super().__init__(output)
@@ -303,13 +286,13 @@ class ColorizedTextReporter(TextReporter):
             list(color_mapping.values())[0], MessageStyle
         ):
             warnings.warn(
-                "In pylint 3.0, the ColoreziedTextReporter will only accept ColorMappingDict as color_mapping parameter",
+                "In pylint 3.0, the ColorizedTextReporter will only accept ColorMappingDict as color_mapping parameter",
                 DeprecationWarning,
             )
             temp_color_mapping: ColorMappingDict = {}
             for key, value in color_mapping.items():
                 color = value[0]
-                style_attrs = tuple(_splitstrip(value[1]))
+                style_attrs = tuple(_splitstrip(value[1]))  # type: ignore[arg-type]
                 temp_color_mapping[key] = MessageStyle(color, style_attrs)
             color_mapping = temp_color_mapping
         else:
@@ -324,11 +307,11 @@ class ColorizedTextReporter(TextReporter):
                 self.out = colorama.AnsiToWin32(self.out)
 
     def _get_decoration(self, msg_id: str) -> MessageStyle:
-        """Returns the message style as defined in self.color_mapping"""
+        """Returns the message style as defined in self.color_mapping."""
         return self.color_mapping.get(msg_id[0]) or MessageStyle(None)
 
     def handle_message(self, msg: Message) -> None:
-        """manage message of different types, and colorize output
+        """Manage message of different types, and colorize output
         using ansi escape codes
         """
         if msg.module not in self._modules:

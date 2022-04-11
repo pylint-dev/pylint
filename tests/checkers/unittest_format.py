@@ -1,38 +1,15 @@
-# Copyright (c) 2009-2011, 2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2012 FELD Boris <lothiraldan@gmail.com>
-# Copyright (c) 2013-2014 Google, Inc.
-# Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2014 buck <buck.2019@gmail.com>
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015 Harut <yes@harutune.name>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016 Petr Pulc <petrpulc@gmail.com>
-# Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
-# Copyright (c) 2017 Krzysztof Czapla <k.czapla68@gmail.com>
-# Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
-# Copyright (c) 2017 James M. Allen <james.m.allen@gmail.com>
-# Copyright (c) 2017 vinnyrose <vinnyrose@users.noreply.github.com>
-# Copyright (c) 2018, 2020 Bryce Guinta <bryce.guinta@protonmail.com>
-# Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
-# Copyright (c) 2018, 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-"""Check format checker helper functions"""
+"""Check format checker helper functions."""
 
 import os
 import tempfile
 import tokenize
 
 import astroid
+import pytest
 
 from pylint import lint, reporters
 from pylint.checkers.format import FormatChecker
@@ -120,7 +97,7 @@ class TestSuperfluousParentheses(CheckerTestCase):
                 self.checker.process_tokens(_tokenize_str(code))
 
     def testPositiveSuperfluousParensWalrusOperatorIf(self) -> None:
-        """Test positive superfluous parens cases with the walrus operator"""
+        """Test positive superfluous parens cases with the walrus operator."""
         cases = [
             (
                 MessageTest("superfluous-parens", line=1, args="if"),
@@ -162,7 +139,7 @@ class TestCheckSpace(CheckerTestCase):
     CHECKER_CLASS = FormatChecker
 
     def test_encoding_token(self) -> None:
-        """Make sure the encoding token doesn't change the checker's behavior
+        """Make sure the encoding token doesn't change the checker's behavior.
 
         _tokenize_str doesn't produce an encoding token, but
         reading a file does
@@ -194,9 +171,10 @@ mylist = [
         linter = lint.PyLinter()
         checker = FormatChecker(linter)
         linter.register_checker(checker)
-        args = linter.load_command_line_configuration(
-            [file_.name, "-d", "bad-continuation"]
-        )
+        with pytest.warns(DeprecationWarning):
+            args = linter.load_command_line_configuration(
+                [file_.name, "-d", "bad-continuation"]
+            )
         myreporter = reporters.CollectingReporter()
         linter.set_reporter(myreporter)
         linter.check(args)

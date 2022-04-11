@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 import astroid
 from astroid import nodes
@@ -10,7 +10,7 @@ from pylint.checkers import utils
 
 
 class NotChecker(checkers.BaseChecker):
-    """checks for too many not in comparison expressions
+    """Checks for too many not in comparison expressions.
 
     - "not not" should trigger a warning
     - "not" followed by a comparison should trigger a warning

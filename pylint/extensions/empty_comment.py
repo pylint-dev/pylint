@@ -1,3 +1,7 @@
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
 from typing import TYPE_CHECKING
 
 from astroid import nodes
@@ -10,7 +14,7 @@ if TYPE_CHECKING:
 
 
 def is_line_commented(line):
-    """Checks if a `# symbol that is not part of a string was found in line"""
+    """Checks if a `# symbol that is not part of a string was found in line."""
 
     comment_idx = line.find(b"#")
     if comment_idx == -1:
@@ -21,7 +25,7 @@ def is_line_commented(line):
 
 
 def comment_part_of_string(line, comment_idx):
-    """checks if the symbol at comment_idx is part of a string"""
+    """Checks if the symbol at comment_idx is part of a string."""
 
     if (
         line[:comment_idx].count(b"'") % 2 == 1
@@ -48,7 +52,6 @@ class CommentChecker(BaseChecker):
         )
     }
     options = ()
-    priority = -1  # low priority
 
     def process_module(self, node: nodes.Module) -> None:
         with node.stream() as stream:

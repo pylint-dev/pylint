@@ -1,7 +1,7 @@
 .. _messages-introduction:
 
-Pylint messages
-================
+Message categories
+=====================
 
 Pylint can emit various messages. These are categorized according to categories::
 

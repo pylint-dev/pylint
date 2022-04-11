@@ -1,5 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 import configparser
 import sys
@@ -84,7 +85,7 @@ class FunctionalTestFile:
             assert (
                 name in POSSIBLE_TEST_OPTIONS
             ), f"[testoptions]' can only contains one of {POSSIBLE_TEST_OPTIONS}"
-            self.options[name] = conv(value)  # type: ignore[misc]
+            self.options[name] = conv(value)  # type: ignore[literal-required]
 
     @property
     def option_file(self) -> str:

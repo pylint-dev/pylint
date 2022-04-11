@@ -1,9 +1,8 @@
-# Copyright (c) 2021 Antonio Quarta <andi.finkler@gmail.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-"""Class to generate files in mermaidjs format"""
+"""Class to generate files in mermaidjs format."""
 from typing import Dict, Optional
 
 from pylint.pyreverse.printer import EdgeType, NodeProperties, NodeType, Printer
@@ -11,7 +10,7 @@ from pylint.pyreverse.utils import get_annotation_label
 
 
 class MermaidJSPrinter(Printer):
-    """Printer for MermaidJS diagrams"""
+    """Printer for MermaidJS diagrams."""
 
     DEFAULT_COLOR = "black"
 
@@ -28,7 +27,7 @@ class MermaidJSPrinter(Printer):
     }
 
     def _open_graph(self) -> None:
-        """Emit the header lines"""
+        """Emit the header lines."""
         self.emit("classDiagram")
         self._inc_indent()
 
@@ -38,7 +37,10 @@ class MermaidJSPrinter(Printer):
         type_: NodeType,
         properties: Optional[NodeProperties] = None,
     ) -> None:
-        """Create a new node. Nodes can be classes, packages, participants etc."""
+        """Create a new node.
+
+        Nodes can be classes, packages, participants etc.
+        """
         if properties is None:
             properties = NodeProperties(label=name)
         stereotype = "~~Interface~~" if type_ is NodeType.INTERFACE else ""
@@ -82,7 +84,7 @@ class MermaidJSPrinter(Printer):
 
 
 class HTMLMermaidJSPrinter(MermaidJSPrinter):
-    """Printer for MermaidJS diagrams wrapped in a html boilerplate"""
+    """Printer for MermaidJS diagrams wrapped in a html boilerplate."""
 
     HTML_OPEN_BOILERPLATE = """<html>
   <body>

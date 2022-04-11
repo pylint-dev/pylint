@@ -1,3 +1,7 @@
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
 from typing import TYPE_CHECKING
 
 from astroid import nodes
@@ -15,7 +19,6 @@ class SetMembershipChecker(BaseChecker):
     __implements__ = (IAstroidChecker,)
 
     name = "set_membership"
-    priority = -1
     msgs = {
         "R6201": (
             "Consider using set for membership test",

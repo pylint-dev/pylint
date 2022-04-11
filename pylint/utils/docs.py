@@ -1,6 +1,8 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-"""Various helper functions to create the docs of a linter object"""
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
+"""Various helper functions to create the docs of a linter object."""
 
 import sys
 from typing import TYPE_CHECKING, Dict, TextIO
@@ -13,7 +15,7 @@ if TYPE_CHECKING:
 
 
 def _get_checkers_infos(linter: "PyLinter") -> Dict[str, Dict]:
-    """Get info from a checker and handle KeyError"""
+    """Get info from a checker and handle KeyError."""
     by_checker: Dict[str, Dict] = {}
     for checker in linter.get_checkers():
         name = checker.name
@@ -34,7 +36,7 @@ def _get_checkers_infos(linter: "PyLinter") -> Dict[str, Dict]:
 
 
 def _get_checkers_documentation(linter: "PyLinter") -> str:
-    """Get documentation for individual checkers"""
+    """Get documentation for individual checkers."""
     result = get_rst_title("Pylint global options and switches", "-")
     result += """
 Pylint provides global options and switches.
@@ -73,5 +75,5 @@ Below is a list of all checkers and their features.
 
 
 def print_full_documentation(linter: "PyLinter", stream: TextIO = sys.stdout) -> None:
-    """Output a full documentation in ReST format"""
+    """Output a full documentation in ReST format."""
     print(_get_checkers_documentation(linter)[:-1], file=stream)

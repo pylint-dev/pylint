@@ -1,3 +1,7 @@
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
 import os
 from pathlib import Path
 from typing import Optional, Set
@@ -18,7 +22,7 @@ def check_configuration_file_reader(
         expected_disabled = {"W1201", "W1202"}
     for msgid in expected_disabled:
         assert not runner.linter.is_message_enabled(msgid)
-    assert runner.linter.config.jobs == expected_jobs
+    assert runner.linter.namespace.jobs == expected_jobs
     assert bool(runner.linter.config.reports) == expected_reports_truthey
 
 

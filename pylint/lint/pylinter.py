@@ -1,10 +1,10 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 import collections
 import contextlib
 import functools
-import operator
 import os
 import sys
 import tokenize
@@ -30,6 +30,7 @@ import astroid
 from astroid import AstroidError, nodes
 
 from pylint import checkers, config, exceptions, interfaces, reporters
+from pylint.config.arguments_manager import _ArgumentsManager
 from pylint.constants import (
     MAIN_CHECKER_NAME,
     MSG_STATE_CONFIDENCE,
@@ -59,6 +60,7 @@ from pylint.typing import (
     ManagedMessage,
     MessageLocationTuple,
     ModuleDescriptionDict,
+    Options,
 )
 from pylint.utils import ASTWalker, FileState, LinterStats, get_global_option, utils
 from pylint.utils.pragma_parser import (
@@ -73,7 +75,6 @@ if sys.version_info >= (3, 8):
 else:
     from typing_extensions import Literal
 
-OptionDict = Dict[str, Union[str, bool, int, Iterable[Union[str, int]]]]
 
 MANAGER = astroid.MANAGER
 
@@ -189,11 +190,11 @@ MSGS = {
 
 # pylint: disable=too-many-instance-attributes,too-many-public-methods
 class PyLinter(
-    config.OptionsManagerMixIn,
+    _ArgumentsManager,
     reporters.ReportsHandlerMixIn,
     checkers.BaseTokenChecker,
 ):
-    """lint Python modules using external checkers.
+    """Lint Python modules using external checkers.
 
     This is the main checker controlling the other ones and the reports
     generation. It is itself both a raw checker and an astroid checker in order
@@ -212,14 +213,13 @@ class PyLinter(
     __implements__ = (interfaces.ITokenChecker,)
 
     name = MAIN_CHECKER_NAME
-    priority = 0
     level = 0
     msgs = MSGS
     # Will be used like this : datetime.now().strftime(crash_file_path)
     crash_file_path: str = "pylint-crash-%Y-%m-%d-%H.txt"
 
     @staticmethod
-    def make_options() -> Tuple[Tuple[str, OptionDict], ...]:
+    def make_options() -> Options:
         return (
             (
                 "ignore",
@@ -227,6 +227,7 @@ class PyLinter(
                     "type": "csv",
                     "metavar": "<file>[,<file>...]",
                     "dest": "black_list",
+                    "kwargs": {"old_names": ["black_list"]},
                     "default": ("CVS",),
                     "help": "Files or directories to be skipped. "
                     "They should be base names, not paths.",
@@ -261,7 +262,6 @@ class PyLinter(
                     "default": True,
                     "type": "yn",
                     "metavar": "<y or n>",
-                    "level": 1,
                     "help": "Pickle collected data for later comparisons.",
                 },
             ),
@@ -271,7 +271,6 @@ class PyLinter(
                     "type": "csv",
                     "metavar": "<modules>",
                     "default": (),
-                    "level": 1,
                     "help": "List of plugins (as comma separated values of "
                     "python module names) to load, usually to register "
                     "additional checkers.",
@@ -309,7 +308,6 @@ class PyLinter(
                     "type": "string",
                     "metavar": "<python_expression>",
                     "group": "Reports",
-                    "level": 1,
                     "default": "max(0, 0 if fatal else 10.0 - ((float(5 * error + warning + refactor + "
                     "convention) / statement) * 10))",
                     "help": "Python expression which should return a score less "
@@ -355,19 +353,20 @@ class PyLinter(
             (
                 "confidence",
                 {
-                    "type": "multiple_choice",
+                    "type": "confidence",
                     "metavar": "<levels>",
-                    "default": "",
-                    "choices": [c.name for c in interfaces.CONFIDENCE_LEVELS],
+                    "default": interfaces.CONFIDENCE_LEVEL_NAMES,
+                    "choices": interfaces.CONFIDENCE_LEVEL_NAMES,
                     "group": "Messages control",
                     "help": "Only show warnings with the listed confidence levels."
-                    f" Leave empty to show all. Valid levels: {', '.join(c.name for c in interfaces.CONFIDENCE_LEVELS)}.",
+                    f" Leave empty to show all. Valid levels: {', '.join(interfaces.CONFIDENCE_LEVEL_NAMES)}.",
                 },
             ),
             (
                 "enable",
                 {
                     "type": "csv",
+                    "default": (),
                     "metavar": "<msg ids>",
                     "short": "e",
                     "group": "Messages control",
@@ -384,6 +383,7 @@ class PyLinter(
                 {
                     "type": "csv",
                     "metavar": "<msg ids>",
+                    "default": (),
                     "short": "d",
                     "group": "Messages control",
                     "help": "Disable the message, report, category or checker "
@@ -404,6 +404,7 @@ class PyLinter(
                 "msg-template",
                 {
                     "type": "string",
+                    "default": "",
                     "metavar": "<template>",
                     "group": "Reports",
                     "help": (
@@ -498,6 +499,8 @@ class PyLinter(
                 "exit-zero",
                 {
                     "action": "store_true",
+                    "default": False,
+                    "metavar": "<flag>",
                     "help": (
                         "Always return a 0 (non-error) status code, even if "
                         "lint errors are found. This is primarily useful in "
@@ -509,10 +512,21 @@ class PyLinter(
                 "from-stdin",
                 {
                     "action": "store_true",
+                    "default": False,
+                    "metavar": "<flag>",
                     "help": (
                         "Interpret the stdin as a python script, whose filename "
                         "needs to be passed as the module_or_package argument."
                     ),
+                },
+            ),
+            (
+                "recursive",
+                {
+                    "type": "yn",
+                    "metavar": "<yn>",
+                    "default": False,
+                    "help": "Discover python modules and packages in the file system subtree.",
                 },
             ),
             (
@@ -529,21 +543,25 @@ class PyLinter(
             ),
         )
 
-    base_option_groups = (
-        ("Messages control", "Options controlling analysis messages"),
-        ("Reports", "Options related to output formatting and reporting"),
-    )
+    option_groups_descs = {
+        "Messages control": "Options controlling analysis messages",
+        "Reports": "Options related to output formatting and reporting",
+    }
 
     def __init__(
         self,
-        options=(),
-        reporter=None,
-        option_groups=(),
-        pylintrc=None,
-    ):
-        """Some stuff has to be done before ancestors initialization...
-        messages store / checkers / reporter / astroid manager
-        """
+        options: Options = (),
+        reporter: Union[reporters.BaseReporter, reporters.MultiReporter, None] = None,
+        option_groups: Tuple[Tuple[str, str], ...] = (),
+        # pylint: disable-next=fixme
+        # TODO: Deprecate passing the pylintrc parameter
+        pylintrc: Optional[str] = None,  # pylint: disable=unused-argument
+    ) -> None:
+        _ArgumentsManager.__init__(self, prog="pylint")
+
+        # Some stuff has to be done before initialization of other ancestors...
+        # messages store / checkers / reporter / astroid manager
+
         # Attributes for reporters
         self.reporter: Union[reporters.BaseReporter, reporters.MultiReporter]
         if reporter:
@@ -551,15 +569,15 @@ class PyLinter(
         else:
             self.set_reporter(TextReporter())
         self._reporters: Dict[str, Type[reporters.BaseReporter]] = {}
-        """Dictionary of possible but non-initialized reporters"""
+        """Dictionary of possible but non-initialized reporters."""
 
         # Attributes for checkers and plugins
         self._checkers: DefaultDict[
             str, List[checkers.BaseChecker]
         ] = collections.defaultdict(list)
-        """Dictionary of registered and initialized checkers"""
+        """Dictionary of registered and initialized checkers."""
         self._dynamic_plugins: Set[str] = set()
-        """Set of loaded plugin names"""
+        """Set of loaded plugin names."""
 
         # Attributes related to visiting files
         self.file_state = FileState()
@@ -572,14 +590,15 @@ class PyLinter(
         self.stats = LinterStats()
 
         # Attributes related to (command-line) options and their parsing
+        self._external_opts = options
+        self.options: Options = options + PyLinter.make_options()
+        for opt_group in option_groups:
+            self.option_groups_descs[opt_group[0]] = opt_group[1]
         # pylint: disable-next=fixme
-        # TODO: Make these implicitly typing when typing for __init__ parameter is added
-        self._external_opts: Tuple[Tuple[str, OptionDict], ...] = options
-        self.options: Tuple[Tuple[str, OptionDict], ...] = (
-            options + PyLinter.make_options()
-        )
-        self.option_groups: Tuple[Tuple[str, str], ...] = (
-            option_groups + PyLinter.base_option_groups
+        # TODO: Optparse: Remove this assignment after option_groups has been deprecated
+        self.option_groups: Tuple[Tuple[str, str], ...] = option_groups + (
+            ("Messages control", "Options controlling analysis messages"),
+            ("Reports", "Options related to output formatting and reporting"),
         )
         self._options_methods = {
             "enable": self.enable,
@@ -591,7 +610,7 @@ class PyLinter(
             "enable-msg": self._options_methods["enable"],
         }
         self.fail_on_symbols: List[str] = []
-        """List of message symbols on which pylint should fail, set by --fail-on"""
+        """List of message symbols on which pylint should fail, set by --fail-on."""
         self._error_mode = False
 
         # Attributes related to messages (states) and their handling
@@ -601,11 +620,7 @@ class PyLinter(
         self._by_id_managed_msgs: List[ManagedMessage] = []
 
         reporters.ReportsHandlerMixIn.__init__(self)
-        super().__init__(
-            usage=__doc__,
-            config_file=pylintrc or next(config.find_default_config_files(), None),
-        )
-        checkers.BaseTokenChecker.__init__(self)
+        checkers.BaseTokenChecker.__init__(self, self)
         # provided reports
         self.reports = (
             ("RP0001", "Messages by category", report_total_messages_stats),
@@ -617,16 +632,16 @@ class PyLinter(
             ("RP0003", "Messages", report_messages_stats),
         )
         self.register_checker(self)
-        self.load_provider_defaults()
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            self.load_provider_defaults()
 
     def load_default_plugins(self):
         checkers.initialize(self)
         reporters.initialize(self)
 
-    def load_plugin_modules(self, modnames):
-        """take a list of module names which are pylint plugins and load
-        and register them
-        """
+    def load_plugin_modules(self, modnames: List[str]) -> None:
+        """Check a list pylint plugins modules, load and register them."""
         for modname in modnames:
             if modname in self._dynamic_plugins:
                 continue
@@ -637,8 +652,8 @@ class PyLinter(
             except ModuleNotFoundError:
                 pass
 
-    def load_plugin_configuration(self):
-        """Call the configuration hook for plugins
+    def load_plugin_configuration(self) -> None:
+        """Call the configuration hook for plugins.
 
         This walks through the list of plugins, grabs the "load_configuration"
         hook, if exposed, and calls it to allow plugins to configure specific
@@ -653,7 +668,7 @@ class PyLinter(
                 self.add_message("bad-plugin-value", args=(modname, e), line=0)
 
     def _load_reporters(self, reporter_names: str) -> None:
-        """Load the reporters if they are available on _reporters"""
+        """Load the reporters if they are available on _reporters."""
         if not self._reporters:
             return
         sub_reporters = []
@@ -699,12 +714,12 @@ class PyLinter(
     def set_reporter(
         self, reporter: Union[reporters.BaseReporter, reporters.MultiReporter]
     ) -> None:
-        """set the reporter used to display messages and reports"""
+        """Set the reporter used to display messages and reports."""
         self.reporter = reporter
         reporter.linter = self
 
     def set_option(self, optname, value, action=None, optdict=None):
-        """overridden from config.OptionsProviderMixin to handle some
+        """Overridden from config.OptionsProviderMixin to handle some
         special options
         """
         if optname in self._options_methods or optname in self._bw_options_methods:
@@ -754,11 +769,12 @@ class PyLinter(
 
     def register_checker(self, checker: checkers.BaseChecker) -> None:
         """This method auto registers the checker."""
-        assert checker.priority <= 0, "checker priority can't be >= 0"
         self._checkers[checker.name].append(checker)
         for r_id, r_title, r_cb in checker.reports:
             self.register_report(r_id, r_title, r_cb, checker)
-        self.register_options_provider(checker)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            self.register_options_provider(checker)
         if hasattr(checker, "msgs"):
             self.msgs_store.register_messages_from_checker(checker)
         checker.load_defaults()
@@ -767,12 +783,12 @@ class PyLinter(
             self.disable(checker.name)
 
     def enable_fail_on_messages(self):
-        """enable 'fail on' msgs
+        """Enable 'fail on' msgs.
 
         Convert values in config.fail_on (which might be msg category, msg id,
         or symbol) to specific msgs, then enable and flag them for later.
         """
-        fail_on_vals = self.config.fail_on
+        fail_on_vals = self.namespace.fail_on
         if not fail_on_vals:
             return
 
@@ -813,16 +829,27 @@ class PyLinter(
                     self.disable(msgid)
 
     def disable_reporters(self):
-        """disable all reporters"""
+        """Disable all reporters."""
         for _reporters in self._reports.values():
             for report_id, _, _ in _reporters:
                 self.disable_report(report_id)
 
-    def error_mode(self):
-        """error mode: enable only errors; no reports, no persistent"""
-        self._error_mode = True
+    def _parse_error_mode(self) -> None:
+        """Parse the current state of the error mode.
+
+        Error mode: enable only errors; no reports, no persistent.
+        """
+        if not self._error_mode:
+            return
+
         self.disable_noerror_messages()
         self.disable("miscellaneous")
+        self._arg_parser.parse_args(
+            ["--reports", "no", "--score", "no", "--persistent", "no"], self.namespace
+        )
+
+        # pylint: disable-next=fixme
+        # TODO: Potentially remove after 'set_option' has been refactored
         self.set_option("reports", False)
         self.set_option("persistent", False)
         self.set_option("score", False)
@@ -934,7 +961,7 @@ class PyLinter(
     # code checking methods ###################################################
 
     def get_checkers(self):
-        """return all available checkers as a list"""
+        """Return all available checkers as a list."""
         return [self] + [
             c
             for _checkers in self._checkers.values()
@@ -954,7 +981,7 @@ class PyLinter(
         )
 
     def prepare_checkers(self):
-        """return checkers needed for activated messages and reports"""
+        """Return checkers needed for activated messages and reports."""
         if not self.config.reports:
             self.disable_reporters()
         # get needed checkers
@@ -963,10 +990,6 @@ class PyLinter(
             messages = {msg for msg in checker.msgs if self.is_message_enabled(msg)}
             if messages or any(self.report_is_enabled(r[0]) for r in checker.reports):
                 needed_checkers.append(checker)
-        # Sort checkers by priority
-        needed_checkers = sorted(
-            needed_checkers, key=operator.attrgetter("priority"), reverse=True
-        )
         return needed_checkers
 
     # pylint: disable=unused-argument
@@ -995,7 +1018,7 @@ class PyLinter(
     # pylint: enable=unused-argument
 
     def initialize(self):
-        """Initialize linter for linting
+        """Initialize linter for linting.
 
         This method is called before any linting is done.
         """
@@ -1005,8 +1028,35 @@ class PyLinter(
             if not msg.may_be_emitted():
                 self._msgs_state[msg.msgid] = False
 
+    @staticmethod
+    def _discover_files(files_or_modules: Sequence[str]) -> Iterator[str]:
+        """Discover python modules and packages in subdirectory.
+
+        Returns iterator of paths to discovered modules and packages.
+        """
+        for something in files_or_modules:
+            if os.path.isdir(something) and not os.path.isfile(
+                os.path.join(something, "__init__.py")
+            ):
+                skip_subtrees: List[str] = []
+                for root, _, files in os.walk(something):
+                    if any(root.startswith(s) for s in skip_subtrees):
+                        # Skip subtree of already discovered package.
+                        continue
+                    if "__init__.py" in files:
+                        skip_subtrees.append(root)
+                        yield root
+                    else:
+                        yield from (
+                            os.path.join(root, file)
+                            for file in files
+                            if file.endswith(".py")
+                        )
+            else:
+                yield something
+
     def check(self, files_or_modules: Union[Sequence[str], str]) -> None:
-        """main checking entry: check a list of files or modules from their name.
+        """Main checking entry: check a list of files or modules from their name.
 
         files_or_modules is either a string or list of strings presenting modules to check.
         """
@@ -1019,7 +1069,9 @@ class PyLinter(
                 DeprecationWarning,
             )
             files_or_modules = (files_or_modules,)  # type: ignore[assignment]
-        if self.config.from_stdin:
+        if self.namespace.recursive:
+            files_or_modules = tuple(self._discover_files(files_or_modules))
+        if self.namespace.from_stdin:
             if len(files_or_modules) != 1:
                 raise exceptions.InvalidArgsError(
                     "Missing filename required for --from-stdin"
@@ -1031,7 +1083,7 @@ class PyLinter(
                     functools.partial(self.get_ast, data=_read_stdin()),
                     [self._get_file_descr_from_stdin(filepath)],
                 )
-        elif self.config.jobs == 1:
+        elif self.namespace.jobs == 1:
             with fix_import_path(files_or_modules):
                 self._check_files(
                     self.get_ast, self._iterate_file_descrs(files_or_modules)
@@ -1039,7 +1091,7 @@ class PyLinter(
         else:
             check_parallel(
                 self,
-                self.config.jobs,
+                self.namespace.jobs,
                 self._iterate_file_descrs(files_or_modules),
                 files_or_modules,
             )
@@ -1053,7 +1105,7 @@ class PyLinter(
         self.check_single_file_item(FileItem(name, filepath, modname))
 
     def check_single_file_item(self, file: FileItem) -> None:
-        """Check single file item
+        """Check single file item.
 
         The arguments are the same that are documented in _check_files
 
@@ -1067,7 +1119,7 @@ class PyLinter(
         get_ast,
         file_descrs: Iterable[FileItem],
     ) -> None:
-        """Check all files from file_descrs"""
+        """Check all files from file_descrs."""
         with self._astroid_module_checker() as check_astroid_module:
             for file in file_descrs:
                 try:
@@ -1085,7 +1137,7 @@ class PyLinter(
                         self.add_message(symbol, args=msg)
 
     def _check_file(self, get_ast, check_astroid_module, file: FileItem):
-        """Check a file using the passed utility functions (get_ast and check_astroid_module)
+        """Check a file using the passed utility functions (get_ast and check_astroid_module).
 
         :param callable get_ast: callable returning AST from defined file taking the following arguments
         - filepath: path to the file to check
@@ -1116,7 +1168,7 @@ class PyLinter(
 
     @staticmethod
     def _get_file_descr_from_stdin(filepath: str) -> FileItem:
-        """Return file description (tuple of module name, file path, base name) from given file path
+        """Return file description (tuple of module name, file path, base name) from given file path.
 
         This method is used for creating suitable file description for _check_files when the
         source is standard input.
@@ -1132,7 +1184,7 @@ class PyLinter(
         return FileItem(modname, filepath, filepath)
 
     def _iterate_file_descrs(self, files_or_modules) -> Iterator[FileItem]:
-        """Return generator yielding file descriptions (tuples of module name, file path, base name)
+        """Return generator yielding file descriptions (tuples of module name, file path, base name).
 
         The returned generator yield one item for each Python module that should be linted.
         """
@@ -1142,7 +1194,7 @@ class PyLinter(
                 yield FileItem(name, filepath, descr["basename"])
 
     def _expand_files(self, modules) -> List[ModuleDescriptionDict]:
-        """get modules and errors from a list of modules and handle errors"""
+        """Get modules and errors from a list of modules and handle errors."""
         result, errors = expand_modules(
             modules,
             self.config.black_list,
@@ -1159,7 +1211,7 @@ class PyLinter(
         return result
 
     def set_current_module(self, modname, filepath: Optional[str] = None):
-        """set the name of the currently analyzed module and
+        """Set the name of the currently analyzed module and
         init statistics for it
         """
         if not modname and filepath is None:
@@ -1180,7 +1232,7 @@ class PyLinter(
 
     @contextlib.contextmanager
     def _astroid_module_checker(self):
-        """Context manager for checking ASTs
+        """Context manager for checking ASTs.
 
         The value in the context is callable accepting AST as its only argument.
         """
@@ -1271,7 +1323,7 @@ class PyLinter(
     def _check_astroid_module(
         self, node: nodes.Module, walker, rawcheckers, tokencheckers
     ):
-        """Check given AST node with given walker and checkers
+        """Check given AST node with given walker and checkers.
 
         :param astroid.nodes.Module node: AST node of the module to check
         :param pylint.utils.ast_walker.ASTWalker walker: AST walker
@@ -1311,20 +1363,22 @@ class PyLinter(
     # IAstroidChecker interface #################################################
 
     def open(self):
-        """initialize counters"""
+        """Initialize counters."""
         self.stats = LinterStats()
-        MANAGER.always_load_extensions = self.config.unsafe_load_any_extension
-        MANAGER.max_inferable_values = self.config.limit_inference_results
-        MANAGER.extension_package_whitelist.update(self.config.extension_pkg_allow_list)
-        if self.config.extension_pkg_whitelist:
+        MANAGER.always_load_extensions = self.namespace.unsafe_load_any_extension
+        MANAGER.max_inferable_values = self.namespace.limit_inference_results
+        MANAGER.extension_package_whitelist.update(
+            self.namespace.extension_pkg_allow_list
+        )
+        if self.namespace.extension_pkg_whitelist:
             MANAGER.extension_package_whitelist.update(
-                self.config.extension_pkg_whitelist
+                self.namespace.extension_pkg_whitelist
             )
         self.stats.reset_message_count()
         self._ignore_paths = get_global_option(self, "ignore-paths")
 
     def generate_reports(self):
-        """close the whole package /module, it's time to make reports !
+        """Close the whole package /module, it's time to make reports !
 
         if persistent run, pickle results for later comparison
         """
@@ -1344,7 +1398,7 @@ class PyLinter(
                 self.reporter.display_reports(sect)
             score_value = self._report_evaluation()
             # save results if persistent run
-            if self.config.persistent:
+            if self.namespace.persistent:
                 config.save_results(self.stats, self.file_state.base_name)
         else:
             self.reporter.on_close(self.stats, LinterStats())
@@ -1352,7 +1406,7 @@ class PyLinter(
         return score_value
 
     def _report_evaluation(self):
-        """make the global evaluation report"""
+        """Make the global evaluation report."""
         # check with at least check 1 statements (usually 0 when there is a
         # syntax error preventing pylint from further processing)
         note = None
@@ -1361,7 +1415,7 @@ class PyLinter(
             return note
 
         # get a global note for the code
-        evaluation = self.config.evaluation
+        evaluation = self.namespace.evaluation
         try:
             stats_dict = {
                 "fatal": self.stats.fatal,
@@ -1383,7 +1437,7 @@ class PyLinter(
                 if pnote is not None:
                     msg += f" (previous run: {pnote:.2f}/10, {note - pnote:+.2f})"
 
-        if self.config.score:
+        if self.namespace.score:
             sect = report_nodes.EvaluationSection(msg)
             self.reporter.display_reports(sect)
         return note
@@ -1399,7 +1453,7 @@ class PyLinter(
         """Returns the scope at which a message was enabled/disabled."""
         if confidence is None:
             confidence = interfaces.UNDEFINED
-        if self.config.confidence and confidence.name not in self.config.confidence:
+        if confidence.name not in self.namespace.confidence:
             return MSG_STATE_CONFIDENCE  # type: ignore[return-value] # mypy does not infer Literal correctly
         try:
             if line in self.file_state._module_msgs_state[msgid]:
@@ -1409,7 +1463,7 @@ class PyLinter(
         return None
 
     def _is_one_message_enabled(self, msgid: str, line: Optional[int]) -> bool:
-        """Checks state of a single message for the current file
+        """Checks state of a single message for the current file.
 
         This function can't be cached as it depends on self.file_state which can
         change.
@@ -1460,9 +1514,8 @@ class PyLinter(
         :param line: The line of the currently analysed file
         :param confidence: The confidence of the message
         """
-        if self.config.confidence and confidence:
-            if confidence.name not in self.config.confidence:
-                return False
+        if confidence and confidence.name not in self.namespace.confidence:
+            return False
         try:
             msgids = self.msgs_store.message_id_store.get_active_msgids(msg_descr)
         except exceptions.UnknownMessageError:
@@ -1490,14 +1543,24 @@ class PyLinter(
 
         # Look up "location" data of node if not yet supplied
         if node:
-            if not line:
-                line = node.fromlineno
-            if not col_offset:
-                col_offset = node.col_offset
-            if not end_lineno:
-                end_lineno = node.end_lineno
-            if not end_col_offset:
-                end_col_offset = node.end_col_offset
+            if node.position:
+                if not line:
+                    line = node.position.lineno
+                if not col_offset:
+                    col_offset = node.position.col_offset
+                if not end_lineno:
+                    end_lineno = node.position.end_lineno
+                if not end_col_offset:
+                    end_col_offset = node.position.end_col_offset
+            else:
+                if not line:
+                    line = node.fromlineno
+                if not col_offset:
+                    col_offset = node.col_offset
+                if not end_lineno:
+                    end_lineno = node.end_lineno
+                if not end_col_offset:
+                    end_col_offset = node.end_col_offset
 
         # should this message be displayed
         if not self.is_message_enabled(message_definition.msgid, line, confidence):
@@ -1514,14 +1577,18 @@ class PyLinter(
         msg_cat = MSG_TYPES[message_definition.msgid[0]]
         self.msg_status |= MSG_TYPES_STATUS[message_definition.msgid[0]]
         self.stats.increase_single_message_count(msg_cat, 1)
-        self.stats.increase_single_module_message_count(self.current_name, msg_cat, 1)
+        self.stats.increase_single_module_message_count(
+            self.current_name,  # type: ignore[arg-type] # Should be removable after https://github.com/PyCQA/pylint/pull/5580
+            msg_cat,
+            1,
+        )
         try:
             self.stats.by_msg[message_definition.symbol] += 1
         except KeyError:
             self.stats.by_msg[message_definition.symbol] = 1
         # Interpolate arguments into message string
         msg = message_definition.msg
-        if args:
+        if args is not None:
             msg %= args
         # get module and object
         if node is None:
@@ -1595,7 +1662,7 @@ class PyLinter(
         node: Optional[nodes.NodeNG] = None,
         confidence: Optional[interfaces.Confidence] = interfaces.UNDEFINED,
     ) -> None:
-        """Prepares a message to be added to the ignored message storage
+        """Prepares a message to be added to the ignored message storage.
 
         Some checks return early in special cases and never reach add_message(),
         even though they would normally issue a message.
@@ -1616,7 +1683,7 @@ class PyLinter(
     # Setting the state (disabled/enabled) of messages and registering them
 
     def _message_symbol(self, msgid: str) -> List[str]:
-        """Get the message symbol of the given message id
+        """Get the message symbol of the given message id.
 
         Return the original message id if the message does not
         exist.
@@ -1629,8 +1696,10 @@ class PyLinter(
     def _set_one_msg_status(
         self, scope: str, msg: MessageDefinition, line: Optional[int], enable: bool
     ) -> None:
-        """Set the status of an individual message"""
+        """Set the status of an individual message."""
         if scope == "module":
+            assert isinstance(line, int)  # should always be int inside module scope
+
             self.file_state.set_msg_status(msg, line, enable)
             if not enable and msg.symbol != "locally-disabled":
                 self.add_message(
@@ -1659,7 +1728,7 @@ class PyLinter(
         else:
             category_id_formatted = category_id
         if category_id_formatted is not None:
-            for _msgid in self.msgs_store._msgs_by_category.get(category_id_formatted):
+            for _msgid in self.msgs_store._msgs_by_category[category_id_formatted]:
                 message_definitions.extend(
                     self._get_messages_to_set(_msgid, enable, ignore_unknown)
                 )
@@ -1698,7 +1767,7 @@ class PyLinter(
         line: Optional[int] = None,
         ignore_unknown: bool = False,
     ) -> None:
-        """Do some tests and then iterate over message definitions to set state"""
+        """Do some tests and then iterate over message definitions to set state."""
         assert scope in {"package", "module"}
 
         message_definitions = self._get_messages_to_set(msgid, enable, ignore_unknown)
@@ -1740,7 +1809,7 @@ class PyLinter(
         line: Optional[int] = None,
         ignore_unknown: bool = False,
     ) -> None:
-        """Disable a message for a scope"""
+        """Disable a message for a scope."""
         self._set_msg_status(
             msgid, enable=False, scope=scope, line=line, ignore_unknown=ignore_unknown
         )
@@ -1753,7 +1822,7 @@ class PyLinter(
         line: Optional[int] = None,
         ignore_unknown: bool = False,
     ) -> None:
-        """Disable a message for the next line"""
+        """Disable a message for the next line."""
         if not line:
             raise exceptions.NoLineSuppliedError
         self._set_msg_status(
@@ -1772,7 +1841,7 @@ class PyLinter(
         line: Optional[int] = None,
         ignore_unknown: bool = False,
     ) -> None:
-        """Enable a message for a scope"""
+        """Enable a message for a scope."""
         self._set_msg_status(
             msgid, enable=True, scope=scope, line=line, ignore_unknown=ignore_unknown
         )

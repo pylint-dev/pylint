@@ -2,7 +2,7 @@
 README for Pylint - https://pylint.pycqa.org/
 =============================================
 
-.. image:: https://github.com/PyCQA/pylint/actions/workflows/ci.yaml/badge.svg?branch=main
+.. image:: https://github.com/PyCQA/pylint/actions/workflows/tests.yaml/badge.svg?branch=main
     :target: https://github.com/PyCQA/pylint/actions
 
 .. image:: https://coveralls.io/repos/github/PyCQA/pylint/badge.svg?branch=main
@@ -25,8 +25,7 @@ README for Pylint - https://pylint.pycqa.org/
    :alt: pre-commit.ci status
 
 .. |tideliftlogo| image:: https://raw.githubusercontent.com/PyCQA/pylint/main/doc/media/Tidelift_Logos_RGB_Tidelift_Shorthand_On-White.png
-   :width: 75
-   :height: 60
+   :width: 200
    :alt: Tidelift
 
 .. list-table::
@@ -75,7 +74,7 @@ Pylint can be simply installed by running::
 
     pip install pylint
 
-If you are using Python 3.6.2+, upgrade to get full support for your version::
+If you are using Python 3.7.2+, upgrade to get full support for your version::
 
     pip install pylint --upgrade
 
@@ -149,7 +148,27 @@ Do not forget to clone astroid_ and install the last version::
     cd astroid
     python3 -m pip install -e .
 
+Show your usage
+-----------------
 
+You can place this badge in your README to let others know your project uses pylint.
+
+    .. image:: https://img.shields.io/badge/linting-pylint-yellowgreen
+        :target: https://github.com/PyCQA/pylint
+
+Use the badge in your project's README.md (or any other Markdown file)::
+
+    [![linting: pylint](https://img.shields.io/badge/linting-pylint-yellowgreen)](https://github.com/PyCQA/pylint)
+
+Use the badge in your project's README.rst (or any other rst file)::
+
+    .. image:: https://img.shields.io/badge/linting-pylint-yellowgreen
+        :target: https://github.com/PyCQA/pylint
+
+
+If you use GitHub Actions, and one of your CI workflows begins with "name: pylint", you
+can use GitHub's `workflow status badges <https://docs.github.com/en/actions/monitoring-and-troubleshooting-workflows/adding-a-workflow-status-badge#using-the-workflow-file-name>`_
+to show an up-to-date indication of whether pushes to your default branch pass pylint.
 For more detailed information, check the documentation.
 
 .. _here: https://pylint.pycqa.org/en/latest/user_guide/installation.html

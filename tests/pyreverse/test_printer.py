@@ -1,13 +1,11 @@
-# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 from typing import Type
 
 import pytest
+from astroid import nodes
 
 from pylint.pyreverse.dot_printer import DotPrinter
 from pylint.pyreverse.plantuml_printer import PlantUmlPrinter
@@ -44,6 +42,15 @@ def test_explicit_layout(
 def test_unsupported_layout(layout: Layout, printer_class: Type[Printer]):
     with pytest.raises(ValueError):
         printer_class(title="unittest", layout=layout)
+
+
+def test_method_arguments_none():
+    func = nodes.FunctionDef()
+    args = nodes.Arguments()
+    args.args = None
+    func.postinit(args, body=None)
+    parsed_args = Printer._get_method_arguments(func)
+    assert parsed_args == []
 
 
 class TestPlantUmlPrinter:

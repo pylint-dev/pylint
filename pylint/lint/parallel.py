@@ -1,5 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 import collections
 import functools
@@ -51,7 +52,7 @@ def _get_new_args(message):
 def _worker_initialize(
     linter: bytes, arguments: Union[None, str, Sequence[str]] = None
 ) -> None:
-    """Function called to initialize a worker for a Process within a multiprocessing Pool
+    """Function called to initialize a worker for a Process within a multiprocessing Pool.
 
     :param linter: A linter-class (PyLinter) instance pickled with dill
     :param arguments: File or module name(s) to lint and to be added to sys.path
@@ -107,7 +108,7 @@ def _worker_check_single_file(
 
 
 def _merge_mapreduce_data(linter, all_mapreduce_data):
-    """Merges map/reduce data across workers, invoking relevant APIs on checkers"""
+    """Merges map/reduce data across workers, invoking relevant APIs on checkers."""
     # First collate the data and prepare it, so we can send it to the checkers for
     # validation. The intent here is to collect all the mapreduce data for all checker-
     # runs across processes - that will then be passed to a static method on the
@@ -133,7 +134,8 @@ def check_parallel(
     files: Iterable[FileItem],
     arguments: Union[None, str, Sequence[str]] = None,
 ) -> None:
-    """Use the given linter to lint the files with given amount of workers (jobs)
+    """Use the given linter to lint the files with given amount of workers (jobs).
+
     This splits the work filestream-by-filestream. If you need to do work across
     multiple files, as in the similarity-checker, then inherit from MapReduceMixin and
     implement the map/reduce mixin functionality.
@@ -172,6 +174,9 @@ def check_parallel(
             all_stats.append(stats)
             all_mapreduce_data[worker_idx].append(mapreduce_data)
             linter.msg_status |= msg_status
+
+        pool.close()
+        pool.join()
 
     _merge_mapreduce_data(linter, all_mapreduce_data)
     linter.stats = merge_stats([linter.stats] + all_stats)
