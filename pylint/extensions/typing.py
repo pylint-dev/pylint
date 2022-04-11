@@ -163,7 +163,7 @@ class TypingChecker(BaseChecker):
 
     def __init__(self, linter: "PyLinter") -> None:
         """Initialize checker instance."""
-        super().__init__(linter=linter, future_option_parsing=True)
+        super().__init__(linter=linter)
         self._found_broken_callable_location: bool = False
         self._alias_name_collisions: Set[str] = set()
         self._deprecated_typing_alias_msgs: List[DeprecatedTypingAliasMsg] = []

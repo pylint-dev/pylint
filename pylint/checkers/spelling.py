@@ -263,9 +263,6 @@ class SpellingChecker(BaseTokenChecker):
         ),
     )
 
-    def __init__(self, linter: "PyLinter") -> None:
-        super().__init__(linter, future_option_parsing=True)
-
     def open(self):
         self.initialized = False
         self.private_dict_file = None

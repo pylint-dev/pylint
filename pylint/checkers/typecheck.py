@@ -897,9 +897,6 @@ accessed. Python regular expressions are accepted.",
         ),
     )
 
-    def __init__(self, linter: "PyLinter") -> None:
-        super().__init__(linter, future_option_parsing=True)
-
     def open(self) -> None:
         py_version = get_global_option(self, "py-version")
         self._py310_plus = py_version >= (3, 10)
@@ -2029,9 +2026,6 @@ class IterableChecker(BaseChecker):
             "mapping is expected",
         ),
     }
-
-    def __init__(self, linter: "PyLinter") -> None:
-        super().__init__(linter, future_option_parsing=True)
 
     @staticmethod
     def _is_asyncio_coroutine(node):

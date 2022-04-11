@@ -782,7 +782,7 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
     reports = (("RP0801", "Duplication", report_similarities),)
 
     def __init__(self, linter=None) -> None:
-        BaseChecker.__init__(self, linter, future_option_parsing=True)
+        BaseChecker.__init__(self, linter)
         Similar.__init__(
             self,
             min_lines=self.linter.namespace.min_similarity_lines,
