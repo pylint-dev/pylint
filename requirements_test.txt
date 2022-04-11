@@ -3,7 +3,7 @@
 coveralls~=3.3
 coverage~=6.3
 pre-commit~=2.18
-tbump~=6.7.0
+tbump~=6.8.0
 contributors-txt>=0.7.3
 pyenchant~=3.2
 pytest-cov~=3.0
