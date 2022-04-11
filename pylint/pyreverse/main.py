@@ -118,7 +118,8 @@ OPTIONS: Options = (
         dict(
             short="m",
             default=None,
-            action="store_true",
+            type="yn",
+            metavar="<y or n>",
             help="include module name in representation of classes",
         ),
     ),

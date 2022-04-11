@@ -145,3 +145,17 @@ def test_command_line_arguments_defaults(arg: str, expected_default: Any) -> Non
     """Test that the default arguments of all options are correct."""
     run = main.Run([TEST_DATA_DIR])
     assert getattr(run.config, arg) == expected_default
+
+
+@mock.patch("pylint.pyreverse.main.writer")
+def test_command_line_arguments_yes_no(
+    mock_writer: mock.MagicMock,  # pylint: disable=unused-argument
+) -> None:
+    """Regression test for the --module-names option.
+
+    Make sure that we supprot --module-names=yes syntax instead
+    of using it as a flag.
+    """
+    with pytest.raises(SystemExit) as wrapped_sysexit:
+        main.Run(["--module-names=yes", TEST_DATA_DIR])
+    assert wrapped_sysexit.value.code == 0
