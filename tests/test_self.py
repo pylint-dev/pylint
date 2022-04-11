@@ -248,7 +248,7 @@ class TestRunTC:
         self._runtest(["-j 2", "not_here", "not_here_too"], code=1)
 
     def test_abbreviations_are_not_supported(self) -> None:
-        expected = "no such option: --load-plugin"
+        expected = "No module named --load-plugin"
         self._test_output([".", "--load-plugin"], expected_output=expected)
 
     def test_enable_all_works(self) -> None:
@@ -303,7 +303,7 @@ class TestRunTC:
         )
 
     def test_reject_empty_indent_strings(self) -> None:
-        expected = "indent string can't be empty"
+        expected = "Option cannot be an empty string"
         module = join(HERE, "data", "clientmodule_test.py")
         self._test_output([module, "--indent-string="], expected_output=expected)
 
@@ -1338,7 +1338,12 @@ class TestCallbackOptions:
         )
         assert process.stdout == process_two.stdout
 
+    # pylint: disable-next=fixme
+    # TODO: Optparse: This test should be used in --generate-toml-config
+    # and then removed. Since `disable` is now in namespace it no longer
+    # works.
     @staticmethod
+    @pytest.mark.xfail
     def test_generate_config_disable_symbolic_names() -> None:
         """Test that --generate-rcfile puts symbolic names in the --disable option."""
         out = StringIO()
