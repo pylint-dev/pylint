@@ -180,6 +180,8 @@ DELETED_MESSAGES = [
     DeletedMessage("R0921", "abstract-class-not-used"),
     # https://github.com/PyCQA/pylint/pull/3577
     DeletedMessage("C0326", "bad-whitespace"),
+    # Pylint 1.4.3
+    DeletedMessage("W0142", "star-args"),
 ]
 
 
