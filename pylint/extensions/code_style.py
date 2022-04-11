@@ -78,10 +78,6 @@ class CodeStyleChecker(BaseChecker):
         ),
     )
 
-    def __init__(self, linter: "PyLinter") -> None:
-        """Initialize checker instance."""
-        super().__init__(linter=linter, future_option_parsing=True)
-
     def open(self) -> None:
         py_version = get_global_option(self, "py-version")
         self._py38_plus = py_version >= (3, 8)

@@ -169,9 +169,6 @@ class McCabeMethodChecker(checkers.BaseChecker):
         ),
     )
 
-    def __init__(self, linter: "PyLinter") -> None:
-        super().__init__(linter, future_option_parsing=True)
-
     @check_messages("too-complex")
     def visit_module(self, node: nodes.Module) -> None:
         """Visit an astroid.Module node to check too complex rating and

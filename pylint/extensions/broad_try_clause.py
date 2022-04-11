@@ -46,9 +46,6 @@ class BroadTryClauseChecker(checkers.BaseChecker):
         ),
     )
 
-    def __init__(self, linter: "PyLinter") -> None:
-        super().__init__(linter, future_option_parsing=True)
-
     def _count_statements(self, try_node):
         statement_count = len(try_node.body)
 

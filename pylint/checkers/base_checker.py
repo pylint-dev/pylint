@@ -3,7 +3,6 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 import functools
-import sys
 from inspect import cleandoc
 from typing import TYPE_CHECKING, Any, Optional
 
@@ -11,18 +10,12 @@ from astroid import nodes
 
 from pylint.config import OptionsProviderMixIn
 from pylint.config.arguments_provider import _ArgumentsProvider
-from pylint.config.exceptions import MissingArgumentManager
 from pylint.constants import _MSG_ORDER, WarningScope
 from pylint.exceptions import InvalidMessageError
 from pylint.interfaces import Confidence, IRawChecker, ITokenChecker, implements
 from pylint.message.message_definition import MessageDefinition
 from pylint.typing import Options
 from pylint.utils import get_rst_section, get_rst_title
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -44,21 +37,13 @@ class BaseChecker(_ArgumentsProvider, OptionsProviderMixIn):
     # mark this checker as enabled or not.
     enabled: bool = True
 
-    def __init__(
-        self, linter: "PyLinter", *, future_option_parsing: Literal[None, True] = None
-    ):
+    def __init__(self, linter: "PyLinter") -> None:
         """Checker instances should have the linter as argument."""
         if self.name is not None:
             self.name = self.name.lower()
+        _ArgumentsProvider.__init__(self, linter)
         self.linter = linter
         OptionsProviderMixIn.__init__(self)
-
-        if future_option_parsing:
-            # We need a PyLinter object that subclasses _ArgumentsManager to register options
-            if not linter:
-                raise MissingArgumentManager
-
-            _ArgumentsProvider.__init__(self, linter)
 
     def __gt__(self, other):
         """Permit to sort a list of Checker by name."""

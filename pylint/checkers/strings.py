@@ -689,7 +689,7 @@ class StringConstantChecker(BaseTokenChecker):
     UNICODE_ESCAPE_CHARACTERS = "uUN"
 
     def __init__(self, linter):
-        super().__init__(linter, future_option_parsing=True)
+        super().__init__(linter)
         self.string_tokens = {}  # token position -> (token value, next token)
 
     def process_module(self, node: nodes.Module) -> None:

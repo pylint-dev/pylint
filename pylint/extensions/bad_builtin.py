@@ -48,9 +48,6 @@ class BadBuiltinChecker(BaseChecker):
         ),
     )
 
-    def __init__(self, linter: "PyLinter") -> None:
-        super().__init__(linter, future_option_parsing=True)
-
     @check_messages("bad-builtin")
     def visit_call(self, node: nodes.Call) -> None:
         if isinstance(node.func, nodes.Name):
