@@ -60,6 +60,10 @@ Extensions
 Other Changes
 =============
 
+* ``Pylint`` now requires Python 3.7.2 or newer to run.
+
+  Closes #4301
+
 * Update ``invalid-slots-object`` message to show bad object rather than its inferred value.
 
   Closes #6101

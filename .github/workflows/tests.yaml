@@ -21,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.6, 3.7, 3.8, 3.9, "3.10"]
+        python-version: [3.7, 3.8, 3.9, "3.10"]
     outputs:
       python-key: ${{ steps.generate-python-key.outputs.key }}
     steps:
@@ -172,7 +172,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.6, 3.7, 3.8, 3.9, "3.10"]
+        python-version: [3.7, 3.8, 3.9, "3.10"]
     outputs:
       python-key: ${{ steps.generate-python-key.outputs.key }}
     steps:
@@ -224,7 +224,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["pypy-3.6", "pypy-3.7"]
+        python-version: ["pypy-3.7"]
     outputs:
       python-key: ${{ steps.generate-python-key.outputs.key }}
     steps:
