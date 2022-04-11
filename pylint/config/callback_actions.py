@@ -17,6 +17,7 @@ from pylint import extensions, interfaces, utils
 
 if TYPE_CHECKING:
     from pylint.config.help_formatter import _HelpFormatter
+    from pylint.lint import PyLinter
     from pylint.lint.run import Run
 
 
@@ -283,3 +284,63 @@ class _LongHelpAction(_AccessRunObjectAction):
         print(self.run.linter.help())
 
         sys.exit(0)
+
+
+class _AccessLinterObjectAction(_CallbackAction):
+    """Action that has access to the Linter object."""
+
+    def __init__(
+        self,
+        option_strings: Sequence[str],
+        dest: str,
+        nargs: None = None,
+        const: None = None,
+        default: None = None,
+        type: None = None,
+        choices: None = None,
+        required: bool = False,
+        help: str = "",
+        metavar: str = "",
+        **kwargs: "PyLinter",
+    ) -> None:
+        self.linter = kwargs["linter"]
+
+        super().__init__(
+            option_strings,
+            dest,
+            1,
+            const,
+            default,
+            type,
+            choices,
+            required,
+            help,
+            metavar,
+        )
+
+    @abc.abstractmethod
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: Union[str, Sequence[Any], None],
+        option_string: Optional[str] = None,
+    ) -> None:
+        raise NotImplementedError
+
+
+class _OutputFormatAction(_AccessLinterObjectAction):
+    """Callback action for setting the output format."""
+
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: Union[str, Sequence[Any], None],
+        option_string: Optional[str] = "--enable",
+    ) -> None:
+        assert isinstance(values, (tuple, list))
+        assert isinstance(
+            values[0], str
+        ), "'output-format' should be a comma separated string of reporters"
+        self.linter._load_reporters(values[0])
