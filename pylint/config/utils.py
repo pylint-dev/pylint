@@ -5,6 +5,7 @@
 """Utils for arguments/options parsing and handling."""
 
 
+import re
 import warnings
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, Union
@@ -138,6 +139,8 @@ def _parse_rich_type_value(value: Any) -> str:
     """Parse rich (toml) types into strings."""
     if isinstance(value, (list, tuple)):
         return ",".join(value)
+    if isinstance(value, re.Pattern):
+        return value.pattern
     return str(value)
 
 
