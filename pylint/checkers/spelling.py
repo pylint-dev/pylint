@@ -133,7 +133,7 @@ class ForwardSlashChunker(Chunker):
                 text = self._text
                 self._offset = 0
                 self._text = ""
-                return (text, 0)
+                return text, 0
             pre_text, post_text = self._text.split("/", 1)
             self._text = post_text
             self._offset = 0
@@ -145,13 +145,13 @@ class ForwardSlashChunker(Chunker):
             ):
                 self._text = ""
                 self._offset = 0
-                return (pre_text + "/" + post_text, 0)
-            return (pre_text, 0)
+                return f"{pre_text}/{post_text}", 0
+            return pre_text, 0
 
     def _next(self):
         while True:
             if "/" not in self._text:
-                return (self._text, 0)
+                return self._text, 0
             pre_text, post_text = self._text.split("/", 1)
             if not pre_text or not post_text:
                 break
