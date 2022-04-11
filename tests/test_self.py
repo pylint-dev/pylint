@@ -1284,8 +1284,7 @@ class TestCallbackOptions:
 
         process = subprocess.run(
             [sys.executable, "-m", "pylint"] + command,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            capture_output=True,
             encoding="utf-8",
             check=False,
         )
@@ -1297,8 +1296,7 @@ class TestCallbackOptions:
 
         process = subprocess.run(
             [sys.executable, "-m", "pylint", "--help-msg", "W0101"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            capture_output=True,
             encoding="utf-8",
             check=False,
         )
@@ -1306,8 +1304,7 @@ class TestCallbackOptions:
 
         process = subprocess.run(
             [sys.executable, "-m", "pylint", "--help-msg", "WX101"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            capture_output=True,
             encoding="utf-8",
             check=False,
         )
@@ -1315,8 +1312,7 @@ class TestCallbackOptions:
 
         process = subprocess.run(
             [sys.executable, "-m", "pylint", "--help-msg"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            capture_output=True,
             encoding="utf-8",
             check=False,
         )
@@ -1327,8 +1323,7 @@ class TestCallbackOptions:
         """Test the --generate-rcfile flag."""
         process = subprocess.run(
             [sys.executable, "-m", "pylint", "--generate-rcfile"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            capture_output=True,
             encoding="utf-8",
             check=False,
         )
@@ -1337,8 +1332,7 @@ class TestCallbackOptions:
 
         process_two = subprocess.run(
             [sys.executable, "-m", "pylint", "--generate-rcfile"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            capture_output=True,
             encoding="utf-8",
             check=False,
         )

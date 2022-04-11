@@ -31,7 +31,7 @@ repos:
     rev: v2.31.1
     hooks:
       - id: pyupgrade
-        args: [--py36-plus]
+        args: [--py37-plus]
         exclude: *fixtures
   - repo: https://github.com/PyCQA/isort
     rev: 5.10.1
