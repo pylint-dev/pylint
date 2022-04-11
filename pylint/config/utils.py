@@ -59,8 +59,8 @@ def _convert_option_to_argument(
         return _StoreTrueArgument(
             flags=flags,
             action=action,
-            default=optdict["default"],
-            arg_help=optdict["help"],
+            default=optdict.get("default", True),
+            arg_help=optdict.get("help", ""),
             hide_help=optdict.get("hide", False),
             section=optdict.get("group", None),
         )
@@ -68,44 +68,55 @@ def _convert_option_to_argument(
         return _CallableArgument(
             flags=flags,
             action=action,
-            arg_help=optdict["help"],
-            kwargs=optdict["kwargs"],
+            arg_help=optdict.get("help", ""),
+            kwargs=optdict.get("kwargs", {}),
             hide_help=optdict.get("hide", False),
             section=optdict.get("group", None),
         )
+    try:
+        default = optdict["default"]
+    except KeyError:
+        warnings.warn(
+            "An option dictionary should have a 'default' key to specify "
+            "the option's default value. This key will be required in pylint "
+            "3.0. It is not required for 'store_true' and callable actions.",
+            DeprecationWarning,
+        )
+        default = None
+
     if "kwargs" in optdict:
         if "old_names" in optdict["kwargs"]:
             return _StoreOldNamesArgument(
                 flags=flags,
-                default=optdict["default"],
+                default=default,
                 arg_type=optdict["type"],
                 choices=choices,
-                arg_help=optdict["help"],
-                metavar=optdict["metavar"],
+                arg_help=optdict.get("help", ""),
+                metavar=optdict.get("metavar", ""),
                 hide_help=optdict.get("hide", False),
-                kwargs=optdict["kwargs"],
-                section=optdict.get("group"),
+                kwargs=optdict.get("kwargs", {}),
+                section=optdict.get("group", None),
             )
         if "new_names" in optdict["kwargs"]:
             return _StoreNewNamesArgument(
                 flags=flags,
-                default=optdict["default"],
+                default=default,
                 arg_type=optdict["type"],
                 choices=choices,
-                arg_help=optdict["help"],
-                metavar=optdict["metavar"],
+                arg_help=optdict.get("help", ""),
+                metavar=optdict.get("metavar", ""),
                 hide_help=optdict.get("hide", False),
-                kwargs=optdict["kwargs"],
+                kwargs=optdict.get("kwargs", {}),
                 section=optdict.get("group", None),
             )
     if "dest" in optdict:
         return _StoreOldNamesArgument(
             flags=flags,
-            default=optdict["default"],
+            default=default,
             arg_type=optdict["type"],
             choices=choices,
-            arg_help=optdict["help"],
-            metavar=optdict["metavar"],
+            arg_help=optdict.get("help", ""),
+            metavar=optdict.get("metavar", ""),
             hide_help=optdict.get("hide", False),
             kwargs={"old_names": [optdict["dest"]]},
             section=optdict.get("group", None),
@@ -113,11 +124,11 @@ def _convert_option_to_argument(
     return _StoreArgument(
         flags=flags,
         action=action,
-        default=optdict["default"],
+        default=default,
         arg_type=optdict["type"],
         choices=choices,
-        arg_help=optdict["help"],
-        metavar=optdict["metavar"],
+        arg_help=optdict.get("help", ""),
+        metavar=optdict.get("metavar", ""),
         hide_help=optdict.get("hide", False),
         section=optdict.get("group", None),
     )
