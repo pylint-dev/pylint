@@ -6,9 +6,13 @@
 
 
 from pylint.checkers import BaseChecker
+from pylint.lint.pylinter import PyLinter
 
 
 class OtherBasicChecker(BaseChecker):
+    def __init__(self) -> None:
+        super().__init__(PyLinter())
+
     name = "basic"
     msgs = {
         "W0001": (
@@ -34,6 +38,9 @@ class LessBasicChecker(OtherBasicChecker):
 
 
 class DifferentBasicChecker(BaseChecker):
+    def __init__(self) -> None:
+        super().__init__(PyLinter())
+
     name = "different"
     msgs = {
         "W0002": (

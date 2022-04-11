@@ -73,7 +73,7 @@ class TestPyLinterOptionSetters(CheckerTestCase):
     class Checker(BaseChecker):
         name = "checker"
         msgs: Dict[str, Tuple[str, ...]] = {}
-        options = (("An option", {"An option": "dict"}),)
+        options = (("test-opt", {"action": "store_true", "help": "help message"}),)
 
     CHECKER_CLASS: Type = Checker
 

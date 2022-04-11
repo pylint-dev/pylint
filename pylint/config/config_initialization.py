@@ -3,6 +3,7 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 import sys
+import warnings
 from pathlib import Path
 from typing import TYPE_CHECKING, List, Union
 
@@ -32,7 +33,9 @@ def _config_initialization(
     # Read the configuration file
     config_file_parser = config._ConfigurationFileParser(verbose_mode, linter)
     try:
-        config_data = config_file_parser.parse_config_file(file_path=config_file)
+        config_data, config_args = config_file_parser.parse_config_file(
+            file_path=config_file
+        )
     except OSError as ex:
         print(ex, file=sys.stderr)
         sys.exit(32)
@@ -51,17 +54,23 @@ def _config_initialization(
     # Load optparse command line arguments
     try:
         # The parser is stored on linter.cfgfile_parser
-        linter.read_config_file(config_file=config_file, verbose=verbose_mode)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            linter.read_config_file(config_file=config_file, verbose=verbose_mode)
     except OSError as ex:
         print(ex, file=sys.stderr)
         sys.exit(32)
 
     # Now we can load file config, plugins (which can
     # provide options) have been registered
-    linter.load_config_file()
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
+        linter.load_config_file()
 
     try:
-        linter.load_command_line_configuration(args_list)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            linter.load_command_line_configuration(args_list)
     except SystemExit as exc:
         if exc.code == 2:  # bad options
             exc.code = 32
@@ -74,7 +83,7 @@ def _config_initialization(
         linter.set_reporter(reporter)
 
     # First we parse any options from a configuration file
-    linter._parse_configuration_file(config_data)
+    linter._parse_configuration_file(config_args)
 
     # Second we parse any options from the command line, so they can override
     # the configuration file
@@ -87,7 +96,7 @@ def _config_initialization(
     # parsed_args_list should now only be a list of files/directories to lint.
     # All other options have been removed from the list.
     if not parsed_args_list:
-        linter._arg_parser.print_help()
+        print(linter.help())
         sys.exit(32)
 
     # Now that plugins are loaded, get list of all fail_on messages, and enable them

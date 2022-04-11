@@ -60,6 +60,7 @@ from pylint.typing import (
     ManagedMessage,
     MessageLocationTuple,
     ModuleDescriptionDict,
+    Options,
 )
 from pylint.utils import ASTWalker, FileState, LinterStats, get_global_option, utils
 from pylint.utils.pragma_parser import (
@@ -74,7 +75,6 @@ if sys.version_info >= (3, 8):
 else:
     from typing_extensions import Literal
 
-OptionDict = Dict[str, Union[str, bool, int, Iterable[Union[str, int]]]]
 
 MANAGER = astroid.MANAGER
 
@@ -191,7 +191,6 @@ MSGS = {
 # pylint: disable=too-many-instance-attributes,too-many-public-methods
 class PyLinter(
     _ArgumentsManager,
-    config.OptionsManagerMixIn,
     reporters.ReportsHandlerMixIn,
     checkers.BaseTokenChecker,
 ):
@@ -220,7 +219,7 @@ class PyLinter(
     crash_file_path: str = "pylint-crash-%Y-%m-%d-%H.txt"
 
     @staticmethod
-    def make_options() -> Tuple[Tuple[str, OptionDict], ...]:
+    def make_options() -> Options:
         return (
             (
                 "ignore",
@@ -544,21 +543,21 @@ class PyLinter(
             ),
         )
 
-    option_groups_descs: Dict[str, str] = {
+    option_groups_descs = {
         "Messages control": "Options controlling analysis messages",
         "Reports": "Options related to output formatting and reporting",
     }
 
     def __init__(
         self,
-        options: Tuple[Tuple[str, OptionDict], ...] = (),
+        options: Options = (),
         reporter: Union[reporters.BaseReporter, reporters.MultiReporter, None] = None,
         option_groups: Tuple[Tuple[str, str], ...] = (),
         # pylint: disable-next=fixme
         # TODO: Deprecate passing the pylintrc parameter
         pylintrc: Optional[str] = None,  # pylint: disable=unused-argument
     ) -> None:
-        _ArgumentsManager.__init__(self)
+        _ArgumentsManager.__init__(self, prog="pylint")
 
         # Some stuff has to be done before initialization of other ancestors...
         # messages store / checkers / reporter / astroid manager
@@ -592,9 +591,7 @@ class PyLinter(
 
         # Attributes related to (command-line) options and their parsing
         self._external_opts = options
-        self.options: Tuple[Tuple[str, OptionDict], ...] = (
-            options + PyLinter.make_options()
-        )
+        self.options: Options = options + PyLinter.make_options()
         for opt_group in option_groups:
             self.option_groups_descs[opt_group[0]] = opt_group[1]
         # pylint: disable-next=fixme
@@ -623,7 +620,6 @@ class PyLinter(
         self._by_id_managed_msgs: List[ManagedMessage] = []
 
         reporters.ReportsHandlerMixIn.__init__(self)
-        config.OptionsManagerMixIn.__init__(self, usage=__doc__)
         checkers.BaseTokenChecker.__init__(self, self, future_option_parsing=True)
         # provided reports
         self.reports = (
@@ -636,7 +632,9 @@ class PyLinter(
             ("RP0003", "Messages", report_messages_stats),
         )
         self.register_checker(self)
-        self.load_provider_defaults()
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            self.load_provider_defaults()
 
     def load_default_plugins(self):
         checkers.initialize(self)
@@ -774,7 +772,9 @@ class PyLinter(
         self._checkers[checker.name].append(checker)
         for r_id, r_title, r_cb in checker.reports:
             self.register_report(r_id, r_title, r_cb, checker)
-        self.register_options_provider(checker)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            self.register_options_provider(checker)
         if hasattr(checker, "msgs"):
             self.msgs_store.register_messages_from_checker(checker)
         checker.load_defaults()

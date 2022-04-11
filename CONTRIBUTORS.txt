@@ -18,12 +18,12 @@ Maintainers
 - Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 - Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 - Hippo91 <guillaume.peillex@gmail.com>
-- Łukasz Rogalski <rogalski.91@gmail.com>
 - Jacob Walls <jacobtylerwalls@gmail.com>
+- Łukasz Rogalski <rogalski.91@gmail.com>
 - Ashley Whetter <ashley@awhetter.co.uk>
 - Bryce Guinta <bryce.paul.guinta@gmail.com>
-- Yu Shao, Pang <36848472+yushao2@users.noreply.github.com>
 - Andreas Finkler <3929834+DudeNr33@users.noreply.github.com>
+- Yu Shao, Pang <36848472+yushao2@users.noreply.github.com>
 - Dimitri Prybysh <dmand@yandex.ru>
   * multiple-imports, not-iterable, not-a-mapping, various patches.
 - Roy Williams <roy.williams.iii@gmail.com> (Lyft)
@@ -90,9 +90,9 @@ contributors:
 - Matus Valo <matusvalo@users.noreply.github.com>
 - Pierre-Yves David <pierre-yves.david@logilab.fr>
 - David Shea <dshea@redhat.com>: invalid sequence and slice index
+- Mark Byrne <31762852+mbyrnepr2@users.noreply.github.com>
 - Derek Gustafson <degustaf@gmail.com>
 - Cezar Elnazli <cezar.elnazli2@gmail.com>: deprecated-method
-- Mark Byrne <31762852+mbyrnepr2@users.noreply.github.com>
 - Nicolas Chauvat <nicolas.chauvat@logilab.fr>
 - Radu Ciorba <radu@devrandom.ro>: not-context-manager and confusing-with-statement warnings.
 - Holger Peters <email@holger-peters.de>
@@ -122,6 +122,7 @@ contributors:
 - Andrew Haigh <nelfin@gmail.com> (nelfin)
 - へーさん <hira9603859504@gmail.com>
 - orSolocate <38433858+orSolocate@users.noreply.github.com>
+- Tushar Sadhwani <tushar.sadhwani000@gmail.com> (tusharsadhwani)
 - Thomas Hisch <t.hisch@gmail.com>
 - Marianna Polatoglou <mpolatoglou@bloomberg.net>: minor contribution for wildcard import check
 - Manuel Vázquez Acosta <mva.led@gmail.com>
@@ -140,7 +141,6 @@ contributors:
   * Added new useless-return checker,
   * Added new try-except-raise checker
 - Téo Bouvard <teobouvard@gmail.com>
-- Tushar Sadhwani <tushar.sadhwani000@gmail.com> (tusharsadhwani)
 - Mihai Balint <balint.mihai@gmail.com>
 - Mark Bell <mark00bell@googlemail.com>
 - Konstantina Saketou <56515303+ksaketou@users.noreply.github.com>
@@ -342,6 +342,7 @@ contributors:
 - Skip Montanaro <skip@pobox.com>
 - Shiv Venkatasubrahmanyam <shvenkat@users.noreply.github.com>
 - Sebastian Müller <mueller.seb@posteo.de>
+- Saugat Pachhai <suagatchhetri@outlook.com>
 - Sasha Bagan <pnlbagan@gmail.com>
 - Sardorbek Imomaliev <sardorbek.imomaliev@gmail.com>
 - Santiago Castro <bryant@montevideo.com.uy>
@@ -511,6 +512,7 @@ contributors:
 - Aditya Gupta <adityagupta1089@users.noreply.github.com> (adityagupta1089)
   * Added ignore_signatures to duplicate checker
 - Adam Dangoor <adamdangoor@gmail.com>
+
 
 Co-Author
 ---------
