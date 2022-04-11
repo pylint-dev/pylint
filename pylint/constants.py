@@ -176,6 +176,10 @@ DELETED_MESSAGES = [
     ),
     # https://github.com/PyCQA/pylint/pull/3571
     DeletedMessage("C0330", "bad-continuation"),
+    # No PR
+    DeletedMessage("R0921", "abstract-class-not-used"),
+    # https://github.com/PyCQA/pylint/pull/3577
+    DeletedMessage("C0326", "abstract-class-not-used"),
 ]
 
 
