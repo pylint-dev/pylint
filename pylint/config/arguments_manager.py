@@ -7,7 +7,6 @@
 import argparse
 import collections
 import configparser
-import contextlib
 import copy
 import optparse  # pylint: disable=deprecated-module
 import os
@@ -46,40 +45,6 @@ else:
 
 if TYPE_CHECKING:
     from pylint.config.arguments_provider import _ArgumentsProvider
-
-
-@contextlib.contextmanager
-def _patch_optparse():
-    # pylint: disable = redefined-variable-type
-    orig_default = optparse.HelpFormatter
-    try:
-        optparse.HelpFormatter.expand_default = _expand_default
-        yield
-    finally:
-        optparse.HelpFormatter.expand_default = orig_default
-
-
-def _expand_default(self, option):
-    """Patch OptionParser.expand_default with custom behaviour.
-
-    This will handle defaults to avoid overriding values in the
-    configuration file.
-    """
-    if self.parser is None or not self.default_tag:
-        return option.help
-    optname = option._long_opts[0][2:]
-    try:
-        provider = self.parser.options_manager._all_options[optname]
-    except KeyError:
-        value = None
-    else:
-        optdict = provider.get_option_def(optname)
-        optname = provider.option_attrname(optname, optdict)
-        value = getattr(provider.config, optname, optdict)
-        value = utils._format_option_value(optdict, value)
-    if value is optparse.NO_DEFAULT or not value:
-        value = self.NO_DEFAULT_VALUE
-    return option.help.replace(self.default_tag, str(value))
 
 
 # pylint: disable-next=too-many-instance-attributes
@@ -553,33 +518,42 @@ class _ArgumentsManager:
             provider = self._all_options[opt]
             provider.set_option(opt, opt_value)
 
-    # pylint: disable-next=fixme
-    # TODO: Optparse: All methods below this line are copied to keep API-parity with
-    # OptionsManagerMixIn. They should either be deprecated or moved above this line
-    # to keep them in _ArgumentsManager
-
-    def load_command_line_configuration(self, args=None) -> List[str]:
+    def load_command_line_configuration(
+        self, args: Optional[List[str]] = None
+    ) -> List[str]:
         """Override configuration according to command line parameters.
 
         return additional arguments
         """
-        with _patch_optparse():
-            args = sys.argv[1:] if args is None else list(args)
-            (options, args) = self.cmdline_parser.parse_args(args=args)
-            for provider in self._nocallback_options:
-                config = provider.config
-                for attr in config.__dict__.keys():
-                    value = getattr(options, attr, None)
-                    if value is None:
-                        continue
-                    setattr(config, attr, value)
-            return args
+        warnings.warn(
+            "load_command_line_configuration has been deprecated. It will be removed in pylint 3.0.",
+            DeprecationWarning,
+        )
+        args = sys.argv[1:] if args is None else list(args)
+        (options, args) = self.cmdline_parser.parse_args(args=args)
+        for provider in self._nocallback_options:
+            config = provider.config
+            for attr in config.__dict__.keys():
+                value = getattr(options, attr, None)
+                if value is None:
+                    continue
+                setattr(config, attr, value)
+        return args
 
-    def help(self, level=0):
-        """Return the usage string for available options."""
-        self.cmdline_parser.formatter.output_level = level
-        with _patch_optparse():
-            return self.cmdline_parser.format_help()
+    def help(self, level: Optional[int] = None) -> str:
+        """Return the usage string based on the available options."""
+        if level is not None:
+            warnings.warn(
+                "Supplying a 'level' argument to help() has been deprecated."
+                "You can call help() without any arguments.",
+                DeprecationWarning,
+            )
+        return self._arg_parser.format_help()
+
+    # pylint: disable-next=fixme
+    # TODO: Optparse: All methods below this line are copied to keep API-parity with
+    # OptionsManagerMixIn. They should either be deprecated or moved above this line
+    # to keep them in _ArgumentsManager
 
     def cb_set_provider_option(self, option, opt, value, parser):
         """Optik callback for option setting."""
