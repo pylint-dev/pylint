@@ -125,7 +125,7 @@ TEST_WITH_EXPECTED_DEPRECATION = ["func_excess_escapes.py"]
 )
 def test_functionality(
     module_file, messages_file, dependencies, recwarn: pytest.WarningsRecorder
-):
+) -> None:
     __test_functionality(module_file, messages_file, dependencies)
     if recwarn.list:
         if module_file in TEST_WITH_EXPECTED_DEPRECATION and sys.version_info.minor > 5:
