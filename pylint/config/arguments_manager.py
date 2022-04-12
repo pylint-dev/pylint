@@ -456,7 +456,8 @@ class _ArgumentsManager:
         if verbose:
             print(f"Using config file '{config_file}'", file=sys.stderr)
 
-    def _parse_toml(self, config_file: Path, parser: configparser.ConfigParser) -> None:
+    @staticmethod
+    def _parse_toml(config_file: Path, parser: configparser.ConfigParser) -> None:
         """DEPRECATED: Parse and handle errors of a toml configuration file.
 
         TODO: Remove after read_config_file has been removed.
@@ -472,10 +473,6 @@ class _ArgumentsManager:
             # TOML has rich types, convert values to
             # strings as ConfigParser expects.
             if not isinstance(values, dict):
-                # This class is a mixin: add_message comes from the `PyLinter` class
-                self.add_message(  # type: ignore[attr-defined] # pylint: disable=no-member
-                    "bad-configuration-section", line=0, args=(section, values)
-                )
                 continue
             for option, value in values.items():
                 if isinstance(value, bool):
@@ -546,7 +543,7 @@ class _ArgumentsManager:
                 value = getattr(options, attr, None)
                 if value is None:
                     continue
-                setattr(config, attr, value)
+                setattr(config, attr, value)  # pragma: no cover # Handled by argparse.
         return args
 
     def help(self, level: Optional[int] = None) -> str:
@@ -560,8 +557,9 @@ class _ArgumentsManager:
         return self._arg_parser.format_help()
 
     # pylint: disable-next=fixme
-    # TODO: Optparse: Refactor and potentially deprecate cb_set_provider_option
-    def cb_set_provider_option(self, option, opt, value, parser):
+    # TODO: Optparse: Deprecate cb_set_provider_option
+    # Currently uncovered.
+    def cb_set_provider_option(self, option, opt, value, parser):  # pragma: no cover
         """Optik callback for option setting."""
         if opt.startswith("--"):
             # remove -- on long option

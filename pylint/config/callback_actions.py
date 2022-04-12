@@ -13,7 +13,7 @@ import warnings
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Optional, Sequence, Union
 
-from pylint import extensions, interfaces, utils
+from pylint import exceptions, extensions, interfaces, utils
 
 if TYPE_CHECKING:
     from pylint.config.help_formatter import _HelpFormatter
@@ -340,9 +340,14 @@ class _DisableAction(_AccessLinterObjectAction):
         option_string: Optional[str] = "--disable",
     ) -> None:
         assert isinstance(values, (tuple, list))
-        values = utils._check_csv(values[0])
-        for msgid in values:
-            self.linter.disable(msgid)
+        msgids = utils._check_csv(values[0])
+        try:
+            for msgid in msgids:
+                self.linter.disable(msgid)
+        except exceptions.UnknownMessageError:
+            # pylint: disable-next=fixme
+            # TODO: Optparse: Raise an informational warning here
+            pass
 
 
 class _EnableAction(_AccessLinterObjectAction):
@@ -356,9 +361,14 @@ class _EnableAction(_AccessLinterObjectAction):
         option_string: Optional[str] = "--enable",
     ) -> None:
         assert isinstance(values, (tuple, list))
-        values = utils._check_csv(values[0])
-        for msgid in values:
-            self.linter.enable(msgid)
+        msgids = utils._check_csv(values[0])
+        try:
+            for msgid in msgids:
+                self.linter.enable(msgid)
+        except exceptions.UnknownMessageError:
+            # pylint: disable-next=fixme
+            # TODO: Optparse: Raise an informational warning here
+            pass
 
 
 class _OutputFormatAction(_AccessLinterObjectAction):
