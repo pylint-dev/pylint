@@ -50,6 +50,7 @@ from astroid import nodes
 from pylint.checkers import BaseChecker, MapReduceMixin, table_lines_from_stats
 from pylint.interfaces import IRawChecker
 from pylint.reporters.ureports.nodes import Table
+from pylint.typing import Options
 from pylint.utils import LinterStats, decoding_stream
 
 if TYPE_CHECKING:
@@ -730,7 +731,7 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
     msgs = MSGS
     # configuration options
     # for available dict keys/values see the optik parser 'add_option' method
-    options = (
+    options: Options = (
         (
             "min-similarity-lines",
             {
@@ -781,7 +782,7 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
     reports = (("RP0801", "Duplication", report_similarities),)
 
     def __init__(self, linter=None) -> None:
-        BaseChecker.__init__(self, linter, future_option_parsing=True)
+        BaseChecker.__init__(self, linter)
         Similar.__init__(
             self,
             min_lines=self.linter.namespace.min_similarity_lines,

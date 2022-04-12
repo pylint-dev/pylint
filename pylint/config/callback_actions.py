@@ -9,13 +9,15 @@
 import abc
 import argparse
 import sys
+import warnings
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Optional, Sequence, Union
 
-from pylint import extensions, interfaces, utils
+from pylint import exceptions, extensions, interfaces, utils
 
 if TYPE_CHECKING:
     from pylint.config.help_formatter import _HelpFormatter
+    from pylint.lint import PyLinter
     from pylint.lint.run import Run
 
 
@@ -235,7 +237,12 @@ class _GenerateRCFileAction(_AccessRunObjectAction):
         values: Union[str, Sequence[Any], None],
         option_string: Optional[str] = "--generate-rcfile",
     ) -> None:
-        self.run.linter.generate_config(skipsections=("COMMANDS",))
+        # pylint: disable-next=fixme
+        # TODO: Optparse: Deprecate this function and raise a warning.
+        # This is (obviously) dependent on a --generate-toml-config flag.
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            self.run.linter.generate_config(skipsections=("COMMANDS",))
         sys.exit(0)
 
 
@@ -274,6 +281,108 @@ class _LongHelpAction(_AccessRunObjectAction):
 
         # Add extra info as epilog to the help message
         self.run.linter._arg_parser.epilog = formatter.get_long_description()
-        self.run.linter._arg_parser.print_help()
+        print(self.run.linter.help())
 
         sys.exit(0)
+
+
+class _AccessLinterObjectAction(_CallbackAction):
+    """Action that has access to the Linter object."""
+
+    def __init__(
+        self,
+        option_strings: Sequence[str],
+        dest: str,
+        nargs: None = None,
+        const: None = None,
+        default: None = None,
+        type: None = None,
+        choices: None = None,
+        required: bool = False,
+        help: str = "",
+        metavar: str = "",
+        **kwargs: "PyLinter",
+    ) -> None:
+        self.linter = kwargs["linter"]
+
+        super().__init__(
+            option_strings,
+            dest,
+            1,
+            const,
+            default,
+            type,
+            choices,
+            required,
+            help,
+            metavar,
+        )
+
+    @abc.abstractmethod
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: Union[str, Sequence[Any], None],
+        option_string: Optional[str] = None,
+    ) -> None:
+        raise NotImplementedError
+
+
+class _DisableAction(_AccessLinterObjectAction):
+    """Callback action for disabling a message."""
+
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: Union[str, Sequence[Any], None],
+        option_string: Optional[str] = "--disable",
+    ) -> None:
+        assert isinstance(values, (tuple, list))
+        msgids = utils._check_csv(values[0])
+        try:
+            for msgid in msgids:
+                self.linter.disable(msgid)
+        except exceptions.UnknownMessageError:
+            # pylint: disable-next=fixme
+            # TODO: Optparse: Raise an informational warning here
+            pass
+
+
+class _EnableAction(_AccessLinterObjectAction):
+    """Callback action for enabling a message."""
+
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: Union[str, Sequence[Any], None],
+        option_string: Optional[str] = "--enable",
+    ) -> None:
+        assert isinstance(values, (tuple, list))
+        msgids = utils._check_csv(values[0])
+        try:
+            for msgid in msgids:
+                self.linter.enable(msgid)
+        except exceptions.UnknownMessageError:
+            # pylint: disable-next=fixme
+            # TODO: Optparse: Raise an informational warning here
+            pass
+
+
+class _OutputFormatAction(_AccessLinterObjectAction):
+    """Callback action for setting the output format."""
+
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: Union[str, Sequence[Any], None],
+        option_string: Optional[str] = "--enable",
+    ) -> None:
+        assert isinstance(values, (tuple, list))
+        assert isinstance(
+            values[0], str
+        ), "'output-format' should be a comma separated string of reporters"
+        self.linter._load_reporters(values[0])

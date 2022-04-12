@@ -1099,7 +1099,7 @@ class VariablesChecker(BaseChecker):
         assigned_to = [a.name for a in node.target.nodes_of_class(nodes.AssignName)]
 
         # Only check variables that are used
-        dummy_rgx = self.config.dummy_variables_rgx
+        dummy_rgx = self.linter.namespace.dummy_variables_rgx
         assigned_to = [var for var in assigned_to if not dummy_rgx.match(var)]
 
         for variable in assigned_to:
@@ -1157,7 +1157,7 @@ class VariablesChecker(BaseChecker):
         self._check_globals(not_consumed)
 
         # don't check unused imports in __init__ files
-        if not self.config.init_import and node.package:
+        if not self.linter.namespace.init_import and node.package:
             return
 
         self._check_imports(not_consumed)
@@ -1443,7 +1443,7 @@ class VariablesChecker(BaseChecker):
             and not (
                 node.name in nodes.Module.scope_attrs
                 or utils.is_builtin(node.name)
-                or node.name in self.config.additional_builtins
+                or node.name in self.linter.namespace.additional_builtins
                 or (
                     node.name == "__class__"
                     and isinstance(frame, nodes.FunctionDef)
@@ -2079,6 +2079,20 @@ class VariablesChecker(BaseChecker):
         parent = node
         while parent is not defstmt_frame.parent:
             parent_scope = parent.scope()
+
+            # Find out if any nonlocals receive values in nested functions
+            for inner_func in parent_scope.nodes_of_class(nodes.FunctionDef):
+                if inner_func is parent_scope:
+                    continue
+                if any(
+                    node.name in nl.names
+                    for nl in inner_func.nodes_of_class(nodes.Nonlocal)
+                ) and any(
+                    node.name == an.name
+                    for an in inner_func.nodes_of_class(nodes.AssignName)
+                ):
+                    return False
+
             local_refs = parent_scope.locals.get(node.name, [])
             for ref_node in local_refs:
                 # If local ref is in the same frame as our node, but on a later lineno
@@ -2359,13 +2373,13 @@ class VariablesChecker(BaseChecker):
             self.add_message(message_name, args=name, node=stmt)
 
     def _is_name_ignored(self, stmt, name):
-        authorized_rgx = self.config.dummy_variables_rgx
+        authorized_rgx = self.linter.namespace.dummy_variables_rgx
         if (
             isinstance(stmt, nodes.AssignName)
             and isinstance(stmt.parent, nodes.Arguments)
             or isinstance(stmt, nodes.Arguments)
         ):
-            regex = self.config.ignored_argument_names
+            regex = self.linter.namespace.ignored_argument_names
         else:
             regex = authorized_rgx
         return regex and regex.match(name)
@@ -2398,7 +2412,7 @@ class VariablesChecker(BaseChecker):
         # Don't check callback arguments
         if any(
             node.name.startswith(cb) or node.name.endswith(cb)
-            for cb in self.config.callbacks
+            for cb in self.linter.namespace.callbacks
         ):
             return
         # Don't check arguments of singledispatch.register function.
@@ -2471,10 +2485,10 @@ class VariablesChecker(BaseChecker):
     def _should_ignore_redefined_builtin(self, stmt):
         if not isinstance(stmt, nodes.ImportFrom):
             return False
-        return stmt.modname in self.config.redefining_builtins_modules
+        return stmt.modname in self.linter.namespace.redefining_builtins_modules
 
     def _allowed_redefined_builtin(self, name):
-        return name in self.config.allowed_redefined_builtins
+        return name in self.linter.namespace.allowed_redefined_builtins
 
     @staticmethod
     def _comprehension_between_frame_and_node(node: nodes.Name) -> bool:
@@ -2826,7 +2840,7 @@ class VariablesChecker(BaseChecker):
             and not (
                 name in nodes.Module.scope_attrs
                 or utils.is_builtin(name)
-                or name in self.config.additional_builtins
+                or name in self.linter.namespace.additional_builtins
             )
         ):
             self.add_message("undefined-variable", node=klass, args=(name,))

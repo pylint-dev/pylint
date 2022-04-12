@@ -1,0 +1,6 @@
+[tool.pylint."imports"]
+disable = [
+    "logging-not-lazy",
+    "logging-format-interpolation",
+]
+preferred-modules = { "a"="b" }

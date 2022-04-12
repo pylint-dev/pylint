@@ -440,7 +440,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         ),
     }
 
-    def __init__(self, linter: Optional["PyLinter"] = None) -> None:
+    def __init__(self, linter: "PyLinter") -> None:
         BaseChecker.__init__(self, linter)
         self._deprecated_methods: Set[str] = set()
         self._deprecated_arguments: Dict[

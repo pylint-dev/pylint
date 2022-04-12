@@ -9,6 +9,7 @@
 import os
 import re
 import sys
+import warnings
 from typing import Optional
 
 import sphinx
@@ -91,20 +92,24 @@ def get_plugins_info(linter, doc_files):
                 doc = f.read()
         try:
             by_checker[checker]["checker"] = checker
-            by_checker[checker]["options"] += checker.options_and_values()
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=DeprecationWarning)
+                by_checker[checker]["options"] += checker.options_and_values()
             by_checker[checker]["msgs"].update(checker.msgs)
             by_checker[checker]["reports"] += checker.reports
             by_checker[checker]["doc"] += doc
             by_checker[checker]["module"] += module
         except KeyError:
-            by_checker[checker] = {
-                "checker": checker,
-                "options": list(checker.options_and_values()),
-                "msgs": dict(checker.msgs),
-                "reports": list(checker.reports),
-                "doc": doc,
-                "module": module,
-            }
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=DeprecationWarning)
+                by_checker[checker] = {
+                    "checker": checker,
+                    "options": list(checker.options_and_values()),
+                    "msgs": dict(checker.msgs),
+                    "reports": list(checker.reports),
+                    "doc": doc,
+                    "module": module,
+                }
     return by_checker
 
 

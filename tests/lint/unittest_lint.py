@@ -4,6 +4,7 @@
 
 # pylint: disable=redefined-outer-name
 
+import argparse
 import os
 import re
 import sys
@@ -239,7 +240,7 @@ def test_enable_message_category(initialized_linter: PyLinter) -> None:
 
 
 def test_message_state_scope(initialized_linter: PyLinter) -> None:
-    class FakeConfig:
+    class FakeConfig(argparse.Namespace):
         confidence = ["HIGH"]
 
     linter = initialized_linter
@@ -250,7 +251,7 @@ def test_message_state_scope(initialized_linter: PyLinter) -> None:
     assert MSG_STATE_SCOPE_MODULE == linter._get_message_state_scope("W0101", 3)
     linter.enable("W0102", scope="module", line=3)
     assert MSG_STATE_SCOPE_MODULE == linter._get_message_state_scope("W0102", 3)
-    linter.config = FakeConfig()
+    linter.namespace = FakeConfig()
     assert MSG_STATE_CONFIDENCE == linter._get_message_state_scope(
         "this-is-bad", confidence=interfaces.INFERENCE
     )
@@ -531,7 +532,7 @@ def test_load_plugin_configuration() -> None:
         ],
         exit=False,
     )
-    assert run.linter.config.black_list == ["foo", "bar", "bin"]
+    assert run.linter.namespace.ignore == ["foo", "bar", "bin"]
 
 
 def test_init_hooks_called_before_load_plugins() -> None:
@@ -730,8 +731,8 @@ def test_custom_should_analyze_file() -> None:
     for jobs in (1, 2):
         reporter = testutils.GenericTestReporter()
         linter = _CustomPyLinter()
-        linter.config.jobs = jobs
-        linter.config.persistent = 0
+        linter.namespace.jobs = jobs
+        linter.namespace.persistent = 0
         linter.open()
         linter.set_reporter(reporter)
 
@@ -763,8 +764,8 @@ def test_multiprocessing(jobs: int) -> None:
 
     reporter = testutils.GenericTestReporter()
     linter = PyLinter()
-    linter.config.jobs = jobs
-    linter.config.persistent = 0
+    linter.namespace.jobs = jobs
+    linter.namespace.persistent = 0
     linter.open()
     linter.set_reporter(reporter)
 

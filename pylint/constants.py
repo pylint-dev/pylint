@@ -13,7 +13,6 @@ import platformdirs
 from pylint.__pkginfo__ import __version__
 from pylint.typing import MessageTypesFullName
 
-PY37_PLUS = sys.version_info[:2] >= (3, 7)
 PY38_PLUS = sys.version_info[:2] >= (3, 8)
 PY39_PLUS = sys.version_info[:2] >= (3, 9)
 
@@ -177,6 +176,12 @@ DELETED_MESSAGES = [
     ),
     # https://github.com/PyCQA/pylint/pull/3571
     DeletedMessage("C0330", "bad-continuation"),
+    # No PR
+    DeletedMessage("R0921", "abstract-class-not-used"),
+    # https://github.com/PyCQA/pylint/pull/3577
+    DeletedMessage("C0326", "bad-whitespace"),
+    # Pylint 1.4.3
+    DeletedMessage("W0142", "star-args"),
 ]
 
 

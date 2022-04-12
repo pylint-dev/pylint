@@ -172,7 +172,7 @@ class TextReporter(BaseReporter):
 
     def on_set_current_module(self, module: str, filepath: Optional[str]) -> None:
         """Set the format template to be used and check for unrecognized arguments."""
-        template = str(self.linter.config.msg_template or self._template)
+        template = str(self.linter.namespace.msg_template or self._template)
 
         # Return early if the template is the same as the previous one
         if template == self._template:

@@ -897,9 +897,6 @@ accessed. Python regular expressions are accepted.",
         ),
     )
 
-    def __init__(self, linter: "PyLinter") -> None:
-        super().__init__(linter, future_option_parsing=True)
-
     def open(self) -> None:
         py_version = get_global_option(self, "py-version")
         self._py310_plus = py_version >= (3, 10)
@@ -1951,7 +1948,11 @@ accessed. Python regular expressions are accepted.",
                 return  # It would be better to handle function
                 # decorators, but let's start slow.
 
-        if supported_protocol and not supported_protocol(inferred, node):
+        if (
+            supported_protocol
+            and not supported_protocol(inferred, node)
+            and not utils.in_type_checking_block(node)
+        ):
             self.add_message(msg, args=node.value.as_string(), node=node.value)
 
     @check_messages("dict-items-missing-iter")
@@ -2025,9 +2026,6 @@ class IterableChecker(BaseChecker):
             "mapping is expected",
         ),
     }
-
-    def __init__(self, linter: "PyLinter") -> None:
-        super().__init__(linter, future_option_parsing=True)
 
     @staticmethod
     def _is_asyncio_coroutine(node):

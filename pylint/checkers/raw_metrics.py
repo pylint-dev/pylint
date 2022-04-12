@@ -67,9 +67,6 @@ class RawMetricsChecker(BaseTokenChecker):
     # reports
     reports = (("RP0701", "Raw metrics", report_raw_stats),)
 
-    def __init__(self, linter):
-        super().__init__(linter)
-
     def open(self):
         """Init statistics."""
         self.linter.stats.reset_code_count()

@@ -144,9 +144,6 @@ class LoggingChecker(checkers.BaseChecker):
         ),
     )
 
-    def __init__(self, linter: "PyLinter") -> None:
-        super().__init__(linter=linter, future_option_parsing=True)
-
     def visit_module(self, _: nodes.Module) -> None:
         """Clears any state left in this checker from last module checked."""
         # The code being checked can just as easily "import logging as foo",

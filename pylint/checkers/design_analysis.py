@@ -403,7 +403,7 @@ class MisdesignChecker(BaseChecker):
     )
 
     def __init__(self, linter=None):
-        super().__init__(linter, future_option_parsing=True)
+        super().__init__(linter)
         self._returns = None
         self._branches = None
         self._stmts = None

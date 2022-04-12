@@ -21,7 +21,8 @@ class UnittestLinter(_ArgumentsManager):
     def __init__(self):
         self._messages = []
         self.stats = LinterStats()
-        _ArgumentsManager.__init__(self)
+        _ArgumentsManager.__init__(self, "pylint")
+        self.options_providers = linter.options_providers
 
     def release_messages(self):
         try:
@@ -84,7 +85,3 @@ class UnittestLinter(_ArgumentsManager):
     @staticmethod
     def is_message_enabled(*unused_args, **unused_kwargs):
         return True
-
-    @property
-    def options_providers(self):
-        return linter.options_providers

@@ -4,12 +4,27 @@
 
 """A collection of typing utilities."""
 import sys
-from typing import NamedTuple, Optional, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    NamedTuple,
+    Optional,
+    Pattern,
+    Tuple,
+    Type,
+    Union,
+)
 
 if sys.version_info >= (3, 8):
     from typing import Literal, TypedDict
 else:
     from typing_extensions import Literal, TypedDict
+
+if TYPE_CHECKING:
+    from pylint.config.callback_actions import _CallbackAction
 
 
 class FileItem(NamedTuple):
@@ -71,3 +86,20 @@ MessageTypesFullName = Literal[
     "convention", "error", "fatal", "info", "refactor", "statement", "warning"
 ]
 """All possible message categories."""
+
+
+OptionDict = Dict[
+    str,
+    Union[
+        None,
+        str,
+        bool,
+        int,
+        Pattern[str],
+        Iterable[Union[str, int, Pattern[str]]],
+        Type["_CallbackAction"],
+        Callable[[Any], Any],
+        Callable[[Any, Any, Any, Any], Any],
+    ],
+]
+Options = Tuple[Tuple[str, OptionDict], ...]

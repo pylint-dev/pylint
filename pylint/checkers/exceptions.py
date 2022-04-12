@@ -245,9 +245,6 @@ class ExceptionsChecker(checkers.BaseChecker):
         ),
     )
 
-    def __init__(self, linter: "PyLinter") -> None:
-        super().__init__(linter, future_option_parsing=True)
-
     def open(self):
         self._builtin_exceptions = _builtin_exceptions()
         super().open()

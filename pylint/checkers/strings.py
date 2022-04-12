@@ -244,7 +244,6 @@ class StringFormatChecker(BaseChecker):
         "format-needs-mapping",
         "too-many-format-args",
         "too-few-format-args",
-        "bad-string-format-type",
         "format-string-without-interpolation",
     )
     def visit_binop(self, node: nodes.BinOp) -> None:
@@ -353,9 +352,21 @@ class StringFormatChecker(BaseChecker):
             elif isinstance(args, (OTHER_NODES, (nodes.Dict, nodes.DictComp))):
                 args_elts = [args]
                 num_args = 1
+            elif isinstance(args, nodes.Name):
+                inferred = utils.safe_infer(args)
+                if isinstance(inferred, nodes.Tuple):
+                    # The variable is a tuple, so we need to get the elements
+                    # from it for further inspection
+                    args_elts = inferred.elts
+                    num_args = len(args_elts)
+                elif isinstance(inferred, nodes.Const):
+                    args_elts = [inferred]
+                    num_args = 1
+                else:
+                    num_args = None
             else:
-                # The RHS of the format specifier is a name or
-                # expression.  It could be a tuple of unknown size, so
+                # The RHS of the format specifier is an expression.
+                # It could be a tuple of unknown size, so
                 # there's nothing we can check.
                 num_args = None
             if num_args is not None:
@@ -678,7 +689,7 @@ class StringConstantChecker(BaseTokenChecker):
     UNICODE_ESCAPE_CHARACTERS = "uUN"
 
     def __init__(self, linter):
-        super().__init__(linter, future_option_parsing=True)
+        super().__init__(linter)
         self.string_tokens = {}  # token position -> (token value, next token)
 
     def process_module(self, node: nodes.Module) -> None:

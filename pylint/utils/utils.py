@@ -18,6 +18,7 @@ import re
 import sys
 import textwrap
 import tokenize
+import warnings
 from io import BufferedReader, BytesIO
 from typing import (
     TYPE_CHECKING,
@@ -263,6 +264,15 @@ def get_global_option(
     until the given *option* will be found.
     If the option wasn't found, the *default* value will be returned.
     """
+
+    # # pylint: disable-next=fixme
+    # # TODO: Optparse: Potentially deprecate this.
+    # Firstly, try on the namespace object
+    try:
+        return getattr(checker.linter.namespace, option.replace("-", "_"))
+    except AttributeError:
+        pass
+
     # First, try in the given checker's config.
     # After that, look in the options providers.
 
@@ -329,7 +339,10 @@ def _comment(string: str) -> str:
 
 
 def _format_option_value(optdict, value):
-    """Return the user input's value from a 'compiled' value."""
+    """Return the user input's value from a 'compiled' value.
+
+    TODO: Remove in pylint 3.0.
+    """
     if optdict.get("type", None) == "py_version":
         value = ".".join(str(item) for item in value)
     elif isinstance(value, (list, tuple)):
@@ -350,14 +363,24 @@ def format_section(
     stream: TextIO, section: str, options: List[Tuple], doc: Optional[str] = None
 ) -> None:
     """Format an option's section using the INI format."""
+    warnings.warn(
+        "format_section has been deprecated. It will be removed in pylint 3.0.",
+        DeprecationWarning,
+    )
     if doc:
         print(_comment(doc), file=stream)
     print(f"[{section}]", file=stream)
-    _ini_format(stream, options)
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
+        _ini_format(stream, options)
 
 
 def _ini_format(stream: TextIO, options: List[Tuple]) -> None:
     """Format options using the INI format."""
+    warnings.warn(
+        "_ini_format has been deprecated. It will be removed in pylint 3.0.",
+        DeprecationWarning,
+    )
     for optname, optdict, value in options:
         value = _format_option_value(optdict, value)
         help_opt = optdict.get("help")

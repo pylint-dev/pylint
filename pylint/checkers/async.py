@@ -38,9 +38,6 @@ class AsyncChecker(checkers.BaseChecker):
         ),
     }
 
-    def __init__(self, linter: "PyLinter") -> None:
-        super().__init__(linter, future_option_parsing=True)
-
     def open(self):
         self._mixin_class_rgx = utils.get_global_option(self, "mixin-class-rgx")
         self._async_generators = ["contextlib.asynccontextmanager"]

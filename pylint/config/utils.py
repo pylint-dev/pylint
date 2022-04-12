@@ -5,6 +5,7 @@
 """Utils for arguments/options parsing and handling."""
 
 
+import re
 import warnings
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, Union
@@ -40,8 +41,6 @@ def _convert_option_to_argument(
             "Use 'hide' with a boolean to hide an option from the help message.",
             DeprecationWarning,
         )
-    # pylint: disable-next=fixme
-    # TODO: Do something with the 'group' keys of optdicts
 
     # Get the long and short flags
     flags = [f"--{opt}"]
@@ -61,61 +60,78 @@ def _convert_option_to_argument(
         return _StoreTrueArgument(
             flags=flags,
             action=action,
-            default=optdict["default"],
-            arg_help=optdict["help"],
+            default=optdict.get("default", True),
+            arg_help=optdict.get("help", ""),
             hide_help=optdict.get("hide", False),
+            section=optdict.get("group", None),
         )
     if not isinstance(action, str) and issubclass(action, _CallbackAction):
         return _CallableArgument(
             flags=flags,
             action=action,
-            arg_help=optdict["help"],
-            kwargs=optdict["kwargs"],
+            arg_help=optdict.get("help", ""),
+            kwargs=optdict.get("kwargs", {}),
             hide_help=optdict.get("hide", False),
+            section=optdict.get("group", None),
         )
+    try:
+        default = optdict["default"]
+    except KeyError:
+        warnings.warn(
+            "An option dictionary should have a 'default' key to specify "
+            "the option's default value. This key will be required in pylint "
+            "3.0. It is not required for 'store_true' and callable actions.",
+            DeprecationWarning,
+        )
+        default = None
+
     if "kwargs" in optdict:
         if "old_names" in optdict["kwargs"]:
             return _StoreOldNamesArgument(
                 flags=flags,
-                default=optdict["default"],
+                default=default,
                 arg_type=optdict["type"],
                 choices=choices,
-                arg_help=optdict["help"],
-                metavar=optdict["metavar"],
+                arg_help=optdict.get("help", ""),
+                metavar=optdict.get("metavar", ""),
                 hide_help=optdict.get("hide", False),
-                kwargs=optdict["kwargs"],
+                kwargs=optdict.get("kwargs", {}),
+                section=optdict.get("group", None),
             )
         if "new_names" in optdict["kwargs"]:
             return _StoreNewNamesArgument(
                 flags=flags,
-                default=optdict["default"],
+                default=default,
                 arg_type=optdict["type"],
                 choices=choices,
-                arg_help=optdict["help"],
-                metavar=optdict["metavar"],
+                arg_help=optdict.get("help", ""),
+                metavar=optdict.get("metavar", ""),
                 hide_help=optdict.get("hide", False),
-                kwargs=optdict["kwargs"],
+                kwargs=optdict.get("kwargs", {}),
+                section=optdict.get("group", None),
             )
     if "dest" in optdict:
         return _StoreOldNamesArgument(
             flags=flags,
-            default=optdict["default"],
+            default=default,
             arg_type=optdict["type"],
             choices=choices,
-            arg_help=optdict["help"],
-            metavar=optdict["metavar"],
+            arg_help=optdict.get("help", ""),
+            metavar=optdict.get("metavar", ""),
             hide_help=optdict.get("hide", False),
             kwargs={"old_names": [optdict["dest"]]},
+            section=optdict.get("group", None),
         )
     return _StoreArgument(
         flags=flags,
         action=action,
-        default=optdict["default"],
+        default=default,
         arg_type=optdict["type"],
         choices=choices,
-        arg_help=optdict["help"],
-        metavar=optdict["metavar"],
+        arg_help=optdict.get("help", ""),
+        metavar=optdict.get("metavar", ""),
         hide_help=optdict.get("hide", False),
+        section=optdict.get("group", None),
     )
 
 
@@ -123,6 +139,10 @@ def _parse_rich_type_value(value: Any) -> str:
     """Parse rich (toml) types into strings."""
     if isinstance(value, (list, tuple)):
         return ",".join(value)
+    if isinstance(value, re.Pattern):
+        return value.pattern
+    if isinstance(value, dict):
+        return ",".join(f"{k}:{v}" for k, v in value.items())
     return str(value)
 
 
