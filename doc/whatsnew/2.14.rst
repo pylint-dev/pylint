@@ -100,7 +100,7 @@ Other Changes
 
 * The concept of checker priority has been removed.
 
-* Added ``cache-max-size-none`` checker will now also check ``functools.cache``.
+* The ``cache-max-size-none`` checker will now also check ``functools.cache``.
 
   Closes #5670
 
