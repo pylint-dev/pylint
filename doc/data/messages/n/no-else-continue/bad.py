@@ -1,6 +1,6 @@
-def iterator_suffix(iterator, stop: int):
-    for i, item in enumerate(iterator):
-        if i < stop:  # [no-else-continue]
+def even_number_under(n: int):
+    for i in range(n):
+        if i%2 == 1:  # [no-else-continue]
             continue
         else:
-            yield item
+            yield i
