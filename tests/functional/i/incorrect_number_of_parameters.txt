@@ -1,3 +1,1 @@
-incorrect_number_of_parameters:1:0: C0114: Missing module docstring (missing-module-docstring)
-incorrect_number_of_parameters:1:0: E0120: incorrect number of parameters for built-in 'help' (incorrect-number-of-parameters)
-incorrect_number_of_parameters:2:0: E0120: incorrect number of parameters for built-in 'tuple' (incorrect-number-of-parameters)
+incorrect-number-of-parameters:2:0:2:11::incorrect number of parameters for built-in 'tuple':HIGH

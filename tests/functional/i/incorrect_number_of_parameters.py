@@ -1,2 +1,2 @@
-help(this, that, another) # [incorrect-number-of-parameters] pylint: disable=E0602
+""" Tests for incorrect-number-of-parameters for built-in lint """
 tuple(1, 2) # [incorrect-number-of-parameters]
