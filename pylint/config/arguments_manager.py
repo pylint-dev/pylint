@@ -405,8 +405,6 @@ class _ArgumentsManager:
                 options = [
                     (n, d, v) for (n, d, v) in options if not d.get("deprecated")
                 ]
-                if not options:
-                    continue
 
             if options:
                 sections.append(group_name)
