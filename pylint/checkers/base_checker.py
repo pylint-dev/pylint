@@ -3,6 +3,7 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 import functools
+import warnings
 from inspect import cleandoc
 from typing import TYPE_CHECKING, Any, Optional
 
@@ -67,9 +68,11 @@ class BaseChecker(_ArgumentsProvider):
 
         See: MessageHandlerMixIn.get_full_documentation()
         """
-        return self.get_full_documentation(
-            msgs=self.msgs, options=self.options_and_values(), reports=self.reports
-        )
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            return self.get_full_documentation(
+                msgs=self.msgs, options=self.options_and_values(), reports=self.reports
+            )
 
     def get_full_documentation(self, msgs, options, reports, doc=None, module=None):
         result = ""

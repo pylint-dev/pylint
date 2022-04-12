@@ -373,22 +373,24 @@ class _ArgumentsManager:
         options_by_section: Dict[str, List[Tuple]] = {}
         sections = []
         for provider in self.options_providers:
-            for section, options in provider.options_by_section():
-                if section is None:
-                    section = provider.name
-                if section in skipsections:
-                    continue
-                options = [
-                    (n, d, v)
-                    for (n, d, v) in options
-                    if d.get("type") is not None and not d.get("deprecated")
-                ]
-                if not options:
-                    continue
-                if section not in sections:
-                    sections.append(section)
-                all_options = options_by_section.setdefault(section, [])
-                all_options += options
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=DeprecationWarning)
+                for section, options in provider.options_by_section():
+                    if section is None:
+                        section = provider.name
+                    if section in skipsections:
+                        continue
+                    options = [  # type: ignore[misc]
+                        (n, d, v)
+                        for (n, d, v) in options
+                        if d.get("type") is not None and not d.get("deprecated")
+                    ]
+                    if not options:
+                        continue
+                    if section not in sections:
+                        sections.append(section)
+                    all_options = options_by_section.setdefault(section, [])
+                    all_options += options
         stream = stream or sys.stdout
         printed = False
         for section in sections:
@@ -409,7 +411,9 @@ class _ArgumentsManager:
             DeprecationWarning,
         )
         for provider in self.options_providers:
-            provider.load_defaults()
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=DeprecationWarning)
+                provider.load_defaults()
 
     def read_config_file(
         self, config_file: Optional[Path] = None, verbose: bool = False

@@ -5,6 +5,7 @@
 """Various helper functions to create the docs of a linter object."""
 
 import sys
+import warnings
 from typing import TYPE_CHECKING, Dict, TextIO
 
 from pylint.constants import MAIN_CHECKER_NAME
@@ -22,16 +23,20 @@ def _get_checkers_infos(linter: "PyLinter") -> Dict[str, Dict]:
         if name != "master":
             try:
                 by_checker[name]["checker"] = checker
-                by_checker[name]["options"] += checker.options_and_values()
+                with warnings.catch_warnings():
+                    warnings.filterwarnings("ignore", category=DeprecationWarning)
+                    by_checker[name]["options"] += checker.options_and_values()
                 by_checker[name]["msgs"].update(checker.msgs)
                 by_checker[name]["reports"] += checker.reports
             except KeyError:
-                by_checker[name] = {
-                    "checker": checker,
-                    "options": list(checker.options_and_values()),
-                    "msgs": dict(checker.msgs),
-                    "reports": list(checker.reports),
-                }
+                with warnings.catch_warnings():
+                    warnings.filterwarnings("ignore", category=DeprecationWarning)
+                    by_checker[name] = {
+                        "checker": checker,
+                        "options": list(checker.options_and_values()),
+                        "msgs": dict(checker.msgs),
+                        "reports": list(checker.reports),
+                    }
     return by_checker
 
 
@@ -46,13 +51,15 @@ Pylint provides global options and switches.
         name = checker.name
         if name == MAIN_CHECKER_NAME:
             if checker.options:
-                for section, options in checker.options_by_section():
-                    if section is None:
-                        title = "General options"
-                    else:
-                        title = f"{section.capitalize()} options"
-                    result += get_rst_title(title, "~")
-                    result += f"{get_rst_section(None, options)}\n"
+                with warnings.catch_warnings():
+                    warnings.filterwarnings("ignore", category=DeprecationWarning)
+                    for section, options in checker.options_by_section():
+                        if section is None:
+                            title = "General options"
+                        else:
+                            title = f"{section.capitalize()} options"
+                        result += get_rst_title(title, "~")
+                        result += f"{get_rst_section(None, options)}\n"
     result += get_rst_title("Pylint checkers' options and switches", "-")
     result += """\
 
