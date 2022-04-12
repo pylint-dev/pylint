@@ -100,16 +100,16 @@ localized using the following rules:
 
 * ".pylint.d" directory in the current directory
 
-3.3 How do I find the option name (for pylintrc) corresponding to a specific command line option?
+3.3 How do I find the option name corresponding to a specific command line option?
 --------------------------------------------------------------------------------------------------------
 
-You can generate a sample pylintrc file with --generate-rcfile
+You can generate a sample configuration file with ``--generate-toml-config``.
 Every option present on the command line before this will be included in
-the rc file
+the toml file
 
 For example::
 
-    pylint --disable=bare-except,invalid-name --class-rgx='[A-Z][a-z]+' --generate-rcfile
+    pylint --disable=bare-except,invalid-name --class-rgx='[A-Z][a-z]+' --generate-toml-config
 
 3.4 I'd rather not run Pylint from the command line. Can I integrate it with my editor?
 ---------------------------------------------------------------------------------------
