@@ -6,12 +6,13 @@
 
 
 import optparse  # pylint: disable=deprecated-module
-from typing import Dict
+import warnings
+from typing import Any, Dict, Iterator, List, Optional, Tuple, Union
 
 from pylint.config.arguments_manager import _ArgumentsManager
 from pylint.config.callback_actions import _CallbackAction
 from pylint.config.option import _validate
-from pylint.typing import Options
+from pylint.typing import OptionDict, Options
 
 
 class UnsupportedAction(Exception):
@@ -40,51 +41,82 @@ class _ArgumentsProvider:
         # TODO: Optparse: Added to keep API parity with OptionsProvider
         # They should be removed/deprecated when refactoring the copied methods
         self.config = optparse.Values()
-        self.load_defaults()
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            self.load_defaults()
         self.level = 0
 
-    # pylint: disable-next=fixme
-    # TODO: Optparse: All methods below this line are copied to keep API-parity with
-    # OptionsProviderMixIn. They should either be deprecated or moved above this line
-    # to keep them in _ArgumentsProvider
-
-    def load_defaults(self):
-        """Initialize the provider using default values."""
+    def load_defaults(self) -> None:
+        """DEPRECATED: Initialize the provider using default values."""
+        warnings.warn(
+            "load_defaults has been deprecated. Option groups should be "
+            "registered by initializing an ArgumentsProvider. "
+            "This automatically registers the group on the ArgumentsManager.",
+            DeprecationWarning,
+        )
         for opt, optdict in self.options:
             action = optdict.get("action")
             if action != "callback":
                 # callback action have no default
                 if optdict is None:
-                    optdict = self.get_option_def(opt)
+                    with warnings.catch_warnings():
+                        warnings.filterwarnings("ignore", category=DeprecationWarning)
+                        optdict = self.get_option_def(opt)
                 default = optdict.get("default")
                 self.set_option(opt, default, action, optdict)
 
-    def option_attrname(self, opt, optdict=None):
-        """Get the config attribute corresponding to opt."""
+    def option_attrname(self, opt: str, optdict: Optional[OptionDict] = None) -> str:
+        """DEPRECATED: Get the config attribute corresponding to opt."""
+        warnings.warn(
+            "option_attrname has been deprecated. It will be removed "
+            "in a future release.",
+            DeprecationWarning,
+        )
         if optdict is None:
-            optdict = self.get_option_def(opt)
-        return optdict.get("dest", opt.replace("-", "_"))
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=DeprecationWarning)
+                optdict = self.get_option_def(opt)
+        return optdict.get("dest", opt.replace("-", "_"))  # type: ignore[return-value]
 
-    def option_value(self, opt):
-        """Get the current value for the given option."""
-        return getattr(self.config, self.option_attrname(opt), None)
+    def option_value(self, opt: str) -> Any:
+        """DEPRECATED: Get the current value for the given option."""
+        warnings.warn(
+            "option_value has been deprecated. It will be removed "
+            "in a future release.",
+            DeprecationWarning,
+        )
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            return getattr(self.config, self.option_attrname(opt), None)
 
+    # pylint: disable-next=fixme
+    # TODO: Optparse: Refactor and deprecate set_option
     def set_option(self, optname, value, action=None, optdict=None):
         """Method called to set an option (registered in the options list)."""
         if optdict is None:
-            optdict = self.get_option_def(optname)
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=DeprecationWarning)
+                optdict = self.get_option_def(optname)
         if value is not None:
             value = _validate(value, optdict, optname)
         if action is None:
             action = optdict.get("action", "store")
         if action == "store":
-            setattr(self.config, self.option_attrname(optname, optdict), value)
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=DeprecationWarning)
+                setattr(self.config, self.option_attrname(optname, optdict), value)
         elif action in {"store_true", "count"}:
-            setattr(self.config, self.option_attrname(optname, optdict), value)
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=DeprecationWarning)
+                setattr(self.config, self.option_attrname(optname, optdict), value)
         elif action == "store_false":
-            setattr(self.config, self.option_attrname(optname, optdict), value)
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=DeprecationWarning)
+                setattr(self.config, self.option_attrname(optname, optdict), value)
         elif action == "append":
-            optname = self.option_attrname(optname, optdict)
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=DeprecationWarning)
+                optname = self.option_attrname(optname, optdict)
             _list = getattr(self.config, optname, None)
             if _list is None:
                 if isinstance(value, (list, tuple)):
@@ -105,33 +137,68 @@ class _ArgumentsProvider:
         else:
             raise UnsupportedAction(action)
 
-    def get_option_def(self, opt):
-        """Return the dictionary defining an option given its name."""
+    def get_option_def(self, opt: str) -> OptionDict:
+        """DEPRECATED: Return the dictionary defining an option given its name.
+
+        :raises OptionError: If the option isn't found.
+        """
+        warnings.warn(
+            "get_option_def has been deprecated. It will be removed "
+            "in a future release.",
+            DeprecationWarning,
+        )
         assert self.options
         for option in self.options:
             if option[0] == opt:
                 return option[1]
         raise optparse.OptionError(
-            f"no such option {opt} in section {self.name!r}", opt
+            f"no such option {opt} in section {self.name!r}", opt  # type: ignore[arg-type]
         )
 
-    def options_by_section(self):
-        """Return an iterator on options grouped by section.
+    def options_by_section(
+        self,
+    ) -> Iterator[
+        Tuple[
+            Optional[str],
+            Union[
+                Dict[str, List[Tuple[str, OptionDict, Any]]],
+                List[Tuple[str, OptionDict, Any]],
+            ],
+        ]
+    ]:
+        """DEPRECATED: Return an iterator on options grouped by section.
 
         (section, [list of (optname, optdict, optvalue)])
         """
-        sections = {}
+        warnings.warn(
+            "options_by_section has been deprecated. It will be removed "
+            "in a future release.",
+            DeprecationWarning,
+        )
+        sections: Dict[str, List[Tuple[str, OptionDict, Any]]] = {}
         for optname, optdict in self.options:
-            sections.setdefault(optdict.get("group"), []).append(
-                (optname, optdict, self.option_value(optname))
-            )
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=DeprecationWarning)
+                sections.setdefault(optdict.get("group"), []).append(  # type: ignore[arg-type]
+                    (optname, optdict, self.option_value(optname))
+                )
         if None in sections:
-            yield None, sections.pop(None)
+            yield None, sections.pop(None)  # type: ignore[call-overload]
         for section, options in sorted(sections.items()):
             yield section.upper(), options
 
-    def options_and_values(self, options=None):
+    def options_and_values(
+        self, options: Optional[Options] = None
+    ) -> Iterator[Tuple[str, OptionDict, Any]]:
+        """DEPRECATED."""
+        warnings.warn(
+            "options_and_values has been deprecated. It will be removed "
+            "in a future release.",
+            DeprecationWarning,
+        )
         if options is None:
             options = self.options
         for optname, optdict in options:
-            yield optname, optdict, self.option_value(optname)
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=DeprecationWarning)
+                yield optname, optdict, self.option_value(optname)

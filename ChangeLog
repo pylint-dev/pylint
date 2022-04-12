@@ -29,6 +29,12 @@ Release date: TBA
 
   Ref #5392
 
+* ``OptionsProviderMixIn`` has been replaced with ``ArgumentsProvider``. ``ArgumentsProvider`` is considered
+  private API and most methods that were public on ``OptionsProviderMixIn`` have now been deprecated and will
+  be removed in a future release.
+
+  Ref #5392
+
 * ``invalid-enum-extension``: Used when a class tries to extend an inherited Enum class.
 
   Closes #5501
