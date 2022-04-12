@@ -603,7 +603,7 @@ class BasicChecker(_BasicChecker):
             # TODO: check the argument is iterable
             if len(node.args) != 1:
                 self.add_message(
-                    "incorrect-number-of-parameters", node=node, args=(node.func.name,)
+                    "incorrect-number-of-parameters", node=node, args=(node.func.name,), confidence=HIGH
                 )
         if node.func.name in (
             "abs",
@@ -619,7 +619,7 @@ class BasicChecker(_BasicChecker):
             # These built-ins all take exactly one argument, which can be not iterable
             if len(node.args) != 1:
                 self.add_message(
-                    "incorrect-number-of-parameters", node=node, args=(node.func.name,)
+                    "incorrect-number-of-parameters", node=node, args=(node.func.name,), confidence=HIGH
                 )
         elif node.func.name in (
             "bool",
@@ -640,7 +640,7 @@ class BasicChecker(_BasicChecker):
             # These built-ins take 0 or 1 argument
             if len(node.args) > 1:
                 self.add_message(
-                    "incorrect-number-of-parameters", node=node, args=(node.func.name,)
+                    "incorrect-number-of-parameters", node=node, args=(node.func.name,), confidence=HIGH
                 )
         elif node.func.name in (
             "delattr",
@@ -652,7 +652,7 @@ class BasicChecker(_BasicChecker):
             # These built-ins take 2 arguments
             if len(node.args) != 2:
                 self.add_message(
-                    "incorrect-number-of-parameters", node=node, args=(node.func.name,)
+                    "incorrect-number-of-parameters", node=node, args=(node.func.name,), confidence=HIGH
                 )
 
     @utils.check_messages(
