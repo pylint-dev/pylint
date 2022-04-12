@@ -598,13 +598,12 @@ class BasicChecker(_BasicChecker):
     def _check_builtins(self, node: nodes.Call) -> None:
         """Visit a Call node -> check it's a built-in and the number of parameters is correct
         """
-        if isinstance(node.func, nodes.Call):
-            if node.func.name in ("abs", "aiter", "all", "len"):
-                if len(node.args.args) != 1:
-                    self.add_message("incorrect-number-of-parameters", node=node, args=(node.func.name,))
-            if node.func.name in ("tuple", "list"):
-                if len(node.args.args) > 1:
-                    self.add_message("incorrect-number-of-parameters", node=node, args=(node.func.name,))
+        if node.func.name in ("abs", "aiter", "all", "len"):
+            if len(node.args) != 1:
+                self.add_message("incorrect-number-of-parameters", node=node, args=(node.func.name,))
+        elif node.func.name in ("tuple", "list"):
+            if len(node.args) > 1:
+                self.add_message("incorrect-number-of-parameters", node=node, args=(node.func.name,))
 
     @utils.check_messages(
         "eval-used", "exec-used", "bad-reversed-sequence", "misplaced-format-function", "incorrect-number-of-parameters"
