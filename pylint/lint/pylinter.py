@@ -195,7 +195,7 @@ MSGS = {
 
 
 # pylint: disable=too-many-instance-attributes,too-many-public-methods
-class PyLinter(
+class PyLinter(  # type: ignore[misc]
     _ArgumentsManager,
     reporters.ReportsHandlerMixIn,
     checkers.BaseTokenChecker,

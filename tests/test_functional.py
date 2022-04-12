@@ -53,20 +53,16 @@ def test_functional(
         lint_test = testutils.LintModuleTest(test_file, pytestconfig)
     lint_test.setUp()
     lint_test.runTest()
-    warning = None
-    try:
-        # Catch <unknown>:x: DeprecationWarning: invalid escape sequence,
-        # so, it's not shown during tests
-        warning = recwarn.pop()
-    except AssertionError:
-        pass
-    if warning is not None:
+    if recwarn.list:
         if (
             test_file.base in TEST_WITH_EXPECTED_DEPRECATION
             and sys.version_info.minor > 5
         ):
-            assert issubclass(warning.category, DeprecationWarning)
-            assert "invalid escape sequence" in str(warning.message)
+            assert any(
+                "invalid escape sequence" in str(i.message)
+                for i in recwarn.list
+                if issubclass(i.category, DeprecationWarning)
+            )
 
 
 if __name__ == "__main__":
