@@ -628,6 +628,7 @@ class BasicChecker(_BasicChecker):
             "tuple",
             "list",
             "hash",
+            "help",
             "input",
             "memoryview",
             "oct",
@@ -646,7 +647,6 @@ class BasicChecker(_BasicChecker):
             "divmod",
             "filter",
             "hasattr",
-            "help",
             "isinstance",
         ):
             # These built-ins take 2 arguments
