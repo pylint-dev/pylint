@@ -77,7 +77,7 @@ Release date: TBA
 
 * Added the ``generate-toml-config`` option.
 
-  Closes #5462
+  Ref #5462
 
 * Added new checker ``unnecessary-list-index-lookup`` for indexing into a list while
   iterating over ``enumerate()``.
