@@ -105,6 +105,7 @@ group are mutually exclusive.",
                         "callback": Run._not_implemented_callback,
                         "group": "Commands",
                         "help": "Specify a configuration file to load.",
+                        "hide_from_config_file": True,
                     },
                 ),
                 (
@@ -115,6 +116,7 @@ group are mutually exclusive.",
                         "callback": Run._not_implemented_callback,
                         "group": "Commands",
                         "help": "Specify an output file.",
+                        "hide_from_config_file": True,
                     },
                 ),
                 (
@@ -136,6 +138,7 @@ group are mutually exclusive.",
                         "group": "Commands",
                         "help": "Display a help message for the given message id and "
                         "exit. The value may be a comma separated list of message ids.",
+                        "hide_from_config_file": True,
                     },
                 ),
                 (
@@ -147,6 +150,7 @@ group are mutually exclusive.",
                         "group": "Commands",
                         "help": "Display a list of all pylint's messages divided by whether "
                         "they are emittable with the given interpreter.",
+                        "hide_from_config_file": True,
                     },
                 ),
                 (
@@ -158,6 +162,7 @@ group are mutually exclusive.",
                         "group": "Commands",
                         "help": "Display a list of what messages are enabled, "
                         "disabled and non-emittable with the given configuration.",
+                        "hide_from_config_file": True,
                     },
                 ),
                 (
@@ -168,6 +173,7 @@ group are mutually exclusive.",
                         "callback": Run._not_implemented_callback,
                         "group": "Commands",
                         "help": "List pylint's message groups.",
+                        "hide_from_config_file": True,
                     },
                 ),
                 (
@@ -178,6 +184,7 @@ group are mutually exclusive.",
                         "kwargs": {"Run": self},
                         "group": "Commands",
                         "help": "Generate pylint's confidence levels.",
+                        "hide_from_config_file": True,
                     },
                 ),
                 (
@@ -188,6 +195,7 @@ group are mutually exclusive.",
                         "callback": Run._not_implemented_callback,
                         "group": "Commands",
                         "help": "List available extensions.",
+                        "hide_from_config_file": True,
                     },
                 ),
                 (
@@ -198,6 +206,7 @@ group are mutually exclusive.",
                         "callback": Run._not_implemented_callback,
                         "group": "Commands",
                         "help": "Generate pylint's full documentation.",
+                        "hide_from_config_file": True,
                     },
                 ),
                 (
@@ -211,6 +220,7 @@ group are mutually exclusive.",
                         "the current configuration. You can put other options "
                         "before this one to get them in the generated "
                         "configuration.",
+                        "hide_from_config_file": True,
                     },
                 ),
                 (
@@ -224,6 +234,7 @@ group are mutually exclusive.",
                         "the current configuration. You can put other options "
                         "before this one to get them in the generated "
                         "configuration. The config is in the .toml format.",
+                        "hide_from_config_file": True,
                     },
                 ),
                 (
@@ -236,6 +247,7 @@ group are mutually exclusive.",
                         "help": "In error mode, checkers without error messages are "
                         "disabled and for others, only the ERROR messages are "
                         "displayed, and no reports are done by default.",
+                        "hide_from_config_file": True,
                     },
                 ),
                 (
@@ -247,6 +259,7 @@ group are mutually exclusive.",
                         "short": "v",
                         "help": "In verbose mode, extra non-checker-related info "
                         "will be displayed.",
+                        "hide_from_config_file": True,
                     },
                 ),
                 (
@@ -257,6 +270,7 @@ group are mutually exclusive.",
                         "callback": Run._not_implemented_callback,
                         "help": "Load and enable all available extensions. "
                         "Use --list-extensions to see a list all available extensions.",
+                        "hide_from_config_file": True,
                     },
                 ),
                 (
@@ -267,6 +281,7 @@ group are mutually exclusive.",
                         "callback": Run._not_implemented_callback,
                         "help": "Show more verbose help.",
                         "group": "Commands",
+                        "hide_from_config_file": True,
                     },
                 ),
             ),
