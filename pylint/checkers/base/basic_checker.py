@@ -251,6 +251,11 @@ class BasicChecker(_BasicChecker):
             "duplicate-value",
             "This message is emitted when a set contains the same value two or more times.",
         ),
+        "E7131": (
+            "incorrect number of parameters for built-in",
+            "incorrect-number-of-parameters",
+            "This message is emitted when a built-in is called with the wrong number of parameters.",
+        ),
     }
 
     reports = (("RP0101", "Statistics by type", report_by_type_stats),)
@@ -590,8 +595,19 @@ class BasicChecker(_BasicChecker):
             ):
                 self.add_message("misplaced-format-function", node=call_node)
 
+    def _check_builtins(self, node: nodes.Call) -> None:
+        """Visit a Call node -> check it's a built-in and the number of parameters is correct
+        """
+        if isinstance(node.func, nodes.Call):
+            if node.func.name in ("abs", "aiter", "all", "len"):
+                if len(node.args.args) != 1:
+                    self.add_message("incorrect-number-of-parameters", node=node, args=(node.func.name,))
+            if node.func.name in ("tuple", "list"):
+                if len(node.args.args) > 1:
+                    self.add_message("incorrect-number-of-parameters", node=node, args=(node.func.name,))
+
     @utils.check_messages(
-        "eval-used", "exec-used", "bad-reversed-sequence", "misplaced-format-function"
+        "eval-used", "exec-used", "bad-reversed-sequence", "misplaced-format-function", "incorrect-number-of-parameters"
     )
     def visit_call(self, node: nodes.Call) -> None:
         """Visit a Call node -> check if this is not a disallowed builtin
@@ -609,6 +625,7 @@ class BasicChecker(_BasicChecker):
                     self._check_reversed(node)
                 elif name == "eval":
                     self.add_message("eval-used", node=node)
+            self._check_builtins(node)
 
     @utils.check_messages("assert-on-tuple", "assert-on-string-literal")
     def visit_assert(self, node: nodes.Assert) -> None:
