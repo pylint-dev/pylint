@@ -995,7 +995,7 @@ class PyLinter(
 
     def prepare_checkers(self):
         """Return checkers needed for activated messages and reports."""
-        if not self.config.reports:
+        if not self.namespace.reports:
             self.disable_reporters()
         # get needed checkers
         needed_checkers = [self]
@@ -1402,12 +1402,12 @@ class PyLinter(
             # load previous results if any
             previous_stats = config.load_results(self.file_state.base_name)
             self.reporter.on_close(self.stats, previous_stats)
-            if self.config.reports:
+            if self.namespace.reports:
                 sect = self.make_reports(self.stats, previous_stats)
             else:
                 sect = report_nodes.Section()
 
-            if self.config.reports:
+            if self.namespace.reports:
                 self.reporter.display_reports(sect)
             score_value = self._report_evaluation()
             # save results if persistent run
