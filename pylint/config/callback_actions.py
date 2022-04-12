@@ -340,9 +340,9 @@ class _DisableAction(_AccessLinterObjectAction):
         option_string: Optional[str] = "--disable",
     ) -> None:
         assert isinstance(values, (tuple, list))
-        values = utils._check_csv(values[0])
+        msgids = utils._check_csv(values[0])
         try:
-            for msgid in values:
+            for msgid in msgids:
                 self.linter.disable(msgid)
         except exceptions.UnknownMessageError:
             # pylint: disable-next=fixme
@@ -361,9 +361,9 @@ class _EnableAction(_AccessLinterObjectAction):
         option_string: Optional[str] = "--enable",
     ) -> None:
         assert isinstance(values, (tuple, list))
-        values = utils._check_csv(values[0])
+        msgids = utils._check_csv(values[0])
         try:
-            for msgid in values:
+            for msgid in msgids:
                 self.linter.enable(msgid)
         except exceptions.UnknownMessageError:
             # pylint: disable-next=fixme
