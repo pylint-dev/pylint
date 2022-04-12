@@ -264,6 +264,15 @@ def get_global_option(
     until the given *option* will be found.
     If the option wasn't found, the *default* value will be returned.
     """
+
+    # # pylint: disable-next=fixme
+    # # TODO: Optparse: Potentially deprecate this.
+    # Firstly, try on the namespace object
+    try:
+        return getattr(checker.linter.namespace, option.replace("-", "_"))
+    except AttributeError:
+        pass
+
     # First, try in the given checker's config.
     # After that, look in the options providers.
 

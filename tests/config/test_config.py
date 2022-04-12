@@ -23,7 +23,7 @@ def check_configuration_file_reader(
     for msgid in expected_disabled:
         assert not runner.linter.is_message_enabled(msgid)
     assert runner.linter.namespace.jobs == expected_jobs
-    assert bool(runner.linter.config.reports) == expected_reports_truthey
+    assert bool(runner.linter.namespace.reports) == expected_reports_truthey
 
 
 def test_can_read_toml_env_variable(tmp_path: Path, file_to_lint_path: str) -> None:
