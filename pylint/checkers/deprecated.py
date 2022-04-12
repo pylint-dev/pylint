@@ -43,7 +43,7 @@ class DeprecatedMixin(BaseChecker):
             "The argument is marked as deprecated and will be removed in the future.",
         ),
         "W0402": (
-            "Uses of a deprecated module %r",
+            "Deprecated module %r",
             "deprecated-module",
             "A module marked as deprecated is imported.",
         ),
