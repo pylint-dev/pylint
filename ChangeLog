@@ -11,7 +11,7 @@ Release date: TBA
 
 * added new lint ``incorrect-number-of-parameters`, which checks most built-ins (tuple, oct and the like)
 
-  Closes #6275
+  Closes #6252
 
 * ``Pylint`` now requires Python 3.7.2 or newer to run.
 
