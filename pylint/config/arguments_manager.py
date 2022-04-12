@@ -47,7 +47,6 @@ if sys.version_info <= (3, 7, 1):
 else:
     from typing import OrderedDict
 
-
 if TYPE_CHECKING:
     from pylint.config.arguments_provider import _ArgumentsProvider
 
