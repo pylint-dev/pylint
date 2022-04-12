@@ -247,6 +247,10 @@ class TestRunTC:
     def test_parallel_execution_missing_arguments(self) -> None:
         self._runtest(["-j 2", "not_here", "not_here_too"], code=1)
 
+    # pylint: disable-next=fixme
+    # TODO: PY3.7: Turn off abbreviations in ArgumentsManager after 3.7 support has been dropped
+    # argparse changed behaviour with abbreviations on/off in 3.8+ so we can't
+    @pytest.mark.xfail
     def test_abbreviations_are_not_supported(self) -> None:
         expected = "No module named --load-plugin"
         self._test_output([".", "--load-plugin"], expected_output=expected)
