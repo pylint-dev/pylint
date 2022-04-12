@@ -251,8 +251,8 @@ class BasicChecker(_BasicChecker):
             "duplicate-value",
             "This message is emitted when a set contains the same value two or more times.",
         ),
-        "E7131": (
-            "incorrect number of parameters for built-in",
+        "E0120": (
+            "incorrect number of parameters for built-in '%s'",
             "incorrect-number-of-parameters",
             "This message is emitted when a built-in is called with the wrong number of parameters.",
         ),
