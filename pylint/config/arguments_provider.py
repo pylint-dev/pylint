@@ -94,9 +94,7 @@ class _ArgumentsProvider:
             "in a future release.",
             DeprecationWarning,
         )
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            return getattr(self.config, self.option_attrname(opt), None)
+        return getattr(self._arguments_manager.namespace, opt.replace("-", "_"), None)
 
     # pylint: disable-next=fixme
     # TODO: Optparse: Refactor and deprecate set_option
