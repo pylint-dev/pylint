@@ -598,11 +598,24 @@ class BasicChecker(_BasicChecker):
     def _check_builtins(self, node: nodes.Call) -> None:
         """Visit a Call node -> check it's a built-in and the number of parameters is correct
         """
-        if node.func.name in ("abs", "aiter", "all", "len"):
+        # TODO: add checks for other built-ins
+        if node.func.name in ("aiter", "all", "any"):
+            # These built-ins all take exactly one argument, and it must be iterable
+            # TODO: check the argument is iterable
             if len(node.args) != 1:
                 self.add_message("incorrect-number-of-parameters", node=node, args=(node.func.name,))
-        elif node.func.name in ("tuple", "list"):
+        if node.func.name in ("abs", "ascii", "bin", "callable", "chr", "hex", "id", "len", "vars"):
+            # These built-ins all take exactly one argument, which can be not iterable
+            if len(node.args) != 1:
+                self.add_message("incorrect-number-of-parameters", node=node, args=(node.func.name,))
+        elif node.func.name in ("bool", "dir", "float", "tuple", "list", "hash", "input", "memoryview", "oct", "ord", "repr", "reversed", "set"):
+            # These built-ins take 0 or 1 argument
             if len(node.args) > 1:
+                self.add_message("incorrect-number-of-parameters", node=node, args=(node.func.name,))
+        elif node.func.name in ("delattr", "divmod", "filter", "hasattr", "help",
+                "isinstance"):
+            # These built-ins take 2 arguments
+            if len(node.args) != 2:
                 self.add_message("incorrect-number-of-parameters", node=node, args=(node.func.name,))
 
     @utils.check_messages(
