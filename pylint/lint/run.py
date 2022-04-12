@@ -206,7 +206,7 @@ group are mutually exclusive.",
                         "kwargs": {"Run": self},
                         "callback": Run._not_implemented_callback,
                         "group": "Commands",
-                        "help": "Generate a sample configuration file according to "
+                        "help": "DEPRECATED: Generate a sample configuration file according to "
                         "the current configuration. You can put other options "
                         "before this one to get them in the generated "
                         "configuration.",

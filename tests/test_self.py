@@ -1342,12 +1342,7 @@ class TestCallbackOptions:
         )
         assert process.stdout == process_two.stdout
 
-    # pylint: disable-next=fixme
-    # TODO: Optparse: This test should be used in --generate-toml-config
-    # and then removed. Since `disable` is now in namespace it no longer
-    # works.
     @staticmethod
-    @pytest.mark.xfail
     def test_generate_config_disable_symbolic_names() -> None:
         """Test that --generate-rcfile puts symbolic names in the --disable option."""
         out = StringIO()

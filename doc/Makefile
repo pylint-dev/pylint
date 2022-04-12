@@ -151,13 +151,3 @@ features.rst: $(shell find ../pylint/checkers -type f -regex '.*\.py')
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON) ./exts/pylint_features.py
 
 messages: $(PYTHONPATH) $(PYTHON) ./exts/pylint_messages.py
-
-gen-examples:
-	chmod u+w ../examples/pylintrc
-	pylint --rcfile=/dev/null --generate-rcfile > ../examples/pylintrc
-
-gen-man:
-	chmod u+w ../man/pylint.1
-	pylint --rcfile=/dev/null --generate-man > ../man/pylint.1
-
-all: html gen-man gen-examples

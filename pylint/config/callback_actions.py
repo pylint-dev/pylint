@@ -237,12 +237,13 @@ class _GenerateRCFileAction(_AccessRunObjectAction):
         values: Union[str, Sequence[Any], None],
         option_string: Optional[str] = "--generate-rcfile",
     ) -> None:
-        # pylint: disable-next=fixme
-        # TODO: Optparse: Deprecate this function and raise a warning.
-        # This is (obviously) dependent on a --generate-toml-config flag.
+        print(
+            "The '--generate-rcfile' option has been deprecated. "
+            "Please use the --generate-toml-config flag."
+        )
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
-            self.run.linter.generate_config(skipsections=("COMMANDS",))
+            self.run.linter.generate_config(skipsections=("Commands",))
         sys.exit(0)
 
 

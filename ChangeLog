@@ -45,6 +45,8 @@ Release date: TBA
 
   Ref #5392
 
+* The ``--generate-rcfile`` option has been deprecated.
+
 * ``invalid-enum-extension``: Used when a class tries to extend an inherited Enum class.
 
   Closes #5501
