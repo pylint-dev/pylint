@@ -48,7 +48,7 @@ class ThirdBadGetNewArgs(object):
     """ __getnewargs__ returns node which does not have 'value' in AST """
 
     def __getnewargs__(self):  # [invalid-getnewargs-returned]
-        return lambda: tuple(1, 2)
+        return lambda: tuple([1, 2])
 
 
 class AmbigousGetNewArgs(object):

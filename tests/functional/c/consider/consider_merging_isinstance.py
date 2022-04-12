@@ -23,8 +23,8 @@ def isinstances():
     result = isinstance(var[10], str) or isinstance(var[10], int) and var[8] * 14 or isinstance(var[10], float) and var[5] * 14.4 or isinstance(var[10], list)   # [consider-merging-isinstance]
     result = isinstance(var[11], int) or isinstance(var[11], int) or isinstance(var[11], float)   # [consider-merging-isinstance]
 
-    result = isinstance(var[20])
-    result = isinstance()
+    result = isinstance(var[20]) # pylint: disable=E0120
+    result = isinstance() # pylint: disable=E0120
 
     # Combination merged and not merged
     result = isinstance(var[12], (int, float)) or isinstance(var[12], list)  # [consider-merging-isinstance]
