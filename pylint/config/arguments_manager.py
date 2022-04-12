@@ -539,7 +539,7 @@ class _ArgumentsManager:
                 value = getattr(options, attr, None)
                 if value is None:
                     continue
-                setattr(config, attr, value)
+                setattr(config, attr, value)  # pargma: no cover # Handled by argparse.
         return args
 
     def help(self, level: Optional[int] = None) -> str:
@@ -553,8 +553,9 @@ class _ArgumentsManager:
         return self._arg_parser.format_help()
 
     # pylint: disable-next=fixme
-    # TODO: Optparse: Refactor and potentially deprecate cb_set_provider_option
-    def cb_set_provider_option(self, option, opt, value, parser):
+    # TODO: Optparse: Deprecate cb_set_provider_option
+    # Currently uncovered.
+    def cb_set_provider_option(self, option, opt, value, parser):  # pargma: no cover
         """Optik callback for option setting."""
         if opt.startswith("--"):
             # remove -- on long option
