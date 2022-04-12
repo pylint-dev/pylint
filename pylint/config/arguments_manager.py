@@ -86,6 +86,10 @@ class _ArgumentsManager:
         # verbosity
         self._maxlevel: int = 0
 
+    @property
+    def config(self) -> argparse.Namespace:
+        return self.namespace
+
     def _register_options_provider(self, provider: "_ArgumentsProvider") -> None:
         """Register an options provider and load its defaults."""
         for opt, optdict in provider.options:
