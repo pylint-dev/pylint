@@ -12,6 +12,7 @@ from pylint.config.callback_actions import (
     _DoNothingAction,
     _ErrorsOnlyModeAction,
     _FullDocumentationAction,
+    _GenerateConfigFileAction,
     _GenerateRCFileAction,
     _ListCheckGroupsAction,
     _ListConfidenceLevelsAction,
@@ -210,6 +211,19 @@ group are mutually exclusive.",
                         "the current configuration. You can put other options "
                         "before this one to get them in the generated "
                         "configuration.",
+                    },
+                ),
+                (
+                    "generate-toml-config",
+                    {
+                        "action": _GenerateConfigFileAction,
+                        "kwargs": {"Run": self},
+                        "callback": Run._not_implemented_callback,
+                        "group": "Commands",
+                        "help": "Generate a sample configuration file according to "
+                        "the current configuration. You can put other options "
+                        "before this one to get them in the generated "
+                        "configuration. The config is in the .toml format.",
                     },
                 ),
                 (

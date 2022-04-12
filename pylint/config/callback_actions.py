@@ -246,6 +246,20 @@ class _GenerateRCFileAction(_AccessRunObjectAction):
         sys.exit(0)
 
 
+class _GenerateConfigFileAction(_AccessRunObjectAction):
+    """Generate a .toml format configuration file."""
+
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: Union[str, Sequence[Any], None],
+        option_string: Optional[str] = "--generate-toml-config",
+    ) -> None:
+        self.run.linter._generate_config_file()
+        sys.exit(0)
+
+
 class _ErrorsOnlyModeAction(_AccessRunObjectAction):
     """Turn on errors-only mode.
 
