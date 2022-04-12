@@ -1,5 +1,5 @@
-def iterator_prefix(iterator, stop: int):
+def next_seven_elements(iterator):
     for i, item in enumerate(iterator):
-        if i == stop:
+        if i == 7:
             break
         yield item
