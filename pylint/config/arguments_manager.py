@@ -61,7 +61,7 @@ class _ArgumentsManager:
     """Arguments manager class used to handle command-line arguments and options."""
 
     def __init__(self, prog: str, usage: str | None = None) -> None:
-        self.namespace = argparse.Namespace()
+        self._config = argparse.Namespace()
         """Namespace for all options."""
 
         self._arg_parser = argparse.ArgumentParser(
@@ -95,7 +95,20 @@ class _ArgumentsManager:
 
     @property
     def config(self) -> argparse.Namespace:
-        return self.namespace
+        """Namespace for all options."""
+        return self._config
+
+    @config.setter
+    def config(self, value: argparse.Namespace) -> None:
+        self._config = value
+
+    @property
+    def namespace(self) -> argparse.Namespace:
+        return self.config
+
+    @namespace.setter
+    def namespace(self, value: argparse.Namespace) -> None:
+        self.config = value
 
     def _register_options_provider(self, provider: _ArgumentsProvider) -> None:
         """Register an options provider and load its defaults."""
