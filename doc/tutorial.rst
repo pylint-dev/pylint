@@ -274,7 +274,7 @@ example but go ahead and `read up`_ on them if you want.
  That's what a configuration file is for. We can configure our Pylint to
  store our options for us so we don't have to declare them on the command line.  Using a configuration file is a nice way of formalizing your rules and
  quickly sharing them with others. Invoking ``pylint --generate-toml-config`` will create a sample ``.toml`` section with all the options set and explained in comments.
- This can then be added to your ``pyproject.toml`` file.
+ This can then be added to your ``pyproject.toml`` file or any other ``.toml`` file pointed to with the ``--rcfile`` option.
 
 That's it for the basic intro. More tutorials will follow.
 
