@@ -1,0 +1,4 @@
+# Check the behavior for unkonwn symbol/msgid
+[tool.pylint."messages control"]
+disable = "logging-not-layzy,logging-format-interpolation"
+enable = "locally-disabled,C00000"
