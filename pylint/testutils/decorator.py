@@ -18,7 +18,7 @@ def set_config(**kwargs):
     def _wrapper(fun):
         @functools.wraps(fun)
         def _forward(self, *args, **test_function_kwargs):
-            # Set option via argparse
+            """Set option via argparse."""
             # pylint: disable-next=fixme
             # TODO: Revisit this decorator after all checkers have switched
             options = []
