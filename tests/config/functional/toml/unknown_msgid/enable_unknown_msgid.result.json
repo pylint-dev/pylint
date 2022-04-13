@@ -1,6 +1,5 @@
 {
   "functional_append": {
-    "disable": ["logging-format-interpolation"],
     "enable": ["locally-disabled"]
   },
   "functional_remove": {

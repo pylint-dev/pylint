@@ -670,9 +670,6 @@ class PyLinter(  # type: ignore[misc]
             ("RP0003", "Messages", report_messages_stats),
         )
         self.register_checker(self)
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            self.load_provider_defaults()
 
     def load_default_plugins(self):
         checkers.initialize(self)
@@ -810,14 +807,8 @@ class PyLinter(  # type: ignore[misc]
         self._checkers[checker.name].append(checker)
         for r_id, r_title, r_cb in checker.reports:
             self.register_report(r_id, r_title, r_cb, checker)
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            self.register_options_provider(checker)
         if hasattr(checker, "msgs"):
             self.msgs_store.register_messages_from_checker(checker)
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            checker.load_defaults()
         # Register the checker, but disable all of its messages.
         if not getattr(checker, "enabled", True):
             self.disable(checker.name)

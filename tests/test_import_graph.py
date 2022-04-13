@@ -81,20 +81,18 @@ def remove_files() -> Iterator:
             pass
 
 
-# pylint: disable-next=fixme
-# TODO: Fix these tests after all necessary options support the argparse framework
-@pytest.mark.xfail(reason="Not all options support argparse parsing")
 @pytest.mark.usefixtures("remove_files")
 def test_checker_dep_graphs(linter: PyLinter) -> None:
-    linter.global_set_option("persistent", False)
-    linter.global_set_option("reports", True)
-    linter.global_set_option("enable", "imports")
-    linter.global_set_option("import-graph", "import.dot")
-    linter.global_set_option("ext-import-graph", "ext_import.dot")
-    linter.global_set_option("int-import-graph", "int_import.dot")
-    linter.global_set_option("int-import-graph", "int_import.dot")
+    # pylint: disable-next=fixme
+    # TODO: Optparse: Fix how these options are set
+    linter.set_option("persistent", False)
+    linter.set_option("reports", True)
+    linter.set_option("enable", "imports")
+    linter.namespace.import_graph = "import.dot"
+    linter.namespace.ext_import_graph = "ext_import.dot"
+    linter.namespace.int_import_graph = "int_import.dot"
     # ignore this file causing spurious MemoryError w/ some python version (>=2.3?)
-    linter.global_set_option("ignore", ("func_unknown_encoding.py",))
+    linter.set_option("ignore", ("func_unknown_encoding.py",))
     linter.check(["input"])
     linter.generate_reports()
     assert exists("import.dot")

@@ -24,7 +24,10 @@ class TestDeprecationArgumentsManager:
 
     @classmethod
     def setup_class(cls) -> None:
-        cls.linter.register_checker(SampleChecker(cls.linter))
+        checker = SampleChecker(cls.linter)
+        cls.linter.register_checker(checker)
+        with pytest.warns(DeprecationWarning):
+            cls.linter.register_options_provider(checker)
 
     def test_load_configuration(self) -> None:
         """Test that load_configuration emits a DeprecationWarning."""
@@ -48,3 +51,11 @@ class TestDeprecationArgumentsManager:
         with warnings.catch_warnings():
             warnings.simplefilter("error")
             self.linter.help()
+
+    def test_register_options_provider_load_defaults(self) -> None:
+        """Test that register_options_provider and load_defaults emits a DeprecationWarning."""
+        checker = BaseChecker(self.linter)
+        with pytest.warns(DeprecationWarning):
+            self.linter.register_options_provider(checker)
+        with pytest.warns(DeprecationWarning):
+            self.linter.load_defaults()
