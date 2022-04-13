@@ -3,7 +3,7 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 import sys
-from typing import TYPE_CHECKING, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, List, Optional, Tuple
 
 from astroid import nodes
 
@@ -51,6 +51,13 @@ class MessageDefinition:
             raise InvalidMessageError(f"Invalid message id {msgid!r}")
         if msgid[0] not in MSG_TYPES:
             raise InvalidMessageError(f"Bad message type {msgid[0]} in {msgid!r}")
+
+    def __eq__(self, other: Any) -> bool:
+        return (
+            isinstance(other, MessageDefinition)
+            and self.msgid == other.msgid
+            and self.symbol == other.symbol
+        )
 
     def __repr__(self) -> str:
         return f"MessageDefinition:{self.symbol} ({self.msgid})"
