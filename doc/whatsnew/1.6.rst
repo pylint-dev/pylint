@@ -197,4 +197,4 @@ Removed features
 
 
 
-.. _isort: https://pypi.python.org/pypi/isort
+.. _isort: https://pypi.org/project/isort/

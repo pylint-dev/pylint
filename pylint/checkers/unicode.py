@@ -357,7 +357,7 @@ class UnicodeChecker(pylint.checkers.BaseChecker):
             "bad-file-encoding",
             (
                 "PEP8 recommends UTF-8 default encoding for Python files. See "
-                "https://www.python.org/dev/peps/pep-0008/#id20"
+                "https://peps.python.org/pep-0008/#source-file-encoding"
             ),
         ),
         **{
