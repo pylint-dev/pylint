@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import argparse
 import optparse  # pylint: disable=deprecated-module
 import warnings
 from typing import Any, Iterator
@@ -39,17 +40,17 @@ class _ArgumentsProvider:
         # pylint: disable=fixme
         # TODO: Optparse: Added to keep API parity with OptionsProvider
         # They should be removed/deprecated when refactoring the copied methods
-        self._config = optparse.Values()
         self.level = 0
 
     @property
-    def config(self) -> optparse.Values:
+    def config(self) -> argparse.Namespace:
+        # TODO: 3.0: Remove deprecated attribute # pylint: disable=fixme
         warnings.warn(
             "The checker-specific config attribute has been deprecated. Please use "
             "'linter.config' to access the global configuration object.",
             DeprecationWarning,
         )
-        return self._config
+        return self._arguments_manager.config
 
     def load_defaults(self) -> None:
         """DEPRECATED: Initialize the provider using default values."""
