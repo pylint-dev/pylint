@@ -53,5 +53,6 @@ The best way to tackle pylint's verboseness is to:
   all convention messages is simple as a ``--disable=C`` option added to pylint
   command.
 
-* create a custom configuration file, tailored to your needs. You can generate
-  one using pylint's command ``--generate-rcfile``.
+* manage the configuration through a configuration file. With the option
+  ``generate-toml-config`` you can create a piece of ``.toml`` text to put
+  in your ``pyproject.toml`` file.

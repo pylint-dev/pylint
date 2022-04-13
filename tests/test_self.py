@@ -15,7 +15,7 @@ import sys
 import textwrap
 import warnings
 from copy import copy
-from io import StringIO
+from io import BytesIO, StringIO
 from os.path import abspath, dirname, join
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Generator, Iterator, List, Optional, TextIO
@@ -33,6 +33,12 @@ from pylint.message import Message
 from pylint.reporters import JSONReporter
 from pylint.reporters.text import BaseReporter, ColorizedTextReporter, TextReporter
 from pylint.utils import utils
+
+if sys.version_info >= (3, 11):
+    import tomllib
+else:
+    import tomli as tomllib
+
 
 if TYPE_CHECKING:
     from pylint.reporters.ureports.nodes import Section
@@ -1364,6 +1370,54 @@ class TestCallbackOptions:
         parser.read_file(out)
         messages = utils._splitstrip(parser.get("MESSAGES CONTROL", "disable"))
         assert "suppressed-message" in messages
+
+    @staticmethod
+    def test_generate_toml_config() -> None:
+        """Test the --generate-toml-config flag."""
+        process = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "pylint",
+                "--preferred-modules=a:b",
+                "--generate-toml-config",
+            ],
+            capture_output=True,
+            encoding="utf-8",
+            check=False,
+        )
+        assert "[tool.pylint.master]" in process.stdout
+        assert '"positional arguments"' not in process.stdout
+        assert 'preferred-modules = ["a:b"]' in process.stdout
+
+        process_two = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "pylint",
+                "--preferred-modules=a:b",
+                "--generate-toml-config",
+            ],
+            capture_output=True,
+            encoding="utf-8",
+            check=False,
+        )
+        assert process.stdout == process_two.stdout
+
+    @staticmethod
+    def test_generate_toml_config_disable_symbolic_names() -> None:
+        """Test that --generate-toml-config puts symbolic names in the --disable option."""
+        out = StringIO()
+        with _patch_streams(out):
+            with pytest.raises(SystemExit):
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
+                    Run(["--generate-toml-config"])
+
+        bytes_out = BytesIO(out.getvalue().encode("utf-8"))
+        content = tomllib.load(bytes_out)
+        messages = content["tool"]["pylint"]["messages control"]["disable"]
+        assert "invalid-name" in messages, out.getvalue()
 
     @staticmethod
     def test_errors_only() -> None:

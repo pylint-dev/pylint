@@ -10,10 +10,14 @@ import configparser
 import copy
 import optparse  # pylint: disable=deprecated-module
 import os
+import re
 import sys
+import textwrap
 import warnings
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, TextIO, Tuple, Union
+
+import tomlkit
 
 from pylint import utils
 from pylint.config.argument import (
@@ -595,3 +599,74 @@ class _ArgumentsManager:
     def global_set_option(self, opt, value):
         """Set option on the correct option provider."""
         self._all_options[opt].set_option(opt, value)
+
+    def _generate_config_file(self) -> None:
+        """Write a configuration file according to the current configuration into stdout."""
+        toml_doc = tomlkit.document()
+        pylint_tool_table = tomlkit.table(is_super_table=True)
+        toml_doc.add(tomlkit.key(["tool", "pylint"]), pylint_tool_table)
+
+        for group in sorted(
+            self._arg_parser._action_groups,
+            key=lambda x: (x.title != "Master", x.title),
+        ):
+            # Skip the options section with the --help option
+            if group.title == "options":
+                continue
+
+            # Skip sections without options such as "positional arguments"
+            if not group._group_actions:
+                continue
+
+            group_table = tomlkit.table()
+            for action in sorted(
+                group._group_actions, key=lambda x: x.option_strings[0][2:]
+            ):
+                optname = action.option_strings[0][2:]
+
+                # We skip old name options that don't have their own optdict
+                try:
+                    optdict = self._option_dicts[optname]
+                except KeyError:
+                    continue
+
+                if optdict.get("hide_from_config_file"):
+                    continue
+
+                # Add help comment
+                help_msg = optdict.get("help", "")
+                assert isinstance(help_msg, str)
+                help_text = textwrap.wrap(help_msg, width=79)
+                for line in help_text:
+                    group_table.add(tomlkit.comment(line))
+
+                # Get current value of option
+                value = getattr(self.namespace, optname.replace("-", "_"))
+
+                # Create a comment if the option has no value
+                if not value:
+                    group_table.add(tomlkit.comment(f"{optname} ="))
+                    group_table.add(tomlkit.nl())
+                    continue
+
+                # Tomlkit doesn't support regular expressions
+                if isinstance(value, re.Pattern):
+                    value = value.pattern
+                elif isinstance(value, (list, tuple)) and isinstance(
+                    value[0], re.Pattern
+                ):
+                    value = [i.pattern for i in value]
+
+                # Add to table
+                group_table.add(optname, value)
+                group_table.add(tomlkit.nl())
+
+            assert group.title
+            pylint_tool_table.add(group.title.lower(), group_table)
+
+        toml_string = tomlkit.dumps(toml_doc)
+
+        # Make sure the string we produce is valid toml and can be parsed
+        tomllib.loads(toml_string)
+
+        print(toml_string)
