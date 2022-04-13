@@ -1722,17 +1722,6 @@ class PyLinter(  # type: ignore[misc]
 
     # Setting the state (disabled/enabled) of messages and registering them
 
-    def _message_symbol(self, msgid: str) -> List[str]:
-        """Get the message symbol of the given message id.
-
-        Return the original message id if the message does not
-        exist.
-        """
-        try:
-            return [md.symbol for md in self.msgs_store.get_message_definitions(msgid)]
-        except exceptions.UnknownMessageError:
-            return [msgid]
-
     def _set_one_msg_status(
         self, scope: str, msg: MessageDefinition, line: Optional[int], enable: bool
     ) -> None:
@@ -1818,11 +1807,15 @@ class PyLinter(  # type: ignore[misc]
         # sync configuration object
         self.namespace.enable = []
         self.namespace.disable = []
-        for mid, val in self._msgs_state.items():
-            if val:
-                self.namespace.enable += self._message_symbol(mid)
+        for msgid_or_symbol, is_enabled in self._msgs_state.items():
+            symbols = [
+                m.symbol
+                for m in self.msgs_store.get_message_definitions(msgid_or_symbol)
+            ]
+            if is_enabled:
+                self.namespace.enable += symbols
             else:
-                self.namespace.disable += self._message_symbol(mid)
+                self.namespace.disable += symbols
 
     def _register_by_id_managed_msg(
         self, msgid_or_symbol: str, line: Optional[int], is_disabled: bool = True
