@@ -1413,7 +1413,7 @@ class TestCallbackOptions:
         bytes_out = BytesIO(out.getvalue().encode("utf-8"))
         content = tomllib.load(bytes_out)
         messages = content["tool"]["pylint"]["messages control"]["disable"]
-        assert "invalid-name" in messages
+        assert "invalid-name" in messages, out.getvalue()
 
     @staticmethod
     def test_errors_only() -> None:
