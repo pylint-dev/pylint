@@ -803,20 +803,6 @@ class TypeChecker(BaseChecker):
                 "of the attribute is inferred to be None.",
             },
         ),
-        (
-            "ignored-modules",
-            {
-                "default": (),
-                "type": "csv",
-                "metavar": "<module names>",
-                "help": "List of module names for which member attributes "
-                "should not be checked (useful for modules/projects "
-                "where namespaces are manipulated during runtime and "
-                "thus existing member attributes cannot be "
-                "deduced by static analysis). It supports qualified "
-                "module names, as well as Unix pattern matching.",
-            },
-        ),
         # the defaults here are *stdlib* names that (almost) always
         # lead to false positives, since their idiomatic use is
         # 'too dynamic' for pylint to grok.

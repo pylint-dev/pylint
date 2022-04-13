@@ -360,19 +360,6 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             },
         ),
         (
-            "analyse-fallback-blocks",
-            {
-                "default": False,
-                "type": "yn",
-                "metavar": "<y or n>",
-                "help": "Analyse import fallback blocks. This can be used to "
-                "support both Python 2 and 3 compatible code, which "
-                "means that the block might have code that exists "
-                "only in one or another interpreter, leading to false "
-                "positives when analysed.",
-            },
-        ),
-        (
             "allow-wildcard-with-all",
             {
                 "default": False,
