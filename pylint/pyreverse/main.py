@@ -57,6 +57,7 @@ OPTIONS: Options = (
             short="c",
             action="append",
             metavar="<class>",
+            type="csv",
             dest="classes",
             default=[],
             help="create a class diagram with all classes related to <class>;\
@@ -70,6 +71,7 @@ OPTIONS: Options = (
             action="store",
             metavar="<ancestor>",
             type="int",
+            default=None,
             help="show <ancestor> generations of ancestor classes not in <projects>",
         ),
     ),
@@ -78,6 +80,7 @@ OPTIONS: Options = (
         dict(
             short="A",
             default=None,
+            action="store_true",
             help="show all ancestors off all classes in <projects>",
         ),
     ),
@@ -88,6 +91,7 @@ OPTIONS: Options = (
             action="store",
             metavar="<association_level>",
             type="int",
+            default=None,
             help="show <association_level> levels of associated classes not in <projects>",
         ),
     ),
@@ -96,6 +100,7 @@ OPTIONS: Options = (
         dict(
             short="S",
             default=None,
+            action="store_true",
             help="show recursively all associated off all associated classes",
         ),
     ),
@@ -135,6 +140,7 @@ OPTIONS: Options = (
             action="store",
             default="dot",
             metavar="<format>",
+            type="string",
             help=(
                 f"create a *.<format> output file if format is available. Available formats are: {', '.join(DIRECTLY_SUPPORTED_FORMATS)}. "
                 f"Any other format will be tried to create by means of the 'dot' command line tool, which requires a graphviz installation."

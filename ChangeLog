@@ -23,6 +23,16 @@ Release date: TBA
 
   Closes #5224
 
+* The ``config`` attribute of ``BaseChecker`` has been deprecated. You can use ``checker.linter.config``
+  to access the global configuration object instead of a checker-specific object.
+
+  Ref #5392
+
+* The ``config`` attribute of ``PyLinter`` is now of the ``argparse.Namespace`` type instead of
+  ``optparse.Values``.
+
+  Ref #5392
+
 * ``OptionsManagerMixIn`` has been replaced with ``ArgumentsManager``. ``ArgumentsManager`` is considered
   private API and most methods that were public on ``OptionsManagerMixIn`` have now been deprecated and will
   be removed in a future release.

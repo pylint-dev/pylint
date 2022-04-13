@@ -32,6 +32,11 @@ from astroid import AstroidError, nodes
 
 from pylint import checkers, config, exceptions, interfaces, reporters
 from pylint.config.arguments_manager import _ArgumentsManager
+from pylint.config.callback_actions import (
+    _DisableAction,
+    _EnableAction,
+    _OutputFormatAction,
+)
 from pylint.constants import (
     MAIN_CHECKER_NAME,
     MSG_STATE_CONFIDENCE,
@@ -190,7 +195,7 @@ MSGS = {
 
 
 # pylint: disable=too-many-instance-attributes,too-many-public-methods
-class PyLinter(
+class PyLinter(  # type: ignore[misc]
     _ArgumentsManager,
     reporters.ReportsHandlerMixIn,
     checkers.BaseTokenChecker,
@@ -280,11 +285,8 @@ class PyLinter(
                 "output-format",
                 {
                     "default": "text",
-                    "type": "string",
-                    # pylint: disable-next=fixme
-                    # TODO: Optparse: Uncomment these lines.
-                    # "action": _OutputFormatAction,
-                    # "callback": lambda x: x,
+                    "action": _OutputFormatAction,
+                    "callback": lambda x: x,
                     "metavar": "<format>",
                     "short": "f",
                     "group": "Reports",
@@ -370,7 +372,8 @@ class PyLinter(
             (
                 "enable",
                 {
-                    "type": "csv",
+                    "action": _EnableAction,
+                    "callback": lambda x1, x2, x3, x4: x1,
                     "default": (),
                     "metavar": "<msg ids>",
                     "short": "e",
@@ -381,12 +384,14 @@ class PyLinter(
                     "(only on the command line, not in the configuration file "
                     "where it should appear only once). "
                     'See also the "--disable" option for examples.',
+                    "kwargs": {"linter": self},
                 },
             ),
             (
                 "disable",
                 {
-                    "type": "csv",
+                    "action": _DisableAction,
+                    "callback": lambda x1, x2, x3, x4: x1,
                     "metavar": "<msg ids>",
                     "default": (),
                     "short": "d",
@@ -403,6 +408,7 @@ class PyLinter(
                     "If you want to run only the classes checker, but have no "
                     "Warning level messages displayed, use "
                     '"--disable=all --enable=classes --disable=W".',
+                    "kwargs": {"linter": self},
                 },
             ),
             (
@@ -989,7 +995,7 @@ class PyLinter(
 
     def prepare_checkers(self):
         """Return checkers needed for activated messages and reports."""
-        if not self.config.reports:
+        if not self.namespace.reports:
             self.disable_reporters()
         # get needed checkers
         needed_checkers = [self]
@@ -1396,12 +1402,12 @@ class PyLinter(
             # load previous results if any
             previous_stats = config.load_results(self.file_state.base_name)
             self.reporter.on_close(self.stats, previous_stats)
-            if self.config.reports:
+            if self.namespace.reports:
                 sect = self.make_reports(self.stats, previous_stats)
             else:
                 sect = report_nodes.Section()
 
-            if self.config.reports:
+            if self.namespace.reports:
                 self.reporter.display_reports(sect)
             score_value = self._report_evaluation()
             # save results if persistent run
@@ -1783,13 +1789,13 @@ class PyLinter(
             self._set_one_msg_status(scope, message_definition, line, enable)
 
         # sync configuration object
-        self.config.enable = []
-        self.config.disable = []
+        self.namespace.enable = []
+        self.namespace.disable = []
         for mid, val in self._msgs_state.items():
             if val:
-                self.config.enable.append(self._message_symbol(mid))
+                self.namespace.enable.append(self._message_symbol(mid))
             else:
-                self.config.disable.append(self._message_symbol(mid))
+                self.namespace.disable.append(self._message_symbol(mid))
 
     def _register_by_id_managed_msg(
         self, msgid_or_symbol: str, line: Optional[int], is_disabled: bool = True
