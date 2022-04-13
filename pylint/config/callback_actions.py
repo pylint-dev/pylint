@@ -280,6 +280,6 @@ class _LongHelpAction(_AccessRunObjectAction):
 
         # Add extra info as epilog to the help message
         self.run.linter._arg_parser.epilog = formatter.get_long_description()
-        self.run.linter._arg_parser.print_help()
+        print(self.run.linter.help())
 
         sys.exit(0)

@@ -9,6 +9,7 @@ import tempfile
 import tokenize
 
 import astroid
+import pytest
 
 from pylint import lint, reporters
 from pylint.checkers.format import FormatChecker
@@ -170,9 +171,10 @@ mylist = [
         linter = lint.PyLinter()
         checker = FormatChecker(linter)
         linter.register_checker(checker)
-        args = linter.load_command_line_configuration(
-            [file_.name, "-d", "bad-continuation"]
-        )
+        with pytest.warns(DeprecationWarning):
+            args = linter.load_command_line_configuration(
+                [file_.name, "-d", "bad-continuation"]
+            )
         myreporter = reporters.CollectingReporter()
         linter.set_reporter(myreporter)
         linter.check(args)

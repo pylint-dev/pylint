@@ -74,8 +74,7 @@ Other Changes
 
 * The concept of checker priority has been removed.
 
-* Add a new command line option ``--minimal-messages-config`` for ``pytest``, which disables all
-  irrelevant messages when running the functional tests.
+* ``BaseChecker`` classes now require the ``linter`` argument to be passed.
 
 * The ``set_config_directly`` decorator has been removed.
 
