@@ -184,6 +184,10 @@ Release date: TBA
 
   Closes #4324
 
+* Avoid reporting ``superfluous-parens`` on expressions using the ``is not`` operator.
+
+  Closes #5930
+
 * Added the ``super-without-brackets`` checker, raised when a super call is missing its brackets.
 
   Closes #4008
