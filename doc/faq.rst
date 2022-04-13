@@ -216,7 +216,7 @@ for not being included as default messages.
 
 You can see the plugin you need to explicitly `load in the technical reference`_
 
-.. _`load in the technical reference`: http://pylint.pycqa.org/en/latest/technical_reference/extensions.html?highlight=load%20plugin
+.. _`load in the technical reference`: https://pylint.pycqa.org/en/latest/technical_reference/extensions.html?highlight=load%20plugin
 
 4.8 I am using another popular linter alongside pylint. Which messages should I disable to avoid duplicates?
 ------------------------------------------------------------------------------------------------------------

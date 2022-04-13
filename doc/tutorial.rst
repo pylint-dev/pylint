@@ -39,7 +39,7 @@ My command line prompt for these examples is:
 
   robertk01 Desktop$
 
-.. _PEP 8: https://www.python.org/dev/peps/pep-0008/
+.. _PEP 8: https://peps.python.org/pep-0008/
 
 Getting Started
 ---------------

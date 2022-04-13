@@ -420,7 +420,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "unspecified-encoding",
             "It is better to specify an encoding when opening documents. "
             "Using the system default implicitly can create problems on other operating systems. "
-            "See https://www.python.org/dev/peps/pep-0597/",
+            "See https://peps.python.org/pep-0597/",
         ),
         "W1515": (
             "Leaving functions creating breakpoints in production code is not recommended",

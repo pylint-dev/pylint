@@ -192,6 +192,6 @@ that is too repetitive. This guarantees a good balance between speed of our CI a
 You can find the latest list of repositories and any relevant code for these tests in the ``tests/primer``
 directory.
 
-.. _tox: https://tox.readthedocs.io/en/latest/
-.. _pytest: https://pytest.readthedocs.io/en/latest/
+.. _tox: https://tox.wiki/en/latest/
+.. _pytest: https://docs.pytest.org/en/latest/
 .. _astroid: https://github.com/pycqa/astroid

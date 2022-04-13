@@ -5,7 +5,7 @@
 """All alphanumeric unicode character are allowed in Python but due
 to similarities in how they look they can be confused.
 
-See: https://www.python.org/dev/peps/pep-0672/#confusable-characters-in-identifiers
+See: https://peps.python.org/pep-0672/#confusing-features
 
 The following checkers are intended to make users are aware of these issues.
 """
@@ -19,7 +19,7 @@ from pylint.checkers import base_checker, utils
 
 NON_ASCII_HELP = (
     "Used when the name contains at least one non-ASCII unicode character. "
-    "See https://www.python.org/dev/peps/pep-0672/#confusable-characters-in-identifiers"
+    "See https://peps.python.org/pep-0672/#confusing-features"
     " for a background why this could be bad. \n"
     "If your programming guideline defines that you are programming in "
     "English, then there should be no need for non ASCII characters in "
@@ -58,8 +58,8 @@ class NonAsciiNameChecker(base_checker.BaseChecker):
                 "Some editors don't support non-ASCII file names properly. "
                 "Even though Python supports UTF-8 files since Python 3.5 this isn't "
                 "recommended for interoperability. Further reading:\n"
-                "- https://www.python.org/dev/peps/pep-0489/#export-hook-name\n"
-                "- https://www.python.org/dev/peps/pep-0672/#confusable-characters-in-identifiers\n"
+                "- https://peps.python.org/pep-0489/#export-hook-name\n"
+                "- https://peps.python.org/pep-0672/#confusing-features\n"
                 "- https://bugs.python.org/issue20485"
             ),
         ),
