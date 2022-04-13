@@ -3,10 +3,8 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 import functools
-import optparse  # pylint: disable=deprecated-module
 
 from pylint.config.utils import _parse_rich_type_value
-from pylint.lint import PyLinter
 from pylint.testutils.checker_test_case import CheckerTestCase
 
 
@@ -20,31 +18,6 @@ def set_config(**kwargs):
     def _wrapper(fun):
         @functools.wraps(fun)
         def _forward(self, *args, **test_function_kwargs):
-            try:
-                for key, value in kwargs.items():
-                    self.checker.set_option(key.replace("_", "-"), value)
-            except optparse.OptionError:
-                # Check if option is one of the base options of the PyLinter class
-                for key, value in kwargs.items():
-                    try:
-                        self.checker.set_option(
-                            key.replace("_", "-"),
-                            value,
-                            optdict=dict(PyLinter().make_options())[
-                                key.replace("_", "-")
-                            ],
-                        )
-                    except KeyError:
-                        # pylint: disable-next=fixme
-                        # TODO: Find good way to double load checkers in unittests
-                        # When options are used by multiple checkers we need to load both of them
-                        # to be able to get an optdict
-                        self.checker.set_option(
-                            key.replace("_", "-"),
-                            value,
-                            optdict={},
-                        )
-
             # Set option via argparse
             # pylint: disable-next=fixme
             # TODO: Revisit this decorator after all checkers have switched
