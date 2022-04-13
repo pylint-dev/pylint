@@ -988,7 +988,7 @@ class VariablesChecker(BaseChecker):
         (
             "init-import",
             {
-                "default": 0,
+                "default": False,
                 "type": "yn",
                 "metavar": "<y or n>",
                 "help": "Tells whether we should check for unused import in "

@@ -33,7 +33,7 @@ from pylint.config.help_formatter import _HelpFormatter
 from pylint.config.option import Option
 from pylint.config.option_parser import OptionParser
 from pylint.config.options_provider_mixin import OptionsProviderMixIn
-from pylint.config.utils import _convert_option_to_argument
+from pylint.config.utils import _convert_option_to_argument, _parse_rich_type_value
 from pylint.constants import MAIN_CHECKER_NAME
 from pylint.typing import OptionDict
 
@@ -594,11 +594,15 @@ class _ArgumentsManager:
             value = 1
         self.global_set_option(opt, value)
 
-    # pylint: disable-next=fixme
-    # TODO: Optparse: Refactor and potentially deprecate global_set_option
-    def global_set_option(self, opt, value):
-        """Set option on the correct option provider."""
-        self._all_options[opt].set_option(opt, value)
+    def global_set_option(self, opt: str, value: Any) -> None:
+        """DEPRECATED: Set option on the correct option provider."""
+        # TODO: 3.0: Remove deprecated method. # pylint: disable=fixme
+        warnings.warn(
+            "global_set_option has been deprecated. You can use _arguments_manager.set_option "
+            "or linter.set_option to set options on the global configuration object.",
+            DeprecationWarning,
+        )
+        self.set_option(opt, value)
 
     def _generate_config_file(self) -> None:
         """Write a configuration file according to the current configuration into stdout."""
@@ -670,3 +674,30 @@ class _ArgumentsManager:
         tomllib.loads(toml_string)
 
         print(toml_string)
+
+    def set_option(
+        self,
+        optname: str,
+        value: Any,
+        action: Optional[str] = "default_value",
+        optdict: Union[None, str, OptionDict] = "default_value",
+    ) -> None:
+        """Set an option on the namespace object."""
+        # TODO: 3.0: Remove deprecated arguments. # pylint: disable=fixme
+        if action != "default_value":
+            warnings.warn(
+                "The 'action' argument has been deprecated. You can use set_option "
+                "without the 'action' or 'optdict' arguments.",
+                DeprecationWarning,
+            )
+        if optdict != "default_value":
+            warnings.warn(
+                "The 'optdict' argument has been deprecated. You can use set_option "
+                "without the 'action' or 'optdict' arguments.",
+                DeprecationWarning,
+            )
+
+        self.namespace = self._arg_parser.parse_known_args(
+            [f"--{optname.replace('_', '-')}", _parse_rich_type_value(value)],
+            self.namespace,
+        )[0]

@@ -138,7 +138,7 @@ def _convert_option_to_argument(
 def _parse_rich_type_value(value: Any) -> str:
     """Parse rich (toml) types into strings."""
     if isinstance(value, (list, tuple)):
-        return ",".join(value)
+        return ",".join(_parse_rich_type_value(i) for i in value)
     if isinstance(value, re.Pattern):
         return value.pattern
     if isinstance(value, dict):

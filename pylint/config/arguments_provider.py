@@ -10,8 +10,6 @@ import warnings
 from typing import Any, Dict, Iterator, List, Optional, Tuple, Union
 
 from pylint.config.arguments_manager import _ArgumentsManager
-from pylint.config.callback_actions import _CallbackAction
-from pylint.config.option import _validate
 from pylint.typing import OptionDict, Options
 
 
@@ -93,53 +91,16 @@ class _ArgumentsProvider:
         )
         return getattr(self._arguments_manager.namespace, opt.replace("-", "_"), None)
 
-    # pylint: disable-next=fixme
-    # TODO: Optparse: Refactor and deprecate set_option
+    # pylint: disable-next=unused-argument
     def set_option(self, optname, value, action=None, optdict=None):
-        """Method called to set an option (registered in the options list)."""
-        if optdict is None:
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", category=DeprecationWarning)
-                optdict = self.get_option_def(optname)
-        if value is not None:
-            value = _validate(value, optdict, optname)
-        if action is None:
-            action = optdict.get("action", "store")
-        if action == "store":
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", category=DeprecationWarning)
-                setattr(self.config, self.option_attrname(optname, optdict), value)
-        elif action in {"store_true", "count"}:
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", category=DeprecationWarning)
-                setattr(self.config, self.option_attrname(optname, optdict), value)
-        elif action == "store_false":
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", category=DeprecationWarning)
-                setattr(self.config, self.option_attrname(optname, optdict), value)
-        elif action == "append":
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", category=DeprecationWarning)
-                optname = self.option_attrname(optname, optdict)
-            _list = getattr(self.config, optname, None)
-            if _list is None:
-                if isinstance(value, (list, tuple)):
-                    _list = value
-                elif value is not None:
-                    _list = [value]
-                setattr(self.config, optname, _list)
-            elif isinstance(_list, tuple):
-                setattr(self.config, optname, _list + (value,))
-            else:
-                _list.append(value)
-        elif (
-            action == "callback"
-            or (not isinstance(action, str))
-            and issubclass(action, _CallbackAction)
-        ):
-            return
-        else:
-            raise UnsupportedAction(action)
+        """DEPRECATED: Method called to set an option (registered in the options list)."""
+        # TODO: 3.0: Remove deprecated method. # pylint: disable=fixme
+        warnings.warn(
+            "set_option has been deprecated. You can use _arguments_manager.set_option "
+            "or linter.set_option to set options on the global configuration object.",
+            DeprecationWarning,
+        )
+        self._arguments_manager.set_option(optname, value)
 
     def get_option_def(self, opt: str) -> OptionDict:
         """DEPRECATED: Return the dictionary defining an option given its name.
