@@ -1820,9 +1820,9 @@ class PyLinter(  # type: ignore[misc]
         self.namespace.disable = []
         for mid, val in self._msgs_state.items():
             if val:
-                self.namespace.enable.append(self._message_symbol(mid))
+                self.namespace.enable += self._message_symbol(mid)
             else:
-                self.namespace.disable.append(self._message_symbol(mid))
+                self.namespace.disable += self._message_symbol(mid)
 
     def _register_by_id_managed_msg(
         self, msgid_or_symbol: str, line: Optional[int], is_disabled: bool = True
