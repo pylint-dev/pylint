@@ -374,27 +374,41 @@ class _ArgumentsManager:
             "generate_config has been deprecated. It will be removed in pylint 3.0.",
             DeprecationWarning,
         )
-        options_by_section: Dict[str, List[Tuple]] = {}
+        options_by_section = {}
         sections = []
-        for provider in self.options_providers:
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", category=DeprecationWarning)
-                for section, options in provider.options_by_section():
-                    if section is None:
-                        section = provider.name
-                    if section in skipsections:
-                        continue
-                    options = [  # type: ignore[misc]
-                        (n, d, v)
-                        for (n, d, v) in options
-                        if d.get("type") is not None and not d.get("deprecated")
-                    ]
-                    if not options:
-                        continue
-                    if section not in sections:
-                        sections.append(section)
-                    all_options = options_by_section.setdefault(section, [])
-                    all_options += options
+        for group in self._arg_parser._action_groups:
+            group_name = group.title
+            assert group_name
+            if group_name in skipsections:
+                continue
+
+            options = []
+            for opt in group._group_actions:
+                if "--help" in opt.option_strings:
+                    continue
+
+                optname = opt.option_strings[0][2:]
+
+                try:
+                    optdict = self._option_dicts[optname]
+                except KeyError:
+                    continue
+
+                options.append(
+                    (
+                        optname,
+                        optdict,
+                        getattr(self.namespace, optname.replace("-", "_")),
+                    )
+                )
+
+                options = [
+                    (n, d, v) for (n, d, v) in options if not d.get("deprecated")
+                ]
+
+            if options:
+                sections.append(group_name)
+                options_by_section[group_name] = options
         stream = stream or sys.stdout
         printed = False
         for section in sections:
