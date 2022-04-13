@@ -41,9 +41,6 @@ class _ArgumentsProvider:
         # TODO: Optparse: Added to keep API parity with OptionsProvider
         # They should be removed/deprecated when refactoring the copied methods
         self._config = optparse.Values()
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            self.load_defaults()
         self.level = 0
 
     @property

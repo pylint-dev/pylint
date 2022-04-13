@@ -3,7 +3,6 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 import sys
-import warnings
 from pathlib import Path
 from typing import TYPE_CHECKING, List, Union
 
@@ -47,37 +46,6 @@ def _config_initialization(
     # Load plugins if specified in the config file
     if "load-plugins" in config_data:
         linter.load_plugin_modules(utils._splitstrip(config_data["load-plugins"]))
-
-    # pylint: disable-next=fixme
-    # TODO: Remove everything until set_reporter once the optparse
-    # implementation is no longer needed
-    # Load optparse command line arguments
-    try:
-        # The parser is stored on linter.cfgfile_parser
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            linter.read_config_file(config_file=config_file, verbose=verbose_mode)
-    except OSError as ex:
-        print(ex, file=sys.stderr)
-        sys.exit(32)
-
-    # Now we can load file config, plugins (which can
-    # provide options) have been registered
-    with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", category=DeprecationWarning)
-        linter.load_config_file()
-
-    # pylint: disable-next=fixme
-    # TODO: Optparse: This has been disabled pre-maturely because it interferes with
-    # argparse option parsing for 'disable' and 'enable'.
-    # try:
-    #     with warnings.catch_warnings():
-    #         warnings.filterwarnings("ignore", category=DeprecationWarning)
-    #         linter.load_command_line_configuration(args_list)
-    # except SystemExit as exc:
-    #     if exc.code == 2:  # bad options
-    #         exc.code = 32
-    #     raise
 
     # First we parse any options from a configuration file
     linter._parse_configuration_file(config_args)
