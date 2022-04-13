@@ -59,3 +59,18 @@ class TestDeprecationArgumentsManager:
             self.linter.register_options_provider(checker)
         with pytest.warns(DeprecationWarning):
             self.linter.load_defaults()
+
+    def test_read_config_file(self) -> None:
+        """Test that read_config_file emits a DeprecationWarning."""
+        with pytest.warns(DeprecationWarning):
+            self.linter.read_config_file()
+
+    def test_load_config_file(self) -> None:
+        """Test that load_config_file emits a DeprecationWarning."""
+        with pytest.warns(DeprecationWarning):
+            self.linter.load_config_file()
+
+    def test_load_command_line_configuration(self) -> None:
+        """Test that load_command_line_configuration emits a DeprecationWarning."""
+        with pytest.warns(DeprecationWarning):
+            self.linter.load_command_line_configuration([])
