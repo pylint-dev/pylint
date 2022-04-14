@@ -12,9 +12,10 @@ import itertools
 import os
 import re
 import sys
+from collections.abc import Iterable, Iterator
 from enum import Enum
 from functools import lru_cache
-from typing import TYPE_CHECKING, Any, DefaultDict, Iterable, Iterator, NamedTuple
+from typing import TYPE_CHECKING, Any, DefaultDict, NamedTuple
 
 import astroid
 from astroid import nodes
@@ -1089,7 +1090,7 @@ class VariablesChecker(BaseChecker):
         assigned_to = [a.name for a in node.target.nodes_of_class(nodes.AssignName)]
 
         # Only check variables that are used
-        dummy_rgx = self.linter.namespace.dummy_variables_rgx
+        dummy_rgx = self.linter.config.dummy_variables_rgx
         assigned_to = [var for var in assigned_to if not dummy_rgx.match(var)]
 
         for variable in assigned_to:
@@ -1147,7 +1148,7 @@ class VariablesChecker(BaseChecker):
         self._check_globals(not_consumed)
 
         # don't check unused imports in __init__ files
-        if not self.linter.namespace.init_import and node.package:
+        if not self.linter.config.init_import and node.package:
             return
 
         self._check_imports(not_consumed)
@@ -1433,7 +1434,7 @@ class VariablesChecker(BaseChecker):
             and not (
                 node.name in nodes.Module.scope_attrs
                 or utils.is_builtin(node.name)
-                or node.name in self.linter.namespace.additional_builtins
+                or node.name in self.linter.config.additional_builtins
                 or (
                     node.name == "__class__"
                     and isinstance(frame, nodes.FunctionDef)
@@ -2363,13 +2364,13 @@ class VariablesChecker(BaseChecker):
             self.add_message(message_name, args=name, node=stmt)
 
     def _is_name_ignored(self, stmt, name):
-        authorized_rgx = self.linter.namespace.dummy_variables_rgx
+        authorized_rgx = self.linter.config.dummy_variables_rgx
         if (
             isinstance(stmt, nodes.AssignName)
             and isinstance(stmt.parent, nodes.Arguments)
             or isinstance(stmt, nodes.Arguments)
         ):
-            regex = self.linter.namespace.ignored_argument_names
+            regex = self.linter.config.ignored_argument_names
         else:
             regex = authorized_rgx
         return regex and regex.match(name)
@@ -2402,7 +2403,7 @@ class VariablesChecker(BaseChecker):
         # Don't check callback arguments
         if any(
             node.name.startswith(cb) or node.name.endswith(cb)
-            for cb in self.linter.namespace.callbacks
+            for cb in self.linter.config.callbacks
         ):
             return
         # Don't check arguments of singledispatch.register function.
@@ -2475,10 +2476,10 @@ class VariablesChecker(BaseChecker):
     def _should_ignore_redefined_builtin(self, stmt):
         if not isinstance(stmt, nodes.ImportFrom):
             return False
-        return stmt.modname in self.linter.namespace.redefining_builtins_modules
+        return stmt.modname in self.linter.config.redefining_builtins_modules
 
     def _allowed_redefined_builtin(self, name):
-        return name in self.linter.namespace.allowed_redefined_builtins
+        return name in self.linter.config.allowed_redefined_builtins
 
     @staticmethod
     def _comprehension_between_frame_and_node(node: nodes.Name) -> bool:
@@ -2830,7 +2831,7 @@ class VariablesChecker(BaseChecker):
             and not (
                 name in nodes.Module.scope_attrs
                 or utils.is_builtin(name)
-                or name in self.linter.namespace.additional_builtins
+                or name in self.linter.config.additional_builtins
             )
         ):
             self.add_message("undefined-variable", node=klass, args=(name,))

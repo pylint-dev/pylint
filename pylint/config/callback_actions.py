@@ -12,8 +12,9 @@ import abc
 import argparse
 import sys
 import warnings
+from collections.abc import Sequence
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Sequence
+from typing import TYPE_CHECKING, Any
 
 from pylint import exceptions, extensions, interfaces, utils
 

@@ -84,7 +84,7 @@ class CodeStyleChecker(BaseChecker):
         py_version = get_global_option(self, "py-version")
         self._py38_plus = py_version >= (3, 8)
         self._max_length: int = (
-            self.linter.namespace.max_line_length_suggestions
+            self.linter.config.max_line_length_suggestions
             or get_global_option(self, "max-line-length")
         )
 

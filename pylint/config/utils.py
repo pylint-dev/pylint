@@ -8,8 +8,9 @@ from __future__ import annotations
 
 import re
 import warnings
+from collections.abc import Callable
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any
 
 from pylint import extensions, utils
 from pylint.config.argument import (
@@ -54,7 +55,7 @@ def _convert_option_to_argument(
     action = optdict.get("action", "store")
 
     # pylint: disable-next=fixme
-    # TODO: Remove this handling after we have deprecated multiple-choice arguments
+    # TODO: Optparse: Remove this handling after we have deprecated multiple-choice arguments
     choices = optdict.get("choices", None)
     if opt == "confidence":
         choices = None

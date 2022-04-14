@@ -13,7 +13,8 @@ import argparse
 import pathlib
 import re
 import sys
-from typing import Any, Callable, Pattern, Sequence, Tuple, Union
+from collections.abc import Callable
+from typing import Any, Pattern, Sequence, Tuple, Union
 
 from pylint import interfaces
 from pylint import utils as pylint_utils

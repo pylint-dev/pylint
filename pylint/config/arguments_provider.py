@@ -9,7 +9,8 @@ from __future__ import annotations
 import argparse
 import optparse  # pylint: disable=deprecated-module
 import warnings
-from typing import Any, Iterator
+from collections.abc import Iterator
+from typing import Any
 
 from pylint.config.arguments_manager import _ArgumentsManager
 from pylint.typing import OptionDict, Options
@@ -91,7 +92,7 @@ class _ArgumentsProvider:
             "in a future release.",
             DeprecationWarning,
         )
-        return getattr(self._arguments_manager.namespace, opt.replace("-", "_"), None)
+        return getattr(self._arguments_manager.config, opt.replace("-", "_"), None)
 
     # pylint: disable-next=unused-argument
     def set_option(self, optname, value, action=None, optdict=None):

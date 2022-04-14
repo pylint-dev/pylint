@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import os
 import sys
-from typing import Sequence
+from collections.abc import Sequence
 
 from pylint.__pkginfo__ import __version__
 

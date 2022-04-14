@@ -10,7 +10,9 @@ import collections
 import numbers
 import re
 import tokenize
-from typing import TYPE_CHECKING, Counter, Iterable
+from collections import Counter
+from collections.abc import Iterable
+from typing import TYPE_CHECKING
 
 import astroid
 from astroid import nodes
@@ -722,7 +724,7 @@ class StringConstantChecker(BaseTokenChecker):
                     start = (start[0], len(line[: start[1]].encode(encoding)))
                 self.string_tokens[start] = (str_eval(token), next_token)
 
-        if self.linter.namespace.check_quote_consistency:
+        if self.linter.config.check_quote_consistency:
             self.check_for_consistent_string_delimiters(tokens)
 
     @check_messages("implicit-str-concat")
@@ -796,7 +798,7 @@ class StringConstantChecker(BaseTokenChecker):
             if matching_token != elt.value and next_token is not None:
                 if next_token.type == tokenize.STRING and (
                     next_token.start[0] == elt.lineno
-                    or self.linter.namespace.check_str_concat_over_line_jumps
+                    or self.linter.config.check_str_concat_over_line_jumps
                 ):
                     self.add_message(
                         "implicit-str-concat", line=elt.lineno, args=(iterable_type,)

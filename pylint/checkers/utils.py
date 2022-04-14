@@ -12,8 +12,10 @@ import numbers
 import re
 import string
 import warnings
+from collections.abc import Callable, Iterable
 from functools import lru_cache, partial
-from typing import Callable, Iterable, Match, TypeVar
+from re import Match
+from typing import TypeVar
 
 import _string
 import astroid.objects
@@ -1127,7 +1129,7 @@ def _supports_protocol(
             return True
 
     # pylint: disable-next=fixme
-    # TODO: Should be covered by https://github.com/PyCQA/astroid/pull/1475
+    # TODO: 2.14: Should be covered by https://github.com/PyCQA/astroid/pull/1475
     if isinstance(value, nodes.ComprehensionScope):
         return True
 

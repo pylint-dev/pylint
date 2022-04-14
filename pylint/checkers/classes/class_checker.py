@@ -9,7 +9,7 @@ from __future__ import annotations
 import collections
 import sys
 from itertools import chain, zip_longest
-from typing import Pattern
+from re import Pattern
 
 import astroid
 from astroid import bases, nodes
@@ -1028,7 +1028,7 @@ a metaclass class method.",
         # check access to existent members on non metaclass classes
         if (
             "attribute-defined-outside-init"
-            in self.linter.namespace.ignored_checks_for_mixins
+            in self.linter.config.ignored_checks_for_mixins
             and self._mixin_class_rgx.match(cnode.name)
         ):
             # We are in a mixin class. No need to try to figure out if
@@ -1042,7 +1042,7 @@ a metaclass class method.",
         # checks attributes are defined in an allowed method such as __init__
         if not self.linter.is_message_enabled("attribute-defined-outside-init"):
             return
-        defining_methods = self.linter.namespace.defining_attr_methods
+        defining_methods = self.linter.config.defining_attr_methods
         current_module = cnode.root()
         for attr, nodes_lst in cnode.instance_attrs.items():
             # Exclude `__dict__` as it is already defined.
@@ -1659,7 +1659,7 @@ a metaclass class method.",
 
         if (
             is_attr_protected(attrname)
-            and attrname not in self.linter.namespace.exclude_protected
+            and attrname not in self.linter.config.exclude_protected
         ):
 
             klass = node_frame_class(node)
@@ -1730,7 +1730,7 @@ a metaclass class method.",
 
                 licit_protected_member = not attrname.startswith("__")
                 if (
-                    not self.linter.namespace.check_protected_access_in_special_methods
+                    not self.linter.config.check_protected_access_in_special_methods
                     and licit_protected_member
                     and self._is_called_inside_special_method(node)
                 ):
@@ -1885,9 +1885,8 @@ a metaclass class method.",
         if node.type == "staticmethod":
             if (
                 first_arg == "self"
-                or first_arg in self.linter.namespace.valid_classmethod_first_arg
-                or first_arg
-                in self.linter.namespace.valid_metaclass_classmethod_first_arg
+                or first_arg in self.linter.config.valid_classmethod_first_arg
+                or first_arg in self.linter.config.valid_metaclass_classmethod_first_arg
             ):
                 self.add_message("bad-staticmethod-argument", args=first, node=node)
                 return
@@ -1901,7 +1900,7 @@ a metaclass class method.",
             if node.type == "classmethod":
                 self._check_first_arg_config(
                     first,
-                    self.linter.namespace.valid_metaclass_classmethod_first_arg,
+                    self.linter.config.valid_metaclass_classmethod_first_arg,
                     node,
                     "bad-mcs-classmethod-argument",
                     node.name,
@@ -1910,7 +1909,7 @@ a metaclass class method.",
             else:
                 self._check_first_arg_config(
                     first,
-                    self.linter.namespace.valid_classmethod_first_arg,
+                    self.linter.config.valid_classmethod_first_arg,
                     node,
                     "bad-mcs-method-argument",
                     node.name,
@@ -1919,7 +1918,7 @@ a metaclass class method.",
         elif node.type == "classmethod" or node.name == "__class_getitem__":
             self._check_first_arg_config(
                 first,
-                self.linter.namespace.valid_classmethod_first_arg,
+                self.linter.config.valid_classmethod_first_arg,
                 node,
                 "bad-classmethod-argument",
                 node.name,

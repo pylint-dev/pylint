@@ -6,7 +6,8 @@ from __future__ import annotations
 
 import collections
 import functools
-from typing import TYPE_CHECKING, ValuesView
+from collections.abc import ValuesView
+from typing import TYPE_CHECKING
 
 from pylint.exceptions import UnknownMessageError
 from pylint.message.message_definition import MessageDefinition

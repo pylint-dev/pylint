@@ -42,9 +42,9 @@ from __future__ import annotations
 import os
 import shlex
 import sys
+from collections.abc import Sequence
 from io import StringIO
 from subprocess import PIPE, Popen
-from typing import Sequence
 
 
 def _get_env():

@@ -58,7 +58,7 @@ class BadBuiltinChecker(BaseChecker):
             # ignore the name if it's not a builtin (i.e. not defined in the
             # locals nor globals scope)
             if not (name in node.frame(future=True) or name in node.root()):
-                if name in self.linter.namespace.bad_functions:
+                if name in self.linter.config.bad_functions:
                     hint = BUILTIN_HINTS.get(name)
                     args = f"{name!r}. {hint}" if hint else repr(name)
                     self.add_message("bad-builtin", node=node, args=args)

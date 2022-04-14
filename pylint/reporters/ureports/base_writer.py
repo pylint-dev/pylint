@@ -11,8 +11,9 @@ formatted as text and html.
 from __future__ import annotations
 
 import sys
+from collections.abc import Iterator
 from io import StringIO
-from typing import TYPE_CHECKING, Iterator, TextIO
+from typing import TYPE_CHECKING, TextIO
 
 if TYPE_CHECKING:
     from pylint.reporters.ureports.nodes import (

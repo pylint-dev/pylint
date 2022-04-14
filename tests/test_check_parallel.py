@@ -469,7 +469,7 @@ class TestCheckParallel:
             if do_single_proc:
                 # establish the baseline
                 assert (
-                    linter.namespace.jobs == 1
+                    linter.config.jobs == 1
                 ), "jobs>1 are ignored when calling _check_files"
                 linter._check_files(linter.get_ast, file_infos)
                 assert linter.msg_status == 0, "We should not fail the lint"
@@ -535,7 +535,7 @@ class TestCheckParallel:
             if do_single_proc:
                 # establish the baseline
                 assert (
-                    linter.namespace.jobs == 1
+                    linter.config.jobs == 1
                 ), "jobs>1 are ignored when calling _check_files"
                 linter._check_files(linter.get_ast, file_infos)
                 stats_single_proc = linter.stats

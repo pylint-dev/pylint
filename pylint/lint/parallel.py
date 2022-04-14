@@ -7,7 +7,8 @@ from __future__ import annotations
 import collections
 import functools
 import warnings
-from typing import TYPE_CHECKING, Any, DefaultDict, Iterable, Sequence
+from collections.abc import Iterable, Sequence
+from typing import TYPE_CHECKING, Any, DefaultDict
 
 import dill
 

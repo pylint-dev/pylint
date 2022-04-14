@@ -90,9 +90,9 @@ def test_checker_dep_graphs(linter: PyLinter) -> None:
     linter.set_option("persistent", False)
     linter.set_option("reports", True)
     linter.set_option("enable", "imports")
-    linter.namespace.import_graph = "import.dot"
-    linter.namespace.ext_import_graph = "ext_import.dot"
-    linter.namespace.int_import_graph = "int_import.dot"
+    linter.config.import_graph = "import.dot"
+    linter.config.ext_import_graph = "ext_import.dot"
+    linter.config.int_import_graph = "int_import.dot"
     # ignore this file causing spurious MemoryError w/ some python version (>=2.3?)
     linter.set_option("ignore", ("func_unknown_encoding.py",))
     linter.check(["input"])

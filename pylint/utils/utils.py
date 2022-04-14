@@ -270,7 +270,7 @@ def get_global_option(
     # # TODO: Optparse: Potentially deprecate this.
     # Firstly, try on the namespace object
     try:
-        return getattr(checker.linter.namespace, option.replace("-", "_"))
+        return getattr(checker.linter.config, option.replace("-", "_"))
     except AttributeError:
         pass
 
@@ -342,7 +342,7 @@ def _comment(string: str) -> str:
 def _format_option_value(optdict, value):
     """Return the user input's value from a 'compiled' value.
 
-    TODO: Remove in pylint 3.0.
+    TODO: 3.0: Remove deprecated function
     """
     if optdict.get("type", None) == "py_version":
         value = ".".join(str(item) for item in value)

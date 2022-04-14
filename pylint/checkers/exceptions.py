@@ -526,7 +526,7 @@ class ExceptionsChecker(checkers.BaseChecker):
                                 "bad-except-order", node=handler.type, args=msg
                             )
                     if (
-                        exception.name in self.linter.namespace.overgeneral_exceptions
+                        exception.name in self.linter.config.overgeneral_exceptions
                         and exception.root().name == utils.EXCEPTIONS_MODULE
                         and not _is_raising(handler.body)
                     ):
