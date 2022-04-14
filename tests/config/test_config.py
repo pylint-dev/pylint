@@ -7,8 +7,14 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-from pylint.lint.run import Run
+from pytest import CaptureFixture
+
+from pylint.lint import Run
 from pylint.testutils.configuration_test import run_using_a_configuration_file
+
+HERE = Path(__file__).parent.absolute()
+REGRTEST_DATA_DIR = HERE / ".." / "regrtest_data"
+EMPTY_MODULE = REGRTEST_DATA_DIR / "empty.py"
 
 
 def check_configuration_file_reader(
@@ -45,3 +51,10 @@ reports = "yes"
     )
     mock_exit.assert_called_once_with(0)
     check_configuration_file_reader(runner)
+
+
+def test_unknown_message_id(capsys: CaptureFixture) -> None:
+    """Check that we correctly raise a message on an unknown id."""
+    Run([str(EMPTY_MODULE), "--disable=12345"], exit=False)
+    output = capsys.readouterr()
+    assert "Command line:1:0: E0012: Bad option value for --disable." in output.out

@@ -90,6 +90,12 @@ Release date: TBA
 
   Closes #5205
 
+* ``bad-option-value`` will be emitted whenever a configuration value or command line invocation
+  includes an unknown message.
+
+  Closes #4324
+
+
 * Added the ``generate-toml-config`` option.
 
   Ref #5462

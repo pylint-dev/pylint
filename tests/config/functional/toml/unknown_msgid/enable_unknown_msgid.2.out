@@ -1,0 +1,3 @@
+************* Module {abspath}
+{relpath}:1:0: E0012: Bad option value for --disable. Don't recognize message logging-not-layzy. (bad-option-value)
+{relpath}:1:0: E0012: Bad option value for --enable. Don't recognize message C00000. (bad-option-value)
