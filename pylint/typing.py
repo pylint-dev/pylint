@@ -7,12 +7,12 @@
 from __future__ import annotations
 
 import sys
-from collections.abc import Iterable
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
     Dict,
+    Iterable,
     NamedTuple,
     Pattern,
     Tuple,
