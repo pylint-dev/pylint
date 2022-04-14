@@ -4,6 +4,8 @@
 
 # pylint: disable=too-many-public-methods
 
+from __future__ import annotations
+
 import configparser
 import contextlib
 import json
@@ -14,11 +16,12 @@ import subprocess
 import sys
 import textwrap
 import warnings
+from collections.abc import Generator, Iterator
 from copy import copy
 from io import BytesIO, StringIO
 from os.path import abspath, dirname, join
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Generator, Iterator, List, Optional, TextIO
+from typing import TYPE_CHECKING, Any, TextIO
 from unittest import mock
 from unittest.mock import patch
 
@@ -92,7 +95,7 @@ def _test_cwd() -> Generator[None, None, None]:
 
 
 class MultiReporter(BaseReporter):
-    def __init__(self, reporters: List[BaseReporter]) -> None:
+    def __init__(self, reporters: list[BaseReporter]) -> None:
         # pylint: disable=super-init-not-called
         # We don't call it because there is an attribute "linter" that is set inside the base class
         # and we have another setter here using yet undefined attribute.
@@ -108,7 +111,7 @@ class MultiReporter(BaseReporter):
         for rep in self._reporters:
             rep.handle_message(msg)
 
-    def _display(self, layout: "Section") -> None:
+    def _display(self, layout: Section) -> None:
         pass
 
     @property
@@ -129,10 +132,10 @@ class MultiReporter(BaseReporter):
 class TestRunTC:
     def _runtest(
         self,
-        args: List[str],
+        args: list[str],
         reporter: Any = None,
-        out: Optional[StringIO] = None,
-        code: Optional[int] = None,
+        out: StringIO | None = None,
+        code: int | None = None,
     ) -> None:
         if out is None:
             out = StringIO()
@@ -149,7 +152,7 @@ class TestRunTC:
         assert pylint_code == code, msg
 
     @staticmethod
-    def _run_pylint(args: List[str], out: TextIO, reporter: Any = None) -> int:
+    def _run_pylint(args: list[str], out: TextIO, reporter: Any = None) -> int:
         args = args + ["--persistent=no"]
         with _patch_streams(out):
             with pytest.raises(SystemExit) as cm:
@@ -164,7 +167,7 @@ class TestRunTC:
         output = re.sub(CLEAN_PATH, "", output, flags=re.MULTILINE)
         return output.replace("\\", "/")
 
-    def _test_output(self, args: List[str], expected_output: str) -> None:
+    def _test_output(self, args: list[str], expected_output: str) -> None:
         out = StringIO()
         self._run_pylint(args, out=out)
         actual_output = self._clean_paths(out.getvalue())
@@ -172,7 +175,7 @@ class TestRunTC:
         assert expected_output.strip() in actual_output.strip()
 
     def _test_output_file(
-        self, args: List[str], filename: LocalPath, expected_output: str
+        self, args: list[str], filename: LocalPath, expected_output: str
     ) -> None:
         """Run Pylint with the ``output`` option set (must be included in
         the ``args`` passed to this method!) and check the file content afterwards.
@@ -328,10 +331,8 @@ class TestRunTC:
         # So each version wants a different column number...
         if platform.python_implementation() == "PyPy":
             column = 9
-        elif sys.version_info >= (3, 8):
-            column = 9
         else:
-            column = 15
+            column = 9
         expected = {
             "obj": "",
             "column": column,
@@ -602,7 +603,7 @@ class TestRunTC:
             assert mock_stdin.call_count == 1
 
     def test_version(self) -> None:
-        def check(lines: List[str]) -> None:
+        def check(lines: list[str]) -> None:
             assert lines[0].startswith("pylint ")
             assert lines[1].startswith("astroid ")
             assert lines[2].startswith("Python ")
@@ -766,7 +767,7 @@ class TestRunTC:
     def test_modify_sys_path() -> None:
         @contextlib.contextmanager
         def test_environ_pythonpath(
-            new_pythonpath: Optional[str],
+            new_pythonpath: str | None,
         ) -> Generator[None, None, None]:
             original_pythonpath = os.environ.get("PYTHONPATH")
             if new_pythonpath:
@@ -1289,7 +1290,7 @@ class TestCallbackOptions:
             (["--long-help"], "Environment variables:"),
         ],
     )
-    def test_output_of_callback_options(command: List[str], expected: str) -> None:
+    def test_output_of_callback_options(command: list[str], expected: str) -> None:
         """Test whether certain strings are in the output of a callback command."""
 
         process = subprocess.run(

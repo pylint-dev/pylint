@@ -5,12 +5,16 @@
 """Non regression tests for pylint, which requires a too specific configuration
 to be incorporated in the automatic functional test framework
 """
+
 # pylint: disable=redefined-outer-name
+
+from __future__ import annotations
 
 import os
 import sys
-from os.path import abspath, dirname, join
-from typing import Callable, Iterator, List, cast
+from collections.abc import Callable, Iterator
+from os.path import dirname, join
+from typing import cast
 
 import astroid
 import pytest
@@ -18,7 +22,7 @@ import pytest
 from pylint import testutils
 from pylint.lint.pylinter import PyLinter
 
-REGR_DATA = join(dirname(abspath(__file__)), "regrtest_data")
+REGR_DATA = join(dirname(__file__), "regrtest_data")
 sys.path.insert(1, REGR_DATA)
 
 
@@ -63,7 +67,7 @@ def Equals(expected):
     ],
 )
 def test_package(
-    finalize_linter: PyLinter, file_names: List[str], check: Callable
+    finalize_linter: PyLinter, file_names: list[str], check: Callable
 ) -> None:
     finalize_linter.check(file_names)
     finalize_linter.reporter = cast(  # Due to fixture
@@ -81,7 +85,7 @@ def test_package(
         [join(REGR_DATA, "try_finally_disable_msg_crash")],
     ],
 )
-def test_crash(finalize_linter: PyLinter, file_names: List[str]) -> None:
+def test_crash(finalize_linter: PyLinter, file_names: list[str]) -> None:
     finalize_linter.check(file_names)
 
 
@@ -142,5 +146,5 @@ def test_pylint_config_attr() -> None:
 
 @pytest.mark.timeout(30)
 @pytest.mark.parametrize("file_names", ([join(REGR_DATA, "hang", "pkg4972.string")],))
-def test_hang(finalize_linter: PyLinter, file_names: List[str]) -> None:
+def test_hang(finalize_linter: PyLinter, file_names: list[str]) -> None:
     finalize_linter.check(file_names)

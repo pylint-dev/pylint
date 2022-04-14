@@ -3,9 +3,13 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Unittest for the main module."""
+
+from __future__ import annotations
+
 import os
 import sys
-from typing import Any, Iterator
+from collections.abc import Iterator
+from typing import Any
 from unittest import mock
 
 import pytest
