@@ -4,9 +4,10 @@
 
 """Unit tests for the config module."""
 
+from __future__ import annotations
+
 import re
 import sre_constants
-from typing import Dict, Tuple, Type
 
 import pytest
 
@@ -66,10 +67,10 @@ class TestPyLinterOptionSetters(CheckerTestCase):
 
     class Checker(BaseChecker):
         name = "checker"
-        msgs: Dict[str, Tuple[str, ...]] = {}
+        msgs: dict[str, tuple[str, ...]] = {}
         options = (("test-opt", {"action": "store_true", "help": "help message"}),)
 
-    CHECKER_CLASS: Type = Checker
+    CHECKER_CLASS: type = Checker
 
     @set_config(ignore_paths=".*/tests/.*,.*\\ignore\\.*")
     def test_ignore_paths_with_value(self) -> None:
