@@ -22,7 +22,7 @@ import pytest
 from pylint import testutils
 from pylint.lint.pylinter import PyLinter
 
-REGR_DATA = join(dirname(__file__), "regrtest_data")
+REGR_DATA = join(dirname(abspath(__file__)), "regrtest_data")
 sys.path.insert(1, REGR_DATA)
 
 

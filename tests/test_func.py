@@ -14,8 +14,8 @@ import pytest
 
 from pylint.testutils import UPDATE_FILE, UPDATE_OPTION, _get_tests_info, linter
 
-INPUT_DIR = join(dirname(__file__), "input")
-MSG_DIR = join(dirname(__file__), "messages")
+INPUT_DIR = join(dirname(abspath(__file__)), "input")
+MSG_DIR = join(dirname(abspath(__file__)), "messages")
 
 
 FILTER_RGX = None
