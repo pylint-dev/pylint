@@ -1299,8 +1299,8 @@ a metaclass class method.",
                     return
 
             if (
-                function.returns is not None and
-                meth_node.returns is None
+                function.returns is not None
+                and meth_node.returns is None
                 or meth_node.returns.as_string() != function.returns.as_string()
             ):
                 # Override adds typing information to the return type
