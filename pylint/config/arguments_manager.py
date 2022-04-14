@@ -16,6 +16,7 @@ import re
 import sys
 import textwrap
 import warnings
+from collections.abc import Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, TextIO, Union
 
@@ -224,7 +225,7 @@ class _ArgumentsManager:
         self.config = self._arg_parser.parse_known_args(arguments, self.config)[0]
 
     def _parse_command_line_configuration(
-        self, arguments: list[str] | None = None
+        self, arguments: Sequence[str] | None = None
     ) -> list[str]:
         """Parse the arguments found on the command line into the namespace."""
         arguments = sys.argv[1:] if arguments is None else arguments
