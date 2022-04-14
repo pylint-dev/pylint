@@ -17,18 +17,6 @@ EMPTY_MODULE = join(REGRTEST_DATA_DIR, "empty.py")
 LOGGING_TEST = join(HERE, "data", "logging_format_interpolation_style.py")
 
 
-class TestArgumentsManager:
-    """Tests for the ArgumentsManager class"""
-
-    base_run = Run([EMPTY_MODULE], exit=False)
-
-    def test_namespace_creation(self) -> None:
-        """Test that the linter object has a namespace attribute and that it is not empty"""
-
-        assert self.base_run.linter.config == self.base_run.linter.namespace
-        assert self.base_run.linter.config._get_kwargs()
-
-
 class TestArgparseOptionsProviderMixin:
     """Tests for the argparse implementation of OptionsProviderMixIn.
 
