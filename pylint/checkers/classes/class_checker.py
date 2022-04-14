@@ -3,10 +3,13 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Classes checker for Python code."""
+
+from __future__ import annotations
+
 import collections
 import sys
 from itertools import chain, zip_longest
-from typing import Dict, List, Pattern, Set
+from typing import Pattern
 
 import astroid
 from astroid import bases, nodes
@@ -187,11 +190,11 @@ def _has_different_parameters_default_value(original, overridden):
 
 
 def _has_different_parameters(
-    original: List[nodes.AssignName],
-    overridden: List[nodes.AssignName],
+    original: list[nodes.AssignName],
+    overridden: list[nodes.AssignName],
     dummy_parameter_regex: Pattern,
-) -> List[str]:
-    result: List[str] = []
+) -> list[str]:
+    result: list[str] = []
     zipped = zip_longest(original, overridden)
     for original_param, overridden_param in zipped:
         if not overridden_param:
@@ -218,9 +221,9 @@ def _has_different_parameters(
 
 
 def _has_different_keyword_only_parameters(
-    original: List[nodes.AssignName],
-    overridden: List[nodes.AssignName],
-) -> List[str]:
+    original: list[nodes.AssignName],
+    overridden: list[nodes.AssignName],
+) -> list[str]:
     """Determine if the two methods have different keyword only parameters."""
     original_names = [i.name for i in original]
     overridden_names = [i.name for i in overridden]
@@ -244,7 +247,7 @@ def _different_parameters(
     original: nodes.FunctionDef,
     overridden: nodes.FunctionDef,
     dummy_parameter_regex: Pattern,
-) -> List[str]:
+) -> list[str]:
     """Determine if the two methods have different parameters.
 
     They are considered to have different parameters if:
@@ -980,7 +983,7 @@ a metaclass class method.",
             # Logic for checking false positive when using __new__,
             # Get the returned object names of the __new__ magic function
             # Then check if the attribute was consumed in other instance methods
-            acceptable_obj_names: List[str] = ["self"]
+            acceptable_obj_names: list[str] = ["self"]
             scope = assign_attr.scope()
             if isinstance(scope, nodes.FunctionDef) and scope.name == "__new__":
                 acceptable_obj_names.extend(
@@ -1391,10 +1394,10 @@ a metaclass class method.",
         self,
         node: nodes.ClassDef,
         slots_node: nodes.NodeNG,
-        slots_list: List[nodes.NodeNG],
+        slots_list: list[nodes.NodeNG],
     ) -> None:
         """Check if `node` redefines a slot which is defined in an ancestor class."""
-        slots_names: List[str] = []
+        slots_names: list[str] = []
         for slot in slots_list:
             if isinstance(slot, nodes.Const):
                 slots_names.append(slot.value)
@@ -1971,7 +1974,7 @@ a metaclass class method.",
             return
         to_call = _ancestors_to_call(klass_node)
         not_called_yet = dict(to_call)
-        parents_with_called_inits: Set[bases.UnboundMethod] = set()
+        parents_with_called_inits: set[bases.UnboundMethod] = set()
         for stmt in node.nodes_of_class(nodes.Call):
             expr = stmt.func
             if not isinstance(expr, nodes.Attribute) or expr.attrname != "__init__":
@@ -2155,11 +2158,11 @@ a metaclass class method.",
 
 def _ancestors_to_call(
     klass_node: nodes.ClassDef, method="__init__"
-) -> Dict[nodes.ClassDef, bases.UnboundMethod]:
+) -> dict[nodes.ClassDef, bases.UnboundMethod]:
     """Return a dictionary where keys are the list of base classes providing
     the queried method, and so that should/may be called from the method node
     """
-    to_call: Dict[nodes.ClassDef, bases.UnboundMethod] = {}
+    to_call: dict[nodes.ClassDef, bases.UnboundMethod] = {}
     for base_node in klass_node.ancestors(recurs=False):
         try:
             to_call[base_node] = next(base_node.igetattr(method))
