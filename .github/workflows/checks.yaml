@@ -121,7 +121,6 @@ jobs:
           . venv/bin/activate
           pip install -e .
           pre-commit run pylint --all-files
-          pre-commit run --hook-stage manual python-typing-update --all-files
 
   spelling:
     name: spelling
