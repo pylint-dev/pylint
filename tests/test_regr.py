@@ -14,6 +14,7 @@ import os
 import sys
 from collections.abc import Callable, Iterator
 from os.path import dirname, join
+from posixpath import abspath
 from typing import cast
 
 import astroid

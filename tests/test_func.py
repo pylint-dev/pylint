@@ -9,6 +9,7 @@ from __future__ import annotations
 import re
 import sys
 from os.path import dirname, join
+from posixpath import abspath
 
 import pytest
 
