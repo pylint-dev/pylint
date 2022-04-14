@@ -20,6 +20,9 @@ New checkers
 
   Closes #5501
 
+* ``consider-using-alias`` will no longer suggest to use ``re.Pattern`` if it used in its
+  generic form if py-version is set below 3.9.
+
 * Added new checker ``typevar-double-variance``: The "covariant" and "contravariant" keyword arguments
   cannot both be set to "True" in a TypeVar.
 

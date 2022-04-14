@@ -299,6 +299,16 @@ class TypingChecker(BaseChecker):
             if alias.name_collision is True:
                 self._alias_name_collisions.add(inferred.qname())
             return
+
+        # Pattern and Match are only generic from 3.9+
+        if (
+            not self._py39_plus
+            and isinstance(node, nodes.Attribute)
+            and node.attrname in {"Pattern", "Match"}
+            and isinstance(node.parent, nodes.Subscript)
+        ):
+            return
+
         self._consider_using_alias_msgs.append(
             DeprecatedTypingAliasMsg(
                 node,
