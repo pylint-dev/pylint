@@ -27,8 +27,9 @@ from typing import (
 
 from pylint import interfaces
 from pylint import utils as pylint_utils
-from pylint.config.callback_actions import _CallbackAction
+from pylint.config.callback_actions import _CallbackAction, _ExtendAction
 from pylint.config.deprecation_actions import _NewNamesAction, _OldNamesAction
+from pylint.constants import PY38_PLUS
 
 if sys.version_info >= (3, 8):
     from typing import Literal
@@ -294,7 +295,7 @@ class _DeprecationArgument(_Argument):
         self,
         *,
         flags: List[str],
-        action: Type[argparse._StoreAction],
+        action: Type[argparse.Action],
         default: _ArgumentTypes,
         arg_type: str,
         choices: Optional[List[str]],
@@ -328,6 +329,50 @@ class _DeprecationArgument(_Argument):
         See:
         https://docs.python.org/3/library/argparse.html#metavar
         """
+
+
+class _ExtendArgument(_DeprecationArgument):
+    """Class for extend arguments to be parsed by an argparse.ArgumentsParser.
+
+    This is based on the parameters passed to argparse.ArgumentsParser.add_message.
+    See:
+    https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.add_argument
+    """
+
+    def __init__(
+        self,
+        *,
+        flags: List[str],
+        action: Literal["extend"],
+        default: _ArgumentTypes,
+        arg_type: str,
+        metavar: str,
+        arg_help: str,
+        hide_help: bool,
+        section: Optional[str],
+        choices: Optional[List[str]],
+        dest: Optional[str],
+    ) -> None:
+        # The extend action is included in the stdlib from 3.8+
+        if PY38_PLUS:
+            action_class = argparse._ExtendAction  # type: ignore[attr-defined]
+        else:
+            action_class = _ExtendAction
+
+        self.dest = dest
+        """The destination of the argument."""
+
+        super().__init__(
+            flags=flags,
+            action=action_class,
+            default=default,
+            arg_type=arg_type,
+            choices=choices,
+            arg_help=arg_help,
+            metavar=metavar,
+            hide_help=hide_help,
+            section=section,
+        )
 
 
 class _StoreOldNamesArgument(_DeprecationArgument):

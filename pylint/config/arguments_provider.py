@@ -135,6 +135,18 @@ class _ArgumentsProvider:
                 setattr(self.config, optname, _list + (value,))
             else:
                 _list.append(value)
+        elif action == "extend":
+            _list = getattr(self.config, optname, None)
+            if _list is None:
+                if isinstance(value, (list, tuple)):
+                    _list = value
+                elif value is not None:
+                    _list = [value]
+                setattr(self.config, optname, _list)
+            elif isinstance(_list, tuple):
+                setattr(self.config, optname, _list + (value,))
+            else:
+                _list.extend(value)
         elif (
             action == "callback"
             or (not isinstance(action, str))
