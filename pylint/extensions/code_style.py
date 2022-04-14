@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 import sys
-from typing import TYPE_CHECKING, Union, cast
+from typing import TYPE_CHECKING, Tuple, Type, Union, cast
 
 from astroid import nodes
 
@@ -124,7 +124,7 @@ class CodeStyleChecker(BaseChecker):
         if len(node.items) > 1 and all(
             isinstance(dict_value, nodes.Dict) for _, dict_value in node.items
         ):
-            KeyTupleT = tuple[type[nodes.NodeNG], str]
+            KeyTupleT = Tuple[Type[nodes.NodeNG], str]
 
             # Makes sure all keys are 'Const' string nodes
             keys_checked: set[KeyTupleT] = set()
