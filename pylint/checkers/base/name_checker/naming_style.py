@@ -3,7 +3,7 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 import re
-from re import Pattern
+from typing import Pattern
 
 from pylint import constants
 

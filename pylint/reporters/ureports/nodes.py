@@ -9,8 +9,8 @@ A micro report is a tree of layout and content objects.
 
 from __future__ import annotations
 
-from collections.abc import Callable, Iterable, Iterator
-from typing import Any, TypeVar
+from collections.abc import Iterable, Iterator
+from typing import Any, Callable, TypeVar
 
 from pylint.reporters.ureports.base_writer import BaseWriter
 
