@@ -7,6 +7,7 @@
   create UML diagrams for classes and modules in <packages>
 """
 
+from __future__ import annotations
 
 import sys
 from collections.abc import Iterable
