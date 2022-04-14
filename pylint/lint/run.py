@@ -62,12 +62,6 @@ group are mutually exclusive.",
         ),
     )
 
-    @staticmethod
-    def _not_implemented_callback(*args, **kwargs):
-        # pylint: disable-next=fixme
-        # TODO: Optparse: Remove after optparse has been deprecated
-        raise NotImplementedError
-
     def __init__(
         self,
         args,
@@ -103,7 +97,6 @@ group are mutually exclusive.",
                     {
                         "action": _DoNothingAction,
                         "kwargs": {},
-                        "callback": Run._not_implemented_callback,
                         "group": "Commands",
                         "help": "Specify a configuration file to load.",
                         "hide_from_config_file": True,
@@ -114,7 +107,6 @@ group are mutually exclusive.",
                     {
                         "action": _DoNothingAction,
                         "kwargs": {},
-                        "callback": Run._not_implemented_callback,
                         "group": "Commands",
                         "help": "Specify an output file.",
                         "hide_from_config_file": True,
@@ -125,7 +117,6 @@ group are mutually exclusive.",
                     {
                         "action": _DoNothingAction,
                         "kwargs": {},
-                        "callback": Run._not_implemented_callback,
                         "help": "Python code to execute, usually for sys.path "
                         "manipulation such as pygtk.require().",
                     },
@@ -135,7 +126,6 @@ group are mutually exclusive.",
                     {
                         "action": _MessageHelpAction,
                         "kwargs": {"Run": self},
-                        "callback": Run._not_implemented_callback,
                         "group": "Commands",
                         "help": "Display a help message for the given message id and "
                         "exit. The value may be a comma separated list of message ids.",
@@ -147,7 +137,6 @@ group are mutually exclusive.",
                     {
                         "action": _ListMessagesAction,
                         "kwargs": {"Run": self},
-                        "callback": Run._not_implemented_callback,
                         "group": "Commands",
                         "help": "Display a list of all pylint's messages divided by whether "
                         "they are emittable with the given interpreter.",
@@ -159,7 +148,6 @@ group are mutually exclusive.",
                     {
                         "action": _ListMessagesEnabledAction,
                         "kwargs": {"Run": self},
-                        "callback": Run._not_implemented_callback,
                         "group": "Commands",
                         "help": "Display a list of what messages are enabled, "
                         "disabled and non-emittable with the given configuration.",
@@ -171,7 +159,6 @@ group are mutually exclusive.",
                     {
                         "action": _ListCheckGroupsAction,
                         "kwargs": {"Run": self},
-                        "callback": Run._not_implemented_callback,
                         "group": "Commands",
                         "help": "List pylint's message groups.",
                         "hide_from_config_file": True,
@@ -181,7 +168,6 @@ group are mutually exclusive.",
                     "list-conf-levels",
                     {
                         "action": _ListConfidenceLevelsAction,
-                        "callback": Run._not_implemented_callback,
                         "kwargs": {"Run": self},
                         "group": "Commands",
                         "help": "Generate pylint's confidence levels.",
@@ -193,7 +179,6 @@ group are mutually exclusive.",
                     {
                         "action": _ListExtensionsAction,
                         "kwargs": {"Run": self},
-                        "callback": Run._not_implemented_callback,
                         "group": "Commands",
                         "help": "List available extensions.",
                         "hide_from_config_file": True,
@@ -204,7 +189,6 @@ group are mutually exclusive.",
                     {
                         "action": _FullDocumentationAction,
                         "kwargs": {"Run": self},
-                        "callback": Run._not_implemented_callback,
                         "group": "Commands",
                         "help": "Generate pylint's full documentation.",
                         "hide_from_config_file": True,
@@ -215,7 +199,6 @@ group are mutually exclusive.",
                     {
                         "action": _GenerateRCFileAction,
                         "kwargs": {"Run": self},
-                        "callback": Run._not_implemented_callback,
                         "group": "Commands",
                         "help": "Generate a sample configuration file according to "
                         "the current configuration. You can put other options "
@@ -229,7 +212,6 @@ group are mutually exclusive.",
                     {
                         "action": _GenerateConfigFileAction,
                         "kwargs": {"Run": self},
-                        "callback": Run._not_implemented_callback,
                         "group": "Commands",
                         "help": "Generate a sample configuration file according to "
                         "the current configuration. You can put other options "
@@ -243,7 +225,6 @@ group are mutually exclusive.",
                     {
                         "action": _ErrorsOnlyModeAction,
                         "kwargs": {"Run": self},
-                        "callback": Run._not_implemented_callback,
                         "short": "E",
                         "help": "In error mode, checkers without error messages are "
                         "disabled and for others, only the ERROR messages are "
@@ -256,7 +237,6 @@ group are mutually exclusive.",
                     {
                         "action": _DoNothingAction,
                         "kwargs": {},
-                        "callback": Run._not_implemented_callback,
                         "short": "v",
                         "help": "In verbose mode, extra non-checker-related info "
                         "will be displayed.",
@@ -268,7 +248,6 @@ group are mutually exclusive.",
                     {
                         "action": _DoNothingAction,
                         "kwargs": {},
-                        "callback": Run._not_implemented_callback,
                         "help": "Load and enable all available extensions. "
                         "Use --list-extensions to see a list all available extensions.",
                         "hide_from_config_file": True,
@@ -279,7 +258,6 @@ group are mutually exclusive.",
                     {
                         "action": _LongHelpAction,
                         "kwargs": {"Run": self},
-                        "callback": Run._not_implemented_callback,
                         "help": "Show more verbose help.",
                         "group": "Commands",
                         "hide_from_config_file": True,
