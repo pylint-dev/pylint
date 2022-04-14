@@ -180,17 +180,11 @@ def test_multi_format_output(tmp_path):
     with redirect_stdout(text):
         linter = PyLinter()
         linter.load_default_plugins()
-        # pylint: disable-next=fixme
-        # # TODO: Optparse: Fix how we set these options
-        linter.config.persistent = False
-        linter.config.reports = True
-        linter.config.score = True
-        linter._load_reporters(formats)
-
         linter.set_option("persistent", False)
-        # linter.set_option("output-format", formats)
         linter.set_option("reports", True)
         linter.set_option("score", True)
+        linter.set_option("score", True)
+        linter.set_option("output-format", formats)
 
         assert linter.reporter.linter is linter
         with pytest.raises(NotImplementedError):

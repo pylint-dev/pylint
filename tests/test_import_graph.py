@@ -85,16 +85,12 @@ def remove_files() -> Iterator:
 
 @pytest.mark.usefixtures("remove_files")
 def test_checker_dep_graphs(linter: PyLinter) -> None:
-    # pylint: disable-next=fixme
-    # TODO: Optparse: Fix how these options are set
     linter.set_option("persistent", False)
     linter.set_option("reports", True)
     linter.set_option("enable", "imports")
-    linter.config.import_graph = "import.dot"
-    linter.config.ext_import_graph = "ext_import.dot"
-    linter.config.int_import_graph = "int_import.dot"
-    # ignore this file causing spurious MemoryError w/ some python version (>=2.3?)
-    linter.set_option("ignore", ("func_unknown_encoding.py",))
+    linter.set_option("import_graph", "import.dot")
+    linter.set_option("ext_import_graph", "ext_import.dot")
+    linter.set_option("int_import_graph", "int_import.dot")
     linter.check(["input"])
     linter.generate_reports()
     assert exists("import.dot")
