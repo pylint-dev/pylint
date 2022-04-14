@@ -6,13 +6,15 @@
 
 (dot generation adapted from pypy/translator/tool/make_dot.py)
 """
+
+from __future__ import annotations
+
 import codecs
 import os
 import shutil
 import subprocess
 import sys
 import tempfile
-from typing import Optional
 
 
 def target_info_from_filename(filename):
@@ -70,7 +72,7 @@ class DotBackend:
     source = property(get_source)
 
     def generate(
-        self, outputfile: Optional[str] = None, mapfile: Optional[str] = None
+        self, outputfile: str | None = None, mapfile: str | None = None
     ) -> str:
         """Generates a graph file.
 

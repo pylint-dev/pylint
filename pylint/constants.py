@@ -2,10 +2,12 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import os
 import platform
 import sys
-from typing import Dict, List, NamedTuple, Tuple
+from typing import NamedTuple
 
 import astroid
 import platformdirs
@@ -28,7 +30,7 @@ MSG_STATE_SCOPE_MODULE = 1
 # The line/node distinction does not apply to fatal errors and reports.
 _SCOPE_EXEMPT = "FR"
 
-MSG_TYPES: Dict[str, MessageTypesFullName] = {
+MSG_TYPES: dict[str, MessageTypesFullName] = {
     "I": "info",
     "C": "convention",
     "R": "refactor",
@@ -36,7 +38,7 @@ MSG_TYPES: Dict[str, MessageTypesFullName] = {
     "E": "error",
     "F": "fatal",
 }
-MSG_TYPES_LONG: Dict[str, str] = {v: k for k, v in MSG_TYPES.items()}
+MSG_TYPES_LONG: dict[str, str] = {v: k for k, v in MSG_TYPES.items()}
 
 MSG_TYPES_STATUS = {"I": 0, "C": 16, "R": 8, "W": 4, "E": 2, "F": 1}
 
@@ -81,10 +83,10 @@ HUMAN_READABLE_TYPES = {
 class DeletedMessage(NamedTuple):
     msgid: str
     symbol: str
-    old_names: List[Tuple[str, str]] = []
+    old_names: list[tuple[str, str]] = []
 
 
-DELETED_MSGID_PREFIXES: List[int] = []
+DELETED_MSGID_PREFIXES: list[int] = []
 
 DELETED_MESSAGES = [
     # Everything until the next comment is from the
