@@ -2,9 +2,10 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import os
 from pathlib import Path
-from typing import Optional, Set
 
 from pylint.lint.run import Run
 from pylint.testutils.configuration_test import run_using_a_configuration_file
@@ -12,7 +13,7 @@ from pylint.testutils.configuration_test import run_using_a_configuration_file
 
 def check_configuration_file_reader(
     runner: Run,
-    expected_disabled: Optional[Set[str]] = None,
+    expected_disabled: set[str] | None = None,
     expected_jobs: int = 10,
     expected_reports_truthey: bool = True,
 ) -> None:
