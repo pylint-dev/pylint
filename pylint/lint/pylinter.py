@@ -838,7 +838,7 @@ class PyLinter(
         )
 
         # pylint: disable-next=fixme
-        # TODO: Potentially remove after 'set_option' has been refactored
+        # TODO: Optparse: Potentially remove after 'set_option' has been refactored
         self.set_option("reports", False)
         self.set_option("persistent", False)
         self.set_option("score", False)
@@ -1052,7 +1052,7 @@ class PyLinter(
         self.initialize()
         if not isinstance(files_or_modules, (list, tuple)):
             # pylint: disable-next=fixme
-            # TODO: Update typing and docstring for 'files_or_modules' when removing the deprecation
+            # TODO: 3.0: Remove deprecated typing and update docstring
             warnings.warn(
                 "In pylint 3.0, the checkers check function will only accept sequence of string",
                 DeprecationWarning,

@@ -798,7 +798,7 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
         Overridden to report options setting to Similar
         """
         # pylint: disable-next=fixme
-        # TODO: Deprecate the non required arguments
+        # TODO: Optparse: Deprecate the non required arguments
         self.linter.set_option(optname, value)
         if optname == "min-similarity-lines":
             self.min_lines = self.linter.config.min_similarity_lines

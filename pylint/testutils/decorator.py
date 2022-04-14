@@ -20,7 +20,7 @@ def set_config(**kwargs):
         def _forward(self, *args, **test_function_kwargs):
             """Set option via argparse."""
             # pylint: disable-next=fixme
-            # TODO: Revisit this decorator after all checkers have switched
+            # TODO: Optparse: Revisit this decorator after all checkers have switched
             options = []
             for key, value in kwargs.items():
                 options += [f"--{key.replace('_', '-')}", _parse_rich_type_value(value)]

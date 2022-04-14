@@ -228,7 +228,7 @@ class _ArgumentsManager:
     def _parse_configuration_file(self, arguments: list[str]) -> None:
         """Parse the arguments found in a configuration file into the namespace."""
         # pylint: disable-next=fixme
-        # TODO: This should parse_args instead of parse_known_args
+        # TODO: Optparse: This should parse_args instead of parse_known_args
         self.config = self._arg_parser.parse_known_args(arguments, self.config)[0]
 
     def _parse_command_line_configuration(
@@ -509,7 +509,7 @@ class _ArgumentsManager:
     def _parse_toml(config_file: Path, parser: configparser.ConfigParser) -> None:
         """DEPRECATED: Parse and handle errors of a toml configuration file.
 
-        TODO: Remove after read_config_file has been removed.
+        TODO: 3.0: Remove depreacted method.
         """
         with open(config_file, mode="rb") as fp:
             content = tomllib.load(fp)

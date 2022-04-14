@@ -54,7 +54,7 @@ def _convert_option_to_argument(
     action = optdict.get("action", "store")
 
     # pylint: disable-next=fixme
-    # TODO: Remove this handling after we have deprecated multiple-choice arguments
+    # TODO: Optparse: Remove this handling after we have deprecated multiple-choice arguments
     choices = optdict.get("choices", None)
     if opt == "confidence":
         choices = None
