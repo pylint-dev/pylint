@@ -3,8 +3,11 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Pylint plugin for checking in Sphinx, Google, or Numpy style docstrings."""
+
+from __future__ import annotations
+
 import re
-from typing import TYPE_CHECKING, Optional, Set
+from typing import TYPE_CHECKING
 
 import astroid
 from astroid import nodes
@@ -366,10 +369,10 @@ class DocstringParameterChecker(BaseChecker):
 
     def _compare_missing_args(
         self,
-        found_argument_names: Set[str],
+        found_argument_names: set[str],
         message_id: str,
-        not_needed_names: Set[str],
-        expected_argument_names: Set[str],
+        not_needed_names: set[str],
+        expected_argument_names: set[str],
         warning_node: nodes.NodeNG,
     ) -> None:
         """Compare the found argument names with the expected ones and
@@ -405,10 +408,10 @@ class DocstringParameterChecker(BaseChecker):
 
     def _compare_different_args(
         self,
-        found_argument_names: Set[str],
+        found_argument_names: set[str],
         message_id: str,
-        not_needed_names: Set[str],
-        expected_argument_names: Set[str],
+        not_needed_names: set[str],
+        expected_argument_names: set[str],
         warning_node: nodes.NodeNG,
     ) -> None:
         """Compare the found argument names with the expected ones and
@@ -425,7 +428,7 @@ class DocstringParameterChecker(BaseChecker):
         :param warning_node: The node to be analyzed
         """
         # Handle variadic and keyword args without asterisks
-        modified_expected_argument_names: Set[str] = set()
+        modified_expected_argument_names: set[str] = set()
         for name in expected_argument_names:
             if name.replace("*", "") in found_argument_names:
                 modified_expected_argument_names.add(name.replace("*", ""))
@@ -481,7 +484,7 @@ class DocstringParameterChecker(BaseChecker):
         doc: Docstring,
         arguments_node: astroid.Arguments,
         warning_node: astroid.NodeNG,
-        accept_no_param_doc: Optional[bool] = None,
+        accept_no_param_doc: bool | None = None,
     ):
         """Check that all parameters are consistent with the parameters mentioned
         in the parameter documentation (e.g. the Sphinx tags 'param' and 'type').
@@ -652,5 +655,5 @@ class DocstringParameterChecker(BaseChecker):
         )
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(DocstringParameterChecker(linter))

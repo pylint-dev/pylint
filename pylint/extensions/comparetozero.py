@@ -4,6 +4,8 @@
 
 """Looks for comparisons to zero."""
 
+from __future__ import annotations
+
 import itertools
 from typing import TYPE_CHECKING, Any, Iterable
 
@@ -72,5 +74,5 @@ class CompareToZeroChecker(checkers.BaseChecker):
                 self.add_message("compare-to-zero", node=node)
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(CompareToZeroChecker(linter))
