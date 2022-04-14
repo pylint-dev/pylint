@@ -13,8 +13,7 @@ from __future__ import annotations
 import os
 import sys
 from collections.abc import Callable, Iterator
-from os.path import dirname, join
-from posixpath import abspath
+from os.path import abspath, dirname, join
 from typing import cast
 
 import astroid
