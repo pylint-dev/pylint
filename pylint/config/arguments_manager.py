@@ -694,7 +694,7 @@ class _ArgumentsManager:
         optname: str,
         value: Any,
         action: Optional[str] = "default_value",
-        optdict: Union[None, str, OptionDict] = "default_value",
+        optdict: None | str | OptionDict = "default_value",
     ) -> None:
         """Set an option on the namespace object."""
         # TODO: 3.0: Remove deprecated arguments. # pylint: disable=fixme
