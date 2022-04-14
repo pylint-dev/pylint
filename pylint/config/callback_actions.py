@@ -378,13 +378,13 @@ class _DisableAction(_AccessLinterObjectAction):
     ) -> None:
         assert isinstance(values, (tuple, list))
         msgids = utils._check_csv(values[0])
-        try:
-            for msgid in msgids:
+        for msgid in msgids:
+            try:
                 self.linter.disable(msgid)
-        except exceptions.UnknownMessageError:
-            # pylint: disable-next=fixme
-            # TODO: Optparse: Raise an informational warning here
-            pass
+            except exceptions.UnknownMessageError:
+                # pylint: disable-next=fixme
+                # TODO: Optparse: Raise an informational warning here
+                pass
 
 
 class _EnableAction(_AccessLinterObjectAction):
@@ -399,13 +399,13 @@ class _EnableAction(_AccessLinterObjectAction):
     ) -> None:
         assert isinstance(values, (tuple, list))
         msgids = utils._check_csv(values[0])
-        try:
-            for msgid in msgids:
+        for msgid in msgids:
+            try:
                 self.linter.enable(msgid)
-        except exceptions.UnknownMessageError:
-            # pylint: disable-next=fixme
-            # TODO: Optparse: Raise an informational warning here
-            pass
+            except exceptions.UnknownMessageError:
+                # pylint: disable-next=fixme
+                # TODO: Optparse: Raise an informational warning here
+                pass
 
 
 class _OutputFormatAction(_AccessLinterObjectAction):
