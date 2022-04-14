@@ -2,9 +2,11 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import sys
 from pathlib import Path
-from typing import TYPE_CHECKING, List, Union
+from typing import TYPE_CHECKING
 
 from pylint import config, reporters
 from pylint.utils import utils
@@ -14,12 +16,12 @@ if TYPE_CHECKING:
 
 
 def _config_initialization(
-    linter: "PyLinter",
-    args_list: List[str],
-    reporter: Union[reporters.BaseReporter, reporters.MultiReporter, None] = None,
-    config_file: Union[None, str, Path] = None,
+    linter: PyLinter,
+    args_list: list[str],
+    reporter: reporters.BaseReporter | reporters.MultiReporter | None = None,
+    config_file: None | str | Path = None,
     verbose_mode: bool = False,
-) -> List[str]:
+) -> list[str]:
     """Parse all available options, read config files and command line arguments and
     set options accordingly.
     """
