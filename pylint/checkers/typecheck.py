@@ -800,7 +800,12 @@ class TypeChecker(BaseChecker):
         (
             "ignored-classes",
             {
-                "default": ("optparse.Values", "thread._local", "_thread._local"),
+                "default": (
+                    "optparse.Values",
+                    "thread._local",
+                    "_thread._local",
+                    "argparse.Namespace",
+                ),
                 "type": "csv",
                 "metavar": "<members names>",
                 "help": "List of class names for which member attributes "

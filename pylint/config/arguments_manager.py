@@ -102,14 +102,6 @@ class _ArgumentsManager:
     def config(self, value: argparse.Namespace) -> None:
         self._config = value
 
-    @property
-    def namespace(self) -> argparse.Namespace:
-        return self.config
-
-    @namespace.setter
-    def namespace(self, value: argparse.Namespace) -> None:
-        self.config = value
-
     def _register_options_provider(self, provider: _ArgumentsProvider) -> None:
         """Register an options provider and load its defaults."""
         for opt, optdict in provider.options:
