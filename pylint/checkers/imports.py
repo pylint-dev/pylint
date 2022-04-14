@@ -397,10 +397,10 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         # Build a mapping {'module': 'preferred-module'}
         self.preferred_modules = dict(
             module.split(":")
-            for module in self.linter.namespace.preferred_modules
+            for module in self.linter.config.preferred_modules
             if ":" in module
         )
-        self._allow_any_import_level = set(self.linter.namespace.allow_any_import_level)
+        self._allow_any_import_level = set(self.linter.config.allow_any_import_level)
 
     def _import_graph_without_ignored_edges(self):
         filtered_graph = copy.deepcopy(self.import_graph)
@@ -418,7 +418,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
     def deprecated_modules(self):
         """Callback returning the deprecated modules."""
-        return self.linter.namespace.deprecated_modules
+        return self.linter.config.deprecated_modules
 
     @check_messages(*MSGS)
     def visit_import(self, node: nodes.Import) -> None:
@@ -640,7 +640,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         third_party_not_ignored = []
         first_party_not_ignored = []
         local_not_ignored = []
-        isort_driver = IsortDriver(self.linter.namespace)
+        isort_driver = IsortDriver(self.linter.config)
         for node, modname in self._imports_stack:
             if modname.startswith("."):
                 package = "." + modname.split(".")[1]
@@ -738,7 +738,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             if _ignore_import_failure(importnode, modname, self._ignored_modules):
                 return None
             if (
-                not self.linter.namespace.analyse_fallback_blocks
+                not self.linter.config.analyse_fallback_blocks
                 and is_from_fallback_block(importnode)
             ):
                 return None
@@ -853,18 +853,18 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         """Write dependencies as a dot (graphviz) file."""
         dep_info = self.linter.stats.dependencies
         if not dep_info or not (
-            self.linter.namespace.import_graph
-            or self.linter.namespace.ext_import_graph
-            or self.linter.namespace.int_import_graph
+            self.linter.config.import_graph
+            or self.linter.config.ext_import_graph
+            or self.linter.config.int_import_graph
         ):
             raise EmptyReportError()
-        filename = self.linter.namespace.import_graph
+        filename = self.linter.config.import_graph
         if filename:
             _make_graph(filename, dep_info, sect, "")
-        filename = self.linter.namespace.ext_import_graph
+        filename = self.linter.config.ext_import_graph
         if filename:
             _make_graph(filename, self._external_dependencies_info(), sect, "external ")
-        filename = self.linter.namespace.int_import_graph
+        filename = self.linter.config.int_import_graph
         if filename:
             _make_graph(filename, self._internal_dependencies_info(), sect, "internal ")
 
@@ -905,7 +905,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
     def _wildcard_import_is_allowed(self, imported_module):
         return (
-            self.linter.namespace.allow_wildcard_with_all
+            self.linter.config.allow_wildcard_with_all
             and imported_module is not None
             and "__all__" in imported_module.locals
         )

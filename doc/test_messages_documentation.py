@@ -70,7 +70,7 @@ class LintModuleTest:
         _test_reporter = FunctionalTestReporter()
 
         self._linter = PyLinter()
-        self._linter.namespace.persistent = 0
+        self._linter.config.persistent = 0
         checkers.initialize(self._linter)
 
         # Check if this message has a custom configuration file (e.g. for enabling optional checkers).

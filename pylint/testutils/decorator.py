@@ -24,8 +24,8 @@ def set_config(**kwargs):
             options = []
             for key, value in kwargs.items():
                 options += [f"--{key.replace('_', '-')}", _parse_rich_type_value(value)]
-            self.linter.namespace = self.linter._arg_parser.parse_known_args(
-                options, self.linter.namespace
+            self.linter.config = self.linter._arg_parser.parse_known_args(
+                options, self.linter.config
             )[0]
 
             if isinstance(self, CheckerTestCase):

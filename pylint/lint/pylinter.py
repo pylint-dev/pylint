@@ -777,7 +777,7 @@ class PyLinter(
         Convert values in config.fail_on (which might be msg category, msg id,
         or symbol) to specific msgs, then enable and flag them for later.
         """
-        fail_on_vals = self.namespace.fail_on
+        fail_on_vals = self.config.fail_on
         if not fail_on_vals:
             return
 
@@ -834,7 +834,7 @@ class PyLinter(
         self.disable_noerror_messages()
         self.disable("miscellaneous")
         self._arg_parser.parse_args(
-            ["--reports", "no", "--score", "no", "--persistent", "no"], self.namespace
+            ["--reports", "no", "--score", "no", "--persistent", "no"], self.config
         )
 
         # pylint: disable-next=fixme
@@ -971,7 +971,7 @@ class PyLinter(
 
     def prepare_checkers(self):
         """Return checkers needed for activated messages and reports."""
-        if not self.namespace.reports:
+        if not self.config.reports:
             self.disable_reporters()
         # get needed checkers
         needed_checkers = [self]
@@ -1058,9 +1058,9 @@ class PyLinter(
                 DeprecationWarning,
             )
             files_or_modules = (files_or_modules,)  # type: ignore[assignment]
-        if self.namespace.recursive:
+        if self.config.recursive:
             files_or_modules = tuple(self._discover_files(files_or_modules))
-        if self.namespace.from_stdin:
+        if self.config.from_stdin:
             if len(files_or_modules) != 1:
                 raise exceptions.InvalidArgsError(
                     "Missing filename required for --from-stdin"
@@ -1072,7 +1072,7 @@ class PyLinter(
                     functools.partial(self.get_ast, data=_read_stdin()),
                     [self._get_file_descr_from_stdin(filepath)],
                 )
-        elif self.namespace.jobs == 1:
+        elif self.config.jobs == 1:
             with fix_import_path(files_or_modules):
                 self._check_files(
                     self.get_ast, self._iterate_file_descrs(files_or_modules)
@@ -1080,7 +1080,7 @@ class PyLinter(
         else:
             check_parallel(
                 self,
-                self.namespace.jobs,
+                self.config.jobs,
                 self._iterate_file_descrs(files_or_modules),
                 files_or_modules,
             )
@@ -1186,8 +1186,8 @@ class PyLinter(
         """Get modules and errors from a list of modules and handle errors."""
         result, errors = expand_modules(
             modules,
-            self.namespace.ignore,
-            self.namespace.ignore_patterns,
+            self.config.ignore,
+            self.config.ignore_patterns,
             self._ignore_paths,
         )
         for error in errors:
@@ -1354,14 +1354,12 @@ class PyLinter(
     def open(self):
         """Initialize counters."""
         self.stats = LinterStats()
-        MANAGER.always_load_extensions = self.namespace.unsafe_load_any_extension
-        MANAGER.max_inferable_values = self.namespace.limit_inference_results
-        MANAGER.extension_package_whitelist.update(
-            self.namespace.extension_pkg_allow_list
-        )
-        if self.namespace.extension_pkg_whitelist:
+        MANAGER.always_load_extensions = self.config.unsafe_load_any_extension
+        MANAGER.max_inferable_values = self.config.limit_inference_results
+        MANAGER.extension_package_whitelist.update(self.config.extension_pkg_allow_list)
+        if self.config.extension_pkg_whitelist:
             MANAGER.extension_package_whitelist.update(
-                self.namespace.extension_pkg_whitelist
+                self.config.extension_pkg_whitelist
             )
         self.stats.reset_message_count()
         self._ignore_paths = get_global_option(self, "ignore-paths")
@@ -1378,16 +1376,16 @@ class PyLinter(
             # load previous results if any
             previous_stats = config.load_results(self.file_state.base_name)
             self.reporter.on_close(self.stats, previous_stats)
-            if self.namespace.reports:
+            if self.config.reports:
                 sect = self.make_reports(self.stats, previous_stats)
             else:
                 sect = report_nodes.Section()
 
-            if self.namespace.reports:
+            if self.config.reports:
                 self.reporter.display_reports(sect)
             score_value = self._report_evaluation()
             # save results if persistent run
-            if self.namespace.persistent:
+            if self.config.persistent:
                 config.save_results(self.stats, self.file_state.base_name)
         else:
             self.reporter.on_close(self.stats, LinterStats())
@@ -1404,7 +1402,7 @@ class PyLinter(
             return note
 
         # get a global note for the code
-        evaluation = self.namespace.evaluation
+        evaluation = self.config.evaluation
         try:
             stats_dict = {
                 "fatal": self.stats.fatal,
@@ -1426,7 +1424,7 @@ class PyLinter(
                 if pnote is not None:
                     msg += f" (previous run: {pnote:.2f}/10, {note - pnote:+.2f})"
 
-        if self.namespace.score:
+        if self.config.score:
             sect = report_nodes.EvaluationSection(msg)
             self.reporter.display_reports(sect)
         return note
@@ -1442,7 +1440,7 @@ class PyLinter(
         """Returns the scope at which a message was enabled/disabled."""
         if confidence is None:
             confidence = interfaces.UNDEFINED
-        if confidence.name not in self.namespace.confidence:
+        if confidence.name not in self.config.confidence:
             return MSG_STATE_CONFIDENCE  # type: ignore[return-value] # mypy does not infer Literal correctly
         try:
             if line in self.file_state._module_msgs_state[msgid]:
@@ -1503,7 +1501,7 @@ class PyLinter(
         :param line: The line of the currently analysed file
         :param confidence: The confidence of the message
         """
-        if confidence and confidence.name not in self.namespace.confidence:
+        if confidence and confidence.name not in self.config.confidence:
             return False
         try:
             msgids = self.msgs_store.message_id_store.get_active_msgids(msg_descr)
@@ -1754,17 +1752,17 @@ class PyLinter(
             self._set_one_msg_status(scope, message_definition, line, enable)
 
         # sync configuration object
-        self.namespace.enable = []
-        self.namespace.disable = []
+        self.config.enable = []
+        self.config.disable = []
         for msgid_or_symbol, is_enabled in self._msgs_state.items():
             symbols = [
                 m.symbol
                 for m in self.msgs_store.get_message_definitions(msgid_or_symbol)
             ]
             if is_enabled:
-                self.namespace.enable += symbols
+                self.config.enable += symbols
             else:
-                self.namespace.disable += symbols
+                self.config.disable += symbols
 
     def _register_by_id_managed_msg(
         self, msgid_or_symbol: str, line: int | None, is_disabled: bool = True

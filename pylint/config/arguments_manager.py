@@ -223,13 +223,13 @@ class _ArgumentsManager:
 
     def _load_default_argument_values(self) -> None:
         """Loads the default values of all registered options."""
-        self.namespace = self._arg_parser.parse_args([], self.namespace)
+        self.config = self._arg_parser.parse_args([], self.config)
 
     def _parse_configuration_file(self, arguments: list[str]) -> None:
         """Parse the arguments found in a configuration file into the namespace."""
         # pylint: disable-next=fixme
         # TODO: This should parse_args instead of parse_known_args
-        self.namespace = self._arg_parser.parse_known_args(arguments, self.namespace)[0]
+        self.config = self._arg_parser.parse_known_args(arguments, self.config)[0]
 
     def _parse_command_line_configuration(
         self, arguments: list[str] | None = None
@@ -237,8 +237,8 @@ class _ArgumentsManager:
         """Parse the arguments found on the command line into the namespace."""
         arguments = sys.argv[1:] if arguments is None else arguments
 
-        self.namespace, parsed_args = self._arg_parser.parse_known_args(
-            arguments, self.namespace
+        self.config, parsed_args = self._arg_parser.parse_known_args(
+            arguments, self.config
         )
 
         return parsed_args
@@ -429,7 +429,7 @@ class _ArgumentsManager:
                     (
                         optname,
                         optdict,
-                        getattr(self.namespace, optname.replace("-", "_")),
+                        getattr(self.config, optname.replace("-", "_")),
                     )
                 )
 
@@ -672,7 +672,7 @@ class _ArgumentsManager:
                     group_table.add(tomlkit.comment(line))
 
                 # Get current value of option
-                value = getattr(self.namespace, optname.replace("-", "_"))
+                value = getattr(self.config, optname.replace("-", "_"))
 
                 # Create a comment if the option has no value
                 if not value:
@@ -724,7 +724,7 @@ class _ArgumentsManager:
                 DeprecationWarning,
             )
 
-        self.namespace = self._arg_parser.parse_known_args(
+        self.config = self._arg_parser.parse_known_args(
             [f"--{optname.replace('_', '-')}", _parse_rich_type_value(value)],
-            self.namespace,
+            self.config,
         )[0]

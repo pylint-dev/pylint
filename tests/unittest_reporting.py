@@ -36,7 +36,7 @@ def disable():
 def test_template_option(linter):
     output = StringIO()
     linter.reporter.out = output
-    linter.namespace.msg_template = "{msg_id}:{line:03d}"
+    linter.config.msg_template = "{msg_id}:{line:03d}"
     linter.open()
     linter.set_current_module("0123")
     linter.add_message("C0301", line=1, args=(1, 2))
@@ -62,7 +62,7 @@ def test_template_option_end_line(linter) -> None:
     """Test the msg-template option with end_line and end_column."""
     output = StringIO()
     linter.reporter.out = output
-    linter.namespace.msg_template = (
+    linter.config.msg_template = (
         "{path}:{line}:{column}:{end_line}:{end_column}: {msg_id}: {msg} ({symbol})"
     )
     linter.open()
@@ -84,7 +84,7 @@ def test_template_option_non_existing(linter) -> None:
     """
     output = StringIO()
     linter.reporter.out = output
-    linter.namespace.msg_template = (
+    linter.config.msg_template = (
         "{path}:{line}:{a_new_option}:({a_second_new_option:03d})"
     )
     linter.open()
@@ -134,7 +134,7 @@ def test_parseable_output_regression():
         linter = PyLinter(reporter=ParseableTextReporter())
 
     checkers.initialize(linter)
-    linter.namespace.persistent = 0
+    linter.config.persistent = 0
     linter.reporter.out = output
     linter.set_option("output-format", "parseable")
     linter.open()
@@ -179,9 +179,9 @@ def test_multi_format_output(tmp_path):
         linter.load_default_plugins()
         # pylint: disable-next=fixme
         # # TODO: Optparse: Fix how we set these options
-        linter.namespace.persistent = False
-        linter.namespace.reports = True
-        linter.namespace.score = True
+        linter.config.persistent = False
+        linter.config.reports = True
+        linter.config.score = True
         linter._load_reporters(formats)
 
         linter.set_option("persistent", False)

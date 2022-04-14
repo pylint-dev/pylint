@@ -490,7 +490,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def open(self):
         # do this in open since config not fully initialized in __init__
         self._never_returning_functions = set(
-            self.linter.namespace.never_returning_functions
+            self.linter.config.never_returning_functions
         )
 
     @cached_property
@@ -1130,11 +1130,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             self._emit_nested_blocks_message_if_needed(nested_blocks)
 
     def _emit_nested_blocks_message_if_needed(self, nested_blocks):
-        if len(nested_blocks) > self.linter.namespace.max_nested_blocks:
+        if len(nested_blocks) > self.linter.config.max_nested_blocks:
             self.add_message(
                 "too-many-nested-blocks",
                 node=nested_blocks[0],
-                args=(len(nested_blocks), self.linter.namespace.max_nested_blocks),
+                args=(len(nested_blocks), self.linter.config.max_nested_blocks),
             )
 
     def _emit_consider_using_with_if_needed(self, stack: dict[str, nodes.NodeNG]):

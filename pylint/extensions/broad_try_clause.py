@@ -60,8 +60,8 @@ class BroadTryClauseChecker(checkers.BaseChecker):
 
     def visit_tryexcept(self, node: nodes.TryExcept | nodes.TryFinally) -> None:
         try_clause_statements = self._count_statements(node)
-        if try_clause_statements > self.linter.namespace.max_try_statements:
-            msg = f"try clause contains {try_clause_statements} statements, expected at most {self.linter.namespace.max_try_statements}"
+        if try_clause_statements > self.linter.config.max_try_statements:
+            msg = f"try clause contains {try_clause_statements} statements, expected at most {self.linter.config.max_try_statements}"
             self.add_message(
                 "too-many-try-statements", node.lineno, node=node, args=msg
             )

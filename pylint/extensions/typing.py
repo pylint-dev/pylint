@@ -178,10 +178,10 @@ class TypingChecker(BaseChecker):
         self._py310_plus = py_version >= (3, 10)
 
         self._should_check_typing_alias = self._py39_plus or (
-            self._py37_plus and self.linter.namespace.runtime_typing is False
+            self._py37_plus and self.linter.config.runtime_typing is False
         )
         self._should_check_alternative_union_syntax = self._py310_plus or (
-            self._py37_plus and self.linter.namespace.runtime_typing is False
+            self._py37_plus and self.linter.config.runtime_typing is False
         )
 
         self._should_check_noreturn = py_version < (3, 7, 2)

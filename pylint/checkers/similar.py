@@ -785,11 +785,11 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
         BaseChecker.__init__(self, linter)
         Similar.__init__(
             self,
-            min_lines=self.linter.namespace.min_similarity_lines,
-            ignore_comments=self.linter.namespace.ignore_comments,
-            ignore_docstrings=self.linter.namespace.ignore_docstrings,
-            ignore_imports=self.linter.namespace.ignore_imports,
-            ignore_signatures=self.linter.namespace.ignore_signatures,
+            min_lines=self.linter.config.min_similarity_lines,
+            ignore_comments=self.linter.config.ignore_comments,
+            ignore_docstrings=self.linter.config.ignore_docstrings,
+            ignore_imports=self.linter.config.ignore_imports,
+            ignore_signatures=self.linter.config.ignore_signatures,
         )
 
     def set_option(self, optname, value, action=None, optdict=None):
@@ -801,15 +801,15 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
         # TODO: Deprecate the non required arguments
         self.linter.set_option(optname, value)
         if optname == "min-similarity-lines":
-            self.min_lines = self.linter.namespace.min_similarity_lines
+            self.min_lines = self.linter.config.min_similarity_lines
         elif optname == "ignore-comments":
-            self.ignore_comments = self.linter.namespace.ignore_comments
+            self.ignore_comments = self.linter.config.ignore_comments
         elif optname == "ignore-docstrings":
-            self.ignore_docstrings = self.linter.namespace.ignore_docstrings
+            self.ignore_docstrings = self.linter.config.ignore_docstrings
         elif optname == "ignore-imports":
-            self.ignore_imports = self.linter.namespace.ignore_imports
+            self.ignore_imports = self.linter.config.ignore_imports
         elif optname == "ignore-signatures":
-            self.ignore_signatures = self.linter.namespace.ignore_signatures
+            self.ignore_signatures = self.linter.config.ignore_signatures
 
     def open(self):
         """Init the checkers: reset linesets and statistics information."""

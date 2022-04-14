@@ -82,7 +82,7 @@ class AsyncChecker(checkers.BaseChecker):
                         # Ignore mixin classes if they match the rgx option.
                         if (
                             "not-async-context-manager"
-                            in self.linter.namespace.ignored_checks_for_mixins
+                            in self.linter.config.ignored_checks_for_mixins
                             and self._mixin_class_rgx.match(inferred.name)
                         ):
                             continue

@@ -25,8 +25,8 @@ class TestArgumentsManager:
     def test_namespace_creation(self) -> None:
         """Test that the linter object has a namespace attribute and that it is not empty"""
 
-        assert self.base_run.linter.namespace
-        assert self.base_run.linter.namespace._get_kwargs()
+        assert self.base_run.linter.config
+        assert self.base_run.linter.config._get_kwargs()
 
 
 class TestArgparseOptionsProviderMixin:
@@ -72,9 +72,7 @@ class TestDeprecationOptions:
     def test_old_names() -> None:
         """Check that we correctly double assign old name options."""
         run = Run([EMPTY_MODULE, "--ignore=test,test_two"], exit=False)
-        assert run.linter.namespace.ignore == ["test", "test_two"]
-        assert run.linter.namespace.ignore == run.linter.namespace.black_list
-        assert run.linter.namespace.ignore_patterns == [re.compile("^\\.#")]
-        assert (
-            run.linter.namespace.ignore_patterns == run.linter.namespace.black_list_re
-        )
+        assert run.linter.config.ignore == ["test", "test_two"]
+        assert run.linter.config.ignore == run.linter.config.black_list
+        assert run.linter.config.ignore_patterns == [re.compile("^\\.#")]
+        assert run.linter.config.ignore_patterns == run.linter.config.black_list_re

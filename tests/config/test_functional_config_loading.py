@@ -55,7 +55,7 @@ def default_configuration(
         str(empty_pylintrc), file_to_lint_path
     )
     mock_exit.assert_called_once_with(0)
-    return runner.linter.namespace.__dict__
+    return runner.linter.config.__dict__
 
 
 @pytest.mark.parametrize("configuration_path", CONFIGURATION_PATHS)
@@ -86,14 +86,14 @@ def test_functional_config_loading(
     # 'rstrip()' applied, so we can have a final newline in the expected test file
     assert expected_output.rstrip() == out.rstrip(), msg
     assert sorted(expected_loaded_configuration.keys()) == sorted(
-        runner.linter.namespace.__dict__.keys()
+        runner.linter.config.__dict__.keys()
     ), msg
     for key, expected_value in expected_loaded_configuration.items():
         key_msg = f"{msg} for key '{key}':"
         if isinstance(expected_value, list):
             assert sorted(expected_value) == sorted(
-                runner.linter.namespace.__dict__[key]
+                runner.linter.config.__dict__[key]
             ), key_msg
         else:
-            assert expected_value == runner.linter.namespace.__dict__[key], key_msg
+            assert expected_value == runner.linter.config.__dict__[key], key_msg
     assert not err, msg

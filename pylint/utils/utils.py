@@ -270,7 +270,7 @@ def get_global_option(
     # # TODO: Optparse: Potentially deprecate this.
     # Firstly, try on the namespace object
     try:
-        return getattr(checker.linter.namespace, option.replace("-", "_"))
+        return getattr(checker.linter.config, option.replace("-", "_"))
     except AttributeError:
         pass
 
