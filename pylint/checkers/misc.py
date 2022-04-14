@@ -4,9 +4,11 @@
 
 """Check source code is ascii only or has an encoding declaration (PEP 263)."""
 
+from __future__ import annotations
+
 import re
 import tokenize
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING
 
 from astroid import nodes
 
@@ -37,7 +39,7 @@ class ByIdManagedMessagesChecker(BaseChecker):
     def _clear_by_id_managed_msgs(self) -> None:
         self.linter._by_id_managed_msgs.clear()
 
-    def _get_by_id_managed_msgs(self) -> List[ManagedMessage]:
+    def _get_by_id_managed_msgs(self) -> list[ManagedMessage]:
         return self.linter._by_id_managed_msgs
 
     def process_module(self, node: nodes.Module) -> None:
@@ -111,7 +113,7 @@ class EncodingChecker(BaseChecker):
 
     def _check_encoding(
         self, lineno: int, line: bytes, file_encoding: str
-    ) -> Optional[str]:
+    ) -> str | None:
         try:
             return line.decode(file_encoding)
         except UnicodeDecodeError:
@@ -180,6 +182,6 @@ class EncodingChecker(BaseChecker):
                 )
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(EncodingChecker(linter))
     linter.register_checker(ByIdManagedMessagesChecker(linter))

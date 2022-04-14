@@ -3,8 +3,11 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Checker for use of Python logging."""
+
+from __future__ import annotations
+
 import string
-from typing import TYPE_CHECKING, Set
+from typing import TYPE_CHECKING
 
 import astroid
 from astroid import nodes
@@ -149,7 +152,7 @@ class LoggingChecker(checkers.BaseChecker):
         # The code being checked can just as easily "import logging as foo",
         # so it is necessary to process the imports and store in this field
         # what name the logging module is actually given.
-        self._logging_names: Set[str] = set()
+        self._logging_names: set[str] = set()
         logging_mods = self.linter.namespace.logging_modules
 
         self._format_style = self.linter.namespace.logging_format_style
@@ -380,5 +383,5 @@ def _count_supplied_tokens(args):
     return sum(1 for arg in args if not isinstance(arg, nodes.Keyword))
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(LoggingChecker(linter))

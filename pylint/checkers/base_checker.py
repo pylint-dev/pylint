@@ -2,10 +2,12 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import functools
 import warnings
 from inspect import cleandoc
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 
 from astroid import nodes
 
@@ -37,7 +39,7 @@ class BaseChecker(_ArgumentsProvider):
     # mark this checker as enabled or not.
     enabled: bool = True
 
-    def __init__(self, linter: "PyLinter") -> None:
+    def __init__(self, linter: PyLinter) -> None:
         """Checker instances should have the linter as argument."""
         if self.name is not None:
             self.name = self.name.lower()
@@ -114,13 +116,13 @@ class BaseChecker(_ArgumentsProvider):
     def add_message(
         self,
         msgid: str,
-        line: Optional[int] = None,
-        node: Optional[nodes.NodeNG] = None,
+        line: int | None = None,
+        node: nodes.NodeNG | None = None,
         args: Any = None,
-        confidence: Optional[Confidence] = None,
-        col_offset: Optional[int] = None,
-        end_lineno: Optional[int] = None,
-        end_col_offset: Optional[int] = None,
+        confidence: Confidence | None = None,
+        col_offset: int | None = None,
+        end_lineno: int | None = None,
+        end_col_offset: int | None = None,
     ) -> None:
         self.linter.add_message(
             msgid, line, node, args, confidence, col_offset, end_lineno, end_col_offset

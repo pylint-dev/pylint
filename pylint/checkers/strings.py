@@ -4,6 +4,8 @@
 
 """Checker for string formatting operations."""
 
+from __future__ import annotations
+
 import collections
 import numbers
 import re
@@ -905,7 +907,7 @@ class StringConstantChecker(BaseTokenChecker):
             )
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(StringFormatChecker(linter))
     linter.register_checker(StringConstantChecker(linter))
 

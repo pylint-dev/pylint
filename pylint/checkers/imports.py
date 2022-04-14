@@ -4,10 +4,12 @@
 
 """Imports checkers for Python code."""
 
+from __future__ import annotations
+
 import collections
 import copy
 import os
-from typing import TYPE_CHECKING, Any, Dict, List, Set, Tuple, Union
+from typing import TYPE_CHECKING, Any
 
 import astroid
 from astroid import nodes
@@ -127,7 +129,7 @@ def _repr_tree_defs(data, indent_str=None):
     return "\n".join(lines)
 
 
-def _dependencies_graph(filename: str, dep_info: Dict[str, Set[str]]) -> str:
+def _dependencies_graph(filename: str, dep_info: dict[str, set[str]]) -> str:
     """Write dependencies as a dot (graphviz) file."""
     done = {}
     printer = DotBackend(os.path.splitext(os.path.basename(filename))[0], rankdir="LR")
@@ -147,7 +149,7 @@ def _dependencies_graph(filename: str, dep_info: Dict[str, Set[str]]) -> str:
 
 
 def _make_graph(
-    filename: str, dep_info: Dict[str, Set[str]], sect: Section, gtype: str
+    filename: str, dep_info: dict[str, set[str]], sect: Section, gtype: str
 ):
     """Generate a dependencies graph and add some information about it in the
     report's section
@@ -370,15 +372,15 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         ),
     )
 
-    def __init__(self, linter: "PyLinter") -> None:
+    def __init__(self, linter: PyLinter) -> None:
         BaseChecker.__init__(self, linter)
         self.import_graph: collections.defaultdict = collections.defaultdict(set)
-        self._imports_stack: List[Tuple[Any, Any]] = []
+        self._imports_stack: list[tuple[Any, Any]] = []
         self._first_non_import_node = None
-        self._module_pkg: Dict[
+        self._module_pkg: dict[
             Any, Any
         ] = {}  # mapping of modules to the pkg they belong in
-        self._allow_any_import_level: Set[Any] = set()
+        self._allow_any_import_level: set[Any] = set()
         self.reports = (
             ("RP0401", "External dependencies", self._report_external_dependencies),
             ("RP0402", "Modules dependencies graph", self._report_dependencies_graph),
@@ -478,8 +480,8 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         std_imports, ext_imports, loc_imports = self._check_imports_order(node)
 
         # Check that imports are grouped by package within a given category
-        met_import: Set[str] = set()  # set for 'import x' style
-        met_from: Set[str] = set()  # set for 'from x import y' style
+        met_import: set[str] = set()  # set for 'import x' style
+        met_from: set[str] = set()  # set for 'from x import y' style
         current_package = None
         for import_node, import_name in std_imports + ext_imports + loc_imports:
             met = met_from if isinstance(import_node, nodes.ImportFrom) else met_import
@@ -746,7 +748,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         return None
 
     def _add_imported_module(
-        self, node: Union[nodes.Import, nodes.ImportFrom], importedmodname: str
+        self, node: nodes.Import | nodes.ImportFrom, importedmodname: str
     ) -> None:
         """Notify an imported module, used to analyze dependencies."""
         module_file = node.root().file
@@ -775,7 +777,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 self._module_pkg[context_name] = context_name.rsplit(".", 1)[0]
 
             # handle dependencies
-            dependencies_stat: Dict[str, Set[str]] = self.linter.stats.dependencies
+            dependencies_stat: dict[str, set[str]] = self.linter.stats.dependencies
             importedmodnames = dependencies_stat.setdefault(importedmodname, set())
             if context_name not in importedmodnames:
                 importedmodnames.add(context_name)
@@ -797,9 +799,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 args=(self.preferred_modules[mod_path], mod_path),
             )
 
-    def _check_import_as_rename(
-        self, node: Union[nodes.Import, nodes.ImportFrom]
-    ) -> None:
+    def _check_import_as_rename(self, node: nodes.Import | nodes.ImportFrom) -> None:
         names = node.names
         for name in names:
             if not all(name):
@@ -935,5 +935,5 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             )
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(ImportsChecker(linter))

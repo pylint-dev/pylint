@@ -6,6 +6,7 @@
 indicated by the py-version setting.
 """
 
+from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
@@ -82,5 +83,5 @@ class UnsupportedVersionChecker(BaseChecker):
             )
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(UnsupportedVersionChecker(linter))

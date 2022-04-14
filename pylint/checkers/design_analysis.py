@@ -4,10 +4,12 @@
 
 """Check for signs of poor design."""
 
+from __future__ import annotations
+
 import re
 import sys
 from collections import defaultdict
-from typing import TYPE_CHECKING, FrozenSet, Iterator, List, Set, cast
+from typing import TYPE_CHECKING, Iterator, List, cast
 
 import astroid
 from astroid import nodes
@@ -229,7 +231,7 @@ def _count_methods_in_class(node):
 
 
 def _get_parents_iter(
-    node: nodes.ClassDef, ignored_parents: FrozenSet[str]
+    node: nodes.ClassDef, ignored_parents: frozenset[str]
 ) -> Iterator[nodes.ClassDef]:
     r"""Get parents of ``node``, excluding ancestors of ``ignored_parents``.
 
@@ -246,7 +248,7 @@ def _get_parents_iter(
     And ``ignored_parents`` is ``{"E"}``, then this function will return
     ``{A, B, C, D}`` -- both ``E`` and its ancestors are excluded.
     """
-    parents: Set[nodes.ClassDef] = set()
+    parents: set[nodes.ClassDef] = set()
     to_explore = cast(List[nodes.ClassDef], list(node.ancestors(recurs=False)))
     while to_explore:
         parent = to_explore.pop()
@@ -265,8 +267,8 @@ def _get_parents_iter(
 
 
 def _get_parents(
-    node: nodes.ClassDef, ignored_parents: FrozenSet[str]
-) -> Set[nodes.ClassDef]:
+    node: nodes.ClassDef, ignored_parents: frozenset[str]
+) -> set[nodes.ClassDef]:
     return set(_get_parents_iter(node, ignored_parents))
 
 
@@ -649,5 +651,5 @@ class MisdesignChecker(BaseChecker):
         self._branches[node.scope()] += branchesnum
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(MisdesignChecker(linter))

@@ -10,7 +10,7 @@ See: https://peps.python.org/pep-0672/#confusing-features
 The following checkers are intended to make users are aware of these issues.
 """
 
-from typing import Optional, Union
+from __future__ import annotations
 
 from astroid import nodes
 
@@ -73,9 +73,7 @@ class NonAsciiNameChecker(base_checker.BaseChecker):
 
     name = "NonASCII-Checker"
 
-    def _check_name(
-        self, node_type: str, name: Optional[str], node: nodes.NodeNG
-    ) -> None:
+    def _check_name(self, node_type: str, name: str | None, node: nodes.NodeNG) -> None:
         """Check whether a name is using non-ASCII characters."""
 
         if name is None:
@@ -102,7 +100,7 @@ class NonAsciiNameChecker(base_checker.BaseChecker):
 
     @utils.check_messages("non-ascii-name")
     def visit_functiondef(
-        self, node: Union[nodes.FunctionDef, nodes.AsyncFunctionDef]
+        self, node: nodes.FunctionDef | nodes.AsyncFunctionDef
     ) -> None:
         self._check_name("function", node.name, node)
 
@@ -163,7 +161,7 @@ class NonAsciiNameChecker(base_checker.BaseChecker):
             if not any(node.instance_attr_ancestors(attr)):
                 self._check_name("attr", attr, anodes[0])
 
-    def _check_module_import(self, node: Union[nodes.ImportFrom, nodes.Import]) -> None:
+    def _check_module_import(self, node: nodes.ImportFrom | nodes.Import) -> None:
         for module_name, alias in node.names:
             name = alias or module_name
             self._check_name("module", name, node)

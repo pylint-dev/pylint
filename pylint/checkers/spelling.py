@@ -3,6 +3,9 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Checker for spelling errors in comments and docstrings."""
+
+from __future__ import annotations
+
 import os
 import re
 import tokenize
@@ -445,5 +448,5 @@ class SpellingChecker(BaseTokenChecker):
             self._check_spelling("wrong-spelling-in-docstring", line, start_line + idx)
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(SpellingChecker(linter))
