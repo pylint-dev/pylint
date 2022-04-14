@@ -29,7 +29,14 @@ if TYPE_CHECKING:
 
 def _convert_option_to_argument(
     opt: str, optdict: dict[str, Any]
-) -> _StoreArgument | _StoreTrueArgument | _CallableArgument | _StoreOldNamesArgument | _StoreNewNamesArgument | _ExtendArgument:
+) -> (
+    _StoreArgument
+    | _StoreTrueArgument
+    | _CallableArgument
+    | _StoreOldNamesArgument
+    | _StoreNewNamesArgument
+    | _ExtendArgument
+):
     """Convert an optdict to an Argument class instance."""
     if "level" in optdict and "hide" not in optdict:
         warnings.warn(
