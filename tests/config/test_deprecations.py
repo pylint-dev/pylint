@@ -79,3 +79,11 @@ class TestDeprecationArgumentsManager:
         """Test that cb_set_provider_option emits a DeprecationWarning."""
         with pytest.warns(DeprecationWarning):
             self.linter.cb_set_provider_option(None, "--test-opt", True, None)
+
+    def test_level_attribute(self) -> None:
+        """Test that the level attribute emits a DeprecationWarning."""
+        with pytest.warns(DeprecationWarning):
+            self.linter.level = 1
+
+        with pytest.warns(DeprecationWarning):
+            assert self.linter.level is not None

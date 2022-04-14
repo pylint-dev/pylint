@@ -78,6 +78,10 @@ Other Changes
 
   Ref #5392
 
+* The ``level`` attribute of ``BaseChecker`` has been deprecated.
+
+  Ref #5392
+
 * The ``set_option`` method of ``BaseChecker`` has been deprecated. You can use ``checker.linter.set_option``
   to set an option on the global configuration object instead of a checker-specific object.
 

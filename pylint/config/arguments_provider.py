@@ -38,10 +38,25 @@ class _ArgumentsProvider:
 
         self._arguments_manager._register_options_provider(self)
 
-        # pylint: disable=fixme
-        # TODO: Optparse: Added to keep API parity with OptionsProvider
-        # They should be removed/deprecated when refactoring the copied methods
-        self.level = 0
+        self._level = 0
+
+    @property
+    def level(self) -> int:
+        # TODO: 3.0: Remove deprecated attribute # pylint: disable=fixme
+        warnings.warn(
+            "The level attribute has been deprecated. It will be removed in pylint 3.0.",
+            DeprecationWarning,
+        )
+        return self._level
+
+    @level.setter
+    def level(self, value: int) -> None:
+        # TODO: 3.0: Remove deprecated attribute # pylint: disable=fixme
+        warnings.warn(
+            "Setting the level attribute has been deprecated. It will be removed in pylint 3.0.",
+            DeprecationWarning,
+        )
+        self._level = value
 
     @property
     def config(self) -> argparse.Namespace:

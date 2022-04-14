@@ -28,8 +28,6 @@ class BaseChecker(_ArgumentsProvider):
 
     # checker name (you may reuse an existing one)
     name: str = ""
-    # options level (0 will be displaying in --help, 1 in --long-help)
-    level = 1
     # ordered list of options to control the checker behaviour
     options: Options = ()
     # messages issued by this checker
