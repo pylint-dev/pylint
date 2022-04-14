@@ -14,8 +14,7 @@ import pathlib
 import re
 import sys
 from collections.abc import Callable, Sequence
-from re import Pattern
-from typing import Any, Tuple, Union
+from typing import Any, Pattern, Tuple, Union
 
 from pylint import interfaces
 from pylint import utils as pylint_utils
