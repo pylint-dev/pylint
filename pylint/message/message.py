@@ -63,7 +63,7 @@ class Message(_MsgBase):
         cls,
         msg_id: str,
         symbol: str,
-        location: (tuple[str, str, str, str, int, int] | MessageLocationTuple),
+        location: tuple[str, str, str, str, int, int] | MessageLocationTuple,
         msg: str,
         confidence: Confidence | None,
     ) -> Message:

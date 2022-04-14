@@ -11,9 +11,11 @@ https://www.python.org/doc/essays/styleguide/
 Some parts of the process_token method is based from The Tab Nanny std module.
 """
 
+from __future__ import annotations
+
 import tokenize
 from functools import reduce
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
 from astroid import nodes
 
@@ -322,7 +324,7 @@ class FormatChecker(BaseTokenChecker):
 
     # pylint: disable-next=too-many-return-statements
     def _check_keyword_parentheses(
-        self, tokens: List[tokenize.TokenInfo], start: int
+        self, tokens: list[tokenize.TokenInfo], start: int
     ) -> None:
         """Check that there are not unnecessary parentheses after a keyword.
 
@@ -670,7 +672,7 @@ class FormatChecker(BaseTokenChecker):
         return True
 
     @staticmethod
-    def specific_splitlines(lines: str) -> List[str]:
+    def specific_splitlines(lines: str) -> list[str]:
         """Split lines according to universal newlines except those in a specific sets."""
         unsplit_ends = {
             "\x0b",  # synonym of \v
@@ -768,5 +770,5 @@ class FormatChecker(BaseTokenChecker):
             )
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(FormatChecker(linter))

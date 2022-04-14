@@ -4,6 +4,8 @@
 
 """Checker for anything related to the async protocol (PEP 492)."""
 
+from __future__ import annotations
+
 import sys
 from typing import TYPE_CHECKING
 
@@ -91,5 +93,5 @@ class AsyncChecker(checkers.BaseChecker):
             )
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(AsyncChecker(linter))
