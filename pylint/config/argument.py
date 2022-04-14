@@ -7,23 +7,13 @@
 An Argument instance represents a pylint option to be handled by an argparse.ArgumentParser
 """
 
+from __future__ import annotations
 
 import argparse
 import pathlib
 import re
 import sys
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    List,
-    Optional,
-    Pattern,
-    Sequence,
-    Tuple,
-    Type,
-    Union,
-)
+from typing import Any, Callable, Pattern, Sequence, Tuple, Union
 
 from pylint import interfaces
 from pylint import utils as pylint_utils
@@ -89,7 +79,7 @@ def _non_empty_string_transformer(value: str) -> str:
     return pylint_utils._unquote(value)
 
 
-def _py_version_transformer(value: str) -> Tuple[int, ...]:
+def _py_version_transformer(value: str) -> tuple[int, ...]:
     """Transforms a version string into a version tuple."""
     try:
         version = tuple(int(val) for val in value.replace(",", ".").split("."))
@@ -102,7 +92,7 @@ def _py_version_transformer(value: str) -> Tuple[int, ...]:
 
 def _regexp_csv_transfomer(value: str) -> Sequence[Pattern[str]]:
     """Transforms a comma separated list of regular expressions."""
-    patterns: List[Pattern[str]] = []
+    patterns: list[Pattern[str]] = []
     for pattern in _csv_transformer(value):
         patterns.append(re.compile(pattern))
     return patterns
@@ -110,7 +100,7 @@ def _regexp_csv_transfomer(value: str) -> Sequence[Pattern[str]]:
 
 def _regexp_paths_csv_transfomer(value: str) -> Sequence[Pattern[str]]:
     """Transforms a comma separated list of regular expressions paths."""
-    patterns: List[Pattern[str]] = []
+    patterns: list[Pattern[str]] = []
     for pattern in _csv_transformer(value):
         patterns.append(
             re.compile(
@@ -122,7 +112,7 @@ def _regexp_paths_csv_transfomer(value: str) -> Sequence[Pattern[str]]:
     return patterns
 
 
-_TYPE_TRANSFORMERS: Dict[str, Callable[[str], _ArgumentTypes]] = {
+_TYPE_TRANSFORMERS: dict[str, Callable[[str], _ArgumentTypes]] = {
     "choice": str,
     "csv": _csv_transformer,
     "float": float,
@@ -156,10 +146,10 @@ class _Argument:
     def __init__(
         self,
         *,
-        flags: List[str],
+        flags: list[str],
         arg_help: str,
         hide_help: bool,
-        section: Optional[str],
+        section: str | None,
     ) -> None:
         self.flags = flags
         """The name of the argument."""
@@ -189,12 +179,12 @@ class _BaseStoreArgument(_Argument):
     def __init__(
         self,
         *,
-        flags: List[str],
+        flags: list[str],
         action: str,
         default: _ArgumentTypes,
         arg_help: str,
         hide_help: bool,
-        section: Optional[str],
+        section: str | None,
     ) -> None:
         super().__init__(
             flags=flags, arg_help=arg_help, hide_help=hide_help, section=section
@@ -218,15 +208,15 @@ class _StoreArgument(_BaseStoreArgument):
     def __init__(
         self,
         *,
-        flags: List[str],
+        flags: list[str],
         action: str,
         default: _ArgumentTypes,
         arg_type: str,
-        choices: Optional[List[str]],
+        choices: list[str] | None,
         arg_help: str,
         metavar: str,
         hide_help: bool,
-        section: Optional[str],
+        section: str | None,
     ) -> None:
         super().__init__(
             flags=flags,
@@ -266,12 +256,12 @@ class _StoreTrueArgument(_BaseStoreArgument):
     def __init__(
         self,
         *,
-        flags: List[str],
+        flags: list[str],
         action: Literal["store_true"],
         default: _ArgumentTypes,
         arg_help: str,
         hide_help: bool,
-        section: Optional[str],
+        section: str | None,
     ) -> None:
         super().__init__(
             flags=flags,
@@ -294,15 +284,15 @@ class _DeprecationArgument(_Argument):
     def __init__(
         self,
         *,
-        flags: List[str],
-        action: Type[argparse.Action],
+        flags: list[str],
+        action: type[argparse.Action],
         default: _ArgumentTypes,
         arg_type: str,
-        choices: Optional[List[str]],
+        choices: list[str] | None,
         arg_help: str,
         metavar: str,
         hide_help: bool,
-        section: Optional[str],
+        section: str | None,
     ) -> None:
         super().__init__(
             flags=flags, arg_help=arg_help, hide_help=hide_help, section=section
@@ -342,16 +332,16 @@ class _ExtendArgument(_DeprecationArgument):
     def __init__(
         self,
         *,
-        flags: List[str],
+        flags: list[str],
         action: Literal["extend"],
         default: _ArgumentTypes,
         arg_type: str,
         metavar: str,
         arg_help: str,
         hide_help: bool,
-        section: Optional[str],
-        choices: Optional[List[str]],
-        dest: Optional[str],
+        section: str | None,
+        choices: list[str] | None,
+        dest: str | None,
     ) -> None:
         # The extend action is included in the stdlib from 3.8+
         if PY38_PLUS:
@@ -386,15 +376,15 @@ class _StoreOldNamesArgument(_DeprecationArgument):
     def __init__(
         self,
         *,
-        flags: List[str],
+        flags: list[str],
         default: _ArgumentTypes,
         arg_type: str,
-        choices: Optional[List[str]],
+        choices: list[str] | None,
         arg_help: str,
         metavar: str,
         hide_help: bool,
-        kwargs: Dict[str, Any],
-        section: Optional[str],
+        kwargs: dict[str, Any],
+        section: str | None,
     ) -> None:
         super().__init__(
             flags=flags,
@@ -423,15 +413,15 @@ class _StoreNewNamesArgument(_DeprecationArgument):
     def __init__(
         self,
         *,
-        flags: List[str],
+        flags: list[str],
         default: _ArgumentTypes,
         arg_type: str,
-        choices: Optional[List[str]],
+        choices: list[str] | None,
         arg_help: str,
         metavar: str,
         hide_help: bool,
-        kwargs: Dict[str, Any],
-        section: Optional[str],
+        kwargs: dict[str, Any],
+        section: str | None,
     ) -> None:
         super().__init__(
             flags=flags,
@@ -460,12 +450,12 @@ class _CallableArgument(_Argument):
     def __init__(
         self,
         *,
-        flags: List[str],
-        action: Type[_CallbackAction],
+        flags: list[str],
+        action: type[_CallbackAction],
         arg_help: str,
-        kwargs: Dict[str, Any],
+        kwargs: dict[str, Any],
         hide_help: bool,
-        section: Optional[str],
+        section: str | None,
     ) -> None:
         super().__init__(
             flags=flags, arg_help=arg_help, hide_help=hide_help, section=section

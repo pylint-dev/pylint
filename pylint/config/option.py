@@ -2,11 +2,13 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import copy
 import optparse  # pylint: disable=deprecated-module
 import pathlib
 import re
-from typing import List, Pattern, Union
+from typing import Pattern
 
 from pylint import utils
 
@@ -29,8 +31,8 @@ def _regexp_csv_validator(_, name, value):
 
 
 def _regexp_paths_csv_validator(
-    _, name: str, value: Union[str, List[Pattern[str]]]
-) -> List[Pattern[str]]:
+    _, name: str, value: str | list[Pattern[str]]
+) -> list[Pattern[str]]:
     if isinstance(value, list):
         return value
     patterns = []

@@ -4,11 +4,12 @@
 
 """Utils for arguments/options parsing and handling."""
 
+from __future__ import annotations
 
 import re
 import warnings
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, Callable
 
 from pylint import extensions, utils
 from pylint.config.argument import (
@@ -27,15 +28,15 @@ if TYPE_CHECKING:
 
 
 def _convert_option_to_argument(
-    opt: str, optdict: Dict[str, Any]
-) -> Union[
-    _StoreArgument,
-    _StoreTrueArgument,
-    _CallableArgument,
-    _StoreOldNamesArgument,
-    _StoreNewNamesArgument,
-    _ExtendArgument,
-]:
+    opt: str, optdict: dict[str, Any]
+) -> (
+    _StoreArgument
+    | _StoreTrueArgument
+    | _CallableArgument
+    | _StoreOldNamesArgument
+    | _StoreNewNamesArgument
+    | _ExtendArgument
+):
     """Convert an optdict to an Argument class instance."""
     if "level" in optdict and "hide" not in optdict:
         warnings.warn(
@@ -161,7 +162,7 @@ def _parse_rich_type_value(value: Any) -> str:
 
 
 # pylint: disable-next=unused-argument
-def _init_hook(run: "Run", value: Optional[str]) -> None:
+def _init_hook(run: Run, value: str | None) -> None:
     """Execute arbitrary code from the init_hook.
 
     This can be used to set the 'sys.path' for example.
@@ -170,30 +171,30 @@ def _init_hook(run: "Run", value: Optional[str]) -> None:
     exec(value)  # pylint: disable=exec-used
 
 
-def _set_rcfile(run: "Run", value: Optional[str]) -> None:
+def _set_rcfile(run: Run, value: str | None) -> None:
     """Set the rcfile."""
     assert value is not None
     run._rcfile = value
 
 
-def _set_output(run: "Run", value: Optional[str]) -> None:
+def _set_output(run: Run, value: str | None) -> None:
     """Set the output."""
     assert value is not None
     run._output = value
 
 
-def _add_plugins(run: "Run", value: Optional[str]) -> None:
+def _add_plugins(run: Run, value: str | None) -> None:
     """Add plugins to the list of loadable plugins."""
     assert value is not None
     run._plugins.extend(utils._splitstrip(value))
 
 
-def _set_verbose_mode(run: "Run", value: Optional[str]) -> None:
+def _set_verbose_mode(run: Run, value: str | None) -> None:
     assert value is None
     run.verbose = True
 
 
-def _enable_all_extensions(run: "Run", value: Optional[str]) -> None:
+def _enable_all_extensions(run: Run, value: str | None) -> None:
     """Enable all extensions."""
     assert value is None
     for filename in Path(extensions.__file__).parent.iterdir():
@@ -203,8 +204,8 @@ def _enable_all_extensions(run: "Run", value: Optional[str]) -> None:
                 run._plugins.append(extension_name)
 
 
-PREPROCESSABLE_OPTIONS: Dict[
-    str, Tuple[bool, Callable[["Run", Optional[str]], None]]
+PREPROCESSABLE_OPTIONS: dict[
+    str, tuple[bool, Callable[[Run, str | None], None]]
 ] = {  # pylint: disable=consider-using-namedtuple-or-dataclass
     "--init-hook": (True, _init_hook),
     "--rcfile": (True, _set_rcfile),
@@ -215,9 +216,9 @@ PREPROCESSABLE_OPTIONS: Dict[
 }
 
 
-def _preprocess_options(run: "Run", args: List[str]) -> List[str]:
+def _preprocess_options(run: Run, args: list[str]) -> list[str]:
     """Preprocess options before full config parsing has started."""
-    processed_args: List[str] = []
+    processed_args: list[str] = []
 
     i = 0
     while i < len(args):

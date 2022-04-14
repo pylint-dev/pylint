@@ -4,6 +4,8 @@
 
 """Arguments manager class used to handle command-line arguments and options."""
 
+from __future__ import annotations
+
 import argparse
 import collections
 import configparser
@@ -15,7 +17,7 @@ import sys
 import textwrap
 import warnings
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, TextIO, Tuple, Union
+from typing import TYPE_CHECKING, Any, TextIO, Union
 
 import tomlkit
 
@@ -58,7 +60,7 @@ ConfigProvider = Union["_ArgumentsProvider", OptionsProviderMixIn]
 class _ArgumentsManager:
     """Arguments manager class used to handle command-line arguments and options."""
 
-    def __init__(self, prog: str, usage: Optional[str] = None) -> None:
+    def __init__(self, prog: str, usage: str | None = None) -> None:
         self.namespace = argparse.Namespace()
         """Namespace for all options."""
 
@@ -69,10 +71,10 @@ class _ArgumentsManager:
         )
         """The command line argument parser."""
 
-        self._argument_groups_dict: Dict[str, argparse._ArgumentGroup] = {}
+        self._argument_groups_dict: dict[str, argparse._ArgumentGroup] = {}
         """Dictionary of all the argument groups."""
 
-        self._option_dicts: Dict[str, OptionDict] = {}
+        self._option_dicts: dict[str, OptionDict] = {}
         """All option dictionaries that have been registered."""
 
         # pylint: disable=fixme
@@ -82,12 +84,12 @@ class _ArgumentsManager:
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             self.reset_parsers(usage or "")
         # list of registered options providers
-        self.options_providers: List[ConfigProvider] = []
+        self.options_providers: list[ConfigProvider] = []
         # dictionary associating option name to checker
         self._all_options: OrderedDict[str, ConfigProvider] = collections.OrderedDict()
-        self._short_options: Dict[str, str] = {}
-        self._nocallback_options: Dict[ConfigProvider, str] = {}
-        self._mygroups: Dict[str, optparse.OptionGroup] = {}
+        self._short_options: dict[str, str] = {}
+        self._nocallback_options: dict[ConfigProvider, str] = {}
+        self._mygroups: dict[str, optparse.OptionGroup] = {}
         # verbosity
         self._maxlevel: int = 0
 
@@ -95,7 +97,7 @@ class _ArgumentsManager:
     def config(self) -> argparse.Namespace:
         return self.namespace
 
-    def _register_options_provider(self, provider: "_ArgumentsProvider") -> None:
+    def _register_options_provider(self, provider: _ArgumentsProvider) -> None:
         """Register an options provider and load its defaults."""
         for opt, optdict in provider.options:
             self._option_dicts[opt] = optdict
@@ -113,7 +115,7 @@ class _ArgumentsManager:
         self._load_default_argument_values()
 
     def _add_arguments_to_parser(
-        self, section: str, section_desc: Optional[str], argument: _Argument
+        self, section: str, section_desc: str | None, argument: _Argument
     ) -> None:
         """Add an argument to the correct argument section/group."""
         try:
@@ -210,15 +212,15 @@ class _ArgumentsManager:
         """Loads the default values of all registered options."""
         self.namespace = self._arg_parser.parse_args([], self.namespace)
 
-    def _parse_configuration_file(self, arguments: List[str]) -> None:
+    def _parse_configuration_file(self, arguments: list[str]) -> None:
         """Parse the arguments found in a configuration file into the namespace."""
         # pylint: disable-next=fixme
         # TODO: This should parse_args instead of parse_known_args
         self.namespace = self._arg_parser.parse_known_args(arguments, self.namespace)[0]
 
     def _parse_command_line_configuration(
-        self, arguments: Optional[List[str]] = None
-    ) -> List[str]:
+        self, arguments: list[str] | None = None
+    ) -> list[str]:
         """Parse the arguments found on the command line into the namespace."""
         arguments = sys.argv[1:] if arguments is None else arguments
 
@@ -287,8 +289,8 @@ class _ArgumentsManager:
     def add_option_group(
         self,
         group_name: str,
-        _: Optional[str],
-        options: List[Tuple[str, OptionDict]],
+        _: str | None,
+        options: list[tuple[str, OptionDict]],
         provider: ConfigProvider,
     ) -> None:
         """DEPRECATED."""
@@ -325,7 +327,7 @@ class _ArgumentsManager:
     def add_optik_option(
         self,
         provider: ConfigProvider,
-        optikcontainer: Union[optparse.OptionParser, optparse.OptionGroup],
+        optikcontainer: optparse.OptionParser | optparse.OptionGroup,
         opt: str,
         optdict: OptionDict,
     ) -> None:
@@ -344,7 +346,7 @@ class _ArgumentsManager:
 
     def optik_option(
         self, provider: ConfigProvider, opt: str, optdict: OptionDict
-    ) -> Tuple[List[str], OptionDict]:
+    ) -> tuple[list[str], OptionDict]:
         """DEPRECATED: Get our personal option definition and return a suitable form for
         use with optik/optparse
         """
@@ -381,7 +383,7 @@ class _ArgumentsManager:
         return args, optdict
 
     def generate_config(
-        self, stream: Optional[TextIO] = None, skipsections: Tuple[str, ...] = ()
+        self, stream: TextIO | None = None, skipsections: tuple[str, ...] = ()
     ) -> None:
         """DEPRECATED: Write a configuration file according to the current configuration
         into the given stream or stdout
@@ -450,7 +452,7 @@ class _ArgumentsManager:
                 provider.load_defaults()
 
     def read_config_file(
-        self, config_file: Optional[Path] = None, verbose: bool = False
+        self, config_file: Path | None = None, verbose: bool = False
     ) -> None:
         """DEPRECATED: Read the configuration file but do not load it (i.e. dispatching
         values to each option's provider)
@@ -548,7 +550,7 @@ class _ArgumentsManager:
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             return self.load_configuration_from_config(kwargs)
 
-    def load_configuration_from_config(self, config: Dict[str, Any]) -> None:
+    def load_configuration_from_config(self, config: dict[str, Any]) -> None:
         warnings.warn(
             "DEPRECATED: load_configuration_from_config has been deprecated. It will be removed in pylint 3.0.",
             DeprecationWarning,
@@ -559,8 +561,8 @@ class _ArgumentsManager:
             provider.set_option(opt, opt_value)
 
     def load_command_line_configuration(
-        self, args: Optional[List[str]] = None
-    ) -> List[str]:
+        self, args: list[str] | None = None
+    ) -> list[str]:
         """DEPRECATED: Override configuration according to command line parameters.
 
         return additional arguments
@@ -580,7 +582,7 @@ class _ArgumentsManager:
                 setattr(config, attr, value)  # pragma: no cover # Handled by argparse.
         return args
 
-    def help(self, level: Optional[int] = None) -> str:
+    def help(self, level: int | None = None) -> str:
         """Return the usage string based on the available options."""
         if level is not None:
             warnings.warn(
