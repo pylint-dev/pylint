@@ -186,7 +186,7 @@ class McCabeMethodChecker(checkers.BaseChecker):
                 node_name = f"'{node.name}'"
             else:
                 node_name = f"This '{node.__class__.__name__.lower()}'"
-            if complexity <= self.linter.namespace.max_complexity:
+            if complexity <= self.linter.config.max_complexity:
                 continue
             self.add_message(
                 "too-complex", node=node, confidence=HIGH, args=(node_name, complexity)

@@ -91,7 +91,7 @@ class _ArgumentsProvider:
             "in a future release.",
             DeprecationWarning,
         )
-        return getattr(self._arguments_manager.namespace, opt.replace("-", "_"), None)
+        return getattr(self._arguments_manager.config, opt.replace("-", "_"), None)
 
     # pylint: disable-next=unused-argument
     def set_option(self, optname, value, action=None, optdict=None):

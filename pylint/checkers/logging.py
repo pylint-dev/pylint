@@ -153,9 +153,9 @@ class LoggingChecker(checkers.BaseChecker):
         # so it is necessary to process the imports and store in this field
         # what name the logging module is actually given.
         self._logging_names: set[str] = set()
-        logging_mods = self.linter.namespace.logging_modules
+        logging_mods = self.linter.config.logging_modules
 
-        self._format_style = self.linter.namespace.logging_format_style
+        self._format_style = self.linter.config.logging_format_style
 
         self._logging_modules = set(logging_mods)
         self._from_imports = {}

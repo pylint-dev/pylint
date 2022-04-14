@@ -101,11 +101,9 @@ class EncodingChecker(BaseChecker):
     def open(self):
         super().open()
 
-        notes = "|".join(re.escape(note) for note in self.linter.namespace.notes)
-        if self.linter.namespace.notes_rgx:
-            regex_string = (
-                rf"#\s*({notes}|{self.linter.namespace.notes_rgx})(?=(:|\s|\Z))"
-            )
+        notes = "|".join(re.escape(note) for note in self.linter.config.notes)
+        if self.linter.config.notes_rgx:
+            regex_string = rf"#\s*({notes}|{self.linter.config.notes_rgx})(?=(:|\s|\Z))"
         else:
             regex_string = rf"#\s*({notes})(?=(:|\s|\Z))"
 
@@ -138,7 +136,7 @@ class EncodingChecker(BaseChecker):
 
     def process_tokens(self, tokens):
         """Inspect the source to find fixme problems."""
-        if not self.linter.namespace.notes:
+        if not self.linter.config.notes:
             return
         comments = (
             token_info for token_info in tokens if token_info.type == tokenize.COMMENT
@@ -161,7 +159,7 @@ class EncodingChecker(BaseChecker):
                     except PragmaParserError:
                         # Printing useful information dealing with this error is done in the lint package
                         pass
-                    if set(values) & set(self.linter.namespace.notes):
+                    if set(values) & set(self.linter.config.notes):
                         continue
                 except ValueError:
                     self.add_message(

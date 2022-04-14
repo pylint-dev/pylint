@@ -890,7 +890,7 @@ accessed. Python regular expressions are accepted.",
         # (surrounded by quote `"` and followed by a comma `,`)
         # REQUEST,aq_parent,"[a-zA-Z]+_set{1,2}"' =>
         # ('REQUEST', 'aq_parent', '[a-zA-Z]+_set{1,2}')
-        generated_members = self.linter.namespace.generated_members
+        generated_members = self.linter.config.generated_members
         if isinstance(generated_members, str):
             gen = shlex.shlex(generated_members)
             gen.whitespace += ","
@@ -977,7 +977,7 @@ accessed. Python regular expressions are accepted.",
         ]
         if (
             len(non_opaque_inference_results) != len(inferred)
-            and self.linter.namespace.ignore_on_opaque_inference
+            and self.linter.config.ignore_on_opaque_inference
         ):
             # There is an ambiguity in the inference. Since we can't
             # make sure that we won't emit a false positive, we just stop
@@ -988,8 +988,8 @@ accessed. Python regular expressions are accepted.",
             if _is_owner_ignored(
                 owner,
                 name,
-                self.linter.namespace.ignored_classes,
-                self.linter.namespace.ignored_modules,
+                self.linter.config.ignored_classes,
+                self.linter.config.ignored_modules,
             ):
                 continue
 
@@ -1019,9 +1019,9 @@ accessed. Python regular expressions are accepted.",
                     name,
                     self._mixin_class_rgx,
                     ignored_mixins=(
-                        "no-member" in self.linter.namespace.ignored_checks_for_mixins
+                        "no-member" in self.linter.config.ignored_checks_for_mixins
                     ),
-                    ignored_none=self.linter.namespace.ignore_none,
+                    ignored_none=self.linter.config.ignore_none,
                 ):
                     continue
                 missingattr.add((owner, name))
@@ -1076,12 +1076,12 @@ accessed. Python regular expressions are accepted.",
             hint = ""
         else:
             msg = "no-member"
-            if self.linter.namespace.missing_member_hint:
+            if self.linter.config.missing_member_hint:
                 hint = _missing_member_hint(
                     owner,
                     node.attrname,
-                    self.linter.namespace.missing_member_hint_distance,
-                    self.linter.namespace.missing_member_max_choices,
+                    self.linter.config.missing_member_hint_distance,
+                    self.linter.config.missing_member_max_choices,
                 )
             else:
                 hint = ""
@@ -1331,7 +1331,7 @@ accessed. Python regular expressions are accepted.",
 
         # Has the function signature changed in ways we cannot reliably detect?
         if hasattr(called, "decorators") and decorated_with(
-            called, self.linter.namespace.signature_mutators
+            called, self.linter.config.signature_mutators
         ):
             return
 
@@ -1705,7 +1705,7 @@ accessed. Python regular expressions are accepted.",
                 # Check if we are dealing with a function decorated
                 # with contextlib.contextmanager.
                 if decorated_with(
-                    inferred.parent, self.linter.namespace.contextmanager_decorators
+                    inferred.parent, self.linter.config.contextmanager_decorators
                 ):
                     continue
                 # If the parent of the generator is not the context manager itself,
@@ -1734,7 +1734,7 @@ accessed. Python regular expressions are accepted.",
                     if not isinstance(scope, nodes.FunctionDef):
                         continue
                     if decorated_with(
-                        scope, self.linter.namespace.contextmanager_decorators
+                        scope, self.linter.config.contextmanager_decorators
                     ):
                         break
                 else:
@@ -1754,7 +1754,7 @@ accessed. Python regular expressions are accepted.",
                         # Just ignore mixin classes.
                         if (
                             "not-context-manager"
-                            in self.linter.namespace.ignored_checks_for_mixins
+                            in self.linter.config.ignored_checks_for_mixins
                         ):
                             if inferred.name[-5:].lower() == "mixin":
                                 continue

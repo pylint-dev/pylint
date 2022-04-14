@@ -26,7 +26,7 @@ class CheckerTestCase:
         self.linter = UnittestLinter()
         self.checker = self.CHECKER_CLASS(self.linter)
         for key, value in self.CONFIG.items():
-            setattr(self.checker.linter.namespace, key, value)
+            setattr(self.checker.linter.config, key, value)
             # pylint: disable-next=fixme
             # TODO: Remove after deprecation of the config attribute
             setattr(self.checker.config, key, value)
