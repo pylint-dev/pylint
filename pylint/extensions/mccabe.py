@@ -4,6 +4,8 @@
 
 """Module to add McCabe checker class for pylint."""
 
+from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 from astroid import nodes
@@ -191,5 +193,5 @@ class McCabeMethodChecker(checkers.BaseChecker):
             )
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(McCabeMethodChecker(linter))

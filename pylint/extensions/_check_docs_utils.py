@@ -4,8 +4,9 @@
 
 """Utility methods for docstring checking."""
 
+from __future__ import annotations
+
 import re
-from typing import List, Optional, Set, Tuple
 
 import astroid
 from astroid import nodes
@@ -95,12 +96,12 @@ def _get_raise_target(node):
     return None
 
 
-def _split_multiple_exc_types(target: str) -> List[str]:
+def _split_multiple_exc_types(target: str) -> list[str]:
     delimiters = r"(\s*,(?:\s*or\s)?\s*|\s+or\s+)"
     return re.split(delimiters, target)
 
 
-def possible_exc_types(node: nodes.NodeNG) -> Set[nodes.ClassDef]:
+def possible_exc_types(node: nodes.NodeNG) -> set[nodes.ClassDef]:
     """Gets all the possible raised exception types for the given raise node.
 
     .. note::
@@ -157,8 +158,8 @@ def possible_exc_types(node: nodes.NodeNG) -> Set[nodes.ClassDef]:
 
 
 def docstringify(
-    docstring: Optional[nodes.Const], default_type: str = "default"
-) -> "Docstring":
+    docstring: nodes.Const | None, default_type: str = "default"
+) -> Docstring:
     best_match = (0, DOCSTRING_TYPES.get(default_type, Docstring)(docstring))
     for docstring_type in (
         SphinxDocstring,
@@ -190,7 +191,7 @@ class Docstring:
 
     # These methods are designed to be overridden
     # pylint: disable=no-self-use
-    def __init__(self, doc: Optional[nodes.Const]) -> None:
+    def __init__(self, doc: nodes.Const | None) -> None:
         docstring = doc.value if doc else ""
         self.doc = docstring.expandtabs()
 
@@ -768,7 +769,7 @@ class NumpyDocstring(GoogleDocstring):
 
     supports_yields = True
 
-    def match_param_docs(self) -> Tuple[Set[str], Set[str]]:
+    def match_param_docs(self) -> tuple[set[str], set[str]]:
         """Matches parameter documentation section to parameter documentation rules."""
         params_with_doc = set()
         params_with_type = set()
