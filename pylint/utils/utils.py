@@ -21,18 +21,9 @@ import sys
 import textwrap
 import tokenize
 import warnings
+from collections.abc import Sequence
 from io import BufferedReader, BytesIO
-from typing import (
-    TYPE_CHECKING,
-    List,
-    Pattern,
-    Sequence,
-    TextIO,
-    Tuple,
-    TypeVar,
-    Union,
-    overload,
-)
+from typing import TYPE_CHECKING, List, Pattern, TextIO, Tuple, TypeVar, Union, overload
 
 from astroid import Module, modutils, nodes
 

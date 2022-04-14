@@ -15,7 +15,7 @@ import sys
 from collections.abc import Iterable, Iterator
 from enum import Enum
 from functools import lru_cache
-from typing import TYPE_CHECKING, Any, DefaultDict, NamedTuple
+from typing import TYPE_CHECKING, Any, NamedTuple
 
 import astroid
 from astroid import nodes
@@ -516,7 +516,7 @@ class ScopeConsumer(NamedTuple):
 
     to_consume: dict[str, list[nodes.NodeNG]]
     consumed: dict[str, list[nodes.NodeNG]]
-    consumed_uncertain: DefaultDict[str, list[nodes.NodeNG]]
+    consumed_uncertain: collections.defaultdict[str, list[nodes.NodeNG]]
     scope_type: str
 
 
@@ -557,7 +557,7 @@ scope_type : {self._atomic.scope_type}
         return self._atomic.consumed
 
     @property
-    def consumed_uncertain(self) -> DefaultDict[str, list[nodes.NodeNG]]:
+    def consumed_uncertain(self) -> collections.defaultdict[str, list[nodes.NodeNG]]:
         """Retrieves nodes filtered out by get_next_to_consume() that may not
         have executed, such as statements in except blocks, or statements
 
@@ -2698,7 +2698,7 @@ class VariablesChecker(BaseChecker):
     def _check_imports(self, not_consumed):
         local_names = _fix_dot_imports(not_consumed)
         checked = set()
-        unused_wildcard_imports: DefaultDict[
+        unused_wildcard_imports: collections.defaultdict[
             tuple[str, nodes.ImportFrom], list[str]
         ] = collections.defaultdict(list)
         for name, stmt in local_names:
