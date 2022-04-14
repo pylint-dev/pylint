@@ -18,9 +18,10 @@ import contextlib
 import io
 import re
 from collections import OrderedDict
+from collections.abc import Iterable
 from functools import lru_cache
 from tokenize import detect_encoding
-from typing import Iterable, NamedTuple, TypeVar
+from typing import NamedTuple, TypeVar
 
 from astroid import nodes
 

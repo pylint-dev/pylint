@@ -9,8 +9,9 @@ import copy
 import itertools
 import sys
 import tokenize
+from collections.abc import Iterator
 from functools import reduce
-from typing import Iterator, NamedTuple
+from typing import NamedTuple
 
 import astroid
 from astroid import nodes

@@ -9,7 +9,8 @@ from __future__ import annotations
 import argparse
 import optparse  # pylint: disable=deprecated-module
 import warnings
-from typing import Any, Iterator
+from collections.abc import Iterator
+from typing import Any
 
 from pylint.config.arguments_manager import _ArgumentsManager
 from pylint.typing import OptionDict, Options

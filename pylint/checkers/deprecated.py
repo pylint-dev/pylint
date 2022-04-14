@@ -6,8 +6,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Container, Iterable
 from itertools import chain
-from typing import Any, Container, Iterable
+from typing import Any
 
 import astroid
 from astroid import nodes

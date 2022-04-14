@@ -12,8 +12,10 @@ import numbers
 import re
 import string
 import warnings
+from collections.abc import Callable, Iterable
 from functools import lru_cache, partial
-from typing import Callable, Iterable, Match, TypeVar
+from re import Match
+from typing import TypeVar
 
 import _string
 import astroid.objects

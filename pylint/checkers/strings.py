@@ -10,7 +10,9 @@ import collections
 import numbers
 import re
 import tokenize
-from typing import TYPE_CHECKING, Counter, Iterable
+from collections import Counter
+from collections.abc import Iterable
+from typing import TYPE_CHECKING
 
 import astroid
 from astroid import nodes
