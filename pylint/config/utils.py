@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, Un
 from pylint import extensions, utils
 from pylint.config.argument import (
     _CallableArgument,
+    _ExtendArgument,
     _StoreArgument,
     _StoreNewNamesArgument,
     _StoreOldNamesArgument,
@@ -33,6 +34,7 @@ def _convert_option_to_argument(
     _CallableArgument,
     _StoreOldNamesArgument,
     _StoreNewNamesArgument,
+    _ExtendArgument,
 ]:
     """Convert an optdict to an Argument class instance."""
     if "level" in optdict and "hide" not in optdict:
@@ -84,7 +86,19 @@ def _convert_option_to_argument(
             DeprecationWarning,
         )
         default = None
-
+    if action == "extend":
+        return _ExtendArgument(
+            flags=flags,
+            action=action,
+            default=default,
+            arg_type=optdict["type"],
+            choices=choices,
+            arg_help=optdict.get("help", ""),
+            metavar=optdict.get("metavar", ""),
+            hide_help=optdict.get("hide", False),
+            section=optdict.get("group", None),
+            dest=optdict.get("dest", None),
+        )
     if "kwargs" in optdict:
         if "old_names" in optdict["kwargs"]:
             return _StoreOldNamesArgument(

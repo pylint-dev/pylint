@@ -23,6 +23,7 @@ from pylint import utils
 from pylint.config.argument import (
     _Argument,
     _CallableArgument,
+    _ExtendArgument,
     _StoreArgument,
     _StoreNewNamesArgument,
     _StoreOldNamesArgument,
@@ -190,6 +191,17 @@ class _ArgumentsManager:
                 **argument.kwargs,
                 action=argument.action,
                 help=argument.help,
+            )
+        elif isinstance(argument, _ExtendArgument):
+            section_group.add_argument(
+                *argument.flags,
+                action=argument.action,
+                default=argument.default,
+                type=argument.type,  # type: ignore[arg-type] # incorrect typing in typeshed
+                help=argument.help,
+                metavar=argument.metavar,
+                choices=argument.choices,
+                dest=argument.dest,
             )
         else:
             raise UnrecognizedArgumentAction

@@ -52,6 +52,27 @@ class _DoNothingAction(_CallbackAction):
         return None
 
 
+class _ExtendAction(argparse._AppendAction):
+    """Action that adds the value to a pre-existing list.
+
+    It is directly copied from the stdlib implementation which is only available
+    on 3.8+.
+    """
+
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: Union[str, Sequence[Any], None],
+        option_string: Optional[str] = None,
+    ) -> None:
+        assert isinstance(values, (tuple, list))
+        current = getattr(namespace, self.dest, [])
+        assert isinstance(current, list)
+        current.extend(values)
+        setattr(namespace, self.dest, current)
+
+
 class _AccessRunObjectAction(_CallbackAction):
     """Action that has access to the Run object."""
 
