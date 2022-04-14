@@ -3,12 +3,15 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Basic checker for Python code."""
+
+from __future__ import annotations
+
 import collections
 import itertools
 import re
 import sys
 from enum import Enum, auto
-from typing import Dict, Optional, Pattern, Tuple
+from typing import Pattern
 
 import astroid
 from astroid import nodes
@@ -283,9 +286,9 @@ class NameChecker(_BasicChecker):
             re.compile(rgxp) for rgxp in self.linter.namespace.bad_names_rgxs
         ]
 
-    def _create_naming_rules(self) -> Tuple[Dict[str, Pattern[str]], Dict[str, str]]:
-        regexps: Dict[str, Pattern[str]] = {}
-        hints: Dict[str, str] = {}
+    def _create_naming_rules(self) -> tuple[dict[str, Pattern[str]], dict[str, str]]:
+        regexps: dict[str, Pattern[str]] = {}
+        hints: dict[str, str] = {}
 
         for name_type in KNOWN_NAME_TYPES:
             if name_type in KNOWN_NAME_TYPES_WITH_STYLE:
@@ -473,7 +476,7 @@ class NameChecker(_BasicChecker):
 
     def _raise_name_warning(
         self,
-        prevalent_group: Optional[str],
+        prevalent_group: str | None,
         node: nodes.NodeNG,
         node_type: str,
         name: str,
@@ -560,7 +563,7 @@ class NameChecker(_BasicChecker):
         return None
 
     @staticmethod
-    def _assigns_typevar(node: Optional[nodes.NodeNG]) -> bool:
+    def _assigns_typevar(node: nodes.NodeNG | None) -> bool:
         """Check if a node is assigning a TypeVar."""
         if isinstance(node, astroid.Call):
             inferred = utils.safe_infer(node.func)
