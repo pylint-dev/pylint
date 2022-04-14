@@ -4,6 +4,8 @@
 
 """Basic Error checker from the basic checker."""
 
+from future import __annotations__
+
 import itertools
 from collections.abc import Iterator
 from typing import Any
