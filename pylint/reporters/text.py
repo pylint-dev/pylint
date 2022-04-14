@@ -7,22 +7,14 @@
 :text: the default one grouping messages by module
 :colorized: an ANSI colorized text reporter
 """
+
+from __future__ import annotations
+
 import os
 import re
 import sys
 import warnings
-from typing import (
-    TYPE_CHECKING,
-    Dict,
-    NamedTuple,
-    Optional,
-    Set,
-    TextIO,
-    Tuple,
-    Union,
-    cast,
-    overload,
-)
+from typing import TYPE_CHECKING, Dict, NamedTuple, Optional, TextIO, cast, overload
 
 from pylint.interfaces import IReporter
 from pylint.message import Message
@@ -38,11 +30,11 @@ if TYPE_CHECKING:
 class MessageStyle(NamedTuple):
     """Styling of a message."""
 
-    color: Optional[str]
+    color: str | None
     """The color name (see `ANSI_COLORS` for available values)
     or the color number when 256 colors are available
     """
-    style: Tuple[str, ...] = ()
+    style: tuple[str, ...] = ()
     """Tuple of style strings (see `ANSI_COLORS` for available values)."""
 
 
@@ -99,7 +91,7 @@ def _get_ansi_code(msg_style: MessageStyle) -> str:
 @overload
 def colorize_ansi(
     msg: str,
-    msg_style: Optional[MessageStyle] = None,
+    msg_style: MessageStyle | None = None,
 ) -> str:
     ...
 
@@ -107,10 +99,10 @@ def colorize_ansi(
 @overload
 def colorize_ansi(
     msg: str,
-    msg_style: Optional[str] = None,
+    msg_style: str | None = None,
     style: str = "",
     *,
-    color: Optional[str] = None,
+    color: str | None = None,
 ) -> str:
     # Remove for pylint 3.0
     ...
@@ -118,9 +110,9 @@ def colorize_ansi(
 
 def colorize_ansi(
     msg: str,
-    msg_style: Union[MessageStyle, str, None] = None,
+    msg_style: MessageStyle | str | None = None,
     style: str = "",
-    **kwargs: Optional[str],
+    **kwargs: str | None,
 ) -> str:
     r"""colorize message by wrapping it with ansi escape codes
 
@@ -163,14 +155,14 @@ class TextReporter(BaseReporter):
     extension = "txt"
     line_format = "{path}:{line}:{column}: {msg_id}: {msg} ({symbol})"
 
-    def __init__(self, output: Optional[TextIO] = None) -> None:
+    def __init__(self, output: TextIO | None = None) -> None:
         super().__init__(output)
-        self._modules: Set[str] = set()
+        self._modules: set[str] = set()
         self._template = self.line_format
         self._fixed_template = self.line_format
         """The output format template with any unrecognized arguments removed."""
 
-    def on_set_current_module(self, module: str, filepath: Optional[str]) -> None:
+    def on_set_current_module(self, module: str, filepath: str | None) -> None:
         """Set the format template to be used and check for unrecognized arguments."""
         template = str(self.linter.namespace.msg_template or self._template)
 
@@ -210,7 +202,7 @@ class TextReporter(BaseReporter):
                 self.writeln("************* ")
         self.write_message(msg)
 
-    def _display(self, layout: "Section") -> None:
+    def _display(self, layout: Section) -> None:
         """Launch layouts display."""
         print(file=self.out)
         TextWriter().format(layout, self.out)
@@ -226,7 +218,7 @@ class ParseableTextReporter(TextReporter):
     name = "parseable"
     line_format = "{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}"
 
-    def __init__(self, output: Optional[TextIO] = None) -> None:
+    def __init__(self, output: TextIO | None = None) -> None:
         warnings.warn(
             f"{self.name} output format is deprecated. This is equivalent to --msg-template={self.line_format}",
             DeprecationWarning,
@@ -258,26 +250,26 @@ class ColorizedTextReporter(TextReporter):
     @overload
     def __init__(
         self,
-        output: Optional[TextIO] = None,
-        color_mapping: Optional[ColorMappingDict] = None,
+        output: TextIO | None = None,
+        color_mapping: ColorMappingDict | None = None,
     ) -> None:
         ...
 
     @overload
     def __init__(
         self,
-        output: Optional[TextIO] = None,
-        color_mapping: Optional[Dict[str, Tuple[Optional[str], str]]] = None,
+        output: TextIO | None = None,
+        color_mapping: dict[str, tuple[str | None, str]] | None = None,
     ) -> None:
         # Remove for pylint 3.0
         ...
 
     def __init__(
         self,
-        output: Optional[TextIO] = None,
-        color_mapping: Union[
-            ColorMappingDict, Dict[str, Tuple[Optional[str], str]], None
-        ] = None,
+        output: TextIO | None = None,
+        color_mapping: (
+            ColorMappingDict | dict[str, tuple[str | None, str]] | None
+        ) = None,
     ) -> None:
         super().__init__(output)
         # pylint: disable-next=fixme
@@ -333,7 +325,7 @@ class ColorizedTextReporter(TextReporter):
         self.write_message(msg)
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_reporter(TextReporter)
     linter.register_reporter(ParseableTextReporter)
     linter.register_reporter(VSTextReporter)
