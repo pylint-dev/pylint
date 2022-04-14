@@ -78,7 +78,8 @@ Other Changes
 
   Ref #5392
 
-* The ``level`` attribute of ``BaseChecker`` has been deprecated.
+* The ``level`` attribute of ``BaseChecker`` has been deprecated: everything is now
+  displayed in ``--help``, all the time.
 
   Ref #5392
 
