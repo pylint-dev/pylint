@@ -121,7 +121,6 @@ class OptionsManagerMixIn:
                 self.cmdline_parser, title=group_name.capitalize()
             )
             self.cmdline_parser.add_option_group(group)
-            group.level = provider.level
             self._mygroups[group_name] = group
             # add section to the config file
             if (
