@@ -597,11 +597,13 @@ class _ArgumentsManager:
             )
         return self._arg_parser.format_help()
 
-    # pylint: disable-next=fixme
-    # TODO: Optparse: Deprecate cb_set_provider_option
-    # Currently uncovered.
     def cb_set_provider_option(self, option, opt, value, parser):  # pragma: no cover
-        """Optik callback for option setting."""
+        """DEPRECATED: Optik callback for option setting."""
+        # TODO: 3.0: Remove deprecated method. # pylint: disable=fixme
+        warnings.warn(
+            "cb_set_provider_option has been deprecated. It will be removed in pylint 3.0.",
+            DeprecationWarning,
+        )
         if opt.startswith("--"):
             # remove -- on long option
             opt = opt[2:]
@@ -611,7 +613,7 @@ class _ArgumentsManager:
         # trick since we can't set action='store_true' on options
         if value is None:
             value = 1
-        self.global_set_option(opt, value)
+        self.set_option(opt, value)
 
     def global_set_option(self, opt: str, value: Any) -> None:
         """DEPRECATED: Set option on the correct option provider."""

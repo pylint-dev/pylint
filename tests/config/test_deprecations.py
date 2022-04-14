@@ -74,3 +74,8 @@ class TestDeprecationArgumentsManager:
         """Test that load_command_line_configuration emits a DeprecationWarning."""
         with pytest.warns(DeprecationWarning):
             self.linter.load_command_line_configuration([])
+
+    def test_cb_set_provider_option(self) -> None:
+        """Test that cb_set_provider_option emits a DeprecationWarning."""
+        with pytest.warns(DeprecationWarning):
+            self.linter.cb_set_provider_option(None, "--test-opt", True, None)
