@@ -7,18 +7,9 @@
 from __future__ import annotations
 
 import sys
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Dict,
-    Iterable,
-    NamedTuple,
-    Pattern,
-    Tuple,
-    Type,
-    Union,
-)
+from collections.abc import Iterable
+from re import Pattern
+from typing import TYPE_CHECKING, Any, Callable, Dict, NamedTuple, Tuple, Type, Union
 
 if sys.version_info >= (3, 8):
     from typing import Literal, TypedDict

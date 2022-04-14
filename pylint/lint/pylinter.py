@@ -13,8 +13,9 @@ import sys
 import tokenize
 import traceback
 import warnings
+from collections.abc import Iterable, Iterator, Sequence
 from io import TextIOWrapper
-from typing import Any, DefaultDict, Iterable, Iterator, Sequence
+from typing import Any, DefaultDict
 
 import astroid
 from astroid import AstroidError, nodes

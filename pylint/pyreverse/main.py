@@ -7,7 +7,7 @@
   create UML diagrams for classes and modules in <packages>
 """
 import sys
-from typing import Iterable
+from collections.abc import Iterable
 
 from pylint.config import ConfigurationMixIn
 from pylint.lint.utils import fix_import_path

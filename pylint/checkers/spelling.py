@@ -9,7 +9,8 @@ from __future__ import annotations
 import os
 import re
 import tokenize
-from typing import TYPE_CHECKING, Pattern
+from re import Pattern
+from typing import TYPE_CHECKING
 
 from astroid import nodes
 

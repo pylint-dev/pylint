@@ -12,9 +12,10 @@ import itertools
 import os
 import re
 import sys
+from collections.abc import Iterable, Iterator
 from enum import Enum
 from functools import lru_cache
-from typing import TYPE_CHECKING, Any, DefaultDict, Iterable, Iterator, NamedTuple
+from typing import TYPE_CHECKING, Any, DefaultDict, NamedTuple
 
 import astroid
 from astroid import nodes

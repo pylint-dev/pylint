@@ -8,7 +8,7 @@ import copy
 import optparse  # pylint: disable=deprecated-module
 import pathlib
 import re
-from typing import Pattern
+from re import Pattern
 
 from pylint import utils
 

@@ -11,7 +11,6 @@ import sys
 from collections import Counter
 from io import StringIO
 from pathlib import Path
-from typing import Counter as CounterType
 from typing import TextIO, Tuple
 
 import pytest
@@ -30,7 +29,7 @@ from pylint.testutils.functional.test_file import (  # need to import from funct
 from pylint.testutils.output_line import OutputLine
 from pylint.testutils.reporter_for_tests import FunctionalTestReporter
 
-MessageCounter = CounterType[Tuple[int, str]]
+MessageCounter = Counter[Tuple[int, str]]
 
 PYLINTRC = Path(__file__).parent / "testing_pylintrc"
 

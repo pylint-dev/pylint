@@ -11,7 +11,7 @@ import itertools
 import re
 import sys
 from enum import Enum, auto
-from typing import Pattern
+from re import Pattern
 
 import astroid
 from astroid import nodes

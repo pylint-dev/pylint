@@ -5,7 +5,8 @@
 """Basic Error checker from the basic checker."""
 
 import itertools
-from typing import Any, Iterator
+from collections.abc import Iterator
+from typing import Any
 
 import astroid
 from astroid import nodes

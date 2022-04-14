@@ -15,9 +15,10 @@ import shlex
 import sys
 import types
 from collections import deque
-from collections.abc import Sequence
+from collections.abc import Callable, Iterator, Sequence
 from functools import singledispatch
-from typing import TYPE_CHECKING, Any, Callable, Iterator, Pattern, Union
+from re import Pattern
+from typing import TYPE_CHECKING, Any, Union
 
 import astroid.exceptions
 from astroid import bases, nodes

@@ -8,8 +8,9 @@ from __future__ import annotations
 
 import re
 import warnings
+from collections.abc import Callable
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any
 
 from pylint import extensions, utils
 from pylint.config.argument import (

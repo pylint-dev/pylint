@@ -27,6 +27,7 @@ import re
 import sys
 import warnings
 from collections import defaultdict
+from collections.abc import Generator, Iterable
 from getopt import getopt
 from io import BufferedIOBase, BufferedReader, BytesIO
 from itertools import chain, groupby
@@ -34,8 +35,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Dict,
-    Generator,
-    Iterable,
     List,
     NamedTuple,
     NewType,

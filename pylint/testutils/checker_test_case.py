@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import contextlib
 import warnings
-from typing import Generator
+from collections.abc import Generator
 
 from pylint.checkers.base_checker import BaseChecker
 from pylint.constants import PY38_PLUS

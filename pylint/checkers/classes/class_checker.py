@@ -9,7 +9,7 @@ from __future__ import annotations
 import collections
 import sys
 from itertools import chain, zip_longest
-from typing import Pattern
+from re import Pattern
 
 import astroid
 from astroid import bases, nodes

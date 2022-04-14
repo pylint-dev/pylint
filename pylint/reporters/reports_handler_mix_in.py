@@ -5,15 +5,8 @@
 from __future__ import annotations
 
 import collections
-from typing import (
-    TYPE_CHECKING,
-    Callable,
-    DefaultDict,
-    List,
-    MutableSequence,
-    Optional,
-    Tuple,
-)
+from collections.abc import Callable, MutableSequence
+from typing import TYPE_CHECKING, DefaultDict, List, Optional, Tuple
 
 from pylint.exceptions import EmptyReportError
 from pylint.reporters.ureports.nodes import Section

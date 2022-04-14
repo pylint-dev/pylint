@@ -10,7 +10,8 @@ from __future__ import annotations
 
 import argparse
 import warnings
-from typing import Any, Sequence
+from collections.abc import Sequence
+from typing import Any
 
 
 class _OldNamesAction(argparse._StoreAction):

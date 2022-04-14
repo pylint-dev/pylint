@@ -8,8 +8,8 @@ import configparser
 import os
 import sys
 import warnings
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Iterator
 
 if sys.version_info >= (3, 11):
     import tomllib
