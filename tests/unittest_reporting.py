@@ -3,6 +3,9 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 # pylint: disable=redefined-outer-name
+
+from __future__ import annotations
+
 import sys
 import warnings
 from contextlib import redirect_stdout
@@ -159,7 +162,7 @@ class NopReporter(BaseReporter):
     def writeln(self, string=""):
         pass
 
-    def _display(self, layout: "Section") -> None:
+    def _display(self, layout: Section) -> None:
         pass
 
 
@@ -334,7 +337,7 @@ def test_multi_format_output(tmp_path):
 
 def test_display_results_is_renamed():
     class CustomReporter(TextReporter):
-        def _display(self, layout: "Section") -> None:
+        def _display(self, layout: Section) -> None:
             return None
 
     reporter = CustomReporter()

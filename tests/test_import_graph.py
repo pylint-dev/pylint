@@ -4,10 +4,12 @@
 
 # pylint: disable=redefined-outer-name
 
+from __future__ import annotations
+
 import os
 import shutil
+from collections.abc import Iterator
 from os.path import exists
-from typing import Iterator, Union
 
 import pytest
 from _pytest.fixtures import SubRequest
@@ -18,7 +20,7 @@ from pylint.lint import PyLinter
 
 
 @pytest.fixture
-def dest(request: SubRequest) -> Iterator[Union[Iterator, Iterator[str]]]:
+def dest(request: SubRequest) -> Iterator[Iterator | Iterator[str]]:
     dest = request.param
     yield dest
     try:

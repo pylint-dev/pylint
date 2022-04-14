@@ -6,10 +6,11 @@
 
 # pylint: disable=protected-access,missing-function-docstring,no-self-use
 
+from __future__ import annotations
+
 import argparse
 import multiprocessing
 import os
-from typing import List
 
 import dill
 import pytest
@@ -41,7 +42,7 @@ def _gen_file_data(idx: int = 0) -> FileItem:
     return file_data
 
 
-def _gen_file_datas(count: int = 1) -> List[FileItem]:
+def _gen_file_datas(count: int = 1) -> list[FileItem]:
     return [_gen_file_data(idx) for idx in range(count)]
 
 
@@ -62,7 +63,7 @@ class SequentialTestChecker(BaseChecker):
 
     def __init__(self, linter: PyLinter) -> None:
         super().__init__(linter)
-        self.data: List[str] = []
+        self.data: list[str] = []
         self.linter = linter
 
     def process_module(self, _node: nodes.Module) -> None:
@@ -101,7 +102,7 @@ class ParallelTestChecker(BaseChecker, MapReduceMixin):
 
     def __init__(self, linter: PyLinter) -> None:
         super().__init__(linter)
-        self.data: List[str] = []
+        self.data: list[str] = []
         self.linter = linter
 
     def open(self) -> None:
@@ -116,7 +117,7 @@ class ParallelTestChecker(BaseChecker, MapReduceMixin):
     def get_map_data(self):
         return self.data
 
-    def reduce_map_data(self, linter: PyLinter, data: List[List[str]]) -> None:
+    def reduce_map_data(self, linter: PyLinter, data: list[list[str]]) -> None:
         recombined = type(self)(linter)
         recombined.open()
         aggregated = []
