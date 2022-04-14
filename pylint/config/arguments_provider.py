@@ -44,7 +44,8 @@ class _ArgumentsProvider:
     def level(self) -> int:
         # TODO: 3.0: Remove deprecated attribute # pylint: disable=fixme
         warnings.warn(
-            "The level attribute has been deprecated. It will be removed in pylint 3.0.",
+            "The level attribute has been deprecated. It was used to display the checker in the help or not,"
+            " and everything is displayed in the help now. It will be removed in pylint 3.0.",
             DeprecationWarning,
         )
         return self._level
@@ -53,7 +54,8 @@ class _ArgumentsProvider:
     def level(self, value: int) -> None:
         # TODO: 3.0: Remove deprecated attribute # pylint: disable=fixme
         warnings.warn(
-            "Setting the level attribute has been deprecated. It will be removed in pylint 3.0.",
+            "Setting the level attribute has been deprecated. It was used to display the checker in the help or not,"
+            " and everything is displayed in the help now. It will be removed in pylint 3.0.",
             DeprecationWarning,
         )
         self._level = value
