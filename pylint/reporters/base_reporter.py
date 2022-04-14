@@ -44,7 +44,7 @@ class BaseReporter:
     def set_output(self, output: TextIO | None = None) -> None:
         """Set output stream."""
         # pylint: disable-next=fixme
-        # TODO: Remove this method after depreciation
+        # TODO: 3.0: Remove deprecated method
         warn(
             "'set_output' will be removed in 3.0, please use 'reporter.out = stream' instead",
             DeprecationWarning,

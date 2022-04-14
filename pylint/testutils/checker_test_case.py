@@ -27,9 +27,6 @@ class CheckerTestCase:
         self.checker = self.CHECKER_CLASS(self.linter)
         for key, value in self.CONFIG.items():
             setattr(self.checker.linter.config, key, value)
-            # pylint: disable-next=fixme
-            # TODO: Remove after deprecation of the config attribute
-            setattr(self.checker.config, key, value)
         self.checker.open()
 
     @contextlib.contextmanager
@@ -78,7 +75,7 @@ class CheckerTestCase:
             assert expected_msg.col_offset == gotten_msg.col_offset, msg
             if PY38_PLUS:
                 # pylint: disable=fixme
-                # TODO: Require end_line and end_col_offset and remove the warning
+                # TODO: 3.0: Remove deprecated missing arguments and remove the warning
                 if not expected_msg.end_line == gotten_msg.end_line:
                     warnings.warn(  # pragma: no cover
                         f"The end_line attribute of {gotten_msg} does not match "

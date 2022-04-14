@@ -65,7 +65,7 @@ group are mutually exclusive.",
     @staticmethod
     def _not_implemented_callback(*args, **kwargs):
         # pylint: disable-next=fixme
-        # TODO: Remove after optparse has been deprecated
+        # TODO: Optparse: Remove after optparse has been deprecated
         raise NotImplementedError
 
     def __init__(
