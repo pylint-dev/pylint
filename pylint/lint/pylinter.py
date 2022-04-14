@@ -15,7 +15,7 @@ import traceback
 import warnings
 from collections.abc import Iterable, Iterator, Sequence
 from io import TextIOWrapper
-from typing import Any, DefaultDict
+from typing import Any
 
 import astroid
 from astroid import AstroidError, nodes
@@ -600,7 +600,7 @@ class PyLinter(
         """Dictionary of possible but non-initialized reporters."""
 
         # Attributes for checkers and plugins
-        self._checkers: DefaultDict[
+        self._checkers: collections.defaultdict[
             str, list[checkers.BaseChecker]
         ] = collections.defaultdict(list)
         """Dictionary of registered and initialized checkers."""

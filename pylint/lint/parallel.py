@@ -7,8 +7,9 @@ from __future__ import annotations
 import collections
 import functools
 import warnings
+from collections import defaultdict
 from collections.abc import Iterable, Sequence
-from typing import TYPE_CHECKING, Any, DefaultDict
+from typing import TYPE_CHECKING, Any
 
 import dill
 
@@ -66,7 +67,7 @@ def _worker_initialize(
 def _worker_check_single_file(
     file_item: FileItem,
 ) -> tuple[
-    int, Any, str, Any, list[tuple[Any, ...]], LinterStats, Any, DefaultDict[Any, list]
+    int, Any, str, Any, list[tuple[Any, ...]], LinterStats, Any, defaultdict[Any, list]
 ]:
     if not _worker_linter:
         raise Exception("Worker linter not yet initialised")

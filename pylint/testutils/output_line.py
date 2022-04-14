@@ -5,7 +5,8 @@
 from __future__ import annotations
 
 import warnings
-from typing import Any, NamedTuple, Sequence, TypeVar
+from collections.abc import Sequence
+from typing import Any, NamedTuple, TypeVar
 
 from astroid import nodes
 

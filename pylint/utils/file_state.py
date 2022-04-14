@@ -6,7 +6,8 @@ from __future__ import annotations
 
 import collections
 import sys
-from typing import TYPE_CHECKING, DefaultDict, Dict, Iterator
+from collections.abc import Iterator
+from typing import TYPE_CHECKING, Dict
 
 from astroid import nodes
 
@@ -35,7 +36,7 @@ class FileState:
         self.base_name = modname
         self._module_msgs_state: MessageStateDict = {}
         self._raw_module_msgs_state: MessageStateDict = {}
-        self._ignored_msgs: DefaultDict[
+        self._ignored_msgs: collections.defaultdict[
             tuple[str, int], set[int]
         ] = collections.defaultdict(set)
         self._suppression_mapping: dict[tuple[str, int], int] = {}
