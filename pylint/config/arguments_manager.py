@@ -693,7 +693,7 @@ class _ArgumentsManager:
         self,
         optname: str,
         value: Any,
-        action: Optional[str] = "default_value",
+        action: str | None = "default_value",
         optdict: None | str | OptionDict = "default_value",
     ) -> None:
         """Set an option on the namespace object."""
