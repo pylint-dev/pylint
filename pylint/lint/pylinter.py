@@ -742,37 +742,6 @@ class PyLinter(  # type: ignore[misc]
         self.reporter = reporter
         reporter.linter = self
 
-    def set_option(self, optname, value, action=None, optdict=None):
-        """Overridden from config.OptionsProviderMixin to handle some
-        special options
-        """
-        if optname in self._options_methods or optname in self._bw_options_methods:
-            if value:
-                try:
-                    meth = self._options_methods[optname]
-                except KeyError:
-                    meth = self._bw_options_methods[optname]
-                    warnings.warn(
-                        f"{optname} is deprecated, replace it by {optname.split('-')[0]}",
-                        DeprecationWarning,
-                    )
-                value = utils._check_csv(value)
-                if isinstance(value, (list, tuple)):
-                    for _id in value:
-                        meth(_id, ignore_unknown=True)
-                else:
-                    meth(value)
-                return  # no need to call set_option, disable/enable methods do it
-        elif optname == "output-format":
-            assert isinstance(
-                value, str
-            ), "'output-format' should be a comma separated string of reporters"
-            self._load_reporters(value)
-        try:
-            checkers.BaseTokenChecker.set_option(self, optname, value, action, optdict)
-        except config.UnsupportedAction:
-            print(f"option {optname} can't be read from config file", file=sys.stderr)
-
     def register_reporter(self, reporter_class: type[reporters.BaseReporter]) -> None:
         """Registers a reporter class on the _reporters attribute."""
         self._reporters[reporter_class.name] = reporter_class
