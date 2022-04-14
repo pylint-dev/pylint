@@ -141,6 +141,10 @@ Other Changes
 
   Closes #5205
 
+* Fix falsely issuing ``useless-suppression`` on the ``wrong-import-position`` checker.
+
+  Closes #5219
+
 * Fix false positive for ``unsubscriptable-object`` in Python 3.8 and below for
   statements guarded by ``if TYPE_CHECKING``.
 
