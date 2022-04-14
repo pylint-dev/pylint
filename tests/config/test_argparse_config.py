@@ -25,7 +25,7 @@ class TestArgumentsManager:
     def test_namespace_creation(self) -> None:
         """Test that the linter object has a namespace attribute and that it is not empty"""
 
-        assert self.base_run.linter.config
+        assert self.base_run.linter.config == self.base_run.linter.namespace
         assert self.base_run.linter.config._get_kwargs()
 
 
