@@ -2,7 +2,9 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-from typing import Any, Optional
+from __future__ import annotations
+
+from typing import Any
 
 from astroid import nodes
 
@@ -29,15 +31,15 @@ class UnittestLinter(PyLinter):
     def add_message(
         self,
         msgid: str,
-        line: Optional[int] = None,
+        line: int | None = None,
         # pylint: disable=fixme
         # TODO: Make node non optional
-        node: Optional[nodes.NodeNG] = None,
+        node: nodes.NodeNG | None = None,
         args: Any = None,
-        confidence: Optional[Confidence] = None,
-        col_offset: Optional[int] = None,
-        end_lineno: Optional[int] = None,
-        end_col_offset: Optional[int] = None,
+        confidence: Confidence | None = None,
+        col_offset: int | None = None,
+        end_lineno: int | None = None,
+        end_col_offset: int | None = None,
     ) -> None:
         """Add a MessageTest to the _messages attribute of the linter class."""
         # If confidence is None we set it to UNDEFINED as well in PyLinter
