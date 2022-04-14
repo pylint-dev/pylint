@@ -2,10 +2,11 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import os
 import sys
 import warnings
-from typing import List, Optional
 
 from pylint import config
 from pylint.config.callback_actions import (
@@ -79,9 +80,9 @@ group are mutually exclusive.",
             print(full_version)
             sys.exit(0)
 
-        self._rcfile: Optional[str] = None
-        self._output: Optional[str] = None
-        self._plugins: List[str] = []
+        self._rcfile: str | None = None
+        self._output: str | None = None
+        self._plugins: list[str] = []
         self.verbose: bool = False
 
         # Preprocess certain options and remove them from args list
