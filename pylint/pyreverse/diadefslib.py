@@ -4,7 +4,9 @@
 
 """Handle diagram generation options for class diagram or default diagrams."""
 
-from typing import Any, Optional
+from __future__ import annotations
+
+from typing import Any
 
 import astroid
 from astroid import nodes
@@ -126,7 +128,7 @@ class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
         """
         mode = self.config.mode
         if len(node.modules) > 1:
-            self.pkgdiagram: Optional[PackageDiagram] = PackageDiagram(
+            self.pkgdiagram: PackageDiagram | None = PackageDiagram(
                 f"packages {node.name}", mode
             )
         else:
