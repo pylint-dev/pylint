@@ -3,12 +3,14 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Generic classes/functions for pyreverse core/extensions."""
+
+from __future__ import annotations
+
 import os
 import re
 import shutil
 import subprocess
 import sys
-from typing import Optional, Union
 
 import astroid
 from astroid import nodes
@@ -208,7 +210,7 @@ class LocalsVisitor(ASTWalker):
         return None
 
 
-def get_annotation_label(ann: Union[nodes.Name, nodes.NodeNG]) -> str:
+def get_annotation_label(ann: nodes.Name | nodes.NodeNG) -> str:
     if isinstance(ann, nodes.Name) and ann.name is not None:
         return ann.name
     if isinstance(ann, nodes.NodeNG):
@@ -217,8 +219,8 @@ def get_annotation_label(ann: Union[nodes.Name, nodes.NodeNG]) -> str:
 
 
 def get_annotation(
-    node: Union[nodes.AssignAttr, nodes.AssignName]
-) -> Optional[Union[nodes.Name, nodes.Subscript]]:
+    node: nodes.AssignAttr | nodes.AssignName,
+) -> nodes.Name | nodes.Subscript | None:
     """Return the annotation for `node`."""
     ann = None
     if isinstance(node.parent, nodes.AnnAssign):
@@ -251,7 +253,7 @@ def get_annotation(
     return ann
 
 
-def infer_node(node: Union[nodes.AssignAttr, nodes.AssignName]) -> set:
+def infer_node(node: nodes.AssignAttr | nodes.AssignName) -> set:
     """Return a set containing the node annotation if it exists
     otherwise return a set of the inferred types using the NodeNG.infer method
     """
