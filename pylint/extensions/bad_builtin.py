@@ -3,6 +3,9 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Checker for deprecated builtins."""
+
+from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 from astroid import nodes
@@ -61,5 +64,5 @@ class BadBuiltinChecker(BaseChecker):
                     self.add_message("bad-builtin", node=node, args=args)
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(BadBuiltinChecker(linter))

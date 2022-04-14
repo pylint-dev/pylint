@@ -4,6 +4,8 @@
 
 """Check for if / assign blocks that can be rewritten with if-expressions."""
 
+from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 from astroid import nodes
@@ -53,5 +55,5 @@ class ConsiderTernaryExpressionChecker(BaseChecker):
         self.add_message("consider-ternary-expression", node=node)
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(ConsiderTernaryExpressionChecker(linter))

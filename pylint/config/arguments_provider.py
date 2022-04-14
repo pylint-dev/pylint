@@ -4,10 +4,11 @@
 
 """Arguments provider class used to expose options."""
 
+from __future__ import annotations
 
 import optparse  # pylint: disable=deprecated-module
 import warnings
-from typing import Any, Dict, Iterator, List, Optional, Tuple, Union
+from typing import Any, Iterator
 
 from pylint.config.arguments_manager import _ArgumentsManager
 from pylint.typing import OptionDict, Options
@@ -26,7 +27,7 @@ class _ArgumentsProvider:
     options: Options = ()
     """Options provided by this provider."""
 
-    option_groups_descs: Dict[str, str] = {}
+    option_groups_descs: dict[str, str] = {}
     """Option groups of this provider and their descriptions."""
 
     def __init__(self, arguments_manager: _ArgumentsManager) -> None:
@@ -69,7 +70,7 @@ class _ArgumentsProvider:
                 default = optdict.get("default")
                 self.set_option(opt, default, action, optdict)
 
-    def option_attrname(self, opt: str, optdict: Optional[OptionDict] = None) -> str:
+    def option_attrname(self, opt: str, optdict: OptionDict | None = None) -> str:
         """DEPRECATED: Get the config attribute corresponding to opt."""
         warnings.warn(
             "option_attrname has been deprecated. It will be removed "
@@ -123,12 +124,12 @@ class _ArgumentsProvider:
     def options_by_section(
         self,
     ) -> Iterator[
-        Tuple[
-            Optional[str],
-            Union[
-                Dict[str, List[Tuple[str, OptionDict, Any]]],
-                List[Tuple[str, OptionDict, Any]],
-            ],
+        tuple[
+            str | None,
+            (
+                dict[str, list[tuple[str, OptionDict, Any]]]
+                | list[tuple[str, OptionDict, Any]]
+            ),
         ]
     ]:
         """DEPRECATED: Return an iterator on options grouped by section.
@@ -140,7 +141,7 @@ class _ArgumentsProvider:
             "in a future release.",
             DeprecationWarning,
         )
-        sections: Dict[str, List[Tuple[str, OptionDict, Any]]] = {}
+        sections: dict[str, list[tuple[str, OptionDict, Any]]] = {}
         for optname, optdict in self.options:
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -153,8 +154,8 @@ class _ArgumentsProvider:
             yield section.upper(), options
 
     def options_and_values(
-        self, options: Optional[Options] = None
-    ) -> Iterator[Tuple[str, OptionDict, Any]]:
+        self, options: Options | None = None
+    ) -> Iterator[tuple[str, OptionDict, Any]]:
         """DEPRECATED."""
         warnings.warn(
             "options_and_values has been deprecated. It will be removed "

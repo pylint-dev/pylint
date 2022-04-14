@@ -2,9 +2,11 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import contextlib
 import warnings
-from typing import Dict, Generator, Optional, Type
+from typing import Generator
 
 from pylint.checkers.base_checker import BaseChecker
 from pylint.constants import PY38_PLUS
@@ -17,8 +19,8 @@ from pylint.utils import ASTWalker
 class CheckerTestCase:
     """A base testcase class for unit testing individual checker classes."""
 
-    CHECKER_CLASS: Optional[Type[BaseChecker]]
-    CONFIG: Dict = {}
+    CHECKER_CLASS: type[BaseChecker] | None
+    CONFIG: dict = {}
 
     def setup_method(self):
         self.linter = UnittestLinter()
