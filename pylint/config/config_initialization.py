@@ -58,9 +58,17 @@ def _config_initialization(
     if reporter:
         linter.set_reporter(reporter)
 
+    # Set the current module to the command line
+    # to allow raising messages on it
+    linter.set_current_module("Command line")
+
     # Now we parse any options from the command line, so they can override
     # the configuration file
     parsed_args_list = linter._parse_command_line_configuration(args_list)
+
+    # Set the current module to configuration as we don't know where
+    # the --load-plugins key is coming from
+    linter.set_current_module("Command line or configuration file")
 
     # We have loaded configuration from config file and command line. Now, we can
     # load plugin specific configuration.
