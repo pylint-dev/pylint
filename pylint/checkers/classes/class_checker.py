@@ -1277,6 +1277,14 @@ a metaclass class method.",
                 if called_annotations != overridden_annotations:
                     return
 
+            if (
+                function.returns is not None
+                and meth_node.returns is not None
+                and meth_node.returns.as_string() != function.returns.as_string()
+            ):
+                # Override adds typing information to the return type
+                return
+
         if _definition_equivalent_to_call(params, args):
             self.add_message(
                 "useless-super-delegation", node=function, args=(function.name,)
