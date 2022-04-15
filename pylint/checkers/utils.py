@@ -232,8 +232,8 @@ SUBSCRIPTABLE_CLASSES_PEP585 = frozenset(
 )
 
 T_Node = TypeVar("T_Node", bound=nodes.NodeNG)
-Checker = TypeVar("Checker", bound=BaseChecker)
-AstCallback = Callable[[Checker, T_Node], None]
+CheckerT = TypeVar("CheckerT", bound=BaseChecker)
+AstCallback = Callable[[CheckerT, T_Node], None]
 
 
 class NoSuchArgumentError(Exception):
