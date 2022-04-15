@@ -166,11 +166,11 @@ class NonAsciiNameChecker(base_checker.BaseChecker):
             name = alias or module_name
             self._check_name("module", name, node)
 
-    @utils.check_messages("non-ascii-name")
+    @utils.check_messages("non-ascii-name", "non-ascii-module-import")
     def visit_import(self, node: nodes.Import) -> None:
         self._check_module_import(node)
 
-    @utils.check_messages("non-ascii-name")
+    @utils.check_messages("non-ascii-name", "non-ascii-module-import")
     def visit_importfrom(self, node: nodes.ImportFrom) -> None:
         self._check_module_import(node)
 
