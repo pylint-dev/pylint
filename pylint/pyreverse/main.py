@@ -208,11 +208,15 @@ class Run(ConfigurationMixIn):
     """Base class providing common behaviour for pyreverse commands."""
 
     options = OPTIONS
+    name = "pyreverse"
 
     def __init__(self, args: Iterable[str]):
         super().__init__(usage=__doc__)
+
+        # Parse options
         insert_default_options()
         args = self.load_command_line_configuration(args)
+
         if self.config.output_format not in DIRECTLY_SUPPORTED_FORMATS:
             check_graphviz_availability()
             print(
