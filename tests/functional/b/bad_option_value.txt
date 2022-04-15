@@ -1,1 +1,1 @@
-bad-option-value:1:0:None:None::Bad option value 'W04044':UNDEFINED
+bad-option-value:1:0:None:None::Bad option value for enable. Don't recognize message W04044.:UNDEFINED

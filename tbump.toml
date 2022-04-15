@@ -33,6 +33,10 @@ name = "Upgrade and check doc"
 cmd = "tox -e docs||echo 'Hack so this command does not fail'"
 
 [[before_commit]]
+name = "Upgrade the pylintrc examples"
+cmd = "pylint --rcfile=/dev/null --generate-rcfile > examples/pylintrc"
+
+[[before_commit]]
 name = "Normalize the contributors-txt configuration"
 cmd = "contributors-txt-normalize-configuration -a script/.contributors_aliases.json -o script/.contributors_aliases.json"
 

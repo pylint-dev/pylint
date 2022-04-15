@@ -4,9 +4,11 @@
 
 """Test for the JSON reporter."""
 
+from __future__ import annotations
+
 import json
 from io import StringIO
-from typing import Any, Dict, List
+from typing import Any
 
 from pylint import checkers
 from pylint.lint import PyLinter
@@ -74,13 +76,13 @@ def test_simple_json_output_no_score_with_end_line() -> None:
     assert json.dumps(report) == json.dumps(expected)
 
 
-def get_linter_result(score: bool, message: Dict[str, Any]) -> List[Dict[str, Any]]:
+def get_linter_result(score: bool, message: dict[str, Any]) -> list[dict[str, Any]]:
     output = StringIO()
     reporter = JSONReporter(output)
     linter = PyLinter(reporter=reporter)
     checkers.initialize(linter)
-    linter.namespace.persistent = 0
-    linter.namespace.score = score
+    linter.config.persistent = 0
+    linter.config.score = score
     linter.open()
     linter.set_current_module("0123")
     linter.add_message(

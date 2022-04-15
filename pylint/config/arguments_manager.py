@@ -4,21 +4,28 @@
 
 """Arguments manager class used to handle command-line arguments and options."""
 
+from __future__ import annotations
+
 import argparse
 import collections
 import configparser
 import copy
 import optparse  # pylint: disable=deprecated-module
 import os
+import re
 import sys
+import textwrap
 import warnings
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, TextIO, Tuple, Union
+from typing import TYPE_CHECKING, Any, TextIO, Union
+
+import tomlkit
 
 from pylint import utils
 from pylint.config.argument import (
     _Argument,
     _CallableArgument,
+    _ExtendArgument,
     _StoreArgument,
     _StoreNewNamesArgument,
     _StoreOldNamesArgument,
@@ -29,7 +36,7 @@ from pylint.config.help_formatter import _HelpFormatter
 from pylint.config.option import Option
 from pylint.config.option_parser import OptionParser
 from pylint.config.options_provider_mixin import OptionsProviderMixIn
-from pylint.config.utils import _convert_option_to_argument
+from pylint.config.utils import _convert_option_to_argument, _parse_rich_type_value
 from pylint.constants import MAIN_CHECKER_NAME
 from pylint.typing import OptionDict
 
@@ -46,13 +53,15 @@ else:
 if TYPE_CHECKING:
     from pylint.config.arguments_provider import _ArgumentsProvider
 
+ConfigProvider = Union["_ArgumentsProvider", OptionsProviderMixIn]
+
 
 # pylint: disable-next=too-many-instance-attributes
 class _ArgumentsManager:
     """Arguments manager class used to handle command-line arguments and options."""
 
-    def __init__(self, prog: str, usage: Optional[str] = None) -> None:
-        self.namespace = argparse.Namespace()
+    def __init__(self, prog: str, usage: str | None = None) -> None:
+        self._config = argparse.Namespace()
         """Namespace for all options."""
 
         self._arg_parser = argparse.ArgumentParser(
@@ -62,10 +71,10 @@ class _ArgumentsManager:
         )
         """The command line argument parser."""
 
-        self._argument_groups_dict: Dict[str, argparse._ArgumentGroup] = {}
+        self._argument_groups_dict: dict[str, argparse._ArgumentGroup] = {}
         """Dictionary of all the argument groups."""
 
-        self._option_dicts: Dict[str, OptionDict] = {}
+        self._option_dicts: dict[str, OptionDict] = {}
         """All option dictionaries that have been registered."""
 
         # pylint: disable=fixme
@@ -75,18 +84,25 @@ class _ArgumentsManager:
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             self.reset_parsers(usage or "")
         # list of registered options providers
-        self.options_providers: List[OptionsProviderMixIn] = []
+        self.options_providers: list[ConfigProvider] = []
         # dictionary associating option name to checker
-        self._all_options: OrderedDict[
-            str, OptionsProviderMixIn
-        ] = collections.OrderedDict()
-        self._short_options: Dict[str, str] = {}
-        self._nocallback_options: Dict[OptionsProviderMixIn, str] = {}
-        self._mygroups: Dict[str, optparse.OptionGroup] = {}
+        self._all_options: OrderedDict[str, ConfigProvider] = collections.OrderedDict()
+        self._short_options: dict[str, str] = {}
+        self._nocallback_options: dict[ConfigProvider, str] = {}
+        self._mygroups: dict[str, optparse.OptionGroup] = {}
         # verbosity
         self._maxlevel: int = 0
 
-    def _register_options_provider(self, provider: "_ArgumentsProvider") -> None:
+    @property
+    def config(self) -> argparse.Namespace:
+        """Namespace for all options."""
+        return self._config
+
+    @config.setter
+    def config(self, value: argparse.Namespace) -> None:
+        self._config = value
+
+    def _register_options_provider(self, provider: _ArgumentsProvider) -> None:
         """Register an options provider and load its defaults."""
         for opt, optdict in provider.options:
             self._option_dicts[opt] = optdict
@@ -104,7 +120,7 @@ class _ArgumentsManager:
         self._load_default_argument_values()
 
     def _add_arguments_to_parser(
-        self, section: str, section_desc: Optional[str], argument: _Argument
+        self, section: str, section_desc: str | None, argument: _Argument
     ) -> None:
         """Add an argument to the correct argument section/group."""
         try:
@@ -183,32 +199,44 @@ class _ArgumentsManager:
                 action=argument.action,
                 help=argument.help,
             )
+        elif isinstance(argument, _ExtendArgument):
+            section_group.add_argument(
+                *argument.flags,
+                action=argument.action,
+                default=argument.default,
+                type=argument.type,  # type: ignore[arg-type] # incorrect typing in typeshed
+                help=argument.help,
+                metavar=argument.metavar,
+                choices=argument.choices,
+                dest=argument.dest,
+            )
         else:
             raise UnrecognizedArgumentAction
 
     def _load_default_argument_values(self) -> None:
         """Loads the default values of all registered options."""
-        self.namespace = self._arg_parser.parse_args([], self.namespace)
+        self.config = self._arg_parser.parse_args([], self.config)
 
-    def _parse_configuration_file(self, arguments: List[str]) -> None:
+    def _parse_configuration_file(self, arguments: list[str]) -> None:
         """Parse the arguments found in a configuration file into the namespace."""
         # pylint: disable-next=fixme
-        # TODO: This should parse_args instead of parse_known_args
-        self.namespace = self._arg_parser.parse_known_args(arguments, self.namespace)[0]
+        # TODO: Optparse: This should parse_args instead of parse_known_args
+        self.config = self._arg_parser.parse_known_args(arguments, self.config)[0]
 
     def _parse_command_line_configuration(
-        self, arguments: Optional[List[str]] = None
-    ) -> List[str]:
+        self, arguments: list[str] | None = None
+    ) -> list[str]:
         """Parse the arguments found on the command line into the namespace."""
         arguments = sys.argv[1:] if arguments is None else arguments
 
-        self.namespace, parsed_args = self._arg_parser.parse_known_args(
-            arguments, self.namespace
+        self.config, parsed_args = self._arg_parser.parse_known_args(
+            arguments, self.config
         )
 
         return parsed_args
 
     def reset_parsers(self, usage: str = "") -> None:
+        """DEPRECATED."""
         warnings.warn(
             "reset_parsers has been deprecated. Parsers should be instantiated "
             "once during initialization and do not need to be reset.",
@@ -224,9 +252,9 @@ class _ArgumentsManager:
         self._optik_option_attrs = set(self.cmdline_parser.option_class.ATTRS)
 
     def register_options_provider(
-        self, provider: OptionsProviderMixIn, own_group: bool = True
+        self, provider: ConfigProvider, own_group: bool = True
     ) -> None:
-        """Register an options provider."""
+        """DEPRECATED: Register an options provider."""
         warnings.warn(
             "register_options_provider has been deprecated. Options providers and "
             "arguments providers should be registered by initializing ArgumentsProvider. "
@@ -266,10 +294,11 @@ class _ArgumentsManager:
     def add_option_group(
         self,
         group_name: str,
-        _: Optional[str],
-        options: List[Tuple[str, OptionDict]],
-        provider: OptionsProviderMixIn,
+        _: str | None,
+        options: list[tuple[str, OptionDict]],
+        provider: ConfigProvider,
     ) -> None:
+        """DEPRECATED."""
         warnings.warn(
             "add_option_group has been deprecated. Option groups should be "
             "registered by initializing ArgumentsProvider. "
@@ -284,7 +313,6 @@ class _ArgumentsManager:
                 self.cmdline_parser, title=group_name.capitalize()
             )
             self.cmdline_parser.add_option_group(group)
-            group.level = provider.level  # type: ignore[attr-defined]
             self._mygroups[group_name] = group
             # add section to the config file
             if (
@@ -302,11 +330,12 @@ class _ArgumentsManager:
 
     def add_optik_option(
         self,
-        provider: OptionsProviderMixIn,
-        optikcontainer: Union[optparse.OptionParser, optparse.OptionGroup],
+        provider: ConfigProvider,
+        optikcontainer: optparse.OptionParser | optparse.OptionGroup,
         opt: str,
         optdict: OptionDict,
     ) -> None:
+        """DEPRECATED."""
         warnings.warn(
             "add_optik_option has been deprecated. Options should be automatically "
             "added by initializing an ArgumentsProvider.",
@@ -320,9 +349,9 @@ class _ArgumentsManager:
         self._maxlevel = max(self._maxlevel, option.level or 0)
 
     def optik_option(
-        self, provider: OptionsProviderMixIn, opt: str, optdict: OptionDict
-    ) -> Tuple[List[str], OptionDict]:
-        """Get our personal option definition and return a suitable form for
+        self, provider: ConfigProvider, opt: str, optdict: OptionDict
+    ) -> tuple[list[str], OptionDict]:
+        """DEPRECATED: Get our personal option definition and return a suitable form for
         use with optik/optparse
         """
         warnings.warn(
@@ -335,7 +364,7 @@ class _ArgumentsManager:
             self._nocallback_options[provider] = opt
         else:
             optdict["action"] = "callback"
-            optdict["callback"] = self.cb_set_provider_option  # type: ignore[assignment]
+            optdict["callback"] = self.cb_set_provider_option
         # default is handled here and *must not* be given to optik if you
         # want the whole machinery to work
         if "default" in optdict:
@@ -358,34 +387,50 @@ class _ArgumentsManager:
         return args, optdict
 
     def generate_config(
-        self, stream: Optional[TextIO] = None, skipsections: Tuple[str, ...] = ()
+        self, stream: TextIO | None = None, skipsections: tuple[str, ...] = ()
     ) -> None:
-        """Write a configuration file according to the current configuration
+        """DEPRECATED: Write a configuration file according to the current configuration
         into the given stream or stdout
         """
         warnings.warn(
             "generate_config has been deprecated. It will be removed in pylint 3.0.",
             DeprecationWarning,
         )
-        options_by_section: Dict[str, List[Tuple]] = {}
+        options_by_section = {}
         sections = []
-        for provider in self.options_providers:
-            for section, options in provider.options_by_section():
-                if section is None:
-                    section = provider.name
-                if section in skipsections:
+        for group in self._arg_parser._action_groups:
+            group_name = group.title
+            assert group_name
+            if group_name in skipsections:
+                continue
+
+            options = []
+            for opt in group._group_actions:
+                if "--help" in opt.option_strings:
                     continue
+
+                optname = opt.option_strings[0][2:]
+
+                try:
+                    optdict = self._option_dicts[optname]
+                except KeyError:
+                    continue
+
+                options.append(
+                    (
+                        optname,
+                        optdict,
+                        getattr(self.config, optname.replace("-", "_")),
+                    )
+                )
+
                 options = [
-                    (n, d, v)
-                    for (n, d, v) in options
-                    if d.get("type") is not None and not d.get("deprecated")
+                    (n, d, v) for (n, d, v) in options if not d.get("deprecated")
                 ]
-                if not options:
-                    continue
-                if section not in sections:
-                    sections.append(section)
-                all_options = options_by_section.setdefault(section, [])
-                all_options += options
+
+            if options:
+                sections.append(group_name)
+                options_by_section[group_name] = options
         stream = stream or sys.stdout
         printed = False
         for section in sections:
@@ -399,20 +444,24 @@ class _ArgumentsManager:
             printed = True
 
     def load_provider_defaults(self) -> None:
-        """Initialize configuration using default values."""
+        """DEPRECATED: Initialize configuration using default values."""
         warnings.warn(
             "load_provider_defaults has been deprecated. Parsing of option defaults should be done "
             "automatically by initializing an ArgumentsProvider.",
             DeprecationWarning,
         )
         for provider in self.options_providers:
-            provider.load_defaults()
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=DeprecationWarning)
+                provider.load_defaults()
 
     def read_config_file(
-        self, config_file: Optional[Path] = None, verbose: bool = False
+        self, config_file: Path | None = None, verbose: bool = False
     ) -> None:
-        """Read the configuration file but do not load it (i.e. dispatching
+        """DEPRECATED: Read the configuration file but do not load it (i.e. dispatching
         values to each option's provider)
+
+        :raises OSError: Whem the specified config file doesn't exist
         """
         warnings.warn(
             "read_config_file has been deprecated. It will be removed in pylint 3.0.",
@@ -447,10 +496,11 @@ class _ArgumentsManager:
         if verbose:
             print(f"Using config file '{config_file}'", file=sys.stderr)
 
-    def _parse_toml(self, config_file: Path, parser: configparser.ConfigParser) -> None:
-        """Parse and handle errors of a toml configuration file.
+    @staticmethod
+    def _parse_toml(config_file: Path, parser: configparser.ConfigParser) -> None:
+        """DEPRECATED: Parse and handle errors of a toml configuration file.
 
-        TODO: Remove after read_config_file has been removed.
+        TODO: 3.0: Remove depreacted method.
         """
         with open(config_file, mode="rb") as fp:
             content = tomllib.load(fp)
@@ -463,10 +513,6 @@ class _ArgumentsManager:
             # TOML has rich types, convert values to
             # strings as ConfigParser expects.
             if not isinstance(values, dict):
-                # This class is a mixin: add_message comes from the `PyLinter` class
-                self.add_message(  # type: ignore[attr-defined] # pylint: disable=no-member
-                    "bad-configuration-section", line=0, args=(section, values)
-                )
                 continue
             for option, value in values.items():
                 if isinstance(value, bool):
@@ -483,7 +529,7 @@ class _ArgumentsManager:
                     parser.set(section_name, option, value=value)
 
     def load_config_file(self) -> None:
-        """Dispatch values previously read from a configuration file to each
+        """DEPRECATED: Dispatch values previously read from a configuration file to each
         option's provider
         """
         warnings.warn(
@@ -499,7 +545,7 @@ class _ArgumentsManager:
                     continue
 
     def load_configuration(self, **kwargs: Any) -> None:
-        """Override configuration according to given parameters."""
+        """DEPRECATED: Override configuration according to given parameters."""
         warnings.warn(
             "load_configuration has been deprecated. It will be removed in pylint 3.0.",
             DeprecationWarning,
@@ -508,9 +554,9 @@ class _ArgumentsManager:
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             return self.load_configuration_from_config(kwargs)
 
-    def load_configuration_from_config(self, config: Dict[str, Any]) -> None:
+    def load_configuration_from_config(self, config: dict[str, Any]) -> None:
         warnings.warn(
-            "load_configuration_from_config has been deprecated. It will be removed in pylint 3.0.",
+            "DEPRECATED: load_configuration_from_config has been deprecated. It will be removed in pylint 3.0.",
             DeprecationWarning,
         )
         for opt, opt_value in config.items():
@@ -519,9 +565,9 @@ class _ArgumentsManager:
             provider.set_option(opt, opt_value)
 
     def load_command_line_configuration(
-        self, args: Optional[List[str]] = None
-    ) -> List[str]:
-        """Override configuration according to command line parameters.
+        self, args: list[str] | None = None
+    ) -> list[str]:
+        """DEPRECATED: Override configuration according to command line parameters.
 
         return additional arguments
         """
@@ -537,10 +583,10 @@ class _ArgumentsManager:
                 value = getattr(options, attr, None)
                 if value is None:
                     continue
-                setattr(config, attr, value)
+                setattr(config, attr, value)  # pragma: no cover # Handled by argparse.
         return args
 
-    def help(self, level: Optional[int] = None) -> str:
+    def help(self, level: int | None = None) -> str:
         """Return the usage string based on the available options."""
         if level is not None:
             warnings.warn(
@@ -550,13 +596,13 @@ class _ArgumentsManager:
             )
         return self._arg_parser.format_help()
 
-    # pylint: disable-next=fixme
-    # TODO: Optparse: All methods below this line are copied to keep API-parity with
-    # OptionsManagerMixIn. They should either be deprecated or moved above this line
-    # to keep them in _ArgumentsManager
-
-    def cb_set_provider_option(self, option, opt, value, parser):
-        """Optik callback for option setting."""
+    def cb_set_provider_option(self, option, opt, value, parser):  # pragma: no cover
+        """DEPRECATED: Optik callback for option setting."""
+        # TODO: 3.0: Remove deprecated method. # pylint: disable=fixme
+        warnings.warn(
+            "cb_set_provider_option has been deprecated. It will be removed in pylint 3.0.",
+            DeprecationWarning,
+        )
         if opt.startswith("--"):
             # remove -- on long option
             opt = opt[2:]
@@ -566,8 +612,112 @@ class _ArgumentsManager:
         # trick since we can't set action='store_true' on options
         if value is None:
             value = 1
-        self.global_set_option(opt, value)
+        self.set_option(opt, value)
 
-    def global_set_option(self, opt, value):
-        """Set option on the correct option provider."""
-        self._all_options[opt].set_option(opt, value)
+    def global_set_option(self, opt: str, value: Any) -> None:
+        """DEPRECATED: Set option on the correct option provider."""
+        # TODO: 3.0: Remove deprecated method. # pylint: disable=fixme
+        warnings.warn(
+            "global_set_option has been deprecated. You can use _arguments_manager.set_option "
+            "or linter.set_option to set options on the global configuration object.",
+            DeprecationWarning,
+        )
+        self.set_option(opt, value)
+
+    def _generate_config_file(self) -> None:
+        """Write a configuration file according to the current configuration into stdout."""
+        toml_doc = tomlkit.document()
+        pylint_tool_table = tomlkit.table(is_super_table=True)
+        toml_doc.add(tomlkit.key(["tool", "pylint"]), pylint_tool_table)
+
+        for group in sorted(
+            self._arg_parser._action_groups,
+            key=lambda x: (x.title != "Master", x.title),
+        ):
+            # Skip the options section with the --help option
+            if group.title == "options":
+                continue
+
+            # Skip sections without options such as "positional arguments"
+            if not group._group_actions:
+                continue
+
+            group_table = tomlkit.table()
+            for action in sorted(
+                group._group_actions, key=lambda x: x.option_strings[0][2:]
+            ):
+                optname = action.option_strings[0][2:]
+
+                # We skip old name options that don't have their own optdict
+                try:
+                    optdict = self._option_dicts[optname]
+                except KeyError:
+                    continue
+
+                if optdict.get("hide_from_config_file"):
+                    continue
+
+                # Add help comment
+                help_msg = optdict.get("help", "")
+                assert isinstance(help_msg, str)
+                help_text = textwrap.wrap(help_msg, width=79)
+                for line in help_text:
+                    group_table.add(tomlkit.comment(line))
+
+                # Get current value of option
+                value = getattr(self.config, optname.replace("-", "_"))
+
+                # Create a comment if the option has no value
+                if not value:
+                    group_table.add(tomlkit.comment(f"{optname} ="))
+                    group_table.add(tomlkit.nl())
+                    continue
+
+                # Tomlkit doesn't support regular expressions
+                if isinstance(value, re.Pattern):
+                    value = value.pattern
+                elif isinstance(value, (list, tuple)) and isinstance(
+                    value[0], re.Pattern
+                ):
+                    value = [i.pattern for i in value]
+
+                # Add to table
+                group_table.add(optname, value)
+                group_table.add(tomlkit.nl())
+
+            assert group.title
+            pylint_tool_table.add(group.title.lower(), group_table)
+
+        toml_string = tomlkit.dumps(toml_doc)
+
+        # Make sure the string we produce is valid toml and can be parsed
+        tomllib.loads(toml_string)
+
+        print(toml_string)
+
+    def set_option(
+        self,
+        optname: str,
+        value: Any,
+        action: str | None = "default_value",
+        optdict: None | str | OptionDict = "default_value",
+    ) -> None:
+        """Set an option on the namespace object."""
+        # TODO: 3.0: Remove deprecated arguments. # pylint: disable=fixme
+        if action != "default_value":
+            warnings.warn(
+                "The 'action' argument has been deprecated. You can use set_option "
+                "without the 'action' or 'optdict' arguments.",
+                DeprecationWarning,
+            )
+        if optdict != "default_value":
+            warnings.warn(
+                "The 'optdict' argument has been deprecated. You can use set_option "
+                "without the 'action' or 'optdict' arguments.",
+                DeprecationWarning,
+            )
+
+        self.config = self._arg_parser.parse_known_args(
+            [f"--{optname.replace('_', '-')}", _parse_rich_type_value(value)],
+            self.config,
+        )[0]

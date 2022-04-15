@@ -192,4 +192,4 @@ Name Hints
 
    Include a hint (regular expression used) for the correct name format with every ``invalid-name`` warning.
 
-.. _PEP8: https://www.python.org/dev/peps/pep-0008
+.. _PEP8: https://peps.python.org/pep-0008

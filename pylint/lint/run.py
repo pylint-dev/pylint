@@ -2,16 +2,18 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import os
 import sys
 import warnings
-from typing import List, Optional
 
 from pylint import config
 from pylint.config.callback_actions import (
     _DoNothingAction,
     _ErrorsOnlyModeAction,
     _FullDocumentationAction,
+    _GenerateConfigFileAction,
     _GenerateRCFileAction,
     _ListCheckGroupsAction,
     _ListConfidenceLevelsAction,
@@ -60,12 +62,6 @@ group are mutually exclusive.",
         ),
     )
 
-    @staticmethod
-    def _not_implemented_callback(*args, **kwargs):
-        # pylint: disable-next=fixme
-        # TODO: Remove after optparse has been deprecated
-        raise NotImplementedError
-
     def __init__(
         self,
         args,
@@ -78,9 +74,9 @@ group are mutually exclusive.",
             print(full_version)
             sys.exit(0)
 
-        self._rcfile: Optional[str] = None
-        self._output: Optional[str] = None
-        self._plugins: List[str] = []
+        self._rcfile: str | None = None
+        self._output: str | None = None
+        self._plugins: list[str] = []
         self.verbose: bool = False
 
         # Preprocess certain options and remove them from args list
@@ -101,9 +97,9 @@ group are mutually exclusive.",
                     {
                         "action": _DoNothingAction,
                         "kwargs": {},
-                        "callback": Run._not_implemented_callback,
                         "group": "Commands",
                         "help": "Specify a configuration file to load.",
+                        "hide_from_config_file": True,
                     },
                 ),
                 (
@@ -111,9 +107,9 @@ group are mutually exclusive.",
                     {
                         "action": _DoNothingAction,
                         "kwargs": {},
-                        "callback": Run._not_implemented_callback,
                         "group": "Commands",
                         "help": "Specify an output file.",
+                        "hide_from_config_file": True,
                     },
                 ),
                 (
@@ -121,7 +117,6 @@ group are mutually exclusive.",
                     {
                         "action": _DoNothingAction,
                         "kwargs": {},
-                        "callback": Run._not_implemented_callback,
                         "help": "Python code to execute, usually for sys.path "
                         "manipulation such as pygtk.require().",
                     },
@@ -131,10 +126,10 @@ group are mutually exclusive.",
                     {
                         "action": _MessageHelpAction,
                         "kwargs": {"Run": self},
-                        "callback": Run._not_implemented_callback,
                         "group": "Commands",
                         "help": "Display a help message for the given message id and "
                         "exit. The value may be a comma separated list of message ids.",
+                        "hide_from_config_file": True,
                     },
                 ),
                 (
@@ -142,10 +137,10 @@ group are mutually exclusive.",
                     {
                         "action": _ListMessagesAction,
                         "kwargs": {"Run": self},
-                        "callback": Run._not_implemented_callback,
                         "group": "Commands",
                         "help": "Display a list of all pylint's messages divided by whether "
                         "they are emittable with the given interpreter.",
+                        "hide_from_config_file": True,
                     },
                 ),
                 (
@@ -153,10 +148,10 @@ group are mutually exclusive.",
                     {
                         "action": _ListMessagesEnabledAction,
                         "kwargs": {"Run": self},
-                        "callback": Run._not_implemented_callback,
                         "group": "Commands",
                         "help": "Display a list of what messages are enabled, "
                         "disabled and non-emittable with the given configuration.",
+                        "hide_from_config_file": True,
                     },
                 ),
                 (
@@ -164,19 +159,19 @@ group are mutually exclusive.",
                     {
                         "action": _ListCheckGroupsAction,
                         "kwargs": {"Run": self},
-                        "callback": Run._not_implemented_callback,
                         "group": "Commands",
                         "help": "List pylint's message groups.",
+                        "hide_from_config_file": True,
                     },
                 ),
                 (
                     "list-conf-levels",
                     {
                         "action": _ListConfidenceLevelsAction,
-                        "callback": Run._not_implemented_callback,
                         "kwargs": {"Run": self},
                         "group": "Commands",
                         "help": "Generate pylint's confidence levels.",
+                        "hide_from_config_file": True,
                     },
                 ),
                 (
@@ -184,9 +179,9 @@ group are mutually exclusive.",
                     {
                         "action": _ListExtensionsAction,
                         "kwargs": {"Run": self},
-                        "callback": Run._not_implemented_callback,
                         "group": "Commands",
                         "help": "List available extensions.",
+                        "hide_from_config_file": True,
                     },
                 ),
                 (
@@ -194,9 +189,9 @@ group are mutually exclusive.",
                     {
                         "action": _FullDocumentationAction,
                         "kwargs": {"Run": self},
-                        "callback": Run._not_implemented_callback,
                         "group": "Commands",
                         "help": "Generate pylint's full documentation.",
+                        "hide_from_config_file": True,
                     },
                 ),
                 (
@@ -204,12 +199,25 @@ group are mutually exclusive.",
                     {
                         "action": _GenerateRCFileAction,
                         "kwargs": {"Run": self},
-                        "callback": Run._not_implemented_callback,
                         "group": "Commands",
                         "help": "Generate a sample configuration file according to "
                         "the current configuration. You can put other options "
                         "before this one to get them in the generated "
                         "configuration.",
+                        "hide_from_config_file": True,
+                    },
+                ),
+                (
+                    "generate-toml-config",
+                    {
+                        "action": _GenerateConfigFileAction,
+                        "kwargs": {"Run": self},
+                        "group": "Commands",
+                        "help": "Generate a sample configuration file according to "
+                        "the current configuration. You can put other options "
+                        "before this one to get them in the generated "
+                        "configuration. The config is in the .toml format.",
+                        "hide_from_config_file": True,
                     },
                 ),
                 (
@@ -217,11 +225,11 @@ group are mutually exclusive.",
                     {
                         "action": _ErrorsOnlyModeAction,
                         "kwargs": {"Run": self},
-                        "callback": Run._not_implemented_callback,
                         "short": "E",
                         "help": "In error mode, checkers without error messages are "
                         "disabled and for others, only the ERROR messages are "
                         "displayed, and no reports are done by default.",
+                        "hide_from_config_file": True,
                     },
                 ),
                 (
@@ -229,10 +237,10 @@ group are mutually exclusive.",
                     {
                         "action": _DoNothingAction,
                         "kwargs": {},
-                        "callback": Run._not_implemented_callback,
                         "short": "v",
                         "help": "In verbose mode, extra non-checker-related info "
                         "will be displayed.",
+                        "hide_from_config_file": True,
                     },
                 ),
                 (
@@ -240,9 +248,9 @@ group are mutually exclusive.",
                     {
                         "action": _DoNothingAction,
                         "kwargs": {},
-                        "callback": Run._not_implemented_callback,
                         "help": "Load and enable all available extensions. "
                         "Use --list-extensions to see a list all available extensions.",
+                        "hide_from_config_file": True,
                     },
                 ),
                 (
@@ -250,9 +258,9 @@ group are mutually exclusive.",
                     {
                         "action": _LongHelpAction,
                         "kwargs": {"Run": self},
-                        "callback": Run._not_implemented_callback,
                         "help": "Show more verbose help.",
                         "group": "Commands",
+                        "hide_from_config_file": True,
                     },
                 ),
             ),
@@ -271,21 +279,21 @@ group are mutually exclusive.",
             linter, args, reporter, config_file=self._rcfile, verbose_mode=self.verbose
         )
 
-        if linter.namespace.jobs < 0:
+        if linter.config.jobs < 0:
             print(
-                f"Jobs number ({linter.namespace.jobs}) should be greater than or equal to 0",
+                f"Jobs number ({linter.config.jobs}) should be greater than or equal to 0",
                 file=sys.stderr,
             )
             sys.exit(32)
-        if linter.namespace.jobs > 1 or linter.namespace.jobs == 0:
+        if linter.config.jobs > 1 or linter.config.jobs == 0:
             if multiprocessing is None:
                 print(
                     "Multiprocessing library is missing, fallback to single process",
                     file=sys.stderr,
                 )
                 linter.set_option("jobs", 1)
-            elif linter.namespace.jobs == 0:
-                linter.namespace.jobs = _cpu_count()
+            elif linter.config.jobs == 0:
+                linter.config.jobs = _cpu_count()
 
         if self._output:
             try:
@@ -308,14 +316,14 @@ group are mutually exclusive.",
             exit = do_exit
 
         if exit:
-            if linter.namespace.exit_zero:
+            if linter.config.exit_zero:
                 sys.exit(0)
             elif linter.any_fail_on_issues():
                 # We need to make sure we return a failing exit code in this case.
                 # So we use self.linter.msg_status if that is non-zero, otherwise we just return 1.
                 sys.exit(self.linter.msg_status or 1)
             elif score_value is not None:
-                if score_value >= linter.namespace.fail_under:
+                if score_value >= linter.config.fail_under:
                     sys.exit(0)
                 else:
                     # We need to make sure we return a failing exit code in this case.

@@ -4,7 +4,7 @@
 
 """Tests for the pylint.checkers.utils module."""
 
-from typing import Dict, Union
+from __future__ import annotations
 
 import astroid
 import pytest
@@ -32,9 +32,7 @@ def testIsBuiltin(name, expected):
     "fn,kw",
     [("foo(3)", {"keyword": "bar"}), ("foo(one=a, two=b, three=c)", {"position": 1})],
 )
-def testGetArgumentFromCallError(
-    fn: str, kw: Union[Dict[str, int], Dict[str, str]]
-) -> None:
+def testGetArgumentFromCallError(fn: str, kw: dict[str, int] | dict[str, str]) -> None:
     with pytest.raises(utils.NoSuchArgumentError):
         node = astroid.extract_node(fn)
         utils.get_argument_from_call(node, **kw)
@@ -43,9 +41,7 @@ def testGetArgumentFromCallError(
 @pytest.mark.parametrize(
     "fn,kw", [("foo(bar=3)", {"keyword": "bar"}), ("foo(a, b, c)", {"position": 1})]
 )
-def testGetArgumentFromCallExists(
-    fn: str, kw: Union[Dict[str, int], Dict[str, str]]
-) -> None:
+def testGetArgumentFromCallExists(fn: str, kw: dict[str, int] | dict[str, str]) -> None:
     node = astroid.extract_node(fn)
     assert utils.get_argument_from_call(node, **kw) is not None
 

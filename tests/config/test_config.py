@@ -2,17 +2,24 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import os
 from pathlib import Path
-from typing import Optional, Set
 
-from pylint.lint.run import Run
+from pytest import CaptureFixture
+
+from pylint.lint import Run
 from pylint.testutils.configuration_test import run_using_a_configuration_file
+
+HERE = Path(__file__).parent.absolute()
+REGRTEST_DATA_DIR = HERE / ".." / "regrtest_data"
+EMPTY_MODULE = REGRTEST_DATA_DIR / "empty.py"
 
 
 def check_configuration_file_reader(
     runner: Run,
-    expected_disabled: Optional[Set[str]] = None,
+    expected_disabled: set[str] | None = None,
     expected_jobs: int = 10,
     expected_reports_truthey: bool = True,
 ) -> None:
@@ -22,7 +29,7 @@ def check_configuration_file_reader(
         expected_disabled = {"W1201", "W1202"}
     for msgid in expected_disabled:
         assert not runner.linter.is_message_enabled(msgid)
-    assert runner.linter.namespace.jobs == expected_jobs
+    assert runner.linter.config.jobs == expected_jobs
     assert bool(runner.linter.config.reports) == expected_reports_truthey
 
 
@@ -44,3 +51,10 @@ reports = "yes"
     )
     mock_exit.assert_called_once_with(0)
     check_configuration_file_reader(runner)
+
+
+def test_unknown_message_id(capsys: CaptureFixture) -> None:
+    """Check that we correctly raise a message on an unknown id."""
+    Run([str(EMPTY_MODULE), "--disable=12345"], exit=False)
+    output = capsys.readouterr()
+    assert "Command line:1:0: E0012: Bad option value for --disable." in output.out

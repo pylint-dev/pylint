@@ -2,11 +2,13 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import copy
 import optparse  # pylint: disable=deprecated-module
 import pathlib
 import re
-from typing import List, Pattern, Union
+from re import Pattern
 
 from pylint import utils
 
@@ -29,8 +31,8 @@ def _regexp_csv_validator(_, name, value):
 
 
 def _regexp_paths_csv_validator(
-    _, name: str, value: Union[str, List[Pattern[str]]]
-) -> List[Pattern[str]]:
+    _, name: str, value: str | list[Pattern[str]]
+) -> list[Pattern[str]]:
     if isinstance(value, list):
         return value
     patterns = []
@@ -74,14 +76,14 @@ def _multiple_choice_validator(choices, name, value):
     return values
 
 
-def _non_empty_string_validator(opt, _, value):
+def _non_empty_string_validator(opt, _, value):  # pragma: no cover # Unused
     if not value:
         msg = "indent string can't be empty."
         raise optparse.OptionValueError(msg)
     return utils._unquote(value)
 
 
-def _multiple_choices_validating_option(opt, name, value):
+def _multiple_choices_validating_option(opt, name, value):  # pragma: no cover # Unused
     return _multiple_choice_validator(opt.choices, name, value)
 
 
@@ -193,7 +195,7 @@ class Option(optparse.Option):
 
     optparse.Option.CHECK_METHODS[2] = _check_choice  # type: ignore[index]
 
-    def process(self, opt, value, values, parser):
+    def process(self, opt, value, values, parser):  # pragma: no cover # Argparse
         if self.callback and self.callback.__module__ == "pylint.lint.run":
             return 1
         # First, convert the value(s) to the right type.  Howl if any

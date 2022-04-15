@@ -4,6 +4,8 @@
 
 """Checker for anything related to the async protocol (PEP 492)."""
 
+from __future__ import annotations
+
 import sys
 from typing import TYPE_CHECKING
 
@@ -37,9 +39,6 @@ class AsyncChecker(checkers.BaseChecker):
             {"minversion": (3, 5)},
         ),
     }
-
-    def __init__(self, linter: "PyLinter") -> None:
-        super().__init__(linter, future_option_parsing=True)
 
     def open(self):
         self._mixin_class_rgx = utils.get_global_option(self, "mixin-class-rgx")
@@ -83,7 +82,7 @@ class AsyncChecker(checkers.BaseChecker):
                         # Ignore mixin classes if they match the rgx option.
                         if (
                             "not-async-context-manager"
-                            in self.linter.namespace.ignored_checks_for_mixins
+                            in self.linter.config.ignored_checks_for_mixins
                             and self._mixin_class_rgx.match(inferred.name)
                         ):
                             continue
@@ -94,5 +93,5 @@ class AsyncChecker(checkers.BaseChecker):
             )
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(AsyncChecker(linter))

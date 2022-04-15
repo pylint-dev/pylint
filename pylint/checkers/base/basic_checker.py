@@ -4,10 +4,12 @@
 
 """Basic checker for Python code."""
 
+from __future__ import annotations
+
 import collections
 import itertools
 import sys
-from typing import TYPE_CHECKING, Dict, Optional, cast
+from typing import TYPE_CHECKING, cast
 
 import astroid
 from astroid import nodes
@@ -64,7 +66,7 @@ DEFAULT_ARGUMENT_SYMBOLS = dict(
 def report_by_type_stats(
     sect,
     stats: LinterStats,
-    old_stats: Optional[LinterStats],
+    old_stats: LinterStats | None,
 ):
     """Make a report of.
 
@@ -72,7 +74,7 @@ def report_by_type_stats(
     * percentage of different types with a bad name
     """
     # percentage of different types documented and/or with a bad name
-    nice_stats: Dict[str, Dict[str, str]] = {}
+    nice_stats: dict[str, dict[str, str]] = {}
     for node_type in ("module", "class", "method", "function"):
         node_type = cast(Literal["function", "class", "method", "module"], node_type)
         total = stats.get_node_count(node_type)

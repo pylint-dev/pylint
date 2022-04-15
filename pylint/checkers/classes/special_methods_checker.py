@@ -290,7 +290,7 @@ class SpecialMethodsChecker(BaseChecker):
             # Generators can be iterated.
             return True
         # pylint: disable-next=fixme
-        # TODO: Should be covered by https://github.com/PyCQA/astroid/pull/1475
+        # TODO: 2.14: Should be covered by https://github.com/PyCQA/astroid/pull/1475
         if isinstance(node, nodes.ComprehensionScope):
             # Comprehensions can be iterated.
             return True
