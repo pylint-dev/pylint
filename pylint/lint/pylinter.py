@@ -182,6 +182,11 @@ MSGS = {
         "bad-configuration-section",
         "Used when we detect a setting in the top level of a toml configuration that shouldn't be there.",
     ),
+    "E0015": (
+        "Unrecognized option found: %s",
+        "unrecognized-option",
+        "Used when we detect an option that we do not recognize.",
+    ),
 }
 
 

@@ -425,11 +425,8 @@ class TestRunTC:
 
     def test_bom_marker(self) -> None:
         path = join(HERE, "regrtest_data", "meta.py")
-        config_path = join(HERE, "regrtest_data", ".pylintrc")
         expected = "Your code has been rated at 10.00/10"
-        self._test_output(
-            [path, f"--rcfile={config_path}", "-rn"], expected_output=expected
-        )
+        self._test_output([path, "-rn"], expected_output=expected)
 
     def test_pylintrc_plugin_duplicate_options(self) -> None:
         dummy_plugin_path = join(HERE, "regrtest_data", "dummy_plugin")

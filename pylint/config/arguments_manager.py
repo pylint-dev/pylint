@@ -31,7 +31,10 @@ from pylint.config.argument import (
     _StoreOldNamesArgument,
     _StoreTrueArgument,
 )
-from pylint.config.exceptions import UnrecognizedArgumentAction
+from pylint.config.exceptions import (
+    UnrecognizedArgumentAction,
+    _UnrecognizedOptionError,
+)
 from pylint.config.help_formatter import _HelpFormatter
 from pylint.config.option import Option
 from pylint.config.option_parser import OptionParser
@@ -219,9 +222,15 @@ class _ArgumentsManager:
 
     def _parse_configuration_file(self, arguments: list[str]) -> None:
         """Parse the arguments found in a configuration file into the namespace."""
-        # pylint: disable-next=fixme
-        # TODO: Optparse: This should parse_args instead of parse_known_args
-        self.config = self._arg_parser.parse_known_args(arguments, self.config)[0]
+        self.config, parsed_args = self._arg_parser.parse_known_args(
+            arguments, self.config
+        )
+        unrecognized_options: list[str] = []
+        for opt in parsed_args:
+            if opt.startswith("--"):
+                unrecognized_options.append(opt[2:])
+        if unrecognized_options:
+            raise _UnrecognizedOptionError(options=unrecognized_options)
 
     def _parse_command_line_configuration(
         self, arguments: list[str] | None = None
