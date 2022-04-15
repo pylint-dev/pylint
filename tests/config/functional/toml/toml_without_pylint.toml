@@ -1,4 +1,4 @@
-# Check that we do nothing if there is not pylint configuration
+# Check that we do nothing if there is no pylint configuration
 
 [tool.othertool]
 disable = "logging-not-lazy,logging-format-interpolation"
