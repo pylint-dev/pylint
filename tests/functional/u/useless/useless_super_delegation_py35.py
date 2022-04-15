@@ -36,7 +36,7 @@ class NoReturnType:
 class ReturnTypeSpecified(NoReturnType):
     choices = ['a', 'b']
 
-    def draw(self) -> str:
+    def draw(self) -> str: # [useless-super-delegation]
         return super().draw()
 
 class ReturnTypeSame(ReturnTypeAny):
