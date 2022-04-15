@@ -2,10 +2,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-"""{prog} [options] <packages>.
-
-  create UML diagrams for classes and modules in <packages>
-"""
+"""Create UML diagrams for classes and modules in <packages>."""
 
 from __future__ import annotations
 
@@ -212,7 +209,7 @@ class Run(_ArgumentsManager, _ArgumentsProvider):
     name = "pyreverse"
 
     def __init__(self, args: Sequence[str]) -> None:
-        _ArgumentsManager.__init__(self, prog="pyreverse", usage=__doc__)
+        _ArgumentsManager.__init__(self, prog="pyreverse", description=__doc__)
         _ArgumentsProvider.__init__(self, self)
 
         # Parse options
