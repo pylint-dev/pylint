@@ -49,7 +49,7 @@ from astroid import nodes
 from pylint.checkers import BaseChecker, MapReduceMixin, table_lines_from_stats
 from pylint.interfaces import IRawChecker
 from pylint.reporters.ureports.nodes import Table
-from pylint.typing import Options
+from pylint.typing import OptionDict, Options
 from pylint.utils import LinterStats, decoding_stream
 
 if TYPE_CHECKING:
@@ -791,13 +791,31 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
             ignore_signatures=self.linter.config.ignore_signatures,
         )
 
-    def set_option(self, optname, value, action=None, optdict=None):
+    def set_option(
+        self,
+        optname: str,
+        value: Any,
+        action: str | None = "default_value",
+        optdict: None | str | OptionDict = "default_value",
+    ) -> None:
         """Method called to set an option (registered in the options list).
 
         Overridden to report options setting to Similar
         """
-        # pylint: disable-next=fixme
-        # TODO: Optparse: Deprecate the non required arguments
+        # TODO: 3.0: Remove deprecated arguments. # pylint: disable=fixme
+        if action != "default_value":
+            warnings.warn(
+                "The 'action' argument has been deprecated. You can use set_option "
+                "without the 'action' or 'optdict' arguments.",
+                DeprecationWarning,
+            )
+        if optdict != "default_value":
+            warnings.warn(
+                "The 'optdict' argument has been deprecated. You can use set_option "
+                "without the 'action' or 'optdict' arguments.",
+                DeprecationWarning,
+            )
+
         self.linter.set_option(optname, value)
         if optname == "min-similarity-lines":
             self.min_lines = self.linter.config.min_similarity_lines
