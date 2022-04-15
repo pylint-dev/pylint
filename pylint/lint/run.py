@@ -8,7 +8,6 @@ import os
 import sys
 import warnings
 from pathlib import Path
-from typing import NoReturn
 
 from pylint import config
 from pylint.config.callback_actions import (
