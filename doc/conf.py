@@ -40,6 +40,7 @@ extensions = [
     "pylint_features",
     "pylint_extensions",
     "pylint_messages",
+    "pylint_options",
     "sphinx.ext.autosectionlabel",
     "sphinx.ext.intersphinx",
 ]

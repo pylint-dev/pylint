@@ -454,7 +454,7 @@ class PyLinter(
                     "help": (
                         "Control the amount of potential inferred values when inferring "
                         "a single object. This can help the performance when dealing with "
-                        "large functions or complex, nested conditions. "
+                        "large functions or complex, nested conditions."
                     ),
                 },
             ),
