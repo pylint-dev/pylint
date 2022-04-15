@@ -7,7 +7,6 @@
 from __future__ import annotations
 
 import argparse
-import collections
 import configparser
 import copy
 import optparse  # pylint: disable=deprecated-module
@@ -16,6 +15,7 @@ import re
 import sys
 import textwrap
 import warnings
+from collections import OrderedDict
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, TextIO, Union
 
@@ -45,10 +45,6 @@ if sys.version_info >= (3, 11):
 else:
     import tomli as tomllib
 
-if sys.version_info <= (3, 7, 1):
-    from typing_extensions import OrderedDict
-else:
-    from typing import OrderedDict
 
 if TYPE_CHECKING:
     from pylint.config.arguments_provider import _ArgumentsProvider
@@ -86,7 +82,7 @@ class _ArgumentsManager:
         # list of registered options providers
         self.options_providers: list[ConfigProvider] = []
         # dictionary associating option name to checker
-        self._all_options: OrderedDict[str, ConfigProvider] = collections.OrderedDict()
+        self._all_options: OrderedDict[str, ConfigProvider] = OrderedDict()
         self._short_options: dict[str, str] = {}
         self._nocallback_options: dict[ConfigProvider, str] = {}
         self._mygroups: dict[str, optparse.OptionGroup] = {}
