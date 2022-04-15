@@ -2,12 +2,12 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-from typing import Tuple
+from __future__ import annotations
 
 __version__ = "2.14.0-dev0"
 
 
-def get_numversion_from_version(v: str) -> Tuple:
+def get_numversion_from_version(v: str) -> tuple[int, ...]:
     """Kept for compatibility reason.
 
     See https://github.com/PyCQA/pylint/issues/4399

@@ -3,6 +3,7 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Some functions that may be useful for various checkers."""
+
 from __future__ import annotations
 
 import builtins
@@ -11,11 +12,13 @@ import numbers
 import re
 import string
 import warnings
+from collections.abc import Callable, Iterable
 from functools import lru_cache, partial
+from re import Match
 from typing import TYPE_CHECKING, Callable, Iterable, Match, TypeVar
 
+
 import _string
-import astroid
 import astroid.objects
 from astroid import TooManyLevelsError, nodes
 from astroid.context import InferenceContext
@@ -1155,7 +1158,7 @@ def _supports_protocol(
             return True
 
     # pylint: disable-next=fixme
-    # TODO: Should be covered by https://github.com/PyCQA/astroid/pull/1475
+    # TODO: 2.14: Should be covered by https://github.com/PyCQA/astroid/pull/1475
     if isinstance(value, nodes.ComprehensionScope):
         return True
 

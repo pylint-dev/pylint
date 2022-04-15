@@ -4,8 +4,11 @@
 
 """Looks for  comparisons to empty string."""
 
+from __future__ import annotations
+
 import itertools
-from typing import TYPE_CHECKING, Any, Iterable
+from collections.abc import Iterable
+from typing import TYPE_CHECKING, Any
 
 from astroid import nodes
 
@@ -67,5 +70,5 @@ class CompareToEmptyStringChecker(checkers.BaseChecker):
                 self.add_message("compare-to-empty-string", node=node)
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(CompareToEmptyStringChecker(linter))

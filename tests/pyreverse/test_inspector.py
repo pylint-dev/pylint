@@ -3,10 +3,13 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """For the visitors.diadefs module."""
+
 # pylint: disable=redefined-outer-name
 
+from __future__ import annotations
+
 import os
-from typing import Callable
+from collections.abc import Callable
 
 import astroid
 import pytest

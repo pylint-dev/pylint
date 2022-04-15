@@ -3,7 +3,10 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Unit test for the diagrams modules."""
-from typing import Callable
+
+from __future__ import annotations
+
+from collections.abc import Callable
 
 from pylint.pyreverse.diadefslib import DefaultDiadefGenerator, DiadefsHandler
 from pylint.pyreverse.inspector import Linker

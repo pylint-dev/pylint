@@ -4,9 +4,11 @@
 
 """Check source code is ascii only or has an encoding declaration (PEP 263)."""
 
+from __future__ import annotations
+
 import re
 import tokenize
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING
 
 from astroid import nodes
 
@@ -37,7 +39,7 @@ class ByIdManagedMessagesChecker(BaseChecker):
     def _clear_by_id_managed_msgs(self) -> None:
         self.linter._by_id_managed_msgs.clear()
 
-    def _get_by_id_managed_msgs(self) -> List[ManagedMessage]:
+    def _get_by_id_managed_msgs(self) -> list[ManagedMessage]:
         return self.linter._by_id_managed_msgs
 
     def process_module(self, node: nodes.Module) -> None:
@@ -96,17 +98,12 @@ class EncodingChecker(BaseChecker):
         ),
     )
 
-    def __init__(self, linter: "PyLinter") -> None:
-        super().__init__(linter, future_option_parsing=True)
-
     def open(self):
         super().open()
 
-        notes = "|".join(re.escape(note) for note in self.linter.namespace.notes)
-        if self.linter.namespace.notes_rgx:
-            regex_string = (
-                rf"#\s*({notes}|{self.linter.namespace.notes_rgx})(?=(:|\s|\Z))"
-            )
+        notes = "|".join(re.escape(note) for note in self.linter.config.notes)
+        if self.linter.config.notes_rgx:
+            regex_string = rf"#\s*({notes}|{self.linter.config.notes_rgx})(?=(:|\s|\Z))"
         else:
             regex_string = rf"#\s*({notes})(?=(:|\s|\Z))"
 
@@ -114,7 +111,7 @@ class EncodingChecker(BaseChecker):
 
     def _check_encoding(
         self, lineno: int, line: bytes, file_encoding: str
-    ) -> Optional[str]:
+    ) -> str | None:
         try:
             return line.decode(file_encoding)
         except UnicodeDecodeError:
@@ -139,7 +136,7 @@ class EncodingChecker(BaseChecker):
 
     def process_tokens(self, tokens):
         """Inspect the source to find fixme problems."""
-        if not self.linter.namespace.notes:
+        if not self.linter.config.notes:
             return
         comments = (
             token_info for token_info in tokens if token_info.type == tokenize.COMMENT
@@ -162,7 +159,7 @@ class EncodingChecker(BaseChecker):
                     except PragmaParserError:
                         # Printing useful information dealing with this error is done in the lint package
                         pass
-                    if set(values) & set(self.linter.namespace.notes):
+                    if set(values) & set(self.linter.config.notes):
                         continue
                 except ValueError:
                     self.add_message(
@@ -183,6 +180,6 @@ class EncodingChecker(BaseChecker):
                 )
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(EncodingChecker(linter))
     linter.register_checker(ByIdManagedMessagesChecker(linter))

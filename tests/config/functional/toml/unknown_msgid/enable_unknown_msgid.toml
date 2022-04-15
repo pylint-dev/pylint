@@ -1,0 +1,6 @@
+# Check the behavior for unkonwn symbol/msgid
+# (Originally) reported in https://github.com/PyCQA/pylint/pull/6293
+
+[tool.pylint."messages control"]
+disable = "logging-not-layzy,logging-format-interpolation"
+enable = "locally-disabled,C00000"

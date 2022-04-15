@@ -2,9 +2,10 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import csv
 import os
-from typing import List, Optional
 
 from _pytest.config import Config
 
@@ -26,7 +27,7 @@ class LintModuleOutputUpdate(LintModuleTest):
     csv.register_dialect("test", TestDialect)
 
     def __init__(
-        self, test_file: FunctionalTestFile, config: Optional[Config] = None
+        self, test_file: FunctionalTestFile, config: Config | None = None
     ) -> None:
         if not PY38_PLUS:
             raise RuntimeError(
@@ -39,8 +40,8 @@ class LintModuleOutputUpdate(LintModuleTest):
     def _check_output_text(
         self,
         _: MessageCounter,
-        expected_output: List[OutputLine],
-        actual_output: List[OutputLine],
+        expected_output: list[OutputLine],
+        actual_output: list[OutputLine],
     ) -> None:
         """Overwrite or remove the expected output file based on actual output."""
         # Remove the file if no output is actually expected and a file exists

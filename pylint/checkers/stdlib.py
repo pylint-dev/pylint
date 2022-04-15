@@ -4,9 +4,11 @@
 
 """Checkers for various standard library functions."""
 
+from __future__ import annotations
+
 import sys
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, Dict, List, Optional, Set, Tuple
+from typing import TYPE_CHECKING
 
 import astroid
 from astroid import nodes
@@ -98,7 +100,7 @@ DEPRECATED_DECORATORS = {
 }
 
 
-DEPRECATED_METHODS: Dict = {
+DEPRECATED_METHODS: dict = {
     0: {
         "cgi.parse_qs",
         "cgi.parse_qsl",
@@ -420,7 +422,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "unspecified-encoding",
             "It is better to specify an encoding when opening documents. "
             "Using the system default implicitly can create problems on other operating systems. "
-            "See https://www.python.org/dev/peps/pep-0597/",
+            "See https://peps.python.org/pep-0597/",
         ),
         "W1515": (
             "Leaving functions creating breakpoints in production code is not recommended",
@@ -440,15 +442,13 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         ),
     }
 
-    def __init__(self, linter: Optional["PyLinter"] = None) -> None:
+    def __init__(self, linter: PyLinter) -> None:
         BaseChecker.__init__(self, linter)
-        self._deprecated_methods: Set[str] = set()
-        self._deprecated_arguments: Dict[
-            str, Tuple[Tuple[Optional[int], str], ...]
-        ] = {}
-        self._deprecated_classes: Dict[str, Set[str]] = {}
-        self._deprecated_modules: Set[str] = set()
-        self._deprecated_decorators: Set[str] = set()
+        self._deprecated_methods: set[str] = set()
+        self._deprecated_arguments: dict[str, tuple[tuple[int | None, str], ...]] = {}
+        self._deprecated_classes: dict[str, set[str]] = {}
+        self._deprecated_modules: set[str] = set()
+        self._deprecated_decorators: set[str] = set()
 
         for since_vers, func_list in DEPRECATED_METHODS[sys.version_info[0]].items():
             if since_vers <= sys.version_info:
@@ -570,7 +570,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
 
     def _check_lru_cache_decorators(self, decorators: nodes.Decorators) -> None:
         """Check if instance methods are decorated with functools.lru_cache."""
-        lru_cache_nodes: List[nodes.NodeNG] = []
+        lru_cache_nodes: list[nodes.NodeNG] = []
         for d_node in decorators.nodes:
             try:
                 for infered_node in d_node.infer():
@@ -766,5 +766,5 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         return self._deprecated_decorators
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(StdlibChecker(linter))

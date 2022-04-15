@@ -6,6 +6,7 @@
 See https://en.wikipedia.org/wiki/Yoda_conditions
 """
 
+from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
@@ -67,5 +68,5 @@ class MisplacedComparisonConstantChecker(BaseChecker):
             self._check_misplaced_constant(node, left, right, operator)
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(MisplacedComparisonConstantChecker(linter))

@@ -2,6 +2,8 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import collections
 import configparser
 import contextlib
@@ -10,7 +12,7 @@ import optparse  # pylint: disable=deprecated-module
 import os
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional, TextIO, Tuple
+from typing import TextIO
 
 from pylint import utils
 from pylint.config.option import Option
@@ -60,6 +62,9 @@ class OptionsManagerMixIn:
     """Handle configuration from both a configuration file and command line options."""
 
     def __init__(self, usage):
+        # pylint: disable-next=fixme
+        # TODO: Optparse: Deprecate this class when we don't use ConfigurationMixIn
+        # internally anymore
         self.reset_parsers(usage)
         # list of registered options providers
         self.options_providers = []
@@ -116,7 +121,6 @@ class OptionsManagerMixIn:
                 self.cmdline_parser, title=group_name.capitalize()
             )
             self.cmdline_parser.add_option_group(group)
-            group.level = provider.level
             self._mygroups[group_name] = group
             # add section to the config file
             if (
@@ -185,12 +189,12 @@ class OptionsManagerMixIn:
         self._all_options[opt].set_option(opt, value)
 
     def generate_config(
-        self, stream: Optional[TextIO] = None, skipsections: Tuple[str, ...] = ()
+        self, stream: TextIO | None = None, skipsections: tuple[str, ...] = ()
     ) -> None:
         """Write a configuration file according to the current configuration
         into the given stream or stdout
         """
-        options_by_section: Dict[str, List[Tuple]] = {}
+        options_by_section: dict[str, list[tuple]] = {}
         sections = []
         for provider in self.options_providers:
             for section, options in provider.options_by_section():
@@ -225,7 +229,7 @@ class OptionsManagerMixIn:
             provider.load_defaults()
 
     def read_config_file(
-        self, config_file: Optional[Path] = None, verbose: bool = False
+        self, config_file: Path | None = None, verbose: bool = False
     ) -> None:
         """Read the configuration file but do not load it (i.e. dispatching
         values to each option's provider)
@@ -314,7 +318,7 @@ class OptionsManagerMixIn:
             provider = self._all_options[opt]
             provider.set_option(opt, opt_value)
 
-    def load_command_line_configuration(self, args=None) -> List[str]:
+    def load_command_line_configuration(self, args=None) -> list[str]:
         """Override configuration according to command line parameters.
 
         return additional arguments

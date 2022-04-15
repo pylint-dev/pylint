@@ -2,8 +2,9 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import warnings
-from typing import Dict, Set
 
 import astroid
 
@@ -13,7 +14,7 @@ from pylint.utils import ASTWalker
 
 class TestASTWalker:
     class MockLinter:
-        def __init__(self, msgs: Dict[str, bool]) -> None:
+        def __init__(self, msgs: dict[str, bool]) -> None:
             self._msgs = msgs
 
         def is_message_enabled(self, msgid: str) -> bool:
@@ -21,7 +22,7 @@ class TestASTWalker:
 
     class Checker:
         def __init__(self) -> None:
-            self.called: Set[str] = set()
+            self.called: set[str] = set()
 
         @only_required_for_messages("first-message")
         def visit_module(self, module):  # pylint: disable=unused-argument

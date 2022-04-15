@@ -3,4 +3,4 @@ class Base:
 
 
 class Subclass(Base):
-    __slots__ = ("c", "d")
+    __slots__ = ("d",)

@@ -294,6 +294,25 @@ def test_finds_kwargs_without_type_numpy(named_arg, **kwargs):
         return named_arg
 
 
+def test_finds_kwargs_without_asterisk_numpy(named_arg, **kwargs):
+    """The docstring
+
+    Args
+    ----
+    named_arg : object
+        Returned
+    kwargs :
+        Keyword arguments
+
+    Returns
+    -------
+        object or None
+            Maybe named_arg
+    """
+    if kwargs:
+        return named_arg
+
+
 def my_func(
     named_arg_one,
     named_arg_two,

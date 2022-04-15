@@ -3,12 +3,15 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Basic checker for Python code."""
+
+from __future__ import annotations
+
 import collections
 import itertools
 import re
 import sys
 from enum import Enum, auto
-from typing import Dict, Optional, Pattern, Tuple
+from re import Pattern
 
 import astroid
 from astroid import nodes
@@ -269,7 +272,7 @@ class NameChecker(_BasicChecker):
 
     def open(self):
         self.linter.stats.reset_bad_names()
-        for group in self.config.name_group:
+        for group in self.linter.config.name_group:
             for name_type in group.split(":"):
                 self._name_group[name_type] = f"group_{group}"
 
@@ -277,19 +280,21 @@ class NameChecker(_BasicChecker):
         self._name_regexps = regexps
         self._name_hints = hints
         self._good_names_rgxs_compiled = [
-            re.compile(rgxp) for rgxp in self.config.good_names_rgxs
+            re.compile(rgxp) for rgxp in self.linter.config.good_names_rgxs
         ]
         self._bad_names_rgxs_compiled = [
-            re.compile(rgxp) for rgxp in self.config.bad_names_rgxs
+            re.compile(rgxp) for rgxp in self.linter.config.bad_names_rgxs
         ]
 
-    def _create_naming_rules(self) -> Tuple[Dict[str, Pattern[str]], Dict[str, str]]:
-        regexps: Dict[str, Pattern[str]] = {}
-        hints: Dict[str, str] = {}
+    def _create_naming_rules(self) -> tuple[dict[str, Pattern[str]], dict[str, str]]:
+        regexps: dict[str, Pattern[str]] = {}
+        hints: dict[str, str] = {}
 
         for name_type in KNOWN_NAME_TYPES:
             if name_type in KNOWN_NAME_TYPES_WITH_STYLE:
-                naming_style_name = getattr(self.config, f"{name_type}_naming_style")
+                naming_style_name = getattr(
+                    self.linter.config, f"{name_type}_naming_style"
+                )
                 regexps[name_type] = NAMING_STYLES[naming_style_name].get_regex(
                     name_type
                 )
@@ -298,7 +303,7 @@ class NameChecker(_BasicChecker):
                 regexps[name_type] = DEFAULT_PATTERNS[name_type]
 
             custom_regex_setting_name = f"{name_type}_rgx"
-            custom_regex = getattr(self.config, custom_regex_setting_name, None)
+            custom_regex = getattr(self.linter.config, custom_regex_setting_name, None)
             if custom_regex is not None:
                 regexps[name_type] = custom_regex
 
@@ -359,7 +364,7 @@ class NameChecker(_BasicChecker):
             )
 
         self._check_name(
-            _determine_function_name_type(node, config=self.config),
+            _determine_function_name_type(node, config=self.linter.config),
             node.name,
             node,
             confidence,
@@ -469,7 +474,7 @@ class NameChecker(_BasicChecker):
 
     def _raise_name_warning(
         self,
-        prevalent_group: Optional[str],
+        prevalent_group: str | None,
         node: nodes.NodeNG,
         node_type: str,
         name: str,
@@ -483,7 +488,7 @@ class NameChecker(_BasicChecker):
             # prevalent group needs to be spelled out to make the message
             # correct.
             hint = f"the `{prevalent_group}` group in the {hint}"
-        if self.config.include_naming_hint:
+        if self.linter.config.include_naming_hint:
             hint += f" ({self._name_regexps[node_type].pattern!r} pattern)"
         args = (
             (type_label.capitalize(), name, hint)
@@ -495,12 +500,12 @@ class NameChecker(_BasicChecker):
         self.linter.stats.increase_bad_name(node_type, 1)
 
     def _name_allowed_by_regex(self, name: str) -> bool:
-        return name in self.config.good_names or any(
+        return name in self.linter.config.good_names or any(
             pattern.match(name) for pattern in self._good_names_rgxs_compiled
         )
 
     def _name_disallowed_by_regex(self, name: str) -> bool:
-        return name in self.config.bad_names or any(
+        return name in self.linter.config.bad_names or any(
             pattern.match(name) for pattern in self._bad_names_rgxs_compiled
         )
 
@@ -556,7 +561,7 @@ class NameChecker(_BasicChecker):
         return None
 
     @staticmethod
-    def _assigns_typevar(node: Optional[nodes.NodeNG]) -> bool:
+    def _assigns_typevar(node: nodes.NodeNG | None) -> bool:
         """Check if a node is assigning a TypeVar."""
         if isinstance(node, astroid.Call):
             inferred = utils.safe_infer(node.func)

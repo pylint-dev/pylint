@@ -60,16 +60,83 @@ Extensions
 Other Changes
 =============
 
-* Only raise ``not-callable`` when all the inferred values of a property are not callable.
+* ``Pylint`` now requires Python 3.7.2 or newer to run.
 
-  Closes #5931
+  Closes #4301
+
+* Update ``invalid-slots-object`` message to show bad object rather than its inferred value.
+
+  Closes #6101
 
 * Removed the broken ``generate-man`` option.
 
   Closes #5283
   Closes #1887
 
+* The ``config`` attribute of ``BaseChecker`` has been deprecated. You can use ``checker.linter.config``
+  to access the global configuration object instead of a checker-specific object.
+
+  Ref #5392
+
+* The ``level`` attribute of ``BaseChecker`` has been deprecated: everything is now
+  displayed in ``--help``, all the time.
+
+  Ref #5392
+
+* The ``set_option`` method of ``BaseChecker`` has been deprecated. You can use ``checker.linter.set_option``
+  to set an option on the global configuration object instead of a checker-specific object.
+
+  Ref #5392
+
+* The ``options_providers`` attribute of ``ArgumentsManager`` has been deprecated.
+
+  Ref #5392
+
+* The ``config`` attribute of ``PyLinter`` is now of the ``argparse.Namespace`` type instead of
+  ``optparse.Values``.
+
+  Ref #5392
+
+* The ``option_groups`` attribute of ``PyLinter`` has been deprecated.
+
+  Ref #5392
+
+* ``get_global_config`` has been deprecated. You can now access all global options from
+  ``checker.linter.config``.
+
+  Ref #5392
+
+* ``OptionsManagerMixIn`` has been replaced with ``ArgumentsManager``. ``ArgumentsManager`` is considered
+  private API and most methods that were public on ``OptionsManagerMixIn`` have now been deprecated and will
+  be removed in a future release.
+
+  Ref #5392
+
+* ``OptionsProviderMixIn`` has been replaced with ``ArgumentsProvider``. ``ArgumentsProvider`` is considered
+  private API and most methods that were public on ``OptionsProviderMixIn`` have now been deprecated and will
+  be removed in a future release.
+
+  Ref #5392
+
+* Added the ``generate-toml-config`` option.
+
+  Ref #5462
+
+* ``bad-option-value`` will be emitted whenever a configuration value or command line invocation
+  includes an unknown message.
+
+  Closes #4324
+
+* Added the ``unrecognized-option`` message. Raised if we encounter any unrecognized options.
+
+  Closes #5259
+
+* Fix false negative for ``bad-string-format-type`` if the value to be formatted is passed in
+  as a variable holding a constant.
+
 * The concept of checker priority has been removed.
+
+* ``BaseChecker`` classes now require the ``linter`` argument to be passed.
 
 * The ``set_config_directly`` decorator has been removed.
 
@@ -77,6 +144,11 @@ Other Changes
   ``ignored-checks-for-mixins`` option.
 
   Closes #5205
+
+* Fix false positive for ``unsubscriptable-object`` in Python 3.8 and below for
+  statements guarded by ``if TYPE_CHECKING``.
+
+  Closes #3979
 
 * Fix false negative for ``no-member`` when attempting to assign an instance
   attribute to itself without any prior assignment.

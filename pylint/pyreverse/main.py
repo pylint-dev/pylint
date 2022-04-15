@@ -2,14 +2,15 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-"""%prog [options] <packages>.
+"""Create UML diagrams for classes and modules in <packages>."""
 
-  create UML diagrams for classes and modules in <packages>
-"""
+from __future__ import annotations
+
 import sys
-from typing import Iterable
+from collections.abc import Sequence
 
-from pylint.config import ConfigurationMixIn
+from pylint.config.arguments_manager import _ArgumentsManager
+from pylint.config.arguments_provider import _ArgumentsProvider
 from pylint.lint.utils import fix_import_path
 from pylint.pyreverse import writer
 from pylint.pyreverse.diadefslib import DiadefsHandler
@@ -19,6 +20,7 @@ from pylint.pyreverse.utils import (
     check_if_graphviz_supports_format,
     insert_default_options,
 )
+from pylint.typing import Options
 
 DIRECTLY_SUPPORTED_FORMATS = (
     "dot",
@@ -29,7 +31,7 @@ DIRECTLY_SUPPORTED_FORMATS = (
     "html",
 )
 
-OPTIONS = (
+OPTIONS: Options = (
     (
         "filter-mode",
         dict(
@@ -54,8 +56,9 @@ OPTIONS = (
         "class",
         dict(
             short="c",
-            action="append",
+            action="extend",
             metavar="<class>",
+            type="csv",
             dest="classes",
             default=[],
             help="create a class diagram with all classes related to <class>;\
@@ -69,6 +72,7 @@ OPTIONS = (
             action="store",
             metavar="<ancestor>",
             type="int",
+            default=None,
             help="show <ancestor> generations of ancestor classes not in <projects>",
         ),
     ),
@@ -77,6 +81,7 @@ OPTIONS = (
         dict(
             short="A",
             default=None,
+            action="store_true",
             help="show all ancestors off all classes in <projects>",
         ),
     ),
@@ -87,6 +92,7 @@ OPTIONS = (
             action="store",
             metavar="<association_level>",
             type="int",
+            default=None,
             help="show <association_level> levels of associated classes not in <projects>",
         ),
     ),
@@ -95,6 +101,7 @@ OPTIONS = (
         dict(
             short="S",
             default=None,
+            action="store_true",
             help="show recursively all associated off all associated classes",
         ),
     ),
@@ -134,6 +141,7 @@ OPTIONS = (
             action="store",
             default="dot",
             metavar="<format>",
+            type="string",
             help=(
                 f"create a *.<format> output file if format is available. Available formats are: {', '.join(DIRECTLY_SUPPORTED_FORMATS)}. "
                 f"Any other format will be tried to create by means of the 'dot' command line tool, which requires a graphviz installation."
@@ -194,15 +202,20 @@ OPTIONS = (
 )
 
 
-class Run(ConfigurationMixIn):
+class Run(_ArgumentsManager, _ArgumentsProvider):
     """Base class providing common behaviour for pyreverse commands."""
 
     options = OPTIONS
+    name = "pyreverse"
 
-    def __init__(self, args: Iterable[str]):
-        super().__init__(usage=__doc__)
+    def __init__(self, args: Sequence[str]) -> None:
+        _ArgumentsManager.__init__(self, prog="pyreverse", description=__doc__)
+        _ArgumentsProvider.__init__(self, self)
+
+        # Parse options
         insert_default_options()
-        args = self.load_command_line_configuration(args)
+        args = self._parse_command_line_configuration(args)
+
         if self.config.output_format not in DIRECTLY_SUPPORTED_FORMATS:
             check_graphviz_availability()
             print(
