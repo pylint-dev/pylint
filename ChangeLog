@@ -64,6 +64,10 @@ Release date: TBA
 
   Closes #5501
 
+* Added the ``unrecognized-option`` message. Raised if we encounter any unrecognized options.
+
+  Closes #5259
+
 * Added new checker ``typevar-double-variance``: The "covariant" and "contravariant" keyword arguments
   cannot both be set to "True" in a TypeVar.
 

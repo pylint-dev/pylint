@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from pylint import config, reporters
+from pylint.config.exceptions import _UnrecognizedOptionError
 from pylint.utils import utils
 
 if TYPE_CHECKING:
@@ -50,7 +51,11 @@ def _config_initialization(
         linter.load_plugin_modules(utils._splitstrip(config_data["load-plugins"]))
 
     # First we parse any options from a configuration file
-    linter._parse_configuration_file(config_args)
+    try:
+        linter._parse_configuration_file(config_args)
+    except _UnrecognizedOptionError as exc:
+        msg = ", ".join(exc.options)
+        linter.add_message("unrecognized-option", line=0, args=msg)
 
     # Then, if a custom reporter is provided as argument, it may be overridden
     # by file parameters, so we re-set it here. We do this before command line
@@ -65,6 +70,18 @@ def _config_initialization(
     # Now we parse any options from the command line, so they can override
     # the configuration file
     parsed_args_list = linter._parse_command_line_configuration(args_list)
+
+    # Check if there are any options that we do not recognize
+    unrecognized_options: list[str] = []
+    for opt in parsed_args_list:
+        if opt.startswith("--"):
+            unrecognized_options.append(opt[2:])
+        elif opt.startswith("-"):
+            unrecognized_options.append(opt[1:])
+    if unrecognized_options:
+        msg = ", ".join(unrecognized_options)
+        linter.add_message("unrecognized-option", line=0, args=msg)
+        raise _UnrecognizedOptionError(options=unrecognized_options)
 
     # Set the current module to configuration as we don't know where
     # the --load-plugins key is coming from
