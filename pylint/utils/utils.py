@@ -247,36 +247,21 @@ def get_global_option(
 def get_global_option(
     checker: BaseChecker,
     option: GLOBAL_OPTION_NAMES,
-    default: T_GlobalOptionReturnTypes | None = None,
+    default: T_GlobalOptionReturnTypes | None = None,  # pylint: disable=unused-argument
 ) -> T_GlobalOptionReturnTypes | None:
-    """Retrieve an option defined by the given *checker* or
+    """DEPRECATED: Retrieve an option defined by the given *checker* or
     by all known option providers.
 
     It will look in the list of all options providers
     until the given *option* will be found.
     If the option wasn't found, the *default* value will be returned.
     """
-
-    # # pylint: disable-next=fixme
-    # # TODO: Optparse: Potentially deprecate this.
-    # Firstly, try on the namespace object
-    try:
-        return getattr(checker.linter.config, option.replace("-", "_"))
-    except AttributeError:
-        pass
-
-    # First, try in the given checker's config.
-    # After that, look in the options providers.
-
-    try:
-        return getattr(checker.config, option.replace("-", "_"))
-    except AttributeError:
-        pass
-    for provider in checker.linter.options_providers:
-        for options in provider.options:
-            if options[0] == option:
-                return getattr(provider.config, option.replace("-", "_"))
-    return default
+    warnings.warn(
+        "get_global_option has been deprecated. You can use "
+        "checker.linter.config to get all global options instead.",
+        DeprecationWarning,
+    )
+    return getattr(checker.linter.config, option.replace("-", "_"))
 
 
 def _splitstrip(string: str, sep: str = ",") -> list[str]:

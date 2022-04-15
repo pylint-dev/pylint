@@ -59,7 +59,7 @@ from pylint.typing import (
     ModuleDescriptionDict,
     Options,
 )
-from pylint.utils import ASTWalker, FileState, LinterStats, get_global_option, utils
+from pylint.utils import ASTWalker, FileState, LinterStats, utils
 from pylint.utils.pragma_parser import (
     OPTION_PO,
     InvalidPragmaError,
@@ -1369,7 +1369,7 @@ class PyLinter(
                 self.config.extension_pkg_whitelist
             )
         self.stats.reset_message_count()
-        self._ignore_paths = get_global_option(self, "ignore-paths")
+        self._ignore_paths = self.linter.config.ignore_paths
 
     def generate_reports(self):
         """Close the whole package /module, it's time to make reports !

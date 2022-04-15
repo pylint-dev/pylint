@@ -18,7 +18,7 @@ from astroid import nodes
 RCFILE = ".pyreverserc"
 
 
-def get_default_options():
+def get_default_options() -> list[str]:
     """Read config file and return list of options."""
     options = []
     home = os.environ.get("HOME", "")
@@ -32,7 +32,7 @@ def get_default_options():
     return options
 
 
-def insert_default_options():
+def insert_default_options() -> None:
     """Insert default options to sys.argv."""
     options = get_default_options()
     options.reverse()

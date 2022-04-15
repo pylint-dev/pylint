@@ -76,3 +76,27 @@ def test_unknown_short_option_name(capsys: CaptureFixture) -> None:
         Run([str(EMPTY_MODULE), "-Q"], exit=False)
     output = capsys.readouterr()
     assert "E0015: Unrecognized option found: Q" in output.out
+
+
+def test_unknown_confidence(capsys: CaptureFixture) -> None:
+    """Check that we correctly error an unknown confidence value."""
+    with pytest.raises(SystemExit):
+        Run([str(EMPTY_MODULE), "--confidence=UNKNOWN_CONFIG"], exit=False)
+    output = capsys.readouterr()
+    assert "argument --confidence: UNKNOWN_CONFIG should be in" in output.err
+
+
+def test_unknown_yes_no(capsys: CaptureFixture) -> None:
+    """Check that we correctly error on an unknown yes/no value."""
+    with pytest.raises(SystemExit):
+        Run([str(EMPTY_MODULE), "--reports=maybe"], exit=False)
+    output = capsys.readouterr()
+    assert "Invalid yn value 'maybe', should be in " in output.err
+
+
+def test_unknown_py_version(capsys: CaptureFixture) -> None:
+    """Check that we correctly error on an unknown python-version."""
+    with pytest.raises(SystemExit):
+        Run([str(EMPTY_MODULE), "--py-version=the-newest"], exit=False)
+    output = capsys.readouterr()
+    assert "the-newest has an invalid format, should be a version string." in output.err

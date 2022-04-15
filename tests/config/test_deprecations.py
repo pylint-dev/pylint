@@ -11,10 +11,26 @@ import pytest
 
 from pylint.checkers import BaseChecker
 from pylint.lint import PyLinter
+from pylint.utils import get_global_option
 
 
 class SampleChecker(BaseChecker):
     options = (("test-opt", {"action": "store_true", "help": "help message"}),)
+
+
+class SampleCheckerTwo(BaseChecker):
+    options = (
+        ("test-opt-two", {"action": "store", "type": "string", "help": "help message"}),
+    )
+
+
+class SampleCheckerThree(BaseChecker):
+    options = (
+        (
+            "test-opt-three",
+            {"action": "store_true", "level": 1, "help": "help message"},
+        ),
+    )
 
 
 class TestDeprecationArgumentsManager:
@@ -60,6 +76,12 @@ class TestDeprecationArgumentsManager:
         with pytest.warns(DeprecationWarning):
             self.linter.load_defaults()
 
+    def test_get_global_option(self) -> None:
+        """Test that get_global_option emits a DeprecationWarning."""
+        checker = BaseChecker(self.linter)
+        with pytest.warns(DeprecationWarning):
+            get_global_option(checker, "test-opt")  # type: ignore[call-overload]
+
     def test_read_config_file(self) -> None:
         """Test that read_config_file emits a DeprecationWarning."""
         with pytest.warns(DeprecationWarning):
@@ -87,3 +109,13 @@ class TestDeprecationArgumentsManager:
 
         with pytest.warns(DeprecationWarning):
             assert self.linter.level is not None
+
+    def test_no_default_in_optdict(self) -> None:
+        """Test that not having a default value in a optiondict emits a DeprecationWarning."""
+        with pytest.warns(DeprecationWarning):
+            SampleCheckerTwo(self.linter)
+
+    def test_no_level_in_optdict(self) -> None:
+        """Test that not having a level value in a optiondict emits a DeprecationWarning."""
+        with pytest.warns(DeprecationWarning):
+            SampleCheckerThree(self.linter)

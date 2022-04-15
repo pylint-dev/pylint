@@ -34,7 +34,6 @@ from pylint.interfaces import (
     INFERENCE_FAILURE,
     IAstroidChecker,
 )
-from pylint.utils import get_global_option
 
 if sys.version_info >= (3, 8):
     from functools import cached_property
@@ -1790,15 +1789,15 @@ class VariablesChecker(BaseChecker):
     # Relying on other checker's options, which might not have been initialized yet.
     @cached_property
     def _analyse_fallback_blocks(self):
-        return get_global_option(self, "analyse-fallback-blocks", default=False)
+        return self.linter.config.analyse_fallback_blocks
 
     @cached_property
     def _ignored_modules(self):
-        return get_global_option(self, "ignored-modules", default=[])
+        return self.linter.config.ignored_modules
 
     @cached_property
     def _allow_global_unused_variables(self):
-        return get_global_option(self, "allow-global-unused-variables", default=True)
+        return self.linter.config.allow_global_unused_variables
 
     @staticmethod
     def _defined_in_function_definition(node, frame):

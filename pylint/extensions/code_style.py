@@ -12,7 +12,6 @@ from astroid import nodes
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import check_messages, safe_infer
 from pylint.interfaces import IAstroidChecker
-from pylint.utils.utils import get_global_option
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -81,11 +80,11 @@ class CodeStyleChecker(BaseChecker):
     )
 
     def open(self) -> None:
-        py_version = get_global_option(self, "py-version")
+        py_version = self.linter.config.py_version
         self._py38_plus = py_version >= (3, 8)
         self._max_length: int = (
             self.linter.config.max_line_length_suggestions
-            or get_global_option(self, "max-line-length")
+            or self.linter.config.max_line_length
         )
 
     @check_messages("consider-using-namedtuple-or-dataclass")

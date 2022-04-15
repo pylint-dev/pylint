@@ -39,7 +39,6 @@ from pylint.checkers.utils import (
     uninferable_final_decorators,
 )
 from pylint.interfaces import INFERENCE, IAstroidChecker
-from pylint.utils import get_global_option
 
 if sys.version_info >= (3, 8):
     from functools import cached_property
@@ -775,13 +774,13 @@ a metaclass class method.",
         self._meth_could_be_func = None
 
     def open(self) -> None:
-        self._mixin_class_rgx = get_global_option(self, "mixin-class-rgx")
-        py_version = get_global_option(self, "py-version")
+        self._mixin_class_rgx = self.linter.config.mixin_class_rgx
+        py_version = self.linter.config.py_version
         self._py38_plus = py_version >= (3, 8)
 
     @cached_property
     def _dummy_rgx(self):
-        return get_global_option(self, "dummy-variables-rgx", default=None)
+        return self.linter.config.dummy_variables_rgx
 
     @check_messages(
         "abstract-method",
