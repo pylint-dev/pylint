@@ -10,7 +10,7 @@ import re
 from collections import defaultdict
 from inspect import getmodule
 from pathlib import Path
-from typing import TYPE_CHECKING, NamedTuple
+from typing import Dict, List, NamedTuple
 
 import tomlkit
 from sphinx.application import Sphinx
@@ -30,8 +30,7 @@ class OptionsData(NamedTuple):
     extension: bool
 
 
-if TYPE_CHECKING:
-    OptionsDataDict = dict[str, list[OptionsData]]
+OptionsDataDict = Dict[str, List[OptionsData]]
 
 PYLINT_BASE_PATH = Path(__file__).resolve().parent.parent.parent
 """Base path to the project folder."""
