@@ -17,7 +17,6 @@ from functools import lru_cache, partial
 from re import Match
 from typing import TYPE_CHECKING, Callable, Iterable, Match, TypeVar
 
-
 import _string
 import astroid.objects
 from astroid import TooManyLevelsError, nodes
