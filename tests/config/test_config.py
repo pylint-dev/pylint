@@ -68,3 +68,11 @@ def test_unknown_option_name(capsys: CaptureFixture) -> None:
         Run([str(EMPTY_MODULE), "--unknown-option=yes"], exit=False)
     output = capsys.readouterr()
     assert "E0015: Unrecognized option found: unknown-option=yes" in output.out
+
+
+def test_unknown_short_option_name(capsys: CaptureFixture) -> None:
+    """Check that we correctly raise a message on an unknown short option."""
+    with pytest.raises(_UnrecognizedOptionError):
+        Run([str(EMPTY_MODULE), "-Q"], exit=False)
+    output = capsys.readouterr()
+    assert "E0015: Unrecognized option found: Q" in output.out
