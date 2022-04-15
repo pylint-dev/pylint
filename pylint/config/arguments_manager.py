@@ -78,13 +78,13 @@ class _ArgumentsManager:
         """All option dictionaries that have been registered."""
 
         # pylint: disable=fixme
-        # TODO: Optparse: Added to keep API parity with OptionsManger
-        # They should be removed/deprecated when refactoring the copied methods
+        # TODO: 3.0: Remove deprecated attributes introduced to keep API
+        # parity with optparse. Until '_maxlevel'
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             self.reset_parsers(usage or "")
         # list of registered options providers
-        self.options_providers: list[ConfigProvider] = []
+        self._options_providers: list[ConfigProvider] = []
         # dictionary associating option name to checker
         self._all_options: OrderedDict[str, ConfigProvider] = OrderedDict()
         self._short_options: dict[str, str] = {}
@@ -101,6 +101,23 @@ class _ArgumentsManager:
     @config.setter
     def config(self, value: argparse.Namespace) -> None:
         self._config = value
+
+    @property
+    def options_providers(self) -> list[ConfigProvider]:
+        # TODO: 3.0: Remove deprecated attribute. # pylint: disable=fixme
+        warnings.warn(
+            "options_providers has been deprecated. It will be removed in pylint 3.0.",
+            DeprecationWarning,
+        )
+        return self._options_providers
+
+    @options_providers.setter
+    def options_providers(self, value: list[ConfigProvider]) -> None:
+        warnings.warn(
+            "Setting options_providers has been deprecated. It will be removed in pylint 3.0.",
+            DeprecationWarning,
+        )
+        self._options_providers = value
 
     def _register_options_provider(self, provider: _ArgumentsProvider) -> None:
         """Register an options provider and load its defaults."""

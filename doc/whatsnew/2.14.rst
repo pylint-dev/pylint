@@ -88,6 +88,10 @@ Other Changes
 
   Ref #5392
 
+* The ``options_providers`` attribute of ``ArgumentsManager`` has been deprecated.
+
+  Ref #5392
+
 * The ``config`` attribute of ``PyLinter`` is now of the ``argparse.Namespace`` type instead of
   ``optparse.Values``.
 
