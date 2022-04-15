@@ -9,6 +9,8 @@ from os.path import abspath, dirname, join
 
 import pytest
 
+from pylint.config.arguments_manager import _ArgumentsManager
+from pylint.config.exceptions import UnrecognizedArgumentAction
 from pylint.lint import Run
 
 HERE = abspath(dirname(__file__))
@@ -64,3 +66,14 @@ class TestDeprecationOptions:
         assert run.linter.config.ignore == run.linter.config.black_list
         assert run.linter.config.ignore_patterns == [re.compile("^\\.#")]
         assert run.linter.config.ignore_patterns == run.linter.config.black_list_re
+
+
+class TestArguments:
+    @staticmethod
+    def test_unrecognized_argument() -> None:
+        """Check that we correctly emit a warning for unrecognized argument types."""
+        manager = _ArgumentsManager(prog="test")
+        group = manager._arg_parser.add_argument_group(title="test")
+        with pytest.raises(UnrecognizedArgumentAction):
+            # We test with None as that is 'unrecognized'
+            manager._add_parser_option(group, None)  # type: ignore[arg-type]
