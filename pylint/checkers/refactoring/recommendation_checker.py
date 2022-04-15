@@ -9,7 +9,6 @@ from astroid import nodes
 
 from pylint import checkers, interfaces
 from pylint.checkers import utils
-from pylint.utils.utils import get_global_option
 
 
 class RecommendationChecker(checkers.BaseChecker):
@@ -65,7 +64,7 @@ class RecommendationChecker(checkers.BaseChecker):
     }
 
     def open(self) -> None:
-        py_version = get_global_option(self, "py-version")
+        py_version = self.linter.config.py_version
         self._py36_plus = py_version >= (3, 6)
 
     @staticmethod

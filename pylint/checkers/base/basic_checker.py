@@ -20,7 +20,6 @@ from pylint.checkers import BaseChecker, utils
 from pylint.interfaces import HIGH, IAstroidChecker
 from pylint.reporters.ureports import nodes as reporter_nodes
 from pylint.utils import LinterStats
-from pylint.utils.utils import get_global_option
 
 if TYPE_CHECKING:
     pass
@@ -263,7 +262,7 @@ class BasicChecker(_BasicChecker):
 
     def open(self):
         """Initialize visit variables and statistics."""
-        py_version = get_global_option(self, "py-version")
+        py_version = self.linter.config.py_version
         self._py38_plus = py_version >= (3, 8)
         self._tryfinallys = []
         self.linter.stats.reset_node_count()
@@ -818,9 +817,7 @@ class BasicChecker(_BasicChecker):
                 )
 
     def _check_redeclared_assign_name(self, targets):
-        dummy_variables_rgx = lint_utils.get_global_option(
-            self, "dummy-variables-rgx", default=None
-        )
+        dummy_variables_rgx = self.linter.config.dummy_variables_rgx
 
         for target in targets:
             if not isinstance(target, nodes.Tuple):

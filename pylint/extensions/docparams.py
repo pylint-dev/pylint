@@ -17,7 +17,6 @@ from pylint.checkers import utils as checker_utils
 from pylint.extensions import _check_docs_utils as utils
 from pylint.extensions._check_docs_utils import Docstring
 from pylint.interfaces import IAstroidChecker
-from pylint.utils import get_global_option
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -204,13 +203,13 @@ class DocstringParameterChecker(BaseChecker):
         )
 
         # skip functions that match the 'no-docstring-rgx' config option
-        no_docstring_rgx = get_global_option(self, "no-docstring-rgx")
+        no_docstring_rgx = self.linter.config.no_docstring_rgx
         if no_docstring_rgx and re.match(no_docstring_rgx, node.name):
             return
 
         # skip functions smaller than 'docstring-min-length'
         lines = checker_utils.get_node_last_lineno(node) - node.lineno
-        max_lines = get_global_option(self, "docstring-min-length")
+        max_lines = self.linter.config.docstring_min_length
         if max_lines > -1 and lines < max_lines:
             return
 
@@ -531,7 +530,7 @@ class DocstringParameterChecker(BaseChecker):
         not_needed_type_in_docstring = self.not_needed_param_in_docstring.copy()
 
         expected_but_ignored_argument_names = set()
-        ignored_argument_names = get_global_option(self, "ignored-argument-names")
+        ignored_argument_names = self.linter.config.ignored_argument_names
         if ignored_argument_names:
             expected_but_ignored_argument_names = {
                 arg

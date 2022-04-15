@@ -12,7 +12,6 @@ import pytest
 from pylint.checkers import BaseChecker
 from pylint.lint.expand_modules import _is_in_ignore_list_re, expand_modules
 from pylint.testutils import CheckerTestCase, set_config
-from pylint.utils.utils import get_global_option
 
 
 def test__is_in_ignore_list_re_match() -> None:
@@ -114,7 +113,7 @@ class TestExpandModules(CheckerTestCase):
             files_or_modules,
             ignore_list,
             ignore_list_re,
-            get_global_option(self.checker, "ignore-paths"),
+            self.linter.config.ignore_paths,
         )
         modules.sort(key=lambda d: d["name"])
         assert modules == expected
@@ -140,7 +139,7 @@ class TestExpandModules(CheckerTestCase):
             files_or_modules,
             ignore_list,
             ignore_list_re,
-            get_global_option(self.checker, "ignore-paths"),
+            self.linter.config.ignore_paths,
         )
         modules.sort(key=lambda d: d["name"])
         assert modules == expected

@@ -18,7 +18,6 @@ from pylint.checkers.utils import (
     safe_infer,
 )
 from pylint.interfaces import INFERENCE, IAstroidChecker
-from pylint.utils.utils import get_global_option
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -172,7 +171,7 @@ class TypingChecker(BaseChecker):
         self._consider_using_alias_msgs: list[DeprecatedTypingAliasMsg] = []
 
     def open(self) -> None:
-        py_version = get_global_option(self, "py-version")
+        py_version = self.linter.config.py_version
         self._py37_plus = py_version >= (3, 7)
         self._py39_plus = py_version >= (3, 9)
         self._py310_plus = py_version >= (3, 10)

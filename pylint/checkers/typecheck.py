@@ -46,7 +46,6 @@ from pylint.checkers.utils import (
     supports_setitem,
 )
 from pylint.interfaces import INFERENCE, IAstroidChecker
-from pylint.utils import get_global_option
 
 if sys.version_info >= (3, 8):
     from functools import cached_property
@@ -881,13 +880,13 @@ accessed. Python regular expressions are accepted.",
     )
 
     def open(self) -> None:
-        py_version = get_global_option(self, "py-version")
+        py_version = self.linter.config.py_version
         self._py310_plus = py_version >= (3, 10)
-        self._mixin_class_rgx = get_global_option(self, "mixin-class-rgx")
+        self._mixin_class_rgx = self.linter.config.mixin_class_rgx
 
     @cached_property
     def _suggestion_mode(self):
-        return get_global_option(self, "suggestion-mode", default=True)
+        return self.linter.config.suggestion_mode
 
     @cached_property
     def _compiled_generated_members(self) -> tuple[Pattern, ...]:

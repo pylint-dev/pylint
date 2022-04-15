@@ -18,7 +18,6 @@ from astroid import nodes
 from astroid.util import Uninferable
 
 from pylint import checkers, interfaces
-from pylint import utils as lint_utils
 from pylint.checkers import utils
 from pylint.checkers.utils import node_frame_class
 from pylint.interfaces import HIGH
@@ -496,7 +495,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     @cached_property
     def _dummy_rgx(self):
-        return lint_utils.get_global_option(self, "dummy-variables-rgx", default=None)
+        return self.linter.config.dummy_variables_rgx
 
     @staticmethod
     def _is_bool_const(node):

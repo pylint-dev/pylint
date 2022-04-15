@@ -15,7 +15,6 @@ from typing import TYPE_CHECKING, List, cast
 import astroid
 from astroid import nodes
 
-from pylint import utils
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages
 from pylint.interfaces import IAstroidChecker
@@ -417,8 +416,8 @@ class MisdesignChecker(BaseChecker):
         self._returns = []
         self._branches = defaultdict(int)
         self._stmts = []
-        self._exclude_too_few_public_methods = utils.get_global_option(
-            self, "exclude-too-few-public-methods", default=[]
+        self._exclude_too_few_public_methods = (
+            self.linter.config.exclude_too_few_public_methods
         )
 
     def _inc_all_stmts(self, amount):
@@ -427,7 +426,7 @@ class MisdesignChecker(BaseChecker):
 
     @cached_property
     def _ignored_argument_names(self):
-        return utils.get_global_option(self, "ignored-argument-names", default=None)
+        return self.linter.config.ignored_argument_names
 
     @check_messages(
         "too-many-ancestors",
