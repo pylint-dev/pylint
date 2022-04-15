@@ -3,9 +3,11 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 # pylint: disable=redefined-outer-name
+
+from __future__ import annotations
+
 import os
 from pathlib import Path
-from typing import List
 
 import pytest
 
@@ -80,7 +82,7 @@ def pytest_addoption(parser) -> None:
 
 
 def pytest_collection_modifyitems(
-    config: pytest.Config, items: List[pytest.Function]
+    config: pytest.Config, items: list[pytest.Function]
 ) -> None:
     """Convert command line options to markers."""
     # Add skip_primer_external mark

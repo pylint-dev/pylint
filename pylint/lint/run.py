@@ -37,7 +37,7 @@ except ImportError:
     multiprocessing = None  # type: ignore[assignment]
 
 
-def _query_cpu() -> Optional[int]:
+def _query_cpu() -> int | None:
     """Try to determine number of CPUs alloted in a docker container.
 
     This is based on discussion and coped from suggestions in
