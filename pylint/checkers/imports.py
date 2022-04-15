@@ -27,7 +27,7 @@ from pylint.exceptions import EmptyReportError
 from pylint.graph import DotBackend, get_cycles
 from pylint.interfaces import IAstroidChecker
 from pylint.reporters.ureports.nodes import Paragraph, Section, VerbatimText
-from pylint.utils import IsortDriver, get_global_option
+from pylint.utils import IsortDriver
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -393,7 +393,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         self.import_graph = collections.defaultdict(set)
         self._module_pkg = {}  # mapping of modules to the pkg they belong in
         self._excluded_edges = collections.defaultdict(set)
-        self._ignored_modules = get_global_option(self, "ignored-modules", default=[])
+        self._ignored_modules = self.linter.config.ignored_modules
         # Build a mapping {'module': 'preferred-module'}
         self.preferred_modules = dict(
             module.split(":")

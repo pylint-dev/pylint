@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING
 import astroid
 from astroid import nodes
 
-from pylint import checkers, interfaces, utils
+from pylint import checkers, interfaces
 from pylint.checkers import utils as checker_utils
 from pylint.checkers.utils import decorated_with
 
@@ -41,7 +41,7 @@ class AsyncChecker(checkers.BaseChecker):
     }
 
     def open(self):
-        self._mixin_class_rgx = utils.get_global_option(self, "mixin-class-rgx")
+        self._mixin_class_rgx = self.linter.config.mixin_class_rgx
         self._async_generators = ["contextlib.asynccontextmanager"]
 
     @checker_utils.check_messages("yield-inside-async-function")

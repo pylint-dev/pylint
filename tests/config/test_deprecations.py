@@ -11,6 +11,7 @@ import pytest
 
 from pylint.checkers import BaseChecker
 from pylint.lint import PyLinter
+from pylint.utils import get_global_option
 
 
 class SampleChecker(BaseChecker):
@@ -59,6 +60,12 @@ class TestDeprecationArgumentsManager:
             self.linter.register_options_provider(checker)
         with pytest.warns(DeprecationWarning):
             self.linter.load_defaults()
+
+    def test_get_global_option(self) -> None:
+        """Test that get_global_option emits a DeprecationWarning."""
+        checker = BaseChecker(self.linter)
+        with pytest.warns(DeprecationWarning):
+            get_global_option(checker, "test-opt")  # type: ignore[call-overload]
 
     def test_read_config_file(self) -> None:
         """Test that read_config_file emits a DeprecationWarning."""
