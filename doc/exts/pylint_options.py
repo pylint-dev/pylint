@@ -10,7 +10,7 @@ import re
 from collections import defaultdict
 from inspect import getmodule
 from pathlib import Path
-from typing import NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 import tomlkit
 from sphinx.application import Sphinx
@@ -22,12 +22,6 @@ from pylint.lint import PyLinter
 from pylint.typing import OptionDict
 from pylint.utils import get_rst_title
 
-PYLINT_BASE_PATH = Path(__file__).resolve().parent.parent.parent
-"""Base path to the project folder."""
-
-PYLINT_USERGUIDE_PATH = PYLINT_BASE_PATH / "doc" / "user_guide"
-"""Path to the messages documentation folder."""
-
 
 class OptionsData(NamedTuple):
     name: str
@@ -36,7 +30,14 @@ class OptionsData(NamedTuple):
     extension: bool
 
 
-OptionsDataDict = dict[str, list[OptionsData]]
+if TYPE_CHECKING:
+    OptionsDataDict = dict[str, list[OptionsData]]
+
+PYLINT_BASE_PATH = Path(__file__).resolve().parent.parent.parent
+"""Base path to the project folder."""
+
+PYLINT_USERGUIDE_PATH = PYLINT_BASE_PATH / "doc" / "user_guide"
+"""Path to the messages documentation folder."""
 
 
 def _register_all_checkers_and_extensions(linter: PyLinter) -> None:
