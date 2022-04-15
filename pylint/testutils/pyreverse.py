@@ -4,10 +4,14 @@
 
 from __future__ import annotations
 
+import argparse
+
 
 # This class could and should be replaced with a simple dataclass when support for Python < 3.7 is dropped.
 # A NamedTuple is not possible as some tests need to modify attributes during the test.
-class PyreverseConfig:  # pylint: disable=too-many-instance-attributes, too-many-arguments
+class PyreverseConfig(
+    argparse.Namespace
+):  # pylint: disable=too-many-instance-attributes, too-many-arguments
     """Holds the configuration options for Pyreverse.
 
     The default values correspond to the defaults of the options' parser.
@@ -31,6 +35,7 @@ class PyreverseConfig:  # pylint: disable=too-many-instance-attributes, too-many
         project: str = "",
         output_directory: str = "",
     ) -> None:
+        super().__init__()
         self.mode = mode
         if classes:
             self.classes = classes

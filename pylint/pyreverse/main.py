@@ -2,7 +2,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-"""%prog [options] <packages>.
+"""{prog} [options] <packages>.
 
   create UML diagrams for classes and modules in <packages>
 """
@@ -10,9 +10,10 @@
 from __future__ import annotations
 
 import sys
-from collections.abc import Iterable
+from collections.abc import Sequence
 
-from pylint.config import ConfigurationMixIn
+from pylint.config.arguments_manager import _ArgumentsManager
+from pylint.config.arguments_provider import _ArgumentsProvider
 from pylint.lint.utils import fix_import_path
 from pylint.pyreverse import writer
 from pylint.pyreverse.diadefslib import DiadefsHandler
@@ -58,7 +59,7 @@ OPTIONS: Options = (
         "class",
         dict(
             short="c",
-            action="append",
+            action="extend",
             metavar="<class>",
             type="csv",
             dest="classes",
@@ -204,18 +205,19 @@ OPTIONS: Options = (
 )
 
 
-class Run(ConfigurationMixIn):
+class Run(_ArgumentsManager, _ArgumentsProvider):
     """Base class providing common behaviour for pyreverse commands."""
 
     options = OPTIONS
     name = "pyreverse"
 
-    def __init__(self, args: Iterable[str]):
-        super().__init__(usage=__doc__)
+    def __init__(self, args: Sequence[str]) -> None:
+        _ArgumentsManager.__init__(self, prog="pyreverse", usage=__doc__)
+        _ArgumentsProvider.__init__(self, self)
 
         # Parse options
         insert_default_options()
-        args = self.load_command_line_configuration(args)
+        args = self._parse_command_line_configuration(args)
 
         if self.config.output_format not in DIRECTLY_SUPPORTED_FORMATS:
             check_graphviz_availability()
