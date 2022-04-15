@@ -97,6 +97,10 @@ Other Changes
 
   Ref #5392
 
+* The ``option_groups`` attribute of ``PyLinter`` has been deprecated.
+
+  Ref #5392
+
 * ``get_global_config`` has been deprecated. You can now access all global options from
   ``checker.linter.config``.
 

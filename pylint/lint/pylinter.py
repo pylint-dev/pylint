@@ -626,9 +626,7 @@ class PyLinter(
         self.options: Options = options + self.make_options()
         for opt_group in option_groups:
             self.option_groups_descs[opt_group[0]] = opt_group[1]
-        # pylint: disable-next=fixme
-        # TODO: Optparse: Remove this assignment after option_groups has been deprecated
-        self.option_groups: tuple[tuple[str, str], ...] = option_groups + (
+        self._option_groups: tuple[tuple[str, str], ...] = option_groups + (
             ("Messages control", "Options controlling analysis messages"),
             ("Reports", "Options related to output formatting and reporting"),
         )
@@ -664,6 +662,23 @@ class PyLinter(
             ("RP0003", "Messages", report_messages_stats),
         )
         self.register_checker(self)
+
+    @property
+    def option_groups(self) -> tuple[tuple[str, str], ...]:
+        # TODO: 3.0: Remove deprecated attribute # pylint: disable=fixme
+        warnings.warn(
+            "The option_groups attribute has been deprecated and will be removed in pylint 3.0",
+            DeprecationWarning,
+        )
+        return self._option_groups
+
+    @option_groups.setter
+    def option_groups(self, value: tuple[tuple[str, str], ...]) -> None:
+        warnings.warn(
+            "The option_groups attribute has been deprecated and will be removed in pylint 3.0",
+            DeprecationWarning,
+        )
+        self._option_groups = value
 
     def load_default_plugins(self):
         checkers.initialize(self)
