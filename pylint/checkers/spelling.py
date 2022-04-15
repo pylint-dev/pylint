@@ -3,10 +3,14 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Checker for spelling errors in comments and docstrings."""
+
+from __future__ import annotations
+
 import os
 import re
 import tokenize
-from typing import TYPE_CHECKING, Pattern
+from re import Pattern
+from typing import TYPE_CHECKING
 
 from astroid import nodes
 
@@ -269,38 +273,39 @@ class SpellingChecker(BaseTokenChecker):
 
         if enchant is None:
             return
-        dict_name = self.config.spelling_dict
+        dict_name = self.linter.config.spelling_dict
         if not dict_name:
             return
 
         self.ignore_list = [
-            w.strip() for w in self.config.spelling_ignore_words.split(",")
+            w.strip() for w in self.linter.config.spelling_ignore_words.split(",")
         ]
         # "param" appears in docstring in param description and
         # "pylint" appears in comments in pylint pragmas.
         self.ignore_list.extend(["param", "pylint"])
 
         self.ignore_comment_directive_list = [
-            w.strip() for w in self.config.spelling_ignore_comment_directives.split(",")
+            w.strip()
+            for w in self.linter.config.spelling_ignore_comment_directives.split(",")
         ]
 
         # Expand tilde to allow e.g. spelling-private-dict-file = ~/.pylintdict
-        if self.config.spelling_private_dict_file:
-            self.config.spelling_private_dict_file = os.path.expanduser(
-                self.config.spelling_private_dict_file
+        if self.linter.config.spelling_private_dict_file:
+            self.linter.config.spelling_private_dict_file = os.path.expanduser(
+                self.linter.config.spelling_private_dict_file
             )
 
-        if self.config.spelling_private_dict_file:
+        if self.linter.config.spelling_private_dict_file:
             self.spelling_dict = enchant.DictWithPWL(
-                dict_name, self.config.spelling_private_dict_file
+                dict_name, self.linter.config.spelling_private_dict_file
             )
             self.private_dict_file = open(  # pylint: disable=consider-using-with
-                self.config.spelling_private_dict_file, "a", encoding="utf-8"
+                self.linter.config.spelling_private_dict_file, "a", encoding="utf-8"
             )
         else:
             self.spelling_dict = enchant.Dict(dict_name)
 
-        if self.config.spelling_store_unknown_words:
+        if self.linter.config.spelling_store_unknown_words:
             self.unknown_words = set()
 
         self.tokenizer = get_tokenizer(
@@ -374,14 +379,14 @@ class SpellingChecker(BaseTokenChecker):
                 continue
 
             # Store word to private dict or raise a message.
-            if self.config.spelling_store_unknown_words:
+            if self.linter.config.spelling_store_unknown_words:
                 if lower_cased_word not in self.unknown_words:
                     self.private_dict_file.write(f"{lower_cased_word}\n")
                     self.unknown_words.add(lower_cased_word)
             else:
                 # Present up to N suggestions.
                 suggestions = self.spelling_dict.suggest(word)
-                del suggestions[self.config.max_spelling_suggestions :]
+                del suggestions[self.linter.config.max_spelling_suggestions :]
                 line_segment = line[word_start_at:]
                 match = re.search(rf"(\W|^)({word})(\W|$)", line_segment)
                 if match:
@@ -444,5 +449,5 @@ class SpellingChecker(BaseTokenChecker):
             self._check_spelling("wrong-spelling-in-docstring", line, start_line + idx)
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(SpellingChecker(linter))

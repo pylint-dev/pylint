@@ -2,6 +2,8 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import linecache
 from typing import TYPE_CHECKING
 
@@ -9,7 +11,6 @@ from astroid import nodes
 
 from pylint import checkers
 from pylint.checkers.utils import check_messages
-from pylint.constants import PY38_PLUS
 from pylint.interfaces import HIGH, IAstroidChecker
 
 if TYPE_CHECKING:
@@ -26,8 +27,7 @@ class DocStringStyleChecker(checkers.BaseChecker):
         "C0198": (
             'Bad docstring quotes in %s, expected """, given %s',
             "bad-docstring-quotes",
-            "Used when a docstring does not have triple double quotes. "
-            "This checker only works on Python 3.8+.",
+            "Used when a docstring does not have triple double quotes.",
         ),
         "C0199": (
             "First line empty in %s docstring",
@@ -75,7 +75,7 @@ class DocStringStyleChecker(checkers.BaseChecker):
                 quotes = "'"
             else:
                 quotes = False
-            if quotes and PY38_PLUS:
+            if quotes:
                 self.add_message(
                     "bad-docstring-quotes",
                     node=node,
@@ -84,5 +84,5 @@ class DocStringStyleChecker(checkers.BaseChecker):
                 )
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(DocStringStyleChecker(linter))

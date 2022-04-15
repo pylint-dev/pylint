@@ -3,9 +3,10 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 import optparse  # pylint: disable=deprecated-module
-from typing import Any, Dict, Tuple
 
+from pylint.config.callback_actions import _CallbackAction
 from pylint.config.option import _validate
+from pylint.typing import Options
 
 
 class UnsupportedAction(Exception):
@@ -16,9 +17,8 @@ class OptionsProviderMixIn:
     """Mixin to provide options to an OptionsManager."""
 
     # those attributes should be overridden
-    priority = -1
     name = "default"
-    options: Tuple[Tuple[str, Dict[str, Any]], ...] = ()
+    options: Options = ()
     level = 0
 
     def __init__(self):
@@ -57,9 +57,9 @@ class OptionsProviderMixIn:
         if action == "store":
             setattr(self.config, self.option_attrname(optname, optdict), value)
         elif action in {"store_true", "count"}:
-            setattr(self.config, self.option_attrname(optname, optdict), 0)
+            setattr(self.config, self.option_attrname(optname, optdict), value)
         elif action == "store_false":
-            setattr(self.config, self.option_attrname(optname, optdict), 1)
+            setattr(self.config, self.option_attrname(optname, optdict), value)
         elif action == "append":
             optname = self.option_attrname(optname, optdict)
             _list = getattr(self.config, optname, None)
@@ -73,8 +73,12 @@ class OptionsProviderMixIn:
                 setattr(self.config, optname, _list + (value,))
             else:
                 _list.append(value)
-        elif action == "callback":
-            optdict["callback"](None, optname, value, None)
+        elif (
+            action == "callback"
+            or (not isinstance(action, str))
+            and issubclass(action, _CallbackAction)
+        ):
+            return
         else:
             raise UnsupportedAction(action)
 

@@ -3,7 +3,10 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Looks for try/except statements with too much code in the try clause."""
-from typing import TYPE_CHECKING, Union
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from astroid import nodes
 
@@ -34,7 +37,6 @@ class BroadTryClauseChecker(checkers.BaseChecker):
         )
     }
 
-    priority = -2
     options = (
         (
             "max-try-statements",
@@ -56,10 +58,10 @@ class BroadTryClauseChecker(checkers.BaseChecker):
 
         return statement_count
 
-    def visit_tryexcept(self, node: Union[nodes.TryExcept, nodes.TryFinally]) -> None:
+    def visit_tryexcept(self, node: nodes.TryExcept | nodes.TryFinally) -> None:
         try_clause_statements = self._count_statements(node)
-        if try_clause_statements > self.config.max_try_statements:
-            msg = f"try clause contains {try_clause_statements} statements, expected at most {self.config.max_try_statements}"
+        if try_clause_statements > self.linter.config.max_try_statements:
+            msg = f"try clause contains {try_clause_statements} statements, expected at most {self.linter.config.max_try_statements}"
             self.add_message(
                 "too-many-try-statements", node.lineno, node=node, args=msg
             )
@@ -68,5 +70,5 @@ class BroadTryClauseChecker(checkers.BaseChecker):
         self.visit_tryexcept(node)
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(BroadTryClauseChecker(linter))

@@ -2,11 +2,13 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import copy
 import optparse  # pylint: disable=deprecated-module
 import pathlib
 import re
-from typing import List, Pattern, Union
+from re import Pattern
 
 from pylint import utils
 
@@ -29,8 +31,8 @@ def _regexp_csv_validator(_, name, value):
 
 
 def _regexp_paths_csv_validator(
-    _, name: str, value: Union[str, List[Pattern[str]]]
-) -> List[Pattern[str]]:
+    _, name: str, value: str | list[Pattern[str]]
+) -> list[Pattern[str]]:
     if isinstance(value, list):
         return value
     patterns = []
@@ -74,14 +76,14 @@ def _multiple_choice_validator(choices, name, value):
     return values
 
 
-def _non_empty_string_validator(opt, _, value):
+def _non_empty_string_validator(opt, _, value):  # pragma: no cover # Unused
     if not value:
         msg = "indent string can't be empty."
         raise optparse.OptionValueError(msg)
     return utils._unquote(value)
 
 
-def _multiple_choices_validating_option(opt, name, value):
+def _multiple_choices_validating_option(opt, name, value):  # pragma: no cover # Unused
     return _multiple_choice_validator(opt.choices, name, value)
 
 
@@ -106,6 +108,9 @@ VALIDATORS = {
     "csv": _csv_validator,
     "yn": _yn_validator,
     "choice": lambda opt, name, value: _choice_validator(opt["choices"], name, value),
+    "confidence": lambda opt, name, value: _multiple_choice_validator(
+        opt["choices"], name, value
+    ),
     "multiple_choice": lambda opt, name, value: _multiple_choice_validator(
         opt["choices"], name, value
     ),
@@ -148,6 +153,7 @@ class Option(optparse.Option):
         "regexp_paths_csv",
         "csv",
         "yn",
+        "confidence",
         "multiple_choice",
         "non_empty_string",
         "py_version",
@@ -159,6 +165,7 @@ class Option(optparse.Option):
     TYPE_CHECKER["regexp_paths_csv"] = _regexp_paths_csv_validator
     TYPE_CHECKER["csv"] = _csv_validator
     TYPE_CHECKER["yn"] = _yn_validator
+    TYPE_CHECKER["confidence"] = _multiple_choices_validating_option
     TYPE_CHECKER["multiple_choice"] = _multiple_choices_validating_option
     TYPE_CHECKER["non_empty_string"] = _non_empty_string_validator
     TYPE_CHECKER["py_version"] = _py_version_validator
@@ -169,7 +176,7 @@ class Option(optparse.Option):
             self.help = optparse.SUPPRESS_HELP
 
     def _check_choice(self):
-        if self.type in {"choice", "multiple_choice"}:
+        if self.type in {"choice", "multiple_choice", "confidence"}:
             if self.choices is None:
                 raise optparse.OptionError(
                     "must supply a list of choices for type 'choice'", self
@@ -188,7 +195,9 @@ class Option(optparse.Option):
 
     optparse.Option.CHECK_METHODS[2] = _check_choice  # type: ignore[index]
 
-    def process(self, opt, value, values, parser):
+    def process(self, opt, value, values, parser):  # pragma: no cover # Argparse
+        if self.callback and self.callback.__module__ == "pylint.lint.run":
+            return 1
         # First, convert the value(s) to the right type.  Howl if any
         # value(s) are bogus.
         value = self.convert_value(opt, value)

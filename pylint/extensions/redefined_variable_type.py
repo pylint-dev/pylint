@@ -2,7 +2,9 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-from typing import TYPE_CHECKING, List
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from astroid import nodes
 
@@ -51,7 +53,7 @@ class MultipleTypesChecker(BaseChecker):
     leave_functiondef = leave_module = leave_classdef
 
     def visit_module(self, _: nodes.Module) -> None:
-        self._assigns: List[dict] = [{}]
+        self._assigns: list[dict] = [{}]
 
     def _check_and_add_messages(self):
         assigns = self._assigns.pop()
@@ -105,5 +107,5 @@ class MultipleTypesChecker(BaseChecker):
             )
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(MultipleTypesChecker(linter))

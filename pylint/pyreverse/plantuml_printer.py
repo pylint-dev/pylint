@@ -3,7 +3,8 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Class to generate files in dot format and image formats supported by Graphviz."""
-from typing import Dict, Optional
+
+from __future__ import annotations
 
 from pylint.pyreverse.printer import EdgeType, Layout, NodeProperties, NodeType, Printer
 from pylint.pyreverse.utils import get_annotation_label
@@ -14,12 +15,12 @@ class PlantUmlPrinter(Printer):
 
     DEFAULT_COLOR = "black"
 
-    NODES: Dict[NodeType, str] = {
+    NODES: dict[NodeType, str] = {
         NodeType.CLASS: "class",
         NodeType.INTERFACE: "class",
         NodeType.PACKAGE: "package",
     }
-    ARROWS: Dict[EdgeType, str] = {
+    ARROWS: dict[EdgeType, str] = {
         EdgeType.INHERITS: "--|>",
         EdgeType.IMPLEMENTS: "..|>",
         EdgeType.ASSOCIATION: "--*",
@@ -45,7 +46,7 @@ class PlantUmlPrinter(Printer):
         self,
         name: str,
         type_: NodeType,
-        properties: Optional[NodeProperties] = None,
+        properties: NodeProperties | None = None,
     ) -> None:
         """Create a new node.
 
@@ -84,7 +85,7 @@ class PlantUmlPrinter(Printer):
         from_node: str,
         to_node: str,
         type_: EdgeType,
-        label: Optional[str] = None,
+        label: str | None = None,
     ) -> None:
         """Create an edge from one node to another to display relationships."""
         edge = f"{from_node} {self.ARROWS[type_]} {to_node}"

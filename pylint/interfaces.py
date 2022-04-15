@@ -3,8 +3,11 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Interfaces for Pylint objects."""
+
+from __future__ import annotations
+
 from collections import namedtuple
-from typing import TYPE_CHECKING, Tuple, Type, Union
+from typing import TYPE_CHECKING
 
 from astroid import nodes
 
@@ -24,6 +27,7 @@ __all__ = (
     "INFERENCE_FAILURE",
     "UNDEFINED",
     "CONFIDENCE_LEVELS",
+    "CONFIDENCE_LEVEL_NAMES",
 )
 
 Confidence = namedtuple("Confidence", ["name", "description"])
@@ -39,6 +43,7 @@ INFERENCE_FAILURE = Confidence(
 UNDEFINED = Confidence("UNDEFINED", "Warning without any associated confidence level.")
 
 CONFIDENCE_LEVELS = [HIGH, CONTROL_FLOW, INFERENCE, INFERENCE_FAILURE, UNDEFINED]
+CONFIDENCE_LEVEL_NAMES = [i.name for i in CONFIDENCE_LEVELS]
 
 
 class Interface:
@@ -50,8 +55,8 @@ class Interface:
 
 
 def implements(
-    obj: "BaseChecker",
-    interface: Union[Type["Interface"], Tuple[Type["Interface"], ...]],
+    obj: BaseChecker,
+    interface: type[Interface] | tuple[type[Interface], ...],
 ) -> bool:
     """Does the given object (maybe an instance or class) implement the interface."""
     implements_ = getattr(obj, "__implements__", ())
@@ -102,5 +107,5 @@ class IReporter(Interface):
     def handle_message(self, msg) -> None:
         """Handle the given message object."""
 
-    def display_reports(self, layout: "Section") -> None:
+    def display_reports(self, layout: Section) -> None:
         """Display results encapsulated in the layout tree."""

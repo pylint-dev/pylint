@@ -2,6 +2,8 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 try:
     import isort.api
 
@@ -11,24 +13,17 @@ except ImportError:  # isort < 5
 
     HAS_ISORT_5 = False
 
+import argparse
 import codecs
 import os
 import re
 import sys
 import textwrap
 import tokenize
+import warnings
+from collections.abc import Sequence
 from io import BufferedReader, BytesIO
-from typing import (
-    TYPE_CHECKING,
-    List,
-    Optional,
-    Pattern,
-    TextIO,
-    Tuple,
-    TypeVar,
-    Union,
-    overload,
-)
+from typing import TYPE_CHECKING, List, Pattern, TextIO, Tuple, TypeVar, Union, overload
 
 from astroid import Module, modutils, nodes
 
@@ -47,7 +42,6 @@ DEFAULT_LINE_LENGTH = 79
 
 # These are types used to overload get_global_option() and refer to the options type
 GLOBAL_OPTION_BOOL = Literal[
-    "ignore-mixin-members",
     "suggestion-mode",
     "analyse-fallback-blocks",
     "allow-global-unused-variables",
@@ -94,11 +88,11 @@ CMPS = ["=", "-", "+"]
 
 
 # py3k has no more cmp builtin
-def cmp(a: Union[int, float], b: Union[int, float]) -> int:
+def cmp(a: int | float, b: int | float) -> int:
     return (a > b) - (a < b)
 
 
-def diff_string(old: Union[int, float], new: Union[int, float]) -> str:
+def diff_string(old: int | float, new: int | float) -> str:
     """Given an old and new int value, return a string representing the
     difference
     """
@@ -107,7 +101,7 @@ def diff_string(old: Union[int, float], new: Union[int, float]) -> str:
     return diff_str
 
 
-def get_module_and_frameid(node: nodes.NodeNG) -> Tuple[str, str]:
+def get_module_and_frameid(node: nodes.NodeNG) -> tuple[str, str]:
     """Return the module name and the frame id in the module."""
     frame = node.frame(future=True)
     module, obj = "", []
@@ -150,7 +144,7 @@ def get_rst_section(section, options, doc=None):
 
 
 def decoding_stream(
-    stream: Union[BufferedReader, BytesIO],
+    stream: BufferedReader | BytesIO,
     encoding: str,
     errors: Literal["strict"] = "strict",
 ) -> codecs.StreamReader:
@@ -161,13 +155,13 @@ def decoding_stream(
     return reader_cls(stream, errors)
 
 
-def tokenize_module(node: nodes.Module) -> List[tokenize.TokenInfo]:
+def tokenize_module(node: nodes.Module) -> list[tokenize.TokenInfo]:
     with node.stream() as stream:
         readline = stream.readline
         return list(tokenize.tokenize(readline))
 
 
-def register_plugins(linter: "PyLinter", directory: str) -> None:
+def register_plugins(linter: PyLinter, directory: str) -> None:
     """Load all module and package in the given directory, looking for a
     'register' function in each one, used to register pylint checkers
     """
@@ -202,59 +196,59 @@ def register_plugins(linter: "PyLinter", directory: str) -> None:
 
 @overload
 def get_global_option(
-    checker: "BaseChecker", option: GLOBAL_OPTION_BOOL, default: Optional[bool] = None
+    checker: BaseChecker, option: GLOBAL_OPTION_BOOL, default: bool | None = None
 ) -> bool:
     ...
 
 
 @overload
 def get_global_option(
-    checker: "BaseChecker", option: GLOBAL_OPTION_INT, default: Optional[int] = None
+    checker: BaseChecker, option: GLOBAL_OPTION_INT, default: int | None = None
 ) -> int:
     ...
 
 
 @overload
 def get_global_option(
-    checker: "BaseChecker",
+    checker: BaseChecker,
     option: GLOBAL_OPTION_LIST,
-    default: Optional[List[str]] = None,
-) -> List[str]:
+    default: list[str] | None = None,
+) -> list[str]:
     ...
 
 
 @overload
 def get_global_option(
-    checker: "BaseChecker",
+    checker: BaseChecker,
     option: GLOBAL_OPTION_PATTERN,
-    default: Optional[Pattern[str]] = None,
+    default: Pattern[str] | None = None,
 ) -> Pattern[str]:
     ...
 
 
 @overload
 def get_global_option(
-    checker: "BaseChecker",
+    checker: BaseChecker,
     option: GLOBAL_OPTION_PATTERN_LIST,
-    default: Optional[List[Pattern[str]]] = None,
-) -> List[Pattern[str]]:
+    default: list[Pattern[str]] | None = None,
+) -> list[Pattern[str]]:
     ...
 
 
 @overload
 def get_global_option(
-    checker: "BaseChecker",
+    checker: BaseChecker,
     option: GLOBAL_OPTION_TUPLE_INT,
-    default: Optional[Tuple[int, ...]] = None,
-) -> Tuple[int, ...]:
+    default: tuple[int, ...] | None = None,
+) -> tuple[int, ...]:
     ...
 
 
 def get_global_option(
-    checker: "BaseChecker",
+    checker: BaseChecker,
     option: GLOBAL_OPTION_NAMES,
-    default: Optional[T_GlobalOptionReturnTypes] = None,
-) -> Optional[T_GlobalOptionReturnTypes]:
+    default: T_GlobalOptionReturnTypes | None = None,
+) -> T_GlobalOptionReturnTypes | None:
     """Retrieve an option defined by the given *checker* or
     by all known option providers.
 
@@ -262,6 +256,15 @@ def get_global_option(
     until the given *option* will be found.
     If the option wasn't found, the *default* value will be returned.
     """
+
+    # # pylint: disable-next=fixme
+    # # TODO: Optparse: Potentially deprecate this.
+    # Firstly, try on the namespace object
+    try:
+        return getattr(checker.linter.config, option.replace("-", "_"))
+    except AttributeError:
+        pass
+
     # First, try in the given checker's config.
     # After that, look in the options providers.
 
@@ -276,7 +279,7 @@ def get_global_option(
     return default
 
 
-def _splitstrip(string, sep=","):
+def _splitstrip(string: str, sep: str = ",") -> list[str]:
     """Return a list of stripped string by splitting the string given as
     argument on `sep` (',' by default), empty strings are discarded.
 
@@ -314,7 +317,7 @@ def _unquote(string: str) -> str:
     return string
 
 
-def _check_csv(value):
+def _check_csv(value: list[str] | tuple[str] | str) -> Sequence[str]:
     if isinstance(value, (list, tuple)):
         return value
     return _splitstrip(value)
@@ -328,7 +331,10 @@ def _comment(string: str) -> str:
 
 
 def _format_option_value(optdict, value):
-    """Return the user input's value from a 'compiled' value."""
+    """Return the user input's value from a 'compiled' value.
+
+    TODO: 3.0: Remove deprecated function
+    """
     if optdict.get("type", None) == "py_version":
         value = ".".join(str(item) for item in value)
     elif isinstance(value, (list, tuple)):
@@ -346,17 +352,27 @@ def _format_option_value(optdict, value):
 
 
 def format_section(
-    stream: TextIO, section: str, options: List[Tuple], doc: Optional[str] = None
+    stream: TextIO, section: str, options: list[tuple], doc: str | None = None
 ) -> None:
     """Format an option's section using the INI format."""
+    warnings.warn(
+        "format_section has been deprecated. It will be removed in pylint 3.0.",
+        DeprecationWarning,
+    )
     if doc:
         print(_comment(doc), file=stream)
     print(f"[{section}]", file=stream)
-    _ini_format(stream, options)
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
+        _ini_format(stream, options)
 
 
-def _ini_format(stream: TextIO, options: List[Tuple]) -> None:
+def _ini_format(stream: TextIO, options: list[tuple]) -> None:
     """Format options using the INI format."""
+    warnings.warn(
+        "_ini_format has been deprecated. It will be removed in pylint 3.0.",
+        DeprecationWarning,
+    )
     for optname, optdict, value in options:
         value = _format_option_value(optdict, value)
         help_opt = optdict.get("help")
@@ -381,7 +397,7 @@ def _ini_format(stream: TextIO, options: List[Tuple]) -> None:
 class IsortDriver:
     """A wrapper around isort API that changed between versions 4 and 5."""
 
-    def __init__(self, config) -> None:
+    def __init__(self, config: argparse.Namespace) -> None:
         if HAS_ISORT_5:
             self.isort5_config = isort.api.Config(
                 # There is no typo here. EXTRA_standard_library is

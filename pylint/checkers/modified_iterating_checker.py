@@ -2,7 +2,9 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-from typing import TYPE_CHECKING, Union
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from astroid import nodes
 
@@ -50,7 +52,6 @@ class ModifiedIterationChecker(checkers.BaseChecker):
     }
 
     options = ()
-    priority = -2
 
     @utils.check_messages(
         "modified-iterating-list", "modified-iterating-dict", "modified-iterating-set"
@@ -100,7 +101,7 @@ class ModifiedIterationChecker(checkers.BaseChecker):
     def _common_cond_list_set(
         node: nodes.Expr,
         iter_obj: nodes.NodeNG,
-        infer_val: Union[nodes.List, nodes.Set],
+        infer_val: nodes.List | nodes.Set,
     ) -> bool:
         return (infer_val == utils.safe_infer(iter_obj)) and (
             node.value.func.expr.name == iter_obj.name
@@ -152,5 +153,5 @@ class ModifiedIterationChecker(checkers.BaseChecker):
         )
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(ModifiedIterationChecker(linter))

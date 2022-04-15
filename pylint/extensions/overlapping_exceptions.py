@@ -4,7 +4,9 @@
 
 """Looks for overlapping exceptions."""
 
-from typing import TYPE_CHECKING, Any, List, Tuple
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
 
 import astroid
 from astroid import nodes
@@ -34,7 +36,6 @@ class OverlappingExceptionsChecker(checkers.BaseChecker):
             "Used when exceptions in handler overlap or are identical",
         )
     }
-    priority = -2
     options = ()
 
     @utils.check_messages("overlapping-except")
@@ -50,7 +51,7 @@ class OverlappingExceptionsChecker(checkers.BaseChecker):
             except astroid.InferenceError:
                 continue
 
-            handled_in_clause: List[Tuple[Any, Any]] = []
+            handled_in_clause: list[tuple[Any, Any]] = []
             for part, exc in excs:
                 if exc is astroid.Uninferable:
                     continue
@@ -87,5 +88,5 @@ class OverlappingExceptionsChecker(checkers.BaseChecker):
                 handled_in_clause += [(part, exc)]
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(OverlappingExceptionsChecker(linter))

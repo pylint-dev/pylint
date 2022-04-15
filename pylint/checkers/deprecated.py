@@ -3,8 +3,12 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Checker mixin for deprecated functionality."""
+
+from __future__ import annotations
+
+from collections.abc import Container, Iterable
 from itertools import chain
-from typing import Any, Container, Iterable, Tuple, Union
+from typing import Any
 
 import astroid
 from astroid import nodes
@@ -124,9 +128,7 @@ class DeprecatedMixin(BaseChecker):
         # pylint: disable=no-self-use
         return ()
 
-    def deprecated_arguments(
-        self, method: str
-    ) -> Iterable[Tuple[Union[int, None], str]]:
+    def deprecated_arguments(self, method: str) -> Iterable[tuple[int | None, str]]:
         """Callback returning the deprecated arguments of method/function.
 
         Args:

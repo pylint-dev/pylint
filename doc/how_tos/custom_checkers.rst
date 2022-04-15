@@ -50,7 +50,6 @@ Firstly we will need to fill in some required boilerplate:
       __implements__ = IAstroidChecker
 
       name = "unique-returns"
-      priority = -1
       msgs = {
           "W0001": (
               "Returns a non-unique constant.",
@@ -75,9 +74,6 @@ So far we have defined the following required components of our checker:
 
 * A name. The name is used to generate a special configuration
    section for the checker, when options have been provided.
-
-* A priority. This must be to be lower than 0. The checkers are ordered by
-   the priority when run, from the most negative to the most positive.
 
 * A message dictionary. Each checker is being used for finding problems
    in your code, the problems being displayed to the user through **messages**.
@@ -180,7 +176,7 @@ We could also construct a more complete example::
 For :func:`astroid.extract_node`, you can use ``#@`` at the end of a line to choose which statements will be extracted into nodes.
 
 For more information on :func:`astroid.extract_node`,
-see the `astroid documentation <https://astroid.readthedocs.io/en/latest/>`_.
+see the `astroid documentation <https://pylint.pycqa.org/projects/astroid/en/latest/>`_.
 
 Now we know how to use the astroid node, we can implement our check.
 

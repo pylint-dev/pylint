@@ -103,17 +103,13 @@ pygments_style = "sphinx"
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = "python_docs_theme"
+html_theme = "furo"
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-html_theme_options = {
-    "collapsiblesidebar": True,
-    "issues_url": "https://github.com/pycqa/pylint/issues/new",
-    "root_name": "PyCQA",
-    "root_url": "https://meta.pycqa.org/en/latest/",
-}
+# Currently we use the default Furo configuration
+# html_theme_options = {}
 
 # Add any paths that contain custom themes here, relative to this directory.
 # html_theme_path = []
@@ -146,9 +142,8 @@ html_last_updated_fmt = "%b %d, %Y"
 smartquotes = False
 
 # Custom sidebar templates, maps document names to template names.
-html_sidebars = {
-    "**": ["localtoc.html", "globaltoc.html", "relations.html", "sourcelink.html"]
-}
+# Currently we use the default Furo Sidebar
+# html_sidebars = {}
 
 # Additional templates that should be rendered to pages, maps page names to
 # template names.
@@ -238,7 +233,7 @@ man_pages = [
 
 # pylint: disable-next=consider-using-namedtuple-or-dataclass
 intersphinx_mapping = {
-    "astroid": ("https://astroid.readthedocs.io/en/latest/", None),
+    "astroid": ("https://pylint.pycqa.org/projects/astroid/en/latest/", None),
     "python": ("https://docs.python.org/3", None),
 }
 

@@ -6,8 +6,11 @@
 
   create UML diagrams for classes and modules in <packages>
 """
+
+from __future__ import annotations
+
 import sys
-from typing import Iterable
+from collections.abc import Iterable
 
 from pylint.config import ConfigurationMixIn
 from pylint.lint.utils import fix_import_path
@@ -19,6 +22,7 @@ from pylint.pyreverse.utils import (
     check_if_graphviz_supports_format,
     insert_default_options,
 )
+from pylint.typing import Options
 
 DIRECTLY_SUPPORTED_FORMATS = (
     "dot",
@@ -29,7 +33,7 @@ DIRECTLY_SUPPORTED_FORMATS = (
     "html",
 )
 
-OPTIONS = (
+OPTIONS: Options = (
     (
         "filter-mode",
         dict(
@@ -56,6 +60,7 @@ OPTIONS = (
             short="c",
             action="append",
             metavar="<class>",
+            type="csv",
             dest="classes",
             default=[],
             help="create a class diagram with all classes related to <class>;\
@@ -69,6 +74,7 @@ OPTIONS = (
             action="store",
             metavar="<ancestor>",
             type="int",
+            default=None,
             help="show <ancestor> generations of ancestor classes not in <projects>",
         ),
     ),
@@ -77,6 +83,7 @@ OPTIONS = (
         dict(
             short="A",
             default=None,
+            action="store_true",
             help="show all ancestors off all classes in <projects>",
         ),
     ),
@@ -87,6 +94,7 @@ OPTIONS = (
             action="store",
             metavar="<association_level>",
             type="int",
+            default=None,
             help="show <association_level> levels of associated classes not in <projects>",
         ),
     ),
@@ -95,6 +103,7 @@ OPTIONS = (
         dict(
             short="S",
             default=None,
+            action="store_true",
             help="show recursively all associated off all associated classes",
         ),
     ),
@@ -134,6 +143,7 @@ OPTIONS = (
             action="store",
             default="dot",
             metavar="<format>",
+            type="string",
             help=(
                 f"create a *.<format> output file if format is available. Available formats are: {', '.join(DIRECTLY_SUPPORTED_FORMATS)}. "
                 f"Any other format will be tried to create by means of the 'dot' command line tool, which requires a graphviz installation."
@@ -198,11 +208,15 @@ class Run(ConfigurationMixIn):
     """Base class providing common behaviour for pyreverse commands."""
 
     options = OPTIONS
+    name = "pyreverse"
 
     def __init__(self, args: Iterable[str]):
         super().__init__(usage=__doc__)
+
+        # Parse options
         insert_default_options()
         args = self.load_command_line_configuration(args)
+
         if self.config.output_format not in DIRECTLY_SUPPORTED_FORMATS:
             check_graphviz_availability()
             print(

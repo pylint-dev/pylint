@@ -3,8 +3,11 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """JSON reporter."""
+
+from __future__ import annotations
+
 import json
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from pylint.interfaces import IReporter
 from pylint.reporters.base_reporter import BaseReporter
@@ -21,7 +24,7 @@ class JSONReporter(BaseReporter):
     name = "json"
     extension = "json"
 
-    def display_messages(self, layout: Optional["Section"]) -> None:
+    def display_messages(self, layout: Section | None) -> None:
         """Launch layouts display."""
         json_dumpable = [
             {
@@ -41,12 +44,12 @@ class JSONReporter(BaseReporter):
         ]
         print(json.dumps(json_dumpable, indent=4), file=self.out)
 
-    def display_reports(self, layout: "Section") -> None:
+    def display_reports(self, layout: Section) -> None:
         """Don't do anything in this reporter."""
 
-    def _display(self, layout: "Section") -> None:
+    def _display(self, layout: Section) -> None:
         """Do nothing."""
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_reporter(JSONReporter)

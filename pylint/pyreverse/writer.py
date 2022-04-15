@@ -4,6 +4,8 @@
 
 """Utilities for creating VCG and Dot diagrams."""
 
+from __future__ import annotations
+
 import itertools
 import os
 
@@ -16,7 +18,7 @@ from pylint.pyreverse.diagrams import (
     PackageDiagram,
     PackageEntity,
 )
-from pylint.pyreverse.printer import EdgeType, NodeProperties, NodeType
+from pylint.pyreverse.printer import EdgeType, NodeProperties, NodeType, Printer
 from pylint.pyreverse.printer_factory import get_printer_for_filetype
 from pylint.pyreverse.utils import is_exception
 
@@ -27,7 +29,7 @@ class DiagramWriter:
     def __init__(self, config):
         self.config = config
         self.printer_class = get_printer_for_filetype(self.config.output_format)
-        self.printer = None  # defined in set_printer
+        self.printer: Printer  # defined in set_printer
         self.file_name = ""  # defined in set_printer
         self.depth = self.config.max_color_depth
         self.available_colors = itertools.cycle(
@@ -51,7 +53,7 @@ class DiagramWriter:
                 "mediumspringgreen",
             ]
         )
-        self.used_colors = {}
+        self.used_colors: dict[str, str] = {}
 
     def write(self, diadefs):
         """Write files for <project> according to <diadefs>."""

@@ -6,7 +6,11 @@
 
 A micro report is a tree of layout and content objects.
 """
-from typing import Any, Callable, Iterable, Iterator, List, Optional, TypeVar, Union
+
+from __future__ import annotations
+
+from collections.abc import Iterable, Iterator
+from typing import Any, Callable, TypeVar
 
 from pylint.reporters.ureports.base_writer import BaseWriter
 
@@ -17,11 +21,11 @@ VisitLeaveFunction = Callable[[T, Any, Any], None]
 
 class VNode:
     def __init__(self) -> None:
-        self.parent: Optional["BaseLayout"] = None
-        self.children: List["VNode"] = []
+        self.parent: BaseLayout | None = None
+        self.children: list[VNode] = []
         self.visitor_name: str = self.__class__.__name__.lower()
 
-    def __iter__(self) -> Iterator["VNode"]:
+    def __iter__(self) -> Iterator[VNode]:
         return iter(self.children)
 
     def accept(self: VNodeT, visitor: BaseWriter, *args: Any, **kwargs: Any) -> None:
@@ -44,7 +48,7 @@ class BaseLayout(VNode):
     * children : components in this table (i.e. the table's cells)
     """
 
-    def __init__(self, children: Iterable[Union["Text", str]] = ()) -> None:
+    def __init__(self, children: Iterable[Text | str] = ()) -> None:
         super().__init__()
         for child in children:
             if isinstance(child, VNode):
@@ -63,7 +67,7 @@ class BaseLayout(VNode):
         self.children.insert(index, child)
         child.parent = self
 
-    def parents(self) -> List["BaseLayout"]:
+    def parents(self) -> list[BaseLayout]:
         """Return the ancestor nodes."""
         assert self.parent is not self
         if self.parent is None:
@@ -116,9 +120,9 @@ class Section(BaseLayout):
 
     def __init__(
         self,
-        title: Optional[str] = None,
-        description: Optional[str] = None,
-        children: Iterable[Union["Text", str]] = (),
+        title: str | None = None,
+        description: str | None = None,
+        children: Iterable[Text | str] = (),
     ) -> None:
         super().__init__(children=children)
         if description:
@@ -129,9 +133,7 @@ class Section(BaseLayout):
 
 
 class EvaluationSection(Section):
-    def __init__(
-        self, message: str, children: Iterable[Union["Text", str]] = ()
-    ) -> None:
+    def __init__(self, message: str, children: Iterable[Text | str] = ()) -> None:
         super().__init__(children=children)
         title = Paragraph()
         title.append(Text("-" * len(message)))
@@ -175,10 +177,10 @@ class Table(BaseLayout):
     def __init__(
         self,
         cols: int,
-        title: Optional[str] = None,
+        title: str | None = None,
         rheaders: int = 0,
         cheaders: int = 0,
-        children: Iterable[Union["Text", str]] = (),
+        children: Iterable[Text | str] = (),
     ) -> None:
         super().__init__(children=children)
         assert isinstance(cols, int)

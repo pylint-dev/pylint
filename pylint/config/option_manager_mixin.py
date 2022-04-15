@@ -2,6 +2,8 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import collections
 import configparser
 import contextlib
@@ -10,11 +12,9 @@ import optparse  # pylint: disable=deprecated-module
 import os
 import sys
 from pathlib import Path
-from types import ModuleType
-from typing import Dict, List, Optional, TextIO, Tuple
+from typing import TextIO
 
 from pylint import utils
-from pylint.config.man_help_formatter import _ManHelpFormatter
 from pylint.config.option import Option
 from pylint.config.option_parser import OptionParser
 
@@ -62,6 +62,9 @@ class OptionsManagerMixIn:
     """Handle configuration from both a configuration file and command line options."""
 
     def __init__(self, usage):
+        # pylint: disable-next=fixme
+        # TODO: Optparse: Deprecate this class when we don't use ConfigurationMixIn
+        # internally anymore
         self.reset_parsers(usage)
         # list of registered options providers
         self.options_providers = []
@@ -85,13 +88,7 @@ class OptionsManagerMixIn:
 
     def register_options_provider(self, provider, own_group=True):
         """Register an options provider."""
-        assert provider.priority <= 0, "provider's priority can't be >= 0"
-        for i, options_provider in enumerate(self.options_providers):
-            if provider.priority > options_provider.priority:
-                self.options_providers.insert(i, provider)
-                break
-        else:
-            self.options_providers.append(provider)
+        self.options_providers.append(provider)
         non_group_spec_options = [
             option for option in provider.options if "group" not in option[1]
         ]
@@ -124,7 +121,6 @@ class OptionsManagerMixIn:
                 self.cmdline_parser, title=group_name.capitalize()
             )
             self.cmdline_parser.add_option_group(group)
-            group.level = provider.level
             self._mygroups[group_name] = group
             # add section to the config file
             if (
@@ -134,6 +130,8 @@ class OptionsManagerMixIn:
                 self.cfgfile_parser.add_section(group_name)
         # add provider's specific options
         for opt, optdict in options:
+            if not isinstance(optdict.get("action", "store"), str):
+                optdict["action"] = "callback"
             self.add_optik_option(provider, group, opt, optdict)
 
     def add_optik_option(self, provider, optikcontainer, opt, optdict):
@@ -191,12 +189,12 @@ class OptionsManagerMixIn:
         self._all_options[opt].set_option(opt, value)
 
     def generate_config(
-        self, stream: Optional[TextIO] = None, skipsections: Tuple[str, ...] = ()
+        self, stream: TextIO | None = None, skipsections: tuple[str, ...] = ()
     ) -> None:
         """Write a configuration file according to the current configuration
         into the given stream or stdout
         """
-        options_by_section: Dict[str, List[Tuple]] = {}
+        options_by_section: dict[str, list[tuple]] = {}
         sections = []
         for provider in self.options_providers:
             for section, options in provider.options_by_section():
@@ -225,27 +223,13 @@ class OptionsManagerMixIn:
             )
             printed = True
 
-    def generate_manpage(
-        self, pkginfo: ModuleType, section: int = 1, stream: TextIO = sys.stdout
-    ) -> None:
-        with _patch_optparse():
-            formatter = _ManHelpFormatter()
-            formatter.output_level = self._maxlevel
-            formatter.parser = self.cmdline_parser
-            print(
-                formatter.format_head(self.cmdline_parser, pkginfo, section),
-                file=stream,
-            )
-            print(self.cmdline_parser.format_option_help(formatter), file=stream)
-            print(formatter.format_tail(pkginfo), file=stream)
-
     def load_provider_defaults(self):
         """Initialize configuration using default values."""
         for provider in self.options_providers:
             provider.load_defaults()
 
     def read_config_file(
-        self, config_file: Optional[Path] = None, verbose: bool = False
+        self, config_file: Path | None = None, verbose: bool = False
     ) -> None:
         """Read the configuration file but do not load it (i.e. dispatching
         values to each option's provider)
@@ -259,8 +243,8 @@ class OptionsManagerMixIn:
             if config_file.suffix == ".toml":
                 try:
                     self._parse_toml(config_file, parser)
-                except tomllib.TOMLDecodeError as e:
-                    self.add_message("config-parse-error", line=0, args=str(e))  # type: ignore[attr-defined]
+                except tomllib.TOMLDecodeError:
+                    pass
             else:
                 # Use this encoding in order to strip the BOM marker, if any.
                 with open(config_file, encoding="utf_8_sig") as fp:
@@ -334,7 +318,7 @@ class OptionsManagerMixIn:
             provider = self._all_options[opt]
             provider.set_option(opt, opt_value)
 
-    def load_command_line_configuration(self, args=None) -> List[str]:
+    def load_command_line_configuration(self, args=None) -> list[str]:
         """Override configuration according to command line parameters.
 
         return additional arguments
@@ -350,15 +334,6 @@ class OptionsManagerMixIn:
                         continue
                     setattr(config, attr, value)
             return args
-
-    def add_help_section(self, title, description, level=0):
-        """Add a dummy option section for help purpose."""
-        group = optparse.OptionGroup(
-            self.cmdline_parser, title=title.capitalize(), description=description
-        )
-        group.level = level
-        self._maxlevel = max(self._maxlevel, level)
-        self.cmdline_parser.add_option_group(group)
 
     def help(self, level=0):
         """Return the usage string for available options."""

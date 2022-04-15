@@ -2,14 +2,17 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import contextlib
 import os
 import re
 import sys
 import warnings
+from collections.abc import Iterator
 from io import StringIO
 from os.path import abspath, dirname, join
-from typing import Iterator, List, TextIO
+from typing import TextIO
 
 import pytest
 
@@ -31,7 +34,7 @@ def _patch_streams(out: TextIO) -> Iterator:
 
 
 class TestSimilarCodeChecker:
-    def _runtest(self, args: List[str], code: int) -> None:
+    def _runtest(self, args: list[str], code: int) -> None:
         """Runs the tests and sees if output code is as expected."""
         out = StringIO()
         pylint_code = self._run_pylint(args, out=out)
@@ -42,7 +45,7 @@ class TestSimilarCodeChecker:
         assert pylint_code == code, msg
 
     @staticmethod
-    def _run_pylint(args: List[str], out: TextIO) -> int:
+    def _run_pylint(args: list[str], out: TextIO) -> int:
         """Runs pylint with a patched output."""
         args = args + ["--persistent=no"]
         with _patch_streams(out):
@@ -58,7 +61,7 @@ class TestSimilarCodeChecker:
         output = re.sub(CLEAN_PATH, "", output, flags=re.MULTILINE)
         return output.replace("\\", "/")
 
-    def _test_output(self, args: List[str], expected_output: str) -> None:
+    def _test_output(self, args: list[str], expected_output: str) -> None:
         """Tests if the output of a pylint run is as expected."""
         out = StringIO()
         self._run_pylint(args, out=out)

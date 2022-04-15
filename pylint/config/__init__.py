@@ -8,15 +8,13 @@ import pickle
 import sys
 from datetime import datetime
 
-from pylint.config.argument import _Argument
-from pylint.config.arguments_manager import _ArgumentsManager
+from pylint.config.config_file_parser import _ConfigurationFileParser
 from pylint.config.configuration_mixin import ConfigurationMixIn
 from pylint.config.environment_variable import PYLINTRC
 from pylint.config.find_default_config_files import (
     find_default_config_files,
     find_pylintrc,
 )
-from pylint.config.man_help_formatter import _ManHelpFormatter
 from pylint.config.option import Option
 from pylint.config.option_manager_mixin import OptionsManagerMixIn
 from pylint.config.option_parser import OptionParser
@@ -25,12 +23,10 @@ from pylint.constants import DEFAULT_PYLINT_HOME, OLD_DEFAULT_PYLINT_HOME, USER_
 from pylint.utils import LinterStats
 
 __all__ = [
-    "_Argument",
-    "_ArgumentsManager",
+    "_ConfigurationFileParser",
     "ConfigurationMixIn",
     "find_default_config_files",
     "find_pylintrc",
-    "_ManHelpFormatter",
     "Option",
     "OptionsManagerMixIn",
     "OptionParser",

@@ -47,6 +47,12 @@ def metadata_from_dict(key):
     """
     return {key: str(value) for key, value in key.items()}
 
+
+def metadata_from_dict_2(key):
+    """Similar, but with more nesting"""
+    return {key: (a, b) for key, (a, b) in key.items()}
+
+
 # pylint: disable=too-few-public-methods,  misplaced-future,wrong-import-position
 from __future__ import print_function
 

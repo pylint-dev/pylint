@@ -2,7 +2,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-from typing import List, Union
+from __future__ import annotations
 
 import astroid
 from astroid import bases, nodes
@@ -74,7 +74,6 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
         ),
     }
 
-    priority = -2
     options = ()
 
     @utils.check_messages("use-implicit-booleaness-not-len")
@@ -210,9 +209,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
                     )
 
     @staticmethod
-    def base_names_of_instance(
-        node: Union[bases.Uninferable, bases.Instance]
-    ) -> List[str]:
+    def base_names_of_instance(node: bases.Uninferable | bases.Instance) -> list[str]:
         """Return all names inherited by a class instance or those returned by a function.
 
         The inherited names include 'object'.

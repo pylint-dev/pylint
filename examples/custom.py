@@ -20,8 +20,6 @@ class MyAstroidChecker(BaseChecker):
 
     # The name defines a custom section of the config for this checker.
     name = "custom"
-    # The priority indicates the order that pylint will run the checkers.
-    priority = -1
     # This class variable declares the messages (ie the warnings and errors)
     # that the checker can emit.
     msgs = {

@@ -4,10 +4,12 @@
 
 """Basic checker for Python code."""
 
+from __future__ import annotations
+
 import collections
 import itertools
 import sys
-from typing import TYPE_CHECKING, Dict, Optional, cast
+from typing import TYPE_CHECKING, cast
 
 import astroid
 from astroid import nodes
@@ -15,7 +17,7 @@ from astroid import nodes
 from pylint import interfaces
 from pylint import utils as lint_utils
 from pylint.checkers import BaseChecker, utils
-from pylint.interfaces import IAstroidChecker
+from pylint.interfaces import HIGH, IAstroidChecker
 from pylint.reporters.ureports import nodes as reporter_nodes
 from pylint.utils import LinterStats
 from pylint.utils.utils import get_global_option
@@ -64,7 +66,7 @@ DEFAULT_ARGUMENT_SYMBOLS = dict(
 def report_by_type_stats(
     sect,
     stats: LinterStats,
-    old_stats: Optional[LinterStats],
+    old_stats: LinterStats | None,
 ):
     """Make a report of.
 
@@ -72,7 +74,7 @@ def report_by_type_stats(
     * percentage of different types with a bad name
     """
     # percentage of different types documented and/or with a bad name
-    nice_stats: Dict[str, Dict[str, str]] = {}
+    nice_stats: dict[str, dict[str, str]] = {}
     for node_type in ("module", "class", "method", "function"):
         node_type = cast(Literal["function", "class", "method", "module"], node_type)
         total = stats.get_node_count(node_type)
@@ -245,6 +247,11 @@ class BasicChecker(_BasicChecker):
             "assert-on-string-literal",
             "Used when an assert statement has a string literal as its first argument, which will "
             "cause the assert to always pass.",
+        ),
+        "W0130": (
+            "Duplicate value %r in set",
+            "duplicate-value",
+            "This message is emitted when a set contains the same value two or more times.",
         ),
     }
 
@@ -636,6 +643,21 @@ class BasicChecker(_BasicChecker):
             if key in keys:
                 self.add_message("duplicate-key", node=node, args=key)
             keys.add(key)
+
+    @utils.check_messages("duplicate-value")
+    def visit_set(self, node: nodes.Set) -> None:
+        """Check duplicate value in set."""
+        values = set()
+        for v in node.elts:
+            if isinstance(v, nodes.Const):
+                value = v.value
+            else:
+                continue
+            if value in values:
+                self.add_message(
+                    "duplicate-value", node=node, args=value, confidence=HIGH
+                )
+            values.add(value)
 
     def visit_tryfinally(self, node: nodes.TryFinally) -> None:
         """Update try...finally flag."""

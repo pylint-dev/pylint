@@ -66,7 +66,7 @@ def hello(arg):
         return True
     raise Exception
 
-# pylint: disable=redefined-outer-name, wrong-import-position,misplaced-future
+# pylint: disable=wrong-import-position,misplaced-future
 from __future__ import print_function
 PATH = OS = collections = deque = None
 
@@ -94,6 +94,7 @@ def test_global():
     """ Test various assignments of global
     variables through imports.
     """
+    # pylint: disable=redefined-outer-name
     global PATH, OS, collections, deque  # [global-variable-not-assigned, global-variable-not-assigned]
     from os import path as PATH
     import os as OS
@@ -111,17 +112,15 @@ def function2():
     try:
         1 / 0
     except ZeroDivisionError as error:
-    # TODO fix bug for not identifying unused variables in nested exceptions see issue #4391
         try:
             1 / 0
-        except ZeroDivisionError as error:
+        except ZeroDivisionError as error:  # [redefined-outer-name]
             raise Exception("") from error
 
 def func():
     try:
         1 / 0
     except ZeroDivisionError as error:
-    # TODO fix bug for not identifying unused variables in nested exceptions see issue #4391
         try:
             1 / 0
         except error:
@@ -131,7 +130,6 @@ def func2():
     try:
         1 / 0
     except ZeroDivisionError as error:
-    # TODO fix bug for not identifying unused variables in nested exceptions see issue #4391
         try:
             1 / 0
         except:
@@ -144,7 +142,7 @@ def func3():
         print(f"{error}")
         try:
             1 / 2
-        except TypeError as error:  # [unused-variable]
+        except TypeError as error:  # [unused-variable, redefined-outer-name]
             print("warning")
 
 def func4():
@@ -153,8 +151,7 @@ def func4():
     except ZeroDivisionError as error:  # [unused-variable]
         try:
             1 / 0
-        except ZeroDivisionError as error:
-            # TODO fix bug for not identifying unused variables in nested exceptions see issue #4391
+        except ZeroDivisionError as error:  # [redefined-outer-name]
             print("error")
 
 
@@ -172,3 +169,21 @@ def main(lst):
     print(e)  # [undefined-loop-variable]
 
 main([])
+
+
+def func5():
+    """No unused-variable for a container if iterated in comprehension"""
+    x = []
+    # Test case requires homonym between "for x" and "in x"
+    assert [True for x in x]
+
+
+def sibling_except_handlers():
+    try:
+        pass
+    except ValueError as e:
+        print(e)
+    try:
+        pass
+    except ValueError as e:
+        print(e)

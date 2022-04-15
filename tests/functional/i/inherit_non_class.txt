@@ -7,5 +7,5 @@ inherit-non-class:68:0:68:24:NotInheritableBool:Inheriting 'bool', which is not 
 inherit-non-class:72:0:72:25:NotInheritableRange:Inheriting 'range', which is not a class.:UNDEFINED
 inherit-non-class:76:0:76:25:NotInheritableSlice:Inheriting 'slice', which is not a class.:UNDEFINED
 inherit-non-class:80:0:80:30:NotInheritableMemoryView:Inheriting 'memoryview', which is not a class.:UNDEFINED
-inherit-non-class:99:0:99:12:Child2:Inheriting 'ParentBad[int]', which is not a class.:UNDEFINED
-unsubscriptable-object:103:13:103:18:Child3:Value 'Empty' is unsubscriptable:UNDEFINED
+inherit-non-class:98:0:98:12:Child2:Inheriting 'ParentBad[int]', which is not a class.:UNDEFINED
+unsubscriptable-object:102:13:102:18:Child3:Value 'Empty' is unsubscriptable:UNDEFINED
