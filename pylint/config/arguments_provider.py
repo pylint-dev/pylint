@@ -70,7 +70,7 @@ class _ArgumentsProvider:
         )
         return self._arguments_manager.config
 
-    def load_defaults(self) -> None:
+    def load_defaults(self) -> None:  # pragma: no cover
         """DEPRECATED: Initialize the provider using default values."""
         warnings.warn(
             "load_defaults has been deprecated. Option groups should be "
@@ -89,7 +89,9 @@ class _ArgumentsProvider:
                 default = optdict.get("default")
                 self.set_option(opt, default, action, optdict)
 
-    def option_attrname(self, opt: str, optdict: OptionDict | None = None) -> str:
+    def option_attrname(
+        self, opt: str, optdict: OptionDict | None = None
+    ) -> str:  # pragma: no cover
         """DEPRECATED: Get the config attribute corresponding to opt."""
         warnings.warn(
             "option_attrname has been deprecated. It will be removed "
@@ -102,7 +104,7 @@ class _ArgumentsProvider:
                 optdict = self.get_option_def(opt)
         return optdict.get("dest", opt.replace("-", "_"))  # type: ignore[return-value]
 
-    def option_value(self, opt: str) -> Any:
+    def option_value(self, opt: str) -> Any:  # pragma: no cover
         """DEPRECATED: Get the current value for the given option."""
         warnings.warn(
             "option_value has been deprecated. It will be removed "
@@ -112,7 +114,7 @@ class _ArgumentsProvider:
         return getattr(self._arguments_manager.config, opt.replace("-", "_"), None)
 
     # pylint: disable-next=unused-argument
-    def set_option(self, optname, value, action=None, optdict=None):
+    def set_option(self, optname, value, action=None, optdict=None):  # pragma: no cover
         """DEPRECATED: Method called to set an option (registered in the options list)."""
         # TODO: 3.0: Remove deprecated method. # pylint: disable=fixme
         warnings.warn(
@@ -122,7 +124,7 @@ class _ArgumentsProvider:
         )
         self._arguments_manager.set_option(optname, value)
 
-    def get_option_def(self, opt: str) -> OptionDict:
+    def get_option_def(self, opt: str) -> OptionDict:  # pragma: no cover
         """DEPRECATED: Return the dictionary defining an option given its name.
 
         :raises OptionError: If the option isn't found.
@@ -150,7 +152,7 @@ class _ArgumentsProvider:
                 | list[tuple[str, OptionDict, Any]]
             ),
         ]
-    ]:
+    ]:  # pragma: no cover
         """DEPRECATED: Return an iterator on options grouped by section.
 
         (section, [list of (optname, optdict, optvalue)])
@@ -174,7 +176,7 @@ class _ArgumentsProvider:
 
     def options_and_values(
         self, options: Options | None = None
-    ) -> Iterator[tuple[str, OptionDict, Any]]:
+    ) -> Iterator[tuple[str, OptionDict, Any]]:  # pragma: no cover
         """DEPRECATED."""
         warnings.warn(
             "options_and_values has been deprecated. It will be removed "

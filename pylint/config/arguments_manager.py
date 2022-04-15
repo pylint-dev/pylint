@@ -235,7 +235,7 @@ class _ArgumentsManager:
 
         return parsed_args
 
-    def reset_parsers(self, usage: str = "") -> None:
+    def reset_parsers(self, usage: str = "") -> None:  # pragma: no cover
         """DEPRECATED."""
         warnings.warn(
             "reset_parsers has been deprecated. Parsers should be instantiated "
@@ -253,7 +253,7 @@ class _ArgumentsManager:
 
     def register_options_provider(
         self, provider: ConfigProvider, own_group: bool = True
-    ) -> None:
+    ) -> None:  # pragma: no cover
         """DEPRECATED: Register an options provider."""
         warnings.warn(
             "register_options_provider has been deprecated. Options providers and "
@@ -297,7 +297,7 @@ class _ArgumentsManager:
         _: str | None,
         options: list[tuple[str, OptionDict]],
         provider: ConfigProvider,
-    ) -> None:
+    ) -> None:  # pragma: no cover
         """DEPRECATED."""
         warnings.warn(
             "add_option_group has been deprecated. Option groups should be "
@@ -334,7 +334,7 @@ class _ArgumentsManager:
         optikcontainer: optparse.OptionParser | optparse.OptionGroup,
         opt: str,
         optdict: OptionDict,
-    ) -> None:
+    ) -> None:  # pragma: no cover
         """DEPRECATED."""
         warnings.warn(
             "add_optik_option has been deprecated. Options should be automatically "
@@ -350,7 +350,7 @@ class _ArgumentsManager:
 
     def optik_option(
         self, provider: ConfigProvider, opt: str, optdict: OptionDict
-    ) -> tuple[list[str], OptionDict]:
+    ) -> tuple[list[str], OptionDict]:  # pragma: no cover
         """DEPRECATED: Get our personal option definition and return a suitable form for
         use with optik/optparse
         """
@@ -388,7 +388,7 @@ class _ArgumentsManager:
 
     def generate_config(
         self, stream: TextIO | None = None, skipsections: tuple[str, ...] = ()
-    ) -> None:
+    ) -> None:  # pragma: no cover
         """DEPRECATED: Write a configuration file according to the current configuration
         into the given stream or stdout
         """
@@ -443,7 +443,7 @@ class _ArgumentsManager:
                 )
             printed = True
 
-    def load_provider_defaults(self) -> None:
+    def load_provider_defaults(self) -> None:  # pragma: no cover
         """DEPRECATED: Initialize configuration using default values."""
         warnings.warn(
             "load_provider_defaults has been deprecated. Parsing of option defaults should be done "
@@ -457,7 +457,7 @@ class _ArgumentsManager:
 
     def read_config_file(
         self, config_file: Path | None = None, verbose: bool = False
-    ) -> None:
+    ) -> None:  # pragma: no cover
         """DEPRECATED: Read the configuration file but do not load it (i.e. dispatching
         values to each option's provider)
 
@@ -497,7 +497,9 @@ class _ArgumentsManager:
             print(f"Using config file '{config_file}'", file=sys.stderr)
 
     @staticmethod
-    def _parse_toml(config_file: Path, parser: configparser.ConfigParser) -> None:
+    def _parse_toml(
+        config_file: Path, parser: configparser.ConfigParser
+    ) -> None:  # pragma: no cover
         """DEPRECATED: Parse and handle errors of a toml configuration file.
 
         TODO: 3.0: Remove depreacted method.
@@ -528,7 +530,7 @@ class _ArgumentsManager:
                     parser.add_section(section_name)
                     parser.set(section_name, option, value=value)
 
-    def load_config_file(self) -> None:
+    def load_config_file(self) -> None:  # pragma: no cover
         """DEPRECATED: Dispatch values previously read from a configuration file to each
         option's provider
         """
@@ -544,7 +546,7 @@ class _ArgumentsManager:
                 except (KeyError, optparse.OptionError):
                     continue
 
-    def load_configuration(self, **kwargs: Any) -> None:
+    def load_configuration(self, **kwargs: Any) -> None:  # pragma: no cover
         """DEPRECATED: Override configuration according to given parameters."""
         warnings.warn(
             "load_configuration has been deprecated. It will be removed in pylint 3.0.",
@@ -554,7 +556,9 @@ class _ArgumentsManager:
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             return self.load_configuration_from_config(kwargs)
 
-    def load_configuration_from_config(self, config: dict[str, Any]) -> None:
+    def load_configuration_from_config(
+        self, config: dict[str, Any]
+    ) -> None:  # pragma: no cover
         warnings.warn(
             "DEPRECATED: load_configuration_from_config has been deprecated. It will be removed in pylint 3.0.",
             DeprecationWarning,
@@ -566,7 +570,7 @@ class _ArgumentsManager:
 
     def load_command_line_configuration(
         self, args: list[str] | None = None
-    ) -> list[str]:
+    ) -> list[str]:  # pragma: no cover
         """DEPRECATED: Override configuration according to command line parameters.
 
         return additional arguments
@@ -583,7 +587,7 @@ class _ArgumentsManager:
                 value = getattr(options, attr, None)
                 if value is None:
                     continue
-                setattr(config, attr, value)  # pragma: no cover # Handled by argparse.
+                setattr(config, attr, value)
         return args
 
     def help(self, level: int | None = None) -> str:
@@ -614,7 +618,7 @@ class _ArgumentsManager:
             value = 1
         self.set_option(opt, value)
 
-    def global_set_option(self, opt: str, value: Any) -> None:
+    def global_set_option(self, opt: str, value: Any) -> None:  # pragma: no cover
         """DEPRECATED: Set option on the correct option provider."""
         # TODO: 3.0: Remove deprecated method. # pylint: disable=fixme
         warnings.warn(

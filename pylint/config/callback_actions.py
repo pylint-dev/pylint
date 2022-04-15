@@ -35,7 +35,7 @@ class _CallbackAction(argparse.Action):
         values: str | Sequence[Any] | None,
         option_string: str | None = None,
     ) -> None:
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
 
 class _DoNothingAction(_CallbackAction):
@@ -116,7 +116,7 @@ class _AccessRunObjectAction(_CallbackAction):
         values: str | Sequence[Any] | None,
         option_string: str | None = None,
     ) -> None:
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
 
 class _MessageHelpAction(_CallbackAction):
@@ -363,7 +363,7 @@ class _AccessLinterObjectAction(_CallbackAction):
         values: str | Sequence[Any] | None,
         option_string: str | None = None,
     ) -> None:
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
 
 class _DisableAction(_AccessLinterObjectAction):
