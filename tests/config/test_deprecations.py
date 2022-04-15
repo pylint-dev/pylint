@@ -17,6 +17,21 @@ class SampleChecker(BaseChecker):
     options = (("test-opt", {"action": "store_true", "help": "help message"}),)
 
 
+class SampleCheckerTwo(BaseChecker):
+    options = (
+        ("test-opt-two", {"action": "store", "type": "string", "help": "help message"}),
+    )
+
+
+class SampleCheckerThree(BaseChecker):
+    options = (
+        (
+            "test-opt-three",
+            {"action": "store_true", "level": 1, "help": "help message"},
+        ),
+    )
+
+
 class TestDeprecationArgumentsManager:
     """Tests for deprecation warnings in the ArgumentsManager class."""
 
@@ -87,3 +102,13 @@ class TestDeprecationArgumentsManager:
 
         with pytest.warns(DeprecationWarning):
             assert self.linter.level is not None
+
+    def test_no_default_in_optdict(self) -> None:
+        """Test that not having a default value in a optiondict emits a DeprecationWarning."""
+        with pytest.warns(DeprecationWarning):
+            SampleCheckerTwo(self.linter)
+
+    def test_no_level_in_optdict(self) -> None:
+        """Test that not having a level value in a optiondict emits a DeprecationWarning."""
+        with pytest.warns(DeprecationWarning):
+            SampleCheckerThree(self.linter)
