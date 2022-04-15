@@ -54,12 +54,6 @@ def _convert_option_to_argument(
     # Get the action type
     action = optdict.get("action", "store")
 
-    # pylint: disable-next=fixme
-    # TODO: Optparse: Remove this handling after we have deprecated multiple-choice arguments
-    choices = optdict.get("choices", None)
-    if opt == "confidence":
-        choices = None
-
     if action == "store_true":
         return _StoreTrueArgument(
             flags=flags,
@@ -94,7 +88,7 @@ def _convert_option_to_argument(
             action=action,
             default=default,
             arg_type=optdict["type"],
-            choices=choices,
+            choices=optdict.get("choices", None),
             arg_help=optdict.get("help", ""),
             metavar=optdict.get("metavar", ""),
             hide_help=optdict.get("hide", False),
@@ -107,7 +101,7 @@ def _convert_option_to_argument(
                 flags=flags,
                 default=default,
                 arg_type=optdict["type"],
-                choices=choices,
+                choices=optdict.get("choices", None),
                 arg_help=optdict.get("help", ""),
                 metavar=optdict.get("metavar", ""),
                 hide_help=optdict.get("hide", False),
@@ -119,7 +113,7 @@ def _convert_option_to_argument(
                 flags=flags,
                 default=default,
                 arg_type=optdict["type"],
-                choices=choices,
+                choices=optdict.get("choices", None),
                 arg_help=optdict.get("help", ""),
                 metavar=optdict.get("metavar", ""),
                 hide_help=optdict.get("hide", False),
@@ -131,7 +125,7 @@ def _convert_option_to_argument(
             flags=flags,
             default=default,
             arg_type=optdict["type"],
-            choices=choices,
+            choices=optdict.get("choices", None),
             arg_help=optdict.get("help", ""),
             metavar=optdict.get("metavar", ""),
             hide_help=optdict.get("hide", False),
@@ -143,7 +137,7 @@ def _convert_option_to_argument(
         action=action,
         default=default,
         arg_type=optdict["type"],
-        choices=choices,
+        choices=optdict.get("choices", None),
         arg_help=optdict.get("help", ""),
         metavar=optdict.get("metavar", ""),
         hide_help=optdict.get("hide", False),
