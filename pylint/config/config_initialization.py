@@ -2,10 +2,11 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import sys
-import warnings
 from pathlib import Path
-from typing import TYPE_CHECKING, List, Union
+from typing import TYPE_CHECKING
 
 from pylint import config, reporters
 from pylint.utils import utils
@@ -15,12 +16,12 @@ if TYPE_CHECKING:
 
 
 def _config_initialization(
-    linter: "PyLinter",
-    args_list: List[str],
-    reporter: Union[reporters.BaseReporter, reporters.MultiReporter, None] = None,
-    config_file: Union[None, str, Path] = None,
+    linter: PyLinter,
+    args_list: list[str],
+    reporter: reporters.BaseReporter | reporters.MultiReporter | None = None,
+    config_file: None | str | Path = None,
     verbose_mode: bool = False,
-) -> List[str]:
+) -> list[str]:
     """Parse all available options, read config files and command line arguments and
     set options accordingly.
     """
@@ -48,46 +49,26 @@ def _config_initialization(
     if "load-plugins" in config_data:
         linter.load_plugin_modules(utils._splitstrip(config_data["load-plugins"]))
 
-    # pylint: disable-next=fixme
-    # TODO: Remove everything until set_reporter once the optparse
-    # implementation is no longer needed
-    # Load optparse command line arguments
-    try:
-        # The parser is stored on linter.cfgfile_parser
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            linter.read_config_file(config_file=config_file, verbose=verbose_mode)
-    except OSError as ex:
-        print(ex, file=sys.stderr)
-        sys.exit(32)
-
-    # Now we can load file config, plugins (which can
-    # provide options) have been registered
-    with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", category=DeprecationWarning)
-        linter.load_config_file()
-
-    try:
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            linter.load_command_line_configuration(args_list)
-    except SystemExit as exc:
-        if exc.code == 2:  # bad options
-            exc.code = 32
-        raise
-
-    if reporter:
-        # If a custom reporter is provided as argument, it may be overridden
-        # by file parameters, so re-set it here, but before command line
-        # parsing, so it's still overridable by command line option
-        linter.set_reporter(reporter)
-
     # First we parse any options from a configuration file
     linter._parse_configuration_file(config_args)
 
-    # Second we parse any options from the command line, so they can override
+    # Then, if a custom reporter is provided as argument, it may be overridden
+    # by file parameters, so we re-set it here. We do this before command line
+    # parsing, so it's still overridable by command line options
+    if reporter:
+        linter.set_reporter(reporter)
+
+    # Set the current module to the command line
+    # to allow raising messages on it
+    linter.set_current_module("Command line")
+
+    # Now we parse any options from the command line, so they can override
     # the configuration file
     parsed_args_list = linter._parse_command_line_configuration(args_list)
+
+    # Set the current module to configuration as we don't know where
+    # the --load-plugins key is coming from
+    linter.set_current_module("Command line or configuration file")
 
     # We have loaded configuration from config file and command line. Now, we can
     # load plugin specific configuration.

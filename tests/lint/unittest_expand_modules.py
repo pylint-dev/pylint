@@ -2,9 +2,10 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import re
 from pathlib import Path
-from typing import Dict, Tuple, Type
 
 import pytest
 
@@ -84,10 +85,10 @@ class TestExpandModules(CheckerTestCase):
         """This dummy checker is needed to allow options to be set."""
 
         name = "checker"
-        msgs: Dict[str, Tuple[str, ...]] = {}
-        options = (("An option", {"An option": "dict"}),)
+        msgs: dict[str, tuple[str, ...]] = {}
+        options = (("test-opt", {"action": "store_true", "help": "help message"}),)
 
-    CHECKER_CLASS: Type = Checker
+    CHECKER_CLASS: type = Checker
 
     @pytest.mark.parametrize(
         "files_or_modules,expected",

@@ -2,9 +2,10 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import os
 from pathlib import Path
-from typing import List, Set, Union
 
 from pylint.testutils.functional.test_file import FunctionalTestFile
 
@@ -30,8 +31,8 @@ IGNORED_PARENT_PARENT_DIRS = {
 
 
 def get_functional_test_files_from_directory(
-    input_dir: Union[Path, str]
-) -> List[FunctionalTestFile]:
+    input_dir: Path | str,
+) -> list[FunctionalTestFile]:
     """Get all functional tests in the input_dir."""
     suite = []
 
@@ -52,8 +53,8 @@ def _check_functional_tests_structure(directory: Path) -> None:
     if Path(directory).stem.startswith("_"):
         return
 
-    files: Set[Path] = set()
-    dirs: Set[Path] = set()
+    files: set[Path] = set()
+    dirs: set[Path] = set()
 
     # Collect all subdirectories and files in directory
     for file_or_dir in directory.iterdir():

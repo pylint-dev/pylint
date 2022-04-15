@@ -2,14 +2,16 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import contextlib
 import importlib
 import os
 import shutil
 import sys
 import tempfile
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Iterator
 
 import pytest
 
@@ -128,7 +130,8 @@ def test_pylintrc_parentdir_no_package() -> None:
             testutils.create_files(
                 ["a/pylintrc", "a/b/pylintrc", "a/b/c/d/__init__.py"]
             )
-            assert config.find_pylintrc() is None
+            with pytest.warns(DeprecationWarning):
+                assert config.find_pylintrc() is None
             results = {
                 "a": chroot_path / "a" / "pylintrc",
                 "a/b": chroot_path / "a" / "b" / "pylintrc",

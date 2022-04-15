@@ -2,7 +2,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-from typing import Union
+from __future__ import annotations
 
 import astroid
 from astroid import nodes
@@ -322,7 +322,7 @@ class RecommendationChecker(checkers.BaseChecker):
                 return
 
     def _check_use_sequence_for_iteration(
-        self, node: Union[nodes.For, nodes.Comprehension]
+        self, node: nodes.For | nodes.Comprehension
     ) -> None:
         """Check if code iterates over an in-place defined set."""
         if isinstance(node.iter, nodes.Set):

@@ -4,6 +4,8 @@
 
 """Module to add McCabe checker class for pylint."""
 
+from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 from astroid import nodes
@@ -169,9 +171,6 @@ class McCabeMethodChecker(checkers.BaseChecker):
         ),
     )
 
-    def __init__(self, linter: "PyLinter") -> None:
-        super().__init__(linter, future_option_parsing=True)
-
     @check_messages("too-complex")
     def visit_module(self, node: nodes.Module) -> None:
         """Visit an astroid.Module node to check too complex rating and
@@ -187,12 +186,12 @@ class McCabeMethodChecker(checkers.BaseChecker):
                 node_name = f"'{node.name}'"
             else:
                 node_name = f"This '{node.__class__.__name__.lower()}'"
-            if complexity <= self.linter.namespace.max_complexity:
+            if complexity <= self.linter.config.max_complexity:
                 continue
             self.add_message(
                 "too-complex", node=node, confidence=HIGH, args=(node_name, complexity)
             )
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(McCabeMethodChecker(linter))

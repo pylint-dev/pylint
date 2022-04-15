@@ -2,11 +2,12 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import os
-from typing import List
 
 
-def create_files(paths: List[str], chroot: str = ".") -> None:
+def create_files(paths: list[str], chroot: str = ".") -> None:
     """Creates directories and files found in <path>.
 
     :param list paths: list of relative paths to files or directories

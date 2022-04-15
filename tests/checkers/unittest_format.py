@@ -9,9 +9,9 @@ import tempfile
 import tokenize
 
 import astroid
-import pytest
 
 from pylint import lint, reporters
+from pylint.checkers.base.basic_checker import BasicChecker
 from pylint.checkers.format import FormatChecker
 from pylint.testutils import CheckerTestCase, MessageTest, _tokenize_str
 
@@ -162,19 +162,16 @@ def test_disable_global_option_end_of_line() -> None:
     with file_:
         file_.write(
             """
-mylist = [
-    None
-        ]
+1
     """
         )
     try:
         linter = lint.PyLinter()
-        checker = FormatChecker(linter)
+        checker = BasicChecker(linter)
         linter.register_checker(checker)
-        with pytest.warns(DeprecationWarning):
-            args = linter.load_command_line_configuration(
-                [file_.name, "-d", "bad-continuation"]
-            )
+        args = linter._arguments_manager._parse_command_line_configuration(
+            [file_.name, "-d", "pointless-statement"]
+        )
         myreporter = reporters.CollectingReporter()
         linter.set_reporter(myreporter)
         linter.check(args)

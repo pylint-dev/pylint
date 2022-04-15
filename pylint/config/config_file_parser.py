@@ -4,11 +4,13 @@
 
 """Configuration file parser class."""
 
+from __future__ import annotations
+
 import configparser
 import os
 import sys
 from pathlib import Path
-from typing import TYPE_CHECKING, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING
 
 from pylint.config.utils import _parse_rich_type_value
 
@@ -24,12 +26,12 @@ if TYPE_CHECKING:
 class _ConfigurationFileParser:
     """Class to parse various formats of configuration files."""
 
-    def __init__(self, verbose: bool, linter: "PyLinter") -> None:
+    def __init__(self, verbose: bool, linter: PyLinter) -> None:
         self.verbose_mode = verbose
         self.linter = linter
 
     @staticmethod
-    def _parse_ini_file(file_path: Path) -> Tuple[Dict[str, str], List[str]]:
+    def _parse_ini_file(file_path: Path) -> tuple[dict[str, str], list[str]]:
         """Parse and handle errors of a ini configuration file."""
         parser = configparser.ConfigParser(inline_comment_prefixes=("#", ";"))
 
@@ -37,15 +39,16 @@ class _ConfigurationFileParser:
         with open(file_path, encoding="utf_8_sig") as fp:
             parser.read_file(fp)
 
-        config_content: Dict[str, str] = {}
-        options: List[str] = []
+        config_content: dict[str, str] = {}
+        options: list[str] = []
         for section in parser.sections():
             for opt, value in parser[section].items():
+                value = value.replace("\n", "")
                 config_content[opt] = value
                 options += [f"--{opt}", value]
         return config_content, options
 
-    def _parse_toml_file(self, file_path: Path) -> Tuple[Dict[str, str], List[str]]:
+    def _parse_toml_file(self, file_path: Path) -> tuple[dict[str, str], list[str]]:
         """Parse and handle errors of a toml configuration file."""
         try:
             with open(file_path, mode="rb") as fp:
@@ -59,8 +62,8 @@ class _ConfigurationFileParser:
         except KeyError:
             return {}, []
 
-        config_content: Dict[str, str] = {}
-        options: List[str] = []
+        config_content: dict[str, str] = {}
+        options: list[str] = []
         for opt, values in sections_values.items():
             if isinstance(values, dict):
                 for config, value in values.items():
@@ -74,8 +77,8 @@ class _ConfigurationFileParser:
         return config_content, options
 
     def parse_config_file(
-        self, file_path: Optional[Path]
-    ) -> Tuple[Dict[str, str], List[str]]:
+        self, file_path: Path | None
+    ) -> tuple[dict[str, str], list[str]]:
         """Parse a config file and return str-str pairs."""
         if file_path is None:
             if self.verbose_mode:

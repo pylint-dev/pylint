@@ -4,10 +4,10 @@
 
 """Unit tests for the config module."""
 
+from __future__ import annotations
+
 import re
 import sre_constants
-import sys
-from typing import Dict, Tuple, Type
 
 import pytest
 
@@ -16,15 +16,10 @@ from pylint.checkers import BaseChecker
 from pylint.testutils import CheckerTestCase, set_config
 from pylint.utils.utils import get_global_option
 
-if sys.version_info >= (3, 7):
-    RE_PATTERN_TYPE = re.Pattern
-else:
-    RE_PATTERN_TYPE = re._pattern_type  # pylint: disable=no-member
-
 
 def test__regexp_validator_valid() -> None:
     result = config.option._regexp_validator(None, None, "test_.*")
-    assert isinstance(result, RE_PATTERN_TYPE)
+    assert isinstance(result, re.Pattern)
     assert result.pattern == "test_.*"
 
 
@@ -55,7 +50,7 @@ def test__regexp_csv_validator_valid() -> None:
     pattern_strings = ["test_.*", "foo\\.bar", "^baz$"]
     result = config.option._regexp_csv_validator(None, None, ",".join(pattern_strings))
     for i, regex in enumerate(result):
-        assert isinstance(regex, RE_PATTERN_TYPE)
+        assert isinstance(regex, re.Pattern)
         assert regex.pattern == pattern_strings[i]
 
 
@@ -72,10 +67,10 @@ class TestPyLinterOptionSetters(CheckerTestCase):
 
     class Checker(BaseChecker):
         name = "checker"
-        msgs: Dict[str, Tuple[str, ...]] = {}
-        options = (("An option", {"An option": "dict"}),)
+        msgs: dict[str, tuple[str, ...]] = {}
+        options = (("test-opt", {"action": "store_true", "help": "help message"}),)
 
-    CHECKER_CLASS: Type = Checker
+    CHECKER_CLASS: type = Checker
 
     @set_config(ignore_paths=".*/tests/.*,.*\\ignore\\.*")
     def test_ignore_paths_with_value(self) -> None:
