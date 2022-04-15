@@ -7,6 +7,12 @@ include =
     pylint/*
 omit =
     */test/*
+# TODO: 3.0: Remove these after these files have been removed
+    pylint/config/configuration_mixin.py
+    pylint/config/option.py
+    pylint/config/option_manager_mixin.py
+    pylint/config/option_parser.py
+    pylint/config/options_provider_mixin.py
 exclude_lines =
     # Re-enable default pragma
     pragma: no cover
