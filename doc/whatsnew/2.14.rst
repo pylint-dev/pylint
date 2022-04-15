@@ -119,6 +119,8 @@ Other Changes
 
 * ``ConfigurationMixIn`` has been deprecated.
 
+* The ``option_groups`` attribute of ``PyLinter`` has been deprecated.
+
   Ref #5392
 
 * ``get_global_config`` has been deprecated. You can now access all global options from

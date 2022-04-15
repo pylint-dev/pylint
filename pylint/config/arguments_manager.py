@@ -60,13 +60,16 @@ ConfigProvider = Union["_ArgumentsProvider", OptionsProviderMixIn]
 class _ArgumentsManager:
     """Arguments manager class used to handle command-line arguments and options."""
 
-    def __init__(self, prog: str, usage: str | None = None) -> None:
+    def __init__(
+        self, prog: str, usage: str | None = None, description: str | None = None
+    ) -> None:
         self._config = argparse.Namespace()
         """Namespace for all options."""
 
         self._arg_parser = argparse.ArgumentParser(
             prog=prog,
             usage=usage or "%(prog)s [options]",
+            description=description,
             formatter_class=_HelpFormatter,
         )
         """The command line argument parser."""

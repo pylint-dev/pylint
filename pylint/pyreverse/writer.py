@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import argparse
 import itertools
 import os
 
@@ -26,7 +27,7 @@ from pylint.pyreverse.utils import is_exception
 class DiagramWriter:
     """Base class for writing project diagrams."""
 
-    def __init__(self, config):
+    def __init__(self, config: argparse.Namespace) -> None:
         self.config = config
         self.printer_class = get_printer_for_filetype(self.config.output_format)
         self.printer: Printer  # defined in set_printer

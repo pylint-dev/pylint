@@ -163,3 +163,25 @@ def test_command_line_arguments_yes_no(
     with pytest.raises(SystemExit) as wrapped_sysexit:
         main.Run(["--module-names=yes", TEST_DATA_DIR])
     assert wrapped_sysexit.value.code == 0
+
+
+@mock.patch("pylint.pyreverse.main.writer")
+@mock.patch("pylint.pyreverse.main.sys.exit", new=mock.MagicMock())
+def test_class_command(
+    mock_writer: mock.MagicMock,  # pylint: disable=unused-argument
+) -> None:
+    """Regression test for the --class option.
+
+    Make sure that we append multiple --class arguments to one option destination.
+    """
+    runner = main.Run(
+        [
+            "--class",
+            "data.clientmodule_test.Ancestor",
+            "--class",
+            "data.property_pattern.PropertyPatterns",
+            TEST_DATA_DIR,
+        ]
+    )
+    assert "data.clientmodule_test.Ancestor" in runner.config.classes
+    assert "data.property_pattern.PropertyPatterns" in runner.config.classes
