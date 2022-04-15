@@ -1,36 +1,16 @@
-# Copyright (c) 2014-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2014 Google, Inc.
-# Copyright (c) 2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
-# Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2018 Bryce Guinta <bryce.guinta@protonmail.com>
-# Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
-# Copyright (c) 2018 mar-chi-pan <mar.polatoglou@gmail.com>
-# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2020 Andrew Simmons <anjsimmo@gmail.com>
-# Copyright (c) 2020 Andrew Simmons <a.simmons@deakin.edu.au>
-# Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 Sergei Lebedev <185856+superbobry@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 import os
 import re
 import sys
-import unittest
 from pathlib import Path
 
 import astroid
 
 from pylint.checkers import variables
-from pylint.constants import IS_PYPY
-from pylint.interfaces import UNDEFINED
+from pylint.interfaces import HIGH
 from pylint.testutils import CheckerTestCase, MessageTest, linter, set_config
 
 REGR_DATA_DIR = str(Path(__file__).parent / ".." / "regrtest_data")
@@ -40,35 +20,6 @@ class TestVariablesChecker(CheckerTestCase):
 
     CHECKER_CLASS = variables.VariablesChecker
 
-    def test_bitbucket_issue_78(self) -> None:
-        """Issue 78 report a false positive for unused-module"""
-        module = astroid.parse(
-            """
-        from sys import path
-        path += ['stuff']
-        def func():
-            other = 1
-            return len(other)
-        """
-        )
-        with self.assertNoMessages():
-            self.walk(module)
-
-    @set_config(ignored_modules=("argparse",))
-    def test_no_name_in_module_skipped(self) -> None:
-        """Make sure that 'from ... import ...' does not emit a
-        'no-name-in-module' with a module that is configured
-        to be ignored.
-        """
-
-        node = astroid.extract_node(
-            """
-        from argparse import THIS_does_not_EXIST
-        """
-        )
-        with self.assertNoMessages():
-            self.checker.visit_importfrom(node)
-
     def test_all_elements_without_parent(self) -> None:
         node = astroid.extract_node("__all__ = []")
         node.value.elts.append(astroid.Const("test"))
@@ -76,142 +27,6 @@ class TestVariablesChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_module(root)
             self.checker.leave_module(root)
-
-    def test_redefined_builtin_ignored(self) -> None:
-        node = astroid.parse(
-            """
-        from future.builtins import open
-        """
-        )
-        with self.assertNoMessages():
-            self.checker.visit_module(node)
-
-    @set_config(redefining_builtins_modules=("os",))
-    def test_redefined_builtin_custom_modules(self) -> None:
-        node = astroid.parse(
-            """
-        from os import open
-        """
-        )
-        with self.assertNoMessages():
-            self.checker.visit_module(node)
-
-    @set_config(redefining_builtins_modules=("os",))
-    def test_redefined_builtin_modname_not_ignored(self) -> None:
-        node = astroid.parse(
-            """
-        from future.builtins import open
-        """
-        )
-        with self.assertAddsMessages(
-            MessageTest("redefined-builtin", node=node.body[0], args="open")
-        ):
-            self.checker.visit_module(node)
-
-    @set_config(redefining_builtins_modules=("os",))
-    def test_redefined_builtin_in_function(self) -> None:
-        node = astroid.extract_node(
-            """
-        def test():
-            from os import open
-        """
-        )
-        with self.assertNoMessages():
-            self.checker.visit_module(node.root())
-            self.checker.visit_functiondef(node)
-
-    def test_unassigned_global(self) -> None:
-        node = astroid.extract_node(
-            """
-            def func():
-                global sys  #@
-                import sys, lala
-        """
-        )
-        msg = MessageTest("global-statement", node=node, confidence=UNDEFINED)
-        with self.assertAddsMessages(msg):
-            self.checker.visit_global(node)
-
-    def test_listcomp_in_decorator(self) -> None:
-        """Make sure class attributes in scope for listcomp in decorator.
-
-        https://github.com/PyCQA/pylint/issues/511
-        """
-        module = astroid.parse(
-            """
-        def dec(inp):
-            def inner(func):
-                print(inp)
-                return func
-            return inner
-
-
-        class Cls:
-
-            DATA = "foo"
-
-            @dec([x for x in DATA])
-            def fun(self):
-                pass
-        """
-        )
-        with self.assertNoMessages():
-            self.walk(module)
-
-    def test_listcomp_in_ancestors(self) -> None:
-        """Ensure list comprehensions in base classes are scoped correctly
-
-        https://github.com/PyCQA/pylint/issues/3434
-        """
-        module = astroid.parse(
-            """
-        import collections
-
-
-        l = ["a","b","c"]
-
-
-        class Foo(collections.namedtuple("Foo",[x+"_foo" for x in l])):
-            pass
-        """
-        )
-        with self.assertNoMessages():
-            self.walk(module)
-
-    def test_return_type_annotation(self) -> None:
-        """Make sure class attributes in scope for return type annotations.
-
-        https://github.com/PyCQA/pylint/issues/1976
-        """
-        module = astroid.parse(
-            """
-        class MyObject:
-            class MyType:
-                pass
-            def my_method(self) -> MyType:
-                pass
-        """
-        )
-        with self.assertNoMessages():
-            self.walk(module)
-
-    @unittest.skipIf(IS_PYPY, "PyPy does not parse type comments")
-    def test_attribute_in_type_comment(self):
-        """Ensure attribute lookups in type comments are accounted for.
-
-        https://github.com/PyCQA/pylint/issues/4603
-        """
-        module = astroid.parse(
-            """
-        import foo
-        from foo import Bar, Boo
-        a = ... # type: foo.Bar
-        b = ... # type: foo.Bar[Boo]
-        c = ... # type: Bar.Boo
-        """
-        )
-        with self.assertNoMessages():
-            self.walk(module)
 
 
 class TestVariablesCheckerWithTearDown(CheckerTestCase):
@@ -256,7 +71,16 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            MessageTest("unused-argument", node=node["abc"], args="abc")
+            MessageTest(
+                "unused-argument",
+                node=node["abc"],
+                args="abc",
+                confidence=HIGH,
+                line=2,
+                col_offset=16,
+                end_line=2,
+                end_col_offset=19,
+            )
         ):
             self.checker.visit_functiondef(node)
             self.checker.leave_functiondef(node)
@@ -268,7 +92,16 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            MessageTest("unused-argument", node=node["abc"], args="abc")
+            MessageTest(
+                "unused-argument",
+                node=node["abc"],
+                args="abc",
+                confidence=HIGH,
+                line=2,
+                col_offset=12,
+                end_line=2,
+                end_col_offset=15,
+            )
         ):
             self.checker.visit_functiondef(node)
             self.checker.leave_functiondef(node)
@@ -281,7 +114,15 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            MessageTest("redefined-builtin", node=node.body[0], args="open")
+            MessageTest(
+                "redefined-builtin",
+                node=node.body[0],
+                args="open",
+                line=2,
+                col_offset=0,
+                end_line=2,
+                end_col_offset=32,
+            )
         ):
             self.checker.visit_module(node)
 
@@ -339,7 +180,8 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
     @set_config(ignored_argument_names=re.compile("arg"))
     def test_ignored_argument_names_no_message(self) -> None:
         """Make sure is_ignored_argument_names properly ignores
-        function arguments"""
+        function arguments
+        """
         node = astroid.parse(
             """
         def fooby(arg):

@@ -1,6 +1,6 @@
 '''Assert check example'''
 
-# pylint: disable=misplaced-comparison-constant, comparison-with-itself
+# pylint: disable=comparison-with-itself
 assert (1 == 1, 2 == 2), "no error"
 assert (1 == 1, 2 == 2) # [assert-on-tuple]
 assert 1 == 1, "no error"

@@ -1,4 +1,5 @@
 # pylint: disable=missing-docstring,no-self-use,too-few-public-methods,wrong-import-position,useless-object-inheritance,use-dict-literal
+# pylint: disable=wrong-import-order, undefined-variable
 
 REVISION = None
 
@@ -117,7 +118,8 @@ PROP1.instance()
 PROP1.does_not_make_sense()
 
 
-import missing # pylint: disable=import-error
+import missing  # pylint: disable=import-error
+
 
 class UnknownBaseCallable(missing.Blah):
     pass
@@ -125,7 +127,7 @@ class UnknownBaseCallable(missing.Blah):
 UnknownBaseCallable()()
 
 # Regression test for #4426
-# If property is inferrable we shouldn't double emit the message
+# If property is inferable we shouldn't double emit the message
 # See: https://github.com/PyCQA/pylint/issues/4426
 class ClassWithProperty:
     @property
@@ -133,3 +135,92 @@ class ClassWithProperty:
         return 42
 
 CLASS_WITH_PROP = ClassWithProperty().value()  # [not-callable]
+
+# Test typing.Namedtuple is callable
+# See: https://github.com/PyCQA/pylint/issues/1295
+import typing
+
+Named = typing.NamedTuple("Named", [("foo", int), ("bar", int)])
+named = Named(1, 2)
+
+
+# NamedTuple is callable, even if it aliased to a attribute
+# See https://github.com/PyCQA/pylint/issues/1730
+class TestNamedTuple:
+    def __init__(self, field: str) -> None:
+        self.my_tuple = typing.NamedTuple("Tuple", [(field, int)])
+        self.item: self.my_tuple
+
+    def set_item(self, item: int) -> None:
+        self.item = self.my_tuple(item)
+
+
+# Test descriptor call
+def func():
+    pass
+
+
+class ADescriptor:
+    def __get__(self, instance, owner):
+        return func
+
+
+class AggregateCls:
+    a = ADescriptor()
+
+
+AggregateCls().a()
+
+
+# Make sure not-callable isn't raised for descriptors
+
+# astroid can't process descriptors correctly so
+# pylint needs to ignore not-callable for them
+# right now
+
+# Test for https://github.com/PyCQA/pylint/issues/1699
+
+import multiprocessing
+
+multiprocessing.current_process()
+
+# Make sure not-callable isn't raised for uninferable properties
+class MyClass:
+    @property
+    def call(self):
+        return undefined
+
+
+a = A()
+a.call()
+
+# Make sure the callable check does not crash when a node's parent cannot be determined.
+def get_number(arg):
+    return 2 * arg
+
+
+get_number(10)()  # [not-callable]
+
+class Klass:
+    def __init__(self):
+        self._x = None
+
+    @property
+    def myproperty(self):
+        if self._x is None:
+            self._x = lambda: None
+        return self._x
+
+myobject = Klass()
+myobject.myproperty()
+
+class Klass2:
+    @property
+    def something(self):
+        if __file__.startswith('s'):
+            return str
+
+        return 'abcd'
+
+obj2 = Klass2()
+obj2.something()

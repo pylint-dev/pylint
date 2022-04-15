@@ -1,45 +1,18 @@
-# Copyright (c) 2009-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2010 Daniel Harding <dharding@gmail.com>
-# Copyright (c) 2012-2014 Google, Inc.
-# Copyright (c) 2013-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2014 Brett Cannon <brett@python.org>
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015 Rene Zhang <rz99@cornell.edu>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016, 2018 Jakub Wilk <jwilk@jwilk.net>
-# Copyright (c) 2016 Peter Dawyndt <Peter.Dawyndt@UGent.be>
-# Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
-# Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2018, 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2018-2019 Lucas Cimon <lucas.cimon@gmail.com>
-# Copyright (c) 2018 Alan Chan <achan961117@gmail.com>
-# Copyright (c) 2018 Yury Gribov <tetra2005@gmail.com>
-# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
-# Copyright (c) 2018 Nick Drozd <nicholasdrozd@gmail.com>
-# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019 Wes Turner <westurner@google.com>
-# Copyright (c) 2019 Djailla <bastien.vallet@gmail.com>
-# Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2020 Matthew Suozzo <msuozzo@google.com>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2020 谭九鼎 <109224573@qq.com>
-# Copyright (c) 2020 Anthony <tanant@users.noreply.github.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 Peter Kolbus <peter.kolbus@garmin.com>
-
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-"""Checker for string formatting operations.
-"""
+"""Checker for string formatting operations."""
+
+from __future__ import annotations
 
 import collections
 import numbers
 import re
 import tokenize
-from typing import TYPE_CHECKING, Iterable
+from collections import Counter
+from collections.abc import Iterable
+from typing import TYPE_CHECKING
 
 import astroid
 from astroid import nodes
@@ -49,7 +22,7 @@ from pylint.checkers.utils import check_messages
 from pylint.interfaces import IAstroidChecker, IRawChecker, ITokenChecker
 
 if TYPE_CHECKING:
-    from typing import Counter  # typing.Counter added in Python 3.6.1
+    from pylint.lint import PyLinter
 
 _AST_NODE_STR_TYPES = ("__builtin__.unicode", "__builtin__.str", "builtins.str")
 # Prefixes for both strings and bytes literals per
@@ -151,7 +124,7 @@ MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
     "E1310": (
         "Suspicious argument in %s.%s call",
         "bad-str-strip-call",
-        "The argument to a str.{l,r,}strip call contains a duplicate character, ",
+        "The argument to a str.{l,r,}strip call contains a duplicate character,",
     ),
     "W1302": (
         "Invalid format string",
@@ -275,7 +248,6 @@ class StringFormatChecker(BaseChecker):
         "format-needs-mapping",
         "too-many-format-args",
         "too-few-format-args",
-        "bad-string-format-type",
         "format-string-without-interpolation",
     )
     def visit_binop(self, node: nodes.BinOp) -> None:
@@ -384,9 +356,21 @@ class StringFormatChecker(BaseChecker):
             elif isinstance(args, (OTHER_NODES, (nodes.Dict, nodes.DictComp))):
                 args_elts = [args]
                 num_args = 1
+            elif isinstance(args, nodes.Name):
+                inferred = utils.safe_infer(args)
+                if isinstance(inferred, nodes.Tuple):
+                    # The variable is a tuple, so we need to get the elements
+                    # from it for further inspection
+                    args_elts = inferred.elts
+                    num_args = len(args_elts)
+                elif isinstance(inferred, nodes.Const):
+                    args_elts = [inferred]
+                    num_args = 1
+                else:
+                    num_args = None
             else:
-                # The RHS of the format specifier is a name or
-                # expression.  It could be a tuple of unknown size, so
+                # The RHS of the format specifier is an expression.
+                # It could be a tuple of unknown size, so
                 # there's nothing we can check.
                 num_args = None
             if num_args is not None:
@@ -427,9 +411,9 @@ class StringFormatChecker(BaseChecker):
         if (
             isinstance(func, astroid.BoundMethod)
             and isinstance(func.bound, astroid.Instance)
-            and func.bound.name in ("str", "unicode", "bytes")
+            and func.bound.name in {"str", "unicode", "bytes"}
         ):
-            if func.name in ("strip", "lstrip", "rstrip") and node.args:
+            if func.name in {"strip", "lstrip", "rstrip"} and node.args:
                 arg = utils.safe_infer(node.args[0])
                 if not isinstance(arg, nodes.Const) or not isinstance(arg.value, str):
                     return
@@ -519,7 +503,7 @@ class StringFormatChecker(BaseChecker):
                     # only if the .format got at least one keyword argument.
                     # This means that the format strings accepts both
                     # positional and named fields and we should warn
-                    # when one of the them is missing or is extra.
+                    # when one of them is missing or is extra.
                     check_args = True
         else:
             check_args = True
@@ -538,8 +522,7 @@ class StringFormatChecker(BaseChecker):
         self._check_new_format_specifiers(node, fields, named_arguments)
 
     def _check_new_format_specifiers(self, node, fields, named):
-        """
-        Check attribute and index access in the format
+        """Check attribute and index access in the format
         string ("{0.a}" and "{0[a]}").
         """
         for key, specifiers in fields:
@@ -635,7 +618,7 @@ class StringFormatChecker(BaseChecker):
 
 
 class StringConstantChecker(BaseTokenChecker):
-    """Check string literals"""
+    """Check string literals."""
 
     __implements__ = (IAstroidChecker, ITokenChecker, IRawChecker)
     name = "string"
@@ -709,8 +692,8 @@ class StringConstantChecker(BaseTokenChecker):
     # Unicode strings.
     UNICODE_ESCAPE_CHARACTERS = "uUN"
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, linter):
+        super().__init__(linter)
         self.string_tokens = {}  # token position -> (token value, next token)
 
     def process_module(self, node: nodes.Module) -> None:
@@ -741,7 +724,7 @@ class StringConstantChecker(BaseTokenChecker):
                     start = (start[0], len(line[: start[1]].encode(encoding)))
                 self.string_tokens[start] = (str_eval(token), next_token)
 
-        if self.config.check_quote_consistency:
+        if self.linter.config.check_quote_consistency:
             self.check_for_consistent_string_delimiters(tokens)
 
     @check_messages("implicit-str-concat")
@@ -772,8 +755,7 @@ class StringConstantChecker(BaseTokenChecker):
         Args:
           tokens: The tokens to be checked against for consistent usage.
         """
-        # typing.Counter added in Python 3.6.1 so this type hint must be a comment
-        string_delimiters = collections.Counter()  # type: Counter[str]
+        string_delimiters: Counter[str] = collections.Counter()
 
         # First, figure out which quote character predominates in the module
         for tok_type, token, _, _, _ in tokens:
@@ -816,7 +798,7 @@ class StringConstantChecker(BaseTokenChecker):
             if matching_token != elt.value and next_token is not None:
                 if next_token.type == tokenize.STRING and (
                     next_token.start[0] == elt.lineno
-                    or self.config.check_str_concat_over_line_jumps
+                    or self.linter.config.check_str_concat_over_line_jumps
                 ):
                     self.add_message(
                         "implicit-str-concat", line=elt.lineno, args=(iterable_type,)
@@ -851,7 +833,7 @@ class StringConstantChecker(BaseTokenChecker):
     def process_non_raw_string_token(
         self, prefix, string_body, start_row, string_start_col
     ):
-        """check for bad escapes in a non-raw string.
+        """Check for bad escapes in a non-raw string.
 
         prefix: lowercase string of eg 'ur' string prefix markers.
         string_body: the un-parsed body of the string, not including the quote
@@ -918,7 +900,7 @@ class StringConstantChecker(BaseTokenChecker):
             self._detect_u_string_prefix(node)
 
     def _detect_u_string_prefix(self, node: nodes.Const):
-        """Check whether strings include a 'u' prefix like u'String'"""
+        """Check whether strings include a 'u' prefix like u'String'."""
         if node.kind == "u":
             self.add_message(
                 "redundant-u-string-prefix",
@@ -927,24 +909,23 @@ class StringConstantChecker(BaseTokenChecker):
             )
 
 
-def register(linter):
-    """required method to auto register this checker"""
+def register(linter: PyLinter) -> None:
     linter.register_checker(StringFormatChecker(linter))
     linter.register_checker(StringConstantChecker(linter))
 
 
 def str_eval(token):
-    """
-    Mostly replicate `ast.literal_eval(token)` manually to avoid any performance hit.
+    """Mostly replicate `ast.literal_eval(token)` manually to avoid any performance hit.
+
     This supports f-strings, contrary to `ast.literal_eval`.
     We have to support all string literal notations:
     https://docs.python.org/3/reference/lexical_analysis.html#string-and-bytes-literals
     """
-    if token[0:2].lower() in ("fr", "rf"):
+    if token[0:2].lower() in {"fr", "rf"}:
         token = token[2:]
-    elif token[0].lower() in ("r", "u", "f"):
+    elif token[0].lower() in {"r", "u", "f"}:
         token = token[1:]
-    if token[0:3] in ('"""', "'''"):
+    if token[0:3] in {'"""', "'''"}:
         return token[3:-3]
     return token[1:-1]
 
@@ -963,7 +944,7 @@ def _is_long_string(string_token: str) -> bool:
         string_token: The string token to be parsed.
 
     Returns:
-        A boolean representing whether or not this token matches a longstring
+        A boolean representing whether this token matches a longstring
         regex.
     """
     return bool(
@@ -975,15 +956,14 @@ def _is_long_string(string_token: str) -> bool:
 def _get_quote_delimiter(string_token: str) -> str:
     """Returns the quote character used to delimit this token string.
 
-    This function does little checking for whether the token is a well-formed
-    string.
+    This function checks whether the token is a well-formed string.
 
     Args:
         string_token: The token to be parsed.
 
     Returns:
-        A string containing solely the first quote delimiter character in the passed
-        string.
+        A string containing solely the first quote delimiter character in the
+        given string.
 
     Raises:
       ValueError: No quote delimiter characters are present.

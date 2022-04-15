@@ -1,5 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 import optparse  # pylint: disable=deprecated-module
 
@@ -24,8 +25,7 @@ class OptionParser(optparse.OptionParser):
             formatter = self.formatter
         outputlevel = getattr(formatter, "output_level", 0)
         formatter.store_option_strings(self)
-        result = []
-        result.append(formatter.format_heading("Options"))
+        result = [formatter.format_heading("Options")]
         formatter.indent()
         if self.option_list:
             result.append(optparse.OptionContainer.format_option_help(self, formatter))
@@ -40,7 +40,7 @@ class OptionParser(optparse.OptionParser):
         # Drop the last "\n", or the header if no options or option groups:
         return "".join(result[:-1])
 
-    def _match_long_opt(self, opt):
+    def _match_long_opt(self, opt):  # pragma: no cover # Unused
         """Disable abbreviations."""
         if opt not in self._long_opt:
             raise optparse.BadOptionError(opt)

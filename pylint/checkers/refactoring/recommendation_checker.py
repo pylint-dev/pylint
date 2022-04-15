@@ -1,13 +1,14 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-from typing import Union
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
+from __future__ import annotations
 
 import astroid
 from astroid import nodes
 
 from pylint import checkers, interfaces
 from pylint.checkers import utils
-from pylint.utils.utils import get_global_option
 
 
 class RecommendationChecker(checkers.BaseChecker):
@@ -63,7 +64,7 @@ class RecommendationChecker(checkers.BaseChecker):
     }
 
     def open(self) -> None:
-        py_version = get_global_option(self, "py-version")
+        py_version = self.linter.config.py_version
         self._py36_plus = py_version >= (3, 6)
 
     @staticmethod
@@ -83,13 +84,15 @@ class RecommendationChecker(checkers.BaseChecker):
             return
         if node.func.attrname != "keys":
             return
+        comp_ancestor = utils.get_node_first_ancestor_of_type(node, nodes.Compare)
         if (
             isinstance(node.parent, (nodes.For, nodes.Comprehension))
-            or isinstance(node.parent, nodes.Compare)
+            or comp_ancestor
             and any(
                 op
-                for op, comparator in node.parent.ops
-                if op == "in" and comparator is node
+                for op, comparator in comp_ancestor.ops
+                if op in {"in", "not in"}
+                and (comparator in node.node_ancestors() or comparator is node)
             )
         ):
             inferred = utils.safe_infer(node.func)
@@ -97,7 +100,6 @@ class RecommendationChecker(checkers.BaseChecker):
                 inferred.bound, nodes.Dict
             ):
                 return
-
             self.add_message("consider-iterating-dictionary", node=node)
 
     def _check_use_maxsplit_arg(self, node: nodes.Call) -> None:
@@ -106,13 +108,13 @@ class RecommendationChecker(checkers.BaseChecker):
         # Check if call is split() or rsplit()
         if not (
             isinstance(node.func, nodes.Attribute)
-            and node.func.attrname in ("split", "rsplit")
+            and node.func.attrname in {"split", "rsplit"}
             and isinstance(utils.safe_infer(node.func), astroid.BoundMethod)
         ):
             return
 
         try:
-            utils.get_argument_from_call(node, 0, "sep")
+            sep = utils.get_argument_from_call(node, 0, "sep")
         except utils.NoSuchArgumentError:
             return
 
@@ -153,7 +155,7 @@ class RecommendationChecker(checkers.BaseChecker):
                 new_name = (
                     node.func.as_string().rsplit(fn_name, maxsplit=1)[0]
                     + new_fn
-                    + f"({node.args[0].as_string()}, maxsplit=1)[{subscript_value}]"
+                    + f"({sep.as_string()}, maxsplit=1)[{subscript_value}]"
                 )
                 self.add_message("use-maxsplit-arg", node=node, args=(new_name,))
 
@@ -319,7 +321,7 @@ class RecommendationChecker(checkers.BaseChecker):
                 return
 
     def _check_use_sequence_for_iteration(
-        self, node: Union[nodes.For, nodes.Comprehension]
+        self, node: nodes.For | nodes.Comprehension
     ) -> None:
         """Check if code iterates over an in-place defined set."""
         if isinstance(node.iter, nodes.Set):
@@ -336,7 +338,8 @@ class RecommendationChecker(checkers.BaseChecker):
 
     def _detect_replacable_format_call(self, node: nodes.Const) -> None:
         """Check whether a string is used in a call to format() or '%' and whether it
-        can be replaced by a f-string"""
+        can be replaced by an f-string
+        """
         if (
             isinstance(node.parent, nodes.Attribute)
             and node.parent.attrname == "format"

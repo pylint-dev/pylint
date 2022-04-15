@@ -1,0 +1,2 @@
+[MASTER]
+load-plugins=pylint.extensions.redefined_variable_type,

@@ -1,47 +1,47 @@
-format-string-without-interpolation:68:4:pprint_bad:Using formatting for a string that does not have any interpolated variables
-bad-format-string:69:4:pprint_bad:Invalid format string
-bad-format-string:70:4:pprint_bad:Invalid format string
-format-combined-specification:71:4:pprint_bad:Format string contains both automatic field numbering and manual field specification
-missing-format-argument-key:73:4:pprint_bad:Missing keyword argument 'b' for format string
-unused-format-string-argument:73:4:pprint_bad:Unused format argument 'c'
-missing-format-argument-key:74:4:pprint_bad:Missing keyword argument 'a' for format string
-too-few-format-args:75:4:pprint_bad:Not enough arguments for format string
-too-many-format-args:76:4:pprint_bad:Too many arguments for format string
-missing-format-argument-key:78:4:pprint_bad:Missing keyword argument 'a' for format string
-missing-format-argument-key:78:4:pprint_bad:Missing keyword argument 'b' for format string
-missing-format-argument-key:78:4:pprint_bad:Missing keyword argument 'c' for format string
-too-few-format-args:79:4:pprint_bad:Not enough arguments for format string
-missing-format-argument-key:81:4:pprint_bad:Missing keyword argument 'a' for format string
-missing-format-argument-key:81:4:pprint_bad:Missing keyword argument 'b' for format string
-missing-format-argument-key:82:4:pprint_bad:Missing keyword argument 'a' for format string
-missing-format-attribute:84:4:pprint_bad:Missing format attribute 'length' in format specifier 'a.ids.__len__.length'
-invalid-format-index:85:4:pprint_bad:Using invalid lookup key 400 in format specifier 'a.ids[3][400]'
-invalid-format-index:86:4:pprint_bad:"Using invalid lookup key ""'string'"" in format specifier 'a.ids[3][""\'string\'""]'"
-invalid-format-index:87:4:pprint_bad:Using invalid lookup key 1 in format specifier '0[0][1]'
-invalid-format-index:88:4:pprint_bad:Using invalid lookup key 0 in format specifier '0[0][0]'
-missing-format-argument-key:90:4:pprint_bad:Missing keyword argument 'b' for format string
-unused-format-string-argument:90:4:pprint_bad:Unused format argument 'a'
-invalid-format-index:91:4:pprint_bad:Using invalid lookup key 0 in format specifier 'a[0]'
-too-many-format-args:92:8:pprint_bad:Too many arguments for format string
-missing-format-attribute:93:4:pprint_bad:Missing format attribute 'missing' in format specifier '0.missing'
-too-few-format-args:94:4:pprint_bad:Not enough arguments for format string
-too-many-format-args:95:4:pprint_bad:Too many arguments for format string
-too-few-format-args:96:4:pprint_bad:Not enough arguments for format string
-too-few-format-args:97:4:pprint_bad:Not enough arguments for format string
-too-many-format-args:98:4:pprint_bad:Too many arguments for format string
-logging-too-few-args:99:4:pprint_bad:Not enough arguments for logging format string
-logging-too-many-args:100:4:pprint_bad:Too many arguments for logging format string
-format-string-without-interpolation:101:4:pprint_bad:Using formatting for a string that does not have any interpolated variables
-format-string-without-interpolation:102:4:pprint_bad:Using formatting for a string that does not have any interpolated variables
-format-string-without-interpolation:103:4:pprint_bad:Using formatting for a string that does not have any interpolated variables
-format-string-without-interpolation:104:4:pprint_bad:Using formatting for a string that does not have any interpolated variables
-too-few-format-args:132:4:nested_issue294:Not enough arguments for format string
-too-many-format-args:133:4:nested_issue294:Too many arguments for format string
-missing-format-argument-key:134:4:nested_issue294:Missing keyword argument 'a' for format string
-missing-format-attribute:135:4:nested_issue294:Missing format attribute 'x' in format specifier 'a.x'
-too-few-format-args:141:4:issue310:Not enough arguments for format string
-too-many-format-args:149:4:issue322:Too many arguments for format string
-too-few-format-args:150:4:issue322:Not enough arguments for format string
-too-few-format-args:175:4:issue351:Not enough arguments for format string
-too-many-format-args:177:4:issue351:Too many arguments for format string
-bad-format-string:213:11:avoid_empty_attribute:Invalid format string
+format-string-without-interpolation:68:4:68:20:pprint_bad:Using formatting for a string that does not have any interpolated variables:UNDEFINED
+bad-format-string:69:4:69:19:pprint_bad:Invalid format string:UNDEFINED
+bad-format-string:70:4:70:19:pprint_bad:Invalid format string:UNDEFINED
+format-combined-specification:71:4:71:25:pprint_bad:Format string contains both automatic field numbering and manual field specification:UNDEFINED
+missing-format-argument-key:73:4:73:30:pprint_bad:Missing keyword argument 'b' for format string:UNDEFINED
+unused-format-string-argument:73:4:73:30:pprint_bad:Unused format argument 'c':UNDEFINED
+missing-format-argument-key:74:4:74:25:pprint_bad:Missing keyword argument 'a' for format string:UNDEFINED
+too-few-format-args:75:4:75:21:pprint_bad:Not enough arguments for format string:UNDEFINED
+too-many-format-args:76:4:76:27:pprint_bad:Too many arguments for format string:UNDEFINED
+missing-format-argument-key:78:4:78:26:pprint_bad:Missing keyword argument 'a' for format string:UNDEFINED
+missing-format-argument-key:78:4:78:26:pprint_bad:Missing keyword argument 'b' for format string:UNDEFINED
+missing-format-argument-key:78:4:78:26:pprint_bad:Missing keyword argument 'c' for format string:UNDEFINED
+too-few-format-args:79:4:79:28:pprint_bad:Not enough arguments for format string:UNDEFINED
+missing-format-argument-key:81:4:81:26:pprint_bad:Missing keyword argument 'a' for format string:UNDEFINED
+missing-format-argument-key:81:4:81:26:pprint_bad:Missing keyword argument 'b' for format string:UNDEFINED
+missing-format-argument-key:82:4:82:33:pprint_bad:Missing keyword argument 'a' for format string:UNDEFINED
+missing-format-attribute:84:4:84:45:pprint_bad:Missing format attribute 'length' in format specifier 'a.ids.__len__.length':UNDEFINED
+invalid-format-index:85:4:85:38:pprint_bad:Using invalid lookup key 400 in format specifier 'a.ids[3][400]':UNDEFINED
+invalid-format-index:86:4:86:43:pprint_bad:"Using invalid lookup key ""'string'"" in format specifier 'a.ids[3][""\'string\'""]'":UNDEFINED
+invalid-format-index:87:4:87:28:pprint_bad:Using invalid lookup key 1 in format specifier '0[0][1]':UNDEFINED
+invalid-format-index:88:4:88:30:pprint_bad:Using invalid lookup key 0 in format specifier '0[0][0]':UNDEFINED
+missing-format-argument-key:90:4:90:25:pprint_bad:Missing keyword argument 'b' for format string:UNDEFINED
+unused-format-string-argument:90:4:90:25:pprint_bad:Unused format argument 'a':UNDEFINED
+invalid-format-index:91:4:91:29:pprint_bad:Using invalid lookup key 0 in format specifier 'a[0]':UNDEFINED
+too-many-format-args:92:8:92:30:pprint_bad:Too many arguments for format string:UNDEFINED
+missing-format-attribute:93:4:93:27:pprint_bad:Missing format attribute 'missing' in format specifier '0.missing':UNDEFINED
+too-few-format-args:94:4:94:30:pprint_bad:Not enough arguments for format string:UNDEFINED
+too-many-format-args:95:4:95:29:pprint_bad:Too many arguments for format string:UNDEFINED
+too-few-format-args:96:4:96:25:pprint_bad:Not enough arguments for format string:UNDEFINED
+too-few-format-args:97:4:97:26:pprint_bad:Not enough arguments for format string:UNDEFINED
+too-many-format-args:98:4:98:32:pprint_bad:Too many arguments for format string:UNDEFINED
+logging-too-few-args:99:4:99:30:pprint_bad:Not enough arguments for logging format string:UNDEFINED
+logging-too-many-args:100:4:100:31:pprint_bad:Too many arguments for logging format string:UNDEFINED
+format-string-without-interpolation:101:4:101:22:pprint_bad:Using formatting for a string that does not have any interpolated variables:UNDEFINED
+format-string-without-interpolation:102:4:102:23:pprint_bad:Using formatting for a string that does not have any interpolated variables:UNDEFINED
+format-string-without-interpolation:103:4:103:23:pprint_bad:Using formatting for a string that does not have any interpolated variables:UNDEFINED
+format-string-without-interpolation:104:4:104:25:pprint_bad:Using formatting for a string that does not have any interpolated variables:UNDEFINED
+too-few-format-args:132:4:132:25:nested_issue294:Not enough arguments for format string:UNDEFINED
+too-many-format-args:133:4:133:33:nested_issue294:Too many arguments for format string:UNDEFINED
+missing-format-argument-key:134:4:134:26:nested_issue294:Missing keyword argument 'a' for format string:UNDEFINED
+missing-format-attribute:135:4:135:30:nested_issue294:Missing format attribute 'x' in format specifier 'a.x':UNDEFINED
+too-few-format-args:141:4:141:27:issue310:Not enough arguments for format string:UNDEFINED
+too-many-format-args:149:4:149:48:issue322:Too many arguments for format string:UNDEFINED
+too-few-format-args:150:4:150:29:issue322:Not enough arguments for format string:UNDEFINED
+too-few-format-args:175:4:175:15:issue351:Not enough arguments for format string:UNDEFINED
+too-many-format-args:177:4:177:31:issue351:Too many arguments for format string:UNDEFINED
+bad-format-string:213:11:213:60:avoid_empty_attribute:Invalid format string:UNDEFINED

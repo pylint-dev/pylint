@@ -1,24 +1,25 @@
-"""Puts the check_parallel system under test"""
-# Copyright (c) 2020-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2020 Frank Harrison <frank@doublethefish.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Julien Palard <julien@palard.fr>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
+"""Puts the check_parallel system under test."""
 
 # pylint: disable=protected-access,missing-function-docstring,no-self-use
 
-import os
-from typing import List
+from __future__ import annotations
 
+import argparse
+import multiprocessing
+import os
+
+import dill
 import pytest
 from astroid import nodes
 
 import pylint.interfaces
 import pylint.lint.parallel
 from pylint.checkers.base_checker import BaseChecker
+from pylint.checkers.mapreduce_checker import MapReduceMixin
 from pylint.lint import PyLinter
 from pylint.lint.parallel import _worker_check_single_file as worker_check_single_file
 from pylint.lint.parallel import _worker_initialize as worker_initialize
@@ -29,7 +30,7 @@ from pylint.utils import LinterStats, ModuleStats
 
 
 def _gen_file_data(idx: int = 0) -> FileItem:
-    """Generates a file to use as a stream"""
+    """Generates a file to use as a stream."""
     filepath = os.path.abspath(
         os.path.join(os.path.dirname(__file__), "input", "similar1")
     )
@@ -41,12 +42,12 @@ def _gen_file_data(idx: int = 0) -> FileItem:
     return file_data
 
 
-def _gen_file_datas(count: int = 1) -> List[FileItem]:
+def _gen_file_datas(count: int = 1) -> list[FileItem]:
     return [_gen_file_data(idx) for idx in range(count)]
 
 
 class SequentialTestChecker(BaseChecker):
-    """A checker that does not need to consolidate data across run invocations"""
+    """A checker that does not need to consolidate data across run invocations."""
 
     __implements__ = (pylint.interfaces.IRawChecker,)
 
@@ -62,17 +63,17 @@ class SequentialTestChecker(BaseChecker):
 
     def __init__(self, linter: PyLinter) -> None:
         super().__init__(linter)
-        self.data: List[str] = []
+        self.data: list[str] = []
         self.linter = linter
 
     def process_module(self, _node: nodes.Module) -> None:
-        """Called once per stream/file/astroid object"""
+        """Called once per stream/file/astroid object."""
         # record the number of invocations with the data object
         record = self.test_data + str(len(self.data))
         self.data.append(record)
 
 
-class ParallelTestChecker(BaseChecker):
+class ParallelTestChecker(BaseChecker, MapReduceMixin):
     """A checker that does need to consolidate data.
 
     To simulate the need to consolidate data, this checker only
@@ -80,7 +81,7 @@ class ParallelTestChecker(BaseChecker):
 
     On non-parallel builds: it works on all the files in a single run.
 
-    On parallel builds: lint.parallel calls ``open`` once per file.
+    On parallel builds: ``lint.parallel`` calls ``open`` once per file.
 
     So if files are treated by separate processes, no messages will be
     raised from the individual process, all messages will be raised
@@ -101,11 +102,11 @@ class ParallelTestChecker(BaseChecker):
 
     def __init__(self, linter: PyLinter) -> None:
         super().__init__(linter)
-        self.data: List[str] = []
+        self.data: list[str] = []
         self.linter = linter
 
     def open(self) -> None:
-        """init the checkers: reset statistics information"""
+        """Init the checkers: reset statistics information."""
         self.linter.stats.reset_node_count()
         self.data = []
 
@@ -116,7 +117,7 @@ class ParallelTestChecker(BaseChecker):
     def get_map_data(self):
         return self.data
 
-    def reduce_map_data(self, linter: PyLinter, data: List[List[str]]) -> None:
+    def reduce_map_data(self, linter: PyLinter, data: list[list[str]]) -> None:
         recombined = type(self)(linter)
         recombined.open()
         aggregated = []
@@ -127,42 +128,42 @@ class ParallelTestChecker(BaseChecker):
         recombined.close()
 
     def process_module(self, _node: nodes.Module) -> None:
-        """Called once per stream/file/astroid object"""
+        """Called once per stream/file/astroid object."""
         # record the number of invocations with the data object
         record = self.test_data + str(len(self.data))
         self.data.append(record)
 
 
 class ExtraSequentialTestChecker(SequentialTestChecker):
-    """A checker that does not need to consolidate data across run invocations"""
+    """A checker that does not need to consolidate data across run invocations."""
 
     name = "extra-sequential-checker"
     test_data = "extra-sequential"
 
 
 class ExtraParallelTestChecker(ParallelTestChecker):
-    """A checker that does need to consolidate data across run invocations"""
+    """A checker that does need to consolidate data across run invocations."""
 
     name = "extra-parallel-checker"
     test_data = "extra-parallel"
 
 
 class ThirdSequentialTestChecker(SequentialTestChecker):
-    """A checker that does not need to consolidate data across run invocations"""
+    """A checker that does not need to consolidate data across run invocations."""
 
     name = "third-sequential-checker"
     test_data = "third-sequential"
 
 
 class ThirdParallelTestChecker(ParallelTestChecker):
-    """A checker that does need to consolidate data across run invocations"""
+    """A checker that does need to consolidate data across run invocations."""
 
     name = "third-parallel-checker"
     test_data = "third-parallel"
 
 
 class TestCheckParallelFramework:
-    """Tests the check_parallel() function's framework"""
+    """Tests the check_parallel() function's framework."""
 
     def setup_class(self):
         self._prev_global_linter = pylint.lint.parallel._worker_linter
@@ -172,8 +173,22 @@ class TestCheckParallelFramework:
 
     def test_worker_initialize(self) -> None:
         linter = PyLinter(reporter=Reporter())
-        worker_initialize(linter=linter)
-        assert pylint.lint.parallel._worker_linter == linter
+        worker_initialize(linter=dill.dumps(linter))
+        assert isinstance(pylint.lint.parallel._worker_linter, type(linter))
+
+    def test_worker_initialize_pickling(self) -> None:
+        """Test that we can pickle objects that standard pickling in multiprocessing can't.
+
+        See:
+        https://stackoverflow.com/questions/8804830/python-multiprocessing-picklingerror-cant-pickle-type-function
+        https://github.com/PyCQA/pylint/pull/5584
+        """
+        linter = PyLinter(reporter=Reporter())
+        linter.attribute = argparse.ArgumentParser()  # type: ignore[attr-defined]
+        with multiprocessing.Pool(
+            2, initializer=worker_initialize, initargs=[dill.dumps(linter)]
+        ) as pool:
+            pool.imap_unordered(print, [1, 2])
 
     def test_worker_check_single_file_uninitialised(self) -> None:
         pylint.lint.parallel._worker_linter = None
@@ -184,7 +199,7 @@ class TestCheckParallelFramework:
 
     def test_worker_check_single_file_no_checkers(self) -> None:
         linter = PyLinter(reporter=Reporter())
-        worker_initialize(linter=linter)
+        worker_initialize(linter=dill.dumps(linter))
 
         (
             _,  # proc-id
@@ -221,9 +236,9 @@ class TestCheckParallelFramework:
         assert stats.warning == 0
 
     def test_worker_check_sequential_checker(self) -> None:
-        """Same as test_worker_check_single_file_no_checkers with SequentialTestChecker"""
+        """Same as test_worker_check_single_file_no_checkers with SequentialTestChecker."""
         linter = PyLinter(reporter=Reporter())
-        worker_initialize(linter=linter)
+        worker_initialize(linter=dill.dumps(linter))
 
         # Add the only checker we care about in this test
         linter.register_checker(SequentialTestChecker(linter))
@@ -266,19 +281,18 @@ class TestCheckParallelFramework:
 
 
 class TestCheckParallel:
-    """Tests the check_parallel() function"""
+    """Tests the check_parallel() function."""
 
     def test_sequential_checkers_work(self) -> None:
-        """Tests original basic types of checker works as expected in -jN
+        """Tests original basic types of checker works as expected in -jN.
 
         This means that a sequential checker should return the same data for a given
-        file-stream irrespective of whether its run in -j1 or -jN
+        file-stream irrespective of whether it's run in -j1 or -jN
         """
         linter = PyLinter(reporter=Reporter())
 
         # Add a sequential checker to ensure it records data against some streams
         linter.register_checker(SequentialTestChecker(linter))
-        linter.enable("R9999")
 
         # Create a dummy file, the actual contents of which will be ignored by the
         # register test checkers, but it will trigger at least a single-job to be run.
@@ -287,7 +301,10 @@ class TestCheckParallel:
         # Invoke the lint process in a multiprocess way, although we only specify one
         # job.
         check_parallel(
-            linter, jobs=1, files=iter(single_file_container), arguments=None
+            linter,
+            jobs=1,
+            files=iter(single_file_container),
+            arguments=["--enable", "R9999"],
         )
         assert len(linter.get_checkers()) == 2, (
             "We should only have the 'master' and 'sequential-checker' "
@@ -338,9 +355,10 @@ class TestCheckParallel:
         assert linter.stats.warning == 0
 
     def test_invoke_single_job(self) -> None:
-        """Tests basic checkers functionality using just a single workderdo
+        """Tests basic checkers functionality using just a single workderdo.
 
-        This is *not* the same -j1 and does not happen under normal operation"""
+        This is *not* the same -j1 and does not happen under normal operation
+        """
         linter = PyLinter(reporter=Reporter())
 
         linter.register_checker(SequentialTestChecker(linter))
@@ -391,26 +409,21 @@ class TestCheckParallel:
             (3, 1, 1),
             (3, 1, 2),
             (3, 1, 3),
-            (3, 5, 1),
-            (3, 5, 2),
-            (3, 5, 3),
             (10, 2, 1),
             (10, 2, 2),
             (10, 2, 3),
-            (2, 10, 1),
-            (2, 10, 2),
-            (2, 10, 3),
         ],
     )
     def test_compare_workers_to_single_proc(self, num_files, num_jobs, num_checkers):
-        """Compares the 3 key parameters for check_parallel() produces the same results
+        """Compares the 3 key parameters for check_parallel() produces the same results.
 
         The intent here is to ensure that the check_parallel() operates on each file,
         without ordering issues, irrespective of the number of workers used and the
         number of checkers applied.
 
         This test becomes more important if we want to change how we parametrise the
-        checkers, for example if we aim to batch the files across jobs."""
+        checkers, for example if we aim to batch the files across jobs.
+        """
 
         # define the stats we expect to get back from the runs, these should only vary
         # with the number of files.
@@ -441,7 +454,7 @@ class TestCheckParallel:
 
         file_infos = _gen_file_datas(num_files)
 
-        # Loop for single-proc and mult-proc so we can ensure the same linter-config
+        # Loop for single-proc and mult-proc, so we can ensure the same linter-config
         for do_single_proc in range(2):
             linter = PyLinter(reporter=Reporter())
 
@@ -490,19 +503,13 @@ class TestCheckParallel:
             (3, 1, 1),
             (3, 1, 2),
             (3, 1, 3),
-            (3, 5, 1),
-            (3, 5, 2),
-            (3, 5, 3),
             (10, 2, 1),
             (10, 2, 2),
             (10, 2, 3),
-            (2, 10, 1),
-            (2, 10, 2),
-            (2, 10, 3),
         ],
     )
     def test_map_reduce(self, num_files, num_jobs, num_checkers):
-        """Compares the 3 key parameters for check_parallel() produces the same results
+        """Compares the 3 key parameters for check_parallel() produces the same results.
 
         The intent here is to validate the reduce step: no stats should be lost.
 
@@ -513,7 +520,7 @@ class TestCheckParallel:
         # with the number of files.
         file_infos = _gen_file_datas(num_files)
 
-        # Loop for single-proc and mult-proc so we can ensure the same linter-config
+        # Loop for single-proc and mult-proc, so we can ensure the same linter-config
         for do_single_proc in range(2):
             linter = PyLinter(reporter=Reporter())
 

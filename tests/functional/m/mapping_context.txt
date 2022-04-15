@@ -1,2 +1,2 @@
-not-a-mapping:32:7::Non-mapping value CustomMapping is used in a mapping context
-not-a-mapping:37:7::Non-mapping value NotMapping() is used in a mapping context
+not-a-mapping:32:7:32:20::Non-mapping value CustomMapping is used in a mapping context:UNDEFINED
+not-a-mapping:37:7:37:19::Non-mapping value NotMapping() is used in a mapping context:UNDEFINED

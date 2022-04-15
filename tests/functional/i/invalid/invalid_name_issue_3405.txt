@@ -1,1 +1,0 @@
-invalid-name:11:4:Foo:"Class attribute name ""x"" doesn't conform to '^y$' pattern":HIGH

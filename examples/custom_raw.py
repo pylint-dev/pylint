@@ -1,11 +1,16 @@
+from typing import TYPE_CHECKING
+
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.interfaces import IRawChecker
 
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
+
 
 class MyRawChecker(BaseChecker):
-    """check for line continuations with '\' instead of using triple
+    """Check for line continuations with '\' instead of using triple
     quoted string or parenthesis
     """
 
@@ -25,7 +30,7 @@ class MyRawChecker(BaseChecker):
     options = ()
 
     def process_module(self, node: nodes.Module) -> None:
-        """process a module
+        """Process a module.
 
         the module's content is accessible via node.stream() function
         """
@@ -35,6 +40,9 @@ class MyRawChecker(BaseChecker):
                     self.add_message("backslash-line-continuation", line=lineno)
 
 
-def register(linter):
-    """required method to auto register this checker"""
+def register(linter: "PyLinter") -> None:
+    """This required method auto registers the checker during initialization.
+
+    :param linter: The linter to register the checker to.
+    """
     linter.register_checker(MyRawChecker(linter))

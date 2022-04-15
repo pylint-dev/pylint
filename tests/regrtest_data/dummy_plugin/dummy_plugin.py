@@ -10,6 +10,7 @@ class DummyPlugin1(BaseChecker):
             'type': 'string',
             'metavar': '<string>',
             'help': 'Dummy option 1',
+            'default': ''
         }),
     )
 
@@ -22,10 +23,11 @@ class DummyPlugin2(BaseChecker):
             'type': 'string',
             'metavar': '<string>',
             'help': 'Dummy option 2',
+            'default': ''
         }),
     )
 
 
-def register(linter: PyLinter) -> None:
+def register(linter: "PyLinter") -> None:
     linter.register_checker(DummyPlugin1(linter))
     linter.register_checker(DummyPlugin2(linter))

@@ -35,7 +35,7 @@ Other Changes
 
 * Fix false positive for ``builtin-not-iterating`` when ``zip`` or ``map`` receives iterable
 
-* Fix linter multiprocessing pool shutdown which triggered warnings when runned in parallels with other pytest plugins.
+* Fix linter multiprocessing pool shutdown which triggered warnings when ran in parallels with other pytest plugins.
 
 * Enums are now required to be named in UPPER_CASE by ``invalid-name``.
 

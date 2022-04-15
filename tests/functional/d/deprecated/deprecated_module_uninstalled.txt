@@ -1,2 +1,2 @@
-deprecated-module:4:0::Uses of a deprecated module 'uninstalled'
-deprecated-module:5:0::Uses of a deprecated module 'uninstalled'
+deprecated-module:4:0:4:42::Uses of a deprecated module 'uninstalled':UNDEFINED
+deprecated-module:5:0:5:18::Uses of a deprecated module 'uninstalled':UNDEFINED

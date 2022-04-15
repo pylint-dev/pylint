@@ -1,18 +1,17 @@
-import sys
-from typing import Any
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
+from typing import Any, NoReturn
 from unittest.mock import patch
 
-from _pytest.capture import CaptureFixture
+import pytest
 from astroid import AstroidBuildingError
-from py._path.local import LocalPath  # type: ignore
+from py._path.local import LocalPath  # type: ignore[import]
+from pytest import CaptureFixture
 
 from pylint.lint.pylinter import PyLinter
 from pylint.utils import FileState
-
-if sys.version_info >= (3, 6, 2):
-    from typing import NoReturn
-else:
-    from typing_extensions import NoReturn
 
 
 def raise_exception(*args: Any, **kwargs: Any) -> NoReturn:
@@ -23,7 +22,8 @@ def raise_exception(*args: Any, **kwargs: Any) -> NoReturn:
 def test_crash_in_file(
     linter: PyLinter, capsys: CaptureFixture, tmpdir: LocalPath
 ) -> None:
-    args = linter.load_command_line_configuration([__file__])
+    with pytest.warns(DeprecationWarning):
+        args = linter.load_command_line_configuration([__file__])
     linter.crash_file_path = str(tmpdir / "pylint-crash-%Y")
     linter.check(args)
     out, err = capsys.readouterr()

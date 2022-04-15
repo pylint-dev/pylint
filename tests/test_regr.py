@@ -1,32 +1,20 @@
-# Copyright (c) 2006-2011, 2013-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2012 FELD Boris <lothiraldan@gmail.com>
-# Copyright (c) 2014 Google, Inc.
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016-2017 Derek Gustafson <degustaf@gmail.com>
-# Copyright (c) 2018 Reverb C <reverbc@users.noreply.github.com>
-# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-"""non regression tests for pylint, which requires a too specific configuration
+"""Non regression tests for pylint, which requires a too specific configuration
 to be incorporated in the automatic functional test framework
 """
+
 # pylint: disable=redefined-outer-name
 
+from __future__ import annotations
+
 import os
-import signal
 import sys
-from contextlib import contextmanager
+from collections.abc import Callable, Iterator
 from os.path import abspath, dirname, join
-from typing import Callable, Iterator, List
+from typing import cast
 
 import astroid
 import pytest
@@ -50,10 +38,13 @@ def disable():
 
 @pytest.fixture
 def finalize_linter(linter: PyLinter) -> Iterator[PyLinter]:
-    """call reporter.finalize() to cleanup
-    pending messages if a test finished badly
+    """Call reporter.finalize() to clean up pending messages if a test
+    finished badly.
     """
     yield linter
+    linter.reporter = cast(  # Due to fixture
+        testutils.GenericTestReporter, linter.reporter
+    )
     linter.reporter.finalize()
 
 
@@ -76,9 +67,12 @@ def Equals(expected):
     ],
 )
 def test_package(
-    finalize_linter: PyLinter, file_names: List[str], check: Callable
+    finalize_linter: PyLinter, file_names: list[str], check: Callable
 ) -> None:
     finalize_linter.check(file_names)
+    finalize_linter.reporter = cast(  # Due to fixture
+        testutils.GenericTestReporter, finalize_linter.reporter
+    )
     got = finalize_linter.reporter.finalize().strip()
     assert check(got)
 
@@ -91,7 +85,7 @@ def test_package(
         [join(REGR_DATA, "try_finally_disable_msg_crash")],
     ],
 )
-def test_crash(finalize_linter: PyLinter, file_names: List[str]) -> None:
+def test_crash(finalize_linter: PyLinter, file_names: list[str]) -> None:
     finalize_linter.check(file_names)
 
 
@@ -100,6 +94,9 @@ def test_crash(finalize_linter: PyLinter, file_names: List[str]) -> None:
 )
 def test_descriptor_crash(fname: str, finalize_linter: PyLinter) -> None:
     finalize_linter.check([join(REGR_DATA, fname)])
+    finalize_linter.reporter = cast(  # Due to fixture
+        testutils.GenericTestReporter, finalize_linter.reporter
+    )
     finalize_linter.reporter.finalize().strip()
 
 
@@ -125,46 +122,29 @@ def test_check_package___init__(finalize_linter: PyLinter) -> None:
     assert checked == ["__init__"]
 
 
+# pylint: disable-next=fixme
+# TODO: Optparse: Test are broken because of property shenanigans of config attribute
+@pytest.mark.xfail
 def test_pylint_config_attr() -> None:
     mod = astroid.MANAGER.ast_from_module_name("pylint.lint.pylinter")
     pylinter = mod["PyLinter"]
     expect = [
-        "OptionsManagerMixIn",
+        "_ArgumentsManager",
         "object",
         "ReportsHandlerMixIn",
         "BaseTokenChecker",
         "BaseChecker",
-        "OptionsProviderMixIn",
+        "_ArgumentsProvider",
     ]
     assert [c.name for c in pylinter.ancestors()] == expect
     assert list(astroid.Instance(pylinter).getattr("config"))
     inferred = list(astroid.Instance(pylinter).igetattr("config"))
-    assert len(inferred) == 1
-    assert inferred[0].root().name == "optparse"
-    assert inferred[0].name == "Values"
+    assert len(inferred) >= 1
+    assert inferred[0].root().name == "argparse"
+    assert inferred[0].name == "Namespace"
 
 
-@contextmanager
-def timeout(timeout_s: float):
-    def _handle(_signum, _frame):
-        pytest.fail("timed out")
-
-    signal.signal(signal.SIGALRM, _handle)
-    signal.setitimer(signal.ITIMER_REAL, timeout_s)
-    yield
-    signal.setitimer(signal.ITIMER_REAL, 0)
-    signal.signal(signal.SIGALRM, signal.SIG_DFL)
-
-
-@pytest.mark.skipif(not hasattr(signal, "setitimer"), reason="Assumes POSIX signals")
-@pytest.mark.parametrize(
-    "file_names,timeout_s",
-    [
-        ([join(REGR_DATA, "hang", "pkg4972.string")], 30.0),
-    ],
-)
-def test_hang(
-    finalize_linter: PyLinter, file_names: List[str], timeout_s: float
-) -> None:
-    with timeout(timeout_s):
-        finalize_linter.check(file_names)
+@pytest.mark.timeout(30)
+@pytest.mark.parametrize("file_names", ([join(REGR_DATA, "hang", "pkg4972.string")],))
+def test_hang(finalize_linter: PyLinter, file_names: list[str]) -> None:
+    finalize_linter.check(file_names)

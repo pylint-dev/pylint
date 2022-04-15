@@ -1,3 +1,0 @@
-assignment-from-no-return:18:0::Assigning result of a function call, where the function has no return
-assignment-from-none:26:0::Assigning result of a function call, where the function returns None
-assignment-from-none:33:0::Assigning result of a function call, where the function returns None

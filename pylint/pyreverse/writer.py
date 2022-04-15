@@ -1,23 +1,12 @@
-# Copyright (c) 2008-2010, 2013-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2015 Mike Frysinger <vapier@gentoo.org>
-# Copyright (c) 2015 Florian Bruhin <me@the-compiler.org>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2018, 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
-# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019 Kylian <development@goudcode.nl>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Mark Byrne <31762852+mbyrnepr2@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-"""Utilities for creating VCG and Dot diagrams"""
+"""Utilities for creating VCG and Dot diagrams."""
 
+from __future__ import annotations
+
+import argparse
 import itertools
 import os
 
@@ -30,18 +19,18 @@ from pylint.pyreverse.diagrams import (
     PackageDiagram,
     PackageEntity,
 )
-from pylint.pyreverse.printer import EdgeType, NodeProperties, NodeType
+from pylint.pyreverse.printer import EdgeType, NodeProperties, NodeType, Printer
 from pylint.pyreverse.printer_factory import get_printer_for_filetype
 from pylint.pyreverse.utils import is_exception
 
 
 class DiagramWriter:
-    """base class for writing project diagrams"""
+    """Base class for writing project diagrams."""
 
-    def __init__(self, config):
+    def __init__(self, config: argparse.Namespace) -> None:
         self.config = config
         self.printer_class = get_printer_for_filetype(self.config.output_format)
-        self.printer = None  # defined in set_printer
+        self.printer: Printer  # defined in set_printer
         self.file_name = ""  # defined in set_printer
         self.depth = self.config.max_color_depth
         self.available_colors = itertools.cycle(
@@ -65,10 +54,10 @@ class DiagramWriter:
                 "mediumspringgreen",
             ]
         )
-        self.used_colors = {}
+        self.used_colors: dict[str, str] = {}
 
     def write(self, diadefs):
-        """write files for <project> according to <diadefs>"""
+        """Write files for <project> according to <diadefs>."""
         for diagram in diadefs:
             basename = diagram.title.strip().replace(" ", "_")
             file_name = f"{basename}.{self.config.output_format}"
@@ -82,7 +71,7 @@ class DiagramWriter:
             self.save()
 
     def write_packages(self, diagram: PackageDiagram) -> None:
-        """write a package diagram"""
+        """Write a package diagram."""
         # sorted to get predictable (hence testable) results
         for module in sorted(diagram.modules(), key=lambda x: x.title):
             module.fig_id = module.node.qname()
@@ -100,7 +89,7 @@ class DiagramWriter:
             )
 
     def write_classes(self, diagram: ClassDiagram) -> None:
-        """write a class diagram"""
+        """Write a class diagram."""
         # sorted to get predictable (hence testable) results
         for obj in sorted(diagram.objects, key=lambda x: x.title):
             obj.fig_id = obj.node.qname()
@@ -132,19 +121,19 @@ class DiagramWriter:
             )
 
     def set_printer(self, file_name: str, basename: str) -> None:
-        """set printer"""
+        """Set printer."""
         self.printer = self.printer_class(basename)
         self.file_name = file_name
 
     def get_package_properties(self, obj: PackageEntity) -> NodeProperties:
-        """get label and shape for packages."""
+        """Get label and shape for packages."""
         return NodeProperties(
             label=obj.title,
             color=self.get_shape_color(obj) if self.config.colorized else "black",
         )
 
     def get_class_properties(self, obj: ClassEntity) -> NodeProperties:
-        """get label and shape for classes."""
+        """Get label and shape for classes."""
         properties = NodeProperties(
             label=obj.title,
             attrs=obj.attrs if not self.config.only_classnames else None,
@@ -155,7 +144,7 @@ class DiagramWriter:
         return properties
 
     def get_shape_color(self, obj: DiagramEntity) -> str:
-        """get shape color"""
+        """Get shape color."""
         qualified_name = obj.node.qname()
         if modutils.is_standard_module(qualified_name.split(".", maxsplit=1)[0]):
             return "grey"
@@ -171,5 +160,5 @@ class DiagramWriter:
         return self.used_colors[base_name]
 
     def save(self) -> None:
-        """write to disk"""
+        """Write to disk."""
         self.printer.generate(self.file_name)

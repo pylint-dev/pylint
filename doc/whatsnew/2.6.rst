@@ -29,6 +29,4 @@ Other Changes
 
 * Fix superfluous-parens false-positive for the walrus operator
 
-* Add support for both isort 4 and isort 5. If you have pinned isort 4 in your projet requirements, nothing changes. If you use isort 5, though, note that the ``known-standard-library`` option is not interpreted the same in isort 4 and isort 5 (see `the migration guide in isort documentation`_ for further details). For compatibility's sake for most pylint users, the ``known-standard-library`` option in pylint now maps to ``extra-standard-library`` in isort 5. If you really want what ``known-standard-library`` now means in isort 5, you must disable the ``wrong-import-order`` check in pylint and run isort manually with a proper isort configuration file.
-
-.. _the migration guide in isort documentation: https://timothycrosley.github.io/isort/docs/upgrade_guides/5.0.0/#known_standard_library
+* Add support for both isort 4 and isort 5. If you have pinned isort 4 in your projet requirements, nothing changes. If you use isort 5, though, note that the ``known-standard-library`` option is not interpreted the same in isort 4 and isort 5 (see `the migration guide in isort documentation` (no longer available) for further details). For compatibility's sake for most pylint users, the ``known-standard-library`` option in pylint now maps to ``extra-standard-library`` in isort 5. If you really want what ``known-standard-library`` now means in isort 5, you must disable the ``wrong-import-order`` check in pylint and run isort manually with a proper isort configuration file.

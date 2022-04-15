@@ -1,35 +1,14 @@
-# Copyright (c) 2006, 2009-2013 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2012-2014 Google, Inc.
-# Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2014 Brett Cannon <brett@python.org>
-# Copyright (c) 2014 Alexandru Coman <fcoman@bitdefender.com>
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016 Łukasz Rogalski <rogalski.91@gmail.com>
-# Copyright (c) 2016 glegoux <gilles.legoux@gmail.com>
-# Copyright (c) 2017-2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2017 Mikhail Fesenko <proggga@gmail.com>
-# Copyright (c) 2018 Rogalski, Lukasz <lukasz.rogalski@intel.com>
-# Copyright (c) 2018 Lucas Cimon <lucas.cimon@gmail.com>
-# Copyright (c) 2018 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2020 wtracy <afishionado@gmail.com>
-# Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2020 Benny <benny.mueller91@gmail.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Nick Drozd <nicholasdrozd@gmail.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 Konstantina Saketou <56515303+ksaketou@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+"""Check source code is ascii only or has an encoding declaration (PEP 263)."""
 
-"""Check source code is ascii only or has an encoding declaration (PEP 263)"""
+from __future__ import annotations
 
 import re
 import tokenize
-from typing import List, Optional
+from typing import TYPE_CHECKING
 
 from astroid import nodes
 
@@ -37,6 +16,9 @@ from pylint.checkers import BaseChecker
 from pylint.interfaces import IRawChecker, ITokenChecker
 from pylint.typing import ManagedMessage
 from pylint.utils.pragma_parser import OPTION_PO, PragmaParserError, parse_pragma
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 
 class ByIdManagedMessagesChecker(BaseChecker):
@@ -57,7 +39,7 @@ class ByIdManagedMessagesChecker(BaseChecker):
     def _clear_by_id_managed_msgs(self) -> None:
         self.linter._by_id_managed_msgs.clear()
 
-    def _get_by_id_managed_msgs(self) -> List[ManagedMessage]:
+    def _get_by_id_managed_msgs(self) -> list[ManagedMessage]:
         return self.linter._by_id_managed_msgs
 
     def process_module(self, node: nodes.Module) -> None:
@@ -73,7 +55,9 @@ class ByIdManagedMessagesChecker(BaseChecker):
 
 class EncodingChecker(BaseChecker):
 
-    """checks for:
+    """BaseChecker for encoding issues.
+
+    Checks for:
     * warning notes in the code like FIXME, XXX
     * encoding issues.
     """
@@ -109,6 +93,7 @@ class EncodingChecker(BaseChecker):
                 "type": "string",
                 "metavar": "<regexp>",
                 "help": "Regular expression of note tags to take in consideration.",
+                "default": "",
             },
         ),
     )
@@ -116,17 +101,17 @@ class EncodingChecker(BaseChecker):
     def open(self):
         super().open()
 
-        notes = "|".join(re.escape(note) for note in self.config.notes)
-        if self.config.notes_rgx:
-            regex_string = fr"#\s*({notes}|{self.config.notes_rgx})\b"
+        notes = "|".join(re.escape(note) for note in self.linter.config.notes)
+        if self.linter.config.notes_rgx:
+            regex_string = rf"#\s*({notes}|{self.linter.config.notes_rgx})(?=(:|\s|\Z))"
         else:
-            regex_string = fr"#\s*({notes})\b"
+            regex_string = rf"#\s*({notes})(?=(:|\s|\Z))"
 
         self._fixme_pattern = re.compile(regex_string, re.I)
 
     def _check_encoding(
         self, lineno: int, line: bytes, file_encoding: str
-    ) -> Optional[str]:
+    ) -> str | None:
         try:
             return line.decode(file_encoding)
         except UnicodeDecodeError:
@@ -142,7 +127,7 @@ class EncodingChecker(BaseChecker):
         return None
 
     def process_module(self, node: nodes.Module) -> None:
-        """inspect the source file to find encoding problem"""
+        """Inspect the source file to find encoding problem."""
         encoding = node.file_encoding if node.file_encoding else "ascii"
 
         with node.stream() as stream:
@@ -150,8 +135,8 @@ class EncodingChecker(BaseChecker):
                 self._check_encoding(lineno + 1, line, encoding)
 
     def process_tokens(self, tokens):
-        """inspect the source to find fixme problems"""
-        if not self.config.notes:
+        """Inspect the source to find fixme problems."""
+        if not self.linter.config.notes:
             return
         comments = (
             token_info for token_info in tokens if token_info.type == tokenize.COMMENT
@@ -174,7 +159,7 @@ class EncodingChecker(BaseChecker):
                     except PragmaParserError:
                         # Printing useful information dealing with this error is done in the lint package
                         pass
-                    if set(values) & set(self.config.notes):
+                    if set(values) & set(self.linter.config.notes):
                         continue
                 except ValueError:
                     self.add_message(
@@ -195,7 +180,6 @@ class EncodingChecker(BaseChecker):
                 )
 
 
-def register(linter):
-    """required method to auto register this checker"""
+def register(linter: PyLinter) -> None:
     linter.register_checker(EncodingChecker(linter))
     linter.register_checker(ByIdManagedMessagesChecker(linter))

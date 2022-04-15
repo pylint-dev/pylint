@@ -1,0 +1,10 @@
+no-member:5:0:5:14::Instance of 'bytes' has no 'format' member:INFERENCE
+bad-string-format-type:25:0:25:10::Argument 'builtins.str' does not match format type 'd':UNDEFINED
+bad-string-format-type:26:0:26:24::Argument 'builtins.str' does not match format type 'd':UNDEFINED
+bad-string-format-type:27:0:27:10::Argument 'builtins.float' does not match format type 'x':UNDEFINED
+bad-string-format-type:28:0:28:24::Argument 'builtins.float' does not match format type 'x':UNDEFINED
+bad-string-format-type:29:0:29:9::Argument 'builtins.list' does not match format type 'd':UNDEFINED
+bad-string-format-type:30:0:30:23::Argument 'builtins.list' does not match format type 'd':UNDEFINED
+bad-string-format-type:33:0:33:11::Argument 'builtins.str' does not match format type 'd':UNDEFINED
+bad-string-format-type:34:0:34:22::Argument 'builtins.str' does not match format type 'd':UNDEFINED
+bad-string-format-type:38:0:38:29::Argument 'builtins.str' does not match format type 'd':UNDEFINED

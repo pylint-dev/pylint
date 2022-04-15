@@ -1,2 +1,0 @@
-redefined-builtin:6:4:function:Redefining built-in 'type'
-redefined-builtin:10:0::Redefining built-in 'map'

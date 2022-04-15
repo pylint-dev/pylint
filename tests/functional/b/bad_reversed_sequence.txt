@@ -1,6 +1,6 @@
-bad-reversed-sequence:40:10:test:The first reversed() argument is not a sequence
-bad-reversed-sequence:43:10:test:The first reversed() argument is not a sequence
-bad-reversed-sequence:44:10:test:The first reversed() argument is not a sequence
-bad-reversed-sequence:47:10:test:The first reversed() argument is not a sequence
-bad-reversed-sequence:48:10:test:The first reversed() argument is not a sequence
-bad-reversed-sequence:50:10:test:The first reversed() argument is not a sequence
+bad-reversed-sequence:40:10:40:24:test:The first reversed() argument is not a sequence:UNDEFINED
+bad-reversed-sequence:43:10:43:25:test:The first reversed() argument is not a sequence:UNDEFINED
+bad-reversed-sequence:44:10:44:35:test:The first reversed() argument is not a sequence:UNDEFINED
+bad-reversed-sequence:47:10:47:33:test:The first reversed() argument is not a sequence:UNDEFINED
+bad-reversed-sequence:48:10:48:39:test:The first reversed() argument is not a sequence:UNDEFINED
+bad-reversed-sequence:50:10:50:32:test:The first reversed() argument is not a sequence:UNDEFINED

@@ -1,0 +1,6 @@
+superfluous-parens:6:0:None:None::Unnecessary parens after 'if' keyword:UNDEFINED
+superfluous-parens:8:0:None:None::Unnecessary parens after 'not' keyword:UNDEFINED
+superfluous-parens:12:0:None:None::Unnecessary parens after 'for' keyword:UNDEFINED
+superfluous-parens:14:0:None:None::Unnecessary parens after 'if' keyword:UNDEFINED
+superfluous-parens:19:0:None:None::Unnecessary parens after 'del' keyword:UNDEFINED
+superfluous-parens:31:0:None:None::Unnecessary parens after 'assert' keyword:UNDEFINED

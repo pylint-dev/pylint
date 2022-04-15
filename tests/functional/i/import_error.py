@@ -30,7 +30,7 @@ except ImportError:
     pass
 
 
-from functional.s.syntax_error import toto  # [no-name-in-module,syntax-error]
+from functional.s.syntax.syntax_error import toto  # [no-name-in-module,syntax-error]
 
 
 # Don't emit `import-error` or `no-name-in-module`
@@ -62,3 +62,20 @@ if tp.TYPE_CHECKING:
 if TYPE_CHECKING:
     import stub_import
     from stub_import import stub_class
+
+
+# Test ignore-modules option
+from external_module import anything
+
+from external_module.another_module import anything
+
+import external_module
+
+from fake_module.submodule import anything
+
+from fake_module.submodule.deeper import anything
+
+import foo, bar # [multiple-imports]
+
+import foo
+import bar

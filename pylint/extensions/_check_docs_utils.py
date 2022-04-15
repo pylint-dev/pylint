@@ -1,29 +1,12 @@
-# Copyright (c) 2016-2019, 2021 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2016-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2016 Yuri Bochkarev <baltazar.bz@gmail.com>
-# Copyright (c) 2016 Glenn Matthews <glenn@e-dad.net>
-# Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
-# Copyright (c) 2017, 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2017 Mitar <mitar.github@tnode.com>
-# Copyright (c) 2018, 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2018 Jim Robertson <jrobertson98atx@gmail.com>
-# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
-# Copyright (c) 2018 Mitchell T.H. Young <mitchelly@gmail.com>
-# Copyright (c) 2018 Adrian Chirieac <chirieacam@gmail.com>
-# Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2019 Danny Hermes <daniel.j.hermes@gmail.com>
-# Copyright (c) 2019 Zeb Nicholls <zebedee.nicholls@climate-energy-college.org>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Utility methods for docstring checking."""
 
+from __future__ import annotations
+
 import re
-from typing import List, Set, Tuple
 
 import astroid
 from astroid import nodes
@@ -32,7 +15,7 @@ from pylint.checkers import utils
 
 
 def space_indentation(s):
-    """The number of leading spaces in a string
+    """The number of leading spaces in a string.
 
     :param str s: input string
 
@@ -113,14 +96,13 @@ def _get_raise_target(node):
     return None
 
 
-def _split_multiple_exc_types(target: str) -> List[str]:
+def _split_multiple_exc_types(target: str) -> list[str]:
     delimiters = r"(\s*,(?:\s*or\s)?\s*|\s+or\s+)"
     return re.split(delimiters, target)
 
 
-def possible_exc_types(node):
-    """
-    Gets all of the possible raised exception types for the given raise node.
+def possible_exc_types(node: nodes.NodeNG) -> set[nodes.ClassDef]:
+    """Gets all the possible raised exception types for the given raise node.
 
     .. note::
 
@@ -128,49 +110,57 @@ def possible_exc_types(node):
 
 
     :param node: The raise node to find exception types for.
-    :type node: nodes.NodeNG
 
     :returns: A list of exception types possibly raised by :param:`node`.
-    :rtype: set(str)
     """
-    excs = []
+    exceptions = []
     if isinstance(node.exc, nodes.Name):
         inferred = utils.safe_infer(node.exc)
         if inferred:
-            excs = [inferred.name]
+            exceptions = [inferred]
     elif node.exc is None:
         handler = node.parent
         while handler and not isinstance(handler, nodes.ExceptHandler):
             handler = handler.parent
 
         if handler and handler.type:
-            inferred_excs = astroid.unpack_infer(handler.type)
-            excs = (exc.name for exc in inferred_excs if exc is not astroid.Uninferable)
+            try:
+                for exception in astroid.unpack_infer(handler.type):
+                    if exception is not astroid.Uninferable:
+                        exceptions.append(exception)
+            except astroid.InferenceError:
+                pass
     else:
         target = _get_raise_target(node)
         if isinstance(target, nodes.ClassDef):
-            excs = [target.name]
+            exceptions = [target]
         elif isinstance(target, nodes.FunctionDef):
             for ret in target.nodes_of_class(nodes.Return):
-                if ret.frame() != target:
+                if ret.frame(future=True) != target:
                     # return from inner function - ignore it
                     continue
 
                 val = utils.safe_infer(ret.value)
-                if (
-                    val
-                    and isinstance(val, (astroid.Instance, nodes.ClassDef))
-                    and utils.inherit_from_std_ex(val)
-                ):
-                    excs.append(val.name)
+                if val and utils.inherit_from_std_ex(val):
+                    if isinstance(val, nodes.ClassDef):
+                        exceptions.append(val)
+                    elif isinstance(val, astroid.Instance):
+                        exceptions.append(val.getattr("__class__")[0])
 
     try:
-        return {exc for exc in excs if not utils.node_ignores_exception(node, exc)}
+        return {
+            exc
+            for exc in exceptions
+            if not utils.node_ignores_exception(node, exc.name)
+        }
     except astroid.InferenceError:
         return set()
 
 
-def docstringify(docstring, default_type="default"):
+def docstringify(
+    docstring: nodes.Const | None, default_type: str = "default"
+) -> Docstring:
+    best_match = (0, DOCSTRING_TYPES.get(default_type, Docstring)(docstring))
     for docstring_type in (
         SphinxDocstring,
         EpytextDocstring,
@@ -178,11 +168,11 @@ def docstringify(docstring, default_type="default"):
         NumpyDocstring,
     ):
         instance = docstring_type(docstring)
-        if instance.is_valid():
-            return instance
+        matching_sections = instance.matching_sections()
+        if matching_sections > best_match[0]:
+            best_match = (matching_sections, instance)
 
-    docstring_type = DOCSTRING_TYPES.get(default_type, Docstring)
-    return docstring_type(docstring)
+    return best_match[1]
 
 
 class Docstring:
@@ -201,15 +191,16 @@ class Docstring:
 
     # These methods are designed to be overridden
     # pylint: disable=no-self-use
-    def __init__(self, doc):
-        doc = doc or ""
-        self.doc = doc.expandtabs()
+    def __init__(self, doc: nodes.Const | None) -> None:
+        docstring = doc.value if doc else ""
+        self.doc = docstring.expandtabs()
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__}:'''{self.doc}'''>"
 
-    def is_valid(self):
-        return False
+    def matching_sections(self) -> int:
+        """Returns the number of matching docstring sections."""
+        return 0
 
     def exceptions(self):
         return set()
@@ -248,7 +239,7 @@ class SphinxDocstring(Docstring):
         \w(?:\w|\.[^\.])*    # Valid python name
         """
 
-    re_simple_container_type = fr"""
+    re_simple_container_type = rf"""
         {re_type}                     # a container type
         [\(\[] [^\n\s]+ [\)\]]        # with the contents of the container
     """
@@ -260,12 +251,12 @@ class SphinxDocstring(Docstring):
         type=re_type, container_type=re_simple_container_type
     )
 
-    re_xref = fr"""
+    re_xref = rf"""
         (?::\w+:)?                    # optional tag
         `{re_type}`                   # what to reference
         """
 
-    re_param_raw = fr"""
+    re_param_raw = rf"""
         :                       # initial colon
         (?:                     # Sphinx keywords
         param|parameter|
@@ -279,13 +270,13 @@ class SphinxDocstring(Docstring):
         \s+
         )?
 
-        (\*{{0,2}}\w+)          # Parameter name with potential asterisks
-        \s*                     # whitespace
-        :                       # final colon
+        ((\\\*{{0,2}}\w+)|(\w+))  # Parameter name with potential asterisks
+        \s*                       # whitespace
+        :                         # final colon
         """
     re_param_in_docstring = re.compile(re_param_raw, re.X | re.S)
 
-    re_type_raw = fr"""
+    re_type_raw = rf"""
         :type                           # Sphinx keyword
         \s+                             # whitespace
         ({re_multiple_simple_type})     # Parameter name
@@ -294,14 +285,14 @@ class SphinxDocstring(Docstring):
         """
     re_type_in_docstring = re.compile(re_type_raw, re.X | re.S)
 
-    re_property_type_raw = fr"""
+    re_property_type_raw = rf"""
         :type:                      # Sphinx keyword
         \s+                         # whitespace
         {re_multiple_simple_type}   # type declaration
         """
     re_property_type_in_docstring = re.compile(re_property_type_raw, re.X | re.S)
 
-    re_raise_raw = fr"""
+    re_raise_raw = rf"""
         :                               # initial colon
         (?:                             # Sphinx keyword
         raises?|
@@ -320,13 +311,17 @@ class SphinxDocstring(Docstring):
 
     supports_yields = False
 
-    def is_valid(self):
-        return bool(
-            self.re_param_in_docstring.search(self.doc)
-            or self.re_raise_in_docstring.search(self.doc)
-            or self.re_rtype_in_docstring.search(self.doc)
-            or self.re_returns_in_docstring.search(self.doc)
-            or self.re_property_type_in_docstring.search(self.doc)
+    def matching_sections(self) -> int:
+        """Returns the number of matching docstring sections."""
+        return sum(
+            bool(i)
+            for i in (
+                self.re_param_in_docstring.search(self.doc),
+                self.re_raise_in_docstring.search(self.doc),
+                self.re_rtype_in_docstring.search(self.doc),
+                self.re_returns_in_docstring.search(self.doc),
+                self.re_property_type_in_docstring.search(self.doc),
+            )
         )
 
     def exceptions(self):
@@ -376,6 +371,8 @@ class SphinxDocstring(Docstring):
 
         for match in re.finditer(self.re_param_in_docstring, self.doc):
             name = match.group(2)
+            # Remove escape characters necessary for asterisks
+            name = name.replace("\\", "")
             params_with_doc.add(name)
             param_type = match.group(1)
             if param_type is not None:
@@ -386,8 +383,9 @@ class SphinxDocstring(Docstring):
 
 
 class EpytextDocstring(SphinxDocstring):
-    """
-    Epytext is similar to Sphinx. See the docs:
+    """Epytext is similar to Sphinx.
+
+    See the docs:
         http://epydoc.sourceforge.net/epytext.html
         http://epydoc.sourceforge.net/fields.html#fields
 
@@ -443,7 +441,7 @@ class GoogleDocstring(Docstring):
 
     re_xref = SphinxDocstring.re_xref
 
-    re_container_type = fr"""
+    re_container_type = rf"""
         (?:{re_type}|{re_xref})       # a container type
         [\(\[] [^\n]+ [\)\]]          # with the contents of the container
     """
@@ -471,8 +469,8 @@ class GoogleDocstring(Docstring):
     )
 
     re_param_line = re.compile(
-        fr"""
-        \s*  (\*{{0,2}}\w+)             # identifier potentially with asterisks
+        rf"""
+        \s*  ((?:\\?\*{{0,2}})?\w+)     # identifier potentially with asterisks
         \s*  ( [(]
             {re_multiple_type}
             (?:,\s+optional)?
@@ -487,7 +485,7 @@ class GoogleDocstring(Docstring):
     )
 
     re_raise_line = re.compile(
-        fr"""
+        rf"""
         \s*  ({re_multiple_type}) \s* :  # identifier
         \s*  (.*)                        # beginning of optional description
     """,
@@ -499,7 +497,7 @@ class GoogleDocstring(Docstring):
     )
 
     re_returns_line = re.compile(
-        fr"""
+        rf"""
         \s* ({re_multiple_type}:)?        # identifier
         \s* (.*)                          # beginning of description
     """,
@@ -507,8 +505,8 @@ class GoogleDocstring(Docstring):
     )
 
     re_property_returns_line = re.compile(
-        fr"""
-        ^{re_multiple_type}:           # indentifier
+        rf"""
+        ^{re_multiple_type}:           # identifier
         \s* (.*)                       # Summary line / description
     """,
         re.X | re.S | re.M,
@@ -522,13 +520,17 @@ class GoogleDocstring(Docstring):
 
     supports_yields = True
 
-    def is_valid(self):
-        return bool(
-            self.re_param_section.search(self.doc)
-            or self.re_raise_section.search(self.doc)
-            or self.re_returns_section.search(self.doc)
-            or self.re_yields_section.search(self.doc)
-            or self.re_property_returns_line.search(self._first_line())
+    def matching_sections(self) -> int:
+        """Returns the number of matching docstring sections."""
+        return sum(
+            bool(i)
+            for i in (
+                self.re_param_section.search(self.doc),
+                self.re_raise_section.search(self.doc),
+                self.re_returns_section.search(self.doc),
+                self.re_yields_section.search(self.doc),
+                self.re_property_returns_line.search(self._first_line()),
+            )
         )
 
     def has_params(self):
@@ -645,16 +647,12 @@ class GoogleDocstring(Docstring):
             if not match:
                 continue
 
-            # check if parameter has description only
-            re_only_desc = re.search(":\n", entry)
-            if re_only_desc:
-                param_name = match.group(1)
-                param_desc = match.group(2)
-                param_type = None
-            else:
-                param_name = match.group(1)
-                param_type = match.group(2)
-                param_desc = match.group(3)
+            param_name = match.group(1)
+            # Remove escape characters necessary for asterisks
+            param_name = param_name.replace("\\", "")
+
+            param_type = match.group(2)
+            param_desc = match.group(3)
 
             if param_type:
                 params_with_type.add(param_name)
@@ -730,7 +728,7 @@ class NumpyDocstring(GoogleDocstring):
     )
 
     re_param_line = re.compile(
-        fr"""
+        rf"""
         \s*  (\*{{0,2}}\w+)(\s?(:|\n))                                      # identifier with potential asterisks
         \s*  (?:({GoogleDocstring.re_multiple_type})(?:,\s+optional)?\n)?   # optional type declaration
         \s* (.*)                                                            # optional description
@@ -743,7 +741,7 @@ class NumpyDocstring(GoogleDocstring):
     )
 
     re_raise_line = re.compile(
-        fr"""
+        rf"""
         \s* ({GoogleDocstring.re_type})$   # type declaration
         \s* (.*)                           # optional description
     """,
@@ -755,7 +753,7 @@ class NumpyDocstring(GoogleDocstring):
     )
 
     re_returns_line = re.compile(
-        fr"""
+        rf"""
         \s* (?:\w+\s+:\s+)? # optional name
         ({GoogleDocstring.re_multiple_type})$   # type declaration
         \s* (.*)                                # optional description
@@ -771,8 +769,8 @@ class NumpyDocstring(GoogleDocstring):
 
     supports_yields = True
 
-    def match_param_docs(self) -> Tuple[Set[str], Set[str]]:
-        """Matches parameter documentation section to parameter documentation rules"""
+    def match_param_docs(self) -> tuple[set[str], set[str]]:
+        """Matches parameter documentation section to parameter documentation rules."""
         params_with_doc = set()
         params_with_type = set()
 

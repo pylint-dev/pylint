@@ -7,3 +7,5 @@ Development
    :titlesonly:
 
    contribute
+   testing
+   profiling

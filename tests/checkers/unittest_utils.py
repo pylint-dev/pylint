@@ -1,25 +1,10 @@
-# Copyright (c) 2010 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2013-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2013-2014 Google, Inc.
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
-# Copyright (c) 2018 Alan Chan <achan961117@gmail.com>
-# Copyright (c) 2018 Caio Carrara <ccarrara@redhat.com>
-# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2019 Nathan Marrow <nmarrow@google.com>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Tests for the pylint.checkers.utils module."""
 
-from typing import Dict, Union
+from __future__ import annotations
 
 import astroid
 import pytest
@@ -47,9 +32,7 @@ def testIsBuiltin(name, expected):
     "fn,kw",
     [("foo(3)", {"keyword": "bar"}), ("foo(one=a, two=b, three=c)", {"position": 1})],
 )
-def testGetArgumentFromCallError(
-    fn: str, kw: Union[Dict[str, int], Dict[str, str]]
-) -> None:
+def testGetArgumentFromCallError(fn: str, kw: dict[str, int] | dict[str, str]) -> None:
     with pytest.raises(utils.NoSuchArgumentError):
         node = astroid.extract_node(fn)
         utils.get_argument_from_call(node, **kw)
@@ -58,9 +41,7 @@ def testGetArgumentFromCallError(
 @pytest.mark.parametrize(
     "fn,kw", [("foo(bar=3)", {"keyword": "bar"}), ("foo(a, b, c)", {"position": 1})]
 )
-def testGetArgumentFromCallExists(
-    fn: str, kw: Union[Dict[str, int], Dict[str, str]]
-) -> None:
+def testGetArgumentFromCallExists(fn: str, kw: dict[str, int] | dict[str, str]) -> None:
     node = astroid.extract_node(fn)
     assert utils.get_argument_from_call(node, **kw) is not None
 
@@ -485,3 +466,10 @@ def test_is_empty_literal() -> None:
     assert utils.is_empty_str_literal(string_node.value)
     not_empty_string_node = astroid.extract_node("a = 'hello'")
     assert not utils.is_empty_str_literal(not_empty_string_node.value)
+
+
+def test_deprecation_is_inside_lambda() -> None:
+    """Test that is_inside_lambda is throwing a DeprecationWarning."""
+    with pytest.warns(DeprecationWarning) as records:
+        utils.is_inside_lambda(nodes.NodeNG())
+        assert len(records) == 1

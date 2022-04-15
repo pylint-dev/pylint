@@ -1,13 +1,17 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
 # pylint: disable=redefined-outer-name
 
+from __future__ import annotations
 
-from typing import Dict, ValuesView
+from collections.abc import ValuesView
 
 import pytest
 
 from pylint.checkers import BaseChecker
+from pylint.lint.pylinter import PyLinter
 from pylint.message import MessageDefinition, MessageDefinitionStore, MessageIdStore
 
 
@@ -31,6 +35,9 @@ def store() -> MessageDefinitionStore:
     store_ = MessageDefinitionStore()
 
     class Checker(BaseChecker):
+        def __init__(self) -> None:
+            super().__init__(PyLinter())
+
         name = "achecker"
         msgs = {
             "W1234": (
@@ -57,7 +64,7 @@ def message_definitions(store: MessageDefinitionStore) -> ValuesView[MessageDefi
 
 
 @pytest.fixture
-def msgids() -> Dict[str, str]:
+def msgids() -> dict[str, str]:
     return {
         "W1234": "warning-symbol",
         "W1235": "warning-symbol-two",
@@ -72,7 +79,7 @@ def empty_msgid_store() -> MessageIdStore:
 
 
 @pytest.fixture
-def msgid_store(msgids: Dict[str, str]) -> MessageIdStore:
+def msgid_store(msgids: dict[str, str]) -> MessageIdStore:
     msgid_store = MessageIdStore()
     for msgid, symbol in msgids.items():
         msgid_store.add_msgid_and_symbol(msgid, symbol)

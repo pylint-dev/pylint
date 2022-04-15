@@ -1,0 +1,1 @@
+no-member:16:22:16:33:AssignMemberInSameLine.__init__:Instance of 'AssignMemberInSameLine' has no 'member' member:INFERENCE

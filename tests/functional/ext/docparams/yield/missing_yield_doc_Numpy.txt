@@ -1,0 +1,1 @@
+redundant-yields-doc:22:0:22:11:my_func:Redundant yields documentation:UNDEFINED

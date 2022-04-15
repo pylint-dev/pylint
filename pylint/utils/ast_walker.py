@@ -1,5 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 import collections
 import traceback
@@ -22,7 +23,7 @@ class ASTWalker:
         return any(self.linter.is_message_enabled(m) for m in method.checks_msgs)
 
     def add_checker(self, checker):
-        """walk to the checker's dir and collect visit and leave methods"""
+        """Walk to the checker's dir and collect visit and leave methods."""
         vcids = set()
         lcids = set()
         visits = self.visit_events
@@ -49,10 +50,10 @@ class ASTWalker:
                 cid = cls.__name__.lower()
                 if cid not in vcids:
                     visits[cid].append(visit_default)
-        # for now we have no "leave_default" method in Pylint
+        # For now, we have no "leave_default" method in Pylint
 
     def walk(self, astroid):
-        """call visit events of astroid checkers for the given node, recurse on
+        """Call visit events of astroid checkers for the given node, recurse on
         its children, then leave events.
         """
         cid = astroid.__class__.__name__.lower()

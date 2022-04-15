@@ -39,6 +39,8 @@ name is found in, and not the type of object assigned.
 +--------------------+---------------------------------------------------------------------------------------------------+
 | ``inlinevar``      | Loop variables in list comprehensions and generator expressions.                                  |
 +--------------------+---------------------------------------------------------------------------------------------------+
+| ``typevar``        | Type variable declared with ``TypeVar``.                                                          |
++--------------------+---------------------------------------------------------------------------------------------------+
 
 Default behavior
 ~~~~~~~~~~~~~~~~
@@ -82,6 +84,20 @@ Following options are exposed:
 
 .. option:: --inlinevar-naming-style=<style>
 
+Predefined Naming Patterns
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Pylint provides predefined naming patterns for some names. These patterns are often
+based on a Naming Style but there is no option to choose one of the styles mentioned above.
+The pattern can be overwritten with the options discussed below.
+
+The following type of names are checked with a predefined pattern:
+
++--------------------+---------------------------------------------------+------------------------------------------------------------+
+| Name type          | Good names                                        | Bad names                                                  |
++====================+===================================================+============================================================+
+| ``typevar``        | ``T``, ``_CallableT``, ``_T_co``, ``AnyStr``,     | ``DICT_T``, ``CALLABLE_T``, ``ENUM_T``, ``DeviceType``,    |
+|                    | ``DeviceTypeT``, ``IPAddressT``                   | ``_StrType``                                               |
++--------------------+---------------------------------------------------+------------------------------------------------------------+
 
 Custom regular expressions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -117,6 +133,8 @@ expression will lead to an instance of ``invalid-name``.
 .. option:: --class-const-rgx=<regex>
 
 .. option:: --inlinevar-rgx=<regex>
+
+.. option:: --typevar-rgx=<regex>
 
 Multiple naming styles for custom regular expressions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -174,4 +192,4 @@ Name Hints
 
    Include a hint (regular expression used) for the correct name format with every ``invalid-name`` warning.
 
-.. _PEP8: https://www.python.org/dev/peps/pep-0008
+.. _PEP8: https://peps.python.org/pep-0008

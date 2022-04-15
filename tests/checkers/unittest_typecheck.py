@@ -1,35 +1,12 @@
-# Copyright (c) 2014 Google, Inc.
-# Copyright (c) 2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2014 Holger Peters <email@holger-peters.de>
-# Copyright (c) 2015-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2015 Dmitry Pribysh <dmand@yandex.ru>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
-# Copyright (c) 2016 Filipe Brandenburger <filbranden@google.com>
-# Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
-# Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
-# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2019 Martin Vielsmaier <martin.vielsmaier@gmail.com>
-# Copyright (c) 2019 Federico Bond <federicobond@gmail.com>
-# Copyright (c) 2020 Julien Palard <julien@palard.fr>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
-# Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 David Liu <david@cs.toronto.edu>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 David Gilman <davidgilman1@gmail.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 import astroid
 import pytest
 
 from pylint.checkers import typecheck
-from pylint.interfaces import UNDEFINED
+from pylint.interfaces import INFERENCE, UNDEFINED
 from pylint.testutils import CheckerTestCase, MessageTest, set_config
 
 try:
@@ -46,116 +23,9 @@ needs_c_extension = pytest.mark.skipif(
 
 
 class TestTypeChecker(CheckerTestCase):
-    "Tests for pylint.checkers.typecheck"
+    """Tests for pylint.checkers.typecheck."""
+
     CHECKER_CLASS = typecheck.TypeChecker
-
-    def test_no_member_in_getattr(self) -> None:
-        """Make sure that a module attribute access is checked by pylint."""
-
-        node = astroid.extract_node(
-            """
-        import optparse
-        optparse.THIS_does_not_EXIST
-        """
-        )
-        with self.assertAddsMessages(
-            MessageTest(
-                "no-member",
-                node=node,
-                args=("Module", "optparse", "THIS_does_not_EXIST", ""),
-            )
-        ):
-            self.checker.visit_attribute(node)
-
-    @set_config(ignored_modules=("argparse",))
-    def test_no_member_in_getattr_ignored(self) -> None:
-        """Make sure that a module attribute access check is omitted with a
-        module that is configured to be ignored.
-        """
-
-        node = astroid.extract_node(
-            """
-        import argparse
-        argparse.THIS_does_not_EXIST
-        """
-        )
-        with self.assertNoMessages():
-            self.checker.visit_attribute(node)
-
-    @set_config(ignored_modules=("xml.etree.",))
-    def test_ignored_modules_invalid_pattern(self) -> None:
-        node = astroid.extract_node(
-            """
-        import xml
-        xml.etree.Lala
-        """
-        )
-        message = MessageTest(
-            "no-member", node=node, args=("Module", "xml.etree", "Lala", "")
-        )
-        with self.assertAddsMessages(message):
-            self.checker.visit_attribute(node)
-
-    @set_config(ignored_modules=("xml",))
-    def test_ignored_modules_root_one_applies_as_well(self) -> None:
-        # Check that when a root module is completely ignored, submodules are skipped.
-        node = astroid.extract_node(
-            """
-        import xml
-        xml.etree.Lala
-        """
-        )
-        with self.assertNoMessages():
-            self.checker.visit_attribute(node)
-
-    @set_config(ignored_modules=("xml.etree*",))
-    def test_ignored_modules_patterns(self) -> None:
-        node = astroid.extract_node(
-            """
-        import xml
-        xml.etree.portocola #@
-        """
-        )
-        with self.assertNoMessages():
-            self.checker.visit_attribute(node)
-
-    @set_config(ignored_classes=("xml.*",))
-    def test_ignored_classes_no_recursive_pattern(self) -> None:
-        node = astroid.extract_node(
-            """
-        import xml
-        xml.etree.ElementTree.Test
-        """
-        )
-        message = MessageTest(
-            "no-member", node=node, args=("Module", "xml.etree.ElementTree", "Test", "")
-        )
-        with self.assertAddsMessages(message):
-            self.checker.visit_attribute(node)
-
-    @set_config(ignored_classes=("optparse.Values",))
-    def test_ignored_classes_qualified_name(self) -> None:
-        """Test that ignored-classes supports qualified name for ignoring."""
-        node = astroid.extract_node(
-            """
-        import optparse
-        optparse.Values.lala
-        """
-        )
-        with self.assertNoMessages():
-            self.checker.visit_attribute(node)
-
-    @set_config(ignored_classes=("Values",))
-    def test_ignored_classes_only_name(self) -> None:
-        """Test that ignored_classes works with the name only."""
-        node = astroid.extract_node(
-            """
-        import optparse
-        optparse.Values.lala
-        """
-        )
-        with self.assertNoMessages():
-            self.checker.visit_attribute(node)
 
     @set_config(suggestion_mode=False)
     @needs_c_extension
@@ -167,7 +37,14 @@ class TestTypeChecker(CheckerTestCase):
         """
         )
         message = MessageTest(
-            "no-member", node=node, args=("Module", "coverage.tracer", "CTracer", "")
+            "no-member",
+            node=node,
+            args=("Module", "coverage.tracer", "CTracer", ""),
+            confidence=INFERENCE,
+            line=3,
+            col_offset=0,
+            end_line=3,
+            end_col_offset=14,
         )
         with self.assertAddsMessages(message):
             self.checker.visit_attribute(node)
@@ -185,186 +62,19 @@ class TestTypeChecker(CheckerTestCase):
             "c-extension-no-member",
             node=node,
             args=("Module", "coverage.tracer", "CTracer", ""),
+            confidence=INFERENCE,
+            line=3,
+            col_offset=0,
+            end_line=3,
+            end_col_offset=14,
         )
         with self.assertAddsMessages(message):
             self.checker.visit_attribute(node)
 
-    @set_config(
-        contextmanager_decorators=(
-            "contextlib.contextmanager",
-            ".custom_contextmanager",
-        )
-    )
-    def test_custom_context_manager(self):
-        """Test that @custom_contextmanager is recognized as configured."""
-        node = astroid.extract_node(
-            """
-        from contextlib import contextmanager
-        def custom_contextmanager(f):
-            return contextmanager(f)
-        @custom_contextmanager
-        def dec():
-            yield
-        with dec():
-            pass
-        """
-        )
-        with self.assertNoMessages():
-            self.checker.visit_with(node)
-
-    def test_invalid_metaclass(self) -> None:
-        module = astroid.parse(
-            """
-        class InvalidAsMetaclass(object):
-            pass
-
-        class FirstInvalid(object, metaclass=int):
-            pass
-
-        class SecondInvalid(object, metaclass=InvalidAsMetaclass):
-            pass
-
-        class ThirdInvalid(object, metaclass=2):
-            pass
-
-        class FourthInvalid(object, metaclass=InvalidAsMetaclass()):
-            pass
-        """
-        )
-        for class_obj, metaclass_name in (
-            ("FourthInvalid", "Instance of .InvalidAsMetaclass"),
-            ("ThirdInvalid", "2"),
-            ("SecondInvalid", "InvalidAsMetaclass"),
-            ("FirstInvalid", "int"),
-        ):
-            classdef = module[class_obj]
-            message = MessageTest(
-                "invalid-metaclass", node=classdef, args=(metaclass_name,)
-            )
-            with self.assertAddsMessages(message):
-                self.checker.visit_classdef(classdef)
-
-    def test_invalid_metaclass_function_metaclasses(self) -> None:
-        module = astroid.parse(
-            """
-        def invalid_metaclass_1(name, bases, attrs):
-            return int
-        def invalid_metaclass_2(name, bases, attrs):
-            return 1
-        class Invalid(metaclass=invalid_metaclass_1):
-            pass
-        class InvalidSecond(metaclass=invalid_metaclass_2):
-            pass
-        """
-        )
-        for class_obj, metaclass_name in (("Invalid", "int"), ("InvalidSecond", "1")):
-            classdef = module[class_obj]
-            message = MessageTest(
-                "invalid-metaclass", node=classdef, args=(metaclass_name,)
-            )
-            with self.assertAddsMessages(message):
-                self.checker.visit_classdef(classdef)
-
-    def test_typing_namedtuple_not_callable_issue1295(self) -> None:
-        module = astroid.parse(
-            """
-        import typing
-        Named = typing.NamedTuple('Named', [('foo', int), ('bar', int)])
-        named = Named(1, 2)
-        """
-        )
-        call = module.body[-1].value
-        callables = call.func.inferred()
-        assert len(callables) == 1
-        assert callables[0].callable()
-        with self.assertNoMessages():
-            self.checker.visit_call(call)
-
-    def test_typing_namedtuple_unsubscriptable_object_issue1295(self) -> None:
-        module = astroid.parse(
-            """
-        import typing
-        MyType = typing.Tuple[str, str]
-        """
-        )
-        subscript = module.body[-1].value
-        with self.assertNoMessages():
-            self.checker.visit_subscript(subscript)
-
-    def test_staticmethod_multiprocessing_call(self) -> None:
-        """Make sure not-callable isn't raised for descriptors
-
-        astroid can't process descriptors correctly so
-        pylint needs to ignore not-callable for them
-        right now
-
-        Test for https://github.com/PyCQA/pylint/issues/1699
-        """
-        call = astroid.extract_node(
-            """
-        import multiprocessing
-        multiprocessing.current_process() #@
-        """
-        )
-        with self.assertNoMessages():
-            self.checker.visit_call(call)
-
-    def test_not_callable_uninferable_property(self) -> None:
-        """Make sure not-callable isn't raised for uninferable
-        properties
-        """
-        call = astroid.extract_node(
-            """
-        class A:
-            @property
-            def call(self):
-                return undefined
-
-        a = A()
-        a.call() #@
-        """
-        )
-        with self.assertNoMessages():
-            self.checker.visit_call(call)
-
-    def test_descriptor_call(self) -> None:
-        call = astroid.extract_node(
-            """
-        def func():
-            pass
-
-        class ADescriptor:
-            def __get__(self, instance, owner):
-                return func
-
-        class AggregateCls:
-            a = ADescriptor()
-
-        AggregateCls().a() #@
-        """
-        )
-        with self.assertNoMessages():
-            self.checker.visit_call(call)
-
-    def test_unknown_parent(self) -> None:
-        """Make sure the callable check does not crash when a node's parent
-        cannot be determined.
-        """
-        call = astroid.extract_node(
-            """
-        def get_num(n):
-            return 2 * n
-        get_num(10)()
-        """
-        )
-        with self.assertAddsMessages(
-            MessageTest("not-callable", node=call, args="get_num(10)")
-        ):
-            self.checker.visit_call(call)
-
 
 class TestTypeCheckerOnDecorators(CheckerTestCase):
-    "Tests for pylint.checkers.typecheck on decorated functions."
+    """Tests for pylint.checkers.typecheck on decorated functions."""
+
     CHECKER_CLASS = typecheck.TypeChecker
 
     def test_issue3882_class_decorators(self) -> None:
@@ -405,6 +115,10 @@ class TestTypeCheckerOnDecorators(CheckerTestCase):
                 node=subscript.value,
                 args="collections",
                 confidence=UNDEFINED,
+                line=3,
+                col_offset=7,
+                end_line=3,
+                end_col_offset=18,
             )
         ):
             self.checker.visit_subscript(subscript)
@@ -456,6 +170,10 @@ class TestTypeCheckerOnDecorators(CheckerTestCase):
                 node=subscript.value,
                 args="decorated",
                 confidence=UNDEFINED,
+                line=18,
+                col_offset=7,
+                end_line=18,
+                end_col_offset=16,
             )
         ):
             self.checker.visit_subscript(subscript)
@@ -496,6 +214,10 @@ class TestTypeCheckerOnDecorators(CheckerTestCase):
                 node=subscript.value,
                 args="decorated",
                 confidence=UNDEFINED,
+                line=17,
+                col_offset=7,
+                end_line=17,
+                end_col_offset=16,
             )
         ):
             self.checker.visit_subscript(subscript)

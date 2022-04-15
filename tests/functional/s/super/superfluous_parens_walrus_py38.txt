@@ -1,5 +1,0 @@
-superfluous-parens:16:0::Unnecessary parens after 'not' keyword:HIGH
-superfluous-parens:19:0::Unnecessary parens after 'if' keyword:HIGH
-superfluous-parens:22:0::Unnecessary parens after 'not' keyword:HIGH
-superfluous-parens:25:0::Unnecessary parens after 'not' keyword:HIGH
-superfluous-parens:51:0::Unnecessary parens after 'yield' keyword:HIGH

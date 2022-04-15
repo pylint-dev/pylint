@@ -40,7 +40,7 @@ class Child(Parent):
     def test(self, arg1): # [arguments-renamed]
         return arg1 + 1
 
-    def kwargs_test(self, arg, *, value1, var2): #[arguments-renamed]
+    def kwargs_test(self, arg, *, value1, var2): #[arguments-differ]
         print(f"keyword parameters are {value1} and {var2}.")
 
 class Child2(Parent):
@@ -48,7 +48,7 @@ class Child2(Parent):
     def test(self, var): # [arguments-renamed]
         return var + 1
 
-    def kwargs_test(self, *, var1, kw2): #[arguments-renamed, arguments-differ]
+    def kwargs_test(self, *, var1, kw2): #[arguments-differ]
         print(f"keyword parameters are {var1} and {kw2}.")
 
 class ParentDefaults(object):
@@ -72,3 +72,29 @@ class ChildDefaults(ParentDefaults):
 
     def test3(self, dummy_param, arg2): # no error here
         print(f"arguments: {arg2}")
+
+# Check for crash on method definitions not at top level of class
+# https://github.com/PyCQA/pylint/issues/5648
+class FruitConditional:
+
+    define_eat = True
+
+    def brew(self, fruit_name: str):
+        print(f"Brewing a fruit named {fruit_name}")
+
+    if define_eat:
+        def eat_with_condiment(self, fruit_name:str, condiment: Condiment):
+            print(f"Eating a fruit named {fruit_name} with {condiment}")
+
+class FruitOverrideConditional(FruitConditional):
+
+    fruit = "orange"
+    override_condiment = True
+
+    if fruit == "orange":
+        def brew(self, orange_name: str): # [arguments-renamed]
+            print(f"Brewing an orange named {orange_name}")
+
+        if override_condiment:
+            def eat_with_condiment(self, fruit_name: str, condiment: Condiment, error: str): # [arguments-differ]
+                print(f"Eating a fruit named {fruit_name} with {condiment}")

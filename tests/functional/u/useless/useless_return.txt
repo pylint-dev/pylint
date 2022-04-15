@@ -1,2 +1,2 @@
-useless-return:4:0:myfunc:Useless return at end of function or method
-useless-return:9:4:SomeClass.mymethod:Useless return at end of function or method
+useless-return:4:0:4:10:myfunc:Useless return at end of function or method:UNDEFINED
+useless-return:9:4:9:16:SomeClass.mymethod:Useless return at end of function or method:UNDEFINED

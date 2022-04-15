@@ -1,6 +1,8 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
 
 try:
     import isort.api
@@ -11,24 +13,17 @@ except ImportError:  # isort < 5
 
     HAS_ISORT_5 = False
 
+import argparse
 import codecs
 import os
 import re
 import sys
 import textwrap
 import tokenize
+import warnings
+from collections.abc import Sequence
 from io import BufferedReader, BytesIO
-from typing import (
-    TYPE_CHECKING,
-    List,
-    Optional,
-    Pattern,
-    TextIO,
-    Tuple,
-    TypeVar,
-    Union,
-    overload,
-)
+from typing import TYPE_CHECKING, List, Pattern, TextIO, Tuple, TypeVar, Union, overload
 
 from astroid import Module, modutils, nodes
 
@@ -41,12 +36,12 @@ else:
 
 if TYPE_CHECKING:
     from pylint.checkers.base_checker import BaseChecker
+    from pylint.lint import PyLinter
 
 DEFAULT_LINE_LENGTH = 79
 
 # These are types used to overload get_global_option() and refer to the options type
 GLOBAL_OPTION_BOOL = Literal[
-    "ignore-mixin-members",
     "suggestion-mode",
     "analyse-fallback-blocks",
     "allow-global-unused-variables",
@@ -93,12 +88,12 @@ CMPS = ["=", "-", "+"]
 
 
 # py3k has no more cmp builtin
-def cmp(a, b):  # pylint: disable=redefined-builtin
+def cmp(a: int | float, b: int | float) -> int:
     return (a > b) - (a < b)
 
 
-def diff_string(old, new):
-    """given an old and new int value, return a string representing the
+def diff_string(old: int | float, new: int | float) -> str:
+    """Given an old and new int value, return a string representing the
     difference
     """
     diff = abs(old - new)
@@ -106,9 +101,9 @@ def diff_string(old, new):
     return diff_str
 
 
-def get_module_and_frameid(node):
-    """return the module name and the frame id in the module"""
-    frame = node.frame()
+def get_module_and_frameid(node: nodes.NodeNG) -> tuple[str, str]:
+    """Return the module name and the frame id in the module."""
+    frame = node.frame(future=True)
     module, obj = "", []
     while frame:
         if isinstance(frame, Module):
@@ -116,7 +111,7 @@ def get_module_and_frameid(node):
         else:
             obj.append(getattr(frame, "name", "<lambda>"))
         try:
-            frame = frame.parent.frame()
+            frame = frame.parent.frame(future=True)
         except AttributeError:
             break
     obj.reverse()
@@ -129,7 +124,7 @@ def get_rst_title(title, character):
 
 
 def get_rst_section(section, options, doc=None):
-    """format an options section using as a ReStructuredText formatted output"""
+    """Format an option's section using as a ReStructuredText formatted output."""
     result = ""
     if section:
         result += get_rst_title(section, "'")
@@ -149,7 +144,7 @@ def get_rst_section(section, options, doc=None):
 
 
 def decoding_stream(
-    stream: Union[BufferedReader, BytesIO],
+    stream: BufferedReader | BytesIO,
     encoding: str,
     errors: Literal["strict"] = "strict",
 ) -> codecs.StreamReader:
@@ -160,14 +155,14 @@ def decoding_stream(
     return reader_cls(stream, errors)
 
 
-def tokenize_module(node: nodes.Module) -> List[tokenize.TokenInfo]:
+def tokenize_module(node: nodes.Module) -> list[tokenize.TokenInfo]:
     with node.stream() as stream:
         readline = stream.readline
         return list(tokenize.tokenize(readline))
 
 
-def register_plugins(linter, directory):
-    """load all module and package in the given directory, looking for a
+def register_plugins(linter: PyLinter, directory: str) -> None:
+    """Load all module and package in the given directory, looking for a
     'register' function in each one, used to register pylint checkers
     """
     imported = {}
@@ -201,83 +196,77 @@ def register_plugins(linter, directory):
 
 @overload
 def get_global_option(
-    checker: "BaseChecker", option: GLOBAL_OPTION_BOOL, default: Optional[bool] = None
+    checker: BaseChecker, option: GLOBAL_OPTION_BOOL, default: bool | None = None
 ) -> bool:
     ...
 
 
 @overload
 def get_global_option(
-    checker: "BaseChecker", option: GLOBAL_OPTION_INT, default: Optional[int] = None
+    checker: BaseChecker, option: GLOBAL_OPTION_INT, default: int | None = None
 ) -> int:
     ...
 
 
 @overload
 def get_global_option(
-    checker: "BaseChecker",
+    checker: BaseChecker,
     option: GLOBAL_OPTION_LIST,
-    default: Optional[List[str]] = None,
-) -> List[str]:
+    default: list[str] | None = None,
+) -> list[str]:
     ...
 
 
 @overload
 def get_global_option(
-    checker: "BaseChecker",
+    checker: BaseChecker,
     option: GLOBAL_OPTION_PATTERN,
-    default: Optional[Pattern[str]] = None,
+    default: Pattern[str] | None = None,
 ) -> Pattern[str]:
     ...
 
 
 @overload
 def get_global_option(
-    checker: "BaseChecker",
+    checker: BaseChecker,
     option: GLOBAL_OPTION_PATTERN_LIST,
-    default: Optional[List[Pattern[str]]] = None,
-) -> List[Pattern[str]]:
+    default: list[Pattern[str]] | None = None,
+) -> list[Pattern[str]]:
     ...
 
 
 @overload
 def get_global_option(
-    checker: "BaseChecker",
+    checker: BaseChecker,
     option: GLOBAL_OPTION_TUPLE_INT,
-    default: Optional[Tuple[int, ...]] = None,
-) -> Tuple[int, ...]:
+    default: tuple[int, ...] | None = None,
+) -> tuple[int, ...]:
     ...
 
 
 def get_global_option(
-    checker: "BaseChecker",
+    checker: BaseChecker,
     option: GLOBAL_OPTION_NAMES,
-    default: Optional[T_GlobalOptionReturnTypes] = None,
-) -> Optional[T_GlobalOptionReturnTypes]:
-    """Retrieve an option defined by the given *checker* or
+    default: T_GlobalOptionReturnTypes | None = None,  # pylint: disable=unused-argument
+) -> T_GlobalOptionReturnTypes | None:
+    """DEPRECATED: Retrieve an option defined by the given *checker* or
     by all known option providers.
 
     It will look in the list of all options providers
     until the given *option* will be found.
     If the option wasn't found, the *default* value will be returned.
     """
-    # First, try in the given checker's config.
-    # After that, look in the options providers.
-
-    try:
-        return getattr(checker.config, option.replace("-", "_"))
-    except AttributeError:
-        pass
-    for provider in checker.linter.options_providers:
-        for options in provider.options:
-            if options[0] == option:
-                return getattr(provider.config, option.replace("-", "_"))
-    return default
+    warnings.warn(
+        "get_global_option has been deprecated. You can use "
+        "checker.linter.config to get all global options instead.",
+        DeprecationWarning,
+    )
+    return getattr(checker.linter.config, option.replace("-", "_"))
 
 
-def _splitstrip(string, sep=","):
-    """return a list of stripped string by splitting the string given as
-    argument on `sep` (',' by default). Empty string are discarded.
+def _splitstrip(string: str, sep: str = ",") -> list[str]:
+    """Return a list of stripped string by splitting the string given as
+    argument on `sep` (',' by default), empty strings are discarded.
 
     >>> _splitstrip('a, b, c   ,  4,,')
     ['a', 'b', 'c', '4']
@@ -298,13 +287,10 @@ def _splitstrip(string, sep=","):
     return [word.strip() for word in string.split(sep) if word.strip()]
 
 
-def _unquote(string):
-    """remove optional quotes (simple or double) from the string
+def _unquote(string: str) -> str:
+    """Remove optional quotes (simple or double) from the string.
 
-    :type string: str or unicode
     :param string: an optionally quoted string
-
-    :rtype: str or unicode
     :return: the unquoted string (or the input string if it wasn't quoted)
     """
     if not string:
@@ -316,21 +302,24 @@ def _unquote(string):
     return string
 
 
-def _check_csv(value):
+def _check_csv(value: list[str] | tuple[str] | str) -> Sequence[str]:
     if isinstance(value, (list, tuple)):
         return value
     return _splitstrip(value)
 
 
 def _comment(string: str) -> str:
-    """return string as a comment"""
+    """Return string as a comment."""
     lines = [line.strip() for line in string.splitlines()]
     sep = "\n"
     return "# " + f"{sep}# ".join(lines)
 
 
 def _format_option_value(optdict, value):
-    """return the user input's value from a 'compiled' value"""
+    """Return the user input's value from a 'compiled' value.
+
+    TODO: 3.0: Remove deprecated function
+    """
     if optdict.get("type", None) == "py_version":
         value = ".".join(str(item) for item in value)
     elif isinstance(value, (list, tuple)):
@@ -348,17 +337,27 @@ def _format_option_value(optdict, value):
 
 
 def format_section(
-    stream: TextIO, section: str, options: List[Tuple], doc: Optional[str] = None
+    stream: TextIO, section: str, options: list[tuple], doc: str | None = None
 ) -> None:
-    """format an options section using the INI format"""
+    """Format an option's section using the INI format."""
+    warnings.warn(
+        "format_section has been deprecated. It will be removed in pylint 3.0.",
+        DeprecationWarning,
+    )
     if doc:
         print(_comment(doc), file=stream)
     print(f"[{section}]", file=stream)
-    _ini_format(stream, options)
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
+        _ini_format(stream, options)
 
 
-def _ini_format(stream: TextIO, options: List[Tuple]) -> None:
-    """format options using the INI format"""
+def _ini_format(stream: TextIO, options: list[tuple]) -> None:
+    """Format options using the INI format."""
+    warnings.warn(
+        "_ini_format has been deprecated. It will be removed in pylint 3.0.",
+        DeprecationWarning,
+    )
     for optname, optdict, value in options:
         value = _format_option_value(optdict, value)
         help_opt = optdict.get("help")
@@ -383,12 +382,12 @@ def _ini_format(stream: TextIO, options: List[Tuple]) -> None:
 class IsortDriver:
     """A wrapper around isort API that changed between versions 4 and 5."""
 
-    def __init__(self, config):
+    def __init__(self, config: argparse.Namespace) -> None:
         if HAS_ISORT_5:
             self.isort5_config = isort.api.Config(
-                # There is not typo here. EXTRA_standard_library is
+                # There is no typo here. EXTRA_standard_library is
                 # what most users want. The option has been named
-                # KNOWN_standard_library for ages in pylint and we
+                # KNOWN_standard_library for ages in pylint, and we
                 # don't want to break compatibility.
                 extra_standard_library=config.known_standard_library,
                 known_third_party=config.known_third_party,
@@ -400,7 +399,7 @@ class IsortDriver:
                 known_third_party=config.known_third_party,
             )
 
-    def place_module(self, package):
+    def place_module(self, package: str) -> str:
         if HAS_ISORT_5:
             return isort.api.place_module(package, self.isort5_config)
         return self.isort4_obj.place_module(package)

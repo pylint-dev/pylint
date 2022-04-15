@@ -1,0 +1,3 @@
+[tool.pylint]
+# disable does not belong in top level section
+disable = "logging-not-lazy,logging-format-interpolation"

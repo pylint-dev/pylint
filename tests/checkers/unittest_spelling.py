@@ -1,20 +1,6 @@
-# Copyright (c) 2014-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2014 Michal Nowikowski <godfryd@gmail.com>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
-# Copyright (c) 2017, 2020 Pedro Algarvio <pedro@algarvio.me>
-# Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
-# Copyright (c) 2018, 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2019 agutole <toldo_carp@hotmail.com>
-# Copyright (c) 2020 Ganden Schaffner <gschaffner@pm.me>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 Eli Fine <ejfine@gmail.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Unittest for the spelling checker."""
 
@@ -73,7 +59,7 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     @set_config(max_spelling_suggestions=2)
-    def test_check_bad_coment_custom_suggestion_count(self):
+    def test_check_bad_comment_custom_suggestion_count(self):
         with self.assertAddsMessages(
             MessageTest(
                 "wrong-spelling-in-comment",

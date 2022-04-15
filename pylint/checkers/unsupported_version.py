@@ -1,12 +1,14 @@
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Checker for features used that are not supported by all python versions
 indicated by the py-version setting.
 """
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from astroid import nodes
 
@@ -17,8 +19,9 @@ from pylint.checkers.utils import (
     uninferable_final_decorators,
 )
 from pylint.interfaces import IAstroidChecker
-from pylint.lint import PyLinter
-from pylint.utils import get_global_option
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 
 class UnsupportedVersionChecker(BaseChecker):
@@ -29,13 +32,13 @@ class UnsupportedVersionChecker(BaseChecker):
     __implements__ = (IAstroidChecker,)
     name = "unsupported_version"
     msgs = {
-        "W1601": (
+        "W2601": (
             "F-strings are not supported by all versions included in the py-version setting",
             "using-f-string-in-unsupported-version",
             "Used when the py-version set by the user is lower than 3.6 and pylint encounters "
             "a f-string.",
         ),
-        "W1602": (
+        "W2602": (
             "typing.final is not supported by all versions included in the py-version setting",
             "using-final-decorator-in-unsupported-version",
             "Used when the py-version set by the user is lower than 3.8 and pylint encounters "
@@ -45,24 +48,25 @@ class UnsupportedVersionChecker(BaseChecker):
 
     def open(self) -> None:
         """Initialize visit variables and statistics."""
-        py_version = get_global_option(self, "py-version")
+        py_version = self.linter.config.py_version
         self._py36_plus = py_version >= (3, 6)
         self._py38_plus = py_version >= (3, 8)
 
     @check_messages("using-f-string-in-unsupported-version")
     def visit_joinedstr(self, node: nodes.JoinedStr) -> None:
-        """Check f-strings"""
+        """Check f-strings."""
         if not self._py36_plus:
             self.add_message("using-f-string-in-unsupported-version", node=node)
 
     @check_messages("using-final-decorator-in-unsupported-version")
     def visit_decorators(self, node: nodes.Decorators) -> None:
-        """Check decorators"""
+        """Check decorators."""
         self._check_typing_final(node)
 
     def _check_typing_final(self, node: nodes.Decorators) -> None:
         """Add a message when the `typing.final` decorator is used and the
-        py-version is lower than 3.8"""
+        py-version is lower than 3.8
+        """
         if self._py38_plus:
             return
 
@@ -79,5 +83,4 @@ class UnsupportedVersionChecker(BaseChecker):
 
 
 def register(linter: PyLinter) -> None:
-    """Required method to auto register this checker"""
     linter.register_checker(UnsupportedVersionChecker(linter))

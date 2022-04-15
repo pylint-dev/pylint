@@ -1,1 +1,0 @@
-confusing-consecutive-elif:11:4:check_config:Consecutive elif with differing indentation level, consider creating a function to separate the inner elif
