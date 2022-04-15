@@ -833,12 +833,6 @@ class PyLinter(
 
         self.disable_noerror_messages()
         self.disable("miscellaneous")
-        self._arg_parser.parse_args(
-            ["--reports", "no", "--score", "no", "--persistent", "no"], self.config
-        )
-
-        # pylint: disable-next=fixme
-        # TODO: Optparse: Potentially remove after 'set_option' has been refactored
         self.set_option("reports", False)
         self.set_option("persistent", False)
         self.set_option("score", False)
