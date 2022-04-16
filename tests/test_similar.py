@@ -56,7 +56,7 @@ class TestSimilarCodeChecker:
         actual_output = self._clean_paths(out.getvalue())
         expected_output = self._clean_paths(expected_output)
         assert expected_output.strip() in actual_output.strip()
-        assert 'Fatal error' not in actual_output.strip()
+        assert "Fatal error" not in actual_output.strip()
 
     def test_duplicate_code_raw_strings_all(self) -> None:
         """Test similar lines in 3 similar files."""
@@ -118,7 +118,9 @@ class TestSimilarCodeChecker:
             expected_output=expected_output,
         )
 
-    def test_duplicate_code_raw_strings_disable_scope_ignore_imports_and_signatures(self) -> None:
+    def test_duplicate_code_raw_strings_disable_scope_ignore_imports_and_signatures(
+        self,
+    ) -> None:
         """Tests disabling duplicate-code at an inner scope level with
         ignore_imports and ignore_signatures."""
         path = join(DATA, "raw_strings_disable_scope")
