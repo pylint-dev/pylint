@@ -76,8 +76,11 @@ def _create_checker_section(
 
     for option in sorted(options, key=lambda x: x.name):
         checker_string += get_rst_title(f"--{option.name}", '"')
-        checker_string += f"\nDescription: *{option.optdict.get('help')}*\n\n"
-        checker_string += f"Default: *{option.optdict.get('default')}*\n\n\n"
+        checker_string += f"\nDescription:\n  *{option.optdict.get('help')}*\n\n"
+        if option.optdict.get("default") == "":
+            checker_string += 'Default:\n  ``""``\n\n\n'
+        else:
+            checker_string += f"Default:\n  ``{option.optdict.get('default')}``\n\n\n"
 
         # Start adding the option to the toml example
         if option.optdict.get("hide_from_config_file"):
