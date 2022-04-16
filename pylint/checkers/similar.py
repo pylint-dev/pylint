@@ -363,12 +363,30 @@ class Similar:
             active_lines: list[str] = []
             if hasattr(self, "linter"):
                 # Remove those lines that should be ignored because of disables
-                for index, line in enumerate(readlines()):
+                lines = readlines()
+                for index, line in enumerate(lines):
                     if self.linter._is_one_message_enabled("R0801", index + 1):  # type: ignore[attr-defined]
                         active_lines.append(line)
                     elif active_lines:
-                        # Insert " ..." into the previous line if it looks like a class/function/if/for/while
-                        # This is so that astroid can parse it without a body
+                        # This line may or may not be a block disable. If so, we may
+                        # need to make a subsitution in the previous line to ensure it can be parsed by
+                        # astroid (if ignore-imports or ignore-signatures is enabled), because
+                        # astroid will not accept a function/class def without a body.
+                        # First, find out if the line after this one is at the same indentation level or
+                        # *does* have the message enabled, in which case no substitution is needed.
+                        if (index + 2) < len(lines):
+                            if not self.linter._is_one_message_enabled("R0801", index + 2):  # type: ignore[attr-defined]
+                                continue
+                            next_line = lines[index + 2]
+                            next_line_indentation_end_index = next_line.index(
+                                next_line.strip()
+                            )
+                            if next_line_indentation_end_index == line.index(
+                                line.strip()
+                            ):
+                                continue
+
+                        # Substitution: insert " ..." into the previous line
                         without_comments = (
                             active_lines[-1].split("#", maxsplit=1)[0].rstrip()
                         )
