@@ -176,6 +176,7 @@ class TestCheckParallelFramework:
         worker_initialize(linter=dill.dumps(linter))
         assert isinstance(pylint.lint.parallel._worker_linter, type(linter))
 
+    @pytest.mark.needs_two_cores
     def test_worker_initialize_pickling(self) -> None:
         """Test that we can pickle objects that standard pickling in multiprocessing can't.
 
@@ -394,6 +395,7 @@ class TestCheckParallel:
         assert linter.stats.warning == 0
         assert linter.msg_status == 0, "We expect a single-file check to exit cleanly"
 
+    @pytest.mark.needs_two_cores
     @pytest.mark.parametrize(
         "num_files,num_jobs,num_checkers",
         [
@@ -491,6 +493,7 @@ class TestCheckParallel:
             expected_stats
         ), "The lint is returning unexpected results, has something changed?"
 
+    @pytest.mark.needs_two_cores
     @pytest.mark.parametrize(
         "num_files,num_jobs,num_checkers",
         [
