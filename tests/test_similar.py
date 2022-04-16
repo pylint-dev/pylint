@@ -123,7 +123,8 @@ class TestSimilarCodeChecker:
         self,
     ) -> None:
         """Tests disabling duplicate-code at an inner scope level with
-        ignore_imports and ignore_signatures."""
+        ignore_imports and ignore_signatures.
+        """
         path = join(DATA, "raw_strings_disable_scope")
         expected_output = "Similar lines in 2 files"
         self._test_output(
