@@ -385,8 +385,12 @@ class Similar:
         except UnicodeDecodeError:
             pass
 
-    def _maybe_amend_prior_line(self, index: int, line: str, lines: List[str], active_lines: List[str]):
-        """This line's disable may or may not be a block disable. If so, we may
+    def _maybe_amend_prior_line(
+        self, index: int, line: str, lines: list[str], active_lines: list[str]
+    ):
+        """This line's disable may or may not be a block disable.
+
+        If so, we may
         need to make a subsitution in the previous line to ensure it can be parsed by
         astroid (if ignore-imports or ignore-signatures is enabled), because
         astroid will not accept a function/class def without a body.
