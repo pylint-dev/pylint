@@ -59,11 +59,6 @@ class DeprecatedMixin(BaseChecker):
         ),
     }
 
-    def check_consistency(self):
-        """This is a mixin, so there is no expectation that the messages should be
-        mutually exclusive. They will overlap between checkers by design.
-        """
-
     @utils.check_messages(
         "deprecated-method",
         "deprecated-argument",
