@@ -369,15 +369,12 @@ class Similar:
                     elif active_lines:
                         # Insert " ..." into the previous line if it looks like a class/function/if/for/while
                         # This is so that astroid can parse it without a body
-                        without_comments_or_whitespace = (
-                            active_lines[-1].split("#", maxsplit=1)[0].strip().rstrip()
+                        without_comments = (
+                            active_lines[-1].split("#", maxsplit=1)[0].rstrip()
                         )
-                        if without_comments_or_whitespace.endswith(":"):
+                        if without_comments.endswith(":"):
                             last_line = active_lines.pop()
-                            without_leading_whitespace = last_line.strip()
-                            index_after_colon = last_line.index(
-                                without_leading_whitespace
-                            ) + len(without_comments_or_whitespace)
+                            index_after_colon = len(without_comments)
                             substitute = (
                                 last_line[:index_after_colon]
                                 + " ..."
