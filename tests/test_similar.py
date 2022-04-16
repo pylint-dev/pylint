@@ -54,9 +54,10 @@ class TestSimilarCodeChecker:
         out = StringIO()
         self._run_pylint(args, out=out)
         actual_output = self._clean_paths(out.getvalue())
+        actual_output_stripped = actual_output.strip()
         expected_output = self._clean_paths(expected_output)
-        assert expected_output.strip() in actual_output.strip()
-        assert "Fatal error" not in actual_output.strip()
+        assert expected_output.strip() in actual_output_stripped
+        assert "Fatal error" not in actual_output_stripped
 
     def test_duplicate_code_raw_strings_all(self) -> None:
         """Test similar lines in 3 similar files."""
