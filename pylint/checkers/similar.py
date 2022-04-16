@@ -34,10 +34,12 @@ from itertools import chain, groupby
 from typing import (
     TYPE_CHECKING,
     Any,
+    Callable,
     Dict,
     List,
     NamedTuple,
     NewType,
+    Optional,
     TextIO,
     Tuple,
     Union,
@@ -359,26 +361,18 @@ class Similar:
             readlines = decoding_stream(stream, encoding).readlines
         else:
             readlines = stream.readlines  # type: ignore[assignment] # hint parameter is incorrectly typed as non-optional
-        try:
-            lines = readlines()
-        except UnicodeDecodeError:
-            pass
-        ignored_linenos = set()
-        if hasattr(self, "linter"):
-            for i in range(1, len(lines) + 1):
-                # Account for disables
-                if not self.linter._is_one_message_enabled("R0801", i):  # type: ignore[attr-defined]
-                    ignored_linenos.add(i)
 
         self.linesets.append(
             LineSet(
                 streamid,
-                lines,
+                readlines(),
                 self.ignore_comments,
                 self.ignore_docstrings,
                 self.ignore_imports,
                 self.ignore_signatures,
-                ignored_linenos,
+                line_enabled_callback=self.linter._is_one_message_enabled  # type: ignore[attr-defined]
+                if hasattr(self, "linter")
+                else None,
             )
         )
 
@@ -552,7 +546,7 @@ def stripped_lines(
     ignore_docstrings: bool,
     ignore_imports: bool,
     ignore_signatures: bool,
-    ignored_linenos: Iterable[int],
+    line_enabled_callback: Optional[Callable] = None,
 ) -> list[LineSpecifs]:
     """Return tuples of line/line number/line type with leading/trailing whitespace and any ignored code features removed.
 
@@ -561,7 +555,7 @@ def stripped_lines(
     :param ignore_docstrings: if true, any line that is a docstring is removed from the result
     :param ignore_imports: if true, any line that is an import is removed from the result
     :param ignore_signatures: if true, any line that is part of a function signature is removed from the result
-    :param ignored_linenos: line numbers to disregard because affected by a disable statement
+    :param line_enabled_callback: If called with "R0801" and a line number, a return value of False will disregard the line
     :return: the collection of line/line number/line type tuples
     """
     if ignore_imports or ignore_signatures:
@@ -613,7 +607,9 @@ def stripped_lines(
     strippedlines = []
     docstring = None
     for lineno, line in enumerate(lines, start=1):
-        if lineno in ignored_linenos:
+        if line_enabled_callback is not None and not line_enabled_callback(
+            "R0801", lineno
+        ):
             continue
         line = line.strip()
         if ignore_docstrings:
@@ -661,18 +657,21 @@ class LineSet:
         ignore_docstrings: bool = False,
         ignore_imports: bool = False,
         ignore_signatures: bool = False,
-        ignored_linenos: Iterable[int] = (),
+        line_enabled_callback: Callable | None = None,
     ) -> None:
         self.name = name
         self._real_lines = lines
-        self._stripped_lines = stripped_lines(
-            lines,
-            ignore_comments,
-            ignore_docstrings,
-            ignore_imports,
-            ignore_signatures,
-            ignored_linenos,
-        )
+        try:
+            self._stripped_lines = stripped_lines(
+                lines,
+                ignore_comments,
+                ignore_docstrings,
+                ignore_imports,
+                ignore_signatures,
+                line_enabled_callback=line_enabled_callback,
+            )
+        except UnicodeDecodeError:
+            self._stripped_lines = []
 
     def __str__(self):
         return f"<Lineset for {self.name}>"
