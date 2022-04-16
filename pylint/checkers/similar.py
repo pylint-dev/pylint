@@ -367,10 +367,15 @@ class Similar:
         else:
             readlines = stream.readlines  # type: ignore[assignment] # hint parameter is incorrectly typed as non-optional
 
+        try:
+            lines = readlines()
+        except UnicodeDecodeError:
+            lines = []
+
         self.linesets.append(
             LineSet(
                 streamid,
-                readlines(),
+                lines,
                 self.namespace.ignore_comments,
                 self.namespace.ignore_docstrings,
                 self.namespace.ignore_imports,
@@ -670,17 +675,14 @@ class LineSet:
     ) -> None:
         self.name = name
         self._real_lines = lines
-        try:
-            self._stripped_lines = stripped_lines(
-                lines,
-                ignore_comments,
-                ignore_docstrings,
-                ignore_imports,
-                ignore_signatures,
-                line_enabled_callback=line_enabled_callback,
-            )
-        except UnicodeDecodeError:
-            self._stripped_lines = []
+        self._stripped_lines = stripped_lines(
+            lines,
+            ignore_comments,
+            ignore_docstrings,
+            ignore_imports,
+            ignore_signatures,
+            line_enabled_callback=line_enabled_callback,
+        )
 
     def __str__(self):
         return f"<Lineset for {self.name}>"
