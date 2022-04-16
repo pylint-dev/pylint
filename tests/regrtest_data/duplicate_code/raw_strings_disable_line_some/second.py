@@ -8,4 +8,5 @@ def look_busy():
     zzzz = 3
     wwww = 4
     vvvv = xxxx + yyyy + zzzz + wwww
+    vvvv *= 2
     return vvvv
