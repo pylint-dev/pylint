@@ -37,6 +37,11 @@ Release date: TBA
 
   Ref #5392
 
+* The ``option_groups`` attribute of ``PyLinter`` has been deprecated.
+
+  Ref #5392
+
+
 * The ``set_option`` method of ``BaseChecker`` has been deprecated. You can use ``checker.linter.set_option``
   to set an option on the global configuration object instead of a checker-specific object.
 
@@ -44,6 +49,30 @@ Release date: TBA
 
 * The ``config`` attribute of ``PyLinter`` is now of the ``argparse.Namespace`` type instead of
   ``optparse.Values``.
+
+  Ref #5392
+
+* ``UnsupportedAction`` has been deprecated.
+
+  Ref #5392
+
+* ``OptionsManagerMixIn`` has been deprecated.
+
+  Ref #5392
+
+* ``OptionParser`` has been deprecated.
+
+  Ref #5392
+
+* ``Option`` has been deprecated.
+
+  Ref #5392
+
+* ``OptionsProviderMixIn`` has been deprecated.
+
+  Ref #5392
+
+* ``ConfigurationMixIn`` has been deprecated.
 
   Ref #5392
 
@@ -134,6 +163,9 @@ Release date: TBA
   Closes #1555
 
 * The concept of checker priority has been removed.
+
+* Add a new command line option ``--minimal-messages-config`` for ``pytest``, which disables all
+  irrelevant messages when running the functional tests.
 
 * ``duplicate-argument-name`` now only raises once for each set of duplicated arguments.
 

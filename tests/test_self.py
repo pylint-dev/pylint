@@ -1043,6 +1043,7 @@ class TestRunTC:
             stderr=subprocess.PIPE,
         )
 
+    @pytest.mark.needs_two_cores
     def test_jobs_score(self) -> None:
         path = join(HERE, "regrtest_data", "unused_variable.py")
         expected = "Your code has been rated at 7.50/10"

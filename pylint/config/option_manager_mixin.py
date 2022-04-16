@@ -11,6 +11,7 @@ import copy
 import optparse  # pylint: disable=deprecated-module
 import os
 import sys
+import warnings
 from pathlib import Path
 from typing import TextIO
 
@@ -62,9 +63,11 @@ class OptionsManagerMixIn:
     """Handle configuration from both a configuration file and command line options."""
 
     def __init__(self, usage):
-        # pylint: disable-next=fixme
-        # TODO: Optparse: Deprecate this class when we don't use ConfigurationMixIn
-        # internally anymore
+        # TODO: 3.0: Remove deprecated class # pylint: disable=fixme
+        warnings.warn(
+            "OptionsManagerMixIn has been deprecated and will be removed in pylint 3.0",
+            DeprecationWarning,
+        )
         self.reset_parsers(usage)
         # list of registered options providers
         self.options_providers = []
