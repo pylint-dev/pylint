@@ -367,8 +367,7 @@ class Similar:
                 for index, line in enumerate(lines):
                     if self.linter._is_one_message_enabled("R0801", index + 1):  # type: ignore[attr-defined]
                         active_lines.append(line)
-                    elif active_lines:
-                        self._maybe_amend_prior_line(index, line, lines, active_lines)
+                    self._maybe_amend_prior_line(index, line, lines, active_lines)
             else:
                 active_lines = readlines()
 
@@ -390,30 +389,37 @@ class Similar:
     ):
         """This line's disable may or may not be a block disable.
 
-        If so, we may
-        need to make a subsitution in the previous line to ensure it can be parsed by
-        astroid (if ignore-imports or ignore-signatures is enabled), because
-        astroid will not accept a function/class def without a body.
+        If so, we may need to make a subsitution in the previous line to ensure it
+        can be parsed by astroid (if ignore-imports or ignore-signatures is enabled),
+        because a function/class def without a body cannot be parsed.
+
         First, find out if the line after this one is at the same indentation level or
         *does* have the message enabled, in which case no substitution is needed.
         """
-        if (index + 2) < len(lines):
-            if not self.linter._is_one_message_enabled("R0801", index + 2):  # type: ignore[attr-defined]
-                return
-            next_line = lines[index + 2]
-            next_line_indentation_end_index = next_line.index(next_line.strip())
-            if next_line_indentation_end_index == line.index(line.strip()):
+        if not active_lines:
+            return
+        without_comments = active_lines[-1].split("#", maxsplit=1)[0].rstrip()
+        if not without_comments.endswith(":"):
+            return
+
+        # Now we know the previous line was a class/def/if/for/while.
+        # It's safe to insert " ..." only if every line at this indentation level
+        # or greater has the message disabled
+        this_line_indentation_end_index = line.index(line.strip())
+        for other_line in lines[index + 1:]:
+            other_line_indentation_end_index = other_line.index(other_line.strip())
+            if other_line_indentation_end_index < this_line_indentation_end_index:
+                break
+            if self.linter._is_one_message_enabled("R0801", lines.index(other_line) + 1):  # type: ignore[attr-defined]
                 return
 
         # Substitution: insert " ..." into the previous line
-        without_comments = active_lines[-1].split("#", maxsplit=1)[0].rstrip()
-        if without_comments.endswith(":"):  # it's a class/def/if/for/while
-            last_line = active_lines.pop()
-            index_after_colon = len(without_comments)
-            substitute = (
-                last_line[:index_after_colon] + " ..." + last_line[index_after_colon:]
-            )
-            active_lines.append(substitute)
+        last_line = active_lines.pop()
+        index_after_colon = len(without_comments)
+        substitute = (
+            last_line[:index_after_colon] + " ..." + last_line[index_after_colon:]
+        )
+        active_lines.append(substitute)
 
     def run(self) -> None:
         """Start looking for similarities and display results on stdout."""
