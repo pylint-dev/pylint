@@ -19,6 +19,7 @@ Once postprocessed the values of association table are the result looked for, i.
 
 from __future__ import annotations
 
+import argparse
 import copy
 import functools
 import itertools
@@ -49,7 +50,7 @@ from astroid import nodes
 from pylint.checkers import BaseChecker, MapReduceMixin, table_lines_from_stats
 from pylint.interfaces import IRawChecker
 from pylint.reporters.ureports.nodes import Table
-from pylint.typing import OptionDict, Options
+from pylint.typing import Options
 from pylint.utils import LinterStats, decoding_stream
 
 if TYPE_CHECKING:
@@ -342,11 +343,17 @@ class Similar:
         ignore_imports: bool = False,
         ignore_signatures: bool = False,
     ) -> None:
-        self.min_lines = min_lines
-        self.ignore_comments = ignore_comments
-        self.ignore_docstrings = ignore_docstrings
-        self.ignore_imports = ignore_imports
-        self.ignore_signatures = ignore_signatures
+        # If we run in pylint mode we link the namespace objects
+        if isinstance(self, BaseChecker):
+            self.namespace = self.linter.config
+        else:
+            self.namespace = argparse.Namespace()
+
+        self.namespace.min_similarity_lines = min_lines
+        self.namespace.ignore_comments = ignore_comments
+        self.namespace.ignore_docstrings = ignore_docstrings
+        self.namespace.ignore_imports = ignore_imports
+        self.namespace.ignore_signatures = ignore_signatures
         self.linesets: list[LineSet] = []
 
     def append_stream(
@@ -373,10 +380,10 @@ class Similar:
                 LineSet(
                     streamid,
                     active_lines,
-                    self.ignore_comments,
-                    self.ignore_docstrings,
-                    self.ignore_imports,
-                    self.ignore_signatures,
+                    self.namespace.ignore_comments,
+                    self.namespace.ignore_docstrings,
+                    self.namespace.ignore_imports,
+                    self.namespace.ignore_signatures,
                 )
             )
         except UnicodeDecodeError:
@@ -384,7 +391,7 @@ class Similar:
 
     def run(self) -> None:
         """Start looking for similarities and display results on stdout."""
-        if self.min_lines == 0:
+        if self.namespace.min_similarity_lines == 0:
             return
         self._display_sims(self._compute_sims())
 
@@ -470,8 +477,12 @@ class Similar:
         hash_to_index_2: HashToIndex_T
         index_to_lines_1: IndexToLines_T
         index_to_lines_2: IndexToLines_T
-        hash_to_index_1, index_to_lines_1 = hash_lineset(lineset1, self.min_lines)
-        hash_to_index_2, index_to_lines_2 = hash_lineset(lineset2, self.min_lines)
+        hash_to_index_1, index_to_lines_1 = hash_lineset(
+            lineset1, self.namespace.min_similarity_lines
+        )
+        hash_to_index_2, index_to_lines_2 = hash_lineset(
+            lineset2, self.namespace.min_similarity_lines
+        )
 
         hash_1: frozenset[LinesChunk] = frozenset(hash_to_index_1.keys())
         hash_2: frozenset[LinesChunk] = frozenset(hash_to_index_2.keys())
@@ -495,7 +506,7 @@ class Similar:
                 ] = CplSuccessiveLinesLimits(
                     copy.copy(index_to_lines_1[index_1]),
                     copy.copy(index_to_lines_2[index_2]),
-                    effective_cmn_lines_nb=self.min_lines,
+                    effective_cmn_lines_nb=self.namespace.min_similarity_lines,
                 )
 
         remove_successives(all_couples)
@@ -519,7 +530,7 @@ class Similar:
                 lineset1, start_index_1, lineset2, start_index_2, nb_common_lines
             )
 
-            if eff_cmn_nb > self.min_lines:
+            if eff_cmn_nb > self.namespace.min_similarity_lines:
                 yield com
 
     def _iter_sims(self) -> Generator[Commonality, None, None]:
@@ -780,7 +791,7 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
     # reports
     reports = (("RP0801", "Duplication", report_similarities),)
 
-    def __init__(self, linter=None) -> None:
+    def __init__(self, linter: PyLinter) -> None:
         BaseChecker.__init__(self, linter)
         Similar.__init__(
             self,
@@ -790,43 +801,6 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
             ignore_imports=self.linter.config.ignore_imports,
             ignore_signatures=self.linter.config.ignore_signatures,
         )
-
-    def set_option(
-        self,
-        optname: str,
-        value: Any,
-        action: str | None = "default_value",
-        optdict: None | str | OptionDict = "default_value",
-    ) -> None:
-        """Method called to set an option (registered in the options list).
-
-        Overridden to report options setting to Similar
-        """
-        # TODO: 3.0: Remove deprecated arguments. # pylint: disable=fixme
-        if action != "default_value":
-            warnings.warn(
-                "The 'action' argument has been deprecated. You can use set_option "
-                "without the 'action' or 'optdict' arguments.",
-                DeprecationWarning,
-            )
-        if optdict != "default_value":
-            warnings.warn(
-                "The 'optdict' argument has been deprecated. You can use set_option "
-                "without the 'action' or 'optdict' arguments.",
-                DeprecationWarning,
-            )
-
-        self.linter.set_option(optname, value)
-        if optname == "min-similarity-lines":
-            self.min_lines = self.linter.config.min_similarity_lines
-        elif optname == "ignore-comments":
-            self.ignore_comments = self.linter.config.ignore_comments
-        elif optname == "ignore-docstrings":
-            self.ignore_docstrings = self.linter.config.ignore_docstrings
-        elif optname == "ignore-imports":
-            self.ignore_imports = self.linter.config.ignore_imports
-        elif optname == "ignore-signatures":
-            self.ignore_signatures = self.linter.config.ignore_signatures
 
     def open(self):
         """Init the checkers: reset linesets and statistics information."""
