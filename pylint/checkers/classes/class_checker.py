@@ -1511,7 +1511,9 @@ a metaclass class method.",
 
         self._check_protected_attribute_access(node)
 
-    @check_messages("assigning-non-slot", "invalid-class-object")
+    @check_messages(
+        "assigning-non-slot", "invalid-class-object", "access-member-before-definition"
+    )
     def visit_assignattr(self, node: nodes.AssignAttr) -> None:
         if isinstance(
             node.assign_type(), nodes.AugAssign

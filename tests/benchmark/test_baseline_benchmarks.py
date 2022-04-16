@@ -136,6 +136,7 @@ class TestEstablishBaselineBenchmarks:
             linter.msg_status == 0
         ), f"Expected no errors to be thrown: {pprint.pformat(linter.reporter.messages)}"
 
+    @pytest.mark.needs_two_cores
     def test_baseline_benchmark_j2(self, benchmark):
         """Establish a baseline of pylint performance with no work across threads.
 
@@ -158,6 +159,7 @@ class TestEstablishBaselineBenchmarks:
             linter.msg_status == 0
         ), f"Expected no errors to be thrown: {pprint.pformat(linter.reporter.messages)}"
 
+    @pytest.mark.needs_two_cores
     def test_baseline_benchmark_check_parallel_j2(self, benchmark):
         """Should demonstrate times very close to `test_baseline_benchmark_j2`."""
         linter = PyLinter(reporter=Reporter())
@@ -190,6 +192,7 @@ class TestEstablishBaselineBenchmarks:
             linter.msg_status == 0
         ), f"Expected no errors to be thrown: {pprint.pformat(linter.reporter.messages)}"
 
+    @pytest.mark.needs_two_cores
     def test_baseline_lots_of_files_j2(self, benchmark):
         """Establish a baseline with only 'master' checker being run in -j2.
 
@@ -230,6 +233,7 @@ class TestEstablishBaselineBenchmarks:
             linter.msg_status == 0
         ), f"Expected no errors to be thrown: {pprint.pformat(linter.reporter.messages)}"
 
+    @pytest.mark.needs_two_cores
     def test_baseline_lots_of_files_j2_empty_checker(self, benchmark):
         """Baselines pylint for a single extra checker being run in -j2, for N-files.
 
@@ -276,6 +280,7 @@ class TestEstablishBaselineBenchmarks:
             linter.msg_status == 0
         ), f"Expected no errors to be thrown: {pprint.pformat(linter.reporter.messages)}"
 
+    @pytest.mark.needs_two_cores
     def test_baseline_benchmark_j2_single_working_checker(self, benchmark):
         """Establishes baseline of multi-worker performance for PyLinter/check_parallel.
 

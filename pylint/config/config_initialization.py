@@ -8,7 +8,8 @@ import sys
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from pylint import config, reporters
+from pylint import reporters
+from pylint.config.config_file_parser import _ConfigurationFileParser
 from pylint.config.exceptions import _UnrecognizedOptionError
 from pylint.utils import utils
 
@@ -33,7 +34,7 @@ def _config_initialization(
     linter.set_current_module(str(config_file) if config_file else None)
 
     # Read the configuration file
-    config_file_parser = config._ConfigurationFileParser(verbose_mode, linter)
+    config_file_parser = _ConfigurationFileParser(verbose_mode, linter)
     try:
         config_data, config_args = config_file_parser.parse_config_file(
             file_path=config_file

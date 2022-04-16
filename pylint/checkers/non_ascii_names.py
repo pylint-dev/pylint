@@ -94,7 +94,7 @@ class NonAsciiNameChecker(base_checker.BaseChecker):
 
             self.add_message(msg, node=node, args=args, confidence=interfaces.HIGH)
 
-    @utils.check_messages("non-ascii-name")
+    @utils.check_messages("non-ascii-name", "non-ascii-file-name")
     def visit_module(self, node: nodes.Module) -> None:
         self._check_name("file", node.name.split(".")[-1], node)
 
@@ -166,11 +166,11 @@ class NonAsciiNameChecker(base_checker.BaseChecker):
             name = alias or module_name
             self._check_name("module", name, node)
 
-    @utils.check_messages("non-ascii-name")
+    @utils.check_messages("non-ascii-name", "non-ascii-module-import")
     def visit_import(self, node: nodes.Import) -> None:
         self._check_module_import(node)
 
-    @utils.check_messages("non-ascii-name")
+    @utils.check_messages("non-ascii-name", "non-ascii-module-import")
     def visit_importfrom(self, node: nodes.ImportFrom) -> None:
         self._check_module_import(node)
 

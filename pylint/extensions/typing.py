@@ -307,7 +307,7 @@ class TypingChecker(BaseChecker):
             )
         )
 
-    @check_messages("consider-using-alias")
+    @check_messages("consider-using-alias", "deprecated-typing-alias")
     def leave_module(self, node: nodes.Module) -> None:
         """After parsing of module is complete, add messages for
         'consider-using-alias' check.

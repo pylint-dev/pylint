@@ -149,3 +149,11 @@ class TestSimilarCodeChecker:
             [path, "--disable=all", "--enable=duplicate-code"],
             expected_output=expected_output,
         )
+
+    def test_ignore_imports(self) -> None:
+        """Tests enabling ignore-imports works correctly."""
+        path = join(DATA, "ignore_imports")
+        self._runtest(
+            [path, "-e=duplicate-code", "-d=unused-import", "--ignore-imports=y"],
+            code=0,
+        )

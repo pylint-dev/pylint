@@ -241,6 +241,7 @@ class ComparisonChecker(_BasicChecker):
         "literal-comparison",
         "comparison-with-itself",
         "comparison-with-callable",
+        "nan-comparison",
     )
     def visit_compare(self, node: nodes.Compare) -> None:
         self._check_callable_comparison(node)

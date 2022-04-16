@@ -19,6 +19,14 @@ from pylint.typing import OptionDict, Options
 class UnsupportedAction(Exception):
     """Raised by set_option when it doesn't know what to do for an action."""
 
+    def __init__(self, *args: object) -> None:
+        # TODO: 3.0: Remove deprecated exception # pylint: disable=fixme
+        warnings.warn(
+            "UnsupportedAction has been deprecated and will be removed in pylint 3.0",
+            DeprecationWarning,
+        )
+        super().__init__(*args)
+
 
 class _ArgumentsProvider:
     """Base class for classes that provide arguments."""

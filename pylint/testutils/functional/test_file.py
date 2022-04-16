@@ -32,6 +32,7 @@ class TestFileOptions(TypedDict):
     requires: list[str]
     except_implementations: list[str]
     exclude_platforms: list[str]
+    exclude_from_minimal_messages_config: bool
 
 
 # mypy need something literal, we can't create this dynamically from TestFileOptions
@@ -42,6 +43,7 @@ POSSIBLE_TEST_OPTIONS = {
     "requires",
     "except_implementations",
     "exclude_platforms",
+    "exclude_from_minimal_messages_config",
 }
 
 
@@ -67,6 +69,7 @@ class FunctionalTestFile:
             "requires": [],
             "except_implementations": [],
             "exclude_platforms": [],
+            "exclude_from_minimal_messages_config": False,
         }
         self._parse_options()
 

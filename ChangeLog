@@ -52,6 +52,30 @@ Release date: TBA
 
   Ref #5392
 
+* ``UnsupportedAction`` has been deprecated.
+
+  Ref #5392
+
+* ``OptionsManagerMixIn`` has been deprecated.
+
+  Ref #5392
+
+* ``OptionParser`` has been deprecated.
+
+  Ref #5392
+
+* ``Option`` has been deprecated.
+
+  Ref #5392
+
+* ``OptionsProviderMixIn`` has been deprecated.
+
+  Ref #5392
+
+* ``ConfigurationMixIn`` has been deprecated.
+
+  Ref #5392
+
 * ``get_global_config`` has been deprecated. You can now access all global options from
   ``checker.linter.config``.
 
@@ -139,6 +163,9 @@ Release date: TBA
   Closes #1555
 
 * The concept of checker priority has been removed.
+
+* Add a new command line option ``--minimal-messages-config`` for ``pytest``, which disables all
+  irrelevant messages when running the functional tests.
 
 * ``duplicate-argument-name`` now only raises once for each set of duplicated arguments.
 

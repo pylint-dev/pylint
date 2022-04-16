@@ -7,6 +7,7 @@ from __future__ import annotations
 import os
 import sys
 import warnings
+from pathlib import Path
 
 from pylint import config
 from pylint.config.callback_actions import (
@@ -36,15 +37,51 @@ except ImportError:
     multiprocessing = None  # type: ignore[assignment]
 
 
+def _query_cpu() -> int | None:
+    """Try to determine number of CPUs allotted in a docker container.
+
+    This is based on discussion and copied from suggestions in
+    https://bugs.python.org/issue36054.
+    """
+    cpu_quota, avail_cpu = None, None
+
+    if Path("/sys/fs/cgroup/cpu/cpu.cfs_quota_us").is_file():
+        with open("/sys/fs/cgroup/cpu/cpu.cfs_quota_us", encoding="utf-8") as file:
+            # Not useful for AWS Batch based jobs as result is -1, but works on local linux systems
+            cpu_quota = int(file.read().rstrip())
+
+    if (
+        cpu_quota
+        and cpu_quota != -1
+        and Path("/sys/fs/cgroup/cpu/cpu.cfs_period_us").is_file()
+    ):
+        with open("/sys/fs/cgroup/cpu/cpu.cfs_period_us", encoding="utf-8") as file:
+            cpu_period = int(file.read().rstrip())
+        # Divide quota by period and you should get num of allotted CPU to the container, rounded down if fractional.
+        avail_cpu = int(cpu_quota / cpu_period)
+    elif Path("/sys/fs/cgroup/cpu/cpu.shares").is_file():
+        with open("/sys/fs/cgroup/cpu/cpu.shares", encoding="utf-8") as file:
+            cpu_shares = int(file.read().rstrip())
+        # For AWS, gives correct value * 1024.
+        avail_cpu = int(cpu_shares / 1024)
+    return avail_cpu
+
+
 def _cpu_count() -> int:
     """Use sched_affinity if available for virtualized or containerized environments."""
+    cpu_share = _query_cpu()
+    cpu_count = None
     sched_getaffinity = getattr(os, "sched_getaffinity", None)
     # pylint: disable=not-callable,using-constant-test,useless-suppression
     if sched_getaffinity:
-        return len(sched_getaffinity(0))
-    if multiprocessing:
-        return multiprocessing.cpu_count()
-    return 1
+        cpu_count = len(sched_getaffinity(0))
+    elif multiprocessing:
+        cpu_count = multiprocessing.cpu_count()
+    else:
+        cpu_count = 1
+    if cpu_share is not None:
+        return min(cpu_share, cpu_count)
+    return cpu_count
 
 
 UNUSED_PARAM_SENTINEL = object()
