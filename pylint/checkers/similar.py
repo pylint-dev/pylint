@@ -557,7 +557,7 @@ def stripped_lines(
     ignore_docstrings: bool,
     ignore_imports: bool,
     ignore_signatures: bool,
-    line_enabled_callback: Optional[Callable] = None,
+    line_enabled_callback: Callable | None = None,
 ) -> list[LineSpecifs]:
     """Return tuples of line/line number/line type with leading/trailing whitespace and any ignored code features removed.
 
