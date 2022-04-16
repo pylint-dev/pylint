@@ -116,17 +116,6 @@ class TestSimilarCodeChecker:
             expected_output=expected_output,
         )
 
-    def test_duplicate_code_raw_strings_disable_line_some(self) -> None:
-        """Tests disabling duplicate-code in the first two lines but not all lines
-        of a piece of similar code.
-        """
-        path = join(DATA, "raw_strings_disable_line_some")
-        expected_output = "Similar lines in 2 files"
-        self._test_output(
-            [path, "--disable=all", "--enable=duplicate-code"],
-            expected_output=expected_output,
-        )
-
     def test_duplicate_code_raw_strings_disable_scope(self) -> None:
         """Tests disabling duplicate-code at an inner scope level."""
         path = join(DATA, "raw_strings_disable_scope")
