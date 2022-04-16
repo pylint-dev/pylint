@@ -12,10 +12,10 @@ import numbers
 import re
 import string
 import warnings
-from collections.abc import Callable, Iterable
+from collections.abc import Iterable
 from functools import lru_cache, partial
 from re import Match
-from typing import TYPE_CHECKING, TypeVar
+from typing import Callable, TypeVar
 
 import _string
 import astroid.objects
@@ -224,11 +224,8 @@ SUBSCRIPTABLE_CLASSES_PEP585 = frozenset(
 )
 
 T_Node = TypeVar("T_Node", bound=nodes.NodeNG)
-if TYPE_CHECKING:
-    # In Python 3.8 and below placing this outside the type checking guard will lead
-    # to a ``TypeError`` at runtime, because ``Callable`` is not subscriptable.
-    CheckerT = TypeVar("CheckerT", bound=BaseChecker)
-    AstCallback = Callable[[CheckerT, T_Node], None]
+CheckerT = TypeVar("CheckerT", bound=BaseChecker)
+AstCallback = Callable[[CheckerT, T_Node], None]
 
 
 class NoSuchArgumentError(Exception):
