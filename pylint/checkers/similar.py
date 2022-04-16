@@ -40,7 +40,6 @@ from typing import (
     List,
     NamedTuple,
     NewType,
-    Optional,
     TextIO,
     Tuple,
     Union,
