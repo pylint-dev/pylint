@@ -15,7 +15,7 @@ import warnings
 from collections.abc import Callable, Iterable
 from functools import lru_cache, partial
 from re import Match
-from typing import TYPE_CHECKING, Callable, Iterable, Match, TypeVar
+from typing import TYPE_CHECKING, TypeVar
 
 import _string
 import astroid.objects
