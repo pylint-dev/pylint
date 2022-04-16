@@ -57,8 +57,10 @@ class BaseChecker(_ArgumentsProvider):
             return False
         return self.name > other.name
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         """Permit to assert Checkers are equal."""
+        if not isinstance(other, BaseChecker):
+            return False
         return f"{self.name}{self.msgs}" == f"{other.name}{other.msgs}"
 
     def __hash__(self):

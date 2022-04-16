@@ -99,6 +99,7 @@ def test_base_checker_ordering() -> None:
     type_checker = TypeChecker(linter)
 
     list_of_checkers = [
+        1,
         fake_checker_1,
         fake_checker_2,
         fake_checker_3,
@@ -107,7 +108,7 @@ def test_base_checker_ordering() -> None:
         while_checker,
         linter,
     ]
-    assert sorted(list_of_checkers) == [
+    assert sorted(list_of_checkers) == [  # type: ignore[type-var]
         linter,
         import_checker,
         type_checker,
@@ -115,6 +116,7 @@ def test_base_checker_ordering() -> None:
         fake_checker_1,
         fake_checker_2,
         while_checker,
+        1,
     ]
     assert fake_checker_1 > fake_checker_3
     assert fake_checker_2 > fake_checker_3
