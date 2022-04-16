@@ -387,11 +387,11 @@ class Similar:
     def _maybe_amend_prior_line(
         self, index: int, line: str, lines: list[str], active_lines: list[str]
     ):
-        """This line's disable may or may not be a block disable.
+        """
+        Determine if the prior line is a function or class definition ending in ":"
 
-        If so, we may need to make a subsitution in the previous line to ensure it
-        can be parsed by astroid (if ignore-imports or ignore-signatures is enabled),
-        because a function/class def without a body cannot be parsed.
+        that will need " ..." appended because every body statement disables "duplicate-code"
+        and would thus create an unparseable empty body when parsed by astroid.
 
         First, find out if the line after this one is at the same indentation level or
         *does* have the message enabled, in which case no substitution is needed.
