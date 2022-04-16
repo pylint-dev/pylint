@@ -16,7 +16,6 @@ from astroid import nodes
 
 from pylint.checkers import BaseChecker, DeprecatedMixin
 from pylint.checkers.utils import (
-    check_messages,
     get_import_name,
     is_from_fallback_block,
     is_node_in_guarded_import_block,
@@ -420,7 +419,6 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         """Callback returning the deprecated modules."""
         return self.linter.config.deprecated_modules
 
-    @check_messages(*MSGS)
     def visit_import(self, node: nodes.Import) -> None:
         """Triggered when an import statement is seen."""
         self._check_reimport(node)
@@ -446,7 +444,6 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
             self._add_imported_module(node, imported_module.name)
 
-    @check_messages(*MSGS)
     def visit_importfrom(self, node: nodes.ImportFrom) -> None:
         """Triggered when a from statement is seen."""
         basename = node.modname
@@ -474,7 +471,6 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             else:
                 self._add_imported_module(node, imported_module.name)
 
-    @check_messages(*MSGS)
     def leave_module(self, node: nodes.Module) -> None:
         # Check imports are grouped by category (standard, 3rd party, local)
         std_imports, ext_imports, loc_imports = self._check_imports_order(node)
