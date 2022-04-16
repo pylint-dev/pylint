@@ -360,67 +360,27 @@ class Similar:
         else:
             readlines = stream.readlines  # type: ignore[assignment] # hint parameter is incorrectly typed as non-optional
         try:
-            active_lines: list[str] = []
-            if hasattr(self, "linter"):
-                # Remove those lines that should be ignored because of disables
-                lines = readlines()
-                for index, line in enumerate(lines):
-                    if self.linter._is_one_message_enabled("R0801", index + 1):  # type: ignore[attr-defined]
-                        active_lines.append(line)
-                    self._maybe_amend_prior_line(index, line, lines, active_lines)
-            else:
-                active_lines = readlines()
-
-            self.linesets.append(
-                LineSet(
-                    streamid,
-                    active_lines,
-                    self.ignore_comments,
-                    self.ignore_docstrings,
-                    self.ignore_imports,
-                    self.ignore_signatures,
-                )
-            )
+            lines = readlines()
         except UnicodeDecodeError:
             pass
+        ignored_linenos = set()
+        if hasattr(self, "linter"):
+            for i in range(1, len(lines) + 1):
+                # Account for disables
+                if not self.linter._is_one_message_enabled("R0801", i):  # type: ignore[attr-defined]
+                    ignored_linenos.add(i)
 
-    def _maybe_amend_prior_line(
-        self, index: int, line: str, lines: list[str], active_lines: list[str]
-    ):
-        """
-        Determine if the prior line is a function or class definition ending in ":"
-
-        that will need " ..." appended because every body statement disables "duplicate-code"
-        and would thus create an unparseable empty body when parsed by astroid.
-
-        First, find out if the line after this one is at the same indentation level or
-        *does* have the message enabled, in which case no substitution is needed.
-        """
-        if not active_lines:
-            return
-        without_comments = active_lines[-1].split("#", maxsplit=1)[0].rstrip()
-        if not without_comments.endswith(":"):
-            return
-
-        # Now we know the previous line was a class/def/if/for/while.
-        # It's safe to insert " ..." only if every line at this indentation level
-        # or greater has the message disabled
-        this_line_indentation_end_index = line.index(line.strip())
-        for other_line in lines[index + 1 :]:
-            other_line_indentation_end_index = other_line.index(other_line.strip())
-            if other_line_indentation_end_index < this_line_indentation_end_index:
-                break
-            # pylint: disable-next=no-member
-            if self.linter._is_one_message_enabled("R0801", lines.index(other_line) + 1):  # type: ignore[attr-defined]
-                return
-
-        # Substitution: insert " ..." into the previous line
-        last_line = active_lines.pop()
-        index_after_colon = len(without_comments)
-        substitute = (
-            last_line[:index_after_colon] + " ..." + last_line[index_after_colon:]
+        self.linesets.append(
+            LineSet(
+                streamid,
+                lines,
+                self.ignore_comments,
+                self.ignore_docstrings,
+                self.ignore_imports,
+                self.ignore_signatures,
+                ignored_linenos,
+            )
         )
-        active_lines.append(substitute)
 
     def run(self) -> None:
         """Start looking for similarities and display results on stdout."""
@@ -592,6 +552,7 @@ def stripped_lines(
     ignore_docstrings: bool,
     ignore_imports: bool,
     ignore_signatures: bool,
+    ignored_linenos: Iterable[int],
 ) -> list[LineSpecifs]:
     """Return tuples of line/line number/line type with leading/trailing whitespace and any ignored code features removed.
 
@@ -600,6 +561,7 @@ def stripped_lines(
     :param ignore_docstrings: if true, any line that is a docstring is removed from the result
     :param ignore_imports: if true, any line that is an import is removed from the result
     :param ignore_signatures: if true, any line that is part of a function signature is removed from the result
+    :param ignored_linenos: line numbers to disregard because affected by a disable statement
     :return: the collection of line/line number/line type tuples
     """
     if ignore_imports or ignore_signatures:
@@ -651,6 +613,8 @@ def stripped_lines(
     strippedlines = []
     docstring = None
     for lineno, line in enumerate(lines, start=1):
+        if lineno in ignored_linenos:
+            continue
         line = line.strip()
         if ignore_docstrings:
             if not docstring:
@@ -697,11 +661,17 @@ class LineSet:
         ignore_docstrings: bool = False,
         ignore_imports: bool = False,
         ignore_signatures: bool = False,
+        ignored_linenos: Iterable[int] = (),
     ) -> None:
         self.name = name
         self._real_lines = lines
         self._stripped_lines = stripped_lines(
-            lines, ignore_comments, ignore_docstrings, ignore_imports, ignore_signatures
+            lines,
+            ignore_comments,
+            ignore_docstrings,
+            ignore_imports,
+            ignore_signatures,
+            ignored_linenos,
         )
 
     def __str__(self):
