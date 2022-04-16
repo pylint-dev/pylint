@@ -6,6 +6,9 @@
 
 
 from pylint.checkers import BaseChecker
+from pylint.checkers.imports import ImportsChecker
+from pylint.checkers.typecheck import TypeChecker
+from pylint.extensions.while_used import WhileChecker
 from pylint.lint.pylinter import PyLinter
 
 
@@ -41,7 +44,7 @@ class DifferentBasicChecker(BaseChecker):
     def __init__(self) -> None:
         super().__init__(PyLinter())
 
-    name = "different"
+    name = "a-different-checker"
     msgs = {
         "W0002": (
             "Blah blah example.",
@@ -87,9 +90,32 @@ Basic checker Messages
 
 def test_base_checker_ordering() -> None:
     """Test ordering of checkers based on their __gt__ method."""
+    linter = PyLinter()
     fake_checker_1 = OtherBasicChecker()
     fake_checker_2 = LessBasicChecker()
     fake_checker_3 = DifferentBasicChecker()
-    assert fake_checker_1 < fake_checker_3
-    assert fake_checker_2 < fake_checker_3
+    import_checker = ImportsChecker(linter)
+    while_checker = WhileChecker(linter)
+    type_checker = TypeChecker(linter)
+
+    list_of_checkers = [
+        fake_checker_1,
+        fake_checker_2,
+        fake_checker_3,
+        type_checker,
+        import_checker,
+        while_checker,
+        linter,
+    ]
+    assert sorted(list_of_checkers) == [
+        linter,
+        import_checker,
+        type_checker,
+        fake_checker_3,
+        fake_checker_1,
+        fake_checker_2,
+        while_checker,
+    ]
+    assert fake_checker_1 > fake_checker_3
+    assert fake_checker_2 > fake_checker_3
     assert fake_checker_1 == fake_checker_2
