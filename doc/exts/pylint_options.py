@@ -116,7 +116,7 @@ def _create_checker_section(
 
 **Note:** Only ``pylint.tool`` is required, the section title is not. These are the default values.
 
-.. code::toml:
+.. code-block:: toml
 
 {toml_string}
 
