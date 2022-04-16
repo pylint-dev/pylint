@@ -25,6 +25,8 @@ New checkers
 
   Closes #5895
 
+* Fixed failure to run deprecated checks with ``--enable=deprecated*`` after a ``disable=all``.
+
 * Add new check ``unnecessary-dunder-call`` for unnecessary dunder method calls.
 
   Closes #5936

@@ -23,6 +23,8 @@ Release date: TBA
 
   Closes #5224
 
+* Fixed failure to run deprecated checks with ``--enable=deprecated*`` after a ``disable=all``.
+
 * The ``config`` attribute of ``BaseChecker`` has been deprecated. You can use ``checker.linter.config``
   to access the global configuration object instead of a checker-specific object.
 

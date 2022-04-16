@@ -441,6 +441,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             {"old_names": [("W1516", "lru-cache-decorating-method")]},
         ),
     }
+    msgs.update(DeprecatedMixin.msgs)
 
     def __init__(self, linter: PyLinter) -> None:
         BaseChecker.__init__(self, linter)

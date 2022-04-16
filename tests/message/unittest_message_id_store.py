@@ -10,6 +10,7 @@ from pathlib import Path
 import pytest
 
 from pylint import lint
+from pylint.checkers.deprecated import DeprecatedMixin
 from pylint.exceptions import InvalidMessageError, UnknownMessageError
 from pylint.message.message_definition import MessageDefinition
 from pylint.message.message_id_store import MessageIdStore
@@ -126,7 +127,7 @@ def test_exclusivity_of_msgids() -> None:
         ),
         "02": ("classes", "refactoring", "multiple_types"),
         "03": ("classes", "format"),
-        "04": ("imports", "spelling"),
+        "04": ("imports", "spelling", "stdlib"),  # stdlib is here because of DeprecatedMixin
         "05": ("consider-using-any-or-all", "miscellaneous"),
         "07": ("exceptions", "broad_try_clause", "overlap-except"),
         "12": ("design", "logging"),
