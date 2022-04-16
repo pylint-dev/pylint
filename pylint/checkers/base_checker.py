@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING, Any
 from astroid import nodes
 
 from pylint.config.arguments_provider import _ArgumentsProvider
-from pylint.constants import _MSG_ORDER, WarningScope
+from pylint.constants import _MSG_ORDER, MAIN_CHECKER_NAME, WarningScope
 from pylint.exceptions import InvalidMessageError
 from pylint.interfaces import Confidence, IRawChecker, ITokenChecker, implements
 from pylint.message.message_definition import MessageDefinition
@@ -45,12 +45,22 @@ class BaseChecker(_ArgumentsProvider):
 
         _ArgumentsProvider.__init__(self, linter)
 
-    def __gt__(self, other):
-        """Permit to sort a list of Checker by name."""
-        return f"{self.name}{self.msgs}" > f"{other.name}{other.msgs}"
+    def __gt__(self, other: Any) -> bool:
+        """Sorting of checkers."""
+        if not isinstance(other, BaseChecker):
+            return False
+        if self.name == MAIN_CHECKER_NAME:
+            return False
+        if type(self).__module__.startswith("pylint.checkers") and not type(
+            other
+        ).__module__.startswith("pylint.checkers"):
+            return False
+        return self.name > other.name
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         """Permit to assert Checkers are equal."""
+        if not isinstance(other, BaseChecker):
+            return False
         return f"{self.name}{self.msgs}" == f"{other.name}{other.msgs}"
 
     def __hash__(self):
