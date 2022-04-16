@@ -410,6 +410,7 @@ class Similar:
             other_line_indentation_end_index = other_line.index(other_line.strip())
             if other_line_indentation_end_index < this_line_indentation_end_index:
                 break
+            # pylint: disable-next=no-member
             if self.linter._is_one_message_enabled("R0801", lines.index(other_line) + 1):  # type: ignore[attr-defined]
                 return
 
