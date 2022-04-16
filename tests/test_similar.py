@@ -39,8 +39,8 @@ class TestSimilarCodeChecker:
             "--persistent=no",
             "--enable=astroid-error",
             # Enable functionality that will build another ast
-            "ignore-imports=y",
-            "ignore-signatures=y",
+            "--ignore-imports=y",
+            "--ignore-signatures=y",
         ]
         with _patch_streams(out):
             with pytest.raises(SystemExit) as cm:
