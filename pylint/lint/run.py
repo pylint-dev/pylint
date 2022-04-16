@@ -38,9 +38,9 @@ except ImportError:
 
 
 def _query_cpu() -> int | None:
-    """Try to determine number of CPUs alloted in a docker container.
+    """Try to determine number of CPUs allotted in a docker container.
 
-    This is based on discussion and coped from suggestions in
+    This is based on discussion and copied from suggestions in
     https://bugs.python.org/issue36054.
     """
     cpu_quota, avail_cpu = None, None
