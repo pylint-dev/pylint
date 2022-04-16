@@ -205,6 +205,11 @@ Other Changes
   Closes #5815
   Closes #5406
 
+* Fixed an ``AstroidError`` in 2.13.0 raised by the ```duplicate-code``` checker with
+  ``ignore-imports`` or ``ignore-signatures`` enabled.
+
+  Closes #6301
+
 * Use the ``tomli`` package instead of ``toml`` to parse ``.toml`` files.
 
  Closes #5885

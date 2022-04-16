@@ -35,7 +35,7 @@ class TestSimilarCodeChecker:
     @staticmethod
     def _run_pylint(args: list[str], out: TextIO) -> int:
         """Runs pylint with a patched output."""
-        args = args + ["--persistent=no"]
+        args = args + ["--persistent=no", "--enable=astroid-error"]
         with _patch_streams(out):
             with pytest.raises(SystemExit) as cm:
                 with warnings.catch_warnings():
@@ -56,6 +56,7 @@ class TestSimilarCodeChecker:
         actual_output = self._clean_paths(out.getvalue())
         expected_output = self._clean_paths(expected_output)
         assert expected_output.strip() in actual_output.strip()
+        assert 'Fatal error' not in actual_output.strip()
 
     def test_duplicate_code_raw_strings_all(self) -> None:
         """Test similar lines in 3 similar files."""
@@ -114,6 +115,22 @@ class TestSimilarCodeChecker:
         expected_output = "Similar lines in 2 files"
         self._test_output(
             [path, "--disable=all", "--enable=duplicate-code"],
+            expected_output=expected_output,
+        )
+
+    def test_duplicate_code_raw_strings_disable_scope_ignore_imports_and_signatures(self) -> None:
+        """Tests disabling duplicate-code at an inner scope level with
+        ignore_imports and ignore_signatures."""
+        path = join(DATA, "raw_strings_disable_scope")
+        expected_output = "Similar lines in 2 files"
+        self._test_output(
+            [
+                path,
+                "--disable=all",
+                "--enable=duplicate-code",
+                "--ignore-imports=y",
+                "--ignore-signatures=y",
+            ],
             expected_output=expected_output,
         )
 

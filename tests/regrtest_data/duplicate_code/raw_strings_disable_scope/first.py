@@ -2,7 +2,7 @@ r"""A raw docstring.
 """
 
 
-def look_busy():
+def look_busy(extra_colons: str =":::"):  # pylint: disable=unused-argument
     # pylint: disable=duplicate-code
     xxxx = 1
     yyyy = 2
