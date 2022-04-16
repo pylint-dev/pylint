@@ -38,7 +38,7 @@ class TestSimilarCodeChecker:
         args = args + [
             "--persistent=no",
             "--enable=astroid-error",
-            # Enable additional functionality
+            # Enable functionality that will build another ast
             "ignore-imports=y",
             "ignore-signatures=y",
         ]
