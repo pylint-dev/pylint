@@ -48,14 +48,7 @@ def _register_all_checkers_and_extensions(linter: PyLinter) -> None:
 def _get_all_options(linter: PyLinter) -> OptionsDataDict:
     """Get all options registered to a linter and return the data."""
     all_options: OptionsDataDict = defaultdict(list)
-    for checker in sorted(
-        linter.get_checkers(),
-        key=lambda x: (
-            x.name != "master",
-            getmodule(x).__name__.startswith("pylint.extensions."),  # type: ignore[union-attr]
-            x.name,
-        ),
-    ):
+    for checker in sorted(linter.get_checkers()):
         ch_name = checker.name
         for option in checker.options:
             all_options[ch_name].append(
@@ -81,7 +74,7 @@ def _create_checker_section(
 
     checker_table = tomlkit.table()
 
-    for option in sorted(options, key=lambda x: x):
+    for option in sorted(options, key=lambda x: x.name):
         checker_string += get_rst_title(f"--{option.name}", '"')
         checker_string += f"\nDescription: *{option.optdict.get('help')}*\n\n"
         checker_string += f"Default: *{option.optdict.get('default')}*\n\n\n"
@@ -123,7 +116,7 @@ def _create_checker_section(
 
 **Note:** Only ``pylint.tool`` is required, the section title is not. These are the default values.
 
-.. code::
+.. code::toml:
 
 {toml_string}
 
@@ -136,7 +129,7 @@ def _create_checker_section(
 
 
 def _write_options_page(options: OptionsDataDict, linter: PyLinter) -> None:
-    """Create or overwrite the file for each message."""
+    """Create or overwrite the options page."""
     sections: list[str] = [get_rst_title("Standard Checkers:", "^")]
     found_extensions = False
 
