@@ -406,7 +406,7 @@ class Similar:
         # It's safe to insert " ..." only if every line at this indentation level
         # or greater has the message disabled
         this_line_indentation_end_index = line.index(line.strip())
-        for other_line in lines[index + 1:]:
+        for other_line in lines[index + 1 :]:
             other_line_indentation_end_index = other_line.index(other_line.strip())
             if other_line_indentation_end_index < this_line_indentation_end_index:
                 break
