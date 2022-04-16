@@ -661,7 +661,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if node.name and isinstance(node.name, nodes.AssignName):
             self._check_redefined_argument_from_local(node.name)
 
-    @utils.check_messages("redefined-argument-from-local")
+    @utils.check_messages("redefined-argument-from-local", "consider-using-with")
     def visit_with(self, node: nodes.With) -> None:
         for var, names in node.items:
             if isinstance(var, nodes.Name):
@@ -776,6 +776,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "no-else-break",
         "no-else-continue",
         "consider-using-get",
+        "consider-using-min-builtin",
+        "consider-using-max-builtin",
     )
     def visit_if(self, node: nodes.If) -> None:
         self._check_simplifiable_if(node)
@@ -1023,6 +1025,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "consider-using-with",
         "use-list-literal",
         "use-dict-literal",
+        "use-a-generator",
     )
     def visit_call(self, node: nodes.Call) -> None:
         self._check_raising_stopiteration_in_generator_next_call(node)
