@@ -565,7 +565,6 @@ def _determine_callable(
                 # Use the last definition of __init__.
                 callable_obj = callable_obj.local_attr("__init__")[-1]
             except astroid.NotFoundError as e:
-                # do nothing, covered by no-init.
                 raise ValueError from e
         else:
             callable_obj = new
