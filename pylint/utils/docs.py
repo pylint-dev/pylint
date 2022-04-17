@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import sys
 import warnings
-from typing import TYPE_CHECKING, TextIO
+from typing import TYPE_CHECKING, Any, TextIO
 
 from pylint.constants import MAIN_CHECKER_NAME
 from pylint.utils.utils import get_rst_section, get_rst_title
@@ -17,9 +17,9 @@ if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
 
 
-def _get_checkers_infos(linter: PyLinter) -> dict[str, dict]:
+def _get_checkers_infos(linter: PyLinter) -> dict[str, dict[str, Any]]:
     """Get info from a checker and handle KeyError."""
-    by_checker: dict[str, dict] = {}
+    by_checker: dict[str, dict[str, Any]] = {}
     for checker in linter.get_checkers():
         name = checker.name
         if name != "master":
