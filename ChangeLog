@@ -15,6 +15,9 @@ Release date: TBA
 
 * ``BaseChecker`` classes now require the ``linter`` argument to be passed.
 
+* Fix a failure to respect inline disables for ``fixme`` occurring on the last line
+  of a module when pylint is launched with ``--enable=fixme``.
+
 * Update ``invalid-slots-object`` message to show bad object rather than its inferred value.
 
   Closes #6101

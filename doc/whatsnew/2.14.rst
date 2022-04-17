@@ -68,6 +68,9 @@ Other Changes
 
   Closes #6101
 
+* Fix a failure to respect inline disables for ``fixme`` occurring on the last line
+  of a module when pylint is launched with ``--enable=fixme``.
+
 * Removed the broken ``generate-man`` option.
 
   Closes #5283

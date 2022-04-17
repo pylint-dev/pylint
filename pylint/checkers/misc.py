@@ -161,6 +161,7 @@ class EncodingChecker(BaseChecker):
                         pass
                     if set(values) & set(self.linter.config.notes):
                         continue
+                    self.linter.disable("fixme", scope="module", line=comment.start[0])
                 except ValueError:
                     self.add_message(
                         "bad-inline-option",
