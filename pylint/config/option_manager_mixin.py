@@ -13,11 +13,12 @@ import os
 import sys
 import warnings
 from pathlib import Path
-from typing import TextIO
+from typing import Any, TextIO
 
 from pylint import utils
 from pylint.config.option import Option
 from pylint.config.option_parser import OptionParser
+from pylint.typing import OptionDict
 
 if sys.version_info >= (3, 11):
     import tomllib
@@ -197,7 +198,7 @@ class OptionsManagerMixIn:
         """Write a configuration file according to the current configuration
         into the given stream or stdout
         """
-        options_by_section: dict[str, list[tuple]] = {}
+        options_by_section: dict[str, list[tuple[str, OptionDict, Any]]] = {}
         sections = []
         for provider in self.options_providers:
             for section, options in provider.options_by_section():
