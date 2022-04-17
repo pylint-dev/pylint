@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,too-few-public-methods,no-init,useless-object-inheritance
+# pylint: disable=missing-docstring,too-few-public-methods,useless-object-inheritance
 """
 #2479
 

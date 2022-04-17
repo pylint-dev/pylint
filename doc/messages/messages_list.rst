@@ -265,7 +265,6 @@ All messages in the warning category:
    warning/modified-iterating-list.rst
    warning/multiple-constructor-doc.rst
    warning/nan-comparison.rst
-   warning/no-init.rst
    warning/non-ascii-file-name.rst
    warning/non-parent-init-called.rst
    warning/non-str-assignment-to-dunder-name.rst

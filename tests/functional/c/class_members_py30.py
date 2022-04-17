@@ -1,5 +1,5 @@
 """ Various tests for class members access. """
-# pylint: disable=too-few-public-methods,import-error,no-init,missing-docstring, wrong-import-position,wrong-import-order, useless-object-inheritance, unnecessary-dunder-call
+# pylint: disable=too-few-public-methods,import-error,missing-docstring, wrong-import-position,wrong-import-order, useless-object-inheritance, unnecessary-dunder-call
 from missing import Missing
 class MyClass(object):
     """class docstring"""

@@ -535,11 +535,6 @@ MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
         "Used when an ancestor class method has an __init__ method "
         "which is not called by a derived class.",
     ),
-    "W0232": (
-        "Class has no __init__ method",
-        "no-init",
-        "Used when a class has no __init__ method, neither its parent classes.",
-    ),
     "W0233": (
         "__init__ method from a non direct base class %r is called",
         "non-parent-init-called",
@@ -784,7 +779,6 @@ a metaclass class method.",
 
     @check_messages(
         "abstract-method",
-        "no-init",
         "invalid-slots",
         "single-string-used-for-slots",
         "invalid-slots-object",
@@ -800,12 +794,6 @@ a metaclass class method.",
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         """Init visit variable _accessed."""
         self._check_bases_classes(node)
-        # if not an exception or a metaclass
-        if node.type == "class" and has_known_bases(node):
-            try:
-                node.local_attr("__init__")
-            except astroid.NotFoundError:
-                self.add_message("no-init", args=node, node=node)
         self._check_slots(node)
         self._check_proper_bases(node)
         self._check_typing_final(node)

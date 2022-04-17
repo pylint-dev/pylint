@@ -1,7 +1,7 @@
 """Tests that onjects used in a with statement implement context manager protocol"""
 
 # pylint: disable=too-few-public-methods, invalid-name, import-error, missing-docstring
-# pylint: disable=no-init,wrong-import-position, useless-object-inheritance
+# pylint: disable=wrong-import-position, useless-object-inheritance
 # Tests no messages for objects that implement the protocol
 class Manager(object):
     def __enter__(self):
