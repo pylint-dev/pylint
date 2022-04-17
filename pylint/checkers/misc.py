@@ -159,15 +159,14 @@ class EncodingChecker(BaseChecker):
                     except PragmaParserError:
                         # Printing useful information dealing with this error is done in the lint package
                         pass
-                    if set(values) & set(self.linter.config.notes):
-                        continue
-                    self.linter.disable("fixme", scope="module", line=comment.start[0])
                 except ValueError:
                     self.add_message(
                         "bad-inline-option",
                         args=disable_option_match.group(1).strip(),
                         line=comment.start[0],
                     )
+                    continue
+                else:
                     continue
 
             # emit warnings if necessary
