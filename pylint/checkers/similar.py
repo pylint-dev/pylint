@@ -560,7 +560,7 @@ def stripped_lines(
     ignore_docstrings: bool,
     ignore_imports: bool,
     ignore_signatures: bool,
-    line_enabled_callback: Callable | None = None,
+    line_enabled_callback: Callable[[str, int], bool] | None = None,
 ) -> list[LineSpecifs]:
     """Return tuples of line/line number/line type with leading/trailing whitespace and any ignored code features removed.
 
@@ -671,7 +671,7 @@ class LineSet:
         ignore_docstrings: bool = False,
         ignore_imports: bool = False,
         ignore_signatures: bool = False,
-        line_enabled_callback: Callable | None = None,
+        line_enabled_callback: Callable[[str, int], bool] | None = None,
     ) -> None:
         self.name = name
         self._real_lines = lines
