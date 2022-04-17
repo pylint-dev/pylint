@@ -430,7 +430,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             for cycle in get_cycles(graph, vertices=vertices):
                 self.add_message("cyclic-import", args=" -> ".join(cycle))
 
-    def deprecated_modules(self):
+    def deprecated_modules(self) -> set[str]:
         """Callback returning the deprecated modules."""
         # First get the modules the user indicated
         all_deprecated_modules = set(self.linter.config.deprecated_modules)

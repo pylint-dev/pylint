@@ -437,7 +437,6 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         self._deprecated_methods: set[str] = set()
         self._deprecated_arguments: dict[str, tuple[tuple[int | None, str], ...]] = {}
         self._deprecated_classes: dict[str, set[str]] = {}
-        self._deprecated_modules: set[str] = set()
         self._deprecated_decorators: set[str] = set()
 
         for since_vers, func_list in DEPRECATED_METHODS[sys.version_info[0]].items():
@@ -737,10 +736,6 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                 self.add_message(message, node=node, args=(name, call_arg.pytype()))
         else:
             self.add_message(message, node=node, args=(name, call_arg.pytype()))
-
-    def deprecated_modules(self):
-        """See ImportsChecker: this one is empty."""
-        return self._deprecated_modules
 
     def deprecated_methods(self):
         return self._deprecated_methods
