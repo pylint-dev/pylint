@@ -1,2 +1,4 @@
 [Imports]
 deprecated-modules=imp
+[Messages Control]
+disable=unused-import
