@@ -166,8 +166,8 @@ class EncodingChecker(BaseChecker):
                         line=comment.start[0],
                     )
                     continue
-                else:
-                    continue
+                self.linter.add_ignored_message("fixme", line=comment.start[0])
+                continue
 
             # emit warnings if necessary
             match = self._fixme_pattern.search("#" + comment_text.lower())
