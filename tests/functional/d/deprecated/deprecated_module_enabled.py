@@ -1,1 +1,0 @@
-import optparse  # [deprecated-module]
