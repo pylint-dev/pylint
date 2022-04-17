@@ -1,0 +1,6 @@
+[Imports]
+deprecated-modules=imp
+
+[Messages Control]
+disable=all
+enable=deprecated-module
