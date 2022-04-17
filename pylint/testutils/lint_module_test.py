@@ -68,6 +68,9 @@ class LintModuleTest:
         if config and config.getoption("minimal_messages_config"):
             with self._open_source_file() as f:
                 messages_to_enable = {msg[1] for msg in self.get_expected_messages(f)}
+                # Always enable fatal errors
+                messages_to_enable.add("astroid-error")
+                messages_to_enable.add("fatal")
             args.extend(["--disable=all", f"--enable={','.join(messages_to_enable)}"])
         _config_initialization(
             self._linter, args_list=args, config_file=rc_file, reporter=_test_reporter
