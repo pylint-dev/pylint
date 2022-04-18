@@ -200,11 +200,11 @@ Pylint uses ConfigParser from the standard library to parse the configuration
 file.  It means that if you need to disable a lot of messages, you can use
 tricks like: ::
 
-    # disable wildcard-import, method-hidden and too-many-lines because I do
-    # not want it
-    disable= wildcard-import,
-     method-hidden,
-     too-many-lines
+    # disable wildcard-import, method-hidden and too-many-lines
+    disable=
+        wildcard-import,
+        method-hidden,
+        too-many-lines
 
 
 4.7 Why are there a bunch of messages disabled by default?
