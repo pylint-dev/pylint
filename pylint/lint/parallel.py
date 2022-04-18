@@ -174,8 +174,3 @@ def check_parallel(
 
     _merge_mapreduce_data(linter, all_mapreduce_data)
     linter.stats = merge_stats([linter.stats] + all_stats)
-
-    # Insert stats data to local checkers.
-    for checker in linter.get_checkers():
-        if checker is not linter:
-            checker.stats = linter.stats
