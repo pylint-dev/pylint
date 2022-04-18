@@ -61,6 +61,7 @@ Pylint provides global options and switches.
                         else:
                             title = f"{section.capitalize()} options"
                         result += get_rst_title(title, "~")
+                        assert isinstance(options, list)
                         result += f"{get_rst_section(None, options)}\n"
     result += get_rst_title("Pylint checkers' options and switches", "-")
     result += """\
@@ -75,8 +76,8 @@ Below is a list of all checkers and their features.
 
 """
     by_checker = _get_checkers_infos(linter)
-    for checker in sorted(by_checker):
-        information = by_checker[checker]
+    for checker_name in sorted(by_checker):
+        information = by_checker[checker_name]
         checker = information["checker"]
         del information["checker"]
         result += checker.get_full_documentation(**information)
