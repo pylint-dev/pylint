@@ -1515,13 +1515,10 @@ a metaclass class method.",
             return
         if not isinstance(frame.parent.frame(), nodes.ClassDef):
             return
-
         if not isinstance(node.parent, nodes.Call):
             return
-
         if not isinstance(node.expr, nodes.Name):
             return
-
         if node.expr.name == "super":
             self.add_message("super-without-brackets", node=node.expr, confidence=HIGH)
 
