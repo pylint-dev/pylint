@@ -2,9 +2,12 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import contextlib
 import sys
 import traceback
+from collections.abc import Iterator, Sequence
 from datetime import datetime
 from pathlib import Path
 
@@ -68,7 +71,7 @@ def get_fatal_error_message(filepath: str, issue_template_path: Path) -> str:
     )
 
 
-def _patch_sys_path(args):
+def _patch_sys_path(args: Sequence[str]) -> list[str]:
     original = list(sys.path)
     changes = []
     seen = set()
@@ -83,7 +86,7 @@ def _patch_sys_path(args):
 
 
 @contextlib.contextmanager
-def fix_import_path(args):
+def fix_import_path(args: Sequence[str]) -> Iterator[None]:
     """Prepare 'sys.path' for running the linter checks.
 
     Within this context, each of the given arguments is importable.
