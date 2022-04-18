@@ -8,7 +8,7 @@ from dataclasses import asdict, dataclass
 from warnings import warn
 
 from pylint.constants import MSG_TYPES
-from pylint.interfaces import Confidence
+from pylint.interfaces import UNDEFINED, Confidence
 from pylint.typing import MessageLocationTuple
 
 
@@ -21,7 +21,7 @@ class Message:  # pylint: disable=too-many-instance-attributes
     msg: str
     C: str
     category: str
-    confidence: Confidence | None
+    confidence: Confidence
     abspath: str
     path: str
     module: str
@@ -61,7 +61,7 @@ class Message:  # pylint: disable=too-many-instance-attributes
         self.msg = msg
         self.C = msg_id[0]
         self.category = MSG_TYPES[msg_id[0]]
-        self.confidence = confidence
+        self.confidence = confidence or UNDEFINED
         self.abspath = location.abspath
         self.path = location.path
         self.module = location.module
