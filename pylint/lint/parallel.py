@@ -16,7 +16,7 @@ import dill
 from pylint import reporters
 from pylint.lint.utils import _patch_sys_path
 from pylint.message import Message
-from pylint.typing import FileItem, MessageLocationTuple
+from pylint.typing import FileItem
 from pylint.utils import LinterStats, merge_stats
 
 try:
@@ -30,18 +30,6 @@ if TYPE_CHECKING:
 # PyLinter object used by worker processes when checking files using multiprocessing
 # should only be used by the worker processes
 _worker_linter = None
-
-
-def _get_new_args(message):
-    location = (
-        message.abspath,
-        message.path,
-        message.module,
-        message.obj,
-        message.line,
-        message.column,
-    )
-    return (message.msg_id, message.symbol, location, message.msg, message.confidence)
 
 
 def _worker_initialize(
@@ -67,7 +55,14 @@ def _worker_initialize(
 def _worker_check_single_file(
     file_item: FileItem,
 ) -> tuple[
-    int, Any, str, Any, list[tuple[Any, ...]], LinterStats, Any, defaultdict[Any, list]
+    int,
+    Any,
+    str,
+    Any,
+    list[Message],
+    LinterStats,
+    Any,
+    defaultdict[Any, list],
 ]:
     if not _worker_linter:
         raise Exception("Worker linter not yet initialised")
@@ -80,7 +75,7 @@ def _worker_check_single_file(
         except AttributeError:
             continue
         mapreduce_data[checker.name].append(data)
-    msgs = [_get_new_args(m) for m in _worker_linter.reporter.messages]
+    msgs = _worker_linter.reporter.messages
     _worker_linter.reporter.reset()
     if _worker_linter.current_name is None:
         warnings.warn(
@@ -162,9 +157,6 @@ def check_parallel(
             linter.file_state.base_name = base_name
             linter.set_current_module(module, file_path)
             for msg in messages:
-                msg = Message(
-                    msg[0], msg[1], MessageLocationTuple(*msg[2]), msg[3], msg[4]
-                )
                 linter.reporter.handle_message(msg)
             all_stats.append(stats)
             all_mapreduce_data[worker_idx].append(mapreduce_data)
