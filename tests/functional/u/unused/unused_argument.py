@@ -53,7 +53,7 @@ def metadata_from_dict_2(key):
     return {key: (a, b) for key, (a, b) in key.items()}
 
 
-# pylint: disable=too-few-public-methods,  misplaced-future,wrong-import-position
+# pylint: disable=too-few-public-methods, misplaced-future,wrong-import-position
 from __future__ import print_function
 
 
