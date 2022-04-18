@@ -72,7 +72,7 @@ def get_fatal_error_message(filepath: str, issue_template_path: Path) -> str:
 
 
 def _patch_sys_path(args: Sequence[str]) -> list[str]:
-    original = sys.path
+    original = list(sys.path)
     changes = []
     seen = set()
     for arg in args:
