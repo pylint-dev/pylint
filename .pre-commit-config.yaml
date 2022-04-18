@@ -3,7 +3,7 @@ ci:
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.1.0
+    rev: v4.2.0
     hooks:
       - id: trailing-whitespace
         exclude: "tests/functional/t/trailing_whitespaces.py|tests/pyreverse/data/.*.html"
@@ -28,7 +28,7 @@ repos:
         exclude: tests/functional/|tests/input|tests/regrtest_data/|tests/data/|doc/data/messages|tests/testutils/data/|examples/|setup.py
         types: [python]
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.31.1
+    rev: v2.32.0
     hooks:
       - id: pyupgrade
         args: [--py36-plus]
@@ -38,7 +38,7 @@ repos:
     hooks:
       - id: isort
   - repo: https://github.com/psf/black
-    rev: 22.1.0
+    rev: 22.3.0
     hooks:
       - id: black
         args: [--safe, --quiet]
@@ -77,7 +77,7 @@ repos:
         types: [text]
         files: ^(ChangeLog|doc/whatsnew/\d+\.\d+\.rst)
   - repo: https://github.com/myint/rstcheck
-    rev: "3f92957478422df87bd730abde66f089cc1ee19b"
+    rev: "v5.0.0"
     hooks:
       - id: rstcheck
         args: ["--ignore-roles=func,class,mod", "--report=warning"]
