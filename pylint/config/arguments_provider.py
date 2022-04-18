@@ -153,13 +153,8 @@ class _ArgumentsProvider:
     def options_by_section(
         self,
     ) -> Iterator[
-        tuple[
-            str | None,
-            (
-                dict[str, list[tuple[str, OptionDict, Any]]]
-                | list[tuple[str, OptionDict, Any]]
-            ),
-        ]
+        tuple[str, list[tuple[str, OptionDict, Any]]]
+        | tuple[None, dict[str, list[tuple[str, OptionDict, Any]]]]
     ]:  # pragma: no cover
         """DEPRECATED: Return an iterator on options grouped by section.
 
