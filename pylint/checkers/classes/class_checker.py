@@ -581,6 +581,12 @@ MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
         "redefined-slots-in-subclass",
         "Used when a slot is re-defined in a subclass.",
     ),
+    "W0245": (
+        "Super call without brackets",
+        "super-without-brackets",
+        "Used when a call to super does not have brackets and thus is not an actual "
+        "call and does not work as expected.",
+    ),
     "E0236": (
         "Invalid object %r in __slots__, must contain only non empty strings",
         "invalid-slots-object",
@@ -1490,6 +1496,8 @@ a metaclass class method.",
         class member from outside its class (but ignore __special__
         methods)
         """
+        self._check_super_without_brackets(node)
+
         # Check self
         if self._uses_mandatory_method_param(node):
             self._accessed.set_accessed(node)
@@ -1498,6 +1506,24 @@ a metaclass class method.",
             return
 
         self._check_protected_attribute_access(node)
+
+    def _check_super_without_brackets(self, node: nodes.Attribute) -> None:
+        """Check if there is a function call on a super call without brackets."""
+        # Check if attribute call is in frame definition in class definition
+        frame = node.frame()
+        if not isinstance(frame, nodes.FunctionDef):
+            return
+        if not isinstance(frame.parent.frame(), nodes.ClassDef):
+            return
+
+        if not isinstance(node.parent, nodes.Call):
+            return
+
+        if not isinstance(node.expr, nodes.Name):
+            return
+
+        if node.expr.name == "super":
+            self.add_message("super-without-brackets", node=node.expr)
 
     @check_messages(
         "assigning-non-slot", "invalid-class-object", "access-member-before-definition"

@@ -1,0 +1,2 @@
+super-without-brackets:15:8:15:13:TomatoSoup.temp:Super call without brackets:UNDEFINED
+super-without-brackets:22:8:22:13:VegetableSoup.temp:Super call without brackets:UNDEFINED
