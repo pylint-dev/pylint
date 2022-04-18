@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING, Any
 
 from astroid import nodes
 
+from pylint.checkers.mapreduce_checker import MapReduceMixin
 from pylint.config.arguments_provider import _ArgumentsProvider
 from pylint.constants import _MSG_ORDER, MAIN_CHECKER_NAME, WarningScope
 from pylint.exceptions import InvalidMessageError
@@ -24,7 +25,7 @@ if TYPE_CHECKING:
 
 
 @functools.total_ordering
-class BaseChecker(_ArgumentsProvider):
+class BaseChecker(_ArgumentsProvider, MapReduceMixin):
 
     # checker name (you may reuse an existing one)
     name: str = ""
@@ -205,6 +206,12 @@ class BaseChecker(_ArgumentsProvider):
 
     def close(self):
         """Called after visiting project (i.e set of modules)."""
+
+    def get_map_data(self) -> Any:
+        return None
+
+    def reduce_map_data(self, linter: PyLinter, data: list[Any]) -> None:
+        return None
 
 
 class BaseTokenChecker(BaseChecker):
