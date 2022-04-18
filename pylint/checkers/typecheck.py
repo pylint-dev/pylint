@@ -565,7 +565,6 @@ def _determine_callable(
                 # Use the last definition of __init__.
                 callable_obj = callable_obj.local_attr("__init__")[-1]
             except astroid.NotFoundError as e:
-                # do nothing, covered by no-init.
                 raise ValueError from e
         else:
             callable_obj = new
@@ -1294,7 +1293,6 @@ accessed. Python regular expressions are accepted.",
             self.add_message("isinstance-second-argument-not-valid-type", node=node)
 
     # pylint: disable=too-many-branches,too-many-locals
-    @check_messages(*(list(MSGS.keys())))
     def visit_call(self, node: nodes.Call) -> None:
         """Check that called functions/methods are inferred to callable objects,
         and that passed arguments match the parameters in the inferred function.
@@ -1831,11 +1829,19 @@ accessed. Python regular expressions are accepted.",
                 self.add_message("unsupported-binary-operation", args=msg, node=node)
                 break
 
+    # pylint: disable-next=fixme
+    # TODO: This check was disabled (by adding the leading underscore)
+    # due to false positives several years ago - can we re-enable it?
+    # https://github.com/PyCQA/pylint/issues/6359
     @check_messages("unsupported-binary-operation")
     def _visit_binop(self, node: nodes.BinOp) -> None:
         """Detect TypeErrors for binary arithmetic operands."""
         self._check_binop_errors(node)
 
+    # pylint: disable-next=fixme
+    # TODO: This check was disabled (by adding the leading underscore)
+    # due to false positives several years ago - can we re-enable it?
+    # https://github.com/PyCQA/pylint/issues/6359
     @check_messages("unsupported-binary-operation")
     def _visit_augassign(self, node: nodes.AugAssign) -> None:
         """Detect TypeErrors for augmented binary arithmetic operands."""

@@ -1,4 +1,4 @@
-# pylint: disable= unnecessary-comprehension,missing-docstring,too-few-public-methods
+# pylint: disable=unnecessary-comprehension,missing-docstring,too-few-public-methods
 """Tests for loopvar-in-closure."""
 from __future__ import print_function
 

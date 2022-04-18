@@ -44,9 +44,16 @@ New checkers
 
   Closes #5880
 
+* Added the ``super-without-brackets`` checker, raised when a super call is missing its brackets.
+
+  Closes #4008
+
 Removed checkers
 ================
 
+* The ``no-init`` (W0232) warning has been removed. It's ok to not have an ``__init__`` in a class.
+
+  Closes #2409
 
 Extensions
 ==========
@@ -67,6 +74,9 @@ Other Changes
 * Update ``invalid-slots-object`` message to show bad object rather than its inferred value.
 
   Closes #6101
+
+* Fix a failure to respect inline disables for ``fixme`` occurring on the last line
+  of a module when pylint is launched with ``--enable=fixme``.
 
 * Removed the broken ``generate-man`` option.
 

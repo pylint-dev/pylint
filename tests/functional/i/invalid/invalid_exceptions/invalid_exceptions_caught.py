@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring, too-few-public-methods, useless-object-inheritance, use-list-literal
-# pylint: disable=too-many-ancestors,  import-error, multiple-imports,wrong-import-position
+# pylint: disable=too-many-ancestors, import-error, multiple-imports,wrong-import-position
 from __future__ import print_function
 
 import socket, binascii, abc, six

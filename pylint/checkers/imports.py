@@ -17,7 +17,6 @@ from astroid import nodes
 
 from pylint.checkers import BaseChecker, DeprecatedMixin
 from pylint.checkers.utils import (
-    check_messages,
     get_import_name,
     is_from_fallback_block,
     is_node_in_guarded_import_block,
@@ -440,7 +439,6 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 all_deprecated_modules = all_deprecated_modules.union(mod_set)
         return all_deprecated_modules
 
-    @check_messages(*MSGS)
     def visit_import(self, node: nodes.Import) -> None:
         """Triggered when an import statement is seen."""
         self._check_reimport(node)

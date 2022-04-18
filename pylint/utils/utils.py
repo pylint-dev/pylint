@@ -23,11 +23,22 @@ import tokenize
 import warnings
 from collections.abc import Sequence
 from io import BufferedReader, BytesIO
-from typing import TYPE_CHECKING, List, Pattern, TextIO, Tuple, TypeVar, Union, overload
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    List,
+    Pattern,
+    TextIO,
+    Tuple,
+    TypeVar,
+    Union,
+    overload,
+)
 
 from astroid import Module, modutils, nodes
 
 from pylint.constants import PY_EXTS
+from pylint.typing import OptionDict
 
 if sys.version_info >= (3, 8):
     from typing import Literal
@@ -75,7 +86,9 @@ T_GlobalOptionReturnTypes = TypeVar(
 )
 
 
-def normalize_text(text, line_len=DEFAULT_LINE_LENGTH, indent=""):
+def normalize_text(
+    text: str, line_len: int = DEFAULT_LINE_LENGTH, indent: str = ""
+) -> str:
     """Wrap the text on the given line length."""
     return "\n".join(
         textwrap.wrap(
@@ -118,12 +131,16 @@ def get_module_and_frameid(node: nodes.NodeNG) -> tuple[str, str]:
     return module, ".".join(obj)
 
 
-def get_rst_title(title, character):
+def get_rst_title(title: str, character: str) -> str:
     """Permit to get a title formatted as ReStructuredText test (underlined with a chosen character)."""
     return f"{title}\n{character * len(title)}\n"
 
 
-def get_rst_section(section, options, doc=None):
+def get_rst_section(
+    section: str | None,
+    options: list[tuple[str, OptionDict, Any]],
+    doc: str | None = None,
+) -> str:
     """Format an option's section using as a ReStructuredText formatted output."""
     result = ""
     if section:
@@ -135,6 +152,7 @@ def get_rst_section(section, options, doc=None):
         help_opt = optdict.get("help")
         result += f":{optname}:\n"
         if help_opt:
+            assert isinstance(help_opt, str)
             formatted_help = normalize_text(help_opt, indent="  ")
             result += f"{formatted_help}\n"
         if value and optname != "py-version":
@@ -248,7 +266,7 @@ def get_global_option(
     checker: BaseChecker,
     option: GLOBAL_OPTION_NAMES,
     default: T_GlobalOptionReturnTypes | None = None,  # pylint: disable=unused-argument
-) -> T_GlobalOptionReturnTypes | None:
+) -> T_GlobalOptionReturnTypes | None | Any:
     """DEPRECATED: Retrieve an option defined by the given *checker* or
     by all known option providers.
 
@@ -315,7 +333,7 @@ def _comment(string: str) -> str:
     return "# " + f"{sep}# ".join(lines)
 
 
-def _format_option_value(optdict, value):
+def _format_option_value(optdict: OptionDict, value: Any) -> str:
     """Return the user input's value from a 'compiled' value.
 
     TODO: 3.0: Remove deprecated function
@@ -333,11 +351,14 @@ def _format_option_value(optdict, value):
         value = "yes" if value else "no"
     elif isinstance(value, str) and value.isspace():
         value = f"'{value}'"
-    return value
+    return str(value)
 
 
 def format_section(
-    stream: TextIO, section: str, options: list[tuple], doc: str | None = None
+    stream: TextIO,
+    section: str,
+    options: list[tuple[str, OptionDict, Any]],
+    doc: str | None = None,
 ) -> None:
     """Format an option's section using the INI format."""
     warnings.warn(
@@ -352,7 +373,7 @@ def format_section(
         _ini_format(stream, options)
 
 
-def _ini_format(stream: TextIO, options: list[tuple]) -> None:
+def _ini_format(stream: TextIO, options: list[tuple[str, OptionDict, Any]]) -> None:
     """Format options using the INI format."""
     warnings.warn(
         "_ini_format has been deprecated. It will be removed in pylint 3.0.",
@@ -362,6 +383,7 @@ def _ini_format(stream: TextIO, options: list[tuple]) -> None:
         value = _format_option_value(optdict, value)
         help_opt = optdict.get("help")
         if help_opt:
+            assert isinstance(help_opt, str)
             help_opt = normalize_text(help_opt, indent="# ")
             print(file=stream)
             print(help_opt, file=stream)
@@ -393,7 +415,8 @@ class IsortDriver:
                 known_third_party=config.known_third_party,
             )
         else:
-            self.isort4_obj = isort.SortImports(  # pylint: disable=no-member
+            # pylint: disable-next=no-member
+            self.isort4_obj = isort.SortImports(
                 file_contents="",
                 known_standard_library=config.known_standard_library,
                 known_third_party=config.known_third_party,

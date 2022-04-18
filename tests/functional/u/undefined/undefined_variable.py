@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring, multiple-statements, useless-object-inheritance, import-outside-toplevel
-# pylint: disable=too-few-public-methods, no-init, no-self-use, bare-except, broad-except
+# pylint: disable=too-few-public-methods, no-self-use, bare-except, broad-except
 # pylint: disable=using-constant-test, import-error, global-variable-not-assigned, unnecessary-comprehension
 from __future__ import print_function
 

@@ -1,7 +1,7 @@
 """Check if a class inherits from object.
 In python3 every class implicitly inherits from object, therefore give refactoring message to
  remove object from bases"""
-# pylint: disable=no-init, invalid-name, missing-docstring, too-few-public-methods
+# pylint: disable=invalid-name, missing-docstring, too-few-public-methods
 # pylint: disable=inconsistent-mro
 import abc
 

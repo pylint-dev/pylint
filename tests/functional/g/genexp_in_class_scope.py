@@ -1,4 +1,4 @@
-# pylint: disable=no-init,too-few-public-methods, missing-docstring
+# pylint: disable=too-few-public-methods, missing-docstring
 # pylint: disable=useless-object-inheritance
 """Class scope must be handled correctly in genexps"""
 class MyClass(object):
