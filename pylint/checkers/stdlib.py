@@ -39,17 +39,7 @@ LRU_CACHE = {
 NON_INSTANCE_METHODS = {"builtins.staticmethod", "builtins.classmethod"}
 
 
-DEPRECATED_MODULES = {
-    (0, 0, 0): {"tkinter.tix", "fpectl"},
-    (3, 2, 0): {"optparse"},
-    (3, 3, 0): {"xml.etree.cElementTree"},
-    (3, 4, 0): {"imp"},
-    (3, 5, 0): {"formatter"},
-    (3, 6, 0): {"asynchat", "asyncore"},
-    (3, 7, 0): {"macpath"},
-    (3, 9, 0): {"lib2to3", "parser", "symbol", "binhex"},
-    (3, 10, 0): {"distutils"},
-}
+# For modules, see ImportsChecker
 
 DEPRECATED_ARGUMENTS = {
     (0, 0, 0): {
@@ -447,7 +437,6 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         self._deprecated_methods: set[str] = set()
         self._deprecated_arguments: dict[str, tuple[tuple[int | None, str], ...]] = {}
         self._deprecated_classes: dict[str, set[str]] = {}
-        self._deprecated_modules: set[str] = set()
         self._deprecated_decorators: set[str] = set()
 
         for since_vers, func_list in DEPRECATED_METHODS[sys.version_info[0]].items():
@@ -459,12 +448,11 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         for since_vers, class_list in DEPRECATED_CLASSES.items():
             if since_vers <= sys.version_info:
                 self._deprecated_classes.update(class_list)
-        for since_vers, mod_list in DEPRECATED_MODULES.items():
-            if since_vers <= sys.version_info:
-                self._deprecated_modules.update(mod_list)
         for since_vers, decorator_list in DEPRECATED_DECORATORS.items():
             if since_vers <= sys.version_info:
                 self._deprecated_decorators.update(decorator_list)
+        # Modules are checked by the ImportsChecker, because the list is
+        # synced with the config argument deprecated-modules
 
     def _check_bad_thread_instantiation(self, node):
         if not node.kwargs and not node.keywords and len(node.args) <= 1:
@@ -748,10 +736,6 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                 self.add_message(message, node=node, args=(name, call_arg.pytype()))
         else:
             self.add_message(message, node=node, args=(name, call_arg.pytype()))
-
-    def deprecated_modules(self):
-        """Callback returning the deprecated modules."""
-        return self._deprecated_modules
 
     def deprecated_methods(self):
         return self._deprecated_methods
