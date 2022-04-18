@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import re
 import warnings
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -211,7 +211,7 @@ PREPROCESSABLE_OPTIONS: dict[
 }
 
 
-def _preprocess_options(run: Run, args: list[str]) -> list[str]:
+def _preprocess_options(run: Run, args: Sequence[str]) -> list[str]:
     """Preprocess options before full config parsing has started."""
     processed_args: list[str] = []
 

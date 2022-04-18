@@ -7,7 +7,9 @@ from __future__ import annotations
 import os
 import sys
 import warnings
+from collections.abc import Sequence
 from pathlib import Path
+from typing import Any
 
 from pylint import config
 from pylint.config.config_initialization import _config_initialization
@@ -16,6 +18,7 @@ from pylint.config.utils import _preprocess_options
 from pylint.constants import full_version
 from pylint.lint.base_options import _make_run_options
 from pylint.lint.pylinter import PyLinter
+from pylint.reporters.base_reporter import BaseReporter
 
 try:
     import multiprocessing
@@ -88,11 +91,11 @@ group are mutually exclusive.",
 
     def __init__(
         self,
-        args,
-        reporter=None,
-        exit=True,
-        do_exit=UNUSED_PARAM_SENTINEL,
-    ):  # pylint: disable=redefined-builtin
+        args: Sequence[str],
+        reporter: BaseReporter | None = None,
+        exit: bool = True,  # pylint: disable=redefined-builtin
+        do_exit: Any = UNUSED_PARAM_SENTINEL,
+    ) -> None:
         # Immediately exit if user asks for version
         if "--version" in args:
             print(full_version)
@@ -112,7 +115,9 @@ group are mutually exclusive.",
 
         # Determine configuration file
         if self._rcfile is None:
-            self._rcfile = next(config.find_default_config_files(), None)
+            default_file = next(config.find_default_config_files(), None)
+            if default_file:
+                self._rcfile = str(default_file)
 
         self.linter = linter = self.LinterClass(
             _make_run_options(self),

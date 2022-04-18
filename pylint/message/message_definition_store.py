@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import collections
 import functools
-from collections.abc import ValuesView
+from collections.abc import Sequence, ValuesView
 from typing import TYPE_CHECKING
 
 from pylint.exceptions import UnknownMessageError
@@ -75,7 +75,7 @@ class MessageDefinitionStore:
             return repr(message_definitions[0].symbol)
         return repr([md.symbol for md in message_definitions])
 
-    def help_message(self, msgids_or_symbols: list[str]) -> None:
+    def help_message(self, msgids_or_symbols: Sequence[str]) -> None:
         """Display help messages for the given message identifiers."""
         for msgids_or_symbol in msgids_or_symbols:
             try:
