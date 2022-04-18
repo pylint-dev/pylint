@@ -30,7 +30,6 @@ class Message:  # pylint: disable=too-many-instance-attributes
     column: int
     end_line: int | None
     end_column: int | None
-    location: MessageLocationTuple
 
     def __init__(
         self,
