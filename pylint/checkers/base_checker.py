@@ -51,6 +51,8 @@ class BaseChecker(_ArgumentsProvider):
             return False
         if self.name == MAIN_CHECKER_NAME:
             return False
+        if other.name == MAIN_CHECKER_NAME:
+            return True
         if type(self).__module__.startswith("pylint.checkers") and not type(
             other
         ).__module__.startswith("pylint.checkers"):
