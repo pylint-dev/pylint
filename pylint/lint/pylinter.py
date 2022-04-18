@@ -21,6 +21,7 @@ import astroid
 from astroid import AstroidError, nodes
 
 from pylint import checkers, config, exceptions, interfaces, reporters
+from pylint.checkers.base_checker import BaseChecker
 from pylint.config.arguments_manager import _ArgumentsManager
 from pylint.constants import (
     MAIN_CHECKER_NAME,
@@ -45,6 +46,7 @@ from pylint.lint.utils import (
     prepare_crash_report,
 )
 from pylint.message import Message, MessageDefinition, MessageDefinitionStore
+from pylint.reporters.base_reporter import BaseReporter
 from pylint.reporters.text import TextReporter
 from pylint.reporters.ureports import nodes as report_nodes
 from pylint.typing import (
@@ -77,7 +79,7 @@ def _read_stdin():
     return sys.stdin.read()
 
 
-def _load_reporter_by_class(reporter_class: str) -> type:
+def _load_reporter_by_class(reporter_class: str) -> type[BaseReporter]:
     qname = reporter_class
     module_part = astroid.modutils.get_module_part(qname)
     module = astroid.modutils.load_module_from_name(module_part)
@@ -318,7 +320,7 @@ class PyLinter(
         )
         self._option_groups = value
 
-    def load_default_plugins(self):
+    def load_default_plugins(self) -> None:
         checkers.initialize(self)
         reporters.initialize(self)
 
@@ -404,7 +406,7 @@ class PyLinter(
         """Registers a reporter class on the _reporters attribute."""
         self._reporters[reporter_class.name] = reporter_class
 
-    def report_order(self):
+    def report_order(self) -> list[BaseChecker]:
         reports = sorted(self._reports, key=lambda x: getattr(x, "name", ""))
         try:
             # Remove the current reporter and add it
@@ -429,7 +431,7 @@ class PyLinter(
         if not getattr(checker, "enabled", True):
             self.disable(checker.name)
 
-    def enable_fail_on_messages(self):
+    def enable_fail_on_messages(self) -> None:
         """Enable 'fail on' msgs.
 
         Convert values in config.fail_on (which might be msg category, msg id,
@@ -465,7 +467,7 @@ class PyLinter(
             x in self.fail_on_symbols for x in self.stats.by_msg.keys()
         )
 
-    def disable_noerror_messages(self):
+    def disable_noerror_messages(self) -> None:
         for msgcat, msgids in self.msgs_store._msgs_by_category.items():
             # enable only messages with 'error' severity and above ('fatal')
             if msgcat in {"E", "F"}:
@@ -475,7 +477,7 @@ class PyLinter(
                 for msgid in msgids:
                     self.disable(msgid)
 
-    def disable_reporters(self):
+    def disable_reporters(self) -> None:
         """Disable all reporters."""
         for _reporters in self._reports.values():
             for report_id, _, _ in _reporters:
@@ -495,7 +497,7 @@ class PyLinter(
         self.set_option("persistent", False)
         self.set_option("score", False)
 
-    def list_messages_enabled(self):
+    def list_messages_enabled(self) -> None:
         emittable, non_emittable = self.msgs_store.find_emittable_messages()
         enabled = []
         disabled = []
@@ -511,8 +513,8 @@ class PyLinter(
         for msg in disabled:
             print(msg)
         print("\nNon-emittable messages with current interpreter:")
-        for msg in non_emittable:
-            print(f"  {msg.symbol} ({msg.msgid})")
+        for msg_def in non_emittable:
+            print(f"  {msg_def.symbol} ({msg_def.msgid})")
         print("")
 
     # block level option handling #############################################
@@ -602,32 +604,26 @@ class PyLinter(
 
     # code checking methods ###################################################
 
-    def get_checkers(self):
-        """Return all available checkers as a list."""
-        return [self] + [
-            c
-            for _checkers in self._checkers.values()
-            for c in _checkers
-            if c is not self
-        ]
+    def get_checkers(self) -> list[BaseChecker]:
+        """Return all available checkers as an ordered list."""
+        return sorted(c for _checkers in self._checkers.values() for c in _checkers)
 
-    def get_checker_names(self):
+    def get_checker_names(self) -> list[str]:
         """Get all the checker names that this linter knows about."""
-        current_checkers = self.get_checkers()
         return sorted(
             {
                 checker.name
-                for checker in current_checkers
+                for checker in self.get_checkers()
                 if checker.name != MAIN_CHECKER_NAME
             }
         )
 
-    def prepare_checkers(self):
+    def prepare_checkers(self) -> list[BaseChecker]:
         """Return checkers needed for activated messages and reports."""
         if not self.config.reports:
             self.disable_reporters()
         # get needed checkers
-        needed_checkers = [self]
+        needed_checkers: list[BaseChecker] = [self]
         for checker in self.get_checkers()[1:]:
             messages = {msg for msg in checker.msgs if self.is_message_enabled(msg)}
             if messages or any(self.report_is_enabled(r[0]) for r in checker.reports):
@@ -659,7 +655,7 @@ class PyLinter(
 
     # pylint: enable=unused-argument
 
-    def initialize(self):
+    def initialize(self) -> None:
         """Initialize linter for linting.
 
         This method is called before any linting is done.
@@ -835,7 +831,7 @@ class PyLinter(
             if self.should_analyze_file(name, filepath, is_argument=is_arg):
                 yield FileItem(name, filepath, descr["basename"])
 
-    def _expand_files(self, modules) -> list[ModuleDescriptionDict]:
+    def _expand_files(self, modules: list[str]) -> list[ModuleDescriptionDict]:
         """Get modules and errors from a list of modules and handle errors."""
         result, errors = expand_modules(
             modules,
@@ -1017,7 +1013,7 @@ class PyLinter(
         self.stats.reset_message_count()
         self._ignore_paths = self.linter.config.ignore_paths
 
-    def generate_reports(self):
+    def generate_reports(self) -> int | None:
         """Close the whole package /module, it's time to make reports !
 
         if persistent run, pickle results for later comparison
@@ -1045,7 +1041,7 @@ class PyLinter(
             score_value = None
         return score_value
 
-    def _report_evaluation(self):
+    def _report_evaluation(self) -> int | None:
         """Make the global evaluation report."""
         # check with at least check 1 statements (usually 0 when there is a
         # syntax error preventing pylint from further processing)
