@@ -38,7 +38,7 @@ from pylint.checkers.utils import (
     unimplemented_abstract_methods,
     uninferable_final_decorators,
 )
-from pylint.interfaces import INFERENCE, IAstroidChecker
+from pylint.interfaces import HIGH, INFERENCE, IAstroidChecker
 
 if sys.version_info >= (3, 8):
     from functools import cached_property
@@ -1523,7 +1523,7 @@ a metaclass class method.",
             return
 
         if node.expr.name == "super":
-            self.add_message("super-without-brackets", node=node.expr)
+            self.add_message("super-without-brackets", node=node.expr, confidence=HIGH)
 
     @check_messages(
         "assigning-non-slot", "invalid-class-object", "access-member-before-definition"

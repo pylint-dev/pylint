@@ -19,5 +19,5 @@ class TomatoSoup(Soup):
 class VegetableSoup(Soup):
     @staticmethod
     def temp():
-        super.temp()  # [super-without-brackets]
-        print("But tomato soup is even hotter!")
+        super().temp()
+        print("But vegetable soup is even hotter!")
