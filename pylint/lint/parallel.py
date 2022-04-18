@@ -4,7 +4,6 @@
 
 from __future__ import annotations
 
-import collections
 import functools
 import warnings
 from collections import defaultdict
@@ -29,7 +28,7 @@ if TYPE_CHECKING:
 
 # PyLinter object used by worker processes when checking files using multiprocessing
 # should only be used by the worker processes
-_worker_linter = None
+_worker_linter: PyLinter | None = None
 
 
 def _worker_initialize(
@@ -42,6 +41,7 @@ def _worker_initialize(
     """
     global _worker_linter  # pylint: disable=global-statement
     _worker_linter = dill.loads(linter)
+    assert _worker_linter
 
     # On the worker process side the messages are just collected and passed back to
     # parent process as _worker_check_file function's return value
@@ -56,19 +56,20 @@ def _worker_check_single_file(
     file_item: FileItem,
 ) -> tuple[
     int,
-    Any,
+    # TODO: 3.0: Make this only str after deprecation has been removed # pylint: disable=fixme
+    str | None,
     str,
-    Any,
+    str | None,
     list[Message],
     LinterStats,
-    Any,
-    defaultdict[Any, list],
+    int,
+    defaultdict[str, list[Any]],
 ]:
     if not _worker_linter:
         raise Exception("Worker linter not yet initialised")
     _worker_linter.open()
     _worker_linter.check_single_file_item(file_item)
-    mapreduce_data = collections.defaultdict(list)
+    mapreduce_data = defaultdict(list)
     for checker in _worker_linter.get_checkers():
         try:
             data = checker.get_map_data()
@@ -76,6 +77,7 @@ def _worker_check_single_file(
             continue
         mapreduce_data[checker.name].append(data)
     msgs = _worker_linter.reporter.messages
+    assert isinstance(_worker_linter.reporter, reporters.CollectingReporter)
     _worker_linter.reporter.reset()
     if _worker_linter.current_name is None:
         warnings.warn(
@@ -97,13 +99,16 @@ def _worker_check_single_file(
     )
 
 
-def _merge_mapreduce_data(linter, all_mapreduce_data):
+def _merge_mapreduce_data(
+    linter: PyLinter,
+    all_mapreduce_data: defaultdict[int, list[defaultdict[str, list[Any]]]],
+) -> None:
     """Merges map/reduce data across workers, invoking relevant APIs on checkers."""
     # First collate the data and prepare it, so we can send it to the checkers for
     # validation. The intent here is to collect all the mapreduce data for all checker-
     # runs across processes - that will then be passed to a static method on the
     # checkers to be reduced and further processed.
-    collated_map_reduce_data = collections.defaultdict(list)
+    collated_map_reduce_data = defaultdict(list)
     for linter_data in all_mapreduce_data.values():
         for run_data in linter_data:
             for checker_name, data in run_data.items():
@@ -139,7 +144,9 @@ def check_parallel(
     ) as pool:
         linter.open()
         all_stats = []
-        all_mapreduce_data = collections.defaultdict(list)
+        all_mapreduce_data: defaultdict[
+            int, list[defaultdict[str, list[Any]]]
+        ] = defaultdict(list)
 
         # Maps each file to be worked on by a single _worker_check_single_file() call,
         # collecting any map/reduce data by checker module so that we can 'reduce' it
