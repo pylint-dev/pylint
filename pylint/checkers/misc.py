@@ -134,7 +134,7 @@ class EncodingChecker(BaseChecker):
             for lineno, line in enumerate(stream):
                 self._check_encoding(lineno + 1, line, encoding)
 
-    def process_tokens(self, tokens):
+    def process_tokens(self, tokens: list[tokenize.TokenInfo]) -> None:
         """Inspect the source to find fixme problems."""
         if not self.linter.config.notes:
             return

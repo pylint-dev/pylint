@@ -698,7 +698,7 @@ class StringConstantChecker(BaseTokenChecker):
     def process_module(self, node: nodes.Module) -> None:
         self._unicode_literals = "unicode_literals" in node.future_imports
 
-    def process_tokens(self, tokens):
+    def process_tokens(self, tokens: list[tokenize.TokenInfo]) -> None:
         encoding = "ascii"
         for i, (tok_type, token, start, _, line) in enumerate(tokens):
             if tok_type == tokenize.ENCODING:
