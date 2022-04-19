@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import abc
+import warnings
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
@@ -13,6 +14,13 @@ if TYPE_CHECKING:
 
 class MapReduceMixin(metaclass=abc.ABCMeta):
     """A mixin design to allow multiprocess/threaded runs of a Checker."""
+
+    def __init__(self) -> None:
+        warnings.warn(
+            "MapReduceMixin has been deprecated and will be removed in pylint 3.0. "
+            "To make a checker reduce map data simply implement get_map_data and reduce_map_data.",
+            DeprecationWarning,
+        )
 
     @abc.abstractmethod
     def get_map_data(self) -> Any:
