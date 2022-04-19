@@ -1,4 +1,4 @@
 [testoptions]
 except_implementations=PyPy
 [VARIABLES]
-additional_builtins=__additional_builtin__
+additional-builtins=__additional_builtin__
