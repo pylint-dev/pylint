@@ -246,11 +246,11 @@ Now we can debug our checker!
 Parallelize a Checker
 ---------------------
 
-``BaseChecker`` have a ``get_map_data`` and a ``reduce_map_data`` function that
-permit to parallelize the checks when used with the ``-j`` otion. If a checker
+``BaseChecker`` has two methods ``get_map_data`` and ``reduce_map_data`` that
+permit to parallelize the checks when used with the ``-j`` option. If a checker
 actually needs to reduce data it should define ``get_map_data`` as returning
 something different than ``None`` and let its ``reduce_map_data`` handle a list
-of the type returned by ``get_map_data``.
+of the types returned by ``get_map_data``.
 
 An example can be seen by looking at ``pylint/checkers/similar.py``.
 
