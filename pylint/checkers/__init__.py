@@ -45,7 +45,11 @@ from __future__ import annotations
 
 import sys
 
-from pylint.checkers.base_checker import BaseChecker, BaseTokenChecker
+from pylint.checkers.base_checker import (
+    BaseChecker,
+    BaseRawFileChecker,
+    BaseTokenChecker,
+)
 from pylint.checkers.deprecated import DeprecatedMixin
 from pylint.checkers.mapreduce_checker import MapReduceMixin
 from pylint.utils import LinterStats, diff_string, register_plugins
@@ -132,6 +136,7 @@ def initialize(linter):
 __all__ = [
     "BaseChecker",
     "BaseTokenChecker",
+    "BaseRawFileChecker",
     "initialize",
     "MapReduceMixin",
     "DeprecatedMixin",
