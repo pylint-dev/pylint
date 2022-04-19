@@ -1,7 +1,7 @@
 def even_number_under(n: int):  # [missing-yield-type-doc]
     """Prints even numbers smaller than n.
     Args:
-        n (int): Upper limit of even numbers.
+        n: Upper limit of even numbers.
 
     Yields:
         even numbers

@@ -1,10 +1,12 @@
-def even_number_under(n: int):
+from typing import Iterator
+
+def even_number_under(n: int) -> Iterator[int]:
     """Prints even numbers smaller than n.
     Args:
-        n (int): Upper limit of even numbers.
+        n: Upper limit of even numbers.
 
     Yields:
-        int: even numbers
+        even numbers
     """
     for i in range(n):
         if i % 2 == 1:
