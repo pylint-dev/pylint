@@ -17,7 +17,6 @@ from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages
-from pylint.interfaces import IAstroidChecker
 
 if sys.version_info >= (3, 8):
     from functools import cached_property
@@ -279,8 +278,6 @@ class MisdesignChecker(BaseChecker):
     * number of methods, attributes, local variables...
     * size, complexity of functions, methods
     """
-
-    __implements__ = (IAstroidChecker,)
 
     # configuration section name
     name = "design"

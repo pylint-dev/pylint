@@ -190,7 +190,6 @@ def initialized_linter(linter: PyLinter) -> PyLinter:
 
 def test_pylint_visit_method_taken_in_account(linter: PyLinter) -> None:
     class CustomChecker(checkers.BaseChecker):
-        __implements__ = interfaces.IAstroidChecker
         name = "custom"
         msgs = {"W9999": ("", "custom", "")}
 

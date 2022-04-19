@@ -40,14 +40,12 @@ Firstly we will need to fill in some required boilerplate:
   from typing import TYPE_CHECKING, Optional
 
   from pylint.checkers import BaseChecker
-  from pylint.interfaces import IAstroidChecker
 
   if TYPE_CHECKING:
       from pylint.lint import PyLinter
 
 
   class UniqueReturnChecker(BaseChecker):
-      __implements__ = IAstroidChecker
 
       name = "unique-returns"
       msgs = {

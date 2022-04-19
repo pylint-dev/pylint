@@ -16,7 +16,6 @@ from pylint.checkers.utils import (
     is_function_body_ellipsis,
     safe_infer,
 )
-from pylint.interfaces import IAstroidChecker
 
 NEXT_METHOD = "__next__"
 
@@ -48,7 +47,6 @@ class SpecialMethodsChecker(BaseChecker):
     are implemented correctly.
     """
 
-    __implements__ = (IAstroidChecker,)
     name = "classes"
     msgs = {
         "E0301": (

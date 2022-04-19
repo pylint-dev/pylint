@@ -5,7 +5,7 @@
 import astroid
 from astroid import nodes
 
-from pylint import checkers, interfaces
+from pylint import checkers
 from pylint.checkers import utils
 
 
@@ -16,7 +16,6 @@ class NotChecker(checkers.BaseChecker):
     - "not" followed by a comparison should trigger a warning
     """
 
-    __implements__ = (interfaces.IAstroidChecker,)
     msgs = {
         "C0113": (
             'Consider changing "%s" to "%s"',

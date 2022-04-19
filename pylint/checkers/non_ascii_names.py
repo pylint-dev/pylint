@@ -34,8 +34,6 @@ class NonAsciiNameChecker(base_checker.BaseChecker):
           docstrings and comments!
     """
 
-    __implements__ = interfaces.IAstroidChecker
-
     msgs = {
         "C2401": (
             '%s name "%s" contains a non-ASCII character, consider renaming it.',

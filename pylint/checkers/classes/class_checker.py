@@ -38,7 +38,7 @@ from pylint.checkers.utils import (
     unimplemented_abstract_methods,
     uninferable_final_decorators,
 )
-from pylint.interfaces import HIGH, INFERENCE, IAstroidChecker
+from pylint.interfaces import HIGH, INFERENCE
 
 if sys.version_info >= (3, 8):
     from functools import cached_property
@@ -699,8 +699,6 @@ class ClassChecker(BaseChecker):
     * attributes not defined in the __init__ method
     * unreachable code
     """
-
-    __implements__ = (IAstroidChecker,)
 
     # configuration section name
     name = "classes"

@@ -12,7 +12,6 @@ from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages
-from pylint.interfaces import IAstroidChecker
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -25,7 +24,6 @@ BUILTIN_HINTS["filter"] = BUILTIN_HINTS["map"]
 
 class BadBuiltinChecker(BaseChecker):
 
-    __implements__ = (IAstroidChecker,)
     name = "deprecated_builtins"
     msgs = {
         "W0141": (

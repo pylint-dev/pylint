@@ -45,7 +45,7 @@ from pylint.checkers.utils import (
     supports_membership_test,
     supports_setitem,
 )
-from pylint.interfaces import INFERENCE, IAstroidChecker
+from pylint.interfaces import INFERENCE
 
 if sys.version_info >= (3, 8):
     from functools import cached_property
@@ -724,8 +724,6 @@ def _is_invalid_isinstance_type(arg):
 
 class TypeChecker(BaseChecker):
     """Try to find bugs in the code using type inference."""
-
-    __implements__ = (IAstroidChecker,)
 
     # configuration section name
     name = "typecheck"
@@ -1997,7 +1995,6 @@ class IterableChecker(BaseChecker):
     Also checks for non-mappings in function call kwargs.
     """
 
-    __implements__ = (IAstroidChecker,)
     name = "typecheck"
 
     msgs = {

@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING
 import astroid
 from astroid import nodes
 
-from pylint import checkers, interfaces
+from pylint import checkers
 from pylint.checkers import utils as checker_utils
 from pylint.checkers.utils import decorated_with
 
@@ -21,7 +21,6 @@ if TYPE_CHECKING:
 
 
 class AsyncChecker(checkers.BaseChecker):
-    __implements__ = interfaces.IAstroidChecker
     name = "async"
     msgs = {
         "E1700": (

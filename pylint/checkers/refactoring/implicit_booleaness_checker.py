@@ -7,7 +7,7 @@ from __future__ import annotations
 import astroid
 from astroid import bases, nodes
 
-from pylint import checkers, interfaces
+from pylint import checkers
 from pylint.checkers import utils
 
 
@@ -49,8 +49,6 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
     * comparison such as variable == empty_literal:
     * comparison such as variable != empty_literal:
     """
-
-    __implements__ = (interfaces.IAstroidChecker,)
 
     # configuration section name
     name = "refactoring"

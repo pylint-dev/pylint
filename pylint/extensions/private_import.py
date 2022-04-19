@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING
 from astroid import nodes
 
 from pylint.checkers import BaseChecker, utils
-from pylint.interfaces import HIGH, IAstroidChecker
+from pylint.interfaces import HIGH
 
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
@@ -20,7 +20,6 @@ if TYPE_CHECKING:
 
 class PrivateImportChecker(BaseChecker):
 
-    __implements__ = (IAstroidChecker,)
     name = "import-private-name"
     msgs = {
         "C2701": (

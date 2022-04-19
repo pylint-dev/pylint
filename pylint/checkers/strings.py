@@ -19,7 +19,6 @@ from astroid import nodes
 
 from pylint.checkers import BaseChecker, BaseRawFileChecker, BaseTokenChecker, utils
 from pylint.checkers.utils import check_messages
-from pylint.interfaces import IAstroidChecker
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -232,7 +231,6 @@ class StringFormatChecker(BaseChecker):
     is valid and the arguments match the format string.
     """
 
-    __implements__ = (IAstroidChecker,)
     name = "string"
     msgs = MSGS
 
@@ -619,7 +617,6 @@ class StringFormatChecker(BaseChecker):
 class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
     """Check string literals."""
 
-    __implements__ = IAstroidChecker
     name = "string"
     msgs = {
         "W1401": (

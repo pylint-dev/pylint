@@ -18,7 +18,6 @@ from pylint.checkers.utils import (
     safe_infer,
     uninferable_final_decorators,
 )
-from pylint.interfaces import IAstroidChecker
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -29,7 +28,6 @@ class UnsupportedVersionChecker(BaseChecker):
     indicated by the py-version setting.
     """
 
-    __implements__ = (IAstroidChecker,)
     name = "unsupported_version"
     msgs = {
         "W2601": (

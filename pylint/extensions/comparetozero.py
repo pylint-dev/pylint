@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING, Any
 import astroid
 from astroid import nodes
 
-from pylint import checkers, interfaces
+from pylint import checkers
 from pylint.checkers import utils
 
 if TYPE_CHECKING:
@@ -31,8 +31,6 @@ class CompareToZeroChecker(checkers.BaseChecker):
     An exception to this rule is when 0 is allowed in the program and has a
     different meaning than None!
     """
-
-    __implements__ = (interfaces.IAstroidChecker,)
 
     # configuration section name
     name = "compare-to-zero"

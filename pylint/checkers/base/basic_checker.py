@@ -14,10 +14,9 @@ from typing import TYPE_CHECKING, cast
 import astroid
 from astroid import nodes
 
-from pylint import interfaces
 from pylint import utils as lint_utils
 from pylint.checkers import BaseChecker, utils
-from pylint.interfaces import HIGH, IAstroidChecker
+from pylint.interfaces import HIGH
 from pylint.reporters.ureports import nodes as reporter_nodes
 from pylint.utils import LinterStats
 
@@ -33,7 +32,6 @@ else:
 class _BasicChecker(BaseChecker):
     """Permits separating multiple checks with the same checker name into classes/file."""
 
-    __implements__ = IAstroidChecker
     name = "basic"
 
 
@@ -115,8 +113,6 @@ class BasicChecker(_BasicChecker):
     * redefinition of function / method / class
     * uses of the global statement
     """
-
-    __implements__ = interfaces.IAstroidChecker
 
     name = "basic"
     msgs = {

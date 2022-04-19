@@ -14,7 +14,7 @@ from mccabe import PathGraphingAstVisitor as Mccabe_PathGraphingAstVisitor
 
 from pylint import checkers
 from pylint.checkers.utils import check_messages
-from pylint.interfaces import HIGH, IAstroidChecker
+from pylint.interfaces import HIGH
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -148,7 +148,6 @@ class McCabeMethodChecker(checkers.BaseChecker):
     to validate a too complex code.
     """
 
-    __implements__ = IAstroidChecker
     name = "design"
 
     msgs = {

@@ -11,7 +11,6 @@ from astroid import nodes
 
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import check_messages, safe_infer
-from pylint.interfaces import IAstroidChecker
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -37,8 +36,6 @@ class CodeStyleChecker(BaseChecker):
        and therefore preferred => this is the right place
     3. Everything else should go into another extension
     """
-
-    __implements__ = (IAstroidChecker,)
 
     name = "code_style"
     msgs = {

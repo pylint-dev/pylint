@@ -27,13 +27,7 @@ from pylint.checkers.utils import (
     is_postponed_evaluation_enabled,
 )
 from pylint.constants import PY39_PLUS, TYPING_TYPE_CHECKS_GUARDS
-from pylint.interfaces import (
-    CONTROL_FLOW,
-    HIGH,
-    INFERENCE,
-    INFERENCE_FAILURE,
-    IAstroidChecker,
-)
+from pylint.interfaces import CONTROL_FLOW, HIGH, INFERENCE, INFERENCE_FAILURE
 
 if sys.version_info >= (3, 8):
     from functools import cached_property
@@ -970,8 +964,6 @@ class VariablesChecker(BaseChecker):
     * __all__ consistency
     * self/cls assignment
     """
-
-    __implements__ = IAstroidChecker
 
     name = "variables"
     msgs = MSGS

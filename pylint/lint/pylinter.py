@@ -1002,8 +1002,6 @@ class PyLinter(
         walker.walk(node)
         return True
 
-    # IAstroidChecker interface #################################################
-
     def open(self):
         """Initialize counters."""
         self.stats = LinterStats()

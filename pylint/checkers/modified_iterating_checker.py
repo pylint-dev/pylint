@@ -25,8 +25,6 @@ class ModifiedIterationChecker(checkers.BaseChecker):
     Currently supports `for` loops for Sets, Dictionaries and Lists.
     """
 
-    __implements__ = interfaces.IAstroidChecker
-
     name = "modified_iteration"
 
     msgs = {
