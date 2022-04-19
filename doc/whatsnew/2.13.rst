@@ -592,9 +592,6 @@ Other Changes
 
   Closes #6388
 
-* Fixed a false positive for ``redefined-builtin`` for builtins specified in
-  ``--allowed-redefined-builtins`` and redefined at a module scope.
-
 * Fix false positive for 'nonexistent-operator' when repeated '-' are
   separated (e.g. by parens).
 

@@ -16,6 +16,8 @@ c = ...  # type: Bar.Boo
 
 if TYPE_CHECKING:
     __additional_builtin__: Dict[str, Any]
+    # For why this would emit redefined-builtin: https://github.com/PyCQA/pylint/pull/3643
+    # pylint: disable-next=redefined-builtin
     repr: Any
 
 

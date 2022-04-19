@@ -211,9 +211,6 @@ Release date: TBA
 
   Closes #6388
 
-* Fixed a false positive for ``redefined-builtin`` for builtins specified in
-  ``--allowed-redefined-builtins`` and redefined at a module scope.
-
 
 What's New in Pylint 2.13.5?
 ============================
