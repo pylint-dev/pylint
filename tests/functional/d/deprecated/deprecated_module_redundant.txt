@@ -1,1 +1,1 @@
-deprecated-module:3:0:3:10::Uses of a deprecated module 'imp':UNDEFINED
+deprecated-module:3:0:3:10::Deprecated module 'imp':UNDEFINED

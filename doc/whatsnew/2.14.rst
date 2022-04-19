@@ -73,6 +73,10 @@ Extensions
 Other Changes
 =============
 
+* Improved wording of the message of ``deprecated-module``
+
+  Closes #6169
+
 * ``Pylint`` now requires Python 3.7.2 or newer to run.
 
   Closes #4301

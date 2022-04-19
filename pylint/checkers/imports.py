@@ -204,9 +204,9 @@ MSGS = {
         "Used when `from module import *` is detected.",
     ),
     "W0402": (
-        "Uses of a deprecated module %r",
+        "Deprecated module %r",
         "deprecated-module",
-        "Used a module marked as deprecated is imported.",
+        "A module marked as deprecated is imported.",
     ),
     "W0404": (
         "Reimport %r (imported line %s)",
