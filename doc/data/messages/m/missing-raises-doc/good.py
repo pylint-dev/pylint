@@ -1,9 +1,7 @@
-def integer_sum(a, b):
+def integer_sum(a: int, b: int):
     """Returns sum of two integers
     :param a: first integer
-    :type a: int
     :param b: second integer
-    :type b: int
     :raises ValueError: One of parameters is not an integer.
     """
     if not (isinstance(a, int) and isinstance(b, int)):
