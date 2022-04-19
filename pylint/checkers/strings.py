@@ -17,8 +17,7 @@ from typing import TYPE_CHECKING
 import astroid
 from astroid import nodes
 
-from pylint.checkers import BaseChecker, BaseTokenChecker, utils
-from pylint.checkers.base_checker import BaseRawFileChecker
+from pylint.checkers import BaseChecker, BaseRawFileChecker, BaseTokenChecker, utils
 from pylint.checkers.utils import check_messages
 from pylint.interfaces import IAstroidChecker
 
