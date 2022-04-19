@@ -1,27 +1,15 @@
-# Copyright (c) 2006-2008, 2010, 2013 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2012 FELD Boris <lothiraldan@gmail.com>
-# Copyright (c) 2014-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2014 Google, Inc.
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
-# Copyright (c) 2018 Reverb C <reverbc@users.noreply.github.com>
-# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
-# Copyright (c) 2020 Frank Harrison <frank@doublethefish.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 Andrew Howe <howeaj@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
 # pylint: disable=redefined-outer-name
+
+from __future__ import annotations
 
 import os
 import shutil
+from collections.abc import Iterator
 from os.path import exists
-from typing import Iterator, Union
 
 import pytest
 from _pytest.fixtures import SubRequest
@@ -32,7 +20,7 @@ from pylint.lint import PyLinter
 
 
 @pytest.fixture
-def dest(request: SubRequest) -> Iterator[Union[Iterator, Iterator[str]]]:
+def dest(request: SubRequest) -> Iterator[Iterator | Iterator[str]]:
     dest = request.param
     yield dest
     try:
@@ -97,15 +85,12 @@ def remove_files() -> Iterator:
 
 @pytest.mark.usefixtures("remove_files")
 def test_checker_dep_graphs(linter: PyLinter) -> None:
-    linter.global_set_option("persistent", False)
-    linter.global_set_option("reports", True)
-    linter.global_set_option("enable", "imports")
-    linter.global_set_option("import-graph", "import.dot")
-    linter.global_set_option("ext-import-graph", "ext_import.dot")
-    linter.global_set_option("int-import-graph", "int_import.dot")
-    linter.global_set_option("int-import-graph", "int_import.dot")
-    # ignore this file causing spurious MemoryError w/ some python version (>=2.3?)
-    linter.global_set_option("ignore", ("func_unknown_encoding.py",))
+    linter.set_option("persistent", False)
+    linter.set_option("reports", True)
+    linter.set_option("enable", "imports")
+    linter.set_option("import_graph", "import.dot")
+    linter.set_option("ext_import_graph", "ext_import.dot")
+    linter.set_option("int_import_graph", "int_import.dot")
     linter.check(["input"])
     linter.generate_reports()
     assert exists("import.dot")

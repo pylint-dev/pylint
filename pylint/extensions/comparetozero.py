@@ -1,19 +1,14 @@
-# Copyright (c) 2016 Alexander Todorov <atodorov@otb.bg>
-# Copyright (c) 2017-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2019, 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 bernie gray <bfgray3@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Looks for comparisons to zero."""
 
+from __future__ import annotations
+
 import itertools
-from typing import TYPE_CHECKING, Any, Iterable
+from collections.abc import Iterable
+from typing import TYPE_CHECKING, Any
 
 import astroid
 from astroid import nodes
@@ -31,6 +26,7 @@ def _is_constant_zero(node):
 
 class CompareToZeroChecker(checkers.BaseChecker):
     """Checks for comparisons to zero.
+
     Most of the time you should use the fact that integers with a value of 0 are false.
     An exception to this rule is when 0 is allowed in the program and has a
     different meaning than None!
@@ -48,7 +44,6 @@ class CompareToZeroChecker(checkers.BaseChecker):
         )
     }
 
-    priority = -2
     options = ()
 
     @utils.check_messages("compare-to-zero")
@@ -80,5 +75,5 @@ class CompareToZeroChecker(checkers.BaseChecker):
                 self.add_message("compare-to-zero", node=node)
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(CompareToZeroChecker(linter))

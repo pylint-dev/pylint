@@ -1,7 +1,7 @@
 {
   "black": {
     "branch": "main",
-    "directories": ["src/black/", "src/blackd/", "src/black_primer/", "src/blib2to3/"],
+    "directories": ["src/black/", "src/blackd/", "src/blib2to3/"],
     "url": "https://github.com/psf/black.git"
   },
   "django": {
@@ -14,12 +14,6 @@
     "directories": ["src/flask"],
     "url": "https://github.com/pallets/flask.git"
   },
-  "graph-explorer": {
-    "branch": "master",
-    "directories": ["graph_explorer"],
-    "pylintrc_relpath": ".pylintrc",
-    "url": "https://github.com/vimeo/graph-explorer.git"
-  },
   "home-assistant": {
     "branch": "dev",
     "directories": ["homeassistant"],
@@ -29,5 +23,11 @@
     "branch": "master",
     "directories": ["keras"],
     "url": "https://github.com/keras-team/keras.git"
+  },
+  "music21": {
+    "branch": "master",
+    "directories": ["music21"],
+    "pylintrc_relpath": ".pylintrc",
+    "url": "https://github.com/cuthbertLab/music21"
   }
 }

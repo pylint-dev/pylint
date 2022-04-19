@@ -31,6 +31,9 @@ class "Specialization" as data.clientmodule_test.Specialization {
   relation
   relation2
   top : str
+  from_value(value: int)
+  increment_value() -> None
+  transform_value(value: int) -> int
 }
 data.clientmodule_test.Specialization --|> data.clientmodule_test.Ancestor
 data.clientmodule_test.Ancestor ..|> data.suppliermodule_test.Interface

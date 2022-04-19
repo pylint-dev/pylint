@@ -1,21 +1,31 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
+from __future__ import annotations
 
 import collections
 import copy
 import itertools
+import sys
 import tokenize
+from collections.abc import Iterator
 from functools import reduce
-from typing import Dict, Iterator, List, NamedTuple, Optional, Tuple, Union
+from typing import NamedTuple
 
 import astroid
 from astroid import nodes
 from astroid.util import Uninferable
 
 from pylint import checkers, interfaces
-from pylint import utils as lint_utils
 from pylint.checkers import utils
 from pylint.checkers.utils import node_frame_class
+from pylint.interfaces import HIGH
+
+if sys.version_info >= (3, 8):
+    from functools import cached_property
+else:
+    from astroid.decorators import cachedproperty as cached_property
 
 KNOWN_INFINITE_ITERATORS = {"itertools.count"}
 BUILTIN_EXIT_FUNCS = frozenset(("quit", "exit"))
@@ -53,7 +63,7 @@ def _if_statement_is_always_returning(if_node, returning_node_class) -> bool:
     return any(isinstance(node, returning_node_class) for node in if_node.body)
 
 
-def _is_trailing_comma(tokens: List[tokenize.TokenInfo], index: int) -> bool:
+def _is_trailing_comma(tokens: list[tokenize.TokenInfo], index: int) -> bool:
     """Check if the given token is a trailing comma.
 
     :param tokens: Sequence of modules tokens
@@ -155,15 +165,15 @@ class ConsiderUsingWithStack(NamedTuple):
     if they are not used in a ``with`` block later on.
     """
 
-    module_scope: Dict[str, nodes.NodeNG] = {}
-    class_scope: Dict[str, nodes.NodeNG] = {}
-    function_scope: Dict[str, nodes.NodeNG] = {}
+    module_scope: dict[str, nodes.NodeNG] = {}
+    class_scope: dict[str, nodes.NodeNG] = {}
+    function_scope: dict[str, nodes.NodeNG] = {}
 
-    def __iter__(self) -> Iterator[Dict[str, nodes.NodeNG]]:
+    def __iter__(self) -> Iterator[dict[str, nodes.NodeNG]]:
         yield from (self.function_scope, self.class_scope, self.module_scope)
 
     def get_stack_for_frame(
-        self, frame: Union[nodes.FunctionDef, nodes.ClassDef, nodes.Module]
+        self, frame: nodes.FunctionDef | nodes.ClassDef | nodes.Module
     ):
         """Get the stack corresponding to the scope of the given frame."""
         if isinstance(frame, nodes.FunctionDef):
@@ -430,6 +440,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "Emitted when using dict() to create an empty dictionary instead of the literal {}. "
             "The literal is faster as it avoids an additional function call.",
         ),
+        "R1736": (
+            "Unnecessary list index lookup, use '%s' instead",
+            "unnecessary-list-index-lookup",
+            "Emitted when iterating over an enumeration and accessing the "
+            "value by index lookup. "
+            "The value can be accessed directly instead.",
+        ),
     }
     options = (
         (
@@ -446,6 +463,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             {
                 "default": ("sys.exit", "argparse.parse_error"),
                 "type": "csv",
+                "metavar": "<members names>",
                 "help": "Complete name of functions that never returns. When checking "
                 "for inconsistent-return-statements if a never returning function is "
                 "called then it will be considered as an explicit return statement "
@@ -454,9 +472,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         ),
     )
 
-    priority = 0
-
-    def __init__(self, linter=None):
+    def __init__(self, linter):
         super().__init__(linter)
         self._return_nodes = {}
         self._consider_using_with_stack = ConsiderUsingWithStack()
@@ -473,11 +489,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def open(self):
         # do this in open since config not fully initialized in __init__
-        self._never_returning_functions = set(self.config.never_returning_functions)
+        self._never_returning_functions = set(
+            self.linter.config.never_returning_functions
+        )
 
-    @astroid.decorators.cachedproperty
+    @cached_property
     def _dummy_rgx(self):
-        return lint_utils.get_global_option(self, "dummy-variables-rgx", default=None)
+        return self.linter.config.dummy_variables_rgx
 
     @staticmethod
     def _is_bool_const(node):
@@ -578,12 +596,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             token_string = token[1]
             if token_string == "elif":
                 # AST exists by the time process_tokens is called, so
-                # it's safe to assume tokens[index+1]
-                # exists. tokens[index+1][2] is the elif's position as
+                # it's safe to assume tokens[index+1] exists.
+                # tokens[index+1][2] is the elif's position as
                 # reported by CPython and PyPy,
-                # tokens[index][2] is the actual position and also is
+                # token[2] is the actual position and also is
                 # reported by IronPython.
-                self._elifs.extend([tokens[index][2], tokens[index + 1][2]])
+                self._elifs.extend([token[2], tokens[index + 1][2]])
             elif _is_trailing_comma(tokens, index):
                 if self.linter.is_message_enabled("trailing-comma-tuple"):
                     self.add_message("trailing-comma-tuple", line=token.start[0])
@@ -628,10 +646,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "redefined-argument-from-local",
         "too-many-nested-blocks",
         "unnecessary-dict-index-lookup",
+        "unnecessary-list-index-lookup",
     )
     def visit_for(self, node: nodes.For) -> None:
         self._check_nested_blocks(node)
         self._check_unnecessary_dict_index_lookup(node)
+        self._check_unnecessary_list_index_lookup(node)
 
         for name in node.target.nodes_of_class(nodes.AssignName):
             self._check_redefined_argument_from_local(name)
@@ -641,7 +661,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if node.name and isinstance(node.name, nodes.AssignName):
             self._check_redefined_argument_from_local(node.name)
 
-    @utils.check_messages("redefined-argument-from-local")
+    @utils.check_messages("redefined-argument-from-local", "consider-using-with")
     def visit_with(self, node: nodes.With) -> None:
         for var, names in node.items:
             if isinstance(var, nodes.Name):
@@ -756,6 +776,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "no-else-break",
         "no-else-continue",
         "consider-using-get",
+        "consider-using-min-builtin",
+        "consider-using-max-builtin",
     )
     def visit_if(self, node: nodes.If) -> None:
         self._check_simplifiable_if(node)
@@ -1003,6 +1025,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "consider-using-with",
         "use-list-literal",
         "use-dict-literal",
+        "use-a-generator",
     )
     def visit_call(self, node: nodes.Call) -> None:
         self._check_raising_stopiteration_in_generator_next_call(node)
@@ -1110,14 +1133,14 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             self._emit_nested_blocks_message_if_needed(nested_blocks)
 
     def _emit_nested_blocks_message_if_needed(self, nested_blocks):
-        if len(nested_blocks) > self.config.max_nested_blocks:
+        if len(nested_blocks) > self.linter.config.max_nested_blocks:
             self.add_message(
                 "too-many-nested-blocks",
                 node=nested_blocks[0],
-                args=(len(nested_blocks), self.config.max_nested_blocks),
+                args=(len(nested_blocks), self.linter.config.max_nested_blocks),
             )
 
-    def _emit_consider_using_with_if_needed(self, stack: Dict[str, nodes.NodeNG]):
+    def _emit_consider_using_with_if_needed(self, stack: dict[str, nodes.NodeNG]):
         for node in stack.values():
             self.add_message("consider-using-with", node=node)
 
@@ -1263,7 +1286,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             if isinstance(comparison_node, nodes.Compare):
                 _find_lower_upper_bounds(comparison_node, uses)
 
-        for _, bounds in uses.items():
+        for bounds in uses.values():
             num_shared = len(bounds["lower_bound"].intersection(bounds["upper_bound"]))
             num_lower_bounds = len(bounds["lower_bound"])
             num_upper_bounds = len(bounds["upper_bound"])
@@ -1514,6 +1537,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def _check_consider_using_join(self, aug_assign):
         """We start with the augmented assignment and work our way upwards.
+
         Names of variables for nodes if match successful:
         result = ''  # assign
         for number in ['1', '2', '3']  # for_loop
@@ -1548,10 +1572,15 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def visit_augassign(self, node: nodes.AugAssign) -> None:
         self._check_consider_using_join(node)
 
-    @utils.check_messages("unnecessary-comprehension", "unnecessary-dict-index-lookup")
+    @utils.check_messages(
+        "unnecessary-comprehension",
+        "unnecessary-dict-index-lookup",
+        "unnecessary-list-index-lookup",
+    )
     def visit_comprehension(self, node: nodes.Comprehension) -> None:
         self._check_unnecessary_comprehension(node)
         self._check_unnecessary_dict_index_lookup(node)
+        self._check_unnecessary_list_index_lookup(node)
 
     def _check_unnecessary_comprehension(self, node: nodes.Comprehension) -> None:
         if (
@@ -1599,7 +1628,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         else:
             return
         if expr_list == target_list and expr_list:
-            args: Optional[Tuple[str]] = None
+            args: tuple[str] | None = None
             inferred = utils.safe_infer(node.iter)
             if isinstance(node.parent, nodes.DictComp) and isinstance(
                 inferred, astroid.objects.DictItems
@@ -1807,7 +1836,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         return False
 
     def _is_function_def_never_returning(self, node: nodes.FunctionDef) -> bool:
-        """Return True if the function never returns. False otherwise.
+        """Return True if the function never returns, False otherwise.
 
         Args:
             node (nodes.FunctionDef): function definition node to be analyzed.
@@ -1829,7 +1858,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def _check_return_at_the_end(self, node):
         """Check for presence of a *single* return statement at the end of a
-        function. "return" or "return None" are useless because None is the
+        function.
+
+        "return" or "return None" are useless because None is the
         default return type if they are missing.
 
         NOTE: produces a message only if there is a single return statement
@@ -1852,7 +1883,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 self.add_message("useless-return", node=node)
 
     def _check_unnecessary_dict_index_lookup(
-        self, node: Union[nodes.For, nodes.Comprehension]
+        self, node: nodes.For | nodes.Comprehension
     ) -> None:
         """Add message when accessing dict values by index lookup."""
         # Verify that we have an .items() call and
@@ -1953,3 +1984,77 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                             node=subscript,
                             args=("1".join(value.as_string().rsplit("0", maxsplit=1)),),
                         )
+
+    def _check_unnecessary_list_index_lookup(
+        self, node: nodes.For | nodes.Comprehension
+    ) -> None:
+        if (
+            not isinstance(node.iter, nodes.Call)
+            or not isinstance(node.iter.func, nodes.Name)
+            or not node.iter.func.name == "enumerate"
+            or not isinstance(node.iter.args[0], nodes.Name)
+        ):
+            return
+
+        if not isinstance(node.target, nodes.Tuple) or len(node.target.elts) < 2:
+            # enumerate() result is being assigned without destructuring
+            return
+
+        if not isinstance(node.target.elts[1], nodes.AssignName):
+            # The value is not being assigned to a single variable, e.g. being
+            # destructured, so we can't necessarily use it.
+            return
+
+        iterating_object_name = node.iter.args[0].name
+        value_variable = node.target.elts[1]
+
+        children = (
+            node.body if isinstance(node, nodes.For) else node.parent.get_children()
+        )
+        for child in children:
+            for subscript in child.nodes_of_class(nodes.Subscript):
+                if isinstance(node, nodes.For) and (
+                    isinstance(subscript.parent, nodes.Assign)
+                    and subscript in subscript.parent.targets
+                    or isinstance(subscript.parent, nodes.AugAssign)
+                    and subscript == subscript.parent.target
+                ):
+                    # Ignore this subscript if it is the target of an assignment
+                    # Early termination; after reassignment index lookup will be necessary
+                    return
+
+                if isinstance(subscript.parent, nodes.Delete):
+                    # Ignore this subscript if it's used with the delete keyword
+                    return
+
+                index = subscript.slice
+                if isinstance(index, nodes.Name):
+                    if (
+                        index.name != node.target.elts[0].name
+                        or iterating_object_name != subscript.value.as_string()
+                    ):
+                        continue
+
+                    if (
+                        isinstance(node, nodes.For)
+                        and index.lookup(index.name)[1][-1].lineno > node.lineno
+                    ):
+                        # Ignore this subscript if it has been redefined after
+                        # the for loop.
+                        continue
+
+                    if (
+                        isinstance(node, nodes.For)
+                        and index.lookup(value_variable.name)[1][-1].lineno
+                        > node.lineno
+                    ):
+                        # The variable holding the value from iteration has been
+                        # reassigned on a later line, so it can't be used.
+                        continue
+
+                    self.add_message(
+                        "unnecessary-list-index-lookup",
+                        node=subscript,
+                        args=(node.target.elts[1].name,),
+                        confidence=HIGH,
+                    )

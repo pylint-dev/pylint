@@ -1,19 +1,15 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
+from __future__ import annotations
 
 import collections
 import functools
 import warnings
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    DefaultDict,
-    Iterable,
-    List,
-    Sequence,
-    Tuple,
-    Union,
-)
+from collections import defaultdict
+from collections.abc import Iterable, Sequence
+from typing import TYPE_CHECKING, Any
 
 import dill
 
@@ -49,7 +45,7 @@ def _get_new_args(message):
 
 
 def _worker_initialize(
-    linter: bytes, arguments: Union[None, str, Sequence[str]] = None
+    linter: bytes, arguments: None | str | Sequence[str] = None
 ) -> None:
     """Function called to initialize a worker for a Process within a multiprocessing Pool.
 
@@ -70,8 +66,8 @@ def _worker_initialize(
 
 def _worker_check_single_file(
     file_item: FileItem,
-) -> Tuple[
-    int, Any, str, Any, List[Tuple[Any, ...]], LinterStats, Any, DefaultDict[Any, List]
+) -> tuple[
+    int, Any, str, Any, list[tuple[Any, ...]], LinterStats, Any, defaultdict[Any, list]
 ]:
     if not _worker_linter:
         raise Exception("Worker linter not yet initialised")
@@ -128,12 +124,13 @@ def _merge_mapreduce_data(linter, all_mapreduce_data):
 
 
 def check_parallel(
-    linter: "PyLinter",
+    linter: PyLinter,
     jobs: int,
     files: Iterable[FileItem],
-    arguments: Union[None, str, Sequence[str]] = None,
+    arguments: None | str | Sequence[str] = None,
 ) -> None:
-    """Use the given linter to lint the files with given amount of workers (jobs)
+    """Use the given linter to lint the files with given amount of workers (jobs).
+
     This splits the work filestream-by-filestream. If you need to do work across
     multiple files, as in the similarity-checker, then inherit from MapReduceMixin and
     implement the map/reduce mixin functionality.
@@ -172,6 +169,9 @@ def check_parallel(
             all_stats.append(stats)
             all_mapreduce_data[worker_idx].append(mapreduce_data)
             linter.msg_status |= msg_status
+
+        pool.close()
+        pool.join()
 
     _merge_mapreduce_data(linter, all_mapreduce_data)
     linter.stats = merge_stats([linter.stats] + all_stats)

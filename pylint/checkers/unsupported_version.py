@@ -1,14 +1,12 @@
-# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2021 Mark Byrne <31762852+mbyrnepr2@users.noreply.github.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Checker for features used that are not supported by all python versions
 indicated by the py-version setting.
 """
 
+from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
@@ -21,7 +19,6 @@ from pylint.checkers.utils import (
     uninferable_final_decorators,
 )
 from pylint.interfaces import IAstroidChecker
-from pylint.utils import get_global_option
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -35,13 +32,13 @@ class UnsupportedVersionChecker(BaseChecker):
     __implements__ = (IAstroidChecker,)
     name = "unsupported_version"
     msgs = {
-        "W1601": (
+        "W2601": (
             "F-strings are not supported by all versions included in the py-version setting",
             "using-f-string-in-unsupported-version",
             "Used when the py-version set by the user is lower than 3.6 and pylint encounters "
             "a f-string.",
         ),
-        "W1602": (
+        "W2602": (
             "typing.final is not supported by all versions included in the py-version setting",
             "using-final-decorator-in-unsupported-version",
             "Used when the py-version set by the user is lower than 3.8 and pylint encounters "
@@ -51,7 +48,7 @@ class UnsupportedVersionChecker(BaseChecker):
 
     def open(self) -> None:
         """Initialize visit variables and statistics."""
-        py_version = get_global_option(self, "py-version")
+        py_version = self.linter.config.py_version
         self._py36_plus = py_version >= (3, 6)
         self._py38_plus = py_version >= (3, 8)
 
@@ -85,5 +82,5 @@ class UnsupportedVersionChecker(BaseChecker):
             )
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(UnsupportedVersionChecker(linter))

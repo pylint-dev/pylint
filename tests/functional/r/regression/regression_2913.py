@@ -14,6 +14,6 @@ class BaseCorrect:  # pylint: disable=too-few-public-methods
     """My base class."""
 
 
-class BaseInner:  # [too-few-public-methods]
+class BaseInner:
     # pylint: disable=too-few-public-methods
     """My base class."""

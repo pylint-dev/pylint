@@ -58,13 +58,8 @@ def dummy_decorator(aaabc, bbbcd):
     return real_decorator
 
 
-@dummy_decorator(1, [
-    0  # Fixing #119 should make this go away
-# C0103 always points here - line 61  # [invalid-name]
-
-
-])
-def a_very_very_very_long_function_name_WithCamelCase_to_make_it_sad():  # Should be line 65
+@dummy_decorator(1, [0])
+def a_very_very_very_long_function_name_WithCamelCase_to_make_it_sad():  # [invalid-name]
     """Docstring"""
     print('LOL')
 

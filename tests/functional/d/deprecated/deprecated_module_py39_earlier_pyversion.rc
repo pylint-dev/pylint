@@ -1,0 +1,6 @@
+[master]
+py-version=3.8
+
+[testoptions]
+min_pyver=3.9
+exclude_from_minimal_messages_config=true

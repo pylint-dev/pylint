@@ -108,3 +108,21 @@ def reusing_same_name_picks_the_latest_raised_value():
 def bad_case10():
     """raise string"""
     raise "string"  # [raising-bad-type]
+
+
+class AmbiguousValue:
+    """Don't emit when there is ambiguity on the node for the exception."""
+    def __init__(self):
+        self.stored_exception = None
+
+    def fail(self):
+        try:
+            1 / 0
+        except ZeroDivisionError as zde:
+            self.stored_exception = zde
+
+    def raise_stored_exception(self):
+        if self.stored_exception is not None:
+            exc = self.stored_exception
+            self.stored_exception = None
+            raise exc

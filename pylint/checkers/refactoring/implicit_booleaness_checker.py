@@ -1,6 +1,8 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-from typing import List, Union
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
+from __future__ import annotations
 
 import astroid
 from astroid import bases, nodes
@@ -72,7 +74,6 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
         ),
     }
 
-    priority = -2
     options = ()
 
     @utils.check_messages("use-implicit-booleaness-not-len")
@@ -128,8 +129,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
     @utils.check_messages("use-implicit-booleaness-not-len")
     def visit_unaryop(self, node: nodes.UnaryOp) -> None:
         """`not len(S)` must become `not S` regardless if the parent block
-        is a test condition or something else (boolean expression)
-        e.g. `if not len(S):`
+        is a test condition or something else (boolean expression) e.g. `if not len(S):`
         """
         if (
             isinstance(node, nodes.UnaryOp)
@@ -209,9 +209,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
                     )
 
     @staticmethod
-    def base_names_of_instance(
-        node: Union[bases.Uninferable, bases.Instance]
-    ) -> List[str]:
+    def base_names_of_instance(node: bases.Uninferable | bases.Instance) -> list[str]:
         """Return all names inherited by a class instance or those returned by a function.
 
         The inherited names include 'object'.

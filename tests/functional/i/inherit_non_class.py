@@ -92,7 +92,6 @@ class ParentBad:
         return 42
 
 # pylint: disable-next=fixme
-# TODO This should emit 'unsubscriptable-object' for Python 3.6
 class Child1(ParentGood[int]):
     pass
 

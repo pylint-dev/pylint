@@ -1,21 +1,11 @@
-# Copyright (c) 2013-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2014-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2014 Calin Don <calin.don@gmail.com>
-# Copyright (c) 2014 Google, Inc.
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016-2017 Derek Gustafson <degustaf@gmail.com>
-# Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
-# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 ruro <ruro.ruro@ya.ru>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
 # pylint: disable=redefined-outer-name
+
+from __future__ import annotations
+
 import sys
 import warnings
 from contextlib import redirect_stdout
@@ -49,7 +39,7 @@ def disable():
 def test_template_option(linter):
     output = StringIO()
     linter.reporter.out = output
-    linter.set_option("msg-template", "{msg_id}:{line:03d}")
+    linter.config.msg_template = "{msg_id}:{line:03d}"
     linter.open()
     linter.set_current_module("0123")
     linter.add_message("C0301", line=1, args=(1, 2))
@@ -75,9 +65,8 @@ def test_template_option_end_line(linter) -> None:
     """Test the msg-template option with end_line and end_column."""
     output = StringIO()
     linter.reporter.out = output
-    linter.set_option(
-        "msg-template",
-        "{path}:{line}:{column}:{end_line}:{end_column}: {msg_id}: {msg} ({symbol})",
+    linter.config.msg_template = (
+        "{path}:{line}:{column}:{end_line}:{end_column}: {msg_id}: {msg} ({symbol})"
     )
     linter.open()
     linter.set_current_module("my_mod")
@@ -98,9 +87,8 @@ def test_template_option_non_existing(linter) -> None:
     """
     output = StringIO()
     linter.reporter.out = output
-    linter.set_option(
-        "msg-template",
-        "{path}:{line}:{a_new_option}:({a_second_new_option:03d})",
+    linter.config.msg_template = (
+        "{path}:{line}:{a_new_option}:({a_second_new_option:03d})"
     )
     linter.open()
     with pytest.warns(UserWarning) as records:
@@ -174,7 +162,7 @@ class NopReporter(BaseReporter):
     def writeln(self, string=""):
         pass
 
-    def _display(self, layout: "Section") -> None:
+    def _display(self, layout: Section) -> None:
         pass
 
 
@@ -193,9 +181,10 @@ def test_multi_format_output(tmp_path):
         linter = PyLinter()
         linter.load_default_plugins()
         linter.set_option("persistent", False)
-        linter.set_option("output-format", formats)
         linter.set_option("reports", True)
         linter.set_option("score", True)
+        linter.set_option("score", True)
+        linter.set_option("output-format", formats)
 
         assert linter.reporter.linter is linter
         with pytest.raises(NotImplementedError):
@@ -342,7 +331,7 @@ def test_multi_format_output(tmp_path):
 
 def test_display_results_is_renamed():
     class CustomReporter(TextReporter):
-        def _display(self, layout: "Section") -> None:
+        def _display(self, layout: Section) -> None:
             return None
 
     reporter = CustomReporter()

@@ -1,7 +1,7 @@
-redundant-returns-doc:43:0:49:15:my_func:Redundant returns documentation:UNDEFINED
-redundant-returns-doc:52:0:58:15:my_func:Redundant returns documentation:UNDEFINED
-redundant-returns-doc:61:0:67:11:my_func:Redundant returns documentation:UNDEFINED
+redundant-returns-doc:43:0:43:11:my_func:Redundant returns documentation:UNDEFINED
+redundant-returns-doc:52:0:52:11:my_func:Redundant returns documentation:UNDEFINED
+redundant-returns-doc:61:0:61:11:my_func:Redundant returns documentation:UNDEFINED
 unreachable:95:8:95:17:Foo.foo_method:Unreachable code:UNDEFINED
 unreachable:112:8:112:17:Foo.foo_method:Unreachable code:UNDEFINED
-useless-param-doc:167:4:175:12:Foo.foo_method:"""_, _ignored"" useless ignored parameter documentation":UNDEFINED
-useless-type-doc:167:4:175:12:Foo.foo_method:"""_"" useless ignored parameter type documentation":UNDEFINED
+useless-param-doc:167:4:167:18:Foo.foo_method:"""_, _ignored"" useless ignored parameter documentation":UNDEFINED
+useless-type-doc:167:4:167:18:Foo.foo_method:"""_"" useless ignored parameter type documentation":UNDEFINED

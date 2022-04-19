@@ -1,40 +1,37 @@
-# Copyright (c) 2008-2010, 2012-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2014 Brett Cannon <brett@python.org>
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016 Alexander Pervakov <frost.nzcr4@jagmort.com>
-# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
-# Copyright (c) 2019, 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2020 Peter Kolbus <peter.kolbus@gmail.com>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2021 Antonio Quarta <sgheppy88@gmail.com>
-# Copyright (c) 2021 Tushar Sadhwani <tushar.sadhwani000@gmail.com>
-# Copyright (c) 2021 Mark Byrne <31762852+mbyrnepr2@users.noreply.github.com>
-# Copyright (c) 2021 bot <bot@noreply.github.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-"""%prog [options] <packages>.
+"""Create UML diagrams for classes and modules in <packages>."""
 
-  create UML diagrams for classes and modules in <packages>
-"""
+from __future__ import annotations
+
 import sys
-from typing import Iterable
+from collections.abc import Sequence
 
-from pylint.config import ConfigurationMixIn
+from pylint.config.arguments_manager import _ArgumentsManager
+from pylint.config.arguments_provider import _ArgumentsProvider
 from pylint.lint.utils import fix_import_path
 from pylint.pyreverse import writer
 from pylint.pyreverse.diadefslib import DiadefsHandler
 from pylint.pyreverse.inspector import Linker, project_from_files
-from pylint.pyreverse.utils import check_graphviz_availability, insert_default_options
+from pylint.pyreverse.utils import (
+    check_graphviz_availability,
+    check_if_graphviz_supports_format,
+    insert_default_options,
+)
+from pylint.typing import Options
 
-OPTIONS = (
+DIRECTLY_SUPPORTED_FORMATS = (
+    "dot",
+    "vcg",
+    "puml",
+    "plantuml",
+    "mmd",
+    "html",
+)
+
+OPTIONS: Options = (
     (
         "filter-mode",
         dict(
@@ -59,8 +56,9 @@ OPTIONS = (
         "class",
         dict(
             short="c",
-            action="append",
+            action="extend",
             metavar="<class>",
+            type="csv",
             dest="classes",
             default=[],
             help="create a class diagram with all classes related to <class>;\
@@ -74,6 +72,7 @@ OPTIONS = (
             action="store",
             metavar="<ancestor>",
             type="int",
+            default=None,
             help="show <ancestor> generations of ancestor classes not in <projects>",
         ),
     ),
@@ -82,6 +81,7 @@ OPTIONS = (
         dict(
             short="A",
             default=None,
+            action="store_true",
             help="show all ancestors off all classes in <projects>",
         ),
     ),
@@ -92,6 +92,7 @@ OPTIONS = (
             action="store",
             metavar="<association_level>",
             type="int",
+            default=None,
             help="show <association_level> levels of associated classes not in <projects>",
         ),
     ),
@@ -100,6 +101,7 @@ OPTIONS = (
         dict(
             short="S",
             default=None,
+            action="store_true",
             help="show recursively all associated off all associated classes",
         ),
     ),
@@ -139,7 +141,11 @@ OPTIONS = (
             action="store",
             default="dot",
             metavar="<format>",
-            help="create a *.<format> output file if format available.",
+            type="string",
+            help=(
+                f"create a *.<format> output file if format is available. Available formats are: {', '.join(DIRECTLY_SUPPORTED_FORMATS)}. "
+                f"Any other format will be tried to create by means of the 'dot' command line tool, which requires a graphviz installation."
+            ),
         ),
     ),
     (
@@ -196,24 +202,26 @@ OPTIONS = (
 )
 
 
-class Run(ConfigurationMixIn):
+class Run(_ArgumentsManager, _ArgumentsProvider):
     """Base class providing common behaviour for pyreverse commands."""
 
     options = OPTIONS
+    name = "pyreverse"
 
-    def __init__(self, args: Iterable[str]):
-        super().__init__(usage=__doc__)
+    def __init__(self, args: Sequence[str]) -> None:
+        _ArgumentsManager.__init__(self, prog="pyreverse", description=__doc__)
+        _ArgumentsProvider.__init__(self, self)
+
+        # Parse options
         insert_default_options()
-        args = self.load_command_line_configuration(args)
-        if self.config.output_format not in (
-            "dot",
-            "vcg",
-            "puml",
-            "plantuml",
-            "mmd",
-            "html",
-        ):
+        args = self._parse_command_line_configuration(args)
+
+        if self.config.output_format not in DIRECTLY_SUPPORTED_FORMATS:
             check_graphviz_availability()
+            print(
+                f"Format {self.config.output_format} is not supported natively. Pyreverse will try to generate it using Graphviz..."
+            )
+            check_if_graphviz_supports_format(self.config.output_format)
 
         sys.exit(self.run(args))
 

@@ -1,31 +1,6 @@
-# Copyright (c) 2006, 2008-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2012 Ry4an Brase <ry4an-hg@ry4an.org>
-# Copyright (c) 2012 Google, Inc.
-# Copyright (c) 2012 Anthony VEREZ <anthony.verez.external@cassidian.com>
-# Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2014 Brett Cannon <brett@python.org>
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2017, 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2017 Mikhail Fesenko <proggga@gmail.com>
-# Copyright (c) 2018 Scott Worley <scottworley@scottworley.com>
-# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
-# Copyright (c) 2019, 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2019 Taewon D. Kim <kimt33@mcmaster.ca>
-# Copyright (c) 2020-2021 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2020 Frank Harrison <frank@doublethefish.com>
-# Copyright (c) 2020 Eli Fine <ejfine@gmail.com>
-# Copyright (c) 2020 Shiv Venkatasubrahmanyam <shvenkat@users.noreply.github.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 Maksym Humetskyi <Humetsky@gmail.com>
-# Copyright (c) 2021 bot <bot@noreply.github.com>
-# Copyright (c) 2021 Aditya Gupta <adityagupta1089@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """A similarities / code duplication command line tool and pylint checker.
 
@@ -41,6 +16,10 @@ the hashes are computed with four lines. If one of match indices couple (12, 34)
 in fact five lines which are common.
 Once postprocessed the values of association table are the result looked for, i.e start and end lines numbers of common lines in both files.
 """
+
+from __future__ import annotations
+
+import argparse
 import copy
 import functools
 import itertools
@@ -49,6 +28,7 @@ import re
 import sys
 import warnings
 from collections import defaultdict
+from collections.abc import Generator, Iterable
 from getopt import getopt
 from io import BufferedIOBase, BufferedReader, BytesIO
 from itertools import chain, groupby
@@ -56,14 +36,9 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Dict,
-    FrozenSet,
-    Generator,
-    Iterable,
     List,
     NamedTuple,
     NewType,
-    Optional,
-    Set,
     TextIO,
     Tuple,
     Union,
@@ -75,6 +50,7 @@ from astroid import nodes
 from pylint.checkers import BaseChecker, MapReduceMixin, table_lines_from_stats
 from pylint.interfaces import IRawChecker
 from pylint.reporters.ureports.nodes import Table
+from pylint.typing import Options
 from pylint.utils import LinterStats, decoding_stream
 
 if TYPE_CHECKING:
@@ -109,17 +85,16 @@ STREAM_TYPES = Union[TextIO, BufferedReader, BytesIO]
 
 
 class CplSuccessiveLinesLimits:
-    """This class holds a couple of SuccessiveLinesLimits objects, one for each file compared,
-    and a counter on the number of common lines between both stripped lines collections extracted
-    from both files
+    """Holds a SuccessiveLinesLimits object for each file compared and a
+    counter on the number of common lines between both stripped lines collections extracted from both files
     """
 
     __slots__ = ("first_file", "second_file", "effective_cmn_lines_nb")
 
     def __init__(
         self,
-        first_file: "SuccessiveLinesLimits",
-        second_file: "SuccessiveLinesLimits",
+        first_file: SuccessiveLinesLimits,
+        second_file: SuccessiveLinesLimits,
         effective_cmn_lines_nb: int,
     ) -> None:
         self.first_file = first_file
@@ -217,7 +192,7 @@ class LineSetStartCouple(NamedTuple):
     def __hash__(self) -> int:
         return hash(self.fst_lineset_index) + hash(self.snd_lineset_index)
 
-    def increment(self, value: Index) -> "LineSetStartCouple":
+    def increment(self, value: Index) -> LineSetStartCouple:
         return LineSetStartCouple(
             Index(self.fst_lineset_index + value),
             Index(self.snd_lineset_index + value),
@@ -228,9 +203,11 @@ LinesChunkLimits_T = Tuple["LineSet", LineNumber, LineNumber]
 
 
 def hash_lineset(
-    lineset: "LineSet", min_common_lines: int = DEFAULT_MIN_SIMILARITY_LINE
-) -> Tuple[HashToIndex_T, IndexToLines_T]:
-    """Return two dicts. The first associates the hash of successive stripped lines of a lineset
+    lineset: LineSet, min_common_lines: int = DEFAULT_MIN_SIMILARITY_LINE
+) -> tuple[HashToIndex_T, IndexToLines_T]:
+    """Return two dicts.
+
+    The first associates the hash of successive stripped lines of a lineset
     to the indices of the starting lines.
     The second dict, associates the index of the starting line in the lineset's stripped lines to the
     couple [start, end] lines number in the corresponding file.
@@ -312,15 +289,18 @@ def remove_successives(all_couples: CplIndexToCplLines_T) -> None:
 
 
 def filter_noncode_lines(
-    ls_1: "LineSet",
+    ls_1: LineSet,
     stindex_1: Index,
-    ls_2: "LineSet",
+    ls_2: LineSet,
     stindex_2: Index,
     common_lines_nb: int,
 ) -> int:
-    """Return the effective number of common lines between lineset1 and lineset2 filtered from non code lines, that is to say the number of
-    common successive stripped lines except those that do not contain code (for example a ligne with only an
-    ending parathensis)
+    """Return the effective number of common lines between lineset1
+    and lineset2 filtered from non code lines.
+
+    That is to say the number of common successive stripped
+    lines except those that do not contain code (for example
+    a line with only an ending parathensis)
 
     :param ls_1: first lineset
     :param stindex_1: first lineset starting index
@@ -344,10 +324,10 @@ def filter_noncode_lines(
 
 class Commonality(NamedTuple):
     cmn_lines_nb: int
-    fst_lset: "LineSet"
+    fst_lset: LineSet
     fst_file_start: LineNumber
     fst_file_end: LineNumber
-    snd_lset: "LineSet"
+    snd_lset: LineSet
     snd_file_start: LineNumber
     snd_file_end: LineNumber
 
@@ -363,15 +343,21 @@ class Similar:
         ignore_imports: bool = False,
         ignore_signatures: bool = False,
     ) -> None:
-        self.min_lines = min_lines
-        self.ignore_comments = ignore_comments
-        self.ignore_docstrings = ignore_docstrings
-        self.ignore_imports = ignore_imports
-        self.ignore_signatures = ignore_signatures
-        self.linesets: List["LineSet"] = []
+        # If we run in pylint mode we link the namespace objects
+        if isinstance(self, BaseChecker):
+            self.namespace = self.linter.config
+        else:
+            self.namespace = argparse.Namespace()
+
+        self.namespace.min_similarity_lines = min_lines
+        self.namespace.ignore_comments = ignore_comments
+        self.namespace.ignore_docstrings = ignore_docstrings
+        self.namespace.ignore_imports = ignore_imports
+        self.namespace.ignore_signatures = ignore_signatures
+        self.linesets: list[LineSet] = []
 
     def append_stream(
-        self, streamid: str, stream: STREAM_TYPES, encoding: Optional[str] = None
+        self, streamid: str, stream: STREAM_TYPES, encoding: str | None = None
     ) -> None:
         """Append a file to search for similarities."""
         if isinstance(stream, BufferedIOBase):
@@ -381,14 +367,23 @@ class Similar:
         else:
             readlines = stream.readlines  # type: ignore[assignment] # hint parameter is incorrectly typed as non-optional
         try:
+            active_lines: list[str] = []
+            if hasattr(self, "linter"):
+                # Remove those lines that should be ignored because of disables
+                for index, line in enumerate(readlines()):
+                    if self.linter._is_one_message_enabled("R0801", index + 1):  # type: ignore[attr-defined]
+                        active_lines.append(line)
+            else:
+                active_lines = readlines()
+
             self.linesets.append(
                 LineSet(
                     streamid,
-                    readlines(),
-                    self.ignore_comments,
-                    self.ignore_docstrings,
-                    self.ignore_imports,
-                    self.ignore_signatures,
+                    active_lines,
+                    self.namespace.ignore_comments,
+                    self.namespace.ignore_docstrings,
+                    self.namespace.ignore_imports,
+                    self.namespace.ignore_signatures,
                 )
             )
         except UnicodeDecodeError:
@@ -396,13 +391,13 @@ class Similar:
 
     def run(self) -> None:
         """Start looking for similarities and display results on stdout."""
-        if self.min_lines == 0:
+        if self.namespace.min_similarity_lines == 0:
             return
         self._display_sims(self._compute_sims())
 
-    def _compute_sims(self) -> List[Tuple[int, Set[LinesChunkLimits_T]]]:
+    def _compute_sims(self) -> list[tuple[int, set[LinesChunkLimits_T]]]:
         """Compute similarities in appended files."""
-        no_duplicates: Dict[int, List[Set[LinesChunkLimits_T]]] = defaultdict(list)
+        no_duplicates: dict[int, list[set[LinesChunkLimits_T]]] = defaultdict(list)
 
         for commonality in self._iter_sims():
             num = commonality.cmn_lines_nb
@@ -414,7 +409,7 @@ class Similar:
             end_line_2 = commonality.snd_file_end
 
             duplicate = no_duplicates[num]
-            couples: Set[LinesChunkLimits_T]
+            couples: set[LinesChunkLimits_T]
             for couples in duplicate:
                 if (lineset1, start_line_1, end_line_1) in couples or (
                     lineset2,
@@ -429,10 +424,10 @@ class Similar:
                         (lineset2, start_line_2, end_line_2),
                     }
                 )
-        sims: List[Tuple[int, Set[LinesChunkLimits_T]]] = []
-        ensembles: List[Set[LinesChunkLimits_T]]
+        sims: list[tuple[int, set[LinesChunkLimits_T]]] = []
+        ensembles: list[set[LinesChunkLimits_T]]
         for num, ensembles in no_duplicates.items():
-            cpls: Set[LinesChunkLimits_T]
+            cpls: set[LinesChunkLimits_T]
             for cpls in ensembles:
                 sims.append((num, cpls))
         sims.sort()
@@ -440,14 +435,14 @@ class Similar:
         return sims
 
     def _display_sims(
-        self, similarities: List[Tuple[int, Set[LinesChunkLimits_T]]]
+        self, similarities: list[tuple[int, set[LinesChunkLimits_T]]]
     ) -> None:
         """Display computed similarities on stdout."""
         report = self._get_similarity_report(similarities)
         print(report)
 
     def _get_similarity_report(
-        self, similarities: List[Tuple[int, Set[LinesChunkLimits_T]]]
+        self, similarities: list[tuple[int, set[LinesChunkLimits_T]]]
     ) -> str:
         """Create a report from similarities."""
         report: str = ""
@@ -467,7 +462,7 @@ class Similar:
         return report
 
     def _find_common(
-        self, lineset1: "LineSet", lineset2: "LineSet"
+        self, lineset1: LineSet, lineset2: LineSet
     ) -> Generator[Commonality, None, None]:
         """Find similarities in the two given linesets.
 
@@ -482,11 +477,15 @@ class Similar:
         hash_to_index_2: HashToIndex_T
         index_to_lines_1: IndexToLines_T
         index_to_lines_2: IndexToLines_T
-        hash_to_index_1, index_to_lines_1 = hash_lineset(lineset1, self.min_lines)
-        hash_to_index_2, index_to_lines_2 = hash_lineset(lineset2, self.min_lines)
+        hash_to_index_1, index_to_lines_1 = hash_lineset(
+            lineset1, self.namespace.min_similarity_lines
+        )
+        hash_to_index_2, index_to_lines_2 = hash_lineset(
+            lineset2, self.namespace.min_similarity_lines
+        )
 
-        hash_1: FrozenSet[LinesChunk] = frozenset(hash_to_index_1.keys())
-        hash_2: FrozenSet[LinesChunk] = frozenset(hash_to_index_2.keys())
+        hash_1: frozenset[LinesChunk] = frozenset(hash_to_index_1.keys())
+        hash_2: frozenset[LinesChunk] = frozenset(hash_to_index_2.keys())
 
         common_hashes: Iterable[LinesChunk] = sorted(
             hash_1 & hash_2, key=lambda m: hash_to_index_1[m][0]
@@ -507,7 +506,7 @@ class Similar:
                 ] = CplSuccessiveLinesLimits(
                     copy.copy(index_to_lines_1[index_1]),
                     copy.copy(index_to_lines_2[index_2]),
-                    effective_cmn_lines_nb=self.min_lines,
+                    effective_cmn_lines_nb=self.namespace.min_similarity_lines,
                 )
 
         remove_successives(all_couples)
@@ -531,7 +530,7 @@ class Similar:
                 lineset1, start_index_1, lineset2, start_index_2, nb_common_lines
             )
 
-            if eff_cmn_nb > self.min_lines:
+            if eff_cmn_nb > self.namespace.min_similarity_lines:
                 yield com
 
     def _iter_sims(self) -> Generator[Commonality, None, None]:
@@ -564,7 +563,7 @@ def stripped_lines(
     ignore_docstrings: bool,
     ignore_imports: bool,
     ignore_signatures: bool,
-) -> List[LineSpecifs]:
+) -> list[LineSpecifs]:
     """Return tuples of line/line number/line type with leading/trailing whitespace and any ignored code features removed.
 
     :param lines: a collection of lines
@@ -591,8 +590,8 @@ def stripped_lines(
     if ignore_signatures:
 
         def _get_functions(
-            functions: List[nodes.NodeNG], tree: nodes.NodeNG
-        ) -> List[nodes.NodeNG]:
+            functions: list[nodes.NodeNG], tree: nodes.NodeNG
+        ) -> list[nodes.NodeNG]:
             """Recursively get all functions including nested in the classes from the tree."""
 
             for node in tree.body:
@@ -656,6 +655,7 @@ def stripped_lines(
 @functools.total_ordering
 class LineSet:
     """Holds and indexes all the lines of a single source file.
+
     Allows for correspondence between real lines of the source file and stripped ones, which
     are the real ones from which undesired patterns have been removed.
     """
@@ -663,7 +663,7 @@ class LineSet:
     def __init__(
         self,
         name: str,
-        lines: List[str],
+        lines: list[str],
         ignore_comments: bool = False,
         ignore_docstrings: bool = False,
         ignore_imports: bool = False,
@@ -718,7 +718,7 @@ MSGS = {
 def report_similarities(
     sect,
     stats: LinterStats,
-    old_stats: Optional[LinterStats],
+    old_stats: LinterStats | None,
 ) -> None:
     """Make a layout with some stats about duplication."""
     lines = ["", "now", "previous", "difference"]
@@ -728,9 +728,10 @@ def report_similarities(
 
 # wrapper to get a pylint checker from the similar class
 class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
-    """Checks for similarities and duplicated code. This computation may be
-    memory / CPU intensive, so you should disable it if you experiment some
-    problems.
+    """Checks for similarities and duplicated code.
+
+    This computation may be memory / CPU intensive, so you
+    should disable it if you experiment some problems.
     """
 
     __implements__ = (IRawChecker,)
@@ -740,7 +741,7 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
     msgs = MSGS
     # configuration options
     # for available dict keys/values see the optik parser 'add_option' method
-    options = (
+    options: Options = (
         (
             "min-similarity-lines",
             {
@@ -790,33 +791,16 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
     # reports
     reports = (("RP0801", "Duplication", report_similarities),)
 
-    def __init__(self, linter=None) -> None:
+    def __init__(self, linter: PyLinter) -> None:
         BaseChecker.__init__(self, linter)
         Similar.__init__(
             self,
-            min_lines=self.config.min_similarity_lines,
-            ignore_comments=self.config.ignore_comments,
-            ignore_docstrings=self.config.ignore_docstrings,
-            ignore_imports=self.config.ignore_imports,
-            ignore_signatures=self.config.ignore_signatures,
+            min_lines=self.linter.config.min_similarity_lines,
+            ignore_comments=self.linter.config.ignore_comments,
+            ignore_docstrings=self.linter.config.ignore_docstrings,
+            ignore_imports=self.linter.config.ignore_imports,
+            ignore_signatures=self.linter.config.ignore_signatures,
         )
-
-    def set_option(self, optname, value, action=None, optdict=None):
-        """Method called to set an option (registered in the options list).
-
-        Overridden to report options setting to Similar
-        """
-        BaseChecker.set_option(self, optname, value, action, optdict)
-        if optname == "min-similarity-lines":
-            self.min_lines = self.config.min_similarity_lines
-        elif optname == "ignore-comments":
-            self.ignore_comments = self.config.ignore_comments
-        elif optname == "ignore-docstrings":
-            self.ignore_docstrings = self.config.ignore_docstrings
-        elif optname == "ignore-imports":
-            self.ignore_imports = self.config.ignore_imports
-        elif optname == "ignore-signatures":
-            self.ignore_signatures = self.config.ignore_signatures
 
     def open(self):
         """Init the checkers: reset linesets and statistics information."""
@@ -871,18 +855,10 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
 
         The partner function of get_map_data()
         """
-        recombined = SimilarChecker(linter)
-        recombined.min_lines = self.min_lines
-        recombined.ignore_comments = self.ignore_comments
-        recombined.ignore_docstrings = self.ignore_docstrings
-        recombined.ignore_imports = self.ignore_imports
-        recombined.ignore_signatures = self.ignore_signatures
-        recombined.open()
-        Similar.combine_mapreduce_data(recombined, linesets_collection=data)
-        recombined.close()
+        Similar.combine_mapreduce_data(self, linesets_collection=data)
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(SimilarChecker(linter))
 
 

@@ -1,14 +1,32 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """A collection of typing utilities."""
+
+from __future__ import annotations
+
 import sys
-from typing import NamedTuple, Optional, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    NamedTuple,
+    Pattern,
+    Tuple,
+    Type,
+    Union,
+)
 
 if sys.version_info >= (3, 8):
     from typing import Literal, TypedDict
 else:
     from typing_extensions import Literal, TypedDict
+
+if TYPE_CHECKING:
+    from pylint.config.callback_actions import _CallbackAction
 
 
 class FileItem(NamedTuple):
@@ -40,7 +58,7 @@ class ErrorDescriptionDict(TypedDict):
 
     key: Literal["fatal"]
     mod: str
-    ex: Union[ImportError, SyntaxError]
+    ex: ImportError | SyntaxError
 
 
 class MessageLocationTuple(NamedTuple):
@@ -52,17 +70,17 @@ class MessageLocationTuple(NamedTuple):
     obj: str
     line: int
     column: int
-    end_line: Optional[int] = None
-    end_column: Optional[int] = None
+    end_line: int | None = None
+    end_column: int | None = None
 
 
 class ManagedMessage(NamedTuple):
     """Tuple with information about a managed message of the linter."""
 
-    name: Optional[str]
+    name: str | None
     msgid: str
     symbol: str
-    line: Optional[int]
+    line: int | None
     is_disabled: bool
 
 
@@ -70,3 +88,20 @@ MessageTypesFullName = Literal[
     "convention", "error", "fatal", "info", "refactor", "statement", "warning"
 ]
 """All possible message categories."""
+
+
+OptionDict = Dict[
+    str,
+    Union[
+        None,
+        str,
+        bool,
+        int,
+        Pattern[str],
+        Iterable[Union[str, int, Pattern[str]]],
+        Type["_CallbackAction"],
+        Callable[[Any], Any],
+        Callable[[Any, Any, Any, Any], Any],
+    ],
+]
+Options = Tuple[Tuple[str, OptionDict], ...]

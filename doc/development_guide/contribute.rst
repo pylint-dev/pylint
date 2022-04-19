@@ -17,7 +17,7 @@ https://github.com/PyCQA/pylint
 
 If you cannot find it in the tracker, create a new issue there or discuss your
 problem on the code-quality@python.org mailing list or using the discord
-server https://discord.gg/Egy6P8AMB5.
+server https://discord.com/invite/Egy6P8AMB5.
 
 The code-quality mailing list is also a nice place to provide feedback about
 Pylint, since it is shared with other tools that aim at improving the quality of
@@ -34,13 +34,13 @@ astroid:
 Discord server
 --------------
 
-https://discord.gg/Egy6P8AMB5
+https://discord.com/invite/Egy6P8AMB5
 
 Mailing lists
 -------------
 
 You can subscribe to this mailing list at
-https://mail.python.org/mailman/listinfo/code-quality
+https://mail.python.org/mailman3/lists/code-quality.python.org/
 
 Archives are available at
 https://mail.python.org/pipermail/code-quality/
@@ -87,8 +87,8 @@ of Pylint as it gives you access to the latest ``ast`` parser.
 
 - Add a short entry in :file:`doc/whatsnew/VERSION.rst`.
 
-- Add yourself to the `CONTRIBUTORS` file, flag yourself appropriately
-  (if in doubt, you're a ``contributor``).
+- If you used multiple emails or multiple names when contributing, add your mails
+  and preferred name in the ``script/.contributors_aliases.json`` file.
 
 - Write a comprehensive commit message
 
@@ -101,14 +101,12 @@ of Pylint as it gives you access to the latest ``ast`` parser.
 - Send a pull request from GitHub (see `About pull requests`_ for more insight
   about this topic)
 
-
-
-.. _`Closing issues via commit messages`: https://help.github.com/articles/closing-issues-via-commit-messages/
-.. _`About pull requests`: https://help.github.com/articles/using-pull-requests/
+.. _`Closing issues via commit messages`: https://github.blog/2013-01-22-closing-issues-via-commit-messages/
+.. _`About pull requests`: https://support.github.com/features/pull-requests
 .. _tox: https://tox.readthedocs.io/en/latest/
-.. _pytest: https://pytest.readthedocs.io/en/latest/
-.. _black: https://github.com/ambv/black
-.. _isort: https://github.com/timothycrosley/isort
+.. _pytest: https://docs.pytest.org/en/latest/
+.. _black: https://github.com/psf/black
+.. _isort: https://github.com/PyCQA/isort
 .. _astroid: https://github.com/pycqa/astroid
 
 

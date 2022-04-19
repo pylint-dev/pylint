@@ -1,58 +1,15 @@
-# Copyright (c) 2006-2015 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2012-2014 Google, Inc.
-# Copyright (c) 2013 buck@yelp.com <buck@yelp.com>
-# Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2014 Brett Cannon <brett@python.org>
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015-2016 Moises Lopez <moylop260@vauxoo.com>
-# Copyright (c) 2015 Dmitry Pribysh <dmand@yandex.ru>
-# Copyright (c) 2015 Cezar <celnazli@bitdefender.com>
-# Copyright (c) 2015 Florian Bruhin <me@the-compiler.org>
-# Copyright (c) 2015 Noam Yorav-Raphael <noamraph@gmail.com>
-# Copyright (c) 2015 James Morgensen <james.morgensen@gmail.com>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016, 2021 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2016 Jared Garst <cultofjared@gmail.com>
-# Copyright (c) 2016 Maik Röder <maikroeder@gmail.com>
-# Copyright (c) 2016 Glenn Matthews <glenn@e-dad.net>
-# Copyright (c) 2017, 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2017 Michka Popoff <michkapopoff@gmail.com>
-# Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
-# Copyright (c) 2017 Erik Wright <erik.wright@shopify.com>
-# Copyright (c) 2018 Lucas Cimon <lucas.cimon@gmail.com>
-# Copyright (c) 2018 Hornwitser <github@hornwitser.no>
-# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
-# Copyright (c) 2018 Natalie Serebryakova <natalie.serebryakova@Natalies-MacBook-Pro.local>
-# Copyright (c) 2018 Mike Frysinger <vapier@gmail.com>
-# Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
-# Copyright (c) 2018 Marianna Polatoglou <mpolatoglou@bloomberg.net>
-# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019, 2021 Nick Drozd <nicholasdrozd@gmail.com>
-# Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2019 Nick Smith <clickthisnick@users.noreply.github.com>
-# Copyright (c) 2019 Paul Renvoisé <renvoisepaul@gmail.com>
-# Copyright (c) 2020 Peter Kolbus <peter.kolbus@gmail.com>
-# Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
-# Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2021 Tushar Sadhwani <tushar.sadhwani000@gmail.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 Will Shanks <wsha@posteo.net>
-# Copyright (c) 2021 Matus Valo <matusvalo@users.noreply.github.com>
-# Copyright (c) 2021 Yu Shao, Pang <36848472+yushao2@users.noreply.github.com>
-# Copyright (c) 2021 Andrew Howe <howeaj@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Imports checkers for Python code."""
+
+from __future__ import annotations
 
 import collections
 import copy
 import os
-import sys
-from distutils import sysconfig
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple, Union
+from typing import TYPE_CHECKING, Any
 
 import astroid
 from astroid import nodes
@@ -70,7 +27,7 @@ from pylint.exceptions import EmptyReportError
 from pylint.graph import DotBackend, get_cycles
 from pylint.interfaces import IAstroidChecker
 from pylint.reporters.ureports.nodes import Paragraph, Section, VerbatimText
-from pylint.utils import IsortDriver, get_global_option
+from pylint.utils import IsortDriver
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -172,7 +129,7 @@ def _repr_tree_defs(data, indent_str=None):
     return "\n".join(lines)
 
 
-def _dependencies_graph(filename: str, dep_info: Dict[str, Set[str]]) -> str:
+def _dependencies_graph(filename: str, dep_info: dict[str, set[str]]) -> str:
     """Write dependencies as a dot (graphviz) file."""
     done = {}
     printer = DotBackend(os.path.splitext(os.path.basename(filename))[0], rankdir="LR")
@@ -192,7 +149,7 @@ def _dependencies_graph(filename: str, dep_info: Dict[str, Set[str]]) -> str:
 
 
 def _make_graph(
-    filename: str, dep_info: Dict[str, Set[str]], sect: Section, gtype: str
+    filename: str, dep_info: dict[str, set[str]], sect: Section, gtype: str
 ):
     """Generate a dependencies graph and add some information about it in the
     report's section
@@ -302,7 +259,9 @@ DEFAULT_PREFERRED_MODULES = ()
 
 
 class ImportsChecker(DeprecatedMixin, BaseChecker):
-    """Checks for
+    """BaseChecker for import statements.
+
+    Checks for
     * external modules dependencies
     * relative / wildcard imports
     * cyclic imports
@@ -314,7 +273,6 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
     name = "imports"
     msgs = MSGS
-    priority = -2
     default_deprecated_modules = ()
 
     options = (
@@ -404,19 +362,6 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             },
         ),
         (
-            "analyse-fallback-blocks",
-            {
-                "default": False,
-                "type": "yn",
-                "metavar": "<y or n>",
-                "help": "Analyse import fallback blocks. This can be used to "
-                "support both Python 2 and 3 compatible code, which "
-                "means that the block might have code that exists "
-                "only in one or another interpreter, leading to false "
-                "positives when analysed.",
-            },
-        ),
-        (
             "allow-wildcard-with-all",
             {
                 "default": False,
@@ -427,46 +372,19 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         ),
     )
 
-    def __init__(self, linter: Optional["PyLinter"] = None) -> None:
+    def __init__(self, linter: PyLinter) -> None:
         BaseChecker.__init__(self, linter)
         self.import_graph: collections.defaultdict = collections.defaultdict(set)
-        self._imports_stack: List[Tuple[Any, Any]] = []
+        self._imports_stack: list[tuple[Any, Any]] = []
         self._first_non_import_node = None
-        self._module_pkg: Dict[
+        self._module_pkg: dict[
             Any, Any
         ] = {}  # mapping of modules to the pkg they belong in
-        self._allow_any_import_level: Set[Any] = set()
+        self._allow_any_import_level: set[Any] = set()
         self.reports = (
             ("RP0401", "External dependencies", self._report_external_dependencies),
             ("RP0402", "Modules dependencies graph", self._report_dependencies_graph),
         )
-
-        self._site_packages = self._compute_site_packages()
-
-    @staticmethod
-    def _compute_site_packages():
-        def _normalized_path(path):
-            return os.path.normcase(os.path.abspath(path))
-
-        paths = set()
-        real_prefix = getattr(sys, "real_prefix", None)
-        for prefix in filter(None, (real_prefix, sys.prefix)):
-            path = sysconfig.get_python_lib(prefix=prefix)
-            path = _normalized_path(path)
-            paths.add(path)
-
-        # Handle Debian's derivatives /usr/local.
-        if os.path.isfile("/etc/debian_version"):
-            for prefix in filter(None, (real_prefix, sys.prefix)):
-                libpython = os.path.join(
-                    prefix,
-                    "local",
-                    "lib",
-                    "python" + sysconfig.get_python_version(),
-                    "dist-packages",
-                )
-                paths.add(libpython)
-        return paths
 
     def open(self):
         """Called before visiting project (i.e set of modules)."""
@@ -475,14 +393,14 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         self.import_graph = collections.defaultdict(set)
         self._module_pkg = {}  # mapping of modules to the pkg they belong in
         self._excluded_edges = collections.defaultdict(set)
-        self._ignored_modules = get_global_option(self, "ignored-modules", default=[])
+        self._ignored_modules = self.linter.config.ignored_modules
         # Build a mapping {'module': 'preferred-module'}
         self.preferred_modules = dict(
             module.split(":")
-            for module in self.config.preferred_modules
+            for module in self.linter.config.preferred_modules
             if ":" in module
         )
-        self._allow_any_import_level = set(self.config.allow_any_import_level)
+        self._allow_any_import_level = set(self.linter.config.allow_any_import_level)
 
     def _import_graph_without_ignored_edges(self):
         filtered_graph = copy.deepcopy(self.import_graph)
@@ -500,7 +418,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
     def deprecated_modules(self):
         """Callback returning the deprecated modules."""
-        return self.config.deprecated_modules
+        return self.linter.config.deprecated_modules
 
     @check_messages(*MSGS)
     def visit_import(self, node: nodes.Import) -> None:
@@ -562,14 +480,10 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         std_imports, ext_imports, loc_imports = self._check_imports_order(node)
 
         # Check that imports are grouped by package within a given category
-        met_import: Set[str] = set()  # set for 'import x' style
-        met_from: Set[str] = set()  # set for 'from x import y' style
+        met_import: set[str] = set()  # set for 'import x' style
+        met_from: set[str] = set()  # set for 'from x import y' style
         current_package = None
         for import_node, import_name in std_imports + ext_imports + loc_imports:
-            if not self.linter.is_message_enabled(
-                "ungrouped-imports", import_node.fromlineno
-            ):
-                continue
             met = met_from if isinstance(import_node, nodes.ImportFrom) else met_import
             package, _, _ = import_name.partition(".")
             if (
@@ -580,6 +494,10 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             ):
                 self.add_message("ungrouped-imports", node=import_node, args=package)
             current_package = package
+            if not self.linter.is_message_enabled(
+                "ungrouped-imports", import_node.fromlineno
+            ):
+                continue
             met.add(package)
 
         self._imports_stack = []
@@ -722,7 +640,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         third_party_not_ignored = []
         first_party_not_ignored = []
         local_not_ignored = []
-        isort_driver = IsortDriver(self.config)
+        isort_driver = IsortDriver(self.linter.config)
         for node, modname in self._imports_stack:
             if modname.startswith("."):
                 package = "." + modname.split(".")[1]
@@ -819,8 +737,9 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 return None
             if _ignore_import_failure(importnode, modname, self._ignored_modules):
                 return None
-            if not self.config.analyse_fallback_blocks and is_from_fallback_block(
-                importnode
+            if (
+                not self.linter.config.analyse_fallback_blocks
+                and is_from_fallback_block(importnode)
             ):
                 return None
 
@@ -829,7 +748,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         return None
 
     def _add_imported_module(
-        self, node: Union[nodes.Import, nodes.ImportFrom], importedmodname: str
+        self, node: nodes.Import | nodes.ImportFrom, importedmodname: str
     ) -> None:
         """Notify an imported module, used to analyze dependencies."""
         module_file = node.root().file
@@ -858,7 +777,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 self._module_pkg[context_name] = context_name.rsplit(".", 1)[0]
 
             # handle dependencies
-            dependencies_stat: Dict[str, Union[Set]] = self.linter.stats.dependencies
+            dependencies_stat: dict[str, set[str]] = self.linter.stats.dependencies
             importedmodnames = dependencies_stat.setdefault(importedmodname, set())
             if context_name not in importedmodnames:
                 importedmodnames.add(context_name)
@@ -880,9 +799,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 args=(self.preferred_modules[mod_path], mod_path),
             )
 
-    def _check_import_as_rename(
-        self, node: Union[nodes.Import, nodes.ImportFrom]
-    ) -> None:
+    def _check_import_as_rename(self, node: nodes.Import | nodes.ImportFrom) -> None:
         names = node.names
         for name in names:
             if not all(name):
@@ -936,18 +853,18 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         """Write dependencies as a dot (graphviz) file."""
         dep_info = self.linter.stats.dependencies
         if not dep_info or not (
-            self.config.import_graph
-            or self.config.ext_import_graph
-            or self.config.int_import_graph
+            self.linter.config.import_graph
+            or self.linter.config.ext_import_graph
+            or self.linter.config.int_import_graph
         ):
             raise EmptyReportError()
-        filename = self.config.import_graph
+        filename = self.linter.config.import_graph
         if filename:
             _make_graph(filename, dep_info, sect, "")
-        filename = self.config.ext_import_graph
+        filename = self.linter.config.ext_import_graph
         if filename:
             _make_graph(filename, self._external_dependencies_info(), sect, "external ")
-        filename = self.config.int_import_graph
+        filename = self.linter.config.int_import_graph
         if filename:
             _make_graph(filename, self._internal_dependencies_info(), sect, "internal ")
 
@@ -988,7 +905,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
     def _wildcard_import_is_allowed(self, imported_module):
         return (
-            self.config.allow_wildcard_with_all
+            self.linter.config.allow_wildcard_with_all
             and imported_module is not None
             and "__all__" in imported_module.locals
         )
@@ -1018,5 +935,5 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             )
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(ImportsChecker(linter))

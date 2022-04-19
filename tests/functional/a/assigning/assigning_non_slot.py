@@ -1,7 +1,7 @@
 """ Checks assigning attributes not found in class slots
 will trigger assigning-non-slot warning.
 """
-# pylint: disable=too-few-public-methods, no-init, missing-docstring,  import-error, useless-object-inheritance, redundant-u-string-prefix
+# pylint: disable=too-few-public-methods, no-init, missing-docstring,  import-error, useless-object-inheritance, redundant-u-string-prefix, unnecessary-dunder-call
 from collections import deque
 
 from missing import Unknown

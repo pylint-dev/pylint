@@ -39,7 +39,7 @@ My command line prompt for these examples is:
 
   robertk01 Desktop$
 
-.. _PEP 8: https://www.python.org/dev/peps/pep-0008/
+.. _PEP 8: https://peps.python.org/pep-0008/
 
 Getting Started
 ---------------
@@ -59,7 +59,7 @@ A couple of the options that we'll focus on here are: ::
 
   Commands:
     --help-msg=<msg-id>
-    --generate-rcfile
+    --generate-toml-config
   Messages control:
     --disable=<msg-ids>
   Reports:
@@ -273,7 +273,8 @@ example but go ahead and `read up`_ on them if you want.
  It would really be a pain to specify that regex on the command line all the time, particularly if we're using many other options.
  That's what a configuration file is for. We can configure our Pylint to
  store our options for us so we don't have to declare them on the command line.  Using a configuration file is a nice way of formalizing your rules and
- quickly sharing them with others. Invoking ``pylint --generate-rcfile`` will create a sample rcfile with all the options set and explained in comments.
+ quickly sharing them with others. Invoking ``pylint --generate-toml-config`` will create a sample ``.toml`` section with all the options set and explained in comments.
+ This can then be added to your ``pyproject.toml`` file or any other ``.toml`` file pointed to with the ``--rcfile`` option.
 
 That's it for the basic intro. More tutorials will follow.
 

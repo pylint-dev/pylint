@@ -1,34 +1,41 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-from typing import List, Optional, Tuple
+from __future__ import annotations
+
+import argparse
 
 
 # This class could and should be replaced with a simple dataclass when support for Python < 3.7 is dropped.
 # A NamedTuple is not possible as some tests need to modify attributes during the test.
-class PyreverseConfig:  # pylint: disable=too-many-instance-attributes, too-many-arguments
+class PyreverseConfig(
+    argparse.Namespace
+):  # pylint: disable=too-many-instance-attributes, too-many-arguments
     """Holds the configuration options for Pyreverse.
+
     The default values correspond to the defaults of the options' parser.
     """
 
     def __init__(
         self,
         mode: str = "PUB_ONLY",
-        classes: Optional[List[str]] = None,
-        show_ancestors: Optional[int] = None,
-        all_ancestors: Optional[bool] = None,
-        show_associated: Optional[int] = None,
-        all_associated: Optional[bool] = None,
+        classes: list[str] | None = None,
+        show_ancestors: int | None = None,
+        all_ancestors: bool | None = None,
+        show_associated: int | None = None,
+        all_associated: bool | None = None,
         show_builtin: bool = False,
-        module_names: Optional[bool] = None,
+        module_names: bool | None = None,
         only_classnames: bool = False,
         output_format: str = "dot",
         colorized: bool = False,
         max_color_depth: int = 2,
-        ignore_list: Tuple[str, ...] = tuple(),
+        ignore_list: tuple[str, ...] = tuple(),
         project: str = "",
         output_directory: str = "",
     ) -> None:
+        super().__init__()
         self.mode = mode
         if classes:
             self.classes = classes

@@ -1,14 +1,8 @@
 """Profiles basic -jX functionality."""
-# Copyright (c) 2020-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2020 Frank Harrison <frank@doublethefish.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 # pylint: disable=missing-function-docstring
 
@@ -142,6 +136,7 @@ class TestEstablishBaselineBenchmarks:
             linter.msg_status == 0
         ), f"Expected no errors to be thrown: {pprint.pformat(linter.reporter.messages)}"
 
+    @pytest.mark.needs_two_cores
     def test_baseline_benchmark_j2(self, benchmark):
         """Establish a baseline of pylint performance with no work across threads.
 
@@ -164,6 +159,7 @@ class TestEstablishBaselineBenchmarks:
             linter.msg_status == 0
         ), f"Expected no errors to be thrown: {pprint.pformat(linter.reporter.messages)}"
 
+    @pytest.mark.needs_two_cores
     def test_baseline_benchmark_check_parallel_j2(self, benchmark):
         """Should demonstrate times very close to `test_baseline_benchmark_j2`."""
         linter = PyLinter(reporter=Reporter())
@@ -196,6 +192,7 @@ class TestEstablishBaselineBenchmarks:
             linter.msg_status == 0
         ), f"Expected no errors to be thrown: {pprint.pformat(linter.reporter.messages)}"
 
+    @pytest.mark.needs_two_cores
     def test_baseline_lots_of_files_j2(self, benchmark):
         """Establish a baseline with only 'master' checker being run in -j2.
 
@@ -236,6 +233,7 @@ class TestEstablishBaselineBenchmarks:
             linter.msg_status == 0
         ), f"Expected no errors to be thrown: {pprint.pformat(linter.reporter.messages)}"
 
+    @pytest.mark.needs_two_cores
     def test_baseline_lots_of_files_j2_empty_checker(self, benchmark):
         """Baselines pylint for a single extra checker being run in -j2, for N-files.
 
@@ -282,6 +280,7 @@ class TestEstablishBaselineBenchmarks:
             linter.msg_status == 0
         ), f"Expected no errors to be thrown: {pprint.pformat(linter.reporter.messages)}"
 
+    @pytest.mark.needs_two_cores
     def test_baseline_benchmark_j2_single_working_checker(self, benchmark):
         """Establishes baseline of multi-worker performance for PyLinter/check_parallel.
 

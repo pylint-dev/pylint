@@ -1,8 +1,14 @@
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
 """Small script to fix various issues with the documentation. Used by pre-commit."""
+
+from __future__ import annotations
+
 import argparse
 import re
 import sys
-from typing import List, Optional, Union
 
 INVALID_CODE_BLOCK_PATTERN = (
     r"(?<=\s`)([\w\-\.\(\)\=]+\s{0,1}[\w\-\.\(\)\=]*)(?=`[,\.]{0,1}\s|$)"
@@ -46,7 +52,7 @@ class CustomHelpFormatter(argparse.HelpFormatter):
         prog: str,
         indent_increment: int = 2,
         max_help_position: int = 24,
-        width: Optional[int] = None,
+        width: int | None = None,
     ) -> None:
         max_help_position = 40
         super().__init__(
@@ -57,7 +63,7 @@ class CustomHelpFormatter(argparse.HelpFormatter):
         )
 
 
-def main(argv: Union[List[str], None] = None) -> int:
+def main(argv: list[str] | None = None) -> int:
     argv = argv or sys.argv[1:]
     parser = argparse.ArgumentParser(formatter_class=CustomHelpFormatter)
     parser.add_argument(

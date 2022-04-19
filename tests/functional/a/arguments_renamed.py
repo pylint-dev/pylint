@@ -40,7 +40,7 @@ class Child(Parent):
     def test(self, arg1): # [arguments-renamed]
         return arg1 + 1
 
-    def kwargs_test(self, arg, *, value1, var2): #[arguments-renamed]
+    def kwargs_test(self, arg, *, value1, var2): #[arguments-differ]
         print(f"keyword parameters are {value1} and {var2}.")
 
 class Child2(Parent):
@@ -48,7 +48,7 @@ class Child2(Parent):
     def test(self, var): # [arguments-renamed]
         return var + 1
 
-    def kwargs_test(self, *, var1, kw2): #[arguments-renamed, arguments-differ]
+    def kwargs_test(self, *, var1, kw2): #[arguments-differ]
         print(f"keyword parameters are {var1} and {kw2}.")
 
 class ParentDefaults(object):

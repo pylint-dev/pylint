@@ -1,6 +1,11 @@
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
 from typing import Any, NoReturn
 from unittest.mock import patch
 
+import pytest
 from astroid import AstroidBuildingError
 from py._path.local import LocalPath  # type: ignore[import]
 from pytest import CaptureFixture
@@ -17,7 +22,8 @@ def raise_exception(*args: Any, **kwargs: Any) -> NoReturn:
 def test_crash_in_file(
     linter: PyLinter, capsys: CaptureFixture, tmpdir: LocalPath
 ) -> None:
-    args = linter.load_command_line_configuration([__file__])
+    with pytest.warns(DeprecationWarning):
+        args = linter.load_command_line_configuration([__file__])
     linter.crash_file_path = str(tmpdir / "pylint-crash-%Y")
     linter.check(args)
     out, err = capsys.readouterr()

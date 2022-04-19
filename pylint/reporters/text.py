@@ -1,45 +1,20 @@
-# Copyright (c) 2006-2007, 2010-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2012-2014 Google, Inc.
-# Copyright (c) 2014 Brett Cannon <brett@python.org>
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2015 Florian Bruhin <me@the-compiler.org>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016 y2kbugger <y2kbugger@users.noreply.github.com>
-# Copyright (c) 2018-2019 Nick Drozd <nicholasdrozd@gmail.com>
-# Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
-# Copyright (c) 2018 Jace Browning <jacebrowning@gmail.com>
-# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 bot <bot@noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Plain text reporters:.
 
 :text: the default one grouping messages by module
 :colorized: an ANSI colorized text reporter
 """
+
+from __future__ import annotations
+
 import os
 import re
 import sys
 import warnings
-from typing import (
-    TYPE_CHECKING,
-    Dict,
-    NamedTuple,
-    Optional,
-    Set,
-    TextIO,
-    Tuple,
-    Union,
-    cast,
-    overload,
-)
+from typing import TYPE_CHECKING, Dict, NamedTuple, Optional, TextIO, cast, overload
 
 from pylint.interfaces import IReporter
 from pylint.message import Message
@@ -55,11 +30,11 @@ if TYPE_CHECKING:
 class MessageStyle(NamedTuple):
     """Styling of a message."""
 
-    color: Optional[str]
+    color: str | None
     """The color name (see `ANSI_COLORS` for available values)
     or the color number when 256 colors are available
     """
-    style: Tuple[str, ...] = ()
+    style: tuple[str, ...] = ()
     """Tuple of style strings (see `ANSI_COLORS` for available values)."""
 
 
@@ -116,7 +91,7 @@ def _get_ansi_code(msg_style: MessageStyle) -> str:
 @overload
 def colorize_ansi(
     msg: str,
-    msg_style: Optional[MessageStyle] = None,
+    msg_style: MessageStyle | None = None,
 ) -> str:
     ...
 
@@ -124,10 +99,10 @@ def colorize_ansi(
 @overload
 def colorize_ansi(
     msg: str,
-    msg_style: Optional[str] = None,
-    style: Optional[str] = None,
+    msg_style: str | None = None,
+    style: str = "",
     *,
-    color: Optional[str] = None,
+    color: str | None = None,
 ) -> str:
     # Remove for pylint 3.0
     ...
@@ -135,9 +110,9 @@ def colorize_ansi(
 
 def colorize_ansi(
     msg: str,
-    msg_style: Union[MessageStyle, str, None] = None,
-    style: Optional[str] = None,
-    **kwargs: Optional[str],
+    msg_style: MessageStyle | str | None = None,
+    style: str = "",
+    **kwargs: str | None,
 ) -> str:
     r"""colorize message by wrapping it with ansi escape codes
 
@@ -153,7 +128,7 @@ def colorize_ansi(
     :return: the ansi escaped string
     """
     # pylint: disable-next=fixme
-    # TODO: Remove DeprecationWarning and only accept MessageStyle as parameter
+    # TODO: 3.0: Remove deprecated typing and only accept MessageStyle as parameter
     if not isinstance(msg_style, MessageStyle):
         warnings.warn(
             "In pylint 3.0, the colorize_ansi function of Text reporters will only accept a MessageStyle parameter",
@@ -180,14 +155,14 @@ class TextReporter(BaseReporter):
     extension = "txt"
     line_format = "{path}:{line}:{column}: {msg_id}: {msg} ({symbol})"
 
-    def __init__(self, output: Optional[TextIO] = None) -> None:
+    def __init__(self, output: TextIO | None = None) -> None:
         super().__init__(output)
-        self._modules: Set[str] = set()
+        self._modules: set[str] = set()
         self._template = self.line_format
         self._fixed_template = self.line_format
         """The output format template with any unrecognized arguments removed."""
 
-    def on_set_current_module(self, module: str, filepath: Optional[str]) -> None:
+    def on_set_current_module(self, module: str, filepath: str | None) -> None:
         """Set the format template to be used and check for unrecognized arguments."""
         template = str(self.linter.config.msg_template or self._template)
 
@@ -227,7 +202,7 @@ class TextReporter(BaseReporter):
                 self.writeln("************* ")
         self.write_message(msg)
 
-    def _display(self, layout: "Section") -> None:
+    def _display(self, layout: Section) -> None:
         """Launch layouts display."""
         print(file=self.out)
         TextWriter().format(layout, self.out)
@@ -243,7 +218,7 @@ class ParseableTextReporter(TextReporter):
     name = "parseable"
     line_format = "{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}"
 
-    def __init__(self, output: Optional[TextIO] = None) -> None:
+    def __init__(self, output: TextIO | None = None) -> None:
         warnings.warn(
             f"{self.name} output format is deprecated. This is equivalent to --msg-template={self.line_format}",
             DeprecationWarning,
@@ -275,41 +250,41 @@ class ColorizedTextReporter(TextReporter):
     @overload
     def __init__(
         self,
-        output: Optional[TextIO] = None,
-        color_mapping: Optional[ColorMappingDict] = None,
+        output: TextIO | None = None,
+        color_mapping: ColorMappingDict | None = None,
     ) -> None:
         ...
 
     @overload
     def __init__(
         self,
-        output: Optional[TextIO] = None,
-        color_mapping: Optional[Dict[str, Tuple[Optional[str], Optional[str]]]] = None,
+        output: TextIO | None = None,
+        color_mapping: dict[str, tuple[str | None, str]] | None = None,
     ) -> None:
         # Remove for pylint 3.0
         ...
 
     def __init__(
         self,
-        output: Optional[TextIO] = None,
-        color_mapping: Union[
-            ColorMappingDict, Dict[str, Tuple[Optional[str], Optional[str]]], None
-        ] = None,
+        output: TextIO | None = None,
+        color_mapping: (
+            ColorMappingDict | dict[str, tuple[str | None, str]] | None
+        ) = None,
     ) -> None:
         super().__init__(output)
         # pylint: disable-next=fixme
-        # TODO: Remove DeprecationWarning and only accept ColorMappingDict as color_mapping parameter
+        # TODO: 3.0: Remove deprecated typing and only accept ColorMappingDict as color_mapping parameter
         if color_mapping and not isinstance(
             list(color_mapping.values())[0], MessageStyle
         ):
             warnings.warn(
-                "In pylint 3.0, the ColoreziedTextReporter will only accept ColorMappingDict as color_mapping parameter",
+                "In pylint 3.0, the ColorizedTextReporter will only accept ColorMappingDict as color_mapping parameter",
                 DeprecationWarning,
             )
             temp_color_mapping: ColorMappingDict = {}
             for key, value in color_mapping.items():
                 color = value[0]
-                style_attrs = tuple(_splitstrip(value[1]))
+                style_attrs = tuple(_splitstrip(value[1]))  # type: ignore[arg-type]
                 temp_color_mapping[key] = MessageStyle(color, style_attrs)
             color_mapping = temp_color_mapping
         else:
@@ -350,7 +325,7 @@ class ColorizedTextReporter(TextReporter):
         self.write_message(msg)
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_reporter(TextReporter)
     linter.register_reporter(ParseableTextReporter)
     linter.register_reporter(VSTextReporter)

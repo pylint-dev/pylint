@@ -1,38 +1,25 @@
-# Copyright (c) 2021-2022 Carli Freudenberg <carli.freudenberg@energymeteo.de>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
 """All alphanumeric unicode character are allowed in Python but due
 to similarities in how they look they can be confused.
 
-See: https://www.python.org/dev/peps/pep-0672/#confusable-characters-in-identifiers
+See: https://peps.python.org/pep-0672/#confusing-features
 
 The following checkers are intended to make users are aware of these issues.
 """
 
-import sys
-from typing import Optional, Union
+from __future__ import annotations
 
 from astroid import nodes
 
 from pylint import constants, interfaces, lint
 from pylint.checkers import base_checker, utils
 
-if sys.version_info[:2] >= (3, 7):
-    # pylint: disable-next=fixme
-    # TODO: Remove after 3.6 has been deprecated
-    Py37Str = str
-else:
-
-    class Py37Str(str):
-        # Allow Python 3.6 compatibility
-        def isascii(self: str) -> bool:
-            return all("\u0000" <= x <= "\u007F" for x in self)
-
-
 NON_ASCII_HELP = (
     "Used when the name contains at least one non-ASCII unicode character. "
-    "See https://www.python.org/dev/peps/pep-0672/#confusable-characters-in-identifiers"
+    "See https://peps.python.org/pep-0672/#confusing-features"
     " for a background why this could be bad. \n"
     "If your programming guideline defines that you are programming in "
     "English, then there should be no need for non ASCII characters in "
@@ -48,7 +35,6 @@ class NonAsciiNameChecker(base_checker.BaseChecker):
     """
 
     __implements__ = interfaces.IAstroidChecker
-    priority = -1
 
     msgs = {
         "C2401": (
@@ -72,8 +58,8 @@ class NonAsciiNameChecker(base_checker.BaseChecker):
                 "Some editors don't support non-ASCII file names properly. "
                 "Even though Python supports UTF-8 files since Python 3.5 this isn't "
                 "recommended for interoperability. Further reading:\n"
-                "- https://www.python.org/dev/peps/pep-0489/#export-hook-name\n"
-                "- https://www.python.org/dev/peps/pep-0672/#confusable-characters-in-identifiers\n"
+                "- https://peps.python.org/pep-0489/#export-hook-name\n"
+                "- https://peps.python.org/pep-0672/#confusing-features\n"
                 "- https://bugs.python.org/issue20485"
             ),
         ),
@@ -87,16 +73,14 @@ class NonAsciiNameChecker(base_checker.BaseChecker):
 
     name = "NonASCII-Checker"
 
-    def _check_name(
-        self, node_type: str, name: Optional[str], node: nodes.NodeNG
-    ) -> None:
+    def _check_name(self, node_type: str, name: str | None, node: nodes.NodeNG) -> None:
         """Check whether a name is using non-ASCII characters."""
 
         if name is None:
             # For some nodes i.e. *kwargs from a dict, the name will be empty
             return
 
-        if not (Py37Str(name).isascii()):
+        if not str(name).isascii():
             type_label = constants.HUMAN_READABLE_TYPES[node_type]
             args = (type_label.capitalize(), name)
 
@@ -110,13 +94,13 @@ class NonAsciiNameChecker(base_checker.BaseChecker):
 
             self.add_message(msg, node=node, args=args, confidence=interfaces.HIGH)
 
-    @utils.check_messages("non-ascii-name")
+    @utils.check_messages("non-ascii-name", "non-ascii-file-name")
     def visit_module(self, node: nodes.Module) -> None:
         self._check_name("file", node.name.split(".")[-1], node)
 
     @utils.check_messages("non-ascii-name")
     def visit_functiondef(
-        self, node: Union[nodes.FunctionDef, nodes.AsyncFunctionDef]
+        self, node: nodes.FunctionDef | nodes.AsyncFunctionDef
     ) -> None:
         self._check_name("function", node.name, node)
 
@@ -177,16 +161,16 @@ class NonAsciiNameChecker(base_checker.BaseChecker):
             if not any(node.instance_attr_ancestors(attr)):
                 self._check_name("attr", attr, anodes[0])
 
-    def _check_module_import(self, node: Union[nodes.ImportFrom, nodes.Import]) -> None:
+    def _check_module_import(self, node: nodes.ImportFrom | nodes.Import) -> None:
         for module_name, alias in node.names:
             name = alias or module_name
             self._check_name("module", name, node)
 
-    @utils.check_messages("non-ascii-name")
+    @utils.check_messages("non-ascii-name", "non-ascii-module-import")
     def visit_import(self, node: nodes.Import) -> None:
         self._check_module_import(node)
 
-    @utils.check_messages("non-ascii-name")
+    @utils.check_messages("non-ascii-name", "non-ascii-module-import")
     def visit_importfrom(self, node: nodes.ImportFrom) -> None:
         self._check_module_import(node)
 

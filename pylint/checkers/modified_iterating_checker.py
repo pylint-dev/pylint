@@ -1,7 +1,10 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-from typing import TYPE_CHECKING, Union
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from astroid import nodes
 
@@ -49,15 +52,15 @@ class ModifiedIterationChecker(checkers.BaseChecker):
     }
 
     options = ()
-    priority = -2
 
     @utils.check_messages(
         "modified-iterating-list", "modified-iterating-dict", "modified-iterating-set"
     )
     def visit_for(self, node: nodes.For) -> None:
         iter_obj = node.iter
-        for body_node in node.body:
-            self._modified_iterating_check_on_node_and_children(body_node, iter_obj)
+        if isinstance(iter_obj, nodes.Name):
+            for body_node in node.body:
+                self._modified_iterating_check_on_node_and_children(body_node, iter_obj)
 
     def _modified_iterating_check_on_node_and_children(
         self, body_node: nodes.NodeNG, iter_obj: nodes.NodeNG
@@ -98,7 +101,7 @@ class ModifiedIterationChecker(checkers.BaseChecker):
     def _common_cond_list_set(
         node: nodes.Expr,
         iter_obj: nodes.NodeNG,
-        infer_val: Union[nodes.List, nodes.Set],
+        infer_val: nodes.List | nodes.Set,
     ) -> bool:
         return (infer_val == utils.safe_infer(iter_obj)) and (
             node.value.func.expr.name == iter_obj.name
@@ -150,5 +153,5 @@ class ModifiedIterationChecker(checkers.BaseChecker):
         )
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(ModifiedIterationChecker(linter))

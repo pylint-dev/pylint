@@ -1,11 +1,8 @@
-# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
+from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
@@ -25,7 +22,6 @@ class ConfusingConsecutiveElifChecker(BaseChecker):
     __implements__ = IAstroidChecker
 
     name = "confusing_elif"
-    priority = -1
     msgs = {
         "R5601": (
             "Consecutive elif with differing indentation level, consider creating a function to separate the inner elif",
@@ -54,5 +50,5 @@ class ConfusingConsecutiveElifChecker(BaseChecker):
         return False
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(ConfusingConsecutiveElifChecker(linter))

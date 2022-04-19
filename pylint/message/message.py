@@ -1,9 +1,11 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
 
 import collections
-from typing import Optional, Tuple, Union, overload
+from typing import overload
 from warnings import warn
 
 from pylint.constants import MSG_TYPES
@@ -41,8 +43,8 @@ class Message(_MsgBase):
         symbol: str,
         location: MessageLocationTuple,
         msg: str,
-        confidence: Optional[Confidence],
-    ) -> "Message":
+        confidence: Confidence | None,
+    ) -> Message:
         ...
 
     @overload
@@ -50,10 +52,10 @@ class Message(_MsgBase):
         cls,
         msg_id: str,
         symbol: str,
-        location: Tuple[str, str, str, str, int, int],
+        location: tuple[str, str, str, str, int, int],
         msg: str,
-        confidence: Optional[Confidence],
-    ) -> "Message":
+        confidence: Confidence | None,
+    ) -> Message:
         # Remove for pylint 3.0
         ...
 
@@ -61,13 +63,10 @@ class Message(_MsgBase):
         cls,
         msg_id: str,
         symbol: str,
-        location: Union[
-            Tuple[str, str, str, str, int, int],
-            MessageLocationTuple,
-        ],
+        location: tuple[str, str, str, str, int, int] | MessageLocationTuple,
         msg: str,
-        confidence: Optional[Confidence],
-    ) -> "Message":
+        confidence: Confidence | None,
+    ) -> Message:
         if not isinstance(location, MessageLocationTuple):
             warn(
                 "In pylint 3.0, Messages will only accept a MessageLocationTuple as location parameter",
@@ -82,7 +81,7 @@ class Message(_MsgBase):
             msg_id[0],
             MSG_TYPES[msg_id[0]],
             confidence,
-            *location
+            *location,
         )
 
     def format(self, template: str) -> str:

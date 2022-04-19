@@ -1,45 +1,35 @@
-# Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2013-2014 Google, Inc.
-# Copyright (c) 2013 buck@yelp.com <buck@yelp.com>
-# Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2014 Brett Cannon <brett@python.org>
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
-# Copyright (c) 2017-2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
-# Copyright (c) 2018-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
-# Copyright (c) 2019 Bruno P. Kinoshita <kinow@users.noreply.github.com>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 bot <bot@noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
+from __future__ import annotations
+
 import functools
+import warnings
 from inspect import cleandoc
-from typing import Any, Optional
+from typing import TYPE_CHECKING, Any
 
 from astroid import nodes
 
-from pylint.config import OptionsProviderMixIn
-from pylint.constants import _MSG_ORDER, WarningScope
+from pylint.config.arguments_provider import _ArgumentsProvider
+from pylint.constants import _MSG_ORDER, MAIN_CHECKER_NAME, WarningScope
 from pylint.exceptions import InvalidMessageError
 from pylint.interfaces import Confidence, IRawChecker, ITokenChecker, implements
 from pylint.message.message_definition import MessageDefinition
+from pylint.typing import Options
 from pylint.utils import get_rst_section, get_rst_title
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 
 @functools.total_ordering
-class BaseChecker(OptionsProviderMixIn):
+class BaseChecker(_ArgumentsProvider):
 
     # checker name (you may reuse an existing one)
     name: str = ""
-    # options level (0 will be displaying in --help, 1 in --long-help)
-    level = 1
     # ordered list of options to control the checker behaviour
-    options: Any = ()
+    options: Options = ()
     # messages issued by this checker
     msgs: Any = {}
     # reports issued by this checker
@@ -47,19 +37,35 @@ class BaseChecker(OptionsProviderMixIn):
     # mark this checker as enabled or not.
     enabled: bool = True
 
-    def __init__(self, linter=None):
-        """Checker instances should have the linter as argument.
-
-        :param ILinter linter: is an object implementing ILinter.
-        """
+    def __init__(self, linter: PyLinter) -> None:
+        """Checker instances should have the linter as argument."""
         if self.name is not None:
             self.name = self.name.lower()
-        super().__init__()
         self.linter = linter
 
-    def __gt__(self, other):
-        """Permit to sort a list of Checker by name."""
-        return f"{self.name}{self.msgs}".__gt__(f"{other.name}{other.msgs}")
+        _ArgumentsProvider.__init__(self, linter)
+
+    def __gt__(self, other: Any) -> bool:
+        """Sorting of checkers."""
+        if not isinstance(other, BaseChecker):
+            return False
+        if self.name == MAIN_CHECKER_NAME:
+            return False
+        if type(self).__module__.startswith("pylint.checkers") and not type(
+            other
+        ).__module__.startswith("pylint.checkers"):
+            return False
+        return self.name > other.name
+
+    def __eq__(self, other: Any) -> bool:
+        """Permit to assert Checkers are equal."""
+        if not isinstance(other, BaseChecker):
+            return False
+        return f"{self.name}{self.msgs}" == f"{other.name}{other.msgs}"
+
+    def __hash__(self):
+        """Make Checker hashable."""
+        return hash(f"{self.name}{self.msgs}")
 
     def __repr__(self):
         status = "Checker" if self.enabled else "Disabled checker"
@@ -67,12 +73,16 @@ class BaseChecker(OptionsProviderMixIn):
         return f"{status} '{self.name}' (responsible for '{msgs}')"
 
     def __str__(self):
-        """This might be incomplete because multiple class inheriting BaseChecker
-        can have the same name. Cf MessageHandlerMixIn.get_full_documentation()
+        """This might be incomplete because multiple classes inheriting BaseChecker
+        can have the same name.
+
+        See: MessageHandlerMixIn.get_full_documentation()
         """
-        return self.get_full_documentation(
-            msgs=self.msgs, options=self.options_and_values(), reports=self.reports
-        )
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            return self.get_full_documentation(
+                msgs=self.msgs, options=self.options_and_values(), reports=self.reports
+            )
 
     def get_full_documentation(self, msgs, options, reports, doc=None, module=None):
         result = ""
@@ -114,13 +124,13 @@ class BaseChecker(OptionsProviderMixIn):
     def add_message(
         self,
         msgid: str,
-        line: Optional[int] = None,
-        node: Optional[nodes.NodeNG] = None,
+        line: int | None = None,
+        node: nodes.NodeNG | None = None,
         args: Any = None,
-        confidence: Optional[Confidence] = None,
-        col_offset: Optional[int] = None,
-        end_lineno: Optional[int] = None,
-        end_col_offset: Optional[int] = None,
+        confidence: Confidence | None = None,
+        col_offset: int | None = None,
+        end_lineno: int | None = None,
+        end_col_offset: int | None = None,
     ) -> None:
         self.linter.add_message(
             msgid, line, node, args, confidence, col_offset, end_lineno, end_col_offset

@@ -1,30 +1,16 @@
-# Copyright (c) 2006, 2008, 2010, 2013-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2014 Brett Cannon <brett@python.org>
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2017, 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
-# Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2020-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2020 yeting li <liyt@ios.ac.cn>
-# Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2020 bernie gray <bfgray3@users.noreply.github.com>
-# Copyright (c) 2021 bot <bot@noreply.github.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 Mark Byrne <31762852+mbyrnepr2@users.noreply.github.com>
-# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Generic classes/functions for pyreverse core/extensions."""
+
+from __future__ import annotations
+
 import os
 import re
 import shutil
+import subprocess
 import sys
-from typing import Optional, Union
 
 import astroid
 from astroid import nodes
@@ -32,7 +18,7 @@ from astroid import nodes
 RCFILE = ".pyreverserc"
 
 
-def get_default_options():
+def get_default_options() -> list[str]:
     """Read config file and return list of options."""
     options = []
     home = os.environ.get("HOME", "")
@@ -46,7 +32,7 @@ def get_default_options():
     return options
 
 
-def insert_default_options():
+def insert_default_options() -> None:
     """Insert default options to sys.argv."""
     options = get_default_options()
     options.reverse()
@@ -224,18 +210,17 @@ class LocalsVisitor(ASTWalker):
         return None
 
 
-def get_annotation_label(ann: Union[nodes.Name, nodes.Subscript]) -> str:
-    label = ""
-    if isinstance(ann, nodes.Subscript):
-        label = ann.as_string()
-    elif isinstance(ann, nodes.Name):
-        label = ann.name
-    return label
+def get_annotation_label(ann: nodes.Name | nodes.NodeNG) -> str:
+    if isinstance(ann, nodes.Name) and ann.name is not None:
+        return ann.name
+    if isinstance(ann, nodes.NodeNG):
+        return ann.as_string()
+    return ""
 
 
 def get_annotation(
-    node: Union[nodes.AssignAttr, nodes.AssignName]
-) -> Optional[Union[nodes.Name, nodes.Subscript]]:
+    node: nodes.AssignAttr | nodes.AssignName,
+) -> nodes.Name | nodes.Subscript | None:
     """Return the annotation for `node`."""
     ann = None
     if isinstance(node.parent, nodes.AnnAssign):
@@ -268,7 +253,7 @@ def get_annotation(
     return ann
 
 
-def infer_node(node: Union[nodes.AssignAttr, nodes.AssignName]) -> set:
+def infer_node(node: nodes.AssignAttr | nodes.AssignName) -> set:
     """Return a set containing the node annotation if it exists
     otherwise return a set of the inferred types using the NodeNG.infer method
     """
@@ -286,13 +271,38 @@ def infer_node(node: Union[nodes.AssignAttr, nodes.AssignName]) -> set:
 
 def check_graphviz_availability():
     """Check if the ``dot`` command is available on the machine.
+
     This is needed if image output is desired and ``dot`` is used to convert
     from *.dot or *.gv into the final output format.
     """
     if shutil.which("dot") is None:
+        print("'Graphviz' needs to be installed for your chosen output format.")
+        sys.exit(32)
+
+
+def check_if_graphviz_supports_format(output_format: str) -> None:
+    """Check if the ``dot`` command supports the requested output format.
+
+    This is needed if image output is desired and ``dot`` is used to convert
+    from *.gv into the final output format.
+    """
+    dot_output = subprocess.run(
+        ["dot", "-T?"], capture_output=True, check=False, encoding="utf-8"
+    )
+    match = re.match(
+        pattern=r".*Use one of: (?P<formats>(\S*\s?)+)",
+        string=dot_output.stderr.strip(),
+    )
+    if not match:
         print(
-            "The requested output format is currently not available.\n"
-            "Please install 'Graphviz' to have other output formats "
-            "than 'dot' or 'vcg'."
+            "Unable to determine Graphviz supported output formats. "
+            "Pyreverse will continue, but subsequent error messages "
+            "regarding the output format may come from Graphviz directly."
+        )
+        return
+    supported_formats = match.group("formats")
+    if output_format not in supported_formats.split():
+        print(
+            f"Format {output_format} is not supported by Graphviz. It supports: {supported_formats}"
         )
         sys.exit(32)

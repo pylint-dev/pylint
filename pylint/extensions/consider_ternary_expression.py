@@ -1,4 +1,10 @@
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
 """Check for if / assign blocks that can be rewritten with if-expressions."""
+
+from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
@@ -49,5 +55,5 @@ class ConsiderTernaryExpressionChecker(BaseChecker):
         self.add_message("consider-ternary-expression", node=node)
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(ConsiderTernaryExpressionChecker(linter))

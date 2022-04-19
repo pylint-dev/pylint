@@ -1,25 +1,13 @@
-# Copyright (c) 2009-2010, 2012-2013 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2013-2014 Google, Inc.
-# Copyright (c) 2014 Michal Nowikowski <godfryd@gmail.com>
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2015 Florian Bruhin <me@the-compiler.org>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
-# Copyright (c) 2018 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2020-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2021 Nick Drozd <nicholasdrozd@gmail.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Interfaces for Pylint objects."""
+
+from __future__ import annotations
+
 from collections import namedtuple
-from typing import TYPE_CHECKING, Tuple, Type, Union
+from typing import TYPE_CHECKING
 
 from astroid import nodes
 
@@ -39,6 +27,7 @@ __all__ = (
     "INFERENCE_FAILURE",
     "UNDEFINED",
     "CONFIDENCE_LEVELS",
+    "CONFIDENCE_LEVEL_NAMES",
 )
 
 Confidence = namedtuple("Confidence", ["name", "description"])
@@ -54,6 +43,7 @@ INFERENCE_FAILURE = Confidence(
 UNDEFINED = Confidence("UNDEFINED", "Warning without any associated confidence level.")
 
 CONFIDENCE_LEVELS = [HIGH, CONTROL_FLOW, INFERENCE, INFERENCE_FAILURE, UNDEFINED]
+CONFIDENCE_LEVEL_NAMES = [i.name for i in CONFIDENCE_LEVELS]
 
 
 class Interface:
@@ -65,8 +55,8 @@ class Interface:
 
 
 def implements(
-    obj: "BaseChecker",
-    interface: Union[Type["Interface"], Tuple[Type["Interface"], ...]],
+    obj: BaseChecker,
+    interface: type[Interface] | tuple[type[Interface], ...],
 ) -> bool:
     """Does the given object (maybe an instance or class) implement the interface."""
     implements_ = getattr(obj, "__implements__", ())
@@ -117,5 +107,5 @@ class IReporter(Interface):
     def handle_message(self, msg) -> None:
         """Handle the given message object."""
 
-    def display_reports(self, layout: "Section") -> None:
+    def display_reports(self, layout: Section) -> None:
         """Display results encapsulated in the layout tree."""

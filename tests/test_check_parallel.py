@@ -1,20 +1,16 @@
-"""Puts the check_parallel system under test."""
-# Copyright (c) 2020-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2020 Frank Harrison <frank@doublethefish.com>
-# Copyright (c) 2021 Jaehoon Hwang <jaehoonhwang@users.noreply.github.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Julien Palard <julien@palard.fr>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
+"""Puts the check_parallel system under test."""
 
 # pylint: disable=protected-access,missing-function-docstring,no-self-use
+
+from __future__ import annotations
 
 import argparse
 import multiprocessing
 import os
-from typing import List
 
 import dill
 import pytest
@@ -46,7 +42,7 @@ def _gen_file_data(idx: int = 0) -> FileItem:
     return file_data
 
 
-def _gen_file_datas(count: int = 1) -> List[FileItem]:
+def _gen_file_datas(count: int = 1) -> list[FileItem]:
     return [_gen_file_data(idx) for idx in range(count)]
 
 
@@ -67,7 +63,7 @@ class SequentialTestChecker(BaseChecker):
 
     def __init__(self, linter: PyLinter) -> None:
         super().__init__(linter)
-        self.data: List[str] = []
+        self.data: list[str] = []
         self.linter = linter
 
     def process_module(self, _node: nodes.Module) -> None:
@@ -106,7 +102,7 @@ class ParallelTestChecker(BaseChecker, MapReduceMixin):
 
     def __init__(self, linter: PyLinter) -> None:
         super().__init__(linter)
-        self.data: List[str] = []
+        self.data: list[str] = []
         self.linter = linter
 
     def open(self) -> None:
@@ -121,7 +117,7 @@ class ParallelTestChecker(BaseChecker, MapReduceMixin):
     def get_map_data(self):
         return self.data
 
-    def reduce_map_data(self, linter: PyLinter, data: List[List[str]]) -> None:
+    def reduce_map_data(self, linter: PyLinter, data: list[list[str]]) -> None:
         recombined = type(self)(linter)
         recombined.open()
         aggregated = []
@@ -180,6 +176,7 @@ class TestCheckParallelFramework:
         worker_initialize(linter=dill.dumps(linter))
         assert isinstance(pylint.lint.parallel._worker_linter, type(linter))
 
+    @pytest.mark.needs_two_cores
     def test_worker_initialize_pickling(self) -> None:
         """Test that we can pickle objects that standard pickling in multiprocessing can't.
 
@@ -398,6 +395,7 @@ class TestCheckParallel:
         assert linter.stats.warning == 0
         assert linter.msg_status == 0, "We expect a single-file check to exit cleanly"
 
+    @pytest.mark.needs_two_cores
     @pytest.mark.parametrize(
         "num_files,num_jobs,num_checkers",
         [
@@ -495,6 +493,7 @@ class TestCheckParallel:
             expected_stats
         ), "The lint is returning unexpected results, has something changed?"
 
+    @pytest.mark.needs_two_cores
     @pytest.mark.parametrize(
         "num_files,num_jobs,num_checkers",
         [

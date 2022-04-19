@@ -1,5 +1,0 @@
-[MASTER]
-load-plugins=pylint.extensions.docstyle,
-
-[testoptions]
-max_pyver=3.7
