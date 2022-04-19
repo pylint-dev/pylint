@@ -8,7 +8,6 @@ import os
 from collections.abc import Callable
 from typing import TYPE_CHECKING, TextIO
 
-from pylint.interfaces import IReporter
 from pylint.message import Message
 from pylint.reporters.base_reporter import BaseReporter
 from pylint.utils import LinterStats
@@ -21,7 +20,6 @@ if TYPE_CHECKING:
 class MultiReporter:
     """Reports messages and layouts in plain text."""
 
-    __implements__ = IReporter
     name = "_internal_multi_reporter"
     # Note: do not register this reporter with linter.register_reporter as it is
     #       not intended to be used directly like a regular reporter, but is

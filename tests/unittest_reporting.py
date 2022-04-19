@@ -16,7 +16,6 @@ from typing import TYPE_CHECKING
 import pytest
 
 from pylint import checkers
-from pylint.interfaces import IReporter
 from pylint.lint import PyLinter
 from pylint.reporters import BaseReporter
 from pylint.reporters.text import ParseableTextReporter, TextReporter
@@ -151,7 +150,6 @@ def test_parseable_output_regression():
 
 
 class NopReporter(BaseReporter):
-    __implements__ = IReporter
     name = "nop-reporter"
     extension = ""
 

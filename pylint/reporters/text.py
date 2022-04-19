@@ -17,7 +17,6 @@ import warnings
 from dataclasses import asdict, fields
 from typing import TYPE_CHECKING, Dict, NamedTuple, Optional, TextIO, cast, overload
 
-from pylint.interfaces import IReporter
 from pylint.message import Message
 from pylint.reporters import BaseReporter
 from pylint.reporters.ureports.text_writer import TextWriter
@@ -154,7 +153,6 @@ def colorize_ansi(
 class TextReporter(BaseReporter):
     """Reports messages and layouts in plain text."""
 
-    __implements__ = IReporter
     name = "text"
     extension = "txt"
     line_format = "{path}:{line}:{column}: {msg_id}: {msg} ({symbol})"
