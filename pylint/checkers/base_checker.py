@@ -195,8 +195,6 @@ class BaseChecker(_ArgumentsProvider):
             for msgid, msg_tuple in sorted(self.msgs.items())
         ]
 
-    # dummy methods implementing the IChecker interface
-
     def get_message_definition(self, msgid):
         for message_definition in self.messages:
             if message_definition.msgid == msgid:

@@ -17,7 +17,7 @@ import astroid
 from astroid import nodes
 from astroid.util import Uninferable
 
-from pylint import checkers, interfaces
+from pylint import checkers
 from pylint.checkers import utils
 from pylint.checkers.utils import node_frame_class
 from pylint.interfaces import HIGH
@@ -195,8 +195,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     in order to create knowledge about whether an "else if" node
     is a true "else if" node, or an "elif" node.
     """
-
-    __implements__ = interfaces.IAstroidChecker
 
     name = "refactoring"
 
