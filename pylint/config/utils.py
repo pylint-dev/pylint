@@ -71,6 +71,7 @@ def _convert_option_to_argument(
             kwargs=optdict.get("kwargs", {}),
             hide_help=optdict.get("hide", False),
             section=optdict.get("group", None),
+            metavar=optdict.get("metavar", None),
         )
     try:
         default = optdict["default"]
