@@ -243,6 +243,17 @@ Now we can debug our checker!
     environment variable or by adding the ``my_plugin.py``
     file to the ``pylint/checkers`` directory if running from source.
 
+Parallelize a Checker
+---------------------
+
+``BaseChecker`` has two methods ``get_map_data`` and ``reduce_map_data`` that
+permit to parallelize the checks when used with the ``-j`` option. If a checker
+actually needs to reduce data it should define ``get_map_data`` as returning
+something different than ``None`` and let its ``reduce_map_data`` handle a list
+of the types returned by ``get_map_data``.
+
+An example can be seen by looking at ``pylint/checkers/similar.py``.
+
 Testing a Checker
 -----------------
 Pylint is very well suited to test driven development.
