@@ -597,6 +597,11 @@ Other Changes
 
   Closes #5394
 
+* Fixed a false positive for ``unused-variable`` when a builtin specified in
+  ``--additional-builtins`` is given a type annotation.
+
+  Closes #6388
+
 * Fix false positive for 'nonexistent-operator' when repeated '-' are
   separated (e.g. by parens).
 

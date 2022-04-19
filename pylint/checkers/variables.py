@@ -2059,10 +2059,16 @@ class VariablesChecker(BaseChecker):
             or any(isinstance(arg, nodes.IfExp) for arg in value.args)
         )
 
-    @staticmethod
-    def _is_only_type_assignment(node: nodes.Name, defstmt: nodes.Statement) -> bool:
+    def _is_only_type_assignment(
+        self, node: nodes.Name, defstmt: nodes.Statement
+    ) -> bool:
         """Check if variable only gets assigned a type and never a value."""
         if not isinstance(defstmt, nodes.AnnAssign) or defstmt.value:
+            return False
+
+        if node.name in self.linter.config.additional_builtins or utils.is_builtin(
+            node.name
+        ):
             return False
 
         defstmt_frame = defstmt.frame(future=True)
