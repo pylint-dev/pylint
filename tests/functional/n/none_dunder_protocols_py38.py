@@ -1,4 +1,3 @@
-"""Although unlikely to happen, this test case was almost missed in development."""
 # pylint: disable=missing-docstring,too-few-public-methods,expression-not-assigned
 class MetaContainer(type):
     __contains__ = None
