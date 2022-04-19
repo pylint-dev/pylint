@@ -1,0 +1,1 @@
+- `logging variable data <https://docs.python.org/3/howto/logging.html#logging-variable-data>`_
