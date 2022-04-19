@@ -207,6 +207,7 @@ PREPROCESSABLE_OPTIONS: dict[
     "--output": (True, _set_output),
     "--load-plugins": (True, _add_plugins),
     "--verbose": (False, _set_verbose_mode),
+    "-v": (False, _set_verbose_mode),
     "--enable-all-extensions": (False, _enable_all_extensions),
 }
 
@@ -218,7 +219,7 @@ def _preprocess_options(run: Run, args: Sequence[str]) -> list[str]:
     i = 0
     while i < len(args):
         argument = args[i]
-        if not argument.startswith("--"):
+        if not argument.startswith("-"):
             processed_args.append(argument)
             i += 1
             continue
