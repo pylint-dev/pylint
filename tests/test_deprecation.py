@@ -4,6 +4,8 @@
 
 """Check deprecation across the codebase."""
 
+from __future__ import annotations
+
 from typing import Any
 
 import pytest
