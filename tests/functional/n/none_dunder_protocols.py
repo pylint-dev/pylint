@@ -25,6 +25,15 @@ class NonContainerClass(metaclass=MetaContainer):
     __iter__ = None
 
 
+class MultipleAssignmentNonesClass(metaclass=MetaContainer):
+    __len__, __iter__ = [None, None]
+
+
+class MultipleAssignmentLambdasClass(metaclass=MetaContainer):
+    """https://github.com/PyCQA/pylint/issues/6366"""
+    __len__, __iter__ = [lambda x: x] * 2
+
+
 def test():
     1 in NonIterableClass  # [unsupported-membership-test]
     1 in OldNonIterableClass  # [unsupported-membership-test]
@@ -32,3 +41,5 @@ def test():
     1 in NonIterableClass()  # [unsupported-membership-test]
     1 in OldNonIterableClass()  # [unsupported-membership-test]
     1 in NonContainerClass()  # [unsupported-membership-test]
+    1 in MultipleAssignmentNonesClass()  # [unsupported-membership-test]
+    1 in MultipleAssignmentLambdasClass()
