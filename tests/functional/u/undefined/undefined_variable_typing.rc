@@ -2,4 +2,3 @@
 except_implementations=PyPy
 [VARIABLES]
 additional-builtins=__additional_builtin__
-allowed-redefined-builtins=repr
