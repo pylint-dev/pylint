@@ -1,8 +1,6 @@
-def integer_sum(a, b):  # [missing-return-doc]
+def integer_sum(a: int, b: int):  # [missing-return-doc]
     """Returns sum of two integers
     :param a: first integer
-    :type a: int
     :param b: second integer
-    :type b: int
     """
     return a + b
