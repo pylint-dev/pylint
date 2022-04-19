@@ -214,6 +214,11 @@ What's New in Pylint 2.13.6?
 ============================
 Release date: TBA
 
+* Fix a crash in the ``unsupported-membership-test`` checker when assigning
+  multiple constants to class attributes including ``__iter__`` via unpacking.
+
+  Closes #6366
+
 * Asterisks are no longer required in Sphinx and Google style parameter documentation
   for ``missing-param-doc`` and are parsed correctly.
 

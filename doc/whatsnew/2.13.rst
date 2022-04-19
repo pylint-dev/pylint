@@ -587,6 +587,11 @@ Other Changes
 
   Closes #5803
 
+* Fix a crash in the ``unsupported-membership-test`` checker when assigning
+  multiple constants to class attributes including ``__iter__`` via unpacking.
+
+  Closes #6366
+
 * Fix false positive for ``used-before-assignment`` for assignments taking place via
   nonlocal declarations after an earlier type annotation.
 
