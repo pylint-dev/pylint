@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import abc
 import functools
 import warnings
 from inspect import cleandoc
@@ -201,16 +202,29 @@ class BaseChecker(_ArgumentsProvider):
         error_msg += f"Choose from {[m.msgid for m in self.messages]}."
         raise InvalidMessageError(error_msg)
 
-    def open(self):
+    def open(self) -> None:
         """Called before visiting project (i.e. set of modules)."""
 
-    def close(self):
+    def close(self) -> None:
         """Called after visiting project (i.e set of modules)."""
 
 
 class BaseTokenChecker(BaseChecker):
     """Base class for checkers that want to have access to the token stream."""
 
+    @abc.abstractmethod
     def process_tokens(self, tokens: list[TokenInfo]) -> None:
         """Should be overridden by subclasses."""
+        raise NotImplementedError()
+
+
+class BaseRawFileChecker(BaseChecker):
+    """Base class for checkers which need to parse the raw file."""
+
+    @abc.abstractmethod
+    def process_module(self, node: nodes.Module) -> None:
+        """Process a module.
+
+        The module's content is accessible via ``astroid.stream``
+        """
         raise NotImplementedError()
