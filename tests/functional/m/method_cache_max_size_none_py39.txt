@@ -1,0 +1,5 @@
+method-cache-max-size-none:27:5:27:10:MyClassWithMethods.my_func:'lru_cache(maxsize=None)' or 'cache' will keep all method args alive indefinitely, including 'self':INFERENCE
+method-cache-max-size-none:31:5:31:20:MyClassWithMethods.my_func:'lru_cache(maxsize=None)' or 'cache' will keep all method args alive indefinitely, including 'self':INFERENCE
+method-cache-max-size-none:35:5:35:28:MyClassWithMethods.my_func:'lru_cache(maxsize=None)' or 'cache' will keep all method args alive indefinitely, including 'self':INFERENCE
+method-cache-max-size-none:39:5:39:18:MyClassWithMethods.my_func:'lru_cache(maxsize=None)' or 'cache' will keep all method args alive indefinitely, including 'self':INFERENCE
+method-cache-max-size-none:45:5:45:18:MyClassWithMethods.my_func:'lru_cache(maxsize=None)' or 'cache' will keep all method args alive indefinitely, including 'self':INFERENCE

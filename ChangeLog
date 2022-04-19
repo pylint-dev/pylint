@@ -137,6 +137,14 @@ Release date: TBA
 
   Closes #5936
 
+* The ``cache-max-size-none`` checker has been renamed to ``method-cache-max-size-none``.
+
+  Closes #5670
+
+* The ``method-cache-max-size-none`` checker will now also check ``functools.cache``.
+
+  Closes #5670
+
 * ``potential-index-error``: Emitted when the index of a list or tuple exceeds its length.
   This checker is currently quite conservative to avoid false positives. We welcome
   suggestions for improvements.

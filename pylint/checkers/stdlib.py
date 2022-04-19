@@ -420,15 +420,20 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "Calls to breakpoint(), sys.breakpointhook() and pdb.set_trace() should be removed "
             "from code that is not actively being debugged.",
         ),
-        "W1517": (
-            "'lru_cache(maxsize=None)' will keep all method args alive indefinitely, including 'self'",
-            "cache-max-size-none",
-            "By decorating a method with lru_cache the 'self' argument will be linked to "
-            "the lru_cache function and therefore never garbage collected. Unless your instance "
+        "W1518": (
+            "'lru_cache(maxsize=None)' or 'cache' will keep all method args alive indefinitely, including 'self'",
+            "method-cache-max-size-none",
+            "By decorating a method with lru_cache or cache the 'self' argument will be linked to "
+            "the function and therefore never garbage collected. Unless your instance "
             "will never need to be garbage collected (singleton) it is recommended to refactor "
             "code to avoid this pattern or add a maxsize to the cache."
             "The default value for maxsize is 128.",
-            {"old_names": [("W1516", "lru-cache-decorating-method")]},
+            {
+                "old_names": [
+                    ("W1516", "lru-cache-decorating-method"),
+                    ("W1517", "cache-max-size-none"),
+                ]
+            },
         ),
     }
 
@@ -551,7 +556,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         for value in node.values:
             self._check_datetime(value)
 
-    @utils.check_messages("cache-max-size-none")
+    @utils.check_messages("method-cache-max-size-none")
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         if node.decorators and isinstance(node.parent, nodes.ClassDef):
             self._check_lru_cache_decorators(node.decorators)
@@ -563,28 +568,32 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             try:
                 for infered_node in d_node.infer():
                     q_name = infered_node.qname()
-                    if q_name in NON_INSTANCE_METHODS or q_name not in LRU_CACHE:
+                    if q_name in NON_INSTANCE_METHODS:
                         return
 
                     # Check if there is a maxsize argument set to None in the call
-                    if isinstance(d_node, nodes.Call):
+                    if q_name in LRU_CACHE and isinstance(d_node, nodes.Call):
                         try:
                             arg = utils.get_argument_from_call(
                                 d_node, position=0, keyword="maxsize"
                             )
                         except utils.NoSuchArgumentError:
-                            return
+                            break
 
                         if not isinstance(arg, nodes.Const) or arg.value is not None:
-                            return
+                            break
 
-                    lru_cache_nodes.append(d_node)
-                    break
+                        lru_cache_nodes.append(d_node)
+                        break
+
+                    if q_name == "functools.cache":
+                        lru_cache_nodes.append(d_node)
+                        break
             except astroid.InferenceError:
                 pass
         for lru_cache_node in lru_cache_nodes:
             self.add_message(
-                "cache-max-size-none",
+                "method-cache-max-size-none",
                 node=lru_cache_node,
                 confidence=interfaces.INFERENCE,
             )
