@@ -1121,6 +1121,8 @@ class VariablesChecker(BaseChecker):
 
         for name, stmts in node.locals.items():
             if utils.is_builtin(name):
+                if self._allowed_redefined_builtin(name):
+                    continue
                 if self._should_ignore_redefined_builtin(stmts[0]) or name == "__doc__":
                     continue
                 self.add_message("redefined-builtin", args=name, node=stmts[0])
@@ -2066,7 +2068,9 @@ class VariablesChecker(BaseChecker):
         if not isinstance(defstmt, nodes.AnnAssign) or defstmt.value:
             return False
 
-        if node.name in self.linter.config.additional_builtins:
+        if node.name in self.linter.config.additional_builtins or utils.is_builtin(
+            node.name
+        ):
             return False
 
         defstmt_frame = defstmt.frame(future=True)
