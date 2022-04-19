@@ -209,8 +209,6 @@ class PyLinter(
     is reporter member; see check_parallel function for more details.
     """
 
-    __implements__ = (interfaces.ITokenChecker,)
-
     name = MAIN_CHECKER_NAME
     msgs = MSGS
     # Will be used like this : datetime.now().strftime(crash_file_path)

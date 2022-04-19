@@ -9,7 +9,6 @@ import tokenize
 from typing import TYPE_CHECKING, Any, cast
 
 from pylint.checkers import BaseTokenChecker
-from pylint.interfaces import ITokenChecker
 from pylint.reporters.ureports.nodes import Table
 from pylint.utils import LinterStats, diff_string
 
@@ -57,8 +56,6 @@ class RawMetricsChecker(BaseTokenChecker):
     * total number of comments lines
     * total number of empty lines
     """
-
-    __implements__ = (ITokenChecker,)
 
     # configuration section name
     name = "metrics"

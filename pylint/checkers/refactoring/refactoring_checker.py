@@ -196,7 +196,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     is a true "else if" node, or an "elif" node.
     """
 
-    __implements__ = (interfaces.ITokenChecker, interfaces.IAstroidChecker)
+    __implements__ = interfaces.IAstroidChecker
 
     name = "refactoring"
 
