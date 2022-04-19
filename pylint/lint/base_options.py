@@ -544,6 +544,7 @@ def _make_run_options(self: Run) -> Options:
                 "help": "In verbose mode, extra non-checker-related info "
                 "will be displayed.",
                 "hide_from_config_file": True,
+                "metavar": "",
             },
         ),
         (
@@ -554,6 +555,7 @@ def _make_run_options(self: Run) -> Options:
                 "help": "Load and enable all available extensions. "
                 "Use --list-extensions to see a list all available extensions.",
                 "hide_from_config_file": True,
+                "metavar": "",
             },
         ),
         (

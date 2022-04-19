@@ -218,6 +218,7 @@ class _ArgumentsManager:
                 **argument.kwargs,
                 action=argument.action,
                 help=argument.help,
+                metavar=argument.metavar,
             )
         elif isinstance(argument, _ExtendArgument):
             section_group.add_argument(

@@ -457,6 +457,7 @@ class _CallableArgument(_Argument):
         kwargs: dict[str, Any],
         hide_help: bool,
         section: str | None,
+        metavar: str,
     ) -> None:
         super().__init__(
             flags=flags, arg_help=arg_help, hide_help=hide_help, section=section
@@ -467,3 +468,10 @@ class _CallableArgument(_Argument):
 
         self.kwargs = kwargs
         """Any additional arguments passed to the action."""
+
+        self.metavar = metavar
+        """The metavar of the argument.
+
+        See:
+        https://docs.python.org/3/library/argparse.html#metavar
+        """
