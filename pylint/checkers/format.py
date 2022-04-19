@@ -27,7 +27,6 @@ from pylint.checkers.utils import (
     node_frame_class,
 )
 from pylint.constants import WarningScope
-from pylint.interfaces import IAstroidChecker
 from pylint.utils.pragma_parser import OPTION_PO, PragmaParserError, parse_pragma
 
 if TYPE_CHECKING:
@@ -203,8 +202,6 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
     * strict indentation
     * line length
     """
-
-    __implements__ = IAstroidChecker
 
     # configuration section name
     name = "format"

@@ -10,7 +10,6 @@ from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages
-from pylint.interfaces import IAstroidChecker
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -18,8 +17,6 @@ if TYPE_CHECKING:
 
 class ConfusingConsecutiveElifChecker(BaseChecker):
     """Checks if "elif" is used right after an indented block that finishes with "if" or "elif" itself."""
-
-    __implements__ = IAstroidChecker
 
     name = "confusing_elif"
     msgs = {

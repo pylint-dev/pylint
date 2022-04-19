@@ -435,7 +435,7 @@ def only_required_for_messages(
     method or not. If none of the messages is enabled, the method will be skipped.
     Therefore, the list of messages must be well maintained at all times!
     This decorator only has an effect on ``visit_*`` and ``leave_*`` methods
-    of a class inheriting from ``BaseChecker`` and implementing ``IAstroidChecker``.
+    of a class inheriting from ``BaseChecker``.
     """
 
     def store_messages(func):

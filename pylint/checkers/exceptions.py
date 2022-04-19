@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING, Any
 import astroid
 from astroid import nodes, objects
 
-from pylint import checkers, interfaces
+from pylint import checkers
 from pylint.checkers import utils
 
 if TYPE_CHECKING:
@@ -229,8 +229,6 @@ class ExceptionRaiseLeafVisitor(BaseVisitor):
 
 class ExceptionsChecker(checkers.BaseChecker):
     """Exception related checks."""
-
-    __implements__ = interfaces.IAstroidChecker
 
     name = "exceptions"
     msgs = MSGS

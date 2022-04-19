@@ -13,7 +13,6 @@ from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages, has_known_bases, node_frame_class
-from pylint.interfaces import IAstroidChecker
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -35,8 +34,6 @@ class NewStyleConflictChecker(BaseChecker):
     * use of property, __slots__, super
     * "super" usage
     """
-
-    __implements__ = (IAstroidChecker,)
 
     # configuration section name
     name = "newstyle"

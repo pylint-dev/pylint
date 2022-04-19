@@ -18,7 +18,6 @@ from pylint.lint import PyLinter
 
 class EqWithoutHash(checkers.BaseChecker):
 
-    __implements__ = interfaces.IAstroidChecker
     name = "eq-without-hash"
 
     msgs = {

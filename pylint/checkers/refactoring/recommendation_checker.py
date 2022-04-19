@@ -7,13 +7,12 @@ from __future__ import annotations
 import astroid
 from astroid import nodes
 
-from pylint import checkers, interfaces
+from pylint import checkers
 from pylint.checkers import utils
 
 
 class RecommendationChecker(checkers.BaseChecker):
 
-    __implements__ = (interfaces.IAstroidChecker,)
     name = "refactoring"
     msgs = {
         "C0200": (

@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING
 
 from astroid import nodes
 
-from pylint import interfaces
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages, safe_infer
 
@@ -22,7 +21,6 @@ class ThreadingChecker(BaseChecker):
     - useless with lock - locking used in wrong way that has no effect (with threading.Lock():)
     """
 
-    __implements__ = interfaces.IAstroidChecker
     name = "threading"
 
     LOCKS = frozenset(

@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
-from pylint.interfaces import HIGH, IAstroidChecker
+from pylint.interfaces import HIGH
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -29,8 +29,6 @@ class DunderCallChecker(BaseChecker):
     Additionally we exclude dunder method calls on super() since
     these can't be written in an alternative manner.
     """
-
-    __implements__ = IAstroidChecker
 
     includedict = {
         "__repr__": "Use repr built-in function",

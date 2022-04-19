@@ -10,7 +10,6 @@ from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages, is_none, node_type
-from pylint.interfaces import IAstroidChecker
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -29,8 +28,6 @@ class MultipleTypesChecker(BaseChecker):
       ifexpr, etc. Also, it would be great to have support for inference on
       str.split()
     """
-
-    __implements__ = IAstroidChecker
 
     name = "multiple_types"
     msgs = {

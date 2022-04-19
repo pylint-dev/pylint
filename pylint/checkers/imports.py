@@ -25,7 +25,6 @@ from pylint.checkers.utils import (
 )
 from pylint.exceptions import EmptyReportError
 from pylint.graph import DotBackend, get_cycles
-from pylint.interfaces import IAstroidChecker
 from pylint.reporters.ureports.nodes import Paragraph, Section, VerbatimText
 from pylint.utils import IsortDriver
 
@@ -281,8 +280,6 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
     * uses of deprecated modules
     * uses of modules instead of preferred modules
     """
-
-    __implements__ = IAstroidChecker
 
     name = "imports"
     msgs = MSGS

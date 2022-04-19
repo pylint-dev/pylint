@@ -11,7 +11,6 @@ from typing import TYPE_CHECKING
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
-from pylint.interfaces import IAstroidChecker
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -19,7 +18,6 @@ if TYPE_CHECKING:
 
 class ConsiderTernaryExpressionChecker(BaseChecker):
 
-    __implements__ = (IAstroidChecker,)
     name = "consider_ternary_expression"
     msgs = {
         "W0160": (

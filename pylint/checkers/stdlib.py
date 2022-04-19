@@ -15,7 +15,6 @@ from astroid import nodes
 
 from pylint import interfaces
 from pylint.checkers import BaseChecker, DeprecatedMixin, utils
-from pylint.interfaces import IAstroidChecker
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -313,7 +312,6 @@ def _check_mode_str(mode):
 
 
 class StdlibChecker(DeprecatedMixin, BaseChecker):
-    __implements__ = (IAstroidChecker,)
     name = "stdlib"
 
     msgs = {

@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
-from pylint.interfaces import IAstroidChecker
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -13,10 +12,6 @@ if TYPE_CHECKING:
 
 class MyAstroidChecker(BaseChecker):
     """Add class member attributes to the class local's dictionary."""
-
-    # This class variable defines the type of checker that we are implementing.
-    # In this case, we are implementing an AST checker.
-    __implements__ = IAstroidChecker
 
     # The name defines a custom section of the config for this checker.
     name = "custom"
