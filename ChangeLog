@@ -74,7 +74,11 @@ Release date: TBA
 
   Closes #5936
 
-* The ``cache-max-size-none`` checker will now also check ``functools.cache``.
+* The ``cache-max-size-none`` checker has been renamed to ``method-cache-max-size-none``.
+
+  Closes #5670
+
+* The ``method-cache-max-size-none`` checker will now also check ``functools.cache``.
 
   Closes #5670
 
