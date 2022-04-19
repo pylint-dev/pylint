@@ -428,7 +428,7 @@ class FormatChecker(BaseTokenChecker):
                 dispatch[token] = handler
         return dispatch
 
-    def process_tokens(self, tokens):
+    def process_tokens(self, tokens: list[tokenize.TokenInfo]) -> None:
         """Process tokens and search for :
 
         _ too long lines (i.e. longer than <max_chars>)
@@ -507,14 +507,14 @@ class FormatChecker(BaseTokenChecker):
                 "too-many-lines"
             )[0]
             names = (message_definition.msgid, "too-many-lines")
-            line = next(
+            lineno = next(
                 filter(None, (self.linter._pragma_lineno.get(name) for name in names)),
                 1,
             )
             self.add_message(
                 "too-many-lines",
                 args=(line_num, self.linter.config.max_module_lines),
-                line=line,
+                line=lineno,
             )
 
         # See if there are any trailing lines.  Do not complain about empty

@@ -4,9 +4,11 @@
 
 from __future__ import annotations
 
+import abc
 import functools
 import warnings
 from inspect import cleandoc
+from tokenize import TokenInfo
 from typing import TYPE_CHECKING, Any
 
 from astroid import nodes
@@ -51,6 +53,8 @@ class BaseChecker(_ArgumentsProvider):
             return False
         if self.name == MAIN_CHECKER_NAME:
             return False
+        if other.name == MAIN_CHECKER_NAME:
+            return True
         if type(self).__module__.startswith("pylint.checkers") and not type(
             other
         ).__module__.startswith("pylint.checkers"):
@@ -198,16 +202,37 @@ class BaseChecker(_ArgumentsProvider):
         error_msg += f"Choose from {[m.msgid for m in self.messages]}."
         raise InvalidMessageError(error_msg)
 
-    def open(self):
+    def open(self) -> None:
         """Called before visiting project (i.e. set of modules)."""
 
-    def close(self):
+    def close(self) -> None:
         """Called after visiting project (i.e set of modules)."""
+
+    # pylint: disable-next=no-self-use
+    def get_map_data(self) -> Any:
+        return None
+
+    # pylint: disable-next=no-self-use, unused-argument
+    def reduce_map_data(self, linter: PyLinter, data: list[Any]) -> None:
+        return None
 
 
 class BaseTokenChecker(BaseChecker):
     """Base class for checkers that want to have access to the token stream."""
 
-    def process_tokens(self, tokens):
+    @abc.abstractmethod
+    def process_tokens(self, tokens: list[TokenInfo]) -> None:
         """Should be overridden by subclasses."""
+        raise NotImplementedError()
+
+
+class BaseRawFileChecker(BaseChecker):
+    """Base class for checkers which need to parse the raw file."""
+
+    @abc.abstractmethod
+    def process_module(self, node: nodes.Module) -> None:
+        """Process a module.
+
+        The module's content is accessible via ``astroid.stream``
+        """
         raise NotImplementedError()

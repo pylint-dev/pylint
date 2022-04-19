@@ -134,7 +134,7 @@ class EncodingChecker(BaseChecker):
             for lineno, line in enumerate(stream):
                 self._check_encoding(lineno + 1, line, encoding)
 
-    def process_tokens(self, tokens):
+    def process_tokens(self, tokens: list[tokenize.TokenInfo]) -> None:
         """Inspect the source to find fixme problems."""
         if not self.linter.config.notes:
             return
@@ -159,8 +159,6 @@ class EncodingChecker(BaseChecker):
                     except PragmaParserError:
                         # Printing useful information dealing with this error is done in the lint package
                         pass
-                    if set(values) & set(self.linter.config.notes):
-                        continue
                 except ValueError:
                     self.add_message(
                         "bad-inline-option",
@@ -168,6 +166,8 @@ class EncodingChecker(BaseChecker):
                         line=comment.start[0],
                     )
                     continue
+                self.linter.add_ignored_message("fixme", line=comment.start[0])
+                continue
 
             # emit warnings if necessary
             match = self._fixme_pattern.search("#" + comment_text.lower())

@@ -402,7 +402,7 @@ class SpellingChecker(BaseTokenChecker):
                 args = (word, original_line, indicator, f"'{all_suggestion}'")
                 self.add_message(msgid, line=line_num, args=args)
 
-    def process_tokens(self, tokens):
+    def process_tokens(self, tokens: list[tokenize.TokenInfo]) -> None:
         if not self.initialized:
             return
 

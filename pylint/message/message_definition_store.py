@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import collections
 import functools
-from collections.abc import ValuesView
+from collections.abc import Sequence, ValuesView
 from typing import TYPE_CHECKING
 
 from pylint.exceptions import UnknownMessageError
@@ -55,7 +55,7 @@ class MessageDefinitionStore:
     # and the arguments are relatively small in size we do not run the
     # risk of creating a large memory leak.
     # See discussion in: https://github.com/PyCQA/pylint/pull/5673
-    @functools.lru_cache(maxsize=None)  # pylint: disable=cache-max-size-none
+    @functools.lru_cache(maxsize=None)  # pylint: disable=method-cache-max-size-none
     def get_message_definitions(self, msgid_or_symbol: str) -> list[MessageDefinition]:
         """Returns the Message definition for either a numeric or symbolic id.
 
@@ -75,7 +75,7 @@ class MessageDefinitionStore:
             return repr(message_definitions[0].symbol)
         return repr([md.symbol for md in message_definitions])
 
-    def help_message(self, msgids_or_symbols: list[str]) -> None:
+    def help_message(self, msgids_or_symbols: Sequence[str]) -> None:
         """Display help messages for the given message identifiers."""
         for msgids_or_symbol in msgids_or_symbols:
             try:

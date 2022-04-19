@@ -15,6 +15,9 @@ Release date: TBA
 
 * ``BaseChecker`` classes now require the ``linter`` argument to be passed.
 
+* Fix a failure to respect inline disables for ``fixme`` occurring on the last line
+  of a module when pylint is launched with ``--enable=fixme``.
+
 * Update ``invalid-slots-object`` message to show bad object rather than its inferred value.
 
   Closes #6101
@@ -22,6 +25,14 @@ Release date: TBA
 * Added new checker ``typevar-name-mismatch``: TypeVar must be assigned to a variable with the same name as its name argument.
 
   Closes #5224
+
+* Fixed failure to enable ``deprecated-module`` after a ``disable=all``
+  by making ``ImportsChecker`` solely responsible for emitting ``deprecated-module`` instead
+  of sharing responsibility with ``StdlibChecker``. (This could have led to double messages.)
+
+* The ``no-init`` (W0232) warning has been removed. It's ok to not have an ``__init__`` in a class.
+
+  Closes #2409
 
 * The ``config`` attribute of ``BaseChecker`` has been deprecated. You can use ``checker.linter.config``
   to access the global configuration object instead of a checker-specific object.
@@ -51,6 +62,12 @@ Release date: TBA
   ``optparse.Values``.
 
   Ref #5392
+
+* ``MapReduceMixin`` has been deprecated. ``BaseChecker`` now implements ``get_map_data`` and
+  ``reduce_map_data``. If a checker actually needs to reduce data it should define ``get_map_data``
+  as returning something different than ``None`` and let its ``reduce_map_data`` handle a list
+  of the types returned by ``get_map_data``.
+  An example can be seen by looking at ``pylint/checkers/similar.py``.
 
 * ``UnsupportedAction`` has been deprecated.
 
@@ -126,6 +143,14 @@ Release date: TBA
 
   Closes #5936
 
+* The ``cache-max-size-none`` checker has been renamed to ``method-cache-max-size-none``.
+
+  Closes #5670
+
+* The ``method-cache-max-size-none`` checker will now also check ``functools.cache``.
+
+  Closes #5670
+
 * ``potential-index-error``: Emitted when the index of a list or tuple exceeds its length.
   This checker is currently quite conservative to avoid false positives. We welcome
   suggestions for improvements.
@@ -142,6 +167,9 @@ Release date: TBA
 
   Closes #4324
 
+* Added the ``super-without-brackets`` checker, raised when a super call is missing its brackets.
+
+  Closes #4008
 
 * Added the ``generate-toml-config`` option.
 
@@ -196,6 +224,11 @@ Release date: TBA
 
   Closes #5815
   Closes #5406
+
+* Fixed an ``AstroidError`` in 2.13.0 raised by the ``duplicate-code`` checker with
+  ``ignore-imports`` or ``ignore-signatures`` enabled.
+
+  Closes #6301
 
 
 What's New in Pylint 2.13.5?

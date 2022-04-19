@@ -14,6 +14,7 @@ import os
 import re
 import sys
 import warnings
+from dataclasses import asdict, fields
 from typing import TYPE_CHECKING, Dict, NamedTuple, Optional, TextIO, cast, overload
 
 from pylint.interfaces import IReporter
@@ -65,6 +66,9 @@ ANSI_COLORS = {
     "cyan": "36",
     "white": "37",
 }
+
+MESSAGE_FIELDS = {i.name for i in fields(Message)}
+"""All fields of the Message class."""
 
 
 def _get_ansi_code(msg_style: MessageStyle) -> str:
@@ -176,7 +180,7 @@ class TextReporter(BaseReporter):
         # Check to see if all parameters in the template are attributes of the Message
         arguments = re.findall(r"\{(.+?)(:.*)?\}", template)
         for argument in arguments:
-            if argument[0] not in Message._fields:
+            if argument[0] not in MESSAGE_FIELDS:
                 warnings.warn(
                     f"Don't recognize the argument '{argument[0]}' in the --msg-template. "
                     "Are you sure it is supported on the current version of pylint?"
@@ -186,7 +190,7 @@ class TextReporter(BaseReporter):
 
     def write_message(self, msg: Message) -> None:
         """Convenience method to write a formatted message with class default template."""
-        self_dict = msg._asdict()
+        self_dict = asdict(msg)
         for key in ("end_line", "end_column"):
             self_dict[key] = self_dict[key] or ""
 
@@ -316,12 +320,10 @@ class ColorizedTextReporter(TextReporter):
             self._modules.add(msg.module)
         msg_style = self._get_decoration(msg.C)
 
-        msg = msg._replace(
-            **{
-                attr: colorize_ansi(getattr(msg, attr), msg_style)
-                for attr in ("msg", "symbol", "category", "C")
-            }
-        )
+        msg.msg = colorize_ansi(msg.msg, msg_style)
+        msg.symbol = colorize_ansi(msg.symbol, msg_style)
+        msg.category = colorize_ansi(msg.category, msg_style)
+        msg.C = colorize_ansi(msg.C, msg_style)
         self.write_message(msg)
 
 

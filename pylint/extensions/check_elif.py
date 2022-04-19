@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+from tokenize import TokenInfo
 from typing import TYPE_CHECKING
 
 from astroid import nodes
@@ -38,7 +39,7 @@ class ElseifUsedChecker(BaseTokenChecker):
     def _init(self):
         self._elifs = {}
 
-    def process_tokens(self, tokens):
+    def process_tokens(self, tokens: list[TokenInfo]) -> None:
         """Process tokens and look for 'if' or 'elif'."""
         self._elifs = {
             begin: token for _, token, begin, _, _ in tokens if token in {"elif", "if"}

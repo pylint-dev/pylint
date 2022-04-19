@@ -26,12 +26,12 @@ jobs:
       python-key: ${{ steps.generate-python-key.outputs.key }}
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.0.0
+        uses: actions/checkout@v3.0.1
         with:
           fetch-depth: 0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v3.1.1
+        uses: actions/setup-python@v3.1.2
         with:
           python-version: ${{ matrix.python-version }}
       - name: Generate partial Python venv restore key
@@ -61,6 +61,10 @@ jobs:
         run: |
           . venv/bin/activate
           pytest -vv --durations=20 --benchmark-disable --cov --cov-report= tests/
+      - name: Run functional tests with minimal messages config
+        run: |
+          . venv/bin/activate
+          pytest -vv --minimal-messages-config tests/test_functional.py
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v3.0.0
         with:
@@ -79,10 +83,10 @@ jobs:
       COVERAGERC_FILE: .coveragerc
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.0.0
+        uses: actions/checkout@v3.0.1
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v3.1.1
+        uses: actions/setup-python@v3.1.2
         with:
           python-version: ${{ matrix.python-version }}
       - name: Restore Python virtual environment
@@ -123,10 +127,10 @@ jobs:
         python-version: [3.8]
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.0.0
+        uses: actions/checkout@v3.0.1
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v3.1.1
+        uses: actions/setup-python@v3.1.2
         with:
           python-version: ${{ matrix.python-version }}
       - name: Restore Python virtual environment
@@ -181,12 +185,12 @@ jobs:
         # Workaround to set correct temp directory on Windows
         # https://github.com/actions/virtual-environments/issues/712
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.0.0
+        uses: actions/checkout@v3.0.1
         with:
           fetch-depth: 0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v3.1.1
+        uses: actions/setup-python@v3.1.2
         with:
           python-version: ${{ matrix.python-version }}
       - name: Generate partial Python venv restore key
@@ -229,12 +233,12 @@ jobs:
       python-key: ${{ steps.generate-python-key.outputs.key }}
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.0.0
+        uses: actions/checkout@v3.0.1
         with:
           fetch-depth: 0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v3.1.1
+        uses: actions/setup-python@v3.1.2
         with:
           python-version: ${{ matrix.python-version }}
       - name: Generate partial Python venv restore key

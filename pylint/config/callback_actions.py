@@ -314,7 +314,7 @@ class _LongHelpAction(_AccessRunObjectAction):
         values: str | Sequence[Any] | None,
         option_string: str | None = "--long-help",
     ) -> None:
-        formatter: _HelpFormatter = self.run.linter._arg_parser._get_formatter()
+        formatter: _HelpFormatter = self.run.linter._arg_parser._get_formatter()  # type: ignore[assignment]
 
         # Add extra info as epilog to the help message
         self.run.linter._arg_parser.epilog = formatter.get_long_description()

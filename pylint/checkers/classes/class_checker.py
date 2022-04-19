@@ -38,7 +38,7 @@ from pylint.checkers.utils import (
     unimplemented_abstract_methods,
     uninferable_final_decorators,
 )
-from pylint.interfaces import INFERENCE, IAstroidChecker
+from pylint.interfaces import HIGH, INFERENCE, IAstroidChecker
 
 if sys.version_info >= (3, 8):
     from functools import cached_property
@@ -535,11 +535,6 @@ MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
         "Used when an ancestor class method has an __init__ method "
         "which is not called by a derived class.",
     ),
-    "W0232": (
-        "Class has no __init__ method",
-        "no-init",
-        "Used when a class has no __init__ method, neither its parent classes.",
-    ),
     "W0233": (
         "__init__ method from a non direct base class %r is called",
         "non-parent-init-called",
@@ -585,6 +580,12 @@ MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
         "Redefined slots %r in subclass",
         "redefined-slots-in-subclass",
         "Used when a slot is re-defined in a subclass.",
+    ),
+    "W0245": (
+        "Super call without brackets",
+        "super-without-brackets",
+        "Used when a call to super does not have brackets and thus is not an actual "
+        "call and does not work as expected.",
     ),
     "E0236": (
         "Invalid object %r in __slots__, must contain only non empty strings",
@@ -784,7 +785,6 @@ a metaclass class method.",
 
     @check_messages(
         "abstract-method",
-        "no-init",
         "invalid-slots",
         "single-string-used-for-slots",
         "invalid-slots-object",
@@ -800,12 +800,6 @@ a metaclass class method.",
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         """Init visit variable _accessed."""
         self._check_bases_classes(node)
-        # if not an exception or a metaclass
-        if node.type == "class" and has_known_bases(node):
-            try:
-                node.local_attr("__init__")
-            except astroid.NotFoundError:
-                self.add_message("no-init", args=node, node=node)
         self._check_slots(node)
         self._check_proper_bases(node)
         self._check_typing_final(node)
@@ -1502,6 +1496,8 @@ a metaclass class method.",
         class member from outside its class (but ignore __special__
         methods)
         """
+        self._check_super_without_brackets(node)
+
         # Check self
         if self._uses_mandatory_method_param(node):
             self._accessed.set_accessed(node)
@@ -1510,6 +1506,21 @@ a metaclass class method.",
             return
 
         self._check_protected_attribute_access(node)
+
+    def _check_super_without_brackets(self, node: nodes.Attribute) -> None:
+        """Check if there is a function call on a super call without brackets."""
+        # Check if attribute call is in frame definition in class definition
+        frame = node.frame()
+        if not isinstance(frame, nodes.FunctionDef):
+            return
+        if not isinstance(frame.parent.frame(), nodes.ClassDef):
+            return
+        if not isinstance(node.parent, nodes.Call):
+            return
+        if not isinstance(node.expr, nodes.Name):
+            return
+        if node.expr.name == "super":
+            self.add_message("super-without-brackets", node=node.expr, confidence=HIGH)
 
     @check_messages(
         "assigning-non-slot", "invalid-class-object", "access-member-before-definition"

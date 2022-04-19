@@ -28,7 +28,7 @@ import re
 import sys
 import warnings
 from collections import defaultdict
-from collections.abc import Generator, Iterable
+from collections.abc import Callable, Generator, Iterable
 from getopt import getopt
 from io import BufferedIOBase, BufferedReader, BytesIO
 from itertools import chain, groupby
@@ -47,7 +47,7 @@ from typing import (
 import astroid
 from astroid import nodes
 
-from pylint.checkers import BaseChecker, MapReduceMixin, table_lines_from_stats
+from pylint.checkers import BaseChecker, table_lines_from_stats
 from pylint.interfaces import IRawChecker
 from pylint.reporters.ureports.nodes import Table
 from pylint.typing import Options
@@ -366,28 +366,25 @@ class Similar:
             readlines = decoding_stream(stream, encoding).readlines
         else:
             readlines = stream.readlines  # type: ignore[assignment] # hint parameter is incorrectly typed as non-optional
-        try:
-            active_lines: list[str] = []
-            if hasattr(self, "linter"):
-                # Remove those lines that should be ignored because of disables
-                for index, line in enumerate(readlines()):
-                    if self.linter._is_one_message_enabled("R0801", index + 1):  # type: ignore[attr-defined]
-                        active_lines.append(line)
-            else:
-                active_lines = readlines()
 
-            self.linesets.append(
-                LineSet(
-                    streamid,
-                    active_lines,
-                    self.namespace.ignore_comments,
-                    self.namespace.ignore_docstrings,
-                    self.namespace.ignore_imports,
-                    self.namespace.ignore_signatures,
-                )
-            )
+        try:
+            lines = readlines()
         except UnicodeDecodeError:
-            pass
+            lines = []
+
+        self.linesets.append(
+            LineSet(
+                streamid,
+                lines,
+                self.namespace.ignore_comments,
+                self.namespace.ignore_docstrings,
+                self.namespace.ignore_imports,
+                self.namespace.ignore_signatures,
+                line_enabled_callback=self.linter._is_one_message_enabled  # type: ignore[attr-defined]
+                if hasattr(self, "linter")
+                else None,
+            )
+        )
 
     def run(self) -> None:
         """Start looking for similarities and display results on stdout."""
@@ -563,6 +560,7 @@ def stripped_lines(
     ignore_docstrings: bool,
     ignore_imports: bool,
     ignore_signatures: bool,
+    line_enabled_callback: Callable[[str, int], bool] | None = None,
 ) -> list[LineSpecifs]:
     """Return tuples of line/line number/line type with leading/trailing whitespace and any ignored code features removed.
 
@@ -571,6 +569,7 @@ def stripped_lines(
     :param ignore_docstrings: if true, any line that is a docstring is removed from the result
     :param ignore_imports: if true, any line that is an import is removed from the result
     :param ignore_signatures: if true, any line that is part of a function signature is removed from the result
+    :param line_enabled_callback: If called with "R0801" and a line number, a return value of False will disregard the line
     :return: the collection of line/line number/line type tuples
     """
     if ignore_imports or ignore_signatures:
@@ -622,6 +621,10 @@ def stripped_lines(
     strippedlines = []
     docstring = None
     for lineno, line in enumerate(lines, start=1):
+        if line_enabled_callback is not None and not line_enabled_callback(
+            "R0801", lineno
+        ):
+            continue
         line = line.strip()
         if ignore_docstrings:
             if not docstring:
@@ -668,11 +671,17 @@ class LineSet:
         ignore_docstrings: bool = False,
         ignore_imports: bool = False,
         ignore_signatures: bool = False,
+        line_enabled_callback: Callable[[str, int], bool] | None = None,
     ) -> None:
         self.name = name
         self._real_lines = lines
         self._stripped_lines = stripped_lines(
-            lines, ignore_comments, ignore_docstrings, ignore_imports, ignore_signatures
+            lines,
+            ignore_comments,
+            ignore_docstrings,
+            ignore_imports,
+            ignore_signatures,
+            line_enabled_callback=line_enabled_callback,
         )
 
     def __str__(self):
@@ -727,7 +736,7 @@ def report_similarities(
 
 
 # wrapper to get a pylint checker from the similar class
-class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
+class SimilarChecker(BaseChecker, Similar):
     """Checks for similarities and duplicated code.
 
     This computation may be memory / CPU intensive, so you
