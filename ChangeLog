@@ -206,6 +206,11 @@ Release date: TBA
   Closes #5815
   Closes #5406
 
+* Fixed a false positive for ``unused-variable`` when a builtin specified in
+  ``--additional-builtins`` is given a type annotation.
+
+  Closes #6388
+
 
 What's New in Pylint 2.13.5?
 ============================
