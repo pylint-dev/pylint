@@ -111,9 +111,7 @@ def get_type(
         line_type = "empty"
     elif i < len(tokens) and tokens[i][0] == tokenize.NEWLINE:
         i += 1
-    # We could do:
-    # line_type = cast(Literal["code", "docstring", "comment", "empty"], line_type)
-    # See https://github.com/PyCQA/pylint/pull/6273#discussion_r847783759
+    # Mypy fails to infer the literal of line_type
     return i, pos[0] - start[0] + 1, line_type  # type: ignore[return-value]
 
 
