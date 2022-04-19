@@ -16,7 +16,7 @@ from astroid import nodes
 
 from pylint.checkers import BaseTokenChecker
 from pylint.checkers.utils import check_messages
-from pylint.interfaces import IAstroidChecker, ITokenChecker
+from pylint.interfaces import IAstroidChecker
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -183,7 +183,7 @@ def _strip_code_flanked_in_backticks(line: str) -> str:
 class SpellingChecker(BaseTokenChecker):
     """Check spelling in comments and docstrings."""
 
-    __implements__ = (ITokenChecker, IAstroidChecker)
+    __implements__ = IAstroidChecker
     name = "spelling"
     msgs = {
         "C0401": (

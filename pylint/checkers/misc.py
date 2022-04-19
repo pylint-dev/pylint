@@ -12,8 +12,7 @@ from typing import TYPE_CHECKING
 
 from astroid import nodes
 
-from pylint.checkers import BaseChecker
-from pylint.interfaces import IRawChecker, ITokenChecker
+from pylint.checkers import BaseRawFileChecker, BaseTokenChecker
 from pylint.typing import ManagedMessage
 from pylint.utils.pragma_parser import OPTION_PO, PragmaParserError, parse_pragma
 
@@ -21,11 +20,10 @@ if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
 
-class ByIdManagedMessagesChecker(BaseChecker):
+class ByIdManagedMessagesChecker(BaseRawFileChecker):
 
     """Checks for messages that are enabled or disabled by id instead of symbol."""
 
-    __implements__ = IRawChecker
     name = "miscellaneous"
     msgs = {
         "I0023": (
@@ -53,7 +51,7 @@ class ByIdManagedMessagesChecker(BaseChecker):
         self._clear_by_id_managed_msgs()
 
 
-class EncodingChecker(BaseChecker):
+class EncodingChecker(BaseTokenChecker, BaseRawFileChecker):
 
     """BaseChecker for encoding issues.
 
@@ -61,8 +59,6 @@ class EncodingChecker(BaseChecker):
     * warning notes in the code like FIXME, XXX
     * encoding issues.
     """
-
-    __implements__ = (IRawChecker, ITokenChecker)
 
     # configuration section name
     name = "miscellaneous"

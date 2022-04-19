@@ -11,7 +11,7 @@ from astroid import nodes
 
 from pylint.checkers import BaseTokenChecker
 from pylint.checkers.utils import check_messages
-from pylint.interfaces import HIGH, IAstroidChecker, ITokenChecker
+from pylint.interfaces import HIGH, IAstroidChecker
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 class ElseifUsedChecker(BaseTokenChecker):
     """Checks for use of "else if" when an "elif" could be used."""
 
-    __implements__ = (ITokenChecker, IAstroidChecker)
+    __implements__ = IAstroidChecker
     name = "else_if_used"
     msgs = {
         "R5501": (

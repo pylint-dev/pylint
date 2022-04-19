@@ -18,7 +18,7 @@ from astroid import nodes
 
 import pylint.interfaces
 import pylint.lint.parallel
-from pylint.checkers.base_checker import BaseChecker
+from pylint.checkers import BaseRawFileChecker
 from pylint.lint import PyLinter
 from pylint.lint.parallel import _worker_check_single_file as worker_check_single_file
 from pylint.lint.parallel import _worker_initialize as worker_initialize
@@ -45,10 +45,8 @@ def _gen_file_datas(count: int = 1) -> list[FileItem]:
     return [_gen_file_data(idx) for idx in range(count)]
 
 
-class SequentialTestChecker(BaseChecker):
+class SequentialTestChecker(BaseRawFileChecker):
     """A checker that does not need to consolidate data across run invocations."""
-
-    __implements__ = (pylint.interfaces.IRawChecker,)
 
     name = "sequential-checker"
     test_data = "sequential"
@@ -65,14 +63,14 @@ class SequentialTestChecker(BaseChecker):
         self.data: list[str] = []
         self.linter = linter
 
-    def process_module(self, _node: nodes.Module) -> None:
+    def process_module(self, node: nodes.Module) -> None:
         """Called once per stream/file/astroid object."""
         # record the number of invocations with the data object
         record = self.test_data + str(len(self.data))
         self.data.append(record)
 
 
-class ParallelTestChecker(BaseChecker):
+class ParallelTestChecker(BaseRawFileChecker):
     """A checker that does need to consolidate data.
 
     To simulate the need to consolidate data, this checker only
@@ -86,8 +84,6 @@ class ParallelTestChecker(BaseChecker):
     raised from the individual process, all messages will be raised
     from reduce_map_data.
     """
-
-    __implements__ = (pylint.interfaces.IRawChecker,)
 
     name = "parallel-checker"
     test_data = "parallel"
@@ -126,7 +122,7 @@ class ParallelTestChecker(BaseChecker):
             self.add_message("R9999", args=("From reduce_map_data",))
         recombined.close()
 
-    def process_module(self, _node: nodes.Module) -> None:
+    def process_module(self, node: nodes.Module) -> None:
         """Called once per stream/file/astroid object."""
         # record the number of invocations with the data object
         record = self.test_data + str(len(self.data))

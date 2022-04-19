@@ -19,7 +19,7 @@ from typing import TYPE_CHECKING
 
 from astroid import nodes
 
-from pylint.checkers import BaseTokenChecker
+from pylint.checkers import BaseRawFileChecker, BaseTokenChecker
 from pylint.checkers.utils import (
     check_messages,
     is_overload_stub,
@@ -27,7 +27,7 @@ from pylint.checkers.utils import (
     node_frame_class,
 )
 from pylint.constants import WarningScope
-from pylint.interfaces import IAstroidChecker, IRawChecker, ITokenChecker
+from pylint.interfaces import IAstroidChecker
 from pylint.utils.pragma_parser import OPTION_PO, PragmaParserError, parse_pragma
 
 if TYPE_CHECKING:
@@ -195,7 +195,7 @@ class TokenWrapper:
         return self._tokens[idx][4]
 
 
-class FormatChecker(BaseTokenChecker):
+class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
     """Formatting checker.
 
     Checks for :
@@ -204,7 +204,7 @@ class FormatChecker(BaseTokenChecker):
     * line length
     """
 
-    __implements__ = (ITokenChecker, IAstroidChecker, IRawChecker)
+    __implements__ = IAstroidChecker
 
     # configuration section name
     name = "format"
@@ -319,7 +319,7 @@ class FormatChecker(BaseTokenChecker):
             self._lines[line_num] = line.split("\n")[0]
         self.check_lines(line, line_num)
 
-    def process_module(self, _node: nodes.Module) -> None:
+    def process_module(self, node: nodes.Module) -> None:
         pass
 
     # pylint: disable-next=too-many-return-statements
