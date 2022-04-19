@@ -114,6 +114,11 @@ Release date: TBA
 
   Ref #5392
 
+* ``interfaces.implements`` has been deprecated and will be removed in 3.0. Please use standard inheritance
+  patterns instead of ``__implements__``.
+
+  Ref #2287
+
 * ``invalid-enum-extension``: Used when a class tries to extend an inherited Enum class.
 
   Closes #5501

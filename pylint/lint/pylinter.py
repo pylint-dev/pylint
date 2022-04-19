@@ -874,21 +874,25 @@ class PyLinter(
         """
         walker = ASTWalker(self)
         _checkers = self.prepare_checkers()
-        tokencheckers = [
-            c
-            for c in _checkers
-            if (
-                interfaces.implements(c, interfaces.ITokenChecker)
-                or isinstance(c, checkers.BaseTokenChecker)
-            )
-            and c is not self
-        ]
-        rawcheckers = [
-            c
-            for c in _checkers
-            if interfaces.implements(c, interfaces.IRawChecker)
-            or isinstance(c, checkers.BaseRawFileChecker)
-        ]
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            tokencheckers = [
+                c
+                for c in _checkers
+                if (
+                    interfaces.implements(c, interfaces.ITokenChecker)
+                    or isinstance(c, checkers.BaseTokenChecker)
+                )
+                and c is not self
+            ]
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            rawcheckers = [
+                c
+                for c in _checkers
+                if interfaces.implements(c, interfaces.IRawChecker)
+                or isinstance(c, checkers.BaseRawFileChecker)
+            ]
         # notify global begin
         for checker in _checkers:
             checker.open()

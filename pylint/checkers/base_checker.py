@@ -162,13 +162,15 @@ class BaseChecker(_ArgumentsProvider):
             existing_ids.append(message.msgid)
 
     def create_message_definition_from_tuple(self, msgid, msg_tuple):
-        if isinstance(self, (BaseTokenChecker, BaseRawFileChecker)):
-            default_scope = WarningScope.LINE
-        # TODO: Interfaces: Deprecate looking for implements here # pylint: disable=fixme
-        elif implements(self, (IRawChecker, ITokenChecker)):
-            default_scope = WarningScope.LINE
-        else:
-            default_scope = WarningScope.NODE
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            if isinstance(self, (BaseTokenChecker, BaseRawFileChecker)):
+                default_scope = WarningScope.LINE
+            # TODO: Interfaces: Deprecate looking for implements here # pylint: disable=fixme
+            elif implements(self, (IRawChecker, ITokenChecker)):
+                default_scope = WarningScope.LINE
+            else:
+                default_scope = WarningScope.NODE
         options = {}
         if len(msg_tuple) > 3:
             (msg, symbol, descr, options) = msg_tuple
