@@ -1,5 +1,6 @@
 from typing import Iterator
 
+
 def even_number_under(n: int) -> Iterator[int]:
     """Prints even numbers smaller than n.
     Args:
