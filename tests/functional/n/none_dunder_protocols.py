@@ -34,11 +34,6 @@ class MultipleAssignmentLambdasClass(metaclass=MetaContainer):
     __len__, __iter__ = [lambda x: x] * 2
 
 
-class NamedExpressionClass(metaclass=MetaContainer):
-    if (__iter__ := lambda x: x):
-        pass
-
-
 def test():
     1 in NonIterableClass  # [unsupported-membership-test]
     1 in OldNonIterableClass  # [unsupported-membership-test]
@@ -48,4 +43,3 @@ def test():
     1 in NonContainerClass()  # [unsupported-membership-test]
     1 in MultipleAssignmentNonesClass()  # [unsupported-membership-test]
     1 in MultipleAssignmentLambdasClass()
-    1 in NamedExpressionClass()
