@@ -25,6 +25,12 @@ New checkers
 
   Closes #5895
 
+* ``MapReduceMixin`` has been deprecated. ``BaseChecker`` now implements ``get_map_data`` and
+  ``reduce_map_data``. If a checker actually needs to reduce data it should define ``get_map_data``
+  as returning something different than ``None`` and let its ``reduce_map_data`` handle a list
+  of the types returned by ``get_map_data``.
+  An example can be seen by looking at ``pylint/checkers/similar.py``.
+
 * Add new check ``unnecessary-dunder-call`` for unnecessary dunder method calls.
 
   Closes #5936

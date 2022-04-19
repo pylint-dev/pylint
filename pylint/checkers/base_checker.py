@@ -208,6 +208,14 @@ class BaseChecker(_ArgumentsProvider):
     def close(self) -> None:
         """Called after visiting project (i.e set of modules)."""
 
+    # pylint: disable-next=no-self-use
+    def get_map_data(self) -> Any:
+        return None
+
+    # pylint: disable-next=no-self-use, unused-argument
+    def reduce_map_data(self, linter: PyLinter, data: list[Any]) -> None:
+        return None
+
 
 class BaseTokenChecker(BaseChecker):
     """Base class for checkers that want to have access to the token stream."""

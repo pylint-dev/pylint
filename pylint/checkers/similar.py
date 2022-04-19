@@ -47,7 +47,7 @@ from typing import (
 import astroid
 from astroid import nodes
 
-from pylint.checkers import BaseChecker, MapReduceMixin, table_lines_from_stats
+from pylint.checkers import BaseChecker, table_lines_from_stats
 from pylint.interfaces import IRawChecker
 from pylint.reporters.ureports.nodes import Table
 from pylint.typing import Options
@@ -736,7 +736,7 @@ def report_similarities(
 
 
 # wrapper to get a pylint checker from the similar class
-class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
+class SimilarChecker(BaseChecker, Similar):
     """Checks for similarities and duplicated code.
 
     This computation may be memory / CPU intensive, so you

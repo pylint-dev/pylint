@@ -71,11 +71,9 @@ def _worker_check_single_file(
     _worker_linter.check_single_file_item(file_item)
     mapreduce_data = defaultdict(list)
     for checker in _worker_linter.get_checkers():
-        try:
-            data = checker.get_map_data()  # type: ignore[attr-defined]
-        except AttributeError:
-            continue
-        mapreduce_data[checker.name].append(data)
+        data = checker.get_map_data()
+        if data is not None:
+            mapreduce_data[checker.name].append(data)
     msgs = _worker_linter.reporter.messages
     assert isinstance(_worker_linter.reporter, reporters.CollectingReporter)
     _worker_linter.reporter.reset()
@@ -108,7 +106,7 @@ def _merge_mapreduce_data(
     # validation. The intent here is to collect all the mapreduce data for all checker-
     # runs across processes - that will then be passed to a static method on the
     # checkers to be reduced and further processed.
-    collated_map_reduce_data = defaultdict(list)
+    collated_map_reduce_data: defaultdict[str, list[Any]] = defaultdict(list)
     for linter_data in all_mapreduce_data.values():
         for run_data in linter_data:
             for checker_name, data in run_data.items():
@@ -120,7 +118,7 @@ def _merge_mapreduce_data(
         if checker.name in collated_map_reduce_data:
             # Assume that if the check has returned map/reduce data that it has the
             # reducer function
-            checker.reduce_map_data(linter, collated_map_reduce_data[checker.name])  # type: ignore[attr-defined]
+            checker.reduce_map_data(linter, collated_map_reduce_data[checker.name])
 
 
 def check_parallel(
@@ -132,8 +130,7 @@ def check_parallel(
     """Use the given linter to lint the files with given amount of workers (jobs).
 
     This splits the work filestream-by-filestream. If you need to do work across
-    multiple files, as in the similarity-checker, then inherit from MapReduceMixin and
-    implement the map/reduce mixin functionality.
+    multiple files, as in the similarity-checker, then implement the map/reduce mixin functionality.
     """
     # The linter is inherited by all the pool's workers, i.e. the linter
     # is identical to the linter object here. This is required so that
