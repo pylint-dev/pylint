@@ -72,7 +72,7 @@ def _worker_check_single_file(
     mapreduce_data = defaultdict(list)
     for checker in _worker_linter.get_checkers():
         try:
-            data = checker.get_map_data()
+            data = checker.get_map_data()  # type: ignore[attr-defined]
         except AttributeError:
             continue
         mapreduce_data[checker.name].append(data)
@@ -120,7 +120,7 @@ def _merge_mapreduce_data(
         if checker.name in collated_map_reduce_data:
             # Assume that if the check has returned map/reduce data that it has the
             # reducer function
-            checker.reduce_map_data(linter, collated_map_reduce_data[checker.name])
+            checker.reduce_map_data(linter, collated_map_reduce_data[checker.name])  # type: ignore[attr-defined]
 
 
 def check_parallel(
