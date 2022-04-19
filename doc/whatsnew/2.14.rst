@@ -160,6 +160,11 @@ Other Changes
 
   Ref #5392
 
+* ``interfaces.implements`` has been deprecated and will be removed in 3.0. Please use standard inheritance
+  patterns instead of ``__implements__``.
+
+  Ref #2287
+
 * Added the ``generate-toml-config`` option.
 
   Ref #5462
