@@ -894,8 +894,7 @@ class PyLinter(
         # notify global begin
         for checker in _checkers:
             checker.open()
-            if interfaces.implements(checker, interfaces.IAstroidChecker):
-                walker.add_checker(checker)
+            walker.add_checker(checker)
 
         yield functools.partial(
             self.check_astroid_module,
