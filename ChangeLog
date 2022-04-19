@@ -26,6 +26,12 @@ Release date: TBA
   Closes #5815
   Closes #5406
 
+* Fixed an ``AstroidError`` in 2.13.0 raised by the ``duplicate-code`` checker with
+  ``ignore-imports`` or ``ignore-signatures`` enabled.
+
+  Closes #6301
+
+
 What's New in Pylint 2.13.5?
 ============================
 Release date: 2022-04-06
