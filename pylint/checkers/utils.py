@@ -19,7 +19,7 @@ from typing import Callable, TypeVar
 
 import _string
 import astroid.objects
-from astroid import TooManyLevelsError, nodes
+from astroid import TooManyLevelsError, mixins, nodes
 from astroid.context import InferenceContext
 
 from pylint.checkers.base_checker import BaseChecker
@@ -1069,7 +1069,9 @@ def _supports_protocol_method(value: nodes.NodeNG, attr: str) -> bool:
 
     # Return False if a constant is assigned
     if isinstance(first, nodes.AssignName):
-        this_assign_parent = get_node_first_ancestor_of_type(first, nodes.Assign)
+        this_assign_parent = get_node_first_ancestor_of_type(
+            first, mixins.AssignTypeMixin
+        )
         assert this_assign_parent is not None
         if isinstance(this_assign_parent.value, nodes.BaseContainer):
             if all(isinstance(n, nodes.Const) for n in this_assign_parent.value.elts):
