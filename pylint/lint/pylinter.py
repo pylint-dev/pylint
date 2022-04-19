@@ -879,10 +879,17 @@ class PyLinter(
         tokencheckers = [
             c
             for c in _checkers
-            if interfaces.implements(c, interfaces.ITokenChecker) and c is not self
+            if (
+                interfaces.implements(c, interfaces.ITokenChecker)
+                or isinstance(c, checkers.BaseTokenChecker)
+            )
+            and c is not self
         ]
         rawcheckers = [
-            c for c in _checkers if interfaces.implements(c, interfaces.IRawChecker)
+            c
+            for c in _checkers
+            if interfaces.implements(c, interfaces.IRawChecker)
+            or isinstance(c, checkers.BaseRawFileChecker)
         ]
         # notify global begin
         for checker in _checkers:
