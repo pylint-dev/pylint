@@ -4,19 +4,28 @@
 
 """Arguments provider class used to expose options."""
 
+from __future__ import annotations
 
+import argparse
 import optparse  # pylint: disable=deprecated-module
 import warnings
-from typing import Any, Dict, Iterator, List, Optional, Tuple, Union
+from collections.abc import Iterator
+from typing import Any
 
 from pylint.config.arguments_manager import _ArgumentsManager
-from pylint.config.callback_actions import _CallbackAction
-from pylint.config.option import _validate
 from pylint.typing import OptionDict, Options
 
 
 class UnsupportedAction(Exception):
     """Raised by set_option when it doesn't know what to do for an action."""
+
+    def __init__(self, *args: object) -> None:
+        # TODO: 3.0: Remove deprecated exception # pylint: disable=fixme
+        warnings.warn(
+            "UnsupportedAction has been deprecated and will be removed in pylint 3.0",
+            DeprecationWarning,
+        )
+        super().__init__(*args)
 
 
 class _ArgumentsProvider:
@@ -28,7 +37,7 @@ class _ArgumentsProvider:
     options: Options = ()
     """Options provided by this provider."""
 
-    option_groups_descs: Dict[str, str] = {}
+    option_groups_descs: dict[str, str] = {}
     """Option groups of this provider and their descriptions."""
 
     def __init__(self, arguments_manager: _ArgumentsManager) -> None:
@@ -37,25 +46,39 @@ class _ArgumentsProvider:
 
         self._arguments_manager._register_options_provider(self)
 
-        # pylint: disable=fixme
-        # TODO: Optparse: Added to keep API parity with OptionsProvider
-        # They should be removed/deprecated when refactoring the copied methods
-        self._config = optparse.Values()
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            self.load_defaults()
-        self.level = 0
+        self._level = 0
 
     @property
-    def config(self) -> optparse.Values:
+    def level(self) -> int:
+        # TODO: 3.0: Remove deprecated attribute # pylint: disable=fixme
+        warnings.warn(
+            "The level attribute has been deprecated. It was used to display the checker in the help or not,"
+            " and everything is displayed in the help now. It will be removed in pylint 3.0.",
+            DeprecationWarning,
+        )
+        return self._level
+
+    @level.setter
+    def level(self, value: int) -> None:
+        # TODO: 3.0: Remove deprecated attribute # pylint: disable=fixme
+        warnings.warn(
+            "Setting the level attribute has been deprecated. It was used to display the checker in the help or not,"
+            " and everything is displayed in the help now. It will be removed in pylint 3.0.",
+            DeprecationWarning,
+        )
+        self._level = value
+
+    @property
+    def config(self) -> argparse.Namespace:
+        # TODO: 3.0: Remove deprecated attribute # pylint: disable=fixme
         warnings.warn(
             "The checker-specific config attribute has been deprecated. Please use "
             "'linter.config' to access the global configuration object.",
             DeprecationWarning,
         )
-        return self._config
+        return self._arguments_manager.config
 
-    def load_defaults(self) -> None:
+    def load_defaults(self) -> None:  # pragma: no cover
         """DEPRECATED: Initialize the provider using default values."""
         warnings.warn(
             "load_defaults has been deprecated. Option groups should be "
@@ -74,7 +97,9 @@ class _ArgumentsProvider:
                 default = optdict.get("default")
                 self.set_option(opt, default, action, optdict)
 
-    def option_attrname(self, opt: str, optdict: Optional[OptionDict] = None) -> str:
+    def option_attrname(
+        self, opt: str, optdict: OptionDict | None = None
+    ) -> str:  # pragma: no cover
         """DEPRECATED: Get the config attribute corresponding to opt."""
         warnings.warn(
             "option_attrname has been deprecated. It will be removed "
@@ -87,66 +112,27 @@ class _ArgumentsProvider:
                 optdict = self.get_option_def(opt)
         return optdict.get("dest", opt.replace("-", "_"))  # type: ignore[return-value]
 
-    def option_value(self, opt: str) -> Any:
+    def option_value(self, opt: str) -> Any:  # pragma: no cover
         """DEPRECATED: Get the current value for the given option."""
         warnings.warn(
             "option_value has been deprecated. It will be removed "
             "in a future release.",
             DeprecationWarning,
         )
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            return getattr(self.config, self.option_attrname(opt), None)
+        return getattr(self._arguments_manager.config, opt.replace("-", "_"), None)
 
-    # pylint: disable-next=fixme
-    # TODO: Optparse: Refactor and deprecate set_option
-    def set_option(self, optname, value, action=None, optdict=None):
-        """Method called to set an option (registered in the options list)."""
-        if optdict is None:
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", category=DeprecationWarning)
-                optdict = self.get_option_def(optname)
-        if value is not None:
-            value = _validate(value, optdict, optname)
-        if action is None:
-            action = optdict.get("action", "store")
-        if action == "store":
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", category=DeprecationWarning)
-                setattr(self.config, self.option_attrname(optname, optdict), value)
-        elif action in {"store_true", "count"}:
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", category=DeprecationWarning)
-                setattr(self.config, self.option_attrname(optname, optdict), value)
-        elif action == "store_false":
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", category=DeprecationWarning)
-                setattr(self.config, self.option_attrname(optname, optdict), value)
-        elif action == "append":
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", category=DeprecationWarning)
-                optname = self.option_attrname(optname, optdict)
-            _list = getattr(self.config, optname, None)
-            if _list is None:
-                if isinstance(value, (list, tuple)):
-                    _list = value
-                elif value is not None:
-                    _list = [value]
-                setattr(self.config, optname, _list)
-            elif isinstance(_list, tuple):
-                setattr(self.config, optname, _list + (value,))
-            else:
-                _list.append(value)
-        elif (
-            action == "callback"
-            or (not isinstance(action, str))
-            and issubclass(action, _CallbackAction)
-        ):
-            return
-        else:
-            raise UnsupportedAction(action)
+    # pylint: disable-next=unused-argument
+    def set_option(self, optname, value, action=None, optdict=None):  # pragma: no cover
+        """DEPRECATED: Method called to set an option (registered in the options list)."""
+        # TODO: 3.0: Remove deprecated method. # pylint: disable=fixme
+        warnings.warn(
+            "set_option has been deprecated. You can use _arguments_manager.set_option "
+            "or linter.set_option to set options on the global configuration object.",
+            DeprecationWarning,
+        )
+        self._arguments_manager.set_option(optname, value)
 
-    def get_option_def(self, opt: str) -> OptionDict:
+    def get_option_def(self, opt: str) -> OptionDict:  # pragma: no cover
         """DEPRECATED: Return the dictionary defining an option given its name.
 
         :raises OptionError: If the option isn't found.
@@ -167,14 +153,9 @@ class _ArgumentsProvider:
     def options_by_section(
         self,
     ) -> Iterator[
-        Tuple[
-            Optional[str],
-            Union[
-                Dict[str, List[Tuple[str, OptionDict, Any]]],
-                List[Tuple[str, OptionDict, Any]],
-            ],
-        ]
-    ]:
+        tuple[str, list[tuple[str, OptionDict, Any]]]
+        | tuple[None, dict[str, list[tuple[str, OptionDict, Any]]]]
+    ]:  # pragma: no cover
         """DEPRECATED: Return an iterator on options grouped by section.
 
         (section, [list of (optname, optdict, optvalue)])
@@ -184,7 +165,7 @@ class _ArgumentsProvider:
             "in a future release.",
             DeprecationWarning,
         )
-        sections: Dict[str, List[Tuple[str, OptionDict, Any]]] = {}
+        sections: dict[str, list[tuple[str, OptionDict, Any]]] = {}
         for optname, optdict in self.options:
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -197,8 +178,8 @@ class _ArgumentsProvider:
             yield section.upper(), options
 
     def options_and_values(
-        self, options: Optional[Options] = None
-    ) -> Iterator[Tuple[str, OptionDict, Any]]:
+        self, options: Options | None = None
+    ) -> Iterator[tuple[str, OptionDict, Any]]:  # pragma: no cover
         """DEPRECATED."""
         warnings.warn(
             "options_and_values has been deprecated. It will be removed "

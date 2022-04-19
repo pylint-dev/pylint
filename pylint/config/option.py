@@ -2,11 +2,14 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import copy
 import optparse  # pylint: disable=deprecated-module
 import pathlib
 import re
-from typing import List, Pattern, Union
+import warnings
+from re import Pattern
 
 from pylint import utils
 
@@ -29,8 +32,8 @@ def _regexp_csv_validator(_, name, value):
 
 
 def _regexp_paths_csv_validator(
-    _, name: str, value: Union[str, List[Pattern[str]]]
-) -> List[Pattern[str]]:
+    _, name: str, value: str | list[Pattern[str]]
+) -> list[Pattern[str]]:
     if isinstance(value, list):
         return value
     patterns = []
@@ -169,6 +172,11 @@ class Option(optparse.Option):
     TYPE_CHECKER["py_version"] = _py_version_validator
 
     def __init__(self, *opts, **attrs):
+        # TODO: 3.0: Remove deprecated class # pylint: disable=fixme
+        warnings.warn(
+            "Option has been deprecated and will be removed in pylint 3.0",
+            DeprecationWarning,
+        )
         super().__init__(*opts, **attrs)
         if hasattr(self, "hide") and self.hide:
             self.help = optparse.SUPPRESS_HELP

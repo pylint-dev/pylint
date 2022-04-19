@@ -2,8 +2,10 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import collections
-from typing import DefaultDict, Dict, Union
+from collections import defaultdict
 
 from pylint import checkers, exceptions
 from pylint.reporters.ureports.nodes import Table
@@ -50,9 +52,7 @@ def report_messages_by_module_stats(
     if len(module_stats) == 1:
         # don't print this report when we are analysing a single module
         raise exceptions.EmptyReportError()
-    by_mod: DefaultDict[str, Dict[str, Union[int, float]]] = collections.defaultdict(
-        dict
-    )
+    by_mod: defaultdict[str, dict[str, int | float]] = collections.defaultdict(dict)
     for m_type in ("fatal", "error", "warning", "refactor", "convention"):
         total = stats.get_global_message_count(m_type)
         for module in module_stats.keys():

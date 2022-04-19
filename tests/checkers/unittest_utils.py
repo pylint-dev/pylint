@@ -4,7 +4,7 @@
 
 """Tests for the pylint.checkers.utils module."""
 
-from typing import Dict, Union
+from __future__ import annotations
 
 import astroid
 import pytest
@@ -32,9 +32,7 @@ def testIsBuiltin(name, expected):
     "fn,kw",
     [("foo(3)", {"keyword": "bar"}), ("foo(one=a, two=b, three=c)", {"position": 1})],
 )
-def testGetArgumentFromCallError(
-    fn: str, kw: Union[Dict[str, int], Dict[str, str]]
-) -> None:
+def testGetArgumentFromCallError(fn: str, kw: dict[str, int] | dict[str, str]) -> None:
     with pytest.raises(utils.NoSuchArgumentError):
         node = astroid.extract_node(fn)
         utils.get_argument_from_call(node, **kw)
@@ -43,9 +41,7 @@ def testGetArgumentFromCallError(
 @pytest.mark.parametrize(
     "fn,kw", [("foo(bar=3)", {"keyword": "bar"}), ("foo(a, b, c)", {"position": 1})]
 )
-def testGetArgumentFromCallExists(
-    fn: str, kw: Union[Dict[str, int], Dict[str, str]]
-) -> None:
+def testGetArgumentFromCallExists(fn: str, kw: dict[str, int] | dict[str, str]) -> None:
     node = astroid.extract_node(fn)
     assert utils.get_argument_from_call(node, **kw) is not None
 
@@ -477,3 +473,18 @@ def test_deprecation_is_inside_lambda() -> None:
     with pytest.warns(DeprecationWarning) as records:
         utils.is_inside_lambda(nodes.NodeNG())
         assert len(records) == 1
+
+
+def test_deprecation_check_messages() -> None:
+    with pytest.warns(DeprecationWarning) as records:
+
+        class Checker:  # pylint: disable=unused-variable
+            @utils.check_messages("my-message")
+            def visit_assname(self, node):
+                pass
+
+        assert len(records) == 1
+        assert (
+            records[0].message.args[0]
+            == "utils.check_messages will be removed in favour of calling utils.only_required_for_messages in pylint 3.0"
+        )

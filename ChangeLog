@@ -15,6 +15,9 @@ Release date: TBA
 
 * ``BaseChecker`` classes now require the ``linter`` argument to be passed.
 
+* Fix a failure to respect inline disables for ``fixme`` occurring on the last line
+  of a module when pylint is launched with ``--enable=fixme``.
+
 * Update ``invalid-slots-object`` message to show bad object rather than its inferred value.
 
   Closes #6101
@@ -23,13 +26,69 @@ Release date: TBA
 
   Closes #5224
 
+* Fixed failure to enable ``deprecated-module`` after a ``disable=all``
+  by making ``ImportsChecker`` solely responsible for emitting ``deprecated-module`` instead
+  of sharing responsibility with ``StdlibChecker``. (This could have led to double messages.)
+
+* The ``no-init`` (W0232) warning has been removed. It's ok to not have an ``__init__`` in a class.
+
+  Closes #2409
+
 * The ``config`` attribute of ``BaseChecker`` has been deprecated. You can use ``checker.linter.config``
   to access the global configuration object instead of a checker-specific object.
 
   Ref #5392
 
+* The ``level`` attribute of ``BaseChecker`` has been deprecated: everything is now
+  displayed in ``--help``, all the time.
+
+  Ref #5392
+
+* The ``options_providers`` attribute of ``ArgumentsManager`` has been deprecated.
+
+  Ref #5392
+
+* The ``option_groups`` attribute of ``PyLinter`` has been deprecated.
+
+  Ref #5392
+
+
+* The ``set_option`` method of ``BaseChecker`` has been deprecated. You can use ``checker.linter.set_option``
+  to set an option on the global configuration object instead of a checker-specific object.
+
+  Ref #5392
+
 * The ``config`` attribute of ``PyLinter`` is now of the ``argparse.Namespace`` type instead of
   ``optparse.Values``.
+
+  Ref #5392
+
+* ``UnsupportedAction`` has been deprecated.
+
+  Ref #5392
+
+* ``OptionsManagerMixIn`` has been deprecated.
+
+  Ref #5392
+
+* ``OptionParser`` has been deprecated.
+
+  Ref #5392
+
+* ``Option`` has been deprecated.
+
+  Ref #5392
+
+* ``OptionsProviderMixIn`` has been deprecated.
+
+  Ref #5392
+
+* ``ConfigurationMixIn`` has been deprecated.
+
+  Ref #5392
+
+* ``get_global_config`` has been deprecated. You can now access all global options from
+  ``checker.linter.config``.
 
   Ref #5392
 
@@ -48,6 +107,10 @@ Release date: TBA
 * ``invalid-enum-extension``: Used when a class tries to extend an inherited Enum class.
 
   Closes #5501
+
+* Added the ``unrecognized-option`` message. Raised if we encounter any unrecognized options.
+
+  Closes #5259
 
 * Added new checker ``typevar-double-variance``: The "covariant" and "contravariant" keyword arguments
   cannot both be set to "True" in a TypeVar.
@@ -93,6 +156,19 @@ Release date: TBA
 
   Closes #5205
 
+* ``bad-option-value`` will be emitted whenever a configuration value or command line invocation
+  includes an unknown message.
+
+  Closes #4324
+
+* Added the ``super-without-brackets`` checker, raised when a super call is missing its brackets.
+
+  Closes #4008
+
+* Added the ``generate-toml-config`` option.
+
+  Ref #5462
+
 * Added new checker ``unnecessary-list-index-lookup`` for indexing into a list while
   iterating over ``enumerate()``.
 
@@ -109,6 +185,9 @@ Release date: TBA
   Closes #1555
 
 * The concept of checker priority has been removed.
+
+* Add a new command line option ``--minimal-messages-config`` for ``pytest``, which disables all
+  irrelevant messages when running the functional tests.
 
 * ``duplicate-argument-name`` now only raises once for each set of duplicated arguments.
 
@@ -368,11 +447,11 @@ Release date: 2022-03-24
 
 * Added several checkers to deal with unicode security issues
   (see `Trojan Sources <https://trojansource.codes/>`_ and
-  `PEP 672 <https://www.python.org/dev/peps/pep-0672/>`_ for details) that also
+  `PEP 672 <https://peps.python.org/pep-0672/>`_ for details) that also
   concern the readability of the code. In detail the following checks were added:
 
   * ``bad-file-encoding`` checks that the file is encoded in UTF-8 as suggested by
-    `PEP8 <https://www.python.org/dev/peps/pep-0008/#id20>`_.
+    `PEP8 <https://peps.python.org/pep-0008/#source-file-encoding>`_.
     UTF-16 and UTF-32 are `not supported by Python <https://bugs.python.org/issue1503789>`_
     at the moment. If this ever changes
     ``invalid-unicode-codec`` checks that they aren't used, to allow for backwards
@@ -462,7 +541,7 @@ Release date: 2022-03-24
 
    Non ASCII characters could be homoglyphs (look alike characters) and hard to
    enter on a non specialized keyboard.
-   See `Confusable Characters in PEP 672 <https://www.python.org/dev/peps/pep-0672/#confusable-characters-in-identifiers>`_
+   See `Confusable Characters in PEP 672 <https://peps.python.org/pep-0672/#confusing-features>`_
 
 * When run in parallel mode ``pylint`` now pickles the data passed to subprocesses with
   the ``dill`` package. The ``dill`` package has therefore been added as a dependency.
@@ -6405,7 +6484,7 @@ Release date: 2007-02-28
     * new RPython (Restricted Python) checker for PyPy fellow or people
       wanting to get a compiled version of their python program using the
       translator of the PyPy project. For more information about PyPy or
-      RPython, visit http://codespeak.net/pypy/
+      RPython, visit https://www.pypy.org, previously codespeak.net/pypy/
 
     * new E0104 and E0105 messages introduced to respectively warn about
       "return" and "yield" outside function or method

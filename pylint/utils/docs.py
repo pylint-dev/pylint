@@ -4,9 +4,11 @@
 
 """Various helper functions to create the docs of a linter object."""
 
+from __future__ import annotations
+
 import sys
 import warnings
-from typing import TYPE_CHECKING, Dict, TextIO
+from typing import TYPE_CHECKING, Any, TextIO
 
 from pylint.constants import MAIN_CHECKER_NAME
 from pylint.utils.utils import get_rst_section, get_rst_title
@@ -15,9 +17,9 @@ if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
 
 
-def _get_checkers_infos(linter: "PyLinter") -> Dict[str, Dict]:
+def _get_checkers_infos(linter: PyLinter) -> dict[str, dict[str, Any]]:
     """Get info from a checker and handle KeyError."""
-    by_checker: Dict[str, Dict] = {}
+    by_checker: dict[str, dict[str, Any]] = {}
     for checker in linter.get_checkers():
         name = checker.name
         if name != "master":
@@ -40,7 +42,7 @@ def _get_checkers_infos(linter: "PyLinter") -> Dict[str, Dict]:
     return by_checker
 
 
-def _get_checkers_documentation(linter: "PyLinter") -> str:
+def _get_checkers_documentation(linter: PyLinter) -> str:
     """Get documentation for individual checkers."""
     result = get_rst_title("Pylint global options and switches", "-")
     result += """
@@ -59,6 +61,7 @@ Pylint provides global options and switches.
                         else:
                             title = f"{section.capitalize()} options"
                         result += get_rst_title(title, "~")
+                        assert isinstance(options, list)
                         result += f"{get_rst_section(None, options)}\n"
     result += get_rst_title("Pylint checkers' options and switches", "-")
     result += """\
@@ -73,14 +76,14 @@ Below is a list of all checkers and their features.
 
 """
     by_checker = _get_checkers_infos(linter)
-    for checker in sorted(by_checker):
-        information = by_checker[checker]
+    for checker_name in sorted(by_checker):
+        information = by_checker[checker_name]
         checker = information["checker"]
         del information["checker"]
         result += checker.get_full_documentation(**information)
     return result
 
 
-def print_full_documentation(linter: "PyLinter", stream: TextIO = sys.stdout) -> None:
+def print_full_documentation(linter: PyLinter, stream: TextIO = sys.stdout) -> None:
     """Output a full documentation in ReST format."""
     print(_get_checkers_documentation(linter)[:-1], file=stream)

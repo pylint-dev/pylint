@@ -11,9 +11,11 @@ https://www.python.org/doc/essays/styleguide/
 Some parts of the process_token method is based from The Tab Nanny std module.
 """
 
+from __future__ import annotations
+
 import tokenize
 from functools import reduce
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
 from astroid import nodes
 
@@ -322,7 +324,7 @@ class FormatChecker(BaseTokenChecker):
 
     # pylint: disable-next=too-many-return-statements
     def _check_keyword_parentheses(
-        self, tokens: List[tokenize.TokenInfo], start: int
+        self, tokens: list[tokenize.TokenInfo], start: int
     ) -> None:
         """Check that there are not unnecessary parentheses after a keyword.
 
@@ -498,7 +500,7 @@ class FormatChecker(BaseTokenChecker):
                 handler(tokens, idx)
 
         line_num -= 1  # to be ok with "wc -l"
-        if line_num > self.linter.namespace.max_module_lines:
+        if line_num > self.linter.config.max_module_lines:
             # Get the line where the too-many-lines (or its message id)
             # was disabled or default to 1.
             message_definition = self.linter.msgs_store.get_message_definitions(
@@ -511,7 +513,7 @@ class FormatChecker(BaseTokenChecker):
             )
             self.add_message(
                 "too-many-lines",
-                args=(line_num, self.linter.namespace.max_module_lines),
+                args=(line_num, self.linter.config.max_module_lines),
                 line=line,
             )
 
@@ -532,7 +534,7 @@ class FormatChecker(BaseTokenChecker):
         self._last_line_ending = line_ending
 
         # check if line ending is as expected
-        expected = self.linter.namespace.expected_line_ending_format
+        expected = self.linter.config.expected_line_ending_format
         if expected:
             # reduce multiple \n\n\n\n to one \n
             line_ending = reduce(lambda x, y: x + y if x != y else x, line_ending, "")
@@ -601,13 +603,13 @@ class FormatChecker(BaseTokenChecker):
         if (
             isinstance(node.parent, nodes.If)
             and not node.parent.orelse
-            and self.linter.namespace.single_line_if_stmt
+            and self.linter.config.single_line_if_stmt
         ):
             return
         if (
             isinstance(node.parent, nodes.ClassDef)
             and len(node.parent.body) == 1
-            and self.linter.namespace.single_line_class_stmt
+            and self.linter.config.single_line_class_stmt
         ):
             return
 
@@ -638,8 +640,8 @@ class FormatChecker(BaseTokenChecker):
 
     def check_line_length(self, line: str, i: int, checker_off: bool) -> None:
         """Check that the line length is less than the authorized value."""
-        max_chars = self.linter.namespace.max_line_length
-        ignore_long_line = self.linter.namespace.ignore_long_lines
+        max_chars = self.linter.config.max_line_length
+        ignore_long_line = self.linter.config.ignore_long_lines
         line = line.rstrip()
         if len(line) > max_chars and not ignore_long_line.search(line):
             if checker_off:
@@ -670,7 +672,7 @@ class FormatChecker(BaseTokenChecker):
         return True
 
     @staticmethod
-    def specific_splitlines(lines: str) -> List[str]:
+    def specific_splitlines(lines: str) -> list[str]:
         """Split lines according to universal newlines except those in a specific sets."""
         unsplit_ends = {
             "\x0b",  # synonym of \v
@@ -708,7 +710,7 @@ class FormatChecker(BaseTokenChecker):
         # we'll also handle the line ending check here to avoid double-iteration
         # unless the line lengths are suspect
 
-        max_chars = self.linter.namespace.max_line_length
+        max_chars = self.linter.config.max_line_length
 
         split_lines = self.specific_splitlines(lines)
 
@@ -745,7 +747,7 @@ class FormatChecker(BaseTokenChecker):
 
     def check_indent_level(self, string, expected, line_num):
         """Return the indent level of the string."""
-        indent = self.linter.namespace.indent_string
+        indent = self.linter.config.indent_string
         if indent == "\\t":  # \t is not interpreted in the configuration file
             indent = "\t"
         level = 0
@@ -768,5 +770,5 @@ class FormatChecker(BaseTokenChecker):
             )
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(FormatChecker(linter))

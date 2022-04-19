@@ -6,7 +6,6 @@ import astroid
 
 from pylint.checkers import design_analysis
 from pylint.testutils import CheckerTestCase, set_config
-from pylint.utils.utils import get_global_option
 
 
 class TestDesignChecker(CheckerTestCase):
@@ -42,7 +41,7 @@ class TestDesignChecker(CheckerTestCase):
     @set_config(exclude_too_few_public_methods="toml.*")
     def test_exclude_too_few_methods_with_value(self) -> None:
         """Test exclude-too-few-public-methods option with value."""
-        options = get_global_option(self.checker, "exclude-too-few-public-methods")
+        options = self.linter.config.exclude_too_few_public_methods
 
         assert any(i.match("toml") for i in options)
         assert any(i.match("toml.*") for i in options)
@@ -52,6 +51,6 @@ class TestDesignChecker(CheckerTestCase):
         """Test exclude-too-few-public-methods option with no value.
         Compare against actual list to see if validator works.
         """
-        options = get_global_option(self.checker, "exclude-too-few-public-methods")
+        options = self.linter.config.exclude_too_few_public_methods
 
         assert options == []

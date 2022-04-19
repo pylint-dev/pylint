@@ -2,15 +2,17 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import functools
 import warnings
 from inspect import cleandoc
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 
 from astroid import nodes
 
 from pylint.config.arguments_provider import _ArgumentsProvider
-from pylint.constants import _MSG_ORDER, WarningScope
+from pylint.constants import _MSG_ORDER, MAIN_CHECKER_NAME, WarningScope
 from pylint.exceptions import InvalidMessageError
 from pylint.interfaces import Confidence, IRawChecker, ITokenChecker, implements
 from pylint.message.message_definition import MessageDefinition
@@ -26,8 +28,6 @@ class BaseChecker(_ArgumentsProvider):
 
     # checker name (you may reuse an existing one)
     name: str = ""
-    # options level (0 will be displaying in --help, 1 in --long-help)
-    level = 1
     # ordered list of options to control the checker behaviour
     options: Options = ()
     # messages issued by this checker
@@ -37,7 +37,7 @@ class BaseChecker(_ArgumentsProvider):
     # mark this checker as enabled or not.
     enabled: bool = True
 
-    def __init__(self, linter: "PyLinter") -> None:
+    def __init__(self, linter: PyLinter) -> None:
         """Checker instances should have the linter as argument."""
         if self.name is not None:
             self.name = self.name.lower()
@@ -45,12 +45,24 @@ class BaseChecker(_ArgumentsProvider):
 
         _ArgumentsProvider.__init__(self, linter)
 
-    def __gt__(self, other):
-        """Permit to sort a list of Checker by name."""
-        return f"{self.name}{self.msgs}" > f"{other.name}{other.msgs}"
+    def __gt__(self, other: Any) -> bool:
+        """Sorting of checkers."""
+        if not isinstance(other, BaseChecker):
+            return False
+        if self.name == MAIN_CHECKER_NAME:
+            return False
+        if other.name == MAIN_CHECKER_NAME:
+            return True
+        if type(self).__module__.startswith("pylint.checkers") and not type(
+            other
+        ).__module__.startswith("pylint.checkers"):
+            return False
+        return self.name > other.name
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         """Permit to assert Checkers are equal."""
+        if not isinstance(other, BaseChecker):
+            return False
         return f"{self.name}{self.msgs}" == f"{other.name}{other.msgs}"
 
     def __hash__(self):
@@ -114,13 +126,13 @@ class BaseChecker(_ArgumentsProvider):
     def add_message(
         self,
         msgid: str,
-        line: Optional[int] = None,
-        node: Optional[nodes.NodeNG] = None,
+        line: int | None = None,
+        node: nodes.NodeNG | None = None,
         args: Any = None,
-        confidence: Optional[Confidence] = None,
-        col_offset: Optional[int] = None,
-        end_lineno: Optional[int] = None,
-        end_col_offset: Optional[int] = None,
+        confidence: Confidence | None = None,
+        col_offset: int | None = None,
+        end_lineno: int | None = None,
+        end_col_offset: int | None = None,
     ) -> None:
         self.linter.add_message(
             msgid, line, node, args, confidence, col_offset, end_lineno, end_col_offset

@@ -4,6 +4,8 @@
 
 # pylint: disable=too-many-public-methods
 
+from __future__ import annotations
+
 import configparser
 import contextlib
 import json
@@ -14,11 +16,12 @@ import subprocess
 import sys
 import textwrap
 import warnings
+from collections.abc import Generator, Iterator
 from copy import copy
-from io import StringIO
+from io import BytesIO, StringIO
 from os.path import abspath, dirname, join
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Generator, Iterator, List, Optional, TextIO
+from typing import TYPE_CHECKING, Any, TextIO
 from unittest import mock
 from unittest.mock import patch
 
@@ -32,7 +35,14 @@ from pylint.lint.pylinter import PyLinter
 from pylint.message import Message
 from pylint.reporters import JSONReporter
 from pylint.reporters.text import BaseReporter, ColorizedTextReporter, TextReporter
+from pylint.testutils.utils import _patch_streams
 from pylint.utils import utils
+
+if sys.version_info >= (3, 11):
+    import tomllib
+else:
+    import tomli as tomllib
+
 
 if TYPE_CHECKING:
     from pylint.reporters.ureports.nodes import Section
@@ -42,16 +52,6 @@ CLEAN_PATH = re.escape(dirname(dirname(__file__)) + os.path.sep)
 UNNECESSARY_LAMBDA = join(
     HERE, "functional", "u", "unnecessary", "unnecessary_lambda.py"
 )
-
-
-@contextlib.contextmanager
-def _patch_streams(out: TextIO) -> Iterator:
-    sys.stderr = sys.stdout = out
-    try:
-        yield
-    finally:
-        sys.stderr = sys.__stderr__
-        sys.stdout = sys.__stdout__
 
 
 @contextlib.contextmanager
@@ -86,7 +86,7 @@ def _test_cwd() -> Generator[None, None, None]:
 
 
 class MultiReporter(BaseReporter):
-    def __init__(self, reporters: List[BaseReporter]) -> None:
+    def __init__(self, reporters: list[BaseReporter]) -> None:
         # pylint: disable=super-init-not-called
         # We don't call it because there is an attribute "linter" that is set inside the base class
         # and we have another setter here using yet undefined attribute.
@@ -102,7 +102,7 @@ class MultiReporter(BaseReporter):
         for rep in self._reporters:
             rep.handle_message(msg)
 
-    def _display(self, layout: "Section") -> None:
+    def _display(self, layout: Section) -> None:
         pass
 
     @property
@@ -123,10 +123,10 @@ class MultiReporter(BaseReporter):
 class TestRunTC:
     def _runtest(
         self,
-        args: List[str],
+        args: list[str],
         reporter: Any = None,
-        out: Optional[StringIO] = None,
-        code: Optional[int] = None,
+        out: StringIO | None = None,
+        code: int | None = None,
     ) -> None:
         if out is None:
             out = StringIO()
@@ -143,7 +143,7 @@ class TestRunTC:
         assert pylint_code == code, msg
 
     @staticmethod
-    def _run_pylint(args: List[str], out: TextIO, reporter: Any = None) -> int:
+    def _run_pylint(args: list[str], out: TextIO, reporter: Any = None) -> int:
         args = args + ["--persistent=no"]
         with _patch_streams(out):
             with pytest.raises(SystemExit) as cm:
@@ -158,7 +158,7 @@ class TestRunTC:
         output = re.sub(CLEAN_PATH, "", output, flags=re.MULTILINE)
         return output.replace("\\", "/")
 
-    def _test_output(self, args: List[str], expected_output: str) -> None:
+    def _test_output(self, args: list[str], expected_output: str) -> None:
         out = StringIO()
         self._run_pylint(args, out=out)
         actual_output = self._clean_paths(out.getvalue())
@@ -166,7 +166,7 @@ class TestRunTC:
         assert expected_output.strip() in actual_output.strip()
 
     def _test_output_file(
-        self, args: List[str], filename: LocalPath, expected_output: str
+        self, args: list[str], filename: LocalPath, expected_output: str
     ) -> None:
         """Run Pylint with the ``output`` option set (must be included in
         the ``args`` passed to this method!) and check the file content afterwards.
@@ -416,11 +416,8 @@ class TestRunTC:
 
     def test_bom_marker(self) -> None:
         path = join(HERE, "regrtest_data", "meta.py")
-        config_path = join(HERE, "regrtest_data", ".pylintrc")
         expected = "Your code has been rated at 10.00/10"
-        self._test_output(
-            [path, f"--rcfile={config_path}", "-rn"], expected_output=expected
-        )
+        self._test_output([path, "-rn"], expected_output=expected)
 
     def test_pylintrc_plugin_duplicate_options(self) -> None:
         dummy_plugin_path = join(HERE, "regrtest_data", "dummy_plugin")
@@ -596,7 +593,7 @@ class TestRunTC:
             assert mock_stdin.call_count == 1
 
     def test_version(self) -> None:
-        def check(lines: List[str]) -> None:
+        def check(lines: list[str]) -> None:
             assert lines[0].startswith("pylint ")
             assert lines[1].startswith("astroid ")
             assert lines[2].startswith("Python ")
@@ -760,7 +757,7 @@ class TestRunTC:
     def test_modify_sys_path() -> None:
         @contextlib.contextmanager
         def test_environ_pythonpath(
-            new_pythonpath: Optional[str],
+            new_pythonpath: str | None,
         ) -> Generator[None, None, None]:
             original_pythonpath = os.environ.get("PYTHONPATH")
             if new_pythonpath:
@@ -1046,6 +1043,7 @@ class TestRunTC:
             stderr=subprocess.PIPE,
         )
 
+    @pytest.mark.needs_two_cores
     def test_jobs_score(self) -> None:
         path = join(HERE, "regrtest_data", "unused_variable.py")
         expected = "Your code has been rated at 7.50/10"
@@ -1283,7 +1281,7 @@ class TestCallbackOptions:
             (["--long-help"], "Environment variables:"),
         ],
     )
-    def test_output_of_callback_options(command: List[str], expected: str) -> None:
+    def test_output_of_callback_options(command: list[str], expected: str) -> None:
         """Test whether certain strings are in the output of a callback command."""
 
         process = subprocess.run(
@@ -1342,12 +1340,7 @@ class TestCallbackOptions:
         )
         assert process.stdout == process_two.stdout
 
-    # pylint: disable-next=fixme
-    # TODO: Optparse: This test should be used in --generate-toml-config
-    # and then removed. Since `disable` is now in namespace it no longer
-    # works.
     @staticmethod
-    @pytest.mark.xfail
     def test_generate_config_disable_symbolic_names() -> None:
         """Test that --generate-rcfile puts symbolic names in the --disable option."""
         out = StringIO()
@@ -1369,6 +1362,54 @@ class TestCallbackOptions:
         parser.read_file(out)
         messages = utils._splitstrip(parser.get("MESSAGES CONTROL", "disable"))
         assert "suppressed-message" in messages
+
+    @staticmethod
+    def test_generate_toml_config() -> None:
+        """Test the --generate-toml-config flag."""
+        process = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "pylint",
+                "--preferred-modules=a:b",
+                "--generate-toml-config",
+            ],
+            capture_output=True,
+            encoding="utf-8",
+            check=False,
+        )
+        assert "[tool.pylint.master]" in process.stdout
+        assert '"positional arguments"' not in process.stdout
+        assert 'preferred-modules = ["a:b"]' in process.stdout
+
+        process_two = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "pylint",
+                "--preferred-modules=a:b",
+                "--generate-toml-config",
+            ],
+            capture_output=True,
+            encoding="utf-8",
+            check=False,
+        )
+        assert process.stdout == process_two.stdout
+
+    @staticmethod
+    def test_generate_toml_config_disable_symbolic_names() -> None:
+        """Test that --generate-toml-config puts symbolic names in the --disable option."""
+        out = StringIO()
+        with _patch_streams(out):
+            with pytest.raises(SystemExit):
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
+                    Run(["--generate-toml-config"])
+
+        bytes_out = BytesIO(out.getvalue().encode("utf-8"))
+        content = tomllib.load(bytes_out)
+        messages = content["tool"]["pylint"]["messages control"]["disable"]
+        assert "invalid-name" in messages, out.getvalue()
 
     @staticmethod
     def test_errors_only() -> None:

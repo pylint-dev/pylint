@@ -100,16 +100,16 @@ localized using the following rules:
 
 * ".pylint.d" directory in the current directory
 
-3.3 How do I find the option name (for pylintrc) corresponding to a specific command line option?
+3.3 How do I find the option name corresponding to a specific command line option?
 --------------------------------------------------------------------------------------------------------
 
-You can generate a sample pylintrc file with --generate-rcfile
+You can generate a sample configuration file with ``--generate-toml-config``.
 Every option present on the command line before this will be included in
-the rc file
+the toml file
 
 For example::
 
-    pylint --disable=bare-except,invalid-name --class-rgx='[A-Z][a-z]+' --generate-rcfile
+    pylint --disable=bare-except,invalid-name --class-rgx='[A-Z][a-z]+' --generate-toml-config
 
 3.4 I'd rather not run Pylint from the command line. Can I integrate it with my editor?
 ---------------------------------------------------------------------------------------
@@ -200,11 +200,11 @@ Pylint uses ConfigParser from the standard library to parse the configuration
 file.  It means that if you need to disable a lot of messages, you can use
 tricks like: ::
 
-    # disable wildcard-import, method-hidden and too-many-lines because I do
-    # not want it
-    disable= wildcard-import,
-     method-hidden,
-     too-many-lines
+    # disable wildcard-import, method-hidden and too-many-lines
+    disable=
+        wildcard-import,
+        method-hidden,
+        too-many-lines
 
 
 4.7 Why are there a bunch of messages disabled by default?
@@ -216,7 +216,7 @@ for not being included as default messages.
 
 You can see the plugin you need to explicitly `load in the technical reference`_
 
-.. _`load in the technical reference`: http://pylint.pycqa.org/en/latest/technical_reference/extensions.html?highlight=load%20plugin
+.. _`load in the technical reference`: https://pylint.pycqa.org/en/latest/technical_reference/extensions.html?highlight=load%20plugin
 
 4.8 I am using another popular linter alongside pylint. Which messages should I disable to avoid duplicates?
 ------------------------------------------------------------------------------------------------------------

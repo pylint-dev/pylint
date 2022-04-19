@@ -2,12 +2,15 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-import sys
-import warnings
-from pathlib import Path
-from typing import TYPE_CHECKING, List, Union
+from __future__ import annotations
 
-from pylint import config, reporters
+import sys
+from pathlib import Path
+from typing import TYPE_CHECKING
+
+from pylint import reporters
+from pylint.config.config_file_parser import _ConfigurationFileParser
+from pylint.config.exceptions import _UnrecognizedOptionError
 from pylint.utils import utils
 
 if TYPE_CHECKING:
@@ -15,12 +18,12 @@ if TYPE_CHECKING:
 
 
 def _config_initialization(
-    linter: "PyLinter",
-    args_list: List[str],
-    reporter: Union[reporters.BaseReporter, reporters.MultiReporter, None] = None,
-    config_file: Union[None, str, Path] = None,
+    linter: PyLinter,
+    args_list: list[str],
+    reporter: reporters.BaseReporter | reporters.MultiReporter | None = None,
+    config_file: None | str | Path = None,
     verbose_mode: bool = False,
-) -> List[str]:
+) -> list[str]:
     """Parse all available options, read config files and command line arguments and
     set options accordingly.
     """
@@ -31,7 +34,7 @@ def _config_initialization(
     linter.set_current_module(str(config_file) if config_file else None)
 
     # Read the configuration file
-    config_file_parser = config._ConfigurationFileParser(verbose_mode, linter)
+    config_file_parser = _ConfigurationFileParser(verbose_mode, linter)
     try:
         config_data, config_args = config_file_parser.parse_config_file(
             file_path=config_file
@@ -48,39 +51,12 @@ def _config_initialization(
     if "load-plugins" in config_data:
         linter.load_plugin_modules(utils._splitstrip(config_data["load-plugins"]))
 
-    # pylint: disable-next=fixme
-    # TODO: Remove everything until set_reporter once the optparse
-    # implementation is no longer needed
-    # Load optparse command line arguments
-    try:
-        # The parser is stored on linter.cfgfile_parser
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            linter.read_config_file(config_file=config_file, verbose=verbose_mode)
-    except OSError as ex:
-        print(ex, file=sys.stderr)
-        sys.exit(32)
-
-    # Now we can load file config, plugins (which can
-    # provide options) have been registered
-    with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", category=DeprecationWarning)
-        linter.load_config_file()
-
-    # pylint: disable-next=fixme
-    # TODO: Optparse: This has been disabled pre-maturely because it interferes with
-    # argparse option parsing for 'disable' and 'enable'.
-    # try:
-    #     with warnings.catch_warnings():
-    #         warnings.filterwarnings("ignore", category=DeprecationWarning)
-    #         linter.load_command_line_configuration(args_list)
-    # except SystemExit as exc:
-    #     if exc.code == 2:  # bad options
-    #         exc.code = 32
-    #     raise
-
     # First we parse any options from a configuration file
-    linter._parse_configuration_file(config_args)
+    try:
+        linter._parse_configuration_file(config_args)
+    except _UnrecognizedOptionError as exc:
+        msg = ", ".join(exc.options)
+        linter.add_message("unrecognized-option", line=0, args=msg)
 
     # Then, if a custom reporter is provided as argument, it may be overridden
     # by file parameters, so we re-set it here. We do this before command line
@@ -88,9 +64,29 @@ def _config_initialization(
     if reporter:
         linter.set_reporter(reporter)
 
+    # Set the current module to the command line
+    # to allow raising messages on it
+    linter.set_current_module("Command line")
+
     # Now we parse any options from the command line, so they can override
     # the configuration file
     parsed_args_list = linter._parse_command_line_configuration(args_list)
+
+    # Check if there are any options that we do not recognize
+    unrecognized_options: list[str] = []
+    for opt in parsed_args_list:
+        if opt.startswith("--"):
+            unrecognized_options.append(opt[2:])
+        elif opt.startswith("-"):
+            unrecognized_options.append(opt[1:])
+    if unrecognized_options:
+        msg = ", ".join(unrecognized_options)
+        linter.add_message("unrecognized-option", line=0, args=msg)
+        raise _UnrecognizedOptionError(options=unrecognized_options)
+
+    # Set the current module to configuration as we don't know where
+    # the --load-plugins key is coming from
+    linter.set_current_module("Command line or configuration file")
 
     # We have loaded configuration from config file and command line. Now, we can
     # load plugin specific configuration.

@@ -6,10 +6,11 @@
 
 # pylint: disable=protected-access,missing-function-docstring,no-self-use
 
+from __future__ import annotations
+
 import argparse
 import multiprocessing
 import os
-from typing import List
 
 import dill
 import pytest
@@ -41,7 +42,7 @@ def _gen_file_data(idx: int = 0) -> FileItem:
     return file_data
 
 
-def _gen_file_datas(count: int = 1) -> List[FileItem]:
+def _gen_file_datas(count: int = 1) -> list[FileItem]:
     return [_gen_file_data(idx) for idx in range(count)]
 
 
@@ -62,7 +63,7 @@ class SequentialTestChecker(BaseChecker):
 
     def __init__(self, linter: PyLinter) -> None:
         super().__init__(linter)
-        self.data: List[str] = []
+        self.data: list[str] = []
         self.linter = linter
 
     def process_module(self, _node: nodes.Module) -> None:
@@ -101,7 +102,7 @@ class ParallelTestChecker(BaseChecker, MapReduceMixin):
 
     def __init__(self, linter: PyLinter) -> None:
         super().__init__(linter)
-        self.data: List[str] = []
+        self.data: list[str] = []
         self.linter = linter
 
     def open(self) -> None:
@@ -116,7 +117,7 @@ class ParallelTestChecker(BaseChecker, MapReduceMixin):
     def get_map_data(self):
         return self.data
 
-    def reduce_map_data(self, linter: PyLinter, data: List[List[str]]) -> None:
+    def reduce_map_data(self, linter: PyLinter, data: list[list[str]]) -> None:
         recombined = type(self)(linter)
         recombined.open()
         aggregated = []
@@ -175,6 +176,7 @@ class TestCheckParallelFramework:
         worker_initialize(linter=dill.dumps(linter))
         assert isinstance(pylint.lint.parallel._worker_linter, type(linter))
 
+    @pytest.mark.needs_two_cores
     def test_worker_initialize_pickling(self) -> None:
         """Test that we can pickle objects that standard pickling in multiprocessing can't.
 
@@ -393,6 +395,7 @@ class TestCheckParallel:
         assert linter.stats.warning == 0
         assert linter.msg_status == 0, "We expect a single-file check to exit cleanly"
 
+    @pytest.mark.needs_two_cores
     @pytest.mark.parametrize(
         "num_files,num_jobs,num_checkers",
         [
@@ -468,7 +471,7 @@ class TestCheckParallel:
             if do_single_proc:
                 # establish the baseline
                 assert (
-                    linter.namespace.jobs == 1
+                    linter.config.jobs == 1
                 ), "jobs>1 are ignored when calling _check_files"
                 linter._check_files(linter.get_ast, file_infos)
                 assert linter.msg_status == 0, "We should not fail the lint"
@@ -490,6 +493,7 @@ class TestCheckParallel:
             expected_stats
         ), "The lint is returning unexpected results, has something changed?"
 
+    @pytest.mark.needs_two_cores
     @pytest.mark.parametrize(
         "num_files,num_jobs,num_checkers",
         [
@@ -534,7 +538,7 @@ class TestCheckParallel:
             if do_single_proc:
                 # establish the baseline
                 assert (
-                    linter.namespace.jobs == 1
+                    linter.config.jobs == 1
                 ), "jobs>1 are ignored when calling _check_files"
                 linter._check_files(linter.get_ast, file_infos)
                 stats_single_proc = linter.stats

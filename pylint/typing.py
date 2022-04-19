@@ -3,6 +3,9 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """A collection of typing utilities."""
+
+from __future__ import annotations
+
 import sys
 from typing import (
     TYPE_CHECKING,
@@ -11,10 +14,10 @@ from typing import (
     Dict,
     Iterable,
     NamedTuple,
-    Optional,
     Pattern,
     Tuple,
     Type,
+    TypeVar,
     Union,
 )
 
@@ -24,6 +27,9 @@ else:
     from typing_extensions import Literal, TypedDict
 
 if TYPE_CHECKING:
+    from astroid import nodes
+
+    from pylint.checkers import BaseChecker
     from pylint.config.callback_actions import _CallbackAction
 
 
@@ -56,7 +62,7 @@ class ErrorDescriptionDict(TypedDict):
 
     key: Literal["fatal"]
     mod: str
-    ex: Union[ImportError, SyntaxError]
+    ex: ImportError | SyntaxError
 
 
 class MessageLocationTuple(NamedTuple):
@@ -68,17 +74,17 @@ class MessageLocationTuple(NamedTuple):
     obj: str
     line: int
     column: int
-    end_line: Optional[int] = None
-    end_column: Optional[int] = None
+    end_line: int | None = None
+    end_column: int | None = None
 
 
 class ManagedMessage(NamedTuple):
     """Tuple with information about a managed message of the linter."""
 
-    name: Optional[str]
+    name: str | None
     msgid: str
     symbol: str
-    line: Optional[int]
+    line: int | None
     is_disabled: bool
 
 
@@ -103,3 +109,11 @@ OptionDict = Dict[
     ],
 ]
 Options = Tuple[Tuple[str, OptionDict], ...]
+
+
+AstCallback = Callable[["nodes.NodeNG"], None]
+"""Callable representing a visit or leave function."""
+
+CheckerT_co = TypeVar("CheckerT_co", bound="BaseChecker", covariant=True)
+AstCallbackMethod = Callable[[CheckerT_co, "nodes.NodeNG"], None]
+"""Callable representing a visit or leave method."""

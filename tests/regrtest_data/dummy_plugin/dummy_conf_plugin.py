@@ -3,4 +3,4 @@ def register(linter):
 
 
 def load_configuration(linter):
-    linter.namespace.ignore += ("bin",)
+    linter.config.ignore += ("bin",)

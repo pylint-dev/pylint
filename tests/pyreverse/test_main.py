@@ -3,9 +3,13 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Unittest for the main module."""
+
+from __future__ import annotations
+
 import os
 import sys
-from typing import Iterator
+from collections.abc import Iterator
+from typing import Any
 from unittest import mock
 
 import pytest
@@ -118,3 +122,66 @@ def test_graphviz_unsupported_image_format(capsys):
     assert "Format somethingElse is not supported by Graphviz. It supports:" in stdout
     # Check that we exited with the expected error code
     assert wrapped_sysexit.value.code == 32
+
+
+@pytest.mark.parametrize(
+    ("arg", "expected_default"),
+    [
+        ("mode", "PUB_ONLY"),
+        ("classes", []),
+        ("show_ancestors", None),
+        ("all_ancestors", None),
+        ("show_associated", None),
+        ("all_associated", None),
+        ("show_builtin", 0),
+        ("module_names", None),
+        ("output_format", "dot"),
+        ("colorized", 0),
+        ("max_color_depth", 2),
+        ("ignore_list", ("CVS",)),
+        ("project", ""),
+        ("output_directory", ""),
+    ],
+)
+@mock.patch("pylint.pyreverse.main.Run.run", new=mock.MagicMock())
+@mock.patch("pylint.pyreverse.main.sys.exit", new=mock.MagicMock())
+def test_command_line_arguments_defaults(arg: str, expected_default: Any) -> None:
+    """Test that the default arguments of all options are correct."""
+    run = main.Run([TEST_DATA_DIR])
+    assert getattr(run.config, arg) == expected_default
+
+
+@mock.patch("pylint.pyreverse.main.writer")
+def test_command_line_arguments_yes_no(
+    mock_writer: mock.MagicMock,  # pylint: disable=unused-argument
+) -> None:
+    """Regression test for the --module-names option.
+
+    Make sure that we supprot --module-names=yes syntax instead
+    of using it as a flag.
+    """
+    with pytest.raises(SystemExit) as wrapped_sysexit:
+        main.Run(["--module-names=yes", TEST_DATA_DIR])
+    assert wrapped_sysexit.value.code == 0
+
+
+@mock.patch("pylint.pyreverse.main.writer")
+@mock.patch("pylint.pyreverse.main.sys.exit", new=mock.MagicMock())
+def test_class_command(
+    mock_writer: mock.MagicMock,  # pylint: disable=unused-argument
+) -> None:
+    """Regression test for the --class option.
+
+    Make sure that we append multiple --class arguments to one option destination.
+    """
+    runner = main.Run(
+        [
+            "--class",
+            "data.clientmodule_test.Ancestor",
+            "--class",
+            "data.property_pattern.PropertyPatterns",
+            TEST_DATA_DIR,
+        ]
+    )
+    assert "data.clientmodule_test.Ancestor" in runner.config.classes
+    assert "data.property_pattern.PropertyPatterns" in runner.config.classes

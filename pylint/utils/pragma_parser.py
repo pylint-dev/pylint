@@ -2,9 +2,11 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import re
 from collections import namedtuple
-from typing import Generator, List, Optional
+from collections.abc import Generator
 
 # Allow stopping after the first semicolon/hash encountered,
 # so that an option can be continued with the reasons
@@ -54,7 +56,7 @@ TOK_REGEX = "|".join(
 )
 
 
-def emit_pragma_representer(action: str, messages: List[str]) -> PragmaRepresenter:
+def emit_pragma_representer(action: str, messages: list[str]) -> PragmaRepresenter:
     if not messages and action in MESSAGE_KEYWORDS:
         raise InvalidPragmaError(
             "The keyword is not followed by message identifier", action
@@ -83,8 +85,8 @@ class InvalidPragmaError(PragmaParserError):
 
 
 def parse_pragma(pylint_pragma: str) -> Generator[PragmaRepresenter, None, None]:
-    action: Optional[str] = None
-    messages: List[str] = []
+    action: str | None = None
+    messages: list[str] = []
     assignment_required = False
     previous_token = ""
 

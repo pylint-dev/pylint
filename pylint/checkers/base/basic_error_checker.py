@@ -4,13 +4,15 @@
 
 """Basic Error checker from the basic checker."""
 
+from __future__ import annotations
+
 import itertools
-from typing import Any, Iterator
+from collections.abc import Iterator
+from typing import Any
 
 import astroid
 from astroid import nodes
 
-from pylint import utils as lint_utils
 from pylint.checkers import utils
 from pylint.checkers.base.basic_checker import _BasicChecker
 from pylint.checkers.utils import infer_all
@@ -556,9 +558,7 @@ class BasicErrorChecker(_BasicChecker):
                     ):
                         return
 
-            dummy_variables_rgx = lint_utils.get_global_option(
-                self, "dummy-variables-rgx", default=None
-            )
+            dummy_variables_rgx = self.linter.config.dummy_variables_rgx
             if dummy_variables_rgx and dummy_variables_rgx.match(node.name):
                 return
             self.add_message(

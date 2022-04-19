@@ -6,12 +6,15 @@
 
 """Callback actions for various options."""
 
+from __future__ import annotations
+
 import abc
 import argparse
 import sys
 import warnings
+from collections.abc import Sequence
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Optional, Sequence, Union
+from typing import TYPE_CHECKING, Any
 
 from pylint import exceptions, extensions, interfaces, utils
 
@@ -29,10 +32,10 @@ class _CallbackAction(argparse.Action):
         self,
         parser: argparse.ArgumentParser,
         namespace: argparse.Namespace,
-        values: Union[str, Sequence[Any], None],
-        option_string: Optional[str] = None,
+        values: str | Sequence[Any] | None,
+        option_string: str | None = None,
     ) -> None:
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
 
 class _DoNothingAction(_CallbackAction):
@@ -46,10 +49,31 @@ class _DoNothingAction(_CallbackAction):
         self,
         parser: argparse.ArgumentParser,
         namespace: argparse.Namespace,
-        values: Union[str, Sequence[Any], None],
-        option_string: Optional[str] = None,
+        values: str | Sequence[Any] | None,
+        option_string: str | None = None,
     ) -> None:
         return None
+
+
+class _ExtendAction(argparse._AppendAction):
+    """Action that adds the value to a pre-existing list.
+
+    It is directly copied from the stdlib implementation which is only available
+    on 3.8+.
+    """
+
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: str | Sequence[Any] | None,
+        option_string: str | None = None,
+    ) -> None:
+        assert isinstance(values, (tuple, list))
+        current = getattr(namespace, self.dest, [])
+        assert isinstance(current, list)
+        current.extend(values)
+        setattr(namespace, self.dest, current)
 
 
 class _AccessRunObjectAction(_CallbackAction):
@@ -67,7 +91,7 @@ class _AccessRunObjectAction(_CallbackAction):
         required: bool = False,
         help: str = "",
         metavar: str = "",
-        **kwargs: "Run",
+        **kwargs: Run,
     ) -> None:
         self.run = kwargs["Run"]
 
@@ -89,10 +113,10 @@ class _AccessRunObjectAction(_CallbackAction):
         self,
         parser: argparse.ArgumentParser,
         namespace: argparse.Namespace,
-        values: Union[str, Sequence[Any], None],
-        option_string: Optional[str] = None,
+        values: str | Sequence[Any] | None,
+        option_string: str | None = None,
     ) -> None:
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
 
 class _MessageHelpAction(_CallbackAction):
@@ -110,7 +134,7 @@ class _MessageHelpAction(_CallbackAction):
         required: bool = False,
         help: str = "",
         metavar: str = "",
-        **kwargs: "Run",
+        **kwargs: Run,
     ) -> None:
         self.run = kwargs["Run"]
         super().__init__(
@@ -130,8 +154,8 @@ class _MessageHelpAction(_CallbackAction):
         self,
         parser: argparse.ArgumentParser,
         namespace: argparse.Namespace,
-        values: Union[str, Sequence[str], None],
-        option_string: Optional[str] = "--help-msg",
+        values: str | Sequence[str] | None,
+        option_string: str | None = "--help-msg",
     ) -> None:
         assert isinstance(values, (list, tuple))
         self.run.linter.msgs_store.help_message(values)
@@ -145,8 +169,8 @@ class _ListMessagesAction(_AccessRunObjectAction):
         self,
         parser: argparse.ArgumentParser,
         namespace: argparse.Namespace,
-        values: Union[str, Sequence[Any], None],
-        option_string: Optional[str] = "--list-enabled",
+        values: str | Sequence[Any] | None,
+        option_string: str | None = "--list-enabled",
     ) -> None:
         self.run.linter.msgs_store.list_messages()
         sys.exit(0)
@@ -159,8 +183,8 @@ class _ListMessagesEnabledAction(_AccessRunObjectAction):
         self,
         parser: argparse.ArgumentParser,
         namespace: argparse.Namespace,
-        values: Union[str, Sequence[Any], None],
-        option_string: Optional[str] = "--list-msgs-enabled",
+        values: str | Sequence[Any] | None,
+        option_string: str | None = "--list-msgs-enabled",
     ) -> None:
         self.run.linter.list_messages_enabled()
         sys.exit(0)
@@ -173,8 +197,8 @@ class _ListCheckGroupsAction(_AccessRunObjectAction):
         self,
         parser: argparse.ArgumentParser,
         namespace: argparse.Namespace,
-        values: Union[str, Sequence[Any], None],
-        option_string: Optional[str] = "--list-groups",
+        values: str | Sequence[Any] | None,
+        option_string: str | None = "--list-groups",
     ) -> None:
         for check in self.run.linter.get_checker_names():
             print(check)
@@ -188,8 +212,8 @@ class _ListConfidenceLevelsAction(_AccessRunObjectAction):
         self,
         parser: argparse.ArgumentParser,
         namespace: argparse.Namespace,
-        values: Union[str, Sequence[Any], None],
-        option_string: Optional[str] = "--list-conf-levels",
+        values: str | Sequence[Any] | None,
+        option_string: str | None = "--list-conf-levels",
     ) -> None:
         for level in interfaces.CONFIDENCE_LEVELS:
             print(f"%-18s: {level}")
@@ -203,8 +227,8 @@ class _ListExtensionsAction(_AccessRunObjectAction):
         self,
         parser: argparse.ArgumentParser,
         namespace: argparse.Namespace,
-        values: Union[str, Sequence[Any], None],
-        option_string: Optional[str] = "--list-extensions",
+        values: str | Sequence[Any] | None,
+        option_string: str | None = "--list-extensions",
     ) -> None:
         for filename in Path(extensions.__file__).parent.iterdir():
             if filename.suffix == ".py" and not filename.stem.startswith("_"):
@@ -220,8 +244,8 @@ class _FullDocumentationAction(_AccessRunObjectAction):
         self,
         parser: argparse.ArgumentParser,
         namespace: argparse.Namespace,
-        values: Union[str, Sequence[Any], None],
-        option_string: Optional[str] = "--full-documentation",
+        values: str | Sequence[Any] | None,
+        option_string: str | None = "--full-documentation",
     ) -> None:
         utils.print_full_documentation(self.run.linter)
         sys.exit(0)
@@ -234,15 +258,28 @@ class _GenerateRCFileAction(_AccessRunObjectAction):
         self,
         parser: argparse.ArgumentParser,
         namespace: argparse.Namespace,
-        values: Union[str, Sequence[Any], None],
-        option_string: Optional[str] = "--generate-rcfile",
+        values: str | Sequence[Any] | None,
+        option_string: str | None = "--generate-rcfile",
     ) -> None:
         # pylint: disable-next=fixme
-        # TODO: Optparse: Deprecate this function and raise a warning.
-        # This is (obviously) dependent on a --generate-toml-config flag.
+        # TODO: 2.14: Deprecate this after discussion about this removal has been completed.
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
-            self.run.linter.generate_config(skipsections=("COMMANDS",))
+            self.run.linter.generate_config(skipsections=("Commands",))
+        sys.exit(0)
+
+
+class _GenerateConfigFileAction(_AccessRunObjectAction):
+    """Generate a .toml format configuration file."""
+
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: str | Sequence[Any] | None,
+        option_string: str | None = "--generate-toml-config",
+    ) -> None:
+        self.run.linter._generate_config_file()
         sys.exit(0)
 
 
@@ -261,8 +298,8 @@ class _ErrorsOnlyModeAction(_AccessRunObjectAction):
         self,
         parser: argparse.ArgumentParser,
         namespace: argparse.Namespace,
-        values: Union[str, Sequence[Any], None],
-        option_string: Optional[str] = "--errors-only",
+        values: str | Sequence[Any] | None,
+        option_string: str | None = "--errors-only",
     ) -> None:
         self.run.linter._error_mode = True
 
@@ -274,10 +311,10 @@ class _LongHelpAction(_AccessRunObjectAction):
         self,
         parser: argparse.ArgumentParser,
         namespace: argparse.Namespace,
-        values: Union[str, Sequence[Any], None],
-        option_string: Optional[str] = "--long-help",
+        values: str | Sequence[Any] | None,
+        option_string: str | None = "--long-help",
     ) -> None:
-        formatter: "_HelpFormatter" = self.run.linter._arg_parser._get_formatter()
+        formatter: _HelpFormatter = self.run.linter._arg_parser._get_formatter()  # type: ignore[assignment]
 
         # Add extra info as epilog to the help message
         self.run.linter._arg_parser.epilog = formatter.get_long_description()
@@ -301,7 +338,7 @@ class _AccessLinterObjectAction(_CallbackAction):
         required: bool = False,
         help: str = "",
         metavar: str = "",
-        **kwargs: "PyLinter",
+        **kwargs: PyLinter,
     ) -> None:
         self.linter = kwargs["linter"]
 
@@ -323,10 +360,10 @@ class _AccessLinterObjectAction(_CallbackAction):
         self,
         parser: argparse.ArgumentParser,
         namespace: argparse.Namespace,
-        values: Union[str, Sequence[Any], None],
-        option_string: Optional[str] = None,
+        values: str | Sequence[Any] | None,
+        option_string: str | None = None,
     ) -> None:
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
 
 class _DisableAction(_AccessLinterObjectAction):
@@ -336,18 +373,17 @@ class _DisableAction(_AccessLinterObjectAction):
         self,
         parser: argparse.ArgumentParser,
         namespace: argparse.Namespace,
-        values: Union[str, Sequence[Any], None],
-        option_string: Optional[str] = "--disable",
+        values: str | Sequence[Any] | None,
+        option_string: str | None = "--disable",
     ) -> None:
         assert isinstance(values, (tuple, list))
         msgids = utils._check_csv(values[0])
-        try:
-            for msgid in msgids:
+        for msgid in msgids:
+            try:
                 self.linter.disable(msgid)
-        except exceptions.UnknownMessageError:
-            # pylint: disable-next=fixme
-            # TODO: Optparse: Raise an informational warning here
-            pass
+            except exceptions.UnknownMessageError:
+                msg = f"{option_string}. Don't recognize message {msgid}."
+                self.linter.add_message("bad-option-value", args=msg, line=0)
 
 
 class _EnableAction(_AccessLinterObjectAction):
@@ -357,18 +393,17 @@ class _EnableAction(_AccessLinterObjectAction):
         self,
         parser: argparse.ArgumentParser,
         namespace: argparse.Namespace,
-        values: Union[str, Sequence[Any], None],
-        option_string: Optional[str] = "--enable",
+        values: str | Sequence[Any] | None,
+        option_string: str | None = "--enable",
     ) -> None:
         assert isinstance(values, (tuple, list))
         msgids = utils._check_csv(values[0])
-        try:
-            for msgid in msgids:
+        for msgid in msgids:
+            try:
                 self.linter.enable(msgid)
-        except exceptions.UnknownMessageError:
-            # pylint: disable-next=fixme
-            # TODO: Optparse: Raise an informational warning here
-            pass
+            except exceptions.UnknownMessageError:
+                msg = f"{option_string}. Don't recognize message {msgid}."
+                self.linter.add_message("bad-option-value", args=msg, line=0)
 
 
 class _OutputFormatAction(_AccessLinterObjectAction):
@@ -378,8 +413,8 @@ class _OutputFormatAction(_AccessLinterObjectAction):
         self,
         parser: argparse.ArgumentParser,
         namespace: argparse.Namespace,
-        values: Union[str, Sequence[Any], None],
-        option_string: Optional[str] = "--enable",
+        values: str | Sequence[Any] | None,
+        option_string: str | None = "--enable",
     ) -> None:
         assert isinstance(values, (tuple, list))
         assert isinstance(

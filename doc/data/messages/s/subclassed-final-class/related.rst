@@ -1,0 +1,1 @@
+- `PEP 591 <https://peps.python.org/pep-0591/#the-final-decorator>`_

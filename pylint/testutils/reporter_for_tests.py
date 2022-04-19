@@ -2,9 +2,11 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 from io import StringIO
 from os import getcwd, sep
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING
 
 from pylint import interfaces
 from pylint.message import Message
@@ -28,7 +30,7 @@ class GenericTestReporter(BaseReporter):
 
     def reset(self) -> None:
         self.out = StringIO()
-        self.messages: List[Message] = []
+        self.messages: list[Message] = []
 
     def handle_message(self, msg: Message) -> None:
         """Append messages to the list of messages of the reporter."""
@@ -36,7 +38,7 @@ class GenericTestReporter(BaseReporter):
 
     def finalize(self) -> str:
         """Format and print messages in the context of the path."""
-        messages: List[str] = []
+        messages: list[str] = []
         for msg in self.messages:
             obj = ""
             if msg.obj:
@@ -51,32 +53,32 @@ class GenericTestReporter(BaseReporter):
         self.reset()
         return result
 
-    def on_set_current_module(self, module: str, filepath: Optional[str]) -> None:
+    def on_set_current_module(self, module: str, filepath: str | None) -> None:
         pass
 
     # pylint: enable=unused-argument
 
-    def display_reports(self, layout: "Section") -> None:
+    def display_reports(self, layout: Section) -> None:
         """Ignore layouts."""
 
-    def _display(self, layout: "Section") -> None:
+    def _display(self, layout: Section) -> None:
         pass
 
 
 class MinimalTestReporter(BaseReporter):
-    def on_set_current_module(self, module: str, filepath: Optional[str]) -> None:
+    def on_set_current_module(self, module: str, filepath: str | None) -> None:
         self.messages = []
 
-    def _display(self, layout: "Section") -> None:
+    def _display(self, layout: Section) -> None:
         pass
 
 
 class FunctionalTestReporter(BaseReporter):
-    def on_set_current_module(self, module: str, filepath: Optional[str]) -> None:
+    def on_set_current_module(self, module: str, filepath: str | None) -> None:
         self.messages = []
 
-    def display_reports(self, layout: "Section") -> None:
+    def display_reports(self, layout: Section) -> None:
         """Ignore layouts and don't call self._display()."""
 
-    def _display(self, layout: "Section") -> None:
+    def _display(self, layout: Section) -> None:
         pass

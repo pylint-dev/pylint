@@ -3,8 +3,11 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Pylint plugin for checking in Sphinx, Google, or Numpy style docstrings."""
+
+from __future__ import annotations
+
 import re
-from typing import TYPE_CHECKING, Optional, Set
+from typing import TYPE_CHECKING
 
 import astroid
 from astroid import nodes
@@ -14,7 +17,6 @@ from pylint.checkers import utils as checker_utils
 from pylint.extensions import _check_docs_utils as utils
 from pylint.extensions._check_docs_utils import Docstring
 from pylint.interfaces import IAstroidChecker
-from pylint.utils import get_global_option
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -197,17 +199,17 @@ class DocstringParameterChecker(BaseChecker):
         :type node: :class:`astroid.scoped_nodes.Function`
         """
         node_doc = utils.docstringify(
-            node.doc_node, self.linter.namespace.default_docstring_type
+            node.doc_node, self.linter.config.default_docstring_type
         )
 
         # skip functions that match the 'no-docstring-rgx' config option
-        no_docstring_rgx = get_global_option(self, "no-docstring-rgx")
+        no_docstring_rgx = self.linter.config.no_docstring_rgx
         if no_docstring_rgx and re.match(no_docstring_rgx, node.name):
             return
 
         # skip functions smaller than 'docstring-min-length'
         lines = checker_utils.get_node_last_lineno(node) - node.lineno
-        max_lines = get_global_option(self, "docstring-min-length")
+        max_lines = self.linter.config.docstring_min_length
         if max_lines > -1 and lines < max_lines:
             return
 
@@ -223,7 +225,7 @@ class DocstringParameterChecker(BaseChecker):
             class_node = checker_utils.node_frame_class(node)
             if class_node is not None:
                 class_doc = utils.docstringify(
-                    class_node.doc_node, self.linter.namespace.default_docstring_type
+                    class_node.doc_node, self.linter.config.default_docstring_type
                 )
                 self.check_single_constructor_params(class_doc, node_doc, class_node)
 
@@ -285,7 +287,7 @@ class DocstringParameterChecker(BaseChecker):
                 func_node = property_
 
         doc = utils.docstringify(
-            func_node.doc_node, self.linter.namespace.default_docstring_type
+            func_node.doc_node, self.linter.config.default_docstring_type
         )
         if not doc.matching_sections():
             if doc.doc:
@@ -314,7 +316,7 @@ class DocstringParameterChecker(BaseChecker):
         if not utils.returns_something(node):
             return
 
-        if self.linter.namespace.accept_no_return_doc:
+        if self.linter.config.accept_no_return_doc:
             return
 
         func_node = node.frame(future=True)
@@ -322,7 +324,7 @@ class DocstringParameterChecker(BaseChecker):
             return
 
         doc = utils.docstringify(
-            func_node.doc_node, self.linter.namespace.default_docstring_type
+            func_node.doc_node, self.linter.config.default_docstring_type
         )
 
         is_property = checker_utils.decorated_with_property(func_node)
@@ -337,7 +339,7 @@ class DocstringParameterChecker(BaseChecker):
             self.add_message("missing-return-type-doc", node=func_node)
 
     def visit_yield(self, node: nodes.Yield) -> None:
-        if self.linter.namespace.accept_no_yields_doc:
+        if self.linter.config.accept_no_yields_doc:
             return
 
         func_node = node.frame(future=True)
@@ -345,7 +347,7 @@ class DocstringParameterChecker(BaseChecker):
             return
 
         doc = utils.docstringify(
-            func_node.doc_node, self.linter.namespace.default_docstring_type
+            func_node.doc_node, self.linter.config.default_docstring_type
         )
 
         if doc.supports_yields:
@@ -366,10 +368,10 @@ class DocstringParameterChecker(BaseChecker):
 
     def _compare_missing_args(
         self,
-        found_argument_names: Set[str],
+        found_argument_names: set[str],
         message_id: str,
-        not_needed_names: Set[str],
-        expected_argument_names: Set[str],
+        not_needed_names: set[str],
+        expected_argument_names: set[str],
         warning_node: nodes.NodeNG,
     ) -> None:
         """Compare the found argument names with the expected ones and
@@ -405,10 +407,10 @@ class DocstringParameterChecker(BaseChecker):
 
     def _compare_different_args(
         self,
-        found_argument_names: Set[str],
+        found_argument_names: set[str],
         message_id: str,
-        not_needed_names: Set[str],
-        expected_argument_names: Set[str],
+        not_needed_names: set[str],
+        expected_argument_names: set[str],
         warning_node: nodes.NodeNG,
     ) -> None:
         """Compare the found argument names with the expected ones and
@@ -425,7 +427,7 @@ class DocstringParameterChecker(BaseChecker):
         :param warning_node: The node to be analyzed
         """
         # Handle variadic and keyword args without asterisks
-        modified_expected_argument_names: Set[str] = set()
+        modified_expected_argument_names: set[str] = set()
         for name in expected_argument_names:
             if name.replace("*", "") in found_argument_names:
                 modified_expected_argument_names.add(name.replace("*", ""))
@@ -481,7 +483,7 @@ class DocstringParameterChecker(BaseChecker):
         doc: Docstring,
         arguments_node: astroid.Arguments,
         warning_node: astroid.NodeNG,
-        accept_no_param_doc: Optional[bool] = None,
+        accept_no_param_doc: bool | None = None,
     ):
         """Check that all parameters are consistent with the parameters mentioned
         in the parameter documentation (e.g. the Sphinx tags 'param' and 'type').
@@ -519,7 +521,7 @@ class DocstringParameterChecker(BaseChecker):
             return
 
         if accept_no_param_doc is None:
-            accept_no_param_doc = self.linter.namespace.accept_no_param_doc
+            accept_no_param_doc = self.linter.config.accept_no_param_doc
         tolerate_missing_params = doc.params_documented_elsewhere()
 
         # Collect the function arguments.
@@ -528,7 +530,7 @@ class DocstringParameterChecker(BaseChecker):
         not_needed_type_in_docstring = self.not_needed_param_in_docstring.copy()
 
         expected_but_ignored_argument_names = set()
-        ignored_argument_names = get_global_option(self, "ignored-argument-names")
+        ignored_argument_names = self.linter.config.ignored_argument_names
         if ignored_argument_names:
             expected_but_ignored_argument_names = {
                 arg
@@ -624,7 +626,7 @@ class DocstringParameterChecker(BaseChecker):
             )
 
     def _handle_no_raise_doc(self, excs, node):
-        if self.linter.namespace.accept_no_raise_doc:
+        if self.linter.config.accept_no_raise_doc:
             return
 
         self._add_raise_message(excs, node)
@@ -652,5 +654,5 @@ class DocstringParameterChecker(BaseChecker):
         )
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(DocstringParameterChecker(linter))

@@ -3,9 +3,11 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Functional full-module tests for PyLint."""
+
+from __future__ import annotations
+
 import sys
 from pathlib import Path
-from typing import Union
 
 import pytest
 from _pytest.config import Config
@@ -46,9 +48,9 @@ def test_functional(
 ) -> None:
     __tracebackhide__ = True  # pylint: disable=unused-variable
     if UPDATE_FILE.exists():
-        lint_test: Union[
-            LintModuleOutputUpdate, testutils.LintModuleTest
-        ] = LintModuleOutputUpdate(test_file, pytestconfig)
+        lint_test: (
+            LintModuleOutputUpdate | testutils.LintModuleTest
+        ) = LintModuleOutputUpdate(test_file, pytestconfig)
     else:
         lint_test = testutils.LintModuleTest(test_file, pytestconfig)
     lint_test.setUp()

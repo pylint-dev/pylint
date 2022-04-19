@@ -2,9 +2,11 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import sys
 import tokenize
-from typing import TYPE_CHECKING, Any, Optional, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from pylint.checkers import BaseTokenChecker
 from pylint.interfaces import ITokenChecker
@@ -23,7 +25,7 @@ if TYPE_CHECKING:
 def report_raw_stats(
     sect,
     stats: LinterStats,
-    old_stats: Optional[LinterStats],
+    old_stats: LinterStats | None,
 ) -> None:
     """Calculate percentage of code / doc / comment / empty."""
     total_lines = stats.code_type_count["total"]
@@ -110,5 +112,5 @@ def get_type(tokens, start_index):
     return i, pos[0] - start[0] + 1, line_type
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(RawMetricsChecker(linter))

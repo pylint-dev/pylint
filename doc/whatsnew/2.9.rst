@@ -19,7 +19,7 @@ new checks optional is a step in that direction. In order to do that we
 created an optional code style checker that can be loaded using
 ``pylint.extensions.code_style`` with the ``load-plugins`` options.
 More than ever, if as a veteran you want the most checks you can possibly get,
-`you should check the list of pylint extensions. <http://pylint.pycqa.org/en/latest/technical_reference/extensions.html#optional-pylint-checkers-in-the-extensions-module>`_.
+`you should check the list of pylint extensions. <https://pylint.pycqa.org/en/latest/technical_reference/extensions.html#optional-pylint-checkers-in-the-extensions-module>`_.
 
 
 New checkers

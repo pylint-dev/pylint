@@ -2,8 +2,10 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import sys
-from typing import Iterable, Optional
+from collections.abc import Iterable
 
 import astroid
 import pytest
@@ -259,7 +261,7 @@ class TestNonAsciiChecker(pylint.testutils.CheckerTestCase):
             ),
         ],
     )
-    def test_check_import(self, import_statement: str, wrong_name: Optional[str]):
+    def test_check_import(self, import_statement: str, wrong_name: str | None):
         """We expect that for everything that user can change there is a message."""
         node = astroid.extract_node(f"{import_statement} #@")
 

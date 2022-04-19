@@ -1,4 +1,4 @@
-# pylint: disable=too-few-public-methods,  useless-object-inheritance
+# pylint: disable=too-few-public-methods, useless-object-inheritance
 """test access to __name__ gives undefined member on new/old class instances
 but not on new/old class object
 """

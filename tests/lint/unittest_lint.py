@@ -4,18 +4,20 @@
 
 # pylint: disable=redefined-outer-name
 
+from __future__ import annotations
+
 import argparse
 import os
 import re
 import sys
 import tempfile
+from collections.abc import Iterable, Iterator
 from contextlib import contextmanager
 from importlib import reload
 from io import StringIO
 from os import chdir, getcwd
 from os.path import abspath, dirname, join, sep
 from shutil import rmtree
-from typing import Iterable, Iterator, List
 
 import platformdirs
 import pytest
@@ -106,7 +108,7 @@ def fake_path() -> Iterator[Iterable[str]]:
     sys.path[:] = orig
 
 
-def test_no_args(fake_path: List[int]) -> None:
+def test_no_args(fake_path: list[int]) -> None:
     with lint.fix_import_path([]):
         assert sys.path == fake_path
     assert sys.path == fake_path
@@ -115,7 +117,7 @@ def test_no_args(fake_path: List[int]) -> None:
 @pytest.mark.parametrize(
     "case", [["a/b/"], ["a/b"], ["a/b/__init__.py"], ["a/"], ["a"]]
 )
-def test_one_arg(fake_path: List[str], case: List[str]) -> None:
+def test_one_arg(fake_path: list[str], case: list[str]) -> None:
     with tempdir() as chroot:
         create_files(["a/b/__init__.py"])
         expected = [join(chroot, "a")] + fake_path
@@ -251,7 +253,7 @@ def test_message_state_scope(initialized_linter: PyLinter) -> None:
     assert MSG_STATE_SCOPE_MODULE == linter._get_message_state_scope("W0101", 3)
     linter.enable("W0102", scope="module", line=3)
     assert MSG_STATE_SCOPE_MODULE == linter._get_message_state_scope("W0102", 3)
-    linter.namespace = FakeConfig()
+    linter.config = FakeConfig()
     assert MSG_STATE_CONFIDENCE == linter._get_message_state_scope(
         "this-is-bad", confidence=interfaces.INFERENCE
     )
@@ -532,7 +534,7 @@ def test_load_plugin_configuration() -> None:
         ],
         exit=False,
     )
-    assert run.linter.namespace.ignore == ["foo", "bar", "bin"]
+    assert run.linter.config.ignore == ["foo", "bar", "bin"]
 
 
 def test_init_hooks_called_before_load_plugins() -> None:
@@ -721,6 +723,7 @@ class _CustomPyLinter(PyLinter):
         )
 
 
+@pytest.mark.needs_two_cores
 def test_custom_should_analyze_file() -> None:
     """Check that we can write custom should_analyze_file that work
     even for arguments.
@@ -731,8 +734,8 @@ def test_custom_should_analyze_file() -> None:
     for jobs in (1, 2):
         reporter = testutils.GenericTestReporter()
         linter = _CustomPyLinter()
-        linter.namespace.jobs = jobs
-        linter.namespace.persistent = 0
+        linter.config.jobs = jobs
+        linter.config.persistent = 0
         linter.open()
         linter.set_reporter(reporter)
 
@@ -749,6 +752,7 @@ def test_custom_should_analyze_file() -> None:
 
 # we do the check with jobs=1 as well, so that we are sure that the duplicates
 # are created by the multiprocessing problem.
+@pytest.mark.needs_two_cores
 @pytest.mark.parametrize("jobs", [1, 2])
 def test_multiprocessing(jobs: int) -> None:
     """Check that multiprocessing does not create duplicates."""
@@ -764,8 +768,8 @@ def test_multiprocessing(jobs: int) -> None:
 
     reporter = testutils.GenericTestReporter()
     linter = PyLinter()
-    linter.namespace.jobs = jobs
-    linter.namespace.persistent = 0
+    linter.config.jobs = jobs
+    linter.config.persistent = 0
     linter.open()
     linter.set_reporter(reporter)
 
