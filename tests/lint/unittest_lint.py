@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import os
 import re
+import subprocess
 import sys
 import tempfile
 from collections.abc import Iterable, Iterator
@@ -168,6 +169,16 @@ def test_more_args(fake_path, case):
         with lint.fix_import_path(case):
             assert sys.path == expected
         assert sys.path == fake_path
+
+
+def test_namespace_package_sys_path() -> None:
+    """Test that we do not append namespace packages to sys.path."""
+    result = subprocess.run(
+        [sys.executable, "-m", "pylint", "test_namespace_pkg/"],
+        check=False,
+        stdout=subprocess.PIPE,
+    )
+    assert "Module import itself" not in result.stdout.decode("utf-8")
 
 
 @pytest.fixture(scope="module")
