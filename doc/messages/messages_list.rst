@@ -207,7 +207,6 @@ All messages in the warning category:
    warning/binary-op-exception.rst
    warning/boolean-datetime.rst
    warning/broad-except.rst
-   warning/cache-max-size-none.rst
    warning/cell-var-from-loop.rst
    warning/comparison-with-callable.rst
    warning/confusing-with-statement.rst
@@ -250,6 +249,7 @@ All messages in the warning category:
    warning/logging-fstring-interpolation.rst
    warning/logging-not-lazy.rst
    warning/lost-exception.rst
+   warning/method-cache-max-size-none.rst
    warning/misplaced-future.rst
    warning/missing-any-param-doc.rst
    warning/missing-format-argument-key.rst
@@ -294,6 +294,7 @@ All messages in the warning category:
    warning/subprocess-popen-preexec-fn.rst
    warning/subprocess-run-check.rst
    warning/super-init-not-called.rst
+   warning/super-without-brackets.rst
    warning/too-many-try-statements.rst
    warning/try-except-raise.rst
    warning/unbalanced-tuple-unpacking.rst
@@ -329,6 +330,7 @@ All renamed messages in the warning category:
    :maxdepth: 1
    :titlesonly:
 
+   warning/cache-max-size-none.rst
    warning/implicit-str-concat-in-sequence.rst
    warning/lru-cache-decorating-method.rst
    warning/old-assignment-from-none.rst
