@@ -221,7 +221,7 @@ Release date: TBA
 
 What's New in Pylint 2.13.6?
 ============================
-Release date: TBA
+Release date: 2022-04-20
 
 * Fix a crash in the ``unsupported-membership-test`` checker when assigning
   multiple constants to class attributes including ``__iter__`` via unpacking.
