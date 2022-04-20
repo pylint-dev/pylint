@@ -889,7 +889,7 @@ class PyLinter(
                     and c is not self
                 ):
                     tokencheckers.append(c)  # pragma: no cover
-                    warnings.warn(
+                    warnings.warn(. # pragma: no cover
                         "Checkers should subclass BaseTokenChecker "
                         "instead of using the __implements__ mechanism. Use of __implements__ "
                         "will no longer be supported in pylint 3.0",
@@ -907,7 +907,7 @@ class PyLinter(
                     and c not in rawcheckers
                 ):
                     rawcheckers.append(c)  # pragma: no cover
-                    warnings.warn(
+                    warnings.warn(  # pragma: no cover
                         "Checkers should subclass BaseRawFileChecker "
                         "instead of using the __implements__ mechanism. Use of __implements__ "
                         "will no longer be supported in pylint 3.0",
