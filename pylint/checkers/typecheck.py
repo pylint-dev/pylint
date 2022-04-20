@@ -17,20 +17,8 @@ import types
 from collections import deque
 from collections.abc import Callable, Iterator, Sequence
 from functools import singledispatch
-
 from re import Pattern
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Dict,
-    Iterator,
-    List,
-    Optional,
-    Pattern,
-    Tuple,
-    Union,
-)
+from typing import TYPE_CHECKING, Any, Callable, Dict, Iterator, Pattern, Tuple, Union
 
 import astroid.exceptions
 from astroid import bases, nodes
@@ -742,7 +730,7 @@ class TypeChecker(BaseChecker):
     # messages
     msgs = MSGS
 
-    node_exists: Dict[Tuple[str, int, str], bool] = {}
+    node_exists: dict[tuple[str, int, str], bool] = {}
     # configuration options
     options = (
         (
@@ -1097,9 +1085,7 @@ accessed. Python regular expressions are accepted.",
                 )
 
     # pylint: disable=no-self-use
-    def _get_cache_key(
-        self, node: nodes.Attribute
-    ) -> Union[Tuple[str, int, str], None]:
+    def _get_cache_key(self, node: nodes.Attribute) -> tuple[str, int, str] | None:
         """Returns the cache key to identify an attribute and its scope, or None if it cannot be cached."""
         outer = expr_name = ""
         expr = node.expr
