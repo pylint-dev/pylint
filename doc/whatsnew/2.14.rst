@@ -169,6 +169,13 @@ Other Changes
 
   Ref #2287
 
+* All ``Interface`` classes in ``pylint.interfaces`` have been deprecated. You can subclass
+  the respective normal classes to get the same behaviour. The ``__implements__`` functionality
+  was based on a rejected PEP from 2001:
+  https://peps.python.org/pep-0245/
+
+  Closes #2287
+
 * Added the ``generate-toml-config`` option.
 
   Ref #5462

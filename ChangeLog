@@ -56,6 +56,12 @@ Release date: TBA
 
   Ref #5392
 
+* All ``Interface`` classes in ``pylint.interfaces`` have been deprecated. You can subclass
+  the respective normal classes to get the same behaviour. The ``__implements__`` functionality
+  was based on a rejected PEP from 2001:
+  https://peps.python.org/pep-0245/
+
+  Closes #2287
 
 * The ``set_option`` method of ``BaseChecker`` has been deprecated. You can use ``checker.linter.set_option``
   to set an option on the global configuration object instead of a checker-specific object.

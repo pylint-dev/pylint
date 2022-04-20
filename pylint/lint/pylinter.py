@@ -874,25 +874,45 @@ class PyLinter(
         """
         walker = ASTWalker(self)
         _checkers = self.prepare_checkers()
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            tokencheckers = [
-                c
-                for c in _checkers
+        tokencheckers = [
+            c
+            for c in _checkers
+            if isinstance(c, checkers.BaseTokenChecker) and c is not self
+        ]
+        # TODO: 3.0: Remove deprecated for-loop # pylint: disable=fixme
+        for c in _checkers:
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=DeprecationWarning)
                 if (
                     interfaces.implements(c, interfaces.ITokenChecker)
-                    or isinstance(c, checkers.BaseTokenChecker)
-                )
-                and c is not self
-            ]
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            rawcheckers = [
-                c
-                for c in _checkers
-                if interfaces.implements(c, interfaces.IRawChecker)
-                or isinstance(c, checkers.BaseRawFileChecker)
-            ]
+                    and c not in tokencheckers
+                    and c is not self
+                ):
+                    tokencheckers.append(c)  # pragma: no cover
+                    warnings.warn(  # pragma: no cover
+                        "Checkers should subclass BaseTokenChecker "
+                        "instead of using the __implements__ mechanism. Use of __implements__ "
+                        "will no longer be supported in pylint 3.0",
+                        DeprecationWarning,
+                    )
+        rawcheckers = [
+            c for c in _checkers if isinstance(c, checkers.BaseRawFileChecker)
+        ]
+        # TODO: 3.0: Remove deprecated if-statement # pylint: disable=fixme
+        for c in _checkers:
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=DeprecationWarning)
+                if (
+                    interfaces.implements(c, interfaces.IRawChecker)
+                    and c not in rawcheckers
+                ):
+                    rawcheckers.append(c)  # pragma: no cover
+                    warnings.warn(  # pragma: no cover
+                        "Checkers should subclass BaseRawFileChecker "
+                        "instead of using the __implements__ mechanism. Use of __implements__ "
+                        "will no longer be supported in pylint 3.0",
+                        DeprecationWarning,
+                    )
         # notify global begin
         for checker in _checkers:
             checker.open()
