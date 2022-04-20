@@ -181,7 +181,7 @@ class BaseChecker(_ArgumentsProvider):
                     "will no longer be supported in pylint 3.0",
                     DeprecationWarning,
                 )
-                default_scope = WarningScope.LINE
+                default_scope = WarningScope.LINE  # pragma: no cover
             else:
                 default_scope = WarningScope.NODE
         options = {}
