@@ -51,6 +51,13 @@ CONFIDENCE_LEVEL_NAMES = [i.name for i in CONFIDENCE_LEVELS]
 class Interface:
     """Base class for interfaces."""
 
+    def __init__(self) -> None:
+        warnings.warn(
+            "Interface and all of its subclasses have been deprecated "
+            "and will be removed in pylint 3.0.",
+            DeprecationWarning,
+        )
+
     @classmethod
     def is_implemented_by(cls, instance):
         with warnings.catch_warnings():

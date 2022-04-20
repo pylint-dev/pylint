@@ -41,6 +41,13 @@ class BaseChecker(_ArgumentsProvider):
 
     def __init__(self, linter: PyLinter) -> None:
         """Checker instances should have the linter as argument."""
+        if getattr(self, "__implements__", None):
+            warnings.warn(
+                "Using the __implements__ inheritance pattern for BaseChecker is no "
+                "longer supported. Child classes should only inherit BaseChecker or any "
+                "of the other checker types from pylint.checkers.",
+                DeprecationWarning,
+            )
         if self.name is not None:
             self.name = self.name.lower()
         self.linter = linter
@@ -166,8 +173,14 @@ class BaseChecker(_ArgumentsProvider):
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             if isinstance(self, (BaseTokenChecker, BaseRawFileChecker)):
                 default_scope = WarningScope.LINE
-            # TODO: Interfaces: Deprecate looking for implements here # pylint: disable=fixme
+            # TODO: 3.0: Remove deprecated if-statement # pylint: disable=fixme
             elif implements(self, (IRawChecker, ITokenChecker)):
+                warnings.warn(  # pragma: no cover
+                    "Checkers should subclass BaseTokenChecker or BaseRawFileChecker"
+                    "instead of using the __implements__ mechanism. Use of __implements__"
+                    "will no longer be supported in pylint 3.0",
+                    DeprecationWarning,
+                )
                 default_scope = WarningScope.LINE
             else:
                 default_scope = WarningScope.NODE

@@ -10,8 +10,19 @@ from typing import Any
 
 import pytest
 
+from pylint.checkers import BaseChecker
 from pylint.checkers.mapreduce_checker import MapReduceMixin
+from pylint.interfaces import (
+    IAstroidChecker,
+    IChecker,
+    Interface,
+    IRawChecker,
+    IReporter,
+    ITokenChecker,
+)
 from pylint.lint import PyLinter
+from pylint.reporters import BaseReporter
+from pylint.reporters.ureports.nodes import Section
 
 
 def test_mapreducemixin() -> None:
@@ -26,3 +37,44 @@ def test_mapreducemixin() -> None:
 
     with pytest.warns(DeprecationWarning):
         MyChecker()
+
+
+def test_reporter_implements() -> None:
+    """Test that __implements__ on BaseReporer has been deprecated correctly."""
+
+    class MyReporter(BaseReporter):
+
+        __implements__ = IReporter
+
+        def _display(self, layout: Section) -> None:
+            ...
+
+    with pytest.warns(DeprecationWarning):
+        MyReporter()
+
+
+def test_checker_implements() -> None:
+    """Test that __implements__ on BaseChecker has been deprecated correctly."""
+
+    class MyChecker(BaseChecker):
+
+        __implements__ = IAstroidChecker
+
+    with pytest.warns(DeprecationWarning):
+        MyChecker(PyLinter())
+
+
+def test_interfaces() -> None:
+    """Test that all interfaces have been deprecated correctly."""
+    with pytest.warns(DeprecationWarning):
+        Interface()
+    with pytest.warns(DeprecationWarning):
+        IAstroidChecker()
+    with pytest.warns(DeprecationWarning):
+        IReporter()
+    with pytest.warns(DeprecationWarning):
+        IRawChecker()
+    with pytest.warns(DeprecationWarning):
+        IChecker()
+    with pytest.warns(DeprecationWarning):
+        ITokenChecker()
