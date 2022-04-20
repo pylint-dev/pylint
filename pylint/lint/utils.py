@@ -75,13 +75,10 @@ def get_fatal_error_message(filepath: str, issue_template_path: Path) -> str:
 
 def _is_part_of_namespace_package(filename: str) -> bool:
     """Check if a file is part of a namespace package."""
-    filepath = Path(filename)
     try:
         modname = modutils.modpath_from_file(filename)
     except ImportError:
-        modname = [filepath.stem]
-    if filepath.is_dir():
-        filepath = filepath / "__init__.py"
+        modname = [Path(filename).stem]
 
     try:
         spec = modutils.file_info_from_modpath(modname)
