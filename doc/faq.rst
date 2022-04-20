@@ -231,6 +231,10 @@ Alternatively, if you use ``pyproject.toml``, e.g.
         "wildcard-import",
     ]
 
+    See also the `exhaustive list of possible options`_ 
+    
+.. _`exhaustive list of possible options`: https://pylint.pycqa.org/en/latest/user_guide/configuration/all-options.html
+
 4.7 Why are there a bunch of messages disabled by default?
 ----------------------------------------------------------
 
