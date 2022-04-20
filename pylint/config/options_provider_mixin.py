@@ -3,10 +3,11 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 import optparse  # pylint: disable=deprecated-module
-from typing import Any, Dict, Tuple
+import warnings
 
 from pylint.config.callback_actions import _CallbackAction
 from pylint.config.option import _validate
+from pylint.typing import Options
 
 
 class UnsupportedAction(Exception):
@@ -18,10 +19,15 @@ class OptionsProviderMixIn:
 
     # those attributes should be overridden
     name = "default"
-    options: Tuple[Tuple[str, Dict[str, Any]], ...] = ()
+    options: Options = ()
     level = 0
 
     def __init__(self):
+        # TODO: 3.0: Remove deprecated class # pylint: disable=fixme
+        warnings.warn(
+            "OptionsProviderMixIn has been deprecated and will be removed in pylint 3.0",
+            DeprecationWarning,
+        )
         self.config = optparse.Values()
         self.load_defaults()
 
@@ -57,9 +63,9 @@ class OptionsProviderMixIn:
         if action == "store":
             setattr(self.config, self.option_attrname(optname, optdict), value)
         elif action in {"store_true", "count"}:
-            setattr(self.config, self.option_attrname(optname, optdict), 0)
+            setattr(self.config, self.option_attrname(optname, optdict), value)
         elif action == "store_false":
-            setattr(self.config, self.option_attrname(optname, optdict), 1)
+            setattr(self.config, self.option_attrname(optname, optdict), value)
         elif action == "append":
             optname = self.option_attrname(optname, optdict)
             _list = getattr(self.config, optname, None)

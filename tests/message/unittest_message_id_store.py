@@ -2,8 +2,10 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
+from collections.abc import ValuesView
 from pathlib import Path
-from typing import Dict, ValuesView
 
 import pytest
 
@@ -15,7 +17,7 @@ from pylint.message.message_id_store import MessageIdStore
 EMPTY_FILE = str(Path(__file__).parent.parent.resolve() / "regrtest_data" / "empty.py")
 
 
-def test_len_str(msgid_store: MessageIdStore, msgids: Dict[str, str]) -> None:
+def test_len_str(msgid_store: MessageIdStore, msgids: dict[str, str]) -> None:
     assert len(msgid_store) == len(msgids)
     str_result = str(msgid_store)
     assert "MessageIdStore: [" in str_result
@@ -26,7 +28,7 @@ def test_len_str(msgid_store: MessageIdStore, msgids: Dict[str, str]) -> None:
     assert "]" in str_result
 
 
-def test_get_message_ids(msgid_store: MessageIdStore, msgids: Dict[str, str]) -> None:
+def test_get_message_ids(msgid_store: MessageIdStore, msgids: dict[str, str]) -> None:
     """We can get message id even with capitalization problem."""
     msgid = list(msgids.keys())[0]
     msgids_result = msgid_store.get_active_msgids(msgid.lower())

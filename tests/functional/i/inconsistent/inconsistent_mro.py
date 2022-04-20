@@ -1,5 +1,5 @@
 """Tests for inconsistent-mro."""
-# pylint: disable=missing-docstring,too-few-public-methods,no-init
+# pylint: disable=missing-docstring,too-few-public-methods
 
 class Str(str):
     pass

@@ -2,12 +2,12 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-from typing import List, Union
+from __future__ import annotations
 
 import astroid
 from astroid import bases, nodes
 
-from pylint import checkers, interfaces
+from pylint import checkers
 from pylint.checkers import utils
 
 
@@ -49,8 +49,6 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
     * comparison such as variable == empty_literal:
     * comparison such as variable != empty_literal:
     """
-
-    __implements__ = (interfaces.IAstroidChecker,)
 
     # configuration section name
     name = "refactoring"
@@ -209,9 +207,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
                     )
 
     @staticmethod
-    def base_names_of_instance(
-        node: Union[bases.Uninferable, bases.Instance]
-    ) -> List[str]:
+    def base_names_of_instance(node: bases.Uninferable | bases.Instance) -> list[str]:
         """Return all names inherited by a class instance or those returned by a function.
 
         The inherited names include 'object'.

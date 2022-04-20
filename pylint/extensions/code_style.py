@@ -2,15 +2,15 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import sys
-from typing import TYPE_CHECKING, List, Optional, Set, Tuple, Type, Union, cast
+from typing import TYPE_CHECKING, Tuple, Type, Union, cast
 
 from astroid import nodes
 
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import check_messages, safe_infer
-from pylint.interfaces import IAstroidChecker
-from pylint.utils.utils import get_global_option
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -36,8 +36,6 @@ class CodeStyleChecker(BaseChecker):
        and therefore preferred => this is the right place
     3. Everything else should go into another extension
     """
-
-    __implements__ = (IAstroidChecker,)
 
     name = "code_style"
     msgs = {
@@ -78,16 +76,12 @@ class CodeStyleChecker(BaseChecker):
         ),
     )
 
-    def __init__(self, linter: "PyLinter") -> None:
-        """Initialize checker instance."""
-        super().__init__(linter=linter, future_option_parsing=True)
-
     def open(self) -> None:
-        py_version = get_global_option(self, "py-version")
+        py_version = self.linter.config.py_version
         self._py38_plus = py_version >= (3, 8)
         self._max_length: int = (
-            self.linter.namespace.max_line_length_suggestions
-            or get_global_option(self, "max-line-length")
+            self.linter.config.max_line_length_suggestions
+            or self.linter.config.max_line_length
         )
 
     @check_messages("consider-using-namedtuple-or-dataclass")
@@ -129,7 +123,7 @@ class CodeStyleChecker(BaseChecker):
             KeyTupleT = Tuple[Type[nodes.NodeNG], str]
 
             # Makes sure all keys are 'Const' string nodes
-            keys_checked: Set[KeyTupleT] = set()
+            keys_checked: set[KeyTupleT] = set()
             for _, dict_value in node.items:
                 dict_value = cast(nodes.Dict, dict_value)
                 for key, _ in dict_value.items:
@@ -145,13 +139,13 @@ class CodeStyleChecker(BaseChecker):
                     keys_checked.add(key_tuple)
 
             # Makes sure all subdicts have at least 1 common key
-            key_tuples: List[Tuple[KeyTupleT, ...]] = []
+            key_tuples: list[tuple[KeyTupleT, ...]] = []
             for _, dict_value in node.items:
                 dict_value = cast(nodes.Dict, dict_value)
                 key_tuples.append(
                     tuple((type(key), key.as_string()) for key, _ in dict_value.items)
                 )
-            keys_intersection: Set[KeyTupleT] = set(key_tuples[0])
+            keys_intersection: set[KeyTupleT] = set(key_tuples[0])
             for sub_key_tuples in key_tuples[1:]:
                 keys_intersection.intersection_update(sub_key_tuples)
             if not keys_intersection:
@@ -198,7 +192,7 @@ class CodeStyleChecker(BaseChecker):
         Note: Assignment expressions were added in Python 3.8
         """
         # Check if `node.test` contains a `Name` node
-        node_name: Optional[nodes.Name] = None
+        node_name: nodes.Name | None = None
         if isinstance(node.test, nodes.Name):
             node_name = node.test
         elif (
@@ -253,8 +247,8 @@ class CodeStyleChecker(BaseChecker):
 
     @staticmethod
     def _check_prev_sibling_to_if_stmt(
-        prev_sibling: Optional[nodes.NodeNG], name: Optional[str]
-    ) -> TypeGuard[Union[nodes.Assign, nodes.AnnAssign]]:
+        prev_sibling: nodes.NodeNG | None, name: str | None
+    ) -> TypeGuard[nodes.Assign | nodes.AnnAssign]:
         """Check if previous sibling is an assignment with the same name.
 
         Ignore statements which span multiple lines.
@@ -279,7 +273,7 @@ class CodeStyleChecker(BaseChecker):
 
     @staticmethod
     def _check_ignore_assignment_expr_suggestion(
-        node: nodes.If, name: Optional[str]
+        node: nodes.If, name: str | None
     ) -> bool:
         """Return True if suggestion for assignment expr should be ignored.
 
@@ -287,7 +281,7 @@ class CodeStyleChecker(BaseChecker):
         (multiple conditions).
         """
         if isinstance(node.test, nodes.Compare):
-            next_if_node: Optional[nodes.If] = None
+            next_if_node: nodes.If | None = None
             next_sibling = node.next_sibling()
             if len(node.orelse) == 1 and isinstance(node.orelse[0], nodes.If):
                 # elif block
@@ -310,5 +304,5 @@ class CodeStyleChecker(BaseChecker):
         return False
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(CodeStyleChecker(linter))

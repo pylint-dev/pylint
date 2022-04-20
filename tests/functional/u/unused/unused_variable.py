@@ -176,3 +176,14 @@ def func5():
     x = []
     # Test case requires homonym between "for x" and "in x"
     assert [True for x in x]
+
+
+def sibling_except_handlers():
+    try:
+        pass
+    except ValueError as e:
+        print(e)
+    try:
+        pass
+    except ValueError as e:
+        print(e)

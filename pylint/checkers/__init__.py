@@ -41,10 +41,15 @@ messages nor reports. XXX not true, emit a 07 report !
 
 """
 
-import sys
-from typing import List, Optional, Tuple, Union
+from __future__ import annotations
 
-from pylint.checkers.base_checker import BaseChecker, BaseTokenChecker
+import sys
+
+from pylint.checkers.base_checker import (
+    BaseChecker,
+    BaseRawFileChecker,
+    BaseTokenChecker,
+)
 from pylint.checkers.deprecated import DeprecatedMixin
 from pylint.checkers.mapreduce_checker import MapReduceMixin
 from pylint.utils import LinterStats, diff_string, register_plugins
@@ -57,17 +62,17 @@ else:
 
 def table_lines_from_stats(
     stats: LinterStats,
-    old_stats: Optional[LinterStats],
+    old_stats: LinterStats | None,
     stat_type: Literal["duplicated_lines", "message_types"],
-) -> List[str]:
+) -> list[str]:
     """Get values listed in <columns> from <stats> and <old_stats>,
     and return a formatted list of values.
 
     The return value is designed to be given to a ureport.Table object
     """
-    lines: List[str] = []
+    lines: list[str] = []
     if stat_type == "duplicated_lines":
-        new: List[Tuple[str, Union[int, float]]] = [
+        new: list[tuple[str, int | float]] = [
             ("nb_duplicated_lines", stats.duplicated_lines["nb_duplicated_lines"]),
             (
                 "percent_duplicated_lines",
@@ -75,7 +80,7 @@ def table_lines_from_stats(
             ),
         ]
         if old_stats:
-            old: List[Tuple[str, Union[str, int, float]]] = [
+            old: list[tuple[str, str | int | float]] = [
                 (
                     "nb_duplicated_lines",
                     old_stats.duplicated_lines["nb_duplicated_lines"],
@@ -131,6 +136,7 @@ def initialize(linter):
 __all__ = [
     "BaseChecker",
     "BaseTokenChecker",
+    "BaseRawFileChecker",
     "initialize",
     "MapReduceMixin",
     "DeprecatedMixin",

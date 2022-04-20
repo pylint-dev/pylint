@@ -2,20 +2,22 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import collections
 import copy
 import itertools
 import sys
 import tokenize
+from collections.abc import Iterator
 from functools import reduce
-from typing import Dict, Iterator, List, NamedTuple, Optional, Tuple, Union
+from typing import NamedTuple
 
 import astroid
 from astroid import nodes
 from astroid.util import Uninferable
 
-from pylint import checkers, interfaces
-from pylint import utils as lint_utils
+from pylint import checkers
 from pylint.checkers import utils
 from pylint.checkers.utils import node_frame_class
 from pylint.interfaces import HIGH
@@ -61,7 +63,7 @@ def _if_statement_is_always_returning(if_node, returning_node_class) -> bool:
     return any(isinstance(node, returning_node_class) for node in if_node.body)
 
 
-def _is_trailing_comma(tokens: List[tokenize.TokenInfo], index: int) -> bool:
+def _is_trailing_comma(tokens: list[tokenize.TokenInfo], index: int) -> bool:
     """Check if the given token is a trailing comma.
 
     :param tokens: Sequence of modules tokens
@@ -163,15 +165,15 @@ class ConsiderUsingWithStack(NamedTuple):
     if they are not used in a ``with`` block later on.
     """
 
-    module_scope: Dict[str, nodes.NodeNG] = {}
-    class_scope: Dict[str, nodes.NodeNG] = {}
-    function_scope: Dict[str, nodes.NodeNG] = {}
+    module_scope: dict[str, nodes.NodeNG] = {}
+    class_scope: dict[str, nodes.NodeNG] = {}
+    function_scope: dict[str, nodes.NodeNG] = {}
 
-    def __iter__(self) -> Iterator[Dict[str, nodes.NodeNG]]:
+    def __iter__(self) -> Iterator[dict[str, nodes.NodeNG]]:
         yield from (self.function_scope, self.class_scope, self.module_scope)
 
     def get_stack_for_frame(
-        self, frame: Union[nodes.FunctionDef, nodes.ClassDef, nodes.Module]
+        self, frame: nodes.FunctionDef | nodes.ClassDef | nodes.Module
     ):
         """Get the stack corresponding to the scope of the given frame."""
         if isinstance(frame, nodes.FunctionDef):
@@ -193,8 +195,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     in order to create knowledge about whether an "else if" node
     is a true "else if" node, or an "elif" node.
     """
-
-    __implements__ = (interfaces.ITokenChecker, interfaces.IAstroidChecker)
 
     name = "refactoring"
 
@@ -471,7 +471,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     )
 
     def __init__(self, linter):
-        super().__init__(linter, future_option_parsing=True)
+        super().__init__(linter)
         self._return_nodes = {}
         self._consider_using_with_stack = ConsiderUsingWithStack()
         self._init()
@@ -488,12 +488,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def open(self):
         # do this in open since config not fully initialized in __init__
         self._never_returning_functions = set(
-            self.linter.namespace.never_returning_functions
+            self.linter.config.never_returning_functions
         )
 
     @cached_property
     def _dummy_rgx(self):
-        return lint_utils.get_global_option(self, "dummy-variables-rgx", default=None)
+        return self.linter.config.dummy_variables_rgx
 
     @staticmethod
     def _is_bool_const(node):
@@ -588,7 +588,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         self.add_message("simplifiable-if-statement", node=node, args=(reduced_to,))
 
-    def process_tokens(self, tokens):
+    def process_tokens(self, tokens: list[tokenize.TokenInfo]) -> None:
         # Process tokens and look for 'if' or 'elif'
         for index, token in enumerate(tokens):
             token_string = token[1]
@@ -659,7 +659,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if node.name and isinstance(node.name, nodes.AssignName):
             self._check_redefined_argument_from_local(node.name)
 
-    @utils.check_messages("redefined-argument-from-local")
+    @utils.check_messages("redefined-argument-from-local", "consider-using-with")
     def visit_with(self, node: nodes.With) -> None:
         for var, names in node.items:
             if isinstance(var, nodes.Name):
@@ -774,6 +774,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "no-else-break",
         "no-else-continue",
         "consider-using-get",
+        "consider-using-min-builtin",
+        "consider-using-max-builtin",
     )
     def visit_if(self, node: nodes.If) -> None:
         self._check_simplifiable_if(node)
@@ -1021,6 +1023,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "consider-using-with",
         "use-list-literal",
         "use-dict-literal",
+        "use-a-generator",
     )
     def visit_call(self, node: nodes.Call) -> None:
         self._check_raising_stopiteration_in_generator_next_call(node)
@@ -1128,14 +1131,14 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             self._emit_nested_blocks_message_if_needed(nested_blocks)
 
     def _emit_nested_blocks_message_if_needed(self, nested_blocks):
-        if len(nested_blocks) > self.linter.namespace.max_nested_blocks:
+        if len(nested_blocks) > self.linter.config.max_nested_blocks:
             self.add_message(
                 "too-many-nested-blocks",
                 node=nested_blocks[0],
-                args=(len(nested_blocks), self.linter.namespace.max_nested_blocks),
+                args=(len(nested_blocks), self.linter.config.max_nested_blocks),
             )
 
-    def _emit_consider_using_with_if_needed(self, stack: Dict[str, nodes.NodeNG]):
+    def _emit_consider_using_with_if_needed(self, stack: dict[str, nodes.NodeNG]):
         for node in stack.values():
             self.add_message("consider-using-with", node=node)
 
@@ -1623,7 +1626,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         else:
             return
         if expr_list == target_list and expr_list:
-            args: Optional[Tuple[str]] = None
+            args: tuple[str] | None = None
             inferred = utils.safe_infer(node.iter)
             if isinstance(node.parent, nodes.DictComp) and isinstance(
                 inferred, astroid.objects.DictItems
@@ -1878,7 +1881,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 self.add_message("useless-return", node=node)
 
     def _check_unnecessary_dict_index_lookup(
-        self, node: Union[nodes.For, nodes.Comprehension]
+        self, node: nodes.For | nodes.Comprehension
     ) -> None:
         """Add message when accessing dict values by index lookup."""
         # Verify that we have an .items() call and
@@ -1981,7 +1984,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                         )
 
     def _check_unnecessary_list_index_lookup(
-        self, node: Union[nodes.For, nodes.Comprehension]
+        self, node: nodes.For | nodes.Comprehension
     ) -> None:
         if (
             not isinstance(node.iter, nodes.Call)

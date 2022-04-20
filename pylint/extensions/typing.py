@@ -2,7 +2,9 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-from typing import TYPE_CHECKING, Dict, List, NamedTuple, Set, Union
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, NamedTuple
 
 import astroid.bases
 from astroid import nodes
@@ -15,8 +17,7 @@ from pylint.checkers.utils import (
     is_postponed_evaluation_enabled,
     safe_infer,
 )
-from pylint.interfaces import INFERENCE, IAstroidChecker
-from pylint.utils.utils import get_global_option
+from pylint.interfaces import INFERENCE
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -27,7 +28,7 @@ class TypingAlias(NamedTuple):
     name_collision: bool
 
 
-DEPRECATED_TYPING_ALIASES: Dict[str, TypingAlias] = {
+DEPRECATED_TYPING_ALIASES: dict[str, TypingAlias] = {
     "typing.Tuple": TypingAlias("tuple", False),
     "typing.List": TypingAlias("list", False),
     "typing.Dict": TypingAlias("dict", False),
@@ -83,7 +84,7 @@ TYPING_NORETURN = frozenset(
 
 
 class DeprecatedTypingAliasMsg(NamedTuple):
-    node: Union[nodes.Name, nodes.Attribute]
+    node: nodes.Name | nodes.Attribute
     qname: str
     alias: str
     parent_subscript: bool = False
@@ -91,8 +92,6 @@ class DeprecatedTypingAliasMsg(NamedTuple):
 
 class TypingChecker(BaseChecker):
     """Find issue specifically related to type annotations."""
-
-    __implements__ = (IAstroidChecker,)
 
     name = "typing"
     msgs = {
@@ -161,25 +160,25 @@ class TypingChecker(BaseChecker):
     or Python 3.7+ with postponed evaluation.
     """
 
-    def __init__(self, linter: "PyLinter") -> None:
+    def __init__(self, linter: PyLinter) -> None:
         """Initialize checker instance."""
-        super().__init__(linter=linter, future_option_parsing=True)
+        super().__init__(linter=linter)
         self._found_broken_callable_location: bool = False
-        self._alias_name_collisions: Set[str] = set()
-        self._deprecated_typing_alias_msgs: List[DeprecatedTypingAliasMsg] = []
-        self._consider_using_alias_msgs: List[DeprecatedTypingAliasMsg] = []
+        self._alias_name_collisions: set[str] = set()
+        self._deprecated_typing_alias_msgs: list[DeprecatedTypingAliasMsg] = []
+        self._consider_using_alias_msgs: list[DeprecatedTypingAliasMsg] = []
 
     def open(self) -> None:
-        py_version = get_global_option(self, "py-version")
+        py_version = self.linter.config.py_version
         self._py37_plus = py_version >= (3, 7)
         self._py39_plus = py_version >= (3, 9)
         self._py310_plus = py_version >= (3, 10)
 
         self._should_check_typing_alias = self._py39_plus or (
-            self._py37_plus and self.linter.namespace.runtime_typing is False
+            self._py37_plus and self.linter.config.runtime_typing is False
         )
         self._should_check_alternative_union_syntax = self._py310_plus or (
-            self._py37_plus and self.linter.namespace.runtime_typing is False
+            self._py37_plus and self.linter.config.runtime_typing is False
         )
 
         self._should_check_noreturn = py_version < (3, 7, 2)
@@ -227,7 +226,7 @@ class TypingChecker(BaseChecker):
 
     def _check_for_alternative_union_syntax(
         self,
-        node: Union[nodes.Name, nodes.Attribute],
+        node: nodes.Name | nodes.Attribute,
         name: str,
     ) -> None:
         """Check if alternative union syntax could be used.
@@ -256,7 +255,7 @@ class TypingChecker(BaseChecker):
 
     def _check_for_typing_alias(
         self,
-        node: Union[nodes.Name, nodes.Attribute],
+        node: nodes.Name | nodes.Attribute,
     ) -> None:
         """Check if typing alias is deprecated or could be replaced.
 
@@ -306,7 +305,7 @@ class TypingChecker(BaseChecker):
             )
         )
 
-    @check_messages("consider-using-alias")
+    @check_messages("consider-using-alias", "deprecated-typing-alias")
     def leave_module(self, node: nodes.Module) -> None:
         """After parsing of module is complete, add messages for
         'consider-using-alias' check.
@@ -349,7 +348,7 @@ class TypingChecker(BaseChecker):
         self._alias_name_collisions.clear()
         self._consider_using_alias_msgs.clear()
 
-    def _check_broken_noreturn(self, node: Union[nodes.Name, nodes.Attribute]) -> None:
+    def _check_broken_noreturn(self, node: nodes.Name | nodes.Attribute) -> None:
         """Check for 'NoReturn' inside compound types."""
         if not isinstance(node.parent, nodes.BaseContainer):
             # NoReturn not part of a Union or Callable type
@@ -367,17 +366,15 @@ class TypingChecker(BaseChecker):
             if (
                 isinstance(inferred, (nodes.FunctionDef, nodes.ClassDef))
                 and inferred.qname() in TYPING_NORETURN
-                # In Python 3.6, NoReturn is alias of '_NoReturn'
                 # In Python 3.7 - 3.8, NoReturn is alias of '_SpecialForm'
                 or isinstance(inferred, astroid.bases.BaseInstance)
                 and isinstance(inferred._proxied, nodes.ClassDef)
-                and inferred._proxied.qname()
-                in {"typing._NoReturn", "typing._SpecialForm"}
+                and inferred._proxied.qname() == "typing._SpecialForm"
             ):
                 self.add_message("broken-noreturn", node=node, confidence=INFERENCE)
                 break
 
-    def _check_broken_callable(self, node: Union[nodes.Name, nodes.Attribute]) -> None:
+    def _check_broken_callable(self, node: nodes.Name | nodes.Attribute) -> None:
         """Check for 'collections.abc.Callable' inside Optional and Union."""
         inferred = safe_infer(node)
         if not (
@@ -390,7 +387,7 @@ class TypingChecker(BaseChecker):
         self.add_message("broken-collections-callable", node=node, confidence=INFERENCE)
 
     def _broken_callable_location(  # pylint: disable=no-self-use
-        self, node: Union[nodes.Name, nodes.Attribute]
+        self, node: nodes.Name | nodes.Attribute
     ) -> bool:
         """Check if node would be a broken location for collections.abc.Callable."""
         if (
@@ -431,5 +428,5 @@ class TypingChecker(BaseChecker):
         return True
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(TypingChecker(linter))

@@ -4,21 +4,21 @@
 
 """Basic checker for Python code."""
 
+from __future__ import annotations
+
 import collections
 import itertools
 import sys
-from typing import TYPE_CHECKING, Dict, Optional, cast
+from typing import TYPE_CHECKING, cast
 
 import astroid
 from astroid import nodes
 
-from pylint import interfaces
 from pylint import utils as lint_utils
 from pylint.checkers import BaseChecker, utils
-from pylint.interfaces import HIGH, IAstroidChecker
+from pylint.interfaces import HIGH
 from pylint.reporters.ureports import nodes as reporter_nodes
 from pylint.utils import LinterStats
-from pylint.utils.utils import get_global_option
 
 if TYPE_CHECKING:
     pass
@@ -32,7 +32,6 @@ else:
 class _BasicChecker(BaseChecker):
     """Permits separating multiple checks with the same checker name into classes/file."""
 
-    __implements__ = IAstroidChecker
     name = "basic"
 
 
@@ -64,7 +63,7 @@ DEFAULT_ARGUMENT_SYMBOLS = dict(
 def report_by_type_stats(
     sect,
     stats: LinterStats,
-    old_stats: Optional[LinterStats],
+    old_stats: LinterStats | None,
 ):
     """Make a report of.
 
@@ -72,7 +71,7 @@ def report_by_type_stats(
     * percentage of different types with a bad name
     """
     # percentage of different types documented and/or with a bad name
-    nice_stats: Dict[str, Dict[str, str]] = {}
+    nice_stats: dict[str, dict[str, str]] = {}
     for node_type in ("module", "class", "method", "function"):
         node_type = cast(Literal["function", "class", "method", "module"], node_type)
         total = stats.get_node_count(node_type)
@@ -114,8 +113,6 @@ class BasicChecker(_BasicChecker):
     * redefinition of function / method / class
     * uses of the global statement
     """
-
-    __implements__ = interfaces.IAstroidChecker
 
     name = "basic"
     msgs = {
@@ -261,7 +258,7 @@ class BasicChecker(_BasicChecker):
 
     def open(self):
         """Initialize visit variables and statistics."""
-        py_version = get_global_option(self, "py-version")
+        py_version = self.linter.config.py_version
         self._py38_plus = py_version >= (3, 8)
         self._tryfinallys = []
         self.linter.stats.reset_node_count()
@@ -816,9 +813,7 @@ class BasicChecker(_BasicChecker):
                 )
 
     def _check_redeclared_assign_name(self, targets):
-        dummy_variables_rgx = lint_utils.get_global_option(
-            self, "dummy-variables-rgx", default=None
-        )
+        dummy_variables_rgx = self.linter.config.dummy_variables_rgx
 
         for target in targets:
             if not isinstance(target, nodes.Tuple):

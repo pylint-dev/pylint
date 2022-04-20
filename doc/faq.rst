@@ -48,7 +48,7 @@ supported.
 2.4 What versions of Python is Pylint supporting?
 -------------------------------------------------
 
-The supported running environment since Pylint 2.12.1 is Python 3.6.2+.
+The supported running environment since Pylint 2.14.0 is Python 3.7.2+.
 
 
 3. Running Pylint
@@ -100,16 +100,17 @@ localized using the following rules:
 
 * ".pylint.d" directory in the current directory
 
-3.3 How do I find the option name (for pylintrc) corresponding to a specific command line option?
--------------------------------------------------------------------------------------------------
 
-You can generate a sample pylintrc file with --generate-rcfile
+3.3 How do I find the option name corresponding to a specific command line option?
+----------------------------------------------------------------------------------
+
+You can generate a sample configuration file with ``--generate-toml-config``.
 Every option present on the command line before this will be included in
-the rc file
+the toml file
 
 For example::
 
-    pylint --disable=bare-except,invalid-name --class-rgx='[A-Z][a-z]+' --generate-rcfile
+    pylint --disable=bare-except,invalid-name --class-rgx='[A-Z][a-z]+' --generate-toml-config
 
 3.4 I'd rather not run Pylint from the command line. Can I integrate it with my editor?
 ---------------------------------------------------------------------------------------
@@ -239,7 +240,7 @@ for not being included as default messages.
 
 You can see the plugin you need to explicitly `load in the technical reference`_
 
-.. _`load in the technical reference`: http://pylint.pycqa.org/en/latest/technical_reference/extensions.html?highlight=load%20plugin
+.. _`load in the technical reference`: https://pylint.pycqa.org/en/latest/technical_reference/extensions.html?highlight=load%20plugin
 
 4.8 I am using another popular linter alongside pylint. Which messages should I disable to avoid duplicates?
 ------------------------------------------------------------------------------------------------------------

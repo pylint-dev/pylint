@@ -4,13 +4,15 @@
 
 """Checker for anything related to the async protocol (PEP 492)."""
 
+from __future__ import annotations
+
 import sys
 from typing import TYPE_CHECKING
 
 import astroid
 from astroid import nodes
 
-from pylint import checkers, interfaces, utils
+from pylint import checkers
 from pylint.checkers import utils as checker_utils
 from pylint.checkers.utils import decorated_with
 
@@ -19,7 +21,6 @@ if TYPE_CHECKING:
 
 
 class AsyncChecker(checkers.BaseChecker):
-    __implements__ = interfaces.IAstroidChecker
     name = "async"
     msgs = {
         "E1700": (
@@ -38,11 +39,8 @@ class AsyncChecker(checkers.BaseChecker):
         ),
     }
 
-    def __init__(self, linter: "PyLinter") -> None:
-        super().__init__(linter, future_option_parsing=True)
-
     def open(self):
-        self._mixin_class_rgx = utils.get_global_option(self, "mixin-class-rgx")
+        self._mixin_class_rgx = self.linter.config.mixin_class_rgx
         self._async_generators = ["contextlib.asynccontextmanager"]
 
     @checker_utils.check_messages("yield-inside-async-function")
@@ -83,7 +81,7 @@ class AsyncChecker(checkers.BaseChecker):
                         # Ignore mixin classes if they match the rgx option.
                         if (
                             "not-async-context-manager"
-                            in self.linter.namespace.ignored_checks_for_mixins
+                            in self.linter.config.ignored_checks_for_mixins
                             and self._mixin_class_rgx.match(inferred.name)
                         ):
                             continue
@@ -94,5 +92,5 @@ class AsyncChecker(checkers.BaseChecker):
             )
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(AsyncChecker(linter))

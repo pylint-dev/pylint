@@ -3,16 +3,19 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Checker for spelling errors in comments and docstrings."""
+
+from __future__ import annotations
+
 import os
 import re
 import tokenize
-from typing import TYPE_CHECKING, Pattern
+from re import Pattern
+from typing import TYPE_CHECKING
 
 from astroid import nodes
 
 from pylint.checkers import BaseTokenChecker
 from pylint.checkers.utils import check_messages
-from pylint.interfaces import IAstroidChecker, ITokenChecker
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -179,7 +182,6 @@ def _strip_code_flanked_in_backticks(line: str) -> str:
 class SpellingChecker(BaseTokenChecker):
     """Check spelling in comments and docstrings."""
 
-    __implements__ = (ITokenChecker, IAstroidChecker)
     name = "spelling"
     msgs = {
         "C0401": (
@@ -263,21 +265,18 @@ class SpellingChecker(BaseTokenChecker):
         ),
     )
 
-    def __init__(self, linter: "PyLinter") -> None:
-        super().__init__(linter, future_option_parsing=True)
-
     def open(self):
         self.initialized = False
         self.private_dict_file = None
 
         if enchant is None:
             return
-        dict_name = self.linter.namespace.spelling_dict
+        dict_name = self.linter.config.spelling_dict
         if not dict_name:
             return
 
         self.ignore_list = [
-            w.strip() for w in self.linter.namespace.spelling_ignore_words.split(",")
+            w.strip() for w in self.linter.config.spelling_ignore_words.split(",")
         ]
         # "param" appears in docstring in param description and
         # "pylint" appears in comments in pylint pragmas.
@@ -285,26 +284,26 @@ class SpellingChecker(BaseTokenChecker):
 
         self.ignore_comment_directive_list = [
             w.strip()
-            for w in self.linter.namespace.spelling_ignore_comment_directives.split(",")
+            for w in self.linter.config.spelling_ignore_comment_directives.split(",")
         ]
 
         # Expand tilde to allow e.g. spelling-private-dict-file = ~/.pylintdict
-        if self.linter.namespace.spelling_private_dict_file:
-            self.linter.namespace.spelling_private_dict_file = os.path.expanduser(
-                self.linter.namespace.spelling_private_dict_file
+        if self.linter.config.spelling_private_dict_file:
+            self.linter.config.spelling_private_dict_file = os.path.expanduser(
+                self.linter.config.spelling_private_dict_file
             )
 
-        if self.linter.namespace.spelling_private_dict_file:
+        if self.linter.config.spelling_private_dict_file:
             self.spelling_dict = enchant.DictWithPWL(
-                dict_name, self.linter.namespace.spelling_private_dict_file
+                dict_name, self.linter.config.spelling_private_dict_file
             )
             self.private_dict_file = open(  # pylint: disable=consider-using-with
-                self.linter.namespace.spelling_private_dict_file, "a", encoding="utf-8"
+                self.linter.config.spelling_private_dict_file, "a", encoding="utf-8"
             )
         else:
             self.spelling_dict = enchant.Dict(dict_name)
 
-        if self.linter.namespace.spelling_store_unknown_words:
+        if self.linter.config.spelling_store_unknown_words:
             self.unknown_words = set()
 
         self.tokenizer = get_tokenizer(
@@ -378,14 +377,14 @@ class SpellingChecker(BaseTokenChecker):
                 continue
 
             # Store word to private dict or raise a message.
-            if self.linter.namespace.spelling_store_unknown_words:
+            if self.linter.config.spelling_store_unknown_words:
                 if lower_cased_word not in self.unknown_words:
                     self.private_dict_file.write(f"{lower_cased_word}\n")
                     self.unknown_words.add(lower_cased_word)
             else:
                 # Present up to N suggestions.
                 suggestions = self.spelling_dict.suggest(word)
-                del suggestions[self.linter.namespace.max_spelling_suggestions :]
+                del suggestions[self.linter.config.max_spelling_suggestions :]
                 line_segment = line[word_start_at:]
                 match = re.search(rf"(\W|^)({word})(\W|$)", line_segment)
                 if match:
@@ -401,7 +400,7 @@ class SpellingChecker(BaseTokenChecker):
                 args = (word, original_line, indicator, f"'{all_suggestion}'")
                 self.add_message(msgid, line=line_num, args=args)
 
-    def process_tokens(self, tokens):
+    def process_tokens(self, tokens: list[tokenize.TokenInfo]) -> None:
         if not self.initialized:
             return
 
@@ -448,5 +447,5 @@ class SpellingChecker(BaseTokenChecker):
             self._check_spelling("wrong-spelling-in-docstring", line, start_line + idx)
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(SpellingChecker(linter))

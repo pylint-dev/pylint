@@ -2,11 +2,27 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
+import contextlib
 import os
-from typing import List
+import sys
+from collections.abc import Iterator
+from typing import TextIO
 
 
-def create_files(paths: List[str], chroot: str = ".") -> None:
+@contextlib.contextmanager
+def _patch_streams(out: TextIO) -> Iterator[None]:
+    """Patch and subsequently reset a text stream."""
+    sys.stderr = sys.stdout = out
+    try:
+        yield
+    finally:
+        sys.stderr = sys.__stderr__
+        sys.stdout = sys.__stdout__
+
+
+def create_files(paths: list[str], chroot: str = ".") -> None:
     """Creates directories and files found in <path>.
 
     :param list paths: list of relative paths to files or directories

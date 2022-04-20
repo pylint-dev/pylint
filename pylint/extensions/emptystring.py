@@ -4,12 +4,15 @@
 
 """Looks for  comparisons to empty string."""
 
+from __future__ import annotations
+
 import itertools
-from typing import TYPE_CHECKING, Any, Iterable
+from collections.abc import Iterable
+from typing import TYPE_CHECKING, Any
 
 from astroid import nodes
 
-from pylint import checkers, interfaces
+from pylint import checkers
 from pylint.checkers import utils
 
 if TYPE_CHECKING:
@@ -23,8 +26,6 @@ class CompareToEmptyStringChecker(checkers.BaseChecker):
     An exception to this rule is when an empty string value is allowed in the program
     and has a different meaning than None!
     """
-
-    __implements__ = (interfaces.IAstroidChecker,)
 
     # configuration section name
     name = "compare-to-empty-string"
@@ -67,5 +68,5 @@ class CompareToEmptyStringChecker(checkers.BaseChecker):
                 self.add_message("compare-to-empty-string", node=node)
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(CompareToEmptyStringChecker(linter))

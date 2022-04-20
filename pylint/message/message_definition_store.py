@@ -2,9 +2,12 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import collections
 import functools
-from typing import TYPE_CHECKING, Dict, List, Tuple, ValuesView
+from collections.abc import Sequence, ValuesView
+from typing import TYPE_CHECKING
 
 from pylint.exceptions import UnknownMessageError
 from pylint.message.message_definition import MessageDefinition
@@ -25,16 +28,16 @@ class MessageDefinitionStore:
         # Primary registry for all active messages definitions.
         # It contains the 1:1 mapping from msgid to MessageDefinition.
         # Keys are msgid, values are MessageDefinition
-        self._messages_definitions: Dict[str, MessageDefinition] = {}
+        self._messages_definitions: dict[str, MessageDefinition] = {}
         # MessageDefinition kept by category
-        self._msgs_by_category: Dict[str, List[str]] = collections.defaultdict(list)
+        self._msgs_by_category: dict[str, list[str]] = collections.defaultdict(list)
 
     @property
     def messages(self) -> ValuesView[MessageDefinition]:
         """The list of all active messages."""
         return self._messages_definitions.values()
 
-    def register_messages_from_checker(self, checker: "BaseChecker") -> None:
+    def register_messages_from_checker(self, checker: BaseChecker) -> None:
         """Register all messages definitions from a checker."""
         checker.check_consistency()
         for message in checker.messages:
@@ -52,8 +55,8 @@ class MessageDefinitionStore:
     # and the arguments are relatively small in size we do not run the
     # risk of creating a large memory leak.
     # See discussion in: https://github.com/PyCQA/pylint/pull/5673
-    @functools.lru_cache(maxsize=None)  # pylint: disable=cache-max-size-none
-    def get_message_definitions(self, msgid_or_symbol: str) -> List[MessageDefinition]:
+    @functools.lru_cache(maxsize=None)  # pylint: disable=method-cache-max-size-none
+    def get_message_definitions(self, msgid_or_symbol: str) -> list[MessageDefinition]:
         """Returns the Message definition for either a numeric or symbolic id.
 
         The cache has no limit as its size will likely stay minimal. For each message we store
@@ -72,7 +75,7 @@ class MessageDefinitionStore:
             return repr(message_definitions[0].symbol)
         return repr([md.symbol for md in message_definitions])
 
-    def help_message(self, msgids_or_symbols: List[str]) -> None:
+    def help_message(self, msgids_or_symbols: Sequence[str]) -> None:
         """Display help messages for the given message identifiers."""
         for msgids_or_symbol in msgids_or_symbols:
             try:
@@ -99,7 +102,7 @@ class MessageDefinitionStore:
 
     def find_emittable_messages(
         self,
-    ) -> Tuple[List[MessageDefinition], List[MessageDefinition]]:
+    ) -> tuple[list[MessageDefinition], list[MessageDefinition]]:
         """Finds all emittable and non-emittable messages."""
         messages = sorted(self._messages_definitions.values(), key=lambda m: m.msgid)
         emittable = []

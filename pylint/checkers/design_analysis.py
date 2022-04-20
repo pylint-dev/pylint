@@ -4,18 +4,19 @@
 
 """Check for signs of poor design."""
 
+from __future__ import annotations
+
 import re
 import sys
 from collections import defaultdict
-from typing import TYPE_CHECKING, FrozenSet, Iterator, List, Set, cast
+from collections.abc import Iterator
+from typing import TYPE_CHECKING, List, cast
 
 import astroid
 from astroid import nodes
 
-from pylint import utils
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages
-from pylint.interfaces import IAstroidChecker
 
 if sys.version_info >= (3, 8):
     from functools import cached_property
@@ -229,7 +230,7 @@ def _count_methods_in_class(node):
 
 
 def _get_parents_iter(
-    node: nodes.ClassDef, ignored_parents: FrozenSet[str]
+    node: nodes.ClassDef, ignored_parents: frozenset[str]
 ) -> Iterator[nodes.ClassDef]:
     r"""Get parents of ``node``, excluding ancestors of ``ignored_parents``.
 
@@ -246,7 +247,7 @@ def _get_parents_iter(
     And ``ignored_parents`` is ``{"E"}``, then this function will return
     ``{A, B, C, D}`` -- both ``E`` and its ancestors are excluded.
     """
-    parents: Set[nodes.ClassDef] = set()
+    parents: set[nodes.ClassDef] = set()
     to_explore = cast(List[nodes.ClassDef], list(node.ancestors(recurs=False)))
     while to_explore:
         parent = to_explore.pop()
@@ -265,8 +266,8 @@ def _get_parents_iter(
 
 
 def _get_parents(
-    node: nodes.ClassDef, ignored_parents: FrozenSet[str]
-) -> Set[nodes.ClassDef]:
+    node: nodes.ClassDef, ignored_parents: frozenset[str]
+) -> set[nodes.ClassDef]:
     return set(_get_parents_iter(node, ignored_parents))
 
 
@@ -277,8 +278,6 @@ class MisdesignChecker(BaseChecker):
     * number of methods, attributes, local variables...
     * size, complexity of functions, methods
     """
-
-    __implements__ = (IAstroidChecker,)
 
     # configuration section name
     name = "design"
@@ -403,7 +402,7 @@ class MisdesignChecker(BaseChecker):
     )
 
     def __init__(self, linter=None):
-        super().__init__(linter, future_option_parsing=True)
+        super().__init__(linter)
         self._returns = None
         self._branches = None
         self._stmts = None
@@ -414,8 +413,8 @@ class MisdesignChecker(BaseChecker):
         self._returns = []
         self._branches = defaultdict(int)
         self._stmts = []
-        self._exclude_too_few_public_methods = utils.get_global_option(
-            self, "exclude-too-few-public-methods", default=[]
+        self._exclude_too_few_public_methods = (
+            self.linter.config.exclude_too_few_public_methods
         )
 
     def _inc_all_stmts(self, amount):
@@ -424,7 +423,7 @@ class MisdesignChecker(BaseChecker):
 
     @cached_property
     def _ignored_argument_names(self):
-        return utils.get_global_option(self, "ignored-argument-names", default=None)
+        return self.linter.config.ignored_argument_names
 
     @check_messages(
         "too-many-ancestors",
@@ -436,21 +435,21 @@ class MisdesignChecker(BaseChecker):
         """Check size of inheritance hierarchy and number of instance attributes."""
         parents = _get_parents(
             node,
-            STDLIB_CLASSES_IGNORE_ANCESTOR.union(self.linter.namespace.ignored_parents),
+            STDLIB_CLASSES_IGNORE_ANCESTOR.union(self.linter.config.ignored_parents),
         )
         nb_parents = len(parents)
-        if nb_parents > self.linter.namespace.max_parents:
+        if nb_parents > self.linter.config.max_parents:
             self.add_message(
                 "too-many-ancestors",
                 node=node,
-                args=(nb_parents, self.linter.namespace.max_parents),
+                args=(nb_parents, self.linter.config.max_parents),
             )
 
-        if len(node.instance_attrs) > self.linter.namespace.max_attributes:
+        if len(node.instance_attrs) > self.linter.config.max_attributes:
             self.add_message(
                 "too-many-instance-attributes",
                 node=node,
-                args=(len(node.instance_attrs), self.linter.namespace.max_attributes),
+                args=(len(node.instance_attrs), self.linter.config.max_attributes),
             )
 
     @check_messages("too-few-public-methods", "too-many-public-methods")
@@ -467,11 +466,11 @@ class MisdesignChecker(BaseChecker):
         # for classes such as unittest.TestCase, which provides
         # a lot of assert methods. It doesn't make sense to warn
         # when the user subclasses TestCase to add his own tests.
-        if my_methods > self.linter.namespace.max_public_methods:
+        if my_methods > self.linter.config.max_public_methods:
             self.add_message(
                 "too-many-public-methods",
                 node=node,
-                args=(my_methods, self.linter.namespace.max_public_methods),
+                args=(my_methods, self.linter.config.max_public_methods),
             )
 
         # Stop here if the class is excluded via configuration.
@@ -492,11 +491,11 @@ class MisdesignChecker(BaseChecker):
         # This checks all the methods defined by ancestors and
         # by the current class.
         all_methods = _count_methods_in_class(node)
-        if all_methods < self.linter.namespace.min_public_methods:
+        if all_methods < self.linter.config.min_public_methods:
             self.add_message(
                 "too-few-public-methods",
                 node=node,
-                args=(all_methods, self.linter.namespace.min_public_methods),
+                args=(all_methods, self.linter.config.min_public_methods),
             )
 
     @check_messages(
@@ -524,21 +523,21 @@ class MisdesignChecker(BaseChecker):
                 )
 
             argnum = len(args) - ignored_args_num
-            if argnum > self.linter.namespace.max_args:
+            if argnum > self.linter.config.max_args:
                 self.add_message(
                     "too-many-arguments",
                     node=node,
-                    args=(len(args), self.linter.namespace.max_args),
+                    args=(len(args), self.linter.config.max_args),
                 )
         else:
             ignored_args_num = 0
         # check number of local variables
         locnum = len(node.locals) - ignored_args_num
-        if locnum > self.linter.namespace.max_locals:
+        if locnum > self.linter.config.max_locals:
             self.add_message(
                 "too-many-locals",
                 node=node,
-                args=(locnum, self.linter.namespace.max_locals),
+                args=(locnum, self.linter.config.max_locals),
             )
         # init new statements counter
         self._stmts.append(1)
@@ -557,26 +556,26 @@ class MisdesignChecker(BaseChecker):
         checks for max returns, branch, return in __init__
         """
         returns = self._returns.pop()
-        if returns > self.linter.namespace.max_returns:
+        if returns > self.linter.config.max_returns:
             self.add_message(
                 "too-many-return-statements",
                 node=node,
-                args=(returns, self.linter.namespace.max_returns),
+                args=(returns, self.linter.config.max_returns),
             )
         branches = self._branches[node]
-        if branches > self.linter.namespace.max_branches:
+        if branches > self.linter.config.max_branches:
             self.add_message(
                 "too-many-branches",
                 node=node,
-                args=(branches, self.linter.namespace.max_branches),
+                args=(branches, self.linter.config.max_branches),
             )
         # check number of statements
         stmts = self._stmts.pop()
-        if stmts > self.linter.namespace.max_statements:
+        if stmts > self.linter.config.max_statements:
             self.add_message(
                 "too-many-statements",
                 node=node,
-                args=(stmts, self.linter.namespace.max_statements),
+                args=(stmts, self.linter.config.max_statements),
             )
 
     leave_asyncfunctiondef = leave_functiondef
@@ -607,7 +606,7 @@ class MisdesignChecker(BaseChecker):
         self._inc_branch(node, 2)
         self._inc_all_stmts(2)
 
-    @check_messages("too-many-boolean-expressions")
+    @check_messages("too-many-boolean-expressions", "too-many-branches")
     def visit_if(self, node: nodes.If) -> None:
         """Increments the branches counter and checks boolean expressions."""
         self._check_boolean_expressions(node)
@@ -628,11 +627,11 @@ class MisdesignChecker(BaseChecker):
         if not isinstance(condition, astroid.BoolOp):
             return
         nb_bool_expr = _count_boolean_expressions(condition)
-        if nb_bool_expr > self.linter.namespace.max_bool_expr:
+        if nb_bool_expr > self.linter.config.max_bool_expr:
             self.add_message(
                 "too-many-boolean-expressions",
                 node=condition,
-                args=(nb_bool_expr, self.linter.namespace.max_bool_expr),
+                args=(nb_bool_expr, self.linter.config.max_bool_expr),
             )
 
     def visit_while(self, node: nodes.While) -> None:
@@ -649,5 +648,5 @@ class MisdesignChecker(BaseChecker):
         self._branches[node.scope()] += branchesnum
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(MisdesignChecker(linter))

@@ -2,21 +2,20 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages
-from pylint.interfaces import IAstroidChecker
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
 
 class SetMembershipChecker(BaseChecker):
-
-    __implements__ = (IAstroidChecker,)
 
     name = "set_membership"
     msgs = {
@@ -28,7 +27,7 @@ class SetMembershipChecker(BaseChecker):
         ),
     }
 
-    def __init__(self, linter: "PyLinter") -> None:
+    def __init__(self, linter: PyLinter) -> None:
         """Initialize checker instance."""
         super().__init__(linter=linter)
 
@@ -50,5 +49,5 @@ class SetMembershipChecker(BaseChecker):
             self.add_message("use-set-for-membership", node=comparator)
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(SetMembershipChecker(linter))

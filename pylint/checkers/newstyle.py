@@ -3,6 +3,9 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Check for new / old style related problems."""
+
+from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 import astroid
@@ -10,7 +13,6 @@ from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages, has_known_bases, node_frame_class
-from pylint.interfaces import IAstroidChecker
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -32,8 +34,6 @@ class NewStyleConflictChecker(BaseChecker):
     * use of property, __slots__, super
     * "super" usage
     """
-
-    __implements__ = (IAstroidChecker,)
 
     # configuration section name
     name = "newstyle"
@@ -118,5 +118,5 @@ class NewStyleConflictChecker(BaseChecker):
     visit_asyncfunctiondef = visit_functiondef
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(NewStyleConflictChecker(linter))

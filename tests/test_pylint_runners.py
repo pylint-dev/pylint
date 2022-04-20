@@ -1,11 +1,13 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
-
 # pylint: disable=missing-module-docstring, missing-function-docstring
+
+from __future__ import annotations
+
 import os
 import sys
-from typing import Callable
+from collections.abc import Callable
 from unittest.mock import patch
 
 import pytest

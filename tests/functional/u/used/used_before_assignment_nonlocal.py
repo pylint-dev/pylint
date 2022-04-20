@@ -1,5 +1,5 @@
 """Check for nonlocal and used-before-assignment"""
-# pylint: disable=missing-docstring, unused-variable, no-init, too-few-public-methods
+# pylint: disable=missing-docstring, unused-variable, too-few-public-methods
 
 __revision__ = 0
 
@@ -58,3 +58,34 @@ def nonlocal_in_ifexp():
     on_click(True)
 
 nonlocal_in_ifexp()
+
+
+def type_annotation_only_gets_value_via_nonlocal():
+    """https://github.com/PyCQA/pylint/issues/5394"""
+    some_num: int
+    def inner():
+        nonlocal some_num
+        some_num = 5
+    inner()
+    print(some_num)
+
+
+def type_annotation_only_gets_value_via_nonlocal_nested():
+    """Similar, with nesting"""
+    some_num: int
+    def inner():
+        def inner2():
+            nonlocal some_num
+            some_num = 5
+        inner2()
+    inner()
+    print(some_num)
+
+
+def type_annotation_never_gets_value_despite_nonlocal():
+    """Type annotation lacks a value despite nonlocal declaration"""
+    some_num: int
+    def inner():
+        nonlocal some_num
+    inner()
+    print(some_num)  # [used-before-assignment]

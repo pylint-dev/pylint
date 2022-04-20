@@ -14,8 +14,7 @@ from unittest.mock import patch
 import pytest
 from astroid import nodes
 
-import pylint.interfaces
-from pylint.checkers.base_checker import BaseChecker
+from pylint.checkers import BaseRawFileChecker
 from pylint.lint import PyLinter, Run, check_parallel
 from pylint.testutils import GenericTestReporter as Reporter
 from pylint.typing import FileItem
@@ -30,14 +29,12 @@ def _empty_filepath():
     )
 
 
-class SleepingChecker(BaseChecker):
+class SleepingChecker(BaseRawFileChecker):
     """A checker that sleeps, the wall-clock time should reduce as we add workers.
 
     As we apply a roughly constant amount of "work" in this checker any variance is
     likely to be caused by the pylint system.
     """
-
-    __implements__ = (pylint.interfaces.IRawChecker,)
 
     name = "sleeper"
     msgs = {
@@ -49,7 +46,7 @@ class SleepingChecker(BaseChecker):
     }
     sleep_duration = 0.5  # the time to pretend we're doing work for
 
-    def process_module(self, _node: nodes.Module) -> None:
+    def process_module(self, node: nodes.Module) -> None:
         """Sleeps for `sleep_duration` on each call.
 
         This effectively means each file costs ~`sleep_duration`+framework overhead
@@ -57,14 +54,12 @@ class SleepingChecker(BaseChecker):
         time.sleep(self.sleep_duration)
 
 
-class SleepingCheckerLong(BaseChecker):
+class SleepingCheckerLong(BaseRawFileChecker):
     """A checker that sleeps, the wall-clock time should reduce as we add workers.
 
     As we apply a roughly constant amount of "work" in this checker any variance is
     likely to be caused by the pylint system.
     """
-
-    __implements__ = (pylint.interfaces.IRawChecker,)
 
     name = "long-sleeper"
     msgs = {
@@ -76,7 +71,7 @@ class SleepingCheckerLong(BaseChecker):
     }
     sleep_duration = 0.5  # the time to pretend we're doing work for
 
-    def process_module(self, _node: nodes.Module) -> None:
+    def process_module(self, node: nodes.Module) -> None:
         """Sleeps for `sleep_duration` on each call.
 
         This effectively means each file costs ~`sleep_duration`+framework overhead
@@ -84,10 +79,8 @@ class SleepingCheckerLong(BaseChecker):
         time.sleep(self.sleep_duration)
 
 
-class NoWorkChecker(BaseChecker):
+class NoWorkChecker(BaseRawFileChecker):
     """A checker that sleeps, the wall-clock time should change as we add threads."""
-
-    __implements__ = (pylint.interfaces.IRawChecker,)
 
     name = "sleeper"
     msgs = {
@@ -98,7 +91,7 @@ class NoWorkChecker(BaseChecker):
         )
     }
 
-    def process_module(self, _node: nodes.Module) -> None:
+    def process_module(self, node: nodes.Module) -> None:
         pass
 
 
@@ -136,6 +129,7 @@ class TestEstablishBaselineBenchmarks:
             linter.msg_status == 0
         ), f"Expected no errors to be thrown: {pprint.pformat(linter.reporter.messages)}"
 
+    @pytest.mark.needs_two_cores
     def test_baseline_benchmark_j2(self, benchmark):
         """Establish a baseline of pylint performance with no work across threads.
 
@@ -158,6 +152,7 @@ class TestEstablishBaselineBenchmarks:
             linter.msg_status == 0
         ), f"Expected no errors to be thrown: {pprint.pformat(linter.reporter.messages)}"
 
+    @pytest.mark.needs_two_cores
     def test_baseline_benchmark_check_parallel_j2(self, benchmark):
         """Should demonstrate times very close to `test_baseline_benchmark_j2`."""
         linter = PyLinter(reporter=Reporter())
@@ -190,6 +185,7 @@ class TestEstablishBaselineBenchmarks:
             linter.msg_status == 0
         ), f"Expected no errors to be thrown: {pprint.pformat(linter.reporter.messages)}"
 
+    @pytest.mark.needs_two_cores
     def test_baseline_lots_of_files_j2(self, benchmark):
         """Establish a baseline with only 'master' checker being run in -j2.
 
@@ -230,6 +226,7 @@ class TestEstablishBaselineBenchmarks:
             linter.msg_status == 0
         ), f"Expected no errors to be thrown: {pprint.pformat(linter.reporter.messages)}"
 
+    @pytest.mark.needs_two_cores
     def test_baseline_lots_of_files_j2_empty_checker(self, benchmark):
         """Baselines pylint for a single extra checker being run in -j2, for N-files.
 
@@ -276,6 +273,7 @@ class TestEstablishBaselineBenchmarks:
             linter.msg_status == 0
         ), f"Expected no errors to be thrown: {pprint.pformat(linter.reporter.messages)}"
 
+    @pytest.mark.needs_two_cores
     def test_baseline_benchmark_j2_single_working_checker(self, benchmark):
         """Establishes baseline of multi-worker performance for PyLinter/check_parallel.
 

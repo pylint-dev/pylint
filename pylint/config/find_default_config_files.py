@@ -2,12 +2,14 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import configparser
 import os
 import sys
 import warnings
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Iterator, Optional, Union
 
 if sys.version_info >= (3, 11):
     import tomllib
@@ -18,7 +20,7 @@ RC_NAMES = (Path("pylintrc"), Path(".pylintrc"))
 CONFIG_NAMES = RC_NAMES + (Path("pyproject.toml"), Path("setup.cfg"))
 
 
-def _toml_has_config(path: Union[Path, str]) -> bool:
+def _toml_has_config(path: Path | str) -> bool:
     with open(path, mode="rb") as toml_handle:
         try:
             content = tomllib.load(toml_handle)
@@ -28,7 +30,7 @@ def _toml_has_config(path: Union[Path, str]) -> bool:
     return "pylint" in content.get("tool", [])
 
 
-def _cfg_has_config(path: Union[Path, str]) -> bool:
+def _cfg_has_config(path: Path | str) -> bool:
     parser = configparser.ConfigParser()
     try:
         parser.read(path, encoding="utf-8")
@@ -74,10 +76,10 @@ def find_default_config_files() -> Iterator[Path]:
         yield Path("/etc/pylintrc").resolve()
 
 
-def find_pylintrc() -> Optional[str]:
+def find_pylintrc() -> str | None:
     """Search the pylint rc file and return its path if it finds it, else return None."""
     # pylint: disable-next=fixme
-    # TODO: Remove this function in 3.0
+    # TODO: 3.0: Remove deprecated function
     warnings.warn(
         "find_pylintrc and the PYLINTRC constant have been deprecated. "
         "Use find_default_config_files if you want access to pylint's configuration file "

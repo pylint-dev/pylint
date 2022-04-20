@@ -6,6 +6,7 @@
 indicated by the py-version setting.
 """
 
+from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
@@ -17,8 +18,6 @@ from pylint.checkers.utils import (
     safe_infer,
     uninferable_final_decorators,
 )
-from pylint.interfaces import IAstroidChecker
-from pylint.utils import get_global_option
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -29,7 +28,6 @@ class UnsupportedVersionChecker(BaseChecker):
     indicated by the py-version setting.
     """
 
-    __implements__ = (IAstroidChecker,)
     name = "unsupported_version"
     msgs = {
         "W2601": (
@@ -48,7 +46,7 @@ class UnsupportedVersionChecker(BaseChecker):
 
     def open(self) -> None:
         """Initialize visit variables and statistics."""
-        py_version = get_global_option(self, "py-version")
+        py_version = self.linter.config.py_version
         self._py36_plus = py_version >= (3, 6)
         self._py38_plus = py_version >= (3, 8)
 
@@ -82,5 +80,5 @@ class UnsupportedVersionChecker(BaseChecker):
             )
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(UnsupportedVersionChecker(linter))

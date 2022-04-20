@@ -8,7 +8,7 @@ import pickle
 import sys
 from datetime import datetime
 
-from pylint.config.config_file_parser import _ConfigurationFileParser
+from pylint.config.arguments_provider import UnsupportedAction
 from pylint.config.configuration_mixin import ConfigurationMixIn
 from pylint.config.environment_variable import PYLINTRC
 from pylint.config.find_default_config_files import (
@@ -18,20 +18,19 @@ from pylint.config.find_default_config_files import (
 from pylint.config.option import Option
 from pylint.config.option_manager_mixin import OptionsManagerMixIn
 from pylint.config.option_parser import OptionParser
-from pylint.config.options_provider_mixin import OptionsProviderMixIn, UnsupportedAction
+from pylint.config.options_provider_mixin import OptionsProviderMixIn
 from pylint.constants import DEFAULT_PYLINT_HOME, OLD_DEFAULT_PYLINT_HOME, USER_HOME
 from pylint.utils import LinterStats
 
 __all__ = [
-    "_ConfigurationFileParser",
-    "ConfigurationMixIn",
+    "ConfigurationMixIn",  # Deprecated
     "find_default_config_files",
-    "find_pylintrc",
-    "Option",
-    "OptionsManagerMixIn",
-    "OptionParser",
-    "OptionsProviderMixIn",
-    "UnsupportedAction",
+    "find_pylintrc",  # Deprecated
+    "Option",  # Deprecated
+    "OptionsManagerMixIn",  # Deprecated
+    "OptionParser",  # Deprecated
+    "OptionsProviderMixIn",  # Deprecated
+    "UnsupportedAction",  # Deprecated
     "PYLINTRC",
     "USER_HOME",
 ]

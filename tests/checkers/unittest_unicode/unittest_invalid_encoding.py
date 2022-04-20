@@ -2,11 +2,13 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import codecs
 import io
 import shutil
 from pathlib import Path
-from typing import Tuple, cast
+from typing import cast
 
 import pytest
 from astroid import nodes
@@ -137,6 +139,6 @@ class TestInvalidEncoding(pylint.testutils.CheckerTestCase):
         "codec, msg",
         (pytest.param(codec, msg, id=codec) for codec, msg in CODEC_AND_MSG),
     )
-    def test___check_codec(self, codec: str, msg: Tuple[pylint.testutils.MessageTest]):
+    def test___check_codec(self, codec: str, msg: tuple[pylint.testutils.MessageTest]):
         with self.assertAddsMessages(*msg):
             self.checker._check_codec(codec, 1)

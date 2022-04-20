@@ -3,20 +3,21 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Ellipsis checker for Python code."""
+
+from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages
-from pylint.interfaces import IAstroidChecker
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
 
 class EllipsisChecker(BaseChecker):
-    __implements__ = (IAstroidChecker,)
     name = "unnecessary_ellipsis"
     msgs = {
         "W2301": (
@@ -53,5 +54,5 @@ class EllipsisChecker(BaseChecker):
             self.add_message("unnecessary-ellipsis", node=node)
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(EllipsisChecker(linter))

@@ -223,7 +223,7 @@ New checkers
   raised inherit from StopIteration.
   Close #1385
 
- .. _PEP479: https://www.python.org/dev/peps/pep-0479
+ .. _PEP479: https://peps.python.org/pep-0479
 
 * A new Python checker was added to warn about using a ``+`` operator inside call of logging methods
   when one of the operands is a literal string:
@@ -268,7 +268,7 @@ New checkers
 
   Close #1267
 
- .. _PEP8: https://www.python.org/dev/peps/pep-0008
+ .. _PEP8: https://peps.python.org/pep-0008
 
 Other Changes
 =============

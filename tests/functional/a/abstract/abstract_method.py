@@ -1,7 +1,7 @@
 """Test abstract-method warning."""
 from __future__ import print_function
 
-# pylint: disable=missing-docstring, no-init, no-self-use
+# pylint: disable=missing-docstring, no-self-use
 # pylint: disable=too-few-public-methods, useless-object-inheritance
 import abc
 

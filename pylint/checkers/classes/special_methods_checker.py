@@ -16,7 +16,6 @@ from pylint.checkers.utils import (
     is_function_body_ellipsis,
     safe_infer,
 )
-from pylint.interfaces import IAstroidChecker
 
 NEXT_METHOD = "__next__"
 
@@ -48,7 +47,6 @@ class SpecialMethodsChecker(BaseChecker):
     are implemented correctly.
     """
 
-    __implements__ = (IAstroidChecker,)
     name = "classes"
     msgs = {
         "E0301": (
@@ -290,7 +288,7 @@ class SpecialMethodsChecker(BaseChecker):
             # Generators can be iterated.
             return True
         # pylint: disable-next=fixme
-        # TODO: Should be covered by https://github.com/PyCQA/astroid/pull/1475
+        # TODO: 2.14: Should be covered by https://github.com/PyCQA/astroid/pull/1475
         if isinstance(node, nodes.ComprehensionScope):
             # Comprehensions can be iterated.
             return True

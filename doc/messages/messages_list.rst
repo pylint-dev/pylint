@@ -59,6 +59,8 @@ All messages in the error category:
    error/bad-string-format-type.rst
    error/bad-super-call.rst
    error/bidirectional-unicode.rst
+   error/broken-collections-callable.rst
+   error/broken-noreturn.rst
    error/catching-non-exception.rst
    error/class-variable-slots-conflict.rst
    error/continue-in-finally.rst
@@ -82,6 +84,7 @@ All messages in the error category:
    error/invalid-character-sub.rst
    error/invalid-character-zero-width-space.rst
    error/invalid-class-object.rst
+   error/invalid-enum-extension.rst
    error/invalid-envvar-value.rst
    error/invalid-format-returned.rst
    error/invalid-getnewargs-ex-returned.rst
@@ -128,6 +131,7 @@ All messages in the error category:
    error/not-context-manager.rst
    error/not-in-loop.rst
    error/notimplemented-raised.rst
+   error/potential-index-error.rst
    error/raising-bad-type.rst
    error/raising-non-exception.rst
    error/redundant-keyword-arg.rst
@@ -150,6 +154,7 @@ All messages in the error category:
    error/unhashable-dict-key.rst
    error/unpacking-non-sequence.rst
    error/unrecognized-inline-option.rst
+   error/unrecognized-option.rst
    error/unsubscriptable-object.rst
    error/unsupported-assignment-operation.rst
    error/unsupported-binary-operation.rst
@@ -202,6 +207,7 @@ All messages in the warning category:
    warning/binary-op-exception.rst
    warning/boolean-datetime.rst
    warning/broad-except.rst
+   warning/cache-max-size-none.rst
    warning/cell-var-from-loop.rst
    warning/comparison-with-callable.rst
    warning/confusing-with-statement.rst
@@ -218,6 +224,8 @@ All messages in the warning category:
    warning/duplicate-except.rst
    warning/duplicate-key.rst
    warning/duplicate-string-formatting-argument.rst
+   warning/duplicate-value.rst
+   warning/eq-without-hash.rst
    warning/eval-used.rst
    warning/exec-used.rst
    warning/expression-not-assigned.rst
@@ -242,7 +250,6 @@ All messages in the warning category:
    warning/logging-fstring-interpolation.rst
    warning/logging-not-lazy.rst
    warning/lost-exception.rst
-   warning/lru-cache-decorating-method.rst
    warning/misplaced-future.rst
    warning/missing-any-param-doc.rst
    warning/missing-format-argument-key.rst
@@ -258,7 +265,6 @@ All messages in the warning category:
    warning/modified-iterating-list.rst
    warning/multiple-constructor-doc.rst
    warning/nan-comparison.rst
-   warning/no-init.rst
    warning/non-ascii-file-name.rst
    warning/non-parent-init-called.rst
    warning/non-str-assignment-to-dunder-name.rst
@@ -324,6 +330,7 @@ All renamed messages in the warning category:
    :titlesonly:
 
    warning/implicit-str-concat-in-sequence.rst
+   warning/lru-cache-decorating-method.rst
    warning/old-assignment-from-none.rst
    warning/old-empty-docstring.rst
    warning/old-missing-param-doc.rst
@@ -360,6 +367,7 @@ All messages in the convention category:
    convention/docstring-first-line-empty.rst
    convention/empty-docstring.rst
    convention/import-outside-toplevel.rst
+   convention/import-private-name.rst
    convention/invalid-characters-in-docstring.rst
    convention/invalid-name.rst
    convention/line-too-long.rst
@@ -379,9 +387,13 @@ All messages in the convention category:
    convention/too-many-lines.rst
    convention/trailing-newlines.rst
    convention/trailing-whitespace.rst
+   convention/typevar-double-variance.rst
+   convention/typevar-name-incorrect-variance.rst
+   convention/typevar-name-mismatch.rst
    convention/unexpected-line-ending-format.rst
    convention/ungrouped-imports.rst
    convention/unidiomatic-typecheck.rst
+   convention/unnecessary-dunder-call.rst
    convention/unneeded-not.rst
    convention/use-implicit-booleaness-not-comparison.rst
    convention/use-implicit-booleaness-not-len.rst
@@ -475,6 +487,7 @@ All messages in the refactor category:
    refactor/trailing-comma-tuple.rst
    refactor/unnecessary-comprehension.rst
    refactor/unnecessary-dict-index-lookup.rst
+   refactor/unnecessary-list-index-lookup.rst
    refactor/use-a-generator.rst
    refactor/use-dict-literal.rst
    refactor/use-list-literal.rst

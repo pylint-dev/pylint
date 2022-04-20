@@ -2,12 +2,14 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
-from pylint.interfaces import HIGH, IAstroidChecker
+from pylint.interfaces import HIGH
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -27,8 +29,6 @@ class DunderCallChecker(BaseChecker):
     Additionally we exclude dunder method calls on super() since
     these can't be written in an alternative manner.
     """
-
-    __implements__ = IAstroidChecker
 
     includedict = {
         "__repr__": "Use repr built-in function",
@@ -155,5 +155,5 @@ class DunderCallChecker(BaseChecker):
             )
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(DunderCallChecker(linter))

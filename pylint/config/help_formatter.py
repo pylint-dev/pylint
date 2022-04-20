@@ -2,9 +2,9 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
 
 import argparse
-from typing import Optional
 
 from pylint.config.callback_actions import _CallbackAction
 from pylint.constants import DEFAULT_PYLINT_HOME, OLD_DEFAULT_PYLINT_HOME
@@ -13,7 +13,7 @@ from pylint.constants import DEFAULT_PYLINT_HOME, OLD_DEFAULT_PYLINT_HOME
 class _HelpFormatter(argparse.RawDescriptionHelpFormatter):
     """Formatter for the help message emitted by argparse."""
 
-    def _get_help_string(self, action: argparse.Action) -> Optional[str]:
+    def _get_help_string(self, action: argparse.Action) -> str | None:
         """Copied from argparse.ArgumentDefaultsHelpFormatter."""
         assert action.help
         help_string = action.help
