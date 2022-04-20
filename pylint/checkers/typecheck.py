@@ -18,7 +18,7 @@ from collections import deque
 from collections.abc import Callable, Iterator, Sequence
 from functools import singledispatch
 from re import Pattern
-from typing import TYPE_CHECKING, Any, Callable, Dict, Iterator, Pattern, Tuple, Union
+from typing import TYPE_CHECKING, Any, Union
 
 import astroid.exceptions
 from astroid import bases, nodes
