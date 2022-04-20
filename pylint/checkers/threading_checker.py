@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import check_messages, safe_infer
+from pylint.checkers.utils import only_required_for_messages, safe_infer
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -42,7 +42,7 @@ class ThreadingChecker(BaseChecker):
         ),
     }
 
-    @check_messages("useless-with-lock")
+    @only_required_for_messages("useless-with-lock")
     def visit_with(self, node: nodes.With) -> None:
 
         context_managers = (c for c, _ in node.items if isinstance(c, nodes.Call))

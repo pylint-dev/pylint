@@ -21,10 +21,10 @@ from astroid import nodes
 
 from pylint.checkers import BaseRawFileChecker, BaseTokenChecker
 from pylint.checkers.utils import (
-    check_messages,
     is_overload_stub,
     is_protocol_class,
     node_frame_class,
+    only_required_for_messages,
 )
 from pylint.constants import WarningScope
 from pylint.utils.pragma_parser import OPTION_PO, PragmaParserError, parse_pragma
@@ -543,7 +543,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                     line=line_num,
                 )
 
-    @check_messages("multiple-statements")
+    @only_required_for_messages("multiple-statements")
     def visit_default(self, node: nodes.NodeNG) -> None:
         """Check the node line number and check it if not yet done."""
         if not node.is_statement:

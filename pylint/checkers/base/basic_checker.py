@@ -263,15 +263,21 @@ class BasicChecker(_BasicChecker):
         self._tryfinallys = []
         self.linter.stats.reset_node_count()
 
-    @utils.check_messages("using-constant-test", "missing-parentheses-for-call-in-test")
+    @utils.only_required_for_messages(
+        "using-constant-test", "missing-parentheses-for-call-in-test"
+    )
     def visit_if(self, node: nodes.If) -> None:
         self._check_using_constant_test(node, node.test)
 
-    @utils.check_messages("using-constant-test", "missing-parentheses-for-call-in-test")
+    @utils.only_required_for_messages(
+        "using-constant-test", "missing-parentheses-for-call-in-test"
+    )
     def visit_ifexp(self, node: nodes.IfExp) -> None:
         self._check_using_constant_test(node, node.test)
 
-    @utils.check_messages("using-constant-test", "missing-parentheses-for-call-in-test")
+    @utils.only_required_for_messages(
+        "using-constant-test", "missing-parentheses-for-call-in-test"
+    )
     def visit_comprehension(self, node: nodes.Comprehension) -> None:
         if node.ifs:
             for if_test in node.ifs:
@@ -340,7 +346,7 @@ class BasicChecker(_BasicChecker):
         """
         self.linter.stats.node_count["klass"] += 1
 
-    @utils.check_messages(
+    @utils.only_required_for_messages(
         "pointless-statement", "pointless-string-statement", "expression-not-assigned"
     )
     def visit_expr(self, node: nodes.Expr) -> None:
@@ -412,7 +418,7 @@ class BasicChecker(_BasicChecker):
                 return True
         return False
 
-    @utils.check_messages("unnecessary-lambda")
+    @utils.only_required_for_messages("unnecessary-lambda")
     def visit_lambda(self, node: nodes.Lambda) -> None:
         """Check whether the lambda is suspicious."""
         # if the body of the lambda is a call expression with the same
@@ -472,7 +478,7 @@ class BasicChecker(_BasicChecker):
 
         self.add_message("unnecessary-lambda", line=node.fromlineno, node=node)
 
-    @utils.check_messages("dangerous-default-value")
+    @utils.only_required_for_messages("dangerous-default-value")
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         """Check function name, docstring, arguments, redefinition,
         variable names, max locals
@@ -525,7 +531,7 @@ class BasicChecker(_BasicChecker):
                     msg = f"{default.as_string()} ({DEFAULT_ARGUMENT_SYMBOLS[value.qname()]})"
                 self.add_message("dangerous-default-value", node=node, args=(msg,))
 
-    @utils.check_messages("unreachable", "lost-exception")
+    @utils.only_required_for_messages("unreachable", "lost-exception")
     def visit_return(self, node: nodes.Return) -> None:
         """Return node visitor.
 
@@ -538,14 +544,14 @@ class BasicChecker(_BasicChecker):
         # Is it inside final body of a try...finally block ?
         self._check_not_in_finally(node, "return", (nodes.FunctionDef,))
 
-    @utils.check_messages("unreachable")
+    @utils.only_required_for_messages("unreachable")
     def visit_continue(self, node: nodes.Continue) -> None:
         """Check is the node has a right sibling (if so, that's some unreachable
         code)
         """
         self._check_unreachable(node)
 
-    @utils.check_messages("unreachable", "lost-exception")
+    @utils.only_required_for_messages("unreachable", "lost-exception")
     def visit_break(self, node: nodes.Break) -> None:
         """Break node visitor.
 
@@ -559,7 +565,7 @@ class BasicChecker(_BasicChecker):
         # 2 - Is it inside final body of a try...finally block ?
         self._check_not_in_finally(node, "break", (nodes.For, nodes.While))
 
-    @utils.check_messages("unreachable")
+    @utils.only_required_for_messages("unreachable")
     def visit_raise(self, node: nodes.Raise) -> None:
         """Check if the node has a right sibling (if so, that's some unreachable
         code)
@@ -587,7 +593,7 @@ class BasicChecker(_BasicChecker):
             ):
                 self.add_message("misplaced-format-function", node=call_node)
 
-    @utils.check_messages(
+    @utils.only_required_for_messages(
         "eval-used", "exec-used", "bad-reversed-sequence", "misplaced-format-function"
     )
     def visit_call(self, node: nodes.Call) -> None:
@@ -607,7 +613,7 @@ class BasicChecker(_BasicChecker):
                 elif name == "eval":
                     self.add_message("eval-used", node=node)
 
-    @utils.check_messages("assert-on-tuple", "assert-on-string-literal")
+    @utils.only_required_for_messages("assert-on-tuple", "assert-on-string-literal")
     def visit_assert(self, node: nodes.Assert) -> None:
         """Check whether assert is used on a tuple or string literal."""
         if (
@@ -624,7 +630,7 @@ class BasicChecker(_BasicChecker):
                 when = "always"
             self.add_message("assert-on-string-literal", node=node, args=(when,))
 
-    @utils.check_messages("duplicate-key")
+    @utils.only_required_for_messages("duplicate-key")
     def visit_dict(self, node: nodes.Dict) -> None:
         """Check duplicate key in dictionary."""
         keys = set()
@@ -639,7 +645,7 @@ class BasicChecker(_BasicChecker):
                 self.add_message("duplicate-key", node=node, args=key)
             keys.add(key)
 
-    @utils.check_messages("duplicate-value")
+    @utils.only_required_for_messages("duplicate-value")
     def visit_set(self, node: nodes.Set) -> None:
         """Check duplicate value in set."""
         values = set()
@@ -755,7 +761,7 @@ class BasicChecker(_BasicChecker):
             else:
                 self.add_message("bad-reversed-sequence", node=node)
 
-    @utils.check_messages("confusing-with-statement")
+    @utils.only_required_for_messages("confusing-with-statement")
     def visit_with(self, node: nodes.With) -> None:
         # a "with" statement with multiple managers corresponds
         # to one AST "With" node with multiple items
@@ -835,11 +841,13 @@ class BasicChecker(_BasicChecker):
                         "redeclared-assigned-name", args=(name,), node=target
                     )
 
-    @utils.check_messages("self-assigning-variable", "redeclared-assigned-name")
+    @utils.only_required_for_messages(
+        "self-assigning-variable", "redeclared-assigned-name"
+    )
     def visit_assign(self, node: nodes.Assign) -> None:
         self._check_self_assigning_variable(node)
         self._check_redeclared_assign_name(node.targets)
 
-    @utils.check_messages("redeclared-assigned-name")
+    @utils.only_required_for_messages("redeclared-assigned-name")
     def visit_for(self, node: nodes.For) -> None:
         self._check_redeclared_assign_name([node.target])

@@ -483,7 +483,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                 self.add_message("shallow-copy-environ", node=node)
                 break
 
-    @utils.check_messages(
+    @utils.only_required_for_messages(
         "bad-open-mode",
         "redundant-unittest-assert",
         "deprecated-method",
@@ -536,25 +536,25 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                     self.add_message("forgotten-debug-statement", node=node)
             self.check_deprecated_method(node, inferred)
 
-    @utils.check_messages("boolean-datetime")
+    @utils.only_required_for_messages("boolean-datetime")
     def visit_unaryop(self, node: nodes.UnaryOp) -> None:
         if node.op == "not":
             self._check_datetime(node.operand)
 
-    @utils.check_messages("boolean-datetime")
+    @utils.only_required_for_messages("boolean-datetime")
     def visit_if(self, node: nodes.If) -> None:
         self._check_datetime(node.test)
 
-    @utils.check_messages("boolean-datetime")
+    @utils.only_required_for_messages("boolean-datetime")
     def visit_ifexp(self, node: nodes.IfExp) -> None:
         self._check_datetime(node.test)
 
-    @utils.check_messages("boolean-datetime")
+    @utils.only_required_for_messages("boolean-datetime")
     def visit_boolop(self, node: nodes.BoolOp) -> None:
         for value in node.values:
             self._check_datetime(value)
 
-    @utils.check_messages("method-cache-max-size-none")
+    @utils.only_required_for_messages("method-cache-max-size-none")
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         if node.decorators and isinstance(node.parent, nodes.ClassDef):
             self._check_lru_cache_decorators(node.decorators)

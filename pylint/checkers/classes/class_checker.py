@@ -17,7 +17,6 @@ from astroid import bases, nodes
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import (
     PYMETHODS,
-    check_messages,
     class_is_abstract,
     decorated_with,
     decorated_with_property,
@@ -33,6 +32,7 @@ from pylint.checkers.utils import (
     is_property_setter_or_deleter,
     is_protocol_class,
     node_frame_class,
+    only_required_for_messages,
     overrides_a_method,
     safe_infer,
     unimplemented_abstract_methods,
@@ -781,7 +781,7 @@ a metaclass class method.",
     def _dummy_rgx(self):
         return self.linter.config.dummy_variables_rgx
 
-    @check_messages(
+    @only_required_for_messages(
         "abstract-method",
         "invalid-slots",
         "single-string-used-for-slots",
@@ -869,7 +869,7 @@ a metaclass class method.",
                     node=node,
                 )
 
-    @check_messages(
+    @only_required_for_messages(
         "unused-private-member",
         "attribute-defined-outside-init",
         "access-member-before-definition",
@@ -1520,7 +1520,7 @@ a metaclass class method.",
         if node.expr.name == "super":
             self.add_message("super-without-brackets", node=node.expr, confidence=HIGH)
 
-    @check_messages(
+    @only_required_for_messages(
         "assigning-non-slot", "invalid-class-object", "access-member-before-definition"
     )
     def visit_assignattr(self, node: nodes.AssignAttr) -> None:
@@ -1609,7 +1609,7 @@ a metaclass class method.",
                     return
                 self.add_message("assigning-non-slot", args=(node.attrname,), node=node)
 
-    @check_messages(
+    @only_required_for_messages(
         "protected-access", "no-classmethod-decorator", "no-staticmethod-decorator"
     )
     def visit_assign(self, assign_node: nodes.Assign) -> None:
