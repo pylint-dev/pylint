@@ -19,7 +19,7 @@ Release date: TBA
 
 * Improved recognition of namespace packages. They should no longer be added to ``sys.path``
   which should prevent various issues with false positives.
-  Because of the difficulities with mirroring the python import mechanics we would gladly
+  Because of the difficulties with mirroring the python import mechanics we would gladly
   hear feedback on this change.
 
   Closes #5226, Closes #2648
