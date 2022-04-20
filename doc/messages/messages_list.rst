@@ -533,5 +533,3 @@ All renamed messages in the information category:
    :titlesonly:
 
    information/deprecated-disable-all.rst
-
-
