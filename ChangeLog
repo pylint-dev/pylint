@@ -20,6 +20,9 @@ What's New in Pylint 2.13.7?
 ============================
 Release date: TBA
 
+* Fix a crash caused by using the new config from 2.14.0 in 2.13.x code.
+
+  Closes #6408
 
 
 What's New in Pylint 2.13.6?

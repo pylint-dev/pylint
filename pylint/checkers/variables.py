@@ -2069,9 +2069,7 @@ class VariablesChecker(BaseChecker):
         if not isinstance(defstmt, nodes.AnnAssign) or defstmt.value:
             return False
 
-        if node.name in self.linter.config.additional_builtins or utils.is_builtin(
-            node.name
-        ):
+        if node.name in self.config.additional_builtins or utils.is_builtin(node.name):
             return False
 
         defstmt_frame = defstmt.frame(future=True)
