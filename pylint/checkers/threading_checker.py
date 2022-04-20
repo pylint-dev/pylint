@@ -1,11 +1,13 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
+from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
 from astroid import nodes
 
-from pylint import interfaces
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages, safe_infer
 
@@ -19,7 +21,6 @@ class ThreadingChecker(BaseChecker):
     - useless with lock - locking used in wrong way that has no effect (with threading.Lock():)
     """
 
-    __implements__ = interfaces.IAstroidChecker
     name = "threading"
 
     LOCKS = frozenset(
@@ -55,5 +56,5 @@ class ThreadingChecker(BaseChecker):
                     self.add_message("useless-with-lock", node=node, args=qname)
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(ThreadingChecker(linter))

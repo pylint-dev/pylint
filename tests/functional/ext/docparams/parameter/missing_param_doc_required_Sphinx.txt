@@ -27,11 +27,13 @@ inconsistent-return-statements:201:0:201:41:test_finds_kwargs_without_type_sphin
 missing-param-doc:201:0:201:41:test_finds_kwargs_without_type_sphinx:"""**kwargs"" missing in parameter documentation":UNDEFINED
 inconsistent-return-statements:218:0:218:39:test_finds_args_without_type_sphinx:Either all return statements in a function should return an expression, or none of them should.:UNDEFINED
 inconsistent-return-statements:237:0:237:41:test_finds_kwargs_without_type_sphinx:Either all return statements in a function should return an expression, or none of them should.:UNDEFINED
-missing-raises-doc:263:4:263:11:Foo.foo:"""AttributeError"" not documented as being raised":UNDEFINED
-unreachable:289:8:289:17:Foo.foo:Unreachable code:UNDEFINED
-missing-param-doc:292:4:292:11:Foo.foo:"""value"" missing in parameter documentation":UNDEFINED
-missing-raises-doc:292:4:292:11:Foo.foo:"""AttributeError"" not documented as being raised":UNDEFINED
-missing-type-doc:292:4:292:11:Foo.foo:"""value"" missing in parameter type documentation":UNDEFINED
-unreachable:328:8:328:17:Foo.foo:Unreachable code:UNDEFINED
-useless-param-doc:332:4:332:55:Foo.test_useless_docs_ignored_argument_names_sphinx:"""_, _ignored"" useless ignored parameter documentation":UNDEFINED
-useless-type-doc:332:4:332:55:Foo.test_useless_docs_ignored_argument_names_sphinx:"""_"" useless ignored parameter type documentation":UNDEFINED
+inconsistent-return-statements:256:0:256:39:test_finds_args_without_type_sphinx:Either all return statements in a function should return an expression, or none of them should.:UNDEFINED
+inconsistent-return-statements:274:0:274:41:test_finds_kwargs_without_type_sphinx:Either all return statements in a function should return an expression, or none of them should.:UNDEFINED
+missing-raises-doc:299:4:299:11:Foo.foo:"""AttributeError"" not documented as being raised":UNDEFINED
+unreachable:325:8:325:17:Foo.foo:Unreachable code:UNDEFINED
+missing-param-doc:328:4:328:11:Foo.foo:"""value"" missing in parameter documentation":UNDEFINED
+missing-raises-doc:328:4:328:11:Foo.foo:"""AttributeError"" not documented as being raised":UNDEFINED
+missing-type-doc:328:4:328:11:Foo.foo:"""value"" missing in parameter type documentation":UNDEFINED
+unreachable:364:8:364:17:Foo.foo:Unreachable code:UNDEFINED
+useless-param-doc:368:4:368:55:Foo.test_useless_docs_ignored_argument_names_sphinx:"""_, _ignored"" useless ignored parameter documentation":UNDEFINED
+useless-type-doc:368:4:368:55:Foo.test_useless_docs_ignored_argument_names_sphinx:"""_"" useless ignored parameter type documentation":UNDEFINED

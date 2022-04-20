@@ -1,11 +1,17 @@
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
 """Check for use of while loops."""
+
+from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages
-from pylint.interfaces import IAstroidChecker
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -13,7 +19,6 @@ if TYPE_CHECKING:
 
 class WhileChecker(BaseChecker):
 
-    __implements__ = (IAstroidChecker,)
     name = "while_used"
     msgs = {
         "W0149": (
@@ -28,5 +33,5 @@ class WhileChecker(BaseChecker):
         self.add_message("while-used", node=node)
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(WhileChecker(linter))

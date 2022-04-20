@@ -1,13 +1,16 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
+from __future__ import annotations
 
 import configparser
 import sys
+from collections.abc import Callable
 from os.path import basename, exists, join
-from typing import Callable, Dict, List, Tuple, Union
 
 
-def parse_python_version(ver_str: str) -> Tuple[int, ...]:
+def parse_python_version(ver_str: str) -> tuple[int, ...]:
     """Convert python version to a tuple of integers for easy comparison."""
     return tuple(int(digit) for digit in ver_str.split("."))
 
@@ -23,12 +26,13 @@ else:
 
 
 class TestFileOptions(TypedDict):
-    min_pyver: Tuple[int, ...]
-    max_pyver: Tuple[int, ...]
-    min_pyver_end_position: Tuple[int, ...]
-    requires: List[str]
-    except_implementations: List[str]
-    exclude_platforms: List[str]
+    min_pyver: tuple[int, ...]
+    max_pyver: tuple[int, ...]
+    min_pyver_end_position: tuple[int, ...]
+    requires: list[str]
+    except_implementations: list[str]
+    exclude_platforms: list[str]
+    exclude_from_minimal_messages_config: bool
 
 
 # mypy need something literal, we can't create this dynamically from TestFileOptions
@@ -39,13 +43,14 @@ POSSIBLE_TEST_OPTIONS = {
     "requires",
     "except_implementations",
     "exclude_platforms",
+    "exclude_from_minimal_messages_config",
 }
 
 
 class FunctionalTestFile:
     """A single functional test case file with options."""
 
-    _CONVERTERS: Dict[str, Callable[[str], Union[Tuple[int, ...], List[str]]]] = {
+    _CONVERTERS: dict[str, Callable[[str], tuple[int, ...] | list[str]]] = {
         "min_pyver": parse_python_version,
         "max_pyver": parse_python_version,
         "min_pyver_end_position": parse_python_version,
@@ -64,6 +69,7 @@ class FunctionalTestFile:
             "requires": [],
             "except_implementations": [],
             "exclude_platforms": [],
+            "exclude_from_minimal_messages_config": False,
         }
         self._parse_options()
 

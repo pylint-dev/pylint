@@ -1,14 +1,18 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Utility functions for configuration testing."""
+
+from __future__ import annotations
+
 import copy
 import json
 import logging
 import re
 import unittest
 from pathlib import Path
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict
 from unittest.mock import Mock
 
 from pylint.constants import PY38_PLUS
@@ -28,7 +32,7 @@ if not PY38_PLUS:
 
 
 def get_expected_or_default(
-    tested_configuration_file: Union[str, Path],
+    tested_configuration_file: str | Path,
     suffix: str,
     default: str,
 ) -> str:
@@ -78,8 +82,8 @@ def get_expected_configuration(
 
 
 def get_related_files(
-    tested_configuration_file: Union[str, Path], suffix_filter: str
-) -> List[Path]:
+    tested_configuration_file: str | Path, suffix_filter: str
+) -> list[Path]:
     """Return all the file related to a test conf file endind with a suffix."""
     conf_path = Path(tested_configuration_file)
     return [
@@ -90,8 +94,8 @@ def get_related_files(
 
 
 def get_expected_output(
-    configuration_path: Union[str, Path], user_specific_path: Path
-) -> Tuple[int, str]:
+    configuration_path: str | Path, user_specific_path: Path
+) -> tuple[int, str]:
     """Get the expected output of a functional test."""
     exit_code = 0
     msg = (
@@ -139,8 +143,8 @@ def get_expected_output(
 
 
 def run_using_a_configuration_file(
-    configuration_path: Union[Path, str], file_to_lint: str = __file__
-) -> Tuple[Mock, Mock, Run]:
+    configuration_path: Path | str, file_to_lint: str = __file__
+) -> tuple[Mock, Mock, Run]:
     """Simulate a run with a configuration without really launching the checks."""
     configuration_path = str(configuration_path)
     args = ["--rcfile", configuration_path, file_to_lint]

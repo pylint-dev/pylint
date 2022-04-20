@@ -1,30 +1,31 @@
-from typing import List, Optional, Set, Tuple, Union
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
+from __future__ import annotations
 
 import astroid
 
 from pylint.checkers import BaseChecker, DeprecatedMixin
-from pylint.interfaces import UNDEFINED, IAstroidChecker
+from pylint.interfaces import UNDEFINED
 from pylint.testutils import CheckerTestCase, MessageTest
 
 
 class _DeprecatedChecker(DeprecatedMixin, BaseChecker):
-    __implements__ = (IAstroidChecker,)
     name = "deprecated"
 
-    def deprecated_methods(self) -> Set[str]:
+    def deprecated_methods(self) -> set[str]:
         return {"deprecated_func", ".Deprecated.deprecated_method"}
 
-    def deprecated_modules(self) -> Set[str]:
+    def deprecated_modules(self) -> set[str]:
         return {"deprecated_module"}
 
-    def deprecated_classes(self, module: str) -> List[str]:
+    def deprecated_classes(self, module: str) -> list[str]:
         return ["DeprecatedClass"] if module == "deprecated" else []
 
     def deprecated_arguments(
         self, method: str
-    ) -> Union[
-        Tuple[Tuple[Optional[int], str], ...], Tuple[Tuple[int, str], Tuple[int, str]]
-    ]:
+    ) -> (tuple[tuple[int | None, str], ...] | tuple[tuple[int, str], tuple[int, str]]):
         if method == "myfunction1":
             # def myfunction1(arg1, deprecated_arg1='spam')
             return ((1, "deprecated_arg1"),)
@@ -48,7 +49,7 @@ class _DeprecatedChecker(DeprecatedMixin, BaseChecker):
             return ((0, "deprecated_arg"),)
         return ()
 
-    def deprecated_decorators(self) -> Set[str]:
+    def deprecated_decorators(self) -> set[str]:
         return {".deprecated_decorator"}
 
 

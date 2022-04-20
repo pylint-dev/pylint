@@ -1,4 +1,4 @@
-#pylint: disable= missing-module-docstring
+#pylint: disable=missing-module-docstring
 
 def foobar1(arg1, arg2): #[missing-any-param-doc]
     """function foobar ...

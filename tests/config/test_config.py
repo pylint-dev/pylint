@@ -1,14 +1,27 @@
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
+from __future__ import annotations
+
 import os
 from pathlib import Path
-from typing import Optional, Set
 
-from pylint.lint.run import Run
+import pytest
+from pytest import CaptureFixture
+
+from pylint.config.exceptions import _UnrecognizedOptionError
+from pylint.lint import Run
 from pylint.testutils.configuration_test import run_using_a_configuration_file
+
+HERE = Path(__file__).parent.absolute()
+REGRTEST_DATA_DIR = HERE / ".." / "regrtest_data"
+EMPTY_MODULE = REGRTEST_DATA_DIR / "empty.py"
 
 
 def check_configuration_file_reader(
     runner: Run,
-    expected_disabled: Optional[Set[str]] = None,
+    expected_disabled: set[str] | None = None,
     expected_jobs: int = 10,
     expected_reports_truthey: bool = True,
 ) -> None:
@@ -40,3 +53,57 @@ reports = "yes"
     )
     mock_exit.assert_called_once_with(0)
     check_configuration_file_reader(runner)
+
+
+def test_unknown_message_id(capsys: CaptureFixture) -> None:
+    """Check that we correctly raise a message on an unknown id."""
+    Run([str(EMPTY_MODULE), "--disable=12345"], exit=False)
+    output = capsys.readouterr()
+    assert "Command line:1:0: E0012: Bad option value for --disable." in output.out
+
+
+def test_unknown_option_name(capsys: CaptureFixture) -> None:
+    """Check that we correctly raise a message on an unknown option."""
+    with pytest.raises(_UnrecognizedOptionError):
+        Run([str(EMPTY_MODULE), "--unknown-option=yes"], exit=False)
+    output = capsys.readouterr()
+    assert "E0015: Unrecognized option found: unknown-option=yes" in output.out
+
+
+def test_unknown_short_option_name(capsys: CaptureFixture) -> None:
+    """Check that we correctly raise a message on an unknown short option."""
+    with pytest.raises(_UnrecognizedOptionError):
+        Run([str(EMPTY_MODULE), "-Q"], exit=False)
+    output = capsys.readouterr()
+    assert "E0015: Unrecognized option found: Q" in output.out
+
+
+def test_unknown_confidence(capsys: CaptureFixture) -> None:
+    """Check that we correctly error an unknown confidence value."""
+    with pytest.raises(SystemExit):
+        Run([str(EMPTY_MODULE), "--confidence=UNKNOWN_CONFIG"], exit=False)
+    output = capsys.readouterr()
+    assert "argument --confidence: UNKNOWN_CONFIG should be in" in output.err
+
+
+def test_unknown_yes_no(capsys: CaptureFixture) -> None:
+    """Check that we correctly error on an unknown yes/no value."""
+    with pytest.raises(SystemExit):
+        Run([str(EMPTY_MODULE), "--reports=maybe"], exit=False)
+    output = capsys.readouterr()
+    assert "Invalid yn value 'maybe', should be in " in output.err
+
+
+def test_unknown_py_version(capsys: CaptureFixture) -> None:
+    """Check that we correctly error on an unknown python-version."""
+    with pytest.raises(SystemExit):
+        Run([str(EMPTY_MODULE), "--py-version=the-newest"], exit=False)
+    output = capsys.readouterr()
+    assert "the-newest has an invalid format, should be a version string." in output.err
+
+
+def test_short_verbose(capsys: CaptureFixture) -> None:
+    """Check that we correctly handle the -v flag."""
+    Run([str(EMPTY_MODULE), "-v"], exit=False)
+    output = capsys.readouterr()
+    assert "Using config file" in output.err

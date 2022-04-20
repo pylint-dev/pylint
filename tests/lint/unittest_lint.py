@@ -1,54 +1,23 @@
-# Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2011-2014 Google, Inc.
-# Copyright (c) 2012 Kevin Jing Qiu <kevin.jing.qiu@gmail.com>
-# Copyright (c) 2012 Anthony VEREZ <anthony.verez.external@cassidian.com>
-# Copyright (c) 2012 FELD Boris <lothiraldan@gmail.com>
-# Copyright (c) 2013-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015 Florian Bruhin <me@the-compiler.org>
-# Copyright (c) 2015 Noam Yorav-Raphael <noamraph@gmail.com>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016-2017 Derek Gustafson <degustaf@gmail.com>
-# Copyright (c) 2016 Glenn Matthews <glenn@e-dad.net>
-# Copyright (c) 2016 Glenn Matthews <glmatthe@cisco.com>
-# Copyright (c) 2017-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2017, 2021 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2017 Craig Citro <craigcitro@gmail.com>
-# Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
-# Copyright (c) 2018, 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2018 Matus Valo <matusvalo@users.noreply.github.com>
-# Copyright (c) 2018 Scott Worley <scottworley@scottworley.com>
-# Copyright (c) 2018 Randall Leeds <randall@bleeds.info>
-# Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
-# Copyright (c) 2018 Reverb C <reverbc@users.noreply.github.com>
-# Copyright (c) 2019 Janne Rönkkö <jannero@users.noreply.github.com>
-# Copyright (c) 2019 Trevor Bekolay <tbekolay@gmail.com>
-# Copyright (c) 2019 Andres Perez Hortal <andresperezcba@gmail.com>
-# Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2020 Martin Vielsmaier <martin@vielsmaier.net>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Michal Vasilek <michal@vasilek.cz>
-# Copyright (c) 2021 Eisuke Kawashima <e-kwsm@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
 # pylint: disable=redefined-outer-name
 
+from __future__ import annotations
+
+import argparse
 import os
 import re
 import sys
 import tempfile
+from collections.abc import Iterable, Iterator
 from contextlib import contextmanager
 from importlib import reload
 from io import StringIO
 from os import chdir, getcwd
-from os.path import abspath, basename, dirname, isdir, join, sep
+from os.path import abspath, dirname, join, sep
 from shutil import rmtree
-from typing import Iterable, Iterator, List, Optional, Tuple
 
 import platformdirs
 import pytest
@@ -63,9 +32,10 @@ from pylint.constants import (
     OLD_DEFAULT_PYLINT_HOME,
 )
 from pylint.exceptions import InvalidMessageError
-from pylint.lint import ArgumentPreprocessingError, PyLinter, Run, preprocess_options
+from pylint.lint import PyLinter, Run
 from pylint.message import Message
 from pylint.reporters import text
+from pylint.testutils import create_files
 from pylint.typing import MessageLocationTuple
 from pylint.utils import FileState, print_full_documentation, tokenize_module
 
@@ -129,44 +99,6 @@ def tempdir() -> Iterator[str]:
         rmtree(abs_tmp)
 
 
-def create_files(paths: List[str], chroot: str = ".") -> None:
-    """Creates directories and files found in <path>.
-
-    :param list paths: list of relative paths to files or directories
-    :param str chroot: the root directory in which paths will be created
-
-    >>> from os.path import isdir, isfile
-    >>> isdir('/tmp/a')
-    False
-    >>> create_files(['a/b/foo.py', 'a/b/c/', 'a/b/c/d/e.py'], '/tmp')
-    >>> isdir('/tmp/a')
-    True
-    >>> isdir('/tmp/a/b/c')
-    True
-    >>> isfile('/tmp/a/b/c/d/e.py')
-    True
-    >>> isfile('/tmp/a/b/foo.py')
-    True
-    """
-    dirs, files = set(), set()
-    for path in paths:
-        path = join(chroot, path)
-        filename = basename(path)
-        # path is a directory path
-        if filename == "":
-            dirs.add(path)
-        # path is a filename path
-        else:
-            dirs.add(dirname(path))
-            files.add(path)
-    for dirpath in dirs:
-        if not isdir(dirpath):
-            os.makedirs(dirpath)
-    for filepath in files:
-        with open(filepath, "w", encoding="utf-8"):
-            pass
-
-
 @pytest.fixture
 def fake_path() -> Iterator[Iterable[str]]:
     orig = list(sys.path)
@@ -176,7 +108,7 @@ def fake_path() -> Iterator[Iterable[str]]:
     sys.path[:] = orig
 
 
-def test_no_args(fake_path: List[int]) -> None:
+def test_no_args(fake_path: list[int]) -> None:
     with lint.fix_import_path([]):
         assert sys.path == fake_path
     assert sys.path == fake_path
@@ -185,7 +117,7 @@ def test_no_args(fake_path: List[int]) -> None:
 @pytest.mark.parametrize(
     "case", [["a/b/"], ["a/b"], ["a/b/__init__.py"], ["a/"], ["a"]]
 )
-def test_one_arg(fake_path: List[str], case: List[str]) -> None:
+def test_one_arg(fake_path: list[str], case: list[str]) -> None:
     with tempdir() as chroot:
         create_files(["a/b/__init__.py"])
         expected = [join(chroot, "a")] + fake_path
@@ -258,7 +190,6 @@ def initialized_linter(linter: PyLinter) -> PyLinter:
 
 def test_pylint_visit_method_taken_in_account(linter: PyLinter) -> None:
     class CustomChecker(checkers.BaseChecker):
-        __implements__ = interfaces.IAstroidChecker
         name = "custom"
         msgs = {"W9999": ("", "custom", "")}
 
@@ -310,7 +241,7 @@ def test_enable_message_category(initialized_linter: PyLinter) -> None:
 
 
 def test_message_state_scope(initialized_linter: PyLinter) -> None:
-    class FakeConfig:
+    class FakeConfig(argparse.Namespace):
         confidence = ["HIGH"]
 
     linter = initialized_linter
@@ -463,7 +394,8 @@ def test_enable_checkers(linter: PyLinter) -> None:
 
 def test_errors_only(initialized_linter: PyLinter) -> None:
     linter = initialized_linter
-    linter.error_mode()
+    linter._error_mode = True
+    linter._parse_error_mode()
     checkers = linter.prepare_checkers()
     checker_names = {c.name for c in checkers}
     should_not = {"design", "format", "metrics", "miscellaneous", "similarities"}
@@ -601,7 +533,7 @@ def test_load_plugin_configuration() -> None:
         ],
         exit=False,
     )
-    assert run.linter.config.black_list == ["foo", "bar", "bin"]
+    assert run.linter.config.ignore == ["foo", "bar", "bin"]
 
 
 def test_init_hooks_called_before_load_plugins() -> None:
@@ -609,6 +541,8 @@ def test_init_hooks_called_before_load_plugins() -> None:
         Run(["--load-plugins", "unexistant", "--init-hook", "raise RuntimeError"])
     with pytest.raises(RuntimeError):
         Run(["--init-hook", "raise RuntimeError", "--load-plugins", "unexistant"])
+    with pytest.raises(SystemExit):
+        Run(["--init-hook"])
 
 
 def test_analyze_explicit_script(linter: PyLinter) -> None:
@@ -715,11 +649,14 @@ def test_pylintrc() -> None:
         current_dir = getcwd()
         chdir(os.path.dirname(os.path.abspath(sys.executable)))
         try:
-            assert config.find_pylintrc() is None
+            with pytest.warns(DeprecationWarning):
+                assert config.find_pylintrc() is None
             os.environ["PYLINTRC"] = join(tempfile.gettempdir(), ".pylintrc")
-            assert config.find_pylintrc() is None
+            with pytest.warns(DeprecationWarning):
+                assert config.find_pylintrc() is None
             os.environ["PYLINTRC"] = "."
-            assert config.find_pylintrc() is None
+            with pytest.warns(DeprecationWarning):
+                assert config.find_pylintrc() is None
         finally:
             chdir(current_dir)
             reload(config)
@@ -740,7 +677,8 @@ def test_pylintrc_parentdir() -> None:
             ]
         )
         with fake_home():
-            assert config.find_pylintrc() is None
+            with pytest.warns(DeprecationWarning):
+                assert config.find_pylintrc() is None
         results = {
             "a": join(chroot, "a", "pylintrc"),
             "a/b": join(chroot, "a", "b", "pylintrc"),
@@ -750,7 +688,8 @@ def test_pylintrc_parentdir() -> None:
         }
         for basedir, expected in results.items():
             os.chdir(join(chroot, basedir))
-            assert config.find_pylintrc() == expected
+            with pytest.warns(DeprecationWarning):
+                assert config.find_pylintrc() == expected
 
 
 @pytest.mark.usefixtures("pop_pylintrc")
@@ -758,7 +697,8 @@ def test_pylintrc_parentdir_no_package() -> None:
     with tempdir() as chroot:
         with fake_home():
             create_files(["a/pylintrc", "a/b/pylintrc", "a/b/c/d/__init__.py"])
-            assert config.find_pylintrc() is None
+            with pytest.warns(DeprecationWarning):
+                assert config.find_pylintrc() is None
             results = {
                 "a": join(chroot, "a", "pylintrc"),
                 "a/b": join(chroot, "a", "b", "pylintrc"),
@@ -767,39 +707,8 @@ def test_pylintrc_parentdir_no_package() -> None:
             }
             for basedir, expected in results.items():
                 os.chdir(join(chroot, basedir))
-                assert config.find_pylintrc() == expected
-
-
-class TestPreprocessOptions:
-    def _callback(self, name: str, value: Optional[str]) -> None:
-        self.args.append((name, value))
-
-    def test_value_equal(self) -> None:
-        self.args: List[Tuple[str, Optional[str]]] = []
-        preprocess_options(
-            ["--foo", "--bar=baz", "--qu=ux"],
-            {"foo": (self._callback, False), "qu": (self._callback, True)},
-        )
-        assert [("foo", None), ("qu", "ux")] == self.args
-
-    def test_value_space(self) -> None:
-        self.args = []
-        preprocess_options(["--qu", "ux"], {"qu": (self._callback, True)})
-        assert [("qu", "ux")] == self.args
-
-    @staticmethod
-    def test_error_missing_expected_value() -> None:
-        with pytest.raises(ArgumentPreprocessingError):
-            preprocess_options(["--foo", "--bar", "--qu=ux"], {"bar": (None, True)})
-        with pytest.raises(ArgumentPreprocessingError):
-            preprocess_options(["--foo", "--bar"], {"bar": (None, True)})
-
-    @staticmethod
-    def test_error_unexpected_value() -> None:
-        with pytest.raises(ArgumentPreprocessingError):
-            preprocess_options(
-                ["--foo", "--bar=spam", "--qu=ux"], {"bar": (None, False)}
-            )
+                with pytest.warns(DeprecationWarning):
+                    assert config.find_pylintrc() == expected
 
 
 class _CustomPyLinter(PyLinter):
@@ -813,6 +722,7 @@ class _CustomPyLinter(PyLinter):
         )
 
 
+@pytest.mark.needs_two_cores
 def test_custom_should_analyze_file() -> None:
     """Check that we can write custom should_analyze_file that work
     even for arguments.
@@ -841,6 +751,7 @@ def test_custom_should_analyze_file() -> None:
 
 # we do the check with jobs=1 as well, so that we are sure that the duplicates
 # are created by the multiprocessing problem.
+@pytest.mark.needs_two_cores
 @pytest.mark.parametrize("jobs", [1, 2])
 def test_multiprocessing(jobs: int) -> None:
     """Check that multiprocessing does not create duplicates."""

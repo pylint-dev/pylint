@@ -1,11 +1,8 @@
-# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-from typing import Dict, Type
+from __future__ import annotations
 
 from pylint.pyreverse.dot_printer import DotPrinter
 from pylint.pyreverse.mermaidjs_printer import HTMLMermaidJSPrinter, MermaidJSPrinter
@@ -13,7 +10,7 @@ from pylint.pyreverse.plantuml_printer import PlantUmlPrinter
 from pylint.pyreverse.printer import Printer
 from pylint.pyreverse.vcg_printer import VCGPrinter
 
-filetype_to_printer: Dict[str, Type[Printer]] = {
+filetype_to_printer: dict[str, type[Printer]] = {
     "vcg": VCGPrinter,
     "plantuml": PlantUmlPrinter,
     "puml": PlantUmlPrinter,
@@ -23,5 +20,5 @@ filetype_to_printer: Dict[str, Type[Printer]] = {
 }
 
 
-def get_printer_for_filetype(filetype: str) -> Type[Printer]:
+def get_printer_for_filetype(filetype: str) -> type[Printer]:
     return filetype_to_printer.get(filetype, DotPrinter)

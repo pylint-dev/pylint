@@ -1,17 +1,6 @@
-# Copyright (c) 2015-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2015 Florian Bruhin <me@the-compiler.org>
-# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
-# Copyright (c) 2020-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2020 Ram Rachum <ram@rachum.com>
-# Copyright (c) 2020 谭九鼎 <109224573@qq.com>
-# Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Functions to generate files readable with Georg Sander's vcg
 (Visualization of Compiler Graphs).
@@ -21,7 +10,11 @@ Note that vcg exists as a debian package.
 See vcg's documentation for explanation about the different values that
 maybe used for the functions parameters.
 """
-from typing import Any, Dict, Mapping, Optional
+
+from __future__ import annotations
+
+from collections.abc import Mapping
+from typing import Any
 
 from pylint.pyreverse.printer import EdgeType, Layout, NodeProperties, NodeType, Printer
 
@@ -156,12 +149,12 @@ EDGE_ATTRS = {
     "anchor": 1,
     "horizontal_order": 1,
 }
-SHAPES: Dict[NodeType, str] = {
+SHAPES: dict[NodeType, str] = {
     NodeType.PACKAGE: "box",
     NodeType.CLASS: "box",
     NodeType.INTERFACE: "ellipse",
 }
-ARROWS: Dict[EdgeType, Dict] = {
+ARROWS: dict[EdgeType, dict] = {
     EdgeType.USES: dict(arrowstyle="solid", backarrowstyle="none", backarrowsize=0),
     EdgeType.INHERITS: dict(
         arrowstyle="solid", backarrowstyle="none", backarrowsize=10
@@ -176,7 +169,7 @@ ARROWS: Dict[EdgeType, Dict] = {
         arrowstyle="solid", backarrowstyle="none", textcolor="green"
     ),
 }
-ORIENTATION: Dict[Layout, str] = {
+ORIENTATION: dict[Layout, str] = {
     Layout.LEFT_TO_RIGHT: "left_to_right",
     Layout.RIGHT_TO_LEFT: "right_to_left",
     Layout.TOP_TO_BOTTOM: "top_to_bottom",
@@ -211,7 +204,7 @@ class VCGPrinter(Printer):
         self,
         name: str,
         type_: NodeType,
-        properties: Optional[NodeProperties] = None,
+        properties: NodeProperties | None = None,
     ) -> None:
         """Create a new node.
 
@@ -256,7 +249,7 @@ class VCGPrinter(Printer):
         from_node: str,
         to_node: str,
         type_: EdgeType,
-        label: Optional[str] = None,
+        label: str | None = None,
     ) -> None:
         """Create an edge from one node to another to display relationships."""
         self.emit(

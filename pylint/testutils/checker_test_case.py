@@ -1,10 +1,14 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
+from __future__ import annotations
 
 import contextlib
 import warnings
-from typing import Dict, Generator, Optional, Type
+from collections.abc import Generator
 
+from pylint.checkers.base_checker import BaseChecker
 from pylint.constants import PY38_PLUS
 from pylint.testutils.global_test_linter import linter
 from pylint.testutils.output_line import MessageTest
@@ -15,14 +19,14 @@ from pylint.utils import ASTWalker
 class CheckerTestCase:
     """A base testcase class for unit testing individual checker classes."""
 
-    CHECKER_CLASS: Optional[Type] = None
-    CONFIG: Dict = {}
+    CHECKER_CLASS: type[BaseChecker] | None
+    CONFIG: dict = {}
 
     def setup_method(self):
         self.linter = UnittestLinter()
-        self.checker = self.CHECKER_CLASS(self.linter)  # pylint: disable=not-callable
+        self.checker = self.CHECKER_CLASS(self.linter)
         for key, value in self.CONFIG.items():
-            setattr(self.checker.config, key, value)
+            setattr(self.checker.linter.config, key, value)
         self.checker.open()
 
     @contextlib.contextmanager
@@ -71,7 +75,7 @@ class CheckerTestCase:
             assert expected_msg.col_offset == gotten_msg.col_offset, msg
             if PY38_PLUS:
                 # pylint: disable=fixme
-                # TODO: Require end_line and end_col_offset and remove the warning
+                # TODO: 3.0: Remove deprecated missing arguments and remove the warning
                 if not expected_msg.end_line == gotten_msg.end_line:
                     warnings.warn(  # pragma: no cover
                         f"The end_line attribute of {gotten_msg} does not match "

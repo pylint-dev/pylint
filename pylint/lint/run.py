@@ -1,16 +1,24 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
+from __future__ import annotations
 
 import os
 import sys
 import warnings
+from collections.abc import Sequence
+from pathlib import Path
+from typing import Any
 
-from pylint import __pkginfo__, extensions, interfaces
+from pylint import config
 from pylint.config.config_initialization import _config_initialization
-from pylint.constants import DEFAULT_PYLINT_HOME, OLD_DEFAULT_PYLINT_HOME, full_version
+from pylint.config.exceptions import ArgumentPreprocessingError
+from pylint.config.utils import _preprocess_options
+from pylint.constants import full_version
+from pylint.lint.base_options import _make_run_options
 from pylint.lint.pylinter import PyLinter
-from pylint.lint.utils import ArgumentPreprocessingError, preprocess_options
-from pylint.utils import print_full_documentation, utils
+from pylint.reporters.base_reporter import BaseReporter
 
 try:
     import multiprocessing
@@ -19,36 +27,51 @@ except ImportError:
     multiprocessing = None  # type: ignore[assignment]
 
 
+def _query_cpu() -> int | None:
+    """Try to determine number of CPUs allotted in a docker container.
+
+    This is based on discussion and copied from suggestions in
+    https://bugs.python.org/issue36054.
+    """
+    cpu_quota, avail_cpu = None, None
+
+    if Path("/sys/fs/cgroup/cpu/cpu.cfs_quota_us").is_file():
+        with open("/sys/fs/cgroup/cpu/cpu.cfs_quota_us", encoding="utf-8") as file:
+            # Not useful for AWS Batch based jobs as result is -1, but works on local linux systems
+            cpu_quota = int(file.read().rstrip())
+
+    if (
+        cpu_quota
+        and cpu_quota != -1
+        and Path("/sys/fs/cgroup/cpu/cpu.cfs_period_us").is_file()
+    ):
+        with open("/sys/fs/cgroup/cpu/cpu.cfs_period_us", encoding="utf-8") as file:
+            cpu_period = int(file.read().rstrip())
+        # Divide quota by period and you should get num of allotted CPU to the container, rounded down if fractional.
+        avail_cpu = int(cpu_quota / cpu_period)
+    elif Path("/sys/fs/cgroup/cpu/cpu.shares").is_file():
+        with open("/sys/fs/cgroup/cpu/cpu.shares", encoding="utf-8") as file:
+            cpu_shares = int(file.read().rstrip())
+        # For AWS, gives correct value * 1024.
+        avail_cpu = int(cpu_shares / 1024)
+    return avail_cpu
+
+
 def _cpu_count() -> int:
     """Use sched_affinity if available for virtualized or containerized environments."""
+    cpu_share = _query_cpu()
+    cpu_count = None
     sched_getaffinity = getattr(os, "sched_getaffinity", None)
     # pylint: disable=not-callable,using-constant-test,useless-suppression
     if sched_getaffinity:
-        return len(sched_getaffinity(0))
-    if multiprocessing:
-        return multiprocessing.cpu_count()
-    return 1
-
-
-def cb_list_extensions(option, optname, value, parser):
-    """List all the extensions under pylint.extensions."""
-
-    for filename in os.listdir(os.path.dirname(extensions.__file__)):
-        if filename.endswith(".py") and not filename.startswith("_"):
-            extension_name, _, _ = filename.partition(".")
-            print(f"pylint.extensions.{extension_name}")
-    sys.exit(0)
-
-
-def cb_list_confidence_levels(option, optname, value, parser):
-    for level in interfaces.CONFIDENCE_LEVELS:
-        print(f"%-18s: {level}")
-    sys.exit(0)
-
-
-def cb_init_hook(optname, value):
-    """Execute arbitrary code to set 'sys.path' for instance."""
-    exec(value)  # pylint: disable=exec-used
+        cpu_count = len(sched_getaffinity(0))
+    elif multiprocessing:
+        cpu_count = multiprocessing.cpu_count()
+    else:
+        cpu_count = 1
+    if cpu_share is not None:
+        return min(cpu_share, cpu_count)
+    return cpu_count
 
 
 UNUSED_PARAM_SENTINEL = object()
@@ -66,267 +89,52 @@ group are mutually exclusive.",
         ),
     )
 
-    @staticmethod
-    def _return_one(*args):  # pylint: disable=unused-argument
-        return 1
-
     def __init__(
         self,
-        args,
-        reporter=None,
-        exit=True,
-        do_exit=UNUSED_PARAM_SENTINEL,
-    ):  # pylint: disable=redefined-builtin
-        self._rcfile = None
-        self._output = None
-        self._version_asked = False
-        self._plugins = []
-        self.verbose = None
+        args: Sequence[str],
+        reporter: BaseReporter | None = None,
+        exit: bool = True,  # pylint: disable=redefined-builtin
+        do_exit: Any = UNUSED_PARAM_SENTINEL,
+    ) -> None:
+        # Immediately exit if user asks for version
+        if "--version" in args:
+            print(full_version)
+            sys.exit(0)
+
+        self._rcfile: str | None = None
+        self._output: str | None = None
+        self._plugins: list[str] = []
+        self.verbose: bool = False
+
+        # Preprocess certain options and remove them from args list
         try:
-            preprocess_options(
-                args,
-                {
-                    # option: (callback, takearg)
-                    "version": (self.version_asked, False),
-                    "init-hook": (cb_init_hook, True),
-                    "rcfile": (self.cb_set_rcfile, True),
-                    "load-plugins": (self.cb_add_plugins, True),
-                    "enable-all-extensions": (self.cb_enable_all_extensions, False),
-                    "verbose": (self.cb_verbose_mode, False),
-                    "output": (self.cb_set_output, True),
-                },
-            )
+            args = _preprocess_options(self, args)
         except ArgumentPreprocessingError as ex:
             print(ex, file=sys.stderr)
             sys.exit(32)
 
+        # Determine configuration file
+        if self._rcfile is None:
+            default_file = next(config.find_default_config_files(), None)
+            if default_file:
+                self._rcfile = str(default_file)
+
         self.linter = linter = self.LinterClass(
-            (
-                (
-                    "rcfile",
-                    {
-                        "action": "callback",
-                        "callback": Run._return_one,
-                        "group": "Commands",
-                        "type": "string",
-                        "metavar": "<file>",
-                        "help": "Specify a configuration file to load.",
-                    },
-                ),
-                (
-                    "output",
-                    {
-                        "action": "callback",
-                        "callback": Run._return_one,
-                        "group": "Commands",
-                        "type": "string",
-                        "metavar": "<file>",
-                        "help": "Specify an output file.",
-                    },
-                ),
-                (
-                    "init-hook",
-                    {
-                        "action": "callback",
-                        "callback": Run._return_one,
-                        "type": "string",
-                        "metavar": "<code>",
-                        "level": 1,
-                        "help": "Python code to execute, usually for sys.path "
-                        "manipulation such as pygtk.require().",
-                    },
-                ),
-                (
-                    "help-msg",
-                    {
-                        "action": "callback",
-                        "type": "string",
-                        "metavar": "<msg-id>",
-                        "callback": self.cb_help_message,
-                        "group": "Commands",
-                        "help": "Display a help message for the given message id and "
-                        "exit. The value may be a comma separated list of message ids.",
-                    },
-                ),
-                (
-                    "list-msgs",
-                    {
-                        "action": "callback",
-                        "metavar": "<msg-id>",
-                        "callback": self.cb_list_messages,
-                        "group": "Commands",
-                        "level": 1,
-                        "help": "Display a list of all pylint's messages divided by whether "
-                        "they are emittable with the given interpreter.",
-                    },
-                ),
-                (
-                    "list-msgs-enabled",
-                    {
-                        "action": "callback",
-                        "metavar": "<msg-id>",
-                        "callback": self.cb_list_messages_enabled,
-                        "group": "Commands",
-                        "level": 1,
-                        "help": "Display a list of what messages are enabled, "
-                        "disabled and non-emittable with the given configuration.",
-                    },
-                ),
-                (
-                    "list-groups",
-                    {
-                        "action": "callback",
-                        "metavar": "<msg-id>",
-                        "callback": self.cb_list_groups,
-                        "group": "Commands",
-                        "level": 1,
-                        "help": "List pylint's message groups.",
-                    },
-                ),
-                (
-                    "list-conf-levels",
-                    {
-                        "action": "callback",
-                        "callback": cb_list_confidence_levels,
-                        "group": "Commands",
-                        "level": 1,
-                        "help": "Generate pylint's confidence levels.",
-                    },
-                ),
-                (
-                    "list-extensions",
-                    {
-                        "action": "callback",
-                        "callback": cb_list_extensions,
-                        "group": "Commands",
-                        "level": 1,
-                        "help": "List available extensions.",
-                    },
-                ),
-                (
-                    "full-documentation",
-                    {
-                        "action": "callback",
-                        "metavar": "<msg-id>",
-                        "callback": self.cb_full_documentation,
-                        "group": "Commands",
-                        "level": 1,
-                        "help": "Generate pylint's full documentation.",
-                    },
-                ),
-                (
-                    "generate-rcfile",
-                    {
-                        "action": "callback",
-                        "callback": self.cb_generate_config,
-                        "group": "Commands",
-                        "help": "Generate a sample configuration file according to "
-                        "the current configuration. You can put other options "
-                        "before this one to get them in the generated "
-                        "configuration.",
-                    },
-                ),
-                (
-                    "generate-man",
-                    {
-                        "action": "callback",
-                        "callback": self.cb_generate_manpage,
-                        "group": "Commands",
-                        "help": "Generate pylint's man page.",
-                        "hide": True,
-                    },
-                ),
-                (
-                    "errors-only",
-                    {
-                        "action": "callback",
-                        "callback": self.cb_error_mode,
-                        "short": "E",
-                        "help": "In error mode, checkers without error messages are "
-                        "disabled and for others, only the ERROR messages are "
-                        "displayed, and no reports are done by default.",
-                    },
-                ),
-                (
-                    "verbose",
-                    {
-                        "action": "callback",
-                        "callback": self.cb_verbose_mode,
-                        "short": "v",
-                        "help": "In verbose mode, extra non-checker-related info "
-                        "will be displayed.",
-                    },
-                ),
-                (
-                    "enable-all-extensions",
-                    {
-                        "action": "callback",
-                        "callback": self.cb_enable_all_extensions,
-                        "help": "Load and enable all available extensions. "
-                        "Use --list-extensions to see a list all available extensions.",
-                    },
-                ),
-            ),
+            _make_run_options(self),
             option_groups=self.option_groups,
             pylintrc=self._rcfile,
         )
         # register standard checkers
-        if self._version_asked:
-            print(full_version)
-            sys.exit(0)
         linter.load_default_plugins()
         # load command line plugins
         linter.load_plugin_modules(self._plugins)
-        # add some help section
-        linter.add_help_section(
-            "Environment variables",
-            f"""
-The following environment variables are used:
-    * PYLINTHOME
-    Path to the directory where persistent data for the run will be stored. If
-not found, it defaults to '{DEFAULT_PYLINT_HOME}' or '{OLD_DEFAULT_PYLINT_HOME}'
-(in the current working directory).
-    * PYLINTRC
-    Path to the configuration file. See the documentation for the method used
-to search for configuration file.
-""",
-            level=1,
-        )
-        linter.add_help_section(
-            "Output",
-            "Using the default text output, the message format is :                          \n"
-            "                                                                                \n"
-            "        MESSAGE_TYPE: LINE_NUM:[OBJECT:] MESSAGE                                \n"
-            "                                                                                \n"
-            "There are 5 kind of message types :                                             \n"
-            "    * (C) convention, for programming standard violation                        \n"
-            "    * (R) refactor, for bad code smell                                          \n"
-            "    * (W) warning, for python specific problems                                 \n"
-            "    * (E) error, for probable bugs in the code                                  \n"
-            "    * (F) fatal, if an error occurred which prevented pylint from doing further\n"
-            "processing.\n",
-            level=1,
-        )
-        linter.add_help_section(
-            "Output status code",
-            "Pylint should leave with following status code:                                 \n"
-            "    * 0 if everything went fine                                                 \n"
-            "    * 1 if a fatal message was issued                                           \n"
-            "    * 2 if an error message was issued                                          \n"
-            "    * 4 if a warning message was issued                                         \n"
-            "    * 8 if a refactor message was issued                                        \n"
-            "    * 16 if a convention message was issued                                     \n"
-            "    * 32 on usage error                                                         \n"
-            "                                                                                \n"
-            "status 1 to 16 will be bit-ORed so you can know which different categories has\n"
-            "been issued by analysing pylint output status code\n",
-            level=1,
-        )
-        # read configuration
+
         linter.disable("I")
         linter.enable("c-extension-no-member")
 
-        args = _config_initialization(linter, args, reporter, verbose_mode=self.verbose)
+        args = _config_initialization(
+            linter, args, reporter, config_file=self._rcfile, verbose_mode=self.verbose
+        )
 
         if linter.config.jobs < 0:
             print(
@@ -380,82 +188,3 @@ to search for configuration file.
                     sys.exit(self.linter.msg_status or 1)
             else:
                 sys.exit(self.linter.msg_status)
-
-    def version_asked(self, _, __):
-        """Callback for version (i.e. before option parsing)."""
-        self._version_asked = True
-
-    def cb_set_rcfile(self, name, value):
-        """Callback for option preprocessing (i.e. before option parsing)."""
-        self._rcfile = value
-
-    def cb_set_output(self, name, value):
-        """Callback for option preprocessing (i.e. before option parsing)."""
-        self._output = value
-
-    def cb_add_plugins(self, name, value):
-        """Callback for option preprocessing (i.e. before option parsing)."""
-        self._plugins.extend(utils._splitstrip(value))
-
-    def cb_error_mode(self, *args, **kwargs):
-        """Callback for --errors-only.
-
-        Error mode:
-        * disable all but error messages
-        * disable the 'miscellaneous' checker which can be safely deactivated in
-          debug
-        * disable reports
-        * do not save execution information
-        """
-        self.linter.error_mode()
-
-    def cb_generate_config(self, *args, **kwargs):
-        """Optik callback for sample config file generation."""
-        self.linter.generate_config(skipsections=("COMMANDS",))
-        sys.exit(0)
-
-    def cb_generate_manpage(self, *args, **kwargs):
-        """Optik callback for sample config file generation."""
-        self.linter.generate_manpage(__pkginfo__)
-        sys.exit(0)
-
-    def cb_help_message(self, option, optname, value, parser):
-        """Optik callback for printing some help about a particular message."""
-        self.linter.msgs_store.help_message(utils._splitstrip(value))
-        sys.exit(0)
-
-    def cb_full_documentation(self, option, optname, value, parser):
-        """Optik callback for printing full documentation."""
-        print_full_documentation(self.linter)
-        sys.exit(0)
-
-    def cb_list_messages(self, option, optname, value, parser):
-        """Optik callback for printing available messages."""
-        self.linter.msgs_store.list_messages()
-        sys.exit(0)
-
-    def cb_list_messages_enabled(self, option, optname, value, parser):
-        """Optik callback for printing available messages."""
-        self.linter.list_messages_enabled()
-        sys.exit(0)
-
-    def cb_list_groups(self, *args, **kwargs):
-        """List all the check groups that pylint knows about.
-
-        These should be useful to know what check groups someone can disable
-        or enable.
-        """
-        for check in self.linter.get_checker_names():
-            print(check)
-        sys.exit(0)
-
-    def cb_verbose_mode(self, *args, **kwargs):
-        self.verbose = True
-
-    def cb_enable_all_extensions(self, option_name: str, value: None) -> None:
-        """Callback to load and enable all available extensions."""
-        for filename in os.listdir(os.path.dirname(extensions.__file__)):
-            if filename.endswith(".py") and not filename.startswith("_"):
-                extension_name = f"pylint.extensions.{filename[:-3]}"
-                if extension_name not in self._plugins:
-                    self._plugins.append(extension_name)

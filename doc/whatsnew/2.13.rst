@@ -3,21 +3,39 @@
 ***************************
 
 :Release: 2.13
-:Date: TBA
+:Date: 2022-03-24
 
 Summary -- Release highlights
 =============================
+
+In 2.13, we introduced a new check to deal with unicode security issues. On top of that a lot of work was
+done inside the unicode checker by @CarliJoy. We also introduced a new check when importing private name
+and for unnecessary ellipsis among other.
+
+We fixed long standing issues related to duplicate code that could not be disabled, line numbers
+that were not accurate some of the time, and added the ability to lint all files in a directory without
+specifying each one. One of the most anticipated issue from the repository. Thank you @matusvalo !
+
+A lot of ``undefined-variables`` and ``used-before-assignment`` issues were resolved thanks to @jacobtylerwalls.
+
+We started integrating ``pylint-error`` the documentation created by @vald-phoenix a developer from Hlyniane,
+Ukraine. We hope he's doing well despite the current situation. The deployment is set up but `there's still a lot to do so we welcome any community effort
+help to review, integrate, and add good/bad examples <https://github.com/PyCQA/pylint/issues/5953>`_. This should be doable
+without any pylint or astroid knowledge, so this is the perfect entrypoint if you want to contribute
+to pylint without investing any time learning the internals.
+
+This release is the last one to support interpreter below 3.7.2, 3.6 end of life was reached in december 2021.
 
 New checkers
 ============
 
 * Added several checkers to deal with unicode security issues
   (see `Trojan Sources <https://trojansource.codes/>`_ and
-  `PEP 672 <https://www.python.org/dev/peps/pep-0672/>`_ for details) that also
+  `PEP 672 <https://peps.python.org/pep-0672/>`_ for details) that also
   concern the readability of the code. In detail the following checks were added:
 
   * ``bad-file-encoding`` checks that the file is encoded in UTF-8 as suggested by
-    `PEP8 <https://www.python.org/dev/peps/pep-0008/#id20>`_.
+    `PEP8 <https://peps.python.org/pep-0008/#source-file-encoding>`_.
     UTF-16 and UTF-32 are `not supported by Python <https://bugs.python.org/issue1503789>`_
     at the moment. If this ever changes
     ``invalid-unicode-codec`` checks that they aren't used, to allow for backwards
@@ -58,13 +76,14 @@ New checkers
 
    Non ASCII characters could be homoglyphs (look alike characters) and hard to
    enter on a non specialized keyboard.
-   See `Confusable Characters in PEP 672 <https://www.python.org/dev/peps/pep-0672/#confusable-characters-in-identifiers>`_
+   See `Confusable Characters in PEP 672 <https://peps.python.org/pep-0672/#confusable-characters-in-identifiers>`_
 
-* Added ``lru-cache-decorating-method`` checker with checks for the use of ``functools.lru_cache``
-  on class methods. This is unrecommended as it creates memory leaks by never letting the instance
-  getting garbage collected.
+* Added ``cache-max-size-none`` checker with checks for the use of ``functools.lru_cache``
+  on class methods with a ``maxsize`` of ``None``. This is unrecommended as it
+  creates memory leaks by never letting the instance get garbage collected.
 
   Closes #5670
+  Clsoes #6180
 
 Removed checkers
 ================
@@ -76,6 +95,10 @@ Removed checkers
 
 Extensions
 ==========
+* New extension ``import-private-name``: indicate imports of external private packages
+  and objects (prefixed with ``_``). It can be loaded using ``load-plugins=pylint.extensions.private_import``.
+
+  Closes #5463
 
 * Pyreverse - add output in mermaid-js format and html which is an mermaid js diagram with html boilerplate
 
@@ -105,6 +128,20 @@ Extensions
 
 Other Changes
 =============
+
+* Include ``testing_pylintrc`` in source and wheel distributions.
+
+  Closes #6028
+
+* Fix false positive for ``unused-import`` when disabling both ``used-before-assignment`` and ``undefined-variable``.
+
+  Closes #6089
+
+* Fix false positive for ``unnecessary-ellipsis`` when using an ellipsis as a default argument.
+
+  Closes #5973
+
+* Add missing dunder methods to ``unexpected-special-method-signature`` check.
 
 * No longer emit ``no-member`` in for loops that reference ``self`` if the binary operation that
   started the for loop uses a ``self`` that is encapsulated in tuples or lists.
@@ -149,6 +186,10 @@ Other Changes
 
   Closes #5722
 
+* Fix ``unused-private-member`` false positive when accessing private methods through ``property``.
+
+  Closes #4756
+
 * Fixed crash from ``arguments-differ`` and ``arguments-renamed`` when methods were
   defined outside the top level of a class.
 
@@ -157,6 +198,17 @@ Other Changes
 * Better warning messages for useless else or elif when a function returns early.
 
   Closes #5614
+
+* Asterisks are no longer required in Sphinx and Google style parameter documentation
+  for ``missing-param-doc`` and are parsed correctly.
+
+  Closes #5815
+  Closes #5406
+
+* Fixed an ``AstroidError`` in 2.13.0 raised by the ```duplicate-code``` checker with
+  ``ignore-imports`` or ``ignore-signatures`` enabled.
+
+  Closes #6301
 
 * Use the ``tomli`` package instead of ``toml`` to parse ``.toml`` files.
 
@@ -252,6 +304,15 @@ Other Changes
 
   Closes #5771
   Ref PyCQA/astroid#1382
+
+* Optimize parsing of long lines when ``missing-final-newline`` is enabled.
+
+  Closes #5724
+
+* Fix false positive for ``used-before-assignment`` from a class definition
+  nested under a function subclassing a class defined outside the function.
+
+  Closes #4590
 
 * Fix ``unnecessary_dict_index_lookup`` false positive when deleting a dictionary's entry.
 
@@ -379,6 +440,11 @@ Other Changes
 
   Closes #5360, #3877
 
+* Improve ``invalid-name`` check for ``TypeVar`` names.
+  The accepted pattern can be customized with ``--typevar-rgx``.
+
+  Closes #3401
+
 * Fixed a false positive (affecting unreleased development) for
   ``used-before-assignment`` involving homonyms between filtered comprehensions
   and assignments in except blocks.
@@ -451,6 +517,11 @@ Other Changes
 * The ``testutils`` for unittests now accept ``end_lineno`` and ``end_column``. Tests
   without these will trigger a ``DeprecationWarning``.
 
+* ``arguments-differ`` will no longer complain about method redefinitions with extra parameters
+  that have default values.
+
+  Closes #1556, #5338
+
 * Disables for ``deprecated-module`` and similar warnings for stdlib features deprecated
   in newer versions of Python no longer raise ``useless-suppression`` when linting with
   older Python interpreters where those features are not yet deprecated.
@@ -494,3 +565,48 @@ Other Changes
 * Fixed false positive for ``global-variable-not-assigned`` when the ``del`` statement is used
 
   Closes #5333
+
+* Fix type hints in class diagrams generated by pyreverse for class methods and methods returning None.
+
+* Output better error message if unsupported file formats are used with ``pyreverse``.
+
+  Closes #5950
+
+* Fixed false positive for ``unused-argument`` when a ``nonlocal`` name is used
+  in a nested function that is returned without being called by its parent.
+
+  Closes #5187
+
+* Avoid emitting ``raising-bad-type`` when there is inference ambiguity on
+  the variable being raised.
+
+  Closes #2793
+
+* Fix false positive for ``superfluous-parens`` for patterns like
+  "return (a or b) in iterable".
+
+  Closes #5803
+
+* Fix a crash in the ``unsupported-membership-test`` checker when assigning
+  multiple constants to class attributes including ``__iter__`` via unpacking.
+
+  Closes #6366
+
+* Fix false positive for ``used-before-assignment`` for assignments taking place via
+  nonlocal declarations after an earlier type annotation.
+
+  Closes #5394
+
+* Fixed a false positive for ``unused-variable`` when a builtin specified in
+  ``--additional-builtins`` is given a type annotation.
+
+  Closes #6388
+
+* Fix false positive for 'nonexistent-operator' when repeated '-' are
+  separated (e.g. by parens).
+
+  Closes #5769
+
+* Only raise ``not-callable`` when all the inferred values of a property are not callable.
+
+  Closes #5931

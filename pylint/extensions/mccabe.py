@@ -1,17 +1,10 @@
-# Copyright (c) 2016-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
-# Copyright (c) 2017, 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2019, 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2021 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Module to add McCabe checker class for pylint."""
+
+from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
@@ -21,7 +14,7 @@ from mccabe import PathGraphingAstVisitor as Mccabe_PathGraphingAstVisitor
 
 from pylint import checkers
 from pylint.checkers.utils import check_messages
-from pylint.interfaces import HIGH, IAstroidChecker
+from pylint.interfaces import HIGH
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -155,7 +148,6 @@ class McCabeMethodChecker(checkers.BaseChecker):
     to validate a too complex code.
     """
 
-    __implements__ = IAstroidChecker
     name = "design"
 
     msgs = {
@@ -193,12 +185,12 @@ class McCabeMethodChecker(checkers.BaseChecker):
                 node_name = f"'{node.name}'"
             else:
                 node_name = f"This '{node.__class__.__name__.lower()}'"
-            if complexity <= self.config.max_complexity:
+            if complexity <= self.linter.config.max_complexity:
                 continue
             self.add_message(
                 "too-complex", node=node, confidence=HIGH, args=(node_name, complexity)
             )
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(McCabeMethodChecker(linter))

@@ -1,32 +1,9 @@
 # mode: python; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4
 # -*- vim:fenc=utf-8:ft=python:et:sw=4:ts=4:sts=4
 
-# Copyright (c) 2008-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2014 Jakob Normark <jakobnormark@gmail.com>
-# Copyright (c) 2014 Brett Cannon <brett@python.org>
-# Copyright (c) 2014 Manuel Vázquez Acosta <mva.led@gmail.com>
-# Copyright (c) 2014 Derek Harland <derek.harland@finq.co.nz>
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2015 Mihai Balint <balint.mihai@gmail.com>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2017, 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2017 Daniela Plascencia <daplascen@gmail.com>
-# Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
-# Copyright (c) 2018 Ryan McGuire <ryan@enigmacurry.com>
-# Copyright (c) 2018 thernstig <30827238+thernstig@users.noreply.github.com>
-# Copyright (c) 2018 Radostin Stoyanov <rst0git@users.noreply.github.com>
-# Copyright (c) 2019, 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
-# Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Nick Drozd <nicholasdrozd@gmail.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Emacs and Flymake compatible Pylint.
 
@@ -59,12 +36,15 @@ For example:
 You may also use py_run to run pylint with desired options and get back (or not)
 its output.
 """
+
+from __future__ import annotations
+
 import os
 import shlex
 import sys
+from collections.abc import Sequence
 from io import StringIO
 from subprocess import PIPE, Popen
-from typing import Optional, Sequence
 
 
 def _get_env():
@@ -187,7 +167,7 @@ def py_run(command_options="", return_std=False, stdout=None, stderr=None):
         return None
 
 
-def Run(argv: Optional[Sequence[str]] = None):
+def Run(argv: Sequence[str] | None = None):
     if not argv and len(sys.argv) == 1:
         print(f"Usage: {sys.argv[0]} <filename> [options]")
         sys.exit(1)

@@ -32,12 +32,12 @@ jobs:
       python-key: ${{ steps.generate-python-key.outputs.key }}
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.0.0
+        uses: actions/checkout@v3.0.1
         with:
           fetch-depth: 0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v3.0.0
+        uses: actions/setup-python@v3.1.2
         with:
           python-version: ${{ matrix.python-version }}
       - name: Generate partial Python venv restore key
@@ -48,7 +48,7 @@ jobs:
           }}"
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v2.1.7
+        uses: actions/cache@v3.0.2
         with:
           path: venv
           key: >-
@@ -74,15 +74,15 @@ jobs:
         python-version: [3.8, 3.9, "3.10"]
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.0.0
+        uses: actions/checkout@v3.0.1
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v3.0.0
+        uses: actions/setup-python@v3.1.2
         with:
           python-version: ${{ matrix.python-version }}
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v2.1.7
+        uses: actions/cache@v3.0.2
         with:
           path: venv
           key:
@@ -109,15 +109,15 @@ jobs:
         python-version: [3.8, 3.9, "3.10"]
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.0.0
+        uses: actions/checkout@v3.0.1
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v3.0.0
+        uses: actions/setup-python@v3.1.2
         with:
           python-version: ${{ matrix.python-version }}
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v2.1.7
+        uses: actions/cache@v3.0.2
         with:
           path: venv
           key:
@@ -144,15 +144,15 @@ jobs:
         python-version: [3.8, 3.9, "3.10"]
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.0.0
+        uses: actions/checkout@v3.0.1
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v3.0.0
+        uses: actions/setup-python@v3.1.2
         with:
           python-version: ${{ matrix.python-version }}
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v2.1.7
+        uses: actions/cache@v3.0.2
         with:
           path: venv
           key:

@@ -1,5 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Special methods checker and helper function's module."""
 
@@ -15,7 +16,6 @@ from pylint.checkers.utils import (
     is_function_body_ellipsis,
     safe_infer,
 )
-from pylint.interfaces import IAstroidChecker
 
 NEXT_METHOD = "__next__"
 
@@ -47,7 +47,6 @@ class SpecialMethodsChecker(BaseChecker):
     are implemented correctly.
     """
 
-    __implements__ = (IAstroidChecker,)
     name = "classes"
     msgs = {
         "E0301": (
@@ -131,7 +130,6 @@ class SpecialMethodsChecker(BaseChecker):
             "of the form tuple(tuple, dict)",
         ),
     }
-    priority = -2
 
     def __init__(self, linter=None):
         super().__init__(linter)
@@ -288,6 +286,11 @@ class SpecialMethodsChecker(BaseChecker):
             return True
         if isinstance(node, astroid.bases.Generator):
             # Generators can be iterated.
+            return True
+        # pylint: disable-next=fixme
+        # TODO: 2.14: Should be covered by https://github.com/PyCQA/astroid/pull/1475
+        if isinstance(node, nodes.ComprehensionScope):
+            # Comprehensions can be iterated.
             return True
 
         if isinstance(node, astroid.Instance):

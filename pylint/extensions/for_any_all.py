@@ -1,11 +1,17 @@
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
 """Check for use of for loops that only check for a condition."""
+
+from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages, returns_bool
-from pylint.interfaces import IAstroidChecker
 
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
@@ -13,7 +19,6 @@ if TYPE_CHECKING:
 
 class ConsiderUsingAnyOrAllChecker(BaseChecker):
 
-    __implements__ = (IAstroidChecker,)
     name = "consider-using-any-or-all"
     msgs = {
         "C0501": (
@@ -65,5 +70,5 @@ class ConsiderUsingAnyOrAllChecker(BaseChecker):
         return f"{suggested_function}({test} for {loop_var} in {loop_iter})"
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(ConsiderUsingAnyOrAllChecker(linter))

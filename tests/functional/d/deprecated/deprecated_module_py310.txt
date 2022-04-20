@@ -1,1 +1,1 @@
-deprecated-module:4:0:4:16::Uses of a deprecated module 'distutils':UNDEFINED
+deprecated-module:4:0:4:16::Deprecated module 'distutils':UNDEFINED

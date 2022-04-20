@@ -1,14 +1,10 @@
-# Copyright (c) 2015-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2017 Derek Gustafson <degustaf@gmail.com>
-# Copyright (c) 2019, 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Checker for anything related to the async protocol (PEP 492)."""
+
+from __future__ import annotations
 
 import sys
 from typing import TYPE_CHECKING
@@ -16,7 +12,7 @@ from typing import TYPE_CHECKING
 import astroid
 from astroid import nodes
 
-from pylint import checkers, interfaces, utils
+from pylint import checkers
 from pylint.checkers import utils as checker_utils
 from pylint.checkers.utils import decorated_with
 
@@ -25,7 +21,6 @@ if TYPE_CHECKING:
 
 
 class AsyncChecker(checkers.BaseChecker):
-    __implements__ = interfaces.IAstroidChecker
     name = "async"
     msgs = {
         "E1700": (
@@ -45,10 +40,7 @@ class AsyncChecker(checkers.BaseChecker):
     }
 
     def open(self):
-        self._ignore_mixin_members = utils.get_global_option(
-            self, "ignore-mixin-members"
-        )
-        self._mixin_class_rgx = utils.get_global_option(self, "mixin-class-rgx")
+        self._mixin_class_rgx = self.linter.config.mixin_class_rgx
         self._async_generators = ["contextlib.asynccontextmanager"]
 
     @checker_utils.check_messages("yield-inside-async-function")
@@ -87,8 +79,10 @@ class AsyncChecker(checkers.BaseChecker):
                         if not checker_utils.has_known_bases(inferred):
                             continue
                         # Ignore mixin classes if they match the rgx option.
-                        if self._ignore_mixin_members and self._mixin_class_rgx.match(
-                            inferred.name
+                        if (
+                            "not-async-context-manager"
+                            in self.linter.config.ignored_checks_for_mixins
+                            and self._mixin_class_rgx.match(inferred.name)
                         ):
                             continue
                 else:
@@ -98,5 +92,5 @@ class AsyncChecker(checkers.BaseChecker):
             )
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(AsyncChecker(linter))

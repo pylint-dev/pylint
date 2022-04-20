@@ -1,18 +1,18 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-from typing import Union
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
+from __future__ import annotations
 
 import astroid
 from astroid import nodes
 
-from pylint import checkers, interfaces
+from pylint import checkers
 from pylint.checkers import utils
-from pylint.utils.utils import get_global_option
 
 
 class RecommendationChecker(checkers.BaseChecker):
 
-    __implements__ = (interfaces.IAstroidChecker,)
     name = "refactoring"
     msgs = {
         "C0200": (
@@ -63,7 +63,7 @@ class RecommendationChecker(checkers.BaseChecker):
     }
 
     def open(self) -> None:
-        py_version = get_global_option(self, "py-version")
+        py_version = self.linter.config.py_version
         self._py36_plus = py_version >= (3, 6)
 
     @staticmethod
@@ -320,7 +320,7 @@ class RecommendationChecker(checkers.BaseChecker):
                 return
 
     def _check_use_sequence_for_iteration(
-        self, node: Union[nodes.For, nodes.Comprehension]
+        self, node: nodes.For | nodes.Comprehension
     ) -> None:
         """Check if code iterates over an in-place defined set."""
         if isinstance(node.iter, nodes.Set):

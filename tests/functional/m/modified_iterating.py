@@ -55,3 +55,19 @@ for l in item_list:
             item_list.remove(1)  # [modified-iterating-list]
             for _ in []:
                 item_list.append(1)  # [modified-iterating-list]
+
+
+def format_manifest_serializer_errors(errors):
+    """Regression test for issue #5969 - iter_obj is a function call."""
+    errors_messages = []
+    for key, value in errors.items():
+        for message in format_manifest_serializer_errors(value):
+            error_message = f"{key}: {message}"
+            errors_messages.append(error_message)
+    return errors_messages
+
+
+dict1 = {"1": 1}
+dict2 = {"2": 2}
+for item in dict1:
+    dict2[item] = 1

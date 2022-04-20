@@ -37,10 +37,12 @@ from module mymodule:
     ------------------------------------------------------------------
     Your code has been rated at 2.00/10 (previous run: 2.00/10, +0.00)
 """
-from typing import TYPE_CHECKING, Set, Tuple, Union
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from pylint.checkers import BaseChecker, DeprecatedMixin
-from pylint.interfaces import IAstroidChecker
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -54,11 +56,10 @@ class DeprecationChecker(DeprecatedMixin, BaseChecker):
     # DeprecatedMixin class is overriding attributes of BaseChecker hence must be specified *before* BaseChecker
     # in list of base classes.
 
-    __implements__ = (IAstroidChecker,)
     # The name defines a custom section of the config for this checker.
     name = "deprecated"
 
-    def deprecated_methods(self) -> Set[str]:
+    def deprecated_methods(self) -> set[str]:
         """Callback method called by DeprecatedMixin for every method/function found in the code.
 
         Returns:
@@ -66,9 +67,7 @@ class DeprecationChecker(DeprecatedMixin, BaseChecker):
         """
         return {"mymodule.deprecated_function", "mymodule.MyClass.deprecated_method"}
 
-    def deprecated_arguments(
-        self, method: str
-    ) -> Tuple[Tuple[Union[int, None], str], ...]:
+    def deprecated_arguments(self, method: str) -> tuple[tuple[int | None, str], ...]:
         """Callback returning the deprecated arguments of method/function.
 
         Returns:
@@ -92,5 +91,5 @@ class DeprecationChecker(DeprecatedMixin, BaseChecker):
         return ()
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(DeprecationChecker(linter))

@@ -1,6 +1,6 @@
 """ Checks that classes uses valid __slots__ """
 
-# pylint: disable=too-few-public-methods, missing-docstring,  useless-object-inheritance
+# pylint: disable=too-few-public-methods, missing-docstring, useless-object-inheritance
 # pylint: disable=using-constant-test, wrong-import-position, no-else-return, line-too-long, unused-private-member
 from collections import deque
 
@@ -56,6 +56,12 @@ class SeventhBad(object):  # [single-string-used-for-slots]
 
 class EighthBad(object):  # [single-string-used-for-slots]
     __slots__ = deque.__name__
+
+class NinthBad(object):
+    __slots__ = [str]  # [invalid-slots-object]
+
+class TenthBad(object):
+    __slots__ = [1 + 2 + 3]  # [invalid-slots-object]
 
 class PotentiallyGood(object):
     __slots__ = func()

@@ -1,9 +1,12 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 # pylint: disable=redefined-outer-name
 
-from typing import Callable, Optional
+from __future__ import annotations
+
+from collections.abc import Callable
 
 import pytest
 
@@ -150,7 +153,7 @@ def test_output_line_from_csv_error() -> None:
     "confidence,expected_confidence", [[None, "UNDEFINED"], ["INFERENCE", "INFERENCE"]]
 )
 def test_output_line_from_csv_deprecated(
-    confidence: Optional[str], expected_confidence: str
+    confidence: str | None, expected_confidence: str
 ) -> None:
     """Test that the OutputLine NamedTuple is instantiated correctly with from_csv.
     Test OutputLine's of length 5 or 6.

@@ -1,14 +1,17 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Looks for overlapping exceptions."""
 
-from typing import TYPE_CHECKING, Any, List, Tuple
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
 
 import astroid
 from astroid import nodes
 
-from pylint import checkers, interfaces
+from pylint import checkers
 from pylint.checkers import utils
 from pylint.checkers.exceptions import _annotated_unpack_infer
 
@@ -23,8 +26,6 @@ class OverlappingExceptionsChecker(checkers.BaseChecker):
     (i.e. overlapping).
     """
 
-    __implements__ = interfaces.IAstroidChecker
-
     name = "overlap-except"
     msgs = {
         "W0714": (
@@ -33,7 +34,6 @@ class OverlappingExceptionsChecker(checkers.BaseChecker):
             "Used when exceptions in handler overlap or are identical",
         )
     }
-    priority = -2
     options = ()
 
     @utils.check_messages("overlapping-except")
@@ -49,7 +49,7 @@ class OverlappingExceptionsChecker(checkers.BaseChecker):
             except astroid.InferenceError:
                 continue
 
-            handled_in_clause: List[Tuple[Any, Any]] = []
+            handled_in_clause: list[tuple[Any, Any]] = []
             for part, exc in excs:
                 if exc is astroid.Uninferable:
                     continue
@@ -86,5 +86,5 @@ class OverlappingExceptionsChecker(checkers.BaseChecker):
                 handled_in_clause += [(part, exc)]
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(OverlappingExceptionsChecker(linter))

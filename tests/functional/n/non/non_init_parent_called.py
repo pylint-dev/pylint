@@ -1,5 +1,5 @@
 # pylint: disable=protected-access,import-self,too-few-public-methods,line-too-long
-# pylint: disable=wrong-import-order, useless-object-inheritance,
+# pylint: disable=wrong-import-order, useless-object-inheritance, unnecessary-dunder-call
 """test for call to __init__ from a non ancestor class
 """
 from __future__ import print_function

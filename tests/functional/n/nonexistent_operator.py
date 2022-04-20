@@ -13,3 +13,7 @@ b = --a # [nonexistent-operator]
 b = a
 --a # [nonexistent-operator]
 c = (--a) * b # [nonexistent-operator]
+c = -(-a)
+c = +(+a)
+c = - -a
+c = + +a

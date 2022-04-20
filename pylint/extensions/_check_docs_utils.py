@@ -1,31 +1,12 @@
-# Copyright (c) 2016-2019, 2021 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2016-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2016 Yuri Bochkarev <baltazar.bz@gmail.com>
-# Copyright (c) 2016 Glenn Matthews <glenn@e-dad.net>
-# Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
-# Copyright (c) 2017, 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2017 Mitar <mitar.github@tnode.com>
-# Copyright (c) 2018, 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2018 Jim Robertson <jrobertson98atx@gmail.com>
-# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
-# Copyright (c) 2018 Mitchell T.H. Young <mitchelly@gmail.com>
-# Copyright (c) 2018 Adrian Chirieac <chirieacam@gmail.com>
-# Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2019 Danny Hermes <daniel.j.hermes@gmail.com>
-# Copyright (c) 2019 Zeb Nicholls <zebedee.nicholls@climate-energy-college.org>
-# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 allanc65 <95424144+allanc65@users.noreply.github.com>
-# Copyright (c) 2021 Konstantina Saketou <56515303+ksaketou@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Utility methods for docstring checking."""
 
+from __future__ import annotations
+
 import re
-from typing import List, Set, Tuple
 
 import astroid
 from astroid import nodes
@@ -115,12 +96,12 @@ def _get_raise_target(node):
     return None
 
 
-def _split_multiple_exc_types(target: str) -> List[str]:
+def _split_multiple_exc_types(target: str) -> list[str]:
     delimiters = r"(\s*,(?:\s*or\s)?\s*|\s+or\s+)"
     return re.split(delimiters, target)
 
 
-def possible_exc_types(node: nodes.NodeNG) -> Set[nodes.ClassDef]:
+def possible_exc_types(node: nodes.NodeNG) -> set[nodes.ClassDef]:
     """Gets all the possible raised exception types for the given raise node.
 
     .. note::
@@ -176,7 +157,9 @@ def possible_exc_types(node: nodes.NodeNG) -> Set[nodes.ClassDef]:
         return set()
 
 
-def docstringify(docstring: str, default_type: str = "default") -> "Docstring":
+def docstringify(
+    docstring: nodes.Const | None, default_type: str = "default"
+) -> Docstring:
     best_match = (0, DOCSTRING_TYPES.get(default_type, Docstring)(docstring))
     for docstring_type in (
         SphinxDocstring,
@@ -208,9 +191,9 @@ class Docstring:
 
     # These methods are designed to be overridden
     # pylint: disable=no-self-use
-    def __init__(self, doc):
-        doc = doc or ""
-        self.doc = doc.expandtabs()
+    def __init__(self, doc: nodes.Const | None) -> None:
+        docstring = doc.value if doc else ""
+        self.doc = docstring.expandtabs()
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__}:'''{self.doc}'''>"
@@ -287,7 +270,7 @@ class SphinxDocstring(Docstring):
         \s+
         )?
 
-        ((\\\*{{1,2}}\w+)|(\w+))  # Parameter name with potential asterisks
+        ((\\\*{{0,2}}\w+)|(\w+))  # Parameter name with potential asterisks
         \s*                       # whitespace
         :                         # final colon
         """
@@ -487,7 +470,7 @@ class GoogleDocstring(Docstring):
 
     re_param_line = re.compile(
         rf"""
-        \s*  (\*{{0,2}}\w+)             # identifier potentially with asterisks
+        \s*  ((?:\\?\*{{0,2}})?\w+)     # identifier potentially with asterisks
         \s*  ( [(]
             {re_multiple_type}
             (?:,\s+optional)?
@@ -665,6 +648,9 @@ class GoogleDocstring(Docstring):
                 continue
 
             param_name = match.group(1)
+            # Remove escape characters necessary for asterisks
+            param_name = param_name.replace("\\", "")
+
             param_type = match.group(2)
             param_desc = match.group(3)
 
@@ -783,7 +769,7 @@ class NumpyDocstring(GoogleDocstring):
 
     supports_yields = True
 
-    def match_param_docs(self) -> Tuple[Set[str], Set[str]]:
+    def match_param_docs(self) -> tuple[set[str], set[str]]:
         """Matches parameter documentation section to parameter documentation rules."""
         params_with_doc = set()
         params_with_type = set()

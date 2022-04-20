@@ -1,24 +1,26 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-from typing import Any, Optional
+from __future__ import annotations
+
+from typing import Any
 
 from astroid import nodes
 
 from pylint.interfaces import UNDEFINED, Confidence
-from pylint.testutils.global_test_linter import linter
+from pylint.lint import PyLinter
 from pylint.testutils.output_line import MessageTest
-from pylint.utils import LinterStats
 
 
-class UnittestLinter:
+class UnittestLinter(PyLinter):
     """A fake linter class to capture checker messages."""
 
     # pylint: disable=unused-argument
 
     def __init__(self):
         self._messages = []
-        self.stats = LinterStats()
+        super().__init__()
 
     def release_messages(self):
         try:
@@ -28,16 +30,16 @@ class UnittestLinter:
 
     def add_message(
         self,
-        msg_id: str,
-        line: Optional[int] = None,
+        msgid: str,
+        line: int | None = None,
         # pylint: disable=fixme
         # TODO: Make node non optional
-        node: Optional[nodes.NodeNG] = None,
+        node: nodes.NodeNG | None = None,
         args: Any = None,
-        confidence: Optional[Confidence] = None,
-        col_offset: Optional[int] = None,
-        end_lineno: Optional[int] = None,
-        end_col_offset: Optional[int] = None,
+        confidence: Confidence | None = None,
+        col_offset: int | None = None,
+        end_lineno: int | None = None,
+        end_col_offset: int | None = None,
     ) -> None:
         """Add a MessageTest to the _messages attribute of the linter class."""
         # If confidence is None we set it to UNDEFINED as well in PyLinter
@@ -67,7 +69,7 @@ class UnittestLinter:
 
         self._messages.append(
             MessageTest(
-                msg_id,
+                msgid,
                 line,
                 node,
                 args,
@@ -81,7 +83,3 @@ class UnittestLinter:
     @staticmethod
     def is_message_enabled(*unused_args, **unused_kwargs):
         return True
-
-    @property
-    def options_providers(self):
-        return linter.options_providers

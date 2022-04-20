@@ -36,3 +36,6 @@ class Specialization(Ancestor):
     @staticmethod
     def transform_value(value: int) -> int:
         return value * 2
+
+    def increment_value(self) -> None:
+        self.set_value(self.get_value() + 1)
