@@ -71,7 +71,8 @@ cherry-picked on the maintenance branch.
 - Bump the version and release by using `tbump X.Y-1.Z --no-push`. (For example:
   `tbump 2.3.5 --no-push`)
 - Check the result visually with `git show`.
-- Push the tag.
+- Open a merge request to run the CI tests for this branch
+- Create and push the tag.
 - Release the version on GitHub with the same name as the tag and copy and paste the
   appropriate changelog in the description. This triggers the PyPI release.
 - Merge the `maintenance/X.Y.x` branch on the main branch. The main branch should have
