@@ -4,7 +4,7 @@
 
 from typing import Tuple
 
-__version__ = "2.13.5"
+__version__ = "2.13.6"
 
 
 def get_numversion_from_version(v: str) -> Tuple:

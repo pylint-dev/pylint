@@ -153,6 +153,7 @@ contributors:
 - Aru Sahni <arusahni@gmail.com>: Git ignoring, regex-based ignores
 - Andreas Freimuth <andreas.freimuth@united-bits.de>: fix indentation checking with tabs
 - Alexandru Coman <fcoman@bitdefender.com>
+- Tim Martin <tim@asymptotic.co.uk>
 - Takahide Nojima <nozzy123nozzy@gmail.com>
 - Taewon D. Kim <kimt33@mcmaster.ca>
 - Sneaky Pete <sneakypete81@gmail.com>
@@ -182,7 +183,6 @@ contributors:
 - wtracy <afishionado@gmail.com>
 - jpkotta <jpkotta@gmail.com>
 - chohner <mail@chohner.com>
-- Tim Martin <tim@asymptotic.co.uk>
 - Tiago Honorato <61059243+tiagohonorato@users.noreply.github.com>
 - Steven M. Vascellaro <svascellaro@gmail.com>
 - Sergey B Kirpichev <skirpichev@gmail.com>
