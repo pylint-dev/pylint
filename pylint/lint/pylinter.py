@@ -969,7 +969,13 @@ class PyLinter(
             ) from ex
         return None
 
-    def check_astroid_module(self, ast_node, walker, rawcheckers, tokencheckers):
+    def check_astroid_module(
+        self,
+        ast_node,
+        walker: ASTWalker,
+        rawcheckers: list[checkers.BaseRawFileChecker],
+        tokencheckers: list[checkers.BaseTokenChecker],
+    ) -> bool | None:
         """Check a module from its astroid representation.
 
         For return value see _check_astroid_module
@@ -980,6 +986,9 @@ class PyLinter(
             ast_node, walker, rawcheckers, tokencheckers
         )
 
+        # TODO: 3.0: Remove unnecessary assertion # pylint: disable=fixme
+        assert self.current_name
+
         self.stats.by_module[self.current_name]["statement"] = (
             walker.nbstatements - before_check_statements
         )
@@ -987,8 +996,12 @@ class PyLinter(
         return retval
 
     def _check_astroid_module(
-        self, node: nodes.Module, walker, rawcheckers, tokencheckers
-    ):
+        self,
+        node: nodes.Module,
+        walker: ASTWalker,
+        rawcheckers: list[checkers.BaseRawFileChecker],
+        tokencheckers: list[checkers.BaseTokenChecker],
+    ) -> bool | None:
         """Check given AST node with given walker and checkers.
 
         :param astroid.nodes.Module node: AST node of the module to check
@@ -998,7 +1011,6 @@ class PyLinter(
 
         :returns: True if the module was checked, False if ignored,
             None if the module contents could not be parsed
-        :rtype: bool
         """
         try:
             tokens = utils.tokenize_module(node)
@@ -1018,10 +1030,10 @@ class PyLinter(
             # walk ast to collect line numbers
             self.file_state.collect_block_lines(self.msgs_store, node)
             # run raw and tokens checkers
-            for checker in rawcheckers:
-                checker.process_module(node)
-            for checker in tokencheckers:
-                checker.process_tokens(tokens)
+            for raw_checker in rawcheckers:
+                raw_checker.process_module(node)
+            for token_checker in tokencheckers:
+                token_checker.process_tokens(tokens)
         # generate events to astroid checkers
         walker.walk(node)
         return True
