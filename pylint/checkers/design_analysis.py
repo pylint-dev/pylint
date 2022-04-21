@@ -16,7 +16,7 @@ import astroid
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import check_messages
+from pylint.checkers.utils import only_required_for_messages
 
 if sys.version_info >= (3, 8):
     from functools import cached_property
@@ -425,7 +425,7 @@ class MisdesignChecker(BaseChecker):
     def _ignored_argument_names(self):
         return self.linter.config.ignored_argument_names
 
-    @check_messages(
+    @only_required_for_messages(
         "too-many-ancestors",
         "too-many-instance-attributes",
         "too-few-public-methods",
@@ -452,7 +452,7 @@ class MisdesignChecker(BaseChecker):
                 args=(len(node.instance_attrs), self.linter.config.max_attributes),
             )
 
-    @check_messages("too-few-public-methods", "too-many-public-methods")
+    @only_required_for_messages("too-few-public-methods", "too-many-public-methods")
     def leave_classdef(self, node: nodes.ClassDef) -> None:
         """Check number of public methods."""
         my_methods = sum(
@@ -498,7 +498,7 @@ class MisdesignChecker(BaseChecker):
                 args=(all_methods, self.linter.config.min_public_methods),
             )
 
-    @check_messages(
+    @only_required_for_messages(
         "too-many-return-statements",
         "too-many-branches",
         "too-many-arguments",
@@ -544,7 +544,7 @@ class MisdesignChecker(BaseChecker):
 
     visit_asyncfunctiondef = visit_functiondef
 
-    @check_messages(
+    @only_required_for_messages(
         "too-many-return-statements",
         "too-many-branches",
         "too-many-arguments",
@@ -606,7 +606,7 @@ class MisdesignChecker(BaseChecker):
         self._inc_branch(node, 2)
         self._inc_all_stmts(2)
 
-    @check_messages("too-many-boolean-expressions", "too-many-branches")
+    @only_required_for_messages("too-many-boolean-expressions", "too-many-branches")
     def visit_if(self, node: nodes.If) -> None:
         """Increments the branches counter and checks boolean expressions."""
         self._check_boolean_expressions(node)

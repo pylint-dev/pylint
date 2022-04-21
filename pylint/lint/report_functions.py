@@ -8,15 +8,15 @@ import collections
 from collections import defaultdict
 
 from pylint import checkers, exceptions
-from pylint.reporters.ureports.nodes import Table
+from pylint.reporters.ureports.nodes import Section, Table
 from pylint.utils import LinterStats
 
 
 def report_total_messages_stats(
-    sect,
+    sect: Section,
     stats: LinterStats,
     previous_stats: LinterStats,
-):
+) -> None:
     """Make total errors / warnings report."""
     lines = ["type", "number", "previous", "difference"]
     lines += checkers.table_lines_from_stats(stats, previous_stats, "message_types")
@@ -24,10 +24,10 @@ def report_total_messages_stats(
 
 
 def report_messages_stats(
-    sect,
+    sect: Section,
     stats: LinterStats,
     _: LinterStats,
-):
+) -> None:
     """Make messages type report."""
     by_msg_stats = stats.by_msg
     in_order = sorted(
@@ -43,10 +43,10 @@ def report_messages_stats(
 
 
 def report_messages_by_module_stats(
-    sect,
+    sect: Section,
     stats: LinterStats,
     _: LinterStats,
-):
+) -> None:
     """Make errors / warnings by modules report."""
     module_stats = stats.by_module
     if len(module_stats) == 1:

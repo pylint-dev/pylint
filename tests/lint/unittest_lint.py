@@ -24,7 +24,7 @@ import pytest
 from pytest import CaptureFixture
 
 from pylint import checkers, config, exceptions, interfaces, lint, testutils
-from pylint.checkers.utils import check_messages
+from pylint.checkers.utils import only_required_for_messages
 from pylint.constants import (
     MSG_STATE_CONFIDENCE,
     MSG_STATE_SCOPE_CONFIG,
@@ -193,7 +193,7 @@ def test_pylint_visit_method_taken_in_account(linter: PyLinter) -> None:
         name = "custom"
         msgs = {"W9999": ("", "custom", "")}
 
-        @check_messages("custom")
+        @only_required_for_messages("custom")
         def visit_class(self, _):
             pass
 
