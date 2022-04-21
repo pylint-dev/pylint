@@ -306,7 +306,7 @@ class NameChecker(_BasicChecker):
 
         return regexps, hints
 
-    @utils.check_messages("disallowed-name", "invalid-name")
+    @utils.only_required_for_messages("disallowed-name", "invalid-name")
     def visit_module(self, node: nodes.Module) -> None:
         self._check_name("module", node.name.split(".")[-1], node)
         self._bad_names = {}
@@ -332,14 +332,14 @@ class NameChecker(_BasicChecker):
             for args in warnings:
                 self._raise_name_warning(prevalent_group, *args)
 
-    @utils.check_messages("disallowed-name", "invalid-name")
+    @utils.only_required_for_messages("disallowed-name", "invalid-name")
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         self._check_name("class", node.name, node)
         for attr, anodes in node.instance_attrs.items():
             if not any(node.instance_attr_ancestors(attr)):
                 self._check_name("attr", attr, anodes[0])
 
-    @utils.check_messages("disallowed-name", "invalid-name")
+    @utils.only_required_for_messages("disallowed-name", "invalid-name")
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         # Do not emit any warnings if the method is just an implementation
         # of a base class method.
@@ -366,7 +366,7 @@ class NameChecker(_BasicChecker):
 
     visit_asyncfunctiondef = visit_functiondef
 
-    @utils.check_messages("disallowed-name", "invalid-name")
+    @utils.only_required_for_messages("disallowed-name", "invalid-name")
     def visit_global(self, node: nodes.Global) -> None:
         for name in node.names:
             self._check_name("const", name, node)

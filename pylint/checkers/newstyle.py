@@ -12,7 +12,11 @@ import astroid
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import check_messages, has_known_bases, node_frame_class
+from pylint.checkers.utils import (
+    has_known_bases,
+    node_frame_class,
+    only_required_for_messages,
+)
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -42,7 +46,7 @@ class NewStyleConflictChecker(BaseChecker):
     # configuration options
     options = ()
 
-    @check_messages("bad-super-call")
+    @only_required_for_messages("bad-super-call")
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         """Check use of super."""
         # ignore actual functions or method within a new style class

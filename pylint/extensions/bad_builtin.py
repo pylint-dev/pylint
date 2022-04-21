@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import check_messages
+from pylint.checkers.utils import only_required_for_messages
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -49,7 +49,7 @@ class BadBuiltinChecker(BaseChecker):
         ),
     )
 
-    @check_messages("bad-builtin")
+    @only_required_for_messages("bad-builtin")
     def visit_call(self, node: nodes.Call) -> None:
         if isinstance(node.func, nodes.Name):
             name = node.func.name

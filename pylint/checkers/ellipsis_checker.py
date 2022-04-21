@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import check_messages
+from pylint.checkers.utils import only_required_for_messages
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -30,7 +30,7 @@ class EllipsisChecker(BaseChecker):
         )
     }
 
-    @check_messages("unnecessary-ellipsis")
+    @only_required_for_messages("unnecessary-ellipsis")
     def visit_const(self, node: nodes.Const) -> None:
         """Check if the ellipsis constant is used unnecessarily.
 

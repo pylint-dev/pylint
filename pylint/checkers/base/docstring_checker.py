@@ -104,16 +104,16 @@ class DocStringChecker(_BasicChecker):
     def open(self):
         self.linter.stats.reset_undocumented()
 
-    @utils.check_messages("missing-docstring", "empty-docstring")
+    @utils.only_required_for_messages("missing-docstring", "empty-docstring")
     def visit_module(self, node: nodes.Module) -> None:
         self._check_docstring("module", node)
 
-    @utils.check_messages("missing-docstring", "empty-docstring")
+    @utils.only_required_for_messages("missing-docstring", "empty-docstring")
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         if self.linter.config.no_docstring_rgx.match(node.name) is None:
             self._check_docstring("class", node)
 
-    @utils.check_messages("missing-docstring", "empty-docstring")
+    @utils.only_required_for_messages("missing-docstring", "empty-docstring")
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         if self.linter.config.no_docstring_rgx.match(node.name) is None:
             ftype = "method" if node.is_method() else "function"
