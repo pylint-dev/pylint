@@ -6,7 +6,10 @@ from __future__ import annotations
 
 import contextlib
 import warnings
-from collections.abc import Generator
+from collections.abc import Generator, Iterator
+from typing import Any
+
+from astroid import nodes
 
 from pylint.checkers.base_checker import BaseChecker
 from pylint.constants import PY38_PLUS
@@ -19,10 +22,10 @@ from pylint.utils import ASTWalker
 class CheckerTestCase:
     """A base testcase class for unit testing individual checker classes."""
 
-    CHECKER_CLASS: type[BaseChecker] | None
-    CONFIG: dict = {}
+    CHECKER_CLASS: type[BaseChecker]
+    CONFIG: dict[str, Any] = {}
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         self.linter = UnittestLinter()
         self.checker = self.CHECKER_CLASS(self.linter)
         for key, value in self.CONFIG.items():
@@ -30,7 +33,7 @@ class CheckerTestCase:
         self.checker.open()
 
     @contextlib.contextmanager
-    def assertNoMessages(self):
+    def assertNoMessages(self) -> Iterator[None]:
         """Assert that no messages are added by the given method."""
         with self.assertAddsMessages():
             yield
@@ -91,7 +94,7 @@ class CheckerTestCase:
                         DeprecationWarning,
                     )
 
-    def walk(self, node):
+    def walk(self, node: nodes.NodeNG) -> None:
         """Recursive walk on the given node."""
         walker = ASTWalker(linter)
         walker.add_checker(self.checker)
