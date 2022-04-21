@@ -701,7 +701,7 @@ def get_argument_from_call(
     raise NoSuchArgumentError
 
 
-def inherit_from_std_ex(node: nodes.NodeNG) -> bool:
+def inherit_from_std_ex(node: nodes.NodeNG | astroid.Instance) -> bool:
     """Return whether the given class node is subclass of
     exceptions.Exception.
     """
