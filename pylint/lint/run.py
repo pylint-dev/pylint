@@ -9,16 +9,14 @@ import os
 import sys
 import warnings
 from collections import defaultdict
-from typing import Iterator, List
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Any
+from typing import Iterator, List
 
 from pylint import config
 from pylint.config.config_initialization import _config_initialization
 from pylint.config.exceptions import ArgumentPreprocessingError
 from pylint.config.utils import _preprocess_options
-from pylint.constants import full_version
 from pylint.lint.base_options import _make_run_options
 from pylint.lint.pylinter import PyLinter
 from pylint.reporters.base_reporter import BaseReporter
@@ -269,7 +267,7 @@ class Run:
             if os.path.isdir(something) and not os.path.isfile(
                 os.path.join(something, "__init__.py")
             ):
-                skip_subtrees: List[str] = []
+                skip_subtrees: list[str] = []
                 for root, _, files in os.walk(something):
                     if any(root.startswith(s) for s in skip_subtrees):
                         # Skip subtree of already discovered package.
