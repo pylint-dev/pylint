@@ -112,7 +112,7 @@ class PrivateImportChecker(BaseChecker):
         )
 
     def _get_type_annotation_names(
-        self, node: nodes.Import, names: list[str]
+        self, node: nodes.Import | nodes.ImportFrom, names: list[str]
     ) -> list[str]:
         """Removes from names any names that are used as type annotations with no other illegal usages."""
         if names and not self.populated_annotations:
@@ -185,7 +185,7 @@ class PrivateImportChecker(BaseChecker):
 
     def _populate_type_annotations_annotation(
         self,
-        node: nodes.Attribute | nodes.Subscript | nodes.Name,
+        node: nodes.Attribute | nodes.Subscript | nodes.Name | None,
         all_used_type_annotations: dict[str, bool],
     ) -> str | None:
         """Handles the possiblity of an annotation either being a Name, i.e. just type,
@@ -240,7 +240,9 @@ class PrivateImportChecker(BaseChecker):
         return True
 
     @staticmethod
-    def same_root_dir(node: nodes.Import, import_mod_name: str) -> bool:
+    def same_root_dir(
+        node: nodes.Import | nodes.ImportFrom, import_mod_name: str
+    ) -> bool:
         """Does the node's file's path contain the base name of `import_mod_name`?"""
         if not import_mod_name:  # from . import ...
             return True
