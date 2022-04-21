@@ -17,6 +17,7 @@ from typing import (
     Pattern,
     Tuple,
     Type,
+    TypeVar,
     Union,
 )
 
@@ -26,6 +27,9 @@ else:
     from typing_extensions import Literal, TypedDict
 
 if TYPE_CHECKING:
+    from astroid import nodes
+
+    from pylint.checkers import BaseChecker
     from pylint.config.callback_actions import _CallbackAction
 
 
@@ -105,3 +109,11 @@ OptionDict = Dict[
     ],
 ]
 Options = Tuple[Tuple[str, OptionDict], ...]
+
+
+AstCallback = Callable[["nodes.NodeNG"], None]
+"""Callable representing a visit or leave function."""
+
+CheckerT_co = TypeVar("CheckerT_co", bound="BaseChecker", covariant=True)
+AstCallbackMethod = Callable[[CheckerT_co, "nodes.NodeNG"], None]
+"""Callable representing a visit or leave method."""

@@ -17,7 +17,7 @@ import astroid
 from astroid import nodes
 from astroid.util import Uninferable
 
-from pylint import checkers, interfaces
+from pylint import checkers
 from pylint.checkers import utils
 from pylint.checkers.utils import node_frame_class
 from pylint.interfaces import HIGH
@@ -195,8 +195,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     in order to create knowledge about whether an "else if" node
     is a true "else if" node, or an "elif" node.
     """
-
-    __implements__ = (interfaces.ITokenChecker, interfaces.IAstroidChecker)
 
     name = "refactoring"
 
@@ -590,7 +588,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         self.add_message("simplifiable-if-statement", node=node, args=(reduced_to,))
 
-    def process_tokens(self, tokens):
+    def process_tokens(self, tokens: list[tokenize.TokenInfo]) -> None:
         # Process tokens and look for 'if' or 'elif'
         for index, token in enumerate(tokens):
             token_string = token[1]

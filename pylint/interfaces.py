@@ -6,7 +6,9 @@
 
 from __future__ import annotations
 
+import warnings
 from collections import namedtuple
+from tokenize import TokenInfo
 from typing import TYPE_CHECKING
 
 from astroid import nodes
@@ -49,9 +51,18 @@ CONFIDENCE_LEVEL_NAMES = [i.name for i in CONFIDENCE_LEVELS]
 class Interface:
     """Base class for interfaces."""
 
+    def __init__(self) -> None:
+        warnings.warn(
+            "Interface and all of its subclasses have been deprecated "
+            "and will be removed in pylint 3.0.",
+            DeprecationWarning,
+        )
+
     @classmethod
     def is_implemented_by(cls, instance):
-        return implements(instance, cls)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            return implements(instance, cls)
 
 
 def implements(
@@ -59,6 +70,12 @@ def implements(
     interface: type[Interface] | tuple[type[Interface], ...],
 ) -> bool:
     """Does the given object (maybe an instance or class) implement the interface."""
+    # TODO: 3.0: Remove deprecated function # pylint: disable=fixme
+    warnings.warn(
+        "implements has been deprecated in favour of using basic "
+        "inheritance patterns without using __implements__.",
+        DeprecationWarning,
+    )
     implements_ = getattr(obj, "__implements__", ())
     if not isinstance(implements_, (list, tuple)):
         implements_ = (implements_,)
@@ -88,7 +105,7 @@ class IRawChecker(IChecker):
 class ITokenChecker(IChecker):
     """Interface for checkers that need access to the token list."""
 
-    def process_tokens(self, tokens):
+    def process_tokens(self, tokens: list[TokenInfo]) -> None:
         """Process a module.
 
         Tokens is a list of all source code tokens in the file.

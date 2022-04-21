@@ -206,7 +206,7 @@ class BasicErrorChecker(_BasicChecker):
         ),
     }
 
-    @utils.check_messages("function-redefined")
+    @utils.only_required_for_messages("function-redefined")
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         self._check_redefinition("class", node)
 
@@ -219,7 +219,9 @@ class BasicErrorChecker(_BasicChecker):
                 starred_count += 1
         return starred_count > 1
 
-    @utils.check_messages("too-many-star-expressions", "invalid-star-assignment-target")
+    @utils.only_required_for_messages(
+        "too-many-star-expressions", "invalid-star-assignment-target"
+    )
     def visit_assign(self, node: nodes.Assign) -> None:
         # Check *a, *b = ...
         assign_target = node.targets[0]
@@ -232,7 +234,7 @@ class BasicErrorChecker(_BasicChecker):
         if self._too_many_starred_for_tuple(assign_target):
             self.add_message("too-many-star-expressions", node=node)
 
-    @utils.check_messages("star-needs-assignment-target")
+    @utils.only_required_for_messages("star-needs-assignment-target")
     def visit_starred(self, node: nodes.Starred) -> None:
         """Check that a Starred expression is used in an assignment target."""
         if isinstance(node.parent, nodes.Call):
@@ -250,7 +252,7 @@ class BasicErrorChecker(_BasicChecker):
         if stmt.value is node or stmt.value.parent_of(node):
             self.add_message("star-needs-assignment-target", node=node)
 
-    @utils.check_messages(
+    @utils.only_required_for_messages(
         "init-is-generator",
         "return-in-init",
         "function-redefined",
@@ -349,36 +351,36 @@ class BasicErrorChecker(_BasicChecker):
         for name in nonlocals.intersection(global_vars):
             self.add_message("nonlocal-and-global", args=(name,), node=node)
 
-    @utils.check_messages("return-outside-function")
+    @utils.only_required_for_messages("return-outside-function")
     def visit_return(self, node: nodes.Return) -> None:
         if not isinstance(node.frame(future=True), nodes.FunctionDef):
             self.add_message("return-outside-function", node=node)
 
-    @utils.check_messages("yield-outside-function")
+    @utils.only_required_for_messages("yield-outside-function")
     def visit_yield(self, node: nodes.Yield) -> None:
         self._check_yield_outside_func(node)
 
-    @utils.check_messages("yield-outside-function")
+    @utils.only_required_for_messages("yield-outside-function")
     def visit_yieldfrom(self, node: nodes.YieldFrom) -> None:
         self._check_yield_outside_func(node)
 
-    @utils.check_messages("not-in-loop", "continue-in-finally")
+    @utils.only_required_for_messages("not-in-loop", "continue-in-finally")
     def visit_continue(self, node: nodes.Continue) -> None:
         self._check_in_loop(node, "continue")
 
-    @utils.check_messages("not-in-loop")
+    @utils.only_required_for_messages("not-in-loop")
     def visit_break(self, node: nodes.Break) -> None:
         self._check_in_loop(node, "break")
 
-    @utils.check_messages("useless-else-on-loop")
+    @utils.only_required_for_messages("useless-else-on-loop")
     def visit_for(self, node: nodes.For) -> None:
         self._check_else_on_loop(node)
 
-    @utils.check_messages("useless-else-on-loop")
+    @utils.only_required_for_messages("useless-else-on-loop")
     def visit_while(self, node: nodes.While) -> None:
         self._check_else_on_loop(node)
 
-    @utils.check_messages("nonexistent-operator")
+    @utils.only_required_for_messages("nonexistent-operator")
     def visit_unaryop(self, node: nodes.UnaryOp) -> None:
         """Check use of the non-existent ++ and -- operators."""
         if (
@@ -409,12 +411,12 @@ class BasicErrorChecker(_BasicChecker):
         if not isinstance(current_scope, nodes.FunctionDef):
             self.add_message("nonlocal-without-binding", args=(name,), node=node)
 
-    @utils.check_messages("nonlocal-without-binding")
+    @utils.only_required_for_messages("nonlocal-without-binding")
     def visit_nonlocal(self, node: nodes.Nonlocal) -> None:
         for name in node.names:
             self._check_nonlocal_without_binding(node, name)
 
-    @utils.check_messages("abstract-class-instantiated")
+    @utils.only_required_for_messages("abstract-class-instantiated")
     def visit_call(self, node: nodes.Call) -> None:
         """Check instantiating abstract class with
         abc.ABCMeta as metaclass.

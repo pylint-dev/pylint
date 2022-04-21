@@ -17,7 +17,7 @@ from pylint.checkers.utils import (
     is_postponed_evaluation_enabled,
     safe_infer,
 )
-from pylint.interfaces import INFERENCE, IAstroidChecker
+from pylint.interfaces import INFERENCE
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -92,8 +92,6 @@ class DeprecatedTypingAliasMsg(NamedTuple):
 
 class TypingChecker(BaseChecker):
     """Find issue specifically related to type annotations."""
-
-    __implements__ = (IAstroidChecker,)
 
     name = "typing"
     msgs = {

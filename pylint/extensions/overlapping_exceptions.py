@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING, Any
 import astroid
 from astroid import nodes
 
-from pylint import checkers, interfaces
+from pylint import checkers
 from pylint.checkers import utils
 from pylint.checkers.exceptions import _annotated_unpack_infer
 
@@ -25,8 +25,6 @@ class OverlappingExceptionsChecker(checkers.BaseChecker):
 
     (i.e. overlapping).
     """
-
-    __implements__ = interfaces.IAstroidChecker
 
     name = "overlap-except"
     msgs = {

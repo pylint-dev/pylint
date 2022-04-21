@@ -9,7 +9,6 @@ from __future__ import annotations
 import json
 from typing import TYPE_CHECKING
 
-from pylint.interfaces import IReporter
 from pylint.reporters.base_reporter import BaseReporter
 
 if TYPE_CHECKING:
@@ -20,7 +19,6 @@ if TYPE_CHECKING:
 class JSONReporter(BaseReporter):
     """Report messages and layouts in JSON."""
 
-    __implements__ = IReporter
     name = "json"
     extension = "json"
 

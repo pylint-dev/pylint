@@ -12,7 +12,6 @@ from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages, returns_bool
-from pylint.interfaces import IAstroidChecker
 
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
@@ -20,7 +19,6 @@ if TYPE_CHECKING:
 
 class ConsiderUsingAnyOrAllChecker(BaseChecker):
 
-    __implements__ = (IAstroidChecker,)
     name = "consider-using-any-or-all"
     msgs = {
         "C0501": (

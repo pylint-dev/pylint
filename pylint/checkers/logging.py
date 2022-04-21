@@ -12,9 +12,9 @@ from typing import TYPE_CHECKING
 import astroid
 from astroid import nodes
 
-from pylint import checkers, interfaces
+from pylint import checkers
 from pylint.checkers import utils
-from pylint.checkers.utils import check_messages, infer_all
+from pylint.checkers.utils import infer_all
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -119,7 +119,6 @@ def is_method_call(func, types=(), methods=()):
 class LoggingChecker(checkers.BaseChecker):
     """Checks use of the logging module."""
 
-    __implements__ = interfaces.IAstroidChecker
     name = "logging"
     msgs = MSGS
 
@@ -180,7 +179,6 @@ class LoggingChecker(checkers.BaseChecker):
             if module in self._logging_modules:
                 self._logging_names.add(as_name or module)
 
-    @check_messages(*MSGS)
     def visit_call(self, node: nodes.Call) -> None:
         """Checks calls to logging methods."""
 

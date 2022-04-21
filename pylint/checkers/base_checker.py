@@ -4,9 +4,11 @@
 
 from __future__ import annotations
 
+import abc
 import functools
 import warnings
 from inspect import cleandoc
+from tokenize import TokenInfo
 from typing import TYPE_CHECKING, Any
 
 from astroid import nodes
@@ -39,6 +41,13 @@ class BaseChecker(_ArgumentsProvider):
 
     def __init__(self, linter: PyLinter) -> None:
         """Checker instances should have the linter as argument."""
+        if getattr(self, "__implements__", None):
+            warnings.warn(
+                "Using the __implements__ inheritance pattern for BaseChecker is no "
+                "longer supported. Child classes should only inherit BaseChecker or any "
+                "of the other checker types from pylint.checkers.",
+                DeprecationWarning,
+            )
         if self.name is not None:
             self.name = self.name.lower()
         self.linter = linter
@@ -51,6 +60,8 @@ class BaseChecker(_ArgumentsProvider):
             return False
         if self.name == MAIN_CHECKER_NAME:
             return False
+        if other.name == MAIN_CHECKER_NAME:
+            return True
         if type(self).__module__.startswith("pylint.checkers") and not type(
             other
         ).__module__.startswith("pylint.checkers"):
@@ -158,10 +169,21 @@ class BaseChecker(_ArgumentsProvider):
             existing_ids.append(message.msgid)
 
     def create_message_definition_from_tuple(self, msgid, msg_tuple):
-        if implements(self, (IRawChecker, ITokenChecker)):
-            default_scope = WarningScope.LINE
-        else:
-            default_scope = WarningScope.NODE
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            if isinstance(self, (BaseTokenChecker, BaseRawFileChecker)):
+                default_scope = WarningScope.LINE
+            # TODO: 3.0: Remove deprecated if-statement # pylint: disable=fixme
+            elif implements(self, (IRawChecker, ITokenChecker)):
+                warnings.warn(  # pragma: no cover
+                    "Checkers should subclass BaseTokenChecker or BaseRawFileChecker"
+                    "instead of using the __implements__ mechanism. Use of __implements__"
+                    "will no longer be supported in pylint 3.0",
+                    DeprecationWarning,
+                )
+                default_scope = WarningScope.LINE  # pragma: no cover
+            else:
+                default_scope = WarningScope.NODE
         options = {}
         if len(msg_tuple) > 3:
             (msg, symbol, descr, options) = msg_tuple
@@ -188,8 +210,6 @@ class BaseChecker(_ArgumentsProvider):
             for msgid, msg_tuple in sorted(self.msgs.items())
         ]
 
-    # dummy methods implementing the IChecker interface
-
     def get_message_definition(self, msgid):
         for message_definition in self.messages:
             if message_definition.msgid == msgid:
@@ -198,16 +218,37 @@ class BaseChecker(_ArgumentsProvider):
         error_msg += f"Choose from {[m.msgid for m in self.messages]}."
         raise InvalidMessageError(error_msg)
 
-    def open(self):
+    def open(self) -> None:
         """Called before visiting project (i.e. set of modules)."""
 
-    def close(self):
+    def close(self) -> None:
         """Called after visiting project (i.e set of modules)."""
+
+    # pylint: disable-next=no-self-use
+    def get_map_data(self) -> Any:
+        return None
+
+    # pylint: disable-next=no-self-use, unused-argument
+    def reduce_map_data(self, linter: PyLinter, data: list[Any]) -> None:
+        return None
 
 
 class BaseTokenChecker(BaseChecker):
     """Base class for checkers that want to have access to the token stream."""
 
-    def process_tokens(self, tokens):
+    @abc.abstractmethod
+    def process_tokens(self, tokens: list[TokenInfo]) -> None:
         """Should be overridden by subclasses."""
+        raise NotImplementedError()
+
+
+class BaseRawFileChecker(BaseChecker):
+    """Base class for checkers which need to parse the raw file."""
+
+    @abc.abstractmethod
+    def process_module(self, node: nodes.Module) -> None:
+        """Process a module.
+
+        The module's content is accessible via ``astroid.stream``
+        """
         raise NotImplementedError()

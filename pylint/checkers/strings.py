@@ -17,9 +17,8 @@ from typing import TYPE_CHECKING
 import astroid
 from astroid import nodes
 
-from pylint.checkers import BaseChecker, BaseTokenChecker, utils
-from pylint.checkers.utils import check_messages
-from pylint.interfaces import IAstroidChecker, IRawChecker, ITokenChecker
+from pylint.checkers import BaseChecker, BaseRawFileChecker, BaseTokenChecker, utils
+from pylint.checkers.utils import only_required_for_messages
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -232,12 +231,11 @@ class StringFormatChecker(BaseChecker):
     is valid and the arguments match the format string.
     """
 
-    __implements__ = (IAstroidChecker,)
     name = "string"
     msgs = MSGS
 
     # pylint: disable=too-many-branches
-    @check_messages(
+    @only_required_for_messages(
         "bad-format-character",
         "truncated-format-string",
         "mixed-format-string",
@@ -393,7 +391,7 @@ class StringFormatChecker(BaseChecker):
                             args=(arg_type.pytype(), format_type),
                         )
 
-    @check_messages("f-string-without-interpolation")
+    @only_required_for_messages("f-string-without-interpolation")
     def visit_joinedstr(self, node: nodes.JoinedStr) -> None:
         self._check_interpolation(node)
 
@@ -405,7 +403,6 @@ class StringFormatChecker(BaseChecker):
                 return
         self.add_message("f-string-without-interpolation", node=node)
 
-    @check_messages(*MSGS)
     def visit_call(self, node: nodes.Call) -> None:
         func = utils.safe_infer(node.func)
         if (
@@ -617,10 +614,9 @@ class StringFormatChecker(BaseChecker):
                     break
 
 
-class StringConstantChecker(BaseTokenChecker):
+class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
     """Check string literals."""
 
-    __implements__ = (IAstroidChecker, ITokenChecker, IRawChecker)
     name = "string"
     msgs = {
         "W1401": (
@@ -699,7 +695,7 @@ class StringConstantChecker(BaseTokenChecker):
     def process_module(self, node: nodes.Module) -> None:
         self._unicode_literals = "unicode_literals" in node.future_imports
 
-    def process_tokens(self, tokens):
+    def process_tokens(self, tokens: list[tokenize.TokenInfo]) -> None:
         encoding = "ascii"
         for i, (tok_type, token, start, _, line) in enumerate(tokens):
             if tok_type == tokenize.ENCODING:
@@ -727,15 +723,15 @@ class StringConstantChecker(BaseTokenChecker):
         if self.linter.config.check_quote_consistency:
             self.check_for_consistent_string_delimiters(tokens)
 
-    @check_messages("implicit-str-concat")
+    @only_required_for_messages("implicit-str-concat")
     def visit_list(self, node: nodes.List) -> None:
         self.check_for_concatenated_strings(node.elts, "list")
 
-    @check_messages("implicit-str-concat")
+    @only_required_for_messages("implicit-str-concat")
     def visit_set(self, node: nodes.Set) -> None:
         self.check_for_concatenated_strings(node.elts, "set")
 
-    @check_messages("implicit-str-concat")
+    @only_required_for_messages("implicit-str-concat")
     def visit_tuple(self, node: nodes.Tuple) -> None:
         self.check_for_concatenated_strings(node.elts, "tuple")
 
@@ -892,7 +888,7 @@ class StringConstantChecker(BaseTokenChecker):
             # character can never be the start of a new backslash escape.
             index += 2
 
-    @check_messages("redundant-u-string-prefix")
+    @only_required_for_messages("redundant-u-string-prefix")
     def visit_const(self, node: nodes.Const) -> None:
         if node.pytype() == "builtins.str" and not isinstance(
             node.parent, nodes.JoinedStr

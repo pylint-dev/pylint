@@ -25,6 +25,12 @@ New checkers
 
   Closes #5895
 
+* ``MapReduceMixin`` has been deprecated. ``BaseChecker`` now implements ``get_map_data`` and
+  ``reduce_map_data``. If a checker actually needs to reduce data it should define ``get_map_data``
+  as returning something different than ``None`` and let its ``reduce_map_data`` handle a list
+  of the types returned by ``get_map_data``.
+  An example can be seen by looking at ``pylint/checkers/similar.py``.
+
 * Add new check ``unnecessary-dunder-call`` for unnecessary dunder method calls.
 
   Closes #5936
@@ -44,8 +50,21 @@ New checkers
 
   Closes #5880
 
+* Added the ``super-without-brackets`` checker, raised when a super call is missing its brackets.
+
+  Closes #4008
+
 Removed checkers
 ================
+
+* The ``no-init`` (W0232) warning has been removed. It's ok to not have an ``__init__`` in a class.
+
+  Closes #2409
+
+* Removed the ``assign-to-new-keyword`` message as there are no new keywords in the supported Python
+  versions any longer.
+
+  Closes #4683
 
 
 Extensions
@@ -60,6 +79,10 @@ Extensions
 Other Changes
 =============
 
+* Improved wording of the message of ``deprecated-module``
+
+  Closes #6169
+
 * ``Pylint`` now requires Python 3.7.2 or newer to run.
 
   Closes #4301
@@ -68,10 +91,17 @@ Other Changes
 
   Closes #6101
 
+* Fix a failure to respect inline disables for ``fixme`` occurring on the last line
+  of a module when pylint is launched with ``--enable=fixme``.
+
 * Removed the broken ``generate-man`` option.
 
   Closes #5283
   Closes #1887
+
+* Fixed failure to enable ``deprecated-module`` after a ``disable=all``
+  by making ``ImportsChecker`` solely responsible for emitting ``deprecated-module`` instead
+  of sharing responsibility with ``StdlibChecker``. (This could have led to double messages.)
 
 * The ``config`` attribute of ``BaseChecker`` has been deprecated. You can use ``checker.linter.config``
   to access the global configuration object instead of a checker-specific object.
@@ -140,6 +170,18 @@ Other Changes
 
   Ref #5392
 
+* ``interfaces.implements`` has been deprecated and will be removed in 3.0. Please use standard inheritance
+  patterns instead of ``__implements__``.
+
+  Ref #2287
+
+* All ``Interface`` classes in ``pylint.interfaces`` have been deprecated. You can subclass
+  the respective normal classes to get the same behaviour. The ``__implements__`` functionality
+  was based on a rejected PEP from 2001:
+  https://peps.python.org/pep-0245/
+
+  Closes #2287
+
 * Added the ``generate-toml-config`` option.
 
   Ref #5462
@@ -157,6 +199,14 @@ Other Changes
   as a variable holding a constant.
 
 * The concept of checker priority has been removed.
+
+* The ``cache-max-size-none`` checker has been renamed to ``method-cache-max-size-none``.
+
+  Closes #5670
+
+* The ``method-cache-max-size-none`` checker will now also check ``functools.cache``.
+
+  Closes #5670
 
 * ``BaseChecker`` classes now require the ``linter`` argument to be passed.
 

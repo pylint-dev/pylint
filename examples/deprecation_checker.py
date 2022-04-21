@@ -43,7 +43,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from pylint.checkers import BaseChecker, DeprecatedMixin
-from pylint.interfaces import IAstroidChecker
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -57,7 +56,6 @@ class DeprecationChecker(DeprecatedMixin, BaseChecker):
     # DeprecatedMixin class is overriding attributes of BaseChecker hence must be specified *before* BaseChecker
     # in list of base classes.
 
-    __implements__ = (IAstroidChecker,)
     # The name defines a custom section of the config for this checker.
     name = "deprecated"
 

@@ -13,7 +13,6 @@ from typing import TYPE_CHECKING
 from astroid import nodes
 
 from pylint.checkers import BaseChecker, utils
-from pylint.interfaces import IAstroidChecker
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -24,8 +23,6 @@ COMPARISON_OPERATORS = frozenset(("==", "!=", "<", ">", "<=", ">="))
 
 class MisplacedComparisonConstantChecker(BaseChecker):
     """Checks the placement of constants in comparisons."""
-
-    __implements__ = (IAstroidChecker,)
 
     # configuration section name
     name = "comparison-placement"

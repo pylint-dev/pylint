@@ -40,14 +40,12 @@ Firstly we will need to fill in some required boilerplate:
   from typing import TYPE_CHECKING, Optional
 
   from pylint.checkers import BaseChecker
-  from pylint.interfaces import IAstroidChecker
 
   if TYPE_CHECKING:
       from pylint.lint import PyLinter
 
 
   class UniqueReturnChecker(BaseChecker):
-      __implements__ = IAstroidChecker
 
       name = "unique-returns"
       msgs = {
@@ -242,6 +240,17 @@ Now we can debug our checker!
     module's parent directory in your ``PYTHONPATH``
     environment variable or by adding the ``my_plugin.py``
     file to the ``pylint/checkers`` directory if running from source.
+
+Parallelize a Checker
+---------------------
+
+``BaseChecker`` has two methods ``get_map_data`` and ``reduce_map_data`` that
+permit to parallelize the checks when used with the ``-j`` option. If a checker
+actually needs to reduce data it should define ``get_map_data`` as returning
+something different than ``None`` and let its ``reduce_map_data`` handle a list
+of the types returned by ``get_map_data``.
+
+An example can be seen by looking at ``pylint/checkers/similar.py``.
 
 Testing a Checker
 -----------------

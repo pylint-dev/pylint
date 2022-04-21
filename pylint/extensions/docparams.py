@@ -16,7 +16,6 @@ from pylint.checkers import BaseChecker
 from pylint.checkers import utils as checker_utils
 from pylint.extensions import _check_docs_utils as utils
 from pylint.extensions._check_docs_utils import Docstring
-from pylint.interfaces import IAstroidChecker
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -42,8 +41,6 @@ class DocstringParameterChecker(BaseChecker):
 
     to the ``MASTER`` section of your ``.pylintrc``.
     """
-
-    __implements__ = IAstroidChecker
 
     name = "parameter_documentation"
     msgs = {

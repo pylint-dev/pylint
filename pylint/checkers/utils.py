@@ -12,18 +12,20 @@ import numbers
 import re
 import string
 import warnings
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from functools import lru_cache, partial
 from re import Match
-from typing import Callable, TypeVar
+from typing import TypeVar
 
 import _string
 import astroid.objects
 from astroid import TooManyLevelsError, nodes
 from astroid.context import InferenceContext
 
-from pylint.checkers.base_checker import BaseChecker
 from pylint.constants import TYPING_TYPE_CHECKS_GUARDS
+from pylint.typing import AstCallbackMethod
+
+T_Node = TypeVar("T_Node", bound=nodes.NodeNG)
 
 COMP_NODE_TYPES = (
     nodes.ListComp,
@@ -222,10 +224,6 @@ SUBSCRIPTABLE_CLASSES_PEP585 = frozenset(
         "re.Match",
     )
 )
-
-T_Node = TypeVar("T_Node", bound=nodes.NodeNG)
-CheckerT = TypeVar("CheckerT", bound=BaseChecker)
-AstCallback = Callable[[CheckerT, T_Node], None]
 
 
 class NoSuchArgumentError(Exception):
@@ -427,7 +425,9 @@ def overrides_a_method(class_node: nodes.ClassDef, name: str) -> bool:
     return False
 
 
-def only_required_for_messages(*messages: str) -> Callable[[AstCallback], AstCallback]:
+def only_required_for_messages(
+    *messages: str,
+) -> Callable[[AstCallbackMethod], AstCallbackMethod]:
     """Decorator to store messages that are handled by a checker method as an
     attribute of the function object.
 
@@ -435,7 +435,7 @@ def only_required_for_messages(*messages: str) -> Callable[[AstCallback], AstCal
     method or not. If none of the messages is enabled, the method will be skipped.
     Therefore, the list of messages must be well maintained at all times!
     This decorator only has an effect on ``visit_*`` and ``leave_*`` methods
-    of a class inheriting from ``BaseChecker`` and implementing ``IAstroidChecker``.
+    of a class inheriting from ``BaseChecker``.
     """
 
     def store_messages(func):
@@ -445,7 +445,9 @@ def only_required_for_messages(*messages: str) -> Callable[[AstCallback], AstCal
     return store_messages
 
 
-def check_messages(*messages: str) -> Callable[[AstCallback], AstCallback]:
+def check_messages(
+    *messages: str,
+) -> Callable[[AstCallbackMethod], AstCallbackMethod]:
     """Kept for backwards compatibility, deprecated.
 
     Use only_required_for_messages instead, which conveys the intent of the decorator much clearer.
@@ -1066,8 +1068,19 @@ def _supports_protocol_method(value: nodes.NodeNG, attr: str) -> bool:
         return False
 
     first = attributes[0]
+
+    # Return False if a constant is assigned
     if isinstance(first, nodes.AssignName):
-        if isinstance(first.parent.value, nodes.Const):
+        this_assign_parent = get_node_first_ancestor_of_type(
+            first, (nodes.Assign, nodes.NamedExpr)
+        )
+        if this_assign_parent is None:  # pragma: no cover
+            # Cannot imagine this being None, but return True to avoid false positives
+            return True
+        if isinstance(this_assign_parent.value, nodes.BaseContainer):
+            if all(isinstance(n, nodes.Const) for n in this_assign_parent.value.elts):
+                return False
+        if isinstance(this_assign_parent.value, nodes.Const):
             return False
     return True
 

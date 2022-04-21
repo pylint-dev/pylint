@@ -9,6 +9,7 @@ from __future__ import annotations
 import collections
 import copy
 import os
+import sys
 from typing import TYPE_CHECKING, Any
 
 import astroid
@@ -16,7 +17,6 @@ from astroid import nodes
 
 from pylint.checkers import BaseChecker, DeprecatedMixin
 from pylint.checkers.utils import (
-    check_messages,
     get_import_name,
     is_from_fallback_block,
     is_node_in_guarded_import_block,
@@ -25,12 +25,24 @@ from pylint.checkers.utils import (
 )
 from pylint.exceptions import EmptyReportError
 from pylint.graph import DotBackend, get_cycles
-from pylint.interfaces import IAstroidChecker
 from pylint.reporters.ureports.nodes import Paragraph, Section, VerbatimText
 from pylint.utils import IsortDriver
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
+
+
+DEPRECATED_MODULES = {
+    (0, 0, 0): {"tkinter.tix", "fpectl"},
+    (3, 2, 0): {"optparse"},
+    (3, 3, 0): {"xml.etree.cElementTree"},
+    (3, 4, 0): {"imp"},
+    (3, 5, 0): {"formatter"},
+    (3, 6, 0): {"asynchat", "asyncore"},
+    (3, 7, 0): {"macpath"},
+    (3, 9, 0): {"lib2to3", "parser", "symbol", "binhex"},
+    (3, 10, 0): {"distutils"},
+}
 
 
 def _qualified_names(modname):
@@ -192,9 +204,9 @@ MSGS = {
         "Used when `from module import *` is detected.",
     ),
     "W0402": (
-        "Uses of a deprecated module %r",
+        "Deprecated module %r",
         "deprecated-module",
-        "Used a module marked as deprecated is imported.",
+        "A module marked as deprecated is imported.",
     ),
     "W0404": (
         "Reimport %r (imported line %s)",
@@ -268,8 +280,6 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
     * uses of deprecated modules
     * uses of modules instead of preferred modules
     """
-
-    __implements__ = IAstroidChecker
 
     name = "imports"
     msgs = MSGS
@@ -416,11 +426,16 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             for cycle in get_cycles(graph, vertices=vertices):
                 self.add_message("cyclic-import", args=" -> ".join(cycle))
 
-    def deprecated_modules(self):
+    def deprecated_modules(self) -> set[str]:
         """Callback returning the deprecated modules."""
-        return self.linter.config.deprecated_modules
+        # First get the modules the user indicated
+        all_deprecated_modules = set(self.linter.config.deprecated_modules)
+        # Now get the hard-coded ones from the stdlib
+        for since_vers, mod_set in DEPRECATED_MODULES.items():
+            if since_vers <= sys.version_info:
+                all_deprecated_modules = all_deprecated_modules.union(mod_set)
+        return all_deprecated_modules
 
-    @check_messages(*MSGS)
     def visit_import(self, node: nodes.Import) -> None:
         """Triggered when an import statement is seen."""
         self._check_reimport(node)
@@ -446,15 +461,15 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
             self._add_imported_module(node, imported_module.name)
 
-    @check_messages(*MSGS)
     def visit_importfrom(self, node: nodes.ImportFrom) -> None:
         """Triggered when a from statement is seen."""
         basename = node.modname
         imported_module = self._get_imported_module(node, basename)
+        absolute_name = get_import_name(node, basename)
 
         self._check_import_as_rename(node)
         self._check_misplaced_future(node)
-        self.check_deprecated_module(node, basename)
+        self.check_deprecated_module(node, absolute_name)
         self._check_preferred_module(node, basename)
         self._check_wildcard_imports(node, imported_module)
         self._check_same_line_imports(node)
@@ -474,7 +489,6 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             else:
                 self._add_imported_module(node, imported_module.name)
 
-    @check_messages(*MSGS)
     def leave_module(self, node: nodes.Module) -> None:
         # Check imports are grouped by category (standard, 3rd party, local)
         std_imports, ext_imports, loc_imports = self._check_imports_order(node)

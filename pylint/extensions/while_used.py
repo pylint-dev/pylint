@@ -12,7 +12,6 @@ from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages
-from pylint.interfaces import IAstroidChecker
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -20,7 +19,6 @@ if TYPE_CHECKING:
 
 class WhileChecker(BaseChecker):
 
-    __implements__ = (IAstroidChecker,)
     name = "while_used"
     msgs = {
         "W0149": (

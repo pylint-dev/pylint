@@ -59,6 +59,9 @@ def test_minimal_messages_config_enabled(pytest_config) -> None:
             "consider-using-with",
             "unspecified-encoding",
             "consider-using-f-string",
+            # Always enable fatal errors: important not to have false negatives
+            "astroid-error",
+            "fatal",
         )
     )
     assert not mod_test._linter.is_message_enabled("unused-import")

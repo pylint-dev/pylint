@@ -99,7 +99,7 @@ class OutputLine(NamedTuple):
         )
 
     @staticmethod
-    def _get_column(column: str) -> int:
+    def _get_column(column: str | int) -> int:
         """Handle column numbers except for python < 3.8.
 
         The ast parser in those versions doesn't return them.

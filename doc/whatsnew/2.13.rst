@@ -205,6 +205,11 @@ Other Changes
   Closes #5815
   Closes #5406
 
+* Fixed an ``AstroidError`` in 2.13.0 raised by the ```duplicate-code``` checker with
+  ``ignore-imports`` or ``ignore-signatures`` enabled.
+
+  Closes #6301
+
 * Use the ``tomli`` package instead of ``toml`` to parse ``.toml`` files.
 
  Closes #5885
@@ -582,10 +587,20 @@ Other Changes
 
   Closes #5803
 
+* Fix a crash in the ``unsupported-membership-test`` checker when assigning
+  multiple constants to class attributes including ``__iter__`` via unpacking.
+
+  Closes #6366
+
 * Fix false positive for ``used-before-assignment`` for assignments taking place via
   nonlocal declarations after an earlier type annotation.
 
   Closes #5394
+
+* Fixed a false positive for ``unused-variable`` when a builtin specified in
+  ``--additional-builtins`` is given a type annotation.
+
+  Closes #6388
 
 * Fix false positive for 'nonexistent-operator' when repeated '-' are
   separated (e.g. by parens).
@@ -595,3 +610,8 @@ Other Changes
 * Only raise ``not-callable`` when all the inferred values of a property are not callable.
 
   Closes #5931
+
+* Fix a crash when linting a file that passes an integer ``mode=`` to
+  ``open``
+
+  Closes #6414

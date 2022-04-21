@@ -13,6 +13,7 @@ from os.path import abspath, dirname, join
 import pytest
 
 from pylint.testutils import UPDATE_FILE, UPDATE_OPTION, _get_tests_info, linter
+from pylint.testutils.reporter_for_tests import GenericTestReporter
 
 INPUT_DIR = join(dirname(abspath(__file__)), "input")
 MSG_DIR = join(dirname(abspath(__file__)), "messages")
@@ -68,6 +69,7 @@ class LintTestUsingModule:
             print(ex)
             ex.__str__ = exception_str  # type: ignore[assignment] # This is legacy code we're trying to remove, impossible to type correctly
             raise
+        assert isinstance(self.linter.reporter, GenericTestReporter)
         self._check_result(self.linter.reporter.finalize())
 
     def _has_output(self) -> bool:

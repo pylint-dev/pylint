@@ -24,7 +24,7 @@ import pytest
 from pytest import CaptureFixture
 
 from pylint import checkers, config, exceptions, interfaces, lint, testutils
-from pylint.checkers.utils import check_messages
+from pylint.checkers.utils import only_required_for_messages
 from pylint.constants import (
     MSG_STATE_CONFIDENCE,
     MSG_STATE_SCOPE_CONFIG,
@@ -190,11 +190,10 @@ def initialized_linter(linter: PyLinter) -> PyLinter:
 
 def test_pylint_visit_method_taken_in_account(linter: PyLinter) -> None:
     class CustomChecker(checkers.BaseChecker):
-        __implements__ = interfaces.IAstroidChecker
         name = "custom"
         msgs = {"W9999": ("", "custom", "")}
 
-        @check_messages("custom")
+        @only_required_for_messages("custom")
         def visit_class(self, _):
             pass
 
@@ -362,8 +361,17 @@ def test_report_output_format_aliased(linter: PyLinter) -> None:
 
 def test_set_unsupported_reporter(linter: PyLinter) -> None:
     text.register(linter)
+    # ImportError
     with pytest.raises(exceptions.InvalidReporterError):
         linter.set_option("output-format", "missing.module.Class")
+
+    # AssertionError
+    with pytest.raises(exceptions.InvalidReporterError):
+        linter.set_option("output-format", "lint.unittest_lint._CustomPyLinter")
+
+    # AttributeError
+    with pytest.raises(exceptions.InvalidReporterError):
+        linter.set_option("output-format", "lint.unittest_lint.MyReporter")
 
 
 def test_set_option_1(initialized_linter: PyLinter) -> None:

@@ -184,6 +184,10 @@ DELETED_MESSAGES = [
     DeletedMessage("C0326", "bad-whitespace"),
     # Pylint 1.4.3
     DeletedMessage("W0142", "star-args"),
+    # https://github.com/PyCQA/pylint/issues/2409
+    DeletedMessage("W0232", "no-init"),
+    # https://github.com/PyCQA/pylint/pull/6421
+    DeletedMessage("W0111", "assign-to-new-keyword"),
 ]
 
 

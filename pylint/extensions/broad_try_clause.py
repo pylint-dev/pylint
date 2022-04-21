@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 
 from astroid import nodes
 
-from pylint import checkers, interfaces
+from pylint import checkers
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -24,8 +24,6 @@ class BroadTryClauseChecker(checkers.BaseChecker):
     ``try`` clauses.
 
     """
-
-    __implements__ = interfaces.IAstroidChecker
 
     # configuration section name
     name = "broad_try_clause"

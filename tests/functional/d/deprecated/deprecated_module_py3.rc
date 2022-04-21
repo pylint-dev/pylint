@@ -1,5 +1,2 @@
 [typing]
 py-version=3.6
-
-[testoptions]
-exclude_from_minimal_messages_config=true
