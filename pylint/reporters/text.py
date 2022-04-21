@@ -71,7 +71,7 @@ MESSAGE_FIELDS = {i.name for i in fields(Message)}
 
 
 def _get_ansi_code(msg_style: MessageStyle) -> str:
-    """Return ansi escape code corresponding to color and style.
+    """Return ANSI escape code corresponding to color and style.
 
     :param msg_style: the message style
 
@@ -117,7 +117,7 @@ def colorize_ansi(
     style: str = "",
     **kwargs: str | None,
 ) -> str:
-    r"""colorize message by wrapping it with ansi escape codes
+    r"""colorize message by wrapping it with ANSI escape codes
 
     :param msg: the message string to colorize
 
@@ -128,7 +128,7 @@ def colorize_ansi(
 
     :param \**kwargs: used to accept `color` parameter while it is being deprecated
 
-    :return: the ansi escaped string
+    :return: the ANSI escaped string
     """
     # pylint: disable-next=fixme
     # TODO: 3.0: Remove deprecated typing and only accept MessageStyle as parameter
@@ -144,7 +144,7 @@ def colorize_ansi(
     if msg_style.color is None and len(msg_style.style) == 0:
         return msg
     escape_code = _get_ansi_code(msg_style)
-    # If invalid (or unknown) color, don't wrap msg with ansi codes
+    # If invalid (or unknown) color, don't wrap msg with ANSI codes
     if escape_code:
         return f"{escape_code}{msg}{ANSI_RESET}"
     return msg
@@ -289,7 +289,7 @@ class ColorizedTextReporter(TextReporter):
 
     def handle_message(self, msg: Message) -> None:
         """Manage message of different types, and colorize output
-        using ansi escape codes
+        using ANSI escape codes
         """
         if msg.module not in self._modules:
             msg_style = self._get_decoration("S")
