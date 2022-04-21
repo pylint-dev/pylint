@@ -361,8 +361,17 @@ def test_report_output_format_aliased(linter: PyLinter) -> None:
 
 def test_set_unsupported_reporter(linter: PyLinter) -> None:
     text.register(linter)
+    # ImportError
     with pytest.raises(exceptions.InvalidReporterError):
         linter.set_option("output-format", "missing.module.Class")
+
+    # AssertionError
+    with pytest.raises(exceptions.InvalidReporterError):
+        linter.set_option("output-format", "lint.unittest_lint._CustomPyLinter")
+
+    # AttributeError
+    with pytest.raises(exceptions.InvalidReporterError):
+        linter.set_option("output-format", "lint.unittest_lint.MyReporter")
 
 
 def test_set_option_1(initialized_linter: PyLinter) -> None:

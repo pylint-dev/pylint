@@ -93,7 +93,7 @@ def _load_reporter_by_class(reporter_class: str) -> type[BaseReporter]:
     module = astroid.modutils.load_module_from_name(module_part)
     class_name = qname.split(".")[-1]
     klass = getattr(module, class_name)
-    assert issubclass(klass, BaseReporter)
+    assert issubclass(klass, BaseReporter), f"{klass} is not a BaseReporter"
     return klass
 
 
