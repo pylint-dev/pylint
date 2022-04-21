@@ -11,7 +11,6 @@ from typing import Any
 
 from astroid import nodes
 
-from pylint.checkers.base_checker import BaseChecker
 from pylint.constants import PY38_PLUS
 from pylint.testutils.global_test_linter import linter
 from pylint.testutils.output_line import MessageTest
@@ -22,7 +21,10 @@ from pylint.utils import ASTWalker
 class CheckerTestCase:
     """A base testcase class for unit testing individual checker classes."""
 
-    CHECKER_CLASS: type[BaseChecker]
+    # pylint: disable-next=fixme
+    # TODO: Figure out way to type this as type[BaseChecker] while also
+    # setting self.checker correctly.
+    CHECKER_CLASS: Any
     CONFIG: dict[str, Any] = {}
 
     def setup_method(self) -> None:
