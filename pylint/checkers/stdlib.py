@@ -664,7 +664,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         if (
             not mode_arg
             or isinstance(mode_arg, nodes.Const)
-            and (not mode_arg.value or "b" not in mode_arg.value)
+            and (not mode_arg.value or "b" not in str(mode_arg.value))
         ):
             encoding_arg = None
             try:

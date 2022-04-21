@@ -20,6 +20,10 @@ What's New in Pylint 2.13.8?
 ============================
 Release date: TBA
 
+* Fix a crash when linting a file that passes an integer ``mode=`` to
+  ``open``
+
+  Closes #6414
 
 
 What's New in Pylint 2.13.7?
