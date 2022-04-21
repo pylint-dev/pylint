@@ -461,10 +461,8 @@ class PyLinter(
                         # message starts with a category value, flag (but do not enable) it
                         self.fail_on_symbols.append(msg.symbol)
 
-    def any_fail_on_issues(self):
-        return self.stats and any(
-            x in self.fail_on_symbols for x in self.stats.by_msg.keys()
-        )
+    def any_fail_on_issues(self) -> bool:
+        return any(x in self.fail_on_symbols for x in self.stats.by_msg.keys())
 
     def disable_noerror_messages(self) -> None:
         for msgcat, msgids in self.msgs_store._msgs_by_category.items():
@@ -631,7 +629,7 @@ class PyLinter(
 
     # pylint: disable=unused-argument
     @staticmethod
-    def should_analyze_file(modname, path, is_argument=False):
+    def should_analyze_file(modname: str, path: str, is_argument: bool = False) -> bool:
         """Returns whether a module should be checked.
 
         This implementation returns True for all python source file, indicating
@@ -646,7 +644,6 @@ class PyLinter(
                                  Files which respect this property are always
                                  checked, since the user requested it explicitly.
         :returns: True if the module should be checked.
-        :rtype: bool
         """
         if is_argument:
             return True
@@ -820,7 +817,9 @@ class PyLinter(
 
         return FileItem(modname, filepath, filepath)
 
-    def _iterate_file_descrs(self, files_or_modules) -> Iterator[FileItem]:
+    def _iterate_file_descrs(
+        self, files_or_modules: Sequence[str]
+    ) -> Iterator[FileItem]:
         """Return generator yielding file descriptions (tuples of module name, file path, base name).
 
         The returned generator yield one item for each Python module that should be linted.
@@ -830,7 +829,7 @@ class PyLinter(
             if self.should_analyze_file(name, filepath, is_argument=is_arg):
                 yield FileItem(name, filepath, descr["basename"])
 
-    def _expand_files(self, modules: list[str]) -> list[ModuleDescriptionDict]:
+    def _expand_files(self, modules: Sequence[str]) -> list[ModuleDescriptionDict]:
         """Get modules and errors from a list of modules and handle errors."""
         result, errors = expand_modules(
             modules,
@@ -1039,7 +1038,7 @@ class PyLinter(
         walker.walk(node)
         return True
 
-    def open(self):
+    def open(self) -> None:
         """Initialize counters."""
         self.stats = LinterStats()
         MANAGER.always_load_extensions = self.config.unsafe_load_any_extension
