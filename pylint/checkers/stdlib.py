@@ -621,7 +621,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         ):
             self.add_message("boolean-datetime", node=node)
 
-    def _check_open_mode(self, node):
+    def _check_open_mode(self, node: nodes.Call):
         """Check that the mode argument of an open or file call is valid."""
         try:
             mode_arg = utils.get_argument_from_call(node, position=1, keyword="mode")
