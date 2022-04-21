@@ -250,7 +250,7 @@ class ExceptionsChecker(checkers.BaseChecker):
         self._builtin_exceptions = _builtin_exceptions()
         super().open()
 
-    @utils.check_messages(
+    @utils.only_required_for_messages(
         "misplaced-bare-raise",
         "raising-bad-type",
         "raising-non-exception",
@@ -449,21 +449,21 @@ class ExceptionsChecker(checkers.BaseChecker):
             if bare_raise:
                 self.add_message("try-except-raise", node=handler_having_bare_raise)
 
-    @utils.check_messages("wrong-exception-operation")
+    @utils.only_required_for_messages("wrong-exception-operation")
     def visit_binop(self, node: nodes.BinOp) -> None:
         if isinstance(node.parent, nodes.ExceptHandler):
             # except (V | A)
             suggestion = f"Did you mean '({node.left.as_string()}, {node.right.as_string()})' instead?"
             self.add_message("wrong-exception-operation", node=node, args=(suggestion,))
 
-    @utils.check_messages("wrong-exception-operation")
+    @utils.only_required_for_messages("wrong-exception-operation")
     def visit_compare(self, node: nodes.Compare) -> None:
         if isinstance(node.parent, nodes.ExceptHandler):
             # except (V < A)
             suggestion = f"Did you mean '({node.left.as_string()}, {', '.join(operand.as_string() for _, operand in node.ops)})' instead?"
             self.add_message("wrong-exception-operation", node=node, args=(suggestion,))
 
-    @utils.check_messages(
+    @utils.only_required_for_messages(
         "bare-except",
         "broad-except",
         "try-except-raise",

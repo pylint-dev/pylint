@@ -235,7 +235,7 @@ class ComparisonChecker(_BasicChecker):
         if number_of_bare_callables == 1:
             self.add_message("comparison-with-callable", node=node)
 
-    @utils.check_messages(
+    @utils.only_required_for_messages(
         "singleton-comparison",
         "unidiomatic-typecheck",
         "literal-comparison",
