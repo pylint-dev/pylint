@@ -38,7 +38,7 @@ class PrivateImportChecker(BaseChecker):
         self.all_used_type_annotations: dict[str, bool] = {}
         self.populated_annotations = False
 
-    @utils.check_messages("import-private-name")
+    @utils.only_required_for_messages("import-private-name")
     def visit_import(self, node: nodes.Import) -> None:
         if utils.is_node_in_typing_guarded_import_block(node):
             return
@@ -55,7 +55,7 @@ class PrivateImportChecker(BaseChecker):
                 confidence=HIGH,
             )
 
-    @utils.check_messages("import-private-name")
+    @utils.only_required_for_messages("import-private-name")
     def visit_importfrom(self, node: nodes.ImportFrom) -> None:
         if utils.is_node_in_typing_guarded_import_block(node):
             return

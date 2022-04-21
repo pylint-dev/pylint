@@ -11,9 +11,9 @@ from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
     PYMETHODS,
     SPECIAL_METHODS_PARAMS,
-    check_messages,
     decorated_with,
     is_function_body_ellipsis,
+    only_required_for_messages,
     safe_infer,
 )
 
@@ -148,7 +148,7 @@ class SpecialMethodsChecker(BaseChecker):
             "__getnewargs_ex__": self._check_getnewargs_ex,
         }
 
-    @check_messages(
+    @only_required_for_messages(
         "unexpected-special-method-signature",
         "non-iterator-returned",
         "invalid-length-returned",

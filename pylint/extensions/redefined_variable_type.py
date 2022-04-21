@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import check_messages, is_none, node_type
+from pylint.checkers.utils import is_none, node_type, only_required_for_messages
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -42,7 +42,7 @@ class MultipleTypesChecker(BaseChecker):
     def visit_classdef(self, _: nodes.ClassDef) -> None:
         self._assigns.append({})
 
-    @check_messages("redefined-variable-type")
+    @only_required_for_messages("redefined-variable-type")
     def leave_classdef(self, _: nodes.ClassDef) -> None:
         self._check_and_add_messages()
 

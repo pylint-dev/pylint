@@ -52,7 +52,7 @@ class MisplacedComparisonConstantChecker(BaseChecker):
         suggestion = f"{right.as_string()} {operator} {left.value!r}"
         self.add_message("misplaced-comparison-constant", node=node, args=(suggestion,))
 
-    @utils.check_messages("misplaced-comparison-constant")
+    @utils.only_required_for_messages("misplaced-comparison-constant")
     def visit_compare(self, node: nodes.Compare) -> None:
         # NOTE: this checker only works with binary comparisons like 'x == 42'
         # but not 'x == y == 42'

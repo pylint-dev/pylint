@@ -371,7 +371,7 @@ class NameChecker(_BasicChecker):
         for name in node.names:
             self._check_name("const", name, node)
 
-    @utils.check_messages(
+    @utils.only_required_for_messages(
         "disallowed-name",
         "invalid-name",
         "typevar-name-incorrect-variance",
