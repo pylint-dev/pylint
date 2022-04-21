@@ -65,12 +65,19 @@ from pylint.utils.pragma_parser import (
 )
 
 if sys.version_info >= (3, 8):
-    from typing import Literal
+    from typing import Literal, Protocol
 else:
-    from typing_extensions import Literal
+    from typing_extensions import Literal, Protocol
 
 
 MANAGER = astroid.MANAGER
+
+
+class GetAstProtocol(Protocol):
+    def __call__(
+        self, filepath: str, modname: str, data: str | None = None
+    ) -> nodes.Module:
+        ...
 
 
 def _read_stdin() -> str:
@@ -750,7 +757,7 @@ class PyLinter(
 
     def _check_files(
         self,
-        get_ast,
+        get_ast: GetAstProtocol,
         file_descrs: Iterable[FileItem],
     ) -> None:
         """Check all files from file_descrs."""
@@ -770,7 +777,12 @@ class PyLinter(
                         symbol = "fatal"
                         self.add_message(symbol, args=msg)
 
-    def _check_file(self, get_ast, check_astroid_module, file: FileItem):
+    def _check_file(
+        self,
+        get_ast: GetAstProtocol,
+        check_astroid_module,
+        file: FileItem,
+    ) -> None:
         """Check a file using the passed utility functions (get_ast and check_astroid_module).
 
         :param callable get_ast: callable returning AST from defined file taking the following arguments
