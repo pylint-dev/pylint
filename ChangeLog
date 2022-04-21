@@ -30,6 +30,11 @@ Release date: TBA
 
   Closes #5224
 
+* Removed the ``assign-to-new-keyword`` message as there are no new keywords in the supported Python
+  versions any longer.
+
+  Closes #4683
+
 * Fixed failure to enable ``deprecated-module`` after a ``disable=all``
   by making ``ImportsChecker`` solely responsible for emitting ``deprecated-module`` instead
   of sharing responsibility with ``StdlibChecker``. (This could have led to double messages.)
@@ -223,6 +228,16 @@ Release date: TBA
 ..
   Insert your changelog randomly, it will reduce merge conflicts
   (Ie. not necessarily at the end)
+
+
+What's New in Pylint 2.13.8?
+============================
+Release date: TBA
+
+* Fix a crash when linting a file that passes an integer ``mode=`` to
+  ``open``
+
+  Closes #6414
 
 
 What's New in Pylint 2.13.7?

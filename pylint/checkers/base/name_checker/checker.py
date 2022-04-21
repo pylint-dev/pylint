@@ -173,12 +173,6 @@ class NameChecker(_BasicChecker):
             "Emitted when a TypeVar is assigned to a variable "
             "that does not match its name argument.",
         ),
-        "W0111": (
-            "Name %s will become a keyword in Python %s",
-            "assign-to-new-keyword",
-            "Used when assignment will become invalid in future "
-            "Python release due to introducing new keyword.",
-        ),
     }
 
     options = (
@@ -257,8 +251,6 @@ class NameChecker(_BasicChecker):
             },
         ),
     ) + _create_naming_options()
-
-    KEYWORD_ONSET = {(3, 7): {"async", "await"}}
 
     def __init__(self, linter):
         super().__init__(linter)
@@ -340,23 +332,17 @@ class NameChecker(_BasicChecker):
             for args in warnings:
                 self._raise_name_warning(prevalent_group, *args)
 
-    @utils.only_required_for_messages(
-        "disallowed-name", "invalid-name", "assign-to-new-keyword"
-    )
+    @utils.only_required_for_messages("disallowed-name", "invalid-name")
     def visit_classdef(self, node: nodes.ClassDef) -> None:
-        self._check_assign_to_new_keyword_violation(node.name, node)
         self._check_name("class", node.name, node)
         for attr, anodes in node.instance_attrs.items():
             if not any(node.instance_attr_ancestors(attr)):
                 self._check_name("attr", attr, anodes[0])
 
-    @utils.only_required_for_messages(
-        "disallowed-name", "invalid-name", "assign-to-new-keyword"
-    )
+    @utils.only_required_for_messages("disallowed-name", "invalid-name")
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         # Do not emit any warnings if the method is just an implementation
         # of a base class method.
-        self._check_assign_to_new_keyword_violation(node.name, node)
         confidence = interfaces.HIGH
         if node.is_method():
             if utils.overrides_a_method(node.parent.frame(future=True), node.name):
@@ -388,14 +374,12 @@ class NameChecker(_BasicChecker):
     @utils.check_messages(
         "disallowed-name",
         "invalid-name",
-        "assign-to-new-keyword",
         "typevar-name-incorrect-variance",
         "typevar-double-variance",
         "typevar-name-mismatch",
     )
     def visit_assignname(self, node: nodes.AssignName) -> None:
         """Check module level assigned names."""
-        self._check_assign_to_new_keyword_violation(node.name, node)
         frame = node.frame(future=True)
         assign_type = node.assign_type()
 
@@ -544,25 +528,6 @@ class NameChecker(_BasicChecker):
         # Check TypeVar names for variance suffixes
         if node_type == "typevar":
             self._check_typevar(name, node)
-
-    def _check_assign_to_new_keyword_violation(self, name, node):
-        keyword_first_version = self._name_became_keyword_in_version(
-            name, self.KEYWORD_ONSET
-        )
-        if keyword_first_version is not None:
-            self.add_message(
-                "assign-to-new-keyword",
-                node=node,
-                args=(name, keyword_first_version),
-                confidence=interfaces.HIGH,
-            )
-
-    @staticmethod
-    def _name_became_keyword_in_version(name, rules):
-        for version, keywords in rules.items():
-            if name in keywords and sys.version_info < version:
-                return ".".join(str(v) for v in version)
-        return None
 
     @staticmethod
     def _assigns_typevar(node: nodes.NodeNG | None) -> bool:

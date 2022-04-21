@@ -73,8 +73,9 @@ else:
 MANAGER = astroid.MANAGER
 
 
-def _read_stdin():
-    # https://mail.python.org/pipermail/python-list/2012-November/634424.html
+def _read_stdin() -> str:
+    # See https://github.com/python/typeshed/pull/5623 for rationale behind assertion
+    assert isinstance(sys.stdin, TextIOWrapper)
     sys.stdin = TextIOWrapper(sys.stdin.detach(), encoding="utf-8")
     return sys.stdin.read()
 
@@ -460,10 +461,8 @@ class PyLinter(
                         # message starts with a category value, flag (but do not enable) it
                         self.fail_on_symbols.append(msg.symbol)
 
-    def any_fail_on_issues(self):
-        return self.stats and any(
-            x in self.fail_on_symbols for x in self.stats.by_msg.keys()
-        )
+    def any_fail_on_issues(self) -> bool:
+        return any(x in self.fail_on_symbols for x in self.stats.by_msg.keys())
 
     def disable_noerror_messages(self) -> None:
         for msgcat, msgids in self.msgs_store._msgs_by_category.items():
@@ -630,7 +629,7 @@ class PyLinter(
 
     # pylint: disable=unused-argument
     @staticmethod
-    def should_analyze_file(modname, path, is_argument=False):
+    def should_analyze_file(modname: str, path: str, is_argument: bool = False) -> bool:
         """Returns whether a module should be checked.
 
         This implementation returns True for all python source file, indicating
@@ -645,7 +644,6 @@ class PyLinter(
                                  Files which respect this property are always
                                  checked, since the user requested it explicitly.
         :returns: True if the module should be checked.
-        :rtype: bool
         """
         if is_argument:
             return True
@@ -819,7 +817,9 @@ class PyLinter(
 
         return FileItem(modname, filepath, filepath)
 
-    def _iterate_file_descrs(self, files_or_modules) -> Iterator[FileItem]:
+    def _iterate_file_descrs(
+        self, files_or_modules: Sequence[str]
+    ) -> Iterator[FileItem]:
         """Return generator yielding file descriptions (tuples of module name, file path, base name).
 
         The returned generator yield one item for each Python module that should be linted.
@@ -829,7 +829,7 @@ class PyLinter(
             if self.should_analyze_file(name, filepath, is_argument=is_arg):
                 yield FileItem(name, filepath, descr["basename"])
 
-    def _expand_files(self, modules: list[str]) -> list[ModuleDescriptionDict]:
+    def _expand_files(self, modules: Sequence[str]) -> list[ModuleDescriptionDict]:
         """Get modules and errors from a list of modules and handle errors."""
         result, errors = expand_modules(
             modules,
@@ -969,7 +969,13 @@ class PyLinter(
             ) from ex
         return None
 
-    def check_astroid_module(self, ast_node, walker, rawcheckers, tokencheckers):
+    def check_astroid_module(
+        self,
+        ast_node,
+        walker: ASTWalker,
+        rawcheckers: list[checkers.BaseRawFileChecker],
+        tokencheckers: list[checkers.BaseTokenChecker],
+    ) -> bool | None:
         """Check a module from its astroid representation.
 
         For return value see _check_astroid_module
@@ -980,6 +986,9 @@ class PyLinter(
             ast_node, walker, rawcheckers, tokencheckers
         )
 
+        # TODO: 3.0: Remove unnecessary assertion # pylint: disable=fixme
+        assert self.current_name
+
         self.stats.by_module[self.current_name]["statement"] = (
             walker.nbstatements - before_check_statements
         )
@@ -987,8 +996,12 @@ class PyLinter(
         return retval
 
     def _check_astroid_module(
-        self, node: nodes.Module, walker, rawcheckers, tokencheckers
-    ):
+        self,
+        node: nodes.Module,
+        walker: ASTWalker,
+        rawcheckers: list[checkers.BaseRawFileChecker],
+        tokencheckers: list[checkers.BaseTokenChecker],
+    ) -> bool | None:
         """Check given AST node with given walker and checkers.
 
         :param astroid.nodes.Module node: AST node of the module to check
@@ -998,7 +1011,6 @@ class PyLinter(
 
         :returns: True if the module was checked, False if ignored,
             None if the module contents could not be parsed
-        :rtype: bool
         """
         try:
             tokens = utils.tokenize_module(node)
@@ -1018,15 +1030,15 @@ class PyLinter(
             # walk ast to collect line numbers
             self.file_state.collect_block_lines(self.msgs_store, node)
             # run raw and tokens checkers
-            for checker in rawcheckers:
-                checker.process_module(node)
-            for checker in tokencheckers:
-                checker.process_tokens(tokens)
+            for raw_checker in rawcheckers:
+                raw_checker.process_module(node)
+            for token_checker in tokencheckers:
+                token_checker.process_tokens(tokens)
         # generate events to astroid checkers
         walker.walk(node)
         return True
 
-    def open(self):
+    def open(self) -> None:
         """Initialize counters."""
         self.stats = LinterStats()
         MANAGER.always_load_extensions = self.config.unsafe_load_any_extension
@@ -1072,6 +1084,7 @@ class PyLinter(
         # check with at least check 1 statements (usually 0 when there is a
         # syntax error preventing pylint from further processing)
         note = None
+        assert self.file_state.base_name
         previous_stats = config.load_results(self.file_state.base_name)
         if self.stats.statement == 0:
             return note

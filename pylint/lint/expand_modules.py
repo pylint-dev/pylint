@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import os
 import sys
+from collections.abc import Sequence
 from re import Pattern
 
 from astroid import modutils
@@ -46,7 +47,7 @@ def _is_in_ignore_list_re(element: str, ignore_list_re: list[Pattern[str]]) -> b
 
 
 def expand_modules(
-    files_or_modules: list[str],
+    files_or_modules: Sequence[str],
     ignore_list: list[str],
     ignore_list_re: list[Pattern[str]],
     ignore_list_paths_re: list[Pattern[str]],
