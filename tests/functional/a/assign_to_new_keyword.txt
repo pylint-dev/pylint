@@ -1,4 +1,0 @@
-assign-to-new-keyword:4:None:4:None::Name async will become a keyword in Python 3.7:HIGH
-assign-to-new-keyword:5:None:5:None::Name await will become a keyword in Python 3.7:HIGH
-assign-to-new-keyword:8:None:8:None:async:Name async will become a keyword in Python 3.7:HIGH
-assign-to-new-keyword:12:None:12:None:async:Name async will become a keyword in Python 3.7:HIGH
