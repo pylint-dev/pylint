@@ -360,7 +360,7 @@ contributors:
 - Renat Galimov <renat2017@gmail.com>
 - Rebecca Turner <rbt@sent.as> (9999years)
 - Randall Leeds <randall@bleeds.info>
-- Ramiro Leal-Cavazos <ramiroleal050@gmail.com> (ramiro050): Fixed bug preventing pylint from working with emacs tramp
+- Ramiro Leal-Cavazos <ramiroleal050@gmail.com> (ramiro050): Fixed bug preventing pylint from working with Emacs tramp
 - Qwiddle13 <32040075+Qwiddle13@users.noreply.github.com>
 - Quentin Young <qlyoung@users.noreply.github.com>
 - Petr Pulc <petrpulc@gmail.com>: require whitespace around annotations

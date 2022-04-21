@@ -202,7 +202,7 @@ def register_plugins(linter: PyLinter, directory: str) -> None:
                     os.path.join(directory, filename)
                 )
             except ValueError:
-                # empty module name (usually emacs auto-save files)
+                # empty module name (usually Emacs auto-save files)
                 continue
             except ImportError as exc:
                 print(f"Problem importing module {filename}: {exc}", file=sys.stderr)
