@@ -73,7 +73,9 @@ class RecommendationChecker(checkers.BaseChecker):
             return False
         return utils.is_builtin_object(inferred) and inferred.name == function
 
-    @utils.check_messages("consider-iterating-dictionary", "use-maxsplit-arg")
+    @utils.only_required_for_messages(
+        "consider-iterating-dictionary", "use-maxsplit-arg"
+    )
     def visit_call(self, node: nodes.Call) -> None:
         self._check_consider_iterating_dictionary(node)
         self._check_use_maxsplit_arg(node)
@@ -158,7 +160,7 @@ class RecommendationChecker(checkers.BaseChecker):
                 )
                 self.add_message("use-maxsplit-arg", node=node, args=(new_name,))
 
-    @utils.check_messages(
+    @utils.only_required_for_messages(
         "consider-using-enumerate",
         "consider-using-dict-items",
         "use-sequence-for-iteration",
@@ -287,7 +289,7 @@ class RecommendationChecker(checkers.BaseChecker):
                 self.add_message("consider-using-dict-items", node=node)
                 return
 
-    @utils.check_messages(
+    @utils.only_required_for_messages(
         "consider-using-dict-items",
         "use-sequence-for-iteration",
     )
@@ -326,7 +328,7 @@ class RecommendationChecker(checkers.BaseChecker):
         if isinstance(node.iter, nodes.Set):
             self.add_message("use-sequence-for-iteration", node=node.iter)
 
-    @utils.check_messages("consider-using-f-string")
+    @utils.only_required_for_messages("consider-using-f-string")
     def visit_const(self, node: nodes.Const) -> None:
         if self._py36_plus:
             # f-strings require Python 3.6

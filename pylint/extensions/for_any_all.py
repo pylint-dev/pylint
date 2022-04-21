@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import check_messages, returns_bool
+from pylint.checkers.utils import only_required_for_messages, returns_bool
 
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
@@ -28,7 +28,7 @@ class ConsiderUsingAnyOrAllChecker(BaseChecker):
         )
     }
 
-    @check_messages("consider-using-any-or-all")
+    @only_required_for_messages("consider-using-any-or-all")
     def visit_for(self, node: nodes.For) -> None:
         if len(node.body) != 1:  # Only If node with no Else
             return

@@ -74,7 +74,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
 
     options = ()
 
-    @utils.check_messages("use-implicit-booleaness-not-len")
+    @utils.only_required_for_messages("use-implicit-booleaness-not-len")
     def visit_call(self, node: nodes.Call) -> None:
         # a len(S) call is used inside a test condition
         # could be if, while, assert or if expression statement
@@ -124,7 +124,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
             ...
         return False
 
-    @utils.check_messages("use-implicit-booleaness-not-len")
+    @utils.only_required_for_messages("use-implicit-booleaness-not-len")
     def visit_unaryop(self, node: nodes.UnaryOp) -> None:
         """`not len(S)` must become `not S` regardless if the parent block
         is a test condition or something else (boolean expression) e.g. `if not len(S):`
@@ -136,7 +136,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
         ):
             self.add_message("use-implicit-booleaness-not-len", node=node)
 
-    @utils.check_messages("use-implicit-booleaness-not-comparison")
+    @utils.only_required_for_messages("use-implicit-booleaness-not-comparison")
     def visit_compare(self, node: nodes.Compare) -> None:
         self._check_use_implicit_booleaness_not_comparison(node)
 

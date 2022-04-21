@@ -40,7 +40,7 @@ class NotChecker(checkers.BaseChecker):
     # 'builtins' py3, '__builtin__' py2
     skipped_classnames = [f"builtins.{qname}" for qname in ("set", "frozenset")]
 
-    @utils.check_messages("unneeded-not")
+    @utils.only_required_for_messages("unneeded-not")
     def visit_unaryop(self, node: nodes.UnaryOp) -> None:
         if node.op != "not":
             return
