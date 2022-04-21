@@ -1,7 +1,0 @@
-[BASIC]
-const-rgx=.+
-function-rgx=.+
-class-rgx=.+
-
-[testoptions]
-max_pyver=3.7

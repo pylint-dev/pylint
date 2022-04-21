@@ -61,6 +61,12 @@ Removed checkers
 
   Closes #2409
 
+* Removed the ``assign-to-new-keyword`` message as there are no new keywords in the supported Python
+  versions any longer.
+
+  Closes #4683
+
+
 Extensions
 ==========
 
