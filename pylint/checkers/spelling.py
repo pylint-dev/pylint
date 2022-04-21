@@ -107,7 +107,7 @@ class CamelCasedWord(RegExFilter):
 
     That is, any words that are camelCasedWords.
     """
-    _pattern = re.compile(r"^([a-z]+([\d]|[A-Z])(?:\w+)?)")
+    _pattern = re.compile(r"^([a-z]+(\d|[A-Z])(?:\w+)?)")
 
 
 class SphinxDirectives(RegExFilter):
@@ -329,7 +329,7 @@ class SpellingChecker(BaseTokenChecker):
         original_line = line
         try:
             # The mypy warning is caught by the except statement
-            initial_space = re.search(r"^[^\S]\s*", line).regs[0][1]  # type: ignore[union-attr]
+            initial_space = re.search(r"^\s+", line).regs[0][1]  # type: ignore[union-attr]
         except (IndexError, AttributeError):
             initial_space = 0
         if line.strip().startswith("#") and "docstring" not in msgid:
