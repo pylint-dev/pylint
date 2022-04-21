@@ -73,8 +73,9 @@ else:
 MANAGER = astroid.MANAGER
 
 
-def _read_stdin():
-    # https://mail.python.org/pipermail/python-list/2012-November/634424.html
+def _read_stdin() -> str:
+    # See https://github.com/python/typeshed/pull/5623 for rationale behind assertion
+    assert isinstance(sys.stdin, TextIOWrapper)
     sys.stdin = TextIOWrapper(sys.stdin.detach(), encoding="utf-8")
     return sys.stdin.read()
 
