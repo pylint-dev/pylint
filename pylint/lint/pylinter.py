@@ -13,7 +13,7 @@ import tokenize
 import traceback
 import warnings
 from collections import defaultdict
-from collections.abc import Iterable, Iterator, Sequence
+from collections.abc import Callable, Iterable, Iterator, Sequence
 from io import TextIOWrapper
 from typing import Any
 
@@ -92,7 +92,9 @@ def _load_reporter_by_class(reporter_class: str) -> type[BaseReporter]:
     module_part = astroid.modutils.get_module_part(qname)
     module = astroid.modutils.load_module_from_name(module_part)
     class_name = qname.split(".")[-1]
-    return getattr(module, class_name)
+    klass = getattr(module, class_name)
+    assert issubclass(klass, BaseReporter), f"{klass} is not a BaseReporter"
+    return klass
 
 
 # Python Linter class #########################################################
@@ -396,7 +398,7 @@ class PyLinter(
 
         try:
             reporter_class = _load_reporter_by_class(reporter_name)
-        except (ImportError, AttributeError) as e:
+        except (ImportError, AttributeError, AssertionError) as e:
             raise exceptions.InvalidReporterError(name) from e
         else:
             return reporter_class()
@@ -780,7 +782,7 @@ class PyLinter(
     def _check_file(
         self,
         get_ast: GetAstProtocol,
-        check_astroid_module,
+        check_astroid_module: Callable[[nodes.Module], bool | None],
         file: FileItem,
     ) -> None:
         """Check a file using the passed utility functions (get_ast and check_astroid_module).
@@ -858,14 +860,17 @@ class PyLinter(
             self.add_message(key, args=message)
         return result
 
-    def set_current_module(self, modname, filepath: str | None = None):
+    def set_current_module(
+        self, modname: str | None, filepath: str | None = None
+    ) -> None:
         """Set the name of the currently analyzed module and
         init statistics for it
         """
         if not modname and filepath is None:
             return
-        self.reporter.on_set_current_module(modname, filepath)
+        self.reporter.on_set_current_module(modname or "", filepath)
         if modname is None:
+            # TODO: 3.0: Remove all modname or ""'s in this method # pylint: disable=fixme
             warnings.warn(
                 (
                     "In pylint 3.0 modname should be a string so that it can be used to "
@@ -876,10 +881,12 @@ class PyLinter(
             )
         self.current_name = modname
         self.current_file = filepath or modname
-        self.stats.init_single_module(modname)
+        self.stats.init_single_module(modname or "")
 
     @contextlib.contextmanager
-    def _astroid_module_checker(self):
+    def _astroid_module_checker(
+        self,
+    ) -> Iterator[Callable[[nodes.Module], bool | None]]:
         """Context manager for checking ASTs.
 
         The value in the context is callable accepting AST as its only argument.
@@ -900,7 +907,7 @@ class PyLinter(
                     and c not in tokencheckers
                     and c is not self
                 ):
-                    tokencheckers.append(c)  # pragma: no cover
+                    tokencheckers.append(c)  # type: ignore[arg-type]  # pragma: no cover
                     warnings.warn(  # pragma: no cover
                         "Checkers should subclass BaseTokenChecker "
                         "instead of using the __implements__ mechanism. Use of __implements__ "
@@ -918,7 +925,7 @@ class PyLinter(
                     interfaces.implements(c, interfaces.IRawChecker)
                     and c not in rawcheckers
                 ):
-                    rawcheckers.append(c)  # pragma: no cover
+                    rawcheckers.append(c)  # type: ignore[arg-type] # pragma: no cover
                     warnings.warn(  # pragma: no cover
                         "Checkers should subclass BaseRawFileChecker "
                         "instead of using the __implements__ mechanism. Use of __implements__ "
@@ -983,7 +990,7 @@ class PyLinter(
 
     def check_astroid_module(
         self,
-        ast_node,
+        ast_node: nodes.Module,
         walker: ASTWalker,
         rawcheckers: list[checkers.BaseRawFileChecker],
         tokencheckers: list[checkers.BaseTokenChecker],
