@@ -1084,6 +1084,7 @@ class PyLinter(
         # check with at least check 1 statements (usually 0 when there is a
         # syntax error preventing pylint from further processing)
         note = None
+        assert self.file_state.base_name
         previous_stats = config.load_results(self.file_state.base_name)
         if self.stats.statement == 0:
             return note
