@@ -201,6 +201,7 @@ class SpecialMethodsChecker(BaseChecker):
         optional = len(node.args.defaults)
         current_params = mandatory + optional
 
+        emit = False  # If we don't know we choose a false negative
         if isinstance(expected_params, tuple):
             # The expected number of parameters can be any value from this
             # tuple, although the user should implement the method
