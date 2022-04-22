@@ -1,0 +1,2 @@
+consider-using-f-string:5:8:5:15::Formatting a regular string which could be a f-string:UNDEFINED
+consider-using-f-string:6:8:6:15::Formatting a regular string which could be a f-string:UNDEFINED

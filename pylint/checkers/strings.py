@@ -219,7 +219,7 @@ def arg_matches_format_type(arg_type, format_type):
             return format_type == "c"
         if arg_type == "builtins.float":
             return format_type in "deEfFgGn%"
-        if arg_type == "builtins.int":
+        if arg_type in {"builtins.int", ".ndarray"}:
             # Integers allow all types
             return True
         return False

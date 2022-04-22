@@ -6,6 +6,8 @@ What's New in Pylint 2.14.0?
 ============================
 Release date: TBA
 
+
+* Fixed a false positive when a numpy ufunc returns a scalar in % string formatting.
 ..
   Put new features here and also in 'doc/whatsnew/2.14.rst'
 
