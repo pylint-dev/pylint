@@ -45,7 +45,12 @@ import sys
 from collections.abc import Sequence
 from io import StringIO
 from subprocess import PIPE, Popen
-from typing import NoReturn, TextIO
+from typing import NoReturn, TextIO, overload
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
 
 def _get_env() -> dict[str, str]:
@@ -116,6 +121,26 @@ def lint(filename: str, options: Sequence[str] = ()) -> int:
 
         process.wait()
         return process.returncode
+
+
+@overload
+def py_run(
+    command_options: str = "",
+    return_std: Literal[False] = False,
+    stdout: TextIO | int | None = None,
+    stderr: TextIO | int | None = None,
+) -> None:
+    ...
+
+
+@overload
+def py_run(
+    command_options: str,
+    return_std: Literal[True],
+    stdout: TextIO | int | None = None,
+    stderr: TextIO | int | None = None,
+) -> tuple[StringIO, StringIO]:
+    ...
 
 
 def py_run(
