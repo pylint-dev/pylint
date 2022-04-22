@@ -13,6 +13,7 @@ import traceback
 import astroid
 from astroid import nodes
 
+from pylint.checkers.utils import decorated_with_property
 from pylint.pyreverse import utils
 
 
@@ -178,7 +179,17 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             for assignattr in assignattrs:
                 if not isinstance(assignattr, nodes.Unknown):
                     self.handle_assignattr_type(assignattr, node)
-        # resolve implemented interface
+        # resolve instance properties
+        for method in node.methods():
+            if decorated_with_property(method) and method.returns is not None:
+                value = list(method.returns.infer())[0]
+                if value.name == "list":
+                    self.handle_property_type(method.name, {method.returns}, node)
+                else:
+                    self.handle_property_type(
+                        method.name, utils.infer_node(value), node
+                    )
+
         try:
             node.implements = list(interfaces(node, self.inherited_interfaces))
         except astroid.InferenceError:
@@ -241,6 +252,15 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         parent.instance_attrs_type[node.attrname] = list(
             current | utils.infer_node(node)
         )
+
+    @staticmethod
+    def handle_property_type(property_name, node, parent):
+        """Handle an astroid.assignattr node.
+
+        handle instance_attrs_type
+        """
+        current = set(parent.instance_attrs_type[property_name])
+        parent.instance_attrs_type[property_name] = list(current | node)
 
     def visit_import(self, node: nodes.Import) -> None:
         """Visit an astroid.Import node.

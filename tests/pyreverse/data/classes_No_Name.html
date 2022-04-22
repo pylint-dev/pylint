@@ -34,6 +34,7 @@
             TYPE : str
             relation
             relation2
+            relation3 : list[DoNothing2]
             top : str
             from_value(value: int)
             increment_value() -> None
@@ -44,6 +45,7 @@
           DoNothing --* Ancestor : cls_member
           DoNothing --* Specialization : relation
           DoNothing2 --* Specialization : relation2
+	  DoNothing2 "0..*" --* Specialization : relation3
 
        </div>
   </body>

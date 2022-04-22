@@ -29,6 +29,13 @@ ARROWS: dict[EdgeType, dict[str, str]] = {
     EdgeType.ASSOCIATION: dict(
         fontcolor="green", arrowtail="none", arrowhead="diamond", style="solid"
     ),
+    EdgeType.MULTIPLICITY: dict(
+        fontcolor="green",
+        arrowtail="none",
+        arrowhead="diamond",
+        style="solid",
+        taillabel="0..*",
+    ),
     EdgeType.USES: dict(arrowtail="none", arrowhead="open"),
 }
 

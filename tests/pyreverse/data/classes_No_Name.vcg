@@ -25,7 +25,7 @@ graph:{
   node: {title:"data.property_pattern.PropertyPatterns"  label:"\fbPropertyPatterns\fn\n\f__________________\n\f08prop1\n\f08prop2\n\f__________________"
   shape:box
 }
-  node: {title:"data.clientmodule_test.Specialization"  label:"\fbSpecialization\fn\n\f_________________\n\f08TYPE : str\n\f08relation\n\f08relation2\n\f08top : str\n\f_________________\n\f10from_value()\n\f10increment_value()\n\f10transform_value()"
+  node: {title:"data.clientmodule_test.Specialization"  label:"\fbSpecialization\fn\n\f______________________________\n\f08TYPE : str\n\f08relation\n\f08relation2\n\f08relation3 : list[DoNothing2]\n\f08top : str\n\f______________________________\n\f10from_value()\n\f10increment_value()\n\f10transform_value()"
   shape:box
 }
   edge: {sourcename:"data.clientmodule_test.Specialization" targetname:"data.clientmodule_test.Ancestor"  arrowstyle:solid
@@ -51,5 +51,10 @@ graph:{
   backarrowstyle:none
   textcolor:green
   label:"relation2"
+}
+  edge: {sourcename:"data.suppliermodule_test.DoNothing2" targetname:"data.clientmodule_test.Specialization"  arrowstyle:solid
+  backarrowstyle:none
+  textcolor:green
+  label:"relation3"
 }
 }

@@ -9,6 +9,10 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.14.rst'
 
+* Add multiplicity association support in pyreverse
+
+  Ref #6434
+
 * Improved wording of the message of ``deprecated-module``
 
   Closes #6169

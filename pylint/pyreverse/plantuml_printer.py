@@ -24,6 +24,7 @@ class PlantUmlPrinter(Printer):
         EdgeType.INHERITS: "--|>",
         EdgeType.IMPLEMENTS: "..|>",
         EdgeType.ASSOCIATION: "--*",
+        EdgeType.MULTIPLICITY: """"0..*" --*""",
         EdgeType.USES: "-->",
     }
 

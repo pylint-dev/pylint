@@ -119,6 +119,14 @@ class DiagramWriter:
                 label=rel.name,
                 type_=EdgeType.ASSOCIATION,
             )
+        # generate mulitiplicities
+        for rel in diagram.get_relationships("multiplicity"):
+            self.printer.emit_edge(
+                rel.from_object.fig_id,
+                rel.to_object.fig_id,
+                label=rel.name,
+                type_=EdgeType.MULTIPLICITY,
+            )
 
     def set_printer(self, file_name: str, basename: str) -> None:
         """Set printer."""

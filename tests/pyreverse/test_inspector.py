@@ -58,9 +58,9 @@ def test_instance_attrs_resolution(project: Project) -> None:
     klass = project.get_module("data.clientmodule_test")["Specialization"]
     assert hasattr(klass, "instance_attrs_type")
     type_dict = klass.instance_attrs_type
-    assert len(type_dict) == 3
+    assert len(type_dict) == 4
     keys = sorted(type_dict.keys())
-    assert keys == ["_id", "relation", "relation2"]
+    assert keys == ["_id", "relation", "relation2", "relation3"]
     assert isinstance(type_dict["relation"][0], astroid.bases.Instance), type_dict[
         "relation"
     ]
