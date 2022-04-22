@@ -834,7 +834,7 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
     ):
         """Check for bad escapes in a non-raw string.
 
-        prefix: lowercase string of eg 'ur' string prefix markers.
+        prefix: lowercase string of e.g. 'ur' string prefix markers.
         string_body: the un-parsed body of the string, not including the quote
         marks.
         start_row: integer line number in the source.

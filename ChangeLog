@@ -3188,7 +3188,7 @@ Release date: 2019-09-24
 
 * Allow a ``.`` as a prefix for Sphinx name resolution.
 
-* Checkers must now keep a 1 to 1 relationship between "msgid" (ie: C1234) and "symbol" (ie : human-readable-symbol)
+* Checkers must now keep a 1 to 1 relationship between "msgid" (ie: C1234) and "symbol" (i.e.: human-readable-symbol)
 * In checkers, an old_names can now be used for multiple new messages and pylint is now a little faster
 
 Caused by #1164. It means if you do a partial old_names for a message definition an exception will tell you that you
@@ -5795,7 +5795,7 @@ Release date: 2014-04-18
 
     * Fix access-member-before-definition false negative wrt aug assign (#164)
 
-    * Do not attempt to analyze non python file, eg .so file (#122)
+    * Do not attempt to analyze non python file, e.g. .so file (#122)
 
 
 What's New in Pylint 1.1.0?
@@ -6175,7 +6175,7 @@ Release date: 2011-10-7
     * #74747: crash occurs when lookup up a special attribute in class scope
       (patch by google)
 
-    * #76920: crash if on eg "pylint --rcfile" (patch by Torsten Marek)
+    * #76920: crash if on e.g. "pylint --rcfile" (patch by Torsten Marek)
 
     * #77237: warning for E0202 may be very misleading
 
@@ -6224,7 +6224,7 @@ Release date: 2011-01-11
       interesting since it's a syntax error for python >= 2.5 and we now only
       support this python version and above.
 
-    * don't emit W0221 or W0222 when methods as variable arguments (eg \*arg
+    * don't emit W0221 or W0222 when methods as variable arguments (e.g. \*arg
       and/or \*\*args). Patch submitted by Charles Duffy.
 
 
@@ -6418,7 +6418,7 @@ What's New in Pylint 0.16.0?
 Release date: 2009-01-28
 
     * change [en|dis]able-msg-cat options: only accept message categories
-      identified by their first letter (eg IRCWEF) without the need for comma
+      identified by their first letter (e.g. IRCWEF) without the need for comma
       as separator
 
     * add epylint.bat script to fix Windows installation
@@ -6563,7 +6563,7 @@ Release date: 2007-02-28
     * allow disable-all option inline (#3218, patch submitted by Daniel Drake)
 
     * --init-hook option to call arbitrary code necessary to set
-      environment (eg sys.path) (#3156)
+      environment (e.g. sys.path) (#3156)
 
     * One more Daniel's patch fixing a command line option parsing
       problem, this'll definitely be the DDrake release :)
