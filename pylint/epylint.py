@@ -45,6 +45,7 @@ import sys
 from collections.abc import Sequence
 from io import StringIO
 from subprocess import PIPE, Popen
+from typing import NoReturn
 
 
 def _get_env():
@@ -167,7 +168,7 @@ def py_run(command_options="", return_std=False, stdout=None, stderr=None):
         return None
 
 
-def Run(argv: Sequence[str] | None = None):
+def Run(argv: Sequence[str] | None = None) -> NoReturn:
     if not argv and len(sys.argv) == 1:
         print(f"Usage: {sys.argv[0]} <filename> [options]")
         sys.exit(1)

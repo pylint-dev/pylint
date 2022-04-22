@@ -39,6 +39,7 @@ from typing import (
     List,
     NamedTuple,
     NewType,
+    NoReturn,
     TextIO,
     Tuple,
     Union,
@@ -880,20 +881,20 @@ def usage(status=0):
     sys.exit(status)
 
 
-def Run(argv=None):
+def Run(argv=None) -> NoReturn:
     """Standalone command line access point."""
     if argv is None:
         argv = sys.argv[1:]
 
     s_opts = "hdi"
-    l_opts = (
+    l_opts = [
         "help",
         "duplicates=",
         "ignore-comments",
         "ignore-imports",
         "ignore-docstrings",
         "ignore-signatures",
-    )
+    ]
     min_lines = DEFAULT_MIN_SIMILARITY_LINE
     ignore_comments = False
     ignore_docstrings = False
