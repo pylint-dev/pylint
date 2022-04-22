@@ -31,11 +31,11 @@ New checkers
 
 * Added several checkers to deal with unicode security issues
   (see `Trojan Sources <https://trojansource.codes/>`_ and
-  `PEP 672 <https://www.python.org/dev/peps/pep-0672/>`_ for details) that also
+  `PEP 672 <https://peps.python.org/pep-0672/>`_ for details) that also
   concern the readability of the code. In detail the following checks were added:
 
   * ``bad-file-encoding`` checks that the file is encoded in UTF-8 as suggested by
-    `PEP8 <https://www.python.org/dev/peps/pep-0008/#id20>`_.
+    `PEP8 <https://peps.python.org/pep-0008/#source-file-encoding>`_.
     UTF-16 and UTF-32 are `not supported by Python <https://bugs.python.org/issue1503789>`_
     at the moment. If this ever changes
     ``invalid-unicode-codec`` checks that they aren't used, to allow for backwards
@@ -76,13 +76,14 @@ New checkers
 
    Non ASCII characters could be homoglyphs (look alike characters) and hard to
    enter on a non specialized keyboard.
-   See `Confusable Characters in PEP 672 <https://www.python.org/dev/peps/pep-0672/#confusable-characters-in-identifiers>`_
+   See `Confusable Characters in PEP 672 <https://peps.python.org/pep-0672/#confusable-characters-in-identifiers>`_
 
-* Added ``lru-cache-decorating-method`` checker with checks for the use of ``functools.lru_cache``
-  on class methods. This is unrecommended as it creates memory leaks by never letting the instance
-  getting garbage collected.
+* Added ``cache-max-size-none`` checker with checks for the use of ``functools.lru_cache``
+  on class methods with a ``maxsize`` of ``None``. This is unrecommended as it
+  creates memory leaks by never letting the instance get garbage collected.
 
   Closes #5670
+  Clsoes #6180
 
 Removed checkers
 ================
@@ -197,6 +198,17 @@ Other Changes
 * Better warning messages for useless else or elif when a function returns early.
 
   Closes #5614
+
+* Asterisks are no longer required in Sphinx and Google style parameter documentation
+  for ``missing-param-doc`` and are parsed correctly.
+
+  Closes #5815
+  Closes #5406
+
+* Fixed an ``AstroidError`` in 2.13.0 raised by the ```duplicate-code``` checker with
+  ``ignore-imports`` or ``ignore-signatures`` enabled.
+
+  Closes #6301
 
 * Use the ``tomli`` package instead of ``toml`` to parse ``.toml`` files.
 
@@ -575,7 +587,31 @@ Other Changes
 
   Closes #5803
 
+* Fix a crash in the ``unsupported-membership-test`` checker when assigning
+  multiple constants to class attributes including ``__iter__`` via unpacking.
+
+  Closes #6366
+
+* Fix false positive for ``used-before-assignment`` for assignments taking place via
+  nonlocal declarations after an earlier type annotation.
+
+  Closes #5394
+
+* Fixed a false positive for ``unused-variable`` when a builtin specified in
+  ``--additional-builtins`` is given a type annotation.
+
+  Closes #6388
+
 * Fix false positive for 'nonexistent-operator' when repeated '-' are
   separated (e.g. by parens).
 
   Closes #5769
+
+* Only raise ``not-callable`` when all the inferred values of a property are not callable.
+
+  Closes #5931
+
+* Fix a crash when linting a file that passes an integer ``mode=`` to
+  ``open``
+
+  Closes #6414

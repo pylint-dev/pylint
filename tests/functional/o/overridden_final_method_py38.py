@@ -1,7 +1,7 @@
 """Since Python version 3.8, a method decorated with typing.final cannot be
 overridden"""
 
-# pylint: disable=no-init, useless-object-inheritance, missing-docstring, too-few-public-methods
+# pylint: disable=useless-object-inheritance, missing-docstring, too-few-public-methods
 
 from typing import final
 

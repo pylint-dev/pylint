@@ -2,10 +2,12 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import os
 import platform
 import sys
-from typing import Dict, List, NamedTuple, Tuple
+from typing import NamedTuple
 
 import astroid
 import platformdirs
@@ -13,7 +15,6 @@ import platformdirs
 from pylint.__pkginfo__ import __version__
 from pylint.typing import MessageTypesFullName
 
-PY37_PLUS = sys.version_info[:2] >= (3, 7)
 PY38_PLUS = sys.version_info[:2] >= (3, 8)
 PY39_PLUS = sys.version_info[:2] >= (3, 9)
 
@@ -29,7 +30,7 @@ MSG_STATE_SCOPE_MODULE = 1
 # The line/node distinction does not apply to fatal errors and reports.
 _SCOPE_EXEMPT = "FR"
 
-MSG_TYPES: Dict[str, MessageTypesFullName] = {
+MSG_TYPES: dict[str, MessageTypesFullName] = {
     "I": "info",
     "C": "convention",
     "R": "refactor",
@@ -37,7 +38,7 @@ MSG_TYPES: Dict[str, MessageTypesFullName] = {
     "E": "error",
     "F": "fatal",
 }
-MSG_TYPES_LONG: Dict[str, str] = {v: k for k, v in MSG_TYPES.items()}
+MSG_TYPES_LONG: dict[str, str] = {v: k for k, v in MSG_TYPES.items()}
 
 MSG_TYPES_STATUS = {"I": 0, "C": 16, "R": 8, "W": 4, "E": 2, "F": 1}
 
@@ -48,7 +49,7 @@ MAIN_CHECKER_NAME = "master"
 
 USER_HOME = os.path.expanduser("~")
 # pylint: disable-next=fixme
-# TODO Remove in 3.0 with all the surrounding code
+# TODO: 3.0: Remove in 3.0 with all the surrounding code
 OLD_DEFAULT_PYLINT_HOME = ".pylint.d"
 DEFAULT_PYLINT_HOME = platformdirs.user_cache_dir("pylint")
 
@@ -82,10 +83,10 @@ HUMAN_READABLE_TYPES = {
 class DeletedMessage(NamedTuple):
     msgid: str
     symbol: str
-    old_names: List[Tuple[str, str]] = []
+    old_names: list[tuple[str, str]] = []
 
 
-DELETED_MSGID_PREFIXES: List[int] = []
+DELETED_MSGID_PREFIXES: list[int] = []
 
 DELETED_MESSAGES = [
     # Everything until the next comment is from the
@@ -177,6 +178,16 @@ DELETED_MESSAGES = [
     ),
     # https://github.com/PyCQA/pylint/pull/3571
     DeletedMessage("C0330", "bad-continuation"),
+    # No PR
+    DeletedMessage("R0921", "abstract-class-not-used"),
+    # https://github.com/PyCQA/pylint/pull/3577
+    DeletedMessage("C0326", "bad-whitespace"),
+    # Pylint 1.4.3
+    DeletedMessage("W0142", "star-args"),
+    # https://github.com/PyCQA/pylint/issues/2409
+    DeletedMessage("W0232", "no-init"),
+    # https://github.com/PyCQA/pylint/pull/6421
+    DeletedMessage("W0111", "assign-to-new-keyword"),
 ]
 
 

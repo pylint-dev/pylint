@@ -2,19 +2,23 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import contextlib
 import importlib
 import os
 import shutil
 import sys
 import tempfile
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Iterator
 
 import pytest
+from pytest import CaptureFixture
 
 from pylint import config, testutils
 from pylint.config.find_default_config_files import _cfg_has_config, _toml_has_config
+from pylint.lint.run import Run
 
 
 @pytest.fixture
@@ -128,7 +132,8 @@ def test_pylintrc_parentdir_no_package() -> None:
             testutils.create_files(
                 ["a/pylintrc", "a/b/pylintrc", "a/b/c/d/__init__.py"]
             )
-            assert config.find_pylintrc() is None
+            with pytest.warns(DeprecationWarning):
+                assert config.find_pylintrc() is None
             results = {
                 "a": chroot_path / "a" / "pylintrc",
                 "a/b": chroot_path / "a" / "b" / "pylintrc",
@@ -138,6 +143,20 @@ def test_pylintrc_parentdir_no_package() -> None:
             for basedir, expected in results.items():
                 os.chdir(chroot_path / basedir)
                 assert next(config.find_default_config_files(), None) == expected
+
+
+@pytest.mark.usefixtures("pop_pylintrc")
+def test_verbose_output_no_config(capsys: CaptureFixture) -> None:
+    """Test that we print a log message in verbose mode with no file."""
+    with tempdir() as chroot:
+        with fake_home():
+            chroot_path = Path(chroot)
+            testutils.create_files(["a/b/c/d/__init__.py"])
+            os.chdir(chroot_path / "a/b/c")
+            with pytest.raises(SystemExit):
+                Run(["--verbose"])
+            out = capsys.readouterr()
+            assert "No config file found, using default configuration" in out.err
 
 
 @pytest.mark.parametrize(

@@ -40,6 +40,7 @@ extensions = [
     "pylint_features",
     "pylint_extensions",
     "pylint_messages",
+    "pylint_options",
     "sphinx.ext.autosectionlabel",
     "sphinx.ext.intersphinx",
 ]
@@ -233,7 +234,7 @@ man_pages = [
 
 # pylint: disable-next=consider-using-namedtuple-or-dataclass
 intersphinx_mapping = {
-    "astroid": ("https://astroid.readthedocs.io/en/latest/", None),
+    "astroid": ("https://pylint.pycqa.org/projects/astroid/en/latest/", None),
     "python": ("https://docs.python.org/3", None),
 }
 

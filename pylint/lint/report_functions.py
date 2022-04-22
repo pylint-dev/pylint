@@ -2,19 +2,21 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import collections
-from typing import DefaultDict, Dict, Union
+from collections import defaultdict
 
 from pylint import checkers, exceptions
-from pylint.reporters.ureports.nodes import Table
+from pylint.reporters.ureports.nodes import Section, Table
 from pylint.utils import LinterStats
 
 
 def report_total_messages_stats(
-    sect,
+    sect: Section,
     stats: LinterStats,
     previous_stats: LinterStats,
-):
+) -> None:
     """Make total errors / warnings report."""
     lines = ["type", "number", "previous", "difference"]
     lines += checkers.table_lines_from_stats(stats, previous_stats, "message_types")
@@ -22,10 +24,10 @@ def report_total_messages_stats(
 
 
 def report_messages_stats(
-    sect,
+    sect: Section,
     stats: LinterStats,
     _: LinterStats,
-):
+) -> None:
     """Make messages type report."""
     by_msg_stats = stats.by_msg
     in_order = sorted(
@@ -41,18 +43,16 @@ def report_messages_stats(
 
 
 def report_messages_by_module_stats(
-    sect,
+    sect: Section,
     stats: LinterStats,
     _: LinterStats,
-):
+) -> None:
     """Make errors / warnings by modules report."""
     module_stats = stats.by_module
     if len(module_stats) == 1:
         # don't print this report when we are analysing a single module
         raise exceptions.EmptyReportError()
-    by_mod: DefaultDict[str, Dict[str, Union[int, float]]] = collections.defaultdict(
-        dict
-    )
+    by_mod: defaultdict[str, dict[str, int | float]] = collections.defaultdict(dict)
     for m_type in ("fatal", "error", "warning", "refactor", "convention"):
         total = stats.get_global_message_count(m_type)
         for module in module_stats.keys():

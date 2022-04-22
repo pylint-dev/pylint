@@ -10,6 +10,7 @@ import pytest
 from pylint.checkers import BaseChecker
 from pylint.constants import WarningScope
 from pylint.exceptions import InvalidMessageError
+from pylint.lint.pylinter import PyLinter
 from pylint.message import MessageDefinition
 
 
@@ -33,6 +34,9 @@ def test_create_invalid_message_type(msgid, expected):
 
 
 class FalseChecker(BaseChecker):
+    def __init__(self) -> None:
+        super().__init__(PyLinter())
+
     name = "FalseChecker"
     msgs = {
         "W1234": ("message one", "msg-symbol-one", "msg description"),

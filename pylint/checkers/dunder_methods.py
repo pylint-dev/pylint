@@ -2,13 +2,15 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 from astroid import Instance, Uninferable, nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import safe_infer
-from pylint.interfaces import HIGH, IAstroidChecker
+from pylint.interfaces import HIGH
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -30,8 +32,6 @@ class DunderCallChecker(BaseChecker):
     We also exclude dunder method calls on super() since
     these can't be written in an alternative manner.
     """
-
-    __implements__ = IAstroidChecker
 
     includedict = {
         "__init__": "Instantiate class directly",
@@ -183,5 +183,5 @@ class DunderCallChecker(BaseChecker):
         return None
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(DunderCallChecker(linter))

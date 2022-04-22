@@ -4,18 +4,21 @@
 
 """Checker for string formatting operations."""
 
+from __future__ import annotations
+
 import collections
 import numbers
 import re
 import tokenize
-from typing import TYPE_CHECKING, Counter, Iterable
+from collections import Counter
+from collections.abc import Iterable
+from typing import TYPE_CHECKING
 
 import astroid
 from astroid import nodes
 
-from pylint.checkers import BaseChecker, BaseTokenChecker, utils
-from pylint.checkers.utils import check_messages
-from pylint.interfaces import IAstroidChecker, IRawChecker, ITokenChecker
+from pylint.checkers import BaseChecker, BaseRawFileChecker, BaseTokenChecker, utils
+from pylint.checkers.utils import only_required_for_messages
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -228,12 +231,11 @@ class StringFormatChecker(BaseChecker):
     is valid and the arguments match the format string.
     """
 
-    __implements__ = (IAstroidChecker,)
     name = "string"
     msgs = MSGS
 
     # pylint: disable=too-many-branches
-    @check_messages(
+    @only_required_for_messages(
         "bad-format-character",
         "truncated-format-string",
         "mixed-format-string",
@@ -244,7 +246,6 @@ class StringFormatChecker(BaseChecker):
         "format-needs-mapping",
         "too-many-format-args",
         "too-few-format-args",
-        "bad-string-format-type",
         "format-string-without-interpolation",
     )
     def visit_binop(self, node: nodes.BinOp) -> None:
@@ -353,9 +354,21 @@ class StringFormatChecker(BaseChecker):
             elif isinstance(args, (OTHER_NODES, (nodes.Dict, nodes.DictComp))):
                 args_elts = [args]
                 num_args = 1
+            elif isinstance(args, nodes.Name):
+                inferred = utils.safe_infer(args)
+                if isinstance(inferred, nodes.Tuple):
+                    # The variable is a tuple, so we need to get the elements
+                    # from it for further inspection
+                    args_elts = inferred.elts
+                    num_args = len(args_elts)
+                elif isinstance(inferred, nodes.Const):
+                    args_elts = [inferred]
+                    num_args = 1
+                else:
+                    num_args = None
             else:
-                # The RHS of the format specifier is a name or
-                # expression.  It could be a tuple of unknown size, so
+                # The RHS of the format specifier is an expression.
+                # It could be a tuple of unknown size, so
                 # there's nothing we can check.
                 num_args = None
             if num_args is not None:
@@ -378,7 +391,7 @@ class StringFormatChecker(BaseChecker):
                             args=(arg_type.pytype(), format_type),
                         )
 
-    @check_messages("f-string-without-interpolation")
+    @only_required_for_messages("f-string-without-interpolation")
     def visit_joinedstr(self, node: nodes.JoinedStr) -> None:
         self._check_interpolation(node)
 
@@ -390,7 +403,6 @@ class StringFormatChecker(BaseChecker):
                 return
         self.add_message("f-string-without-interpolation", node=node)
 
-    @check_messages(*MSGS)
     def visit_call(self, node: nodes.Call) -> None:
         func = utils.safe_infer(node.func)
         if (
@@ -602,10 +614,9 @@ class StringFormatChecker(BaseChecker):
                     break
 
 
-class StringConstantChecker(BaseTokenChecker):
+class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
     """Check string literals."""
 
-    __implements__ = (IAstroidChecker, ITokenChecker, IRawChecker)
     name = "string"
     msgs = {
         "W1401": (
@@ -678,13 +689,13 @@ class StringConstantChecker(BaseTokenChecker):
     UNICODE_ESCAPE_CHARACTERS = "uUN"
 
     def __init__(self, linter):
-        super().__init__(linter, future_option_parsing=True)
+        super().__init__(linter)
         self.string_tokens = {}  # token position -> (token value, next token)
 
     def process_module(self, node: nodes.Module) -> None:
         self._unicode_literals = "unicode_literals" in node.future_imports
 
-    def process_tokens(self, tokens):
+    def process_tokens(self, tokens: list[tokenize.TokenInfo]) -> None:
         encoding = "ascii"
         for i, (tok_type, token, start, _, line) in enumerate(tokens):
             if tok_type == tokenize.ENCODING:
@@ -709,18 +720,18 @@ class StringConstantChecker(BaseTokenChecker):
                     start = (start[0], len(line[: start[1]].encode(encoding)))
                 self.string_tokens[start] = (str_eval(token), next_token)
 
-        if self.linter.namespace.check_quote_consistency:
+        if self.linter.config.check_quote_consistency:
             self.check_for_consistent_string_delimiters(tokens)
 
-    @check_messages("implicit-str-concat")
+    @only_required_for_messages("implicit-str-concat")
     def visit_list(self, node: nodes.List) -> None:
         self.check_for_concatenated_strings(node.elts, "list")
 
-    @check_messages("implicit-str-concat")
+    @only_required_for_messages("implicit-str-concat")
     def visit_set(self, node: nodes.Set) -> None:
         self.check_for_concatenated_strings(node.elts, "set")
 
-    @check_messages("implicit-str-concat")
+    @only_required_for_messages("implicit-str-concat")
     def visit_tuple(self, node: nodes.Tuple) -> None:
         self.check_for_concatenated_strings(node.elts, "tuple")
 
@@ -783,7 +794,7 @@ class StringConstantChecker(BaseTokenChecker):
             if matching_token != elt.value and next_token is not None:
                 if next_token.type == tokenize.STRING and (
                     next_token.start[0] == elt.lineno
-                    or self.linter.namespace.check_str_concat_over_line_jumps
+                    or self.linter.config.check_str_concat_over_line_jumps
                 ):
                     self.add_message(
                         "implicit-str-concat", line=elt.lineno, args=(iterable_type,)
@@ -877,7 +888,7 @@ class StringConstantChecker(BaseTokenChecker):
             # character can never be the start of a new backslash escape.
             index += 2
 
-    @check_messages("redundant-u-string-prefix")
+    @only_required_for_messages("redundant-u-string-prefix")
     def visit_const(self, node: nodes.Const) -> None:
         if node.pytype() == "builtins.str" and not isinstance(
             node.parent, nodes.JoinedStr
@@ -894,7 +905,7 @@ class StringConstantChecker(BaseTokenChecker):
             )
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(StringFormatChecker(linter))
     linter.register_checker(StringConstantChecker(linter))
 

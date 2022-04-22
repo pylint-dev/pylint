@@ -4,11 +4,12 @@
 
 """Unit test for ``DiagramWriter``."""
 
+from __future__ import annotations
 
 import codecs
 import os
+from collections.abc import Callable, Iterator
 from difflib import unified_diff
-from typing import Callable, Iterator, List
 from unittest.mock import Mock
 
 import pytest
@@ -53,7 +54,7 @@ class Config:
             setattr(self, attr, value)
 
 
-def _file_lines(path: str) -> List[str]:
+def _file_lines(path: str) -> list[str]:
     # we don't care about the actual encoding, but python3 forces us to pick one
     with codecs.open(path, encoding="latin1") as stream:
         lines = [

@@ -4,11 +4,13 @@
 
 """Configuration file parser class."""
 
+from __future__ import annotations
+
 import configparser
 import os
 import sys
 from pathlib import Path
-from typing import TYPE_CHECKING, Dict, Optional
+from typing import TYPE_CHECKING
 
 from pylint.config.utils import _parse_rich_type_value
 
@@ -24,12 +26,12 @@ if TYPE_CHECKING:
 class _ConfigurationFileParser:
     """Class to parse various formats of configuration files."""
 
-    def __init__(self, verbose: bool, linter: "PyLinter") -> None:
+    def __init__(self, verbose: bool, linter: PyLinter) -> None:
         self.verbose_mode = verbose
         self.linter = linter
 
     @staticmethod
-    def _parse_ini_file(file_path: Path) -> Dict[str, str]:
+    def _parse_ini_file(file_path: Path) -> tuple[dict[str, str], list[str]]:
         """Parse and handle errors of a ini configuration file."""
         parser = configparser.ConfigParser(inline_comment_prefixes=("#", ";"))
 
@@ -37,43 +39,53 @@ class _ConfigurationFileParser:
         with open(file_path, encoding="utf_8_sig") as fp:
             parser.read_file(fp)
 
-        config_content: Dict[str, str] = {}
+        config_content: dict[str, str] = {}
+        options: list[str] = []
         for section in parser.sections():
-            for opt in parser[section]:
-                config_content[opt] = parser[section][opt]
-        return config_content
+            for opt, value in parser[section].items():
+                value = value.replace("\n", "")
+                config_content[opt] = value
+                options += [f"--{opt}", value]
+        return config_content, options
 
-    def _parse_toml_file(self, file_path: Path) -> Dict[str, str]:
+    def _parse_toml_file(self, file_path: Path) -> tuple[dict[str, str], list[str]]:
         """Parse and handle errors of a toml configuration file."""
         try:
             with open(file_path, mode="rb") as fp:
                 content = tomllib.load(fp)
         except tomllib.TOMLDecodeError as e:
             self.linter.add_message("config-parse-error", line=0, args=str(e))
-            return {}
+            return {}, []
 
         try:
             sections_values = content["tool"]["pylint"]
         except KeyError:
-            return {}
+            return {}, []
 
-        config_content: Dict[str, str] = {}
+        config_content: dict[str, str] = {}
+        options: list[str] = []
         for opt, values in sections_values.items():
             if isinstance(values, dict):
                 for config, value in values.items():
-                    config_content[config] = _parse_rich_type_value(value)
+                    value = _parse_rich_type_value(value)
+                    config_content[config] = value
+                    options += [f"--{config}", value]
             else:
-                config_content[opt] = _parse_rich_type_value(values)
-        return config_content
+                values = _parse_rich_type_value(values)
+                config_content[opt] = values
+                options += [f"--{opt}", values]
+        return config_content, options
 
-    def parse_config_file(self, file_path: Optional[Path]) -> Dict[str, str]:
+    def parse_config_file(
+        self, file_path: Path | None
+    ) -> tuple[dict[str, str], list[str]]:
         """Parse a config file and return str-str pairs."""
         if file_path is None:
             if self.verbose_mode:
                 print(
                     "No config file found, using default configuration", file=sys.stderr
                 )
-            return {}
+            return {}, []
 
         file_path = Path(os.path.expandvars(file_path)).expanduser()
         if not file_path.exists():
@@ -82,6 +94,10 @@ class _ConfigurationFileParser:
         if self.verbose_mode:
             print(f"Using config file {file_path}", file=sys.stderr)
 
-        if file_path.suffix == ".toml":
-            return self._parse_toml_file(file_path)
-        return self._parse_ini_file(file_path)
+        try:
+            if file_path.suffix == ".toml":
+                return self._parse_toml_file(file_path)
+            return self._parse_ini_file(file_path)
+        except (configparser.Error, tomllib.TOMLDecodeError) as e:
+            self.linter.add_message("config-parse-error", line=0, args=str(e))
+            return {}, []

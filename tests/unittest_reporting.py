@@ -3,6 +3,9 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 # pylint: disable=redefined-outer-name
+
+from __future__ import annotations
+
 import sys
 import warnings
 from contextlib import redirect_stdout
@@ -13,7 +16,6 @@ from typing import TYPE_CHECKING
 import pytest
 
 from pylint import checkers
-from pylint.interfaces import IReporter
 from pylint.lint import PyLinter
 from pylint.reporters import BaseReporter
 from pylint.reporters.text import ParseableTextReporter, TextReporter
@@ -36,7 +38,7 @@ def disable():
 def test_template_option(linter):
     output = StringIO()
     linter.reporter.out = output
-    linter.set_option("msg-template", "{msg_id}:{line:03d}")
+    linter.config.msg_template = "{msg_id}:{line:03d}"
     linter.open()
     linter.set_current_module("0123")
     linter.add_message("C0301", line=1, args=(1, 2))
@@ -62,9 +64,8 @@ def test_template_option_end_line(linter) -> None:
     """Test the msg-template option with end_line and end_column."""
     output = StringIO()
     linter.reporter.out = output
-    linter.set_option(
-        "msg-template",
-        "{path}:{line}:{column}:{end_line}:{end_column}: {msg_id}: {msg} ({symbol})",
+    linter.config.msg_template = (
+        "{path}:{line}:{column}:{end_line}:{end_column}: {msg_id}: {msg} ({symbol})"
     )
     linter.open()
     linter.set_current_module("my_mod")
@@ -85,9 +86,8 @@ def test_template_option_non_existing(linter) -> None:
     """
     output = StringIO()
     linter.reporter.out = output
-    linter.set_option(
-        "msg-template",
-        "{path}:{line}:{a_new_option}:({a_second_new_option:03d})",
+    linter.config.msg_template = (
+        "{path}:{line}:{a_new_option}:({a_second_new_option:03d})"
     )
     linter.open()
     with pytest.warns(UserWarning) as records:
@@ -150,7 +150,6 @@ def test_parseable_output_regression():
 
 
 class NopReporter(BaseReporter):
-    __implements__ = IReporter
     name = "nop-reporter"
     extension = ""
 
@@ -161,7 +160,7 @@ class NopReporter(BaseReporter):
     def writeln(self, string=""):
         pass
 
-    def _display(self, layout: "Section") -> None:
+    def _display(self, layout: Section) -> None:
         pass
 
 
@@ -180,9 +179,10 @@ def test_multi_format_output(tmp_path):
         linter = PyLinter()
         linter.load_default_plugins()
         linter.set_option("persistent", False)
-        linter.set_option("output-format", formats)
         linter.set_option("reports", True)
         linter.set_option("score", True)
+        linter.set_option("score", True)
+        linter.set_option("output-format", formats)
 
         assert linter.reporter.linter is linter
         with pytest.raises(NotImplementedError):
@@ -329,7 +329,7 @@ def test_multi_format_output(tmp_path):
 
 def test_display_results_is_renamed():
     class CustomReporter(TextReporter):
-        def _display(self, layout: "Section") -> None:
+        def _display(self, layout: Section) -> None:
             return None
 
     reporter = CustomReporter()

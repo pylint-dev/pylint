@@ -2,36 +2,36 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
+import abc
 import functools
-import sys
+import warnings
 from inspect import cleandoc
-from typing import Any, Optional
+from tokenize import TokenInfo
+from typing import TYPE_CHECKING, Any
 
 from astroid import nodes
 
-from pylint.config import OptionsProviderMixIn
-from pylint.config.exceptions import MissingArgumentManager
-from pylint.constants import _MSG_ORDER, WarningScope
+from pylint.config.arguments_provider import _ArgumentsProvider
+from pylint.constants import _MSG_ORDER, MAIN_CHECKER_NAME, WarningScope
 from pylint.exceptions import InvalidMessageError
 from pylint.interfaces import Confidence, IRawChecker, ITokenChecker, implements
 from pylint.message.message_definition import MessageDefinition
+from pylint.typing import Options
 from pylint.utils import get_rst_section, get_rst_title
 
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 
 @functools.total_ordering
-class BaseChecker(OptionsProviderMixIn):
+class BaseChecker(_ArgumentsProvider):
 
     # checker name (you may reuse an existing one)
     name: str = ""
-    # options level (0 will be displaying in --help, 1 in --long-help)
-    level = 1
     # ordered list of options to control the checker behaviour
-    options: Any = ()
+    options: Options = ()
     # messages issued by this checker
     msgs: Any = {}
     # reports issued by this checker
@@ -39,32 +39,39 @@ class BaseChecker(OptionsProviderMixIn):
     # mark this checker as enabled or not.
     enabled: bool = True
 
-    def __init__(
-        self, linter=None, *, future_option_parsing: Literal[None, True] = None
-    ):
-        """Checker instances should have the linter as argument.
-
-        :param ILinter linter: is an object implementing ILinter.
-        :raises MissingArgumentManager: If no linter object is passed.
-        """
+    def __init__(self, linter: PyLinter) -> None:
+        """Checker instances should have the linter as argument."""
+        if getattr(self, "__implements__", None):
+            warnings.warn(
+                "Using the __implements__ inheritance pattern for BaseChecker is no "
+                "longer supported. Child classes should only inherit BaseChecker or any "
+                "of the other checker types from pylint.checkers.",
+                DeprecationWarning,
+            )
         if self.name is not None:
             self.name = self.name.lower()
         self.linter = linter
-        super().__init__()
 
-        if future_option_parsing:
-            # We need a PyLinter object that subclasses _ArgumentsManager to register options
-            if not self.linter:
-                raise MissingArgumentManager
+        _ArgumentsProvider.__init__(self, linter)
 
-            self.linter._register_options_provider(self)
+    def __gt__(self, other: Any) -> bool:
+        """Sorting of checkers."""
+        if not isinstance(other, BaseChecker):
+            return False
+        if self.name == MAIN_CHECKER_NAME:
+            return False
+        if other.name == MAIN_CHECKER_NAME:
+            return True
+        if type(self).__module__.startswith("pylint.checkers") and not type(
+            other
+        ).__module__.startswith("pylint.checkers"):
+            return False
+        return self.name > other.name
 
-    def __gt__(self, other):
-        """Permit to sort a list of Checker by name."""
-        return f"{self.name}{self.msgs}".__gt__(f"{other.name}{other.msgs}")
-
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         """Permit to assert Checkers are equal."""
+        if not isinstance(other, BaseChecker):
+            return False
         return f"{self.name}{self.msgs}" == f"{other.name}{other.msgs}"
 
     def __hash__(self):
@@ -82,9 +89,11 @@ class BaseChecker(OptionsProviderMixIn):
 
         See: MessageHandlerMixIn.get_full_documentation()
         """
-        return self.get_full_documentation(
-            msgs=self.msgs, options=self.options_and_values(), reports=self.reports
-        )
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            return self.get_full_documentation(
+                msgs=self.msgs, options=self.options_and_values(), reports=self.reports
+            )
 
     def get_full_documentation(self, msgs, options, reports, doc=None, module=None):
         result = ""
@@ -126,13 +135,13 @@ class BaseChecker(OptionsProviderMixIn):
     def add_message(
         self,
         msgid: str,
-        line: Optional[int] = None,
-        node: Optional[nodes.NodeNG] = None,
+        line: int | None = None,
+        node: nodes.NodeNG | None = None,
         args: Any = None,
-        confidence: Optional[Confidence] = None,
-        col_offset: Optional[int] = None,
-        end_lineno: Optional[int] = None,
-        end_col_offset: Optional[int] = None,
+        confidence: Confidence | None = None,
+        col_offset: int | None = None,
+        end_lineno: int | None = None,
+        end_col_offset: int | None = None,
     ) -> None:
         self.linter.add_message(
             msgid, line, node, args, confidence, col_offset, end_lineno, end_col_offset
@@ -160,10 +169,21 @@ class BaseChecker(OptionsProviderMixIn):
             existing_ids.append(message.msgid)
 
     def create_message_definition_from_tuple(self, msgid, msg_tuple):
-        if implements(self, (IRawChecker, ITokenChecker)):
-            default_scope = WarningScope.LINE
-        else:
-            default_scope = WarningScope.NODE
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            if isinstance(self, (BaseTokenChecker, BaseRawFileChecker)):
+                default_scope = WarningScope.LINE
+            # TODO: 3.0: Remove deprecated if-statement # pylint: disable=fixme
+            elif implements(self, (IRawChecker, ITokenChecker)):
+                warnings.warn(  # pragma: no cover
+                    "Checkers should subclass BaseTokenChecker or BaseRawFileChecker"
+                    "instead of using the __implements__ mechanism. Use of __implements__"
+                    "will no longer be supported in pylint 3.0",
+                    DeprecationWarning,
+                )
+                default_scope = WarningScope.LINE  # pragma: no cover
+            else:
+                default_scope = WarningScope.NODE
         options = {}
         if len(msg_tuple) > 3:
             (msg, symbol, descr, options) = msg_tuple
@@ -190,8 +210,6 @@ class BaseChecker(OptionsProviderMixIn):
             for msgid, msg_tuple in sorted(self.msgs.items())
         ]
 
-    # dummy methods implementing the IChecker interface
-
     def get_message_definition(self, msgid):
         for message_definition in self.messages:
             if message_definition.msgid == msgid:
@@ -200,16 +218,37 @@ class BaseChecker(OptionsProviderMixIn):
         error_msg += f"Choose from {[m.msgid for m in self.messages]}."
         raise InvalidMessageError(error_msg)
 
-    def open(self):
+    def open(self) -> None:
         """Called before visiting project (i.e. set of modules)."""
 
-    def close(self):
+    def close(self) -> None:
         """Called after visiting project (i.e set of modules)."""
+
+    # pylint: disable-next=no-self-use
+    def get_map_data(self) -> Any:
+        return None
+
+    # pylint: disable-next=no-self-use, unused-argument
+    def reduce_map_data(self, linter: PyLinter, data: list[Any]) -> None:
+        return None
 
 
 class BaseTokenChecker(BaseChecker):
     """Base class for checkers that want to have access to the token stream."""
 
-    def process_tokens(self, tokens):
+    @abc.abstractmethod
+    def process_tokens(self, tokens: list[TokenInfo]) -> None:
         """Should be overridden by subclasses."""
+        raise NotImplementedError()
+
+
+class BaseRawFileChecker(BaseChecker):
+    """Base class for checkers which need to parse the raw file."""
+
+    @abc.abstractmethod
+    def process_module(self, node: nodes.Module) -> None:
+        """Process a module.
+
+        The module's content is accessible via ``astroid.stream``
+        """
         raise NotImplementedError()

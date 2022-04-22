@@ -3,25 +3,27 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Class to generate files in dot format and image formats supported by Graphviz."""
+
+from __future__ import annotations
+
 import os
 import subprocess
 import sys
 import tempfile
 from pathlib import Path
-from typing import Dict, FrozenSet, List, Optional
 
 from astroid import nodes
 
 from pylint.pyreverse.printer import EdgeType, Layout, NodeProperties, NodeType, Printer
 from pylint.pyreverse.utils import get_annotation_label
 
-ALLOWED_CHARSETS: FrozenSet[str] = frozenset(("utf-8", "iso-8859-1", "latin1"))
-SHAPES: Dict[NodeType, str] = {
+ALLOWED_CHARSETS: frozenset[str] = frozenset(("utf-8", "iso-8859-1", "latin1"))
+SHAPES: dict[NodeType, str] = {
     NodeType.PACKAGE: "box",
     NodeType.INTERFACE: "record",
     NodeType.CLASS: "record",
 }
-ARROWS: Dict[EdgeType, Dict[str, str]] = {
+ARROWS: dict[EdgeType, dict[str, str]] = {
     EdgeType.INHERITS: dict(arrowtail="none", arrowhead="empty"),
     EdgeType.IMPLEMENTS: dict(arrowtail="node", arrowhead="empty", style="dashed"),
     EdgeType.ASSOCIATION: dict(
@@ -37,8 +39,8 @@ class DotPrinter(Printer):
     def __init__(
         self,
         title: str,
-        layout: Optional[Layout] = None,
-        use_automatic_namespace: Optional[bool] = None,
+        layout: Layout | None = None,
+        use_automatic_namespace: bool | None = None,
     ):
         layout = layout or Layout.BOTTOM_TO_TOP
         self.charset = "utf-8"
@@ -59,7 +61,7 @@ class DotPrinter(Printer):
         self,
         name: str,
         type_: NodeType,
-        properties: Optional[NodeProperties] = None,
+        properties: NodeProperties | None = None,
     ) -> None:
         """Create a new node.
 
@@ -80,7 +82,7 @@ class DotPrinter(Printer):
         )
 
     def _build_label_for_node(
-        self, properties: NodeProperties, is_interface: Optional[bool] = False
+        self, properties: NodeProperties, is_interface: bool | None = False
     ) -> str:
         if not properties.label:
             return ""
@@ -95,11 +97,11 @@ class DotPrinter(Printer):
             return label
 
         # Add class attributes
-        attrs: List[str] = properties.attrs or []
+        attrs: list[str] = properties.attrs or []
         label = "{" + label + "|" + r"\l".join(attrs) + r"\l|"
 
         # Add class methods
-        methods: List[nodes.FunctionDef] = properties.methods or []
+        methods: list[nodes.FunctionDef] = properties.methods or []
         for func in methods:
             args = self._get_method_arguments(func)
             label += rf"{func.name}({', '.join(args)})"
@@ -114,7 +116,7 @@ class DotPrinter(Printer):
         from_node: str,
         to_node: str,
         type_: EdgeType,
-        label: Optional[str] = None,
+        label: str | None = None,
     ) -> None:
         """Create an edge from one node to another to display relationships."""
         arrowstyle = ARROWS[type_]

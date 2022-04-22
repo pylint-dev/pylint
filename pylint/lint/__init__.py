@@ -16,6 +16,7 @@
 """
 import sys
 
+from pylint.config.exceptions import ArgumentPreprocessingError
 from pylint.lint.parallel import check_parallel
 from pylint.lint.pylinter import PyLinter
 from pylint.lint.report_functions import (
@@ -24,12 +25,7 @@ from pylint.lint.report_functions import (
     report_total_messages_stats,
 )
 from pylint.lint.run import Run
-from pylint.lint.utils import (
-    ArgumentPreprocessingError,
-    _patch_sys_path,
-    fix_import_path,
-    preprocess_options,
-)
+from pylint.lint.utils import _patch_sys_path, fix_import_path
 
 __all__ = [
     "check_parallel",
@@ -41,7 +37,6 @@ __all__ = [
     "ArgumentPreprocessingError",
     "_patch_sys_path",
     "fix_import_path",
-    "preprocess_options",
 ]
 
 if __name__ == "__main__":

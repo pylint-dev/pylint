@@ -9,7 +9,7 @@ on:
 
 env:
   # Also change CACHE_VERSION in the other workflows
-  CACHE_VERSION: 5
+  CACHE_VERSION: 6
   DEFAULT_PYTHON: 3.8
   PRE_COMMIT_CACHE: ~/.cache/pre-commit
 
@@ -27,12 +27,10 @@ jobs:
       pre-commit-key: ${{ steps.generate-pre-commit-key.outputs.key }}
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.0.0
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v3.0.1
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@v3.0.0
+        uses: actions/setup-python@v3.1.2
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
       - name: Generate partial Python venv restore key
@@ -43,7 +41,7 @@ jobs:
           }}"
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.0
+        uses: actions/cache@v3.0.2
         with:
           path: venv
           key: >-
@@ -58,6 +56,7 @@ jobs:
           . venv/bin/activate
           python -m pip install -U pip setuptools wheel
           pip install -U -r requirements_test.txt
+          pip install -U -r doc/requirements.txt
       - name: Generate pre-commit restore key
         id: generate-pre-commit-key
         run: >-
@@ -65,7 +64,7 @@ jobs:
             hashFiles('.pre-commit-config.yaml') }}"
       - name: Restore pre-commit environment
         id: cache-precommit
-        uses: actions/cache@v3.0.0
+        uses: actions/cache@v3.0.2
         with:
           path: ${{ env.PRE_COMMIT_CACHE }}
           key: >-
@@ -85,15 +84,15 @@ jobs:
     needs: prepare-base
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.0.0
+        uses: actions/checkout@v3.0.1
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@v3.0.0
+        uses: actions/setup-python@v3.1.2
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.0
+        uses: actions/cache@v3.0.2
         with:
           path: venv
           key:
@@ -106,7 +105,7 @@ jobs:
           exit 1
       - name: Restore pre-commit environment
         id: cache-precommit
-        uses: actions/cache@v3.0.0
+        uses: actions/cache@v3.0.2
         with:
           path: ${{ env.PRE_COMMIT_CACHE }}
           key: ${{ runner.os }}-${{ needs.prepare-base.outputs.pre-commit-key }}
@@ -128,15 +127,15 @@ jobs:
     needs: prepare-base
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.0.0
+        uses: actions/checkout@v3.0.1
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@v3.0.0
+        uses: actions/setup-python@v3.1.2
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.0
+        uses: actions/cache@v3.0.2
         with:
           path: venv
           key:
@@ -155,19 +154,19 @@ jobs:
   documentation:
     name: documentation
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     needs: prepare-base
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.0.0
+        uses: actions/checkout@v3.0.1
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@v3.0.0
+        uses: actions/setup-python@v3.1.2
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.0
+        uses: actions/cache@v3.0.2
         with:
           path: venv
           key:
@@ -182,3 +181,8 @@ jobs:
         run: |
           . venv/bin/activate
           pytest doc/test_messages_documentation.py
+      - name: Check documentation build and links
+        run: |
+          . venv/bin/activate
+          cd doc
+          make html

@@ -18,7 +18,6 @@ from pylint.lint import PyLinter
 
 class EqWithoutHash(checkers.BaseChecker):
 
-    __implements__ = interfaces.IAstroidChecker
     name = "eq-without-hash"
 
     msgs = {
@@ -30,7 +29,7 @@ class EqWithoutHash(checkers.BaseChecker):
         ),
     }
 
-    @utils.check_messages("eq-without-hash")
+    @utils.only_required_for_messages("eq-without-hash")
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         locals_and_methods = set(node.locals).union(x.name for x in node.mymethods())
         if "__eq__" in locals_and_methods and "__hash__" not in locals_and_methods:

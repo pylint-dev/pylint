@@ -4,6 +4,7 @@
 
 """Looks for code which can be refactored."""
 
+from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
@@ -25,7 +26,7 @@ __all__ = [
 ]
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(RefactoringChecker(linter))
     linter.register_checker(NotChecker(linter))
     linter.register_checker(RecommendationChecker(linter))

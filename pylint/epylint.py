@@ -36,12 +36,15 @@ For example:
 You may also use py_run to run pylint with desired options and get back (or not)
 its output.
 """
+
+from __future__ import annotations
+
 import os
 import shlex
 import sys
+from collections.abc import Sequence
 from io import StringIO
 from subprocess import PIPE, Popen
-from typing import Optional, Sequence
 
 
 def _get_env():
@@ -164,7 +167,7 @@ def py_run(command_options="", return_std=False, stdout=None, stderr=None):
         return None
 
 
-def Run(argv: Optional[Sequence[str]] = None):
+def Run(argv: Sequence[str] | None = None):
     if not argv and len(sys.argv) == 1:
         print(f"Usage: {sys.argv[0]} <filename> [options]")
         sys.exit(1)

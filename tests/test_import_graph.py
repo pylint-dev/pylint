@@ -4,10 +4,12 @@
 
 # pylint: disable=redefined-outer-name
 
+from __future__ import annotations
+
 import os
 import shutil
+from collections.abc import Iterator
 from os.path import exists
-from typing import Iterator, Union
 
 import pytest
 from _pytest.fixtures import SubRequest
@@ -18,7 +20,7 @@ from pylint.lint import PyLinter
 
 
 @pytest.fixture
-def dest(request: SubRequest) -> Iterator[Union[Iterator, Iterator[str]]]:
+def dest(request: SubRequest) -> Iterator[Iterator | Iterator[str]]:
     dest = request.param
     yield dest
     try:
@@ -81,20 +83,14 @@ def remove_files() -> Iterator:
             pass
 
 
-# pylint: disable-next=fixme
-# TODO: Fix these tests after all necessary options support the argparse framework
-@pytest.mark.xfail(reason="Not all options support argparse parsing")
 @pytest.mark.usefixtures("remove_files")
 def test_checker_dep_graphs(linter: PyLinter) -> None:
-    linter.global_set_option("persistent", False)
-    linter.global_set_option("reports", True)
-    linter.global_set_option("enable", "imports")
-    linter.global_set_option("import-graph", "import.dot")
-    linter.global_set_option("ext-import-graph", "ext_import.dot")
-    linter.global_set_option("int-import-graph", "int_import.dot")
-    linter.global_set_option("int-import-graph", "int_import.dot")
-    # ignore this file causing spurious MemoryError w/ some python version (>=2.3?)
-    linter.global_set_option("ignore", ("func_unknown_encoding.py",))
+    linter.set_option("persistent", False)
+    linter.set_option("reports", True)
+    linter.set_option("enable", "imports")
+    linter.set_option("import_graph", "import.dot")
+    linter.set_option("ext_import_graph", "ext_import.dot")
+    linter.set_option("int_import_graph", "int_import.dot")
     linter.check(["input"])
     linter.generate_reports()
     assert exists("import.dot")

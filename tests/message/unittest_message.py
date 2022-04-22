@@ -2,7 +2,9 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-from typing import ValuesView
+from __future__ import annotations
+
+from collections.abc import ValuesView
 
 from pylint.interfaces import HIGH
 from pylint.message import Message

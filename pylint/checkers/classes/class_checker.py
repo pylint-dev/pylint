@@ -3,10 +3,13 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Classes checker for Python code."""
+
+from __future__ import annotations
+
 import collections
 import sys
 from itertools import chain, zip_longest
-from typing import Dict, List, Pattern, Set
+from re import Pattern
 
 import astroid
 from astroid import bases, nodes
@@ -14,7 +17,6 @@ from astroid import bases, nodes
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import (
     PYMETHODS,
-    check_messages,
     class_is_abstract,
     decorated_with,
     decorated_with_property,
@@ -30,13 +32,13 @@ from pylint.checkers.utils import (
     is_property_setter_or_deleter,
     is_protocol_class,
     node_frame_class,
+    only_required_for_messages,
     overrides_a_method,
     safe_infer,
     unimplemented_abstract_methods,
     uninferable_final_decorators,
 )
-from pylint.interfaces import INFERENCE, IAstroidChecker
-from pylint.utils import get_global_option
+from pylint.interfaces import HIGH, INFERENCE
 
 if sys.version_info >= (3, 8):
     from functools import cached_property
@@ -187,11 +189,11 @@ def _has_different_parameters_default_value(original, overridden):
 
 
 def _has_different_parameters(
-    original: List[nodes.AssignName],
-    overridden: List[nodes.AssignName],
+    original: list[nodes.AssignName],
+    overridden: list[nodes.AssignName],
     dummy_parameter_regex: Pattern,
-) -> List[str]:
-    result: List[str] = []
+) -> list[str]:
+    result: list[str] = []
     zipped = zip_longest(original, overridden)
     for original_param, overridden_param in zipped:
         if not overridden_param:
@@ -218,9 +220,9 @@ def _has_different_parameters(
 
 
 def _has_different_keyword_only_parameters(
-    original: List[nodes.AssignName],
-    overridden: List[nodes.AssignName],
-) -> List[str]:
+    original: list[nodes.AssignName],
+    overridden: list[nodes.AssignName],
+) -> list[str]:
     """Determine if the two methods have different keyword only parameters."""
     original_names = [i.name for i in original]
     overridden_names = [i.name for i in overridden]
@@ -244,7 +246,7 @@ def _different_parameters(
     original: nodes.FunctionDef,
     overridden: nodes.FunctionDef,
     dummy_parameter_regex: Pattern,
-) -> List[str]:
+) -> list[str]:
     """Determine if the two methods have different parameters.
 
     They are considered to have different parameters if:
@@ -533,11 +535,6 @@ MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
         "Used when an ancestor class method has an __init__ method "
         "which is not called by a derived class.",
     ),
-    "W0232": (
-        "Class has no __init__ method",
-        "no-init",
-        "Used when a class has no __init__ method, neither its parent classes.",
-    ),
     "W0233": (
         "__init__ method from a non direct base class %r is called",
         "non-parent-init-called",
@@ -584,6 +581,12 @@ MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
         "redefined-slots-in-subclass",
         "Used when a slot is re-defined in a subclass.",
     ),
+    "W0245": (
+        "Super call without brackets",
+        "super-without-brackets",
+        "Used when a call to super does not have brackets and thus is not an actual "
+        "call and does not work as expected.",
+    ),
     "E0236": (
         "Invalid object %r in __slots__, must contain only non empty strings",
         "invalid-slots-object",
@@ -625,6 +628,12 @@ MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
         "invalid-class-object",
         "Used when an invalid object is assigned to a __class__ property. "
         "Only a class is permitted.",
+    ),
+    "E0244": (
+        'Extending inherited Enum class "%s"',
+        "invalid-enum-extension",
+        "Used when a class tries to extend an inherited Enum class. "
+        "Doing so will raise a TypeError at runtime.",
     ),
     "R0202": (
         "Consider using a decorator instead of calling classmethod",
@@ -690,8 +699,6 @@ class ClassChecker(BaseChecker):
     * attributes not defined in the __init__ method
     * unreachable code
     """
-
-    __implements__ = (IAstroidChecker,)
 
     # configuration section name
     name = "classes"
@@ -760,27 +767,22 @@ a metaclass class method.",
     )
 
     def __init__(self, linter=None):
-        super().__init__(linter, future_option_parsing=True)
+        super().__init__(linter)
         self._accessed = ScopeAccessMap()
         self._first_attrs = []
         self._meth_could_be_func = None
 
     def open(self) -> None:
-        self._mixin_class_rgx = get_global_option(self, "mixin-class-rgx")
-        py_version = get_global_option(self, "py-version")
+        self._mixin_class_rgx = self.linter.config.mixin_class_rgx
+        py_version = self.linter.config.py_version
         self._py38_plus = py_version >= (3, 8)
 
     @cached_property
     def _dummy_rgx(self):
-        return get_global_option(self, "dummy-variables-rgx", default=None)
+        return self.linter.config.dummy_variables_rgx
 
-    @cached_property
-    def _ignore_mixin(self):
-        return get_global_option(self, "ignore-mixin-members", default=True)
-
-    @check_messages(
+    @only_required_for_messages(
         "abstract-method",
-        "no-init",
         "invalid-slots",
         "single-string-used-for-slots",
         "invalid-slots-object",
@@ -790,16 +792,12 @@ a metaclass class method.",
         "inconsistent-mro",
         "duplicate-bases",
         "redefined-slots-in-subclass",
+        "invalid-enum-extension",
+        "subclassed-final-class",
     )
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         """Init visit variable _accessed."""
         self._check_bases_classes(node)
-        # if not an exception or a metaclass
-        if node.type == "class" and has_known_bases(node):
-            try:
-                node.local_attr("__init__")
-            except astroid.NotFoundError:
-                self.add_message("no-init", args=node, node=node)
         self._check_slots(node)
         self._check_proper_bases(node)
         self._check_typing_final(node)
@@ -835,6 +833,18 @@ a metaclass class method.",
             ):
                 self.add_message("inherit-non-class", args=base.as_string(), node=node)
 
+            if (
+                isinstance(ancestor, nodes.ClassDef)
+                and ancestor.is_subtype_of("enum.Enum")
+                and any(isinstance(stmt, nodes.Assign) for stmt in ancestor.body)
+            ):
+                self.add_message(
+                    "invalid-enum-extension",
+                    args=ancestor.name,
+                    node=node,
+                    confidence=INFERENCE,
+                )
+
             if ancestor.name == object.__name__:
                 self.add_message(
                     "useless-object-inheritance", args=node.name, node=node
@@ -859,7 +869,7 @@ a metaclass class method.",
                     node=node,
                 )
 
-    @check_messages(
+    @only_required_for_messages(
         "unused-private-member",
         "attribute-defined-outside-init",
         "access-member-before-definition",
@@ -964,7 +974,7 @@ a metaclass class method.",
             # Logic for checking false positive when using __new__,
             # Get the returned object names of the __new__ magic function
             # Then check if the attribute was consumed in other instance methods
-            acceptable_obj_names: List[str] = ["self"]
+            acceptable_obj_names: list[str] = ["self"]
             scope = assign_attr.scope()
             if isinstance(scope, nodes.FunctionDef) and scope.name == "__new__":
                 acceptable_obj_names.extend(
@@ -1007,7 +1017,11 @@ a metaclass class method.",
 
     def _check_attribute_defined_outside_init(self, cnode: nodes.ClassDef) -> None:
         # check access to existent members on non metaclass classes
-        if self._ignore_mixin and self._mixin_class_rgx.match(cnode.name):
+        if (
+            "attribute-defined-outside-init"
+            in self.linter.config.ignored_checks_for_mixins
+            and self._mixin_class_rgx.match(cnode.name)
+        ):
             # We are in a mixin class. No need to try to figure out if
             # something is missing, since it is most likely that it will
             # miss.
@@ -1019,7 +1033,7 @@ a metaclass class method.",
         # checks attributes are defined in an allowed method such as __init__
         if not self.linter.is_message_enabled("attribute-defined-outside-init"):
             return
-        defining_methods = self.linter.namespace.defining_attr_methods
+        defining_methods = self.linter.config.defining_attr_methods
         current_module = cnode.root()
         for attr, nodes_lst in cnode.instance_attrs.items():
             # Exclude `__dict__` as it is already defined.
@@ -1275,6 +1289,14 @@ a metaclass class method.",
                 if called_annotations != overridden_annotations:
                     return
 
+            if (
+                function.returns is not None
+                and meth_node.returns is not None
+                and meth_node.returns.as_string() != function.returns.as_string()
+            ):
+                # Override adds typing information to the return type
+                return
+
         if _definition_equivalent_to_call(params, args):
             self.add_message(
                 "useless-super-delegation", node=function, args=(function.name,)
@@ -1371,10 +1393,10 @@ a metaclass class method.",
         self,
         node: nodes.ClassDef,
         slots_node: nodes.NodeNG,
-        slots_list: List[nodes.NodeNG],
+        slots_list: list[nodes.NodeNG],
     ) -> None:
         """Check if `node` redefines a slot which is defined in an ancestor class."""
-        slots_names: List[str] = []
+        slots_names: list[str] = []
         for slot in slots_list:
             if isinstance(slot, nodes.Const):
                 slots_names.append(slot.value)
@@ -1409,12 +1431,18 @@ a metaclass class method.",
                 inferred.value, str
             ):
                 self.add_message(
-                    "invalid-slots-object", args=inferred.as_string(), node=elt
+                    "invalid-slots-object",
+                    args=elt.as_string(),
+                    node=elt,
+                    confidence=INFERENCE,
                 )
                 continue
             if not inferred.value:
                 self.add_message(
-                    "invalid-slots-object", args=inferred.as_string(), node=elt
+                    "invalid-slots-object",
+                    args=elt.as_string(),
+                    node=elt,
+                    confidence=INFERENCE,
                 )
 
             # Check if we have a conflict with a class variable.
@@ -1466,6 +1494,8 @@ a metaclass class method.",
         class member from outside its class (but ignore __special__
         methods)
         """
+        self._check_super_without_brackets(node)
+
         # Check self
         if self._uses_mandatory_method_param(node):
             self._accessed.set_accessed(node)
@@ -1475,7 +1505,24 @@ a metaclass class method.",
 
         self._check_protected_attribute_access(node)
 
-    @check_messages("assigning-non-slot", "invalid-class-object")
+    def _check_super_without_brackets(self, node: nodes.Attribute) -> None:
+        """Check if there is a function call on a super call without brackets."""
+        # Check if attribute call is in frame definition in class definition
+        frame = node.frame()
+        if not isinstance(frame, nodes.FunctionDef):
+            return
+        if not isinstance(frame.parent.frame(), nodes.ClassDef):
+            return
+        if not isinstance(node.parent, nodes.Call):
+            return
+        if not isinstance(node.expr, nodes.Name):
+            return
+        if node.expr.name == "super":
+            self.add_message("super-without-brackets", node=node.expr, confidence=HIGH)
+
+    @only_required_for_messages(
+        "assigning-non-slot", "invalid-class-object", "access-member-before-definition"
+    )
     def visit_assignattr(self, node: nodes.AssignAttr) -> None:
         if isinstance(
             node.assign_type(), nodes.AugAssign
@@ -1562,7 +1609,7 @@ a metaclass class method.",
                     return
                 self.add_message("assigning-non-slot", args=(node.attrname,), node=node)
 
-    @check_messages(
+    @only_required_for_messages(
         "protected-access", "no-classmethod-decorator", "no-staticmethod-decorator"
     )
     def visit_assign(self, assign_node: nodes.Assign) -> None:
@@ -1630,7 +1677,7 @@ a metaclass class method.",
 
         if (
             is_attr_protected(attrname)
-            and attrname not in self.linter.namespace.exclude_protected
+            and attrname not in self.linter.config.exclude_protected
         ):
 
             klass = node_frame_class(node)
@@ -1701,7 +1748,7 @@ a metaclass class method.",
 
                 licit_protected_member = not attrname.startswith("__")
                 if (
-                    not self.linter.namespace.check_protected_access_in_special_methods
+                    not self.linter.config.check_protected_access_in_special_methods
                     and licit_protected_member
                     and self._is_called_inside_special_method(node)
                 ):
@@ -1856,9 +1903,8 @@ a metaclass class method.",
         if node.type == "staticmethod":
             if (
                 first_arg == "self"
-                or first_arg in self.linter.namespace.valid_classmethod_first_arg
-                or first_arg
-                in self.linter.namespace.valid_metaclass_classmethod_first_arg
+                or first_arg in self.linter.config.valid_classmethod_first_arg
+                or first_arg in self.linter.config.valid_metaclass_classmethod_first_arg
             ):
                 self.add_message("bad-staticmethod-argument", args=first, node=node)
                 return
@@ -1872,7 +1918,7 @@ a metaclass class method.",
             if node.type == "classmethod":
                 self._check_first_arg_config(
                     first,
-                    self.linter.namespace.valid_metaclass_classmethod_first_arg,
+                    self.linter.config.valid_metaclass_classmethod_first_arg,
                     node,
                     "bad-mcs-classmethod-argument",
                     node.name,
@@ -1881,7 +1927,7 @@ a metaclass class method.",
             else:
                 self._check_first_arg_config(
                     first,
-                    self.linter.namespace.valid_classmethod_first_arg,
+                    self.linter.config.valid_classmethod_first_arg,
                     node,
                     "bad-mcs-method-argument",
                     node.name,
@@ -1890,7 +1936,7 @@ a metaclass class method.",
         elif node.type == "classmethod" or node.name == "__class_getitem__":
             self._check_first_arg_config(
                 first,
-                self.linter.namespace.valid_classmethod_first_arg,
+                self.linter.config.valid_classmethod_first_arg,
                 node,
                 "bad-classmethod-argument",
                 node.name,
@@ -1945,7 +1991,7 @@ a metaclass class method.",
             return
         to_call = _ancestors_to_call(klass_node)
         not_called_yet = dict(to_call)
-        parents_with_called_inits: Set[bases.UnboundMethod] = set()
+        parents_with_called_inits: set[bases.UnboundMethod] = set()
         for stmt in node.nodes_of_class(nodes.Call):
             expr = stmt.func
             if not isinstance(expr, nodes.Attribute) or expr.attrname != "__init__":
@@ -2129,11 +2175,11 @@ a metaclass class method.",
 
 def _ancestors_to_call(
     klass_node: nodes.ClassDef, method="__init__"
-) -> Dict[nodes.ClassDef, bases.UnboundMethod]:
+) -> dict[nodes.ClassDef, bases.UnboundMethod]:
     """Return a dictionary where keys are the list of base classes providing
     the queried method, and so that should/may be called from the method node
     """
-    to_call: Dict[nodes.ClassDef, bases.UnboundMethod] = {}
+    to_call: dict[nodes.ClassDef, bases.UnboundMethod] = {}
     for base_node in klass_node.ancestors(recurs=False):
         try:
             to_call[base_node] = next(base_node.igetattr(method))

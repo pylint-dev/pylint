@@ -2,6 +2,8 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import collections
 import configparser
 import contextlib
@@ -9,12 +11,14 @@ import copy
 import optparse  # pylint: disable=deprecated-module
 import os
 import sys
+import warnings
 from pathlib import Path
-from typing import Dict, List, Optional, TextIO, Tuple
+from typing import Any, TextIO
 
 from pylint import utils
 from pylint.config.option import Option
 from pylint.config.option_parser import OptionParser
+from pylint.typing import OptionDict
 
 if sys.version_info >= (3, 11):
     import tomllib
@@ -60,6 +64,11 @@ class OptionsManagerMixIn:
     """Handle configuration from both a configuration file and command line options."""
 
     def __init__(self, usage):
+        # TODO: 3.0: Remove deprecated class # pylint: disable=fixme
+        warnings.warn(
+            "OptionsManagerMixIn has been deprecated and will be removed in pylint 3.0",
+            DeprecationWarning,
+        )
         self.reset_parsers(usage)
         # list of registered options providers
         self.options_providers = []
@@ -116,7 +125,6 @@ class OptionsManagerMixIn:
                 self.cmdline_parser, title=group_name.capitalize()
             )
             self.cmdline_parser.add_option_group(group)
-            group.level = provider.level
             self._mygroups[group_name] = group
             # add section to the config file
             if (
@@ -185,12 +193,12 @@ class OptionsManagerMixIn:
         self._all_options[opt].set_option(opt, value)
 
     def generate_config(
-        self, stream: Optional[TextIO] = None, skipsections: Tuple[str, ...] = ()
+        self, stream: TextIO | None = None, skipsections: tuple[str, ...] = ()
     ) -> None:
         """Write a configuration file according to the current configuration
         into the given stream or stdout
         """
-        options_by_section: Dict[str, List[Tuple]] = {}
+        options_by_section: dict[str, list[tuple[str, OptionDict, Any]]] = {}
         sections = []
         for provider in self.options_providers:
             for section, options in provider.options_by_section():
@@ -225,7 +233,7 @@ class OptionsManagerMixIn:
             provider.load_defaults()
 
     def read_config_file(
-        self, config_file: Optional[Path] = None, verbose: bool = False
+        self, config_file: Path | None = None, verbose: bool = False
     ) -> None:
         """Read the configuration file but do not load it (i.e. dispatching
         values to each option's provider)
@@ -314,7 +322,7 @@ class OptionsManagerMixIn:
             provider = self._all_options[opt]
             provider.set_option(opt, opt_value)
 
-    def load_command_line_configuration(self, args=None) -> List[str]:
+    def load_command_line_configuration(self, args=None) -> list[str]:
         """Override configuration according to command line parameters.
 
         return additional arguments
@@ -330,15 +338,6 @@ class OptionsManagerMixIn:
                         continue
                     setattr(config, attr, value)
             return args
-
-    def add_help_section(self, title, description, level=0):
-        """Add a dummy option section for help purpose."""
-        group = optparse.OptionGroup(
-            self.cmdline_parser, title=title.capitalize(), description=description
-        )
-        group.level = level
-        self._maxlevel = max(self._maxlevel, level)
-        self.cmdline_parser.add_option_group(group)
 
     def help(self, level=0):
         """Return the usage string for available options."""

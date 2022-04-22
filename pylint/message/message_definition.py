@@ -2,8 +2,10 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import sys
-from typing import TYPE_CHECKING, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any
 
 from astroid import nodes
 
@@ -18,15 +20,15 @@ if TYPE_CHECKING:
 class MessageDefinition:
     def __init__(
         self,
-        checker: "BaseChecker",
+        checker: BaseChecker,
         msgid: str,
         msg: str,
         description: str,
         symbol: str,
         scope: str,
-        minversion: Optional[Tuple[int, int]] = None,
-        maxversion: Optional[Tuple[int, int]] = None,
-        old_names: Optional[List[Tuple[str, str]]] = None,
+        minversion: tuple[int, int] | None = None,
+        maxversion: tuple[int, int] | None = None,
+        old_names: list[tuple[str, str]] | None = None,
     ) -> None:
         self.checker_name = checker.name
         self.check_msgid(msgid)
@@ -37,7 +39,7 @@ class MessageDefinition:
         self.scope = scope
         self.minversion = minversion
         self.maxversion = maxversion
-        self.old_names: List[Tuple[str, str]] = []
+        self.old_names: list[tuple[str, str]] = []
         if old_names:
             for old_msgid, old_symbol in old_names:
                 self.check_msgid(old_msgid)
@@ -51,6 +53,13 @@ class MessageDefinition:
             raise InvalidMessageError(f"Invalid message id {msgid!r}")
         if msgid[0] not in MSG_TYPES:
             raise InvalidMessageError(f"Bad message type {msgid[0]} in {msgid!r}")
+
+    def __eq__(self, other: Any) -> bool:
+        return (
+            isinstance(other, MessageDefinition)
+            and self.msgid == other.msgid
+            and self.symbol == other.symbol
+        )
 
     def __repr__(self) -> str:
         return f"MessageDefinition:{self.symbol} ({self.msgid})"
@@ -93,7 +102,7 @@ class MessageDefinition:
         return f":{message_id}:\n{msg_help}"
 
     def check_message_definition(
-        self, line: Optional[int], node: Optional[nodes.NodeNG]
+        self, line: int | None, node: nodes.NodeNG | None
     ) -> None:
         """Check MessageDefinition for possible errors."""
         if self.msgid[0] not in _SCOPE_EXEMPT:

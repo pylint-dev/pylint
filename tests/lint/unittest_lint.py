@@ -4,24 +4,27 @@
 
 # pylint: disable=redefined-outer-name
 
+from __future__ import annotations
+
+import argparse
 import os
 import re
 import sys
 import tempfile
+from collections.abc import Iterable, Iterator
 from contextlib import contextmanager
 from importlib import reload
 from io import StringIO
 from os import chdir, getcwd
 from os.path import abspath, dirname, join, sep
 from shutil import rmtree
-from typing import Iterable, Iterator, List, Optional, Tuple
 
 import platformdirs
 import pytest
 from pytest import CaptureFixture
 
 from pylint import checkers, config, exceptions, interfaces, lint, testutils
-from pylint.checkers.utils import check_messages
+from pylint.checkers.utils import only_required_for_messages
 from pylint.constants import (
     MSG_STATE_CONFIDENCE,
     MSG_STATE_SCOPE_CONFIG,
@@ -29,7 +32,7 @@ from pylint.constants import (
     OLD_DEFAULT_PYLINT_HOME,
 )
 from pylint.exceptions import InvalidMessageError
-from pylint.lint import ArgumentPreprocessingError, PyLinter, Run, preprocess_options
+from pylint.lint import PyLinter, Run
 from pylint.message import Message
 from pylint.reporters import text
 from pylint.testutils import create_files
@@ -105,7 +108,7 @@ def fake_path() -> Iterator[Iterable[str]]:
     sys.path[:] = orig
 
 
-def test_no_args(fake_path: List[int]) -> None:
+def test_no_args(fake_path: list[int]) -> None:
     with lint.fix_import_path([]):
         assert sys.path == fake_path
     assert sys.path == fake_path
@@ -114,7 +117,7 @@ def test_no_args(fake_path: List[int]) -> None:
 @pytest.mark.parametrize(
     "case", [["a/b/"], ["a/b"], ["a/b/__init__.py"], ["a/"], ["a"]]
 )
-def test_one_arg(fake_path: List[str], case: List[str]) -> None:
+def test_one_arg(fake_path: list[str], case: list[str]) -> None:
     with tempdir() as chroot:
         create_files(["a/b/__init__.py"])
         expected = [join(chroot, "a")] + fake_path
@@ -187,11 +190,10 @@ def initialized_linter(linter: PyLinter) -> PyLinter:
 
 def test_pylint_visit_method_taken_in_account(linter: PyLinter) -> None:
     class CustomChecker(checkers.BaseChecker):
-        __implements__ = interfaces.IAstroidChecker
         name = "custom"
         msgs = {"W9999": ("", "custom", "")}
 
-        @check_messages("custom")
+        @only_required_for_messages("custom")
         def visit_class(self, _):
             pass
 
@@ -239,7 +241,7 @@ def test_enable_message_category(initialized_linter: PyLinter) -> None:
 
 
 def test_message_state_scope(initialized_linter: PyLinter) -> None:
-    class FakeConfig:
+    class FakeConfig(argparse.Namespace):
         confidence = ["HIGH"]
 
     linter = initialized_linter
@@ -359,8 +361,17 @@ def test_report_output_format_aliased(linter: PyLinter) -> None:
 
 def test_set_unsupported_reporter(linter: PyLinter) -> None:
     text.register(linter)
+    # ImportError
     with pytest.raises(exceptions.InvalidReporterError):
         linter.set_option("output-format", "missing.module.Class")
+
+    # AssertionError
+    with pytest.raises(exceptions.InvalidReporterError):
+        linter.set_option("output-format", "lint.unittest_lint._CustomPyLinter")
+
+    # AttributeError
+    with pytest.raises(exceptions.InvalidReporterError):
+        linter.set_option("output-format", "lint.unittest_lint.MyReporter")
 
 
 def test_set_option_1(initialized_linter: PyLinter) -> None:
@@ -392,7 +403,8 @@ def test_enable_checkers(linter: PyLinter) -> None:
 
 def test_errors_only(initialized_linter: PyLinter) -> None:
     linter = initialized_linter
-    linter.error_mode()
+    linter._error_mode = True
+    linter._parse_error_mode()
     checkers = linter.prepare_checkers()
     checker_names = {c.name for c in checkers}
     should_not = {"design", "format", "metrics", "miscellaneous", "similarities"}
@@ -530,7 +542,7 @@ def test_load_plugin_configuration() -> None:
         ],
         exit=False,
     )
-    assert run.linter.config.black_list == ["foo", "bar", "bin"]
+    assert run.linter.config.ignore == ["foo", "bar", "bin"]
 
 
 def test_init_hooks_called_before_load_plugins() -> None:
@@ -538,6 +550,8 @@ def test_init_hooks_called_before_load_plugins() -> None:
         Run(["--load-plugins", "unexistant", "--init-hook", "raise RuntimeError"])
     with pytest.raises(RuntimeError):
         Run(["--init-hook", "raise RuntimeError", "--load-plugins", "unexistant"])
+    with pytest.raises(SystemExit):
+        Run(["--init-hook"])
 
 
 def test_analyze_explicit_script(linter: PyLinter) -> None:
@@ -706,38 +720,6 @@ def test_pylintrc_parentdir_no_package() -> None:
                     assert config.find_pylintrc() == expected
 
 
-class TestPreprocessOptions:
-    def _callback(self, name: str, value: Optional[str]) -> None:
-        self.args.append((name, value))
-
-    def test_value_equal(self) -> None:
-        self.args: List[Tuple[str, Optional[str]]] = []
-        preprocess_options(
-            ["--foo", "--bar=baz", "--qu=ux"],
-            {"foo": (self._callback, False), "qu": (self._callback, True)},
-        )
-        assert [("foo", None), ("qu", "ux")] == self.args
-
-    def test_value_space(self) -> None:
-        self.args = []
-        preprocess_options(["--qu", "ux"], {"qu": (self._callback, True)})
-        assert [("qu", "ux")] == self.args
-
-    @staticmethod
-    def test_error_missing_expected_value() -> None:
-        with pytest.raises(ArgumentPreprocessingError):
-            preprocess_options(["--foo", "--bar", "--qu=ux"], {"bar": (None, True)})
-        with pytest.raises(ArgumentPreprocessingError):
-            preprocess_options(["--foo", "--bar"], {"bar": (None, True)})
-
-    @staticmethod
-    def test_error_unexpected_value() -> None:
-        with pytest.raises(ArgumentPreprocessingError):
-            preprocess_options(
-                ["--foo", "--bar=spam", "--qu=ux"], {"bar": (None, False)}
-            )
-
-
 class _CustomPyLinter(PyLinter):
     @staticmethod
     def should_analyze_file(modname: str, path: str, is_argument: bool = False) -> bool:
@@ -749,6 +731,7 @@ class _CustomPyLinter(PyLinter):
         )
 
 
+@pytest.mark.needs_two_cores
 def test_custom_should_analyze_file() -> None:
     """Check that we can write custom should_analyze_file that work
     even for arguments.
@@ -777,6 +760,7 @@ def test_custom_should_analyze_file() -> None:
 
 # we do the check with jobs=1 as well, so that we are sure that the duplicates
 # are created by the multiprocessing problem.
+@pytest.mark.needs_two_cores
 @pytest.mark.parametrize("jobs", [1, 2])
 def test_multiprocessing(jobs: int) -> None:
     """Check that multiprocessing does not create duplicates."""

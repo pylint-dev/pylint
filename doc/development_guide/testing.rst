@@ -32,7 +32,7 @@ Before writing a new test it is often a good idea to ensure that your change isn
 breaking a current test. You can run our tests using the tox_ package, as in::
 
     python -m tox
-    python -m tox -epy36 # for Python 3.6 suite only
+    python -m tox -epy38 # for Python 3.8 suite only
     python -m tox -epylint # for running Pylint over Pylint's codebase
     python -m tox -eformatting # for running formatting checks over Pylint's codebase
 
@@ -192,6 +192,6 @@ that is too repetitive. This guarantees a good balance between speed of our CI a
 You can find the latest list of repositories and any relevant code for these tests in the ``tests/primer``
 directory.
 
-.. _tox: https://tox.readthedocs.io/en/latest/
-.. _pytest: https://pytest.readthedocs.io/en/latest/
+.. _tox: https://tox.wiki/en/latest/
+.. _pytest: https://docs.pytest.org/en/latest/
 .. _astroid: https://github.com/pycqa/astroid

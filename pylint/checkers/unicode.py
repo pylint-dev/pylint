@@ -10,20 +10,24 @@ See: https://www.python.org/dev/peps/pep-0672/
 
 The following checkers are intended to make users are aware of these issues.
 """
+
+from __future__ import annotations
+
 import codecs
 import contextlib
 import io
 import re
 from collections import OrderedDict
+from collections.abc import Iterable
 from functools import lru_cache
 from tokenize import detect_encoding
-from typing import Dict, Iterable, NamedTuple, Tuple, TypeVar
+from typing import NamedTuple, TypeVar
 
 from astroid import nodes
 
-import pylint.checkers
 import pylint.interfaces
 import pylint.lint
+from pylint import checkers
 
 _StrLike = TypeVar("_StrLike", str, bytes)
 
@@ -100,7 +104,7 @@ BAD_CHARS = [
         "\\x1A",
         "E2512",
         (
-            "Ctrl+Z “End of text” on Windows. Some programs (such as type) ignore "
+            'Ctrl+Z "End of text" on Windows. Some programs (such as type) ignore '
             "the rest of the file after it."
         ),
     ),
@@ -151,10 +155,10 @@ def _line_length(line: _StrLike, codec: str) -> int:
 
 def _map_positions_to_result(
     line: _StrLike,
-    search_dict: Dict[_StrLike, _BadChar],
+    search_dict: dict[_StrLike, _BadChar],
     new_line: _StrLike,
     byte_str_length: int = 1,
-) -> Dict[int, _BadChar]:
+) -> dict[int, _BadChar]:
     """Get all occurrences of search dict keys within line.
 
     Ignores Windows end of line and can handle bytes as well as string.
@@ -162,7 +166,7 @@ def _map_positions_to_result(
     default to 8 Bit.
     """
 
-    result: Dict[int, _BadChar] = {}
+    result: dict[int, _BadChar] = {}
 
     for search_for, char in search_dict.items():
         if search_for not in line:
@@ -294,7 +298,7 @@ def extract_codec_from_bom(first_line: bytes) -> str:
     raise ValueError("No BOM found. Could not detect Unicode codec.")
 
 
-class UnicodeChecker(pylint.checkers.BaseChecker):
+class UnicodeChecker(checkers.BaseRawFileChecker):
     """Check characters that could be used to hide bad code to humans.
 
     This includes:
@@ -313,8 +317,6 @@ class UnicodeChecker(pylint.checkers.BaseChecker):
     https://stackoverflow.com/questions/69897842/ and https://bugs.python.org/issue1503789
     for background.
     """
-
-    __implements__ = pylint.interfaces.IRawChecker
 
     name = "unicode_checker"
 
@@ -357,7 +359,7 @@ class UnicodeChecker(pylint.checkers.BaseChecker):
             "bad-file-encoding",
             (
                 "PEP8 recommends UTF-8 default encoding for Python files. See "
-                "https://www.python.org/dev/peps/pep-0008/#id20"
+                "https://peps.python.org/pep-0008/#source-file-encoding"
             ),
         ),
         **{
@@ -379,7 +381,7 @@ class UnicodeChecker(pylint.checkers.BaseChecker):
         return codec.startswith("utf")
 
     @classmethod
-    def _find_line_matches(cls, line: bytes, codec: str) -> Dict[int, _BadChar]:
+    def _find_line_matches(cls, line: bytes, codec: str) -> dict[int, _BadChar]:
         """Find all matches of BAD_CHARS within line.
 
         Args:
@@ -399,7 +401,7 @@ class UnicodeChecker(pylint.checkers.BaseChecker):
             # If we can't decode properly, we simply use bytes, even so the column offsets
             # might be wrong a bit, but it is still better then nothing
             line_search_byte = line
-            search_dict_byte: Dict[bytes, _BadChar] = {}
+            search_dict_byte: dict[bytes, _BadChar] = {}
             for char in BAD_CHARS:
                 # Some characters might not exist in all encodings
                 with contextlib.suppress(UnicodeDecodeError):
@@ -415,7 +417,7 @@ class UnicodeChecker(pylint.checkers.BaseChecker):
             )
 
     @staticmethod
-    def _determine_codec(stream: io.BytesIO) -> Tuple[str, int]:
+    def _determine_codec(stream: io.BytesIO) -> tuple[str, int]:
         """Determine the codec from the given stream.
 
         first tries https://www.python.org/dev/peps/pep-0263/

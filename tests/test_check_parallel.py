@@ -6,10 +6,11 @@
 
 # pylint: disable=protected-access,missing-function-docstring,no-self-use
 
+from __future__ import annotations
+
 import argparse
 import multiprocessing
 import os
-from typing import List
 
 import dill
 import pytest
@@ -17,8 +18,7 @@ from astroid import nodes
 
 import pylint.interfaces
 import pylint.lint.parallel
-from pylint.checkers.base_checker import BaseChecker
-from pylint.checkers.mapreduce_checker import MapReduceMixin
+from pylint.checkers import BaseRawFileChecker
 from pylint.lint import PyLinter
 from pylint.lint.parallel import _worker_check_single_file as worker_check_single_file
 from pylint.lint.parallel import _worker_initialize as worker_initialize
@@ -41,14 +41,12 @@ def _gen_file_data(idx: int = 0) -> FileItem:
     return file_data
 
 
-def _gen_file_datas(count: int = 1) -> List[FileItem]:
+def _gen_file_datas(count: int = 1) -> list[FileItem]:
     return [_gen_file_data(idx) for idx in range(count)]
 
 
-class SequentialTestChecker(BaseChecker):
+class SequentialTestChecker(BaseRawFileChecker):
     """A checker that does not need to consolidate data across run invocations."""
-
-    __implements__ = (pylint.interfaces.IRawChecker,)
 
     name = "sequential-checker"
     test_data = "sequential"
@@ -62,17 +60,17 @@ class SequentialTestChecker(BaseChecker):
 
     def __init__(self, linter: PyLinter) -> None:
         super().__init__(linter)
-        self.data: List[str] = []
+        self.data: list[str] = []
         self.linter = linter
 
-    def process_module(self, _node: nodes.Module) -> None:
+    def process_module(self, node: nodes.Module) -> None:
         """Called once per stream/file/astroid object."""
         # record the number of invocations with the data object
         record = self.test_data + str(len(self.data))
         self.data.append(record)
 
 
-class ParallelTestChecker(BaseChecker, MapReduceMixin):
+class ParallelTestChecker(BaseRawFileChecker):
     """A checker that does need to consolidate data.
 
     To simulate the need to consolidate data, this checker only
@@ -87,8 +85,6 @@ class ParallelTestChecker(BaseChecker, MapReduceMixin):
     from reduce_map_data.
     """
 
-    __implements__ = (pylint.interfaces.IRawChecker,)
-
     name = "parallel-checker"
     test_data = "parallel"
     msgs = {
@@ -101,7 +97,7 @@ class ParallelTestChecker(BaseChecker, MapReduceMixin):
 
     def __init__(self, linter: PyLinter) -> None:
         super().__init__(linter)
-        self.data: List[str] = []
+        self.data: list[str] = []
         self.linter = linter
 
     def open(self) -> None:
@@ -116,7 +112,7 @@ class ParallelTestChecker(BaseChecker, MapReduceMixin):
     def get_map_data(self):
         return self.data
 
-    def reduce_map_data(self, linter: PyLinter, data: List[List[str]]) -> None:
+    def reduce_map_data(self, linter: PyLinter, data: list[list[str]]) -> None:
         recombined = type(self)(linter)
         recombined.open()
         aggregated = []
@@ -126,7 +122,7 @@ class ParallelTestChecker(BaseChecker, MapReduceMixin):
             self.add_message("R9999", args=("From reduce_map_data",))
         recombined.close()
 
-    def process_module(self, _node: nodes.Module) -> None:
+    def process_module(self, node: nodes.Module) -> None:
         """Called once per stream/file/astroid object."""
         # record the number of invocations with the data object
         record = self.test_data + str(len(self.data))
@@ -175,6 +171,7 @@ class TestCheckParallelFramework:
         worker_initialize(linter=dill.dumps(linter))
         assert isinstance(pylint.lint.parallel._worker_linter, type(linter))
 
+    @pytest.mark.needs_two_cores
     def test_worker_initialize_pickling(self) -> None:
         """Test that we can pickle objects that standard pickling in multiprocessing can't.
 
@@ -393,6 +390,7 @@ class TestCheckParallel:
         assert linter.stats.warning == 0
         assert linter.msg_status == 0, "We expect a single-file check to exit cleanly"
 
+    @pytest.mark.needs_two_cores
     @pytest.mark.parametrize(
         "num_files,num_jobs,num_checkers",
         [
@@ -490,6 +488,7 @@ class TestCheckParallel:
             expected_stats
         ), "The lint is returning unexpected results, has something changed?"
 
+    @pytest.mark.needs_two_cores
     @pytest.mark.parametrize(
         "num_files,num_jobs,num_checkers",
         [

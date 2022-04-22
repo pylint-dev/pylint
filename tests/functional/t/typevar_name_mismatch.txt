@@ -1,0 +1,19 @@
+typevar-name-mismatch:10:0:10:1::"TypeVar name ""T"" does not match assigned variable name ""X""":INFERENCE
+typevar-name-mismatch:11:0:11:4::"TypeVar name ""T_co"" does not match assigned variable name ""X_co""":INFERENCE
+typevar-name-mismatch:12:0:12:8::"TypeVar name ""T_contra"" does not match assigned variable name ""X_contra""":INFERENCE
+typevar-name-mismatch:13:0:13:4::"TypeVar name ""T"" does not match assigned variable name ""X_co""":INFERENCE
+typevar-name-mismatch:13:6:13:14::"TypeVar name ""T"" does not match assigned variable name ""X_contra""":INFERENCE
+typevar-name-incorrect-variance:24:0:24:1::"Type variable name does not reflect variance. ""X"" is contravariant, use ""X_contra"" instead":INFERENCE
+typevar-name-mismatch:24:0:24:1::"TypeVar name ""T"" does not match assigned variable name ""X""":INFERENCE
+typevar-double-variance:25:0:25:1::TypeVar cannot be both covariant and contravariant:INFERENCE
+typevar-name-incorrect-variance:25:0:25:1::Type variable name does not reflect variance:INFERENCE
+typevar-name-mismatch:25:0:25:1::"TypeVar name ""T"" does not match assigned variable name ""X""":INFERENCE
+typevar-name-incorrect-variance:30:0:30:4::"Type variable name does not reflect variance. ""X_co"" is invariant, use ""X"" instead":INFERENCE
+typevar-name-mismatch:30:0:30:4::"TypeVar name ""T_co"" does not match assigned variable name ""X_co""":INFERENCE
+typevar-name-incorrect-variance:31:0:31:8::"Type variable name does not reflect variance. ""X_contra"" is covariant, use ""X_co"" instead":INFERENCE
+typevar-name-mismatch:31:0:31:8::"TypeVar name ""T_contra"" does not match assigned variable name ""X_contra""":INFERENCE
+typevar-name-mismatch:43:0:43:1::"TypeVar name ""T"" does not match assigned variable name ""X""":INFERENCE
+typevar-name-mismatch:44:0:44:4::"TypeVar name ""T_co"" does not match assigned variable name ""X_co""":INFERENCE
+typevar-name-mismatch:45:0:45:8::"TypeVar name ""T_contra"" does not match assigned variable name ""X_contra""":INFERENCE
+typevar-name-mismatch:46:0:46:4::"TypeVar name ""T_co"" does not match assigned variable name ""X_co""":INFERENCE
+typevar-name-mismatch:47:0:47:8::"TypeVar name ""T_contra"" does not match assigned variable name ""X_contra""":INFERENCE

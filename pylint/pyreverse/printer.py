@@ -3,9 +3,12 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Base class defining the interface for a printer."""
+
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import List, NamedTuple, Optional
+from typing import NamedTuple
 
 from astroid import nodes
 
@@ -34,10 +37,10 @@ class Layout(Enum):
 
 class NodeProperties(NamedTuple):
     label: str
-    attrs: Optional[List[str]] = None
-    methods: Optional[List[nodes.FunctionDef]] = None
-    color: Optional[str] = None
-    fontcolor: Optional[str] = None
+    attrs: list[str] | None = None
+    methods: list[nodes.FunctionDef] | None = None
+    color: str | None = None
+    fontcolor: str | None = None
 
 
 class Printer(ABC):
@@ -46,13 +49,13 @@ class Printer(ABC):
     def __init__(
         self,
         title: str,
-        layout: Optional[Layout] = None,
-        use_automatic_namespace: Optional[bool] = None,
+        layout: Layout | None = None,
+        use_automatic_namespace: bool | None = None,
     ) -> None:
         self.title: str = title
         self.layout = layout
         self.use_automatic_namespace = use_automatic_namespace
-        self.lines: List[str] = []
+        self.lines: list[str] = []
         self._indent = ""
         self._open_graph()
 
@@ -68,7 +71,7 @@ class Printer(ABC):
     def _open_graph(self) -> None:
         """Emit the header lines, i.e. all boilerplate code that defines things like layout etc."""
 
-    def emit(self, line: str, force_newline: Optional[bool] = True) -> None:
+    def emit(self, line: str, force_newline: bool | None = True) -> None:
         if force_newline and not line.endswith("\n"):
             line += "\n"
         self.lines.append(self._indent + line)
@@ -78,7 +81,7 @@ class Printer(ABC):
         self,
         name: str,
         type_: NodeType,
-        properties: Optional[NodeProperties] = None,
+        properties: NodeProperties | None = None,
     ) -> None:
         """Create a new node.
 
@@ -91,17 +94,17 @@ class Printer(ABC):
         from_node: str,
         to_node: str,
         type_: EdgeType,
-        label: Optional[str] = None,
+        label: str | None = None,
     ) -> None:
         """Create an edge from one node to another to display relationships."""
 
     @staticmethod
-    def _get_method_arguments(method: nodes.FunctionDef) -> List[str]:
+    def _get_method_arguments(method: nodes.FunctionDef) -> list[str]:
         if method.args.args is None:
             return []
 
         first_arg = 0 if method.type in {"function", "staticmethod"} else 1
-        arguments: List[nodes.AssignName] = method.args.args[first_arg:]
+        arguments: list[nodes.AssignName] = method.args.args[first_arg:]
 
         annotations = dict(zip(arguments, method.args.annotations[first_arg:]))
         for arg in arguments:

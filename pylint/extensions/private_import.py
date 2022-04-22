@@ -3,13 +3,16 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Check for imports on private external modules and names."""
+
+from __future__ import annotations
+
 from pathlib import Path
-from typing import TYPE_CHECKING, Dict, List, Union
+from typing import TYPE_CHECKING
 
 from astroid import nodes
 
 from pylint.checkers import BaseChecker, utils
-from pylint.interfaces import HIGH, IAstroidChecker
+from pylint.interfaces import HIGH
 
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
@@ -17,7 +20,6 @@ if TYPE_CHECKING:
 
 class PrivateImportChecker(BaseChecker):
 
-    __implements__ = (IAstroidChecker,)
     name = "import-private-name"
     msgs = {
         "C2701": (
@@ -29,14 +31,14 @@ class PrivateImportChecker(BaseChecker):
         ),
     }
 
-    def __init__(self, linter: "PyLinter") -> None:
+    def __init__(self, linter: PyLinter) -> None:
         BaseChecker.__init__(self, linter)
 
         # A mapping of private names used as a type annotation to whether it is an acceptable import
-        self.all_used_type_annotations: Dict[str, bool] = {}
+        self.all_used_type_annotations: dict[str, bool] = {}
         self.populated_annotations = False
 
-    @utils.check_messages("import-private-name")
+    @utils.only_required_for_messages("import-private-name")
     def visit_import(self, node: nodes.Import) -> None:
         if utils.is_node_in_typing_guarded_import_block(node):
             return
@@ -53,7 +55,7 @@ class PrivateImportChecker(BaseChecker):
                 confidence=HIGH,
             )
 
-    @utils.check_messages("import-private-name")
+    @utils.only_required_for_messages("import-private-name")
     def visit_importfrom(self, node: nodes.ImportFrom) -> None:
         if utils.is_node_in_typing_guarded_import_block(node):
             return
@@ -94,7 +96,7 @@ class PrivateImportChecker(BaseChecker):
                 confidence=HIGH,
             )
 
-    def _get_private_imports(self, names: List[str]) -> List[str]:
+    def _get_private_imports(self, names: list[str]) -> list[str]:
         """Returns the private names from input names by a simple string check."""
         return [name for name in names if self._name_is_private(name)]
 
@@ -110,8 +112,8 @@ class PrivateImportChecker(BaseChecker):
         )
 
     def _get_type_annotation_names(
-        self, node: nodes.Import, names: List[str]
-    ) -> List[str]:
+        self, node: nodes.Import | nodes.ImportFrom, names: list[str]
+    ) -> list[str]:
         """Removes from names any names that are used as type annotations with no other illegal usages."""
         if names and not self.populated_annotations:
             self._populate_type_annotations(node.root(), self.all_used_type_annotations)
@@ -128,7 +130,7 @@ class PrivateImportChecker(BaseChecker):
         ]
 
     def _populate_type_annotations(
-        self, node: nodes.LocalsDictNodeNG, all_used_type_annotations: Dict[str, bool]
+        self, node: nodes.LocalsDictNodeNG, all_used_type_annotations: dict[str, bool]
     ) -> None:
         """Adds into the dict `all_used_type_annotations` the names of all names ever used as a type annotation
         in the scope and nested scopes of node and whether these names are only used for type checking.
@@ -166,7 +168,7 @@ class PrivateImportChecker(BaseChecker):
                 ] = self._assignments_call_private_name(name_assignments, private_name)
 
     def _populate_type_annotations_function(
-        self, node: nodes.FunctionDef, all_used_type_annotations: Dict[str, bool]
+        self, node: nodes.FunctionDef, all_used_type_annotations: dict[str, bool]
     ) -> None:
         """Adds into the dict `all_used_type_annotations` the names of all names used as a type annotation
         in the arguments and return type of the function node.
@@ -183,9 +185,9 @@ class PrivateImportChecker(BaseChecker):
 
     def _populate_type_annotations_annotation(
         self,
-        node: Union[nodes.Attribute, nodes.Subscript, nodes.Name],
-        all_used_type_annotations: Dict[str, bool],
-    ) -> Union[str, None]:
+        node: nodes.Attribute | nodes.Subscript | nodes.Name | None,
+        all_used_type_annotations: dict[str, bool],
+    ) -> str | None:
         """Handles the possiblity of an annotation either being a Name, i.e. just type,
         or a Subscript e.g. `Optional[type]` or an Attribute, e.g. `pylint.lint.linter`.
         """
@@ -210,7 +212,7 @@ class PrivateImportChecker(BaseChecker):
 
     @staticmethod
     def _assignments_call_private_name(
-        assignments: List[Union[nodes.AnnAssign, nodes.Assign]], private_name: str
+        assignments: list[nodes.AnnAssign | nodes.Assign], private_name: str
     ) -> bool:
         """Returns True if no assignments involve accessing `private_name`."""
         if all(not assignment.value for assignment in assignments):
@@ -238,7 +240,9 @@ class PrivateImportChecker(BaseChecker):
         return True
 
     @staticmethod
-    def same_root_dir(node: nodes.Import, import_mod_name: str) -> bool:
+    def same_root_dir(
+        node: nodes.Import | nodes.ImportFrom, import_mod_name: str
+    ) -> bool:
         """Does the node's file's path contain the base name of `import_mod_name`?"""
         if not import_mod_name:  # from . import ...
             return True
@@ -248,5 +252,5 @@ class PrivateImportChecker(BaseChecker):
         return base_import_package in Path(node.root().file).parent.parts
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(PrivateImportChecker(linter))

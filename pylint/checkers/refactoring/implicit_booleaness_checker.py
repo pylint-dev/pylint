@@ -2,12 +2,12 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-from typing import List, Union
+from __future__ import annotations
 
 import astroid
 from astroid import bases, nodes
 
-from pylint import checkers, interfaces
+from pylint import checkers
 from pylint.checkers import utils
 
 
@@ -50,8 +50,6 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
     * comparison such as variable != empty_literal:
     """
 
-    __implements__ = (interfaces.IAstroidChecker,)
-
     # configuration section name
     name = "refactoring"
     msgs = {
@@ -76,7 +74,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
 
     options = ()
 
-    @utils.check_messages("use-implicit-booleaness-not-len")
+    @utils.only_required_for_messages("use-implicit-booleaness-not-len")
     def visit_call(self, node: nodes.Call) -> None:
         # a len(S) call is used inside a test condition
         # could be if, while, assert or if expression statement
@@ -126,7 +124,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
             ...
         return False
 
-    @utils.check_messages("use-implicit-booleaness-not-len")
+    @utils.only_required_for_messages("use-implicit-booleaness-not-len")
     def visit_unaryop(self, node: nodes.UnaryOp) -> None:
         """`not len(S)` must become `not S` regardless if the parent block
         is a test condition or something else (boolean expression) e.g. `if not len(S):`
@@ -138,7 +136,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
         ):
             self.add_message("use-implicit-booleaness-not-len", node=node)
 
-    @utils.check_messages("use-implicit-booleaness-not-comparison")
+    @utils.only_required_for_messages("use-implicit-booleaness-not-comparison")
     def visit_compare(self, node: nodes.Compare) -> None:
         self._check_use_implicit_booleaness_not_comparison(node)
 
@@ -209,9 +207,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
                     )
 
     @staticmethod
-    def base_names_of_instance(
-        node: Union[bases.Uninferable, bases.Instance]
-    ) -> List[str]:
+    def base_names_of_instance(node: bases.Uninferable | bases.Instance) -> list[str]:
         """Return all names inherited by a class instance or those returned by a function.
 
         The inherited names include 'object'.

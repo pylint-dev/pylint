@@ -2,13 +2,14 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-from typing import TYPE_CHECKING, List
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import check_messages, is_none, node_type
-from pylint.interfaces import IAstroidChecker
+from pylint.checkers.utils import is_none, node_type, only_required_for_messages
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -28,8 +29,6 @@ class MultipleTypesChecker(BaseChecker):
       str.split()
     """
 
-    __implements__ = IAstroidChecker
-
     name = "multiple_types"
     msgs = {
         "R0204": (
@@ -43,7 +42,7 @@ class MultipleTypesChecker(BaseChecker):
     def visit_classdef(self, _: nodes.ClassDef) -> None:
         self._assigns.append({})
 
-    @check_messages("redefined-variable-type")
+    @only_required_for_messages("redefined-variable-type")
     def leave_classdef(self, _: nodes.ClassDef) -> None:
         self._check_and_add_messages()
 
@@ -51,7 +50,7 @@ class MultipleTypesChecker(BaseChecker):
     leave_functiondef = leave_module = leave_classdef
 
     def visit_module(self, _: nodes.Module) -> None:
-        self._assigns: List[dict] = [{}]
+        self._assigns: list[dict] = [{}]
 
     def _check_and_add_messages(self):
         assigns = self._assigns.pop()
@@ -105,5 +104,5 @@ class MultipleTypesChecker(BaseChecker):
             )
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(MultipleTypesChecker(linter))

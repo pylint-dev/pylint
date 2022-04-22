@@ -2,13 +2,16 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
+from tokenize import TokenInfo
 from typing import TYPE_CHECKING
 
 from astroid import nodes
 
 from pylint.checkers import BaseTokenChecker
-from pylint.checkers.utils import check_messages
-from pylint.interfaces import HIGH, IAstroidChecker, ITokenChecker
+from pylint.checkers.utils import only_required_for_messages
+from pylint.interfaces import HIGH
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -17,7 +20,6 @@ if TYPE_CHECKING:
 class ElseifUsedChecker(BaseTokenChecker):
     """Checks for use of "else if" when an "elif" could be used."""
 
-    __implements__ = (ITokenChecker, IAstroidChecker)
     name = "else_if_used"
     msgs = {
         "R5501": (
@@ -36,7 +38,7 @@ class ElseifUsedChecker(BaseTokenChecker):
     def _init(self):
         self._elifs = {}
 
-    def process_tokens(self, tokens):
+    def process_tokens(self, tokens: list[TokenInfo]) -> None:
         """Process tokens and look for 'if' or 'elif'."""
         self._elifs = {
             begin: token for _, token, begin, _, _ in tokens if token in {"elif", "if"}
@@ -45,7 +47,7 @@ class ElseifUsedChecker(BaseTokenChecker):
     def leave_module(self, _: nodes.Module) -> None:
         self._init()
 
-    @check_messages("else-if-used")
+    @only_required_for_messages("else-if-used")
     def visit_if(self, node: nodes.If) -> None:
         """Current if node must directly follow an 'else'."""
         if (
@@ -57,5 +59,5 @@ class ElseifUsedChecker(BaseTokenChecker):
             self.add_message("else-if-used", node=node, confidence=HIGH)
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(ElseifUsedChecker(linter))
