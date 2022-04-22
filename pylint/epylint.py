@@ -45,10 +45,10 @@ import sys
 from collections.abc import Sequence
 from io import StringIO
 from subprocess import PIPE, Popen
-from typing import NoReturn
+from typing import NoReturn, TextIO
 
 
-def _get_env():
+def _get_env() -> dict[str, str]:
     """Extracts the environment PYTHONPATH and appends the current 'sys.path'
     to it.
     """
@@ -57,7 +57,7 @@ def _get_env():
     return env
 
 
-def lint(filename, options=()):
+def lint(filename: str, options: Sequence[str] = ()) -> int:
     """Pylint the given file.
 
     When run from emacs we will be in the directory of a file, and passed its
@@ -103,7 +103,7 @@ def lint(filename, options=()):
         cmd, stdout=PIPE, cwd=parent_path, env=_get_env(), universal_newlines=True
     ) as process:
 
-        for line in process.stdout:
+        for line in process.stdout:  # type: ignore[union-attr]
             # remove pylintrc warning
             if line.startswith("No config file found"):
                 continue
@@ -118,7 +118,12 @@ def lint(filename, options=()):
         return process.returncode
 
 
-def py_run(command_options="", return_std=False, stdout=None, stderr=None):
+def py_run(
+    command_options: str = "",
+    return_std: bool = False,
+    stdout: TextIO | int | None = None,
+    stderr: TextIO | int | None = None,
+) -> tuple[StringIO, StringIO] | None:
     """Run pylint from python.
 
     ``command_options`` is a string containing ``pylint`` command line options;
