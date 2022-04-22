@@ -245,13 +245,13 @@ def hash_lineset(
     return hash2index, index2lines
 
 
-def remove_successives(all_couples: CplIndexToCplLines_T) -> None:
+def remove_successive(all_couples: CplIndexToCplLines_T) -> None:
     """Removes all successive entries in the dictionary in argument.
 
-    :param all_couples: collection that has to be cleaned up from successives entries.
+    :param all_couples: collection that has to be cleaned up from successive entries.
                         The keys are couples of indices that mark the beginning of common entries
                         in both linesets. The values have two parts. The first one is the couple
-                        of starting and ending line numbers of common successives lines in the first file.
+                        of starting and ending line numbers of common successive lines in the first file.
                         The second part is the same for the second file.
 
     For example consider the following dict:
@@ -261,11 +261,11 @@ def remove_successives(all_couples: CplIndexToCplLines_T) -> None:
      (23, 79): ([15, 19], [45, 49]),
      (12, 35): ([6, 10], [28, 32])}
 
-    There are two successives keys (11, 34) and (12, 35).
+    There are two successive keys (11, 34) and (12, 35).
     It means there are two consecutive similar chunks of lines in both files.
     Thus remove last entry and update the last line numbers in the first entry
 
-    >>> remove_successives(all_couples)
+    >>> remove_successive(all_couples)
     >>> all_couples
     {(11, 34): ([5, 10], [27, 32]),
      (23, 79): ([15, 19], [45, 49])}
@@ -300,14 +300,14 @@ def filter_noncode_lines(
 
     That is to say the number of common successive stripped
     lines except those that do not contain code (for example
-    a line with only an ending parathensis)
+    a line with only an ending parenthesis)
 
     :param ls_1: first lineset
     :param stindex_1: first lineset starting index
     :param ls_2: second lineset
     :param stindex_2: second lineset starting index
     :param common_lines_nb: number of common successive stripped lines before being filtered from non code lines
-    :return: the number of common successives stripped lines that contain code
+    :return: the number of common successive stripped lines that contain code
     """
     stripped_l1 = [
         lspecif.text
@@ -506,7 +506,7 @@ class Similar:
                     effective_cmn_lines_nb=self.namespace.min_similarity_lines,
                 )
 
-        remove_successives(all_couples)
+        remove_successive(all_couples)
 
         for cml_stripped_l, cmn_l in all_couples.items():
             start_index_1 = cml_stripped_l.fst_lineset_index

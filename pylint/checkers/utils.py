@@ -1399,7 +1399,7 @@ def is_node_in_type_annotation_context(node: nodes.NodeNG) -> bool:
     """Check if node is in type annotation context.
 
     Check for 'AnnAssign', function 'Arguments',
-    or part of function return type anntation.
+    or part of function return type annotation.
     """
     # pylint: disable=too-many-boolean-expressions
     current_node, parent_node = node, node.parent

@@ -7,7 +7,7 @@
 
 """Emacs and Flymake compatible Pylint.
 
-This script is for integration with Emacs and is compatible with flymake mode.
+This script is for integration with Emacs and is compatible with Flymake mode.
 
 epylint walks out of python packages before invoking pylint. This avoids
 reporting import errors that occur when a module within a package uses the

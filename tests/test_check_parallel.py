@@ -351,7 +351,7 @@ class TestCheckParallel:
         assert linter.stats.warning == 0
 
     def test_invoke_single_job(self) -> None:
-        """Tests basic checkers functionality using just a single workderdo.
+        """Tests basic checkers functionality using just a single worker.
 
         This is *not* the same -j1 and does not happen under normal operation
         """
@@ -418,7 +418,7 @@ class TestCheckParallel:
         without ordering issues, irrespective of the number of workers used and the
         number of checkers applied.
 
-        This test becomes more important if we want to change how we parametrise the
+        This test becomes more important if we want to change how we parametrize the
         checkers, for example if we aim to batch the files across jobs.
         """
 

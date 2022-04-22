@@ -210,7 +210,7 @@ class PyLinter(
     generation. It is itself both a raw checker and an astroid checker in order
     to:
     * handle message activation / deactivation at the module level
-    * handle some basic but necessary stats'data (number of classes, methods...)
+    * handle some basic but necessary stats' data (number of classes, methods...)
 
     IDE plugin developers: you may have to call
     `astroid.builder.MANAGER.astroid_cache.clear()` across runs if you want

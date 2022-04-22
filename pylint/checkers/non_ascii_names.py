@@ -149,7 +149,7 @@ class NonAsciiNameChecker(base_checker.BaseChecker):
             # Possibilities here:
             # - isinstance(node.assign_type(), nodes.Comprehension) == inlinevar
             # - isinstance(frame, nodes.Module) == variable (constant?)
-            # - some other kind of assigment missed but still most likely a variable
+            # - some other kind of assignment missed but still most likely a variable
             self._check_name("variable", node.name, node)
 
     @utils.only_required_for_messages("non-ascii-name")

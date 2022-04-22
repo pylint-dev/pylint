@@ -79,12 +79,12 @@ def is_final(node):
 
 
 def is_interface(node):
-    # bw compat
+    # bw compatibility
     return node.type == "interface"
 
 
 def is_exception(node):
-    # bw compat
+    # bw compatibility
     return node.type == "exception"
 
 
