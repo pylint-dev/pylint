@@ -75,7 +75,7 @@ def _get_ansi_code(msg_style: MessageStyle) -> str:
 
     :param msg_style: the message style
 
-    :raise KeyError: if an unexistent color or style identifier is given
+    :raise KeyError: if a nonexistent color or style identifier is given
 
     :return: the built escape code
     """

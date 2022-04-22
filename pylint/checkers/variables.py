@@ -2586,7 +2586,7 @@ class VariablesChecker(BaseChecker):
                         len(values),
                     ),
                 )
-        # attempt to check unpacking may be possible (i.e.RHS is iterable)
+        # attempt to check unpacking may be possible (i.e. RHS is iterable)
         elif not utils.is_iterable(inferred):
             self.add_message(
                 "unpacking-non-sequence",

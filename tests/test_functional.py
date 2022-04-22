@@ -22,10 +22,6 @@ from pylint.testutils.functional import (
 )
 from pylint.utils import HAS_ISORT_5
 
-# TODOs
-#  - implement exhaustivity tests
-
-
 FUNCTIONAL_DIR = Path(__file__).parent.resolve() / "functional"
 
 

@@ -223,7 +223,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
     "E1101": (
         "%s %r has no %r member%s",
         "no-member",
-        "Used when a variable is accessed for an unexistent member.",
+        "Used when a variable is accessed for a nonexistent member.",
         {"old_names": [("E1103", "maybe-no-member")]},
     ),
     "I1101": (
@@ -499,7 +499,7 @@ def _emit_no_member(
     #   * Walk up recursively until if statement is found.
     #   * Check if condition can be inferred as `Const`,
     #       would evaluate as `False`,
-    #       and wheater the node is part of the `body`.
+    #       and whether the node is part of the `body`.
     #   * Continue checking until scope of node is reached.
     scope: nodes.NodeNG = node.scope()
     node_origin: nodes.NodeNG = node

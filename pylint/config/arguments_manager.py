@@ -488,7 +488,7 @@ class _ArgumentsManager:
         """DEPRECATED: Read the configuration file but do not load it (i.e. dispatching
         values to each option's provider)
 
-        :raises OSError: Whem the specified config file doesn't exist
+        :raises OSError: When the specified config file doesn't exist
         """
         warnings.warn(
             "read_config_file has been deprecated. It will be removed in pylint 3.0.",
@@ -529,7 +529,7 @@ class _ArgumentsManager:
     ) -> None:  # pragma: no cover
         """DEPRECATED: Parse and handle errors of a toml configuration file.
 
-        TODO: 3.0: Remove depreacted method.
+        TODO: 3.0: Remove deprecated method.
         """
         with open(config_file, mode="rb") as fp:
             content = tomllib.load(fp)

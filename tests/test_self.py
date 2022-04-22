@@ -570,8 +570,7 @@ class TestRunTC:
                     expected_output=expected,
                 )
 
-            # this code needs to work w/ and w/o a file named a/b.py on the
-            # harddisk.
+            # this code needs to work w/ and w/o a file named a/b.py on the hard disk.
             with mock.patch("pylint.lint.pylinter._read_stdin", return_value=b_code):
                 self._test_output(
                     [

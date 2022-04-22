@@ -144,6 +144,7 @@ INI
 init
 initializer
 inlinevar
+instantiated
 instantiation
 isdir
 isfile
@@ -312,6 +313,7 @@ supcls
 superclass
 symilar
 sys
+tbump
 tempfile
 testcase
 testdata

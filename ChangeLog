@@ -3188,7 +3188,7 @@ Release date: 2019-09-24
 
 * Allow a ``.`` as a prefix for Sphinx name resolution.
 
-* Checkers must now keep a 1 to 1 relationship between "msgid" (ie: C1234) and "symbol" (i.e.: human-readable-symbol)
+* Checkers must now keep a 1 to 1 relationship between "msgid" (ie: C1234) and "symbol" (i.e. : human-readable-symbol)
 * In checkers, an old_names can now be used for multiple new messages and pylint is now a little faster
 
 Caused by #1164. It means if you do a partial old_names for a message definition an exception will tell you that you
@@ -5400,7 +5400,7 @@ Release date: 2014-11-23
     * Change default max-line-length to 100 rather than 80
 
     * Drop BaseRawChecker class which were only there for backward
-      compat for a while now
+      compatibility for a while now
 
     * Don't try to analyze string formatting with objects coming from
       function arguments. Closes issue #373.
@@ -6357,7 +6357,7 @@ Release date: 2009-12-18
 
     * include James Lingard patches for function call arguments checker
 
-    * improved flymake code and doc provided by Derek Harland
+    * improved Flymake code and doc provided by Derek Harland
 
     * refactor and fix the imports checker
 
@@ -6492,7 +6492,7 @@ Release date: 2008-09-10
       generic generated-members option. If the zope option is set, the behaviour
       is now to add some default values to generated-members.
 
-    * flymake integration: added bin/epylint and elisp/pylint-flymake.el
+    * Flymake integration: added bin/epylint and elisp/pylint-flymake.el
 
 
 What's New in Pylint 0.14.0?
@@ -6694,7 +6694,7 @@ Release date: 2006-03-06
 
     * a new typecheck checker, introducing the following checks:
 
-        - E1101, access to unexistent member (implements #10430), remove
+        - E1101, access to nonexistent member (implements #10430), remove
           the need of E0201 and so some options has been moved from the
           classes checker to this one
         - E1102, calling a non callable object
