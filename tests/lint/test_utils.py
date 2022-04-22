@@ -7,8 +7,8 @@ from pathlib import Path, PosixPath
 
 import pytest
 
-from pylint.lint import Run
 from pylint.lint.utils import get_fatal_error_message, prepare_crash_report
+from pylint.testutils._run import _Run as Run
 
 
 def test_prepare_crash_report(tmp_path: PosixPath) -> None:

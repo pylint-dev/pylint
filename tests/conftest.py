@@ -16,10 +16,12 @@ from pylint.lint import PyLinter
 from pylint.lint.run import _cpu_count
 from pylint.testutils import MinimalTestReporter
 
+HERE = Path(__file__).parent
+
 
 @pytest.fixture()
-def tests_directory():
-    return Path(__file__).parent
+def tests_directory() -> Path:
+    return HERE
 
 
 @pytest.fixture
