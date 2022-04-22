@@ -32,10 +32,11 @@ from pylint.constants import (
     OLD_DEFAULT_PYLINT_HOME,
 )
 from pylint.exceptions import InvalidMessageError
-from pylint.lint import PyLinter, Run
+from pylint.lint import PyLinter
 from pylint.message import Message
 from pylint.reporters import text
 from pylint.testutils import create_files
+from pylint.testutils._run import _Run as Run
 from pylint.typing import MessageLocationTuple
 from pylint.utils import FileState, print_full_documentation, tokenize_module
 

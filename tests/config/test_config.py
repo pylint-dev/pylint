@@ -11,7 +11,8 @@ import pytest
 from pytest import CaptureFixture
 
 from pylint.config.exceptions import _UnrecognizedOptionError
-from pylint.lint import Run
+from pylint.lint import Run as LintRun
+from pylint.testutils._run import _Run as Run
 from pylint.testutils.configuration_test import run_using_a_configuration_file
 
 HERE = Path(__file__).parent.absolute()
@@ -20,7 +21,7 @@ EMPTY_MODULE = REGRTEST_DATA_DIR / "empty.py"
 
 
 def check_configuration_file_reader(
-    runner: Run,
+    runner: LintRun,
     expected_disabled: set[str] | None = None,
     expected_jobs: int = 10,
     expected_reports_truthey: bool = True,

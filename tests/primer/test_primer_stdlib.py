@@ -10,7 +10,7 @@ import sys
 import pytest
 from pytest import CaptureFixture
 
-import pylint.lint
+from pylint.testutils._run import _Run as Run
 
 
 def is_module(filename: str) -> bool:
@@ -57,7 +57,7 @@ def test_primer_stdlib_no_crash(
             # Duplicate code takes too long and is relatively safe
             # We don't want to lint the test directory which are repetitive
             disables = ["--disable=duplicate-code", "--ignore=test"]
-            pylint.lint.Run([test_module_name] + enables + disables)
+            Run([test_module_name] + enables + disables)
         except SystemExit as ex:
             out, err = capsys.readouterr()
             assert not err, err
