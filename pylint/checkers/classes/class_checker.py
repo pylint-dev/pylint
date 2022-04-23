@@ -27,13 +27,10 @@ from pylint.checkers.utils import (
     is_builtin_object,
     is_comprehension,
     is_iterable,
-    is_overload_stub,
     is_property_setter,
     is_property_setter_or_deleter,
-    is_protocol_class,
     node_frame_class,
     only_required_for_messages,
-    overrides_a_method,
     safe_infer,
     unimplemented_abstract_methods,
     uninferable_final_decorators,
@@ -409,14 +406,6 @@ def _is_attribute_property(name, klass):
     return False
 
 
-def _has_bare_super_call(fundef_node):
-    for call in fundef_node.nodes_of_class(nodes.Call):
-        func = call.func
-        if isinstance(func, nodes.Name) and func.name == "super" and not call.args:
-            return True
-    return False
-
-
 def _has_same_layout_slots(slots, assigned_value):
     inferred = next(assigned_value.infer())
     if isinstance(inferred, nodes.ClassDef):
@@ -506,12 +495,6 @@ MSGS: dict[
         'Used when a static method has "self" or a value specified in '
         "valid-classmethod-first-arg option or "
         "valid-metaclass-classmethod-first-arg option as first argument.",
-    ),
-    "R0201": (
-        "Method could be a function",
-        "no-self-use",
-        "Used when a method doesn't use its bound instance, and so could "
-        "be written as a function.",
     ),
     "W0221": (
         "%s %s %r method",
@@ -773,7 +756,6 @@ a metaclass class method.",
         super().__init__(linter)
         self._accessed = ScopeAccessMap()
         self._first_attrs = []
-        self._meth_could_be_func = None
 
     def open(self) -> None:
         self._mixin_class_rgx = self.linter.config.mixin_class_rgx
@@ -1104,7 +1086,6 @@ a metaclass class method.",
 
         # 'is_method()' is called and makes sure that this is a 'nodes.ClassDef'
         klass = node.parent.frame(future=True)  # type: nodes.ClassDef
-        self._meth_could_be_func = True
         # check first argument is self if this is actually a method
         self._check_first_arg_for_type(node, klass.type == "metaclass")
         if node.name == "__init__":
@@ -1469,23 +1450,6 @@ a metaclass class method.",
         if node.is_method():
             if node.args.args is not None:
                 self._first_attrs.pop()
-            if not self.linter.is_message_enabled("no-self-use"):
-                return
-            class_node = node.parent.frame(future=True)
-            if (
-                self._meth_could_be_func
-                and node.type == "method"
-                and node.name not in PYMETHODS
-                and not (
-                    node.is_abstract()
-                    or overrides_a_method(class_node, node.name)
-                    or decorated_with_property(node)
-                    or _has_bare_super_call(node)
-                    or is_protocol_class(class_node)
-                    or is_overload_stub(node)
-                )
-            ):
-                self.add_message("no-self-use", node=node)
 
     leave_asyncfunctiondef = leave_functiondef
 
@@ -1811,15 +1775,6 @@ a metaclass class method.",
             return True
         except astroid.NotFoundError:
             return False
-
-    def visit_name(self, node: nodes.Name) -> None:
-        """Check if the name handle an access to a class member
-        if so, register it.
-        """
-        if self._first_attrs and (
-            node.name == self._first_attrs[-1] or not self._first_attrs[-1]
-        ):
-            self._meth_could_be_func = False
 
     def _check_accessed_members(self, node, accessed):
         """Check that accessed members are defined."""
