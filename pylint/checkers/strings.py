@@ -727,6 +727,10 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
             self.check_for_consistent_string_delimiters(tokens)
 
     @only_required_for_messages("implicit-str-concat")
+    def visit_call(self, node: nodes.Call) -> None:
+        self.check_for_concatenated_strings(node.args, "call")
+
+    @only_required_for_messages("implicit-str-concat")
     def visit_list(self, node: nodes.List) -> None:
         self.check_for_concatenated_strings(node.elts, "list")
 

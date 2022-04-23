@@ -92,6 +92,10 @@ Release date: TBA
 
   Ref #5392
 
+* ``implicit-str-concat`` will now be raised on calls like ``open("myfile.txt" "a+b")`` too.
+
+  Closes #6441
+
 * The ``config`` attribute of ``PyLinter`` is now of the ``argparse.Namespace`` type instead of
   ``optparse.Values``.
 
