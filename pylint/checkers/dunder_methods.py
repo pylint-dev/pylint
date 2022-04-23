@@ -170,9 +170,7 @@ class DunderCallChecker(BaseChecker):
             )
         ):
             inf_expr = safe_infer(node.func.expr)
-            if inf_expr not in (None, Uninferable) and not isinstance(
-                inf_expr, Instance
-            ):
+            if not (inf_expr in {None, Uninferable} or isinstance(inf_expr, Instance)):
                 # Skip dunder calls to uninstantiated classes.
                 return None
 

@@ -50,6 +50,7 @@ class CustomRegistry(dict):
     def __setitem__(self, key, entry) -> None:
         super().__setitem__(key, entry)
         self._entry_ids.__setitem__(entry.id, entry)
+        self._entry_ids.__delitem__(entry.id)
 
     def __delitem__(self, key: str) -> None:
         entry = self[key]

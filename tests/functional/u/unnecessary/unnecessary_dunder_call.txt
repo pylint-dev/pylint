@@ -4,5 +4,5 @@ unnecessary-dunder-call:10:10:10:40::Unnecessarily calls dunder method __repr__.
 unnecessary-dunder-call:12:18:12:43::Unnecessarily calls dunder method __contains__. Use in keyword.:HIGH
 unnecessary-dunder-call:17:0:17:31::Unnecessarily calls dunder method __init__. Instantiate class directly.:HIGH
 unnecessary-dunder-call:25:11:25:24:is_bigger_than_two:Unnecessarily calls dunder method __gt__. Use > operator.:HIGH
-unnecessary-dunder-call:117:20:117:39::Unnecessarily calls dunder method __add__. Use + operator.:HIGH
-unnecessary-dunder-call:118:0:118:44::Unnecessarily calls dunder method __setitem__. Set item via subscript.:HIGH
+unnecessary-dunder-call:118:20:118:39::Unnecessarily calls dunder method __add__. Use + operator.:HIGH
+unnecessary-dunder-call:119:0:119:44::Unnecessarily calls dunder method __setitem__. Set item via subscript.:HIGH
