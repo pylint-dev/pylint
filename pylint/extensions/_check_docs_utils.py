@@ -190,7 +190,6 @@ class Docstring:
     """
 
     # These methods are designed to be overridden
-    # pylint: disable=no-self-use
     def __init__(self, doc: nodes.Const | None) -> None:
         docstring = doc.value if doc else ""
         self.doc = docstring.expandtabs()
