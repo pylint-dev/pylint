@@ -1,4 +1,4 @@
-# pylint: disable=missing-function-docstring, missing-module-docstring, invalid-name, import-outside-toplevel, no-self-use
+# pylint: disable=missing-function-docstring, missing-module-docstring, invalid-name, import-outside-toplevel
 # pylint: disable=missing-class-docstring, too-few-public-methods, unused-variable, multiple-statements, line-too-long
 """
 Previously, open was uninferable on PyPy so we moved all functional tests

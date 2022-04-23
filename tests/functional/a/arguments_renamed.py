@@ -1,4 +1,4 @@
-#pylint: disable = unused-argument, missing-docstring, no-self-use, line-too-long, useless-object-inheritance, too-few-public-methods
+# pylint: disable=unused-argument, missing-docstring, line-too-long, useless-object-inheritance, too-few-public-methods
 import enum
 
 

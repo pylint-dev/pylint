@@ -25,7 +25,7 @@ for value in Child.values:  # false-positive: not-an-iterable
 
 
 class Meta2(type):
-    def a_method(cls):  # pylint: disable=no-self-use
+    def a_method(cls):
         return [123]
 
 

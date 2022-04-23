@@ -1,4 +1,4 @@
-# pylint: disable=unused-import,multiple-imports,no-self-use,missing-docstring,invalid-name,too-few-public-methods
+# pylint: disable=unused-import,multiple-imports,missing-docstring,invalid-name,too-few-public-methods
 # pylint: disable=comparison-of-constants
 
 import abc

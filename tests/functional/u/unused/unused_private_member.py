@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, invalid-name, too-few-public-methods, no-self-use, line-too-long, unused-argument, protected-access
+# pylint: disable=missing-docstring, invalid-name, too-few-public-methods, line-too-long, unused-argument, protected-access
 from functools import partialmethod
 
 
