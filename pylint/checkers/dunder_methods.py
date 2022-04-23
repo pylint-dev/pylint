@@ -172,7 +172,7 @@ class DunderCallChecker(BaseChecker):
             inf_expr = safe_infer(node.func.expr)
             if not (inf_expr in {None, Uninferable} or isinstance(inf_expr, Instance)):
                 # Skip dunder calls to uninstantiated classes.
-                return None
+                return
 
             self.add_message(
                 "unnecessary-dunder-call",
@@ -180,7 +180,6 @@ class DunderCallChecker(BaseChecker):
                 args=(node.func.attrname, DUNDER_METHODS[node.func.attrname]),
                 confidence=HIGH,
             )
-        return None
 
 
 def register(linter: PyLinter) -> None:
