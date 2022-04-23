@@ -82,6 +82,10 @@ Removed checkers
 
   Closes #4683
 
+* Moved ``no-self-use`` check to optional extension.
+
+  Closes #5502
+
 
 Extensions
 ==========
@@ -91,6 +95,13 @@ Extensions
     * Re-enable checker ``bad-docstring-quotes`` for Python <= 3.7.
 
       Closes #6087
+
+* ``NoSelfUseChecker``
+
+    * Added ``no-self-use`` check, previously enabled by default.
+
+      Closes #5502
+
 
 Other Changes
 =============

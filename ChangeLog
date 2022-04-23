@@ -284,6 +284,10 @@ Release date: TBA
 
   Relates to #6493
 
+* Created ``NoSelfUseChecker`` extension and moved the ``no-self-use`` check.
+
+  Closes #5502
+
 ..
   Insert your changelog randomly, it will reduce merge conflicts
   (Ie. not necessarily at the end)
