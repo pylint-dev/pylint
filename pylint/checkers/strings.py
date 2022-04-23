@@ -11,7 +11,7 @@ import numbers
 import re
 import tokenize
 from collections import Counter
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING
 
 import astroid
@@ -776,7 +776,9 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
                         "inconsistent-quotes", line=start[0], args=(quote_delimiter,)
                     )
 
-    def check_for_concatenated_strings(self, elements, iterable_type):
+    def check_for_concatenated_strings(
+        self, elements: Sequence[nodes.NodeNG], iterable_type: str
+    ) -> None:
         for elt in elements:
             if not (
                 isinstance(elt, nodes.Const) and elt.pytype() in _AST_NODE_STR_TYPES
