@@ -125,10 +125,10 @@ def lint(filename: str, options: Sequence[str] = ()) -> int:
 
 @overload
 def py_run(
-    command_options: str = "",
-    return_std: Literal[False] = False,
-    stdout: TextIO | int | None = None,
-    stderr: TextIO | int | None = None,
+    command_options: str = ...,
+    return_std: Literal[False] = ...,
+    stdout: TextIO | int | None = ...,
+    stderr: TextIO | int | None = ...,
 ) -> None:
     ...
 
@@ -137,8 +137,8 @@ def py_run(
 def py_run(
     command_options: str,
     return_std: Literal[True],
-    stdout: TextIO | int | None = None,
-    stderr: TextIO | int | None = None,
+    stdout: TextIO | int | None = ...,
+    stderr: TextIO | int | None = ...,
 ) -> tuple[StringIO, StringIO]:
     ...
 
