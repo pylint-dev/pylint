@@ -147,10 +147,6 @@ Release date: TBA
 
   Closes #6087
 
-* Exclude dunder calls on super() from raising ``unnecessary-dunder-call``.
-
-  Closes #6074
-
 * Removed the broken ``generate-man`` option.
 
   Closes #5283
@@ -162,6 +158,7 @@ Release date: TBA
 * Add new check ``unnecessary-dunder-call`` for unnecessary dunder method calls.
 
   Closes #5936
+  Closes #6074
 
 * The ``cache-max-size-none`` checker has been renamed to ``method-cache-max-size-none``.
 
