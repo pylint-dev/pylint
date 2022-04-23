@@ -19,6 +19,7 @@ from astroid import nodes
 
 from pylint.checkers import BaseChecker, BaseRawFileChecker, BaseTokenChecker, utils
 from pylint.checkers.utils import only_required_for_messages
+from pylint.interfaces import HIGH
 from pylint.typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
@@ -806,7 +807,10 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
                     or self.linter.config.check_str_concat_over_line_jumps
                 ):
                     self.add_message(
-                        "implicit-str-concat", line=elt.lineno, args=(iterable_type,)
+                        "implicit-str-concat",
+                        line=elt.lineno,
+                        args=(iterable_type,),
+                        confidence=HIGH,
                     )
 
     def process_string_token(self, token, start_row, start_col):
