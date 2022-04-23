@@ -30,9 +30,11 @@ TEST_LIST7 = ('a' 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb \
 # No warning for bytes
 TEST_LIST8 = [b'A' b'B']
 
+# There's an internal juxtaposition on the second line in a valid multiline
+# TODO #6444: raise implicit-str-concat on the second line pylint: disable=fixme
 print(
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit,"
-    " sed do eiusmod tempor incididunt ut labore et dolore "
+    " sed do eiusmod tempor " "incididunt ut labore et dolore "
     "magna aliqua. Ut enim ad minim veniam, quis nostrud "
     "exercitation ullamco laboris nisi ut aliquip ex ea "
 )
