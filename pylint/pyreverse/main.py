@@ -61,7 +61,7 @@ OPTIONS: Options = (
             metavar="<class>",
             type="csv",
             dest="classes",
-            default=[],
+            default=None,
             help="create a class diagram with all classes related to <class>;\
  this uses by default the options -ASmy",
         ),
