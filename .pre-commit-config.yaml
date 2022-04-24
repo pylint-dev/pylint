@@ -25,7 +25,7 @@ repos:
     hooks:
       - id: copyright-notice
         args: ["--notice=script/copyright.txt", "--enforce-all"]
-        exclude: tests/functional/|tests/input|doc/data/messages|examples/|setup.py|tests(/\w*)*data/
+        exclude: tests(/\w*)*/functional/|tests/input|doc/data/messages|examples/|setup.py|tests(/\w*)*data/
         types: [python]
   - repo: https://github.com/asottile/pyupgrade
     rev: v2.32.0
