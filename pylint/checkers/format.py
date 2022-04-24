@@ -14,7 +14,6 @@ Some parts of the process_token method is based from The Tab Nanny std module.
 from __future__ import annotations
 
 import tokenize
-from collections.abc import Callable
 from functools import reduce
 from typing import TYPE_CHECKING
 
@@ -432,9 +431,6 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         line_num = 0
         self._lines = {}
         self._visited_lines = {}
-        token_handlers: dict[str, Callable[[list[tokenize.TokenInfo], int], None]] = {
-            token: self._check_keyword_parentheses for token in _KEYWORD_TOKENS
-        }
         self._last_line_ending = None
         last_blank_line_num = 0
         for idx, (tok_type, token, start, _, line) in enumerate(tokens):
@@ -485,12 +481,8 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             if tok_type == tokenize.NUMBER and token.endswith("l"):
                 self.add_message("lowercase-l-suffix", line=line_num)
 
-            try:
-                handler = token_handlers[token]
-            except KeyError:
-                pass
-            else:
-                handler(tokens, idx)
+            if token in _KEYWORD_TOKENS:
+                self._check_keyword_parentheses(tokens, idx)
 
         line_num -= 1  # to be ok with "wc -l"
         if line_num > self.linter.config.max_module_lines:
