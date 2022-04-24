@@ -433,9 +433,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         self._lines = {}
         self._visited_lines = {}
         token_handlers: dict[str, Callable[[list[tokenize.TokenInfo], int], None]] = {
-            token: handler
-            for tokens, handler in ((_KEYWORD_TOKENS, self._check_keyword_parentheses),)
-            for token in tokens
+            token: self._check_keyword_parentheses for token in _KEYWORD_TOKENS
         }
         self._last_line_ending = None
         last_blank_line_num = 0
