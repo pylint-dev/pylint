@@ -214,14 +214,14 @@ def register_plugins(linter: PyLinter, directory: str) -> None:
 
 @overload
 def get_global_option(
-    checker: BaseChecker, option: GLOBAL_OPTION_BOOL, default: bool | None = None
+    checker: BaseChecker, option: GLOBAL_OPTION_BOOL, default: bool | None = ...
 ) -> bool:
     ...
 
 
 @overload
 def get_global_option(
-    checker: BaseChecker, option: GLOBAL_OPTION_INT, default: int | None = None
+    checker: BaseChecker, option: GLOBAL_OPTION_INT, default: int | None = ...
 ) -> int:
     ...
 
@@ -230,7 +230,7 @@ def get_global_option(
 def get_global_option(
     checker: BaseChecker,
     option: GLOBAL_OPTION_LIST,
-    default: list[str] | None = None,
+    default: list[str] | None = ...,
 ) -> list[str]:
     ...
 
@@ -239,7 +239,7 @@ def get_global_option(
 def get_global_option(
     checker: BaseChecker,
     option: GLOBAL_OPTION_PATTERN,
-    default: Pattern[str] | None = None,
+    default: Pattern[str] | None = ...,
 ) -> Pattern[str]:
     ...
 
@@ -248,7 +248,7 @@ def get_global_option(
 def get_global_option(
     checker: BaseChecker,
     option: GLOBAL_OPTION_PATTERN_LIST,
-    default: list[Pattern[str]] | None = None,
+    default: list[Pattern[str]] | None = ...,
 ) -> list[Pattern[str]]:
     ...
 
@@ -257,7 +257,7 @@ def get_global_option(
 def get_global_option(
     checker: BaseChecker,
     option: GLOBAL_OPTION_TUPLE_INT,
-    default: tuple[int, ...] | None = None,
+    default: tuple[int, ...] | None = ...,
 ) -> tuple[int, ...]:
     ...
 

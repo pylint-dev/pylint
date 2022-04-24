@@ -94,7 +94,7 @@ def _get_ansi_code(msg_style: MessageStyle) -> str:
 @overload
 def colorize_ansi(
     msg: str,
-    msg_style: MessageStyle | None = None,
+    msg_style: MessageStyle | None = ...,
 ) -> str:
     ...
 
@@ -102,10 +102,10 @@ def colorize_ansi(
 @overload
 def colorize_ansi(
     msg: str,
-    msg_style: str | None = None,
-    style: str = "",
+    msg_style: str | None = ...,
+    style: str = ...,
     *,
-    color: str | None = None,
+    color: str | None = ...,
 ) -> str:
     # Remove for pylint 3.0
     ...
@@ -252,16 +252,16 @@ class ColorizedTextReporter(TextReporter):
     @overload
     def __init__(
         self,
-        output: TextIO | None = None,
-        color_mapping: ColorMappingDict | None = None,
+        output: TextIO | None = ...,
+        color_mapping: ColorMappingDict | None = ...,
     ) -> None:
         ...
 
     @overload
     def __init__(
         self,
-        output: TextIO | None = None,
-        color_mapping: dict[str, tuple[str | None, str]] | None = None,
+        output: TextIO | None = ...,
+        color_mapping: dict[str, tuple[str | None, str]] | None = ...,
     ) -> None:
         # Remove for pylint 3.0
         ...
