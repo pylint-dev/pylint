@@ -338,7 +338,11 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             self._bracket_stack.pop()
         if tokens[start + 1].string != "(":
             return
-        if tokens[start].string == "not" and start > 0 and tokens[start - 1].string == "is":
+        if (
+            tokens[start].string == "not"
+            and start > 0
+            and tokens[start - 1].string == "is"
+        ):
             # If this is part of an `is not` expression, we have a binary operator
             # so the parentheses are not necessarily redundant.
             return
