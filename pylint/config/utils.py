@@ -87,7 +87,7 @@ def _convert_option_to_argument(
         return _ExtendArgument(
             flags=flags,
             action=action,
-            default=default,
+            default=[] if default is None else default,
             arg_type=optdict["type"],
             choices=optdict.get("choices", None),
             arg_help=optdict.get("help", ""),
