@@ -419,15 +419,6 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                         self._check_keyword_parentheses(tokens[i:], 0)
                     return
 
-    def _prepare_token_dispatcher(
-        self,
-    ) -> dict[str, Callable[[list[tokenize.TokenInfo], int], None]]:
-        return {
-            token: handler
-            for tokens, handler in ((_KEYWORD_TOKENS, self._check_keyword_parentheses),)
-            for token in tokens
-        }
-
     def process_tokens(self, tokens: list[tokenize.TokenInfo]) -> None:
         """Process tokens and search for :
 
@@ -441,7 +432,11 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         line_num = 0
         self._lines = {}
         self._visited_lines = {}
-        token_handlers = self._prepare_token_dispatcher()
+        token_handlers: dict[str, Callable[[list[tokenize.TokenInfo], int], None]] = {
+            token: handler
+            for tokens, handler in ((_KEYWORD_TOKENS, self._check_keyword_parentheses),)
+            for token in tokens
+        }
         self._last_line_ending = None
         last_blank_line_num = 0
         for idx, (tok_type, token, start, _, line) in enumerate(tokens):
