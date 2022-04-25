@@ -34,7 +34,7 @@ if TYPE_CHECKING:
 
 
 _ASYNC_TOKEN = "async"
-_KEYWORD_TOKENS = [
+_KEYWORD_TOKENS = {
     "assert",
     "del",
     "elif",
@@ -48,7 +48,7 @@ _KEYWORD_TOKENS = [
     "while",
     "yield",
     "with",
-]
+}
 
 _SPACED_OPERATORS = [
     "==",
@@ -76,7 +76,7 @@ _CLOSING_BRACKETS = [")", "]", "}"]
 _TAB_LENGTH = 8
 
 _EOL = frozenset([tokenize.NEWLINE, tokenize.NL, tokenize.COMMENT])
-_JUNK_TOKENS = (tokenize.COMMENT, tokenize.NL)
+_JUNK_TOKENS = {tokenize.COMMENT, tokenize.NL}
 
 # Whitespace checking policy constants
 _MUST = 0
