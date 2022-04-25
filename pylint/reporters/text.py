@@ -249,23 +249,6 @@ class ColorizedTextReporter(TextReporter):
         "S": MessageStyle("yellow", ("inverse",)),  # S stands for module Separator
     }
 
-    @overload
-    def __init__(
-        self,
-        output: TextIO | None = ...,
-        color_mapping: ColorMappingDict | None = ...,
-    ) -> None:
-        ...
-
-    @overload
-    def __init__(
-        self,
-        output: TextIO | None = ...,
-        color_mapping: dict[str, tuple[str | None, str]] | None = ...,
-    ) -> None:
-        # Remove for pylint 3.0
-        ...
-
     def __init__(
         self,
         output: TextIO | None = None,
