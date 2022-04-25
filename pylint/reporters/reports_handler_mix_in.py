@@ -6,17 +6,17 @@ from __future__ import annotations
 
 import collections
 from collections.abc import MutableSequence
-from typing import TYPE_CHECKING, Callable, DefaultDict, List, Optional, Tuple
+from typing import TYPE_CHECKING, DefaultDict, List, Tuple
 
 from pylint.exceptions import EmptyReportError
 from pylint.reporters.ureports.nodes import Section
+from pylint.typing import ReportsCallable
 from pylint.utils import LinterStats
 
 if TYPE_CHECKING:
     from pylint.checkers import BaseChecker
     from pylint.lint.pylinter import PyLinter
 
-ReportsCallable = Callable[[Section, LinterStats, Optional[LinterStats]], None]
 ReportsDict = DefaultDict["BaseChecker", List[Tuple[str, str, ReportsCallable]]]
 
 

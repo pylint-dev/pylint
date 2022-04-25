@@ -52,6 +52,7 @@ from pylint.reporters.ureports import nodes as report_nodes
 from pylint.typing import (
     FileItem,
     ManagedMessage,
+    MessageDefinitionTuple,
     MessageLocationTuple,
     ModuleDescriptionDict,
     Options,
@@ -99,7 +100,7 @@ def _load_reporter_by_class(reporter_class: str) -> type[BaseReporter]:
 
 # Python Linter class #########################################################
 
-MSGS = {
+MSGS: dict[str, MessageDefinitionTuple] = {
     "F0001": (
         "%s",
         "fatal",

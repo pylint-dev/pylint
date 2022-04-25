@@ -50,7 +50,7 @@ from astroid import nodes
 
 from pylint.checkers import BaseChecker, BaseRawFileChecker, table_lines_from_stats
 from pylint.reporters.ureports.nodes import Table
-from pylint.typing import Options
+from pylint.typing import MessageDefinitionTuple, Options
 from pylint.utils import LinterStats, decoding_stream
 
 if TYPE_CHECKING:
@@ -713,7 +713,7 @@ class LineSet:
         return self._real_lines
 
 
-MSGS = {
+MSGS: dict[str, MessageDefinitionTuple] = {
     "R0801": (
         "Similar lines in %s files\n%s",
         "duplicate-code",

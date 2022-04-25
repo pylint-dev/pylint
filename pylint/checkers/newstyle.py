@@ -17,11 +17,12 @@ from pylint.checkers.utils import (
     node_frame_class,
     only_required_for_messages,
 )
+from pylint.typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
-MSGS = {
+MSGS: dict[str, MessageDefinitionTuple] = {
     "E1003": (
         "Bad first argument %r given to super()",
         "bad-super-call",

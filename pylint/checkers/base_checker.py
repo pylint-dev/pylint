@@ -18,7 +18,7 @@ from pylint.constants import _MSG_ORDER, MAIN_CHECKER_NAME, WarningScope
 from pylint.exceptions import InvalidMessageError
 from pylint.interfaces import Confidence, IRawChecker, ITokenChecker, implements
 from pylint.message.message_definition import MessageDefinition
-from pylint.typing import Options
+from pylint.typing import MessageDefinitionTuple, Options, ReportsCallable
 from pylint.utils import get_rst_section, get_rst_title
 
 if TYPE_CHECKING:
@@ -33,9 +33,9 @@ class BaseChecker(_ArgumentsProvider):
     # ordered list of options to control the checker behaviour
     options: Options = ()
     # messages issued by this checker
-    msgs: Any = {}
+    msgs: dict[str, MessageDefinitionTuple] = {}
     # reports issued by this checker
-    reports: Any = ()
+    reports: tuple[tuple[str, str, ReportsCallable], ...] = ()
     # mark this checker as enabled or not.
     enabled: bool = True
 

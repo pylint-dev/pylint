@@ -28,6 +28,7 @@ from pylint.checkers.utils import (
 )
 from pylint.constants import PY39_PLUS, TYPING_TYPE_CHECKS_GUARDS
 from pylint.interfaces import CONTROL_FLOW, HIGH, INFERENCE, INFERENCE_FAILURE
+from pylint.typing import MessageDefinitionTuple
 
 if sys.version_info >= (3, 8):
     from functools import cached_property
@@ -363,7 +364,7 @@ def _has_locals_call_after_node(stmt, scope):
     return False
 
 
-MSGS = {
+MSGS: dict[str, MessageDefinitionTuple] = {
     "E0601": (
         "Using variable %r before assignment",
         "used-before-assignment",
