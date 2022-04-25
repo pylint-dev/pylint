@@ -26,6 +26,7 @@ from pylint.checkers.utils import (
 from pylint.exceptions import EmptyReportError
 from pylint.graph import DotBackend, get_cycles
 from pylint.reporters.ureports.nodes import Paragraph, Section, VerbatimText
+from pylint.typing import MessageDefinitionTuple
 from pylint.utils import IsortDriver
 
 if TYPE_CHECKING:
@@ -195,7 +196,7 @@ def _make_graph(
 
 # the import checker itself ###################################################
 
-MSGS = {
+MSGS: dict[str, MessageDefinitionTuple] = {
     "E0401": (
         "Unable to import %s",
         "import-error",

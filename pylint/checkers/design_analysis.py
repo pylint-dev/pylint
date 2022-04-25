@@ -17,6 +17,7 @@ from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import only_required_for_messages
+from pylint.typing import MessageDefinitionTuple
 
 if sys.version_info >= (3, 8):
     from functools import cached_property
@@ -26,7 +27,9 @@ else:
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
-MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
+MSGS: dict[
+    str, MessageDefinitionTuple
+] = {  # pylint: disable=consider-using-namedtuple-or-dataclass
     "R0901": (
         "Too many ancestors (%s/%s)",
         "too-many-ancestors",

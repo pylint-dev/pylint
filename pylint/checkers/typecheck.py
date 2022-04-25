@@ -46,6 +46,7 @@ from pylint.checkers.utils import (
     supports_setitem,
 )
 from pylint.interfaces import INFERENCE
+from pylint.typing import MessageDefinitionTuple
 
 if sys.version_info >= (3, 8):
     from functools import cached_property
@@ -218,7 +219,7 @@ def _missing_member_hint(owner, attrname, distance_threshold, max_choices):
     return f"; maybe {names_hint}?"
 
 
-MSGS = {
+MSGS: dict[str, MessageDefinitionTuple] = {
     "E1101": (
         "%s %r has no %r member%s",
         "no-member",

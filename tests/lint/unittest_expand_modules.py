@@ -12,6 +12,7 @@ import pytest
 from pylint.checkers import BaseChecker
 from pylint.lint.expand_modules import _is_in_ignore_list_re, expand_modules
 from pylint.testutils import CheckerTestCase, set_config
+from pylint.typing import MessageDefinitionTuple
 
 
 def test__is_in_ignore_list_re_match() -> None:
@@ -84,7 +85,7 @@ class TestExpandModules(CheckerTestCase):
         """This dummy checker is needed to allow options to be set."""
 
         name = "checker"
-        msgs: dict[str, tuple[str, ...]] = {}
+        msgs: dict[str, MessageDefinitionTuple] = {}
         options = (("test-opt", {"action": "store_true", "help": "help message"}),)
 
     CHECKER_CLASS: type = Checker

@@ -27,6 +27,7 @@ from pylint.checkers.utils import (
     only_required_for_messages,
 )
 from pylint.constants import WarningScope
+from pylint.typing import MessageDefinitionTuple
 from pylint.utils.pragma_parser import OPTION_PO, PragmaParserError, parse_pragma
 
 if TYPE_CHECKING:
@@ -50,7 +51,7 @@ _KEYWORD_TOKENS = {
 _JUNK_TOKENS = {tokenize.COMMENT, tokenize.NL}
 
 
-MSGS = {
+MSGS: dict[str, MessageDefinitionTuple] = {
     "C0301": (
         "Line too long (%s/%s)",
         "line-too-long",

@@ -15,6 +15,7 @@ from astroid import nodes, objects
 
 from pylint import checkers
 from pylint.checkers import utils
+from pylint.typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -54,7 +55,9 @@ def _is_raising(body: list) -> bool:
 
 OVERGENERAL_EXCEPTIONS = ("BaseException", "Exception")
 
-MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
+MSGS: dict[
+    str, MessageDefinitionTuple
+] = {  # pylint: disable=consider-using-namedtuple-or-dataclass
     "E0701": (
         "Bad except clauses order (%s)",
         "bad-except-order",
