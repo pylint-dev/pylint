@@ -32,8 +32,6 @@ from pylint.utils.pragma_parser import OPTION_PO, PragmaParserError, parse_pragm
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
-
-_ASYNC_TOKEN = "async"
 _KEYWORD_TOKENS = {
     "assert",
     "del",
@@ -49,39 +47,8 @@ _KEYWORD_TOKENS = {
     "yield",
     "with",
 }
-
-_SPACED_OPERATORS = [
-    "==",
-    "<",
-    ">",
-    "!=",
-    "<>",
-    "<=",
-    ">=",
-    "+=",
-    "-=",
-    "*=",
-    "**=",
-    "/=",
-    "//=",
-    "&=",
-    "|=",
-    "^=",
-    "%=",
-    ">>=",
-    "<<=",
-]
-_OPENING_BRACKETS = ["(", "[", "{"]
-_CLOSING_BRACKETS = [")", "]", "}"]
-_TAB_LENGTH = 8
-
-_EOL = frozenset([tokenize.NEWLINE, tokenize.NL, tokenize.COMMENT])
 _JUNK_TOKENS = {tokenize.COMMENT, tokenize.NL}
 
-# Whitespace checking policy constants
-_MUST = 0
-_MUST_NOT = 1
-_IGNORE = 2
 
 MSGS = {
     "C0301": (
@@ -154,22 +121,6 @@ def _last_token_on_line_is(tokens, line_end, token):
         and tokens.token(line_end - 2) == token
         and tokens.type(line_end - 1) == tokenize.COMMENT
     )
-
-
-# The contexts for hanging indents.
-# A hanging indented dictionary value after :
-HANGING_DICT_VALUE = "dict-value"
-# Hanging indentation in an expression.
-HANGING = "hanging"
-# Hanging indentation in a block header.
-HANGING_BLOCK = "hanging-block"
-# Continued indentation inside an expression.
-CONTINUED = "continued"
-# Continued indentation in a block header.
-CONTINUED_BLOCK = "continued-block"
-
-SINGLE_LINE = "single"
-WITH_BODY = "multi"
 
 
 class TokenWrapper:
