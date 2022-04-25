@@ -144,6 +144,7 @@ DEPRECATED_METHODS: dict = {
             "ntpath.splitunc",
             "os.path.splitunc",
             "os.stat_float_times",
+            "turtle.RawTurtle.settiltangle",
         },
         (3, 2, 0): {
             "cgi.escape",
@@ -232,11 +233,23 @@ DEPRECATED_METHODS: dict = {
             "threading.Thread.setDaemon",
             "cgi.log",
         },
+        (3, 11, 0): {
+            "locale.getdefaultlocale",
+            "unittest.TestLoader.findTestCases",
+            "unittest.TestLoader.loadTestsFromTestCase",
+            "unittest.TestLoader.getTestCaseNames",
+        },
     },
 }
 
 
 DEPRECATED_CLASSES = {
+    (3, 2, 0): {
+        "configparser": {
+            "LegacyInterpolation",
+            "SafeConfigParser",
+        },
+    },
     (3, 3, 0): {
         "importlib.abc": {
             "Finder",
@@ -277,6 +290,11 @@ DEPRECATED_CLASSES = {
         "smtpd": {
             "MailmanProxy",
         }
+    },
+    (3, 11, 0): {
+        "webbrowser": {
+            "MacOSX",
+        },
     },
 }
 
