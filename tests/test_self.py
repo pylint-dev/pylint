@@ -182,8 +182,9 @@ class TestRunTC:
         assert expected_output.strip() in file_output.strip()
 
     def test_pkginfo(self) -> None:
-        """Make pylint check itself."""
-        self._runtest(["pylint.__pkginfo__"], reporter=TextReporter(StringIO()), code=0)
+        """Make pylint check 'pylint.__pkginfo__.py'."""
+        args = ["pylint.__pkginfo__", "--disable=invalid-name"]
+        self._runtest(args, reporter=TextReporter(StringIO()), code=0)
 
     def test_all(self) -> None:
         """Make pylint check itself."""
