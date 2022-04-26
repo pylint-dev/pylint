@@ -13,7 +13,6 @@ from typing import (
     Callable,
     Dict,
     Iterable,
-    List,
     NamedTuple,
     Optional,
     Pattern,
@@ -125,10 +124,17 @@ AstCallbackMethod = Callable[[CheckerT_co, "nodes.NodeNG"], None]
 ReportsCallable = Callable[["Section", "LinterStats", Optional["LinterStats"]], None]
 """Callable to create a report."""
 
-SimpleMessageTuple = Tuple[str, str, str]
-OldNamesMessageTuple = Tuple[str, str, str, Dict[str, List[Tuple[str, str]]]]
-VersionMessageTuple = Tuple[str, str, str, Dict[str, Tuple[int, int]]]
-ScopedMessageTuple = Tuple[str, str, str, Dict[str, str]]
+
+class ExtraMessageOptions(TypedDict, total=False):
+    """All allowed keys in the extra options for message definitions."""
+
+    scope: str
+    old_names: list[tuple[str, str]]
+    maxversion: tuple[int, int]
+    minversion: tuple[int, int]
+
+
 MessageDefinitionTuple = Union[
-    SimpleMessageTuple, OldNamesMessageTuple, VersionMessageTuple, ScopedMessageTuple
+    Tuple[str, str, str],
+    Tuple[str, str, str, ExtraMessageOptions],
 ]
