@@ -1419,7 +1419,7 @@ accessed. Python regular expressions are accepted.",
                 if parameters[i][1]:
                     # Duplicate definition of function parameter.
 
-                    # Might be too hardcoded, but this can actually
+                    # Might be too hard-coded, but this can actually
                     # happen when using str.format and `self` is passed
                     # by keyword argument, as in `.format(self=self)`.
                     # It's perfectly valid to so, so we're just skipping

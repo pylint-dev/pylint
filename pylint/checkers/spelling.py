@@ -165,9 +165,9 @@ CODE_FLANKED_IN_BACKTICK_REGEX = re.compile(r"(\s|^)(`{1,2})([^`]+)(\2)([^`]|$)"
 
 
 def _strip_code_flanked_in_backticks(line: str) -> str:
-    """Alter line so code flanked in backticks is ignored.
+    """Alter line so code flanked in back-ticks is ignored.
 
-    Pyenchant automatically strips backticks when parsing tokens,
+    Pyenchant automatically strips back-ticks when parsing tokens,
     so this cannot be done at the individual filter level.
     """
 

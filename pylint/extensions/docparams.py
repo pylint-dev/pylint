@@ -491,7 +491,7 @@ class DocstringParameterChecker(BaseChecker):
         * Parameters mentioned in the parameter documentation that don't or no
           longer exist in the function parameter list are noticed.
         * If the text "For the parameters, see" or "For the other parameters,
-          see" (ignoring additional whitespace) is mentioned in the docstring,
+          see" (ignoring additional white-space) is mentioned in the docstring,
           missing parameter documentation is tolerated.
         * If there's no Sphinx style, Google style or NumPy style parameter
           documentation at all, i.e. ``:param`` is never mentioned etc., the

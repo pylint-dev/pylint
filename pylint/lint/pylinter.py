@@ -674,7 +674,7 @@ class PyLinter(
 
     @staticmethod
     def _discover_files(files_or_modules: Sequence[str]) -> Iterator[str]:
-        """Discover python modules and packages in subdirectory.
+        """Discover python modules and packages in sub-directory.
 
         Returns iterator of paths to discovered modules and packages.
         """

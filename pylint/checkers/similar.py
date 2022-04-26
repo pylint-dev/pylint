@@ -11,10 +11,10 @@ Then each index of the stripped lines collection is associated with the hash of 
 (n is the minimum common lines option).
 The common hashes between both linesets are then looked for. If there are matches, then the match indices in both linesets are stored and associated
 with the corresponding couples (start line number/end line number) in both files.
-This association is then postprocessed to handle the case of successive matches. For example if the minimum common lines setting is set to four, then
+This association is then post-processed to handle the case of successive matches. For example if the minimum common lines setting is set to four, then
 the hashes are computed with four lines. If one of match indices couple (12, 34) is the successor of another one (11, 33) then it means that there are
 in fact five lines which are common.
-Once postprocessed the values of association table are the result looked for, i.e start and end lines numbers of common lines in both files.
+Once post-processed the values of association table are the result looked for, i.e start and end lines numbers of common lines in both files.
 """
 
 from __future__ import annotations
@@ -531,7 +531,7 @@ class Similar:
                 yield com
 
     def _iter_sims(self) -> Generator[Commonality, None, None]:
-        """Iterate on similarities among all files, by making a cartesian
+        """Iterate on similarities among all files, by making a Cartesian
         product
         """
         for idx, lineset in enumerate(self.linesets[:-1]):
@@ -562,7 +562,7 @@ def stripped_lines(
     ignore_signatures: bool,
     line_enabled_callback: Callable[[str, int], bool] | None = None,
 ) -> list[LineSpecifs]:
-    """Return tuples of line/line number/line type with leading/trailing whitespace and any ignored code features removed.
+    """Return tuples of line/line number/line type with leading/trailing white-space and any ignored code features removed.
 
     :param lines: a collection of lines
     :param ignore_comments: if true, any comment in the lines collection is removed from the result

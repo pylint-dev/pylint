@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 
 class MapReduceMixin(metaclass=abc.ABCMeta):
-    """A mixin design to allow multiprocess/threaded runs of a Checker."""
+    """A mixin design to allow multi-process/threaded runs of a Checker."""
 
     def __init__(self) -> None:
         warnings.warn(
@@ -24,7 +24,7 @@ class MapReduceMixin(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def get_map_data(self) -> Any:
-        """Returns mergeable/reducible data that will be examined."""
+        """Returns merge-able/reducible data that will be examined."""
 
     @abc.abstractmethod
     def reduce_map_data(self, linter: PyLinter, data: list[Any]) -> None:

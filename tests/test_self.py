@@ -557,7 +557,7 @@ class TestRunTC:
         a.join("c.py").write(c_code)
 
         with tmpdir.as_cwd():
-            # why don't we start pylint in a subprocess?
+            # why don't we start pylint in a sub-process?
             expected = (
                 "************* Module a.b\n"
                 "a/b.py:3:0: E0401: Unable to import 'a.d' (import-error)\n\n"

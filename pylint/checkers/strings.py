@@ -442,7 +442,7 @@ class StringFormatChecker(BaseChecker):
         # Skip format nodes which don't have an explicit string on the
         # left side of the format operation.
         # We do this because our inference engine can't properly handle
-        # redefinitions of the original string.
+        # redefinition of the original string.
         # Note that there may not be any left side at all, if the format method
         # has been assigned to another variable. See issue 351. For example:
         #

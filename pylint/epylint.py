@@ -182,7 +182,7 @@ def py_run(
         stdout = PIPE if return_std else sys.stdout
     if stderr is None:
         stderr = PIPE if return_std else sys.stderr
-    # Call pylint in a subprocess
+    # Call pylint in a sub-process
     with Popen(
         cli,
         shell=False,
