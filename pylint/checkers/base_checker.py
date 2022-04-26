@@ -19,7 +19,13 @@ from pylint.constants import _MSG_ORDER, MAIN_CHECKER_NAME, WarningScope
 from pylint.exceptions import InvalidMessageError
 from pylint.interfaces import Confidence, IRawChecker, ITokenChecker, implements
 from pylint.message.message_definition import MessageDefinition
-from pylint.typing import MessageDefinitionTuple, OptionDict, Options, ReportsCallable
+from pylint.typing import (
+    ExtraMessageOptions,
+    MessageDefinitionTuple,
+    OptionDict,
+    Options,
+    ReportsCallable,
+)
 from pylint.utils import get_rst_section, get_rst_title
 
 if TYPE_CHECKING:
@@ -176,7 +182,9 @@ class BaseChecker(_ArgumentsProvider):
             checker_id = message.msgid[1:3]
             existing_ids.append(message.msgid)
 
-    def create_message_definition_from_tuple(self, msgid, msg_tuple):
+    def create_message_definition_from_tuple(
+        self, msgid: str, msg_tuple: MessageDefinitionTuple
+    ) -> MessageDefinition:
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             if isinstance(self, (BaseTokenChecker, BaseRawFileChecker)):
@@ -192,13 +200,13 @@ class BaseChecker(_ArgumentsProvider):
                 default_scope = WarningScope.LINE  # pragma: no cover
             else:
                 default_scope = WarningScope.NODE
-        options = {}
-        if len(msg_tuple) > 3:
-            (msg, symbol, descr, options) = msg_tuple
-        elif len(msg_tuple) > 2:
-            (msg, symbol, descr) = msg_tuple
+        options: ExtraMessageOptions = {}
+        if len(msg_tuple) == 4:
+            (msg, symbol, descr, options) = msg_tuple  # type: ignore[misc]
+        elif len(msg_tuple) == 3:
+            (msg, symbol, descr) = msg_tuple  # type: ignore[misc]
         else:
-            error_msg = """Messages should have a msgid and a symbol. Something like this :
+            error_msg = """Messages should have a msgid, a symbol and a description. Something like this :
 
 "W1234": (
     "message",
