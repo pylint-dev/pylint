@@ -1,5 +1,3 @@
-menu = ('eggs', 'spam')
+menu = ('eggs', 'spam', 42.4)
 
-order = f"{menu[0]} and {menu[1]}"
-
-new_order = f"{menu[1]} and {menu[0]}"
+f_string_order = f"{menu[0]} and {menu[1]}: {menu[2]:0.2f} ¤"
