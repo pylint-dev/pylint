@@ -1296,7 +1296,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     @staticmethod
     def _apply_boolean_simplification_rules(operator, values):
-        """Removes irrelevant values or returns shortcircuiting values.
+        """Removes irrelevant values or returns short-circuiting values.
 
         This function applies the following two rules:
         1) an OR expression with True in it will always be true, and the

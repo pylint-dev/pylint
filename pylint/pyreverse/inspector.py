@@ -2,7 +2,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-"""Visitor doing some postprocessing on the astroid tree.
+"""Visitor doing some post-processing on the astroid tree.
 
 Try to resolve definitions (namespace) dictionary, relationship...
 """

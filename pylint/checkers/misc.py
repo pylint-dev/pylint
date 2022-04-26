@@ -138,7 +138,7 @@ class EncodingChecker(BaseTokenChecker, BaseRawFileChecker):
             token_info for token_info in tokens if token_info.type == tokenize.COMMENT
         )
         for comment in comments:
-            comment_text = comment.string[1:].lstrip()  # trim '#' and whitespaces
+            comment_text = comment.string[1:].lstrip()  # trim '#' and white-spaces
 
             # handle pylint disable clauses
             disable_option_match = OPTION_PO.search(comment_text)

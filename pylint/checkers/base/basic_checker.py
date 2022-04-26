@@ -730,7 +730,7 @@ class BasicChecker(_BasicChecker):
             if isinstance(argument, (nodes.List, nodes.Tuple)):
                 return
 
-            # dicts are reversible, but only from Python 3.8 onwards. Prior to
+            # dicts are reversible, but only from Python 3.8 onward. Prior to
             # that, any class based on dict must explicitly provide a
             # __reversed__ method
             if not self._py38_plus and isinstance(argument, astroid.Instance):

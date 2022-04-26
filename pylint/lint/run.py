@@ -106,7 +106,7 @@ group are mutually exclusive.",
         self._plugins: list[str] = []
         self.verbose: bool = False
 
-        # Preprocess certain options and remove them from args list
+        # Pre-process certain options and remove them from args list
         try:
             args = _preprocess_options(self, args)
         except ArgumentPreprocessingError as ex:

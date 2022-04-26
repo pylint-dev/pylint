@@ -422,7 +422,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             elif tok_type not in (tokenize.COMMENT, tokenize.ENCODING):
                 # This is the first concrete token following a NEWLINE, so it
                 # must be the first token of the next program statement, or an
-                # ENDMARKER; the "line" argument exposes the leading whitespace
+                # ENDMARKER; the "line" argument exposes the leading white-space
                 # for this statement; in the case of ENDMARKER, line is an empty
                 # string, so will properly match the empty string with which the
                 # "indents" stack was seeded
@@ -564,7 +564,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         self._visited_lines[line] = 2
 
     def check_line_ending(self, line: str, i: int) -> None:
-        """Check that the final newline is not missing and that there is no trailing whitespace."""
+        """Check that the final newline is not missing and that there is no trailing white-space."""
         if not line.endswith("\n"):
             self.add_message("missing-final-newline", line=i)
             return
@@ -636,7 +636,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
 
         Check lines have :
         - a final newline
-        - no trailing whitespace
+        - no trailing white-space
         - less than a maximum number of characters
         """
         # we're first going to do a rough check whether any lines in this set

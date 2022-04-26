@@ -28,7 +28,7 @@ def target_info_from_filename(filename: str) -> tuple[str, str, str]:
 
 
 class DotBackend:
-    """Dot File backend."""
+    """Dot File back-end."""
 
     def __init__(
         self,
