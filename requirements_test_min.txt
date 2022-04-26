@@ -1,4 +1,4 @@
--e .[testutil]
+-e .[testutils,spelling]
 # astroid dependency is also defined in setup.cfg
 astroid==2.11.3  # Pinned to a specific version for tests
 typing-extensions~=4.2

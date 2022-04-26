@@ -130,8 +130,8 @@ To run individual tests with ``tox``, you can do::
 
     tox -e py37 -- -k name_of_the_test
 
-If you're testing new change in astroid you need to clone astroid_ and install
-the last version::
+If you're testing new changes in astroid you need to clone astroid_ and install
+with an editable installation as follows::
 
     git clone https://github.com/PyCQA/astroid.git
     cd astroid

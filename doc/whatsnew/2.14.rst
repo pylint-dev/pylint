@@ -79,6 +79,13 @@ Extensions
 Other Changes
 =============
 
+* Pylint can now be installed with an extra-require called ``spelling`` (``pip install pylint[spelling]``).
+  This will add ``pyenchant`` to pylint's dependencies. You will still need to install the
+  requirements for ``pyenchant`` (the ``enchant`` library and any dictionaries) yourself. You will also
+  need to set the ``spelling-dict`` option.
+
+  Refs #6462
+
 * Improved wording of the message of ``deprecated-module``
 
   Closes #6169
