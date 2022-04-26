@@ -63,6 +63,17 @@ repos:
         types: [python]
         args: ["-rn", "-sn", "--rcfile=pylintrc", "--fail-on=I"]
         exclude: tests/functional/|tests/input|tests(/\w*)*data/|doc/
+      # We define an additional manual step to allow running pylint with a spelling
+      # checker in CI.
+      - id: pylint
+        alias: pylint-with-spelling
+        name: pylint
+        entry: pylint
+        language: system
+        types: [python]
+        args: ["-rn", "-sn", "--rcfile=pylintrc", "--fail-on=I", "--spelling-dict=en"]
+        exclude: tests/functional/|tests/input|tests(/\w*)*data/|doc/
+        stages: [manual]
       - id: fix-documentation
         name: Fix documentation
         entry: python3 -m script.fix_documentation
