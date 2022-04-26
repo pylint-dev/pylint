@@ -1,4 +1,5 @@
 from string import Template
+
 menu = ('eggs', 'spam', 42.4)
 
 old_order = "%s and %s: %.2f ¤" % menu # [consider-using-f-string]
