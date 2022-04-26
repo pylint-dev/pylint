@@ -392,7 +392,7 @@ missing-member-max-choices=1
 
 # Spelling dictionary name. Available dictionaries: none. To make it working
 # install python-enchant package.
-spelling-dict=en_US
+spelling-dict=
 
 # List of comma separated words that should not be checked.
 spelling-ignore-words=
