@@ -611,6 +611,10 @@ Other Changes
 
   Closes #5931
 
+* Avoid reporting ``superfluous-parens`` on expressions using the ``is not`` operator.
+
+  Closes #5930
+
 * Fix a crash when linting a file that passes an integer ``mode=`` to
   ``open``
 
