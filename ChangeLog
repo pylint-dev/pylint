@@ -25,6 +25,10 @@ Release date: TBA
 
   Closes #6414
 
+* Avoid reporting ``superfluous-parens`` on expressions using the ``is not`` operator.
+
+  Closes #5930
+
 
 What's New in Pylint 2.13.7?
 ============================

@@ -68,3 +68,10 @@ class ClassA:
 
     def __iter__(self):
         return ((k, getattr(self, k)) for k in self.keys)
+
+if (A == 2) is not (B == 2):
+    pass
+
+M = A is not (A <= H)
+M = True is not (M == K)
+M = True is not (True is not False)

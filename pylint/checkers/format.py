@@ -339,6 +339,14 @@ class FormatChecker(BaseTokenChecker):
             self._bracket_stack.pop()
         if tokens[start + 1].string != "(":
             return
+        if (
+            tokens[start].string == "not"
+            and start > 0
+            and tokens[start - 1].string == "is"
+        ):
+            # If this is part of an `is not` expression, we have a binary operator
+            # so the parentheses are not necessarily redundant.
+            return
         found_and_or = False
         contains_walrus_operator = False
         walrus_operator_depth = 0
@@ -412,7 +420,7 @@ class FormatChecker(BaseTokenChecker):
                 elif token[1] == "for":
                     return
                 # A generator expression can have an 'else' token in it.
-                # We check the rest of the tokens to see if any problems incur after
+                # We check the rest of the tokens to see if any problems occur after
                 # the 'else'.
                 elif token[1] == "else":
                     if "(" in (i.string for i in tokens[i:]):
