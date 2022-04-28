@@ -1491,7 +1491,7 @@ a metaclass class method.",
 
     def visit_attribute(self, node: nodes.Attribute) -> None:
         """Check if the getattr is an access to a class member
-        if so, register it
+        if so, register it.
 
         Also check for access to protected
         class member from outside its class (but ignore __special__
@@ -1814,7 +1814,7 @@ a metaclass class method.",
 
     def visit_name(self, node: nodes.Name) -> None:
         """Check if the name handle an access to a class member
-        if so, register it
+        if so, register it.
         """
         if self._first_attrs and (
             node.name == self._first_attrs[-1] or not self._first_attrs[-1]
@@ -1959,7 +1959,7 @@ a metaclass class method.",
 
     def _check_bases_classes(self, node):
         """Check that the given class node implements abstract methods from
-        base classes
+        base classes.
         """
 
         def is_abstract(method):
@@ -1986,7 +1986,7 @@ a metaclass class method.",
 
     def _check_init(self, node: nodes.FunctionDef, klass_node: nodes.ClassDef) -> None:
         """Check that the __init__ method call super or ancestors'__init__
-        method (unless it is used for type hinting with `typing.overload`)
+        method (unless it is used for type hinting with `typing.overload`).
         """
         if not self.linter.is_message_enabled(
             "super-init-not-called"
@@ -2180,7 +2180,7 @@ def _ancestors_to_call(
     klass_node: nodes.ClassDef, method="__init__"
 ) -> dict[nodes.ClassDef, bases.UnboundMethod]:
     """Return a dictionary where keys are the list of base classes providing
-    the queried method, and so that should/may be called from the method node
+    the queried method, and so that should/may be called from the method node.
     """
     to_call: dict[nodes.ClassDef, bases.UnboundMethod] = {}
     for base_node in klass_node.ancestors(recurs=False):

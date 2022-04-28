@@ -865,7 +865,7 @@ class PyLinter(
         self, modname: str | None, filepath: str | None = None
     ) -> None:
         """Set the name of the currently analyzed module and
-        init statistics for it
+        init statistics for it.
         """
         if not modname and filepath is None:
             return
@@ -1232,7 +1232,7 @@ class PyLinter(
         end_col_offset: int | None,
     ) -> None:
         """After various checks have passed a single Message is
-        passed to the reporter and added to stats
+        passed to the reporter and added to stats.
         """
         message_definition.check_message_definition(line, node)
 

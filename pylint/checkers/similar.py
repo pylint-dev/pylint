@@ -86,7 +86,7 @@ STREAM_TYPES = Union[TextIO, BufferedReader, BytesIO]
 
 class CplSuccessiveLinesLimits:
     """Holds a SuccessiveLinesLimits object for each file compared and a
-    counter on the number of common lines between both stripped lines collections extracted from both files
+    counter on the number of common lines between both stripped lines collections extracted from both files.
     """
 
     __slots__ = ("first_file", "second_file", "effective_cmn_lines_nb")
@@ -532,7 +532,7 @@ class Similar:
 
     def _iter_sims(self) -> Generator[Commonality, None, None]:
         """Iterate on similarities among all files, by making a Cartesian
-        product
+        product.
         """
         for idx, lineset in enumerate(self.linesets[:-1]):
             for lineset2 in self.linesets[idx + 1 :]:

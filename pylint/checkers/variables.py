@@ -159,7 +159,7 @@ def overridden_method(klass, name):
 
 def _get_unpacking_extra_info(node, inferred):
     """Return extra information to add to the message for unpacking-non-sequence
-    and unbalanced-tuple-unpacking errors
+    and unbalanced-tuple-unpacking errors.
     """
     more = ""
     inferred_module = inferred.root().name
@@ -554,8 +554,9 @@ scope_type : {self._atomic.scope_type}
     @property
     def consumed_uncertain(self) -> defaultdict[str, list[nodes.NodeNG]]:
         """Retrieves nodes filtered out by get_next_to_consume() that may not
-        have executed, such as statements in except blocks, or statements
+        have executed.
 
+        These include nodes such as statements in except blocks, or statements
         in try blocks (when evaluating their corresponding except and finally
         blocks). Checkers that want to treat the statements as executed
         (e.g. for unused-variable) may need to add them back.
@@ -1107,7 +1108,7 @@ class VariablesChecker(BaseChecker):
 
     def visit_module(self, node: nodes.Module) -> None:
         """Visit module : update consumption analysis variable
-        checks globals doesn't overrides builtins
+        checks globals doesn't overrides builtins.
         """
         self._to_consume = [NamesConsumer(node, "module")]
         self._postponed_evaluation_enabled = is_postponed_evaluation_enabled(node)
@@ -2111,7 +2112,7 @@ class VariablesChecker(BaseChecker):
         node: nodes.Name, defstmt: nodes.ClassDef, found_nodes: list[nodes.NodeNG]
     ) -> tuple[VariableVisitConsumerAction, list[nodes.NodeNG] | None]:
         """Check if a first level method's annotation or default values
-        refers to its own class, and return a consumer action
+        refers to its own class, and return a consumer action.
         """
         if node.frame(future=True).parent == defstmt and node.statement(
             future=True
@@ -2134,7 +2135,7 @@ class VariablesChecker(BaseChecker):
         defnode: nodes.NamedExpr, defnode_parent: nodes.IfExp
     ) -> bool:
         """Check if a NamedExpr is inside a side of if ... else that never
-        gets evaluated
+        gets evaluated.
         """
         inferred_test = utils.safe_infer(defnode_parent.test)
         if isinstance(inferred_test, nodes.Const):
@@ -2607,7 +2608,7 @@ class VariablesChecker(BaseChecker):
 
     def _check_module_attrs(self, node, module, module_names):
         """Check that module_names (list of string) are accessible through the
-        given module, if the latest access name corresponds to a module, return it
+        given module, if the latest access name corresponds to a module, return it.
         """
         while module_names:
             name = module_names.pop(0)

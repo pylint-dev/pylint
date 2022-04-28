@@ -358,7 +358,7 @@ def is_defined_before(var_node: nodes.Name) -> bool:
 
 def is_default_argument(node: nodes.NodeNG, scope: nodes.NodeNG | None = None) -> bool:
     """Return true if the given Name node is used in function or lambda
-    default argument's value
+    default argument's value.
     """
     if not scope:
         scope = node.scope()
@@ -394,7 +394,7 @@ def is_func_decorator(node: nodes.NodeNG) -> bool:
 
 def is_ancestor_name(frame: nodes.ClassDef, node: nodes.NodeNG) -> bool:
     """Return whether `frame` is an astroid.Class node with `node` in the
-    subtree of its bases attribute
+    subtree of its bases attribute.
     """
     if not isinstance(frame, nodes.ClassDef):
         return False
@@ -415,7 +415,7 @@ def assign_parent(node: nodes.NodeNG) -> nodes.NodeNG:
 
 def overrides_a_method(class_node: nodes.ClassDef, name: str) -> bool:
     """Return True if <name> is a method overridden from an ancestor
-    which is not the base object class
+    which is not the base object class.
     """
     for ancestor in class_node.ancestors():
         if ancestor.name == "object":
@@ -665,7 +665,7 @@ def get_outer_class(class_node: astroid.ClassDef) -> astroid.ClassDef | None:
 
 def is_attr_private(attrname: str) -> Match[str] | None:
     """Check that attribute name is private (at least two leading underscores,
-    at most one trailing underscore)
+    at most one trailing underscore).
     """
     regex = re.compile("^_{2,}.*[^_]+_?$")
     return regex.match(attrname)
@@ -1041,7 +1041,7 @@ def node_ignores_exception(node: nodes.NodeNG, exception=Exception) -> bool:
 
 def class_is_abstract(node: nodes.ClassDef) -> bool:
     """Return true if the given class node should be considered as an abstract
-    class
+    class.
     """
     # Only check for explicit metaclass=ABCMeta on this specific class
     meta = node.declared_metaclass()
@@ -1723,7 +1723,7 @@ def get_node_first_ancestor_of_type_and_its_child(
     node: nodes.NodeNG, ancestor_type: type[T_Node] | tuple[type[T_Node], ...]
 ) -> tuple[None, None] | tuple[T_Node, nodes.NodeNG]:
     """Modified version of get_node_first_ancestor_of_type to also return the
-    descendant visited directly before reaching the sought ancestor
+    descendant visited directly before reaching the sought ancestor.
 
     Useful for extracting whether a statement is guarded by a try, except, or finally
     when searching for a TryFinally ancestor.

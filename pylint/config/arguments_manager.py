@@ -379,7 +379,7 @@ class _ArgumentsManager:
         self, provider: ConfigProvider, opt: str, optdict: OptionDict
     ) -> tuple[list[str], OptionDict]:  # pragma: no cover
         """DEPRECATED: Get our personal option definition and return a suitable form for
-        use with optik/optparse
+        use with optik/optparse.
         """
         warnings.warn(
             "optik_option has been deprecated. Parsing of option dictionaries should be done "
@@ -417,7 +417,7 @@ class _ArgumentsManager:
         self, stream: TextIO | None = None, skipsections: tuple[str, ...] = ()
     ) -> None:  # pragma: no cover
         """DEPRECATED: Write a configuration file according to the current configuration
-        into the given stream or stdout
+        into the given stream or stdout.
         """
         warnings.warn(
             "generate_config has been deprecated. It will be removed in pylint 3.0.",
@@ -486,7 +486,7 @@ class _ArgumentsManager:
         self, config_file: Path | None = None, verbose: bool = False
     ) -> None:  # pragma: no cover
         """DEPRECATED: Read the configuration file but do not load it (i.e. dispatching
-        values to each option's provider)
+        values to each option's provider).
 
         :raises OSError: When the specified config file doesn't exist
         """
@@ -559,7 +559,7 @@ class _ArgumentsManager:
 
     def load_config_file(self) -> None:  # pragma: no cover
         """DEPRECATED: Dispatch values previously read from a configuration file to each
-        option's provider
+        option's provider.
         """
         warnings.warn(
             "load_config_file has been deprecated. It will be removed in pylint 3.0.",

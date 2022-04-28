@@ -32,7 +32,7 @@ class MessageStyle(NamedTuple):
 
     color: str | None
     """The color name (see `ANSI_COLORS` for available values)
-    or the color number when 256 colors are available
+    or the color number when 256 colors are available.
     """
     style: tuple[str, ...] = ()
     """Tuple of style strings (see `ANSI_COLORS` for available values)."""
@@ -289,7 +289,7 @@ class ColorizedTextReporter(TextReporter):
 
     def handle_message(self, msg: Message) -> None:
         """Manage message of different types, and colorize output
-        using ANSI escape codes
+        using ANSI escape codes.
         """
         if msg.module not in self._modules:
             msg_style = self._get_decoration("S")

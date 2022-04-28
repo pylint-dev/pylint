@@ -169,7 +169,7 @@ class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
 
 class ClassDiadefGenerator(DiaDefGenerator):
     """Generate a class diagram definition including all classes related to a
-    given class
+    given class.
     """
 
     def class_diagram(self, project, klass):

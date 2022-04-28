@@ -218,7 +218,7 @@ class PackageDiagram(ClassDiagram):
 
     def get_module(self, name, node):
         """Return a module by its name, looking also for relative imports;
-        raise KeyError if not found
+        raise KeyError if not found.
         """
         for mod in self.modules():
             mod_name = mod.node.name

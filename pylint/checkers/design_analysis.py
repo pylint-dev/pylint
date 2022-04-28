@@ -511,7 +511,7 @@ class MisdesignChecker(BaseChecker):
     )
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         """Check function name, docstring, arguments, redefinition,
-        variable names, max locals
+        variable names, max locals.
         """
         # init branch and returns counters
         self._returns.append(0)
@@ -556,7 +556,7 @@ class MisdesignChecker(BaseChecker):
     )
     def leave_functiondef(self, node: nodes.FunctionDef) -> None:
         """Most of the work is done here on close:
-        checks for max returns, branch, return in __init__
+        checks for max returns, branch, return in __init__.
         """
         returns = self._returns.pop()
         if returns > self.linter.config.max_returns:
@@ -591,7 +591,7 @@ class MisdesignChecker(BaseChecker):
 
     def visit_default(self, node: nodes.NodeNG) -> None:
         """Default visit method -> increments the statements counter if
-        necessary
+        necessary.
         """
         if node.is_statement:
             self._inc_all_stmts(1)
@@ -624,7 +624,7 @@ class MisdesignChecker(BaseChecker):
 
     def _check_boolean_expressions(self, node):
         """Go through "if" node `node` and count its boolean expressions
-        if the 'if' node test is a BoolOp node
+        if the 'if' node test is a BoolOp node.
         """
         condition = node.test
         if not isinstance(condition, astroid.BoolOp):
