@@ -2,7 +2,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-"""Functional tests for the code examples in the messages documentation."""
+"""Functional tests for the code examples in the messages' documentation."""
 
 import sys
 
@@ -41,6 +41,11 @@ def get_functional_test_files_from_directory(input_dir: Path) -> List[Tuple[str,
 
     for subdirectory in input_dir.iterdir():
         for message_dir in subdirectory.iterdir():
+            assert_msg = (
+                f"{subdirectory}: '{message_dir.name}' is in the wrong "
+                f"directory: it does not start with '{subdirectory.name}'"
+            )
+            assert message_dir.name.startswith(subdirectory.name), assert_msg
             if (message_dir / "good.py").exists():
                 suite.append(
                     (message_dir.stem, message_dir / "good.py"),
