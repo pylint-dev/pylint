@@ -167,7 +167,7 @@ def get_cycles(
     graph_dict: dict[str, set[str]], vertices: list[str] | None = None
 ) -> Sequence[list[str]]:
     """Return a list of detected cycles in a dictionary representing an ordered graph
-    (i.e. key are vertices and values is a list of destination vertices representing edges)
+    (i.e. key are vertices and values is a list of destination vertices representing edges).
     """
     if not graph_dict:
         return ()

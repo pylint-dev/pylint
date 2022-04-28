@@ -66,14 +66,14 @@ FINAL = re.compile(r"^[^\W\da-z]*$")
 
 def is_abstract(node):
     """Return true if the given class node correspond to an abstract class
-    definition
+    definition.
     """
     return ABSTRACT.match(node.name)
 
 
 def is_final(node):
     """Return true if the given class/function node correspond to final
-    definition
+    definition.
     """
     return FINAL.match(node.name)
 
@@ -255,7 +255,7 @@ def get_annotation(
 
 def infer_node(node: nodes.AssignAttr | nodes.AssignName) -> set:
     """Return a set containing the node annotation if it exists
-    otherwise return a set of the inferred types using the NodeNG.infer method
+    otherwise return a set of the inferred types using the NodeNG.infer method.
     """
 
     ann = get_annotation(node)

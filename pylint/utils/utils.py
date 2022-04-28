@@ -107,7 +107,7 @@ def cmp(a: int | float, b: int | float) -> int:
 
 def diff_string(old: int | float, new: int | float) -> str:
     """Given an old and new int value, return a string representing the
-    difference
+    difference.
     """
     diff = abs(old - new)
     diff_str = f"{CMPS[cmp(old, new)]}{diff and f'{diff:.2f}' or ''}"
@@ -181,7 +181,7 @@ def tokenize_module(node: nodes.Module) -> list[tokenize.TokenInfo]:
 
 def register_plugins(linter: PyLinter, directory: str) -> None:
     """Load all module and package in the given directory, looking for a
-    'register' function in each one, used to register pylint checkers
+    'register' function in each one, used to register pylint checkers.
     """
     imported = {}
     for filename in os.listdir(directory):

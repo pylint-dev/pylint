@@ -134,7 +134,7 @@ def _ignore_import_failure(node, modname, ignored_modules):
 
 def _make_tree_defs(mod_files_list):
     """Get a list of 2-uple (module, list_of_files_which_import_this_module),
-    it will return a dictionary to represent this as a tree
+    it will return a dictionary to represent this as a tree.
     """
     tree_defs = {}
     for mod, files in mod_files_list:
@@ -188,7 +188,7 @@ def _make_graph(
     filename: str, dep_info: dict[str, set[str]], sect: Section, gtype: str
 ):
     """Generate a dependencies graph and add some information about it in the
-    report's section
+    report's section.
     """
     outputfile = _dependencies_graph(filename, dep_info)
     sect.append(Paragraph((f"{gtype}imports graph has been written to {outputfile}",)))
@@ -920,14 +920,14 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
     @astroid.decorators.cached
     def _external_dependencies_info(self):
         """Return cached external dependencies information or build and
-        cache them
+        cache them.
         """
         return self._filter_dependencies_graph(internal=False)
 
     @astroid.decorators.cached
     def _internal_dependencies_info(self):
         """Return cached internal dependencies information or build and
-        cache them
+        cache them.
         """
         return self._filter_dependencies_graph(internal=True)
 

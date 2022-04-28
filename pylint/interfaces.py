@@ -117,7 +117,7 @@ class ITokenChecker(IChecker):
 
 class IAstroidChecker(IChecker):
     """Interface for checker which prefers receive events according to
-    statement type
+    statement type.
     """
 
 

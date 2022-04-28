@@ -339,7 +339,7 @@ class RecommendationChecker(checkers.BaseChecker):
 
     def _detect_replacable_format_call(self, node: nodes.Const) -> None:
         """Check whether a string is used in a call to format() or '%' and whether it
-        can be replaced by an f-string
+        can be replaced by an f-string.
         """
         if (
             isinstance(node.parent, nodes.Attribute)
