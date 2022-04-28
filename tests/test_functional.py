@@ -3,9 +3,11 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Functional full-module tests for PyLint."""
+
+from __future__ import annotations
+
 import sys
 from pathlib import Path
-from typing import Union
 
 import pytest
 from _pytest.config import Config
@@ -19,10 +21,6 @@ from pylint.testutils.functional import (
     get_functional_test_files_from_directory,
 )
 from pylint.utils import HAS_ISORT_5
-
-# TODOs
-#  - implement exhaustivity tests
-
 
 FUNCTIONAL_DIR = Path(__file__).parent.resolve() / "functional"
 
@@ -46,27 +44,23 @@ def test_functional(
 ) -> None:
     __tracebackhide__ = True  # pylint: disable=unused-variable
     if UPDATE_FILE.exists():
-        lint_test: Union[
-            LintModuleOutputUpdate, testutils.LintModuleTest
-        ] = LintModuleOutputUpdate(test_file, pytestconfig)
+        lint_test: (
+            LintModuleOutputUpdate | testutils.LintModuleTest
+        ) = LintModuleOutputUpdate(test_file, pytestconfig)
     else:
         lint_test = testutils.LintModuleTest(test_file, pytestconfig)
     lint_test.setUp()
     lint_test.runTest()
-    warning = None
-    try:
-        # Catch <unknown>:x: DeprecationWarning: invalid escape sequence,
-        # so, it's not shown during tests
-        warning = recwarn.pop()
-    except AssertionError:
-        pass
-    if warning is not None:
+    if recwarn.list:
         if (
             test_file.base in TEST_WITH_EXPECTED_DEPRECATION
             and sys.version_info.minor > 5
         ):
-            assert issubclass(warning.category, DeprecationWarning)
-            assert "invalid escape sequence" in str(warning.message)
+            assert any(
+                "invalid escape sequence" in str(i.message)
+                for i in recwarn.list
+                if issubclass(i.category, DeprecationWarning)
+            )
 
 
 if __name__ == "__main__":

@@ -4,8 +4,9 @@
 
 """Unittest for the NameChecker."""
 
+from __future__ import annotations
+
 import unittest
-from typing import Type
 
 from pylint.checkers import base
 
@@ -20,18 +21,18 @@ class TestNamePresets(unittest.TestCase):
     )
 
     def _test_name_is_correct_for_all_name_types(
-        self, naming_style: Type[base.NamingStyle], name: str
+        self, naming_style: type[base.NamingStyle], name: str
     ) -> None:
         for name_type in base.KNOWN_NAME_TYPES_WITH_STYLE:
             self._test_is_correct(naming_style, name, name_type)
 
     def _test_name_is_incorrect_for_all_name_types(
-        self, naming_style: Type[base.NamingStyle], name: str
+        self, naming_style: type[base.NamingStyle], name: str
     ) -> None:
         for name_type in base.KNOWN_NAME_TYPES_WITH_STYLE:
             self._test_is_incorrect(naming_style, name, name_type)
 
-    def _test_should_always_pass(self, naming_style: Type[base.NamingStyle]) -> None:
+    def _test_should_always_pass(self, naming_style: type[base.NamingStyle]) -> None:
         always_pass_data = [
             ("__add__", "method"),
             ("__set_name__", "method"),
@@ -43,7 +44,7 @@ class TestNamePresets(unittest.TestCase):
 
     @staticmethod
     def _test_is_correct(
-        naming_style: Type[base.NamingStyle], name: str, name_type: str
+        naming_style: type[base.NamingStyle], name: str, name_type: str
     ) -> None:
         rgx = naming_style.get_regex(name_type)
         fail = f"{name!r} does not match pattern {rgx!r} (style: {naming_style}, type: {name_type})"
@@ -51,7 +52,7 @@ class TestNamePresets(unittest.TestCase):
 
     @staticmethod
     def _test_is_incorrect(
-        naming_style: Type[base.NamingStyle], name: str, name_type: str
+        naming_style: type[base.NamingStyle], name: str, name_type: str
     ) -> None:
         rgx = naming_style.get_regex(name_type)
         fail = f"{name!r} not match pattern {rgx!r} (style: {naming_style}, type: {name_type})"

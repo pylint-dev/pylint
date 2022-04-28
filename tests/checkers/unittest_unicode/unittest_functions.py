@@ -2,9 +2,10 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import itertools
 from pathlib import Path
-from typing import Dict
 
 import pytest
 
@@ -103,7 +104,7 @@ SEARCH_DICT_BYTE_UTF8 = {
 )
 def test_map_positions_to_result(
     line: pylint.checkers.unicode._StrLike,
-    expected: Dict[int, pylint.checkers.unicode._BadChar],
+    expected: dict[int, pylint.checkers.unicode._BadChar],
     search_dict,
 ):
     """Test all possible outcomes for map position function in UTF-8 and ASCII."""

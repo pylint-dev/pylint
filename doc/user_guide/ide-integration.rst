@@ -6,16 +6,16 @@
 
 To use Pylint with:
 
- - Emacs_, see https://www.emacswiki.org/emacs/PythonProgrammingInEmacs#toc8,
+ - Emacs_, see https://www.emacswiki.org/emacs/PythonProgrammingInEmacs,
  - Vim_, see https://www.vim.org/scripts/script.php?script_id=891,
  - `Visual Studio`_, see https://docs.microsoft.com/visualstudio/python/code-pylint,
- - Eclipse_ and PyDev_, see https://pydev.org/manual_adv_pylint.html,
- - Komodo_, see http://mateusz.loskot.net/posts/2006/01/15/running-pylint-from-komodo/,
+ - Eclipse_ and PyDev_, see https://www.pydev.org/manual_adv_pylint.html,
+ - Komodo_, see https://mateusz.loskot.net/post/2006/01/15/running-pylint-from-komodo/,
  - gedit_, see https://launchpad.net/gedit-pylint-2 or https://wiki.gnome.org/Apps/Gedit/PylintPlugin,
- - WingIDE_, see https://www.wingware.com/doc/edit/pylint,
+ - WingIDE_, see https://wingware.com/doc/warnings/external-checkers,
  - PyCharm_, see :ref:`the section below <pylint_in_pycharm>`,
  - TextMate_, see :ref:`the section below <pylint_in_textmate>`
- - `Visual Studio Code`_, see https://code.visualstudio.com/docs/python/linting#_pylint,
+ - `Visual Studio Code`_, see https://docs.microsoft.com/en-us/visualstudio/python/linting-python-code,
  - `Jupyter Notebook`_, see https://github.com/nbQA-dev/nbQA,
 
 Pylint is integrated in:
@@ -23,18 +23,18 @@ Pylint is integrated in:
  - `Visual Studio`_, see the `Python > Run PyLint` command on a project's context menu.
  - Eric_ IDE, see the `Project > Check` menu,
  - Spyder_, see the `View -> Panes -> Static code analysis` pane and
-   its `corresponding documentation <https://docs.spyder-ide.org/pylint.html>`_.
+   its `corresponding documentation <https://docs.spyder-ide.org/current/panes/pylint.html>`_.
  - pyscripter_, see the `Tool -> Tools` menu.
  - `Visual Studio Code`_, see the `Preferences -> Settings` menu.
 
 .. _Emacs: https://www.gnu.org/software/emacs/
 .. _Vim: https://www.vim.org/
-.. _Visual Studio: https://www.visualstudio.com/
+.. _Visual Studio: https://visualstudio.microsoft.com/
 .. _Eclipse: https://www.eclipse.org/
 .. _Eric: https://eric-ide.python-projects.org/
 .. _pyscripter: https://github.com/pyscripter/pyscripter
-.. _pydev: https://pydev.org
-.. _Komodo: http://www.activestate.com/Products/Komodo/
+.. _pydev: https://www.pydev.org/
+.. _Komodo: https://www.activestate.com/products/komodo-ide/
 .. _gedit: https://wiki.gnome.org/Apps/Gedit
 .. _WingIDE: https://www.wingware.com/
 .. _spyder: https://www.spyder-ide.org/
@@ -43,14 +43,14 @@ Pylint is integrated in:
 .. _Visual Studio Code: https://code.visualstudio.com/
 .. _Jupyter Notebook: https://jupyter.org/
 
-Using Pylint thru flymake in Emacs
-==================================
+Using Pylint through Flymake in Emacs
+=====================================
 
-To enable flymake for Python, insert the following into your .emacs:
+To enable Flymake for Python, insert the following into your .emacs:
 
 .. sourcecode:: common-lisp
 
-    ;; Configure flymake for Python
+    ;; Configure Flymake for Python
     (when (load "flymake" t)
       (defun flymake-pylint-init ()
         (let* ((temp-file (flymake-init-create-temp-buffer-copy
@@ -80,16 +80,16 @@ Other things you may find useful to set:
     (add-hook 'python-mode-hook '(lambda () (define-key python-mode-map "\C-cp" 'flymake-goto-prev-error)))
 
 
-Finally, by default flymake only displays the extra information about the error when you
+Finally, by default Flymake only displays the extra information about the error when you
 hover the mouse over the highlighted line. The following will use the minibuffer to display
 messages when you the cursor is on the line.
 
 .. sourcecode:: common-lisp
 
-    ;; To avoid having to mouse hover for the error message, these functions make flymake error messages
+    ;; To avoid having to mouse hover for the error message, these functions make Flymake error messages
     ;; appear in the minibuffer
     (defun show-fly-err-at-point ()
-      "If the cursor is sitting on a flymake error, display the message in the minibuffer"
+      "If the cursor is sitting on a Flymake error, display the message in the minibuffer"
       (require 'cl)
       (interactive)
       (let ((line-no (line-number-at-pos)))
@@ -274,4 +274,4 @@ setting to change the mapping.
 | fatal                | pylintCategorySeverity.fatal      | Error            |
 +----------------------+-----------------------------------+------------------+
 
-.. _Pylint command line arguments: https://pylint.readthedocs.io/en/latest/user_guide/run.html#command-line-options
+.. _Pylint command line arguments: https://pylint.pycqa.org/en/latest/user_guide/run.html#command-line-options

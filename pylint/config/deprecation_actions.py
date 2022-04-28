@@ -6,9 +6,12 @@
 
 """Deprecated option actions."""
 
+from __future__ import annotations
+
 import argparse
 import warnings
-from typing import Any, List, Optional, Sequence, Union
+from collections.abc import Sequence
+from typing import Any
 
 
 class _OldNamesAction(argparse._StoreAction):
@@ -26,14 +29,14 @@ class _OldNamesAction(argparse._StoreAction):
         required: bool = False,
         help: str = "",
         metavar: str = "",
-        old_names: Optional[List[str]] = None,
+        old_names: list[str] | None = None,
     ) -> None:
         assert old_names
         self.old_names = old_names
         super().__init__(
             option_strings,
             dest,
-            "+",
+            1,
             const,
             default,
             type,
@@ -47,8 +50,8 @@ class _OldNamesAction(argparse._StoreAction):
         self,
         parser: argparse.ArgumentParser,
         namespace: argparse.Namespace,
-        values: Union[str, Sequence[Any], None],
-        option_string: Optional[str] = None,
+        values: str | Sequence[Any] | None,
+        option_string: str | None = None,
     ):
         assert isinstance(values, list)
         setattr(namespace, self.dest, values[0])
@@ -71,14 +74,14 @@ class _NewNamesAction(argparse._StoreAction):
         required: bool = False,
         help: str = "",
         metavar: str = "",
-        new_names: Optional[List[str]] = None,
+        new_names: list[str] | None = None,
     ) -> None:
         assert new_names
         self.new_names = new_names
         super().__init__(
             option_strings,
             dest,
-            "+",
+            1,
             const,
             default,
             type,
@@ -92,8 +95,8 @@ class _NewNamesAction(argparse._StoreAction):
         self,
         parser: argparse.ArgumentParser,
         namespace: argparse.Namespace,
-        values: Union[str, Sequence[Any], None],
-        option_string: Optional[str] = None,
+        values: str | Sequence[Any] | None,
+        option_string: str | None = None,
     ):
         assert isinstance(values, list)
         setattr(namespace, self.dest, values[0])

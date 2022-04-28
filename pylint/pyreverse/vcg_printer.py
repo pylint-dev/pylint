@@ -2,7 +2,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-"""Functions to generate files readable with Georg Sander's vcg
+"""Functions to generate files readable with George Sander's vcg
 (Visualization of Compiler Graphs).
 
 You can download vcg at https://rw4.cs.uni-sb.de/~sander/html/gshome.html
@@ -10,7 +10,11 @@ Note that vcg exists as a debian package.
 See vcg's documentation for explanation about the different values that
 maybe used for the functions parameters.
 """
-from typing import Any, Dict, Mapping, Optional
+
+from __future__ import annotations
+
+from collections.abc import Mapping
+from typing import Any
 
 from pylint.pyreverse.printer import EdgeType, Layout, NodeProperties, NodeType, Printer
 
@@ -145,12 +149,12 @@ EDGE_ATTRS = {
     "anchor": 1,
     "horizontal_order": 1,
 }
-SHAPES: Dict[NodeType, str] = {
+SHAPES: dict[NodeType, str] = {
     NodeType.PACKAGE: "box",
     NodeType.CLASS: "box",
     NodeType.INTERFACE: "ellipse",
 }
-ARROWS: Dict[EdgeType, Dict] = {
+ARROWS: dict[EdgeType, dict] = {
     EdgeType.USES: dict(arrowstyle="solid", backarrowstyle="none", backarrowsize=0),
     EdgeType.INHERITS: dict(
         arrowstyle="solid", backarrowstyle="none", backarrowsize=10
@@ -165,7 +169,7 @@ ARROWS: Dict[EdgeType, Dict] = {
         arrowstyle="solid", backarrowstyle="none", textcolor="green"
     ),
 }
-ORIENTATION: Dict[Layout, str] = {
+ORIENTATION: dict[Layout, str] = {
     Layout.LEFT_TO_RIGHT: "left_to_right",
     Layout.RIGHT_TO_LEFT: "right_to_left",
     Layout.TOP_TO_BOTTOM: "top_to_bottom",
@@ -200,7 +204,7 @@ class VCGPrinter(Printer):
         self,
         name: str,
         type_: NodeType,
-        properties: Optional[NodeProperties] = None,
+        properties: NodeProperties | None = None,
     ) -> None:
         """Create a new node.
 
@@ -245,7 +249,7 @@ class VCGPrinter(Printer):
         from_node: str,
         to_node: str,
         type_: EdgeType,
-        label: Optional[str] = None,
+        label: str | None = None,
     ) -> None:
         """Create an edge from one node to another to display relationships."""
         self.emit(

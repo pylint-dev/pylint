@@ -3,8 +3,11 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 # pylint: disable=redefined-outer-name
+
+from __future__ import annotations
+
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable, Tuple
 
 import pytest
 
@@ -16,8 +19,8 @@ from pylint.testutils.functional import LintModuleOutputUpdate
 @pytest.fixture()
 def lint_module_fixture(
     tmp_path: Path,
-) -> Callable[[str], Tuple[Path, Path, LintModuleOutputUpdate]]:
-    def inner(base: str) -> Tuple[Path, Path, LintModuleOutputUpdate]:
+) -> Callable[[str], tuple[Path, Path, LintModuleOutputUpdate]]:
+    def inner(base: str) -> tuple[Path, Path, LintModuleOutputUpdate]:
         filename = tmp_path / f"{base}.py"
         expected_output_file = tmp_path / f"{base}.txt"
         lmou = LintModuleOutputUpdate(
@@ -38,7 +41,7 @@ def test_not_py38(tmp_path: Path) -> None:
 
 @pytest.mark.skipif(not PY38_PLUS, reason="Requires python 3.8 or superior")
 def test_lint_module_output_update_fail_before(
-    lint_module_fixture: Callable[[str], Tuple[Path, Path, LintModuleOutputUpdate]]
+    lint_module_fixture: Callable[[str], tuple[Path, Path, LintModuleOutputUpdate]]
 ) -> None:
     """There is a fail before the output need to be updated."""
     filename, expected_output_file, lmou = lint_module_fixture("foo")
@@ -51,7 +54,7 @@ def test_lint_module_output_update_fail_before(
 
 @pytest.mark.skipif(not PY38_PLUS, reason="Requires python 3.8 or superior")
 def test_lint_module_output_update_effective(
-    lint_module_fixture: Callable[[str], Tuple[Path, Path, LintModuleOutputUpdate]]
+    lint_module_fixture: Callable[[str], tuple[Path, Path, LintModuleOutputUpdate]]
 ) -> None:
     """The file is updated following a successful tests with wrong output."""
     filename, expected_output_file, lmou = lint_module_fixture("foo")
@@ -66,7 +69,7 @@ def test_lint_module_output_update_effective(
 
 @pytest.mark.skipif(not PY38_PLUS, reason="Requires python 3.8 or superior")
 def test_lint_module_output_update_remove_useless_txt(
-    lint_module_fixture: Callable[[str], Tuple[Path, Path, LintModuleOutputUpdate]]
+    lint_module_fixture: Callable[[str], tuple[Path, Path, LintModuleOutputUpdate]]
 ) -> None:
     """The file is updated following a successful tests with wrong output."""
     filename, expected_output_file, lmou = lint_module_fixture("fine_name")

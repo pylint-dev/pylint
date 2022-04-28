@@ -4,14 +4,15 @@
 
 """Check source code is ascii only or has an encoding declaration (PEP 263)."""
 
+from __future__ import annotations
+
 import re
 import tokenize
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING
 
 from astroid import nodes
 
-from pylint.checkers import BaseChecker
-from pylint.interfaces import IRawChecker, ITokenChecker
+from pylint.checkers import BaseRawFileChecker, BaseTokenChecker
 from pylint.typing import ManagedMessage
 from pylint.utils.pragma_parser import OPTION_PO, PragmaParserError, parse_pragma
 
@@ -19,11 +20,10 @@ if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
 
-class ByIdManagedMessagesChecker(BaseChecker):
+class ByIdManagedMessagesChecker(BaseRawFileChecker):
 
     """Checks for messages that are enabled or disabled by id instead of symbol."""
 
-    __implements__ = IRawChecker
     name = "miscellaneous"
     msgs = {
         "I0023": (
@@ -37,7 +37,7 @@ class ByIdManagedMessagesChecker(BaseChecker):
     def _clear_by_id_managed_msgs(self) -> None:
         self.linter._by_id_managed_msgs.clear()
 
-    def _get_by_id_managed_msgs(self) -> List[ManagedMessage]:
+    def _get_by_id_managed_msgs(self) -> list[ManagedMessage]:
         return self.linter._by_id_managed_msgs
 
     def process_module(self, node: nodes.Module) -> None:
@@ -51,7 +51,7 @@ class ByIdManagedMessagesChecker(BaseChecker):
         self._clear_by_id_managed_msgs()
 
 
-class EncodingChecker(BaseChecker):
+class EncodingChecker(BaseTokenChecker, BaseRawFileChecker):
 
     """BaseChecker for encoding issues.
 
@@ -59,8 +59,6 @@ class EncodingChecker(BaseChecker):
     * warning notes in the code like FIXME, XXX
     * encoding issues.
     """
-
-    __implements__ = (IRawChecker, ITokenChecker)
 
     # configuration section name
     name = "miscellaneous"
@@ -96,17 +94,12 @@ class EncodingChecker(BaseChecker):
         ),
     )
 
-    def __init__(self, linter: "PyLinter") -> None:
-        super().__init__(linter, future_option_parsing=True)
-
     def open(self):
         super().open()
 
-        notes = "|".join(re.escape(note) for note in self.linter.namespace.notes)
-        if self.linter.namespace.notes_rgx:
-            regex_string = (
-                rf"#\s*({notes}|{self.linter.namespace.notes_rgx})(?=(:|\s|\Z))"
-            )
+        notes = "|".join(re.escape(note) for note in self.linter.config.notes)
+        if self.linter.config.notes_rgx:
+            regex_string = rf"#\s*({notes}|{self.linter.config.notes_rgx})(?=(:|\s|\Z))"
         else:
             regex_string = rf"#\s*({notes})(?=(:|\s|\Z))"
 
@@ -114,7 +107,7 @@ class EncodingChecker(BaseChecker):
 
     def _check_encoding(
         self, lineno: int, line: bytes, file_encoding: str
-    ) -> Optional[str]:
+    ) -> str | None:
         try:
             return line.decode(file_encoding)
         except UnicodeDecodeError:
@@ -137,15 +130,15 @@ class EncodingChecker(BaseChecker):
             for lineno, line in enumerate(stream):
                 self._check_encoding(lineno + 1, line, encoding)
 
-    def process_tokens(self, tokens):
+    def process_tokens(self, tokens: list[tokenize.TokenInfo]) -> None:
         """Inspect the source to find fixme problems."""
-        if not self.linter.namespace.notes:
+        if not self.linter.config.notes:
             return
         comments = (
             token_info for token_info in tokens if token_info.type == tokenize.COMMENT
         )
         for comment in comments:
-            comment_text = comment.string[1:].lstrip()  # trim '#' and whitespaces
+            comment_text = comment.string[1:].lstrip()  # trim '#' and white-spaces
 
             # handle pylint disable clauses
             disable_option_match = OPTION_PO.search(comment_text)
@@ -162,8 +155,6 @@ class EncodingChecker(BaseChecker):
                     except PragmaParserError:
                         # Printing useful information dealing with this error is done in the lint package
                         pass
-                    if set(values) & set(self.linter.namespace.notes):
-                        continue
                 except ValueError:
                     self.add_message(
                         "bad-inline-option",
@@ -171,6 +162,8 @@ class EncodingChecker(BaseChecker):
                         line=comment.start[0],
                     )
                     continue
+                self.linter.add_ignored_message("fixme", line=comment.start[0])
+                continue
 
             # emit warnings if necessary
             match = self._fixme_pattern.search("#" + comment_text.lower())
@@ -183,6 +176,6 @@ class EncodingChecker(BaseChecker):
                 )
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(EncodingChecker(linter))
     linter.register_checker(ByIdManagedMessagesChecker(linter))

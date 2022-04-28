@@ -9,14 +9,134 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.14.rst'
 
+* Improved wording of the message of ``deprecated-module``
+
+  Closes #6169
+
+* ``Pylint`` now requires Python 3.7.2 or newer to run.
+
+  Closes #4301
+
+* ``BaseChecker`` classes now require the ``linter`` argument to be passed.
+
+* Fix a failure to respect inline disables for ``fixme`` occurring on the last line
+  of a module when pylint is launched with ``--enable=fixme``.
+
+* Update ``invalid-slots-object`` message to show bad object rather than its inferred value.
+
+  Closes #6101
 
 * Added new checker ``typevar-name-mismatch``: TypeVar must be assigned to a variable with the same name as its name argument.
 
   Closes #5224
 
+* Removed the ``assign-to-new-keyword`` message as there are no new keywords in the supported Python
+  versions any longer.
+
+  Closes #4683
+
+* Fixed failure to enable ``deprecated-module`` after a ``disable=all``
+  by making ``ImportsChecker`` solely responsible for emitting ``deprecated-module`` instead
+  of sharing responsibility with ``StdlibChecker``. (This could have led to double messages.)
+
+* The ``no-init`` (W0232) warning has been removed. It's ok to not have an ``__init__`` in a class.
+
+  Closes #2409
+
+* The ``config`` attribute of ``BaseChecker`` has been deprecated. You can use ``checker.linter.config``
+  to access the global configuration object instead of a checker-specific object.
+
+  Ref #5392
+
+* The ``level`` attribute of ``BaseChecker`` has been deprecated: everything is now
+  displayed in ``--help``, all the time.
+
+  Ref #5392
+
+* The ``options_providers`` attribute of ``ArgumentsManager`` has been deprecated.
+
+  Ref #5392
+
+* The ``option_groups`` attribute of ``PyLinter`` has been deprecated.
+
+  Ref #5392
+
+* All ``Interface`` classes in ``pylint.interfaces`` have been deprecated. You can subclass
+  the respective normal classes to get the same behaviour. The ``__implements__`` functionality
+  was based on a rejected PEP from 2001:
+  https://peps.python.org/pep-0245/
+
+  Closes #2287
+
+* The ``set_option`` method of ``BaseChecker`` has been deprecated. You can use ``checker.linter.set_option``
+  to set an option on the global configuration object instead of a checker-specific object.
+
+  Ref #5392
+
+* The ``config`` attribute of ``PyLinter`` is now of the ``argparse.Namespace`` type instead of
+  ``optparse.Values``.
+
+  Ref #5392
+
+* ``MapReduceMixin`` has been deprecated. ``BaseChecker`` now implements ``get_map_data`` and
+  ``reduce_map_data``. If a checker actually needs to reduce data it should define ``get_map_data``
+  as returning something different than ``None`` and let its ``reduce_map_data`` handle a list
+  of the types returned by ``get_map_data``.
+  An example can be seen by looking at ``pylint/checkers/similar.py``.
+
+* ``UnsupportedAction`` has been deprecated.
+
+  Ref #5392
+
+* ``OptionsManagerMixIn`` has been deprecated.
+
+  Ref #5392
+
+* ``OptionParser`` has been deprecated.
+
+  Ref #5392
+
+* ``Option`` has been deprecated.
+
+  Ref #5392
+
+* ``OptionsProviderMixIn`` has been deprecated.
+
+  Ref #5392
+
+* ``ConfigurationMixIn`` has been deprecated.
+
+  Ref #5392
+
+* ``get_global_config`` has been deprecated. You can now access all global options from
+  ``checker.linter.config``.
+
+  Ref #5392
+
+* ``OptionsManagerMixIn`` has been replaced with ``ArgumentsManager``. ``ArgumentsManager`` is considered
+  private API and most methods that were public on ``OptionsManagerMixIn`` have now been deprecated and will
+  be removed in a future release.
+
+  Ref #5392
+
+* ``OptionsProviderMixIn`` has been replaced with ``ArgumentsProvider``. ``ArgumentsProvider`` is considered
+  private API and most methods that were public on ``OptionsProviderMixIn`` have now been deprecated and will
+  be removed in a future release.
+
+  Ref #5392
+
+* ``interfaces.implements`` has been deprecated and will be removed in 3.0. Please use standard inheritance
+  patterns instead of ``__implements__``.
+
+  Ref #2287
+
 * ``invalid-enum-extension``: Used when a class tries to extend an inherited Enum class.
 
   Closes #5501
+
+* Added the ``unrecognized-option`` message. Raised if we encounter any unrecognized options.
+
+  Closes #5259
 
 * Added new checker ``typevar-double-variance``: The "covariant" and "contravariant" keyword arguments
   cannot both be set to "True" in a TypeVar.
@@ -27,18 +147,26 @@ Release date: TBA
 
   Closes #6087
 
-* Exclude dunder calls on super() from raising ``unnecessary-dunder-call``.
-
-  Closes #6074
-
 * Removed the broken ``generate-man`` option.
 
   Closes #5283
   Closes #1887
 
+* Fix false negative for ``bad-string-format-type`` if the value to be formatted is passed in
+  as a variable holding a constant.
+
 * Add new check ``unnecessary-dunder-call`` for unnecessary dunder method calls.
 
   Closes #5936
+  Closes #6074
+
+* The ``cache-max-size-none`` checker has been renamed to ``method-cache-max-size-none``.
+
+  Closes #5670
+
+* The ``method-cache-max-size-none`` checker will now also check ``functools.cache``.
+
+  Closes #5670
 
 * ``potential-index-error``: Emitted when the index of a list or tuple exceeds its length.
   This checker is currently quite conservative to avoid false positives. We welcome
@@ -61,10 +189,32 @@ Release date: TBA
 
   Closes #5205
 
+* ``bad-option-value`` will be emitted whenever a configuration value or command line invocation
+  includes an unknown message.
+
+  Closes #4324
+
+* Avoid reporting ``superfluous-parens`` on expressions using the ``is not`` operator.
+
+  Closes #5930
+
+* Added the ``super-without-brackets`` checker, raised when a super call is missing its brackets.
+
+  Closes #4008
+
+* Added the ``generate-toml-config`` option.
+
+  Ref #5462
+
 * Added new checker ``unnecessary-list-index-lookup`` for indexing into a list while
   iterating over ``enumerate()``.
 
   Closes #4525
+
+* Fix false positive for ``unsubscriptable-object`` in Python 3.8 and below for
+  statements guarded by ``if TYPE_CHECKING``.
+
+  Closes #3979
 
 * Fix false negative for ``no-member`` when attempting to assign an instance
   attribute to itself without any prior assignment.
@@ -72,6 +222,9 @@ Release date: TBA
   Closes #1555
 
 * The concept of checker priority has been removed.
+
+* Add a new command line option ``--minimal-messages-config`` for ``pytest``, which disables all
+  irrelevant messages when running the functional tests.
 
 * ``duplicate-argument-name`` now only raises once for each set of duplicated arguments.
 
@@ -88,9 +241,54 @@ Release date: TBA
   (Ie. not necessarily at the end)
 
 
-What's New in Pylint 2.13.5?
+What's New in Pylint 2.13.8?
 ============================
 Release date: TBA
+
+* Fix a crash when linting a file that passes an integer ``mode=`` to
+  ``open``
+
+  Closes #6414
+
+
+What's New in Pylint 2.13.7?
+============================
+Release date: 2022-04-20
+
+* Fix a crash caused by using the new config from 2.14.0 in 2.13.x code.
+
+  Closes #6408
+
+
+What's New in Pylint 2.13.6?
+============================
+Release date: 2022-04-20
+
+* Fix a crash in the ``unsupported-membership-test`` checker when assigning
+  multiple constants to class attributes including ``__iter__`` via unpacking.
+
+  Closes #6366
+
+* Asterisks are no longer required in Sphinx and Google style parameter documentation
+  for ``missing-param-doc`` and are parsed correctly.
+
+  Closes #5815
+  Closes #5406
+
+* Fixed a false positive for ``unused-variable`` when a builtin specified in
+  ``--additional-builtins`` is given a type annotation.
+
+  Closes #6388
+
+* Fixed an ``AstroidError`` in 2.13.0 raised by the ``duplicate-code`` checker with
+  ``ignore-imports`` or ``ignore-signatures`` enabled.
+
+  Closes #6301
+
+
+What's New in Pylint 2.13.5?
+============================
+Release date: 2022-04-06
 
 * Fix false positive regression in 2.13.0 for ``used-before-assignment`` for
   homonyms between variable assignments in try/except blocks and variables in
@@ -98,6 +296,11 @@ Release date: TBA
 
   Closes #6069
   Closes #6136
+
+* ``lru-cache-decorating-method`` has been renamed to ``cache-max-size-none`` and
+  will only be emitted when ``maxsize`` is ``None``.
+
+  Closes #6180
 
 * Fix false positive for ``unused-import`` when disabling both ``used-before-assignment`` and ``undefined-variable``.
 
@@ -107,6 +310,11 @@ Release date: TBA
   * functions & classes which contain both a docstring and an ellipsis.
   * A body which contains an ellipsis ``nodes.Expr`` node & at least one other statement.
 
+* Fix false positive for ``used-before-assignment`` for assignments taking place via
+  nonlocal declarations after an earlier type annotation.
+
+  Closes #5394
+
 * Fix crash for ``redefined-slots-in-subclass`` when the type of the slot is not a const or a string.
 
   Closes #6100
@@ -114,6 +322,9 @@ Release date: TBA
 * Only raise ``not-callable`` when all the inferred values of a property are not callable.
 
   Closes #5931
+
+
+* Fix a false negative for ``subclassed-final-class`` when a set of other messages were disabled.
 
 
 What's New in Pylint 2.13.4?
@@ -307,11 +518,11 @@ Release date: 2022-03-24
 
 * Added several checkers to deal with unicode security issues
   (see `Trojan Sources <https://trojansource.codes/>`_ and
-  `PEP 672 <https://www.python.org/dev/peps/pep-0672/>`_ for details) that also
+  `PEP 672 <https://peps.python.org/pep-0672/>`_ for details) that also
   concern the readability of the code. In detail the following checks were added:
 
   * ``bad-file-encoding`` checks that the file is encoded in UTF-8 as suggested by
-    `PEP8 <https://www.python.org/dev/peps/pep-0008/#id20>`_.
+    `PEP8 <https://peps.python.org/pep-0008/#source-file-encoding>`_.
     UTF-16 and UTF-32 are `not supported by Python <https://bugs.python.org/issue1503789>`_
     at the moment. If this ever changes
     ``invalid-unicode-codec`` checks that they aren't used, to allow for backwards
@@ -401,7 +612,7 @@ Release date: 2022-03-24
 
    Non ASCII characters could be homoglyphs (look alike characters) and hard to
    enter on a non specialized keyboard.
-   See `Confusable Characters in PEP 672 <https://www.python.org/dev/peps/pep-0672/#confusable-characters-in-identifiers>`_
+   See `Confusable Characters in PEP 672 <https://peps.python.org/pep-0672/#confusing-features>`_
 
 * When run in parallel mode ``pylint`` now pickles the data passed to subprocesses with
   the ``dill`` package. The ``dill`` package has therefore been added as a dependency.
@@ -497,7 +708,7 @@ Release date: 2022-03-24
   Closes #5333
 
 * By default, pylint does no longer take files starting with ``.#`` into account. Those are
-  considered `emacs file locks`. See
+  considered ``Emacs file locks``. See
   https://www.gnu.org/software/emacs/manual/html_node/elisp/File-Locks.html.
   This behavior can be reverted by redefining the ``ignore-patterns`` option.
 
@@ -1892,7 +2103,7 @@ Release date: 2021-04-24
 
   Closes #4320
 
-* Fix issue that caused emacs pylint to fail when used with tramp
+* Fix issue that caused Emacs pylint to fail when used with tramp
 
 * Improve check for invalid PEP 585 syntax inside functions
   if postponed evaluation of type annotations is enabled
@@ -2991,7 +3202,7 @@ Release date: 2019-09-24
 
 * Allow a ``.`` as a prefix for Sphinx name resolution.
 
-* Checkers must now keep a 1 to 1 relationship between "msgid" (ie: C1234) and "symbol" (ie : human-readable-symbol)
+* Checkers must now keep a 1 to 1 relationship between "msgid" (ie: C1234) and "symbol" (i.e. : human-readable-symbol)
 * In checkers, an old_names can now be used for multiple new messages and pylint is now a little faster
 
 Caused by #1164. It means if you do a partial old_names for a message definition an exception will tell you that you
@@ -5203,7 +5414,7 @@ Release date: 2014-11-23
     * Change default max-line-length to 100 rather than 80
 
     * Drop BaseRawChecker class which were only there for backward
-      compat for a while now
+      compatibility for a while now
 
     * Don't try to analyze string formatting with objects coming from
       function arguments. Closes issue #373.
@@ -5598,7 +5809,7 @@ Release date: 2014-04-18
 
     * Fix access-member-before-definition false negative wrt aug assign (#164)
 
-    * Do not attempt to analyze non python file, eg .so file (#122)
+    * Do not attempt to analyze non python file, e.g. .so file (#122)
 
 
 What's New in Pylint 1.1.0?
@@ -5978,7 +6189,7 @@ Release date: 2011-10-7
     * #74747: crash occurs when lookup up a special attribute in class scope
       (patch by google)
 
-    * #76920: crash if on eg "pylint --rcfile" (patch by Torsten Marek)
+    * #76920: crash if on e.g. "pylint --rcfile" (patch by Torsten Marek)
 
     * #77237: warning for E0202 may be very misleading
 
@@ -6027,7 +6238,7 @@ Release date: 2011-01-11
       interesting since it's a syntax error for python >= 2.5 and we now only
       support this python version and above.
 
-    * don't emit W0221 or W0222 when methods as variable arguments (eg \*arg
+    * don't emit W0221 or W0222 when methods as variable arguments (e.g. \*arg
       and/or \*\*args). Patch submitted by Charles Duffy.
 
 
@@ -6160,7 +6371,7 @@ Release date: 2009-12-18
 
     * include James Lingard patches for function call arguments checker
 
-    * improved flymake code and doc provided by Derek Harland
+    * improved Flymake code and doc provided by Derek Harland
 
     * refactor and fix the imports checker
 
@@ -6202,7 +6413,7 @@ Release date: 2009-03-25
 
     * don't show information messages by default
 
-    * integration of Yuen Ho Wong's patches on emacs lisp files
+    * integration of Yuen Ho Wong's patches on Emacs lisp files
 
 
 What's New in Pylint 0.17.0?
@@ -6221,7 +6432,7 @@ What's New in Pylint 0.16.0?
 Release date: 2009-01-28
 
     * change [en|dis]able-msg-cat options: only accept message categories
-      identified by their first letter (eg IRCWEF) without the need for comma
+      identified by their first letter (e.g. IRCWEF) without the need for comma
       as separator
 
     * add epylint.bat script to fix Windows installation
@@ -6295,7 +6506,7 @@ Release date: 2008-09-10
       generic generated-members option. If the zope option is set, the behaviour
       is now to add some default values to generated-members.
 
-    * flymake integration: added bin/epylint and elisp/pylint-flymake.el
+    * Flymake integration: added bin/epylint and elisp/pylint-flymake.el
 
 
 What's New in Pylint 0.14.0?
@@ -6344,7 +6555,7 @@ Release date: 2007-02-28
     * new RPython (Restricted Python) checker for PyPy fellow or people
       wanting to get a compiled version of their python program using the
       translator of the PyPy project. For more information about PyPy or
-      RPython, visit http://codespeak.net/pypy/
+      RPython, visit https://www.pypy.org, previously codespeak.net/pypy/
 
     * new E0104 and E0105 messages introduced to respectively warn about
       "return" and "yield" outside function or method
@@ -6366,7 +6577,7 @@ Release date: 2007-02-28
     * allow disable-all option inline (#3218, patch submitted by Daniel Drake)
 
     * --init-hook option to call arbitrary code necessary to set
-      environment (eg sys.path) (#3156)
+      environment (e.g. sys.path) (#3156)
 
     * One more Daniel's patch fixing a command line option parsing
       problem, this'll definitely be the DDrake release :)
@@ -6497,7 +6708,7 @@ Release date: 2006-03-06
 
     * a new typecheck checker, introducing the following checks:
 
-        - E1101, access to unexistent member (implements #10430), remove
+        - E1101, access to nonexistent member (implements #10430), remove
           the need of E0201 and so some options has been moved from the
           classes checker to this one
         - E1102, calling a non callable object
@@ -6745,7 +6956,7 @@ What's New in Pylint 0.6.0?
 ===========================
 Release date: 2005-01-20
 
-    * refix pylint emacs mode
+    * refix pylint Emacs mode
 
     * no more traceback when just typing "pylint"
 
@@ -6798,7 +7009,7 @@ What's New in Pylint 0.4.2?
 ===========================
 Release date: 2004-07-08
 
-    * fix pylint emacs mode
+    * fix pylint Emacs mode
 
     * fix classes checkers to handler twisted interfaces
 
@@ -6856,7 +7067,7 @@ Release date: 2004-02-17
     * added a parsable text output, used when the --parsable option is
       provided
 
-    * added an emacs mode using this output, available in the distrib's
+    * added an Emacs mode using this output, available in the distrib's
       elisp directory
 
     * fixed some typos in messages

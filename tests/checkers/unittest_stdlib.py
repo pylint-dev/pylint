@@ -2,8 +2,11 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import contextlib
-from typing import Any, Callable, Iterator, Optional, Union
+from collections.abc import Callable, Iterator
+from typing import Any
 
 import astroid
 from astroid import nodes
@@ -19,7 +22,7 @@ def _add_transform(
     manager: AstroidManager,
     node: type,
     transform: Callable,
-    predicate: Optional[Any] = None,
+    predicate: Any | None = None,
 ) -> Iterator:
     manager.register_transform(node, transform, predicate)
     try:
@@ -40,8 +43,8 @@ class TestStdlibChecker(CheckerTestCase):
         """
 
         def infer_func(
-            node: Name, context: Optional[Any] = None  # pylint: disable=unused-argument
-        ) -> Iterator[Union[Iterator, Iterator[AssignAttr]]]:
+            node: Name, context: Any | None = None  # pylint: disable=unused-argument
+        ) -> Iterator[Iterator | Iterator[AssignAttr]]:
             new_node = nodes.AssignAttr(attrname="alpha", parent=node)
             yield new_node
 

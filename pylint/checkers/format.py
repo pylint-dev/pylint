@@ -11,29 +11,29 @@ https://www.python.org/doc/essays/styleguide/
 Some parts of the process_token method is based from The Tab Nanny std module.
 """
 
+from __future__ import annotations
+
 import tokenize
 from functools import reduce
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
 from astroid import nodes
 
-from pylint.checkers import BaseTokenChecker
+from pylint.checkers import BaseRawFileChecker, BaseTokenChecker
 from pylint.checkers.utils import (
-    check_messages,
     is_overload_stub,
     is_protocol_class,
     node_frame_class,
+    only_required_for_messages,
 )
 from pylint.constants import WarningScope
-from pylint.interfaces import IAstroidChecker, IRawChecker, ITokenChecker
+from pylint.typing import MessageDefinitionTuple
 from pylint.utils.pragma_parser import OPTION_PO, PragmaParserError, parse_pragma
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
-
-_ASYNC_TOKEN = "async"
-_KEYWORD_TOKENS = [
+_KEYWORD_TOKENS = {
     "assert",
     "del",
     "elif",
@@ -47,42 +47,11 @@ _KEYWORD_TOKENS = [
     "while",
     "yield",
     "with",
-]
+}
+_JUNK_TOKENS = {tokenize.COMMENT, tokenize.NL}
 
-_SPACED_OPERATORS = [
-    "==",
-    "<",
-    ">",
-    "!=",
-    "<>",
-    "<=",
-    ">=",
-    "+=",
-    "-=",
-    "*=",
-    "**=",
-    "/=",
-    "//=",
-    "&=",
-    "|=",
-    "^=",
-    "%=",
-    ">>=",
-    "<<=",
-]
-_OPENING_BRACKETS = ["(", "[", "{"]
-_CLOSING_BRACKETS = [")", "]", "}"]
-_TAB_LENGTH = 8
 
-_EOL = frozenset([tokenize.NEWLINE, tokenize.NL, tokenize.COMMENT])
-_JUNK_TOKENS = (tokenize.COMMENT, tokenize.NL)
-
-# Whitespace checking policy constants
-_MUST = 0
-_MUST_NOT = 1
-_IGNORE = 2
-
-MSGS = {
+MSGS: dict[str, MessageDefinitionTuple] = {
     "C0301": (
         "Line too long (%s/%s)",
         "line-too-long",
@@ -155,22 +124,6 @@ def _last_token_on_line_is(tokens, line_end, token):
     )
 
 
-# The contexts for hanging indents.
-# A hanging indented dictionary value after :
-HANGING_DICT_VALUE = "dict-value"
-# Hanging indentation in an expression.
-HANGING = "hanging"
-# Hanging indentation in a block header.
-HANGING_BLOCK = "hanging-block"
-# Continued indentation inside an expression.
-CONTINUED = "continued"
-# Continued indentation in a block header.
-CONTINUED_BLOCK = "continued-block"
-
-SINGLE_LINE = "single"
-WITH_BODY = "multi"
-
-
 class TokenWrapper:
     """A wrapper for readable access to token information."""
 
@@ -193,7 +146,7 @@ class TokenWrapper:
         return self._tokens[idx][4]
 
 
-class FormatChecker(BaseTokenChecker):
+class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
     """Formatting checker.
 
     Checks for :
@@ -201,8 +154,6 @@ class FormatChecker(BaseTokenChecker):
     * strict indentation
     * line length
     """
-
-    __implements__ = (ITokenChecker, IAstroidChecker, IRawChecker)
 
     # configuration section name
     name = "format"
@@ -301,7 +252,7 @@ class FormatChecker(BaseTokenChecker):
     )
 
     def __init__(self, linter=None):
-        super().__init__(linter, future_option_parsing=True)
+        super().__init__(linter)
         self._lines = None
         self._visited_lines = None
         self._bracket_stack = [None]
@@ -317,12 +268,12 @@ class FormatChecker(BaseTokenChecker):
             self._lines[line_num] = line.split("\n")[0]
         self.check_lines(line, line_num)
 
-    def process_module(self, _node: nodes.Module) -> None:
+    def process_module(self, node: nodes.Module) -> None:
         pass
 
     # pylint: disable-next=too-many-return-statements
     def _check_keyword_parentheses(
-        self, tokens: List[tokenize.TokenInfo], start: int
+        self, tokens: list[tokenize.TokenInfo], start: int
     ) -> None:
         """Check that there are not unnecessary parentheses after a keyword.
 
@@ -338,6 +289,14 @@ class FormatChecker(BaseTokenChecker):
         if self._bracket_stack[-1] == ":" and tokens[start].string == "for":
             self._bracket_stack.pop()
         if tokens[start + 1].string != "(":
+            return
+        if (
+            tokens[start].string == "not"
+            and start > 0
+            and tokens[start - 1].string == "is"
+        ):
+            # If this is part of an `is not` expression, we have a binary operator
+            # so the parentheses are not necessarily redundant.
             return
         found_and_or = False
         contains_walrus_operator = False
@@ -412,21 +371,14 @@ class FormatChecker(BaseTokenChecker):
                 elif token[1] == "for":
                     return
                 # A generator expression can have an 'else' token in it.
-                # We check the rest of the tokens to see if any problems incur after
+                # We check the rest of the tokens to see if any problems occur after
                 # the 'else'.
                 elif token[1] == "else":
                     if "(" in (i.string for i in tokens[i:]):
                         self._check_keyword_parentheses(tokens[i:], 0)
                     return
 
-    def _prepare_token_dispatcher(self):
-        dispatch = {}
-        for tokens, handler in ((_KEYWORD_TOKENS, self._check_keyword_parentheses),):
-            for token in tokens:
-                dispatch[token] = handler
-        return dispatch
-
-    def process_tokens(self, tokens):
+    def process_tokens(self, tokens: list[tokenize.TokenInfo]) -> None:
         """Process tokens and search for :
 
         _ too long lines (i.e. longer than <max_chars>)
@@ -439,7 +391,6 @@ class FormatChecker(BaseTokenChecker):
         line_num = 0
         self._lines = {}
         self._visited_lines = {}
-        token_handlers = self._prepare_token_dispatcher()
         self._last_line_ending = None
         last_blank_line_num = 0
         for idx, (tok_type, token, start, _, line) in enumerate(tokens):
@@ -479,7 +430,7 @@ class FormatChecker(BaseTokenChecker):
             elif tok_type not in (tokenize.COMMENT, tokenize.ENCODING):
                 # This is the first concrete token following a NEWLINE, so it
                 # must be the first token of the next program statement, or an
-                # ENDMARKER; the "line" argument exposes the leading whitespace
+                # ENDMARKER; the "line" argument exposes the leading white-space
                 # for this statement; in the case of ENDMARKER, line is an empty
                 # string, so will properly match the empty string with which the
                 # "indents" stack was seeded
@@ -490,29 +441,25 @@ class FormatChecker(BaseTokenChecker):
             if tok_type == tokenize.NUMBER and token.endswith("l"):
                 self.add_message("lowercase-l-suffix", line=line_num)
 
-            try:
-                handler = token_handlers[token]
-            except KeyError:
-                pass
-            else:
-                handler(tokens, idx)
+            if token in _KEYWORD_TOKENS:
+                self._check_keyword_parentheses(tokens, idx)
 
         line_num -= 1  # to be ok with "wc -l"
-        if line_num > self.linter.namespace.max_module_lines:
+        if line_num > self.linter.config.max_module_lines:
             # Get the line where the too-many-lines (or its message id)
             # was disabled or default to 1.
             message_definition = self.linter.msgs_store.get_message_definitions(
                 "too-many-lines"
             )[0]
             names = (message_definition.msgid, "too-many-lines")
-            line = next(
+            lineno = next(
                 filter(None, (self.linter._pragma_lineno.get(name) for name in names)),
                 1,
             )
             self.add_message(
                 "too-many-lines",
-                args=(line_num, self.linter.namespace.max_module_lines),
-                line=line,
+                args=(line_num, self.linter.config.max_module_lines),
+                line=lineno,
             )
 
         # See if there are any trailing lines.  Do not complain about empty
@@ -532,7 +479,7 @@ class FormatChecker(BaseTokenChecker):
         self._last_line_ending = line_ending
 
         # check if line ending is as expected
-        expected = self.linter.namespace.expected_line_ending_format
+        expected = self.linter.config.expected_line_ending_format
         if expected:
             # reduce multiple \n\n\n\n to one \n
             line_ending = reduce(lambda x, y: x + y if x != y else x, line_ending, "")
@@ -544,7 +491,7 @@ class FormatChecker(BaseTokenChecker):
                     line=line_num,
                 )
 
-    @check_messages("multiple-statements")
+    @only_required_for_messages("multiple-statements")
     def visit_default(self, node: nodes.NodeNG) -> None:
         """Check the node line number and check it if not yet done."""
         if not node.is_statement:
@@ -601,13 +548,13 @@ class FormatChecker(BaseTokenChecker):
         if (
             isinstance(node.parent, nodes.If)
             and not node.parent.orelse
-            and self.linter.namespace.single_line_if_stmt
+            and self.linter.config.single_line_if_stmt
         ):
             return
         if (
             isinstance(node.parent, nodes.ClassDef)
             and len(node.parent.body) == 1
-            and self.linter.namespace.single_line_class_stmt
+            and self.linter.config.single_line_class_stmt
         ):
             return
 
@@ -625,7 +572,7 @@ class FormatChecker(BaseTokenChecker):
         self._visited_lines[line] = 2
 
     def check_line_ending(self, line: str, i: int) -> None:
-        """Check that the final newline is not missing and that there is no trailing whitespace."""
+        """Check that the final newline is not missing and that there is no trailing white-space."""
         if not line.endswith("\n"):
             self.add_message("missing-final-newline", line=i)
             return
@@ -638,8 +585,8 @@ class FormatChecker(BaseTokenChecker):
 
     def check_line_length(self, line: str, i: int, checker_off: bool) -> None:
         """Check that the line length is less than the authorized value."""
-        max_chars = self.linter.namespace.max_line_length
-        ignore_long_line = self.linter.namespace.ignore_long_lines
+        max_chars = self.linter.config.max_line_length
+        ignore_long_line = self.linter.config.ignore_long_lines
         line = line.rstrip()
         if len(line) > max_chars and not ignore_long_line.search(line):
             if checker_off:
@@ -670,7 +617,7 @@ class FormatChecker(BaseTokenChecker):
         return True
 
     @staticmethod
-    def specific_splitlines(lines: str) -> List[str]:
+    def specific_splitlines(lines: str) -> list[str]:
         """Split lines according to universal newlines except those in a specific sets."""
         unsplit_ends = {
             "\x0b",  # synonym of \v
@@ -697,7 +644,7 @@ class FormatChecker(BaseTokenChecker):
 
         Check lines have :
         - a final newline
-        - no trailing whitespace
+        - no trailing white-space
         - less than a maximum number of characters
         """
         # we're first going to do a rough check whether any lines in this set
@@ -708,7 +655,7 @@ class FormatChecker(BaseTokenChecker):
         # we'll also handle the line ending check here to avoid double-iteration
         # unless the line lengths are suspect
 
-        max_chars = self.linter.namespace.max_line_length
+        max_chars = self.linter.config.max_line_length
 
         split_lines = self.specific_splitlines(lines)
 
@@ -745,7 +692,7 @@ class FormatChecker(BaseTokenChecker):
 
     def check_indent_level(self, string, expected, line_num):
         """Return the indent level of the string."""
-        indent = self.linter.namespace.indent_string
+        indent = self.linter.config.indent_string
         if indent == "\\t":  # \t is not interpreted in the configuration file
             indent = "\t"
         level = 0
@@ -768,5 +715,5 @@ class FormatChecker(BaseTokenChecker):
             )
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(FormatChecker(linter))

@@ -3,15 +3,19 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Checks for various exception related errors."""
+
+from __future__ import annotations
+
 import builtins
 import inspect
-from typing import TYPE_CHECKING, Any, List, Optional
+from typing import TYPE_CHECKING, Any
 
 import astroid
 from astroid import nodes, objects
 
-from pylint import checkers, interfaces
+from pylint import checkers
 from pylint.checkers import utils
+from pylint.typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -44,14 +48,16 @@ def _annotated_unpack_infer(stmt, context=None):
         yield stmt, inferred
 
 
-def _is_raising(body: List) -> bool:
+def _is_raising(body: list) -> bool:
     """Return whether the given statement node raises an exception."""
     return any(isinstance(node, nodes.Raise) for node in body)
 
 
 OVERGENERAL_EXCEPTIONS = ("BaseException", "Exception")
 
-MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
+MSGS: dict[
+    str, MessageDefinitionTuple
+] = {  # pylint: disable=consider-using-namedtuple-or-dataclass
     "E0701": (
         "Bad except clauses order (%s)",
         "bad-except-order",
@@ -227,8 +233,6 @@ class ExceptionRaiseLeafVisitor(BaseVisitor):
 class ExceptionsChecker(checkers.BaseChecker):
     """Exception related checks."""
 
-    __implements__ = interfaces.IAstroidChecker
-
     name = "exceptions"
     msgs = MSGS
     options = (
@@ -245,14 +249,11 @@ class ExceptionsChecker(checkers.BaseChecker):
         ),
     )
 
-    def __init__(self, linter: "PyLinter") -> None:
-        super().__init__(linter, future_option_parsing=True)
-
     def open(self):
         self._builtin_exceptions = _builtin_exceptions()
         super().open()
 
-    @utils.check_messages(
+    @utils.only_required_for_messages(
         "misplaced-bare-raise",
         "raising-bad-type",
         "raising-non-exception",
@@ -397,8 +398,8 @@ class ExceptionsChecker(checkers.BaseChecker):
     def _check_try_except_raise(self, node):
         def gather_exceptions_from_handler(
             handler,
-        ) -> Optional[List[nodes.NodeNG]]:
-            exceptions: List[nodes.NodeNG] = []
+        ) -> list[nodes.NodeNG] | None:
+            exceptions: list[nodes.NodeNG] = []
             if handler.type:
                 exceptions_in_handler = utils.safe_infer(handler.type)
                 if isinstance(exceptions_in_handler, nodes.Tuple):
@@ -451,21 +452,21 @@ class ExceptionsChecker(checkers.BaseChecker):
             if bare_raise:
                 self.add_message("try-except-raise", node=handler_having_bare_raise)
 
-    @utils.check_messages("wrong-exception-operation")
+    @utils.only_required_for_messages("wrong-exception-operation")
     def visit_binop(self, node: nodes.BinOp) -> None:
         if isinstance(node.parent, nodes.ExceptHandler):
             # except (V | A)
             suggestion = f"Did you mean '({node.left.as_string()}, {node.right.as_string()})' instead?"
             self.add_message("wrong-exception-operation", node=node, args=(suggestion,))
 
-    @utils.check_messages("wrong-exception-operation")
+    @utils.only_required_for_messages("wrong-exception-operation")
     def visit_compare(self, node: nodes.Compare) -> None:
         if isinstance(node.parent, nodes.ExceptHandler):
             # except (V < A)
             suggestion = f"Did you mean '({node.left.as_string()}, {', '.join(operand.as_string() for _, operand in node.ops)})' instead?"
             self.add_message("wrong-exception-operation", node=node, args=(suggestion,))
 
-    @utils.check_messages(
+    @utils.only_required_for_messages(
         "bare-except",
         "broad-except",
         "try-except-raise",
@@ -477,7 +478,7 @@ class ExceptionsChecker(checkers.BaseChecker):
     def visit_tryexcept(self, node: nodes.TryExcept) -> None:
         """Check for empty except."""
         self._check_try_except_raise(node)
-        exceptions_classes: List[Any] = []
+        exceptions_classes: list[Any] = []
         nb_handlers = len(node.handlers)
         for index, handler in enumerate(node.handlers):
             if handler.type is None:
@@ -526,7 +527,7 @@ class ExceptionsChecker(checkers.BaseChecker):
                                 "bad-except-order", node=handler.type, args=msg
                             )
                     if (
-                        exception.name in self.linter.namespace.overgeneral_exceptions
+                        exception.name in self.linter.config.overgeneral_exceptions
                         and exception.root().name == utils.EXCEPTIONS_MODULE
                         and not _is_raising(handler.body)
                     ):
@@ -542,5 +543,5 @@ class ExceptionsChecker(checkers.BaseChecker):
                 exceptions_classes += [exc for _, exc in exceptions]
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(ExceptionsChecker(linter))

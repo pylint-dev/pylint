@@ -2,8 +2,10 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import sys
-from typing import Dict, List, Optional, Set, cast
+from typing import cast
 
 from pylint.typing import MessageTypesFullName
 
@@ -83,14 +85,14 @@ class LinterStats:
 
     def __init__(
         self,
-        bad_names: Optional[BadNames] = None,
-        by_module: Optional[Dict[str, ModuleStats]] = None,
-        by_msg: Optional[Dict[str, int]] = None,
-        code_type_count: Optional[CodeTypeCount] = None,
-        dependencies: Optional[Dict[str, Set[str]]] = None,
-        duplicated_lines: Optional[DuplicatedLines] = None,
-        node_count: Optional[NodeCount] = None,
-        undocumented: Optional[UndocumentedNodes] = None,
+        bad_names: BadNames | None = None,
+        by_module: dict[str, ModuleStats] | None = None,
+        by_msg: dict[str, int] | None = None,
+        code_type_count: CodeTypeCount | None = None,
+        dependencies: dict[str, set[str]] | None = None,
+        duplicated_lines: DuplicatedLines | None = None,
+        node_count: NodeCount | None = None,
+        undocumented: UndocumentedNodes | None = None,
     ) -> None:
         self.bad_names = bad_names or BadNames(
             argument=0,
@@ -106,13 +108,13 @@ class LinterStats:
             variable=0,
             typevar=0,
         )
-        self.by_module: Dict[str, ModuleStats] = by_module or {}
-        self.by_msg: Dict[str, int] = by_msg or {}
+        self.by_module: dict[str, ModuleStats] = by_module or {}
+        self.by_msg: dict[str, int] = by_msg or {}
         self.code_type_count = code_type_count or CodeTypeCount(
             code=0, comment=0, docstring=0, empty=0, total=0
         )
 
-        self.dependencies: Dict[str, Set[str]] = dependencies or {}
+        self.dependencies: dict[str, set[str]] = dependencies or {}
         self.duplicated_lines = duplicated_lines or DuplicatedLines(
             nb_duplicated_lines=0, percent_duplicated_lines=0.0
         )
@@ -309,7 +311,7 @@ class LinterStats:
         self.warning = 0
 
 
-def merge_stats(stats: List[LinterStats]):
+def merge_stats(stats: list[LinterStats]) -> LinterStats:
     """Used to merge multiple stats objects into a new one when pylint is run in parallel mode."""
     merged = LinterStats()
     for stat in stats:

@@ -11,12 +11,11 @@ from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
     PYMETHODS,
     SPECIAL_METHODS_PARAMS,
-    check_messages,
     decorated_with,
     is_function_body_ellipsis,
+    only_required_for_messages,
     safe_infer,
 )
-from pylint.interfaces import IAstroidChecker
 
 NEXT_METHOD = "__next__"
 
@@ -48,7 +47,6 @@ class SpecialMethodsChecker(BaseChecker):
     are implemented correctly.
     """
 
-    __implements__ = (IAstroidChecker,)
     name = "classes"
     msgs = {
         "E0301": (
@@ -150,7 +148,7 @@ class SpecialMethodsChecker(BaseChecker):
             "__getnewargs_ex__": self._check_getnewargs_ex,
         }
 
-    @check_messages(
+    @only_required_for_messages(
         "unexpected-special-method-signature",
         "non-iterator-returned",
         "invalid-length-returned",
@@ -203,6 +201,7 @@ class SpecialMethodsChecker(BaseChecker):
         optional = len(node.args.defaults)
         current_params = mandatory + optional
 
+        emit = False  # If we don't know we choose a false negative
         if isinstance(expected_params, tuple):
             # The expected number of parameters can be any value from this
             # tuple, although the user should implement the method
@@ -290,7 +289,7 @@ class SpecialMethodsChecker(BaseChecker):
             # Generators can be iterated.
             return True
         # pylint: disable-next=fixme
-        # TODO: Should be covered by https://github.com/PyCQA/astroid/pull/1475
+        # TODO: 2.14: Should be covered by https://github.com/PyCQA/astroid/pull/1475
         if isinstance(node, nodes.ComprehensionScope):
             # Comprehensions can be iterated.
             return True

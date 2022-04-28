@@ -3,28 +3,20 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Variables checkers for Python code."""
+
+from __future__ import annotations
+
 import collections
 import copy
 import itertools
 import os
 import re
 import sys
+from collections import defaultdict
+from collections.abc import Iterable, Iterator
 from enum import Enum
 from functools import lru_cache
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    DefaultDict,
-    Dict,
-    Iterable,
-    Iterator,
-    List,
-    NamedTuple,
-    Optional,
-    Set,
-    Tuple,
-    Union,
-)
+from typing import TYPE_CHECKING, Any, NamedTuple
 
 import astroid
 from astroid import nodes
@@ -35,14 +27,8 @@ from pylint.checkers.utils import (
     is_postponed_evaluation_enabled,
 )
 from pylint.constants import PY39_PLUS, TYPING_TYPE_CHECKS_GUARDS
-from pylint.interfaces import (
-    CONTROL_FLOW,
-    HIGH,
-    INFERENCE,
-    INFERENCE_FAILURE,
-    IAstroidChecker,
-)
-from pylint.utils import get_global_option
+from pylint.interfaces import CONTROL_FLOW, HIGH, INFERENCE, INFERENCE_FAILURE
+from pylint.typing import MessageDefinitionTuple
 
 if sys.version_info >= (3, 8):
     from functools import cached_property
@@ -348,8 +334,8 @@ def _import_name_is_global(stmt, global_names):
 
 
 def _flattened_scope_names(
-    iterator: Iterator[Union[nodes.Global, nodes.Nonlocal]]
-) -> Set[str]:
+    iterator: Iterator[nodes.Global | nodes.Nonlocal],
+) -> set[str]:
     values = (set(stmt.names) for stmt in iterator)
     return set(itertools.chain.from_iterable(values))
 
@@ -378,7 +364,7 @@ def _has_locals_call_after_node(stmt, scope):
     return False
 
 
-MSGS = {
+MSGS: dict[str, MessageDefinitionTuple] = {
     "E0601": (
         "Using variable %r before assignment",
         "used-before-assignment",
@@ -523,9 +509,9 @@ MSGS = {
 class ScopeConsumer(NamedTuple):
     """Store nodes and their consumption states."""
 
-    to_consume: Dict[str, List[nodes.NodeNG]]
-    consumed: Dict[str, List[nodes.NodeNG]]
-    consumed_uncertain: DefaultDict[str, List[nodes.NodeNG]]
+    to_consume: dict[str, list[nodes.NodeNG]]
+    consumed: dict[str, list[nodes.NodeNG]]
+    consumed_uncertain: defaultdict[str, list[nodes.NodeNG]]
     scope_type: str
 
 
@@ -566,7 +552,7 @@ scope_type : {self._atomic.scope_type}
         return self._atomic.consumed
 
     @property
-    def consumed_uncertain(self) -> DefaultDict[str, List[nodes.NodeNG]]:
+    def consumed_uncertain(self) -> defaultdict[str, list[nodes.NodeNG]]:
         """Retrieves nodes filtered out by get_next_to_consume() that may not
         have executed, such as statements in except blocks, or statements
 
@@ -594,7 +580,7 @@ scope_type : {self._atomic.scope_type}
         else:
             del self.to_consume[name]
 
-    def get_next_to_consume(self, node: nodes.Name) -> Optional[List[nodes.NodeNG]]:
+    def get_next_to_consume(self, node: nodes.Name) -> list[nodes.NodeNG] | None:
         """Return a list of the nodes that define `node` from this scope.
 
         If it is uncertain whether a node will be consumed, such as for statements in
@@ -680,10 +666,10 @@ scope_type : {self._atomic.scope_type}
 
     @staticmethod
     def _uncertain_nodes_in_except_blocks(
-        found_nodes: List[nodes.NodeNG],
+        found_nodes: list[nodes.NodeNG],
         node: nodes.NodeNG,
         node_statement: nodes.Statement,
-    ) -> List[nodes.NodeNG]:
+    ) -> list[nodes.NodeNG]:
         """Return any nodes in ``found_nodes`` that should be treated as uncertain
         because they are in an except block.
         """
@@ -799,9 +785,9 @@ scope_type : {self._atomic.scope_type}
         """
         if not other_node_try_except.orelse:
             return False
-        closest_loop: Optional[
-            Union[nodes.For, nodes.While]
-        ] = utils.get_node_first_ancestor_of_type(node, (nodes.For, nodes.While))
+        closest_loop: None | (
+            nodes.For | nodes.While
+        ) = utils.get_node_first_ancestor_of_type(node, (nodes.For, nodes.While))
         if closest_loop is None:
             return False
         if not any(
@@ -819,7 +805,7 @@ scope_type : {self._atomic.scope_type}
             return False
 
         def _try_in_loop_body(
-            other_node_try_except: nodes.TryExcept, loop: Union[nodes.For, nodes.While]
+            other_node_try_except: nodes.TryExcept, loop: nodes.For | nodes.While
         ) -> bool:
             """Return True if `other_node_try_except` is a descendant of `loop`."""
             return any(
@@ -869,12 +855,12 @@ scope_type : {self._atomic.scope_type}
 
     @staticmethod
     def _uncertain_nodes_in_try_blocks_when_evaluating_except_blocks(
-        found_nodes: List[nodes.NodeNG], node_statement: nodes.Statement
-    ) -> List[nodes.NodeNG]:
+        found_nodes: list[nodes.NodeNG], node_statement: nodes.Statement
+    ) -> list[nodes.NodeNG]:
         """Return any nodes in ``found_nodes`` that should be treated as uncertain because they
         are in a try block and the ``node_statement`` being evaluated is in one of its except handlers.
         """
-        uncertain_nodes: List[nodes.NodeNG] = []
+        uncertain_nodes: list[nodes.NodeNG] = []
         closest_except_handler = utils.get_node_first_ancestor_of_type(
             node_statement, nodes.ExceptHandler
         )
@@ -915,9 +901,9 @@ scope_type : {self._atomic.scope_type}
 
     @staticmethod
     def _uncertain_nodes_in_try_blocks_when_evaluating_finally_blocks(
-        found_nodes: List[nodes.NodeNG], node_statement: nodes.Statement
-    ) -> List[nodes.NodeNG]:
-        uncertain_nodes: List[nodes.NodeNG] = []
+        found_nodes: list[nodes.NodeNG], node_statement: nodes.Statement
+    ) -> list[nodes.NodeNG]:
+        uncertain_nodes: list[nodes.NodeNG] = []
         (
             closest_try_finally_ancestor,
             child_of_closest_try_finally_ancestor,
@@ -980,15 +966,13 @@ class VariablesChecker(BaseChecker):
     * self/cls assignment
     """
 
-    __implements__ = IAstroidChecker
-
     name = "variables"
     msgs = MSGS
     options = (
         (
             "init-import",
             {
-                "default": 0,
+                "default": False,
                 "type": "yn",
                 "metavar": "<y or n>",
                 "help": "Tells whether we should check for unused import in "
@@ -1075,12 +1059,12 @@ class VariablesChecker(BaseChecker):
 
     def __init__(self, linter=None):
         super().__init__(linter)
-        self._to_consume: List[NamesConsumer] = []
+        self._to_consume: list[NamesConsumer] = []
         self._checking_mod_attr = None
         self._loop_variables = []
         self._type_annotation_names = []
-        self._except_handler_names_queue: List[
-            Tuple[nodes.ExceptHandler, nodes.AssignName]
+        self._except_handler_names_queue: list[
+            tuple[nodes.ExceptHandler, nodes.AssignName]
         ] = []
         """This is a queue, last in first out."""
         self._postponed_evaluation_enabled = False
@@ -1110,7 +1094,7 @@ class VariablesChecker(BaseChecker):
                     continue
                 self.add_message("redefined-builtin", args=name, node=stmts[0])
 
-    @utils.check_messages(
+    @utils.only_required_for_messages(
         "unused-import",
         "unused-wildcard-import",
         "redefined-builtin",
@@ -1118,6 +1102,7 @@ class VariablesChecker(BaseChecker):
         "invalid-all-object",
         "invalid-all-format",
         "unused-variable",
+        "undefined-variable",
     )
     def leave_module(self, node: nodes.Module) -> None:
         """Leave module: check globals."""
@@ -1133,7 +1118,7 @@ class VariablesChecker(BaseChecker):
         self._check_globals(not_consumed)
 
         # don't check unused imports in __init__ files
-        if not self.config.init_import and node.package:
+        if not self.linter.config.init_import and node.package:
             return
 
         self._check_imports(not_consumed)
@@ -1254,7 +1239,7 @@ class VariablesChecker(BaseChecker):
 
         global_names = _flattened_scope_names(node.nodes_of_class(nodes.Global))
         nonlocal_names = _flattened_scope_names(node.nodes_of_class(nodes.Nonlocal))
-        comprehension_target_names: List[str] = []
+        comprehension_target_names: list[str] = []
 
         for comprehension_scope in node.nodes_of_class(nodes.ComprehensionScope):
             for generator in comprehension_scope.generators:
@@ -1275,7 +1260,7 @@ class VariablesChecker(BaseChecker):
     visit_asyncfunctiondef = visit_functiondef
     leave_asyncfunctiondef = leave_functiondef
 
-    @utils.check_messages(
+    @utils.only_required_for_messages(
         "global-variable-undefined",
         "global-variable-not-assigned",
         "global-statement",
@@ -1344,7 +1329,7 @@ class VariablesChecker(BaseChecker):
         self.visit_name(node)
 
     def visit_name(self, node: nodes.Name) -> None:
-        """Don't add the 'utils.check_messages' decorator here!
+        """Don't add the 'utils.only_required_for_messages' decorator here!
 
         It's important that all 'Name' nodes are visited, otherwise the
         'NamesConsumers' won't be correct.
@@ -1359,7 +1344,7 @@ class VariablesChecker(BaseChecker):
         if self._is_undefined_loop_variable_enabled:
             self._loopvar_name(node)
 
-    @utils.check_messages("redefined-outer-name")
+    @utils.only_required_for_messages("redefined-outer-name")
     def visit_excepthandler(self, node: nodes.ExceptHandler) -> None:
         if not node.name or not isinstance(node.name, nodes.AssignName):
             return
@@ -1375,7 +1360,7 @@ class VariablesChecker(BaseChecker):
 
         self._except_handler_names_queue.append((node, node.name))
 
-    @utils.check_messages("redefined-outer-name")
+    @utils.only_required_for_messages("redefined-outer-name")
     def leave_excepthandler(self, node: nodes.ExceptHandler) -> None:
         if not node.name or not isinstance(node.name, nodes.AssignName):
             return
@@ -1419,7 +1404,7 @@ class VariablesChecker(BaseChecker):
             and not (
                 node.name in nodes.Module.scope_attrs
                 or utils.is_builtin(node.name)
-                or node.name in self.config.additional_builtins
+                or node.name in self.linter.config.additional_builtins
                 or (
                     node.name == "__class__"
                     and isinstance(frame, nodes.FunctionDef)
@@ -1471,8 +1456,8 @@ class VariablesChecker(BaseChecker):
 
     def _find_assigned_names_recursive(
         self,
-        target: Union[nodes.AssignName, nodes.BaseContainer],
-        target_names: List[str],
+        target: nodes.AssignName | nodes.BaseContainer,
+        target_names: list[str],
     ) -> None:
         """Update `target_names` in place with the names of assignment
         targets, recursively (to account for nested assignments).
@@ -1491,7 +1476,7 @@ class VariablesChecker(BaseChecker):
         frame: nodes.LocalsDictNodeNG,
         current_consumer: NamesConsumer,
         base_scope_type: Any,
-    ) -> Tuple[VariableVisitConsumerAction, Optional[List[nodes.NodeNG]]]:
+    ) -> tuple[VariableVisitConsumerAction, list[nodes.NodeNG] | None]:
         """Checks a consumer for conditions that should trigger messages."""
         # If the name has already been consumed, only check it's not a loop
         # variable used outside the loop.
@@ -1685,7 +1670,7 @@ class VariablesChecker(BaseChecker):
 
         return (VariableVisitConsumerAction.RETURN, found_nodes)
 
-    @utils.check_messages("no-name-in-module")
+    @utils.only_required_for_messages("no-name-in-module")
     def visit_import(self, node: nodes.Import) -> None:
         """Check modules attribute accesses."""
         if not self._analyse_fallback_blocks and utils.is_from_fallback_block(node):
@@ -1707,7 +1692,7 @@ class VariablesChecker(BaseChecker):
                 continue
             self._check_module_attrs(node, module, parts[1:])
 
-    @utils.check_messages("no-name-in-module")
+    @utils.only_required_for_messages("no-name-in-module")
     def visit_importfrom(self, node: nodes.ImportFrom) -> None:
         """Check modules attribute accesses."""
         if not self._analyse_fallback_blocks and utils.is_from_fallback_block(node):
@@ -1732,7 +1717,7 @@ class VariablesChecker(BaseChecker):
                 continue
             self._check_module_attrs(node, module, name.split("."))
 
-    @utils.check_messages(
+    @utils.only_required_for_messages(
         "unbalanced-tuple-unpacking", "unpacking-non-sequence", "self-cls-assignment"
     )
     def visit_assign(self, node: nodes.Assign) -> None:
@@ -1774,15 +1759,15 @@ class VariablesChecker(BaseChecker):
     # Relying on other checker's options, which might not have been initialized yet.
     @cached_property
     def _analyse_fallback_blocks(self):
-        return get_global_option(self, "analyse-fallback-blocks", default=False)
+        return self.linter.config.analyse_fallback_blocks
 
     @cached_property
     def _ignored_modules(self):
-        return get_global_option(self, "ignored-modules", default=[])
+        return self.linter.config.ignored_modules
 
     @cached_property
     def _allow_global_unused_variables(self):
-        return get_global_option(self, "allow-global-unused-variables", default=True)
+        return self.linter.config.allow_global_unused_variables
 
     @staticmethod
     def _defined_in_function_definition(node, frame):
@@ -1844,7 +1829,7 @@ class VariablesChecker(BaseChecker):
         defframe,
         base_scope_type,
         is_recursive_klass,
-    ) -> Tuple[bool, bool, bool]:
+    ) -> tuple[bool, bool, bool]:
         # pylint: disable=too-many-nested-blocks
         maybe_before_assign = True
         annotation_return = False
@@ -2043,10 +2028,16 @@ class VariablesChecker(BaseChecker):
             or any(isinstance(arg, nodes.IfExp) for arg in value.args)
         )
 
-    @staticmethod
-    def _is_only_type_assignment(node: nodes.Name, defstmt: nodes.Statement) -> bool:
+    def _is_only_type_assignment(
+        self, node: nodes.Name, defstmt: nodes.Statement
+    ) -> bool:
         """Check if variable only gets assigned a type and never a value."""
         if not isinstance(defstmt, nodes.AnnAssign) or defstmt.value:
+            return False
+
+        if node.name in self.linter.config.additional_builtins or utils.is_builtin(
+            node.name
+        ):
             return False
 
         defstmt_frame = defstmt.frame(future=True)
@@ -2055,6 +2046,20 @@ class VariablesChecker(BaseChecker):
         parent = node
         while parent is not defstmt_frame.parent:
             parent_scope = parent.scope()
+
+            # Find out if any nonlocals receive values in nested functions
+            for inner_func in parent_scope.nodes_of_class(nodes.FunctionDef):
+                if inner_func is parent_scope:
+                    continue
+                if any(
+                    node.name in nl.names
+                    for nl in inner_func.nodes_of_class(nodes.Nonlocal)
+                ) and any(
+                    node.name == an.name
+                    for an in inner_func.nodes_of_class(nodes.AssignName)
+                ):
+                    return False
+
             local_refs = parent_scope.locals.get(node.name, [])
             for ref_node in local_refs:
                 # If local ref is in the same frame as our node, but on a later lineno
@@ -2079,8 +2084,8 @@ class VariablesChecker(BaseChecker):
 
     @staticmethod
     def _is_first_level_self_reference(
-        node: nodes.Name, defstmt: nodes.ClassDef, found_nodes: List[nodes.NodeNG]
-    ) -> Tuple[VariableVisitConsumerAction, Optional[List[nodes.NodeNG]]]:
+        node: nodes.Name, defstmt: nodes.ClassDef, found_nodes: list[nodes.NodeNG]
+    ) -> tuple[VariableVisitConsumerAction, list[nodes.NodeNG] | None]:
         """Check if a first level method's annotation or default values
         refers to its own class, and return a consumer action
         """
@@ -2252,7 +2257,7 @@ class VariablesChecker(BaseChecker):
         stmt,
         global_names,
         nonlocal_names: Iterable[str],
-        comprehension_target_names: List[str],
+        comprehension_target_names: list[str],
     ) -> None:
         # Ignore some special names specified by user configuration.
         if self._is_name_ignored(stmt, name):
@@ -2335,13 +2340,13 @@ class VariablesChecker(BaseChecker):
             self.add_message(message_name, args=name, node=stmt)
 
     def _is_name_ignored(self, stmt, name):
-        authorized_rgx = self.config.dummy_variables_rgx
+        authorized_rgx = self.linter.config.dummy_variables_rgx
         if (
             isinstance(stmt, nodes.AssignName)
             and isinstance(stmt.parent, nodes.Arguments)
             or isinstance(stmt, nodes.Arguments)
         ):
-            regex = self.config.ignored_argument_names
+            regex = self.linter.config.ignored_argument_names
         else:
             regex = authorized_rgx
         return regex and regex.match(name)
@@ -2374,7 +2379,7 @@ class VariablesChecker(BaseChecker):
         # Don't check callback arguments
         if any(
             node.name.startswith(cb) or node.name.endswith(cb)
-            for cb in self.config.callbacks
+            for cb in self.linter.config.callbacks
         ):
             return
         # Don't check arguments of singledispatch.register function.
@@ -2447,10 +2452,10 @@ class VariablesChecker(BaseChecker):
     def _should_ignore_redefined_builtin(self, stmt):
         if not isinstance(stmt, nodes.ImportFrom):
             return False
-        return stmt.modname in self.config.redefining_builtins_modules
+        return stmt.modname in self.linter.config.redefining_builtins_modules
 
     def _allowed_redefined_builtin(self, name):
-        return name in self.config.allowed_redefined_builtins
+        return name in self.linter.config.allowed_redefined_builtins
 
     @staticmethod
     def _comprehension_between_frame_and_node(node: nodes.Name) -> bool:
@@ -2495,7 +2500,7 @@ class VariablesChecker(BaseChecker):
 
     def _check_self_cls_assign(self, node: nodes.Assign) -> None:
         """Check that self/cls don't get assigned."""
-        assign_names: Set[Optional[str]] = set()
+        assign_names: set[str | None] = set()
         for target in node.targets:
             if isinstance(target, nodes.AssignName):
                 assign_names.add(target.name)
@@ -2557,7 +2562,7 @@ class VariablesChecker(BaseChecker):
                         len(values),
                     ),
                 )
-        # attempt to check unpacking may be possible (ie RHS is iterable)
+        # attempt to check unpacking may be possible (i.e. RHS is iterable)
         elif not utils.is_iterable(inferred):
             self.add_message(
                 "unpacking-non-sequence",
@@ -2566,7 +2571,7 @@ class VariablesChecker(BaseChecker):
             )
 
     @staticmethod
-    def _nodes_to_unpack(node: nodes.NodeNG) -> Optional[List[nodes.NodeNG]]:
+    def _nodes_to_unpack(node: nodes.NodeNG) -> list[nodes.NodeNG] | None:
         """Return the list of values of the `Assign` node."""
         if isinstance(node, (nodes.Tuple, nodes.List)):
             return node.itered()
@@ -2669,8 +2674,8 @@ class VariablesChecker(BaseChecker):
     def _check_imports(self, not_consumed):
         local_names = _fix_dot_imports(not_consumed)
         checked = set()
-        unused_wildcard_imports: DefaultDict[
-            Tuple[str, nodes.ImportFrom], List[str]
+        unused_wildcard_imports: defaultdict[
+            tuple[str, nodes.ImportFrom], list[str]
         ] = collections.defaultdict(list)
         for name, stmt in local_names:
             for imports in stmt.names:
@@ -2802,7 +2807,7 @@ class VariablesChecker(BaseChecker):
             and not (
                 name in nodes.Module.scope_attrs
                 or utils.is_builtin(name)
-                or name in self.config.additional_builtins
+                or name in self.linter.config.additional_builtins
             )
         ):
             self.add_message("undefined-variable", node=klass, args=(name,))
@@ -2815,7 +2820,7 @@ class VariablesChecker(BaseChecker):
         self._check_potential_index_error(node, inferred_slice)
 
     def _check_potential_index_error(
-        self, node: nodes.Subscript, inferred_slice: Optional[nodes.NodeNG]
+        self, node: nodes.Subscript, inferred_slice: nodes.NodeNG | None
     ) -> None:
         """Check for the potential-index-error message."""
         # Currently we only check simple slices of a single integer
@@ -2834,5 +2839,5 @@ class VariablesChecker(BaseChecker):
             return
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(VariablesChecker(linter))

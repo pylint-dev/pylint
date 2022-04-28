@@ -3,9 +3,13 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 # pylint: disable=redefined-outer-name
+
+from __future__ import annotations
+
 import itertools
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable, Tuple, cast
+from typing import cast
 
 import astroid
 import pytest
@@ -113,7 +117,7 @@ class TestBadCharsChecker(pylint.testutils.CheckerTestCase):
     def test_find_bad_chars(
         self,
         bad_char_file_generator: Callable[[str, bool, str], Path],
-        codec_and_msg: Tuple[str, Tuple[pylint.testutils.MessageTest]],
+        codec_and_msg: tuple[str, tuple[pylint.testutils.MessageTest]],
         line_ending: str,
         add_invalid_bytes: bool,
     ):
@@ -210,7 +214,7 @@ class TestBadCharsChecker(pylint.testutils.CheckerTestCase):
         self,
         char: str,
         msg_id: str,
-        codec_and_msg: Tuple[str, Tuple[pylint.testutils.MessageTest]],
+        codec_and_msg: tuple[str, tuple[pylint.testutils.MessageTest]],
     ):
         """Special test for a file containing chars that lead to
         Python or Astroid crashes (which causes Pylint to exit early)

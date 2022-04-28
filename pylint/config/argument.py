@@ -7,28 +7,20 @@
 An Argument instance represents a pylint option to be handled by an argparse.ArgumentParser
 """
 
+from __future__ import annotations
 
 import argparse
 import pathlib
 import re
 import sys
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    List,
-    Optional,
-    Pattern,
-    Sequence,
-    Tuple,
-    Type,
-    Union,
-)
+from collections.abc import Callable
+from typing import Any, Pattern, Sequence, Tuple, Union
 
 from pylint import interfaces
 from pylint import utils as pylint_utils
-from pylint.config.callback_actions import _CallbackAction
+from pylint.config.callback_actions import _CallbackAction, _ExtendAction
 from pylint.config.deprecation_actions import _NewNamesAction, _OldNamesAction
+from pylint.constants import PY38_PLUS
 
 if sys.version_info >= (3, 8):
     from typing import Literal
@@ -88,10 +80,10 @@ def _non_empty_string_transformer(value: str) -> str:
     return pylint_utils._unquote(value)
 
 
-def _py_version_transformer(value: str) -> Tuple[int, ...]:
+def _py_version_transformer(value: str) -> tuple[int, ...]:
     """Transforms a version string into a version tuple."""
     try:
-        version = tuple(int(val) for val in value.split("."))
+        version = tuple(int(val) for val in value.replace(",", ".").split("."))
     except ValueError:
         raise argparse.ArgumentTypeError(
             f"{value} has an invalid format, should be a version string. E.g., '3.8'"
@@ -101,7 +93,7 @@ def _py_version_transformer(value: str) -> Tuple[int, ...]:
 
 def _regexp_csv_transfomer(value: str) -> Sequence[Pattern[str]]:
     """Transforms a comma separated list of regular expressions."""
-    patterns: List[Pattern[str]] = []
+    patterns: list[Pattern[str]] = []
     for pattern in _csv_transformer(value):
         patterns.append(re.compile(pattern))
     return patterns
@@ -109,7 +101,7 @@ def _regexp_csv_transfomer(value: str) -> Sequence[Pattern[str]]:
 
 def _regexp_paths_csv_transfomer(value: str) -> Sequence[Pattern[str]]:
     """Transforms a comma separated list of regular expressions paths."""
-    patterns: List[Pattern[str]] = []
+    patterns: list[Pattern[str]] = []
     for pattern in _csv_transformer(value):
         patterns.append(
             re.compile(
@@ -121,7 +113,7 @@ def _regexp_paths_csv_transfomer(value: str) -> Sequence[Pattern[str]]:
     return patterns
 
 
-_TYPE_TRANSFORMERS: Dict[str, Callable[[str], _ArgumentTypes]] = {
+_TYPE_TRANSFORMERS: dict[str, Callable[[str], _ArgumentTypes]] = {
     "choice": str,
     "csv": _csv_transformer,
     "float": float,
@@ -152,7 +144,14 @@ class _Argument:
     https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.add_argument
     """
 
-    def __init__(self, *, flags: List[str], arg_help: str, hide_help: bool) -> None:
+    def __init__(
+        self,
+        *,
+        flags: list[str],
+        arg_help: str,
+        hide_help: bool,
+        section: str | None,
+    ) -> None:
         self.flags = flags
         """The name of the argument."""
 
@@ -166,6 +165,9 @@ class _Argument:
         if hide_help:
             self.help = argparse.SUPPRESS
 
+        self.section = section
+        """The section to add this argument to."""
+
 
 class _BaseStoreArgument(_Argument):
     """Base class for store arguments to be parsed by an argparse.ArgumentsParser.
@@ -178,13 +180,16 @@ class _BaseStoreArgument(_Argument):
     def __init__(
         self,
         *,
-        flags: List[str],
+        flags: list[str],
         action: str,
         default: _ArgumentTypes,
         arg_help: str,
         hide_help: bool,
+        section: str | None,
     ) -> None:
-        super().__init__(flags=flags, arg_help=arg_help, hide_help=hide_help)
+        super().__init__(
+            flags=flags, arg_help=arg_help, hide_help=hide_help, section=section
+        )
 
         self.action = action
         """The action to perform with the argument."""
@@ -204,14 +209,15 @@ class _StoreArgument(_BaseStoreArgument):
     def __init__(
         self,
         *,
-        flags: List[str],
+        flags: list[str],
         action: str,
         default: _ArgumentTypes,
         arg_type: str,
-        choices: Optional[List[str]],
+        choices: list[str] | None,
         arg_help: str,
         metavar: str,
         hide_help: bool,
+        section: str | None,
     ) -> None:
         super().__init__(
             flags=flags,
@@ -219,6 +225,7 @@ class _StoreArgument(_BaseStoreArgument):
             default=default,
             arg_help=arg_help,
             hide_help=hide_help,
+            section=section,
         )
 
         self.type = _TYPE_TRANSFORMERS[arg_type]
@@ -250,11 +257,12 @@ class _StoreTrueArgument(_BaseStoreArgument):
     def __init__(
         self,
         *,
-        flags: List[str],
+        flags: list[str],
         action: Literal["store_true"],
         default: _ArgumentTypes,
         arg_help: str,
         hide_help: bool,
+        section: str | None,
     ) -> None:
         super().__init__(
             flags=flags,
@@ -262,6 +270,7 @@ class _StoreTrueArgument(_BaseStoreArgument):
             default=default,
             arg_help=arg_help,
             hide_help=hide_help,
+            section=section,
         )
 
 
@@ -276,16 +285,19 @@ class _DeprecationArgument(_Argument):
     def __init__(
         self,
         *,
-        flags: List[str],
-        action: Type[argparse._StoreAction],
+        flags: list[str],
+        action: type[argparse.Action],
         default: _ArgumentTypes,
         arg_type: str,
-        choices: Optional[List[str]],
+        choices: list[str] | None,
         arg_help: str,
         metavar: str,
         hide_help: bool,
+        section: str | None,
     ) -> None:
-        super().__init__(flags=flags, arg_help=arg_help, hide_help=hide_help)
+        super().__init__(
+            flags=flags, arg_help=arg_help, hide_help=hide_help, section=section
+        )
 
         self.action = action
         """The action to perform with the argument."""
@@ -310,6 +322,50 @@ class _DeprecationArgument(_Argument):
         """
 
 
+class _ExtendArgument(_DeprecationArgument):
+    """Class for extend arguments to be parsed by an argparse.ArgumentsParser.
+
+    This is based on the parameters passed to argparse.ArgumentsParser.add_message.
+    See:
+    https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.add_argument
+    """
+
+    def __init__(
+        self,
+        *,
+        flags: list[str],
+        action: Literal["extend"],
+        default: _ArgumentTypes,
+        arg_type: str,
+        metavar: str,
+        arg_help: str,
+        hide_help: bool,
+        section: str | None,
+        choices: list[str] | None,
+        dest: str | None,
+    ) -> None:
+        # The extend action is included in the stdlib from 3.8+
+        if PY38_PLUS:
+            action_class = argparse._ExtendAction  # type: ignore[attr-defined]
+        else:
+            action_class = _ExtendAction
+
+        self.dest = dest
+        """The destination of the argument."""
+
+        super().__init__(
+            flags=flags,
+            action=action_class,
+            default=default,
+            arg_type=arg_type,
+            choices=choices,
+            arg_help=arg_help,
+            metavar=metavar,
+            hide_help=hide_help,
+            section=section,
+        )
+
+
 class _StoreOldNamesArgument(_DeprecationArgument):
     """Store arguments while also handling old names.
 
@@ -321,14 +377,15 @@ class _StoreOldNamesArgument(_DeprecationArgument):
     def __init__(
         self,
         *,
-        flags: List[str],
+        flags: list[str],
         default: _ArgumentTypes,
         arg_type: str,
-        choices: Optional[List[str]],
+        choices: list[str] | None,
         arg_help: str,
         metavar: str,
         hide_help: bool,
-        kwargs: Dict[str, Any],
+        kwargs: dict[str, Any],
+        section: str | None,
     ) -> None:
         super().__init__(
             flags=flags,
@@ -339,6 +396,7 @@ class _StoreOldNamesArgument(_DeprecationArgument):
             arg_help=arg_help,
             metavar=metavar,
             hide_help=hide_help,
+            section=section,
         )
 
         self.kwargs = kwargs
@@ -356,14 +414,15 @@ class _StoreNewNamesArgument(_DeprecationArgument):
     def __init__(
         self,
         *,
-        flags: List[str],
+        flags: list[str],
         default: _ArgumentTypes,
         arg_type: str,
-        choices: Optional[List[str]],
+        choices: list[str] | None,
         arg_help: str,
         metavar: str,
         hide_help: bool,
-        kwargs: Dict[str, Any],
+        kwargs: dict[str, Any],
+        section: str | None,
     ) -> None:
         super().__init__(
             flags=flags,
@@ -374,6 +433,7 @@ class _StoreNewNamesArgument(_DeprecationArgument):
             arg_help=arg_help,
             metavar=metavar,
             hide_help=hide_help,
+            section=section,
         )
 
         self.kwargs = kwargs
@@ -391,16 +451,27 @@ class _CallableArgument(_Argument):
     def __init__(
         self,
         *,
-        flags: List[str],
-        action: Type[_CallbackAction],
+        flags: list[str],
+        action: type[_CallbackAction],
         arg_help: str,
-        kwargs: Dict[str, Any],
+        kwargs: dict[str, Any],
         hide_help: bool,
+        section: str | None,
+        metavar: str,
     ) -> None:
-        super().__init__(flags=flags, arg_help=arg_help, hide_help=hide_help)
+        super().__init__(
+            flags=flags, arg_help=arg_help, hide_help=hide_help, section=section
+        )
 
         self.action = action
         """The action to perform with the argument."""
 
         self.kwargs = kwargs
         """Any additional arguments passed to the action."""
+
+        self.metavar = metavar
+        """The metavar of the argument.
+
+        See:
+        https://docs.python.org/3/library/argparse.html#metavar
+        """

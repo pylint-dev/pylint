@@ -11,8 +11,8 @@ import pprint
 
 import pytest
 
-from pylint.lint import Run
 from pylint.testutils import GenericTestReporter as Reporter
+from pylint.testutils._run import _Run as Run
 
 
 def _get_py_files(scanpath):

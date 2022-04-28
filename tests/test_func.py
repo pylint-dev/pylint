@@ -4,14 +4,16 @@
 
 """Functional/non regression tests for pylint."""
 
+from __future__ import annotations
+
 import re
 import sys
 from os.path import abspath, dirname, join
-from typing import List, Optional, Tuple
 
 import pytest
 
 from pylint.testutils import UPDATE_FILE, UPDATE_OPTION, _get_tests_info, linter
+from pylint.testutils.reporter_for_tests import GenericTestReporter
 
 INPUT_DIR = join(dirname(abspath(__file__)), "input")
 MSG_DIR = join(dirname(abspath(__file__)), "messages")
@@ -29,13 +31,13 @@ def exception_str(self, ex) -> str:  # pylint: disable=unused-argument
 
 
 class LintTestUsingModule:
-    INPUT_DIR: Optional[str] = None
+    INPUT_DIR: str | None = None
     DEFAULT_PACKAGE = "input"
     package = DEFAULT_PACKAGE
     linter = linter
-    module: Optional[str] = None
-    depends: Optional[List[Tuple[str, str]]] = None
-    output: Optional[str] = None
+    module: str | None = None
+    depends: list[tuple[str, str]] | None = None
+    output: str | None = None
 
     def _test_functionality(self) -> None:
         if self.module:
@@ -54,7 +56,7 @@ class LintTestUsingModule:
         )
         assert self._get_expected() == got, error_msg
 
-    def _test(self, tocheck: List[str]) -> None:
+    def _test(self, tocheck: list[str]) -> None:
         if self.module and INFO_TEST_RGX.match(self.module):
             self.linter.enable("I")
         else:
@@ -67,6 +69,7 @@ class LintTestUsingModule:
             print(ex)
             ex.__str__ = exception_str  # type: ignore[assignment] # This is legacy code we're trying to remove, impossible to type correctly
             raise
+        assert isinstance(self.linter.reporter, GenericTestReporter)
         self._check_result(self.linter.reporter.finalize())
 
     def _has_output(self) -> bool:
@@ -123,23 +126,21 @@ TEST_WITH_EXPECTED_DEPRECATION = ["func_excess_escapes.py"]
     gen_tests(FILTER_RGX),
     ids=[o[0] for o in gen_tests(FILTER_RGX)],
 )
-def test_functionality(module_file, messages_file, dependencies, recwarn):
+def test_functionality(
+    module_file, messages_file, dependencies, recwarn: pytest.WarningsRecorder
+) -> None:
     __test_functionality(module_file, messages_file, dependencies)
-    warning = None
-    try:
-        # Catch <unknown>:x: DeprecationWarning: invalid escape sequence
-        # so it's not shown during tests
-        warning = recwarn.pop()
-    except AssertionError:
-        pass
-    if warning is not None:
+    if recwarn.list:
         if module_file in TEST_WITH_EXPECTED_DEPRECATION and sys.version_info.minor > 5:
-            assert issubclass(warning.category, DeprecationWarning)
-            assert "invalid escape sequence" in str(warning.message)
+            assert any(
+                "invalid escape sequence" in str(i.message)
+                for i in recwarn.list
+                if issubclass(i.category, DeprecationWarning)
+            )
 
 
 def __test_functionality(
-    module_file: str, messages_file: str, dependencies: List[Tuple[str, str]]
+    module_file: str, messages_file: str, dependencies: list[tuple[str, str]]
 ) -> None:
     lint_test = LintTestUpdate() if UPDATE_FILE.exists() else LintTestUsingModule()
     lint_test.module = module_file.replace(".py", "")

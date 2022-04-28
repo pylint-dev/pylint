@@ -3,34 +3,29 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Some functions that may be useful for various checkers."""
+
+from __future__ import annotations
+
 import builtins
 import itertools
 import numbers
 import re
 import string
 import warnings
+from collections.abc import Callable, Iterable
 from functools import lru_cache, partial
-from typing import (
-    Callable,
-    Dict,
-    Iterable,
-    List,
-    Match,
-    Optional,
-    Set,
-    Tuple,
-    Type,
-    TypeVar,
-    Union,
-)
+from re import Match
+from typing import TypeVar
 
 import _string
-import astroid
 import astroid.objects
 from astroid import TooManyLevelsError, nodes
 from astroid.context import InferenceContext
 
 from pylint.constants import TYPING_TYPE_CHECKS_GUARDS
+from pylint.typing import AstCallbackMethod
+
+T_Node = TypeVar("T_Node", bound=nodes.NodeNG)
 
 COMP_NODE_TYPES = (
     nodes.ListComp,
@@ -230,8 +225,6 @@ SUBSCRIPTABLE_CLASSES_PEP585 = frozenset(
     )
 )
 
-T_Node = TypeVar("T_Node", bound=nodes.NodeNG)
-
 
 class NoSuchArgumentError(Exception):
     pass
@@ -363,9 +356,7 @@ def is_defined_before(var_node: nodes.Name) -> bool:
     return False
 
 
-def is_default_argument(
-    node: nodes.NodeNG, scope: Optional[nodes.NodeNG] = None
-) -> bool:
+def is_default_argument(node: nodes.NodeNG, scope: nodes.NodeNG | None = None) -> bool:
     """Return true if the given Name node is used in function or lambda
     default argument's value
     """
@@ -434,14 +425,40 @@ def overrides_a_method(class_node: nodes.ClassDef, name: str) -> bool:
     return False
 
 
-def check_messages(*messages: str) -> Callable:
-    """Decorator to store messages that are handled by a checker method."""
+def only_required_for_messages(
+    *messages: str,
+) -> Callable[[AstCallbackMethod], AstCallbackMethod]:
+    """Decorator to store messages that are handled by a checker method as an
+    attribute of the function object.
+
+    This information is used by ``ASTWalker`` to decide whether to call the decorated
+    method or not. If none of the messages is enabled, the method will be skipped.
+    Therefore, the list of messages must be well maintained at all times!
+    This decorator only has an effect on ``visit_*`` and ``leave_*`` methods
+    of a class inheriting from ``BaseChecker``.
+    """
 
     def store_messages(func):
         func.checks_msgs = messages
         return func
 
     return store_messages
+
+
+def check_messages(
+    *messages: str,
+) -> Callable[[AstCallbackMethod], AstCallbackMethod]:
+    """Kept for backwards compatibility, deprecated.
+
+    Use only_required_for_messages instead, which conveys the intent of the decorator much clearer.
+    """
+    warnings.warn(
+        "utils.check_messages will be removed in favour of calling "
+        "utils.only_required_for_messages in pylint 3.0",
+        DeprecationWarning,
+    )
+
+    return only_required_for_messages(*messages)
 
 
 class IncompleteFormatString(Exception):
@@ -460,7 +477,7 @@ class UnsupportedFormatCharacter(Exception):
 
 def parse_format_string(
     format_string: str,
-) -> Tuple[Set[str], int, Dict[str, str], List[str]]:
+) -> tuple[set[str], int, dict[str, str], list[str]]:
     """Parses a format string, returning a tuple (keys, num_args).
 
     Where 'keys' is the set of mapping keys in the format string, and 'num_args' is the number
@@ -534,14 +551,14 @@ def parse_format_string(
     return keys, num_args, key_types, pos_types
 
 
-def split_format_field_names(format_string) -> Tuple[str, Iterable[Tuple[bool, str]]]:
+def split_format_field_names(format_string) -> tuple[str, Iterable[tuple[bool, str]]]:
     try:
         return _string.formatter_field_name_split(format_string)
     except ValueError as e:
         raise IncompleteFormatString() from e
 
 
-def collect_string_fields(format_string) -> Iterable[Optional[str]]:
+def collect_string_fields(format_string) -> Iterable[str | None]:
     """Given a format string, return an iterator
     of all the valid format fields.
 
@@ -576,7 +593,7 @@ def collect_string_fields(format_string) -> Iterable[Optional[str]]:
 
 def parse_format_method_string(
     format_string: str,
-) -> Tuple[List[Tuple[str, List[Tuple[bool, str]]]], int, int]:
+) -> tuple[list[tuple[str, list[tuple[bool, str]]]], int, int]:
     """Parses a PEP 3101 format string, returning a tuple of
     (keyword_arguments, implicit_pos_args_cnt, explicit_pos_args).
 
@@ -614,7 +631,7 @@ def is_attr_protected(attrname: str) -> bool:
     )
 
 
-def node_frame_class(node: nodes.NodeNG) -> Optional[nodes.ClassDef]:
+def node_frame_class(node: nodes.NodeNG) -> nodes.ClassDef | None:
     """Return the class that is wrapping the given node.
 
     The function returns a class for a method node (or a staticmethod or a
@@ -639,14 +656,14 @@ def node_frame_class(node: nodes.NodeNG) -> Optional[nodes.ClassDef]:
     return klass
 
 
-def get_outer_class(class_node: astroid.ClassDef) -> Optional[astroid.ClassDef]:
+def get_outer_class(class_node: astroid.ClassDef) -> astroid.ClassDef | None:
     """Return the class that is the outer class of given (nested) class_node."""
     parent_klass = class_node.parent.frame(future=True)
 
     return parent_klass if isinstance(parent_klass, astroid.ClassDef) else None
 
 
-def is_attr_private(attrname: str) -> Optional[Match[str]]:
+def is_attr_private(attrname: str) -> Match[str] | None:
     """Check that attribute name is private (at least two leading underscores,
     at most one trailing underscore)
     """
@@ -655,7 +672,7 @@ def is_attr_private(attrname: str) -> Optional[Match[str]]:
 
 
 def get_argument_from_call(
-    call_node: nodes.Call, position: Optional[int] = None, keyword: Optional[str] = None
+    call_node: nodes.Call, position: int | None = None, keyword: str | None = None
 ) -> nodes.Name:
     """Returns the specified argument from a function call.
 
@@ -684,7 +701,7 @@ def get_argument_from_call(
     raise NoSuchArgumentError
 
 
-def inherit_from_std_ex(node: nodes.NodeNG) -> bool:
+def inherit_from_std_ex(node: nodes.NodeNG | astroid.Instance) -> bool:
     """Return whether the given class node is subclass of
     exceptions.Exception.
     """
@@ -769,7 +786,7 @@ def _is_property_decorator(decorator: nodes.Name) -> bool:
         elif isinstance(inferred, nodes.FunctionDef):
             # If decorator is function, check if it has exactly one return
             # and the return is itself a function decorated with property
-            returns: List[nodes.Return] = list(
+            returns: list[nodes.Return] = list(
                 inferred._get_return_nodes_skip_functions()
             )
             if len(returns) == 1 and isinstance(
@@ -786,9 +803,9 @@ def _is_property_decorator(decorator: nodes.Name) -> bool:
 
 
 def decorated_with(
-    func: Union[
-        nodes.ClassDef, nodes.FunctionDef, astroid.BoundMethod, astroid.UnboundMethod
-    ],
+    func: (
+        nodes.ClassDef | nodes.FunctionDef | astroid.BoundMethod | astroid.UnboundMethod
+    ),
     qnames: Iterable[str],
 ) -> bool:
     """Determine if the `func` node has a decorator with the qualified name `qname`."""
@@ -811,7 +828,7 @@ def decorated_with(
 
 def uninferable_final_decorators(
     node: nodes.Decorators,
-) -> List[Optional[Union[nodes.Attribute, nodes.Name]]]:
+) -> list[nodes.Attribute | nodes.Name | None]:
     """Return a list of uninferable `typing.final` decorators in `node`.
 
     This function is used to determine if the `typing.final` decorator is used
@@ -857,7 +874,7 @@ def uninferable_final_decorators(
 @lru_cache(maxsize=1024)
 def unimplemented_abstract_methods(
     node: nodes.ClassDef, is_abstract_cb: nodes.FunctionDef = None
-) -> Dict[str, nodes.NodeNG]:
+) -> dict[str, nodes.NodeNG]:
     """Get the unimplemented abstract methods for the given *node*.
 
     A method can be considered abstract if the callback *is_abstract_cb*
@@ -870,7 +887,7 @@ def unimplemented_abstract_methods(
     """
     if is_abstract_cb is None:
         is_abstract_cb = partial(decorated_with, qnames=ABC_METHODS)
-    visited: Dict[str, nodes.NodeNG] = {}
+    visited: dict[str, nodes.NodeNG] = {}
     try:
         mro = reversed(node.mro())
     except NotImplementedError:
@@ -914,7 +931,7 @@ def unimplemented_abstract_methods(
 
 def find_try_except_wrapper_node(
     node: nodes.NodeNG,
-) -> Optional[Union[nodes.ExceptHandler, nodes.TryExcept]]:
+) -> nodes.ExceptHandler | nodes.TryExcept | None:
     """Return the ExceptHandler or the TryExcept node in which the node is."""
     current = node
     ignores = (nodes.ExceptHandler, nodes.TryExcept)
@@ -928,7 +945,7 @@ def find_try_except_wrapper_node(
 
 def find_except_wrapper_node_in_scope(
     node: nodes.NodeNG,
-) -> Optional[Union[nodes.ExceptHandler, nodes.TryExcept]]:
+) -> nodes.ExceptHandler | nodes.TryExcept | None:
     """Return the ExceptHandler in which the node is, without going out of scope."""
     for current in node.node_ancestors():
         if isinstance(current, astroid.scoped_nodes.LocalsDictNodeNG):
@@ -969,7 +986,7 @@ def is_from_fallback_block(node: nodes.NodeNG) -> bool:
 
 def _except_handlers_ignores_exceptions(
     handlers: nodes.ExceptHandler,
-    exceptions: Tuple[Type[ImportError], Type[ModuleNotFoundError]],
+    exceptions: tuple[type[ImportError], type[ModuleNotFoundError]],
 ) -> bool:
     func = partial(error_of_type, error_type=exceptions)
     return any(func(handler) for handler in handlers)
@@ -977,7 +994,7 @@ def _except_handlers_ignores_exceptions(
 
 def get_exception_handlers(
     node: nodes.NodeNG, exception=Exception
-) -> Optional[List[nodes.ExceptHandler]]:
+) -> list[nodes.ExceptHandler] | None:
     """Return the collections of handlers handling the exception in arguments.
 
     Args:
@@ -1051,8 +1068,19 @@ def _supports_protocol_method(value: nodes.NodeNG, attr: str) -> bool:
         return False
 
     first = attributes[0]
+
+    # Return False if a constant is assigned
     if isinstance(first, nodes.AssignName):
-        if isinstance(first.parent.value, nodes.Const):
+        this_assign_parent = get_node_first_ancestor_of_type(
+            first, (nodes.Assign, nodes.NamedExpr)
+        )
+        if this_assign_parent is None:  # pragma: no cover
+            # Cannot imagine this being None, but return True to avoid false positives
+            return True
+        if isinstance(this_assign_parent.value, nodes.BaseContainer):
+            if all(isinstance(n, nodes.Const) for n in this_assign_parent.value.elts):
+                return False
+        if isinstance(this_assign_parent.value, nodes.Const):
             return False
     return True
 
@@ -1139,7 +1167,7 @@ def _supports_protocol(
             return True
 
     # pylint: disable-next=fixme
-    # TODO: Should be covered by https://github.com/PyCQA/astroid/pull/1475
+    # TODO: 2.14: Should be covered by https://github.com/PyCQA/astroid/pull/1475
     if isinstance(value, nodes.ComprehensionScope):
         return True
 
@@ -1188,7 +1216,7 @@ def supports_delitem(value: nodes.NodeNG, _: nodes.NodeNG) -> bool:
     return _supports_protocol(value, _supports_delitem_protocol)
 
 
-def _get_python_type_of_node(node: nodes.NodeNG) -> Optional[str]:
+def _get_python_type_of_node(node: nodes.NodeNG) -> str | None:
     pytype = getattr(node, "pytype", None)
     if callable(pytype):
         return pytype()
@@ -1197,14 +1225,14 @@ def _get_python_type_of_node(node: nodes.NodeNG) -> Optional[str]:
 
 @lru_cache(maxsize=1024)
 def safe_infer(
-    node: nodes.NodeNG, context: Optional[InferenceContext] = None
-) -> Union[nodes.NodeNG, Type[astroid.Uninferable], None]:
+    node: nodes.NodeNG, context: InferenceContext | None = None
+) -> nodes.NodeNG | type[astroid.Uninferable] | None:
     """Return the inferred value for the given node.
 
     Return None if inference failed or if there is some ambiguity (more than
     one node has been inferred of different types).
     """
-    inferred_types: Set[Optional[str]] = set()
+    inferred_types: set[str | None] = set()
     try:
         infer_gen = node.infer(context=context)
         value = next(infer_gen)
@@ -1237,7 +1265,7 @@ def safe_infer(
 @lru_cache(maxsize=512)
 def infer_all(
     node: nodes.NodeNG, context: InferenceContext = None
-) -> List[nodes.NodeNG]:
+) -> list[nodes.NodeNG]:
     try:
         return list(node.infer(context=context))
     except astroid.InferenceError:
@@ -1271,7 +1299,7 @@ def is_none(node: nodes.NodeNG) -> bool:
     )
 
 
-def node_type(node: nodes.NodeNG) -> Optional[nodes.NodeNG]:
+def node_type(node: nodes.NodeNG) -> nodes.NodeNG | None:
     """Return the inferred type for `node`.
 
     If there is more than one possible type, or if inferred type is Uninferable or None,
@@ -1279,7 +1307,7 @@ def node_type(node: nodes.NodeNG) -> Optional[nodes.NodeNG]:
     """
     # check there is only one possible type for the assign node. Else we
     # don't handle it for now
-    types: Set[nodes.NodeNG] = set()
+    types: set[nodes.NodeNG] = set()
     try:
         for var_type in node.infer():
             if var_type == astroid.Uninferable or is_none(var_type):
@@ -1371,7 +1399,7 @@ def is_node_in_type_annotation_context(node: nodes.NodeNG) -> bool:
     """Check if node is in type annotation context.
 
     Check for 'AnnAssign', function 'Arguments',
-    or part of function return type anntation.
+    or part of function return type annotation.
     """
     # pylint: disable=too-many-boolean-expressions
     current_node, parent_node = node, node.parent
@@ -1452,7 +1480,7 @@ def is_call_of_name(node: nodes.NodeNG, name: str) -> bool:
 
 def is_test_condition(
     node: nodes.NodeNG,
-    parent: Optional[nodes.NodeNG] = None,
+    parent: nodes.NodeNG | None = None,
 ) -> bool:
     """Returns true if the given node is being tested for truthiness."""
     parent = parent or node.parent
@@ -1471,7 +1499,7 @@ def is_classdef_type(node: nodes.ClassDef) -> bool:
 
 
 def is_attribute_typed_annotation(
-    node: Union[nodes.ClassDef, astroid.Instance], attr_name: str
+    node: nodes.ClassDef | astroid.Instance, attr_name: str
 ) -> bool:
     """Test if attribute is typed annotation in current node
     or any base nodes.
@@ -1515,9 +1543,7 @@ def is_assign_name_annotated_with(node: nodes.AssignName, typing_name: str) -> b
     return False
 
 
-def get_iterating_dictionary_name(
-    node: Union[nodes.For, nodes.Comprehension]
-) -> Optional[str]:
+def get_iterating_dictionary_name(node: nodes.For | nodes.Comprehension) -> str | None:
     """Get the name of the dictionary which keys are being iterated over on
     a ``nodes.For`` or ``nodes.Comprehension`` node.
 
@@ -1559,9 +1585,7 @@ def get_subscript_const_value(node: nodes.Subscript) -> nodes.Const:
     return inferred
 
 
-def get_import_name(
-    importnode: Union[nodes.Import, nodes.ImportFrom], modname: str
-) -> str:
+def get_import_name(importnode: nodes.Import | nodes.ImportFrom, modname: str) -> str:
     """Get a prepared module name from the given import node.
 
     In the case of relative imports, this will return the
@@ -1662,15 +1686,15 @@ def is_function_body_ellipsis(node: nodes.FunctionDef) -> bool:
     )
 
 
-def is_base_container(node: Optional[nodes.NodeNG]) -> bool:
+def is_base_container(node: nodes.NodeNG | None) -> bool:
     return isinstance(node, nodes.BaseContainer) and not node.elts
 
 
-def is_empty_dict_literal(node: Optional[nodes.NodeNG]) -> bool:
+def is_empty_dict_literal(node: nodes.NodeNG | None) -> bool:
     return isinstance(node, nodes.Dict) and not node.items
 
 
-def is_empty_str_literal(node: Optional[nodes.NodeNG]) -> bool:
+def is_empty_str_literal(node: nodes.NodeNG | None) -> bool:
     return (
         isinstance(node, nodes.Const) and isinstance(node.value, str) and not node.value
     )
@@ -1686,8 +1710,8 @@ def returns_bool(node: nodes.NodeNG) -> bool:
 
 
 def get_node_first_ancestor_of_type(
-    node: nodes.NodeNG, ancestor_type: Union[Type[T_Node], Tuple[Type[T_Node], ...]]
-) -> Optional[T_Node]:
+    node: nodes.NodeNG, ancestor_type: type[T_Node] | tuple[type[T_Node], ...]
+) -> T_Node | None:
     """Return the first parent node that is any of the provided types (or None)."""
     for ancestor in node.node_ancestors():
         if isinstance(ancestor, ancestor_type):
@@ -1696,8 +1720,8 @@ def get_node_first_ancestor_of_type(
 
 
 def get_node_first_ancestor_of_type_and_its_child(
-    node: nodes.NodeNG, ancestor_type: Union[Type[T_Node], Tuple[Type[T_Node], ...]]
-) -> Union[Tuple[None, None], Tuple[T_Node, nodes.NodeNG]]:
+    node: nodes.NodeNG, ancestor_type: type[T_Node] | tuple[type[T_Node], ...]
+) -> tuple[None, None] | tuple[T_Node, nodes.NodeNG]:
     """Modified version of get_node_first_ancestor_of_type to also return the
     descendant visited directly before reaching the sought ancestor
 

@@ -2,10 +2,12 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-import os
-from typing import TYPE_CHECKING, Callable, List, Optional, TextIO
+from __future__ import annotations
 
-from pylint.interfaces import IReporter
+import os
+from collections.abc import Callable
+from typing import TYPE_CHECKING, TextIO
+
 from pylint.message import Message
 from pylint.reporters.base_reporter import BaseReporter
 from pylint.utils import LinterStats
@@ -18,7 +20,6 @@ if TYPE_CHECKING:
 class MultiReporter:
     """Reports messages and layouts in plain text."""
 
-    __implements__ = IReporter
     name = "_internal_multi_reporter"
     # Note: do not register this reporter with linter.register_reporter as it is
     #       not intended to be used directly like a regular reporter, but is
@@ -30,23 +31,23 @@ class MultiReporter:
 
     def __init__(
         self,
-        sub_reporters: List[BaseReporter],
+        sub_reporters: list[BaseReporter],
         close_output_files: Callable[[], None],
-        output: Optional[TextIO] = None,
+        output: TextIO | None = None,
     ):
         self._sub_reporters = sub_reporters
         self.close_output_files = close_output_files
         self._path_strip_prefix = os.getcwd() + os.sep
-        self._linter: Optional["PyLinter"] = None
+        self._linter: PyLinter | None = None
         self.out = output
-        self.messages: List[Message] = []
+        self.messages: list[Message] = []
 
     @property
-    def out(self) -> Optional[TextIO]:
+    def out(self) -> TextIO | None:
         return self.__out
 
     @out.setter
-    def out(self, output: Optional[TextIO] = None) -> None:
+    def out(self, output: TextIO | None = None) -> None:
         """MultiReporter doesn't have its own output.
 
         This method is only provided for API parity with BaseReporter
@@ -64,11 +65,11 @@ class MultiReporter:
         return self._path_strip_prefix
 
     @property
-    def linter(self) -> Optional["PyLinter"]:
+    def linter(self) -> PyLinter | None:
         return self._linter
 
     @linter.setter
-    def linter(self, value: "PyLinter") -> None:
+    def linter(self, value: PyLinter) -> None:
         self._linter = value
         for rep in self._sub_reporters:
             rep.linter = value
@@ -83,17 +84,17 @@ class MultiReporter:
         for rep in self._sub_reporters:
             rep.writeln(string)
 
-    def display_reports(self, layout: "Section") -> None:
+    def display_reports(self, layout: Section) -> None:
         """Display results encapsulated in the layout tree."""
         for rep in self._sub_reporters:
             rep.display_reports(layout)
 
-    def display_messages(self, layout: Optional["Section"]) -> None:
+    def display_messages(self, layout: Section | None) -> None:
         """Hook for displaying the messages of the reporter."""
         for rep in self._sub_reporters:
             rep.display_messages(layout)
 
-    def on_set_current_module(self, module: str, filepath: Optional[str]) -> None:
+    def on_set_current_module(self, module: str, filepath: str | None) -> None:
         """Hook called when a module starts to be analysed."""
         for rep in self._sub_reporters:
             rep.on_set_current_module(module, filepath)
@@ -101,7 +102,7 @@ class MultiReporter:
     def on_close(
         self,
         stats: LinterStats,
-        previous_stats: LinterStats,
+        previous_stats: LinterStats | None,
     ) -> None:
         """Hook called when a module finished analyzing."""
         for rep in self._sub_reporters:

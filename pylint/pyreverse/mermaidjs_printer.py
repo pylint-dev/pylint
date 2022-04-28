@@ -3,7 +3,8 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Class to generate files in mermaidjs format."""
-from typing import Dict, Optional
+
+from __future__ import annotations
 
 from pylint.pyreverse.printer import EdgeType, NodeProperties, NodeType, Printer
 from pylint.pyreverse.utils import get_annotation_label
@@ -14,12 +15,12 @@ class MermaidJSPrinter(Printer):
 
     DEFAULT_COLOR = "black"
 
-    NODES: Dict[NodeType, str] = {
+    NODES: dict[NodeType, str] = {
         NodeType.CLASS: "class",
         NodeType.INTERFACE: "class",
         NodeType.PACKAGE: "class",
     }
-    ARROWS: Dict[EdgeType, str] = {
+    ARROWS: dict[EdgeType, str] = {
         EdgeType.INHERITS: "--|>",
         EdgeType.IMPLEMENTS: "..|>",
         EdgeType.ASSOCIATION: "--*",
@@ -35,7 +36,7 @@ class MermaidJSPrinter(Printer):
         self,
         name: str,
         type_: NodeType,
-        properties: Optional[NodeProperties] = None,
+        properties: NodeProperties | None = None,
     ) -> None:
         """Create a new node.
 
@@ -68,7 +69,7 @@ class MermaidJSPrinter(Printer):
         from_node: str,
         to_node: str,
         type_: EdgeType,
-        label: Optional[str] = None,
+        label: str | None = None,
     ) -> None:
         """Create an edge from one node to another to display relationships."""
         from_node = from_node.split(".")[-1]

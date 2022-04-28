@@ -3,20 +3,26 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Checker for use of Python logging."""
+
+from __future__ import annotations
+
 import string
-from typing import TYPE_CHECKING, Set
+from typing import TYPE_CHECKING
 
 import astroid
 from astroid import nodes
 
-from pylint import checkers, interfaces
+from pylint import checkers
 from pylint.checkers import utils
-from pylint.checkers.utils import check_messages, infer_all
+from pylint.checkers.utils import infer_all
+from pylint.typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
-MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
+MSGS: dict[
+    str, MessageDefinitionTuple
+] = {  # pylint: disable=consider-using-namedtuple-or-dataclass
     "W1201": (
         "Use %s formatting in logging functions",
         "logging-not-lazy",
@@ -116,7 +122,6 @@ def is_method_call(func, types=(), methods=()):
 class LoggingChecker(checkers.BaseChecker):
     """Checks use of the logging module."""
 
-    __implements__ = interfaces.IAstroidChecker
     name = "logging"
     msgs = MSGS
 
@@ -144,18 +149,15 @@ class LoggingChecker(checkers.BaseChecker):
         ),
     )
 
-    def __init__(self, linter: "PyLinter") -> None:
-        super().__init__(linter=linter, future_option_parsing=True)
-
     def visit_module(self, _: nodes.Module) -> None:
         """Clears any state left in this checker from last module checked."""
         # The code being checked can just as easily "import logging as foo",
         # so it is necessary to process the imports and store in this field
         # what name the logging module is actually given.
-        self._logging_names: Set[str] = set()
-        logging_mods = self.linter.namespace.logging_modules
+        self._logging_names: set[str] = set()
+        logging_mods = self.linter.config.logging_modules
 
-        self._format_style = self.linter.namespace.logging_format_style
+        self._format_style = self.linter.config.logging_format_style
 
         self._logging_modules = set(logging_mods)
         self._from_imports = {}
@@ -180,7 +182,6 @@ class LoggingChecker(checkers.BaseChecker):
             if module in self._logging_modules:
                 self._logging_names.add(as_name or module)
 
-    @check_messages(*MSGS)
     def visit_call(self, node: nodes.Call) -> None:
         """Checks calls to logging methods."""
 
@@ -383,5 +384,5 @@ def _count_supplied_tokens(args):
     return sum(1 for arg in args if not isinstance(arg, nodes.Keyword))
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(LoggingChecker(linter))

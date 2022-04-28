@@ -3,13 +3,15 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Checker for deprecated builtins."""
+
+from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import check_messages
-from pylint.interfaces import IAstroidChecker
+from pylint.checkers.utils import only_required_for_messages
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -22,7 +24,6 @@ BUILTIN_HINTS["filter"] = BUILTIN_HINTS["map"]
 
 class BadBuiltinChecker(BaseChecker):
 
-    __implements__ = (IAstroidChecker,)
     name = "deprecated_builtins"
     msgs = {
         "W0141": (
@@ -48,21 +49,18 @@ class BadBuiltinChecker(BaseChecker):
         ),
     )
 
-    def __init__(self, linter: "PyLinter") -> None:
-        super().__init__(linter, future_option_parsing=True)
-
-    @check_messages("bad-builtin")
+    @only_required_for_messages("bad-builtin")
     def visit_call(self, node: nodes.Call) -> None:
         if isinstance(node.func, nodes.Name):
             name = node.func.name
             # ignore the name if it's not a builtin (i.e. not defined in the
             # locals nor globals scope)
             if not (name in node.frame(future=True) or name in node.root()):
-                if name in self.linter.namespace.bad_functions:
+                if name in self.linter.config.bad_functions:
                     hint = BUILTIN_HINTS.get(name)
                     args = f"{name!r}. {hint}" if hint else repr(name)
                     self.add_message("bad-builtin", node=node, args=args)
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(BadBuiltinChecker(linter))

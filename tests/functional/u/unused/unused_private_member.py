@@ -109,7 +109,7 @@ print(k.ninetyfive)
 # https://github.com/PyCQA/pylint/issues/4657
 # Mutation of class member with cls should not fire a false-positive
 class FalsePositive4657:
-    """False positivie tests for 4657"""
+    """False positive tests for 4657"""
     __attr_a = None
     __attr_b = 'b'
 

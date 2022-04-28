@@ -3,11 +3,14 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Looks for try/except statements with too much code in the try clause."""
-from typing import TYPE_CHECKING, Union
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from astroid import nodes
 
-from pylint import checkers, interfaces
+from pylint import checkers
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -21,8 +24,6 @@ class BroadTryClauseChecker(checkers.BaseChecker):
     ``try`` clauses.
 
     """
-
-    __implements__ = interfaces.IAstroidChecker
 
     # configuration section name
     name = "broad_try_clause"
@@ -46,9 +47,6 @@ class BroadTryClauseChecker(checkers.BaseChecker):
         ),
     )
 
-    def __init__(self, linter: "PyLinter") -> None:
-        super().__init__(linter, future_option_parsing=True)
-
     def _count_statements(self, try_node):
         statement_count = len(try_node.body)
 
@@ -58,10 +56,10 @@ class BroadTryClauseChecker(checkers.BaseChecker):
 
         return statement_count
 
-    def visit_tryexcept(self, node: Union[nodes.TryExcept, nodes.TryFinally]) -> None:
+    def visit_tryexcept(self, node: nodes.TryExcept | nodes.TryFinally) -> None:
         try_clause_statements = self._count_statements(node)
-        if try_clause_statements > self.linter.namespace.max_try_statements:
-            msg = f"try clause contains {try_clause_statements} statements, expected at most {self.linter.namespace.max_try_statements}"
+        if try_clause_statements > self.linter.config.max_try_statements:
+            msg = f"try clause contains {try_clause_statements} statements, expected at most {self.linter.config.max_try_statements}"
             self.add_message(
                 "too-many-try-statements", node.lineno, node=node, args=msg
             )
@@ -70,5 +68,5 @@ class BroadTryClauseChecker(checkers.BaseChecker):
         self.visit_tryexcept(node)
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(BroadTryClauseChecker(linter))

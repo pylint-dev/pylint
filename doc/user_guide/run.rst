@@ -178,12 +178,12 @@ configuration file in the following order and uses the first one it finds:
 
 #. ``/etc/pylintrc``
 
-The ``--generate-rcfile`` option will generate a commented configuration file
+The ``--generate-toml-config`` option will generate a commented configuration file
 on standard output according to the current configuration and exit. This
 includes:
 
 * Any configuration file found as explained above
-* Options appearing before ``--generate-rcfile`` on the Pylint command line
+* Options appearing before ``--generate-toml-config`` on the Pylint command line
 
 Of course you can also start with the default values and hand-tune the
 configuration.

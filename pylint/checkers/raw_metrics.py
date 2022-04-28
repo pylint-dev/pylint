@@ -2,12 +2,13 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import sys
 import tokenize
-from typing import TYPE_CHECKING, Any, Optional, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from pylint.checkers import BaseTokenChecker
-from pylint.interfaces import ITokenChecker
 from pylint.reporters.ureports.nodes import Table
 from pylint.utils import LinterStats, diff_string
 
@@ -23,7 +24,7 @@ if TYPE_CHECKING:
 def report_raw_stats(
     sect,
     stats: LinterStats,
-    old_stats: Optional[LinterStats],
+    old_stats: LinterStats | None,
 ) -> None:
     """Calculate percentage of code / doc / comment / empty."""
     total_lines = stats.code_type_count["total"]
@@ -56,8 +57,6 @@ class RawMetricsChecker(BaseTokenChecker):
     * total number of empty lines
     """
 
-    __implements__ = (ITokenChecker,)
-
     # configuration section name
     name = "metrics"
     # configuration options
@@ -67,14 +66,11 @@ class RawMetricsChecker(BaseTokenChecker):
     # reports
     reports = (("RP0701", "Raw metrics", report_raw_stats),)
 
-    def __init__(self, linter):
-        super().__init__(linter)
-
     def open(self):
         """Init statistics."""
         self.linter.stats.reset_code_count()
 
-    def process_tokens(self, tokens):
+    def process_tokens(self, tokens: list[tokenize.TokenInfo]) -> None:
         """Update stats."""
         i = 0
         tokens = list(tokens)
@@ -87,7 +83,9 @@ class RawMetricsChecker(BaseTokenChecker):
 JUNK = (tokenize.NL, tokenize.INDENT, tokenize.NEWLINE, tokenize.ENDMARKER)
 
 
-def get_type(tokens, start_index):
+def get_type(
+    tokens: list[tokenize.TokenInfo], start_index: int
+) -> tuple[int, int, Literal["code", "docstring", "comment", "empty"]]:
     """Return the line type : docstring, comment, code, empty."""
     i = start_index
     start = tokens[i][2]
@@ -110,8 +108,9 @@ def get_type(tokens, start_index):
         line_type = "empty"
     elif i < len(tokens) and tokens[i][0] == tokenize.NEWLINE:
         i += 1
-    return i, pos[0] - start[0] + 1, line_type
+    # Mypy fails to infer the literal of line_type
+    return i, pos[0] - start[0] + 1, line_type  # type: ignore[return-value]
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(RawMetricsChecker(linter))

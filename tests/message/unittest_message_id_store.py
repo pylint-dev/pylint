@@ -2,20 +2,22 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
+from collections.abc import ValuesView
 from pathlib import Path
-from typing import Dict, ValuesView
 
 import pytest
 
-from pylint import lint
 from pylint.exceptions import InvalidMessageError, UnknownMessageError
 from pylint.message.message_definition import MessageDefinition
 from pylint.message.message_id_store import MessageIdStore
+from pylint.testutils._run import _Run as Run
 
 EMPTY_FILE = str(Path(__file__).parent.parent.resolve() / "regrtest_data" / "empty.py")
 
 
-def test_len_str(msgid_store: MessageIdStore, msgids: Dict[str, str]) -> None:
+def test_len_str(msgid_store: MessageIdStore, msgids: dict[str, str]) -> None:
     assert len(msgid_store) == len(msgids)
     str_result = str(msgid_store)
     assert "MessageIdStore: [" in str_result
@@ -26,7 +28,7 @@ def test_len_str(msgid_store: MessageIdStore, msgids: Dict[str, str]) -> None:
     assert "]" in str_result
 
 
-def test_get_message_ids(msgid_store: MessageIdStore, msgids: Dict[str, str]) -> None:
+def test_get_message_ids(msgid_store: MessageIdStore, msgids: dict[str, str]) -> None:
     """We can get message id even with capitalization problem."""
     msgid = list(msgids.keys())[0]
     msgids_result = msgid_store.get_active_msgids(msgid.lower())
@@ -104,13 +106,9 @@ def test_exclusivity_of_msgids() -> None:
         "is unique for each checker. You can use 'script/get_unused_message_id_category.py' "
         "to get an unique id."
     )
+    runner = Run(["--enable-all-extensions", EMPTY_FILE], exit=False)
 
-    runner = lint.Run(
-        ["--enable-all-extensions", EMPTY_FILE],
-        exit=False,
-    )
-
-    # Some pairs are hard-coded as they are pre-existing and non-exclusive
+    # Some pairs are hard-coded as they are pre-existing and non-exclusive,
     # and we don't want to rename them for backwards compatibility
     checker_id_pairs = {
         "00": ("master", "miscellaneous"),

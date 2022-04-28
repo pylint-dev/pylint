@@ -23,11 +23,11 @@ categories such as errors and warnings.
 Last but not least, the code is given an overall mark, based on the number and
 severity of the warnings and errors.
 
-.. _pychecker: http://pychecker.sf.net
-.. _pyflakes: https://github.com/pyflakes/pyflakes
+.. _pychecker: https://pypi.org/project/PyChecker/
+.. _pyflakes: https://github.com/PyCQA/pyflakes
 .. _flake8: https://gitlab.com/pycqa/flake8/
 .. _mypy: https://github.com/python/mypy
-.. _`PEP 8`: https://www.python.org/dev/peps/pep-0008/
+.. _`PEP 8`: https://peps.python.org/pep-0008/
 .. _`Guido's style guide`: https://www.python.org/doc/essays/styleguide/
 .. _`refactoring book`: https://www.refactoring.com/
 .. _`code smells`: https://martinfowler.com/bliki/CodeSmell.html
@@ -53,5 +53,6 @@ The best way to tackle pylint's verboseness is to:
   all convention messages is simple as a ``--disable=C`` option added to pylint
   command.
 
-* create a custom configuration file, tailored to your needs. You can generate
-  one using pylint's command ``--generate-rcfile``.
+* manage the configuration through a configuration file. With the option
+  ``generate-toml-config`` you can create a piece of ``.toml`` text to put
+  in your ``pyproject.toml`` file.

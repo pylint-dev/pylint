@@ -101,26 +101,21 @@ class DocStringChecker(_BasicChecker):
         ),
     )
 
-    def __init__(
-        self, linter=None, *, future_option_parsing: Literal[None, True] = None
-    ):
-        _BasicChecker.__init__(self, linter, future_option_parsing=True)
-
     def open(self):
         self.linter.stats.reset_undocumented()
 
-    @utils.check_messages("missing-docstring", "empty-docstring")
+    @utils.only_required_for_messages("missing-docstring", "empty-docstring")
     def visit_module(self, node: nodes.Module) -> None:
         self._check_docstring("module", node)
 
-    @utils.check_messages("missing-docstring", "empty-docstring")
+    @utils.only_required_for_messages("missing-docstring", "empty-docstring")
     def visit_classdef(self, node: nodes.ClassDef) -> None:
-        if self.config.no_docstring_rgx.match(node.name) is None:
+        if self.linter.config.no_docstring_rgx.match(node.name) is None:
             self._check_docstring("class", node)
 
-    @utils.check_messages("missing-docstring", "empty-docstring")
+    @utils.only_required_for_messages("missing-docstring", "empty-docstring")
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
-        if self.config.no_docstring_rgx.match(node.name) is None:
+        if self.linter.config.no_docstring_rgx.match(node.name) is None:
             ftype = "method" if node.is_method() else "function"
             if (
                 is_property_setter(node)
@@ -176,7 +171,7 @@ class DocStringChecker(_BasicChecker):
                 # If the module does not have a body, there's no reason
                 # to require a docstring.
                 return
-            max_lines = self.config.docstring_min_length
+            max_lines = self.linter.config.docstring_min_length
 
             if node_type != "module" and max_lines > -1 and lines < max_lines:
                 return

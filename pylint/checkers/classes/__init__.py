@@ -2,6 +2,8 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 from pylint.checkers.classes.class_checker import ClassChecker
@@ -11,6 +13,6 @@ if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(ClassChecker(linter))
     linter.register_checker(SpecialMethodsChecker(linter))

@@ -3,10 +3,14 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Unit test for the extensions.diadefslib modules."""
+
 # pylint: disable=redefined-outer-name
+
+from __future__ import annotations
+
 import sys
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable, Dict, List, Tuple
 
 import pytest
 from astroid import nodes
@@ -22,14 +26,14 @@ from pylint.pyreverse.inspector import Linker, Project
 from pylint.testutils.pyreverse import PyreverseConfig
 
 
-def _process_classes(classes: List[DiagramEntity]) -> List[Tuple[bool, str]]:
+def _process_classes(classes: list[DiagramEntity]) -> list[tuple[bool, str]]:
     """Extract class names of a list."""
     return sorted((isinstance(c.node, nodes.ClassDef), c.title) for c in classes)
 
 
 def _process_relations(
-    relations: Dict[str, List[Relationship]]
-) -> List[Tuple[str, str, str]]:
+    relations: dict[str, list[Relationship]]
+) -> list[tuple[str, str, str]]:
     """Extract relation indices from a relation list."""
     result = []
     for rel_type, rels in relations.items():

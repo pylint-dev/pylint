@@ -2,30 +2,23 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import os
 import sys
 import warnings
-from typing import List, Optional
+from collections.abc import Sequence
+from pathlib import Path
+from typing import Any
 
 from pylint import config
-from pylint.config.callback_actions import (
-    _DoNothingAction,
-    _ErrorsOnlyModeAction,
-    _FullDocumentationAction,
-    _GenerateRCFileAction,
-    _ListCheckGroupsAction,
-    _ListConfidenceLevelsAction,
-    _ListExtensionsAction,
-    _ListMessagesAction,
-    _ListMessagesEnabledAction,
-    _LongHelpAction,
-    _MessageHelpAction,
-)
 from pylint.config.config_initialization import _config_initialization
 from pylint.config.exceptions import ArgumentPreprocessingError
 from pylint.config.utils import _preprocess_options
 from pylint.constants import full_version
+from pylint.lint.base_options import _make_run_options
 from pylint.lint.pylinter import PyLinter
+from pylint.reporters.base_reporter import BaseReporter
 
 try:
     import multiprocessing
@@ -34,15 +27,51 @@ except ImportError:
     multiprocessing = None  # type: ignore[assignment]
 
 
+def _query_cpu() -> int | None:
+    """Try to determine number of CPUs allotted in a docker container.
+
+    This is based on discussion and copied from suggestions in
+    https://bugs.python.org/issue36054.
+    """
+    cpu_quota, avail_cpu = None, None
+
+    if Path("/sys/fs/cgroup/cpu/cpu.cfs_quota_us").is_file():
+        with open("/sys/fs/cgroup/cpu/cpu.cfs_quota_us", encoding="utf-8") as file:
+            # Not useful for AWS Batch based jobs as result is -1, but works on local linux systems
+            cpu_quota = int(file.read().rstrip())
+
+    if (
+        cpu_quota
+        and cpu_quota != -1
+        and Path("/sys/fs/cgroup/cpu/cpu.cfs_period_us").is_file()
+    ):
+        with open("/sys/fs/cgroup/cpu/cpu.cfs_period_us", encoding="utf-8") as file:
+            cpu_period = int(file.read().rstrip())
+        # Divide quota by period and you should get num of allotted CPU to the container, rounded down if fractional.
+        avail_cpu = int(cpu_quota / cpu_period)
+    elif Path("/sys/fs/cgroup/cpu/cpu.shares").is_file():
+        with open("/sys/fs/cgroup/cpu/cpu.shares", encoding="utf-8") as file:
+            cpu_shares = int(file.read().rstrip())
+        # For AWS, gives correct value * 1024.
+        avail_cpu = int(cpu_shares / 1024)
+    return avail_cpu
+
+
 def _cpu_count() -> int:
     """Use sched_affinity if available for virtualized or containerized environments."""
+    cpu_share = _query_cpu()
+    cpu_count = None
     sched_getaffinity = getattr(os, "sched_getaffinity", None)
     # pylint: disable=not-callable,using-constant-test,useless-suppression
     if sched_getaffinity:
-        return len(sched_getaffinity(0))
-    if multiprocessing:
-        return multiprocessing.cpu_count()
-    return 1
+        cpu_count = len(sched_getaffinity(0))
+    elif multiprocessing:
+        cpu_count = multiprocessing.cpu_count()
+    else:
+        cpu_count = 1
+    if cpu_share is not None:
+        return min(cpu_share, cpu_count)
+    return cpu_count
 
 
 UNUSED_PARAM_SENTINEL = object()
@@ -60,30 +89,24 @@ group are mutually exclusive.",
         ),
     )
 
-    @staticmethod
-    def _not_implemented_callback(*args, **kwargs):
-        # pylint: disable-next=fixme
-        # TODO: Remove after optparse has been deprecated
-        raise NotImplementedError
-
     def __init__(
         self,
-        args,
-        reporter=None,
-        exit=True,
-        do_exit=UNUSED_PARAM_SENTINEL,
-    ):  # pylint: disable=redefined-builtin
+        args: Sequence[str],
+        reporter: BaseReporter | None = None,
+        exit: bool = True,  # pylint: disable=redefined-builtin
+        do_exit: Any = UNUSED_PARAM_SENTINEL,
+    ) -> None:
         # Immediately exit if user asks for version
         if "--version" in args:
             print(full_version)
             sys.exit(0)
 
-        self._rcfile: Optional[str] = None
-        self._output: Optional[str] = None
-        self._plugins: List[str] = []
+        self._rcfile: str | None = None
+        self._output: str | None = None
+        self._plugins: list[str] = []
         self.verbose: bool = False
 
-        # Preprocess certain options and remove them from args list
+        # Pre-process certain options and remove them from args list
         try:
             args = _preprocess_options(self, args)
         except ArgumentPreprocessingError as ex:
@@ -92,170 +115,12 @@ group are mutually exclusive.",
 
         # Determine configuration file
         if self._rcfile is None:
-            self._rcfile = next(config.find_default_config_files(), None)
+            default_file = next(config.find_default_config_files(), None)
+            if default_file:
+                self._rcfile = str(default_file)
 
         self.linter = linter = self.LinterClass(
-            (
-                (
-                    "rcfile",
-                    {
-                        "action": _DoNothingAction,
-                        "kwargs": {},
-                        "callback": Run._not_implemented_callback,
-                        "group": "Commands",
-                        "help": "Specify a configuration file to load.",
-                    },
-                ),
-                (
-                    "output",
-                    {
-                        "action": _DoNothingAction,
-                        "kwargs": {},
-                        "callback": Run._not_implemented_callback,
-                        "group": "Commands",
-                        "help": "Specify an output file.",
-                    },
-                ),
-                (
-                    "init-hook",
-                    {
-                        "action": _DoNothingAction,
-                        "kwargs": {},
-                        "callback": Run._not_implemented_callback,
-                        "help": "Python code to execute, usually for sys.path "
-                        "manipulation such as pygtk.require().",
-                    },
-                ),
-                (
-                    "help-msg",
-                    {
-                        "action": _MessageHelpAction,
-                        "kwargs": {"Run": self},
-                        "callback": Run._not_implemented_callback,
-                        "group": "Commands",
-                        "help": "Display a help message for the given message id and "
-                        "exit. The value may be a comma separated list of message ids.",
-                    },
-                ),
-                (
-                    "list-msgs",
-                    {
-                        "action": _ListMessagesAction,
-                        "kwargs": {"Run": self},
-                        "callback": Run._not_implemented_callback,
-                        "group": "Commands",
-                        "help": "Display a list of all pylint's messages divided by whether "
-                        "they are emittable with the given interpreter.",
-                    },
-                ),
-                (
-                    "list-msgs-enabled",
-                    {
-                        "action": _ListMessagesEnabledAction,
-                        "kwargs": {"Run": self},
-                        "callback": Run._not_implemented_callback,
-                        "group": "Commands",
-                        "help": "Display a list of what messages are enabled, "
-                        "disabled and non-emittable with the given configuration.",
-                    },
-                ),
-                (
-                    "list-groups",
-                    {
-                        "action": _ListCheckGroupsAction,
-                        "kwargs": {"Run": self},
-                        "callback": Run._not_implemented_callback,
-                        "group": "Commands",
-                        "help": "List pylint's message groups.",
-                    },
-                ),
-                (
-                    "list-conf-levels",
-                    {
-                        "action": _ListConfidenceLevelsAction,
-                        "callback": Run._not_implemented_callback,
-                        "kwargs": {"Run": self},
-                        "group": "Commands",
-                        "help": "Generate pylint's confidence levels.",
-                    },
-                ),
-                (
-                    "list-extensions",
-                    {
-                        "action": _ListExtensionsAction,
-                        "kwargs": {"Run": self},
-                        "callback": Run._not_implemented_callback,
-                        "group": "Commands",
-                        "help": "List available extensions.",
-                    },
-                ),
-                (
-                    "full-documentation",
-                    {
-                        "action": _FullDocumentationAction,
-                        "kwargs": {"Run": self},
-                        "callback": Run._not_implemented_callback,
-                        "group": "Commands",
-                        "help": "Generate pylint's full documentation.",
-                    },
-                ),
-                (
-                    "generate-rcfile",
-                    {
-                        "action": _GenerateRCFileAction,
-                        "kwargs": {"Run": self},
-                        "callback": Run._not_implemented_callback,
-                        "group": "Commands",
-                        "help": "Generate a sample configuration file according to "
-                        "the current configuration. You can put other options "
-                        "before this one to get them in the generated "
-                        "configuration.",
-                    },
-                ),
-                (
-                    "errors-only",
-                    {
-                        "action": _ErrorsOnlyModeAction,
-                        "kwargs": {"Run": self},
-                        "callback": Run._not_implemented_callback,
-                        "short": "E",
-                        "help": "In error mode, checkers without error messages are "
-                        "disabled and for others, only the ERROR messages are "
-                        "displayed, and no reports are done by default.",
-                    },
-                ),
-                (
-                    "verbose",
-                    {
-                        "action": _DoNothingAction,
-                        "kwargs": {},
-                        "callback": Run._not_implemented_callback,
-                        "short": "v",
-                        "help": "In verbose mode, extra non-checker-related info "
-                        "will be displayed.",
-                    },
-                ),
-                (
-                    "enable-all-extensions",
-                    {
-                        "action": _DoNothingAction,
-                        "kwargs": {},
-                        "callback": Run._not_implemented_callback,
-                        "help": "Load and enable all available extensions. "
-                        "Use --list-extensions to see a list all available extensions.",
-                    },
-                ),
-                (
-                    "long-help",
-                    {
-                        "action": _LongHelpAction,
-                        "kwargs": {"Run": self},
-                        "callback": Run._not_implemented_callback,
-                        "help": "Show more verbose help.",
-                        "group": "Commands",
-                    },
-                ),
-            ),
+            _make_run_options(self),
             option_groups=self.option_groups,
             pylintrc=self._rcfile,
         )

@@ -7,9 +7,13 @@
 A way to create simple reports using python objects, primarily designed to be
 formatted as text and html.
 """
+
+from __future__ import annotations
+
 import sys
+from collections.abc import Iterator
 from io import StringIO
-from typing import TYPE_CHECKING, Iterator, List, Optional, TextIO, Union
+from typing import TYPE_CHECKING, TextIO
 
 if TYPE_CHECKING:
     from pylint.reporters.ureports.nodes import (
@@ -26,9 +30,9 @@ class BaseWriter:
 
     def format(
         self,
-        layout: "BaseLayout",
+        layout: BaseLayout,
         stream: TextIO = sys.stdout,
-        encoding: Optional[str] = None,
+        encoding: str | None = None,
     ) -> None:
         """Format and write the given layout into the stream object.
 
@@ -44,9 +48,7 @@ class BaseWriter:
         layout.accept(self)
         self.end_format()
 
-    def format_children(
-        self, layout: Union["EvaluationSection", "Paragraph", "Section"]
-    ) -> None:
+    def format_children(self, layout: EvaluationSection | Paragraph | Section) -> None:
         """Recurse on the layout children and call their accept method
         (see the Visitor pattern)
         """
@@ -68,12 +70,12 @@ class BaseWriter:
     def end_format(self) -> None:
         """Finished formatting a layout."""
 
-    def get_table_content(self, table: "Table") -> List[List[str]]:
+    def get_table_content(self, table: Table) -> list[list[str]]:
         """Trick to get table content without actually writing it.
 
         return an aligned list of lists containing table cells values as string
         """
-        result: List[List[str]] = [[]]
+        result: list[list[str]] = [[]]
         cols = table.cols
         for cell in self.compute_content(table):
             if cols == 0:
@@ -85,7 +87,7 @@ class BaseWriter:
         result[-1] += [""] * (cols - len(result[-1]))
         return result
 
-    def compute_content(self, layout: "BaseLayout") -> Iterator[str]:
+    def compute_content(self, layout: BaseLayout) -> Iterator[str]:
         """Trick to compute the formatting of children layout before actually
         writing it
 
