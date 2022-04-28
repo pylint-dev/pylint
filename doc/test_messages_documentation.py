@@ -38,11 +38,12 @@ def get_functional_test_files_from_directory(input_dir: Path) -> List[Tuple[str,
     This also checks the formatting of related.rst files.
     """
     suite: List[Tuple[str, Path]] = []
+
     for subdirectory in input_dir.iterdir():
         for message_dir in subdirectory.iterdir():
             assert_msg = (
                 f"{subdirectory}: '{message_dir.name}' is in the wrong "
-                f"directory: it does not start by '{subdirectory.name}'"
+                f"directory: it does not start with '{subdirectory.name}'"
             )
             assert message_dir.name.startswith(subdirectory.name), assert_msg
             if (message_dir / "good.py").exists():
