@@ -1,2 +1,4 @@
 def test():
-    # Nothing, as an assert of a string literal will always pass
+    actual = "test"
+    wanted = "Directly asserting a string literal will always pass"
+    assert actual == wanted
