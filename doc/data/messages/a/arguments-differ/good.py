@@ -17,8 +17,8 @@ class Car:
 
 class Airplane:
     tank = 0
-    kerosine_tank = 0
+    kerosene_tank = 0
 
-    def fill_tank(self, gas, kerosine):
+    def fill_tank(self, gas, kerosene):
         self.tank += gas
-        self.kerosine_tank += kerosine
+        self.kerosene_tank += kerosene
