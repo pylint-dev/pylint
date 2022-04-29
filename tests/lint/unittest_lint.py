@@ -173,12 +173,10 @@ def test_more_args(fake_path, case):
 
 def test_namespace_package_sys_path() -> None:
     """Test that we do not append namespace packages to sys.path."""
-    result = subprocess.run(
-        [sys.executable, "-m", "pylint", "test_namespace_pkg/"],
-        check=False,
-        stdout=subprocess.PIPE,
-    )
-    assert "Module import itself" not in result.stdout.decode("utf-8")
+    pylint_output = StringIO()
+    reporter = text.TextReporter(pylint_output)
+    Run(["test_namespace_pkg/"], reporter=reporter, exit=False)
+    assert "Module import itself" not in pylint_output.getvalue()
 
 
 @pytest.fixture(scope="module")
