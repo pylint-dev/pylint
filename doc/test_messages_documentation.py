@@ -91,7 +91,7 @@ class LintModuleTest:
             args_list=[
                 str(test_file[1]),
                 "--disable=all",
-                f"--enable={test_file[0]}",
+                f"--enable={test_file[0]},astroid-error,fatal,syntax-error",
             ],
             reporter=_test_reporter,
             config_file=config_file,
@@ -146,9 +146,9 @@ class LintModuleTest:
         expected_messages = self._get_expected()
         actual_messages = self._get_actual()
         if self.is_good_test_file():
-            assert actual_messages.total() == 0  # type: ignore[attr-defined]
+            assert actual_messages.total() == 0
         if self.is_bad_test_file():
-            assert actual_messages.total() > 0  # type: ignore[attr-defined]
+            assert actual_messages.total() > 0
         assert expected_messages == actual_messages
 
 
