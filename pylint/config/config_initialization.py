@@ -21,42 +21,45 @@ def _config_initialization(
     linter: PyLinter,
     args_list: list[str],
     reporter: reporters.BaseReporter | reporters.MultiReporter | None = None,
-    config_file: None | str | Path = None,
+    config_files: None | str | Path = None,
     verbose_mode: bool = False,
 ) -> list[str]:
     """Parse all available options, read config files and command line arguments and
     set options accordingly.
     """
-    config_file = Path(config_file) if config_file else None
+    config_files = [
+        Path(config_file) if config_file else None for config_file in config_files
+    ]
 
-    # Set the current module to the configuration file
-    # to allow raising messages on the configuration file.
-    linter.set_current_module(str(config_file) if config_file else None)
+    for config_file in config_files:
+        # Set the current module to the configuration file
+        # to allow raising messages on the configuration file.
+        linter.set_current_module(str(config_file) if config_file else None)
 
-    # Read the configuration file
-    config_file_parser = _ConfigurationFileParser(verbose_mode, linter)
-    try:
-        config_data, config_args = config_file_parser.parse_config_file(
-            file_path=config_file
-        )
-    except OSError as ex:
-        print(ex, file=sys.stderr)
-        sys.exit(32)
+        # Read the configuration file
+        config_file_parser = _ConfigurationFileParser(verbose_mode, linter)
+        try:
+            config_data, config_args = config_file_parser.parse_config_file(
+                file_path=config_file
+            )
+        except OSError as ex:
+            print(ex, file=sys.stderr)
+            sys.exit(32)
 
-    # Run init hook, if present, before loading plugins
-    if "init-hook" in config_data:
-        exec(utils._unquote(config_data["init-hook"]))  # pylint: disable=exec-used
+        # Run init hook, if present, before loading plugins
+        if "init-hook" in config_data:
+            exec(utils._unquote(config_data["init-hook"]))  # pylint: disable=exec-used
 
-    # Load plugins if specified in the config file
-    if "load-plugins" in config_data:
-        linter.load_plugin_modules(utils._splitstrip(config_data["load-plugins"]))
+        # Load plugins if specified in the config file
+        if "load-plugins" in config_data:
+            linter.load_plugin_modules(utils._splitstrip(config_data["load-plugins"]))
 
-    # First we parse any options from a configuration file
-    try:
-        linter._parse_configuration_file(config_args)
-    except _UnrecognizedOptionError as exc:
-        msg = ", ".join(exc.options)
-        linter.add_message("unrecognized-option", line=0, args=msg)
+        # First we parse any options from a configuration file
+        try:
+            linter._parse_configuration_file(config_args)
+        except _UnrecognizedOptionError as exc:
+            msg = ", ".join(exc.options)
+            linter.add_message("unrecognized-option", line=0, args=msg)
 
     # Then, if a custom reporter is provided as argument, it may be overridden
     # by file parameters, so we re-set it here. We do this before command line

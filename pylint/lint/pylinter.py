@@ -310,6 +310,7 @@ class PyLinter(
             ("RP0003", "Messages", report_messages_stats),
         )
         self.register_checker(self)
+        self._ignore_paths = self.linter.config.ignore_paths
 
     @property
     def option_groups(self) -> tuple[tuple[str, str], ...]:
@@ -1039,7 +1040,6 @@ class PyLinter(
                 self.config.extension_pkg_whitelist
             )
         self.stats.reset_message_count()
-        self._ignore_paths = self.linter.config.ignore_paths
 
     def generate_reports(self) -> int | None:
         """Close the whole package /module, it's time to make reports !

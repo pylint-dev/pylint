@@ -39,6 +39,23 @@ def _cfg_has_config(path: Path | str) -> bool:
     return any(section.startswith("pylint.") for section in parser.sections())
 
 
+def search_parent_config_files(curdir):
+    while (curdir / "__init__.py").is_file():
+        curdir = curdir.parent
+        for rc_name in RC_NAMES:
+            rc_path = curdir / rc_name
+            if rc_path.is_file():
+                yield rc_path.resolve()
+
+
+def find_per_directory_config_files(path: Path) -> Iterator(Path):
+    for config_name in RC_NAMES:
+        config_file = path / config_name
+        if config_file.is_file():
+            yield config_file.resolve()
+    yield from search_parent_config_files(path)
+
+
 def find_default_config_files() -> Iterator[Path]:
     """Find all possible config files."""
     for config_name in CONFIG_NAMES:
@@ -52,12 +69,7 @@ def find_default_config_files() -> Iterator[Path]:
 
     if Path("__init__.py").is_file():
         curdir = Path(os.getcwd()).resolve()
-        while (curdir / "__init__.py").is_file():
-            curdir = curdir.parent
-            for rc_name in RC_NAMES:
-                rc_path = curdir / rc_name
-                if rc_path.is_file():
-                    yield rc_path.resolve()
+        yield from search_parent_config_files(curdir)
 
     if "PYLINTRC" in os.environ and Path(os.environ["PYLINTRC"]).exists():
         if Path(os.environ["PYLINTRC"]).is_file():

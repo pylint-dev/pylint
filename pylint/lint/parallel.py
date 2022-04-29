@@ -13,7 +13,8 @@ from typing import TYPE_CHECKING, Any
 import dill
 
 from pylint import reporters
-from pylint.lint.utils import _patch_sys_path
+from pylint.config.find_default_config_files import find_default_config_files
+from pylint.lint.utils import _patch_sys_path, extract_results_from_linter, insert_results_to_linter, _merge_mapreduce_data
 from pylint.message import Message
 from pylint.typing import FileItem
 from pylint.utils import LinterStats, merge_stats
@@ -28,25 +29,26 @@ if TYPE_CHECKING:
 
 # PyLinter object used by worker processes when checking files using multiprocessing
 # should only be used by the worker processes
-_worker_linter: PyLinter | None = None
+_worker_linters: PyLinter | None = None
 
 
 def _worker_initialize(
-    linter: bytes, arguments: None | str | Sequence[str] = None
+    linters: bytes, arguments: None | str | Sequence[str] = None
 ) -> None:
     """Function called to initialize a worker for a Process within a multiprocessing Pool.
 
     :param linter: A linter-class (PyLinter) instance pickled with dill
     :param arguments: File or module name(s) to lint and to be added to sys.path
     """
-    global _worker_linter  # pylint: disable=global-statement
-    _worker_linter = dill.loads(linter)
-    assert _worker_linter
+    global _worker_linters  # pylint: disable=global-statement
+    _worker_linters = dill.loads(linters)
+    assert _worker_linters
 
     # On the worker process side the messages are just collected and passed back to
     # parent process as _worker_check_file function's return value
-    _worker_linter.set_reporter(reporters.CollectingReporter())
-    _worker_linter.open()
+    for _worker_linter in _worker_linters.values():
+        _worker_linter.set_reporter(reporters.CollectingReporter())
+        _worker_linter.open()
 
     # Patch sys.path so that each argument is importable just like in single job mode
     _patch_sys_path(arguments or ())
@@ -65,66 +67,39 @@ def _worker_check_single_file(
     int,
     defaultdict[str, list[Any]],
 ]:
-    if not _worker_linter:
+    rcfiles = file_item[0]
+    file_item = file_item[1]
+
+    if not _worker_linters[rcfiles]:
         raise Exception("Worker linter not yet initialised")
-    _worker_linter.open()
-    _worker_linter.check_single_file_item(file_item)
-    mapreduce_data = defaultdict(list)
-    for checker in _worker_linter.get_checkers():
-        data = checker.get_map_data()
-        if data is not None:
-            mapreduce_data[checker.name].append(data)
-    msgs = _worker_linter.reporter.messages
-    assert isinstance(_worker_linter.reporter, reporters.CollectingReporter)
-    _worker_linter.reporter.reset()
-    if _worker_linter.current_name is None:
-        warnings.warn(
-            (
-                "In pylint 3.0 the current_name attribute of the linter object should be a string. "
-                "If unknown it should be initialized as an empty string."
-            ),
-            DeprecationWarning,
-        )
+    _worker_linters[rcfiles].open()
+    _worker_linters[rcfiles].check_single_file_item(file_item)
+    (
+        linter_current_name,
+        _,
+        base_name,
+        msgs,
+        linter_stats,
+        linter_msg_status,
+        mapreduce_data,
+    ) = extract_results_from_linter(_worker_linters[rcfiles])
     return (
         id(multiprocessing.current_process()),
-        _worker_linter.current_name,
+        linter_current_name,
         file_item.filepath,
-        _worker_linter.file_state.base_name,
+        base_name,
         msgs,
-        _worker_linter.stats,
-        _worker_linter.msg_status,
+        linter_stats,
+        linter_msg_status,
         mapreduce_data,
     )
 
 
-def _merge_mapreduce_data(
-    linter: PyLinter,
-    all_mapreduce_data: defaultdict[int, list[defaultdict[str, list[Any]]]],
-) -> None:
-    """Merges map/reduce data across workers, invoking relevant APIs on checkers."""
-    # First collate the data and prepare it, so we can send it to the checkers for
-    # validation. The intent here is to collect all the mapreduce data for all checker-
-    # runs across processes - that will then be passed to a static method on the
-    # checkers to be reduced and further processed.
-    collated_map_reduce_data: defaultdict[str, list[Any]] = defaultdict(list)
-    for linter_data in all_mapreduce_data.values():
-        for run_data in linter_data:
-            for checker_name, data in run_data.items():
-                collated_map_reduce_data[checker_name].extend(data)
-
-    # Send the data to checkers that support/require consolidated data
-    original_checkers = linter.get_checkers()
-    for checker in original_checkers:
-        if checker.name in collated_map_reduce_data:
-            # Assume that if the check has returned map/reduce data that it has the
-            # reducer function
-            checker.reduce_map_data(linter, collated_map_reduce_data[checker.name])
-
-
 def check_parallel(
     linter: PyLinter,
+    linters,
     jobs: int,
-    files: Iterable[FileItem],
+    files, #[(conf, FileItem)],
     arguments: None | str | Sequence[str] = None,
 ) -> None:
     """Use the given linter to lint the files with given amount of workers (jobs).
@@ -137,7 +112,7 @@ def check_parallel(
     # a custom PyLinter object can be used.
     initializer = functools.partial(_worker_initialize, arguments=arguments)
     with multiprocessing.Pool(
-        jobs, initializer=initializer, initargs=[dill.dumps(linter)]
+        jobs, initializer=initializer, initargs=[dill.dumps(linters)]
     ) as pool:
         linter.open()
         all_stats = []
@@ -158,13 +133,11 @@ def check_parallel(
             msg_status,
             mapreduce_data,
         ) in pool.imap_unordered(_worker_check_single_file, files):
-            linter.file_state.base_name = base_name
-            linter.set_current_module(module, file_path)
-            for msg in messages:
-                linter.reporter.handle_message(msg)
+            insert_results_to_linter(
+                linter, module, file_path, base_name, messages, msg_status
+            )
             all_stats.append(stats)
             all_mapreduce_data[worker_idx].append(mapreduce_data)
-            linter.msg_status |= msg_status
 
         pool.close()
         pool.join()

@@ -40,11 +40,13 @@ class FileItem(NamedTuple):
     - name: full name of the module
     - filepath: path of the file
     - modname: module name
+    - rc_conf - rc_config file
     """
 
     name: str
     filepath: str
     modpath: str
+    rc_conf: str = None
 
 
 class ModuleDescriptionDict(TypedDict):

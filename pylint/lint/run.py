@@ -5,23 +5,37 @@
 from __future__ import annotations
 
 import io
+import functools
 import os
 import sys
 import warnings
+from io import TextIOWrapper
+from itertools import chain
 from collections import defaultdict
 from typing import Iterator, List
 from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
+
+import astroid
 from pylint import config
+from pylint import reporters
 from pylint.config.config_initialization import _config_initialization
 from pylint.config.exceptions import ArgumentPreprocessingError
 from pylint.config.utils import _preprocess_options
+from pylint.config.find_default_config_files import (
+    search_parent_config_files,
+    RC_NAMES,
+    find_per_directory_config_files,
+)
 from pylint.constants import full_version
 from pylint.lint.base_options import _make_run_options
+from pylint.lint.parallel import check_parallel
 from pylint.lint.pylinter import PyLinter
+from pylint.lint.utils import merge_linters, fix_import_path
 from pylint.reporters.base_reporter import BaseReporter
+from pylint.typing import FileItem
 
 try:
     import multiprocessing
@@ -96,9 +110,8 @@ group are mutually exclusive.",
     def _return_one(*args):  # pylint: disable=unused-argument
         return 1
 
-    def __init__(self, rcfile=None):
-        self._rcfile = rcfile
-        self._output = None
+    def __init__(self, rcfiles=None):
+        self._rcfiles = rcfiles
         self._version_asked = False
         self._plugins = []
         self.verbose = None
@@ -108,6 +121,7 @@ group are mutually exclusive.",
         args: Sequence[str],
         reporter: BaseReporter | None = None,
     ) -> None:
+        self.args = args
         try:
             args = _preprocess_options(self, args)
         except ArgumentPreprocessingError as ex:
@@ -115,15 +129,15 @@ group are mutually exclusive.",
             sys.exit(32)
 
         # Determine configuration file
-        if self._rcfile is None:
+        if self._rcfiles is None:
             default_file = next(config.find_default_config_files(), None)
             if default_file:
-                self._rcfile = str(default_file)
+                self._rcfiles = [str(default_file)]
 
         self.linter = linter = self.LinterClass(
             _make_run_options(self),
             option_groups=self.option_groups,
-            pylintrc=self._rcfile,
+            pylintrc=self._rcfiles,
         )
         # register standard checkers
         linter.load_default_plugins()
@@ -134,7 +148,11 @@ group are mutually exclusive.",
         linter.enable("c-extension-no-member")
 
         args = _config_initialization(
-            linter, args, reporter, config_file=self._rcfile, verbose_mode=self.verbose
+            linter,
+            args,
+            reporter,
+            config_files=self._rcfiles,
+            verbose_mode=self.verbose,
         )
         return linter, args
 
@@ -156,30 +174,22 @@ group are mutually exclusive.",
                 linter.config.jobs = _cpu_count()
 
     def run(
-        self, linter: PyLinter, args: list, do_exit, exit: bool
+        self,
+        linter: PyLinter,
+        args: list,
+        exit: bool,
     ) -> None:  # pylint: disable=redefined-builtin
-        if self._output:
-            try:
-                with open(self._output, "w", encoding="utf-8") as output:
-                    linter.reporter.out = output
-                    linter.check(args)
-                    score_value = linter.generate_reports()
-            except OSError as ex:
-                print(ex, file=sys.stderr)
-                sys.exit(32)
-        else:
-            output = io.StringIO()
-            linter.reporter.out = output
-            linter.check(args)
-            score_value = linter.generate_reports()
-            print(output.getvalue())
 
-        if do_exit is not UNUSED_PARAM_SENTINEL:
-            warnings.warn(
-                "do_exit is deprecated and it is going to be removed in a future version.",
-                DeprecationWarning,
-            )
-            exit = do_exit
+        if linter.config.recursive is True:
+            files_or_modules = tuple(self._discover_files(args))
+
+        if linter.config.from_stdin:
+            self.run_from_stdin(linter, args)
+        elif linter.config.jobs == 1:
+            self.run_simple(linter, files_or_modules)
+        else:
+            self.run_parallel(linter, files_or_modules)
+
 
         if exit:
             if linter.config.exit_zero:
@@ -199,65 +209,136 @@ group are mutually exclusive.",
                 sys.exit(self.linter.msg_status)
 
 
-class RunSubLinter(RunLinter):
-    def cb_set_rcfile(self, name, value):
-        # Sublinter ignores rcfile option from CLI
-        pass
+    @staticmethod
+    def _read_stdin() -> str:
+        # See https://github.com/python/typeshed/pull/5623 for rationale behind assertion
+        assert isinstance(sys.stdin, TextIOWrapper)
+        sys.stdin = TextIOWrapper(sys.stdin.detach(), encoding="utf-8")
+        return sys.stdin.read()
 
+    @staticmethod
+    def _get_file_descr_from_stdin(filepath: str) -> FileItem:
+        """Return file description (tuple of module name, file path, base name) from given file path.
 
-class Run:
-    def __init__(
-        self,
-        args,
-        reporter=None,
-        exit=True,
-        do_exit=UNUSED_PARAM_SENTINEL,
-    ):  # pylint: disable=redefined-builtin
+        This method is used for creating suitable file description for _check_files when the
+        source is standard input.
+        """
+        try:
+            # Note that this function does not really perform an
+            # __import__ but may raise an ImportError exception, which
+            # we want to catch here.
+            modname = ".".join(astroid.modutils.modpath_from_file(filepath))
+        except ImportError:
+            modname = os.path.splitext(os.path.basename(filepath))[0]
 
-        self.sub_linter_files = defaultdict(list)  # rcfile -> [files]
-        self.root_linter_files = []
+        return FileItem(modname, filepath, filepath)
 
-        self.root_linter_runner = RunLinter()
-        root_linter, files_or_modules = self.root_linter_runner.initialize(
-            [*args], reporter
+    def run_from_stdin(self, linter, files_or_modules):
+        if len(files_or_modules) != 1:
+            raise exceptions.InvalidArgsError(
+                "Missing filename required for --from-stdin"
+            )
+
+        filepath = files_or_modules[0]
+        with fix_import_path(files_or_modules):
+            linter._check_files(
+                functools.partial(linter.get_ast, data=self._read_stdin()),
+                [self._get_file_descr_from_stdin(filepath)],
+            )
+
+    def run_parallel(self, linter, files_or_modules):
+        sub_linter_files = defaultdict(list)  # rcfile -> [files]
+
+        sub_linters = {} # rcfile -> linter
+
+        for path in self._iterate_file_descrs(linter, files_or_modules):
+            self.register_linter(path, sub_linter_files)
+
+        for rcfiles in sub_linter_files:
+            sub_linter_runner = RunLinter(reversed(rcfiles))
+
+            sublinter, _ = sub_linter_runner.initialize(
+                [*self.args], reporters.CollectingReporter()
+            )
+            sub_linters[rcfiles] = sublinter
+
+        check_parallel(
+            linter,
+            sub_linters,
+            linter.config.jobs,
+            (chain.from_iterable(((rcfiles, file) for file in files) for rcfiles, files in sub_linter_files.items())),
+            files_or_modules
         )
-        self.root_linter_runner.initialize_jobs(root_linter)
+        linter.generate_reports()
 
-        if root_linter.config.recursive is True:
-            files_or_modules = tuple(self._discover_files(files_or_modules))
+    def run_simple(self, linter, files_or_modules):
+        linter.initialize()
+        sub_linters = []
+        sub_linter_files = defaultdict(list)  # rcfile -> [files]
 
-        for path in files_or_modules:
-            self.register_linter(path)
+        with fix_import_path(files_or_modules):
+            for path in self._iterate_file_descrs(linter, files_or_modules):
+                self.register_linter(path, sub_linter_files)
 
-        self.root_linter_runner.run(
-            root_linter, self.root_linter_files, do_exit, exit=False
+
+            for rcfiles, files in sub_linter_files.items():
+                sub_linter_runner = RunLinter(reversed(rcfiles))
+
+                sublinter, _ = sub_linter_runner.initialize(
+                    [*self.args], reporters.CollectingReporter()
+                )
+
+                sublinter._check_files(sublinter.get_ast, files)
+
+                sub_linters.append(sublinter)
+
+        merge_linters(linter, *sub_linters)
+
+        linter.generate_reports()
+
+    def _iterate_file_descrs(
+        self, linter, files_or_modules: Sequence[str]
+    ) -> Iterator[FileItem]:
+        """Return generator yielding file descriptions (tuples of module name, file path, base name).
+
+        The returned generator yield one item for each Python module that should be linted.
+        """
+        from pylint.typing import FileItem
+
+        for descr in self._expand_files(linter, files_or_modules):
+            name, filepath, is_arg = descr["name"], descr["path"], descr["isarg"]
+            if linter.should_analyze_file(name, filepath, is_argument=is_arg):
+                config_files = tuple(
+                    find_per_directory_config_files(Path(filepath).parent)
+                )
+                yield FileItem(name, filepath, descr["basename"], config_files)
+
+    def _expand_files(
+        self, linter, modules: Sequence[str]
+    ) -> list[ModuleDescriptionDict]:
+        """Get modules and errors from a list of modules and handle errors."""
+        from pylint.lint.expand_modules import expand_modules
+
+        result, errors = expand_modules(
+            modules,
+            linter.config.ignore,
+            linter.config.ignore_patterns,
+            linter._ignore_paths,
         )
+        for error in errors:
+            message = modname = error["mod"]
+            key = error["key"]
+            linter.set_current_module(modname)
+            if key == "fatal":
+                message = str(error["ex"]).replace(os.getcwd() + os.sep, "")
+            linter.add_message(key, args=message)
+        return result
 
-        for rcfile, files in self.sub_linter_files.items():
-            sub_linter_runner = RunSubLinter(rcfile)
-
-            sublinter, _ = sub_linter_runner.initialize([*args], reporter)
-
-            sub_linter_runner.initialize_jobs(sublinter)
-            sub_linter_runner.run(sublinter, files, do_exit, exit=False)
-
-    def register_linter(self, path):
-        rcfile = self._search_rcfile(path)
-        if rcfile:
-            self.sub_linter_files[rcfile].append(path)
-        else:
-            self.root_linter_files.append(path)
-
-    def _search_rcfile(self, path):
-        if not os.path.isdir(path):
-            path = os.path.dirname(path)
-        while True:
-            rcfile = os.path.join(path, ".pylintrc")
-            if os.path.exists(rcfile):
-                return rcfile
-            path = os.path.dirname(path)
-            if path in ("/", ""):
-                break
+    def register_linter(self, path, sub_linter_files):
+        # if path.rc_conf[0] != Path(self._rcfiles[0]):
+        sub_linter_files[path.rc_conf].append(path)
+        # else:
+        #     self.root_linter_files.append(path)
 
     @staticmethod
     def _discover_files(files_or_modules: Sequence[str]) -> Iterator[str]:
@@ -285,3 +366,29 @@ class Run:
                         )
             else:
                 yield something
+
+
+class Run:
+    def __init__(
+        self,
+        args,
+        reporter=None,
+        exit=True,
+        do_exit=UNUSED_PARAM_SENTINEL,
+    ):  # pylint: disable=redefined-builtin
+
+        self.root_linter_runner = RunLinter()
+        root_linter, files_or_modules = self.root_linter_runner.initialize(
+            [*args], reporter
+        )
+        self.root_linter_runner.initialize_jobs(root_linter)
+
+        self.root_linter_runner.run(
+            root_linter,
+            files_or_modules,
+            exit=False,
+        )
+
+
+
+
