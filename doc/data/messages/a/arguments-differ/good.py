@@ -4,7 +4,7 @@ class Drink:
 
 
 class Cocktail(Drink):
-    def mix(self, fluid_one, fluid_two, alcoholic_fluid_one="Beer")
+    def mix(self, fluid_one, fluid_two, alcoholic_fluid_one="Beer"):
         return fluid_one + fluid_two + alcoholic_fluid_one
 
 
