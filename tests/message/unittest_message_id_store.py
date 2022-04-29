@@ -104,7 +104,7 @@ def test_exclusivity_of_msgids() -> None:
     err_msg = (
         "{} has the same prefix ('{}') as the '{}' checker. Please make sure the prefix "
         "is unique for each checker. You can use 'script/get_unused_message_id_category.py' "
-        "to get an unique id."
+        "to get a unique id."
     )
     runner = Run(["--enable-all-extensions", EMPTY_FILE], exit=False)
 
