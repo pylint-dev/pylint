@@ -171,14 +171,6 @@ def test_more_args(fake_path, case):
         assert sys.path == fake_path
 
 
-def test_namespace_package_sys_path() -> None:
-    """Test that we do not append namespace packages to sys.path."""
-    pylint_output = StringIO()
-    reporter = text.TextReporter(pylint_output)
-    Run(["test_namespace_pkg/"], reporter=reporter, exit=False)
-    assert "Module import itself" not in pylint_output.getvalue()
-
-
 @pytest.fixture(scope="module")
 def disable():
     return ["I"]
