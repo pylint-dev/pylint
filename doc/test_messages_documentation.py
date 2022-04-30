@@ -91,7 +91,7 @@ class LintModuleTest:
             args_list=[
                 str(test_file[1]),
                 "--disable=all",
-                f"--enable={test_file[0]}",
+                f"--enable={test_file[0]},astroid-error,fatal,syntax-error",
             ],
             reporter=_test_reporter,
             config_file=config_file,

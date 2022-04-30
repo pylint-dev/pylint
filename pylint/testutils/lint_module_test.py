@@ -71,6 +71,7 @@ class LintModuleTest:
                 # Always enable fatal errors
                 messages_to_enable.add("astroid-error")
                 messages_to_enable.add("fatal")
+                messages_to_enable.add("syntax-error")
             args.extend(["--disable=all", f"--enable={','.join(messages_to_enable)}"])
         _config_initialization(
             self._linter, args_list=args, config_file=rc_file, reporter=_test_reporter
