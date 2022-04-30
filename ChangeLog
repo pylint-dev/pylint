@@ -58,6 +58,10 @@ Release date: TBA
   by making ``ImportsChecker`` solely responsible for emitting ``deprecated-module`` instead
   of sharing responsibility with ``StdlibChecker``. (This could have led to double messages.)
 
+* Added support for further dunder methods such as ``__getattribute__`` on modules.
+
+  Closes #6094
+
 * The ``no-init`` (W0232) warning has been removed. It's ok to not have an ``__init__`` in a class.
 
   Closes #2409
