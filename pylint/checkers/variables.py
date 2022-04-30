@@ -132,13 +132,6 @@ def _is_from_future_import(stmt, name):
     return None
 
 
-def in_for_else_branch(parent, stmt):
-    """Returns True if stmt in inside the else branch for a parent For stmt."""
-    return isinstance(parent, nodes.For) and any(
-        else_stmt.parent_of(stmt) or else_stmt == stmt for else_stmt in parent.orelse
-    )
-
-
 @lru_cache(maxsize=1000)
 def overridden_method(klass, name):
     """Get overridden method if any."""
@@ -2203,7 +2196,7 @@ class VariablesChecker(BaseChecker):
         for i, stmt in enumerate(astmts[1:]):
             if astmts[i].statement(future=True).parent_of(
                 stmt
-            ) and not in_for_else_branch(astmts[i].statement(future=True), stmt):
+            ) and not utils.in_for_else_branch(astmts[i].statement(future=True), stmt):
                 continue
             _astmts.append(stmt)
         astmts = _astmts

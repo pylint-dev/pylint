@@ -1743,3 +1743,10 @@ def in_type_checking_block(node: nodes.NodeNG) -> bool:
         and ancestor.test.as_string() in TYPING_TYPE_CHECKS_GUARDS
         for ancestor in node.node_ancestors()
     )
+
+
+def in_for_else_branch(parent: nodes.NodeNG, stmt: nodes.Statement) -> bool:
+    """Returns True if stmt in inside the else branch for a parent For stmt."""
+    return isinstance(parent, nodes.For) and any(
+        else_stmt.parent_of(stmt) or else_stmt == stmt for else_stmt in parent.orelse
+    )
