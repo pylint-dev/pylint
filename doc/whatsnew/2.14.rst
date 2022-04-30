@@ -110,6 +110,11 @@ Other Changes
 
   Closes #6101
 
+* Fixed a crash in the ``not-an-iterable`` checker involving multiple starred expressions
+  inside a call.
+
+  Closes #6372
+
 * Fix a failure to respect inline disables for ``fixme`` occurring on the last line
   of a module when pylint is launched with ``--enable=fixme``.
 
