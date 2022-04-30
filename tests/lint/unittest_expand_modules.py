@@ -69,6 +69,14 @@ test_pylinter = {
     "path": str(TEST_DIRECTORY / "lint/test_pylinter.py"),
 }
 
+test_namespace_packages = {
+    "basename": "lint",
+    "basepath": INIT_PATH,
+    "isarg": False,
+    "name": "lint.test_namespace_packages",
+    "path": str(TEST_DIRECTORY / "lint/test_namespace_packages.py"),
+}
+
 init_of_package = {
     "basename": "lint",
     "basepath": INIT_PATH,
@@ -98,6 +106,7 @@ class TestExpandModules(CheckerTestCase):
                 [str(Path(__file__).parent)],
                 [
                     init_of_package,
+                    test_namespace_packages,
                     test_pylinter,
                     test_utils,
                     this_file_from_init,
