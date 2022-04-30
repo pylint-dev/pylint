@@ -22,4 +22,4 @@ def test_namespace_package_sys_path() -> None:
         reporter=reporter,
         exit=False,
     )
-    assert not runner.linter.reporter.messages
+    assert not runner.linter.stats.by_msg
