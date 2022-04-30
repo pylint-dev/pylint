@@ -17,5 +17,9 @@ def test_namespace_package_sys_path() -> None:
     """
     pylint_output = StringIO()
     reporter = TextReporter(pylint_output)
-    Run(["tests/regrtest_data/namespace_import_self/"], reporter=reporter, exit=False)
-    assert "Module import itself" not in pylint_output.getvalue()
+    runner = Run(
+        ["tests/regrtest_data/namespace_import_self/"],
+        reporter=reporter,
+        exit=False,
+    )
+    assert not runner.linter.reporter.messages
