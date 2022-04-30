@@ -11,7 +11,7 @@ import pytest
 
 from pylint.config.arguments_manager import _ArgumentsManager
 from pylint.config.exceptions import UnrecognizedArgumentAction
-from pylint.lint import Run
+from pylint.testutils._run import _Run as Run
 
 HERE = abspath(dirname(__file__))
 REGRTEST_DATA_DIR = join(HERE, "..", "regrtest_data")
@@ -64,7 +64,7 @@ class TestDeprecationOptions:
         run = Run([EMPTY_MODULE, "--ignore=test,test_two"], exit=False)
         assert run.linter.config.ignore == ["test", "test_two"]
         assert run.linter.config.ignore == run.linter.config.black_list
-        assert run.linter.config.ignore_patterns == [re.compile("^\\.#")]
+        assert run.linter.config.ignore_patterns == (re.compile("^\\.#"),)
         assert run.linter.config.ignore_patterns == run.linter.config.black_list_re
 
 

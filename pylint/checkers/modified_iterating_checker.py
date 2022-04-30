@@ -51,7 +51,7 @@ class ModifiedIterationChecker(checkers.BaseChecker):
 
     options = ()
 
-    @utils.check_messages(
+    @utils.only_required_for_messages(
         "modified-iterating-list", "modified-iterating-dict", "modified-iterating-set"
     )
     def visit_for(self, node: nodes.For) -> None:

@@ -232,12 +232,12 @@ Other Changes
   Closes #5646
 
 * By default, pylint does no longer take files starting with ``.#`` into account. Those are
-  considered `emacs file locks`_. This behavior can be reverted by redefining the
+  considered `Emacs file locks`_. This behavior can be reverted by redefining the
   ``ignore-patterns`` option.
 
   Closes #367
 
-.. _`emacs file locks`: https://www.gnu.org/software/emacs/manual/html_node/elisp/File-Locks.html
+.. _`Emacs file locks`: https://www.gnu.org/software/emacs/manual/html_node/elisp/File-Locks.html
 
 * Fix ``super-init-not-called`` when parent or ``self`` is a ``Protocol``
 
@@ -610,3 +610,12 @@ Other Changes
 * Only raise ``not-callable`` when all the inferred values of a property are not callable.
 
   Closes #5931
+
+* Avoid reporting ``superfluous-parens`` on expressions using the ``is not`` operator.
+
+  Closes #5930
+
+* Fix a crash when linting a file that passes an integer ``mode=`` to
+  ``open``
+
+  Closes #6414

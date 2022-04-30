@@ -13,7 +13,7 @@ from typing import TextIO
 
 import pytest
 
-from pylint.lint import Run
+from pylint.testutils._run import _Run as Run
 from pylint.testutils.utils import _patch_streams
 
 HERE = abspath(dirname(__file__))
@@ -143,6 +143,6 @@ class TestSimilarCodeChecker:
         """Tests enabling ignore-imports works correctly."""
         path = join(DATA, "ignore_imports")
         self._runtest(
-            [path, "-e=duplicate-code", "-d=unused-import", "--ignore-imports=y"],
+            [path, "-e=duplicate-code", "-d=unused-import,C", "--ignore-imports=y"],
             code=0,
         )

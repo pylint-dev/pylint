@@ -157,7 +157,7 @@ def test_command_line_arguments_yes_no(
 ) -> None:
     """Regression test for the --module-names option.
 
-    Make sure that we supprot --module-names=yes syntax instead
+    Make sure that we support --module-names=yes syntax instead
     of using it as a flag.
     """
     with pytest.raises(SystemExit) as wrapped_sysexit:

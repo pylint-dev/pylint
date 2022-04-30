@@ -56,7 +56,7 @@ def _check_functional_tests_structure(directory: Path) -> None:
     files: set[Path] = set()
     dirs: set[Path] = set()
 
-    # Collect all subdirectories and files in directory
+    # Collect all sub-directories and files in directory
     for file_or_dir in directory.iterdir():
         if file_or_dir.is_file():
             if file_or_dir.suffix == ".py" and not file_or_dir.stem.startswith("_"):
@@ -76,7 +76,7 @@ def _check_functional_tests_structure(directory: Path) -> None:
 
         # Exclude some directories as they follow a different structure
         if (
-            not len(file.parent.stem) == 1  # First letter subdirectories
+            not len(file.parent.stem) == 1  # First letter sub-directories
             and file.parent.stem not in IGNORED_PARENT_DIRS
             and file.parent.parent.stem not in IGNORED_PARENT_PARENT_DIRS
         ):

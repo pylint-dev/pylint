@@ -250,8 +250,8 @@ def _cached_encode_search(string: str, encoding: str) -> bytes:
 def _fix_utf16_32_line_stream(steam: Iterable[bytes], codec: str) -> Iterable[bytes]:
     """Handle line ending for UTF16 and UTF32 correctly.
 
-    Currently Python simply strips the required zeros after \n after the
-    line ending. Leading to lines that can't be decoded propery
+    Currently, Python simply strips the required zeros after \n after the
+    line ending. Leading to lines that can't be decoded properly
     """
     if not codec.startswith("utf-16") and not codec.startswith("utf-32"):
         yield from steam

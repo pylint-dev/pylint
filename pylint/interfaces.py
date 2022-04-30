@@ -15,6 +15,7 @@ from astroid import nodes
 
 if TYPE_CHECKING:
     from pylint.checkers import BaseChecker
+    from pylint.message import Message
     from pylint.reporters.ureports.nodes import Section
 
 __all__ = (
@@ -51,8 +52,17 @@ CONFIDENCE_LEVEL_NAMES = [i.name for i in CONFIDENCE_LEVELS]
 class Interface:
     """Base class for interfaces."""
 
+    def __init__(self) -> None:
+        warnings.warn(
+            "Interface and all of its subclasses have been deprecated "
+            "and will be removed in pylint 3.0.",
+            DeprecationWarning,
+        )
+
     @classmethod
-    def is_implemented_by(cls, instance):
+    def is_implemented_by(
+        cls: type[Interface] | tuple[type[Interface], ...], instance: BaseChecker
+    ) -> bool:
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             return implements(instance, cls)
@@ -78,10 +88,10 @@ def implements(
 class IChecker(Interface):
     """Base interface, to be used only for sub interfaces definition."""
 
-    def open(self):
+    def open(self) -> None:
         """Called before visiting project (i.e. set of modules)."""
 
-    def close(self):
+    def close(self) -> None:
         """Called after visiting project (i.e. set of modules)."""
 
 
@@ -107,14 +117,14 @@ class ITokenChecker(IChecker):
 
 class IAstroidChecker(IChecker):
     """Interface for checker which prefers receive events according to
-    statement type
+    statement type.
     """
 
 
 class IReporter(Interface):
     """Reporter collect messages and display results encapsulated in a layout."""
 
-    def handle_message(self, msg) -> None:
+    def handle_message(self, msg: Message) -> None:
         """Handle the given message object."""
 
     def display_reports(self, layout: Section) -> None:

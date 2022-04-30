@@ -135,10 +135,10 @@ class ManagedAccessViewMixin(object):
         return self.access_requirements
 
     def dispatch(self, *_args, **_kwargs):
-        klasses = self.get_access_requirements()
+        classes = self.get_access_requirements()
 
         # no error should be emitted here
-        for requirement in klasses:
+        for requirement in classes:
             print(requirement)
 
 class BaseType(object):

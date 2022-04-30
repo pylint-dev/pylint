@@ -6,9 +6,11 @@ from __future__ import annotations
 
 import contextlib
 import warnings
-from collections.abc import Generator
+from collections.abc import Generator, Iterator
+from typing import Any
 
-from pylint.checkers.base_checker import BaseChecker
+from astroid import nodes
+
 from pylint.constants import PY38_PLUS
 from pylint.testutils.global_test_linter import linter
 from pylint.testutils.output_line import MessageTest
@@ -19,10 +21,13 @@ from pylint.utils import ASTWalker
 class CheckerTestCase:
     """A base testcase class for unit testing individual checker classes."""
 
-    CHECKER_CLASS: type[BaseChecker] | None
-    CONFIG: dict = {}
+    # pylint: disable-next=fixme
+    # TODO: Figure out way to type this as type[BaseChecker] while also
+    # setting self.checker correctly.
+    CHECKER_CLASS: Any
+    CONFIG: dict[str, Any] = {}
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         self.linter = UnittestLinter()
         self.checker = self.CHECKER_CLASS(self.linter)
         for key, value in self.CONFIG.items():
@@ -30,7 +35,7 @@ class CheckerTestCase:
         self.checker.open()
 
     @contextlib.contextmanager
-    def assertNoMessages(self):
+    def assertNoMessages(self) -> Iterator[None]:
         """Assert that no messages are added by the given method."""
         with self.assertAddsMessages():
             yield
@@ -91,7 +96,7 @@ class CheckerTestCase:
                         DeprecationWarning,
                     )
 
-    def walk(self, node):
+    def walk(self, node: nodes.NodeNG) -> None:
         """Recursive walk on the given node."""
         walker = ASTWalker(linter)
         walker.add_checker(self.checker)

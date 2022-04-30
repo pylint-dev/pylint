@@ -14,6 +14,7 @@ from typing import (
     Dict,
     Iterable,
     NamedTuple,
+    Optional,
     Pattern,
     Tuple,
     Type,
@@ -31,6 +32,8 @@ if TYPE_CHECKING:
 
     from pylint.checkers import BaseChecker
     from pylint.config.callback_actions import _CallbackAction
+    from pylint.reporters.ureports.nodes import Section
+    from pylint.utils import LinterStats
 
 
 class FileItem(NamedTuple):
@@ -117,3 +120,21 @@ AstCallback = Callable[["nodes.NodeNG"], None]
 CheckerT_co = TypeVar("CheckerT_co", bound="BaseChecker", covariant=True)
 AstCallbackMethod = Callable[[CheckerT_co, "nodes.NodeNG"], None]
 """Callable representing a visit or leave method."""
+
+ReportsCallable = Callable[["Section", "LinterStats", Optional["LinterStats"]], None]
+"""Callable to create a report."""
+
+
+class ExtraMessageOptions(TypedDict, total=False):
+    """All allowed keys in the extra options for message definitions."""
+
+    scope: str
+    old_names: list[tuple[str, str]]
+    maxversion: tuple[int, int]
+    minversion: tuple[int, int]
+
+
+MessageDefinitionTuple = Union[
+    Tuple[str, str, str],
+    Tuple[str, str, str, ExtraMessageOptions],
+]

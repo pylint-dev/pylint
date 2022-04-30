@@ -50,7 +50,7 @@ class BaseWriter:
 
     def format_children(self, layout: EvaluationSection | Paragraph | Section) -> None:
         """Recurse on the layout children and call their accept method
-        (see the Visitor pattern)
+        (see the Visitor pattern).
         """
         for child in getattr(layout, "children", ()):
             child.accept(self)
@@ -89,7 +89,7 @@ class BaseWriter:
 
     def compute_content(self, layout: BaseLayout) -> Iterator[str]:
         """Trick to compute the formatting of children layout before actually
-        writing it
+        writing it.
 
         return an iterator on strings (one for each child element)
         """

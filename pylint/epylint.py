@@ -7,7 +7,7 @@
 
 """Emacs and Flymake compatible Pylint.
 
-This script is for integration with emacs and is compatible with flymake mode.
+This script is for integration with Emacs and is compatible with Flymake mode.
 
 epylint walks out of python packages before invoking pylint. This avoids
 reporting import errors that occur when a module within a package uses the
@@ -29,7 +29,7 @@ For example:
 
        pylint a/c/y.py
 
-   - As this script will be invoked by emacs within the directory of the file
+   - As this script will be invoked by Emacs within the directory of the file
      we are checking we need to go out of it to avoid these false positives.
 
 
@@ -45,9 +45,15 @@ import sys
 from collections.abc import Sequence
 from io import StringIO
 from subprocess import PIPE, Popen
+from typing import NoReturn, TextIO, overload
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
 
-def _get_env():
+def _get_env() -> dict[str, str]:
     """Extracts the environment PYTHONPATH and appends the current 'sys.path'
     to it.
     """
@@ -56,10 +62,10 @@ def _get_env():
     return env
 
 
-def lint(filename, options=()):
+def lint(filename: str, options: Sequence[str] = ()) -> int:
     """Pylint the given file.
 
-    When run from emacs we will be in the directory of a file, and passed its
+    When run from Emacs we will be in the directory of a file, and passed its
     filename.  If this file is part of a package and is trying to import other
     modules from within its own package or another package rooted in a directory
     below it, pylint will classify it as a failed import.
@@ -102,7 +108,7 @@ def lint(filename, options=()):
         cmd, stdout=PIPE, cwd=parent_path, env=_get_env(), universal_newlines=True
     ) as process:
 
-        for line in process.stdout:
+        for line in process.stdout:  # type: ignore[union-attr]
             # remove pylintrc warning
             if line.startswith("No config file found"):
                 continue
@@ -117,7 +123,32 @@ def lint(filename, options=()):
         return process.returncode
 
 
-def py_run(command_options="", return_std=False, stdout=None, stderr=None):
+@overload
+def py_run(
+    command_options: str = ...,
+    return_std: Literal[False] = ...,
+    stdout: TextIO | int | None = ...,
+    stderr: TextIO | int | None = ...,
+) -> None:
+    ...
+
+
+@overload
+def py_run(
+    command_options: str,
+    return_std: Literal[True],
+    stdout: TextIO | int | None = ...,
+    stderr: TextIO | int | None = ...,
+) -> tuple[StringIO, StringIO]:
+    ...
+
+
+def py_run(
+    command_options: str = "",
+    return_std: bool = False,
+    stdout: TextIO | int | None = None,
+    stderr: TextIO | int | None = None,
+) -> tuple[StringIO, StringIO] | None:
     """Run pylint from python.
 
     ``command_options`` is a string containing ``pylint`` command line options;
@@ -151,7 +182,7 @@ def py_run(command_options="", return_std=False, stdout=None, stderr=None):
         stdout = PIPE if return_std else sys.stdout
     if stderr is None:
         stderr = PIPE if return_std else sys.stderr
-    # Call pylint in a subprocess
+    # Call pylint in a sub-process
     with Popen(
         cli,
         shell=False,
@@ -167,7 +198,7 @@ def py_run(command_options="", return_std=False, stdout=None, stderr=None):
         return None
 
 
-def Run(argv: Sequence[str] | None = None):
+def Run(argv: Sequence[str] | None = None) -> NoReturn:
     if not argv and len(sys.argv) == 1:
         print(f"Usage: {sys.argv[0]} <filename> [options]")
         sys.exit(1)

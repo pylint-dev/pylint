@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
 class OverlappingExceptionsChecker(checkers.BaseChecker):
     """Checks for two or more exceptions in the same exception handler
-    clause that are identical or parts of the same inheritance hierarchy
+    clause that are identical or parts of the same inheritance hierarchy.
 
     (i.e. overlapping).
     """
@@ -36,7 +36,7 @@ class OverlappingExceptionsChecker(checkers.BaseChecker):
     }
     options = ()
 
-    @utils.check_messages("overlapping-except")
+    @utils.only_required_for_messages("overlapping-except")
     def visit_tryexcept(self, node: nodes.TryExcept) -> None:
         """Check for empty except."""
         for handler in node.handlers:

@@ -61,6 +61,12 @@ Removed checkers
 
   Closes #2409
 
+* Removed the ``assign-to-new-keyword`` message as there are no new keywords in the supported Python
+  versions any longer.
+
+  Closes #4683
+
+
 Extensions
 ==========
 
@@ -72,6 +78,13 @@ Extensions
 
 Other Changes
 =============
+
+* Pylint can now be installed with an extra-require called ``spelling`` (``pip install pylint[spelling]``).
+  This will add ``pyenchant`` to pylint's dependencies. You will still need to install the
+  requirements for ``pyenchant`` (the ``enchant`` library and any dictionaries) yourself. You will also
+  need to set the ``spelling-dict`` option.
+
+  Refs #6462
 
 * Improved wording of the message of ``deprecated-module``
 
@@ -175,6 +188,13 @@ Other Changes
   patterns instead of ``__implements__``.
 
   Ref #2287
+
+* All ``Interface`` classes in ``pylint.interfaces`` have been deprecated. You can subclass
+  the respective normal classes to get the same behaviour. The ``__implements__`` functionality
+  was based on a rejected PEP from 2001:
+  https://peps.python.org/pep-0245/
+
+  Closes #2287
 
 * Added the ``generate-toml-config`` option.
 

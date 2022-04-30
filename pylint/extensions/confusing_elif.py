@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import check_messages
+from pylint.checkers.utils import only_required_for_messages
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -29,7 +29,7 @@ class ConfusingConsecutiveElifChecker(BaseChecker):
         )
     }
 
-    @check_messages("confusing-consecutive-elif")
+    @only_required_for_messages("confusing-consecutive-elif")
     def visit_if(self, node: nodes.If) -> None:
         body_ends_with_if = isinstance(
             node.body[-1], nodes.If

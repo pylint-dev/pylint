@@ -11,14 +11,15 @@ import numbers
 import re
 import tokenize
 from collections import Counter
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING
 
 import astroid
 from astroid import nodes
 
 from pylint.checkers import BaseChecker, BaseRawFileChecker, BaseTokenChecker, utils
-from pylint.checkers.utils import check_messages
+from pylint.checkers.utils import only_required_for_messages
+from pylint.typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -56,7 +57,9 @@ SINGLE_QUOTED_REGEX = re.compile(f"({'|'.join(_PREFIXES)})?'''")
 DOUBLE_QUOTED_REGEX = re.compile(f"({'|'.join(_PREFIXES)})?\"\"\"")
 QUOTE_DELIMITER_REGEX = re.compile(f"({'|'.join(_PREFIXES)})?(\"|')", re.DOTALL)
 
-MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
+MSGS: dict[
+    str, MessageDefinitionTuple
+] = {  # pylint: disable=consider-using-namedtuple-or-dataclass
     "E1300": (
         "Unsupported format character %r (%#02x) at index %d",
         "bad-format-character",
@@ -235,7 +238,7 @@ class StringFormatChecker(BaseChecker):
     msgs = MSGS
 
     # pylint: disable=too-many-branches
-    @check_messages(
+    @only_required_for_messages(
         "bad-format-character",
         "truncated-format-string",
         "mixed-format-string",
@@ -391,7 +394,7 @@ class StringFormatChecker(BaseChecker):
                             args=(arg_type.pytype(), format_type),
                         )
 
-    @check_messages("f-string-without-interpolation")
+    @only_required_for_messages("f-string-without-interpolation")
     def visit_joinedstr(self, node: nodes.JoinedStr) -> None:
         self._check_interpolation(node)
 
@@ -439,7 +442,7 @@ class StringFormatChecker(BaseChecker):
         # Skip format nodes which don't have an explicit string on the
         # left side of the format operation.
         # We do this because our inference engine can't properly handle
-        # redefinitions of the original string.
+        # redefinition of the original string.
         # Note that there may not be any left side at all, if the format method
         # has been assigned to another variable. See issue 351. For example:
         #
@@ -723,15 +726,15 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
         if self.linter.config.check_quote_consistency:
             self.check_for_consistent_string_delimiters(tokens)
 
-    @check_messages("implicit-str-concat")
+    @only_required_for_messages("implicit-str-concat")
     def visit_list(self, node: nodes.List) -> None:
         self.check_for_concatenated_strings(node.elts, "list")
 
-    @check_messages("implicit-str-concat")
+    @only_required_for_messages("implicit-str-concat")
     def visit_set(self, node: nodes.Set) -> None:
         self.check_for_concatenated_strings(node.elts, "set")
 
-    @check_messages("implicit-str-concat")
+    @only_required_for_messages("implicit-str-concat")
     def visit_tuple(self, node: nodes.Tuple) -> None:
         self.check_for_concatenated_strings(node.elts, "tuple")
 
@@ -773,7 +776,9 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
                         "inconsistent-quotes", line=start[0], args=(quote_delimiter,)
                     )
 
-    def check_for_concatenated_strings(self, elements, iterable_type):
+    def check_for_concatenated_strings(
+        self, elements: Sequence[nodes.NodeNG], iterable_type: str
+    ) -> None:
         for elt in elements:
             if not (
                 isinstance(elt, nodes.Const) and elt.pytype() in _AST_NODE_STR_TYPES
@@ -831,7 +836,7 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
     ):
         """Check for bad escapes in a non-raw string.
 
-        prefix: lowercase string of eg 'ur' string prefix markers.
+        prefix: lowercase string of string prefix markers ('ur').
         string_body: the un-parsed body of the string, not including the quote
         marks.
         start_row: integer line number in the source.
@@ -888,7 +893,7 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
             # character can never be the start of a new backslash escape.
             index += 2
 
-    @check_messages("redundant-u-string-prefix")
+    @only_required_for_messages("redundant-u-string-prefix")
     def visit_const(self, node: nodes.Const) -> None:
         if node.pytype() == "builtins.str" and not isinstance(
             node.parent, nodes.JoinedStr

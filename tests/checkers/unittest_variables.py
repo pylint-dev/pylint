@@ -12,6 +12,7 @@ import astroid
 from pylint.checkers import variables
 from pylint.interfaces import HIGH
 from pylint.testutils import CheckerTestCase, MessageTest, linter, set_config
+from pylint.testutils.reporter_for_tests import GenericTestReporter
 
 REGR_DATA_DIR = str(Path(__file__).parent / ".." / "regrtest_data")
 
@@ -43,7 +44,7 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
 
     @set_config(callbacks=("callback_", "_callback"))
     def test_custom_callback_string(self) -> None:
-        """Test the --calbacks option works."""
+        """Test the --callbacks option works."""
         node = astroid.extract_node(
             """
         def callback_one(abc):
@@ -212,6 +213,7 @@ class TestMissingSubmodule(CheckerTestCase):
         sys.path.insert(0, REGR_DATA_DIR)
         try:
             linter.check([os.path.join(REGR_DATA_DIR, "package_all")])
+            assert isinstance(linter.reporter, GenericTestReporter)
             got = linter.reporter.finalize().strip()
             assert got == "E:  3: Undefined variable name 'missing' in __all__"
         finally:

@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING
 from astroid import nodes
 
 from pylint.checkers import BaseTokenChecker
-from pylint.checkers.utils import check_messages
+from pylint.checkers.utils import only_required_for_messages
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -165,9 +165,9 @@ CODE_FLANKED_IN_BACKTICK_REGEX = re.compile(r"(\s|^)(`{1,2})([^`]+)(\2)([^`]|$)"
 
 
 def _strip_code_flanked_in_backticks(line: str) -> str:
-    """Alter line so code flanked in backticks is ignored.
+    """Alter line so code flanked in back-ticks is ignored.
 
-    Pyenchant automatically strips backticks when parsing tokens,
+    Pyenchant automatically strips back-ticks when parsing tokens,
     so this cannot be done at the individual filter level.
     """
 
@@ -415,19 +415,19 @@ class SpellingChecker(BaseTokenChecker):
                     continue
                 self._check_spelling("wrong-spelling-in-comment", token, start_row)
 
-    @check_messages("wrong-spelling-in-docstring")
+    @only_required_for_messages("wrong-spelling-in-docstring")
     def visit_module(self, node: nodes.Module) -> None:
         if not self.initialized:
             return
         self._check_docstring(node)
 
-    @check_messages("wrong-spelling-in-docstring")
+    @only_required_for_messages("wrong-spelling-in-docstring")
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         if not self.initialized:
             return
         self._check_docstring(node)
 
-    @check_messages("wrong-spelling-in-docstring")
+    @only_required_for_messages("wrong-spelling-in-docstring")
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         if not self.initialized:
             return

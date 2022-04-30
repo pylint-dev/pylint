@@ -28,6 +28,7 @@ from pylint.checkers.utils import (
 )
 from pylint.constants import PY39_PLUS, TYPING_TYPE_CHECKS_GUARDS
 from pylint.interfaces import CONTROL_FLOW, HIGH, INFERENCE, INFERENCE_FAILURE
+from pylint.typing import MessageDefinitionTuple
 
 if sys.version_info >= (3, 8):
     from functools import cached_property
@@ -158,7 +159,7 @@ def overridden_method(klass, name):
 
 def _get_unpacking_extra_info(node, inferred):
     """Return extra information to add to the message for unpacking-non-sequence
-    and unbalanced-tuple-unpacking errors
+    and unbalanced-tuple-unpacking errors.
     """
     more = ""
     inferred_module = inferred.root().name
@@ -363,7 +364,7 @@ def _has_locals_call_after_node(stmt, scope):
     return False
 
 
-MSGS = {
+MSGS: dict[str, MessageDefinitionTuple] = {
     "E0601": (
         "Using variable %r before assignment",
         "used-before-assignment",
@@ -553,8 +554,9 @@ scope_type : {self._atomic.scope_type}
     @property
     def consumed_uncertain(self) -> defaultdict[str, list[nodes.NodeNG]]:
         """Retrieves nodes filtered out by get_next_to_consume() that may not
-        have executed, such as statements in except blocks, or statements
+        have executed.
 
+        These include nodes such as statements in except blocks, or statements
         in try blocks (when evaluating their corresponding except and finally
         blocks). Checkers that want to treat the statements as executed
         (e.g. for unused-variable) may need to add them back.
@@ -1077,7 +1079,7 @@ class VariablesChecker(BaseChecker):
             "undefined-loop-variable"
         )
 
-    @utils.check_messages("redefined-outer-name")
+    @utils.only_required_for_messages("redefined-outer-name")
     def visit_for(self, node: nodes.For) -> None:
         assigned_to = [a.name for a in node.target.nodes_of_class(nodes.AssignName)]
 
@@ -1099,14 +1101,14 @@ class VariablesChecker(BaseChecker):
 
         self._loop_variables.append((node, assigned_to))
 
-    @utils.check_messages("redefined-outer-name")
+    @utils.only_required_for_messages("redefined-outer-name")
     def leave_for(self, node: nodes.For) -> None:
         self._loop_variables.pop()
         self._store_type_annotation_names(node)
 
     def visit_module(self, node: nodes.Module) -> None:
         """Visit module : update consumption analysis variable
-        checks globals doesn't overrides builtins
+        checks globals doesn't overrides builtins.
         """
         self._to_consume = [NamesConsumer(node, "module")]
         self._postponed_evaluation_enabled = is_postponed_evaluation_enabled(node)
@@ -1117,7 +1119,7 @@ class VariablesChecker(BaseChecker):
                     continue
                 self.add_message("redefined-builtin", args=name, node=stmts[0])
 
-    @utils.check_messages(
+    @utils.only_required_for_messages(
         "unused-import",
         "unused-wildcard-import",
         "redefined-builtin",
@@ -1283,7 +1285,7 @@ class VariablesChecker(BaseChecker):
     visit_asyncfunctiondef = visit_functiondef
     leave_asyncfunctiondef = leave_functiondef
 
-    @utils.check_messages(
+    @utils.only_required_for_messages(
         "global-variable-undefined",
         "global-variable-not-assigned",
         "global-statement",
@@ -1352,7 +1354,7 @@ class VariablesChecker(BaseChecker):
         self.visit_name(node)
 
     def visit_name(self, node: nodes.Name) -> None:
-        """Don't add the 'utils.check_messages' decorator here!
+        """Don't add the 'utils.only_required_for_messages' decorator here!
 
         It's important that all 'Name' nodes are visited, otherwise the
         'NamesConsumers' won't be correct.
@@ -1367,7 +1369,7 @@ class VariablesChecker(BaseChecker):
         if self._is_undefined_loop_variable_enabled:
             self._loopvar_name(node)
 
-    @utils.check_messages("redefined-outer-name")
+    @utils.only_required_for_messages("redefined-outer-name")
     def visit_excepthandler(self, node: nodes.ExceptHandler) -> None:
         if not node.name or not isinstance(node.name, nodes.AssignName):
             return
@@ -1383,7 +1385,7 @@ class VariablesChecker(BaseChecker):
 
         self._except_handler_names_queue.append((node, node.name))
 
-    @utils.check_messages("redefined-outer-name")
+    @utils.only_required_for_messages("redefined-outer-name")
     def leave_excepthandler(self, node: nodes.ExceptHandler) -> None:
         if not node.name or not isinstance(node.name, nodes.AssignName):
             return
@@ -1693,7 +1695,7 @@ class VariablesChecker(BaseChecker):
 
         return (VariableVisitConsumerAction.RETURN, found_nodes)
 
-    @utils.check_messages("no-name-in-module")
+    @utils.only_required_for_messages("no-name-in-module")
     def visit_import(self, node: nodes.Import) -> None:
         """Check modules attribute accesses."""
         if not self._analyse_fallback_blocks and utils.is_from_fallback_block(node):
@@ -1715,7 +1717,7 @@ class VariablesChecker(BaseChecker):
                 continue
             self._check_module_attrs(node, module, parts[1:])
 
-    @utils.check_messages("no-name-in-module")
+    @utils.only_required_for_messages("no-name-in-module")
     def visit_importfrom(self, node: nodes.ImportFrom) -> None:
         """Check modules attribute accesses."""
         if not self._analyse_fallback_blocks and utils.is_from_fallback_block(node):
@@ -1740,7 +1742,7 @@ class VariablesChecker(BaseChecker):
                 continue
             self._check_module_attrs(node, module, name.split("."))
 
-    @utils.check_messages(
+    @utils.only_required_for_messages(
         "unbalanced-tuple-unpacking", "unpacking-non-sequence", "self-cls-assignment"
     )
     def visit_assign(self, node: nodes.Assign) -> None:
@@ -1761,11 +1763,11 @@ class VariablesChecker(BaseChecker):
 
     # listcomp have now also their scope
     def visit_listcomp(self, node: nodes.ListComp) -> None:
-        """Visit dictcomp: update consumption analysis variable."""
+        """Visit listcomp: update consumption analysis variable."""
         self._to_consume.append(NamesConsumer(node, "comprehension"))
 
     def leave_listcomp(self, _: nodes.ListComp) -> None:
-        """Leave dictcomp: update consumption analysis variable."""
+        """Leave listcomp: update consumption analysis variable."""
         # do not check for not used locals here
         self._to_consume.pop()
 
@@ -2110,7 +2112,7 @@ class VariablesChecker(BaseChecker):
         node: nodes.Name, defstmt: nodes.ClassDef, found_nodes: list[nodes.NodeNG]
     ) -> tuple[VariableVisitConsumerAction, list[nodes.NodeNG] | None]:
         """Check if a first level method's annotation or default values
-        refers to its own class, and return a consumer action
+        refers to its own class, and return a consumer action.
         """
         if node.frame(future=True).parent == defstmt and node.statement(
             future=True
@@ -2133,7 +2135,7 @@ class VariablesChecker(BaseChecker):
         defnode: nodes.NamedExpr, defnode_parent: nodes.IfExp
     ) -> bool:
         """Check if a NamedExpr is inside a side of if ... else that never
-        gets evaluated
+        gets evaluated.
         """
         inferred_test = utils.safe_infer(defnode_parent.test)
         if isinstance(inferred_test, nodes.Const):
@@ -2585,7 +2587,7 @@ class VariablesChecker(BaseChecker):
                         len(values),
                     ),
                 )
-        # attempt to check unpacking may be possible (ie RHS is iterable)
+        # attempt to check unpacking may be possible (i.e. RHS is iterable)
         elif not utils.is_iterable(inferred):
             self.add_message(
                 "unpacking-non-sequence",
@@ -2606,7 +2608,7 @@ class VariablesChecker(BaseChecker):
 
     def _check_module_attrs(self, node, module, module_names):
         """Check that module_names (list of string) are accessible through the
-        given module, if the latest access name corresponds to a module, return it
+        given module, if the latest access name corresponds to a module, return it.
         """
         while module_names:
             name = module_names.pop(0)

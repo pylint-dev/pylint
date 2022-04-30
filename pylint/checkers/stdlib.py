@@ -144,6 +144,7 @@ DEPRECATED_METHODS: dict = {
             "ntpath.splitunc",
             "os.path.splitunc",
             "os.stat_float_times",
+            "turtle.RawTurtle.settiltangle",
         },
         (3, 2, 0): {
             "cgi.escape",
@@ -232,11 +233,23 @@ DEPRECATED_METHODS: dict = {
             "threading.Thread.setDaemon",
             "cgi.log",
         },
+        (3, 11, 0): {
+            "locale.getdefaultlocale",
+            "unittest.TestLoader.findTestCases",
+            "unittest.TestLoader.loadTestsFromTestCase",
+            "unittest.TestLoader.getTestCaseNames",
+        },
     },
 }
 
 
 DEPRECATED_CLASSES = {
+    (3, 2, 0): {
+        "configparser": {
+            "LegacyInterpolation",
+            "SafeConfigParser",
+        },
+    },
     (3, 3, 0): {
         "importlib.abc": {
             "Finder",
@@ -277,6 +290,11 @@ DEPRECATED_CLASSES = {
         "smtpd": {
             "MailmanProxy",
         }
+    },
+    (3, 11, 0): {
+        "webbrowser": {
+            "MacOSX",
+        },
     },
 }
 
@@ -483,7 +501,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                 self.add_message("shallow-copy-environ", node=node)
                 break
 
-    @utils.check_messages(
+    @utils.only_required_for_messages(
         "bad-open-mode",
         "redundant-unittest-assert",
         "deprecated-method",
@@ -536,25 +554,25 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                     self.add_message("forgotten-debug-statement", node=node)
             self.check_deprecated_method(node, inferred)
 
-    @utils.check_messages("boolean-datetime")
+    @utils.only_required_for_messages("boolean-datetime")
     def visit_unaryop(self, node: nodes.UnaryOp) -> None:
         if node.op == "not":
             self._check_datetime(node.operand)
 
-    @utils.check_messages("boolean-datetime")
+    @utils.only_required_for_messages("boolean-datetime")
     def visit_if(self, node: nodes.If) -> None:
         self._check_datetime(node.test)
 
-    @utils.check_messages("boolean-datetime")
+    @utils.only_required_for_messages("boolean-datetime")
     def visit_ifexp(self, node: nodes.IfExp) -> None:
         self._check_datetime(node.test)
 
-    @utils.check_messages("boolean-datetime")
+    @utils.only_required_for_messages("boolean-datetime")
     def visit_boolop(self, node: nodes.BoolOp) -> None:
         for value in node.values:
             self._check_datetime(value)
 
-    @utils.check_messages("method-cache-max-size-none")
+    @utils.only_required_for_messages("method-cache-max-size-none")
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         if node.decorators and isinstance(node.parent, nodes.ClassDef):
             self._check_lru_cache_decorators(node.decorators)
@@ -621,7 +639,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         ):
             self.add_message("boolean-datetime", node=node)
 
-    def _check_open_mode(self, node):
+    def _check_open_mode(self, node: nodes.Call):
         """Check that the mode argument of an open or file call is valid."""
         try:
             mode_arg = utils.get_argument_from_call(node, position=1, keyword="mode")
@@ -659,7 +677,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         if (
             not mode_arg
             or isinstance(mode_arg, nodes.Const)
-            and (not mode_arg.value or "b" not in mode_arg.value)
+            and (not mode_arg.value or "b" not in str(mode_arg.value))
         ):
             encoding_arg = None
             try:
