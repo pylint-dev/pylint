@@ -16,7 +16,6 @@ from pylint.utils import utils as pylint_utils
 
 class RedefinedLoopName(checkers.BaseChecker):
 
-    __implements__ = interfaces.IAstroidChecker
     name = "redefined-loop-name"
 
     msgs = {
@@ -27,7 +26,7 @@ class RedefinedLoopName(checkers.BaseChecker):
         ),
     }
 
-    def __init__(self, linter=None):
+    def __init__(self, linter: PyLinter) -> None:
         super().__init__(linter)
         self._loop_variables = []
 
