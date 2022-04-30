@@ -190,3 +190,7 @@ class HasDynamicGetattr(object):
 
 for elem in HasDynamicGetattr():
     pass
+
+
+# Regression test for https://github.com/PyCQA/pylint/issues/6372
+string_twos = "".join(str(*y) for _, *y in [[1, 2], [1, 2]])
