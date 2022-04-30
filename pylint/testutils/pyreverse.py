@@ -102,7 +102,7 @@ def get_functional_test_files(
 
 
 def _read_config(config_file: Path) -> TestFileOptions:
-    config = configparser.SafeConfigParser()
+    config = configparser.ConfigParser()
     config.read(str(config_file))
     return {
         "output_formats": config.get(
