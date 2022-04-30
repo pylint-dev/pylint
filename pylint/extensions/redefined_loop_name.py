@@ -39,7 +39,9 @@ class RedefinedLoopName(checkers.BaseChecker):
         for outer_for, outer_variables in self._loop_variables:
             if node_scope is not outer_for.scope():
                 continue
-            if node.name in outer_variables and not utils.in_for_else_branch(outer_for, node):
+            if node.name in outer_variables and not utils.in_for_else_branch(
+                outer_for, node
+            ):
                 self.add_message(
                     "redefined-loop-name",
                     args=(node.name, outer_for.fromlineno),
