@@ -57,7 +57,7 @@ class RedefinedLoopName(checkers.BaseChecker):
         assigned_to = [
             var
             for var in assigned_to
-            if not self.linter.config.dummy_variable_rgx.match(var)
+            if not self.linter.config.dummy_variables_rgx.match(var)
         ]
 
         node_scope = node.scope()
