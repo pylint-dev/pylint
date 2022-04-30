@@ -6,7 +6,7 @@
 
 from astroid import nodes
 
-from pylint import checkers, interfaces
+from pylint import checkers
 from pylint.checkers import utils
 from pylint.checkers.variables import in_for_else_branch
 from pylint.interfaces import HIGH
