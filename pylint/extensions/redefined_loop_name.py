@@ -4,14 +4,15 @@
 
 """Optional checker to warn when loop variables are overwritten in the loop's body."""
 
+from __future__ import annotations
+
 from astroid import nodes
 
-from pylint import checkers, interfaces
+from pylint import checkers
 from pylint.checkers import utils
 from pylint.checkers.variables import in_for_else_branch
 from pylint.interfaces import HIGH
 from pylint.lint import PyLinter
-from pylint.utils import utils as pylint_utils
 
 
 class RedefinedLoopName(checkers.BaseChecker):
@@ -28,9 +29,9 @@ class RedefinedLoopName(checkers.BaseChecker):
 
     def __init__(self, linter: PyLinter) -> None:
         super().__init__(linter)
-        self._loop_variables = []
+        self._loop_variables: list[tuple[nodes.For, list[str | None]]] = []
 
-    @utils.check_messages("redefined-loop-name")
+    @utils.only_required_for_messages("redefined-loop-name")
     def visit_assignname(self, node: nodes.AssignName) -> None:
         assign_type = node.assign_type()
         if not isinstance(assign_type, (nodes.Assign, nodes.AugAssign)):
@@ -48,14 +49,15 @@ class RedefinedLoopName(checkers.BaseChecker):
                 )
                 break
 
-    @utils.check_messages("redefined-loop-name")
+    @utils.only_required_for_messages("redefined-loop-name")
     def visit_for(self, node: nodes.For) -> None:
         assigned_to = [a.name for a in node.target.nodes_of_class(nodes.AssignName)]
         # Only check variables that are used
-        dummy_rgx = pylint_utils.get_global_option(
-            self, "dummy-variables-rgx", default=None
-        )
-        assigned_to = [var for var in assigned_to if not dummy_rgx.match(var)]
+        assigned_to = [
+            var
+            for var in assigned_to
+            if not self.linter.config.dummy_variable_rgx.match(var)
+        ]
 
         node_scope = node.scope()
         for variable in assigned_to:
@@ -75,7 +77,7 @@ class RedefinedLoopName(checkers.BaseChecker):
 
         self._loop_variables.append((node, assigned_to))
 
-    @utils.check_messages("redefined-loop-name")
+    @utils.only_required_for_messages("redefined-loop-name")
     def leave_for(self, node: nodes.For) -> None:  # pylint: disable=unused-argument
         self._loop_variables.pop()
 
