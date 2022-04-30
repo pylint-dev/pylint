@@ -5,6 +5,16 @@
 from __future__ import annotations
 
 import argparse
+import configparser
+import shlex
+import sys
+from pathlib import Path
+from typing import NamedTuple
+
+if sys.version_info >= (3, 8):
+    from typing import TypedDict
+else:
+    from typing_extensions import TypedDict
 
 
 # This class could and should be replaced with a simple dataclass when support for Python < 3.7 is dropped.
@@ -54,3 +64,51 @@ class PyreverseConfig(
         self.ignore_list = ignore_list
         self.project = project
         self.output_directory = output_directory
+
+
+class TestFileOptions(TypedDict):
+    output_formats: list[str]
+    command_line_args: list[str]
+
+
+class FunctionalPyreverseTestfile(NamedTuple):
+    """Named tuple containing the test file and the expected output."""
+
+    source: Path
+    options: TestFileOptions
+
+
+def get_functional_test_files(
+    root_directory: Path,
+) -> list[FunctionalPyreverseTestfile]:
+    """Get all functional test files from the given directory."""
+    test_files = []
+    for path in root_directory.rglob("*.py"):
+        config_file = path.with_suffix(".rc")
+        if config_file.exists():
+            test_files.append(
+                FunctionalPyreverseTestfile(
+                    source=path, options=_read_config(config_file)
+                )
+            )
+        else:
+            test_files.append(
+                FunctionalPyreverseTestfile(
+                    source=path,
+                    options={"output_formats": ["mmd"], "command_line_args": []},
+                )
+            )
+    return test_files
+
+
+def _read_config(config_file: Path) -> TestFileOptions:
+    config = configparser.ConfigParser()
+    config.read(str(config_file))
+    return {
+        "output_formats": config.get(
+            "testoptions", "output_formats", fallback="mmd"
+        ).split(","),
+        "command_line_args": shlex.split(
+            config.get("testoptions", "command_line_args", fallback="")
+        ),
+    }
