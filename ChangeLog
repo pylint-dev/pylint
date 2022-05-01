@@ -29,6 +29,11 @@ Release date: TBA
 
   Closes #5930
 
+* Fix false positive for ``unused-variable`` for classes inside functions
+  and where a metaclass is provided via a call.
+
+  Closes #4020
+
 
 What's New in Pylint 2.13.7?
 ============================
