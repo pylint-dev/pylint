@@ -529,8 +529,13 @@ def _get_all_attribute_assignments(
     node: astroid.FunctionDef, name: str | None = None
 ) -> set[str]:
     attributes = set()
-    for child in node.nodes_of_class(astroid.Assign):
-        for assign_target in child.targets:
+    for child in node.nodes_of_class((astroid.Assign, astroid.AnnAssign)):
+        targets = []
+        if isinstance(child, astroid.Assign):
+            targets = child.targets
+        elif isinstance(child, astroid.AnnAssign):
+            targets = [child.target]
+        for assign_target in targets:
             if not isinstance(assign_target, astroid.AssignAttr):
                 continue
             if not isinstance(assign_target.expr, astroid.Name):
@@ -541,7 +546,7 @@ def _get_all_attribute_assignments(
 
 
 def _enum_has_attribute(
-    owner: Union[astroid.Instance, nodes.ClassDef], node: nodes.Attribute
+    owner: astroid.Instance | nodes.ClassDef, node: nodes.Attribute
 ) -> bool:
     if isinstance(owner, astroid.Instance):
         enum_def = next(

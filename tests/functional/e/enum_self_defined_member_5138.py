@@ -33,8 +33,8 @@ class Length(Enum):
     MILE = "mile", "m", True
 
     def __init__(self, text: str, unit: str,  is_imperial: bool = False):
-        self.text = text
-        self.unit = unit
+        self.text: str = text
+        self.unit: str = unit
         if is_imperial:
             self.suffix = " (imp)"
         else:
