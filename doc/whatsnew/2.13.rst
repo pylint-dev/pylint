@@ -625,6 +625,11 @@ Other Changes
 
   Closes #5930
 
+* Fix a false positive for ``undefined-loop-variable`` for a variable used in a lambda
+  inside the first of multiple loops.
+
+  Closes #6419
+
 * Fix a crash when linting a file that passes an integer ``mode=`` to
   ``open``
 
