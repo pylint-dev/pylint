@@ -20,6 +20,16 @@ def func_scope():
     return Class2
 
 
+def func_scope_with_metaclass_from_call():
+    def get_type():
+        return type
+
+    class Class2(metaclass=get_type()):
+        pass
+
+    return Class2
+
+
 class ClassScope:
     class Meta3(type):
         pass
