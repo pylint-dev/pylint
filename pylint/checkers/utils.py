@@ -1745,6 +1745,7 @@ def in_type_checking_block(node: nodes.NodeNG) -> bool:
     )
 
 
+@lru_cache()
 def in_for_else_branch(parent: nodes.NodeNG, stmt: nodes.Statement) -> bool:
     """Returns True if stmt in inside the else branch for a parent For stmt."""
     return isinstance(parent, nodes.For) and any(
