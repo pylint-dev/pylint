@@ -1,2 +1,2 @@
-for item in names:
-    lowercased = item.lower()
+for name in names:
+    lowercased_name = name.lower()

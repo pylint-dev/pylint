@@ -1,2 +1,2 @@
-for item in names:
-    item = item.lower()  # [redefined-loop-name]
+for name in names:
+    name = name.lower()  # [redefined-loop-name]
