@@ -28,7 +28,7 @@ class RedefinedLoopName(checkers.BaseChecker):
 
     def __init__(self, linter: PyLinter) -> None:
         super().__init__(linter)
-        self._loop_variables: list[tuple[nodes.For, list[str]]] = []
+        self._loop_variables: list[tuple[nodes.For, list[str], nodes.NodeNG]] = []
 
     @utils.only_required_for_messages("redefined-loop-name")
     def visit_assignname(self, node: nodes.AssignName) -> None:
@@ -36,8 +36,8 @@ class RedefinedLoopName(checkers.BaseChecker):
         if not isinstance(assign_type, (nodes.Assign, nodes.AugAssign)):
             return
         node_scope = node.scope()
-        for outer_for, outer_variables in self._loop_variables:
-            if node_scope is not outer_for.scope():
+        for outer_for, outer_variables, outer_for_scope in self._loop_variables:
+            if node_scope is not outer_for_scope:
                 continue
             if node.name in outer_variables and not utils.in_for_else_branch(
                 outer_for, node
@@ -62,8 +62,8 @@ class RedefinedLoopName(checkers.BaseChecker):
 
         node_scope = node.scope()
         for variable in assigned_to:
-            for outer_for, outer_variables in self._loop_variables:
-                if node_scope is not outer_for.scope():
+            for outer_for, outer_variables, outer_for_scope in self._loop_variables:
+                if node_scope is not outer_for_scope:
                     continue
                 if variable in outer_variables and not utils.in_for_else_branch(
                     outer_for, node
@@ -76,7 +76,7 @@ class RedefinedLoopName(checkers.BaseChecker):
                     )
                     break
 
-        self._loop_variables.append((node, assigned_to))
+        self._loop_variables.append((node, assigned_to, node.scope()))
 
     @utils.only_required_for_messages("redefined-loop-name")
     def leave_for(self, node: nodes.For) -> None:  # pylint: disable=unused-argument
