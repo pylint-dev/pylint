@@ -1054,7 +1054,6 @@ class VariablesChecker(BaseChecker):
         super().__init__(linter)
         self._to_consume: list[NamesConsumer] = []
         self._checking_mod_attr = None
-        self._loop_variables = []
         self._type_annotation_names = []
         self._except_handler_names_queue: list[
             tuple[nodes.ExceptHandler, nodes.AssignName]
