@@ -119,7 +119,7 @@ class DiagramWriter:
                 label=rel.name,
                 type_=EdgeType.ASSOCIATION,
             )
-        # generate mulitiplicities
+        # generate multiplicities
         for rel in diagram.get_relationships("multiplicity"):
             self.printer.emit_edge(
                 rel.from_object.fig_id,
