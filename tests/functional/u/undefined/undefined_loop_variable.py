@@ -103,3 +103,23 @@ bigger = [
     ]
     for item in lst
 ]
+
+
+def lambda_in_first_of_two_loops():
+    """https://github.com/PyCQA/pylint/issues/6419"""
+    my_list = []
+    for thing in my_list:
+        print_it = lambda: print(thing)  # pylint: disable=cell-var-from-loop
+        print_it()
+
+    for thing in my_list:
+        print(thing)
+
+
+def variable_name_assigned_in_body_of_second_loop():
+    for alias in tuple(bigger):
+        continue
+    for _ in range(3):
+        alias = True
+        if alias:
+            print(alias)
