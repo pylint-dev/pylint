@@ -2198,7 +2198,7 @@ class VariablesChecker(BaseChecker):
         # the usage is safe because the function will not be defined either if
         # the variable is not defined.
         scope = node.scope()
-        # FunctionDef subclasses Lambda due to suboptimal ontology. Check both.
+        # FunctionDef subclasses Lambda due to a curious ontology. Check both.
         # See https://github.com/PyCQA/astroid/issues/291 (fix abandoned in a stale branch)
         if isinstance(scope, nodes.Lambda) and any(
             asmt.scope().parent_of(scope) for asmt in astmts

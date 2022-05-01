@@ -281,7 +281,6 @@ stmt
 str
 stringified
 subclasses
-suboptimal
 subdicts
 subgraphs
 sublists
