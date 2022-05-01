@@ -122,7 +122,6 @@ def test_check_package___init__(finalize_linter: PyLinter) -> None:
     assert checked == ["__init__"]
 
 
-# pylint: disable-next=fixme
 # TODO: 3.0: Test are broken because of property shenanigans of config attribute
 # Re-enable after some of the old attributes have been removed after deprecation period
 @pytest.mark.xfail

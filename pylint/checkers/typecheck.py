@@ -526,7 +526,6 @@ def _emit_no_member(
 def _determine_callable(
     callable_obj: nodes.NodeNG,
 ) -> tuple[CallableObjects, int, str]:
-    # pylint: disable=fixme
     # TODO: The typing of the second return variable is actually Literal[0,1]
     # We need typing on astroid.NodeNG.implicit_parameters for this
     # TODO: The typing of the third return variable can be narrowed to a Literal
@@ -1828,7 +1827,6 @@ accessed. Python regular expressions are accepted.",
                 self.add_message("unsupported-binary-operation", args=msg, node=node)
                 break
 
-    # pylint: disable-next=fixme
     # TODO: This check was disabled (by adding the leading underscore)
     # due to false positives several years ago - can we re-enable it?
     # https://github.com/PyCQA/pylint/issues/6359
@@ -1837,7 +1835,6 @@ accessed. Python regular expressions are accepted.",
         """Detect TypeErrors for binary arithmetic operands."""
         self._check_binop_errors(node)
 
-    # pylint: disable-next=fixme
     # TODO: This check was disabled (by adding the leading underscore)
     # due to false positives several years ago - can we re-enable it?
     # https://github.com/PyCQA/pylint/issues/6359

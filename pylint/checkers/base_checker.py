@@ -189,7 +189,7 @@ class BaseChecker(_ArgumentsProvider):
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             if isinstance(self, (BaseTokenChecker, BaseRawFileChecker)):
                 default_scope = WarningScope.LINE
-            # TODO: 3.0: Remove deprecated if-statement # pylint: disable=fixme
+            # TODO: 3.0: Remove deprecated if-statement
             elif implements(self, (IRawChecker, ITokenChecker)):
                 warnings.warn(  # pragma: no cover
                     "Checkers should subclass BaseTokenChecker or BaseRawFileChecker"

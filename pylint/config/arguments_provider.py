@@ -20,7 +20,7 @@ class UnsupportedAction(Exception):
     """Raised by set_option when it doesn't know what to do for an action."""
 
     def __init__(self, *args: object) -> None:
-        # TODO: 3.0: Remove deprecated exception # pylint: disable=fixme
+        # TODO: 3.0: Remove deprecated exception
         warnings.warn(
             "UnsupportedAction has been deprecated and will be removed in pylint 3.0",
             DeprecationWarning,
@@ -50,7 +50,7 @@ class _ArgumentsProvider:
 
     @property
     def level(self) -> int:
-        # TODO: 3.0: Remove deprecated attribute # pylint: disable=fixme
+        # TODO: 3.0: Remove deprecated attribute
         warnings.warn(
             "The level attribute has been deprecated. It was used to display the checker in the help or not,"
             " and everything is displayed in the help now. It will be removed in pylint 3.0.",
@@ -60,7 +60,7 @@ class _ArgumentsProvider:
 
     @level.setter
     def level(self, value: int) -> None:
-        # TODO: 3.0: Remove deprecated attribute # pylint: disable=fixme
+        # TODO: 3.0: Remove deprecated attribute
         warnings.warn(
             "Setting the level attribute has been deprecated. It was used to display the checker in the help or not,"
             " and everything is displayed in the help now. It will be removed in pylint 3.0.",
@@ -70,7 +70,7 @@ class _ArgumentsProvider:
 
     @property
     def config(self) -> argparse.Namespace:
-        # TODO: 3.0: Remove deprecated attribute # pylint: disable=fixme
+        # TODO: 3.0: Remove deprecated attribute
         warnings.warn(
             "The checker-specific config attribute has been deprecated. Please use "
             "'linter.config' to access the global configuration object.",
@@ -124,7 +124,7 @@ class _ArgumentsProvider:
     # pylint: disable-next=unused-argument
     def set_option(self, optname, value, action=None, optdict=None):  # pragma: no cover
         """DEPRECATED: Method called to set an option (registered in the options list)."""
-        # TODO: 3.0: Remove deprecated method. # pylint: disable=fixme
+        # TODO: 3.0: Remove deprecated method.
         warnings.warn(
             "set_option has been deprecated. You can use _arguments_manager.set_option "
             "or linter.set_option to set options on the global configuration object.",

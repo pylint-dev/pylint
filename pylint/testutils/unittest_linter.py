@@ -38,7 +38,6 @@ class UnittestLinter(PyLinter):
         self,
         msgid: str,
         line: int | None = None,
-        # pylint: disable=fixme
         # TODO: Make node non optional
         node: nodes.NodeNG | None = None,
         args: Any = None,

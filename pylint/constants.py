@@ -48,7 +48,6 @@ MSG_TYPES_STATUS = {"I": 0, "C": 16, "R": 8, "W": 4, "E": 2, "F": 1}
 MAIN_CHECKER_NAME = "master"
 
 USER_HOME = os.path.expanduser("~")
-# pylint: disable-next=fixme
 # TODO: 3.0: Remove in 3.0 with all the surrounding code
 OLD_DEFAULT_PYLINT_HOME = ".pylint.d"
 DEFAULT_PYLINT_HOME = platformdirs.user_cache_dir("pylint")

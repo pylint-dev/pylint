@@ -21,7 +21,6 @@ from pylint.utils import ASTWalker
 class CheckerTestCase:
     """A base testcase class for unit testing individual checker classes."""
 
-    # pylint: disable-next=fixme
     # TODO: Figure out way to type this as type[BaseChecker] while also
     # setting self.checker correctly.
     CHECKER_CLASS: Any
@@ -79,7 +78,6 @@ class CheckerTestCase:
             assert expected_msg.line == gotten_msg.line, msg
             assert expected_msg.col_offset == gotten_msg.col_offset, msg
             if PY38_PLUS:
-                # pylint: disable=fixme
                 # TODO: 3.0: Remove deprecated missing arguments and remove the warning
                 if not expected_msg.end_line == gotten_msg.end_line:
                     warnings.warn(  # pragma: no cover
