@@ -88,7 +88,7 @@ def test_option_values(
 
 def test_default_values() -> None:
     """Test default values for package or class diagrams."""
-    # TODO : should test difference between default values for package or class diagrams pylint: disable=fixme
+    # TODO : should test difference between default values for package or class diagrams
 
 
 class TestDefaultDiadefGenerator:

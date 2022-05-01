@@ -14,7 +14,7 @@ class ConfigurationMixIn(OptionsManagerMixIn, OptionsProviderMixIn):
     """
 
     def __init__(self, *args, **kwargs):
-        # TODO: 3.0: Remove deprecated class # pylint: disable=fixme
+        # TODO: 3.0: Remove deprecated class
         warnings.warn(
             "ConfigurationMixIn has been deprecated and will be removed in pylint 3.0",
             DeprecationWarning,

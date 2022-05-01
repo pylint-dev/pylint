@@ -235,7 +235,6 @@ class PyLinter(
         options: Options = (),
         reporter: reporters.BaseReporter | reporters.MultiReporter | None = None,
         option_groups: tuple[tuple[str, str], ...] = (),
-        # pylint: disable-next=fixme
         # TODO: Deprecate passing the pylintrc parameter
         pylintrc: str | None = None,  # pylint: disable=unused-argument
     ) -> None:
@@ -314,7 +313,7 @@ class PyLinter(
 
     @property
     def option_groups(self) -> tuple[tuple[str, str], ...]:
-        # TODO: 3.0: Remove deprecated attribute # pylint: disable=fixme
+        # TODO: 3.0: Remove deprecated attribute
         warnings.warn(
             "The option_groups attribute has been deprecated and will be removed in pylint 3.0",
             DeprecationWarning,
@@ -706,7 +705,6 @@ class PyLinter(
         """
         self.initialize()
         if not isinstance(files_or_modules, (list, tuple)):
-            # pylint: disable-next=fixme
             # TODO: 3.0: Remove deprecated typing and update docstring
             warnings.warn(
                 "In pylint 3.0, the checkers check function will only accept sequence of string",
@@ -871,7 +869,7 @@ class PyLinter(
             return
         self.reporter.on_set_current_module(modname or "", filepath)
         if modname is None:
-            # TODO: 3.0: Remove all modname or ""'s in this method # pylint: disable=fixme
+            # TODO: 3.0: Remove all modname or ""'s in this method
             warnings.warn(
                 (
                     "In pylint 3.0 modname should be a string so that it can be used to "
@@ -899,7 +897,7 @@ class PyLinter(
             for c in _checkers
             if isinstance(c, checkers.BaseTokenChecker) and c is not self
         ]
-        # TODO: 3.0: Remove deprecated for-loop # pylint: disable=fixme
+        # TODO: 3.0: Remove deprecated for-loop
         for c in _checkers:
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -918,7 +916,7 @@ class PyLinter(
         rawcheckers = [
             c for c in _checkers if isinstance(c, checkers.BaseRawFileChecker)
         ]
-        # TODO: 3.0: Remove deprecated if-statement # pylint: disable=fixme
+        # TODO: 3.0: Remove deprecated if-statement
         for c in _checkers:
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -1006,7 +1004,7 @@ class PyLinter(
             ast_node, walker, rawcheckers, tokencheckers
         )
 
-        # TODO: 3.0: Remove unnecessary assertion # pylint: disable=fixme
+        # TODO: 3.0: Remove unnecessary assertion
         assert self.current_name
 
         self.stats.by_module[self.current_name]["statement"] = (

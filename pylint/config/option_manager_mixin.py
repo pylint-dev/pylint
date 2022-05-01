@@ -64,7 +64,7 @@ class OptionsManagerMixIn:
     """Handle configuration from both a configuration file and command line options."""
 
     def __init__(self, usage):
-        # TODO: 3.0: Remove deprecated class # pylint: disable=fixme
+        # TODO: 3.0: Remove deprecated class
         warnings.warn(
             "OptionsManagerMixIn has been deprecated and will be removed in pylint 3.0",
             DeprecationWarning,

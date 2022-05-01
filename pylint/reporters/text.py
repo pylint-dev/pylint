@@ -130,7 +130,6 @@ def colorize_ansi(
 
     :return: the ANSI escaped string
     """
-    # pylint: disable-next=fixme
     # TODO: 3.0: Remove deprecated typing and only accept MessageStyle as parameter
     if not isinstance(msg_style, MessageStyle):
         warnings.warn(
@@ -257,7 +256,6 @@ class ColorizedTextReporter(TextReporter):
         ) = None,
     ) -> None:
         super().__init__(output)
-        # pylint: disable-next=fixme
         # TODO: 3.0: Remove deprecated typing and only accept ColorMappingDict as color_mapping parameter
         if color_mapping and not isinstance(
             list(color_mapping.values())[0], MessageStyle

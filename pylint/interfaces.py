@@ -73,7 +73,7 @@ def implements(
     interface: type[Interface] | tuple[type[Interface], ...],
 ) -> bool:
     """Does the given object (maybe an instance or class) implement the interface."""
-    # TODO: 3.0: Remove deprecated function # pylint: disable=fixme
+    # TODO: 3.0: Remove deprecated function
     warnings.warn(
         "implements has been deprecated in favour of using basic "
         "inheritance patterns without using __implements__.",
