@@ -28,7 +28,7 @@ class RedefinedLoopName(checkers.BaseChecker):
 
     def __init__(self, linter: PyLinter) -> None:
         super().__init__(linter)
-        self._loop_variables: list[tuple[nodes.For, list[str], nodes.NodeNG]] = []
+        self._loop_variables: list[tuple[nodes.For, list[str], nodes.LocalsDictNodeNG]] = []
 
     @utils.only_required_for_messages("redefined-loop-name")
     def visit_assignname(self, node: nodes.AssignName) -> None:
