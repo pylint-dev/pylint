@@ -607,6 +607,11 @@ Other Changes
 
   Closes #5769
 
+* Fix a false positive for ``undefined-loop-variable`` when the ``else`` of a ``for``
+  loop raises or returns.
+
+  Closes #5971
+
 * Only raise ``not-callable`` when all the inferred values of a property are not callable.
 
   Closes #5931

@@ -2242,11 +2242,16 @@ class VariablesChecker(BaseChecker):
         ):
             return
 
-        # For functions we can do more by inferring the length of the itered object
         if not isinstance(assign, nodes.For):
             self.add_message("undefined-loop-variable", args=node.name, node=node)
             return
+        if any(
+            isinstance(else_stmt, (nodes.Return, nodes.Raise))
+            for else_stmt in assign.orelse
+        ):
+            return
 
+        # For functions we can do more by inferring the length of the itered object
         try:
             inferred = next(assign.iter.infer())
         except astroid.InferenceError:

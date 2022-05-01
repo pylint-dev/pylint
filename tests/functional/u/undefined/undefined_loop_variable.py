@@ -91,6 +91,22 @@ def test(content):
         handle_line(layne)
 
 
+def for_else_returns(iterable):
+    for thing in iterable:
+        break
+    else:
+        return
+    print(thing)
+
+
+def for_else_raises(iterable):
+    for thing in iterable:
+        break
+    else:
+        raise Exception
+    print(thing)
+
+
 lst = []
 lst2 = [1, 2, 3]
 
