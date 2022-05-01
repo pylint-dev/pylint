@@ -34,6 +34,11 @@ Release date: TBA
 
   Closes #5930
 
+* Fix a false positive for ``undefined-loop-variable`` when the ``else`` of a ``for``
+  loop raises or returns.
+
+  Closes #5971
+
 * Fix false positive for ``unused-variable`` for classes inside functions
   and where a metaclass is provided via a call.
 

@@ -2207,6 +2207,7 @@ class VariablesChecker(BaseChecker):
         scope = node.scope()
         # FunctionDef subclasses Lambda due to a curious ontology. Check both.
         # See https://github.com/PyCQA/astroid/issues/291
+        # pylint: disable-next=fixme
         # TODO: Revisit when astroid 3.0 includes the change
         if isinstance(scope, nodes.Lambda) and any(
             asmt.scope().parent_of(scope) for asmt in astmts
@@ -2252,11 +2253,16 @@ class VariablesChecker(BaseChecker):
         ):
             return
 
-        # For functions we can do more by inferring the length of the itered object
         if not isinstance(assign, nodes.For):
             self.add_message("undefined-loop-variable", args=node.name, node=node)
             return
+        if any(
+            isinstance(else_stmt, (nodes.Return, nodes.Raise))
+            for else_stmt in assign.orelse
+        ):
+            return
 
+        # For functions we can do more by inferring the length of the itered object
         try:
             inferred = next(assign.iter.infer())
         except astroid.InferenceError:
