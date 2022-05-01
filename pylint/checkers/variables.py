@@ -2811,6 +2811,10 @@ class VariablesChecker(BaseChecker):
             while not isinstance(attr, nodes.Name):
                 attr = attr.expr
             name = attr.name
+        elif isinstance(klass._metaclass, nodes.Call) and isinstance(
+            klass._metaclass.func, nodes.Name
+        ):
+            name = klass._metaclass.func.name
         elif metaclass:
             name = metaclass.root().name
 
