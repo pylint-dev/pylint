@@ -1,8 +1,10 @@
 var = 1
 
-def foo(x):
+
+def foo():
     print(var)
     return 10
+
 
 var = foo()
 print(var)
