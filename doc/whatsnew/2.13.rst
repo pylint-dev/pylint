@@ -621,6 +621,16 @@ Other Changes
 
   Closes #5931
 
+* Fix a false positive for ``undefined-loop-variable`` when the ``else`` of a ``for``
+  loop raises or returns.
+
+  Closes #5971
+
+* Fix false positive for ``unused-variable`` for classes inside functions
+  and where a metaclass is provided via a call.
+
+  Closes #4020
+
 * Avoid reporting ``superfluous-parens`` on expressions using the ``is not`` operator.
 
   Closes #5930
@@ -629,6 +639,11 @@ Other Changes
   inside the first of multiple loops.
 
   Closes #6419
+
+* Fix false positive for ``unsubscriptable-object`` in Python 3.8 and below for
+  statements guarded by ``if TYPE_CHECKING``.
+
+  Closes #3979
 
 * Fix a crash when linting a file that passes an integer ``mode=`` to
   ``open``

@@ -264,7 +264,7 @@ Release date: TBA
   (Ie. not necessarily at the end)
 
 
-What's New in Pylint 2.13.8?
+What's New in Pylint 2.13.9?
 ============================
 Release date: TBA
 
@@ -287,6 +287,40 @@ Release date: TBA
   and where a metaclass is provided via a call.
 
   Closes #4020
+
+
+What's New in Pylint 2.13.8?
+============================
+Release date: 2022-05-02
+
+* Fix a false positive for ``undefined-loop-variable`` for a variable used in a lambda
+  inside the first of multiple loops.
+
+  Closes #6419
+
+* Fix a crash when linting a file that passes an integer ``mode=`` to
+  ``open``
+
+  Closes #6414
+
+* Avoid reporting ``superfluous-parens`` on expressions using the ``is not`` operator.
+
+  Closes #5930
+
+* Fix a false positive for ``undefined-loop-variable`` when the ``else`` of a ``for``
+  loop raises or returns.
+
+  Closes #5971
+
+* Fix false positive for ``unused-variable`` for classes inside functions
+  and where a metaclass is provided via a call.
+
+  Closes #4020
+
+* Fix false positive for ``unsubscriptable-object`` in Python 3.8 and below for
+  statements guarded by ``if TYPE_CHECKING``.
+
+  Closes #3979
 
 
 What's New in Pylint 2.13.7?
