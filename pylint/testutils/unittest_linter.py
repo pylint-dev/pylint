@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import sys
 from typing import Any
 
 from astroid import nodes
@@ -12,17 +13,22 @@ from pylint.interfaces import UNDEFINED, Confidence
 from pylint.lint import PyLinter
 from pylint.testutils.output_line import MessageTest
 
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
+
 
 class UnittestLinter(PyLinter):
     """A fake linter class to capture checker messages."""
 
     # pylint: disable=unused-argument
 
-    def __init__(self):
-        self._messages = []
+    def __init__(self) -> None:
+        self._messages: list[MessageTest] = []
         super().__init__()
 
-    def release_messages(self):
+    def release_messages(self) -> list[MessageTest]:
         try:
             return self._messages
         finally:
@@ -32,7 +38,6 @@ class UnittestLinter(PyLinter):
         self,
         msgid: str,
         line: int | None = None,
-        # pylint: disable=fixme
         # TODO: Make node non optional
         node: nodes.NodeNG | None = None,
         args: Any = None,
@@ -81,5 +86,5 @@ class UnittestLinter(PyLinter):
         )
 
     @staticmethod
-    def is_message_enabled(*unused_args, **unused_kwargs):
+    def is_message_enabled(*unused_args: Any, **unused_kwargs: Any) -> Literal[True]:
         return True

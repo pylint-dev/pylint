@@ -1,4 +1,4 @@
-;; Configure flymake for python
+;; Configure Flymake for python
 (when (load "flymake" t)
   (defun flymake-pylint-init ()
     (let* ((temp-file (flymake-init-create-temp-buffer-copy

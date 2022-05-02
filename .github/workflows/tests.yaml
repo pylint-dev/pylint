@@ -26,12 +26,10 @@ jobs:
       python-key: ${{ steps.generate-python-key.outputs.key }}
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.0.0
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v3.0.2
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v3.1.1
+        uses: actions/setup-python@v3.1.2
         with:
           python-version: ${{ matrix.python-version }}
       - name: Generate partial Python venv restore key
@@ -61,6 +59,10 @@ jobs:
         run: |
           . venv/bin/activate
           pytest -vv --durations=20 --benchmark-disable --cov --cov-report= tests/
+      - name: Run functional tests with minimal messages config
+        run: |
+          . venv/bin/activate
+          pytest -vv --minimal-messages-config tests/test_functional.py
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v3.0.0
         with:
@@ -79,10 +81,10 @@ jobs:
       COVERAGERC_FILE: .coveragerc
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.0.0
+        uses: actions/checkout@v3.0.2
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v3.1.1
+        uses: actions/setup-python@v3.1.2
         with:
           python-version: ${{ matrix.python-version }}
       - name: Restore Python virtual environment
@@ -123,10 +125,10 @@ jobs:
         python-version: [3.8]
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.0.0
+        uses: actions/checkout@v3.0.2
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v3.1.1
+        uses: actions/setup-python@v3.1.2
         with:
           python-version: ${{ matrix.python-version }}
       - name: Restore Python virtual environment
@@ -173,20 +175,16 @@ jobs:
       fail-fast: false
       matrix:
         python-version: [3.7, 3.8, 3.9, "3.10"]
-    outputs:
-      python-key: ${{ steps.generate-python-key.outputs.key }}
     steps:
       - name: Set temp directory
         run: echo "TEMP=$env:USERPROFILE\AppData\Local\Temp" >> $env:GITHUB_ENV
         # Workaround to set correct temp directory on Windows
         # https://github.com/actions/virtual-environments/issues/712
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.0.0
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v3.0.2
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v3.1.1
+        uses: actions/setup-python@v3.1.2
         with:
           python-version: ${{ matrix.python-version }}
       - name: Generate partial Python venv restore key
@@ -225,16 +223,12 @@ jobs:
       fail-fast: false
       matrix:
         python-version: ["pypy-3.7"]
-    outputs:
-      python-key: ${{ steps.generate-python-key.outputs.key }}
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.0.0
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v3.0.2
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v3.1.1
+        uses: actions/setup-python@v3.1.2
         with:
           python-version: ${{ matrix.python-version }}
       - name: Generate partial Python venv restore key

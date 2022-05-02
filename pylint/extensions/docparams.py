@@ -16,7 +16,6 @@ from pylint.checkers import BaseChecker
 from pylint.checkers import utils as checker_utils
 from pylint.extensions import _check_docs_utils as utils
 from pylint.extensions._check_docs_utils import Docstring
-from pylint.interfaces import IAstroidChecker
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -42,8 +41,6 @@ class DocstringParameterChecker(BaseChecker):
 
     to the ``MASTER`` section of your ``.pylintrc``.
     """
-
-    __implements__ = IAstroidChecker
 
     name = "parameter_documentation"
     msgs = {
@@ -494,7 +491,7 @@ class DocstringParameterChecker(BaseChecker):
         * Parameters mentioned in the parameter documentation that don't or no
           longer exist in the function parameter list are noticed.
         * If the text "For the parameters, see" or "For the other parameters,
-          see" (ignoring additional whitespace) is mentioned in the docstring,
+          see" (ignoring additional white-space) is mentioned in the docstring,
           missing parameter documentation is tolerated.
         * If there's no Sphinx style, Google style or NumPy style parameter
           documentation at all, i.e. ``:param`` is never mentioned etc., the

@@ -3,6 +3,7 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 import optparse  # pylint: disable=deprecated-module
+import warnings
 
 from pylint.config.option import Option
 
@@ -18,6 +19,11 @@ def _level_options(group, outputlevel):
 
 class OptionParser(optparse.OptionParser):
     def __init__(self, option_class, *args, **kwargs):
+        # TODO: 3.0: Remove deprecated class
+        warnings.warn(
+            "OptionParser has been deprecated and will be removed in pylint 3.0",
+            DeprecationWarning,
+        )
         super().__init__(option_class=Option, *args, **kwargs)
 
     def format_option_help(self, formatter=None):

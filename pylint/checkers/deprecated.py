@@ -43,7 +43,7 @@ class DeprecatedMixin(BaseChecker):
             "The argument is marked as deprecated and will be removed in the future.",
         ),
         "W0402": (
-            "Uses of a deprecated module %r",
+            "Deprecated module %r",
             "deprecated-module",
             "A module marked as deprecated is imported.",
         ),
@@ -59,7 +59,7 @@ class DeprecatedMixin(BaseChecker):
         ),
     }
 
-    @utils.check_messages(
+    @utils.only_required_for_messages(
         "deprecated-method",
         "deprecated-argument",
         "deprecated-class",
@@ -71,7 +71,7 @@ class DeprecatedMixin(BaseChecker):
             # Calling entry point for deprecation check logic.
             self.check_deprecated_method(node, inferred)
 
-    @utils.check_messages(
+    @utils.only_required_for_messages(
         "deprecated-module",
         "deprecated-class",
     )
@@ -93,7 +93,7 @@ class DeprecatedMixin(BaseChecker):
         # pylint: disable=no-self-use
         return ()
 
-    @utils.check_messages("deprecated-decorator")
+    @utils.only_required_for_messages("deprecated-decorator")
     def visit_decorators(self, node: nodes.Decorators) -> None:
         """Triggered when a decorator statement is seen."""
         children = list(node.get_children())
@@ -107,7 +107,7 @@ class DeprecatedMixin(BaseChecker):
         if qname in self.deprecated_decorators():
             self.add_message("deprecated-decorator", node=node, args=qname)
 
-    @utils.check_messages(
+    @utils.only_required_for_messages(
         "deprecated-module",
         "deprecated-class",
     )

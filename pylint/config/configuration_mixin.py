@@ -2,16 +2,23 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+import warnings
+
 from pylint.config.option_manager_mixin import OptionsManagerMixIn
 from pylint.config.options_provider_mixin import OptionsProviderMixIn
 
 
 class ConfigurationMixIn(OptionsManagerMixIn, OptionsProviderMixIn):
     """Basic mixin for simple configurations which don't need the
-    manager / providers model
+    manager / providers model.
     """
 
     def __init__(self, *args, **kwargs):
+        # TODO: 3.0: Remove deprecated class
+        warnings.warn(
+            "ConfigurationMixIn has been deprecated and will be removed in pylint 3.0",
+            DeprecationWarning,
+        )
         if not args:
             kwargs.setdefault("usage", "")
         OptionsManagerMixIn.__init__(self, *args, **kwargs)

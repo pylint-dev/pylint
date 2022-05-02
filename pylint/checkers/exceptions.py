@@ -13,8 +13,9 @@ from typing import TYPE_CHECKING, Any
 import astroid
 from astroid import nodes, objects
 
-from pylint import checkers, interfaces
+from pylint import checkers
 from pylint.checkers import utils
+from pylint.typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -54,7 +55,9 @@ def _is_raising(body: list) -> bool:
 
 OVERGENERAL_EXCEPTIONS = ("BaseException", "Exception")
 
-MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
+MSGS: dict[
+    str, MessageDefinitionTuple
+] = {  # pylint: disable=consider-using-namedtuple-or-dataclass
     "E0701": (
         "Bad except clauses order (%s)",
         "bad-except-order",
@@ -230,8 +233,6 @@ class ExceptionRaiseLeafVisitor(BaseVisitor):
 class ExceptionsChecker(checkers.BaseChecker):
     """Exception related checks."""
 
-    __implements__ = interfaces.IAstroidChecker
-
     name = "exceptions"
     msgs = MSGS
     options = (
@@ -252,7 +253,7 @@ class ExceptionsChecker(checkers.BaseChecker):
         self._builtin_exceptions = _builtin_exceptions()
         super().open()
 
-    @utils.check_messages(
+    @utils.only_required_for_messages(
         "misplaced-bare-raise",
         "raising-bad-type",
         "raising-non-exception",
@@ -451,21 +452,21 @@ class ExceptionsChecker(checkers.BaseChecker):
             if bare_raise:
                 self.add_message("try-except-raise", node=handler_having_bare_raise)
 
-    @utils.check_messages("wrong-exception-operation")
+    @utils.only_required_for_messages("wrong-exception-operation")
     def visit_binop(self, node: nodes.BinOp) -> None:
         if isinstance(node.parent, nodes.ExceptHandler):
             # except (V | A)
             suggestion = f"Did you mean '({node.left.as_string()}, {node.right.as_string()})' instead?"
             self.add_message("wrong-exception-operation", node=node, args=(suggestion,))
 
-    @utils.check_messages("wrong-exception-operation")
+    @utils.only_required_for_messages("wrong-exception-operation")
     def visit_compare(self, node: nodes.Compare) -> None:
         if isinstance(node.parent, nodes.ExceptHandler):
             # except (V < A)
             suggestion = f"Did you mean '({node.left.as_string()}, {', '.join(operand.as_string() for _, operand in node.ops)})' instead?"
             self.add_message("wrong-exception-operation", node=node, args=(suggestion,))
 
-    @utils.check_messages(
+    @utils.only_required_for_messages(
         "bare-except",
         "broad-except",
         "try-except-raise",

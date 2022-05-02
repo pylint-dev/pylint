@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING, Any
 import astroid
 from astroid import nodes
 
-from pylint import checkers, interfaces
+from pylint import checkers
 from pylint.checkers import utils
 from pylint.checkers.exceptions import _annotated_unpack_infer
 
@@ -21,12 +21,10 @@ if TYPE_CHECKING:
 
 class OverlappingExceptionsChecker(checkers.BaseChecker):
     """Checks for two or more exceptions in the same exception handler
-    clause that are identical or parts of the same inheritance hierarchy
+    clause that are identical or parts of the same inheritance hierarchy.
 
     (i.e. overlapping).
     """
-
-    __implements__ = interfaces.IAstroidChecker
 
     name = "overlap-except"
     msgs = {
@@ -38,7 +36,7 @@ class OverlappingExceptionsChecker(checkers.BaseChecker):
     }
     options = ()
 
-    @utils.check_messages("overlapping-except")
+    @utils.only_required_for_messages("overlapping-except")
     def visit_tryexcept(self, node: nodes.TryExcept) -> None:
         """Check for empty except."""
         for handler in node.handlers:

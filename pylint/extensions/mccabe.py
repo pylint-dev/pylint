@@ -13,8 +13,8 @@ from mccabe import PathGraph as Mccabe_PathGraph
 from mccabe import PathGraphingAstVisitor as Mccabe_PathGraphingAstVisitor
 
 from pylint import checkers
-from pylint.checkers.utils import check_messages
-from pylint.interfaces import HIGH, IAstroidChecker
+from pylint.checkers.utils import only_required_for_messages
+from pylint.interfaces import HIGH
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -148,7 +148,6 @@ class McCabeMethodChecker(checkers.BaseChecker):
     to validate a too complex code.
     """
 
-    __implements__ = IAstroidChecker
     name = "design"
 
     msgs = {
@@ -171,10 +170,10 @@ class McCabeMethodChecker(checkers.BaseChecker):
         ),
     )
 
-    @check_messages("too-complex")
+    @only_required_for_messages("too-complex")
     def visit_module(self, node: nodes.Module) -> None:
         """Visit an astroid.Module node to check too complex rating and
-        add message if is greater than max_complexity stored from options
+        add message if is greater than max_complexity stored from options.
         """
         visitor = PathGraphingAstVisitor()
         for child in node.body:

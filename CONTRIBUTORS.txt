@@ -141,6 +141,7 @@ contributors:
   * Added new useless-return checker,
   * Added new try-except-raise checker
 - Téo Bouvard <teobouvard@gmail.com>
+- Tim Martin <tim@asymptotic.co.uk>
 - Mihai Balint <balint.mihai@gmail.com>
 - Mark Bell <mark00bell@googlemail.com>
 - Konstantina Saketou <56515303+ksaketou@users.noreply.github.com>
@@ -182,7 +183,6 @@ contributors:
 - wtracy <afishionado@gmail.com>
 - jpkotta <jpkotta@gmail.com>
 - chohner <mail@chohner.com>
-- Tim Martin <tim@asymptotic.co.uk>
 - Tiago Honorato <61059243+tiagohonorato@users.noreply.github.com>
 - Steven M. Vascellaro <svascellaro@gmail.com>
 - Sergey B Kirpichev <skirpichev@gmail.com>
@@ -360,7 +360,7 @@ contributors:
 - Renat Galimov <renat2017@gmail.com>
 - Rebecca Turner <rbt@sent.as> (9999years)
 - Randall Leeds <randall@bleeds.info>
-- Ramiro Leal-Cavazos <ramiroleal050@gmail.com> (ramiro050): Fixed bug preventing pylint from working with emacs tramp
+- Ramiro Leal-Cavazos <ramiroleal050@gmail.com> (ramiro050): Fixed bug preventing pylint from working with Emacs tramp
 - Qwiddle13 <32040075+Qwiddle13@users.noreply.github.com>
 - Quentin Young <qlyoung@users.noreply.github.com>
 - Petr Pulc <petrpulc@gmail.com>: require whitespace around annotations

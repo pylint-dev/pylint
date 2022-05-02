@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import os
 import sys
+import warnings
 from typing import TYPE_CHECKING, TextIO
 from warnings import warn
 
@@ -30,6 +31,12 @@ class BaseReporter:
     """Name of the reporter."""
 
     def __init__(self, output: TextIO | None = None) -> None:
+        if getattr(self, "__implements__", None):
+            warnings.warn(
+                "Using the __implements__ inheritance pattern for BaseReporter is no "
+                "longer supported. Child classes should only inherit BaseReporter",
+                DeprecationWarning,
+            )
         self.linter: PyLinter
         self.section = 0
         self.out: TextIO = output or sys.stdout
@@ -43,7 +50,6 @@ class BaseReporter:
 
     def set_output(self, output: TextIO | None = None) -> None:
         """Set output stream."""
-        # pylint: disable-next=fixme
         # TODO: 3.0: Remove deprecated method
         warn(
             "'set_output' will be removed in 3.0, please use 'reporter.out = stream' instead",
@@ -88,6 +94,6 @@ class BaseReporter:
     def on_close(
         self,
         stats: LinterStats,
-        previous_stats: LinterStats,
+        previous_stats: LinterStats | None,
     ) -> None:
         """Hook called when a module finished analyzing."""

@@ -1,5 +1,5 @@
 # pylint: disable=invalid-name,too-many-public-methods,attribute-defined-outside-init
-# pylint: disable= useless-object-inheritance,too-few-public-methods
+# pylint: disable=useless-object-inheritance,too-few-public-methods
 """This module demonstrates a possible problem of pyLint with calling __init__ s
 from inherited classes.
 Initializations done there are not considered, which results in Error E0203 for

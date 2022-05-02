@@ -7,13 +7,14 @@ from __future__ import annotations
 import os
 import sys
 from collections.abc import Sequence
+from typing import NoReturn
 
 from pylint.__pkginfo__ import __version__
 
 # pylint: disable=import-outside-toplevel
 
 
-def run_pylint(argv: Sequence[str] | None = None):
+def run_pylint(argv: Sequence[str] | None = None) -> None:
     """Run pylint.
 
     argv can be a sequence of strings normally supplied as arguments on the command line
@@ -26,7 +27,7 @@ def run_pylint(argv: Sequence[str] | None = None):
         sys.exit(1)
 
 
-def run_epylint(argv: Sequence[str] | None = None):
+def run_epylint(argv: Sequence[str] | None = None) -> NoReturn:
     """Run epylint.
 
     argv can be a list of strings normally supplied as arguments on the command line
@@ -36,7 +37,7 @@ def run_epylint(argv: Sequence[str] | None = None):
     EpylintRun(argv)
 
 
-def run_pyreverse(argv: Sequence[str] | None = None):
+def run_pyreverse(argv: Sequence[str] | None = None) -> NoReturn:  # type: ignore[misc]
     """Run pyreverse.
 
     argv can be a sequence of strings normally supplied as arguments on the command line
@@ -46,7 +47,7 @@ def run_pyreverse(argv: Sequence[str] | None = None):
     PyreverseRun(argv or sys.argv[1:])
 
 
-def run_symilar(argv: Sequence[str] | None = None):
+def run_symilar(argv: Sequence[str] | None = None) -> NoReturn:
     """Run symilar.
 
     argv can be a sequence of strings normally supplied as arguments on the command line

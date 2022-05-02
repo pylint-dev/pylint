@@ -94,6 +94,10 @@ class _ConfigurationFileParser:
         if self.verbose_mode:
             print(f"Using config file {file_path}", file=sys.stderr)
 
-        if file_path.suffix == ".toml":
-            return self._parse_toml_file(file_path)
-        return self._parse_ini_file(file_path)
+        try:
+            if file_path.suffix == ".toml":
+                return self._parse_toml_file(file_path)
+            return self._parse_ini_file(file_path)
+        except (configparser.Error, tomllib.TOMLDecodeError) as e:
+            self.linter.add_message("config-parse-error", line=0, args=str(e))
+            return {}, []

@@ -1,1 +1,1 @@
-deprecated-module:6:0:6:13::Uses of a deprecated module 'binhex':UNDEFINED
+deprecated-module:6:0:6:13::Deprecated module 'binhex':UNDEFINED

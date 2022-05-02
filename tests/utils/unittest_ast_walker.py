@@ -8,7 +8,7 @@ import warnings
 
 import astroid
 
-from pylint.checkers.utils import check_messages
+from pylint.checkers.utils import only_required_for_messages
 from pylint.utils import ASTWalker
 
 
@@ -24,29 +24,29 @@ class TestASTWalker:
         def __init__(self) -> None:
             self.called: set[str] = set()
 
-        @check_messages("first-message")
+        @only_required_for_messages("first-message")
         def visit_module(self, module):  # pylint: disable=unused-argument
             self.called.add("module")
 
-        @check_messages("second-message")
+        @only_required_for_messages("second-message")
         def visit_call(self, module):
             raise NotImplementedError
 
-        @check_messages("second-message", "third-message")
+        @only_required_for_messages("second-message", "third-message")
         def visit_assignname(self, module):  # pylint: disable=unused-argument
             self.called.add("assignname")
 
-        @check_messages("second-message")
+        @only_required_for_messages("second-message")
         def leave_assignname(self, module):
             raise NotImplementedError
 
-    def test_check_messages(self) -> None:
+    def test_only_required_for_messages(self) -> None:
         linter = self.MockLinter(
             {"first-message": True, "second-message": False, "third-message": True}
         )
-        walker = ASTWalker(linter)
+        walker = ASTWalker(linter)  # type: ignore[arg-type]
         checker = self.Checker()
-        walker.add_checker(checker)
+        walker.add_checker(checker)  # type: ignore[arg-type]
         walker.walk(astroid.parse("x = func()"))
         assert {"module", "assignname"} == checker.called
 
@@ -55,14 +55,14 @@ class TestASTWalker:
             def __init__(self) -> None:
                 self.called = False
 
-            @check_messages("first-message")
+            @only_required_for_messages("first-message")
             def visit_assname(self, node):  # pylint: disable=unused-argument
                 self.called = True
 
         linter = self.MockLinter({"first-message": True})
-        walker = ASTWalker(linter)
+        walker = ASTWalker(linter)  # type: ignore[arg-type]
         checker = Checker()
-        walker.add_checker(checker)
+        walker.add_checker(checker)  # type: ignore[arg-type]
         with warnings.catch_warnings(record=True):
             warnings.simplefilter("always")
             walker.walk(astroid.parse("x = 1"))

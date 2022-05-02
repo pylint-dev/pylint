@@ -29,3 +29,5 @@ unspecified-encoding:155:0:155:26::Using open without explicitly specifying an e
 unspecified-encoding:158:0:158:35::Using open without explicitly specifying an encoding:UNDEFINED
 bad-open-mode:161:0:161:25::"""None"" is not a valid mode for open.":UNDEFINED
 unspecified-encoding:161:0:161:25::Using open without explicitly specifying an encoding:UNDEFINED
+bad-open-mode:164:0:164:19::"""2"" is not a valid mode for open.":UNDEFINED
+unspecified-encoding:164:0:164:19::Using open without explicitly specifying an encoding:UNDEFINED

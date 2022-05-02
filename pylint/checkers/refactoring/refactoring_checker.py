@@ -17,7 +17,7 @@ import astroid
 from astroid import nodes
 from astroid.util import Uninferable
 
-from pylint import checkers, interfaces
+from pylint import checkers
 from pylint.checkers import utils
 from pylint.checkers.utils import node_frame_class
 from pylint.interfaces import HIGH
@@ -195,8 +195,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     in order to create knowledge about whether an "else if" node
     is a true "else if" node, or an "elif" node.
     """
-
-    __implements__ = (interfaces.ITokenChecker, interfaces.IAstroidChecker)
 
     name = "refactoring"
 
@@ -590,7 +588,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         self.add_message("simplifiable-if-statement", node=node, args=(reduced_to,))
 
-    def process_tokens(self, tokens):
+    def process_tokens(self, tokens: list[tokenize.TokenInfo]) -> None:
         # Process tokens and look for 'if' or 'elif'
         for index, token in enumerate(tokens):
             token_string = token[1]
@@ -606,7 +604,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 if self.linter.is_message_enabled("trailing-comma-tuple"):
                     self.add_message("trailing-comma-tuple", line=token.start[0])
 
-    @utils.check_messages("consider-using-with")
+    @utils.only_required_for_messages("consider-using-with")
     def leave_module(self, _: nodes.Module) -> None:
         # check for context managers that have been created but not used
         self._emit_consider_using_with_if_needed(
@@ -614,7 +612,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         )
         self._init()
 
-    @utils.check_messages("too-many-nested-blocks")
+    @utils.only_required_for_messages("too-many-nested-blocks")
     def visit_tryexcept(self, node: nodes.TryExcept) -> None:
         self._check_nested_blocks(node)
 
@@ -642,7 +640,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                     args=(name_node.name,),
                 )
 
-    @utils.check_messages(
+    @utils.only_required_for_messages(
         "redefined-argument-from-local",
         "too-many-nested-blocks",
         "unnecessary-dict-index-lookup",
@@ -656,12 +654,14 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         for name in node.target.nodes_of_class(nodes.AssignName):
             self._check_redefined_argument_from_local(name)
 
-    @utils.check_messages("redefined-argument-from-local")
+    @utils.only_required_for_messages("redefined-argument-from-local")
     def visit_excepthandler(self, node: nodes.ExceptHandler) -> None:
         if node.name and isinstance(node.name, nodes.AssignName):
             self._check_redefined_argument_from_local(node.name)
 
-    @utils.check_messages("redefined-argument-from-local")
+    @utils.only_required_for_messages(
+        "redefined-argument-from-local", "consider-using-with"
+    )
     def visit_with(self, node: nodes.With) -> None:
         for var, names in node.items:
             if isinstance(var, nodes.Name):
@@ -768,7 +768,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         ):
             self.add_message("consider-using-get", node=node)
 
-    @utils.check_messages(
+    @utils.only_required_for_messages(
         "too-many-nested-blocks",
         "simplifiable-if-statement",
         "no-else-return",
@@ -776,6 +776,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "no-else-break",
         "no-else-continue",
         "consider-using-get",
+        "consider-using-min-builtin",
+        "consider-using-max-builtin",
     )
     def visit_if(self, node: nodes.If) -> None:
         self._check_simplifiable_if(node)
@@ -866,7 +868,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 "consider-using-min-builtin", node=node, args=(reduced_to,)
             )
 
-    @utils.check_messages("simplifiable-if-expression")
+    @utils.only_required_for_messages("simplifiable-if-expression")
     def visit_ifexp(self, node: nodes.IfExp) -> None:
         self._check_simplifiable_ifexp(node)
 
@@ -895,7 +897,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         self.add_message("simplifiable-if-expression", node=node, args=(reduced_to,))
 
-    @utils.check_messages(
+    @utils.only_required_for_messages(
         "too-many-nested-blocks",
         "inconsistent-return-statements",
         "useless-return",
@@ -917,7 +919,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         )
         self._consider_using_with_stack.function_scope.clear()
 
-    @utils.check_messages("consider-using-with")
+    @utils.only_required_for_messages("consider-using-with")
     def leave_classdef(self, _: nodes.ClassDef) -> None:
         # check for context managers that have been created but not used
         self._emit_consider_using_with_if_needed(
@@ -925,7 +927,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         )
         self._consider_using_with_stack.class_scope.clear()
 
-    @utils.check_messages("stop-iteration-return")
+    @utils.only_required_for_messages("stop-iteration-return")
     def visit_raise(self, node: nodes.Raise) -> None:
         self._check_stop_iteration_inside_generator(node)
 
@@ -1013,7 +1015,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                         args=(call_name, inside_comp),
                     )
 
-    @utils.check_messages(
+    @utils.only_required_for_messages(
         "stop-iteration-return",
         "consider-using-dict-comprehension",
         "consider-using-set-comprehension",
@@ -1023,6 +1025,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "consider-using-with",
         "use-list-literal",
         "use-dict-literal",
+        "use-a-generator",
     )
     def visit_call(self, node: nodes.Call) -> None:
         self._check_raising_stopiteration_in_generator_next_call(node)
@@ -1293,7 +1296,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     @staticmethod
     def _apply_boolean_simplification_rules(operator, values):
-        """Removes irrelevant values or returns shortcircuiting values.
+        """Removes irrelevant values or returns short-circuiting values.
 
         This function applies the following two rules:
         1) an OR expression with True in it will always be true, and the
@@ -1343,7 +1346,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def _check_simplifiable_condition(self, node):
         """Check if a boolean condition can be simplified.
 
-        Variables will not be simplified, even in the value can be inferred,
+        Variables will not be simplified, even if the value can be inferred,
         and expressions like '3 + 4' will remain expanded.
         """
         if not utils.is_test_condition(node):
@@ -1368,7 +1371,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 args=(node.as_string(), simplified_expr.as_string()),
             )
 
-    @utils.check_messages(
+    @utils.only_required_for_messages(
         "consider-merging-isinstance",
         "consider-using-in",
         "chained-comparison",
@@ -1405,7 +1408,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             message = "consider-swap-variables"
             self.add_message(message, node=node)
 
-    @utils.check_messages(
+    @utils.only_required_for_messages(
         "simplify-boolean-expression",
         "consider-using-ternary",
         "consider-swap-variables",
@@ -1415,7 +1418,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._append_context_managers_to_stack(node)
         self.visit_return(node)  # remaining checks are identical as for return nodes
 
-    @utils.check_messages(
+    @utils.only_required_for_messages(
         "simplify-boolean-expression",
         "consider-using-ternary",
         "consider-swap-variables",
@@ -1565,11 +1568,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if is_concat_loop:
             self.add_message("consider-using-join", node=aug_assign)
 
-    @utils.check_messages("consider-using-join")
+    @utils.only_required_for_messages("consider-using-join")
     def visit_augassign(self, node: nodes.AugAssign) -> None:
         self._check_consider_using_join(node)
 
-    @utils.check_messages(
+    @utils.only_required_for_messages(
         "unnecessary-comprehension",
         "unnecessary-dict-index-lookup",
         "unnecessary-list-index-lookup",

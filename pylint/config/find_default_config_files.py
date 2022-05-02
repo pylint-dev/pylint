@@ -78,8 +78,7 @@ def find_default_config_files() -> Iterator[Path]:
 
 def find_pylintrc() -> str | None:
     """Search the pylint rc file and return its path if it finds it, else return None."""
-    # pylint: disable-next=fixme
-    # TODO: Remove this function in 3.0
+    # TODO: 3.0: Remove deprecated function
     warnings.warn(
         "find_pylintrc and the PYLINTRC constant have been deprecated. "
         "Use find_default_config_files if you want access to pylint's configuration file "

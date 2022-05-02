@@ -8,7 +8,6 @@ from io import StringIO
 from os import getcwd, sep
 from typing import TYPE_CHECKING
 
-from pylint import interfaces
 from pylint.message import Message
 from pylint.reporters import BaseReporter
 
@@ -19,7 +18,6 @@ if TYPE_CHECKING:
 class GenericTestReporter(BaseReporter):
     """Reporter storing plain text messages."""
 
-    __implements__ = interfaces.IReporter
     out: StringIO
 
     def __init__(  # pylint: disable=super-init-not-called # See https://github.com/PyCQA/pylint/issues/4941

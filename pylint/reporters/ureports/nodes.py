@@ -14,9 +14,9 @@ from typing import Any, Callable, TypeVar
 
 from pylint.reporters.ureports.base_writer import BaseWriter
 
-T = TypeVar("T")
-VNodeT = TypeVar("VNodeT", bound="VNode")
-VisitLeaveFunction = Callable[[T, Any, Any], None]
+_T = TypeVar("_T")
+_VNodeT = TypeVar("_VNodeT", bound="VNode")
+VisitLeaveFunction = Callable[[_T, Any, Any], None]
 
 
 class VNode:
@@ -28,14 +28,14 @@ class VNode:
     def __iter__(self) -> Iterator[VNode]:
         return iter(self.children)
 
-    def accept(self: VNodeT, visitor: BaseWriter, *args: Any, **kwargs: Any) -> None:
-        func: VisitLeaveFunction[VNodeT] = getattr(
+    def accept(self: _VNodeT, visitor: BaseWriter, *args: Any, **kwargs: Any) -> None:
+        func: VisitLeaveFunction[_VNodeT] = getattr(
             visitor, f"visit_{self.visitor_name}"
         )
         return func(self, *args, **kwargs)
 
-    def leave(self: VNodeT, visitor: BaseWriter, *args: Any, **kwargs: Any) -> None:
-        func: VisitLeaveFunction[VNodeT] = getattr(
+    def leave(self: _VNodeT, visitor: BaseWriter, *args: Any, **kwargs: Any) -> None:
+        func: VisitLeaveFunction[_VNodeT] = getattr(
             visitor, f"leave_{self.visitor_name}"
         )
         return func(self, *args, **kwargs)

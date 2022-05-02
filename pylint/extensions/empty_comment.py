@@ -8,8 +8,7 @@ from typing import TYPE_CHECKING
 
 from astroid import nodes
 
-from pylint.checkers import BaseChecker
-from pylint.interfaces import IRawChecker
+from pylint.checkers import BaseRawFileChecker
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -40,8 +39,7 @@ def comment_part_of_string(line, comment_idx):
     return False
 
 
-class CommentChecker(BaseChecker):
-    __implements__ = IRawChecker
+class CommentChecker(BaseRawFileChecker):
 
     name = "refactoring"
     msgs = {

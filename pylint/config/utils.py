@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import re
 import warnings
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -71,6 +71,7 @@ def _convert_option_to_argument(
             kwargs=optdict.get("kwargs", {}),
             hide_help=optdict.get("hide", False),
             section=optdict.get("group", None),
+            metavar=optdict.get("metavar", None),
         )
     try:
         default = optdict["default"]
@@ -86,7 +87,7 @@ def _convert_option_to_argument(
         return _ExtendArgument(
             flags=flags,
             action=action,
-            default=default,
+            default=[] if default is None else default,
             arg_type=optdict["type"],
             choices=optdict.get("choices", None),
             arg_help=optdict.get("help", ""),
@@ -207,18 +208,19 @@ PREPROCESSABLE_OPTIONS: dict[
     "--output": (True, _set_output),
     "--load-plugins": (True, _add_plugins),
     "--verbose": (False, _set_verbose_mode),
+    "-v": (False, _set_verbose_mode),
     "--enable-all-extensions": (False, _enable_all_extensions),
 }
 
 
-def _preprocess_options(run: Run, args: list[str]) -> list[str]:
-    """Preprocess options before full config parsing has started."""
+def _preprocess_options(run: Run, args: Sequence[str]) -> list[str]:
+    """Pre-process options before full config parsing has started."""
     processed_args: list[str] = []
 
     i = 0
     while i < len(args):
         argument = args[i]
-        if not argument.startswith("--"):
+        if not argument.startswith("-"):
             processed_args.append(argument)
             i += 1
             continue

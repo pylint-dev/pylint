@@ -56,19 +56,27 @@ class LintModuleTest:
         except NoFileError:
             pass
 
+        self._test_file = test_file
+        self._check_end_position = (
+            sys.version_info >= self._test_file.options["min_pyver_end_position"]
+        )
         try:
             args = [test_file.source]
         except NoFileError:
             # If we're still raising NoFileError the actual source file doesn't exist
             args = [""]
+        if config and config.getoption("minimal_messages_config"):
+            with self._open_source_file() as f:
+                messages_to_enable = {msg[1] for msg in self.get_expected_messages(f)}
+                # Always enable fatal errors
+                messages_to_enable.add("astroid-error")
+                messages_to_enable.add("fatal")
+                messages_to_enable.add("syntax-error")
+            args.extend(["--disable=all", f"--enable={','.join(messages_to_enable)}"])
         _config_initialization(
             self._linter, args_list=args, config_file=rc_file, reporter=_test_reporter
         )
-        self._test_file = test_file
         self._config = config
-        self._check_end_position = (
-            sys.version_info >= self._test_file.options["min_pyver_end_position"]
-        )
 
     def setUp(self) -> None:
         if self._should_be_skipped_due_to_version():
@@ -92,6 +100,12 @@ class LintModuleTest:
         if excluded_platforms:
             if sys.platform.lower() in excluded_platforms:
                 pytest.skip(f"Test cannot run on platform {sys.platform!r}")
+        if (
+            self._config
+            and self._config.getoption("minimal_messages_config")
+            and self._test_file.options["exclude_from_minimal_messages_config"]
+        ):
+            pytest.skip("Test excluded from --minimal-messages-config")
 
     def runTest(self) -> None:
         self._runTest()

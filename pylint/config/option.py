@@ -8,6 +8,7 @@ import copy
 import optparse  # pylint: disable=deprecated-module
 import pathlib
 import re
+import warnings
 from re import Pattern
 
 from pylint import utils
@@ -171,6 +172,11 @@ class Option(optparse.Option):
     TYPE_CHECKER["py_version"] = _py_version_validator
 
     def __init__(self, *opts, **attrs):
+        # TODO: 3.0: Remove deprecated class
+        warnings.warn(
+            "Option has been deprecated and will be removed in pylint 3.0",
+            DeprecationWarning,
+        )
         super().__init__(*opts, **attrs)
         if hasattr(self, "hide") and self.hide:
             self.help = optparse.SUPPRESS_HELP

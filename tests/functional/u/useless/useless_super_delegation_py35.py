@@ -10,3 +10,37 @@ class UselessSuper(object):
 
     def useless(self, first, *, second=None, **kwargs): # [useless-super-delegation]
         return super().useless(first, second=second, **kwargs)
+
+# pylint: disable=wrong-import-position
+import random
+from typing import Any
+
+class ReturnTypeAny:
+    choices = ['a', 1, (2, 3)]
+
+    def draw(self) -> Any:
+        return random.choice(self.choices)
+
+class ReturnTypeNarrowed(ReturnTypeAny):
+    choices = [1, 2, 3]
+
+    def draw(self) -> int:
+        return super().draw()
+
+class NoReturnType:
+    choices = ['a', 1, (2, 3)]
+
+    def draw(self):
+        return random.choice(self.choices)
+
+class ReturnTypeSpecified(NoReturnType):
+    choices = ['a', 'b']
+
+    def draw(self) -> str: # [useless-super-delegation]
+        return super().draw()
+
+class ReturnTypeSame(ReturnTypeAny):
+    choices = ['a', 'b']
+
+    def draw(self) -> Any: # [useless-super-delegation]
+        return super().draw()

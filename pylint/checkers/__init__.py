@@ -44,8 +44,13 @@ messages nor reports. XXX not true, emit a 07 report !
 from __future__ import annotations
 
 import sys
+from typing import TYPE_CHECKING
 
-from pylint.checkers.base_checker import BaseChecker, BaseTokenChecker
+from pylint.checkers.base_checker import (
+    BaseChecker,
+    BaseRawFileChecker,
+    BaseTokenChecker,
+)
 from pylint.checkers.deprecated import DeprecatedMixin
 from pylint.checkers.mapreduce_checker import MapReduceMixin
 from pylint.utils import LinterStats, diff_string, register_plugins
@@ -54,6 +59,9 @@ if sys.version_info >= (3, 8):
     from typing import Literal
 else:
     from typing_extensions import Literal
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 
 def table_lines_from_stats(
@@ -124,7 +132,7 @@ def table_lines_from_stats(
     return lines
 
 
-def initialize(linter):
+def initialize(linter: PyLinter) -> None:
     """Initialize linter with checkers in this package."""
     register_plugins(linter, __path__[0])
 
@@ -132,6 +140,7 @@ def initialize(linter):
 __all__ = [
     "BaseChecker",
     "BaseTokenChecker",
+    "BaseRawFileChecker",
     "initialize",
     "MapReduceMixin",
     "DeprecatedMixin",

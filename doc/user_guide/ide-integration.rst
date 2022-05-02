@@ -43,14 +43,14 @@ Pylint is integrated in:
 .. _Visual Studio Code: https://code.visualstudio.com/
 .. _Jupyter Notebook: https://jupyter.org/
 
-Using Pylint thru flymake in Emacs
-==================================
+Using Pylint through Flymake in Emacs
+=====================================
 
-To enable flymake for Python, insert the following into your .emacs:
+To enable Flymake for Python, insert the following into your .emacs:
 
 .. sourcecode:: common-lisp
 
-    ;; Configure flymake for Python
+    ;; Configure Flymake for Python
     (when (load "flymake" t)
       (defun flymake-pylint-init ()
         (let* ((temp-file (flymake-init-create-temp-buffer-copy
@@ -80,16 +80,16 @@ Other things you may find useful to set:
     (add-hook 'python-mode-hook '(lambda () (define-key python-mode-map "\C-cp" 'flymake-goto-prev-error)))
 
 
-Finally, by default flymake only displays the extra information about the error when you
+Finally, by default Flymake only displays the extra information about the error when you
 hover the mouse over the highlighted line. The following will use the minibuffer to display
 messages when you the cursor is on the line.
 
 .. sourcecode:: common-lisp
 
-    ;; To avoid having to mouse hover for the error message, these functions make flymake error messages
+    ;; To avoid having to mouse hover for the error message, these functions make Flymake error messages
     ;; appear in the minibuffer
     (defun show-fly-err-at-point ()
-      "If the cursor is sitting on a flymake error, display the message in the minibuffer"
+      "If the cursor is sitting on a Flymake error, display the message in the minibuffer"
       (require 'cl)
       (interactive)
       (let ((line-no (line-number-at-pos)))

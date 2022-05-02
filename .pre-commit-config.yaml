@@ -25,7 +25,7 @@ repos:
     hooks:
       - id: copyright-notice
         args: ["--notice=script/copyright.txt", "--enforce-all"]
-        exclude: tests/functional/|tests/input|doc/data/messages|examples/|setup.py|tests(/\w*)*data/
+        exclude: tests(/\w*)*/functional/|tests/input|doc/data/messages|examples/|setup.py|tests(/\w*)*data/
         types: [python]
   - repo: https://github.com/asottile/pyupgrade
     rev: v2.32.0
@@ -63,6 +63,17 @@ repos:
         types: [python]
         args: ["-rn", "-sn", "--rcfile=pylintrc", "--fail-on=I"]
         exclude: tests/functional/|tests/input|tests(/\w*)*data/|doc/
+      # We define an additional manual step to allow running pylint with a spelling
+      # checker in CI.
+      - id: pylint
+        alias: pylint-with-spelling
+        name: pylint
+        entry: pylint
+        language: system
+        types: [python]
+        args: ["-rn", "-sn", "--rcfile=pylintrc", "--fail-on=I", "--spelling-dict=en"]
+        exclude: tests/functional/|tests/input|tests(/\w*)*data/|doc/
+        stages: [manual]
       - id: fix-documentation
         name: Fix documentation
         entry: python3 -m script.fix_documentation
@@ -70,7 +81,7 @@ repos:
         types: [text]
         files: ^(ChangeLog|doc/whatsnew/\d+\.\d+\.rst)
   - repo: https://github.com/myint/rstcheck
-    rev: "3f92957478422df87bd730abde66f089cc1ee19b"
+    rev: "v5.0.0"
     hooks:
       - id: rstcheck
         args: ["--ignore-roles=func,class,mod", "--report=warning"]
