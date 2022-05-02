@@ -192,12 +192,12 @@ class HasDynamicGetattr(object):
 for elem in HasDynamicGetattr():
     pass
 
-  
+
 Subtype = typing.NewType("Subtype", typing.List[int])
 
 for i in Subtype([1, 2, 3]):
     pass
 
-  
+
 # Regression test for https://github.com/PyCQA/pylint/issues/6372
 string_twos = "".join(str(*y) for _, *y in [[1, 2], [1, 2]])
