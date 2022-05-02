@@ -245,11 +245,6 @@ Other Changes
 
   Closes #5205
 
-* Fix false positive for ``unsubscriptable-object`` in Python 3.8 and below for
-  statements guarded by ``if TYPE_CHECKING``.
-
-  Closes #3979
-
 * Fix false negative for ``no-member`` when attempting to assign an instance
   attribute to itself without any prior assignment.
 
