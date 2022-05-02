@@ -1,5 +1,5 @@
 undefined-variable:11:39:11:46:Well.<lambda>:Undefined variable 'revattr':UNDEFINED
-used-before-assignment:11:30:11:37:Well.<lambda>:Using variable 'revattr' before assignment:UNDEFINED
+used-before-assignment:11:30:11:37:Well.<lambda>:Using variable 'revattr' before assignment:HIGH
 undefined-variable:13:25:13:37:Well.<lambda>:Undefined variable 'get_attr_bad':UNDEFINED
 undefined-variable:14:19:14:23:Well:Undefined variable 'attr':UNDEFINED
 undefined-variable:20:15:20:19:Well.Sub:Undefined variable 'Data':UNDEFINED

@@ -137,7 +137,8 @@ class TestControlFlow:
         except FileNotFoundError:
             Path("foo").touch()
         finally:
-            file_handle.open("foo", encoding="utf")  # must not trigger
+            # +1: [used-before-assignment]
+            file_handle.open("foo", encoding="utf")  # must not trigger consider-using-with
         with file_handle:
             return file_handle.read()
 

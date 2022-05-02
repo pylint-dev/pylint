@@ -1,14 +1,8 @@
-# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 Mark Byrne <31762852+mbyrnepr2@users.noreply.github.com>
-# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-"""Tests for pylint.pyreverse.utils"""
+"""Tests for pylint.pyreverse.utils."""
 
 from typing import Any
 from unittest.mock import patch
@@ -17,7 +11,12 @@ import astroid
 import pytest
 from astroid import nodes
 
-from pylint.pyreverse.utils import get_annotation, get_visibility, infer_node
+from pylint.pyreverse.utils import (
+    get_annotation,
+    get_annotation_label,
+    get_visibility,
+    infer_node,
+)
 
 
 @pytest.mark.parametrize(
@@ -48,7 +47,7 @@ def test_get_visibility(names, expected):
     ],
 )
 def test_get_annotation_annassign(assign, label):
-    """AnnAssign"""
+    """AnnAssign."""
     node = astroid.extract_node(assign)
     got = get_annotation(node.value).name
     assert isinstance(node, nodes.AnnAssign)
@@ -67,18 +66,35 @@ def test_get_annotation_annassign(assign, label):
     ],
 )
 def test_get_annotation_assignattr(init_method, label):
-    """AssignAttr"""
-    assign = fr"""
+    """AssignAttr."""
+    assign = rf"""
         class A:
             {init_method}
     """
     node = astroid.extract_node(assign)
     instance_attrs = node.instance_attrs
-    for _, assign_attrs in instance_attrs.items():
+    for assign_attrs in instance_attrs.values():
         for assign_attr in assign_attrs:
             got = get_annotation(assign_attr).name
             assert isinstance(assign_attr, nodes.AssignAttr)
             assert got == label, f"got {got} instead of {label} for value {node}"
+
+
+@pytest.mark.parametrize(
+    "node_text, expected_label",
+    [
+        ("def f() -> None: pass", "None"),
+        ("def f() -> int: pass", "int"),
+        ("def f(a) -> Optional[int]: return 1 if a else None", "Optional[int]"),
+        ("def f() -> 'MyType': pass", "'MyType'"),
+    ],
+)
+def test_get_annotation_label_of_return_type(
+    node_text: str, expected_label: str
+) -> None:
+    func = astroid.extract_node(node_text)
+    assert isinstance(func, nodes.FunctionDef)
+    assert get_annotation_label(func.returns) == expected_label
 
 
 @patch("pylint.pyreverse.utils.get_annotation")
@@ -109,7 +125,8 @@ def test_infer_node_2(mock_infer: Any, mock_get_annotation: Any) -> None:
 
 def test_infer_node_3() -> None:
     """Return a set containing a nodes.ClassDef object when the attribute
-    has a type annotation"""
+    has a type annotation
+    """
     node = astroid.extract_node(
         """
         class Component:

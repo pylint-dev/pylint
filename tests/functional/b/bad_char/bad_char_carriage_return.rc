@@ -1,0 +1,3 @@
+[testoptions]
+# This test cannot run on Windows as \r will be the newline
+exclude_platforms=win32

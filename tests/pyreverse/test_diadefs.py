@@ -1,31 +1,16 @@
-# Copyright (c) 2008-2010, 2013 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2014 Google, Inc.
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
-# Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
-# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
-# Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2021 Takahide Nojima <nozzy123nozzy@gmail.com>
-# Copyright (c) 2021 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
-# Copyright (c) 2021 Mark Byrne <31762852+mbyrnepr2@users.noreply.github.com>
-# Copyright (c) 2021 bot <bot@noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-"""Unit test for the extensions.diadefslib modules"""
+"""Unit test for the extensions.diadefslib modules."""
+
 # pylint: disable=redefined-outer-name
+
+from __future__ import annotations
+
 import sys
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable, Dict, List, Tuple
 
 import pytest
 from astroid import nodes
@@ -41,15 +26,15 @@ from pylint.pyreverse.inspector import Linker, Project
 from pylint.testutils.pyreverse import PyreverseConfig
 
 
-def _process_classes(classes: List[DiagramEntity]) -> List[Tuple[bool, str]]:
-    """extract class names of a list"""
+def _process_classes(classes: list[DiagramEntity]) -> list[tuple[bool, str]]:
+    """Extract class names of a list."""
     return sorted((isinstance(c.node, nodes.ClassDef), c.title) for c in classes)
 
 
 def _process_relations(
-    relations: Dict[str, List[Relationship]]
-) -> List[Tuple[str, str, str]]:
-    """extract relation indices from a relation list"""
+    relations: dict[str, list[Relationship]]
+) -> list[tuple[str, str, str]]:
+    """Extract relation indices from a relation list."""
     result = []
     for rel_type, rels in relations.items():
         for rel in rels:
@@ -71,7 +56,7 @@ def PROJECT(get_project):
 def test_option_values(
     default_config: PyreverseConfig, HANDLER: DiadefsHandler, PROJECT: Project
 ) -> None:
-    """test for ancestor, associated and module options"""
+    """Test for ancestor, associated and module options."""
     df_h = DiaDefGenerator(Linker(PROJECT), HANDLER)
     cl_config = default_config
     cl_config.classes = ["Specialization"]
@@ -102,8 +87,8 @@ def test_option_values(
 
 
 def test_default_values() -> None:
-    """test default values for package or class diagrams"""
-    # TODO : should test difference between default values for package or class diagrams pylint: disable=fixme
+    """Test default values for package or class diagrams."""
+    # TODO : should test difference between default values for package or class diagrams
 
 
 class TestDefaultDiadefGenerator:
@@ -118,7 +103,7 @@ class TestDefaultDiadefGenerator:
     def test_exctract_relations(
         self, HANDLER: DiadefsHandler, PROJECT: Project
     ) -> None:
-        """test extract_relations between classes"""
+        """Test extract_relations between classes."""
         cd = DefaultDiadefGenerator(Linker(PROJECT), HANDLER).visit(PROJECT)[1]
         cd.extract_relationships()
         relations = _process_relations(cd.relationships)
@@ -127,8 +112,9 @@ class TestDefaultDiadefGenerator:
     def test_functional_relation_extraction(
         self, default_config: PyreverseConfig, get_project: Callable
     ) -> None:
-        """functional test of relations extraction;
-        different classes possibly in different modules"""
+        """Functional test of relations extraction;
+        different classes possibly in different modules
+        """
         # XXX should be catching pyreverse environment problem but doesn't
         # pyreverse doesn't extract the relations but this test ok
         project = get_project("data")

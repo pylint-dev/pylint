@@ -1,0 +1,4 @@
+[testoptions]
+# Windows test environments on >= 3.10 don't have typing_extensions
+exclude_platforms=win32
+min_pyver=3.10

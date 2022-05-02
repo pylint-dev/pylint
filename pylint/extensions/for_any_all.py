@@ -1,11 +1,17 @@
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
 """Check for use of for loops that only check for a condition."""
+
+from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import check_messages, returns_bool
-from pylint.interfaces import IAstroidChecker
+from pylint.checkers.utils import only_required_for_messages, returns_bool
 
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
@@ -13,7 +19,6 @@ if TYPE_CHECKING:
 
 class ConsiderUsingAnyOrAllChecker(BaseChecker):
 
-    __implements__ = (IAstroidChecker,)
     name = "consider-using-any-or-all"
     msgs = {
         "C0501": (
@@ -23,7 +28,7 @@ class ConsiderUsingAnyOrAllChecker(BaseChecker):
         )
     }
 
-    @check_messages("consider-using-any-or-all")
+    @only_required_for_messages("consider-using-any-or-all")
     def visit_for(self, node: nodes.For) -> None:
         if len(node.body) != 1:  # Only If node with no Else
             return
@@ -48,7 +53,7 @@ class ConsiderUsingAnyOrAllChecker(BaseChecker):
     @staticmethod
     def _build_suggested_string(node: nodes.For, final_return_bool: bool) -> str:
         """When a nodes.For node can be rewritten as an any/all statement, return a suggestion for that statement
-        final_return_bool is the boolean literal returned after the for loop if all conditions fail
+        final_return_bool is the boolean literal returned after the for loop if all conditions fail.
         """
         loop_var = node.target.as_string()
         loop_iter = node.iter.as_string()
@@ -65,9 +70,5 @@ class ConsiderUsingAnyOrAllChecker(BaseChecker):
         return f"{suggested_function}({test} for {loop_var} in {loop_iter})"
 
 
-def register(linter: "PyLinter") -> None:
-    """Required method to auto register this checker.
-
-    :param linter: Main interface object for Pylint plugins
-    """
+def register(linter: PyLinter) -> None:
     linter.register_checker(ConsiderUsingAnyOrAllChecker(linter))

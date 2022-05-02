@@ -143,3 +143,22 @@ args_good_one = IOArgs(encoding=None, mode="wb")
 
 # Test for crash reported in https://github.com/PyCQA/pylint/issues/5321
 open(FILENAME, args_good_one.mode, encoding=args_good_one.encoding)
+
+# Positional arguments
+open(FILENAME, "w", -1, "utf-8")
+open(FILENAME, "w", -1)  # [unspecified-encoding]
+
+Path(FILENAME).open("w", -1, "utf-8")
+Path(FILENAME).open("w", -1)  # [unspecified-encoding]
+
+Path(FILENAME).read_text("utf-8")
+Path(FILENAME).read_text()  # [unspecified-encoding]
+
+Path(FILENAME).write_text("string", "utf-8")
+Path(FILENAME).write_text("string")  # [unspecified-encoding]
+
+# Test for crash reported in https://github.com/PyCQA/pylint/issues/5731
+open(FILENAME, mode=None)  # [bad-open-mode, unspecified-encoding]
+
+# Test for crash reported in https://github.com/PyCQA/pylint/issues/6414
+open('foo', mode=2)  # [bad-open-mode, unspecified-encoding]

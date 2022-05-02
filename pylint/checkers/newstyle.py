@@ -1,35 +1,28 @@
-# Copyright (c) 2006, 2008-2011, 2013-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2012-2014 Google, Inc.
-# Copyright (c) 2013-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2014 Michal Nowikowski <godfryd@gmail.com>
-# Copyright (c) 2014 Brett Cannon <brett@python.org>
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016 Alexander Todorov <atodorov@otb.bg>
-# Copyright (c) 2016 Jakub Wilk <jwilk@jwilk.net>
-# Copyright (c) 2018 Lucas Cimon <lucas.cimon@gmail.com>
-# Copyright (c) 2018 Natalie Serebryakova <natalie.serebryakova@Natalies-MacBook-Pro.local>
-# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
-# Copyright (c) 2019, 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2019 Robert Schweizer <robert_schweizer@gmx.de>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-"""check for new / old style related problems
-"""
+"""Check for new / old style related problems."""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import astroid
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import check_messages, has_known_bases, node_frame_class
-from pylint.interfaces import IAstroidChecker
+from pylint.checkers.utils import (
+    has_known_bases,
+    node_frame_class,
+    only_required_for_messages,
+)
+from pylint.typing import MessageDefinitionTuple
 
-MSGS = {
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
+
+MSGS: dict[str, MessageDefinitionTuple] = {
     "E1003": (
         "Bad first argument %r given to super()",
         "bad-super-call",
@@ -40,29 +33,27 @@ MSGS = {
 
 
 class NewStyleConflictChecker(BaseChecker):
-    """checks for usage of new style capabilities on old style classes and
-    other new/old styles conflicts problems
+    """Checks for usage of new style capabilities on old style classes and
+    other new/old styles conflicts problems.
+
     * use of property, __slots__, super
     * "super" usage
     """
-
-    __implements__ = (IAstroidChecker,)
 
     # configuration section name
     name = "newstyle"
     # messages
     msgs = MSGS
-    priority = -2
     # configuration options
     options = ()
 
-    @check_messages("bad-super-call")
+    @only_required_for_messages("bad-super-call")
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
-        """check use of super"""
+        """Check use of super."""
         # ignore actual functions or method within a new style class
         if not node.is_method():
             return
-        klass = node.parent.frame()
+        klass = node.parent.frame(future=True)
         for stmt in node.nodes_of_class(nodes.Call):
             if node_frame_class(stmt) != node_frame_class(node):
                 # Don't look down in other scopes.
@@ -132,6 +123,5 @@ class NewStyleConflictChecker(BaseChecker):
     visit_asyncfunctiondef = visit_functiondef
 
 
-def register(linter):
-    """required method to auto register this checker"""
+def register(linter: PyLinter) -> None:
     linter.register_checker(NewStyleConflictChecker(linter))

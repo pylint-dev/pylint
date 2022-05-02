@@ -1,3 +1,0 @@
-invalid-name:9:16:9:17:custom_prop:"Argument name ""f"" doesn't conform to snake_case naming style":HIGH
-invalid-name:21:4:22:12:FooClass.bar:"Attribute name ""bar"" doesn't conform to '[A-Z]+' pattern":INFERENCE
-invalid-name:37:4:38:12:AnotherFooClass.foo:"Attribute name ""foo"" doesn't conform to '[A-Z]+' pattern":INFERENCE

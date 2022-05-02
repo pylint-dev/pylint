@@ -1,22 +1,22 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
+from __future__ import annotations
 
 import collections
 import sys
-from typing import (
-    TYPE_CHECKING,
-    DefaultDict,
-    Dict,
-    Iterator,
-    Optional,
-    Set,
-    Tuple,
-    Union,
-)
+from collections import defaultdict
+from collections.abc import Iterator
+from typing import TYPE_CHECKING, Dict
 
 from astroid import nodes
 
-from pylint.constants import MSG_STATE_SCOPE_MODULE, WarningScope
+from pylint.constants import (
+    INCOMPATIBLE_WITH_USELESS_SUPPRESSION,
+    MSG_STATE_SCOPE_MODULE,
+    WarningScope,
+)
 
 if sys.version_info >= (3, 8):
     from typing import Literal
@@ -31,20 +31,20 @@ MessageStateDict = Dict[str, Dict[int, bool]]
 
 
 class FileState:
-    """Hold internal state specific to the currently analyzed file"""
+    """Hold internal state specific to the currently analyzed file."""
 
-    def __init__(self, modname: Optional[str] = None) -> None:
+    def __init__(self, modname: str | None = None) -> None:
         self.base_name = modname
         self._module_msgs_state: MessageStateDict = {}
         self._raw_module_msgs_state: MessageStateDict = {}
-        self._ignored_msgs: DefaultDict[
-            Tuple[str, int], Set[int]
+        self._ignored_msgs: defaultdict[
+            tuple[str, int], set[int]
         ] = collections.defaultdict(set)
-        self._suppression_mapping: Dict[Tuple[str, int], int] = {}
-        self._effective_max_line_number: Optional[int] = None
+        self._suppression_mapping: dict[tuple[str, int], int] = {}
+        self._effective_max_line_number: int | None = None
 
     def collect_block_lines(
-        self, msgs_store: "MessageDefinitionStore", module_node: nodes.Module
+        self, msgs_store: MessageDefinitionStore, module_node: nodes.Module
     ) -> None:
         """Walk the AST to collect block level options line numbers."""
         for msg, lines in self._module_msgs_state.items():
@@ -57,7 +57,7 @@ class FileState:
 
     def _collect_block_lines(
         self,
-        msgs_store: "MessageDefinitionStore",
+        msgs_store: MessageDefinitionStore,
         node: nodes.NodeNG,
         msg_state: MessageStateDict,
     ) -> None:
@@ -121,8 +121,8 @@ class FileState:
                         self._module_msgs_state[msgid] = {line: state}
                 del lines[lineno]
 
-    def set_msg_status(self, msg: "MessageDefinition", line: int, status: bool) -> None:
-        """Set status (enabled/disable) for a given message at a given line"""
+    def set_msg_status(self, msg: MessageDefinition, line: int, status: bool) -> None:
+        """Set status (enabled/disable) for a given message at a given line."""
         assert line > 0
         try:
             self._module_msgs_state[msg.msgid][line] = status
@@ -130,7 +130,7 @@ class FileState:
             self._module_msgs_state[msg.msgid] = {line: status}
 
     def handle_ignored_message(
-        self, state_scope: Optional[Literal[0, 1, 2]], msgid: str, line: int
+        self, state_scope: Literal[0, 1, 2] | None, msgid: str, line: int | None
     ) -> None:
         """Report an ignored message.
 
@@ -139,6 +139,8 @@ class FileState:
         or globally.
         """
         if state_scope == MSG_STATE_SCOPE_MODULE:
+            assert isinstance(line, int)  # should always be int inside module scope
+
             try:
                 orig_line = self._suppression_mapping[(msgid, line)]
                 self._ignored_msgs[(msgid, orig_line)].add(line)
@@ -147,23 +149,24 @@ class FileState:
 
     def iter_spurious_suppression_messages(
         self,
-        msgs_store: "MessageDefinitionStore",
+        msgs_store: MessageDefinitionStore,
     ) -> Iterator[
-        Tuple[
+        tuple[
             Literal["useless-suppression", "suppressed-message"],
             int,
-            Union[Tuple[str], Tuple[str, int]],
+            tuple[str] | tuple[str, int],
         ]
     ]:
         for warning, lines in self._raw_module_msgs_state.items():
             for line, enable in lines.items():
-                if not enable and (warning, line) not in self._ignored_msgs:
-                    # ignore cyclic-import check which can show false positives
-                    # here due to incomplete context
-                    if warning != "R0401":
-                        yield "useless-suppression", line, (
-                            msgs_store.get_msg_display_string(warning),
-                        )
+                if (
+                    not enable
+                    and (warning, line) not in self._ignored_msgs
+                    and warning not in INCOMPATIBLE_WITH_USELESS_SUPPRESSION
+                ):
+                    yield "useless-suppression", line, (
+                        msgs_store.get_msg_display_string(warning),
+                    )
         # don't use iteritems here, _ignored_msgs may be modified by add_message
         for (warning, from_), ignored_lines in list(self._ignored_msgs.items()):
             for line in ignored_lines:
@@ -172,5 +175,5 @@ class FileState:
                     from_,
                 )
 
-    def get_effective_max_line_number(self) -> Optional[int]:
+    def get_effective_max_line_number(self) -> int | None:
         return self._effective_max_line_number

@@ -1,5 +1,8 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
+from __future__ import annotations
 
 import csv
 import operator
@@ -7,13 +10,15 @@ import platform
 import sys
 from collections import Counter
 from io import StringIO
+from pathlib import Path
 from typing import Counter as CounterType
-from typing import Dict, List, Optional, TextIO, Tuple
+from typing import TextIO, Tuple
 
 import pytest
 from _pytest.config import Config
 
 from pylint import checkers
+from pylint.config.config_initialization import _config_initialization
 from pylint.lint import PyLinter
 from pylint.message.message import Message
 from pylint.testutils.constants import _EXPECTED_RE, _OPERATORS, UPDATE_OPTION
@@ -24,40 +29,54 @@ from pylint.testutils.functional.test_file import (  # need to import from funct
 )
 from pylint.testutils.output_line import OutputLine
 from pylint.testutils.reporter_for_tests import FunctionalTestReporter
-from pylint.utils import utils
 
 MessageCounter = CounterType[Tuple[int, str]]
+
+PYLINTRC = Path(__file__).parent / "testing_pylintrc"
 
 
 class LintModuleTest:
     maxDiff = None
 
     def __init__(
-        self, test_file: FunctionalTestFile, config: Optional[Config] = None
+        self, test_file: FunctionalTestFile, config: Config | None = None
     ) -> None:
         _test_reporter = FunctionalTestReporter()
         self._linter = PyLinter()
-        self._linter.set_reporter(_test_reporter)
         self._linter.config.persistent = 0
         checkers.initialize(self._linter)
-        self._linter.disable("suppressed-message")
-        self._linter.disable("locally-disabled")
-        self._linter.disable("useless-suppression")
+
+        # See if test has its own .rc file, if so we use that one
+        rc_file: Path | str = PYLINTRC
         try:
-            self._linter.read_config_file(test_file.option_file)
-            if self._linter.cfgfile_parser.has_option("MASTER", "load-plugins"):
-                plugins = utils._splitstrip(
-                    self._linter.cfgfile_parser.get("MASTER", "load-plugins")
-                )
-                self._linter.load_plugin_modules(plugins)
-            self._linter.load_config_file()
+            rc_file = test_file.option_file
+            self._linter.disable("suppressed-message")
+            self._linter.disable("locally-disabled")
+            self._linter.disable("useless-suppression")
         except NoFileError:
             pass
+
         self._test_file = test_file
-        self._config = config
         self._check_end_position = (
             sys.version_info >= self._test_file.options["min_pyver_end_position"]
         )
+        try:
+            args = [test_file.source]
+        except NoFileError:
+            # If we're still raising NoFileError the actual source file doesn't exist
+            args = [""]
+        if config and config.getoption("minimal_messages_config"):
+            with self._open_source_file() as f:
+                messages_to_enable = {msg[1] for msg in self.get_expected_messages(f)}
+                # Always enable fatal errors
+                messages_to_enable.add("astroid-error")
+                messages_to_enable.add("fatal")
+                messages_to_enable.add("syntax-error")
+            args.extend(["--disable=all", f"--enable={','.join(messages_to_enable)}"])
+        _config_initialization(
+            self._linter, args_list=args, config_file=rc_file, reporter=_test_reporter
+        )
+        self._config = config
 
     def setUp(self) -> None:
         if self._should_be_skipped_due_to_version():
@@ -81,6 +100,12 @@ class LintModuleTest:
         if excluded_platforms:
             if sys.platform.lower() in excluded_platforms:
                 pytest.skip(f"Test cannot run on platform {sys.platform!r}")
+        if (
+            self._config
+            and self._config.getoption("minimal_messages_config")
+            and self._test_file.options["exclude_from_minimal_messages_config"]
+        ):
+            pytest.skip("Test excluded from --minimal-messages-config")
 
     def runTest(self) -> None:
         self._runTest()
@@ -131,10 +156,11 @@ class LintModuleTest:
     def multiset_difference(
         expected_entries: MessageCounter,
         actual_entries: MessageCounter,
-    ) -> Tuple[MessageCounter, Dict[Tuple[int, str], int]]:
+    ) -> tuple[MessageCounter, dict[tuple[int, str], int]]:
         """Takes two multisets and compares them.
 
-        A multiset is a dict with the cardinality of the key as the value."""
+        A multiset is a dict with the cardinality of the key as the value.
+        """
         missing = expected_entries.copy()
         missing.subtract(actual_entries)
         unexpected = {}
@@ -158,7 +184,7 @@ class LintModuleTest:
             return open(self._test_file.source, encoding="latin1")
         return open(self._test_file.source, encoding="utf8")
 
-    def _get_expected(self) -> Tuple[MessageCounter, List[OutputLine]]:
+    def _get_expected(self) -> tuple[MessageCounter, list[OutputLine]]:
         with self._open_source_file() as f:
             expected_msgs = self.get_expected_messages(f)
         if not expected_msgs:
@@ -170,8 +196,8 @@ class LintModuleTest:
             ]
         return expected_msgs, expected_output_lines
 
-    def _get_actual(self) -> Tuple[MessageCounter, List[OutputLine]]:
-        messages: List[Message] = self._linter.reporter.messages
+    def _get_actual(self) -> tuple[MessageCounter, list[OutputLine]]:
+        messages: list[Message] = self._linter.reporter.messages
         messages.sort(key=lambda m: (m.line, m.symbol, m.msg))
         received_msgs: MessageCounter = Counter()
         received_output_lines = []
@@ -202,7 +228,7 @@ class LintModuleTest:
         self,
         actual_messages: MessageCounter,
         expected_messages: MessageCounter,
-        actual_output: List[OutputLine],
+        actual_output: list[OutputLine],
     ) -> str:
         msg = [f'Wrong results for file "{self._test_file.base}":']
         missing, unexpected = self.multiset_difference(
@@ -222,8 +248,8 @@ class LintModuleTest:
 
     def error_msg_for_unequal_output(
         self,
-        expected_lines: List[OutputLine],
-        received_lines: List[OutputLine],
+        expected_lines: list[OutputLine],
+        received_lines: list[OutputLine],
     ) -> str:
         missing = set(expected_lines) - set(received_lines)
         unexpected = set(received_lines) - set(expected_lines)
@@ -247,10 +273,10 @@ class LintModuleTest:
     def _check_output_text(
         self,
         _: MessageCounter,
-        expected_output: List[OutputLine],
-        actual_output: List[OutputLine],
+        expected_output: list[OutputLine],
+        actual_output: list[OutputLine],
     ) -> None:
-        """This is a function because we want to be able to update the text in LintModuleOutputUpdate"""
+        """This is a function because we want to be able to update the text in LintModuleOutputUpdate."""
         assert expected_output == actual_output, self.error_msg_for_unequal_output(
             expected_output, actual_output
         )

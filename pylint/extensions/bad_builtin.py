@@ -1,21 +1,20 @@
-# Copyright (c) 2016, 2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2019, 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2020 Peter Kolbus <peter.kolbus@gmail.com>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Nick Drozd <nicholasdrozd@gmail.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Checker for deprecated builtins."""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import check_messages
-from pylint.interfaces import IAstroidChecker
+from pylint.checkers.utils import only_required_for_messages
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 BAD_FUNCTIONS = ["map", "filter"]
 # Some hints regarding the use of bad builtins.
@@ -25,7 +24,6 @@ BUILTIN_HINTS["filter"] = BUILTIN_HINTS["map"]
 
 class BadBuiltinChecker(BaseChecker):
 
-    __implements__ = (IAstroidChecker,)
     name = "deprecated_builtins"
     msgs = {
         "W0141": (
@@ -51,23 +49,18 @@ class BadBuiltinChecker(BaseChecker):
         ),
     )
 
-    @check_messages("bad-builtin")
+    @only_required_for_messages("bad-builtin")
     def visit_call(self, node: nodes.Call) -> None:
         if isinstance(node.func, nodes.Name):
             name = node.func.name
             # ignore the name if it's not a builtin (i.e. not defined in the
             # locals nor globals scope)
-            if not (name in node.frame() or name in node.root()):
-                if name in self.config.bad_functions:
+            if not (name in node.frame(future=True) or name in node.root()):
+                if name in self.linter.config.bad_functions:
                     hint = BUILTIN_HINTS.get(name)
                     args = f"{name!r}. {hint}" if hint else repr(name)
                     self.add_message("bad-builtin", node=node, args=args)
 
 
-def register(linter):
-    """Required method to auto register this checker.
-
-    :param linter: Main interface object for Pylint plugins
-    :type linter: Pylint object
-    """
+def register(linter: PyLinter) -> None:
     linter.register_checker(BadBuiltinChecker(linter))

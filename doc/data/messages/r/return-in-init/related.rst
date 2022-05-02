@@ -1,0 +1,1 @@
+- `__init__ method documentation <https://docs.python.org/3/reference/datamodel.html#object.__init__>`_

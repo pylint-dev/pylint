@@ -1,17 +1,19 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
+from __future__ import annotations
 
 from glob import glob
 from os.path import basename, join, splitext
-from typing import List, Tuple
 
 from pylint.testutils.constants import SYS_VERS_STR
 
 
 def _get_tests_info(
     input_dir: str, msg_dir: str, prefix: str, suffix: str
-) -> List[Tuple[str, str]]:
-    """get python input examples and output messages
+) -> list[tuple[str, str]]:
+    """Get python input examples and output messages.
 
     We use following conventions for input files and messages:
     for different inputs:

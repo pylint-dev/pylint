@@ -1,0 +1,1 @@
+invalid-character-esc:5:4:5:5::"Invalid unescaped character esc, use ""\x1B"" instead.":HIGH

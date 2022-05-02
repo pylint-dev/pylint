@@ -1,26 +1,20 @@
-# Copyright (c) 2015-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2015 Florian Bruhin <me@the-compiler.org>
-# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
-# Copyright (c) 2020-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2020 Ram Rachum <ram@rachum.com>
-# Copyright (c) 2020 谭九鼎 <109224573@qq.com>
-# Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-"""Functions to generate files readable with Georg Sander's vcg
+"""Functions to generate files readable with George Sander's vcg
 (Visualization of Compiler Graphs).
+
 You can download vcg at https://rw4.cs.uni-sb.de/~sander/html/gshome.html
 Note that vcg exists as a debian package.
 See vcg's documentation for explanation about the different values that
 maybe used for the functions parameters.
 """
-from typing import Any, Dict, Mapping, Optional
+
+from __future__ import annotations
+
+from collections.abc import Mapping
+from typing import Any
 
 from pylint.pyreverse.printer import EdgeType, Layout, NodeProperties, NodeType, Printer
 
@@ -155,12 +149,12 @@ EDGE_ATTRS = {
     "anchor": 1,
     "horizontal_order": 1,
 }
-SHAPES: Dict[NodeType, str] = {
+SHAPES: dict[NodeType, str] = {
     NodeType.PACKAGE: "box",
     NodeType.CLASS: "box",
     NodeType.INTERFACE: "ellipse",
 }
-ARROWS: Dict[EdgeType, Dict] = {
+ARROWS: dict[EdgeType, dict] = {
     EdgeType.USES: dict(arrowstyle="solid", backarrowstyle="none", backarrowsize=0),
     EdgeType.INHERITS: dict(
         arrowstyle="solid", backarrowstyle="none", backarrowsize=10
@@ -175,7 +169,7 @@ ARROWS: Dict[EdgeType, Dict] = {
         arrowstyle="solid", backarrowstyle="none", textcolor="green"
     ),
 }
-ORIENTATION: Dict[Layout, str] = {
+ORIENTATION: dict[Layout, str] = {
     Layout.LEFT_TO_RIGHT: "left_to_right",
     Layout.RIGHT_TO_LEFT: "right_to_left",
     Layout.TOP_TO_BOTTOM: "top_to_bottom",
@@ -187,7 +181,7 @@ ORIENTATION: Dict[Layout, str] = {
 
 class VCGPrinter(Printer):
     def _open_graph(self) -> None:
-        """Emit the header lines"""
+        """Emit the header lines."""
         self.emit("graph:{\n")
         self._inc_indent()
         self._write_attributes(
@@ -210,9 +204,12 @@ class VCGPrinter(Printer):
         self,
         name: str,
         type_: NodeType,
-        properties: Optional[NodeProperties] = None,
+        properties: NodeProperties | None = None,
     ) -> None:
-        """Create a new node. Nodes can be classes, packages, participants etc."""
+        """Create a new node.
+
+        Nodes can be classes, packages, participants etc.
+        """
         if properties is None:
             properties = NodeProperties(label=name)
         elif properties.label is None:
@@ -228,7 +225,7 @@ class VCGPrinter(Printer):
     @staticmethod
     def _build_label_for_node(properties: NodeProperties) -> str:
         fontcolor = "\f09" if properties.fontcolor == "red" else ""
-        label = fr"\fb{fontcolor}{properties.label}\fn"
+        label = rf"\fb{fontcolor}{properties.label}\fn"
         if properties.attrs is None and properties.methods is None:
             # return a compact form which only displays the classname in a box
             return label
@@ -238,13 +235,13 @@ class VCGPrinter(Printer):
         # box width for UML like diagram
         maxlen = max(len(name) for name in [properties.label] + method_names + attrs)
         line = "_" * (maxlen + 2)
-        label = fr"{label}\n\f{line}"
+        label = rf"{label}\n\f{line}"
         for attr in attrs:
-            label = fr"{label}\n\f08{attr}"
+            label = rf"{label}\n\f08{attr}"
         if attrs:
-            label = fr"{label}\n\f{line}"
+            label = rf"{label}\n\f{line}"
         for func in method_names:
-            label = fr"{label}\n\f10{func}()"
+            label = rf"{label}\n\f10{func}()"
         return label
 
     def emit_edge(
@@ -252,7 +249,7 @@ class VCGPrinter(Printer):
         from_node: str,
         to_node: str,
         type_: EdgeType,
-        label: Optional[str] = None,
+        label: str | None = None,
     ) -> None:
         """Create an edge from one node to another to display relationships."""
         self.emit(
@@ -269,7 +266,7 @@ class VCGPrinter(Printer):
         self.emit("}")
 
     def _write_attributes(self, attributes_dict: Mapping[str, Any], **args) -> None:
-        """write graph, node or edge attributes"""
+        """Write graph, node or edge attributes."""
         for key, value in args.items():
             try:
                 _type = attributes_dict[key]

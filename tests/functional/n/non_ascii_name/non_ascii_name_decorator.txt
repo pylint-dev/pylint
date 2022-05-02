@@ -1,0 +1,1 @@
+non-ascii-name:16:4:16:13:a_function:"Argument name ""fåling"" contains a non-ASCII character, consider renaming it.":HIGH

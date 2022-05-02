@@ -1,0 +1,7 @@
+{
+  "functional_append": {
+    "disable": ["missing-class-docstring", "missing-function-docstring"],
+    "enable": ["missing-module-docstring"]
+  },
+  "jobs": 10
+}

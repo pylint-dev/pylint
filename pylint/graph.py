@@ -1,35 +1,25 @@
-# Copyright (c) 2015-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2015 Florian Bruhin <me@the-compiler.org>
-# Copyright (c) 2016 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
-# Copyright (c) 2019, 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019 Nick Drozd <nicholasdrozd@gmail.com>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
-# Copyright (c) 2020 谭九鼎 <109224573@qq.com>
-# Copyright (c) 2020 Benjamin Graham <benwilliamgraham@gmail.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
-# Copyright (c) 2021 Andrew Howe <howeaj@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Graph manipulation utilities.
 
 (dot generation adapted from pypy/translator/tool/make_dot.py)
 """
+
+from __future__ import annotations
+
 import codecs
 import os
 import shutil
 import subprocess
 import sys
 import tempfile
-from typing import Optional
+from collections.abc import Sequence
+from typing import Any
 
 
-def target_info_from_filename(filename):
+def target_info_from_filename(filename: str) -> tuple[str, str, str]:
     """Transforms /some/path/foo.png into ('/some/path', 'foo.png', 'png')."""
     basename = os.path.basename(filename)
     storedir = os.path.dirname(os.path.abspath(filename))
@@ -38,24 +28,24 @@ def target_info_from_filename(filename):
 
 
 class DotBackend:
-    """Dot File backend."""
+    """Dot File back-end."""
 
     def __init__(
         self,
-        graphname,
-        rankdir=None,
-        size=None,
-        ratio=None,
-        charset="utf-8",
-        renderer="dot",
-        additional_param=None,
-    ):
+        graphname: str,
+        rankdir: str | None = None,
+        size: Any = None,
+        ratio: Any = None,
+        charset: str = "utf-8",
+        renderer: str = "dot",
+        additional_param: dict[str, Any] | None = None,
+    ) -> None:
         if additional_param is None:
             additional_param = {}
         self.graphname = graphname
         self.renderer = renderer
-        self.lines = []
-        self._source = None
+        self.lines: list[str] = []
+        self._source: str | None = None
         self.emit(f"digraph {normalize_node_id(graphname)} {{")
         if rankdir:
             self.emit(f"rankdir={rankdir}")
@@ -73,8 +63,8 @@ class DotBackend:
         for param in additional_param.items():
             self.emit("=".join(param))
 
-    def get_source(self):
-        """returns self._source"""
+    def get_source(self) -> str:
+        """Returns self._source."""
         if self._source is None:
             self.emit("}\n")
             self._source = "\n".join(self.lines)
@@ -84,7 +74,7 @@ class DotBackend:
     source = property(get_source)
 
     def generate(
-        self, outputfile: Optional[str] = None, mapfile: Optional[str] = None
+        self, outputfile: str | None = None, mapfile: str | None = None
     ) -> str:
         """Generates a graph file.
 
@@ -146,48 +136,57 @@ class DotBackend:
             os.unlink(dot_sourcepath)
         return outputfile
 
-    def emit(self, line):
+    def emit(self, line: str) -> None:
         """Adds <line> to final output."""
         self.lines.append(line)
 
-    def emit_edge(self, name1, name2, **props):
-        """emit an edge from <name1> to <name2>.
-        edge properties: see https://www.graphviz.org/doc/info/attrs.html
+    def emit_edge(self, name1: str, name2: str, **props: Any) -> None:
+        """Emit an edge from <name1> to <name2>.
+
+        For edge properties: see https://www.graphviz.org/doc/info/attrs.html
         """
         attrs = [f'{prop}="{value}"' for prop, value in props.items()]
         n_from, n_to = normalize_node_id(name1), normalize_node_id(name2)
         self.emit(f"{n_from} -> {n_to} [{', '.join(sorted(attrs))}];")
 
-    def emit_node(self, name, **props):
-        """emit a node with given properties.
-        node properties: see https://www.graphviz.org/doc/info/attrs.html
+    def emit_node(self, name: str, **props: Any) -> None:
+        """Emit a node with given properties.
+
+        For node properties: see https://www.graphviz.org/doc/info/attrs.html
         """
         attrs = [f'{prop}="{value}"' for prop, value in props.items()]
         self.emit(f"{normalize_node_id(name)} [{', '.join(sorted(attrs))}];")
 
 
-def normalize_node_id(nid):
+def normalize_node_id(nid: str) -> str:
     """Returns a suitable DOT node id for `nid`."""
     return f'"{nid}"'
 
 
-def get_cycles(graph_dict, vertices=None):
-    """given a dictionary representing an ordered graph (i.e. key are vertices
-    and values is a list of destination vertices representing edges), return a
-    list of detected cycles
+def get_cycles(
+    graph_dict: dict[str, set[str]], vertices: list[str] | None = None
+) -> Sequence[list[str]]:
+    """Return a list of detected cycles in a dictionary representing an ordered graph
+    (i.e. key are vertices and values is a list of destination vertices representing edges).
     """
     if not graph_dict:
         return ()
-    result = []
+    result: list[list[str]] = []
     if vertices is None:
-        vertices = graph_dict.keys()
+        vertices = list(graph_dict.keys())
     for vertice in vertices:
         _get_cycles(graph_dict, [], set(), result, vertice)
     return result
 
 
-def _get_cycles(graph_dict, path, visited, result, vertice):
-    """recursive function doing the real work for get_cycles"""
+def _get_cycles(
+    graph_dict: dict[str, set[str]],
+    path: list[str],
+    visited: set[str],
+    result: list[list[str]],
+    vertice: str,
+) -> None:
+    """Recursive function doing the real work for get_cycles."""
     if vertice in path:
         cycle = [vertice]
         for node in path[::-1]:

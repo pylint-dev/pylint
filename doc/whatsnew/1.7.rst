@@ -133,7 +133,7 @@ New checkers
       if not S:
         pass
 
-  See https://www.python.org/dev/peps/pep-0008/#programming-recommendations
+  See https://peps.python.org/pep-0008/#programming-recommendations
   for more information.
 
 * A new extension was added, ``emptystring.py`` which detects whenever
@@ -370,7 +370,7 @@ New checkers
 
 * A new Python 3 checker was added to warn about accessing the ``message`` attribute on
   Exceptions.  The message attribute was deprecated in Python 2.7 and was removed in Python 3.
-  See https://www.python.org/dev/peps/pep-0352/#retracted-ideas for more information.
+  See https://peps.python.org/pep-0352/#retracted-ideas for more information.
 
   .. code-block:: python
 
@@ -444,9 +444,9 @@ New checkers
   One of the major undertakings with Python 3 was a reorganization of the standard library to
   remove old or supplanted modules and reorganize some of the existing modules.  As a result,
   roughly 100 modules that exist in Python 2 no longer exist in Python 3.  See
-  https://www.python.org/dev/peps/pep-3108/ and https://www.python.org/dev/peps/pep-0004/ for more
-  information.  For suggestions on how to handle this, see
-  https://pythonhosted.org/six/#module-six.moves or http://python3porting.com/stdlib.html.
+  https://peps.python.org/pep-3108/ and https://peps.python.org/pep-0004/ for more
+  information.  There were suggestions on how to handle this, at
+  pythonhosted.org/six/#module-six.moves (dead link) or python3porting.com/stdlib.html (dead link).
 
   .. code-block:: python
 

@@ -1,6 +1,0 @@
-invalid-metaclass:37:0:38:8:FirstInvalid:Invalid metaclass 'int' used:UNDEFINED
-invalid-metaclass:41:0:42:8:SecondInvalid:Invalid metaclass 'InvalidAsMetaclass' used:UNDEFINED
-invalid-metaclass:45:0:46:8:ThirdInvalid:Invalid metaclass '2' used:UNDEFINED
-invalid-metaclass:49:0:50:8:FourthInvalid:Invalid metaclass 'Instance of invalid_metaclass.InvalidAsMetaclass' used:UNDEFINED
-invalid-metaclass:61:0:62:8:Invalid:Invalid metaclass 'int' used:UNDEFINED
-invalid-metaclass:65:0:66:8:InvalidSecond:Invalid metaclass '1' used:UNDEFINED

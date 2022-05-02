@@ -1,12 +1,14 @@
 global-at-module-level:5:0:5:11::Using the global statement at the module level:UNDEFINED
 undefined-variable:6:6:6:10::Undefined variable 'CSTE':UNDEFINED
-global-statement:14:4:14:19:fix_contant:Using the global statement:UNDEFINED
-global-variable-not-assigned:21:4:21:14:other:Using global for 'HOP' but no assignment is done:UNDEFINED
-undefined-variable:22:10:22:13:other:Undefined variable 'HOP':UNDEFINED
-global-variable-undefined:27:4:27:18:define_constant:Global variable 'SOMEVAR' undefined at the module level:UNDEFINED
-global-statement:33:4:33:14:global_with_import:Using the global statement:UNDEFINED
-global-variable-not-assigned:39:4:39:19:global_no_assign:Using global for 'CONSTANT' but no assignment is done:UNDEFINED
-global-statement:45:4:45:19:global_operator_assign:Using the global statement:UNDEFINED
-global-statement:52:4:52:19:global_function_assign:Using the global statement:UNDEFINED
-global-statement:62:4:62:15:override_func:Using the global statement:UNDEFINED
-global-statement:71:4:71:14:func:Using the global statement:UNDEFINED
+global-statement:17:4:17:19:fix_contant:Using the global statement:UNDEFINED
+global-variable-not-assigned:24:4:24:14:other:Using global for 'HOP' but no assignment is done:UNDEFINED
+undefined-variable:25:10:25:13:other:Undefined variable 'HOP':UNDEFINED
+global-variable-undefined:30:4:30:18:define_constant:Global variable 'SOMEVAR' undefined at the module level:UNDEFINED
+global-statement:36:4:36:14:global_with_import:Using the global statement:UNDEFINED
+global-variable-not-assigned:42:4:42:19:global_no_assign:Using global for 'CONSTANT' but no assignment is done:UNDEFINED
+global-statement:48:4:48:19:global_del:Using the global statement:UNDEFINED
+global-statement:55:4:55:19:global_operator_assign:Using the global statement:UNDEFINED
+global-statement:62:4:62:19:global_function_assign:Using the global statement:UNDEFINED
+global-statement:72:4:72:15:override_func:Using the global statement:UNDEFINED
+global-statement:81:4:81:14:func:Using the global statement:UNDEFINED
+global-statement:87:4:87:16:override_class:Using the global statement:UNDEFINED

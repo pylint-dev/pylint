@@ -30,7 +30,7 @@ except ImportError:
     pass
 
 
-from functional.s.syntax_error import toto  # [no-name-in-module,syntax-error]
+from functional.s.syntax.syntax_error import toto  # [no-name-in-module,syntax-error]
 
 
 # Don't emit `import-error` or `no-name-in-module`

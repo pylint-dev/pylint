@@ -1,28 +1,38 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-import collections
+from __future__ import annotations
+
 import traceback
+from collections import defaultdict
+from typing import TYPE_CHECKING
 
 from astroid import nodes
 
+from pylint.typing import AstCallback
+
+if TYPE_CHECKING:
+    from pylint.checkers.base_checker import BaseChecker
+    from pylint.lint import PyLinter
+
 
 class ASTWalker:
-    def __init__(self, linter):
+    def __init__(self, linter: PyLinter) -> None:
         # callbacks per node types
         self.nbstatements = 0
-        self.visit_events = collections.defaultdict(list)
-        self.leave_events = collections.defaultdict(list)
+        self.visit_events: defaultdict[str, list[AstCallback]] = defaultdict(list)
+        self.leave_events: defaultdict[str, list[AstCallback]] = defaultdict(list)
         self.linter = linter
         self.exception_msg = False
 
-    def _is_method_enabled(self, method):
+    def _is_method_enabled(self, method: AstCallback) -> bool:
         if not hasattr(method, "checks_msgs"):
             return True
-        return any(self.linter.is_message_enabled(m) for m in method.checks_msgs)
+        return any(self.linter.is_message_enabled(m) for m in method.checks_msgs)  # type: ignore[attr-defined]
 
-    def add_checker(self, checker):
-        """walk to the checker's dir and collect visit and leave methods"""
+    def add_checker(self, checker: BaseChecker) -> None:
+        """Walk to the checker's dir and collect visit and leave methods."""
         vcids = set()
         lcids = set()
         visits = self.visit_events
@@ -51,7 +61,7 @@ class ASTWalker:
                     visits[cid].append(visit_default)
         # For now, we have no "leave_default" method in Pylint
 
-    def walk(self, astroid):
+    def walk(self, astroid: nodes.NodeNG) -> None:
         """Call visit events of astroid checkers for the given node, recurse on
         its children, then leave events.
         """

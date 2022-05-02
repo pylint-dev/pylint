@@ -1,0 +1,4 @@
+broken-noreturn:17:27:17:35:func2:'NoReturn' inside compound types is broken in 3.7.0 / 3.7.1:INFERENCE
+broken-noreturn:23:27:23:42:func4:'NoReturn' inside compound types is broken in 3.7.0 / 3.7.1:INFERENCE
+broken-noreturn:26:27:26:53:func5:'NoReturn' inside compound types is broken in 3.7.0 / 3.7.1:INFERENCE
+broken-noreturn:31:23:31:31::'NoReturn' inside compound types is broken in 3.7.0 / 3.7.1:INFERENCE

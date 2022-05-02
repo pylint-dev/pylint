@@ -1,7 +1,7 @@
 """Test generic alias support for typing.py types."""
 # flake8: noqa
 # pylint: disable=missing-docstring,pointless-statement
-# pylint: disable=too-few-public-methods,multiple-statements,line-too-long
+# pylint: disable=too-few-public-methods,multiple-statements,line-too-long, unnecessary-dunder-call
 import abc
 import typing
 

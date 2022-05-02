@@ -1,14 +1,23 @@
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
 """Check for if / assign blocks that can be rewritten with if-expressions."""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
-from pylint.interfaces import IAstroidChecker
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 
 class ConsiderTernaryExpressionChecker(BaseChecker):
 
-    __implements__ = (IAstroidChecker,)
     name = "consider_ternary_expression"
     msgs = {
         "W0160": (
@@ -44,10 +53,5 @@ class ConsiderTernaryExpressionChecker(BaseChecker):
         self.add_message("consider-ternary-expression", node=node)
 
 
-def register(linter):
-    """Required method to auto register this checker.
-
-    :param linter: Main interface object for Pylint plugins
-    :type linter: Pylint object
-    """
+def register(linter: PyLinter) -> None:
     linter.register_checker(ConsiderTernaryExpressionChecker(linter))

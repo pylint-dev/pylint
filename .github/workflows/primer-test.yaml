@@ -1,4 +1,4 @@
-name: Primer tests
+name: Primer
 
 on:
   push:
@@ -10,9 +10,11 @@ on:
       - "pylint/**"
       - "tests/primer/**"
       - "requirements*"
+      - ".github/workflows/primer-test.yaml"
 
 env:
-  CACHE_VERSION: 3
+  # Also change CACHE_VERSION in the CI workflow
+  CACHE_VERSION: 5
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -20,8 +22,9 @@ concurrency:
 
 jobs:
   prepare-tests-linux:
-    name: Prepare tests for Python ${{ matrix.python-version }} (Linux)
+    name: prepare / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     strategy:
       matrix:
         python-version: [3.8, 3.9, "3.10"]
@@ -29,12 +32,10 @@ jobs:
       python-key: ${{ steps.generate-python-key.outputs.key }}
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v2.4.0
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v3.0.2
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v2.3.1
+        uses: actions/setup-python@v3.1.2
         with:
           python-version: ${{ matrix.python-version }}
       - name: Generate partial Python venv restore key
@@ -45,7 +46,7 @@ jobs:
           }}"
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v2.1.7
+        uses: actions/cache@v3.0.2
         with:
           path: venv
           key: >-
@@ -62,23 +63,24 @@ jobs:
           pip install -U -r requirements_test.txt
 
   pytest-primer-stdlib:
-    name: Run primer tests on stdlib Python ${{ matrix.python-version }} (Linux)
+    name: run on stdlib / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: prepare-tests-linux
     strategy:
       matrix:
         python-version: [3.8, 3.9, "3.10"]
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v2.3.5
+        uses: actions/checkout@v3.0.2
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v2.3.1
+        uses: actions/setup-python@v3.1.2
         with:
           python-version: ${{ matrix.python-version }}
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v2.1.7
+        uses: actions/cache@v3.0.2
         with:
           path: venv
           key:
@@ -96,25 +98,24 @@ jobs:
           pytest -m primer_stdlib --primer-stdlib -n auto
 
   pytest-primer-external-batch-one:
-    name:
-      Run primer tests batch one on external libs Python ${{ matrix.python-version }}
-      (Linux)
+    name: run on batch one / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     needs: prepare-tests-linux
     strategy:
       matrix:
         python-version: [3.8, 3.9, "3.10"]
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v2.3.5
+        uses: actions/checkout@v3.0.2
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v2.3.1
+        uses: actions/setup-python@v3.1.2
         with:
           python-version: ${{ matrix.python-version }}
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v2.1.7
+        uses: actions/cache@v3.0.2
         with:
           path: venv
           key:
@@ -132,25 +133,24 @@ jobs:
           pytest -m primer_external_batch_one --primer-external -n auto
 
   pytest-primer-external-batch-two:
-    name:
-      Run primer tests batch two on external libs Python ${{ matrix.python-version }}
-      (Linux)
+    name: run on batch two / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     needs: prepare-tests-linux
     strategy:
       matrix:
         python-version: [3.8, 3.9, "3.10"]
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v2.3.5
+        uses: actions/checkout@v3.0.2
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v2.3.1
+        uses: actions/setup-python@v3.1.2
         with:
           python-version: ${{ matrix.python-version }}
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v2.1.7
+        uses: actions/cache@v3.0.2
         with:
           path: venv
           key:

@@ -1,54 +1,28 @@
-# Copyright (c) 2009-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2010 Daniel Harding <dharding@gmail.com>
-# Copyright (c) 2012-2014 Google, Inc.
-# Copyright (c) 2013-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2014 Brett Cannon <brett@python.org>
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015 Rene Zhang <rz99@cornell.edu>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016, 2018 Jakub Wilk <jwilk@jwilk.net>
-# Copyright (c) 2016 Peter Dawyndt <Peter.Dawyndt@UGent.be>
-# Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
-# Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2018, 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2018-2019 Lucas Cimon <lucas.cimon@gmail.com>
-# Copyright (c) 2018 Alan Chan <achan961117@gmail.com>
-# Copyright (c) 2018 Yury Gribov <tetra2005@gmail.com>
-# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
-# Copyright (c) 2018 Nick Drozd <nicholasdrozd@gmail.com>
-# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019 Wes Turner <westurner@google.com>
-# Copyright (c) 2019 Djailla <bastien.vallet@gmail.com>
-# Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2020 Matthew Suozzo <msuozzo@google.com>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2020 谭九鼎 <109224573@qq.com>
-# Copyright (c) 2020 Anthony <tanant@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 Tushar Sadhwani <tushar.sadhwani000@gmail.com>
-# Copyright (c) 2021 Jaehoon Hwang <jaehoonhwang@users.noreply.github.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Peter Kolbus <peter.kolbus@garmin.com>
-
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-"""Checker for string formatting operations.
-"""
+"""Checker for string formatting operations."""
+
+from __future__ import annotations
 
 import collections
 import numbers
 import re
 import tokenize
-from typing import Counter, Iterable
+from collections import Counter
+from collections.abc import Iterable, Sequence
+from typing import TYPE_CHECKING
 
 import astroid
 from astroid import nodes
 
-from pylint.checkers import BaseChecker, BaseTokenChecker, utils
-from pylint.checkers.utils import check_messages
-from pylint.interfaces import IAstroidChecker, IRawChecker, ITokenChecker
+from pylint.checkers import BaseChecker, BaseRawFileChecker, BaseTokenChecker, utils
+from pylint.checkers.utils import only_required_for_messages
+from pylint.typing import MessageDefinitionTuple
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 _AST_NODE_STR_TYPES = ("__builtin__.unicode", "__builtin__.str", "builtins.str")
 # Prefixes for both strings and bytes literals per
@@ -83,7 +57,9 @@ SINGLE_QUOTED_REGEX = re.compile(f"({'|'.join(_PREFIXES)})?'''")
 DOUBLE_QUOTED_REGEX = re.compile(f"({'|'.join(_PREFIXES)})?\"\"\"")
 QUOTE_DELIMITER_REGEX = re.compile(f"({'|'.join(_PREFIXES)})?(\"|')", re.DOTALL)
 
-MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
+MSGS: dict[
+    str, MessageDefinitionTuple
+] = {  # pylint: disable=consider-using-namedtuple-or-dataclass
     "E1300": (
         "Unsupported format character %r (%#02x) at index %d",
         "bad-format-character",
@@ -150,7 +126,7 @@ MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
     "E1310": (
         "Suspicious argument in %s.%s call",
         "bad-str-strip-call",
-        "The argument to a str.{l,r,}strip call contains a duplicate character, ",
+        "The argument to a str.{l,r,}strip call contains a duplicate character,",
     ),
     "W1302": (
         "Invalid format string",
@@ -258,12 +234,11 @@ class StringFormatChecker(BaseChecker):
     is valid and the arguments match the format string.
     """
 
-    __implements__ = (IAstroidChecker,)
     name = "string"
     msgs = MSGS
 
     # pylint: disable=too-many-branches
-    @check_messages(
+    @only_required_for_messages(
         "bad-format-character",
         "truncated-format-string",
         "mixed-format-string",
@@ -274,7 +249,6 @@ class StringFormatChecker(BaseChecker):
         "format-needs-mapping",
         "too-many-format-args",
         "too-few-format-args",
-        "bad-string-format-type",
         "format-string-without-interpolation",
     )
     def visit_binop(self, node: nodes.BinOp) -> None:
@@ -383,9 +357,21 @@ class StringFormatChecker(BaseChecker):
             elif isinstance(args, (OTHER_NODES, (nodes.Dict, nodes.DictComp))):
                 args_elts = [args]
                 num_args = 1
+            elif isinstance(args, nodes.Name):
+                inferred = utils.safe_infer(args)
+                if isinstance(inferred, nodes.Tuple):
+                    # The variable is a tuple, so we need to get the elements
+                    # from it for further inspection
+                    args_elts = inferred.elts
+                    num_args = len(args_elts)
+                elif isinstance(inferred, nodes.Const):
+                    args_elts = [inferred]
+                    num_args = 1
+                else:
+                    num_args = None
             else:
-                # The RHS of the format specifier is a name or
-                # expression.  It could be a tuple of unknown size, so
+                # The RHS of the format specifier is an expression.
+                # It could be a tuple of unknown size, so
                 # there's nothing we can check.
                 num_args = None
             if num_args is not None:
@@ -408,7 +394,7 @@ class StringFormatChecker(BaseChecker):
                             args=(arg_type.pytype(), format_type),
                         )
 
-    @check_messages("f-string-without-interpolation")
+    @only_required_for_messages("f-string-without-interpolation")
     def visit_joinedstr(self, node: nodes.JoinedStr) -> None:
         self._check_interpolation(node)
 
@@ -420,7 +406,6 @@ class StringFormatChecker(BaseChecker):
                 return
         self.add_message("f-string-without-interpolation", node=node)
 
-    @check_messages(*MSGS)
     def visit_call(self, node: nodes.Call) -> None:
         func = utils.safe_infer(node.func)
         if (
@@ -457,7 +442,7 @@ class StringFormatChecker(BaseChecker):
         # Skip format nodes which don't have an explicit string on the
         # left side of the format operation.
         # We do this because our inference engine can't properly handle
-        # redefinitions of the original string.
+        # redefinition of the original string.
         # Note that there may not be any left side at all, if the format method
         # has been assigned to another variable. See issue 351. For example:
         #
@@ -537,8 +522,7 @@ class StringFormatChecker(BaseChecker):
         self._check_new_format_specifiers(node, fields, named_arguments)
 
     def _check_new_format_specifiers(self, node, fields, named):
-        """
-        Check attribute and index access in the format
+        """Check attribute and index access in the format
         string ("{0.a}" and "{0[a]}").
         """
         for key, specifiers in fields:
@@ -633,10 +617,9 @@ class StringFormatChecker(BaseChecker):
                     break
 
 
-class StringConstantChecker(BaseTokenChecker):
-    """Check string literals"""
+class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
+    """Check string literals."""
 
-    __implements__ = (IAstroidChecker, ITokenChecker, IRawChecker)
     name = "string"
     msgs = {
         "W1401": (
@@ -708,14 +691,14 @@ class StringConstantChecker(BaseTokenChecker):
     # Unicode strings.
     UNICODE_ESCAPE_CHARACTERS = "uUN"
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, linter):
+        super().__init__(linter)
         self.string_tokens = {}  # token position -> (token value, next token)
 
     def process_module(self, node: nodes.Module) -> None:
         self._unicode_literals = "unicode_literals" in node.future_imports
 
-    def process_tokens(self, tokens):
+    def process_tokens(self, tokens: list[tokenize.TokenInfo]) -> None:
         encoding = "ascii"
         for i, (tok_type, token, start, _, line) in enumerate(tokens):
             if tok_type == tokenize.ENCODING:
@@ -740,18 +723,18 @@ class StringConstantChecker(BaseTokenChecker):
                     start = (start[0], len(line[: start[1]].encode(encoding)))
                 self.string_tokens[start] = (str_eval(token), next_token)
 
-        if self.config.check_quote_consistency:
+        if self.linter.config.check_quote_consistency:
             self.check_for_consistent_string_delimiters(tokens)
 
-    @check_messages("implicit-str-concat")
+    @only_required_for_messages("implicit-str-concat")
     def visit_list(self, node: nodes.List) -> None:
         self.check_for_concatenated_strings(node.elts, "list")
 
-    @check_messages("implicit-str-concat")
+    @only_required_for_messages("implicit-str-concat")
     def visit_set(self, node: nodes.Set) -> None:
         self.check_for_concatenated_strings(node.elts, "set")
 
-    @check_messages("implicit-str-concat")
+    @only_required_for_messages("implicit-str-concat")
     def visit_tuple(self, node: nodes.Tuple) -> None:
         self.check_for_concatenated_strings(node.elts, "tuple")
 
@@ -793,7 +776,9 @@ class StringConstantChecker(BaseTokenChecker):
                         "inconsistent-quotes", line=start[0], args=(quote_delimiter,)
                     )
 
-    def check_for_concatenated_strings(self, elements, iterable_type):
+    def check_for_concatenated_strings(
+        self, elements: Sequence[nodes.NodeNG], iterable_type: str
+    ) -> None:
         for elt in elements:
             if not (
                 isinstance(elt, nodes.Const) and elt.pytype() in _AST_NODE_STR_TYPES
@@ -814,7 +799,7 @@ class StringConstantChecker(BaseTokenChecker):
             if matching_token != elt.value and next_token is not None:
                 if next_token.type == tokenize.STRING and (
                     next_token.start[0] == elt.lineno
-                    or self.config.check_str_concat_over_line_jumps
+                    or self.linter.config.check_str_concat_over_line_jumps
                 ):
                     self.add_message(
                         "implicit-str-concat", line=elt.lineno, args=(iterable_type,)
@@ -849,9 +834,9 @@ class StringConstantChecker(BaseTokenChecker):
     def process_non_raw_string_token(
         self, prefix, string_body, start_row, string_start_col
     ):
-        """check for bad escapes in a non-raw string.
+        """Check for bad escapes in a non-raw string.
 
-        prefix: lowercase string of eg 'ur' string prefix markers.
+        prefix: lowercase string of string prefix markers ('ur').
         string_body: the un-parsed body of the string, not including the quote
         marks.
         start_row: integer line number in the source.
@@ -908,7 +893,7 @@ class StringConstantChecker(BaseTokenChecker):
             # character can never be the start of a new backslash escape.
             index += 2
 
-    @check_messages("redundant-u-string-prefix")
+    @only_required_for_messages("redundant-u-string-prefix")
     def visit_const(self, node: nodes.Const) -> None:
         if node.pytype() == "builtins.str" and not isinstance(
             node.parent, nodes.JoinedStr
@@ -916,7 +901,7 @@ class StringConstantChecker(BaseTokenChecker):
             self._detect_u_string_prefix(node)
 
     def _detect_u_string_prefix(self, node: nodes.Const):
-        """Check whether strings include a 'u' prefix like u'String'"""
+        """Check whether strings include a 'u' prefix like u'String'."""
         if node.kind == "u":
             self.add_message(
                 "redundant-u-string-prefix",
@@ -925,15 +910,14 @@ class StringConstantChecker(BaseTokenChecker):
             )
 
 
-def register(linter):
-    """required method to auto register this checker"""
+def register(linter: PyLinter) -> None:
     linter.register_checker(StringFormatChecker(linter))
     linter.register_checker(StringConstantChecker(linter))
 
 
 def str_eval(token):
-    """
-    Mostly replicate `ast.literal_eval(token)` manually to avoid any performance hit.
+    """Mostly replicate `ast.literal_eval(token)` manually to avoid any performance hit.
+
     This supports f-strings, contrary to `ast.literal_eval`.
     We have to support all string literal notations:
     https://docs.python.org/3/reference/lexical_analysis.html#string-and-bytes-literals

@@ -1,10 +1,13 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
+from __future__ import annotations
+
 import json
 import logging
 import subprocess
 from pathlib import Path
-from typing import Dict, Union
 
 import pytest
 from pytest import LogCaptureFixture
@@ -14,14 +17,12 @@ from pylint.testutils.primer import PackageToLint
 PRIMER_DIRECTORY = Path(".pylint_primer_tests/").resolve()
 
 
-def get_packages_to_lint_from_json(
-    json_path: Union[Path, str]
-) -> Dict[str, PackageToLint]:
-    result: Dict[str, PackageToLint] = {}
+def get_packages_to_lint_from_json(json_path: Path | str) -> dict[str, PackageToLint]:
     with open(json_path, encoding="utf8") as f:
-        for name, package_data in json.load(f).items():
-            result[name] = PackageToLint(**package_data)
-    return result
+        return {
+            name: PackageToLint(**package_data)
+            for name, package_data in json.load(f).items()
+        }
 
 
 PACKAGE_TO_LINT_JSON_BATCH_ONE = (
@@ -30,7 +31,7 @@ PACKAGE_TO_LINT_JSON_BATCH_ONE = (
 PACKAGES_TO_LINT_BATCH_ONE = get_packages_to_lint_from_json(
     PACKAGE_TO_LINT_JSON_BATCH_ONE
 )
-"""Dictionary of external packages used during the primer test in batch one"""
+"""Dictionary of external packages used during the primer test in batch one."""
 
 PACKAGE_TO_LINT_JSON_BATCH_TWO = (
     Path(__file__).parent / "packages_to_lint_batch_two.json"
@@ -38,7 +39,7 @@ PACKAGE_TO_LINT_JSON_BATCH_TWO = (
 PACKAGES_TO_LINT_BATCH_TWO = get_packages_to_lint_from_json(
     PACKAGE_TO_LINT_JSON_BATCH_TWO
 )
-"""Dictionary of external packages used during the primer test in batch two"""
+"""Dictionary of external packages used during the primer test in batch two."""
 
 
 class TestPrimer:
@@ -68,7 +69,7 @@ class TestPrimer:
 
     @staticmethod
     def _primer_test(package: PackageToLint, caplog: LogCaptureFixture) -> None:
-        """Runs pylint over external packages to check for crashes and fatal messages
+        """Runs pylint over external packages to check for crashes and fatal messages.
 
         We only check for crashes (bit-encoded exit code 32) and fatal messages
         (bit-encoded exit code 1). We assume that these external repositories do not

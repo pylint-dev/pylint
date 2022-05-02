@@ -14,14 +14,14 @@
 [(x, y, 1) for x, y in iterable]  # exclude useful comprehensions
 # Test case for issue #4499
 a_dict = {}
-[(k, v) for k, v in a_dict.items()]  # [unnecessary-comprehension]
+item = [(k, v) for k, v in a_dict.items()]  # [unnecessary-comprehension]
 
 # Set comprehensions
 {x for x in iterable}  # [unnecessary-comprehension]
 {y for x in iterable}  # expression != target_list
 {x for x,y,z in iterable}  # expression != target_list
 {(x,y,z) for x,y,z in iterable}  # [unnecessary-comprehension]
-{(x,y,z) for (x, y, z) in iterable}  # [unnecessary-comprehension]
+item = {(x,y,z) for (x, y, z) in iterable}  # [unnecessary-comprehension]
 {(x,y,z) for x in iterable}  # expression != target_list
 {(x,y,(a,b,c)) for x in iterable}  # expression != target_list
 {x for x, *y in iterable}  # expression != target_list
@@ -44,6 +44,6 @@ my_dict = {}
 my_set = set()
 
 [elem for elem in my_list]  # [unnecessary-comprehension]
-{k: v for k, v in my_dict.items()} # [unnecessary-comprehension]
+items = {k: v for k, v in my_dict.items()} # [unnecessary-comprehension]
 {k: my_dict[k] for k in my_dict} # [consider-using-dict-items]
 {elem for elem in my_set}  # [unnecessary-comprehension]

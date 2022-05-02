@@ -1,0 +1,10 @@
+used-before-assignment:8:14:8:17:main:Using variable 'res' before assignment:CONTROL_FLOW
+used-before-assignment:20:14:20:17:try_except_finally:Using variable 'res' before assignment:CONTROL_FLOW
+used-before-assignment:45:18:45:21:try_except_finally_nested_try_finally_in_try:Using variable 'res' before assignment:HIGH
+used-before-assignment:70:18:70:29:try_except_finally_nested_in_finally:Using variable 'outer_times' before assignment:CONTROL_FLOW
+used-before-assignment:84:18:84:29:try_except_finally_nested_in_finally_2:Using variable 'inner_times' before assignment:CONTROL_FLOW
+used-before-assignment:85:14:85:25:try_except_finally_nested_in_finally_2:Using variable 'outer_times' before assignment:CONTROL_FLOW
+used-before-assignment:100:18:100:29:try_except_finally_nested_in_finally_3:Using variable 'inner_times' before assignment:CONTROL_FLOW
+used-before-assignment:101:18:101:29:try_except_finally_nested_in_finally_3:Using variable 'outer_times' before assignment:CONTROL_FLOW
+used-before-assignment:122:22:122:33:try_except_finally_nested_in_finally_4:Using variable 'inner_times' before assignment:CONTROL_FLOW
+used-before-assignment:123:22:123:33:try_except_finally_nested_in_finally_4:Using variable 'outer_times' before assignment:CONTROL_FLOW

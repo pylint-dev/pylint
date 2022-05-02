@@ -1,17 +1,23 @@
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import check_messages
-from pylint.interfaces import IAstroidChecker
-from pylint.lint import PyLinter
+from pylint.checkers.utils import only_required_for_messages
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 
 class SetMembershipChecker(BaseChecker):
 
-    __implements__ = (IAstroidChecker,)
-
     name = "set_membership"
-    priority = -1
     msgs = {
         "R6201": (
             "Consider using set for membership test",
@@ -25,7 +31,7 @@ class SetMembershipChecker(BaseChecker):
         """Initialize checker instance."""
         super().__init__(linter=linter)
 
-    @check_messages("use-set-for-membership")
+    @only_required_for_messages("use-set-for-membership")
     def visit_compare(self, node: nodes.Compare) -> None:
         for op, comparator in node.ops:
             if op == "in":

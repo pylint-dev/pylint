@@ -9,8 +9,10 @@
 /pylint.egg-info/
 .tox
 *.sw[a-z]
+doc/messages/
 doc/technical_reference/extensions.rst
 doc/technical_reference/features.rst
+doc/user_guide/configuration/all-options.rst
 pyve
 build-stamp
 .coverage

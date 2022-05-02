@@ -1,3 +1,3 @@
-Sphinx==4.3.2
-python-docs-theme==2021.11.1
+Sphinx==4.5.0
+furo==2022.4.7
 -e .

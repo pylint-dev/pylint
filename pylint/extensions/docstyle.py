@@ -1,28 +1,25 @@
-# Copyright (c) 2016-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2016 Łukasz Rogalski <rogalski.91@gmail.com>
-# Copyright (c) 2016 Luis Escobar <lescobar@vauxoo.com>
-# Copyright (c) 2019, 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
+from __future__ import annotations
 
 import linecache
+from typing import TYPE_CHECKING
 
 from astroid import nodes
 
 from pylint import checkers
-from pylint.checkers.utils import check_messages
-from pylint.interfaces import HIGH, IAstroidChecker
+from pylint.checkers.utils import only_required_for_messages
+from pylint.interfaces import HIGH
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 
 class DocStringStyleChecker(checkers.BaseChecker):
-    """Checks format of docstrings based on PEP 0257"""
+    """Checks format of docstrings based on PEP 0257."""
 
-    __implements__ = IAstroidChecker
     name = "docstyle"
 
     msgs = {
@@ -38,7 +35,7 @@ class DocStringStyleChecker(checkers.BaseChecker):
         ),
     }
 
-    @check_messages("docstring-first-line-empty", "bad-docstring-quotes")
+    @only_required_for_messages("docstring-first-line-empty", "bad-docstring-quotes")
     def visit_module(self, node: nodes.Module) -> None:
         self._check_docstring("module", node)
 
@@ -52,7 +49,7 @@ class DocStringStyleChecker(checkers.BaseChecker):
     visit_asyncfunctiondef = visit_functiondef
 
     def _check_docstring(self, node_type, node):
-        docstring = node.doc
+        docstring = node.doc_node.value if node.doc_node else None
         if docstring and docstring[0] == "\n":
             self.add_message(
                 "docstring-first-line-empty",
@@ -86,10 +83,5 @@ class DocStringStyleChecker(checkers.BaseChecker):
                 )
 
 
-def register(linter):
-    """Required method to auto register this checker.
-
-    :param linter: Main interface object for Pylint plugins
-    :type linter: Pylint object
-    """
+def register(linter: PyLinter) -> None:
     linter.register_checker(DocStringStyleChecker(linter))

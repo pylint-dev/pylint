@@ -23,3 +23,11 @@ unspecified-encoding:81:0:81:21::Using open without explicitly specifying an enc
 unspecified-encoding:82:0:82:25::Using open without explicitly specifying an encoding:UNDEFINED
 unspecified-encoding:83:0:83:25::Using open without explicitly specifying an encoding:UNDEFINED
 unspecified-encoding:84:0:84:39::Using open without explicitly specifying an encoding:UNDEFINED
+unspecified-encoding:149:0:149:23::Using open without explicitly specifying an encoding:UNDEFINED
+unspecified-encoding:152:0:152:28::Using open without explicitly specifying an encoding:UNDEFINED
+unspecified-encoding:155:0:155:26::Using open without explicitly specifying an encoding:UNDEFINED
+unspecified-encoding:158:0:158:35::Using open without explicitly specifying an encoding:UNDEFINED
+bad-open-mode:161:0:161:25::"""None"" is not a valid mode for open.":UNDEFINED
+unspecified-encoding:161:0:161:25::Using open without explicitly specifying an encoding:UNDEFINED
+bad-open-mode:164:0:164:19::"""2"" is not a valid mode for open.":UNDEFINED
+unspecified-encoding:164:0:164:19::Using open without explicitly specifying an encoding:UNDEFINED

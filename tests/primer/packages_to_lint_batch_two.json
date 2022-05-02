@@ -1,6 +1,6 @@
 {
   "pandas": {
-    "branch": "master",
+    "branch": "main",
     "directories": ["pandas"],
     "pylint_additional_args": ["--ignore-patterns=\"test_"],
     "url": "https://github.com/pandas-dev/pandas.git"

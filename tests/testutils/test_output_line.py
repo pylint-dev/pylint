@@ -1,9 +1,12 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 # pylint: disable=redefined-outer-name
 
-from typing import Callable, Optional
+from __future__ import annotations
+
+from collections.abc import Callable
 
 import pytest
 
@@ -123,23 +126,34 @@ def test_output_line_to_csv(confidence: Confidence, message: Callable) -> None:
 
 def test_output_line_from_csv_error() -> None:
     """Test that errors are correctly raised for incorrect OutputLine's."""
+    # Test a csv-string which does not have a number for line and column
     with pytest.raises(
         MalformedOutputLineException,
         match="msg-symbolic-name:42:27:MyClass.my_function:The message",
     ):
         OutputLine.from_csv("'missing-docstring', 'line', 'column', 'obj', 'msg'", True)
+    # Test a tuple which does not have a number for line and column
     with pytest.raises(
         MalformedOutputLineException, match="symbol='missing-docstring' ?"
     ):
         csv = ("missing-docstring", "line", "column", "obj", "msg")
         OutputLine.from_csv(csv, True)
+    # Test a csv-string that is too long
+    with pytest.raises(
+        MalformedOutputLineException,
+        match="msg-symbolic-name:42:27:MyClass.my_function:The message",
+    ):
+        OutputLine.from_csv(
+            "'missing-docstring', 1, 2, 'obj', 'msg', 'func', 'message', 'conf', 'too_long'",
+            True,
+        )
 
 
 @pytest.mark.parametrize(
     "confidence,expected_confidence", [[None, "UNDEFINED"], ["INFERENCE", "INFERENCE"]]
 )
 def test_output_line_from_csv_deprecated(
-    confidence: Optional[str], expected_confidence: str
+    confidence: str | None, expected_confidence: str
 ) -> None:
     """Test that the OutputLine NamedTuple is instantiated correctly with from_csv.
     Test OutputLine's of length 5 or 6.

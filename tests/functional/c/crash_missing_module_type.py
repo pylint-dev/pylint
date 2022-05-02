@@ -1,7 +1,7 @@
 """ Test for a crash found in
 https://bitbucket.org/logilab/astroid/issue/45/attributeerror-module-object-has-no#comment-11944673
 """
-# pylint: disable=no-init, invalid-name, too-few-public-methods, redefined-outer-name, useless-object-inheritance
+# pylint: disable=invalid-name, too-few-public-methods, redefined-outer-name, useless-object-inheritance
 def decor(trop):
     """ decorator """
     return trop

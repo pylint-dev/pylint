@@ -90,3 +90,7 @@ i = 0
 for j in range(5):
     print(source.split('.')[i])
     i = i + 1
+
+# Test for crash when sep is given by keyword
+# https://github.com/PyCQA/pylint/issues/5737
+get_last = SEQ.split(sep=None)[-1]  # [use-maxsplit-arg]

@@ -1,7 +1,8 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-"""Special methods checker and helper function's module"""
+"""Special methods checker and helper function's module."""
 
 import astroid
 from astroid import nodes
@@ -10,19 +11,17 @@ from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
     PYMETHODS,
     SPECIAL_METHODS_PARAMS,
-    check_messages,
     decorated_with,
     is_function_body_ellipsis,
+    only_required_for_messages,
     safe_infer,
 )
-from pylint.interfaces import IAstroidChecker
 
 NEXT_METHOD = "__next__"
 
 
 def _safe_infer_call_result(node, caller, context=None):
-    """
-    Safely infer the return value of a function.
+    """Safely infer the return value of a function.
 
     Returns None if inference failed or if there is some ambiguity (more than
     one node has been inferred). Otherwise, returns inferred value.
@@ -48,7 +47,6 @@ class SpecialMethodsChecker(BaseChecker):
     are implemented correctly.
     """
 
-    __implements__ = (IAstroidChecker,)
     name = "classes"
     msgs = {
         "E0301": (
@@ -132,7 +130,6 @@ class SpecialMethodsChecker(BaseChecker):
             "of the form tuple(tuple, dict)",
         ),
     }
-    priority = -2
 
     def __init__(self, linter=None):
         super().__init__(linter)
@@ -151,7 +148,7 @@ class SpecialMethodsChecker(BaseChecker):
             "__getnewargs_ex__": self._check_getnewargs_ex,
         }
 
-    @check_messages(
+    @only_required_for_messages(
         "unexpected-special-method-signature",
         "non-iterator-returned",
         "invalid-length-returned",
@@ -204,6 +201,7 @@ class SpecialMethodsChecker(BaseChecker):
         optional = len(node.args.defaults)
         current_params = mandatory + optional
 
+        emit = False  # If we don't know we choose a false negative
         if isinstance(expected_params, tuple):
             # The expected number of parameters can be any value from this
             # tuple, although the user should implement the method
@@ -289,6 +287,10 @@ class SpecialMethodsChecker(BaseChecker):
             return True
         if isinstance(node, astroid.bases.Generator):
             # Generators can be iterated.
+            return True
+        # TODO: 2.14: Should be covered by https://github.com/PyCQA/astroid/pull/1475
+        if isinstance(node, nodes.ComprehensionScope):
+            # Comprehensions can be iterated.
             return True
 
         if isinstance(node, astroid.Instance):

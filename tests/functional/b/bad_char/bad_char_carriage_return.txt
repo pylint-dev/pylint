@@ -1,0 +1,1 @@
+invalid-character-carriage-return:5:4:5:5::"Invalid unescaped character carriage-return, use ""\r"" instead.":HIGH

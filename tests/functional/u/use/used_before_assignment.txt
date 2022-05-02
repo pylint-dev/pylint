@@ -1,2 +1,0 @@
-used-before-assignment:6:19:6:22::Using variable 'MSG' before assignment:UNDEFINED
-used-before-assignment:8:20:8:24::Using variable 'MSG2' before assignment:UNDEFINED

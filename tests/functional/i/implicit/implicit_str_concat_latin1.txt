@@ -1,0 +1,1 @@
+bad-file-encoding:1:0:1:None::PEP8 recommends UTF-8 as encoding for Python files:HIGH

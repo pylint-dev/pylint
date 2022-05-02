@@ -1,0 +1,3 @@
+invalid-getnewargs-returned:36:4:36:22:FirstBadGetNewArgs.__getnewargs__:__getnewargs__ does not return a tuple:UNDEFINED
+invalid-getnewargs-returned:43:4:43:22:SecondBadGetNewArgs.__getnewargs__:__getnewargs__ does not return a tuple:UNDEFINED
+invalid-getnewargs-returned:50:4:50:22:ThirdBadGetNewArgs.__getnewargs__:__getnewargs__ does not return a tuple:UNDEFINED

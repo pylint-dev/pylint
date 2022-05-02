@@ -1,5 +1,5 @@
 """Test duplicate bases error."""
-# pylint: disable=missing-docstring,too-few-public-methods,no-init
+# pylint: disable=missing-docstring,too-few-public-methods
 
 
 class Duplicates(str, str):  # [duplicate-bases]

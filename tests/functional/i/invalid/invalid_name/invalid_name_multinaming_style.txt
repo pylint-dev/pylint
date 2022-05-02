@@ -1,0 +1,1 @@
+invalid-name:4:0:4:9:UPPER:"Function name ""UPPER"" doesn't conform to the `down` group in the '^(?:(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$' pattern":HIGH
