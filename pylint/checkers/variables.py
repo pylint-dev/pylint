@@ -132,13 +132,6 @@ def _is_from_future_import(stmt, name):
     return None
 
 
-def in_for_else_branch(parent, stmt):
-    """Returns True if stmt in inside the else branch for a parent For stmt."""
-    return isinstance(parent, nodes.For) and any(
-        else_stmt.parent_of(stmt) or else_stmt == stmt for else_stmt in parent.orelse
-    )
-
-
 @lru_cache(maxsize=1000)
 def overridden_method(klass, name):
     """Get overridden method if any."""
@@ -448,7 +441,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
     "W0621": (
         "Redefining name %r from outer scope (line %s)",
         "redefined-outer-name",
-        "Used when a variable's name hides a name defined in the outer scope.",
+        "Used when a variable's name hides a name defined in an outer scope or except handler.",
     ),
     "W0622": (
         "Redefining built-in %r",
@@ -961,7 +954,7 @@ class VariablesChecker(BaseChecker):
     Checks for
     * unused variables / imports
     * undefined variables
-    * redefinition of variable from builtins or from an outer scope
+    * redefinition of variable from builtins or from an outer scope or except handler
     * use of variable before assignment
     * __all__ consistency
     * self/cls assignment
@@ -1062,7 +1055,6 @@ class VariablesChecker(BaseChecker):
         super().__init__(linter)
         self._to_consume: list[NamesConsumer] = []
         self._checking_mod_attr = None
-        self._loop_variables = []
         self._type_annotation_names = []
         self._except_handler_names_queue: list[
             tuple[nodes.ExceptHandler, nodes.AssignName]
@@ -1079,31 +1071,7 @@ class VariablesChecker(BaseChecker):
             "undefined-loop-variable"
         )
 
-    @utils.only_required_for_messages("redefined-outer-name")
-    def visit_for(self, node: nodes.For) -> None:
-        assigned_to = [a.name for a in node.target.nodes_of_class(nodes.AssignName)]
-
-        # Only check variables that are used
-        dummy_rgx = self.linter.config.dummy_variables_rgx
-        assigned_to = [var for var in assigned_to if not dummy_rgx.match(var)]
-
-        for variable in assigned_to:
-            for outer_for, outer_variables in self._loop_variables:
-                if variable in outer_variables and not in_for_else_branch(
-                    outer_for, node
-                ):
-                    self.add_message(
-                        "redefined-outer-name",
-                        args=(variable, outer_for.fromlineno),
-                        node=node,
-                    )
-                    break
-
-        self._loop_variables.append((node, assigned_to))
-
-    @utils.only_required_for_messages("redefined-outer-name")
     def leave_for(self, node: nodes.For) -> None:
-        self._loop_variables.pop()
         self._store_type_annotation_names(node)
 
     def visit_module(self, node: nodes.Module) -> None:
@@ -2231,7 +2199,7 @@ class VariablesChecker(BaseChecker):
         for i, stmt in enumerate(astmts[1:]):
             if astmts[i].statement(future=True).parent_of(
                 stmt
-            ) and not in_for_else_branch(astmts[i].statement(future=True), stmt):
+            ) and not utils.in_for_else_branch(astmts[i].statement(future=True), stmt):
                 continue
             _astmts.append(stmt)
         astmts = _astmts

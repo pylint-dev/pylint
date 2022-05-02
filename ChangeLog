@@ -181,6 +181,16 @@ Release date: TBA
 
   Closes #578
 
+* Added optional extension ``redefined-loop-name`` to emit messages when a loop variable
+  is redefined in the loop body.
+
+  Closes #5072
+
+* Changed message type from ``redefined-outer-name`` to ``redefined-loop-name``
+  (optional extension) for redefinitions of outer loop variables by inner loops.
+
+  Closes #5608
+
 * The ``ignore-mixin-members`` option has been deprecated. You should now use the new
   ``ignored-checks-for-mixins`` option.
 

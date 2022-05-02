@@ -46,6 +46,11 @@ New checkers
 
   Closes #4525
 
+* Added optional extension ``redefined-loop-name`` to emit messages when a loop variable
+  is redefined in the loop body.
+
+  Closes #5072
+
 * Added new message called ``duplicate-value`` which identifies duplicate values inside sets.
 
   Closes #5880
@@ -233,3 +238,8 @@ Other Changes
   attribute to itself without any prior assignment.
 
   Closes #1555
+
+* Changed message type from ``redefined-outer-name`` to ``redefined-loop-name``
+  (optional extension) for redefinitions of outer loop variables by inner loops.
+
+  Closes #5608
