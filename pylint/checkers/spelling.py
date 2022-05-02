@@ -260,7 +260,9 @@ class SpellingChecker(BaseTokenChecker):
                 "default": "fmt: on,fmt: off,noqa:,noqa,nosec,isort:skip,mypy:",
                 "type": "string",
                 "metavar": "<comma separated words>",
-                "help": "List of comma separated words that should be considered directives if they appear and the beginning of a comment and should not be checked.",
+                "help": "List of comma separated words that should be considered "
+                "directives if they appear at the beginning of a comment "
+                "and should not be checked.",
             },
         ),
     )
