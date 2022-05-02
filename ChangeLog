@@ -16,9 +16,15 @@ Release date: TBA
   (Ie. not necessarily at the end)
 
 
-What's New in Pylint 2.13.8?
+What's New in Pylint 2.13.9?
 ============================
 Release date: TBA
+
+
+
+What's New in Pylint 2.13.8?
+============================
+Release date: 2022-05-02
 
 * Fix a false positive for ``undefined-loop-variable`` for a variable used in a lambda
   inside the first of multiple loops.
