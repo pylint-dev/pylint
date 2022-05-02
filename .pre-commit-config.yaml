@@ -88,7 +88,7 @@ repos:
         types: [text] # necessary to include ChangeLog file
         files: ^(ChangeLog|doc/(.*/)*.*\.rst)
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.942
+    rev: v0.950
     hooks:
       - id: mypy
         name: mypy
