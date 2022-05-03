@@ -259,8 +259,8 @@ Other Changes
 
   Closes #5608
 
-* Pylint now expand the user path (i. e. ``~`` to ``home/yusef/``) and expands environment variable (i.e. ``home/$USER/$project``
-  to ``home/yusef/pylint`` if USER=yusef and project=pylint) for option given to pyreverse's ``output-directory``,
+* Pylint now expands the user path (i.e. ``~`` to ``home/yusef/``) and expands environment variables (i.e. ``home/$USER/$project``
+  to ``home/yusef/pylint`` for ``USER=yusef`` and ``project=pylint``) for pyreverse's ``output-directory``,
   ``import-graph``, ``ext-import-graph``,  ``int-import-graph`` options, and the spell checker's ``spelling-private-dict-file``
   option.
 

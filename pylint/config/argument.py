@@ -82,11 +82,8 @@ def _non_empty_string_transformer(value: str) -> str:
 
 
 def _path_transformer(value: str) -> str:
-    """Check that a path is valid and expand user / variable."""
-    # Expand tilde to allow spelling-private-dict-file = ~/.pylintdict
-    value = os.path.expanduser(value)
-    value = os.path.expandvars(value)
-    return value
+    """Expand user and variables in a path."""
+    return os.path.expandvars(os.path.expanduser(value))
 
 
 def _py_version_transformer(value: str) -> tuple[int, ...]:
