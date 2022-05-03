@@ -28,6 +28,7 @@ class Specialization(Ancestor):
         self._id = _id
         self.relation = DoNothing()
         self.relation2 = relation2
+        self.relation3: list[DoNothing2] = [relation2]
 
     @classmethod
     def from_value(cls, value: int):

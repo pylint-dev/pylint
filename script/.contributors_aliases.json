@@ -567,5 +567,13 @@
   "gunungpambudiw@gmail.com": {
     "mails": ["gunungpambudiw@gmail.com"],
     "name": "Gunung Pambudi W."
+  },
+  "titilambert@ttb.lt": {
+    "mails": [
+      "titilambert@users.noreply.github.com",
+      "titilambert@ttb.lt",
+      "titilambert@gmail.com"
+    ],
+    "name": "Thibault Cohen"
   }
 }

@@ -178,24 +178,41 @@ class ClassDiagram(Figure, FilterMixIn):
                 except KeyError:
                     continue
             # implements link
-            for impl_node in node.implements:
-                try:
-                    impl_obj = self.object_from_node(impl_node)
-                    self.add_relationship(obj, impl_obj, "implements")
-                except KeyError:
-                    continue
+            if hasattr(node, "implements"):
+                for impl_node in node.implements:
+                    try:
+                        impl_obj = self.object_from_node(impl_node)
+                        self.add_relationship(obj, impl_obj, "implements")
+                    except KeyError:
+                        continue
             # associations link
             for name, values in list(node.instance_attrs_type.items()) + list(
                 node.locals_type.items()
             ):
                 for value in values:
+                    association_type = "association"
                     if value is astroid.Uninferable:
                         continue
+
+                    # Handle multiplicity link
+                    if isinstance(value, astroid.nodes.node_classes.Subscript):
+                        children = list(value.get_children())
+                        if (
+                            len(children) == 2
+                            and children[0].name == "list"
+                            and list(children[1].infer())
+                            and list(children[1].infer())[0] is not astroid.Uninferable
+                        ):
+                            value = list(children[1].infer())[0]
+                            association_type = "multiplicity"
+
                     if isinstance(value, astroid.Instance):
                         value = value._proxied
                     try:
                         associated_obj = self.object_from_node(value)
-                        self.add_relationship(associated_obj, obj, "association", name)
+                        self.add_relationship(
+                            associated_obj, obj, association_type, name
+                        )
                     except KeyError:
                         continue
 

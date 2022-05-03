@@ -97,6 +97,7 @@ class TestDefaultDiadefGenerator:
         ("association", "DoNothing", "Specialization"),
         ("association", "DoNothing2", "Specialization"),
         ("implements", "Ancestor", "Interface"),
+        ("multiplicity", "DoNothing2", "Specialization"),
         ("specialization", "Specialization", "Ancestor"),
     ]
 

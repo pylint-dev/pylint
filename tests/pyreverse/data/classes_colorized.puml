@@ -30,6 +30,7 @@ class "Specialization" as data.clientmodule_test.Specialization #aliceblue {
   TYPE : str
   relation
   relation2
+  relation3 : list[DoNothing2]
   top : str
   from_value(value: int)
   increment_value() -> None
@@ -40,4 +41,5 @@ data.clientmodule_test.Ancestor ..|> data.suppliermodule_test.Interface
 data.suppliermodule_test.DoNothing --* data.clientmodule_test.Ancestor : cls_member
 data.suppliermodule_test.DoNothing --* data.clientmodule_test.Specialization : relation
 data.suppliermodule_test.DoNothing2 --* data.clientmodule_test.Specialization : relation2
+data.suppliermodule_test.DoNothing2 "0..*" --* data.clientmodule_test.Specialization : relation3
 @enduml

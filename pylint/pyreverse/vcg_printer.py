@@ -168,6 +168,9 @@ ARROWS: dict[EdgeType, dict] = {
     EdgeType.ASSOCIATION: dict(
         arrowstyle="solid", backarrowstyle="none", textcolor="green"
     ),
+    EdgeType.MULTIPLICITY: dict(
+        arrowstyle="solid", backarrowstyle="none", textcolor="green"
+    ),
 }
 ORIENTATION: dict[Layout, str] = {
     Layout.LEFT_TO_RIGHT: "left_to_right",
