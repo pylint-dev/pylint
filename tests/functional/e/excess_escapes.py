@@ -1,4 +1,4 @@
-# pylint:disable=pointless-string-statement, fixme, comparison-with-itself
+# pylint:disable=pointless-string-statement, fixme, comparison-with-itself, comparison-of-constants
 """Stray backslash escapes may be missing a raw-string prefix."""
 # pylint: disable=redundant-u-string-prefix
 

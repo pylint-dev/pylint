@@ -9,6 +9,7 @@ from astroid import nodes
 
 from pylint.checkers import utils
 from pylint.checkers.base.basic_checker import _BasicChecker
+from pylint.interfaces import HIGH
 
 LITERAL_NODE_TYPES = (nodes.Const, nodes.Dict, nodes.List, nodes.Set)
 COMPARISON_OPERATORS = frozenset(("==", "!=", "<", ">", "<=", ">="))
@@ -57,6 +58,13 @@ class ComparisonChecker(_BasicChecker):
             "Redundant comparison - %s",
             "comparison-with-itself",
             "Used when something is compared against itself.",
+        ),
+        "R0125": (
+            "Comparison between constants: '%s %s %s' is also a constant, remove the comparison and consider a refactor",
+            "comparison-of-constants",
+            "When two literals are compared with each other the result is a constant, "
+            "and using the constant directly is both easier to read and more performant."
+            " Initializing 'True' and 'False' this way is not required since python 2.3",
         ),
         "W0143": (
             "Comparing against a callable, did you omit the parenthesis?",
@@ -212,6 +220,22 @@ class ComparisonChecker(_BasicChecker):
             suggestion = f"{left_operand} {operator} {right_operand}"
             self.add_message("comparison-with-itself", node=node, args=(suggestion,))
 
+    def _check_two_literals_being_compared(self, node: nodes.Compare) -> None:
+        """Check if two literals are being compared; this is always a logical tautology."""
+        left_operand = node.left
+        right_operand = node.ops[0][1]
+        operator = node.ops[0][0]
+        if not isinstance(left_operand, nodes.Const):
+            return
+        if not isinstance(right_operand, nodes.Const):
+            return
+        self.add_message(
+            "comparison-of-constants",
+            node=node,
+            args=(left_operand.value, operator, right_operand.value),
+            confidence=HIGH,
+        )
+
     def _check_callable_comparison(self, node):
         operator = node.ops[0][0]
         if operator not in COMPARISON_OPERATORS:
@@ -240,6 +264,7 @@ class ComparisonChecker(_BasicChecker):
         "unidiomatic-typecheck",
         "literal-comparison",
         "comparison-with-itself",
+        "comparison-of-constants",
         "comparison-with-callable",
         "nan-comparison",
     )
@@ -247,6 +272,7 @@ class ComparisonChecker(_BasicChecker):
         self._check_callable_comparison(node)
         self._check_logical_tautology(node)
         self._check_unidiomatic_typecheck(node)
+        self._check_two_literals_being_compared(node)
         # NOTE: this checker only works with binary comparisons like 'x == 42'
         # but not 'x == y == 42'
         if len(node.ops) != 1:

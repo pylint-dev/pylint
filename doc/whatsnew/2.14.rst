@@ -12,6 +12,10 @@ Summary -- Release highlights
 New checkers
 ============
 
+* Added new checker ``comparison-of-constants``
+
+  Closes #6076
+
 * Added new checker ``typevar-name-mismatch``: TypeVar must be assigned to a variable with the same name as its name argument.
 
   Closes #5224
