@@ -42,3 +42,10 @@ def main4():
         pass
 
     print(e)  # [used-before-assignment]
+
+
+def main5():
+    try:
+        print([e for e in range(3) if e])
+    except ValueError as e:
+        print(e)

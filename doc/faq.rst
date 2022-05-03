@@ -46,20 +46,20 @@ supported.
 .. _`astroid`: https://github.com/PyCQA/astroid
 
 2.4 What versions of Python is Pylint supporting?
---------------------------------------------------
+-------------------------------------------------
 
-The supported running environment since Pylint 2.12.1 is Python 3.6.2+.
+The supported running environment since Pylint 2.14.0 is Python 3.7.2+.
 
 
 3. Running Pylint
 =================
 
 3.1 Can I give pylint a file as an argument instead of a module?
------------------------------------------------------------------
+----------------------------------------------------------------
 
 Pylint expects the name of a package or module as its argument. As a
 convenience, you can give it a file name if it's possible to guess a module name from
-the file's path using the python path. Some examples :
+the file's path using the python path. Some examples:
 
 "pylint mymodule.py" should always work since the current working
 directory is automatically added on top of the python path
@@ -83,7 +83,7 @@ or if "directory" is in the python path.
           on...
 
 3.2 Where is the persistent data stored to compare between successive runs?
-----------------------------------------------------------------------------
+---------------------------------------------------------------------------
 
 Analysis data are stored as a pickle file in a directory which is
 localized using the following rules:
@@ -100,16 +100,17 @@ localized using the following rules:
 
 * ".pylint.d" directory in the current directory
 
-3.3 How do I find the option name (for pylintrc) corresponding to a specific command line option?
---------------------------------------------------------------------------------------------------------
 
-You can generate a sample pylintrc file with --generate-rcfile
+3.3 How do I find the option name corresponding to a specific command line option?
+----------------------------------------------------------------------------------
+
+You can generate a sample configuration file with ``--generate-toml-config``.
 Every option present on the command line before this will be included in
-the rc file
+the toml file
 
 For example::
 
-    pylint --disable=bare-except,invalid-name --class-rgx='[A-Z][a-z]+' --generate-rcfile
+    pylint --disable=bare-except,invalid-name --class-rgx='[A-Z][a-z]+' --generate-toml-config
 
 3.4 I'd rather not run Pylint from the command line. Can I integrate it with my editor?
 ---------------------------------------------------------------------------------------
@@ -142,23 +143,22 @@ When ``--recursive=y`` option is used, modules and packages are also accepted as
 ==================
 
 4.1 How to disable a particular message?
------------------------------------------------------------
+----------------------------------------
 
-For a single line : Add ``#pylint: disable=some-message,another-one`` at the
-end of the desired line of code. Since Pylint 2.10 you can also use
-``#pylint: disable-next=...`` on the line just above the problem.
-``...`` in the following example is a short hand for the list of
-messages you want to disable.
+For just a single line, add ``#pylint: disable=some-message,another-one`` at the end of
+the desired line of code. Since Pylint 2.10 you can also use ``#pylint: disable-next=...``
+on the line just above the problem. ``...`` in the following example is short for the
+list of messages you want to disable.
 
-For larger disable : You can add ``#pylint: disable=...`` at the block level to
-disable for the block. It's possible to enable for the reminder of the block
-with ``#pylint: enable=...`` A block is either a scope (say a function, a module),
-or a multiline statement (try, finally, if statements, for loops).
-`It's currently impossible to disable inside an else block`_
+For larger amounts of code, you can add ``#pylint: disable=...`` at the block level
+to disable messages for the entire block. It's possible to re-enable a message for the
+remainder of the block with ``#pylint: enable=...``. A block is either a scope (say a
+function, a module) or a multiline statement (try, finally, if statements, for loops).
+Note: It's currently impossible to `disable inside an else block`_.
 
 Read :ref:`message-control` for details and examples.
 
-.. _`It's currently impossible to disable inside an else block`: https://github.com/PyCQA/pylint/issues/872
+.. _`disable inside an else block`: https://github.com/PyCQA/pylint/issues/872
 
 4.2 Is there a way to disable a message for a particular module only?
 ---------------------------------------------------------------------
@@ -187,7 +187,7 @@ No, you can use symbolic names for messages::
 
 
 4.5 I have a callback function where I have no control over received arguments. How do I avoid getting unused argument warnings?
-----------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------
 
 Prefix (ui) the callback's name by `cb_`, as in cb_onclick(...). By
 doing so arguments usage won't be checked. Another solution is to
@@ -195,18 +195,44 @@ use one of the names defined in the "dummy-variables" configuration
 variable for unused argument ("_" and "dummy" by default).
 
 4.6 What is the format of the configuration file?
----------------------------------------------------
+-------------------------------------------------
 
 Pylint uses ConfigParser from the standard library to parse the configuration
 file.  It means that if you need to disable a lot of messages, you can use
-tricks like: ::
+any formatting accepted by ConfigParser, e.g.
 
-    # disable wildcard-import, method-hidden and too-many-lines because I do
-    # not want it
-    disable= wildcard-import,
-     method-hidden,
-     too-many-lines
+.. code-block:: ini
 
+    [MASTER]
+    output-format = colorized
+
+    [Messages Control]
+    disable=method-hidden,too-many-lines,wildcard-import
+
+.. code-block:: ini
+
+    [Messages Control]
+    disable =
+        method-hidden
+        too-many-lines
+        wildcard-import
+
+Alternatively, if you use ``pyproject.toml``, e.g.
+
+.. code-block:: toml
+
+    [tool.pylint.master]
+    output-format = "colorized"
+
+    [tool.pylint.messages_control]
+    disable = [
+        "method-hidden",
+        "too-many-lines",
+        "wildcard-import",
+    ]
+
+See also the :ref:`exhaustive list of possible options
+<user_guide/configuration/all-options:all pylint options>`.
 
 4.7 Why are there a bunch of messages disabled by default?
 ----------------------------------------------------------
@@ -215,9 +241,8 @@ pylint does have some messages disabled by default, either because
 they are prone to false positives or that they are opinionated enough
 for not being included as default messages.
 
-You can see the plugin you need to explicitly `load in the technical reference`_
-
-.. _`load in the technical reference`: http://pylint.pycqa.org/en/latest/technical_reference/extensions.html?highlight=load%20plugin
+You can see the plugin you need to explicitly :ref:`load in the technical reference
+<technical_reference/extensions:optional pylint checkers in the extensions module>`.
 
 4.8 I am using another popular linter alongside pylint. Which messages should I disable to avoid duplicates?
 ------------------------------------------------------------------------------------------------------------
@@ -248,20 +273,18 @@ flake8-import-order_: wrong-import-order
 5. Classes and Inheritance
 ==========================
 
-
 5.1 When is Pylint considering a class as an abstract class?
--------------------------------------------------------------
+------------------------------------------------------------
 
 A class is considered as an abstract class if at least one of its
-methods is doing nothing but raising NotImplementedError.
+methods is doing nothing but raising ``NotImplementedError``.
 
 5.2 How do I avoid "access to undefined member" messages in my mixin classes?
--------------------------------------------------------------------------------
+-----------------------------------------------------------------------------
 
-To do so you have to set the ignore-mixin-members option to
-"yes" (this is the default value) and name your mixin class with
-a name which ends with "Mixin" or "mixin" (default) or change the
-default value by changing the mixin-class-rgx option.
+You should add the ``no-member`` message to your ``ignored-checks-for-mixins`` option
+and name your mixin class with a name which ends with "Mixin" or "mixin" (default)
+or change the default value by changing the ``mixin-class-rgx`` option.
 
 
 6. Troubleshooting

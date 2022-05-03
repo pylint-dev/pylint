@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,invalid-name,line-too-long,too-few-public-methods,use-list-literal,use-dict-literal
+# pylint: disable=missing-docstring,invalid-name,line-too-long,too-few-public-methods,use-list-literal,use-dict-literal, typevar-name-incorrect-variance
 import typing
 import collections
 from typing import Generic, TypeVar

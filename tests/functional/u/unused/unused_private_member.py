@@ -1,4 +1,6 @@
 # pylint: disable=missing-docstring, invalid-name, too-few-public-methods, no-self-use, line-too-long, unused-argument, protected-access
+from functools import partialmethod
+
 
 class AnotherClass():
     def __test(self):  # [unused-private-member]
@@ -107,7 +109,7 @@ print(k.ninetyfive)
 # https://github.com/PyCQA/pylint/issues/4657
 # Mutation of class member with cls should not fire a false-positive
 class FalsePositive4657:
-    """False positivie tests for 4657"""
+    """False positive tests for 4657"""
     __attr_a = None
     __attr_b = 'b'
 
@@ -309,6 +311,29 @@ class Foo:
 
     def method(self):
         print(self.__class__.__ham)
+
+
+# https://github.com/PyCQA/pylint/issues/4756
+# Check for false positives emitted when private functions are not referenced in the class body
+# with standard calls but passed as arguments to other functions.
+class FalsePositive4756a:
+    def __bar(self, x):
+        print(x)
+    fizz = partialmethod(__bar, 'fizz')
+foo = FalsePositive4756a()
+foo.fizz()
+
+class FalsePositive4756b:
+    def __get_prop(self):
+        pass
+
+    def __set_prop(self, value):
+        pass
+
+    def __del_prop(self):
+        pass
+
+    prop = property(__get_prop, __set_prop, __del_prop)
 
 
 class TypeSelfCallInMethod:

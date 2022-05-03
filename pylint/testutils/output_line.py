@@ -1,8 +1,12 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
+from __future__ import annotations
 
 import warnings
-from typing import Any, NamedTuple, Optional, Sequence, Tuple, TypeVar, Union
+from collections.abc import Sequence
+from typing import Any, NamedTuple, TypeVar
 
 from astroid import nodes
 
@@ -11,25 +15,28 @@ from pylint.interfaces import UNDEFINED, Confidence
 from pylint.message.message import Message
 from pylint.testutils.constants import UPDATE_OPTION
 
-T = TypeVar("T")
+_T = TypeVar("_T")
 
 
 class MessageTest(NamedTuple):
     msg_id: str
-    line: Optional[int] = None
-    node: Optional[nodes.NodeNG] = None
-    args: Optional[Any] = None
-    confidence: Optional[Confidence] = UNDEFINED
-    col_offset: Optional[int] = None
-    end_line: Optional[int] = None
-    end_col_offset: Optional[int] = None
-    """Used to test messages produced by pylint. Class name cannot start with Test as pytest doesn't allow constructors in test classes."""
+    line: int | None = None
+    node: nodes.NodeNG | None = None
+    args: Any | None = None
+    confidence: Confidence | None = UNDEFINED
+    col_offset: int | None = None
+    end_line: int | None = None
+    end_col_offset: int | None = None
+    """Used to test messages produced by pylint.
+
+    Class name cannot start with Test as pytest doesn't allow constructors in test classes.
+    """
 
 
 class MalformedOutputLineException(Exception):
     def __init__(
         self,
-        row: Union[Sequence[str], str],
+        row: Sequence[str] | str,
         exception: Exception,
     ) -> None:
         example = "msg-symbolic-name:42:27:MyClass.my_function:The message"
@@ -68,14 +75,14 @@ class OutputLine(NamedTuple):
     symbol: str
     lineno: int
     column: int
-    end_lineno: Optional[int]
-    end_column: Optional[int]
+    end_lineno: int | None
+    end_column: int | None
     object: str
     msg: str
     confidence: str
 
     @classmethod
-    def from_msg(cls, msg: Message, check_endline: bool = True) -> "OutputLine":
+    def from_msg(cls, msg: Message, check_endline: bool = True) -> OutputLine:
         """Create an OutputLine from a Pylint Message."""
         column = cls._get_column(msg.column)
         end_line = cls._get_py38_none_value(msg.end_line, check_endline)
@@ -92,9 +99,10 @@ class OutputLine(NamedTuple):
         )
 
     @staticmethod
-    def _get_column(column: str) -> int:
-        """Handle column numbers except for python < 3.8. The ast parser in those versions doesn't
-        return them.
+    def _get_column(column: str | int) -> int:
+        """Handle column numbers except for python < 3.8.
+
+        The ast parser in those versions doesn't return them.
         """
         if not PY38_PLUS:
             # We check the column only for the new better ast parser introduced in python 3.8
@@ -102,7 +110,7 @@ class OutputLine(NamedTuple):
         return int(column)
 
     @staticmethod
-    def _get_py38_none_value(value: T, check_endline: bool) -> Optional[T]:
+    def _get_py38_none_value(value: _T, check_endline: bool) -> _T | None:
         """Used to make end_line and end_column None as indicated by our version compared to
         `min_pyver_end_position`.
         """
@@ -112,8 +120,8 @@ class OutputLine(NamedTuple):
 
     @classmethod
     def from_csv(
-        cls, row: Union[Sequence[str], str], check_endline: bool = True
-    ) -> "OutputLine":
+        cls, row: Sequence[str] | str, check_endline: bool = True
+    ) -> OutputLine:
         """Create an OutputLine from a comma separated list (the functional tests expected
         output .txt files).
         """
@@ -165,7 +173,7 @@ class OutputLine(NamedTuple):
         except Exception as e:
             raise MalformedOutputLineException(row, e) from e
 
-    def to_csv(self) -> Tuple[str, str, str, str, str, str, str, str]:
+    def to_csv(self) -> tuple[str, str, str, str, str, str, str, str]:
         """Convert an OutputLine to a tuple of string to be written by a
         csv-writer.
         """
@@ -181,7 +189,7 @@ class OutputLine(NamedTuple):
         )
 
     @staticmethod
-    def _value_to_optional_int(value: Optional[str]) -> Optional[int]:
+    def _value_to_optional_int(value: str | None) -> int | None:
         """Checks if a (stringified) value should be None or a Python integer."""
         if value == "None" or not value:
             return None

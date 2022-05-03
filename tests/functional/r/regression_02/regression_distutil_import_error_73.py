@@ -7,7 +7,7 @@ https://github.com/PyCQA/pylint/issues/2955
 https://github.com/PyCQA/astroid/pull/1321
 """
 
-# pylint: disable=unused-import
+# pylint: disable=unused-import, deprecated-module
 
 import distutils.version
 from distutils.util import strtobool

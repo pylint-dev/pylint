@@ -44,8 +44,11 @@ def function_A():
 def function_B(var):
     return (var.startswith(('A', 'B', 'C')) or var == 'D')
 
+def function_C(first, second):
+    return (first or second) in (0, 1)
+
 # TODO: Test string combinations, see https://github.com/PyCQA/pylint/issues/4792
-# Lines 45, 46 & 47 should raise the superfluous-parens message
+# The lines with "+" should raise the superfluous-parens message
 J = "TestString"
 K = ("Test " + "String")
 L = ("Test " + "String") in I
@@ -65,3 +68,10 @@ class ClassA:
 
     def __iter__(self):
         return ((k, getattr(self, k)) for k in self.keys)
+
+if (A == 2) is not (B == 2):
+    pass
+
+M = A is not (A <= H)
+M = True is not (M == K)
+M = True is not (True is not False)

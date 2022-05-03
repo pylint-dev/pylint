@@ -1,44 +1,20 @@
-# Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2014 Michal Nowikowski <godfryd@gmail.com>
-# Copyright (c) 2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2015 Pavel Roskin <proski@gnu.org>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016-2017, 2020 Pedro Algarvio <pedro@algarvio.me>
-# Copyright (c) 2016 Alexander Todorov <atodorov@otb.bg>
-# Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
-# Copyright (c) 2017 Mikhail Fesenko <proggga@gmail.com>
-# Copyright (c) 2018, 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
-# Copyright (c) 2018 Mike Frysinger <vapier@gmail.com>
-# Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
-# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019 Peter Kolbus <peter.kolbus@gmail.com>
-# Copyright (c) 2019 agutole <toldo_carp@hotmail.com>
-# Copyright (c) 2020 Ganden Schaffner <gschaffner@pm.me>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Tushar Sadhwani <tushar.sadhwani000@gmail.com>
-# Copyright (c) 2021 Nick Drozd <nicholasdrozd@gmail.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 bot <bot@noreply.github.com>
-# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
-# Copyright (c) 2021 Eli Fine <ejfine@gmail.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Checker for spelling errors in comments and docstrings."""
-import os
+
+from __future__ import annotations
+
 import re
 import tokenize
-from typing import TYPE_CHECKING, Pattern
+from re import Pattern
+from typing import TYPE_CHECKING
 
 from astroid import nodes
 
 from pylint.checkers import BaseTokenChecker
-from pylint.checkers.utils import check_messages
-from pylint.interfaces import IAstroidChecker, ITokenChecker
+from pylint.checkers.utils import only_required_for_messages
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -130,7 +106,7 @@ class CamelCasedWord(RegExFilter):
 
     That is, any words that are camelCasedWords.
     """
-    _pattern = re.compile(r"^([a-z]+([\d]|[A-Z])(?:\w+)?)")
+    _pattern = re.compile(r"^([a-z]+(\d|[A-Z])(?:\w+)?)")
 
 
 class SphinxDirectives(RegExFilter):
@@ -156,7 +132,7 @@ class ForwardSlashChunker(Chunker):
                 text = self._text
                 self._offset = 0
                 self._text = ""
-                return (text, 0)
+                return text, 0
             pre_text, post_text = self._text.split("/", 1)
             self._text = post_text
             self._offset = 0
@@ -168,13 +144,13 @@ class ForwardSlashChunker(Chunker):
             ):
                 self._text = ""
                 self._offset = 0
-                return (pre_text + "/" + post_text, 0)
-            return (pre_text, 0)
+                return f"{pre_text}/{post_text}", 0
+            return pre_text, 0
 
     def _next(self):
         while True:
             if "/" not in self._text:
-                return (self._text, 0)
+                return self._text, 0
             pre_text, post_text = self._text.split("/", 1)
             if not pre_text or not post_text:
                 break
@@ -188,9 +164,9 @@ CODE_FLANKED_IN_BACKTICK_REGEX = re.compile(r"(\s|^)(`{1,2})([^`]+)(\2)([^`]|$)"
 
 
 def _strip_code_flanked_in_backticks(line: str) -> str:
-    """Alter line so code flanked in backticks is ignored.
+    """Alter line so code flanked in back-ticks is ignored.
 
-    Pyenchant automatically strips backticks when parsing tokens,
+    Pyenchant automatically strips back-ticks when parsing tokens,
     so this cannot be done at the individual filter level.
     """
 
@@ -205,7 +181,6 @@ def _strip_code_flanked_in_backticks(line: str) -> str:
 class SpellingChecker(BaseTokenChecker):
     """Check spelling in comments and docstrings."""
 
-    __implements__ = (ITokenChecker, IAstroidChecker)
     name = "spelling"
     msgs = {
         "C0401": (
@@ -251,7 +226,7 @@ class SpellingChecker(BaseTokenChecker):
             "spelling-private-dict-file",
             {
                 "default": "",
-                "type": "string",
+                "type": "path",
                 "metavar": "<path to file>",
                 "help": "A path to a file that contains the private "
                 "dictionary; one word per line.",
@@ -284,50 +259,42 @@ class SpellingChecker(BaseTokenChecker):
                 "default": "fmt: on,fmt: off,noqa:,noqa,nosec,isort:skip,mypy:",
                 "type": "string",
                 "metavar": "<comma separated words>",
-                "help": "List of comma separated words that should be considered directives if they appear and the beginning of a comment and should not be checked.",
+                "help": "List of comma separated words that should be considered "
+                "directives if they appear at the beginning of a comment "
+                "and should not be checked.",
             },
         ),
     )
 
-    def open(self):
+    def open(self) -> None:
         self.initialized = False
-        self.private_dict_file = None
-
         if enchant is None:
             return
-        dict_name = self.config.spelling_dict
+        dict_name = self.linter.config.spelling_dict
         if not dict_name:
             return
 
         self.ignore_list = [
-            w.strip() for w in self.config.spelling_ignore_words.split(",")
+            w.strip() for w in self.linter.config.spelling_ignore_words.split(",")
         ]
         # "param" appears in docstring in param description and
         # "pylint" appears in comments in pylint pragmas.
         self.ignore_list.extend(["param", "pylint"])
 
         self.ignore_comment_directive_list = [
-            w.strip() for w in self.config.spelling_ignore_comment_directives.split(",")
+            w.strip()
+            for w in self.linter.config.spelling_ignore_comment_directives.split(",")
         ]
 
-        # Expand tilde to allow e.g. spelling-private-dict-file = ~/.pylintdict
-        if self.config.spelling_private_dict_file:
-            self.config.spelling_private_dict_file = os.path.expanduser(
-                self.config.spelling_private_dict_file
-            )
-
-        if self.config.spelling_private_dict_file:
+        if self.linter.config.spelling_private_dict_file:
             self.spelling_dict = enchant.DictWithPWL(
-                dict_name, self.config.spelling_private_dict_file
-            )
-            self.private_dict_file = open(  # pylint: disable=consider-using-with
-                self.config.spelling_private_dict_file, "a", encoding="utf-8"
+                dict_name, self.linter.config.spelling_private_dict_file
             )
         else:
             self.spelling_dict = enchant.Dict(dict_name)
 
-        if self.config.spelling_store_unknown_words:
-            self.unknown_words = set()
+        if self.linter.config.spelling_store_unknown_words:
+            self.unknown_words: set[str] = set()
 
         self.tokenizer = get_tokenizer(
             dict_name,
@@ -344,14 +311,11 @@ class SpellingChecker(BaseTokenChecker):
         )
         self.initialized = True
 
-    def close(self):
-        if self.private_dict_file:
-            self.private_dict_file.close()
-
-    def _check_spelling(self, msgid, line, line_num):
+    def _check_spelling(self, msgid: str, line: str, line_num: int) -> None:
         original_line = line
         try:
-            initial_space = re.search(r"^[^\S]\s*", line).regs[0][1]
+            # The mypy warning is caught by the except statement
+            initial_space = re.search(r"^\s+", line).regs[0][1]  # type: ignore[union-attr]
         except (IndexError, AttributeError):
             initial_space = 0
         if line.strip().startswith("#") and "docstring" not in msgid:
@@ -400,14 +364,19 @@ class SpellingChecker(BaseTokenChecker):
                 continue
 
             # Store word to private dict or raise a message.
-            if self.config.spelling_store_unknown_words:
+            if self.linter.config.spelling_store_unknown_words:
                 if lower_cased_word not in self.unknown_words:
-                    self.private_dict_file.write(f"{lower_cased_word}\n")
+                    with open(
+                        self.linter.config.spelling_private_dict_file,
+                        "a",
+                        encoding="utf-8",
+                    ) as f:
+                        f.write(f"{lower_cased_word}\n")
                     self.unknown_words.add(lower_cased_word)
             else:
                 # Present up to N suggestions.
                 suggestions = self.spelling_dict.suggest(word)
-                del suggestions[self.config.max_spelling_suggestions :]
+                del suggestions[self.linter.config.max_spelling_suggestions :]
                 line_segment = line[word_start_at:]
                 match = re.search(rf"(\W|^)({word})(\W|$)", line_segment)
                 if match:
@@ -423,7 +392,7 @@ class SpellingChecker(BaseTokenChecker):
                 args = (word, original_line, indicator, f"'{all_suggestion}'")
                 self.add_message(msgid, line=line_num, args=args)
 
-    def process_tokens(self, tokens):
+    def process_tokens(self, tokens: list[tokenize.TokenInfo]) -> None:
         if not self.initialized:
             return
 
@@ -438,38 +407,45 @@ class SpellingChecker(BaseTokenChecker):
                     continue
                 self._check_spelling("wrong-spelling-in-comment", token, start_row)
 
-    @check_messages("wrong-spelling-in-docstring")
+    @only_required_for_messages("wrong-spelling-in-docstring")
     def visit_module(self, node: nodes.Module) -> None:
         if not self.initialized:
             return
         self._check_docstring(node)
 
-    @check_messages("wrong-spelling-in-docstring")
+    @only_required_for_messages("wrong-spelling-in-docstring")
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         if not self.initialized:
             return
         self._check_docstring(node)
 
-    @check_messages("wrong-spelling-in-docstring")
-    def visit_functiondef(self, node: nodes.FunctionDef) -> None:
+    @only_required_for_messages("wrong-spelling-in-docstring")
+    def visit_functiondef(
+        self, node: nodes.FunctionDef | nodes.AsyncFunctionDef
+    ) -> None:
         if not self.initialized:
             return
         self._check_docstring(node)
 
     visit_asyncfunctiondef = visit_functiondef
 
-    def _check_docstring(self, node):
+    def _check_docstring(
+        self,
+        node: nodes.FunctionDef
+        | nodes.AsyncFunctionDef
+        | nodes.ClassDef
+        | nodes.Module,
+    ) -> None:
         """Check the node has any spelling errors."""
-        docstring = node.doc
-        if not docstring:
+        if not node.doc_node:
             return
 
         start_line = node.lineno + 1
 
         # Go through lines of docstring
-        for idx, line in enumerate(docstring.splitlines()):
+        for idx, line in enumerate(node.doc_node.value.splitlines()):
             self._check_spelling("wrong-spelling-in-docstring", line, start_line + idx)
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(SpellingChecker(linter))

@@ -201,6 +201,7 @@ def get_number(arg):
 
 get_number(10)()  # [not-callable]
 
+
 # `str` is callable
 ATTRIBUTES = {
     'DOMAIN': ("domain", str),
@@ -209,3 +210,28 @@ ATTRIBUTES = {
 
 for key, (name, validate) in ATTRIBUTES.items():
     name = validate(1)
+
+    
+class Klass:
+    def __init__(self):
+        self._x = None
+
+    @property
+    def myproperty(self):
+        if self._x is None:
+            self._x = lambda: None
+        return self._x
+
+myobject = Klass()
+myobject.myproperty()
+
+class Klass2:
+    @property
+    def something(self):
+        if __file__.startswith('s'):
+            return str
+
+        return 'abcd'
+
+obj2 = Klass2()
+obj2.something()

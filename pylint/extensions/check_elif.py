@@ -1,24 +1,17 @@
-# Copyright (c) 2015 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2016-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2016 Glenn Matthews <glmatthe@cisco.com>
-# Copyright (c) 2018 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2021 bot <bot@noreply.github.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
+from tokenize import TokenInfo
 from typing import TYPE_CHECKING
 
 from astroid import nodes
 
 from pylint.checkers import BaseTokenChecker
-from pylint.checkers.utils import check_messages
-from pylint.interfaces import HIGH, IAstroidChecker, ITokenChecker
+from pylint.checkers.utils import only_required_for_messages
+from pylint.interfaces import HIGH
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -27,7 +20,6 @@ if TYPE_CHECKING:
 class ElseifUsedChecker(BaseTokenChecker):
     """Checks for use of "else if" when an "elif" could be used."""
 
-    __implements__ = (ITokenChecker, IAstroidChecker)
     name = "else_if_used"
     msgs = {
         "R5501": (
@@ -46,7 +38,7 @@ class ElseifUsedChecker(BaseTokenChecker):
     def _init(self):
         self._elifs = {}
 
-    def process_tokens(self, tokens):
+    def process_tokens(self, tokens: list[TokenInfo]) -> None:
         """Process tokens and look for 'if' or 'elif'."""
         self._elifs = {
             begin: token for _, token, begin, _, _ in tokens if token in {"elif", "if"}
@@ -55,7 +47,7 @@ class ElseifUsedChecker(BaseTokenChecker):
     def leave_module(self, _: nodes.Module) -> None:
         self._init()
 
-    @check_messages("else-if-used")
+    @only_required_for_messages("else-if-used")
     def visit_if(self, node: nodes.If) -> None:
         """Current if node must directly follow an 'else'."""
         if (
@@ -67,5 +59,5 @@ class ElseifUsedChecker(BaseTokenChecker):
             self.add_message("else-if-used", node=node, confidence=HIGH)
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(ElseifUsedChecker(linter))

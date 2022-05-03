@@ -1,0 +1,1 @@
+- `Liskov Substitution Principle <https://en.wikipedia.org/wiki/Liskov_substitution_principle>`_

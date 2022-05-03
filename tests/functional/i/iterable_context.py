@@ -2,7 +2,7 @@
 Checks that primitive values are not used in an
 iterating/mapping context.
 """
-# pylint: disable=missing-docstring,invalid-name,too-few-public-methods,no-init,no-self-use,import-error,unused-argument,bad-mcs-method-argument,wrong-import-position,no-else-return, useless-object-inheritance, unnecessary-comprehension,redundant-u-string-prefix
+# pylint: disable=missing-docstring,invalid-name,too-few-public-methods,no-self-use,import-error,unused-argument,bad-mcs-method-argument,wrong-import-position,no-else-return, useless-object-inheritance, unnecessary-comprehension,redundant-u-string-prefix
 from __future__ import print_function
 
 # primitives
@@ -135,10 +135,10 @@ class ManagedAccessViewMixin(object):
         return self.access_requirements
 
     def dispatch(self, *_args, **_kwargs):
-        klasses = self.get_access_requirements()
+        classes = self.get_access_requirements()
 
         # no error should be emitted here
-        for requirement in klasses:
+        for requirement in classes:
             print(requirement)
 
 class BaseType(object):
@@ -190,3 +190,7 @@ class HasDynamicGetattr(object):
 
 for elem in HasDynamicGetattr():
     pass
+
+
+# Regression test for https://github.com/PyCQA/pylint/issues/6372
+string_twos = "".join(str(*y) for _, *y in [[1, 2], [1, 2]])

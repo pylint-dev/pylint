@@ -1,24 +1,20 @@
-# Copyright (c) 2008, 2012 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2014, 2016-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2018 Nick Drozd <nicholasdrozd@gmail.com>
-# Copyright (c) 2020-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
+from __future__ import annotations
 
 import os
 import sys
-from typing import Optional, Sequence
+from collections.abc import Sequence
+from typing import NoReturn
 
 from pylint.__pkginfo__ import __version__
 
 # pylint: disable=import-outside-toplevel
 
 
-def run_pylint(argv: Optional[Sequence[str]] = None):
+def run_pylint(argv: Sequence[str] | None = None) -> None:
     """Run pylint.
 
     argv can be a sequence of strings normally supplied as arguments on the command line
@@ -31,7 +27,7 @@ def run_pylint(argv: Optional[Sequence[str]] = None):
         sys.exit(1)
 
 
-def run_epylint(argv: Optional[Sequence[str]] = None):
+def run_epylint(argv: Sequence[str] | None = None) -> NoReturn:
     """Run epylint.
 
     argv can be a list of strings normally supplied as arguments on the command line
@@ -41,7 +37,7 @@ def run_epylint(argv: Optional[Sequence[str]] = None):
     EpylintRun(argv)
 
 
-def run_pyreverse(argv: Optional[Sequence[str]] = None):
+def run_pyreverse(argv: Sequence[str] | None = None) -> NoReturn:  # type: ignore[misc]
     """Run pyreverse.
 
     argv can be a sequence of strings normally supplied as arguments on the command line
@@ -51,7 +47,7 @@ def run_pyreverse(argv: Optional[Sequence[str]] = None):
     PyreverseRun(argv or sys.argv[1:])
 
 
-def run_symilar(argv: Optional[Sequence[str]] = None):
+def run_symilar(argv: Sequence[str] | None = None) -> NoReturn:
     """Run symilar.
 
     argv can be a sequence of strings normally supplied as arguments on the command line

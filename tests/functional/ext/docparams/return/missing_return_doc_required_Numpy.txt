@@ -1,11 +1,11 @@
-missing-return-doc:7:0:19:16:my_func:Missing return documentation:UNDEFINED
-missing-return-doc:22:0:30:16:my_func:Missing return documentation:UNDEFINED
-missing-return-type-doc:22:0:30:16:my_func:Missing return type documentation:UNDEFINED
-missing-return-doc:33:0:40:29:my_func:Missing return documentation:UNDEFINED
-missing-return-type-doc:50:4:59:17:Foo.foo_prop:Missing return type documentation:UNDEFINED
+missing-return-doc:7:0:7:11:my_func:Missing return documentation:UNDEFINED
+missing-return-doc:22:0:22:11:my_func:Missing return documentation:UNDEFINED
+missing-return-type-doc:22:0:22:11:my_func:Missing return type documentation:UNDEFINED
+missing-return-doc:33:0:33:11:my_func:Missing return documentation:UNDEFINED
+missing-return-type-doc:50:4:50:16:Foo.foo_prop:Missing return type documentation:UNDEFINED
 unreachable:59:8:59:17:Foo.foo_prop:Unreachable code:UNDEFINED
-missing-return-doc:68:4:78:17:Foo.foo_method:Missing return documentation:UNDEFINED
-missing-return-type-doc:68:4:78:17:Foo.foo_method:Missing return type documentation:UNDEFINED
+missing-return-doc:68:4:68:18:Foo.foo_method:Missing return documentation:UNDEFINED
+missing-return-type-doc:68:4:68:18:Foo.foo_method:Missing return type documentation:UNDEFINED
 unreachable:78:8:78:17:Foo.foo_method:Unreachable code:UNDEFINED
-missing-return-doc:87:4:97:17:Foo.foo_method:Missing return documentation:UNDEFINED
+missing-return-doc:87:4:87:18:Foo.foo_method:Missing return documentation:UNDEFINED
 unreachable:97:8:97:17:Foo.foo_method:Unreachable code:UNDEFINED

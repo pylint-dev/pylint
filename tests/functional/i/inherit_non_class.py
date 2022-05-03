@@ -1,7 +1,7 @@
 """Test that inheriting from something which is not
 a class emits a warning. """
 
-# pylint: disable=no-init, import-error, invalid-name, using-constant-test, useless-object-inheritance
+# pylint: disable=import-error, invalid-name, using-constant-test, useless-object-inheritance
 # pylint: disable=missing-docstring, too-few-public-methods
 
 from missing import Missing
@@ -92,7 +92,6 @@ class ParentBad:
         return 42
 
 # pylint: disable-next=fixme
-# TODO This should emit 'unsubscriptable-object' for Python 3.6
 class Child1(ParentGood[int]):
     pass
 

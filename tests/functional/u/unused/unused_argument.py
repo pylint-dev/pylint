@@ -14,7 +14,7 @@ def test_prefixed_with_unused(first, unused_second):
 # for Sub.inherited, only the warning for "aay" is desired.
 # The warnings for "aab" and "aac"  are most likely false positives though,
 # because there could be another subclass that overrides the same method and does
-# use the arguments (eg Sub2)
+# use the arguments (e.g. Sub2)
 
 
 class Base(object):
@@ -47,7 +47,13 @@ def metadata_from_dict(key):
     """
     return {key: str(value) for key, value in key.items()}
 
-# pylint: disable=too-few-public-methods,  misplaced-future,wrong-import-position
+
+def metadata_from_dict_2(key):
+    """Similar, but with more nesting"""
+    return {key: (a, b) for key, (a, b) in key.items()}
+
+
+# pylint: disable=too-few-public-methods, misplaced-future,wrong-import-position
 from __future__ import print_function
 
 
@@ -87,3 +93,18 @@ class BBBB(object):
     def __init__(self, arg):  # [unused-argument]
         """Constructor with an extra parameter. Should raise a warning"""
         self.spam = 1
+
+
+# Regression test for https://github.com/PyCQA/pylint/issues/5771
+# involving keyword-only arguments
+class Ancestor:
+    def __init__(self):
+        self.thing = None
+
+    def set_thing(self, thing, *, other=None):  # [unused-argument]
+        self.thing = thing
+
+class Descendant(Ancestor):
+    def set_thing(self, thing, *, other=None):
+        """Subclass does not raise unused-argument"""
+        self.thing = thing

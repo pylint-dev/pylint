@@ -1,8 +1,13 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
+from __future__ import annotations
+
+import os
 import platform
 import sys
-from typing import Dict
+from typing import NamedTuple
 
 import astroid
 import platformdirs
@@ -10,7 +15,6 @@ import platformdirs
 from pylint.__pkginfo__ import __version__
 from pylint.typing import MessageTypesFullName
 
-PY37_PLUS = sys.version_info[:2] >= (3, 7)
 PY38_PLUS = sys.version_info[:2] >= (3, 8)
 PY39_PLUS = sys.version_info[:2] >= (3, 9)
 
@@ -26,7 +30,7 @@ MSG_STATE_SCOPE_MODULE = 1
 # The line/node distinction does not apply to fatal errors and reports.
 _SCOPE_EXEMPT = "FR"
 
-MSG_TYPES: Dict[str, MessageTypesFullName] = {
+MSG_TYPES: dict[str, MessageTypesFullName] = {
     "I": "info",
     "C": "convention",
     "R": "refactor",
@@ -34,7 +38,7 @@ MSG_TYPES: Dict[str, MessageTypesFullName] = {
     "E": "error",
     "F": "fatal",
 }
-MSG_TYPES_LONG: Dict[str, str] = {v: k for k, v in MSG_TYPES.items()}
+MSG_TYPES_LONG: dict[str, str] = {v: k for k, v in MSG_TYPES.items()}
 
 MSG_TYPES_STATUS = {"I": 0, "C": 16, "R": 8, "W": 4, "E": 2, "F": 1}
 
@@ -43,8 +47,8 @@ MSG_TYPES_STATUS = {"I": 0, "C": 16, "R": 8, "W": 4, "E": 2, "F": 1}
 # on all project using [MASTER] in their rcfile.
 MAIN_CHECKER_NAME = "master"
 
-# pylint: disable-next=fixme
-# TODO Remove in 3.0 with all the surrounding code
+USER_HOME = os.path.expanduser("~")
+# TODO: 3.0: Remove in 3.0 with all the surrounding code
 OLD_DEFAULT_PYLINT_HOME = ".pylint.d"
 DEFAULT_PYLINT_HOME = platformdirs.user_cache_dir("pylint")
 
@@ -71,4 +75,136 @@ HUMAN_READABLE_TYPES = {
     "class_attribute": "class attribute",
     "class_const": "class constant",
     "inlinevar": "inline iteration",
+    "typevar": "type variable",
 }
+
+
+class DeletedMessage(NamedTuple):
+    msgid: str
+    symbol: str
+    old_names: list[tuple[str, str]] = []
+
+
+DELETED_MSGID_PREFIXES: list[int] = []
+
+DELETED_MESSAGES = [
+    # Everything until the next comment is from the
+    # PY3K+ checker, see https://github.com/PyCQA/pylint/pull/4942
+    DeletedMessage("W1601", "apply-builtin"),
+    DeletedMessage("E1601", "print-statement"),
+    DeletedMessage("E1602", "parameter-unpacking"),
+    DeletedMessage(
+        "E1603", "unpacking-in-except", [("W0712", "old-unpacking-in-except")]
+    ),
+    DeletedMessage("E1604", "old-raise-syntax", [("W0121", "old-old-raise-syntax")]),
+    DeletedMessage("E1605", "backtick", [("W0333", "old-backtick")]),
+    DeletedMessage("E1609", "import-star-module-level"),
+    DeletedMessage("W1601", "apply-builtin"),
+    DeletedMessage("W1602", "basestring-builtin"),
+    DeletedMessage("W1603", "buffer-builtin"),
+    DeletedMessage("W1604", "cmp-builtin"),
+    DeletedMessage("W1605", "coerce-builtin"),
+    DeletedMessage("W1606", "execfile-builtin"),
+    DeletedMessage("W1607", "file-builtin"),
+    DeletedMessage("W1608", "long-builtin"),
+    DeletedMessage("W1609", "raw_input-builtin"),
+    DeletedMessage("W1610", "reduce-builtin"),
+    DeletedMessage("W1611", "standarderror-builtin"),
+    DeletedMessage("W1612", "unicode-builtin"),
+    DeletedMessage("W1613", "xrange-builtin"),
+    DeletedMessage("W1614", "coerce-method"),
+    DeletedMessage("W1615", "delslice-method"),
+    DeletedMessage("W1616", "getslice-method"),
+    DeletedMessage("W1617", "setslice-method"),
+    DeletedMessage("W1618", "no-absolute-import"),
+    DeletedMessage("W1619", "old-division"),
+    DeletedMessage("W1620", "dict-iter-method"),
+    DeletedMessage("W1621", "dict-view-method"),
+    DeletedMessage("W1622", "next-method-called"),
+    DeletedMessage("W1623", "metaclass-assignment"),
+    DeletedMessage(
+        "W1624", "indexing-exception", [("W0713", "old-indexing-exception")]
+    ),
+    DeletedMessage("W1625", "raising-string", [("W0701", "old-raising-string")]),
+    DeletedMessage("W1626", "reload-builtin"),
+    DeletedMessage("W1627", "oct-method"),
+    DeletedMessage("W1628", "hex-method"),
+    DeletedMessage("W1629", "nonzero-method"),
+    DeletedMessage("W1630", "cmp-method"),
+    DeletedMessage("W1632", "input-builtin"),
+    DeletedMessage("W1633", "round-builtin"),
+    DeletedMessage("W1634", "intern-builtin"),
+    DeletedMessage("W1635", "unichr-builtin"),
+    DeletedMessage(
+        "W1636", "map-builtin-not-iterating", [("W1631", "implicit-map-evaluation")]
+    ),
+    DeletedMessage("W1637", "zip-builtin-not-iterating"),
+    DeletedMessage("W1638", "range-builtin-not-iterating"),
+    DeletedMessage("W1639", "filter-builtin-not-iterating"),
+    DeletedMessage("W1640", "using-cmp-argument"),
+    DeletedMessage("W1642", "div-method"),
+    DeletedMessage("W1643", "idiv-method"),
+    DeletedMessage("W1644", "rdiv-method"),
+    DeletedMessage("W1645", "exception-message-attribute"),
+    DeletedMessage("W1646", "invalid-str-codec"),
+    DeletedMessage("W1647", "sys-max-int"),
+    DeletedMessage("W1648", "bad-python3-import"),
+    DeletedMessage("W1649", "deprecated-string-function"),
+    DeletedMessage("W1650", "deprecated-str-translate-call"),
+    DeletedMessage("W1651", "deprecated-itertools-function"),
+    DeletedMessage("W1652", "deprecated-types-field"),
+    DeletedMessage("W1653", "next-method-defined"),
+    DeletedMessage("W1654", "dict-items-not-iterating"),
+    DeletedMessage("W1655", "dict-keys-not-iterating"),
+    DeletedMessage("W1656", "dict-values-not-iterating"),
+    DeletedMessage("W1657", "deprecated-operator-function"),
+    DeletedMessage("W1658", "deprecated-urllib-function"),
+    DeletedMessage("W1659", "xreadlines-attribute"),
+    DeletedMessage("W1660", "deprecated-sys-function"),
+    DeletedMessage("W1661", "exception-escape"),
+    DeletedMessage("W1662", "comprehension-escape"),
+    # https://github.com/PyCQA/pylint/pull/3578
+    DeletedMessage("W0312", "mixed-indentation"),
+    # https://github.com/PyCQA/pylint/pull/3577
+    DeletedMessage(
+        "C0326",
+        "bad-whitespace",
+        [
+            ("C0323", "no-space-after-operator"),
+            ("C0324", "no-space-after-comma"),
+            ("C0322", "no-space-before-operator"),
+        ],
+    ),
+    # https://github.com/PyCQA/pylint/pull/3571
+    DeletedMessage("C0330", "bad-continuation"),
+    # No PR
+    DeletedMessage("R0921", "abstract-class-not-used"),
+    # https://github.com/PyCQA/pylint/pull/3577
+    DeletedMessage("C0326", "bad-whitespace"),
+    # Pylint 1.4.3
+    DeletedMessage("W0142", "star-args"),
+    # https://github.com/PyCQA/pylint/issues/2409
+    DeletedMessage("W0232", "no-init"),
+    # https://github.com/PyCQA/pylint/pull/6421
+    DeletedMessage("W0111", "assign-to-new-keyword"),
+]
+
+
+# ignore some messages when emitting useless-suppression:
+# - cyclic-import: can show false positives due to incomplete context
+# - deprecated-{module, argument, class, method, decorator}:
+#   can cause false positives for multi-interpreter projects
+#   when linting with an interpreter on a lower python version
+INCOMPATIBLE_WITH_USELESS_SUPPRESSION = frozenset(
+    [
+        "R0401",  # cyclic-import
+        "W0402",  # deprecated-module
+        "W1505",  # deprecated-method
+        "W1511",  # deprecated-argument
+        "W1512",  # deprecated-class
+        "W1513",  # deprecated-decorator
+    ]
+)
+
+
+TYPING_TYPE_CHECKS_GUARDS = frozenset({"typing.TYPE_CHECKING", "TYPE_CHECKING"})

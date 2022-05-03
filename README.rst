@@ -2,7 +2,7 @@
 README for Pylint - https://pylint.pycqa.org/
 =============================================
 
-.. image:: https://github.com/PyCQA/pylint/actions/workflows/ci.yaml/badge.svg?branch=main
+.. image:: https://github.com/PyCQA/pylint/actions/workflows/tests.yaml/badge.svg?branch=main
     :target: https://github.com/PyCQA/pylint/actions
 
 .. image:: https://coveralls.io/repos/github/PyCQA/pylint/badge.svg?branch=main
@@ -25,8 +25,7 @@ README for Pylint - https://pylint.pycqa.org/
    :alt: pre-commit.ci status
 
 .. |tideliftlogo| image:: https://raw.githubusercontent.com/PyCQA/pylint/main/doc/media/Tidelift_Logos_RGB_Tidelift_Shorthand_On-White.png
-   :width: 75
-   :height: 60
+   :width: 200
    :alt: Tidelift
 
 .. list-table::
@@ -75,7 +74,7 @@ Pylint can be simply installed by running::
 
     pip install pylint
 
-If you are using Python 3.6.2+, upgrade to get full support for your version::
+If you are using Python 3.7.2+, upgrade to get full support for your version::
 
     pip install pylint --upgrade
 
@@ -107,49 +106,58 @@ Pylint is shipped with following additional commands:
 Testing
 -------
 
-We use tox_ and pytest-benchmark_ for running the test suite. You should be able to install it with::
+You should be able to install our tests dependencies with::
 
-    pip install tox pytest pytest-benchmark
+    pip install -r requirements_test.txt
 
-
-To run the test suite for a particular Python version, you can do::
-
-    tox -e py37
-
-
-To run individual tests with ``tox``, you can do::
-
-    tox -e py37 -- -k name_of_the_test
-
-
-We use pytest_ for testing ``pylint``, which you can use without using ``tox`` for a faster development cycle.
-
-If you want to run tests on a specific portion of the code with pytest_, (pytest-cov_) and your local python version::
+You can then use pytest_ directly. If you want to run tests on a specific portion of the
+code with pytest_ and your local python version::
 
     # ( pip install pytest-cov )
-    # Everything:
-    python3 -m pytest tests/
+    python3 -m pytest
     # Everything in tests/message with coverage for the relevant code:
     python3 -m pytest tests/message/ --cov=pylint.message
     coverage html
     # Only the functional test "missing_kwoa_py3":
     python3 -m pytest "tests/test_functional.py::test_functional[missing_kwoa_py3]"
 
+You can also *optionally* install tox_. To run the test suite for a particular
+Python version, with tox you can do::
 
-Do not forget to clone astroid_ and install the last version::
+    tox -e py39
 
+To run individual tests with ``tox``, you can do::
+
+    tox -e py37 -- -k name_of_the_test
+
+If you're testing new changes in astroid you need to clone astroid_ and install
+with an editable installation as follows::
 
     git clone https://github.com/PyCQA/astroid.git
-
-    # From source
-    python3 astroid/setup.py build sdist
-    pip3 install astroid/dist/astroid*.tar.gz
-
-    # Using an editable installation
     cd astroid
     python3 -m pip install -e .
 
+Show your usage
+-----------------
 
+You can place this badge in your README to let others know your project uses pylint.
+
+    .. image:: https://img.shields.io/badge/linting-pylint-yellowgreen
+        :target: https://github.com/PyCQA/pylint
+
+Use the badge in your project's README.md (or any other Markdown file)::
+
+    [![linting: pylint](https://img.shields.io/badge/linting-pylint-yellowgreen)](https://github.com/PyCQA/pylint)
+
+Use the badge in your project's README.rst (or any other rst file)::
+
+    .. image:: https://img.shields.io/badge/linting-pylint-yellowgreen
+        :target: https://github.com/PyCQA/pylint
+
+
+If you use GitHub Actions, and one of your CI workflows begins with "name: pylint", you
+can use GitHub's `workflow status badges <https://docs.github.com/en/actions/monitoring-and-troubleshooting-workflows/adding-a-workflow-status-badge#using-the-workflow-file-name>`_
+to show an up-to-date indication of whether pushes to your default branch pass pylint.
 For more detailed information, check the documentation.
 
 .. _here: https://pylint.pycqa.org/en/latest/user_guide/installation.html

@@ -1,52 +1,20 @@
-# Copyright (c) 2013-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2013-2014 Google, Inc.
-# Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2014 Cosmin Poieana <cmin@ropython.org>
-# Copyright (c) 2014 Vlad Temian <vladtemian@gmail.com>
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015 Cezar <celnazli@bitdefender.com>
-# Copyright (c) 2015 Chris Rebert <code@rebertia.com>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016 Jared Garst <cultofjared@gmail.com>
-# Copyright (c) 2017 Renat Galimov <renat2017@gmail.com>
-# Copyright (c) 2017 Martin <MartinBasti@users.noreply.github.com>
-# Copyright (c) 2017 Christopher Zurcher <zurcher@users.noreply.github.com>
-# Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
-# Copyright (c) 2018 Lucas Cimon <lucas.cimon@gmail.com>
-# Copyright (c) 2018 Banjamin Freeman <befreeman@users.noreply.github.com>
-# Copyright (c) 2018 Ioana Tagirta <ioana.tagirta@gmail.com>
-# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019 Julien Palard <julien@palard.fr>
-# Copyright (c) 2019 laike9m <laike9m@users.noreply.github.com>
-# Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2019 Robert Schweizer <robert_schweizer@gmx.de>
-# Copyright (c) 2019 fadedDexofan <fadedDexofan@gmail.com>
-# Copyright (c) 2020 Sorin Sbarnea <ssbarnea@redhat.com>
-# Copyright (c) 2020 Federico Bond <federicobond@gmail.com>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2020 谭九鼎 <109224573@qq.com>
-# Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 Yilei "Dolee" Yang <yileiyang@google.com>
-# Copyright (c) 2021 Matus Valo <matusvalo@users.noreply.github.com>
-# Copyright (c) 2021 victor <16359131+jiajunsu@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Checkers for various standard library functions."""
 
+from __future__ import annotations
+
 import sys
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set
+from typing import TYPE_CHECKING
 
 import astroid
 from astroid import nodes
 
 from pylint import interfaces
 from pylint.checkers import BaseChecker, DeprecatedMixin, utils
-from pylint.interfaces import IAstroidChecker
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -70,15 +38,7 @@ LRU_CACHE = {
 NON_INSTANCE_METHODS = {"builtins.staticmethod", "builtins.classmethod"}
 
 
-DEPRECATED_MODULES = {
-    (0, 0, 0): {"tkinter.tix", "fpectl"},
-    (3, 2, 0): {"optparse"},
-    (3, 4, 0): {"imp"},
-    (3, 5, 0): {"formatter"},
-    (3, 6, 0): {"asynchat", "asyncore"},
-    (3, 7, 0): {"macpath"},
-    (3, 9, 0): {"lib2to3", "parser", "symbol", "binhex"},
-}
+# For modules, see ImportsChecker
 
 DEPRECATED_ARGUMENTS = {
     (0, 0, 0): {
@@ -125,10 +85,11 @@ DEPRECATED_DECORATORS = {
         "abc.abstractstaticmethod",
         "abc.abstractproperty",
     },
+    (3, 4, 0): {"importlib.util.module_for_loader"},
 }
 
 
-DEPRECATED_METHODS: Dict = {
+DEPRECATED_METHODS: dict = {
     0: {
         "cgi.parse_qs",
         "cgi.parse_qsl",
@@ -183,6 +144,7 @@ DEPRECATED_METHODS: Dict = {
             "ntpath.splitunc",
             "os.path.splitunc",
             "os.stat_float_times",
+            "turtle.RawTurtle.settiltangle",
         },
         (3, 2, 0): {
             "cgi.escape",
@@ -204,6 +166,10 @@ DEPRECATED_METHODS: Dict = {
         },
         (3, 4, 0): {
             "importlib.find_loader",
+            "importlib.abc.Loader.load_module",
+            "importlib.abc.Loader.module_repr",
+            "importlib.abc.PathEntryFinder.find_loader",
+            "importlib.abc.PathEntryFinder.find_module",
             "plistlib.readPlist",
             "plistlib.writePlist",
             "plistlib.readPlistFromBytes",
@@ -252,6 +218,7 @@ DEPRECATED_METHODS: Dict = {
         },
         (3, 10, 0): {
             "_sqlite3.enable_shared_cache",
+            "importlib.abc.Finder.find_module",
             "pathlib.Path.link_to",
             "zipimport.zipimporter.load_module",
             "zipimport.zipimporter.find_module",
@@ -266,11 +233,23 @@ DEPRECATED_METHODS: Dict = {
             "threading.Thread.setDaemon",
             "cgi.log",
         },
+        (3, 11, 0): {
+            "locale.getdefaultlocale",
+            "unittest.TestLoader.findTestCases",
+            "unittest.TestLoader.loadTestsFromTestCase",
+            "unittest.TestLoader.getTestCaseNames",
+        },
     },
 }
 
 
 DEPRECATED_CLASSES = {
+    (3, 2, 0): {
+        "configparser": {
+            "LegacyInterpolation",
+            "SafeConfigParser",
+        },
+    },
     (3, 3, 0): {
         "importlib.abc": {
             "Finder",
@@ -312,6 +291,11 @@ DEPRECATED_CLASSES = {
             "MailmanProxy",
         }
     },
+    (3, 11, 0): {
+        "webbrowser": {
+            "MacOSX",
+        },
+    },
 }
 
 
@@ -346,7 +330,6 @@ def _check_mode_str(mode):
 
 
 class StdlibChecker(DeprecatedMixin, BaseChecker):
-    __implements__ = (IAstroidChecker,)
     name = "stdlib"
 
     msgs = {
@@ -355,7 +338,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "bad-open-mode",
             "Python supports: r, w, a[, x] modes with b, +, "
             "and U (only with r) options. "
-            "See https://docs.python.org/2/library/functions.html#open",
+            "See https://docs.python.org/3/library/functions.html#open",
         ),
         "W1502": (
             "Using datetime.time in a boolean context.",
@@ -445,7 +428,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "unspecified-encoding",
             "It is better to specify an encoding when opening documents. "
             "Using the system default implicitly can create problems on other operating systems. "
-            "See https://www.python.org/dev/peps/pep-0597/",
+            "See https://peps.python.org/pep-0597/",
         ),
         "W1515": (
             "Leaving functions creating breakpoints in production code is not recommended",
@@ -453,39 +436,44 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "Calls to breakpoint(), sys.breakpointhook() and pdb.set_trace() should be removed "
             "from code that is not actively being debugged.",
         ),
-        "W1516": (
-            "lru_cache shouldn't be used on a method as it creates memory leaks",
-            "lru-cache-decorating-method",
-            "By decorating a method with lru_cache the 'self' argument will be linked to "
-            "to the lru_cache function and therefore never garbage collected. Unless your instance "
+        "W1518": (
+            "'lru_cache(maxsize=None)' or 'cache' will keep all method args alive indefinitely, including 'self'",
+            "method-cache-max-size-none",
+            "By decorating a method with lru_cache or cache the 'self' argument will be linked to "
+            "the function and therefore never garbage collected. Unless your instance "
             "will never need to be garbage collected (singleton) it is recommended to refactor "
-            "code to avoid this pattern.",
+            "code to avoid this pattern or add a maxsize to the cache."
+            "The default value for maxsize is 128.",
+            {
+                "old_names": [
+                    ("W1516", "lru-cache-decorating-method"),
+                    ("W1517", "cache-max-size-none"),
+                ]
+            },
         ),
     }
 
-    def __init__(self, linter: Optional["PyLinter"] = None) -> None:
+    def __init__(self, linter: PyLinter) -> None:
         BaseChecker.__init__(self, linter)
-        self._deprecated_methods: Set[Any] = set()
-        self._deprecated_methods.update(DEPRECATED_METHODS[0])
+        self._deprecated_methods: set[str] = set()
+        self._deprecated_arguments: dict[str, tuple[tuple[int | None, str], ...]] = {}
+        self._deprecated_classes: dict[str, set[str]] = {}
+        self._deprecated_decorators: set[str] = set()
+
         for since_vers, func_list in DEPRECATED_METHODS[sys.version_info[0]].items():
             if since_vers <= sys.version_info:
                 self._deprecated_methods.update(func_list)
-        self._deprecated_attributes = {}
         for since_vers, func_list in DEPRECATED_ARGUMENTS.items():
             if since_vers <= sys.version_info:
-                self._deprecated_attributes.update(func_list)
-        self._deprecated_classes = {}
+                self._deprecated_arguments.update(func_list)
         for since_vers, class_list in DEPRECATED_CLASSES.items():
             if since_vers <= sys.version_info:
                 self._deprecated_classes.update(class_list)
-        self._deprecated_modules = set()
-        for since_vers, mod_list in DEPRECATED_MODULES.items():
-            if since_vers <= sys.version_info:
-                self._deprecated_modules.update(mod_list)
-        self._deprecated_decorators = set()
         for since_vers, decorator_list in DEPRECATED_DECORATORS.items():
             if since_vers <= sys.version_info:
                 self._deprecated_decorators.update(decorator_list)
+        # Modules are checked by the ImportsChecker, because the list is
+        # synced with the config argument deprecated-modules
 
     def _check_bad_thread_instantiation(self, node):
         if not node.kwargs and not node.keywords and len(node.args) <= 1:
@@ -513,7 +501,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                 self.add_message("shallow-copy-environ", node=node)
                 break
 
-    @utils.check_messages(
+    @utils.only_required_for_messages(
         "bad-open-mode",
         "redundant-unittest-assert",
         "deprecated-method",
@@ -566,46 +554,62 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                     self.add_message("forgotten-debug-statement", node=node)
             self.check_deprecated_method(node, inferred)
 
-    @utils.check_messages("boolean-datetime")
+    @utils.only_required_for_messages("boolean-datetime")
     def visit_unaryop(self, node: nodes.UnaryOp) -> None:
         if node.op == "not":
             self._check_datetime(node.operand)
 
-    @utils.check_messages("boolean-datetime")
+    @utils.only_required_for_messages("boolean-datetime")
     def visit_if(self, node: nodes.If) -> None:
         self._check_datetime(node.test)
 
-    @utils.check_messages("boolean-datetime")
+    @utils.only_required_for_messages("boolean-datetime")
     def visit_ifexp(self, node: nodes.IfExp) -> None:
         self._check_datetime(node.test)
 
-    @utils.check_messages("boolean-datetime")
+    @utils.only_required_for_messages("boolean-datetime")
     def visit_boolop(self, node: nodes.BoolOp) -> None:
         for value in node.values:
             self._check_datetime(value)
 
-    @utils.check_messages("lru-cache-decorating-method")
+    @utils.only_required_for_messages("method-cache-max-size-none")
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         if node.decorators and isinstance(node.parent, nodes.ClassDef):
             self._check_lru_cache_decorators(node.decorators)
 
     def _check_lru_cache_decorators(self, decorators: nodes.Decorators) -> None:
         """Check if instance methods are decorated with functools.lru_cache."""
-        lru_cache_nodes: List[nodes.NodeNG] = []
+        lru_cache_nodes: list[nodes.NodeNG] = []
         for d_node in decorators.nodes:
             try:
                 for infered_node in d_node.infer():
                     q_name = infered_node.qname()
                     if q_name in NON_INSTANCE_METHODS:
                         return
-                    if q_name in LRU_CACHE:
+
+                    # Check if there is a maxsize argument set to None in the call
+                    if q_name in LRU_CACHE and isinstance(d_node, nodes.Call):
+                        try:
+                            arg = utils.get_argument_from_call(
+                                d_node, position=0, keyword="maxsize"
+                            )
+                        except utils.NoSuchArgumentError:
+                            break
+
+                        if not isinstance(arg, nodes.Const) or arg.value is not None:
+                            break
+
+                        lru_cache_nodes.append(d_node)
+                        break
+
+                    if q_name == "functools.cache":
                         lru_cache_nodes.append(d_node)
                         break
             except astroid.InferenceError:
                 pass
         for lru_cache_node in lru_cache_nodes:
             self.add_message(
-                "lru-cache-decorating-method",
+                "method-cache-max-size-none",
                 node=lru_cache_node,
                 confidence=interfaces.INFERENCE,
             )
@@ -624,9 +628,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             )
 
     def _check_datetime(self, node):
-        """Check that a datetime was inferred.
-        If so, emit boolean-datetime warning.
-        """
+        """Check that a datetime was inferred, if so, emit boolean-datetime warning."""
         try:
             inferred = next(node.infer())
         except astroid.InferenceError:
@@ -637,7 +639,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         ):
             self.add_message("boolean-datetime", node=node)
 
-    def _check_open_mode(self, node):
+    def _check_open_mode(self, node: nodes.Call):
         """Check that the mode argument of an open or file call is valid."""
         try:
             mode_arg = utils.get_argument_from_call(node, position=1, keyword="mode")
@@ -675,7 +677,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         if (
             not mode_arg
             or isinstance(mode_arg, nodes.Const)
-            and (not mode_arg.value or "b" not in mode_arg.value)
+            and (not mode_arg.value or "b" not in str(mode_arg.value))
         ):
             encoding_arg = None
             try:
@@ -760,15 +762,11 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         else:
             self.add_message(message, node=node, args=(name, call_arg.pytype()))
 
-    def deprecated_modules(self):
-        """Callback returning the deprecated modules."""
-        return self._deprecated_modules
-
     def deprecated_methods(self):
         return self._deprecated_methods
 
     def deprecated_arguments(self, method: str):
-        return self._deprecated_attributes.get(method, ())
+        return self._deprecated_arguments.get(method, ())
 
     def deprecated_classes(self, module: str):
         return self._deprecated_classes.get(module, ())
@@ -777,5 +775,5 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         return self._deprecated_decorators
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(StdlibChecker(linter))

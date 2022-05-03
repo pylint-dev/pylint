@@ -1,27 +1,14 @@
-# Copyright (c) 2007, 2010, 2013, 2015 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2013 Google, Inc.
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2015 Mike Frysinger <vapier@gentoo.org>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016 Glenn Matthews <glenn@e-dad.net>
-# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
-# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2020-2021 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2020 谭九鼎 <109224573@qq.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 bot <bot@noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
+from __future__ import annotations
 
 import sys
 import tokenize
-from typing import TYPE_CHECKING, Any, Optional, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from pylint.checkers import BaseTokenChecker
-from pylint.interfaces import ITokenChecker
 from pylint.reporters.ureports.nodes import Table
 from pylint.utils import LinterStats, diff_string
 
@@ -37,7 +24,7 @@ if TYPE_CHECKING:
 def report_raw_stats(
     sect,
     stats: LinterStats,
-    old_stats: Optional[LinterStats],
+    old_stats: LinterStats | None,
 ) -> None:
     """Calculate percentage of code / doc / comment / empty."""
     total_lines = stats.code_type_count["total"]
@@ -60,15 +47,15 @@ def report_raw_stats(
 
 
 class RawMetricsChecker(BaseTokenChecker):
-    """Does not check anything but gives some raw metrics :
+    """Checker that provides raw metrics instead of checking anything.
+
+    Provides:
     * total number of lines
     * total number of code lines
     * total number of docstring lines
     * total number of comments lines
     * total number of empty lines
     """
-
-    __implements__ = (ITokenChecker,)
 
     # configuration section name
     name = "metrics"
@@ -79,14 +66,11 @@ class RawMetricsChecker(BaseTokenChecker):
     # reports
     reports = (("RP0701", "Raw metrics", report_raw_stats),)
 
-    def __init__(self, linter):
-        super().__init__(linter)
-
     def open(self):
         """Init statistics."""
         self.linter.stats.reset_code_count()
 
-    def process_tokens(self, tokens):
+    def process_tokens(self, tokens: list[tokenize.TokenInfo]) -> None:
         """Update stats."""
         i = 0
         tokens = list(tokens)
@@ -99,7 +83,9 @@ class RawMetricsChecker(BaseTokenChecker):
 JUNK = (tokenize.NL, tokenize.INDENT, tokenize.NEWLINE, tokenize.ENDMARKER)
 
 
-def get_type(tokens, start_index):
+def get_type(
+    tokens: list[tokenize.TokenInfo], start_index: int
+) -> tuple[int, int, Literal["code", "docstring", "comment", "empty"]]:
     """Return the line type : docstring, comment, code, empty."""
     i = start_index
     start = tokens[i][2]
@@ -122,8 +108,9 @@ def get_type(tokens, start_index):
         line_type = "empty"
     elif i < len(tokens) and tokens[i][0] == tokenize.NEWLINE:
         i += 1
-    return i, pos[0] - start[0] + 1, line_type
+    # Mypy fails to infer the literal of line_type
+    return i, pos[0] - start[0] + 1, line_type  # type: ignore[return-value]
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(RawMetricsChecker(linter))

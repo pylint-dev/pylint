@@ -123,7 +123,7 @@ def type_annotation_used_after_comprehension():
 
 def type_annotation_unused_after_comprehension():
     """https://github.com/PyCQA/pylint/issues/5326"""
-    my_int: int  # [unused-variable]
+    my_int: int
     _ = [print(sep=my_int, end=my_int) for my_int in range(10)]
 
 
@@ -155,3 +155,17 @@ class Dummy:
 
 
 dummy = Dummy(value=val if (val := 'something') else 'anything')
+
+def expression_in_ternary_operator_inside_container():
+    """Named expression in ternary operator: inside container"""
+    return [val2 if (val2 := 'something') else 'anything']
+
+
+def expression_in_ternary_operator_inside_container_tuple():
+    """Same case, using a tuple inside a 1-element list"""
+    return [(val3, val3) if (val3 := 'something') else 'anything']
+
+
+def expression_in_ternary_operator_inside_container_wrong_position():
+    """2-element list where named expression comes too late"""
+    return [val3, val3 if (val3 := 'something') else 'anything']  # [used-before-assignment]

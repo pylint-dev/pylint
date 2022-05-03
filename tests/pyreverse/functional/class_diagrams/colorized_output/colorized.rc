@@ -1,0 +1,3 @@
+[testoptions]
+output_formats=puml
+command_line_args=-S --colorized --max-color-depth=2

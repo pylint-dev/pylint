@@ -1,17 +1,18 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
 
 import re
 from pathlib import Path
-from typing import Dict, Tuple, Type
 
 import pytest
 
 from pylint.checkers import BaseChecker
 from pylint.lint.expand_modules import _is_in_ignore_list_re, expand_modules
 from pylint.testutils import CheckerTestCase, set_config
-from pylint.utils.utils import get_global_option
+from pylint.typing import MessageDefinitionTuple
 
 
 def test__is_in_ignore_list_re_match() -> None:
@@ -68,6 +69,14 @@ test_pylinter = {
     "path": str(TEST_DIRECTORY / "lint/test_pylinter.py"),
 }
 
+test_namespace_packages = {
+    "basename": "lint",
+    "basepath": INIT_PATH,
+    "isarg": False,
+    "name": "lint.test_namespace_packages",
+    "path": str(TEST_DIRECTORY / "lint/test_namespace_packages.py"),
+}
+
 init_of_package = {
     "basename": "lint",
     "basepath": INIT_PATH,
@@ -84,10 +93,10 @@ class TestExpandModules(CheckerTestCase):
         """This dummy checker is needed to allow options to be set."""
 
         name = "checker"
-        msgs: Dict[str, Tuple[str, ...]] = {}
-        options = (("An option", {"An option": "dict"}),)
+        msgs: dict[str, MessageDefinitionTuple] = {}
+        options = (("test-opt", {"action": "store_true", "help": "help message"}),)
 
-    CHECKER_CLASS: Type = Checker
+    CHECKER_CLASS: type = Checker
 
     @pytest.mark.parametrize(
         "files_or_modules,expected",
@@ -97,6 +106,7 @@ class TestExpandModules(CheckerTestCase):
                 [str(Path(__file__).parent)],
                 [
                     init_of_package,
+                    test_namespace_packages,
                     test_pylinter,
                     test_utils,
                     this_file_from_init,
@@ -113,7 +123,7 @@ class TestExpandModules(CheckerTestCase):
             files_or_modules,
             ignore_list,
             ignore_list_re,
-            get_global_option(self.checker, "ignore-paths"),
+            self.linter.config.ignore_paths,
         )
         modules.sort(key=lambda d: d["name"])
         assert modules == expected
@@ -139,7 +149,7 @@ class TestExpandModules(CheckerTestCase):
             files_or_modules,
             ignore_list,
             ignore_list_re,
-            get_global_option(self.checker, "ignore-paths"),
+            self.linter.config.ignore_paths,
         )
         modules.sort(key=lambda d: d["name"])
         assert modules == expected

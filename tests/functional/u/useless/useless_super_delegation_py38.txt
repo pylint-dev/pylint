@@ -1,1 +1,1 @@
-useless-super-delegation:16:4:17:39:Ham.__init__:Useless super delegation in method '__init__':UNDEFINED
+useless-super-delegation:16:4:16:16:Ham.__init__:Useless super delegation in method '__init__':UNDEFINED

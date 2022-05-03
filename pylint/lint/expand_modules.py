@@ -1,14 +1,21 @@
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
+from __future__ import annotations
+
 import os
 import sys
-from typing import List, Pattern, Tuple
+from collections.abc import Sequence
+from re import Pattern
 
 from astroid import modutils
 
 from pylint.typing import ErrorDescriptionDict, ModuleDescriptionDict
 
 
-def _modpath_from_file(filename, is_namespace, path=None):
-    def _is_package_cb(inner_path, parts):
+def _modpath_from_file(filename: str, is_namespace: bool, path: list[str]) -> list[str]:
+    def _is_package_cb(inner_path: str, parts: list[str]) -> bool:
         return modutils.check_modpath_has_init(inner_path, parts) or is_namespace
 
     return modutils.modpath_from_file_with_callback(
@@ -18,7 +25,9 @@ def _modpath_from_file(filename, is_namespace, path=None):
 
 def get_python_path(filepath: str) -> str:
     """TODO This get the python path with the (bad) assumption that there is always
-    an __init__.py. This is not true since python 3.3 and is causing problem.
+    an __init__.py.
+
+    This is not true since python 3.3 and is causing problem.
     """
     dirname = os.path.realpath(os.path.expanduser(filepath))
     if not os.path.isdir(dirname):
@@ -32,22 +41,22 @@ def get_python_path(filepath: str) -> str:
             return os.getcwd()
 
 
-def _is_in_ignore_list_re(element: str, ignore_list_re: List[Pattern]) -> bool:
+def _is_in_ignore_list_re(element: str, ignore_list_re: list[Pattern[str]]) -> bool:
     """Determines if the element is matched in a regex ignore-list."""
     return any(file_pattern.match(element) for file_pattern in ignore_list_re)
 
 
 def expand_modules(
-    files_or_modules: List[str],
-    ignore_list: List[str],
-    ignore_list_re: List[Pattern],
-    ignore_list_paths_re: List[Pattern[str]],
-) -> Tuple[List[ModuleDescriptionDict], List[ErrorDescriptionDict]]:
+    files_or_modules: Sequence[str],
+    ignore_list: list[str],
+    ignore_list_re: list[Pattern[str]],
+    ignore_list_paths_re: list[Pattern[str]],
+) -> tuple[list[ModuleDescriptionDict], list[ErrorDescriptionDict]]:
     """Take a list of files/modules/packages and return the list of tuple
-    (file, module name) which have to be actually checked
+    (file, module name) which have to be actually checked.
     """
-    result: List[ModuleDescriptionDict] = []
-    errors: List[ErrorDescriptionDict] = []
+    result: list[ModuleDescriptionDict] = []
+    errors: list[ErrorDescriptionDict] = []
     path = sys.path.copy()
 
     for something in files_or_modules:

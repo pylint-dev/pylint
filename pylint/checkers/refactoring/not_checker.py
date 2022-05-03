@@ -1,11 +1,11 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 import astroid
 from astroid import nodes
 
-from pylint import checkers, interfaces
+from pylint import checkers
 from pylint.checkers import utils
 
 
@@ -16,7 +16,6 @@ class NotChecker(checkers.BaseChecker):
     - "not" followed by a comparison should trigger a warning
     """
 
-    __implements__ = (interfaces.IAstroidChecker,)
     msgs = {
         "C0113": (
             'Consider changing "%s" to "%s"',
@@ -41,7 +40,7 @@ class NotChecker(checkers.BaseChecker):
     # 'builtins' py3, '__builtin__' py2
     skipped_classnames = [f"builtins.{qname}" for qname in ("set", "frozenset")]
 
-    @utils.check_messages("unneeded-not")
+    @utils.only_required_for_messages("unneeded-not")
     def visit_unaryop(self, node: nodes.UnaryOp) -> None:
         if node.op != "not":
             return

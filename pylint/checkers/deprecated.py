@@ -1,9 +1,14 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Checker mixin for deprecated functionality."""
+
+from __future__ import annotations
+
+from collections.abc import Container, Iterable
 from itertools import chain
-from typing import Any, Container, Iterable, Tuple, Union
+from typing import Any
 
 import astroid
 from astroid import nodes
@@ -22,6 +27,7 @@ ACCEPTABLE_NODES = (
 
 class DeprecatedMixin(BaseChecker):
     """A mixin implementing logic for checking deprecated symbols.
+
     A class implementing mixin must define "deprecated-method" Message.
     """
 
@@ -37,7 +43,7 @@ class DeprecatedMixin(BaseChecker):
             "The argument is marked as deprecated and will be removed in the future.",
         ),
         "W0402": (
-            "Uses of a deprecated module %r",
+            "Deprecated module %r",
             "deprecated-module",
             "A module marked as deprecated is imported.",
         ),
@@ -53,7 +59,7 @@ class DeprecatedMixin(BaseChecker):
         ),
     }
 
-    @utils.check_messages(
+    @utils.only_required_for_messages(
         "deprecated-method",
         "deprecated-argument",
         "deprecated-class",
@@ -65,7 +71,7 @@ class DeprecatedMixin(BaseChecker):
             # Calling entry point for deprecation check logic.
             self.check_deprecated_method(node, inferred)
 
-    @utils.check_messages(
+    @utils.only_required_for_messages(
         "deprecated-module",
         "deprecated-class",
     )
@@ -87,7 +93,7 @@ class DeprecatedMixin(BaseChecker):
         # pylint: disable=no-self-use
         return ()
 
-    @utils.check_messages("deprecated-decorator")
+    @utils.only_required_for_messages("deprecated-decorator")
     def visit_decorators(self, node: nodes.Decorators) -> None:
         """Triggered when a decorator statement is seen."""
         children = list(node.get_children())
@@ -101,7 +107,7 @@ class DeprecatedMixin(BaseChecker):
         if qname in self.deprecated_decorators():
             self.add_message("deprecated-decorator", node=node, args=qname)
 
-    @utils.check_messages(
+    @utils.only_required_for_messages(
         "deprecated-module",
         "deprecated-class",
     )
@@ -122,9 +128,7 @@ class DeprecatedMixin(BaseChecker):
         # pylint: disable=no-self-use
         return ()
 
-    def deprecated_arguments(
-        self, method: str
-    ) -> Iterable[Tuple[Union[int, None], str]]:
+    def deprecated_arguments(self, method: str) -> Iterable[tuple[int | None, str]]:
         """Callback returning the deprecated arguments of method/function.
 
         Args:
@@ -180,8 +184,9 @@ class DeprecatedMixin(BaseChecker):
                 self.add_message("deprecated-module", node=node, args=mod_path)
 
     def check_deprecated_method(self, node, inferred):
-        """Executes the checker for the given node. This method should
-        be called from the checker implementing this mixin.
+        """Executes the checker for the given node.
+
+        This method should be called from the checker implementing this mixin.
         """
 
         # Reject nodes which aren't of interest to us.

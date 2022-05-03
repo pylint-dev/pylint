@@ -1,3 +1,2 @@
 [TYPECHECK]
-ignore-mixin-members=yes
 mixin-class-rgx=.*[Mm]ixin
