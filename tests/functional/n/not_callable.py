@@ -211,7 +211,7 @@ ATTRIBUTES = {
 for key, (name, validate) in ATTRIBUTES.items():
     name = validate(1)
 
-    
+
 class Klass:
     def __init__(self):
         self._x = None
