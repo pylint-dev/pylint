@@ -86,9 +86,6 @@ def _path_transformer(value: str) -> str:
     # Expand tilde to allow spelling-private-dict-file = ~/.pylintdict
     value = os.path.expanduser(value)
     value = os.path.expandvars(value)
-    # We'd need to distinguish between input path that should exist and output path that do not
-    # if not os.path.exists(value):
-    #     raise argparse.ArgumentTypeError(f"'{value}' is not a valid path is does not exists.")
     return value
 
 
