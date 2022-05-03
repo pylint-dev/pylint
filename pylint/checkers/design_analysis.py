@@ -537,6 +537,10 @@ class MisdesignChecker(BaseChecker):
         # check number of local variables
         locnum = len(node.locals) - ignored_args_num
 
+        # decrement number of local variables if '_' is one of them
+        if "_" in node.locals:
+            locnum -= 1
+
         if locnum > self.linter.config.max_locals:
             self.add_message(
                 "too-many-locals",

@@ -13,6 +13,10 @@ Release date: TBA
 
   Closes #6076
 
+* Started ignoring underscore as a local variable for ``too-many-locals``.
+
+  Closes #6488
+
 * Improved wording of the message of ``deprecated-module``
 
   Closes #6169
