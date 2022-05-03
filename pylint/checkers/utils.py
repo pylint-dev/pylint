@@ -590,6 +590,74 @@ def collect_string_fields(format_string) -> Iterable[str | None]:
             return
         raise IncompleteFormatString(format_string) from exc
 
+def parse_format_spec(format_spec, startPoint):
+    def next_char(i):
+        i += 1
+        if i == len(format_spec):
+            return (i, "?")
+        return (i, format_spec[i])
+
+    if "{" in format_spec:
+        return
+
+    i = 0
+    char = format_spec[0]
+    # Alignment flag
+    align = "<>=^"
+    if len(format_spec) > 1 and format_spec[1] in align:
+        i, char = next_char(i + 1)
+    elif format_spec[0] in align:
+        i, char = next_char(i)
+
+    # Sign display flag
+    sign = "+- "
+    if char in sign:
+        i, char = next_char(i)
+    
+    # # Flag
+    if char == "#":
+        i, char = next_char(i)
+    
+    # 0 Flag
+    if char == "0":
+        i, char = next_char(i)
+    
+    # Parse the width (optional).
+    while char in string.digits:
+        i, char = next_char(i)
+
+    # Parse the grouping option (optional)
+    grouping_options = "_,"
+    if char in grouping_options:
+        i, char = next_char(i)
+
+    # Parse the precision (optional).
+    if char == ".":
+        i, char = next_char(i)
+        if char == "*":
+            i, char = next_char(i)
+        else:
+            while char in string.digits:
+                i, char = next_char(i)
+
+    # Parse types 
+    types = "bcdeEfFgGnosxX%"
+    if char in types:
+        i,char = next_char(i)
+    else:
+        raise UnsupportedFormatCharacter(startPoint + i)
+
+    if char == "{":
+        end = format_spec[i:].find("}")
+        if end == -1:
+            raise UnsupportedFormatCharacter(startPoint + i)
+        # Parse nested spec
+        parse_format_spec(format_spec[i:i + end], startPoint + i)
+        parse_format_spec(format_spec[i + end + 1:], startPoint + i + end + 1)
+        return
+
+    if i < len(format_spec):
+        raise UnsupportedFormatCharacter(startPoint + i)
 
 def parse_format_method_string(
     format_string: str,
@@ -601,6 +669,21 @@ def parse_format_method_string(
     is the number of arguments required by the format string and
     explicit_pos_args is the number of arguments passed with the position.
     """
+    i = 0
+    while i < len(format_string):
+        char = format_string[i]
+        if char == "{":
+            if i + 1 <= len(format_string) and format_string[i + 1] != "{":
+                start = i + 1
+                end = start + format_string[i:].find("}")
+                format_spec_start = start + format_string[start:end].find(":") + 1
+                format_spec = format_string[format_spec_start:(end - 1)]
+                parse_format_spec(format_spec, format_spec_start)
+                i += len(format_spec)
+            else:
+                i += 1
+        i += 1
+
     keyword_arguments = []
     implicit_pos_args_cnt = 0
     explicit_pos_args = set()

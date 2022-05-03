@@ -403,6 +403,7 @@ class StringFormatChecker(BaseChecker):
             return
         for value in node.values:
             if isinstance(value, nodes.FormattedValue):
+                print(value.format_spec)
                 return
         self.add_message("f-string-without-interpolation", node=node)
 
@@ -469,6 +470,14 @@ class StringFormatChecker(BaseChecker):
             fields, num_args, manual_pos = utils.parse_format_method_string(
                 strnode.value
             )
+        except utils.UnsupportedFormatCharacter as exc:
+            formatted = strnode.value[exc.index]
+            self.add_message(
+                "bad-format-character",
+                node=node,
+                args=(formatted, ord(formatted), exc.index),
+            )
+            return
         except utils.IncompleteFormatString:
             self.add_message("bad-format-string", node=node)
             return
