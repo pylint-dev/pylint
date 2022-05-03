@@ -245,6 +245,10 @@ Other Changes
 
   Closes #5205
 
+* Fix falsely issuing ``useless-suppression`` on the ``wrong-import-position`` checker.
+
+  Closes #5219
+
 * Fix false negative for ``no-member`` when attempting to assign an instance
   attribute to itself without any prior assignment.
 

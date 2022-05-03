@@ -542,8 +542,6 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         self._first_non_import_node = None
 
     def compute_first_non_import_node(self, node):
-        if not self.linter.is_message_enabled("wrong-import-position", node.fromlineno):
-            return
         # if the node does not contain an import instruction, and if it is the
         # first node of the module, keep a track of it (all the import positions
         # of the module will be compared to the position of this first
@@ -584,8 +582,6 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
     ) = visit_comprehension = visit_expr = visit_if = compute_first_non_import_node
 
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
-        if not self.linter.is_message_enabled("wrong-import-position", node.fromlineno):
-            return
         # If it is the first non import instruction of the module, record it.
         if self._first_non_import_node:
             return
@@ -636,7 +632,16 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         # if a first non-import instruction has already been encountered,
         # it means the import comes after it and therefore is not well placed
         if self._first_non_import_node:
-            self.add_message("wrong-import-position", node=node, args=node.as_string())
+            if self.linter.is_message_enabled(
+                "wrong-import-position", self._first_non_import_node.fromlineno
+            ):
+                self.add_message(
+                    "wrong-import-position", node=node, args=node.as_string()
+                )
+            else:
+                self.linter.add_ignored_message(
+                    "wrong-import-position", node.fromlineno, node
+                )
 
     def _record_import(self, node, importedmodnode):
         """Record the package `node` imports from."""
