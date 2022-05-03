@@ -268,8 +268,6 @@ class SpellingChecker(BaseTokenChecker):
 
     def open(self) -> None:
         self.initialized = False
-        self.private_dict_file = None
-
         if enchant is None:
             return
         dict_name = self.linter.config.spelling_dict
@@ -292,9 +290,6 @@ class SpellingChecker(BaseTokenChecker):
             self.spelling_dict = enchant.DictWithPWL(
                 dict_name, self.linter.config.spelling_private_dict_file
             )
-            self.private_dict_file = open(  # pylint: disable=consider-using-with
-                self.linter.config.spelling_private_dict_file, "a", encoding="utf-8"
-            )
         else:
             self.spelling_dict = enchant.Dict(dict_name)
 
@@ -315,10 +310,6 @@ class SpellingChecker(BaseTokenChecker):
             ],
         )
         self.initialized = True
-
-    def close(self) -> None:
-        if self.private_dict_file:
-            self.private_dict_file.close()
 
     def _check_spelling(self, msgid: str, line: str, line_num: int) -> None:
         original_line = line
@@ -374,11 +365,13 @@ class SpellingChecker(BaseTokenChecker):
 
             # Store word to private dict or raise a message.
             if self.linter.config.spelling_store_unknown_words:
-                if (
-                    lower_cased_word not in self.unknown_words
-                    and self.private_dict_file is not None
-                ):
-                    self.private_dict_file.write(f"{lower_cased_word}\n")
+                if lower_cased_word not in self.unknown_words:
+                    with open(
+                        self.linter.config.spelling_private_dict_file,
+                        "a",
+                        encoding="utf-8",
+                    ) as f:
+                        f.write(f"{lower_cased_word}\n")
                     self.unknown_words.add(lower_cased_word)
             else:
                 # Present up to N suggestions.
