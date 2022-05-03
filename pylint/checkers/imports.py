@@ -334,7 +334,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             "import-graph",
             {
                 "default": "",
-                "type": "string",
+                "type": "path",
                 "metavar": "<file.gv>",
                 "help": "Output a graph (.gv or any supported image format) of"
                 " all (i.e. internal and external) dependencies to the given file"
@@ -345,7 +345,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             "ext-import-graph",
             {
                 "default": "",
-                "type": "string",
+                "type": "path",
                 "metavar": "<file.gv>",
                 "help": "Output a graph (.gv or any supported image format)"
                 " of external dependencies to the given file"
@@ -356,7 +356,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             "int-import-graph",
             {
                 "default": "",
-                "type": "string",
+                "type": "path",
                 "metavar": "<file.gv>",
                 "help": "Output a graph (.gv or any supported image format)"
                 " of internal dependencies to the given file"

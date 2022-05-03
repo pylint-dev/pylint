@@ -6,7 +6,6 @@
 
 from __future__ import annotations
 
-import os
 import re
 import tokenize
 from re import Pattern
@@ -227,7 +226,7 @@ class SpellingChecker(BaseTokenChecker):
             "spelling-private-dict-file",
             {
                 "default": "",
-                "type": "string",
+                "type": "path",
                 "metavar": "<path to file>",
                 "help": "A path to a file that contains the private "
                 "dictionary; one word per line.",
@@ -288,12 +287,6 @@ class SpellingChecker(BaseTokenChecker):
             w.strip()
             for w in self.linter.config.spelling_ignore_comment_directives.split(",")
         ]
-
-        # Expand tilde to allow e.g. spelling-private-dict-file = ~/.pylintdict
-        if self.linter.config.spelling_private_dict_file:
-            self.linter.config.spelling_private_dict_file = os.path.expanduser(
-                self.linter.config.spelling_private_dict_file
-            )
 
         if self.linter.config.spelling_private_dict_file:
             self.spelling_dict = enchant.DictWithPWL(

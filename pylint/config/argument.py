@@ -10,6 +10,7 @@ An Argument instance represents a pylint option to be handled by an argparse.Arg
 from __future__ import annotations
 
 import argparse
+import os
 import pathlib
 import re
 import sys
@@ -80,6 +81,17 @@ def _non_empty_string_transformer(value: str) -> str:
     return pylint_utils._unquote(value)
 
 
+def _path_transformer(value: str) -> str:
+    """Check that a path is valid and expand user / variable."""
+    # Expand tilde to allow spelling-private-dict-file = ~/.pylintdict
+    value = os.path.expanduser(value)
+    value = os.path.expandvars(value)
+    # We'd need to distinguish between input path that should exist and output path that do not
+    # if not os.path.exists(value):
+    #     raise argparse.ArgumentTypeError(f"'{value}' is not a valid path is does not exists.")
+    return value
+
+
 def _py_version_transformer(value: str) -> tuple[int, ...]:
     """Transforms a version string into a version tuple."""
     try:
@@ -120,6 +132,7 @@ _TYPE_TRANSFORMERS: dict[str, Callable[[str], _ArgumentTypes]] = {
     "int": int,
     "confidence": _confidence_transformer,
     "non_empty_string": _non_empty_string_transformer,
+    "path": _path_transformer,
     "py_version": _py_version_transformer,
     "regexp": re.compile,
     "regexp_csv": _regexp_csv_transfomer,
