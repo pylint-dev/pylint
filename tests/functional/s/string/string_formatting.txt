@@ -35,13 +35,17 @@ format-string-without-interpolation:101:4:101:22:pprint_bad:Using formatting for
 format-string-without-interpolation:102:4:102:23:pprint_bad:Using formatting for a string that does not have any interpolated variables:UNDEFINED
 format-string-without-interpolation:103:4:103:23:pprint_bad:Using formatting for a string that does not have any interpolated variables:UNDEFINED
 format-string-without-interpolation:104:4:104:25:pprint_bad:Using formatting for a string that does not have any interpolated variables:UNDEFINED
-too-few-format-args:132:4:132:25:nested_issue294:Not enough arguments for format string:UNDEFINED
-too-many-format-args:133:4:133:33:nested_issue294:Too many arguments for format string:UNDEFINED
-missing-format-argument-key:134:4:134:26:nested_issue294:Missing keyword argument 'a' for format string:UNDEFINED
-missing-format-attribute:135:4:135:30:nested_issue294:Missing format attribute 'x' in format specifier 'a.x':UNDEFINED
-too-few-format-args:141:4:141:27:issue310:Not enough arguments for format string:UNDEFINED
-too-many-format-args:149:4:149:48:issue322:Too many arguments for format string:UNDEFINED
-too-few-format-args:150:4:150:29:issue322:Not enough arguments for format string:UNDEFINED
-too-few-format-args:175:4:175:15:issue351:Not enough arguments for format string:UNDEFINED
-too-many-format-args:177:4:177:31:issue351:Too many arguments for format string:UNDEFINED
-bad-format-string:213:11:213:60:avoid_empty_attribute:Invalid format string:UNDEFINED
+bad-string-format-type:105:4:105:22:pprint_bad:Argument 'builtins.str' does not match format type 'x':UNDEFINED
+bad-string-format-type:106:4:106:23:pprint_bad:Argument 'builtins.str' does not match format type 'x':UNDEFINED
+bad-string-format-type:107:4:107:14:pprint_bad:Argument 'builtins.str' does not match format type 'x':UNDEFINED
+bad-string-format-type:108:4:108:15:pprint_bad:Argument 'builtins.str' does not match format type 'x':UNDEFINED
+too-few-format-args:136:4:136:25:nested_issue294:Not enough arguments for format string:UNDEFINED
+too-many-format-args:137:4:137:33:nested_issue294:Too many arguments for format string:UNDEFINED
+missing-format-argument-key:138:4:138:26:nested_issue294:Missing keyword argument 'a' for format string:UNDEFINED
+missing-format-attribute:139:4:139:30:nested_issue294:Missing format attribute 'x' in format specifier 'a.x':UNDEFINED
+too-few-format-args:145:4:145:27:issue310:Not enough arguments for format string:UNDEFINED
+too-many-format-args:153:4:153:48:issue322:Too many arguments for format string:UNDEFINED
+too-few-format-args:154:4:154:29:issue322:Not enough arguments for format string:UNDEFINED
+too-few-format-args:179:4:179:15:issue351:Not enough arguments for format string:UNDEFINED
+too-many-format-args:181:4:181:31:issue351:Too many arguments for format string:UNDEFINED
+bad-format-string:217:11:217:60:avoid_empty_attribute:Invalid format string:UNDEFINED

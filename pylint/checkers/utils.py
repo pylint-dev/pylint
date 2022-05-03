@@ -13,7 +13,7 @@ import numbers
 import re
 import string
 import warnings
-from collections import deque
+from collections import deque, namedtuple
 from collections.abc import Iterable, Iterator
 from functools import lru_cache, partial
 from re import Match
@@ -60,6 +60,7 @@ SETITEM_METHOD = "__setitem__"
 DELITEM_METHOD = "__delitem__"
 CONTAINS_METHOD = "__contains__"
 KEYS_METHOD = "keys"
+FORMAT_SPEC_REGEX = r"^(?:.*{.*})?(?:[^{]?[<>=^])?[+\- ]?#?0?[0-9]*[_,]?(?:\.[0-9]*)?(?P<format_char>.)?$"
 
 # Dictionary which maps the number of expected parameters a
 # special method can have to a set of special methods.
@@ -618,8 +619,9 @@ def split_format_field_names(
     except ValueError as e:
         raise IncompleteFormatString() from e
 
-
-def collect_string_fields(format_string: str) -> Iterable[str | None]:
+def collect_string_fields(
+    format_string,
+) -> Iterable[tuple[str | None, str | None]]:
     """Given a format string, return an iterator
     of all the valid format fields.
 
@@ -634,7 +636,7 @@ def collect_string_fields(format_string: str) -> Iterable[str | None]:
                 continue
             name = result[1]
             nested = result[2]
-            yield name
+            yield (name, nested)
             if nested:
                 yield from collect_string_fields(nested)
     except ValueError as exc:
@@ -646,15 +648,140 @@ def collect_string_fields(format_string: str) -> Iterable[str | None]:
             # the validation being done in the interpreter (?).
             # We're just returning two mixed fields in order
             # to trigger the format-combined-specification check.
-            yield ""
-            yield "1"
+            yield ("", None)
+            yield ("1", None)
             return
         raise IncompleteFormatString(format_string) from exc
 
 
+def parse_format_spec(format_spec, start_point):
+    """Parses a PEP 3101 format specifier, returning the format character used, if any.
+
+    Where 'format_spec' is the string specifier, and 'start_point' is the
+    index in the full string where this spec appears. Raises IncompleteFormatString or
+    UnsupportedFormatCharacter if a parse error occurs.
+    """
+    compiled = re.compile(FORMAT_SPEC_REGEX)
+    match = compiled.match(format_spec)
+    types = "bcdeEfFgGnosxX%"
+    if match:
+        format_char = match.groupdict().get("format_char")
+        if format_char and format_char not in types:
+            raise UnsupportedFormatCharacter(start_point + match.start("format_char"))
+        return format_char
+    raise IncompleteFormatString(format_spec)
+
+
+def parse_format_field(format_field, start_point):
+    """Parses a PEP 3101 format field, parsing it into the field name, conversion,
+    and format spec
+
+    It passes the format_spec to parse_format_spec for verification.
+    Returns (name, format_character) where 'name' is the variable name being inserted,
+    and 'format_character' is the format character in the format specifier.
+
+    Where 'repl_field' is the full string field, and 'start_point' is the
+    index in the full string where this field appears.
+    """
+    name_end = len(format_field)
+    colon_idx = -1
+    open_blocks = []
+    for (i, char) in enumerate(format_field):
+        if char == "[" and (len(open_blocks) == 0 or open_blocks[-1] == "["):
+            open_blocks.append(char)
+        if char == "]":
+            if len(open_blocks) > 0 and open_blocks[-1] == "[":
+                open_blocks.pop()
+            else:
+                raise IncompleteFormatString(format_field)
+        if char == '"' and (i == 0 or format_field[i - 1] != "\\"):
+            if len(open_blocks) > 0 and open_blocks[-1] == '"':
+                open_blocks.pop()
+            elif '"' in open_blocks:
+                raise IncompleteFormatString(format_field)
+            else:
+                open_blocks.append('"')
+        if char == "'" and (i == 0 or format_field[i - 1] != "\\"):
+            if len(open_blocks) > 0 and open_blocks[-1] == "'":
+                open_blocks.pop()
+            elif "'" in open_blocks:
+                raise IncompleteFormatString(format_field)
+            else:
+                open_blocks.append("'")
+
+        if char == ":" and len(open_blocks) == 0:
+            colon_idx = i
+            break
+
+    format_character = None
+    format_spec = ""
+    conversion = None
+    if colon_idx != -1:
+        format_spec = format_field[colon_idx + 1 :]
+        format_character = parse_format_spec(format_spec, start_point + colon_idx + 1)
+        name_end = colon_idx
+
+    if name_end >= 2 and format_field[name_end - 2] == "!":
+        conversion = format_field[name_end - 1]
+        if conversion not in "rs":
+            raise UnsupportedFormatCharacter(start_point + name_end - 1)
+
+        name_end -= 2
+
+    return format_spec, (conversion, format_character)
+
+
+def parse_all_fields_formatting(
+    format_string: str,
+    include_nested: bool = True
+) -> dict[str | None, tuple[str, str]]:
+    idx = 0
+    open_brackets = []
+    format_char_memo = {}
+    while idx < len(format_string):
+        char = format_string[idx]
+        if char == "{" and (
+            len(format_string) <= (idx + 1) or format_string[idx + 1] != "{"
+        ):
+            open_brackets.append(idx)
+        elif char == "}" and (
+            len(format_string) <= (idx + 1)
+            or format_string[idx + 1] != "}"
+            or len(open_brackets) > 0
+        ):
+            if len(open_brackets) == 0:
+                raise IncompleteFormatString(format_string)
+            start = open_brackets.pop() + 1
+            if len(open_brackets) == 0 or include_nested:
+                (spec, (conversion, format_char)) = parse_format_field(
+                    format_string[start:idx], start
+                )
+                format_char_memo[spec] = (conversion, format_char)
+        elif char in {"{", "}"}:
+            idx += 1
+        idx += 1
+    if len(open_brackets) != 0:
+        raise IncompleteFormatString(format_string)
+
+    return format_char_memo
+
+
+parse_format_method_string_result = namedtuple(
+    "parse_format_method_string_result",
+    [
+        "keyword_arguments",
+        "implicit_pos_args_cnt",
+        "explicit_pos_args",
+        "keyword_types",
+        "implicit_types",
+        "explicit_types",
+    ],
+)
+
+
 def parse_format_method_string(
     format_string: str,
-) -> tuple[list[tuple[str, list[tuple[bool, str]]]], int, int]:
+) -> parse_format_method_string_result:
     """Parses a PEP 3101 format string, returning a tuple of
     (keyword_arguments, implicit_pos_args_cnt, explicit_pos_args).
 
@@ -662,23 +789,44 @@ def parse_format_method_string(
     is the number of arguments required by the format string and
     explicit_pos_args is the number of arguments passed with the position.
     """
+    format_char_memo = parse_all_fields_formatting(format_string, True)
+
     keyword_arguments = []
     implicit_pos_args_cnt = 0
     explicit_pos_args = set()
-    for name in collect_string_fields(format_string):
+    keyword_types = {}
+    implicit_types = []
+    explicit_types = {}
+    for (name, format_spec) in collect_string_fields(format_string):
+        try:
+            format_types = format_char_memo[format_spec]
+        except ValueError as e:
+            raise IncompleteFormatString() from e
         if name and str(name).isdigit():
             explicit_pos_args.add(str(name))
+            explicit_types[str(name)] = format_types
         elif name:
             keyname, fielditerator = split_format_field_names(name)
+            if len(list(fielditerator)) > 0:
+                format_types = (format_types[0], None)
             if isinstance(keyname, numbers.Number):
                 explicit_pos_args.add(str(keyname))
-            try:
-                keyword_arguments.append((keyname, list(fielditerator)))
-            except ValueError as e:
-                raise IncompleteFormatString() from e
+                explicit_types[str(keyname)] = format_types
+                continue
+            keyword_arguments.append((keyname, list(fielditerator)))
+            keyword_types[keyname] = format_types
         else:
             implicit_pos_args_cnt += 1
-    return keyword_arguments, implicit_pos_args_cnt, len(explicit_pos_args)
+            implicit_types.append(format_types)
+
+    return parse_format_method_string_result(
+        keyword_arguments,
+        implicit_pos_args_cnt,
+        explicit_pos_args,
+        keyword_types,
+        implicit_types,
+        explicit_types,
+    )
 
 
 def is_attr_protected(attrname: str) -> bool:
@@ -694,6 +842,7 @@ def is_attr_protected(attrname: str) -> bool:
 
 def node_frame_class(node: nodes.NodeNG) -> nodes.ClassDef | None:
     """Return the class that is wrapping the given node.
+
 
     The function returns a class for a method node (or a staticmethod or a
     classmethod), otherwise it returns `None`.

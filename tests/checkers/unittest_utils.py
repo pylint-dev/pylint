@@ -146,27 +146,28 @@ def test_is_subclass_of_not_classdefs() -> None:
 
 
 def test_parse_format_method_string() -> None:
+    result_type = utils.parse_format_method_string_result
     samples = [
-        ("{}", 1),
-        ("{}:{}", 2),
-        ("{field}", 1),
-        ("{:5}", 1),
-        ("{:10}", 1),
-        ("{field:10}", 1),
-        ("{field:10}{{}}", 1),
-        ("{:5}{!r:10}", 2),
-        ("{:5}{}{{}}{}", 3),
-        ("{0}{1}{0}", 2),
-        ("Coordinates: {latitude}, {longitude}", 2),
-        ("X: {0[0]};  Y: {0[1]}", 1),
-        ("{:*^30}", 1),
-        ("{!r:}", 1),
+        ("{}", result_type([], 1, set(), {}, [(None, None)], {})),
+        ("{}:{}", result_type([], 2, set(), {}, [(None, None), (None, None)], {})),
+        ("{field}", result_type([("field", [])], 0, set(), {"field": (None,None)}, [], {})),
+        ("{:5}", result_type([], 1, set(), {}, [(None,None)], {})),
+        ("{:10}", result_type([], 1, set(), {}, [(None,None)], {})),
+        ("{field:10}", result_type([("field", [])], 0, set(), {"field": (None,None)}, [], {})),
+        ("{field:10}{{}}", result_type([("field", [])], 0, set(), {"field": (None,None)}, [], {})),
+        ("{:5}{!r:10}", result_type([], 2, set(), {}, [(None, None), ("r", None)], {})),
+        ("{:5}{}{{}}{}", result_type([], 3, set(), {}, [(None, None), (None, None), (None, None)], {})),
+        ("{0}{1}{0}", result_type([], 0, {'0', '1'}, {}, [], {'0': (None,None), '1': (None,None)})),
+        ("Coordinates: {latitude}, {longitude}", result_type([("latitude", []), ("longitude", [])], 0, set(), {"latitude": (None,None), "longitude": (None,None)}, [], {})),
+        ("X: {0[0]};  Y: {0[1]}", result_type([], 0, {"0"}, {}, [], {"0": (None, None)})),
+        ("{:*^30}", result_type([], 1, set(), {}, [(None,None)], {})),
+        ("{!r:}", result_type([], 1, set(), {}, [("r",None)], {})),
     ]
-    for fmt, count in samples:
-        keys, num_args, pos_args = utils.parse_format_method_string(fmt)
-        keyword_args = len({k for k, l in keys if not isinstance(k, int)})
-        assert keyword_args + num_args + pos_args == count
 
+
+    for fmt, result in samples:
+        parse = utils.parse_format_method_string(fmt)
+        assert(parse == result)
 
 def test_inherit_from_std_ex_recursive_definition() -> None:
     node = astroid.extract_node(
