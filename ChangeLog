@@ -258,6 +258,13 @@ Release date: TBA
 
   Closes #5880
 
+* Pylint now expand the user path (i. e. ``~`` to ``home/yusef/``) and expands environment variable (i.e. ``home/$USER/$project``
+  to ``home/yusef/pylint`` if USER=yusef and project=pylint) for option given to pyreverse's ``output-directory``,
+  ``import-graph``, ``ext-import-graph``,  ``int-import-graph`` options, and the spell checker's ``spelling-private-dict-file``
+  option.
+
+  Relates to #6493
+
 ..
   Insert your changelog randomly, it will reduce merge conflicts
   (Ie. not necessarily at the end)
