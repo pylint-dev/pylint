@@ -84,6 +84,10 @@ Extensions
 Other Changes
 =============
 
+* Started ignoring underscore as a local variable for ``too-many-locals``.
+
+  Closes #6488
+
 * Pylint can now be installed with an extra-require called ``spelling`` (``pip install pylint[spelling]``).
   This will add ``pyenchant`` to pylint's dependencies. You will still need to install the
   requirements for ``pyenchant`` (the ``enchant`` library and any dictionaries) yourself. You will also
