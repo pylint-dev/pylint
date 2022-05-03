@@ -260,3 +260,13 @@ def func(one, two, three):
 
 
 CALL = lambda *args: func(*args)
+
+
+# Check that typing.NewType calls expect exactly one argument
+import typing
+
+
+ChildType = typing.NewType("AliasType", int)
+ChildType()  # [no-value-for-parameter]
+ChildType(1)
+ChildType(1, 2)  # [too-many-function-args]

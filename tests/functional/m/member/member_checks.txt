@@ -17,3 +17,8 @@ no-member:135:0:135:18::Class 'str' has no 'portocala' member:INFERENCE
 no-member:170:19:170:32:NoDunderNameInInstance.__init__:Instance of 'NoDunderNameInInstance' has no '__name__' member:INFERENCE
 no-member:176:14:176:23:InvalidAccessBySlots.__init__:Instance of 'InvalidAccessBySlots' has no 'teta' member:INFERENCE
 no-member:208:13:208:20::Class 'Cls' has no 'BAZ' member; maybe 'BAR'?:INFERENCE
+no-member:243:0:243:24::Instance of 'UserId' has no 'not_a_str_method' member:INFERENCE
+no-member:256:0:256:13::Instance of 'BaseClass' has no 'bad_attr' member:INFERENCE
+no-member:261:0:261:14::Instance of 'ChildClass' has no 'bad_attr' member:INFERENCE
+no-member:270:0:270:13::Instance of 'PurePath' has no 'bad_attr' member:INFERENCE
+no-member:274:0:274:19::Instance of 'PathChild' has no 'bad_attr' member:INFERENCE
