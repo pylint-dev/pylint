@@ -60,11 +60,11 @@ class ComparisonChecker(_BasicChecker):
             "Used when something is compared against itself.",
         ),
         "R0133": (
-            "Comparison between constants: '%s %s %s' is also a constant, remove the comparison and consider a refactor",
+            "Comparison between constants: '%s %s %s' has a constant value",
             "comparison-of-constants",
-            "When two literals are compared with each other the result is a constant, "
-            "and using the constant directly is both easier to read and more performant."
-            " Initializing 'True' and 'False' this way is not required since python 2.3",
+            "When two literals are compared with each other the result is a constant. "
+            "Using the constant directly is both easier to read and more performant. "
+            "Initializing 'True' and 'False' this way is not required since Python 2.3.",
         ),
         "W0143": (
             "Comparing against a callable, did you omit the parenthesis?",

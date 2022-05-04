@@ -2,7 +2,7 @@ use-implicit-booleaness-not-len:4:3:4:14::Do not use `len(SEQUENCE)` without com
 use-implicit-booleaness-not-len:7:3:7:18::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
 use-implicit-booleaness-not-len:11:9:11:34::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
 use-implicit-booleaness-not-len:14:11:14:22::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
-comparison-of-constants:39:3:39:28::"Comparison between constants: '0 < 1' is also a constant, remove the comparison and consider a refactor":HIGH
+comparison-of-constants:39:3:39:28::"Comparison between constants: '0 < 1' has a constant value":HIGH
 use-implicit-booleaness-not-len:56:5:56:16::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
 use-implicit-booleaness-not-len:61:5:61:20::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
 use-implicit-booleaness-not-len:64:6:64:17::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
