@@ -1,3 +1,4 @@
+"""Tests for self-defined Enum members (https://github.com/PyCQA/pylint/issues/5138)"""
 # pylint: disable=missing-docstring
 from enum import IntEnum, Enum
 
@@ -43,3 +44,20 @@ class Length(Enum):
 
 print(f"100 {Length.METRE.unit}{Length.METRE.suffix}")
 print(Length.MILE.foo)  # [no-member]
+
+
+class Binary(int, Enum):
+    ZERO = 0
+    ONE = 1
+
+    def __init__(self, value: int) -> None:
+        super().__init__()
+        self.str, self.inverse = str(value), abs(value - 1)
+
+        def no_op(_value):
+            pass
+        value_squared = value ** 2
+        no_op(value_squared)
+
+
+print(f"1={Binary.ONE.value} (Inverted: {Binary.ONE.inverse}")

@@ -528,7 +528,7 @@ def _emit_no_member(
 def _get_all_attribute_assignments(
     node: astroid.FunctionDef, name: str | None = None
 ) -> set[str]:
-    attributes = set()
+    attributes: set[str] = set()
     for child in node.nodes_of_class((astroid.Assign, astroid.AnnAssign)):
         targets = []
         if isinstance(child, astroid.Assign):
@@ -536,11 +536,14 @@ def _get_all_attribute_assignments(
         elif isinstance(child, astroid.AnnAssign):
             targets = [child.target]
         for assign_target in targets:
-            if not isinstance(assign_target, astroid.AssignAttr):
+            if isinstance(assign_target, astroid.Tuple):
+                targets.extend(assign_target.elts)
                 continue
-            if not isinstance(assign_target.expr, astroid.Name):
-                continue
-            if name is None or assign_target.expr.name == name:
+            if (
+                isinstance(assign_target, astroid.AssignAttr)
+                and isinstance(assign_target.expr, astroid.Name)
+                and (name is None or assign_target.expr.name == name)
+            ):
                 attributes.add(assign_target.attrname)
     return attributes
 
@@ -557,9 +560,6 @@ def _enum_has_attribute(
             return False
     else:
         enum_def = owner
-    # Traverse the AST to find the Enum ClassDef
-    while not isinstance(enum_def, astroid.ClassDef):
-        enum_def = enum_def.parent
 
     # Find __new__ and __init__
     dunder_new = next((m for m in enum_def.methods() if m.name == "__new__"), None)
@@ -567,7 +567,7 @@ def _enum_has_attribute(
     if dunder_new is None and dunder_init is None:
         return False
 
-    enum_attributes = set()
+    enum_attributes: set[str] = set()
 
     # Find attributes defined in __new__
     if dunder_new:
