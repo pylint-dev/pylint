@@ -1,5 +1,5 @@
 """Test assignment of lambda expressions to a variable."""
-# pylint: disable=unbalanced-tuple-unpacking,undefined-variable,line-too-long
+# pylint: disable=unbalanced-tuple-unpacking, undefined-variable, line-too-long
 
 a = lambda x: x  # [unnecessary-lambda-assignment]
 a = (
