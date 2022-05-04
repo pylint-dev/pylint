@@ -10,7 +10,7 @@ while 2 == 2: # [comparison-of-constants]
 while 2 > 2: # [comparison-of-constants]
     pass
 
-n = 2 # pylint: disable=invalid-name
+n = 2
 if 2 != n:
     pass
 

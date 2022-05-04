@@ -114,7 +114,7 @@ if not 3:
 if instance.method():
     pass
 
-if 2 < 3: # pylint: disable=comparison-of-constants
+if 2 < 3:  # [comparison-of-constants]
     pass
 
 if tuple((1, 2, 3)):
