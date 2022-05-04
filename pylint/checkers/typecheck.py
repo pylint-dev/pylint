@@ -556,6 +556,15 @@ def _enum_has_attribute(
             (b.parent for b in owner.bases if isinstance(b.parent, nodes.ClassDef)),
             None,
         )
+
+        if enum_def is None:
+            # We don't inherit from anything, so try to find the parent
+            # class definition and roll with that
+            enum_def = node
+            while enum_def is not None and not isinstance(enum_def, nodes.ClassDef):
+                enum_def = enum_def.parent
+
+        # If this blows, something is clearly wrong
         assert enum_def is not None, "enum_def unexpectedly None"
     else:
         enum_def = owner
