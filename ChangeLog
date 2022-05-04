@@ -285,6 +285,9 @@ What's New in Pylint 2.13.9?
 ============================
 Release date: TBA
 
+* Fix false positives for ``no-name-in-module`` and ``import-error`` for ``numpy.distutils``.
+
+  Closes #6497
 
 
 What's New in Pylint 2.13.8?

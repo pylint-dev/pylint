@@ -78,3 +78,7 @@ from .no_self_use.bla import lala1 # [no-name-in-module]
 
 # Check ignored-modules setting
 from argparse import THIS_does_not_EXIST
+
+
+# https://github.com/PyCQA/pylint/issues/6497
+from numpy.distutils.misc_util import is_sequence

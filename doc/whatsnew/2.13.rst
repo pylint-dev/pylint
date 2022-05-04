@@ -639,3 +639,7 @@ Other Changes
   ``open``
 
   Closes #6414
+
+* Fix false positives for ``no-name-in-module`` and ``import-error`` for ``numpy.distutils``.
+
+  Closes #6497
