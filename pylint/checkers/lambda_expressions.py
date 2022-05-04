@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
-from pylint.interfaces import HIGH, IAstroidChecker
+from pylint.interfaces import HIGH
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -16,8 +16,6 @@ if TYPE_CHECKING:
 
 class LambdaExpressionChecker(BaseChecker):
     """Check for unnecessary usage of lambda expressions."""
-
-    __implements__ = IAstroidChecker
 
     name = "lambda-expressions"
     msgs = {
