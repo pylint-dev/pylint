@@ -9,6 +9,10 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.14.rst'
 
+* Added new checker ``comparison-of-constants``.
+
+  Closes #6076
+
 * Started ignoring underscore as a local variable for ``too-many-locals``.
 
   Closes #6488
