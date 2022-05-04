@@ -9,7 +9,7 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.14.rst'
 
-* Added new checker ``comparison-of-constants``
+* Added new checker ``comparison-of-constants``.
 
   Closes #6076
 

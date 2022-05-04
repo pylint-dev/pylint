@@ -12,7 +12,7 @@ Summary -- Release highlights
 New checkers
 ============
 
-* Added new checker ``comparison-of-constants``
+* Added new checker ``comparison-of-constants``.
 
   Closes #6076
 
