@@ -526,22 +526,22 @@ def _emit_no_member(
 
 
 def _get_all_attribute_assignments(
-    node: astroid.FunctionDef, name: str | None = None
+    node: nodes.FunctionDef, name: str | None = None
 ) -> set[str]:
     attributes: set[str] = set()
-    for child in node.nodes_of_class((astroid.Assign, astroid.AnnAssign)):
+    for child in node.nodes_of_class((nodes.Assign, nodes.AnnAssign)):
         targets = []
-        if isinstance(child, astroid.Assign):
+        if isinstance(child, nodes.Assign):
             targets = child.targets
-        elif isinstance(child, astroid.AnnAssign):
+        elif isinstance(child, nodes.AnnAssign):
             targets = [child.target]
         for assign_target in targets:
-            if isinstance(assign_target, astroid.Tuple):
+            if isinstance(assign_target, nodes.Tuple):
                 targets.extend(assign_target.elts)
                 continue
             if (
-                isinstance(assign_target, astroid.AssignAttr)
-                and isinstance(assign_target.expr, astroid.Name)
+                isinstance(assign_target, nodes.AssignAttr)
+                and isinstance(assign_target.expr, nodes.Name)
                 and (name is None or assign_target.expr.name == name)
             ):
                 attributes.add(assign_target.attrname)
@@ -556,16 +556,13 @@ def _enum_has_attribute(
             (b.parent for b in owner.bases if isinstance(b.parent, nodes.ClassDef)),
             None,
         )
-        if enum_def is None:
-            return False
+        assert enum_def is not None, "enum_def unexpectedly None"
     else:
         enum_def = owner
 
     # Find __new__ and __init__
     dunder_new = next((m for m in enum_def.methods() if m.name == "__new__"), None)
     dunder_init = next((m for m in enum_def.methods() if m.name == "__init__"), None)
-    if dunder_new is None and dunder_init is None:
-        return False
 
     enum_attributes: set[str] = set()
 
@@ -573,11 +570,7 @@ def _enum_has_attribute(
     if dunder_new:
         # Get the object returned in __new__
         returned_obj_name = next(
-            (
-                c.value
-                for c in dunder_new.get_children()
-                if isinstance(c, astroid.Return)
-            ),
+            (c.value for c in dunder_new.get_children() if isinstance(c, nodes.Return)),
             None,
         )
         if returned_obj_name is not None:
