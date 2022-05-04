@@ -59,7 +59,7 @@ class ComparisonChecker(_BasicChecker):
             "comparison-with-itself",
             "Used when something is compared against itself.",
         ),
-        "R0125": (
+        "R0133": (
             "Comparison between constants: '%s %s %s' is also a constant, remove the comparison and consider a refactor",
             "comparison-of-constants",
             "When two literals are compared with each other the result is a constant, "
