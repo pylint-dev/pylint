@@ -35,6 +35,13 @@ New checkers
 
   Closes #5936
 
+* ``unnecessary-lambda-assignment``: Lambda expression assigned to a variable.
+  Define a function using the "def" keyword instead.
+  ``unnecessary-direct-lambda-call``: Lambda expression called directly.
+  Execute the expression inline instead.
+
+  Closes #5976
+
 * ``potential-index-error``: Emitted when the index of a list or tuple exceeds its length.
   This checker is currently quite conservative to avoid false positives. We welcome
   suggestions for improvements.

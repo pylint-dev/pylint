@@ -2,7 +2,7 @@
 
 'py-version' needs to be set to '3.7' or '3.8' and 'runtime-typing=no'.
 """
-# pylint: disable=missing-docstring,invalid-name,unused-argument,line-too-long,unsubscriptable-object
+# pylint: disable=missing-docstring,invalid-name,unused-argument,line-too-long,unsubscriptable-object,unnecessary-direct-lambda-call
 import collections
 import collections.abc
 import typing
