@@ -223,12 +223,14 @@ class ComparisonChecker(_BasicChecker):
     def _check_two_literals_being_compared(self, node: nodes.Compare) -> None:
         """Check if two literals are being compared; this is always a logical tautology."""
         left_operand = node.left
-        right_operand = node.ops[0][1]
-        operator = node.ops[0][0]
         if not isinstance(left_operand, nodes.Const):
             return
+
+        right_operand = node.ops[0][1]
         if not isinstance(right_operand, nodes.Const):
             return
+
+        operator = node.ops[0][0]
         self.add_message(
             "comparison-of-constants",
             node=node,
