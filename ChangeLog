@@ -25,7 +25,8 @@ Release date: TBA
 
   Closes #4301
 
-* Updated the default values of ``ignore-imports`` and ``ignore-signatures`` to be ``True``.
+* By default the similarity checker will now ignore imports and ignore function signatures when computing
+ duplication. If you want to keep the previous behaviour set ``ignore-imports`` and ``ignore-signatures`` to ``False``.
 
 * Improved recognition of namespace packages. They should no longer be added to ``sys.path``
   which should prevent various issues with false positives.
