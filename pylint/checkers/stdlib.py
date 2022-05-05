@@ -333,6 +333,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
     name = "stdlib"
 
     msgs = {
+        **{k: v for k, v in DeprecatedMixin.msgs.items() if k[1:3] == "15"},
         "W1501": (
             '"%s" is not a valid mode for open.',
             "bad-open-mode",
@@ -356,13 +357,6 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "a condition. If a constant is passed as parameter, that "
             "condition will be always true. In this case a warning "
             "should be emitted.",
-        ),
-        "W1505": (
-            "Using deprecated method %s()",
-            "deprecated-method",
-            "The method is marked as deprecated and will be removed in "
-            "a future version of Python. Consider looking for an "
-            "alternative in the documentation.",
         ),
         "W1506": (
             "threading.Thread needs the target function",
@@ -407,21 +401,6 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "The check parameter should always be used with explicitly set "
             "`check` keyword to make clear what the error-handling behavior is."
             "https://docs.python.org/3/library/subprocess.html#subprocess.run",
-        ),
-        "W1511": (
-            "Using deprecated argument %s of method %s()",
-            "deprecated-argument",
-            "The argument is marked as deprecated and will be removed in the future.",
-        ),
-        "W1512": (
-            "Using deprecated class %s of module %s",
-            "deprecated-class",
-            "The class is marked as deprecated and will be removed in the future.",
-        ),
-        "W1513": (
-            "Using deprecated decorator %s()",
-            "deprecated-decorator",
-            "The decorator is marked as deprecated and will be removed in the future.",
         ),
         "W1514": (
             "Using open without explicitly specifying an encoding",
