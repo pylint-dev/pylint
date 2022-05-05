@@ -1,6 +1,6 @@
 """ Checks that reversed() receive proper argument """
 # pylint: disable=missing-docstring, useless-object-inheritance
-# pylint: disable=too-few-public-methods,no-self-use
+# pylint: disable=too-few-public-methods
 from collections import deque, OrderedDict
 from enum import IntEnum
 

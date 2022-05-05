@@ -1,5 +1,5 @@
 """Tests for method-cache-max-size-none"""
-# pylint: disable=no-self-use, missing-function-docstring, reimported, too-few-public-methods
+# pylint: disable=missing-function-docstring, reimported, too-few-public-methods
 # pylint: disable=missing-class-docstring, function-redefined
 
 import functools

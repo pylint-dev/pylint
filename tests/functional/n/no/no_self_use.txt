@@ -1,2 +1,0 @@
-no-self-use:16:4:16:23:Toto.function_method:Method could be a function:UNDEFINED
-no-self-use:24:4:24:35:Toto.async_function_method:Method could be a function:UNDEFINED

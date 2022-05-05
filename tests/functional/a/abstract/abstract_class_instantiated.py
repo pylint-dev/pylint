@@ -65,7 +65,7 @@ class Hashable(Structure):
 
 
 class Iterator(Structure):
-    def keys(self): # pylint: disable=no-self-use
+    def keys(self):
         return iter([1, 2, 3])
 
     __iter__ = keys
