@@ -14,7 +14,7 @@ from pylint.interfaces import HIGH
 from pylint.lint import PyLinter
 
 
-class RedefinedLoopName(checkers.BaseChecker):
+class RedefinedLoopNameChecker(checkers.BaseChecker):
 
     name = "redefined-loop-name"
 
@@ -86,4 +86,4 @@ class RedefinedLoopName(checkers.BaseChecker):
 
 
 def register(linter: PyLinter) -> None:
-    linter.register_checker(RedefinedLoopName(linter))
+    linter.register_checker(RedefinedLoopNameChecker(linter))

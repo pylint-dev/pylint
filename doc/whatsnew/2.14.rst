@@ -57,11 +57,6 @@ New checkers
 
   Closes #4525
 
-* Added optional extension ``redefined-loop-name`` to emit messages when a loop variable
-  is redefined in the loop body.
-
-  Closes #5072
-
 * Added new message called ``duplicate-value`` which identifies duplicate values inside sets.
 
   Closes #5880
@@ -85,6 +80,13 @@ Removed checkers
 
 Extensions
 ==========
+
+* ``RedefinedLoopNameChecker``
+
+    * Added optional extension ``redefined-loop-name`` to emit messages when a loop variable
+      is redefined in the loop body.
+
+      Closes #5072
 
 * ``DocStringStyleChecker``
 
