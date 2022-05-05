@@ -12,6 +12,7 @@ import pytest
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.mapreduce_checker import MapReduceMixin
+from pylint.config import load_results, save_results
 from pylint.interfaces import (
     IAstroidChecker,
     IChecker,
@@ -82,10 +83,6 @@ def test_interfaces() -> None:
 
 def test_load_and_save_results() -> None:
     """Test that load_results and save_results are deprecated."""
-    # TODO 3.0: Remove this test.
-    # pylint: disable=import-outside-toplevel
-    from pylint.config import load_results, save_results
-
     with pytest.warns(DeprecationWarning):
         save_results(object(), "")  # type: ignore[arg-type]
     with pytest.warns(DeprecationWarning):
