@@ -20,7 +20,7 @@ from typing import Any
 import astroid
 from astroid import AstroidError, nodes
 
-from pylint import checkers, config, exceptions, interfaces, reporters
+from pylint import checkers, exceptions, interfaces, reporters
 from pylint.checkers.base_checker import BaseChecker
 from pylint.config.arguments_manager import _ArgumentsManager
 from pylint.constants import (
@@ -1104,7 +1104,7 @@ class PyLinter(
         # syntax error preventing pylint from further processing)
         note = None
         assert self.file_state.base_name
-        previous_stats = config.load_results(self.file_state.base_name)
+        previous_stats = load_results(self.file_state.base_name)
         if self.stats.statement == 0:
             return note
 
