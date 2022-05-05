@@ -278,6 +278,8 @@ Other Changes
 
   Closes #5608
 
+* Updated the default values of ``ignore-imports`` and ``ignore-signatures`` to be ``True``.
+
 * Pylint now expands the user path (i.e. ``~`` to ``home/yusef/``) and expands environment variables (i.e. ``home/$USER/$project``
   to ``home/yusef/pylint`` for ``USER=yusef`` and ``project=pylint``) for pyreverse's ``output-directory``,
   ``import-graph``, ``ext-import-graph``,  ``int-import-graph`` options, and the spell checker's ``spelling-private-dict-file``

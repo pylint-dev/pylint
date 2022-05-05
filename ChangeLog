@@ -25,6 +25,8 @@ Release date: TBA
 
   Closes #4301
 
+* Updated the default values of ``ignore-imports`` and ``ignore-signatures`` to be ``True``.
+
 * Improved recognition of namespace packages. They should no longer be added to ``sys.path``
   which should prevent various issues with false positives.
   Because of the difficulties with mirroring the python import mechanics we would gladly
