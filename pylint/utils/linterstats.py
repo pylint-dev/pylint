@@ -311,7 +311,7 @@ class LinterStats:
         self.warning = 0
 
 
-def merge_stats(stats: list[LinterStats]):
+def merge_stats(stats: list[LinterStats]) -> LinterStats:
     """Used to merge multiple stats objects into a new one when pylint is run in parallel mode."""
     merged = LinterStats()
     for stat in stats:

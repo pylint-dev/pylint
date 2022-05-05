@@ -6,4 +6,5 @@ enable=multiple-imports
 ignored-modules=external_module,fake_module.submodule,foo,bar
 
 [testoptions]
+# TODO: PY3.9: This does pass on PyPy 3.9
 except_implementations=PyPy

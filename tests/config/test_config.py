@@ -11,7 +11,8 @@ import pytest
 from pytest import CaptureFixture
 
 from pylint.config.exceptions import _UnrecognizedOptionError
-from pylint.lint import Run
+from pylint.lint import Run as LintRun
+from pylint.testutils._run import _Run as Run
 from pylint.testutils.configuration_test import run_using_a_configuration_file
 
 HERE = Path(__file__).parent.absolute()
@@ -20,7 +21,7 @@ EMPTY_MODULE = REGRTEST_DATA_DIR / "empty.py"
 
 
 def check_configuration_file_reader(
-    runner: Run,
+    runner: LintRun,
     expected_disabled: set[str] | None = None,
     expected_jobs: int = 10,
     expected_reports_truthey: bool = True,
@@ -100,3 +101,10 @@ def test_unknown_py_version(capsys: CaptureFixture) -> None:
         Run([str(EMPTY_MODULE), "--py-version=the-newest"], exit=False)
     output = capsys.readouterr()
     assert "the-newest has an invalid format, should be a version string." in output.err
+
+
+def test_short_verbose(capsys: CaptureFixture) -> None:
+    """Check that we correctly handle the -v flag."""
+    Run([str(EMPTY_MODULE), "-v"], exit=False)
+    output = capsys.readouterr()
+    assert "Using config file" in output.err

@@ -1,3 +1,2 @@
 [testoptions]
 min_pyver = 3.10
-exclude_from_minimal_messages_config=true

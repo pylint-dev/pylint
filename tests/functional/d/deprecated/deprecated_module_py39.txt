@@ -1,1 +1,1 @@
-deprecated-module:4:0:4:13::Uses of a deprecated module 'binhex':UNDEFINED
+deprecated-module:4:0:4:13::Deprecated module 'binhex':UNDEFINED

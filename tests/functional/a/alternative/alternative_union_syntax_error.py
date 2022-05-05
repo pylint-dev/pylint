@@ -4,7 +4,7 @@ without postponed evaluation of annotations.
 For Python 3.7 - 3.9: Everything should fail.
 Testing only 3.8/3.9 to support TypedDict.
 """
-# pylint: disable=missing-function-docstring,unused-argument,invalid-name,missing-class-docstring,inherit-non-class,too-few-public-methods,line-too-long
+# pylint: disable=missing-function-docstring,unused-argument,invalid-name,missing-class-docstring,inherit-non-class,too-few-public-methods,line-too-long,unnecessary-direct-lambda-call
 import dataclasses
 import typing
 from dataclasses import dataclass

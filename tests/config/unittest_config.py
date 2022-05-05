@@ -14,6 +14,7 @@ import pytest
 from pylint import config
 from pylint.checkers import BaseChecker
 from pylint.testutils import CheckerTestCase, set_config
+from pylint.typing import MessageDefinitionTuple
 
 
 def test__regexp_validator_valid() -> None:
@@ -64,7 +65,7 @@ class TestPyLinterOptionSetters(CheckerTestCase):
 
     class Checker(BaseChecker):
         name = "checker"
-        msgs: dict[str, tuple[str, ...]] = {}
+        msgs: dict[str, MessageDefinitionTuple] = {}
         options = (("test-opt", {"action": "store_true", "help": "help message"}),)
 
     CHECKER_CLASS: type = Checker

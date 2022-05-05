@@ -67,7 +67,7 @@ Lastly, to profile a run over your own module or code you can use:
         stats.sort_stats("cumtime")
         stats.print_stats()
 
-The documentation of the ``pstats`` module discusses other possibilites to interact with
+The documentation of the ``pstats`` module discusses other possibilities to interact with
 the profiling output.
 
 
@@ -88,8 +88,8 @@ The previous line tells us that this method was called 622 times during the prof
 function itself for 6 ms in total. The time per call is less than a millisecond (0.006 / 622)
 and thus is displayed as being 0.
 
-Often you are more interested in the cumulative time (per call). This refers to the time spend within the function
-and any of the functions it called or they functions they called (etc.). In our example, the ``visit_importfrom``
+Often you are more interested in the cumulative time (per call). This refers to the time spent within the function
+and any of the functions it called or the functions they called (etc.). In our example, the ``visit_importfrom``
 method and all of its child-functions took a little over 8 seconds to exectute, with an execution time of
 0.013 ms per call.
 

@@ -25,9 +25,9 @@ from typing import NamedTuple, TypeVar
 
 from astroid import nodes
 
-import pylint.checkers
 import pylint.interfaces
 import pylint.lint
+from pylint import checkers
 
 _StrLike = TypeVar("_StrLike", str, bytes)
 
@@ -250,8 +250,8 @@ def _cached_encode_search(string: str, encoding: str) -> bytes:
 def _fix_utf16_32_line_stream(steam: Iterable[bytes], codec: str) -> Iterable[bytes]:
     """Handle line ending for UTF16 and UTF32 correctly.
 
-    Currently Python simply strips the required zeros after \n after the
-    line ending. Leading to lines that can't be decoded propery
+    Currently, Python simply strips the required zeros after \n after the
+    line ending. Leading to lines that can't be decoded properly
     """
     if not codec.startswith("utf-16") and not codec.startswith("utf-32"):
         yield from steam
@@ -298,7 +298,7 @@ def extract_codec_from_bom(first_line: bytes) -> str:
     raise ValueError("No BOM found. Could not detect Unicode codec.")
 
 
-class UnicodeChecker(pylint.checkers.BaseChecker):
+class UnicodeChecker(checkers.BaseRawFileChecker):
     """Check characters that could be used to hide bad code to humans.
 
     This includes:
@@ -317,8 +317,6 @@ class UnicodeChecker(pylint.checkers.BaseChecker):
     https://stackoverflow.com/questions/69897842/ and https://bugs.python.org/issue1503789
     for background.
     """
-
-    __implements__ = pylint.interfaces.IRawChecker
 
     name = "unicode_checker"
 

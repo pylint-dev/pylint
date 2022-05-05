@@ -1,4 +1,4 @@
-# pylint: disable=too-few-public-methods,invalid-name,missing-docstring
+# pylint: disable=too-few-public-methods,invalid-name,missing-docstring,unnecessary-lambda-assignment
 class MyClass():
     fun = lambda self, x: x * 2
     def __init__(self):

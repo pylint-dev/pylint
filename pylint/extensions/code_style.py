@@ -10,8 +10,7 @@ from typing import TYPE_CHECKING, Tuple, Type, Union, cast
 from astroid import nodes
 
 from pylint.checkers import BaseChecker, utils
-from pylint.checkers.utils import check_messages, safe_infer
-from pylint.interfaces import IAstroidChecker
+from pylint.checkers.utils import only_required_for_messages, safe_infer
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -37,8 +36,6 @@ class CodeStyleChecker(BaseChecker):
        and therefore preferred => this is the right place
     3. Everything else should go into another extension
     """
-
-    __implements__ = (IAstroidChecker,)
 
     name = "code_style"
     msgs = {
@@ -87,21 +84,21 @@ class CodeStyleChecker(BaseChecker):
             or self.linter.config.max_line_length
         )
 
-    @check_messages("consider-using-namedtuple-or-dataclass")
+    @only_required_for_messages("consider-using-namedtuple-or-dataclass")
     def visit_dict(self, node: nodes.Dict) -> None:
         self._check_dict_consider_namedtuple_dataclass(node)
 
-    @check_messages("consider-using-tuple")
+    @only_required_for_messages("consider-using-tuple")
     def visit_for(self, node: nodes.For) -> None:
         if isinstance(node.iter, nodes.List):
             self.add_message("consider-using-tuple", node=node.iter)
 
-    @check_messages("consider-using-tuple")
+    @only_required_for_messages("consider-using-tuple")
     def visit_comprehension(self, node: nodes.Comprehension) -> None:
         if isinstance(node.iter, nodes.List):
             self.add_message("consider-using-tuple", node=node.iter)
 
-    @check_messages("consider-using-assignment-expr")
+    @only_required_for_messages("consider-using-assignment-expr")
     def visit_if(self, node: nodes.If) -> None:
         if self._py38_plus:
             self._check_consider_using_assignment_expr(node)

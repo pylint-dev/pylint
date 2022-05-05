@@ -23,7 +23,7 @@ class OptionsProviderMixIn:
     level = 0
 
     def __init__(self):
-        # TODO: 3.0: Remove deprecated class # pylint: disable=fixme
+        # TODO: 3.0: Remove deprecated class
         warnings.warn(
             "OptionsProviderMixIn has been deprecated and will be removed in pylint 3.0",
             DeprecationWarning,

@@ -7,12 +7,11 @@ from __future__ import annotations
 import astroid
 
 from pylint.checkers import BaseChecker, DeprecatedMixin
-from pylint.interfaces import UNDEFINED, IAstroidChecker
+from pylint.interfaces import UNDEFINED
 from pylint.testutils import CheckerTestCase, MessageTest
 
 
 class _DeprecatedChecker(DeprecatedMixin, BaseChecker):
-    __implements__ = (IAstroidChecker,)
     name = "deprecated"
 
     def deprecated_methods(self) -> set[str]:

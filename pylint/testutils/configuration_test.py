@@ -84,7 +84,7 @@ def get_expected_configuration(
 def get_related_files(
     tested_configuration_file: str | Path, suffix_filter: str
 ) -> list[Path]:
-    """Return all the file related to a test conf file endind with a suffix."""
+    """Return all the file related to a test conf file ending with a suffix."""
     conf_path = Path(tested_configuration_file)
     return [
         p

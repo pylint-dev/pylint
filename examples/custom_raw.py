@@ -2,19 +2,16 @@ from typing import TYPE_CHECKING
 
 from astroid import nodes
 
-from pylint.checkers import BaseChecker
-from pylint.interfaces import IRawChecker
+from pylint.checkers import BaseRawFileChecker
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
 
-class MyRawChecker(BaseChecker):
+class MyRawChecker(BaseRawFileChecker):
     """Check for line continuations with '\' instead of using triple
     quoted string or parenthesis
     """
-
-    __implements__ = IRawChecker
 
     name = "custom_raw"
     msgs = {

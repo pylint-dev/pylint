@@ -1,4 +1,4 @@
-# pylint: disable= unnecessary-comprehension,missing-docstring,too-few-public-methods
+# pylint: disable=unnecessary-comprehension,missing-docstring,too-few-public-methods,unnecessary-direct-lambda-call
 """Tests for loopvar-in-closure."""
 from __future__ import print_function
 
@@ -72,7 +72,7 @@ def good_case9():
 
 
 def good_case10():
-    """Ignore when a loop variable is showdowed by an inner function"""
+    """Ignore when a loop variable is shadowed by an inner function"""
     lst = []
     for i in range(10):  # pylint: disable=unused-variable
         def func():

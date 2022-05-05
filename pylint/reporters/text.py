@@ -14,9 +14,9 @@ import os
 import re
 import sys
 import warnings
+from dataclasses import asdict, fields
 from typing import TYPE_CHECKING, Dict, NamedTuple, Optional, TextIO, cast, overload
 
-from pylint.interfaces import IReporter
 from pylint.message import Message
 from pylint.reporters import BaseReporter
 from pylint.reporters.ureports.text_writer import TextWriter
@@ -32,7 +32,7 @@ class MessageStyle(NamedTuple):
 
     color: str | None
     """The color name (see `ANSI_COLORS` for available values)
-    or the color number when 256 colors are available
+    or the color number when 256 colors are available.
     """
     style: tuple[str, ...] = ()
     """Tuple of style strings (see `ANSI_COLORS` for available values)."""
@@ -66,13 +66,16 @@ ANSI_COLORS = {
     "white": "37",
 }
 
+MESSAGE_FIELDS = {i.name for i in fields(Message)}
+"""All fields of the Message class."""
+
 
 def _get_ansi_code(msg_style: MessageStyle) -> str:
-    """Return ansi escape code corresponding to color and style.
+    """Return ANSI escape code corresponding to color and style.
 
     :param msg_style: the message style
 
-    :raise KeyError: if an unexistent color or style identifier is given
+    :raise KeyError: if a nonexistent color or style identifier is given
 
     :return: the built escape code
     """
@@ -91,7 +94,7 @@ def _get_ansi_code(msg_style: MessageStyle) -> str:
 @overload
 def colorize_ansi(
     msg: str,
-    msg_style: MessageStyle | None = None,
+    msg_style: MessageStyle | None = ...,
 ) -> str:
     ...
 
@@ -99,10 +102,10 @@ def colorize_ansi(
 @overload
 def colorize_ansi(
     msg: str,
-    msg_style: str | None = None,
-    style: str = "",
+    msg_style: str | None = ...,
+    style: str = ...,
     *,
-    color: str | None = None,
+    color: str | None = ...,
 ) -> str:
     # Remove for pylint 3.0
     ...
@@ -114,7 +117,7 @@ def colorize_ansi(
     style: str = "",
     **kwargs: str | None,
 ) -> str:
-    r"""colorize message by wrapping it with ansi escape codes
+    r"""colorize message by wrapping it with ANSI escape codes
 
     :param msg: the message string to colorize
 
@@ -125,9 +128,8 @@ def colorize_ansi(
 
     :param \**kwargs: used to accept `color` parameter while it is being deprecated
 
-    :return: the ansi escaped string
+    :return: the ANSI escaped string
     """
-    # pylint: disable-next=fixme
     # TODO: 3.0: Remove deprecated typing and only accept MessageStyle as parameter
     if not isinstance(msg_style, MessageStyle):
         warnings.warn(
@@ -141,7 +143,7 @@ def colorize_ansi(
     if msg_style.color is None and len(msg_style.style) == 0:
         return msg
     escape_code = _get_ansi_code(msg_style)
-    # If invalid (or unknown) color, don't wrap msg with ansi codes
+    # If invalid (or unknown) color, don't wrap msg with ANSI codes
     if escape_code:
         return f"{escape_code}{msg}{ANSI_RESET}"
     return msg
@@ -150,7 +152,6 @@ def colorize_ansi(
 class TextReporter(BaseReporter):
     """Reports messages and layouts in plain text."""
 
-    __implements__ = IReporter
     name = "text"
     extension = "txt"
     line_format = "{path}:{line}:{column}: {msg_id}: {msg} ({symbol})"
@@ -176,7 +177,7 @@ class TextReporter(BaseReporter):
         # Check to see if all parameters in the template are attributes of the Message
         arguments = re.findall(r"\{(.+?)(:.*)?\}", template)
         for argument in arguments:
-            if argument[0] not in Message._fields:
+            if argument[0] not in MESSAGE_FIELDS:
                 warnings.warn(
                     f"Don't recognize the argument '{argument[0]}' in the --msg-template. "
                     "Are you sure it is supported on the current version of pylint?"
@@ -186,7 +187,7 @@ class TextReporter(BaseReporter):
 
     def write_message(self, msg: Message) -> None:
         """Convenience method to write a formatted message with class default template."""
-        self_dict = msg._asdict()
+        self_dict = asdict(msg)
         for key in ("end_line", "end_column"):
             self_dict[key] = self_dict[key] or ""
 
@@ -247,23 +248,6 @@ class ColorizedTextReporter(TextReporter):
         "S": MessageStyle("yellow", ("inverse",)),  # S stands for module Separator
     }
 
-    @overload
-    def __init__(
-        self,
-        output: TextIO | None = None,
-        color_mapping: ColorMappingDict | None = None,
-    ) -> None:
-        ...
-
-    @overload
-    def __init__(
-        self,
-        output: TextIO | None = None,
-        color_mapping: dict[str, tuple[str | None, str]] | None = None,
-    ) -> None:
-        # Remove for pylint 3.0
-        ...
-
     def __init__(
         self,
         output: TextIO | None = None,
@@ -272,7 +256,6 @@ class ColorizedTextReporter(TextReporter):
         ) = None,
     ) -> None:
         super().__init__(output)
-        # pylint: disable-next=fixme
         # TODO: 3.0: Remove deprecated typing and only accept ColorMappingDict as color_mapping parameter
         if color_mapping and not isinstance(
             list(color_mapping.values())[0], MessageStyle
@@ -304,7 +287,7 @@ class ColorizedTextReporter(TextReporter):
 
     def handle_message(self, msg: Message) -> None:
         """Manage message of different types, and colorize output
-        using ansi escape codes
+        using ANSI escape codes.
         """
         if msg.module not in self._modules:
             msg_style = self._get_decoration("S")
@@ -316,12 +299,10 @@ class ColorizedTextReporter(TextReporter):
             self._modules.add(msg.module)
         msg_style = self._get_decoration(msg.C)
 
-        msg = msg._replace(
-            **{
-                attr: colorize_ansi(getattr(msg, attr), msg_style)
-                for attr in ("msg", "symbol", "category", "C")
-            }
-        )
+        msg.msg = colorize_ansi(msg.msg, msg_style)
+        msg.symbol = colorize_ansi(msg.symbol, msg_style)
+        msg.category = colorize_ansi(msg.category, msg_style)
+        msg.C = colorize_ansi(msg.C, msg_style)
         self.write_message(msg)
 
 

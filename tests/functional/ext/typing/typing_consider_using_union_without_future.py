@@ -2,7 +2,7 @@
 
 'py-version' needs to be set to >= '3.7' and 'runtime-typing=no'.
 """
-# pylint: disable=missing-docstring,invalid-name,unused-argument,line-too-long
+# pylint: disable=missing-docstring,invalid-name,unused-argument,line-too-long,unnecessary-direct-lambda-call
 # pylint: disable=consider-using-alias
 from dataclasses import dataclass
 import typing

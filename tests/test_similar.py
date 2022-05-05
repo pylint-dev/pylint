@@ -13,7 +13,7 @@ from typing import TextIO
 
 import pytest
 
-from pylint.lint import Run
+from pylint.testutils._run import _Run as Run
 from pylint.testutils.utils import _patch_streams
 
 HERE = abspath(dirname(__file__))
@@ -35,7 +35,13 @@ class TestSimilarCodeChecker:
     @staticmethod
     def _run_pylint(args: list[str], out: TextIO) -> int:
         """Runs pylint with a patched output."""
-        args = args + ["--persistent=no"]
+        args = args + [
+            "--persistent=no",
+            "--enable=astroid-error",
+            # Enable functionality that will build another ast
+            "--ignore-imports=y",
+            "--ignore-signatures=y",
+        ]
         with _patch_streams(out):
             with pytest.raises(SystemExit) as cm:
                 with warnings.catch_warnings():
@@ -54,8 +60,10 @@ class TestSimilarCodeChecker:
         out = StringIO()
         self._run_pylint(args, out=out)
         actual_output = self._clean_paths(out.getvalue())
+        actual_output_stripped = actual_output.strip()
         expected_output = self._clean_paths(expected_output)
-        assert expected_output.strip() in actual_output.strip()
+        assert expected_output.strip() in actual_output_stripped
+        assert "Fatal error" not in actual_output_stripped
 
     def test_duplicate_code_raw_strings_all(self) -> None:
         """Test similar lines in 3 similar files."""
@@ -129,4 +137,12 @@ class TestSimilarCodeChecker:
         self._test_output(
             [path, "--disable=all", "--enable=duplicate-code"],
             expected_output=expected_output,
+        )
+
+    def test_ignore_imports(self) -> None:
+        """Tests enabling ignore-imports works correctly."""
+        path = join(DATA, "ignore_imports")
+        self._runtest(
+            [path, "-e=duplicate-code", "-d=unused-import,C", "--ignore-imports=y"],
+            code=0,
         )

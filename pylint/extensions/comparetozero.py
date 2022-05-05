@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING, Any
 import astroid
 from astroid import nodes
 
-from pylint import checkers, interfaces
+from pylint import checkers
 from pylint.checkers import utils
 
 if TYPE_CHECKING:
@@ -32,8 +32,6 @@ class CompareToZeroChecker(checkers.BaseChecker):
     different meaning than None!
     """
 
-    __implements__ = (interfaces.IAstroidChecker,)
-
     # configuration section name
     name = "compare-to-zero"
     msgs = {
@@ -46,7 +44,7 @@ class CompareToZeroChecker(checkers.BaseChecker):
 
     options = ()
 
-    @utils.check_messages("compare-to-zero")
+    @utils.only_required_for_messages("compare-to-zero")
     def visit_compare(self, node: nodes.Compare) -> None:
         _operators = ["!=", "==", "is not", "is"]
         # note: astroid.Compare has the left most operand in node.left

@@ -24,3 +24,4 @@ using-constant-test:84:0:None:None:test_comprehensions:Using a conditional state
 using-constant-test:85:0:None:None:test_comprehensions:Using a conditional statement with a constant value:UNDEFINED
 using-constant-test:89:0:90:8::Using a conditional statement with a constant value:UNDEFINED
 using-constant-test:93:0:94:8::Using a conditional statement with a constant value:UNDEFINED
+comparison-of-constants:117:3:117:8::"Comparison between constants: '2 < 3' has a constant value":HIGH

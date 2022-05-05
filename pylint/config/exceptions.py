@@ -20,4 +20,4 @@ class _UnrecognizedOptionError(Exception):
 
 
 class ArgumentPreprocessingError(Exception):
-    """Raised if an error occurs during argument preprocessing."""
+    """Raised if an error occurs during argument pre-processing."""

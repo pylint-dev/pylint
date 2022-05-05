@@ -14,11 +14,10 @@ from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
-    check_messages,
+    only_required_for_messages,
     safe_infer,
     uninferable_final_decorators,
 )
-from pylint.interfaces import IAstroidChecker
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -29,7 +28,6 @@ class UnsupportedVersionChecker(BaseChecker):
     indicated by the py-version setting.
     """
 
-    __implements__ = (IAstroidChecker,)
     name = "unsupported_version"
     msgs = {
         "W2601": (
@@ -52,20 +50,20 @@ class UnsupportedVersionChecker(BaseChecker):
         self._py36_plus = py_version >= (3, 6)
         self._py38_plus = py_version >= (3, 8)
 
-    @check_messages("using-f-string-in-unsupported-version")
+    @only_required_for_messages("using-f-string-in-unsupported-version")
     def visit_joinedstr(self, node: nodes.JoinedStr) -> None:
         """Check f-strings."""
         if not self._py36_plus:
             self.add_message("using-f-string-in-unsupported-version", node=node)
 
-    @check_messages("using-final-decorator-in-unsupported-version")
+    @only_required_for_messages("using-final-decorator-in-unsupported-version")
     def visit_decorators(self, node: nodes.Decorators) -> None:
         """Check decorators."""
         self._check_typing_final(node)
 
     def _check_typing_final(self, node: nodes.Decorators) -> None:
         """Add a message when the `typing.final` decorator is used and the
-        py-version is lower than 3.8
+        py-version is lower than 3.8.
         """
         if self._py38_plus:
             return

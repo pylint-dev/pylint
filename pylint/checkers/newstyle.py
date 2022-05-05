@@ -12,13 +12,17 @@ import astroid
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import check_messages, has_known_bases, node_frame_class
-from pylint.interfaces import IAstroidChecker
+from pylint.checkers.utils import (
+    has_known_bases,
+    node_frame_class,
+    only_required_for_messages,
+)
+from pylint.typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
-MSGS = {
+MSGS: dict[str, MessageDefinitionTuple] = {
     "E1003": (
         "Bad first argument %r given to super()",
         "bad-super-call",
@@ -36,8 +40,6 @@ class NewStyleConflictChecker(BaseChecker):
     * "super" usage
     """
 
-    __implements__ = (IAstroidChecker,)
-
     # configuration section name
     name = "newstyle"
     # messages
@@ -45,7 +47,7 @@ class NewStyleConflictChecker(BaseChecker):
     # configuration options
     options = ()
 
-    @check_messages("bad-super-call")
+    @only_required_for_messages("bad-super-call")
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         """Check use of super."""
         # ignore actual functions or method within a new style class

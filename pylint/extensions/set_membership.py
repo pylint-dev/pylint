@@ -9,16 +9,13 @@ from typing import TYPE_CHECKING
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import check_messages
-from pylint.interfaces import IAstroidChecker
+from pylint.checkers.utils import only_required_for_messages
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
 
 class SetMembershipChecker(BaseChecker):
-
-    __implements__ = (IAstroidChecker,)
 
     name = "set_membership"
     msgs = {
@@ -34,7 +31,7 @@ class SetMembershipChecker(BaseChecker):
         """Initialize checker instance."""
         super().__init__(linter=linter)
 
-    @check_messages("use-set-for-membership")
+    @only_required_for_messages("use-set-for-membership")
     def visit_compare(self, node: nodes.Compare) -> None:
         for op, comparator in node.ops:
             if op == "in":

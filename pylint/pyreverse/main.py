@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import sys
 from collections.abc import Sequence
+from typing import NoReturn
 
 from pylint.config.arguments_manager import _ArgumentsManager
 from pylint.config.arguments_provider import _ArgumentsProvider
@@ -60,7 +61,7 @@ OPTIONS: Options = (
             metavar="<class>",
             type="csv",
             dest="classes",
-            default=[],
+            default=None,
             help="create a class diagram with all classes related to <class>;\
  this uses by default the options -ASmy",
         ),
@@ -192,7 +193,7 @@ OPTIONS: Options = (
         "output-directory",
         dict(
             default="",
-            type="string",
+            type="path",
             short="d",
             action="store",
             metavar="<output_directory>",
@@ -208,7 +209,8 @@ class Run(_ArgumentsManager, _ArgumentsProvider):
     options = OPTIONS
     name = "pyreverse"
 
-    def __init__(self, args: Sequence[str]) -> None:
+    # For mypy issue, see https://github.com/python/mypy/issues/10342
+    def __init__(self, args: Sequence[str]) -> NoReturn:  # type: ignore[misc]
         _ArgumentsManager.__init__(self, prog="pyreverse", description=__doc__)
         _ArgumentsProvider.__init__(self, self)
 

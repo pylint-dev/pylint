@@ -44,9 +44,9 @@ class TestASTWalker:
         linter = self.MockLinter(
             {"first-message": True, "second-message": False, "third-message": True}
         )
-        walker = ASTWalker(linter)
+        walker = ASTWalker(linter)  # type: ignore[arg-type]
         checker = self.Checker()
-        walker.add_checker(checker)
+        walker.add_checker(checker)  # type: ignore[arg-type]
         walker.walk(astroid.parse("x = func()"))
         assert {"module", "assignname"} == checker.called
 
@@ -60,9 +60,9 @@ class TestASTWalker:
                 self.called = True
 
         linter = self.MockLinter({"first-message": True})
-        walker = ASTWalker(linter)
+        walker = ASTWalker(linter)  # type: ignore[arg-type]
         checker = Checker()
-        walker.add_checker(checker)
+        walker.add_checker(checker)  # type: ignore[arg-type]
         with warnings.catch_warnings(record=True):
             warnings.simplefilter("always")
             walker.walk(astroid.parse("x = 1"))

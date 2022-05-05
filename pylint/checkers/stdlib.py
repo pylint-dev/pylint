@@ -15,13 +15,12 @@ from astroid import nodes
 
 from pylint import interfaces
 from pylint.checkers import BaseChecker, DeprecatedMixin, utils
-from pylint.interfaces import IAstroidChecker
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
 OPEN_FILES_MODE = ("open", "file")
-OPEN_FILES_ENCODING = ("open", "read_text", "write_text")
+OPEN_FILES_FUNCS = OPEN_FILES_MODE + ("read_text", "write_text")
 UNITTEST_CASE = "unittest.case"
 THREADING_THREAD = "threading.Thread"
 COPY_COPY = "copy.copy"
@@ -39,17 +38,7 @@ LRU_CACHE = {
 NON_INSTANCE_METHODS = {"builtins.staticmethod", "builtins.classmethod"}
 
 
-DEPRECATED_MODULES = {
-    (0, 0, 0): {"tkinter.tix", "fpectl"},
-    (3, 2, 0): {"optparse"},
-    (3, 3, 0): {"xml.etree.cElementTree"},
-    (3, 4, 0): {"imp"},
-    (3, 5, 0): {"formatter"},
-    (3, 6, 0): {"asynchat", "asyncore"},
-    (3, 7, 0): {"macpath"},
-    (3, 9, 0): {"lib2to3", "parser", "symbol", "binhex"},
-    (3, 10, 0): {"distutils"},
-}
+# For modules, see ImportsChecker
 
 DEPRECATED_ARGUMENTS = {
     (0, 0, 0): {
@@ -155,6 +144,7 @@ DEPRECATED_METHODS: dict = {
             "ntpath.splitunc",
             "os.path.splitunc",
             "os.stat_float_times",
+            "turtle.RawTurtle.settiltangle",
         },
         (3, 2, 0): {
             "cgi.escape",
@@ -243,11 +233,23 @@ DEPRECATED_METHODS: dict = {
             "threading.Thread.setDaemon",
             "cgi.log",
         },
+        (3, 11, 0): {
+            "locale.getdefaultlocale",
+            "unittest.TestLoader.findTestCases",
+            "unittest.TestLoader.loadTestsFromTestCase",
+            "unittest.TestLoader.getTestCaseNames",
+        },
     },
 }
 
 
 DEPRECATED_CLASSES = {
+    (3, 2, 0): {
+        "configparser": {
+            "LegacyInterpolation",
+            "SafeConfigParser",
+        },
+    },
     (3, 3, 0): {
         "importlib.abc": {
             "Finder",
@@ -289,6 +291,11 @@ DEPRECATED_CLASSES = {
             "MailmanProxy",
         }
     },
+    (3, 11, 0): {
+        "webbrowser": {
+            "MacOSX",
+        },
+    },
 }
 
 
@@ -323,7 +330,6 @@ def _check_mode_str(mode):
 
 
 class StdlibChecker(DeprecatedMixin, BaseChecker):
-    __implements__ = (IAstroidChecker,)
     name = "stdlib"
 
     msgs = {
@@ -430,15 +436,20 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "Calls to breakpoint(), sys.breakpointhook() and pdb.set_trace() should be removed "
             "from code that is not actively being debugged.",
         ),
-        "W1517": (
-            "'lru_cache(maxsize=None)' will keep all method args alive indefinitely, including 'self'",
-            "cache-max-size-none",
-            "By decorating a method with lru_cache the 'self' argument will be linked to "
-            "the lru_cache function and therefore never garbage collected. Unless your instance "
+        "W1518": (
+            "'lru_cache(maxsize=None)' or 'cache' will keep all method args alive indefinitely, including 'self'",
+            "method-cache-max-size-none",
+            "By decorating a method with lru_cache or cache the 'self' argument will be linked to "
+            "the function and therefore never garbage collected. Unless your instance "
             "will never need to be garbage collected (singleton) it is recommended to refactor "
             "code to avoid this pattern or add a maxsize to the cache."
             "The default value for maxsize is 128.",
-            {"old_names": [("W1516", "lru-cache-decorating-method")]},
+            {
+                "old_names": [
+                    ("W1516", "lru-cache-decorating-method"),
+                    ("W1517", "cache-max-size-none"),
+                ]
+            },
         ),
     }
 
@@ -447,7 +458,6 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         self._deprecated_methods: set[str] = set()
         self._deprecated_arguments: dict[str, tuple[tuple[int | None, str], ...]] = {}
         self._deprecated_classes: dict[str, set[str]] = {}
-        self._deprecated_modules: set[str] = set()
         self._deprecated_decorators: set[str] = set()
 
         for since_vers, func_list in DEPRECATED_METHODS[sys.version_info[0]].items():
@@ -459,12 +469,11 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         for since_vers, class_list in DEPRECATED_CLASSES.items():
             if since_vers <= sys.version_info:
                 self._deprecated_classes.update(class_list)
-        for since_vers, mod_list in DEPRECATED_MODULES.items():
-            if since_vers <= sys.version_info:
-                self._deprecated_modules.update(mod_list)
         for since_vers, decorator_list in DEPRECATED_DECORATORS.items():
             if since_vers <= sys.version_info:
                 self._deprecated_decorators.update(decorator_list)
+        # Modules are checked by the ImportsChecker, because the list is
+        # synced with the config argument deprecated-modules
 
     def _check_bad_thread_instantiation(self, node):
         if not node.kwargs and not node.keywords and len(node.args) <= 1:
@@ -492,7 +501,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                 self.add_message("shallow-copy-environ", node=node)
                 break
 
-    @utils.check_messages(
+    @utils.only_required_for_messages(
         "bad-open-mode",
         "redundant-unittest-assert",
         "deprecated-method",
@@ -514,18 +523,13 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             if inferred is astroid.Uninferable:
                 continue
             if inferred.root().name in OPEN_MODULE:
-                if (
-                    isinstance(node.func, nodes.Name)
-                    and node.func.name in OPEN_FILES_MODE
-                ):
-                    self._check_open_mode(node)
-                if (
-                    isinstance(node.func, nodes.Name)
-                    and node.func.name in OPEN_FILES_ENCODING
-                    or isinstance(node.func, nodes.Attribute)
-                    and node.func.attrname in OPEN_FILES_ENCODING
-                ):
-                    self._check_open_encoded(node, inferred.root().name)
+                open_func_name: str | None = None
+                if isinstance(node.func, nodes.Name):
+                    open_func_name = node.func.name
+                if isinstance(node.func, nodes.Attribute):
+                    open_func_name = node.func.attrname
+                if open_func_name in OPEN_FILES_FUNCS:
+                    self._check_open_call(node, inferred.root().name, open_func_name)
             elif inferred.root().name == UNITTEST_CASE:
                 self._check_redundant_assert(node, inferred)
             elif isinstance(inferred, nodes.ClassDef):
@@ -545,25 +549,25 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                     self.add_message("forgotten-debug-statement", node=node)
             self.check_deprecated_method(node, inferred)
 
-    @utils.check_messages("boolean-datetime")
+    @utils.only_required_for_messages("boolean-datetime")
     def visit_unaryop(self, node: nodes.UnaryOp) -> None:
         if node.op == "not":
             self._check_datetime(node.operand)
 
-    @utils.check_messages("boolean-datetime")
+    @utils.only_required_for_messages("boolean-datetime")
     def visit_if(self, node: nodes.If) -> None:
         self._check_datetime(node.test)
 
-    @utils.check_messages("boolean-datetime")
+    @utils.only_required_for_messages("boolean-datetime")
     def visit_ifexp(self, node: nodes.IfExp) -> None:
         self._check_datetime(node.test)
 
-    @utils.check_messages("boolean-datetime")
+    @utils.only_required_for_messages("boolean-datetime")
     def visit_boolop(self, node: nodes.BoolOp) -> None:
         for value in node.values:
             self._check_datetime(value)
 
-    @utils.check_messages("cache-max-size-none")
+    @utils.only_required_for_messages("method-cache-max-size-none")
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         if node.decorators and isinstance(node.parent, nodes.ClassDef):
             self._check_lru_cache_decorators(node.decorators)
@@ -575,28 +579,32 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             try:
                 for infered_node in d_node.infer():
                     q_name = infered_node.qname()
-                    if q_name in NON_INSTANCE_METHODS or q_name not in LRU_CACHE:
+                    if q_name in NON_INSTANCE_METHODS:
                         return
 
                     # Check if there is a maxsize argument set to None in the call
-                    if isinstance(d_node, nodes.Call):
+                    if q_name in LRU_CACHE and isinstance(d_node, nodes.Call):
                         try:
                             arg = utils.get_argument_from_call(
                                 d_node, position=0, keyword="maxsize"
                             )
                         except utils.NoSuchArgumentError:
-                            return
+                            break
 
                         if not isinstance(arg, nodes.Const) or arg.value is not None:
-                            return
+                            break
 
-                    lru_cache_nodes.append(d_node)
-                    break
+                        lru_cache_nodes.append(d_node)
+                        break
+
+                    if q_name == "functools.cache":
+                        lru_cache_nodes.append(d_node)
+                        break
             except astroid.InferenceError:
                 pass
         for lru_cache_node in lru_cache_nodes:
             self.add_message(
-                "cache-max-size-none",
+                "method-cache-max-size-none",
                 node=lru_cache_node,
                 confidence=interfaces.INFERENCE,
             )
@@ -626,25 +634,10 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         ):
             self.add_message("boolean-datetime", node=node)
 
-    def _check_open_mode(self, node):
-        """Check that the mode argument of an open or file call is valid."""
-        try:
-            mode_arg = utils.get_argument_from_call(node, position=1, keyword="mode")
-        except utils.NoSuchArgumentError:
-            return
-        if mode_arg:
-            mode_arg = utils.safe_infer(mode_arg)
-            if isinstance(mode_arg, nodes.Const) and not _check_mode_str(
-                mode_arg.value
-            ):
-                self.add_message(
-                    "bad-open-mode",
-                    node=node,
-                    args=mode_arg.value or str(mode_arg.value),
-                )
-
-    def _check_open_encoded(self, node: nodes.Call, open_module: str) -> None:
-        """Check that the encoded argument of an open call is valid."""
+    def _check_open_call(
+        self, node: nodes.Call, open_module: str, func_name: str
+    ) -> None:
+        """Various checks for an open call."""
         mode_arg = None
         try:
             if open_module == "_io":
@@ -661,10 +654,21 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         if mode_arg:
             mode_arg = utils.safe_infer(mode_arg)
 
+            if (
+                func_name in OPEN_FILES_MODE
+                and isinstance(mode_arg, nodes.Const)
+                and not _check_mode_str(mode_arg.value)
+            ):
+                self.add_message(
+                    "bad-open-mode",
+                    node=node,
+                    args=mode_arg.value or str(mode_arg.value),
+                )
+
         if (
             not mode_arg
             or isinstance(mode_arg, nodes.Const)
-            and (not mode_arg.value or "b" not in mode_arg.value)
+            and (not mode_arg.value or "b" not in str(mode_arg.value))
         ):
             encoding_arg = None
             try:
@@ -748,10 +752,6 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                 self.add_message(message, node=node, args=(name, call_arg.pytype()))
         else:
             self.add_message(message, node=node, args=(name, call_arg.pytype()))
-
-    def deprecated_modules(self):
-        """Callback returning the deprecated modules."""
-        return self._deprecated_modules
 
     def deprecated_methods(self):
         return self._deprecated_methods

@@ -30,11 +30,12 @@ from py._path.local import LocalPath  # type: ignore[import]
 
 from pylint import extensions, modify_sys_path
 from pylint.constants import MAIN_CHECKER_NAME, MSG_TYPES_STATUS
-from pylint.lint import Run
 from pylint.lint.pylinter import PyLinter
 from pylint.message import Message
 from pylint.reporters import JSONReporter
 from pylint.reporters.text import BaseReporter, ColorizedTextReporter, TextReporter
+from pylint.testutils._run import _add_rcfile_default_pylintrc
+from pylint.testutils._run import _Run as Run
 from pylint.testutils.utils import _patch_streams
 from pylint.utils import utils
 
@@ -130,6 +131,7 @@ class TestRunTC:
     ) -> None:
         if out is None:
             out = StringIO()
+        args = _add_rcfile_default_pylintrc(args)
         pylint_code = self._run_pylint(args, reporter=reporter, out=out)
         if reporter:
             output = reporter.out.getvalue()
@@ -144,7 +146,7 @@ class TestRunTC:
 
     @staticmethod
     def _run_pylint(args: list[str], out: TextIO, reporter: Any = None) -> int:
-        args = args + ["--persistent=no"]
+        args = _add_rcfile_default_pylintrc(args + ["--persistent=no"])
         with _patch_streams(out):
             with pytest.raises(SystemExit) as cm:
                 with warnings.catch_warnings():
@@ -160,6 +162,7 @@ class TestRunTC:
 
     def _test_output(self, args: list[str], expected_output: str) -> None:
         out = StringIO()
+        args = _add_rcfile_default_pylintrc(args)
         self._run_pylint(args, out=out)
         actual_output = self._clean_paths(out.getvalue())
         expected_output = self._clean_paths(expected_output)
@@ -172,6 +175,7 @@ class TestRunTC:
         the ``args`` passed to this method!) and check the file content afterwards.
         """
         out = StringIO()
+        args = _add_rcfile_default_pylintrc(args)
         self._run_pylint(args, out=out)
         cmdline_output = out.getvalue()
         file_output = self._clean_paths(Path(filename).read_text(encoding="utf-8"))
@@ -182,8 +186,10 @@ class TestRunTC:
         assert expected_output.strip() in file_output.strip()
 
     def test_pkginfo(self) -> None:
-        """Make pylint check itself."""
-        self._runtest(["pylint.__pkginfo__"], reporter=TextReporter(StringIO()), code=0)
+        """Make pylint check 'pylint.__pkginfo__.py'."""
+        # Disable invalid-name because of invalid argument names
+        args = ["pylint.__pkginfo__", "--disable=invalid-name"]
+        self._runtest(args, reporter=TextReporter(StringIO()), code=0)
 
     def test_all(self) -> None:
         """Make pylint check itself."""
@@ -247,7 +253,6 @@ class TestRunTC:
     def test_parallel_execution_missing_arguments(self) -> None:
         self._runtest(["-j 2", "not_here", "not_here_too"], code=1)
 
-    # pylint: disable-next=fixme
     # TODO: PY3.7: Turn off abbreviations in ArgumentsManager after 3.7 support has been dropped
     # argparse changed behaviour with abbreviations on/off in 3.8+ so we can't
     @pytest.mark.xfail
@@ -551,7 +556,7 @@ class TestRunTC:
         a.join("c.py").write(c_code)
 
         with tmpdir.as_cwd():
-            # why don't we start pylint in a subprocess?
+            # why don't we start pylint in a sub-process?
             expected = (
                 "************* Module a.b\n"
                 "a/b.py:3:0: E0401: Unable to import 'a.d' (import-error)\n\n"
@@ -564,8 +569,7 @@ class TestRunTC:
                     expected_output=expected,
                 )
 
-            # this code needs to work w/ and w/o a file named a/b.py on the
-            # harddisk.
+            # this code needs to work w/ and w/o a file named a/b.py on the hard disk.
             with mock.patch("pylint.lint.pylinter._read_stdin", return_value=b_code):
                 self._test_output(
                     [
@@ -1043,6 +1047,7 @@ class TestRunTC:
             stderr=subprocess.PIPE,
         )
 
+    @pytest.mark.needs_two_cores
     def test_jobs_score(self) -> None:
         path = join(HERE, "regrtest_data", "unused_variable.py")
         expected = "Your code has been rated at 7.50/10"
@@ -1089,13 +1094,13 @@ class TestRunTC:
         path = join(HERE, "regrtest_data", "fail_on.py")
         # We set fail-under to be something very low so that even with the warnings
         # and errors that are generated they don't affect the exit code.
-        self._runtest([path, "--fail-under=-10"] + args, code=expected)
+        self._runtest([path, "--fail-under=-10", "--disable=C"] + args, code=expected)
 
     def test_one_module_fatal_error(self):
         """Fatal errors in one of several modules linted still exits non-zero."""
         valid_path = join(HERE, "conftest.py")
         invalid_path = join(HERE, "garbagePath.py")
-        self._runtest([valid_path, invalid_path], code=1)
+        self._runtest([valid_path, invalid_path, "--disable=C"], code=1)
 
     @pytest.mark.parametrize(
         "args, expected",
@@ -1195,7 +1200,10 @@ class TestRunTC:
         Reported in https://github.com/PyCQA/pylint/issues/5437
         """
         with pytest.raises(SystemExit) as ex:
-            Run(["--ignore-paths", "test", join(HERE, "regrtest_data", "empty.py")])
+            args = _add_rcfile_default_pylintrc(
+                ["--ignore-paths", "test", join(HERE, "regrtest_data", "empty.py")]
+            )
+            Run(args)
         assert ex.value.code == 0
 
     @staticmethod
@@ -1282,7 +1290,7 @@ class TestCallbackOptions:
     )
     def test_output_of_callback_options(command: list[str], expected: str) -> None:
         """Test whether certain strings are in the output of a callback command."""
-
+        command = _add_rcfile_default_pylintrc(command)
         process = subprocess.run(
             [sys.executable, "-m", "pylint"] + command,
             capture_output=True,
@@ -1292,47 +1300,44 @@ class TestCallbackOptions:
         assert expected in process.stdout
 
     @staticmethod
-    def test_help_msg() -> None:
+    @pytest.mark.parametrize(
+        "args,expected,error",
+        [
+            [["--help-msg", "W0101"], ":unreachable (W0101)", False],
+            [["--help-msg", "WX101"], "No such message id", False],
+            [["--help-msg"], "--help-msg: expected at least one argumen", True],
+        ],
+    )
+    def test_help_msg(args: list[str], expected: str, error: bool) -> None:
         """Test the --help-msg flag."""
-
+        args = _add_rcfile_default_pylintrc(args)
         process = subprocess.run(
-            [sys.executable, "-m", "pylint", "--help-msg", "W0101"],
+            [sys.executable, "-m", "pylint"] + args,
             capture_output=True,
             encoding="utf-8",
             check=False,
         )
-        assert ":unreachable (W0101)" in process.stdout
-
-        process = subprocess.run(
-            [sys.executable, "-m", "pylint", "--help-msg", "WX101"],
-            capture_output=True,
-            encoding="utf-8",
-            check=False,
-        )
-        assert "No such message id" in process.stdout
-
-        process = subprocess.run(
-            [sys.executable, "-m", "pylint", "--help-msg"],
-            capture_output=True,
-            encoding="utf-8",
-            check=False,
-        )
-        assert "--help-msg: expected at least one argumen" in process.stderr
+        if error:
+            result = process.stderr
+        else:
+            result = process.stdout
+        assert expected in result
 
     @staticmethod
     def test_generate_rcfile() -> None:
         """Test the --generate-rcfile flag."""
+        args = _add_rcfile_default_pylintrc(["--generate-rcfile"])
         process = subprocess.run(
-            [sys.executable, "-m", "pylint", "--generate-rcfile"],
+            [sys.executable, "-m", "pylint"] + args,
             capture_output=True,
             encoding="utf-8",
             check=False,
         )
         assert "[MASTER]" in process.stdout
         assert "profile" not in process.stdout
-
+        args = _add_rcfile_default_pylintrc(["--generate-rcfile"])
         process_two = subprocess.run(
-            [sys.executable, "-m", "pylint", "--generate-rcfile"],
+            [sys.executable, "-m", "pylint"] + args,
             capture_output=True,
             encoding="utf-8",
             check=False,
@@ -1365,14 +1370,14 @@ class TestCallbackOptions:
     @staticmethod
     def test_generate_toml_config() -> None:
         """Test the --generate-toml-config flag."""
-        process = subprocess.run(
+        args = _add_rcfile_default_pylintrc(
             [
-                sys.executable,
-                "-m",
-                "pylint",
                 "--preferred-modules=a:b",
                 "--generate-toml-config",
-            ],
+            ]
+        )
+        process = subprocess.run(
+            [sys.executable, "-m", "pylint"] + args,
             capture_output=True,
             encoding="utf-8",
             check=False,
@@ -1382,13 +1387,7 @@ class TestCallbackOptions:
         assert 'preferred-modules = ["a:b"]' in process.stdout
 
         process_two = subprocess.run(
-            [
-                sys.executable,
-                "-m",
-                "pylint",
-                "--preferred-modules=a:b",
-                "--generate-toml-config",
-            ],
+            [sys.executable, "-m", "pylint"] + args,
             capture_output=True,
             encoding="utf-8",
             check=False,
@@ -1398,17 +1397,18 @@ class TestCallbackOptions:
     @staticmethod
     def test_generate_toml_config_disable_symbolic_names() -> None:
         """Test that --generate-toml-config puts symbolic names in the --disable option."""
-        out = StringIO()
-        with _patch_streams(out):
+        output_stream = StringIO()
+        with _patch_streams(output_stream):
             with pytest.raises(SystemExit):
                 with warnings.catch_warnings():
                     warnings.simplefilter("ignore")
                     Run(["--generate-toml-config"])
 
-        bytes_out = BytesIO(out.getvalue().encode("utf-8"))
+        out = output_stream.getvalue()
+        bytes_out = BytesIO(out.encode("utf-8"))
         content = tomllib.load(bytes_out)
         messages = content["tool"]["pylint"]["messages control"]["disable"]
-        assert "invalid-name" in messages, out.getvalue()
+        assert "useless-suppression" in messages, out
 
     @staticmethod
     def test_errors_only() -> None:

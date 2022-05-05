@@ -23,3 +23,6 @@ exclude_lines =
     # Type checking code not executed during pytest runs
     if TYPE_CHECKING:
     @overload
+
+    # Abstract methods are not exectued during pytest runs
+    raise NotImplementedError()

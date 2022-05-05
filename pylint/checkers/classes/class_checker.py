@@ -17,7 +17,6 @@ from astroid import bases, nodes
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import (
     PYMETHODS,
-    check_messages,
     class_is_abstract,
     decorated_with,
     decorated_with_property,
@@ -33,12 +32,14 @@ from pylint.checkers.utils import (
     is_property_setter_or_deleter,
     is_protocol_class,
     node_frame_class,
+    only_required_for_messages,
     overrides_a_method,
     safe_infer,
     unimplemented_abstract_methods,
     uninferable_final_decorators,
 )
-from pylint.interfaces import INFERENCE, IAstroidChecker
+from pylint.interfaces import HIGH, INFERENCE
+from pylint.typing import MessageDefinitionTuple
 
 if sys.version_info >= (3, 8):
     from functools import cached_property
@@ -428,7 +429,9 @@ def _has_same_layout_slots(slots, assigned_value):
     return False
 
 
-MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
+MSGS: dict[
+    str, MessageDefinitionTuple
+] = {  # pylint: disable=consider-using-namedtuple-or-dataclass
     "F0202": (
         "Unable to check methods signature (%s / %s)",
         "method-check-failed",
@@ -535,11 +538,6 @@ MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
         "Used when an ancestor class method has an __init__ method "
         "which is not called by a derived class.",
     ),
-    "W0232": (
-        "Class has no __init__ method",
-        "no-init",
-        "Used when a class has no __init__ method, neither its parent classes.",
-    ),
     "W0233": (
         "__init__ method from a non direct base class %r is called",
         "non-parent-init-called",
@@ -585,6 +583,12 @@ MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
         "Redefined slots %r in subclass",
         "redefined-slots-in-subclass",
         "Used when a slot is re-defined in a subclass.",
+    ),
+    "W0245": (
+        "Super call without brackets",
+        "super-without-brackets",
+        "Used when a call to super does not have brackets and thus is not an actual "
+        "call and does not work as expected.",
     ),
     "E0236": (
         "Invalid object %r in __slots__, must contain only non empty strings",
@@ -699,8 +703,6 @@ class ClassChecker(BaseChecker):
     * unreachable code
     """
 
-    __implements__ = (IAstroidChecker,)
-
     # configuration section name
     name = "classes"
     # messages
@@ -782,9 +784,8 @@ a metaclass class method.",
     def _dummy_rgx(self):
         return self.linter.config.dummy_variables_rgx
 
-    @check_messages(
+    @only_required_for_messages(
         "abstract-method",
-        "no-init",
         "invalid-slots",
         "single-string-used-for-slots",
         "invalid-slots-object",
@@ -800,12 +801,6 @@ a metaclass class method.",
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         """Init visit variable _accessed."""
         self._check_bases_classes(node)
-        # if not an exception or a metaclass
-        if node.type == "class" and has_known_bases(node):
-            try:
-                node.local_attr("__init__")
-            except astroid.NotFoundError:
-                self.add_message("no-init", args=node, node=node)
         self._check_slots(node)
         self._check_proper_bases(node)
         self._check_typing_final(node)
@@ -877,7 +872,7 @@ a metaclass class method.",
                     node=node,
                 )
 
-    @check_messages(
+    @only_required_for_messages(
         "unused-private-member",
         "attribute-defined-outside-init",
         "access-member-before-definition",
@@ -1496,12 +1491,14 @@ a metaclass class method.",
 
     def visit_attribute(self, node: nodes.Attribute) -> None:
         """Check if the getattr is an access to a class member
-        if so, register it
+        if so, register it.
 
         Also check for access to protected
         class member from outside its class (but ignore __special__
         methods)
         """
+        self._check_super_without_brackets(node)
+
         # Check self
         if self._uses_mandatory_method_param(node):
             self._accessed.set_accessed(node)
@@ -1511,7 +1508,22 @@ a metaclass class method.",
 
         self._check_protected_attribute_access(node)
 
-    @check_messages(
+    def _check_super_without_brackets(self, node: nodes.Attribute) -> None:
+        """Check if there is a function call on a super call without brackets."""
+        # Check if attribute call is in frame definition in class definition
+        frame = node.frame()
+        if not isinstance(frame, nodes.FunctionDef):
+            return
+        if not isinstance(frame.parent.frame(), nodes.ClassDef):
+            return
+        if not isinstance(node.parent, nodes.Call):
+            return
+        if not isinstance(node.expr, nodes.Name):
+            return
+        if node.expr.name == "super":
+            self.add_message("super-without-brackets", node=node.expr, confidence=HIGH)
+
+    @only_required_for_messages(
         "assigning-non-slot", "invalid-class-object", "access-member-before-definition"
     )
     def visit_assignattr(self, node: nodes.AssignAttr) -> None:
@@ -1600,7 +1612,7 @@ a metaclass class method.",
                     return
                 self.add_message("assigning-non-slot", args=(node.attrname,), node=node)
 
-    @check_messages(
+    @only_required_for_messages(
         "protected-access", "no-classmethod-decorator", "no-staticmethod-decorator"
     )
     def visit_assign(self, assign_node: nodes.Assign) -> None:
@@ -1802,7 +1814,7 @@ a metaclass class method.",
 
     def visit_name(self, node: nodes.Name) -> None:
         """Check if the name handle an access to a class member
-        if so, register it
+        if so, register it.
         """
         if self._first_attrs and (
             node.name == self._first_attrs[-1] or not self._first_attrs[-1]
@@ -1947,7 +1959,7 @@ a metaclass class method.",
 
     def _check_bases_classes(self, node):
         """Check that the given class node implements abstract methods from
-        base classes
+        base classes.
         """
 
         def is_abstract(method):
@@ -1974,7 +1986,7 @@ a metaclass class method.",
 
     def _check_init(self, node: nodes.FunctionDef, klass_node: nodes.ClassDef) -> None:
         """Check that the __init__ method call super or ancestors'__init__
-        method (unless it is used for type hinting with `typing.overload`)
+        method (unless it is used for type hinting with `typing.overload`).
         """
         if not self.linter.is_message_enabled(
             "super-init-not-called"
@@ -2168,7 +2180,7 @@ def _ancestors_to_call(
     klass_node: nodes.ClassDef, method="__init__"
 ) -> dict[nodes.ClassDef, bases.UnboundMethod]:
     """Return a dictionary where keys are the list of base classes providing
-    the queried method, and so that should/may be called from the method node
+    the queried method, and so that should/may be called from the method node.
     """
     to_call: dict[nodes.ClassDef, bases.UnboundMethod] = {}
     for base_node in klass_node.ancestors(recurs=False):
