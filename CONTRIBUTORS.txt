@@ -439,6 +439,7 @@ contributors:
 - Jacques Kvam <jwkvam@gmail.com>
 - Jace Browning <jacebrowning@gmail.com>: updated default report format with clickable paths
 - JT Olds <jtolds@xnet5.com>
+- Huw Jones <huw@huwcbjones.co.uk> (huwcbjones)
 - Hayden Richards <62866982+SupImDos@users.noreply.github.com> (SupImDos)
   * Fixed "no-self-use" for async methods
   * Fixed "docparams" extension for async functions and methods

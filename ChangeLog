@@ -9,6 +9,10 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.14.rst'
 
+* Added new checker ``comparison-of-constants``.
+
+  Closes #6076
+
 * Started ignoring underscore as a local variable for ``too-many-locals``.
 
   Closes #6488
@@ -20,6 +24,9 @@ Release date: TBA
 * ``Pylint`` now requires Python 3.7.2 or newer to run.
 
   Closes #4301
+
+* By default the similarity checker will now ignore imports and ignore function signatures when computing
+  duplication. If you want to keep the previous behaviour set ``ignore-imports`` and ``ignore-signatures`` to ``False``.
 
 * Improved recognition of namespace packages. They should no longer be added to ``sys.path``
   which should prevent various issues with false positives.
@@ -195,6 +202,13 @@ Release date: TBA
 
   Closes #5670
 
+* ``unnecessary-lambda-assignment``: Lambda expression assigned to a variable.
+  Define a function using the "def" keyword instead.
+  ``unnecessary-direct-lambda-call``: Lambda expression called directly.
+  Execute the expression inline instead.
+
+  Closes #5976
+
 * ``potential-index-error``: Emitted when the index of a list or tuple exceeds its length.
   This checker is currently quite conservative to avoid false positives. We welcome
   suggestions for improvements.
@@ -242,6 +256,10 @@ Release date: TBA
 
   Closes #5219
 
+* Fixed false positive ``no-member`` for Enums with self-defined members.
+
+  Closes #5138
+
 * Fix false negative for ``no-member`` when attempting to assign an instance
   attribute to itself without any prior assignment.
 
@@ -268,6 +286,12 @@ Release date: TBA
   option.
 
   Relates to #6493
+
+* Created ``NoSelfUseChecker`` extension and moved the ``no-self-use`` check.
+  You now need to explicitly enable this check using
+  ``load-plugins=pylint.extensions.no_self_use``.
+
+  Closes #5502
 
 ..
   Insert your changelog randomly, it will reduce merge conflicts

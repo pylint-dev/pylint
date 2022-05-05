@@ -81,8 +81,7 @@ def _config_initialization(
             unrecognized_options.append(opt[1:])
     if unrecognized_options:
         msg = ", ".join(unrecognized_options)
-        linter.add_message("unrecognized-option", line=0, args=msg)
-        raise _UnrecognizedOptionError(options=unrecognized_options)
+        linter._arg_parser.error(f"Unrecognized option found: {msg}")
 
     # Set the current module to configuration as we don't know where
     # the --load-plugins key is coming from

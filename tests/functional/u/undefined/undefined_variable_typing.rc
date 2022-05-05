@@ -1,4 +1,6 @@
 [testoptions]
-except_implementations=PyPy
+# This was added as PyPy is only able to run this on 3.8 and above
+min_pyver=3.8
+
 [VARIABLES]
 additional-builtins=__additional_builtin__

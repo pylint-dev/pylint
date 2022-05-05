@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,redefined-builtin, consider-using-f-string
+# pylint: disable=missing-docstring,redefined-builtin, consider-using-f-string, unnecessary-direct-lambda-call
 
 def do_stuff(some_random_list):
     for var in some_random_list:
@@ -125,7 +125,7 @@ def lambda_in_first_of_two_loops():
     """https://github.com/PyCQA/pylint/issues/6419"""
     my_list = []
     for thing in my_list:
-        print_it = lambda: print(thing)  # pylint: disable=cell-var-from-loop
+        print_it = lambda: print(thing)  # pylint: disable=cell-var-from-loop, unnecessary-lambda-assignment
         print_it()
 
     for thing in my_list:

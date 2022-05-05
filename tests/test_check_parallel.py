@@ -4,7 +4,7 @@
 
 """Puts the check_parallel system under test."""
 
-# pylint: disable=protected-access,missing-function-docstring,no-self-use
+# pylint: disable=protected-access,missing-function-docstring
 
 from __future__ import annotations
 

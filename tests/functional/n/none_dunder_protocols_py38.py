@@ -4,7 +4,7 @@ class MetaContainer(type):
 
 
 class NamedExpressionClass(metaclass=MetaContainer):
-    if (__iter__ := lambda x: x):
+    if (__iter__ := lambda x: x):  # [unnecessary-lambda-assignment]
         pass
 
 

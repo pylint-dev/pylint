@@ -12,6 +12,10 @@ Summary -- Release highlights
 New checkers
 ============
 
+* Added new checker ``comparison-of-constants``.
+
+  Closes #6076
+
 * Added new checker ``typevar-name-mismatch``: TypeVar must be assigned to a variable with the same name as its name argument.
 
   Closes #5224
@@ -35,6 +39,13 @@ New checkers
 
   Closes #5936
 
+* ``unnecessary-lambda-assignment``: Lambda expression assigned to a variable.
+  Define a function using the "def" keyword instead.
+  ``unnecessary-direct-lambda-call``: Lambda expression called directly.
+  Execute the expression inline instead.
+
+  Closes #5976
+
 * ``potential-index-error``: Emitted when the index of a list or tuple exceeds its length.
   This checker is currently quite conservative to avoid false positives. We welcome
   suggestions for improvements.
@@ -45,11 +56,6 @@ New checkers
   iterating over ``enumerate()``.
 
   Closes #4525
-
-* Added optional extension ``redefined-loop-name`` to emit messages when a loop variable
-  is redefined in the loop body.
-
-  Closes #5072
 
 * Added new message called ``duplicate-value`` which identifies duplicate values inside sets.
 
@@ -71,15 +77,35 @@ Removed checkers
 
   Closes #4683
 
+* Moved ``no-self-use`` check to optional extension.
+  You now need to explicitly enable this check using
+  ``load-plugins=pylint.extensions.no_self_use``.
+
+  Closes #5502
+
 
 Extensions
 ==========
+
+* ``RedefinedLoopNameChecker``
+
+    * Added optional extension ``redefined-loop-name`` to emit messages when a loop variable
+      is redefined in the loop body.
+
+      Closes #5072
 
 * ``DocStringStyleChecker``
 
     * Re-enable checker ``bad-docstring-quotes`` for Python <= 3.7.
 
       Closes #6087
+
+* ``NoSelfUseChecker``
+
+    * Added ``no-self-use`` check, previously enabled by default.
+
+      Closes #5502
+
 
 Other Changes
 =============
@@ -253,6 +279,10 @@ Other Changes
 
   Closes #5219
 
+* Fixed false positive ``no-member`` for Enums with self-defined members.
+
+  Closes #5138
+
 * Fix false negative for ``no-member`` when attempting to assign an instance
   attribute to itself without any prior assignment.
 
@@ -262,6 +292,9 @@ Other Changes
   (optional extension) for redefinitions of outer loop variables by inner loops.
 
   Closes #5608
+
+* By default the similarity checker will now ignore imports and ignore function signatures when computing
+  duplication. If you want to keep the previous behaviour set ``ignore-imports`` and ``ignore-signatures`` to ``False``.
 
 * Pylint now expands the user path (i.e. ``~`` to ``home/yusef/``) and expands environment variables (i.e. ``home/$USER/$project``
   to ``home/yusef/pylint`` for ``USER=yusef`` and ``project=pylint``) for pyreverse's ``output-directory``,

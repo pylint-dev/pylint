@@ -469,6 +469,8 @@ def test_get_map_data() -> None:
     # Manually perform a 'map' type function
     for source_fname in source_streams:
         sim = similar.SimilarChecker(PyLinter())
+        sim.linter.set_option("ignore-imports", False)
+        sim.linter.set_option("ignore-signatures", False)
         with open(source_fname, encoding="utf-8") as stream:
             sim.append_stream(source_fname, stream)
         # The map bit, can you tell? ;)

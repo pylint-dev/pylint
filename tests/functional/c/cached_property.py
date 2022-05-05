@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,invalid-name,no-self-use
+# pylint: disable=missing-docstring,invalid-name
 from functools import cached_property
 
 
