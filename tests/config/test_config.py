@@ -67,8 +67,8 @@ def test_unknown_option_name(capsys: CaptureFixture) -> None:
     with pytest.raises(SystemExit):
         Run([str(EMPTY_MODULE), "--unknown-option=yes"], exit=False)
     output = capsys.readouterr()
-    assert "usage: pylint" in output.out
-    assert "E0015: Unrecognized option found: unknown-option=yes" in output.out
+    assert "usage: pylint" in output.err
+    assert "Unrecognized option" in output.err
 
 
 def test_unknown_short_option_name(capsys: CaptureFixture) -> None:
@@ -76,8 +76,8 @@ def test_unknown_short_option_name(capsys: CaptureFixture) -> None:
     with pytest.raises(SystemExit):
         Run([str(EMPTY_MODULE), "-Q"], exit=False)
     output = capsys.readouterr()
-    assert "usage: pylint" in output.out
-    assert "E0015: Unrecognized option found: Q" in output.out
+    assert "usage: pylint" in output.err
+    assert "Unrecognized option" in output.err
 
 
 def test_unknown_confidence(capsys: CaptureFixture) -> None:
