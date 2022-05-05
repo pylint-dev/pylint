@@ -1,7 +1,5 @@
-# pylint: disable=too-few-public-methods,missing-docstring, useless-object-inheritance
+# pylint: disable=too-few-public-methods,missing-docstring,useless-object-inheritance,invalid-name
 """test detection of method which could be a function"""
-
-from __future__ import print_function
 
 class Toto(object):
     """bla bal abl"""
@@ -13,7 +11,7 @@ class Toto(object):
         """this method is a real method since it access to self"""
         self.function_method()
 
-    def function_method(self): # [no-self-use]
+    def function_method(self):  # [no-self-use]
         """this method isn' a real method since it doesn't need self"""
         print('hello')
 
@@ -21,7 +19,7 @@ class Toto(object):
         """this async method is a real method since it accesses self"""
         await self.async_function_method()
 
-    async def async_function_method(self): # [no-self-use]
+    async def async_function_method(self):  # [no-self-use]
         """this async method isn't a real method since it doesn't need self"""
         print('hello')
 
@@ -83,3 +81,15 @@ class Prop(object):
         API specification.
         """
         return 42
+
+
+class A:
+    def __init__(self):
+        self.store = {}
+
+    def get(self, key, default=None):
+        return self.store.get(key, default)
+
+class B(A):
+    def get_memo(self, obj):
+        return super().get(obj)
