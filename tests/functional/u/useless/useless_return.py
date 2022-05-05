@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,too-few-public-methods,no-self-use,bad-option-value, useless-object-inheritance
+# pylint: disable=missing-docstring,too-few-public-methods,bad-option-value,useless-object-inheritance
 from __future__ import print_function
 
 def myfunc(): # [useless-return]

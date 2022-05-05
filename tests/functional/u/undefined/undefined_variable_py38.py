@@ -123,7 +123,7 @@ def type_annotation_used_after_comprehension():
 
 def type_annotation_unused_after_comprehension():
     """https://github.com/PyCQA/pylint/issues/5326"""
-    my_int: int  # [unused-variable]
+    my_int: int
     _ = [print(sep=my_int, end=my_int) for my_int in range(10)]
 
 

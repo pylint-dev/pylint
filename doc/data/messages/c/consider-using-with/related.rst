@@ -1,0 +1,2 @@
+- `PEP 343 <https://peps.python.org/pep-0343/>`_
+- `Context managers in Python <https://johnlekberg.com/blog/2020-10-11-ctx-manage.html>`_ by John Lekberg

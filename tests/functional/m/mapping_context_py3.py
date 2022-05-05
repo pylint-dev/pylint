@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,invalid-name,too-few-public-methods,no-self-use
+# pylint: disable=missing-docstring,invalid-name,too-few-public-methods
 from __future__ import print_function
 
 def test(**kwargs):

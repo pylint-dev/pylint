@@ -1,10 +1,13 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Script used to generate the messages files."""
 
 import os
 from collections import defaultdict
+from inspect import getmodule
+from itertools import chain
 from pathlib import Path
 from typing import DefaultDict, Dict, List, NamedTuple, Optional, Tuple
 
@@ -23,6 +26,8 @@ PYLINT_BASE_PATH = Path(__file__).resolve().parent.parent.parent
 PYLINT_MESSAGES_PATH = PYLINT_BASE_PATH / "doc" / "messages"
 """Path to the messages documentation folder."""
 
+PYLINT_MESSAGES_DATA_PATH = PYLINT_BASE_PATH / "doc" / "data" / "messages"
+"""Path to the folder with data for the messages documentation."""
 
 MSG_TYPES_DOC = {k: v if v != "info" else "information" for k, v in MSG_TYPES.items()}
 
@@ -32,6 +37,12 @@ class MessageData(NamedTuple):
     id: str
     name: str
     definition: MessageDefinition
+    good_code: str
+    bad_code: str
+    details: str
+    related_links: str
+    checker_module_name: str
+    checker_module_path: str
 
 
 MessagesDict = Dict[str, List[MessageData]]
@@ -45,6 +56,54 @@ def _register_all_checkers_and_extensions(linter: PyLinter) -> None:
     """Registers all checkers and extensions found in the default folders."""
     initialize_checkers(linter)
     initialize_extensions(linter)
+
+
+def _get_message_data(data_path: Path) -> Tuple[str, str, str, str]:
+    """Get the message data from the specified path."""
+    good_code, bad_code, details, related = "", "", "", ""
+
+    if not data_path.exists():
+        return good_code, bad_code, details, related
+
+    if (data_path / "good.py").exists():
+        with open(data_path / "good.py", encoding="utf-8") as file:
+            file_content = file.readlines()
+            indented_file_content = "".join("  " + i for i in file_content)
+            good_code = f"""
+**Correct code:**
+
+.. code-block:: python
+
+{indented_file_content}"""
+
+    if (data_path / "bad.py").exists():
+        with open(data_path / "bad.py", encoding="utf-8") as file:
+            file_content = file.readlines()
+            indented_file_content = "".join("  " + i for i in file_content)
+            bad_code = f"""
+**Problematic code:**
+
+.. code-block:: python
+
+{indented_file_content}"""
+
+    if (data_path / "details.rst").exists():
+        with open(data_path / "details.rst", encoding="utf-8") as file:
+            file_content_string = file.read()
+            details = f"""
+**Additional details:**
+
+{file_content_string}"""
+
+    if (data_path / "related.rst").exists():
+        with open(data_path / "related.rst", encoding="utf-8") as file:
+            file_content_string = file.read()
+            related = f"""
+**Related links:**
+
+{file_content_string}"""
+
+    return good_code, bad_code, details, related
 
 
 def _get_all_messages(
@@ -71,9 +130,33 @@ def _get_all_messages(
         "refactor": defaultdict(list),
         "information": defaultdict(list),
     }
-    for message in linter.msgs_store.messages:
+    checker_message_mapping = chain.from_iterable(
+        ((checker, msg) for msg in checker.messages)
+        for checker in linter.get_checkers()
+    )
+    for checker, message in checker_message_mapping:
+        message_data_path = (
+            PYLINT_MESSAGES_DATA_PATH / message.symbol[0] / message.symbol
+        )
+        good_code, bad_code, details, related = _get_message_data(message_data_path)
+
+        checker_module = getmodule(checker)
+
+        assert (
+            checker_module and checker_module.__file__
+        ), f"Cannot find module for checker {checker}"
+
         message_data = MessageData(
-            message.checker_name, message.msgid, message.symbol, message
+            message.checker_name,
+            message.msgid,
+            message.symbol,
+            message,
+            good_code,
+            bad_code,
+            details,
+            related,
+            checker_module.__name__,
+            checker_module.__file__,
         )
         messages_dict[MSG_TYPES_DOC[message.msgid[0]]].append(message_data)
 
@@ -94,6 +177,9 @@ def _write_message_page(messages_dict: MessagesDict) -> None:
         if not category_dir.exists():
             category_dir.mkdir(parents=True, exist_ok=True)
         for message in messages:
+            checker_module_rel_path = os.path.relpath(
+                message.checker_module_path, PYLINT_BASE_PATH
+            )
             messages_file = os.path.join(category_dir, f"{message.name}.rst")
             with open(messages_file, "w", encoding="utf-8") as stream:
                 stream.write(
@@ -108,8 +194,23 @@ def _write_message_page(messages_dict: MessagesDict) -> None:
 
 *{message.definition.description}*
 
-Created by ``{message.checker}`` checker
+{message.good_code}
+{message.bad_code}
+{message.details}
+{message.related_links}
 """
+                )
+                if message.checker_module_name.startswith("pylint.extensions."):
+                    stream.write(
+                        f"""
+.. note::
+  This message is emitted by an optional checker which requires the ``{message.checker_module_name}`` plugin to be loaded. See: :ref:`{message.checker_module_name}`.
+
+"""
+                    )
+                checker_url = f"https://github.com/PyCQA/pylint/blob/main/{checker_module_rel_path}"
+                stream.write(
+                    f"Created by the `{message.checker} <{checker_url}>`__ checker."
                 )
 
 

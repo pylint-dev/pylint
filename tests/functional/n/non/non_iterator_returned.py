@@ -1,6 +1,6 @@
 """Check non-iterators returned by __iter__ """
 
-# pylint: disable=too-few-public-methods, missing-docstring, no-self-use, useless-object-inheritance, consider-using-with
+# pylint: disable=too-few-public-methods, missing-docstring, useless-object-inheritance, consider-using-with
 
 
 class FirstGoodIterator(object):

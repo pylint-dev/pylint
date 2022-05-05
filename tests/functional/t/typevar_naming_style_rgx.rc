@@ -1,0 +1,2 @@
+[BASIC]
+typevar-rgx=TypeVarsShouldBeLikeThis(_co(ntra)?)?$

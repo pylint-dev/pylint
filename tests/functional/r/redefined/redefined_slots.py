@@ -1,6 +1,6 @@
 """Checks that a subclass does not redefine a slot which has been defined in a parent class."""
 
-# pylint: disable=too-few-public-methods
+# pylint: disable=too-few-public-methods, invalid-slots-object
 
 from collections import deque
 
@@ -31,3 +31,9 @@ class Subclass3(Base, Base2):
        Redefining the `i`, `j`, `k` slot already defined in `Base2`
     """
     __slots__ = ("a", "b", "c", "i", "j", "k", "l", "m", "n")  # [redefined-slots-in-subclass]
+
+
+# https://github.com/PyCQA/pylint/issues/6100
+class MyClass:
+    """No crash when the type of the slot is not a Const or a str"""
+    __slots__ = [str]

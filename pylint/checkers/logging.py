@@ -1,43 +1,28 @@
-# Copyright (c) 2009-2011, 2013-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2009, 2012, 2014 Google, Inc.
-# Copyright (c) 2012 Mike Bryant <leachim@leachim.info>
-# Copyright (c) 2014 Brett Cannon <brett@python.org>
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016, 2019-2020 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2016 Chris Murray <chris@chrismurray.scot>
-# Copyright (c) 2017 guillaume2 <guillaume.peillex@gmail.col>
-# Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
-# Copyright (c) 2018 Alan Chan <achan961117@gmail.com>
-# Copyright (c) 2018 Yury Gribov <tetra2005@gmail.com>
-# Copyright (c) 2018 Mike Frysinger <vapier@gmail.com>
-# Copyright (c) 2018 Mariatta Wijaya <mariatta@python.org>
-# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019 Djailla <bastien.vallet@gmail.com>
-# Copyright (c) 2019 Svet <svet@hyperscience.com>
-# Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2021 Nick Drozd <nicholasdrozd@gmail.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Checker for use of Python logging."""
+
+from __future__ import annotations
+
 import string
-from typing import TYPE_CHECKING, Set
+from typing import TYPE_CHECKING
 
 import astroid
 from astroid import nodes
 
-from pylint import checkers, interfaces
+from pylint import checkers
 from pylint.checkers import utils
-from pylint.checkers.utils import check_messages, infer_all
+from pylint.checkers.utils import infer_all
+from pylint.typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
-MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
+MSGS: dict[
+    str, MessageDefinitionTuple
+] = {  # pylint: disable=consider-using-namedtuple-or-dataclass
     "W1201": (
         "Use %s formatting in logging functions",
         "logging-not-lazy",
@@ -137,7 +122,6 @@ def is_method_call(func, types=(), methods=()):
 class LoggingChecker(checkers.BaseChecker):
     """Checks use of the logging module."""
 
-    __implements__ = interfaces.IAstroidChecker
     name = "logging"
     msgs = MSGS
 
@@ -170,10 +154,10 @@ class LoggingChecker(checkers.BaseChecker):
         # The code being checked can just as easily "import logging as foo",
         # so it is necessary to process the imports and store in this field
         # what name the logging module is actually given.
-        self._logging_names: Set[str] = set()
-        logging_mods = self.config.logging_modules
+        self._logging_names: set[str] = set()
+        logging_mods = self.linter.config.logging_modules
 
-        self._format_style = self.config.logging_format_style
+        self._format_style = self.linter.config.logging_format_style
 
         self._logging_modules = set(logging_mods)
         self._from_imports = {}
@@ -198,7 +182,6 @@ class LoggingChecker(checkers.BaseChecker):
             if module in self._logging_modules:
                 self._logging_names.add(as_name or module)
 
-    @check_messages(*MSGS)
     def visit_call(self, node: nodes.Call) -> None:
         """Checks calls to logging methods."""
 
@@ -401,5 +384,5 @@ def _count_supplied_tokens(args):
     return sum(1 for arg in args if not isinstance(arg, nodes.Keyword))
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(LoggingChecker(linter))

@@ -1,5 +1,5 @@
 """unused import"""
-# pylint: disable=undefined-all-variable, import-error,  too-few-public-methods, missing-docstring,wrong-import-position, useless-object-inheritance, multiple-imports
+# pylint: disable=undefined-all-variable, import-error, too-few-public-methods, missing-docstring,wrong-import-position, useless-object-inheritance, multiple-imports
 import xml.etree  # [unused-import]
 import xml.sax  # [unused-import]
 import os.path as test  # [unused-import]

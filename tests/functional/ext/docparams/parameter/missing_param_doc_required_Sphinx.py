@@ -2,7 +2,7 @@
 with accept-no-param-doc = no"""
 # pylint: disable=function-redefined, invalid-name, undefined-variable, missing-class-docstring
 # pylint: disable=unused-argument, too-few-public-methods, unnecessary-pass, line-too-long
-# pylint: disable=missing-function-docstring, disallowed-name, no-self-use
+# pylint: disable=missing-function-docstring, disallowed-name
 
 
 def test_missing_func_params_in_sphinx_docstring(  # [missing-param-doc, missing-type-doc]
@@ -245,6 +245,42 @@ def test_finds_kwargs_without_type_sphinx(  # [inconsistent-return-statements]
     :type named_arg: object
 
     :param \**kwargs: Keyword arguments
+
+    :returns: Maybe named_arg
+    :rtype: object or None
+    """
+    if kwargs:
+        return named_arg
+
+
+def test_finds_args_without_type_sphinx(  # [inconsistent-return-statements]
+    named_arg, *args
+):
+    r"""The Sphinx docstring
+    We can leave the asterisk out.
+
+    :param named_arg: Returned
+    :type named_arg: object
+
+    :param args: Optional arguments
+
+    :returns: Maybe named_arg
+    :rtype: object or None
+    """
+    if args:
+        return named_arg
+
+
+def test_finds_kwargs_without_type_sphinx(  # [inconsistent-return-statements]
+    named_arg, **kwargs
+):
+    r"""The Sphinx docstring
+    We can leave the asterisk out.
+
+    :param named_arg: Returned
+    :type named_arg: object
+
+    :param kwargs: Keyword arguments
 
     :returns: Maybe named_arg
     :rtype: object or None

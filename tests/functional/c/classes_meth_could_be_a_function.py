@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,too-few-public-methods,no-init,useless-object-inheritance
+# pylint: disable=missing-docstring,too-few-public-methods,useless-object-inheritance
 """
 #2479
 
@@ -18,7 +18,6 @@ class Aimpl(object):
     # disable "method could be a function" on classes which are not overriding
     # the factory method because in that case the usage of polymorphism is not
     # detected
-    # pylint: disable=no-self-use
     def makex(self):
         return XAsub()
 

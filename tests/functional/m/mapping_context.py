@@ -1,7 +1,7 @@
 """
 Checks that only valid values are used in a mapping context.
 """
-# pylint: disable=missing-docstring,invalid-name,too-few-public-methods,no-self-use,import-error,wrong-import-position, useless-object-inheritance
+# pylint: disable=missing-docstring,invalid-name,too-few-public-methods,import-error,wrong-import-position, useless-object-inheritance
 from __future__ import print_function
 
 

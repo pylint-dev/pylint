@@ -1,0 +1,1 @@
+unnecessary-lambda-assignment:7:20:7:31:NamedExpressionClass.<lambda>:"Lambda expression assigned to a variable. Define a function using the ""def"" keyword instead.":HIGH

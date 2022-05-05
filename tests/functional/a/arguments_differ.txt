@@ -5,8 +5,9 @@ arguments-differ:68:4:68:18:VarargsChild.has_kwargs:Variadics removed in overrid
 arguments-renamed:71:4:71:17:VarargsChild.no_kwargs:Parameter 'args' has been renamed to 'arg' in overridden 'VarargsChild.no_kwargs' method:UNDEFINED
 arguments-differ:144:4:144:12:StaticmethodChild2.func:Number of parameters was 1 in 'Staticmethod.func' and is now 2 in overridden 'StaticmethodChild2.func' method:UNDEFINED
 arguments-differ:180:4:180:12:SecondChangesArgs.test:Number of parameters was 2 in 'FirstHasArgs.test' and is now 4 in overridden 'SecondChangesArgs.test' method:UNDEFINED
-arguments-differ:306:4:306:16:Foo.kwonly_1:Number of parameters was 4 in 'AbstractFoo.kwonly_1' and is now 3 in overridden 'Foo.kwonly_1' method:UNDEFINED
-arguments-differ:309:4:309:16:Foo.kwonly_2:Number of parameters was 3 in 'AbstractFoo.kwonly_2' and is now 2 in overridden 'Foo.kwonly_2' method:UNDEFINED
-arguments-differ:312:4:312:16:Foo.kwonly_3:Number of parameters was 3 in 'AbstractFoo.kwonly_3' and is now 3 in overridden 'Foo.kwonly_3' method:UNDEFINED
-arguments-differ:315:4:315:16:Foo.kwonly_4:Number of parameters was 3 in 'AbstractFoo.kwonly_4' and is now 3 in overridden 'Foo.kwonly_4' method:UNDEFINED
-arguments-differ:318:4:318:16:Foo.kwonly_5:Variadics removed in overridden 'Foo.kwonly_5' method:UNDEFINED
+arguments-differ:307:4:307:16:Foo.kwonly_1:Number of parameters was 4 in 'AbstractFoo.kwonly_1' and is now 3 in overridden 'Foo.kwonly_1' method:UNDEFINED
+arguments-differ:310:4:310:16:Foo.kwonly_2:Number of parameters was 3 in 'AbstractFoo.kwonly_2' and is now 2 in overridden 'Foo.kwonly_2' method:UNDEFINED
+arguments-differ:313:4:313:16:Foo.kwonly_3:Number of parameters was 3 in 'AbstractFoo.kwonly_3' and is now 3 in overridden 'Foo.kwonly_3' method:UNDEFINED
+arguments-differ:316:4:316:16:Foo.kwonly_4:Number of parameters was 3 in 'AbstractFoo.kwonly_4' and is now 3 in overridden 'Foo.kwonly_4' method:UNDEFINED
+arguments-differ:319:4:319:16:Foo.kwonly_5:Variadics removed in overridden 'Foo.kwonly_5' method:UNDEFINED
+arguments-differ:359:4:359:14:ClassWithNewNonDefaultKeywordOnly.method:Number of parameters was 2 in 'AClass.method' and is now 3 in overridden 'ClassWithNewNonDefaultKeywordOnly.method' method:UNDEFINED

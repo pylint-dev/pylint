@@ -147,7 +147,7 @@ New checkers
 
   Instead of a temporary variable, the one-line syntax with commas should be used.
 
-  See this `style guide`_ document or this `swap values presentation`_ for details.
+  See this `style guide`_ document or the Pycon 2007 `swap values presentation` for details.
 
   .. code-block:: python
 
@@ -354,6 +354,5 @@ Other Changes
 * Fix false-positive ``undefined-variable`` for nested lambdas
 
 
-.. _PEP 563: https://www.python.org/dev/peps/pep-0563/
-.. _style guide: https://docs.python-guide.org/en/latest/writing/style/
-.. _swap values presentation: http://python.net/~goodger/projects/pycon/2007/idiomatic/handout.html#swap-values
+.. _PEP 563: https://peps.python.org/pep-0563/
+.. _style guide: https://docs.python-guide.org/writing/style/

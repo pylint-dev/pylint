@@ -1,6 +1,6 @@
 """Emit a warning when the ellipsis constant is used and can be avoided"""
 
-# pylint: disable=missing-docstring, too-few-public-methods
+# pylint: disable=missing-docstring, too-few-public-methods, invalid-name, unused-argument, comparison-of-constants
 
 from typing import List, overload, Union
 
@@ -9,10 +9,10 @@ try:
     A = 2
 except ValueError:
     A = 24
-    ... # [unnecessary-ellipsis]
+    ...  # [unnecessary-ellipsis]
 
 def ellipsis_and_subsequent_statement():
-    ... # [unnecessary-ellipsis]
+    ...  # [unnecessary-ellipsis]
     return 0
 
 # The parent of ellipsis is an assignment
@@ -97,3 +97,35 @@ class MyIntegerList(List[int]):
             ...
         else:
             raise TypeError(...)
+
+# Ellipsis is allowed as a default argument
+def func_with_ellipsis_default_arg(a = ...) -> None:
+    "Some docstring."
+
+# Ignore if the ellipsis is inside a container:
+my_list = [...]
+my_tuple = (...,)
+my_set = {...}
+
+# Ellipsis inside a container which is a value in a dictionary
+mydict1 = {'x': [...]}
+mydict2 = {'x': {...}}
+mydict3 = {'x': (...,)}
+
+# Ignore if the ellipsis is used with a lambda expression
+print("x", lambda: ...)
+
+
+def func1(val1, _):
+    if val1 is not ...:
+        pass
+
+
+def func2(val1, val2):
+    """Ignore if ellipsis is used on comparisons.
+    See https://github.com/PyCQA/pylint/issues/6071."""
+    if val1 is not ... and val2:
+        pass
+
+
+assert "x" != ...

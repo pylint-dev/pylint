@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, invalid-name, too-few-public-methods, no-self-use, line-too-long, unused-argument, protected-access
+# pylint: disable=missing-docstring, invalid-name, too-few-public-methods, line-too-long, unused-argument, protected-access
 from functools import partialmethod
 
 
@@ -109,7 +109,7 @@ print(k.ninetyfive)
 # https://github.com/PyCQA/pylint/issues/4657
 # Mutation of class member with cls should not fire a false-positive
 class FalsePositive4657:
-    """False positivie tests for 4657"""
+    """False positive tests for 4657"""
     __attr_a = None
     __attr_b = 'b'
 

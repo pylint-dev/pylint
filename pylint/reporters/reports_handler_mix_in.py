@@ -1,44 +1,40 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
+from __future__ import annotations
 
 import collections
-from typing import (
-    TYPE_CHECKING,
-    Callable,
-    DefaultDict,
-    Dict,
-    List,
-    MutableSequence,
-    Optional,
-    Tuple,
-)
+from collections.abc import MutableSequence
+from typing import TYPE_CHECKING, DefaultDict, List, Tuple
 
 from pylint.exceptions import EmptyReportError
 from pylint.reporters.ureports.nodes import Section
+from pylint.typing import ReportsCallable
 from pylint.utils import LinterStats
 
 if TYPE_CHECKING:
     from pylint.checkers import BaseChecker
     from pylint.lint.pylinter import PyLinter
 
-ReportsDict = DefaultDict["BaseChecker", List[Tuple[str, str, Callable]]]
+ReportsDict = DefaultDict["BaseChecker", List[Tuple[str, str, ReportsCallable]]]
 
 
 class ReportsHandlerMixIn:
     """A mix-in class containing all the reports and stats manipulation
-    related methods for the main lint class
+    related methods for the main lint class.
     """
 
     def __init__(self) -> None:
         self._reports: ReportsDict = collections.defaultdict(list)
-        self._reports_state: Dict[str, bool] = {}
+        self._reports_state: dict[str, bool] = {}
 
-    def report_order(self) -> MutableSequence["BaseChecker"]:
+    def report_order(self) -> MutableSequence[BaseChecker]:
         """Return a list of reporters."""
         return list(self._reports)
 
     def register_report(
-        self, reportid: str, r_title: str, r_cb: Callable, checker: "BaseChecker"
+        self, reportid: str, r_title: str, r_cb: ReportsCallable, checker: BaseChecker
     ) -> None:
         """Register a report.
 
@@ -65,9 +61,9 @@ class ReportsHandlerMixIn:
         return self._reports_state.get(reportid, True)
 
     def make_reports(  # type: ignore[misc] # ReportsHandlerMixIn is always mixed with PyLinter
-        self: "PyLinter",
+        self: PyLinter,
         stats: LinterStats,
-        old_stats: Optional[LinterStats],
+        old_stats: LinterStats | None,
     ) -> Section:
         """Render registered reports."""
         sect = Section("Report", f"{self.stats.statement} statements analysed.")

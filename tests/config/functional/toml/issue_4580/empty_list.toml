@@ -1,3 +1,0 @@
-[tool.pylint]
-# load-plugins does not belong in top level section
-load-plugins = []

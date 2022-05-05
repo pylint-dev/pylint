@@ -1,82 +1,115 @@
-# Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2013-2014 Google, Inc.
-# Copyright (c) 2013 buck@yelp.com <buck@yelp.com>
-# Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2014 Brett Cannon <brett@python.org>
-# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
-# Copyright (c) 2017-2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
-# Copyright (c) 2018-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
-# Copyright (c) 2019 Bruno P. Kinoshita <kinow@users.noreply.github.com>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 bot <bot@noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
+from __future__ import annotations
+
+import abc
 import functools
+import warnings
+from collections.abc import Iterator
 from inspect import cleandoc
-from typing import Any, Optional
+from tokenize import TokenInfo
+from typing import TYPE_CHECKING, Any
 
 from astroid import nodes
 
-from pylint.config import OptionsProviderMixIn
-from pylint.constants import _MSG_ORDER, WarningScope
+from pylint.config.arguments_provider import _ArgumentsProvider
+from pylint.constants import _MSG_ORDER, MAIN_CHECKER_NAME, WarningScope
 from pylint.exceptions import InvalidMessageError
 from pylint.interfaces import Confidence, IRawChecker, ITokenChecker, implements
 from pylint.message.message_definition import MessageDefinition
+from pylint.typing import (
+    ExtraMessageOptions,
+    MessageDefinitionTuple,
+    OptionDict,
+    Options,
+    ReportsCallable,
+)
 from pylint.utils import get_rst_section, get_rst_title
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 
 @functools.total_ordering
-class BaseChecker(OptionsProviderMixIn):
+class BaseChecker(_ArgumentsProvider):
 
     # checker name (you may reuse an existing one)
     name: str = ""
-    # options level (0 will be displaying in --help, 1 in --long-help)
-    level = 1
     # ordered list of options to control the checker behaviour
-    options: Any = ()
+    options: Options = ()
     # messages issued by this checker
-    msgs: Any = {}
+    msgs: dict[str, MessageDefinitionTuple] = {}
     # reports issued by this checker
-    reports: Any = ()
+    reports: tuple[tuple[str, str, ReportsCallable], ...] = ()
     # mark this checker as enabled or not.
     enabled: bool = True
 
-    def __init__(self, linter=None):
-        """Checker instances should have the linter as argument.
-
-        :param ILinter linter: is an object implementing ILinter.
-        """
+    def __init__(self, linter: PyLinter) -> None:
+        """Checker instances should have the linter as argument."""
+        if getattr(self, "__implements__", None):
+            warnings.warn(
+                "Using the __implements__ inheritance pattern for BaseChecker is no "
+                "longer supported. Child classes should only inherit BaseChecker or any "
+                "of the other checker types from pylint.checkers.",
+                DeprecationWarning,
+            )
         if self.name is not None:
             self.name = self.name.lower()
-        super().__init__()
         self.linter = linter
 
-    def __gt__(self, other):
-        """Permit to sort a list of Checker by name."""
-        return f"{self.name}{self.msgs}".__gt__(f"{other.name}{other.msgs}")
+        _ArgumentsProvider.__init__(self, linter)
 
-    def __repr__(self):
+    def __gt__(self, other: Any) -> bool:
+        """Sorting of checkers."""
+        if not isinstance(other, BaseChecker):
+            return False
+        if self.name == MAIN_CHECKER_NAME:
+            return False
+        if other.name == MAIN_CHECKER_NAME:
+            return True
+        if type(self).__module__.startswith("pylint.checkers") and not type(
+            other
+        ).__module__.startswith("pylint.checkers"):
+            return False
+        return self.name > other.name
+
+    def __eq__(self, other: Any) -> bool:
+        """Permit to assert Checkers are equal."""
+        if not isinstance(other, BaseChecker):
+            return False
+        return f"{self.name}{self.msgs}" == f"{other.name}{other.msgs}"
+
+    def __hash__(self) -> int:
+        """Make Checker hashable."""
+        return hash(f"{self.name}{self.msgs}")
+
+    def __repr__(self) -> str:
         status = "Checker" if self.enabled else "Disabled checker"
         msgs = "', '".join(self.msgs.keys())
         return f"{status} '{self.name}' (responsible for '{msgs}')"
 
-    def __str__(self):
+    def __str__(self) -> str:
         """This might be incomplete because multiple classes inheriting BaseChecker
         can have the same name.
 
         See: MessageHandlerMixIn.get_full_documentation()
         """
-        return self.get_full_documentation(
-            msgs=self.msgs, options=self.options_and_values(), reports=self.reports
-        )
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            return self.get_full_documentation(
+                msgs=self.msgs, options=self.options_and_values(), reports=self.reports
+            )
 
-    def get_full_documentation(self, msgs, options, reports, doc=None, module=None):
+    def get_full_documentation(
+        self,
+        msgs: dict[str, MessageDefinitionTuple],
+        options: Iterator[tuple[str, OptionDict, Any]],
+        reports: tuple[tuple[str, str, ReportsCallable], ...],
+        doc: str | None = None,
+        module: str | None = None,
+    ) -> str:
         result = ""
         checker_title = f"{self.name.replace('_', ' ').title()} checker"
         if module:
@@ -91,17 +124,17 @@ class BaseChecker(OptionsProviderMixIn):
             result += get_rst_title(f"{checker_title} Documentation", "^")
             result += f"{cleandoc(doc)}\n\n"
         # options might be an empty generator and not be False when cast to boolean
-        options = list(options)
-        if options:
+        options_list = list(options)
+        if options_list:
             result += get_rst_title(f"{checker_title} Options", "^")
-            result += f"{get_rst_section(None, options)}\n"
+            result += f"{get_rst_section(None, options_list)}\n"
         if msgs:
             result += get_rst_title(f"{checker_title} Messages", "^")
             for msgid, msg in sorted(
                 msgs.items(), key=lambda kv: (_MSG_ORDER.index(kv[0][0]), kv[1])
             ):
-                msg = self.create_message_definition_from_tuple(msgid, msg)
-                result += f"{msg.format_help(checkerref=False)}\n"
+                msg_def = self.create_message_definition_from_tuple(msgid, msg)
+                result += f"{msg_def.format_help(checkerref=False)}\n"
             result += "\n"
         if reports:
             result += get_rst_title(f"{checker_title} Reports", "^")
@@ -116,19 +149,19 @@ class BaseChecker(OptionsProviderMixIn):
     def add_message(
         self,
         msgid: str,
-        line: Optional[int] = None,
-        node: Optional[nodes.NodeNG] = None,
+        line: int | None = None,
+        node: nodes.NodeNG | None = None,
         args: Any = None,
-        confidence: Optional[Confidence] = None,
-        col_offset: Optional[int] = None,
-        end_lineno: Optional[int] = None,
-        end_col_offset: Optional[int] = None,
+        confidence: Confidence | None = None,
+        col_offset: int | None = None,
+        end_lineno: int | None = None,
+        end_col_offset: int | None = None,
     ) -> None:
         self.linter.add_message(
             msgid, line, node, args, confidence, col_offset, end_lineno, end_col_offset
         )
 
-    def check_consistency(self):
+    def check_consistency(self) -> None:
         """Check the consistency of msgid.
 
         msg ids for a checker should be a string of len 4, where the two first
@@ -149,18 +182,31 @@ class BaseChecker(OptionsProviderMixIn):
             checker_id = message.msgid[1:3]
             existing_ids.append(message.msgid)
 
-    def create_message_definition_from_tuple(self, msgid, msg_tuple):
-        if implements(self, (IRawChecker, ITokenChecker)):
-            default_scope = WarningScope.LINE
+    def create_message_definition_from_tuple(
+        self, msgid: str, msg_tuple: MessageDefinitionTuple
+    ) -> MessageDefinition:
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            if isinstance(self, (BaseTokenChecker, BaseRawFileChecker)):
+                default_scope = WarningScope.LINE
+            # TODO: 3.0: Remove deprecated if-statement
+            elif implements(self, (IRawChecker, ITokenChecker)):
+                warnings.warn(  # pragma: no cover
+                    "Checkers should subclass BaseTokenChecker or BaseRawFileChecker"
+                    "instead of using the __implements__ mechanism. Use of __implements__"
+                    "will no longer be supported in pylint 3.0",
+                    DeprecationWarning,
+                )
+                default_scope = WarningScope.LINE  # pragma: no cover
+            else:
+                default_scope = WarningScope.NODE
+        options: ExtraMessageOptions = {}
+        if len(msg_tuple) == 4:
+            (msg, symbol, descr, options) = msg_tuple  # type: ignore[misc]
+        elif len(msg_tuple) == 3:
+            (msg, symbol, descr) = msg_tuple  # type: ignore[misc]
         else:
-            default_scope = WarningScope.NODE
-        options = {}
-        if len(msg_tuple) > 3:
-            (msg, symbol, descr, options) = msg_tuple
-        elif len(msg_tuple) > 2:
-            (msg, symbol, descr) = msg_tuple
-        else:
-            error_msg = """Messages should have a msgid and a symbol. Something like this :
+            error_msg = """Messages should have a msgid, a symbol and a description. Something like this :
 
 "W1234": (
     "message",
@@ -174,15 +220,13 @@ class BaseChecker(OptionsProviderMixIn):
         return MessageDefinition(self, msgid, msg, descr, symbol, **options)
 
     @property
-    def messages(self) -> list:
+    def messages(self) -> list[MessageDefinition]:
         return [
             self.create_message_definition_from_tuple(msgid, msg_tuple)
             for msgid, msg_tuple in sorted(self.msgs.items())
         ]
 
-    # dummy methods implementing the IChecker interface
-
-    def get_message_definition(self, msgid):
+    def get_message_definition(self, msgid: str) -> MessageDefinition:
         for message_definition in self.messages:
             if message_definition.msgid == msgid:
                 return message_definition
@@ -190,16 +234,36 @@ class BaseChecker(OptionsProviderMixIn):
         error_msg += f"Choose from {[m.msgid for m in self.messages]}."
         raise InvalidMessageError(error_msg)
 
-    def open(self):
+    def open(self) -> None:
         """Called before visiting project (i.e. set of modules)."""
 
-    def close(self):
+    def close(self) -> None:
         """Called after visiting project (i.e set of modules)."""
+
+    def get_map_data(self) -> Any:
+        return None
+
+    # pylint: disable-next=unused-argument
+    def reduce_map_data(self, linter: PyLinter, data: list[Any]) -> None:
+        return None
 
 
 class BaseTokenChecker(BaseChecker):
     """Base class for checkers that want to have access to the token stream."""
 
-    def process_tokens(self, tokens):
+    @abc.abstractmethod
+    def process_tokens(self, tokens: list[TokenInfo]) -> None:
         """Should be overridden by subclasses."""
+        raise NotImplementedError()
+
+
+class BaseRawFileChecker(BaseChecker):
+    """Base class for checkers which need to parse the raw file."""
+
+    @abc.abstractmethod
+    def process_module(self, node: nodes.Module) -> None:
+        """Process a module.
+
+        The module's content is accessible via ``astroid.stream``
+        """
         raise NotImplementedError()

@@ -14,7 +14,7 @@ def test_prefixed_with_unused(first, unused_second):
 # for Sub.inherited, only the warning for "aay" is desired.
 # The warnings for "aab" and "aac"  are most likely false positives though,
 # because there could be another subclass that overrides the same method and does
-# use the arguments (eg Sub2)
+# use the arguments (e.g. Sub2)
 
 
 class Base(object):
@@ -47,7 +47,13 @@ def metadata_from_dict(key):
     """
     return {key: str(value) for key, value in key.items()}
 
-# pylint: disable=too-few-public-methods,  misplaced-future,wrong-import-position
+
+def metadata_from_dict_2(key):
+    """Similar, but with more nesting"""
+    return {key: (a, b) for key, (a, b) in key.items()}
+
+
+# pylint: disable=too-few-public-methods, misplaced-future,wrong-import-position
 from __future__ import print_function
 
 

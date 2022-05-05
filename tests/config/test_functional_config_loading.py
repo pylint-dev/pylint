@@ -1,5 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """This launches the configuration functional tests. This permits to test configuration
 files by providing a file with the appropriate extension in the ``tests/config/functional``
@@ -18,6 +19,7 @@ and ``"functional_remove":``. Check the existing code for examples.
 
 # pylint: disable=redefined-outer-name
 import logging
+import warnings
 from pathlib import Path
 
 import pytest
@@ -77,9 +79,13 @@ def test_functional_config_loading(
     expected_loaded_configuration = get_expected_configuration(
         configuration_path, default_configuration
     )
-    mock_exit, _, runner = run_using_a_configuration_file(
-        configuration_path, file_to_lint_path
-    )
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            "ignore", message="The use of 'MASTER'.*", category=UserWarning
+        )
+        mock_exit, _, runner = run_using_a_configuration_file(
+            configuration_path, file_to_lint_path
+        )
     mock_exit.assert_called_once_with(expected_code)
     out, err = capsys.readouterr()
     # 'rstrip()' applied, so we can have a final newline in the expected test file

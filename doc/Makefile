@@ -13,9 +13,9 @@ PYTHONPATH    =
 # Internal variables.
 PAPEROPT_a4     = -D latex_paper_size=a4
 PAPEROPT_letter = -D latex_paper_size=letter
-ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
+ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees -T -E -W --keep-going $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 
-.PHONY: help clean html dirhtml singlehtml pickle json htmlhelp qthelp devhelp epub latex latexpdf text man changes linkcheck doctest all
+.PHONY: help clean html dirhtml singlehtml pickle json htmlhelp qthelp devhelp epub latex latexpdf text man changes linkcheck
 
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
@@ -34,21 +34,21 @@ help:
 	@echo "  man        to make manual pages"
 	@echo "  changes    to make an overview of all changed/added/deprecated items"
 	@echo "  linkcheck  to check all external links for integrity"
-	@echo "  doctest    to run all doctests embedded in the documentation (if enabled)"
 
 clean:
 	-rm -rf $(BUILDDIR)/*
-	-rm -f reference_guide/features.rst
-	-rm -f extensions.rst
 
-html: features.rst extensions.rst
+html:
 	@echo
 	@echo "Install dependencies"
-	$(PIP) install python-docs-theme
+	$(PIP) install furo
 	@echo "Finished installing dependencies"
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
+	$(SPHINXBUILD) -b linkcheck $(ALLSPHINXOPTS) $(BUILDDIR)/linkcheck
 	@echo
-	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
+	@echo "Link check complete; look for any errors in the above output " \
+	      "or in $(BUILDDIR)/linkcheck/output.txt."
+
 
 dirhtml:
 	$(SPHINXBUILD) -b dirhtml $(ALLSPHINXOPTS) $(BUILDDIR)/dirhtml
@@ -132,32 +132,3 @@ linkcheck:
 	@echo
 	@echo "Link check complete; look for any errors in the above output " \
 	      "or in $(BUILDDIR)/linkcheck/output.txt."
-
-doctest:
-	$(SPHINXBUILD) -b doctest $(ALLSPHINXOPTS) $(BUILDDIR)/doctest
-	@echo "Testing of doctests in the sources finished, look at the " \
-	      "results in $(BUILDDIR)/doctest/output.txt."
-
-
-extensions.rst: exts/pylint_extensions.py
-extensions.rst: $(shell find ../pylint/extensions -type f -regex '.*\.py')
-extensions.rst: $(shell find ../pylint/extensions -type f -regex '.*\.rst')
-	rm -f extensions.rst
-	PYTHONPATH=$(PYTHONPATH) $(PYTHON) ./exts/pylint_extensions.py
-
-features.rst: exts/pylint_features.py
-features.rst: $(shell find ../pylint/checkers -type f -regex '.*\.py')
-	rm -f features.rst
-	PYTHONPATH=$(PYTHONPATH) $(PYTHON) ./exts/pylint_features.py
-
-messages: $(PYTHONPATH) $(PYTHON) ./exts/pylint_messages.py
-
-gen-examples:
-	chmod u+w ../examples/pylintrc
-	pylint --rcfile=/dev/null --generate-rcfile > ../examples/pylintrc
-
-gen-man:
-	chmod u+w ../man/pylint.1
-	pylint --rcfile=/dev/null --generate-man > ../man/pylint.1
-
-all: html gen-man gen-examples

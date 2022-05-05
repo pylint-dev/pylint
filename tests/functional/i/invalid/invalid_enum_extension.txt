@@ -1,0 +1,1 @@
+invalid-enum-extension:12:0:12:7:B:"Extending inherited Enum class ""A""":INFERENCE

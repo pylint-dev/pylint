@@ -62,9 +62,9 @@ def test_break_in_orelse_deep():
     """no false positive for break in else deeply nested
     """
     for _ in range(10):
-        if 1 < 2:
+        if 1 < 2:  # pylint: disable=comparison-of-constants
             for _ in range(3):
-                if 3 < 2:
+                if 3 < 2:  # pylint: disable=comparison-of-constants
                     break
             else:
                 break
@@ -78,9 +78,9 @@ def test_break_in_orelse_deep2():
     for the inner for loop
     """
     for _ in range(10):
-        if 1 < 2:
+        if 1 < 2:  # pylint: disable=comparison-of-constants
             for _ in range(3):
-                if 3 < 2:
+                if 3 < 2:  # pylint: disable=comparison-of-constants
                     break
             else:
                 print("all right")
@@ -96,7 +96,7 @@ def test_break_in_orelse_deep3():
         for _ in range(3):
             pass
         else:
-            if 1 < 2:
+            if 1 < 2:  # pylint: disable=comparison-of-constants
                 break
     else:
         return True

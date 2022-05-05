@@ -1,7 +1,7 @@
 """Tests for protected_access"""
 # pylint: disable=missing-class-docstring, too-few-public-methods, pointless-statement
 # pylint: disable=missing-function-docstring, invalid-metaclass, no-member
-# pylint: disable=no-self-argument, no-self-use, undefined-variable, unused-variable
+# pylint: disable=no-self-argument, undefined-variable, unused-variable
 
 # Test that exclude-protected can be used to exclude names from protected-access warning
 class Protected:
@@ -27,3 +27,17 @@ class MC:
 class Application(metaclass=MC):
     def __no_special__(cls):
         nargs = obj._nargs  # [protected-access]
+
+
+class Light:
+    @property
+    def _light_internal(self) -> None:
+        return None
+
+    @staticmethod
+    def func(light) -> None:
+        print(light._light_internal)  # [protected-access]
+
+
+def func(light: Light) -> None:
+    print(light._light_internal)  # [protected-access]

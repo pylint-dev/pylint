@@ -1,6 +1,11 @@
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
+from __future__ import annotations
+
 import logging
 from pathlib import Path
-from typing import Dict, List, Optional, Union
 
 import git
 
@@ -16,26 +21,26 @@ class PackageToLint:
     branch: str
     """Branch of the repository to clone."""
 
-    directories: List[str]
+    directories: list[str]
     """Directories within the repository to run pylint over."""
 
-    commit: Optional[str]
+    commit: str | None
     """Commit hash to pin the repository on."""
 
-    pylint_additional_args: List[str]
+    pylint_additional_args: list[str]
     """Arguments to give to pylint."""
 
-    pylintrc_relpath: Optional[str]
+    pylintrc_relpath: str | None
     """Path relative to project's main directory to the pylintrc if it exists."""
 
     def __init__(
         self,
         url: str,
         branch: str,
-        directories: List[str],
-        commit: Optional[str] = None,
-        pylint_additional_args: Optional[List[str]] = None,
-        pylintrc_relpath: Optional[str] = None,
+        directories: list[str],
+        commit: str | None = None,
+        pylint_additional_args: list[str] | None = None,
+        pylintrc_relpath: str | None = None,
     ) -> None:
         self.url = url
         self.branch = branch
@@ -45,7 +50,7 @@ class PackageToLint:
         self.pylintrc_relpath = pylintrc_relpath
 
     @property
-    def pylintrc(self) -> Optional[Path]:
+    def pylintrc(self) -> Path | None:
         if self.pylintrc_relpath is None:
             return None
         return self.clone_directory / self.pylintrc_relpath
@@ -57,13 +62,13 @@ class PackageToLint:
         return PRIMER_DIRECTORY_PATH / clone_name
 
     @property
-    def paths_to_lint(self) -> List[str]:
+    def paths_to_lint(self) -> list[str]:
         """The paths we need to lint."""
         return [str(self.clone_directory / path) for path in self.directories]
 
     @property
-    def pylint_args(self) -> List[str]:
-        options: List[str] = []
+    def pylint_args(self) -> list[str]:
+        options: list[str] = []
         if self.pylintrc is not None:
             # There is an error if rcfile is given but does not exist
             options += [f"--rcfile={self.pylintrc}"]
@@ -80,7 +85,7 @@ class PackageToLint:
         """
         logging.info("Lazy cloning %s", self.url)
         if not self.clone_directory.exists():
-            options: Dict[str, Union[str, int]] = {
+            options: dict[str, str | int] = {
                 "url": self.url,
                 "to_path": str(self.clone_directory),
                 "branch": self.branch,

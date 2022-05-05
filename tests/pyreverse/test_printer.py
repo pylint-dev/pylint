@@ -1,11 +1,8 @@
-# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-from typing import Type
+from __future__ import annotations
 
 import pytest
 from astroid import nodes
@@ -32,7 +29,7 @@ from pylint.pyreverse.vcg_printer import VCGPrinter
     ],
 )
 def test_explicit_layout(
-    layout: Layout, printer_class: Type[Printer], expected_content: str, line_index: int
+    layout: Layout, printer_class: type[Printer], expected_content: str, line_index: int
 ) -> None:
     printer = printer_class(title="unittest", layout=layout)
     assert printer.lines[line_index].strip() == expected_content
@@ -42,7 +39,7 @@ def test_explicit_layout(
     "layout, printer_class",
     [(Layout.BOTTOM_TO_TOP, PlantUmlPrinter), (Layout.RIGHT_TO_LEFT, PlantUmlPrinter)],
 )
-def test_unsupported_layout(layout: Layout, printer_class: Type[Printer]):
+def test_unsupported_layout(layout: Layout, printer_class: type[Printer]):
     with pytest.raises(ValueError):
         printer_class(title="unittest", layout=layout)
 

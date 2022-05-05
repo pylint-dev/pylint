@@ -1,5 +1,5 @@
 """ Functional tests for method deprecation. """
-# pylint: disable=missing-docstring, super-init-not-called, not-callable
+# pylint: disable=missing-docstring, super-init-not-called, not-callable, comparison-of-constants
 import base64
 import inspect
 import logging

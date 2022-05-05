@@ -1,18 +1,11 @@
-# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-# Copyright (c) 2021 Mike Fiedler <miketheman@gmail.com>
-# Copyright (c) 2021 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2021 Rebecca Turner <rbt@sent.as>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 import astroid
 
 from pylint.checkers import design_analysis
 from pylint.testutils import CheckerTestCase, set_config
-from pylint.utils.utils import get_global_option
 
 
 class TestDesignChecker(CheckerTestCase):
@@ -48,7 +41,7 @@ class TestDesignChecker(CheckerTestCase):
     @set_config(exclude_too_few_public_methods="toml.*")
     def test_exclude_too_few_methods_with_value(self) -> None:
         """Test exclude-too-few-public-methods option with value."""
-        options = get_global_option(self.checker, "exclude-too-few-public-methods")
+        options = self.linter.config.exclude_too_few_public_methods
 
         assert any(i.match("toml") for i in options)
         assert any(i.match("toml.*") for i in options)
@@ -58,6 +51,6 @@ class TestDesignChecker(CheckerTestCase):
         """Test exclude-too-few-public-methods option with no value.
         Compare against actual list to see if validator works.
         """
-        options = get_global_option(self.checker, "exclude-too-few-public-methods")
+        options = self.linter.config.exclude_too_few_public_methods
 
         assert options == []
