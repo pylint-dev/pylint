@@ -109,7 +109,7 @@ def generator_using_next():
     yield number * 2
 
 
-# pylint: disable=no-self-use,too-few-public-methods
+# pylint: disable=too-few-public-methods
 class SomeClassWithNext:
     def next(self):
         return iter([1, 2, 3])
