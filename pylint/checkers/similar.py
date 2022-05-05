@@ -740,7 +740,7 @@ class SimilarChecker(BaseRawFileChecker, Similar):
     """Checks for similarities and duplicated code.
 
     This computation may be memory / CPU intensive, so you
-    should disable it if you experiment some problems.
+    should disable it if you experience some problems.
     """
 
     # configuration section name
