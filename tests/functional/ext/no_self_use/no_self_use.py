@@ -1,5 +1,8 @@
 # pylint: disable=too-few-public-methods,missing-docstring,useless-object-inheritance,invalid-name
 """test detection of method which could be a function"""
+from abc import ABC, abstractmethod
+from typing import Protocol, overload
+
 
 class Toto(object):
     """bla bal abl"""
@@ -93,3 +96,61 @@ class A:
 class B(A):
     def get_memo(self, obj):
         return super().get(obj)
+
+
+class C:
+    def a(self, /):  # [no-self-use]
+        ...
+
+
+def func_a(self):  # pylint: disable=unused-argument
+    pass
+
+
+class Foo1(ABC):
+    """Don't emit no-self-use for abstract methods."""
+
+    @abstractmethod
+    def a(self):
+        pass
+
+    def b(self):
+        raise NotImplementedError
+
+
+class Foo2(Protocol):
+    """Don't emit no-self-use for methods in Protocol classes."""
+
+    def a(self):
+        ...
+
+class Foo3:
+    """Don't emit no-self-use for overload methods."""
+
+    @overload
+    def a(self, var): ...
+
+    @overload
+    def a(self, var): ...
+
+    def a(self, var):
+        pass
+
+
+class Foo4:
+    """Other false positive cases."""
+
+    @staticmethod
+    def a(self):  # pylint: disable=unused-argument,bad-staticmethod-argument
+        ...
+
+    @staticmethod
+    def b():
+        ...
+
+    @classmethod
+    def c(self):  # pylint: disable=bad-classmethod-argument
+        ...
+
+    def d():  # pylint: disable=no-method-argument
+        ...

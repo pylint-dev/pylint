@@ -57,8 +57,6 @@ class NoSelfUseChecker(BaseChecker):
 
     def _check_first_arg_for_type(self, node: nodes.FunctionDef) -> None:
         """Check the name of first argument."""
-        if node.args.args is None:
-            return
         if node.args.posonlyargs:
             first_arg = node.args.posonlyargs[0].name
         elif node.args.args:
@@ -68,13 +66,6 @@ class NoSelfUseChecker(BaseChecker):
         self._first_attrs.append(first_arg)
         # static method
         if node.type == "staticmethod":
-            if (
-                first_arg == "self"
-                or first_arg in self.linter.config.valid_classmethod_first_arg
-                or first_arg in self.linter.config.valid_metaclass_classmethod_first_arg
-            ):
-                # Don't emit no-self-use for bad-staticmethod-argument
-                return
             self._first_attrs[-1] = None
 
     def leave_functiondef(self, node: nodes.FunctionDef) -> None:
@@ -84,8 +75,9 @@ class NoSelfUseChecker(BaseChecker):
         methods overridden from a parent class.
         """
         if node.is_method():
-            if node.args.args is not None:
-                self._first_attrs.pop()
+            first = self._first_attrs.pop()
+            if first is None:
+                return
             class_node = node.parent.frame(future=True)
             if (
                 self._meth_could_be_func
