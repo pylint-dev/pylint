@@ -13,6 +13,7 @@ from typing import TextIO
 
 import pytest
 
+from pylint.reporters.text import TextReporter
 from pylint.testutils._run import _Run as Run
 from pylint.testutils.utils import _patch_streams
 
@@ -218,3 +219,20 @@ class TestSimilarCodeChecker:
             [path, "-e=duplicate-code", "-d=unused-import,C", "--ignore-imports=y"],
             code=0,
         )
+
+    @staticmethod
+    def test_useless_suppression() -> None:
+        """Tests that duplicate code and useless-suppression work well together."""
+        path = join(DATA, "useless_suppression")
+        pylint_output = StringIO()
+        reporter = TextReporter(pylint_output)
+        runner = Run(
+            [
+                path,
+                "-e=duplicate-code, useless-suppression",
+                "-d=missing-module-docstring, unused-import",
+            ],
+            reporter=reporter,
+            exit=False,
+        )
+        assert not runner.linter.stats.by_msg
