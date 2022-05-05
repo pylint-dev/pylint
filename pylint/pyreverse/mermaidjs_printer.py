@@ -42,6 +42,7 @@ class MermaidJSPrinter(Printer):
 
         Nodes can be classes, packages, participants etc.
         """
+        # pylint: disable=duplicate-code
         if properties is None:
             properties = NodeProperties(label=name)
         stereotype = "~~Interface~~" if type_ is NodeType.INTERFACE else ""

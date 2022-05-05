@@ -77,6 +77,7 @@ class TestSimilarCodeChecker:
                 "--enable=duplicate-code",
                 "--ignore-imports=no",
                 "--ignore-signatures=no",
+                "--min-similarity-lines=4",
             ],
             expected_output=expected_output,
         )
@@ -92,6 +93,7 @@ class TestSimilarCodeChecker:
                 "--enable=duplicate-code",
                 "--ignore-imports=no",
                 "--ignore-signatures=no",
+                "--min-similarity-lines=4",
             ],
             expected_output=expected_output,
         )
@@ -106,6 +108,7 @@ class TestSimilarCodeChecker:
                 "--enable=duplicate-code",
                 "--ignore-imports=no",
                 "--ignore-signatures=no",
+                "--min-similarity-lines=4",
             ],
             code=0,
         )
@@ -121,6 +124,7 @@ class TestSimilarCodeChecker:
                 "--enable=duplicate-code",
                 "--ignore-imports=no",
                 "--ignore-signatures=no",
+                "--min-similarity-lines=4",
             ],
             expected_output=expected_output,
         )
@@ -135,6 +139,7 @@ class TestSimilarCodeChecker:
                 "--enable=duplicate-code",
                 "--ignore-imports=no",
                 "--ignore-signatures=no",
+                "--min-similarity-lines=4",
             ],
             code=0,
         )
@@ -149,6 +154,7 @@ class TestSimilarCodeChecker:
                 "--enable=duplicate-code",
                 "--ignore-imports=no",
                 "--ignore-signatures=no",
+                "--min-similarity-lines=4",
             ],
             code=0,
         )
@@ -164,6 +170,7 @@ class TestSimilarCodeChecker:
                 "--enable=duplicate-code",
                 "--ignore-imports=no",
                 "--ignore-signatures=no",
+                "--min-similarity-lines=4",
             ],
             expected_output=expected_output,
         )
@@ -179,6 +186,7 @@ class TestSimilarCodeChecker:
                 "--enable=duplicate-code",
                 "--ignore-imports=no",
                 "--ignore-signatures=no",
+                "--min-similarity-lines=4",
             ],
             expected_output=expected_output,
         )
@@ -193,6 +201,7 @@ class TestSimilarCodeChecker:
                 "--enable=duplicate-code",
                 "--ignore-imports=no",
                 "--ignore-signatures=no",
+                "--min-similarity-lines=4",
             ],
             code=0,
         )
@@ -208,6 +217,7 @@ class TestSimilarCodeChecker:
                 "--enable=duplicate-code",
                 "--ignore-imports=no",
                 "--ignore-signatures=no",
+                "--min-similarity-lines=4",
             ],
             expected_output=expected_output,
         )
