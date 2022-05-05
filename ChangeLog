@@ -1023,6 +1023,7 @@ Release date: 2022-03-24
   Closes #4955
 
 * Disable spellchecking of mypy rule names in ignore directives.
+  Closes #5929
 
 * Allow disabling ``duplicate-code`` with a disable comment when running through
   pylint.
