@@ -86,5 +86,4 @@ def test_load_and_save_results() -> None:
     with pytest.warns(DeprecationWarning):
         save_results(object(), "")  # type: ignore[arg-type]
     with pytest.warns(DeprecationWarning):
-        with pytest.raises(TypeError):
-            load_results("")
+        load_results("")

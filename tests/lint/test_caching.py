@@ -62,8 +62,7 @@ def test_save_and_load_not_a_linter_stats(path: str) -> None:
     # type ignore because this is what we're testing
     save_results(1, path)  # type: ignore[arg-type]
     with pytest.warns(UserWarning) as warn:
-        with pytest.raises(TypeError):
-            loaded = load_results(path)
-            assert loaded is None
+        loaded = load_results(path)
+        assert loaded is None
     warn_str = str(warn.pop().message)
     assert "old pylint cache with invalid data" in warn_str

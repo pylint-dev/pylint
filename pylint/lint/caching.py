@@ -41,10 +41,8 @@ def load_results(
                 )
                 raise TypeError
             return data
-    except TypeError:
-        raise
-    except Exception:  # pragma: no cover  # pylint: disable=broad-except
-        # There's probably an issue with the cache but we don't know how to fix it
+    except Exception:  # pylint: disable=broad-except
+        # There's an issue with the cache but we just continue as if it isn't there
         return None
 
 
