@@ -117,6 +117,9 @@ class Foo1(ABC):
     def b(self):
         raise NotImplementedError
 
+    def c(self):
+        pass  # pass counts as abstract
+
 
 class Foo2(Protocol):
     """Don't emit no-self-use for methods in Protocol classes."""
