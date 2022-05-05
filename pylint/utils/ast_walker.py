@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 # Callable parameter type NodeNG not completely correct.
 # Due to contravariance of Callable parameter types,
 # it should be a Union of all NodeNG subclasses.
-# However, since the methods are only retrived with
+# However, since the methods are only retrieved with
 # getattr(checker, member) and thus are inferred as Any,
 # NodeNG will work too.
 AstCallback = Callable[[nodes.NodeNG], None]
