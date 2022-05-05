@@ -818,17 +818,17 @@ a metaclass class method.",
             ):
                 self.add_message("inherit-non-class", args=base.as_string(), node=node)
 
-            if (
-                isinstance(ancestor, nodes.ClassDef)
-                and ancestor.is_subtype_of("enum.Enum")
-                and any(isinstance(stmt, nodes.Assign) for stmt in ancestor.body)
+            if isinstance(ancestor, nodes.ClassDef) and ancestor.is_subtype_of(
+                "enum.Enum"
             ):
-                self.add_message(
-                    "invalid-enum-extension",
-                    args=ancestor.name,
-                    node=node,
-                    confidence=INFERENCE,
-                )
+                members = ancestor.getattr("__members__")
+                if members and isinstance(members[0], nodes.Dict) and members[0].items:
+                    self.add_message(
+                        "invalid-enum-extension",
+                        args=ancestor.name,
+                        node=node,
+                        confidence=INFERENCE,
+                    )
 
             if ancestor.name == object.__name__:
                 self.add_message(
