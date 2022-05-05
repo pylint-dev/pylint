@@ -47,7 +47,8 @@ class _ConfigurationFileParser:
                     # TODO: 3.0: Remove deprecated handling of master, only allow 'pylint.' sections
                     print(
                         "WARNING: The use of 'MASTER' or 'master' as configuration section for pylint "
-                        "has been deprecated. Please use 'pylint.main' instead.",
+                        "has been deprecated, as it's bad practice to not start sections titles with the "
+                        "tool name. Please use 'pylint.main' instead.",
                     )
                 else:
                     continue
