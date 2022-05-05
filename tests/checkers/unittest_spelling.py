@@ -384,7 +384,7 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
                 args=(
                     "attr",
                     full_comment,
-                    "                 ^^^^",
+                    "   ^^^^",
                     self._get_msg_suggestions("attr"),
                 ),
             )
