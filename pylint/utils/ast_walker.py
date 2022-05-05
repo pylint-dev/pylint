@@ -6,15 +6,15 @@ from __future__ import annotations
 
 import traceback
 from collections import defaultdict
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Callable
 
 from astroid import nodes
-
-from pylint.typing import AstCallback
 
 if TYPE_CHECKING:
     from pylint.checkers.base_checker import BaseChecker
     from pylint.lint import PyLinter
+
+AstCallback = Callable[[Any], None]
 
 
 class ASTWalker:
