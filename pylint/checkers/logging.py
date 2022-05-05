@@ -303,6 +303,7 @@ class LoggingChecker(checkers.BaseChecker):
           node (nodes.NodeNG): AST node to be checked.
           format_arg (int): Index of the format string in the node arguments.
         """
+
         num_args = _count_supplied_tokens(node.args[format_arg + 1 :])
         if not num_args:
             # If no args were supplied the string is not interpolated and can contain

@@ -394,8 +394,31 @@ class StringFormatChecker(BaseChecker):
                             args=(arg_type.pytype(), format_type),
                         )
 
-    @only_required_for_messages("f-string-without-interpolation")
+    @only_required_for_messages(
+        "f-string-without-interpolation", "bad-format-character"
+    )
     def visit_joinedstr(self, node: nodes.JoinedStr) -> None:
+        node_string = node.as_string()[2 : len(node.as_string()) - 1]
+        try:
+            contains_formattedvalue = False
+            for value in node.values:
+                if isinstance(value, nodes.FormattedValue):
+                    contains_formattedvalue = True
+                    break
+            if contains_formattedvalue:
+                utils.parse_format_method_string(node_string)
+        except utils.UnsupportedFormatCharacter as exc:
+            formatted = node_string[exc.index]
+            self.add_message(
+                "bad-format-character",
+                node=node,
+                args=(formatted, ord(formatted), exc.index),
+            )
+            return
+        except utils.IncompleteFormatString:
+            self.add_message("bad-format-string", node=node)
+            return
+
         self._check_interpolation(node)
 
     def _check_interpolation(self, node: nodes.JoinedStr) -> None:
@@ -403,7 +426,6 @@ class StringFormatChecker(BaseChecker):
             return
         for value in node.values:
             if isinstance(value, nodes.FormattedValue):
-                print(value.format_spec)
                 return
         self.add_message("f-string-without-interpolation", node=node)
 

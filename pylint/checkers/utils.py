@@ -590,74 +590,122 @@ def collect_string_fields(format_string) -> Iterable[str | None]:
             return
         raise IncompleteFormatString(format_string) from exc
 
+
 def parse_format_spec(format_spec, startPoint):
+    n = len(format_spec)
+    if n == 0:
+        return
+
     def next_char(i):
         i += 1
-        if i == len(format_spec):
-            return (i, "?")
-        return (i, format_spec[i])
-
-    if "{" in format_spec:
-        return
+        if n == i:
+            return (i, "#")
+        else:
+            return (i, format_spec[i])
 
     i = 0
     char = format_spec[0]
-    # Alignment flag
+
+    # Alignment
     align = "<>=^"
-    if len(format_spec) > 1 and format_spec[1] in align:
+    if n > 1 and format_spec[1] in align:
         i, char = next_char(i + 1)
     elif format_spec[0] in align:
         i, char = next_char(i)
+    elif n > 1 and format_spec[1] == "{":
+        end = format_spec[i:].find("}")
+        if end == -1:
+            raise IncompleteFormatString(format_spec)
+        # Parse end of spec
+        if n > i + end + 1:
+            parse_format_spec(format_spec[i + end + 1 :], startPoint + i + end + 1)
+        return
 
-    # Sign display flag
+    # Sign
     sign = "+- "
     if char in sign:
         i, char = next_char(i)
-    
+        if i == n:
+            return
+
     # # Flag
     if char == "#":
         i, char = next_char(i)
-    
+        if i == n:
+            return
+
     # 0 Flag
     if char == "0":
         i, char = next_char(i)
-    
-    # Parse the width (optional).
+        if i == n:
+            return
+
+    # Width (optional).
     while char in string.digits:
         i, char = next_char(i)
+        if i == n:
+            return
 
-    # Parse the grouping option (optional)
+    # Grouping option (optional)
     grouping_options = "_,"
     if char in grouping_options:
         i, char = next_char(i)
+        if i == n:
+            return
 
-    # Parse the precision (optional).
+    # Precision (optional).
     if char == ".":
         i, char = next_char(i)
+        if i == n:
+            return
         if char == "*":
             i, char = next_char(i)
         else:
             while char in string.digits:
                 i, char = next_char(i)
+                if i == n:
+                    return
+        if i == n:
+            return
 
-    # Parse types 
+    # Format Type
     types = "bcdeEfFgGnosxX%"
     if char in types:
-        i,char = next_char(i)
+        i, char = next_char(i)
+        if i == n:
+            return
     else:
         raise UnsupportedFormatCharacter(startPoint + i)
 
+    # We hit a nested field
     if char == "{":
         end = format_spec[i:].find("}")
         if end == -1:
             raise UnsupportedFormatCharacter(startPoint + i)
-        # Parse nested spec
-        parse_format_spec(format_spec[i:i + end], startPoint + i)
-        parse_format_spec(format_spec[i + end + 1:], startPoint + i + end + 1)
+        # Parse end of spec
+        if n > i + end + 1:
+            parse_format_spec(format_spec[i + end + 1 :], startPoint + i + end + 1)
         return
 
+    # We should be at the end of the spec now
     if i < len(format_spec):
-        raise UnsupportedFormatCharacter(startPoint + i)
+        raise IncompleteFormatString(format_spec)
+
+
+def parse_replacement_field(repl_field, startIdx):
+    name_end = len(repl_field)
+    colon_idx = repl_field.find(":")
+    if colon_idx != -1:
+        parse_format_spec(repl_field[colon_idx + 1 :], startIdx + colon_idx + 1)
+        name_end = colon_idx
+
+    if name_end >= 2 and repl_field[name_end - 2] == "!":
+        name_end -= 2
+
+    name = repl_field[:name_end]
+
+    return name
+
 
 def parse_format_method_string(
     format_string: str,
@@ -669,20 +717,20 @@ def parse_format_method_string(
     is the number of arguments required by the format string and
     explicit_pos_args is the number of arguments passed with the position.
     """
-    i = 0
-    while i < len(format_string):
-        char = format_string[i]
-        if char == "{":
-            if i + 1 <= len(format_string) and format_string[i + 1] != "{":
-                start = i + 1
-                end = start + format_string[i:].find("}")
-                format_spec_start = start + format_string[start:end].find(":") + 1
-                format_spec = format_string[format_spec_start:(end - 1)]
-                parse_format_spec(format_spec, format_spec_start)
-                i += len(format_spec)
+
+    idx = 0
+    open_brackets = []
+    while idx < len(format_string):
+        char = format_string[idx]
+        if char == "{" and len(format_string) > idx and format_string[idx + 1] != "{":
+            open_brackets.append(idx)
+        elif char == "}" and len(format_string) > idx and format_string[idx + 1] != "}":
+            if len(open_brackets) == 0:
+                raise IncompleteFormatString(format_string)
             else:
-                i += 1
-        i += 1
+                start = open_brackets.pop() + 1
+                parse_replacement_field(format_string[start:idx], start)
+        idx += 1
 
     keyword_arguments = []
     implicit_pos_args_cnt = 0
@@ -700,6 +748,7 @@ def parse_format_method_string(
                 raise IncompleteFormatString() from e
         else:
             implicit_pos_args_cnt += 1
+
     return keyword_arguments, implicit_pos_args_cnt, len(explicit_pos_args)
 
 
@@ -716,6 +765,7 @@ def is_attr_protected(attrname: str) -> bool:
 
 def node_frame_class(node: nodes.NodeNG) -> nodes.ClassDef | None:
     """Return the class that is wrapping the given node.
+
 
     The function returns a class for a method node (or a staticmethod or a
     classmethod), otherwise it returns `None`.
