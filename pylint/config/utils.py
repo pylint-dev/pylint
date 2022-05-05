@@ -214,7 +214,7 @@ PREPROCESSABLE_OPTIONS: dict[
 
 
 def _preprocess_options(run: Run, args: Sequence[str]) -> list[str]:
-    """Preprocess options before full config parsing has started."""
+    """Pre-process options before full config parsing has started."""
     processed_args: list[str] = []
 
     i = 0

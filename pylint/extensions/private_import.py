@@ -188,7 +188,7 @@ class PrivateImportChecker(BaseChecker):
         node: nodes.Attribute | nodes.Subscript | nodes.Name | None,
         all_used_type_annotations: dict[str, bool],
     ) -> str | None:
-        """Handles the possiblity of an annotation either being a Name, i.e. just type,
+        """Handles the possibility of an annotation either being a Name, i.e. just type,
         or a Subscript e.g. `Optional[type]` or an Attribute, e.g. `pylint.lint.linter`.
         """
         if isinstance(node, nodes.Name) and node.name not in all_used_type_annotations:
@@ -216,7 +216,8 @@ class PrivateImportChecker(BaseChecker):
     ) -> bool:
         """Returns True if no assignments involve accessing `private_name`."""
         if all(not assignment.value for assignment in assignments):
-            # Variable annotated but unassigned is unallowed because there may be a possible illegal access elsewhere
+            # Variable annotated but unassigned is not allowed because there may be
+            # possible illegal access elsewhere
             return False
         for assignment in assignments:
             current_attribute = None

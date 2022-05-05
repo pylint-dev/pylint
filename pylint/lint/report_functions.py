@@ -15,7 +15,7 @@ from pylint.utils import LinterStats
 def report_total_messages_stats(
     sect: Section,
     stats: LinterStats,
-    previous_stats: LinterStats,
+    previous_stats: LinterStats | None,
 ) -> None:
     """Make total errors / warnings report."""
     lines = ["type", "number", "previous", "difference"]
@@ -26,7 +26,7 @@ def report_total_messages_stats(
 def report_messages_stats(
     sect: Section,
     stats: LinterStats,
-    _: LinterStats,
+    _: LinterStats | None,
 ) -> None:
     """Make messages type report."""
     by_msg_stats = stats.by_msg
@@ -45,7 +45,7 @@ def report_messages_stats(
 def report_messages_by_module_stats(
     sect: Section,
     stats: LinterStats,
-    _: LinterStats,
+    _: LinterStats | None,
 ) -> None:
     """Make errors / warnings by modules report."""
     module_stats = stats.by_module

@@ -125,7 +125,7 @@ class DunderCallChecker(BaseChecker):
     since these either have no alternative method of being called or
     have a genuine use case for being called manually.
 
-    Additionally we exclude uninstantiated classes since these
+    Additionally, we exclude classes that are not instantiated since these
     might be used to access the dunder methods of a base class of an instance.
     We also exclude dunder method calls on super() since
     these can't be written in an alternative manner.
@@ -171,7 +171,7 @@ class DunderCallChecker(BaseChecker):
         ):
             inf_expr = safe_infer(node.func.expr)
             if not (inf_expr in {None, Uninferable} or isinstance(inf_expr, Instance)):
-                # Skip dunder calls to uninstantiated classes.
+                # Skip dunder calls to non instantiated classes.
                 return
 
             self.add_message(

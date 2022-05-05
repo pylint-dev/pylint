@@ -14,7 +14,7 @@ def test_prefixed_with_unused(first, unused_second):
 # for Sub.inherited, only the warning for "aay" is desired.
 # The warnings for "aab" and "aac"  are most likely false positives though,
 # because there could be another subclass that overrides the same method and does
-# use the arguments (eg Sub2)
+# use the arguments (e.g. Sub2)
 
 
 class Base(object):

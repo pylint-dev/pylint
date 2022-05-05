@@ -52,6 +52,7 @@ from pylint.reporters.ureports import nodes as report_nodes
 from pylint.typing import (
     FileItem,
     ManagedMessage,
+    MessageDefinitionTuple,
     MessageLocationTuple,
     ModuleDescriptionDict,
     Options,
@@ -99,7 +100,7 @@ def _load_reporter_by_class(reporter_class: str) -> type[BaseReporter]:
 
 # Python Linter class #########################################################
 
-MSGS = {
+MSGS: dict[str, MessageDefinitionTuple] = {
     "F0001": (
         "%s",
         "fatal",
@@ -209,7 +210,7 @@ class PyLinter(
     generation. It is itself both a raw checker and an astroid checker in order
     to:
     * handle message activation / deactivation at the module level
-    * handle some basic but necessary stats'data (number of classes, methods...)
+    * handle some basic but necessary stats' data (number of classes, methods...)
 
     IDE plugin developers: you may have to call
     `astroid.builder.MANAGER.astroid_cache.clear()` across runs if you want
@@ -234,7 +235,6 @@ class PyLinter(
         options: Options = (),
         reporter: reporters.BaseReporter | reporters.MultiReporter | None = None,
         option_groups: tuple[tuple[str, str], ...] = (),
-        # pylint: disable-next=fixme
         # TODO: Deprecate passing the pylintrc parameter
         pylintrc: str | None = None,  # pylint: disable=unused-argument
     ) -> None:
@@ -313,7 +313,7 @@ class PyLinter(
 
     @property
     def option_groups(self) -> tuple[tuple[str, str], ...]:
-        # TODO: 3.0: Remove deprecated attribute # pylint: disable=fixme
+        # TODO: 3.0: Remove deprecated attribute
         warnings.warn(
             "The option_groups attribute has been deprecated and will be removed in pylint 3.0",
             DeprecationWarning,
@@ -673,7 +673,7 @@ class PyLinter(
 
     @staticmethod
     def _discover_files(files_or_modules: Sequence[str]) -> Iterator[str]:
-        """Discover python modules and packages in subdirectory.
+        """Discover python modules and packages in sub-directory.
 
         Returns iterator of paths to discovered modules and packages.
         """
@@ -705,7 +705,6 @@ class PyLinter(
         """
         self.initialize()
         if not isinstance(files_or_modules, (list, tuple)):
-            # pylint: disable-next=fixme
             # TODO: 3.0: Remove deprecated typing and update docstring
             warnings.warn(
                 "In pylint 3.0, the checkers check function will only accept sequence of string",
@@ -864,13 +863,13 @@ class PyLinter(
         self, modname: str | None, filepath: str | None = None
     ) -> None:
         """Set the name of the currently analyzed module and
-        init statistics for it
+        init statistics for it.
         """
         if not modname and filepath is None:
             return
         self.reporter.on_set_current_module(modname or "", filepath)
         if modname is None:
-            # TODO: 3.0: Remove all modname or ""'s in this method # pylint: disable=fixme
+            # TODO: 3.0: Remove all modname or ""'s in this method
             warnings.warn(
                 (
                     "In pylint 3.0 modname should be a string so that it can be used to "
@@ -898,7 +897,7 @@ class PyLinter(
             for c in _checkers
             if isinstance(c, checkers.BaseTokenChecker) and c is not self
         ]
-        # TODO: 3.0: Remove deprecated for-loop # pylint: disable=fixme
+        # TODO: 3.0: Remove deprecated for-loop
         for c in _checkers:
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -917,7 +916,7 @@ class PyLinter(
         rawcheckers = [
             c for c in _checkers if isinstance(c, checkers.BaseRawFileChecker)
         ]
-        # TODO: 3.0: Remove deprecated if-statement # pylint: disable=fixme
+        # TODO: 3.0: Remove deprecated if-statement
         for c in _checkers:
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -1005,7 +1004,7 @@ class PyLinter(
             ast_node, walker, rawcheckers, tokencheckers
         )
 
-        # TODO: 3.0: Remove unnecessary assertion # pylint: disable=fixme
+        # TODO: 3.0: Remove unnecessary assertion
         assert self.current_name
 
         self.stats.by_module[self.current_name]["statement"] = (
@@ -1231,7 +1230,7 @@ class PyLinter(
         end_col_offset: int | None,
     ) -> None:
         """After various checks have passed a single Message is
-        passed to the reporter and added to stats
+        passed to the reporter and added to stats.
         """
         message_definition.check_message_definition(line, node)
 

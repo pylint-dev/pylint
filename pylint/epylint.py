@@ -7,7 +7,7 @@
 
 """Emacs and Flymake compatible Pylint.
 
-This script is for integration with emacs and is compatible with flymake mode.
+This script is for integration with Emacs and is compatible with Flymake mode.
 
 epylint walks out of python packages before invoking pylint. This avoids
 reporting import errors that occur when a module within a package uses the
@@ -29,7 +29,7 @@ For example:
 
        pylint a/c/y.py
 
-   - As this script will be invoked by emacs within the directory of the file
+   - As this script will be invoked by Emacs within the directory of the file
      we are checking we need to go out of it to avoid these false positives.
 
 
@@ -65,7 +65,7 @@ def _get_env() -> dict[str, str]:
 def lint(filename: str, options: Sequence[str] = ()) -> int:
     """Pylint the given file.
 
-    When run from emacs we will be in the directory of a file, and passed its
+    When run from Emacs we will be in the directory of a file, and passed its
     filename.  If this file is part of a package and is trying to import other
     modules from within its own package or another package rooted in a directory
     below it, pylint will classify it as a failed import.
@@ -125,10 +125,10 @@ def lint(filename: str, options: Sequence[str] = ()) -> int:
 
 @overload
 def py_run(
-    command_options: str = "",
-    return_std: Literal[False] = False,
-    stdout: TextIO | int | None = None,
-    stderr: TextIO | int | None = None,
+    command_options: str = ...,
+    return_std: Literal[False] = ...,
+    stdout: TextIO | int | None = ...,
+    stderr: TextIO | int | None = ...,
 ) -> None:
     ...
 
@@ -137,8 +137,8 @@ def py_run(
 def py_run(
     command_options: str,
     return_std: Literal[True],
-    stdout: TextIO | int | None = None,
-    stderr: TextIO | int | None = None,
+    stdout: TextIO | int | None = ...,
+    stderr: TextIO | int | None = ...,
 ) -> tuple[StringIO, StringIO]:
     ...
 
@@ -182,7 +182,7 @@ def py_run(
         stdout = PIPE if return_std else sys.stdout
     if stderr is None:
         stderr = PIPE if return_std else sys.stderr
-    # Call pylint in a subprocess
+    # Call pylint in a sub-process
     with Popen(
         cli,
         shell=False,

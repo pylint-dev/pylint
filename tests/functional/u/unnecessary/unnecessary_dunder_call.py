@@ -109,7 +109,7 @@ class Base:
 my_instance_name = x.__class__.__name__
 my_pkg_version = pkg.__version__
 
-# Allow use of dunder methods on uninstantiated classes
+# Allow use of dunder methods on non instantiated classes
 MANUAL_SELF = int.__add__(1, 1)
 MY_DICT = {"a": 1, "b": 2}
 dict.__setitem__(MY_DICT, "key", "value")

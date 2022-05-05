@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
 OPEN_FILES_MODE = ("open", "file")
-OPEN_FILES_ENCODING = ("open", "read_text", "write_text")
+OPEN_FILES_FUNCS = OPEN_FILES_MODE + ("read_text", "write_text")
 UNITTEST_CASE = "unittest.case"
 THREADING_THREAD = "threading.Thread"
 COPY_COPY = "copy.copy"
@@ -144,6 +144,7 @@ DEPRECATED_METHODS: dict = {
             "ntpath.splitunc",
             "os.path.splitunc",
             "os.stat_float_times",
+            "turtle.RawTurtle.settiltangle",
         },
         (3, 2, 0): {
             "cgi.escape",
@@ -232,11 +233,23 @@ DEPRECATED_METHODS: dict = {
             "threading.Thread.setDaemon",
             "cgi.log",
         },
+        (3, 11, 0): {
+            "locale.getdefaultlocale",
+            "unittest.TestLoader.findTestCases",
+            "unittest.TestLoader.loadTestsFromTestCase",
+            "unittest.TestLoader.getTestCaseNames",
+        },
     },
 }
 
 
 DEPRECATED_CLASSES = {
+    (3, 2, 0): {
+        "configparser": {
+            "LegacyInterpolation",
+            "SafeConfigParser",
+        },
+    },
     (3, 3, 0): {
         "importlib.abc": {
             "Finder",
@@ -277,6 +290,11 @@ DEPRECATED_CLASSES = {
         "smtpd": {
             "MailmanProxy",
         }
+    },
+    (3, 11, 0): {
+        "webbrowser": {
+            "MacOSX",
+        },
     },
 }
 
@@ -505,18 +523,13 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             if inferred is astroid.Uninferable:
                 continue
             if inferred.root().name in OPEN_MODULE:
-                if (
-                    isinstance(node.func, nodes.Name)
-                    and node.func.name in OPEN_FILES_MODE
-                ):
-                    self._check_open_mode(node)
-                if (
-                    isinstance(node.func, nodes.Name)
-                    and node.func.name in OPEN_FILES_ENCODING
-                    or isinstance(node.func, nodes.Attribute)
-                    and node.func.attrname in OPEN_FILES_ENCODING
-                ):
-                    self._check_open_encoded(node, inferred.root().name)
+                open_func_name: str | None = None
+                if isinstance(node.func, nodes.Name):
+                    open_func_name = node.func.name
+                if isinstance(node.func, nodes.Attribute):
+                    open_func_name = node.func.attrname
+                if open_func_name in OPEN_FILES_FUNCS:
+                    self._check_open_call(node, inferred.root().name, open_func_name)
             elif inferred.root().name == UNITTEST_CASE:
                 self._check_redundant_assert(node, inferred)
             elif isinstance(inferred, nodes.ClassDef):
@@ -621,25 +634,10 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         ):
             self.add_message("boolean-datetime", node=node)
 
-    def _check_open_mode(self, node: nodes.Call):
-        """Check that the mode argument of an open or file call is valid."""
-        try:
-            mode_arg = utils.get_argument_from_call(node, position=1, keyword="mode")
-        except utils.NoSuchArgumentError:
-            return
-        if mode_arg:
-            mode_arg = utils.safe_infer(mode_arg)
-            if isinstance(mode_arg, nodes.Const) and not _check_mode_str(
-                mode_arg.value
-            ):
-                self.add_message(
-                    "bad-open-mode",
-                    node=node,
-                    args=mode_arg.value or str(mode_arg.value),
-                )
-
-    def _check_open_encoded(self, node: nodes.Call, open_module: str) -> None:
-        """Check that the encoded argument of an open call is valid."""
+    def _check_open_call(
+        self, node: nodes.Call, open_module: str, func_name: str
+    ) -> None:
+        """Various checks for an open call."""
         mode_arg = None
         try:
             if open_module == "_io":
@@ -655,6 +653,17 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
 
         if mode_arg:
             mode_arg = utils.safe_infer(mode_arg)
+
+            if (
+                func_name in OPEN_FILES_MODE
+                and isinstance(mode_arg, nodes.Const)
+                and not _check_mode_str(mode_arg.value)
+            ):
+                self.add_message(
+                    "bad-open-mode",
+                    node=node,
+                    args=mode_arg.value or str(mode_arg.value),
+                )
 
         if (
             not mode_arg

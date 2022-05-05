@@ -141,6 +141,7 @@ contributors:
   * Added new useless-return checker,
   * Added new try-except-raise checker
 - Téo Bouvard <teobouvard@gmail.com>
+- Tim Martin <tim@asymptotic.co.uk>
 - Mihai Balint <balint.mihai@gmail.com>
 - Mark Bell <mark00bell@googlemail.com>
 - Konstantina Saketou <56515303+ksaketou@users.noreply.github.com>
@@ -153,7 +154,6 @@ contributors:
 - Aru Sahni <arusahni@gmail.com>: Git ignoring, regex-based ignores
 - Andreas Freimuth <andreas.freimuth@united-bits.de>: fix indentation checking with tabs
 - Alexandru Coman <fcoman@bitdefender.com>
-- Tim Martin <tim@asymptotic.co.uk>
 - Takahide Nojima <nozzy123nozzy@gmail.com>
 - Taewon D. Kim <kimt33@mcmaster.ca>
 - Sneaky Pete <sneakypete81@gmail.com>
@@ -360,7 +360,7 @@ contributors:
 - Renat Galimov <renat2017@gmail.com>
 - Rebecca Turner <rbt@sent.as> (9999years)
 - Randall Leeds <randall@bleeds.info>
-- Ramiro Leal-Cavazos <ramiroleal050@gmail.com> (ramiro050): Fixed bug preventing pylint from working with emacs tramp
+- Ramiro Leal-Cavazos <ramiroleal050@gmail.com> (ramiro050): Fixed bug preventing pylint from working with Emacs tramp
 - Qwiddle13 <32040075+Qwiddle13@users.noreply.github.com>
 - Quentin Young <qlyoung@users.noreply.github.com>
 - Petr Pulc <petrpulc@gmail.com>: require whitespace around annotations
@@ -439,6 +439,7 @@ contributors:
 - Jacques Kvam <jwkvam@gmail.com>
 - Jace Browning <jacebrowning@gmail.com>: updated default report format with clickable paths
 - JT Olds <jtolds@xnet5.com>
+- Huw Jones <huw@huwcbjones.co.uk> (huwcbjones)
 - Hayden Richards <62866982+SupImDos@users.noreply.github.com> (SupImDos)
   * Fixed "no-self-use" for async methods
   * Fixed "docparams" extension for async functions and methods

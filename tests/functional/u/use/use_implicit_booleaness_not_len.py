@@ -35,7 +35,8 @@ if z and len('TEST') == 0:  # Should be fine
 if 0 == len('TEST') < 10:  # Should be fine
     pass
 
-if 0 < 1 <= len('TEST') < 10:  # Should be fine
+# Should be fine
+if 0 < 1 <= len('TEST') < 10:  # [comparison-of-constants]
     pass
 
 if 10 > len('TEST') != 0:  # Should be fine

@@ -11,7 +11,7 @@ from pylint import constants
 
 
 class NamingStyle:
-    """It may seem counterintuitive that single naming style has multiple "accepted"
+    """It may seem counter-intuitive that single naming style has multiple "accepted"
     forms of regular expressions, but we need to special-case stuff like dunder names in method names.
     """
 

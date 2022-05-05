@@ -193,7 +193,7 @@ OPTIONS: Options = (
         "output-directory",
         dict(
             default="",
-            type="string",
+            type="path",
             short="d",
             action="store",
             metavar="<output_directory>",

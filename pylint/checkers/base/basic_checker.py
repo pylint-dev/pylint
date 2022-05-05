@@ -342,7 +342,7 @@ class BasicChecker(_BasicChecker):
 
     def visit_classdef(self, _: nodes.ClassDef) -> None:
         """Check module name, docstring and redefinition
-        increment branch counter
+        increment branch counter.
         """
         self.linter.stats.node_count["klass"] += 1
 
@@ -481,7 +481,7 @@ class BasicChecker(_BasicChecker):
     @utils.only_required_for_messages("dangerous-default-value")
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         """Check function name, docstring, arguments, redefinition,
-        variable names, max locals
+        variable names, max locals.
         """
         if node.is_method():
             self.linter.stats.node_count["method"] += 1
@@ -547,7 +547,7 @@ class BasicChecker(_BasicChecker):
     @utils.only_required_for_messages("unreachable")
     def visit_continue(self, node: nodes.Continue) -> None:
         """Check is the node has a right sibling (if so, that's some unreachable
-        code)
+        code).
         """
         self._check_unreachable(node)
 
@@ -568,7 +568,7 @@ class BasicChecker(_BasicChecker):
     @utils.only_required_for_messages("unreachable")
     def visit_raise(self, node: nodes.Raise) -> None:
         """Check if the node has a right sibling (if so, that's some unreachable
-        code)
+        code).
         """
         self._check_unreachable(node)
 
@@ -598,7 +598,7 @@ class BasicChecker(_BasicChecker):
     )
     def visit_call(self, node: nodes.Call) -> None:
         """Visit a Call node -> check if this is not a disallowed builtin
-        call and check for * or ** use
+        call and check for * or ** use.
         """
         self._check_misplaced_format_function(node)
         if isinstance(node.func, nodes.Name):
@@ -730,7 +730,7 @@ class BasicChecker(_BasicChecker):
             if isinstance(argument, (nodes.List, nodes.Tuple)):
                 return
 
-            # dicts are reversible, but only from Python 3.8 onwards. Prior to
+            # dicts are reversible, but only from Python 3.8 onward. Prior to
             # that, any class based on dict must explicitly provide a
             # __reversed__ method
             if not self._py38_plus and isinstance(argument, astroid.Instance):

@@ -7,7 +7,7 @@ Any solution should not change the behavior of
 """
 # flake8: noqa
 # pylint: disable=missing-docstring,pointless-statement,expression-not-assigned
-# pylint: disable=too-few-public-methods,multiple-statements,line-too-long
+# pylint: disable=too-few-public-methods,multiple-statements,line-too-long, unnecessary-lambda-assignment
 from abc import ABCMeta, abstractmethod
 import typing
 

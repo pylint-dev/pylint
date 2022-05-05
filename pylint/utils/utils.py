@@ -107,7 +107,7 @@ def cmp(a: int | float, b: int | float) -> int:
 
 def diff_string(old: int | float, new: int | float) -> str:
     """Given an old and new int value, return a string representing the
-    difference
+    difference.
     """
     diff = abs(old - new)
     diff_str = f"{CMPS[cmp(old, new)]}{diff and f'{diff:.2f}' or ''}"
@@ -181,7 +181,7 @@ def tokenize_module(node: nodes.Module) -> list[tokenize.TokenInfo]:
 
 def register_plugins(linter: PyLinter, directory: str) -> None:
     """Load all module and package in the given directory, looking for a
-    'register' function in each one, used to register pylint checkers
+    'register' function in each one, used to register pylint checkers.
     """
     imported = {}
     for filename in os.listdir(directory):
@@ -202,7 +202,7 @@ def register_plugins(linter: PyLinter, directory: str) -> None:
                     os.path.join(directory, filename)
                 )
             except ValueError:
-                # empty module name (usually emacs auto-save files)
+                # empty module name (usually Emacs auto-save files)
                 continue
             except ImportError as exc:
                 print(f"Problem importing module {filename}: {exc}", file=sys.stderr)
@@ -214,14 +214,14 @@ def register_plugins(linter: PyLinter, directory: str) -> None:
 
 @overload
 def get_global_option(
-    checker: BaseChecker, option: GLOBAL_OPTION_BOOL, default: bool | None = None
+    checker: BaseChecker, option: GLOBAL_OPTION_BOOL, default: bool | None = ...
 ) -> bool:
     ...
 
 
 @overload
 def get_global_option(
-    checker: BaseChecker, option: GLOBAL_OPTION_INT, default: int | None = None
+    checker: BaseChecker, option: GLOBAL_OPTION_INT, default: int | None = ...
 ) -> int:
     ...
 
@@ -230,7 +230,7 @@ def get_global_option(
 def get_global_option(
     checker: BaseChecker,
     option: GLOBAL_OPTION_LIST,
-    default: list[str] | None = None,
+    default: list[str] | None = ...,
 ) -> list[str]:
     ...
 
@@ -239,7 +239,7 @@ def get_global_option(
 def get_global_option(
     checker: BaseChecker,
     option: GLOBAL_OPTION_PATTERN,
-    default: Pattern[str] | None = None,
+    default: Pattern[str] | None = ...,
 ) -> Pattern[str]:
     ...
 
@@ -248,7 +248,7 @@ def get_global_option(
 def get_global_option(
     checker: BaseChecker,
     option: GLOBAL_OPTION_PATTERN_LIST,
-    default: list[Pattern[str]] | None = None,
+    default: list[Pattern[str]] | None = ...,
 ) -> list[Pattern[str]]:
     ...
 
@@ -257,7 +257,7 @@ def get_global_option(
 def get_global_option(
     checker: BaseChecker,
     option: GLOBAL_OPTION_TUPLE_INT,
-    default: tuple[int, ...] | None = None,
+    default: tuple[int, ...] | None = ...,
 ) -> tuple[int, ...]:
     ...
 

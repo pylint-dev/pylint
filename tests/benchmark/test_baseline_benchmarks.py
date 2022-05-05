@@ -15,8 +15,9 @@ import pytest
 from astroid import nodes
 
 from pylint.checkers import BaseRawFileChecker
-from pylint.lint import PyLinter, Run, check_parallel
+from pylint.lint import PyLinter, check_parallel
 from pylint.testutils import GenericTestReporter as Reporter
+from pylint.testutils._run import _Run as Run
 from pylint.typing import FileItem
 from pylint.utils import register_plugins
 
@@ -302,14 +303,9 @@ class TestEstablishBaselineBenchmarks:
         ), f"Expected no errors to be thrown: {pprint.pformat(linter.reporter.messages)}"
 
     def test_baseline_benchmark_j1_all_checks_single_file(self, benchmark):
-        """Runs a single file, with -j1, against all plug-ins.
-
-        ... that's the intent at least.
-        """
-        # Just 1 file, but all Checkers/Extensions
-        fileinfos = [self.empty_filepath]
-
-        runner = benchmark(Run, fileinfos, reporter=Reporter(), exit=False)
+        """Runs a single file, with -j1, against all checkers/Extensions."""
+        args = [self.empty_filepath, "--enable=all", "--enable-all-extensions"]
+        runner = benchmark(Run, args, reporter=Reporter(), exit=False)
         assert runner.linter.config.jobs == 1
         print("len(runner.linter._checkers)", len(runner.linter._checkers))
         assert len(runner.linter._checkers) > 1, "Should have more than 'master'"

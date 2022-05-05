@@ -194,7 +194,6 @@ All messages in the warning category:
    warning/arguments-renamed.rst
    warning/assert-on-string-literal.rst
    warning/assert-on-tuple.rst
-   warning/assign-to-new-keyword.rst
    warning/attribute-defined-outside-init.rst
    warning/bad-builtin.rst
    warning/bad-format-string.rst

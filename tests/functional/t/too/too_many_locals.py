@@ -58,3 +58,27 @@ def ignored_arguments_function(arga, argu, argi,
     if _args:
         arg9 += sum(_args)
     return arg9
+
+def ignored_locals_function():
+    """pylint will ignore '_' (an underscore) as a local variable.
+
+    Consequently pylint will only count 15 local variables.
+    """
+
+    args0 = 0
+    args1 = args0 * 1
+    args2 = args1 * 2
+    args3 = args2 * 3
+    args4 = args3 * 4
+    args5 = args4 * 5
+    args6 = args5 * 6
+    args7 = args6 * 7
+    args8 = args7 * 8
+    args9 = args8 * 9
+    args10 = args9 * 10
+    args11 = args10 * 11
+    args12 = args11 * 12
+    args13 = args12 * 13
+    args14 = args13 * 14
+    _ = args14 * 15
+    return args14

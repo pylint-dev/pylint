@@ -2,7 +2,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-"""Functions to generate files readable with Georg Sander's vcg
+"""Functions to generate files readable with George Sander's vcg
 (Visualization of Compiler Graphs).
 
 You can download vcg at https://rw4.cs.uni-sb.de/~sander/html/gshome.html

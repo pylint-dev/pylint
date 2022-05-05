@@ -17,6 +17,7 @@ from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import only_required_for_messages
+from pylint.typing import MessageDefinitionTuple
 
 if sys.version_info >= (3, 8):
     from functools import cached_property
@@ -26,7 +27,9 @@ else:
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
-MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
+MSGS: dict[
+    str, MessageDefinitionTuple
+] = {  # pylint: disable=consider-using-namedtuple-or-dataclass
     "R0901": (
         "Too many ancestors (%s/%s)",
         "too-many-ancestors",
@@ -508,7 +511,7 @@ class MisdesignChecker(BaseChecker):
     )
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         """Check function name, docstring, arguments, redefinition,
-        variable names, max locals
+        variable names, max locals.
         """
         # init branch and returns counters
         self._returns.append(0)
@@ -533,6 +536,11 @@ class MisdesignChecker(BaseChecker):
             ignored_args_num = 0
         # check number of local variables
         locnum = len(node.locals) - ignored_args_num
+
+        # decrement number of local variables if '_' is one of them
+        if "_" in node.locals:
+            locnum -= 1
+
         if locnum > self.linter.config.max_locals:
             self.add_message(
                 "too-many-locals",
@@ -553,7 +561,7 @@ class MisdesignChecker(BaseChecker):
     )
     def leave_functiondef(self, node: nodes.FunctionDef) -> None:
         """Most of the work is done here on close:
-        checks for max returns, branch, return in __init__
+        checks for max returns, branch, return in __init__.
         """
         returns = self._returns.pop()
         if returns > self.linter.config.max_returns:
@@ -588,7 +596,7 @@ class MisdesignChecker(BaseChecker):
 
     def visit_default(self, node: nodes.NodeNG) -> None:
         """Default visit method -> increments the statements counter if
-        necessary
+        necessary.
         """
         if node.is_statement:
             self._inc_all_stmts(1)
@@ -621,7 +629,7 @@ class MisdesignChecker(BaseChecker):
 
     def _check_boolean_expressions(self, node):
         """Go through "if" node `node` and count its boolean expressions
-        if the 'if' node test is a BoolOp node
+        if the 'if' node test is a BoolOp node.
         """
         condition = node.test
         if not isinstance(condition, astroid.BoolOp):

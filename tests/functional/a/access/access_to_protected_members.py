@@ -85,9 +85,9 @@ class Issue1802(object):
         Test a correct access as the access to protected member
         is inside a special method even if it is deeply nested
         """
-        if 2 > 1:
+        if 2 > 1:  # pylint: disable=comparison-of-constants
             if isinstance(other, self.__class__):
-                if "answer" == "42":
+                if "answer" == "42":  # pylint: disable=comparison-of-constants
                     return self._foo == other._foo
         return False
 

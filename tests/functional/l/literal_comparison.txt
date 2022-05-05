@@ -1,5 +1,8 @@
+comparison-of-constants:4:3:4:9::"Comparison between constants: '2 is 2' has a constant value":HIGH
 literal-comparison:4:3:4:9::Comparison to literal:UNDEFINED
+comparison-of-constants:7:3:7:14::"Comparison between constants: 'a is b'a'' has a constant value":HIGH
 literal-comparison:7:3:7:14::Comparison to literal:UNDEFINED
+comparison-of-constants:10:3:10:13::"Comparison between constants: '2.0 is 3.0' has a constant value":HIGH
 literal-comparison:10:3:10:13::Comparison to literal:UNDEFINED
 literal-comparison:16:3:16:19::Comparison to literal:UNDEFINED
 literal-comparison:19:3:19:18::Comparison to literal:UNDEFINED

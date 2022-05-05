@@ -102,7 +102,9 @@ def gen_tests(filter_rgx):
     if filter_rgx:
         is_to_run = re.compile(filter_rgx).search
     else:
-        is_to_run = lambda x: 1  # noqa: E731 We're going to throw all this anyway
+        is_to_run = (
+            lambda x: 1  # pylint: disable=unnecessary-lambda-assignment
+        )  # noqa: E731 We're going to throw all this anyway
     tests = []
     for module_file, messages_file in _get_tests_info(INPUT_DIR, MSG_DIR, "func_", ""):
         if not is_to_run(module_file) or module_file.endswith((".pyc", "$py.class")):

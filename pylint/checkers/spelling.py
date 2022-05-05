@@ -6,7 +6,6 @@
 
 from __future__ import annotations
 
-import os
 import re
 import tokenize
 from re import Pattern
@@ -107,7 +106,7 @@ class CamelCasedWord(RegExFilter):
 
     That is, any words that are camelCasedWords.
     """
-    _pattern = re.compile(r"^([a-z]+([\d]|[A-Z])(?:\w+)?)")
+    _pattern = re.compile(r"^([a-z]+(\d|[A-Z])(?:\w+)?)")
 
 
 class SphinxDirectives(RegExFilter):
@@ -133,7 +132,7 @@ class ForwardSlashChunker(Chunker):
                 text = self._text
                 self._offset = 0
                 self._text = ""
-                return (text, 0)
+                return text, 0
             pre_text, post_text = self._text.split("/", 1)
             self._text = post_text
             self._offset = 0
@@ -145,13 +144,13 @@ class ForwardSlashChunker(Chunker):
             ):
                 self._text = ""
                 self._offset = 0
-                return (pre_text + "/" + post_text, 0)
-            return (pre_text, 0)
+                return f"{pre_text}/{post_text}", 0
+            return pre_text, 0
 
     def _next(self):
         while True:
             if "/" not in self._text:
-                return (self._text, 0)
+                return self._text, 0
             pre_text, post_text = self._text.split("/", 1)
             if not pre_text or not post_text:
                 break
@@ -165,9 +164,9 @@ CODE_FLANKED_IN_BACKTICK_REGEX = re.compile(r"(\s|^)(`{1,2})([^`]+)(\2)([^`]|$)"
 
 
 def _strip_code_flanked_in_backticks(line: str) -> str:
-    """Alter line so code flanked in backticks is ignored.
+    """Alter line so code flanked in back-ticks is ignored.
 
-    Pyenchant automatically strips backticks when parsing tokens,
+    Pyenchant automatically strips back-ticks when parsing tokens,
     so this cannot be done at the individual filter level.
     """
 
@@ -227,7 +226,7 @@ class SpellingChecker(BaseTokenChecker):
             "spelling-private-dict-file",
             {
                 "default": "",
-                "type": "string",
+                "type": "path",
                 "metavar": "<path to file>",
                 "help": "A path to a file that contains the private "
                 "dictionary; one word per line.",
@@ -260,15 +259,15 @@ class SpellingChecker(BaseTokenChecker):
                 "default": "fmt: on,fmt: off,noqa:,noqa,nosec,isort:skip,mypy:",
                 "type": "string",
                 "metavar": "<comma separated words>",
-                "help": "List of comma separated words that should be considered directives if they appear and the beginning of a comment and should not be checked.",
+                "help": "List of comma separated words that should be considered "
+                "directives if they appear at the beginning of a comment "
+                "and should not be checked.",
             },
         ),
     )
 
-    def open(self):
+    def open(self) -> None:
         self.initialized = False
-        self.private_dict_file = None
-
         if enchant is None:
             return
         dict_name = self.linter.config.spelling_dict
@@ -287,24 +286,15 @@ class SpellingChecker(BaseTokenChecker):
             for w in self.linter.config.spelling_ignore_comment_directives.split(",")
         ]
 
-        # Expand tilde to allow e.g. spelling-private-dict-file = ~/.pylintdict
-        if self.linter.config.spelling_private_dict_file:
-            self.linter.config.spelling_private_dict_file = os.path.expanduser(
-                self.linter.config.spelling_private_dict_file
-            )
-
         if self.linter.config.spelling_private_dict_file:
             self.spelling_dict = enchant.DictWithPWL(
                 dict_name, self.linter.config.spelling_private_dict_file
-            )
-            self.private_dict_file = open(  # pylint: disable=consider-using-with
-                self.linter.config.spelling_private_dict_file, "a", encoding="utf-8"
             )
         else:
             self.spelling_dict = enchant.Dict(dict_name)
 
         if self.linter.config.spelling_store_unknown_words:
-            self.unknown_words = set()
+            self.unknown_words: set[str] = set()
 
         self.tokenizer = get_tokenizer(
             dict_name,
@@ -321,14 +311,11 @@ class SpellingChecker(BaseTokenChecker):
         )
         self.initialized = True
 
-    def close(self):
-        if self.private_dict_file:
-            self.private_dict_file.close()
-
-    def _check_spelling(self, msgid, line, line_num):
+    def _check_spelling(self, msgid: str, line: str, line_num: int) -> None:
         original_line = line
         try:
-            initial_space = re.search(r"^[^\S]\s*", line).regs[0][1]
+            # The mypy warning is caught by the except statement
+            initial_space = re.search(r"^\s+", line).regs[0][1]  # type: ignore[union-attr]
         except (IndexError, AttributeError):
             initial_space = 0
         if line.strip().startswith("#") and "docstring" not in msgid:
@@ -379,7 +366,12 @@ class SpellingChecker(BaseTokenChecker):
             # Store word to private dict or raise a message.
             if self.linter.config.spelling_store_unknown_words:
                 if lower_cased_word not in self.unknown_words:
-                    self.private_dict_file.write(f"{lower_cased_word}\n")
+                    with open(
+                        self.linter.config.spelling_private_dict_file,
+                        "a",
+                        encoding="utf-8",
+                    ) as f:
+                        f.write(f"{lower_cased_word}\n")
                     self.unknown_words.add(lower_cased_word)
             else:
                 # Present up to N suggestions.
@@ -428,14 +420,22 @@ class SpellingChecker(BaseTokenChecker):
         self._check_docstring(node)
 
     @only_required_for_messages("wrong-spelling-in-docstring")
-    def visit_functiondef(self, node: nodes.FunctionDef) -> None:
+    def visit_functiondef(
+        self, node: nodes.FunctionDef | nodes.AsyncFunctionDef
+    ) -> None:
         if not self.initialized:
             return
         self._check_docstring(node)
 
     visit_asyncfunctiondef = visit_functiondef
 
-    def _check_docstring(self, node):
+    def _check_docstring(
+        self,
+        node: nodes.FunctionDef
+        | nodes.AsyncFunctionDef
+        | nodes.ClassDef
+        | nodes.Module,
+    ) -> None:
         """Check the node has any spelling errors."""
         if not node.doc_node:
             return

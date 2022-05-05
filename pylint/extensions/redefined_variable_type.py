@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 class MultipleTypesChecker(BaseChecker):
-    """Checks for variable type redefinitions (NoneType excepted).
+    """Checks for variable type redefinition (NoneType excepted).
 
     At a function, method, class or module scope
 

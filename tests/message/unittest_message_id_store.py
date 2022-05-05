@@ -9,10 +9,10 @@ from pathlib import Path
 
 import pytest
 
-from pylint import lint
 from pylint.exceptions import InvalidMessageError, UnknownMessageError
 from pylint.message.message_definition import MessageDefinition
 from pylint.message.message_id_store import MessageIdStore
+from pylint.testutils._run import _Run as Run
 
 EMPTY_FILE = str(Path(__file__).parent.parent.resolve() / "regrtest_data" / "empty.py")
 
@@ -104,15 +104,11 @@ def test_exclusivity_of_msgids() -> None:
     err_msg = (
         "{} has the same prefix ('{}') as the '{}' checker. Please make sure the prefix "
         "is unique for each checker. You can use 'script/get_unused_message_id_category.py' "
-        "to get an unique id."
+        "to get a unique id."
     )
+    runner = Run(["--enable-all-extensions", EMPTY_FILE], exit=False)
 
-    runner = lint.Run(
-        ["--enable-all-extensions", EMPTY_FILE],
-        exit=False,
-    )
-
-    # Some pairs are hard-coded as they are pre-existing and non-exclusive
+    # Some pairs are hard-coded as they are pre-existing and non-exclusive,
     # and we don't want to rename them for backwards compatibility
     checker_id_pairs = {
         "00": ("master", "miscellaneous"),

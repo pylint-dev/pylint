@@ -172,7 +172,7 @@ class Option(optparse.Option):
     TYPE_CHECKER["py_version"] = _py_version_validator
 
     def __init__(self, *opts, **attrs):
-        # TODO: 3.0: Remove deprecated class # pylint: disable=fixme
+        # TODO: 3.0: Remove deprecated class
         warnings.warn(
             "Option has been deprecated and will be removed in pylint 3.0",
             DeprecationWarning,

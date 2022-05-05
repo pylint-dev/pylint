@@ -15,7 +15,7 @@ class MyAstroidChecker(BaseChecker):
 
     # The name defines a custom section of the config for this checker.
     name = "custom"
-    # This class variable declares the messages (ie the warnings and errors)
+    # This class variable declares the messages (i.e. the warnings and errors)
     # that the checker can emit.
     msgs = {
         # Each message has a code, a message that the user will see,

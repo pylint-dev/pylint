@@ -44,7 +44,7 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
 
     @set_config(callbacks=("callback_", "_callback"))
     def test_custom_callback_string(self) -> None:
-        """Test the --calbacks option works."""
+        """Test the --callbacks option works."""
         node = astroid.extract_node(
             """
         def callback_one(abc):

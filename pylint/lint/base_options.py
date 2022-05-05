@@ -58,7 +58,7 @@ def _make_linter_options(linter: PyLinter) -> Options:
                 "default": (re.compile(r"^\.#"),),
                 "help": "Files or directories matching the regex patterns are"
                 " skipped. The regex matches against base names, not paths. The default value "
-                "ignores emacs file locks",
+                "ignores Emacs file locks",
             },
         ),
         (

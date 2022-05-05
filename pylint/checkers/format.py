@@ -27,14 +27,13 @@ from pylint.checkers.utils import (
     only_required_for_messages,
 )
 from pylint.constants import WarningScope
+from pylint.typing import MessageDefinitionTuple
 from pylint.utils.pragma_parser import OPTION_PO, PragmaParserError, parse_pragma
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
-
-_ASYNC_TOKEN = "async"
-_KEYWORD_TOKENS = [
+_KEYWORD_TOKENS = {
     "assert",
     "del",
     "elif",
@@ -48,42 +47,11 @@ _KEYWORD_TOKENS = [
     "while",
     "yield",
     "with",
-]
+}
+_JUNK_TOKENS = {tokenize.COMMENT, tokenize.NL}
 
-_SPACED_OPERATORS = [
-    "==",
-    "<",
-    ">",
-    "!=",
-    "<>",
-    "<=",
-    ">=",
-    "+=",
-    "-=",
-    "*=",
-    "**=",
-    "/=",
-    "//=",
-    "&=",
-    "|=",
-    "^=",
-    "%=",
-    ">>=",
-    "<<=",
-]
-_OPENING_BRACKETS = ["(", "[", "{"]
-_CLOSING_BRACKETS = [")", "]", "}"]
-_TAB_LENGTH = 8
 
-_EOL = frozenset([tokenize.NEWLINE, tokenize.NL, tokenize.COMMENT])
-_JUNK_TOKENS = (tokenize.COMMENT, tokenize.NL)
-
-# Whitespace checking policy constants
-_MUST = 0
-_MUST_NOT = 1
-_IGNORE = 2
-
-MSGS = {
+MSGS: dict[str, MessageDefinitionTuple] = {
     "C0301": (
         "Line too long (%s/%s)",
         "line-too-long",
@@ -154,22 +122,6 @@ def _last_token_on_line_is(tokens, line_end, token):
         and tokens.token(line_end - 2) == token
         and tokens.type(line_end - 1) == tokenize.COMMENT
     )
-
-
-# The contexts for hanging indents.
-# A hanging indented dictionary value after :
-HANGING_DICT_VALUE = "dict-value"
-# Hanging indentation in an expression.
-HANGING = "hanging"
-# Hanging indentation in a block header.
-HANGING_BLOCK = "hanging-block"
-# Continued indentation inside an expression.
-CONTINUED = "continued"
-# Continued indentation in a block header.
-CONTINUED_BLOCK = "continued-block"
-
-SINGLE_LINE = "single"
-WITH_BODY = "multi"
 
 
 class TokenWrapper:
@@ -338,6 +290,14 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             self._bracket_stack.pop()
         if tokens[start + 1].string != "(":
             return
+        if (
+            tokens[start].string == "not"
+            and start > 0
+            and tokens[start - 1].string == "is"
+        ):
+            # If this is part of an `is not` expression, we have a binary operator
+            # so the parentheses are not necessarily redundant.
+            return
         found_and_or = False
         contains_walrus_operator = False
         walrus_operator_depth = 0
@@ -411,19 +371,12 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 elif token[1] == "for":
                     return
                 # A generator expression can have an 'else' token in it.
-                # We check the rest of the tokens to see if any problems incur after
+                # We check the rest of the tokens to see if any problems occur after
                 # the 'else'.
                 elif token[1] == "else":
                     if "(" in (i.string for i in tokens[i:]):
                         self._check_keyword_parentheses(tokens[i:], 0)
                     return
-
-    def _prepare_token_dispatcher(self):
-        dispatch = {}
-        for tokens, handler in ((_KEYWORD_TOKENS, self._check_keyword_parentheses),):
-            for token in tokens:
-                dispatch[token] = handler
-        return dispatch
 
     def process_tokens(self, tokens: list[tokenize.TokenInfo]) -> None:
         """Process tokens and search for :
@@ -438,7 +391,6 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         line_num = 0
         self._lines = {}
         self._visited_lines = {}
-        token_handlers = self._prepare_token_dispatcher()
         self._last_line_ending = None
         last_blank_line_num = 0
         for idx, (tok_type, token, start, _, line) in enumerate(tokens):
@@ -478,7 +430,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             elif tok_type not in (tokenize.COMMENT, tokenize.ENCODING):
                 # This is the first concrete token following a NEWLINE, so it
                 # must be the first token of the next program statement, or an
-                # ENDMARKER; the "line" argument exposes the leading whitespace
+                # ENDMARKER; the "line" argument exposes the leading white-space
                 # for this statement; in the case of ENDMARKER, line is an empty
                 # string, so will properly match the empty string with which the
                 # "indents" stack was seeded
@@ -489,12 +441,8 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             if tok_type == tokenize.NUMBER and token.endswith("l"):
                 self.add_message("lowercase-l-suffix", line=line_num)
 
-            try:
-                handler = token_handlers[token]
-            except KeyError:
-                pass
-            else:
-                handler(tokens, idx)
+            if token in _KEYWORD_TOKENS:
+                self._check_keyword_parentheses(tokens, idx)
 
         line_num -= 1  # to be ok with "wc -l"
         if line_num > self.linter.config.max_module_lines:
@@ -624,7 +572,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         self._visited_lines[line] = 2
 
     def check_line_ending(self, line: str, i: int) -> None:
-        """Check that the final newline is not missing and that there is no trailing whitespace."""
+        """Check that the final newline is not missing and that there is no trailing white-space."""
         if not line.endswith("\n"):
             self.add_message("missing-final-newline", line=i)
             return
@@ -696,7 +644,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
 
         Check lines have :
         - a final newline
-        - no trailing whitespace
+        - no trailing white-space
         - less than a maximum number of characters
         """
         # we're first going to do a rough check whether any lines in this set

@@ -169,14 +169,11 @@ class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
 
 class ClassDiadefGenerator(DiaDefGenerator):
     """Generate a class diagram definition including all classes related to a
-    given class
+    given class.
     """
 
     def class_diagram(self, project, klass):
-        """Return a class diagram definition for the given klass and its
-        related klasses
-        """
-
+        """Return a class diagram definition for the class and related classes."""
         self.classdiagram = ClassDiagram(klass, self.config.mode)
         if len(project.modules) > 1:
             module, klass = klass.rsplit(".", 1)

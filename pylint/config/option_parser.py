@@ -19,7 +19,7 @@ def _level_options(group, outputlevel):
 
 class OptionParser(optparse.OptionParser):
     def __init__(self, option_class, *args, **kwargs):
-        # TODO: 3.0: Remove deprecated class # pylint: disable=fixme
+        # TODO: 3.0: Remove deprecated class
         warnings.warn(
             "OptionParser has been deprecated and will be removed in pylint 3.0",
             DeprecationWarning,

@@ -3,7 +3,7 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Checks for yoda comparisons (variable before constant)
-See https://en.wikipedia.org/wiki/Yoda_conditions
+See https://en.wikipedia.org/wiki/Yoda_conditions.
 """
 
 from __future__ import annotations
