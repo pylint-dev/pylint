@@ -239,8 +239,8 @@ def _warn_about_old_home(pylint_home: pathlib.Path) -> None:
                 if prefix_spam_prevention in str(filename):
                     try:
                         os.remove(pylint_home / filename)
-                    except OSError:
-                        pass  # pragma: no cover
+                    except OSError:  # pragma: no cover
+                        pass
 
         # Create spam prevention file for today
         try:
