@@ -12,10 +12,10 @@ import numbers
 import re
 import string
 import warnings
-from collections.abc import Callable, Iterable
+from collections.abc import Iterable
 from functools import lru_cache, partial
 from re import Match
-from typing import TypeVar
+from typing import TYPE_CHECKING, Callable, TypeVar
 
 import _string
 import astroid.objects
@@ -23,9 +23,13 @@ from astroid import TooManyLevelsError, nodes
 from astroid.context import InferenceContext
 
 from pylint.constants import TYPING_TYPE_CHECKS_GUARDS
-from pylint.typing import AstCallbackMethod
 
-T_Node = TypeVar("T_Node", bound=nodes.NodeNG)
+if TYPE_CHECKING:
+    from pylint.checkers import BaseChecker
+
+_NodeT = TypeVar("_NodeT", bound=nodes.NodeNG)
+_CheckerT = TypeVar("_CheckerT", bound="BaseChecker")
+AstCallbackMethod = Callable[[_CheckerT, _NodeT], None]
 
 COMP_NODE_TYPES = (
     nodes.ListComp,
@@ -427,7 +431,9 @@ def overrides_a_method(class_node: nodes.ClassDef, name: str) -> bool:
 
 def only_required_for_messages(
     *messages: str,
-) -> Callable[[AstCallbackMethod], AstCallbackMethod]:
+) -> Callable[
+    [AstCallbackMethod[_CheckerT, _NodeT]], AstCallbackMethod[_CheckerT, _NodeT]
+]:
     """Decorator to store messages that are handled by a checker method as an
     attribute of the function object.
 
@@ -438,8 +444,10 @@ def only_required_for_messages(
     of a class inheriting from ``BaseChecker``.
     """
 
-    def store_messages(func):
-        func.checks_msgs = messages
+    def store_messages(
+        func: AstCallbackMethod[_CheckerT, _NodeT]
+    ) -> AstCallbackMethod[_CheckerT, _NodeT]:
+        setattr(func, "checks_msgs", messages)
         return func
 
     return store_messages
@@ -447,7 +455,9 @@ def only_required_for_messages(
 
 def check_messages(
     *messages: str,
-) -> Callable[[AstCallbackMethod], AstCallbackMethod]:
+) -> Callable[
+    [AstCallbackMethod[_CheckerT, _NodeT]], AstCallbackMethod[_CheckerT, _NodeT]
+]:
     """Kept for backwards compatibility, deprecated.
 
     Use only_required_for_messages instead, which conveys the intent of the decorator much clearer.
@@ -1709,8 +1719,8 @@ def returns_bool(node: nodes.NodeNG) -> bool:
 
 
 def get_node_first_ancestor_of_type(
-    node: nodes.NodeNG, ancestor_type: type[T_Node] | tuple[type[T_Node], ...]
-) -> T_Node | None:
+    node: nodes.NodeNG, ancestor_type: type[_NodeT] | tuple[type[_NodeT], ...]
+) -> _NodeT | None:
     """Return the first parent node that is any of the provided types (or None)."""
     for ancestor in node.node_ancestors():
         if isinstance(ancestor, ancestor_type):
@@ -1719,8 +1729,8 @@ def get_node_first_ancestor_of_type(
 
 
 def get_node_first_ancestor_of_type_and_its_child(
-    node: nodes.NodeNG, ancestor_type: type[T_Node] | tuple[type[T_Node], ...]
-) -> tuple[None, None] | tuple[T_Node, nodes.NodeNG]:
+    node: nodes.NodeNG, ancestor_type: type[_NodeT] | tuple[type[_NodeT], ...]
+) -> tuple[None, None] | tuple[_NodeT, nodes.NodeNG]:
     """Modified version of get_node_first_ancestor_of_type to also return the
     descendant visited directly before reaching the sought ancestor.
 
