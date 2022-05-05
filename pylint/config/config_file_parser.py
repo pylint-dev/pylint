@@ -42,6 +42,15 @@ class _ConfigurationFileParser:
         config_content: dict[str, str] = {}
         options: list[str] = []
         for section in parser.sections():
+            if "setup.cfg" in str(file_path) and not section.startswith("pylint"):
+                if section.lower() == "master":
+                    # TODO: 3.0: Remove deprecated handling of master, only allow 'pylint.' sections
+                    print(
+                        "WARNING: The use of 'MASTER' or 'master' as configuration section for pylint "
+                        "has been deprecated. Please use 'pylint.master' instead.",
+                    )
+                else:
+                    continue
             for opt, value in parser[section].items():
                 value = value.replace("\n", "")
                 config_content[opt] = value

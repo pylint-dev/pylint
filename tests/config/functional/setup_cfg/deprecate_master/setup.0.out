@@ -1,0 +1,1 @@
+WARNING: The use of 'MASTER' or 'master' as configuration section for pylint has been deprecated. Please use 'pylint.master' instead.
