@@ -214,11 +214,13 @@ TYPING_TYPE_CHECKS_GUARDS = frozenset({"typing.TYPE_CHECKING", "TYPE_CHECKING"})
 
 
 def _warn_about_old_home(pylint_home: pathlib.Path) -> None:
-    """Warn users about the old pylint home being deprecated."""
-    # The spam prevention mechanism is due to pylint being used in parallel by
-    # pre-commit, and the message being spammy in this context
-    # Also if you work with an old version of pylint that recreates the
-    # old pylint home, you can get the old message for a long time.
+    """Warn users about the old pylint home being deprecated.
+
+    The spam prevention mechanism is due to pylint being used in parallel by
+    pre-commit, and the message being spammy in this context
+    Also if you work with an old version of pylint that recreates the
+    old pylint home, you can get the old message for a long time.
+    """
 
     prefix_spam_prevention = "pylint_warned_about_old_cache_already"
     spam_prevention_file = pathlib.Path(pylint_home) / datetime.now().strftime(
