@@ -10,6 +10,7 @@ from pathlib import Path
 import pytest
 from pytest import CaptureFixture
 
+from pylint.interfaces import CONFIDENCE_LEVEL_NAMES
 from pylint.lint import Run as LintRun
 from pylint.testutils._run import _Run as Run
 from pylint.testutils.configuration_test import run_using_a_configuration_file
@@ -86,6 +87,12 @@ def test_unknown_confidence(capsys: CaptureFixture) -> None:
         Run([str(EMPTY_MODULE), "--confidence=UNKNOWN_CONFIG"], exit=False)
     output = capsys.readouterr()
     assert "argument --confidence: UNKNOWN_CONFIG should be in" in output.err
+
+
+def test_empty_confidence() -> None:
+    """An empty confidence value indicates all errors should be emitted."""
+    r = Run([str(EMPTY_MODULE), "--confidence="], exit=False)
+    assert r.linter.config.confidence == CONFIDENCE_LEVEL_NAMES
 
 
 def test_unknown_yes_no(capsys: CaptureFixture) -> None:
