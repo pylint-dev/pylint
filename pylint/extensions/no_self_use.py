@@ -16,6 +16,7 @@ from pylint.checkers.utils import (
     is_protocol_class,
     overrides_a_method,
 )
+from pylint.interfaces import HIGH
 
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
@@ -92,7 +93,7 @@ class NoSelfUseChecker(BaseChecker):
                     or is_overload_stub(node)
                 )
             ):
-                self.add_message("no-self-use", node=node)
+                self.add_message("no-self-use", node=node, confidence=HIGH)
 
     leave_asyncfunctiondef = leave_functiondef
 
