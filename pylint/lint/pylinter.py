@@ -33,6 +33,7 @@ from pylint.constants import (
     MSG_TYPES_STATUS,
 )
 from pylint.lint.base_options import _make_linter_options
+from pylint.lint.caching import load_results, save_results
 from pylint.lint.expand_modules import expand_modules
 from pylint.lint.parallel import check_parallel
 from pylint.lint.report_functions import (
@@ -1079,7 +1080,7 @@ class PyLinter(
 
         if self.file_state.base_name is not None:
             # load previous results if any
-            previous_stats = config.load_results(self.file_state.base_name)
+            previous_stats = load_results(self.file_state.base_name)
             self.reporter.on_close(self.stats, previous_stats)
             if self.config.reports:
                 sect = self.make_reports(self.stats, previous_stats)
@@ -1091,7 +1092,7 @@ class PyLinter(
             score_value = self._report_evaluation()
             # save results if persistent run
             if self.config.persistent:
-                config.save_results(self.stats, self.file_state.base_name)
+                save_results(self.stats, self.file_state.base_name)
         else:
             self.reporter.on_close(self.stats, LinterStats())
             score_value = None
