@@ -288,6 +288,8 @@ Release date: TBA
   Relates to #6493
 
 * Created ``NoSelfUseChecker`` extension and moved the ``no-self-use`` check.
+  You now need to explicitly enable this check using
+  ``load-plugins=pylint.extensions.no_self_use``.
 
   Closes #5502
 

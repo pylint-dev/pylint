@@ -102,6 +102,11 @@ class C:
     def a(self, /):  # [no-self-use]
         ...
 
+    # Disable with old error code
+    # pylint: disable=use-symbolic-message-instead
+    def b(self, /):  # pylint: disable=R0201
+        ...
+
 
 def func_a(self):  # pylint: disable=unused-argument
     pass

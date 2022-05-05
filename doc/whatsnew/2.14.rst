@@ -78,6 +78,8 @@ Removed checkers
   Closes #4683
 
 * Moved ``no-self-use`` check to optional extension.
+  You now need to explicitly enable this check using
+  ``load-plugins=pylint.extensions.no_self_use``.
 
   Closes #5502
 

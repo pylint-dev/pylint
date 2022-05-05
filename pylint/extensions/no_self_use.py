@@ -31,6 +31,7 @@ class NoSelfUseChecker(BaseChecker):
             "no-self-use",
             "Used when a method doesn't use its bound instance, and so could "
             "be written as a function.",
+            {"old_names": [("R0201", "old-no-self-use")]},
         ),
     }
 
