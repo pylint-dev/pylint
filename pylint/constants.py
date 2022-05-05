@@ -221,7 +221,6 @@ def _warn_about_old_home(pylint_home: pathlib.Path) -> None:
     Also if you work with an old version of pylint that recreates the
     old pylint home, you can get the old message for a long time.
     """
-
     prefix_spam_prevention = "pylint_warned_about_old_cache_already"
     spam_prevention_file = pathlib.Path(pylint_home) / datetime.now().strftime(
         prefix_spam_prevention + "_%Y-%m-%d.temp"
