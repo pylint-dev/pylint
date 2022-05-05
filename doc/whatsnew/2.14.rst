@@ -145,6 +145,10 @@ Other Changes
 
   Closes #6372
 
+* Disable spellchecking of mypy rule names in ignore directives.
+
+  Closes #5929
+
 * ``implicit-str-concat`` will now be raised on calls like ``open("myfile.txt" "a+b")`` too.
 
   Closes #6441
