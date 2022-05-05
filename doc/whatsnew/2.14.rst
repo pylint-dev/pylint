@@ -57,11 +57,6 @@ New checkers
 
   Closes #4525
 
-* Added optional extension ``redefined-loop-name`` to emit messages when a loop variable
-  is redefined in the loop body.
-
-  Closes #5072
-
 * Added new message called ``duplicate-value`` which identifies duplicate values inside sets.
 
   Closes #5880
@@ -89,6 +84,13 @@ Removed checkers
 
 Extensions
 ==========
+
+* ``RedefinedLoopNameChecker``
+
+    * Added optional extension ``redefined-loop-name`` to emit messages when a loop variable
+      is redefined in the loop body.
+
+      Closes #5072
 
 * ``DocStringStyleChecker``
 
@@ -288,6 +290,9 @@ Other Changes
   (optional extension) for redefinitions of outer loop variables by inner loops.
 
   Closes #5608
+
+* By default the similarity checker will now ignore imports and ignore function signatures when computing
+  duplication. If you want to keep the previous behaviour set ``ignore-imports`` and ``ignore-signatures`` to ``False``.
 
 * Pylint now expands the user path (i.e. ``~`` to ``home/yusef/``) and expands environment variables (i.e. ``home/$USER/$project``
   to ``home/yusef/pylint`` for ``USER=yusef`` and ``project=pylint``) for pyreverse's ``output-directory``,

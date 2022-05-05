@@ -780,7 +780,7 @@ class SimilarChecker(BaseRawFileChecker, Similar):
         (
             "ignore-imports",
             {
-                "default": False,
+                "default": True,
                 "type": "yn",
                 "metavar": "<y or n>",
                 "help": "Imports are removed from the similarity computation",
@@ -789,7 +789,7 @@ class SimilarChecker(BaseRawFileChecker, Similar):
         (
             "ignore-signatures",
             {
-                "default": False,
+                "default": True,
                 "type": "yn",
                 "metavar": "<y or n>",
                 "help": "Signatures are removed from the similarity computation",

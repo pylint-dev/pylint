@@ -27,8 +27,6 @@ else:
     from typing_extensions import Literal, TypedDict
 
 if TYPE_CHECKING:
-    from astroid import nodes
-
     from pylint.config.callback_actions import _CallbackAction
     from pylint.reporters.ureports.nodes import Section
     from pylint.utils import LinterStats
@@ -111,9 +109,6 @@ OptionDict = Dict[
 ]
 Options = Tuple[Tuple[str, OptionDict], ...]
 
-
-AstCallback = Callable[["nodes.NodeNG"], None]
-"""Callable representing a visit or leave function."""
 
 ReportsCallable = Callable[["Section", "LinterStats", Optional["LinterStats"]], None]
 """Callable to create a report."""

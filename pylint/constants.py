@@ -203,6 +203,7 @@ INCOMPATIBLE_WITH_USELESS_SUPPRESSION = frozenset(
         "W1511",  # deprecated-argument
         "W1512",  # deprecated-class
         "W1513",  # deprecated-decorator
+        "R0801",  # duplicate-code
     ]
 )
 
