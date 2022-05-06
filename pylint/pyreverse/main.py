@@ -227,7 +227,7 @@ class Run(_ArgumentsManager, _ArgumentsProvider):
 
         sys.exit(self.run(args))
 
-    def run(self, args):
+    def run(self, args: list[str]) -> int:
         """Checking arguments and run project."""
         if not args:
             print(self.help())
