@@ -310,7 +310,7 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
             ("noqa", ":", "flake8 / zimports directive"),
             ("nosec", "", "bandit directive"),
             ("isort", ":skip", "isort directive"),
-            ("mypy", ":", "mypy directive"),
+            ("mypy", ":", "mypy top of file directive"),
         ),
     )
     def test_skip_tool_directives_at_beginning_of_comments_but_still_raise_error_if_directive_appears_later_in_comment(  # pylint:disable=unused-argument
@@ -368,6 +368,24 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
                     full_comment,
                     "                 ^^^^^",
                     self._get_msg_suggestions("qsize"),
+                ),
+            )
+        ):
+            self.checker.process_tokens(_tokenize_str(full_comment))
+
+    @skip_on_missing_package_or_dict
+    @set_config(spelling_dict=spell_dict)
+    def test_skip_mypy_ignore_directives(self):
+        full_comment = "# type: ignore[attr-defined] attr"
+        with self.assertAddsMessages(
+            MessageTest(
+                "wrong-spelling-in-comment",
+                line=1,
+                args=(
+                    "attr",
+                    full_comment,
+                    "   ^^^^",
+                    self._get_msg_suggestions("attr"),
                 ),
             )
         ):
