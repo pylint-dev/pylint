@@ -8,6 +8,28 @@
 Summary -- Release highlights
 =============================
 
+With 2.14 ``pylint`` only supports Python version 3.7.2 and above.
+
+We introduced several new checks among which ``duplicate-value`` for sets,
+``comparison-of-constants``, and checks related to lambdas. We removed ``no-init`` and
+made ``no-self-use`` optional as they were too opinionated. We also added an option
+to generate a toml configuration: ``--generate-toml-config``.
+
+We migrated to ``argparse`` from ``optparse`` and refactored the configuration handling
+thanks to Daniël van Noord. On the user side it should change the output of the
+``--help`` command, and some inconsistencies and bugs should disappear. The behavior
+between options set in a config file versus on the command line will be more consistent. For us,
+it will permit to maintain this part of the code easily in the future and anticipate
+``optparse``'s removal in Python 3.12.
+
+As a result of the refactor there are a lot of internal deprecations. If you're a library
+maintainer that depends on pylint, please verify that you're ready for pylint 3.0
+by activating deprecation warnings.
+
+We continued the integration of ``pylint-error`` and are now at 33%!. We still welcome any community effort
+to help review, integrate, and add good/bad examples <https://github.com/PyCQA/pylint/issues/5953>`_. This should be doable
+without any ``pylint`` or ``astroid`` knowledge, so this is the perfect entrypoint if you want
+to contribute to ``pylint`` or open source without any experience with our code!
 
 New checkers
 ============
@@ -28,12 +50,6 @@ New checkers
   cannot both be set to "True" in a TypeVar.
 
   Closes #5895
-
-* ``MapReduceMixin`` has been deprecated. ``BaseChecker`` now implements ``get_map_data`` and
-  ``reduce_map_data``. If a checker actually needs to reduce data it should define ``get_map_data``
-  as returning something different than ``None`` and let its ``reduce_map_data`` handle a list
-  of the types returned by ``get_map_data``.
-  An example can be seen by looking at ``pylint/checkers/similar.py``.
 
 * Add new check ``unnecessary-dunder-call`` for unnecessary dunder method calls.
 
@@ -169,6 +185,103 @@ Other Changes
   by making ``ImportsChecker`` solely responsible for emitting ``deprecated-module`` instead
   of sharing responsibility with ``StdlibChecker``. (This could have led to double messages.)
 
+* Added the ``generate-toml-config`` option.
+
+  Ref #5462
+
+* ``bad-option-value`` will be emitted whenever a configuration value or command line invocation
+  includes an unknown message.
+
+  Closes #4324
+
+* Added the ``unrecognized-option`` message. Raised if we encounter any unrecognized options.
+
+  Closes #5259
+
+* Fix false negative for ``bad-string-format-type`` if the value to be formatted is passed in
+  as a variable holding a constant.
+
+* The concept of checker priority has been removed.
+
+* The ``cache-max-size-none`` checker has been renamed to ``method-cache-max-size-none``.
+
+  Closes #5670
+
+* The ``method-cache-max-size-none`` checker will now also check ``functools.cache``.
+
+  Closes #5670
+
+* ``BaseChecker`` classes now require the ``linter`` argument to be passed.
+
+* The ``set_config_directly`` decorator has been removed.
+
+
+* Fix falsely issuing ``useless-suppression`` on the ``wrong-import-position`` checker.
+
+  Closes #5219
+
+* Fixed false positive ``no-member`` for Enums with self-defined members.
+
+  Closes #5138
+
+* Fix false negative for ``no-member`` when attempting to assign an instance
+  attribute to itself without any prior assignment.
+
+  Closes #1555
+
+* Changed message type from ``redefined-outer-name`` to ``redefined-loop-name``
+  (optional extension) for redefinitions of outer loop variables by inner loops.
+
+  Closes #5608
+
+* By default the similarity checker will now ignore imports and ignore function signatures when computing
+  duplication. If you want to keep the previous behaviour set ``ignore-imports`` and ``ignore-signatures`` to ``False``.
+
+* Pylint now expands the user path (i.e. ``~`` to ``home/yusef/``) and expands environment variables (i.e. ``home/$USER/$project``
+  to ``home/yusef/pylint`` for ``USER=yusef`` and ``project=pylint``) for pyreverse's ``output-directory``,
+  ``import-graph``, ``ext-import-graph``,  ``int-import-graph`` options, and the spell checker's ``spelling-private-dict-file``
+  option.
+
+  Relates to #6493
+
+* Don't emit ``unsubscriptable-object`` for string annotations.
+  Pylint doesn't check if class is only generic in type stubs only.
+
+  Closes #4369 and #6523
+
+* ``is_class_subscriptable_pep585_with_postponed_evaluation_enabled`` has been deprecated.
+  Use ``subscriptable_with_postponed_evaluation_enabled`` instead.
+
+  Ref #6536
+
+
+Deprecations
+============
+
+* The ``ignore-mixin-members`` option has been deprecated. You should now use the new
+  ``ignored-checks-for-mixins`` option.
+
+  Closes #5205
+
+* ``interfaces.implements`` has been deprecated and will be removed in 3.0. Please use standard inheritance
+  patterns instead of ``__implements__``.
+
+  Ref #2287
+
+* All ``Interface`` classes in ``pylint.interfaces`` have been deprecated. You can subclass
+  the respective normal classes to get the same behaviour. The ``__implements__`` functionality
+  was based on a rejected PEP from 2001:
+  https://peps.python.org/pep-0245/
+
+  Closes #2287
+
+* ``MapReduceMixin`` has been deprecated. ``BaseChecker`` now implements ``get_map_data`` and
+  ``reduce_map_data``. If a checker actually needs to reduce data it should define ``get_map_data``
+  as returning something different than ``None`` and let its ``reduce_map_data`` handle a list
+  of the types returned by ``get_map_data``.
+  An example can be seen by looking at ``pylint/checkers/similar.py``.
+
+
 * The ``config`` attribute of ``BaseChecker`` has been deprecated. You can use ``checker.linter.config``
   to access the global configuration object instead of a checker-specific object.
 
@@ -187,6 +300,13 @@ Other Changes
 * The ``options_providers`` attribute of ``ArgumentsManager`` has been deprecated.
 
   Ref #5392
+
+* Fix saving of persistent data files in environments where the user's cache
+  directory and the linted file are on a different drive.
+
+  Closes #6394
+
+* The ``method-cache-max-size-none`` checker will now also check ``functools.cache``.
 
 * The ``config`` attribute of ``PyLinter`` is now of the ``argparse.Namespace`` type instead of
   ``optparse.Values``.
@@ -235,93 +355,3 @@ Other Changes
   be removed in a future release.
 
   Ref #5392
-
-* ``interfaces.implements`` has been deprecated and will be removed in 3.0. Please use standard inheritance
-  patterns instead of ``__implements__``.
-
-  Ref #2287
-
-* All ``Interface`` classes in ``pylint.interfaces`` have been deprecated. You can subclass
-  the respective normal classes to get the same behaviour. The ``__implements__`` functionality
-  was based on a rejected PEP from 2001:
-  https://peps.python.org/pep-0245/
-
-  Closes #2287
-
-* Added the ``generate-toml-config`` option.
-
-  Ref #5462
-
-* ``bad-option-value`` will be emitted whenever a configuration value or command line invocation
-  includes an unknown message.
-
-  Closes #4324
-
-* Added the ``unrecognized-option`` message. Raised if we encounter any unrecognized options.
-
-  Closes #5259
-
-* Fix false negative for ``bad-string-format-type`` if the value to be formatted is passed in
-  as a variable holding a constant.
-
-* The concept of checker priority has been removed.
-
-* The ``cache-max-size-none`` checker has been renamed to ``method-cache-max-size-none``.
-
-  Closes #5670
-
-* Fix saving of persistent data files in environments where the user's cache
-  directory and the linted file are on a different drive.
-
-  Closes #6394
-
-* The ``method-cache-max-size-none`` checker will now also check ``functools.cache``.
-
-  Closes #5670
-
-* ``BaseChecker`` classes now require the ``linter`` argument to be passed.
-
-* The ``set_config_directly`` decorator has been removed.
-
-* The ``ignore-mixin-members`` option has been deprecated. You should now use the new
-  ``ignored-checks-for-mixins`` option.
-
-  Closes #5205
-
-* Fix falsely issuing ``useless-suppression`` on the ``wrong-import-position`` checker.
-
-  Closes #5219
-
-* Fixed false positive ``no-member`` for Enums with self-defined members.
-
-  Closes #5138
-
-* Fix false negative for ``no-member`` when attempting to assign an instance
-  attribute to itself without any prior assignment.
-
-  Closes #1555
-
-* Changed message type from ``redefined-outer-name`` to ``redefined-loop-name``
-  (optional extension) for redefinitions of outer loop variables by inner loops.
-
-  Closes #5608
-
-* By default the similarity checker will now ignore imports and ignore function signatures when computing
-  duplication. If you want to keep the previous behaviour set ``ignore-imports`` and ``ignore-signatures`` to ``False``.
-
-* Pylint now expands the user path (i.e. ``~`` to ``home/yusef/``) and expands environment variables (i.e. ``home/$USER/$project``
-  to ``home/yusef/pylint`` for ``USER=yusef`` and ``project=pylint``) for pyreverse's ``output-directory``,
-  ``import-graph``, ``ext-import-graph``,  ``int-import-graph`` options, and the spell checker's ``spelling-private-dict-file``
-  option.
-
-  Relates to #6493
-
-* Don't emit ``unsubscriptable-object`` for string annotations.
-  Pylint doesn't check if class is only generic in type stubs only.
-
-  Closes #4369 and #6523
-
-* ``is_class_subscriptable_pep585_with_postponed_evaluation_enabled`` has been deprecated.
-  Use ``subscriptable_with_postponed_evaluation_enabled`` instead.
-
-  Ref #6536

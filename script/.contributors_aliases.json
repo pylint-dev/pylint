@@ -320,6 +320,10 @@
     "name": "Hippo91",
     "team": "Maintainers"
   },
+  "gunungpambudiw@gmail.com": {
+    "mails": ["gunungpambudiw@gmail.com"],
+    "name": "Gunung Pambudi W."
+  },
   "hg@stevenmyint.com": {
     "mails": ["hg@stevenmyint.com", "git@stevenmyint.com"],
     "name": "Steven Myint"
@@ -356,6 +360,10 @@
   "josselin@trailofbits.com": {
     "mails": ["josselin@trailofbits.com"],
     "name": "Josselin Feist"
+  },
+  "jpkotta@gmail.com": {
+    "mails": ["jpkotta@gmail.com", "jpkotta@shannon"],
+    "name": "jpkotta"
   },
   "justinnhli@gmail.com": {
     "mails": ["justinnhli@gmail.com", "justinnhli@users.noreply.github.com"],
@@ -563,9 +571,5 @@
   "vladtemian@gmail.com": {
     "mails": ["vladtemian@gmail.com"],
     "name": "Vlad Temian"
-  },
-  "gunungpambudiw@gmail.com": {
-    "mails": ["gunungpambudiw@gmail.com"],
-    "name": "Gunung Pambudi W."
   }
 }
