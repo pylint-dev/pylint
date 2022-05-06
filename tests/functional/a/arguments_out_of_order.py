@@ -1,4 +1,4 @@
- # pylint: disable=no-self-use, no-method-argument, missing-docstring,
+# pylint: disable=no-method-argument, missing-docstring
 
 
 def function_3_args(first_argument, second_argument, third_argument):

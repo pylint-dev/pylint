@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, invalid-name, too-few-public-methods, no-self-use
+# pylint: disable=missing-docstring, invalid-name, too-few-public-methods
 
 
 def some_func():
@@ -37,7 +37,6 @@ class Parent:
     def compute(self):
         """This isn't supported by all child classes"""
 
-        # pylint: disable=no-self-use
         raise ValueError('Not supported for this object')
 
     def test(self):

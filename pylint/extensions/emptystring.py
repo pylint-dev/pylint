@@ -39,7 +39,7 @@ class CompareToEmptyStringChecker(checkers.BaseChecker):
 
     options = ()
 
-    @utils.check_messages("compare-to-empty-string")
+    @utils.only_required_for_messages("compare-to-empty-string")
     def visit_compare(self, node: nodes.Compare) -> None:
         _operators = ["!=", "==", "is not", "is"]
         # note: astroid.Compare has the left most operand in node.left

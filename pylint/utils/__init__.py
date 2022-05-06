@@ -3,7 +3,7 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Some various utilities and helper classes, most of them used in the
-main pylint class
+main pylint class.
 """
 
 from pylint.utils.ast_walker import ASTWalker

@@ -107,16 +107,6 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
         ):
             self.checker.visit_classdef(stmt)
 
-    @pytest.mark.skipif(True, reason="pyenchant's tokenizer strips these")
-    @skip_on_missing_package_or_dict
-    @set_config(spelling_dict=spell_dict)
-    def test_invalid_docstring_characters(self):
-        stmt = astroid.extract_node('def fff():\n   """test\\x00"""\n   pass')
-        with self.assertAddsMessages(
-            MessageTest("invalid-characters-in-docstring", line=2, args=("test\x00",))
-        ):
-            self.checker.visit_functiondef(stmt)
-
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_skip_shebangs(self):
@@ -310,13 +300,13 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
             ("noqa", ":", "flake8 / zimports directive"),
             ("nosec", "", "bandit directive"),
             ("isort", ":skip", "isort directive"),
-            ("mypy", ":", "mypy directive"),
+            ("mypy", ":", "mypy top of file directive"),
         ),
     )
     def test_skip_tool_directives_at_beginning_of_comments_but_still_raise_error_if_directive_appears_later_in_comment(  # pylint:disable=unused-argument
         # Having the extra description parameter allows the description
         #   to show up in the pytest output as part of the test name
-        #   when running parametrized tests.
+        #   when running parameterized tests.
         self,
         misspelled_portion_of_directive,
         second_portion_of_directive,
@@ -368,6 +358,24 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
                     full_comment,
                     "                 ^^^^^",
                     self._get_msg_suggestions("qsize"),
+                ),
+            )
+        ):
+            self.checker.process_tokens(_tokenize_str(full_comment))
+
+    @skip_on_missing_package_or_dict
+    @set_config(spelling_dict=spell_dict)
+    def test_skip_mypy_ignore_directives(self):
+        full_comment = "# type: ignore[attr-defined] attr"
+        with self.assertAddsMessages(
+            MessageTest(
+                "wrong-spelling-in-comment",
+                line=1,
+                args=(
+                    "attr",
+                    full_comment,
+                    "   ^^^^",
+                    self._get_msg_suggestions("attr"),
                 ),
             )
         ):

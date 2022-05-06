@@ -1,0 +1,2 @@
+************* Module {abspath}
+{relpath}:1:0: E0012: Bad option value for --enable. Don't recognize message useless-supression. (bad-option-value)

@@ -1,4 +1,4 @@
-# pylint: disable=no-self-use, useless-object-inheritance, unnecessary-pass, consider-using-f-string
+# pylint: disable=useless-object-inheritance, unnecessary-pass, consider-using-f-string
 # -1: [missing-module-docstring]
 from __future__ import print_function
 

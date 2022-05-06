@@ -15,6 +15,7 @@ from astroid import nodes
 
 if TYPE_CHECKING:
     from pylint.checkers import BaseChecker
+    from pylint.message import Message
     from pylint.reporters.ureports.nodes import Section
 
 __all__ = (
@@ -59,7 +60,9 @@ class Interface:
         )
 
     @classmethod
-    def is_implemented_by(cls, instance):
+    def is_implemented_by(
+        cls: type[Interface] | tuple[type[Interface], ...], instance: BaseChecker
+    ) -> bool:
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             return implements(instance, cls)
@@ -70,7 +73,7 @@ def implements(
     interface: type[Interface] | tuple[type[Interface], ...],
 ) -> bool:
     """Does the given object (maybe an instance or class) implement the interface."""
-    # TODO: 3.0: Remove deprecated function # pylint: disable=fixme
+    # TODO: 3.0: Remove deprecated function
     warnings.warn(
         "implements has been deprecated in favour of using basic "
         "inheritance patterns without using __implements__.",
@@ -85,10 +88,10 @@ def implements(
 class IChecker(Interface):
     """Base interface, to be used only for sub interfaces definition."""
 
-    def open(self):
+    def open(self) -> None:
         """Called before visiting project (i.e. set of modules)."""
 
-    def close(self):
+    def close(self) -> None:
         """Called after visiting project (i.e. set of modules)."""
 
 
@@ -114,14 +117,14 @@ class ITokenChecker(IChecker):
 
 class IAstroidChecker(IChecker):
     """Interface for checker which prefers receive events according to
-    statement type
+    statement type.
     """
 
 
 class IReporter(Interface):
     """Reporter collect messages and display results encapsulated in a layout."""
 
-    def handle_message(self, msg) -> None:
+    def handle_message(self, msg: Message) -> None:
         """Handle the given message object."""
 
     def display_reports(self, layout: Section) -> None:

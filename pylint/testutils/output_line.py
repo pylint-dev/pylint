@@ -15,7 +15,7 @@ from pylint.interfaces import UNDEFINED, Confidence
 from pylint.message.message import Message
 from pylint.testutils.constants import UPDATE_OPTION
 
-T = TypeVar("T")
+_T = TypeVar("_T")
 
 
 class MessageTest(NamedTuple):
@@ -110,7 +110,7 @@ class OutputLine(NamedTuple):
         return int(column)
 
     @staticmethod
-    def _get_py38_none_value(value: T, check_endline: bool) -> T | None:
+    def _get_py38_none_value(value: _T, check_endline: bool) -> _T | None:
         """Used to make end_line and end_column None as indicated by our version compared to
         `min_pyver_end_position`.
         """

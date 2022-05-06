@@ -1,11 +1,11 @@
-import-outside-toplevel:10:4:10:19:f:Import outside toplevel (symtable):UNDEFINED
-import-outside-toplevel:14:4:14:18:g:Import outside toplevel (os, sys):UNDEFINED
-import-outside-toplevel:18:4:18:24:h:Import outside toplevel (time):UNDEFINED
-import-outside-toplevel:22:4:22:41:i:Import outside toplevel (random, socket):UNDEFINED
-import-outside-toplevel:26:4:26:19:C:Import outside toplevel (tokenize):UNDEFINED
-import-outside-toplevel:29:8:29:21:C.j:Import outside toplevel (turtle):UNDEFINED
-import-outside-toplevel:34:8:34:23:k:Import outside toplevel (tabnanny):UNDEFINED
-import-outside-toplevel:38:4:38:39:j:Import outside toplevel (collections.defaultdict):UNDEFINED
-import-outside-toplevel:42:4:42:48:m:Import outside toplevel (math.sin, math.cos):UNDEFINED
-import-error:50:4:50:21:o:Unable to import 'notastroid':UNDEFINED
-import-outside-toplevel:50:4:50:21:o:Import outside toplevel (notastroid):UNDEFINED
+import-outside-toplevel:11:4:11:19:f:Import outside toplevel (symtable):UNDEFINED
+import-outside-toplevel:15:4:15:18:g:Import outside toplevel (os, sys):UNDEFINED
+import-outside-toplevel:19:4:19:24:h:Import outside toplevel (time):UNDEFINED
+import-outside-toplevel:23:4:23:41:i:Import outside toplevel (random, socket):UNDEFINED
+import-outside-toplevel:27:4:27:19:C:Import outside toplevel (tokenize):UNDEFINED
+import-outside-toplevel:30:8:30:21:C.j:Import outside toplevel (turtle):UNDEFINED
+import-outside-toplevel:35:8:35:23:k:Import outside toplevel (tabnanny):UNDEFINED
+import-outside-toplevel:39:4:39:39:j:Import outside toplevel (collections.defaultdict):UNDEFINED
+import-outside-toplevel:43:4:43:48:m:Import outside toplevel (math.sin, math.cos):UNDEFINED
+import-error:51:4:51:21:o:Unable to import 'notastroid':UNDEFINED
+import-outside-toplevel:51:4:51:21:o:Import outside toplevel (notastroid):UNDEFINED

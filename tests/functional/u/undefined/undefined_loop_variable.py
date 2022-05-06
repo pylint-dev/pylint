@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,redefined-builtin, consider-using-f-string
+# pylint: disable=missing-docstring,redefined-builtin, consider-using-f-string, unnecessary-direct-lambda-call
 
 def do_stuff(some_random_list):
     for var in some_random_list:
@@ -91,6 +91,22 @@ def test(content):
         handle_line(layne)
 
 
+def for_else_returns(iterable):
+    for thing in iterable:
+        break
+    else:
+        return
+    print(thing)
+
+
+def for_else_raises(iterable):
+    for thing in iterable:
+        break
+    else:
+        raise Exception
+    print(thing)
+
+
 lst = []
 lst2 = [1, 2, 3]
 
@@ -103,3 +119,23 @@ bigger = [
     ]
     for item in lst
 ]
+
+
+def lambda_in_first_of_two_loops():
+    """https://github.com/PyCQA/pylint/issues/6419"""
+    my_list = []
+    for thing in my_list:
+        print_it = lambda: print(thing)  # pylint: disable=cell-var-from-loop, unnecessary-lambda-assignment
+        print_it()
+
+    for thing in my_list:
+        print(thing)
+
+
+def variable_name_assigned_in_body_of_second_loop():
+    for alias in tuple(bigger):
+        continue
+    for _ in range(3):
+        alias = True
+        if alias:
+            print(alias)

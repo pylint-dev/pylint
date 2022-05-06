@@ -13,7 +13,8 @@ from typing import TextIO
 
 import pytest
 
-from pylint.lint import Run
+from pylint.reporters.text import TextReporter
+from pylint.testutils._run import _Run as Run
 from pylint.testutils.utils import _patch_streams
 
 HERE = abspath(dirname(__file__))
@@ -70,7 +71,14 @@ class TestSimilarCodeChecker:
         path = join(DATA, "raw_strings_all")
         expected_output = "Similar lines in 2 files"
         self._test_output(
-            [path, "--disable=all", "--enable=duplicate-code"],
+            [
+                path,
+                "--disable=all",
+                "--enable=duplicate-code",
+                "--ignore-imports=no",
+                "--ignore-signatures=no",
+                "--min-similarity-lines=4",
+            ],
             expected_output=expected_output,
         )
 
@@ -79,40 +87,91 @@ class TestSimilarCodeChecker:
         path = join(DATA, "raw_strings_disable_file")
         expected_output = "Similar lines in 2 files"
         self._test_output(
-            [path, "--disable=all", "--enable=duplicate-code"],
+            [
+                path,
+                "--disable=all",
+                "--enable=duplicate-code",
+                "--ignore-imports=no",
+                "--ignore-signatures=no",
+                "--min-similarity-lines=4",
+            ],
             expected_output=expected_output,
         )
 
     def test_duplicate_code_raw_strings_disable_file_double(self) -> None:
         """Tests disabling duplicate-code at the file level in two files."""
         path = join(DATA, "raw_strings_disable_file_double")
-        self._runtest([path, "--disable=all", "--enable=duplicate-code"], code=0)
+        self._runtest(
+            [
+                path,
+                "--disable=all",
+                "--enable=duplicate-code",
+                "--ignore-imports=no",
+                "--ignore-signatures=no",
+                "--min-similarity-lines=4",
+            ],
+            code=0,
+        )
 
     def test_duplicate_code_raw_strings_disable_line_two(self) -> None:
         """Tests disabling duplicate-code at a line at the begin of a piece of similar code."""
         path = join(DATA, "raw_strings_disable_line_begin")
         expected_output = "Similar lines in 2 files"
         self._test_output(
-            [path, "--disable=all", "--enable=duplicate-code"],
+            [
+                path,
+                "--disable=all",
+                "--enable=duplicate-code",
+                "--ignore-imports=no",
+                "--ignore-signatures=no",
+                "--min-similarity-lines=4",
+            ],
             expected_output=expected_output,
         )
 
     def test_duplicate_code_raw_strings_disable_line_disable_all(self) -> None:
         """Tests disabling duplicate-code with all similar lines disabled per line."""
         path = join(DATA, "raw_strings_disable_line_disable_all")
-        self._runtest([path, "--disable=all", "--enable=duplicate-code"], code=0)
+        self._runtest(
+            [
+                path,
+                "--disable=all",
+                "--enable=duplicate-code",
+                "--ignore-imports=no",
+                "--ignore-signatures=no",
+                "--min-similarity-lines=4",
+            ],
+            code=0,
+        )
 
     def test_duplicate_code_raw_strings_disable_line_midle(self) -> None:
         """Tests disabling duplicate-code at a line in the middle of a piece of similar code."""
         path = join(DATA, "raw_strings_disable_line_middle")
-        self._runtest([path, "--disable=all", "--enable=duplicate-code"], code=0)
+        self._runtest(
+            [
+                path,
+                "--disable=all",
+                "--enable=duplicate-code",
+                "--ignore-imports=no",
+                "--ignore-signatures=no",
+                "--min-similarity-lines=4",
+            ],
+            code=0,
+        )
 
     def test_duplicate_code_raw_strings_disable_line_end(self) -> None:
         """Tests disabling duplicate-code at a line at the end of a piece of similar code."""
         path = join(DATA, "raw_strings_disable_line_end")
         expected_output = "Similar lines in 2 files"
         self._test_output(
-            [path, "--disable=all", "--enable=duplicate-code"],
+            [
+                path,
+                "--disable=all",
+                "--enable=duplicate-code",
+                "--ignore-imports=no",
+                "--ignore-signatures=no",
+                "--min-similarity-lines=4",
+            ],
             expected_output=expected_output,
         )
 
@@ -121,21 +180,45 @@ class TestSimilarCodeChecker:
         path = join(DATA, "raw_strings_disable_scope")
         expected_output = "Similar lines in 2 files"
         self._test_output(
-            [path, "--disable=all", "--enable=duplicate-code"],
+            [
+                path,
+                "--disable=all",
+                "--enable=duplicate-code",
+                "--ignore-imports=no",
+                "--ignore-signatures=no",
+                "--min-similarity-lines=4",
+            ],
             expected_output=expected_output,
         )
 
     def test_duplicate_code_raw_strings_disable_scope_double(self) -> None:
         """Tests disabling duplicate-code at an inner scope level in two files."""
         path = join(DATA, "raw_strings_disable_scope_double")
-        self._runtest([path, "--disable=all", "--enable=duplicate-code"], code=0)
+        self._runtest(
+            [
+                path,
+                "--disable=all",
+                "--enable=duplicate-code",
+                "--ignore-imports=no",
+                "--ignore-signatures=no",
+                "--min-similarity-lines=4",
+            ],
+            code=0,
+        )
 
     def test_duplicate_code_raw_strings_disable_scope_function(self) -> None:
         """Tests disabling duplicate-code at an inner scope level with another scope with similarity."""
         path = join(DATA, "raw_strings_disable_scope_second_function")
         expected_output = "Similar lines in 2 files"
         self._test_output(
-            [path, "--disable=all", "--enable=duplicate-code"],
+            [
+                path,
+                "--disable=all",
+                "--enable=duplicate-code",
+                "--ignore-imports=no",
+                "--ignore-signatures=no",
+                "--min-similarity-lines=4",
+            ],
             expected_output=expected_output,
         )
 
@@ -143,6 +226,23 @@ class TestSimilarCodeChecker:
         """Tests enabling ignore-imports works correctly."""
         path = join(DATA, "ignore_imports")
         self._runtest(
-            [path, "-e=duplicate-code", "-d=unused-import", "--ignore-imports=y"],
+            [path, "-e=duplicate-code", "-d=unused-import,C", "--ignore-imports=y"],
             code=0,
         )
+
+    @staticmethod
+    def test_useless_suppression() -> None:
+        """Tests that duplicate code and useless-suppression work well together."""
+        path = join(DATA, "useless_suppression")
+        pylint_output = StringIO()
+        reporter = TextReporter(pylint_output)
+        runner = Run(
+            [
+                path,
+                "-e=duplicate-code, useless-suppression",
+                "-d=missing-module-docstring, unused-import",
+            ],
+            reporter=reporter,
+            exit=False,
+        )
+        assert not runner.linter.stats.by_msg

@@ -69,7 +69,7 @@ class PragmaParserError(Exception):
 
     def __init__(self, message: str, token: str) -> None:
         """:args message: explain the reason why the exception has been thrown
-        :args token: token concerned by the exception
+        :args token: token concerned by the exception.
         """
         self.message = message
         self.token = token

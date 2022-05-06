@@ -15,11 +15,14 @@ from astroid import nodes
 from pylint import checkers
 from pylint.checkers import utils
 from pylint.checkers.utils import infer_all
+from pylint.typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
-MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
+MSGS: dict[
+    str, MessageDefinitionTuple
+] = {  # pylint: disable=consider-using-namedtuple-or-dataclass
     "W1201": (
         "Use %s formatting in logging functions",
         "logging-not-lazy",

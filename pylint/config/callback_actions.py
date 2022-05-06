@@ -2,7 +2,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-# pylint: disable=too-many-arguments, redefined-builtin
+# pylint: disable=too-many-arguments, redefined-builtin, duplicate-code
 
 """Callback actions for various options."""
 
@@ -261,7 +261,6 @@ class _GenerateRCFileAction(_AccessRunObjectAction):
         values: str | Sequence[Any] | None,
         option_string: str | None = "--generate-rcfile",
     ) -> None:
-        # pylint: disable-next=fixme
         # TODO: 2.14: Deprecate this after discussion about this removal has been completed.
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)

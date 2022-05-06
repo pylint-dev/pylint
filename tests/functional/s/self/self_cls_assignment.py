@@ -5,12 +5,11 @@ from __future__ import print_function
 class Foo(object):
     """Class with methods that check for self/cls assignment"""
 
-    # pylint: disable=no-self-argument,no-self-use
+    # pylint: disable=no-self-argument
     def self_foo(bar_):
         """Instance method, should warn for bar"""
         bar_ = 10  # [self-cls-assignment]
 
-    # pylint: disable=no-self-use
     def self_foofoo(self, lala):
         """Instance method, should warn for self"""
         self = lala  # [self-cls-assignment]

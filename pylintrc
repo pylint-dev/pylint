@@ -83,7 +83,6 @@ fail-on=
 enable=
     use-symbolic-message-instead,
     useless-suppression,
-    fixme
 
 # Disable the message, report, category or checker with the given id(s). You
 # can either give multiple identifiers separated by comma (,) or put this
@@ -97,13 +96,14 @@ enable=
 
 disable=
     attribute-defined-outside-init,
-    duplicate-code,
     invalid-name,
     missing-docstring,
     protected-access,
     too-few-public-methods,
     # handled by black
     format,
+    # We anticipate #3512 where it will become optional
+    fixme,
 
 
 [REPORTS]
@@ -154,7 +154,7 @@ notes=FIXME,XXX,TODO
 [SIMILARITIES]
 
 # Minimum lines number of a similarity.
-min-similarity-lines=4
+min-similarity-lines=6
 
 # Ignore comments when computing similarities.
 ignore-comments=yes
@@ -163,10 +163,10 @@ ignore-comments=yes
 ignore-docstrings=yes
 
 # Ignore imports when computing similarities.
-ignore-imports=no
+ignore-imports=yes
 
 # Signatures are removed from the similarity computation
-ignore-signatures=no
+ignore-signatures=yes
 
 
 [VARIABLES]
@@ -399,17 +399,17 @@ spelling-ignore-words=
 
 # List of comma separated words that should be considered directives if they
 # appear and the beginning of a comment and should not be checked.
-spelling-ignore-comment-directives=fmt: on,fmt: off,noqa:,noqa,nosec,isort:skip,mypy:
+spelling-ignore-comment-directives=fmt: on,fmt: off,noqa:,noqa,nosec,isort:skip,mypy:,pragma:,# noinspection
 
 # A path to a file that contains private dictionary; one word per line.
-spelling-private-dict-file=
+spelling-private-dict-file=.pyenchant_pylint_custom_dict.txt
 
 # Tells whether to store unknown words to indicated private dictionary in
 # --spelling-private-dict-file option instead of raising a message.
 spelling-store-unknown-words=no
 
 # Limits count of emitted suggestions for spelling mistakes.
-max-spelling-suggestions=4
+max-spelling-suggestions=2
 
 
 [DESIGN]

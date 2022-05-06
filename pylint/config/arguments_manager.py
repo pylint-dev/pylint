@@ -80,7 +80,6 @@ class _ArgumentsManager:
         self._option_dicts: dict[str, OptionDict] = {}
         """All option dictionaries that have been registered."""
 
-        # pylint: disable=fixme
         # TODO: 3.0: Remove deprecated attributes introduced to keep API
         # parity with optparse. Until '_maxlevel'
         with warnings.catch_warnings():
@@ -107,7 +106,7 @@ class _ArgumentsManager:
 
     @property
     def options_providers(self) -> list[ConfigProvider]:
-        # TODO: 3.0: Remove deprecated attribute. # pylint: disable=fixme
+        # TODO: 3.0: Remove deprecated attribute.
         warnings.warn(
             "options_providers has been deprecated. It will be removed in pylint 3.0.",
             DeprecationWarning,
@@ -379,7 +378,7 @@ class _ArgumentsManager:
         self, provider: ConfigProvider, opt: str, optdict: OptionDict
     ) -> tuple[list[str], OptionDict]:  # pragma: no cover
         """DEPRECATED: Get our personal option definition and return a suitable form for
-        use with optik/optparse
+        use with optik/optparse.
         """
         warnings.warn(
             "optik_option has been deprecated. Parsing of option dictionaries should be done "
@@ -417,7 +416,7 @@ class _ArgumentsManager:
         self, stream: TextIO | None = None, skipsections: tuple[str, ...] = ()
     ) -> None:  # pragma: no cover
         """DEPRECATED: Write a configuration file according to the current configuration
-        into the given stream or stdout
+        into the given stream or stdout.
         """
         warnings.warn(
             "generate_config has been deprecated. It will be removed in pylint 3.0.",
@@ -486,9 +485,9 @@ class _ArgumentsManager:
         self, config_file: Path | None = None, verbose: bool = False
     ) -> None:  # pragma: no cover
         """DEPRECATED: Read the configuration file but do not load it (i.e. dispatching
-        values to each option's provider)
+        values to each option's provider).
 
-        :raises OSError: Whem the specified config file doesn't exist
+        :raises OSError: When the specified config file doesn't exist
         """
         warnings.warn(
             "read_config_file has been deprecated. It will be removed in pylint 3.0.",
@@ -529,7 +528,7 @@ class _ArgumentsManager:
     ) -> None:  # pragma: no cover
         """DEPRECATED: Parse and handle errors of a toml configuration file.
 
-        TODO: 3.0: Remove depreacted method.
+        TODO: 3.0: Remove deprecated method.
         """
         with open(config_file, mode="rb") as fp:
             content = tomllib.load(fp)
@@ -559,7 +558,7 @@ class _ArgumentsManager:
 
     def load_config_file(self) -> None:  # pragma: no cover
         """DEPRECATED: Dispatch values previously read from a configuration file to each
-        option's provider
+        option's provider.
         """
         warnings.warn(
             "load_config_file has been deprecated. It will be removed in pylint 3.0.",
@@ -629,7 +628,7 @@ class _ArgumentsManager:
 
     def cb_set_provider_option(self, option, opt, value, parser):  # pragma: no cover
         """DEPRECATED: Optik callback for option setting."""
-        # TODO: 3.0: Remove deprecated method. # pylint: disable=fixme
+        # TODO: 3.0: Remove deprecated method.
         warnings.warn(
             "cb_set_provider_option has been deprecated. It will be removed in pylint 3.0.",
             DeprecationWarning,
@@ -647,7 +646,7 @@ class _ArgumentsManager:
 
     def global_set_option(self, opt: str, value: Any) -> None:  # pragma: no cover
         """DEPRECATED: Set option on the correct option provider."""
-        # TODO: 3.0: Remove deprecated method. # pylint: disable=fixme
+        # TODO: 3.0: Remove deprecated method.
         warnings.warn(
             "global_set_option has been deprecated. You can use _arguments_manager.set_option "
             "or linter.set_option to set options on the global configuration object.",
@@ -734,7 +733,7 @@ class _ArgumentsManager:
         optdict: None | str | OptionDict = "default_value",
     ) -> None:
         """Set an option on the namespace object."""
-        # TODO: 3.0: Remove deprecated arguments. # pylint: disable=fixme
+        # TODO: 3.0: Remove deprecated arguments.
         if action != "default_value":
             warnings.warn(
                 "The 'action' argument has been deprecated. You can use set_option "

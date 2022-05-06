@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 from astroid import nodes
 
 from pylint.checkers import BaseTokenChecker
-from pylint.checkers.utils import check_messages
+from pylint.checkers.utils import only_required_for_messages
 from pylint.interfaces import HIGH
 
 if TYPE_CHECKING:
@@ -47,7 +47,7 @@ class ElseifUsedChecker(BaseTokenChecker):
     def leave_module(self, _: nodes.Module) -> None:
         self._init()
 
-    @check_messages("else-if-used")
+    @only_required_for_messages("else-if-used")
     def visit_if(self, node: nodes.If) -> None:
         """Current if node must directly follow an 'else'."""
         if (

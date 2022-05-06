@@ -38,7 +38,7 @@ class PrivateImportChecker(BaseChecker):
         self.all_used_type_annotations: dict[str, bool] = {}
         self.populated_annotations = False
 
-    @utils.check_messages("import-private-name")
+    @utils.only_required_for_messages("import-private-name")
     def visit_import(self, node: nodes.Import) -> None:
         if utils.is_node_in_typing_guarded_import_block(node):
             return
@@ -55,7 +55,7 @@ class PrivateImportChecker(BaseChecker):
                 confidence=HIGH,
             )
 
-    @utils.check_messages("import-private-name")
+    @utils.only_required_for_messages("import-private-name")
     def visit_importfrom(self, node: nodes.ImportFrom) -> None:
         if utils.is_node_in_typing_guarded_import_block(node):
             return
@@ -112,7 +112,7 @@ class PrivateImportChecker(BaseChecker):
         )
 
     def _get_type_annotation_names(
-        self, node: nodes.Import, names: list[str]
+        self, node: nodes.Import | nodes.ImportFrom, names: list[str]
     ) -> list[str]:
         """Removes from names any names that are used as type annotations with no other illegal usages."""
         if names and not self.populated_annotations:
@@ -185,10 +185,10 @@ class PrivateImportChecker(BaseChecker):
 
     def _populate_type_annotations_annotation(
         self,
-        node: nodes.Attribute | nodes.Subscript | nodes.Name,
+        node: nodes.Attribute | nodes.Subscript | nodes.Name | None,
         all_used_type_annotations: dict[str, bool],
     ) -> str | None:
-        """Handles the possiblity of an annotation either being a Name, i.e. just type,
+        """Handles the possibility of an annotation either being a Name, i.e. just type,
         or a Subscript e.g. `Optional[type]` or an Attribute, e.g. `pylint.lint.linter`.
         """
         if isinstance(node, nodes.Name) and node.name not in all_used_type_annotations:
@@ -216,7 +216,8 @@ class PrivateImportChecker(BaseChecker):
     ) -> bool:
         """Returns True if no assignments involve accessing `private_name`."""
         if all(not assignment.value for assignment in assignments):
-            # Variable annotated but unassigned is unallowed because there may be a possible illegal access elsewhere
+            # Variable annotated but unassigned is not allowed because there may be
+            # possible illegal access elsewhere
             return False
         for assignment in assignments:
             current_attribute = None
@@ -240,7 +241,9 @@ class PrivateImportChecker(BaseChecker):
         return True
 
     @staticmethod
-    def same_root_dir(node: nodes.Import, import_mod_name: str) -> bool:
+    def same_root_dir(
+        node: nodes.Import | nodes.ImportFrom, import_mod_name: str
+    ) -> bool:
         """Does the node's file's path contain the base name of `import_mod_name`?"""
         if not import_mod_name:  # from . import ...
             return True

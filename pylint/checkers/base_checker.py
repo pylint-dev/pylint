@@ -7,6 +7,7 @@ from __future__ import annotations
 import abc
 import functools
 import warnings
+from collections.abc import Iterator
 from inspect import cleandoc
 from tokenize import TokenInfo
 from typing import TYPE_CHECKING, Any
@@ -18,7 +19,13 @@ from pylint.constants import _MSG_ORDER, MAIN_CHECKER_NAME, WarningScope
 from pylint.exceptions import InvalidMessageError
 from pylint.interfaces import Confidence, IRawChecker, ITokenChecker, implements
 from pylint.message.message_definition import MessageDefinition
-from pylint.typing import Options
+from pylint.typing import (
+    ExtraMessageOptions,
+    MessageDefinitionTuple,
+    OptionDict,
+    Options,
+    ReportsCallable,
+)
 from pylint.utils import get_rst_section, get_rst_title
 
 if TYPE_CHECKING:
@@ -33,9 +40,9 @@ class BaseChecker(_ArgumentsProvider):
     # ordered list of options to control the checker behaviour
     options: Options = ()
     # messages issued by this checker
-    msgs: Any = {}
+    msgs: dict[str, MessageDefinitionTuple] = {}
     # reports issued by this checker
-    reports: Any = ()
+    reports: tuple[tuple[str, str, ReportsCallable], ...] = ()
     # mark this checker as enabled or not.
     enabled: bool = True
 
@@ -74,16 +81,16 @@ class BaseChecker(_ArgumentsProvider):
             return False
         return f"{self.name}{self.msgs}" == f"{other.name}{other.msgs}"
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         """Make Checker hashable."""
         return hash(f"{self.name}{self.msgs}")
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         status = "Checker" if self.enabled else "Disabled checker"
         msgs = "', '".join(self.msgs.keys())
         return f"{status} '{self.name}' (responsible for '{msgs}')"
 
-    def __str__(self):
+    def __str__(self) -> str:
         """This might be incomplete because multiple classes inheriting BaseChecker
         can have the same name.
 
@@ -95,7 +102,14 @@ class BaseChecker(_ArgumentsProvider):
                 msgs=self.msgs, options=self.options_and_values(), reports=self.reports
             )
 
-    def get_full_documentation(self, msgs, options, reports, doc=None, module=None):
+    def get_full_documentation(
+        self,
+        msgs: dict[str, MessageDefinitionTuple],
+        options: Iterator[tuple[str, OptionDict, Any]],
+        reports: tuple[tuple[str, str, ReportsCallable], ...],
+        doc: str | None = None,
+        module: str | None = None,
+    ) -> str:
         result = ""
         checker_title = f"{self.name.replace('_', ' ').title()} checker"
         if module:
@@ -110,17 +124,17 @@ class BaseChecker(_ArgumentsProvider):
             result += get_rst_title(f"{checker_title} Documentation", "^")
             result += f"{cleandoc(doc)}\n\n"
         # options might be an empty generator and not be False when cast to boolean
-        options = list(options)
-        if options:
+        options_list = list(options)
+        if options_list:
             result += get_rst_title(f"{checker_title} Options", "^")
-            result += f"{get_rst_section(None, options)}\n"
+            result += f"{get_rst_section(None, options_list)}\n"
         if msgs:
             result += get_rst_title(f"{checker_title} Messages", "^")
             for msgid, msg in sorted(
                 msgs.items(), key=lambda kv: (_MSG_ORDER.index(kv[0][0]), kv[1])
             ):
-                msg = self.create_message_definition_from_tuple(msgid, msg)
-                result += f"{msg.format_help(checkerref=False)}\n"
+                msg_def = self.create_message_definition_from_tuple(msgid, msg)
+                result += f"{msg_def.format_help(checkerref=False)}\n"
             result += "\n"
         if reports:
             result += get_rst_title(f"{checker_title} Reports", "^")
@@ -147,7 +161,7 @@ class BaseChecker(_ArgumentsProvider):
             msgid, line, node, args, confidence, col_offset, end_lineno, end_col_offset
         )
 
-    def check_consistency(self):
+    def check_consistency(self) -> None:
         """Check the consistency of msgid.
 
         msg ids for a checker should be a string of len 4, where the two first
@@ -168,12 +182,14 @@ class BaseChecker(_ArgumentsProvider):
             checker_id = message.msgid[1:3]
             existing_ids.append(message.msgid)
 
-    def create_message_definition_from_tuple(self, msgid, msg_tuple):
+    def create_message_definition_from_tuple(
+        self, msgid: str, msg_tuple: MessageDefinitionTuple
+    ) -> MessageDefinition:
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             if isinstance(self, (BaseTokenChecker, BaseRawFileChecker)):
                 default_scope = WarningScope.LINE
-            # TODO: 3.0: Remove deprecated if-statement # pylint: disable=fixme
+            # TODO: 3.0: Remove deprecated if-statement
             elif implements(self, (IRawChecker, ITokenChecker)):
                 warnings.warn(  # pragma: no cover
                     "Checkers should subclass BaseTokenChecker or BaseRawFileChecker"
@@ -184,13 +200,13 @@ class BaseChecker(_ArgumentsProvider):
                 default_scope = WarningScope.LINE  # pragma: no cover
             else:
                 default_scope = WarningScope.NODE
-        options = {}
-        if len(msg_tuple) > 3:
-            (msg, symbol, descr, options) = msg_tuple
-        elif len(msg_tuple) > 2:
-            (msg, symbol, descr) = msg_tuple
+        options: ExtraMessageOptions = {}
+        if len(msg_tuple) == 4:
+            (msg, symbol, descr, options) = msg_tuple  # type: ignore[misc]
+        elif len(msg_tuple) == 3:
+            (msg, symbol, descr) = msg_tuple  # type: ignore[misc]
         else:
-            error_msg = """Messages should have a msgid and a symbol. Something like this :
+            error_msg = """Messages should have a msgid, a symbol and a description. Something like this :
 
 "W1234": (
     "message",
@@ -204,13 +220,13 @@ class BaseChecker(_ArgumentsProvider):
         return MessageDefinition(self, msgid, msg, descr, symbol, **options)
 
     @property
-    def messages(self) -> list:
+    def messages(self) -> list[MessageDefinition]:
         return [
             self.create_message_definition_from_tuple(msgid, msg_tuple)
             for msgid, msg_tuple in sorted(self.msgs.items())
         ]
 
-    def get_message_definition(self, msgid):
+    def get_message_definition(self, msgid: str) -> MessageDefinition:
         for message_definition in self.messages:
             if message_definition.msgid == msgid:
                 return message_definition
@@ -224,11 +240,10 @@ class BaseChecker(_ArgumentsProvider):
     def close(self) -> None:
         """Called after visiting project (i.e set of modules)."""
 
-    # pylint: disable-next=no-self-use
     def get_map_data(self) -> Any:
         return None
 
-    # pylint: disable-next=no-self-use, unused-argument
+    # pylint: disable-next=unused-argument
     def reduce_map_data(self, linter: PyLinter, data: list[Any]) -> None:
         return None
 

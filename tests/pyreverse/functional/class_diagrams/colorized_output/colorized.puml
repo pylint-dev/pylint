@@ -1,0 +1,42 @@
+@startuml classes
+set namespaceSeparator none
+class "CheckerCollector" as colorized.CheckerCollector #aliceblue {
+  checker1
+  checker2
+  checker3
+}
+class "ElseifUsedChecker" as pylint.extensions.check_elif.ElseifUsedChecker #antiquewhite {
+  msgs : dict
+  name : str
+  leave_module(_: nodes.Module) -> None
+  process_tokens(tokens: list[TokenInfo]) -> None
+  visit_if(node: nodes.If) -> None
+}
+class "ExceptionsChecker" as pylint.checkers.exceptions.ExceptionsChecker #aquamarine {
+  msgs : dict
+  name : str
+  options : tuple
+  open()
+  visit_binop(node: nodes.BinOp) -> None
+  visit_compare(node: nodes.Compare) -> None
+  visit_raise(node: nodes.Raise) -> None
+  visit_tryexcept(node: nodes.TryExcept) -> None
+}
+class "StdlibChecker" as pylint.checkers.stdlib.StdlibChecker #aquamarine {
+  msgs
+  name : str
+  deprecated_arguments(method: str)
+  deprecated_classes(module: str)
+  deprecated_decorators() -> Iterable
+  deprecated_methods()
+  visit_boolop(node: nodes.BoolOp) -> None
+  visit_call(node: nodes.Call) -> None
+  visit_functiondef(node: nodes.FunctionDef) -> None
+  visit_if(node: nodes.If) -> None
+  visit_ifexp(node: nodes.IfExp) -> None
+  visit_unaryop(node: nodes.UnaryOp) -> None
+}
+pylint.checkers.exceptions.ExceptionsChecker --* colorized.CheckerCollector : checker1
+pylint.checkers.stdlib.StdlibChecker --* colorized.CheckerCollector : checker3
+pylint.extensions.check_elif.ElseifUsedChecker --* colorized.CheckerCollector : checker2
+@enduml

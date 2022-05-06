@@ -11,10 +11,10 @@ from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
-    check_messages,
     in_type_checking_block,
     is_node_in_type_annotation_context,
     is_postponed_evaluation_enabled,
+    only_required_for_messages,
     safe_infer,
 )
 from pylint.interfaces import INFERENCE
@@ -190,7 +190,7 @@ class TypingChecker(BaseChecker):
             return ""
         return ". Add 'from __future__ import annotations' as well"
 
-    @check_messages(
+    @only_required_for_messages(
         "deprecated-typing-alias",
         "consider-using-alias",
         "consider-alternative-union-syntax",
@@ -207,7 +207,7 @@ class TypingChecker(BaseChecker):
         if self._should_check_callable and node.name == "Callable":
             self._check_broken_callable(node)
 
-    @check_messages(
+    @only_required_for_messages(
         "deprecated-typing-alias",
         "consider-using-alias",
         "consider-alternative-union-syntax",
@@ -305,7 +305,7 @@ class TypingChecker(BaseChecker):
             )
         )
 
-    @check_messages("consider-using-alias", "deprecated-typing-alias")
+    @only_required_for_messages("consider-using-alias", "deprecated-typing-alias")
     def leave_module(self, node: nodes.Module) -> None:
         """After parsing of module is complete, add messages for
         'consider-using-alias' check.
@@ -386,9 +386,7 @@ class TypingChecker(BaseChecker):
 
         self.add_message("broken-collections-callable", node=node, confidence=INFERENCE)
 
-    def _broken_callable_location(  # pylint: disable=no-self-use
-        self, node: nodes.Name | nodes.Attribute
-    ) -> bool:
+    def _broken_callable_location(self, node: nodes.Name | nodes.Attribute) -> bool:
         """Check if node would be a broken location for collections.abc.Callable."""
         if (
             in_type_checking_block(node)

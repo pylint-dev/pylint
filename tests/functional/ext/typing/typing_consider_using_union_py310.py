@@ -3,7 +3,7 @@
 'py-version' needs to be set to >= '3.10'.
 """
 # pylint: disable=missing-docstring,invalid-name,unused-argument,line-too-long
-# pylint: disable=deprecated-typing-alias
+# pylint: disable=deprecated-typing-alias,unnecessary-direct-lambda-call
 from dataclasses import dataclass
 import typing
 from typing import Dict, List, Optional, Union, TypedDict

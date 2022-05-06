@@ -25,7 +25,6 @@ from astroid import bases, nodes
 
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import (
-    check_messages,
     decorated_with,
     decorated_with_property,
     has_known_bases,
@@ -39,6 +38,7 @@ from pylint.checkers.utils import (
     is_postponed_evaluation_enabled,
     is_super,
     node_ignores_exception,
+    only_required_for_messages,
     safe_infer,
     supports_delitem,
     supports_getitem,
@@ -46,6 +46,7 @@ from pylint.checkers.utils import (
     supports_setitem,
 )
 from pylint.interfaces import INFERENCE
+from pylint.typing import MessageDefinitionTuple
 
 if sys.version_info >= (3, 8):
     from functools import cached_property
@@ -218,11 +219,11 @@ def _missing_member_hint(owner, attrname, distance_threshold, max_choices):
     return f"; maybe {names_hint}?"
 
 
-MSGS = {
+MSGS: dict[str, MessageDefinitionTuple] = {
     "E1101": (
         "%s %r has no %r member%s",
         "no-member",
-        "Used when a variable is accessed for an unexistent member.",
+        "Used when a variable is accessed for a nonexistent member.",
         {"old_names": [("E1103", "maybe-no-member")]},
     ),
     "I1101": (
@@ -449,6 +450,8 @@ def _emit_no_member(
             except astroid.MroError:
                 return False
             if metaclass:
+                if _enum_has_attribute(owner, node):
+                    return False
                 # Renamed in Python 3.10 to `EnumType`
                 return metaclass.qname() in {"enum.EnumMeta", "enum.EnumType"}
             return False
@@ -498,7 +501,7 @@ def _emit_no_member(
     #   * Walk up recursively until if statement is found.
     #   * Check if condition can be inferred as `Const`,
     #       would evaluate as `False`,
-    #       and wheater the node is part of the `body`.
+    #       and whether the node is part of the `body`.
     #   * Continue checking until scope of node is reached.
     scope: nodes.NodeNG = node.scope()
     node_origin: nodes.NodeNG = node
@@ -522,10 +525,82 @@ def _emit_no_member(
     return True
 
 
+def _get_all_attribute_assignments(
+    node: nodes.FunctionDef, name: str | None = None
+) -> set[str]:
+    attributes: set[str] = set()
+    for child in node.nodes_of_class((nodes.Assign, nodes.AnnAssign)):
+        targets = []
+        if isinstance(child, nodes.Assign):
+            targets = child.targets
+        elif isinstance(child, nodes.AnnAssign):
+            targets = [child.target]
+        for assign_target in targets:
+            if isinstance(assign_target, nodes.Tuple):
+                targets.extend(assign_target.elts)
+                continue
+            if (
+                isinstance(assign_target, nodes.AssignAttr)
+                and isinstance(assign_target.expr, nodes.Name)
+                and (name is None or assign_target.expr.name == name)
+            ):
+                attributes.add(assign_target.attrname)
+    return attributes
+
+
+def _enum_has_attribute(
+    owner: astroid.Instance | nodes.ClassDef, node: nodes.Attribute
+) -> bool:
+    if isinstance(owner, astroid.Instance):
+        enum_def = next(
+            (b.parent for b in owner.bases if isinstance(b.parent, nodes.ClassDef)),
+            None,
+        )
+
+        if enum_def is None:
+            # We don't inherit from anything, so try to find the parent
+            # class definition and roll with that
+            enum_def = node
+            while enum_def is not None and not isinstance(enum_def, nodes.ClassDef):
+                enum_def = enum_def.parent
+
+        # If this blows, something is clearly wrong
+        assert enum_def is not None, "enum_def unexpectedly None"
+    else:
+        enum_def = owner
+
+    # Find __new__ and __init__
+    dunder_new = next((m for m in enum_def.methods() if m.name == "__new__"), None)
+    dunder_init = next((m for m in enum_def.methods() if m.name == "__init__"), None)
+
+    enum_attributes: set[str] = set()
+
+    # Find attributes defined in __new__
+    if dunder_new:
+        # Get the object returned in __new__
+        returned_obj_name = next(
+            (c.value for c in dunder_new.get_children() if isinstance(c, nodes.Return)),
+            None,
+        )
+        if returned_obj_name is not None:
+            # Find all attribute assignments to the returned object
+            enum_attributes |= _get_all_attribute_assignments(
+                dunder_new, returned_obj_name.name
+            )
+
+    # Find attributes defined in __init__
+    if dunder_init and dunder_init.body and dunder_init.args:
+        # Grab the name referring to `self` from the function def
+        enum_attributes |= _get_all_attribute_assignments(
+            dunder_init, dunder_init.args.arguments[0].name
+        )
+
+    return node.attrname in enum_attributes
+
+
 def _determine_callable(
     callable_obj: nodes.NodeNG,
 ) -> tuple[CallableObjects, int, str]:
-    # pylint: disable=fixme
     # TODO: The typing of the second return variable is actually Literal[0,1]
     # We need typing on astroid.NodeNG.implicit_parameters for this
     # TODO: The typing of the third return variable can be narrowed to a Literal
@@ -902,7 +977,7 @@ accessed. Python regular expressions are accepted.",
             generated_members = tuple(tok.strip('"') for tok in gen)
         return tuple(re.compile(exp) for exp in generated_members)
 
-    @check_messages("keyword-arg-before-vararg")
+    @only_required_for_messages("keyword-arg-before-vararg")
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         # check for keyword arg before varargs
         if node.args.vararg and node.args.defaults:
@@ -910,7 +985,7 @@ accessed. Python regular expressions are accepted.",
 
     visit_asyncfunctiondef = visit_functiondef
 
-    @check_messages("invalid-metaclass")
+    @only_required_for_messages("invalid-metaclass")
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         def _metaclass_name(metaclass):
             # pylint: disable=unidiomatic-typecheck
@@ -950,7 +1025,7 @@ accessed. Python regular expressions are accepted.",
     def visit_delattr(self, node: nodes.DelAttr) -> None:
         self.visit_attribute(node)
 
-    @check_messages("no-member", "c-extension-no-member")
+    @only_required_for_messages("no-member", "c-extension-no-member")
     def visit_attribute(self, node: nodes.Attribute) -> None:
         """Check that the accessed attribute exists.
 
@@ -1140,7 +1215,7 @@ accessed. Python regular expressions are accepted.",
                 hint = ""
         return msg, hint
 
-    @check_messages(
+    @only_required_for_messages(
         "assignment-from-no-return",
         "assignment-from-none",
         "non-str-assignment-to-dunder-name",
@@ -1469,7 +1544,7 @@ accessed. Python regular expressions are accepted.",
                 if parameters[i][1]:
                     # Duplicate definition of function parameter.
 
-                    # Might be too hardcoded, but this can actually
+                    # Might be too hard-coded, but this can actually
                     # happen when using str.format and `self` is passed
                     # by keyword argument, as in `.format(self=self)`.
                     # It's perfectly valid to so, so we're just skipping
@@ -1683,7 +1758,7 @@ accessed. Python regular expressions are accepted.",
 
         self.add_message("not-callable", node=node, args=node.func.as_string())
 
-    @check_messages("invalid-sequence-index")
+    @only_required_for_messages("invalid-sequence-index")
     def visit_extslice(self, node: nodes.ExtSlice) -> None:
         if not node.parent or not hasattr(node.parent, "value"):
             return None
@@ -1745,7 +1820,7 @@ accessed. Python regular expressions are accepted.",
         for snode in invalid_slices_nodes:
             self.add_message("invalid-slice-index", node=snode)
 
-    @check_messages("not-context-manager")
+    @only_required_for_messages("not-context-manager")
     def visit_with(self, node: nodes.With) -> None:
         for ctx_mgr, _ in node.items:
             context = astroid.context.InferenceContext()
@@ -1815,7 +1890,7 @@ accessed. Python regular expressions are accepted.",
                         "not-context-manager", node=node, args=(inferred.name,)
                     )
 
-    @check_messages("invalid-unary-operand-type")
+    @only_required_for_messages("invalid-unary-operand-type")
     def visit_unaryop(self, node: nodes.UnaryOp) -> None:
         """Detect TypeErrors for unary operands."""
 
@@ -1823,7 +1898,7 @@ accessed. Python regular expressions are accepted.",
             # Let the error customize its output.
             self.add_message("invalid-unary-operand-type", args=str(error), node=node)
 
-    @check_messages("unsupported-binary-operation")
+    @only_required_for_messages("unsupported-binary-operation")
     def visit_binop(self, node: nodes.BinOp) -> None:
         if node.op == "|":
             self._detect_unsupported_alternative_union_syntax(node)
@@ -1878,20 +1953,18 @@ accessed. Python regular expressions are accepted.",
                 self.add_message("unsupported-binary-operation", args=msg, node=node)
                 break
 
-    # pylint: disable-next=fixme
     # TODO: This check was disabled (by adding the leading underscore)
     # due to false positives several years ago - can we re-enable it?
     # https://github.com/PyCQA/pylint/issues/6359
-    @check_messages("unsupported-binary-operation")
+    @only_required_for_messages("unsupported-binary-operation")
     def _visit_binop(self, node: nodes.BinOp) -> None:
         """Detect TypeErrors for binary arithmetic operands."""
         self._check_binop_errors(node)
 
-    # pylint: disable-next=fixme
     # TODO: This check was disabled (by adding the leading underscore)
     # due to false positives several years ago - can we re-enable it?
     # https://github.com/PyCQA/pylint/issues/6359
-    @check_messages("unsupported-binary-operation")
+    @only_required_for_messages("unsupported-binary-operation")
     def _visit_augassign(self, node: nodes.AugAssign) -> None:
         """Detect TypeErrors for augmented binary arithmetic operands."""
         self._check_binop_errors(node)
@@ -1919,7 +1992,7 @@ accessed. Python regular expressions are accepted.",
                 "unsupported-membership-test", args=node.as_string(), node=node
             )
 
-    @check_messages("unsupported-membership-test")
+    @only_required_for_messages("unsupported-membership-test")
     def visit_compare(self, node: nodes.Compare) -> None:
         if len(node.ops) != 1:
             return
@@ -1928,7 +2001,7 @@ accessed. Python regular expressions are accepted.",
         if op in {"in", "not in"}:
             self._check_membership_test(right)
 
-    @check_messages(
+    @only_required_for_messages(
         "unsubscriptable-object",
         "unsupported-assignment-operation",
         "unsupported-delete-operation",
@@ -1992,7 +2065,7 @@ accessed. Python regular expressions are accepted.",
         ):
             self.add_message(msg, args=node.value.as_string(), node=node.value)
 
-    @check_messages("dict-items-missing-iter")
+    @only_required_for_messages("dict-items-missing-iter")
     def visit_for(self, node: nodes.For) -> None:
         if not isinstance(node.target, nodes.Tuple):
             # target is not a tuple
@@ -2019,7 +2092,7 @@ accessed. Python regular expressions are accepted.",
 
         self.add_message("dict-iter-missing-items", node=node)
 
-    @check_messages("await-outside-async")
+    @only_required_for_messages("await-outside-async")
     def visit_await(self, node: nodes.Await) -> None:
         self._check_await_outside_coroutine(node)
 
@@ -2102,43 +2175,43 @@ class IterableChecker(BaseChecker):
         if not is_mapping(inferred):
             self.add_message("not-a-mapping", args=node.as_string(), node=node)
 
-    @check_messages("not-an-iterable")
+    @only_required_for_messages("not-an-iterable")
     def visit_for(self, node: nodes.For) -> None:
         self._check_iterable(node.iter)
 
-    @check_messages("not-an-iterable")
+    @only_required_for_messages("not-an-iterable")
     def visit_asyncfor(self, node: nodes.AsyncFor) -> None:
         self._check_iterable(node.iter, check_async=True)
 
-    @check_messages("not-an-iterable")
+    @only_required_for_messages("not-an-iterable")
     def visit_yieldfrom(self, node: nodes.YieldFrom) -> None:
         if self._is_asyncio_coroutine(node.value):
             return
         self._check_iterable(node.value)
 
-    @check_messages("not-an-iterable", "not-a-mapping")
+    @only_required_for_messages("not-an-iterable", "not-a-mapping")
     def visit_call(self, node: nodes.Call) -> None:
         for stararg in node.starargs:
             self._check_iterable(stararg.value)
         for kwarg in node.kwargs:
             self._check_mapping(kwarg.value)
 
-    @check_messages("not-an-iterable")
+    @only_required_for_messages("not-an-iterable")
     def visit_listcomp(self, node: nodes.ListComp) -> None:
         for gen in node.generators:
             self._check_iterable(gen.iter, check_async=gen.is_async)
 
-    @check_messages("not-an-iterable")
+    @only_required_for_messages("not-an-iterable")
     def visit_dictcomp(self, node: nodes.DictComp) -> None:
         for gen in node.generators:
             self._check_iterable(gen.iter, check_async=gen.is_async)
 
-    @check_messages("not-an-iterable")
+    @only_required_for_messages("not-an-iterable")
     def visit_setcomp(self, node: nodes.SetComp) -> None:
         for gen in node.generators:
             self._check_iterable(gen.iter, check_async=gen.is_async)
 
-    @check_messages("not-an-iterable")
+    @only_required_for_messages("not-an-iterable")
     def visit_generatorexp(self, node: nodes.GeneratorExp) -> None:
         for gen in node.generators:
             self._check_iterable(gen.iter, check_async=gen.is_async)

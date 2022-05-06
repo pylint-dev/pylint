@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import check_messages
+from pylint.checkers.utils import only_required_for_messages
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -28,7 +28,7 @@ class WhileChecker(BaseChecker):
         )
     }
 
-    @check_messages("while-used")
+    @only_required_for_messages("while-used")
     def visit_while(self, node: nodes.While) -> None:
         self.add_message("while-used", node=node)
 

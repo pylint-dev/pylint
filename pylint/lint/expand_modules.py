@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import os
 import sys
+from collections.abc import Sequence
 from re import Pattern
 
 from astroid import modutils
@@ -24,7 +25,7 @@ def _modpath_from_file(filename: str, is_namespace: bool, path: list[str]) -> li
 
 def get_python_path(filepath: str) -> str:
     """TODO This get the python path with the (bad) assumption that there is always
-    an __init__.py
+    an __init__.py.
 
     This is not true since python 3.3 and is causing problem.
     """
@@ -46,13 +47,13 @@ def _is_in_ignore_list_re(element: str, ignore_list_re: list[Pattern[str]]) -> b
 
 
 def expand_modules(
-    files_or_modules: list[str],
+    files_or_modules: Sequence[str],
     ignore_list: list[str],
     ignore_list_re: list[Pattern[str]],
     ignore_list_paths_re: list[Pattern[str]],
 ) -> tuple[list[ModuleDescriptionDict], list[ErrorDescriptionDict]]:
     """Take a list of files/modules/packages and return the list of tuple
-    (file, module name) which have to be actually checked
+    (file, module name) which have to be actually checked.
     """
     result: list[ModuleDescriptionDict] = []
     errors: list[ErrorDescriptionDict] = []

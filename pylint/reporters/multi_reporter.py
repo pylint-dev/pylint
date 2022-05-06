@@ -102,7 +102,7 @@ class MultiReporter:
     def on_close(
         self,
         stats: LinterStats,
-        previous_stats: LinterStats,
+        previous_stats: LinterStats | None,
     ) -> None:
         """Hook called when a module finished analyzing."""
         for rep in self._sub_reporters:

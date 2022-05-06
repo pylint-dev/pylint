@@ -7,7 +7,7 @@ from pylint.lint import PyLinter
 from pylint.testutils.reporter_for_tests import GenericTestReporter
 
 
-def create_test_linter():
+def create_test_linter() -> PyLinter:
     test_reporter = GenericTestReporter()
     linter_ = PyLinter()
     linter_.set_reporter(test_reporter)

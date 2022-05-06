@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 from astroid import nodes
 
 from pylint import checkers
-from pylint.checkers.utils import check_messages
+from pylint.checkers.utils import only_required_for_messages
 from pylint.interfaces import HIGH
 
 if TYPE_CHECKING:
@@ -35,7 +35,7 @@ class DocStringStyleChecker(checkers.BaseChecker):
         ),
     }
 
-    @check_messages("docstring-first-line-empty", "bad-docstring-quotes")
+    @only_required_for_messages("docstring-first-line-empty", "bad-docstring-quotes")
     def visit_module(self, node: nodes.Module) -> None:
         self._check_docstring("module", node)
 

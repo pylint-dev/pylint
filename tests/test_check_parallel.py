@@ -4,7 +4,7 @@
 
 """Puts the check_parallel system under test."""
 
-# pylint: disable=protected-access,missing-function-docstring,no-self-use
+# pylint: disable=protected-access,missing-function-docstring
 
 from __future__ import annotations
 
@@ -294,7 +294,7 @@ class TestCheckParallel:
         # register test checkers, but it will trigger at least a single-job to be run.
         single_file_container = _gen_file_datas(count=1)
 
-        # Invoke the lint process in a multiprocess way, although we only specify one
+        # Invoke the lint process in a multi-process way, although we only specify one
         # job.
         check_parallel(
             linter,
@@ -351,7 +351,7 @@ class TestCheckParallel:
         assert linter.stats.warning == 0
 
     def test_invoke_single_job(self) -> None:
-        """Tests basic checkers functionality using just a single workderdo.
+        """Tests basic checkers functionality using just a single worker.
 
         This is *not* the same -j1 and does not happen under normal operation
         """
@@ -363,7 +363,7 @@ class TestCheckParallel:
         # register test checkers, but it will trigger at least a single-job to be run.
         single_file_container = _gen_file_datas(count=1)
 
-        # Invoke the lint process in a multiprocess way, although we only specify one
+        # Invoke the lint process in a multi-process way, although we only specify one
         # job.
         check_parallel(
             linter, jobs=1, files=iter(single_file_container), arguments=None
@@ -418,7 +418,7 @@ class TestCheckParallel:
         without ordering issues, irrespective of the number of workers used and the
         number of checkers applied.
 
-        This test becomes more important if we want to change how we parametrise the
+        This test becomes more important if we want to change how we parameterize the
         checkers, for example if we aim to batch the files across jobs.
         """
 

@@ -1,6 +1,6 @@
 """Test PEP 604 - Alternative Union syntax"""
 # pylint: disable=missing-function-docstring,unused-argument,invalid-name,missing-class-docstring
-# pylint: disable=inherit-non-class,too-few-public-methods
+# pylint: disable=inherit-non-class,too-few-public-methods,unnecessary-direct-lambda-call
 import dataclasses
 import typing
 from dataclasses import dataclass

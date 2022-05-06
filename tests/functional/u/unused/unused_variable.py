@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, invalid-name, too-few-public-methods, no-self-use, useless-object-inheritance,import-outside-toplevel, fixme, line-too-long
+# pylint: disable=missing-docstring, invalid-name, too-few-public-methods, useless-object-inheritance,import-outside-toplevel, fixme, line-too-long
 
 def test_regression_737():
     import xml # [unused-import]

@@ -27,6 +27,7 @@ def pop_pylintrc() -> None:
     os.environ.pop("PYLINTRC", None)
 
 
+# pylint: disable=duplicate-code
 if os.name == "java":
     if os.name == "nt":
         HOME = "USERPROFILE"
@@ -53,6 +54,9 @@ def fake_home() -> Iterator[None]:
         else:
             os.environ[HOME] = old_home
         shutil.rmtree(folder, ignore_errors=True)
+
+
+# pylint: enable=duplicate-code
 
 
 @contextlib.contextmanager
@@ -95,6 +99,7 @@ def test_pylintrc() -> None:
 @pytest.mark.usefixtures("pop_pylintrc")
 def test_pylintrc_parentdir() -> None:
     """Test that the first pylintrc we find is the first parent directory."""
+    # pylint: disable=duplicate-code
     with tempdir() as chroot:
         chroot_path = Path(chroot)
         testutils.create_files(

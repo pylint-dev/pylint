@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
 OPEN_FILES_MODE = ("open", "file")
-OPEN_FILES_ENCODING = ("open", "read_text", "write_text")
+OPEN_FILES_FUNCS = OPEN_FILES_MODE + ("read_text", "write_text")
 UNITTEST_CASE = "unittest.case"
 THREADING_THREAD = "threading.Thread"
 COPY_COPY = "copy.copy"
@@ -144,6 +144,7 @@ DEPRECATED_METHODS: dict = {
             "ntpath.splitunc",
             "os.path.splitunc",
             "os.stat_float_times",
+            "turtle.RawTurtle.settiltangle",
         },
         (3, 2, 0): {
             "cgi.escape",
@@ -232,11 +233,23 @@ DEPRECATED_METHODS: dict = {
             "threading.Thread.setDaemon",
             "cgi.log",
         },
+        (3, 11, 0): {
+            "locale.getdefaultlocale",
+            "unittest.TestLoader.findTestCases",
+            "unittest.TestLoader.loadTestsFromTestCase",
+            "unittest.TestLoader.getTestCaseNames",
+        },
     },
 }
 
 
 DEPRECATED_CLASSES = {
+    (3, 2, 0): {
+        "configparser": {
+            "LegacyInterpolation",
+            "SafeConfigParser",
+        },
+    },
     (3, 3, 0): {
         "importlib.abc": {
             "Finder",
@@ -278,6 +291,11 @@ DEPRECATED_CLASSES = {
             "MailmanProxy",
         }
     },
+    (3, 11, 0): {
+        "webbrowser": {
+            "MacOSX",
+        },
+    },
 }
 
 
@@ -315,6 +333,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
     name = "stdlib"
 
     msgs = {
+        **{k: v for k, v in DeprecatedMixin.msgs.items() if k[1:3] == "15"},
         "W1501": (
             '"%s" is not a valid mode for open.',
             "bad-open-mode",
@@ -338,13 +357,6 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "a condition. If a constant is passed as parameter, that "
             "condition will be always true. In this case a warning "
             "should be emitted.",
-        ),
-        "W1505": (
-            "Using deprecated method %s()",
-            "deprecated-method",
-            "The method is marked as deprecated and will be removed in "
-            "a future version of Python. Consider looking for an "
-            "alternative in the documentation.",
         ),
         "W1506": (
             "threading.Thread needs the target function",
@@ -389,21 +401,6 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "The check parameter should always be used with explicitly set "
             "`check` keyword to make clear what the error-handling behavior is."
             "https://docs.python.org/3/library/subprocess.html#subprocess.run",
-        ),
-        "W1511": (
-            "Using deprecated argument %s of method %s()",
-            "deprecated-argument",
-            "The argument is marked as deprecated and will be removed in the future.",
-        ),
-        "W1512": (
-            "Using deprecated class %s of module %s",
-            "deprecated-class",
-            "The class is marked as deprecated and will be removed in the future.",
-        ),
-        "W1513": (
-            "Using deprecated decorator %s()",
-            "deprecated-decorator",
-            "The decorator is marked as deprecated and will be removed in the future.",
         ),
         "W1514": (
             "Using open without explicitly specifying an encoding",
@@ -483,7 +480,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                 self.add_message("shallow-copy-environ", node=node)
                 break
 
-    @utils.check_messages(
+    @utils.only_required_for_messages(
         "bad-open-mode",
         "redundant-unittest-assert",
         "deprecated-method",
@@ -505,18 +502,13 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             if inferred is astroid.Uninferable:
                 continue
             if inferred.root().name in OPEN_MODULE:
-                if (
-                    isinstance(node.func, nodes.Name)
-                    and node.func.name in OPEN_FILES_MODE
-                ):
-                    self._check_open_mode(node)
-                if (
-                    isinstance(node.func, nodes.Name)
-                    and node.func.name in OPEN_FILES_ENCODING
-                    or isinstance(node.func, nodes.Attribute)
-                    and node.func.attrname in OPEN_FILES_ENCODING
-                ):
-                    self._check_open_encoded(node, inferred.root().name)
+                open_func_name: str | None = None
+                if isinstance(node.func, nodes.Name):
+                    open_func_name = node.func.name
+                if isinstance(node.func, nodes.Attribute):
+                    open_func_name = node.func.attrname
+                if open_func_name in OPEN_FILES_FUNCS:
+                    self._check_open_call(node, inferred.root().name, open_func_name)
             elif inferred.root().name == UNITTEST_CASE:
                 self._check_redundant_assert(node, inferred)
             elif isinstance(inferred, nodes.ClassDef):
@@ -536,25 +528,25 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                     self.add_message("forgotten-debug-statement", node=node)
             self.check_deprecated_method(node, inferred)
 
-    @utils.check_messages("boolean-datetime")
+    @utils.only_required_for_messages("boolean-datetime")
     def visit_unaryop(self, node: nodes.UnaryOp) -> None:
         if node.op == "not":
             self._check_datetime(node.operand)
 
-    @utils.check_messages("boolean-datetime")
+    @utils.only_required_for_messages("boolean-datetime")
     def visit_if(self, node: nodes.If) -> None:
         self._check_datetime(node.test)
 
-    @utils.check_messages("boolean-datetime")
+    @utils.only_required_for_messages("boolean-datetime")
     def visit_ifexp(self, node: nodes.IfExp) -> None:
         self._check_datetime(node.test)
 
-    @utils.check_messages("boolean-datetime")
+    @utils.only_required_for_messages("boolean-datetime")
     def visit_boolop(self, node: nodes.BoolOp) -> None:
         for value in node.values:
             self._check_datetime(value)
 
-    @utils.check_messages("method-cache-max-size-none")
+    @utils.only_required_for_messages("method-cache-max-size-none")
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         if node.decorators and isinstance(node.parent, nodes.ClassDef):
             self._check_lru_cache_decorators(node.decorators)
@@ -621,25 +613,10 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         ):
             self.add_message("boolean-datetime", node=node)
 
-    def _check_open_mode(self, node):
-        """Check that the mode argument of an open or file call is valid."""
-        try:
-            mode_arg = utils.get_argument_from_call(node, position=1, keyword="mode")
-        except utils.NoSuchArgumentError:
-            return
-        if mode_arg:
-            mode_arg = utils.safe_infer(mode_arg)
-            if isinstance(mode_arg, nodes.Const) and not _check_mode_str(
-                mode_arg.value
-            ):
-                self.add_message(
-                    "bad-open-mode",
-                    node=node,
-                    args=mode_arg.value or str(mode_arg.value),
-                )
-
-    def _check_open_encoded(self, node: nodes.Call, open_module: str) -> None:
-        """Check that the encoded argument of an open call is valid."""
+    def _check_open_call(
+        self, node: nodes.Call, open_module: str, func_name: str
+    ) -> None:
+        """Various checks for an open call."""
         mode_arg = None
         try:
             if open_module == "_io":
@@ -656,10 +633,21 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         if mode_arg:
             mode_arg = utils.safe_infer(mode_arg)
 
+            if (
+                func_name in OPEN_FILES_MODE
+                and isinstance(mode_arg, nodes.Const)
+                and not _check_mode_str(mode_arg.value)
+            ):
+                self.add_message(
+                    "bad-open-mode",
+                    node=node,
+                    args=mode_arg.value or str(mode_arg.value),
+                )
+
         if (
             not mode_arg
             or isinstance(mode_arg, nodes.Const)
-            and (not mode_arg.value or "b" not in mode_arg.value)
+            and (not mode_arg.value or "b" not in str(mode_arg.value))
         ):
             encoding_arg = None
             try:

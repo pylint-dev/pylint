@@ -27,9 +27,7 @@ jobs:
       pre-commit-key: ${{ steps.generate-pre-commit-key.outputs.key }}
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.0.1
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v3.0.2
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
         uses: actions/setup-python@v3.1.2
@@ -86,7 +84,7 @@ jobs:
     needs: prepare-base
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.0.1
+        uses: actions/checkout@v3.0.2
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
         uses: actions/setup-python@v3.1.2
@@ -116,20 +114,24 @@ jobs:
         run: |
           echo "Failed to restore pre-commit environment from cache"
           exit 1
+      - name: Install enchant and aspell
+        run: |
+          sudo apt-get update
+          sudo apt-get install enchant aspell-en
       - name: Run pylint checks
         run: |
           . venv/bin/activate
           pip install -e .
-          pre-commit run pylint --all-files
+          pre-commit run --hook-stage manual pylint-with-spelling --all-files
 
   spelling:
-    name: spelling
+    name: spelling tests
     runs-on: ubuntu-latest
     timeout-minutes: 5
     needs: prepare-base
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.0.1
+        uses: actions/checkout@v3.0.2
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
         uses: actions/setup-python@v3.1.2
@@ -160,7 +162,7 @@ jobs:
     needs: prepare-base
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.0.1
+        uses: actions/checkout@v3.0.2
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
         uses: actions/setup-python@v3.1.2

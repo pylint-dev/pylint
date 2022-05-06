@@ -56,7 +56,7 @@ def _worker_check_single_file(
     file_item: FileItem,
 ) -> tuple[
     int,
-    # TODO: 3.0: Make this only str after deprecation has been removed # pylint: disable=fixme
+    # TODO: 3.0: Make this only str after deprecation has been removed
     str | None,
     str,
     str | None,

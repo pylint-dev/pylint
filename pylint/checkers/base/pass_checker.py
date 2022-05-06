@@ -19,7 +19,7 @@ class PassChecker(_BasicChecker):
         )
     }
 
-    @utils.check_messages("unnecessary-pass")
+    @utils.only_required_for_messages("unnecessary-pass")
     def visit_pass(self, node: nodes.Pass) -> None:
         if len(node.parent.child_sequence(node)) > 1 or (
             isinstance(node.parent, (nodes.ClassDef, nodes.FunctionDef))

@@ -11,10 +11,10 @@ Then each index of the stripped lines collection is associated with the hash of 
 (n is the minimum common lines option).
 The common hashes between both linesets are then looked for. If there are matches, then the match indices in both linesets are stored and associated
 with the corresponding couples (start line number/end line number) in both files.
-This association is then postprocessed to handle the case of successive matches. For example if the minimum common lines setting is set to four, then
+This association is then post-processed to handle the case of successive matches. For example if the minimum common lines setting is set to four, then
 the hashes are computed with four lines. If one of match indices couple (12, 34) is the successor of another one (11, 33) then it means that there are
 in fact five lines which are common.
-Once postprocessed the values of association table are the result looked for, i.e start and end lines numbers of common lines in both files.
+Once post-processed the values of association table are the result looked for, i.e start and end lines numbers of common lines in both files.
 """
 
 from __future__ import annotations
@@ -39,6 +39,7 @@ from typing import (
     List,
     NamedTuple,
     NewType,
+    NoReturn,
     TextIO,
     Tuple,
     Union,
@@ -49,7 +50,7 @@ from astroid import nodes
 
 from pylint.checkers import BaseChecker, BaseRawFileChecker, table_lines_from_stats
 from pylint.reporters.ureports.nodes import Table
-from pylint.typing import Options
+from pylint.typing import MessageDefinitionTuple, Options
 from pylint.utils import LinterStats, decoding_stream
 
 if TYPE_CHECKING:
@@ -85,7 +86,7 @@ STREAM_TYPES = Union[TextIO, BufferedReader, BytesIO]
 
 class CplSuccessiveLinesLimits:
     """Holds a SuccessiveLinesLimits object for each file compared and a
-    counter on the number of common lines between both stripped lines collections extracted from both files
+    counter on the number of common lines between both stripped lines collections extracted from both files.
     """
 
     __slots__ = ("first_file", "second_file", "effective_cmn_lines_nb")
@@ -244,13 +245,13 @@ def hash_lineset(
     return hash2index, index2lines
 
 
-def remove_successives(all_couples: CplIndexToCplLines_T) -> None:
+def remove_successive(all_couples: CplIndexToCplLines_T) -> None:
     """Removes all successive entries in the dictionary in argument.
 
-    :param all_couples: collection that has to be cleaned up from successives entries.
+    :param all_couples: collection that has to be cleaned up from successive entries.
                         The keys are couples of indices that mark the beginning of common entries
                         in both linesets. The values have two parts. The first one is the couple
-                        of starting and ending line numbers of common successives lines in the first file.
+                        of starting and ending line numbers of common successive lines in the first file.
                         The second part is the same for the second file.
 
     For example consider the following dict:
@@ -260,11 +261,11 @@ def remove_successives(all_couples: CplIndexToCplLines_T) -> None:
      (23, 79): ([15, 19], [45, 49]),
      (12, 35): ([6, 10], [28, 32])}
 
-    There are two successives keys (11, 34) and (12, 35).
+    There are two successive keys (11, 34) and (12, 35).
     It means there are two consecutive similar chunks of lines in both files.
     Thus remove last entry and update the last line numbers in the first entry
 
-    >>> remove_successives(all_couples)
+    >>> remove_successive(all_couples)
     >>> all_couples
     {(11, 34): ([5, 10], [27, 32]),
      (23, 79): ([15, 19], [45, 49])}
@@ -299,14 +300,14 @@ def filter_noncode_lines(
 
     That is to say the number of common successive stripped
     lines except those that do not contain code (for example
-    a line with only an ending parathensis)
+    a line with only an ending parenthesis)
 
     :param ls_1: first lineset
     :param stindex_1: first lineset starting index
     :param ls_2: second lineset
     :param stindex_2: second lineset starting index
     :param common_lines_nb: number of common successive stripped lines before being filtered from non code lines
-    :return: the number of common successives stripped lines that contain code
+    :return: the number of common successive stripped lines that contain code
     """
     stripped_l1 = [
         lspecif.text
@@ -505,7 +506,7 @@ class Similar:
                     effective_cmn_lines_nb=self.namespace.min_similarity_lines,
                 )
 
-        remove_successives(all_couples)
+        remove_successive(all_couples)
 
         for cml_stripped_l, cmn_l in all_couples.items():
             start_index_1 = cml_stripped_l.fst_lineset_index
@@ -530,8 +531,8 @@ class Similar:
                 yield com
 
     def _iter_sims(self) -> Generator[Commonality, None, None]:
-        """Iterate on similarities among all files, by making a cartesian
-        product
+        """Iterate on similarities among all files, by making a Cartesian
+        product.
         """
         for idx, lineset in enumerate(self.linesets[:-1]):
             for lineset2 in self.linesets[idx + 1 :]:
@@ -561,7 +562,7 @@ def stripped_lines(
     ignore_signatures: bool,
     line_enabled_callback: Callable[[str, int], bool] | None = None,
 ) -> list[LineSpecifs]:
-    """Return tuples of line/line number/line type with leading/trailing whitespace and any ignored code features removed.
+    """Return tuples of line/line number/line type with leading/trailing white-space and any ignored code features removed.
 
     :param lines: a collection of lines
     :param ignore_comments: if true, any comment in the lines collection is removed from the result
@@ -712,7 +713,7 @@ class LineSet:
         return self._real_lines
 
 
-MSGS = {
+MSGS: dict[str, MessageDefinitionTuple] = {
     "R0801": (
         "Similar lines in %s files\n%s",
         "duplicate-code",
@@ -739,7 +740,7 @@ class SimilarChecker(BaseRawFileChecker, Similar):
     """Checks for similarities and duplicated code.
 
     This computation may be memory / CPU intensive, so you
-    should disable it if you experiment some problems.
+    should disable it if you experience some problems.
     """
 
     # configuration section name
@@ -779,7 +780,7 @@ class SimilarChecker(BaseRawFileChecker, Similar):
         (
             "ignore-imports",
             {
-                "default": False,
+                "default": True,
                 "type": "yn",
                 "metavar": "<y or n>",
                 "help": "Imports are removed from the similarity computation",
@@ -788,7 +789,7 @@ class SimilarChecker(BaseRawFileChecker, Similar):
         (
             "ignore-signatures",
             {
-                "default": False,
+                "default": True,
                 "type": "yn",
                 "metavar": "<y or n>",
                 "help": "Signatures are removed from the similarity computation",
@@ -880,20 +881,20 @@ def usage(status=0):
     sys.exit(status)
 
 
-def Run(argv=None):
+def Run(argv=None) -> NoReturn:
     """Standalone command line access point."""
     if argv is None:
         argv = sys.argv[1:]
 
     s_opts = "hdi"
-    l_opts = (
+    l_opts = [
         "help",
         "duplicates=",
         "ignore-comments",
         "ignore-imports",
         "ignore-docstrings",
         "ignore-signatures",
-    )
+    ]
     min_lines = DEFAULT_MIN_SIMILARITY_LINE
     ignore_comments = False
     ignore_docstrings = False
