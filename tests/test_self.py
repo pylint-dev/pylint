@@ -1241,34 +1241,58 @@ class TestRunTC:
 
     def test_ignore_recursive(self):
         self._runtest(
-            [join(HERE, "regrtest_data", "directory"), "--recursive=y", "--ignore=ignored_subdirectory"],
+            [
+                join(HERE, "regrtest_data", "directory"),
+                "--recursive=y",
+                "--ignore=ignored_subdirectory",
+            ],
             code=0,
         )
 
         self._runtest(
-            [join(HERE, "regrtest_data", "directory"), "--recursive=y", "--ignore=failing.py"],
+            [
+                join(HERE, "regrtest_data", "directory"),
+                "--recursive=y",
+                "--ignore=failing.py",
+            ],
             code=0,
         )
 
     def test_ignore_pattern_recursive(self):
         self._runtest(
-            [join(HERE, "regrtest_data", "directory"), "--recursive=y", "--ignore-pattern=ignored_.*"],
+            [
+                join(HERE, "regrtest_data", "directory"),
+                "--recursive=y",
+                "--ignore-pattern=ignored_.*",
+            ],
             code=0,
         )
 
         self._runtest(
-            [join(HERE, "regrtest_data", "directory"), "--recursive=y", "--ignore-pattern=failing.*"],
+            [
+                join(HERE, "regrtest_data", "directory"),
+                "--recursive=y",
+                "--ignore-pattern=failing.*",
+            ],
             code=0,
         )
 
     def test_ignore_path_recursive(self):
         self._runtest(
-            [join(HERE, "regrtest_data", "directory"), "--recursive=y", "--ignore-path=.*ignored.*"],
+            [
+                join(HERE, "regrtest_data", "directory"),
+                "--recursive=y",
+                "--ignore-path=.*ignored.*",
+            ],
             code=0,
         )
 
         self._runtest(
-            [join(HERE, "regrtest_data", "directory"), "--recursive=y", "--ignore-path=.*failing.*"],
+            [
+                join(HERE, "regrtest_data", "directory"),
+                "--recursive=y",
+                "--ignore-path=.*failing.*",
+            ],
             code=0,
         )
 
