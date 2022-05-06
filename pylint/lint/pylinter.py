@@ -687,11 +687,14 @@ class PyLinter(
                     if any(root.startswith(s) for s in skip_subtrees):
                         # Skip subtree of already discovered package.
                         continue
-                    if any((pattern.match(os.path.basename(root)) for pattern in self.config.ignore_patterns)):
+                    if any(
+                        pattern.match(os.path.basename(root))
+                        for pattern in self.config.ignore_patterns
+                    ):
                         # Skip if mathes ignore-patterns list
                         skip_subtrees.append(root)
                         continue
-                    if any((pattern.match(root) for pattern in self.config.ignore_paths)):
+                    if any(pattern.match(root) for pattern in self.config.ignore_paths):
                         # Skip if mathes ignore-paths list
                         skip_subtrees.append(root)
                         continue
