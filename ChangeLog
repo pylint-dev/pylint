@@ -302,6 +302,9 @@ What's New in Pylint 2.13.9?
 ============================
 Release date: TBA
 
+* Respect ignore configuration options during when --recursive=y.
+
+  Closes #6471
 
 
 What's New in Pylint 2.13.8?
