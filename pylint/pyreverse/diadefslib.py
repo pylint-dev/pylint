@@ -29,7 +29,7 @@ class DiaDefGenerator:
         self.module_names: bool = False
         self._set_default_options()
         self.linker = linker
-        self.classdiagram: ClassDiagram | None = None  # defined by subclasses
+        self.classdiagram: ClassDiagram  # defined by subclasses
 
     def get_title(self, node: nodes.ClassDef) -> str:
         """Get title for objects."""
@@ -75,8 +75,7 @@ class DiaDefGenerator:
     def add_class(self, node: nodes.ClassDef) -> None:
         """Visit one class and add it to diagram."""
         self.linker.visit(node)
-        if self.classdiagram:
-            self.classdiagram.add_object(self.get_title(node), node)
+        self.classdiagram.add_object(self.get_title(node), node)
 
     def get_ancestors(
         self, node: nodes.ClassDef, level: int
@@ -109,11 +108,7 @@ class DiaDefGenerator:
         self, klass_node: nodes.ClassDef, anc_level: int, association_level: int
     ) -> None:
         """Extract recursively classes related to klass_node."""
-        if (
-            not self.classdiagram
-            or self.classdiagram.has_node(klass_node)
-            or not self.show_node(klass_node)
-        ):
+        if self.classdiagram.has_node(klass_node) or not self.show_node(klass_node):
             return
         self.add_class(klass_node)
 
