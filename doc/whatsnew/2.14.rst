@@ -266,6 +266,11 @@ Other Changes
 
   Closes #5670
 
+* Fix saving of persistent data files in environments where the user's cache
+  directory and the linted file are on a different drive.
+
+  Closes #6394
+
 * The ``method-cache-max-size-none`` checker will now also check ``functools.cache``.
 
   Closes #5670

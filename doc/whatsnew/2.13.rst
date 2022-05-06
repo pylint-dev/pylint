@@ -639,8 +639,3 @@ Other Changes
   ``open``
 
   Closes #6414
-
-* Fix saving of persistent data files in environments where the user's cache
-  directory and the linted file are on a different drive.
-
-  Closes #6394
