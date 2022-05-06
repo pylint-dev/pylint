@@ -37,8 +37,16 @@ name = "Upgrade the pylintrc examples"
 cmd = "pylint --rcfile=/dev/null --generate-rcfile > examples/pylintrc"
 
 [[before_commit]]
+name = "Check that the new pylintrc example is correct"
+cmd = "pylint --rcfile=examples/pylintrc setup.py"
+
+[[before_commit]]
 name = "Upgrade the toml examples"
 cmd = "pylint --rcfile=/dev/null --generate-toml-config > examples/pyproject.toml"
+
+[[before_commit]]
+name = "Check that the new toml example is correct"
+cmd = "pylint --rcfile=examples/pyproject.toml setup.py"
 
 [[before_commit]]
 name = "Normalize the contributors-txt configuration"
