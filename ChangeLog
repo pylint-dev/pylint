@@ -25,6 +25,8 @@ Release date: TBA
 
   Closes #4301
 
+* Fix ``IndexError`` crash in ``uninferable_final_decorators`` method.
+
 * By default the similarity checker will now ignore imports and ignore function signatures when computing
   duplication. If you want to keep the previous behaviour set ``ignore-imports`` and ``ignore-signatures`` to ``False``.
 
