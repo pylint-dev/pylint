@@ -107,16 +107,6 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
         ):
             self.checker.visit_classdef(stmt)
 
-    @pytest.mark.skipif(True, reason="pyenchant's tokenizer strips these")
-    @skip_on_missing_package_or_dict
-    @set_config(spelling_dict=spell_dict)
-    def test_invalid_docstring_characters(self):
-        stmt = astroid.extract_node('def fff():\n   """test\\x00"""\n   pass')
-        with self.assertAddsMessages(
-            MessageTest("invalid-characters-in-docstring", line=2, args=("test\x00",))
-        ):
-            self.checker.visit_functiondef(stmt)
-
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_skip_shebangs(self):
