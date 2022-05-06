@@ -691,11 +691,11 @@ class PyLinter(
                         pattern.match(os.path.basename(root))
                         for pattern in self.config.ignore_patterns
                     ):
-                        # Skip if mathes ignore-patterns list
+                        # Skip if matches ignore-patterns list
                         skip_subtrees.append(root)
                         continue
                     if any(pattern.match(root) for pattern in self.config.ignore_paths):
-                        # Skip if mathes ignore-paths list
+                        # Skip if matches ignore-paths list
                         skip_subtrees.append(root)
                         continue
                     if os.path.basename(root) in self.config.ignore:
