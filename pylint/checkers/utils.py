@@ -847,11 +847,10 @@ def uninferable_final_decorators(
     """
     decorators = []
     for decorator in getattr(node, "nodes", []):
-        if isinstance(decorator, nodes.Attribute):
-            try:
-                _, import_nodes = decorator.expr.lookup(decorator.expr.name)
-            except AttributeError:
-                continue
+        if isinstance(decorator, nodes.Attribute) and hasattr(decorator.expr, "lookup"):
+            _, import_nodes = decorator.expr.lookup(decorator.expr.name)
+            # The `final` decorator is expected to be found in the
+            # import_nodes. In case it is not, continue.
             if not import_nodes:
                 continue
             import_node = import_nodes[0]
