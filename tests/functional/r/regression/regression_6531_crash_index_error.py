@@ -1,3 +1,5 @@
+"""Regression test for https://github.com/PyCQA/pylint/issues/6531."""
+
 # pylint: disable=missing-docstring, redefined-outer-name
 
 import pytest
