@@ -722,9 +722,17 @@ def parse_format_method_string(
     open_brackets = []
     while idx < len(format_string):
         char = format_string[idx]
-        if char == "{" and len(format_string) > idx and format_string[idx + 1] != "{":
+        if (
+            char == "{"
+            and len(format_string) > (idx + 1)
+            and format_string[idx + 1] != "{"
+        ):
             open_brackets.append(idx)
-        elif char == "}" and len(format_string) > idx and format_string[idx + 1] != "}":
+        elif (
+            char == "}"
+            and len(format_string) > (idx + 1)
+            and format_string[idx + 1] != "}"
+        ):
             if len(open_brackets) == 0:
                 raise IncompleteFormatString(format_string)
             else:
