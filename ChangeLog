@@ -25,10 +25,6 @@ Release date: TBA
 
   Closes #4301
 
-* Fix ``IndexError`` crash in ``uninferable_final_decorators`` method.
-
- Relates to #6531
-
 * By default the similarity checker will now ignore imports and ignore function signatures when computing
   duplication. If you want to keep the previous behaviour set ``ignore-imports`` and ``ignore-signatures`` to ``False``.
 
@@ -311,6 +307,9 @@ What's New in Pylint 2.13.9?
 ============================
 Release date: TBA
 
+* Fix ``IndexError`` crash in ``uninferable_final_decorators`` method.
+
+ Relates to #6531
 
 
 What's New in Pylint 2.13.8?
