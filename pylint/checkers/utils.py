@@ -15,7 +15,7 @@ import warnings
 from collections.abc import Iterable
 from functools import lru_cache, partial
 from re import Match
-from typing import TYPE_CHECKING, Callable, TypeVar
+from typing import Tuple, TYPE_CHECKING, Callable, TypeVar
 
 import _string
 import astroid.objects
@@ -847,30 +847,34 @@ def uninferable_final_decorators(
     """
     decorators = []
     for decorator in getattr(node, "nodes", []):
-        if isinstance(decorator, nodes.Attribute) and hasattr(decorator.expr, "lookup"):
-            _, import_nodes = decorator.expr.lookup(decorator.expr.name)
-            # The `final` decorator is expected to be found in the
-            # import_nodes. In case it is not, continue.
-            if not import_nodes:
-                continue
-            import_node = import_nodes[0]
+        import_nodes: Tuple[nodes.Import | nodes.ImportFrom] = None
+
+        # Get the `Import` node. The decorator is of the form: @module.name
+        if isinstance(decorator, nodes.Attribute):
+            inferred = safe_infer(decorator.expr)
+            if isinstance(inferred, nodes.Module):
+                _, import_nodes = decorator.expr.lookup(decorator.expr.name)
+
+        # Get the `ImportFrom` node. The decorator is of the form: @name
         elif isinstance(decorator, nodes.Name):
-            lookup_values = decorator.lookup(decorator.name)
-            if lookup_values[1]:
-                import_node = lookup_values[1][0]
-            else:
-                continue  # pragma: no cover # Covered on Python < 3.8
-        else:
+            _, import_nodes = decorator.lookup(decorator.name)
+
+        # The `final` decorator is expected to be found in the
+        # import_nodes. Continue if we don't find any `Import` or `ImportFrom`
+        # nodes for this decorator.
+        if not import_nodes:
             continue
+        import_node = import_nodes[0]
 
         if not isinstance(import_node, (astroid.Import, astroid.ImportFrom)):
             continue
 
         import_names = dict(import_node.names)
 
-        # from typing import final
+        # Check if the import if of the form: `from typing import final`
         is_from_import = ("final" in import_names) and import_node.modname == "typing"
-        # import typing
+
+        # Check if the import if of the form: `import typing`
         is_import = ("typing" in import_names) and getattr(
             decorator, "attrname", None
         ) == "final"
