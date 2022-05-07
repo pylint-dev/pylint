@@ -871,10 +871,10 @@ def uninferable_final_decorators(
 
         import_names = dict(import_node.names)
 
-        # Check if the import if of the form: `from typing import final`
+        # Check if the import is of the form: `from typing import final`
         is_from_import = ("final" in import_names) and import_node.modname == "typing"
 
-        # Check if the import if of the form: `import typing`
+        # Check if the import is of the form: `import typing`
         is_import = ("typing" in import_names) and getattr(
             decorator, "attrname", None
         ) == "final"
