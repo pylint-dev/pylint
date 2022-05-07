@@ -31,6 +31,7 @@ from pylint.constants import (
     MSG_TYPES,
     MSG_TYPES_LONG,
     MSG_TYPES_STATUS,
+    WarningScope,
 )
 from pylint.lint.base_options import _make_linter_options
 from pylint.lint.caching import load_results, save_results
@@ -101,12 +102,14 @@ def _load_reporter_by_class(reporter_class: str) -> type[BaseReporter]:
 
 # Python Linter class #########################################################
 
+# pylint: disable-next=consider-using-namedtuple-or-dataclass
 MSGS: dict[str, MessageDefinitionTuple] = {
     "F0001": (
         "%s",
         "fatal",
         "Used when an error occurred preventing the analysis of a \
               module (unable to find it for instance).",
+        {"scope": WarningScope.LINE},
     ),
     "F0002": (
         "%s: %s",
@@ -114,39 +117,46 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Used when an unexpected error occurred while building the "
         "Astroid  representation. This is usually accompanied by a "
         "traceback. Please report such errors !",
+        {"scope": WarningScope.LINE},
     ),
     "F0010": (
         "error while code parsing: %s",
         "parse-error",
         "Used when an exception occurred while building the Astroid "
         "representation which could be handled by astroid.",
+        {"scope": WarningScope.LINE},
     ),
     "F0011": (
         "error while parsing the configuration: %s",
         "config-parse-error",
         "Used when an exception occurred while parsing a pylint configuration file.",
+        {"scope": WarningScope.LINE},
     ),
     "I0001": (
         "Unable to run raw checkers on built-in module %s",
         "raw-checker-failed",
         "Used to inform that a built-in module has not been checked "
         "using the raw checkers.",
+        {"scope": WarningScope.LINE},
     ),
     "I0010": (
         "Unable to consider inline option %r",
         "bad-inline-option",
         "Used when an inline option is either badly formatted or can't "
         "be used inside modules.",
+        {"scope": WarningScope.LINE},
     ),
     "I0011": (
         "Locally disabling %s (%s)",
         "locally-disabled",
         "Used when an inline option disables a message or a messages category.",
+        {"scope": WarningScope.LINE},
     ),
     "I0013": (
         "Ignoring entire file",
         "file-ignored",
         "Used to inform that the file will not be checked",
+        {"scope": WarningScope.LINE},
     ),
     "I0020": (
         "Suppressed %s (from line %d)",
@@ -155,12 +165,14 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "by a disable= comment in the file. This message is not "
         "generated for messages that are ignored due to configuration "
         "settings.",
+        {"scope": WarningScope.LINE},
     ),
     "I0021": (
         "Useless suppression of %s",
         "useless-suppression",
         "Reported when a message is explicitly disabled for a line or "
         "a block of code, but never triggered.",
+        {"scope": WarningScope.LINE},
     ),
     "I0022": (
         'Pragma "%s" is deprecated, use "%s" instead',
@@ -168,33 +180,46 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Some inline pylint options have been renamed or reworked, "
         "only the most recent form should be used. "
         "NOTE:skip-all is only available with pylint >= 0.26",
-        {"old_names": [("I0014", "deprecated-disable-all")]},
+        {
+            "old_names": [("I0014", "deprecated-disable-all")],
+            "scope": WarningScope.LINE,
+        },
     ),
-    "E0001": ("%s", "syntax-error", "Used when a syntax error is raised for a module."),
+    "E0001": (
+        "%s",
+        "syntax-error",
+        "Used when a syntax error is raised for a module.",
+        {"scope": WarningScope.LINE},
+    ),
     "E0011": (
         "Unrecognized file option %r",
         "unrecognized-inline-option",
         "Used when an unknown inline option is encountered.",
+        {"scope": WarningScope.LINE},
     ),
     "E0012": (
         "Bad option value for %s",
         "bad-option-value",
         "Used when a bad value for an inline option is encountered.",
+        {"scope": WarningScope.LINE},
     ),
     "E0013": (
         "Plugin '%s' is impossible to load, is it installed ? ('%s')",
         "bad-plugin-value",
         "Used when a bad value is used in 'load-plugins'.",
+        {"scope": WarningScope.LINE},
     ),
     "E0014": (
         "Out-of-place setting encountered in top level configuration-section '%s' : '%s'",
         "bad-configuration-section",
         "Used when we detect a setting in the top level of a toml configuration that shouldn't be there.",
+        {"scope": WarningScope.LINE},
     ),
     "E0015": (
         "Unrecognized option found: %s",
         "unrecognized-option",
         "Used when we detect an option that we do not recognize.",
+        {"scope": WarningScope.LINE},
     ),
 }
 
