@@ -1397,6 +1397,12 @@ def is_class_subscriptable_pep585_with_postponed_evaluation_enabled(
     """Check if class is subscriptable with PEP 585 and
     postponed evaluation enabled.
     """
+    warnings.warn(
+        "'is_class_subscriptable_pep585_with_postponed_evaluation_enabled' has been "
+        "deprecated and will be removed in pylint 3.0. "
+        "Use 'subscriptable_with_postponed_evaluation_enabled' instead.",
+        DeprecationWarning,
+    )
     return (
         is_postponed_evaluation_enabled(node)
         and value.qname() in SUBSCRIPTABLE_CLASSES_PEP585
