@@ -317,6 +317,9 @@ What's New in Pylint 2.13.9?
 ============================
 Release date: TBA
 
+* Fix ``IndexError`` crash in ``uninferable_final_decorators`` method.
+
+ Relates to #6531
 
 
 What's New in Pylint 2.13.8?
