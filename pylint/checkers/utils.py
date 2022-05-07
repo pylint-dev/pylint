@@ -848,10 +848,10 @@ def uninferable_final_decorators(
     decorators = []
     for decorator in getattr(node, "nodes", []):
         if isinstance(decorator, nodes.Attribute):
-            try:
-                import_node = decorator.expr.lookup(decorator.expr.name)[1][0]
-            except (AttributeError, IndexError):
+            _, import_nodes = decorator.expr.lookup(decorator.expr.name)
+            if not import_nodes:
                 continue
+            import_node = import_nodes[0]
         elif isinstance(decorator, nodes.Name):
             lookup_values = decorator.lookup(decorator.name)
             if lookup_values[1]:
