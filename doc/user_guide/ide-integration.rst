@@ -15,7 +15,7 @@ To use Pylint with:
  - WingIDE_, see https://wingware.com/doc/warnings/external-checkers,
  - PyCharm_, see :ref:`the section below <pylint_in_pycharm>`,
  - TextMate_, see :ref:`the section below <pylint_in_textmate>`
- - `Visual Studio Code`_, see https://docs.microsoft.com/en-us/visualstudio/python/linting-python-code,
+ - `Visual Studio Code`_, see https://code.visualstudio.com/docs/python/linting,
  - `Jupyter Notebook`_, see https://github.com/nbQA-dev/nbQA,
 
 Pylint is integrated in:
