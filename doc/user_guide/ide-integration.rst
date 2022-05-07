@@ -16,6 +16,8 @@ To use Pylint with:
  - PyCharm_, see :ref:`the section below <pylint_in_pycharm>`,
  - TextMate_, see :ref:`the section below <pylint_in_textmate>`
  - `Visual Studio Code`_, see https://code.visualstudio.com/docs/python/linting,
+  - `Visual Studio Code Pylint Extension`_ see, https://marketplace.visualstudio.com/items?itemName=ms-python.pylint,
+ - `Visual Studio`_, see https://docs.microsoft.com/en-us/visualstudio/python/linting-python-code,
  - `Jupyter Notebook`_, see https://github.com/nbQA-dev/nbQA,
 
 Pylint is integrated in:
