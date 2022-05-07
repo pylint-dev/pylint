@@ -4,7 +4,7 @@ In type annotation context, they can be used with postponed evaluation enabled,
 starting with PY37.
 """
 # flake8: noqa
-# pylint: disable=missing-docstring,pointless-statement
+# pylint: disable=missing-docstring,pointless-statement,invalid-name
 # pylint: disable=too-few-public-methods,multiple-statements,line-too-long
 from __future__ import annotations
 
@@ -172,8 +172,18 @@ var_re_Match: re.Match[str]
 # unsubscriptable types
 var_abc_Hashable: collections.abc.Hashable
 var_abc_Sized: collections.abc.Sized
-var_abc_Hashable2: collections.abc.Hashable[int]  # [unsubscriptable-object]
-var_abc_Sized2: collections.abc.Sized[int]  # [unsubscriptable-object]
+var_abc_Hashable2: collections.abc.Hashable[int]  # string annotations aren't checked
+var_abc_Sized2: collections.abc.Sized[int]  # string annotations aren't checked
 
 # subscriptable with Python 3.9
 var_abc_ByteString: collections.abc.ByteString[int]
+
+
+# Generic in type stubs only -> string annotations aren't checked
+class A:
+    ...
+
+var_a1: A[str]  # string annotations aren't checked
+var_a2: "A[str]"  # string annotations aren't checked
+class B(A[str]):  # [unsubscriptable-object]
+    ...

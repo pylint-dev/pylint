@@ -639,3 +639,7 @@ Other Changes
   ``open``
 
   Closes #6414
+
+* Fix ``IndexError`` crash in ``uninferable_final_decorators`` method.
+
+ Relates to #6531

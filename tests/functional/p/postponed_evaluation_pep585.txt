@@ -13,7 +13,6 @@ unsubscriptable-object:99:19:99:23::Value 'list' is unsubscriptable:UNDEFINED
 unsubscriptable-object:100:15:100:19::Value 'list' is unsubscriptable:UNDEFINED
 unsubscriptable-object:101:9:101:13::Value 'list' is unsubscriptable:UNDEFINED
 unsubscriptable-object:101:14:101:18::Value 'list' is unsubscriptable:UNDEFINED
-unsubscriptable-object:111:7:111:18::Value 'OrderedDict' is unsubscriptable:UNDEFINED
 unsubscriptable-object:121:20:121:24:func3:Value 'list' is unsubscriptable:UNDEFINED
 unsubscriptable-object:123:33:123:37:func3:Value 'list' is unsubscriptable:UNDEFINED
 unsubscriptable-object:126:14:126:18:func4:Value 'list' is unsubscriptable:UNDEFINED

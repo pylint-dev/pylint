@@ -847,28 +847,34 @@ def uninferable_final_decorators(
     """
     decorators = []
     for decorator in getattr(node, "nodes", []):
+        import_nodes: tuple[nodes.Import | nodes.ImportFrom] | None = None
+
+        # Get the `Import` node. The decorator is of the form: @module.name
         if isinstance(decorator, nodes.Attribute):
-            try:
-                import_node = decorator.expr.lookup(decorator.expr.name)[1][0]
-            except AttributeError:
-                continue
+            inferred = safe_infer(decorator.expr)
+            if isinstance(inferred, nodes.Module) and inferred.qname() == "typing":
+                _, import_nodes = decorator.expr.lookup(decorator.expr.name)
+
+        # Get the `ImportFrom` node. The decorator is of the form: @name
         elif isinstance(decorator, nodes.Name):
-            lookup_values = decorator.lookup(decorator.name)
-            if lookup_values[1]:
-                import_node = lookup_values[1][0]
-            else:
-                continue  # pragma: no cover # Covered on Python < 3.8
-        else:
+            _, import_nodes = decorator.lookup(decorator.name)
+
+        # The `final` decorator is expected to be found in the
+        # import_nodes. Continue if we don't find any `Import` or `ImportFrom`
+        # nodes for this decorator.
+        if not import_nodes:
             continue
+        import_node = import_nodes[0]
 
         if not isinstance(import_node, (astroid.Import, astroid.ImportFrom)):
             continue
 
         import_names = dict(import_node.names)
 
-        # from typing import final
+        # Check if the import is of the form: `from typing import final`
         is_from_import = ("final" in import_names) and import_node.modname == "typing"
-        # import typing
+
+        # Check if the import is of the form: `import typing`
         is_import = ("typing" in import_names) and getattr(
             decorator, "attrname", None
         ) == "final"
@@ -1212,7 +1218,7 @@ def supports_getitem(value: nodes.NodeNG, node: nodes.NodeNG) -> bool:
     if isinstance(value, nodes.ClassDef):
         if _supports_protocol_method(value, CLASS_GETITEM_METHOD):
             return True
-        if is_class_subscriptable_pep585_with_postponed_evaluation_enabled(value, node):
+        if subscriptable_with_postponed_evaluation_enabled(node):
             return True
     return _supports_protocol(value, _supports_getitem_protocol)
 
@@ -1397,10 +1403,23 @@ def is_class_subscriptable_pep585_with_postponed_evaluation_enabled(
     """Check if class is subscriptable with PEP 585 and
     postponed evaluation enabled.
     """
+    warnings.warn(
+        "'is_class_subscriptable_pep585_with_postponed_evaluation_enabled' has been "
+        "deprecated and will be removed in pylint 3.0. "
+        "Use 'subscriptable_with_postponed_evaluation_enabled' instead.",
+        DeprecationWarning,
+    )
     return (
         is_postponed_evaluation_enabled(node)
         and value.qname() in SUBSCRIPTABLE_CLASSES_PEP585
         and is_node_in_type_annotation_context(node)
+    )
+
+
+def subscriptable_with_postponed_evaluation_enabled(node: nodes.NodeNG) -> bool:
+    """Check if class can be subscriptable in type annotation context."""
+    return is_postponed_evaluation_enabled(node) and is_node_in_type_annotation_context(
+        node
     )
 
 

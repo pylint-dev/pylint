@@ -293,6 +293,21 @@ Release date: TBA
 
   Closes #5502
 
+* Fix saving of persistent data files in environments where the user's cache
+  directory and the linted file are on a different drive.
+
+  Closes #6394
+
+* Don't emit ``unsubscriptable-object`` for string annotations.
+  Pylint doesn't check if class is only generic in type stubs only.
+
+  Closes #4369 and #6523
+
+* ``is_class_subscriptable_pep585_with_postponed_evaluation_enabled`` has been deprecated.
+  Use ``subscriptable_with_postponed_evaluation_enabled`` instead.
+
+  Ref #6536
+
 ..
   Insert your changelog randomly, it will reduce merge conflicts
   (Ie. not necessarily at the end)
@@ -302,9 +317,14 @@ What's New in Pylint 2.13.9?
 ============================
 Release date: TBA
 
+
 * Respect ignore configuration options when --recursive=y.
 
   Closes #6471
+
+* Fix ``IndexError`` crash in ``uninferable_final_decorators`` method.
+
+ Relates to #6531
 
 
 What's New in Pylint 2.13.8?

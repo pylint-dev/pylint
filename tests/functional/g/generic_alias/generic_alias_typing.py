@@ -1,6 +1,6 @@
 """Test generic alias support for typing.py types."""
 # flake8: noqa
-# pylint: disable=missing-docstring,pointless-statement
+# pylint: disable=missing-docstring,pointless-statement,invalid-name
 # pylint: disable=too-few-public-methods,multiple-statements,line-too-long, unnecessary-dunder-call
 import abc
 import typing
@@ -139,3 +139,13 @@ var_int: int[int]  # [unsubscriptable-object]
 var_bytestring2: typing.ByteString[int]  # [unsubscriptable-object]
 var_hashable2: typing.Hashable[int]  # [unsubscriptable-object]
 var_sized2: typing.Sized[int]  # [unsubscriptable-object]
+
+
+# Generic in type stubs only -> string annotations aren't checked
+class A:
+    ...
+
+var_a1: A[str]  # [unsubscriptable-object]
+var_a2: "A[str]"  # string annotations aren't checked
+class B(A[str]):  # [unsubscriptable-object]
+    ...
