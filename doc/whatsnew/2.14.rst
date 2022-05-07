@@ -311,3 +311,8 @@ Other Changes
   option.
 
   Relates to #6493
+
+* Don't emit ``unsubscriptable-object`` for string annotations.
+  Pylint doesn't check if class is only generic in type stubs only.
+
+  Closes #4369 and #6523
