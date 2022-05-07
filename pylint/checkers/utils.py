@@ -852,7 +852,7 @@ def uninferable_final_decorators(
         # Get the `Import` node. The decorator is of the form: @module.name
         if isinstance(decorator, nodes.Attribute):
             inferred = safe_infer(decorator.expr)
-            if isinstance(inferred, nodes.Module):
+            if isinstance(inferred, nodes.Module) and inferred.qname() == "typing":
                 _, import_nodes = decorator.expr.lookup(decorator.expr.name)
 
         # Get the `ImportFrom` node. The decorator is of the form: @name
