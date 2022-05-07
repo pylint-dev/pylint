@@ -591,10 +591,17 @@ def collect_string_fields(format_string) -> Iterable[str | None]:
         raise IncompleteFormatString(format_string) from exc
 
 
-def parse_format_spec(format_spec, startPoint):
+def parse_format_spec(format_spec, start_point):
+    """Parses a PEP 3101 format specifier, returning the format character used, if any.
+
+    Where 'format_spec' is the string specifier, and 'start_point' is the 
+    index in the full string where this spec appears. Raises IncompleteFormatString or
+    UnsupportedFormatCharacter if a parse error occurs.
+    """
+    format_character = None
     n = len(format_spec)
     if n == 0:
-        return
+        return format_character
 
     def next_char(i):
         i += 1
@@ -618,93 +625,101 @@ def parse_format_spec(format_spec, startPoint):
             raise IncompleteFormatString(format_spec)
         # Parse end of spec
         if n > i + end + 1:
-            parse_format_spec(format_spec[i + end + 1 :], startPoint + i + end + 1)
-        return
+            parse_format_spec(format_spec[i + end + 1 :], start_point + i + end + 1)
+        return format_character
 
     # Sign
     sign = "+- "
     if char in sign:
         i, char = next_char(i)
         if i == n:
-            return
+            return format_character
 
     # # Flag
     if char == "#":
         i, char = next_char(i)
         if i == n:
-            return
+            return format_character
 
     # 0 Flag
     if char == "0":
         i, char = next_char(i)
         if i == n:
-            return
+            return format_character
 
     # Width (optional).
     while char in string.digits:
         i, char = next_char(i)
         if i == n:
-            return
+            return format_character
 
     # Grouping option (optional)
     grouping_options = "_,"
     if char in grouping_options:
         i, char = next_char(i)
         if i == n:
-            return
+            return format_character
 
     # Precision (optional).
     if char == ".":
         i, char = next_char(i)
         if i == n:
-            return
+            return format_character
         if char == "*":
             i, char = next_char(i)
         else:
             while char in string.digits:
                 i, char = next_char(i)
                 if i == n:
-                    return
+                    return format_character
         if i == n:
-            return
-
-    # Format Type
-    types = "bcdeEfFgGnosxX%"
-    if char in types:
-        i, char = next_char(i)
-        if i == n:
-            return
-    else:
-        raise UnsupportedFormatCharacter(startPoint + i)
+            return format_character
 
     # We hit a nested field
     if char == "{":
         end = format_spec[i:].find("}")
         if end == -1:
-            raise UnsupportedFormatCharacter(startPoint + i)
+            raise IncompleteFormatString(format_spec)
         # Parse end of spec
         if n > i + end + 1:
-            parse_format_spec(format_spec[i + end + 1 :], startPoint + i + end + 1)
-        return
+            parse_format_spec(format_spec[i + end + 1 :], start_point + i + end + 1)
+        return format_character
 
-    # We should be at the end of the spec now
-    if i < len(format_spec):
-        raise IncompleteFormatString(format_spec)
+    # Format Type, final option
+    types = "bcdeEfFgGnosxX%"
+    if char in types:        
+        format_character = char
+        i, char = next_char(i)
+        if i == n:
+            return format_character
+        else:
+            raise IncompleteFormatString(format_spec)
+    else:
+        raise UnsupportedFormatCharacter(start_point + i)
 
 
-def parse_replacement_field(repl_field, startIdx):
-    name_end = len(repl_field)
-    colon_idx = repl_field.find(":")
+def parse_format_field(format_field, start_point):
+    """Parses a PEP 3101 format field, parsing it into the field name, conversion,
+    and format spec. It passes the format_spec to parse_format_spec for verification.
+    Returns (name, format_character) where 'name' is the variable name being inserted,
+    and 'format_character' is the format character in the format specifier.
+
+    Where 'repl_field' is the full string field, and 'start_point' is the 
+    index in the full string where this field appears. 
+    """
+    name_end = len(format_field)
+    colon_idx = format_field.find(":")
+    format_character = None
     if colon_idx != -1:
-        parse_format_spec(repl_field[colon_idx + 1 :], startIdx + colon_idx + 1)
+        format_character = parse_format_spec(format_field[colon_idx + 1 :], start_point + colon_idx + 1)
         name_end = colon_idx
 
-    if name_end >= 2 and repl_field[name_end - 2] == "!":
+    if name_end >= 2 and format_field[name_end - 2] == "!":
         name_end -= 2
 
-    name = repl_field[:name_end]
+    name = format_field[:name_end]
 
-    return name
+    return name, format_character
 
 
 def parse_format_method_string(
@@ -737,7 +752,7 @@ def parse_format_method_string(
                 raise IncompleteFormatString(format_string)
             else:
                 start = open_brackets.pop() + 1
-                parse_replacement_field(format_string[start:idx], start)
+                parse_format_field(format_string[start:idx], start)
         idx += 1
 
     keyword_arguments = []
