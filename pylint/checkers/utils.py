@@ -15,7 +15,7 @@ import warnings
 from collections.abc import Iterable
 from functools import lru_cache, partial
 from re import Match
-from typing import TYPE_CHECKING, Callable, Tuple, TypeVar, Union
+from typing import TYPE_CHECKING, Callable, TypeVar
 
 import _string
 import astroid.objects
@@ -847,7 +847,7 @@ def uninferable_final_decorators(
     """
     decorators = []
     for decorator in getattr(node, "nodes", []):
-        import_nodes: tuple[Union[nodes.Import, nodes.ImportFrom]] = None
+        import_nodes: tuple[nodes.Import | nodes.ImportFrom] | None = None
 
         # Get the `Import` node. The decorator is of the form: @module.name
         if isinstance(decorator, nodes.Attribute):
