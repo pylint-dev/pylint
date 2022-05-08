@@ -24,11 +24,11 @@ def good_multiarg(name, value):
 
 def bad_braces(arg):
     '''Curly braces as placeholders'''
-    raise KeyError('Bad key: {:r}', arg)  # [raising-format-tuple]
+    raise KeyError('Bad key: {!r}', arg)  # [raising-format-tuple]
 
 def good_braces(arg):
     '''Call str.format() instead'''
-    raise KeyError('Bad key: {:r}'.format(arg))
+    raise KeyError('Bad key: {!r}'.format(arg))
 
 def bad_multistring(arg):
     '''Multiple adjacent string literals'''

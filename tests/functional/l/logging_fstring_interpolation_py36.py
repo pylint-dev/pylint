@@ -18,4 +18,3 @@ renamed_logging.debug(f'{local_var_1} {local_var_2}') # [logging-fstring-interpo
 renamed_logging.log(renamed_logging.DEBUG, f'msg: {local_var_2}') # [logging-fstring-interpolation]
 renamed_logging.log(renamed_logging.DEBUG, f'pi: {pi:.3f}') # [logging-fstring-interpolation]
 renamed_logging.info(f"{local_var_2.upper()}") # [logging-fstring-interpolation]
-renamed_logging.info(f"{may_14:'%b %d: %Y'}") # [logging-fstring-interpolation]

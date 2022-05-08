@@ -329,13 +329,16 @@ class LoggingChecker(checkers.BaseChecker):
                         keyword_arguments,
                         implicit_pos_args,
                         explicit_pos_args,
+                        _,
+                        _,
+                        _,
                     ) = utils.parse_format_method_string(format_string)
 
                     keyword_args_cnt = len(
                         {k for k, l in keyword_arguments if not isinstance(k, int)}
                     )
                     required_num_args = (
-                        keyword_args_cnt + implicit_pos_args + explicit_pos_args
+                        keyword_args_cnt + implicit_pos_args + len(explicit_pos_args)
                     )
             except utils.UnsupportedFormatCharacter as ex:
                 char = format_string[ex.index]

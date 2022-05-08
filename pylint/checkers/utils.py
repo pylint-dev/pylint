@@ -558,7 +558,9 @@ def split_format_field_names(format_string) -> tuple[str, Iterable[tuple[bool, s
         raise IncompleteFormatString() from e
 
 
-def collect_string_fields(format_string) -> Iterable[str | None]:
+def collect_string_fields(
+    format_string,
+) -> tuple[Iterable[str | None], Iterable[str | None]]:
     """Given a format string, return an iterator
     of all the valid format fields.
 
@@ -573,7 +575,7 @@ def collect_string_fields(format_string) -> Iterable[str | None]:
                 continue
             name = result[1]
             nested = result[2]
-            yield name
+            yield (name, nested)
             if nested:
                 yield from collect_string_fields(nested)
     except ValueError as exc:
@@ -594,21 +596,20 @@ def collect_string_fields(format_string) -> Iterable[str | None]:
 def parse_format_spec(format_spec, start_point):
     """Parses a PEP 3101 format specifier, returning the format character used, if any.
 
-    Where 'format_spec' is the string specifier, and 'start_point' is the 
+    Where 'format_spec' is the string specifier, and 'start_point' is the
     index in the full string where this spec appears. Raises IncompleteFormatString or
     UnsupportedFormatCharacter if a parse error occurs.
     """
     format_character = None
     n = len(format_spec)
     if n == 0:
-        return format_character
+        return None
 
     def next_char(i):
         i += 1
         if n == i:
             return (i, "#")
-        else:
-            return (i, format_spec[i])
+        return (i, format_spec[i])
 
     i = 0
     char = format_spec[0]
@@ -626,42 +627,32 @@ def parse_format_spec(format_spec, start_point):
         # Parse end of spec
         if n > i + end + 1:
             parse_format_spec(format_spec[i + end + 1 :], start_point + i + end + 1)
-        return format_character
+        return None
 
     # Sign
     sign = "+- "
-    if char in sign:
+    if i < n and char in sign:
         i, char = next_char(i)
-        if i == n:
-            return format_character
 
     # # Flag
-    if char == "#":
+    if i < n and char == "#":
         i, char = next_char(i)
-        if i == n:
-            return format_character
 
     # 0 Flag
-    if char == "0":
+    if i < n and char == "0":
         i, char = next_char(i)
-        if i == n:
-            return format_character
 
     # Width (optional).
-    while char in string.digits:
+    while i < n and char in string.digits:
         i, char = next_char(i)
-        if i == n:
-            return format_character
 
     # Grouping option (optional)
     grouping_options = "_,"
-    if char in grouping_options:
+    if i < n and char in grouping_options:
         i, char = next_char(i)
-        if i == n:
-            return format_character
 
     # Precision (optional).
-    if char == ".":
+    if i < n and char == ".":
         i, char = next_char(i)
         if i == n:
             return format_character
@@ -670,61 +661,118 @@ def parse_format_spec(format_spec, start_point):
         else:
             while char in string.digits:
                 i, char = next_char(i)
-                if i == n:
-                    return format_character
         if i == n:
-            return format_character
+            return None
 
     # We hit a nested field
-    if char == "{":
+    if i < n and char == "{":
         end = format_spec[i:].find("}")
         if end == -1:
             raise IncompleteFormatString(format_spec)
         # Parse end of spec
         if n > i + end + 1:
             parse_format_spec(format_spec[i + end + 1 :], start_point + i + end + 1)
-        return format_character
+        return None
 
     # Format Type, final option
     types = "bcdeEfFgGnosxX%"
-    if char in types:        
-        format_character = char
-        i, char = next_char(i)
-        if i == n:
-            return format_character
-        else:
+    if i < n:
+        if char in types:
+            format_character = char
+            i, char = next_char(i)
+            if i == n:
+                return format_character
             raise IncompleteFormatString(format_spec)
-    else:
         raise UnsupportedFormatCharacter(start_point + i)
 
 
 def parse_format_field(format_field, start_point):
     """Parses a PEP 3101 format field, parsing it into the field name, conversion,
-    and format spec. It passes the format_spec to parse_format_spec for verification.
+    and format spec
+
+    It passes the format_spec to parse_format_spec for verification.
     Returns (name, format_character) where 'name' is the variable name being inserted,
     and 'format_character' is the format character in the format specifier.
 
-    Where 'repl_field' is the full string field, and 'start_point' is the 
-    index in the full string where this field appears. 
+    Where 'repl_field' is the full string field, and 'start_point' is the
+    index in the full string where this field appears.
     """
     name_end = len(format_field)
-    colon_idx = format_field.find(":")
+    colon_idx = -1
+    for (i, char) in enumerate(format_field):
+        if char == ":":
+            next_closebracket = format_field[i:].find("]")
+            next_openbracket = format_field[i:].find("[")
+            if next_closebracket == -1 or (
+                next_openbracket != -1 and next_openbracket < next_closebracket
+            ):
+                quote_count = format_field[i:].count("'")
+                dquote_count = format_field[i:].count('"')
+                if quote_count % 2 == 0 and dquote_count % 2 == 0:
+                    colon_idx = i
+                break
+
     format_character = None
+    format_spec = ""
+    conversion = None
     if colon_idx != -1:
-        format_character = parse_format_spec(format_field[colon_idx + 1 :], start_point + colon_idx + 1)
+        format_spec = format_field[colon_idx + 1 :]
+        format_character = parse_format_spec(format_spec, start_point + colon_idx + 1)
         name_end = colon_idx
 
     if name_end >= 2 and format_field[name_end - 2] == "!":
+        conversion = format_field[name_end - 1]
+        if conversion not in "rs":
+            raise UnsupportedFormatCharacter(start_point + name_end - 1)
+
         name_end -= 2
 
-    name = format_field[:name_end]
+    return format_spec, (conversion, format_character)
 
-    return name, format_character
+
+def parse_all_fields_formatting(
+    format_string: str,
+) -> dict[str | None, tuple[str, str]]:
+    idx = 0
+    open_brackets = []
+    format_char_memo = {}
+    while idx < len(format_string):
+        char = format_string[idx]
+        if char == "{" and (
+            len(format_string) <= (idx + 1) or format_string[idx + 1] != "{"
+        ):
+            open_brackets.append(idx)
+        elif char == "}" and (
+            len(format_string) <= (idx + 1)
+            or format_string[idx + 1] != "}"
+            or len(open_brackets) > 0
+        ):
+            if len(open_brackets) == 0:
+                raise IncompleteFormatString(format_string)
+            start = open_brackets.pop() + 1
+            (spec, (conversion, format_char)) = parse_format_field(
+                format_string[start:idx], start
+            )
+            format_char_memo[spec] = (conversion, format_char)
+        elif char in {"{", "}"}:
+            idx += 1
+        idx += 1
+    if len(open_brackets) != 0:
+        raise IncompleteFormatString(format_string)
+
+    return format_char_memo
 
 
 def parse_format_method_string(
     format_string: str,
-) -> tuple[list[tuple[str, list[tuple[bool, str]]]], int, int]:
+) -> tuple[
+    list[tuple[str, list[tuple[bool, str]]]],
+    int,
+    set[str],
+    dict[str, tuple[str, str]],
+    list[tuple[str, str]],
+    list[tuple[str, str]],
+]:
     """Parses a PEP 3101 format string, returning a tuple of
     (keyword_arguments, implicit_pos_args_cnt, explicit_pos_args).
 
@@ -732,47 +780,40 @@ def parse_format_method_string(
     is the number of arguments required by the format string and
     explicit_pos_args is the number of arguments passed with the position.
     """
-
-    idx = 0
-    open_brackets = []
-    while idx < len(format_string):
-        char = format_string[idx]
-        if (
-            char == "{"
-            and len(format_string) > (idx + 1)
-            and format_string[idx + 1] != "{"
-        ):
-            open_brackets.append(idx)
-        elif (
-            char == "}"
-            and len(format_string) > (idx + 1)
-            and format_string[idx + 1] != "}"
-        ):
-            if len(open_brackets) == 0:
-                raise IncompleteFormatString(format_string)
-            else:
-                start = open_brackets.pop() + 1
-                parse_format_field(format_string[start:idx], start)
-        idx += 1
+    format_char_memo = parse_all_fields_formatting(format_string)
 
     keyword_arguments = []
     implicit_pos_args_cnt = 0
     explicit_pos_args = set()
-    for name in collect_string_fields(format_string):
+    keyword_types = {}
+    implicit_types = []
+    explicit_types = []
+    for (name, format_spec) in collect_string_fields(format_string):
         if name and str(name).isdigit():
             explicit_pos_args.add(str(name))
+            explicit_types.append(format_char_memo[format_spec])
         elif name:
             keyname, fielditerator = split_format_field_names(name)
             if isinstance(keyname, numbers.Number):
                 explicit_pos_args.add(str(keyname))
+                explicit_types.append(format_char_memo[format_spec])
             try:
                 keyword_arguments.append((keyname, list(fielditerator)))
+                keyword_types[keyname] = format_char_memo[format_spec]
             except ValueError as e:
                 raise IncompleteFormatString() from e
         else:
             implicit_pos_args_cnt += 1
+            implicit_types.append(format_char_memo[format_spec])
 
-    return keyword_arguments, implicit_pos_args_cnt, len(explicit_pos_args)
+    return (
+        keyword_arguments,
+        implicit_pos_args_cnt,
+        explicit_pos_args,
+        keyword_types,
+        implicit_types,
+        explicit_types,
+    )
 
 
 def is_attr_protected(attrname: str) -> bool:
