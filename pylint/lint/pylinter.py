@@ -29,13 +29,13 @@ from pylint.constants import (
     MSG_STATE_SCOPE_CONFIG,
     MSG_STATE_SCOPE_MODULE,
     MSG_TYPES,
-    MSG_TYPES_LONG,
     MSG_TYPES_STATUS,
     WarningScope,
 )
 from pylint.lint.base_options import _make_linter_options
 from pylint.lint.caching import load_results, save_results
 from pylint.lint.expand_modules import expand_modules
+from pylint.lint.message_state_handler import _MessageStateHandler
 from pylint.lint.parallel import check_parallel
 from pylint.lint.report_functions import (
     report_messages_by_module_stats,
@@ -227,6 +227,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
 # pylint: disable=too-many-instance-attributes,too-many-public-methods
 class PyLinter(
     _ArgumentsManager,
+    _MessageStateHandler,
     reporters.ReportsHandlerMixIn,
     checkers.BaseTokenChecker,
 ):
@@ -265,6 +266,7 @@ class PyLinter(
         pylintrc: str | None = None,  # pylint: disable=unused-argument
     ) -> None:
         _ArgumentsManager.__init__(self, prog="pylint")
+        _MessageStateHandler.__init__(self, self)
 
         # Some stuff has to be done before initialization of other ancestors...
         # messages store / checkers / reporter / astroid manager
@@ -320,7 +322,6 @@ class PyLinter(
         # Attributes related to messages (states) and their handling
         self.msgs_store = MessageDefinitionStore()
         self.msg_status = 0
-        self._msgs_state: dict[str, bool] = {}
         self._by_id_managed_msgs: list[ManagedMessage] = []
 
         reporters.ReportsHandlerMixIn.__init__(self)
@@ -1400,119 +1401,6 @@ class PyLinter(
             )
 
     # Setting the state (disabled/enabled) of messages and registering them
-
-    def _set_one_msg_status(
-        self, scope: str, msg: MessageDefinition, line: int | None, enable: bool
-    ) -> None:
-        """Set the status of an individual message."""
-        if scope == "module":
-            assert isinstance(line, int)  # should always be int inside module scope
-
-            self.file_state.set_msg_status(msg, line, enable)
-            if not enable and msg.symbol != "locally-disabled":
-                self.add_message(
-                    "locally-disabled", line=line, args=(msg.symbol, msg.msgid)
-                )
-        else:
-            msgs = self._msgs_state
-            msgs[msg.msgid] = enable
-
-    def _get_messages_to_set(
-        self, msgid: str, enable: bool, ignore_unknown: bool = False
-    ) -> list[MessageDefinition]:
-        """Do some tests and find the actual messages of which the status should be set."""
-        message_definitions = []
-        if msgid == "all":
-            for _msgid in MSG_TYPES:
-                message_definitions.extend(
-                    self._get_messages_to_set(_msgid, enable, ignore_unknown)
-                )
-            return message_definitions
-
-        # msgid is a category?
-        category_id = msgid.upper()
-        if category_id not in MSG_TYPES:
-            category_id_formatted = MSG_TYPES_LONG.get(category_id)
-        else:
-            category_id_formatted = category_id
-        if category_id_formatted is not None:
-            for _msgid in self.msgs_store._msgs_by_category[category_id_formatted]:
-                message_definitions.extend(
-                    self._get_messages_to_set(_msgid, enable, ignore_unknown)
-                )
-            return message_definitions
-
-        # msgid is a checker name?
-        if msgid.lower() in self._checkers:
-            for checker in self._checkers[msgid.lower()]:
-                for _msgid in checker.msgs:
-                    message_definitions.extend(
-                        self._get_messages_to_set(_msgid, enable, ignore_unknown)
-                    )
-            return message_definitions
-
-        # msgid is report id?
-        if msgid.lower().startswith("rp"):
-            if enable:
-                self.enable_report(msgid)
-            else:
-                self.disable_report(msgid)
-            return message_definitions
-
-        try:
-            # msgid is a symbolic or numeric msgid.
-            message_definitions = self.msgs_store.get_message_definitions(msgid)
-        except exceptions.UnknownMessageError:
-            if not ignore_unknown:
-                raise
-        return message_definitions
-
-    def _set_msg_status(
-        self,
-        msgid: str,
-        enable: bool,
-        scope: str = "package",
-        line: int | None = None,
-        ignore_unknown: bool = False,
-    ) -> None:
-        """Do some tests and then iterate over message definitions to set state."""
-        assert scope in {"package", "module"}
-
-        message_definitions = self._get_messages_to_set(msgid, enable, ignore_unknown)
-
-        for message_definition in message_definitions:
-            self._set_one_msg_status(scope, message_definition, line, enable)
-
-        # sync configuration object
-        self.config.enable = []
-        self.config.disable = []
-        for msgid_or_symbol, is_enabled in self._msgs_state.items():
-            symbols = [
-                m.symbol
-                for m in self.msgs_store.get_message_definitions(msgid_or_symbol)
-            ]
-            if is_enabled:
-                self.config.enable += symbols
-            else:
-                self.config.disable += symbols
-
-    def _register_by_id_managed_msg(
-        self, msgid_or_symbol: str, line: int | None, is_disabled: bool = True
-    ) -> None:
-        """If the msgid is a numeric one, then register it to inform the user
-        it could furnish instead a symbolic msgid.
-        """
-        if msgid_or_symbol[1:].isdigit():
-            try:
-                symbol = self.msgs_store.message_id_store.get_symbol(
-                    msgid=msgid_or_symbol
-                )
-            except exceptions.UnknownMessageError:
-                return
-            managed = ManagedMessage(
-                self.current_name, msgid_or_symbol, symbol, line, is_disabled
-            )
-            self._by_id_managed_msgs.append(managed)
 
     def disable(
         self,
