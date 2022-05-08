@@ -3,8 +3,14 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Diagram objects."""
+from __future__ import annotations
+
+from collections.abc import Iterable
+from typing import Any
+
 import astroid
 from astroid import nodes
+from astroid.nodes import ClassDef, FunctionDef, ImportFrom, Module, NodeNG
 
 from pylint.checkers.utils import decorated_with_property
 from pylint.pyreverse.utils import FilterMixIn, is_interface
@@ -13,11 +19,20 @@ from pylint.pyreverse.utils import FilterMixIn, is_interface
 class Figure:
     """Base class for counter handling."""
 
+    def __init__(self) -> None:
+        self.fig_id: str = ""
+
 
 class Relationship(Figure):
     """A relationship from an object in the diagram to another."""
 
-    def __init__(self, from_object, to_object, relation_type, name=None):
+    def __init__(
+        self,
+        from_object: DiagramEntity,
+        to_object: DiagramEntity,
+        relation_type: str,
+        name: str | None = None,
+    ):
         super().__init__()
         self.from_object = from_object
         self.to_object = to_object
@@ -28,23 +43,30 @@ class Relationship(Figure):
 class DiagramEntity(Figure):
     """A diagram object, i.e. a label associated to an astroid node."""
 
-    def __init__(self, title="No name", node=None):
+    default_shape = ""
+
+    def __init__(self, title: str = "No name", node: NodeNG = None) -> None:
         super().__init__()
         self.title = title
-        self.node = node
+        self.node: NodeNG = node if node else NodeNG()
+        self.shape = self.default_shape
 
 
 class PackageEntity(DiagramEntity):
     """A diagram object representing a package."""
 
+    default_shape = "package"
+
 
 class ClassEntity(DiagramEntity):
     """A diagram object representing a class."""
 
-    def __init__(self, title, node):
+    default_shape = "class"
+
+    def __init__(self, title: str, node: ClassDef) -> None:
         super().__init__(title=title, node=node)
-        self.attrs = None
-        self.methods = None
+        self.attrs: list[str] = []
+        self.methods: list[FunctionDef] = []
 
 
 class ClassDiagram(Figure, FilterMixIn):
@@ -52,35 +74,42 @@ class ClassDiagram(Figure, FilterMixIn):
 
     TYPE = "class"
 
-    def __init__(self, title, mode):
+    def __init__(self, title: str, mode: str) -> None:
         FilterMixIn.__init__(self, mode)
         Figure.__init__(self)
         self.title = title
-        self.objects = []
-        self.relationships = {}
-        self._nodes = {}
-        self.depends = []
+        self.objects: list[Any] = []
+        self.relationships: dict[str, list[Relationship]] = {}
+        self._nodes: dict[NodeNG, DiagramEntity] = {}
 
-    def get_relationships(self, role):
+    def get_relationships(self, role: str) -> Iterable[Relationship]:
         # sorted to get predictable (hence testable) results
         return sorted(
             self.relationships.get(role, ()),
             key=lambda x: (x.from_object.fig_id, x.to_object.fig_id),
         )
 
-    def add_relationship(self, from_object, to_object, relation_type, name=None):
+    def add_relationship(
+        self,
+        from_object: DiagramEntity,
+        to_object: DiagramEntity,
+        relation_type: str,
+        name: str | None = None,
+    ) -> None:
         """Create a relationship."""
         rel = Relationship(from_object, to_object, relation_type, name)
         self.relationships.setdefault(relation_type, []).append(rel)
 
-    def get_relationship(self, from_object, relation_type):
+    def get_relationship(
+        self, from_object: DiagramEntity, relation_type: str
+    ) -> Relationship:
         """Return a relationship or None."""
         for rel in self.relationships.get(relation_type, ()):
             if rel.from_object is from_object:
                 return rel
         raise KeyError(relation_type)
 
-    def get_attrs(self, node):
+    def get_attrs(self, node: ClassDef) -> list[str]:
         """Return visible attributes, possibly with class name."""
         attrs = []
         properties = [
@@ -101,7 +130,7 @@ class ClassDiagram(Figure, FilterMixIn):
             attrs.append(node_name)
         return sorted(attrs)
 
-    def get_methods(self, node):
+    def get_methods(self, node: ClassDef) -> list[FunctionDef]:
         """Return visible methods."""
         methods = [
             m
@@ -113,14 +142,14 @@ class ClassDiagram(Figure, FilterMixIn):
         ]
         return sorted(methods, key=lambda n: n.name)
 
-    def add_object(self, title, node):
+    def add_object(self, title: str, node: ClassDef) -> None:
         """Create a diagram object."""
         assert node not in self._nodes
-        ent = DiagramEntity(title, node)
+        ent = ClassEntity(title, node)
         self._nodes[node] = ent
         self.objects.append(ent)
 
-    def class_names(self, nodes_lst):
+    def class_names(self, nodes_lst: Iterable[NodeNG]) -> list[str]:
         """Return class names if needed in diagram."""
         names = []
         for node in nodes_lst:
@@ -136,30 +165,30 @@ class ClassDiagram(Figure, FilterMixIn):
                     names.append(node_name)
         return names
 
-    def nodes(self):
+    def nodes(self) -> Iterable[NodeNG]:
         """Return the list of underlying nodes."""
         return self._nodes.keys()
 
-    def has_node(self, node):
+    def has_node(self, node: NodeNG) -> bool:
         """Return true if the given node is included in the diagram."""
         return node in self._nodes
 
-    def object_from_node(self, node):
+    def object_from_node(self, node: NodeNG) -> DiagramEntity:
         """Return the diagram object mapped to node."""
         return self._nodes[node]
 
-    def classes(self):
+    def classes(self) -> list[ClassEntity]:
         """Return all class nodes in the diagram."""
-        return [o for o in self.objects if isinstance(o.node, nodes.ClassDef)]
+        return [o for o in self.objects if isinstance(o, ClassEntity)]
 
-    def classe(self, name):
+    def classe(self, name: str) -> ClassEntity:
         """Return a class by its name, raise KeyError if not found."""
         for klass in self.classes():
             if klass.node.name == name:
                 return klass
         raise KeyError(name)
 
-    def extract_relationships(self):
+    def extract_relationships(self) -> None:
         """Extract relationships between nodes in the diagram."""
         for obj in self.classes():
             node = obj.node
@@ -205,18 +234,25 @@ class PackageDiagram(ClassDiagram):
 
     TYPE = "package"
 
-    def modules(self):
+    def modules(self) -> list[PackageEntity]:
         """Return all module nodes in the diagram."""
-        return [o for o in self.objects if isinstance(o.node, nodes.Module)]
+        return [o for o in self.objects if isinstance(o, PackageEntity)]
 
-    def module(self, name):
+    def module(self, name: str) -> PackageEntity:
         """Return a module by its name, raise KeyError if not found."""
         for mod in self.modules():
             if mod.node.name == name:
                 return mod
         raise KeyError(name)
 
-    def get_module(self, name, node):
+    def add_object(self, title: str, node: Module) -> None:
+        """Create a diagram object."""
+        assert node not in self._nodes
+        ent = PackageEntity(title, node)
+        self._nodes[node] = ent
+        self.objects.append(ent)
+
+    def get_module(self, name: str, node: Module) -> PackageEntity:
         """Return a module by its name, looking also for relative imports;
         raise KeyError if not found.
         """
@@ -232,29 +268,29 @@ class PackageDiagram(ClassDiagram):
                 return mod
         raise KeyError(name)
 
-    def add_from_depend(self, node, from_module):
+    def add_from_depend(self, node: ImportFrom, from_module: str) -> None:
         """Add dependencies created by from-imports."""
         mod_name = node.root().name
         obj = self.module(mod_name)
         if from_module not in obj.node.depends:
             obj.node.depends.append(from_module)
 
-    def extract_relationships(self):
+    def extract_relationships(self) -> None:
         """Extract relationships between nodes in the diagram."""
         super().extract_relationships()
-        for obj in self.classes():
+        for class_obj in self.classes():
             # ownership
             try:
-                mod = self.object_from_node(obj.node.root())
-                self.add_relationship(obj, mod, "ownership")
+                mod = self.object_from_node(class_obj.node.root())
+                self.add_relationship(class_obj, mod, "ownership")
             except KeyError:
                 continue
-        for obj in self.modules():
-            obj.shape = "package"
+        for package_obj in self.modules():
+            package_obj.shape = "package"
             # dependencies
-            for dep_name in obj.node.depends:
+            for dep_name in package_obj.node.depends:
                 try:
-                    dep = self.get_module(dep_name, obj.node)
+                    dep = self.get_module(dep_name, package_obj.node)
                 except KeyError:
                     continue
-                self.add_relationship(obj, dep, "depends")
+                self.add_relationship(package_obj, dep, "depends")
