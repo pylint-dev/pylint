@@ -29,6 +29,11 @@ b"test".format(1, 2) # [no-member]
 "%d" % []  # [bad-string-format-type]
 "%(key)d" % {"key": []}  # [bad-string-format-type]
 
+NUM = 0
+KEY = "abc"
+f'{NUM:d}'
+"{:d}".format(NUM)
+
 WORD = "abc"
 "%d" % WORD  # [bad-string-format-type]
 "%d %s" % (WORD, WORD)  # [bad-string-format-type]
