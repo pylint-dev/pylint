@@ -3,6 +3,7 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Diagram objects."""
+
 from __future__ import annotations
 
 from collections.abc import Iterable
@@ -45,7 +46,7 @@ class DiagramEntity(Figure):
 
     default_shape = ""
 
-    def __init__(self, title: str = "No name", node: NodeNG = None) -> None:
+    def __init__(self, title: str = "No name", node: NodeNG | None = None) -> None:
         super().__init__()
         self.title = title
         self.node: NodeNG = node if node else NodeNG()
@@ -78,6 +79,7 @@ class ClassDiagram(Figure, FilterMixIn):
         FilterMixIn.__init__(self, mode)
         Figure.__init__(self)
         self.title = title
+        # TODO: Specify 'Any' after refactor of `DiagramEntity`
         self.objects: list[Any] = []
         self.relationships: dict[str, list[Relationship]] = {}
         self._nodes: dict[NodeNG, DiagramEntity] = {}
