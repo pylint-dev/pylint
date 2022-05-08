@@ -11,7 +11,6 @@ from typing import Any
 
 import astroid
 from astroid import nodes
-from astroid.nodes import ClassDef, FunctionDef, ImportFrom, Module, NodeNG
 
 from pylint.checkers.utils import decorated_with_property
 from pylint.pyreverse.utils import FilterMixIn, is_interface
@@ -46,10 +45,12 @@ class DiagramEntity(Figure):
 
     default_shape = ""
 
-    def __init__(self, title: str = "No name", node: NodeNG | None = None) -> None:
+    def __init__(
+        self, title: str = "No name", node: nodes.NodeNG | None = None
+    ) -> None:
         super().__init__()
         self.title = title
-        self.node: NodeNG = node if node else NodeNG()
+        self.node: nodes.NodeNG = node if node else nodes.NodeNG()
         self.shape = self.default_shape
 
 
@@ -64,10 +65,10 @@ class ClassEntity(DiagramEntity):
 
     default_shape = "class"
 
-    def __init__(self, title: str, node: ClassDef) -> None:
+    def __init__(self, title: str, node: nodes.ClassDef) -> None:
         super().__init__(title=title, node=node)
         self.attrs: list[str] = []
-        self.methods: list[FunctionDef] = []
+        self.methods: list[nodes.FunctionDef] = []
 
 
 class ClassDiagram(Figure, FilterMixIn):
@@ -82,7 +83,7 @@ class ClassDiagram(Figure, FilterMixIn):
         # TODO: Specify 'Any' after refactor of `DiagramEntity`
         self.objects: list[Any] = []
         self.relationships: dict[str, list[Relationship]] = {}
-        self._nodes: dict[NodeNG, DiagramEntity] = {}
+        self._nodes: dict[nodes.NodeNG, DiagramEntity] = {}
 
     def get_relationships(self, role: str) -> Iterable[Relationship]:
         # sorted to get predictable (hence testable) results
@@ -111,7 +112,7 @@ class ClassDiagram(Figure, FilterMixIn):
                 return rel
         raise KeyError(relation_type)
 
-    def get_attrs(self, node: ClassDef) -> list[str]:
+    def get_attrs(self, node: nodes.ClassDef) -> list[str]:
         """Return visible attributes, possibly with class name."""
         attrs = []
         properties = [
@@ -132,7 +133,7 @@ class ClassDiagram(Figure, FilterMixIn):
             attrs.append(node_name)
         return sorted(attrs)
 
-    def get_methods(self, node: ClassDef) -> list[FunctionDef]:
+    def get_methods(self, node: nodes.ClassDef) -> list[nodes.FunctionDef]:
         """Return visible methods."""
         methods = [
             m
@@ -144,14 +145,14 @@ class ClassDiagram(Figure, FilterMixIn):
         ]
         return sorted(methods, key=lambda n: n.name)
 
-    def add_object(self, title: str, node: ClassDef) -> None:
+    def add_object(self, title: str, node: nodes.ClassDef) -> None:
         """Create a diagram object."""
         assert node not in self._nodes
         ent = ClassEntity(title, node)
         self._nodes[node] = ent
         self.objects.append(ent)
 
-    def class_names(self, nodes_lst: Iterable[NodeNG]) -> list[str]:
+    def class_names(self, nodes_lst: Iterable[nodes.NodeNG]) -> list[str]:
         """Return class names if needed in diagram."""
         names = []
         for node in nodes_lst:
@@ -167,15 +168,11 @@ class ClassDiagram(Figure, FilterMixIn):
                     names.append(node_name)
         return names
 
-    def nodes(self) -> Iterable[NodeNG]:
-        """Return the list of underlying nodes."""
-        return self._nodes.keys()
-
-    def has_node(self, node: NodeNG) -> bool:
+    def has_node(self, node: nodes.NodeNG) -> bool:
         """Return true if the given node is included in the diagram."""
         return node in self._nodes
 
-    def object_from_node(self, node: NodeNG) -> DiagramEntity:
+    def object_from_node(self, node: nodes.NodeNG) -> DiagramEntity:
         """Return the diagram object mapped to node."""
         return self._nodes[node]
 
@@ -247,14 +244,14 @@ class PackageDiagram(ClassDiagram):
                 return mod
         raise KeyError(name)
 
-    def add_object(self, title: str, node: Module) -> None:
+    def add_object(self, title: str, node: nodes.Module) -> None:
         """Create a diagram object."""
         assert node not in self._nodes
         ent = PackageEntity(title, node)
         self._nodes[node] = ent
         self.objects.append(ent)
 
-    def get_module(self, name: str, node: Module) -> PackageEntity:
+    def get_module(self, name: str, node: nodes.Module) -> PackageEntity:
         """Return a module by its name, looking also for relative imports;
         raise KeyError if not found.
         """
@@ -270,7 +267,7 @@ class PackageDiagram(ClassDiagram):
                 return mod
         raise KeyError(name)
 
-    def add_from_depend(self, node: ImportFrom, from_module: str) -> None:
+    def add_from_depend(self, node: nodes.ImportFrom, from_module: str) -> None:
         """Add dependencies created by from-imports."""
         mod_name = node.root().name
         obj = self.module(mod_name)
