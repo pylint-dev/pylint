@@ -23,6 +23,7 @@ if sys.version_info >= (3, 8):
 else:
     from typing_extensions import Literal
 
+
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
 
