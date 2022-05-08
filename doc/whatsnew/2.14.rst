@@ -29,6 +29,14 @@ New checkers
 
   Closes #5895
 
+* Added ``use-tuple-literal``: Emitted when ``tuple()`` is called with constant (literal) arguments instead of using ``()``
+
+  Closes #6542
+
+* Added ``use-set-literal``: Emitted when ``set()`` is called with with constant (literal) arguments instead of using ``{}`` (set literal)
+
+  Closes #6542
+
 * ``MapReduceMixin`` has been deprecated. ``BaseChecker`` now implements ``get_map_data`` and
   ``reduce_map_data``. If a checker actually needs to reduce data it should define ``get_map_data``
   as returning something different than ``None`` and let its ``reduce_map_data`` handle a list
@@ -83,7 +91,6 @@ Removed checkers
 
   Closes #5502
 
-
 Extensions
 ==========
 
@@ -128,6 +135,16 @@ Other Changes
 * ``Pylint`` now requires Python 3.7.2 or newer to run.
 
   Closes #4301
+
+* Improved ``use-dict-literal`` checker.
+  Now it can check for ``dict()`` calls on constant (literal) values.
+
+  Closes #6542
+
+* Improved ``use-list-literal`` checker.
+  It now checks for ``list()`` calls on constant (literal) values.
+
+  Closes #6542
 
 * Improved recognition of namespace packages. They should no longer be added to ``sys.path``
   which should prevent various issues with false positives.

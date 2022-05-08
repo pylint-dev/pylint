@@ -284,6 +284,7 @@ contributors:
 - thinwybk <florian.k@mailbox.org>
 - syutbai <syutbai@gmail.com>
 - sdet_liang <liangway@users.noreply.github.com>
+- sawbez <sawbez@users.noreply.github.com>
 - pyves@crater.logilab.fr <pyves@crater.logilab.fr>
 - paschich <millen@gridium.com>
 - oittaa <8972248+oittaa@users.noreply.github.com>

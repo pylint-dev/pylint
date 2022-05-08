@@ -1728,6 +1728,21 @@ def is_empty_str_literal(node: nodes.NodeNG | None) -> bool:
     )
 
 
+def is_nested_literal(node: nodes.NodeNG | None) -> bool:
+    """Returns True if the node is a nested literal. E.g. [1, 2, [3, 4]]."""
+    # First, check if the node is a literal
+    if isinstance(node, nodes.Const):
+        return True
+    # Then, check if the node is a list, tuple, set, or dict
+    if not isinstance(node, (nodes.List, nodes.Tuple, nodes.Set, nodes.Dict)):
+        return False
+    # Edge case: Nested dict
+    if isinstance(node, nodes.Dict):
+        return all(is_nested_literal(item[0]) and is_nested_literal(item[1]) for item in node.items)
+    # Finally, check that all elements are nested literals
+    return all(is_nested_literal(e) for e in node.elts)
+
+
 def returns_bool(node: nodes.NodeNG) -> bool:
     """Returns true if a node is a return that returns a constant boolean."""
     return (

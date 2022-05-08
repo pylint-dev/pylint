@@ -427,15 +427,15 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "The value can be accessed directly instead.",
         ),
         "R1734": (
-            "Consider using [] instead of list()",
+            "Consider using a [] literal instead of list()",
             "use-list-literal",
-            "Emitted when using list() to create an empty list instead of the literal []. "
+            "Emitted when using list() to create a list of constants (or empty list) instead of the literal []. "
             "The literal is faster as it avoids an additional function call.",
         ),
         "R1735": (
-            "Consider using {} instead of dict()",
+            "Consider using a {} literal instead of dict()",
             "use-dict-literal",
-            "Emitted when using dict() to create an empty dictionary instead of the literal {}. "
+            "Emitted when using dict() to create a dictionary of constants (or empty dict) instead of the literal {}. "
             "The literal is faster as it avoids an additional function call.",
         ),
         "R1736": (
@@ -444,6 +444,18 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "Emitted when iterating over an enumeration and accessing the "
             "value by index lookup. "
             "The value can be accessed directly instead.",
+        ),
+        "R1737": (
+            "Consider using a () literal instead of tuple()",
+            "use-tuple-literal",
+            "Emitted when using tuple() to create a tuple of constants instead of the literal (). "
+            "The literal is faster as it avoids an additional function call.",
+        ),
+        "R1738": (
+            "Consider using a {} literal instead of set()",
+            "use-set-literal",
+            "Emitted when using set() to create a set (that is not empty) instead of the literal {}. "
+            "The literal is faster as it avoids an additional function call.",
         ),
     }
     options = (
@@ -1026,6 +1038,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "use-list-literal",
         "use-dict-literal",
         "use-a-generator",
+        "use-tuple-literal",
+        "use-set-literal",
     )
     def visit_call(self, node: nodes.Call) -> None:
         self._check_raising_stopiteration_in_generator_next_call(node)
@@ -1034,7 +1048,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_super_with_arguments(node)
         self._check_consider_using_generator(node)
         self._check_consider_using_with(node)
-        self._check_use_list_or_dict_literal(node)
+        self._check_use_literal(node)
 
     @staticmethod
     def _has_exit_in_scope(scope):
@@ -1525,15 +1539,30 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if could_be_used_in_with and not _will_be_released_automatically(node):
             self.add_message("consider-using-with", node=node)
 
-    def _check_use_list_or_dict_literal(self, node: nodes.Call) -> None:
-        """Check if empty list or dict is created by using the literal [] or {}."""
-        if node.as_string() in {"list()", "dict()"}:
+    def _check_use_literal(self, node: nodes.Call) -> None:
+        """Check if a set, dict, list, or tuple is being created with a literal."""
+        if isinstance(node.func, nodes.Name) and node.func.name in {"set", "dict", "list", "tuple"}:
             inferred = utils.safe_infer(node.func)
-            if isinstance(inferred, nodes.ClassDef) and not node.args:
+
+            if isinstance(inferred, nodes.ClassDef):
+                if node.args:
+                    for arg in node.args[0].get_children():
+                        if not utils.is_nested_literal(arg):
+                            return  # Not a literal.
+
                 if inferred.qname() == "builtins.list":
                     self.add_message("use-list-literal", node=node)
-                elif inferred.qname() == "builtins.dict" and not node.keywords:
+                elif inferred.qname() == "builtins.dict":
+                    # In the case of a dict, we need to also check if the kwargs are literals.
+                    if node.kwargs:
+                        for keyword in node.keywords:
+                            if not isinstance(keyword.value, nodes.Const) and not isinstance(keyword.value, nodes.Dict):
+                                return  # The keyword value is not a literal.
                     self.add_message("use-dict-literal", node=node)
+                elif inferred.qname() == "builtins.set":
+                    self.add_message("use-set-literal", node=node)
+                elif inferred.qname() == "builtins.tuple":
+                    self.add_message("use-tuple-literal", node=node)
 
     def _check_consider_using_join(self, aug_assign):
         """We start with the augmented assignment and work our way upwards.
