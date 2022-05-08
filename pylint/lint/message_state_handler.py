@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import sys
+import tokenize
 from typing import TYPE_CHECKING
 
 from pylint import exceptions, interfaces
@@ -17,6 +18,12 @@ from pylint.constants import (
 )
 from pylint.message import MessageDefinition
 from pylint.typing import ManagedMessage
+from pylint.utils.pragma_parser import (
+    OPTION_PO,
+    InvalidPragmaError,
+    UnRecognizedOptionError,
+    parse_pragma,
+)
 
 if sys.version_info >= (3, 8):
     from typing import Literal
@@ -42,6 +49,7 @@ class _MessageStateHandler:
             "disable-msg": self._options_methods["disable"],
             "enable-msg": self._options_methods["enable"],
         }
+        self._pragma_lineno: dict[str, int] = {}
 
     def _set_one_msg_status(
         self, scope: str, msg: MessageDefinition, line: int | None, enable: bool
@@ -315,3 +323,89 @@ class _MessageStateHandler:
             # for now.
             msgids = [msg_descr]
         return any(self._is_one_message_enabled(msgid, line) for msgid in msgids)
+
+    def process_tokens(self, tokens: list[tokenize.TokenInfo]) -> None:
+        """Process tokens from the current module to search for module/block level
+        options.
+
+        See func_block_disable_msg.py test case for expected behaviour.
+        """
+        control_pragmas = {"disable", "disable-next", "enable"}
+        prev_line = None
+        saw_newline = True
+        seen_newline = True
+        for (tok_type, content, start, _, _) in tokens:
+            if prev_line and prev_line != start[0]:
+                saw_newline = seen_newline
+                seen_newline = False
+
+            prev_line = start[0]
+            if tok_type in (tokenize.NL, tokenize.NEWLINE):
+                seen_newline = True
+
+            if tok_type != tokenize.COMMENT:
+                continue
+            match = OPTION_PO.search(content)
+            if match is None:
+                continue
+            try:
+                for pragma_repr in parse_pragma(match.group(2)):
+                    if pragma_repr.action in {"disable-all", "skip-file"}:
+                        if pragma_repr.action == "disable-all":
+                            self.linter.add_message(
+                                "deprecated-pragma",
+                                line=start[0],
+                                args=("disable-all", "skip-file"),
+                            )
+                        self.linter.add_message("file-ignored", line=start[0])
+                        self._ignore_file = True
+                        return
+                    try:
+                        meth = self._options_methods[pragma_repr.action]
+                    except KeyError:
+                        meth = self._bw_options_methods[pragma_repr.action]
+                        # found a "(dis|en)able-msg" pragma deprecated suppression
+                        self.linter.add_message(
+                            "deprecated-pragma",
+                            line=start[0],
+                            args=(
+                                pragma_repr.action,
+                                pragma_repr.action.replace("-msg", ""),
+                            ),
+                        )
+                    for msgid in pragma_repr.messages:
+                        # Add the line where a control pragma was encountered.
+                        if pragma_repr.action in control_pragmas:
+                            self._pragma_lineno[msgid] = start[0]
+
+                        if (pragma_repr.action, msgid) == ("disable", "all"):
+                            self.linter.add_message(
+                                "deprecated-pragma",
+                                line=start[0],
+                                args=("disable=all", "skip-file"),
+                            )
+                            self.linter.add_message("file-ignored", line=start[0])
+                            self._ignore_file = True
+                            return
+                            # If we did not see a newline between the previous line and now,
+                            # we saw a backslash so treat the two lines as one.
+                        l_start = start[0]
+                        if not saw_newline:
+                            l_start -= 1
+                        try:
+                            meth(msgid, "module", l_start)
+                        except exceptions.UnknownMessageError:
+                            msg = f"{pragma_repr.action}. Don't recognize message {msgid}."
+                            self.linter.add_message(
+                                "bad-option-value", args=msg, line=start[0]
+                            )
+            except UnRecognizedOptionError as err:
+                self.linter.add_message(
+                    "unrecognized-inline-option", args=err.token, line=start[0]
+                )
+                continue
+            except InvalidPragmaError as err:
+                self.linter.add_message(
+                    "bad-inline-option", args=err.token, line=start[0]
+                )
+                continue
