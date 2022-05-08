@@ -204,7 +204,6 @@ Release date: TBA
 
   Closes #6542
 
-
 * Fix false negative for ``bad-string-format-type`` if the value to be formatted is passed in
   as a variable holding a constant.
 

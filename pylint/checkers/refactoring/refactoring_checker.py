@@ -1559,7 +1559,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                             if not isinstance(keyword.value, nodes.Const) and not isinstance(keyword.value, nodes.Dict):
                                 return  # The keyword value is not a literal.
                     self.add_message("use-dict-literal", node=node)
-                elif inferred.qname() == "builtins.set":
+                elif inferred.qname() == "builtins.set" and node.args:
                     self.add_message("use-set-literal", node=node)
                 elif inferred.qname() == "builtins.tuple":
                     self.add_message("use-tuple-literal", node=node)
