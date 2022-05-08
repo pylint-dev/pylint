@@ -1,4 +1,4 @@
-# The try except might be remove entirely:
+# The try except might be removed entirely:
 1 / 0
 
 # Or another more detailed exception can be raised:
