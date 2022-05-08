@@ -57,12 +57,6 @@ from pylint.typing import (
     Options,
 )
 from pylint.utils import ASTWalker, FileState, LinterStats, utils
-from pylint.utils.pragma_parser import (
-    OPTION_PO,
-    InvalidPragmaError,
-    UnRecognizedOptionError,
-    parse_pragma,
-)
 
 if sys.version_info >= (3, 8):
     from typing import Protocol
@@ -226,7 +220,7 @@ class PyLinter(
     _ArgumentsManager,
     _MessageStateHandler,
     reporters.ReportsHandlerMixIn,
-    checkers.BaseTokenChecker,
+    checkers.BaseChecker,
 ):
     """Lint Python modules using external checkers.
 
@@ -290,7 +284,6 @@ class PyLinter(
         self.current_name: str | None = None
         self.current_file: str | None = None
         self._ignore_file = False
-        self._pragma_lineno: dict[str, int] = {}
 
         # Attributes related to stats
         self.stats = LinterStats()
@@ -307,13 +300,13 @@ class PyLinter(
         """List of message symbols on which pylint should fail, set by --fail-on."""
         self._error_mode = False
 
-        # Attributes related to messages (states) and their handling
+        # Attributes related to registering messages and their handling
         self.msgs_store = MessageDefinitionStore()
         self.msg_status = 0
         self._by_id_managed_msgs: list[ManagedMessage] = []
 
         reporters.ReportsHandlerMixIn.__init__(self)
-        checkers.BaseTokenChecker.__init__(self, self)
+        checkers.BaseChecker.__init__(self, self)
         # provided reports
         self.reports = (
             ("RP0001", "Messages by category", report_total_messages_stats),
@@ -507,91 +500,6 @@ class PyLinter(
         self.set_option("reports", False)
         self.set_option("persistent", False)
         self.set_option("score", False)
-
-    # block level option handling #############################################
-    # see func_block_disable_msg.py test case for expected behaviour
-
-    def process_tokens(self, tokens: list[tokenize.TokenInfo]) -> None:
-        """Process tokens from the current module to search for module/block level
-        options.
-        """
-        control_pragmas = {"disable", "disable-next", "enable"}
-        prev_line = None
-        saw_newline = True
-        seen_newline = True
-        for (tok_type, content, start, _, _) in tokens:
-            if prev_line and prev_line != start[0]:
-                saw_newline = seen_newline
-                seen_newline = False
-
-            prev_line = start[0]
-            if tok_type in (tokenize.NL, tokenize.NEWLINE):
-                seen_newline = True
-
-            if tok_type != tokenize.COMMENT:
-                continue
-            match = OPTION_PO.search(content)
-            if match is None:
-                continue
-            try:
-                for pragma_repr in parse_pragma(match.group(2)):
-                    if pragma_repr.action in {"disable-all", "skip-file"}:
-                        if pragma_repr.action == "disable-all":
-                            self.add_message(
-                                "deprecated-pragma",
-                                line=start[0],
-                                args=("disable-all", "skip-file"),
-                            )
-                        self.add_message("file-ignored", line=start[0])
-                        self._ignore_file = True
-                        return
-                    try:
-                        meth = self._options_methods[pragma_repr.action]
-                    except KeyError:
-                        meth = self._bw_options_methods[pragma_repr.action]
-                        # found a "(dis|en)able-msg" pragma deprecated suppression
-                        self.add_message(
-                            "deprecated-pragma",
-                            line=start[0],
-                            args=(
-                                pragma_repr.action,
-                                pragma_repr.action.replace("-msg", ""),
-                            ),
-                        )
-                    for msgid in pragma_repr.messages:
-                        # Add the line where a control pragma was encountered.
-                        if pragma_repr.action in control_pragmas:
-                            self._pragma_lineno[msgid] = start[0]
-
-                        if (pragma_repr.action, msgid) == ("disable", "all"):
-                            self.add_message(
-                                "deprecated-pragma",
-                                line=start[0],
-                                args=("disable=all", "skip-file"),
-                            )
-                            self.add_message("file-ignored", line=start[0])
-                            self._ignore_file = True
-                            return
-                            # If we did not see a newline between the previous line and now,
-                            # we saw a backslash so treat the two lines as one.
-                        l_start = start[0]
-                        if not saw_newline:
-                            l_start -= 1
-                        try:
-                            meth(msgid, "module", l_start)
-                        except exceptions.UnknownMessageError:
-                            msg = f"{pragma_repr.action}. Don't recognize message {msgid}."
-                            self.add_message(
-                                "bad-option-value", args=msg, line=start[0]
-                            )
-            except UnRecognizedOptionError as err:
-                self.add_message(
-                    "unrecognized-inline-option", args=err.token, line=start[0]
-                )
-                continue
-            except InvalidPragmaError as err:
-                self.add_message("bad-inline-option", args=err.token, line=start[0])
-                continue
 
     # code checking methods ###################################################
 
@@ -1025,8 +933,7 @@ class PyLinter(
             self.add_message("raw-checker-failed", args=node.name)
         else:
             # assert astroid.file.endswith('.py')
-            # invoke ITokenChecker interface on self to fetch module/block
-            # level options
+            # Parse module/block level option pragma's
             self.process_tokens(tokens)
             if self._ignore_file:
                 return False
