@@ -25,16 +25,6 @@ Release date: TBA
 
   Closes #4301
 
-* By default the similarity checker will now ignore imports and ignore function signatures when computing
-  duplication. If you want to keep the previous behaviour set ``ignore-imports`` and ``ignore-signatures`` to ``False``.
-
-* Improved recognition of namespace packages. They should no longer be added to ``sys.path``
-  which should prevent various issues with false positives.
-  Because of the difficulties with mirroring the python import mechanics we would gladly
-  hear feedback on this change.
-
-  Closes #5226, Closes #2648
-
 * ``BaseChecker`` classes now require the ``linter`` argument to be passed.
 
 * Fix a failure to respect inline disables for ``fixme`` occurring on the last line
