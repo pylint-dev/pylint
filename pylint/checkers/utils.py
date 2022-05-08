@@ -560,7 +560,7 @@ def split_format_field_names(format_string) -> tuple[str, Iterable[tuple[bool, s
 
 def collect_string_fields(
     format_string,
-) -> tuple[Iterable[str | None], Iterable[str | None]]:
+) -> Iterable[tuple[str | None, str | None]]:
     """Given a format string, return an iterator
     of all the valid format fields.
 
