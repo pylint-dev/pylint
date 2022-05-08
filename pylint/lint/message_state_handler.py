@@ -4,12 +4,24 @@
 
 from __future__ import annotations
 
+import sys
 from typing import TYPE_CHECKING
 
-from pylint import exceptions
-from pylint.constants import MSG_TYPES, MSG_TYPES_LONG
+from pylint import exceptions, interfaces
+from pylint.constants import (
+    MSG_STATE_CONFIDENCE,
+    MSG_STATE_SCOPE_CONFIG,
+    MSG_STATE_SCOPE_MODULE,
+    MSG_TYPES,
+    MSG_TYPES_LONG,
+)
 from pylint.message import MessageDefinition
 from pylint.typing import ManagedMessage
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
@@ -21,6 +33,15 @@ class _MessageStateHandler:
     def __init__(self, linter: PyLinter) -> None:
         self.linter = linter
         self._msgs_state: dict[str, bool] = {}
+        self._options_methods = {
+            "enable": self.enable,
+            "disable": self.disable,
+            "disable-next": self.disable_next,
+        }
+        self._bw_options_methods = {
+            "disable-msg": self._options_methods["disable"],
+            "enable-msg": self._options_methods["enable"],
+        }
 
     def _set_one_msg_status(
         self, scope: str, msg: MessageDefinition, line: int | None, enable: bool
@@ -136,3 +157,161 @@ class _MessageStateHandler:
                 self.linter.current_name, msgid_or_symbol, symbol, line, is_disabled
             )
             self.linter._by_id_managed_msgs.append(managed)
+
+    def disable(
+        self,
+        msgid: str,
+        scope: str = "package",
+        line: int | None = None,
+        ignore_unknown: bool = False,
+    ) -> None:
+        """Disable a message for a scope."""
+        self._set_msg_status(
+            msgid, enable=False, scope=scope, line=line, ignore_unknown=ignore_unknown
+        )
+        self._register_by_id_managed_msg(msgid, line)
+
+    def disable_next(
+        self,
+        msgid: str,
+        scope: str = "package",
+        line: int | None = None,
+        ignore_unknown: bool = False,
+    ) -> None:
+        """Disable a message for the next line."""
+        if not line:
+            raise exceptions.NoLineSuppliedError
+        self._set_msg_status(
+            msgid,
+            enable=False,
+            scope=scope,
+            line=line + 1,
+            ignore_unknown=ignore_unknown,
+        )
+        self._register_by_id_managed_msg(msgid, line + 1)
+
+    def enable(
+        self,
+        msgid: str,
+        scope: str = "package",
+        line: int | None = None,
+        ignore_unknown: bool = False,
+    ) -> None:
+        """Enable a message for a scope."""
+        self._set_msg_status(
+            msgid, enable=True, scope=scope, line=line, ignore_unknown=ignore_unknown
+        )
+        self._register_by_id_managed_msg(msgid, line, is_disabled=False)
+
+    def disable_noerror_messages(self) -> None:
+        for msgcat, msgids in self.linter.msgs_store._msgs_by_category.items():
+            # enable only messages with 'error' severity and above ('fatal')
+            if msgcat in {"E", "F"}:
+                for msgid in msgids:
+                    self.enable(msgid)
+            else:
+                for msgid in msgids:
+                    self.disable(msgid)
+
+    def list_messages_enabled(self) -> None:
+        emittable, non_emittable = self.linter.msgs_store.find_emittable_messages()
+        enabled: list[str] = []
+        disabled: list[str] = []
+        for message in emittable:
+            if self.is_message_enabled(message.msgid):
+                enabled.append(f"  {message.symbol} ({message.msgid})")
+            else:
+                disabled.append(f"  {message.symbol} ({message.msgid})")
+        print("Enabled messages:")
+        for msg in enabled:
+            print(msg)
+        print("\nDisabled messages:")
+        for msg in disabled:
+            print(msg)
+        print("\nNon-emittable messages with current interpreter:")
+        for msg_def in non_emittable:
+            print(f"  {msg_def.symbol} ({msg_def.msgid})")
+        print("")
+
+    def _get_message_state_scope(
+        self,
+        msgid: str,
+        line: int | None = None,
+        confidence: interfaces.Confidence | None = None,
+    ) -> Literal[0, 1, 2] | None:
+        """Returns the scope at which a message was enabled/disabled."""
+        if confidence is None:
+            confidence = interfaces.UNDEFINED
+        if confidence.name not in self.linter.config.confidence:
+            return MSG_STATE_CONFIDENCE  # type: ignore[return-value] # mypy does not infer Literal correctly
+        try:
+            if line in self.linter.file_state._module_msgs_state[msgid]:
+                return MSG_STATE_SCOPE_MODULE  # type: ignore[return-value]
+        except (KeyError, TypeError):
+            return MSG_STATE_SCOPE_CONFIG  # type: ignore[return-value]
+        return None
+
+    def _is_one_message_enabled(self, msgid: str, line: int | None) -> bool:
+        """Checks state of a single message for the current file.
+
+        This function can't be cached as it depends on self.file_state which can
+        change.
+        """
+        if line is None:
+            return self._msgs_state.get(msgid, True)
+        try:
+            return self.linter.file_state._module_msgs_state[msgid][line]
+        except KeyError:
+            # Check if the message's line is after the maximum line existing in ast tree.
+            # This line won't appear in the ast tree and won't be referred in
+            # self.file_state._module_msgs_state
+            # This happens for example with a commented line at the end of a module.
+            max_line_number = self.linter.file_state.get_effective_max_line_number()
+            if max_line_number and line > max_line_number:
+                fallback = True
+                lines = self.linter.file_state._raw_module_msgs_state.get(msgid, {})
+
+                # Doesn't consider scopes, as a 'disable' can be in a
+                # different scope than that of the current line.
+                closest_lines = reversed(
+                    [
+                        (message_line, enable)
+                        for message_line, enable in lines.items()
+                        if message_line <= line
+                    ]
+                )
+                _, fallback_iter = next(closest_lines, (None, None))
+                if fallback_iter is not None:
+                    fallback = fallback_iter
+
+                return self._msgs_state.get(msgid, fallback)
+            return self._msgs_state.get(msgid, True)
+
+    def is_message_enabled(
+        self,
+        msg_descr: str,
+        line: int | None = None,
+        confidence: interfaces.Confidence | None = None,
+    ) -> bool:
+        """Return whether this message is enabled for the current file, line and confidence level.
+
+        This function can't be cached right now as the line is the line of
+        the currently analysed file (self.file_state), if it changes, then the
+        result for the same msg_descr/line might need to change.
+
+        :param msg_descr: Either the msgid or the symbol for a MessageDefinition
+        :param line: The line of the currently analysed file
+        :param confidence: The confidence of the message
+        """
+        if confidence and confidence.name not in self.linter.config.confidence:
+            return False
+        try:
+            msgids = self.linter.msgs_store.message_id_store.get_active_msgids(
+                msg_descr
+            )
+        except exceptions.UnknownMessageError:
+            # The linter checks for messages that are not registered
+            # due to version mismatch, just treat them as message IDs
+            # for now.
+            msgids = [msg_descr]
+        return any(self._is_one_message_enabled(msgid, line) for msgid in msgids)
