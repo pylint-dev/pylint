@@ -1541,7 +1541,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def _check_use_literal(self, node: nodes.Call) -> None:
         """Check if a set, dict, list, or tuple is being created with a literal."""
-        if isinstance(node.func, nodes.Name) and node.func.name in {"set", "dict", "list", "tuple"}:
+        if isinstance(node.func, nodes.Name) and node.func.name in {
+            "set",
+            "dict",
+            "list",
+            "tuple",
+        }:
             inferred = utils.safe_infer(node.func)
 
             if isinstance(inferred, nodes.ClassDef):
@@ -1556,7 +1561,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                     # In the case of a dict, we need to also check if the kwargs are literals.
                     if node.kwargs:
                         for keyword in node.keywords:
-                            if not isinstance(keyword.value, nodes.Const) and not isinstance(keyword.value, nodes.Dict):
+                            if not isinstance(
+                                keyword.value, nodes.Const
+                            ) and not isinstance(keyword.value, nodes.Dict):
                                 return  # The keyword value is not a literal.
                     self.add_message("use-dict-literal", node=node)
                 elif inferred.qname() == "builtins.set" and node.args:
