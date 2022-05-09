@@ -80,5 +80,6 @@ from .no_self_use.bla import lala1 # [no-name-in-module]
 from argparse import THIS_does_not_EXIST
 
 
-# https://github.com/PyCQA/pylint/issues/6497
+# This captures the original failure in https://github.com/PyCQA/pylint/issues/6497
+# only if numpy is installed. We are not installing numpy on CI (for now)
 from numpy.distutils.misc_util import is_sequence
