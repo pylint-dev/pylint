@@ -90,7 +90,6 @@ class DeprecatedMixin(BaseChecker):
         Returns:
             collections.abc.Container of deprecated decorator names.
         """
-        # pylint: disable=no-self-use
         return ()
 
     @utils.only_required_for_messages("deprecated-decorator")
@@ -125,7 +124,6 @@ class DeprecatedMixin(BaseChecker):
         Returns:
             collections.abc.Container of deprecated function/method names.
         """
-        # pylint: disable=no-self-use
         return ()
 
     def deprecated_arguments(self, method: str) -> Iterable[tuple[int | None, str]]:
@@ -151,7 +149,6 @@ class DeprecatedMixin(BaseChecker):
             .. code-block:: python
                 ((1, 'arg2'), (3, 'arg4'))
         """
-        # pylint: disable=no-self-use
         # pylint: disable=unused-argument
         return ()
 
@@ -161,7 +158,6 @@ class DeprecatedMixin(BaseChecker):
         Returns:
             collections.abc.Container of deprecated module names.
         """
-        # pylint: disable=no-self-use
         return ()
 
     def deprecated_classes(self, module: str) -> Iterable:
@@ -173,7 +169,6 @@ class DeprecatedMixin(BaseChecker):
         Returns:
             collections.abc.Container of deprecated class names.
         """
-        # pylint: disable=no-self-use
         # pylint: disable=unused-argument
         return ()
 

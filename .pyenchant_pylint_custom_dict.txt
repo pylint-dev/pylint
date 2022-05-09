@@ -59,6 +59,8 @@ const
 Const
 contextlib
 contextmanager
+contravariance
+contravariant
 cpython
 CPython
 csv

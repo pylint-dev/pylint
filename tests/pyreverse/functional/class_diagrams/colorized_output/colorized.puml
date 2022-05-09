@@ -23,7 +23,7 @@ class "ExceptionsChecker" as pylint.checkers.exceptions.ExceptionsChecker #aquam
   visit_tryexcept(node: nodes.TryExcept) -> None
 }
 class "StdlibChecker" as pylint.checkers.stdlib.StdlibChecker #aquamarine {
-  msgs : dict
+  msgs
   name : str
   deprecated_arguments(method: str)
   deprecated_classes(module: str)

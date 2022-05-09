@@ -9,6 +9,10 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.14.rst'
 
+* Added new checker ``comparison-of-constants``.
+
+  Closes #6076
+
 * Started ignoring underscore as a local variable for ``too-many-locals``.
 
   Closes #6488
@@ -20,13 +24,6 @@ Release date: TBA
 * ``Pylint`` now requires Python 3.7.2 or newer to run.
 
   Closes #4301
-
-* Improved recognition of namespace packages. They should no longer be added to ``sys.path``
-  which should prevent various issues with false positives.
-  Because of the difficulties with mirroring the python import mechanics we would gladly
-  hear feedback on this change.
-
-  Closes #5226, Closes #2648
 
 * ``BaseChecker`` classes now require the ``linter`` argument to be passed.
 
@@ -249,6 +246,10 @@ Release date: TBA
 
   Closes #5219
 
+* Fixed false positive ``no-member`` for Enums with self-defined members.
+
+  Closes #5138
+
 * Fix false negative for ``no-member`` when attempting to assign an instance
   attribute to itself without any prior assignment.
 
@@ -276,6 +277,27 @@ Release date: TBA
 
   Relates to #6493
 
+* Created ``NoSelfUseChecker`` extension and moved the ``no-self-use`` check.
+  You now need to explicitly enable this check using
+  ``load-plugins=pylint.extensions.no_self_use``.
+
+  Closes #5502
+
+* Fix saving of persistent data files in environments where the user's cache
+  directory and the linted file are on a different drive.
+
+  Closes #6394
+
+* Don't emit ``unsubscriptable-object`` for string annotations.
+  Pylint doesn't check if class is only generic in type stubs only.
+
+  Closes #4369 and #6523
+
+* ``is_class_subscriptable_pep585_with_postponed_evaluation_enabled`` has been deprecated.
+  Use ``subscriptable_with_postponed_evaluation_enabled`` instead.
+
+  Ref #6536
+
 ..
   Insert your changelog randomly, it will reduce merge conflicts
   (Ie. not necessarily at the end)
@@ -285,9 +307,18 @@ What's New in Pylint 2.13.9?
 ============================
 Release date: TBA
 
+
 * Fix false positives for ``no-name-in-module`` and ``import-error`` for ``numpy.distutils``.
 
   Closes #6497
+
+* Fix ``IndexError`` crash in ``uninferable_final_decorators`` method.
+
+ Relates to #6531
+
+* Fix a crash when accessing ``__code__`` and assigning it to a variable.
+
+  Closes #6539
 
 
 What's New in Pylint 2.13.8?
@@ -1007,6 +1038,9 @@ Release date: 2022-03-24
       raise ValueError
 
   Closes #4955
+
+* Disable spellchecking of mypy rule names in ignore directives.
+  Closes #5929
 
 * Allow disabling ``duplicate-code`` with a disable comment when running through
   pylint.

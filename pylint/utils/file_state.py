@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import collections
 import sys
+import warnings
 from collections import defaultdict
 from collections.abc import Iterator
 from typing import TYPE_CHECKING, Dict
@@ -33,7 +34,26 @@ MessageStateDict = Dict[str, Dict[int, bool]]
 class FileState:
     """Hold internal state specific to the currently analyzed file."""
 
-    def __init__(self, modname: str | None = None) -> None:
+    def __init__(
+        self,
+        modname: str | None = None,
+        msg_store: MessageDefinitionStore | None = None,
+        node: nodes.Module | None = None,
+        *,
+        is_base_filestate: bool = False,
+    ) -> None:
+        if modname is None:
+            warnings.warn(
+                "FileState needs a string as modname argument. "
+                "This argument will be required in pylint 3.0",
+                DeprecationWarning,
+            )
+        if msg_store is None:
+            warnings.warn(
+                "FileState needs a 'MessageDefinitionStore' as msg_store argument. "
+                "This argument will be required in pylint 3.0",
+                DeprecationWarning,
+            )
         self.base_name = modname
         self._module_msgs_state: MessageStateDict = {}
         self._raw_module_msgs_state: MessageStateDict = {}
@@ -41,7 +61,14 @@ class FileState:
             tuple[str, int], set[int]
         ] = collections.defaultdict(set)
         self._suppression_mapping: dict[tuple[str, int], int] = {}
-        self._effective_max_line_number: int | None = None
+        self._module = node
+        if node:
+            self._effective_max_line_number = node.tolineno
+        else:
+            self._effective_max_line_number = None
+        self._msgs_store = msg_store
+        self._is_base_filestate = is_base_filestate
+        """If this FileState is the base state made during initialization of PyLinter."""
 
     def collect_block_lines(
         self, msgs_store: MessageDefinitionStore, module_node: nodes.Module

@@ -241,3 +241,5 @@ intersphinx_mapping = {
 # Prevent label issues due to colliding section names
 # through including multiple documents
 autosectionlabel_prefix_document = True
+
+linkcheck_ignore = ["https://github.com/PyCQA/pylint/blob/main/pylint/extensions/.*"]

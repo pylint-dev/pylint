@@ -386,9 +386,7 @@ class TypingChecker(BaseChecker):
 
         self.add_message("broken-collections-callable", node=node, confidence=INFERENCE)
 
-    def _broken_callable_location(  # pylint: disable=no-self-use
-        self, node: nodes.Name | nodes.Attribute
-    ) -> bool:
+    def _broken_callable_location(self, node: nodes.Name | nodes.Attribute) -> bool:
         """Check if node would be a broken location for collections.abc.Callable."""
         if (
             in_type_checking_block(node)

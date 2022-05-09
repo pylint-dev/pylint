@@ -197,6 +197,7 @@ def _make_graph(
 # the import checker itself ###################################################
 
 MSGS: dict[str, MessageDefinitionTuple] = {
+    **{k: v for k, v in DeprecatedMixin.msgs.items() if k[1:3] == "04"},
     "E0401": (
         "Unable to import %s",
         "import-error",
@@ -226,11 +227,6 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Wildcard import %s",
         "wildcard-import",
         "Used when `from module import *` is detected.",
-    ),
-    "W0402": (
-        "Deprecated module %r",
-        "deprecated-module",
-        "A module marked as deprecated is imported.",
     ),
     "W0404": (
         "Reimport %r (imported line %s)",
