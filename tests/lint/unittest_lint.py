@@ -879,7 +879,7 @@ print(a)
 """
             )
         os.chdir("namespace")
-        # Add the parent directory (tmpdir) to sys.path
+        # Add the parent directory to sys.path
         with fix_import_path([tmpdir]):
             linter.check(["b.py"])
     assert not linter.stats.by_msg
