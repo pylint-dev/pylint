@@ -251,6 +251,7 @@ class PyLinter(
                     "type": "regexp_paths_csv",
                     "metavar": "<pattern>[,<pattern>...]",
                     "default": [],
+                    "dest": "ignore_paths",
                     "help": "Add files or directories matching the regex patterns to the "
                     "ignore-list. The regex matches against paths and can be in "
                     "Posix or Windows format.",
@@ -1030,8 +1031,8 @@ class PyLinter(
 
                     if _is_ignored_file(
                         root,
-                        self.config.ignore,
-                        self.config.ignore_patterns,
+                        self.config.black_list,
+                        self.config.black_list_re,
                         self.config.ignore_paths,
                     ):
                         skip_subtrees.append(root)
@@ -1193,7 +1194,7 @@ class PyLinter(
             modules,
             self.config.black_list,
             self.config.black_list_re,
-            self._ignore_paths,
+            self.config.ignore_paths,
         )
         for error in errors:
             message = modname = error["mod"]

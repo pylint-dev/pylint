@@ -820,7 +820,7 @@ def uninferable_final_decorators(
     """
     decorators = []
     for decorator in getattr(node, "nodes", []):
-        import_nodes: tuple[nodes.Import | nodes.ImportFrom] | None = None
+        import_nodes = None
 
         # Get the `Import` node. The decorator is of the form: @module.name
         if isinstance(decorator, nodes.Attribute):

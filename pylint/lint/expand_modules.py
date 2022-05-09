@@ -45,9 +45,9 @@ def _is_in_ignore_list_re(element: str, ignore_list_re: List[Pattern]) -> bool:
 
 def _is_ignored_file(
     element: str,
-    ignore_list: list[str],
-    ignore_list_re: list[Pattern[str]],
-    ignore_list_paths_re: list[Pattern[str]],
+    ignore_list,
+    ignore_list_re,
+    ignore_list_paths_re,
 ) -> bool:
     basename = os.path.basename(element)
     return (

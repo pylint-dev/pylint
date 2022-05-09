@@ -18,7 +18,7 @@ Release date: TBA
 
 What's New in Pylint 2.13.9?
 ============================
-Release date: TBA
+Release date: 2022-05-13
 
 
 * Respect ignore configuration options with ``--recursive=y``.
