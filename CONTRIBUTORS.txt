@@ -89,8 +89,8 @@ contributors:
 - Ville Skyttä <ville.skytta@iki.fi>
 - Matus Valo <matusvalo@users.noreply.github.com>
 - Pierre-Yves David <pierre-yves.david@logilab.fr>
-- David Shea <dshea@redhat.com>: invalid sequence and slice index
 - Mark Byrne <31762852+mbyrnepr2@users.noreply.github.com>
+- David Shea <dshea@redhat.com>: invalid sequence and slice index
 - Derek Gustafson <degustaf@gmail.com>
 - Cezar Elnazli <cezar.elnazli2@gmail.com>: deprecated-method
 - Nicolas Chauvat <nicolas.chauvat@logilab.fr>

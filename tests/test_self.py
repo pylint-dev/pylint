@@ -1323,7 +1323,7 @@ class TestRunTC:
             [
                 join(HERE, "regrtest_data", "directory"),
                 "--recursive=y",
-                "--ignore-pattern=ignored_.*",
+                "--ignore-patterns=ignored_.*",
             ],
             code=0,
         )
@@ -1332,7 +1332,7 @@ class TestRunTC:
             [
                 join(HERE, "regrtest_data", "directory"),
                 "--recursive=y",
-                "--ignore-pattern=failing.*",
+                "--ignore-patterns=failing.*",
             ],
             code=0,
         )
@@ -1347,7 +1347,7 @@ class TestRunTC:
             [
                 join(HERE, "regrtest_data", "directory"),
                 "--recursive=y",
-                "--ignore-path=.*ignored.*",
+                "--ignore-paths=.*ignored.*",
             ],
             code=0,
         )
@@ -1356,7 +1356,7 @@ class TestRunTC:
             [
                 join(HERE, "regrtest_data", "directory"),
                 "--recursive=y",
-                "--ignore-path=.*failing.*",
+                "--ignore-paths=.*failing.*",
             ],
             code=0,
         )
