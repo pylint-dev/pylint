@@ -1,4 +1,4 @@
-#pylint: disable=missing-docstring, undefined-variable, invalid-name, too-few-public-methods, wrong-import-position,import-error
+#pylint: disable=missing-docstring, undefined-variable, invalid-name, too-few-public-methods, wrong-import-position,import-error,use-tuple-literal
 
 import collections
 from unknown import Unknown

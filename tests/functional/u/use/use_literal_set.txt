@@ -1,0 +1,3 @@
+use-set-literal:3:4:3:23::Consider using a {} literal instead of set():UNDEFINED
+use-set-literal:4:4:4:18::Consider using a {} literal instead of set():UNDEFINED
+use-set-literal:5:4:5:27::Consider using a {} literal instead of set():UNDEFINED

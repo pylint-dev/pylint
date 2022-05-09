@@ -1,7 +1,7 @@
 # pylint: disable=missing-docstring, no-member, bad-super-call
 # pylint: disable=too-few-public-methods, unused-argument, invalid-name, too-many-public-methods
 # pylint: disable=line-too-long, useless-object-inheritance, arguments-out-of-order
-# pylint: disable=super-with-arguments, dangerous-default-value
+# pylint: disable=super-with-arguments, dangerous-default-value, use-tuple-literal
 
 default_var = 1
 def not_a_method(param, param2):

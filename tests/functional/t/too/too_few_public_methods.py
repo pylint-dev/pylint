@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, useless-object-inheritance
+# pylint: disable=missing-docstring, useless-object-inheritance, use-list-literal
 from __future__ import print_function
 
 

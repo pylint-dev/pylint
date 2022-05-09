@@ -4,6 +4,7 @@ Checks that value used in a subscript supports subscription
 """
 # pylint: disable=missing-docstring,pointless-statement,expression-not-assigned,wrong-import-position, unnecessary-comprehension
 # pylint: disable=too-few-public-methods,import-error,invalid-name,wrong-import-order, useless-object-inheritance, redundant-u-string-prefix
+# pylint disable=use-dict-literal,use-set-literal
 import six
 
 # primitives

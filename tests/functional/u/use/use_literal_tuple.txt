@@ -1,0 +1,3 @@
+use-tuple-literal:3:4:3:11::Consider using a () literal instead of tuple():UNDEFINED
+use-tuple-literal:4:4:4:25::Consider using a () literal instead of tuple():UNDEFINED
+use-tuple-literal:5:4:5:27::Consider using a () literal instead of tuple():UNDEFINED

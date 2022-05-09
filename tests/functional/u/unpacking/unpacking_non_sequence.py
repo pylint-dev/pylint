@@ -2,6 +2,7 @@
 
 # pylint: disable=too-few-public-methods, invalid-name, attribute-defined-outside-init, unused-variable
 # pylint: disable=using-constant-test, missing-docstring, wrong-import-order,wrong-import-position,no-else-return, useless-object-inheritance
+# pylint: disable=use-set-literal
 from os import rename as nonseq_func
 from functional.u.unpacking.unpacking import nonseq
 from typing import NamedTuple

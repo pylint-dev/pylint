@@ -1,1 +1,3 @@
-use-dict-literal:3:4:3:10::Consider using {} instead of dict():UNDEFINED
+use-dict-literal:3:4:3:10::Consider using a {} literal instead of dict():UNDEFINED
+use-dict-literal:4:4:4:28::Consider using a {} literal instead of dict():UNDEFINED
+use-dict-literal:5:4:5:30::Consider using a {} literal instead of dict():UNDEFINED

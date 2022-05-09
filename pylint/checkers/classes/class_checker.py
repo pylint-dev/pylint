@@ -1948,7 +1948,7 @@ a metaclass class method.",
         ) and not self.linter.is_message_enabled("non-parent-init-called"):
             return
         to_call = _ancestors_to_call(klass_node)
-        not_called_yet = dict(to_call)
+        not_called_yet = to_call.copy()
         parents_with_called_inits: set[bases.UnboundMethod] = set()
         for stmt in node.nodes_of_class(nodes.Call):
             expr = stmt.func

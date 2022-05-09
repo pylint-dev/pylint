@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,unused-argument,too-few-public-methods
+# pylint: disable=missing-docstring,unused-argument,too-few-public-methods,use-dict-literal
 import typing
 
 

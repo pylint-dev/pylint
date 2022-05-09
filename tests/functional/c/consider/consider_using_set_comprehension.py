@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, invalid-name, unnecessary-comprehension
+# pylint: disable=missing-docstring, invalid-name, unnecessary-comprehension, use-set-literal
 
 numbers = [1, 2, 3, 4, 5, 6]
 

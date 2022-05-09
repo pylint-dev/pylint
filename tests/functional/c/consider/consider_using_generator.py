@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, invalid-name
+# pylint: disable=missing-docstring, invalid-name, use-list-literal, use-tuple-literal
 # https://github.com/PyCQA/pylint/issues/3165
 
 list([])

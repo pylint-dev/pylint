@@ -1,6 +1,6 @@
 # pylint: disable=too-few-public-methods, missing-docstring,import-error,wrong-import-position
 # pylint: disable=wrong-import-order, useless-object-inheritance,unnecessary-lambda, consider-using-f-string
-# pylint: disable=unnecessary-lambda-assignment
+# pylint: disable=unnecessary-lambda-assignment, use-list-literal, use-set-literal, use-dict-literal
 
 def decorator(fun):
     """Decorator"""

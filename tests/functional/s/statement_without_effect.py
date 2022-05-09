@@ -1,5 +1,5 @@
 """Test for statements without effects."""
-# pylint: disable=too-few-public-methods, useless-object-inheritance, unnecessary-comprehension, unnecessary-ellipsis, use-list-literal
+# pylint: disable=too-few-public-methods, useless-object-inheritance, unnecessary-comprehension, unnecessary-ellipsis, use-list-literal, use-tuple-literal
 
 # +1:[pointless-string-statement]
 """inline doc string should use a separated message"""

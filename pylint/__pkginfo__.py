@@ -6,6 +6,7 @@
 
 It's updated via tbump, do not modify.
 """
+# pylint: disable=use-tuple-literal
 
 from __future__ import annotations
 
