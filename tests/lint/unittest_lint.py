@@ -863,6 +863,7 @@ def test_by_module_statement_value(initialized_linter: PyLinter) -> None:
         # computed for that module
         assert module_stats["statement"] == linter2.stats.statement
 
+
 @pytest.mark.parametrize(
     "ignore_parameter,ignore_parameter_value",
     [
@@ -905,7 +906,7 @@ def test_recursive_ignore(ignore_parameter, ignore_parameter_value) -> None:
         module = os.path.abspath(join(REGRTEST_DATA_DIR, *regrtest_data_module))
     assert module in linted_file_paths
 
-    
+
 def test_import_sibling_module_from_namespace(initialized_linter: PyLinter) -> None:
     """If the parent directory above `namespace` is on sys.path, ensure that
     modules under `namespace` can import each other without raising `import-error`."""
