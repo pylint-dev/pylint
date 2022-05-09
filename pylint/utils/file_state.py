@@ -129,7 +129,7 @@ class FileState:
         """Set the state of a message in a block of lines."""
         first = node.fromlineno
         last = node.tolineno
-        for lineno, state in lines.items():
+        for lineno, state in list(lines.items()):
             original_lineno = lineno
             if first > lineno or last < lineno:
                 continue
