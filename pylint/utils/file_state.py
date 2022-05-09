@@ -74,6 +74,10 @@ class FileState:
         self, msgs_store: MessageDefinitionStore, module_node: nodes.Module
     ) -> None:
         """Walk the AST to collect block level options line numbers."""
+        warnings.warn(
+            "'collect_block_lines' has been deprecated and will be removed in pylint 3.0.",
+            DeprecationWarning,
+        )
         for msg, lines in self._module_msgs_state.items():
             self._raw_module_msgs_state[msg] = lines.copy()
         orig_state = self._module_msgs_state.copy()

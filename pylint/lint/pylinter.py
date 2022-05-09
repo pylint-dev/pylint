@@ -937,8 +937,6 @@ class PyLinter(
             self.process_tokens(tokens)
             if self._ignore_file:
                 return False
-            # walk ast to collect line numbers
-            self.file_state.collect_block_lines(self.msgs_store, node)
             # run raw and tokens checkers
             for raw_checker in rawcheckers:
                 raw_checker.process_module(node)

@@ -9,6 +9,7 @@ from __future__ import annotations
 from typing import Any
 
 import pytest
+from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.mapreduce_checker import MapReduceMixin
@@ -100,3 +101,10 @@ def test_filestate() -> None:
     with pytest.warns(DeprecationWarning):
         FileState(msg_store=MessageDefinitionStore())
     FileState("foo", MessageDefinitionStore())
+
+
+def test_collectblocklines() -> None:
+    """Test FileState.collect_block_lines."""
+    state = FileState("foo", MessageDefinitionStore())
+    with pytest.warns(DeprecationWarning):
+        state.collect_block_lines(MessageDefinitionStore(), nodes.Module("foo"))
