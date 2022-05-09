@@ -93,8 +93,6 @@ class FileState:
         """
         for child in node.get_children():
             self._collect_block_lines(msgs_store, child, msg_state)
-        first = node.fromlineno
-        last = node.tolineno
         # first child line number used to distinguish between disable
         # which are the first child of scoped node with those defined later.
         # For instance in the code below:
@@ -116,37 +114,48 @@ class FileState:
         ):
             firstchildlineno = node.body[0].fromlineno
         else:
-            firstchildlineno = last
+            firstchildlineno = node.tolineno
         for msgid, lines in msg_state.items():
-            for lineno, state in list(lines.items()):
-                original_lineno = lineno
-                if first > lineno or last < lineno:
+            for msg in msgs_store.get_message_definitions(msgid):
+                self._set_message_state_in_block(msg, lines, node, firstchildlineno)
+
+    def _set_message_state_in_block(
+        self,
+        msg: MessageDefinition,
+        lines: dict[int, bool],
+        node: nodes.NodeNG,
+        firstchildlineno: int,
+    ) -> None:
+        """Set the state of a message in a block of lines."""
+        first = node.fromlineno
+        last = node.tolineno
+        for lineno, state in list(lines.items()):
+            original_lineno = lineno
+            if first > lineno or last < lineno:
+                continue
+            # Set state for all lines for this block, if the
+            # warning is applied to nodes.
+            if msg.scope == WarningScope.NODE:
+                if lineno > firstchildlineno:
+                    state = True
+                first_, last_ = node.block_range(lineno)
+            else:
+                first_ = lineno
+                last_ = last
+            for line in range(first_, last_ + 1):
+                # do not override existing entries
+                if line in self._module_msgs_state.get(msg.msgid, ()):
                     continue
-                # Set state for all lines for this block, if the
-                # warning is applied to nodes.
-                message_definitions = msgs_store.get_message_definitions(msgid)
-                for message_definition in message_definitions:
-                    if message_definition.scope == WarningScope.NODE:
-                        if lineno > firstchildlineno:
-                            state = True
-                        first_, last_ = node.block_range(lineno)
-                    else:
-                        first_ = lineno
-                        last_ = last
-                for line in range(first_, last_ + 1):
-                    # do not override existing entries
-                    if line in self._module_msgs_state.get(msgid, ()):
-                        continue
-                    if line in lines:  # state change in the same block
-                        state = lines[line]
-                        original_lineno = line
-                    if not state:
-                        self._suppression_mapping[(msgid, line)] = original_lineno
-                    try:
-                        self._module_msgs_state[msgid][line] = state
-                    except KeyError:
-                        self._module_msgs_state[msgid] = {line: state}
-                del lines[lineno]
+                if line in lines:  # state change in the same block
+                    state = lines[line]
+                    original_lineno = line
+                if not state:
+                    self._suppression_mapping[(msg.msgid, line)] = original_lineno
+                try:
+                    self._module_msgs_state[msg.msgid][line] = state
+                except KeyError:
+                    self._module_msgs_state[msg.msgid] = {line: state}
+            del lines[lineno]
 
     def set_msg_status(self, msg: MessageDefinition, line: int, status: bool) -> None:
         """Set status (enabled/disable) for a given message at a given line."""
