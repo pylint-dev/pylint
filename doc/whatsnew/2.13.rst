@@ -635,6 +635,10 @@ Other Changes
 
   Closes #3979
 
+* Fix a crash when accessing ``__code__`` and assigning it to a variable.
+
+  Closes #6539
+
 * Fix a crash when linting a file that passes an integer ``mode=`` to
   ``open``
 
