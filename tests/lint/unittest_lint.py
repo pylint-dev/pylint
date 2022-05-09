@@ -191,7 +191,7 @@ def reporter():
 def initialized_linter(linter: PyLinter) -> PyLinter:
     linter.open()
     linter.set_current_module("toto", "mydir/toto")
-    linter.file_state = FileState("toto")
+    linter.file_state = FileState("toto", linter.msgs_store)
     return linter
 
 
