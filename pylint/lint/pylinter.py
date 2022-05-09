@@ -969,10 +969,12 @@ class PyLinter(
         # Display whatever messages are left on the reporter.
         self.reporter.display_messages(report_nodes.Section())
 
-        if not self.file_state._is_base_filestate:
+        # TODO: 3.0: Remove second half of if-statement
+        if (
+            not self.file_state._is_base_filestate
+            and self.file_state.base_name is not None
+        ):
             # load previous results if any
-            # TODO: 3.0: Remove assertion
-            assert self.file_state.base_name
             previous_stats = load_results(self.file_state.base_name)
             self.reporter.on_close(self.stats, previous_stats)
             if self.config.reports:
@@ -997,7 +999,7 @@ class PyLinter(
         # syntax error preventing pylint from further processing)
         note = None
         # TODO: 3.0: Remove assertion
-        assert self.file_state.base_name
+        assert self.file_state.base_name is not None
         previous_stats = load_results(self.file_state.base_name)
         if self.stats.statement == 0:
             return note
