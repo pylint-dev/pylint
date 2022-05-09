@@ -83,7 +83,6 @@ fail-on=
 enable=
     use-symbolic-message-instead,
     useless-suppression,
-    fixme
 
 # Disable the message, report, category or checker with the given id(s). You
 # can either give multiple identifiers separated by comma (,) or put this
@@ -97,13 +96,14 @@ enable=
 
 disable=
     attribute-defined-outside-init,
-    duplicate-code,
     invalid-name,
     missing-docstring,
     protected-access,
     too-few-public-methods,
     # handled by black
     format,
+    # We anticipate #3512 where it will become optional
+    fixme,
 
 
 [REPORTS]
@@ -154,7 +154,7 @@ notes=FIXME,XXX,TODO
 [SIMILARITIES]
 
 # Minimum lines number of a similarity.
-min-similarity-lines=4
+min-similarity-lines=6
 
 # Ignore comments when computing similarities.
 ignore-comments=yes
@@ -163,10 +163,10 @@ ignore-comments=yes
 ignore-docstrings=yes
 
 # Ignore imports when computing similarities.
-ignore-imports=no
+ignore-imports=yes
 
 # Signatures are removed from the similarity computation
-ignore-signatures=no
+ignore-signatures=yes
 
 
 [VARIABLES]

@@ -1,2 +1,3 @@
-def test():
-    # Nothing, as an assert of a string literal will always pass
+def test_division():
+    a = 9 / 3
+    assert a == 3

@@ -189,7 +189,7 @@ class BaseChecker(_ArgumentsProvider):
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             if isinstance(self, (BaseTokenChecker, BaseRawFileChecker)):
                 default_scope = WarningScope.LINE
-            # TODO: 3.0: Remove deprecated if-statement # pylint: disable=fixme
+            # TODO: 3.0: Remove deprecated if-statement
             elif implements(self, (IRawChecker, ITokenChecker)):
                 warnings.warn(  # pragma: no cover
                     "Checkers should subclass BaseTokenChecker or BaseRawFileChecker"
@@ -240,11 +240,10 @@ class BaseChecker(_ArgumentsProvider):
     def close(self) -> None:
         """Called after visiting project (i.e set of modules)."""
 
-    # pylint: disable-next=no-self-use
     def get_map_data(self) -> Any:
         return None
 
-    # pylint: disable-next=no-self-use, unused-argument
+    # pylint: disable-next=unused-argument
     def reduce_map_data(self, linter: PyLinter, data: list[Any]) -> None:
         return None
 

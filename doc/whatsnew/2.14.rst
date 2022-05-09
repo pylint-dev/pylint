@@ -16,6 +16,10 @@ New checkers
   Closes #6163
   Closes #6085
 
+* Added new checker ``comparison-of-constants``.
+
+  Closes #6076
+
 * Added new checker ``typevar-name-mismatch``: TypeVar must be assigned to a variable with the same name as its name argument.
 
   Closes #5224
@@ -38,6 +42,13 @@ New checkers
 * Add new check ``unnecessary-dunder-call`` for unnecessary dunder method calls.
 
   Closes #5936
+
+* ``unnecessary-lambda-assignment``: Lambda expression assigned to a variable.
+  Define a function using the "def" keyword instead.
+  ``unnecessary-direct-lambda-call``: Lambda expression called directly.
+  Execute the expression inline instead.
+
+  Closes #5976
 
 * ``potential-index-error``: Emitted when the index of a list or tuple exceeds its length.
   This checker is currently quite conservative to avoid false positives. We welcome
@@ -70,9 +81,22 @@ Removed checkers
 
   Closes #4683
 
+* Moved ``no-self-use`` check to optional extension.
+  You now need to explicitly enable this check using
+  ``load-plugins=pylint.extensions.no_self_use``.
+
+  Closes #5502
+
 
 Extensions
 ==========
+
+* ``RedefinedLoopNameChecker``
+
+    * Added optional extension ``redefined-loop-name`` to emit messages when a loop variable
+      is redefined in the loop body.
+
+      Closes #5072
 
 * ``DocStringStyleChecker``
 
@@ -80,8 +104,26 @@ Extensions
 
       Closes #6087
 
+* ``NoSelfUseChecker``
+
+    * Added ``no-self-use`` check, previously enabled by default.
+
+      Closes #5502
+
+
 Other Changes
 =============
+
+* Started ignoring underscore as a local variable for ``too-many-locals``.
+
+  Closes #6488
+
+* Pylint can now be installed with an extra-require called ``spelling`` (``pip install pylint[spelling]``).
+  This will add ``pyenchant`` to pylint's dependencies. You will still need to install the
+  requirements for ``pyenchant`` (the ``enchant`` library and any dictionaries) yourself. You will also
+  need to set the ``spelling-dict`` option.
+
+  Refs #6462
 
 * Improved wording of the message of ``deprecated-module``
 
@@ -94,6 +136,19 @@ Other Changes
 * Update ``invalid-slots-object`` message to show bad object rather than its inferred value.
 
   Closes #6101
+
+* Fixed a crash in the ``not-an-iterable`` checker involving multiple starred expressions
+  inside a call.
+
+  Closes #6372
+
+* Disable spellchecking of mypy rule names in ignore directives.
+
+  Closes #5929
+
+* ``implicit-str-concat`` will now be raised on calls like ``open("myfile.txt" "a+b")`` too.
+
+  Closes #6441
 
 * Fix a failure to respect inline disables for ``fixme`` occurring on the last line
   of a module when pylint is launched with ``--enable=fixme``.
@@ -208,6 +263,11 @@ Other Changes
 
   Closes #5670
 
+* Fix saving of persistent data files in environments where the user's cache
+  directory and the linted file are on a different drive.
+
+  Closes #6394
+
 * The ``method-cache-max-size-none`` checker will now also check ``functools.cache``.
 
   Closes #5670
@@ -221,12 +281,40 @@ Other Changes
 
   Closes #5205
 
-* Fix false positive for ``unsubscriptable-object`` in Python 3.8 and below for
-  statements guarded by ``if TYPE_CHECKING``.
+* Fix falsely issuing ``useless-suppression`` on the ``wrong-import-position`` checker.
 
-  Closes #3979
+  Closes #5219
+
+* Fixed false positive ``no-member`` for Enums with self-defined members.
+
+  Closes #5138
 
 * Fix false negative for ``no-member`` when attempting to assign an instance
   attribute to itself without any prior assignment.
 
   Closes #1555
+
+* Changed message type from ``redefined-outer-name`` to ``redefined-loop-name``
+  (optional extension) for redefinitions of outer loop variables by inner loops.
+
+  Closes #5608
+
+* By default the similarity checker will now ignore imports and ignore function signatures when computing
+  duplication. If you want to keep the previous behaviour set ``ignore-imports`` and ``ignore-signatures`` to ``False``.
+
+* Pylint now expands the user path (i.e. ``~`` to ``home/yusef/``) and expands environment variables (i.e. ``home/$USER/$project``
+  to ``home/yusef/pylint`` for ``USER=yusef`` and ``project=pylint``) for pyreverse's ``output-directory``,
+  ``import-graph``, ``ext-import-graph``,  ``int-import-graph`` options, and the spell checker's ``spelling-private-dict-file``
+  option.
+
+  Relates to #6493
+
+* Don't emit ``unsubscriptable-object`` for string annotations.
+  Pylint doesn't check if class is only generic in type stubs only.
+
+  Closes #4369 and #6523
+
+* ``is_class_subscriptable_pep585_with_postponed_evaluation_enabled`` has been deprecated.
+  Use ``subscriptable_with_postponed_evaluation_enabled`` instead.
+
+  Ref #6536

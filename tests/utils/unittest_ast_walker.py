@@ -8,6 +8,7 @@ import warnings
 
 import astroid
 
+from pylint.checkers.base_checker import BaseChecker
 from pylint.checkers.utils import only_required_for_messages
 from pylint.utils import ASTWalker
 
@@ -20,7 +21,8 @@ class TestASTWalker:
         def is_message_enabled(self, msgid: str) -> bool:
             return self._msgs.get(msgid, True)
 
-    class Checker:
+    class Checker(BaseChecker):
+        # pylint: disable-next=super-init-not-called
         def __init__(self) -> None:
             self.called: set[str] = set()
 
@@ -46,12 +48,13 @@ class TestASTWalker:
         )
         walker = ASTWalker(linter)  # type: ignore[arg-type]
         checker = self.Checker()
-        walker.add_checker(checker)  # type: ignore[arg-type]
+        walker.add_checker(checker)
         walker.walk(astroid.parse("x = func()"))
         assert {"module", "assignname"} == checker.called
 
     def test_deprecated_methods(self) -> None:
-        class Checker:
+        class Checker(BaseChecker):
+            # pylint: disable-next=super-init-not-called
             def __init__(self) -> None:
                 self.called = False
 
@@ -62,7 +65,7 @@ class TestASTWalker:
         linter = self.MockLinter({"first-message": True})
         walker = ASTWalker(linter)  # type: ignore[arg-type]
         checker = Checker()
-        walker.add_checker(checker)  # type: ignore[arg-type]
+        walker.add_checker(checker)
         with warnings.catch_warnings(record=True):
             warnings.simplefilter("always")
             walker.walk(astroid.parse("x = 1"))

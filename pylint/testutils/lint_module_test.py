@@ -19,6 +19,7 @@ from _pytest.config import Config
 
 from pylint import checkers
 from pylint.config.config_initialization import _config_initialization
+from pylint.constants import IS_PYPY
 from pylint.lint import PyLinter
 from pylint.message.message import Message
 from pylint.testutils.constants import _EXPECTED_RE, _OPERATORS, UPDATE_OPTION
@@ -60,6 +61,9 @@ class LintModuleTest:
         self._check_end_position = (
             sys.version_info >= self._test_file.options["min_pyver_end_position"]
         )
+        # TODO: PY3.9: PyPy supports end_lineno from 3.9 and above
+        if self._check_end_position and IS_PYPY:
+            self._check_end_position = sys.version_info >= (3, 9)  # pragma: no cover
         try:
             args = [test_file.source]
         except NoFileError:
@@ -71,6 +75,7 @@ class LintModuleTest:
                 # Always enable fatal errors
                 messages_to_enable.add("astroid-error")
                 messages_to_enable.add("fatal")
+                messages_to_enable.add("syntax-error")
             args.extend(["--disable=all", f"--enable={','.join(messages_to_enable)}"])
         _config_initialization(
             self._linter, args_list=args, config_file=rc_file, reporter=_test_reporter

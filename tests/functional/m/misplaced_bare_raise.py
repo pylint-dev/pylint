@@ -1,5 +1,6 @@
 # pylint: disable=missing-docstring, broad-except, unreachable, try-except-raise, raise-missing-from
 # pylint: disable=unused-variable, too-few-public-methods, invalid-name, useless-object-inheritance
+# pylint: disable=comparison-of-constants
 
 try:
     raise # [misplaced-bare-raise]

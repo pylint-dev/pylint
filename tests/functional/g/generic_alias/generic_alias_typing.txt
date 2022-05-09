@@ -17,3 +17,5 @@ unsubscriptable-object:138:9:138:12::Value 'int' is unsubscriptable:UNDEFINED
 unsubscriptable-object:139:17:139:34::Value 'typing.ByteString' is unsubscriptable:UNDEFINED
 unsubscriptable-object:140:15:140:30::Value 'typing.Hashable' is unsubscriptable:UNDEFINED
 unsubscriptable-object:141:12:141:24::Value 'typing.Sized' is unsubscriptable:UNDEFINED
+unsubscriptable-object:148:8:148:9::Value 'A' is unsubscriptable:UNDEFINED
+unsubscriptable-object:150:8:150:9:B:Value 'A' is unsubscriptable:UNDEFINED

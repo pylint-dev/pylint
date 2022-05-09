@@ -193,7 +193,7 @@ OPTIONS: Options = (
         "output-directory",
         dict(
             default="",
-            type="string",
+            type="path",
             short="d",
             action="store",
             metavar="<output_directory>",
@@ -227,7 +227,7 @@ class Run(_ArgumentsManager, _ArgumentsProvider):
 
         sys.exit(self.run(args))
 
-    def run(self, args):
+    def run(self, args: list[str]) -> int:
         """Checking arguments and run project."""
         if not args:
             print(self.help())

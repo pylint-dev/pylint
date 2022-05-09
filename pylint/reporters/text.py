@@ -32,7 +32,7 @@ class MessageStyle(NamedTuple):
 
     color: str | None
     """The color name (see `ANSI_COLORS` for available values)
-    or the color number when 256 colors are available
+    or the color number when 256 colors are available.
     """
     style: tuple[str, ...] = ()
     """Tuple of style strings (see `ANSI_COLORS` for available values)."""
@@ -130,7 +130,6 @@ def colorize_ansi(
 
     :return: the ANSI escaped string
     """
-    # pylint: disable-next=fixme
     # TODO: 3.0: Remove deprecated typing and only accept MessageStyle as parameter
     if not isinstance(msg_style, MessageStyle):
         warnings.warn(
@@ -257,7 +256,6 @@ class ColorizedTextReporter(TextReporter):
         ) = None,
     ) -> None:
         super().__init__(output)
-        # pylint: disable-next=fixme
         # TODO: 3.0: Remove deprecated typing and only accept ColorMappingDict as color_mapping parameter
         if color_mapping and not isinstance(
             list(color_mapping.values())[0], MessageStyle
@@ -289,7 +287,7 @@ class ColorizedTextReporter(TextReporter):
 
     def handle_message(self, msg: Message) -> None:
         """Manage message of different types, and colorize output
-        using ANSI escape codes
+        using ANSI escape codes.
         """
         if msg.module not in self._modules:
             msg_style = self._get_decoration("S")

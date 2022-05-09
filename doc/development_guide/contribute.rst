@@ -71,7 +71,7 @@ of Pylint as it gives you access to the latest ``ast`` parser.
 
   For more information on how to use our test suite and write new tests see :ref:`testing`.
 
-- ``pylint`` uses black_ and isort_ among other Python autoformatters.
+- ``pylint`` uses black_ and isort_ among other Python auto-formatters.
   We have a pre-commit hook which should take care of the autoformatting for
   you. To enable it, do the following:
 
@@ -126,7 +126,7 @@ Tips for Getting Started with Pylint Development
   and therefore where the logic for that code exists.
 
 * When adding a new checker class you can use the :file:`get_unused_message_id_category.py`
-  script in :file:`./scripts` to get a message id that is not used by
+  script in :file:`./script` to get a message id that is not used by
   any of the other checkers.
 
 Building the documentation

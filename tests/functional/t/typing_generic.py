@@ -19,7 +19,7 @@ Anything = TypeVar("Anything")
 MoreSpecific = TypeVar("MoreSpecific", str, int)
 
 class A(ABC, Generic[Anything]):
-    def a_method(self) -> None:  # pylint: disable=no-self-use
+    def a_method(self) -> None:
         print("hello")
 
 class B(A[MoreSpecific]):

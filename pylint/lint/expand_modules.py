@@ -25,7 +25,7 @@ def _modpath_from_file(filename: str, is_namespace: bool, path: list[str]) -> li
 
 def get_python_path(filepath: str) -> str:
     """TODO This get the python path with the (bad) assumption that there is always
-    an __init__.py
+    an __init__.py.
 
     This is not true since python 3.3 and is causing problem.
     """
@@ -53,7 +53,7 @@ def expand_modules(
     ignore_list_paths_re: list[Pattern[str]],
 ) -> tuple[list[ModuleDescriptionDict], list[ErrorDescriptionDict]]:
     """Take a list of files/modules/packages and return the list of tuple
-    (file, module name) which have to be actually checked
+    (file, module name) which have to be actually checked.
     """
     result: list[ModuleDescriptionDict] = []
     errors: list[ErrorDescriptionDict] = []

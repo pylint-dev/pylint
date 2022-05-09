@@ -63,7 +63,7 @@ class UnsupportedVersionChecker(BaseChecker):
 
     def _check_typing_final(self, node: nodes.Decorators) -> None:
         """Add a message when the `typing.final` decorator is used and the
-        py-version is lower than 3.8
+        py-version is lower than 3.8.
         """
         if self._py38_plus:
             return

@@ -9,10 +9,19 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.14.rst'
 
+
 * Update format parsing to support f-strings and the str.format function
 
   Closes #6163
   Closes #6085
+
+* Added new checker ``comparison-of-constants``.
+
+  Closes #6076
+
+* Started ignoring underscore as a local variable for ``too-many-locals``.
+
+  Closes #6488
 
 * Improved wording of the message of ``deprecated-module``
 
@@ -35,10 +44,22 @@ Release date: TBA
 
   Closes #5224
 
+* Pylint can now be installed with an extra-require called ``spelling`` (``pip install pylint[spelling]``).
+  This will add ``pyenchant`` to pylint's dependencies. You will still need to install the
+  requirements for ``pyenchant`` (the ``enchant`` library and any dictionaries) yourself. You will also
+  need to set the ``spelling-dict`` option.
+
+  Refs #6462
+
 * Removed the ``assign-to-new-keyword`` message as there are no new keywords in the supported Python
   versions any longer.
 
   Closes #4683
+
+* Fixed a crash in the ``not-an-iterable`` checker involving multiple starred expressions
+  inside a call.
+
+  Closes #6372
 
 * Fixed failure to enable ``deprecated-module`` after a ``disable=all``
   by making ``ImportsChecker`` solely responsible for emitting ``deprecated-module`` instead
@@ -77,6 +98,10 @@ Release date: TBA
   to set an option on the global configuration object instead of a checker-specific object.
 
   Ref #5392
+
+* ``implicit-str-concat`` will now be raised on calls like ``open("myfile.txt" "a+b")`` too.
+
+  Closes #6441
 
 * The ``config`` attribute of ``PyLinter`` is now of the ``argparse.Namespace`` type instead of
   ``optparse.Values``.
@@ -173,11 +198,28 @@ Release date: TBA
 
   Closes #5670
 
+* ``unnecessary-lambda-assignment``: Lambda expression assigned to a variable.
+  Define a function using the "def" keyword instead.
+  ``unnecessary-direct-lambda-call``: Lambda expression called directly.
+  Execute the expression inline instead.
+
+  Closes #5976
+
 * ``potential-index-error``: Emitted when the index of a list or tuple exceeds its length.
   This checker is currently quite conservative to avoid false positives. We welcome
   suggestions for improvements.
 
   Closes #578
+
+* Added optional extension ``redefined-loop-name`` to emit messages when a loop variable
+  is redefined in the loop body.
+
+  Closes #5072
+
+* Changed message type from ``redefined-outer-name`` to ``redefined-loop-name``
+  (optional extension) for redefinitions of outer loop variables by inner loops.
+
+  Closes #5608
 
 * The ``ignore-mixin-members`` option has been deprecated. You should now use the new
   ``ignored-checks-for-mixins`` option.
@@ -188,6 +230,10 @@ Release date: TBA
   includes an unknown message.
 
   Closes #4324
+
+* Avoid reporting ``superfluous-parens`` on expressions using the ``is not`` operator.
+
+  Closes #5930
 
 * Added the ``super-without-brackets`` checker, raised when a super call is missing its brackets.
 
@@ -202,10 +248,13 @@ Release date: TBA
 
   Closes #4525
 
-* Fix false positive for ``unsubscriptable-object`` in Python 3.8 and below for
-  statements guarded by ``if TYPE_CHECKING``.
+* Fix falsely issuing ``useless-suppression`` on the ``wrong-import-position`` checker.
 
-  Closes #3979
+  Closes #5219
+
+* Fixed false positive ``no-member`` for Enums with self-defined members.
+
+  Closes #5138
 
 * Fix false negative for ``no-member`` when attempting to assign an instance
   attribute to itself without any prior assignment.
@@ -227,19 +276,80 @@ Release date: TBA
 
   Closes #5880
 
+* Pylint now expands the user path (i.e. ``~`` to ``home/yusef/``) and expands environment variables (i.e. ``home/$USER/$project``
+  to ``home/yusef/pylint`` for ``USER=yusef`` and ``project=pylint``) for pyreverse's ``output-directory``,
+  ``import-graph``, ``ext-import-graph``,  ``int-import-graph`` options, and the spell checker's ``spelling-private-dict-file``
+  option.
+
+  Relates to #6493
+
+* Created ``NoSelfUseChecker`` extension and moved the ``no-self-use`` check.
+  You now need to explicitly enable this check using
+  ``load-plugins=pylint.extensions.no_self_use``.
+
+  Closes #5502
+
+* Fix saving of persistent data files in environments where the user's cache
+  directory and the linted file are on a different drive.
+
+  Closes #6394
+
+* Don't emit ``unsubscriptable-object`` for string annotations.
+  Pylint doesn't check if class is only generic in type stubs only.
+
+  Closes #4369 and #6523
+
+* ``is_class_subscriptable_pep585_with_postponed_evaluation_enabled`` has been deprecated.
+  Use ``subscriptable_with_postponed_evaluation_enabled`` instead.
+
+  Ref #6536
+
 ..
   Insert your changelog randomly, it will reduce merge conflicts
   (Ie. not necessarily at the end)
 
 
-What's New in Pylint 2.13.8?
+What's New in Pylint 2.13.9?
 ============================
 Release date: TBA
+
+* Fix ``IndexError`` crash in ``uninferable_final_decorators`` method.
+
+ Relates to #6531
+
+
+What's New in Pylint 2.13.8?
+============================
+Release date: 2022-05-02
+
+* Fix a false positive for ``undefined-loop-variable`` for a variable used in a lambda
+  inside the first of multiple loops.
+
+  Closes #6419
 
 * Fix a crash when linting a file that passes an integer ``mode=`` to
   ``open``
 
   Closes #6414
+
+* Avoid reporting ``superfluous-parens`` on expressions using the ``is not`` operator.
+
+  Closes #5930
+
+* Fix a false positive for ``undefined-loop-variable`` when the ``else`` of a ``for``
+  loop raises or returns.
+
+  Closes #5971
+
+* Fix false positive for ``unused-variable`` for classes inside functions
+  and where a metaclass is provided via a call.
+
+  Closes #4020
+
+* Fix false positive for ``unsubscriptable-object`` in Python 3.8 and below for
+  statements guarded by ``if TYPE_CHECKING``.
+
+  Closes #3979
 
 
 What's New in Pylint 2.13.7?
@@ -925,6 +1035,9 @@ Release date: 2022-03-24
       raise ValueError
 
   Closes #4955
+
+* Disable spellchecking of mypy rule names in ignore directives.
+  Closes #5929
 
 * Allow disabling ``duplicate-code`` with a disable comment when running through
   pylint.

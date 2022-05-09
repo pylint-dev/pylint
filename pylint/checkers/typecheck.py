@@ -450,6 +450,8 @@ def _emit_no_member(
             except astroid.MroError:
                 return False
             if metaclass:
+                if _enum_has_attribute(owner, node):
+                    return False
                 # Renamed in Python 3.10 to `EnumType`
                 return metaclass.qname() in {"enum.EnumMeta", "enum.EnumType"}
             return False
@@ -523,10 +525,82 @@ def _emit_no_member(
     return True
 
 
+def _get_all_attribute_assignments(
+    node: nodes.FunctionDef, name: str | None = None
+) -> set[str]:
+    attributes: set[str] = set()
+    for child in node.nodes_of_class((nodes.Assign, nodes.AnnAssign)):
+        targets = []
+        if isinstance(child, nodes.Assign):
+            targets = child.targets
+        elif isinstance(child, nodes.AnnAssign):
+            targets = [child.target]
+        for assign_target in targets:
+            if isinstance(assign_target, nodes.Tuple):
+                targets.extend(assign_target.elts)
+                continue
+            if (
+                isinstance(assign_target, nodes.AssignAttr)
+                and isinstance(assign_target.expr, nodes.Name)
+                and (name is None or assign_target.expr.name == name)
+            ):
+                attributes.add(assign_target.attrname)
+    return attributes
+
+
+def _enum_has_attribute(
+    owner: astroid.Instance | nodes.ClassDef, node: nodes.Attribute
+) -> bool:
+    if isinstance(owner, astroid.Instance):
+        enum_def = next(
+            (b.parent for b in owner.bases if isinstance(b.parent, nodes.ClassDef)),
+            None,
+        )
+
+        if enum_def is None:
+            # We don't inherit from anything, so try to find the parent
+            # class definition and roll with that
+            enum_def = node
+            while enum_def is not None and not isinstance(enum_def, nodes.ClassDef):
+                enum_def = enum_def.parent
+
+        # If this blows, something is clearly wrong
+        assert enum_def is not None, "enum_def unexpectedly None"
+    else:
+        enum_def = owner
+
+    # Find __new__ and __init__
+    dunder_new = next((m for m in enum_def.methods() if m.name == "__new__"), None)
+    dunder_init = next((m for m in enum_def.methods() if m.name == "__init__"), None)
+
+    enum_attributes: set[str] = set()
+
+    # Find attributes defined in __new__
+    if dunder_new:
+        # Get the object returned in __new__
+        returned_obj_name = next(
+            (c.value for c in dunder_new.get_children() if isinstance(c, nodes.Return)),
+            None,
+        )
+        if returned_obj_name is not None:
+            # Find all attribute assignments to the returned object
+            enum_attributes |= _get_all_attribute_assignments(
+                dunder_new, returned_obj_name.name
+            )
+
+    # Find attributes defined in __init__
+    if dunder_init and dunder_init.body and dunder_init.args:
+        # Grab the name referring to `self` from the function def
+        enum_attributes |= _get_all_attribute_assignments(
+            dunder_init, dunder_init.args.arguments[0].name
+        )
+
+    return node.attrname in enum_attributes
+
+
 def _determine_callable(
     callable_obj: nodes.NodeNG,
 ) -> tuple[CallableObjects, int, str]:
-    # pylint: disable=fixme
     # TODO: The typing of the second return variable is actually Literal[0,1]
     # We need typing on astroid.NodeNG.implicit_parameters for this
     # TODO: The typing of the third return variable can be narrowed to a Literal
@@ -1828,7 +1902,6 @@ accessed. Python regular expressions are accepted.",
                 self.add_message("unsupported-binary-operation", args=msg, node=node)
                 break
 
-    # pylint: disable-next=fixme
     # TODO: This check was disabled (by adding the leading underscore)
     # due to false positives several years ago - can we re-enable it?
     # https://github.com/PyCQA/pylint/issues/6359
@@ -1837,7 +1910,6 @@ accessed. Python regular expressions are accepted.",
         """Detect TypeErrors for binary arithmetic operands."""
         self._check_binop_errors(node)
 
-    # pylint: disable-next=fixme
     # TODO: This check was disabled (by adding the leading underscore)
     # due to false positives several years ago - can we re-enable it?
     # https://github.com/PyCQA/pylint/issues/6359

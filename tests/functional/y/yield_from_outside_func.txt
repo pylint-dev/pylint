@@ -1,1 +1,1 @@
-yield-outside-function:2:0:2:17::Yield outside function:UNDEFINED
+yield-outside-function:4:0:4:17::Yield outside function:UNDEFINED

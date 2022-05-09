@@ -2,6 +2,8 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+# pylint: disable=duplicate-code
+
 from __future__ import annotations
 
 import sys
@@ -38,7 +40,6 @@ class UnittestLinter(PyLinter):
         self,
         msgid: str,
         line: int | None = None,
-        # pylint: disable=fixme
         # TODO: Make node non optional
         node: nodes.NodeNG | None = None,
         args: Any = None,

@@ -4,7 +4,7 @@
 With 'from __future__ import annotations' present.
 """
 # pylint: disable=missing-docstring,invalid-name,unused-argument,line-too-long
-# pylint: disable=consider-using-alias
+# pylint: disable=consider-using-alias,unnecessary-direct-lambda-call
 from __future__ import annotations
 from dataclasses import dataclass
 import typing

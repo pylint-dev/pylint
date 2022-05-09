@@ -12,10 +12,10 @@ import numbers
 import re
 import string
 import warnings
-from collections.abc import Callable, Iterable
+from collections.abc import Iterable
 from functools import lru_cache, partial
 from re import Match
-from typing import TypeVar
+from typing import TYPE_CHECKING, Callable, TypeVar
 
 import _string
 import astroid.objects
@@ -23,9 +23,13 @@ from astroid import TooManyLevelsError, nodes
 from astroid.context import InferenceContext
 
 from pylint.constants import TYPING_TYPE_CHECKS_GUARDS
-from pylint.typing import AstCallbackMethod
 
-T_Node = TypeVar("T_Node", bound=nodes.NodeNG)
+if TYPE_CHECKING:
+    from pylint.checkers import BaseChecker
+
+_NodeT = TypeVar("_NodeT", bound=nodes.NodeNG)
+_CheckerT = TypeVar("_CheckerT", bound="BaseChecker")
+AstCallbackMethod = Callable[[_CheckerT, _NodeT], None]
 
 COMP_NODE_TYPES = (
     nodes.ListComp,
@@ -358,7 +362,7 @@ def is_defined_before(var_node: nodes.Name) -> bool:
 
 def is_default_argument(node: nodes.NodeNG, scope: nodes.NodeNG | None = None) -> bool:
     """Return true if the given Name node is used in function or lambda
-    default argument's value
+    default argument's value.
     """
     if not scope:
         scope = node.scope()
@@ -394,7 +398,7 @@ def is_func_decorator(node: nodes.NodeNG) -> bool:
 
 def is_ancestor_name(frame: nodes.ClassDef, node: nodes.NodeNG) -> bool:
     """Return whether `frame` is an astroid.Class node with `node` in the
-    subtree of its bases attribute
+    subtree of its bases attribute.
     """
     if not isinstance(frame, nodes.ClassDef):
         return False
@@ -415,7 +419,7 @@ def assign_parent(node: nodes.NodeNG) -> nodes.NodeNG:
 
 def overrides_a_method(class_node: nodes.ClassDef, name: str) -> bool:
     """Return True if <name> is a method overridden from an ancestor
-    which is not the base object class
+    which is not the base object class.
     """
     for ancestor in class_node.ancestors():
         if ancestor.name == "object":
@@ -427,7 +431,9 @@ def overrides_a_method(class_node: nodes.ClassDef, name: str) -> bool:
 
 def only_required_for_messages(
     *messages: str,
-) -> Callable[[AstCallbackMethod], AstCallbackMethod]:
+) -> Callable[
+    [AstCallbackMethod[_CheckerT, _NodeT]], AstCallbackMethod[_CheckerT, _NodeT]
+]:
     """Decorator to store messages that are handled by a checker method as an
     attribute of the function object.
 
@@ -438,8 +444,10 @@ def only_required_for_messages(
     of a class inheriting from ``BaseChecker``.
     """
 
-    def store_messages(func):
-        func.checks_msgs = messages
+    def store_messages(
+        func: AstCallbackMethod[_CheckerT, _NodeT]
+    ) -> AstCallbackMethod[_CheckerT, _NodeT]:
+        setattr(func, "checks_msgs", messages)
         return func
 
     return store_messages
@@ -447,7 +455,9 @@ def only_required_for_messages(
 
 def check_messages(
     *messages: str,
-) -> Callable[[AstCallbackMethod], AstCallbackMethod]:
+) -> Callable[
+    [AstCallbackMethod[_CheckerT, _NodeT]], AstCallbackMethod[_CheckerT, _NodeT]
+]:
     """Kept for backwards compatibility, deprecated.
 
     Use only_required_for_messages instead, which conveys the intent of the decorator much clearer.
@@ -862,7 +872,7 @@ def get_outer_class(class_node: astroid.ClassDef) -> astroid.ClassDef | None:
 
 def is_attr_private(attrname: str) -> Match[str] | None:
     """Check that attribute name is private (at least two leading underscores,
-    at most one trailing underscore)
+    at most one trailing underscore).
     """
     regex = re.compile("^_{2,}.*[^_]+_?$")
     return regex.match(attrname)
@@ -1034,28 +1044,34 @@ def uninferable_final_decorators(
     """
     decorators = []
     for decorator in getattr(node, "nodes", []):
+        import_nodes: tuple[nodes.Import | nodes.ImportFrom] | None = None
+
+        # Get the `Import` node. The decorator is of the form: @module.name
         if isinstance(decorator, nodes.Attribute):
-            try:
-                import_node = decorator.expr.lookup(decorator.expr.name)[1][0]
-            except AttributeError:
-                continue
+            inferred = safe_infer(decorator.expr)
+            if isinstance(inferred, nodes.Module) and inferred.qname() == "typing":
+                _, import_nodes = decorator.expr.lookup(decorator.expr.name)
+
+        # Get the `ImportFrom` node. The decorator is of the form: @name
         elif isinstance(decorator, nodes.Name):
-            lookup_values = decorator.lookup(decorator.name)
-            if lookup_values[1]:
-                import_node = lookup_values[1][0]
-            else:
-                continue  # pragma: no cover # Covered on Python < 3.8
-        else:
+            _, import_nodes = decorator.lookup(decorator.name)
+
+        # The `final` decorator is expected to be found in the
+        # import_nodes. Continue if we don't find any `Import` or `ImportFrom`
+        # nodes for this decorator.
+        if not import_nodes:
             continue
+        import_node = import_nodes[0]
 
         if not isinstance(import_node, (astroid.Import, astroid.ImportFrom)):
             continue
 
         import_names = dict(import_node.names)
 
-        # from typing import final
+        # Check if the import is of the form: `from typing import final`
         is_from_import = ("final" in import_names) and import_node.modname == "typing"
-        # import typing
+
+        # Check if the import is of the form: `import typing`
         is_import = ("typing" in import_names) and getattr(
             decorator, "attrname", None
         ) == "final"
@@ -1238,7 +1254,7 @@ def node_ignores_exception(node: nodes.NodeNG, exception=Exception) -> bool:
 
 def class_is_abstract(node: nodes.ClassDef) -> bool:
     """Return true if the given class node should be considered as an abstract
-    class
+    class.
     """
     # Only check for explicit metaclass=ABCMeta on this specific class
     meta = node.declared_metaclass()
@@ -1363,7 +1379,6 @@ def _supports_protocol(
         if protocol_callback(value):
             return True
 
-    # pylint: disable-next=fixme
     # TODO: 2.14: Should be covered by https://github.com/PyCQA/astroid/pull/1475
     if isinstance(value, nodes.ComprehensionScope):
         return True
@@ -1400,7 +1415,7 @@ def supports_getitem(value: nodes.NodeNG, node: nodes.NodeNG) -> bool:
     if isinstance(value, nodes.ClassDef):
         if _supports_protocol_method(value, CLASS_GETITEM_METHOD):
             return True
-        if is_class_subscriptable_pep585_with_postponed_evaluation_enabled(value, node):
+        if subscriptable_with_postponed_evaluation_enabled(node):
             return True
     return _supports_protocol(value, _supports_getitem_protocol)
 
@@ -1585,10 +1600,23 @@ def is_class_subscriptable_pep585_with_postponed_evaluation_enabled(
     """Check if class is subscriptable with PEP 585 and
     postponed evaluation enabled.
     """
+    warnings.warn(
+        "'is_class_subscriptable_pep585_with_postponed_evaluation_enabled' has been "
+        "deprecated and will be removed in pylint 3.0. "
+        "Use 'subscriptable_with_postponed_evaluation_enabled' instead.",
+        DeprecationWarning,
+    )
     return (
         is_postponed_evaluation_enabled(node)
         and value.qname() in SUBSCRIPTABLE_CLASSES_PEP585
         and is_node_in_type_annotation_context(node)
+    )
+
+
+def subscriptable_with_postponed_evaluation_enabled(node: nodes.NodeNG) -> bool:
+    """Check if class can be subscriptable in type annotation context."""
+    return is_postponed_evaluation_enabled(node) and is_node_in_type_annotation_context(
+        node
     )
 
 
@@ -1907,8 +1935,8 @@ def returns_bool(node: nodes.NodeNG) -> bool:
 
 
 def get_node_first_ancestor_of_type(
-    node: nodes.NodeNG, ancestor_type: type[T_Node] | tuple[type[T_Node], ...]
-) -> T_Node | None:
+    node: nodes.NodeNG, ancestor_type: type[_NodeT] | tuple[type[_NodeT], ...]
+) -> _NodeT | None:
     """Return the first parent node that is any of the provided types (or None)."""
     for ancestor in node.node_ancestors():
         if isinstance(ancestor, ancestor_type):
@@ -1917,10 +1945,10 @@ def get_node_first_ancestor_of_type(
 
 
 def get_node_first_ancestor_of_type_and_its_child(
-    node: nodes.NodeNG, ancestor_type: type[T_Node] | tuple[type[T_Node], ...]
-) -> tuple[None, None] | tuple[T_Node, nodes.NodeNG]:
+    node: nodes.NodeNG, ancestor_type: type[_NodeT] | tuple[type[_NodeT], ...]
+) -> tuple[None, None] | tuple[_NodeT, nodes.NodeNG]:
     """Modified version of get_node_first_ancestor_of_type to also return the
-    descendant visited directly before reaching the sought ancestor
+    descendant visited directly before reaching the sought ancestor.
 
     Useful for extracting whether a statement is guarded by a try, except, or finally
     when searching for a TryFinally ancestor.
@@ -1939,4 +1967,12 @@ def in_type_checking_block(node: nodes.NodeNG) -> bool:
         isinstance(ancestor, nodes.If)
         and ancestor.test.as_string() in TYPING_TYPE_CHECKS_GUARDS
         for ancestor in node.node_ancestors()
+    )
+
+
+@lru_cache()
+def in_for_else_branch(parent: nodes.NodeNG, stmt: nodes.Statement) -> bool:
+    """Returns True if stmt is inside the else branch for a parent For stmt."""
+    return isinstance(parent, nodes.For) and any(
+        else_stmt.parent_of(stmt) or else_stmt == stmt for else_stmt in parent.orelse
     )

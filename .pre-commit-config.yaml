@@ -25,7 +25,7 @@ repos:
     hooks:
       - id: copyright-notice
         args: ["--notice=script/copyright.txt", "--enforce-all"]
-        exclude: tests/functional/|tests/input|doc/data/messages|examples/|setup.py|tests(/\w*)*data/
+        exclude: tests(/\w*)*/functional/|tests/input|doc/data/messages|examples/|setup.py|tests(/\w*)*data/
         types: [python]
   - repo: https://github.com/asottile/pyupgrade
     rev: v2.32.0
@@ -88,7 +88,7 @@ repos:
         types: [text] # necessary to include ChangeLog file
         files: ^(ChangeLog|doc/(.*/)*.*\.rst)
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.942
+    rev: v0.950
     hooks:
       - id: mypy
         name: mypy

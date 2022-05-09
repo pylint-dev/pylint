@@ -2,6 +2,8 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+# pylint: disable=duplicate-code
+
 from __future__ import annotations
 
 import collections
@@ -64,7 +66,7 @@ class OptionsManagerMixIn:
     """Handle configuration from both a configuration file and command line options."""
 
     def __init__(self, usage):
-        # TODO: 3.0: Remove deprecated class # pylint: disable=fixme
+        # TODO: 3.0: Remove deprecated class
         warnings.warn(
             "OptionsManagerMixIn has been deprecated and will be removed in pylint 3.0",
             DeprecationWarning,
@@ -146,7 +148,7 @@ class OptionsManagerMixIn:
 
     def optik_option(self, provider, opt, optdict):
         """Get our personal option definition and return a suitable form for
-        use with optik/optparse
+        use with optik/optparse.
         """
         optdict = copy.copy(optdict)
         if "action" in optdict:
@@ -196,7 +198,7 @@ class OptionsManagerMixIn:
         self, stream: TextIO | None = None, skipsections: tuple[str, ...] = ()
     ) -> None:
         """Write a configuration file according to the current configuration
-        into the given stream or stdout
+        into the given stream or stdout.
         """
         options_by_section: dict[str, list[tuple[str, OptionDict, Any]]] = {}
         sections = []
@@ -236,7 +238,7 @@ class OptionsManagerMixIn:
         self, config_file: Path | None = None, verbose: bool = False
     ) -> None:
         """Read the configuration file but do not load it (i.e. dispatching
-        values to each option's provider)
+        values to each option's provider).
         """
         if config_file:
             config_file = Path(os.path.expandvars(config_file)).expanduser()
@@ -302,7 +304,7 @@ class OptionsManagerMixIn:
 
     def load_config_file(self):
         """Dispatch values previously read from a configuration file to each
-        option's provider
+        option's provider.
         """
         parser = self.cfgfile_parser
         for section in parser.sections():

@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,too-few-public-methods,no-self-use
+# pylint: disable=missing-docstring,too-few-public-methods
 
 import asyncio
 

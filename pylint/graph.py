@@ -85,6 +85,7 @@ class DotBackend:
         :return: a path to the generated file
         :raises RuntimeError: if the executable for rendering was not found
         """
+        # pylint: disable=duplicate-code
         graphviz_extensions = ("dot", "gv")
         name = self.graphname
         if outputfile is None:
@@ -167,7 +168,7 @@ def get_cycles(
     graph_dict: dict[str, set[str]], vertices: list[str] | None = None
 ) -> Sequence[list[str]]:
     """Return a list of detected cycles in a dictionary representing an ordered graph
-    (i.e. key are vertices and values is a list of destination vertices representing edges)
+    (i.e. key are vertices and values is a list of destination vertices representing edges).
     """
     if not graph_dict:
         return ()

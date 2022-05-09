@@ -11,6 +11,7 @@ import pytest
 from astroid import nodes
 
 from pylint.checkers import utils
+from pylint.checkers.base_checker import BaseChecker
 
 
 @pytest.mark.parametrize(
@@ -478,9 +479,9 @@ def test_deprecation_is_inside_lambda() -> None:
 def test_deprecation_check_messages() -> None:
     with pytest.warns(DeprecationWarning) as records:
 
-        class Checker:  # pylint: disable=unused-variable
+        class Checker(BaseChecker):  # pylint: disable=unused-variable
             @utils.check_messages("my-message")
-            def visit_assname(self, node):
+            def visit_assname(self, node: nodes.NodeNG) -> None:
                 pass
 
         assert len(records) == 1

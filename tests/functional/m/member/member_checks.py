@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,no-self-use,too-few-public-methods,bare-except,broad-except, useless-object-inheritance, unused-private-member
+# pylint: disable=missing-docstring,too-few-public-methods,bare-except,broad-except, useless-object-inheritance, unused-private-member
 # pylint: disable=using-constant-test,expression-not-assigned, assigning-non-slot, unused-variable,pointless-statement, wrong-import-order, wrong-import-position,import-outside-toplevel
 from __future__ import print_function
 class Provider(object):

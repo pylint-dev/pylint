@@ -1,0 +1,9 @@
+comparison-of-constants:4:3:4:9::"Comparison between constants: '2 is 2' has a constant value":HIGH
+literal-comparison:4:3:4:9::Comparison to literal:UNDEFINED
+comparison-of-constants:7:6:7:12::"Comparison between constants: '2 == 2' has a constant value":HIGH
+comparison-of-constants:10:6:10:11::"Comparison between constants: '2 > 2' has a constant value":HIGH
+comparison-of-constants:20:3:20:15::"Comparison between constants: 'True == True' has a constant value":HIGH
+singleton-comparison:20:3:20:15::Comparison 'True == True' should be 'True is True' if checking for the singleton value True, or 'True' if testing for truthiness:UNDEFINED
+literal-comparison:25:3:25:13::Comparison to literal:UNDEFINED
+literal-comparison:28:3:28:13::Comparison to literal:UNDEFINED
+literal-comparison:31:3:31:14::Comparison to literal:UNDEFINED

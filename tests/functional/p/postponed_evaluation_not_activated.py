@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,no-self-use,unused-argument,pointless-statement
+# pylint: disable=missing-docstring,unused-argument,pointless-statement
 # pylint: disable=too-few-public-methods
 
 class Class:

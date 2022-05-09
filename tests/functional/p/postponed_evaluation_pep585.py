@@ -3,7 +3,7 @@
 This check requires Python 3.7 or 3.8!
 Testing with 3.8 only, to support TypedDict.
 """
-# pylint: disable=missing-docstring,unused-argument,unused-import,too-few-public-methods,invalid-name,inherit-non-class,unsupported-binary-operation,wrong-import-position,ungrouped-imports,unused-variable
+# pylint: disable=missing-docstring,unused-argument,unused-import,too-few-public-methods,invalid-name,inherit-non-class,unsupported-binary-operation,wrong-import-position,ungrouped-imports,unused-variable,unnecessary-direct-lambda-call
 from __future__ import annotations
 import collections
 import dataclasses
@@ -108,7 +108,7 @@ import re
 class OrderedDict:
     pass
 
-var12: OrderedDict[str, int]  # [unsubscriptable-object]
+var12: OrderedDict[str, int]  # string annotations aren't checked
 var13: list[int]
 var14: collections.OrderedDict[str, int]
 var15: collections.Counter[int]

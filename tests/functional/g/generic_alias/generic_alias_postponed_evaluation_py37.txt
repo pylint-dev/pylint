@@ -52,5 +52,4 @@ abstract-method:107:0:107:21:DerivedMultiple:Method '__len__' is abstract in cla
 abstract-method:112:0:112:24:CustomAbstractCls2:Method '__len__' is abstract in class 'Sized' but is not overridden:UNDEFINED
 unsubscriptable-object:112:48:112:72:CustomAbstractCls2:Value 'collections.abc.Iterable' is unsubscriptable:UNDEFINED
 abstract-method:114:0:114:26:CustomImplementation:Method '__len__' is abstract in class 'Sized' but is not overridden:UNDEFINED
-unsubscriptable-object:175:19:175:43::Value 'collections.abc.Hashable' is unsubscriptable:UNDEFINED
-unsubscriptable-object:176:16:176:37::Value 'collections.abc.Sized' is unsubscriptable:UNDEFINED
+unsubscriptable-object:188:8:188:9:B:Value 'A' is unsubscriptable:UNDEFINED
