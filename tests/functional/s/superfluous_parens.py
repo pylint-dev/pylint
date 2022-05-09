@@ -20,9 +20,9 @@ del(DICT['b'])  # [superfluous-parens]
 del DICT['a']
 
 B = [x for x in ((3, 4))]
-C = [x for x in ((3, 4) if 1 > 0 else (5, 6))]
-D = [x for x in ((3, 4) if 1 > 0 else ((5, 6)))]
-E = [x for x in ((3, 4) if 1 > 0 else ((((5, 6)))))]
+C = [x for x in ((3, 4) if 1 > 0 else (5, 6))]  # pylint: disable=comparison-of-constants
+D = [x for x in ((3, 4) if 1 > 0 else ((5, 6)))]  # pylint: disable=comparison-of-constants
+E = [x for x in ((3, 4) if 1 > 0 else ((((5, 6)))))]  # pylint: disable=comparison-of-constants
 
 # Test assertions
 F = "Version 1.0"
@@ -74,4 +74,4 @@ if (A == 2) is not (B == 2):
 
 M = A is not (A <= H)
 M = True is not (M == K)
-M = True is not (True is not False)
+M = True is not (True is not False)  # pylint: disable=comparison-of-constants

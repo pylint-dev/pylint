@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, no-member, no-self-use, bad-super-call
+# pylint: disable=missing-docstring, no-member, bad-super-call
 # pylint: disable=too-few-public-methods, unused-argument, invalid-name, too-many-public-methods
 # pylint: disable=line-too-long, useless-object-inheritance, arguments-out-of-order
 # pylint: disable=super-with-arguments, dangerous-default-value

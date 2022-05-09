@@ -1,4 +1,4 @@
-# pylint: disable=no-self-use,missing-docstring,using-constant-test, useless-object-inheritance
+# pylint: disable=missing-docstring,using-constant-test, useless-object-inheritance
 # pylint: disable=unused-import,wrong-import-position,reimported, unnecessary-pass
 from __future__ import division
 

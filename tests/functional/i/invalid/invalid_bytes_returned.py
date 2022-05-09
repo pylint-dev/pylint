@@ -1,6 +1,6 @@
 """Check invalid value returned by __bytes__ """
 
-# pylint: disable=too-few-public-methods,missing-docstring,no-self-use,import-error, useless-object-inheritance, unnecessary-lambda-assignment
+# pylint: disable=too-few-public-methods,missing-docstring,import-error,useless-object-inheritance,unnecessary-lambda-assignment
 import six
 
 from missing import Missing

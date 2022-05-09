@@ -20,20 +20,19 @@ from typing import Any
 import astroid
 from astroid import AstroidError, nodes
 
-from pylint import checkers, config, exceptions, interfaces, reporters
+from pylint import checkers, exceptions, interfaces, reporters
 from pylint.checkers.base_checker import BaseChecker
 from pylint.config.arguments_manager import _ArgumentsManager
 from pylint.constants import (
     MAIN_CHECKER_NAME,
-    MSG_STATE_CONFIDENCE,
-    MSG_STATE_SCOPE_CONFIG,
-    MSG_STATE_SCOPE_MODULE,
     MSG_TYPES,
-    MSG_TYPES_LONG,
     MSG_TYPES_STATUS,
+    WarningScope,
 )
 from pylint.lint.base_options import _make_linter_options
+from pylint.lint.caching import load_results, save_results
 from pylint.lint.expand_modules import expand_modules
+from pylint.lint.message_state_handler import _MessageStateHandler
 from pylint.lint.parallel import check_parallel
 from pylint.lint.report_functions import (
     report_messages_by_module_stats,
@@ -58,17 +57,11 @@ from pylint.typing import (
     Options,
 )
 from pylint.utils import ASTWalker, FileState, LinterStats, utils
-from pylint.utils.pragma_parser import (
-    OPTION_PO,
-    InvalidPragmaError,
-    UnRecognizedOptionError,
-    parse_pragma,
-)
 
 if sys.version_info >= (3, 8):
-    from typing import Literal, Protocol
+    from typing import Protocol
 else:
-    from typing_extensions import Literal, Protocol
+    from typing_extensions import Protocol
 
 
 MANAGER = astroid.MANAGER
@@ -100,12 +93,14 @@ def _load_reporter_by_class(reporter_class: str) -> type[BaseReporter]:
 
 # Python Linter class #########################################################
 
+# pylint: disable-next=consider-using-namedtuple-or-dataclass
 MSGS: dict[str, MessageDefinitionTuple] = {
     "F0001": (
         "%s",
         "fatal",
         "Used when an error occurred preventing the analysis of a \
               module (unable to find it for instance).",
+        {"scope": WarningScope.LINE},
     ),
     "F0002": (
         "%s: %s",
@@ -113,39 +108,46 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Used when an unexpected error occurred while building the "
         "Astroid  representation. This is usually accompanied by a "
         "traceback. Please report such errors !",
+        {"scope": WarningScope.LINE},
     ),
     "F0010": (
         "error while code parsing: %s",
         "parse-error",
         "Used when an exception occurred while building the Astroid "
         "representation which could be handled by astroid.",
+        {"scope": WarningScope.LINE},
     ),
     "F0011": (
         "error while parsing the configuration: %s",
         "config-parse-error",
         "Used when an exception occurred while parsing a pylint configuration file.",
+        {"scope": WarningScope.LINE},
     ),
     "I0001": (
         "Unable to run raw checkers on built-in module %s",
         "raw-checker-failed",
         "Used to inform that a built-in module has not been checked "
         "using the raw checkers.",
+        {"scope": WarningScope.LINE},
     ),
     "I0010": (
         "Unable to consider inline option %r",
         "bad-inline-option",
         "Used when an inline option is either badly formatted or can't "
         "be used inside modules.",
+        {"scope": WarningScope.LINE},
     ),
     "I0011": (
         "Locally disabling %s (%s)",
         "locally-disabled",
         "Used when an inline option disables a message or a messages category.",
+        {"scope": WarningScope.LINE},
     ),
     "I0013": (
         "Ignoring entire file",
         "file-ignored",
         "Used to inform that the file will not be checked",
+        {"scope": WarningScope.LINE},
     ),
     "I0020": (
         "Suppressed %s (from line %d)",
@@ -154,12 +156,14 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "by a disable= comment in the file. This message is not "
         "generated for messages that are ignored due to configuration "
         "settings.",
+        {"scope": WarningScope.LINE},
     ),
     "I0021": (
         "Useless suppression of %s",
         "useless-suppression",
         "Reported when a message is explicitly disabled for a line or "
         "a block of code, but never triggered.",
+        {"scope": WarningScope.LINE},
     ),
     "I0022": (
         'Pragma "%s" is deprecated, use "%s" instead',
@@ -167,33 +171,46 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Some inline pylint options have been renamed or reworked, "
         "only the most recent form should be used. "
         "NOTE:skip-all is only available with pylint >= 0.26",
-        {"old_names": [("I0014", "deprecated-disable-all")]},
+        {
+            "old_names": [("I0014", "deprecated-disable-all")],
+            "scope": WarningScope.LINE,
+        },
     ),
-    "E0001": ("%s", "syntax-error", "Used when a syntax error is raised for a module."),
+    "E0001": (
+        "%s",
+        "syntax-error",
+        "Used when a syntax error is raised for a module.",
+        {"scope": WarningScope.LINE},
+    ),
     "E0011": (
         "Unrecognized file option %r",
         "unrecognized-inline-option",
         "Used when an unknown inline option is encountered.",
+        {"scope": WarningScope.LINE},
     ),
     "E0012": (
         "Bad option value for %s",
         "bad-option-value",
         "Used when a bad value for an inline option is encountered.",
+        {"scope": WarningScope.LINE},
     ),
     "E0013": (
         "Plugin '%s' is impossible to load, is it installed ? ('%s')",
         "bad-plugin-value",
         "Used when a bad value is used in 'load-plugins'.",
+        {"scope": WarningScope.LINE},
     ),
     "E0014": (
         "Out-of-place setting encountered in top level configuration-section '%s' : '%s'",
         "bad-configuration-section",
         "Used when we detect a setting in the top level of a toml configuration that shouldn't be there.",
+        {"scope": WarningScope.LINE},
     ),
     "E0015": (
         "Unrecognized option found: %s",
         "unrecognized-option",
         "Used when we detect an option that we do not recognize.",
+        {"scope": WarningScope.LINE},
     ),
 }
 
@@ -201,8 +218,9 @@ MSGS: dict[str, MessageDefinitionTuple] = {
 # pylint: disable=too-many-instance-attributes,too-many-public-methods
 class PyLinter(
     _ArgumentsManager,
+    _MessageStateHandler,
     reporters.ReportsHandlerMixIn,
-    checkers.BaseTokenChecker,
+    checkers.BaseChecker,
 ):
     """Lint Python modules using external checkers.
 
@@ -239,6 +257,7 @@ class PyLinter(
         pylintrc: str | None = None,  # pylint: disable=unused-argument
     ) -> None:
         _ArgumentsManager.__init__(self, prog="pylint")
+        _MessageStateHandler.__init__(self, self)
 
         # Some stuff has to be done before initialization of other ancestors...
         # messages store / checkers / reporter / astroid manager
@@ -260,12 +279,16 @@ class PyLinter(
         self._dynamic_plugins: set[str] = set()
         """Set of loaded plugin names."""
 
+        # Attributes related to registering messages and their handling
+        self.msgs_store = MessageDefinitionStore()
+        self.msg_status = 0
+        self._by_id_managed_msgs: list[ManagedMessage] = []
+
         # Attributes related to visiting files
-        self.file_state = FileState()
+        self.file_state = FileState("", self.msgs_store, is_base_filestate=True)
         self.current_name: str | None = None
         self.current_file: str | None = None
         self._ignore_file = False
-        self._pragma_lineno: dict[str, int] = {}
 
         # Attributes related to stats
         self.stats = LinterStats()
@@ -278,27 +301,12 @@ class PyLinter(
             ("Messages control", "Options controlling analysis messages"),
             ("Reports", "Options related to output formatting and reporting"),
         )
-        self._options_methods = {
-            "enable": self.enable,
-            "disable": self.disable,
-            "disable-next": self.disable_next,
-        }
-        self._bw_options_methods = {
-            "disable-msg": self._options_methods["disable"],
-            "enable-msg": self._options_methods["enable"],
-        }
         self.fail_on_symbols: list[str] = []
         """List of message symbols on which pylint should fail, set by --fail-on."""
         self._error_mode = False
 
-        # Attributes related to messages (states) and their handling
-        self.msgs_store = MessageDefinitionStore()
-        self.msg_status = 0
-        self._msgs_state: dict[str, bool] = {}
-        self._by_id_managed_msgs: list[ManagedMessage] = []
-
         reporters.ReportsHandlerMixIn.__init__(self)
-        checkers.BaseTokenChecker.__init__(self, self)
+        checkers.BaseChecker.__init__(self, self)
         # provided reports
         self.reports = (
             ("RP0001", "Messages by category", report_total_messages_stats),
@@ -473,16 +481,6 @@ class PyLinter(
     def any_fail_on_issues(self) -> bool:
         return any(x in self.fail_on_symbols for x in self.stats.by_msg.keys())
 
-    def disable_noerror_messages(self) -> None:
-        for msgcat, msgids in self.msgs_store._msgs_by_category.items():
-            # enable only messages with 'error' severity and above ('fatal')
-            if msgcat in {"E", "F"}:
-                for msgid in msgids:
-                    self.enable(msgid)
-            else:
-                for msgid in msgids:
-                    self.disable(msgid)
-
     def disable_reporters(self) -> None:
         """Disable all reporters."""
         for _reporters in self._reports.values():
@@ -502,111 +500,6 @@ class PyLinter(
         self.set_option("reports", False)
         self.set_option("persistent", False)
         self.set_option("score", False)
-
-    def list_messages_enabled(self) -> None:
-        emittable, non_emittable = self.msgs_store.find_emittable_messages()
-        enabled = []
-        disabled = []
-        for message in emittable:
-            if self.is_message_enabled(message.msgid):
-                enabled.append(f"  {message.symbol} ({message.msgid})")
-            else:
-                disabled.append(f"  {message.symbol} ({message.msgid})")
-        print("Enabled messages:")
-        for msg in enabled:
-            print(msg)
-        print("\nDisabled messages:")
-        for msg in disabled:
-            print(msg)
-        print("\nNon-emittable messages with current interpreter:")
-        for msg_def in non_emittable:
-            print(f"  {msg_def.symbol} ({msg_def.msgid})")
-        print("")
-
-    # block level option handling #############################################
-    # see func_block_disable_msg.py test case for expected behaviour
-
-    def process_tokens(self, tokens: list[tokenize.TokenInfo]) -> None:
-        """Process tokens from the current module to search for module/block level
-        options.
-        """
-        control_pragmas = {"disable", "disable-next", "enable"}
-        prev_line = None
-        saw_newline = True
-        seen_newline = True
-        for (tok_type, content, start, _, _) in tokens:
-            if prev_line and prev_line != start[0]:
-                saw_newline = seen_newline
-                seen_newline = False
-
-            prev_line = start[0]
-            if tok_type in (tokenize.NL, tokenize.NEWLINE):
-                seen_newline = True
-
-            if tok_type != tokenize.COMMENT:
-                continue
-            match = OPTION_PO.search(content)
-            if match is None:
-                continue
-            try:
-                for pragma_repr in parse_pragma(match.group(2)):
-                    if pragma_repr.action in {"disable-all", "skip-file"}:
-                        if pragma_repr.action == "disable-all":
-                            self.add_message(
-                                "deprecated-pragma",
-                                line=start[0],
-                                args=("disable-all", "skip-file"),
-                            )
-                        self.add_message("file-ignored", line=start[0])
-                        self._ignore_file = True
-                        return
-                    try:
-                        meth = self._options_methods[pragma_repr.action]
-                    except KeyError:
-                        meth = self._bw_options_methods[pragma_repr.action]
-                        # found a "(dis|en)able-msg" pragma deprecated suppression
-                        self.add_message(
-                            "deprecated-pragma",
-                            line=start[0],
-                            args=(
-                                pragma_repr.action,
-                                pragma_repr.action.replace("-msg", ""),
-                            ),
-                        )
-                    for msgid in pragma_repr.messages:
-                        # Add the line where a control pragma was encountered.
-                        if pragma_repr.action in control_pragmas:
-                            self._pragma_lineno[msgid] = start[0]
-
-                        if (pragma_repr.action, msgid) == ("disable", "all"):
-                            self.add_message(
-                                "deprecated-pragma",
-                                line=start[0],
-                                args=("disable=all", "skip-file"),
-                            )
-                            self.add_message("file-ignored", line=start[0])
-                            self._ignore_file = True
-                            return
-                            # If we did not see a newline between the previous line and now,
-                            # we saw a backslash so treat the two lines as one.
-                        l_start = start[0]
-                        if not saw_newline:
-                            l_start -= 1
-                        try:
-                            meth(msgid, "module", l_start)
-                        except exceptions.UnknownMessageError:
-                            msg = f"{pragma_repr.action}. Don't recognize message {msgid}."
-                            self.add_message(
-                                "bad-option-value", args=msg, line=start[0]
-                            )
-            except UnRecognizedOptionError as err:
-                self.add_message(
-                    "unrecognized-inline-option", args=err.token, line=start[0]
-                )
-                continue
-            except InvalidPragmaError as err:
-                self.add_message("bad-inline-option", args=err.token, line=start[0])
-                continue
 
     # code checking methods ###################################################
 
@@ -801,7 +694,7 @@ class PyLinter(
 
         self._ignore_file = False
 
-        self.file_state = FileState(file.modpath)
+        self.file_state = FileState(file.modpath, self.msgs_store, ast_node)
         # fix the current file (if the source file was not available or
         # if it's actually a c extension)
         self.current_file = ast_node.file
@@ -1040,8 +933,7 @@ class PyLinter(
             self.add_message("raw-checker-failed", args=node.name)
         else:
             # assert astroid.file.endswith('.py')
-            # invoke ITokenChecker interface on self to fetch module/block
-            # level options
+            # Parse module/block level option pragma's
             self.process_tokens(tokens)
             if self._ignore_file:
                 return False
@@ -1077,9 +969,13 @@ class PyLinter(
         # Display whatever messages are left on the reporter.
         self.reporter.display_messages(report_nodes.Section())
 
-        if self.file_state.base_name is not None:
+        # TODO: 3.0: Remove second half of if-statement
+        if (
+            not self.file_state._is_base_filestate
+            and self.file_state.base_name is not None
+        ):
             # load previous results if any
-            previous_stats = config.load_results(self.file_state.base_name)
+            previous_stats = load_results(self.file_state.base_name)
             self.reporter.on_close(self.stats, previous_stats)
             if self.config.reports:
                 sect = self.make_reports(self.stats, previous_stats)
@@ -1091,7 +987,7 @@ class PyLinter(
             score_value = self._report_evaluation()
             # save results if persistent run
             if self.config.persistent:
-                config.save_results(self.stats, self.file_state.base_name)
+                save_results(self.stats, self.file_state.base_name)
         else:
             self.reporter.on_close(self.stats, LinterStats())
             score_value = None
@@ -1102,8 +998,9 @@ class PyLinter(
         # check with at least check 1 statements (usually 0 when there is a
         # syntax error preventing pylint from further processing)
         note = None
-        assert self.file_state.base_name
-        previous_stats = config.load_results(self.file_state.base_name)
+        # TODO: 3.0: Remove assertion
+        assert self.file_state.base_name is not None
+        previous_stats = load_results(self.file_state.base_name)
         if self.stats.statement == 0:
             return note
 
@@ -1134,89 +1031,6 @@ class PyLinter(
             sect = report_nodes.EvaluationSection(msg)
             self.reporter.display_reports(sect)
         return note
-
-    # Adding (ignored) messages to the Message Reporter
-
-    def _get_message_state_scope(
-        self,
-        msgid: str,
-        line: int | None = None,
-        confidence: interfaces.Confidence | None = None,
-    ) -> Literal[0, 1, 2] | None:
-        """Returns the scope at which a message was enabled/disabled."""
-        if confidence is None:
-            confidence = interfaces.UNDEFINED
-        if confidence.name not in self.config.confidence:
-            return MSG_STATE_CONFIDENCE  # type: ignore[return-value] # mypy does not infer Literal correctly
-        try:
-            if line in self.file_state._module_msgs_state[msgid]:
-                return MSG_STATE_SCOPE_MODULE  # type: ignore[return-value]
-        except (KeyError, TypeError):
-            return MSG_STATE_SCOPE_CONFIG  # type: ignore[return-value]
-        return None
-
-    def _is_one_message_enabled(self, msgid: str, line: int | None) -> bool:
-        """Checks state of a single message for the current file.
-
-        This function can't be cached as it depends on self.file_state which can
-        change.
-        """
-        if line is None:
-            return self._msgs_state.get(msgid, True)
-        try:
-            return self.file_state._module_msgs_state[msgid][line]
-        except KeyError:
-            # Check if the message's line is after the maximum line existing in ast tree.
-            # This line won't appear in the ast tree and won't be referred in
-            # self.file_state._module_msgs_state
-            # This happens for example with a commented line at the end of a module.
-            max_line_number = self.file_state.get_effective_max_line_number()
-            if max_line_number and line > max_line_number:
-                fallback = True
-                lines = self.file_state._raw_module_msgs_state.get(msgid, {})
-
-                # Doesn't consider scopes, as a 'disable' can be in a
-                # different scope than that of the current line.
-                closest_lines = reversed(
-                    [
-                        (message_line, enable)
-                        for message_line, enable in lines.items()
-                        if message_line <= line
-                    ]
-                )
-                _, fallback_iter = next(closest_lines, (None, None))
-                if fallback_iter is not None:
-                    fallback = fallback_iter
-
-                return self._msgs_state.get(msgid, fallback)
-            return self._msgs_state.get(msgid, True)
-
-    def is_message_enabled(
-        self,
-        msg_descr: str,
-        line: int | None = None,
-        confidence: interfaces.Confidence | None = None,
-    ) -> bool:
-        """Return whether this message is enabled for the current file, line and confidence level.
-
-        This function can't be cached right now as the line is the line of
-        the currently analysed file (self.file_state), if it changes, then the
-        result for the same msg_descr/line might need to change.
-
-        :param msg_descr: Either the msgid or the symbol for a MessageDefinition
-        :param line: The line of the currently analysed file
-        :param confidence: The confidence of the message
-        """
-        if confidence and confidence.name not in self.config.confidence:
-            return False
-        try:
-            msgids = self.msgs_store.message_id_store.get_active_msgids(msg_descr)
-        except exceptions.UnknownMessageError:
-            # The linter checks for messages that are not registered
-            # due to version mismatch, just treat them as message IDs
-            # for now.
-            msgids = [msg_descr]
-        return any(self._is_one_message_enabled(msgid, line) for msgid in msgids)
 
     def _add_one_message(
         self,
@@ -1372,163 +1186,3 @@ class PyLinter(
                 message_definition.msgid,
                 line,
             )
-
-    # Setting the state (disabled/enabled) of messages and registering them
-
-    def _set_one_msg_status(
-        self, scope: str, msg: MessageDefinition, line: int | None, enable: bool
-    ) -> None:
-        """Set the status of an individual message."""
-        if scope == "module":
-            assert isinstance(line, int)  # should always be int inside module scope
-
-            self.file_state.set_msg_status(msg, line, enable)
-            if not enable and msg.symbol != "locally-disabled":
-                self.add_message(
-                    "locally-disabled", line=line, args=(msg.symbol, msg.msgid)
-                )
-        else:
-            msgs = self._msgs_state
-            msgs[msg.msgid] = enable
-
-    def _get_messages_to_set(
-        self, msgid: str, enable: bool, ignore_unknown: bool = False
-    ) -> list[MessageDefinition]:
-        """Do some tests and find the actual messages of which the status should be set."""
-        message_definitions = []
-        if msgid == "all":
-            for _msgid in MSG_TYPES:
-                message_definitions.extend(
-                    self._get_messages_to_set(_msgid, enable, ignore_unknown)
-                )
-            return message_definitions
-
-        # msgid is a category?
-        category_id = msgid.upper()
-        if category_id not in MSG_TYPES:
-            category_id_formatted = MSG_TYPES_LONG.get(category_id)
-        else:
-            category_id_formatted = category_id
-        if category_id_formatted is not None:
-            for _msgid in self.msgs_store._msgs_by_category[category_id_formatted]:
-                message_definitions.extend(
-                    self._get_messages_to_set(_msgid, enable, ignore_unknown)
-                )
-            return message_definitions
-
-        # msgid is a checker name?
-        if msgid.lower() in self._checkers:
-            for checker in self._checkers[msgid.lower()]:
-                for _msgid in checker.msgs:
-                    message_definitions.extend(
-                        self._get_messages_to_set(_msgid, enable, ignore_unknown)
-                    )
-            return message_definitions
-
-        # msgid is report id?
-        if msgid.lower().startswith("rp"):
-            if enable:
-                self.enable_report(msgid)
-            else:
-                self.disable_report(msgid)
-            return message_definitions
-
-        try:
-            # msgid is a symbolic or numeric msgid.
-            message_definitions = self.msgs_store.get_message_definitions(msgid)
-        except exceptions.UnknownMessageError:
-            if not ignore_unknown:
-                raise
-        return message_definitions
-
-    def _set_msg_status(
-        self,
-        msgid: str,
-        enable: bool,
-        scope: str = "package",
-        line: int | None = None,
-        ignore_unknown: bool = False,
-    ) -> None:
-        """Do some tests and then iterate over message definitions to set state."""
-        assert scope in {"package", "module"}
-
-        message_definitions = self._get_messages_to_set(msgid, enable, ignore_unknown)
-
-        for message_definition in message_definitions:
-            self._set_one_msg_status(scope, message_definition, line, enable)
-
-        # sync configuration object
-        self.config.enable = []
-        self.config.disable = []
-        for msgid_or_symbol, is_enabled in self._msgs_state.items():
-            symbols = [
-                m.symbol
-                for m in self.msgs_store.get_message_definitions(msgid_or_symbol)
-            ]
-            if is_enabled:
-                self.config.enable += symbols
-            else:
-                self.config.disable += symbols
-
-    def _register_by_id_managed_msg(
-        self, msgid_or_symbol: str, line: int | None, is_disabled: bool = True
-    ) -> None:
-        """If the msgid is a numeric one, then register it to inform the user
-        it could furnish instead a symbolic msgid.
-        """
-        if msgid_or_symbol[1:].isdigit():
-            try:
-                symbol = self.msgs_store.message_id_store.get_symbol(
-                    msgid=msgid_or_symbol
-                )
-            except exceptions.UnknownMessageError:
-                return
-            managed = ManagedMessage(
-                self.current_name, msgid_or_symbol, symbol, line, is_disabled
-            )
-            self._by_id_managed_msgs.append(managed)
-
-    def disable(
-        self,
-        msgid: str,
-        scope: str = "package",
-        line: int | None = None,
-        ignore_unknown: bool = False,
-    ) -> None:
-        """Disable a message for a scope."""
-        self._set_msg_status(
-            msgid, enable=False, scope=scope, line=line, ignore_unknown=ignore_unknown
-        )
-        self._register_by_id_managed_msg(msgid, line)
-
-    def disable_next(
-        self,
-        msgid: str,
-        scope: str = "package",
-        line: int | None = None,
-        ignore_unknown: bool = False,
-    ) -> None:
-        """Disable a message for the next line."""
-        if not line:
-            raise exceptions.NoLineSuppliedError
-        self._set_msg_status(
-            msgid,
-            enable=False,
-            scope=scope,
-            line=line + 1,
-            ignore_unknown=ignore_unknown,
-        )
-        self._register_by_id_managed_msg(msgid, line + 1)
-
-    def enable(
-        self,
-        msgid: str,
-        scope: str = "package",
-        line: int | None = None,
-        ignore_unknown: bool = False,
-    ) -> None:
-        """Enable a message for a scope."""
-        self._set_msg_status(
-            msgid, enable=True, scope=scope, line=line, ignore_unknown=ignore_unknown
-        )
-        self._register_by_id_managed_msg(msgid, line, is_disabled=False)

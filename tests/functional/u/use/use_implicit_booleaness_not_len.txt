@@ -2,24 +2,25 @@ use-implicit-booleaness-not-len:4:3:4:14::Do not use `len(SEQUENCE)` without com
 use-implicit-booleaness-not-len:7:3:7:18::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
 use-implicit-booleaness-not-len:11:9:11:34::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
 use-implicit-booleaness-not-len:14:11:14:22::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
-use-implicit-booleaness-not-len:55:5:55:16::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
-use-implicit-booleaness-not-len:60:5:60:20::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
-use-implicit-booleaness-not-len:63:6:63:17::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
-use-implicit-booleaness-not-len:66:6:66:21::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
-use-implicit-booleaness-not-len:69:12:69:23::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
-use-implicit-booleaness-not-len:72:6:72:21::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
-use-implicit-booleaness-not-len:95:11:95:20:github_issue_1331_v2:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
-use-implicit-booleaness-not-len:98:11:98:20:github_issue_1331_v3:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
-use-implicit-booleaness-not-len:101:17:101:26:github_issue_1331_v4:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
-use-implicit-booleaness-not-len:103:9:103:15::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
-use-implicit-booleaness-not-len:104:9:104:20::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
-use-implicit-booleaness-not-len:123:11:123:34:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
-use-implicit-booleaness-not-len:124:11:124:39:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
-use-implicit-booleaness-not-len:125:11:125:24:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
-use-implicit-booleaness-not-len:126:11:126:35:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
-use-implicit-booleaness-not-len:127:11:127:33:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
-use-implicit-booleaness-not-len:128:11:128:41:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
-use-implicit-booleaness-not-len:129:11:129:43:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
-use-implicit-booleaness-not-len:170:11:170:42:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
-undefined-variable:182:11:182:24:github_issue_4215:Undefined variable 'undefined_var':UNDEFINED
-undefined-variable:184:11:184:25:github_issue_4215:Undefined variable 'undefined_var2':UNDEFINED
+comparison-of-constants:39:3:39:28::"Comparison between constants: '0 < 1' has a constant value":HIGH
+use-implicit-booleaness-not-len:56:5:56:16::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
+use-implicit-booleaness-not-len:61:5:61:20::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
+use-implicit-booleaness-not-len:64:6:64:17::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
+use-implicit-booleaness-not-len:67:6:67:21::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
+use-implicit-booleaness-not-len:70:12:70:23::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
+use-implicit-booleaness-not-len:73:6:73:21::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
+use-implicit-booleaness-not-len:96:11:96:20:github_issue_1331_v2:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
+use-implicit-booleaness-not-len:99:11:99:20:github_issue_1331_v3:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
+use-implicit-booleaness-not-len:102:17:102:26:github_issue_1331_v4:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
+use-implicit-booleaness-not-len:104:9:104:15::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
+use-implicit-booleaness-not-len:105:9:105:20::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
+use-implicit-booleaness-not-len:124:11:124:34:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
+use-implicit-booleaness-not-len:125:11:125:39:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
+use-implicit-booleaness-not-len:126:11:126:24:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
+use-implicit-booleaness-not-len:127:11:127:35:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
+use-implicit-booleaness-not-len:128:11:128:33:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
+use-implicit-booleaness-not-len:129:11:129:41:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
+use-implicit-booleaness-not-len:130:11:130:43:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
+use-implicit-booleaness-not-len:171:11:171:42:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:UNDEFINED
+undefined-variable:183:11:183:24:github_issue_4215:Undefined variable 'undefined_var':UNDEFINED
+undefined-variable:185:11:185:25:github_issue_4215:Undefined variable 'undefined_var2':UNDEFINED

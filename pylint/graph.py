@@ -85,6 +85,7 @@ class DotBackend:
         :return: a path to the generated file
         :raises RuntimeError: if the executable for rendering was not found
         """
+        # pylint: disable=duplicate-code
         graphviz_extensions = ("dot", "gv")
         name = self.graphname
         if outputfile is None:

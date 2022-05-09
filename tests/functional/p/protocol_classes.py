@@ -28,7 +28,7 @@ class Protocol:  #pylint:disable=too-few-public-methods
 
 class HasherFake(Protocol):
     """A hashing algorithm, e.g. :func:`hashlib.sha256`."""
-    def update(self, blob: bytes): # [no-self-use, unused-argument]
+    def update(self, blob: bytes): # [unused-argument]
         ...
-    def digest(self) -> bytes: # [no-self-use]
+    def digest(self) -> bytes:
         ...

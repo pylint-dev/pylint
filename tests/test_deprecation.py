@@ -12,6 +12,7 @@ import pytest
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.mapreduce_checker import MapReduceMixin
+from pylint.config import load_results, save_results
 from pylint.interfaces import (
     IAstroidChecker,
     IChecker,
@@ -21,8 +22,10 @@ from pylint.interfaces import (
     ITokenChecker,
 )
 from pylint.lint import PyLinter
+from pylint.message import MessageDefinitionStore
 from pylint.reporters import BaseReporter
 from pylint.reporters.ureports.nodes import Section
+from pylint.utils import FileState
 
 
 def test_mapreducemixin() -> None:
@@ -78,3 +81,22 @@ def test_interfaces() -> None:
         IChecker()
     with pytest.warns(DeprecationWarning):
         ITokenChecker()
+
+
+def test_load_and_save_results() -> None:
+    """Test that load_results and save_results are deprecated."""
+    with pytest.warns(DeprecationWarning):
+        save_results(object(), "")  # type: ignore[arg-type]
+    with pytest.warns(DeprecationWarning):
+        load_results("")
+
+
+def test_filestate() -> None:
+    """Test that FileState needs its arguments."""
+    with pytest.warns(DeprecationWarning):
+        FileState()
+    with pytest.warns(DeprecationWarning):
+        FileState("foo")
+    with pytest.warns(DeprecationWarning):
+        FileState(msg_store=MessageDefinitionStore())
+    FileState("foo", MessageDefinitionStore())

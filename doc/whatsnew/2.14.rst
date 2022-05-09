@@ -12,6 +12,10 @@ Summary -- Release highlights
 New checkers
 ============
 
+* Added new checker ``comparison-of-constants``.
+
+  Closes #6076
+
 * Added new checker ``typevar-name-mismatch``: TypeVar must be assigned to a variable with the same name as its name argument.
 
   Closes #5224
@@ -53,11 +57,6 @@ New checkers
 
   Closes #4525
 
-* Added optional extension ``redefined-loop-name`` to emit messages when a loop variable
-  is redefined in the loop body.
-
-  Closes #5072
-
 * Added new message called ``duplicate-value`` which identifies duplicate values inside sets.
 
   Closes #5880
@@ -78,15 +77,35 @@ Removed checkers
 
   Closes #4683
 
+* Moved ``no-self-use`` check to optional extension.
+  You now need to explicitly enable this check using
+  ``load-plugins=pylint.extensions.no_self_use``.
+
+  Closes #5502
+
 
 Extensions
 ==========
+
+* ``RedefinedLoopNameChecker``
+
+    * Added optional extension ``redefined-loop-name`` to emit messages when a loop variable
+      is redefined in the loop body.
+
+      Closes #5072
 
 * ``DocStringStyleChecker``
 
     * Re-enable checker ``bad-docstring-quotes`` for Python <= 3.7.
 
       Closes #6087
+
+* ``NoSelfUseChecker``
+
+    * Added ``no-self-use`` check, previously enabled by default.
+
+      Closes #5502
+
 
 Other Changes
 =============
@@ -110,13 +129,6 @@ Other Changes
 
   Closes #4301
 
-* Improved recognition of namespace packages. They should no longer be added to ``sys.path``
-  which should prevent various issues with false positives.
-  Because of the difficulties with mirroring the python import mechanics we would gladly
-  hear feedback on this change.
-
-  Closes #5226, Closes #2648
-
 * Update ``invalid-slots-object`` message to show bad object rather than its inferred value.
 
   Closes #6101
@@ -125,6 +137,10 @@ Other Changes
   inside a call.
 
   Closes #6372
+
+* Disable spellchecking of mypy rule names in ignore directives.
+
+  Closes #5929
 
 * ``implicit-str-concat`` will now be raised on calls like ``open("myfile.txt" "a+b")`` too.
 
@@ -243,6 +259,11 @@ Other Changes
 
   Closes #5670
 
+* Fix saving of persistent data files in environments where the user's cache
+  directory and the linted file are on a different drive.
+
+  Closes #6394
+
 * The ``method-cache-max-size-none`` checker will now also check ``functools.cache``.
 
   Closes #5670
@@ -260,6 +281,10 @@ Other Changes
 
   Closes #5219
 
+* Fixed false positive ``no-member`` for Enums with self-defined members.
+
+  Closes #5138
+
 * Fix false negative for ``no-member`` when attempting to assign an instance
   attribute to itself without any prior assignment.
 
@@ -270,9 +295,22 @@ Other Changes
 
   Closes #5608
 
+* By default the similarity checker will now ignore imports and ignore function signatures when computing
+  duplication. If you want to keep the previous behaviour set ``ignore-imports`` and ``ignore-signatures`` to ``False``.
+
 * Pylint now expands the user path (i.e. ``~`` to ``home/yusef/``) and expands environment variables (i.e. ``home/$USER/$project``
   to ``home/yusef/pylint`` for ``USER=yusef`` and ``project=pylint``) for pyreverse's ``output-directory``,
   ``import-graph``, ``ext-import-graph``,  ``int-import-graph`` options, and the spell checker's ``spelling-private-dict-file``
   option.
 
   Relates to #6493
+
+* Don't emit ``unsubscriptable-object`` for string annotations.
+  Pylint doesn't check if class is only generic in type stubs only.
+
+  Closes #4369 and #6523
+
+* ``is_class_subscriptable_pep585_with_postponed_evaluation_enabled`` has been deprecated.
+  Use ``subscriptable_with_postponed_evaluation_enabled`` instead.
+
+  Ref #6536

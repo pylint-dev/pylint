@@ -49,14 +49,14 @@ def test_simple_pragma_multiple_messages() -> None:
 
 
 def test_multiple_pragma_multiple_messages() -> None:
-    comment = "#pylint: disable = missing-docstring, invalid-name, enable = R0202, no-self-use"
+    comment = "#pylint: disable = missing-docstring, invalid-name, enable = R0202, no-staticmethod-decorator"
     match = OPTION_PO.search(comment)
     assert match
     res = list(parse_pragma(match.group(2)))
     assert res[0].action == "disable"
     assert res[0].messages == ["missing-docstring", "invalid-name"]
     assert res[1].action == "enable"
-    assert res[1].messages == ["R0202", "no-self-use"]
+    assert res[1].messages == ["R0202", "no-staticmethod-decorator"]
 
 
 def test_missing_assignment() -> None:

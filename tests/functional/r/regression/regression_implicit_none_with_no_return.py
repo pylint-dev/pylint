@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,pointless-statement,invalid-name,no-self-use
+# pylint: disable=missing-docstring,pointless-statement,invalid-name
 
 class A:
     def func(self):

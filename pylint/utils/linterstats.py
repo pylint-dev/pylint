@@ -137,6 +137,9 @@ class LinterStats:
         self.nb_duplicated_lines = 0
         self.percent_duplicated_lines = 0.0
 
+    def __repr__(self) -> str:
+        return str(self)
+
     def __str__(self) -> str:
         return f"""{self.bad_names}
         {sorted(self.by_module.items())}
