@@ -39,6 +39,7 @@ from pylint.constants import (
 )
 from pylint.exceptions import InvalidMessageError
 from pylint.lint import PyLinter
+from pylint.lint.utils import fix_import_path
 from pylint.message import Message
 from pylint.reporters import text
 from pylint.testutils import create_files
@@ -861,3 +862,24 @@ def test_by_module_statement_value(initialized_linter: PyLinter) -> None:
         # Check that the by_module "statement" is equal to the global "statement"
         # computed for that module
         assert module_stats["statement"] == linter2.stats.statement
+
+
+def test_import_sibling_module_from_namespace(initialized_linter: PyLinter) -> None:
+    """If the parent directory above `namespace` is on sys.path, ensure that
+    modules under `namespace` can import each other without raising `import-error`."""
+    linter = initialized_linter
+    with tempdir() as tmpdir:
+        create_files(["namespace/a.py", "namespace/b.py"])
+        b_path = Path("namespace/b.py")
+        with open(b_path, "w", encoding="utf-8") as f:
+            f.write(
+                """\"\"\"This module imports a.\"\"\"
+import a
+print(a)
+"""
+            )
+        os.chdir("namespace")
+        # Add the parent directory (tmpdir) to sys.path
+        with fix_import_path([tmpdir]):
+            linter.check(["b.py"])
+    assert not linter.stats.by_msg
