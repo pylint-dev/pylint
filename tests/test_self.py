@@ -14,6 +14,7 @@ import platform
 import re
 import subprocess
 import sys
+import tempfile
 import textwrap
 import warnings
 from collections.abc import Generator, Iterator
@@ -1384,6 +1385,7 @@ class TestCallbackOptions:
         )
         assert "[tool.pylint.master]" in process.stdout
         assert '"positional arguments"' not in process.stdout
+        assert '"optional arguments"' not in process.stdout
         assert 'preferred-modules = ["a:b"]' in process.stdout
 
         process_two = subprocess.run(
@@ -1393,6 +1395,15 @@ class TestCallbackOptions:
             check=False,
         )
         assert process.stdout == process_two.stdout
+
+        # Check that the generated file is valid
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".toml") as temp:
+            temp.write(process.stdout)
+            runner = Run(
+                [join(HERE, "regrtest_data", "empty.py"), f"--rcfile={temp.name}"],
+                exit=False,
+            )
+            assert not runner.linter.msg_status
 
     @staticmethod
     def test_generate_toml_config_disable_symbolic_names() -> None:
