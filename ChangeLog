@@ -9,6 +9,11 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.14.rst'
 
+* Update format parsing to support f-strings and the str.format function
+
+  Closes #6163
+  Closes #6085
+
 * Improved wording of the message of ``deprecated-module``
 
   Closes #6169

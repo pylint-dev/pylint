@@ -2,7 +2,7 @@
 # pylint: disable=consider-using-f-string, pointless-statement
 
 # Test formatting of bytes
-b"test".format(1, 2) # [no-member]
+b"test".format(1, 2)  # [no-member]
 
 # Test format types
 "%s" % 1
@@ -33,6 +33,9 @@ NUM = 0
 KEY = "abc"
 f'{NUM:d}'
 "{:d}".format(NUM)
+f'{KEY:d}'  # [bad-string-format-type]
+"{:d}".format(KEY)  # [bad-string-format-type]
+
 
 WORD = "abc"
 "%d" % WORD  # [bad-string-format-type]
