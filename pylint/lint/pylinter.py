@@ -279,8 +279,13 @@ class PyLinter(
         self._dynamic_plugins: set[str] = set()
         """Set of loaded plugin names."""
 
+        # Attributes related to registering messages and their handling
+        self.msgs_store = MessageDefinitionStore()
+        self.msg_status = 0
+        self._by_id_managed_msgs: list[ManagedMessage] = []
+
         # Attributes related to visiting files
-        self.file_state = FileState()
+        self.file_state = FileState("", self.msgs_store, is_base_filestate=True)
         self.current_name: str | None = None
         self.current_file: str | None = None
         self._ignore_file = False
@@ -299,11 +304,6 @@ class PyLinter(
         self.fail_on_symbols: list[str] = []
         """List of message symbols on which pylint should fail, set by --fail-on."""
         self._error_mode = False
-
-        # Attributes related to registering messages and their handling
-        self.msgs_store = MessageDefinitionStore()
-        self.msg_status = 0
-        self._by_id_managed_msgs: list[ManagedMessage] = []
 
         reporters.ReportsHandlerMixIn.__init__(self)
         checkers.BaseChecker.__init__(self, self)
@@ -704,7 +704,7 @@ class PyLinter(
 
         self._ignore_file = False
 
-        self.file_state = FileState(file.modpath)
+        self.file_state = FileState(file.modpath, self.msgs_store, ast_node)
         # fix the current file (if the source file was not available or
         # if it's actually a c extension)
         self.current_file = ast_node.file
@@ -979,7 +979,11 @@ class PyLinter(
         # Display whatever messages are left on the reporter.
         self.reporter.display_messages(report_nodes.Section())
 
-        if self.file_state.base_name is not None:
+        # TODO: 3.0: Remove second half of if-statement
+        if (
+            not self.file_state._is_base_filestate
+            and self.file_state.base_name is not None
+        ):
             # load previous results if any
             previous_stats = load_results(self.file_state.base_name)
             self.reporter.on_close(self.stats, previous_stats)
@@ -1004,7 +1008,8 @@ class PyLinter(
         # check with at least check 1 statements (usually 0 when there is a
         # syntax error preventing pylint from further processing)
         note = None
-        assert self.file_state.base_name
+        # TODO: 3.0: Remove assertion
+        assert self.file_state.base_name is not None
         previous_stats = load_results(self.file_state.base_name)
         if self.stats.statement == 0:
             return note

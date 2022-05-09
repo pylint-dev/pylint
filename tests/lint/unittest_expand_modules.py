@@ -77,13 +77,6 @@ test_caching = {
     "path": str(TEST_DIRECTORY / "lint/test_caching.py"),
 }
 
-test_namespace_packages = {
-    "basename": "lint",
-    "basepath": INIT_PATH,
-    "isarg": False,
-    "name": "lint.test_namespace_packages",
-    "path": str(TEST_DIRECTORY / "lint/test_namespace_packages.py"),
-}
 
 init_of_package = {
     "basename": "lint",
@@ -115,7 +108,6 @@ class TestExpandModules(CheckerTestCase):
                 [
                     init_of_package,
                     test_caching,
-                    test_namespace_packages,
                     test_pylinter,
                     test_utils,
                     this_file_from_init,

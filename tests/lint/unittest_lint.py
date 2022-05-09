@@ -39,6 +39,7 @@ from pylint.constants import (
 )
 from pylint.exceptions import InvalidMessageError
 from pylint.lint import PyLinter
+from pylint.lint.utils import fix_import_path
 from pylint.message import Message
 from pylint.reporters import text
 from pylint.testutils import create_files
@@ -191,7 +192,7 @@ def reporter():
 def initialized_linter(linter: PyLinter) -> PyLinter:
     linter.open()
     linter.set_current_module("toto", "mydir/toto")
-    linter.file_state = FileState("toto")
+    linter.file_state = FileState("toto", linter.msgs_store)
     return linter
 
 
@@ -862,7 +863,6 @@ def test_by_module_statement_value(initialized_linter: PyLinter) -> None:
         # computed for that module
         assert module_stats["statement"] == linter2.stats.statement
 
-
 @pytest.mark.parametrize(
     "ignore_parameter,ignore_parameter_value",
     [
@@ -904,3 +904,24 @@ def test_recursive_ignore(ignore_parameter, ignore_parameter_value) -> None:
     ):
         module = os.path.abspath(join(REGRTEST_DATA_DIR, *regrtest_data_module))
     assert module in linted_file_paths
+
+    
+def test_import_sibling_module_from_namespace(initialized_linter: PyLinter) -> None:
+    """If the parent directory above `namespace` is on sys.path, ensure that
+    modules under `namespace` can import each other without raising `import-error`."""
+    linter = initialized_linter
+    with tempdir() as tmpdir:
+        create_files(["namespace/submodule1.py", "namespace/submodule2.py"])
+        second_path = Path("namespace/submodule2.py")
+        with open(second_path, "w", encoding="utf-8") as f:
+            f.write(
+                """\"\"\"This module imports submodule1.\"\"\"
+import submodule1
+print(submodule1)
+"""
+            )
+        os.chdir("namespace")
+        # Add the parent directory to sys.path
+        with fix_import_path([tmpdir]):
+            linter.check(["submodule2.py"])
+    assert not linter.stats.by_msg
