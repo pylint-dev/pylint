@@ -645,7 +645,8 @@ Other Changes
   Closes #6414
 
 
-* Fix false positives for ``no-name-in-module`` and ``import-error`` for ``numpy.distutils``.
+* Fix false positives for ``no-name-in-module`` and ``import-error`` for ``numpy.distutils``
+  and ``pydantic``.
 
   Closes #6497
 
