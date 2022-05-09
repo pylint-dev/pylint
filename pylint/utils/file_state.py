@@ -39,6 +39,8 @@ class FileState:
         modname: str | None = None,
         msg_store: MessageDefinitionStore | None = None,
         node: nodes.Module | None = None,
+        *,
+        is_base_filestate: bool = False,
     ) -> None:
         if modname is None:
             warnings.warn(
@@ -65,6 +67,8 @@ class FileState:
         else:
             self._effective_max_line_number = None
         self._msgs_store = msg_store
+        self._is_base_filestate = is_base_filestate
+        """If this FileState is the base state made during initialization of PyLinter."""
 
     def collect_block_lines(
         self, msgs_store: MessageDefinitionStore, module_node: nodes.Module

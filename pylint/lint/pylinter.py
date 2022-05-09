@@ -285,7 +285,7 @@ class PyLinter(
         self._by_id_managed_msgs: list[ManagedMessage] = []
 
         # Attributes related to visiting files
-        self.file_state = FileState("BaseState", self.msgs_store)
+        self.file_state = FileState("", self.msgs_store, is_base_filestate=True)
         self.current_name: str | None = None
         self.current_file: str | None = None
         self._ignore_file = False
@@ -969,8 +969,10 @@ class PyLinter(
         # Display whatever messages are left on the reporter.
         self.reporter.display_messages(report_nodes.Section())
 
-        if self.file_state.base_name is not None:
+        if not self.file_state._is_base_filestate:
             # load previous results if any
+            # TODO: 3.0: Remove assertion
+            assert self.file_state.base_name
             previous_stats = load_results(self.file_state.base_name)
             self.reporter.on_close(self.stats, previous_stats)
             if self.config.reports:
@@ -994,6 +996,7 @@ class PyLinter(
         # check with at least check 1 statements (usually 0 when there is a
         # syntax error preventing pylint from further processing)
         note = None
+        # TODO: 3.0: Remove assertion
         assert self.file_state.base_name
         previous_stats = load_results(self.file_state.base_name)
         if self.stats.statement == 0:
