@@ -9,6 +9,12 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.14.rst'
 
+* We have improved our recognition of inline disable and enable comments. It is
+  now possible to disable ``bad-option-value`` inline  (as long as you disable it before
+  the bad option value is raised, i.e. ``disable=bad-option-value,bad-message`` not ``disable=bad-message,bad-option-value`` ) as well as certain other previously unsupported messages.
+
+  Closes #3312
+
 * Added new checker ``comparison-of-constants``.
 
   Closes #6076

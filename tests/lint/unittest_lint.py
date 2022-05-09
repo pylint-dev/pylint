@@ -191,8 +191,14 @@ def reporter():
 @pytest.fixture
 def initialized_linter(linter: PyLinter) -> PyLinter:
     linter.open()
-    linter.set_current_module("toto", "mydir/toto")
-    linter.file_state = FileState("toto", linter.msgs_store)
+    linter.set_current_module("long_test_file", "long_test_file")
+    linter.file_state = FileState(
+        "long_test_file",
+        linter.msgs_store,
+        linter.get_ast(
+            str(join(REGRTEST_DATA_DIR, "long_test_file.py")), "long_test_file"
+        ),
+    )
     return linter
 
 
@@ -272,9 +278,9 @@ def test_enable_message_block(initialized_linter: PyLinter) -> None:
     filepath = join(REGRTEST_DATA_DIR, "func_block_disable_msg.py")
     linter.set_current_module("func_block_disable_msg")
     astroid = linter.get_ast(filepath, "func_block_disable_msg")
+    linter.file_state = FileState("func_block_disable_msg", linter.msgs_store, astroid)
     linter.process_tokens(tokenize_module(astroid))
     fs = linter.file_state
-    fs.collect_block_lines(linter.msgs_store, astroid)
     # global (module level)
     assert linter.is_message_enabled("W0613")
     assert linter.is_message_enabled("E1101")
@@ -311,7 +317,6 @@ def test_enable_message_block(initialized_linter: PyLinter) -> None:
     assert linter.is_message_enabled("E1101", 75)
     assert linter.is_message_enabled("E1101", 77)
 
-    fs = linter.file_state
     assert fs._suppression_mapping["W0613", 18] == 17
     assert fs._suppression_mapping["E1101", 33] == 30
     assert ("E1101", 46) not in fs._suppression_mapping

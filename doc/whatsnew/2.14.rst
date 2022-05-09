@@ -129,6 +129,13 @@ Other Changes
 
   Closes #4301
 
+* We have improved our recognition of inline disable and enable comments. It is
+  now possible to disable ``bad-option-value`` inline (as long as you disable it before
+  the bad option value is raised, i.e. ``disable=bad-option-value,bad-message`` not ``disable=bad-message,bad-option-value`` ) as well as certain other
+  previously unsupported messages.
+
+  Closes #3312
+
 * Update ``invalid-slots-object`` message to show bad object rather than its inferred value.
 
   Closes #6101
