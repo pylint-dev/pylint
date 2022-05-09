@@ -11,8 +11,6 @@ from collections.abc import Iterator, Sequence
 from datetime import datetime
 from pathlib import Path
 
-from astroid import modutils
-
 from pylint.config import PYLINT_HOME
 from pylint.lint.expand_modules import get_python_path
 
@@ -73,29 +71,12 @@ def get_fatal_error_message(filepath: str, issue_template_path: Path) -> str:
     )
 
 
-def _is_part_of_namespace_package(filename: str) -> bool:
-    """Check if a file is part of a namespace package."""
-    try:
-        modname = modutils.modpath_from_file(filename)
-    except ImportError:
-        modname = [Path(filename).stem]
-
-    try:
-        spec = modutils.file_info_from_modpath(modname)
-    except ImportError:
-        return False
-
-    return modutils.is_namespace(spec)
-
-
 def _patch_sys_path(args: Sequence[str]) -> list[str]:
     original = list(sys.path)
     changes = []
     seen = set()
     for arg in args:
         path = get_python_path(arg)
-        if _is_part_of_namespace_package(path):
-            continue
         if path not in seen:
             changes.append(path)
             seen.add(path)
