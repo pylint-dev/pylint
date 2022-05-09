@@ -1,0 +1,2 @@
+[master]
+load-plugins=pylint.extensions.while_used
