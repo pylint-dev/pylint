@@ -869,17 +869,17 @@ def test_import_sibling_module_from_namespace(initialized_linter: PyLinter) -> N
     modules under `namespace` can import each other without raising `import-error`."""
     linter = initialized_linter
     with tempdir() as tmpdir:
-        create_files(["namespace/a.py", "namespace/b.py"])
-        b_path = Path("namespace/b.py")
-        with open(b_path, "w", encoding="utf-8") as f:
+        create_files(["namespace/submodule1.py", "namespace/submodule2.py"])
+        second_path = Path("namespace/submodule2.py")
+        with open(second_path, "w", encoding="utf-8") as f:
             f.write(
-                """\"\"\"This module imports a.\"\"\"
-import a
-print(a)
+                """\"\"\"This module imports submodule1.\"\"\"
+import submodule1
+print(submodule1)
 """
             )
         os.chdir("namespace")
         # Add the parent directory to sys.path
         with fix_import_path([tmpdir]):
-            linter.check(["b.py"])
+            linter.check(["submodule2.py"])
     assert not linter.stats.by_msg
