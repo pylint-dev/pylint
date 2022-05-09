@@ -665,7 +665,7 @@ class _ArgumentsManager:
             key=lambda x: (x.title != "Master", x.title),
         ):
             # Skip the options section with the --help option
-            if group.title in ("options", "Commands"):
+            if group.title in {"options", "optional arguments", "Commands"}:
                 continue
 
             # Skip sections without options such as "positional arguments"
