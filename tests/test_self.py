@@ -14,6 +14,7 @@ import platform
 import re
 import subprocess
 import sys
+import tempfile
 import textwrap
 import warnings
 from collections.abc import Generator, Iterator
@@ -1343,6 +1344,14 @@ class TestCallbackOptions:
             check=False,
         )
         assert process.stdout == process_two.stdout
+
+        with tempfile.NamedTemporaryFile(mode="w") as temp:
+            temp.write(process.stdout)
+            runner = Run(
+                [join(HERE, "regrtest_data", "empty.py"), f"--rcfile={temp.name}"],
+                exit=False,
+            )
+            assert not runner.linter.msg_status
 
     @staticmethod
     def test_generate_config_disable_symbolic_names() -> None:
