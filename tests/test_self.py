@@ -1400,12 +1400,14 @@ class TestCallbackOptions:
         with tempfile.NamedTemporaryFile(
             mode="w", suffix=".toml", delete=False
         ) as temp:
+            filename = temp.name
             temp.write(process.stdout)
             runner = Run(
-                [join(HERE, "regrtest_data", "empty.py"), f"--rcfile={temp.name}"],
+                [join(HERE, "regrtest_data", "empty.py"), f"--rcfile={filename}"],
                 exit=False,
             )
             assert not runner.linter.msg_status
+        os.remove(filename)
 
     @staticmethod
     def test_generate_toml_config_disable_symbolic_names() -> None:
