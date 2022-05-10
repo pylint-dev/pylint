@@ -1174,7 +1174,7 @@ class TestRunTC:
         rcfile = tmpdir / "pylintrc"
         rcfile_contents = textwrap.dedent(
             f"""
-        [MASTER]
+        [MAIN]
         output={output_file}
         """
         )
@@ -1334,7 +1334,8 @@ class TestCallbackOptions:
             encoding="utf-8",
             check=False,
         )
-        assert "[MASTER]" in process.stdout
+        assert "[MAIN]" in process.stdout
+        assert "[MASTER]" not in process.stdout
         assert "profile" not in process.stdout
         args = _add_rcfile_default_pylintrc(["--generate-rcfile"])
         process_two = subprocess.run(
@@ -1370,10 +1371,10 @@ class TestCallbackOptions:
         # Get rid of the pesky messages that pylint emits if the
         # configuration file is not found.
         pattern = rf"\[{MAIN_CHECKER_NAME.upper()}"
-        master = re.search(pattern, output)
-        assert master is not None, f"{pattern} not found in {output}"
+        main = re.search(pattern, output)
+        assert main is not None, f"{pattern} not found in {output}"
 
-        out = StringIO(output[master.start() :])
+        out = StringIO(output[main.start() :])
         parser = configparser.RawConfigParser()
         parser.read_file(out)
         messages = utils._splitstrip(parser.get("MESSAGES CONTROL", "disable"))
@@ -1394,7 +1395,8 @@ class TestCallbackOptions:
             encoding="utf-8",
             check=False,
         )
-        assert "[tool.pylint.master]" in process.stdout
+        assert "[tool.pylint.main]" in process.stdout
+        assert "[tool.pylint.master]" not in process.stdout
         assert '"positional arguments"' not in process.stdout
         assert '"optional arguments"' not in process.stdout
         assert 'preferred-modules = ["a:b"]' in process.stdout

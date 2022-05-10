@@ -22,7 +22,7 @@ def _get_checkers_infos(linter: PyLinter) -> dict[str, dict[str, Any]]:
     by_checker: dict[str, dict[str, Any]] = {}
     for checker in linter.get_checkers():
         name = checker.name
-        if name != "master":
+        if name != MAIN_CHECKER_NAME:
             try:
                 by_checker[name]["checker"] = checker
                 with warnings.catch_warnings():

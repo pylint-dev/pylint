@@ -1,4 +1,4 @@
-[MASTER]
+[MAIN]
 load-plugins=dummy_plugin
 
 [DUMMY_PLUGIN]

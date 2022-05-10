@@ -59,7 +59,7 @@ def builder_inited(app: Optional[Sphinx]) -> None:
         stream.write("\n")
         stream.write(
             "You can activate any or all of these extensions "
-            "by adding a ``load-plugins`` line to the ``MASTER`` "
+            "by adding a ``load-plugins`` line to the ``MAIN`` "
             "section of your ``.pylintrc``, for example::\n"
         )
         stream.write(
