@@ -11,15 +11,21 @@ import re
 import shutil
 import subprocess
 import sys
-from collections.abc import Callable
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Callable, Tuple
 
 import astroid
 from astroid import nodes
 
 if TYPE_CHECKING:
+    # pylint: disable=unsupported-binary-operation
     from pylint.pyreverse.diadefslib import DiaDefGenerator
+    from pylint.pyreverse.diagrams import ClassDiagram, PackageDiagram
     from pylint.pyreverse.inspector import Linker
+
+    _CallbackT = Callable[
+        [nodes.NodeNG], Tuple[ClassDiagram] | Tuple[PackageDiagram, ClassDiagram] | None
+    ]
+    _CallbackTupleT = Tuple[_CallbackT | None, _CallbackT | None]
 
 
 RCFILE = ".pyreverserc"
@@ -129,10 +135,7 @@ class ASTWalker:
         self.handler = handler
         self._cache: dict[
             type[nodes.NodeNG],
-            tuple[
-                Callable[[nodes.NodeNG], Any] | None,
-                Callable[[nodes.NodeNG], Any] | None,
-            ],
+            _CallbackTupleT,
         ] = {}
 
     def walk(self, node: nodes.NodeNG, _done: set[nodes.NodeNG] | None = None) -> None:
@@ -149,11 +152,7 @@ class ASTWalker:
         self.leave(node)
         assert node.parent is not node
 
-    def get_callbacks(
-        self, node: nodes.NodeNG
-    ) -> tuple[
-        Callable[[nodes.NodeNG], Any] | None, Callable[[nodes.NodeNG], Any] | None
-    ]:
+    def get_callbacks(self, node: nodes.NodeNG) -> _CallbackTupleT:
         """Get callbacks from handler for the visited node."""
         klass = node.__class__
         methods = self._cache.get(klass)
