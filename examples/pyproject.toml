@@ -70,7 +70,7 @@ persistent = true
 
 # Minimum Python version to use for version dependent checks. Will default to the
 # version used to run pylint.
-py-version = [3, 8]
+py-version = "3.8"
 
 # Discover python modules and packages in the file system subtree.
 # recursive =
@@ -219,8 +219,6 @@ valid-classmethod-first-arg = ["cls"]
 
 # List of valid names for the first argument in a metaclass class method.
 valid-metaclass-classmethod-first-arg = ["cls"]
-
-[tool.pylint.commands]
 
 [tool.pylint.design]
 # List of regular expressions of class ancestor names to ignore when counting
@@ -454,8 +452,6 @@ contextmanager-decorators = ["contextlib.contextmanager"]
 
 # Tells whether missing members accessed in mixin class should be ignored. A
 # class is considered mixin if its name matches the mixin-class-rgx option.
-ignore-mixin-members = true
-
 # Tells whether to warn about missing members when the owner of the attribute is
 # inferred to be None.
 ignore-none = true
@@ -523,5 +519,3 @@ ignored-argument-names = "_.*|^ignored_|^unused_"
 # List of qualified module names which can have objects that can redefine
 # builtins.
 redefining-builtins-modules = ["six.moves", "past.builtins", "future.builtins", "builtins", "io"]
-
-[tool.pylint."optional arguments"]
