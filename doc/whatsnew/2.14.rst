@@ -136,7 +136,7 @@ Other Changes
 
   Closes #3312
 
-* The main checker name is now ``main`` instead of ``master``.
+* The main checker name is now ``main`` instead of ``master``. The configuration does not need to be updated as sections' name are optional.
 
   Closes #5467
 
