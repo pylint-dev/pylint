@@ -1354,7 +1354,7 @@ class TestCallbackOptions:
                 exit=False,
             )
             assert not runner.linter.msg_status
-        os.remove(file_name)
+        os.remove(filename)
 
     @staticmethod
     def test_generate_config_disable_symbolic_names() -> None:
