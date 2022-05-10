@@ -72,7 +72,7 @@ class LintModuleTest:
                 messages_to_enable.add("syntax-error")
             args.extend(["--disable=all", f"--enable={','.join(messages_to_enable)}"])
 
-        # Add 'testoptions'
+        # Add testoptions
         self._linter._arg_parser.add_argument(
             "--min_pyver", type=parse_python_version, default=(2, 5)
         )
