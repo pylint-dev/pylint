@@ -58,12 +58,6 @@ class LintModuleTest:
             pass
 
         self._test_file = test_file
-        self._check_end_position = (
-            sys.version_info >= self._test_file.options["min_pyver_end_position"]
-        )
-        # TODO: PY3.9: PyPy supports end_lineno from 3.9 and above
-        if self._check_end_position and IS_PYPY:
-            self._check_end_position = sys.version_info >= (3, 9)  # pragma: no cover
         try:
             args = [test_file.source]
         except NoFileError:
@@ -77,9 +71,45 @@ class LintModuleTest:
                 messages_to_enable.add("fatal")
                 messages_to_enable.add("syntax-error")
             args.extend(["--disable=all", f"--enable={','.join(messages_to_enable)}"])
+
+        # Add testoptions
+        self._linter._arg_parser.add_argument(
+            "--min_pyver", type=parse_python_version, default=(2, 5)
+        )
+        self._linter._arg_parser.add_argument(
+            "--max_pyver", type=parse_python_version, default=(4, 0)
+        )
+        self._linter._arg_parser.add_argument(
+            "--min_pyver_end_position", type=parse_python_version, default=(3, 8)
+        )
+        self._linter._arg_parser.add_argument(
+            "--requires", type=lambda s: [i.strip() for i in s.split(",")], default=[]
+        )
+        self._linter._arg_parser.add_argument(
+            "--except_implementations",
+            type=lambda s: [i.strip() for i in s.split(",")],
+            default=[],
+        )
+        self._linter._arg_parser.add_argument(
+            "--exclude_platforms",
+            type=lambda s: [i.strip() for i in s.split(",")],
+            default=[],
+        )
+        self._linter._arg_parser.add_argument(
+            "--exclude_from_minimal_messages_config", default=False
+        )
+
         _config_initialization(
             self._linter, args_list=args, config_file=rc_file, reporter=_test_reporter
         )
+
+        self._check_end_position = (
+            sys.version_info >= self._linter.config.min_pyver_end_position
+        )
+        # TODO: PY3.9: PyPy supports end_lineno from 3.9 and above
+        if self._check_end_position and IS_PYPY:
+            self._check_end_position = sys.version_info >= (3, 9)  # pragma: no cover
+
         self._config = config
 
     def setUp(self) -> None:
@@ -88,26 +118,26 @@ class LintModuleTest:
                 f"Test cannot run with Python {sys.version.split(' ', maxsplit=1)[0]}."
             )
         missing = []
-        for requirement in self._test_file.options["requires"]:
+        for requirement in self._linter.config.requires:
             try:
                 __import__(requirement)
             except ImportError:
                 missing.append(requirement)
         if missing:
             pytest.skip(f"Requires {','.join(missing)} to be present.")
-        except_implementations = self._test_file.options["except_implementations"]
+        except_implementations = self._linter.config.except_implementations
         if except_implementations:
             if platform.python_implementation() in except_implementations:
                 msg = "Test cannot run with Python implementation %r"
                 pytest.skip(msg % platform.python_implementation())
-        excluded_platforms = self._test_file.options["exclude_platforms"]
+        excluded_platforms = self._linter.config.exclude_platforms
         if excluded_platforms:
             if sys.platform.lower() in excluded_platforms:
                 pytest.skip(f"Test cannot run on platform {sys.platform!r}")
         if (
             self._config
             and self._config.getoption("minimal_messages_config")
-            and self._test_file.options["exclude_from_minimal_messages_config"]
+            and self._linter.config.exclude_from_minimal_messages_config
         ):
             pytest.skip("Test excluded from --minimal-messages-config")
 
@@ -116,8 +146,8 @@ class LintModuleTest:
 
     def _should_be_skipped_due_to_version(self) -> bool:
         return (
-            sys.version_info < self._test_file.options["min_pyver"]
-            or sys.version_info > self._test_file.options["max_pyver"]
+            sys.version_info < self._linter.config.min_pyver
+            or sys.version_info > self._linter.config.max_pyver
         )
 
     def __str__(self) -> str:
