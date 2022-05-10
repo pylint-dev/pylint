@@ -11,21 +11,21 @@ import re
 import shutil
 import subprocess
 import sys
-from typing import TYPE_CHECKING, Any, Callable, Tuple
+from typing import TYPE_CHECKING, Any, Callable, Optional, Tuple, Union
 
 import astroid
 from astroid import nodes
 
 if TYPE_CHECKING:
-    # pylint: disable=unsupported-binary-operation
     from pylint.pyreverse.diadefslib import DiaDefGenerator
     from pylint.pyreverse.diagrams import ClassDiagram, PackageDiagram
     from pylint.pyreverse.inspector import Linker
 
     _CallbackT = Callable[
-        [nodes.NodeNG], Tuple[ClassDiagram] | Tuple[PackageDiagram, ClassDiagram] | None
+        [nodes.NodeNG],
+        Optional[Union[Tuple[ClassDiagram], Tuple[PackageDiagram, ClassDiagram]]],
     ]
-    _CallbackTupleT = Tuple[_CallbackT | None, _CallbackT | None]
+    _CallbackTupleT = Tuple[Optional[_CallbackT], Optional[_CallbackT]]
 
 
 RCFILE = ".pyreverserc"
