@@ -278,6 +278,7 @@ All messages in the warning category:
    warning/raising-format-tuple.rst
    warning/redeclared-assigned-name.rst
    warning/redefined-builtin.rst
+   warning/redefined-loop-name.rst
    warning/redefined-outer-name.rst
    warning/redefined-slots-in-subclass.rst
    warning/redundant-returns-doc.rst
@@ -394,7 +395,9 @@ All messages in the convention category:
    convention/unexpected-line-ending-format.rst
    convention/ungrouped-imports.rst
    convention/unidiomatic-typecheck.rst
+   convention/unnecessary-direct-lambda-call.rst
    convention/unnecessary-dunder-call.rst
+   convention/unnecessary-lambda-assignment.rst
    convention/unneeded-not.rst
    convention/use-implicit-booleaness-not-comparison.rst
    convention/use-implicit-booleaness-not-len.rst
@@ -429,6 +432,7 @@ All messages in the refactor category:
    :titlesonly:
 
    refactor/chained-comparison.rst
+   refactor/comparison-of-constants.rst
    refactor/comparison-with-itself.rst
    refactor/condition-evals-to-constant.rst
    refactor/confusing-consecutive-elif.rst
@@ -502,6 +506,7 @@ All renamed messages in the refactor category:
    :maxdepth: 1
    :titlesonly:
 
+   refactor/old-no-self-use.rst
    refactor/old-simplifiable-if-statement.rst
    refactor/old-too-many-nested-blocks.rst
 
