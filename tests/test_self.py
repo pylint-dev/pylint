@@ -1345,6 +1345,17 @@ class TestCallbackOptions:
         )
         assert process.stdout == process_two.stdout
 
+        # Check that the generated file is valid
+        with tempfile.NamedTemporaryFile(mode="w", delete=False) as temp:
+            filename = temp.name
+            temp.write(process.stdout)
+            runner = Run(
+                [join(HERE, "regrtest_data", "empty.py"), f"--rcfile={filename}"],
+                exit=False,
+            )
+            assert not runner.linter.msg_status
+        os.remove(filename)
+
     @staticmethod
     def test_generate_config_disable_symbolic_names() -> None:
         """Test that --generate-rcfile puts symbolic names in the --disable option."""
