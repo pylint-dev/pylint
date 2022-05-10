@@ -130,7 +130,7 @@ class _ArgumentsManager:
 
             section_desc = provider.option_groups_descs.get(section, None)
 
-            # We exclude master since its docstring comes from PyLinter
+            # We exclude main since its docstring comes from PyLinter
             if provider.name != MAIN_CHECKER_NAME and provider.__doc__:
                 section_desc = provider.__doc__.split("\n\n")[0]
 
@@ -662,7 +662,7 @@ class _ArgumentsManager:
 
         for group in sorted(
             self._arg_parser._action_groups,
-            key=lambda x: (x.title != "Master", x.title),
+            key=lambda x: (x.title != "Main", x.title),
         ):
             # Skip the options section with the --help option
             if group.title in {"options", "optional arguments", "Commands"}:

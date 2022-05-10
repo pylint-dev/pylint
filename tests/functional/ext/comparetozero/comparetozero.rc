@@ -1,2 +1,2 @@
-[MASTER]
+[MAIN]
 load-plugins=pylint.extensions.comparetozero,

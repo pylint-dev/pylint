@@ -7,7 +7,7 @@ You can activate this checker by adding the line::
 
     load-plugins=pylint.extensions.docparams
 
-to the ``MASTER`` section of your ``.pylintrc``.
+to the ``MAIN`` section of your ``.pylintrc``.
 
 This checker verifies that all function, method, and constructor docstrings
 include documentation of the

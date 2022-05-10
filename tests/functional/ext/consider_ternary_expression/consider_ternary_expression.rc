@@ -1,4 +1,4 @@
-[MASTER]
+[MAIN]
 load-plugins=pylint.extensions.consider_ternary_expression,
 
 [MESSAGES CONTROL]

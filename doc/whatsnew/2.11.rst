@@ -67,7 +67,7 @@ Extensions
 Other Changes
 =============
 
-* Added ``py-version`` config key (if ``[MASTER]`` section). Used for version dependent checks.
+* Added ``py-version`` config key (if ``[MAIN]`` section). Used for version dependent checks.
   Will default to whatever Python version pylint is executed with.
 
 * The ``invalid-name`` message is now more detailed when using multiple naming style regexes.

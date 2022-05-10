@@ -203,7 +203,7 @@ any formatting accepted by ConfigParser, e.g.
 
 .. code-block:: ini
 
-    [MASTER]
+    [MAIN]
     output-format = colorized
 
     [Messages Control]
@@ -221,7 +221,7 @@ Alternatively, if you use ``pyproject.toml``, e.g.
 
 .. code-block:: toml
 
-    [tool.pylint.master]
+    [tool.pylint.main]
     output-format = "colorized"
 
     [tool.pylint.messages_control]

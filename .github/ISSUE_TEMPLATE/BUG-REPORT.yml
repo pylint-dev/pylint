@@ -35,7 +35,7 @@ body:
       placeholder: |
         # Leave this blank if the configuration is not relevant!
 
-        [MASTER]
+        [MAIN]
         load-plugins=
             pylint.extensions.code_style
 

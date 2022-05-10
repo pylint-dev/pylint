@@ -166,7 +166,7 @@ New checkers
 
       load-plugins=pylint.extensions.emptystring
 
-  to the ``MASTER`` section of your ``.pylintrc`` or using the command::
+  to the ``MAIN`` section of your ``.pylintrc`` or using the command::
 
       $ pylint a.py --load-plugins=pylint.extensions.emptystring
 
@@ -200,7 +200,7 @@ New checkers
 
       load-plugins=pylint.extensions.comparetozero
 
-  to the ``MASTER`` section of your ``.pylintrc`` or using the command::
+  to the ``MAIN`` section of your ``.pylintrc`` or using the command::
 
       $ pylint a.py --load-plugins=pylint.extensions.comparetozero
 

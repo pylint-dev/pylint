@@ -39,7 +39,7 @@ class DocstringParameterChecker(BaseChecker):
 
         load-plugins=pylint.extensions.docparams
 
-    to the ``MASTER`` section of your ``.pylintrc``.
+    to the ``MAIN`` section of your ``.pylintrc``.
     """
 
     name = "parameter_documentation"

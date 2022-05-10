@@ -8,7 +8,7 @@ It does some basic checking of the given command line options to
 find the initial hook to run,
 find the config file to use,
 and find which plugins have been specified.
-It can then create the master :class:`.pylint.lint.PyLinter` instance
+It can then create the main :class:`.pylint.lint.PyLinter` instance
 and initialise it with the config file and plugins that were discovered
 when preprocessing the command line options.
 Finally the :class:`.pylint.lint.Run` object launches any child linters

@@ -46,8 +46,8 @@ MSG_TYPES_STATUS = {"I": 0, "C": 16, "R": 8, "W": 4, "E": 2, "F": 1}
 
 # You probably don't want to change the MAIN_CHECKER_NAME
 # This would affect rcfile generation and retro-compatibility
-# on all project using [MASTER] in their rcfile.
-MAIN_CHECKER_NAME = "master"
+# on all project using [MAIN] in their rcfile.
+MAIN_CHECKER_NAME = "main"
 
 USER_HOME = os.path.expanduser("~")
 # TODO: 3.0: Remove in 3.0 with all the surrounding code
