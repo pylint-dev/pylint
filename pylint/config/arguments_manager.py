@@ -662,7 +662,7 @@ class _ArgumentsManager:
 
         for group in sorted(
             self._arg_parser._action_groups,
-            key=lambda x: (x.title != "Master", x.title),
+            key=lambda x: (x.title != "Main", x.title),
         ):
             # Skip the options section with the --help option
             if group.title in {"options", "optional arguments", "Commands"}:
