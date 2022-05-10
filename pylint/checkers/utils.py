@@ -1182,7 +1182,6 @@ def _supports_protocol(
         if protocol_callback(value):
             return True
 
-    # TODO: 2.14: Should be covered by https://github.com/PyCQA/astroid/pull/1475
     if isinstance(value, nodes.ComprehensionScope):
         return True
 
