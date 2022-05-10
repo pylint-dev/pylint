@@ -1397,7 +1397,7 @@ class TestCallbackOptions:
         assert process.stdout == process_two.stdout
 
         # Check that the generated file is valid
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".toml") as temp:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".toml", delete=False) as temp:
             temp.write(process.stdout)
             runner = Run(
                 [join(HERE, "regrtest_data", "empty.py"), f"--rcfile={temp.name}"],
