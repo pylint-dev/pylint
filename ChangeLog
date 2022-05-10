@@ -308,7 +308,7 @@ What's New in Pylint 2.13.9?
 Release date: TBA
 
 
-* Respect ignore configuration options when --recursive=y.
+* Respect ignore configuration options when ``--recursive=y``.
 
   Closes #6471
 

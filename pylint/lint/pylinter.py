@@ -573,7 +573,6 @@ class PyLinter(
             if os.path.isdir(something) and not os.path.isfile(
                 os.path.join(something, "__init__.py")
             ):
-
                 skip_subtrees: list[str] = []
                 for root, _, files in os.walk(something):
                     if any(root.startswith(s) for s in skip_subtrees):
