@@ -665,7 +665,7 @@ class _ArgumentsManager:
             key=lambda x: (x.title != "Master", x.title),
         ):
             # Skip the options section with the --help option
-            if group.title == "options":
+            if group.title in {"options", "optional arguments", "Commands"}:
                 continue
 
             # Skip sections without options such as "positional arguments"
@@ -703,6 +703,12 @@ class _ArgumentsManager:
                     group_table.add(tomlkit.nl())
                     continue
 
+                # Skip deprecated options
+                if "kwargs" in optdict:
+                    assert isinstance(optdict["kwargs"], dict)
+                    if "new_names" in optdict["kwargs"]:
+                        continue
+
                 # Tomlkit doesn't support regular expressions
                 if isinstance(value, re.Pattern):
                     value = value.pattern
@@ -710,6 +716,10 @@ class _ArgumentsManager:
                     value[0], re.Pattern
                 ):
                     value = [i.pattern for i in value]
+
+                # Handle tuples that should be strings
+                if optdict.get("type") == "py_version":
+                    value = ".".join(str(i) for i in value)
 
                 # Add to table
                 group_table.add(optname, value)
