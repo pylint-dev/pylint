@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 
     _CallbackT = Callable[
         [nodes.NodeNG],
-        Optional[Union[Tuple[ClassDiagram], Tuple[PackageDiagram, ClassDiagram]]],
+        Union[Tuple[ClassDiagram], Tuple[PackageDiagram, ClassDiagram], None],
     ]
     _CallbackTupleT = Tuple[Optional[_CallbackT], Optional[_CallbackT]]
 
