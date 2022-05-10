@@ -7,15 +7,15 @@ analyse-fallback-blocks=no
 
 # Load and enable all available extensions. Use --list-extensions to see a list
 # all available extensions.
-enable-all-extensions=None
+#enable-all-extensions=
 
 # In error mode, checkers without error messages are disabled and for others,
 # only the ERROR messages are displayed, and no reports are done by default.
-errors-only=None
+#errors-only=
 
 # Always return a 0 (non-error) status code, even if lint errors are found.
 # This is primarily useful in continuous integration scripts.
-exit-zero=False
+#exit-zero=
 
 # A comma-separated list of package or module names from where C extensions may
 # be loaded. Extensions are loading into the active Python interpreter and may
@@ -38,7 +38,7 @@ fail-under=10
 
 # Interpret the stdin as a python script, whose filename needs to be passed as
 # the module_or_package argument.
-from-stdin=False
+#from-stdin=
 
 # Files or directories to be skipped. They should be base names, not paths.
 ignore=CVS
@@ -60,7 +60,7 @@ ignored-modules=
 
 # Python code to execute, usually for sys.path manipulation such as
 # pygtk.require().
-init-hook=None
+#init-hook=
 
 # Use multiple processes to speed up Pylint. Specifying 0 will auto-detect the
 # number of processors available to use.
@@ -94,7 +94,7 @@ suggestion-mode=yes
 unsafe-load-any-extension=no
 
 # In verbose mode, extra non-checker-related info will be displayed.
-verbose=None
+#verbose=
 
 
 [REPORTS]
@@ -113,7 +113,7 @@ msg-template=
 # Set the output format. Available formats are text, parseable, colorized, json
 # and msvs (visual studio). You can also give a reporter class, e.g.
 # mypackage.mymodule.MyReporterClass.
-output-format=None
+#output-format=
 
 # Tells whether to display a full report or only the messages.
 reports=no
@@ -233,10 +233,6 @@ contextmanager-decorators=contextlib.contextmanager
 # expressions are accepted.
 generated-members=
 
-# Tells whether missing members accessed in mixin class should be ignored. A
-# class is considered mixin if its name matches the mixin-class-rgx option.
-ignore-mixin-members=yes
-
 # Tells whether to warn about missing members when the owner of the attribute
 # is inferred to be None.
 ignore-none=yes
@@ -313,7 +309,7 @@ argument-naming-style=snake_case
 # Regular expression matching correct argument names. Overrides argument-
 # naming-style. If left empty, argument names will be checked with the set
 # naming style.
-argument-rgx=None
+#argument-rgx=
 
 # Naming style matching correct attribute names.
 attr-naming-style=snake_case
@@ -321,7 +317,7 @@ attr-naming-style=snake_case
 # Regular expression matching correct attribute names. Overrides attr-naming-
 # style. If left empty, attribute names will be checked with the set naming
 # style.
-attr-rgx=None
+#attr-rgx=
 
 # Bad variable names which should always be refused, separated by a comma.
 bad-names=foo,
@@ -341,7 +337,7 @@ class-attribute-naming-style=any
 # Regular expression matching correct class attribute names. Overrides class-
 # attribute-naming-style. If left empty, class attribute names will be checked
 # with the set naming style.
-class-attribute-rgx=None
+#class-attribute-rgx=
 
 # Naming style matching correct class constant names.
 class-const-naming-style=UPPER_CASE
@@ -349,14 +345,14 @@ class-const-naming-style=UPPER_CASE
 # Regular expression matching correct class constant names. Overrides class-
 # const-naming-style. If left empty, class constant names will be checked with
 # the set naming style.
-class-const-rgx=None
+#class-const-rgx=
 
 # Naming style matching correct class names.
 class-naming-style=PascalCase
 
 # Regular expression matching correct class names. Overrides class-naming-
 # style. If left empty, class names will be checked with the set naming style.
-class-rgx=None
+#class-rgx=
 
 # Naming style matching correct constant names.
 const-naming-style=UPPER_CASE
@@ -364,7 +360,7 @@ const-naming-style=UPPER_CASE
 # Regular expression matching correct constant names. Overrides const-naming-
 # style. If left empty, constant names will be checked with the set naming
 # style.
-const-rgx=None
+#const-rgx=
 
 # Minimum line length for functions/classes that require docstrings, shorter
 # ones are exempt.
@@ -376,7 +372,7 @@ function-naming-style=snake_case
 # Regular expression matching correct function names. Overrides function-
 # naming-style. If left empty, function names will be checked with the set
 # naming style.
-function-rgx=None
+#function-rgx=
 
 # Good variable names which should always be accepted, separated by a comma.
 good-names=i,
@@ -399,21 +395,21 @@ inlinevar-naming-style=any
 # Regular expression matching correct inline iteration names. Overrides
 # inlinevar-naming-style. If left empty, inline iteration names will be checked
 # with the set naming style.
-inlinevar-rgx=None
+#inlinevar-rgx=
 
 # Naming style matching correct method names.
 method-naming-style=snake_case
 
 # Regular expression matching correct method names. Overrides method-naming-
 # style. If left empty, method names will be checked with the set naming style.
-method-rgx=None
+#method-rgx=
 
 # Naming style matching correct module names.
 module-naming-style=snake_case
 
 # Regular expression matching correct module names. Overrides module-naming-
 # style. If left empty, module names will be checked with the set naming style.
-module-rgx=None
+#module-rgx=
 
 # Colon-delimited sets of names that determine each other's naming style when
 # the name regexes allow several styles.
@@ -430,7 +426,7 @@ property-classes=abc.abstractproperty
 
 # Regular expression matching correct type variable names. If left empty, type
 # variable names will be checked with the set naming style.
-typevar-rgx=None
+#typevar-rgx=
 
 # Naming style matching correct variable names.
 variable-naming-style=snake_case
@@ -438,7 +434,7 @@ variable-naming-style=snake_case
 # Regular expression matching correct variable names. Overrides variable-
 # naming-style. If left empty, variable names will be checked with the set
 # naming style.
-variable-rgx=None
+#variable-rgx=
 
 
 [FORMAT]
