@@ -46,7 +46,7 @@ def _is_in_ignore_list_re(element: str, ignore_list_re: list[Pattern[str]]) -> b
     return any(file_pattern.match(element) for file_pattern in ignore_list_re)
 
 
-def is_ignored_file(
+def _is_ignored_file(
     element: str,
     ignore_list: list[str],
     ignore_list_re: list[Pattern[str]],
@@ -75,7 +75,7 @@ def expand_modules(
 
     for something in files_or_modules:
         basename = os.path.basename(something)
-        if is_ignored_file(
+        if _is_ignored_file(
             something, ignore_list, ignore_list_re, ignore_list_paths_re
         ):
             continue

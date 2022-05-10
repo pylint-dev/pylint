@@ -31,7 +31,7 @@ from pylint.constants import (
 )
 from pylint.lint.base_options import _make_linter_options
 from pylint.lint.caching import load_results, save_results
-from pylint.lint.expand_modules import expand_modules, is_ignored_file
+from pylint.lint.expand_modules import expand_modules, _is_ignored_file
 from pylint.lint.message_state_handler import _MessageStateHandler
 from pylint.lint.parallel import check_parallel
 from pylint.lint.report_functions import (
@@ -580,7 +580,7 @@ class PyLinter(
                         # Skip subtree of already discovered package.
                         continue
 
-                    if is_ignored_file(
+                    if _is_ignored_file(
                         root,
                         self.config.ignore,
                         self.config.ignore_patterns,
