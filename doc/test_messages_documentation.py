@@ -146,7 +146,7 @@ class LintModuleTest:
         expected_messages = self._get_expected()
         actual_messages = self._get_actual()
         if self.is_good_test_file():
-            msg = "There should be no warning raised for 'goob.py'"
+            msg = "There should be no warning raised for 'good.py'"
             assert actual_messages.total() == 0, msg  # type: ignore[attr-defined]
         if self.is_bad_test_file():
             msg = "There should be at least one warning raised for 'bad.py'"
