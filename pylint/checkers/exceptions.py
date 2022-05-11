@@ -336,12 +336,9 @@ class ExceptionsChecker(checkers.BaseChecker):
             # The `except` doesn't have an `as exception:` part, meaning there's no way that
             # the `raise` is raising the same exception.
             class_of_old_error = "Exception"
-            if isinstance(containing_except_node.type, nodes.Name):
-                class_of_old_error = containing_except_node.type.name
-            elif isinstance(containing_except_node.type, nodes.Tuple):
-                # I.e. 'except (ZeroDivisionError, ValueError, ArithmeticError)'
-                exceptions = ", ".join(n.name for n in containing_except_node.type.elts)
-                class_of_old_error = f"({exceptions})"
+            if isinstance(containing_except_node.type, (nodes.Name, nodes.Tuple)):
+                # 'except ZeroDivisionError' or 'except (ZeroDivisionError, ValueError)'
+                class_of_old_error = containing_except_node.type.as_string()
             self.add_message(
                 "raise-missing-from",
                 node=node,

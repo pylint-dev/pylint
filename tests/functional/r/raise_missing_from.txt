@@ -8,3 +8,4 @@ raise-missing-from:54:4:54:20::Consider explicitly re-raising using 'raise KeyEr
 raise-missing-from:60:4:60:47::Consider explicitly re-raising using 'raise KeyError(whatever, whatever=whatever) from e':HIGH
 raise-missing-from:72:16:72:59::Consider explicitly re-raising using 'except (ZeroDivisionError, ValueError, KeyError) as exc' and 'raise KeyError(whatever, whatever=whatever) from exc':HIGH
 raise-missing-from:75:8:75:45::Consider explicitly re-raising using 'except (ZeroDivisionError, ValueError, KeyError) as exc' and 'raise KeyError(whatever, overever=12) from exc':HIGH
+raise-missing-from:82:4:82:32::Consider explicitly re-raising using 'except (OSError, IndexError, struct.error, OverflowError, ValueError) as exc' and 'raise InvalidFileException() from exc':HIGH

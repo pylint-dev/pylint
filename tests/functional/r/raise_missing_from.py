@@ -74,9 +74,12 @@ except (ZeroDivisionError, ValueError, KeyError):
         # +1: [raise-missing-from]
         raise KeyError(whatever, overever=12)
 
-
-################################################################################
-# Negatives (Same cases as above, except with `from`):
+try:
+    # Taken from https://github.com/python/cpython/blob/3.10/Lib/plistlib.py#L459
+    pass
+except (OSError, IndexError, struct.error, OverflowError,
+        ValueError):
+    raise InvalidFileException()  # [raise-missing-from]
 
 try:
     1 / 0
@@ -122,10 +125,6 @@ try:
     1 / 0
 except ZeroDivisionError as e:
     raise KeyError(whatever, whatever=whatever) from foo
-
-
-################################################################################
-# Other negatives:
 
 try:
     1 / 0
