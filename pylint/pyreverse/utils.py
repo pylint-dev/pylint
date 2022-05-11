@@ -133,10 +133,7 @@ class ASTWalker:
 
     def __init__(self, handler: DiaDefGenerator | Linker | LocalsVisitor) -> None:
         self.handler = handler
-        self._cache: dict[
-            type[nodes.NodeNG],
-            _CallbackTupleT,
-        ] = {}
+        self._cache: dict[type[nodes.NodeNG], _CallbackTupleT] = {}
 
     def walk(self, node: nodes.NodeNG, _done: set[nodes.NodeNG] | None = None) -> None:
         """Walk on the tree from <node>, getting callbacks from handler."""
