@@ -1959,6 +1959,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                     elif isinstance(value, nodes.Subscript):
                         if (
                             not isinstance(node.target, nodes.AssignName)
+                            or not isinstance(value.value, nodes.Name)
                             or node.target.name != value.value.name
                             or iterating_object_name != subscript.value.as_string()
                         ):
