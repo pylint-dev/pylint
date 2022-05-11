@@ -344,7 +344,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "R1719": (
             "The if expression can be replaced with %s",
             "simplifiable-if-expression",
-            "Used when an if expression can be replaced with 'bool(test)'.",
+            "Used when an if expression can be replaced with 'bool(test)' "
+            "or simply 'test' if the boolean cast is implicit.",
         ),
         "R1720": (
             'Unnecessary "%s" after "raise", %s',
