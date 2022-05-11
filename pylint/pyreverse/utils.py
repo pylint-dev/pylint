@@ -170,7 +170,7 @@ class ASTWalker:
             e_method, l_method = methods
         return e_method, l_method
 
-    def visit(self, node: nodes.NodeNG) -> None:
+    def visit(self, node: nodes.NodeNG) -> Any:
         """Walk on the tree from <node>, getting callbacks from handler."""
         method = self.get_callbacks(node)[0]
         if method is not None:
