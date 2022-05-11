@@ -242,7 +242,7 @@ class ExceptionsChecker(checkers.BaseChecker):
                 "default": OVERGENERAL_EXCEPTIONS,
                 "type": "csv",
                 "metavar": "<comma-separated class names>",
-                "help": "Exceptions that will emit a warning when being caught.",
+                "help": "Exceptions that will emit a warning when caught.",
             },
         ),
     )
