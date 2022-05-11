@@ -242,9 +242,7 @@ class ExceptionsChecker(checkers.BaseChecker):
                 "default": OVERGENERAL_EXCEPTIONS,
                 "type": "csv",
                 "metavar": "<comma-separated class names>",
-                "help": "Exceptions that will emit a warning "  # pylint: disable=consider-using-f-string
-                'when being caught. Defaults to "%s".'
-                % (", ".join(OVERGENERAL_EXCEPTIONS),),
+                "help": "Exceptions that will emit a warning when caught.",
             },
         ),
     )
