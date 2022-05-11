@@ -29,6 +29,10 @@ Release date: TBA
 
  Relates to #6531
 
+* Fix a crash in ``unnecessary-dict-index-lookup`` when subscripting an attribute.
+
+  Closes #6557
+
 * Fix a crash when accessing ``__code__`` and assigning it to a variable.
 
   Closes #6539
