@@ -299,6 +299,7 @@ tbump
 tempfile
 testcase
 testdata
+testoptions
 tmp
 tokencheckers
 tokeninfo
