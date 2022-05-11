@@ -653,3 +653,7 @@ Other Changes
 * Fix ``IndexError`` crash in ``uninferable_final_decorators`` method.
 
  Relates to #6531
+
+* Fix a crash in ``unnecessary-dict-index-lookup`` when subscripting an attribute.
+
+  Closes #6557
