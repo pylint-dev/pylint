@@ -1,8 +1,10 @@
 # pylint:disable=missing-docstring, unreachable, using-constant-test, invalid-name, bare-except
 # pylint:disable=try-except-raise, undefined-variable, too-few-public-methods, superfluous-parens
 
-################################################################################
-# Positives:
+try:
+    1 / 0
+except:
+    raise ValueError('Invalid integer')  # [raise-missing-from]
 
 try:
     1 / 0
@@ -13,9 +15,8 @@ except ZeroDivisionError:
 try:
     1 / 0
 except ZeroDivisionError:
-    # Our algorithm doesn't have to be careful about the complicated expression below, because
-    # the exception above wasn't bound to a name.
-    # +1: [raise-missing-from]
+    # Our algorithm doesn't have to be careful about the complicated expression below,
+    # because the exception above wasn't bound to a name. # +1: [raise-missing-from]
     raise (foo + bar).baz
 
 try:
@@ -57,6 +58,21 @@ try:
 except ZeroDivisionError as e:
     # +1: [raise-missing-from]
     raise KeyError(whatever, whatever=whatever)
+
+
+try:
+    1 / 0
+except (ZeroDivisionError, ValueError, KeyError):
+    if 1:
+        if 2:
+            pass
+        else:
+            with whatever:
+                # +1: [raise-missing-from]
+                raise KeyError(whatever, whatever=whatever)
+    else:
+        # +1: [raise-missing-from]
+        raise KeyError(whatever, overever=12)
 
 
 ################################################################################
