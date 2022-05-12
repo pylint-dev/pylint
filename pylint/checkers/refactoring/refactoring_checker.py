@@ -400,7 +400,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "R1729": (
             "Use a generator instead '%s(%s)'",
             "use-a-generator",
-            "Comprehension inside of 'any' or 'all' is unnecessary. "
+            "Comprehension inside of 'any', 'all', 'max', 'min' and 'sum' is unnecessary. "
             "A generator would be sufficient and faster.",
         ),
         "R1730": (
@@ -987,9 +987,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 self.add_message(message_name, node=node)
 
     def _check_consider_using_generator(self, node):
-        # 'any' and 'all' definitely should use generator, while 'list' and 'tuple' need to be considered first
-        # See https://github.com/PyCQA/pylint/pull/3309#discussion_r576683109
-        checked_call = ["any", "all", "list", "tuple"]
+        # 'any', 'all', 'sum', 'max', 'min' definitely should use generator, while 'list' and 'tuple'
+        # need to be considered first
+        # See https://github.com/PyCQA/pylint/pull/3309#discussion_r576683109 and
+        # https://peps.python.org/pep-0289/
+        checked_call = ["any", "all", "sum", "max", "min", "list", "tuple"]
         if (
             isinstance(node, nodes.Call)
             and node.func
@@ -1002,7 +1004,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 # remove square brackets '[]'
                 inside_comp = node.args[0].as_string()[1:-1]
                 call_name = node.func.name
-                if call_name in {"any", "all"}:
+                if call_name in {"any", "all", "sum", "max", "min"}:
                     self.add_message(
                         "use-a-generator",
                         node=node,
