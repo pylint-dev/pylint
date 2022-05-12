@@ -24,6 +24,13 @@ High level descriptions of the most important changes between major Pylint versi
    2.2.rst
    2.1.rst
    2.0.rst
+
+Python 2 compatible version
+---------------------------
+
+.. toctree::
+   :maxdepth: 1
+
    1.9.rst
    1.8.rst
    1.7.rst

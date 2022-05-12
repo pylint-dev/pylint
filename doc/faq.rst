@@ -85,7 +85,7 @@ For example::
 3.4 I'd rather not run Pylint from the command line. Can I integrate it with my editor?
 ---------------------------------------------------------------------------------------
 
-Much probably. Read :ref:`ide-integration`
+Much probably. Read :ref:`user_guide/installation:ide-integration`
 
 3.5 I need to run pylint over all modules and packages in my project directory.
 -------------------------------------------------------------------------------
