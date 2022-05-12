@@ -10,7 +10,7 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.14.rst'
 
-* Checker ``use_a_generator`` now checks also ``max()``, ``min()`` and ``sum()``.
+* The ``use_a_generator``checker now also checks ``max()``, ``min()`` and ``sum()``.
 
 * We have improved our recognition of inline disable and enable comments. It is
   now possible to disable ``bad-option-value`` inline  (as long as you disable it before
