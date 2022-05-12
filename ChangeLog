@@ -304,7 +304,7 @@ Release date: TBA
 
   Closes #4369 and #6523
 
-* Fix bug where it writes a plain text error message to stdout, invalidates output formats.
+* Fix bug where it writes a plain text error message to stdout, invalidating output formats.
 
   Closes #6597
 
