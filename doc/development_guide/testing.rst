@@ -14,7 +14,7 @@ Pylint is very well tested and has a high code coverage. New contributions are n
 unless they include tests.
 
 Before you start testing your code, you need to install your source-code package locally.
-Suppose you have cloned pylint into a directory, say my-pylint.
+Suppose you have cloned pylint into a directory, say ``my-pylint``.
 To set up your environment for testing, open a terminal and run:
 
     cd my-pylint
