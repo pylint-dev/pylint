@@ -1,6 +1,3 @@
-def get_values(data):
-    yield from data
-
-
-for i in get_values(range(10)):
-    pass
+def one_to_ten():
+    for i in range(10):
+        yield i 
