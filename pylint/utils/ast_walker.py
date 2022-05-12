@@ -4,10 +4,10 @@
 
 from __future__ import annotations
 
+import sys
 import traceback
 from collections import defaultdict
 from collections.abc import Sequence
-import sys
 from typing import TYPE_CHECKING, Callable
 
 from astroid import nodes
