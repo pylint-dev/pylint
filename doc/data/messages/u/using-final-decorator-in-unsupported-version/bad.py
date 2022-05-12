@@ -1,8 +1,8 @@
 from typing import final
 
 
-@final
+@final  # [using-final-decorator-in-unsupported-version]
 class Playtypus(Animal):
-    @final
+    @final  # [using-final-decorator-in-unsupported-version]
     def lay_egg(self):
         ...
