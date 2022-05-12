@@ -400,7 +400,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "R1729": (
             "Use a generator instead '%s(%s)'",
             "use-a-generator",
-            "Comprehension inside of 'any', 'all', 'max', 'min' and 'sum' is unnecessary. "
+            "Comprehension inside of 'any', 'all', 'max', 'min' or 'sum' is unnecessary. "
             "A generator would be sufficient and faster.",
         ),
         "R1730": (
