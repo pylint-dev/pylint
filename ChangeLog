@@ -344,11 +344,6 @@ Release date: TBA
 
   Closes #6557
 
-* Fix a crash in ``unnecessary-list-index-lookup`` when incorrectly passing no
-  arguments to ``enumerate()``.
-
-  Closes #6603
-
 * Fix a crash when accessing ``__code__`` and assigning it to a variable.
 
   Closes #6539
