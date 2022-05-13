@@ -10,7 +10,7 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.14.rst'
 
-* The refactoring checker now also raise 'consider-using-a-generator' messages for
+* The refactoring checker now also raises 'consider-using-a-generator' messages for
   ``max()``, ``min()`` and ``sum()``.
 
   Refs #6595
