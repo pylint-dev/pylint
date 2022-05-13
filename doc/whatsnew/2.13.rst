@@ -661,3 +661,7 @@ Other Changes
 * Fix a crash in ``unnecessary-dict-index-lookup`` when subscripting an attribute.
 
   Closes #6557
+
+* Fix a false positive for ``undefined-loop-variable`` when using ``enumerate()``.
+
+  Closes #6593
