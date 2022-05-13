@@ -34,6 +34,7 @@ from pylint.checkers.utils import (
     is_inside_abstract_class,
     is_iterable,
     is_mapping,
+    is_node_in_type_annotation_context,
     is_overload_stub,
     is_postponed_evaluation_enabled,
     is_super,
@@ -1038,6 +1039,11 @@ accessed. Python regular expressions are accepted.",
             pattern.match(name)
             for name in (node.attrname, node.as_string())
             for pattern in self._compiled_generated_members
+        ):
+            return
+
+        if is_postponed_evaluation_enabled(node) and is_node_in_type_annotation_context(
+            node
         ):
             return
 

@@ -644,7 +644,6 @@ Other Changes
 
   Closes #6414
 
-
 * Fix false positives for ``no-name-in-module`` and ``import-error`` for ``numpy.distutils``
   and ``pydantic``.
 
@@ -657,3 +656,7 @@ Other Changes
 * Fix a crash in ``unnecessary-dict-index-lookup`` when subscripting an attribute.
 
   Closes #6557
+
+* Fix a false positive for ``undefined-loop-variable`` when using ``enumerate()``.
+
+  Closes #6593
