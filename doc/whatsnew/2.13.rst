@@ -644,6 +644,10 @@ Other Changes
 
   Closes #6414
 
+* Fix a crash in ``unnecessary-list-index-lookup`` when incorrectly passing no
+  arguments to ``enumerate()``.
+
+  Closes #6603
 
 * Fix false positives for ``no-name-in-module`` and ``import-error`` for ``numpy.distutils``
   and ``pydantic``.
