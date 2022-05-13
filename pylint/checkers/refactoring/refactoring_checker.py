@@ -987,10 +987,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 self.add_message(message_name, node=node)
 
     def _check_consider_using_generator(self, node):
-        # 'any', 'all', 'sum', 'max', 'min' definitely should use generator, while 'list' and 'tuple'
-        # need to be considered first
-        # See https://github.com/PyCQA/pylint/pull/3309#discussion_r576683109 and
-        # https://peps.python.org/pep-0289/
+        # 'any', 'all', definitely should use generator, while 'list', 'tuple',
+        # 'sum', 'max', and 'min' need to be considered first
+        # See https://github.com/PyCQA/pylint/pull/3309#discussion_r576683109
+        # https://github.com/PyCQA/pylint/pull/6595#issuecomment-1125704244
+        # and https://peps.python.org/pep-0289/
         checked_call = ["any", "all", "sum", "max", "min", "list", "tuple"]
         if (
             isinstance(node, nodes.Call)
@@ -1004,7 +1005,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 # remove square brackets '[]'
                 inside_comp = node.args[0].as_string()[1:-1]
                 call_name = node.func.name
-                if call_name in {"any", "all", "sum", "max", "min"}:
+                if call_name in {"any", "all"}:
                     self.add_message(
                         "use-a-generator",
                         node=node,
