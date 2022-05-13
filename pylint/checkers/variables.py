@@ -46,7 +46,6 @@ IGNORED_ARGUMENT_NAMES = re.compile("_.*|^ignored_|^unused_")
 # by astroid. Unfortunately this also messes up our explicit checks
 # for `abc`
 METACLASS_NAME_TRANSFORMS = {"_py_abc": "abc"}
-BUILTIN_ENUMERATE = "builtins.enumerate"
 BUILTIN_RANGE = "builtins.range"
 TYPING_MODULE = "typing"
 TYPING_NAMES = frozenset(
@@ -2224,7 +2223,7 @@ class VariablesChecker(BaseChecker):
             # Prefer the target of enumerate() rather than the enumerate object itself
             if (
                 isinstance(inferred, astroid.Instance)
-                and inferred.qname() == BUILTIN_ENUMERATE
+                and inferred.qname() == "builtins.enumerate"
                 and assign.iter.args
             ):
                 inferred = next(assign.iter.args[0].infer())
