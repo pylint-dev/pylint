@@ -335,6 +335,7 @@ Release date: TBA
   Insert your changelog randomly, it will reduce merge conflicts
   (Ie. not necessarily at the end)
 
+
 What's New in Pylint 2.13.9?
 ============================
 
@@ -363,6 +364,7 @@ Release date: 2022-05-13
 * Fix a false positive for ``undefined-loop-variable`` when using ``enumerate()``.
 
   Closes #6593
+
 
 What's New in Pylint 2.13.8?
 ============================
@@ -398,6 +400,7 @@ Release date: 2022-05-02
 
   Closes #3979
 
+
 What's New in Pylint 2.13.7?
 ============================
 
@@ -406,6 +409,7 @@ Release date: 2022-04-20
 * Fix a crash caused by using the new config from 2.14.0 in 2.13.x code.
 
   Closes #6408
+
 
 What's New in Pylint 2.13.6?
 ============================
@@ -432,6 +436,7 @@ Release date: 2022-04-20
   ``ignore-imports`` or ``ignore-signatures`` enabled.
 
   Closes #6301
+
 
 What's New in Pylint 2.13.5?
 ============================
@@ -473,6 +478,7 @@ Release date: 2022-04-06
 
 * Fix a false negative for ``subclassed-final-class`` when a set of other messages were disabled.
 
+
 What's New in Pylint 2.13.4?
 ============================
 
@@ -498,6 +504,7 @@ Release date: 2022-03-31
   Closes #6037
   Closes #6048
 
+
 What's New in Pylint 2.13.3?
 ============================
 
@@ -515,6 +522,7 @@ Release date: 2022-03-29
   separated (e.g. by parens).
 
   Closes #5769
+
 
 What's New in Pylint 2.13.2?
 ============================
@@ -538,6 +546,7 @@ Release date: 2022-03-27
 * Better error messages in case of crash if pylint can't write the issue template.
 
   Refer to #5987
+
 
 What's New in Pylint 2.13.1?
 ============================
@@ -571,6 +580,7 @@ Release date: 2022-03-26
 
 * Don't emit ``broken-noreturn`` and ``broken-collections-callable`` errors
   inside ``if TYPE_CHECKING`` blocks.
+
 
 What's New in Pylint 2.13.0?
 ============================
@@ -1106,6 +1116,7 @@ Release date: 2022-03-24
 
   Closes #4756
 
+
 What's New in Pylint 2.12.2?
 ============================
 
@@ -1152,6 +1163,7 @@ Release date: 2021-11-25
 
   Closes #5316
 
+
 What's New in Pylint 2.12.1?
 ============================
 
@@ -1160,6 +1172,7 @@ Release date: 2021-11-25
 * Require Python ``3.6.2`` to run pylint.
 
   Closes #5065
+
 
 What's New in Pylint 2.12.0?
 ============================
@@ -1467,6 +1480,7 @@ Release date: 2021-11-24
   * Fix false-negative for ``deprecated-typing-alias`` and ``consider-using-alias``
     with ``typing.Type`` + ``typing.Callable``.
 
+
 What's New in Pylint 2.11.1?
 ============================
 
@@ -1475,6 +1489,7 @@ Release date: 2021-09-16
 * ``unspecified-encoding`` now checks the encoding of ``pathlib.Path()`` correctly
 
   Closes #5017
+
 
 What's New in Pylint 2.11.0?
 ============================
@@ -1577,6 +1592,7 @@ Release date: 2021-09-16
 
 * The ``invalid-name`` message is now more detailed when using multiple naming style regexes.
 
+
 What's New in Pylint 2.10.2?
 ============================
 
@@ -1591,6 +1607,7 @@ Release date: 2021-08-21
 
   Closes #4891
 
+
 What's New in Pylint 2.10.1?
 ============================
 
@@ -1599,6 +1616,7 @@ Release date: 2021-08-20
 * pylint does not crash when PYLINT_HOME does not exist.
 
   Closes #4883
+
 
 What's New in Pylint 2.10.0?
 ============================
@@ -1757,6 +1775,7 @@ Release date: 2021-08-20
 
 * Improve error message for invalid-metaclass when the node is an Instance.
 
+
 What's New in Pylint 2.9.6?
 ===========================
 
@@ -1766,6 +1785,7 @@ Release date: 2021-07-28
   matches function argument
 
   Closes #3791
+
 
 What's New in Pylint 2.9.5?
 ===========================
@@ -1785,6 +1805,7 @@ Release date: 2021-07-21
   failing to infer the real name of an import in astroid.
 
   Closes #4692
+
 
 What's New in Pylint 2.9.4?
 ===========================
@@ -1870,6 +1891,7 @@ Release date: 2021-07-20
 
   Closes #4723
 
+
 What's New in Pylint 2.9.3?
 ===========================
 
@@ -1882,6 +1904,7 @@ Release date: 2021-07-01
 
 * The ``similarity`` checker no longer add three trailing whitespaces for
   empty lines in its report.
+
 
 What's New in Pylint 2.9.2?
 ===========================
@@ -1903,6 +1926,7 @@ Release date: 2021-07-01
 
   Closes #4630
 
+
 What's New in Pylint 2.9.1?
 ===========================
 
@@ -1912,6 +1936,7 @@ Release date: 2021-06-30
 
   Closes #4631
   Closes #4633
+
 
 What's New in Pylint 2.9.0?
 ===========================
@@ -2107,12 +2132,14 @@ Release date: 2021-06-29
 
   Closes #4603
 
+
 What's New in Pylint 2.8.3?
 ===========================
 
 Release date: 2021-05-31
 
 * Astroid has been pinned to 2.5.6 for the 2.8 branch see #4527.
+
 
 What's New in Pylint 2.8.2?
 ===========================
@@ -2132,6 +2159,7 @@ Release date: 2021-04-26
 
 Closes #4388
 
+
 What's New in Pylint 2.8.1?
 ===========================
 
@@ -2141,6 +2169,7 @@ Release date: 2021-04-25
   ``pylint.version`` breaking change.
 
   Closes #4399
+
 
 What's New in Pylint 2.8.0?
 ===========================
@@ -2256,6 +2285,7 @@ Release date: 2021-04-24
 
 * Improve check for invalid PEP 585 syntax as default function arguments
 
+
 What's New in Pylint 2.7.4?
 ===========================
 
@@ -2268,6 +2298,7 @@ Release date: 2021-03-30
 * Fix issue with annotated class constants
 
   Closes #4264
+
 
 What's New in Pylint 2.7.3?
 ===========================
@@ -2347,6 +2378,7 @@ Release date: 2021-03-29
 
   Closes #4252
 
+
 What's New in Pylint 2.7.2?
 ===========================
 
@@ -2361,6 +2393,7 @@ Release date: 2021-02-28
 
 * Workflow and packaging improvements
 
+
 What's New in Pylint 2.7.1?
 ===========================
 
@@ -2371,6 +2404,7 @@ Release date: 2021-02-23
 * Don't check directories starting with '.' when using register_plugins
 
   Closes #4119
+
 
 What's New in Pylint 2.7.0?
 ===========================
@@ -2554,6 +2588,7 @@ Release date: 2021-02-21
 
 * Add Github Actions to replace Travis and AppVeyor in the future
 
+
 What's New in Pylint 2.6.1?
 ===========================
 
@@ -2562,6 +2597,7 @@ Release date: 2021-02-16
 * Astroid version has been set as < 2.5
 
   Close #4093
+
 
 What's New in Pylint 2.6.0?
 ===========================
@@ -2620,6 +2656,7 @@ Release date: 2020-08-20
 
   Close #3564
 
+
 What's New in Pylint 2.5.3?
 ===========================
 
@@ -2658,6 +2695,7 @@ Release date: 2020-06-8
 
   Close #3646
 
+
 What's New in Pylint 2.5.2?
 ===========================
 
@@ -2666,6 +2704,7 @@ Release date: 2020-05-05
 * ``pylint.Run`` accepts ``do_exit`` as a deprecated parameter
 
   Close #3590
+
 
 What's New in Pylint 2.5.1?
 ===========================
@@ -2693,6 +2732,7 @@ Release date: 2020-05-05
 * Allow linting directories without ``__init__.py`` which was a regression in 2.5.
 
   Close #3528
+
 
 What's New in Pylint 2.5.0?
 ===========================
@@ -2974,6 +3014,7 @@ Release date: 2020-04-27
 
   Close #3361
 
+
 What's New in Pylint 2.4.4?
 ===========================
 
@@ -2990,6 +3031,7 @@ Release date: 2019-11-13
 * Relax type import detection for names that do not come from the ``typing`` module
 
   Close #3191
+
 
 What's New in Pylint 2.4.3?
 ===========================
@@ -3025,6 +3067,7 @@ Release date: 2019-10-18
 
   Close #3170
 
+
 What's New in Pylint 2.4.2?
 ===========================
 
@@ -3052,6 +3095,7 @@ Release date: 2019-09-30
 
   Close #3028
 
+
 What's New in Pylint 2.4.1?
 ===========================
 
@@ -3072,6 +3116,7 @@ Release date: 2019-09-25
   Close #3119
 
 * Require astroid >= 2.3 to avoid any compatibility issues.
+
 
 What's New in Pylint 2.4.0?
 ===========================
@@ -3356,6 +3401,7 @@ must rename the associated identification.
 
 * Added ``--list-msgs-enabled`` command to list all enabled and disabled messages given the current RC file and command line arguments.
 
+
 What's New in Pylint 2.3.0?
 ===========================
 
@@ -3495,6 +3541,7 @@ Release date: 2019-02-27
 
 * Minor improvements to the help text for a few options.
 
+
 What's New in Pylint 2.2.2?
 ===========================
 
@@ -3510,6 +3557,7 @@ Release date: 2018-11-28
 
   Closes #2614
 
+
 What's New in Pylint 2.2.1?
 ===========================
 
@@ -3518,6 +3566,7 @@ Release date: 2018-11-27
 * Fix a crash caused by ``implicit-str-concat-in-sequence`` and multi-bytes characters.
 
   Closes #2610
+
 
 What's New in Pylint 2.2?
 =========================
@@ -3692,6 +3741,7 @@ Release date: 2018-11-25
 
 * ``literal-comparison`` is now emitted for 0 and 1 literals.
 
+
 What's New in Pylint 2.1.1?
 ===========================
 
@@ -3705,6 +3755,7 @@ Release date: 2018-08-07
      Close PyCQA/pylint#2228
 
 * ``simplifiable-if-statement`` not emitted when dealing with subscripts
+
 
 What's New in Pylint 2.1?
 =========================
@@ -3785,6 +3836,7 @@ Release date: 2018-08-01
 * Can specify a default docstring type for when the check cannot guess the type
 
       Close #1169
+
 
 What's New in Pylint 2.0?
 =========================
@@ -4177,6 +4229,7 @@ Release date: 2018-07-15
 
       Closes #1164
 
+
 What's New in Pylint 1.9?
 =========================
 
@@ -4214,12 +4267,14 @@ Release date: 2018-05-15
 
       Close #1997
 
+
 What's New in Pylint 1.8.1?
 ===========================
 
 Release date: 2017-12-15
 
     * Wrong version number in __pkginfo__.
+
 
 What's New in Pylint 1.8?
 =========================
@@ -4405,6 +4460,7 @@ Release date: 2017-12-15
       message for lines that follow.
       Close #1742
 
+
 What's New in Pylint 1.7.1?
 ===========================
 
@@ -4419,6 +4475,7 @@ Release date: 2017-04-17
       The check was improved by verifying for non-terminating newlines, which
       should exempt function calls and function definitions from the check
       Close #1424
+
 
 What's New in Pylint 1.7?
 =========================
@@ -4769,6 +4826,7 @@ Release date: 2016-07-07
 
     * Use environment markers for supporting conditional dependencies.
 
+
 What's New in Pylint 1.6.0?
 ===========================
 
@@ -4859,6 +4917,7 @@ Release date: 2016-07-03
 
       Close #769.
 
+
 What's New in Pylint 1.5.5?
 ===========================
 
@@ -4893,6 +4952,7 @@ Release date: 2016-03-21
 
       Closes issue #826
 
+
 What's New in Pylint 1.5.4?
 ===========================
 
@@ -4904,6 +4964,7 @@ Release date: 2016-01-15
       messages at all.
 
     * Don't apply unneeded-not over sets.
+
 
 What's New in Pylint 1.5.3?
 ===========================
@@ -4951,6 +5012,7 @@ Release date: 2016-01-11
 
       Closes issue #749.
 
+
 What's New in Pylint 1.5.2?
 ===========================
 
@@ -4972,6 +5034,7 @@ Release date: 2015-12-21
     * Allow statements in ``if`` or ``try`` blocks containing imports.
 
       Closes issue #714.
+
 
 What's New in Pylint 1.5.1?
 ===========================
@@ -4996,6 +5059,7 @@ Release date: 2015-12-02
     * Don't emit import-self and cyclic-import for relative imports
       of modules with the same name as the package itself.
       Closes issues #708 and #706.
+
 
 What's New in Pylint 1.5.0?
 ===========================
@@ -5409,6 +5473,7 @@ Release date: 2015-11-29
 
       Closes issue #675.
 
+
 What's New in Pylint 1.4.3?
 ===========================
 
@@ -5428,6 +5493,7 @@ Release date: 2015-03-14
       just transforms such calls, if it can, into the final resulting string
       and this exhibit a problem, because the visit_binop method stops being
       called (in the optimized AST it will be a Const node).
+
 
 What's New in Pylint 1.4.2?
 ===========================
@@ -5484,6 +5550,7 @@ Release date: 2015-03-11
       fixes the leaks of error messages from the Python 3 checker when
       the errors mode was activated. Closes issue #437.
 
+
 What's New in Pylint 1.4.1?
 ===========================
 
@@ -5528,6 +5595,7 @@ Release date: 2015-01-16
 
     * Fix a crash which occurred when using multiple jobs and the files
       given as argument didn't exist at all.
+
 
 What's New in Pylint 1.4.0?
 ============================
@@ -5730,6 +5798,7 @@ Release date: 2014-11-23
     * Add 'implicit-map-evaluation' to Python 3 porting checker, emitted
       when encountering the use of map builtin, without explicit evaluation.
 
+
 What's New in Pylint 1.3.0?
 ===========================
 
@@ -5814,6 +5883,7 @@ Release date: 2014-07-26
     * Don't emit 'missing-docstring' when the actual docstring uses ``.format``.
       Closes issue #281.
 
+
 What's New in Pylint 1.2.1?
 ===========================
 
@@ -5844,6 +5914,7 @@ Release date: 2014-04-30
 
     * Add 'indexing-exception' warning, which detects that indexing
       an exception occurs in Python 2 (behaviour removed in Python 3).
+
 
 What's New in Pylint 1.2.0?
 ===========================
@@ -5940,6 +6011,7 @@ Release date: 2014-04-18
 
     * Do not attempt to analyze non python file, e.g. .so file (#122)
 
+
 What's New in Pylint 1.1.0?
 ===========================
 
@@ -6001,6 +6073,7 @@ Release date: 2013-12-22
     * Various documentation fixes and enhancements
 
     * Fix issue #55 (false-positive trailing-whitespace on Windows)
+
 
 What's New in Pylint 1.0.0?
 ===========================
@@ -6112,6 +6185,7 @@ Release date: 2013-08-06
     * bitbucket #3: remove string module from the default list of deprecated
       modules
 
+
 What's New in Pylint 0.28.0?
 ============================
 
@@ -6145,6 +6219,7 @@ Release date: 2013-04-25
       different mutable compound literals.
 
     * Improve the description for E1124[redundant-keyword-arg]
+
 
 What's New in Pylint 0.27.0?
 ============================
@@ -6210,6 +6285,7 @@ Release date: 2013-02-26
     * Add hooks for import path setup and move pylint's sys.path
       modifications into them. (patch by Torsten Marek)
 
+
 What's New in Pylint 0.26.0?
 ============================
 
@@ -6251,6 +6327,7 @@ Release date: 2012-10-05
     * stop including tests files in distribution, they causes crash when
       installed with python3 (#72022, #82417, #76910)
 
+
 What's New in Pylint 0.25.2?
 ============================
 
@@ -6284,6 +6361,7 @@ Release date: 2012-07-17
 
     * fix potential crashes with utils.safe_infer raising InferenceError
 
+
 What's New in Pylint 0.25.1?
 ============================
 
@@ -6300,6 +6378,7 @@ Release date: 2011-12-08
 
     * #9188, #4024: Do not trigger W0631 if a loop variable is assigned
       in the else branch of a for loop.
+
 
 What's New in Pylint 0.25.0?
 ============================
@@ -6323,6 +6402,7 @@ Release date: 2011-10-7
     * #77237: warning for E0202 may be very misleading
 
     * #73941: HTML report messages table is badly rendered
+
 
 What's New in Pylint 0.24.0?
 ============================
@@ -6350,6 +6430,7 @@ Release date: 2011-07-18
 
     * #22273: Fix --ignore option documentation to match reality
 
+
 What's New in Pylint 0.23.0?
 ============================
 
@@ -6370,12 +6451,14 @@ Release date: 2011-01-11
     * don't emit W0221 or W0222 when methods as variable arguments (e.g. \*arg
       and/or \*\*args). Patch submitted by Charles Duffy.
 
+
 What's New in Pylint 0.22.0?
 ============================
 
 Release date: 2010-11-15
 
     * python versions: minimal python3.x support; drop python < 2.5 support
+
 
 What's New in Pylint 0.21.4?
 ============================
@@ -6388,6 +6471,7 @@ Release date: 2010-10-27
 
     * update documentation
 
+
 What's New in Pylint 0.21.3?
 ============================
 
@@ -6396,6 +6480,7 @@ Release date: 2010-09-28
     * restored python 2.3 compatibility. Along with logilab-astng
       0.21.3 and logilab-common 0.52, this will much probably be the
       latest release supporting python < 2.5.
+
 
 What's New in Pylint 0.21.2?
 ============================
@@ -6408,6 +6493,7 @@ Release date: 2010-08-26
 
     * some documentation cleanups
 
+
 What's New in Pylint 0.21.1?
 ============================
 
@@ -6417,6 +6503,7 @@ Release date: 2010-06-04
       writing the Statistics by types report
 
     * updated man page to 0.21 or greater command line usage (fix debian #582494)
+
 
 What's New in Pylint 0.21.0?
 ============================
@@ -6451,6 +6538,7 @@ Release date: 2010-05-11
 
     * fix #20067: AttributeError: 'NoneType' object has no attribute 'name' with with
 
+
 What's New in Pylint 0.20.0?
 ============================
 
@@ -6481,6 +6569,7 @@ Release date: 2010-03-01
     * implement #9982, E0711 specific error message when raising NotImplemented
 
     * remove --cache-size option
+
 
 What's New in Pylint 0.19.0?
 ============================
@@ -6516,6 +6605,7 @@ Release date: 2009-12-18
 
     * #5821 added a utility function to run pylint in another process (patch provide by Vincent Ferotin)
 
+
 What's New in Pylint 0.18.0?
 ============================
 
@@ -6543,6 +6633,7 @@ Release date: 2009-03-25
 
     * integration of Yuen Ho Wong's patches on Emacs lisp files
 
+
 What's New in Pylint 0.17.0?
 ============================
 
@@ -6553,6 +6644,7 @@ Release date: 2009-03-19
     * remove rpython : remove all rpython checker, modules and tests
 
     * astng 0.18 compatibility: support for _ast module modifies interfaces
+
 
 What's New in Pylint 0.16.0?
 ============================
@@ -6591,6 +6683,7 @@ Release date: 2009-01-28
 
     * fix #6954
 
+
 What's New in Pylint 0.15.2?
 ============================
 
@@ -6604,6 +6697,7 @@ Release date: 2008-10-13
 
     * fix #6040: pytest doesn't run test/func_test.py
 
+
 What's New in Pylint 0.15.1?
 ============================
 
@@ -6614,6 +6708,7 @@ Release date: 2008-09-15
     * fix #5991: missing files in 0.15.0 tarball
 
     * fix #5993: epylint should work with python 2.3
+
 
 What's New in Pylint 0.15.0?
 ============================
@@ -6636,6 +6731,7 @@ Release date: 2008-09-10
 
     * Flymake integration: added bin/epylint and elisp/pylint-flymake.el
 
+
 What's New in Pylint 0.14.0?
 ============================
 
@@ -6655,6 +6751,7 @@ Release date: 2008-01-14
     * new ignored-class option on typecheck checker allowing to skip members
       checking based on class name (patch provided by Thomas W Barr)
 
+
 What's New in Pylint 0.13.2?
 ============================
 
@@ -6665,6 +6762,7 @@ Release date: 2007-06-07
 
     * added note about the gedit plugin into documentation
 
+
 What's New in Pylint 0.13.1?
 ============================
 
@@ -6672,6 +6770,7 @@ Release date: 2007-03-02
 
     * fix some unexplained 0.13.0 packaging issue which led to a bunch of
       files missing from the distribution
+
 
 What's New in Pylint 0.13.0?
 ============================
@@ -6719,6 +6818,7 @@ Release date: 2007-02-28
     * fix #3259: when a message is explicitly enabled, check the checker
       emitting it is enabled
 
+
 What's New in Pylint 0.12.2?
 ============================
 
@@ -6741,6 +6841,7 @@ Release date: 2006-11-23
 
     * fixed some format checker false positives
 
+
 What's New in Pylint 0.12.1?
 ============================
 
@@ -6753,6 +6854,7 @@ Release date: 2006-09-25
     * fixed generator expression scope bug (depends on astng 0.16.1)
 
     * stop requiring __revision__
+
 
 What's New in Pylint 0.12.0?
 ============================
@@ -6789,6 +6891,7 @@ Release date: 2006-08-10
 
     * fix cr/lf pb when generating the rc file on windows platforms
 
+
 What's New in Pylint 0.11.0?
 ============================
 
@@ -6808,6 +6911,7 @@ Release date: 2006-04-19
 
     * included patch from Benjamin Niemann to allow block level
       enabling/disabling of messages
+
 
 What's New in Pylint 0.10.0?
 ============================
@@ -6868,6 +6972,7 @@ Release date: 2006-03-06
 
     * fixed some R0201 (method could be a function) false positive
 
+
 What's New in Pylint 0.9.0?
 ============================
 
@@ -6918,6 +7023,7 @@ Release date: 2006-01-10
 
     * misc lint style fixes
 
+
 What's New in Pylint 0.8.1?
 ============================
 
@@ -6934,6 +7040,7 @@ Release date: 2005-11-07
 
     * fix "explicit return in __init__" false positive when return is
       actually in an inner function (close #10075)
+
 
 What's New in Pylint 0.8.0?
 ============================
@@ -6976,6 +7083,7 @@ Release date: 2005-10-21
 
     * fix --rcfile handling (support for --rcfile=file, close #9590)
 
+
 What's New in Pylint 0.7.0?
 ============================
 
@@ -6999,6 +7107,7 @@ Release date: 2005-05-27
     * fix bug with --list-messages and python -OO
 
     * fix possible false positive for W0201
+
 
 What's New in Pylint 0.6.4?
 ===========================
@@ -7030,6 +7139,7 @@ Release date: 2005-04-14
 
     * packaged (generated...) man page
 
+
 What's New in Pylint 0.6.3?
 ===========================
 
@@ -7040,6 +7150,7 @@ Release date: 2005-02-24
 
     * fix problem with some options such as disable-msg causing error when
       they are coming from the configuration file
+
 
 What's New in Pylint 0.6.2?
 ============================
@@ -7063,6 +7174,7 @@ Release date: 2005-02-16
 
     * new raw checker example in the examples/ directory
 
+
 What's New in Pylint 0.6.1?
 ===========================
 
@@ -7076,6 +7188,7 @@ Release date: 2005-02-04
 
     * some fixes to handle fixes in common 0.9.1 (should however still working
       with common 0.9.0, even if upgrade is recommended)
+
 
 What's New in Pylint 0.6.0?
 ===========================
@@ -7108,6 +7221,7 @@ Release date: 2005-01-20
 
     * improved tests coverage
 
+
 What's New in Pylint 0.5.0?
 ===========================
 
@@ -7130,6 +7244,7 @@ Release date: 2004-10-19
 
     * fix bug with total / undocumented number of methods
 
+
 What's New in Pylint 0.4.2?
 ===========================
 
@@ -7138,6 +7253,7 @@ Release date: 2004-07-08
     * fix pylint Emacs mode
 
     * fix classes checkers to handler twisted interfaces
+
 
 What's New in Pylint 0.4.1?
 ===========================
@@ -7151,6 +7267,7 @@ Release date: 2004-05-14
     * fix file naming convention as suggested by Andreas Amoroso
 
     * fix stupid crash bug with bad method names
+
 
 What's New in Pylint 0.4.0?
 ===========================
@@ -7185,6 +7302,7 @@ Release date: 2004-05-10
 
     * use logilab.common.ureports to layout reports
 
+
 What's New in Pylint 0.3.3?
 ===========================
 
@@ -7208,6 +7326,7 @@ Release date: 2004-02-17
     * provide scripts for unix and windows to wrap the minimal pylint tk
       gui
 
+
 What's New in Pylint 0.3.2?
 ===========================
 
@@ -7222,6 +7341,7 @@ Release date: 2003-12-23
 
     * fixed typos in some messages
 
+
 What's New in Pylint 0.3.1?
 ===========================
 
@@ -7232,6 +7352,7 @@ Release date: 2003-12-05
     * remove print statement from imports checkers
 
     * provide a simple tk gui, essentially useful for windows users
+
 
 What's New in Pylint 0.3.0?
 ===========================
@@ -7295,6 +7416,7 @@ Release date: 2003-11-20
     * do not print redefinition warning for function/class/method defined
       in mutually exclusive branches
 
+
 What's New in Pylint 0.2.1?
 ===========================
 
@@ -7321,6 +7443,7 @@ Release date: 2003-10-10
 
     * fix format checker
 
+
 What's New in Pylint 0.2.0?
 ===========================
 
@@ -7338,6 +7461,7 @@ Release date: 2003-09-12
 
     * easy functional test infrastructure
 
+
 What's New in Pylint 0.1.2?
 ===========================
 
@@ -7347,12 +7471,14 @@ Release date: 2003-06-18
 
     * remove dependency to pyreverse
 
+
 What's New in Pylint 0.1.1?
 ===========================
 
 Release date: 2003-06-01
 
     * much more functionalities !
+
 
 What's New in Pylint 0.1?
 ===========================
