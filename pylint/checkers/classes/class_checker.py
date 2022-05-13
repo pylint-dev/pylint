@@ -1224,9 +1224,9 @@ a metaclass class method.",
 
         # Classes that override __eq__ should also override
         # __hash__, even a trivial override is meaningful
-        if function.name == '__hash__':
+        if function.name == "__hash__":
             for other_method in function.parent.mymethods():
-                if other_method.name == '__eq__':
+                if other_method.name == "__eq__":
                     return
 
         # Should be a super call with the MRO pointer being the
