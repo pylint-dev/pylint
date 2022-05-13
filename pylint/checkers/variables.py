@@ -2265,6 +2265,13 @@ class VariablesChecker(BaseChecker):
         # For functions we can do more by inferring the length of the itered object
         try:
             inferred = next(assign.iter.infer())
+            # Prefer the target of enumerate() rather than the enumerate object itself
+            if (
+                isinstance(inferred, astroid.Instance)
+                and inferred.qname() == "builtins.enumerate"
+                and assign.iter.args
+            ):
+                inferred = next(assign.iter.args[0].infer())
         except astroid.InferenceError:
             self.add_message("undefined-loop-variable", args=node.name, node=node)
         else:
