@@ -41,6 +41,10 @@ Release date: TBA
 
   Closes #6539
 
+* Fix a false positive for ``undefined-loop-variable`` when using ``enumerate()``.
+
+  Closes #6593
+
 
 What's New in Pylint 2.13.8?
 ============================
