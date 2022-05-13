@@ -21,6 +21,10 @@ What's New in Pylint 2.13.9?
 Release date: TBA
 
 
+* Respect ignore configuration options with ``--recursive=y``.
+
+  Closes #6471
+
 * Fix false positives for ``no-name-in-module`` and ``import-error`` for ``numpy.distutils`` and ``pydantic``.
 
   Closes #6497

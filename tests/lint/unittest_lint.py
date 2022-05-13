@@ -13,6 +13,7 @@ from importlib import reload
 from io import StringIO
 from os import chdir, getcwd
 from os.path import abspath, basename, dirname, isdir, join, sep
+from pathlib import Path
 from shutil import rmtree
 from typing import Iterable, Iterator, List, Optional, Tuple
 
@@ -29,7 +30,13 @@ from pylint.constants import (
     OLD_DEFAULT_PYLINT_HOME,
 )
 from pylint.exceptions import InvalidMessageError
-from pylint.lint import ArgumentPreprocessingError, PyLinter, Run, preprocess_options
+from pylint.lint import (
+    ArgumentPreprocessingError,
+    PyLinter,
+    Run,
+    fix_import_path,
+    preprocess_options,
+)
 from pylint.message import Message
 from pylint.reporters import text
 from pylint.typing import MessageLocationTuple
@@ -868,3 +875,67 @@ def test_by_module_statement_value(initialized_linter: PyLinter) -> None:
         # Check that the by_module "statement" is equal to the global "statement"
         # computed for that module
         assert module_stats["statement"] == linter2.stats.statement
+
+
+@pytest.mark.parametrize(
+    "ignore_parameter,ignore_parameter_value",
+    [
+        ("--ignore", "failing.py"),
+        ("--ignore", "ignored_subdirectory"),
+        ("--ignore-patterns", "failing.*"),
+        ("--ignore-patterns", "ignored_*"),
+        ("--ignore-paths", ".*directory/ignored.*"),
+        ("--ignore-paths", ".*ignored.*/failing.*"),
+    ],
+)
+def test_recursive_ignore(ignore_parameter, ignore_parameter_value) -> None:
+    run = Run(
+        [
+            "--recursive",
+            "y",
+            ignore_parameter,
+            ignore_parameter_value,
+            join(REGRTEST_DATA_DIR, "directory"),
+        ],
+        exit=False,
+    )
+
+    linted_files = run.linter._iterate_file_descrs(
+        tuple(run.linter._discover_files([join(REGRTEST_DATA_DIR, "directory")]))
+    )
+    linted_file_paths = [file_item.filepath for file_item in linted_files]
+
+    ignored_file = os.path.abspath(
+        join(REGRTEST_DATA_DIR, "directory", "ignored_subdirectory", "failing.py")
+    )
+    assert ignored_file not in linted_file_paths
+
+    for regrtest_data_module in (
+        ("directory", "subdirectory", "subsubdirectory", "module.py"),
+        ("directory", "subdirectory", "module.py"),
+        ("directory", "package", "module.py"),
+        ("directory", "package", "subpackage", "module.py"),
+    ):
+        module = os.path.abspath(join(REGRTEST_DATA_DIR, *regrtest_data_module))
+    assert module in linted_file_paths
+
+
+def test_import_sibling_module_from_namespace(initialized_linter: PyLinter) -> None:
+    """If the parent directory above `namespace` is on sys.path, ensure that
+    modules under `namespace` can import each other without raising `import-error`."""
+    linter = initialized_linter
+    with tempdir() as tmpdir:
+        create_files(["namespace/submodule1.py", "namespace/submodule2.py"])
+        second_path = Path("namespace/submodule2.py")
+        with open(second_path, "w", encoding="utf-8") as f:
+            f.write(
+                """\"\"\"This module imports submodule1.\"\"\"
+import submodule1
+print(submodule1)
+"""
+            )
+        os.chdir("namespace")
+        # Add the parent directory to sys.path
+        with fix_import_path([tmpdir]):
+            linter.check(["submodule2.py"])
+    assert not linter.stats.by_msg
