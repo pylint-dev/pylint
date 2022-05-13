@@ -359,6 +359,7 @@ Deprecations
   Ref #5392
 
 * ``is_class_subscriptable_pep585_with_postponed_evaluation_enabled`` has been deprecated.
-  Use ``subscriptable_with_postponed_evaluation_enabled`` instead.
+  Use ``is_postponed_evaluation_enabled(node) and is_node_in_type_annotation_context(node)``
+  instead.
 
   Ref #6536

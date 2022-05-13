@@ -1217,7 +1217,9 @@ def supports_getitem(value: nodes.NodeNG, node: nodes.NodeNG) -> bool:
     if isinstance(value, nodes.ClassDef):
         if _supports_protocol_method(value, CLASS_GETITEM_METHOD):
             return True
-        if subscriptable_with_postponed_evaluation_enabled(node):
+        if is_postponed_evaluation_enabled(node) and is_node_in_type_annotation_context(
+            node
+        ):
             return True
     return _supports_protocol(value, _supports_getitem_protocol)
 
@@ -1405,20 +1407,14 @@ def is_class_subscriptable_pep585_with_postponed_evaluation_enabled(
     warnings.warn(
         "'is_class_subscriptable_pep585_with_postponed_evaluation_enabled' has been "
         "deprecated and will be removed in pylint 3.0. "
-        "Use 'subscriptable_with_postponed_evaluation_enabled' instead.",
+        "Use 'is_postponed_evaluation_enabled(node) and "
+        "is_node_in_type_annotation_context(node)' instead.",
         DeprecationWarning,
     )
     return (
         is_postponed_evaluation_enabled(node)
         and value.qname() in SUBSCRIPTABLE_CLASSES_PEP585
         and is_node_in_type_annotation_context(node)
-    )
-
-
-def subscriptable_with_postponed_evaluation_enabled(node: nodes.NodeNG) -> bool:
-    """Check if class can be subscriptable in type annotation context."""
-    return is_postponed_evaluation_enabled(node) and is_node_in_type_annotation_context(
-        node
     )
 
 
