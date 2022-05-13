@@ -420,7 +420,7 @@ def _emit_no_member(
 
     The following cases are ignored:
 
-        * the owner is a function and it has decorators.
+        * the owner is a function and it has decorators or is a mock_function_override.
         * the owner is an instance and it has __getattr__, __getattribute__ implemented
         * the module is explicitly ignored from no-member checks
         * the owner is a class and the name can be found in its metaclass.
@@ -437,10 +437,12 @@ def _emit_no_member(
         return False
     if owner_name and ignored_mixins and mixin_class_rgx.match(owner_name):
         return False
-    if isinstance(owner, nodes.FunctionDef) and (
-        owner.decorators or owner.is_abstract()
-    ):
-        return False
+    if isinstance(owner, nodes.FunctionDef):
+        if owner.decorators or owner.is_abstract():
+            return False
+        if getattr(owner.parent, "name", "") == "mock_function_override":
+            # Issue #2821: Ignore mock function overrides
+            return False
     if isinstance(owner, (astroid.Instance, nodes.ClassDef)):
         if owner.has_dynamic_getattr():
             # Issue #2565: Don't ignore enums, as they have a `__getattr__` but it's not
