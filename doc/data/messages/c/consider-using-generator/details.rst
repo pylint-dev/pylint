@@ -1,4 +1,4 @@
-Removing ``[ ]`` inside containers should be considered for performance reasons since
+Removing ``[ ]`` inside calls that can use containers or generator indistinctly should be considered for performance reasons since
 list comprehension will make unnecessary data copies. The performance will be better if
 you are working with really long lists or sets.
 
