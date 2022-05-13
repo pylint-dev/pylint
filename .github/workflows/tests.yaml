@@ -58,7 +58,7 @@ jobs:
       - name: Run pytest
         run: |
           . venv/bin/activate
-          pytest --benchmark-disable --cov --cov-report= tests/
+          pytest --durations=10 --benchmark-disable --cov --cov-report= tests/
       - name: Run functional tests with minimal messages config
         run: |
           . venv/bin/activate
@@ -213,7 +213,7 @@ jobs:
       - name: Run pytest
         run: |
           . venv\\Scripts\\activate
-          pytest --benchmark-disable tests/
+          pytest --durations=10 --benchmark-disable tests/
 
   tests-macos:
     name: run / ${{ matrix.python-version }} / macOS
@@ -259,7 +259,7 @@ jobs:
       - name: Run pytest
         run: |
           . venv/bin/activate
-          pytest --benchmark-disable tests/
+          pytest --durations=10 --benchmark-disable tests/
 
   tests-pypy:
     name: run / ${{ matrix.python-version }} / Linux
@@ -303,4 +303,4 @@ jobs:
       - name: Run pytest
         run: |
           . venv/bin/activate
-          pytest --benchmark-disable tests/
+          pytest --durations=10 --benchmark-disable tests/
