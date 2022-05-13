@@ -1996,6 +1996,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             not isinstance(node.iter, nodes.Call)
             or not isinstance(node.iter.func, nodes.Name)
             or not node.iter.func.name == "enumerate"
+            or not node.iter.args
             or not isinstance(node.iter.args[0], nodes.Name)
         ):
             return
