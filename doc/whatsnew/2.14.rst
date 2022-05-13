@@ -258,6 +258,10 @@ Other Changes
 
   Ref #6536
 
+* The refactoring checker now also raises 'consider-using-a-generator' messages for
+  ``max()``, ``min()`` and ``sum()``.
+
+  Refs #6595
 
 Deprecations
 ============

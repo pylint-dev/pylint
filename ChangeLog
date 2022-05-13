@@ -10,7 +10,10 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.14.rst'
 
-* The ``use_a_generator``checker now also checks ``max()``, ``min()`` and ``sum()``.
+* The refactoring checker now also raises 'consider-using-a-generator' messages for
+  ``max()``, ``min()`` and ``sum()``.
+
+  Refs #6595
 
 * We have improved our recognition of inline disable and enable comments. It is
   now possible to disable ``bad-option-value`` inline  (as long as you disable it before
