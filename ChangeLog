@@ -321,6 +321,11 @@ Release date: TBA
 * Update ranges for ``using-constant-test`` and ``missing-parentheses-for-call-in-test``
   error messages.
 
+* Don't emit ``no-member`` inside type annotations with
+  ``from __future__ import annotations``.
+
+  Closes #6594
+
 ..
   Insert your changelog randomly, it will reduce merge conflicts
   (Ie. not necessarily at the end)
