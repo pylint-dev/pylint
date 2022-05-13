@@ -263,6 +263,9 @@ Other Changes
 
   Refs #6595
 
+* Update ranges for ``using-constant-test`` and ``missing-parentheses-for-call-in-test``
+  error messages.
+
 Deprecations
 ============
 

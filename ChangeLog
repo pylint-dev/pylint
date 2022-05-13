@@ -318,6 +318,9 @@ Release date: TBA
 
   Ref #6536
 
+* Update ranges for ``using-constant-test`` and ``missing-parentheses-for-call-in-test``
+  error messages.
+
 ..
   Insert your changelog randomly, it will reduce merge conflicts
   (Ie. not necessarily at the end)
