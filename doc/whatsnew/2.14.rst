@@ -215,7 +215,6 @@ Other Changes
 
 * The ``set_config_directly`` decorator has been removed.
 
-
 * Fix falsely issuing ``useless-suppression`` on the ``wrong-import-position`` checker.
 
   Closes #5219
@@ -252,11 +251,6 @@ Other Changes
 * Fix bug where it writes a plain text error message to stdout, invalidating output formats.
 
   Closes #6597
-
-* ``is_class_subscriptable_pep585_with_postponed_evaluation_enabled`` has been deprecated.
-  Use ``subscriptable_with_postponed_evaluation_enabled`` instead.
-
-  Ref #6536
 
 * The refactoring checker now also raises 'consider-using-a-generator' messages for
   ``max()``, ``min()`` and ``sum()``.
@@ -363,3 +357,8 @@ Deprecations
   be removed in a future release.
 
   Ref #5392
+
+* ``is_class_subscriptable_pep585_with_postponed_evaluation_enabled`` has been deprecated.
+  Use ``subscriptable_with_postponed_evaluation_enabled`` instead.
+
+  Ref #6536
