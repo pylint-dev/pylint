@@ -58,7 +58,7 @@ jobs:
       - name: Run pytest
         run: |
           . venv/bin/activate
-          pytest -vv --durations=20 --benchmark-disable --cov --cov-report= tests/
+          pytest --durations=10 --benchmark-disable --cov --cov-report= tests/
       - name: Run functional tests with minimal messages config
         run: |
           . venv/bin/activate
@@ -213,7 +213,53 @@ jobs:
       - name: Run pytest
         run: |
           . venv\\Scripts\\activate
-          pytest -vv --durations=20 --benchmark-disable tests/
+          pytest --durations=10 --benchmark-disable tests/
+
+  tests-macos:
+    name: run / ${{ matrix.python-version }} / macOS
+    runs-on: macos-latest
+    timeout-minutes: 25
+    needs: tests-linux
+    strategy:
+      fail-fast: false
+      matrix:
+        # We only run on the oldest supported version on Mac
+        python-version: [3.7]
+    steps:
+      - name: Check out code from GitHub
+        uses: actions/checkout@v3.0.2
+      - name: Set up Python ${{ matrix.python-version }}
+        id: python
+        uses: actions/setup-python@v3.1.2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Generate partial Python venv restore key
+        id: generate-python-key
+        run: >-
+          echo "::set-output name=key::venv-${{ env.CACHE_VERSION }}-${{
+            hashFiles('setup.cfg', 'requirements_test_min.txt')
+          }}"
+      - name: Restore Python virtual environment
+        id: cache-venv
+        uses: actions/cache@v3.0.2
+        with:
+          path: venv
+          key: >-
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
+            steps.generate-python-key.outputs.key }}
+          restore-keys: |
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-venv-${{ env.CACHE_VERSION }}-
+      - name: Create Python virtual environment
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: |
+          python -m venv venv
+          . venv/bin/activate
+          python -m pip install -U pip setuptools wheel
+          pip install -U -r requirements_test.txt
+      - name: Run pytest
+        run: |
+          . venv/bin/activate
+          pytest --durations=10 --benchmark-disable tests/
 
   tests-pypy:
     name: run / ${{ matrix.python-version }} / Linux
@@ -257,4 +303,4 @@ jobs:
       - name: Run pytest
         run: |
           . venv/bin/activate
-          pytest -vv --durations=20 --benchmark-disable tests/
+          pytest --durations=10 --benchmark-disable tests/
