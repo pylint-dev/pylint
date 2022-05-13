@@ -126,6 +126,10 @@ Extensions
 Other Changes
 =============
 
+* Fix false positive ``no-member`` checks when using ``unittest.mock.Mock`` functions.
+
+  Closes #2821
+
 * Started ignoring underscore as a local variable for ``too-many-locals``.
 
   Closes #6488
