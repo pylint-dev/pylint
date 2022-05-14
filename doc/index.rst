@@ -44,5 +44,5 @@ re-evaluate and re-enable messages as your priorities evolve.
    development_guide/index.rst
    additional_commands/index.rst
    faq
-   contact/index
+   contact
    whatsnew/index.rst

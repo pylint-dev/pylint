@@ -1,3 +1,6 @@
+Contact
+=======
+
 Bug reports, feedback
 ---------------------
 .. _bug reports, feedback:
@@ -40,7 +43,7 @@ https://lists.logilab.org/pipermail/python-projects/
 Support
 -------
 
-.. image:: ../media/Tidelift_Logos_RGB_Tidelift_Shorthand_On-White.png
+.. image:: media/Tidelift_Logos_RGB_Tidelift_Shorthand_On-White.png
    :height: 150
    :alt: Tidelift
    :align: left
