@@ -4,7 +4,7 @@ Pylint documentation
 Pylint is a `static code analyser`_ for python 2 or 3. Only python interpreter above 3.7.2 are supported
 in the latest version.
 
-Pylint analyse your code without actually running it. It checks for errors, enforce a coding
+Pylint analyses your code without actually running it. It checks for errors, enforces a coding
 standard, looks for `code smells`_, and can make suggestions about how the code could be refactored.
 
 Project that you might want to use alongside pylint include flake8_ (faster and simpler checks
@@ -22,7 +22,7 @@ oriented checks), black_ and isort_ (auto-formatting).
 .. _`code smells`: https://martinfowler.com/bliki/CodeSmell.html
 
 Pylint can infer actual values from your code using it's internal code representation (astroid).
-If your code is ``import logging as argparse``, Pylint can knows that ``argparse.error(...)``
+If your code is ``import logging as argparse``, Pylint will know that ``argparse.error(...)``
 is in fact a logging call and not an argparse call.
 
 Pylint isn't smarter than you: it may warn you about things that you have
