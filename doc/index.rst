@@ -1,8 +1,7 @@
 Pylint documentation
 ====================
 
-Pylint is a `static code analyser`_ for python 2 or 3. Only python interpreter above 3.7.2 are supported
-in the latest version.
+Pylint is a `static code analyser`_ for Python 2 or 3. Only Python interpreter above 3.7.2 are currently maintained.
 
 Pylint analyses your code without actually running it. It checks for errors, enforces a coding
 standard, looks for `code smells`_, and can make suggestions about how the code could be refactored.
