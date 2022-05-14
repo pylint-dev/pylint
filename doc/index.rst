@@ -7,7 +7,7 @@ Pylint is a `static code analyser`_ for Python 2 or 3. The latest version suppor
 Pylint analyses your code without actually running it. It checks for errors, enforces a coding
 standard, looks for `code smells`_, and can make suggestions about how the code could be refactored.
 
-Project that you might want to use alongside pylint include flake8_ (faster and simpler checks
+Projects that you might want to use alongside pylint include flake8_ (faster and simpler checks
 with very few false positives), mypy_, pyright_ or pyre_ (typing checks), bandit_ (security
 oriented checks), black_ and isort_ (auto-formatting), autoflake_ (automated removal of
 unused import or variable), pyupgrade_ (automated upgrade to newer python syntax) and
@@ -26,7 +26,7 @@ pydocstringformatter_ (automated pep257).
 .. _`static code analyser`: https://en.wikipedia.org/wiki/Static_code_analysis
 .. _`code smells`: https://martinfowler.com/bliki/CodeSmell.html
 
-Pylint can infer actual values from your code using it's internal code representation (astroid).
+Pylint can infer actual values from your code using its internal code representation (astroid).
 If your code is ``import logging as argparse``, Pylint will know that ``argparse.error(...)``
 is in fact a logging call and not an argparse call.
 
