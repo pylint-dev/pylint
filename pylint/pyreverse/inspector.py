@@ -6,12 +6,13 @@
 
 Try to resolve definitions (namespace) dictionary, relationship...
 """
+
 from __future__ import annotations
 
 import collections
 import os
 import traceback
-from collections.abc import Iterator
+from collections.abc import Generator
 from typing import Any, Callable, Optional
 
 import astroid
@@ -44,7 +45,7 @@ def interfaces(
     node: nodes.ClassDef,
     herited: bool = True,
     handler_func: Callable[[nodes.NodeNG | Any], bool] = _iface_hdlr,
-) -> Iterator[Any] | None:
+) -> Generator[Any, None, None]:
     """Return an iterator on interfaces implemented by the given class node."""
     try:
         implements = astroid.bases.Instance(node).getattr("__implements__")[0]
