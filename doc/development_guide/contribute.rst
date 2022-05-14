@@ -4,51 +4,6 @@
  Contributing
 ==============
 
-.. _bug reports, feedback:
-
-Bug reports, feedback
----------------------
-
-You think you have found a bug in Pylint? Well, this may be the case
-since Pylint is under heavy development!
-
-Please take the time to check if it is already in the issue tracker at
-https://github.com/PyCQA/pylint
-
-If you cannot find it in the tracker, create a new issue there or discuss your
-problem on the code-quality@python.org mailing list or using the discord
-server https://discord.com/invite/Egy6P8AMB5.
-
-The code-quality mailing list is also a nice place to provide feedback about
-Pylint, since it is shared with other tools that aim at improving the quality of
-python code.
-
-Note that if you don't find something you have expected in Pylint's issue
-tracker, it may be because it is an issue with one of its dependencies, namely
-astroid:
-
-* https://github.com/PyCQA/astroid
-
-.. _Mailing lists:
-
-Discord server
---------------
-
-https://discord.com/invite/Egy6P8AMB5
-
-Mailing lists
--------------
-
-You can subscribe to this mailing list at
-https://mail.python.org/mailman3/lists/code-quality.python.org/
-
-Archives are available at
-https://mail.python.org/pipermail/code-quality/
-
-Archives before April 2013 are available at
-https://lists.logilab.org/pipermail/python-projects/
-
-
 .. _repository:
 
 Repository

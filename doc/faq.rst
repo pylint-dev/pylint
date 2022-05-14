@@ -303,13 +303,3 @@ Pylint, you can set ``evaluation`` to the above expression to get the new
 behavior. Likewise, since negative values are still technically supported,
 ``evaluation`` can be set to a version of the above expression that does not
 enforce a floor of zero.
-
-6.2 I think I found a bug in Pylint. What should I do?
--------------------------------------------------------
-
-Read :ref:`Bug reports, feedback`
-
-6.3 I have a question about Pylint that isn't answered here.
-------------------------------------------------------------
-
-Read :ref:`Mailing lists`
