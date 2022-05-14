@@ -11,8 +11,8 @@ from __future__ import annotations
 import collections
 import os
 import traceback
-from collections.abc import Callable, Iterator
-from typing import Any, Optional
+from collections.abc import Iterator
+from typing import Any, Callable, Optional
 
 import astroid
 from astroid import nodes
