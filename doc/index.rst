@@ -33,8 +33,8 @@ convention and refactor message with ``--disable=C,R`` and progressively
 re-evaluate and re-enable messages as your priorities evolve.
 
 .. toctree::
-   :maxdepth: 2
    :titlesonly:
+   :hidden:
 
    tutorial
    user_guide/index.rst
