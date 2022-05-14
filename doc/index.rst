@@ -8,7 +8,9 @@ standard, looks for `code smells`_, and can make suggestions about how the code 
 
 Project that you might want to use alongside pylint include flake8_ (faster and simpler checks
 with very few false positives), mypy_, pyright_ or pyre_ (typing checks), bandit_ (security
-oriented checks), black_ and isort_ (auto-formatting).
+oriented checks), black_ and isort_ (auto-formatting), autoflake_ (automated removal of
+unused import or variable), pyupgrade_ (automated upgrade to newer python syntax) and
+pydocstringformatter_ (automated pep257).
 
 .. _flake8: https://gitlab.com/pycqa/flake8/
 .. _bandit: https://github.com/PyCQA/bandit
@@ -16,6 +18,9 @@ oriented checks), black_ and isort_ (auto-formatting).
 .. _pyright: https://github.com/microsoft/pyright
 .. _pyre: https://github.com/facebook/pyre-check
 .. _black: https://github.com/psf/black
+.. _autoflake: https://github.com/myint/autoflake
+.. _pyupgrade: https://github.com/asottile/pyupgrade
+.. _pydocstringformatter: https://github.com/DanielNoord/pydocstringformatter
 .. _isort: https://pycqa.github.io/isort/
 .. _`static code analyser`: https://en.wikipedia.org/wiki/Static_code_analysis
 .. _`code smells`: https://martinfowler.com/bliki/CodeSmell.html
