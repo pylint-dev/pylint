@@ -190,7 +190,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             baseobj.specializations = specializations
         # resolve instance attributes
         node.instance_attrs_type = collections.defaultdict(list)
-        for assignattrs in node.instance_attrs.values():
+        for assignattrs in tuple(node.instance_attrs.values()):
             for assignattr in assignattrs:
                 if not isinstance(assignattr, nodes.Unknown):
                     self.handle_assignattr_type(assignattr, node)
