@@ -54,6 +54,8 @@ USER_HOME = os.path.expanduser("~")
 OLD_DEFAULT_PYLINT_HOME = ".pylint.d"
 DEFAULT_PYLINT_HOME = platformdirs.user_cache_dir("pylint")
 
+DEFAULT_IGNORE_LIST = ("CVS",)
+
 
 class WarningScope:
     LINE = "line-based-msg"
