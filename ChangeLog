@@ -50,6 +50,10 @@ Release date: TBA
 
   Closes #5467
 
+* Don't report ``useless-super-delegation`` for the ``__hash__`` method in classes that also override the ``__eq__`` method.
+
+  Closes #3934
+
 * Added new checker ``typevar-name-mismatch``: TypeVar must be assigned to a variable with the same name as its name argument.
 
   Closes #5224

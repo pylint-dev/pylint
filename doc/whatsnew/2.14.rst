@@ -215,6 +215,10 @@ Other Changes
 
 * The ``set_config_directly`` decorator has been removed.
 
+* Don't report ``useless-super-delegation`` for the ``__hash__`` method in classes that also override the ``__eq__`` method.
+
+  Closes #3934
+
 * Fix falsely issuing ``useless-suppression`` on the ``wrong-import-position`` checker.
 
   Closes #5219

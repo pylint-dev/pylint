@@ -127,6 +127,59 @@ def _definition_equivalent_to_call(definition, call):
     return all(kw in call.args or kw in definition.kwonlyargs for kw in call.kws)
 
 
+def _is_trivial_super_delegation(function: nodes.FunctionDef) -> bool:
+    """Check whether a function definition is a method consisting only of a
+    call to the same function on the superclass.
+    """
+    if (
+        not function.is_method()
+        # Adding decorators to a function changes behavior and
+        # constitutes a non-trivial change.
+        or function.decorators
+    ):
+        return False
+
+    body = function.body
+    if len(body) != 1:
+        # Multiple statements, which means this overridden method
+        # could do multiple things we are not aware of.
+        return False
+
+    statement = body[0]
+    if not isinstance(statement, (nodes.Expr, nodes.Return)):
+        # Doing something else than what we are interested in.
+        return False
+
+    call = statement.value
+    if (
+        not isinstance(call, nodes.Call)
+        # Not a super() attribute access.
+        or not isinstance(call.func, nodes.Attribute)
+    ):
+        return False
+
+    # Anything other than a super call is non-trivial.
+    super_call = safe_infer(call.func.expr)
+    if not isinstance(super_call, astroid.objects.Super):
+        return False
+
+    # The name should be the same.
+    if call.func.attrname != function.name:
+        return False
+
+    # Should be a super call with the MRO pointer being the
+    # current class and the type being the current instance.
+    current_scope = function.parent.scope()
+    if (
+        super_call.mro_pointer != current_scope
+        or not isinstance(super_call.type, astroid.Instance)
+        or super_call.type.name != current_scope.name
+    ):
+        return False
+
+    return True
+
+
 # Deal with parameters overriding in two methods.
 
 
@@ -1171,7 +1224,7 @@ a metaclass class method.",
 
     visit_asyncfunctiondef = visit_functiondef
 
-    def _check_useless_super_delegation(self, function):
+    def _check_useless_super_delegation(self, function: nodes.FunctionDef) -> None:
         """Check if the given function node is an useless method override.
 
         We consider it *useless* if it uses the super() builtin, but having
@@ -1182,55 +1235,17 @@ a metaclass class method.",
         this method, then the method could be removed altogether, by letting
         other implementation to take precedence.
         """
-
-        if (
-            not function.is_method()
-            # With decorators is a change of use
-            or function.decorators
-        ):
+        if not _is_trivial_super_delegation(function):
             return
 
-        body = function.body
-        if len(body) != 1:
-            # Multiple statements, which means this overridden method
-            # could do multiple things we are not aware of.
-            return
+        call = function.body[0].value
 
-        statement = body[0]
-        if not isinstance(statement, (nodes.Expr, nodes.Return)):
-            # Doing something else than what we are interested into.
-            return
-
-        call = statement.value
-        if (
-            not isinstance(call, nodes.Call)
-            # Not a super() attribute access.
-            or not isinstance(call.func, nodes.Attribute)
-        ):
-            return
-
-        # Should be a super call.
-        try:
-            super_call = next(call.func.expr.infer())
-        except astroid.InferenceError:
-            return
-        else:
-            if not isinstance(super_call, astroid.objects.Super):
-                return
-
-        # The name should be the same.
-        if call.func.attrname != function.name:
-            return
-
-        # Should be a super call with the MRO pointer being the
-        # current class and the type being the current instance.
-        current_scope = function.parent.scope()
-        if (
-            super_call.mro_pointer != current_scope
-            or not isinstance(super_call.type, astroid.Instance)
-            or super_call.type.name != current_scope.name
-        ):
-            return
+        # Classes that override __eq__ should also override
+        # __hash__, even a trivial override is meaningful
+        if function.name == "__hash__":
+            for other_method in function.parent.mymethods():
+                if other_method.name == "__eq__":
+                    return
 
         # Check values of default args
         klass = function.parent.frame(future=True)
