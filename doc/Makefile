@@ -38,14 +38,14 @@ help:
 clean:
 	-rm -rf $(BUILDDIR)/*
 
-html:
-	@echo
-	@echo "Install dependencies"
-	$(PIP) install furo
-	@echo "Finished installing dependencies"
+build-html:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
+	@echo "HTML build complete"
+
+html: build-html
+	@echo "Install dependencies"
+	$(PIP) install -r requirements.txt
 	$(SPHINXBUILD) -b linkcheck $(ALLSPHINXOPTS) $(BUILDDIR)/linkcheck
-	@echo
 	@echo "Link check complete; look for any errors in the above output " \
 	      "or in $(BUILDDIR)/linkcheck/output.txt."
 
