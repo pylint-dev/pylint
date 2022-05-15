@@ -11,5 +11,5 @@ User Guide
    output
    message-control
    options
-   ide-integration
+   ide_integration/ide-integration
    pre-commit-integration
