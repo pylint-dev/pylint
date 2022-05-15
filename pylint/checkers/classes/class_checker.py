@@ -133,7 +133,8 @@ def _is_trivial_super_delegation(function: nodes.FunctionDef) -> bool:
     """
     if (
         not function.is_method()
-        # With decorators is a change of use
+        # Adding decorators to a function changes behavior and
+        # constitutes a non-trivial change.
         or function.decorators
     ):
         return False
@@ -146,7 +147,7 @@ def _is_trivial_super_delegation(function: nodes.FunctionDef) -> bool:
 
     statement = body[0]
     if not isinstance(statement, (nodes.Expr, nodes.Return)):
-        # Doing something else than what we are interested into.
+        # Doing something else than what we are interested in.
         return False
 
     call = statement.value
@@ -1227,7 +1228,7 @@ a metaclass class method.",
 
     visit_asyncfunctiondef = visit_functiondef
 
-    def _check_useless_super_delegation(self, function: nodes.FunctionDef):
+    def _check_useless_super_delegation(self, function: nodes.FunctionDef) -> None:
         """Check if the given function node is an useless method override.
 
         We consider it *useless* if it uses the super() builtin, but having
