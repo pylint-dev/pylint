@@ -18,6 +18,7 @@ from typing import Any, Callable, Optional
 import astroid
 from astroid import nodes
 
+from pylint import constants
 from pylint.pyreverse import utils
 
 _WrapperFuncT = Callable[[Callable[[str], nodes.Module], str], Optional[nodes.Module]]
@@ -322,7 +323,7 @@ def project_from_files(
     files: list[str],
     func_wrapper: _WrapperFuncT = _astroid_wrapper,
     project_name: str = "no name",
-    black_list: tuple[str, ...] = ("CVS",),
+    black_list: tuple[str, ...] = constants.DEFAULT_IGNORE_LIST,
 ) -> Project:
     """Return a Project from a list of files or modules."""
     # build the project representation

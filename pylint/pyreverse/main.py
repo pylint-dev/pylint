@@ -10,6 +10,7 @@ import sys
 from collections.abc import Sequence
 from typing import NoReturn
 
+from pylint import constants
 from pylint.config.arguments_manager import _ArgumentsManager
 from pylint.config.arguments_provider import _ArgumentsProvider
 from pylint.lint.utils import fix_import_path
@@ -175,7 +176,7 @@ OPTIONS: Options = (
             type="csv",
             metavar="<file[,file...]>",
             dest="ignore_list",
-            default=("CVS",),
+            default=constants.DEFAULT_IGNORE_LIST,
             help="Files or directories to be skipped. They should be base names, not paths.",
         ),
     ),
