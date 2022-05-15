@@ -7,7 +7,7 @@ from pathlib import Path
 from pylint.testutils import pyreverse
 
 HERE = Path(__file__).parent
-DATA_DIRECTORY = HERE / "data" / "pyreverse"
+DATA_DIRECTORY = HERE / "pyreverse_data"
 TEST_FILES = {
     testfile.source.stem: testfile
     for testfile in pyreverse.get_functional_test_files(DATA_DIRECTORY)
