@@ -158,14 +158,10 @@ def _is_trivial_super_delegation(function: nodes.FunctionDef) -> bool:
     ):
         return False
 
-    # Should be a super call.
-    try:
-        super_call = next(call.func.expr.infer())
-    except astroid.InferenceError:
+    # Anything other than a super call is non-trivial.
+    super_call = safe_infer(call.func.expr)
+    if not isinstance(super_call, astroid.objects.Super):
         return False
-    else:
-        if not isinstance(super_call, astroid.objects.Super):
-            return False
 
     # The name should be the same.
     if call.func.attrname != function.name:
