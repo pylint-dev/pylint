@@ -6,49 +6,19 @@
 Frequently Asked Questions
 ==========================
 
-1. About Pylint
-===============
-
-1.1 What is Pylint?
---------------------
-
-Pylint is a `static code checker`_, meaning it can analyse your code without
-actually running it. Pylint checks for errors, tries to enforce a coding
-standard, and tries to enforce a coding style.
-
-.. _`static code checker`: https://en.wikipedia.org/wiki/Static_code_analysis
-
-
-2. Installation
-===============
-
-2.1 How do I install Pylint?
-----------------------------
+How do I install Pylint?
+------------------------
 
 Everything should be explained on :ref:`installation`.
 
-2.2 What kind of versioning system does Pylint use?
----------------------------------------------------
+What kind of versioning system does Pylint use?
+-----------------------------------------------
 
 Pylint uses git. To get the latest version of Pylint from the repository, simply invoke ::
 
     git clone https://github.com/PyCQA/pylint
 
 .. _git: https://git-scm.com/
-
-2.3 What are Pylint's dependencies?
------------------------------------
-
-Pylint depends on astroid_ and a couple of other packages.
-See the following section for details on what versions of Python are
-supported.
-
-.. _`astroid`: https://github.com/PyCQA/astroid
-
-2.4 What versions of Python is Pylint supporting?
--------------------------------------------------
-
-The supported running environment since Pylint 2.14.0 is Python 3.7.2+.
 
 
 3. Running Pylint
@@ -303,13 +273,3 @@ Pylint, you can set ``evaluation`` to the above expression to get the new
 behavior. Likewise, since negative values are still technically supported,
 ``evaluation`` can be set to a version of the above expression that does not
 enforce a floor of zero.
-
-6.2 I think I found a bug in Pylint. What should I do?
--------------------------------------------------------
-
-Read :ref:`Bug reports, feedback`
-
-6.3 I have a question about Pylint that isn't answered here.
-------------------------------------------------------------
-
-Read :ref:`Mailing lists`
