@@ -33,63 +33,63 @@ The pragma controls can disable / enable:
 
 * All the violations on a single line
 
-    .. sourcecode:: python
+.. sourcecode:: python
 
-        a, b = ... # pylint: disable=unbalanced-tuple-unpacking
+    a, b = ... # pylint: disable=unbalanced-tuple-unpacking
 
 * All the violations on the following line
 
-    .. sourcecode:: python
+.. sourcecode:: python
 
-        # pylint: disable-next=unbalanced-tuple-unpacking
-        a, b = ...
+    # pylint: disable-next=unbalanced-tuple-unpacking
+    a, b = ...
 
 * All the violations in a single scope
 
-    .. sourcecode:: python
+.. sourcecode:: python
 
-        def test():
-            # Disable all the no-member violations in this function
-            # pylint: disable=no-member
-            ...
+    def test():
+        # Disable all the no-member violations in this function
+        # pylint: disable=no-member
+        ...
 
 * All the violations in a `block`. For instance, each separate branch of an
   ``if`` statement is considered a separate block, as in the following example:
 
-    .. sourcecode:: python
+.. sourcecode:: python
 
-        def meth5(self):
-            # pylint: disable=no-member
-            # no error
-            print(self.bla)
-            if self.blop:
-                # pylint: enable=no-member
-                # enable all no-members for this block
-                print(self.blip)
-            else:
-                # This is affected by the scope disable
-                print(self.blip)
+    def meth5(self):
+        # pylint: disable=no-member
+        # no error
+        print(self.bla)
+        if self.blop:
             # pylint: enable=no-member
+            # enable all no-members for this block
             print(self.blip)
-            if self.blop:
-                # pylint: disable=no-member
-                # disable all no-members for this block
-                print(self.blip)
-            else:
-                # This emits a violation
-                print(self.blip)
+        else:
+            # This is affected by the scope disable
+            print(self.blip)
+        # pylint: enable=no-member
+        print(self.blip)
+        if self.blop:
+            # pylint: disable=no-member
+            # disable all no-members for this block
+            print(self.blip)
+        else:
+            # This emits a violation
+            print(self.blip)
 
 
 * If the violation occurs on a block starting line, then it applies only to that line
 
-    .. sourcecode:: python
+.. sourcecode:: python
 
-        if self.blop: # pylint: disable=no-member; applies only to this line
-            # Here we get an error
-            print(self.blip)
-        else:
-            # error
-            print(self.blip)
+    if self.blop: # pylint: disable=no-member; applies only to this line
+        # Here we get an error
+        print(self.blip)
+    else:
+        # error
+        print(self.blip)
 
 
 
