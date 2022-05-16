@@ -45,16 +45,21 @@ extensions = [
     "sphinx_reredirects",
 ]
 
+
+# Single file redirects are handled in this file and can be done by a pylint
+# contributor. See:
 # https://documatt.gitlab.io/sphinx-reredirects/usage.html
+# Directory redirects are handled in ReadTheDoc admin interface and can only be done
+# by pylint maintainers at the following URL:
+# https://readthedocs.org/dashboard/pylint/redirects/
 redirects: dict[str, str] = {
     # "<source>": "<target>"
     "intro": "index.html",
     "support": "contact.html",
     "user_guide/ide-integration": "installation.html",
-    "messages/index": "user_guide/messages/index.html",
     "messages/messages_introduction": "user_guide/messages/index.html",
     "messages/messages_list": "user_guide/messages/messages_overview.html",
-    "user_guide/message-control": "user_guide/messages/message-control.html",
+    "user_guide/message-control": "user_guide/messages/message_control.html",
 }
 
 # Add any paths that contain templates here, relative to this directory.
