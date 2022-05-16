@@ -53,6 +53,7 @@ redirects: dict[str, str] = {
     "user_guide/ide-integration": "installation.html",
     "messages/index": "user_guide/messages/index.html",
     "messages/messages_introduction": "user_guide/messages/index.html",
+    "messages/messages_list": "user_guide/messages/messages_overview.html",
     "user_guide/message-control": "user_guide/messages/message-control.html",
 }
 

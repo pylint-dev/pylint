@@ -230,7 +230,8 @@ def _write_single_message_page(category_dir: Path, message: MessageData) -> None
             stream.write(
                 f"""
 .. note::
-  This message is emitted by an optional checker which requires the ``{message.checker_module_name}`` plugin to be loaded. See: :ref:`{message.checker_module_name}`.
+  This message is emitted by an optional checker which requires the ``{message.checker_module_name}``
+  plugin to be loaded. See: :ref:`{message.checker_module_name}`.
 
 """
             )
@@ -244,22 +245,24 @@ def _write_messages_list_page(
     messages_dict: MessagesDict, old_messages_dict: OldMessagesDict
 ) -> None:
     """Create or overwrite the page with the list of all messages."""
-    messages_file = os.path.join(PYLINT_MESSAGES_PATH, "messages_list.rst")
+    messages_file = os.path.join(PYLINT_MESSAGES_PATH, "messages_overview.rst")
     with open(messages_file, "w", encoding="utf-8") as stream:
         # Write header of file
+        title = "Messages overview"
         stream.write(
-            f""".. _messages-list:
+            f"""
+.. _messages-overview:
 
-{get_rst_title("Overview of all Pylint messages", "=")}
+{"#" * len(title)}
+{get_rst_title(title, "#")}
 ..
   NOTE This file is auto-generated. Make any changes to the associated
-  docs extension in 'pylint_messages.py'.
+  docs extension in 'doc/exts/pylint_messages.py'.
 
 Pylint can emit the following messages:
 
 """
         )
-
         # Iterate over tuple to keep same order
         for category in (
             "fatal",
@@ -272,15 +275,19 @@ Pylint can emit the following messages:
             messages = sorted(messages_dict[category], key=lambda item: item.name)
             old_messages = sorted(old_messages_dict[category], key=lambda item: item[0])
             messages_string = "".join(
-                f"   {category}/{message.name}.rst\n" for message in messages
+                f"   {category}/{message.name}\n" for message in messages
             )
             old_messages_string = "".join(
-                f"   {category}/{old_message[0]}.rst\n" for old_message in old_messages
+                f"   {category}/{old_message[0]}\n" for old_message in old_messages
             )
 
-            # Write list per category
+            # Write list per category. We need the '-category' suffix in the reference
+            # because 'fatal' is also a message's symbol
             stream.write(
-                f"""{get_rst_title(category.capitalize(), "-")}
+                f"""
+.. _{category.lower()}-category:
+
+{get_rst_title(category.capitalize(), "*")}
 All messages in the {category} category:
 
 .. toctree::
@@ -294,9 +301,7 @@ All renamed messages in the {category} category:
    :maxdepth: 1
    :titlesonly:
 
-{old_messages_string}
-
-"""
+{old_messages_string}"""
             )
 
 
