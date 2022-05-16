@@ -1,5 +1,15 @@
+.. _pylint_in_flymake:
+
 Using Pylint through Flymake in Emacs
 =====================================
+
+.. warning::
+   If you're reading this doc and are actually using flymake please
+   open a support question at https://github.com/PyCQA/pylint/issues/new/choose
+   and tell us, we don't have any maintainers for emacs and are thinking about
+   dropping the support.
+
+.. TODO 3.0, do we still need to support flymake ?
 
 To enable Flymake for Python, insert the following into your .emacs:
 

@@ -50,14 +50,13 @@ Editor integration
 - :ref:`Flymake <pylint_in_flymake>`
 - `Jupyter Notebook`_
 - Komodo_
-- PyCharm_ :ref:`the section below <pylint_in_pycharm>`
+- :ref:`PyCharm <pylint_in_pycharm>`
 - PyDev_
 - pyscripter_ in the `Tool -> Tools` menu.
 - Spyder_ in the `View -> Panes -> Static code analysis`
-- TextMate_  :ref:`the section below <pylint_in_textmate>`
+- :ref:`TextMate <pylint_in_textmate>`
 - Vim_
-- `Visual Studio`_
-- `Visual Studio Code`_ in the `Preferences -> Settings` menu (`Visual Studio Code Pylint Extension`_)
+- :ref:`Visual Studio Code <visual-studio-code>` in the `Preferences -> Settings` menu
 - `Visual Studio`_ in the `Python > Run PyLint` command on a project's context menu.
 - WingIDE_
 
@@ -68,13 +67,9 @@ Editor integration
 .. _another option for gedit: https://wiki.gnome.org/Apps/Gedit/PylintPlugin
 .. _Jupyter Notebook:  https://github.com/nbQA-dev/nbQA
 .. _Komodo: https://mateusz.loskot.net/post/2006/01/15/running-pylint-from-komodo/
-.. _PyCharm: https://www.jetbrains.com/pycharm/
-.. _pydev: https://www.pydev.org/
+.. _pydev: https://www.pydev.org/manual_adv_pylint.html
 .. _pyscripter: https://github.com/pyscripter/pyscripter
 .. _spyder: https://docs.spyder-ide.org/current/panes/pylint.html
-.. _TextMate: https://macromates.com
 .. _Vim: https://www.vim.org/scripts/script.php?script_id=891
-.. _Visual Studio Code: https://code.visualstudio.com/docs/python/linting
-.. _Visual Studio Code Pylint Extension: https://marketplace.visualstudio.com/items?itemName=ms-python.pylint
 .. _Visual Studio: https://docs.microsoft.com/visualstudio/python/code-pylint
 .. _WingIDE: https://wingware.com/doc/warnings/external-checkers

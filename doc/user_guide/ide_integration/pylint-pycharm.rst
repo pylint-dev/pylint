@@ -1,7 +1,7 @@
+.. _pylint_in_pycharm:
+
 Integrate Pylint with PyCharm
 =============================
-
-.. _pylint_in_pycharm:
 
 Install Pylint the usual way::
 
