@@ -51,6 +51,9 @@ redirects: dict[str, str] = {
     "intro": "index.html",
     "support": "contact.html",
     "user_guide/ide-integration": "installation.html",
+    "messages/index": "user_guide/messages/index.html",
+    "messages/messages_introduction": "user_guide/messages/index.html",
+    "user_guide/message-control": "user_guide/messages/message-control.html",
 }
 
 # Add any paths that contain templates here, relative to this directory.
