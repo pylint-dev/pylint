@@ -3,7 +3,7 @@
 coveralls~=3.3
 coverage~=6.3.3
 pre-commit~=2.19
-tbump~=6.8.0
+tbump~=6.9.0
 contributors-txt>=0.7.3
 pytest-cov~=3.0
 pytest-profiling~=1.7
