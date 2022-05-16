@@ -136,6 +136,11 @@ group are mutually exclusive.",
             linter, args, reporter, config_file=self._rcfile, verbose_mode=self.verbose
         )
 
+        # Display help messages if there are no files to lint
+        if not args:
+            print(linter.help())
+            sys.exit(32)
+
         if linter.config.jobs < 0:
             print(
                 f"Jobs number ({linter.config.jobs}) should be greater than or equal to 0",

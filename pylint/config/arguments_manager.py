@@ -71,6 +71,8 @@ class _ArgumentsManager:
             usage=usage or "%(prog)s [options]",
             description=description,
             formatter_class=_HelpFormatter,
+            # Needed to let 'pylint-config' overwrite the -h command
+            conflict_handler="resolve",
         )
         """The command line argument parser."""
 
