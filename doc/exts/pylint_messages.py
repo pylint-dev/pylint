@@ -230,8 +230,8 @@ def _write_single_message_page(category_dir: Path, message: MessageData) -> None
             stream.write(
                 f"""
 .. note::
-  This message is emitted by an optional checker which requires the ``{message.checker_module_name}``
-  plugin to be loaded. See: :ref:`{message.checker_module_name}`.
+  This message is emitted by the optional :ref:`'{message.checker}'<{message.checker_module_name}>` checker which requires the ``{message.checker_module_name}``
+  plugin to be loaded.
 
 """
             )
