@@ -126,6 +126,8 @@ between runs, you will need to clear pylint's inference cache:
 Command line options
 --------------------
 
+.. _run_command_line:
+
 First of all, we have two basic (but useful) options.
 
 --version             show program's version number and exit
