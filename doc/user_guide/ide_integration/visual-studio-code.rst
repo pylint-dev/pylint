@@ -4,15 +4,15 @@ Integrate Pylint with Visual Studio Code
 Command-line arguments and configuration files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-See `Pylint command line arguments`_ for general switches. Command line
-arguments can be used to load Pylint plugins, such as that for Django:
+See :ref:`Pylint command line arguments <run_command_line>` for general switches.
+Command line arguments can be used to load Pylint plugins, such as that for Django:
 
 ::
 
     "python.linting.pylintArgs": ["--load-plugins", "pylint_django"]
 
 Options can also be specified in a ``pylintrc`` or ``.pylintrc`` file in
-the workspace folder, as described on `Pylint command line arguments`_.
+the workspace folder, as described on :ref:`Pylint command line arguments <run_command_line>`/
 
 To control which Pylint messages are shown, add the following contents
 to an options file:
@@ -53,5 +53,3 @@ setting to change the mapping.
 +----------------------+-----------------------------------+------------------+
 | fatal                | pylintCategorySeverity.fatal      | Error            |
 +----------------------+-----------------------------------+------------------+
-
-.. _Pylint command line arguments: https://pylint.pycqa.org/en/latest/user_guide/run.html#command-line-options
