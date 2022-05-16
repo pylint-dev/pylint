@@ -1,5 +1,12 @@
+.. _visual-studio-code:
+
 Integrate Pylint with Visual Studio Code
 ========================================
+
+See external documentation:
+
+- Linting python: https://code.visualstudio.com/docs/python/linting
+- Pylint Extension: https://marketplace.visualstudio.com/items?itemName=ms-python.pylint
 
 Command-line arguments and configuration files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

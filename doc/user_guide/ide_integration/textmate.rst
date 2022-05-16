@@ -1,7 +1,7 @@
+.. _pylint_in_textmate:
+
 Integrate Pylint with TextMate
 ==============================
-
-.. _pylint_in_textmate:
 
 Install Pylint in the usual way::
 
