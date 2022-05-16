@@ -177,13 +177,17 @@ def _write_message_page(messages_dict: MessagesDict) -> None:
         if not category_dir.exists():
             category_dir.mkdir(parents=True, exist_ok=True)
         for message in messages:
-            checker_module_rel_path = os.path.relpath(
-                message.checker_module_path, PYLINT_BASE_PATH
-            )
-            messages_file = os.path.join(category_dir, f"{message.name}.rst")
-            with open(messages_file, "w", encoding="utf-8") as stream:
-                stream.write(
-                    f""".. _{message.name}:
+            _write_single_message_page(category_dir, message)
+
+
+def _write_single_message_page(category_dir: Path, message: MessageData) -> None:
+    checker_module_rel_path = os.path.relpath(
+        message.checker_module_path, PYLINT_BASE_PATH
+    )
+    messages_file = os.path.join(category_dir, f"{message.name}.rst")
+    with open(messages_file, "w", encoding="utf-8") as stream:
+        stream.write(
+            f""".. _{message.name}:
 
 {get_rst_title(f"{message.name} / {message.id}", "=")}
 **Message emitted:**
@@ -199,19 +203,19 @@ def _write_message_page(messages_dict: MessagesDict) -> None:
 {message.details}
 {message.related_links}
 """
-                )
-                if message.checker_module_name.startswith("pylint.extensions."):
-                    stream.write(
-                        f"""
+        )
+        if message.checker_module_name.startswith("pylint.extensions."):
+            stream.write(
+                f"""
 .. note::
   This message is emitted by an optional checker which requires the ``{message.checker_module_name}`` plugin to be loaded. See: :ref:`{message.checker_module_name}`.
 
 """
-                    )
-                checker_url = f"https://github.com/PyCQA/pylint/blob/main/{checker_module_rel_path}"
-                stream.write(
-                    f"Created by the `{message.checker} <{checker_url}>`__ checker."
-                )
+            )
+        checker_url = (
+            f"https://github.com/PyCQA/pylint/blob/main/{checker_module_rel_path}"
+        )
+        stream.write(f"Created by the `{message.checker} <{checker_url}>`__ checker.")
 
 
 def _write_messages_list_page(
