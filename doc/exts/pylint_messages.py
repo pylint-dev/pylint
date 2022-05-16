@@ -158,13 +158,13 @@ def _get_all_messages(
             checker_module.__name__,
             checker_module.__file__,
         )
-        messages_dict[MSG_TYPES_DOC[message.msgid[0]]].append(message_data)
-
+        msg_type = MSG_TYPES_DOC[message.msgid[0]]
+        messages_dict[msg_type].append(message_data)
         if message.old_names:
             for old_name in message.old_names:
                 category = MSG_TYPES_DOC[old_name[0][0]]
                 old_messages[category][(old_name[1], old_name[0])].append(
-                    (message.symbol, MSG_TYPES_DOC[message.msgid[0]])
+                    (message.symbol, msg_type)
                 )
 
     return messages_dict, old_messages
