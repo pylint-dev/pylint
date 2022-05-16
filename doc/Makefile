@@ -39,14 +39,16 @@ clean:
 	-rm -rf $(BUILDDIR)/* messages/convention messages/error messages/fatal messages/information \
 	  messages/refactor messages/warning
 
+install-dependencies:
+	@echo "Install dependencies"
+	cd ../ && $(PIP) install -r doc/requirements.txt && cd doc/
 
 build-html:
+	@echo "If you did not run 'make install-dependencies', you need to."
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo "HTML build complete"
 
-html: build-html
-	@echo "Install dependencies"
-	$(PIP) install -r requirements.txt
+html: install-dependencies build-html
 	$(SPHINXBUILD) -b linkcheck $(ALLSPHINXOPTS) $(BUILDDIR)/linkcheck
 	@echo "Link check complete; look for any errors in the above output " \
 	      "or in $(BUILDDIR)/linkcheck/output.txt."
