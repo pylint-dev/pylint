@@ -37,7 +37,7 @@ help:
 
 clean:
 	-rm -rf $(BUILDDIR)/* messages/convention messages/error messages/fatal messages/information \
-	  messages/refactor messages/warning
+	  messages/refactor messages/warning technical_reference/extensions.rst technical_reference/features.rst
 
 install-dependencies:
 	@echo "Install dependencies"
