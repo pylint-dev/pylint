@@ -170,13 +170,35 @@ def _get_all_messages(
     return messages_dict, old_messages
 
 
+def _message_needs_update(message_data: MessageData, category: str) -> bool:
+    """Do we need to regenerate this message .rst ?"""
+    message_path = _get_message_path(category, message_data)
+    if not message_path.exists():
+        return True
+    message_path_stats = message_path.stat().st_mtime
+    checker_path_stats = Path(message_data.checker_module_path).stat().st_mtime
+    return checker_path_stats > message_path_stats
+
+
+def _get_category_directory(category: str) -> Path:
+    return PYLINT_MESSAGES_PATH / category
+
+
+def _get_message_path(category: str, message: MessageData) -> Path:
+    category_dir = _get_category_directory(category)
+    return category_dir / f"{message.name}.rst"
+
+
 def _write_message_page(messages_dict: MessagesDict) -> None:
     """Create or overwrite the file for each message."""
     for category, messages in messages_dict.items():
-        category_dir = PYLINT_MESSAGES_PATH / category
+        category_dir = _get_category_directory(category)
         if not category_dir.exists():
             category_dir.mkdir(parents=True, exist_ok=True)
         for message in messages:
+            if not _message_needs_update(message, category):
+                print(f"{message.name} is up to date.", end="\r")
+                continue
             _write_single_message_page(category_dir, message)
 
 
