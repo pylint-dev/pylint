@@ -24,7 +24,8 @@ def get_subparser_help(linter: PyLinter, command: str) -> str:
     for name, subparser in subparser_action.choices.items():
         assert isinstance(subparser, argparse.ArgumentParser)
         if name == command:
-            return subparser.format_help()
+            # Remove last character which is an extra new line
+            return subparser.format_help()[:-1]
     return ""  # pragma: no cover
 
 

@@ -33,11 +33,11 @@ def test_pylint_config_main_messages(capsys: CaptureFixture[str]) -> None:
         assert "--interactive" in captured.out
 
         with pytest.raises(SystemExit) as ex:
-            Run(["generate", "-h"])
+            Run(["generate"])
         captured_two = capsys.readouterr()
         assert captured_two.out == captured.out
         # This gets auto-raised by argparse to be 0.
-        assert ex.value.code == 0
+        assert ex.value.code == 32
 
         with pytest.raises(SystemExit) as ex:
             Run(["-h"])
