@@ -5,11 +5,11 @@ Messages
 ########
 
 .. toctree::
-  :maxdepth: 2
+  :maxdepth: 1
   :hidden:
 
   messages_overview.rst
-  message-control.rst
+  message_control.rst
 
 Messages categories
 ===================
