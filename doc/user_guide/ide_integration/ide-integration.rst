@@ -10,4 +10,3 @@ Pylint can be integrated in various editors and IDE's. Below you can find tutori
    flymake-emacs.rst
    pylint-pycharm.rst
    textmate.rst
-   visual-studio-code.rst

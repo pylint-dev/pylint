@@ -56,7 +56,8 @@ Editor integration
 - Spyder_ in the `View -> Panes -> Static code analysis`
 - :ref:`TextMate <pylint_in_textmate>`
 - Vim_
-- :ref:`Visual Studio Code <visual-studio-code>` in the `Preferences -> Settings` menu
+- `Visual Studio Code`_ in the `Preferences -> Settings` menu
+- `Visual Studio Code Pylint Extension`_
 - `Visual Studio`_ in the `Python > Run PyLint` command on a project's context menu.
 - WingIDE_
 
@@ -72,4 +73,6 @@ Editor integration
 .. _spyder: https://docs.spyder-ide.org/current/panes/pylint.html
 .. _Vim: https://www.vim.org/scripts/script.php?script_id=891
 .. _Visual Studio: https://docs.microsoft.com/visualstudio/python/code-pylint
+.. _Visual Studio Code: https://code.visualstudio.com/docs/python/linting#_pylint
+.. _Visual Studio Code Pylint Extension: https://marketplace.visualstudio.com/items?itemName=ms-python.pylint
 .. _WingIDE: https://wingware.com/doc/warnings/external-checkers
