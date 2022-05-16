@@ -3,11 +3,7 @@
 Messages control
 ================
 
-``pylint`` has an advanced message control for its checks, offering the ability
-to enable / disable a message either from the command line or from the configuration
-file, as well as from the code itself.
-
-For all of these controls, ``pylint`` accepts the following values:
+In order to control messages, ``pylint`` accepts the following values:
 
 * a symbolic message: ``no-member``, ``undefined-variable`` etc.
 

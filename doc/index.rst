@@ -44,7 +44,6 @@ re-evaluate and re-enable messages as your priorities evolve.
    tutorial
    user_guide/index.rst
    how_tos/index.rst
-   messages/index.rst
    technical_reference/index.rst
    development_guide/index.rst
    additional_commands/index.rst

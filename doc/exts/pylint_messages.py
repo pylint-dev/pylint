@@ -23,7 +23,7 @@ from pylint.utils import get_rst_title
 PYLINT_BASE_PATH = Path(__file__).resolve().parent.parent.parent
 """Base path to the project folder."""
 
-PYLINT_MESSAGES_PATH = PYLINT_BASE_PATH / "doc" / "messages"
+PYLINT_MESSAGES_PATH = PYLINT_BASE_PATH / "doc/user_guide/messages"
 """Path to the messages documentation folder."""
 
 PYLINT_MESSAGES_DATA_PATH = PYLINT_BASE_PATH / "doc" / "data" / "messages"
