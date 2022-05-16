@@ -87,6 +87,10 @@ Tips for Getting Started with Pylint Development
 Building the documentation
 ----------------------------
 
-We use **tox** for building the documentation::
+You can use the makefile and build-html command for building the documentation during developement::
 
-  $ tox -e docs
+  $ cd doc
+  $ pip install -r requirements.txt
+  $ make build-html
+
+We're reusing generated files for speed, use ``make clean`` when you want to start from scratch.
