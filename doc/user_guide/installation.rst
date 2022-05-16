@@ -50,7 +50,7 @@ Editor integration
 - :ref:`Flymake <pylint_in_flymake>`
 - `Jupyter Notebook`_
 - Komodo_
-- :ref:`PyCharm <pylint_in_pycharm>`
+- `Pycharm`_
 - PyDev_
 - pyscripter_ in the `Tool -> Tools` menu.
 - Spyder_ in the `View -> Panes -> Static code analysis`
@@ -68,6 +68,7 @@ Editor integration
 .. _another option for gedit: https://wiki.gnome.org/Apps/Gedit/PylintPlugin
 .. _Jupyter Notebook:  https://github.com/nbQA-dev/nbQA
 .. _Komodo: https://mateusz.loskot.net/post/2006/01/15/running-pylint-from-komodo/
+.. _Pycharm: https://stackoverflow.com/a/46409649/2519059
 .. _pydev: https://www.pydev.org/manual_adv_pylint.html
 .. _pyscripter: https://github.com/pyscripter/pyscripter
 .. _spyder: https://docs.spyder-ide.org/current/panes/pylint.html

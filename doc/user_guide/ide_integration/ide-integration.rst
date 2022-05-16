@@ -8,5 +8,4 @@ Pylint can be integrated in various editors and IDE's. Below you can find tutori
    :titlesonly:
 
    flymake-emacs.rst
-   pylint-pycharm.rst
    textmate.rst
