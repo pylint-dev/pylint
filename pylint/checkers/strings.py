@@ -399,7 +399,10 @@ class StringFormatChecker(BaseChecker):
                         )
 
     @only_required_for_messages(
-        "f-string-without-interpolation", "bad-format-character"
+        "f-string-without-interpolation",
+        "bad-format-character",
+        "bad-format-string",
+        "bad-string-format-type",
     )
     def visit_joinedstr(self, node: nodes.JoinedStr) -> None:
         node_string = node.as_string()[2 : len(node.as_string()) - 1]
@@ -431,6 +434,9 @@ class StringFormatChecker(BaseChecker):
                 try:
                     arg_type = utils.safe_infer(field)
                 except astroid.InferenceError:
+                    continue
+
+                if len(value.format_spec.values) == 0:
                     continue
 
                 (conversion, format_type) = format_map[

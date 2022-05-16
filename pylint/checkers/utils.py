@@ -57,6 +57,7 @@ SETITEM_METHOD = "__setitem__"
 DELITEM_METHOD = "__delitem__"
 CONTAINS_METHOD = "__contains__"
 KEYS_METHOD = "keys"
+FORMAT_SPEC_REGEX = r"^(?:.*{.*})?(?:[^{]?[<>=^])?[+\- ]?#?0?[0-9]*[_,]?(?:\.[0-9]*)?(?P<format_char>.)?$"
 
 # Dictionary which maps the number of expected parameters a
 # special method can have to a set of special methods.
@@ -597,8 +598,8 @@ def collect_string_fields(
             # the validation being done in the interpreter (?).
             # We're just returning two mixed fields in order
             # to trigger the format-combined-specification check.
-            yield ""
-            yield "1"
+            yield ("", None)
+            yield ("1", None)
             return
         raise IncompleteFormatString(format_string) from exc
 
@@ -610,90 +611,15 @@ def parse_format_spec(format_spec, start_point):
     index in the full string where this spec appears. Raises IncompleteFormatString or
     UnsupportedFormatCharacter if a parse error occurs.
     """
-    format_character = None
-    n = len(format_spec)
-    if n == 0:
-        return None
-
-    def next_char(i):
-        i += 1
-        if n == i:
-            return (i, "#")
-        return (i, format_spec[i])
-
-    i = 0
-    char = format_spec[0]
-
-    # Alignment
-    align = "<>=^"
-    if n > 1 and format_spec[1] in align:
-        i, char = next_char(i + 1)
-    elif format_spec[0] in align:
-        i, char = next_char(i)
-    elif n > 1 and format_spec[1] == "{":
-        end = format_spec[i:].find("}")
-        if end == -1:
-            raise IncompleteFormatString(format_spec)
-        # Parse end of spec
-        if n > i + end + 1:
-            parse_format_spec(format_spec[i + end + 1 :], start_point + i + end + 1)
-        return None
-
-    # Sign
-    sign = "+- "
-    if i < n and char in sign:
-        i, char = next_char(i)
-
-    # # Flag
-    if i < n and char == "#":
-        i, char = next_char(i)
-
-    # 0 Flag
-    if i < n and char == "0":
-        i, char = next_char(i)
-
-    # Width (optional).
-    while i < n and char in string.digits:
-        i, char = next_char(i)
-
-    # Grouping option (optional)
-    grouping_options = "_,"
-    if i < n and char in grouping_options:
-        i, char = next_char(i)
-
-    # Precision (optional).
-    if i < n and char == ".":
-        i, char = next_char(i)
-        if i == n:
-            return format_character
-        if char == "*":
-            i, char = next_char(i)
-        else:
-            while char in string.digits:
-                i, char = next_char(i)
-        if i == n:
-            return None
-
-    # We hit a nested field
-    if i < n and char == "{":
-        end = format_spec[i:].find("}")
-        if end == -1:
-            raise IncompleteFormatString(format_spec)
-        # Parse end of spec
-        if n > i + end + 1:
-            parse_format_spec(format_spec[i + end + 1 :], start_point + i + end + 1)
-        return None
-
-    # Format Type, final option
+    compiled = re.compile(FORMAT_SPEC_REGEX)
+    match = compiled.match(format_spec)
     types = "bcdeEfFgGnosxX%"
-    if i < n:
-        if char in types:
-            format_character = char
-            i, char = next_char(i)
-            if i == n:
-                return format_character
-            raise IncompleteFormatString(format_spec)
-        raise UnsupportedFormatCharacter(start_point + i)
+    if match:
+        format_char = match.groupdict().get("format_char")
+        if format_char and format_char not in types:
+            raise UnsupportedFormatCharacter(start_point + match.start("format_char"))
+        return format_char
+    raise IncompleteFormatString(format_spec)
 
 
 def parse_format_field(format_field, start_point):
@@ -709,18 +635,33 @@ def parse_format_field(format_field, start_point):
     """
     name_end = len(format_field)
     colon_idx = -1
+    open_blocks = []
     for (i, char) in enumerate(format_field):
-        if char == ":":
-            next_closebracket = format_field[i:].find("]")
-            next_openbracket = format_field[i:].find("[")
-            if next_closebracket == -1 or (
-                next_openbracket != -1 and next_openbracket < next_closebracket
-            ):
-                quote_count = format_field[i:].count("'")
-                dquote_count = format_field[i:].count('"')
-                if quote_count % 2 == 0 and dquote_count % 2 == 0:
-                    colon_idx = i
-                break
+        if char == "[" and (len(open_blocks) == 0 or open_blocks[-1] == "["):
+            open_blocks.append(char)
+        if char == "]":
+            if len(open_blocks) > 0 and open_blocks[-1] == "[":
+                open_blocks.pop()
+            else:
+                raise IncompleteFormatString(format_field)
+        if char == '"' and (i == 0 or format_field[i - 1] != "\\"):
+            if len(open_blocks) > 0 and open_blocks[-1] == '"':
+                open_blocks.pop()
+            elif '"' in open_blocks:
+                raise IncompleteFormatString(format_field)
+            else:
+                open_blocks.append('"')
+        if char == "'" and (i == 0 or format_field[i - 1] != "\\"):
+            if len(open_blocks) > 0 and open_blocks[-1] == "'":
+                open_blocks.pop()
+            elif "'" in open_blocks:
+                raise IncompleteFormatString(format_field)
+            else:
+                open_blocks.append("'")
+
+        if char == ":" and len(open_blocks) == 0:
+            colon_idx = i
+            break
 
     format_character = None
     format_spec = ""
