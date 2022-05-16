@@ -420,3 +420,46 @@ class _OutputFormatAction(_AccessLinterObjectAction):
             values[0], str
         ), "'output-format' should be a comma separated string of reporters"
         self.linter._load_reporters(values[0])
+
+
+class _AccessParserAction(_CallbackAction):
+    """Action that has access to the ArgumentParser object."""
+
+    def __init__(
+        self,
+        option_strings: Sequence[str],
+        dest: str,
+        nargs: None = None,
+        const: None = None,
+        default: None = None,
+        type: None = None,
+        choices: None = None,
+        required: bool = False,
+        help: str = "",
+        metavar: str = "",
+        **kwargs: argparse.ArgumentParser,
+    ) -> None:
+        self.parser = kwargs["parser"]
+
+        super().__init__(
+            option_strings,
+            dest,
+            0,
+            const,
+            default,
+            type,
+            choices,
+            required,
+            help,
+            metavar,
+        )
+
+    @abc.abstractmethod
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: str | Sequence[Any] | None,
+        option_string: str | None = None,
+    ) -> None:
+        raise NotImplementedError  # pragma: no cover

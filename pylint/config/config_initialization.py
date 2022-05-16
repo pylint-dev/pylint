@@ -91,15 +91,11 @@ def _config_initialization(
     # load plugin specific configuration.
     linter.load_plugin_configuration()
 
-    # parsed_args_list should now only be a list of files/directories to lint.
-    # All other options have been removed from the list.
-    if not parsed_args_list:
-        print(linter.help())
-        sys.exit(32)
-
     # Now that plugins are loaded, get list of all fail_on messages, and enable them
     linter.enable_fail_on_messages()
 
     linter._parse_error_mode()
 
+    # parsed_args_list should now only be a list of files/directories to lint.
+    # All other options have been removed from the list.
     return parsed_args_list
