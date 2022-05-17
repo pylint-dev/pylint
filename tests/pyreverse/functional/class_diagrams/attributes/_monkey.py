@@ -4,6 +4,7 @@
 
 class Monkey:
     def __init__(self, name):
+        # pylint: disable=import-outside-toplevel
         from delayed_external_monkey_patching import Tree
 
         self.name = name
