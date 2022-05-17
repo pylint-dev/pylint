@@ -1,4 +1,6 @@
-knights = {"gallahad": "the pure", "robin": "the brave"}
+knights = {"Gallahad": "the pure", "Robin": "the brave"}
 
-if "gallahad" in knights:  # [consider-using-get]
-    DESCRIPTION = knights["gallahad"]
+if "Gallahad" in knights:  # [consider-using-get]
+    DESCRIPTION = knights["Gallahad"]
+else:
+    DESCRIPTION = ""
