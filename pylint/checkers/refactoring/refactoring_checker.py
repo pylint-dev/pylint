@@ -321,7 +321,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "and increases readability compared to for-loop iteration.",
         ),
         "R1714": (
-            'Consider merging these comparisons with "in" to %r',
+            "Consider merging these comparisons with 'in' by using '%s %sin (%s)'."
+            " Use a set instead if elements are hashable.",
             "consider-using-in",
             "To check if a variable is equal to one of many values,"
             'combine the values into a tuple and check if the variable is contained "in" it '
@@ -1258,13 +1259,15 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         # Gather information for the suggestion
         common_variable = sorted(list(common_variables))[0]
-        comprehension = "in" if node.op == "or" else "not in"
         values = list(collections.OrderedDict.fromkeys(values))
         values.remove(common_variable)
         values_string = ", ".join(values) if len(values) != 1 else values[0] + ","
-        suggestion = f"{common_variable} {comprehension} ({values_string})"
-
-        self.add_message("consider-using-in", node=node, args=(suggestion,))
+        maybe_not = "" if node.op == "or" else "not "
+        self.add_message(
+            "consider-using-in",
+            node=node,
+            args=(common_variable, maybe_not, values_string),
+        )
 
     def _check_chained_comparison(self, node):
         """Check if there is any chained comparison in the expression.
