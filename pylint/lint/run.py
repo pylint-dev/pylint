@@ -12,6 +12,9 @@ from pathlib import Path
 from typing import Any, ClassVar
 
 from pylint import config
+from pylint.config._pylint_config import (
+    _register_generate_config_options,
+)
 from pylint.config.config_initialization import _config_initialization
 from pylint.config.exceptions import ArgumentPreprocessingError
 from pylint.config.utils import _preprocess_options
@@ -136,6 +139,11 @@ group are mutually exclusive.",
 
         linter.disable("I")
         linter.enable("c-extension-no-member")
+
+        # Register the options needed for 'pylint-config'
+        # By not registering them by default they don't show up in the normal usage message
+        if self._is_pylint_config:
+            _register_generate_config_options(linter._arg_parser)
 
         args = _config_initialization(
             linter, args, reporter, config_file=self._rcfile, verbose_mode=self.verbose
