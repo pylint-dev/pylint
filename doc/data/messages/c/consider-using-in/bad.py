@@ -1,4 +1,2 @@
-FRUIT = "melon"
-
-if FRUIT == "apple" or FRUIT == "orange" or FRUIT == "melon":  # [consider-using-in]
-    print(f"{FRUIT} found")
+def fruit_is_round(fruit):
+    return fruit == "apple" or fruit == "orange" or fruit == "melon":  # [consider-using-in]
