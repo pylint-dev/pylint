@@ -27,6 +27,16 @@ def run_pylint(argv: Sequence[str] | None = None) -> None:
         sys.exit(1)
 
 
+def _run_pylint_config(argv: Sequence[str] | None = None) -> None:
+    """Run pylint-config.
+
+    argv can be a sequence of strings normally supplied as arguments on the command line
+    """
+    from pylint.lint.run import _PylintConfigRun
+
+    _PylintConfigRun(argv or sys.argv[1:])
+
+
 def run_epylint(argv: Sequence[str] | None = None) -> NoReturn:
     """Run epylint.
 

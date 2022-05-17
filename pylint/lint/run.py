@@ -9,7 +9,7 @@ import sys
 import warnings
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Any
+from typing import Any, ClassVar
 
 from pylint import config
 from pylint.config.config_initialization import _config_initialization
@@ -88,6 +88,11 @@ class Run:
 group are mutually exclusive.",
         ),
     )
+    _is_pylint_config: ClassVar[bool] = False
+    """Boolean whether or not this is a 'pylint-config' run.
+
+    Used by _PylintConfigRun to make the 'pylint-config' command work.
+    """
 
     def __init__(
         self,
@@ -193,3 +198,13 @@ group are mutually exclusive.",
                     sys.exit(self.linter.msg_status or 1)
             else:
                 sys.exit(self.linter.msg_status)
+
+
+class _PylintConfigRun(Run):
+    """A private wrapper for the 'pylint-config' command."""
+
+    _is_pylint_config: ClassVar[bool] = True
+    """Boolean whether or not this is a 'pylint-config' run.
+
+    Used by _PylintConfigRun to make the 'pylint-config' command work.
+    """
