@@ -1,3 +1,3 @@
-knights = {"gallahad": "the pure", "robin": "the brave"}
+knights = {"Gallahad": "the pure", "Robin": "the brave"}
 
-description = knights.get("gallahad")
+description = knights.get("Gallahad", "")
