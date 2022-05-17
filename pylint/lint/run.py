@@ -13,6 +13,7 @@ from typing import Any, ClassVar
 
 from pylint import config
 from pylint.config._pylint_config import (
+    _handle_pylint_config_commands,
     _register_generate_config_options,
 )
 from pylint.config.config_initialization import _config_initialization
@@ -148,6 +149,17 @@ group are mutually exclusive.",
         args = _config_initialization(
             linter, args, reporter, config_file=self._rcfile, verbose_mode=self.verbose
         )
+
+        # Handle the 'pylint-config' command
+        if self._is_pylint_config:
+            warnings.warn(
+                "NOTE: The 'pylint-config' command is experimental and usage can change",
+                UserWarning,
+            )
+            code = _handle_pylint_config_commands(linter)
+            if exit:
+                sys.exit(code)
+            return
 
         # Display help messages if there are no files to lint
         if not args:
