@@ -6,10 +6,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import astroid
 from astroid import nodes
 
 from pylint import checkers, interfaces
-from pylint.checkers import utils
+from pylint.checkers import BaseChecker, utils
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -151,5 +152,66 @@ class ModifiedIterationChecker(checkers.BaseChecker):
         )
 
 
+class ChangedIterateeChecker(BaseChecker):
+    msgs = {
+        "E0130": (
+            "Iterated object %r is modified inside the loop",
+            "changed-iteratee",
+            "Used when iterated object is modified " "inside the loop.",
+        ),
+    }
+
+    class _LoopContext:
+        def __init__(self, node, klass, name):
+            self._node = node
+            self._klass = klass
+            self._name = name
+
+    def __init__(self, linter):
+        BaseChecker.__init__(self, linter)
+        self._loops = []
+
+    @staticmethod
+    def _locate_iterated_objects(node):
+        # TODO: other classes which provide __iter__ ?
+        if isinstance(node, astroid.Name):
+            klass = utils.safe_infer(node)
+            if isinstance(klass, astroid.Dict) or isinstance(klass, astroid.List):
+                return ChangedIterateeChecker._LoopContext(node, klass, node.name)
+            if (
+                isinstance(node, astroid.Call)
+                and isinstance(node.func, astroid.Attribute)
+                and isinstance(node.func.expr, astroid.Name)
+            ):
+                # Look for dict.values, dict.items or dict.keys
+                expr = node.func.expr
+                klass = utils.safe_infer(expr)
+        if isinstance(klass, astroid.Dict) and node.func.attrname in (
+            "keys",
+            "values",
+            "items",
+        ):
+            return ChangedIterateeChecker._LoopContext(node, klass, node.func.expr.name)
+        return None
+
+        def visit_for(self, node):
+            self._loops.append(self._locate_iterated_objects(node.iter))
+
+        def leave_for(self, node):
+            self._loops.pop()
+
+    @utils.check_messages("changed-iteratee")
+    def visit_assignname(self, node):
+        if isinstance(node, astroid.AssignName):
+            for loop in self._loops:
+                if loop._name == node.name:
+                    self.add_message("changed-iteratee", node=node, args=(node.name,))
+
+
+# TODO: detect other modification types:
+# * del x[i], x.append(), x.insert(), x.setdefault(), etc.
+
+
 def register(linter: PyLinter) -> None:
     linter.register_checker(ModifiedIterationChecker(linter))
+    linter.register_checker(ChangedIterateeChecker(linter))
