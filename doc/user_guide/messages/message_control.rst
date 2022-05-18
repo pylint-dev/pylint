@@ -23,6 +23,7 @@ In order to control messages, ``pylint`` accepts the following values:
 
 * All the checks with ``all``
 
+.. _block_disables:
 
 Block disables
 --------------
