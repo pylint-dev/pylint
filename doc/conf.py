@@ -74,7 +74,7 @@ copyright = f"2003-{current_year}, Logilab, PyCQA and contributors"  # pylint: d
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 # The short X.Y version.
-version = ".".join(str(i) for i in numversion[0:2])
+version = f"{numversion[0]}.{numversion[1]}"
 # The full version, including alpha/beta/rc tags.
 release = __version__
 
