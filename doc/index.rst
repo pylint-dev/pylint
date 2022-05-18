@@ -37,6 +37,12 @@ it's best to start with the ``--errors-only`` flag, then disable
 convention and refactor message with ``--disable=C,R`` and progressively
 re-evaluate and re-enable messages as your priorities evolve.
 
+
+Pylint ships with two additional tools:
+
+- :ref:`pyreverse <pyreverse>` (standalone that generates package and class diagrams.)
+- :ref:`symilar <symilar>`  (duplicate code finder also integrated in pylint)
+
 .. toctree::
    :titlesonly:
    :hidden:
@@ -46,7 +52,8 @@ re-evaluate and re-enable messages as your priorities evolve.
    how_tos/index.rst
    technical_reference/index.rst
    development_guide/index.rst
-   additional_commands/index.rst
+   pyreverse
+   symilar
    faq
    contact
    whatsnew/index.rst
