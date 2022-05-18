@@ -8,12 +8,8 @@ import os
 import sys
 from datetime import datetime
 
-# The version info for the project you're documenting, acts as replacement for
-# |version| and |release|, also used in various other places throughout the
-# built documents.
-#
-# The short X.Y version.
 from pylint import __version__
+from pylint.__pkginfo__ import numversion
 
 # Pylint documentation build configuration file, created by
 # sphinx-quickstart on Thu Apr  4 20:31:25 2013.
@@ -74,6 +70,11 @@ project = "Pylint"
 current_year = datetime.utcnow().year
 copyright = f"2003-{current_year}, Logilab, PyCQA and contributors"  # pylint: disable=redefined-builtin
 
+# The version info for the project you're documenting, acts as replacement for
+# |version| and |release|, also used in various other places throughout the
+# built documents.
+# The short X.Y version.
+version = ".".join(str(i) for i in numversion[0:2])
 # The full version, including alpha/beta/rc tags.
 release = __version__
 
