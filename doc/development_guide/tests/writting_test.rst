@@ -1,65 +1,38 @@
-.. -*- coding: utf-8 -*-
-.. _testing:
+.. _writing_tests:
 
-==============
- Testing
-==============
+Writing tests
+=============
 
-.. _test_your_code:
+Pylint uses three types of tests: unittests, functional tests and primer tests.
 
-Test your code!
+- :ref:`unittests <writing_unittests>` can be found in ``pylint/tests``. Unless you're working on pylint's
+  internal you're probably not going to have to write any.
+- :ref:`Global functional tests <writing_functional_tests>`  can be found in the ``pylint/tests/functional``. They are
+  mainly used to test whether Pylint emits the correct messages.
+- :ref:`Configuration's functional tests <writing_config_functional_tests>`  can be found in the
+  ``pylint/tests/config/functional``. They are used to test Pylint's configuration loading.
+- :ref:`Primer tests <primer_tests>` you can suggest a new external repository to check but there's nothing to do
+  most of the time.
+
+.. _writing_unittests:
+
+Unittest tests
+--------------
+
+Most other tests reside in the '/pylint/test' directory. These unittests can be used to test
+almost all functionality within Pylint. A good step before writing any new unittests is to look
+at some tests that test a similar funcitionality. This can often help write new tests.
+
+If your new test requires any additional files you can put those in the
+``/pylint/test/regrtest_data`` directory. This is the directory we use to store any data needed for
+the unittests.
+
+
+
+.. _writing_functional_tests:
+
+Functional tests
 ----------------
-
-Pylint is very well tested and has a high code coverage. New contributions are not accepted
-unless they include tests.
-
-Before you start testing your code, you need to install your source-code package locally.
-Suppose you have cloned pylint into a directory, say ``my-pylint``.
-To set up your environment for testing, open a terminal and run:
-
-    cd my-pylint
-    pip install -r requirements_test_min.txt
-
-This ensures your testing environment is similar to Pylint's testing environment on GitHub.
-
-Pylint uses two types of tests: unittests and functional tests.
-
-  - The unittests can be found in the ``/pylint/test`` directory and they can
-    be used for testing almost anything Pylint related.
-
-  - The functional tests can be found in the ``/pylint/test/functional`` directory. They are
-    mainly used to test whether Pylint emits the correct messages.
-
-Before writing a new test it is often a good idea to ensure that your change isn't
-breaking a current test. You can run our tests using the tox_ package, as in::
-
-    python -m tox
-    python -m tox -epy38 # for Python 3.8 suite only
-    python -m tox -epylint # for running Pylint over Pylint's codebase
-    python -m tox -eformatting # for running formatting checks over Pylint's codebase
-
-It's usually a good idea to run tox_ with ``--recreate``. This flag tells tox_ to redownload
-all dependencies before running the tests. This can be important when a new version of
-astroid_ or any of the other dependencies has been published::
-
-    python -m tox --recreate # The entire tox environment will be recreated
-    python -m tox --recreate -e py310 # The python 3.10 tox environment will be recreated
-
-
-To run only a specific test suite, use a pattern for the test filename
-(**without** the ``.py`` extension), as in::
-
-    python -m tox -e py310 -- -k test_functional
-    python -m tox -e py310 -- -k  \*func\*
-    python -m tox --recreate -e py310 -- -k test_functional # With recreation of the environment
-
-Since we use pytest_ to run the tests, you can also use it on its own.
-We do recommend using the tox_ command though::
-
-    pytest pylint -k test_functional
-
-Writing functional tests
-------------------------
 
 These are residing under ``/pylint/test/functional`` and they are formed of multiple
 components. First, each Python file is considered to be a test case and it
@@ -123,20 +96,11 @@ on the the current output by appending ``--update-functional-output`` to the com
 
     python tests/test_functional.py --update-functional-output -k "test_functional[len_checks]"
 
-Writing unittest tests
-------------------------
 
-Most other tests reside in the '/pylint/test' directory. These unittests can be used to test
-almost all functionality within Pylint. A good step before writing any new unittests is to look
-at some tests that test a similar funcitionality. This can often help write new tests.
+.. _writing_config_functional_tests:
 
-If your new test requires any additional files you can put those in the
-``/pylint/test/regrtest_data`` directory. This is the directory we use to store any data needed for
-the unittests.
-
-
-Writing functional tests for configurations
--------------------------------------------
+Functional tests for configurations
+-----------------------------------
 
 To test the different ways to configure Pylint there is also a small functional test framework
 for configuration files. These tests can be found in the '/pylint/test/config' directory.
@@ -168,32 +132,8 @@ and should exit with exit code 2 the ``.out`` file should be named ``bad_configu
 The content of the ``.out`` file should have a similar pattern as a normal Pylint output. Note that the
 module name should be ``{abspath}`` and the file name ``{relpath}``.
 
-Primer tests
--------------------------------------------
-
-Pylint also uses what we refer to as ``primer`` tests. These are tests that are run automatically
-in our Continuous Integration and check whether any changes in Pylint lead to crashes or fatal errors
-on the ``stdlib`` and a selection of external repositories.
-
-To run the ``primer`` tests you can add either ``--primer-stdlib`` or ``--primer-external`` to the
-pytest_ command. If you want to only run the ``primer`` you can add either of their marks, for example::
-
-    pytest -m primer_stdlib --primer-stdlib
-
-The external ``primer`` has been split up in two marks to speed up our Continuous Integration. You can run
-either of the two batches or run them both::
-
-    pytest -m primer_external_batch_one --primer-external # Runs batch one
-    pytest -m primer_external_batch_two --primer-external # Runs batch two
-    pytest -m "primer_external_batch_one or primer_external_batch_two" --primer-external # Runs both batches
-
-The list of repositories is created on the basis of three criteria: 1) projects need to use a diverse
-range of language features, 2) projects need to be well maintained and 3) projects should not have a codebase
-that is too repetitive. This guarantees a good balance between speed of our CI and finding potential bugs.
-
-You can find the latest list of repositories and any relevant code for these tests in the ``tests/primer``
-directory.
 
 .. _tox: https://tox.wiki/en/latest/
 .. _pytest: https://docs.pytest.org/en/latest/
+.. _pytest-cov: https://pypi.org/project/pytest-cov/
 .. _astroid: https://github.com/pycqa/astroid

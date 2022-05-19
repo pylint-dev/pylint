@@ -14,3 +14,4 @@ User Guide
    options
    ide_integration/ide-integration
    pre-commit-integration
+   badge
