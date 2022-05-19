@@ -40,8 +40,8 @@ re-evaluate and re-enable messages as your priorities evolve.
 
 Pylint ships with two additional tools:
 
-- :ref:`pyreverse <pyreverse>` (standalone that generates package and class diagrams.)
-- :ref:`symilar <symilar>`  (duplicate code finder also integrated in pylint)
+- :ref:`pyreverse <pyreverse>` (standalone tool that generates package and class diagrams.)
+- :ref:`symilar <symilar>`  (duplicate code finder that is also integrated in pylint)
 
 .. toctree::
    :titlesonly:
