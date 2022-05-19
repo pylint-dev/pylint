@@ -47,29 +47,21 @@ extensions = [
 
 
 # Single file redirects are handled in this file and can be done by a pylint
-# contributor if no englobing full directory redirect is applied first. See:
+# contributor. We use the following extension:
 # https://documatt.gitlab.io/sphinx-reredirects/usage.html
 # Directory redirects are handled in ReadTheDoc admin interface and can only be done
 # by pylint maintainers at the following URL:
 # https://readthedocs.org/dashboard/pylint/redirects/
-DIRECTORY_REDIRECT = [
-    # This list has no effect it must be manually updated from the Read the doc conf
-    "messages/",
-]
 redirects: dict[str, str] = {
     # "<source>": "<target>"
     "intro": "index.html",
     "support": "contact.html",
     "user_guide/ide-integration": "installation.html",
-    "user_guide/message-control": "user_guide/messages/message_control.html",
     "additional_commands/index": "../index.html",
+    "messages/messages_introduction": "../user_guide/messages/index.html",
+    "messages/messages_list": "../user_guide/messages/messages_overview.html",
+    "user_guide/message-control": "messages/message_control.html",
 }
-for m in redirects:
-    for r in DIRECTORY_REDIRECT:
-        assert not m.startswith(r), (
-            f"Redirection will silentely fail: '{m}' start with '{r}' and "
-            "the whole directory is redirected by ReadtheDoc conf already."
-        )
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
