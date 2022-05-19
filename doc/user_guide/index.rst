@@ -9,7 +9,7 @@ User Guide
    installation
    run
    output
-   messages/messages_introduction
+   messages/index
    options
    ide_integration/ide-integration
    pre-commit-integration

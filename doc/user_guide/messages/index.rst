@@ -8,7 +8,7 @@ Messages
   :maxdepth: 1
   :hidden:
 
-  messages_list.rst
+  messages_overview.rst
   message_control.rst
 
 Messages categories
