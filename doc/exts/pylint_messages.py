@@ -197,7 +197,6 @@ def _write_message_page(messages_dict: MessagesDict) -> None:
             category_dir.mkdir(parents=True, exist_ok=True)
         for message in messages:
             if not _message_needs_update(message, category):
-                # print(f"{message.name} is up to date.", end="\r")
                 continue
             _write_single_message_page(category_dir, message)
 
