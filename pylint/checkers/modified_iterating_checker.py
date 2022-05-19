@@ -56,9 +56,8 @@ class ModifiedIterationChecker(checkers.BaseChecker):
     )
     def visit_for(self, node: nodes.For) -> None:
         iter_obj = node.iter
-        if isinstance(iter_obj, nodes.Name):
-            for body_node in node.body:
-                self._modified_iterating_check_on_node_and_children(body_node, iter_obj)
+        for body_node in node.body:
+            self._modified_iterating_check_on_node_and_children(body_node, iter_obj)
 
     def _modified_iterating_check_on_node_and_children(
         self, body_node: nodes.NodeNG, iter_obj: nodes.NodeNG
@@ -72,7 +71,19 @@ class ModifiedIterationChecker(checkers.BaseChecker):
         self, node: nodes.NodeNG, iter_obj: nodes.NodeNG
     ) -> None:
         msg_id = None
-        if self._modified_iterating_list_cond(node, iter_obj):
+        if isinstance(node, nodes.Delete) and any(
+            self._deleted_iteration_target_cond(t, iter_obj) for t in node.targets
+        ):
+            inferred = utils.safe_infer(iter_obj)
+            if isinstance(inferred, nodes.List):
+                msg_id = "modified-iterating-list"
+            elif isinstance(inferred, nodes.Dict):
+                msg_id = "modified-iterating-dict"
+            elif isinstance(inferred, nodes.Set):
+                msg_id = "modified-iterating-set"
+        elif not isinstance(iter_obj, nodes.Name):
+            pass
+        elif self._modified_iterating_list_cond(node, iter_obj):
             msg_id = "modified-iterating-list"
         elif self._modified_iterating_dict_cond(node, iter_obj):
             msg_id = "modified-iterating-dict"
@@ -148,6 +159,22 @@ class ModifiedIterationChecker(checkers.BaseChecker):
         return (
             self._common_cond_list_set(node, iter_obj, infer_val)
             and node.value.func.attrname in _SET_MODIFIER_METHODS
+        )
+
+    def _deleted_iteration_target_cond(
+        self, node: nodes.DelName, iter_obj: nodes.NodeNG
+    ) -> bool:
+        if not isinstance(node, nodes.DelName):
+            return False
+        if not isinstance(iter_obj.parent, nodes.For):
+            return False
+        if not isinstance(
+            iter_obj.parent.target, (nodes.AssignName, nodes.BaseContainer)
+        ):
+            return False
+        return any(
+            t == node.name
+            for t in utils.find_assigned_names_recursive(iter_obj.parent.target)
         )
 
 

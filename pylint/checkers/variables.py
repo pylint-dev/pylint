@@ -1234,13 +1234,12 @@ class VariablesChecker(BaseChecker):
 
         global_names = _flattened_scope_names(node.nodes_of_class(nodes.Global))
         nonlocal_names = _flattened_scope_names(node.nodes_of_class(nodes.Nonlocal))
-        comprehension_target_names: list[str] = []
+        comprehension_target_names: set[str] = set()
 
         for comprehension_scope in node.nodes_of_class(nodes.ComprehensionScope):
             for generator in comprehension_scope.generators:
-                self._find_assigned_names_recursive(
-                    generator.target, comprehension_target_names
-                )
+                for name in utils.find_assigned_names_recursive(generator.target):
+                    comprehension_target_names.add(name)
 
         for name, stmts in not_consumed.items():
             self._check_is_unused(
@@ -1448,20 +1447,6 @@ class VariablesChecker(BaseChecker):
             return True
 
         return False
-
-    def _find_assigned_names_recursive(
-        self,
-        target: nodes.AssignName | nodes.BaseContainer,
-        target_names: list[str],
-    ) -> None:
-        """Update `target_names` in place with the names of assignment
-        targets, recursively (to account for nested assignments).
-        """
-        if isinstance(target, nodes.AssignName):
-            target_names.append(target.name)
-        elif isinstance(target, nodes.BaseContainer):
-            for elt in target.elts:
-                self._find_assigned_names_recursive(elt, target_names)
 
     # pylint: disable=too-many-return-statements
     def _check_consumer(
@@ -2264,7 +2249,7 @@ class VariablesChecker(BaseChecker):
         stmt,
         global_names,
         nonlocal_names: Iterable[str],
-        comprehension_target_names: list[str],
+        comprehension_target_names: Iterable[str],
     ) -> None:
         # Ignore some special names specified by user configuration.
         if self._is_name_ignored(stmt, name):
