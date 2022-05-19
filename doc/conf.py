@@ -62,7 +62,7 @@ redirects: dict[str, str] = {
     "support": "contact.html",
     "user_guide/ide-integration": "installation.html",
     "user_guide/message-control": "user_guide/messages/message_control.html",
-    "additional_commands/index": "index.html",
+    "additional_commands/index": "../index.html",
 }
 for m in redirects:
     for r in DIRECTORY_REDIRECT:
