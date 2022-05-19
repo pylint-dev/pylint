@@ -244,7 +244,7 @@ def _write_messages_list_page(
     messages_dict: MessagesDict, old_messages_dict: OldMessagesDict
 ) -> None:
     """Create or overwrite the page with the list of all messages."""
-    messages_file = os.path.join(PYLINT_MESSAGES_PATH, "messages_overview.rst")
+    messages_file = os.path.join(PYLINT_MESSAGES_PATH, "messages_list.rst")
     with open(messages_file, "w", encoding="utf-8") as stream:
         # Write header of file
         title = "Messages overview"
