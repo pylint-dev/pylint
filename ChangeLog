@@ -25,6 +25,10 @@ Release date: TBA
 
   Closes #6076
 
+* Fix ``unexpected-special-method-signature`` false positive for ``__init_subclass__`` methods with one or more arguments.
+
+  Closes #6644
+
 * Started ignoring underscore as a local variable for ``too-many-locals``.
 
   Closes #6488

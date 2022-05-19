@@ -273,6 +273,11 @@ Other Changes
 
   Closes #6594
 
+* Fix ``unexpected-special-method-signature`` false positive for ``__init_subclass__`` methods with one or more arguments.
+
+  Closes #6644
+
+
 Deprecations
 ============
 
