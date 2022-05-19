@@ -1,4 +1,3 @@
-
 Development
 ===========
 
@@ -7,6 +6,6 @@ Development
    :titlesonly:
 
    contribute
-   testing
+   tests/index
    api/index
    profiling

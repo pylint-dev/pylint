@@ -18,6 +18,9 @@ Pylint
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/ambv/black
 
+.. image:: https://img.shields.io/badge/linting-pylint-yellowgreen
+    :target: https://github.com/PyCQA/pylint
+
 .. image:: https://results.pre-commit.ci/badge/github/PyCQA/pylint/main.svg
    :target: https://results.pre-commit.ci/latest/github/PyCQA/pylint/main
    :alt: pre-commit.ci status
@@ -25,25 +28,6 @@ Pylint
 .. |tideliftlogo| image:: https://raw.githubusercontent.com/PyCQA/pylint/main/doc/media/Tidelift_Logos_RGB_Tidelift_Shorthand_On-White.png
    :width: 200
    :alt: Tidelift
-
-.. list-table::
-   :widths: 10 100
-
-   * - |tideliftlogo|
-     - Professional support for pylint is available as part of the `Tidelift
-       Subscription`_.  Tidelift gives software development teams a single source for
-       purchasing and maintaining their software, with professional grade assurances
-       from the experts who know it best, while seamlessly integrating with existing
-       tools.
-
-.. _Tidelift Subscription: https://tidelift.com/subscription/pkg/pypi-pylint?utm_source=pypi-pylint&utm_medium=referral&utm_campaign=readme
-
-Documentation
-=============
-
-Please check `the full documentation`_.
-
-.. _`the full documentation`: https://pylint.pycqa.org/
 
 What is pylint ?
 ================
@@ -73,67 +57,50 @@ re-evaluate and re-enable messages as your priorities evolve.
 
 Pylint ships with three additional tools:
 
-- :ref:`pyreverse <pyreverse>` (standalone tool that generates package and class diagrams.)
-- :ref:`symilar <symilar>`  (duplicate code finder that is also integrated in pylint)
-- :ref:`epylint <pylint_in_flymake>` (Emacs and Flymake compatible Pylint)
+- pyreverse_ (standalone tool that generates package and class diagrams.)
+- symilar_  (duplicate code finder that is also integrated in pylint)
+- epylint_ (Emacs and Flymake compatible Pylint)
+
+.. Enf of do not modify this without also modifying doc/index.rst
+
+.. _pyreverse: https://pylint.pycqa.org/en/latest/pyreverse.html
+.. _symilar: https://pylint.pycqa.org/en/latest/symilar.html
+.. _epylint: https://pylint.pycqa.org/en/latest/user_guide/ide_integration/flymake-emacs.html
 
 Install
 -------
 
-Pylint can be simply installed by running::
+.. Do not modify anything here, modify doc/user_guide/installation.rst instead
+
+For command line use, pylint is installed with::
 
     pip install pylint
 
-If you are using Python 3.7.2+, upgrade to get full support for your version::
+It can also be integrated in most editors or IDE. More information can be found
+`in the documentation`_.
 
-    pip install pylint --upgrade
+.. _in the documentation: https://pylint.pycqa.org/en/latest/user_guide/installation.html
 
-If you want to install from a source distribution, extract the tarball and run
-the following command ::
+Documentation
+=============
 
-    python setup.py install
+Please check `the full documentation`_.
 
+.. _`the full documentation`: https://pylint.pycqa.org/
 
-Do make sure to do the same for astroid, which is used internally by pylint.
+Contributing
+------------
 
-For debian and rpm packages, use your usual tools according to your Linux distribution.
+We welcome all contributions, doc, code, checking issues for duplicate or telling us
+that we can close them, confirming that it's still an issue, creating issues because
+you found a bug or want a feature... everything helps !
 
-More information about installation and available distribution format
-can be found here_.
+Please follow the `code of conduct`_ and check `the contribution documentation`_ if you want to
+make a code contribution.
 
-Testing
--------
+.. _code of conduct: https://github.com/Pierre-Sassoulas/pylint/blob/main/CODE_OF_CONDUCT.md
+.. _the contribution documentation: https://pylint.pycqa.org/en/latest/development_guide/contribute.html
 
-You should be able to install our tests dependencies with::
-
-    pip install -r requirements_test.txt
-
-You can then use pytest_ directly. If you want to run tests on a specific portion of the
-code with pytest_ and your local python version::
-
-    # ( pip install pytest-cov )
-    python3 -m pytest
-    # Everything in tests/message with coverage for the relevant code:
-    python3 -m pytest tests/message/ --cov=pylint.message
-    coverage html
-    # Only the functional test "missing_kwoa_py3":
-    python3 -m pytest "tests/test_functional.py::test_functional[missing_kwoa_py3]"
-
-You can also *optionally* install tox_. To run the test suite for a particular
-Python version, with tox you can do::
-
-    tox -e py39
-
-To run individual tests with ``tox``, you can do::
-
-    tox -e py37 -- -k name_of_the_test
-
-If you're testing new changes in astroid you need to clone astroid_ and install
-with an editable installation as follows::
-
-    git clone https://github.com/PyCQA/astroid.git
-    cd astroid
-    python3 -m pip install -e .
 
 Show your usage
 -----------------
@@ -143,27 +110,9 @@ You can place this badge in your README to let others know your project uses pyl
     .. image:: https://img.shields.io/badge/linting-pylint-yellowgreen
         :target: https://github.com/PyCQA/pylint
 
-Use the badge in your project's README.md (or any other Markdown file)::
+See how in `the badge documentation`_.
 
-    [![linting: pylint](https://img.shields.io/badge/linting-pylint-yellowgreen)](https://github.com/PyCQA/pylint)
-
-Use the badge in your project's README.rst (or any other rst file)::
-
-    .. image:: https://img.shields.io/badge/linting-pylint-yellowgreen
-        :target: https://github.com/PyCQA/pylint
-
-
-If you use GitHub Actions, and one of your CI workflows begins with "name: pylint", you
-can use GitHub's `workflow status badges <https://docs.github.com/en/actions/monitoring-and-troubleshooting-workflows/adding-a-workflow-status-badge#using-the-workflow-file-name>`_
-to show an up-to-date indication of whether pushes to your default branch pass pylint.
-For more detailed information, check the documentation.
-
-.. _here: https://pylint.pycqa.org/en/latest/user_guide/installation.html
-.. _tox: https://tox.readthedocs.io/en/latest/
-.. _pytest: https://docs.pytest.org/en/latest/
-.. _pytest-benchmark: https://pytest-benchmark.readthedocs.io/en/latest/index.html
-.. _pytest-cov: https://pypi.org/project/pytest-cov/
-.. _astroid: https://github.com/PyCQA/astroid
+.. _the badge documentation: https://pylint.pycqa.org/en/latest/user_guide/badge.html
 
 License
 -------
@@ -174,3 +123,18 @@ The icon files are licensed under the `CC BY-SA 4.0 <https://creativecommons.org
 
 - `doc/logo.png <https://raw.githubusercontent.com/PyCQA/pylint/main/doc/logo.png>`_
 - `doc/logo.svg <https://raw.githubusercontent.com/PyCQA/pylint/main/doc/logo.svg>`_
+
+Support
+-------
+
+.. list-table::
+   :widths: 10 100
+
+   * - |tideliftlogo|
+     - Professional support for pylint is available as part of the `Tidelift
+       Subscription`_.  Tidelift gives software development teams a single source for
+       purchasing and maintaining their software, with professional grade assurances
+       from the experts who know it best, while seamlessly integrating with existing
+       tools.
+
+.. _Tidelift Subscription: https://tidelift.com/subscription/pkg/pypi-pylint?utm_source=pypi-pylint&utm_medium=referral&utm_campaign=readme
