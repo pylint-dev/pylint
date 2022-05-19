@@ -4,6 +4,8 @@
  Contributing
 ==============
 
+Pull requests are amazing and most welcome !
+
 .. _repository:
 
 Repository

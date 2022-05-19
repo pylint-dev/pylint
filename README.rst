@@ -1,13 +1,11 @@
-
-README for Pylint - https://pylint.pycqa.org/
-=============================================
+Pylint
+======
 
 .. image:: https://github.com/PyCQA/pylint/actions/workflows/tests.yaml/badge.svg?branch=main
     :target: https://github.com/PyCQA/pylint/actions
 
 .. image:: https://coveralls.io/repos/github/PyCQA/pylint/badge.svg?branch=main
     :target: https://coveralls.io/github/PyCQA/pylint?branch=main
-
 
 .. image:: https://img.shields.io/pypi/v/pylint.svg
     :alt: Pypi Package version
@@ -40,32 +38,44 @@ README for Pylint - https://pylint.pycqa.org/
 
 .. _Tidelift Subscription: https://tidelift.com/subscription/pkg/pypi-pylint?utm_source=pypi-pylint&utm_medium=referral&utm_campaign=readme
 
+Documentation
+=============
 
-======
-Pylint
-======
+Please check `the full documentation`_.
 
-**It's not just a linter that annoys you!**
+.. _`the full documentation`: https://pylint.pycqa.org/
 
-Pylint is a Python static code analysis tool which looks for programming errors,
-helps enforcing a coding standard, sniffs for code smells and offers simple refactoring
-suggestions.
+What is pylint ?
+================
 
-It's highly configurable, having special pragmas to control its errors and warnings
-from within your code, as well as from an extensive configuration file.
-It is also possible to write your own plugins for adding your own checks or for
-extending pylint in one way or another.
+.. Do not modify this without also modifying doc/index.rst
 
-It's a free software distributed under the GNU General Public Licence unless
-otherwise specified.
+Pylint is a `static code analyser`_ for Python 2 or 3. The latest version supports Python
+3.7.2 and above.
 
-Development is hosted on GitHub: https://github.com/PyCQA/pylint/
+.. _`static code analyser`: https://en.wikipedia.org/wiki/Static_code_analysis
 
-You can use the code-quality@python.org mailing list to discuss about
-Pylint. Subscribe at https://mail.python.org/mailman/listinfo/code-quality/
-or read the archives at https://mail.python.org/pipermail/code-quality/
+Pylint analyses your code without actually running it. It checks for errors, enforces a coding
+standard, looks for `code smells`_, and can make suggestions about how the code could be refactored.
 
-Pull requests are amazing and most welcome.
+.. _`code smells`: https://martinfowler.com/bliki/CodeSmell.html
+
+Pylint can infer actual values from your code using its internal code representation (astroid).
+If your code is ``import logging as argparse``, Pylint will know that ``argparse.error(...)``
+is in fact a logging call and not an argparse call.
+
+Pylint isn't smarter than you: it may warn you about things that you have
+conscientiously done or checks for some things that you don't care about.
+During adoption, especially in a legacy project where pylint was never enforced,
+it's best to start with the ``--errors-only`` flag, then disable
+convention and refactor message with ``--disable=C,R`` and progressively
+re-evaluate and re-enable messages as your priorities evolve.
+
+Pylint ships with three additional tools:
+
+- :ref:`pyreverse <pyreverse>` (standalone tool that generates package and class diagrams.)
+- :ref:`symilar <symilar>`  (duplicate code finder that is also integrated in pylint)
+- :ref:`epylint <pylint_in_flymake>` (Emacs and Flymake compatible Pylint)
 
 Install
 -------
@@ -90,18 +100,6 @@ For debian and rpm packages, use your usual tools according to your Linux distri
 
 More information about installation and available distribution format
 can be found here_.
-
-Documentation
--------------
-
-The documentation lives at https://pylint.pycqa.org/.
-
-Pylint is shipped with following additional commands:
-
-* pyreverse: an UML diagram generator
-* symilar: an independent similarities checker
-* epylint: Emacs and Flymake compatible Pylint
-
 
 Testing
 -------
