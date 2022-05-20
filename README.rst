@@ -92,12 +92,13 @@ Contributing
 ------------
 
 We welcome all contributions, doc, code, checking issues for duplicate or telling us
-that we can close them, confirming that it's still an issue, creating issues because
-you found a bug or want a feature... everything helps !
+that we can close them, confirming that it's still an issue, `creating issues because
+you found a bug or want a feature`_... everything helps !
 
 Please follow the `code of conduct`_ and check `the contribution documentation`_ if you want to
 make a code contribution.
 
+.. _creating issues because you found a bug or want a feature: https://pylint.pycqa.org/en/latest/contact.html#bug-reports-feedback
 .. _code of conduct: https://github.com/Pierre-Sassoulas/pylint/blob/main/CODE_OF_CONDUCT.md
 .. _the contribution documentation: https://pylint.pycqa.org/en/latest/development_guide/contribute.html
 
@@ -126,6 +127,10 @@ The icon files are licensed under the `CC BY-SA 4.0 <https://creativecommons.org
 
 Support
 -------
+
+Please check `the contact information`_ in the documentation.
+
+.. _`the contact information`: https://pylint.pycqa.org/en/latest/contact.html
 
 .. list-table::
    :widths: 10 100
