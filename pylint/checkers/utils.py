@@ -69,7 +69,7 @@ KEYS_METHOD = "keys"
 #          although it's best to implement it in order to accept
 #          all of them.
 _SPECIAL_METHODS_PARAMS = {
-    None: ("__new__", "__init__", "__call__"),
+    None: ("__new__", "__init__", "__call__", "__init_subclass__"),
     0: (
         "__del__",
         "__repr__",
@@ -107,7 +107,6 @@ _SPECIAL_METHODS_PARAMS = {
         "__anext__",
         "__fspath__",
         "__subclasses__",
-        "__init_subclass__",
     ),
     1: (
         "__format__",
