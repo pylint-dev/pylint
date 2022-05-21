@@ -24,35 +24,7 @@ Pylint uses git. To get the latest version of Pylint from the repository, simply
 3. Running Pylint
 =================
 
-3.1 Can I give pylint a file as an argument instead of a module?
-----------------------------------------------------------------
-
-Pylint expects the name of a package or module as its argument. As a
-convenience, you can give it a file name if it's possible to guess a module name from
-the file's path using the python path. Some examples:
-
-"pylint mymodule.py" should always work since the current working
-directory is automatically added on top of the python path
-
-"pylint directory/mymodule.py" will work if "directory" is a python
-package (i.e. has an __init__.py file), an implicit namespace package
-or if "directory" is in the python path.
-
-"pylint /whatever/directory/mymodule.py" will work if either:
-
-    - "/whatever/directory" is in the python path
-
-    - your cwd is "/whatever/directory"
-
-    - "directory" is a python package and "/whatever" is in the python
-          path
-
-        - "directory" is an implicit namespace package and is in the python path.
-
-    - "directory" is a python package and your cwd is "/whatever" and so
-          on...
-
-3.2 Where is the persistent data stored to compare between successive runs?
+3.1 Where is the persistent data stored to compare between successive runs?
 ---------------------------------------------------------------------------
 
 Analysis data are stored as a pickle file in a directory which is
@@ -71,7 +43,7 @@ localized using the following rules:
 * ".pylint.d" directory in the current directory
 
 
-3.3 How do I find the option name corresponding to a specific command line option?
+3.2 How do I find the option name corresponding to a specific command line option?
 ----------------------------------------------------------------------------------
 
 You can generate a sample configuration file with ``--generate-toml-config``.
@@ -81,28 +53,6 @@ the toml file
 For example::
 
     pylint --disable=bare-except,invalid-name --class-rgx='[A-Z][a-z]+' --generate-toml-config
-
-3.5 I need to run pylint over all modules and packages in my project directory.
--------------------------------------------------------------------------------
-
-By default the ``pylint`` command only accepts a list of python modules and packages. Using a
-directory which is not a package results in an error::
-
-    pylint mydir
-    ************* Module mydir
-    mydir/__init__.py:1:0: F0010: error while code parsing: Unable to load file mydir/__init__.py:
-    [Errno 2] No such file or directory: 'mydir/__init__.py' (parse-error)
-
-To execute pylint over all modules and packages under the directory, the ``--recursive=y`` option must
-be provided. This option makes ``pylint`` attempt to discover all modules (files ending with ``.py`` extension)
-and all packages (all directories containing a ``__init__.py`` file).
-Those modules and packages are then analyzed::
-
-    pylint --recursive=y mydir
-
-When ``--recursive=y`` option is used, modules and packages are also accepted as parameters::
-
-    pylint --recursive=y mydir mymodule mypackage
 
 4. Message Control
 ==================
