@@ -34,7 +34,7 @@ def test_format_of_output(
 ) -> None:
     """Check that we output the correct format."""
     # Set the answers needed for the input() calls
-    answers = iter(["T", "toml", "TOML", "I", "INI", "TOMLINI"])
+    answers = iter(["T", "toml", "TOML", "I", "INI", "TOMLINI", "exit()"])
     monkeypatch.setattr("builtins.input", lambda x: next(answers))
 
     with warnings.catch_warnings():
@@ -64,6 +64,6 @@ def test_format_of_output(
         captured = capsys.readouterr()
         assert "[MAIN]" in captured.out
 
-        # Check 'TOMLINI'
-        with pytest.raises(ValueError, match="Format should be one.*"):
+        # Check 'TOMLINI' and then 'exit()'
+        with pytest.raises(SystemExit):
             Run(["generate", "--interactive"], exit=False)
