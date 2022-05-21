@@ -3,7 +3,7 @@
 ===========================================
 
 You can call Pylint from another Python program thanks to the ``Run()``
-function in the ``pylint.lint`` module
+class in the ``pylint.lint`` module
 (assuming Pylint options are stored in a list of strings ``pylint_options``) as:
 
 .. sourcecode:: python
