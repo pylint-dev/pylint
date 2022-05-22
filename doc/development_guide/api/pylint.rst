@@ -6,17 +6,8 @@ As you would launch the command line
 ------------------------------------
 
 You can use the ``run_pylint`` function, which is the same function
-called by the command line. You can either patch ``sys.argv``:
-
-.. sourcecode:: python
-
-    from pylint import run_pylint
-
-    sys.argv = ["pylint", "--disable=line-too-long", "myfile.py"]
-    run_pylint()
-
-
-Or supply arguments yourself:
+called by the command line (using ``sys.argv``). You can supply
+arguments yourself:
 
 .. sourcecode:: python
 
