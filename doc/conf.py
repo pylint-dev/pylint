@@ -61,6 +61,7 @@ redirects: dict[str, str] = {
     "messages/messages_introduction": "../user_guide/messages/index.html",
     "messages/messages_list": "../user_guide/messages/messages_overview.html",
     "user_guide/message-control": "messages/message_control.html",
+    "technical_reference/c_extensions": "../user_guide/c_extensions.html",
 }
 
 # Add any paths that contain templates here, relative to this directory.
