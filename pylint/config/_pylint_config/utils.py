@@ -87,9 +87,7 @@ def validate_yes_no(question: str, default: Literal["yes", "no"] | None) -> bool
     if answer not in YES_NO_ANSWERS:
         raise InvalidUserInput(", ".join(sorted(YES_NO_ANSWERS)), answer)
 
-    if answer.startswith("y"):
-        return True
-    return False
+    return answer.startswith("y"):
 
 
 def get_and_validate_output_file() -> tuple[bool, Path]:
