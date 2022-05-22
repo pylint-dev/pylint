@@ -8,4 +8,5 @@ Development
 
    contribute
    testing
+   api/index
    profiling
