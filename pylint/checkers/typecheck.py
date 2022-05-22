@@ -1900,9 +1900,12 @@ accessed. Python regular expressions are accepted.",
                 self._check_unsupported_alternative_union_syntax(node)
 
     def _check_unsupported_alternative_union_syntax(self, node: nodes.BinOp) -> None:
-        """Check if left or right node is of type `type`. If either is, and doesn't
+        """Check if left or right node is of type `type`.
+
+        If either is, and doesn't
         support an or operator via a metaclass, infer that this is a mistaken
-        attempt to use alternative union syntax when not supported."""
+        attempt to use alternative union syntax when not supported.
+        """
         msg = "unsupported operand type(s) for |"
         left_obj = astroid.helpers.object_type(node.left)
         right_obj = astroid.helpers.object_type(node.right)
@@ -1911,14 +1914,14 @@ accessed. Python regular expressions are accepted.",
 
         if isinstance(left_obj, nodes.ClassDef) and is_classdef_type(left_obj):
             try:
-                left_obj.getattr('__or__')
+                left_obj.getattr("__or__")
                 return
             except astroid.NotFoundError:
                 left_is_type = True
 
         if isinstance(right_obj, nodes.ClassDef) and is_classdef_type(right_obj):
             try:
-                right_obj.getattr('__ror__')
+                right_obj.getattr("__ror__")
                 return
             except astroid.NotFoundError:
                 right_is_type = True
