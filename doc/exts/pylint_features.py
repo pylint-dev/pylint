@@ -24,7 +24,7 @@ def builder_inited(app: Optional[Sphinx]) -> None:
     )
     linter = PyLinter()
     linter.load_default_plugins()
-    features = os.path.join(base_path, "doc", "technical_reference", "features.rst")
+    features = os.path.join(base_path, "doc", "user_guide", "checkers", "features.rst")
     with open(features, "w", encoding="utf-8") as stream:
         stream.write("Pylint features\n")
         stream.write("===============\n\n")

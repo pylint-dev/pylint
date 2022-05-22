@@ -150,7 +150,6 @@ def _write_options_page(options: OptionsDataDict, linter: PyLinter) -> None:
     ) as stream:
         stream.write(
             f"""
-{get_rst_title("All pylint options", "=")}
 
 {sections_string}
 """

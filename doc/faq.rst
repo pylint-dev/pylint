@@ -147,7 +147,7 @@ Alternatively, if you use ``pyproject.toml``, e.g.
     ]
 
 See also the :ref:`exhaustive list of possible options
-<user_guide/configuration/all-options:all pylint options>`.
+<all-configurations-options>`.
 
 4.7 Why are there a bunch of messages disabled by default?
 ----------------------------------------------------------
@@ -157,7 +157,7 @@ they are prone to false positives or that they are opinionated enough
 for not being included as default messages.
 
 You can see the plugin you need to explicitly :ref:`load in the technical reference
-<technical_reference/extensions:optional pylint checkers in the extensions module>`.
+<user_guide/checkers/extensions:optional checkers>`.
 
 4.8 I am using another popular linter alongside pylint. Which messages should I disable to avoid duplicates?
 ------------------------------------------------------------------------------------------------------------

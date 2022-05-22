@@ -47,12 +47,10 @@ def builder_inited(app: Optional[Sphinx]) -> None:
     linter.load_plugin_modules(modules)
 
     extensions_doc = os.path.join(
-        base_path, "doc", "technical_reference", "extensions.rst"
+        base_path, "doc", "user_guide", "checkers", "extensions.rst"
     )
     with open(extensions_doc, "w", encoding="utf-8") as stream:
-        stream.write(
-            get_rst_title("Optional Pylint checkers in the extensions module", "=")
-        )
+        stream.write(get_rst_title("Optional checkers", "="))
         stream.write("Pylint provides the following optional plugins:\n\n")
         for module in modules:
             stream.write(f"- :ref:`{module}`\n")
