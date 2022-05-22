@@ -8,7 +8,7 @@ User Guide
 
    installation
    run
-   output  
+   output
    c_extensions
    messages/index
    options
