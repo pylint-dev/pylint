@@ -23,7 +23,7 @@ def generate_interactive_config(linter: PyLinter) -> None:
     format_type = utils.get_and_validate_format()
 
     if format_type == "toml":
-        linter._generate_config_file()
+        print(linter._generate_config_file())
     else:
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
