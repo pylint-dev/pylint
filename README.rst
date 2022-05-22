@@ -35,31 +35,21 @@ Pylint is a `static code analyser`_ for Python 2 or 3. The latest version suppor
 
 .. _`static code analyser`: https://en.wikipedia.org/wiki/Static_code_analysis
 
-Pylint analyses your code without actually running it. It checks for errors, enforces a coding
-standard, looks for `code smells`_, and can make suggestions about how the code could be refactored.
+Pylint analyses your code without actually running it. It checks for errors, enforces a
+coding standard, looks for `code smells`_, and can make suggestions about how the code
+could be refactored. Pylint can infer actual values from your code using its internal
+code representation (astroid). If your code is ``import logging as argparse``, Pylint
+will know that ``argparse.error(...)`` is in fact a logging call and not an argparse call.
 
 .. _`code smells`: https://martinfowler.com/bliki/CodeSmell.html
 
-Projects that you might want to use alongside pylint include flake8_ (faster and simpler checks
-with very few false positives), mypy_, pyright_ or pyre_ (typing checks), bandit_ (security
-oriented checks), black_ and isort_ (auto-formatting), autoflake_ (automated removal of
-unused import or variable), pyupgrade_ (automated upgrade to newer python syntax) and
-pydocstringformatter_ (automated pep257).
+Pylint is highly configurable and permits to write plugins in order to add your
+own checks (for example for an internal libraries or internal rule). Pylint has an
+ecosystem of existing plugins for popular framework among them `pylint-django`_ or
+`pylint-i18n`_.
 
-.. _flake8: https://gitlab.com/pycqa/flake8/
-.. _bandit: https://github.com/PyCQA/bandit
-.. _mypy: https://github.com/python/mypy
-.. _pyright: https://github.com/microsoft/pyright
-.. _pyre: https://github.com/facebook/pyre-check
-.. _black: https://github.com/psf/black
-.. _autoflake: https://github.com/myint/autoflake
-.. _pyupgrade: https://github.com/asottile/pyupgrade
-.. _pydocstringformatter: https://github.com/DanielNoord/pydocstringformatter
-.. _isort: https://pycqa.github.io/isort/
-
-Pylint can infer actual values from your code using its internal code representation (astroid).
-If your code is ``import logging as argparse``, Pylint will know that ``argparse.error(...)``
-is in fact a logging call and not an argparse call.
+.. _`pylint-django`: https://github.com/PyCQA/pylint-django
+.. _`pylint-i18n`: https://github.com/amandasaurus/python-pylint-i18n
 
 Pylint isn't smarter than you: it may warn you about things that you have
 conscientiously done or checks for some things that you don't care about.
@@ -77,6 +67,23 @@ Pylint ships with three additional tools:
 .. _pyreverse: https://pylint.pycqa.org/en/latest/pyreverse.html
 .. _symilar: https://pylint.pycqa.org/en/latest/symilar.html
 .. _epylint: https://pylint.pycqa.org/en/latest/user_guide/ide_integration/flymake-emacs.html
+
+Projects that you might want to use alongside pylint include flake8_ (faster and simpler checks
+with very few false positives), mypy_, pyright_ or pyre_ (typing checks), bandit_ (security
+oriented checks), black_ and isort_ (auto-formatting), autoflake_ (automated removal of
+unused import or variable), pyupgrade_ (automated upgrade to newer python syntax) and
+pydocstringformatter_ (automated pep257).
+
+.. _flake8: https://gitlab.com/pycqa/flake8/
+.. _bandit: https://github.com/PyCQA/bandit
+.. _mypy: https://github.com/python/mypy
+.. _pyright: https://github.com/microsoft/pyright
+.. _pyre: https://github.com/facebook/pyre-check
+.. _black: https://github.com/psf/black
+.. _autoflake: https://github.com/myint/autoflake
+.. _pyupgrade: https://github.com/asottile/pyupgrade
+.. _pydocstringformatter: https://github.com/DanielNoord/pydocstringformatter
+.. _isort: https://pycqa.github.io/isort/
 
 Install
 -------
