@@ -87,3 +87,26 @@ class CustomDataClass3:
 @dataclasses.dataclass
 class CustomDataClass4:
     my_var: int | str  # [unsupported-binary-operation]
+
+# Not an error if the metaclass implements __or__
+
+class ForwardMetaclass(type):
+    def __or__(cls, other):
+        return True
+
+class ReverseMetaclass(type):
+    def __ror__(cls, other):
+        return True
+
+class WithForward(metaclass=ForwardMetaclass):
+    pass
+
+class WithReverse(metaclass=ReverseMetaclass):
+    pass
+
+class DefaultMetaclass:
+    pass
+
+class_list = [WithForward | DefaultMetaclass]
+class_list_reversed_invalid = [WithReverse | DefaultMetaclass] # [unsupported-binary-operation]
+class_list_reversed_valid = [DefaultMetaclass | WithReverse]

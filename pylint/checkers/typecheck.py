@@ -1900,13 +1900,31 @@ accessed. Python regular expressions are accepted.",
                 self._check_unsupported_alternative_union_syntax(node)
 
     def _check_unsupported_alternative_union_syntax(self, node: nodes.BinOp) -> None:
-        """Check if left or right node is of type `type`."""
+        """Check if left or right node is of type `type`. If either is, and doesn't
+        support an or operator via a metaclass, infer that this is a mistaken
+        attempt to use alternative union syntax when not supported."""
         msg = "unsupported operand type(s) for |"
-        for n in (node.left, node.right):
-            n = astroid.helpers.object_type(n)
-            if isinstance(n, nodes.ClassDef) and is_classdef_type(n):
-                self.add_message("unsupported-binary-operation", args=msg, node=node)
-                break
+        left_obj = astroid.helpers.object_type(node.left)
+        right_obj = astroid.helpers.object_type(node.right)
+        left_is_type = False
+        right_is_type = False
+
+        if isinstance(left_obj, nodes.ClassDef) and is_classdef_type(left_obj):
+            try:
+                left_obj.getattr('__or__')
+                return
+            except astroid.NotFoundError:
+                left_is_type = True
+
+        if isinstance(right_obj, nodes.ClassDef) and is_classdef_type(right_obj):
+            try:
+                right_obj.getattr('__ror__')
+                return
+            except astroid.NotFoundError:
+                right_is_type = True
+
+        if left_is_type or right_is_type:
+            self.add_message("unsupported-binary-operation", args=msg, node=node)
 
     # TODO: This check was disabled (by adding the leading underscore)
     # due to false positives several years ago - can we re-enable it?

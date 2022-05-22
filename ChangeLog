@@ -87,6 +87,11 @@ Release date: TBA
 
   Closes #2409
 
+* Don't report ``unsupported-binary-operation`` on Python <= 3.9 when using the ``|`` operator
+  with types, if one has a metaclass that overloads ``__or__`` or ``__ror__`` as appropriate.
+
+  Closes #4951
+
 * The ``config`` attribute of ``BaseChecker`` has been deprecated. You can use ``checker.linter.config``
   to access the global configuration object instead of a checker-specific object.
 
