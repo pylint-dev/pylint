@@ -2,29 +2,42 @@
  Pylint
 =======
 
-You can call Pylint from another Python program thanks to the ``Run()``
-class in the ``pylint.lint`` module
-(assuming Pylint options are stored in a list of strings ``pylint_options``) as:
+As you would launch the command line
+------------------------------------
+
+You can use the ``run_pylint`` function, which is the same function
+called by the command line. You can either patch ``sys.argv``:
 
 .. sourcecode:: python
 
-  import pylint.lint
-  pylint_opts = ['--disable=line-too-long', 'myfile.py']
-  pylint.lint.Run(pylint_opts)
+    from pylint import run_pylint
 
-Another option would be to use the ``run_pylint`` function, which is the same function
-called by the command line. You can either patch ``sys.argv`` or supply arguments yourself:
+    sys.argv = ["pylint", "--disable=line-too-long", "myfile.py"]
+    run_pylint()
+
+
+Or supply arguments yourself:
 
 .. sourcecode:: python
 
-  import pylint
+    from pylint import run_pylint
 
-  sys.argv = ["pylint", "your_file"]
-  pylint.run_pylint()
-  # Or:
-  pylint.run_pylint(argv=["your_file"])
+    run_pylint(argv=["--disable=line-too-long", "myfile.py"])
 
-Finally, it is possible to invoke pylint programmatically with a
+
+Recover the result in a stream
+------------------------------
+
+You can also use ``pylint.lint.Run`` directly if you want to do something that
+can't be done using only pylint's command line options. Here's the basic example:
+
+.. sourcecode:: python
+
+    from pylint.lint import Run
+
+    Run(argv=["--disable=line-too-long", "myfile.py"])
+
+With ``Run`` it is possible to invoke pylint programmatically with a
 reporter initialized with a custom stream:
 
 .. sourcecode:: python
