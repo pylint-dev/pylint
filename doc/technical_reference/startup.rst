@@ -1,5 +1,6 @@
 Startup and the Linter Class
 ----------------------------
+
 The two main classes in :mod:`pylint.lint` are
 :class:`.pylint.lint.Run` and :class:`.pylint.lint.PyLinter`.
 
