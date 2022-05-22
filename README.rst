@@ -1,5 +1,7 @@
-Pylint
-======
+`Pylint`_
+=========
+
+.. _`Pylint`: https://pylint.pycqa.org/
 
 .. image:: https://github.com/PyCQA/pylint/actions/workflows/tests.yaml/badge.svg?branch=main
     :target: https://github.com/PyCQA/pylint/actions
@@ -25,14 +27,8 @@ Pylint
    :target: https://results.pre-commit.ci/latest/github/PyCQA/pylint/main
    :alt: pre-commit.ci status
 
-.. |tideliftlogo| image:: https://raw.githubusercontent.com/PyCQA/pylint/main/doc/media/Tidelift_Logos_RGB_Tidelift_Shorthand_On-White.png
-   :width: 200
-   :alt: Tidelift
-
-What is pylint ?
+What is Pylint ?
 ================
-
-.. Do not modify this without also modifying doc/index.rst
 
 Pylint is a `static code analyser`_ for Python 2 or 3. The latest version supports Python
 3.7.2 and above.
@@ -43,6 +39,23 @@ Pylint analyses your code without actually running it. It checks for errors, enf
 standard, looks for `code smells`_, and can make suggestions about how the code could be refactored.
 
 .. _`code smells`: https://martinfowler.com/bliki/CodeSmell.html
+
+Projects that you might want to use alongside pylint include flake8_ (faster and simpler checks
+with very few false positives), mypy_, pyright_ or pyre_ (typing checks), bandit_ (security
+oriented checks), black_ and isort_ (auto-formatting), autoflake_ (automated removal of
+unused import or variable), pyupgrade_ (automated upgrade to newer python syntax) and
+pydocstringformatter_ (automated pep257).
+
+.. _flake8: https://gitlab.com/pycqa/flake8/
+.. _bandit: https://github.com/PyCQA/bandit
+.. _mypy: https://github.com/python/mypy
+.. _pyright: https://github.com/microsoft/pyright
+.. _pyre: https://github.com/facebook/pyre-check
+.. _black: https://github.com/psf/black
+.. _autoflake: https://github.com/myint/autoflake
+.. _pyupgrade: https://github.com/asottile/pyupgrade
+.. _pydocstringformatter: https://github.com/DanielNoord/pydocstringformatter
+.. _isort: https://pycqa.github.io/isort/
 
 Pylint can infer actual values from your code using its internal code representation (astroid).
 If your code is ``import logging as argparse``, Pylint will know that ``argparse.error(...)``
@@ -61,16 +74,12 @@ Pylint ships with three additional tools:
 - symilar_  (duplicate code finder that is also integrated in pylint)
 - epylint_ (Emacs and Flymake compatible Pylint)
 
-.. Enf of do not modify this without also modifying doc/index.rst
-
 .. _pyreverse: https://pylint.pycqa.org/en/latest/pyreverse.html
 .. _symilar: https://pylint.pycqa.org/en/latest/symilar.html
 .. _epylint: https://pylint.pycqa.org/en/latest/user_guide/ide_integration/flymake-emacs.html
 
 Install
 -------
-
-.. Do not modify anything here, modify doc/user_guide/installation.rst instead
 
 For command line use, pylint is installed with::
 
@@ -81,13 +90,6 @@ It can also be integrated in most editors or IDE. More information can be found
 
 .. _in the documentation: https://pylint.pycqa.org/en/latest/user_guide/installation.html
 
-Documentation
-=============
-
-Please check `the full documentation`_.
-
-.. _`the full documentation`: https://pylint.pycqa.org/
-
 Contributing
 ------------
 
@@ -95,12 +97,12 @@ We welcome all contributions, doc, code, checking issues for duplicate or tellin
 that we can close them, confirming that it's still an issue, `creating issues because
 you found a bug or want a feature`_... everything helps !
 
-Please follow the `code of conduct`_ and check `the contribution documentation`_ if you want to
+Please follow the `code of conduct`_ and check `the Contributor Guides`_ if you want to
 make a code contribution.
 
 .. _creating issues because you found a bug or want a feature: https://pylint.pycqa.org/en/latest/contact.html#bug-reports-feedback
 .. _code of conduct: https://github.com/Pierre-Sassoulas/pylint/blob/main/CODE_OF_CONDUCT.md
-.. _the contribution documentation: https://pylint.pycqa.org/en/latest/development_guide/contribute.html
+.. _the Contributor Guides: https://pylint.pycqa.org/en/latest/development_guide/contribute.html
 
 
 Show your usage
@@ -128,9 +130,13 @@ The icon files are licensed under the `CC BY-SA 4.0 <https://creativecommons.org
 Support
 -------
 
-Please check `the contact information`_ in the documentation.
+Please check `the contact information`_.
 
 .. _`the contact information`: https://pylint.pycqa.org/en/latest/contact.html
+
+.. |tideliftlogo| image:: https://raw.githubusercontent.com/PyCQA/pylint/main/doc/media/Tidelift_Logos_RGB_Tidelift_Shorthand_On-White.png
+   :width: 200
+   :alt: Tidelift
 
 .. list-table::
    :widths: 10 100
