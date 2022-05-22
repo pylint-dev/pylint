@@ -8,8 +8,8 @@ User Guide
 
    installation
    run
+   output  
    c_extensions
-   output
    messages/index
    options
    ide_integration/ide-integration
