@@ -4,10 +4,9 @@ Technical Reference
 ===================
 
 .. TODO Configuration
-
 .. TODO Messages
-
 .. TODO Reports
+.. extensions.rst and features.rst are generated.
 
 .. toctree::
   :maxdepth: 2
@@ -17,4 +16,3 @@ Technical Reference
   checkers
   extensions
   features
-  c_extensions

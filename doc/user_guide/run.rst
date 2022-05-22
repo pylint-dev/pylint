@@ -2,126 +2,46 @@
  Running Pylint
 ================
 
-From the command line
----------------------
+On module packages or directories
+---------------------------------
 
 Pylint is meant to be called from the command line. The usage is ::
 
    pylint [options] modules_or_packages
 
-You should give Pylint the name of a python package or module, or some number
-of packages or modules. Pylint
-``will not import`` this package or module, though uses Python internals
+By default the ``pylint`` command only accepts a list of python modules and packages. Using a
+directory which is not a package results in an error::
+
+    pylint mydir
+    ************* Module mydir
+    mydir/__init__.py:1:0: F0010: error while code parsing: Unable to load file mydir/__init__.py:
+    [Errno 2] No such file or directory: 'mydir/__init__.py' (parse-error)
+
+When ``--recursive=y`` option is used, modules and packages are also accepted as parameters::
+
+    pylint --recursive=y mydir mymodule mypackage
+
+This option makes ``pylint`` attempt to discover all modules (files ending with ``.py`` extension)
+and all packages (all directories containing a ``__init__.py`` file).
+
+Pylint **will not import** this package or module, though uses Python internals
 to locate them and as such is subject to the same rules and configuration.
 You should pay attention to your ``PYTHONPATH``, since it is a common error
-to analyze an installed version of a module instead of the
-development version.
+to analyze an installed version of a module instead of the development version.
 
-It is also possible to analyze Python files, with a few
-restrictions. The thing to keep in mind is that Pylint will try to
-convert the file name to a module name, and only be able to process
-the file if it succeeds.  ::
+On files
+--------
 
-  pylint mymodule.py
+It is also possible to analyze Python files, with a few restrictions. As a convenience,
+you can give it a file name if it's possible to guess a module name from the file's
+path using the python path. Some examples:
 
-should always work since the current working
-directory is automatically added on top of the python path ::
+``pylint mymodule.py`` should always work since the current working
+directory is automatically added on top of the python path
 
-  pylint directory/mymodule.py
-
-will work if ``directory`` is a python package (i.e. has an __init__.py
-file or it is an implicit namespace package) or if "directory" is in the
-python path.
-
-By default, pylint will exit with an error when one of the arguments is a directory which is not
-a python package. In order to run pylint over all modules and packages within the provided
-subtree of a directory, the ``--recursive=y`` option must be provided.
-
-For more details on this see the :ref:`faq`.
-
-From another python program
----------------------------
-
-It is also possible to call Pylint from another Python program,
-thanks to the ``Run()`` function in the ``pylint.lint`` module
-(assuming Pylint options are stored in a list of strings ``pylint_options``) as:
-
-.. sourcecode:: python
-
-  import pylint.lint
-  pylint_opts = ['--disable=line-too-long', 'myfile.py']
-  pylint.lint.Run(pylint_opts)
-
-Another option would be to use the ``run_pylint`` function, which is the same function
-called by the command line. You can either patch ``sys.argv`` or supply arguments yourself:
-
-.. sourcecode:: python
-
-  import pylint
-
-  sys.argv = ["pylint", "your_file"]
-  pylint.run_pylint()
-  # Or:
-  pylint.run_pylint(argv=["your_file"])
-
-To silently run Pylint on a ``module_name.py`` module,
-and get its standard output and error:
-
-.. sourcecode:: python
-
-  from pylint import epylint as lint
-
-  (pylint_stdout, pylint_stderr) = lint.py_run('module_name.py', return_std=True)
-
-It is also possible to include additional Pylint options in the first argument to ``py_run``:
-
-.. sourcecode:: python
-
-  from pylint import epylint as lint
-
-  (pylint_stdout, pylint_stderr) = lint.py_run('module_name.py --disable C0114', return_std=True)
-
-The options ``--msg-template="{path}:{line}: {category} ({msg_id}, {symbol}, {obj}) {msg}"`` and
-``--reports=n`` are set implicitly inside the ``epylint`` module.
-
-Finally, it is possible to invoke pylint programmatically with a
-reporter initialized with a custom stream:
-
-.. sourcecode:: python
-
-    from io import StringIO
-
-    from pylint.lint import Run
-    from pylint.reporters.text import TextReporter
-
-    pylint_output = StringIO()  # Custom open stream
-    reporter = TextReporter(pylint_output)
-    Run(["test_file.py"], reporter=reporter, do_exit=False)
-    print(pylint_output.getvalue())  # Retrieve and print the text report
-
-The reporter can accept any stream object as as parameter. In this example,
-the stream outputs to a file:
-
-.. sourcecode:: python
-
-    from pylint.lint import Run
-    from pylint.reporters.text import TextReporter
-
-    with open("report.out", "w") as f:
-        reporter = TextReporter(f)
-        Run(["test_file.py"], reporter=reporter, do_exit=False)
-
-This would be useful to capture pylint output in an open stream which
-can be passed onto another program.
-
-If your program expects that the files being linted might be edited
-between runs, you will need to clear pylint's inference cache:
-
-.. sourcecode:: python
-
-    from pylint.lint import pylinter
-    pylinter.MANAGER.clear_cache()
-
+``pylint directory/mymodule.py`` will work if: ``directory`` is a python
+package (i.e. has an ``__init__.py`` file), an implicit namespace package
+or if ``directory`` is in the python path.
 
 Command line options
 --------------------

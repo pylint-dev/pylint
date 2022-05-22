@@ -433,7 +433,12 @@ class _ArgumentsManager:
                 continue
 
             options = []
-            for opt in group._group_actions:
+            option_actions = [
+                i
+                for i in group._group_actions
+                if not isinstance(i, argparse._SubParsersAction)
+            ]
+            for opt in option_actions:
                 if "--help" in opt.option_strings:
                     continue
 
@@ -656,7 +661,7 @@ class _ArgumentsManager:
         )
         self.set_option(opt, value)
 
-    def _generate_config_file(self) -> None:
+    def _generate_config_file(self) -> str:
         """Write a configuration file according to the current configuration into stdout."""
         toml_doc = tomlkit.document()
         pylint_tool_table = tomlkit.table(is_super_table=True)
@@ -675,9 +680,12 @@ class _ArgumentsManager:
                 continue
 
             group_table = tomlkit.table()
-            for action in sorted(
-                group._group_actions, key=lambda x: x.option_strings[0][2:]
-            ):
+            option_actions = [
+                i
+                for i in group._group_actions
+                if not isinstance(i, argparse._SubParsersAction)
+            ]
+            for action in sorted(option_actions, key=lambda x: x.option_strings[0][2:]):
                 optname = action.option_strings[0][2:]
 
                 # We skip old name options that don't have their own optdict
@@ -735,7 +743,7 @@ class _ArgumentsManager:
         # Make sure the string we produce is valid toml and can be parsed
         tomllib.loads(toml_string)
 
-        print(toml_string)
+        return toml_string
 
     def set_option(
         self,

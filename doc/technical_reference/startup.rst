@@ -1,5 +1,6 @@
 Startup and the Linter Class
 ----------------------------
+
 The two main classes in ``pylint.lint`` are
 ``.pylint.lint.Run`` and ``.pylint.lint.PyLinter``.
 
