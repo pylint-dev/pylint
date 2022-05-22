@@ -278,7 +278,7 @@ class _GenerateConfigFileAction(_AccessRunObjectAction):
         values: str | Sequence[Any] | None,
         option_string: str | None = "--generate-toml-config",
     ) -> None:
-        self.run.linter._generate_config_file()
+        print(self.run.linter._generate_config_file())
         sys.exit(0)
 
 

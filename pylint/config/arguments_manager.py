@@ -661,7 +661,7 @@ class _ArgumentsManager:
         )
         self.set_option(opt, value)
 
-    def _generate_config_file(self) -> None:
+    def _generate_config_file(self) -> str:
         """Write a configuration file according to the current configuration into stdout."""
         toml_doc = tomlkit.document()
         pylint_tool_table = tomlkit.table(is_super_table=True)
@@ -743,7 +743,7 @@ class _ArgumentsManager:
         # Make sure the string we produce is valid toml and can be parsed
         tomllib.loads(toml_string)
 
-        print(toml_string)
+        return toml_string
 
     def set_option(
         self,
