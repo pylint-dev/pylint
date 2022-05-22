@@ -27,7 +27,7 @@
    :target: https://results.pre-commit.ci/latest/github/PyCQA/pylint/main
    :alt: pre-commit.ci status
 
-What is Pylint ?
+What is Pylint?
 ================
 
 Pylint is a `static code analyser`_ for Python 2 or 3. The latest version supports Python
@@ -44,15 +44,15 @@ will know that ``argparse.error(...)`` is in fact a logging call and not an argp
 .. _`code smells`: https://martinfowler.com/bliki/CodeSmell.html
 
 Pylint is highly configurable and permits to write plugins in order to add your
-own checks (for example for an internal libraries or internal rule). Pylint has an
-ecosystem of existing plugins for popular framework among them `pylint-django`_ or
+own checks (for example, for internal libraries or an internal rule). Pylint has an
+ecosystem of existing plugins for popular frameworks such as `pylint-django`_ or
 `pylint-i18n`_.
 
 .. _`pylint-django`: https://github.com/PyCQA/pylint-django
 .. _`pylint-i18n`: https://github.com/amandasaurus/python-pylint-i18n
 
 Pylint isn't smarter than you: it may warn you about things that you have
-conscientiously done or checks for some things that you don't care about.
+conscientiously done or check for some things that you don't care about.
 During adoption, especially in a legacy project where pylint was never enforced,
 it's best to start with the ``--errors-only`` flag, then disable
 convention and refactor message with ``--disable=C,R`` and progressively
@@ -71,7 +71,7 @@ Pylint ships with three additional tools:
 Projects that you might want to use alongside pylint include flake8_ (faster and simpler checks
 with very few false positives), mypy_, pyright_ or pyre_ (typing checks), bandit_ (security
 oriented checks), black_ and isort_ (auto-formatting), autoflake_ (automated removal of
-unused import or variable), pyupgrade_ (automated upgrade to newer python syntax) and
+unused imports or variables), pyupgrade_ (automated upgrade to newer python syntax) and
 pydocstringformatter_ (automated pep257).
 
 .. _flake8: https://gitlab.com/pycqa/flake8/
@@ -92,7 +92,7 @@ For command line use, pylint is installed with::
 
     pip install pylint
 
-It can also be integrated in most editors or IDE. More information can be found
+It can also be integrated in most editors or IDEs. More information can be found
 `in the documentation`_.
 
 .. _in the documentation: https://pylint.pycqa.org/en/latest/user_guide/installation.html
@@ -100,9 +100,9 @@ It can also be integrated in most editors or IDE. More information can be found
 Contributing
 ------------
 
-We welcome all contributions, doc, code, checking issues for duplicate or telling us
-that we can close them, confirming that it's still an issue, `creating issues because
-you found a bug or want a feature`_... everything helps !
+We welcome all forms of contributions such as updates for documentation, new code, checking issues for duplicates or telling us
+that we can close them, confirming that issues still exist, `creating issues because
+you found a bug or want a feature`_, etc. Everything is much appreciated!
 
 Please follow the `code of conduct`_ and check `the Contributor Guides`_ if you want to
 make a code contribution.
@@ -120,7 +120,7 @@ You can place this badge in your README to let others know your project uses pyl
     .. image:: https://img.shields.io/badge/linting-pylint-yellowgreen
         :target: https://github.com/PyCQA/pylint
 
-See how in `the badge documentation`_.
+Learn how to add a badge to your documentation in the `the badge documentation`_.
 
 .. _the badge documentation: https://pylint.pycqa.org/en/latest/user_guide/badge.html
 
