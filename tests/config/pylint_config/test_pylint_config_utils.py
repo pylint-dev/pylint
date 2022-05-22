@@ -24,11 +24,11 @@ def test_retrying_user_input_validation(
     captured = capsys.readouterr()
     assert (
         captured.out
-        == """Format should be one of i, ini, t, toml.
+        == """Answer should be one of i, ini, t, toml.
 Type 'exit()' if you want to exit the program.
-Format should be one of i, ini, t, toml.
+Answer should be one of i, ini, t, toml.
 Type 'exit()' if you want to exit the program.
-Format should be one of i, ini, t, toml.
+Answer should be one of i, ini, t, toml.
 Type 'exit()' if you want to exit the program.
 Stopping 'pylint-config'.
 """

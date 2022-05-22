@@ -14,6 +14,12 @@ if sys.version_info >= (3, 8):
 else:
     from typing_extensions import Literal
 
+if sys.version_info >= (3, 10):
+    from typing import ParamSpec
+else:
+    from typing_extensions import ParamSpec
+
+_P = ParamSpec("_P")
 
 SUPPORTED_FORMATS = {"t", "toml", "i", "ini"}
 
@@ -27,19 +33,19 @@ class InvalidUserInput(Exception):
         super().__init__(*args)
 
 
-def should_retry_after_invalid_input(func: Callable[[], str]) -> Callable[[], str]:
+def should_retry_after_invalid_input(func: Callable[_P, str]) -> Callable[_P, str]:
     """Decorator that handles InvalidUserInput exceptions and retries."""
 
-    def inner_function() -> str:
+    def inner_function(*args: _P.args, **kwargs: _P.kwargs) -> str:
         called_once = False
         while True:
             try:
-                return func()
+                return func(*args, **kwargs)
             except InvalidUserInput as exc:
                 if called_once and exc.input == "exit()":
                     print("Stopping 'pylint-config'.")
                     sys.exit()
-                print(f"Format should be one of {exc.valid}.")
+                print(f"Answer should be one of {exc.valid}.")
                 print("Type 'exit()' if you want to exit the program.")
                 called_once = True
 
