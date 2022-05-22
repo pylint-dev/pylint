@@ -73,7 +73,7 @@ Tips for Getting Started with Pylint Development
 
 * ``astroid.extract_node`` is your friend. Most checkers are AST based,
   so you will likely need to interact with ``astroid``.
-  A short example of how to use ``astroid.extract_node``` is given
+  A short example of how to use ``astroid.extract_node`` is given
   :ref:`here <astroid_extract_node>`.
 
 * When fixing a bug for a specific check, search the code for the warning
