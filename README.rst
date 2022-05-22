@@ -88,6 +88,8 @@ pydocstringformatter_ (automated pep257).
 Install
 -------
 
+.. This is a copy paste of 'How do I install Pylint?' in the FAQ do not modify one without modifying the other
+
 For command line use, pylint is installed with::
 
     pip install pylint
@@ -99,6 +101,8 @@ It can also be integrated in most editors or IDEs. More information can be found
 
 Contributing
 ------------
+
+.. This is a copy paste of 'How do I contribute to Pylint?' in the FAQ do not modify one without modifying the other
 
 We welcome all forms of contributions such as updates for documentation, new code, checking issues for duplicates or telling us
 that we can close them, confirming that issues still exist, `creating issues because

@@ -193,6 +193,12 @@ Here's an example with all these rules in a single place:
             # error
             print(self.blop)
 
+Known limitations
+-----------------
+
+It's currently impossible to `disable inside an else block`_.
+
+.. _`disable inside an else block`: https://github.com/PyCQA/pylint/issues/872
 
 Detecting useless disables
 --------------------------
