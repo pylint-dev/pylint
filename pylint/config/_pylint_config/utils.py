@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import sys
 from collections.abc import Callable
+from pathlib import Path
 
 if sys.version_info >= (3, 8):
     from typing import Literal
@@ -22,6 +23,7 @@ else:
 _P = ParamSpec("_P")
 
 SUPPORTED_FORMATS = {"t", "toml", "i", "ini"}
+YES_NO_ANSWERS = {"y", "yes", "n", "no"}
 
 
 class InvalidUserInput(Exception):
@@ -33,10 +35,12 @@ class InvalidUserInput(Exception):
         super().__init__(*args)
 
 
-def should_retry_after_invalid_input(func: Callable[_P, str]) -> Callable[_P, str]:
+def should_retry_after_invalid_input(
+    func: Callable[_P, str | bool]
+) -> Callable[_P, str | bool]:
     """Decorator that handles InvalidUserInput exceptions and retries."""
 
-    def inner_function(*args: _P.args, **kwargs: _P.kwargs) -> str:
+    def inner_function(*args: _P.args, **kwargs: _P.kwargs) -> str | bool:
         called_once = False
         while True:
             try:
@@ -66,3 +70,42 @@ def get_and_validate_format() -> Literal["toml", "ini"]:
     if format_type.startswith("t"):
         return "toml"
     return "ini"
+
+
+@should_retry_after_invalid_input
+def validate_yes_no(question: str, default: Literal["yes", "no"] | None) -> bool:
+    """Validate that a yes or no answer is correct."""
+    question = f"{question} (y)es or (n)o "
+    if default:
+        question += f" (default={default}) "
+    # pylint: disable-next=bad-builtin
+    answer = input(question).lower()
+
+    if answer == "" and default:
+        answer = default
+
+    if answer not in YES_NO_ANSWERS:
+        raise InvalidUserInput(", ".join(sorted(YES_NO_ANSWERS)), answer)
+
+    return answer.startswith("y")
+
+
+def get_and_validate_output_file() -> tuple[bool, Path]:
+    """Make sure that the output file is correct."""
+    to_file = validate_yes_no("Do you want to write the output to a file?", "no")
+
+    if not to_file:
+        return False, Path()
+
+    # pylint: disable-next=bad-builtin
+    file_name = Path(input("What should the file be called: "))
+    if file_name.exists():
+        overwrite = validate_yes_no(
+            f"{file_name} already exists. Are you sure you want to overwrite?", "no"
+        )
+
+        if not overwrite:
+            return False, file_name
+        return True, file_name
+
+    return True, file_name
