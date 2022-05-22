@@ -224,7 +224,7 @@ Other Changes
 * A couple of performance improvements brought to ``astroid`` should make
   ``pylint`` should be a bit faster as well.
 
-  We added a new flag, ``max_inferable_values`` on :class:`astroid.MANAGER` for
+  We added a new flag, ``max_inferable_values`` on ``astroid.MANAGER`` for
   limitting the maximum amount of values that ``astroid`` can infer when inferring
   values. This change should improve the performance when dealing with large frameworks
   such as ``django``.

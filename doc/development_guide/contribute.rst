@@ -71,9 +71,9 @@ Tips for Getting Started with Pylint Development
   codebase and will help you identify where you will need to make changes
   for what you are trying to implement.
 
-* :func:`astroid.extract_node` is your friend. Most checkers are AST based,
-  so you will likely need to interact with :mod:`astroid`.
-  A short example of how to use :func:`astroid.extract_node` is given
+* ``astroid.extract_node`` is your friend. Most checkers are AST based,
+  so you will likely need to interact with ``astroid``.
+  A short example of how to use ``astroid.extract_node`` is given
   :ref:`here <astroid_extract_node>`.
 
 * When fixing a bug for a specific check, search the code for the warning

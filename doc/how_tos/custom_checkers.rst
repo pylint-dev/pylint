@@ -18,9 +18,9 @@ There are three kinds of checkers:
   represent the source code in the file.
 * AST checkers, which work on an AST representation of the module.
 
-The AST representation is provided by the :mod:`astroid` library.
-:mod:`astroid` adds additional information and methods
-over :mod:`ast` in the standard library,
+The AST representation is provided by the ``astroid`` library.
+``astroid`` adds additional information and methods
+over ``ast`` in the standard library,
 to make tree navigation and code introspection easier.
 
 .. TODO Writing a Raw Checker
@@ -113,7 +113,7 @@ It has the following format::
 * The ``option-symbol`` is a unique name for the option.
   This is used on the command line and in config files.
   The hyphen is replaced by an underscore when used in the checker,
-  similarly to how you would use  :class:`argparse.Namespace`.
+  similarly to how you would use  ``argparse.Namespace``.
 
 Next we'll track when we enter and leave a function.
 
@@ -140,14 +140,14 @@ and to remove the list of return nodes when we leave the function.
 
 Finally we'll implement the check.
 We will define a ``visit_return`` function,
-which is called with an :class:`.astroid.nodes.Return` node.
+which is called with an ``.astroid.nodes.Return`` node.
 
 .. _astroid_extract_node:
 .. TODO We can shorten/remove this bit once astroid has API docs.
 
 We'll need to be able to figure out what attributes an
-:class:`.astroid.nodes.Return` node has available.
-We can use :func:`astroid.extract_node` for this::
+``.astroid.nodes.Return` node has available.
+We can use ``astroid.extract_node`` for this::
 
   >>> node = astroid.extract_node("return 5")
   >>> node
@@ -171,9 +171,9 @@ We could also construct a more complete example::
   >>> node_a.value.value == node_b.value.value
   True
 
-For :func:`astroid.extract_node`, you can use ``#@`` at the end of a line to choose which statements will be extracted into nodes.
+For ``astroid.extract_node``, you can use ``#@`` at the end of a line to choose which statements will be extracted into nodes.
 
-For more information on :func:`astroid.extract_node`,
+For more information on ``astroid.extract_node``,
 see the `astroid documentation <https://pylint.pycqa.org/projects/astroid/en/latest/>`_.
 
 Now we know how to use the astroid node, we can implement our check.
@@ -192,7 +192,7 @@ Now we know how to use the astroid node, we can implement our check.
       self._function_stack[-1].append(node)
 
 Once we have established that the source code has failed our check,
-we use :func:`~.BaseChecker.add_message` to emit our failure message.
+we use ``~.BaseChecker.add_message`` to emit our failure message.
 
 Finally, we need to register the checker with pylint.
 Add the ``register`` function to the top level of the file.
@@ -209,7 +209,7 @@ We are now ready to debug and test our checker!
 
 Debugging a Checker
 -------------------
-It is very simple to get to a point where we can use :mod:`pdb`.
+It is very simple to get to a point where we can use ``pdb``.
 We'll need a small test case.
 Put the following into a Python file:
 
@@ -260,7 +260,7 @@ produce all of your test cases and check that they fail,
 implement the checker,
 then check that all of your test cases work.
 
-Pylint provides a :class:`pylint.testutils.CheckerTestCase`
+Pylint provides a ``pylint.testutils.CheckerTestCase``
 to make test cases very simple.
 We can use the example code that we used for debugging as our test cases.
 
@@ -305,8 +305,8 @@ We can use the example code that we used for debugging as our test cases.
               self.checker.visit_return(return_node_b)
 
 
-Once again we are using :func:`astroid.extract_node` to
+Once again we are using ``astroid.extract_node`` to
 construct our test cases.
-:class:`pylint.testutils.CheckerTestCase` has created the linter and checker for us,
+``pylint.testutils.CheckerTestCase`` has created the linter and checker for us,
 we simply simulate a traversal of the AST tree
 using the nodes that we are interested in.
