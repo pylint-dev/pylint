@@ -14,5 +14,3 @@ Technical Reference
 
   startup
   checkers
-  extensions
-  features

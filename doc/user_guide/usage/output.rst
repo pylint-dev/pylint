@@ -23,7 +23,7 @@ a colorized report to stdout at the same time:
 
 
 Custom message formats
-''''''''''''''''''''''''''''
+''''''''''''''''''''''
 
 You can customize the exact way information are displayed using the
 `--msg-template=<format string>` option. The `format string` uses the

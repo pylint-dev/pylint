@@ -15,4 +15,4 @@ unless they include tests.
 
    install
    launching_test
-   writting_test
+   writing_test
