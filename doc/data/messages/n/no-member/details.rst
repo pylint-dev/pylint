@@ -1,9 +1,9 @@
-Pylint and C extensions
-=======================
-
 If you are getting the dreaded **no-member** error, there is a possibility that
-either **pylint** found a bug in your code or that it actually tries to lint
-a C extension module.
+either:
+
+- pylint found a bug in your code
+- You're launching pylint without the dependencies installed in your environment.
+- pylint would need to lint a C extension module and is refraining to do so.
 
 Linting C extension modules is not supported out of the box, especially since
 pylint has no way to get an AST object out of the extension module.
