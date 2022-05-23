@@ -95,7 +95,7 @@ For command line use, pylint is installed with::
 It can also be integrated in most editors or IDEs. More information can be found
 `in the documentation`_.
 
-.. _in the documentation: https://pylint.pycqa.org/en/latest/user_guide/installation.html
+.. _in the documentation: https://pylint.pycqa.org/en/latest/user_guide/installation/index.html
 
 Contributing
 ------------
@@ -122,7 +122,7 @@ You can place this badge in your README to let others know your project uses pyl
 
 Learn how to add a badge to your documentation in the `the badge documentation`_.
 
-.. _the badge documentation: https://pylint.pycqa.org/en/latest/user_guide/badge.html
+.. _the badge documentation: https://pylint.pycqa.org/en/latest/user_guide/installation/badge.html
 
 License
 -------

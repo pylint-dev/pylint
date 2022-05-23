@@ -75,6 +75,7 @@ redirects: dict[str, str] = {
     "messages/messages_list": "../user_guide/messages/messages_overview.html",
     "support": "contact.html",
     "technical_reference/c_extensions": "../user_guide/messages/error/no-member.html",
+    "technical_reference/extensions": "../user_guide/checkers/extensions.html",
     "technical_reference/checkers": "../development_guide/technical_reference/checkers.html",
     "technical_reference/features": "../user_guide/checkers/features.html",
     "technical_reference/index": "../development_guide/technical_reference/index.html",
