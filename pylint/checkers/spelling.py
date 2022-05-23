@@ -121,7 +121,9 @@ class SphinxDirectives(RegExFilter):
 
 
 class ForwardSlashChunker(Chunker):
-    """This chunker allows splitting words like 'before/after' into 'before' and 'after'."""
+    """This chunker allows splitting words like 'before/after' into 'before' and
+    'after'.
+    """
 
     def next(self):
         while True:

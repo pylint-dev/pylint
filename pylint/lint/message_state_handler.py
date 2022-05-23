@@ -36,7 +36,9 @@ if TYPE_CHECKING:
 
 
 class _MessageStateHandler:
-    """Class that handles message disabling & enabling and processing of inline pragma's."""
+    """Class that handles message disabling & enabling and processing of inline
+    pragma's.
+    """
 
     def __init__(self, linter: PyLinter) -> None:
         self.linter = linter
@@ -302,7 +304,8 @@ class _MessageStateHandler:
         line: int | None = None,
         confidence: interfaces.Confidence | None = None,
     ) -> bool:
-        """Return whether this message is enabled for the current file, line and confidence level.
+        """Return whether this message is enabled for the current file, line and
+        confidence level.
 
         This function can't be cached right now as the line is the line of
         the currently analysed file (self.file_state), if it changes, then the

@@ -26,4 +26,6 @@ class InvalidArgsError(ValueError):
 
 
 class NoLineSuppliedError(Exception):
-    """Raised when trying to disable a message on a next line without supplying a line number."""
+    """Raised when trying to disable a message on a next line without supplying a line
+    number.
+    """

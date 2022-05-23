@@ -208,7 +208,8 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
 
     @staticmethod
     def base_names_of_instance(node: bases.Uninferable | bases.Instance) -> list[str]:
-        """Return all names inherited by a class instance or those returned by a function.
+        """Return all names inherited by a class instance or those returned by a
+        function.
 
         The inherited names include 'object'.
         """

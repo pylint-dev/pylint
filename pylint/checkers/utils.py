@@ -1679,7 +1679,9 @@ def is_node_in_guarded_import_block(node: nodes.NodeNG) -> bool:
 
 
 def is_reassigned_after_current(node: nodes.NodeNG, varname: str) -> bool:
-    """Check if the given variable name is reassigned in the same scope after the current node."""
+    """Check if the given variable name is reassigned in the same scope after the
+    current node.
+    """
     return any(
         a.name == varname and a.lineno > node.lineno
         for a in node.scope().nodes_of_class(
@@ -1689,7 +1691,9 @@ def is_reassigned_after_current(node: nodes.NodeNG, varname: str) -> bool:
 
 
 def is_deleted_after_current(node: nodes.NodeNG, varname: str) -> bool:
-    """Check if the given variable name is deleted in the same scope after the current node."""
+    """Check if the given variable name is deleted in the same scope after the current
+    node.
+    """
     return any(
         getattr(target, "name", None) == varname and target.lineno > node.lineno
         for del_node in node.scope().nodes_of_class(nodes.Delete)

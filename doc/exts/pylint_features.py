@@ -4,7 +4,9 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-"""Script used to generate the features file before building the actual documentation."""
+"""Script used to generate the features file before building the actual
+documentation.
+"""
 
 import os
 from typing import Optional

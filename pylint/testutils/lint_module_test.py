@@ -310,7 +310,9 @@ class LintModuleTest:
         expected_output: list[OutputLine],
         actual_output: list[OutputLine],
     ) -> None:
-        """This is a function because we want to be able to update the text in LintModuleOutputUpdate."""
+        """This is a function because we want to be able to update the text in
+        LintModuleOutputUpdate.
+        """
         assert expected_output == actual_output, self.error_msg_for_unequal_output(
             expected_output, actual_output
         )
