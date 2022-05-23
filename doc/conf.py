@@ -59,6 +59,7 @@ redirects: dict[str, str] = {
     "development_guide/index": "api/index.html",
     "development_guide/contribute": "../development_guide/contributor_guide/index.html",
     "development_guide/contributor_guide": "contributor_guide/index.html",
+    "development_guide/profiling": "../development_guide/contributor_guide/profiling.html",
     "development_guide/tests/index": "../contributor_guide/tests/index.html",
     "development_guide/tests/install": "../contributor_guide/tests/install.html",
     "development_guide/tests/launching_test": "../contributor_guide/tests/launching_test.html",

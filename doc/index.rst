@@ -27,7 +27,6 @@
    development_guide/api/index
    development_guide/how_tos/index.rst
    development_guide/technical_reference/index.rst
-   development_guide/profiling
    development_guide/contributor_guide/index
 
 .. toctree::
