@@ -86,4 +86,4 @@ Below is a list of all checkers and their features.
 
 def print_full_documentation(linter: PyLinter, stream: TextIO = sys.stdout) -> None:
     """Output a full documentation in ReST format."""
-    print(_get_checkers_documentation(linter)[:-1], file=stream)
+    print(_get_checkers_documentation(linter)[:-3], file=stream)

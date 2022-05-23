@@ -74,10 +74,16 @@ def builder_inited(app: Optional[Sphinx]) -> None:
 
         # Print checker documentation to stream
         by_checker = get_plugins_info(linter, doc_files)
-        for checker, information in sorted(by_checker.items()):
+        max_len = len(by_checker)
+        for i, checker_information in enumerate(sorted(by_checker.items())):
+            checker, information = checker_information
+            j = -1
             checker = information["checker"]
             del information["checker"]
-            print(checker.get_full_documentation(**information)[:-1], file=stream)
+            if i == max_len - 1:
+                # Remove the \n\n at the end of the file
+                j = -3
+            print(checker.get_full_documentation(**information)[:j], file=stream)
 
 
 def get_plugins_info(linter, doc_files):
