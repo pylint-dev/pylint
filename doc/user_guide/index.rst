@@ -9,7 +9,6 @@ User Guide
    installation
    run
    output
-   c_extensions
    messages/index
    options
    ide_integration/ide-integration
