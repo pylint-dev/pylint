@@ -11,8 +11,11 @@ from pylint import constants
 
 
 class NamingStyle:
-    """It may seem counter-intuitive that single naming style has multiple "accepted"
-    forms of regular expressions, but we need to special-case stuff like dunder names in method names.
+    """Class to register all accepted forms of a single naming style.
+
+    It may seem counter-intuitive that single naming style has multiple "accepted"
+    forms of regular expressions, but we need to special-case stuff like dunder
+    names in method names.
     """
 
     ANY: Pattern[str] = re.compile(".*")

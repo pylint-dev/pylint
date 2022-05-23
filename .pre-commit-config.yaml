@@ -110,5 +110,5 @@ repos:
     hooks:
       - id: pydocstringformatter
         exclude: *fixtures
-        args: ["--max-summary-lines=2"]
+        args: ["--max-summary-lines=2", "--linewrap-full-docstring"]
         files: "pylint"
