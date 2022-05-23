@@ -6,13 +6,10 @@ Messages control
 In order to control messages, ``pylint`` accepts the following values:
 
 * a symbolic message: ``no-member``, ``undefined-variable`` etc.
-
 * a numerical ID: ``E1101``, ``E1102`` etc.
-
 * The name of the group of checks. You can grab those with ``pylint --list-groups``.
   For example, you can disable / enable all the checks related to type checking, with
   ``typecheck`` or all the checks related to variables with ``variables``
-
 * Corresponding category of the checks
 
   * ``C`` convention related checks
@@ -20,8 +17,31 @@ In order to control messages, ``pylint`` accepts the following values:
   * ``W`` various warnings
   * ``E`` errors, for probable bugs in the code
   * ``F`` fatal, if an error occurred which prevented ``pylint`` from doing further processing.
-
 * All the checks with ``all``
+
+Module disable
+--------------
+
+Add ``#pylint: skip-file`` at the beginning of the module.
+
+In order to ease finding which modules are ignored an Information-level message
+`file-ignored` is emitted.
+
+You can disable or enable (globally disabled) messages at the
+module level by adding the corresponding option in a comment at the
+top of the file: ::
+
+    # pylint: disable=wildcard-import, method-hidden
+    # pylint: enable=too-many-lines
+
+
+Inline disable
+--------------
+
+For a single line, add ``# pylint: disable=some-message,another-one`` at the end of
+the desired line of code. Since Pylint 2.10 you can also use ``#pylint: disable-next=...``
+on the line just above the problem. ``...`` in the following example is short for the
+list of messages you want to disable.
 
 .. _block_disables:
 
@@ -29,6 +49,13 @@ Block disables
 --------------
 
 This describes how the pragma controls operate at a code level.
+For larger amounts of code, you can add ``#pylint: disable=...`` at the block level
+to disable messages for the entire block. It's possible to re-enable a message for the
+remainder of the block with ``#pylint: enable=...``. A block is either a scope (say a
+function, a module) or a multiline statement (try, finally, if statements, for loops).
+Note: It's currently impossible to `disable inside an else block`_.
+
+.. _`disable inside an else block`: https://github.com/PyCQA/pylint/issues/872
 
 The pragma controls can disable / enable:
 
