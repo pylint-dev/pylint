@@ -4,8 +4,8 @@
 Configuration
 =============
 
-Pylint is highly configurable. There's a lot of options to follow the need of
-every projects and a lot of checks to activate if they suit your style.
+Pylint is highly configurable. There are a lot of options to follow the needs of
+various projects and a lot of checks to activate if they suit your style.
 
 .. toctree::
    :maxdepth: 2
