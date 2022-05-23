@@ -52,6 +52,10 @@ False negatives fixed
 
   Closes #6909
 
+* Emit ``used-before-assignment`` when relying on names only defined under conditions always testing false.
+
+  Closes #4913
+
 * Emit ``used-before-assignment`` for self-referencing named expressions (``:=``) lacking
   prior assignments.
 
