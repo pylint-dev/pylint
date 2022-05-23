@@ -1,5 +1,9 @@
 Optional checkers
 =================
+
+.. This file is auto-generated. Make any changes to the associated
+.. docs extension in 'doc/exts/pylint_extensions.py'.
+
 Pylint provides the following optional plugins:
 
 - :ref:`pylint.extensions.bad_builtin`

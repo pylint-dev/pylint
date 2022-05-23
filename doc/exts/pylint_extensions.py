@@ -51,6 +51,13 @@ def builder_inited(app: Optional[Sphinx]) -> None:
     )
     with open(extensions_doc, "w", encoding="utf-8") as stream:
         stream.write(get_rst_title("Optional checkers", "="))
+        stream.write(
+            """
+.. This file is auto-generated. Make any changes to the associated
+.. docs extension in 'doc/exts/pylint_extensions.py'.
+
+"""
+        )
         stream.write("Pylint provides the following optional plugins:\n\n")
         for module in modules:
             stream.write(f"- :ref:`{module}`\n")
