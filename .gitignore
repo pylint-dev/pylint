@@ -17,9 +17,6 @@ doc/user_guide/messages/fatal/
 doc/user_guide/messages/information/
 doc/user_guide/messages/refactor/
 doc/user_guide/messages/warning/
-doc/user_guide/checkers/extensions.rst
-doc/user_guide/checkers/features.rst
-doc/user_guide/configuration/all-options.rst
 pyve
 build-stamp
 .coverage
