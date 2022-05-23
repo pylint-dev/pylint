@@ -686,7 +686,8 @@ class PyLinter(
         check_astroid_module: Callable[[nodes.Module], bool | None],
         file: FileItem,
     ) -> None:
-        """Check a file using the passed utility functions (get_ast and check_astroid_module).
+        """Check a file using the passed utility functions (get_ast and
+        check_astroid_module).
 
         :param callable get_ast: callable returning AST from defined file taking the following arguments
         - filepath: path to the file to check
@@ -717,7 +718,8 @@ class PyLinter(
 
     @staticmethod
     def _get_file_descr_from_stdin(filepath: str) -> FileItem:
-        """Return file description (tuple of module name, file path, base name) from given file path.
+        """Return file description (tuple of module name, file path, base name) from
+        given file path.
 
         This method is used for creating suitable file description for _check_files when the
         source is standard input.
@@ -735,7 +737,8 @@ class PyLinter(
     def _iterate_file_descrs(
         self, files_or_modules: Sequence[str]
     ) -> Iterator[FileItem]:
-        """Return generator yielding file descriptions (tuples of module name, file path, base name).
+        """Return generator yielding file descriptions (tuples of module name, file
+        path, base name).
 
         The returned generator yield one item for each Python module that should be linted.
         """

@@ -114,7 +114,9 @@ class PrivateImportChecker(BaseChecker):
     def _get_type_annotation_names(
         self, node: nodes.Import | nodes.ImportFrom, names: list[str]
     ) -> list[str]:
-        """Removes from names any names that are used as type annotations with no other illegal usages."""
+        """Removes from names any names that are used as type annotations with no other
+        illegal usages.
+        """
         if names and not self.populated_annotations:
             self._populate_type_annotations(node.root(), self.all_used_type_annotations)
             self.populated_annotations = True

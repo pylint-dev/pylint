@@ -109,8 +109,8 @@ def _get_message_data(data_path: Path) -> Tuple[str, str, str, str]:
 def _get_all_messages(
     linter: PyLinter,
 ) -> Tuple[MessagesDict, OldMessagesDict]:
-    """Get all messages registered to a linter and return a dictionary indexed by message
-    type.
+    """Get all messages registered to a linter and return a dictionary indexed by
+    message type.
 
     Also return a dictionary of old message and the new messages they can be mapped to.
     """

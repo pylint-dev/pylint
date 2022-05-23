@@ -662,7 +662,9 @@ class _ArgumentsManager:
         self.set_option(opt, value)
 
     def _generate_config_file(self) -> str:
-        """Write a configuration file according to the current configuration into stdout."""
+        """Write a configuration file according to the current configuration into
+        stdout.
+        """
         toml_doc = tomlkit.document()
         pylint_tool_table = tomlkit.table(is_super_table=True)
         toml_doc.add(tomlkit.key(["tool", "pylint"]), pylint_tool_table)

@@ -123,7 +123,9 @@ class _ArgumentsProvider:
 
     # pylint: disable-next=unused-argument
     def set_option(self, optname, value, action=None, optdict=None):  # pragma: no cover
-        """DEPRECATED: Method called to set an option (registered in the options list)."""
+        """DEPRECATED: Method called to set an option (registered in the options
+        list).
+        """
         # TODO: 3.0: Remove deprecated method.
         warnings.warn(
             "set_option has been deprecated. You can use _arguments_manager.set_option "

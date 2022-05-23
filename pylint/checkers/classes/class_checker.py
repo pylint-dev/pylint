@@ -888,7 +888,9 @@ a metaclass class method.",
                 )
 
     def _check_typing_final(self, node: nodes.ClassDef) -> None:
-        """Detect that a class does not subclass a class decorated with `typing.final`."""
+        """Detect that a class does not subclass a class decorated with
+        `typing.final`.
+        """
         if not self._py38_plus:
             return
         for base in node.bases:
@@ -1762,7 +1764,9 @@ a metaclass class method.",
 
     @staticmethod
     def _is_inferred_instance(expr, klass):
-        """Check if the inferred value of the given *expr* is an instance of *klass*."""
+        """Check if the inferred value of the given *expr* is an instance of
+        *klass*.
+        """
 
         inferred = safe_infer(expr)
         if not isinstance(inferred, astroid.Instance):
@@ -1772,7 +1776,8 @@ a metaclass class method.",
 
     @staticmethod
     def _is_class_attribute(name, klass):
-        """Check if the given attribute *name* is a class or instance member of the given *klass*.
+        """Check if the given attribute *name* is a class or instance member of the
+        given *klass*.
 
         Returns ``True`` if the name is a property in the given klass,
         ``False`` otherwise.
