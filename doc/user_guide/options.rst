@@ -7,4 +7,3 @@ Configuration
    :titlesonly:
 
    configuration/all-options
-   configuration/naming-styles

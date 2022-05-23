@@ -62,6 +62,7 @@ redirects: dict[str, str] = {
     "messages/messages_list": "../user_guide/messages/messages_overview.html",
     "user_guide/message-control": "messages/message_control.html",
     "technical_reference/c_extensions": "../user_guide/messages/error/no-member.html",
+    "user_guide/configuration/naming-styles": "../user_guide/messages/convention/invalid-name.html",
     "development/testing": "tests/index.html",
 }
 

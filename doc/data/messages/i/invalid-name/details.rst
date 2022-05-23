@@ -1,12 +1,3 @@
-.. -*- coding: utf-8 -*-
-
-===============
- Naming styles
-===============
-
-Introduction
-~~~~~~~~~~~~
-
 Pylint recognizes a number of different name types internally. With a few
 exceptions, the type of the name is governed by the location the assignment to a
 name is found in, and not the type of object assigned.
