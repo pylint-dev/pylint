@@ -64,7 +64,7 @@ jobs:
           . venv/bin/activate
           pytest -vv --minimal-messages-config tests/test_functional.py
       - name: Upload coverage artifact
-        uses: actions/upload-artifact@v3.0.0
+        uses: actions/upload-artifact@v3.1.0
         with:
           name: coverage-${{ matrix.python-version }}
           path: .coverage
@@ -159,7 +159,7 @@ jobs:
         run: >-
           echo "::set-output name=datetime::"$(date "+%Y%m%d_%H%M")
       - name: Upload benchmark artifact
-        uses: actions/upload-artifact@v3.0.0
+        uses: actions/upload-artifact@v3.1.0
         with:
           name:
             benchmark-${{ runner.os }}-${{ matrix.python-version }}_${{
