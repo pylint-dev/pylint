@@ -32,7 +32,6 @@ For example:
    - As this script will be invoked by Emacs within the directory of the file
      we are checking we need to go out of it to avoid these false positives.
 
-
 You may also use py_run to run pylint with desired options and get back (or not)
 its output.
 """

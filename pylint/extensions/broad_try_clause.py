@@ -22,7 +22,6 @@ class BroadTryClauseChecker(checkers.BaseChecker):
     According to PEP 8, ``try`` clauses shall contain the absolute minimum
     amount of code. This checker enforces a maximum number of statements within
     ``try`` clauses.
-
     """
 
     # configuration section name

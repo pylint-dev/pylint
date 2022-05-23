@@ -108,7 +108,6 @@ def possible_exc_types(node: nodes.NodeNG) -> set[nodes.ClassDef]:
 
         Caught exception types are ignored.
 
-
     :param node: The raise node to find exception types for.
 
     :returns: A list of exception types possibly raised by :param:`node`.

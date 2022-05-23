@@ -48,7 +48,7 @@ class MessageData(NamedTuple):
 MessagesDict = Dict[str, List[MessageData]]
 OldMessagesDict = Dict[str, DefaultDict[Tuple[str, str], List[Tuple[str, str]]]]
 """DefaultDict is indexed by tuples of (old name symbol, old name id) and values are
-tuples of (new name symbol, new name category)
+tuples of (new name symbol, new name category).
 """
 
 

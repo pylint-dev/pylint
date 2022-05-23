@@ -307,7 +307,6 @@ def _different_parameters(
        * one of the methods is having variadics, while the other is not
 
        * they have different keyword only parameters.
-
     """
     output_messages = []
     original_parameters = _positional_parameters(original)

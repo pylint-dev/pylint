@@ -1703,7 +1703,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         Args:
             node (nodes.FunctionDef): the function holding the return statements.
-
         """
         # explicit return statements are those with a not None value
         explicit_returns = [
@@ -1788,7 +1787,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         Returns:
             bool: True if the node ends with an explicit statement, False otherwise.
-
         """
         # Recursion base case
         if isinstance(node, nodes.Return):

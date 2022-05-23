@@ -89,7 +89,6 @@ class RegExFilter(Filter):
 
     This filter skips any words the match the expression
     assigned to the class attribute ``_pattern``.
-
     """
 
     _pattern: Pattern[str]
