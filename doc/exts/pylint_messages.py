@@ -254,9 +254,9 @@ def _write_messages_list_page(
 
 {"#" * len(title)}
 {get_rst_title(title, "#")}
-..
-  NOTE This file is auto-generated. Make any changes to the associated
-  docs extension in 'doc/exts/pylint_messages.py'.
+
+.. This file is auto-generated. Make any changes to the associated
+.. docs extension in 'doc/exts/pylint_messages.py'.
 
 Pylint can emit the following messages:
 
