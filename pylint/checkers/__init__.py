@@ -38,7 +38,6 @@ to get the next free checker id.
 
 The raw_metrics checker has no number associated since it doesn't emit any
 messages nor reports. XXX not true, emit a 07 report !
-
 """
 
 from __future__ import annotations

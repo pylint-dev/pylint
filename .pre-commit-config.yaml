@@ -106,9 +106,9 @@ repos:
         args: [--prose-wrap=always, --print-width=88]
         exclude: tests(/\w*)*data/
   - repo: https://github.com/DanielNoord/pydocstringformatter
-    rev: v0.5.3
+    rev: v0.6.0
     hooks:
       - id: pydocstringformatter
         exclude: *fixtures
-        args: ["--split-summary-body", "--max-summary-lines=2"]
+        args: ["--max-summary-lines=2"]
         files: "pylint"
