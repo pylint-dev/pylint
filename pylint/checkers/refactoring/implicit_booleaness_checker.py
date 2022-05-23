@@ -126,8 +126,8 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
 
     @utils.only_required_for_messages("use-implicit-booleaness-not-len")
     def visit_unaryop(self, node: nodes.UnaryOp) -> None:
-        """`not len(S)` must become `not S` regardless if the parent block
-        is a test condition or something else (boolean expression) e.g. `if not len(S):`.
+        """`not len(S)` must become `not S` regardless if the parent block is a test
+        condition or something else (boolean expression) e.g. `if not len(S):`.
         """
         if (
             isinstance(node, nodes.UnaryOp)

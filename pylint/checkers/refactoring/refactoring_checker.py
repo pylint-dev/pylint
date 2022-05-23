@@ -128,8 +128,8 @@ def _is_a_return_statement(node: nodes.Call) -> bool:
 
 
 def _is_part_of_with_items(node: nodes.Call) -> bool:
-    """Checks if one of the node's parents is a ``nodes.With`` node and that the node itself is located
-    somewhere under its ``items``.
+    """Checks if one of the node's parents is a ``nodes.With`` node and that the node
+    itself is located somewhere under its ``items``.
     """
     frame = node.frame(future=True)
     current = node
@@ -143,8 +143,8 @@ def _is_part_of_with_items(node: nodes.Call) -> bool:
 
 
 def _will_be_released_automatically(node: nodes.Call) -> bool:
-    """Checks if a call that could be used in a ``with`` statement is used in an alternative
-    construct which would ensure that its __exit__ method is called.
+    """Checks if a call that could be used in a ``with`` statement is used in an
+    alternative construct which would ensure that its __exit__ method is called.
     """
     callables_taking_care_of_exit = frozenset(
         (
