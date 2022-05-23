@@ -1860,5 +1860,3 @@ Variables checker Messages
 :global-at-module-level (W0604): *Using the global statement at the module level*
   Used when you use the "global" statement at the module level since it has no
   effect
-
-

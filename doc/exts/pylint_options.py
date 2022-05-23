@@ -156,8 +156,7 @@ def _write_options_page(options: OptionsDataDict, linter: PyLinter) -> None:
         stream.write(
             f"""
 
-{sections_string}
-"""
+{sections_string}"""
         )
 
 
