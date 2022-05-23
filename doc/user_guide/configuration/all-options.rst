@@ -291,60 +291,60 @@ Default:
 
    [tool.pylint.main]
    analyse-fallback-blocks = false
-   
+
    confidence = ["HIGH", "CONTROL_FLOW", "INFERENCE", "INFERENCE_FAILURE", "UNDEFINED"]
-   
+
    # disable =
-   
+
    # enable =
-   
+
    evaluation = "max(0, 0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10))"
-   
+
    exit-zero = false
-   
+
    extension-pkg-allow-list = []
-   
+
    extension-pkg-whitelist = []
-   
+
    fail-on = []
-   
+
    fail-under = 10
-   
+
    from-stdin = false
-   
+
    ignore = ["CVS"]
-   
+
    ignore-paths = []
-   
+
    ignore-patterns = ["^\\.#"]
-   
+
    ignored-modules = []
-   
+
    jobs = 1
-   
+
    limit-inference-results = 100
-   
+
    load-plugins = []
-   
+
    msg-template = ""
-   
+
    # output-format =
-   
+
    persistent = true
-   
+
    py-version = [3, 8]
-   
+
    recursive = false
-   
+
    reports = false
-   
+
    score = true
-   
+
    suggestion-mode = true
-   
+
    unsafe-load-any-extension = false
-   
-   
+
+
 
 .. raw:: html
 
@@ -685,70 +685,70 @@ Default:
 
    [tool.pylint.basic]
    argument-naming-style = "snake_case"
-   
+
    # argument-rgx =
-   
+
    attr-naming-style = "snake_case"
-   
+
    # attr-rgx =
-   
+
    bad-names = ["foo", "bar", "baz", "toto", "tutu", "tata"]
-   
+
    bad-names-rgxs = []
-   
+
    class-attribute-naming-style = "any"
-   
+
    # class-attribute-rgx =
-   
+
    class-const-naming-style = "UPPER_CASE"
-   
+
    # class-const-rgx =
-   
+
    class-naming-style = "PascalCase"
-   
+
    # class-rgx =
-   
+
    const-naming-style = "UPPER_CASE"
-   
+
    # const-rgx =
-   
+
    docstring-min-length = -1
-   
+
    function-naming-style = "snake_case"
-   
+
    # function-rgx =
-   
+
    good-names = ["i", "j", "k", "ex", "Run", "_"]
-   
+
    good-names-rgxs = []
-   
+
    include-naming-hint = false
-   
+
    inlinevar-naming-style = "any"
-   
+
    # inlinevar-rgx =
-   
+
    method-naming-style = "snake_case"
-   
+
    # method-rgx =
-   
+
    module-naming-style = "snake_case"
-   
+
    # module-rgx =
-   
+
    name-group = []
-   
+
    no-docstring-rgx = "^_"
-   
+
    property-classes = ["abc.abstractproperty"]
-   
+
    # typevar-rgx =
-   
+
    variable-naming-style = "snake_case"
-   
+
    # variable-rgx =
-   
-   
+
+
 
 .. raw:: html
 
@@ -819,16 +819,16 @@ Default:
 
    [tool.pylint.classes]
    check-protected-access-in-special-methods = false
-   
+
    defining-attr-methods = ["__init__", "__new__", "setUp", "__post_init__"]
-   
+
    exclude-protected = ["_asdict", "_fields", "_replace", "_source", "_make"]
-   
+
    valid-classmethod-first-arg = ["cls"]
-   
+
    valid-metaclass-classmethod-first-arg = ["cls"]
-   
-   
+
+
 
 .. raw:: html
 
@@ -979,32 +979,32 @@ Default:
 
    [tool.pylint.design]
    exclude-too-few-public-methods = []
-   
+
    ignored-parents = []
-   
+
    max-args = 5
-   
+
    max-attributes = 7
-   
+
    max-bool-expr = 5
-   
+
    max-branches = 12
-   
+
    max-complexity = 10
-   
+
    max-locals = 15
-   
+
    max-parents = 7
-   
+
    max-public-methods = 20
-   
+
    max-returns = 6
-   
+
    max-statements = 50
-   
+
    min-public-methods = 2
-   
-   
+
+
 
 .. raw:: html
 
@@ -1035,8 +1035,8 @@ Default:
 
    [tool.pylint.exceptions]
    overgeneral-exceptions = ["BaseException", "Exception"]
-   
-   
+
+
 
 .. raw:: html
 
@@ -1137,22 +1137,22 @@ Default:
 
    [tool.pylint.format]
    expected-line-ending-format = ""
-   
+
    ignore-long-lines = "^\\s*(# )?<?https?://\\S+>?$"
-   
+
    indent-after-paren = 4
-   
+
    indent-string = "    "
-   
+
    max-line-length = 100
-   
+
    max-module-lines = 1000
-   
+
    single-line-class-stmt = false
-   
+
    single-line-if-stmt = false
-   
-   
+
+
 
 .. raw:: html
 
@@ -1263,24 +1263,24 @@ Default:
 
    [tool.pylint.imports]
    allow-any-import-level = []
-   
+
    allow-wildcard-with-all = false
-   
+
    deprecated-modules = []
-   
+
    ext-import-graph = ""
-   
+
    import-graph = ""
-   
+
    int-import-graph = ""
-   
+
    known-standard-library = []
-   
+
    known-third-party = ["enchant"]
-   
+
    preferred-modules = []
-   
-   
+
+
 
 .. raw:: html
 
@@ -1321,10 +1321,10 @@ Default:
 
    [tool.pylint.logging]
    logging-format-style = "old"
-   
+
    logging-modules = ["logging"]
-   
-   
+
+
 
 .. raw:: html
 
@@ -1365,10 +1365,10 @@ Default:
 
    [tool.pylint.miscellaneous]
    notes = ["FIXME", "XXX", "TODO"]
-   
+
    notes-rgx = ""
-   
-   
+
+
 
 .. raw:: html
 
@@ -1409,10 +1409,10 @@ Default:
 
    [tool.pylint.refactoring]
    max-nested-blocks = 5
-   
+
    never-returning-functions = ["sys.exit", "argparse.parse_error"]
-   
-   
+
+
 
 .. raw:: html
 
@@ -1483,16 +1483,16 @@ Default:
 
    [tool.pylint.similarities]
    ignore-comments = true
-   
+
    ignore-docstrings = true
-   
+
    ignore-imports = true
-   
+
    ignore-signatures = true
-   
+
    min-similarity-lines = 4
-   
-   
+
+
 
 .. raw:: html
 
@@ -1573,18 +1573,18 @@ Default:
 
    [tool.pylint.spelling]
    max-spelling-suggestions = 4
-   
+
    spelling-dict = ""
-   
+
    spelling-ignore-comment-directives = "fmt: on,fmt: off,noqa:,noqa,nosec,isort:skip,mypy:"
-   
+
    spelling-ignore-words = ""
-   
+
    spelling-private-dict-file = ""
-   
+
    spelling-store-unknown-words = false
-   
-   
+
+
 
 .. raw:: html
 
@@ -1625,10 +1625,10 @@ Default:
 
    [tool.pylint.string]
    check-quote-consistency = false
-   
+
    check-str-concat-over-line-jumps = false
-   
-   
+
+
 
 .. raw:: html
 
@@ -1769,30 +1769,30 @@ Default:
 
    [tool.pylint.typecheck]
    contextmanager-decorators = ["contextlib.contextmanager"]
-   
+
    generated-members = []
-   
+
    ignore-mixin-members = true
-   
+
    ignore-none = true
-   
+
    ignore-on-opaque-inference = true
-   
+
    ignored-checks-for-mixins = ["no-member", "not-async-context-manager", "not-context-manager", "attribute-defined-outside-init"]
-   
+
    ignored-classes = ["optparse.Values", "thread._local", "_thread._local", "argparse.Namespace"]
-   
+
    missing-member-hint = true
-   
+
    missing-member-hint-distance = 1
-   
+
    missing-member-max-choices = 1
-   
+
    mixin-class-rgx = ".*[Mm]ixin"
-   
+
    signature-mutators = []
-   
-   
+
+
 
 .. raw:: html
 
@@ -1893,22 +1893,22 @@ Default:
 
    [tool.pylint.variables]
    additional-builtins = []
-   
+
    allow-global-unused-variables = true
-   
+
    allowed-redefined-builtins = []
-   
+
    callbacks = ["cb_", "_cb"]
-   
+
    dummy-variables-rgx = "_+$|(_[a-zA-Z0-9_]*[a-zA-Z0-9]+?$)|dummy|^ignored_|^unused_"
-   
+
    ignored-argument-names = "_.*|^ignored_|^unused_"
-   
+
    init-import = false
-   
+
    redefining-builtins-modules = ["six.moves", "past.builtins", "future.builtins", "builtins", "io"]
-   
-   
+
+
 
 .. raw:: html
 
@@ -1943,8 +1943,8 @@ Default:
 
    [tool.pylint.broad_try_clause]
    max-try-statements = 1
-   
-   
+
+
 
 .. raw:: html
 
@@ -1975,8 +1975,8 @@ Default:
 
    [tool.pylint.code_style]
    max-line-length-suggestions = 0
-   
-   
+
+
 
 .. raw:: html
 
@@ -2007,8 +2007,8 @@ Default:
 
    [tool.pylint.deprecated_builtins]
    bad-functions = ["map", "filter"]
-   
-   
+
+
 
 .. raw:: html
 
@@ -2079,16 +2079,16 @@ Default:
 
    [tool.pylint.parameter_documentation]
    accept-no-param-doc = true
-   
+
    accept-no-raise-doc = true
-   
+
    accept-no-return-doc = true
-   
+
    accept-no-yields-doc = true
-   
+
    default-docstring-type = "default"
-   
-   
+
+
 
 .. raw:: html
 
@@ -2119,10 +2119,9 @@ Default:
 
    [tool.pylint.typing]
    runtime-typing = true
-   
-   
+
+
 
 .. raw:: html
 
    </details>
-

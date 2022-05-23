@@ -109,7 +109,9 @@ def _create_checker_section(
         checker_table.add(tomlkit.nl())
 
     pylint_tool_table.add(options[0].checker.name.lower(), checker_table)
-    toml_string = "\n".join(f"   {i}" for i in tomlkit.dumps(toml_doc).split("\n"))
+    toml_string = "\n".join(
+        f"   {i}" if i else "" for i in tomlkit.dumps(toml_doc).split("\n")
+    )
     checker_string += f"""
 .. raw:: html
 
