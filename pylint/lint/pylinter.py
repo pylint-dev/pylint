@@ -1208,3 +1208,4 @@ class PyLinter(
     def _emit_bad_option_value(self) -> None:
         for msg in self.stashed_bad_option_value_messages:
             self.add_message("bad-option-value", args=msg, line=0)
+        self.stashed_bad_option_value_messages = []
