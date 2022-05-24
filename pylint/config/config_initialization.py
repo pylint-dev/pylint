@@ -83,6 +83,15 @@ def _config_initialization(
         msg = ", ".join(unrecognized_options)
         linter._arg_parser.error(f"Unrecognized option found: {msg}")
 
+    # Now that config file and command line options have been loaded
+    # with all disables, it is safe to emit messages
+    linter.set_current_module(str(config_file) if config_file else None)
+    if unrecognized_options_message is not None:
+        linter.add_message(
+            "unrecognized-option", args=unrecognized_options_message, line=0
+        )
+    linter._emit_bad_option_value()
+
     # Set the current module to configuration as we don't know where
     # the --load-plugins key is coming from
     linter.set_current_module("Command line or configuration file")
@@ -95,13 +104,6 @@ def _config_initialization(
     linter.enable_fail_on_messages()
 
     linter._parse_error_mode()
-
-    # Now that all options have been loaded, it is safe to emit messages
-    if unrecognized_options_message is not None:
-        linter.add_message(
-            "unrecognized-option", args=unrecognized_options_message, line=0
-        )
-    linter._emit_bad_option_value()
 
     # parsed_args_list should now only be a list of files/directories to lint.
     # All other options have been removed from the list.
