@@ -31,7 +31,7 @@ class DeprecatedMixin(BaseChecker):
     A class implementing mixin must define "deprecated-method" Message.
     """
 
-    MSGS: dict[str, MessageDefinitionTuple] = {
+    msgs: dict[str, MessageDefinitionTuple] = {
         "W1505": (
             "Using deprecated method %s()",
             "deprecated-method",
