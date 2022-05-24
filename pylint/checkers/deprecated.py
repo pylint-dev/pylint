@@ -55,6 +55,7 @@ DEPRECATED_IMPORT_MSGS: dict[str, MessageDefinitionTuple] = {
     ),
 }
 
+
 class DeprecatedMixin(BaseChecker):
     """A mixin implementing logic for checking deprecated symbols.
 
