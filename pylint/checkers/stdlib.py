@@ -15,6 +15,7 @@ from astroid import nodes
 
 from pylint import interfaces
 from pylint.checkers import BaseChecker, DeprecatedMixin, utils
+from pylint.checkers.deprecated import DEPRECATED_MSGS
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -333,7 +334,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
     name = "stdlib"
 
     msgs = {
-        **{k: v for k, v in DeprecatedMixin.msgs.items() if k[1:3] == "15"},
+        **DEPRECATED_MSGS,
         "W1501": (
             '"%s" is not a valid mode for open.',
             "bad-open-mode",
