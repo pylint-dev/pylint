@@ -134,10 +134,11 @@ EXEMPT_NAME_CATEGORIES = {"exempt", "ignore"}
 
 
 def _is_multi_naming_match(
-    match: re.Match[str], node_type: str, confidence: interfaces.Confidence
+    match: re.Match[str] | None, node_type: str, confidence: interfaces.Confidence
 ) -> bool:
     return (
-        match.lastgroup is not None
+        match is not None
+        and match.lastgroup is not None
         and match.lastgroup not in EXEMPT_NAME_CATEGORIES
         and (node_type != "method" or confidence != interfaces.INFERENCE_FAILURE)
     )
@@ -535,11 +536,11 @@ class NameChecker(_BasicChecker):
         regexp = self._name_regexps[node_type]
         match = regexp.match(name)
 
-        if match is not None and _is_multi_naming_match(match, node_type, confidence):
+        if _is_multi_naming_match(match, node_type, confidence):
             name_group = self._find_name_group(node_type)
             bad_name_group = self._bad_names.setdefault(name_group, {})
-            assert isinstance(match.lastgroup, str)
-            warnings = bad_name_group.setdefault(match.lastgroup, [])
+            # Ignored because this is checked by the if statement
+            warnings = bad_name_group.setdefault(match.lastgroup, [])  # type: ignore[union-attr, arg-type]
             warnings.append((node, node_type, name, confidence))
 
         if match is None and not _should_exempt_from_invalid_name(node):
