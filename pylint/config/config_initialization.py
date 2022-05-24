@@ -90,11 +90,12 @@ def _config_initialization(
         linter.add_message(
             "unrecognized-option", args=unrecognized_options_message, line=0
         )
-    linter._emit_bad_option_value()
 
-    # Set the current module to configuration as we don't know where
-    # the --load-plugins key is coming from
+    # Set the current module to include command line as we don't know where
+    # the --load-plugins key is coming from nor the bad-option-value messages
     linter.set_current_module("Command line or configuration file")
+
+    linter._emit_bad_option_value()
 
     # We have loaded configuration from config file and command line. Now, we can
     # load plugin specific configuration.
