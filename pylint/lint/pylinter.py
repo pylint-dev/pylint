@@ -283,6 +283,14 @@ class PyLinter(
         self.msgs_store = MessageDefinitionStore()
         self.msg_status = 0
         self._by_id_managed_msgs: list[ManagedMessage] = []
+        self.stashed_bad_option_value_messages: list[str] = []
+        """Bad option values for --enable and --disable are encountered too early to
+        warn about them, i.e. before all option providers have been fully parsed.
+
+        Thus,
+        this list stores the text of the bad-option-value messages that should be emitted
+        (not the msg names themselves), for consulting later.
+        """
 
         # Attributes related to visiting files
         self.file_state = FileState("", self.msgs_store, is_base_filestate=True)
@@ -1196,3 +1204,7 @@ class PyLinter(
                 message_definition.msgid,
                 line,
             )
+
+    def _emit_bad_option_value(self) -> None:
+        for msg in self.stashed_bad_option_value_messages:
+            self.add_message("bad-option-value", args=msg, line=0)

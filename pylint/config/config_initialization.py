@@ -51,12 +51,12 @@ def _config_initialization(
     if "load-plugins" in config_data:
         linter.load_plugin_modules(utils._splitstrip(config_data["load-plugins"]))
 
+    unrecognized_options_message = None
     # First we parse any options from a configuration file
     try:
         linter._parse_configuration_file(config_args)
     except _UnrecognizedOptionError as exc:
-        msg = ", ".join(exc.options)
-        linter.add_message("unrecognized-option", line=0, args=msg)
+        unrecognized_options_message = ", ".join(exc.options)
 
     # Then, if a custom reporter is provided as argument, it may be overridden
     # by file parameters, so we re-set it here. We do this before command line
@@ -95,6 +95,13 @@ def _config_initialization(
     linter.enable_fail_on_messages()
 
     linter._parse_error_mode()
+
+    # Now that all options have been loaded, it is safe to emit messages
+    if unrecognized_options_message is not None:
+        linter.add_message(
+            "unrecognized-option", args=unrecognized_options_message, line=0
+        )
+    linter._emit_bad_option_value()
 
     # parsed_args_list should now only be a list of files/directories to lint.
     # All other options have been removed from the list.

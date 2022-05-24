@@ -382,7 +382,7 @@ class _DisableAction(_AccessLinterObjectAction):
                 self.linter.disable(msgid)
             except exceptions.UnknownMessageError:
                 msg = f"{option_string}. Don't recognize message {msgid}."
-                self.linter.add_message("bad-option-value", args=msg, line=0)
+                self.linter.stashed_bad_option_value_messages.append(msg)
 
 
 class _EnableAction(_AccessLinterObjectAction):
@@ -402,7 +402,7 @@ class _EnableAction(_AccessLinterObjectAction):
                 self.linter.enable(msgid)
             except exceptions.UnknownMessageError:
                 msg = f"{option_string}. Don't recognize message {msgid}."
-                self.linter.add_message("bad-option-value", args=msg, line=0)
+                self.linter.stashed_bad_option_value_messages.append(msg)
 
 
 class _OutputFormatAction(_AccessLinterObjectAction):
