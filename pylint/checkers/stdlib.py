@@ -16,6 +16,7 @@ from astroid import nodes
 from pylint import interfaces
 from pylint.checkers import BaseChecker, DeprecatedMixin, utils
 from pylint.checkers.deprecated import DEPRECATED_MSGS
+from pylint.typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -333,7 +334,7 @@ def _check_mode_str(mode):
 class StdlibChecker(DeprecatedMixin, BaseChecker):
     name = "stdlib"
 
-    msgs = {
+    msgs: dict[str, MessageDefinitionTuple] = {
         **DEPRECATED_MSGS,
         "W1501": (
             '"%s" is not a valid mode for open.',
