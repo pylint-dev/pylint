@@ -1,3 +1,3 @@
 from logging import getLogger
 
-LOG = getLogger(__name__)
+LOGGER = getLogger(__name__)
