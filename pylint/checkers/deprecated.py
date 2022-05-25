@@ -24,6 +24,7 @@ ACCEPTABLE_NODES = (
     nodes.ClassDef,
 )
 
+
 class DeprecatedMixin(BaseChecker):
 
     DEPRECATED_IMPORT_MSGS: dict[str, MessageDefinitionTuple] = {
@@ -56,7 +57,6 @@ class DeprecatedMixin(BaseChecker):
             "The decorator is marked as deprecated and will be removed in the future.",
         ),
     }
-
 
     """A mixin implementing logic for checking deprecated symbols.
 
