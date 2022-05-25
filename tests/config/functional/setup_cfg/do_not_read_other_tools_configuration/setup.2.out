@@ -1,2 +1,2 @@
-************* Module Command line or configuration file
-Command line or configuration file:1:0: E0012: Bad option value for --enable. Don't recognize message useless-supression. (bad-option-value)
+************* Module {abspath}
+{relpath}:1:0: E0012: Bad option value for --enable. Don't recognize message useless-supression. (bad-option-value)
