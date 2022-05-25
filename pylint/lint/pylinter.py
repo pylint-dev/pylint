@@ -1205,7 +1205,14 @@ class PyLinter(
                 line,
             )
 
-    def _emit_bad_option_value(self) -> None:
-        for msg in self.stashed_bad_option_value_messages:
+    def _emit_bad_option_value(
+        self, messages_from_config_file: Iterable[str], messages_from_cli: Iterable[str]
+    ) -> None:
+        for msg in messages_from_config_file:
             self.add_message("bad-option-value", args=msg, line=0)
+
+        self.set_current_module("Command line")
+        for msg in messages_from_cli:
+            self.add_message("bad-option-value", args=msg, line=0)
+
         self.stashed_bad_option_value_messages = []
