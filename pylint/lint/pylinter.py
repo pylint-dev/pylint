@@ -1214,5 +1214,3 @@ class PyLinter(
         self.set_current_module("Command line")
         for msg in messages_from_cli:
             self.add_message("bad-option-value", args=msg, line=0)
-
-        self.stashed_bad_option_value_messages = []
