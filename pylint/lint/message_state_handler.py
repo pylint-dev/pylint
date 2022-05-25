@@ -53,6 +53,14 @@ class _MessageStateHandler:
             "enable-msg": self._options_methods["enable"],
         }
         self._pragma_lineno: dict[str, int] = {}
+        self.stashed_bad_option_value_messages: list[str] = []
+        """Bad option values for --enable and --disable are encountered too early to
+        warn about them, i.e. before all option providers have been fully parsed.
+
+        Thus,
+        this list stores the text of the bad-option-value messages that should be emitted
+        (not the msg names themselves), for consulting later.
+        """
 
     def _set_one_msg_status(
         self, scope: str, msg: MessageDefinition, line: int | None, enable: bool
