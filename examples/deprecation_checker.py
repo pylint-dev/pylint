@@ -43,7 +43,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from pylint.checkers import BaseChecker, DeprecatedMixin
-from pylint.checkers.deprecated import DEPRECATED_MSGS
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -59,7 +58,7 @@ class DeprecationChecker(DeprecatedMixin, BaseChecker):
 
     # The name defines a custom section of the config for this checker.
     name = "deprecated"
-    msgs = DEPRECATED_MSGS
+    msgs = DeprecatedMixin.DEPRECATED_MSGS
 
     def deprecated_methods(self) -> set[str]:
         """Callback method called by DeprecatedMixin for every method/function found in the code.

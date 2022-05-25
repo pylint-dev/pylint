@@ -16,7 +16,6 @@ import astroid
 from astroid import nodes
 
 from pylint.checkers import BaseChecker, DeprecatedMixin
-from pylint.checkers.deprecated import DEPRECATED_IMPORT_MSGS
 from pylint.checkers.utils import (
     get_import_name,
     is_from_fallback_block,
@@ -198,7 +197,7 @@ def _make_graph(
 # the import checker itself ###################################################
 
 MSGS: dict[str, MessageDefinitionTuple] = {
-    **DEPRECATED_IMPORT_MSGS,
+    **DeprecatedMixin.DEPRECATED_IMPORT_MSGS,
     "E0401": (
         "Unable to import %s",
         "import-error",
