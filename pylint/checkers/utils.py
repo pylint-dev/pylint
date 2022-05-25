@@ -764,7 +764,9 @@ def decorated_with_property(node: nodes.FunctionDef) -> bool:
     return False
 
 
-def _is_property_kind(node: nodes.FunctionDef, *kinds: str) -> bool:
+def _is_property_kind(node, *kinds: str) -> bool:
+    if not isinstance(node, (astroid.UnboundMethod, nodes.FunctionDef)):
+        return False
     if node.decorators:
         for decorator in node.decorators.nodes:
             if isinstance(decorator, nodes.Attribute) and decorator.attrname in kinds:
@@ -772,17 +774,17 @@ def _is_property_kind(node: nodes.FunctionDef, *kinds: str) -> bool:
     return False
 
 
-def is_property_setter(node: nodes.FunctionDef) -> bool:
+def is_property_setter(node) -> bool:
     """Check if the given node is a property setter."""
     return _is_property_kind(node, "setter")
 
 
-def is_property_deleter(node: nodes.FunctionDef) -> bool:
+def is_property_deleter(node) -> bool:
     """Check if the given node is a property deleter."""
     return _is_property_kind(node, "deleter")
 
 
-def is_property_setter_or_deleter(node: nodes.FunctionDef) -> bool:
+def is_property_setter_or_deleter(node) -> bool:
     """Check if the given node is either a property setter or a deleter."""
     return _is_property_kind(node, "setter", "deleter")
 
