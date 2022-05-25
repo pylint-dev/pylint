@@ -80,13 +80,14 @@ repos:
         language: system
         types: [text]
         files: ^(ChangeLog|doc/whatsnew/\d+\.\d+\.rst)
-  - repo: https://github.com/myint/rstcheck
+  - repo: https://github.com/rstcheck/rstcheck
     rev: "v6.0.0rc1"
     hooks:
       - id: rstcheck
-        args: ["--ignore-roles=func,class,mod", "--report=warning"]
+        args: ["--report-level=warning"]
         types: [text] # necessary to include ChangeLog file
         files: ^(ChangeLog|doc/(.*/)*.*\.rst)
+        additional_dependencies: [Sphinx==4.5.0]
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v0.950
     hooks:

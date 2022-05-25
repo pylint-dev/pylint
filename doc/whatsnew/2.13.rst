@@ -540,7 +540,7 @@ Other Changes
 
   .. code-block:: python
 
-    def my_function()
+    def my_function():
       """My function.
 
       Raises:
