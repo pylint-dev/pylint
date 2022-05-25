@@ -479,7 +479,7 @@ class UnsupportedFormatCharacter(Exception):
     format characters.
     """
 
-    def __init__(self, index):
+    def __init__(self, index: int) -> None:
         super().__init__(index)
         self.index = index
 
@@ -498,7 +498,7 @@ def parse_format_string(
     pos_types = []
     num_args = 0
 
-    def next_char(i):
+    def next_char(i: int) -> tuple[int, str]:
         i += 1
         if i == len(format_string):
             raise IncompleteFormatString
@@ -560,14 +560,16 @@ def parse_format_string(
     return keys, num_args, key_types, pos_types
 
 
-def split_format_field_names(format_string) -> tuple[str, Iterable[tuple[bool, str]]]:
+def split_format_field_names(
+    format_string: str,
+) -> tuple[str, Iterable[tuple[bool, str]]]:
     try:
         return _string.formatter_field_name_split(format_string)
     except ValueError as e:
         raise IncompleteFormatString() from e
 
 
-def collect_string_fields(format_string) -> Iterable[str | None]:
+def collect_string_fields(format_string: str) -> Iterable[str | None]:
     """Given a format string, return an iterator
     of all the valid format fields.
 
@@ -722,7 +724,10 @@ def inherit_from_std_ex(node: nodes.NodeNG | astroid.Instance) -> bool:
     )
 
 
-def error_of_type(handler: nodes.ExceptHandler, error_type) -> bool:
+def error_of_type(
+    handler: nodes.ExceptHandler,
+    error_type: str | type[Exception] | tuple[str | type[Exception], ...],
+) -> bool:
     """Check if the given exception handler catches
     the given error_type.
 
@@ -733,7 +738,7 @@ def error_of_type(handler: nodes.ExceptHandler, error_type) -> bool:
     given errors.
     """
 
-    def stringify_error(error):
+    def stringify_error(error: str | type[Exception]) -> str:
         if not isinstance(error, str):
             return error.__name__
         return error
@@ -759,9 +764,7 @@ def decorated_with_property(node: nodes.FunctionDef) -> bool:
     return False
 
 
-def _is_property_kind(node, *kinds):
-    if not isinstance(node, (astroid.UnboundMethod, nodes.FunctionDef)):
-        return False
+def _is_property_kind(node: nodes.FunctionDef, *kinds: str) -> bool:
     if node.decorators:
         for decorator in node.decorators.nodes:
             if isinstance(decorator, nodes.Attribute) and decorator.attrname in kinds:
@@ -1008,7 +1011,7 @@ def _except_handlers_ignores_exceptions(
 
 
 def get_exception_handlers(
-    node: nodes.NodeNG, exception=Exception
+    node: nodes.NodeNG, exception: type[Exception] = Exception
 ) -> list[nodes.ExceptHandler] | None:
     """Return the collections of handlers handling the exception in arguments.
 
@@ -1041,7 +1044,9 @@ def is_node_inside_try_except(node: nodes.Raise) -> bool:
     return isinstance(context, nodes.TryExcept)
 
 
-def node_ignores_exception(node: nodes.NodeNG, exception=Exception) -> bool:
+def node_ignores_exception(
+    node: nodes.NodeNG, exception: type[Exception] = Exception
+) -> bool:
     """Check if the node is in a TryExcept which handles the given exception.
 
     If the exception is not given, the function is going to look for bare
@@ -1162,7 +1167,7 @@ def is_inside_abstract_class(node: nodes.NodeNG) -> bool:
 
 
 def _supports_protocol(
-    value: nodes.NodeNG, protocol_callback: nodes.FunctionDef
+    value: nodes.NodeNG, protocol_callback: Callable[[nodes.NodeNG], bool]
 ) -> bool:
     if isinstance(value, nodes.ClassDef):
         if not has_known_bases(value):
@@ -1231,7 +1236,7 @@ def supports_delitem(value: nodes.NodeNG, _: nodes.NodeNG) -> bool:
 
 
 def _get_python_type_of_node(node: nodes.NodeNG) -> str | None:
-    pytype = getattr(node, "pytype", None)
+    pytype: Callable[[], str] | None = getattr(node, "pytype", None)
     if callable(pytype):
         return pytype()
     return None
@@ -1286,7 +1291,9 @@ def infer_all(
         return []
 
 
-def has_known_bases(klass: nodes.ClassDef, context=None) -> bool:
+def has_known_bases(
+    klass: nodes.ClassDef, context: InferenceContext | None = None
+) -> bool:
     """Return true if all base classes of a class could be inferred."""
     try:
         return klass._all_bases_known
