@@ -103,7 +103,7 @@ def _config_initialization(
     linter.stashed_bad_option_value_messages = []
 
     # Set the current module to include command line as we don't know where
-    # the --load-plugins key is coming from nor the bad-option-value messages
+    # the --load-plugins key is coming from
     linter.set_current_module("Command line or configuration file")
 
     # We have loaded configuration from config file and command line. Now, we can
