@@ -1028,7 +1028,7 @@ a metaclass class method.",
                 if attribute.attrname != assign_attr.attrname:
                     continue
 
-                if isinstance(attribute.expr, nodes.Call):
+                if not isinstance(attribute.expr, nodes.Name):
                     continue
 
                 if assign_attr.expr.name in {
