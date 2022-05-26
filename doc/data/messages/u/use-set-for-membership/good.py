@@ -1,1 +1,2 @@
-# This is a placeholder for correct code for this message.
+if "banana" in {"apple", "banana", "cantaloupe"}:
+    pass
