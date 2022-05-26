@@ -1,1 +1,1 @@
-# This is a placeholder for correct code for this message.
+a, b, c = 1, 2, 3
