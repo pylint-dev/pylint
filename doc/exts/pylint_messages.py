@@ -61,12 +61,24 @@ def _register_all_checkers_and_extensions(linter: PyLinter) -> None:
 def _get_message_data(data_path: Path) -> Tuple[str, str, str, str]:
     """Get the message data from the specified path."""
     good_code, bad_code, details, related = "", "", "", ""
-
+    good_py_path = data_path / "good.py"
+    details_rst_path = data_path / "details.rst"
     if not data_path.exists():
-        return good_code, bad_code, details, related
-
-    if (data_path / "good.py").exists():
-        with open(data_path / "good.py", encoding="utf-8") as file:
+        data_path.mkdir(parents=True)
+        with open(good_py_path, "w", encoding="utf-8") as file:
+            file.write(
+                """\
+# This is a placeholder for correct code for this message.
+"""
+            )
+        with open(details_rst_path, "w", encoding="utf-8") as file:
+            file.write(
+                """\
+You can help us make the doc better `by contributing <https://github.com/PyCQA/pylint/issues/5953>`_ !
+"""
+            )
+    if good_py_path.exists():
+        with open(good_py_path, encoding="utf-8") as file:
             file_content = file.readlines()
             indented_file_content = "".join("  " + i for i in file_content)
             good_code = f"""
@@ -87,8 +99,8 @@ def _get_message_data(data_path: Path) -> Tuple[str, str, str, str]:
 
 {indented_file_content}"""
 
-    if (data_path / "details.rst").exists():
-        with open(data_path / "details.rst", encoding="utf-8") as file:
+    if (details_rst_path).exists():
+        with open(details_rst_path, encoding="utf-8") as file:
             file_content_string = file.read()
             details = f"""
 **Additional details:**
@@ -102,7 +114,6 @@ def _get_message_data(data_path: Path) -> Tuple[str, str, str, str]:
 **Related links:**
 
 {file_content_string}"""
-
     return good_code, bad_code, details, related
 
 
