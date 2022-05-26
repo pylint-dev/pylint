@@ -1,1 +1,4 @@
-# This is a placeholder for correct code for this message.
+NUMBERS = [1, 1, 2, 2, 3, 3]
+
+
+UNIQUE_NUMBERS = set(NUMBERS)
