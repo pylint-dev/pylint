@@ -9,7 +9,7 @@ import tokenize
 from typing import TYPE_CHECKING, Any, cast
 
 from pylint.checkers import BaseTokenChecker
-from pylint.reporters.ureports.nodes import Table
+from pylint.reporters.ureports.nodes import Paragraph, Section, Table, Text
 from pylint.utils import LinterStats, diff_string
 
 if sys.version_info >= (3, 8):
@@ -22,13 +22,13 @@ if TYPE_CHECKING:
 
 
 def report_raw_stats(
-    sect,
+    sect: Section,
     stats: LinterStats,
     old_stats: LinterStats | None,
 ) -> None:
     """Calculate percentage of code / doc / comment / empty."""
     total_lines = stats.code_type_count["total"]
-    sect.description = f"{total_lines} lines have been analyzed"
+    sect.insert(0, Paragraph([Text(f"{total_lines} lines have been analyzed\n")]))
     lines = ["type", "number", "%", "previous", "difference"]
     for node_type in ("code", "docstring", "comment", "empty"):
         node_type = cast(Literal["code", "docstring", "comment", "empty"], node_type)
@@ -66,7 +66,7 @@ class RawMetricsChecker(BaseTokenChecker):
     # reports
     reports = (("RP0701", "Raw metrics", report_raw_stats),)
 
-    def open(self):
+    def open(self) -> None:
         """Init statistics."""
         self.linter.stats.reset_code_count()
 
