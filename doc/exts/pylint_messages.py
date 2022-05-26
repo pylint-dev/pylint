@@ -157,10 +157,9 @@ def _get_all_messages(
         for checker in linter.get_checkers()
     )
     for checker, message in checker_message_mapping:
-        message_data_path = (
-            PYLINT_MESSAGES_DATA_PATH / message.symbol[0] / message.symbol
+        good_code, bad_code, details, related = _get_message_data(
+            _get_message_data_path(message)
         )
-        good_code, bad_code, details, related = _get_message_data(message_data_path)
 
         checker_module = getmodule(checker)
 
@@ -190,6 +189,10 @@ def _get_all_messages(
                 )
 
     return messages_dict, old_messages
+
+
+def _get_message_data_path(message: MessageDefinition) -> Path:
+    return PYLINT_MESSAGES_DATA_PATH / message.symbol[0] / message.symbol
 
 
 def _message_needs_update(message_data: MessageData, category: str) -> bool:
@@ -301,7 +304,6 @@ Pylint can emit the following messages:
             old_messages_string = "".join(
                 f"   {category}/{old_message[0]}\n" for old_message in old_messages
             )
-
             # Write list per category. We need the '-category' suffix in the reference
             # because 'fatal' is also a message's symbol
             stream.write(
@@ -333,15 +335,21 @@ def _write_redirect_pages(old_messages: OldMessagesDict) -> None:
         if not os.path.exists(category_dir):
             os.makedirs(category_dir)
         for old_name, new_names in old_names.items():
-            old_name_file = os.path.join(category_dir, f"{old_name[0]}.rst")
-            with open(old_name_file, "w", encoding="utf-8") as stream:
-                new_names_string = "".join(
-                    f"   ../{new_name[1]}/{new_name[0]}.rst\n" for new_name in new_names
-                )
-                stream.write(
-                    f""".. _{old_name[0]}:
+            _write_redirect_old_page(category_dir, old_name, new_names)
 
-{get_rst_title(" / ".join(old_name), "=")}
+
+def _write_redirect_old_page(
+    category_dir: Path,
+    old_name: Tuple[str, str],
+    new_names: List[Tuple[str, str]],
+) -> None:
+    old_name_file = os.path.join(category_dir, f"{old_name[0]}.rst")
+    new_names_string = "".join(
+        f"   ../{new_name[1]}/{new_name[0]}.rst\n" for new_name in new_names
+    )
+    content = f""".. _{old_name[0]}:
+
+{get_rst_title("/".join(old_name), "=")}
 "{old_name[0]} has been renamed. The new message can be found at:
 
 .. toctree::
@@ -350,7 +358,8 @@ def _write_redirect_pages(old_messages: OldMessagesDict) -> None:
 
 {new_names_string}
 """
-                )
+    with open(old_name_file, "w", encoding="utf-8") as stream:
+        stream.write(content)
 
 
 # pylint: disable-next=unused-argument
