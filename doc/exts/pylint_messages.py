@@ -60,61 +60,72 @@ def _register_all_checkers_and_extensions(linter: PyLinter) -> None:
 
 def _get_message_data(data_path: Path) -> Tuple[str, str, str, str]:
     """Get the message data from the specified path."""
-    good_code, bad_code, details, related = "", "", "", ""
     good_py_path = data_path / "good.py"
+    bad_py_path = data_path / "bad.py"
     details_rst_path = data_path / "details.rst"
+    related_rst_path = data_path / "related.rst"
     if not data_path.exists():
-        data_path.mkdir(parents=True)
-        with open(good_py_path, "w", encoding="utf-8") as file:
-            file.write(
-                """\
+        _create_placeholders(data_path, details_rst_path, good_py_path)
+    good_code = _get_titled_rst(
+        title="Correct code", text=_get_python_code_as_rst(good_py_path)
+    )
+    bad_code = _get_titled_rst(
+        title="Problematic code", text=_get_python_code_as_rst(bad_py_path)
+    )
+    details = _get_titled_rst(
+        title="Additional details", text=_get_rst_as_str(details_rst_path)
+    )
+    related = _get_titled_rst(
+        title="Related links", text=_get_rst_as_str(related_rst_path)
+    )
+    return good_code, bad_code, details, related
+
+
+def _get_titled_rst(title: str, text: str) -> str:
+    """Return rst code with a title if there is anything in the section."""
+    return f"**{title}:**\n\n{text}" if text else ""
+
+
+def _get_rst_as_str(rst_path: Path) -> str:
+    """Return the content of an 'rst' file or an empty string if the file does not
+    exist.
+    """
+    if not rst_path.exists():
+        return ""
+    with open(rst_path, encoding="utf-8") as f:
+        return f.read()
+
+
+def _get_python_code_as_rst(code_path: Path) -> str:
+    """Return the 'rst' representation of a python file or an empty string if the file
+    does not exist.
+    """
+    if not code_path.exists():
+        return ""
+    with open(code_path, encoding="utf-8") as f:
+        file_content = f.readlines()
+    return f"""\
+.. code-block:: python
+
+{"".join("  " + i for i in file_content)}"""
+
+
+def _create_placeholders(
+    data_path: Path, details_rst_path: Path, good_py_path: Path
+) -> None:
+    data_path.mkdir(parents=True)
+    with open(good_py_path, "w", encoding="utf-8") as file:
+        file.write(
+            """\
 # This is a placeholder for correct code for this message.
 """
-            )
-        with open(details_rst_path, "w", encoding="utf-8") as file:
-            file.write(
-                """\
+        )
+    with open(details_rst_path, "w", encoding="utf-8") as file:
+        file.write(
+            """\
 You can help us make the doc better `by contributing <https://github.com/PyCQA/pylint/issues/5953>`_ !
 """
-            )
-    if good_py_path.exists():
-        with open(good_py_path, encoding="utf-8") as file:
-            file_content = file.readlines()
-            indented_file_content = "".join("  " + i for i in file_content)
-            good_code = f"""
-**Correct code:**
-
-.. code-block:: python
-
-{indented_file_content}"""
-
-    if (data_path / "bad.py").exists():
-        with open(data_path / "bad.py", encoding="utf-8") as file:
-            file_content = file.readlines()
-            indented_file_content = "".join("  " + i for i in file_content)
-            bad_code = f"""
-**Problematic code:**
-
-.. code-block:: python
-
-{indented_file_content}"""
-
-    if (details_rst_path).exists():
-        with open(details_rst_path, encoding="utf-8") as file:
-            file_content_string = file.read()
-            details = f"""
-**Additional details:**
-
-{file_content_string}"""
-
-    if (data_path / "related.rst").exists():
-        with open(data_path / "related.rst", encoding="utf-8") as file:
-            file_content_string = file.read()
-            related = f"""
-**Related links:**
-
-{file_content_string}"""
-    return good_code, bad_code, details, related
+        )
 
 
 def _get_all_messages(
