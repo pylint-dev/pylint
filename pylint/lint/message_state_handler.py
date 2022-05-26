@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import sys
 import tokenize
+from collections import defaultdict
 from typing import TYPE_CHECKING
 
 from pylint import exceptions, interfaces
@@ -53,13 +54,15 @@ class _MessageStateHandler:
             "enable-msg": self._options_methods["enable"],
         }
         self._pragma_lineno: dict[str, int] = {}
-        self.stashed_bad_option_value_messages: list[str] = []
+        self._stashed_bad_option_value_messages: defaultdict[
+            str | None, list[tuple[str | None, str]]
+        ] = defaultdict(list)
         """Bad option values for --enable and --disable are encountered too early to
         warn about them, i.e. before all option providers have been fully parsed.
 
         Thus,
-        this list stores the text of the bad-option-value messages that should be emitted
-        (not the msg names themselves), for consulting later.
+        this dict stores option_value and msg_id needed to (later) emit the
+        bad-option-value messages keyed on module names.
         """
 
     def _set_one_msg_status(

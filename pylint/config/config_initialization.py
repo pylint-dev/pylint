@@ -58,11 +58,6 @@ def _config_initialization(
     except _UnrecognizedOptionError as exc:
         unrecognized_options_message = ", ".join(exc.options)
 
-    bad_option_value_messages_before_parsing_cli = (
-        linter.stashed_bad_option_value_messages[:]
-    )
-    linter.stashed_bad_option_value_messages = []
-
     # Then, if a custom reporter is provided as argument, it may be overridden
     # by file parameters, so we re-set it here. We do this before command line
     # parsing, so it's still overridable by command line options
@@ -96,11 +91,7 @@ def _config_initialization(
             "unrecognized-option", args=unrecognized_options_message, line=0
         )
 
-    linter._emit_bad_option_value(
-        messages_from_config_file=bad_option_value_messages_before_parsing_cli,
-        messages_from_cli=linter.stashed_bad_option_value_messages,
-    )
-    linter.stashed_bad_option_value_messages = []
+    linter._emit_bad_option_value()
 
     # Set the current module to include command line as we don't know where
     # the --load-plugins key is coming from
