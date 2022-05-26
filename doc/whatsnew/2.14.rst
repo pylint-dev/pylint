@@ -165,6 +165,10 @@ Other Changes
 
   Closes #6372
 
+* Fixed a crash in the ``unused-private-member`` checker involving chained private attributes.
+
+  Closes #6709
+
 * Disable spellchecking of mypy rule names in ignore directives.
 
   Closes #5929
