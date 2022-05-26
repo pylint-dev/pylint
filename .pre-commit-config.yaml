@@ -81,7 +81,7 @@ repos:
         types: [text]
         files: ^(ChangeLog|doc/whatsnew/\d+\.\d+\.rst)
   - repo: https://github.com/rstcheck/rstcheck
-    rev: "v6.0.0rc1"
+    rev: "v6.0.0rc2"
     hooks:
       - id: rstcheck
         args: ["--report-level=warning"]
