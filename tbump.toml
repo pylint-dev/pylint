@@ -1,7 +1,7 @@
 github_url = "https://github.com/PyCQA/pylint"
 
 [version]
-current = "2.14.0-dev0"
+current = "2.14.0-b1"
 regex = '''
 ^(?P<major>0|[1-9]\d*)
 \.
@@ -35,6 +35,10 @@ cmd = "tox -e docs||echo 'Hack so this command does not fail'"
 [[before_commit]]
 name = "Upgrade the pylintrc examples"
 cmd = "pylint --rcfile=/dev/null --generate-rcfile > examples/pylintrc"
+
+[[before_commit]]
+name = "Upgrade the toml examples"
+cmd = "pylint --rcfile=/dev/null --generate-toml-config > examples/pyproject.toml"
 
 [[before_commit]]
 name = "Normalize the contributors-txt configuration"

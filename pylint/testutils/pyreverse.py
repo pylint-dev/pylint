@@ -84,6 +84,8 @@ def get_functional_test_files(
     """Get all functional test files from the given directory."""
     test_files = []
     for path in root_directory.rglob("*.py"):
+        if path.stem.startswith("_"):
+            continue
         config_file = path.with_suffix(".rc")
         if config_file.exists():
             test_files.append(

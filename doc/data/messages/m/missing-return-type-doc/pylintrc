@@ -1,4 +1,4 @@
-[master]
+[main]
 load-plugins=pylint.extensions.docparams
 
 [Parameter_documentation]

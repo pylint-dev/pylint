@@ -11,4 +11,4 @@ missing-raises-doc:148:4:148:18:Foo.foo_method:"""AttributeError"" not documente
 unreachable:158:8:158:17:Foo.foo_method:Unreachable code:UNDEFINED
 unreachable:180:8:180:17:Foo.foo_method:Unreachable code:UNDEFINED
 missing-raises-doc:183:4:183:18:Foo.foo_method:"""AttributeError"" not documented as being raised":UNDEFINED
-using-constant-test:190:8:191:34:Foo.foo_method:Using a conditional statement with a constant value:UNDEFINED
+using-constant-test:190:11:190:15:Foo.foo_method:Using a conditional statement with a constant value:UNDEFINED

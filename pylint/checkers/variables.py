@@ -851,8 +851,10 @@ scope_type : {self._atomic.scope_type}
     def _uncertain_nodes_in_try_blocks_when_evaluating_except_blocks(
         found_nodes: list[nodes.NodeNG], node_statement: nodes.Statement
     ) -> list[nodes.NodeNG]:
-        """Return any nodes in ``found_nodes`` that should be treated as uncertain because they
-        are in a try block and the ``node_statement`` being evaluated is in one of its except handlers.
+        """Return any nodes in ``found_nodes`` that should be treated as uncertain.
+
+        Nodes are uncertain when they are in a try block and the ``node_statement``
+        being evaluated is in one of its except handlers.
         """
         uncertain_nodes: list[nodes.NodeNG] = []
         closest_except_handler = utils.get_node_first_ancestor_of_type(
@@ -1411,8 +1413,8 @@ class VariablesChecker(BaseChecker):
     def _should_node_be_skipped(
         self, node: nodes.Name, consumer: NamesConsumer, is_start_index: bool
     ) -> bool:
-        """Tests a consumer and node for various conditions in which the node
-        shouldn't be checked for the undefined-variable and used-before-assignment checks.
+        """Tests a consumer and node for various conditions in which the node shouldn't
+        be checked for the undefined-variable and used-before-assignment checks.
         """
         if consumer.scope_type == "class":
             # The list of base classes in the class definition is not part
@@ -1790,7 +1792,9 @@ class VariablesChecker(BaseChecker):
     def _in_lambda_or_comprehension_body(
         node: nodes.NodeNG, frame: nodes.NodeNG
     ) -> bool:
-        """Return True if node within a lambda/comprehension body (or similar) and thus should not have access to class attributes in frame."""
+        """Return True if node within a lambda/comprehension body (or similar) and thus
+        should not have access to class attributes in frame.
+        """
         child = node
         parent = node.parent
         while parent is not None:
@@ -2220,6 +2224,13 @@ class VariablesChecker(BaseChecker):
         # For functions we can do more by inferring the length of the itered object
         try:
             inferred = next(assign.iter.infer())
+            # Prefer the target of enumerate() rather than the enumerate object itself
+            if (
+                isinstance(inferred, astroid.Instance)
+                and inferred.qname() == "builtins.enumerate"
+                and assign.iter.args
+            ):
+                inferred = next(assign.iter.args[0].infer())
         except astroid.InferenceError:
             self.add_message("undefined-loop-variable", args=node.name, node=node)
         else:
@@ -2455,7 +2466,9 @@ class VariablesChecker(BaseChecker):
 
     @staticmethod
     def _comprehension_between_frame_and_node(node: nodes.Name) -> bool:
-        """Return True if a ComprehensionScope intervenes between `node` and its frame."""
+        """Return True if a ComprehensionScope intervenes between `node` and its
+        frame.
+        """
         closest_comprehension_scope = utils.get_node_first_ancestor_of_type(
             node, nodes.ComprehensionScope
         )

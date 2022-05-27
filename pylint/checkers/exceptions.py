@@ -15,6 +15,7 @@ from astroid import nodes, objects
 
 from pylint import checkers
 from pylint.checkers import utils
+from pylint.interfaces import HIGH
 from pylint.typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
@@ -131,13 +132,13 @@ MSGS: dict[
         "try-except-raise block!",
     ),
     "W0707": (
-        "Consider explicitly re-raising using the 'from' keyword",
+        "Consider explicitly re-raising using %s'%s from %s'",
         "raise-missing-from",
-        "Python 3's exception chaining means it shows the traceback of the "
-        "current exception, but also the original exception. Not using `raise "
-        "from` makes the traceback inaccurate, because the message implies "
-        "there is a bug in the exception-handling code itself, which is a "
-        "separate situation than wrapping an exception.",
+        "Python's exception chaining shows the traceback of the current exception, "
+        "but also of the original exception. When you raise a new exception after "
+        "another exception was caught it's likely that the second exception is a "
+        "friendly re-wrapping of the first exception. In such cases `raise from` "
+        "provides a better link between the two tracebacks in the final error.",
     ),
     "W0711": (
         'Exception to catch is the result of a binary "%s" operation',
@@ -242,9 +243,7 @@ class ExceptionsChecker(checkers.BaseChecker):
                 "default": OVERGENERAL_EXCEPTIONS,
                 "type": "csv",
                 "metavar": "<comma-separated class names>",
-                "help": "Exceptions that will emit a warning "  # pylint: disable=consider-using-f-string
-                'when being caught. Defaults to "%s".'
-                % (", ".join(OVERGENERAL_EXCEPTIONS),),
+                "help": "Exceptions that will emit a warning when caught.",
             },
         ),
     )
@@ -336,16 +335,33 @@ class ExceptionsChecker(checkers.BaseChecker):
         if containing_except_node.name is None:
             # The `except` doesn't have an `as exception:` part, meaning there's no way that
             # the `raise` is raising the same exception.
-            self.add_message("raise-missing-from", node=node)
-        elif isinstance(node.exc, nodes.Call) and isinstance(node.exc.func, nodes.Name):
-            # We have a `raise SomeException(whatever)`.
-            self.add_message("raise-missing-from", node=node)
+            class_of_old_error = "Exception"
+            if isinstance(containing_except_node.type, (nodes.Name, nodes.Tuple)):
+                # 'except ZeroDivisionError' or 'except (ZeroDivisionError, ValueError)'
+                class_of_old_error = containing_except_node.type.as_string()
+            self.add_message(
+                "raise-missing-from",
+                node=node,
+                args=(
+                    f"'except {class_of_old_error} as exc' and ",
+                    node.as_string(),
+                    "exc",
+                ),
+                confidence=HIGH,
+            )
         elif (
-            isinstance(node.exc, nodes.Name)
+            isinstance(node.exc, nodes.Call)
+            and isinstance(node.exc.func, nodes.Name)
+            or isinstance(node.exc, nodes.Name)
             and node.exc.name != containing_except_node.name.name
         ):
-            # We have a `raise SomeException`.
-            self.add_message("raise-missing-from", node=node)
+            # We have a `raise SomeException(whatever)` or a `raise SomeException`
+            self.add_message(
+                "raise-missing-from",
+                node=node,
+                args=("", node.as_string(), containing_except_node.name.name),
+                confidence=HIGH,
+            )
 
     def _check_catching_non_exception(self, handler, exc, part):
         if isinstance(exc, nodes.Tuple):

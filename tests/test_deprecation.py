@@ -9,6 +9,7 @@ from __future__ import annotations
 from typing import Any
 
 import pytest
+from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.mapreduce_checker import MapReduceMixin
@@ -22,8 +23,10 @@ from pylint.interfaces import (
     ITokenChecker,
 )
 from pylint.lint import PyLinter
+from pylint.message import MessageDefinitionStore
 from pylint.reporters import BaseReporter
 from pylint.reporters.ureports.nodes import Section
+from pylint.utils import FileState
 
 
 def test_mapreducemixin() -> None:
@@ -87,3 +90,21 @@ def test_load_and_save_results() -> None:
         save_results(object(), "")  # type: ignore[arg-type]
     with pytest.warns(DeprecationWarning):
         load_results("")
+
+
+def test_filestate() -> None:
+    """Test that FileState needs its arguments."""
+    with pytest.warns(DeprecationWarning):
+        FileState()
+    with pytest.warns(DeprecationWarning):
+        FileState("foo")
+    with pytest.warns(DeprecationWarning):
+        FileState(msg_store=MessageDefinitionStore())
+    FileState("foo", MessageDefinitionStore())
+
+
+def test_collectblocklines() -> None:
+    """Test FileState.collect_block_lines."""
+    state = FileState("foo", MessageDefinitionStore())
+    with pytest.warns(DeprecationWarning):
+        state.collect_block_lines(MessageDefinitionStore(), nodes.Module("foo"))

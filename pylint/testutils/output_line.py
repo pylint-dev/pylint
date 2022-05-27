@@ -111,8 +111,8 @@ class OutputLine(NamedTuple):
 
     @staticmethod
     def _get_py38_none_value(value: _T, check_endline: bool) -> _T | None:
-        """Used to make end_line and end_column None as indicated by our version compared to
-        `min_pyver_end_position`.
+        """Used to make end_line and end_column None as indicated by our version
+        compared to `min_pyver_end_position`.
         """
         if not check_endline:
             return None  # pragma: no cover
@@ -122,8 +122,8 @@ class OutputLine(NamedTuple):
     def from_csv(
         cls, row: Sequence[str] | str, check_endline: bool = True
     ) -> OutputLine:
-        """Create an OutputLine from a comma separated list (the functional tests expected
-        output .txt files).
+        """Create an OutputLine from a comma separated list (the functional tests
+        expected output .txt files).
         """
         if isinstance(row, str):
             row = row.split(",")

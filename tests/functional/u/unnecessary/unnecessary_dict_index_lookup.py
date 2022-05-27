@@ -112,3 +112,10 @@ for key, val in outer_dict.items():
 d = {}
 for key, in d.items():
     print(d[key])
+
+# Test subscripting an attribute
+# https://github.com/PyCQA/pylint/issues/6557
+f = Foo()
+for input_output in d.items():
+    f.input_output = input_output  # pylint: disable=attribute-defined-outside-init
+    print(d[f.input_output[0]])

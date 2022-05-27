@@ -261,7 +261,7 @@ class _GenerateRCFileAction(_AccessRunObjectAction):
         values: str | Sequence[Any] | None,
         option_string: str | None = "--generate-rcfile",
     ) -> None:
-        # TODO: 2.14: Deprecate this after discussion about this removal has been completed.
+        # TODO: 2.15: Deprecate this after discussion about this removal has been completed.
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             self.run.linter.generate_config(skipsections=("Commands",))
@@ -278,7 +278,7 @@ class _GenerateConfigFileAction(_AccessRunObjectAction):
         values: str | Sequence[Any] | None,
         option_string: str | None = "--generate-toml-config",
     ) -> None:
-        self.run.linter._generate_config_file()
+        print(self.run.linter._generate_config_file())
         sys.exit(0)
 
 
@@ -381,8 +381,9 @@ class _DisableAction(_AccessLinterObjectAction):
             try:
                 self.linter.disable(msgid)
             except exceptions.UnknownMessageError:
-                msg = f"{option_string}. Don't recognize message {msgid}."
-                self.linter.add_message("bad-option-value", args=msg, line=0)
+                self.linter._stashed_bad_option_value_messages[
+                    self.linter.current_name
+                ].append((option_string, msgid))
 
 
 class _EnableAction(_AccessLinterObjectAction):
@@ -401,8 +402,9 @@ class _EnableAction(_AccessLinterObjectAction):
             try:
                 self.linter.enable(msgid)
             except exceptions.UnknownMessageError:
-                msg = f"{option_string}. Don't recognize message {msgid}."
-                self.linter.add_message("bad-option-value", args=msg, line=0)
+                self.linter._stashed_bad_option_value_messages[
+                    self.linter.current_name
+                ].append((option_string, msgid))
 
 
 class _OutputFormatAction(_AccessLinterObjectAction):
@@ -420,3 +422,46 @@ class _OutputFormatAction(_AccessLinterObjectAction):
             values[0], str
         ), "'output-format' should be a comma separated string of reporters"
         self.linter._load_reporters(values[0])
+
+
+class _AccessParserAction(_CallbackAction):
+    """Action that has access to the ArgumentParser object."""
+
+    def __init__(
+        self,
+        option_strings: Sequence[str],
+        dest: str,
+        nargs: None = None,
+        const: None = None,
+        default: None = None,
+        type: None = None,
+        choices: None = None,
+        required: bool = False,
+        help: str = "",
+        metavar: str = "",
+        **kwargs: argparse.ArgumentParser,
+    ) -> None:
+        self.parser = kwargs["parser"]
+
+        super().__init__(
+            option_strings,
+            dest,
+            0,
+            const,
+            default,
+            type,
+            choices,
+            required,
+            help,
+            metavar,
+        )
+
+    @abc.abstractmethod
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: str | Sequence[Any] | None,
+        option_string: str | None = None,
+    ) -> None:
+        raise NotImplementedError  # pragma: no cover

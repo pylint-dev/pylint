@@ -74,7 +74,7 @@ class PackageToLint:
             options += [f"--rcfile={self.pylintrc}"]
         return self.paths_to_lint + options + self.pylint_additional_args
 
-    def lazy_clone(self) -> None:  # pragma: no cover
+    def lazy_clone(self) -> str:  # pragma: no cover
         """Concatenates the target directory and clones the file.
 
         Not expected to be tested as the primer won't work if it doesn't.
@@ -92,8 +92,8 @@ class PackageToLint:
                 "depth": 1,
             }
             logging.info("Directory does not exists, cloning: %s", options)
-            git.Repo.clone_from(**options)
-            return
+            repo = git.Repo.clone_from(**options)
+            return repo.head.object.hexsha
 
         remote_sha1_commit = (
             git.cmd.Git().ls_remote(self.url, self.branch).split("\t")[0]
@@ -110,3 +110,4 @@ class PackageToLint:
             origin.pull()
         else:
             logging.info("Repository already up to date.")
+        return remote_sha1_commit

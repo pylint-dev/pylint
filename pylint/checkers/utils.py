@@ -69,7 +69,7 @@ KEYS_METHOD = "keys"
 #          although it's best to implement it in order to accept
 #          all of them.
 _SPECIAL_METHODS_PARAMS = {
-    None: ("__new__", "__init__", "__call__"),
+    None: ("__new__", "__init__", "__call__", "__init_subclass__"),
     0: (
         "__del__",
         "__repr__",
@@ -107,7 +107,6 @@ _SPECIAL_METHODS_PARAMS = {
         "__anext__",
         "__fspath__",
         "__subclasses__",
-        "__init_subclass__",
     ),
     1: (
         "__format__",
@@ -480,7 +479,7 @@ class UnsupportedFormatCharacter(Exception):
     format characters.
     """
 
-    def __init__(self, index):
+    def __init__(self, index: int) -> None:
         super().__init__(index)
         self.index = index
 
@@ -499,7 +498,7 @@ def parse_format_string(
     pos_types = []
     num_args = 0
 
-    def next_char(i):
+    def next_char(i: int) -> tuple[int, str]:
         i += 1
         if i == len(format_string):
             raise IncompleteFormatString
@@ -561,14 +560,16 @@ def parse_format_string(
     return keys, num_args, key_types, pos_types
 
 
-def split_format_field_names(format_string) -> tuple[str, Iterable[tuple[bool, str]]]:
+def split_format_field_names(
+    format_string: str,
+) -> tuple[str, Iterable[tuple[bool, str]]]:
     try:
         return _string.formatter_field_name_split(format_string)
     except ValueError as e:
         raise IncompleteFormatString() from e
 
 
-def collect_string_fields(format_string) -> Iterable[str | None]:
+def collect_string_fields(format_string: str) -> Iterable[str | None]:
     """Given a format string, return an iterator
     of all the valid format fields.
 
@@ -723,7 +724,10 @@ def inherit_from_std_ex(node: nodes.NodeNG | astroid.Instance) -> bool:
     )
 
 
-def error_of_type(handler: nodes.ExceptHandler, error_type) -> bool:
+def error_of_type(
+    handler: nodes.ExceptHandler,
+    error_type: str | type[Exception] | tuple[str | type[Exception], ...],
+) -> bool:
     """Check if the given exception handler catches
     the given error_type.
 
@@ -734,7 +738,7 @@ def error_of_type(handler: nodes.ExceptHandler, error_type) -> bool:
     given errors.
     """
 
-    def stringify_error(error):
+    def stringify_error(error: str | type[Exception]) -> str:
         if not isinstance(error, str):
             return error.__name__
         return error
@@ -760,7 +764,7 @@ def decorated_with_property(node: nodes.FunctionDef) -> bool:
     return False
 
 
-def _is_property_kind(node, *kinds):
+def _is_property_kind(node, *kinds: str) -> bool:
     if not isinstance(node, (astroid.UnboundMethod, nodes.FunctionDef)):
         return False
     if node.decorators:
@@ -770,17 +774,17 @@ def _is_property_kind(node, *kinds):
     return False
 
 
-def is_property_setter(node: nodes.FunctionDef) -> bool:
+def is_property_setter(node) -> bool:
     """Check if the given node is a property setter."""
     return _is_property_kind(node, "setter")
 
 
-def is_property_deleter(node: nodes.FunctionDef) -> bool:
+def is_property_deleter(node) -> bool:
     """Check if the given node is a property deleter."""
     return _is_property_kind(node, "deleter")
 
 
-def is_property_setter_or_deleter(node: nodes.FunctionDef) -> bool:
+def is_property_setter_or_deleter(node) -> bool:
     """Check if the given node is either a property setter or a deleter."""
     return _is_property_kind(node, "setter", "deleter")
 
@@ -1009,7 +1013,7 @@ def _except_handlers_ignores_exceptions(
 
 
 def get_exception_handlers(
-    node: nodes.NodeNG, exception=Exception
+    node: nodes.NodeNG, exception: type[Exception] = Exception
 ) -> list[nodes.ExceptHandler] | None:
     """Return the collections of handlers handling the exception in arguments.
 
@@ -1019,7 +1023,6 @@ def get_exception_handlers(
 
     Returns:
         list: the collection of handlers that are handling the exception or None.
-
     """
     context = find_try_except_wrapper_node(node)
     if isinstance(context, nodes.TryExcept):
@@ -1043,7 +1046,9 @@ def is_node_inside_try_except(node: nodes.Raise) -> bool:
     return isinstance(context, nodes.TryExcept)
 
 
-def node_ignores_exception(node: nodes.NodeNG, exception=Exception) -> bool:
+def node_ignores_exception(
+    node: nodes.NodeNG, exception: type[Exception] = Exception
+) -> bool:
     """Check if the node is in a TryExcept which handles the given exception.
 
     If the exception is not given, the function is going to look for bare
@@ -1164,7 +1169,7 @@ def is_inside_abstract_class(node: nodes.NodeNG) -> bool:
 
 
 def _supports_protocol(
-    value: nodes.NodeNG, protocol_callback: nodes.FunctionDef
+    value: nodes.NodeNG, protocol_callback: Callable[[nodes.NodeNG], bool]
 ) -> bool:
     if isinstance(value, nodes.ClassDef):
         if not has_known_bases(value):
@@ -1182,7 +1187,6 @@ def _supports_protocol(
         if protocol_callback(value):
             return True
 
-    # TODO: 2.14: Should be covered by https://github.com/PyCQA/astroid/pull/1475
     if isinstance(value, nodes.ComprehensionScope):
         return True
 
@@ -1218,7 +1222,9 @@ def supports_getitem(value: nodes.NodeNG, node: nodes.NodeNG) -> bool:
     if isinstance(value, nodes.ClassDef):
         if _supports_protocol_method(value, CLASS_GETITEM_METHOD):
             return True
-        if subscriptable_with_postponed_evaluation_enabled(node):
+        if is_postponed_evaluation_enabled(node) and is_node_in_type_annotation_context(
+            node
+        ):
             return True
     return _supports_protocol(value, _supports_getitem_protocol)
 
@@ -1232,7 +1238,7 @@ def supports_delitem(value: nodes.NodeNG, _: nodes.NodeNG) -> bool:
 
 
 def _get_python_type_of_node(node: nodes.NodeNG) -> str | None:
-    pytype = getattr(node, "pytype", None)
+    pytype: Callable[[], str] | None = getattr(node, "pytype", None)
     if callable(pytype):
         return pytype()
     return None
@@ -1287,7 +1293,9 @@ def infer_all(
         return []
 
 
-def has_known_bases(klass: nodes.ClassDef, context=None) -> bool:
+def has_known_bases(
+    klass: nodes.ClassDef, context: InferenceContext | None = None
+) -> bool:
     """Return true if all base classes of a class could be inferred."""
     try:
         return klass._all_bases_known
@@ -1406,20 +1414,14 @@ def is_class_subscriptable_pep585_with_postponed_evaluation_enabled(
     warnings.warn(
         "'is_class_subscriptable_pep585_with_postponed_evaluation_enabled' has been "
         "deprecated and will be removed in pylint 3.0. "
-        "Use 'subscriptable_with_postponed_evaluation_enabled' instead.",
+        "Use 'is_postponed_evaluation_enabled(node) and "
+        "is_node_in_type_annotation_context(node)' instead.",
         DeprecationWarning,
     )
     return (
         is_postponed_evaluation_enabled(node)
         and value.qname() in SUBSCRIPTABLE_CLASSES_PEP585
         and is_node_in_type_annotation_context(node)
-    )
-
-
-def subscriptable_with_postponed_evaluation_enabled(node: nodes.NodeNG) -> bool:
-    """Check if class can be subscriptable in type annotation context."""
-    return is_postponed_evaluation_enabled(node) and is_node_in_type_annotation_context(
-        node
     )
 
 
@@ -1686,7 +1688,9 @@ def is_node_in_guarded_import_block(node: nodes.NodeNG) -> bool:
 
 
 def is_reassigned_after_current(node: nodes.NodeNG, varname: str) -> bool:
-    """Check if the given variable name is reassigned in the same scope after the current node."""
+    """Check if the given variable name is reassigned in the same scope after the
+    current node.
+    """
     return any(
         a.name == varname and a.lineno > node.lineno
         for a in node.scope().nodes_of_class(
@@ -1696,7 +1700,9 @@ def is_reassigned_after_current(node: nodes.NodeNG, varname: str) -> bool:
 
 
 def is_deleted_after_current(node: nodes.NodeNG, varname: str) -> bool:
-    """Check if the given variable name is deleted in the same scope after the current node."""
+    """Check if the given variable name is deleted in the same scope after the current
+    node.
+    """
     return any(
         getattr(target, "name", None) == varname and target.lineno > node.lineno
         for del_node in node.scope().nodes_of_class(nodes.Delete)

@@ -67,7 +67,6 @@ def _create_checker_section(
     checker: str, options: list[OptionsData], linter: PyLinter
 ) -> str:
     checker_string = get_rst_title(f"``{checker.capitalize()}`` Checker", "^")
-
     toml_doc = tomlkit.document()
     pylint_tool_table = tomlkit.table(is_super_table=True)
     toml_doc.add(tomlkit.key(["tool", "pylint"]), pylint_tool_table)
@@ -110,7 +109,9 @@ def _create_checker_section(
         checker_table.add(tomlkit.nl())
 
     pylint_tool_table.add(options[0].checker.name.lower(), checker_table)
-    toml_string = "\n".join(f"   {i}" for i in tomlkit.dumps(toml_doc).split("\n"))
+    toml_string = "\n".join(
+        f"   {i}" if i else "" for i in tomlkit.dumps(toml_doc).split("\n")
+    )
     checker_string += f"""
 .. raw:: html
 
@@ -133,7 +134,11 @@ def _create_checker_section(
 
 def _write_options_page(options: OptionsDataDict, linter: PyLinter) -> None:
     """Create or overwrite the options page."""
-    sections: list[str] = [get_rst_title("Standard Checkers:", "^")]
+    sections: list[str] = [
+        ".. This file is auto-generated. Make any changes to the associated\n"
+        ".. docs extension in 'doc/exts/pylint_options.py'.",
+        get_rst_title("Standard Checkers:", "^"),
+    ]
     found_extensions = False
 
     for checker, checker_options in options.items():
@@ -150,10 +155,8 @@ def _write_options_page(options: OptionsDataDict, linter: PyLinter) -> None:
     ) as stream:
         stream.write(
             f"""
-{get_rst_title("All pylint options", "=")}
 
-{sections_string}
-"""
+{sections_string}"""
         )
 
 

@@ -47,11 +47,16 @@ def builder_inited(app: Optional[Sphinx]) -> None:
     linter.load_plugin_modules(modules)
 
     extensions_doc = os.path.join(
-        base_path, "doc", "technical_reference", "extensions.rst"
+        base_path, "doc", "user_guide", "checkers", "extensions.rst"
     )
     with open(extensions_doc, "w", encoding="utf-8") as stream:
+        stream.write(get_rst_title("Optional checkers", "="))
         stream.write(
-            get_rst_title("Optional Pylint checkers in the extensions module", "=")
+            """
+.. This file is auto-generated. Make any changes to the associated
+.. docs extension in 'doc/exts/pylint_extensions.py'.
+
+"""
         )
         stream.write("Pylint provides the following optional plugins:\n\n")
         for module in modules:
@@ -59,7 +64,7 @@ def builder_inited(app: Optional[Sphinx]) -> None:
         stream.write("\n")
         stream.write(
             "You can activate any or all of these extensions "
-            "by adding a ``load-plugins`` line to the ``MASTER`` "
+            "by adding a ``load-plugins`` line to the ``MAIN`` "
             "section of your ``.pylintrc``, for example::\n"
         )
         stream.write(
@@ -69,10 +74,16 @@ def builder_inited(app: Optional[Sphinx]) -> None:
 
         # Print checker documentation to stream
         by_checker = get_plugins_info(linter, doc_files)
-        for checker, information in sorted(by_checker.items()):
+        max_len = len(by_checker)
+        for i, checker_information in enumerate(sorted(by_checker.items())):
+            checker, information = checker_information
+            j = -1
             checker = information["checker"]
             del information["checker"]
-            print(checker.get_full_documentation(**information)[:-1], file=stream)
+            if i == max_len - 1:
+                # Remove the \n\n at the end of the file
+                j = -3
+            print(checker.get_full_documentation(**information)[:j], file=stream)
 
 
 def get_plugins_info(linter, doc_files):

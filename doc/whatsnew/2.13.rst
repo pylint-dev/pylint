@@ -540,7 +540,7 @@ Other Changes
 
   .. code-block:: python
 
-    def my_function()
+    def my_function():
       """My function.
 
       Raises:
@@ -635,11 +635,28 @@ Other Changes
 
   Closes #3979
 
+* Fix a crash when accessing ``__code__`` and assigning it to a variable.
+
+  Closes #6539
+
 * Fix a crash when linting a file that passes an integer ``mode=`` to
   ``open``
 
   Closes #6414
 
+* Fix false positives for ``no-name-in-module`` and ``import-error`` for ``numpy.distutils``
+  and ``pydantic``.
+
+  Closes #6497
+
 * Fix ``IndexError`` crash in ``uninferable_final_decorators`` method.
 
  Relates to #6531
+
+* Fix a crash in ``unnecessary-dict-index-lookup`` when subscripting an attribute.
+
+  Closes #6557
+
+* Fix a false positive for ``undefined-loop-variable`` when using ``enumerate()``.
+
+  Closes #6593

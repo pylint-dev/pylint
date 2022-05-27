@@ -39,6 +39,7 @@ from pylint.constants import (
 )
 from pylint.exceptions import InvalidMessageError
 from pylint.lint import PyLinter
+from pylint.lint.utils import fix_import_path
 from pylint.message import Message
 from pylint.reporters import text
 from pylint.testutils import create_files
@@ -190,8 +191,14 @@ def reporter():
 @pytest.fixture
 def initialized_linter(linter: PyLinter) -> PyLinter:
     linter.open()
-    linter.set_current_module("toto", "mydir/toto")
-    linter.file_state = FileState("toto")
+    linter.set_current_module("long_test_file", "long_test_file")
+    linter.file_state = FileState(
+        "long_test_file",
+        linter.msgs_store,
+        linter.get_ast(
+            str(join(REGRTEST_DATA_DIR, "long_test_file.py")), "long_test_file"
+        ),
+    )
     return linter
 
 
@@ -271,9 +278,9 @@ def test_enable_message_block(initialized_linter: PyLinter) -> None:
     filepath = join(REGRTEST_DATA_DIR, "func_block_disable_msg.py")
     linter.set_current_module("func_block_disable_msg")
     astroid = linter.get_ast(filepath, "func_block_disable_msg")
+    linter.file_state = FileState("func_block_disable_msg", linter.msgs_store, astroid)
     linter.process_tokens(tokenize_module(astroid))
     fs = linter.file_state
-    fs.collect_block_lines(linter.msgs_store, astroid)
     # global (module level)
     assert linter.is_message_enabled("W0613")
     assert linter.is_message_enabled("E1101")
@@ -310,7 +317,6 @@ def test_enable_message_block(initialized_linter: PyLinter) -> None:
     assert linter.is_message_enabled("E1101", 75)
     assert linter.is_message_enabled("E1101", 77)
 
-    fs = linter.file_state
     assert fs._suppression_mapping["W0613", 18] == 17
     assert fs._suppression_mapping["E1101", 33] == 30
     assert ("E1101", 46) not in fs._suppression_mapping
@@ -861,3 +867,67 @@ def test_by_module_statement_value(initialized_linter: PyLinter) -> None:
         # Check that the by_module "statement" is equal to the global "statement"
         # computed for that module
         assert module_stats["statement"] == linter2.stats.statement
+
+
+@pytest.mark.parametrize(
+    "ignore_parameter,ignore_parameter_value",
+    [
+        ("--ignore", "failing.py"),
+        ("--ignore", "ignored_subdirectory"),
+        ("--ignore-patterns", "failing.*"),
+        ("--ignore-patterns", "ignored_*"),
+        ("--ignore-paths", ".*directory/ignored.*"),
+        ("--ignore-paths", ".*ignored.*/failing.*"),
+    ],
+)
+def test_recursive_ignore(ignore_parameter, ignore_parameter_value) -> None:
+    run = Run(
+        [
+            "--recursive",
+            "y",
+            ignore_parameter,
+            ignore_parameter_value,
+            join(REGRTEST_DATA_DIR, "directory"),
+        ],
+        exit=False,
+    )
+
+    linted_files = run.linter._iterate_file_descrs(
+        tuple(run.linter._discover_files([join(REGRTEST_DATA_DIR, "directory")]))
+    )
+    linted_file_paths = [file_item.filepath for file_item in linted_files]
+
+    ignored_file = os.path.abspath(
+        join(REGRTEST_DATA_DIR, "directory", "ignored_subdirectory", "failing.py")
+    )
+    assert ignored_file not in linted_file_paths
+
+    for regrtest_data_module in (
+        ("directory", "subdirectory", "subsubdirectory", "module.py"),
+        ("directory", "subdirectory", "module.py"),
+        ("directory", "package", "module.py"),
+        ("directory", "package", "subpackage", "module.py"),
+    ):
+        module = os.path.abspath(join(REGRTEST_DATA_DIR, *regrtest_data_module))
+    assert module in linted_file_paths
+
+
+def test_import_sibling_module_from_namespace(initialized_linter: PyLinter) -> None:
+    """If the parent directory above `namespace` is on sys.path, ensure that
+    modules under `namespace` can import each other without raising `import-error`."""
+    linter = initialized_linter
+    with tempdir() as tmpdir:
+        create_files(["namespace/submodule1.py", "namespace/submodule2.py"])
+        second_path = Path("namespace/submodule2.py")
+        with open(second_path, "w", encoding="utf-8") as f:
+            f.write(
+                """\"\"\"This module imports submodule1.\"\"\"
+import submodule1
+print(submodule1)
+"""
+            )
+        os.chdir("namespace")
+        # Add the parent directory to sys.path
+        with fix_import_path([tmpdir]):
+            linter.check(["submodule2.py"])
+    assert not linter.stats.by_msg

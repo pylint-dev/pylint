@@ -14,6 +14,7 @@ import platform
 import re
 import subprocess
 import sys
+import tempfile
 import textwrap
 import warnings
 from collections.abc import Generator, Iterator
@@ -1173,7 +1174,7 @@ class TestRunTC:
         rcfile = tmpdir / "pylintrc"
         rcfile_contents = textwrap.dedent(
             f"""
-        [MASTER]
+        [MAIN]
         output={output_file}
         """
         )
@@ -1228,14 +1229,88 @@ class TestRunTC:
         assert not ex.value.code % 2
 
     def test_regression_recursive(self):
+        """Tests if error is raised when linter is executed over directory not using --recursive=y"""
         self._test_output(
             [join(HERE, "regrtest_data", "directory", "subdirectory"), "--recursive=n"],
             expected_output="No such file or directory",
         )
 
     def test_recursive(self):
+        """Tests if running linter over directory using --recursive=y"""
         self._runtest(
             [join(HERE, "regrtest_data", "directory", "subdirectory"), "--recursive=y"],
+            code=0,
+        )
+
+    def test_ignore_recursive(self):
+        """Tests recursive run of linter ignoring directory using --ignore parameter.
+
+        Ignored directory contains files yielding lint errors. If directory is not ignored
+        test would fail due these errors.
+        """
+        self._runtest(
+            [
+                join(HERE, "regrtest_data", "directory"),
+                "--recursive=y",
+                "--ignore=ignored_subdirectory",
+            ],
+            code=0,
+        )
+
+        self._runtest(
+            [
+                join(HERE, "regrtest_data", "directory"),
+                "--recursive=y",
+                "--ignore=failing.py",
+            ],
+            code=0,
+        )
+
+    def test_ignore_pattern_recursive(self):
+        """Tests recursive run of linter ignoring directory using --ignore-parameter parameter.
+
+        Ignored directory contains files yielding lint errors. If directory is not ignored
+        test would fail due these errors.
+        """
+        self._runtest(
+            [
+                join(HERE, "regrtest_data", "directory"),
+                "--recursive=y",
+                "--ignore-patterns=ignored_.*",
+            ],
+            code=0,
+        )
+
+        self._runtest(
+            [
+                join(HERE, "regrtest_data", "directory"),
+                "--recursive=y",
+                "--ignore-patterns=failing.*",
+            ],
+            code=0,
+        )
+
+    def test_ignore_path_recursive(self):
+        """Tests recursive run of linter ignoring directory using --ignore-path parameter.
+
+        Ignored directory contains files yielding lint errors. If directory is not ignored
+        test would fail due these errors.
+        """
+        self._runtest(
+            [
+                join(HERE, "regrtest_data", "directory"),
+                "--recursive=y",
+                "--ignore-paths=.*ignored.*",
+            ],
+            code=0,
+        )
+
+        self._runtest(
+            [
+                join(HERE, "regrtest_data", "directory"),
+                "--recursive=y",
+                "--ignore-paths=.*failing.*",
+            ],
             code=0,
         )
 
@@ -1249,7 +1324,7 @@ class TestRunTC:
                 if not os.path.basename(path) == "regrtest_data"
             ]
             with _test_cwd():
-                os.chdir(join(HERE, "regrtest_data", "directory"))
+                os.chdir(join(HERE, "regrtest_data", "directory", "subdirectory"))
                 self._runtest(
                     [".", "--recursive=y"],
                     code=0,
@@ -1333,7 +1408,8 @@ class TestCallbackOptions:
             encoding="utf-8",
             check=False,
         )
-        assert "[MASTER]" in process.stdout
+        assert "[MAIN]" in process.stdout
+        assert "[MASTER]" not in process.stdout
         assert "profile" not in process.stdout
         args = _add_rcfile_default_pylintrc(["--generate-rcfile"])
         process_two = subprocess.run(
@@ -1343,6 +1419,17 @@ class TestCallbackOptions:
             check=False,
         )
         assert process.stdout == process_two.stdout
+
+        # Check that the generated file is valid
+        with tempfile.NamedTemporaryFile(mode="w", delete=False) as temp:
+            filename = temp.name
+            temp.write(process.stdout)
+            runner = Run(
+                [join(HERE, "regrtest_data", "empty.py"), f"--rcfile={filename}"],
+                exit=False,
+            )
+            assert not runner.linter.msg_status
+        os.remove(filename)
 
     @staticmethod
     def test_generate_config_disable_symbolic_names() -> None:
@@ -1358,10 +1445,10 @@ class TestCallbackOptions:
         # Get rid of the pesky messages that pylint emits if the
         # configuration file is not found.
         pattern = rf"\[{MAIN_CHECKER_NAME.upper()}"
-        master = re.search(pattern, output)
-        assert master is not None, f"{pattern} not found in {output}"
+        main = re.search(pattern, output)
+        assert main is not None, f"{pattern} not found in {output}"
 
-        out = StringIO(output[master.start() :])
+        out = StringIO(output[main.start() :])
         parser = configparser.RawConfigParser()
         parser.read_file(out)
         messages = utils._splitstrip(parser.get("MESSAGES CONTROL", "disable"))
@@ -1382,8 +1469,10 @@ class TestCallbackOptions:
             encoding="utf-8",
             check=False,
         )
-        assert "[tool.pylint.master]" in process.stdout
+        assert "[tool.pylint.main]" in process.stdout
+        assert "[tool.pylint.master]" not in process.stdout
         assert '"positional arguments"' not in process.stdout
+        assert '"optional arguments"' not in process.stdout
         assert 'preferred-modules = ["a:b"]' in process.stdout
 
         process_two = subprocess.run(
@@ -1393,6 +1482,19 @@ class TestCallbackOptions:
             check=False,
         )
         assert process.stdout == process_two.stdout
+
+        # Check that the generated file is valid
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".toml", delete=False
+        ) as temp:
+            filename = temp.name
+            temp.write(process.stdout)
+            runner = Run(
+                [join(HERE, "regrtest_data", "empty.py"), f"--rcfile={filename}"],
+                exit=False,
+            )
+            assert not runner.linter.msg_status
+        os.remove(filename)
 
     @staticmethod
     def test_generate_toml_config_disable_symbolic_names() -> None:

@@ -23,7 +23,7 @@ from pylint.utils import get_rst_title
 PYLINT_BASE_PATH = Path(__file__).resolve().parent.parent.parent
 """Base path to the project folder."""
 
-PYLINT_MESSAGES_PATH = PYLINT_BASE_PATH / "doc" / "messages"
+PYLINT_MESSAGES_PATH = PYLINT_BASE_PATH / "doc/user_guide/messages"
 """Path to the messages documentation folder."""
 
 PYLINT_MESSAGES_DATA_PATH = PYLINT_BASE_PATH / "doc" / "data" / "messages"
@@ -48,7 +48,7 @@ class MessageData(NamedTuple):
 MessagesDict = Dict[str, List[MessageData]]
 OldMessagesDict = Dict[str, DefaultDict[Tuple[str, str], List[Tuple[str, str]]]]
 """DefaultDict is indexed by tuples of (old name symbol, old name id) and values are
-tuples of (new name symbol, new name category)
+tuples of (new name symbol, new name category).
 """
 
 
@@ -61,12 +61,24 @@ def _register_all_checkers_and_extensions(linter: PyLinter) -> None:
 def _get_message_data(data_path: Path) -> Tuple[str, str, str, str]:
     """Get the message data from the specified path."""
     good_code, bad_code, details, related = "", "", "", ""
-
+    good_py_path = data_path / "good.py"
+    details_rst_path = data_path / "details.rst"
     if not data_path.exists():
-        return good_code, bad_code, details, related
-
-    if (data_path / "good.py").exists():
-        with open(data_path / "good.py", encoding="utf-8") as file:
+        data_path.mkdir(parents=True)
+        with open(good_py_path, "w", encoding="utf-8") as file:
+            file.write(
+                """\
+# This is a placeholder for correct code for this message.
+"""
+            )
+        with open(details_rst_path, "w", encoding="utf-8") as file:
+            file.write(
+                """\
+You can help us make the doc better `by contributing <https://github.com/PyCQA/pylint/issues/5953>`_ !
+"""
+            )
+    if good_py_path.exists():
+        with open(good_py_path, encoding="utf-8") as file:
             file_content = file.readlines()
             indented_file_content = "".join("  " + i for i in file_content)
             good_code = f"""
@@ -87,8 +99,8 @@ def _get_message_data(data_path: Path) -> Tuple[str, str, str, str]:
 
 {indented_file_content}"""
 
-    if (data_path / "details.rst").exists():
-        with open(data_path / "details.rst", encoding="utf-8") as file:
+    if (details_rst_path).exists():
+        with open(details_rst_path, encoding="utf-8") as file:
             file_content_string = file.read()
             details = f"""
 **Additional details:**
@@ -102,15 +114,14 @@ def _get_message_data(data_path: Path) -> Tuple[str, str, str, str]:
 **Related links:**
 
 {file_content_string}"""
-
     return good_code, bad_code, details, related
 
 
 def _get_all_messages(
     linter: PyLinter,
 ) -> Tuple[MessagesDict, OldMessagesDict]:
-    """Get all messages registered to a linter and return a dictionary indexed by message
-    type.
+    """Get all messages registered to a linter and return a dictionary indexed by
+    message type.
 
     Also return a dictionary of old message and the new messages they can be mapped to.
     """
@@ -158,32 +169,57 @@ def _get_all_messages(
             checker_module.__name__,
             checker_module.__file__,
         )
-        messages_dict[MSG_TYPES_DOC[message.msgid[0]]].append(message_data)
-
+        msg_type = MSG_TYPES_DOC[message.msgid[0]]
+        messages_dict[msg_type].append(message_data)
         if message.old_names:
             for old_name in message.old_names:
                 category = MSG_TYPES_DOC[old_name[0][0]]
                 old_messages[category][(old_name[1], old_name[0])].append(
-                    (message.symbol, MSG_TYPES_DOC[message.msgid[0]])
+                    (message.symbol, msg_type)
                 )
 
     return messages_dict, old_messages
 
 
+def _message_needs_update(message_data: MessageData, category: str) -> bool:
+    """Do we need to regenerate this message .rst ?"""
+    message_path = _get_message_path(category, message_data)
+    if not message_path.exists():
+        return True
+    message_path_stats = message_path.stat().st_mtime
+    checker_path_stats = Path(message_data.checker_module_path).stat().st_mtime
+    return checker_path_stats > message_path_stats
+
+
+def _get_category_directory(category: str) -> Path:
+    return PYLINT_MESSAGES_PATH / category
+
+
+def _get_message_path(category: str, message: MessageData) -> Path:
+    category_dir = _get_category_directory(category)
+    return category_dir / f"{message.name}.rst"
+
+
 def _write_message_page(messages_dict: MessagesDict) -> None:
     """Create or overwrite the file for each message."""
     for category, messages in messages_dict.items():
-        category_dir = PYLINT_MESSAGES_PATH / category
+        category_dir = _get_category_directory(category)
         if not category_dir.exists():
             category_dir.mkdir(parents=True, exist_ok=True)
         for message in messages:
-            checker_module_rel_path = os.path.relpath(
-                message.checker_module_path, PYLINT_BASE_PATH
-            )
-            messages_file = os.path.join(category_dir, f"{message.name}.rst")
-            with open(messages_file, "w", encoding="utf-8") as stream:
-                stream.write(
-                    f""".. _{message.name}:
+            if not _message_needs_update(message, category):
+                continue
+            _write_single_message_page(category_dir, message)
+
+
+def _write_single_message_page(category_dir: Path, message: MessageData) -> None:
+    checker_module_rel_path = os.path.relpath(
+        message.checker_module_path, PYLINT_BASE_PATH
+    )
+    messages_file = os.path.join(category_dir, f"{message.name}.rst")
+    with open(messages_file, "w", encoding="utf-8") as stream:
+        stream.write(
+            f""".. _{message.name}:
 
 {get_rst_title(f"{message.name} / {message.id}", "=")}
 **Message emitted:**
@@ -199,41 +235,44 @@ def _write_message_page(messages_dict: MessagesDict) -> None:
 {message.details}
 {message.related_links}
 """
-                )
-                if message.checker_module_name.startswith("pylint.extensions."):
-                    stream.write(
-                        f"""
+        )
+        if message.checker_module_name.startswith("pylint.extensions."):
+            stream.write(
+                f"""
 .. note::
-  This message is emitted by an optional checker which requires the ``{message.checker_module_name}`` plugin to be loaded. See: :ref:`{message.checker_module_name}`.
+  This message is emitted by the optional :ref:`'{message.checker}'<{message.checker_module_name}>` checker which requires the ``{message.checker_module_name}``
+  plugin to be loaded.
 
 """
-                    )
-                checker_url = f"https://github.com/PyCQA/pylint/blob/main/{checker_module_rel_path}"
-                stream.write(
-                    f"Created by the `{message.checker} <{checker_url}>`__ checker."
-                )
+            )
+        checker_url = (
+            f"https://github.com/PyCQA/pylint/blob/main/{checker_module_rel_path}"
+        )
+        stream.write(f"Created by the `{message.checker} <{checker_url}>`__ checker.")
 
 
 def _write_messages_list_page(
     messages_dict: MessagesDict, old_messages_dict: OldMessagesDict
 ) -> None:
     """Create or overwrite the page with the list of all messages."""
-    messages_file = os.path.join(PYLINT_MESSAGES_PATH, "messages_list.rst")
+    messages_file = os.path.join(PYLINT_MESSAGES_PATH, "messages_overview.rst")
     with open(messages_file, "w", encoding="utf-8") as stream:
         # Write header of file
+        title = "Messages overview"
         stream.write(
-            f""".. _messages-list:
+            f"""
+.. _messages-overview:
 
-{get_rst_title("Overview of all Pylint messages", "=")}
-..
-  NOTE This file is auto-generated. Make any changes to the associated
-  docs extension in 'pylint_messages.py'.
+{"#" * len(title)}
+{get_rst_title(title, "#")}
+
+.. This file is auto-generated. Make any changes to the associated
+.. docs extension in 'doc/exts/pylint_messages.py'.
 
 Pylint can emit the following messages:
 
 """
         )
-
         # Iterate over tuple to keep same order
         for category in (
             "fatal",
@@ -246,15 +285,19 @@ Pylint can emit the following messages:
             messages = sorted(messages_dict[category], key=lambda item: item.name)
             old_messages = sorted(old_messages_dict[category], key=lambda item: item[0])
             messages_string = "".join(
-                f"   {category}/{message.name}.rst\n" for message in messages
+                f"   {category}/{message.name}\n" for message in messages
             )
             old_messages_string = "".join(
-                f"   {category}/{old_message[0]}.rst\n" for old_message in old_messages
+                f"   {category}/{old_message[0]}\n" for old_message in old_messages
             )
 
-            # Write list per category
+            # Write list per category. We need the '-category' suffix in the reference
+            # because 'fatal' is also a message's symbol
             stream.write(
-                f"""{get_rst_title(category.capitalize(), "-")}
+                f"""
+.. _{category.lower()}-category:
+
+{get_rst_title(category.capitalize(), "*")}
 All messages in the {category} category:
 
 .. toctree::
@@ -268,9 +311,7 @@ All renamed messages in the {category} category:
    :maxdepth: 1
    :titlesonly:
 
-{old_messages_string}
-
-"""
+{old_messages_string}"""
             )
 
 

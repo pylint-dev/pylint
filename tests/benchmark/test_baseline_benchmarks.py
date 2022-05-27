@@ -124,7 +124,7 @@ class TestEstablishBaselineBenchmarks:
         linter = PyLinter(reporter=Reporter())
         fileinfos = [self.empty_filepath]  # Single file to end-to-end the system
         assert linter.config.jobs == 1
-        assert len(linter._checkers) == 1, "Should just have 'master'"
+        assert len(linter._checkers) == 1, "Should just have 'main'"
         benchmark(linter.check, fileinfos)
         assert (
             linter.msg_status == 0
@@ -147,7 +147,7 @@ class TestEstablishBaselineBenchmarks:
         fileinfos = [self.empty_filepath for _ in range(linter.config.jobs)]
 
         assert linter.config.jobs == 2
-        assert len(linter._checkers) == 1, "Should have 'master'"
+        assert len(linter._checkers) == 1, "Should have 'main'"
         benchmark(linter.check, fileinfos)
         assert (
             linter.msg_status == 0
@@ -161,16 +161,16 @@ class TestEstablishBaselineBenchmarks:
         # Create file per worker, using all workers
         fileinfos = [self.empty_file_info for _ in range(linter.config.jobs)]
 
-        assert len(linter._checkers) == 1, "Should have 'master'"
+        assert len(linter._checkers) == 1, "Should have 'main'"
         benchmark(check_parallel, linter, jobs=2, files=fileinfos)
         assert (
             linter.msg_status == 0
         ), f"Expected no errors to be thrown: {pprint.pformat(linter.reporter.messages)}"
 
     def test_baseline_lots_of_files_j1(self, benchmark):
-        """Establish a baseline with only 'master' checker being run in -j1.
+        """Establish a baseline with only 'main' checker being run in -j1.
 
-        We do not register any checkers except the default 'master', so the cost is just
+        We do not register any checkers except the default 'main', so the cost is just
         that of the system with a lot of files registered
         """
         if benchmark.disabled:
@@ -180,7 +180,7 @@ class TestEstablishBaselineBenchmarks:
         linter.config.jobs = 1
         fileinfos = [self.empty_filepath for _ in range(self.lot_of_files)]
         assert linter.config.jobs == 1
-        assert len(linter._checkers) == 1, "Should have 'master'"
+        assert len(linter._checkers) == 1, "Should have 'main'"
         benchmark(linter.check, fileinfos)
         assert (
             linter.msg_status == 0
@@ -188,10 +188,10 @@ class TestEstablishBaselineBenchmarks:
 
     @pytest.mark.needs_two_cores
     def test_baseline_lots_of_files_j2(self, benchmark):
-        """Establish a baseline with only 'master' checker being run in -j2.
+        """Establish a baseline with only 'main' checker being run in -j2.
 
         As with the -j1 variant above `test_baseline_lots_of_files_j1`, we do not
-        register any checkers except the default 'master', so the cost is just that of
+        register any checkers except the default 'main', so the cost is just that of
         the check_parallel system across 2 workers, plus the overhead of PyLinter
         """
         if benchmark.disabled:
@@ -201,7 +201,7 @@ class TestEstablishBaselineBenchmarks:
         linter.config.jobs = 2
         fileinfos = [self.empty_filepath for _ in range(self.lot_of_files)]
         assert linter.config.jobs == 2
-        assert len(linter._checkers) == 1, "Should have 'master'"
+        assert len(linter._checkers) == 1, "Should have 'main'"
         benchmark(linter.check, fileinfos)
         assert (
             linter.msg_status == 0
@@ -221,7 +221,7 @@ class TestEstablishBaselineBenchmarks:
         linter.register_checker(NoWorkChecker(linter))
         fileinfos = [self.empty_filepath for _ in range(self.lot_of_files)]
         assert linter.config.jobs == 1
-        assert len(linter._checkers) == 2, "Should have 'master' and 'sleeper'"
+        assert len(linter._checkers) == 2, "Should have 'main' and 'sleeper'"
         benchmark(linter.check, fileinfos)
         assert (
             linter.msg_status == 0
@@ -242,7 +242,7 @@ class TestEstablishBaselineBenchmarks:
         linter.register_checker(NoWorkChecker(linter))
         fileinfos = [self.empty_filepath for _ in range(self.lot_of_files)]
         assert linter.config.jobs == 2
-        assert len(linter._checkers) == 2, "Should have 'master' and 'sleeper'"
+        assert len(linter._checkers) == 2, "Should have 'main' and 'sleeper'"
         benchmark(linter.check, fileinfos)
         assert (
             linter.msg_status == 0
@@ -268,7 +268,7 @@ class TestEstablishBaselineBenchmarks:
         fileinfos = [self.empty_filepath for _ in range(2)]
 
         assert linter.config.jobs == 1
-        assert len(linter._checkers) == 2, "Should have 'master' and 'sleeper'"
+        assert len(linter._checkers) == 2, "Should have 'main' and 'sleeper'"
         benchmark(linter.check, fileinfos)
         assert (
             linter.msg_status == 0
@@ -296,7 +296,7 @@ class TestEstablishBaselineBenchmarks:
         fileinfos = [self.empty_filepath for _ in range(2)]
 
         assert linter.config.jobs == 2
-        assert len(linter._checkers) == 2, "Should have 'master' and 'sleeper'"
+        assert len(linter._checkers) == 2, "Should have 'main' and 'sleeper'"
         benchmark(linter.check, fileinfos)
         assert (
             linter.msg_status == 0
@@ -308,7 +308,7 @@ class TestEstablishBaselineBenchmarks:
         runner = benchmark(Run, args, reporter=Reporter(), exit=False)
         assert runner.linter.config.jobs == 1
         print("len(runner.linter._checkers)", len(runner.linter._checkers))
-        assert len(runner.linter._checkers) > 1, "Should have more than 'master'"
+        assert len(runner.linter._checkers) > 1, "Should have more than 'main'"
 
         assert (
             runner.linter.msg_status == 0
@@ -338,5 +338,5 @@ class TestEstablishBaselineBenchmarks:
 
         assert linter.config.jobs == 1
         print("len(linter._checkers)", len(linter._checkers))
-        assert len(linter._checkers) > 1, "Should have more than 'master'"
+        assert len(linter._checkers) > 1, "Should have more than 'main'"
         benchmark(linter.check, fileinfos)

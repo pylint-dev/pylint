@@ -186,7 +186,9 @@ class TextReporter(BaseReporter):
         self._fixed_template = template
 
     def write_message(self, msg: Message) -> None:
-        """Convenience method to write a formatted message with class default template."""
+        """Convenience method to write a formatted message with class default
+        template.
+        """
         self_dict = asdict(msg)
         for key in ("end_line", "end_column"):
             self_dict[key] = self_dict[key] or ""

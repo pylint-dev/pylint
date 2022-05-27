@@ -41,6 +41,7 @@ New checkers
 * A new check was added to warn about using unicode raw string literals. This is
   a syntax error in Python 3:
 
+  .. rstcheck: ignore-next-code-block
   .. code-block:: python
 
       a = ur'...'

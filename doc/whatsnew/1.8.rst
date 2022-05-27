@@ -45,6 +45,7 @@ New checkers
   not provided in the function call assuming it will take default value provided
   in the definition.
 
+  .. rstcheck: ignore-next-code-block
   .. code-block:: python
 
      def foo(a, b=3, *args):

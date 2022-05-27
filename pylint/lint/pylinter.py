@@ -31,7 +31,7 @@ from pylint.constants import (
 )
 from pylint.lint.base_options import _make_linter_options
 from pylint.lint.caching import load_results, save_results
-from pylint.lint.expand_modules import expand_modules
+from pylint.lint.expand_modules import _is_ignored_file, expand_modules
 from pylint.lint.message_state_handler import _MessageStateHandler
 from pylint.lint.parallel import check_parallel
 from pylint.lint.report_functions import (
@@ -57,12 +57,6 @@ from pylint.typing import (
     Options,
 )
 from pylint.utils import ASTWalker, FileState, LinterStats, utils
-from pylint.utils.pragma_parser import (
-    OPTION_PO,
-    InvalidPragmaError,
-    UnRecognizedOptionError,
-    parse_pragma,
-)
 
 if sys.version_info >= (3, 8):
     from typing import Protocol
@@ -226,7 +220,7 @@ class PyLinter(
     _ArgumentsManager,
     _MessageStateHandler,
     reporters.ReportsHandlerMixIn,
-    checkers.BaseTokenChecker,
+    checkers.BaseChecker,
 ):
     """Lint Python modules using external checkers.
 
@@ -285,12 +279,16 @@ class PyLinter(
         self._dynamic_plugins: set[str] = set()
         """Set of loaded plugin names."""
 
+        # Attributes related to registering messages and their handling
+        self.msgs_store = MessageDefinitionStore()
+        self.msg_status = 0
+        self._by_id_managed_msgs: list[ManagedMessage] = []
+
         # Attributes related to visiting files
-        self.file_state = FileState()
+        self.file_state = FileState("", self.msgs_store, is_base_filestate=True)
         self.current_name: str | None = None
         self.current_file: str | None = None
         self._ignore_file = False
-        self._pragma_lineno: dict[str, int] = {}
 
         # Attributes related to stats
         self.stats = LinterStats()
@@ -307,13 +305,8 @@ class PyLinter(
         """List of message symbols on which pylint should fail, set by --fail-on."""
         self._error_mode = False
 
-        # Attributes related to messages (states) and their handling
-        self.msgs_store = MessageDefinitionStore()
-        self.msg_status = 0
-        self._by_id_managed_msgs: list[ManagedMessage] = []
-
         reporters.ReportsHandlerMixIn.__init__(self)
-        checkers.BaseTokenChecker.__init__(self, self)
+        checkers.BaseChecker.__init__(self, self)
         # provided reports
         self.reports = (
             ("RP0001", "Messages by category", report_total_messages_stats),
@@ -508,91 +501,6 @@ class PyLinter(
         self.set_option("persistent", False)
         self.set_option("score", False)
 
-    # block level option handling #############################################
-    # see func_block_disable_msg.py test case for expected behaviour
-
-    def process_tokens(self, tokens: list[tokenize.TokenInfo]) -> None:
-        """Process tokens from the current module to search for module/block level
-        options.
-        """
-        control_pragmas = {"disable", "disable-next", "enable"}
-        prev_line = None
-        saw_newline = True
-        seen_newline = True
-        for (tok_type, content, start, _, _) in tokens:
-            if prev_line and prev_line != start[0]:
-                saw_newline = seen_newline
-                seen_newline = False
-
-            prev_line = start[0]
-            if tok_type in (tokenize.NL, tokenize.NEWLINE):
-                seen_newline = True
-
-            if tok_type != tokenize.COMMENT:
-                continue
-            match = OPTION_PO.search(content)
-            if match is None:
-                continue
-            try:
-                for pragma_repr in parse_pragma(match.group(2)):
-                    if pragma_repr.action in {"disable-all", "skip-file"}:
-                        if pragma_repr.action == "disable-all":
-                            self.add_message(
-                                "deprecated-pragma",
-                                line=start[0],
-                                args=("disable-all", "skip-file"),
-                            )
-                        self.add_message("file-ignored", line=start[0])
-                        self._ignore_file = True
-                        return
-                    try:
-                        meth = self._options_methods[pragma_repr.action]
-                    except KeyError:
-                        meth = self._bw_options_methods[pragma_repr.action]
-                        # found a "(dis|en)able-msg" pragma deprecated suppression
-                        self.add_message(
-                            "deprecated-pragma",
-                            line=start[0],
-                            args=(
-                                pragma_repr.action,
-                                pragma_repr.action.replace("-msg", ""),
-                            ),
-                        )
-                    for msgid in pragma_repr.messages:
-                        # Add the line where a control pragma was encountered.
-                        if pragma_repr.action in control_pragmas:
-                            self._pragma_lineno[msgid] = start[0]
-
-                        if (pragma_repr.action, msgid) == ("disable", "all"):
-                            self.add_message(
-                                "deprecated-pragma",
-                                line=start[0],
-                                args=("disable=all", "skip-file"),
-                            )
-                            self.add_message("file-ignored", line=start[0])
-                            self._ignore_file = True
-                            return
-                            # If we did not see a newline between the previous line and now,
-                            # we saw a backslash so treat the two lines as one.
-                        l_start = start[0]
-                        if not saw_newline:
-                            l_start -= 1
-                        try:
-                            meth(msgid, "module", l_start)
-                        except exceptions.UnknownMessageError:
-                            msg = f"{pragma_repr.action}. Don't recognize message {msgid}."
-                            self.add_message(
-                                "bad-option-value", args=msg, line=start[0]
-                            )
-            except UnRecognizedOptionError as err:
-                self.add_message(
-                    "unrecognized-inline-option", args=err.token, line=start[0]
-                )
-                continue
-            except InvalidPragmaError as err:
-                self.add_message("bad-inline-option", args=err.token, line=start[0])
-                continue
-
     # code checking methods ###################################################
 
     def get_checkers(self) -> list[BaseChecker]:
@@ -656,8 +564,7 @@ class PyLinter(
             if not msg.may_be_emitted():
                 self._msgs_state[msg.msgid] = False
 
-    @staticmethod
-    def _discover_files(files_or_modules: Sequence[str]) -> Iterator[str]:
+    def _discover_files(self, files_or_modules: Sequence[str]) -> Iterator[str]:
         """Discover python modules and packages in sub-directory.
 
         Returns iterator of paths to discovered modules and packages.
@@ -671,6 +578,16 @@ class PyLinter(
                     if any(root.startswith(s) for s in skip_subtrees):
                         # Skip subtree of already discovered package.
                         continue
+
+                    if _is_ignored_file(
+                        root,
+                        self.config.ignore,
+                        self.config.ignore_patterns,
+                        self.config.ignore_paths,
+                    ):
+                        skip_subtrees.append(root)
+                        continue
+
                     if "__init__.py" in files:
                         skip_subtrees.append(root)
                         yield root
@@ -769,7 +686,8 @@ class PyLinter(
         check_astroid_module: Callable[[nodes.Module], bool | None],
         file: FileItem,
     ) -> None:
-        """Check a file using the passed utility functions (get_ast and check_astroid_module).
+        """Check a file using the passed utility functions (get_ast and
+        check_astroid_module).
 
         :param callable get_ast: callable returning AST from defined file taking the following arguments
         - filepath: path to the file to check
@@ -786,7 +704,7 @@ class PyLinter(
 
         self._ignore_file = False
 
-        self.file_state = FileState(file.modpath)
+        self.file_state = FileState(file.modpath, self.msgs_store, ast_node)
         # fix the current file (if the source file was not available or
         # if it's actually a c extension)
         self.current_file = ast_node.file
@@ -800,7 +718,8 @@ class PyLinter(
 
     @staticmethod
     def _get_file_descr_from_stdin(filepath: str) -> FileItem:
-        """Return file description (tuple of module name, file path, base name) from given file path.
+        """Return file description (tuple of module name, file path, base name) from
+        given file path.
 
         This method is used for creating suitable file description for _check_files when the
         source is standard input.
@@ -818,7 +737,8 @@ class PyLinter(
     def _iterate_file_descrs(
         self, files_or_modules: Sequence[str]
     ) -> Iterator[FileItem]:
-        """Return generator yielding file descriptions (tuples of module name, file path, base name).
+        """Return generator yielding file descriptions (tuples of module name, file
+        path, base name).
 
         The returned generator yield one item for each Python module that should be linted.
         """
@@ -1025,13 +945,10 @@ class PyLinter(
             self.add_message("raw-checker-failed", args=node.name)
         else:
             # assert astroid.file.endswith('.py')
-            # invoke ITokenChecker interface on self to fetch module/block
-            # level options
+            # Parse module/block level option pragma's
             self.process_tokens(tokens)
             if self._ignore_file:
                 return False
-            # walk ast to collect line numbers
-            self.file_state.collect_block_lines(self.msgs_store, node)
             # run raw and tokens checkers
             for raw_checker in rawcheckers:
                 raw_checker.process_module(node)
@@ -1062,7 +979,11 @@ class PyLinter(
         # Display whatever messages are left on the reporter.
         self.reporter.display_messages(report_nodes.Section())
 
-        if self.file_state.base_name is not None:
+        # TODO: 3.0: Remove second half of if-statement
+        if (
+            not self.file_state._is_base_filestate
+            and self.file_state.base_name is not None
+        ):
             # load previous results if any
             previous_stats = load_results(self.file_state.base_name)
             self.reporter.on_close(self.stats, previous_stats)
@@ -1087,7 +1008,8 @@ class PyLinter(
         # check with at least check 1 statements (usually 0 when there is a
         # syntax error preventing pylint from further processing)
         note = None
-        assert self.file_state.base_name
+        # TODO: 3.0: Remove assertion
+        assert self.file_state.base_name is not None
         previous_stats = load_results(self.file_state.base_name)
         if self.stats.statement == 0:
             return note
@@ -1274,3 +1196,12 @@ class PyLinter(
                 message_definition.msgid,
                 line,
             )
+
+    def _emit_bad_option_value(self) -> None:
+        for modname in self._stashed_bad_option_value_messages:
+            self.linter.set_current_module(modname)
+            values = self._stashed_bad_option_value_messages[modname]
+            for option_string, msg_id in values:
+                msg = f"{option_string}. Don't recognize message {msg_id}."
+                self.add_message("bad-option-value", args=msg, line=0)
+        self._stashed_bad_option_value_messages = collections.defaultdict(list)

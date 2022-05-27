@@ -259,6 +259,8 @@ def test_multi_format_output(tmp_path):
         "\n"
         "\n"
         "\n"
+        "3 lines have been analyzed\n"
+        "\n"
         "Raw metrics\n"
         "-----------\n"
         "\n"

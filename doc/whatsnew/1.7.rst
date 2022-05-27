@@ -28,15 +28,16 @@ New checkers
   the first string comparison returns true, since smaller strings are interned
   by the interpreter, while for larger ones, it will return False:
 
+  .. rstcheck: ignore-next-code-block
   .. code-block:: python
 
        mystring = "ok"
        if mystring is "ok": # Returns true
-           # do stuff
+          ...
 
        mystring = "a" * 1000
        if mystring is ("a" * 1000): # This will return False
-           # do stuff
+          ...
 
   Instead of using the ``is`` operator, you should use the ``==`` operator for
   this use case.
@@ -166,7 +167,7 @@ New checkers
 
       load-plugins=pylint.extensions.emptystring
 
-  to the ``MASTER`` section of your ``.pylintrc`` or using the command::
+  to the ``MAIN`` section of your ``.pylintrc`` or using the command::
 
       $ pylint a.py --load-plugins=pylint.extensions.emptystring
 
@@ -200,7 +201,7 @@ New checkers
 
       load-plugins=pylint.extensions.comparetozero
 
-  to the ``MASTER`` section of your ``.pylintrc`` or using the command::
+  to the ``MAIN`` section of your ``.pylintrc`` or using the command::
 
       $ pylint a.py --load-plugins=pylint.extensions.comparetozero
 
@@ -582,6 +583,7 @@ New checkers
   is known to become a keyword in future Python release. Assignments to keywords
   would result in ``SyntaxError`` after switching to newer interpreter version.
 
+  .. rstcheck: ignore-next-code-block
   .. code-block:: python
 
       # While it's correct in Python 2.x, it raises a SyntaxError in Python 3.x
@@ -590,7 +592,7 @@ New checkers
 
       # Same as above, but it'll be a SyntaxError starting from Python 3.7
       async = "async"
-      await = "await
+      await = "await"
 
 
 Other Changes
@@ -666,11 +668,13 @@ Other Changes
                super(Child, self).foo(*args, **kwargs)
 
            def bar(self, first=None, second=None, **kwargs):
+               ...
                # The overridden method adds two new parameters,
                # which can also be passed as positional arguments,
                # breaking the contract of the parent's method.
 
            def baz(self, first):
+               ...
                # Not keyword-only
 
 * ``redefined-outer-name`` is now also emitted when a

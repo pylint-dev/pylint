@@ -46,6 +46,7 @@ class CompareToZeroChecker(checkers.BaseChecker):
 
     @utils.only_required_for_messages("compare-to-zero")
     def visit_compare(self, node: nodes.Compare) -> None:
+        # pylint: disable=duplicate-code
         _operators = ["!=", "==", "is not", "is"]
         # note: astroid.Compare has the left most operand in node.left
         # while the rest are a list of tuples in node.ops

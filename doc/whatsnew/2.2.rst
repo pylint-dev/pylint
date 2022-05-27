@@ -46,7 +46,7 @@ Other Changes
 
 * Fix false positive ``undefined-variable`` and ``used-before-assignment`` with nonlocal keyword usage.
 
-* Fix exceptions being raised when one of the params is not a ClassDef for :func:`checkers.utils.is_subclass_of`.
+* Fix exceptions being raised when one of the params is not a ClassDef for ``checkers.utils.is_subclass_of``.
 
 * ``pylint`` now picks the latest value from the inferred values of the exception that gets
   raised, when looking for ``raising-non-exception``. This helps when reusing a variable name
