@@ -181,13 +181,15 @@ Release date: TBA
 
   Ref #6712
 
+* ``pyreverse``: Resolving and displaying implemented interfaces that are defined by the ``__implements__``
+  attribute has been deprecated and will be removed in 3.0.
+
+  Ref #6713
+
 * ``interfaces.implements`` has been deprecated and will be removed in 3.0. Please use standard inheritance
   patterns instead of ``__implements__``.
 
   Ref #2287
-
-* ``pyreverse``: Resolving and displaying implemented interfaces that are defined by the ``__implements__``
-  attribute has been deprecated and will be removed in 3.0.
 
 * ``invalid-enum-extension``: Used when a class tries to extend an inherited Enum class.
 
