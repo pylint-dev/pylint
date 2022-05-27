@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 from io import StringIO
 from pathlib import Path
 
