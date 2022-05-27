@@ -31,7 +31,7 @@ def _config_initialization(
 
     # Set the current module to the configuration file
     # to allow raising messages on the configuration file.
-    linter.set_current_module(str(config_file) if config_file else None)
+    linter.set_current_module(str(config_file) if config_file else "")
 
     # Read the configuration file
     config_file_parser = _ConfigurationFileParser(verbose_mode, linter)
@@ -85,7 +85,7 @@ def _config_initialization(
 
     # Now that config file and command line options have been loaded
     # with all disables, it is safe to emit messages
-    linter.set_current_module(str(config_file) if config_file else None)
+    linter.set_current_module(str(config_file) if config_file else "")
     if unrecognized_options_message is not None:
         linter.add_message(
             "unrecognized-option", args=unrecognized_options_message, line=0
