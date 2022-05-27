@@ -19,4 +19,6 @@ class Magenta(Colour):
 
 
 def is_primary_color(colour: Colour) -> bool:
-    return isinstance(colour, (Red, Blue, Green))
+    return (
+        isinstance(colour, Red) or isinstance(colour, Blue) or isinstance(colour, Green)
+    )  # [consider-merging-isinstance]
