@@ -110,7 +110,7 @@ def test_interfaces() -> None:
         ("Concrete0", ["MyIFace"]),
         ("Concrete1", ["MyIFace", "AnotherIFace"]),
         ("Concrete2", ["MyIFace", "AnotherIFace"]),
-        ("Concrete23", ["MyIFace", "AnotherIFace"]),
+        ("Concrete23", []),
     ):
         klass = module[klass]
         assert [i.name for i in inspector.interfaces(klass)] == interfaces
