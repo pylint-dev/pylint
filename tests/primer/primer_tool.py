@@ -20,7 +20,7 @@ PACKAGES_TO_PRIME_PATH = Path(__file__).parent / "packages_to_prime.json"
 class Primer:
     """Main class to handle priming of packages."""
 
-    def __init__(self, package_list: Path) -> None:
+    def __init__(self, json_path: Path) -> None:
         # Preparing arguments
         self._argument_parser = argparse.ArgumentParser(prog="Pylint Primer")
         self._subparsers = self._argument_parser.add_subparsers(dest="command")
@@ -52,7 +52,7 @@ class Primer:
         # Storing arguments
         self.config = self._argument_parser.parse_args()
 
-        self.packages = self._get_packages_to_lint_from_json(package_list)
+        self.packages = self._get_packages_to_lint_from_json(json_path)
         """All packages to prime."""
 
     def run(self) -> None:
