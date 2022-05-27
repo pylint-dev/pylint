@@ -2,7 +2,8 @@
   "astroid": {
     "branch": "main",
     "directories": ["astroid"],
-    "url": "https://github.com/PyCQA/astroid"
+    "url": "https://github.com/PyCQA/astroid",
+    "pylintrc_relpath": "pylintrc"
   },
   "black": {
     "branch": "main",
