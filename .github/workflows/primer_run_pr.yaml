@@ -111,7 +111,7 @@ jobs:
                archive_format: "zip",
             });
             fs.writeFileSync("primer_output_main.zip", Buffer.from(downloadWorkflowTwo.data));
-            return lastRunMain.head_sha
+            return lastRunMain.head_sha;
       - name: Copy and unzip the commit string
         run: |
           unzip primer_commitstring.zip
