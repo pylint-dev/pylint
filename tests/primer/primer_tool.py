@@ -53,7 +53,7 @@ class Primer:
             default=False,
         )
 
-        # All arguments for the prepare parser
+        # All arguments for the run parser
         run_parser = self._subparsers.add_parser("run")
         run_parser.add_argument(
             "--type", choices=["main", "pr"], required=True, help="Type of primer run."
@@ -101,9 +101,6 @@ class Primer:
                 f.write(commit_string)
 
     def _handle_run_command(self) -> None:
-        if Path(PRIMER_DIRECTORY / f"output_{self.config.type}.txt").exists():
-            os.remove(PRIMER_DIRECTORY / f"output_{self.config.type}.txt")
-
         packages: dict[str, list[dict[str, str | int]]] = {}
 
         for package, data in self.packages.items():
@@ -112,7 +109,7 @@ class Primer:
             print(f"Successfully primed {package}.")
 
         with open(
-            PRIMER_DIRECTORY / f"output_{self.config.type}.txt", "a", encoding="utf-8"
+            PRIMER_DIRECTORY / f"output_{self.config.type}.txt", "w", encoding="utf-8"
         ) as f:
             json.dump(packages, f)
 
