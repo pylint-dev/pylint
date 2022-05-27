@@ -12,6 +12,7 @@ from __future__ import annotations
 import collections
 import os
 import traceback
+import warnings
 from collections.abc import Generator
 from typing import Any, Callable, Optional
 
@@ -184,7 +185,16 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         # resolve implemented interface
         try:
             ifaces = interfaces(node)
-            node.implements = list(ifaces) if ifaces is not None else []
+            if ifaces is not None:
+                node.implements = list(ifaces)
+                warnings.warn(
+                    "pyreverse will drop support for resolving and displaying implemented interfaces in pylint 3.0. "
+                    "The implementation relies on the '__implements__'  attribute proposed in PEP 245, which was rejected "
+                    "in 2006.",
+                    DeprecationWarning,
+                )
+            else:
+                node.implements = []
         except astroid.InferenceError:
             node.implements = []
 

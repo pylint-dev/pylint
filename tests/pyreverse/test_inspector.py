@@ -130,3 +130,18 @@ def test_project_node(project: Project) -> None:
         "data.suppliermodule_test",
     ]
     assert sorted(project.keys()) == expected
+
+
+def test_interface_deprecation(project: Project) -> None:
+    linker = inspector.Linker(project)
+    cls = astroid.extract_node(
+        '''
+        class IMachin: pass
+
+        class Concrete:  #@
+            """docstring"""
+            __implements__ = (IMachin,)
+    '''
+    )
+    with pytest.warns(DeprecationWarning):
+        linker.visit_classdef(cls)

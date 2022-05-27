@@ -383,6 +383,9 @@ Deprecations
 
   Ref #5392
 
+* ``pyreverse``: Resolving and displaying implemented interfaces that are defined by the ``__implements__``
+  attribute has been deprecated and will be removed in 3.0.
+
 * ``is_class_subscriptable_pep585_with_postponed_evaluation_enabled`` has been deprecated.
   Use ``is_postponed_evaluation_enabled(node) and is_node_in_type_annotation_context(node)``
   instead.
