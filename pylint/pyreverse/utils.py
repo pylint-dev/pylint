@@ -218,7 +218,7 @@ def infer_node(node: nodes.AssignAttr | nodes.AssignName) -> set[Any]:
     ann = get_annotation(node)
     try:
         if ann:
-            if isinstance(ann, nodes.Subscript):
+            if isinstance(ann, (nodes.Subscript, nodes.BinOp)):
                 return {ann}
             return set(ann.infer())
         return set(node.infer())

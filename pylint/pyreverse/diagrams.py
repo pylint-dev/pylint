@@ -159,7 +159,9 @@ class ClassDiagram(Figure, FilterMixIn):
             if isinstance(node, astroid.Instance):
                 node = node._proxied
             if (
-                isinstance(node, (nodes.ClassDef, nodes.Name, nodes.Subscript))
+                isinstance(
+                    node, (nodes.ClassDef, nodes.Name, nodes.Subscript, nodes.BinOp)
+                )
                 and hasattr(node, "name")
                 and not self.has_node(node)
             ):
