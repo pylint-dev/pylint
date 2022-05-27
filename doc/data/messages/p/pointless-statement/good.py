@@ -1,1 +1,3 @@
-# This is a placeholder for correct code for this message.
+NUMBERS = [1, 2, 3]
+
+print(NUMBERS)
