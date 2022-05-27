@@ -97,8 +97,8 @@ jobs:
             fs.writeFileSync("primer_commitstring.zip", Buffer.from(downloadWorkflow.data));
       - name: Copy and unzip the commit string
         run: |
-          cp primer_commitstring.zip .pylint_primer_tests/primer_commitstring.zip
-          unzip .pylint_primer_tests/primer_commitstring.zip
+          unzip primer_commitstring.zip
+          cp commit_string.txt .pylint_primer_tests/commit_string.txt
       - name: Get commit string
         id: commitstring
         run: |
