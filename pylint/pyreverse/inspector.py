@@ -187,6 +187,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             ifaces = interfaces(node)
             if ifaces is not None:
                 node.implements = list(ifaces)
+                # TODO: 3.0: Remove support for __implements__
                 warnings.warn(
                     "pyreverse will drop support for resolving and displaying implemented interfaces in pylint 3.0. "
                     "The implementation relies on the '__implements__'  attribute proposed in PEP 245, which was rejected "
