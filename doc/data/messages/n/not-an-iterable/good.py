@@ -1,1 +1,2 @@
-# This is a placeholder for correct code for this message.
+for i in [1, 0]:
+    pass
