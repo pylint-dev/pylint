@@ -13,7 +13,7 @@ repos:
     rev: v1.4
     hooks:
       - id: autoflake
-        exclude: &fixtures tests/functional/|tests/input|doc/data/messages|tests(/\w*)*data/
+        exclude: &fixtures tests(/\w*)*/functional/|tests/input|doc/data/messages|tests(/\w*)*data/
         args:
           - --in-place
           - --remove-all-unused-imports
