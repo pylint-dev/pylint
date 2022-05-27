@@ -93,7 +93,7 @@ def _config_initialization(
 
     linter._emit_bad_option_value()
 
-    # Set the current module to include command line as we don't know where
+    # Set the current module to configuration as we don't know where
     # the --load-plugins key is coming from
     linter.set_current_module("Command line or configuration file")
 
