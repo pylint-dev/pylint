@@ -1,22 +1,4 @@
-class Colour:
-    ...
+from typing import Any
 
-
-class Red(Colour):
-    ...
-
-
-class Green(Colour):
-    ...
-
-
-class Blue(Colour):
-    ...
-
-
-class Magenta(Colour):
-    ...
-
-
-def is_primary_color(colour: Colour) -> bool:
-    return isinstance(colour, (Red, Blue, Green))
+def is_number(value: Any) -> bool:
+    return isinstance(value, (int, float))
