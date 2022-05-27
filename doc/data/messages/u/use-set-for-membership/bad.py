@@ -1,2 +1,3 @@
-def is_a_fruit_a_cat_could_eat(fruit: str) -> bool:
-    return fruit not in ["cherry", "grapes"]  # [use-set-for-membership]
+def fruit_is_dangerous_for_cat(fruit: str) -> bool:
+    """This list is only a silly example, don't make decision regarding your cat diet based on it."""
+    return fruit in ["cherry", "grapes"]  # [use-set-for-membership]
