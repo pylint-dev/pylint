@@ -54,6 +54,7 @@ class _MessageStateHandler:
             "enable-msg": self._options_methods["enable"],
         }
         self._pragma_lineno: dict[str, int] = {}
+        # TODO: 3.0: Update key type to str when current_name is always str
         self._stashed_bad_option_value_messages: defaultdict[
             str | None, list[tuple[str | None, str]]
         ] = defaultdict(list)
