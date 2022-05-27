@@ -1196,3 +1196,12 @@ class PyLinter(
                 message_definition.msgid,
                 line,
             )
+
+    def _emit_bad_option_value(self) -> None:
+        for modname in self._stashed_bad_option_value_messages:
+            self.linter.set_current_module(modname)
+            values = self._stashed_bad_option_value_messages[modname]
+            for option_string, msg_id in values:
+                msg = f"{option_string}. Don't recognize message {msg_id}."
+                self.add_message("bad-option-value", args=msg, line=0)
+        self._stashed_bad_option_value_messages = collections.defaultdict(list)
