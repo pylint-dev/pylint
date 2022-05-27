@@ -128,8 +128,8 @@ def _is_a_return_statement(node: nodes.Call) -> bool:
 
 
 def _is_part_of_with_items(node: nodes.Call) -> bool:
-    """Checks if one of the node's parents is a ``nodes.With`` node and that the node itself is located
-    somewhere under its ``items``.
+    """Checks if one of the node's parents is a ``nodes.With`` node and that the node
+    itself is located somewhere under its ``items``.
     """
     frame = node.frame(future=True)
     current = node
@@ -143,8 +143,8 @@ def _is_part_of_with_items(node: nodes.Call) -> bool:
 
 
 def _will_be_released_automatically(node: nodes.Call) -> bool:
-    """Checks if a call that could be used in a ``with`` statement is used in an alternative
-    construct which would ensure that its __exit__ method is called.
+    """Checks if a call that could be used in a ``with`` statement is used in an
+    alternative construct which would ensure that its __exit__ method is called.
     """
     callables_taking_care_of_exit = frozenset(
         (
@@ -400,7 +400,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "R1729": (
             "Use a generator instead '%s(%s)'",
             "use-a-generator",
-            "Comprehension inside of 'any' or 'all' is unnecessary. "
+            "Comprehension inside of 'any', 'all', 'max', 'min' or 'sum' is unnecessary. "
             "A generator would be sufficient and faster.",
         ),
         "R1730": (
@@ -987,9 +987,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 self.add_message(message_name, node=node)
 
     def _check_consider_using_generator(self, node):
-        # 'any' and 'all' definitely should use generator, while 'list' and 'tuple' need to be considered first
+        # 'any', 'all', definitely should use generator, while 'list', 'tuple',
+        # 'sum', 'max', and 'min' need to be considered first
         # See https://github.com/PyCQA/pylint/pull/3309#discussion_r576683109
-        checked_call = ["any", "all", "list", "tuple"]
+        # https://github.com/PyCQA/pylint/pull/6595#issuecomment-1125704244
+        # and https://peps.python.org/pep-0289/
+        checked_call = ["any", "all", "sum", "max", "min", "list", "tuple"]
         if (
             isinstance(node, nodes.Call)
             and node.func
@@ -1700,7 +1703,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         Args:
             node (nodes.FunctionDef): the function holding the return statements.
-
         """
         # explicit return statements are those with a not None value
         explicit_returns = [
@@ -1785,7 +1787,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         Returns:
             bool: True if the node ends with an explicit statement, False otherwise.
-
         """
         # Recursion base case
         if isinstance(node, nodes.Return):
@@ -1993,6 +1994,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             not isinstance(node.iter, nodes.Call)
             or not isinstance(node.iter.func, nodes.Name)
             or not node.iter.func.name == "enumerate"
+            or not node.iter.args
             or not isinstance(node.iter.args[0], nodes.Name)
         ):
             return

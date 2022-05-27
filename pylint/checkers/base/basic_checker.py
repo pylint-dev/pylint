@@ -30,7 +30,9 @@ else:
 
 
 class _BasicChecker(BaseChecker):
-    """Permits separating multiple checks with the same checker name into classes/file."""
+    """Permits separating multiple checks with the same checker name into
+    classes/file.
+    """
 
     name = "basic"
 
@@ -312,7 +314,7 @@ class BasicChecker(_BasicChecker):
             inferred = utils.safe_infer(test)
 
         if emit:
-            self.add_message("using-constant-test", node=node)
+            self.add_message("using-constant-test", node=test)
         elif isinstance(inferred, const_nodes):
             # If the constant node is a FunctionDef or Lambda then
             # it may be an illicit function call due to missing parentheses
@@ -329,12 +331,12 @@ class BasicChecker(_BasicChecker):
                     for inf_call in call_inferred:
                         if inf_call != astroid.Uninferable:
                             self.add_message(
-                                "missing-parentheses-for-call-in-test", node=node
+                                "missing-parentheses-for-call-in-test", node=test
                             )
                             break
                 except astroid.InferenceError:
                     pass
-            self.add_message("using-constant-test", node=node)
+            self.add_message("using-constant-test", node=test)
 
     def visit_module(self, _: nodes.Module) -> None:
         """Check module name, docstring and required arguments."""

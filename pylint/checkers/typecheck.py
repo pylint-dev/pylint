@@ -34,6 +34,7 @@ from pylint.checkers.utils import (
     is_inside_abstract_class,
     is_iterable,
     is_mapping,
+    is_node_in_type_annotation_context,
     is_overload_stub,
     is_postponed_evaluation_enabled,
     is_super,
@@ -1039,6 +1040,11 @@ accessed. Python regular expressions are accepted.",
         ):
             return
 
+        if is_postponed_evaluation_enabled(node) and is_node_in_type_annotation_context(
+            node
+        ):
+            return
+
         try:
             inferred = list(node.expr.infer())
         except astroid.InferenceError:
@@ -1176,7 +1182,9 @@ accessed. Python regular expressions are accepted.",
         self._check_dundername_is_string(node)
 
     def _check_assignment_from_function_call(self, node: nodes.Assign) -> None:
-        """When assigning to a function call, check that the function returns a valid value."""
+        """When assigning to a function call, check that the function returns a valid
+        value.
+        """
         if not isinstance(node.value, nodes.Call):
             return
 

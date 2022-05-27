@@ -10,6 +10,11 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.14.rst'
 
+* The refactoring checker now also raises 'consider-using-a-generator' messages for
+  ``max()``, ``min()`` and ``sum()``.
+
+  Refs #6595
+
 * We have improved our recognition of inline disable and enable comments. It is
   now possible to disable ``bad-option-value`` inline  (as long as you disable it before
   the bad option value is raised, i.e. ``disable=bad-option-value,bad-message`` not ``disable=bad-message,bad-option-value`` ) as well as certain other previously unsupported messages.
@@ -19,6 +24,10 @@ Release date: TBA
 * Added new checker ``comparison-of-constants``.
 
   Closes #6076
+
+* Fix ``unexpected-special-method-signature`` false positive for ``__init_subclass__`` methods with one or more arguments.
+
+  Closes #6644
 
 * Started ignoring underscore as a local variable for ``too-many-locals``.
 
@@ -45,6 +54,10 @@ Release date: TBA
 
   Closes #5467
 
+* Don't report ``useless-super-delegation`` for the ``__hash__`` method in classes that also override the ``__eq__`` method.
+
+  Closes #3934
+
 * Added new checker ``typevar-name-mismatch``: TypeVar must be assigned to a variable with the same name as its name argument.
 
   Closes #5224
@@ -65,6 +78,10 @@ Release date: TBA
   inside a call.
 
   Closes #6372
+
+* Fixed a crash in the ``unused-private-member`` checker involving chained private attributes.
+
+  Closes #6709
 
 * Fixed failure to enable ``deprecated-module`` after a ``disable=all``
   by making ``ImportsChecker`` solely responsible for emitting ``deprecated-module`` instead
@@ -159,6 +176,15 @@ Release date: TBA
   be removed in a future release.
 
   Ref #5392
+
+* ``pylint.pyreverse.ASTWalker`` has been removed, as it was only used internally by a single child class.
+
+  Ref #6712
+
+* ``pyreverse``: Resolving and displaying implemented interfaces that are defined by the ``__implements__``
+  attribute has been deprecated and will be removed in 3.0.
+
+  Ref #6713
 
 * ``interfaces.implements`` has been deprecated and will be removed in 3.0. Please use standard inheritance
   patterns instead of ``__implements__``.
@@ -304,10 +330,31 @@ Release date: TBA
 
   Closes #4369 and #6523
 
+* Fix pyreverse crash ``RuntimeError: dictionary changed size during iteration``
+
+  Relates to #6612
+
+* Fix syntax for return type annotations in MermaidJS diagrams produced with ``pyreverse``.
+
+  Closes #6467
+
+* Fix bug where it writes a plain text error message to stdout, invalidating output formats.
+
+  Closes #6597
+
 * ``is_class_subscriptable_pep585_with_postponed_evaluation_enabled`` has been deprecated.
-  Use ``subscriptable_with_postponed_evaluation_enabled`` instead.
+  Use ``is_postponed_evaluation_enabled(node) and is_node_in_type_annotation_context(node)``
+  instead.
 
   Ref #6536
+
+* Update ranges for ``using-constant-test`` and ``missing-parentheses-for-call-in-test``
+  error messages.
+
+* Don't emit ``no-member`` inside type annotations with
+  ``from __future__ import annotations``.
+
+  Closes #6594
 
 ..
   Insert your changelog randomly, it will reduce merge conflicts
@@ -316,8 +363,12 @@ Release date: TBA
 
 What's New in Pylint 2.13.9?
 ============================
-Release date: TBA
+Release date: 2022-05-13
 
+
+* Respect ignore configuration options with ``--recursive=y``.
+
+  Closes #6471
 
 * Fix false positives for ``no-name-in-module`` and ``import-error`` for ``numpy.distutils`` and ``pydantic``.
 
@@ -334,6 +385,10 @@ Release date: TBA
 * Fix a crash when accessing ``__code__`` and assigning it to a variable.
 
   Closes #6539
+
+* Fix a false positive for ``undefined-loop-variable`` when using ``enumerate()``.
+
+  Closes #6593
 
 
 What's New in Pylint 2.13.8?

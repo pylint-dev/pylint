@@ -139,3 +139,10 @@ def variable_name_assigned_in_body_of_second_loop():
         alias = True
         if alias:
             print(alias)
+
+
+def use_enumerate():
+    """https://github.com/PyCQA/pylint/issues/6593"""
+    for i, num in enumerate(range(3)):
+        pass
+    print(i, num)

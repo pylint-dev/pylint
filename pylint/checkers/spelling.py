@@ -89,7 +89,6 @@ class RegExFilter(Filter):
 
     This filter skips any words the match the expression
     assigned to the class attribute ``_pattern``.
-
     """
 
     _pattern: Pattern[str]
@@ -122,7 +121,9 @@ class SphinxDirectives(RegExFilter):
 
 
 class ForwardSlashChunker(Chunker):
-    """This chunker allows splitting words like 'before/after' into 'before' and 'after'."""
+    """This chunker allows splitting words like 'before/after' into 'before' and
+    'after'.
+    """
 
     def next(self):
         while True:

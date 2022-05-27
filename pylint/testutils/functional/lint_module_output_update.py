@@ -16,7 +16,9 @@ from pylint.testutils.output_line import OutputLine
 
 
 class LintModuleOutputUpdate(LintModuleTest):
-    """Class to be used if expected output files should be updated instead of checked."""
+    """Class to be used if expected output files should be updated instead of
+    checked.
+    """
 
     class TestDialect(csv.excel):
         """Dialect used by the csv writer."""

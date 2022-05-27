@@ -10,7 +10,7 @@ import re
 import sys
 from typing import TYPE_CHECKING
 
-from pylint import interfaces
+from pylint import constants, interfaces
 from pylint.config.callback_actions import (
     _DisableAction,
     _DoNothingAction,
@@ -44,7 +44,7 @@ def _make_linter_options(linter: PyLinter) -> Options:
                 "metavar": "<file>[,<file>...]",
                 "dest": "black_list",
                 "kwargs": {"old_names": ["black_list"]},
-                "default": ("CVS",),
+                "default": constants.DEFAULT_IGNORE_LIST,
                 "help": "Files or directories to be skipped. "
                 "They should be base names, not paths.",
             },

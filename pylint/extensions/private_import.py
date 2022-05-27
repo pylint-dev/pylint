@@ -114,7 +114,9 @@ class PrivateImportChecker(BaseChecker):
     def _get_type_annotation_names(
         self, node: nodes.Import | nodes.ImportFrom, names: list[str]
     ) -> list[str]:
-        """Removes from names any names that are used as type annotations with no other illegal usages."""
+        """Removes from names any names that are used as type annotations with no other
+        illegal usages.
+        """
         if names and not self.populated_annotations:
             self._populate_type_annotations(node.root(), self.all_used_type_annotations)
             self.populated_annotations = True
@@ -132,8 +134,8 @@ class PrivateImportChecker(BaseChecker):
     def _populate_type_annotations(
         self, node: nodes.LocalsDictNodeNG, all_used_type_annotations: dict[str, bool]
     ) -> None:
-        """Adds into the dict `all_used_type_annotations` the names of all names ever used as a type annotation
-        in the scope and nested scopes of node and whether these names are only used for type checking.
+        """Adds to `all_used_type_annotations` all names ever used as a type annotation
+        in the node's (nested) scopes and whether they are only used as annotation.
         """
         for name in node.locals:
             # If we find a private type annotation, make sure we do not mask illegal usages
@@ -170,8 +172,8 @@ class PrivateImportChecker(BaseChecker):
     def _populate_type_annotations_function(
         self, node: nodes.FunctionDef, all_used_type_annotations: dict[str, bool]
     ) -> None:
-        """Adds into the dict `all_used_type_annotations` the names of all names used as a type annotation
-        in the arguments and return type of the function node.
+        """Adds all names used as type annotation in the arguments and return type of
+        the function node into the dict `all_used_type_annotations`.
         """
         if node.args and node.args.annotations:
             for annotation in node.args.annotations:

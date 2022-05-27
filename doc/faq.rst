@@ -6,29 +6,13 @@
 Frequently Asked Questions
 ==========================
 
-1. About Pylint
-===============
-
-1.1 What is Pylint?
---------------------
-
-Pylint is a `static code checker`_, meaning it can analyse your code without
-actually running it. Pylint checks for errors, tries to enforce a coding
-standard, and tries to enforce a coding style.
-
-.. _`static code checker`: https://en.wikipedia.org/wiki/Static_code_analysis
-
-
-2. Installation
-===============
-
-2.1 How do I install Pylint?
-----------------------------
+How do I install Pylint?
+------------------------
 
 Everything should be explained on :ref:`installation`.
 
-2.2 What kind of versioning system does Pylint use?
----------------------------------------------------
+What kind of versioning system does Pylint use?
+-----------------------------------------------
 
 Pylint uses git. To get the latest version of Pylint from the repository, simply invoke ::
 
@@ -36,53 +20,11 @@ Pylint uses git. To get the latest version of Pylint from the repository, simply
 
 .. _git: https://git-scm.com/
 
-2.3 What are Pylint's dependencies?
------------------------------------
-
-Pylint depends on astroid_ and a couple of other packages.
-See the following section for details on what versions of Python are
-supported.
-
-.. _`astroid`: https://github.com/PyCQA/astroid
-
-2.4 What versions of Python is Pylint supporting?
--------------------------------------------------
-
-The supported running environment since Pylint 2.14.0 is Python 3.7.2+.
-
 
 3. Running Pylint
 =================
 
-3.1 Can I give pylint a file as an argument instead of a module?
-----------------------------------------------------------------
-
-Pylint expects the name of a package or module as its argument. As a
-convenience, you can give it a file name if it's possible to guess a module name from
-the file's path using the python path. Some examples:
-
-"pylint mymodule.py" should always work since the current working
-directory is automatically added on top of the python path
-
-"pylint directory/mymodule.py" will work if "directory" is a python
-package (i.e. has an __init__.py file), an implicit namespace package
-or if "directory" is in the python path.
-
-"pylint /whatever/directory/mymodule.py" will work if either:
-
-    - "/whatever/directory" is in the python path
-
-    - your cwd is "/whatever/directory"
-
-    - "directory" is a python package and "/whatever" is in the python
-          path
-
-        - "directory" is an implicit namespace package and is in the python path.
-
-    - "directory" is a python package and your cwd is "/whatever" and so
-          on...
-
-3.2 Where is the persistent data stored to compare between successive runs?
+3.1 Where is the persistent data stored to compare between successive runs?
 ---------------------------------------------------------------------------
 
 Analysis data are stored as a pickle file in a directory which is
@@ -101,7 +43,7 @@ localized using the following rules:
 * ".pylint.d" directory in the current directory
 
 
-3.3 How do I find the option name corresponding to a specific command line option?
+3.2 How do I find the option name corresponding to a specific command line option?
 ----------------------------------------------------------------------------------
 
 You can generate a sample configuration file with ``--generate-toml-config``.
@@ -111,33 +53,6 @@ the toml file
 For example::
 
     pylint --disable=bare-except,invalid-name --class-rgx='[A-Z][a-z]+' --generate-toml-config
-
-3.4 I'd rather not run Pylint from the command line. Can I integrate it with my editor?
----------------------------------------------------------------------------------------
-
-Much probably. Read :ref:`ide-integration`
-
-3.5 I need to run pylint over all modules and packages in my project directory.
--------------------------------------------------------------------------------
-
-By default the ``pylint`` command only accepts a list of python modules and packages. Using a
-directory which is not a package results in an error::
-
-    pylint mydir
-    ************* Module mydir
-    mydir/__init__.py:1:0: F0010: error while code parsing: Unable to load file mydir/__init__.py:
-    [Errno 2] No such file or directory: 'mydir/__init__.py' (parse-error)
-
-To execute pylint over all modules and packages under the directory, the ``--recursive=y`` option must
-be provided. This option makes ``pylint`` attempt to discover all modules (files ending with ``.py`` extension)
-and all packages (all directories containing a ``__init__.py`` file).
-Those modules and packages are then analyzed::
-
-    pylint --recursive=y mydir
-
-When ``--recursive=y`` option is used, modules and packages are also accepted as parameters::
-
-    pylint --recursive=y mydir mymodule mypackage
 
 4. Message Control
 ==================
@@ -232,7 +147,7 @@ Alternatively, if you use ``pyproject.toml``, e.g.
     ]
 
 See also the :ref:`exhaustive list of possible options
-<user_guide/configuration/all-options:all pylint options>`.
+<all-configurations-options>`.
 
 4.7 Why are there a bunch of messages disabled by default?
 ----------------------------------------------------------
@@ -242,7 +157,7 @@ they are prone to false positives or that they are opinionated enough
 for not being included as default messages.
 
 You can see the plugin you need to explicitly :ref:`load in the technical reference
-<technical_reference/extensions:optional pylint checkers in the extensions module>`.
+<user_guide/checkers/extensions:optional checkers>`.
 
 4.8 I am using another popular linter alongside pylint. Which messages should I disable to avoid duplicates?
 ------------------------------------------------------------------------------------------------------------
@@ -303,13 +218,3 @@ Pylint, you can set ``evaluation`` to the above expression to get the new
 behavior. Likewise, since negative values are still technically supported,
 ``evaluation`` can be set to a version of the above expression that does not
 enforce a floor of zero.
-
-6.2 I think I found a bug in Pylint. What should I do?
--------------------------------------------------------
-
-Read :ref:`Bug reports, feedback`
-
-6.3 I have a question about Pylint that isn't answered here.
-------------------------------------------------------------
-
-Read :ref:`Mailing lists`

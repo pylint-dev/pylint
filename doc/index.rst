@@ -1,28 +1,53 @@
 
-Pylint User Manual
-==================
-
-Pylint is a tool that checks for errors in Python code, tries to enforce a
-coding standard and looks for code smells. It can also look for certain type
-errors, it can recommend suggestions about how particular blocks can be
-refactored and can offer you details about the code's complexity.
-
+.. include:: ../README.rst
 
 .. toctree::
-   :maxdepth: 2
    :titlesonly:
+   :hidden:
 
-   intro
    tutorial
 
-   user_guide/index.rst
-   how_tos/index.rst
-   messages/index.rst
-   technical_reference/index.rst
-   development_guide/index.rst
-   additional_commands/index.rst
+.. toctree::
+   :caption: User Guide
+   :titlesonly:
+   :hidden:
+
+   user_guide/installation/index
+   user_guide/usage/index
+   user_guide/messages/index
+   user_guide/configuration/index
+   user_guide/checkers/index
+
+.. toctree::
+   :caption: Developer Guide
+   :maxdepth: 2
+   :titlesonly:
+   :hidden:
+
+   development_guide/api/index
+   development_guide/how_tos/index.rst
+   development_guide/technical_reference/index.rst
+   development_guide/contributor_guide/index
+
+.. toctree::
+   :caption: Additional tools
+   :titlesonly:
+   :hidden:
+
+   pyreverse
+   symilar
+
+.. toctree::
+   :caption: Changelog
+   :titlesonly:
+   :hidden:
+
+   whatsnew/index.rst
+
+.. toctree::
+   :caption: Support
+   :titlesonly:
+   :hidden:
 
    faq
-   backlinks
-   support
-   whatsnew/index.rst
+   contact

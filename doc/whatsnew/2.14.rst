@@ -165,6 +165,10 @@ Other Changes
 
   Closes #6372
 
+* Fixed a crash in the ``unused-private-member`` checker involving chained private attributes.
+
+  Closes #6709
+
 * Disable spellchecking of mypy rule names in ignore directives.
 
   Closes #5929
@@ -215,6 +219,9 @@ Other Changes
 
 * The ``set_config_directly`` decorator has been removed.
 
+* Don't report ``useless-super-delegation`` for the ``__hash__`` method in classes that also override the ``__eq__`` method.
+
+  Closes #3934
 
 * Fix falsely issuing ``useless-suppression`` on the ``wrong-import-position`` checker.
 
@@ -249,10 +256,34 @@ Other Changes
 
   Closes #4369 and #6523
 
-* ``is_class_subscriptable_pep585_with_postponed_evaluation_enabled`` has been deprecated.
-  Use ``subscriptable_with_postponed_evaluation_enabled`` instead.
+* Fix pyreverse crash ``RuntimeError: dictionary changed size during iteration``
 
-  Ref #6536
+  Relates to #6612
+
+* Fix syntax for return type annotations in MermaidJS diagrams produced with ``pyreverse``.
+
+  Closes #6467
+
+* Fix bug where it writes a plain text error message to stdout, invalidating output formats.
+
+  Closes #6597
+
+* The refactoring checker now also raises 'consider-using-a-generator' messages for
+  ``max()``, ``min()`` and ``sum()``.
+
+  Refs #6595
+
+* Update ranges for ``using-constant-test`` and ``missing-parentheses-for-call-in-test``
+  error messages.
+
+* Don't emit ``no-member`` inside type annotations with
+  ``from __future__ import annotations``.
+
+  Closes #6594
+
+* Fix ``unexpected-special-method-signature`` false positive for ``__init_subclass__`` methods with one or more arguments.
+
+  Closes #6644
 
 
 Deprecations
@@ -355,3 +386,18 @@ Deprecations
   be removed in a future release.
 
   Ref #5392
+
+* ``pylint.pyreverse.ASTWalker`` has been removed, as it was only used internally by a single child class.
+
+  Ref #6712
+
+* ``pyreverse``: Resolving and displaying implemented interfaces that are defined by the ``__implements__``
+  attribute has been deprecated and will be removed in 3.0.
+
+  Ref #6713
+
+* ``is_class_subscriptable_pep585_with_postponed_evaluation_enabled`` has been deprecated.
+  Use ``is_postponed_evaluation_enabled(node) and is_node_in_type_annotation_context(node)``
+  instead.
+
+  Ref #6536

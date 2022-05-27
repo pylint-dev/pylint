@@ -42,27 +42,31 @@ def _get_checkers_infos(linter: PyLinter) -> dict[str, dict[str, Any]]:
     return by_checker
 
 
-def _get_checkers_documentation(linter: PyLinter) -> str:
-    """Get documentation for individual checkers."""
+def _get_global_options_documentation(linter: PyLinter) -> str:
+    """Get documentation for the main checker."""
     result = get_rst_title("Pylint global options and switches", "-")
     result += """
 Pylint provides global options and switches.
 
 """
     for checker in linter.get_checkers():
-        name = checker.name
-        if name == MAIN_CHECKER_NAME:
-            if checker.options:
-                with warnings.catch_warnings():
-                    warnings.filterwarnings("ignore", category=DeprecationWarning)
-                    for section, options in checker.options_by_section():
-                        if section is None:
-                            title = "General options"
-                        else:
-                            title = f"{section.capitalize()} options"
-                        result += get_rst_title(title, "~")
-                        assert isinstance(options, list)
-                        result += f"{get_rst_section(None, options)}\n"
+        if checker.name == MAIN_CHECKER_NAME and checker.options:
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=DeprecationWarning)
+                for section, options in checker.options_by_section():
+                    if section is None:
+                        title = "General options"
+                    else:
+                        title = f"{section.capitalize()} options"
+                    result += get_rst_title(title, "~")
+                    assert isinstance(options, list)
+                    result += f"{get_rst_section(None, options)}\n"
+    return result
+
+
+def _get_checkers_documentation(linter: PyLinter) -> str:
+    """Get documentation for individual checkers."""
+    result = _get_global_options_documentation(linter)
     result += get_rst_title("Pylint checkers' options and switches", "-")
     result += """\
 
@@ -86,4 +90,4 @@ Below is a list of all checkers and their features.
 
 def print_full_documentation(linter: PyLinter, stream: TextIO = sys.stdout) -> None:
     """Output a full documentation in ReST format."""
-    print(_get_checkers_documentation(linter)[:-1], file=stream)
+    print(_get_checkers_documentation(linter)[:-3], file=stream)

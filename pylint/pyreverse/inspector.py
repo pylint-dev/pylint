@@ -6,22 +6,28 @@
 
 Try to resolve definitions (namespace) dictionary, relationship...
 """
+
+from __future__ import annotations
+
 import collections
 import os
 import traceback
+import warnings
+from collections.abc import Generator
+from typing import Any, Callable, Optional
 
 import astroid
 from astroid import nodes
 
+from pylint import constants
 from pylint.pyreverse import utils
 
-
-def _iface_hdlr(_):
-    """Handler used by interfaces to handle suspicious interface nodes."""
-    return True
+_WrapperFuncT = Callable[[Callable[[str], nodes.Module], str], Optional[nodes.Module]]
 
 
-def _astroid_wrapper(func, modname):
+def _astroid_wrapper(
+    func: Callable[[str], nodes.Module], modname: str
+) -> nodes.Module | None:
     print(f"parsing {modname}...")
     try:
         return func(modname)
@@ -32,13 +38,13 @@ def _astroid_wrapper(func, modname):
     return None
 
 
-def interfaces(node, herited=True, handler_func=_iface_hdlr):
+def interfaces(node: nodes.ClassDef) -> Generator[Any, None, None]:
     """Return an iterator on interfaces implemented by the given class node."""
     try:
         implements = astroid.bases.Instance(node).getattr("__implements__")[0]
     except astroid.exceptions.NotFoundError:
         return
-    if not herited and implements.frame(future=True) is not node:
+    if implements.frame(future=True) is not node:
         return
     found = set()
     missing = False
@@ -46,7 +52,7 @@ def interfaces(node, herited=True, handler_func=_iface_hdlr):
         if iface is astroid.Uninferable:
             missing = True
             continue
-        if iface not in found and handler_func(iface):
+        if iface not in found:
             found.add(iface)
             yield iface
     if missing:
@@ -56,14 +62,14 @@ def interfaces(node, herited=True, handler_func=_iface_hdlr):
 class IdGeneratorMixIn:
     """Mixin adding the ability to generate integer uid."""
 
-    def __init__(self, start_value=0):
+    def __init__(self, start_value: int = 0) -> None:
         self.id_count = start_value
 
-    def init_counter(self, start_value=0):
+    def init_counter(self, start_value: int = 0) -> None:
         """Init the id counter."""
         self.id_count = start_value
 
-    def generate_id(self):
+    def generate_id(self) -> int:
         """Generate a new identifier."""
         self.id_count += 1
         return self.id_count
@@ -72,29 +78,29 @@ class IdGeneratorMixIn:
 class Project:
     """A project handle a set of modules / packages."""
 
-    def __init__(self, name=""):
+    def __init__(self, name: str = ""):
         self.name = name
-        self.uid = None
-        self.path = None
-        self.modules = []
-        self.locals = {}
+        self.uid: int | None = None
+        self.path: str = ""
+        self.modules: list[nodes.Module] = []
+        self.locals: dict[str, nodes.Module] = {}
         self.__getitem__ = self.locals.__getitem__
         self.__iter__ = self.locals.__iter__
         self.values = self.locals.values
         self.keys = self.locals.keys
         self.items = self.locals.items
 
-    def add_module(self, node):
+    def add_module(self, node: nodes.Module) -> None:
         self.locals[node.name] = node
         self.modules.append(node)
 
-    def get_module(self, name):
+    def get_module(self, name: str) -> nodes.Module:
         return self.locals[name]
 
-    def get_children(self):
+    def get_children(self) -> list[nodes.Module]:
         return self.modules
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<Project {self.name!r} at {id(self)} ({len(self.modules)} modules)>"
 
 
@@ -121,11 +127,9 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
       list of implemented interface _objects_ (only on astroid.Class nodes)
     """
 
-    def __init__(self, project, inherited_interfaces=0, tag=False):
+    def __init__(self, project: Project, tag: bool = False) -> None:
         IdGeneratorMixIn.__init__(self)
         utils.LocalsVisitor.__init__(self)
-        # take inherited interface in consideration or not
-        self.inherited_interfaces = inherited_interfaces
         # tag nodes or not
         self.tag = tag
         # visited project
@@ -174,13 +178,24 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             baseobj.specializations = specializations
         # resolve instance attributes
         node.instance_attrs_type = collections.defaultdict(list)
-        for assignattrs in node.instance_attrs.values():
+        for assignattrs in tuple(node.instance_attrs.values()):
             for assignattr in assignattrs:
                 if not isinstance(assignattr, nodes.Unknown):
                     self.handle_assignattr_type(assignattr, node)
         # resolve implemented interface
         try:
-            node.implements = list(interfaces(node, self.inherited_interfaces))
+            ifaces = interfaces(node)
+            if ifaces is not None:
+                node.implements = list(ifaces)
+                # TODO: 3.0: Remove support for __implements__
+                warnings.warn(
+                    "pyreverse will drop support for resolving and displaying implemented interfaces in pylint 3.0. "
+                    "The implementation relies on the '__implements__'  attribute proposed in PEP 245, which was rejected "
+                    "in 2006.",
+                    DeprecationWarning,
+                )
+            else:
+                node.implements = []
         except astroid.InferenceError:
             node.implements = []
 
@@ -195,11 +210,6 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         node.locals_type = collections.defaultdict(list)
         if self.tag:
             node.uid = self.generate_id()
-
-    link_project = visit_project
-    link_module = visit_module
-    link_class = visit_classdef
-    link_function = visit_functiondef
 
     def visit_assignname(self, node: nodes.AssignName) -> None:
         """Visit an astroid.AssignName node.
@@ -232,7 +242,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         frame.locals_type[node.name] = list(set(current) | utils.infer_node(node))
 
     @staticmethod
-    def handle_assignattr_type(node, parent):
+    def handle_assignattr_type(node: nodes.AssignAttr, parent: nodes.ClassDef) -> None:
         """Handle an astroid.assignattr node.
 
         handle instance_attrs_type
@@ -276,7 +286,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             if fullname != basename:
                 self._imported_module(node, fullname, relative)
 
-    def compute_module(self, context_name, mod_path):
+    def compute_module(self, context_name: str, mod_path: str) -> int:
         """Return true if the module should be added to dependencies."""
         package_dir = os.path.dirname(self.project.path)
         if context_name == mod_path:
@@ -285,7 +295,9 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             return 1
         return 0
 
-    def _imported_module(self, node, mod_path, relative):
+    def _imported_module(
+        self, node: nodes.Import | nodes.ImportFrom, mod_path: str, relative: bool
+    ) -> None:
         """Notify an imported module, used to analyze dependencies."""
         module = node.root()
         context_name = module.name
@@ -301,11 +313,14 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
 
 
 def project_from_files(
-    files, func_wrapper=_astroid_wrapper, project_name="no name", black_list=("CVS",)
-):
+    files: list[str],
+    func_wrapper: _WrapperFuncT = _astroid_wrapper,
+    project_name: str = "no name",
+    black_list: tuple[str, ...] = constants.DEFAULT_IGNORE_LIST,
+) -> Project:
     """Return a Project from a list of files or modules."""
     # build the project representation
-    astroid_manager = astroid.manager.AstroidManager()
+    astroid_manager = astroid.MANAGER
     project = Project(project_name)
     for something in files:
         if not os.path.exists(something):

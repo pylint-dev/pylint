@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import sys
 import tokenize
+from collections import defaultdict
 from typing import TYPE_CHECKING
 
 from pylint import exceptions, interfaces
@@ -36,7 +37,9 @@ if TYPE_CHECKING:
 
 
 class _MessageStateHandler:
-    """Class that handles message disabling & enabling and processing of inline pragma's."""
+    """Class that handles message disabling & enabling and processing of inline
+    pragma's.
+    """
 
     def __init__(self, linter: PyLinter) -> None:
         self.linter = linter
@@ -51,6 +54,17 @@ class _MessageStateHandler:
             "enable-msg": self._options_methods["enable"],
         }
         self._pragma_lineno: dict[str, int] = {}
+        # TODO: 3.0: Update key type to str when current_name is always str
+        self._stashed_bad_option_value_messages: defaultdict[
+            str | None, list[tuple[str | None, str]]
+        ] = defaultdict(list)
+        """Bad option values for --enable and --disable are encountered too early to
+        warn about them, i.e. before all option providers have been fully parsed.
+
+        Thus,
+        this dict stores option_value and msg_id needed to (later) emit the
+        bad-option-value messages keyed on module names.
+        """
 
     def _set_one_msg_status(
         self, scope: str, msg: MessageDefinition, line: int | None, enable: bool
@@ -302,7 +316,8 @@ class _MessageStateHandler:
         line: int | None = None,
         confidence: interfaces.Confidence | None = None,
     ) -> bool:
-        """Return whether this message is enabled for the current file, line and confidence level.
+        """Return whether this message is enabled for the current file, line and
+        confidence level.
 
         This function can't be cached right now as the line is the line of
         the currently analysed file (self.file_state), if it changes, then the

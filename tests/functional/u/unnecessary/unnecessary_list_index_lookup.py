@@ -49,3 +49,7 @@ result = [my_list[idx] for idx, val in enumerate(my_list)] # [unnecessary-list-i
 pairs = [(0, 0)]
 for i, (a, b) in enumerate(pairs):
     print(pairs[i][0])
+
+# Regression test for https://github.com/PyCQA/pylint/issues/6603
+for i, num in enumerate():  # raises TypeError, but shouldn't crash pylint
+    pass

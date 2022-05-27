@@ -31,7 +31,7 @@ from pylint.constants import (
 )
 from pylint.lint.base_options import _make_linter_options
 from pylint.lint.caching import load_results, save_results
-from pylint.lint.expand_modules import expand_modules
+from pylint.lint.expand_modules import _is_ignored_file, expand_modules
 from pylint.lint.message_state_handler import _MessageStateHandler
 from pylint.lint.parallel import check_parallel
 from pylint.lint.report_functions import (
@@ -564,8 +564,7 @@ class PyLinter(
             if not msg.may_be_emitted():
                 self._msgs_state[msg.msgid] = False
 
-    @staticmethod
-    def _discover_files(files_or_modules: Sequence[str]) -> Iterator[str]:
+    def _discover_files(self, files_or_modules: Sequence[str]) -> Iterator[str]:
         """Discover python modules and packages in sub-directory.
 
         Returns iterator of paths to discovered modules and packages.
@@ -579,6 +578,16 @@ class PyLinter(
                     if any(root.startswith(s) for s in skip_subtrees):
                         # Skip subtree of already discovered package.
                         continue
+
+                    if _is_ignored_file(
+                        root,
+                        self.config.ignore,
+                        self.config.ignore_patterns,
+                        self.config.ignore_paths,
+                    ):
+                        skip_subtrees.append(root)
+                        continue
+
                     if "__init__.py" in files:
                         skip_subtrees.append(root)
                         yield root
@@ -677,7 +686,8 @@ class PyLinter(
         check_astroid_module: Callable[[nodes.Module], bool | None],
         file: FileItem,
     ) -> None:
-        """Check a file using the passed utility functions (get_ast and check_astroid_module).
+        """Check a file using the passed utility functions (get_ast and
+        check_astroid_module).
 
         :param callable get_ast: callable returning AST from defined file taking the following arguments
         - filepath: path to the file to check
@@ -708,7 +718,8 @@ class PyLinter(
 
     @staticmethod
     def _get_file_descr_from_stdin(filepath: str) -> FileItem:
-        """Return file description (tuple of module name, file path, base name) from given file path.
+        """Return file description (tuple of module name, file path, base name) from
+        given file path.
 
         This method is used for creating suitable file description for _check_files when the
         source is standard input.
@@ -726,7 +737,8 @@ class PyLinter(
     def _iterate_file_descrs(
         self, files_or_modules: Sequence[str]
     ) -> Iterator[FileItem]:
-        """Return generator yielding file descriptions (tuples of module name, file path, base name).
+        """Return generator yielding file descriptions (tuples of module name, file
+        path, base name).
 
         The returned generator yield one item for each Python module that should be linted.
         """
@@ -1184,3 +1196,12 @@ class PyLinter(
                 message_definition.msgid,
                 line,
             )
+
+    def _emit_bad_option_value(self) -> None:
+        for modname in self._stashed_bad_option_value_messages:
+            self.linter.set_current_module(modname)
+            values = self._stashed_bad_option_value_messages[modname]
+            for option_string, msg_id in values:
+                msg = f"{option_string}. Don't recognize message {msg_id}."
+                self.add_message("bad-option-value", args=msg, line=0)
+        self._stashed_bad_option_value_messages = collections.defaultdict(list)

@@ -9,10 +9,14 @@
 /pylint.egg-info/
 .tox
 *.sw[a-z]
-doc/messages/
-doc/technical_reference/extensions.rst
-doc/technical_reference/features.rst
-doc/user_guide/configuration/all-options.rst
+# Can't use | operator in .gitignore, see
+# https://unix.stackexchange.com/a/31806/189111
+doc/user_guide/messages/convention/
+doc/user_guide/messages/error/
+doc/user_guide/messages/fatal/
+doc/user_guide/messages/information/
+doc/user_guide/messages/refactor/
+doc/user_guide/messages/warning/
 pyve
 build-stamp
 .coverage
