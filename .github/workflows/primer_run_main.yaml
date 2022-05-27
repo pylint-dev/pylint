@@ -81,4 +81,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: primer_commitstring
-          path: commit_string.txt
+          path: .pylint_primer_tests/commit_string.txt

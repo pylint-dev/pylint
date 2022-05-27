@@ -79,11 +79,13 @@ class Primer:
                 print(f"'{package}' remote is at commit '{remote_sha1_commit}'.")
                 commit_string += remote_sha1_commit + "_"
         elif self.config.read_commit_string:
-            with open("commit_string.txt", encoding="utf-8") as f:
+            with open(PRIMER_DIRECTORY / "commit_string.txt", encoding="utf-8") as f:
                 print(f.read())
 
         if commit_string:
-            with open("commit_string.txt", "w", encoding="utf-8") as f:
+            with open(
+                PRIMER_DIRECTORY / "commit_string.txt", "w", encoding="utf-8"
+            ) as f:
                 f.write(commit_string)
 
     @staticmethod
