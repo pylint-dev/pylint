@@ -10,6 +10,10 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.14.rst'
 
+* Fix false positive ``no-member`` checks when using ``unittest.mock.Mock`` functions.
+
+  Closes #2821
+
 * The refactoring checker now also raises 'consider-using-a-generator' messages for
   ``max()``, ``min()`` and ``sum()``.
 

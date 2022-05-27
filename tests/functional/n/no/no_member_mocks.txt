@@ -1,0 +1,1 @@
+no-member:9:4:9:17:real_no_member:"Instance of 'BaseException' has no 'no_member' member":INFERENCE
