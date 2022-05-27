@@ -281,6 +281,10 @@ Other Changes
 
   Closes #6644
 
+* ``pylint.pyreverse.ASTWalker`` has been removed, as it was only used internally by a single child class.
+
+  Ref #6712
+
 
 Deprecations
 ============
