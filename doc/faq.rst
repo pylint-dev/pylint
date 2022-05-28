@@ -78,7 +78,7 @@ variable for unused argument ("_" and "dummy" by default).
 What is the format of the configuration file?
 ---------------------------------------------
 
-See the :ref:`exhaustive list of possible options <all-options>`.
+The configuration file can be an ``ini`` or ``toml`` file. See the :ref:`exhaustive list of possible options <all-options>`.
 
 Why are there a bunch of messages disabled by default?
 ----------------------------------------------------------
