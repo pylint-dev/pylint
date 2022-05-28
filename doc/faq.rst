@@ -7,12 +7,17 @@ Frequently Asked Questions
 How do I install Pylint?
 ------------------------
 
-Everything should be explained on :ref:`installation`.
+Everything should be explained in :ref:`the installation guide <installation>`.
 
 How do I contribute to Pylint?
 ------------------------------
 
 Everything should be explained in :ref:`the contribution guide <contribute_guide>`.
+
+Does Pylint follow a versioning scheme ?
+----------------------------------------
+
+See :ref:`upgrading pylint in the installation guide <upgrading_pylint>`.
 
 Where is the persistent data stored to compare between successive runs?
 -----------------------------------------------------------------------
@@ -43,7 +48,6 @@ the toml file
 For example::
 
     pylint --disable=bare-except,invalid-name --class-rgx='[A-Z][a-z]+' --generate-toml-config
-
 
 How to disable a particular message?
 ------------------------------------
@@ -164,7 +168,6 @@ flake8-import-order_: wrong-import-order
 .. _`pep8-naming`: https://github.com/PyCQA/pep8-naming
 .. _`isort`: https://github.com/pycqa/isort
 .. _`flake8-import-order`: https://github.com/PyCQA/flake8-import-order
-
 
 How do I avoid "access to undefined member" messages in my mixin classes?
 -------------------------------------------------------------------------
