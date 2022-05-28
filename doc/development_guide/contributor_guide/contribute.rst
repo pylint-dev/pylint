@@ -95,3 +95,12 @@ documentation. To test smaller changes you can consider ``build-html``, which sk
   $ make build-html
 
 We're reusing generated files for speed, use ``make clean`` when you want to start from scratch.
+
+How to choose the target version ?
+----------------------------------
+
+Choose depending on the kind of change you're doing:
+
+.. include:: patch_release.rst
+.. include:: minor_release.rst
+.. include:: major_release.rst
