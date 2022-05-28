@@ -7,39 +7,21 @@ Frequently Asked Questions
 How do I install Pylint?
 ------------------------
 
-Everything should be explained in :ref:`the installation guide <installation>`.
+.. include:: short_text_installation.rst
 
 How do I contribute to Pylint?
 ------------------------------
 
-Everything should be explained in :ref:`the contribution guide <contribute_guide>`.
+.. include:: short_text_contribute.rst
 
-Does Pylint follow a versioning scheme ?
+
+Does Pylint follow a versioning scheme?
 ----------------------------------------
 
 See :ref:`upgrading pylint in the installation guide <upgrading_pylint>`.
 
-Where is the persistent data stored to compare between successive runs?
+How do I find the name corresponding to a specific command line option?
 -----------------------------------------------------------------------
-
-Analysis data are stored as a pickle file in a directory which is
-localized using the following rules:
-
-* value of the PYLINTHOME environment variable if set
-
-* "pylint" subdirectory of the user's XDG_CACHE_HOME if the environment variable is set, otherwise
-
-        - Linux: "~/.cache/pylint"
-
-        - Mac OS X: "~/Library/Caches/pylint"
-
-        - Windows: "C:\Users\<username>\AppData\Local\pylint"
-
-* ".pylint.d" directory in the current directory
-
-
-How do I find the option name corresponding to a specific command line option?
-------------------------------------------------------------------------------
 
 You can generate a sample configuration file with ``--generate-toml-config``.
 Every option present on the command line before this will be included in
@@ -52,44 +34,26 @@ For example::
 How to disable a particular message?
 ------------------------------------
 
-For just a single line, add ``#pylint: disable=some-message,another-one`` at the end of
-the desired line of code. Since Pylint 2.10 you can also use ``#pylint: disable-next=...``
-on the line just above the problem. ``...`` in the following example is short for the
-list of messages you want to disable.
-
-For larger amounts of code, you can add ``#pylint: disable=...`` at the block level
-to disable messages for the entire block. It's possible to re-enable a message for the
-remainder of the block with ``#pylint: enable=...``. A block is either a scope (say a
-function, a module) or a multiline statement (try, finally, if statements, for loops).
-Note: It's currently impossible to `disable inside an else block`_.
-
 Read :ref:`message-control` for details and examples.
 
-.. _`disable inside an else block`: https://github.com/PyCQA/pylint/issues/872
+Pylint gave my code a negative rating out of ten. That can't be right!
+----------------------------------------------------------------------
 
-Is there a way to disable a message for a particular module only?
------------------------------------------------------------------
+Prior to Pylint 2.13.0, the score formula used by default had no lower
+bound. The new default score formula is ::
 
-Yes, you can disable or enable (globally disabled) messages at the
-module level by adding the corresponding option in a comment at the
-top of the file: ::
+    max(0, 0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10))
 
-    # pylint: disable=wildcard-import, method-hidden
-    # pylint: enable=too-many-lines
+If your project contains a configuration file created by an earlier version of
+Pylint, you can set ``evaluation`` to the above expression to get the new
+behavior. Likewise, since negative values are still technically supported,
+``evaluation`` can be set to a version of the above expression that does not
+enforce a floor of zero.
 
-How can I never check a given module?
-----------------------------------------------------
+How do I avoid getting unused argument warnings for API I do not control?
+-------------------------------------------------------------------------
 
-Add ``#pylint: skip-file`` at the beginning of the module.
-
-In order to ease finding which modules are ignored an Information-level message
-`file-ignored` is emitted.
-
-
-How do I avoid getting unused argument warnings when I have no control over received arguments?
------------------------------------------------------------------------------------------------
-
-Prefix (ui) the callback's name by `cb_`, as in cb_onclick(...). By
+Prefix (ui) the callback's name by `cb_` (callback), as in cb_onclick(...). By
 doing so arguments usage won't be checked. Another solution is to
 use one of the names defined in the "dummy-variables" configuration
 variable for unused argument ("_" and "dummy" by default).
@@ -97,49 +61,13 @@ variable for unused argument ("_" and "dummy" by default).
 What is the format of the configuration file?
 ---------------------------------------------
 
-Pylint uses ConfigParser from the standard library to parse the configuration
-file.  It means that if you need to disable a lot of messages, you can use
-any formatting accepted by ConfigParser, e.g.
-
-.. code-block:: ini
-
-    [MAIN]
-    output-format = colorized
-
-    [Messages Control]
-    disable=method-hidden,too-many-lines,wildcard-import
-
-.. code-block:: ini
-
-    [Messages Control]
-    disable =
-        method-hidden
-        too-many-lines
-        wildcard-import
-
-Alternatively, if you use ``pyproject.toml``, e.g.
-
-.. code-block:: toml
-
-    [tool.pylint.main]
-    output-format = "colorized"
-
-    [tool.pylint.messages_control]
-    disable = [
-        "method-hidden",
-        "too-many-lines",
-        "wildcard-import",
-    ]
-
-See also the :ref:`exhaustive list of possible options
-<all-configurations-options>`.
+The configuration file can be an ``ini`` or ``toml`` file. See the :ref:`exhaustive list of possible options <all-options>`.
 
 Why are there a bunch of messages disabled by default?
 ------------------------------------------------------
 
-pylint does have some messages disabled by default, either because
-they are prone to false positives or that they are opinionated enough
-for not being included as default messages.
+Either because they are prone to false positives or that they are opinionated enough
+to not be included as default messages.
 
 You can see the plugin you need to explicitly :ref:`load in the technical reference
 <user_guide/checkers/extensions:optional checkers>`.
@@ -157,9 +85,7 @@ pydocstyle_: missing-module-docstring, missing-class-docstring, missing-function
 
 pep8-naming_: invalid-name, bad-classmethod-argument, bad-mcs-classmethod-argument, no-self-argument
 
-isort_: wrong-import-order
-
-flake8-import-order_: wrong-import-order
+isort_ and flake8-import-order_: wrong-import-order
 
 .. _`pycodestyle`: https://github.com/PyCQA/pycodestyle
 .. _`pyflakes`: https://github.com/PyCQA/pyflakes
@@ -176,16 +102,15 @@ You should add the ``no-member`` message to your ``ignored-checks-for-mixins`` o
 and name your mixin class with a name which ends with "Mixin" or "mixin" (default)
 or change the default value by changing the ``mixin-class-rgx`` option.
 
-Pylint gave my code a negative rating out of ten. That can't be right!
-----------------------------------------------------------------------
+Where is the persistent data stored to compare between successive runs?
+-----------------------------------------------------------------------
 
-Prior to Pylint 2.13.0, the score formula used by default had no lower
-bound. The new default score formula is ::
+Analysis data are stored as a pickle file in a directory which is
+localized using the following rules:
 
-    max(0, 0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10))
-
-If your project contains a configuration file created by an earlier version of
-Pylint, you can set ``evaluation`` to the above expression to get the new
-behavior. Likewise, since negative values are still technically supported,
-``evaluation`` can be set to a version of the above expression that does not
-enforce a floor of zero.
+* value of the PYLINTHOME environment variable if set
+* "pylint" subdirectory of the user's XDG_CACHE_HOME if the environment variable is set, otherwise
+    - Linux: "~/.cache/pylint"
+    - macOS: "~/Library/Caches/pylint"
+    - Windows: "C:\Users\<username>\AppData\Local\pylint"
+* ".pylint.d" directory in the current directory

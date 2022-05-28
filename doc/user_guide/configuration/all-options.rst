@@ -3,6 +3,8 @@
 .. This file is auto-generated. Make any changes to the associated
 .. docs extension in 'doc/exts/pylint_options.py'.
 
+.. _all-options:
+
 Standard Checkers:
 ^^^^^^^^^^^^^^^^^^
 

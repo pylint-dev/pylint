@@ -136,7 +136,8 @@ def _write_options_page(options: OptionsDataDict, linter: PyLinter) -> None:
     """Create or overwrite the options page."""
     sections: list[str] = [
         ".. This file is auto-generated. Make any changes to the associated\n"
-        ".. docs extension in 'doc/exts/pylint_options.py'.",
+        ".. docs extension in 'doc/exts/pylint_options.py'.\n\n"
+        ".. _all-options:",
         get_rst_title("Standard Checkers:", "^"),
     ]
     found_extensions = False
