@@ -29,8 +29,6 @@
    :target: https://results.pre-commit.ci/latest/github/PyCQA/pylint/main
    :alt: pre-commit.ci status
 
-..
-
 What is Pylint?
 ================
 
