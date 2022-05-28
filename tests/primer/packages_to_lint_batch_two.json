@@ -15,7 +15,6 @@
     "directories": ["src_py"],
     "url": "https://github.com/pygame/pygame.git"
   },
-
   "sentry": {
     "branch": "master",
     "directories": ["src/sentry"],
