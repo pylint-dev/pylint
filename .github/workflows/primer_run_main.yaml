@@ -82,3 +82,15 @@ jobs:
         with:
           name: primer_commitstring
           path: .pylint_primer_tests/commit_string.txt
+
+      # Run primer
+      - name: Run pylint primer
+        run: |
+          . venv/bin/activate
+          pip install -e .
+          python tests/primer/primer_tool.py run --type=main
+      - name: Upload output
+        uses: actions/upload-artifact@v3
+        with:
+          name: primer_output
+          path: .pylint_primer_tests/output_main.txt
