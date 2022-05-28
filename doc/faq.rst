@@ -7,30 +7,13 @@ Frequently Asked Questions
 How do I install Pylint?
 ------------------------
 
-.. This is a copy paste of Install in the README do not modify one without modifying the other
-
-For command line use, pylint is installed with::
-
-    pip install pylint
-
-It can also be integrated in most editors or IDEs. More information can be found in
-:ref:`the installation guide <installation>`.
+.. include:: short_text_installation.rst
 
 How do I contribute to Pylint?
 ------------------------------
 
-.. This is a copy paste of Contributing in the README do not modify one without modifying the other
+.. include:: short_text_contribute.rst
 
-We welcome all forms of contributions such as updates for documentation, new code, checking issues for duplicates or telling us
-that we can close them, confirming that issues still exist, `creating issues because
-you found a bug or want a feature`_, etc. Everything is much appreciated!
-
-Please follow the `code of conduct`_ and check `the Contributor Guides`_ if you want to
-make a code contribution.
-
-.. _creating issues because you found a bug or want a feature: https://pylint.pycqa.org/en/latest/contact.html#bug-reports-feedback
-.. _code of conduct: https://github.com/PyCQA/pylint/blob/main/CODE_OF_CONDUCT.md
-.. _the Contributor Guides: https://pylint.pycqa.org/en/latest/development_guide/contribute.html
 
 Does Pylint follow a versioning scheme?
 ----------------------------------------

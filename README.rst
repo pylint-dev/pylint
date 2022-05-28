@@ -3,6 +3,8 @@
 
 .. _`Pylint`: https://pylint.pycqa.org/
 
+.. This is used inside the doc to recover the start of the introduction
+
 .. image:: https://github.com/PyCQA/pylint/actions/workflows/tests.yaml/badge.svg?branch=main
     :target: https://github.com/PyCQA/pylint/actions
 
@@ -26,6 +28,8 @@
 .. image:: https://results.pre-commit.ci/badge/github/PyCQA/pylint/main.svg
    :target: https://results.pre-commit.ci/latest/github/PyCQA/pylint/main
    :alt: pre-commit.ci status
+
+..
 
 What is Pylint?
 ================
@@ -85,10 +89,12 @@ pydocstringformatter_ (automated pep257).
 .. _pydocstringformatter: https://github.com/DanielNoord/pydocstringformatter
 .. _isort: https://pycqa.github.io/isort/
 
+.. This is used inside the doc to recover the end of the introduction
+
 Install
 -------
 
-.. This is a copy paste of 'How do I install Pylint?' in the FAQ do not modify one without modifying the other
+.. This is used inside the doc to recover the start of the short text for installation
 
 For command line use, pylint is installed with::
 
@@ -99,10 +105,12 @@ It can also be integrated in most editors or IDEs. More information can be found
 
 .. _in the documentation: https://pylint.pycqa.org/en/latest/user_guide/installation/index.html
 
+.. This is used inside the doc to recover the end of the short text for installation
+
 Contributing
 ------------
 
-.. This is a copy paste of 'How do I contribute to Pylint?' in the FAQ do not modify one without modifying the other
+.. This is used inside the doc to recover the start of the short text for contribution
 
 We welcome all forms of contributions such as updates for documentation, new code, checking issues for duplicates or telling us
 that we can close them, confirming that issues still exist, `creating issues because
@@ -115,6 +123,7 @@ make a code contribution.
 .. _code of conduct: https://github.com/PyCQA/pylint/blob/main/CODE_OF_CONDUCT.md
 .. _the Contributor Guides: https://pylint.pycqa.org/en/latest/development_guide/contribute.html
 
+.. This is used inside the doc to recover the end of the short text for contribution
 
 Show your usage
 -----------------
