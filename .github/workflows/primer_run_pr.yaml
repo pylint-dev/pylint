@@ -177,5 +177,5 @@ jobs:
       - name: Upload PR number
         uses: actions/upload-artifact@v3
         with:
-          name: primer_pylint_output_workflow
+          name: pr_number
           path: pr_number.txt

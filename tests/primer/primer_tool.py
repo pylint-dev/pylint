@@ -8,6 +8,7 @@ import argparse
 import json
 from io import StringIO
 from pathlib import Path
+from typing import Dict, List, Union
 
 import git
 
@@ -18,6 +19,8 @@ from pylint.testutils.primer import PackageToLint
 TESTS_DIR = Path(__file__).parent.parent
 PRIMER_DIRECTORY = TESTS_DIR / ".pylint_primer_tests/"
 PACKAGES_TO_PRIME_PATH = Path(__file__).parent / "packages_to_prime.json"
+
+PackageMessages = Dict[str, List[Dict[str, Union[str, int]]]]
 
 
 class Primer:
@@ -100,7 +103,7 @@ class Primer:
                 f.write(commit_string)
 
     def _handle_run_command(self) -> None:
-        packages: dict[str, list[dict[str, str | int]]] = {}
+        packages: PackageMessages = {}
 
         for package, data in self.packages.items():
             output = self._lint_package(data)
