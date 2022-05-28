@@ -165,7 +165,7 @@ class Primer:
                 print("No longer emitted:")
             count = 1
             for message in missing_messages:
-                comment += f"{count}) {message['symbol']} *{message['message']}*\n"
+                comment += f"{count}) {message['symbol']}:\n*{message['message']}*\n"
                 filepath = str(message["path"]).replace(
                     str(package_data.clone_directory), ""
                 )
@@ -179,7 +179,7 @@ class Primer:
                 comment += "The following messages are now emitted:\n"
                 print("Now emitted:")
             for message in new_messages:
-                comment += f"{count}) {message['symbol']}: *{message['message']}*\n"
+                comment += f"{count}) {message['symbol']}:\n*{message['message']}*\n"
                 filepath = str(message["path"]).replace(
                     str(package_data.clone_directory), ""
                 )
