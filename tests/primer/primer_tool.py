@@ -194,7 +194,7 @@ class Primer:
                 "🤖 **Effect of this PR on checked open source code:** 🤖\n\n" + comment
             )
 
-        with open("comment.txt", "w", encoding="utf-8") as f:
+        with open(PRIMER_DIRECTORY / "comment.txt", "w", encoding="utf-8") as f:
             f.write(comment)
 
     def _lint_package(self, data: PackageToLint) -> list[dict[str, str | int]]:

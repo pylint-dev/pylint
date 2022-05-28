@@ -119,7 +119,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const fs = require('fs')
-            const comment = fs.readFileSync('comment.txt', { encoding: 'utf8' })
+            const comment = fs.readFileSync('tests/.pylint_primer_tests/comment.txt', { encoding: 'utf8' })
             console.log("Comment to post:")
             console.log(comment)
             const prNumber = parseInt(fs.readFileSync("pr_number.txt", { encoding: "utf8" }))
