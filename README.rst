@@ -112,7 +112,7 @@ Please follow the `code of conduct`_ and check `the Contributor Guides`_ if you 
 make a code contribution.
 
 .. _creating issues because you found a bug or want a feature: https://pylint.pycqa.org/en/latest/contact.html#bug-reports-feedback
-.. _code of conduct: https://github.com/Pierre-Sassoulas/pylint/blob/main/CODE_OF_CONDUCT.md
+.. _code of conduct: https://github.com/PyCQA/pylint/blob/main/CODE_OF_CONDUCT.md
 .. _the Contributor Guides: https://pylint.pycqa.org/en/latest/development_guide/contribute.html
 
 
