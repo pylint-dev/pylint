@@ -56,12 +56,12 @@ jobs:
             ${{ runner.os }}-${{ steps.python.outputs.python-version }}-venv-${{ env.CACHE_VERSION }}-
       - name: Create Python virtual environment
         if: steps.cache-venv.outputs.cache-hit != 'true'
-        # Use bleeding-edge astroid
         run: |
           python -m venv venv
           . venv/bin/activate
           python -m pip install -U pip setuptools wheel
           pip install -U -r requirements_test.txt
+          # Use bleeding-edge astroid
           pip install git+https://github.com/PyCQA/astroid.git
 
       # Cache primer packages
