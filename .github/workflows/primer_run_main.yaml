@@ -37,7 +37,8 @@ jobs:
         run: |
           curl https://api.github.com/repos/PyCQA/astroid/commits |
           python -c "import json, sys; print(json.load(sys.stdin)[0]['sha'])" > astroid_sha.txt
-      # Restore cached Python environment
+
+      # Restore cached Python environment      
       - name: Generate partial Python venv restore key
         id: generate-python-key
         run: >-
