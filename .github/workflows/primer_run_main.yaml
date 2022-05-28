@@ -32,13 +32,18 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Get latest astroid commit
+        id: get-astroid-sha
+        run: |
+          curl https://api.github.com/repos/PyCQA/astroid/commits |
+          python -c "import json, sys; print(json.load(sys.stdin)[0]['sha'])" > astroid_sha.txt
       # Restore cached Python environment
       - name: Generate partial Python venv restore key
         id: generate-python-key
         run: >-
           echo "::set-output name=key::venv-${{ env.CACHE_VERSION }}-${{
-            hashFiles('setup.cfg', 'requirements_test.txt', 'requirements_test_min.txt')
-          }}"
+            hashFiles('setup.cfg', 'requirements_test.txt', 'requirements_test_min.txt',
+          'astroid_sha.txt') }}"
       - name: Restore Python virtual environment
         id: cache-venv
         uses: actions/cache@v3.0.2
@@ -51,11 +56,13 @@ jobs:
             ${{ runner.os }}-${{ steps.python.outputs.python-version }}-venv-${{ env.CACHE_VERSION }}-
       - name: Create Python virtual environment
         if: steps.cache-venv.outputs.cache-hit != 'true'
+        # Use bleeding-edge astroid
         run: |
           python -m venv venv
           . venv/bin/activate
           python -m pip install -U pip setuptools wheel
           pip install -U -r requirements_test.txt
+          pip install git+https://github.com/PyCQA/astroid.git
 
       # Cache primer packages
       - name: Get commit string
