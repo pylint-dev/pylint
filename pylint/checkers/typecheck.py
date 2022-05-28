@@ -1912,17 +1912,32 @@ accessed. Python regular expressions are accepted.",
         left_is_type = False
         right_is_type = False
 
+        def _has_usable_overload(attrs):
+            # We have a candidate overload of the operator. However, if this
+            # is a Python 3.10 runtime but configured for pre-3.10 compatibility
+            # Astroid will have inferred the existence of __or__ / __ror__ on
+            # builtins.type, which is not suitable.
+            is_py310_builtin = all(
+                attr.parent.qname() == "builtins.type"
+                for attr in attrs
+            )
+            return (not is_py310_builtin) or self._py310_plus
+
         if isinstance(left_obj, nodes.ClassDef) and is_classdef_type(left_obj):
             try:
-                left_obj.getattr("__or__")
-                return
+                attrs = left_obj.getattr("__or__")
+                if _has_usable_overload(attrs):
+                    return
+                left_is_type = True
             except astroid.NotFoundError:
                 left_is_type = True
 
         if isinstance(right_obj, nodes.ClassDef) and is_classdef_type(right_obj):
             try:
-                right_obj.getattr("__ror__")
-                return
+                attrs = right_obj.getattr("__ror__")
+                if _has_usable_overload(attrs):
+                    return
+                right_is_type = True
             except astroid.NotFoundError:
                 right_is_type = True
 
