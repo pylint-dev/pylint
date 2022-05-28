@@ -29,10 +29,10 @@ Please follow the `code of conduct`_ and check `the Contributor Guides`_ if you 
 make a code contribution.
 
 .. _creating issues because you found a bug or want a feature: https://pylint.pycqa.org/en/latest/contact.html#bug-reports-feedback
-.. _code of conduct: https://github.com/Pierre-Sassoulas/pylint/blob/main/CODE_OF_CONDUCT.md
+.. _code of conduct: https://github.com/PyCQA/pylint/blob/main/CODE_OF_CONDUCT.md
 .. _the Contributor Guides: https://pylint.pycqa.org/en/latest/development_guide/contribute.html
 
-Does Pylint follow a versioning scheme ?
+Does Pylint follow a versioning scheme?
 ----------------------------------------
 
 See :ref:`upgrading pylint in the installation guide <upgrading_pylint>`.
@@ -128,6 +128,6 @@ localized using the following rules:
 * value of the PYLINTHOME environment variable if set
 * "pylint" subdirectory of the user's XDG_CACHE_HOME if the environment variable is set, otherwise
     - Linux: "~/.cache/pylint"
-    - Mac OS X: "~/Library/Caches/pylint"
+    - macOS: "~/Library/Caches/pylint"
     - Windows: "C:\Users\<username>\AppData\Local\pylint"
 * ".pylint.d" directory in the current directory
