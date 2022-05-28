@@ -69,7 +69,7 @@ jobs:
         id: cache-projects
         uses: actions/cache@v3
         with:
-          path: .pylint_primer_tests/
+          path: tests/.pylint_primer_tests/
           key: >-
             ${{ runner.os }}-${{ matrix.python-version }}-${{
             steps.commitstring.outputs.commitstring }}-primer
@@ -81,7 +81,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: primer_commitstring
-          path: .pylint_primer_tests/commit_string.txt
+          path: tests/.pylint_primer_tests/commit_string.txt
 
       # Run primer
       - name: Run pylint primer
@@ -93,4 +93,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: primer_output
-          path: .pylint_primer_tests/output_main.txt
+          path: tests/.pylint_primer_tests/output_main.txt
