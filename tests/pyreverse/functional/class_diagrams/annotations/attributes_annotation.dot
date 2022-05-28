@@ -1,0 +1,6 @@
+digraph "classes" {
+rankdir=BT
+charset="utf-8"
+"attributes_annotation.Dummy" [color="black", fontcolor="black", label="{Dummy|\l|}", shape="record", style="solid"];
+"attributes_annotation.Dummy2" [color="black", fontcolor="black", label="{Dummy2|alternative_union_syntax : str \| int\lclass_attr : list[Dummy]\loptional : Optional[Dummy]\lparam : str\lunion : Union[int, str]\l|}", shape="record", style="solid"];
+}

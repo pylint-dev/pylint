@@ -81,24 +81,26 @@ class DotPrinter(Printer):
             f'"{name}" [color="{color}"{fontcolor_part}{label_part}, shape="{shape}", style="{style}"];'
         )
 
-    def _build_label_for_node(
-        self, properties: NodeProperties, is_interface: bool | None = False
-    ) -> str:
+    def _build_label_for_node(self, properties: NodeProperties) -> str:
         if not properties.label:
             return ""
 
         label: str = properties.label
-        if is_interface:
-            # add a stereotype
-            label = "<<interface>>\\n" + label
-
         if properties.attrs is None and properties.methods is None:
             # return a "compact" form which only displays the class name in a box
             return label
 
         # Add class attributes
         attrs: list[str] = properties.attrs or []
-        label = "{" + label + "|" + r"\l".join(attrs) + r"\l|"
+        label = (
+            "{"
+            + label
+            + "|"
+            # we need to escape the '|' character (which can occur in type annotation
+            # with alternative union syntax) to avoid it being interpreted as a separator
+            + r"\l".join(attr.replace("|", r"\|") for attr in attrs)
+            + r"\l|"
+        )
 
         # Add class methods
         methods: list[nodes.FunctionDef] = properties.methods or []
