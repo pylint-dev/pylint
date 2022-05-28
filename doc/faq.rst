@@ -1,5 +1,3 @@
-.. -*- coding: utf-8 -*-
-
 .. _faq:
 
 ==========================
@@ -11,21 +9,13 @@ How do I install Pylint?
 
 Everything should be explained on :ref:`installation`.
 
-What kind of versioning system does Pylint use?
------------------------------------------------
+How do I contribute to Pylint?
+------------------------------
 
-Pylint uses git. To get the latest version of Pylint from the repository, simply invoke ::
+Everything should be explained in :ref:`the contribution guide <contribute_guide>`.
 
-    git clone https://github.com/PyCQA/pylint
-
-.. _git: https://git-scm.com/
-
-
-3. Running Pylint
-=================
-
-3.1 Where is the persistent data stored to compare between successive runs?
----------------------------------------------------------------------------
+Where is the persistent data stored to compare between successive runs?
+-----------------------------------------------------------------------
 
 Analysis data are stored as a pickle file in a directory which is
 localized using the following rules:
@@ -43,8 +33,8 @@ localized using the following rules:
 * ".pylint.d" directory in the current directory
 
 
-3.2 How do I find the option name corresponding to a specific command line option?
-----------------------------------------------------------------------------------
+How do I find the option name corresponding to a specific command line option?
+------------------------------------------------------------------------------
 
 You can generate a sample configuration file with ``--generate-toml-config``.
 Every option present on the command line before this will be included in
@@ -54,11 +44,9 @@ For example::
 
     pylint --disable=bare-except,invalid-name --class-rgx='[A-Z][a-z]+' --generate-toml-config
 
-4. Message Control
-==================
 
-4.1 How to disable a particular message?
-----------------------------------------
+How to disable a particular message?
+------------------------------------
 
 For just a single line, add ``#pylint: disable=some-message,another-one`` at the end of
 the desired line of code. Since Pylint 2.10 you can also use ``#pylint: disable-next=...``
@@ -75,8 +63,8 @@ Read :ref:`message-control` for details and examples.
 
 .. _`disable inside an else block`: https://github.com/PyCQA/pylint/issues/872
 
-4.2 Is there a way to disable a message for a particular module only?
----------------------------------------------------------------------
+Is there a way to disable a message for a particular module only?
+-----------------------------------------------------------------
 
 Yes, you can disable or enable (globally disabled) messages at the
 module level by adding the corresponding option in a comment at the
@@ -85,32 +73,25 @@ top of the file: ::
     # pylint: disable=wildcard-import, method-hidden
     # pylint: enable=too-many-lines
 
-4.3 How can I tell Pylint to never check a given module?
---------------------------------------------------------
+How can I never check a given module?
+----------------------------------------------------
 
 Add ``#pylint: skip-file`` at the beginning of the module.
 
 In order to ease finding which modules are ignored an Information-level message
 `file-ignored` is emitted.
 
-4.4 Do I have to remember all these numbers?
---------------------------------------------
 
-No, you can use symbolic names for messages::
-
-    # pylint: disable=fixme, line-too-long
-
-
-4.5 I have a callback function where I have no control over received arguments. How do I avoid getting unused argument warnings?
---------------------------------------------------------------------------------------------------------------------------------
+How do I avoid getting unused argument warnings when I have no control over received arguments?
+-----------------------------------------------------------------------------------------------
 
 Prefix (ui) the callback's name by `cb_`, as in cb_onclick(...). By
 doing so arguments usage won't be checked. Another solution is to
 use one of the names defined in the "dummy-variables" configuration
 variable for unused argument ("_" and "dummy" by default).
 
-4.6 What is the format of the configuration file?
--------------------------------------------------
+What is the format of the configuration file?
+---------------------------------------------
 
 Pylint uses ConfigParser from the standard library to parse the configuration
 file.  It means that if you need to disable a lot of messages, you can use
@@ -149,8 +130,8 @@ Alternatively, if you use ``pyproject.toml``, e.g.
 See also the :ref:`exhaustive list of possible options
 <all-configurations-options>`.
 
-4.7 Why are there a bunch of messages disabled by default?
-----------------------------------------------------------
+Why are there a bunch of messages disabled by default?
+------------------------------------------------------
 
 pylint does have some messages disabled by default, either because
 they are prone to false positives or that they are opinionated enough
@@ -159,8 +140,8 @@ for not being included as default messages.
 You can see the plugin you need to explicitly :ref:`load in the technical reference
 <user_guide/checkers/extensions:optional checkers>`.
 
-4.8 I am using another popular linter alongside pylint. Which messages should I disable to avoid duplicates?
-------------------------------------------------------------------------------------------------------------
+Which messages should I disable to avoid duplicates if I use other popular linters ?
+------------------------------------------------------------------------------------
 
 pycodestyle_: unneeded-not, line-too-long, unnecessary-semicolon, trailing-whitespace, missing-final-newline, bad-indentation, multiple-statements, bare-except, wrong-import-position
 
@@ -185,28 +166,15 @@ flake8-import-order_: wrong-import-order
 .. _`flake8-import-order`: https://github.com/PyCQA/flake8-import-order
 
 
-5. Classes and Inheritance
-==========================
-
-5.1 When is Pylint considering a class as an abstract class?
-------------------------------------------------------------
-
-A class is considered as an abstract class if at least one of its
-methods is doing nothing but raising ``NotImplementedError``.
-
-5.2 How do I avoid "access to undefined member" messages in my mixin classes?
------------------------------------------------------------------------------
+How do I avoid "access to undefined member" messages in my mixin classes?
+-------------------------------------------------------------------------
 
 You should add the ``no-member`` message to your ``ignored-checks-for-mixins`` option
 and name your mixin class with a name which ends with "Mixin" or "mixin" (default)
 or change the default value by changing the ``mixin-class-rgx`` option.
 
-
-6. Troubleshooting
-==================
-
-6.1 Pylint gave my code a negative rating out of ten. That can't be right!
---------------------------------------------------------------------------
+Pylint gave my code a negative rating out of ten. That can't be right!
+----------------------------------------------------------------------
 
 Prior to Pylint 2.13.0, the score formula used by default had no lower
 bound. The new default score formula is ::
