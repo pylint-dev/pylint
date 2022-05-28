@@ -162,30 +162,30 @@ class Primer:
 
             if missing_messages:
                 comment += "The following messages are no longer emitted:\n"
+                print("No longer emitted:")
             count = 1
             for message in missing_messages:
-                comment += (
-                    f"{count}) {message['symbol']} on line {message['line']} here:\n"
-                )
+                comment += f"{count}) {message['symbol']} *{message['message']}*\n"
                 filepath = str(message["path"]).replace(
                     str(package_data.clone_directory), ""
                 )
                 comment += f"{package_data.url}/blob/{package_data.branch}/{filepath}#L{message['line']}\n"
                 count += 1
+                print(message)
             comment += "\n"
 
             count = 1
             if new_messages:
                 comment += "The following messages are now emitted:\n"
+                print("Now emitted:")
             for message in new_messages:
-                comment += (
-                    f"{count}) {message['symbol']} on line {message['line']} here:\n"
-                )
+                comment += f"{count}) {message['symbol']}: *{message['message']}*\n"
                 filepath = str(message["path"]).replace(
                     str(package_data.clone_directory), ""
                 )
                 comment += f"{package_data.url}/blob/{package_data.branch}/{filepath}#L{message['line']}\n"
                 count += 1
+                print(message)
 
         if comment == "":
             comment = "🤖 According to the primer, this change has **no effect** on the checked open source code. 🤖🎉"
