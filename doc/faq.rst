@@ -81,7 +81,7 @@ What is the format of the configuration file?
 The configuration file can be an ``ini`` or ``toml`` file. See the :ref:`exhaustive list of possible options <all-options>`.
 
 Why are there a bunch of messages disabled by default?
-----------------------------------------------------------
+------------------------------------------------------
 
 Either because they are prone to false positives or that they are opinionated enough
 to not be included as default messages.
