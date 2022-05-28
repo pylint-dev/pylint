@@ -117,7 +117,7 @@ class Primer:
         enables = ["--enable-all-extensions", "--enable=all"]
         # Duplicate code takes too long and is relatively safe
         disables = ["--disable=duplicate-code"]
-        arguments = data.directories + data.pylint_args + enables + disables
+        arguments = data.pylint_args + enables + disables
         if data.pylintrc_relpath:
             arguments += [f"--rcfile={data.pylintrc_relpath}"]
         output = StringIO()
