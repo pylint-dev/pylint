@@ -29,7 +29,7 @@ Other Changes
 =============
 
 Quite a lot of bug fixes and improvements went into this release, here's a handful of them.
-For the full changes, check the Changelog.
+For the full changes, check the full changelog.
 
 * We no longer emit ``*-not-iterating`` checks for builtins consumed by ``itertools``
 

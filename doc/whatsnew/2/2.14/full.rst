@@ -6,7 +6,7 @@ What's New in Pylint 2.14.0?
 Release date: TBA
 
 
-* The refactoring checker now also raises 'consider-using-a-generator' messages for
+* The refactoring checker now also raises 'consider-using-generator' messages for
   ``max()``, ``min()`` and ``sum()``.
 
   Refs #6595

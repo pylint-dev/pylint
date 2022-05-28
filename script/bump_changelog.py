@@ -16,6 +16,7 @@ import logging
 from datetime import datetime
 from pathlib import Path
 
+# TODO: 2.14.0 Upgrade bump script
 DEFAULT_CHANGELOG_PATH = Path("ChangeLog")
 
 RELEASE_DATE_TEXT = "Release date: TBA"
