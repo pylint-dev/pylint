@@ -79,14 +79,13 @@ repos:
         entry: python3 -m script.fix_documentation
         language: system
         types: [text]
-        files: ^(ChangeLog|doc/whatsnew/\d+\.\d+\.rst)
+        files: ^(doc/whatsnew/\d+\.\d+\.rst)
   - repo: https://github.com/rstcheck/rstcheck
     rev: "v6.0.0rc2"
     hooks:
       - id: rstcheck
         args: ["--report-level=warning"]
-        types: [text] # necessary to include ChangeLog file
-        files: ^(ChangeLog|doc/(.*/)*.*\.rst)
+        files: ^(doc/(.*/)*.*\.rst)
         additional_dependencies: [Sphinx==4.5.0]
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v0.950

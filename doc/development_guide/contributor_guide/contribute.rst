@@ -34,13 +34,13 @@ of Pylint as it gives you access to the latest ``ast`` parser.
 
     * then run ``pre-commit install`` in the ``pylint`` root directory to enable the git hooks.
 
-- Add a short entry to the ChangeLog describing the change, except for internal
-  implementation only changes. Not usually required, but for changes other than small
-  bugs we also add a couple of sentences in the release document for that release,
-  (`What's New` section). For the release document we usually write some more details,
-  and it is also a good place to offer examples on how the new change is supposed to work.
+- Add a short entry to the change log describing the change, except for internal
+  implementation only changes.
 
-- Add a short entry in :file:`doc/whatsnew/VERSION.rst`.
+- Not usually required, but for changes other than small bugs we also add a couple
+  of sentences in the release document for that release, (:file:`doc/whatsnew/VERSION.rst`,
+  `What's New` section). For the release document we usually write some more details,
+  and it is also a good place to offer examples on how the new change is supposed to work.
 
 - If you used multiple emails or multiple names when contributing, add your mails
   and preferred name in the ``script/.contributors_aliases.json`` file.
@@ -95,3 +95,12 @@ documentation. To test smaller changes you can consider ``build-html``, which sk
   $ make build-html
 
 We're reusing generated files for speed, use ``make clean`` when you want to start from scratch.
+
+How to choose the target version ?
+----------------------------------
+
+Choose depending on the kind of change you're doing:
+
+.. include:: patch_release.rst
+.. include:: minor_release.rst
+.. include:: major_release.rst

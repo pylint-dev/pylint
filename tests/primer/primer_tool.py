@@ -16,8 +16,8 @@ from pylint.lint import Run
 from pylint.reporters import JSONReporter
 from pylint.testutils.primer import PackageToLint
 
-MAIN_DIR = Path(__file__).parent.parent.parent
-PRIMER_DIRECTORY = MAIN_DIR / ".pylint_primer_tests/"
+TESTS_DIR = Path(__file__).parent.parent
+PRIMER_DIRECTORY = TESTS_DIR / ".pylint_primer_tests/"
 PACKAGES_TO_PRIME_PATH = Path(__file__).parent / "packages_to_prime.json"
 
 PackageMessages = Dict[str, List[Dict[str, Union[str, int]]]]
@@ -203,7 +203,7 @@ class Primer:
         # Duplicate code takes too long and is relatively safe
         # TODO: Find a way to allow cyclic-import and compare output correctly
         disables = ["--disable=duplicate-code,cyclic-import"]
-        arguments = data.directories + data.pylint_args + enables + disables
+        arguments = data.pylint_args + enables + disables
         if data.pylintrc_relpath:
             arguments += [f"--rcfile={data.pylintrc_relpath}"]
         output = StringIO()

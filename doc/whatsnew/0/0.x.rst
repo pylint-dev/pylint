@@ -1,0 +1,1247 @@
+What's New in Pylint 0.28.0?
+============================
+Release date: 2013-04-25
+
+* bitbucket #1: fix "dictionary changed size during iteration" crash
+
+* #74013: new E1310[bad-str-strip-call] message warning when a call to a
+  {l,r,}strip method contains duplicate characters (patch by Torsten Marek)
+
+* #123233: new E0108[duplicate-argument-name] message reporting duplicate
+  argument names
+
+* #81378: emit W0120[useless-else-on-loop] for loops without break
+
+* #124660: internal dependencies should not appear in external dependencies
+  report
+
+* #124662: fix name error causing crash when symbols are included in output
+  messages
+
+* #123285: apply pragmas for warnings attached to lines to physical source
+  code lines
+
+* #123259: do not emit E0105 for yield expressions inside lambdas
+
+* #123892: don't crash when attempting to show source code line that can't
+  be encoded with the current locale settings
+
+* Simplify checks for dangerous default values by unifying tests for all
+  different mutable compound literals.
+
+* Improve the description for E1124[redundant-keyword-arg]
+
+
+What's New in Pylint 0.27.0?
+============================
+Release date: 2013-02-26
+
+* #20693: replace pylint.el by Ian Eure version (patch by J.Kotta)
+
+* #105327: add support for --disable=all option and deprecate the
+  'disable-all' inline directive in favour of 'skip-file' (patch by
+  A.Fayolle)
+
+* #110840: add messages I0020 and I0021 for reporting of suppressed
+  messages and useless suppression pragmas. (patch by Torsten Marek)
+
+* #112728: add warning E0604 for non-string objects in __all__
+  (patch by Torsten Marek)
+
+* #120657: add warning W0110/deprecated-lambda when a map/filter
+  of a lambda could be a comprehension (patch by Martin Pool)
+
+* #113231: logging checker now looks at instances of Logger classes
+  in addition to the base logging module. (patch by Mike Bryant)
+
+* #111799: don't warn about octal escape sequence, but warn about \o
+  which is not octal in Python (patch by Martin Pool)
+
+* #110839: bind <F5> to Run button in pylint-gui
+
+* #115580: fix erroneous W0212 (access to protected member) on super call
+  (patch by Martin Pool)
+
+* #110853: fix a crash when an __init__ method in a base class has been
+  created by assignment rather than direct function definition (patch by
+  Torsten Marek)
+
+* #110838: fix pylint-gui crash when include-ids is activated (patch by
+  Omega Weapon)
+
+* #112667: fix emission of reimport warnings for mixed imports and extend
+  the testcase (patch by Torsten Marek)
+
+* #112698: fix crash related to non-inferable __all__ attributes and
+  invalid __all__ contents (patch by Torsten Marek)
+
+* Python 3 related fixes:
+
+* #110213: fix import of checkers broken with python 3.3, causing
+    "No such message id W0704" breakage
+
+* #120635: redefine cmp function used in pylint.reporters
+
+* Include full warning id for I0020 and I0021 and make sure to flush
+  warnings after each module, not at the end of the pylint run.
+  (patch by Torsten Marek)
+
+* Changed the regular expression for inline options so that it must be
+  preceded by a # (patch by Torsten Marek)
+
+* Make dot output for import graph predictable and not depend
+  on ordering of strings in hashes. (patch by Torsten Marek)
+
+* Add hooks for import path setup and move pylint's sys.path
+  modifications into them. (patch by Torsten Marek)
+
+
+What's New in Pylint 0.26.0?
+============================
+Release date: 2012-10-05
+
+* #106534: add --ignore-imports option to code similarity checking
+  and 'symilar' command line tool (patch by Ry4an Brase)
+
+* #104571: check for anomalous backslash escape, introducing new
+  W1401 and W1402 messages (patch by Martin Pool)
+
+* #100707: check for boolop being used as exception class, introducing
+  new W0711 message (patch by Tim Hatch)
+
+* #4014: improve checking of metaclass methods first args, introducing
+  new C0204 message (patch by lothiraldan@gmail.com finalized by sthenault)
+
+* #4685: check for consistency of a module's __all__ variable,
+  introducing new E0603 message
+
+* #105337: allow custom reporter in output-format (patch by Kevin Jing Qiu)
+
+* #104420: check for protocol completeness and avoid false R0903
+  (patch by Peter Hammond)
+
+* #100654: fix grammatical error for W0332 message (using 'l' as
+  long int identifier)
+
+* #103656: fix W0231 false positive for missing call to object.__init__
+  (patch by lothiraldan@gmail.com)
+
+* #63424: fix similarity report disabling by properly renaming it to RP0801
+
+* #103949: create a console_scripts entry point to be used by
+  easy_install, buildout and pip
+
+* fix cross-interpreter issue (non compatible access to __builtins__)
+
+* stop including tests files in distribution, they causes crash when
+  installed with python3 (#72022, #82417, #76910)
+
+
+What's New in Pylint 0.25.2?
+============================
+Release date: 2012-07-17
+
+* #93591: Correctly emit warnings about clobbered variable names when an
+  except handler contains a tuple of names instead of a single name.
+  (patch by tmarek@google.com)
+
+* #7394: W0212 (access to protected member) not emitted on assignments
+  (patch by lothiraldan@gmail.com)
+
+* #18772; no prototype consistency check for mangled methods (patch by
+  lothiraldan@gmail.com)
+
+* #92911: emit W0102 when sets are used as default arguments in functions
+  (patch by tmarek@google.com)
+
+* #77982: do not emit E0602 for loop variables of comprehensions
+  used as argument values inside a decorator (patch by tmarek@google.com)
+
+* #89092: don't emit E0202 (attribute hiding a method) on @property methods
+
+* #92584: fix pylint-gui crash due to internal API change
+
+* #87192: fix crash when decorators are accessed through more than one dot
+  (for instance @a.b is fine, @a.b.c crash)
+
+* #88914: fix parsing of --generated-members options, leading to crash
+  when using a regexp value set
+
+* fix potential crashes with utils.safe_infer raising InferenceError
+
+
+What's New in Pylint 0.25.1?
+============================
+Release date: 2011-12-08
+
+* #81078: Warn if names in  exception handlers clobber overwrite
+  existing names (patch by tmarek@google.com)
+
+* #81113: Fix W0702 messages appearing with the wrong line number.
+  (patch by tmarek@google.com)
+
+* #50461, #52020, #51222: Do not issue warnings when using 2.6's
+  property.setter/deleter functionality (patch by dneil@google.com)
+
+* #9188, #4024: Do not trigger W0631 if a loop variable is assigned
+  in the else branch of a for loop.
+
+
+What's New in Pylint 0.25.0?
+============================
+Release date: 2011-10-7
+
+* #74742: make allowed name for first argument of class method configurable
+  (patch by Google)
+
+* #74087: handle case where inference of a module return YES; this avoid
+  some cases of "TypeError: '_Yes' object does not support indexing" (patch
+  by Google)
+
+* #74745: make "too general" exception names configurable (patch by Google)
+
+* #74747: crash occurs when lookup up a special attribute in class scope
+  (patch by google)
+
+* #76920: crash if on e.g. "pylint --rcfile" (patch by Torsten Marek)
+
+* #77237: warning for E0202 may be very misleading
+
+* #73941: HTML report messages table is badly rendered
+
+
+What's New in Pylint 0.24.0?
+============================
+Release date: 2011-07-18
+
+* #69738: add regular expressions support for "generated-members"
+
+* ids of logging and string_format checkers have been changed:
+  logging: 65 -> 12, string_format: 99 -> 13
+  Also add documentation to say that ids of range 1-50 shall be reserved
+  to pylint internal checkers
+
+* #69993: Additional string format checks for logging module:
+  check for missing arguments, too many arguments, or invalid string
+  formats in the logging checker module. Contributed by Daniel Arena
+
+* #69220: add column offset to the reports. If you've a custom reporter,
+  this change may break it has now location gain a new item giving the
+  column offset.
+
+* #60828: Fix false positive in reimport check
+
+* #70495: absolute imports fail depending on module path (patch by Jacek Konieczny)
+
+* #22273: Fix --ignore option documentation to match reality
+
+
+What's New in Pylint 0.23.0?
+============================
+Release date: 2011-01-11
+
+* documentation update, add manpages
+
+* several performance improvements
+
+* finalize python3 support
+
+* new W0106 warning 'Expression "%s" is assigned to nothing'
+
+* drop E0501 and E0502 messages about wrong source encoding: not anymore
+  interesting since it's a syntax error for python >= 2.5 and we now only
+  support this python version and above.
+
+* don't emit W0221 or W0222 when methods as variable arguments (e.g. \*arg
+  and/or \*\*args). Patch submitted by Charles Duffy.
+
+
+What's New in Pylint 0.22.0?
+============================
+Release date: 2010-11-15
+
+* python versions: minimal python3.x support; drop python < 2.5 support
+
+
+What's New in Pylint 0.21.4?
+============================
+Release date: 2010-10-27
+
+* fix #48066: pylint crashes when redirecting output containing non-ascii characters
+
+* fix #19799: "pylint -blah" exit with status 2
+
+* update documentation
+
+
+What's New in Pylint 0.21.3?
+============================
+Release date: 2010-09-28
+
+* restored python 2.3 compatibility. Along with logilab-astng
+  0.21.3 and logilab-common 0.52, this will much probably be the
+  latest release supporting python < 2.5.
+
+
+What's New in Pylint 0.21.2?
+============================
+Release date: 2010-08-26
+
+* fix #36193: import checker raise exception on cyclic import
+
+* fix #28796: regression in --generated-members introduced pylint 0.20
+
+* some documentation cleanups
+
+
+What's New in Pylint 0.21.1?
+============================
+Release date: 2010-06-04
+
+* fix #28962: pylint crash with new options, due to missing stats data while
+  writing the Statistics by types report
+
+* updated man page to 0.21 or greater command line usage (fix debian #582494)
+
+
+What's New in Pylint 0.21.0?
+============================
+Release date: 2010-05-11
+
+* command line updated (closes #9774, #9787, #9992, #22962):
+
+* all enable-* / disable-* options have been merged into --enable / --disable
+
+* BACKWARD INCOMPATIBLE CHANGE: short name of --errors-only becomes -E, -e being
+  affected to --enable
+
+* pylint --help output much simplified, with --long-help available to get the
+  complete one
+
+* revisited gui, thanks to students from Toronto university (they are great
+  contributors to this release!)
+
+* fix #21591: html reporter produces no output if reports is set to 'no'
+
+* fix #4581: not Missing docstring (C0111) warning if a method is overridden
+
+* fix #4683: Non-ASCII characters count double if utf8 encode
+
+* fix #9018: when using defining-attr-method, method order matters
+
+* fix #4595: Comma not followed by a space should not occurs on trailing comma
+  in list/tuple/dict definition
+
+* fix #22585: [Patch] fix man warnings for pyreverse.1 manpage
+
+* fix #20067: AttributeError: 'NoneType' object has no attribute 'name' with with
+
+
+What's New in Pylint 0.20.0?
+============================
+Release date: 2010-03-01
+
+* fix #19498: fix windows batch file
+
+* fix #19339: pylint.el : non existing py-mod-map
+  (closes Debian Bug report logs - #475939)
+
+* implement #18860, new W0199 message on assert (a, b)
+
+* implement #9776, 'W0150' break or return statement in finally block may
+  swallow exception.
+
+* fix #9263, __init__ and __new__ are checked for unused arguments
+
+* fix #20991, class scope definitions ignored in a genexpr
+
+* fix #5975, Abstract intermediate class not recognized as such
+
+* fix #5977, yield and return statement have their own counters, no more R0911
+  (Too many return statements) when a function have many yield stamtements
+
+* implement #5564, function / method arguments with leading "_" are ignored in
+  arguments / local variables count.
+
+* implement #9982, E0711 specific error message when raising NotImplemented
+
+* remove --cache-size option
+
+
+What's New in Pylint 0.19.0?
+============================
+Release date: 2009-12-18
+
+* implement #18947, #5561: checker for function arguments
+
+* include James Lingard string format checker
+
+* include simple message (ids) listing by Vincent Ferotin (#9791)
+
+* --errors-only does not hide fatal error anymore
+
+* include james Lingard patches for ++/-- and duplicate key in dicts
+
+* include James Lingard patches for function call arguments checker
+
+* improved Flymake code and doc provided by Derek Harland
+
+* refactor and fix the imports checker
+
+* fix #18862: E0601 false positive with lambda functions
+
+* fix #8764: More than one statement on a single line false positive with
+  try/except/finally
+
+* fix #9215: false undefined variable error in lambda function
+
+* fix for w0108 false positive (Nathaniel)
+
+* fix test/fulltest.sh
+
+* #5821 added a utility function to run pylint in another process (patch provide by Vincent Ferotin)
+
+
+What's New in Pylint 0.18.0?
+============================
+Release date: 2009-03-25
+
+* tests ok with python 2.4, 2.5, 2.6. 2.3 not tested
+
+* fix #8687, W0613 false positive on inner function
+
+* fix #8350, C0322 false positive on multi-line string
+
+* fix #8332: set E0501 line no to the first line where non ascii character
+  has been found
+
+* avoid some E0203 / E0602 false negatives by detecting respectively
+  AttributeError / NameError
+
+* implements #4037: don't issue W0142 (* or ** magic) when they are barely
+  passed from */** arguments
+
+* complete #5573: more complete list of special methods, also skip W0613
+  for python internal method
+
+* don't show information messages by default
+
+* integration of Yuen Ho Wong's patches on Emacs lisp files
+
+
+What's New in Pylint 0.17.0?
+============================
+Release date: 2009-03-19
+
+* semicolon check : move W0601 to W0301
+
+* remove rpython : remove all rpython checker, modules and tests
+
+* astng 0.18 compatibility: support for _ast module modifies interfaces
+
+
+What's New in Pylint 0.16.0?
+============================
+Release date: 2009-01-28
+
+* change [en|dis]able-msg-cat options: only accept message categories
+  identified by their first letter (e.g. IRCWEF) without the need for comma
+  as separator
+
+* add epylint.bat script to fix Windows installation
+
+* setuptools/easy_install support
+
+* include a modified version of Maarten ter Huurne patch to avoid W0613
+  warning on arguments from overridden method
+
+* implement #5575  drop dumb W0704 message) by adding W0704 to ignored
+  messages by default
+
+* new W0108 message, checking for suspicious lambda (provided by  Nathaniel
+  Manista)
+
+* fix W0631, false positive reported by Paul Hachmann
+
+* fix #6951: false positive with W0104
+
+* fix #6949
+
+* patches by Mads Kiilerich:
+
+* implement #4691, make pylint exits with a non zero return
+  status if any messages other then Information are issued
+
+* fix #3711, #5626 (name resolution bug w/ decorator and class members)
+
+* fix #6954
+
+
+What's New in Pylint 0.15.2?
+============================
+Release date: 2008-10-13
+
+* fix #5672: W0706 weirdness ( W0706 removed )
+
+* fix #5998: documentation points to wrong url for mailing list
+
+* fix #6022: no error message on wrong module names
+
+* fix #6040: pytest doesn't run test/func_test.py
+
+
+What's New in Pylint 0.15.1?
+============================
+Release date: 2008-09-15
+
+* fix #4910: default values are missing in manpage
+
+* fix #5991: missing files in 0.15.0 tarball
+
+* fix #5993: epylint should work with python 2.3
+
+
+What's New in Pylint 0.15.0?
+============================
+Release date: 2008-09-10
+
+* include pyreverse package and class diagram generation
+
+* included Stefan Rank's patch to deal with 2.4 relative import
+
+* included Robert Kirkpatrick's tutorial and typos fixes
+
+* fix bug in reenabling message
+
+* fix #2473: invoking pylint on __init__.py (hopefully)
+
+* typecheck: acquired-members option has been dropped in favor of the more
+  generic generated-members option. If the zope option is set, the behaviour
+  is now to add some default values to generated-members.
+
+* Flymake integration: added bin/epylint and elisp/pylint-flymake.el
+
+
+What's New in Pylint 0.14.0?
+============================
+Release date: 2008-01-14
+
+* fix #3733: Messages (dis)appear depending on order of file names
+
+* fix #4026: pylint.el should require compile
+
+* fix a bug in colorized reporter, spotted by Dave Borowitz
+
+* applied patch from Stefan Rank to avoid W0410 false positive when
+  multiple "from __future__" import statements
+
+* implement #4012: flag back tick as deprecated (new W0333 message)
+
+* new ignored-class option on typecheck checker allowing to skip members
+  checking based on class name (patch provided by Thomas W Barr)
+
+
+What's New in Pylint 0.13.2?
+============================
+Release date: 2007-06-07
+
+* fix disable-checker option so that it won't accidentally enable the
+  rpython checker which is disabled by default
+
+* added note about the gedit plugin into documentation
+
+
+What's New in Pylint 0.13.1?
+============================
+Release date: 2007-03-02
+
+* fix some unexplained 0.13.0 packaging issue which led to a bunch of
+  files missing from the distribution
+
+
+What's New in Pylint 0.13.0?
+============================
+Release date: 2007-02-28
+
+* new RPython (Restricted Python) checker for PyPy fellow or people
+  wanting to get a compiled version of their python program using the
+  translator of the PyPy project. For more information about PyPy or
+  RPython, visit https://www.pypy.org, previously codespeak.net/pypy/
+
+* new E0104 and E0105 messages introduced to respectively warn about
+  "return" and "yield" outside function or method
+
+* new E0106 message when "yield" and "return something" are mixed in a
+  function or method
+
+* new W0107 message for unnecessary pass statement
+
+* new W0614 message to differentiate between unused ``import X`` and
+  unused `from X import *` (#3209, patch submitted by Daniel Drake)
+
+* included Daniel Drake's patch to have a different message E1003 instead of
+  E1001 when a missing member is found but an inference failure has been
+  detected
+
+* msvs reporter for Visual Studio line number reporting (#3285)
+
+* allow disable-all option inline (#3218, patch submitted by Daniel Drake)
+
+* --init-hook option to call arbitrary code necessary to set
+  environment (e.g. sys.path) (#3156)
+
+* One more Daniel's patch fixing a command line option parsing
+  problem, this'll definitely be the DDrake release :)
+
+* fix #3184: crashes on "return" outside function
+
+* fix #3205: W0704 false positive
+
+* fix #3123: W0212 false positive on static method
+
+* fix #2485: W0222 false positive
+
+* fix #3259: when a message is explicitly enabled, check the checker
+  emitting it is enabled
+
+
+What's New in Pylint 0.12.2?
+============================
+Release date: 2006-11-23
+
+* fix #3143: W0233 bug w/ YES objects
+
+* fix #3119: Off-by-one error counting lines in a file
+
+* fix #3117: ease sys.stdout overriding for reporters
+
+* fix #2508: E0601 false positive with lambda
+
+* fix #3125: E1101 false positive and a message duplication. Only the last part
+  is actually fixed since the initial false positive is due to dynamic setting of
+  attributes on the decimal.Context class.
+
+* fix #3149: E0101 false positives and introduced E0100 for generator __init__
+  methods
+
+* fixed some format checker false positives
+
+
+What's New in Pylint 0.12.1?
+============================
+Release date: 2006-09-25
+
+* fixed python >= 2.4 format false positive with multiple lines statement
+
+* fixed some 2.5 issues
+
+* fixed generator expression scope bug (depends on astng 0.16.1)
+
+* stop requiring __revision__
+
+
+What's New in Pylint 0.12.0?
+============================
+Release date: 2006-08-10
+
+* usability changes:
+
+    * parseable, html and color options are now handled by a single
+      output-format option
+
+    * enable-<checkerid> and disable-all options are now handled by
+      two (exclusive) enable-checker and disable-checker options
+      taking a comma separated list of checker names as value
+
+    * renamed debug-mode option to errors-only
+
+* started a reference user manual
+
+* new W0212 message for access to protected member from client code
+  (close #14081)
+
+* new W0105 and W0106 messages extracted from W0104 (statement seems
+  to have no effect) respectively when the statement is actually string
+  (that's sometimes used instead of comments for documentation) or an
+  empty  statement generated by a useless semicolon
+
+* reclassified W0302 to C0302
+
+* fix so that global messages are not anymore connected to the last
+  analyzed module (close #10106)
+
+* fix some bugs related to local disabling of messages
+
+* fix cr/lf pb when generating the rc file on windows platforms
+
+
+What's New in Pylint 0.11.0?
+============================
+Release date: 2006-04-19
+
+* fix crash caused by the exceptions checker in some case
+
+* fix some E1101 false positive with abstract method or classes defining
+  __getattr__
+
+* dirty fix to avoid "_socketobject" has not "connect" member. The actual
+  problem is that astng isn't able to understand the code used to create
+  socket.socket object with exec
+
+* added an option in the similarity checker to ignore docstrings, enabled
+  by default
+
+* included patch from Benjamin Niemann to allow block level
+  enabling/disabling of messages
+
+
+What's New in Pylint 0.10.0?
+============================
+Release date: 2006-03-06
+
+* WARNING, this release include some configuration changes (see below),
+  so you may have to check and update your own configuration file(s) if
+  you use one
+
+* this release require the 0.15 version of astng or superior (it will save
+  you a lot of pylint crashes...)
+
+* W0705 has been reclassified to E0701, and is now detecting more
+  inheriting problem, and a false positive when empty except clause is
+  following an Exception catch has been fixed (close #10422)
+
+* E0212 and E0214 (metaclass/class method should have mcs/cls as first
+  argument have been reclassified to C0202 and C0203 since this not as
+  well established as "self" for instance method (E0213)
+
+* W0224 has been reclassified into F0220 (failed to resolve interfaces
+  implemented by a class)
+
+* a new typecheck checker, introducing the following checks:
+
+    - E1101, access to nonexistent member (implements #10430), remove
+      the need of E0201 and so some options has been moved from the
+      classes checker to this one
+    - E1102, calling a non callable object
+    - E1111 and W1111 when an assignment is done on a function call but the
+      inferred function returns None (implements #10431)
+
+* change in the base checker:
+
+    - checks module level and instance attribute names (new const-rgx
+      and attr-rgx configuration option) (implements #10209  and
+      #10440)
+    - list comprehension and generator expression variables have their
+      own regular expression  (the inlinevar-rgx option) (implements
+      #9146)
+    - the C0101 check with its min-name-length option has
+      been removed (this can be specified in the regxp after all...)
+    - W0103 and W0121 are now handled by the variables checker
+      (W0103 is now W0603 and W0604 has been split into different messages)
+    - W0131 and W0132 messages  have been reclassified to C0111 and
+      C0112 respectively
+    - new W0104 message on statement without effect
+
+* regexp support for dummy-variables (dummy-variables-rgx option
+  replace dummy-variables) (implements #10027)
+
+* better global statement handling, see W0602, W0603, W0604 messages
+  (implements #10344 and #10236)
+
+* --debug-mode option, disabling all checkers without error message
+  and filtering others to only display error
+
+* fixed some R0201 (method could be a function) false positive
+
+
+What's New in Pylint 0.9.0?
+============================
+Release date: 2006-01-10
+
+* a lot of updates to follow astng 0.14 API changes, so install
+  logilab-astng  0.14 or greater before using this version of pylint
+
+* checker number 10 ! newstyle will search for problems regarding old
+  style / new style classes usage problems (rely on astng 0.14 new
+  style detection feature)
+
+* new 'load-plugins' options to load additional pylint plugins (usable
+  from the command line or from a configuration file) (implements
+  #10031)
+
+* check if a "pylintrc" file exists in the current working directory
+  before using the one specified in the PYLINTRC environment variable
+  or the default ~/.pylintrc or /etc/pylintrc
+
+* fixed W0706 (Identifier used to raise an exception is assigned...)
+  false positive and reraising a caught exception instance
+
+* fixed E0611 (No name get in module blabla) false positive when accessing
+  to a class'__dict__
+
+* fixed some E0203 ("access to member before its definition") false
+  positive
+
+* fixed E0214 ("metaclass method first argument should be mcs) false
+  positive with staticmethod used on a metaclass
+
+* fixed packaging which was missing the test/regrtest_data directory
+
+* W0212 (method could be a function) has been reclassified in the
+  REFACTOR category as R0201, and is no more considerer when a method
+  overrides an abstract method from an ancestor class
+
+* include module name in W0401 (wildcard import), as suggested by
+  Amaury
+
+* when using the '--parseable', path are written relative to the
+  current working directory if in a sub-directory of it (#9789)
+
+* 'pylint --version' shows logilab-astng and logilab-common versions
+
+* fixed pylint.el to handle space in file names
+
+* misc lint style fixes
+
+
+What's New in Pylint 0.8.1?
+============================
+Release date: 2005-11-07
+
+* fix "deprecated module" false positive when the code imports a
+  module whose name starts with a deprecated module's name (close
+  #10061)
+
+* fix "module has no name __dict__" false positive (close #10039)
+
+* fix "access to undefined variable __path__" false positive (close
+  #10065)
+
+* fix "explicit return in __init__" false positive when return is
+  actually in an inner function (close #10075)
+
+
+What's New in Pylint 0.8.0?
+============================
+Release date: 2005-10-21
+
+* check names imported from a module exists in the module (E0611),
+  patch contributed by Amaury Forgeot d'Arc
+
+* print a warning (W0212) for methods that could be a function
+  (implements #9100)
+
+* new --defining-attr-methods option on classes checker
+
+* new --acquired-members option on the classes checker, used when
+  --zope=yes to avoid false positive on acquired attributes (listed
+  using this new option) (close #8616)
+
+* generate one E0602 for each use of an undefined variable
+  (previously, only one for the first use but not for the following)
+  (implements #1000)
+
+* make profile option saveable
+
+* fix Windows .bat file,  patch contributed by Amaury Forgeot d'Arc
+
+* fix one more false positive for E0601 (access before definition)
+  with for loop such as "for i in range(10): print i" (test
+  func_noerror_defined_and_used_on_same_line)
+
+* fix false positive for E0201 (undefined member) when accessing to
+  __name__ on a class object
+
+* fix astng checkers traversal order
+
+* fix bug in format checker when parsing a file from a platform
+  using different new line characters (close #9239)
+
+* fix encoding detection regexp
+
+* fix --rcfile handling (support for --rcfile=file, close #9590)
+
+
+What's New in Pylint 0.7.0?
+============================
+Release date: 2005-05-27
+
+* WARNING: pylint is no longer a logilab subpackage. Users may have to
+  manually remove the old logilab/pylint directory.
+
+* introduce a new --additional-builtins option to handle user defined
+  builtins
+
+* --reports option has now -r as short alias, and -i for --include-ids
+
+* fix a bug in the variables checker which may causing some false
+  positives when variables are defined and used within the same
+  statement (test func_noerror_defined_and_used_on_same_line)
+
+* this time, real fix of the "disable-msg in the config file" problem,
+  test added to unittest_lint
+
+* fix bug with --list-messages and python -OO
+
+* fix possible false positive for W0201
+
+
+What's New in Pylint 0.6.4?
+===========================
+Release date: 2005-04-14
+
+* allow to parse files without extension when a path is given on the
+  command line (test noext)
+
+* don't fail if we are unable to read an inline option  (e.g. inside a
+  module), just produce an information message (test func_i0010)
+
+* new message E0103 for break or continue outside loop (close #8883,
+  test func_continue_not_in_loop)
+
+* fix bug in the variables checker, causing non detection of some
+  actual name error (close #8884, test
+  func_nameerror_on_string_substitution)
+
+* fix bug in the classes checker which was making pylint crash if
+  "object" is assigned in a class inheriting from it (test
+  func_noerror_object_as_class_attribute)
+
+* fix problem with the similar checker when related options are
+  defined in a configuration file
+
+* new --generate-man option to generate pylint's man page (require the
+  latest logilab.common (>= 0.9.3)
+
+* packaged (generated...) man page
+
+
+What's New in Pylint 0.6.3?
+===========================
+Release date: 2005-02-24
+
+* fix scope problem which may cause false positive and true negative
+  on E0602
+
+* fix problem with some options such as disable-msg causing error when
+  they are coming from the configuration file
+
+
+What's New in Pylint 0.6.2?
+============================
+Release date: 2005-02-16
+
+* fix false positive on E0201 ("access to undefined member") with
+  metaclasses
+
+* fix false positive on E0203 ("access to member before its
+  definition") when attributes are defined in a parent class
+
+* fix false positive on W0706 ("identifier used to raise an exception
+  assigned to...")
+
+* fix interpretation of "\t" as value for the indent-string
+  configuration variable
+
+* fix --rcfile so that --rcfile=pylintrc (only --rcfile pylintrc was
+  working in earlier release)
+
+* new raw checker example in the examples/ directory
+
+
+What's New in Pylint 0.6.1?
+===========================
+Release date: 2005-02-04
+
+* new --rcfile option to specify the configuration file without the
+  PYLINTRC environment variable
+
+* added an example module for a custom pylint checker (see the
+  example/ directory)
+
+* some fixes to handle fixes in common 0.9.1 (should however still working
+  with common 0.9.0, even if upgrade is recommended)
+
+
+What's New in Pylint 0.6.0?
+===========================
+Release date: 2005-01-20
+
+* refix pylint Emacs mode
+
+* no more traceback when just typing "pylint"
+
+* fix a bug which may cause crashes on resolving parent classes
+
+* fix problems with the format checker: don't chock on files
+  containing multiple CR, avoid C0322, C0323, C0324 false positives
+  with triple quoted string with quote inside
+
+* correctly detect access to member defined latter in __init__ method
+
+* now depends on common 0.8.1 to fix problem with interface resolution
+  (close #8606)
+
+* new --list-msgs option describing available checkers and their
+  messages
+
+* added windows specific documentation to the README file, contributed
+  by Brian van den Broek
+
+* updated doc/features.txt (actually this file is now generated using
+  the --list-msgs option), more entries into the FAQ
+
+* improved tests coverage
+
+
+What's New in Pylint 0.5.0?
+===========================
+Release date: 2004-10-19
+
+* avoid importing analyzed modules !
+
+* new Refactor and Convention message categories. Some Warnings have been
+  remaped into those new categories
+
+* added "similar", a tool to find copied and pasted lines of code,
+  both using a specific command line tool and integrated as a
+  pylint's checker
+
+* imports checker may report import dependencies as a dot graph
+
+* new checker regrouping most Refactor detection (with some new metrics)
+
+* more command line options storable in the configuration file
+
+* fix bug with total / undocumented number of methods
+
+
+What's New in Pylint 0.4.2?
+===========================
+Release date: 2004-07-08
+
+* fix pylint Emacs mode
+
+* fix classes checkers to handler twisted interfaces
+
+
+What's New in Pylint 0.4.1?
+===========================
+Release date: 2004-05-14
+
+* fix the setup.py script to allow bdist_winst (well, the generated
+  installer has not been tested...) with the necessary
+  logilab/__init__.py file
+
+* fix file naming convention as suggested by Andreas Amoroso
+
+* fix stupid crash bug with bad method names
+
+
+What's New in Pylint 0.4.0?
+===========================
+Release date: 2004-05-10
+
+* fix file path with --parsable
+
+* --parsable option has been renamed to --parseable
+
+* added patch from Andreas Amoroso to output message to files instead
+  of standard output
+
+* added Run to the list of correct variable names
+
+* fix variable names regexp and checking of local classes names
+
+* some basic handling of metaclasses
+
+* no-docstring-rgx apply now on classes too
+
+* new option to specify a different regexp for methods than for
+  functions
+
+* do not display the evaluation report when no statements has been
+  analysed
+
+* fixed crash with a class nested in a method
+
+* fixed format checker to deals with triple quoted string and
+  lines with code and comment mixed
+
+* use logilab.common.ureports to layout reports
+
+
+What's New in Pylint 0.3.3?
+===========================
+Release date: 2004-02-17
+
+* added a parsable text output, used when the --parsable option is
+  provided
+
+* added an Emacs mode using this output, available in the distrib's
+  elisp directory
+
+* fixed some typos in messages
+
+* change include-ids options to yn, and allow it to be in the
+  configuration file
+
+* do not chock on corrupted stats files
+
+* fixed bug in the format checker which may stop pylint execution
+
+* provide scripts for unix and windows to wrap the minimal pylint tk
+  gui
+
+
+What's New in Pylint 0.3.2?
+===========================
+Release date: 2003-12-23
+
+* html-escape messages in the HTML reporter (bug reported by Juergen
+  Hermann)
+
+* added "TODO" to the list of default note tags
+
+* added "rexec" to the list of default deprecated modules
+
+* fixed typos in some messages
+
+
+What's New in Pylint 0.3.1?
+===========================
+Release date: 2003-12-05
+
+* bug fix in format and classes checkers
+
+* remove print statement from imports checkers
+
+* provide a simple tk gui, essentially useful for windows users
+
+
+What's New in Pylint 0.3.0?
+===========================
+Release date: 2003-11-20
+
+* new exceptions checker, checking for string exception and empty
+  except clauses.
+
+* imports checker checks for reimport of modules
+
+* classes checker checks for calls to ancestor's __init__ and abstract
+  method not overridden. It doesn't complain anymore for unused import in
+  __init__ files, and provides a new option ignore-interface-methods,
+  useful when you're using zope Interface implementation in your project
+
+* base checker checks for disallowed builtins call (controlled by the
+  bad-functions option) and for use of * and **
+
+* format checker checks for use of <> and "l" as long int marker
+
+* major internal API changes
+
+* use the rewrite of astng, based on compiler.ast
+
+* added unique id for messages, as suggested by Wolfgang Grafen
+
+* added unique id for reports
+
+* can take multiple modules or files as argument
+
+* new options command line options : --disable-msg, --enable-msg,
+  --help-msg, --include-ids, --reports, --disable-report, --cache-size
+
+* --version shows the version of the python interpreter
+
+* removed some options which are now replaced by [en|dis]able-msg, or
+  disable-report
+
+* read disable-msg and enable-msg options in source files (should be
+  in comments on the top of the file, in the form
+  "# pylint: disable-msg=W0402"
+
+* new message for modules importing themselves instead of the "cyclic
+  import" message
+
+* fix bug with relative and cyclic imports
+
+* fix bug in imports checker (cycle was not always detected)
+
+* still fixes in format checker : don't check comment and docstring,
+  check first line after an indent
+
+* allowed/prohibited names now apply to all identifiers, not only
+  variables,  so changed the configuration option from
+  (good|bad)-variable-names to (good|bad)-names
+
+* added string, rexec and Bastion to the default list of deprecated
+  modules
+
+* do not print redefinition warning for function/class/method defined
+  in mutually exclusive branches
+
+
+What's New in Pylint 0.2.1?
+===========================
+Release date: 2003-10-10
+
+* added some documentation, fixed some typos
+
+* set environment variable PYLINT_IMPORT to 1 during pylint execution.
+
+* check that variables "imported" using the global statement exist
+
+* indentation problems are now warning instead of errors
+
+* fix checkers.initialize to try to load all files with a known python
+  extension (patch from wrobell)
+
+* fix a bunch of messages
+
+* fix sample configuration file
+
+* fix the bad-construction option
+
+* fix encoding checker
+
+* fix format checker
+
+
+What's New in Pylint 0.2.0?
+===========================
+Release date: 2003-09-12
+
+* new source encoding / FIXME checker (pep 263)
+
+* new --zope option which trigger Zope import. Useful to check Zope
+  products code.
+
+* new --comment option which enable the evaluation note comment
+  (disabled by default).
+
+* a ton of bug fixes
+
+* easy functional test infrastructure
+
+
+What's New in Pylint 0.1.2?
+===========================
+Release date: 2003-06-18
+
+* bug fix release
+
+* remove dependency to pyreverse
+
+
+What's New in Pylint 0.1.1?
+===========================
+Release date: 2003-06-01
+
+* much more functionalities !
+
+
+What's New in Pylint 0.1?
+===========================
+Release date: 2003-05-19
+
+* initial release

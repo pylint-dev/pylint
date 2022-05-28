@@ -9,7 +9,7 @@ from pathlib import Path
 
 import git
 
-PRIMER_DIRECTORY_PATH = Path(".pylint_primer_tests")
+PRIMER_DIRECTORY_PATH = Path("tests") / ".pylint_primer_tests"
 
 
 class PackageToLint:
