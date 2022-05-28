@@ -201,7 +201,8 @@ class Primer:
         # We want to test all the code we can
         enables = ["--enable-all-extensions", "--enable=all"]
         # Duplicate code takes too long and is relatively safe
-        disables = ["--disable=duplicate-code"]
+        # TODO: Find a way to allow cyclic-import and compare output correctly
+        disables = ["--disable=duplicate-code,cyclic-import"]
         arguments = data.pylint_args + enables + disables
         if data.pylintrc_relpath:
             arguments += [f"--rcfile={data.pylintrc_relpath}"]
