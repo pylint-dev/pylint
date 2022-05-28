@@ -170,7 +170,7 @@ class Primer:
                 filepath = str(message["path"]).replace(
                     str(package_data.clone_directory), ""
                 )
-                comment += f"{package_data.url}/blob/{package_data.branch}/{filepath}#{message['line']}\n"
+                comment += f"{package_data.url}/blob/{package_data.branch}/{filepath}#L{message['line']}\n"
                 count += 1
             comment += "\n"
 
@@ -184,7 +184,7 @@ class Primer:
                 filepath = str(message["path"]).replace(
                     str(package_data.clone_directory), ""
                 )
-                comment += f"{package_data.url}/blob/{package_data.branch}/{filepath}#{message['line']}\n"
+                comment += f"{package_data.url}/blob/{package_data.branch}/{filepath}#L{message['line']}\n"
                 count += 1
 
         if comment == "":
