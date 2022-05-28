@@ -23,7 +23,7 @@ To ease the process of reviewing your PR, do make sure to complete the following
 
 ## Description
 
-<!-- If this PR reference an issue without fixing it: -->
+<!-- If this PR references an issue without fixing it: -->
 
 Refs #XXXX
 

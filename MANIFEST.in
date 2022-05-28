@@ -6,7 +6,6 @@ prune examples
 prune tests
 prune script
 exclude .*
-exclude ChangeLog
 exclude Dockerfile
 exclude README.rst
 exclude pylintrc
