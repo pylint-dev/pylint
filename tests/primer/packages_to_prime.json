@@ -9,5 +9,10 @@
     "branch": "main",
     "directories": ["src/black/", "src/blackd/", "src/blib2to3/"],
     "url": "https://github.com/psf/black.git"
+  },
+  "pytest": {
+    "branch": "main",
+    "directories": ["src/_pytest"],
+    "url": "https://github.com/pytest-dev/pytest.git"
   }
 }

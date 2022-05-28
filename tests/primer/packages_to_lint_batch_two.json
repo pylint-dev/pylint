@@ -15,11 +15,7 @@
     "directories": ["src_py"],
     "url": "https://github.com/pygame/pygame.git"
   },
-  "pytest": {
-    "branch": "main",
-    "directories": ["src/_pytest"],
-    "url": "https://github.com/pytest-dev/pytest.git"
-  },
+
   "sentry": {
     "branch": "master",
     "directories": ["src/sentry"],
