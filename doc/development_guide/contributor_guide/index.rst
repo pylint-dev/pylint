@@ -1,3 +1,5 @@
+.. _contribute_guide:
+
 Contributing to pylint
 ======================
 
