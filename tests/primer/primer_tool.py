@@ -8,6 +8,7 @@ import argparse
 import json
 from io import StringIO
 from pathlib import Path
+from typing import Dict, List, Union
 
 import git
 
@@ -18,6 +19,8 @@ from pylint.testutils.primer import PackageToLint
 MAIN_DIR = Path(__file__).parent.parent.parent
 PRIMER_DIRECTORY = MAIN_DIR / ".pylint_primer_tests/"
 PACKAGES_TO_PRIME_PATH = Path(__file__).parent / "packages_to_prime.json"
+
+PackageMessages = Dict[str, List[Dict[str, Union[str, int]]]]
 
 
 class Primer:
@@ -58,6 +61,19 @@ class Primer:
             "--type", choices=["main", "pr"], required=True, help="Type of primer run."
         )
 
+        # All arguments for the compare parser
+        compare_parser = self._subparsers.add_parser("compare")
+        compare_parser.add_argument(
+            "--base-file",
+            required=True,
+            help="Location of output file of the base run.",
+        )
+        compare_parser.add_argument(
+            "--new-file",
+            required=True,
+            help="Location of output file of the new run.",
+        )
+
         # Storing arguments
         self.config = self._argument_parser.parse_args()
 
@@ -69,6 +85,8 @@ class Primer:
             self._handle_prepare_command()
         if self.config.command == "run":
             self._handle_run_command()
+        if self.config.command == "compare":
+            self._handle_compare_command()
 
     def _handle_prepare_command(self) -> None:
         commit_string = ""
@@ -100,7 +118,7 @@ class Primer:
                 f.write(commit_string)
 
     def _handle_run_command(self) -> None:
-        packages: dict[str, list[dict[str, str | int]]] = {}
+        packages: PackageMessages = {}
 
         for package, data in self.packages.items():
             output = self._lint_package(data)
@@ -112,11 +130,79 @@ class Primer:
         ) as f:
             json.dump(packages, f)
 
+    def _handle_compare_command(self) -> None:
+        with open(self.config.base_file, encoding="utf-8") as f:
+            main_dict: PackageMessages = json.load(f)
+        with open(self.config.new_file, encoding="utf-8") as f:
+            new_dict: PackageMessages = json.load(f)
+
+        final_main_dict: PackageMessages = {}
+        for package, messages in main_dict.items():
+            final_main_dict[package] = []
+            for message in messages:
+                try:
+                    new_dict[package].remove(message)
+                except ValueError:
+                    final_main_dict[package].append(message)
+
+        self._create_comment(final_main_dict, new_dict)
+
+    def _create_comment(
+        self, all_missing_messages: PackageMessages, all_new_messages: PackageMessages
+    ) -> None:
+        comment = ""
+        for package, missing_messages in all_missing_messages.items():
+            new_messages = all_new_messages[package]
+            package_data = self.packages[package]
+
+            if not missing_messages and not new_messages:
+                continue
+
+            comment += f"\n\n**Effect on [{package}]({self.packages[package].url}):**\n"
+
+            if missing_messages:
+                comment += "The following messages are no longer emitted:\n"
+            count = 1
+            for message in missing_messages:
+                comment += (
+                    f"{count}) {message['symbol']} on line {message['line']} here:\n"
+                )
+                filepath = str(message["path"]).replace(
+                    str(package_data.clone_directory), ""
+                )
+                comment += f"{package_data.url}/blob/{package_data.branch}/{filepath}#{message['line']}\n"
+                count += 1
+            comment += "\n"
+
+            count = 1
+            if new_messages:
+                comment += "The following messages are now emitted:\n"
+            for message in new_messages:
+                comment += (
+                    f"{count}) {message['symbol']} on line {message['line']} here:\n"
+                )
+                filepath = str(message["path"]).replace(
+                    str(package_data.clone_directory), ""
+                )
+                comment += f"{package_data.url}/blob/{package_data.branch}/{filepath}#{message['line']}\n"
+                count += 1
+
+        if comment == "":
+            comment = "🤖 According to the primer, this change has **no effect** on the checked open source code. 🤖🎉"
+        else:
+            comment = (
+                "🤖 **Effect of this PR on checked open source code:** 🤖\n\n" + comment
+            )
+
+        with open("comment.txt", "w", encoding="utf-8") as f:
+            f.write(comment)
+
     def _lint_package(self, data: PackageToLint) -> list[dict[str, str | int]]:
         # We want to test all the code we can
         enables = ["--enable-all-extensions", "--enable=all"]
         # Duplicate code takes too long and is relatively safe
-        disables = ["--disable=duplicate-code"]
+        # TODO: Find a way to allow cyclic-import and compare output correctly
+        disables = ["--disable=duplicate-code,cyclic-import"]
         arguments = data.directories + data.pylint_args + enables + disables
         if data.pylintrc_relpath:
             arguments += [f"--rcfile={data.pylintrc_relpath}"]
