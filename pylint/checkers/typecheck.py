@@ -1920,8 +1920,7 @@ accessed. Python regular expressions are accepted.",
             # Astroid will have inferred the existence of __or__ / __ror__ on
             # builtins.type, which is not suitable.
             is_py310_builtin = all(
-                attr.parent.qname() == "builtins.type"
-                for attr in attrs
+                attr.parent.qname() == "builtins.type" for attr in attrs
             )
             return (not is_py310_builtin) or self._py310_plus
 
