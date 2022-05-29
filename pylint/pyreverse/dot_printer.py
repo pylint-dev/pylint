@@ -92,15 +92,8 @@ class DotPrinter(Printer):
 
         # Add class attributes
         attrs: list[str] = properties.attrs or []
-        label = (
-            "{"
-            + label
-            + "|"
-            # we need to escape the '|' character (which can occur in type annotation
-            # with alternative union syntax) to avoid it being interpreted as a separator
-            + r"\l".join(attr.replace("|", r"\|") for attr in attrs)
-            + r"\l|"
-        )
+        attrs_string = r"\l".join(attr.replace("|", r"\|") for attr in attrs)
+        label = rf"{{{label}|{attrs_string}\l|"
 
         # Add class methods
         methods: list[nodes.FunctionDef] = properties.methods or []
