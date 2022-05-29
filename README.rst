@@ -3,6 +3,8 @@
 
 .. _`Pylint`: https://pylint.pycqa.org/
 
+.. This is used inside the doc to recover the start of the introduction
+
 .. image:: https://github.com/PyCQA/pylint/actions/workflows/tests.yaml/badge.svg?branch=main
     :target: https://github.com/PyCQA/pylint/actions
 
@@ -85,8 +87,12 @@ pydocstringformatter_ (automated pep257).
 .. _pydocstringformatter: https://github.com/DanielNoord/pydocstringformatter
 .. _isort: https://pycqa.github.io/isort/
 
+.. This is used inside the doc to recover the end of the introduction
+
 Install
 -------
+
+.. This is used inside the doc to recover the start of the short text for installation
 
 For command line use, pylint is installed with::
 
@@ -95,10 +101,14 @@ For command line use, pylint is installed with::
 It can also be integrated in most editors or IDEs. More information can be found
 `in the documentation`_.
 
-.. _in the documentation: https://pylint.pycqa.org/en/latest/user_guide/installation.html
+.. _in the documentation: https://pylint.pycqa.org/en/latest/user_guide/installation/index.html
+
+.. This is used inside the doc to recover the end of the short text for installation
 
 Contributing
 ------------
+
+.. This is used inside the doc to recover the start of the short text for contribution
 
 We welcome all forms of contributions such as updates for documentation, new code, checking issues for duplicates or telling us
 that we can close them, confirming that issues still exist, `creating issues because
@@ -108,9 +118,10 @@ Please follow the `code of conduct`_ and check `the Contributor Guides`_ if you 
 make a code contribution.
 
 .. _creating issues because you found a bug or want a feature: https://pylint.pycqa.org/en/latest/contact.html#bug-reports-feedback
-.. _code of conduct: https://github.com/Pierre-Sassoulas/pylint/blob/main/CODE_OF_CONDUCT.md
+.. _code of conduct: https://github.com/PyCQA/pylint/blob/main/CODE_OF_CONDUCT.md
 .. _the Contributor Guides: https://pylint.pycqa.org/en/latest/development_guide/contribute.html
 
+.. This is used inside the doc to recover the end of the short text for contribution
 
 Show your usage
 -----------------
@@ -122,7 +133,7 @@ You can place this badge in your README to let others know your project uses pyl
 
 Learn how to add a badge to your documentation in the `the badge documentation`_.
 
-.. _the badge documentation: https://pylint.pycqa.org/en/latest/user_guide/badge.html
+.. _the badge documentation: https://pylint.pycqa.org/en/latest/user_guide/installation/badge.html
 
 License
 -------

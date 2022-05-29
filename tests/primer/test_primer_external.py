@@ -14,7 +14,7 @@ from pytest import LogCaptureFixture
 
 from pylint.testutils.primer import PackageToLint
 
-PRIMER_DIRECTORY = Path(".pylint_primer_tests/").resolve()
+PRIMER_DIRECTORY = (Path("tests") / ".pylint_primer_tests/").resolve()
 
 
 def get_packages_to_lint_from_json(json_path: Path | str) -> dict[str, PackageToLint]:

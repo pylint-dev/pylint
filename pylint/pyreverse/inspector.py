@@ -12,6 +12,7 @@ from __future__ import annotations
 import collections
 import os
 import traceback
+import warnings
 from collections.abc import Generator
 from typing import Any, Callable, Optional
 
@@ -22,11 +23,6 @@ from pylint import constants
 from pylint.pyreverse import utils
 
 _WrapperFuncT = Callable[[Callable[[str], nodes.Module], str], Optional[nodes.Module]]
-
-
-def _iface_hdlr(_: nodes.NodeNG | Any) -> bool:
-    """Handler used by interfaces to handle suspicious interface nodes."""
-    return True
 
 
 def _astroid_wrapper(
@@ -42,17 +38,13 @@ def _astroid_wrapper(
     return None
 
 
-def interfaces(
-    node: nodes.ClassDef,
-    herited: bool = True,
-    handler_func: Callable[[nodes.NodeNG | Any], bool] = _iface_hdlr,
-) -> Generator[Any, None, None]:
+def interfaces(node: nodes.ClassDef) -> Generator[Any, None, None]:
     """Return an iterator on interfaces implemented by the given class node."""
     try:
         implements = astroid.bases.Instance(node).getattr("__implements__")[0]
     except astroid.exceptions.NotFoundError:
         return
-    if not herited and implements.frame(future=True) is not node:
+    if implements.frame(future=True) is not node:
         return
     found = set()
     missing = False
@@ -60,7 +52,7 @@ def interfaces(
         if iface is astroid.Uninferable:
             missing = True
             continue
-        if iface not in found and handler_func(iface):
+        if iface not in found:
             found.add(iface)
             yield iface
     if missing:
@@ -135,13 +127,9 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
       list of implemented interface _objects_ (only on astroid.Class nodes)
     """
 
-    def __init__(
-        self, project: Project, inherited_interfaces: bool = False, tag: bool = False
-    ) -> None:
+    def __init__(self, project: Project, tag: bool = False) -> None:
         IdGeneratorMixIn.__init__(self)
         utils.LocalsVisitor.__init__(self)
-        # take inherited interface in consideration or not
-        self.inherited_interfaces = inherited_interfaces
         # tag nodes or not
         self.tag = tag
         # visited project
@@ -196,8 +184,18 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
                     self.handle_assignattr_type(assignattr, node)
         # resolve implemented interface
         try:
-            ifaces = interfaces(node, self.inherited_interfaces)
-            node.implements = list(ifaces) if ifaces is not None else []
+            ifaces = interfaces(node)
+            if ifaces is not None:
+                node.implements = list(ifaces)
+                # TODO: 3.0: Remove support for __implements__
+                warnings.warn(
+                    "pyreverse will drop support for resolving and displaying implemented interfaces in pylint 3.0. "
+                    "The implementation relies on the '__implements__'  attribute proposed in PEP 245, which was rejected "
+                    "in 2006.",
+                    DeprecationWarning,
+                )
+            else:
+                node.implements = []
         except astroid.InferenceError:
             node.implements = []
 
@@ -212,11 +210,6 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         node.locals_type = collections.defaultdict(list)
         if self.tag:
             node.uid = self.generate_id()
-
-    link_project = visit_project
-    link_module = visit_module
-    link_class = visit_classdef
-    link_function = visit_functiondef
 
     def visit_assignname(self, node: nodes.AssignName) -> None:
         """Visit an astroid.AssignName node.

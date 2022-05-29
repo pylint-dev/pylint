@@ -123,7 +123,9 @@ class _ArgumentsProvider:
 
     # pylint: disable-next=unused-argument
     def set_option(self, optname, value, action=None, optdict=None):  # pragma: no cover
-        """DEPRECATED: Method called to set an option (registered in the options list)."""
+        """DEPRECATED: Method called to set an option (registered in the options
+        list).
+        """
         # TODO: 3.0: Remove deprecated method.
         warnings.warn(
             "set_option has been deprecated. You can use _arguments_manager.set_option "
@@ -160,6 +162,9 @@ class _ArgumentsProvider:
 
         (section, [list of (optname, optdict, optvalue)])
         """
+        # TODO 3.0: Make this function private see
+        # https://github.com/PyCQA/pylint/pull/6665#discussion_r880143229
+        # It's only used in '_get_global_options_documentation'
         warnings.warn(
             "options_by_section has been deprecated. It will be removed "
             "in a future release.",

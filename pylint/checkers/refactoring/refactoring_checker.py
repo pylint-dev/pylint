@@ -128,8 +128,8 @@ def _is_a_return_statement(node: nodes.Call) -> bool:
 
 
 def _is_part_of_with_items(node: nodes.Call) -> bool:
-    """Checks if one of the node's parents is a ``nodes.With`` node and that the node itself is located
-    somewhere under its ``items``.
+    """Checks if one of the node's parents is a ``nodes.With`` node and that the node
+    itself is located somewhere under its ``items``.
     """
     frame = node.frame(future=True)
     current = node
@@ -143,8 +143,8 @@ def _is_part_of_with_items(node: nodes.Call) -> bool:
 
 
 def _will_be_released_automatically(node: nodes.Call) -> bool:
-    """Checks if a call that could be used in a ``with`` statement is used in an alternative
-    construct which would ensure that its __exit__ method is called.
+    """Checks if a call that could be used in a ``with`` statement is used in an
+    alternative construct which would ensure that its __exit__ method is called.
     """
     callables_taking_care_of_exit = frozenset(
         (
@@ -344,7 +344,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "R1719": (
             "The if expression can be replaced with %s",
             "simplifiable-if-expression",
-            "Used when an if expression can be replaced with 'bool(test)'.",
+            "Used when an if expression can be replaced with 'bool(test)' "
+            "or simply 'test' if the boolean cast is implicit.",
         ),
         "R1720": (
             'Unnecessary "%s" after "raise", %s',
@@ -1703,7 +1704,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         Args:
             node (nodes.FunctionDef): the function holding the return statements.
-
         """
         # explicit return statements are those with a not None value
         explicit_returns = [
@@ -1788,7 +1788,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         Returns:
             bool: True if the node ends with an explicit statement, False otherwise.
-
         """
         # Recursion base case
         if isinstance(node, nodes.Return):

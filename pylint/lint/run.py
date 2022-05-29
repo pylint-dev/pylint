@@ -62,7 +62,9 @@ def _query_cpu() -> int | None:
 
 
 def _cpu_count() -> int:
-    """Use sched_affinity if available for virtualized or containerized environments."""
+    """Use sched_affinity if available for virtualized or containerized
+    environments.
+    """
     cpu_share = _query_cpu()
     cpu_count = None
     sched_getaffinity = getattr(os, "sched_getaffinity", None)

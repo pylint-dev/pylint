@@ -5,9 +5,9 @@
 Messages overview
 #################
 
-..
-  NOTE This file is auto-generated. Make any changes to the associated
-  docs extension in 'doc/exts/pylint_messages.py'.
+
+.. This file is auto-generated. Make any changes to the associated
+.. docs extension in 'doc/exts/pylint_messages.py'.
 
 Pylint can emit the following messages:
 

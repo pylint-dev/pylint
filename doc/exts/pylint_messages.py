@@ -48,7 +48,7 @@ class MessageData(NamedTuple):
 MessagesDict = Dict[str, List[MessageData]]
 OldMessagesDict = Dict[str, DefaultDict[Tuple[str, str], List[Tuple[str, str]]]]
 """DefaultDict is indexed by tuples of (old name symbol, old name id) and values are
-tuples of (new name symbol, new name category)
+tuples of (new name symbol, new name category).
 """
 
 
@@ -60,57 +60,82 @@ def _register_all_checkers_and_extensions(linter: PyLinter) -> None:
 
 def _get_message_data(data_path: Path) -> Tuple[str, str, str, str]:
     """Get the message data from the specified path."""
-    good_code, bad_code, details, related = "", "", "", ""
-
+    good_py_path = data_path / "good.py"
+    bad_py_path = data_path / "bad.py"
+    details_rst_path = data_path / "details.rst"
+    related_rst_path = data_path / "related.rst"
     if not data_path.exists():
-        return good_code, bad_code, details, related
-
-    if (data_path / "good.py").exists():
-        with open(data_path / "good.py", encoding="utf-8") as file:
-            file_content = file.readlines()
-            indented_file_content = "".join("  " + i for i in file_content)
-            good_code = f"""
-**Correct code:**
-
-.. code-block:: python
-
-{indented_file_content}"""
-
-    if (data_path / "bad.py").exists():
-        with open(data_path / "bad.py", encoding="utf-8") as file:
-            file_content = file.readlines()
-            indented_file_content = "".join("  " + i for i in file_content)
-            bad_code = f"""
-**Problematic code:**
-
-.. code-block:: python
-
-{indented_file_content}"""
-
-    if (data_path / "details.rst").exists():
-        with open(data_path / "details.rst", encoding="utf-8") as file:
-            file_content_string = file.read()
-            details = f"""
-**Additional details:**
-
-{file_content_string}"""
-
-    if (data_path / "related.rst").exists():
-        with open(data_path / "related.rst", encoding="utf-8") as file:
-            file_content_string = file.read()
-            related = f"""
-**Related links:**
-
-{file_content_string}"""
-
+        _create_placeholders(data_path, details_rst_path, good_py_path)
+    good_code = _get_titled_rst(
+        title="Correct code", text=_get_python_code_as_rst(good_py_path)
+    )
+    bad_code = _get_titled_rst(
+        title="Problematic code", text=_get_python_code_as_rst(bad_py_path)
+    )
+    details = _get_titled_rst(
+        title="Additional details", text=_get_rst_as_str(details_rst_path)
+    )
+    related = _get_titled_rst(
+        title="Related links", text=_get_rst_as_str(related_rst_path)
+    )
+    assert (not bad_code and not related) or (
+        "placeholder" not in good_code and "help us make the doc better" not in details
+    ), "Please remove placeholders if you completed the documentation"
     return good_code, bad_code, details, related
+
+
+def _get_titled_rst(title: str, text: str) -> str:
+    """Return rst code with a title if there is anything in the section."""
+    return f"**{title}:**\n\n{text}" if text else ""
+
+
+def _get_rst_as_str(rst_path: Path) -> str:
+    """Return the content of an 'rst' file or an empty string if the file does not
+    exist.
+    """
+    if not rst_path.exists():
+        return ""
+    with open(rst_path, encoding="utf-8") as f:
+        return f.read()
+
+
+def _get_python_code_as_rst(code_path: Path) -> str:
+    """Return the 'rst' representation of a python file or an empty string if the file
+    does not exist.
+    """
+    if not code_path.exists():
+        return ""
+    with open(code_path, encoding="utf-8") as f:
+        file_content = f.readlines()
+    return f"""\
+.. code-block:: python
+
+{"".join("  " + i for i in file_content)}"""
+
+
+def _create_placeholders(
+    data_path: Path, details_rst_path: Path, good_py_path: Path
+) -> None:
+    data_path.mkdir(parents=True)
+    with open(good_py_path, "w", encoding="utf-8") as file:
+        file.write(
+            """\
+# This is a placeholder for correct code for this message.
+"""
+        )
+    with open(details_rst_path, "w", encoding="utf-8") as file:
+        file.write(
+            """\
+You can help us make the doc better `by contributing <https://github.com/PyCQA/pylint/issues/5953>`_ !
+"""
+        )
 
 
 def _get_all_messages(
     linter: PyLinter,
 ) -> Tuple[MessagesDict, OldMessagesDict]:
-    """Get all messages registered to a linter and return a dictionary indexed by message
-    type.
+    """Get all messages registered to a linter and return a dictionary indexed by
+    message type.
 
     Also return a dictionary of old message and the new messages they can be mapped to.
     """
@@ -135,10 +160,9 @@ def _get_all_messages(
         for checker in linter.get_checkers()
     )
     for checker, message in checker_message_mapping:
-        message_data_path = (
-            PYLINT_MESSAGES_DATA_PATH / message.symbol[0] / message.symbol
+        good_code, bad_code, details, related = _get_message_data(
+            _get_message_data_path(message)
         )
-        good_code, bad_code, details, related = _get_message_data(message_data_path)
 
         checker_module = getmodule(checker)
 
@@ -168,6 +192,10 @@ def _get_all_messages(
                 )
 
     return messages_dict, old_messages
+
+
+def _get_message_data_path(message: MessageDefinition) -> Path:
+    return PYLINT_MESSAGES_DATA_PATH / message.symbol[0] / message.symbol
 
 
 def _message_needs_update(message_data: MessageData, category: str) -> bool:
@@ -254,9 +282,9 @@ def _write_messages_list_page(
 
 {"#" * len(title)}
 {get_rst_title(title, "#")}
-..
-  NOTE This file is auto-generated. Make any changes to the associated
-  docs extension in 'doc/exts/pylint_messages.py'.
+
+.. This file is auto-generated. Make any changes to the associated
+.. docs extension in 'doc/exts/pylint_messages.py'.
 
 Pylint can emit the following messages:
 
@@ -279,7 +307,6 @@ Pylint can emit the following messages:
             old_messages_string = "".join(
                 f"   {category}/{old_message[0]}\n" for old_message in old_messages
             )
-
             # Write list per category. We need the '-category' suffix in the reference
             # because 'fatal' is also a message's symbol
             stream.write(
@@ -311,15 +338,21 @@ def _write_redirect_pages(old_messages: OldMessagesDict) -> None:
         if not os.path.exists(category_dir):
             os.makedirs(category_dir)
         for old_name, new_names in old_names.items():
-            old_name_file = os.path.join(category_dir, f"{old_name[0]}.rst")
-            with open(old_name_file, "w", encoding="utf-8") as stream:
-                new_names_string = "".join(
-                    f"   ../{new_name[1]}/{new_name[0]}.rst\n" for new_name in new_names
-                )
-                stream.write(
-                    f""".. _{old_name[0]}:
+            _write_redirect_old_page(category_dir, old_name, new_names)
 
-{get_rst_title(" / ".join(old_name), "=")}
+
+def _write_redirect_old_page(
+    category_dir: Path,
+    old_name: Tuple[str, str],
+    new_names: List[Tuple[str, str]],
+) -> None:
+    old_name_file = os.path.join(category_dir, f"{old_name[0]}.rst")
+    new_names_string = "".join(
+        f"   ../{new_name[1]}/{new_name[0]}.rst\n" for new_name in new_names
+    )
+    content = f""".. _{old_name[0]}:
+
+{get_rst_title("/".join(old_name), "=")}
 "{old_name[0]} has been renamed. The new message can be found at:
 
 .. toctree::
@@ -328,7 +361,8 @@ def _write_redirect_pages(old_messages: OldMessagesDict) -> None:
 
 {new_names_string}
 """
-                )
+    with open(old_name_file, "w", encoding="utf-8") as stream:
+        stream.write(content)
 
 
 # pylint: disable-next=unused-argument

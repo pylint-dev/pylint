@@ -30,7 +30,9 @@ else:
 
 
 class _BasicChecker(BaseChecker):
-    """Permits separating multiple checks with the same checker name into classes/file."""
+    """Permits separating multiple checks with the same checker name into
+    classes/file.
+    """
 
     name = "basic"
 

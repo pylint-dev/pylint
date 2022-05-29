@@ -1,0 +1,28 @@
+{
+  "astroid": {
+    "branch": "main",
+    "directories": ["astroid"],
+    "url": "https://github.com/PyCQA/astroid",
+    "pylintrc_relpath": "pylintrc"
+  },
+  "black": {
+    "branch": "main",
+    "directories": ["src/black/", "src/blackd/", "src/blib2to3/"],
+    "url": "https://github.com/psf/black"
+  },
+  "flask": {
+    "branch": "main",
+    "directories": ["src/flask"],
+    "url": "https://github.com/pallets/flask"
+  },
+  "pygame": {
+    "branch": "main",
+    "directories": ["src_py"],
+    "url": "https://github.com/pygame/pygame"
+  },
+  "pytest": {
+    "branch": "main",
+    "directories": ["src/_pytest"],
+    "url": "https://github.com/pytest-dev/pytest"
+  }
+}
