@@ -95,7 +95,7 @@ jobs:
         run: |
           . venv/bin/activate
           pip install -e .
-          pytest -m primer_stdlib --primer-stdlib -n auto
+          pytest -m primer_stdlib --primer-stdlib -n auto -vv
 
   pytest-primer-external-batch-one:
     name: run on batch one / ${{ matrix.python-version }} / Linux
@@ -130,7 +130,7 @@ jobs:
         run: |
           . venv/bin/activate
           pip install -e .
-          pytest -m primer_external_batch_one --primer-external -n auto
+          pytest -m primer_external_batch_one --primer-external -n auto -vv
 
   pytest-primer-external-batch-two:
     name: run on batch two / ${{ matrix.python-version }} / Linux
@@ -165,4 +165,4 @@ jobs:
         run: |
           . venv/bin/activate
           pip install -e .
-          pytest -m primer_external_batch_two --primer-external -n auto
+          pytest -m primer_external_batch_two --primer-external -n auto -vv
