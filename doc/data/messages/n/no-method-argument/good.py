@@ -1,6 +1,5 @@
 class Person:
-    def __init__(self):
-        self.greeting = "hello"
+    greeting = "hello"
 
     def print_greeting(self):
         print(self.greeting)
