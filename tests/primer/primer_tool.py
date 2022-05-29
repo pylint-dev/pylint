@@ -160,12 +160,56 @@ class Primer:
 
             comment += f"\n\n**Effect on [{package}]({self.packages[package].url}):**\n"
 
+            # Create comment for new messages
+            count = 1
+            fatal_count = 1
+            new_non_fatal_messages = ""
+            new_fatal_messages = ""
+            if new_messages:
+                print("Now emitted:")
+            for message in new_messages:
+                if message["type"] == "fatal":
+                    filepath = str(message["path"]).replace(
+                        str(package_data.clone_directory), ""
+                    )
+                    new_fatal_messages += (
+                        f"{fatal_count}) {message['symbol']}:\n*{message['message']}*\n"
+                        "**Please check your changes on the following file**:\n"
+                        f"{package_data.url}/blob/{package_data.branch}{filepath}#L{message['line']}\n"
+                    )
+                    print(message)
+                    fatal_count += 1
+                else:
+                    filepath = str(message["path"]).replace(
+                        str(package_data.clone_directory), ""
+                    )
+                    new_non_fatal_messages += (
+                        f"{count}) {message['symbol']}:\n*{message['message']}*\n"
+                        f"{package_data.url}/blob/{package_data.branch}{filepath}#L{message['line']}\n"
+                    )
+                    print(message)
+                    count += 1
+
+            if new_fatal_messages:
+                comment += (
+                    "The following **fatal messages** are now emitted: 💣💥\n\n<details>\n\n"
+                    + new_fatal_messages
+                    + "\n</details>\n\n"
+                )
+            if new_non_fatal_messages:
+                comment += (
+                    "The following messages are now emitted:\n\n<details>\n\n"
+                    + new_non_fatal_messages
+                    + "\n</details>\n\n"
+                )
+
+            # Create comment for missing messages
+            count = 1
             if missing_messages:
                 comment += (
                     "The following messages are no longer emitted:\n\n<details>\n\n"
                 )
                 print("No longer emitted:")
-            count = 1
             for message in missing_messages:
                 comment += f"{count}) {message['symbol']}:\n*{message['message']}*\n"
                 filepath = str(message["path"]).replace(
@@ -175,22 +219,7 @@ class Primer:
                 count += 1
                 print(message)
             if missing_messages:
-                comment += "\n</details>\n"
-
-            count = 1
-            if new_messages:
-                comment += "The following messages are now emitted:\n\n<details>\n\n"
-                print("Now emitted:")
-            for message in new_messages:
-                comment += f"{count}) {message['symbol']}:\n*{message['message']}*\n"
-                filepath = str(message["path"]).replace(
-                    str(package_data.clone_directory), ""
-                )
-                comment += f"{package_data.url}/blob/{package_data.branch}{filepath}#L{message['line']}\n"
-                count += 1
-                print(message)
-            if new_messages:
-                comment += "\n</details>\n"
+                comment += "\n</details>\n\n"
 
         if comment == "":
             comment = "🤖 According to the primer, this change has **no effect** on the checked open source code. 🤖🎉"
