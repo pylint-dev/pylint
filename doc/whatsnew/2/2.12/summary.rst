@@ -35,11 +35,12 @@ New checkers
 
   Closes #3799
 
-* Checkers for ``typing.final``
+typing.final
+------------
 
-  * Added ``overridden-final-method``: Emitted when a method which is annotated with ``typing.final`` is overridden
+* Added ``overridden-final-method``: Emitted when a method which is annotated with ``typing.final`` is overridden
 
-  * Added ``subclassed-final-class``: Emitted when a class which is annotated with ``typing.final`` is subclassed
+* Added ``subclassed-final-class``: Emitted when a class which is annotated with ``typing.final`` is subclassed
 
   Closes #3197
 
@@ -161,7 +162,7 @@ Other Changes
 * ``undefined-variable`` and ``unused-variable`` now correctly trigger for assignment expressions
   in functions defaults
 
-  Fixes part of #3688
+  Refs #3688
 
 * ``self-cls-assignment`` now also considers tuple assignment
 
@@ -231,7 +232,7 @@ Other Changes
 
 * Fix crash on ``open()`` calls when the ``mode`` argument is not a simple string.
 
-  Partially closes #5321
+  Fixes part of #5321
 
 * Add ability to add ``end_line`` and ``end_column`` to the ``--msg-template`` option.
   With the standard ``TextReporter`` this will add the line and column number of the

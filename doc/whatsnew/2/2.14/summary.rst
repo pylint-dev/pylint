@@ -104,19 +104,19 @@ Extensions
     * Added optional extension ``redefined-loop-name`` to emit messages when a loop variable
       is redefined in the loop body.
 
-      Closes #5072
+   Closes #5072
 
 * ``DocStringStyleChecker``
 
     * Re-enable checker ``bad-docstring-quotes`` for Python <= 3.7.
 
-      Closes #6087
+   Closes #6087
 
 * ``NoSelfUseChecker``
 
     * Added ``no-self-use`` check, previously enabled by default.
 
-      Closes #5502
+   Closes #5502
 
 
 Other Changes
@@ -191,7 +191,7 @@ Other Changes
 
 * Added the ``generate-toml-config`` option.
 
-  Ref #5462
+  Refs #5462
 
 * ``bad-option-value`` will be emitted whenever a configuration value or command line invocation
   includes an unknown message.
@@ -249,7 +249,7 @@ Other Changes
   ``import-graph``, ``ext-import-graph``,  ``int-import-graph`` options, and the spell checker's ``spelling-private-dict-file``
   option.
 
-  Relates to #6493
+  Refs #6493
 
 * Don't emit ``unsubscriptable-object`` for string annotations.
   Pylint doesn't check if class is only generic in type stubs only.
@@ -258,7 +258,7 @@ Other Changes
 
 * Fix pyreverse crash ``RuntimeError: dictionary changed size during iteration``
 
-  Relates to #6612
+  Refs #6612
 
 * Fix syntax for return type annotations in MermaidJS diagrams produced with ``pyreverse``.
 
@@ -299,7 +299,7 @@ Deprecations
 * ``interfaces.implements`` has been deprecated and will be removed in 3.0. Please use standard inheritance
   patterns instead of ``__implements__``.
 
-  Ref #2287
+  Refs #2287
 
 * All ``Interface`` classes in ``pylint.interfaces`` have been deprecated. You can subclass
   the respective normal classes to get the same behaviour. The ``__implements__`` functionality
@@ -318,21 +318,21 @@ Deprecations
 * The ``config`` attribute of ``BaseChecker`` has been deprecated. You can use ``checker.linter.config``
   to access the global configuration object instead of a checker-specific object.
 
-  Ref #5392
+  Refs #5392
 
 * The ``level`` attribute of ``BaseChecker`` has been deprecated: everything is now
   displayed in ``--help``, all the time.
 
-  Ref #5392
+  Refs #5392
 
 * The ``set_option`` method of ``BaseChecker`` has been deprecated. You can use ``checker.linter.set_option``
   to set an option on the global configuration object instead of a checker-specific object.
 
-  Ref #5392
+  Refs #5392
 
 * The ``options_providers`` attribute of ``ArgumentsManager`` has been deprecated.
 
-  Ref #5392
+  Refs #5392
 
 * Fix saving of persistent data files in environments where the user's cache
   directory and the linted file are on a different drive.
@@ -344,62 +344,62 @@ Deprecations
 * The ``config`` attribute of ``PyLinter`` is now of the ``argparse.Namespace`` type instead of
   ``optparse.Values``.
 
-  Ref #5392
+  Refs #5392
 
 * ``UnsupportedAction`` has been deprecated.
 
-  Ref #5392
+  Refs #5392
 
 * ``OptionsManagerMixIn`` has been deprecated.
 
-  Ref #5392
+  Refs #5392
 
 * ``OptionParser`` has been deprecated.
 
-  Ref #5392
+  Refs #5392
 
 * ``Option`` has been deprecated.
 
-  Ref #5392
+  Refs #5392
 
 * ``OptionsProviderMixIn`` has been deprecated.
 
-  Ref #5392
+  Refs #5392
 
 * ``ConfigurationMixIn`` has been deprecated.
 
 * The ``option_groups`` attribute of ``PyLinter`` has been deprecated.
 
-  Ref #5392
+  Refs #5392
 
 * ``get_global_config`` has been deprecated. You can now access all global options from
   ``checker.linter.config``.
 
-  Ref #5392
+  Refs #5392
 
 * ``OptionsManagerMixIn`` has been replaced with ``ArgumentsManager``. ``ArgumentsManager`` is considered
   private API and most methods that were public on ``OptionsManagerMixIn`` have now been deprecated and will
   be removed in a future release.
 
-  Ref #5392
+  Refs #5392
 
 * ``OptionsProviderMixIn`` has been replaced with ``ArgumentsProvider``. ``ArgumentsProvider`` is considered
   private API and most methods that were public on ``OptionsProviderMixIn`` have now been deprecated and will
   be removed in a future release.
 
-  Ref #5392
+  Refs #5392
 
 * ``pylint.pyreverse.ASTWalker`` has been removed, as it was only used internally by a single child class.
 
-  Ref #6712
+  Refs #6712
 
 * ``pyreverse``: Resolving and displaying implemented interfaces that are defined by the ``__implements__``
   attribute has been deprecated and will be removed in 3.0.
 
-  Ref #6713
+  Refs #6713
 
 * ``is_class_subscriptable_pep585_with_postponed_evaluation_enabled`` has been deprecated.
   Use ``is_postponed_evaluation_enabled(node) and is_node_in_type_annotation_context(node)``
   instead.
 
-  Ref #6536
+  Refs #6536

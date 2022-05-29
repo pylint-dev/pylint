@@ -122,7 +122,7 @@ Extensions
     * Disable checker ``bad-docstring-quotes`` for Python <= 3.7, because in these versions the line
       numbers for decorated functions and classes are not reliable which interferes with the checker.
 
-      Closes #3077
+   Closes #3077
 
 Other Changes
 =============
@@ -144,7 +144,7 @@ Other Changes
 * No longer emit ``no-member`` in for loops that reference ``self`` if the binary operation that
   started the for loop uses a ``self`` that is encapsulated in tuples or lists.
 
-  Ref PyCQA/astroid#1360
+  Refs PyCQA/astroid#1360
   Closes #4826
 
 * Fix matching ``--notes`` options that end in a non-word character.
@@ -210,7 +210,7 @@ Other Changes
 
 * Use the ``tomli`` package instead of ``toml`` to parse ``.toml`` files.
 
- Closes #5885
+  Closes #5885
 
 * Fixed false positive ``consider-using-dict-comprehension`` when creating a dict
   using a list of tuples where key AND value vary depending on the same condition.
@@ -269,7 +269,7 @@ Other Changes
 * Fixed an issue where ``ungrouped-imports`` could not be disabled without raising
   ``useless-suppression``.
 
-  Ref #2366
+  Refs #2366
 
 * Fixed a crash on ``__init__`` nodes when the attribute was previously uninferable due to a cache
   limit size. This limit can be hit when the inheritance pattern of a class (and therefore of the ``__init__`` attribute) is very large.
@@ -295,13 +295,13 @@ Other Changes
   the class itself.
 
   Closes #5408
-  Ref PyCQA/astroid#1392
+  RefsPyCQA/astroid#1392
 
 * Fixed false positive for ``unused-argument`` when a method overridden in a subclass
   does nothing with the value of a keyword-only argument.
 
   Closes #5771
-  Ref PyCQA/astroid#1382
+  RefsPyCQA/astroid#1382
 
 * Optimize parsing of long lines when ``missing-final-newline`` is enabled.
 
@@ -343,7 +343,7 @@ Other Changes
 * Fixed a crash involving a ``NewType`` named with an f-string.
 
   Closes #5770
-  Ref PyCQA/astroid#1400
+  RefsPyCQA/astroid#1400
 
 * Improved ``bad-open-mode`` message when providing ``None`` to the ``mode``
   argument of an ``open()`` call.
@@ -510,7 +510,7 @@ Other Changes
 
 * Fix false positive ``not-callable`` with attributes that alias ``NamedTuple``
 
-  Partially closes #1730
+  Fixes part of #1730
 
 * The ``testutils`` for unittests now accept ``end_lineno`` and ``end_column``. Tests
   without these will trigger a ``DeprecationWarning``.
@@ -649,7 +649,7 @@ Other Changes
 
 * Fix ``IndexError`` crash in ``uninferable_final_decorators`` method.
 
- Relates to #6531
+  Refs #6531
 
 * Fix a crash in ``unnecessary-dict-index-lookup`` when subscripting an attribute.
 

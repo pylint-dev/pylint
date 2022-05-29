@@ -25,7 +25,7 @@ This ensures your testing environment is similar to Pylint's testing environment
 
 **Optionally** (Because there's an auto-fix if you open a merge request): We have
 pre-commit hooks which should take care of the autoformatting for you before each
-commits. To enable it, run ``pre-commit install`` in the ``pylint`` root directory.
+commit. To enable it, run ``pre-commit install`` in the ``pylint`` root directory.
 
 Astroid installation
 --------------------

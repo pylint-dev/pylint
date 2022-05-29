@@ -32,7 +32,7 @@ Release date: 2018-11-25
 
 * Consider ``range()`` objects for ``undefined-loop-variable`` leaking from iteration.
 
- Close #2533
+  Closes #2533
 
 * ``deprecated-method`` can use the attribute name for identifying a deprecated method
 
@@ -41,18 +41,18 @@ Release date: 2018-11-25
  deprecation function. Instead on relying on that, we now also rely on the attribute
  name, which should solve some false positives.
 
- Close #1653
- Close #1946
+  Closes #1653
+  Closes #1946
 
 * Fix compatibility with changes to stdlib tokenizer.
 
 * ``pylint`` is less eager to consume the whole line for pragmas
 
- Close #2485
+  Closes #2485
 
 * Obtain the correct number of CPUs for virtualized or containerized environments.
 
- Close #2519
+  Closes #2519
 
 * Change ``unbalanced-tuple-unpacking`` back to a warning.
 
@@ -62,101 +62,103 @@ Release date: 2018-11-25
  analysis time. Given it might rely on potential unknown data, it's best to
  have it as a warning.
 
- Close #2522
+  Closes #2522
 
 * Remove ``enumerate`` usage suggestion when defining ``__iter__`` (C0200)
 
- Close #2477
+  Closes #2477
 
 * Emit ``too-many-starred-assignment`` only when the number of Starred nodes is per assignment elements
 
- Close #2513
+  Closes #2513
 
 * ``try-except-raise`` checker now handles multilevel inheritance hirerachy for exceptions correctly.
 
- Close #2484
+  Closes #2484
 
 * Add a new check, ``simplifiable-if-expression`` for expressions like ``True if cond else False``.
 
- Close #2487
+  Closes #2487
 
 * ``too-few-public-methods`` is not reported for ``typing.NamedTuple``
 
- Close #2459
+  Closes #2459
 
 * ```too-few-public-methods`` is not reported for dataclasses created with options.
 
- Close #2488
+  Closes #2488
 
 * Remove wrong modules from 'bad-python3-import'.
 
- Close #2453
+  Closes #2453
 
 * The ``json`` reporter prints an empty list when no messages are emitted
 
- Close #2446
+  Closes #2446
 
 * Add a new check, ``duplicate-string-formatting-argument``
 
  This new check is emitted whenever a duplicate string formatting argument
  is found.
 
- Close #497
+  Closes #497
 
 * ``assignment-from-no-return`` is not emitted for coroutines.
 
- Close #1715
+  Closes #1715
 
 * Report format string type mismatches.
 
 * ``consider-using-ternary`` and ``simplified-boolean-expression`` no longer emit for sequence based checks
 
- Close #2473
+  Closes #2473
 
 * Handle ``AstroidSyntaxError`` when trying to import a module.
 
- Close #2313
+  Closes #2313
 
-* Allow ``__module__`` to be redefined at a class level. Close #2451
+* Allow ``__module__`` to be redefined at a class level.
+
+  Closes #2451
 
 * ``pylint`` used to emit an ``unused-variable`` error if unused import was found in the function. Now instead of
   ``unused-variable``, ``unused-import`` is emitted.
 
- Close #2421
+  Closes #2421
 
 * Handle asyncio.coroutine when looking for ``not-an-iterable`` check.
 
- Close #996
+  Closes #996
 
 * The ``locally-enabled`` check is gone.
 
- Close #2442
+  Closes #2442
 
 * Infer decorated methods when looking for method-hidden
 
- Close #2369
+  Closes #2369
 
 * Pick the latest value from the inferred values when looking for ``raising-non-exception``
 
- Close #2431
+  Closes #2431
 
 * Extend the TYPE_CHECKING guard to TYPE_CHECKING name as well, not just the attribute
 
- Close #2411
+  Closes #2411
 
 * Ignore import x.y.z as z cases for checker ``useless-import-alias``.
 
- Close #2309
+  Closes #2309
 
 * Fix false positive ``undefined-variable`` and ``used-before-assignment`` with nonlocal keyword usage.
 
- Close #2049
+  Closes #2049
 
 * Stop ``protected-access`` exception for missing class attributes
 
 * Don't emit ``assignment-from-no-return`` for decorated function nodes
 
- Close #2385
+  Closes #2385
 
 * ``unnecessary-pass`` is now also emitted when a function or class contains only docstring and pass statement.
 
@@ -164,19 +166,19 @@ Release date: 2018-11-25
   indicating that the function doesn't do anything. However, a stubbed function can also have just a
   docstring, and function with a docstring and no body also does nothing.
 
-  Close #2208
+  Closes #2208
 
 * ``duplicate-argument-name`` is emitted for more than one duplicate argument per function
 
-  Close #1712
+  Closes #1712
 
 * Allow double indentation levels for more distinguishable indentations
 
- Close #741
+  Closes #741
 
 * Consider tuples in exception handler for ``try-except-raise``.
 
-  Close #2389
+  Closes #2389
 
 * Fix astroid.ClassDef check in checkers.utils.is_subclass_of
 
@@ -186,14 +188,14 @@ Release date: 2018-11-25
 
 * Fix wildcard import check not skipping ``__init__.py``
 
- Close #2430
+  Closes #2430
 
 * Add new option to logging checker, ``logging_format_style``
 
 * Fix --ignore-imports to understand multi-line imports
 
- Close #1422
- Close #2019
+  Closes #1422
+  Closes #2019
 
 * Add a new check 'implicit-str-concat-in-sequence' to spot string concatenation inside lists, sets & tuples.
 

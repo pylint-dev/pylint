@@ -16,7 +16,7 @@ Release date: 2022-05-13
 
 * Fix ``IndexError`` crash in ``uninferable_final_decorators`` method.
 
- Relates to #6531
+  Refs #6531
 
 * Fix a crash in ``unnecessary-dict-index-lookup`` when subscripting an attribute.
 
@@ -201,11 +201,11 @@ Release date: 2022-03-27
 * Fix a false negative regression in 2.13.0 where ``protected-access`` was not
   raised on functions.
 
-  Fixes #5989
+  Closes #5989
 
 * Better error messages in case of crash if pylint can't write the issue template.
 
-  Refer to #5987
+  Refs #5987
 
 
 What's New in Pylint 2.13.1?
@@ -215,7 +215,7 @@ Release date: 2022-03-26
 * Fix a regression in 2.13.0 where ``used-before-assignment`` was emitted for
   the usage of a nonlocal in a try block.
 
-  Fixes #5965
+  Closes #5965
 
 * Avoid emitting ``raising-bad-type`` when there is inference ambiguity on
   the variable being raised.
@@ -250,7 +250,7 @@ Release date: 2022-03-24
 * No longer emit ``no-member`` in for loops that reference ``self`` if the binary operation that
   started the for loop uses a ``self`` that is encapsulated in tuples or lists.
 
-  Ref PyCQA/astroid#1360
+  Refs PyCQA/astroid#1360
   Closes #4826
 
 * Output better error message if unsupported file formats are used with ``pyreverse``.
@@ -296,7 +296,7 @@ Release date: 2022-03-24
 
 * Fix false-negative for ``assignment-from-none`` checker using list.sort() method.
 
-  closes #5722
+  Closes #5722
 
 * New extension ``import-private-name``: indicate imports of external private packages
   and objects (prefixed with ``_``). It can be loaded using ``load-plugins=pylint.extensions.private_import``.
@@ -328,7 +328,7 @@ Release date: 2022-03-24
 * Fixed an issue where ``ungrouped-imports`` could not be disabled without raising
   ``useless-suppression``.
 
-  Ref #2366
+  Refs #2366
 
 * Added several checkers to deal with unicode security issues
   (see `Trojan Sources <https://trojansource.codes/>`_ and
@@ -354,15 +354,15 @@ Release date: 2022-03-24
 
 * Use the ``tomli`` package instead of ``toml`` to parse ``.toml`` files.
 
- Closes #5885
+  Closes #5885
 
 * Fix false positive - Allow unpacking of ``self`` in a subclass of ``typing.NamedTuple``.
 
- Closes #5312
+  Closes #5312
 
 * Fixed false negative ``unpacking-non-sequence`` when value is an empty list.
 
- Closes #5707
+  Closes #5707
 
 * Better warning messages for useless else or elif when a function returns early.
 
@@ -649,7 +649,7 @@ Release date: 2022-03-24
 
 * Fix false positive ``not-callable`` with attributes that alias ``NamedTuple``
 
-  Partially closes #1730
+  Fixes part of #1730
 
 * Emit ``redefined-outer-name`` when a nested except handler shadows an outer one.
 
@@ -750,6 +750,7 @@ Release date: 2022-03-24
   Closes #4955
 
 * Disable spellchecking of mypy rule names in ignore directives.
+
   Closes #5929
 
 * Allow disabling ``duplicate-code`` with a disable comment when running through

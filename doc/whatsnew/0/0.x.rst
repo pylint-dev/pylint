@@ -658,7 +658,7 @@ Release date: 2006-08-10
 * started a reference user manual
 
 * new W0212 message for access to protected member from client code
-  (close #14081)
+  (Closes #14081)
 
 * new W0105 and W0106 messages extracted from W0104 (statement seems
   to have no effect) respectively when the statement is actually string
@@ -668,7 +668,7 @@ Release date: 2006-08-10
 * reclassified W0302 to C0302
 
 * fix so that global messages are not anymore connected to the last
-  analyzed module (close #10106)
+  analyzed module (Closes #10106)
 
 * fix some bugs related to local disabling of messages
 
@@ -708,7 +708,7 @@ Release date: 2006-03-06
 
 * W0705 has been reclassified to E0701, and is now detecting more
   inheriting problem, and a false positive when empty except clause is
-  following an Exception catch has been fixed (close #10422)
+  following an Exception catch has been fixed (Closes #10422)
 
 * E0212 and E0214 (metaclass/class method should have mcs/cls as first
   argument have been reclassified to C0202 and C0203 since this not as
@@ -812,13 +812,13 @@ Release date: 2005-11-07
   module whose name starts with a deprecated module's name (close
   #10061)
 
-* fix "module has no name __dict__" false positive (close #10039)
+* fix "module has no name __dict__" false positive (Closes #10039)
 
 * fix "access to undefined variable __path__" false positive (close
   #10065)
 
 * fix "explicit return in __init__" false positive when return is
-  actually in an inner function (close #10075)
+  actually in an inner function (Closes #10075)
 
 
 What's New in Pylint 0.8.0?
@@ -835,7 +835,7 @@ Release date: 2005-10-21
 
 * new --acquired-members option on the classes checker, used when
   --zope=yes to avoid false positive on acquired attributes (listed
-  using this new option) (close #8616)
+  using this new option) (Closes #8616)
 
 * generate one E0602 for each use of an undefined variable
   (previously, only one for the first use but not for the following)
@@ -855,11 +855,11 @@ Release date: 2005-10-21
 * fix astng checkers traversal order
 
 * fix bug in format checker when parsing a file from a platform
-  using different new line characters (close #9239)
+  using different new line characters (Closes #9239)
 
 * fix encoding detection regexp
 
-* fix --rcfile handling (support for --rcfile=file, close #9590)
+* fix --rcfile handling (support for --rcfile=file, Closes #9590)
 
 
 What's New in Pylint 0.7.0?
@@ -896,11 +896,11 @@ Release date: 2005-04-14
 * don't fail if we are unable to read an inline option  (e.g. inside a
   module), just produce an information message (test func_i0010)
 
-* new message E0103 for break or continue outside loop (close #8883,
+* new message E0103 for break or continue outside loop (Closes #8883,
   test func_continue_not_in_loop)
 
 * fix bug in the variables checker, causing non detection of some
-  actual name error (close #8884, test
+  actual name error (Closes #8884, test
   func_nameerror_on_string_substitution)
 
 * fix bug in the classes checker which was making pylint crash if
@@ -980,7 +980,7 @@ Release date: 2005-01-20
 * correctly detect access to member defined latter in __init__ method
 
 * now depends on common 0.8.1 to fix problem with interface resolution
-  (close #8606)
+  (Closes #8606)
 
 * new --list-msgs option describing available checkers and their
   messages

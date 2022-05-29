@@ -12,12 +12,12 @@ Release date: 2016-03-21
   it didn't run when everything but one pattern was disabled, leading to spurious false
   positives
 
-  Close #852
+  Closes #852
 
 * Don't emit unsubscriptable-value for classes with unknown
   base classes.
 
-  Close #776.
+  Closes #776.
 
 * Use an OrderedDict for storing the configuration elements
 
@@ -27,13 +27,13 @@ Release date: 2016-03-21
   was to disable them. The best example for this was in the context of running multiple
   processes, each one of it having different enables / disables that affected the output.
 
-  Close #815
+  Closes #815
 
 * Don't consider bare and broad except handlers as ignoring NameError,
   AttributeError and similar exceptions, in the context of checkers for
   these issues.
 
-  Closes issue #826
+  Closes #826
 
 
 What's New in Pylint 1.5.4?
@@ -55,7 +55,7 @@ Release date: 2016-01-11
 
 * Handle the import fallback idiom with regard to wrong-import-order.
 
-  Closes issue #750.
+  Closes #750.
 
 * Decouple the displaying of reports from the displaying of messages
 
@@ -77,22 +77,23 @@ Release date: 2016-01-11
   some cases to false positives with regard to no-value-for-parameter.
   In order to avoid this, until we'll have support for call context
   propagation, we're ignoring such cases if detected.
-  Closes issue #722.
+
+  Closes #722.
 
 * Treat AsyncFunctionDef just like FunctionDef nodes,
   by implementing visit_asyncfunctiondef in terms of
   visit_functiondef.
 
-  Closes issue #767.
+  Closes #767.
 
 * Take in account kwonlyargs when verifying that arguments
   are defined with the check_docs extension.
 
-  Closes issue #745.
+  Closes #745.
 
 * Suppress reporting 'unneeded-not' inside ``__ne__`` methods
 
-  Closes issue #749.
+  Closes #749.
 
 
 What's New in Pylint 1.5.2?
@@ -102,7 +103,7 @@ Release date: 2015-12-21
 * Don't crash if graphviz is not installed, instead emit a
   warning letting the user to know.
 
-  Closes issue #168.
+  Closes #168.
 
 * Accept only functions and methods for the deprecated-method checker.
 
@@ -110,11 +111,12 @@ Release date: 2015-12-21
   .qname() method after the inference.
 
 * Don't emit super-on-old-class on classes with unknown bases.
-  Closes issue #721.
+
+  Closes #721.
 
 * Allow statements in ``if`` or ``try`` blocks containing imports.
 
-  Closes issue #714.
+  Closes #714.
 
 
 What's New in Pylint 1.5.1?
@@ -123,7 +125,9 @@ Release date: 2015-12-02
 
 
 * Fix a crash which occurred when old visit methods are encountered
-  in plugin modules. Closes issue #711.
+  in plugin modules.
+
+  Closes #711.
 
 * Add wrong-import-position to check_messages's decorator arguments
   for ImportChecker.leave_module
@@ -135,7 +139,9 @@ Release date: 2015-12-02
   leading to wrong-import-position being emitted by pylint.
 
 * Fix a crash which occurred when old visit methods are encountered
-  in plugin modules. Closes issue #711.
+  in plugin modules.
+
+  Closes #711.
 
 * Don't emit import-self and cyclic-import for relative imports
   of modules with the same name as the package itself.
@@ -155,40 +161,54 @@ Release date: 2015-11-29
   is emitted when code is mixed with imports, being recommended for the
   latter to be at the top of the file, in order to figure out easier by
   a human reader what dependencies a module has.
-  Closes issue #692.
+
+  Closes #692.
 
 * Added a new refactoring warning, 'unneeded-not', emitted
   when an expression with the not operator could be simplified.
-  Closes issue #670.
+
+  Closes #670.
 
 * Added a new refactoring warning, 'simplifiable-if-statement',
   used when an if statement could be reduced to a boolean evaluation
-  of its test. Closes issue #698.
+  of its test.
+
+  Closes #698.
 
 * Added a new refactoring warning, 'too-many-boolean-expressions',
   used when an if statement contains too many boolean expressions,
   which makes the code less maintainable and harder to understand.
-  Closes issue #677.
+
+  Closes #677.
 
 * Property methods are shown as attributes instead of functions in
-  pyreverse class diagrams. Closes Issue #284
+  pyreverse class diagrams.
+
+  Closes #284
 
 * Add a new refactoring error, 'too-many-nested-blocks', which is emitted
   when a function or a method has too many nested blocks, which makes the
-  code less readable and harder to understand. Closes issue #668.
+  code less readable and harder to understand.
+
+  Closes #668.
 
 * Add a new error, 'unsubscriptable-object', that is emitted when
   value used in subscription expression doesn't support subscription
   (i.e. doesn't define __getitem__ method).
 
 * Don't warn about abstract classes instantiated in their own
-  body. Closes issue #627.
+  body.
+
+  Closes #627.
 
 * Obsolete options are not present by default in the generated
-  configuration file. Closes issue #632.
+  configuration file.
+
+  Closes #632.
 
 * non-iterator-returned can detect classes with iterator-metaclasses.
-  Closes issue #679.
+
+  Closes #679.
 
 * Add a new error, 'unsupported-membership-test', emitted when value
   to the right of the 'in' operator doesn't support membership test
@@ -197,24 +217,33 @@ Release date: 2015-11-29
 * Add new errors, 'not-an-iterable', emitted when non-iterable value
   is used in an iterating context (starargs, for-statement,
   comprehensions, etc), and 'not-a-mapping', emitted when non-mapping
-  value is used in a mapping context. Closes issue #563.
+  value is used in a mapping context.
+
+  Closes #563.
 
 * Make 'no-self-use' checker not emit a warning if there is a 'super()'
   call inside the method.
-  Closes issue #667.
+
+  Closes #667.
 
 * Add checker to identify multiple imports on one line.
-  Closes issue #598.
+
+  Closes #598.
 
 * Fix unused-argument false positive when the "+=" operator is used.
-  Closes issue #518.
+
+  Closes #518.
 
 * Don't emit import-error for ignored modules. PyLint will not emit import
   errors for any import which is, or is a subpackage of, a module in
-  the ignored-modules list. Closes issue #223.
+  the ignored-modules list.
+
+  Closes #223.
 
 * Fix unused-import false positive when the import is used in a
-  class assignment. Closes issue #475
+  class assignment.
+
+  Closes #475
 
 * Add a new error, 'not-context-manager', emitted when something
   that doesn't implement __enter__ and __exit__ is used in a with
@@ -227,30 +256,42 @@ Release date: 2015-11-29
 
 * Add a new warning, 'duplicate-except', emitted when there is an
   exception handler which handles an exception type that was handled
-  before. Closes issue #485.
+  before.
+
+  Closes #485.
 
 * A couple of warnings got promoted to errors, since they could uncover
   potential bugs in the code. These warnings are: assignment-from-none,
   unbalanced-tuple-unpacking, unpacking-non-sequence, non-iterator-returned.
-  Closes issue #388.
+
+  Closes #388.
 
 * Allow ending a pragma control with a semicolon. In this way, users
   can continue a pragma control with a reason for why it is used,
   as in `# pylint: disable=old-style-class;reason=...`.
-  Closes issue #449.
 
-* --jobs can be used with --load-plugins now. Closes issue #456.
+  Closes #449.
+
+* --jobs can be used with --load-plugins now.
+
+  Closes #456.
 
 * Improve the performance of --jobs when dealing only with a package
-  name. Closes issue #479.
+  name.
+
+  Closes #479.
 
 * Don't emit an unused-wildcard-import when the imported name comes
   from another module and it is in fact a __future__ name.
 
-* The colorized reporter now works on Windows. Closes issue #96.
+* The colorized reporter now works on Windows.
+
+  Closes #96.
 
 * Remove pointless-except warning. It was previously disabled by
-  default and it wasn't very useful. Closes issue #506.
+  default and it wasn't very useful.
+
+  Closes #506.
 
 * Fix a crash on Python 3 related to the string checker, which
   crashed when it encountered a bytes string with a .format
@@ -265,9 +306,12 @@ Release date: 2015-11-29
   emitted for private functions.
 
 * Don't emit redefined-outer-name for __future__ directives.
-  Closes issue #520.
 
-* Provide some hints for the bad-builtin message. Closes issue #522.
+  Closes #520.
+
+* Provide some hints for the bad-builtin message.
+
+  Closes #522.
 
 * When checking for invalid arguments to a callable, in typecheck.py,
   look up for the __init__ in case the found __new__ comes from builtins.
@@ -275,7 +319,9 @@ Release date: 2015-11-29
   Since the __new__ comes from builtins, it will not have attached any
   information regarding what parameters it expects, so the check
   will be useless. Retrieving __init__ in that case will at least
-  detect a couple of false negatives. Closes issue #429.
+  detect a couple of false negatives.
+
+  Closes #429.
 
 * Don't emit no-member for classes with unknown bases.
 
@@ -284,15 +330,21 @@ Release date: 2015-11-29
 
 * Lookup in the implicit metaclass when checking for no-member,
   if the class in question has an implicit metaclass, which is
-  True for new style classes. Closes issue #438.
+  True for new style classes.
+
+  Closes #438.
 
 * Add two new warnings, duplicate-bases and inconsistent-mro.
 
   duplicate-bases is emitted when a class has the same bases
   listed more than once in its bases definition, while inconsistent-mro
-  is emitted when no sane mro hierarchy can be determined. Closes issue #526.
+  is emitted when no sane mro hierarchy can be determined.
 
-* Remove interface-not-implemented warning. Closes issue #532.
+  Closes #526.
+
+* Remove interface-not-implemented warning.
+
+  Closes #532.
 
 * Remove the rest of interface checks: interface-is-not-class,
   missing-interface-method, unresolved-interface. The reason is that
@@ -314,21 +366,26 @@ Release date: 2015-11-29
 * Detect undefined variable cases, where the "definition" of an undefined
   variable was in del statement. Instead of emitting used-before-assignment,
   which is totally misleading, it now emits undefined-variable.
-  Closes issue #528.
+
+  Closes #528.
 
 * Don't emit attribute-defined-outside-init and access-member-before-definition
   for mixin classes. Actual errors can occur in mixin classes, but this is
-  controlled by the ignore-mixin-members option. Closes issue #412.
+  controlled by the ignore-mixin-members option.
+
+  Closes #412.
 
 * Improve the detection of undefined variables and variables used before
   assignment for variables used as default arguments to function,
   where the variable was first defined in the class scope.
-  Closes issue #342 and issue #404.
+
+  Closes #342 and issue #404.
 
 * Add a new warning, 'unexpected-special-method-signature', which is emitted
   when a special method (dunder method) doesn't have the expected signature,
   which can lead to actual errors in the application code.
-  Closes issue #253.
+
+  Closes #253.
 
 * Remove 'bad-context-manager' due to the inclusion of 'unexpected-special-method-signature'.
 
@@ -348,7 +405,8 @@ Release date: 2015-11-29
 * Add a new warning, 'using-constant-test', which is emitted when a conditional
   statement (If, IfExp) uses a test which is always constant, such as numbers,
   classes, functions etc. This is most likely an error from the user's part.
-  Closes issue #524.
+
+  Closes #524.
 
 * Don't emit 'raising-non-exception' when the exception has unknown
   bases. We don't know what those bases actually are and it's better
@@ -366,7 +424,9 @@ Release date: 2015-11-29
 
 * Take in consideration differences between arguments of various
   type of functions (classmethods, staticmethods, properties)
-  when checking for ``arguments-differ``. Closes issue #548.
+  when checking for ``arguments-differ``.
+
+  Closes #548.
 
 * astroid.inspector was moved to pylint.pyreverse, since it belongs
   there and it doesn't need to be in astroid.
@@ -412,14 +472,17 @@ Release date: 2015-11-29
 
   These were moved since they didn't belong in astroid.
 
-* Enable misplaced-future for Python 3. Closes issue #580.
+* Enable misplaced-future for Python 3.
+
+  Closes #580.
 
 * Add a new error, 'nonlocal-and-global', which is emitted when a
   name is found to be both nonlocal and global in the same scope.
-  Closes issue #581.
+
+  Closes #581.
 
 * ignored-classes option can work with qualified names (ignored-classes=optparse.Values)
-  Closes issue #297.
+  Closes #297.
 
 * ignored-modules can work with qualified names as well as with Unix pattern
   matching for recursive ignoring. Closes issues #244.
@@ -428,13 +491,17 @@ Release date: 2015-11-29
   missing modules with a relative import from a package.
 
 * Don't emit no-init if not all the bases from a class are known.
-  Closes issue #604.
+
+  Closes #604.
 
 * --no-space-check option accepts ``empty-line`` as a possible option.
-  Closes issue #541.
+
+  Closes #541.
 
 * --generate-rcfile generates by default human readable symbols
-  for the --disable option. Closes issue #608.
+  for the --disable option.
+
+  Closes #608.
 
 * Improved the not-in-loop checker to properly detect more cases.
 
@@ -452,7 +519,9 @@ Release date: 2015-11-29
   project.
 
   At the same time, --include-ids and --symbols will also be removed
-  in Pylint 1.6. Closes issue #570.
+  in Pylint 1.6.
+
+  Closes #570.
 
 * missing-module-attribute was removed and the corresponding
   CLI option, required-attributes, which is slated for removal
@@ -477,7 +546,8 @@ Release date: 2015-11-29
   leaks outside of the except block, it's nevertheless a behaviour that
   a user shouldn't depend upon, since it's not obvious to the reader of the code
   what exception will be raised and it will not be compatible with Python 3 anyhow.
-  Closes issue #633.
+
+  Closes #633.
 
 * Bring logilab-common's ureports into pylint.reporters.
 
@@ -485,11 +555,12 @@ Release date: 2015-11-29
   having in Pylint all the components that were used from logilab-common.
   The API should be considered an implementation detail and can change at
   some point in the future.
-  Closes issue #621.
+
+  Closes #621.
 
 * ``reimported`` is emitted for reimported objects on the same line.
 
-  Closes issue #639.
+  Closes #639.
 
 * Abbreviations of command line options are not supported anymore.
 
@@ -497,21 +568,28 @@ Release date: 2015-11-29
   a feature of pylint, this fact being only a side effect of using optparse.
   As this was the case, using --load-plugin or other abbreviation
   for --load-plugins never actually worked, while it also didn't raise
-  an error. Closes issue #424.
+  an error.
+
+  Closes #424.
 
 * Add a new error, 'nonlocal-without-binding'
 
   The error is emitted on Python 3 when a nonlocal name is not bound
-  to any variable in the parents scopes. Closes issue #582.
+  to any variable in the parents scopes.
+
+  Closes #582.
 
 * 'deprecated-module' can be shown for modules which aren't
-   available. Closes issue #362.
+   available.
+
+  Closes #362.
 
 * Don't consider a class abstract if its members can't
   be properly inferred.
 
   This fixes a false positive related to abstract-class-instantiated.
-  Closes issue #648.
+
+  Closes #648.
 
 * Add a new checker for the async features added by PEP 492.
 
@@ -526,7 +604,9 @@ Release date: 2015-11-29
 * Add a new convention warning, 'singleton-comparison', emitted when
   comparison to True, False or None is found.
 
-* Don't emit 'assigning-non-slot' for descriptors. Closes issue #652.
+* Don't emit 'assigning-non-slot' for descriptors.
+
+  Closes #652.
 
 * Add a new error, 'repeated-keyword', when a keyword argument is passed
   multiple times into a function call.
@@ -534,7 +614,9 @@ Release date: 2015-11-29
   This is similar with redundant-keyword-arg, but it's mildly different
   that it needs to be a separate error.
 
-* --enable=all can now be used. Closes issue #142.
+* --enable=all can now be used.
+
+  Closes #142.
 
 * Add a new convention message, 'misplaced-comparison-constant',
   emitted when a constant is placed in the left hand side of a comparison,
@@ -545,10 +627,11 @@ Release date: 2015-11-29
 
 * Add a new convention message, 'consider-using-enumerate', which is
   emitted when code that uses ``range`` and ``len`` for iterating is encountered.
-  Closes issue #684.
+
+  Closes #684.
 
 * Added two new refactoring messages, 'no-classmethod-decorator' and
   'no-staticmethod-decorator', which are emitted when a static method or a class
   method is declared without using decorators syntax.
 
-  Closes issue #675.
+  Closes #675.

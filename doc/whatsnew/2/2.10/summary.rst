@@ -94,7 +94,7 @@ Other Changes
 
 * Don't emit ``no-member`` error if guarded behind if statement.
 
-  Ref #1162
+  Refs #1162
   Closes #1990
   Closes #4168
 
