@@ -11,6 +11,15 @@ on:
       - "tests/primer/**"
       - "requirements*"
       - ".github/workflows/**"
+      # We ignore these specific files because they need to be changed
+      # on 'main' and will always fail the PR run.
+      - "!.github/workflows/primer_run_main.yaml"
+      - "!.github/workflows/primer_comment.yaml"
+      - "!tests/primer/packages_to_prime.json"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 env:
   CACHE_VERSION: 1
@@ -26,23 +35,31 @@ jobs:
     steps:
       - name: Check out code from GitHub
         uses: actions/checkout@v3.0.2
+        with:
+          fetch-depth: 0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
         uses: actions/setup-python@v3.1.2
         with:
           python-version: ${{ matrix.python-version }}
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v3
         with:
-          version: 12
+          node-version: 16
       - run: npm install @octokit/rest
+
+      - name: Get latest astroid commit
+        id: get-astroid-sha
+        run: |
+          curl https://api.github.com/repos/PyCQA/astroid/commits |
+          python -c "import json, sys; print(json.load(sys.stdin)[0]['sha'])" > astroid_sha.txt
 
       # Restore cached Python environment
       - name: Generate partial Python venv restore key
         id: generate-python-key
         run: >-
           echo "::set-output name=key::venv-${{ env.CACHE_VERSION }}-${{
-            hashFiles('setup.cfg', 'requirements_test.txt', 'requirements_test_min.txt')
-          }}"
+            hashFiles('setup.cfg', 'requirements_test.txt', 'requirements_test_min.txt',
+          'astroid_sha.txt') }}"
       - name: Restore Python virtual environment
         id: cache-venv
         uses: actions/cache@v3.0.2
@@ -60,9 +77,12 @@ jobs:
           . venv/bin/activate
           python -m pip install -U pip setuptools wheel
           pip install -U -r requirements_test.txt
+          # Use bleeding-edge astroid
+          pip install git+https://github.com/PyCQA/astroid.git
 
       # Cache primer packages
-      - name: Download diffs
+      - name: Download last 'main' run info
+        id: download-main-run
         uses: actions/github-script@v6
         with:
           script: |
@@ -86,6 +106,8 @@ jobs:
                repo: context.repo.repo,
                run_id: lastRunMain.id,
             });
+
+            // Get commitstring
             const [matchArtifactMain] = artifacts_main.data.artifacts.filter((artifact) =>
               artifact.name == "primer_commitstring");
             const downloadWorkflow = await github.rest.actions.downloadArtifact({
@@ -95,10 +117,24 @@ jobs:
                archive_format: "zip",
             });
             fs.writeFileSync("primer_commitstring.zip", Buffer.from(downloadWorkflow.data));
+
+            // Get output
+            const [matchArtifactMainOutput] = artifacts_main.data.artifacts.filter((artifact) =>
+              artifact.name == "primer_output");
+            const downloadWorkflowTwo = await github.rest.actions.downloadArtifact({
+               owner: context.repo.owner,
+               repo: context.repo.repo,
+               artifact_id: matchArtifactMainOutput.id,
+               archive_format: "zip",
+            });
+            fs.writeFileSync("primer_output_main.zip", Buffer.from(downloadWorkflowTwo.data));
+            return lastRunMain.head_sha;
       - name: Copy and unzip the commit string
         run: |
           unzip primer_commitstring.zip
-          cp commit_string.txt .pylint_primer_tests/commit_string.txt
+          cp commit_string.txt tests/.pylint_primer_tests/commit_string.txt
+      - name: Unzip the output of 'main'
+        run: unzip primer_output_main.zip
       - name: Get commit string
         id: commitstring
         run: |
@@ -109,7 +145,7 @@ jobs:
         id: cache-projects
         uses: actions/cache@v3
         with:
-          path: .pylint_primer_tests/
+          path: tests/.pylint_primer_tests/
           key: >-
             ${{ runner.os }}-${{ matrix.python-version }}-${{
             steps.commitstring.outputs.commitstring }}-primer
@@ -118,11 +154,37 @@ jobs:
           . venv/bin/activate
           python tests/primer/primer_tool.py prepare --check
 
+      # Merge the 'main' commit of last successful run
+      - name: Pull 'main'
+        shell: bash
+        run: |
+          git config --global user.email "primer@example.com"
+          git config --global user.name "Pylint Primer"
+          git pull origin ${{ steps.download-main-run.outputs.result }} --no-edit --no-commit --no-rebase
+
+      # Run primer
+      - name: Run pylint primer
+        run: |
+          . venv/bin/activate
+          pip install -e .
+          python tests/primer/primer_tool.py run --type=pr
+      - name: Upload output of PR
+        uses: actions/upload-artifact@v3
+        with:
+          name: primer_output_pr
+          path: tests/.pylint_primer_tests/output_pr.txt
+      - name: Upload output of 'main'
+        uses: actions/upload-artifact@v3
+        with:
+          name: primer_output_main
+          path: output_main.txt
+
+      # Save PR number so we know which PR to comment on
       - name: Save PR number
         run: |
           echo ${{ github.event.pull_request.number }} | tee pr_number.txt
       - name: Upload PR number
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
-          name: primer_pylint_output_workflow
+          name: pr_number
           path: pr_number.txt

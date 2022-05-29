@@ -16,3 +16,4 @@ Pylint can be installed:
    ide_integration/index
    pre-commit-integration.rst
    badge
+   upgrading_pylint.rst
