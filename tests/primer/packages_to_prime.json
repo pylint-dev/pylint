@@ -8,11 +8,11 @@
   "black": {
     "branch": "main",
     "directories": ["src/black/", "src/blackd/", "src/blib2to3/"],
-    "url": "https://github.com/psf/black.git"
+    "url": "https://github.com/psf/black"
   },
   "pytest": {
     "branch": "main",
     "directories": ["src/_pytest"],
-    "url": "https://github.com/pytest-dev/pytest.git"
+    "url": "https://github.com/pytest-dev/pytest"
   }
 }
