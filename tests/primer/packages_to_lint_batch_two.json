@@ -10,11 +10,6 @@
     "directories": ["psycopg/psycopg"],
     "url": "https://github.com/psycopg/psycopg.git"
   },
-  "pygame": {
-    "branch": "main",
-    "directories": ["src_py"],
-    "url": "https://github.com/pygame/pygame.git"
-  },
   "sentry": {
     "branch": "master",
     "directories": ["src/sentry"],
