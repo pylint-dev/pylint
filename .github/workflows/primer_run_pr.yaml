@@ -17,6 +17,10 @@ on:
       - "!.github/workflows/primer_comment.yaml"
       - "!tests/primer/packages_to_prime.json"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 env:
   CACHE_VERSION: 1
 
