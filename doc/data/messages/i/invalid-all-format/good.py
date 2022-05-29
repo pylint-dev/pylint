@@ -1,1 +1,3 @@
-# This is a placeholder for correct code for this message.
+__all__ = ("CONST",)
+
+CONST = 42
