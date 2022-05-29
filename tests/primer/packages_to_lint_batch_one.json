@@ -4,11 +4,6 @@
     "directories": ["django"],
     "url": "https://github.com/django/django.git"
   },
-  "flask": {
-    "branch": "main",
-    "directories": ["src/flask"],
-    "url": "https://github.com/pallets/flask.git"
-  },
   "home-assistant": {
     "branch": "dev",
     "directories": ["homeassistant"],
