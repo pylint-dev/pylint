@@ -260,6 +260,8 @@ Other Changes
 
   Closes #6467
 
+* Fix type annotations of class and instance attributes using the alternative union syntax in ``pyreverse`` diagrams.
+
 * Fix bug where it writes a plain text error message to stdout, invalidating output formats.
 
   Closes #6597

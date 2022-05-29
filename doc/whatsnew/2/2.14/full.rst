@@ -38,6 +38,8 @@ Release date: TBA
 
   Closes #6467
 
+* Fix type annotations of class and instance attributes using the alternative union syntax in ``pyreverse`` diagrams.
+
 * Fix ``unexpected-special-method-signature`` false positive for ``__init_subclass__`` methods with one or more arguments.
 
   Closes #6644
