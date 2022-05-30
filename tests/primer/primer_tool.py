@@ -63,6 +63,9 @@ class Primer:
         run_parser.add_argument(
             "--type", choices=["main", "pr"], required=True, help="Type of primer run."
         )
+        run_parser.add_argument(
+            "--jobs", help="Amount of jobs to use for pylint.", type=int, default=1
+        )
 
         # All arguments for the compare parser
         compare_parser = self._subparsers.add_parser("compare")
@@ -259,7 +262,9 @@ class Primer:
         # Duplicate code takes too long and is relatively safe
         # TODO: Find a way to allow cyclic-import and compare output correctly
         disables = ["--disable=duplicate-code,cyclic-import"]
-        arguments = data.pylint_args + enables + disables
+        arguments = (
+            data.pylint_args + enables + disables + [f"--jobs={self.config.jobs}"]
+        )
         if data.pylintrc_relpath:
             arguments += [f"--rcfile={data.pylintrc_relpath}"]
         output = StringIO()

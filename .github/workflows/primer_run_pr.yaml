@@ -167,7 +167,7 @@ jobs:
         run: |
           . venv/bin/activate
           pip install -e .
-          python tests/primer/primer_tool.py run --type=pr 2>warnings.txt
+          python tests/primer/primer_tool.py run --type=pr --jobs=0 2>warnings.txt
           WARNINGS=$(head -c 65000 < warnings.txt)
           if [[ $WARNINGS ]]
           then echo "::warning ::$WARNINGS"
