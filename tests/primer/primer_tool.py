@@ -260,7 +260,7 @@ class Primer:
             arguments += [f"--rcfile={data.pylintrc_relpath}"]
         output = StringIO()
         reporter = JSONReporter(output)
-        Run(arguments, reporter=reporter, do_exit=False)
+        Run(arguments, reporter=reporter, exit=False)
         return json.loads(output.getvalue())
 
     @staticmethod
