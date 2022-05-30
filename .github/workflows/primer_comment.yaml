@@ -24,9 +24,9 @@ jobs:
     name: Run
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v3
         with:
-          version: 12
+          node-version: 16
       - run: npm install @octokit/rest
       - name: Check out code from GitHub
         uses: actions/checkout@v3.0.2
@@ -111,7 +111,7 @@ jobs:
       - name: Compare outputs
         run: |
           . venv/bin/activate
-          python tests/primer/primer_tool.py compare --base-file=output_main.txt --new-file=output_pr.txt
+          python tests/primer/primer_tool.py compare --base-file=output_${{ steps.python.outputs.python-version }}_main.txt --new-file=output_${{ steps.python.outputs.python-version }}_pr.txt
       - name: Post comment
         id: post-comment
         uses: actions/github-script@v6

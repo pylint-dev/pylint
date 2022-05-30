@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 import warnings
 from io import StringIO
 from itertools import chain
@@ -128,7 +129,10 @@ class Primer:
             print(f"Successfully primed {package}.")
 
         with open(
-            PRIMER_DIRECTORY / f"output_{self.config.type}.txt", "w", encoding="utf-8"
+            PRIMER_DIRECTORY
+            / f"output_{'.'.join(str(i) for i in sys.version_info[:3])}_{self.config.type}.txt",
+            "w",
+            encoding="utf-8",
         ) as f:
             json.dump(packages, f)
 
