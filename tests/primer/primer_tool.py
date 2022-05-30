@@ -6,7 +6,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import warnings
 from io import StringIO
+from itertools import chain
 from pathlib import Path
 from typing import Dict, List, Union
 
@@ -129,6 +131,23 @@ class Primer:
             PRIMER_DIRECTORY / f"output_{self.config.type}.txt", "w", encoding="utf-8"
         ) as f:
             json.dump(packages, f)
+
+        # Fail loudly (and fail CI pipelines) if any fatal errors are found,
+        # unless they are astroid-errors, in which case just warn sotto voce.
+        # This is to avoid introducing a dependency on bleeding-edge astroid
+        # for pylint CI pipelines generally, even though we do use astroid main
+        # to catch vanilla (non-crash) behavior changes in pylint PRs so that
+        # the contributor is alerted to it in a comment.
+        messages = list(chain.from_iterable(packages.values()))
+        astroid_errors = [msg for msg in messages if msg["symbol"] == "astroid-error"]
+        other_fatal_msgs = [
+            msg
+            for msg in messages
+            if msg["type"] == "fatal" and msg["symbol"] != "astroid-error"
+        ]
+        if astroid_errors:
+            warnings.warn(f"Fatal errors traced to astroid:\n{astroid_errors}")
+        assert not other_fatal_msgs, other_fatal_msgs
 
     def _handle_compare_command(self) -> None:
         with open(self.config.base_file, encoding="utf-8") as f:
