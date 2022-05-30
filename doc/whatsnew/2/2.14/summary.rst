@@ -141,6 +141,10 @@ Other Changes
 
   Closes #4301
 
+* We made a greater effort to reraise failures stemming from the ``astroid``
+  library as ``AstroidError``, with the effect that pylint emits ``astroid-error``
+  rather than merely ``fatal``. Regardless, please report any such issues you encounter!
+
 * We have improved our recognition of inline disable and enable comments. It is
   now possible to disable ``bad-option-value`` inline (as long as you disable it before
   the bad option value is raised, i.e. ``disable=bad-option-value,bad-message`` not ``disable=bad-message,bad-option-value`` ) as well as certain other
