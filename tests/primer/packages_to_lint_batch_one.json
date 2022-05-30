@@ -4,11 +4,6 @@
     "directories": ["django"],
     "url": "https://github.com/django/django.git"
   },
-  "home-assistant": {
-    "branch": "dev",
-    "directories": ["homeassistant"],
-    "url": "https://github.com/home-assistant/core.git"
-  },
   "keras": {
     "branch": "master",
     "directories": ["keras"],
