@@ -97,7 +97,7 @@ jobs:
           . venv/bin/activate
           pip install -e .
           python tests/primer/primer_tool.py run --type=main 2>warnings.txt
-          WARNINGS=$(<warnings.txt)
+          WARNINGS=$(head -c 65000 < warnings.txt)
       - name: Emit Actions warnings for python warnings
         run: |
           if [[ $WARNINGS ]]
