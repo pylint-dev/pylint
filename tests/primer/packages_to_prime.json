@@ -15,11 +15,6 @@
     "directories": ["src/flask"],
     "url": "https://github.com/pallets/flask"
   },
-  "home-assistant": {
-    "branch": "dev",
-    "directories": ["homeassistant"],
-    "url": "https://github.com/home-assistant/core.git"
-  },
   "pandas": {
     "branch": "main",
     "directories": ["pandas"],
