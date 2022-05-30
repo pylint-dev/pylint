@@ -133,11 +133,10 @@ class Primer:
             json.dump(packages, f)
 
         # Fail loudly (and fail CI pipelines) if any fatal errors are found,
-        # unless they are astroid-errors, in which case just warn sotto voce.
+        # unless they are astroid-errors, in which case just warn.
         # This is to avoid introducing a dependency on bleeding-edge astroid
-        # for pylint CI pipelines generally, even though we do use astroid main
-        # to catch vanilla (non-crash) behavior changes in pylint PRs so that
-        # the contributor is alerted to it in a comment.
+        # for pylint CI pipelines generally, even though we want to use astroid main
+        # for the purpose of diffing emitted messages and generating PR comments.
         messages = list(chain.from_iterable(packages.values()))
         astroid_errors = [msg for msg in messages if msg["symbol"] == "astroid-error"]
         other_fatal_msgs = [
