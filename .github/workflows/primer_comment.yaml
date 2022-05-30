@@ -30,11 +30,11 @@ jobs:
       - run: npm install @octokit/rest
       - name: Check out code from GitHub
         uses: actions/checkout@v3.0.2
-      - name: Set up Python 3.8
+      - name: Set up Python 3.10
         id: python
         uses: actions/setup-python@v3.1.2
         with:
-          python-version: 3.8
+          python-version: 3.10
 
       # Restore cached Python environment
       - name: Generate partial Python venv restore key

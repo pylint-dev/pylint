@@ -31,7 +31,7 @@ jobs:
     timeout-minutes: 120
     strategy:
       matrix:
-        python-version: ["3.8"]
+        python-version: ["3.7", "3.10"]
     steps:
       - name: Check out code from GitHub
         uses: actions/checkout@v3.0.2
