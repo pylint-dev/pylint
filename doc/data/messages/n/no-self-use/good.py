@@ -1,1 +1,5 @@
-# This is a placeholder for correct code for this message.
+class Person:
+    message = "hello!"
+
+    def print_greeting(self):
+        print(self.message)
