@@ -167,7 +167,11 @@ jobs:
         run: |
           . venv/bin/activate
           pip install -e .
-          python tests/primer/primer_tool.py run --type=pr
+          python tests/primer/primer_tool.py run --type=pr 2>warnings.txt
+          WARNINGS=$(head -c 65000 < warnings.txt)
+          if [[ $WARNINGS ]]
+          then echo "::warning ::$WARNINGS"
+          fi
       - name: Upload output of PR
         uses: actions/upload-artifact@v3
         with:
