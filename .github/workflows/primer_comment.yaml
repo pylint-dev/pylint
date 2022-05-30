@@ -24,6 +24,10 @@ jobs:
     name: Run
     runs-on: ubuntu-latest
     steps:
+      - name: Skip if PR run failed
+        if: ${{ github.event.workflow_run.conclusion == 'success' }}
+        run: exit 1
+      - run: echo 'The triggering workflow passed'
       - uses: actions/setup-node@v3
         with:
           node-version: 16
@@ -138,3 +142,10 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           leave_visible: 1
           issue_number: ${{ steps.post-comment.outputs.result }}
+      - name: Warn about failure
+        if: ${{ failure() }}
+        run: |
+          echo "🤖 **Comment workflow failed**. 🤖" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Please investigate:" >> $GITHUB_STEP_SUMMARY
+          echo "@DanielNoord" >> $GITHUB_STEP_SUMMARY
