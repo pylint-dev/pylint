@@ -21,6 +21,7 @@ import _string
 import astroid.objects
 from astroid import TooManyLevelsError, nodes
 from astroid.context import InferenceContext
+from astroid.exceptions import AstroidError
 
 from pylint.constants import TYPING_TYPE_CHECKS_GUARDS
 
@@ -1259,6 +1260,8 @@ def safe_infer(
         value = next(infer_gen)
     except astroid.InferenceError:
         return None
+    except Exception as e:  # pragma: no cover
+        raise AstroidError from e
 
     if value is not astroid.Uninferable:
         inferred_types.add(_get_python_type_of_node(value))
@@ -1280,6 +1283,8 @@ def safe_infer(
         return None  # There is some kind of ambiguity
     except StopIteration:
         return value
+    except Exception as e:  # pragma: no cover
+        raise AstroidError from e
     return value if len(inferred_types) <= 1 else None
 
 
@@ -1291,6 +1296,8 @@ def infer_all(
         return list(node.infer(context=context))
     except astroid.InferenceError:
         return []
+    except Exception as e:  # pragma: no cover
+        raise AstroidError from e
 
 
 def has_known_bases(
