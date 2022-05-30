@@ -96,7 +96,13 @@ jobs:
         run: |
           . venv/bin/activate
           pip install -e .
-          python tests/primer/primer_tool.py run --type=main
+          python tests/primer/primer_tool.py run --type=main 2>warnings.txt
+          WARNINGS=$(<warnings.txt)
+      - name: Emit Actions warnings for python warnings
+        run: |
+          if [[ $WARNINGS ]]
+          then echo "::warning ::$WARNINGS"
+          fi
       - name: Upload output
         uses: actions/upload-artifact@v3
         with:

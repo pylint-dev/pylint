@@ -145,7 +145,7 @@ class Primer:
             if msg["type"] == "fatal" and msg["symbol"] != "astroid-error"
         ]
         if astroid_errors:
-            warnings.warn(f"Fatal errors traced to astroid:\n{astroid_errors}")
+            warnings.warn(f"Fatal errors traced to astroid:  {astroid_errors}")
         assert not other_fatal_msgs, other_fatal_msgs
 
     def _handle_compare_command(self) -> None:
