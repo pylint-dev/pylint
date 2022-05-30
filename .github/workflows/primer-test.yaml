@@ -131,38 +131,3 @@ jobs:
           . venv/bin/activate
           pip install -e .
           pytest -m primer_external_batch_one --primer-external -n auto -vv
-
-  pytest-primer-external-batch-two:
-    name: run on batch two / ${{ matrix.python-version }} / Linux
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    needs: prepare-tests-linux
-    strategy:
-      matrix:
-        python-version: [3.8, 3.9, "3.10"]
-    steps:
-      - name: Check out code from GitHub
-        uses: actions/checkout@v3.0.2
-      - name: Set up Python ${{ matrix.python-version }}
-        id: python
-        uses: actions/setup-python@v3.1.2
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Restore Python virtual environment
-        id: cache-venv
-        uses: actions/cache@v3.0.2
-        with:
-          path: venv
-          key:
-            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
-            needs.prepare-tests-linux.outputs.python-key }}
-      - name: Fail job if Python cache restore failed
-        if: steps.cache-venv.outputs.cache-hit != 'true'
-        run: |
-          echo "Failed to restore Python venv from cache"
-          exit 1
-      - name: Run pytest
-        run: |
-          . venv/bin/activate
-          pip install -e .
-          pytest -m primer_external_batch_two --primer-external -n auto -vv
