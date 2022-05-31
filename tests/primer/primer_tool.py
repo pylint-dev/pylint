@@ -237,7 +237,7 @@ class Primer:
                 filepath = str(message["path"]).replace(
                     str(package_data.clone_directory), ""
                 )
-                without_suffix = package_data.url.strip(".git")
+                without_suffix = package_data.url.rsplit(".git")[0]
                 comment += f"{without_suffix}/blob/{package_data.branch}{filepath}#L{message['line']}\n"
                 count += 1
                 print(message)
