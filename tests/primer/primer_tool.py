@@ -185,7 +185,7 @@ class Primer:
             # Create comment for new messages
             count = 1
             fatal_count = 1
-            new_astroid_errors = False
+            astroid_errors = False
             new_non_fatal_messages = ""
             new_fatal_messages = ""
             if new_messages:
@@ -194,8 +194,10 @@ class Primer:
                 filepath = str(message["path"]).replace(
                     str(package_data.clone_directory), ""
                 )
+                # Existing astroid errors may still show up as "new" because the timestamp
+                # in the message is slightly different.
                 if message["symbol"] == "astroid-error":
-                    new_astroid_errors = True
+                    astroid_errors = True
                 elif message["type"] == "fatal":
                     new_fatal_messages += (
                         f"{fatal_count}) {message['symbol']}:\n*{message['message']}*\n"
@@ -212,12 +214,12 @@ class Primer:
                     print(message)
                     count += 1
 
-            if new_astroid_errors:
+            if astroid_errors:
                 comment += (
-                    "New error(s) were found stemming from the `astroid` library. "
+                    "Error(s) were found stemming from the `astroid` library. "
                     "This is unlikely to have been caused by your changes. "
-                    "(Pushing to this pull request after another commit has been pushed to main may resolve the issue.) "
-                    "A GitHub Actions warning links directly to the crash report template.\n\n "
+                    "A GitHub Actions warning links directly to the crash report template. "
+                    "Please open an issue against `astroid` if one does not exist already. \n\n"
                 )
             if new_fatal_messages:
                 comment += (
