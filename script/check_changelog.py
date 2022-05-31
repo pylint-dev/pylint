@@ -20,7 +20,8 @@ VALID_CHANGELOG_PATTERN: Pattern[str] = re.compile(
     r"(\*\s[\S[\n ]+?]*\n\n\s\s(Refs|Closes|Follow-up in|Fixes part of)) (PyCQA/astroid)?#\d{1,5}"
 )
 VALID_ISSUE_NUMBER_PATTERN: Pattern[str] = re.compile(r"\*[\S\s]*?#\d{1,5}")
-PATH_TO_WHATSNEW = (Path(__file__).parent / "../doc/whatsnew").resolve()
+DOC_PATH = (Path(__file__).parent / "../doc/").resolve()
+PATH_TO_WHATSNEW = DOC_PATH / "whatsnew"
 UNCHECKED_VERSION = [
     # Not checking version prior to 1.0.0 because the issues referenced are a mix
     # between Logilab internal issue and Bitbucket. It's hard to tell, it's
@@ -42,14 +43,16 @@ def sorted_whatsnew(verbose: bool) -> Iterator[Path]:
     """Return the whats-new in the 'right' numerical order ('9' before '10')"""
     numeric_whatsnew = {}
     for file in PATH_TO_WHATSNEW.glob("**/*"):
+        relpath_file = file.relative_to(DOC_PATH)
         if file.is_dir():
+            print(f"Not analysing dir I don't care about '{relpath_file}' : 🤖🤷")
             continue
         version = file.parents[0].name
         if file.name in NO_CHECK_REQUIRED_FILES or any(
             version == x for x in UNCHECKED_VERSION
         ):
             if verbose:
-                print(f"I don't care about '{file}' : 🤖🤷")
+                print(f"I don't care about '{relpath_file}' : 🤖🤷")
             continue
         num = tuple(int(x) for x in (version.split(".")))
         numeric_whatsnew[num] = file
@@ -89,7 +92,8 @@ def check_file(file: Path, verbose: bool) -> bool:
             file, contain_issue_number_descriptions, valid_full_descriptions
         )
     if verbose:
-        print(f"Checked '{file}' : LGTM 🤖👍")
+        relpath_file = file.relative_to(DOC_PATH)
+        print(f"Checked '{relpath_file}' : LGTM 🤖👍")
     return True
 
 
