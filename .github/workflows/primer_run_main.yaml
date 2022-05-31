@@ -9,8 +9,6 @@ on:
   push:
     branches:
       - main
-    paths-ignore:
-      - doc/data/messages/**
 
 env:
   CACHE_VERSION: 1
