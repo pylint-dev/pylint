@@ -24,7 +24,7 @@ REDEFINABLE_METHODS = frozenset(("__module__",))
 TYPING_FORWARD_REF_QNAME = "typing.ForwardRef"
 
 
-def _get_break_loop_node(break_node):
+def _get_break_loop_node(break_node: nodes.Break) -> nodes.For | nodes.While | None:
     """Returns the loop node that holds the break node in arguments.
 
     Args:
@@ -45,7 +45,7 @@ def _get_break_loop_node(break_node):
     return parent
 
 
-def _loop_exits_early(loop):
+def _loop_exits_early(loop: nodes.For | nodes.While) -> bool:
     """Returns true if a loop may end with a break statement.
 
     Args:
@@ -56,7 +56,7 @@ def _loop_exits_early(loop):
     """
     loop_nodes = (nodes.For, nodes.While)
     definition_nodes = (nodes.FunctionDef, nodes.ClassDef)
-    inner_loop_nodes = [
+    inner_loop_nodes: list[nodes.For | nodes.While] = [
         _node
         for _node in loop.nodes_of_class(loop_nodes, skip_klass=definition_nodes)
         if _node != loop
@@ -77,7 +77,7 @@ def _has_abstract_methods(node):
     return len(utils.unimplemented_abstract_methods(node)) > 0
 
 
-def redefined_by_decorator(node):
+def redefined_by_decorator(node: nodes.FunctionDef) -> bool:
     """Return True if the object is a method redefined via decorator.
 
     For example:
@@ -210,7 +210,7 @@ class BasicErrorChecker(_BasicChecker):
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         self._check_redefinition("class", node)
 
-    def _too_many_starred_for_tuple(self, assign_tuple):
+    def _too_many_starred_for_tuple(self, assign_tuple: nodes.Tuple) -> bool:
         starred_count = 0
         for elem in assign_tuple.itered():
             if isinstance(elem, nodes.Tuple):
@@ -296,7 +296,7 @@ class BasicErrorChecker(_BasicChecker):
 
     visit_asyncfunctiondef = visit_functiondef
 
-    def _check_name_used_prior_global(self, node):
+    def _check_name_used_prior_global(self, node: nodes.FunctionDef) -> None:
 
         scope_globals = {
             name: child
@@ -323,10 +323,10 @@ class BasicErrorChecker(_BasicChecker):
                     "used-prior-global-declaration", node=node_name, args=(name,)
                 )
 
-    def _check_nonlocal_and_global(self, node):
+    def _check_nonlocal_and_global(self, node: nodes.FunctionDef) -> None:
         """Check that a name is both nonlocal and global."""
 
-        def same_scope(current):
+        def same_scope(current: nodes.Global | nodes.Nonlocal) -> bool:
             return current.scope() is node
 
         from_iter = itertools.chain.from_iterable
@@ -391,7 +391,7 @@ class BasicErrorChecker(_BasicChecker):
         ):
             self.add_message("nonexistent-operator", node=node, args=node.op * 2)
 
-    def _check_nonlocal_without_binding(self, node, name):
+    def _check_nonlocal_without_binding(self, node: nodes.Nonlocal, name: str) -> None:
         current_scope = node.scope()
         while True:
             if current_scope.parent is None:
@@ -424,7 +424,7 @@ class BasicErrorChecker(_BasicChecker):
         for inferred in infer_all(node.func):
             self._check_inferred_class_is_abstract(inferred, node)
 
-    def _check_inferred_class_is_abstract(self, inferred, node):
+    def _check_inferred_class_is_abstract(self, inferred, node: nodes.Call):
         if not isinstance(inferred, nodes.ClassDef):
             return
 
@@ -461,11 +461,11 @@ class BasicErrorChecker(_BasicChecker):
                 "abstract-class-instantiated", args=(inferred.name,), node=node
             )
 
-    def _check_yield_outside_func(self, node):
+    def _check_yield_outside_func(self, node: nodes.Yield) -> None:
         if not isinstance(node.frame(future=True), (nodes.FunctionDef, nodes.Lambda)):
             self.add_message("yield-outside-function", node=node)
 
-    def _check_else_on_loop(self, node):
+    def _check_else_on_loop(self, node: nodes.For | nodes.While) -> None:
         """Check that any loop with an else clause has a break statement."""
         if node.orelse and not _loop_exits_early(node):
             self.add_message(
@@ -477,7 +477,9 @@ class BasicErrorChecker(_BasicChecker):
                 line=node.orelse[0].lineno - 1,
             )
 
-    def _check_in_loop(self, node, node_name):
+    def _check_in_loop(
+        self, node: nodes.Continue | nodes.Break, node_name: str
+    ) -> None:
         """Check that a node is inside a for or while loop."""
         for parent in node.node_ancestors():
             if isinstance(parent, (nodes.For, nodes.While)):
@@ -495,7 +497,9 @@ class BasicErrorChecker(_BasicChecker):
 
         self.add_message("not-in-loop", node=node, args=node_name)
 
-    def _check_redefinition(self, redeftype, node):
+    def _check_redefinition(
+        self, redeftype: str, node: nodes.Call | nodes.FunctionDef
+    ) -> None:
         """Check for redefinition of a function / method / class name."""
         parent_frame = node.parent.frame(future=True)
 
