@@ -185,15 +185,18 @@ class Primer:
             # Create comment for new messages
             count = 1
             fatal_count = 1
+            new_astroid_errors = False
             new_non_fatal_messages = ""
             new_fatal_messages = ""
             if new_messages:
                 print("Now emitted:")
             for message in new_messages:
-                if message["type"] == "fatal":
-                    filepath = str(message["path"]).replace(
-                        str(package_data.clone_directory), ""
-                    )
+                filepath = str(message["path"]).replace(
+                    str(package_data.clone_directory), ""
+                )
+                if message["symbol"] == "astroid-error":
+                    new_astroid_errors = True
+                elif message["type"] == "fatal":
                     new_fatal_messages += (
                         f"{fatal_count}) {message['symbol']}:\n*{message['message']}*\n"
                         "**Please check your changes on the following file**:\n"
@@ -202,9 +205,6 @@ class Primer:
                     print(message)
                     fatal_count += 1
                 else:
-                    filepath = str(message["path"]).replace(
-                        str(package_data.clone_directory), ""
-                    )
                     new_non_fatal_messages += (
                         f"{count}) {message['symbol']}:\n*{message['message']}*\n"
                         f"{package_data.url}/blob/{package_data.branch}{filepath}#L{message['line']}\n"
@@ -212,6 +212,13 @@ class Primer:
                     print(message)
                     count += 1
 
+            if new_astroid_errors:
+                comment += (
+                    "New error(s) were found stemming from the `astroid` library. "
+                    "This is unlikely to have been caused by your changes. "
+                    "(Pushing to this pull request after another commit has been pushed to main may resolve the issue.) "
+                    "A GitHub Actions warning links directly to the crash report template.\n\n "
+                )
             if new_fatal_messages:
                 comment += (
                     "The following **fatal messages** are now emitted: 💣💥\n\n<details>\n\n"
