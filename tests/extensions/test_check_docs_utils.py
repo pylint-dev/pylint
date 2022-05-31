@@ -139,3 +139,14 @@ def test_exception(raise_node, expected):
     for node in found_nodes:
         assert isinstance(node, astroid.nodes.ClassDef)
     assert {node.name for node in found_nodes} == expected
+
+
+def test_possible_exc_types_raising_potential_none() -> None:
+    raise_node = astroid.extract_node(
+        """
+    def a():
+        return
+    raise a()  #@
+    """
+    )
+    assert utils.possible_exc_types(raise_node) == set()
