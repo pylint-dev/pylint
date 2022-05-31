@@ -23,10 +23,12 @@ VALID_ISSUE_NUMBER_PATTERN: Pattern[str] = re.compile(r"\*[\S\s]*?#\d{1,5}")
 PATH_TO_WHATSNEW = (Path(__file__).parent / "../doc/whatsnew").resolve()
 UNCHECKED_VERSION = [
     # Not checking version prior to 1.0.0 because the issues referenced are a mix
-    # between Logilab's internal and bitbucket. It's hard to tell, it's
-    # inaccessible for Logilab and often dead links for bitbucket anyway.
+    # between Logilab internal issue and Bitbucket. It's hard to tell, it's
+    # inaccessible for Logilab and often dead links for Bitbucket anyway.
     # Not very useful generally, unless you're an open source historian.
     "0",
+    # Too much Bitbucket issues in this one :
+    "1.2",
 ]
 
 NO_CHECK_REQUIRED_FILES = {
@@ -37,7 +39,7 @@ NO_CHECK_REQUIRED_FILES = {
 
 
 def sorted_whatsnew(verbose: bool) -> Iterator[Path]:
-    """Return the whatsnew in the 'right' numerical order ('9' before '10')"""
+    """Return the whats-new in the 'right' numerical order ('9' before '10')"""
     numeric_whatsnew = {}
     for file in PATH_TO_WHATSNEW.glob("**/*"):
         if file.is_dir():
@@ -75,7 +77,7 @@ def main(argv: list[str] | None = None) -> int:
 
 
 def check_file(file: Path, verbose: bool) -> bool:
-    """Check that a file contain valid changelog's entries."""
+    """Check that a file contain valid change-log's entries."""
     with open(file, encoding="utf8") as f:
         content = f.read()
     valid_full_descriptions = VALID_CHANGELOG_PATTERN.findall(content)

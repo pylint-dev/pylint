@@ -7,7 +7,7 @@ Release date: 2014-04-30
 * Restore the ability to specify the init-hook option via the
   configuration file, which was accidentally broken in 1.2.0.
 
-* Add a new warning [bad-continuation] for badly indentend continued
+* Add a new warning [bad-continuation] for badly indented continued
   lines.
 
 * Emit [assignment-from-none] when the function contains bare returns.
@@ -83,9 +83,9 @@ Release date: 2014-04-18
   assignments.
 
 * Add new warning, 'bad-reversed-sequence', for checking that the
-  reversed() builtin receive a sequence (implements __getitem__ and __len__,
+  reversed() builtin receive a sequence (implements ``__getitem__`` and ``__len__``,
   without being a dict or a dict subclass) or an instance which implements
-  __reversed__.
+  ``__reversed__``.
 
 * Mark ``file`` as a bad function when using python2 (closes #8).
 
@@ -101,15 +101,14 @@ Release date: 2014-04-18
 
 * Add a new warning 'abstract-class-instantiated' for checking
   that abstract classes created with ``abc`` module and
-  with abstract methods are instantied.
+  with abstract methods are instantiated.
 
 * Do not warn about 'return-arg-in-generator' in Python 3.3+.
 
 * Do not warn about 'abstract-method' when the abstract method
   is implemented through assignment (#155).
 
-* Improve cyclic import detection in the case of packages, patch by Buck
-  Golemon
+* Improve cyclic import detection in the case of packages, patch by Buck Golemon
 
 * Add new warnings for checking proper class __slots__:
   ``invalid-slots-object`` and ``invalid-slots``.
@@ -117,7 +116,7 @@ Release date: 2014-04-18
 * Search for rc file in `~/.config/pylintrc` if `~/.pylintrc`
   doesn't exists (#121)
 
-* Don't register the newstyle checker w/ python >= 3
+* Don't register the new style checker w/ python >= 3
 
 * Fix unused-import false positive w/ augment assignment (#78)
 
