@@ -1,4 +1,10 @@
 class Person:
 
-    def print_greeting(self):  # [no-self-use]
-        print("hello!")
+    def developer_greeting(self):  # [no-self-use]
+        print("Greetings developer!")        
+
+    def greeting_1(self):  # [no-self-use]
+        print("Hello!")
+        
+    def greeting_2(self):  # [no-self-use]
+        print("Hi!")        
