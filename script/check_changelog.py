@@ -27,9 +27,12 @@ UNCHECKED_VERSION = [
     # between Logilab internal issue and Bitbucket. It's hard to tell, it's
     # inaccessible for Logilab and often dead links for Bitbucket anyway.
     # Not very useful generally, unless you're an open source historian.
-    "0",
+    "0.x",
     # Too much Bitbucket issues in this one :
+    "1.0",
+    "1.1",
     "1.2",
+    "1.3",
 ]
 
 NO_CHECK_REQUIRED_FILES = {
@@ -45,15 +48,26 @@ def sorted_whatsnew(verbose: bool) -> Iterator[Path]:
     for file in PATH_TO_WHATSNEW.glob("**/*"):
         relpath_file = file.relative_to(DOC_PATH)
         if file.is_dir():
-            print(f"Not analysing dir I don't care about '{relpath_file}' : 🤖🤷")
-            continue
-        version = file.parents[0].name
-        if file.name in NO_CHECK_REQUIRED_FILES or any(
-            version == x for x in UNCHECKED_VERSION
-        ):
             if verbose:
-                print(f"I don't care about '{relpath_file}' : 🤖🤷")
+                print(f"I don't care about '{relpath_file}', it's a directory : 🤖🤷")
             continue
+        if file.name in NO_CHECK_REQUIRED_FILES:
+            if verbose:
+                print(
+                    f"I don't care about '{relpath_file}' it's in 'NO_CHECK_REQUIRED_FILES' : 🤖🤷"
+                )
+            continue
+        version = (
+            file.parents[0].name if file.stem in {"summary", "full"} else file.stem
+        )
+        if any(version == x for x in UNCHECKED_VERSION):
+            if verbose:
+                print(
+                    f"I don't care about '{relpath_file}' {version} is in UNCHECKED_VERSION : 🤖🤷"
+                )
+            continue
+        if verbose:
+            print(f"I'm going to check '{relpath_file}' 🤖")
         num = tuple(int(x) for x in (version.split(".")))
         numeric_whatsnew[num] = file
     for num in sorted(numeric_whatsnew):

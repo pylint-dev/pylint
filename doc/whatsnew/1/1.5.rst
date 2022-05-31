@@ -55,7 +55,7 @@ Release date: 2016-01-11
 
 * Handle the import fallback idiom with regard to wrong-import-order.
 
-  Closes #750.
+  Closes #750
 
 * Decouple the displaying of reports from the displaying of messages
 
@@ -68,7 +68,8 @@ Release date: 2016-01-11
   displayed with Reporter.display_message, while the reports are
   displayed with display_reports.
 
-  Closes issues #766 and #765.
+  Closes #766
+  Closes #765
 
 * Ignore function calls with variadic arguments without a context.
 
@@ -78,22 +79,22 @@ Release date: 2016-01-11
   In order to avoid this, until we'll have support for call context
   propagation, we're ignoring such cases if detected.
 
-  Closes #722.
+  Closes #722
 
 * Treat AsyncFunctionDef just like FunctionDef nodes,
   by implementing visit_asyncfunctiondef in terms of
   visit_functiondef.
 
-  Closes #767.
+  Closes #767
 
 * Take in account kwonlyargs when verifying that arguments
   are defined with the check_docs extension.
 
-  Closes #745.
+  Closes #745
 
 * Suppress reporting 'unneeded-not' inside ``__ne__`` methods
 
-  Closes #749.
+  Closes #749
 
 
 What's New in Pylint 1.5.2?
@@ -103,7 +104,7 @@ Release date: 2015-12-21
 * Don't crash if graphviz is not installed, instead emit a
   warning letting the user to know.
 
-  Closes #168.
+  Closes #168
 
 * Accept only functions and methods for the deprecated-method checker.
 
@@ -112,11 +113,11 @@ Release date: 2015-12-21
 
 * Don't emit super-on-old-class on classes with unknown bases.
 
-  Closes #721.
+  Closes #721
 
 * Allow statements in ``if`` or ``try`` blocks containing imports.
 
-  Closes #714.
+  Closes #714
 
 
 What's New in Pylint 1.5.1?
@@ -127,7 +128,7 @@ Release date: 2015-12-02
 * Fix a crash which occurred when old visit methods are encountered
   in plugin modules.
 
-  Closes #711.
+  Closes #711
 
 * Add wrong-import-position to check_messages's decorator arguments
   for ImportChecker.leave_module
@@ -141,11 +142,13 @@ Release date: 2015-12-02
 * Fix a crash which occurred when old visit methods are encountered
   in plugin modules.
 
-  Closes #711.
+  Closes #711
 
 * Don't emit import-self and cyclic-import for relative imports
   of modules with the same name as the package itself.
-  Closes issues #708 and #706.
+
+  Closes #708
+  Closes #706.
 
 
 What's New in Pylint 1.5.0?
@@ -162,24 +165,24 @@ Release date: 2015-11-29
   latter to be at the top of the file, in order to figure out easier by
   a human reader what dependencies a module has.
 
-  Closes #692.
+  Closes #692
 
 * Added a new refactoring warning, 'unneeded-not', emitted
   when an expression with the not operator could be simplified.
 
-  Closes #670.
+  Closes #670
 
 * Added a new refactoring warning, 'simplifiable-if-statement',
   used when an if statement could be reduced to a boolean evaluation
   of its test.
 
-  Closes #698.
+  Closes #698
 
 * Added a new refactoring warning, 'too-many-boolean-expressions',
   used when an if statement contains too many boolean expressions,
   which makes the code less maintainable and harder to understand.
 
-  Closes #677.
+  Closes #677
 
 * Property methods are shown as attributes instead of functions in
   pyreverse class diagrams.
@@ -190,25 +193,24 @@ Release date: 2015-11-29
   when a function or a method has too many nested blocks, which makes the
   code less readable and harder to understand.
 
-  Closes #668.
+  Closes #668
 
 * Add a new error, 'unsubscriptable-object', that is emitted when
   value used in subscription expression doesn't support subscription
   (i.e. doesn't define __getitem__ method).
 
-* Don't warn about abstract classes instantiated in their own
-  body.
+* Don't warn about abstract classes instantiated in their own body.
 
-  Closes #627.
+  Closes #627
 
 * Obsolete options are not present by default in the generated
   configuration file.
 
-  Closes #632.
+  Closes #632
 
 * non-iterator-returned can detect classes with iterator-metaclasses.
 
-  Closes #679.
+  Closes #679
 
 * Add a new error, 'unsupported-membership-test', emitted when value
   to the right of the 'in' operator doesn't support membership test
@@ -219,26 +221,26 @@ Release date: 2015-11-29
   comprehensions, etc), and 'not-a-mapping', emitted when non-mapping
   value is used in a mapping context.
 
-  Closes #563.
+  Closes #563
 
 * Make 'no-self-use' checker not emit a warning if there is a 'super()'
   call inside the method.
 
-  Closes #667.
+  Closes #667
 
 * Add checker to identify multiple imports on one line.
 
-  Closes #598.
+  Closes #598
 
 * Fix unused-argument false positive when the "+=" operator is used.
 
-  Closes #518.
+  Closes #518
 
 * Don't emit import-error for ignored modules. PyLint will not emit import
   errors for any import which is, or is a subpackage of, a module in
   the ignored-modules list.
 
-  Closes #223.
+  Closes #223
 
 * Fix unused-import false positive when the import is used in a
   class assignment.
@@ -258,28 +260,27 @@ Release date: 2015-11-29
   exception handler which handles an exception type that was handled
   before.
 
-  Closes #485.
+  Closes #485
 
 * A couple of warnings got promoted to errors, since they could uncover
   potential bugs in the code. These warnings are: assignment-from-none,
   unbalanced-tuple-unpacking, unpacking-non-sequence, non-iterator-returned.
 
-  Closes #388.
+  Closes #388
 
 * Allow ending a pragma control with a semicolon. In this way, users
   can continue a pragma control with a reason for why it is used,
   as in `# pylint: disable=old-style-class;reason=...`.
 
-  Closes #449.
+  Closes #449
 
 * --jobs can be used with --load-plugins now.
 
-  Closes #456.
+  Closes #456
 
-* Improve the performance of --jobs when dealing only with a package
-  name.
+* Improve the performance of --jobs when dealing only with a package name.
 
-  Closes #479.
+  Closes #479
 
 * Don't emit an unused-wildcard-import when the imported name comes
   from another module and it is in fact a __future__ name.
@@ -482,10 +483,13 @@ Release date: 2015-11-29
   Closes #581.
 
 * ignored-classes option can work with qualified names (ignored-classes=optparse.Values)
-  Closes #297.
+
+  Closes #297
 
 * ignored-modules can work with qualified names as well as with Unix pattern
-  matching for recursive ignoring. Closes issues #244.
+  matching for recursive ignoring.
+
+  Closes #244
 
 * Improve detection of relative imports in non-packages, as well as importing
   missing modules with a relative import from a package.
