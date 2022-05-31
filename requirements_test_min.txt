@@ -5,3 +5,4 @@ typing-extensions~=4.2
 pytest~=7.1
 pytest-benchmark~=3.4
 pytest-timeout~=2.1
+requests
