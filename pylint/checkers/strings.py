@@ -232,6 +232,24 @@ def arg_matches_format_type(arg_type, format_type):
         return False
     return True
 
+def new_formatting_arg_matches_format_type(arg_type, format_type, conversion):
+    if format_type is None:
+        return True
+
+    if isinstance(arg_type, astroid.Instance):
+        arg_type = arg_type.pytype()
+        if conversion and conversion in "sr":
+            arg_type = "builtins.str"
+        if arg_type == "builtins.str":
+            return format_type == "s"
+        if arg_type == "builtins.float":
+            return format_type in "eEfFgGn%"
+        if arg_type == "builtins.int":
+            # Integers allow all types
+            return format_type != "s"
+        return False
+    return True
+
 
 class StringFormatChecker(BaseChecker):
     """Checks string formatting operations to ensure that the format string
@@ -442,14 +460,15 @@ class StringFormatChecker(BaseChecker):
                 (conversion, format_type) = format_map[
                     value.format_spec.values[0].value
                 ]
-                if conversion:
-                    format_type = conversion
 
-                if arg_type and not arg_matches_format_type(arg_type, format_type):
+                if arg_type and not new_formatting_arg_matches_format_type(arg_type, format_type, conversion):
+                    actual_type = arg_type.pytype()
+                    if conversion in "sr":
+                        actual_type = "builtins.str"
                     self.add_message(
                         "bad-string-format-type",
                         node=node,
-                        args=(arg_type.pytype(), format_type),
+                        args=(actual_type, format_type),
                     )
 
     def _check_interpolation(self, node: nodes.JoinedStr) -> None:
@@ -516,19 +535,20 @@ class StringFormatChecker(BaseChecker):
                 continue
 
             (conversion, format_type) = field_types[key]
-            if conversion:
-                format_type = conversion
 
             if (
                 format_type is not None
                 and arg_type
                 and arg_type != astroid.Uninferable
-                and not arg_matches_format_type(arg_type, format_type)
+                and not new_formatting_arg_matches_format_type(arg_type, format_type, conversion)
             ):
+                actual_type = arg_type.pytype()
+                if conversion in "sr":
+                    actual_type = "builtins.str"
                 self.add_message(
                     "bad-string-format-type",
                     node=node,
-                    args=(arg_type.pytype(), format_type),
+                    args=(actual_type, format_type),
                 )
 
         if implicit_cnt <= len(positional_arguments):
@@ -542,19 +562,20 @@ class StringFormatChecker(BaseChecker):
                     continue
 
                 (conversion, format_type) = implicit_types[i]
-                if conversion:
-                    format_type = conversion
 
                 if (
                     format_type is not None
                     and arg_type
                     and arg_type != astroid.Uninferable
-                    and not arg_matches_format_type(arg_type, format_type)
+                    and not new_formatting_arg_matches_format_type(arg_type, format_type, conversion)
                 ):
+                    actual_type = arg_type.pytype()
+                    if conversion in "sr":
+                        actual_type = "builtins.str"
                     self.add_message(
                         "bad-string-format-type",
                         node=node,
-                        args=(arg_type.pytype(), format_type),
+                        args=(actual_type, format_type),
                     )
 
         for s_i in explicit_args:

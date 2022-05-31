@@ -31,10 +31,28 @@ b"test".format(1, 2)  # [no-member]
 
 NUM = 0
 KEY = "abc"
+
 f'{NUM:d}'
 "{:d}".format(NUM)
+"{:e}".format(NUM)
+"{:f}".format(NUM)
+"{:x}".format(NUM)
+"{:}".format(NUM)
+"{:s}".format(KEY)
+"{!s:s}".format([])
+"{!s}".format({})
+"{:}".format({})
+"{}".format({})
+"{:e}".format(1.1)
+"{:e} {:x}".format(1.1, 1)
+
 f'{KEY:d}'  # [bad-string-format-type]
 "{:d}".format(KEY)  # [bad-string-format-type]
+"{:x}".format([])  # [bad-string-format-type]
+"{:e}".format({})  # [bad-string-format-type]
+"{:d}".format(1.1) # [bad-string-format-type]
+"{!s:x}".format([]) # [bad-string-format-type]
+"{:x} {:x}".format(1, []) # [bad-string-format-type]
 
 
 WORD = "abc"
