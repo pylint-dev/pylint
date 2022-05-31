@@ -88,6 +88,7 @@ contributors:
   * Add consider-merging-isinstance, superfluous-else-return
   * Fix consider-using-ternary for 'True and True and True or True' case
   * Add bad-docstring-quotes and docstring-first-line-empty
+  * Add missing-timeout
 - Ville Skyttä <ville.skytta@iki.fi>
 - Pierre-Yves David <pierre-yves.david@logilab.fr>
 - David Shea <dshea@redhat.com>: invalid sequence and slice index

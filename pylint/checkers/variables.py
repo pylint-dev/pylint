@@ -463,6 +463,14 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Used when there is an unbalanced tuple unpacking in assignment",
         {"old_names": [("E0632", "old-unbalanced-tuple-unpacking")]},
     ),
+    "W0635": (
+        "Missing timeout for method '%s' can cause your program to hang indefinitely",
+        "missing-timeout",
+        "Used when a method needs a 'timeout' parameter "
+        "in order to avoid waiting for a long time. If no timeout "
+        "is specified explicitly the default value is used, for example "
+        "for 'requests' the program will never time out (i.e. hang indefinitely).",
+    ),
     "E0633": (
         "Attempting to unpack a non-sequence%s",
         "unpacking-non-sequence",
@@ -1062,6 +1070,26 @@ class VariablesChecker(BaseChecker):
                 "help": "List of names allowed to shadow builtins",
             },
         ),
+        (
+            "timeout-methods",
+            {
+                "default": (
+                    "requests.delete",
+                    "requests.get",
+                    "requests.head",
+                    "requests.options",
+                    "requests.patch",
+                    "requests.post",
+                    "requests.put",
+                    "requests.request",
+                    "serial.Serial",
+                ),
+                "type": "csv",
+                "metavar": "<comma separated list>",
+                "help": "List of library.method which require a timeout parameter "
+                "e.g. 'requests.get,requests.post'",
+            },
+        ),
     )
 
     def __init__(self, linter=None):
@@ -1091,6 +1119,7 @@ class VariablesChecker(BaseChecker):
         """Visit module : update consumption analysis variable
         checks globals doesn't overrides builtins.
         """
+        self._imports: dict[str, str] = {}
         self._to_consume = [NamesConsumer(node, "module")]
         self._postponed_evaluation_enabled = is_postponed_evaluation_enabled(node)
 
@@ -1109,9 +1138,11 @@ class VariablesChecker(BaseChecker):
         "invalid-all-format",
         "unused-variable",
         "undefined-variable",
+        "missing-timeout",
     )
     def leave_module(self, node: nodes.Module) -> None:
         """Leave module: check globals."""
+        self._imports = {}
         assert len(self._to_consume) == 1
 
         self._check_metaclasses(node)
@@ -1173,6 +1204,46 @@ class VariablesChecker(BaseChecker):
         """Leave setcomp: update consumption analysis variable."""
         # do not check for not used locals here
         self._to_consume.pop()
+
+    @utils.only_required_for_messages(
+        "missing-timeout",
+    )
+    def visit_call(self, node: nodes.Call) -> None:
+        """Check if the call needs a timeout parameter based on package.func_name
+        configured in config.timeout_methods.
+
+        Package uses the self._imports dict variable
+        in order to know the original package name imported
+        """
+        lib_name = ""
+        if isinstance(node.func, nodes.Attribute) and isinstance(
+            node.func.expr, nodes.Name
+        ):
+            lib_alias = node.func.expr.name
+            # Use dict "self._imports" to know the source library of the method
+            lib_name = self._imports.get(lib_alias) or lib_alias
+        func_name = (
+            isinstance(node.func, astroid.Name)
+            and node.func.name
+            or isinstance(node.func, astroid.Attribute)
+            and node.func.attrname
+            or ""
+        )
+        lib_func_name = (
+            # If it using "import requests as alias;alias.request()"
+            f"{lib_name}.{func_name}"
+            if lib_name
+            # If it using "from requests import request as alias;alias()"
+            else self._imports.get(func_name)
+        )
+        if lib_func_name in self.config.timeout_methods:
+            for keyword in node.keywords:
+                if keyword.arg == "timeout":
+                    break
+            else:
+                self.add_message(
+                    "missing-timeout", node=node, args=(lib_func_name,), confidence=HIGH
+                )
 
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         """Visit function: update consumption analysis variable and check locals."""
@@ -1661,9 +1732,14 @@ class VariablesChecker(BaseChecker):
 
         return (VariableVisitConsumerAction.RETURN, found_nodes)
 
-    @utils.only_required_for_messages("no-name-in-module")
+    @utils.only_required_for_messages("no-name-in-module", "missing-timeout")
     def visit_import(self, node: nodes.Import) -> None:
-        """Check modules attribute accesses."""
+        """Check modules attribute accesses and
+        fill "self._imports" dict variable with {alias: package} to be used in.
+
+        "visit_call" method to check if it needs timeout parameter.
+        """
+        self._imports.update({alias or name: f"{name}" for name, alias in node.names})
         if not self._analyse_fallback_blocks and utils.is_from_fallback_block(node):
             # No need to verify this, since ImportError is already
             # handled by the client code.
@@ -1683,9 +1759,16 @@ class VariablesChecker(BaseChecker):
                 continue
             self._check_module_attrs(node, module, parts[1:])
 
-    @utils.only_required_for_messages("no-name-in-module")
+    @utils.only_required_for_messages("no-name-in-module", "missing-timeout")
     def visit_importfrom(self, node: nodes.ImportFrom) -> None:
-        """Check modules attribute accesses."""
+        """Check modules attribute accesses and
+        fill "self._imports" dict variable with {alias: package} to be used in.
+
+        "visit_call" method to check if it needs timeout parameter.
+        """
+        self._imports.update(
+            {alias or name: f"{node.modname}.{name}" for name, alias in node.names}
+        )
         if not self._analyse_fallback_blocks and utils.is_from_fallback_block(node):
             # No need to verify this, since ImportError is already
             # handled by the client code.

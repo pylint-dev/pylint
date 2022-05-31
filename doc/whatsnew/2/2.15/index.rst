@@ -15,6 +15,8 @@ Summary -- Release highlights
 New checkers
 ============
 
+Added new checker ``missing-timeout``
+
 
 Removed checkers
 ================
