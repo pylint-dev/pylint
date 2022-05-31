@@ -419,15 +419,12 @@ class BasicChecker(_BasicChecker):
     def _has_variadic_argument(
         args: list[nodes.Starred | nodes.Keyword], variadic_name: str
     ) -> bool:
-        if not args:
-            return True
-        for arg in args:
-            if isinstance(arg.value, nodes.Name):
-                if arg.value.name != variadic_name:
-                    return True
-            else:
-                return True
-        return False
+        return not args or any(
+            isinstance(a.value, nodes.Name)
+            and a.value.name != variadic_name
+            or not isinstance(a.value, nodes.Name)
+            for a in args
+        )
 
     @utils.only_required_for_messages("unnecessary-lambda")
     def visit_lambda(self, node: nodes.Lambda) -> None:
