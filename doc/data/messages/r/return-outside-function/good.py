@@ -1,1 +1,2 @@
-# This is a placeholder for correct code for this message.
+def get_the_answer():
+    return 42
