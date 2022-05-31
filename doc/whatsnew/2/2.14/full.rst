@@ -94,6 +94,8 @@ Release date: TBA
 
   Closes #6372
 
+* Fixed a crash in the ``docparams`` extension involving raising the result of a function.
+
 * Fixed failure to enable ``deprecated-module`` after a ``disable=all``
   by making ``ImportsChecker`` solely responsible for emitting ``deprecated-module`` instead
   of sharing responsibility with ``StdlibChecker``. (This could have led to double messages.)
