@@ -25,7 +25,8 @@ Release date: 2014-04-30
 * Fix explicit checking of python script (1.2 regression, #219)
 
 * Restore --init-hook, renamed accidentally into --init-hooks in 1.2.0
-  (#211)
+
+  Closes #211
 
 * Add 'indexing-exception' warning, which detects that indexing
   an exception occurs in Python 2 (behaviour removed in Python 3).
@@ -73,7 +74,8 @@ Release date: 2014-04-18
   configurable; contributed by morbo@google.com.
 
 * ensure init-hooks is evaluated before other options, notably load-plugins
-  (#166)
+
+  Closes #166
 
 * Python 2.5 support restored: fixed small issues preventing pylint to run
   on python 2.5. Bitbucket issues #50 and #62.
@@ -106,7 +108,9 @@ Release date: 2014-04-18
 * Do not warn about 'return-arg-in-generator' in Python 3.3+.
 
 * Do not warn about 'abstract-method' when the abstract method
-  is implemented through assignment (#155).
+  is implemented through assignment
+
+  Closes #155
 
 * Improve cyclic import detection in the case of packages, patch by Buck Golemon
 
@@ -114,12 +118,20 @@ Release date: 2014-04-18
   ``invalid-slots-object`` and ``invalid-slots``.
 
 * Search for rc file in `~/.config/pylintrc` if `~/.pylintrc`
-  doesn't exists (#121)
+  doesn't exists
+
+  Closes #121
 
 * Don't register the new style checker w/ python >= 3
 
-* Fix unused-import false positive w/ augment assignment (#78)
+* Fix unused-import false positive w/ augment assignment
 
-* Fix access-member-before-definition false negative wrt aug assign (#164)
+  Closes #78
 
-* Do not attempt to analyze non python file, e.g. .so file (#122)
+* Fix access-member-before-definition false negative wrt aug assign
+
+  Closes #164
+
+* Do not attempt to analyze non python file, e.g. .so file
+
+  Closes #122

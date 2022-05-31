@@ -32,7 +32,6 @@ UNCHECKED_VERSION = [
     "1.0",
     "1.1",
     "1.2",
-    "1.3",
 ]
 
 NO_CHECK_REQUIRED_FILES = {

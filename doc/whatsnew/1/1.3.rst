@@ -32,7 +32,9 @@ Release date: 2014-07-26
 
   Closes #149.
 
-* Fix unused-import false positive with Python 3 metaclasses (#143).
+* Fix unused-import false positive with Python 3 metaclasses
+
+  Closes #143
 
 * Don't warn with 'bad-format-character' when encountering
   the 'a' format on Python 3.
@@ -43,12 +45,14 @@ Release date: 2014-07-26
   'missing-format-attribute' and 'invalid-format-index'.
 
 * Issue broad-except and bare-except even if the number
-  of except handlers is different than 1. Fixes issue #113.
+  of except handlers is different than 1.
+
+  Closes #113
 
 * Issue attribute-defined-outside-init for all cases, not just
   for the last assignment.
 
-  Closes #262.
+  Closes #262
 
 * Emit 'not-callable' when calling properties.
 
