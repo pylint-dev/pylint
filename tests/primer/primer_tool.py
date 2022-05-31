@@ -25,6 +25,9 @@ PACKAGES_TO_PRIME_PATH = Path(__file__).parent / "packages_to_prime.json"
 
 PackageMessages = Dict[str, List[Dict[str, Union[str, int]]]]
 
+GITHUB_CRASH_TEMPLATE_LOCATION = "/home/runner/.cache"
+CRASH_TEMPLATE_INTRO = "There is a pre-filled template"
+
 
 class Primer:
     """Main class to handle priming of packages."""
@@ -128,6 +131,20 @@ class Primer:
             packages[package] = output
             print(f"Successfully primed {package}.")
 
+        astroid_errors = []
+        other_fatal_msgs = []
+        for msg in chain.from_iterable(packages.values()):
+            if msg["type"] == "fatal":
+                # Remove the crash template location if we're running on GitHub.
+                # We were falsely getting "new" errors when the timestamp changed.
+                assert isinstance(msg["message"], str)
+                if GITHUB_CRASH_TEMPLATE_LOCATION in msg["message"]:
+                    msg["message"] = msg["message"].rsplit(CRASH_TEMPLATE_INTRO)[0]
+                if msg["symbol"] == "astroid-error":
+                    astroid_errors.append(msg)
+                else:
+                    other_fatal_msgs.append(msg)
+
         with open(
             PRIMER_DIRECTORY
             / f"output_{'.'.join(str(i) for i in sys.version_info[:3])}_{self.config.type}.txt",
@@ -141,13 +158,6 @@ class Primer:
         # This is to avoid introducing a dependency on bleeding-edge astroid
         # for pylint CI pipelines generally, even though we want to use astroid main
         # for the purpose of diffing emitted messages and generating PR comments.
-        messages = list(chain.from_iterable(packages.values()))
-        astroid_errors = [msg for msg in messages if msg["symbol"] == "astroid-error"]
-        other_fatal_msgs = [
-            msg
-            for msg in messages
-            if msg["type"] == "fatal" and msg["symbol"] != "astroid-error"
-        ]
         if astroid_errors:
             warnings.warn(f"Fatal errors traced to astroid:  {astroid_errors}")
         assert not other_fatal_msgs, other_fatal_msgs
