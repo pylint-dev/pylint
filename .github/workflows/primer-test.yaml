@@ -14,7 +14,7 @@ on:
 
 env:
   # Also change CACHE_VERSION in the CI workflow
-  CACHE_VERSION: 5
+  CACHE_VERSION: 6
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
