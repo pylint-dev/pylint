@@ -11,7 +11,7 @@ on:
 
 env:
   # Also change CACHE_VERSION in the other workflows
-  CACHE_VERSION: 6
+  CACHE_VERSION: 7
 
 jobs:
   tests-linux:
