@@ -1,0 +1,25 @@
+name: changelog
+
+on:
+  pull_request:
+    types: [opened, synchronize, labeled, unlabeled, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Changelog Entry Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Grep CHANGES.md for PR number
+        if:
+          contains(github.event.pull_request.labels.*.name, 'skip news :mute:') != true
+        run: |
+          grep -Pz "(\*\s[\S[\n
+]+?]*\n\n\s\s(Refs|Closes|Follow-up in|Fixes part of)) (PyCQA/astroid)?#${{ github.event.pull_request.number }}" doc/whatsnew/2/**/*.rst || \
+          (echo "Please add '(#${{ github.event.pull_request.number }})' change line to 'doc/whatsnew/2/2.15/index.rst' \
+          (or if appropriate, ask a maintainer to add the 'skip news' label)" && \
+          exit 1)

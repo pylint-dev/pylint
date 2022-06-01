@@ -47,3 +47,5 @@ Other Changes
 
 Internal changes
 ================
+
+* Added a check in CI for changelogs entry (#6688)
