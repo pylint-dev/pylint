@@ -78,7 +78,6 @@ repos:
         alias: check-changelog
         name: check-changelog
         types: [text]
-        args: ["--verbose"]
         entry: python3 script/check_changelog.py
         pass_filenames: false
         language: system
