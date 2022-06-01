@@ -1904,9 +1904,9 @@ accessed. Python regular expressions are accepted.",
     def _check_unsupported_alternative_union_syntax(self, node: nodes.BinOp) -> None:
         """Check if left or right node is of type `type`.
 
-        If either is, and doesn't
-        support an or operator via a metaclass, infer that this is a mistaken
-        attempt to use alternative union syntax when not supported.
+        If either is, and doesn't support an or operator via a metaclass,
+        infer that this is a mistaken attempt to use alternative union
+        syntax when not supported.
         """
         msg = "unsupported operand type(s) for |"
         left_obj = astroid.helpers.object_type(node.left)
@@ -1920,7 +1920,9 @@ accessed. Python regular expressions are accepted.",
             # Astroid will have inferred the existence of __or__ / __ror__ on
             # builtins.type, which is not suitable.
             is_py310_builtin = all(
-                attr.parent.qname() == "builtins.type" for attr in attrs
+                isinstance(attr, nodes.FunctionDef) and
+                attr.parent.qname() == "builtins.type"
+                for attr in attrs
             )
             return (not is_py310_builtin) or self._py310_plus
 
