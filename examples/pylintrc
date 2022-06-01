@@ -277,8 +277,7 @@ signature-mutators=
 
 [EXCEPTIONS]
 
-# Exceptions that will emit a warning when being caught. Defaults to
-# "BaseException, Exception".
+# Exceptions that will emit a warning when caught.
 overgeneral-exceptions=BaseException,
                        Exception
 

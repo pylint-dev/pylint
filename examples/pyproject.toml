@@ -259,8 +259,7 @@ max-statements = 50
 min-public-methods = 2
 
 [tool.pylint.exceptions]
-# Exceptions that will emit a warning when being caught. Defaults to
-# "BaseException, Exception".
+# Exceptions that will emit a warning when caught.
 overgeneral-exceptions = ["BaseException", "Exception"]
 
 [tool.pylint.format]

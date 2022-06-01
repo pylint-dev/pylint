@@ -1,9 +1,15 @@
 Full changelog
 ==============
 
-What's New in Pylint 2.14.0?
+What's New in Pylint 2.14.1?
 ----------------------------
 Release date: TBA
+
+
+
+What's New in Pylint 2.14.0?
+----------------------------
+Release date: 2022-06-01
 
 
 * The refactoring checker now also raises 'consider-using-generator' messages for
