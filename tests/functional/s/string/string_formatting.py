@@ -1,7 +1,7 @@
 """Test for Python 3 string formatting error"""
 
 # pylint: disable=too-few-public-methods, import-error, unused-argument, line-too-long,
-# pylint: disable=useless-object-inheritance, consider-using-f-string
+# pylint: disable=useless-object-inheritance, consider-using-f-string, pointless-statement
 import os
 import sys
 import logging
@@ -102,6 +102,10 @@ def pprint_bad():
     "String".format(())  # [format-string-without-interpolation]
     "String".format([])  # [format-string-without-interpolation]
     "String".format(None)  # [format-string-without-interpolation]
+    "{:x}".format("s") # [bad-string-format-type]
+    "{!s:x}".format([]) # [bad-string-format-type]
+    f"{'s':x}" # [bad-string-format-type]
+    f"{[]!s:x}" # [bad-string-format-type]
 
 
 def good_issue288(*args, **kwargs):

@@ -232,6 +232,7 @@ def arg_matches_format_type(arg_type, format_type):
         return False
     return True
 
+
 def new_formatting_arg_matches_format_type(arg_type, format_type, conversion):
     if format_type is None:
         return True
@@ -457,13 +458,24 @@ class StringFormatChecker(BaseChecker):
                 if len(value.format_spec.values) == 0:
                     continue
 
-                (conversion, format_type) = format_map[
-                    value.format_spec.values[0].value
-                ]
+                def convert_node_to_string(x):
+                    node_str = x.as_string().strip()
+                    # astroid sometimes adds single quotes around as_string
+                    if (node_str[0], node_str[-1]) == ("'", "'"):
+                        node_str = node_str[1:-1]
+                    return node_str
 
-                if arg_type and not new_formatting_arg_matches_format_type(arg_type, format_type, conversion):
+                full_spec_as_string = "".join(
+                    [convert_node_to_string(x) for x in value.format_spec.values]
+                )
+
+                (conversion, format_type) = format_map[full_spec_as_string]
+
+                if arg_type and not new_formatting_arg_matches_format_type(
+                    arg_type, format_type, conversion
+                ):
                     actual_type = arg_type.pytype()
-                    if conversion in "sr":
+                    if conversion and conversion in "sr":
                         actual_type = "builtins.str"
                     self.add_message(
                         "bad-string-format-type",
@@ -540,10 +552,12 @@ class StringFormatChecker(BaseChecker):
                 format_type is not None
                 and arg_type
                 and arg_type != astroid.Uninferable
-                and not new_formatting_arg_matches_format_type(arg_type, format_type, conversion)
+                and not new_formatting_arg_matches_format_type(
+                    arg_type, format_type, conversion
+                )
             ):
                 actual_type = arg_type.pytype()
-                if conversion in "sr":
+                if conversion and conversion in "sr":
                     actual_type = "builtins.str"
                 self.add_message(
                     "bad-string-format-type",
@@ -567,10 +581,12 @@ class StringFormatChecker(BaseChecker):
                     format_type is not None
                     and arg_type
                     and arg_type != astroid.Uninferable
-                    and not new_formatting_arg_matches_format_type(arg_type, format_type, conversion)
+                    and not new_formatting_arg_matches_format_type(
+                        arg_type, format_type, conversion
+                    )
                 ):
                     actual_type = arg_type.pytype()
-                    if conversion in "sr":
+                    if conversion and conversion in "sr":
                         actual_type = "builtins.str"
                     self.add_message(
                         "bad-string-format-type",
@@ -635,14 +651,7 @@ class StringFormatChecker(BaseChecker):
             return
 
         try:
-            (
-                fields,
-                num_args,
-                explicit_args,
-                field_types,
-                implicit_types,
-                explicit_types,
-            ) = utils.parse_format_method_string(strnode.value)
+            parse = utils.parse_format_method_string(strnode.value)
         except utils.UnsupportedFormatCharacter as exc:
             formatted = strnode.value[exc.index]
             self.add_message(
@@ -657,8 +666,11 @@ class StringFormatChecker(BaseChecker):
 
         positional_arguments = call_site.positional_arguments
         named_arguments = call_site.keyword_arguments
-        named_fields = {field[0] for field in fields if isinstance(field[0], str)}
-        if num_args and len(explicit_args) > 0:
+        named_fields = {
+            field[0] for field in parse.keyword_arguments if isinstance(field[0], str)
+        }
+        num_args = parse.implicit_pos_args_cnt
+        if num_args and len(parse.explicit_pos_args) > 0:
             self.add_message("format-combined-specification", node=node)
             return
 
@@ -678,7 +690,7 @@ class StringFormatChecker(BaseChecker):
                         "unused-format-string-argument", node=node, args=(field,)
                     )
             # num_args can be 0 if manual_pos is not.
-            num_args = num_args or len(explicit_args)
+            num_args = num_args or len(parse.explicit_pos_args)
             if positional_arguments or num_args:
                 empty = any(field == "" for field in named_fields)
                 if named_arguments or empty:
@@ -692,7 +704,7 @@ class StringFormatChecker(BaseChecker):
             check_args = True
         if check_args:
             # num_args can be 0 if manual_pos is not.
-            num_args = num_args or len(explicit_args)
+            num_args = num_args or len(parse.explicit_pos_args)
             if not num_args:
                 self.add_message("format-string-without-interpolation", node=node)
                 return
@@ -703,18 +715,20 @@ class StringFormatChecker(BaseChecker):
 
         self._validate_arg_types(
             node,
-            fields,
-            field_types,
+            parse.keyword_arguments,
+            parse.keyword_types,
             implicit_cnt,
-            implicit_types,
-            explicit_args,
-            explicit_types,
+            parse.implicit_types,
+            parse.explicit_pos_args,
+            parse.explicit_types,
             named_arguments,
             positional_arguments,
         )
 
         self._detect_vacuous_formatting(node, positional_arguments)
-        self._check_new_format_specifiers(node, fields, named_arguments)
+        self._check_new_format_specifiers(
+            node, parse.keyword_arguments, named_arguments
+        )
 
     def _check_new_format_specifiers(self, node, fields, named):
         """Check attribute and index access in the format

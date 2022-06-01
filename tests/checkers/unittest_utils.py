@@ -163,9 +163,14 @@ def test_parse_format_method_string() -> None:
         ("{!r:}", 1),
     ]
     for fmt, count in samples:
-        keys, num_args, pos_args, _, _, _ = utils.parse_format_method_string(fmt)
-        keyword_args = len({k for k, l in keys if not isinstance(k, int)})
-        assert keyword_args + num_args + len(pos_args) == count
+        parse = utils.parse_format_method_string(fmt)
+        keyword_args = len(
+            {k for k, l in parse.keyword_arguments if not isinstance(k, int)}
+        )
+        assert (
+            keyword_args + parse.implicit_pos_args_cnt + len(parse.explicit_pos_args)
+            == count
+        )
 
 
 def test_inherit_from_std_ex_recursive_definition() -> None:

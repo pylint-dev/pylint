@@ -12,6 +12,7 @@ import numbers
 import re
 import string
 import warnings
+from collections import namedtuple
 from collections.abc import Iterable
 from functools import lru_cache, partial
 from re import Match
@@ -714,16 +715,22 @@ def parse_all_fields_formatting(
     return format_char_memo
 
 
+parse_format_method_string_result = namedtuple(
+    "parse_format_method_string_result",
+    [
+        "keyword_arguments",
+        "implicit_pos_args_cnt",
+        "explicit_pos_args",
+        "keyword_types",
+        "implicit_types",
+        "explicit_types",
+    ],
+)
+
+
 def parse_format_method_string(
     format_string: str,
-) -> tuple[
-    list[tuple[str, list[tuple[bool, str]]]],
-    int,
-    set[str],
-    dict[str, tuple[str, str]],
-    list[tuple[str, str]],
-    list[tuple[str, str]],
-]:
+) -> parse_format_method_string_result:
     """Parses a PEP 3101 format string, returning a tuple of
     (keyword_arguments, implicit_pos_args_cnt, explicit_pos_args).
 
@@ -757,7 +764,7 @@ def parse_format_method_string(
             implicit_pos_args_cnt += 1
             implicit_types.append(format_char_memo[format_spec])
 
-    return (
+    return parse_format_method_string_result(
         keyword_arguments,
         implicit_pos_args_cnt,
         explicit_pos_args,

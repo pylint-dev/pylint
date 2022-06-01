@@ -365,7 +365,10 @@ class RecommendationChecker(checkers.BaseChecker):
 
             elif node.parent.parent.keywords:
                 keyword_args = [
-                    i[0] for i in utils.parse_format_method_string(node.value)[0]
+                    i[0]
+                    for i in utils.parse_format_method_string(
+                        node.value
+                    ).keyword_arguments
                 ]
                 for keyword in node.parent.parent.keywords:
                     # If keyword is used multiple times
