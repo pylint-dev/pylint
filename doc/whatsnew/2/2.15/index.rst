@@ -27,6 +27,10 @@ Extensions
 False positives fixed
 =====================
 
+* Don't report ``unsupported-binary-operation`` on Python <= 3.9 when using the ``|`` operator
+  with types, if one has a metaclass that overloads ``__or__`` or ``__ror__`` as appropriate.
+
+  Closes #4951
 
 False negatives fixed
 =====================
