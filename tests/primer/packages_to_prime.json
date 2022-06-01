@@ -19,12 +19,12 @@
     "branch": "main",
     "directories": ["pandas"],
     "pylint_additional_args": ["--ignore-patterns=\"test_"],
-    "url": "https://github.com/pandas-dev/pandas.git"
+    "url": "https://github.com/pandas-dev/pandas"
   },
   "psycopg": {
     "branch": "master",
     "directories": ["psycopg/psycopg"],
-    "url": "https://github.com/psycopg/psycopg.git"
+    "url": "https://github.com/psycopg/psycopg"
   },
   "pygame": {
     "branch": "main",
@@ -39,6 +39,6 @@
   "sentry": {
     "branch": "master",
     "directories": ["src/sentry"],
-    "url": "https://github.com/getsentry/sentry.git"
+    "url": "https://github.com/getsentry/sentry"
   }
 }
