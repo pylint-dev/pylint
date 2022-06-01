@@ -79,6 +79,11 @@ class Primer:
             required=True,
             help="Location of output file of the new run.",
         )
+        compare_parser.add_argument(
+            "--commit",
+            required=True,
+            help="Commit hash of the PR commit being checked.",
+        )
 
         # Storing arguments
         self.config = self._argument_parser.parse_args()
@@ -253,6 +258,8 @@ class Primer:
             comment = (
                 "🤖 **Effect of this PR on checked open source code:** 🤖\n\n" + comment
             )
+
+        comment += f"*This comment was generated for commit {self.config.commit}*"
 
         with open(PRIMER_DIRECTORY / "comment.txt", "w", encoding="utf-8") as f:
             f.write(comment)
