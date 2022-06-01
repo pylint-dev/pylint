@@ -330,7 +330,7 @@ class LoggingChecker(checkers.BaseChecker):
                     keyword_args_cnt = len(
                         {
                             k
-                            for k, l in parse.keyword_arguments
+                            for k in parse.keyword_arguments
                             if not isinstance(k, int)
                         }
                     )

@@ -745,24 +745,29 @@ def parse_format_method_string(
     explicit_pos_args = set()
     keyword_types = {}
     implicit_types = []
-    explicit_types = []
+    explicit_types = {}
     for (name, format_spec) in collect_string_fields(format_string):
+        try:
+            format_types = format_char_memo[format_spec]
+        except ValueError as e:
+            raise IncompleteFormatString() from e
         if name and str(name).isdigit():
+            print(name)
             explicit_pos_args.add(str(name))
-            explicit_types.append(format_char_memo[format_spec])
+            explicit_types[str(name)] = format_types
         elif name:
             keyname, fielditerator = split_format_field_names(name)
+            if len(list(fielditerator)) > 0:
+                format_types = (format_types[0], None)
             if isinstance(keyname, numbers.Number):
                 explicit_pos_args.add(str(keyname))
-                explicit_types.append(format_char_memo[format_spec])
-            try:
-                keyword_arguments.append((keyname, list(fielditerator)))
-                keyword_types[keyname] = format_char_memo[format_spec]
-            except ValueError as e:
-                raise IncompleteFormatString() from e
+                explicit_types[str(keyname)] = format_types
+                continue
+            keyword_arguments.append((keyname, list(fielditerator)))
+            keyword_types[keyname] = format_types
         else:
             implicit_pos_args_cnt += 1
-            implicit_types.append(format_char_memo[format_spec])
+            implicit_types.append(format_types)
 
     return parse_format_method_string_result(
         keyword_arguments,

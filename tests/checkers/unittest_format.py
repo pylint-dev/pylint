@@ -134,7 +134,6 @@ print('Hello world!')
         with self.assertNoMessages():
             self.checker._check_keyword_parentheses(_tokenize_str(code), start=2)
 
-
 class TestCheckSpace(CheckerTestCase):
     CHECKER_CLASS = FormatChecker
 

@@ -606,7 +606,7 @@ class StringFormatChecker(BaseChecker):
             except astroid.InferenceError:
                 continue
 
-            (conversion, format_type) = explicit_types[i]
+            (conversion, format_type) = explicit_types[str(i)]
             if conversion:
                 format_type = conversion
 
