@@ -427,7 +427,7 @@ class StringFormatChecker(BaseChecker):
         node_string = node.as_string()[2 : len(node.as_string()) - 1]
         format_map = {}
         try:
-            format_map = utils.parse_all_fields_formatting(node_string)
+            format_map = utils.parse_all_fields_formatting(node_string, False)
         except utils.UnsupportedFormatCharacter as exc:
             formatted = node_string[exc.index]
             self.add_message(

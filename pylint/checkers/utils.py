@@ -684,6 +684,7 @@ def parse_format_field(format_field, start_point):
 
 def parse_all_fields_formatting(
     format_string: str,
+    include_nested: bool = True
 ) -> dict[str | None, tuple[str, str]]:
     idx = 0
     open_brackets = []
@@ -702,10 +703,11 @@ def parse_all_fields_formatting(
             if len(open_brackets) == 0:
                 raise IncompleteFormatString(format_string)
             start = open_brackets.pop() + 1
-            (spec, (conversion, format_char)) = parse_format_field(
-                format_string[start:idx], start
-            )
-            format_char_memo[spec] = (conversion, format_char)
+            if len(open_brackets) == 0 or include_nested:
+                (spec, (conversion, format_char)) = parse_format_field(
+                    format_string[start:idx], start
+                )
+                format_char_memo[spec] = (conversion, format_char)
         elif char in {"{", "}"}:
             idx += 1
         idx += 1
@@ -738,7 +740,7 @@ def parse_format_method_string(
     is the number of arguments required by the format string and
     explicit_pos_args is the number of arguments passed with the position.
     """
-    format_char_memo = parse_all_fields_formatting(format_string)
+    format_char_memo = parse_all_fields_formatting(format_string, True)
 
     keyword_arguments = []
     implicit_pos_args_cnt = 0
@@ -752,7 +754,6 @@ def parse_format_method_string(
         except ValueError as e:
             raise IncompleteFormatString() from e
         if name and str(name).isdigit():
-            print(name)
             explicit_pos_args.add(str(name))
             explicit_types[str(name)] = format_types
         elif name:

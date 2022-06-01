@@ -13,3 +13,9 @@ format-string-without-interpolation:21:10:21:27:pprint:Using formatting for a st
 format-string-without-interpolation:22:10:22:23:pprint:Using formatting for a string that does not have any interpolated variables:UNDEFINED
 format-string-without-interpolation:23:10:23:23:pprint:Using formatting for a string that does not have any interpolated variables:UNDEFINED
 format-string-without-interpolation:24:10:24:25:pprint:Using formatting for a string that does not have any interpolated variables:UNDEFINED
+bad-format-character:25:10:25:18:pprint:Unsupported format character 'p' (0x70) at index 3:UNDEFINED
+bad-format-character:26:10:26:26:pprint:Unsupported format character 'p' (0x70) at index 2:UNDEFINED
+bad-format-character:27:10:27:26:pprint:Unsupported format character 'l' (0x6c) at index 11:UNDEFINED
+bad-format-character:28:10:28:36:pprint:Unsupported format character 'l' (0x6c) at index 9:UNDEFINED
+bad-format-character:29:10:29:22:pprint:Unsupported format character 'q' (0x71) at index 3:UNDEFINED
+bad-format-character:30:10:30:32:pprint:Unsupported format character 'q' (0x71) at index 4:UNDEFINED
