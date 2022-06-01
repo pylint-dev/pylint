@@ -1,1 +1,1 @@
-# This is a placeholder for correct code for this message.
+FIRST, SECOND = (1, 2)

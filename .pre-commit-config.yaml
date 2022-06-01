@@ -45,7 +45,7 @@ repos:
         args: [--safe, --quiet]
         exclude: *fixtures
   - repo: https://github.com/Pierre-Sassoulas/black-disable-checker
-    rev: 1.0.1
+    rev: v1.1.0
     hooks:
       - id: black-disable-checker
   - repo: https://github.com/PyCQA/flake8
@@ -74,6 +74,13 @@ repos:
         args: ["-rn", "-sn", "--rcfile=pylintrc", "--fail-on=I", "--spelling-dict=en"]
         exclude: tests/functional/|tests/input|tests(/\w*)*data/|doc/
         stages: [manual]
+      - id: check-changelog
+        alias: check-changelog
+        name: check-changelog
+        types: [text]
+        entry: python3 script/check_changelog.py
+        pass_filenames: false
+        language: system
       - id: fix-documentation
         name: Fix documentation
         entry: python3 -m script.fix_documentation
@@ -81,14 +88,14 @@ repos:
         types: [text]
         files: ^(doc/whatsnew/\d+\.\d+\.rst)
   - repo: https://github.com/rstcheck/rstcheck
-    rev: "v6.0.0rc2"
+    rev: "v6.0.0rc3"
     hooks:
       - id: rstcheck
         args: ["--report-level=warning"]
         files: ^(doc/(.*/)*.*\.rst)
         additional_dependencies: [Sphinx==4.5.0]
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.950
+    rev: v0.960
     hooks:
       - id: mypy
         name: mypy

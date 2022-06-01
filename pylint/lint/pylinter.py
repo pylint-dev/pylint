@@ -695,6 +695,7 @@ class PyLinter(
         :param callable check_astroid_module: callable checking an AST taking the following arguments
         - ast: AST of the module
         :param FileItem file: data about the file
+        :raises AstroidError: for any failures stemming from astroid
         """
         self.set_current_module(file.name, file.filepath)
         # get the module representation
@@ -708,7 +709,10 @@ class PyLinter(
         # fix the current file (if the source file was not available or
         # if it's actually a c extension)
         self.current_file = ast_node.file
-        check_astroid_module(ast_node)
+        try:
+            check_astroid_module(ast_node)
+        except Exception as e:  # pragma: no cover
+            raise astroid.AstroidError from e
         # warn about spurious inline messages handling
         spurious_messages = self.file_state.iter_spurious_suppression_messages(
             self.msgs_store

@@ -106,8 +106,6 @@ def pytest_collection_modifyitems(
         for item in items:
             if "primer_external_batch_one" in item.keywords:
                 item.add_marker(skip_primer_external)
-            if "primer_external_batch_two" in item.keywords:
-                item.add_marker(skip_primer_external)
 
     # Add skip_primer_stdlib mark
     if not config.getoption("--primer-stdlib"):

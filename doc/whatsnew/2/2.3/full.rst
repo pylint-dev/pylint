@@ -13,41 +13,41 @@ Release date: 2019-02-27
   Doesn't make that much sense for ``pylint`` itself, which is why we're handling the
   exception here, rather than in ``astroid``
 
-  Close PyCQA/astroid#644
+  Closes PyCQA/astroid#644
 
 * Added a new command line option ``list-groups`` for listing all the check groups ``pylint`` knows about.
 
 * Allow ``BaseException`` for emitting ``broad-except``, just like ``Exception``.
 
-  Close #2741
+  Closes #2741
 
 * Fixed a crash that occurred for ``bad-str-strip-call`` when ``strip()`` received ``None``
 
-  Close #2743
+  Closes #2743
 
 * Don't emit ``*-not-iterating`` checks for builtins consumed by ``itertools``
 
-  Close #2731
+  Closes #2731
 
 * Fix a crash caused by iterating over ``Uninferable`` in a string formatting check.
 
-  Close #2727
+  Closes #2727
 
 * Fixed false positives for ``no-self-argument`` and ``unsubscriptable-object`` when using ``__class_getitem__`` (new in Python 3.7)
 
-  Close #2416
+  Closes #2416
 
 * Support ``Ellipsis`` as a synonym for ``pass`` statements.
 
-  Close #2718
+  Closes #2718
 
 * ``fixme`` gets triggered only on comments.
 
-  Close #2321
+  Closes #2321
 
 * Fixed a false positive for ``unused-variable`` and ``nonlocal`` assignments
 
-  Close #2671
+  Closes #2671
 
 * Added ``load_configuration()`` hook for plugins
 
@@ -56,27 +56,27 @@ Release date: 2019-02-27
   overwriting plugin specific configuration via user-based
   configuration.
 
-  Close #2635
+  Closes #2635
 
 * Fix missing-raises-doc false positive (W9006)
 
-  Close #1502
+  Closes #1502
 
 * Exempt starred unpacking from ``*-not-iterating`` Python 3 checks
 
-  Close #2651
+  Closes #2651
 
 * Make ``compare-to-zero`` less zealous by checking against equality and identity
 
-  Close #2645
+  Closes #2645
 
 * Add ``no-else-raise`` warning (R1720)
 
-  Close #2558
+  Closes #2558
 
 * Exempt ``yield from`` from ``*-not-iterating`` Python 3 checks.
 
-  Close #2643
+  Closes #2643
 
 * Fix incorrect generation of ``no-else-return`` warnings (R1705)
 
@@ -88,7 +88,7 @@ Release date: 2019-02-27
 
 * Fix false positive with ``not-async-context-manager`` caused by not understanding ``contextlib.asynccontextmanager``
 
-  Close #2440
+  Closes #2440
 
 * Refactor ``bad-reversed-sequence`` to account for more objects that can define ``__reversed__``
 
@@ -96,7 +96,7 @@ Release date: 2019-02-27
   As such, the check for ``bad-reversed-sequence`` needs to not differentiate between classes
   and instances when it comes for checking of ``__reversed__`` presence.
 
-  Close #2598
+  Closes #2598
 
 * Added ``wrong-exception-operation``
 
@@ -104,7 +104,7 @@ Release date: 2019-02-27
   is not valid for the exception in question. Usually emitted when having
   binary operations between exceptions in except handlers.
 
-  Close #2494
+  Closes #2494
 
 * ``no-member`` is emitted for enums when they lack a member
 
@@ -114,7 +114,7 @@ Release date: 2019-02-27
   but that is fine for Enums, given that they are inferred in a customised
   way in astroid.
 
-  Close #2565
+  Closes #2565
 
 * Generalize ``chained-comparison``
 
@@ -123,7 +123,7 @@ Release date: 2019-02-27
 
 * Avoid popping __main__ when using multiple jobs
 
-  Close #2689
+  Closes #2689
 
 * Add a new option 'check-str-concat-over-line-jumps' to check 'implicit-str-concat-in-sequence'
 

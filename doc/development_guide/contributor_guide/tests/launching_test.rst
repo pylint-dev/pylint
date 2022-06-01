@@ -64,12 +64,9 @@ pytest_ command. If you want to only run the ``primer`` you can add either of th
 
     pytest -m primer_stdlib --primer-stdlib
 
-The external ``primer`` has been split up in two marks to speed up our Continuous Integration. You can run
-either of the two batches or run them both::
+The external ``primer`` can be run with::
 
     pytest -m primer_external_batch_one --primer-external # Runs batch one
-    pytest -m primer_external_batch_two --primer-external # Runs batch two
-    pytest -m "primer_external_batch_one or primer_external_batch_two" --primer-external # Runs both batches
 
 The list of repositories is created on the basis of three criteria: 1) projects need to use a diverse
 range of language features, 2) projects need to be well maintained and 3) projects should not have a codebase

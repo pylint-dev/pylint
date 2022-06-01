@@ -6,41 +6,18 @@
 
 .. _repository:
 
-Repository
-----------
-
-Pylint is developed using the git_ distributed version control system.
-
-You can clone Pylint and its dependencies from ::
-
-  git clone https://github.com/PyCQA/pylint
-  git clone https://github.com/PyCQA/astroid
-
-.. _git: https://git-scm.com/
-
 Got a change for Pylint?  Below are a few steps you should take to make sure
-your patch gets accepted. We recommend using Python 3.8 or higher for development
-of Pylint as it gives you access to the latest ``ast`` parser.
+your patch gets accepted:
 
-- Test your code
+- We recommend using Python 3.8 or higher for development of Pylint as it gives
+  you access to the latest ``ast`` parser.
+- Install the dev dependencies, see :ref:`contributor_install`.
+- Use our test suite and write new tests, see :ref:`contributor_testing`.
+- Add an entry to the change log describing the change in `doc/whatsnew/2/2.15/index.rst`
+  (or ``doc/whatsnew/2/2.14/full.rst`` if the change needs backporting in 2.14).
+  If necessary you can write details or offer examples on how the new change is supposed to work.
 
-  For more information on how to use our test suite and write new tests see :ref:`testing`.
-
-- ``pylint`` uses black_ and isort_ among other Python auto-formatters.
-  We have a pre-commit hook which should take care of the autoformatting for
-  you. To enable it, do the following:
-
-    * install ``pre-commit`` using ``pip install pre-commit``
-
-    * then run ``pre-commit install`` in the ``pylint`` root directory to enable the git hooks.
-
-- Add a short entry to the change log describing the change, except for internal
-  implementation only changes.
-
-- Not usually required, but for changes other than small bugs we also add a couple
-  of sentences in the release document for that release, (:file:`doc/whatsnew/VERSION.rst`,
-  `What's New` section). For the release document we usually write some more details,
-  and it is also a good place to offer examples on how the new change is supposed to work.
+- Document your change, if it is a non-trivial one.
 
 - If you used multiple emails or multiple names when contributing, add your mails
   and preferred name in the ``script/.contributors_aliases.json`` file.
@@ -50,8 +27,6 @@ of Pylint as it gives you access to the latest ``ast`` parser.
 - Relate your change to an issue in the tracker if such an issue exists (see
   `Closing issues via commit messages`_ of the GitHub documentation for more
   information on this)
-
-- Document your change, if it is a non-trivial one.
 
 - Send a pull request from GitHub (see `About pull requests`_ for more insight
   about this topic)

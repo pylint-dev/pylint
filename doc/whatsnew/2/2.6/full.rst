@@ -7,7 +7,7 @@ Release date: 2021-02-16
 
 * Astroid version has been set as < 2.5
 
-  Close #4093
+  Closes #4093
 
 
 What's New in Pylint 2.6.0?
@@ -16,23 +16,23 @@ Release date: 2020-08-20
 
 * Fix various scope-related bugs in ``undefined-variable`` checker
 
-  Close #1082, #3434, #3461
+  Closes #1082, #3434, #3461
 
 * bad-continuation and bad-whitespace have been removed, black or another formatter can help you with this better than Pylint
 
-  Close #246, #289, #638, #747, #1148, #1179, #1943, #2041, #2301, #2304, #2944, #3565
+  Closes #246, #289, #638, #747, #1148, #1179, #1943, #2041, #2301, #2304, #2944, #3565
 
 * The no-space-check option has been removed. It's no longer possible to consider empty line like a ``trailing-whitespace`` by using clever options
 
-  Close #1368
+  Closes #1368
 
 * ``missing-kwoa`` is no longer emitted when dealing with overload functions
 
-  Close #3655
+  Closes #3655
 
 * mixed-indentation has been removed, it is no longer useful since TabError is included directly in python3
 
-  Close #2984 #3573
+  Closes #2984 #3573
 
 * Add ``super-with-arguments`` check for flagging instances of Python 2 style super calls.
 
@@ -40,7 +40,7 @@ Release date: 2020-08-20
 
 * Fix superfluous-parens false-positive for the walrus operator
 
-  Close #3383
+  Closes #3383
 
 * Fix ``fail-under`` not accepting floats
 
@@ -50,18 +50,18 @@ Release date: 2020-08-20
 
 * Fix a crash in parallel mode when the module's filepath is not set
 
-  Close #3564
+  Closes #3564
 
 * Add ``raise-missing-from`` check for exceptions that should have a cause.
 
 * Support both isort 4 and isort 5. If you have pinned isort 4 in your projet requirements, nothing changes. If you use isort 5, though, note that the ``known-standard-library`` option is not interpreted the same in isort 4 and isort 5 (see the migration guide in isort documentation for further details). For compatibility's sake for most pylint users, the ``known-standard-library`` option in pylint now maps to ``extra-standard-library`` in isort 5. If you really want what ``known-standard-library`` now means in isort 5, you must disable the ``wrong-import-order`` check in pylint and run isort manually with a proper isort configuration file.
 
-  Close #3722
+  Closes #3722
 
 * Fix a crash caused by not guarding against ``InferenceError`` when calling ``infer_call_result``
 
-  Close #3690
+  Closes #3690
 
 * Fix a crash in parallel mode when the module's filepath is not set
 
-  Close #3564
+  Closes #3564

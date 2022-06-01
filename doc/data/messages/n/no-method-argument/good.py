@@ -1,1 +1,3 @@
-# This is a placeholder for correct code for this message.
+class Person:
+    def print_greeting(self):
+        print("hello")

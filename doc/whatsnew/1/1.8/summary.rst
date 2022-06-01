@@ -216,9 +216,10 @@ New checkers
               except StopIteration:
                   return
 
-  The check about raising a StopIteration inside a generator is also valid if the exception
+* The check about raising a StopIteration inside a generator is also valid if the exception
   raised inherit from StopIteration.
-  Close #1385
+
+  Closes #1385
 
  .. _PEP479: https://peps.python.org/pep-0479
 
@@ -263,7 +264,7 @@ New checkers
         elif arg < 20:
             return None
 
-  Close #1267
+  Closes #1267
 
  .. _PEP8: https://peps.python.org/pep-0008
 

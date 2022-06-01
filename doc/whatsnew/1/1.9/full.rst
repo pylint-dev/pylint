@@ -28,12 +28,12 @@ Release date: 2018-05-15
 
 * Enum classes do not trigger ``too-few-methods``
 
-  Close #605
+  Closes #605
 
 * Added a new Python 2/3 check for accessing ``operator.div``, which is removed in Python 3
 
-  Close #1936
+  Closes #1936
 
 * Added a new Python 2/3 check for accessing removed urllib functions
 
-  Close #1997
+  Closes #1997
