@@ -240,6 +240,7 @@ class Primer:
                 filepath = str(message["path"]).replace(
                     str(package_data.clone_directory), ""
                 )
+                assert not package_data.url.endswith(".git"), "You don't need the .git at the end of the github url."
                 comment += f"{package_data.url}/blob/{package_data.branch}{filepath}#L{message['line']}\n"
                 count += 1
                 print(message)
