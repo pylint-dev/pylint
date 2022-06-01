@@ -110,3 +110,13 @@ class DefaultMetaclass:
 class_list = [WithForward | DefaultMetaclass]
 class_list_reversed_invalid = [WithReverse | DefaultMetaclass] # [unsupported-binary-operation]
 class_list_reversed_valid = [DefaultMetaclass | WithReverse]
+
+
+# Pathological cases
+class HorribleMetaclass(type):
+    __or__ = lambda x: x
+
+class WithHorrible(metaclass=HorribleMetaclass):
+    pass
+
+class_list = [WithHorrible | DefaultMetaclass]
