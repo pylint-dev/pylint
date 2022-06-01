@@ -16,8 +16,9 @@ import logging
 from datetime import datetime
 from pathlib import Path
 
-# TODO: 2.14.0 Upgrade bump script
-DEFAULT_CHANGELOG_PATH = Path("ChangeLog")
+# TODO: 2.15.0 Modify the way we handle the patch version
+# release notes
+DEFAULT_CHANGELOG_PATH = Path("doc/whatsnew/2/2.14/full.rst")
 
 RELEASE_DATE_TEXT = "Release date: TBA"
 WHATS_NEW_TEXT = "What's New in Pylint"
@@ -93,7 +94,7 @@ def get_whats_new(
     version: str, add_date: bool = False, change_date: bool = False
 ) -> str:
     whats_new_text = FULL_WHATS_NEW_TEXT.format(version=version)
-    result = [whats_new_text, "=" * len(whats_new_text)]
+    result = [whats_new_text, "-" * len(whats_new_text)]
     if add_date and change_date:
         result += [NEW_RELEASE_DATE_MESSAGE]
     elif add_date:
