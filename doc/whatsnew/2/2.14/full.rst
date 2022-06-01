@@ -22,6 +22,16 @@ Release date: TBA
 
   Closes #6802
 
+* Fixed false positives for ``unused-import`` when aliasing ``typing`` e.g. as ``t``
+  and guarding imports under ``t.TYPE_CHECKING``.
+
+  Closes #3846
+
+* Fixed a false positive regression in 2.13 for ``used-before-assignment`` where it is safe to rely
+  on a name defined only in an ``except`` block because the ``else`` block returned.
+
+  Closes #6790
+
 * Fixed the use of abbreviations for some special options on the command line.
 
   Closes #6810
