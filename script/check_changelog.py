@@ -15,11 +15,21 @@ from collections.abc import Iterator
 from pathlib import Path
 from re import Pattern
 
-ISSUE_NUMBER_PATTERN = re.compile(r"#\d{1,5}")
-VALID_CHANGELOG_PATTERN: Pattern[str] = re.compile(
-    r"(\*\s[\S[\n ]+?]*\n\n\s\s(Refs|Closes|Follow-up in|Fixes part of)) (PyCQA/astroid)?#\d{1,5}"
+VALID_ISSUES_KEYWORDS = ["Refs", "Closes", "Follow-up in", "Fixes part of"]
+ISSUE_NUMBER_PATTERN = r"#\d{1,5}"
+VALID_ISSUE_NUMBER_PATTERN = r"\*[\S\s]*?" + ISSUE_NUMBER_PATTERN
+ISSUES_KEYWORDS = "|".join(VALID_ISSUES_KEYWORDS)
+PREFIX_CHANGELOG_PATTERN = (
+    rf"(\*\s[\S[\n ]+?]*\n\n\s\s({ISSUES_KEYWORDS})) (PyCQA/astroid)?"
 )
-VALID_ISSUE_NUMBER_PATTERN: Pattern[str] = re.compile(r"\*[\S\s]*?#\d{1,5}")
+VALID_CHANGELOG_PATTERN = PREFIX_CHANGELOG_PATTERN + ISSUE_NUMBER_PATTERN
+
+ISSUE_NUMBER_COMPILED_PATTERN = re.compile(ISSUE_NUMBER_PATTERN)
+VALID_CHANGELOG_COMPILED_PATTERN: Pattern[str] = re.compile(VALID_CHANGELOG_PATTERN)
+VALID_ISSUE_NUMBER_COMPILED_PATTERN: Pattern[str] = re.compile(
+    VALID_ISSUE_NUMBER_PATTERN
+)
+
 DOC_PATH = (Path(__file__).parent / "../doc/").resolve()
 PATH_TO_WHATSNEW = DOC_PATH / "whatsnew"
 UNCHECKED_VERSION = [
@@ -96,9 +106,11 @@ def check_file(file: Path, verbose: bool) -> bool:
     """Check that a file contain valid change-log's entries."""
     with open(file, encoding="utf8") as f:
         content = f.read()
-    valid_full_descriptions = VALID_CHANGELOG_PATTERN.findall(content)
+    valid_full_descriptions = VALID_CHANGELOG_COMPILED_PATTERN.findall(content)
     result = len(valid_full_descriptions)
-    contain_issue_number_descriptions = VALID_ISSUE_NUMBER_PATTERN.findall(content)
+    contain_issue_number_descriptions = VALID_ISSUE_NUMBER_COMPILED_PATTERN.findall(
+        content
+    )
     expected = len(contain_issue_number_descriptions)
     if result != expected:
         return create_detailed_fail_message(
@@ -119,7 +131,9 @@ def create_detailed_fail_message(
     for issue_number_description in contain_issue_number_descriptions:
         if not any(v[0] in issue_number_description for v in valid_full_descriptions):
             is_valid = False
-            issue_number = ISSUE_NUMBER_PATTERN.findall(issue_number_description)[0]
+            issue_number = ISSUE_NUMBER_COMPILED_PATTERN.findall(
+                issue_number_description
+            )[0]
             print(
                 f"{file_name}: {issue_number}'s description is not on one line, or "
                 "does not respect the standard format 🤖👎"
