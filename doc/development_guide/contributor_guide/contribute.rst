@@ -13,14 +13,9 @@ your patch gets accepted:
   you access to the latest ``ast`` parser.
 - Install the dev dependencies, see :ref:`contributor_install`.
 - Use our test suite and write new tests, see :ref:`contributor_testing`.
-
-- Add a short entry to the change log describing the change, except for internal
-  implementation only changes.
-
-- Not usually required, but for changes other than small bugs we also add a couple
-  of sentences in the release document for that release, (:file:`doc/whatsnew/VERSION.rst`,
-  `What's New` section). For the release document we usually write some more details,
-  and it is also a good place to offer examples on how the new change is supposed to work.
+- Add an entry to the change log describing the change in `doc/whatsnew/2/2.15/index.rst`
+  (or ``doc/whatsnew/2/2.14/full.rst`` if the change needs backporting in 2.14).
+  If necessary you can write details or offer examples on how the new change is supposed to work.
 
 - Document your change, if it is a non-trivial one.
 
