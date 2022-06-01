@@ -5,7 +5,9 @@ What's New in Pylint 2.8.3?
 ---------------------------
 Release date: 2021-05-31
 
-* Astroid has been pinned to 2.5.6 for the 2.8 branch see #4527.
+* Astroid has been pinned to 2.5.6 for the 2.8 branch.
+
+  Refs #4527
 
 
 What's New in Pylint 2.8.2?
@@ -23,7 +25,7 @@ Release date: 2021-04-26
 * New warning message ``deprecated-class``. This message is emitted if import or call deprecated class of the
   standard library (like ``collections.Iterable`` that will be removed in Python 3.10).
 
-Closes #4388
+  Closes #4388
 
 
 What's New in Pylint 2.8.1?

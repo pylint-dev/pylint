@@ -27,12 +27,12 @@ Release date: TBA
 
 * ``pylint.pyreverse.ASTWalker`` has been removed, as it was only used internally by a single child class.
 
-  Ref #6712
+  Refs #6712
 
 * ``pyreverse``: Resolving and displaying implemented interfaces that are defined by the ``__implements__``
   attribute has been deprecated and will be removed in 3.0.
 
-  Ref #6713
+  Refs #6713
 
 * Fix syntax for return type annotations in MermaidJS diagrams produced with ``pyreverse``.
 
@@ -107,20 +107,20 @@ Release date: TBA
 * The ``config`` attribute of ``BaseChecker`` has been deprecated. You can use ``checker.linter.config``
   to access the global configuration object instead of a checker-specific object.
 
-  Ref #5392
+  Refs #5392
 
 * The ``level`` attribute of ``BaseChecker`` has been deprecated: everything is now
   displayed in ``--help``, all the time.
 
-  Ref #5392
+  Refs #5392
 
 * The ``options_providers`` attribute of ``ArgumentsManager`` has been deprecated.
 
-  Ref #5392
+  Refs #5392
 
 * The ``option_groups`` attribute of ``PyLinter`` has been deprecated.
 
-  Ref #5392
+  Refs #5392
 
 * All ``Interface`` classes in ``pylint.interfaces`` have been deprecated. You can subclass
   the respective normal classes to get the same behaviour. The ``__implements__`` functionality
@@ -132,7 +132,7 @@ Release date: TBA
 * The ``set_option`` method of ``BaseChecker`` has been deprecated. You can use ``checker.linter.set_option``
   to set an option on the global configuration object instead of a checker-specific object.
 
-  Ref #5392
+  Refs #5392
 
 * ``implicit-str-concat`` will now be raised on calls like ``open("myfile.txt" "a+b")`` too.
 
@@ -141,7 +141,7 @@ Release date: TBA
 * The ``config`` attribute of ``PyLinter`` is now of the ``argparse.Namespace`` type instead of
   ``optparse.Values``.
 
-  Ref #5392
+  Refs #5392
 
 * ``MapReduceMixin`` has been deprecated. ``BaseChecker`` now implements ``get_map_data`` and
   ``reduce_map_data``. If a checker actually needs to reduce data it should define ``get_map_data``
@@ -151,49 +151,49 @@ Release date: TBA
 
 * ``UnsupportedAction`` has been deprecated.
 
-  Ref #5392
+  Refs #5392
 
 * ``OptionsManagerMixIn`` has been deprecated.
 
-  Ref #5392
+  Refs #5392
 
 * ``OptionParser`` has been deprecated.
 
-  Ref #5392
+  Refs #5392
 
 * ``Option`` has been deprecated.
 
-  Ref #5392
+  Refs #5392
 
 * ``OptionsProviderMixIn`` has been deprecated.
 
-  Ref #5392
+  Refs #5392
 
 * ``ConfigurationMixIn`` has been deprecated.
 
-  Ref #5392
+  Refs #5392
 
 * ``get_global_config`` has been deprecated. You can now access all global options from
   ``checker.linter.config``.
 
-  Ref #5392
+  Refs #5392
 
 * ``OptionsManagerMixIn`` has been replaced with ``ArgumentsManager``. ``ArgumentsManager`` is considered
   private API and most methods that were public on ``OptionsManagerMixIn`` have now been deprecated and will
   be removed in a future release.
 
-  Ref #5392
+  Refs #5392
 
 * ``OptionsProviderMixIn`` has been replaced with ``ArgumentsProvider``. ``ArgumentsProvider`` is considered
   private API and most methods that were public on ``OptionsProviderMixIn`` have now been deprecated and will
   be removed in a future release.
 
-  Ref #5392
+  Refs #5392
 
 * ``interfaces.implements`` has been deprecated and will be removed in 3.0. Please use standard inheritance
   patterns instead of ``__implements__``.
 
-  Ref #2287
+  Refs #2287
 
 * ``invalid-enum-extension``: Used when a class tries to extend an inherited Enum class.
 
@@ -276,7 +276,7 @@ Release date: TBA
 
 * Added the ``generate-toml-config`` option.
 
-  Ref #5462
+  Refs #5462
 
 * Added new checker ``unnecessary-list-index-lookup`` for indexing into a list while
   iterating over ``enumerate()``.
@@ -316,7 +316,7 @@ Release date: TBA
   ``import-graph``, ``ext-import-graph``,  ``int-import-graph`` options, and the spell checker's ``spelling-private-dict-file``
   option.
 
-  Relates to #6493
+  Refs #6493
 
 * Created ``NoSelfUseChecker`` extension and moved the ``no-self-use`` check.
   You now need to explicitly enable this check using
@@ -336,7 +336,7 @@ Release date: TBA
 
 * Fix pyreverse crash ``RuntimeError: dictionary changed size during iteration``
 
-  Relates to #6612
+  Refs #6612
 
 * Fix bug where it writes a plain text error message to stdout, invalidating output formats.
 
@@ -346,7 +346,7 @@ Release date: TBA
   Use ``is_postponed_evaluation_enabled(node) and is_node_in_type_annotation_context(node)``
   instead.
 
-  Ref #6536
+  Refs #6536
 
 * Update ranges for ``using-constant-test`` and ``missing-parentheses-for-call-in-test``
   error messages.

@@ -33,7 +33,7 @@ Other Changes
 
 * ``try-except-raise`` checker now handles multilevel inheritance hirerachy for exceptions correctly.
 
-  Close #2484
+  Closes #2484
 
 * Ignore import x.y.z as z cases for checker ``useless-import-alias``.
 
@@ -49,14 +49,14 @@ Other Changes
   for multiple types, since ``pylint`` was picking just the first inferred value, leading
   to spurious false positives.
 
-  Close #2431
+  Closes #2431
 
 * ``pylint`` used to emit a ``not-an-iterable`` error when looking at coroutines built
   with ``asyncio.coroutine``. This is no longer the case as we handle coroutines explicitly.
 
-  Close #996
+  Closes #996
 
 * ``pylint`` used to emit an ``unused-variable`` error if unused import was found in the function. Now instead of
   ``unused-variable``, ``unused-import`` is emitted.
 
-  Close #2421
+  Closes #2421

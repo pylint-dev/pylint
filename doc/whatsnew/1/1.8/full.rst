@@ -26,22 +26,22 @@ Release date: 2017-12-15
 
   See https://bugs.python.org/issue15373 for details.
 
-  Close #1301
+  Closes #1301
 
 * Do not display no-absolute-import warning multiple times per file.
 
 * ``trailing-comma-tuple`` refactor check now extends to assignment with
    more than one element (such as lists)
 
-  Close #1713
+  Closes #1713
 
 * Fixing u'' string in superfluous-parens message
 
-  Close #1420
+  Closes #1420
 
 * ``abstract-class-instantiated`` is now emitted for all inference paths.
 
-   Close #1673
+  Closes #1673
 
 * Add set of predefined naming style to ease configuration of checking
   naming conventions.
@@ -60,19 +60,19 @@ Release date: 2017-12-15
 
 * The ``invalid-name`` check contains the name of the template that caused the failure
 
-  Close #1176
+  Closes #1176
 
 * Using the -j flag won't start more child linters than needed.
 
-  Contributed by Roman Ivanov in #1614
+  Closes #1614
 
 * Fix a false positive with bad-python3-import on relative imports
 
-  Close #1608
+  Closes #1608
 
 * Added a new Python 3 check, ``non-ascii-bytes-literals``
 
-  Close #1545
+  Closes #1545
 
 * Added a couple of new Python 3 checks for accessing dict methods in non-iterable context
 
@@ -84,18 +84,20 @@ Release date: 2017-12-15
   receive the target argument, but receives just one argument, which
   is by default the group parameter.
 
-  Close #1327
+  Closes #1327
 
 * In non-quiet mode, absolute path of used config file is logged to
   standard error.
-  Close #1519
+
+  Closes #1519
 
 * Raise meaningful exception for invalid reporter class being selected
 
   When unknown reporter class will be selected as Pylint reporter,
   meaningful error message would be raised instead of bare ``ImportError``
   or ``AttribueError`` related to module or reporter class being not found.
-  Close #1388
+
+  Closes #1388
 
 * Added a new Python 3 check for accessing removed functions from itertools
   like ``izip`` or ``ifilterfalse``
@@ -108,18 +110,21 @@ Release date: 2017-12-15
 
 * Added a new key-value pair in json output. The key is ``message-id``
   and the value is the message id.
-  Close #1512
+
+  Closes #1512
 
 * Added a new Python 3.0 check for raising a StopIteration inside a generator.
   The check about raising a StopIteration inside a generator is also valid if the exception
   raised inherit from StopIteration.
-  Close #1385
+
+  Closes #1385
 
 * Added a new warning, ``raising-format-tuple``, to detect multi-argument
   exception construction instead of message string formatting.
 
 * Added a new check for method of logging module that concatenate string via + operator
-  Close #1479
+
+  Closes #1479
 
 * Added parameter for limiting number of suggestions in spellchecking checkers
 
@@ -128,66 +133,78 @@ Release date: 2017-12-15
   When object ``A`` used in  ``X and A or B`` was falsy in boolean context,
   Pylint incorrectly emitted non-equivalent ternary-based suggestion.
   After a change message is correctly not emitted for this case.
-  Close #1559
+
+  Closes #1559
 
 * Added ``suggestion-mode`` configuration flag. When flag is enabled, informational
   message is emitted instead of cryptic error message for attributes accessed on
   c-extensions.
-  Close #1466
+
+  Closes #1466
 
 * Fix a false positive ``useless-super-delegation`` message when
   parameters default values are different from those used in the base class.
-  Close #1085
+
+  Closes #1085
 
 * Disabling 'wrong-import-order', 'wrong-import-position', or
   'ungrouped-imports' for a single line now prevents that line from
   triggering violations on subsequent lines.
 
-  Close #1336
+  Closes #1336
 
 * Added a new Python check for inconsistent return statements inside method or function.
-  Close #1267
+
+  Closes #1267
 
 * Fix ``superfluous-parens`` false positive related to handling logical statements
   involving ``in`` operator.
 
-  Close #574
+  Closes #574
 
 * ``function-redefined`` message is no longer emitted for functions and
   methods which names matches dummy variable name regular expression.
-  Close #1369
+
+  Closes #1369
 
 * Fix ``missing-param-doc`` and ``missing-type-doc`` false positives when
   mixing ``Args`` and ``Keyword Args`` in Google docstring.
-  Close #1409
+
+  Closes #1409
 
  * Fix ``missing-docstring`` false negatives when modules, classes, or methods
    consist of compound statements that exceed the ``docstring-min-length``
 
 * Fix ``useless-else-on-loop`` false positives when break statements are
   deeply nested inside loop.
-  Close #1661
+
+  Closes #1661
 
 * Fix no ``wrong-import-order`` message emitted on ordering of first and third party
   libraries. With this fix, pylint distinguishes third and first party
   modules when checking import order.
-  Close #1702
+
+  Closes #1702
 
 * Fix ``pylint disable=fixme`` directives ignored for comments following the
   last statement in a file.
-  Close #1681
+
+  Closes #1681
 
 * Fix ``line-too-long`` message deactivated by wrong disable directive.
   The directive ``disable=fixme`` doesn't deactivate anymore the emission
   of ``line-too-long`` message for long commented lines.
-  Close #1741
+
+  Closes #1741
 
 * If the rcfile specified on the command line doesn't exist, then an
   IOError exception is raised.
-  Close #1747
+
+  Closes #1747
 
 * Fix the wrong scope of the ``disable=`` directive after a commented line.
   For example when a ``disable=line-too-long`` directive is at the end of
   a long commented line, it no longer disables the emission of ``line-too-long``
   message for lines that follow.
-  Close #1742
+
+  Closes #1742

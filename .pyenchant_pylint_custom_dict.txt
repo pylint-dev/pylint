@@ -25,6 +25,7 @@ BaseChecker
 basename
 behaviour
 bidi
+Bitbucket
 bla
 bom
 bool
@@ -172,6 +173,7 @@ linkers
 linter
 linux
 listcomp
+Logilab
 longstring
 lsp
 mapfile
@@ -351,4 +353,5 @@ wc
 xfails
 xml
 xyz
+yml
 yoda

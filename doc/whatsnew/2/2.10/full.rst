@@ -57,7 +57,7 @@ Release date: 2021-08-20
 * Added ``ignored-parents`` option to the design checker to ignore specific
   classes from the ``too-many-ancestors`` check (R0901).
 
-  Partially closes #3057
+  Fixes part of #3057
 
 * Added ``unspecified-encoding``: Emitted when open() is called without specifying an encoding
 
@@ -65,12 +65,12 @@ Release date: 2021-08-20
 
 * Improved the Similarity checker performance. Fix issue with ``--min-similarity-lines`` used with ``--jobs``.
 
-  Close #4120
-  Close #4118
+  Closes #4120
+  Closes #4118
 
 * Don't emit ``no-member`` error if guarded behind if statement.
 
-  Ref #1162
+  Refs #1162
   Closes #1990
   Closes #4168
 

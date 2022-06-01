@@ -24,16 +24,13 @@ Release date: 2021-09-16
 
   Closes #4776
 
-
 * Added ``py-version`` config key (if ``[MASTER]`` section). Used for version dependent checks.
   Will default to whatever Python version pylint is executed with.
 
-* ``CodeStyleChecker``
+* ``CodeStyleChecker``: Added ``consider-using-assignment-expr``: Emitted when an assignment is directly followed by an if statement
+  and both can be combined by using an assignment expression ``:=``. Requires Python 3.8
 
-  * Added ``consider-using-assignment-expr``: Emitted when an assignment is directly followed by an if statement
-    and both can be combined by using an assignment expression ``:=``. Requires Python 3.8
-
-    Closes #4862
+  Closes #4862
 
 * Added ``consider-using-f-string``: Emitted when .format() or '%' is being used to format a string.
 

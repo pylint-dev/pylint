@@ -149,7 +149,7 @@ Release date: 2021-11-24
 * ``undefined-variable`` and ``unused-variable`` now correctly trigger for assignment expressions
   in functions defaults
 
-  Fixes part of #3688
+  Refs #3688
 
 * ``undefined-variable`` now correctly triggers for assignment expressions in if ... else statements
   This includes a basic form of control flow inference for if ... else statements using
@@ -276,7 +276,7 @@ Release date: 2021-11-24
 
 * Fix crash on ``open()`` calls when the ``mode`` argument is not a simple string.
 
-  Partially closes #5321
+  Fixes part of #5321
 
 * Inheriting from a class that implements ``__class_getitem__`` no longer raises ``inherit-non-class``.
 

@@ -74,6 +74,13 @@ repos:
         args: ["-rn", "-sn", "--rcfile=pylintrc", "--fail-on=I", "--spelling-dict=en"]
         exclude: tests/functional/|tests/input|tests(/\w*)*data/|doc/
         stages: [manual]
+      - id: check-changelog
+        alias: check-changelog
+        name: check-changelog
+        types: [text]
+        entry: python3 script/check_changelog.py
+        pass_filenames: false
+        language: system
       - id: fix-documentation
         name: Fix documentation
         entry: python3 -m script.fix_documentation

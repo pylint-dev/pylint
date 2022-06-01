@@ -5,25 +5,36 @@
 Release date: 2014-07-26
 
 * Allow hanging continued indentation for implicitly concatenated
-  strings. Closes issue #232.
+  strings.
+
+  Closes #232.
 
 * Pylint works under Python 2.5 again, and its test suite passes.
 
 * Fix some false positives for the cellvar-from-loop warnings.
-  Closes issue #233.
+
+  Closes #233.
 
 * Return new astroid class nodes when the inferencer can detect that
   that result of a function invocation on a type (like ``type`` or
-  `abc.ABCMeta`) is requested. Closes #205.
+  `abc.ABCMeta`) is requested.
+
+  Closes #205.
 
 * Emit 'undefined-variable' for undefined names when using the
   Python 3 ``metaclass=`` argument.
 
-* Checkers respect priority now. Close issue #229.
+* Checkers respect priority now.
 
-* Fix a false positive regarding W0511. Closes issue #149.
+  Closes #229
 
-* Fix unused-import false positive with Python 3 metaclasses (#143).
+* Fix a false positive regarding W0511.
+
+  Closes #149.
+
+* Fix unused-import false positive with Python 3 metaclasses
+
+  Closes #143
 
 * Don't warn with 'bad-format-character' when encountering
   the 'a' format on Python 3.
@@ -34,15 +45,23 @@ Release date: 2014-07-26
   'missing-format-attribute' and 'invalid-format-index'.
 
 * Issue broad-except and bare-except even if the number
-  of except handlers is different than 1. Fixes issue #113.
+  of except handlers is different than 1.
+
+  Closes #113
 
 * Issue attribute-defined-outside-init for all cases, not just
-  for the last assignment. Closes issue #262.
+  for the last assignment.
 
-* Emit 'not-callable' when calling properties. Closes issue #268.
+  Closes #262
+
+* Emit 'not-callable' when calling properties.
+
+  Closes #268.
 
 * Fix a false positive with unbalanced iterable unpacking,
-  when encountering starred nodes. Closes issue #273.
+  when encountering starred nodes.
+
+  Closes #273.
 
 * Add new checks, 'invalid-slice-index' and 'invalid-sequence-index'
   for invalid sequence and slice indices.
@@ -51,25 +70,35 @@ Release date: 2014-07-26
   attributes not defined in slots.
 
 * Don't emit 'no-name-in-module' for ignored modules.
-  Closes issue #223.
+
+  Closes #223.
 
 * Fix an 'unused-variable' false positive, where the variable is
-  assigned through an import. Closes issue #196.
+  assigned through an import.
+
+  Closes #196.
 
 * Definition order is considered for classes, function arguments
-  and annotations. Closes issue #257.
+  and annotations.
+
+  Closes #257.
 
 * Don't emit 'unused-variable' when assigning to a nonlocal.
-  Closes issue #275.
+
+  Closes #275.
 
 * Do not let ImportError propagate from the import checker, leading to crash
-  in some namespace package related cases. Closes issue #203.
+  in some namespace package related cases.
+
+  Closes #203.
 
 * Don't emit 'pointless-string-statement' for attribute docstrings.
-  Closes issue #193.
+
+  Closes #193.
 
 * Use the proper mode for pickle when opening and writing the stats file.
-  Closes issue #148.
+
+  Closes #148.
 
 * Don't emit hidden-method message when the attribute has been
   monkey-patched, you're on your own when you do that.
@@ -78,7 +107,10 @@ Release date: 2014-07-26
   module as the offended class, avoiding to mangle the output in some cases.
 
 * Don't emit 'unnecessary-lambda' if the body of the lambda call contains
-  call chaining. Closes issue #243.
+  call chaining.
+
+  Closes #243.
 
 * Don't emit 'missing-docstring' when the actual docstring uses ``.format``.
-  Closes issue #281.
+
+  Closes #281.
