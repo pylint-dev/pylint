@@ -5,6 +5,9 @@ What's New in Pylint 2.14.1?
 ----------------------------
 Release date: TBA
 
+* Fixed parsing of unrelated options in ``tox.ini``.
+
+  Closes #6800
 
 
 What's New in Pylint 2.14.0?
