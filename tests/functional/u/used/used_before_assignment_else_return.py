@@ -48,3 +48,14 @@ def invalid_3():
         pass
     finally:
         print(error)  # [used-before-assignment]
+
+
+def invalid_4():
+    """Should not rely on the name in the else even if it returns."""
+    try:
+        pass
+    except ValueError:
+        error = True
+    else:
+        print(error)  # [used-before-assignment]
+        return

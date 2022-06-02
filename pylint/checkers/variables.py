@@ -698,6 +698,13 @@ scope_type : {self._atomic.scope_type}
                     and closest_try_except.parent.parent_of(node_statement)
                 ):
                     uncertain_nodes.append(other_node)
+                # Or the node_statement is in the else block of the relevant TryExcept
+                elif (
+                    isinstance(node_statement.parent, nodes.TryExcept)
+                    and node_statement in node_statement.parent.orelse
+                    and closest_try_except.parent.parent_of(node_statement)
+                ):
+                    uncertain_nodes.append(other_node)
                 # Assume the except blocks execute, so long as each handler
                 # defines the name, raises, or returns.
                 elif all(
