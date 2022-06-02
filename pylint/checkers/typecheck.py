@@ -20,6 +20,7 @@ from functools import singledispatch
 from re import Pattern
 from typing import TYPE_CHECKING, Any, Union
 
+import astroid
 import astroid.exceptions
 from astroid import bases, nodes
 
@@ -1920,7 +1921,7 @@ accessed. Python regular expressions are accepted.",
             # Astroid will have inferred the existence of __or__ / __ror__ on
             # builtins.type, which is not suitable.
             is_py310_builtin = all(
-                isinstance(attr, nodes.FunctionDef)
+                isinstance(attr, (nodes.FunctionDef, astroid.BoundMethod))
                 and attr.parent.qname() == "builtins.type"
                 for attr in attrs
             )
