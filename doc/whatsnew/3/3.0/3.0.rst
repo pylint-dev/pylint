@@ -1,0 +1,48 @@
+*************************
+ What's New in Pylint 3.0
+*************************
+
+.. toctree::
+   :maxdepth: 2
+
+:Release: 3.0.0
+:Date: TBA
+
+Summary -- Release highlights
+=============================
+
+
+Breaking changes
+================
+
+
+New checkers
+============
+
+
+Removed checkers
+================
+
+
+Extensions
+==========
+
+
+False positives fixed
+=====================
+
+
+False negatives fixed
+=====================
+
+
+Other bug fixes
+===============
+
+
+Other Changes
+=============
+
+
+Internal changes
+================
