@@ -12,6 +12,7 @@ import sys
 import tempfile
 from collections.abc import Iterator
 from pathlib import Path
+from unittest import mock
 
 import pytest
 from pytest import CaptureFixture
@@ -223,3 +224,17 @@ def test_cfg_has_config(content: str, expected: str, tmp_path: Path) -> None:
     with open(fake_cfg, "w", encoding="utf8") as f:
         f.write(content)
     assert _cfg_has_config(fake_cfg) == expected
+
+
+def test_non_existent_home() -> None:
+    """Test that we handle a non-existent home directory.
+
+    Reported in https://github.com/PyCQA/pylint/issues/6802.
+    """
+    with mock.patch("pathlib.Path.home", side_effect=RuntimeError):
+        current_dir = os.getcwd()
+        os.chdir(os.path.dirname(os.path.abspath(sys.executable)))
+
+        assert not list(config.find_default_config_files())
+
+        os.chdir(current_dir)
