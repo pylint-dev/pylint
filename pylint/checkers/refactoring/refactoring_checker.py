@@ -1936,7 +1936,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
                     value = subscript.slice
 
-                    if isinstance(node, nodes.For) and _is_part_of_assignment_target(subscript):
+                    if isinstance(node, nodes.For) and _is_part_of_assignment_target(
+                        subscript
+                    ):
                         # Ignore this subscript if it is the target of an assignment
                         # Early termination; after reassignment dict index lookup will be necessary
                         return
@@ -2032,7 +2034,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         )
         for child in children:
             for subscript in child.nodes_of_class(nodes.Subscript):
-                if isinstance(node, nodes.For) and _is_part_of_assignment_target(subscript):
+                if isinstance(node, nodes.For) and _is_part_of_assignment_target(
+                    subscript
+                ):
                     # Ignore this subscript if it is the target of an assignment
                     # Early termination; after reassignment index lookup will be necessary
                     return
