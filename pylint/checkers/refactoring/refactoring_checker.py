@@ -176,7 +176,7 @@ def _is_part_of_assignment_target(node: nodes.NodeNG) -> bool:
     if isinstance(node.parent, (nodes.Tuple, nodes.List)):
         return _is_part_of_assignment_target(node.parent)
 
-    return None
+    return False
 
 
 class ConsiderUsingWithStack(NamedTuple):
