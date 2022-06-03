@@ -203,6 +203,7 @@ def _enable_all_extensions(run: Run, value: str | None) -> None:
 PREPROCESSABLE_OPTIONS: dict[
     str, tuple[bool, Callable[[Run, str | None], None], int]
 ] = {  # pylint: disable=consider-using-namedtuple-or-dataclass
+    # pylint: disable=wrong-spelling-in-comment
     # Argparse by default allows abbreviations. It behaves differently
     # if you turn this off, so we also turn it on. We mimick this
     # by allowing some abbreviations or incorrect spelling here.
@@ -223,6 +224,7 @@ PREPROCESSABLE_OPTIONS: dict[
     # Clashes with --enable
     "--enable-all-extensions": (False, _enable_all_extensions, 9),
 }
+# pylint: enable=wrong-spelling-in-comment
 
 
 def _preprocess_options(run: Run, args: Sequence[str]) -> list[str]:
