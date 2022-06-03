@@ -201,16 +201,30 @@ def _enable_all_extensions(run: Run, value: str | None) -> None:
 
 
 PREPROCESSABLE_OPTIONS: dict[
-    str, tuple[bool, Callable[[Run, str | None], None]]
+    str, tuple[bool, Callable[[Run, str | None], None], int]
 ] = {  # pylint: disable=consider-using-namedtuple-or-dataclass
-    "--init-hook": (True, _init_hook),
-    "--rcfile": (True, _set_rcfile),
-    "--output": (True, _set_output),
-    "--load-plugins": (True, _add_plugins),
-    "--verbose": (False, _set_verbose_mode),
-    "-v": (False, _set_verbose_mode),
-    "--enable-all-extensions": (False, _enable_all_extensions),
+    # pylint: disable=wrong-spelling-in-comment
+    # Argparse by default allows abbreviations. It behaves differently
+    # if you turn this off, so we also turn it on. We mimick this
+    # by allowing some abbreviations or incorrect spelling here.
+    # The integer at the end of the tuple indicates how many letters
+    # should match, include the '-'. 0 indicates a full match.
+    #
+    # Clashes with --init-(import)
+    "--init-hook": (True, _init_hook, 8),
+    # Clashes with --r(ecursive)
+    "--rcfile": (True, _set_rcfile, 4),
+    # Clashes with --output(-format)
+    "--output": (True, _set_output, 0),
+    # Clashes with --lo(ng-help)
+    "--load-plugins": (True, _add_plugins, 5),
+    # Clashes with --v(ariable-rgx)
+    "--verbose": (False, _set_verbose_mode, 4),
+    "-v": (False, _set_verbose_mode, 2),
+    # Clashes with --enable
+    "--enable-all-extensions": (False, _enable_all_extensions, 9),
 }
+# pylint: enable=wrong-spelling-in-comment
 
 
 def _preprocess_options(run: Run, args: Sequence[str]) -> list[str]:
@@ -230,12 +244,21 @@ def _preprocess_options(run: Run, args: Sequence[str]) -> list[str]:
         except ValueError:
             option, value = argument, None
 
-        if option not in PREPROCESSABLE_OPTIONS:
+        matched_option = None
+        for option_name, data in PREPROCESSABLE_OPTIONS.items():
+            to_match = data[2]
+            if to_match == 0:
+                if option == option_name:
+                    matched_option = option_name
+            elif option.startswith(option_name[:to_match]):
+                matched_option = option_name
+
+        if matched_option is None:
             processed_args.append(argument)
             i += 1
             continue
 
-        takearg, cb = PREPROCESSABLE_OPTIONS[option]
+        takearg, cb, _ = PREPROCESSABLE_OPTIONS[matched_option]
 
         if takearg and value is None:
             i += 1
