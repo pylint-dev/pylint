@@ -13,6 +13,10 @@ Release date: TBA
 
   Closes #6802
 
+* Fixed the use of abbreviations for some special options on the command line.
+
+  Closes #6810
+
 
 What's New in Pylint 2.14.0?
 ----------------------------
