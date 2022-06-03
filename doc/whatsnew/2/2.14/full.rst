@@ -10,6 +10,18 @@ Release date: TBA
 
   Closes #6788
 
+* Fixed parsing of unrelated options in ``tox.ini``.
+
+  Closes #6800
+
+* Don't crash if we can't find the user's home directory.
+
+  Closes #6802
+
+* Fixed the use of abbreviations for some special options on the command line.
+
+  Closes #6810
+
 
 What's New in Pylint 2.14.0?
 ----------------------------
@@ -93,6 +105,11 @@ Release date: 2022-06-01
   need to set the ``spelling-dict`` option.
 
   Refs #6462
+
+* Fixed a false positive regression in 2.13 for ``used-before-assignment`` where it is safe to rely
+  on a name defined only in an ``except`` block because the ``else`` block returned.
+
+  Closes #6790
 
 * Removed the ``assign-to-new-keyword`` message as there are no new keywords in the supported Python
   versions any longer.

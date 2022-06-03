@@ -680,17 +680,28 @@ scope_type : {self._atomic.scope_type}
             if closest_except_handler.parent_of(node):
                 continue
             closest_try_except: nodes.TryExcept = closest_except_handler.parent
+            # If the try or else blocks return, assume the except blocks execute.
             try_block_returns = any(
                 isinstance(try_statement, nodes.Return)
                 for try_statement in closest_try_except.body
             )
-            # If the try block returns, assume the except blocks execute.
-            if try_block_returns:
+            else_block_returns = any(
+                isinstance(else_statement, nodes.Return)
+                for else_statement in closest_try_except.orelse
+            )
+            if try_block_returns or else_block_returns:
                 # Exception: if this node is in the final block of the other_node_statement,
                 # it will execute before returning. Assume the except statements are uncertain.
                 if (
                     isinstance(node_statement.parent, nodes.TryFinally)
                     and node_statement in node_statement.parent.finalbody
+                    and closest_try_except.parent.parent_of(node_statement)
+                ):
+                    uncertain_nodes.append(other_node)
+                # Or the node_statement is in the else block of the relevant TryExcept
+                elif (
+                    isinstance(node_statement.parent, nodes.TryExcept)
+                    and node_statement in node_statement.parent.orelse
                     and closest_try_except.parent.parent_of(node_statement)
                 ):
                     uncertain_nodes.append(other_node)
