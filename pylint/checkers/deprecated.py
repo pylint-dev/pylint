@@ -24,39 +24,39 @@ ACCEPTABLE_NODES = (
     nodes.ClassDef,
 )
 
+MSGS: dict[str, MessageDefinitionTuple] = {
+    "W0402": (
+        "Deprecated module %r",
+        "deprecated-module",
+        "A module marked as deprecated is imported.",
+    ),
+    "W1505": (
+        "Using deprecated method %s()",
+        "deprecated-method",
+        "The method is marked as deprecated and will be removed in the future.",
+    ),
+    "W1511": (
+        "Using deprecated argument %s of method %s()",
+        "deprecated-argument",
+        "The argument is marked as deprecated and will be removed in the future.",
+    ),
+    "W1512": (
+        "Using deprecated class %s of module %s",
+        "deprecated-class",
+        "The class is marked as deprecated and will be removed in the future.",
+    ),
+    "W1513": (
+        "Using deprecated decorator %s()",
+        "deprecated-decorator",
+        "The decorator is marked as deprecated and will be removed in the future.",
+    ),
+}
 
 class DeprecatedMixin(BaseChecker):
 
-    DEPRECATED_IMPORT_MSGS: dict[str, MessageDefinitionTuple] = {
-        "W0402": (
-            "Deprecated module %r",
-            "deprecated-module",
-            "A module marked as deprecated is imported.",
-        ),
-    }
+    shared_message_ids: set[str] = set(MSGS.keys())
 
-    DEPRECATED_MSGS: dict[str, MessageDefinitionTuple] = {
-        "W1505": (
-            "Using deprecated method %s()",
-            "deprecated-method",
-            "The method is marked as deprecated and will be removed in the future.",
-        ),
-        "W1511": (
-            "Using deprecated argument %s of method %s()",
-            "deprecated-argument",
-            "The argument is marked as deprecated and will be removed in the future.",
-        ),
-        "W1512": (
-            "Using deprecated class %s of module %s",
-            "deprecated-class",
-            "The class is marked as deprecated and will be removed in the future.",
-        ),
-        "W1513": (
-            "Using deprecated decorator %s()",
-            "deprecated-decorator",
-            "The decorator is marked as deprecated and will be removed in the future.",
-        ),
-    }
+    msgs: dict[str, MessageDefinitionTuple] = MSGS
 
     """A mixin implementing logic for checking deprecated symbols.
 

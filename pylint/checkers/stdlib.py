@@ -334,7 +334,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
     name = "stdlib"
 
     msgs: dict[str, MessageDefinitionTuple] = {
-        **DeprecatedMixin.DEPRECATED_MSGS,
+        **DeprecatedMixin.msgs,
         "W1501": (
             '"%s" is not a valid mode for open.',
             "bad-open-mode",

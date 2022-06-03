@@ -197,7 +197,6 @@ def _make_graph(
 # the import checker itself ###################################################
 
 MSGS: dict[str, MessageDefinitionTuple] = {
-    **DeprecatedMixin.DEPRECATED_IMPORT_MSGS,
     "E0401": (
         "Unable to import %s",
         "import-error",
@@ -302,7 +301,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
     """
 
     name = "imports"
-    msgs = MSGS
+    msgs = {**DeprecatedMixin.msgs, **MSGS}
     default_deprecated_modules = ()
 
     options = (
