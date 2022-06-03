@@ -5,6 +5,10 @@ What's New in Pylint 2.14.1?
 ----------------------------
 Release date: TBA
 
+* Fixed parsing of unrelated options in ``tox.ini``.
+
+  Closes #6800
+
 * Don't crash if we can't find the user's home directory.
 
   Closes #6802
