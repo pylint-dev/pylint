@@ -583,7 +583,7 @@ def _enum_has_attribute(
             (c.value for c in dunder_new.get_children() if isinstance(c, nodes.Return)),
             None,
         )
-        if returned_obj_name is not None:
+        if isinstance(returned_obj_name, nodes.Name):
             # Find all attribute assignments to the returned object
             enum_attributes |= _get_all_attribute_assignments(
                 dunder_new, returned_obj_name.name
