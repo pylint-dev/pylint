@@ -52,6 +52,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
     ),
 }
 
+
 class DeprecatedMixin(BaseChecker):
 
     shared_message_ids: set[str] = set(MSGS.keys())
