@@ -6,7 +6,9 @@
 
 from __future__ import annotations
 
+import argparse
 import sys
+from pathlib import Path
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -127,3 +129,5 @@ MessageDefinitionTuple = Union[
     Tuple[str, str, str],
     Tuple[str, str, str, ExtraMessageOptions],
 ]
+# Mypy doesn't support recursive types (yet), see https://github.com/python/mypy/issues/731
+DirectoryNamespaceDict = Dict[Path, Tuple[argparse.Namespace, "DirectoryNamespaceDict"]]  # type: ignore[misc]
