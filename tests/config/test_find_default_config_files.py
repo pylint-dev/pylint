@@ -176,6 +176,7 @@ def test_verbose_abbreviation(capsys: CaptureFixture) -> None:
             with pytest.raises(SystemExit):
                 Run(["--ve"])
             out = capsys.readouterr()
+            # This output only exists when launched in verbose mode
             assert "No config file found, using default configuration" in out.err
 
 
