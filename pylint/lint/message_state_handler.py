@@ -56,15 +56,14 @@ class _MessageStateHandler:
         }
         self._pragma_lineno: dict[str, int] = {}
         # TODO: 3.0: Update key type to str when current_name is always str
-        self._stashed_bad_option_value_messages: defaultdict[
+        self._stashed_messages: defaultdict[
             str | None, list[tuple[str | None, str]]
         ] = defaultdict(list)
-        """Bad option values for --enable and --disable are encountered too early to
-        warn about them, i.e. before all option providers have been fully parsed.
+        """Some messages in the options (for --enable and --disable) are encountered
+        too early to warn about them.
 
-        Thus,
-        this dict stores option_value and msg_id needed to (later) emit the
-        bad-option-value messages keyed on module names.
+        i.e. before all option providers have been fully parsed. Thus, this dict stores
+        option_value and msg_id needed to (later) emit the messages keyed on module names.
         """
 
     def _set_one_msg_status(
