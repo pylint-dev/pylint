@@ -17,6 +17,7 @@ from pylint.constants import (
     MSG_TYPES,
     MSG_TYPES_LONG,
 )
+from pylint.interfaces import HIGH
 from pylint.message import MessageDefinition
 from pylint.typing import ManagedMessage
 from pylint.utils.pragma_parser import (
@@ -411,9 +412,11 @@ class _MessageStateHandler:
                         try:
                             meth(msgid, "module", l_start)
                         except exceptions.UnknownMessageError:
-                            msg = f"{pragma_repr.action}. Don't recognize message {msgid}."
                             self.linter.add_message(
-                                "bad-option-value", args=msg, line=start[0]
+                                "bad-option-value",
+                                args=(pragma_repr.action, msgid),
+                                line=start[0],
+                                confidence=HIGH,
                             )
             except UnRecognizedOptionError as err:
                 self.linter.add_message(
