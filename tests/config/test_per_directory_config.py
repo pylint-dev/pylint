@@ -8,17 +8,17 @@ from pathlib import Path
 from pylint.lint import Run
 
 
-def test_fall_back_on_base_config() -> None:
+def test_fall_back_on_base_config(tmpdir: LocalPath) -> None:
     """Test that we correctly fall back on the base config."""
     # A file under the current dir should fall back to the highest level
     # For pylint this is ./pylintrc
+     test_file = tmpdir /  "test.py"
     runner = Run([__name__], exit=False)
     assert id(runner.linter.config) == id(runner.linter._base_config)
 
     # When the file is a directory that does not have any of its parents in
     # linter._directory_namespaces it should default to the base config
-    with tempfile.TemporaryDirectory() as tmpdir:
-        with open(Path(tmpdir) / "test.py", "w", encoding="utf-8") as f:
-            f.write("1")
-        Run([str(Path(tmpdir) / "test.py")], exit=False)
-        assert id(runner.linter.config) == id(runner.linter._base_config)
+    with open(test_file, "w", encoding="utf-8") as f:
+        f.write("1")
+    Run([str(test_file)], exit=False)
+    assert id(runner.linter.config) == id(runner.linter._base_config)
