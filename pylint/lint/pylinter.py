@@ -1203,13 +1203,12 @@ class PyLinter(
             )
 
     def _emit_stashed_messages(self) -> None:
-        for modname in self._stashed_messages:
+        for modname, values in self._stashed_messages.items():
             self.linter.set_current_module(modname)
-            values = self._stashed_messages[modname]
-            for option_string, msg_id in values:
+            for option_string, msgid in values:
                 self.add_message(
                     "bad-option-value",
-                    args=(option_string, msg_id),
+                    args=(option_string, msgid),
                     line=0,
                     confidence=HIGH,
                 )
