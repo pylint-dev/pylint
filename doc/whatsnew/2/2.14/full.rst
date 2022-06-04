@@ -30,6 +30,13 @@ Release date: TBA
 
   Closes #6624
 
+* ``bad-option-value`` (E0012) is now a warning ``unknown-option-value`` (W0012). Deleted messages that do not exist
+  anymore in pylint now raise ``useless-option-value`` (R0022) instead of ``bad-option-value``. This allows to
+  distinguish between genuine typos and configuration that could be cleaned up.  Existing message disables for
+  ``bad-option-value`` will still work on both new messages.
+
+  Refs #6794
+
 
 What's New in Pylint 2.14.0?
 ----------------------------

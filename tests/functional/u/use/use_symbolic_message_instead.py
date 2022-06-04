@@ -1,4 +1,4 @@
-# pylint: disable=C0111,R0903,T1234  # [bad-option-value,use-symbolic-message-instead,use-symbolic-message-instead]
+# pylint: disable=C0111,R0903,T1234  # [unknown-option-value,use-symbolic-message-instead,use-symbolic-message-instead]
 # pylint: enable=c0111,w0223   # [use-symbolic-message-instead,use-symbolic-message-instead]
 
 def my_function(arg):  # [missing-function-docstring]
