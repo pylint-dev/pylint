@@ -1,0 +1,12 @@
+{
+  "functional_append": {
+    "disable": ["logging-not-lazy"],
+    "enable": ["locally-disabled"]
+  },
+  "functional_remove": {
+    "disable": ["locally-disabled"],
+    "enable": ["logging-not-lazy"]
+  },
+  "jobs": 10,
+  "reports": true
+}
