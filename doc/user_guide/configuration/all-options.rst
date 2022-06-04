@@ -5,280 +5,199 @@
 
 .. _all-options:
 
-Standard Checkers:
-^^^^^^^^^^^^^^^^^^
+Standard Checkers
+^^^^^^^^^^^^^^^^^
 
 
-``Main`` Checker
-^^^^^^^^^^^^^^^^
+``Main`` **Checker**
+--------------------
 --analyse-fallback-blocks
 """""""""""""""""""""""""
+*Analyse import fallback blocks. This can be used to support both Python 2 and 3 compatible code, which means that the block might have code that exists only in one or another interpreter, leading to false positives when analysed.*
 
-Description:
-  *Analyse import fallback blocks. This can be used to support both Python 2 and 3 compatible code, which means that the block might have code that exists only in one or another interpreter, leading to false positives when analysed.*
-
-Default:
-  ``False``
+**Default:**  ``False``
 
 
 --confidence
 """"""""""""
+*Only show warnings with the listed confidence levels. Leave empty to show all. Valid levels: HIGH, CONTROL_FLOW, INFERENCE, INFERENCE_FAILURE, UNDEFINED.*
 
-Description:
-  *Only show warnings with the listed confidence levels. Leave empty to show all. Valid levels: HIGH, CONTROL_FLOW, INFERENCE, INFERENCE_FAILURE, UNDEFINED.*
-
-Default:
-  ``['HIGH', 'CONTROL_FLOW', 'INFERENCE', 'INFERENCE_FAILURE', 'UNDEFINED']``
+**Default:**  ``['HIGH', 'CONTROL_FLOW', 'INFERENCE', 'INFERENCE_FAILURE', 'UNDEFINED']``
 
 
 --disable
 """""""""
+*Disable the message, report, category or checker with the given id(s). You can either give multiple identifiers separated by comma (,) or put this option multiple times (only on the command line, not in the configuration file where it should appear only once). You can also use "--disable=all" to disable everything first and then re-enable specific checks. For example, if you want to run only the similarities checker, you can use "--disable=all --enable=similarities". If you want to run only the classes checker, but have no Warning level messages displayed, use "--disable=all --enable=classes --disable=W".*
 
-Description:
-  *Disable the message, report, category or checker with the given id(s). You can either give multiple identifiers separated by comma (,) or put this option multiple times (only on the command line, not in the configuration file where it should appear only once). You can also use "--disable=all" to disable everything first and then re-enable specific checks. For example, if you want to run only the similarities checker, you can use "--disable=all --enable=similarities". If you want to run only the classes checker, but have no Warning level messages displayed, use "--disable=all --enable=classes --disable=W".*
-
-Default:
-  ``()``
+**Default:**  ``()``
 
 
 --enable
 """"""""
+*Enable the message, report, category or checker with the given id(s). You can either give multiple identifier separated by comma (,) or put this option multiple time (only on the command line, not in the configuration file where it should appear only once). See also the "--disable" option for examples.*
 
-Description:
-  *Enable the message, report, category or checker with the given id(s). You can either give multiple identifier separated by comma (,) or put this option multiple time (only on the command line, not in the configuration file where it should appear only once). See also the "--disable" option for examples.*
-
-Default:
-  ``()``
+**Default:**  ``()``
 
 
 --evaluation
 """"""""""""
+*Python expression which should return a score less than or equal to 10. You have access to the variables 'fatal', 'error', 'warning', 'refactor', 'convention', and 'info' which contain the number of messages in each category, as well as 'statement' which is the total number of statements analyzed. This score is used by the global evaluation report (RP0004).*
 
-Description:
-  *Python expression which should return a score less than or equal to 10. You have access to the variables 'fatal', 'error', 'warning', 'refactor', 'convention', and 'info' which contain the number of messages in each category, as well as 'statement' which is the total number of statements analyzed. This score is used by the global evaluation report (RP0004).*
-
-Default:
-  ``max(0, 0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10))``
+**Default:**  ``max(0, 0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10))``
 
 
 --exit-zero
 """""""""""
+*Always return a 0 (non-error) status code, even if lint errors are found. This is primarily useful in continuous integration scripts.*
 
-Description:
-  *Always return a 0 (non-error) status code, even if lint errors are found. This is primarily useful in continuous integration scripts.*
-
-Default:
-  ``False``
+**Default:**  ``False``
 
 
 --extension-pkg-allow-list
 """"""""""""""""""""""""""
+*A comma-separated list of package or module names from where C extensions may be loaded. Extensions are loading into the active Python interpreter and may run arbitrary code.*
 
-Description:
-  *A comma-separated list of package or module names from where C extensions may be loaded. Extensions are loading into the active Python interpreter and may run arbitrary code.*
-
-Default:
-  ``[]``
+**Default:**  ``[]``
 
 
 --extension-pkg-whitelist
 """""""""""""""""""""""""
+*A comma-separated list of package or module names from where C extensions may be loaded. Extensions are loading into the active Python interpreter and may run arbitrary code. (This is an alternative name to extension-pkg-allow-list for backward compatibility.)*
 
-Description:
-  *A comma-separated list of package or module names from where C extensions may be loaded. Extensions are loading into the active Python interpreter and may run arbitrary code. (This is an alternative name to extension-pkg-allow-list for backward compatibility.)*
-
-Default:
-  ``[]``
+**Default:**  ``[]``
 
 
 --fail-on
 """""""""
+*Return non-zero exit code if any of these messages/categories are detected, even if score is above --fail-under value. Syntax same as enable. Messages specified are enabled, while categories only check already-enabled messages.*
 
-Description:
-  *Return non-zero exit code if any of these messages/categories are detected, even if score is above --fail-under value. Syntax same as enable. Messages specified are enabled, while categories only check already-enabled messages.*
-
-Default:
-  ``""``
+**Default:** ``""``
 
 
 --fail-under
 """"""""""""
+*Specify a score threshold to be exceeded before program exits with error.*
 
-Description:
-  *Specify a score threshold to be exceeded before program exits with error.*
-
-Default:
-  ``10``
+**Default:**  ``10``
 
 
 --from-stdin
 """"""""""""
+*Interpret the stdin as a python script, whose filename needs to be passed as the module_or_package argument.*
 
-Description:
-  *Interpret the stdin as a python script, whose filename needs to be passed as the module_or_package argument.*
-
-Default:
-  ``False``
+**Default:**  ``False``
 
 
 --ignore
 """"""""
+*Files or directories to be skipped. They should be base names, not paths.*
 
-Description:
-  *Files or directories to be skipped. They should be base names, not paths.*
-
-Default:
-  ``('CVS',)``
+**Default:**  ``('CVS',)``
 
 
 --ignore-paths
 """"""""""""""
+*Add files or directories matching the regex patterns to the ignore-list. The regex matches against paths and can be in Posix or Windows format.*
 
-Description:
-  *Add files or directories matching the regex patterns to the ignore-list. The regex matches against paths and can be in Posix or Windows format.*
-
-Default:
-  ``[]``
+**Default:**  ``[]``
 
 
 --ignore-patterns
 """""""""""""""""
+*Files or directories matching the regex patterns are skipped. The regex matches against base names, not paths. The default value ignores Emacs file locks*
 
-Description:
-  *Files or directories matching the regex patterns are skipped. The regex matches against base names, not paths. The default value ignores Emacs file locks*
-
-Default:
-  ``(re.compile('^\\.#'),)``
+**Default:**  ``(re.compile('^\\.#'),)``
 
 
 --ignored-modules
 """""""""""""""""
+*List of module names for which member attributes should not be checked (useful for modules/projects where namespaces are manipulated during runtime and thus existing member attributes cannot be deduced by static analysis). It supports qualified module names, as well as Unix pattern matching.*
 
-Description:
-  *List of module names for which member attributes should not be checked (useful for modules/projects where namespaces are manipulated during runtime and thus existing member attributes cannot be deduced by static analysis). It supports qualified module names, as well as Unix pattern matching.*
-
-Default:
-  ``()``
+**Default:**  ``()``
 
 
 --jobs
 """"""
+*Use multiple processes to speed up Pylint. Specifying 0 will auto-detect the number of processors available to use.*
 
-Description:
-  *Use multiple processes to speed up Pylint. Specifying 0 will auto-detect the number of processors available to use.*
-
-Default:
-  ``1``
+**Default:**  ``1``
 
 
 --limit-inference-results
 """""""""""""""""""""""""
+*Control the amount of potential inferred values when inferring a single object. This can help the performance when dealing with large functions or complex, nested conditions.*
 
-Description:
-  *Control the amount of potential inferred values when inferring a single object. This can help the performance when dealing with large functions or complex, nested conditions.*
-
-Default:
-  ``100``
+**Default:**  ``100``
 
 
 --load-plugins
 """"""""""""""
+*List of plugins (as comma separated values of python module names) to load, usually to register additional checkers.*
 
-Description:
-  *List of plugins (as comma separated values of python module names) to load, usually to register additional checkers.*
-
-Default:
-  ``()``
+**Default:**  ``()``
 
 
 --msg-template
 """"""""""""""
+*Template used to display messages. This is a python new-style format string used to format the message information. See doc for all details.*
 
-Description:
-  *Template used to display messages. This is a python new-style format string used to format the message information. See doc for all details.*
-
-Default:
-  ``""``
+**Default:** ``""``
 
 
 --output-format
 """""""""""""""
+*Set the output format. Available formats are text, parseable, colorized, json and msvs (visual studio). You can also give a reporter class, e.g. mypackage.mymodule.MyReporterClass.*
 
-Description:
-  *Set the output format. Available formats are text, parseable, colorized, json and msvs (visual studio). You can also give a reporter class, e.g. mypackage.mymodule.MyReporterClass.*
-
-Default:
-  ``text``
+**Default:**  ``text``
 
 
 --persistent
 """"""""""""
+*Pickle collected data for later comparisons.*
 
-Description:
-  *Pickle collected data for later comparisons.*
-
-Default:
-  ``True``
+**Default:**  ``True``
 
 
 --py-version
 """"""""""""
+*Minimum Python version to use for version dependent checks. Will default to the version used to run pylint.*
 
-Description:
-  *Minimum Python version to use for version dependent checks. Will default to the version used to run pylint.*
-
-Default:
-  ``(3, 8)``
+**Default:**  ``(3, 10)``
 
 
 --recursive
 """""""""""
+*Discover python modules and packages in the file system subtree.*
 
-Description:
-  *Discover python modules and packages in the file system subtree.*
-
-Default:
-  ``False``
+**Default:**  ``False``
 
 
 --reports
 """""""""
+*Tells whether to display a full report or only the messages.*
 
-Description:
-  *Tells whether to display a full report or only the messages.*
-
-Default:
-  ``False``
+**Default:**  ``False``
 
 
 --score
 """""""
+*Activate the evaluation score.*
 
-Description:
-  *Activate the evaluation score.*
-
-Default:
-  ``True``
+**Default:**  ``True``
 
 
 --suggestion-mode
 """""""""""""""""
+*When enabled, pylint would attempt to guess common misconfiguration and emit user-friendly hints instead of false-positive error messages.*
 
-Description:
-  *When enabled, pylint would attempt to guess common misconfiguration and emit user-friendly hints instead of false-positive error messages.*
-
-Default:
-  ``True``
+**Default:**  ``True``
 
 
 --unsafe-load-any-extension
 """""""""""""""""""""""""""
+*Allow loading of arbitrary C extensions. Extensions are imported into the active Python interpreter and may run arbitrary code.*
 
-Description:
-  *Allow loading of arbitrary C extensions. Extensions are imported into the active Python interpreter and may run arbitrary code.*
-
-Default:
-  ``False``
+**Default:**  ``False``
 
 
 
@@ -334,7 +253,7 @@ Default:
 
    persistent = true
 
-   py-version = [3, 8]
+   py-version = [3, 10]
 
    recursive = false
 
@@ -353,326 +272,230 @@ Default:
    </details>
 
 
-``Basic`` Checker
-^^^^^^^^^^^^^^^^^
+``Basic`` **Checker**
+---------------------
 --argument-naming-style
 """""""""""""""""""""""
+*Naming style matching correct argument names.*
 
-Description:
-  *Naming style matching correct argument names.*
-
-Default:
-  ``snake_case``
+**Default:**  ``snake_case``
 
 
 --argument-rgx
 """"""""""""""
+*Regular expression matching correct argument names. Overrides argument-naming-style. If left empty, argument names will be checked with the set naming style.*
 
-Description:
-  *Regular expression matching correct argument names. Overrides argument-naming-style. If left empty, argument names will be checked with the set naming style.*
-
-Default:
-  ``None``
+**Default:**  ``None``
 
 
 --attr-naming-style
 """""""""""""""""""
+*Naming style matching correct attribute names.*
 
-Description:
-  *Naming style matching correct attribute names.*
-
-Default:
-  ``snake_case``
+**Default:**  ``snake_case``
 
 
 --attr-rgx
 """"""""""
+*Regular expression matching correct attribute names. Overrides attr-naming-style. If left empty, attribute names will be checked with the set naming style.*
 
-Description:
-  *Regular expression matching correct attribute names. Overrides attr-naming-style. If left empty, attribute names will be checked with the set naming style.*
-
-Default:
-  ``None``
+**Default:**  ``None``
 
 
 --bad-names
 """""""""""
+*Bad variable names which should always be refused, separated by a comma.*
 
-Description:
-  *Bad variable names which should always be refused, separated by a comma.*
-
-Default:
-  ``('foo', 'bar', 'baz', 'toto', 'tutu', 'tata')``
+**Default:**  ``('foo', 'bar', 'baz', 'toto', 'tutu', 'tata')``
 
 
 --bad-names-rgxs
 """"""""""""""""
+*Bad variable names regexes, separated by a comma. If names match any regex, they will always be refused*
 
-Description:
-  *Bad variable names regexes, separated by a comma. If names match any regex, they will always be refused*
-
-Default:
-  ``""``
+**Default:** ``""``
 
 
 --class-attribute-naming-style
 """"""""""""""""""""""""""""""
+*Naming style matching correct class attribute names.*
 
-Description:
-  *Naming style matching correct class attribute names.*
-
-Default:
-  ``any``
+**Default:**  ``any``
 
 
 --class-attribute-rgx
 """""""""""""""""""""
+*Regular expression matching correct class attribute names. Overrides class-attribute-naming-style. If left empty, class attribute names will be checked with the set naming style.*
 
-Description:
-  *Regular expression matching correct class attribute names. Overrides class-attribute-naming-style. If left empty, class attribute names will be checked with the set naming style.*
-
-Default:
-  ``None``
+**Default:**  ``None``
 
 
 --class-const-naming-style
 """"""""""""""""""""""""""
+*Naming style matching correct class constant names.*
 
-Description:
-  *Naming style matching correct class constant names.*
-
-Default:
-  ``UPPER_CASE``
+**Default:**  ``UPPER_CASE``
 
 
 --class-const-rgx
 """""""""""""""""
+*Regular expression matching correct class constant names. Overrides class-const-naming-style. If left empty, class constant names will be checked with the set naming style.*
 
-Description:
-  *Regular expression matching correct class constant names. Overrides class-const-naming-style. If left empty, class constant names will be checked with the set naming style.*
-
-Default:
-  ``None``
+**Default:**  ``None``
 
 
 --class-naming-style
 """"""""""""""""""""
+*Naming style matching correct class names.*
 
-Description:
-  *Naming style matching correct class names.*
-
-Default:
-  ``PascalCase``
+**Default:**  ``PascalCase``
 
 
 --class-rgx
 """""""""""
+*Regular expression matching correct class names. Overrides class-naming-style. If left empty, class names will be checked with the set naming style.*
 
-Description:
-  *Regular expression matching correct class names. Overrides class-naming-style. If left empty, class names will be checked with the set naming style.*
-
-Default:
-  ``None``
+**Default:**  ``None``
 
 
 --const-naming-style
 """"""""""""""""""""
+*Naming style matching correct constant names.*
 
-Description:
-  *Naming style matching correct constant names.*
-
-Default:
-  ``UPPER_CASE``
+**Default:**  ``UPPER_CASE``
 
 
 --const-rgx
 """""""""""
+*Regular expression matching correct constant names. Overrides const-naming-style. If left empty, constant names will be checked with the set naming style.*
 
-Description:
-  *Regular expression matching correct constant names. Overrides const-naming-style. If left empty, constant names will be checked with the set naming style.*
-
-Default:
-  ``None``
+**Default:**  ``None``
 
 
 --docstring-min-length
 """"""""""""""""""""""
+*Minimum line length for functions/classes that require docstrings, shorter ones are exempt.*
 
-Description:
-  *Minimum line length for functions/classes that require docstrings, shorter ones are exempt.*
-
-Default:
-  ``-1``
+**Default:**  ``-1``
 
 
 --function-naming-style
 """""""""""""""""""""""
+*Naming style matching correct function names.*
 
-Description:
-  *Naming style matching correct function names.*
-
-Default:
-  ``snake_case``
+**Default:**  ``snake_case``
 
 
 --function-rgx
 """"""""""""""
+*Regular expression matching correct function names. Overrides function-naming-style. If left empty, function names will be checked with the set naming style.*
 
-Description:
-  *Regular expression matching correct function names. Overrides function-naming-style. If left empty, function names will be checked with the set naming style.*
-
-Default:
-  ``None``
+**Default:**  ``None``
 
 
 --good-names
 """"""""""""
+*Good variable names which should always be accepted, separated by a comma.*
 
-Description:
-  *Good variable names which should always be accepted, separated by a comma.*
-
-Default:
-  ``('i', 'j', 'k', 'ex', 'Run', '_')``
+**Default:**  ``('i', 'j', 'k', 'ex', 'Run', '_')``
 
 
 --good-names-rgxs
 """""""""""""""""
+*Good variable names regexes, separated by a comma. If names match any regex, they will always be accepted*
 
-Description:
-  *Good variable names regexes, separated by a comma. If names match any regex, they will always be accepted*
-
-Default:
-  ``""``
+**Default:** ``""``
 
 
 --include-naming-hint
 """""""""""""""""""""
+*Include a hint for the correct naming format with invalid-name.*
 
-Description:
-  *Include a hint for the correct naming format with invalid-name.*
-
-Default:
-  ``False``
+**Default:**  ``False``
 
 
 --inlinevar-naming-style
 """"""""""""""""""""""""
+*Naming style matching correct inline iteration names.*
 
-Description:
-  *Naming style matching correct inline iteration names.*
-
-Default:
-  ``any``
+**Default:**  ``any``
 
 
 --inlinevar-rgx
 """""""""""""""
+*Regular expression matching correct inline iteration names. Overrides inlinevar-naming-style. If left empty, inline iteration names will be checked with the set naming style.*
 
-Description:
-  *Regular expression matching correct inline iteration names. Overrides inlinevar-naming-style. If left empty, inline iteration names will be checked with the set naming style.*
-
-Default:
-  ``None``
+**Default:**  ``None``
 
 
 --method-naming-style
 """""""""""""""""""""
+*Naming style matching correct method names.*
 
-Description:
-  *Naming style matching correct method names.*
-
-Default:
-  ``snake_case``
+**Default:**  ``snake_case``
 
 
 --method-rgx
 """"""""""""
+*Regular expression matching correct method names. Overrides method-naming-style. If left empty, method names will be checked with the set naming style.*
 
-Description:
-  *Regular expression matching correct method names. Overrides method-naming-style. If left empty, method names will be checked with the set naming style.*
-
-Default:
-  ``None``
+**Default:**  ``None``
 
 
 --module-naming-style
 """""""""""""""""""""
+*Naming style matching correct module names.*
 
-Description:
-  *Naming style matching correct module names.*
-
-Default:
-  ``snake_case``
+**Default:**  ``snake_case``
 
 
 --module-rgx
 """"""""""""
+*Regular expression matching correct module names. Overrides module-naming-style. If left empty, module names will be checked with the set naming style.*
 
-Description:
-  *Regular expression matching correct module names. Overrides module-naming-style. If left empty, module names will be checked with the set naming style.*
-
-Default:
-  ``None``
+**Default:**  ``None``
 
 
 --name-group
 """"""""""""
+*Colon-delimited sets of names that determine each other's naming style when the name regexes allow several styles.*
 
-Description:
-  *Colon-delimited sets of names that determine each other's naming style when the name regexes allow several styles.*
-
-Default:
-  ``()``
+**Default:**  ``()``
 
 
 --no-docstring-rgx
 """"""""""""""""""
+*Regular expression which should only match function or class names that do not require a docstring.*
 
-Description:
-  *Regular expression which should only match function or class names that do not require a docstring.*
-
-Default:
-  ``re.compile('^_')``
+**Default:**  ``re.compile('^_')``
 
 
 --property-classes
 """"""""""""""""""
+*List of decorators that produce properties, such as abc.abstractproperty. Add to this list to register other decorators that produce valid properties. These decorators are taken in consideration only for invalid-name.*
 
-Description:
-  *List of decorators that produce properties, such as abc.abstractproperty. Add to this list to register other decorators that produce valid properties. These decorators are taken in consideration only for invalid-name.*
-
-Default:
-  ``('abc.abstractproperty',)``
+**Default:**  ``('abc.abstractproperty',)``
 
 
 --typevar-rgx
 """""""""""""
+*Regular expression matching correct type variable names. If left empty, type variable names will be checked with the set naming style.*
 
-Description:
-  *Regular expression matching correct type variable names. If left empty, type variable names will be checked with the set naming style.*
-
-Default:
-  ``None``
+**Default:**  ``None``
 
 
 --variable-naming-style
 """""""""""""""""""""""
+*Naming style matching correct variable names.*
 
-Description:
-  *Naming style matching correct variable names.*
-
-Default:
-  ``snake_case``
+**Default:**  ``snake_case``
 
 
 --variable-rgx
 """"""""""""""
+*Regular expression matching correct variable names. Overrides variable-naming-style. If left empty, variable names will be checked with the set naming style.*
 
-Description:
-  *Regular expression matching correct variable names. Overrides variable-naming-style. If left empty, variable names will be checked with the set naming style.*
-
-Default:
-  ``None``
+**Default:**  ``None``
 
 
 
@@ -757,56 +580,41 @@ Default:
    </details>
 
 
-``Classes`` Checker
-^^^^^^^^^^^^^^^^^^^
+``Classes`` **Checker**
+-----------------------
 --check-protected-access-in-special-methods
 """""""""""""""""""""""""""""""""""""""""""
+*Warn about protected attribute access inside special methods*
 
-Description:
-  *Warn about protected attribute access inside special methods*
-
-Default:
-  ``False``
+**Default:**  ``False``
 
 
 --defining-attr-methods
 """""""""""""""""""""""
+*List of method names used to declare (i.e. assign) instance attributes.*
 
-Description:
-  *List of method names used to declare (i.e. assign) instance attributes.*
-
-Default:
-  ``('__init__', '__new__', 'setUp', '__post_init__')``
+**Default:**  ``('__init__', '__new__', 'setUp', '__post_init__')``
 
 
 --exclude-protected
 """""""""""""""""""
+*List of member names, which should be excluded from the protected access warning.*
 
-Description:
-  *List of member names, which should be excluded from the protected access warning.*
-
-Default:
-  ``('_asdict', '_fields', '_replace', '_source', '_make')``
+**Default:**  ``('_asdict', '_fields', '_replace', '_source', '_make')``
 
 
 --valid-classmethod-first-arg
 """""""""""""""""""""""""""""
+*List of valid names for the first argument in a class method.*
 
-Description:
-  *List of valid names for the first argument in a class method.*
-
-Default:
-  ``('cls',)``
+**Default:**  ``('cls',)``
 
 
 --valid-metaclass-classmethod-first-arg
 """""""""""""""""""""""""""""""""""""""
+*List of valid names for the first argument in a metaclass class method.*
 
-Description:
-  *List of valid names for the first argument in a metaclass class method.*
-
-Default:
-  ``('cls',)``
+**Default:**  ``('cls',)``
 
 
 
@@ -837,136 +645,97 @@ Default:
    </details>
 
 
-``Design`` Checker
-^^^^^^^^^^^^^^^^^^
+``Design`` **Checker**
+----------------------
 --exclude-too-few-public-methods
 """"""""""""""""""""""""""""""""
+*List of regular expressions of class ancestor names to ignore when counting public methods (see R0903)*
 
-Description:
-  *List of regular expressions of class ancestor names to ignore when counting public methods (see R0903)*
-
-Default:
-  ``[]``
+**Default:**  ``[]``
 
 
 --ignored-parents
 """""""""""""""""
+*List of qualified class names to ignore when counting class parents (see R0901)*
 
-Description:
-  *List of qualified class names to ignore when counting class parents (see R0901)*
-
-Default:
-  ``()``
+**Default:**  ``()``
 
 
 --max-args
 """"""""""
+*Maximum number of arguments for function / method.*
 
-Description:
-  *Maximum number of arguments for function / method.*
-
-Default:
-  ``5``
+**Default:**  ``5``
 
 
 --max-attributes
 """"""""""""""""
+*Maximum number of attributes for a class (see R0902).*
 
-Description:
-  *Maximum number of attributes for a class (see R0902).*
-
-Default:
-  ``7``
+**Default:**  ``7``
 
 
 --max-bool-expr
 """""""""""""""
+*Maximum number of boolean expressions in an if statement (see R0916).*
 
-Description:
-  *Maximum number of boolean expressions in an if statement (see R0916).*
-
-Default:
-  ``5``
+**Default:**  ``5``
 
 
 --max-branches
 """"""""""""""
+*Maximum number of branch for function / method body.*
 
-Description:
-  *Maximum number of branch for function / method body.*
-
-Default:
-  ``12``
+**Default:**  ``12``
 
 
 --max-complexity
 """"""""""""""""
+*McCabe complexity cyclomatic threshold*
 
-Description:
-  *McCabe complexity cyclomatic threshold*
-
-Default:
-  ``10``
+**Default:**  ``10``
 
 
 --max-locals
 """"""""""""
+*Maximum number of locals for function / method body.*
 
-Description:
-  *Maximum number of locals for function / method body.*
-
-Default:
-  ``15``
+**Default:**  ``15``
 
 
 --max-parents
 """""""""""""
+*Maximum number of parents for a class (see R0901).*
 
-Description:
-  *Maximum number of parents for a class (see R0901).*
-
-Default:
-  ``7``
+**Default:**  ``7``
 
 
 --max-public-methods
 """"""""""""""""""""
+*Maximum number of public methods for a class (see R0904).*
 
-Description:
-  *Maximum number of public methods for a class (see R0904).*
-
-Default:
-  ``20``
+**Default:**  ``20``
 
 
 --max-returns
 """""""""""""
+*Maximum number of return / yield for function / method body.*
 
-Description:
-  *Maximum number of return / yield for function / method body.*
-
-Default:
-  ``6``
+**Default:**  ``6``
 
 
 --max-statements
 """"""""""""""""
+*Maximum number of statements in function / method body.*
 
-Description:
-  *Maximum number of statements in function / method body.*
-
-Default:
-  ``50``
+**Default:**  ``50``
 
 
 --min-public-methods
 """"""""""""""""""""
+*Minimum number of public methods for a class (see R0903).*
 
-Description:
-  *Minimum number of public methods for a class (see R0903).*
-
-Default:
-  ``2``
+**Default:**  ``2``
 
 
 
@@ -1013,16 +782,13 @@ Default:
    </details>
 
 
-``Exceptions`` Checker
-^^^^^^^^^^^^^^^^^^^^^^
+``Exceptions`` **Checker**
+--------------------------
 --overgeneral-exceptions
 """"""""""""""""""""""""
+*Exceptions that will emit a warning when caught.*
 
-Description:
-  *Exceptions that will emit a warning when caught.*
-
-Default:
-  ``('BaseException', 'Exception')``
+**Default:**  ``('BaseException', 'Exception')``
 
 
 
@@ -1045,86 +811,62 @@ Default:
    </details>
 
 
-``Format`` Checker
-^^^^^^^^^^^^^^^^^^
+``Format`` **Checker**
+----------------------
 --expected-line-ending-format
 """""""""""""""""""""""""""""
+*Expected format of line ending, e.g. empty (any line ending), LF or CRLF.*
 
-Description:
-  *Expected format of line ending, e.g. empty (any line ending), LF or CRLF.*
-
-Default:
-  ``""``
+**Default:** ``""``
 
 
 --ignore-long-lines
 """""""""""""""""""
+*Regexp for a line that is allowed to be longer than the limit.*
 
-Description:
-  *Regexp for a line that is allowed to be longer than the limit.*
-
-Default:
-  ``^\s*(# )?<?https?://\S+>?$``
+**Default:**  ``^\s*(# )?<?https?://\S+>?$``
 
 
 --indent-after-paren
 """"""""""""""""""""
+*Number of spaces of indent required inside a hanging or continued line.*
 
-Description:
-  *Number of spaces of indent required inside a hanging or continued line.*
-
-Default:
-  ``4``
+**Default:**  ``4``
 
 
 --indent-string
 """""""""""""""
+*String used as indentation unit. This is usually "    " (4 spaces) or "\t" (1 tab).*
 
-Description:
-  *String used as indentation unit. This is usually "    " (4 spaces) or "\t" (1 tab).*
-
-Default:
-  ``    ``
+**Default:**  ``    ``
 
 
 --max-line-length
 """""""""""""""""
+*Maximum number of characters on a single line.*
 
-Description:
-  *Maximum number of characters on a single line.*
-
-Default:
-  ``100``
+**Default:**  ``100``
 
 
 --max-module-lines
 """"""""""""""""""
+*Maximum number of lines in a module.*
 
-Description:
-  *Maximum number of lines in a module.*
-
-Default:
-  ``1000``
+**Default:**  ``1000``
 
 
 --single-line-class-stmt
 """"""""""""""""""""""""
+*Allow the body of a class to be on the same line as the declaration if body contains single statement.*
 
-Description:
-  *Allow the body of a class to be on the same line as the declaration if body contains single statement.*
-
-Default:
-  ``False``
+**Default:**  ``False``
 
 
 --single-line-if-stmt
 """""""""""""""""""""
+*Allow the body of an if to be on the same line as the test if there is no else.*
 
-Description:
-  *Allow the body of an if to be on the same line as the test if there is no else.*
-
-Default:
-  ``False``
+**Default:**  ``False``
 
 
 
@@ -1161,96 +903,69 @@ Default:
    </details>
 
 
-``Imports`` Checker
-^^^^^^^^^^^^^^^^^^^
+``Imports`` **Checker**
+-----------------------
 --allow-any-import-level
 """"""""""""""""""""""""
+*List of modules that can be imported at any level, not just the top level one.*
 
-Description:
-  *List of modules that can be imported at any level, not just the top level one.*
-
-Default:
-  ``()``
+**Default:**  ``()``
 
 
 --allow-wildcard-with-all
 """""""""""""""""""""""""
+*Allow wildcard imports from modules that define __all__.*
 
-Description:
-  *Allow wildcard imports from modules that define __all__.*
-
-Default:
-  ``False``
+**Default:**  ``False``
 
 
 --deprecated-modules
 """"""""""""""""""""
+*Deprecated modules which should not be used, separated by a comma.*
 
-Description:
-  *Deprecated modules which should not be used, separated by a comma.*
-
-Default:
-  ``()``
+**Default:**  ``()``
 
 
 --ext-import-graph
 """"""""""""""""""
+*Output a graph (.gv or any supported image format) of external dependencies to the given file (report RP0402 must not be disabled).*
 
-Description:
-  *Output a graph (.gv or any supported image format) of external dependencies to the given file (report RP0402 must not be disabled).*
-
-Default:
-  ``""``
+**Default:** ``""``
 
 
 --import-graph
 """"""""""""""
+*Output a graph (.gv or any supported image format) of all (i.e. internal and external) dependencies to the given file (report RP0402 must not be disabled).*
 
-Description:
-  *Output a graph (.gv or any supported image format) of all (i.e. internal and external) dependencies to the given file (report RP0402 must not be disabled).*
-
-Default:
-  ``""``
+**Default:** ``""``
 
 
 --int-import-graph
 """"""""""""""""""
+*Output a graph (.gv or any supported image format) of internal dependencies to the given file (report RP0402 must not be disabled).*
 
-Description:
-  *Output a graph (.gv or any supported image format) of internal dependencies to the given file (report RP0402 must not be disabled).*
-
-Default:
-  ``""``
+**Default:** ``""``
 
 
 --known-standard-library
 """"""""""""""""""""""""
+*Force import order to recognize a module as part of the standard compatibility libraries.*
 
-Description:
-  *Force import order to recognize a module as part of the standard compatibility libraries.*
-
-Default:
-  ``()``
+**Default:**  ``()``
 
 
 --known-third-party
 """""""""""""""""""
+*Force import order to recognize a module as part of a third party library.*
 
-Description:
-  *Force import order to recognize a module as part of a third party library.*
-
-Default:
-  ``('enchant',)``
+**Default:**  ``('enchant',)``
 
 
 --preferred-modules
 """""""""""""""""""
+*Couples of modules and preferred modules, separated by a comma.*
 
-Description:
-  *Couples of modules and preferred modules, separated by a comma.*
-
-Default:
-  ``()``
+**Default:**  ``()``
 
 
 
@@ -1289,26 +1004,20 @@ Default:
    </details>
 
 
-``Logging`` Checker
-^^^^^^^^^^^^^^^^^^^
+``Logging`` **Checker**
+-----------------------
 --logging-format-style
 """"""""""""""""""""""
+*The type of string formatting that logging methods do. `old` means using % formatting, `new` is for `{}` formatting.*
 
-Description:
-  *The type of string formatting that logging methods do. `old` means using % formatting, `new` is for `{}` formatting.*
-
-Default:
-  ``old``
+**Default:**  ``old``
 
 
 --logging-modules
 """""""""""""""""
+*Logging modules to check that the string format arguments are in logging function parameter format.*
 
-Description:
-  *Logging modules to check that the string format arguments are in logging function parameter format.*
-
-Default:
-  ``('logging',)``
+**Default:**  ``('logging',)``
 
 
 
@@ -1333,26 +1042,20 @@ Default:
    </details>
 
 
-``Miscellaneous`` Checker
-^^^^^^^^^^^^^^^^^^^^^^^^^
+``Miscellaneous`` **Checker**
+-----------------------------
 --notes
 """""""
+*List of note tags to take in consideration, separated by a comma.*
 
-Description:
-  *List of note tags to take in consideration, separated by a comma.*
-
-Default:
-  ``('FIXME', 'XXX', 'TODO')``
+**Default:**  ``('FIXME', 'XXX', 'TODO')``
 
 
 --notes-rgx
 """""""""""
+*Regular expression of note tags to take in consideration.*
 
-Description:
-  *Regular expression of note tags to take in consideration.*
-
-Default:
-  ``""``
+**Default:** ``""``
 
 
 
@@ -1377,26 +1080,20 @@ Default:
    </details>
 
 
-``Refactoring`` Checker
-^^^^^^^^^^^^^^^^^^^^^^^
+``Refactoring`` **Checker**
+---------------------------
 --max-nested-blocks
 """""""""""""""""""
+*Maximum number of nested blocks for function / method body*
 
-Description:
-  *Maximum number of nested blocks for function / method body*
-
-Default:
-  ``5``
+**Default:**  ``5``
 
 
 --never-returning-functions
 """""""""""""""""""""""""""
+*Complete name of functions that never returns. When checking for inconsistent-return-statements if a never returning function is called then it will be considered as an explicit return statement and no message will be printed.*
 
-Description:
-  *Complete name of functions that never returns. When checking for inconsistent-return-statements if a never returning function is called then it will be considered as an explicit return statement and no message will be printed.*
-
-Default:
-  ``('sys.exit', 'argparse.parse_error')``
+**Default:**  ``('sys.exit', 'argparse.parse_error')``
 
 
 
@@ -1421,56 +1118,41 @@ Default:
    </details>
 
 
-``Similarities`` Checker
-^^^^^^^^^^^^^^^^^^^^^^^^
+``Similarities`` **Checker**
+----------------------------
 --ignore-comments
 """""""""""""""""
+*Comments are removed from the similarity computation*
 
-Description:
-  *Comments are removed from the similarity computation*
-
-Default:
-  ``True``
+**Default:**  ``True``
 
 
 --ignore-docstrings
 """""""""""""""""""
+*Docstrings are removed from the similarity computation*
 
-Description:
-  *Docstrings are removed from the similarity computation*
-
-Default:
-  ``True``
+**Default:**  ``True``
 
 
 --ignore-imports
 """"""""""""""""
+*Imports are removed from the similarity computation*
 
-Description:
-  *Imports are removed from the similarity computation*
-
-Default:
-  ``True``
+**Default:**  ``True``
 
 
 --ignore-signatures
 """""""""""""""""""
+*Signatures are removed from the similarity computation*
 
-Description:
-  *Signatures are removed from the similarity computation*
-
-Default:
-  ``True``
+**Default:**  ``True``
 
 
 --min-similarity-lines
 """"""""""""""""""""""
+*Minimum lines number of a similarity.*
 
-Description:
-  *Minimum lines number of a similarity.*
-
-Default:
-  ``4``
+**Default:**  ``4``
 
 
 
@@ -1501,66 +1183,48 @@ Default:
    </details>
 
 
-``Spelling`` Checker
-^^^^^^^^^^^^^^^^^^^^
+``Spelling`` **Checker**
+------------------------
 --max-spelling-suggestions
 """"""""""""""""""""""""""
+*Limits count of emitted suggestions for spelling mistakes.*
 
-Description:
-  *Limits count of emitted suggestions for spelling mistakes.*
-
-Default:
-  ``4``
+**Default:**  ``4``
 
 
 --spelling-dict
 """""""""""""""
+*Spelling dictionary name. Available dictionaries: none. To make it work, install the 'python-enchant' package.*
 
-Description:
-  *Spelling dictionary name. Available dictionaries: en_GB (aspell), en_US (hunspell), en_AU (aspell), en (aspell), en_CA (aspell).*
-
-Default:
-  ``""``
+**Default:** ``""``
 
 
 --spelling-ignore-comment-directives
 """"""""""""""""""""""""""""""""""""
+*List of comma separated words that should be considered directives if they appear at the beginning of a comment and should not be checked.*
 
-Description:
-  *List of comma separated words that should be considered directives if they appear at the beginning of a comment and should not be checked.*
-
-Default:
-  ``fmt: on,fmt: off,noqa:,noqa,nosec,isort:skip,mypy:``
+**Default:**  ``fmt: on,fmt: off,noqa:,noqa,nosec,isort:skip,mypy:``
 
 
 --spelling-ignore-words
 """""""""""""""""""""""
+*List of comma separated words that should not be checked.*
 
-Description:
-  *List of comma separated words that should not be checked.*
-
-Default:
-  ``""``
+**Default:** ``""``
 
 
 --spelling-private-dict-file
 """"""""""""""""""""""""""""
+*A path to a file that contains the private dictionary; one word per line.*
 
-Description:
-  *A path to a file that contains the private dictionary; one word per line.*
-
-Default:
-  ``""``
+**Default:** ``""``
 
 
 --spelling-store-unknown-words
 """"""""""""""""""""""""""""""
+*Tells whether to store unknown words to the private dictionary (see the --spelling-private-dict-file option) instead of raising a message.*
 
-Description:
-  *Tells whether to store unknown words to the private dictionary (see the --spelling-private-dict-file option) instead of raising a message.*
-
-Default:
-  ``n``
+**Default:**  ``n``
 
 
 
@@ -1593,26 +1257,20 @@ Default:
    </details>
 
 
-``String`` Checker
-^^^^^^^^^^^^^^^^^^
+``String`` **Checker**
+----------------------
 --check-quote-consistency
 """""""""""""""""""""""""
+*This flag controls whether inconsistent-quotes generates a warning when the character used as a quote delimiter is used inconsistently within a module.*
 
-Description:
-  *This flag controls whether inconsistent-quotes generates a warning when the character used as a quote delimiter is used inconsistently within a module.*
-
-Default:
-  ``False``
+**Default:**  ``False``
 
 
 --check-str-concat-over-line-jumps
 """"""""""""""""""""""""""""""""""
+*This flag controls whether the implicit-str-concat should generate a warning on implicit string concatenation in sequences defined over several lines.*
 
-Description:
-  *This flag controls whether the implicit-str-concat should generate a warning on implicit string concatenation in sequences defined over several lines.*
-
-Default:
-  ``False``
+**Default:**  ``False``
 
 
 
@@ -1637,126 +1295,90 @@ Default:
    </details>
 
 
-``Typecheck`` Checker
-^^^^^^^^^^^^^^^^^^^^^
+``Typecheck`` **Checker**
+-------------------------
 --contextmanager-decorators
 """""""""""""""""""""""""""
+*List of decorators that produce context managers, such as contextlib.contextmanager. Add to this list to register other decorators that produce valid context managers.*
 
-Description:
-  *List of decorators that produce context managers, such as contextlib.contextmanager. Add to this list to register other decorators that produce valid context managers.*
-
-Default:
-  ``['contextlib.contextmanager']``
+**Default:**  ``['contextlib.contextmanager']``
 
 
 --generated-members
 """""""""""""""""""
+*List of members which are set dynamically and missed by pylint inference system, and so shouldn't trigger E1101 when accessed. Python regular expressions are accepted.*
 
-Description:
-  *List of members which are set dynamically and missed by pylint inference system, and so shouldn't trigger E1101 when accessed. Python regular expressions are accepted.*
-
-Default:
-  ``()``
+**Default:**  ``()``
 
 
 --ignore-mixin-members
 """"""""""""""""""""""
+*Tells whether missing members accessed in mixin class should be ignored. A class is considered mixin if its name matches the mixin-class-rgx option.*
 
-Description:
-  *Tells whether missing members accessed in mixin class should be ignored. A class is considered mixin if its name matches the mixin-class-rgx option.*
-
-Default:
-  ``True``
+**Default:**  ``True``
 
 
 --ignore-none
 """""""""""""
+*Tells whether to warn about missing members when the owner of the attribute is inferred to be None.*
 
-Description:
-  *Tells whether to warn about missing members when the owner of the attribute is inferred to be None.*
-
-Default:
-  ``True``
+**Default:**  ``True``
 
 
 --ignore-on-opaque-inference
 """"""""""""""""""""""""""""
+*This flag controls whether pylint should warn about no-member and similar checks whenever an opaque object is returned when inferring. The inference can return multiple potential results while evaluating a Python object, but some branches might not be evaluated, which results in partial inference. In that case, it might be useful to still emit no-member and other checks for the rest of the inferred objects.*
 
-Description:
-  *This flag controls whether pylint should warn about no-member and similar checks whenever an opaque object is returned when inferring. The inference can return multiple potential results while evaluating a Python object, but some branches might not be evaluated, which results in partial inference. In that case, it might be useful to still emit no-member and other checks for the rest of the inferred objects.*
-
-Default:
-  ``True``
+**Default:**  ``True``
 
 
 --ignored-checks-for-mixins
 """""""""""""""""""""""""""
+*List of symbolic message names to ignore for Mixin members.*
 
-Description:
-  *List of symbolic message names to ignore for Mixin members.*
-
-Default:
-  ``['no-member', 'not-async-context-manager', 'not-context-manager', 'attribute-defined-outside-init']``
+**Default:**  ``['no-member', 'not-async-context-manager', 'not-context-manager', 'attribute-defined-outside-init']``
 
 
 --ignored-classes
 """""""""""""""""
+*List of class names for which member attributes should not be checked (useful for classes with dynamically set attributes). This supports the use of qualified names.*
 
-Description:
-  *List of class names for which member attributes should not be checked (useful for classes with dynamically set attributes). This supports the use of qualified names.*
-
-Default:
-  ``('optparse.Values', 'thread._local', '_thread._local', 'argparse.Namespace')``
+**Default:**  ``('optparse.Values', 'thread._local', '_thread._local', 'argparse.Namespace')``
 
 
 --missing-member-hint
 """""""""""""""""""""
+*Show a hint with possible names when a member name was not found. The aspect of finding the hint is based on edit distance.*
 
-Description:
-  *Show a hint with possible names when a member name was not found. The aspect of finding the hint is based on edit distance.*
-
-Default:
-  ``True``
+**Default:**  ``True``
 
 
 --missing-member-hint-distance
 """"""""""""""""""""""""""""""
+*The minimum edit distance a name should have in order to be considered a similar match for a missing member name.*
 
-Description:
-  *The minimum edit distance a name should have in order to be considered a similar match for a missing member name.*
-
-Default:
-  ``1``
+**Default:**  ``1``
 
 
 --missing-member-max-choices
 """"""""""""""""""""""""""""
+*The total number of similar names that should be taken in consideration when showing a hint for a missing member.*
 
-Description:
-  *The total number of similar names that should be taken in consideration when showing a hint for a missing member.*
-
-Default:
-  ``1``
+**Default:**  ``1``
 
 
 --mixin-class-rgx
 """""""""""""""""
+*Regex pattern to define which classes are considered mixins.*
 
-Description:
-  *Regex pattern to define which classes are considered mixins.*
-
-Default:
-  ``.*[Mm]ixin``
+**Default:**  ``.*[Mm]ixin``
 
 
 --signature-mutators
 """"""""""""""""""""
+*List of decorators that change the signature of a decorated function.*
 
-Description:
-  *List of decorators that change the signature of a decorated function.*
-
-Default:
-  ``[]``
+**Default:**  ``[]``
 
 
 
@@ -1801,86 +1423,62 @@ Default:
    </details>
 
 
-``Variables`` Checker
-^^^^^^^^^^^^^^^^^^^^^
+``Variables`` **Checker**
+-------------------------
 --additional-builtins
 """""""""""""""""""""
+*List of additional names supposed to be defined in builtins. Remember that you should avoid defining new builtins when possible.*
 
-Description:
-  *List of additional names supposed to be defined in builtins. Remember that you should avoid defining new builtins when possible.*
-
-Default:
-  ``()``
+**Default:**  ``()``
 
 
 --allow-global-unused-variables
 """""""""""""""""""""""""""""""
+*Tells whether unused global variables should be treated as a violation.*
 
-Description:
-  *Tells whether unused global variables should be treated as a violation.*
-
-Default:
-  ``True``
+**Default:**  ``True``
 
 
 --allowed-redefined-builtins
 """"""""""""""""""""""""""""
+*List of names allowed to shadow builtins*
 
-Description:
-  *List of names allowed to shadow builtins*
-
-Default:
-  ``()``
+**Default:**  ``()``
 
 
 --callbacks
 """""""""""
+*List of strings which can identify a callback function by name. A callback name must start or end with one of those strings.*
 
-Description:
-  *List of strings which can identify a callback function by name. A callback name must start or end with one of those strings.*
-
-Default:
-  ``('cb_', '_cb')``
+**Default:**  ``('cb_', '_cb')``
 
 
 --dummy-variables-rgx
 """""""""""""""""""""
+*A regular expression matching the name of dummy variables (i.e. expected to not be used).*
 
-Description:
-  *A regular expression matching the name of dummy variables (i.e. expected to not be used).*
-
-Default:
-  ``_+$|(_[a-zA-Z0-9_]*[a-zA-Z0-9]+?$)|dummy|^ignored_|^unused_``
+**Default:**  ``_+$|(_[a-zA-Z0-9_]*[a-zA-Z0-9]+?$)|dummy|^ignored_|^unused_``
 
 
 --ignored-argument-names
 """"""""""""""""""""""""
+*Argument names that match this expression will be ignored. Default to name with leading underscore.*
 
-Description:
-  *Argument names that match this expression will be ignored. Default to name with leading underscore.*
-
-Default:
-  ``re.compile('_.*|^ignored_|^unused_')``
+**Default:**  ``re.compile('_.*|^ignored_|^unused_')``
 
 
 --init-import
 """""""""""""
+*Tells whether we should check for unused import in __init__ files.*
 
-Description:
-  *Tells whether we should check for unused import in __init__ files.*
-
-Default:
-  ``False``
+**Default:**  ``False``
 
 
 --redefining-builtins-modules
 """""""""""""""""""""""""""""
+*List of qualified module names which can have objects that can redefine builtins.*
 
-Description:
-  *List of qualified module names which can have objects that can redefine builtins.*
-
-Default:
-  ``('six.moves', 'past.builtins', 'future.builtins', 'builtins', 'io')``
+**Default:**  ``('six.moves', 'past.builtins', 'future.builtins', 'builtins', 'io')``
 
 
 
@@ -1917,20 +1515,17 @@ Default:
    </details>
 
 
-Extensions:
-^^^^^^^^^^^
+Extensions
+^^^^^^^^^^
 
 
-``Broad_try_clause`` Checker
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+``Broad_try_clause`` **Checker**
+--------------------------------
 --max-try-statements
 """"""""""""""""""""
+*Maximum number of statements allowed in a try clause*
 
-Description:
-  *Maximum number of statements allowed in a try clause*
-
-Default:
-  ``1``
+**Default:**  ``1``
 
 
 
@@ -1953,16 +1548,13 @@ Default:
    </details>
 
 
-``Code_style`` Checker
-^^^^^^^^^^^^^^^^^^^^^^
+``Code_style`` **Checker**
+--------------------------
 --max-line-length-suggestions
 """""""""""""""""""""""""""""
+*Max line length for which to sill emit suggestions. Used to prevent optional suggestions which would get split by a code formatter (e.g., black). Will default to the setting for ``max-line-length``.*
 
-Description:
-  *Max line length for which to sill emit suggestions. Used to prevent optional suggestions which would get split by a code formatter (e.g., black). Will default to the setting for ``max-line-length``.*
-
-Default:
-  ``0``
+**Default:**  ``0``
 
 
 
@@ -1985,16 +1577,13 @@ Default:
    </details>
 
 
-``Deprecated_builtins`` Checker
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+``Deprecated_builtins`` **Checker**
+-----------------------------------
 --bad-functions
 """""""""""""""
+*List of builtins function names that should not be used, separated by a comma*
 
-Description:
-  *List of builtins function names that should not be used, separated by a comma*
-
-Default:
-  ``['map', 'filter']``
+**Default:**  ``['map', 'filter']``
 
 
 
@@ -2017,56 +1606,41 @@ Default:
    </details>
 
 
-``Parameter_documentation`` Checker
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+``Parameter_documentation`` **Checker**
+---------------------------------------
 --accept-no-param-doc
 """""""""""""""""""""
+*Whether to accept totally missing parameter documentation in the docstring of a function that has parameters.*
 
-Description:
-  *Whether to accept totally missing parameter documentation in the docstring of a function that has parameters.*
-
-Default:
-  ``True``
+**Default:**  ``True``
 
 
 --accept-no-raise-doc
 """""""""""""""""""""
+*Whether to accept totally missing raises documentation in the docstring of a function that raises an exception.*
 
-Description:
-  *Whether to accept totally missing raises documentation in the docstring of a function that raises an exception.*
-
-Default:
-  ``True``
+**Default:**  ``True``
 
 
 --accept-no-return-doc
 """"""""""""""""""""""
+*Whether to accept totally missing return documentation in the docstring of a function that returns a statement.*
 
-Description:
-  *Whether to accept totally missing return documentation in the docstring of a function that returns a statement.*
-
-Default:
-  ``True``
+**Default:**  ``True``
 
 
 --accept-no-yields-doc
 """"""""""""""""""""""
+*Whether to accept totally missing yields documentation in the docstring of a generator.*
 
-Description:
-  *Whether to accept totally missing yields documentation in the docstring of a generator.*
-
-Default:
-  ``True``
+**Default:**  ``True``
 
 
 --default-docstring-type
 """"""""""""""""""""""""
+*If the docstring type cannot be guessed the specified docstring type will be used.*
 
-Description:
-  *If the docstring type cannot be guessed the specified docstring type will be used.*
-
-Default:
-  ``default``
+**Default:**  ``default``
 
 
 
@@ -2097,16 +1671,13 @@ Default:
    </details>
 
 
-``Typing`` Checker
-^^^^^^^^^^^^^^^^^^
+``Typing`` **Checker**
+----------------------
 --runtime-typing
 """"""""""""""""
+*Set to ``no`` if the app / library does **NOT** need to support runtime introspection of type annotations. If you use type annotations **exclusively** for type checking of an application, you're probably fine. For libraries, evaluate if some users what to access the type hints at runtime first, e.g., through ``typing.get_type_hints``. Applies to Python versions 3.7 - 3.9*
 
-Description:
-  *Set to ``no`` if the app / library does **NOT** need to support runtime introspection of type annotations. If you use type annotations **exclusively** for type checking of an application, you're probably fine. For libraries, evaluate if some users what to access the type hints at runtime first, e.g., through ``typing.get_type_hints``. Applies to Python versions 3.7 - 3.9*
-
-Default:
-  ``True``
+**Default:**  ``True``
 
 
 

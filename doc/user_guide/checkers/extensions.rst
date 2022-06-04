@@ -42,13 +42,6 @@ Broad Try Clause checker
 This checker is provided by ``pylint.extensions.broad_try_clause``.
 Verbatim name of the checker is ``broad_try_clause``.
 
-Broad Try Clause checker Options
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:max-try-statements:
-  Maximum number of statements allowed in a try clause
-
-  Default: ``1``
-
 Broad Try Clause checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :too-many-try-statements (W0717):
@@ -68,13 +61,6 @@ Code Style checker Documentation
 Checkers that can improve code consistency.
 As such they don't necessarily provide a performance benefit and
 are often times opinionated.
-
-Code Style checker Options
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-:max-line-length-suggestions:
-  Max line length for which to sill emit suggestions. Used to prevent optional
-  suggestions which would get split by a code formatter (e.g., black). Will
-  default to the setting for ``max-line-length``.
 
 Code Style checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -202,13 +188,6 @@ you can use the ``bad-functions`` option::
     $ pylint a.py --load-plugins=pylint.extensions.bad_builtin --bad-functions=apply,reduce
     ...
 
-Deprecated Builtins checker Options
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:bad-functions:
-  List of builtins function names that should not be used, separated by a comma
-
-  Default: ``map,filter``
-
 Deprecated Builtins checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :bad-builtin (W0141): *Used builtin function %s*
@@ -264,13 +243,6 @@ higher than a preestablished value, which can be controlled through the
     R:1: 'f10' is too complex. The McCabe rating is 11 (too-complex)
     $ pylint a.py --load-plugins=pylint.extensions.mccabe --max-complexity=50
     $
-
-Design checker Options
-^^^^^^^^^^^^^^^^^^^^^^
-:max-complexity:
-  McCabe complexity cyclomatic threshold
-
-  Default: ``10``
 
 Design checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -550,34 +522,6 @@ docstring defining the interface, e.g. a superclass method, after "see"::
 Naming inconsistencies in existing parameter and their type documentations are
 still detected.
 
-Parameter Documentation checker Options
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:accept-no-param-doc:
-  Whether to accept totally missing parameter documentation in the docstring of
-  a function that has parameters.
-
-  Default: ``yes``
-:accept-no-raise-doc:
-  Whether to accept totally missing raises documentation in the docstring of a
-  function that raises an exception.
-
-  Default: ``yes``
-:accept-no-return-doc:
-  Whether to accept totally missing return documentation in the docstring of a
-  function that returns a statement.
-
-  Default: ``yes``
-:accept-no-yields-doc:
-  Whether to accept totally missing yields documentation in the docstring of a
-  generator.
-
-  Default: ``yes``
-:default-docstring-type:
-  If the docstring type cannot be guessed the specified docstring type will be
-  used.
-
-  Default: ``default``
-
 Parameter Documentation checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :differing-param-doc (W9017): *"%s" differing in parameter documentation*
@@ -666,18 +610,6 @@ Verbatim name of the checker is ``typing``.
 Typing checker Documentation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Find issue specifically related to type annotations.
-
-Typing checker Options
-^^^^^^^^^^^^^^^^^^^^^^
-:runtime-typing:
-  Set to ``no`` if the app / library does **NOT** need to support runtime
-  introspection of type annotations. If you use type annotations
-  **exclusively** for type checking of an application, you're probably fine.
-  For libraries, evaluate if some users what to access the type hints at
-  runtime first, e.g., through ``typing.get_type_hints``. Applies to Python
-  versions 3.7 - 3.9
-
-  Default: ``yes``
 
 Typing checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^

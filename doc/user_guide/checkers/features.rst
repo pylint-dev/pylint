@@ -4,138 +4,6 @@ Pylint features
 .. This file is auto-generated. Make any changes to the associated
 .. docs extension in 'doc/exts/pylint_features.py'.
 
-Pylint global options and switches
-----------------------------------
-
-Pylint provides global options and switches.
-
-General options
-~~~~~~~~~~~~~~~
-:ignore:
-  Files or directories to be skipped. They should be base names, not paths.
-
-  Default: ``CVS``
-:ignore-patterns:
-  Files or directories matching the regex patterns are skipped. The regex
-  matches against base names, not paths. The default value ignores Emacs file
-  locks
-
-  Default: ``^\.#``
-:ignore-paths:
-  Add files or directories matching the regex patterns to the ignore-list. The
-  regex matches against paths and can be in Posix or Windows format.
-:persistent:
-  Pickle collected data for later comparisons.
-
-  Default: ``yes``
-:load-plugins:
-  List of plugins (as comma separated values of python module names) to load,
-  usually to register additional checkers.
-:fail-under:
-  Specify a score threshold to be exceeded before program exits with error.
-
-  Default: ``10``
-:fail-on:
-  Return non-zero exit code if any of these messages/categories are detected,
-  even if score is above --fail-under value. Syntax same as enable. Messages
-  specified are enabled, while categories only check already-enabled messages.
-:jobs:
-  Use multiple processes to speed up Pylint. Specifying 0 will auto-detect the
-  number of processors available to use.
-
-  Default: ``1``
-:unsafe-load-any-extension:
-  Allow loading of arbitrary C extensions. Extensions are imported into the
-  active Python interpreter and may run arbitrary code.
-:limit-inference-results:
-  Control the amount of potential inferred values when inferring a single
-  object. This can help the performance when dealing with large functions or
-  complex, nested conditions.
-
-  Default: ``100``
-:extension-pkg-allow-list:
-  A comma-separated list of package or module names from where C extensions may
-  be loaded. Extensions are loading into the active Python interpreter and may
-  run arbitrary code.
-:extension-pkg-whitelist:
-  A comma-separated list of package or module names from where C extensions may
-  be loaded. Extensions are loading into the active Python interpreter and may
-  run arbitrary code. (This is an alternative name to extension-pkg-allow-list
-  for backward compatibility.)
-:suggestion-mode:
-  When enabled, pylint would attempt to guess common misconfiguration and emit
-  user-friendly hints instead of false-positive error messages.
-
-  Default: ``yes``
-:exit-zero:
-  Always return a 0 (non-error) status code, even if lint errors are found.
-  This is primarily useful in continuous integration scripts.
-:from-stdin:
-  Interpret the stdin as a python script, whose filename needs to be passed as
-  the module_or_package argument.
-:recursive:
-  Discover python modules and packages in the file system subtree.
-:py-version:
-  Minimum Python version to use for version dependent checks. Will default to
-  the version used to run pylint.
-:ignored-modules:
-  List of module names for which member attributes should not be checked
-  (useful for modules/projects where namespaces are manipulated during runtime
-  and thus existing member attributes cannot be deduced by static analysis). It
-  supports qualified module names, as well as Unix pattern matching.
-:analyse-fallback-blocks:
-  Analyse import fallback blocks. This can be used to support both Python 2 and
-  3 compatible code, which means that the block might have code that exists
-  only in one or another interpreter, leading to false positives when analysed.
-
-Messages control options
-~~~~~~~~~~~~~~~~~~~~~~~~
-:confidence:
-  Only show warnings with the listed confidence levels. Leave empty to show
-  all. Valid levels: HIGH, CONTROL_FLOW, INFERENCE, INFERENCE_FAILURE,
-  UNDEFINED.
-
-  Default: ``HIGH,CONTROL_FLOW,INFERENCE,INFERENCE_FAILURE,UNDEFINED``
-:enable:
-  Enable the message, report, category or checker with the given id(s). You can
-  either give multiple identifier separated by comma (,) or put this option
-  multiple time (only on the command line, not in the configuration file where
-  it should appear only once). See also the "--disable" option for examples.
-:disable:
-  Disable the message, report, category or checker with the given id(s). You
-  can either give multiple identifiers separated by comma (,) or put this
-  option multiple times (only on the command line, not in the configuration
-  file where it should appear only once). You can also use "--disable=all" to
-  disable everything first and then re-enable specific checks. For example, if
-  you want to run only the similarities checker, you can use "--disable=all
-  --enable=similarities". If you want to run only the classes checker, but have
-  no Warning level messages displayed, use "--disable=all --enable=classes
-  --disable=W".
-
-Reports options
-~~~~~~~~~~~~~~~
-:output-format:
-  Set the output format. Available formats are text, parseable, colorized, json
-  and msvs (visual studio). You can also give a reporter class, e.g.
-  mypackage.mymodule.MyReporterClass.
-:reports:
-  Tells whether to display a full report or only the messages.
-:evaluation:
-  Python expression which should return a score less than or equal to 10. You
-  have access to the variables 'fatal', 'error', 'warning', 'refactor',
-  'convention', and 'info' which contain the number of messages in each
-  category, as well as 'statement' which is the total number of statements
-  analyzed. This score is used by the global evaluation report (RP0004).
-
-  Default: ``max(0, 0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10))``
-:score:
-  Activate the evaluation score.
-
-  Default: ``yes``
-:msg-template:
-  Template used to display messages. This is a python new-style format string
-  used to format the message information. See doc for all details.
-
 Pylint checkers' options and switches
 -------------------------------------
 
@@ -167,132 +35,6 @@ Basic checker
 ~~~~~~~~~~~~~
 
 Verbatim name of the checker is ``basic``.
-
-Basic checker Options
-^^^^^^^^^^^^^^^^^^^^^
-:no-docstring-rgx:
-  Regular expression which should only match function or class names that do
-  not require a docstring.
-
-  Default: ``^_``
-:docstring-min-length:
-  Minimum line length for functions/classes that require docstrings, shorter
-  ones are exempt.
-
-  Default: ``-1``
-:good-names:
-  Good variable names which should always be accepted, separated by a comma.
-
-  Default: ``i,j,k,ex,Run,_``
-:good-names-rgxs:
-  Good variable names regexes, separated by a comma. If names match any regex,
-  they will always be accepted
-:bad-names:
-  Bad variable names which should always be refused, separated by a comma.
-
-  Default: ``foo,bar,baz,toto,tutu,tata``
-:bad-names-rgxs:
-  Bad variable names regexes, separated by a comma. If names match any regex,
-  they will always be refused
-:name-group:
-  Colon-delimited sets of names that determine each other's naming style when
-  the name regexes allow several styles.
-:include-naming-hint:
-  Include a hint for the correct naming format with invalid-name.
-:property-classes:
-  List of decorators that produce properties, such as abc.abstractproperty. Add
-  to this list to register other decorators that produce valid properties.
-  These decorators are taken in consideration only for invalid-name.
-
-  Default: ``abc.abstractproperty``
-:argument-naming-style:
-  Naming style matching correct argument names.
-
-  Default: ``snake_case``
-:argument-rgx:
-  Regular expression matching correct argument names. Overrides argument-
-  naming-style. If left empty, argument names will be checked with the set
-  naming style.
-:attr-naming-style:
-  Naming style matching correct attribute names.
-
-  Default: ``snake_case``
-:attr-rgx:
-  Regular expression matching correct attribute names. Overrides attr-naming-
-  style. If left empty, attribute names will be checked with the set naming
-  style.
-:class-naming-style:
-  Naming style matching correct class names.
-
-  Default: ``PascalCase``
-:class-rgx:
-  Regular expression matching correct class names. Overrides class-naming-
-  style. If left empty, class names will be checked with the set naming style.
-:class-attribute-naming-style:
-  Naming style matching correct class attribute names.
-
-  Default: ``any``
-:class-attribute-rgx:
-  Regular expression matching correct class attribute names. Overrides class-
-  attribute-naming-style. If left empty, class attribute names will be checked
-  with the set naming style.
-:class-const-naming-style:
-  Naming style matching correct class constant names.
-
-  Default: ``UPPER_CASE``
-:class-const-rgx:
-  Regular expression matching correct class constant names. Overrides class-
-  const-naming-style. If left empty, class constant names will be checked with
-  the set naming style.
-:const-naming-style:
-  Naming style matching correct constant names.
-
-  Default: ``UPPER_CASE``
-:const-rgx:
-  Regular expression matching correct constant names. Overrides const-naming-
-  style. If left empty, constant names will be checked with the set naming
-  style.
-:function-naming-style:
-  Naming style matching correct function names.
-
-  Default: ``snake_case``
-:function-rgx:
-  Regular expression matching correct function names. Overrides function-
-  naming-style. If left empty, function names will be checked with the set
-  naming style.
-:inlinevar-naming-style:
-  Naming style matching correct inline iteration names.
-
-  Default: ``any``
-:inlinevar-rgx:
-  Regular expression matching correct inline iteration names. Overrides
-  inlinevar-naming-style. If left empty, inline iteration names will be checked
-  with the set naming style.
-:method-naming-style:
-  Naming style matching correct method names.
-
-  Default: ``snake_case``
-:method-rgx:
-  Regular expression matching correct method names. Overrides method-naming-
-  style. If left empty, method names will be checked with the set naming style.
-:module-naming-style:
-  Naming style matching correct module names.
-
-  Default: ``snake_case``
-:module-rgx:
-  Regular expression matching correct module names. Overrides module-naming-
-  style. If left empty, module names will be checked with the set naming style.
-:typevar-rgx:
-  Regular expression matching correct type variable names. If left empty, type
-  variable names will be checked with the set naming style.
-:variable-naming-style:
-  Naming style matching correct variable names.
-
-  Default: ``snake_case``
-:variable-rgx:
-  Regular expression matching correct variable names. Overrides variable-
-  naming-style. If left empty, variable names will be checked with the set
-  naming style.
 
 Basic checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -473,28 +215,6 @@ Classes checker
 
 Verbatim name of the checker is ``classes``.
 
-Classes checker Options
-^^^^^^^^^^^^^^^^^^^^^^^
-:defining-attr-methods:
-  List of method names used to declare (i.e. assign) instance attributes.
-
-  Default: ``__init__,__new__,setUp,__post_init__``
-:valid-classmethod-first-arg:
-  List of valid names for the first argument in a class method.
-
-  Default: ``cls``
-:valid-metaclass-classmethod-first-arg:
-  List of valid names for the first argument in a metaclass class method.
-
-  Default: ``cls``
-:exclude-protected:
-  List of member names, which should be excluded from the protected access
-  warning.
-
-  Default: ``_asdict,_fields,_replace,_source,_make``
-:check-protected-access-in-special-methods:
-  Warn about protected attribute access inside special methods
-
 Classes checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^
 :access-member-before-definition (E0203): *Access to member %r before its definition line %s*
@@ -643,55 +363,6 @@ Design checker
 
 Verbatim name of the checker is ``design``.
 
-Design checker Options
-^^^^^^^^^^^^^^^^^^^^^^
-:max-args:
-  Maximum number of arguments for function / method.
-
-  Default: ``5``
-:max-locals:
-  Maximum number of locals for function / method body.
-
-  Default: ``15``
-:max-returns:
-  Maximum number of return / yield for function / method body.
-
-  Default: ``6``
-:max-branches:
-  Maximum number of branch for function / method body.
-
-  Default: ``12``
-:max-statements:
-  Maximum number of statements in function / method body.
-
-  Default: ``50``
-:max-parents:
-  Maximum number of parents for a class (see R0901).
-
-  Default: ``7``
-:ignored-parents:
-  List of qualified class names to ignore when counting class parents (see
-  R0901)
-:max-attributes:
-  Maximum number of attributes for a class (see R0902).
-
-  Default: ``7``
-:min-public-methods:
-  Minimum number of public methods for a class (see R0903).
-
-  Default: ``2``
-:max-public-methods:
-  Maximum number of public methods for a class (see R0904).
-
-  Default: ``20``
-:max-bool-expr:
-  Maximum number of boolean expressions in an if statement (see R0916).
-
-  Default: ``5``
-:exclude-too-few-public-methods:
-  List of regular expressions of class ancestor names to ignore when counting
-  public methods (see R0903)
-
 Design checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^
 :too-few-public-methods (R0903): *Too few public methods (%s/%s)*
@@ -726,13 +397,6 @@ Exceptions checker
 ~~~~~~~~~~~~~~~~~~
 
 Verbatim name of the checker is ``exceptions``.
-
-Exceptions checker Options
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-:overgeneral-exceptions:
-  Exceptions that will emit a warning when caught.
-
-  Default: ``BaseException,Exception``
 
 Exceptions checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -796,38 +460,6 @@ Format checker
 
 Verbatim name of the checker is ``format``.
 
-Format checker Options
-^^^^^^^^^^^^^^^^^^^^^^
-:max-line-length:
-  Maximum number of characters on a single line.
-
-  Default: ``100``
-:ignore-long-lines:
-  Regexp for a line that is allowed to be longer than the limit.
-
-  Default: ``^\s*(# )?<?https?://\S+>?$``
-:single-line-if-stmt:
-  Allow the body of an if to be on the same line as the test if there is no
-  else.
-:single-line-class-stmt:
-  Allow the body of a class to be on the same line as the declaration if body
-  contains single statement.
-:max-module-lines:
-  Maximum number of lines in a module.
-
-  Default: ``1000``
-:indent-string:
-  String used as indentation unit. This is usually "    " (4 spaces) or "\t" (1
-  tab).
-
-  Default: ``'    '``
-:indent-after-paren:
-  Number of spaces of indent required inside a hanging or continued line.
-
-  Default: ``4``
-:expected-line-ending-format:
-  Expected format of line ending, e.g. empty (any line ending), LF or CRLF.
-
 Format checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^
 :bad-indentation (W0311): *Bad indentation. Found %s %s, expected %s*
@@ -860,35 +492,6 @@ Imports checker
 ~~~~~~~~~~~~~~~
 
 Verbatim name of the checker is ``imports``.
-
-Imports checker Options
-^^^^^^^^^^^^^^^^^^^^^^^
-:deprecated-modules:
-  Deprecated modules which should not be used, separated by a comma.
-:preferred-modules:
-  Couples of modules and preferred modules, separated by a comma.
-:import-graph:
-  Output a graph (.gv or any supported image format) of all (i.e. internal and
-  external) dependencies to the given file (report RP0402 must not be
-  disabled).
-:ext-import-graph:
-  Output a graph (.gv or any supported image format) of external dependencies
-  to the given file (report RP0402 must not be disabled).
-:int-import-graph:
-  Output a graph (.gv or any supported image format) of internal dependencies
-  to the given file (report RP0402 must not be disabled).
-:known-standard-library:
-  Force import order to recognize a module as part of the standard
-  compatibility libraries.
-:known-third-party:
-  Force import order to recognize a module as part of a third party library.
-
-  Default: ``enchant``
-:allow-any-import-level:
-  List of modules that can be imported at any level, not just the top level
-  one.
-:allow-wildcard-with-all:
-  Allow wildcard imports from modules that define __all__.
 
 Imports checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -958,19 +561,6 @@ Logging checker
 
 Verbatim name of the checker is ``logging``.
 
-Logging checker Options
-^^^^^^^^^^^^^^^^^^^^^^^
-:logging-modules:
-  Logging modules to check that the string format arguments are in logging
-  function parameter format.
-
-  Default: ``logging``
-:logging-format-style:
-  The type of string formatting that logging methods do. `old` means using %
-  formatting, `new` is for `{}` formatting.
-
-  Default: ``old``
-
 Logging checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^
 :logging-format-truncated (E1201): *Logging format string ends in middle of conversion specifier*
@@ -1020,15 +610,6 @@ Miscellaneous checker
 ~~~~~~~~~~~~~~~~~~~~~
 
 Verbatim name of the checker is ``miscellaneous``.
-
-Miscellaneous checker Options
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:notes:
-  List of note tags to take in consideration, separated by a comma.
-
-  Default: ``FIXME,XXX,TODO``
-:notes-rgx:
-  Regular expression of note tags to take in consideration.
 
 Miscellaneous checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1101,20 +682,6 @@ Refactoring checker
 ~~~~~~~~~~~~~~~~~~~
 
 Verbatim name of the checker is ``refactoring``.
-
-Refactoring checker Options
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:max-nested-blocks:
-  Maximum number of nested blocks for function / method body
-
-  Default: ``5``
-:never-returning-functions:
-  Complete name of functions that never returns. When checking for
-  inconsistent-return-statements if a never returning function is called then
-  it will be considered as an explicit return statement and no message will be
-  printed.
-
-  Default: ``sys.exit,argparse.parse_error``
 
 Refactoring checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1279,29 +846,6 @@ Similarities checker
 
 Verbatim name of the checker is ``similarities``.
 
-Similarities checker Options
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:min-similarity-lines:
-  Minimum lines number of a similarity.
-
-  Default: ``4``
-:ignore-comments:
-  Comments are removed from the similarity computation
-
-  Default: ``yes``
-:ignore-docstrings:
-  Docstrings are removed from the similarity computation
-
-  Default: ``yes``
-:ignore-imports:
-  Imports are removed from the similarity computation
-
-  Default: ``yes``
-:ignore-signatures:
-  Signatures are removed from the similarity computation
-
-  Default: ``yes``
-
 Similarities checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :duplicate-code (R0801): *Similar lines in %s files*
@@ -1318,28 +862,6 @@ Spelling checker
 ~~~~~~~~~~~~~~~~
 
 Verbatim name of the checker is ``spelling``.
-
-Spelling checker Options
-^^^^^^^^^^^^^^^^^^^^^^^^
-:spelling-dict:
-  Spelling dictionary name. Available dictionaries: en_GB (aspell), en_US
-  (hunspell), en_AU (aspell), en (aspell), en_CA (aspell).
-:spelling-ignore-words:
-  List of comma separated words that should not be checked.
-:spelling-private-dict-file:
-  A path to a file that contains the private dictionary; one word per line.
-:spelling-store-unknown-words:
-  Tells whether to store unknown words to the private dictionary (see the
-  --spelling-private-dict-file option) instead of raising a message.
-:max-spelling-suggestions:
-  Limits count of emitted suggestions for spelling mistakes.
-
-  Default: ``4``
-:spelling-ignore-comment-directives:
-  List of comma separated words that should be considered directives if they
-  appear at the beginning of a comment and should not be checked.
-
-  Default: ``fmt: on,fmt: off,noqa:,noqa,nosec,isort:skip,mypy:``
 
 Spelling checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1421,15 +943,6 @@ String checker
 ~~~~~~~~~~~~~~
 
 Verbatim name of the checker is ``string``.
-
-String checker Options
-^^^^^^^^^^^^^^^^^^^^^^
-:check-str-concat-over-line-jumps:
-  This flag controls whether the implicit-str-concat should generate a warning
-  on implicit string concatenation in sequences defined over several lines.
-:check-quote-consistency:
-  This flag controls whether inconsistent-quotes generates a warning when the
-  character used as a quote delimiter is used inconsistently within a module.
 
 String checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -1527,69 +1040,6 @@ Typecheck checker
 ~~~~~~~~~~~~~~~~~
 
 Verbatim name of the checker is ``typecheck``.
-
-Typecheck checker Options
-^^^^^^^^^^^^^^^^^^^^^^^^^
-:ignore-on-opaque-inference:
-  This flag controls whether pylint should warn about no-member and similar
-  checks whenever an opaque object is returned when inferring. The inference
-  can return multiple potential results while evaluating a Python object, but
-  some branches might not be evaluated, which results in partial inference. In
-  that case, it might be useful to still emit no-member and other checks for
-  the rest of the inferred objects.
-
-  Default: ``yes``
-:mixin-class-rgx:
-  Regex pattern to define which classes are considered mixins.
-
-  Default: ``.*[Mm]ixin``
-:ignore-mixin-members:
-  Tells whether missing members accessed in mixin class should be ignored. A
-  class is considered mixin if its name matches the mixin-class-rgx option.
-
-  Default: ``yes``
-:ignored-checks-for-mixins:
-  List of symbolic message names to ignore for Mixin members.
-
-  Default: ``no-member,not-async-context-manager,not-context-manager,attribute-defined-outside-init``
-:ignore-none:
-  Tells whether to warn about missing members when the owner of the attribute
-  is inferred to be None.
-
-  Default: ``yes``
-:ignored-classes:
-  List of class names for which member attributes should not be checked (useful
-  for classes with dynamically set attributes). This supports the use of
-  qualified names.
-
-  Default: ``optparse.Values,thread._local,_thread._local,argparse.Namespace``
-:generated-members:
-  List of members which are set dynamically and missed by pylint inference
-  system, and so shouldn't trigger E1101 when accessed. Python regular
-  expressions are accepted.
-:contextmanager-decorators:
-  List of decorators that produce context managers, such as
-  contextlib.contextmanager. Add to this list to register other decorators that
-  produce valid context managers.
-
-  Default: ``contextlib.contextmanager``
-:missing-member-hint-distance:
-  The minimum edit distance a name should have in order to be considered a
-  similar match for a missing member name.
-
-  Default: ``1``
-:missing-member-max-choices:
-  The total number of similar names that should be taken in consideration when
-  showing a hint for a missing member.
-
-  Default: ``1``
-:missing-member-hint:
-  Show a hint with possible names when a member name was not found. The aspect
-  of finding the hint is based on edit distance.
-
-  Default: ``yes``
-:signature-mutators:
-  List of decorators that change the signature of a decorated function.
 
 Typecheck checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1763,40 +1213,6 @@ Variables checker
 ~~~~~~~~~~~~~~~~~
 
 Verbatim name of the checker is ``variables``.
-
-Variables checker Options
-^^^^^^^^^^^^^^^^^^^^^^^^^
-:init-import:
-  Tells whether we should check for unused import in __init__ files.
-:dummy-variables-rgx:
-  A regular expression matching the name of dummy variables (i.e. expected to
-  not be used).
-
-  Default: ``_+$|(_[a-zA-Z0-9_]*[a-zA-Z0-9]+?$)|dummy|^ignored_|^unused_``
-:additional-builtins:
-  List of additional names supposed to be defined in builtins. Remember that
-  you should avoid defining new builtins when possible.
-:callbacks:
-  List of strings which can identify a callback function by name. A callback
-  name must start or end with one of those strings.
-
-  Default: ``cb_,_cb``
-:redefining-builtins-modules:
-  List of qualified module names which can have objects that can redefine
-  builtins.
-
-  Default: ``six.moves,past.builtins,future.builtins,builtins,io``
-:ignored-argument-names:
-  Argument names that match this expression will be ignored. Default to name
-  with leading underscore.
-
-  Default: ``_.*|^ignored_|^unused_``
-:allow-global-unused-variables:
-  Tells whether unused global variables should be treated as a violation.
-
-  Default: ``yes``
-:allowed-redefined-builtins:
-  List of names allowed to shadow builtins
 
 Variables checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^

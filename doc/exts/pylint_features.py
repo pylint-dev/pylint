@@ -36,7 +36,7 @@ def builder_inited(app: Optional[Sphinx]) -> None:
 
 """
         )
-        print_full_documentation(linter, stream)
+        print_full_documentation(linter, stream, False)
 
 
 def setup(app):
