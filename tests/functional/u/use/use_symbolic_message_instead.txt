@@ -1,4 +1,4 @@
-bad-option-value:1:0:None:None::Bad option value for 'disable', expected a valid pylint message and got 'T1234':HIGH
+unknown-option-value:1:0:None:None::Unknown option value for 'disable', expected a valid pylint message and got 'T1234':HIGH
 use-symbolic-message-instead:1:0:None:None::"'C0111' is cryptic: use '# pylint: disable=missing-docstring' instead":UNDEFINED
 use-symbolic-message-instead:1:0:None:None::"'R0903' is cryptic: use '# pylint: disable=too-few-public-methods' instead":UNDEFINED
 use-symbolic-message-instead:2:0:None:None::"'c0111' is cryptic: use '# pylint: enable=missing-docstring' instead":UNDEFINED

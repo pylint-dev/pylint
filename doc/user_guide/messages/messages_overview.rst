@@ -58,7 +58,6 @@ All messages in the error category:
    error/bad-except-order
    error/bad-exception-context
    error/bad-format-character
-   error/bad-option-value
    error/bad-plugin-value
    error/bad-reversed-sequence
    error/bad-str-strip-call
@@ -178,6 +177,7 @@ All renamed messages in the error category:
    :titlesonly:
 
    error/bad-context-manager
+   error/bad-option-value
    error/maybe-no-member
    error/old-non-iterator-returned-2
    error/old-unbalanced-tuple-unpacking
@@ -306,6 +306,7 @@ All messages in the warning category:
    warning/try-except-raise
    warning/unbalanced-tuple-unpacking
    warning/undefined-loop-variable
+   warning/unknown-option-value
    warning/unnecessary-ellipsis
    warning/unnecessary-lambda
    warning/unnecessary-pass
@@ -507,6 +508,7 @@ All messages in the refactor category:
    refactor/use-list-literal
    refactor/use-set-for-membership
    refactor/useless-object-inheritance
+   refactor/useless-option-value
    refactor/useless-return
 
 All renamed messages in the refactor category:
