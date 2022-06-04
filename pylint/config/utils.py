@@ -203,12 +203,12 @@ def _enable_all_extensions(run: Run, value: str | None) -> None:
 PREPROCESSABLE_OPTIONS: dict[
     str, tuple[bool, Callable[[Run, str | None], None], int]
 ] = {  # pylint: disable=consider-using-namedtuple-or-dataclass
+    # pylint: disable=useless-suppression, wrong-spelling-in-comment
     # Argparse by default allows abbreviations. It behaves differently
     # if you turn this off, so we also turn it on. We mimic this
     # by allowing some abbreviations or incorrect spelling here.
     # The integer at the end of the tuple indicates how many letters
     # should match, include the '-'. 0 indicates a full match.
-    #
     # Clashes with --init-(import)
     "--init-hook": (True, _init_hook, 8),
     # Clashes with --r(ecursive)
