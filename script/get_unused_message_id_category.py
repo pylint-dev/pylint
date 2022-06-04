@@ -8,7 +8,7 @@ from __future__ import annotations
 from pylint.checkers import initialize as initialize_checkers
 from pylint.extensions import initialize as initialize_extensions
 from pylint.lint.pylinter import PyLinter
-from pylint.message.deleted_message_ids import _DELETED_MSGID_PREFIXES
+from pylint.message._deleted_message_ids import DELETED_MSGID_PREFIXES
 
 
 def register_all_checkers_and_plugins(linter: PyLinter) -> None:
@@ -21,7 +21,7 @@ def register_all_checkers_and_plugins(linter: PyLinter) -> None:
 def get_next_code_category(message_ids: list[str]) -> int:
     categories = sorted({int(i[:2]) for i in message_ids})
     # We add the prefixes for deleted checkers
-    categories += _DELETED_MSGID_PREFIXES
+    categories += DELETED_MSGID_PREFIXES
     for i in categories:
         if i + 1 not in categories:
             return i + 1
