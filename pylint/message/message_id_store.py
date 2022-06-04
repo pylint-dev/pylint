@@ -6,7 +6,12 @@ from __future__ import annotations
 
 from typing import NoReturn
 
-from pylint.exceptions import InvalidMessageError, UnknownMessageError
+from pylint.exceptions import (
+    DeletedMessageError,
+    InvalidMessageError,
+    UnknownMessageError,
+)
+from pylint.message._deleted_message_ids import is_deleted_msgid, is_deleted_symbol
 
 
 class MessageIdStore:
@@ -122,18 +127,24 @@ class MessageIdStore:
 
         # If we don't have a cached value yet we compute it
         msgid: str | None
+        deletion_reason = None
         if msgid_or_symbol[1:].isdigit():
             # Only msgid can have a digit as second letter
             msgid = msgid_or_symbol.upper()
             symbol = self.__msgid_to_symbol.get(msgid)
+            if not symbol:
+                deletion_reason = is_deleted_msgid(msgid)
         else:
-            msgid = self.__symbol_to_msgid.get(msgid_or_symbol)
             symbol = msgid_or_symbol
+            msgid = self.__symbol_to_msgid.get(msgid_or_symbol)
+            if not msgid:
+                deletion_reason = is_deleted_symbol(symbol)
         if not msgid or not symbol:
+            if deletion_reason is not None:
+                raise DeletedMessageError(msgid_or_symbol, deletion_reason)
             error_msg = f"No such message id or symbol '{msgid_or_symbol}'."
             raise UnknownMessageError(error_msg)
         ids = self.__old_names.get(msgid, [msgid])
-
         # Add to cache
         self.__active_msgids[msgid_or_symbol] = ids
         return ids
