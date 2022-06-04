@@ -119,3 +119,8 @@ f = Foo()
 for input_output in d.items():
     f.input_output = input_output  # pylint: disable=attribute-defined-outside-init
     print(d[f.input_output[0]])
+
+# Regression test for https://github.com/PyCQA/pylint/issues/6788
+d = {'a': 1, 'b': 2, 'c': 3}
+for key, val in d.items():
+    ([d[key], x], y) = ([1, 2], 3)
