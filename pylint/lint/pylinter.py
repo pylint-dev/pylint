@@ -193,11 +193,24 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Used when an unknown inline option is encountered.",
         {"scope": WarningScope.LINE},
     ),
-    "E0012": (
-        "Bad option value for '%s', expected a valid pylint message and got '%s'",
-        "bad-option-value",
-        "Used when a bad value for an option is encountered.",
-        {"scope": WarningScope.LINE},
+    "W0012": (
+        "Unknown option value for '%s', expected a valid pylint message and got '%s'",
+        "unknown-option-value",
+        "Used when an unknown value is encountered for an option.",
+        {
+            "scope": WarningScope.LINE,
+            "old_names": [("E0012", "bad-option-value")],
+        },
+    ),
+    "R0022": (
+        "Useless option value for '%s', %s",
+        "useless-option-value",
+        "Used when a value for an option that is now deleted from pylint"
+        " is encountered.",
+        {
+            "scope": WarningScope.LINE,
+            "old_names": [("E0012", "bad-option-value")],
+        },
     ),
     "E0013": (
         "Plugin '%s' is impossible to load, is it installed ? ('%s')",
@@ -1227,12 +1240,13 @@ class PyLinter(
             )
 
     def _emit_stashed_messages(self) -> None:
-        for modname, values in self._stashed_messages.items():
+        for keys, values in self._stashed_messages.items():
+            modname, symbol = keys
             self.linter.set_current_module(modname)
-            for option_string, msgid in values:
+            for args in values:
                 self.add_message(
-                    "bad-option-value",
-                    args=(option_string, msgid),
+                    symbol,
+                    args=args,
                     line=0,
                     confidence=HIGH,
                 )

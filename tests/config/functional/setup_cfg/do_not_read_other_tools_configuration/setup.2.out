@@ -1,2 +1,0 @@
-************* Module {abspath}
-{relpath}:1:0: E0012: Bad option value for '--enable', expected a valid pylint message and got 'useless-supression' (bad-option-value)
