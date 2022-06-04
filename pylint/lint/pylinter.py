@@ -29,6 +29,7 @@ from pylint.constants import (
     MSG_TYPES_STATUS,
     WarningScope,
 )
+from pylint.interfaces import HIGH
 from pylint.lint.base_options import _make_linter_options
 from pylint.lint.caching import load_results, save_results
 from pylint.lint.expand_modules import _is_ignored_file, expand_modules
@@ -189,7 +190,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         {"scope": WarningScope.LINE},
     ),
     "E0012": (
-        "Bad option value for %s",
+        "Bad option value for '%s', expected a valid pylint message and got '%s'",
         "bad-option-value",
         "Used when a bad value for an inline option is encountered.",
         {"scope": WarningScope.LINE},
@@ -1206,6 +1207,10 @@ class PyLinter(
             self.linter.set_current_module(modname)
             values = self._stashed_bad_option_value_messages[modname]
             for option_string, msg_id in values:
-                msg = f"{option_string}. Don't recognize message {msg_id}."
-                self.add_message("bad-option-value", args=msg, line=0)
+                self.add_message(
+                    "bad-option-value",
+                    args=(option_string, msg_id),
+                    line=0,
+                    confidence=HIGH,
+                )
         self._stashed_bad_option_value_messages = collections.defaultdict(list)
