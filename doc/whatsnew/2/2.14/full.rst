@@ -27,6 +27,10 @@ Release date: TBA
 
   Closes #6810
 
+* Fix a crash in the optional ``pylint.extensions.private_import`` extension.
+
+  Closes #6624
+
 
 What's New in Pylint 2.14.0?
 ----------------------------
