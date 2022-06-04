@@ -203,6 +203,7 @@ def _enable_all_extensions(run: Run, value: str | None) -> None:
 PREPROCESSABLE_OPTIONS: dict[
     str, tuple[bool, Callable[[Run, str | None], None], int]
 ] = {  # pylint: disable=consider-using-namedtuple-or-dataclass
+    # pylint: disable=useless-suppression, wrong-spelling-in-comment
     # Argparse by default allows abbreviations. It behaves differently
     # if you turn this off, so we also turn it on. We mimic this
     # by allowing some abbreviations or incorrect spelling here.
