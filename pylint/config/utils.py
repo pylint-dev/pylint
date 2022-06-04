@@ -209,6 +209,7 @@ PREPROCESSABLE_OPTIONS: dict[
     # by allowing some abbreviations or incorrect spelling here.
     # The integer at the end of the tuple indicates how many letters
     # should match, include the '-'. 0 indicates a full match.
+    #    
     # Clashes with --init-(import)
     "--init-hook": (True, _init_hook, 8),
     # Clashes with --r(ecursive)
