@@ -119,3 +119,16 @@ my_var7: _PrivateClass3 = _PrivateClass3()
 import _private_module_unreachable # [import-private-name]
 my_var8: _private_module_unreachable.Thing8
 _private_module_unreachable.Thing8()
+
+
+# pylint: disable=too-few-public-methods
+class Regression6624:
+    """Ensure that an import statement precedes this case."""
+    def get_example(self):
+        example: Example = Example().save()
+        return example
+
+
+class Example:
+    def save(self):
+        return self
