@@ -1,1 +1,9 @@
-bad-option-value:1:0:None:None::Bad option value for enable. Don't recognize message W04044.:UNDEFINED
+bad-option-value:4:0:None:None::Bad option value for disable. Don't recognize message C05048.:UNDEFINED
+bad-option-value:6:0:None:None::Bad option value for disable. Don't recognize message execfile-builtin.:UNDEFINED
+bad-option-value:8:0:None:None::Bad option value for disable. Don't recognize message W1656.:UNDEFINED
+bad-option-value:10:0:None:None::Bad option value for disable-next. Don't recognize message R78948.:UNDEFINED
+bad-option-value:12:0:None:None::Bad option value for disable-next. Don't recognize message deprecated-types-field.:UNDEFINED
+bad-option-value:14:0:None:None::Bad option value for disable-next. Don't recognize message W1634.:UNDEFINED
+bad-option-value:17:0:None:None::Bad option value for enable. Don't recognize message W04044.:UNDEFINED
+bad-option-value:19:0:None:None::Bad option value for enable. Don't recognize message no-space-after-comma.:UNDEFINED
+bad-option-value:21:0:None:None::Bad option value for enable. Don't recognize message W1622.:UNDEFINED

@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+from functools import lru_cache
 from typing import NamedTuple
 
 
@@ -123,3 +124,23 @@ DELETED_MESSAGES_IDS = {
         DeletedMessage("W0111", "assign-to-new-keyword"),
     ],
 }
+
+
+@lru_cache(maxsize=None)
+def is_deleted_symbol(symbol: str) -> str | None:
+    """Return the explanation for removal if the message was removed."""
+    for explanation, deleted_messages in DELETED_MESSAGES_IDS.items():
+        for deleted_message in deleted_messages:
+            if symbol == deleted_message.symbol:
+                return explanation
+    return None
+
+
+@lru_cache(maxsize=None)
+def is_deleted_msgid(msgid: str) -> str | None:
+    """Return the explanation for removal if the message was removed."""
+    for explanation, deleted_messages in DELETED_MESSAGES_IDS.items():
+        for deleted_message in deleted_messages:
+            if msgid == deleted_message.msgid:
+                return explanation
+    return None
