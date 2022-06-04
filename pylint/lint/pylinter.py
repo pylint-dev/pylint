@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import argparse
 import collections
 import contextlib
 import functools
@@ -15,6 +16,7 @@ import warnings
 from collections import defaultdict
 from collections.abc import Callable, Iterable, Iterator, Sequence
 from io import TextIOWrapper
+from pathlib import Path
 from typing import Any
 
 import astroid
@@ -40,6 +42,7 @@ from pylint.lint.report_functions import (
     report_total_messages_stats,
 )
 from pylint.lint.utils import (
+    _is_relative_to,
     fix_import_path,
     get_fatal_error_message,
     prepare_crash_report,
@@ -49,6 +52,7 @@ from pylint.reporters.base_reporter import BaseReporter
 from pylint.reporters.text import TextReporter
 from pylint.reporters.ureports import nodes as report_nodes
 from pylint.typing import (
+    DirectoryNamespaceDict,
     FileItem,
     ManagedMessage,
     MessageDefinitionTuple,
@@ -790,6 +794,26 @@ class PyLinter(
         self.current_name = modname
         self.current_file = filepath or modname
         self.stats.init_single_module(modname or "")
+
+        # If there is an actual filepath we might need to update the config attribute
+        if filepath:
+            namespace = self._get_namespace_for_file(
+                Path(filepath), self._directory_namespaces
+            )
+            if namespace:
+                self.config = namespace or self._base_config
+
+    def _get_namespace_for_file(
+        self, filepath: Path, namespaces: DirectoryNamespaceDict
+    ) -> argparse.Namespace | None:
+        for directory in namespaces:
+            if _is_relative_to(filepath, directory):
+                namespace = self._get_namespace_for_file(
+                    filepath, namespaces[directory][1]
+                )
+                if namespace is None:
+                    return namespaces[directory][0]
+        return None
 
     @contextlib.contextmanager
     def _astroid_module_checker(
