@@ -5,6 +5,10 @@ modified-iterating-set:39:4:39:27::Iterated set 'item_set' is being modified ins
 modified-iterating-list:46:8:46:27::Iterated list 'item_list' is being modified inside for loop body, consider iterating through a copy of it instead.:INFERENCE
 modified-iterating-set:47:8:47:26::Iterated set 'item_set' is being modified inside for loop body, iterate through a copy of it instead.:INFERENCE
 modified-iterating-list:48:4:48:23::Iterated list 'item_list' is being modified inside for loop body, consider iterating through a copy of it instead.:INFERENCE
-modified-iterating-list:52:4:52:23::Iterated list 'item_list' is being modified inside for loop body, consider iterating through a copy of it instead.:INFERENCE
-modified-iterating-list:55:12:55:31::Iterated list 'item_list' is being modified inside for loop body, consider iterating through a copy of it instead.:INFERENCE
-modified-iterating-list:57:16:57:35::Iterated list 'item_list' is being modified inside for loop body, consider iterating through a copy of it instead.:INFERENCE
+modified-iterating-list:51:4:51:12::Iterated list 'list' is being modified inside for loop body, consider iterating through a copy of it instead.:INFERENCE
+modified-iterating-list:54:4:54:20::Iterated list 'list' is being modified inside for loop body, consider iterating through a copy of it instead.:INFERENCE
+modified-iterating-dict:57:4:57:9::Iterated dict 'my_dict' is being modified inside for loop body, iterate through a copy of it instead.:INFERENCE
+modified-iterating-set:60:4:60:15::Iterated set 'item_set' is being modified inside for loop body, iterate through a copy of it instead.:INFERENCE
+modified-iterating-list:64:4:64:23::Iterated list 'item_list' is being modified inside for loop body, consider iterating through a copy of it instead.:INFERENCE
+modified-iterating-list:67:12:67:31::Iterated list 'item_list' is being modified inside for loop body, consider iterating through a copy of it instead.:INFERENCE
+modified-iterating-list:69:16:69:35::Iterated list 'item_list' is being modified inside for loop body, consider iterating through a copy of it instead.:INFERENCE

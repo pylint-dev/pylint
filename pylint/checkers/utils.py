@@ -12,7 +12,7 @@ import numbers
 import re
 import string
 import warnings
-from collections.abc import Iterable
+from collections.abc import Iterable, Iterator
 from functools import lru_cache, partial
 from re import Match
 from typing import TYPE_CHECKING, Callable, TypeVar
@@ -1792,3 +1792,15 @@ def in_for_else_branch(parent: nodes.NodeNG, stmt: nodes.Statement) -> bool:
     return isinstance(parent, nodes.For) and any(
         else_stmt.parent_of(stmt) or else_stmt == stmt for else_stmt in parent.orelse
     )
+
+
+def find_assigned_names_recursive(
+    target: nodes.AssignName | nodes.BaseContainer,
+) -> Iterator[str]:
+    """Yield the names of assignment targets, accounting for nested ones."""
+    if isinstance(target, nodes.AssignName):
+        if target.name is not None:
+            yield target.name
+    elif isinstance(target, nodes.BaseContainer):
+        for elt in target.elts:
+            yield from find_assigned_names_recursive(elt)

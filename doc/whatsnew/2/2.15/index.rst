@@ -31,6 +31,11 @@ False positives fixed
 False negatives fixed
 =====================
 
+* Emit ``modified-iterating-list`` and analogous messages for dicts and sets when iterating
+  literals, or when using the ``del`` keyword.
+
+  Closes #6648
+
 
 Other bug fixes
 ===============
