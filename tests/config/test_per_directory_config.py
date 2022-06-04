@@ -3,6 +3,8 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 
+from py._path.local import LocalPath  # type: ignore[import]
+
 from pylint.lint import Run
 
 
