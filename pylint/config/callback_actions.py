@@ -381,9 +381,9 @@ class _DisableAction(_AccessLinterObjectAction):
             try:
                 self.linter.disable(msgid)
             except exceptions.UnknownMessageError:
-                self.linter._stashed_bad_option_value_messages[
-                    self.linter.current_name
-                ].append((option_string, msgid))
+                self.linter._stashed_messages[self.linter.current_name].append(
+                    (option_string, msgid)
+                )
 
 
 class _EnableAction(_AccessLinterObjectAction):
@@ -402,9 +402,9 @@ class _EnableAction(_AccessLinterObjectAction):
             try:
                 self.linter.enable(msgid)
             except exceptions.UnknownMessageError:
-                self.linter._stashed_bad_option_value_messages[
-                    self.linter.current_name
-                ].append((option_string, msgid))
+                self.linter._stashed_messages[self.linter.current_name].append(
+                    (option_string, msgid)
+                )
 
 
 class _OutputFormatAction(_AccessLinterObjectAction):
