@@ -192,7 +192,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
     "E0012": (
         "Bad option value for '%s', expected a valid pylint message and got '%s'",
         "bad-option-value",
-        "Used when a bad value for an inline option is encountered.",
+        "Used when a bad value for an option is encountered.",
         {"scope": WarningScope.LINE},
     ),
     "E0013": (
