@@ -19,3 +19,8 @@
 # pylint:enable=no-space-after-comma  # [bad-option-value]
 # enable with deleted msgid
 # pylint:enable=W1622  # [bad-option-value]
+
+# Standard disable with deleted old name symbol of deleted message
+# pylint: disable=no-space-after-operator  # [bad-option-value]
+# Standard disable with deleted old name msgid of deleted message
+# pylint: disable=C0323  # [bad-option-value]

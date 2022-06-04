@@ -1,4 +1,4 @@
 ************* Module {abspath}
-{relpath}:1:0: E0012: Bad option value for --disable. Don't recognize message buffer-builtin. (bad-option-value)
-{relpath}:1:0: E0012: Bad option value for --enable. Don't recognize message useless-option-value. (bad-option-value)
-{relpath}:1:0: E0012: Bad option value for --enable. Don't recognize message cmp-builtin. (bad-option-value)
+{relpath}:1:0: E0012: Bad option value for '--disable', expected a valid pylint message and got 'buffer-builtin' (bad-option-value)
+{relpath}:1:0: E0012: Bad option value for '--enable', expected a valid pylint message and got 'useless-option-value' (bad-option-value)
+{relpath}:1:0: E0012: Bad option value for '--enable', expected a valid pylint message and got 'cmp-builtin' (bad-option-value)
