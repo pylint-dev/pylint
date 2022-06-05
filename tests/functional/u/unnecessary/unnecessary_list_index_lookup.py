@@ -68,3 +68,9 @@ updated_list = [1, 2, 3]
 for idx, val in enumerate(updated_list):
     while updated_list[idx] > 0:
         updated_list[idx] -= 1
+
+updated_list = [1, 2, 3]
+for idx, val in enumerate(updated_list):
+    print(updated_list[idx]) # [unnecessary-list-index-lookup]
+    updated_list[idx] -= 1
+    print(updated_list[idx])

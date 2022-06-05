@@ -2078,8 +2078,19 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         bad_nodes = []
 
         children = (
-            node.body if isinstance(node, nodes.For) else node.parent.get_children()
+            node.body if isinstance(node, nodes.For) else list(node.parent.get_children())
         )
+
+        # Check if there are any for / while loops within the loop in question;
+        # If so, we will be more conservative about reporting errors as we
+        # can't yet do proper control flow analysis to be sure when
+        # reassignment will affect us
+        nested_loops = itertools.chain.from_iterable(
+            child.nodes_of_class((nodes.For, nodes.While))
+            for child in children
+        )
+        has_nested_loops = next(nested_loops, None) is not None
+
         for child in children:
             for subscript in child.nodes_of_class(nodes.Subscript):
                 if isinstance(node, nodes.For) and _is_part_of_assignment_target(
@@ -2118,8 +2129,18 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                         # reassigned on a later line, so it can't be used.
                         continue
 
-                    # Have found a likely issue.
-                    bad_nodes.append(subscript)
+                    if has_nested_loops:
+                        # Have found a likely issue, but since there are nested
+                        # loops we don't want to report this unless we get to the
+                        # end fo the loop without updating the collection
+                        bad_nodes.append(subscript)
+                    else:
+                        self.add_message(
+                            "unnecessary-list-index-lookup",
+                            node=subscript,
+                            args=(node.target.elts[1].name,),
+                            confidence=HIGH,
+                        )
 
         for subscript in bad_nodes:
             self.add_message(
