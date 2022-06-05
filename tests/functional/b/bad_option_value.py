@@ -21,6 +21,6 @@
 # pylint:enable=W1622  # [useless-option-value]
 
 # Standard disable with deleted old name symbol of deleted message
-# pylint: disable=no-space-after-operator  # [bad-option-value]  <= This is wrong
+# pylint: disable=no-space-after-operator  # [useless-option-value]
 # Standard disable with deleted old name msgid of deleted message
-# pylint: disable=C0323  # [bad-option-value]  <= This is wrong
+# pylint: disable=C0323  # [useless-option-value]
