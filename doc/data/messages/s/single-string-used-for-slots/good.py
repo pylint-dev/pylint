@@ -1,5 +1,5 @@
 class Fruit:
-    __slots__ = ("price",)
+    __slots__ = ("name",)
 
-    def __init__(self, price):
-        self.price = price
+    def __init__(self, name):
+        self.name = name
