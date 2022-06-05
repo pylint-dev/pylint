@@ -2,9 +2,8 @@ import abc
 
 
 class Animal:
-    @abc.abstractmethod
     def run(self, distance=0):
-        pass
+        print(f"Ran {distance} km!")
 
 
 class Dog(Animal):
