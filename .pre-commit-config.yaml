@@ -8,7 +8,12 @@ repos:
       - id: trailing-whitespace
         exclude: tests(/\w*)*/functional/t/trailing_whitespaces.py|tests/pyreverse/data/.*.html|doc/data/messages/t/trailing-whitespace/bad.py
       - id: end-of-file-fixer
-        exclude: tests(/\w*)*/functional/m/missing/missing_final_newline.py|tests/functional/t/trailing_newlines.py
+        exclude: |
+          (?x)^(
+            tests(/\w*)*/functional/m/missing/missing_final_newline.py|
+            tests/functional/t/trailing_newlines.py|
+            doc/data/messages/t/trailing-newlines/bad.py|
+          )$
   - repo: https://github.com/myint/autoflake
     rev: v1.4
     hooks:
