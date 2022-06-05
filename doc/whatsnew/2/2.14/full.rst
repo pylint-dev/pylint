@@ -1,9 +1,15 @@
 Full changelog
 ==============
 
-What's New in Pylint 2.14.1?
+What's New in Pylint 2.14.2?
 ----------------------------
 Release date: TBA
+
+
+
+What's New in Pylint 2.14.1?
+----------------------------
+Release date: 2022-06-06
 
 * Avoid reporting ``unnecessary-dict-index-lookup`` or ``unnecessary-list-index-lookup``
   when the index lookup is part of a destructuring assignment.
@@ -130,11 +136,6 @@ Release date: 2022-06-01
   need to set the ``spelling-dict`` option.
 
   Refs #6462
-
-* Fixed a false positive regression in 2.13 for ``used-before-assignment`` where it is safe to rely
-  on a name defined only in an ``except`` block because the ``else`` block returned.
-
-  Closes #6790
 
 * Removed the ``assign-to-new-keyword`` message as there are no new keywords in the supported Python
   versions any longer.
