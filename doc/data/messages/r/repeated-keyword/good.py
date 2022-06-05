@@ -1,5 +1,2 @@
-def func(a, b, c):
-    return a, b, c
-
-
-func(1, 2, c=3)
+print("Hello ", "orld", sep="W", end=" !")
+print("Hello ", "orld", **{"sep": "W", "end": " !"})
