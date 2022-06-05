@@ -1,1 +1,5 @@
-# This is a placeholder for correct code for this message.
+class Fruit:
+    __slots__ = ("price",)
+
+    def __init__(self, price):
+        self.price = price
