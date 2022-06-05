@@ -2078,7 +2078,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         bad_nodes = []
 
         children = (
-            node.body if isinstance(node, nodes.For) else list(node.parent.get_children())
+            node.body
+            if isinstance(node, nodes.For)
+            else list(node.parent.get_children())
         )
 
         # Check if there are any for / while loops within the loop in question;
@@ -2086,8 +2088,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         # can't yet do proper control flow analysis to be sure when
         # reassignment will affect us
         nested_loops = itertools.chain.from_iterable(
-            child.nodes_of_class((nodes.For, nodes.While))
-            for child in children
+            child.nodes_of_class((nodes.For, nodes.While)) for child in children
         )
         has_nested_loops = next(nested_loops, None) is not None
 
