@@ -2029,6 +2029,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         iterating_object_name = node.iter.args[0].name
         value_variable = node.target.elts[1]
 
+        # Store potential violations. These will only be reported if we don't
+        # discover any writes to the collection during the loop.
+        bad_nodes = []
+
         children = (
             node.body if isinstance(node, nodes.For) else node.parent.get_children()
         )
@@ -2070,9 +2074,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                         # reassigned on a later line, so it can't be used.
                         continue
 
-                    self.add_message(
-                        "unnecessary-list-index-lookup",
-                        node=subscript,
-                        args=(node.target.elts[1].name,),
-                        confidence=HIGH,
-                    )
+                    # Have found a likely issue.
+                    bad_nodes.append(subscript)
+
+        for subscript in bad_nodes:
+            self.add_message(
+                "unnecessary-list-index-lookup",
+                node=subscript,
+                args=(node.target.elts[1].name,),
+                confidence=HIGH,
+            )

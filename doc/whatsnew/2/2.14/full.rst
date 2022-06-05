@@ -23,6 +23,11 @@ Release date: TBA
 
   Closes #6790
 
+* Fixed a false positive in ``unnecessary-list-index-lookup`` when the subscript is
+  updated in the body of a nested loop.
+
+  Closes #6818
+
 * Fixed the use of abbreviations for some special options on the command line.
 
   Closes #6810
