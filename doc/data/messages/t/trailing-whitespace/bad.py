@@ -1,1 +1,1 @@
-print("Hello")  # [trailing-whitespace]
+print("Hello")  # [trailing-whitespace]  
