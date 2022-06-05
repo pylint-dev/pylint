@@ -23,8 +23,8 @@ Release date: TBA
 
   Closes #6790
 
-* Fixed a false positive in ``unnecessary-list-index-lookup`` when the subscript is
-  updated in the body of a nested loop.
+* Fixed a false positive in ``unnecessary-list-index-lookup`` and ``unnecessary-dict-index-lookup``
+  when the subscript is updated in the body of a nested loop.
 
   Closes #6818
 
