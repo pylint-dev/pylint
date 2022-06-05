@@ -7,7 +7,7 @@ def divide_x_by_y(x: float, y: float):
         # FloatingPointError  were already caught at this point
         print(f"There was an OverflowError or a ZeroDivisionError: {e}")
 
-Or:
+# Or:
 
 def divide_x_by_y(x: float, y: float):
     try:
