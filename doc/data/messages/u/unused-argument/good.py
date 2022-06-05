@@ -1,1 +1,2 @@
-# This is a placeholder for correct code for this message.
+def foo(x, y):
+    return {x: y}
