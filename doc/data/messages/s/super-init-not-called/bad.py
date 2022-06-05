@@ -4,6 +4,5 @@ class Fruit:
 
 
 class Apple(Fruit):
-    def __init__(self):
-        super().__init__()
+    def __init__(self):  # [super-init-not-called]
         print("Apple")
