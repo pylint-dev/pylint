@@ -1,6 +1,3 @@
-import abc
-
-
 class Animal:
     def run(self, distance=0):
         print(f"Ran {distance} km!")
