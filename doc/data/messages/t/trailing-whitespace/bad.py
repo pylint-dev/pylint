@@ -1,0 +1,1 @@
+print("Hello")  # [trailing-whitespace]  
