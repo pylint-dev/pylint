@@ -1931,7 +1931,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             # for body.
 
             children = (
-                node.body if isinstance(node, nodes.For) else list(node.parent.get_children())
+                node.body
+                if isinstance(node, nodes.For)
+                else list(node.parent.get_children())
             )
 
             # Check if there are any for / while loops within the loop in question;
@@ -1939,8 +1941,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             # can't yet do proper control flow analysis to be sure when
             # reassignment will affect us
             nested_loops = itertools.chain.from_iterable(
-                child.nodes_of_class((nodes.For, nodes.While))
-                for child in children
+                child.nodes_of_class((nodes.For, nodes.While)) for child in children
             )
             has_nested_loops = next(nested_loops, None) is not None
 
@@ -1984,15 +1985,17 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                             continue
 
                         if has_nested_loops:
-                            messages.append({
-                                "node": subscript,
-                                "variable": node.target.elts[1].as_string()
-                            })
+                            messages.append(
+                                {
+                                    "node": subscript,
+                                    "variable": node.target.elts[1].as_string(),
+                                }
+                            )
                         else:
                             self.add_message(
                                 "unnecessary-dict-index-lookup",
                                 node=subscript,
-                                args=(node.target.elts[1].as_string(),)
+                                args=(node.target.elts[1].as_string(),),
                             )
 
                     # Case where .items is assigned to single var (i.e., for item in d.items())
@@ -2022,15 +2025,21 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                             continue
 
                         if has_nested_loops:
-                            messages.append({
-                                "node": subscript,
-                                "variable": "1".join(value.as_string().rsplit("0", maxsplit=1)),
-                            })
+                            messages.append(
+                                {
+                                    "node": subscript,
+                                    "variable": "1".join(
+                                        value.as_string().rsplit("0", maxsplit=1)
+                                    ),
+                                }
+                            )
                         else:
                             self.add_message(
                                 "unnecessary-dict-index-lookup",
                                 node=subscript,
-                                args=("1".join(value.as_string().rsplit("0", maxsplit=1)),)
+                                args=(
+                                    "1".join(value.as_string().rsplit("0", maxsplit=1)),
+                                ),
                             )
 
             for message in messages:
