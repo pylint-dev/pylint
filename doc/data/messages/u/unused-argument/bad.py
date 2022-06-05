@@ -1,2 +1,2 @@
-def foo(x, y):  # [unused-argument]
-    return {x: None}
+def print_point(x, y):  # [unused-argument]
+    print(f"Point is located at {x},{x}")
