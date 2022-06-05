@@ -1,1 +1,3 @@
-map(hash, ["x", "y"])
+print("Hello world !")
+
+df.apply(str)
