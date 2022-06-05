@@ -4,6 +4,6 @@ class Animal:
 
 
 class Dog(Animal):
-    def run(self, distance=0):
+    def run(self, distance):  # [signature-differs]
         super(Animal, self).run(distance)
         print("Fetched that stick, wuff !")
