@@ -1,1 +1,4 @@
-# This is a placeholder for correct code for this message.
+def print_fruits():
+    fruit1 = "orange"
+    fruit2 = "apple"
+    print(fruit1, fruit2)
