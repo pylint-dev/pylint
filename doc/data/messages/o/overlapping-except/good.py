@@ -1,22 +1,11 @@
-class SomeException(Exception):
+try:
+    pass
+except ArithmeticError:
     pass
 
-
-AliasException = SomeException
+# or
 
 try:
     pass
-except Exception:
-    pass
-
-
-try:
-    pass
-except SomeException:
-    pass
-
-
-try:
-    pass
-except AliasException:
+except FloatingPointError:
     pass
