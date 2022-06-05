@@ -10,3 +10,4 @@ class Animal:
 class Dog(Animal):
     def run(self, distance):  # [signature-differs]
         print(f"Ran {distance} km!")
+        print("Fetched that stick, wuff !")
