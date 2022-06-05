@@ -95,8 +95,8 @@ contributors:
 - Derek Gustafson <degustaf@gmail.com>
 - Cezar Elnazli <cezar.elnazli2@gmail.com>: deprecated-method
 - Joseph Young <80432516+jpy-git@users.noreply.github.com> (jpy-git)
-- Nicolas Chauvat <nicolas.chauvat@logilab.fr>
 - Tim Martin <tim@asymptotic.co.uk>
+- Nicolas Chauvat <nicolas.chauvat@logilab.fr>
 - Radu Ciorba <radu@devrandom.ro>: not-context-manager and confusing-with-statement warnings.
 - Holger Peters <email@holger-peters.de>
 - Cosmin Poieană <cmin@ropython.org>: unichr-builtin and improvements to bad-open-mode.
