@@ -1,1 +1,1 @@
-# This is a placeholder for correct code for this message.
+are_equal: bool = str(42) == "42"
