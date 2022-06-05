@@ -1,1 +1,3 @@
-print(f"1 + 2 = 3")  # [f-string-without-interpolation]
+x = 1
+y = 2
+print(f"x + y = x + y")  # [f-string-without-interpolation]
