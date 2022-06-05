@@ -1,4 +1,4 @@
-def foo():
-    x = 1
-    y = None
-    print(x, y)
+def print_fruits():
+    fruit1 = "orange"
+    fruit2 = "apple"
+    print(fruit1, fruit2)

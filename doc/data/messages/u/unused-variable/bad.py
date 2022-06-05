@@ -1,4 +1,4 @@
-def foo():
-    x = 1
-    y = None  # [unused-variable]
-    print(x)
+def print_fruits():
+    fruit1 = "orange"
+    fruit2 = "apple"  # [unused-variable]
+    print(fruit1)
