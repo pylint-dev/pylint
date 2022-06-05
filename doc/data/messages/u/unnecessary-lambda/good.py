@@ -1,1 +1,3 @@
-# This is a placeholder for correct code for this message.
+print("Hello world !")
+
+df.apply(str)
