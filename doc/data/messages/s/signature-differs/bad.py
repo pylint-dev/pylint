@@ -3,7 +3,7 @@ import abc
 
 class Animal:
     @abc.abstractmethod
-    def run(self, distance=None):
+    def run(self, distance=0):
         pass
 
 
