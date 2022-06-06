@@ -48,7 +48,9 @@ class DocStringStyleChecker(checkers.BaseChecker):
 
     visit_asyncfunctiondef = visit_functiondef
 
-    def _check_docstring(self, node_type, node):
+    def _check_docstring(
+        self, node_type: str, node: nodes.Module | nodes.ClassDef | nodes.FunctionDef
+    ) -> None:
         docstring = node.doc_node.value if node.doc_node else None
         if docstring and docstring[0] == "\n":
             self.add_message(
@@ -73,7 +75,7 @@ class DocStringStyleChecker(checkers.BaseChecker):
             elif line and line[0] == "'":
                 quotes = "'"
             else:
-                quotes = False
+                quotes = ""
             if quotes:
                 self.add_message(
                     "bad-docstring-quotes",
