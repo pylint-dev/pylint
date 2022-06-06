@@ -36,6 +36,8 @@ Basic checker
 
 Verbatim name of the checker is ``basic``.
 
+You can find the options of this checker here: :ref:`basic-options`
+
 Basic checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^
 :not-in-loop (E0103): *%r not properly in loop*
@@ -215,6 +217,8 @@ Classes checker
 
 Verbatim name of the checker is ``classes``.
 
+You can find the options of this checker here: :ref:`classes-options`
+
 Classes checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^
 :access-member-before-definition (E0203): *Access to member %r before its definition line %s*
@@ -363,6 +367,8 @@ Design checker
 
 Verbatim name of the checker is ``design``.
 
+You can find the options of this checker here: :ref:`design-options`
+
 Design checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^
 :too-few-public-methods (R0903): *Too few public methods (%s/%s)*
@@ -397,6 +403,8 @@ Exceptions checker
 ~~~~~~~~~~~~~~~~~~
 
 Verbatim name of the checker is ``exceptions``.
+
+You can find the options of this checker here: :ref:`exceptions-options`
 
 Exceptions checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -460,6 +468,8 @@ Format checker
 
 Verbatim name of the checker is ``format``.
 
+You can find the options of this checker here: :ref:`format-options`
+
 Format checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^
 :bad-indentation (W0311): *Bad indentation. Found %s %s, expected %s*
@@ -492,6 +502,8 @@ Imports checker
 ~~~~~~~~~~~~~~~
 
 Verbatim name of the checker is ``imports``.
+
+You can find the options of this checker here: :ref:`imports-options`
 
 Imports checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -561,6 +573,8 @@ Logging checker
 
 Verbatim name of the checker is ``logging``.
 
+You can find the options of this checker here: :ref:`logging-options`
+
 Logging checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^
 :logging-format-truncated (E1201): *Logging format string ends in middle of conversion specifier*
@@ -610,6 +624,8 @@ Miscellaneous checker
 ~~~~~~~~~~~~~~~~~~~~~
 
 Verbatim name of the checker is ``miscellaneous``.
+
+You can find the options of this checker here: :ref:`miscellaneous-options`
 
 Miscellaneous checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -682,6 +698,8 @@ Refactoring checker
 ~~~~~~~~~~~~~~~~~~~
 
 Verbatim name of the checker is ``refactoring``.
+
+You can find the options of this checker here: :ref:`refactoring-options`
 
 Refactoring checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -846,6 +864,8 @@ Similarities checker
 
 Verbatim name of the checker is ``similarities``.
 
+You can find the options of this checker here: :ref:`similarities-options`
+
 Similarities checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :duplicate-code (R0801): *Similar lines in %s files*
@@ -862,6 +882,8 @@ Spelling checker
 ~~~~~~~~~~~~~~~~
 
 Verbatim name of the checker is ``spelling``.
+
+You can find the options of this checker here: :ref:`spelling-options`
 
 Spelling checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -943,6 +965,8 @@ String checker
 ~~~~~~~~~~~~~~
 
 Verbatim name of the checker is ``string``.
+
+You can find the options of this checker here: :ref:`string-options`
 
 String checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -1040,6 +1064,8 @@ Typecheck checker
 ~~~~~~~~~~~~~~~~~
 
 Verbatim name of the checker is ``typecheck``.
+
+You can find the options of this checker here: :ref:`typecheck-options`
 
 Typecheck checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1213,6 +1239,8 @@ Variables checker
 ~~~~~~~~~~~~~~~~~
 
 Verbatim name of the checker is ``variables``.
+
+You can find the options of this checker here: :ref:`variables-options`
 
 Variables checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^

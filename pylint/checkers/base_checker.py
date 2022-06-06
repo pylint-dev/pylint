@@ -126,9 +126,12 @@ class BaseChecker(_ArgumentsProvider):
             result += f"{cleandoc(doc)}\n\n"
         # options might be an empty generator and not be False when cast to boolean
         options_list = list(options)
-        if options_list and show_options:
-            result += get_rst_title(f"{checker_title} Options", "^")
-            result += f"{get_rst_section(None, options_list)}\n"
+        if options_list:
+            if show_options:
+                result += get_rst_title(f"{checker_title} Options", "^")
+                result += f"{get_rst_section(None, options_list)}\n"
+            else:
+                result += f"You can find the options of this checker here: :ref:`{self.name}-options`\n\n"
         if msgs:
             result += get_rst_title(f"{checker_title} Messages", "^")
             for msgid, msg in sorted(

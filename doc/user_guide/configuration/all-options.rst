@@ -9,6 +9,8 @@ Standard Checkers
 ^^^^^^^^^^^^^^^^^
 
 
+.. _main-options:
+
 ``Main`` **Checker**
 --------------------
 --analyse-fallback-blocks
@@ -271,6 +273,8 @@ Standard Checkers
 
    </details>
 
+
+.. _basic-options:
 
 ``Basic`` **Checker**
 ---------------------
@@ -580,6 +584,8 @@ Standard Checkers
    </details>
 
 
+.. _classes-options:
+
 ``Classes`` **Checker**
 -----------------------
 --check-protected-access-in-special-methods
@@ -644,6 +650,8 @@ Standard Checkers
 
    </details>
 
+
+.. _design-options:
 
 ``Design`` **Checker**
 ----------------------
@@ -782,6 +790,8 @@ Standard Checkers
    </details>
 
 
+.. _exceptions-options:
+
 ``Exceptions`` **Checker**
 --------------------------
 --overgeneral-exceptions
@@ -810,6 +820,8 @@ Standard Checkers
 
    </details>
 
+
+.. _format-options:
 
 ``Format`` **Checker**
 ----------------------
@@ -902,6 +914,8 @@ Standard Checkers
 
    </details>
 
+
+.. _imports-options:
 
 ``Imports`` **Checker**
 -----------------------
@@ -1004,6 +1018,8 @@ Standard Checkers
    </details>
 
 
+.. _logging-options:
+
 ``Logging`` **Checker**
 -----------------------
 --logging-format-style
@@ -1041,6 +1057,8 @@ Standard Checkers
 
    </details>
 
+
+.. _miscellaneous-options:
 
 ``Miscellaneous`` **Checker**
 -----------------------------
@@ -1080,6 +1098,8 @@ Standard Checkers
    </details>
 
 
+.. _refactoring-options:
+
 ``Refactoring`` **Checker**
 ---------------------------
 --max-nested-blocks
@@ -1117,6 +1137,8 @@ Standard Checkers
 
    </details>
 
+
+.. _similarities-options:
 
 ``Similarities`` **Checker**
 ----------------------------
@@ -1182,6 +1204,8 @@ Standard Checkers
 
    </details>
 
+
+.. _spelling-options:
 
 ``Spelling`` **Checker**
 ------------------------
@@ -1257,6 +1281,8 @@ Standard Checkers
    </details>
 
 
+.. _string-options:
+
 ``String`` **Checker**
 ----------------------
 --check-quote-consistency
@@ -1294,6 +1320,8 @@ Standard Checkers
 
    </details>
 
+
+.. _typecheck-options:
 
 ``Typecheck`` **Checker**
 -------------------------
@@ -1423,6 +1451,8 @@ Standard Checkers
    </details>
 
 
+.. _variables-options:
+
 ``Variables`` **Checker**
 -------------------------
 --additional-builtins
@@ -1519,6 +1549,8 @@ Extensions
 ^^^^^^^^^^
 
 
+.. _broad_try_clause-options:
+
 ``Broad_try_clause`` **Checker**
 --------------------------------
 --max-try-statements
@@ -1547,6 +1579,8 @@ Extensions
 
    </details>
 
+
+.. _code_style-options:
 
 ``Code_style`` **Checker**
 --------------------------
@@ -1577,6 +1611,8 @@ Extensions
    </details>
 
 
+.. _deprecated_builtins-options:
+
 ``Deprecated_builtins`` **Checker**
 -----------------------------------
 --bad-functions
@@ -1605,6 +1641,8 @@ Extensions
 
    </details>
 
+
+.. _parameter_documentation-options:
 
 ``Parameter_documentation`` **Checker**
 ---------------------------------------
@@ -1670,6 +1708,8 @@ Extensions
 
    </details>
 
+
+.. _typing-options:
 
 ``Typing`` **Checker**
 ----------------------
