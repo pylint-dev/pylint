@@ -23,6 +23,17 @@ To ease the process of reviewing your PR, do make sure to complete the following
 | ✓   | :hammer: Refactoring   |
 | ✓   | :scroll: Docs          |
 
+## Changelog
+
+<!--
+Provide a short summary of the change, focused on the user-facing aspects.
+This summary will be included in the changelog. Please do not remove the
+"changelog start" and "changelog end" lines.
+-->
+<!-- changelog start -->
+
+<!-- changelog end -->
+
 ## Description
 
 <!-- If this PR references an issue without fixing it: -->
