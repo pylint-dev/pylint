@@ -2133,7 +2133,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                     if has_nested_loops:
                         # Have found a likely issue, but since there are nested
                         # loops we don't want to report this unless we get to the
-                        # end fo the loop without updating the collection
+                        # end of the loop without updating the collection
                         bad_nodes.append(subscript)
                     else:
                         self.add_message(
