@@ -24,6 +24,7 @@ ACCEPTABLE_NODES = (
     nodes.ClassDef,
 )
 
+# pylint: disable-next=consider-using-namedtuple-or-dataclass
 MSGS: dict[str, MessageDefinitionTuple] = {
     "W4901": (
         "Deprecated module %r",
