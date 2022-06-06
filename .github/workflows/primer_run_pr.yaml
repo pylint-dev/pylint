@@ -22,7 +22,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  CACHE_VERSION: 1
+  CACHE_VERSION: 2
 
 jobs:
   run-primer:
@@ -31,7 +31,7 @@ jobs:
     timeout-minutes: 120
     strategy:
       matrix:
-        python-version: ["3.8"]
+        python-version: ["3.7", "3.10"]
     steps:
       - name: Check out code from GitHub
         uses: actions/checkout@v3.0.2
@@ -167,17 +167,23 @@ jobs:
         run: |
           . venv/bin/activate
           pip install -e .
-          python tests/primer/primer_tool.py run --type=pr
+          python tests/primer/primer_tool.py run --type=pr 2>warnings.txt
+          WARNINGS=$(head -c 65000 < warnings.txt)
+          if [[ $WARNINGS ]]
+          then echo "::warning ::$WARNINGS"
+          fi
       - name: Upload output of PR
         uses: actions/upload-artifact@v3
         with:
           name: primer_output_pr
-          path: tests/.pylint_primer_tests/output_pr.txt
+          path:
+            tests/.pylint_primer_tests/output_${{ steps.python.outputs.python-version
+            }}_pr.txt
       - name: Upload output of 'main'
         uses: actions/upload-artifact@v3
         with:
           name: primer_output_main
-          path: output_main.txt
+          path: output_${{ steps.python.outputs.python-version }}_main.txt
 
       # Save PR number so we know which PR to comment on
       - name: Save PR number

@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import argparse
 import collections
 import contextlib
 import functools
@@ -15,6 +16,7 @@ import warnings
 from collections import defaultdict
 from collections.abc import Callable, Iterable, Iterator, Sequence
 from io import TextIOWrapper
+from pathlib import Path
 from typing import Any
 
 import astroid
@@ -29,6 +31,7 @@ from pylint.constants import (
     MSG_TYPES_STATUS,
     WarningScope,
 )
+from pylint.interfaces import HIGH
 from pylint.lint.base_options import _make_linter_options
 from pylint.lint.caching import load_results, save_results
 from pylint.lint.expand_modules import _is_ignored_file, expand_modules
@@ -40,6 +43,7 @@ from pylint.lint.report_functions import (
     report_total_messages_stats,
 )
 from pylint.lint.utils import (
+    _is_relative_to,
     fix_import_path,
     get_fatal_error_message,
     prepare_crash_report,
@@ -49,6 +53,7 @@ from pylint.reporters.base_reporter import BaseReporter
 from pylint.reporters.text import TextReporter
 from pylint.reporters.ureports import nodes as report_nodes
 from pylint.typing import (
+    DirectoryNamespaceDict,
     FileItem,
     ManagedMessage,
     MessageDefinitionTuple,
@@ -189,9 +194,9 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         {"scope": WarningScope.LINE},
     ),
     "E0012": (
-        "Bad option value for %s",
+        "Bad option value for '%s', expected a valid pylint message and got '%s'",
         "bad-option-value",
-        "Used when a bad value for an inline option is encountered.",
+        "Used when a bad value for an option is encountered.",
         {"scope": WarningScope.LINE},
     ),
     "E0013": (
@@ -695,6 +700,7 @@ class PyLinter(
         :param callable check_astroid_module: callable checking an AST taking the following arguments
         - ast: AST of the module
         :param FileItem file: data about the file
+        :raises AstroidError: for any failures stemming from astroid
         """
         self.set_current_module(file.name, file.filepath)
         # get the module representation
@@ -708,7 +714,10 @@ class PyLinter(
         # fix the current file (if the source file was not available or
         # if it's actually a c extension)
         self.current_file = ast_node.file
-        check_astroid_module(ast_node)
+        try:
+            check_astroid_module(ast_node)
+        except Exception as e:  # pragma: no cover
+            raise astroid.AstroidError from e
         # warn about spurious inline messages handling
         spurious_messages = self.file_state.iter_spurious_suppression_messages(
             self.msgs_store
@@ -786,6 +795,26 @@ class PyLinter(
         self.current_name = modname
         self.current_file = filepath or modname
         self.stats.init_single_module(modname or "")
+
+        # If there is an actual filepath we might need to update the config attribute
+        if filepath:
+            namespace = self._get_namespace_for_file(
+                Path(filepath), self._directory_namespaces
+            )
+            if namespace:
+                self.config = namespace or self._base_config
+
+    def _get_namespace_for_file(
+        self, filepath: Path, namespaces: DirectoryNamespaceDict
+    ) -> argparse.Namespace | None:
+        for directory in namespaces:
+            if _is_relative_to(filepath, directory):
+                namespace = self._get_namespace_for_file(
+                    filepath, namespaces[directory][1]
+                )
+                if namespace is None:
+                    return namespaces[directory][0]
+        return None
 
     @contextlib.contextmanager
     def _astroid_module_checker(
@@ -1197,11 +1226,14 @@ class PyLinter(
                 line,
             )
 
-    def _emit_bad_option_value(self) -> None:
-        for modname in self._stashed_bad_option_value_messages:
+    def _emit_stashed_messages(self) -> None:
+        for modname, values in self._stashed_messages.items():
             self.linter.set_current_module(modname)
-            values = self._stashed_bad_option_value_messages[modname]
-            for option_string, msg_id in values:
-                msg = f"{option_string}. Don't recognize message {msg_id}."
-                self.add_message("bad-option-value", args=msg, line=0)
-        self._stashed_bad_option_value_messages = collections.defaultdict(list)
+            for option_string, msgid in values:
+                self.add_message(
+                    "bad-option-value",
+                    args=(option_string, msgid),
+                    line=0,
+                    confidence=HIGH,
+                )
+        self._stashed_messages = collections.defaultdict(list)

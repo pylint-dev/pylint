@@ -12,7 +12,7 @@ import numbers
 import re
 import string
 import warnings
-from collections.abc import Iterable
+from collections.abc import Iterable, Iterator
 from functools import lru_cache, partial
 from re import Match
 from typing import TYPE_CHECKING, Callable, TypeVar
@@ -21,6 +21,7 @@ import _string
 import astroid.objects
 from astroid import TooManyLevelsError, nodes
 from astroid.context import InferenceContext
+from astroid.exceptions import AstroidError
 
 from pylint.constants import TYPING_TYPE_CHECKS_GUARDS
 
@@ -1259,6 +1260,8 @@ def safe_infer(
         value = next(infer_gen)
     except astroid.InferenceError:
         return None
+    except Exception as e:  # pragma: no cover
+        raise AstroidError from e
 
     if value is not astroid.Uninferable:
         inferred_types.add(_get_python_type_of_node(value))
@@ -1280,6 +1283,8 @@ def safe_infer(
         return None  # There is some kind of ambiguity
     except StopIteration:
         return value
+    except Exception as e:  # pragma: no cover
+        raise AstroidError from e
     return value if len(inferred_types) <= 1 else None
 
 
@@ -1291,6 +1296,8 @@ def infer_all(
         return list(node.infer(context=context))
     except astroid.InferenceError:
         return []
+    except Exception as e:  # pragma: no cover
+        raise AstroidError from e
 
 
 def has_known_bases(
@@ -1785,3 +1792,15 @@ def in_for_else_branch(parent: nodes.NodeNG, stmt: nodes.Statement) -> bool:
     return isinstance(parent, nodes.For) and any(
         else_stmt.parent_of(stmt) or else_stmt == stmt for else_stmt in parent.orelse
     )
+
+
+def find_assigned_names_recursive(
+    target: nodes.AssignName | nodes.BaseContainer,
+) -> Iterator[str]:
+    """Yield the names of assignment targets, accounting for nested ones."""
+    if isinstance(target, nodes.AssignName):
+        if target.name is not None:
+            yield target.name
+    elif isinstance(target, nodes.BaseContainer):
+        for elt in target.elts:
+            yield from find_assigned_names_recursive(elt)

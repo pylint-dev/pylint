@@ -1,1 +1,4 @@
-# This is a placeholder for correct code for this message.
+fruits = ["orange", "apple"]
+
+if fruits:
+    print(fruits)

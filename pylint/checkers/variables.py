@@ -680,17 +680,28 @@ scope_type : {self._atomic.scope_type}
             if closest_except_handler.parent_of(node):
                 continue
             closest_try_except: nodes.TryExcept = closest_except_handler.parent
+            # If the try or else blocks return, assume the except blocks execute.
             try_block_returns = any(
                 isinstance(try_statement, nodes.Return)
                 for try_statement in closest_try_except.body
             )
-            # If the try block returns, assume the except blocks execute.
-            if try_block_returns:
+            else_block_returns = any(
+                isinstance(else_statement, nodes.Return)
+                for else_statement in closest_try_except.orelse
+            )
+            if try_block_returns or else_block_returns:
                 # Exception: if this node is in the final block of the other_node_statement,
                 # it will execute before returning. Assume the except statements are uncertain.
                 if (
                     isinstance(node_statement.parent, nodes.TryFinally)
                     and node_statement in node_statement.parent.finalbody
+                    and closest_try_except.parent.parent_of(node_statement)
+                ):
+                    uncertain_nodes.append(other_node)
+                # Or the node_statement is in the else block of the relevant TryExcept
+                elif (
+                    isinstance(node_statement.parent, nodes.TryExcept)
+                    and node_statement in node_statement.parent.orelse
                     and closest_try_except.parent.parent_of(node_statement)
                 ):
                     uncertain_nodes.append(other_node)
@@ -1234,13 +1245,12 @@ class VariablesChecker(BaseChecker):
 
         global_names = _flattened_scope_names(node.nodes_of_class(nodes.Global))
         nonlocal_names = _flattened_scope_names(node.nodes_of_class(nodes.Nonlocal))
-        comprehension_target_names: list[str] = []
+        comprehension_target_names: set[str] = set()
 
         for comprehension_scope in node.nodes_of_class(nodes.ComprehensionScope):
             for generator in comprehension_scope.generators:
-                self._find_assigned_names_recursive(
-                    generator.target, comprehension_target_names
-                )
+                for name in utils.find_assigned_names_recursive(generator.target):
+                    comprehension_target_names.add(name)
 
         for name, stmts in not_consumed.items():
             self._check_is_unused(
@@ -1448,20 +1458,6 @@ class VariablesChecker(BaseChecker):
             return True
 
         return False
-
-    def _find_assigned_names_recursive(
-        self,
-        target: nodes.AssignName | nodes.BaseContainer,
-        target_names: list[str],
-    ) -> None:
-        """Update `target_names` in place with the names of assignment
-        targets, recursively (to account for nested assignments).
-        """
-        if isinstance(target, nodes.AssignName):
-            target_names.append(target.name)
-        elif isinstance(target, nodes.BaseContainer):
-            for elt in target.elts:
-                self._find_assigned_names_recursive(elt, target_names)
 
     # pylint: disable=too-many-return-statements
     def _check_consumer(
@@ -2264,7 +2260,7 @@ class VariablesChecker(BaseChecker):
         stmt,
         global_names,
         nonlocal_names: Iterable[str],
-        comprehension_target_names: list[str],
+        comprehension_target_names: Iterable[str],
     ) -> None:
         # Ignore some special names specified by user configuration.
         if self._is_name_ignored(stmt, name):

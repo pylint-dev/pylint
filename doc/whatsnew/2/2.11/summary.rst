@@ -52,12 +52,13 @@ Extensions
 
   Closes #4776
 
-* ``CodeStyleChecker``
+CodeStyleChecker
+----------------
 
-  * Added ``consider-using-assignment-expr``: Emitted when an assignment is directly followed by an if statement
-    and both can be combined by using an assignment expression ``:=``. Requires Python 3.8
+* Added ``consider-using-assignment-expr``: Emitted when an assignment is directly followed by an if statement
+  and both can be combined by using an assignment expression ``:=``. Requires Python 3.8
 
-    Closes #4862
+  Closes #4862
 
 
 Other Changes

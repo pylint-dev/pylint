@@ -135,6 +135,8 @@ def possible_exc_types(node: nodes.NodeNG) -> set[nodes.ClassDef]:
             exceptions = [target]
         elif isinstance(target, nodes.FunctionDef):
             for ret in target.nodes_of_class(nodes.Return):
+                if ret.value is None:
+                    continue
                 if ret.frame(future=True) != target:
                     # return from inner function - ignore it
                     continue

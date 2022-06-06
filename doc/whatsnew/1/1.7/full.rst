@@ -7,13 +7,14 @@ Release date: 2017-04-17
 
 * Fix a false positive which occurred when an exception was reraised
 
-  Close #1419
+  Closes #1419
 
 * Fix a false positive of ``disallow-trailing-tuple``
 
   The check was improved by verifying for non-terminating newlines, which
   should exempt function calls and function definitions from the check
-  Close #1424
+
+  Closes #1424
 
 
 What's New in Pylint 1.7?
@@ -23,7 +24,7 @@ Release date: 2017-04-13
 
 * Don't emit missing-final-newline or trailing-whitespace for formfeeds (page breaks).
 
-  Close #1218 and #1219
+  Closes #1218 and #1219
 
 * Don't emit by default no-member if we have opaque inference objects in the inference results
 
@@ -36,28 +37,28 @@ Release date: 2017-04-13
 * Added new message ``assign-to-new-keyword`` to warn about assigning to names which
   will become a keyword in future Python releases.
 
-  Close #1351
+  Closes #1351
 
 * Split the 'missing or differing' in parameter documentation in different error.
   'differing-param-doc' covers the differing part of the old 'missing-param-doc',
   and 'differing-type-doc' covers the differing part of the old 'missing-type-doc'
 
-  Close #1342
+  Closes #1342
 
 * Added a new error, 'used-prior-global-declaration', which is emitted when a name
   is used prior a global declaration in a function. This causes a SyntaxError in
   Python 3.6
 
-  Close #1257
+  Closes #1257
 
 * The protocol checks are emitting their messages when a special method is set to None.
 
-  Close #1263
+  Closes #1263
 
 * Properly detect if imported name is assigned to same name in different
   scope.
 
-  Close #636, #848, #851, and #900
+  Closes #636, #848, #851, and #900
 
 * Require one space for annotations with type hints, as per PEP 8.
 
@@ -70,7 +71,7 @@ Release date: 2017-04-13
 
 * Don't emit not-callable for instances with unknown bases.
 
-  Close #1213
+  Closes #1213
 
 * Treat keyword only arguments the same as positional arguments with regard to unused-argument check
 
@@ -90,7 +91,7 @@ Release date: 2017-04-13
 
 * PyLinter.should_analyze_file has a new optional parameter, called ``is_argument``
 
-  Close #1079
+  Closes #1079
 
 * Add attribute hints for missing members
 
@@ -117,23 +118,29 @@ Release date: 2017-04-13
 * Added a new error, 'invalid-metaclass', raised when
   we can detect that a class is using an improper metaclass.
 
-  Close #579
+  Closes #579
 
 * Added a new refactoring message, 'literal-comparison'.
 
-  Close #786
+  Closes #786
 
 * arguments-differ takes in consideration kwonlyargs and variadics
 
-  Close #983
+  Closes #983
 
-* Removed --optimized-ast. Part of #975.
+* Removed --optimized-ast
 
-* Removed --files-output option. Part of #975.
+  Fixes part of #975
+
+* Removed --files-output option
+
+  Fixes part of #975
 
 * Removed pylint-gui from the package.
 
-* Removed the HTML reporter. Part of #975.
+* Removed the HTML reporter
+
+  Fixes part of #975
 
 * ignored-argument-names is now used for ignoring arguments for unused-variable check.
 
@@ -146,7 +153,8 @@ Release date: 2017-04-13
   Also, the same option was moved from the design checker to the variables checker,
   which means that the option now appears under the ``[VARIABLES]`` section inside
   the configuration file.
-  Close #862.
+
+  Closes #862.
 
 * Fix a false positive for keyword variadics with regard to keyword only arguments.
 
@@ -154,11 +162,11 @@ Release date: 2017-04-13
   with keyword variadics (\**kwargs), then we were emitting a missing-kwoa false positive,
   which is now fixed.
 
-  Close #934.
+  Closes #934.
 
 * Fix some false positives with unknown sized variadics.
 
-  Close #878
+  Closes #878
 
 * Added a new extension, check_docstring, for checking PEP 257 conventions.
 
@@ -166,47 +174,54 @@ Release date: 2017-04-13
 
 * config files with BOM markers can now be read.
 
-  Close #864.
+  Closes #864.
 
 * epylint.py_run does not crash on big files, using .communicate() instead of .wait()
 
-  Close #599
+  Closes #599
 
 * Disable reports by default and show the evaluation score by default
 
-  As per discussion from issue #746, the reports were disabled by
-  default in order to simplify the interaction between the tool
-  and the users. The score is still shown by default, as a way of
-  closely measuring when it increases or decreases due to changes
+  The reports were disabled by default in order to simplify the interaction
+  between the tool and the users. The score is still shown by default, as
+  a way of closely measuring when it increases or decreases due to changes
   brought to the code.
 
-* Disable the information category messages by default.
+  Refs #746
 
-  This is a step towards making pylint more sane, as
-  per the discussion from issue #746.
+* Disable the information category messages by default. This is a step towards
+  making pylint more sane.
+
+  Refs #746.
 
 * Catch more cases as not proper iterables for __slots__ with
-  regard to invalid-slots pattern. Closes issue #775.
+  regard to invalid-slots pattern.
+
+  Closes #775
 
 * empty indent strings are rejected.
 
 * Added a new error, 'relative-beyond-top-level', which is emitted
   when a relative import was attempted beyond the top level package.
 
-  Closes issue #588.
+  Closes #588
 
 * Added a new warning, 'unsupported-assignment-operation', which is
   emitted when item assignment is tried on an object which doesn't
-  have this ability. Closes issue #591.
+  have this ability.
+
+  Closes #591
 
 * Added a new warning, 'unsupported-delete-operation', which is
   emitted when item deletion is tried on an object which doesn't
-  have this ability. Closes issue #592.
+  have this ability.
+
+  Closes #592
 
 * Fix a false positive of 'redundant-returns-doc', occurred when the documented
   function was using *yield* instead of *return*.
 
-  Closes issue #984.
+  Closes #984.
 
 * Fix false positives of 'missing-[raises|params|type]-doc' due to not
   recognizing keyword synonyms supported by Sphinx.
@@ -215,7 +230,7 @@ Release date: 2017-04-13
   emitted whenever we can detect that consecutive isinstance calls can be
   merged together.
 
-  Closes issue #968
+  Closes #968
 
 * Fix a false positive of 'missing-param-doc' and 'missing-type-doc',
   occurred when a class docstring uses the 'For the parameters, see'
@@ -224,7 +239,7 @@ Release date: 2017-04-13
 * ``redefined-outer-name`` is now also emitted when a nested loop's target
   variable is the same as a target variable in an outer loop.
 
-  Closes issue #911.
+  Closes #911.
 
 * Added proper exception type inference for 'missing-raises-doc'.
 
@@ -246,7 +261,7 @@ Release date: 2017-04-13
 
 * Added epytext support to docparams extension.
 
-  Closes #1029.
+  Closes #1029
 
 * Support having plugins with the same name and with options defined
 
@@ -305,7 +320,7 @@ Release date: 2017-04-13
 * Bug-fix for false-positive logging-format-interpolation` when format specifications
   are used in formatted string.
 
-  Fixes #572
+  Closes #572
 
 * Added a new switch ``single-line-class-stmt`` to allow single-line declaration
   of empty class bodies.
@@ -314,24 +329,24 @@ Release date: 2017-04-13
 
 * Protected access in form ``type(self)._attribute`` are now allowed.
 
-  Fixes #1031
+  Closes #1031
 
 * Let the user modify msg-template when Pylint is called from a Python script
 
-  Fixes #1269
+  Closes #1269
 
 * Imports checker supports new switch ``allow-wildcard-with-all`` which disables
   warning on wildcard import when imported module defines ``__all__`` variable.
 
-  Fixes #831
+  Closes #831
 
 * ``too-many-format-args`` and ``too-few-format-args`` are emitted correctly when
   starred expression are used in RHS tuple.
 
-  Fixes #957
+  Closes #957
 
 * ``cyclic-import`` checker supports local disable clauses. When one
   of cycle imports was done in scope where disable clause was active,
   cycle is not reported as violation.
 
-  Fixes #59
+  Closes #59

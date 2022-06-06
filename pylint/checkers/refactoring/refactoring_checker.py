@@ -160,6 +160,25 @@ def _will_be_released_automatically(node: nodes.Call) -> bool:
     return func.qname() in callables_taking_care_of_exit
 
 
+def _is_part_of_assignment_target(node: nodes.NodeNG) -> bool:
+    """Check whether use of a variable is happening as part of the left-hand
+    side of an assignment.
+
+    This requires recursive checking, because destructuring assignment can have
+    arbitrarily nested tuples and lists to unpack.
+    """
+    if isinstance(node.parent, nodes.Assign):
+        return node in node.parent.targets
+
+    if isinstance(node.parent, nodes.AugAssign):
+        return node == node.parent.target
+
+    if isinstance(node.parent, (nodes.Tuple, nodes.List)):
+        return _is_part_of_assignment_target(node.parent)
+
+    return False
+
+
 class ConsiderUsingWithStack(NamedTuple):
     """Stack for objects that may potentially trigger a R1732 message
     if they are not used in a ``with`` block later on.
@@ -1917,15 +1936,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
                     value = subscript.slice
 
-                    if isinstance(node, nodes.For) and (
-                        isinstance(subscript.parent, nodes.Assign)
-                        and subscript in subscript.parent.targets
-                        or isinstance(subscript.parent, nodes.AugAssign)
-                        and subscript == subscript.parent.target
+                    if isinstance(node, nodes.For) and _is_part_of_assignment_target(
+                        subscript
                     ):
                         # Ignore this subscript if it is the target of an assignment
                         # Early termination; after reassignment dict index lookup will be necessary
                         return
+
                     if isinstance(subscript.parent, nodes.Delete):
                         # Ignore this subscript if it's used with the delete keyword
                         return
@@ -2017,11 +2034,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         )
         for child in children:
             for subscript in child.nodes_of_class(nodes.Subscript):
-                if isinstance(node, nodes.For) and (
-                    isinstance(subscript.parent, nodes.Assign)
-                    and subscript in subscript.parent.targets
-                    or isinstance(subscript.parent, nodes.AugAssign)
-                    and subscript == subscript.parent.target
+                if isinstance(node, nodes.For) and _is_part_of_assignment_target(
+                    subscript
                 ):
                     # Ignore this subscript if it is the target of an assignment
                     # Early termination; after reassignment index lookup will be necessary

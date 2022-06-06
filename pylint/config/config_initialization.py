@@ -91,7 +91,7 @@ def _config_initialization(
             "unrecognized-option", args=unrecognized_options_message, line=0
         )
 
-    linter._emit_bad_option_value()
+    linter._emit_stashed_messages()
 
     # Set the current module to configuration as we don't know where
     # the --load-plugins key is coming from
@@ -105,6 +105,9 @@ def _config_initialization(
     linter.enable_fail_on_messages()
 
     linter._parse_error_mode()
+
+    # Link the base Namespace object on the current directory
+    linter._directory_namespaces[Path(".").resolve()] = (linter.config, {})
 
     # parsed_args_list should now only be a list of files/directories to lint.
     # All other options have been removed from the list.

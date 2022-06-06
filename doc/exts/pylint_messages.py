@@ -105,12 +105,10 @@ def _get_python_code_as_rst(code_path: Path) -> str:
     """
     if not code_path.exists():
         return ""
-    with open(code_path, encoding="utf-8") as f:
-        file_content = f.readlines()
     return f"""\
-.. code-block:: python
-
-{"".join("  " + i for i in file_content)}"""
+.. literalinclude:: /{code_path.relative_to(Path.cwd())}
+   :language: python
+"""
 
 
 def _create_placeholders(

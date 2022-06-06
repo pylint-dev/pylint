@@ -48,10 +48,10 @@ will know that ``argparse.error(...)`` is in fact a logging call and not an argp
 Pylint is highly configurable and permits to write plugins in order to add your
 own checks (for example, for internal libraries or an internal rule). Pylint has an
 ecosystem of existing plugins for popular frameworks such as `pylint-django`_ or
-`pylint-i18n`_.
+`pylint-sonarjson`_.
 
 .. _`pylint-django`: https://github.com/PyCQA/pylint-django
-.. _`pylint-i18n`: https://github.com/amandasaurus/python-pylint-i18n
+.. _`pylint-sonarjson`: https://github.com/omegacen/pylint-sonarjson
 
 Pylint isn't smarter than you: it may warn you about things that you have
 conscientiously done or check for some things that you don't care about.

@@ -1198,7 +1198,8 @@ Refactoring checker Messages
   This message is emitted when pylint encounters boolean operation like"a < b
   and b < c", suggesting instead to refactor it to "a < b < c"
 :simplifiable-if-expression (R1719): *The if expression can be replaced with %s*
-  Used when an if expression can be replaced with 'bool(test)'.
+  Used when an if expression can be replaced with 'bool(test)' or simply 'test'
+  if the boolean cast is implicit.
 :simplifiable-if-statement (R1703): *The if statement can be replaced with %s*
   Used when an if statement can be replaced with 'bool(test)'.
 :too-many-nested-blocks (R1702): *Too many nested blocks (%s/%s)*

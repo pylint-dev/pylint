@@ -42,7 +42,7 @@ from pylint.config.option_parser import OptionParser
 from pylint.config.options_provider_mixin import OptionsProviderMixIn
 from pylint.config.utils import _convert_option_to_argument, _parse_rich_type_value
 from pylint.constants import MAIN_CHECKER_NAME
-from pylint.typing import OptionDict
+from pylint.typing import DirectoryNamespaceDict, OptionDict
 
 if sys.version_info >= (3, 11):
     import tomllib
@@ -66,6 +66,14 @@ class _ArgumentsManager:
         self._config = argparse.Namespace()
         """Namespace for all options."""
 
+        self._base_config = self._config
+        """Fall back Namespace object created during initialization.
+
+        This is necessary for the per-directory configuration support. Whenever we
+        fail to match a file with a directory we fall back to the Namespace object
+        created during initialization.
+        """
+
         self._arg_parser = argparse.ArgumentParser(
             prog=prog,
             usage=usage or "%(prog)s [options]",
@@ -81,6 +89,9 @@ class _ArgumentsManager:
 
         self._option_dicts: dict[str, OptionDict] = {}
         """All option dictionaries that have been registered."""
+
+        self._directory_namespaces: DirectoryNamespaceDict = {}
+        """Mapping of directories and their respective namespace objects."""
 
         # TODO: 3.0: Remove deprecated attributes introduced to keep API
         # parity with optparse. Until '_maxlevel'

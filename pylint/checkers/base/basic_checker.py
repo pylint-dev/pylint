@@ -9,6 +9,7 @@ from __future__ import annotations
 import collections
 import itertools
 import sys
+from collections.abc import Iterator
 from typing import TYPE_CHECKING, cast
 
 import astroid
@@ -21,7 +22,7 @@ from pylint.reporters.ureports import nodes as reporter_nodes
 from pylint.utils import LinterStats
 
 if TYPE_CHECKING:
-    pass
+    from pylint.lint.pylinter import PyLinter
 
 if sys.version_info >= (3, 8):
     from typing import Literal
@@ -63,10 +64,10 @@ DEFAULT_ARGUMENT_SYMBOLS = dict(
 
 
 def report_by_type_stats(
-    sect,
+    sect: reporter_nodes.Section,
     stats: LinterStats,
     old_stats: LinterStats | None,
-):
+) -> None:
     """Make a report of.
 
     * percentage of different types documented
@@ -254,11 +255,11 @@ class BasicChecker(_BasicChecker):
 
     reports = (("RP0101", "Statistics by type", report_by_type_stats),)
 
-    def __init__(self, linter):
+    def __init__(self, linter: PyLinter) -> None:
         super().__init__(linter)
-        self._tryfinallys = None
+        self._tryfinallys: list[nodes.TryFinally] | None = None
 
-    def open(self):
+    def open(self) -> None:
         """Initialize visit variables and statistics."""
         py_version = self.linter.config.py_version
         self._py38_plus = py_version >= (3, 8)
@@ -285,7 +286,11 @@ class BasicChecker(_BasicChecker):
             for if_test in node.ifs:
                 self._check_using_constant_test(node, if_test)
 
-    def _check_using_constant_test(self, node, test):
+    def _check_using_constant_test(
+        self,
+        node: nodes.If | nodes.IfExp | nodes.Comprehension,
+        test: nodes.NodeNG | None,
+    ) -> None:
         const_nodes = (
             nodes.Module,
             nodes.GeneratorExp,
@@ -395,7 +400,9 @@ class BasicChecker(_BasicChecker):
             self.add_message("pointless-statement", node=node)
 
     @staticmethod
-    def _filter_vararg(node, call_args):
+    def _filter_vararg(
+        node: nodes.Lambda, call_args: list[nodes.NodeNG]
+    ) -> Iterator[nodes.NodeNG]:
         # Return the arguments for the given call which are
         # not passed as vararg.
         for arg in call_args:
@@ -409,16 +416,15 @@ class BasicChecker(_BasicChecker):
                 yield arg
 
     @staticmethod
-    def _has_variadic_argument(args, variadic_name):
-        if not args:
-            return True
-        for arg in args:
-            if isinstance(arg.value, nodes.Name):
-                if arg.value.name != variadic_name:
-                    return True
-            else:
-                return True
-        return False
+    def _has_variadic_argument(
+        args: list[nodes.Starred | nodes.Keyword], variadic_name: str
+    ) -> bool:
+        return not args or any(
+            isinstance(a.value, nodes.Name)
+            and a.value.name != variadic_name
+            or not isinstance(a.value, nodes.Name)
+            for a in args
+        )
 
     @utils.only_required_for_messages("unnecessary-lambda")
     def visit_lambda(self, node: nodes.Lambda) -> None:
@@ -493,10 +499,10 @@ class BasicChecker(_BasicChecker):
 
     visit_asyncfunctiondef = visit_functiondef
 
-    def _check_dangerous_default(self, node):
+    def _check_dangerous_default(self, node: nodes.FunctionDef) -> None:
         """Check for dangerous default values as arguments."""
 
-        def is_iterable(internal_node):
+        def is_iterable(internal_node: nodes.NodeNG) -> bool:
             return isinstance(internal_node, (nodes.List, nodes.Set, nodes.Dict))
 
         defaults = node.args.defaults or [] + node.args.kw_defaults or []
@@ -574,7 +580,7 @@ class BasicChecker(_BasicChecker):
         """
         self._check_unreachable(node)
 
-    def _check_misplaced_format_function(self, call_node):
+    def _check_misplaced_format_function(self, call_node: nodes.Call) -> None:
         if not isinstance(call_node.func, nodes.Attribute):
             return
         if call_node.func.attrname != "format":
@@ -664,13 +670,17 @@ class BasicChecker(_BasicChecker):
 
     def visit_tryfinally(self, node: nodes.TryFinally) -> None:
         """Update try...finally flag."""
+        assert self._tryfinallys is not None
         self._tryfinallys.append(node)
 
     def leave_tryfinally(self, _: nodes.TryFinally) -> None:
         """Update try...finally flag."""
+        assert self._tryfinallys is not None
         self._tryfinallys.pop()
 
-    def _check_unreachable(self, node):
+    def _check_unreachable(
+        self, node: nodes.Return | nodes.Continue | nodes.Break | nodes.Raise
+    ) -> None:
         """Check unreachable code."""
         unreach_stmt = node.next_sibling()
         if unreach_stmt is not None:
@@ -686,7 +696,12 @@ class BasicChecker(_BasicChecker):
                     return
             self.add_message("unreachable", node=unreach_stmt)
 
-    def _check_not_in_finally(self, node, node_name, breaker_classes=()):
+    def _check_not_in_finally(
+        self,
+        node: nodes.Break | nodes.Return,
+        node_name: str,
+        breaker_classes: tuple[nodes.NodeNG, ...] = (),
+    ) -> None:
         """Check that a node is not inside a 'finally' clause of a
         'try...finally' statement.
 
@@ -706,7 +721,7 @@ class BasicChecker(_BasicChecker):
             _node = _parent
             _parent = _node.parent
 
-    def _check_reversed(self, node):
+    def _check_reversed(self, node: nodes.Call) -> None:
         """Check that the argument to `reversed` is a sequence."""
         try:
             argument = utils.safe_infer(utils.get_argument_from_call(node, position=0))
@@ -779,7 +794,7 @@ class BasicChecker(_BasicChecker):
                     # we assume it's a nested "with".
                     self.add_message("confusing-with-statement", node=node)
 
-    def _check_self_assigning_variable(self, node):
+    def _check_self_assigning_variable(self, node: nodes.Assign) -> None:
         # Detect assigning to the same variable.
 
         scope = node.scope()
@@ -820,7 +835,7 @@ class BasicChecker(_BasicChecker):
                     "self-assigning-variable", args=(target.name,), node=target
                 )
 
-    def _check_redeclared_assign_name(self, targets):
+    def _check_redeclared_assign_name(self, targets: list[nodes.NodeNG | None]) -> None:
         dummy_variables_rgx = self.linter.config.dummy_variables_rgx
 
         for target in targets:

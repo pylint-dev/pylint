@@ -19,7 +19,7 @@ New checkers
   This check is emitted when we detect that a quit() or exit() is invoked
   instead of sys.exit(), which is the preferred way of exiting in program.
 
-  Close #2925
+  Closes #2925
 
 * Added a new check, ``arguments-out-of-order``
 
@@ -27,21 +27,21 @@ New checkers
   a function's signature but you are passing them in to the function
   in a different order.
 
-  Close #2975
+  Closes #2975
 
 * Added new checks, ``no-else-break`` and ``no-else-continue``
 
   These checks highlight unnecessary ``else`` and ``elif`` blocks after
   ``break`` and ``continue`` statements.
 
-  Close #2327
+  Closes #2327
 
 * Added ``unnecessary-comprehension`` that detects unnecessary comprehensions.
 
   This check is emitted when ``pylint`` finds list-, set- or dict-comprehensions,
   that are unnecessary and can be rewritten with the list-, set- or dict-constructors.
 
-  Close #2905
+  Closes #2905
 
 * Added a new check, ``invalid-overridden-method``
 
@@ -49,14 +49,14 @@ New checkers
   as a property or a property is overridden as a method. This can indicate
   a bug in the application code that will trigger a runtime error.
 
-  Close #2670
+  Closes #2670
 
 * Added a new check, ``redeclared-assigned-name``
 
   This check is emitted when ``pylint`` detects that a name was assigned one or multiple times in the same assignment,
   which indicate a potential bug.
 
-  Close #2898
+  Closes #2898
 
 * Added a new check, ``self-assigning-variable``
 
@@ -72,16 +72,16 @@ New checkers
       attr = attr
       return a_inst
 
-  Close #2930
+  Closes #2930
 
 * Added a new check ``property-with-parameters`` which detects when a property
   has more than a single argument.
 
-  Close #3006
+  Closes #3006
 
 * Added ``subprocess-run-check`` to handle subprocess.run without explicitly set ``check`` keyword.
 
-  Close #2848
+  Closes #2848
 
 * We added a new check message ``dict-iter-missing-items``.
   This is emitted when trying to iterate through a dict in a for loop without calling its .items() method.
@@ -129,7 +129,7 @@ Other Changes
 * Don't emit ``protected-access`` when a single underscore prefixed attribute is used
   inside a special method
 
-  Close #1802
+  Closes #1802
 
 * ``len-as-condition`` now only fires when a ``len(x)`` call is made without an explicit comparison.
 

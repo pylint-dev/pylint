@@ -49,7 +49,7 @@ Release date: 2021-03-29
 
 * Add ``allowed-redefined-builtins`` option for fine tuning ``redefined-builtin`` check.
 
-  Close #3263
+  Closes #3263
 
 * Fix issue when executing with ``python -m pylint``
 
@@ -98,6 +98,7 @@ What's New in Pylint 2.7.2?
 Release date: 2021-02-28
 
 * Fix False Positive on ``Enum.__members__.items()``, ``Enum.__members__.values``, and ``Enum.__members__.keys``
+
   Closes #4123
 
 * Properly strip dangerous sys.path entries (not just the first one)
@@ -154,7 +155,7 @@ Release date: 2021-02-21
 
 * Enums are now required to be named in UPPER_CASE by ``invalid-name``.
 
-  Close #3834
+  Closes #3834
 
 * Add missing checks for deprecated functions.
 
@@ -188,11 +189,11 @@ Release date: 2021-02-21
 
 * Fix a crash in ``undefined-variable`` caused by chained attributes in metaclass
 
-  Close #3742
+  Closes #3742
 
 * Fix false positive for ``not-async-context-manager`` when ``contextlib.asynccontextmanager`` is used
 
-  Close #3862
+  Closes #3862
 
 * Fix linter multiprocessing pool shutdown (triggered warnings when ran in parallels with other pytest plugins)
 
@@ -205,16 +206,16 @@ Release date: 2021-02-21
 
 * Fix bug that lead to duplicate messages when using ``--jobs 2`` or more.
 
-  Close #3584
+  Closes #3584
 
 * Adds option ``check-protected-access-in-special-methods`` in the ClassChecker to activate/deactivate
   ``protected-access`` message emission for single underscore prefixed attribute in special methods.
 
-  Close #3120
+  Closes #3120
 
 * Fix vulnerable regular expressions in ``pyreverse``
 
-  Close #3811
+  Closes #3811
 
 * ``inconsistent-return-statements`` message is now emitted if one of ``try/except`` statement
   is not returning explicitly while the other do.
@@ -223,17 +224,17 @@ Release date: 2021-02-21
 
 * Fix ``useless-super-delegation`` false positive when default keyword argument is a dictionary.
 
-  Close #3773
+  Closes #3773
 
 * Fix a crash when a specified config file does not exist
 
 * Add support to ``ignored-argument-names`` in DocstringParameterChecker and adds ``useless-param-doc`` and ``useless-type-doc`` messages.
 
-  Close #3800
+  Closes #3800
 
 * Enforce docparams consistently when docstring is not present
 
-  Close #2738
+  Closes #2738
 
 * Fix ``duplicate-code`` false positive when lines only contain whitespace and non-alphanumeric characters (e.g. parentheses, bracket, comma, etc.)
 
@@ -241,7 +242,7 @@ Release date: 2021-02-21
 
 * Fix spell-checker crash on indented docstring lines that look like # comments
 
-  Close #3786
+  Closes #3786
 
 * Fix AttributeError in checkers/refactoring.py
 
@@ -249,7 +250,7 @@ Release date: 2021-02-21
 
 * Fix a bug with postponed evaluation when using aliases for annotations.
 
-  Close #3798
+  Closes #3798
 
 * Fix minor documentation issues
 
@@ -259,23 +260,23 @@ Release date: 2021-02-21
 
 * Fix ``signature-differs`` false positive for functions with variadics
 
-  Close #3737
+  Closes #3737
 
 * Fix a crash in ``consider-using-enumerate`` when encountering ``range()`` without arguments
 
-  Close #3735
+  Closes #3735
 
 * ``len-as-conditions`` is now triggered only for classes that are inheriting directly from list, dict, or set and not implementing the ``__bool__`` function, or from generators like range or list/dict/set comprehension. This should reduce the false positives for other classes, like pandas's DataFrame or numpy's Array.
 
-  Close #1879
+  Closes #1879
 
 * Fixes duplicate-errors not working with -j2+
 
-  Close #3314
+  Closes #3314
 
 * ``generated-members`` now matches the qualified name of members
 
-  Close #2498
+  Closes #2498
 
 * Add check for bool function to ``len-as-condition``
 
@@ -283,11 +284,11 @@ Release date: 2021-02-21
 
 * Add ``condition-evals-to-constant`` check for conditionals using and/or that evaluate to a constant.
 
-  Close #3407
+  Closes #3407
 
 * Changed setup.py to work with `distlib <https://pypi.org/project/distlib>`_
 
-  Close #3555
+  Closes #3555
 
 * New check: ``consider-using-generator``
 
@@ -295,6 +296,6 @@ Release date: 2021-02-21
   since it is unnecessary and should be replaced by a generator instead.
   Using a generator would be less code and way faster.
 
-  Close #3165
+  Closes #3165
 
 * Add Github Actions to replace Travis and AppVeyor in the future

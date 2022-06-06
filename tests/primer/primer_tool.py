@@ -6,7 +6,10 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
+import warnings
 from io import StringIO
+from itertools import chain
 from pathlib import Path
 from typing import Dict, List, Union
 
@@ -21,6 +24,9 @@ PRIMER_DIRECTORY = TESTS_DIR / ".pylint_primer_tests/"
 PACKAGES_TO_PRIME_PATH = Path(__file__).parent / "packages_to_prime.json"
 
 PackageMessages = Dict[str, List[Dict[str, Union[str, int]]]]
+
+GITHUB_CRASH_TEMPLATE_LOCATION = "/home/runner/.cache"
+CRASH_TEMPLATE_INTRO = "There is a pre-filled template"
 
 
 class Primer:
@@ -72,6 +78,11 @@ class Primer:
             "--new-file",
             required=True,
             help="Location of output file of the new run.",
+        )
+        compare_parser.add_argument(
+            "--commit",
+            required=True,
+            help="Commit hash of the PR commit being checked.",
         )
 
         # Storing arguments
@@ -125,10 +136,36 @@ class Primer:
             packages[package] = output
             print(f"Successfully primed {package}.")
 
+        astroid_errors = []
+        other_fatal_msgs = []
+        for msg in chain.from_iterable(packages.values()):
+            if msg["type"] == "fatal":
+                # Remove the crash template location if we're running on GitHub.
+                # We were falsely getting "new" errors when the timestamp changed.
+                assert isinstance(msg["message"], str)
+                if GITHUB_CRASH_TEMPLATE_LOCATION in msg["message"]:
+                    msg["message"] = msg["message"].rsplit(CRASH_TEMPLATE_INTRO)[0]
+                if msg["symbol"] == "astroid-error":
+                    astroid_errors.append(msg)
+                else:
+                    other_fatal_msgs.append(msg)
+
         with open(
-            PRIMER_DIRECTORY / f"output_{self.config.type}.txt", "w", encoding="utf-8"
+            PRIMER_DIRECTORY
+            / f"output_{'.'.join(str(i) for i in sys.version_info[:3])}_{self.config.type}.txt",
+            "w",
+            encoding="utf-8",
         ) as f:
             json.dump(packages, f)
+
+        # Fail loudly (and fail CI pipelines) if any fatal errors are found,
+        # unless they are astroid-errors, in which case just warn.
+        # This is to avoid introducing a dependency on bleeding-edge astroid
+        # for pylint CI pipelines generally, even though we want to use astroid main
+        # for the purpose of diffing emitted messages and generating PR comments.
+        if astroid_errors:
+            warnings.warn(f"Fatal errors traced to astroid:  {astroid_errors}")
+        assert not other_fatal_msgs, other_fatal_msgs
 
     def _handle_compare_command(self) -> None:
         with open(self.config.base_file, encoding="utf-8") as f:
@@ -162,44 +199,37 @@ class Primer:
 
             # Create comment for new messages
             count = 1
-            fatal_count = 1
-            new_non_fatal_messages = ""
-            new_fatal_messages = ""
+            astroid_errors = 0
+            new_non_astroid_messages = ""
             if new_messages:
                 print("Now emitted:")
             for message in new_messages:
-                if message["type"] == "fatal":
-                    filepath = str(message["path"]).replace(
-                        str(package_data.clone_directory), ""
-                    )
-                    new_fatal_messages += (
-                        f"{fatal_count}) {message['symbol']}:\n*{message['message']}*\n"
-                        "**Please check your changes on the following file**:\n"
-                        f"{package_data.url}/blob/{package_data.branch}{filepath}#L{message['line']}\n"
-                    )
-                    print(message)
-                    fatal_count += 1
+                filepath = str(message["path"]).replace(
+                    str(package_data.clone_directory), ""
+                )
+                # Existing astroid errors may still show up as "new" because the timestamp
+                # in the message is slightly different.
+                if message["symbol"] == "astroid-error":
+                    astroid_errors += 1
                 else:
-                    filepath = str(message["path"]).replace(
-                        str(package_data.clone_directory), ""
-                    )
-                    new_non_fatal_messages += (
+                    new_non_astroid_messages += (
                         f"{count}) {message['symbol']}:\n*{message['message']}*\n"
                         f"{package_data.url}/blob/{package_data.branch}{filepath}#L{message['line']}\n"
                     )
                     print(message)
                     count += 1
 
-            if new_fatal_messages:
+            if astroid_errors:
                 comment += (
-                    "The following **fatal messages** are now emitted: 💣💥\n\n<details>\n\n"
-                    + new_fatal_messages
-                    + "\n</details>\n\n"
+                    f"{astroid_errors} error(s) were found stemming from the `astroid` library. "
+                    "This is unlikely to have been caused by your changes. "
+                    "A GitHub Actions warning links directly to the crash report template. "
+                    "Please open an issue against `astroid` if one does not exist already. \n\n"
                 )
-            if new_non_fatal_messages:
+            if new_non_astroid_messages:
                 comment += (
                     "The following messages are now emitted:\n\n<details>\n\n"
-                    + new_non_fatal_messages
+                    + new_non_astroid_messages
                     + "\n</details>\n\n"
                 )
 
@@ -215,6 +245,9 @@ class Primer:
                 filepath = str(message["path"]).replace(
                     str(package_data.clone_directory), ""
                 )
+                assert not package_data.url.endswith(
+                    ".git"
+                ), "You don't need the .git at the end of the github url."
                 comment += f"{package_data.url}/blob/{package_data.branch}{filepath}#L{message['line']}\n"
                 count += 1
                 print(message)
@@ -227,6 +260,8 @@ class Primer:
             comment = (
                 "🤖 **Effect of this PR on checked open source code:** 🤖\n\n" + comment
             )
+
+        comment += f"*This comment was generated for commit {self.config.commit}*"
 
         with open(PRIMER_DIRECTORY / "comment.txt", "w", encoding="utf-8") as f:
             f.write(comment)
@@ -242,7 +277,7 @@ class Primer:
             arguments += [f"--rcfile={data.pylintrc_relpath}"]
         output = StringIO()
         reporter = JSONReporter(output)
-        Run(arguments, reporter=reporter, do_exit=False)
+        Run(arguments, reporter=reporter, exit=False)
         return json.loads(output.getvalue())
 
     @staticmethod

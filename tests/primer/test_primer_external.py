@@ -33,14 +33,6 @@ PACKAGES_TO_LINT_BATCH_ONE = get_packages_to_lint_from_json(
 )
 """Dictionary of external packages used during the primer test in batch one."""
 
-PACKAGE_TO_LINT_JSON_BATCH_TWO = (
-    Path(__file__).parent / "packages_to_lint_batch_two.json"
-)
-PACKAGES_TO_LINT_BATCH_TWO = get_packages_to_lint_from_json(
-    PACKAGE_TO_LINT_JSON_BATCH_TWO
-)
-"""Dictionary of external packages used during the primer test in batch two."""
-
 
 class TestPrimer:
     @staticmethod
@@ -49,18 +41,6 @@ class TestPrimer:
         "package", PACKAGES_TO_LINT_BATCH_ONE.values(), ids=PACKAGES_TO_LINT_BATCH_ONE
     )
     def test_primer_external_packages_no_crash_batch_one(
-        package: PackageToLint,
-        caplog: LogCaptureFixture,
-    ) -> None:
-        __tracebackhide__ = True  # pylint: disable=unused-variable
-        TestPrimer._primer_test(package, caplog)
-
-    @staticmethod
-    @pytest.mark.primer_external_batch_two
-    @pytest.mark.parametrize(
-        "package", PACKAGES_TO_LINT_BATCH_TWO.values(), ids=PACKAGES_TO_LINT_BATCH_TWO
-    )
-    def test_primer_external_packages_no_crash_batch_two(
         package: PackageToLint,
         caplog: LogCaptureFixture,
     ) -> None:

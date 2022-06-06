@@ -47,6 +47,18 @@ for l in item_list:
         item_set.remove(4)  # [modified-iterating-set]
     item_list.remove(1)  # [modified-iterating-list]
 
+for item in [1, 2, 3]:
+    del item  # [modified-iterating-list]
+
+for inner_first, inner_second in [[1, 2], [1, 2]]:
+    del inner_second  # [modified-iterating-list]
+
+for k in my_dict:
+    del k  # [modified-iterating-dict]
+
+for element in item_set:
+    del element  # [modified-iterating-set]
+
 # Check for nested for loops and changes to iterators
 for l in item_list:
     item_list.append(1)  # [modified-iterating-list]

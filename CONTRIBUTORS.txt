@@ -19,6 +19,7 @@ Maintainers
 - Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 - Hippo91 <guillaume.peillex@gmail.com>
 - Jacob Walls <jacobtylerwalls@gmail.com>
+- Matus Valo <matusvalo@users.noreply.github.com>
 - Andreas Finkler <3929834+DudeNr33@users.noreply.github.com>
 - Łukasz Rogalski <rogalski.91@gmail.com>
 - Ashley Whetter <ashley@awhetter.co.uk>
@@ -50,7 +51,7 @@ contributors:
   * wrong-spelling-in-comment
   * wrong-spelling-in-docstring
   * parallel execution on multiple CPUs
-- Matus Valo <matusvalo@users.noreply.github.com>
+- Mark Byrne <31762852+mbyrnepr2@users.noreply.github.com>
 - Bruno Daniel <bruno.daniel@blue-yonder.com>: check_docs extension.
 - Sushobhit <31987769+sushobhit27@users.noreply.github.com> (sushobhit27)
   * Added new check 'comparison-with-itself'.
@@ -76,7 +77,6 @@ contributors:
   * redefined-variable-type
 - Alexandre Fayolle <alexandre.fayolle@logilab.fr> (Logilab): TkInter gui, documentation, debian support
 - Nick Drozd <nicholasdrozd@gmail.com>: performance improvements to astroid
-- Mark Byrne <31762852+mbyrnepr2@users.noreply.github.com>
 - Julien Cristau <julien.cristau@logilab.fr> (Logilab): python 3 support
 - Adrien Di Mascio <Adrien.DiMascio@logilab.fr>
 - Frank Harrison <frank@doublethefish.com> (doublethefish)
@@ -96,10 +96,10 @@ contributors:
 - Cezar Elnazli <cezar.elnazli2@gmail.com>: deprecated-method
 - Joseph Young <80432516+jpy-git@users.noreply.github.com> (jpy-git)
 - Nicolas Chauvat <nicolas.chauvat@logilab.fr>
+- Tim Martin <tim@asymptotic.co.uk>
 - Radu Ciorba <radu@devrandom.ro>: not-context-manager and confusing-with-statement warnings.
 - Holger Peters <email@holger-peters.de>
 - Cosmin Poieană <cmin@ropython.org>: unichr-builtin and improvements to bad-open-mode.
-- Tim Martin <tim@asymptotic.co.uk>
 - Steven Myint <hg@stevenmyint.com>: duplicate-except.
 - Peter Kolbus <peter.kolbus@gmail.com> (Garmin)
 - Luigi Bertaco Cristofolini <lucristofolini@gmail.com> (luigibertaco)
@@ -160,6 +160,7 @@ contributors:
 - Takahide Nojima <nozzy123nozzy@gmail.com>
 - Taewon D. Kim <kimt33@mcmaster.ca>
 - Sneaky Pete <sneakypete81@gmail.com>
+- Sergey B Kirpichev <skirpichev@gmail.com>
 - Rene Zhang <rz99@cornell.edu>
 - Or Bahari <or.ba402@gmail.com>
 - Mr. Senko <atodorov@mrsenko.com>
@@ -186,7 +187,6 @@ contributors:
 - chohner <mail@chohner.com>
 - Tiago Honorato <61059243+tiagohonorato@users.noreply.github.com>
 - Steven M. Vascellaro <svascellaro@gmail.com>
-- Sergey B Kirpichev <skirpichev@gmail.com>
 - Roberto Leinardi <leinardi@gmail.com>: PyCharm plugin maintainer
 - Ricardo Gemignani <ricardo.gemignani@gmail.com>
 - Pieter Engelbrecht <pengelbrecht@rems2.com>
@@ -290,6 +290,7 @@ contributors:
 - pyves@crater.logilab.fr <pyves@crater.logilab.fr>
 - paschich <millen@gridium.com>
 - oittaa <8972248+oittaa@users.noreply.github.com>
+- nyabkun <75878387+nyabkun@users.noreply.github.com>
 - moxian <aleftmail@inbox.ru>
 - mar-chi-pan <mar.polatoglou@gmail.com>
 - ludal@logilab.fr <ludal@logilab.fr>
@@ -460,6 +461,7 @@ contributors:
 - Emmanuel Chaudron <manu.chaud@hotmail.fr>
 - Elizabeth Bott <52465744+elizabethbott@users.noreply.github.com>
 - Eisuke Kawashima <e-kwsm@users.noreply.github.com> (e-kwsm)
+- Edward K. Ream <edreamleo@gmail.com>
 - Edgemaster <grand.edgemaster@gmail.com>
 - Drew Risinger <drewrisinger@users.noreply.github.com>
 - Dr. Nick <das-intensity@users.noreply.github.com>

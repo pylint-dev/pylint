@@ -9,11 +9,13 @@ on:
   push:
     branches:
       - main
-    paths-ignore:
-      - doc/data/messages/**
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
-  CACHE_VERSION: 1
+  CACHE_VERSION: 2
 
 jobs:
   run-primer:
@@ -22,7 +24,7 @@ jobs:
     timeout-minutes: 45
     strategy:
       matrix:
-        python-version: ["3.8"]
+        python-version: ["3.7", "3.10"]
     steps:
       - name: Check out code from GitHub
         uses: actions/checkout@v3.0.2
@@ -96,9 +98,15 @@ jobs:
         run: |
           . venv/bin/activate
           pip install -e .
-          python tests/primer/primer_tool.py run --type=main
+          python tests/primer/primer_tool.py run --type=main 2>warnings.txt
+          WARNINGS=$(head -c 65000 < warnings.txt)
+          if [[ $WARNINGS ]]
+          then echo "::warning ::$WARNINGS"
+          fi
       - name: Upload output
         uses: actions/upload-artifact@v3
         with:
           name: primer_output
-          path: tests/.pylint_primer_tests/output_main.txt
+          path:
+            tests/.pylint_primer_tests/output_${{ steps.python.outputs.python-version
+            }}_main.txt

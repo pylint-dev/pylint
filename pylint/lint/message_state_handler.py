@@ -17,6 +17,7 @@ from pylint.constants import (
     MSG_TYPES,
     MSG_TYPES_LONG,
 )
+from pylint.interfaces import HIGH
 from pylint.message import MessageDefinition
 from pylint.typing import ManagedMessage
 from pylint.utils.pragma_parser import (
@@ -55,15 +56,14 @@ class _MessageStateHandler:
         }
         self._pragma_lineno: dict[str, int] = {}
         # TODO: 3.0: Update key type to str when current_name is always str
-        self._stashed_bad_option_value_messages: defaultdict[
+        self._stashed_messages: defaultdict[
             str | None, list[tuple[str | None, str]]
         ] = defaultdict(list)
-        """Bad option values for --enable and --disable are encountered too early to
-        warn about them, i.e. before all option providers have been fully parsed.
+        """Some messages in the options (for --enable and --disable) are encountered
+        too early to warn about them.
 
-        Thus,
-        this dict stores option_value and msg_id needed to (later) emit the
-        bad-option-value messages keyed on module names.
+        i.e. before all option providers have been fully parsed. Thus, this dict stores
+        option_value and msg_id needed to (later) emit the messages keyed on module names.
         """
 
     def _set_one_msg_status(
@@ -411,9 +411,11 @@ class _MessageStateHandler:
                         try:
                             meth(msgid, "module", l_start)
                         except exceptions.UnknownMessageError:
-                            msg = f"{pragma_repr.action}. Don't recognize message {msgid}."
                             self.linter.add_message(
-                                "bad-option-value", args=msg, line=start[0]
+                                "bad-option-value",
+                                args=(pragma_repr.action, msgid),
+                                line=start[0],
+                                confidence=HIGH,
                             )
             except UnRecognizedOptionError as err:
                 self.linter.add_message(

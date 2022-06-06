@@ -197,7 +197,7 @@ Release date: 2021-06-29
 
 * Added ``ignore-paths`` behaviour. Defined regex patterns are matched against full file path.
 
-  Close #2541
+  Closes #2541
 
 * Fix false negative for ``consider-using-with`` if calls like ``open()`` were used outside of assignment expressions.
 
