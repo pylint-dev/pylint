@@ -14,9 +14,18 @@ Release date: TBA
 
   Closes #6800
 
+* Fixed a crash when linting ``__new__()`` methods that return a call expression.
+
+  Closes #6805
+
 * Don't crash if we can't find the user's home directory.
 
   Closes #6802
+
+* Fixed false positives for ``unused-import`` when aliasing ``typing`` e.g. as ``t``
+  and guarding imports under ``t.TYPE_CHECKING``.
+
+  Closes #3846
 
 * Fixed a false positive regression in 2.13 for ``used-before-assignment`` where it is safe to rely
   on a name defined only in an ``except`` block because the ``else`` block returned.
@@ -30,6 +39,13 @@ Release date: TBA
 * Fix a crash in the optional ``pylint.extensions.private_import`` extension.
 
   Closes #6624
+
+* ``bad-option-value`` (E0012) is now a warning ``unknown-option-value`` (W0012). Deleted messages that do not exist
+  anymore in pylint now raise ``useless-option-value`` (R0022) instead of ``bad-option-value``. This allows to
+  distinguish between genuine typos and configuration that could be cleaned up.  Existing message disables for
+  ``bad-option-value`` will still work on both new messages.
+
+  Refs #6794
 
 
 What's New in Pylint 2.14.0?

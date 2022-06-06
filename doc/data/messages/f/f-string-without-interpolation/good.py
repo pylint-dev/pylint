@@ -1,1 +1,3 @@
-# This is a placeholder for correct code for this message.
+x = 1
+y = 2
+print(f"{x} + {y} = {x + y}")

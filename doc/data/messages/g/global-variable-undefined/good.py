@@ -1,1 +1,6 @@
-# This is a placeholder for correct code for this message.
+TOMATO = "black cherry"
+
+
+def update_tomato():
+    global TOMATO
+    TOMATO = "moneymaker"

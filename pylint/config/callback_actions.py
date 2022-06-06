@@ -12,7 +12,7 @@ import abc
 import argparse
 import sys
 import warnings
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -365,7 +365,40 @@ class _AccessLinterObjectAction(_CallbackAction):
         raise NotImplementedError  # pragma: no cover
 
 
-class _DisableAction(_AccessLinterObjectAction):
+class _XableAction(_AccessLinterObjectAction):
+    """Callback action for enabling or disabling a message."""
+
+    def _call(
+        self,
+        xabling_function: Callable[[str], None],
+        values: str | Sequence[Any] | None,
+        option_string: str | None,
+    ):
+        assert isinstance(values, (tuple, list))
+        for msgid in utils._check_csv(values[0]):
+            try:
+                xabling_function(msgid)
+            except exceptions.DeletedMessageError as e:
+                self.linter._stashed_messages[
+                    (self.linter.current_name, "useless-option-value")
+                ].append((option_string, str(e)))
+            except exceptions.UnknownMessageError:
+                self.linter._stashed_messages[
+                    (self.linter.current_name, "unknown-option-value")
+                ].append((option_string, msgid))
+
+    @abc.abstractmethod
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: str | Sequence[Any] | None,
+        option_string: str | None = "--disable",
+    ) -> None:
+        raise NotImplementedError  # pragma: no cover
+
+
+class _DisableAction(_XableAction):
     """Callback action for disabling a message."""
 
     def __call__(
@@ -375,18 +408,10 @@ class _DisableAction(_AccessLinterObjectAction):
         values: str | Sequence[Any] | None,
         option_string: str | None = "--disable",
     ) -> None:
-        assert isinstance(values, (tuple, list))
-        msgids = utils._check_csv(values[0])
-        for msgid in msgids:
-            try:
-                self.linter.disable(msgid)
-            except exceptions.UnknownMessageError:
-                self.linter._stashed_bad_option_value_messages[
-                    self.linter.current_name
-                ].append((option_string, msgid))
+        self._call(self.linter.disable, values, option_string)
 
 
-class _EnableAction(_AccessLinterObjectAction):
+class _EnableAction(_XableAction):
     """Callback action for enabling a message."""
 
     def __call__(
@@ -396,15 +421,7 @@ class _EnableAction(_AccessLinterObjectAction):
         values: str | Sequence[Any] | None,
         option_string: str | None = "--enable",
     ) -> None:
-        assert isinstance(values, (tuple, list))
-        msgids = utils._check_csv(values[0])
-        for msgid in msgids:
-            try:
-                self.linter.enable(msgid)
-            except exceptions.UnknownMessageError:
-                self.linter._stashed_bad_option_value_messages[
-                    self.linter.current_name
-                ].append((option_string, msgid))
+        self._call(self.linter.enable, values, option_string)
 
 
 class _OutputFormatAction(_AccessLinterObjectAction):

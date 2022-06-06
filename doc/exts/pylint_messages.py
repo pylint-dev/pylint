@@ -78,10 +78,22 @@ def _get_message_data(data_path: Path) -> Tuple[str, str, str, str]:
     related = _get_titled_rst(
         title="Related links", text=_get_rst_as_str(related_rst_path)
     )
-    assert (not bad_code and not related) or (
-        "placeholder" not in good_code and "help us make the doc better" not in details
-    ), "Please remove placeholders if you completed the documentation"
+    _check_placeholders(bad_code, details, good_py_path, related)
     return good_code, bad_code, details, related
+
+
+def _check_placeholders(
+    bad_code: str, details: str, good_py_path: Path, related: str
+) -> None:
+    if bad_code or related:
+        placeholder_details = "help us make the doc better" in details
+        with open(good_py_path) as f:
+            placeholder_good = "placeholder" in f.read()
+        assert_msg = (
+            f"Please remove placeholders in '{good_py_path.parent}' "
+            f"as you started completing the documentation"
+        )
+        assert not placeholder_good and not placeholder_details, assert_msg
 
 
 def _get_titled_rst(title: str, text: str) -> str:
@@ -105,12 +117,10 @@ def _get_python_code_as_rst(code_path: Path) -> str:
     """
     if not code_path.exists():
         return ""
-    with open(code_path, encoding="utf-8") as f:
-        file_content = f.readlines()
     return f"""\
-.. code-block:: python
-
-{"".join("  " + i for i in file_content)}"""
+.. literalinclude:: /{code_path.relative_to(Path.cwd())}
+   :language: python
+"""
 
 
 def _create_placeholders(
