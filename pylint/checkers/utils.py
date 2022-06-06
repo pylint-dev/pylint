@@ -23,8 +23,6 @@ from astroid import TooManyLevelsError, nodes
 from astroid.context import InferenceContext
 from astroid.exceptions import AstroidError
 
-from pylint.constants import TYPING_TYPE_CHECKS_GUARDS
-
 if TYPE_CHECKING:
     from pylint.checkers import BaseChecker
 
@@ -1778,12 +1776,34 @@ def get_node_first_ancestor_of_type_and_its_child(
 
 
 def in_type_checking_block(node: nodes.NodeNG) -> bool:
-    """Check if a node is guarded by a TYPE_CHECKS guard."""
-    return any(
-        isinstance(ancestor, nodes.If)
-        and ancestor.test.as_string() in TYPING_TYPE_CHECKS_GUARDS
-        for ancestor in node.node_ancestors()
-    )
+    """Check if a node is guarded by a TYPE_CHECKING guard."""
+    for ancestor in node.node_ancestors():
+        if not isinstance(ancestor, nodes.If):
+            continue
+        if isinstance(ancestor.test, nodes.Name):
+            if ancestor.test.name != "TYPE_CHECKING":
+                continue
+            maybe_import_from = ancestor.test.lookup(ancestor.test.name)[1][0]
+            if (
+                isinstance(maybe_import_from, nodes.ImportFrom)
+                and maybe_import_from.modname == "typing"
+            ):
+                return True
+            inferred = safe_infer(ancestor.test)
+            if isinstance(inferred, nodes.Const) and inferred.value is False:
+                return True
+        elif isinstance(ancestor.test, nodes.Attribute):
+            if ancestor.test.attrname != "TYPE_CHECKING":
+                continue
+            inferred_module = safe_infer(ancestor.test.expr)
+            if (
+                isinstance(inferred_module, nodes.Module)
+                and inferred_module.name == "typing"
+                and inferred_module.pytype() == "builtins.module"
+            ):
+                return True
+
+    return False
 
 
 @lru_cache()

@@ -451,10 +451,10 @@ def _emit_no_member(
             except astroid.MroError:
                 return False
             if metaclass:
-                if _enum_has_attribute(owner, node):
-                    return False
                 # Renamed in Python 3.10 to `EnumType`
-                return metaclass.qname() in {"enum.EnumMeta", "enum.EnumType"}
+                if metaclass.qname() in {"enum.EnumMeta", "enum.EnumType"}:
+                    return not _enum_has_attribute(owner, node)
+                return False
             return False
         if not has_known_bases(owner):
             return False
@@ -583,7 +583,7 @@ def _enum_has_attribute(
             (c.value for c in dunder_new.get_children() if isinstance(c, nodes.Return)),
             None,
         )
-        if returned_obj_name is not None:
+        if isinstance(returned_obj_name, nodes.Name):
             # Find all attribute assignments to the returned object
             enum_attributes |= _get_all_attribute_assignments(
                 dunder_new, returned_obj_name.name

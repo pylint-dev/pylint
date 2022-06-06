@@ -8,7 +8,12 @@ repos:
       - id: trailing-whitespace
         exclude: tests(/\w*)*/functional/t/trailing_whitespaces.py|tests/pyreverse/data/.*.html|doc/data/messages/t/trailing-whitespace/bad.py
       - id: end-of-file-fixer
-        exclude: tests(/\w*)*/functional/m/missing/missing_final_newline.py|tests/functional/t/trailing_newlines.py
+        exclude: |
+          (?x)^(
+            tests(/\w*)*/functional/m/missing/missing_final_newline.py|
+            tests/functional/t/trailing_newlines.py|
+            doc/data/messages/t/trailing-newlines/bad.py|
+          )$
   - repo: https://github.com/myint/autoflake
     rev: v1.4
     hooks:
@@ -37,7 +42,7 @@ repos:
     rev: 5.10.1
     hooks:
       - id: isort
-        exclude: doc/data/messages/(r/reimported|w/wrong-import-order|u/ungrouped-imports|m/misplaced-future)/bad.py
+        exclude: doc/data/messages/(r/reimported|w/wrong-import-order|u/ungrouped-imports|m/misplaced-future|m/multiple-imports)/bad.py
   - repo: https://github.com/psf/black
     rev: 22.3.0
     hooks:

@@ -81,18 +81,21 @@ class LintModuleTest:
         # Check if this message has a custom configuration file (e.g. for enabling optional checkers).
         # If not, use the default configuration.
         config_file: Optional[Path]
-        if (test_file[1].parent / "pylintrc").exists():
-            config_file = test_file[1].parent / "pylintrc"
+        msgid, full_path = test_file
+        pylintrc = full_path.parent / "pylintrc"
+        if pylintrc.exists():
+            config_file = pylintrc
         else:
             config_file = next(config.find_default_config_files(), None)
-
+        args = [
+            str(full_path),
+            "--disable=all",
+            f"--enable={msgid},astroid-error,fatal,syntax-error",
+        ]
+        print(f"Command used:\npylint {' '.join(args)}")
         _config_initialization(
             self._linter,
-            args_list=[
-                str(test_file[1]),
-                "--disable=all",
-                f"--enable={test_file[0]},astroid-error,fatal,syntax-error",
-            ],
+            args_list=args,
             reporter=_test_reporter,
             config_file=config_file,
         )

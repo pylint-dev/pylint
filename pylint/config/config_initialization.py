@@ -91,7 +91,7 @@ def _config_initialization(
             "unrecognized-option", args=unrecognized_options_message, line=0
         )
 
-    linter._emit_bad_option_value()
+    linter._emit_stashed_messages()
 
     # Set the current module to configuration as we don't know where
     # the --load-plugins key is coming from

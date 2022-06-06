@@ -1,1 +1,1 @@
-# This is a placeholder for correct code for this message.
+print("{0.real}".format(1))

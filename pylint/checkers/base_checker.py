@@ -109,6 +109,7 @@ class BaseChecker(_ArgumentsProvider):
         reports: tuple[tuple[str, str, ReportsCallable], ...],
         doc: str | None = None,
         module: str | None = None,
+        show_options: bool = True,
     ) -> str:
         result = ""
         checker_title = f"{self.name.replace('_', ' ').title()} checker"
@@ -126,8 +127,11 @@ class BaseChecker(_ArgumentsProvider):
         # options might be an empty generator and not be False when cast to boolean
         options_list = list(options)
         if options_list:
-            result += get_rst_title(f"{checker_title} Options", "^")
-            result += f"{get_rst_section(None, options_list)}\n"
+            if show_options:
+                result += get_rst_title(f"{checker_title} Options", "^")
+                result += f"{get_rst_section(None, options_list)}\n"
+            else:
+                result += f"See also :ref:`{self.name} checker's options' documentation <{self.name}-options>`\n\n"
         if msgs:
             result += get_rst_title(f"{checker_title} Messages", "^")
             for msgid, msg in sorted(

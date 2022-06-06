@@ -64,9 +64,13 @@ Pylint provides global options and switches.
     return result
 
 
-def _get_checkers_documentation(linter: PyLinter) -> str:
+def _get_checkers_documentation(linter: PyLinter, show_options: bool = True) -> str:
     """Get documentation for individual checkers."""
-    result = _get_global_options_documentation(linter)
+    if show_options:
+        result = _get_global_options_documentation(linter)
+    else:
+        result = ""
+
     result += get_rst_title("Pylint checkers' options and switches", "-")
     result += """\
 
@@ -84,10 +88,16 @@ Below is a list of all checkers and their features.
         information = by_checker[checker_name]
         checker = information["checker"]
         del information["checker"]
-        result += checker.get_full_documentation(**information)
+        result += checker.get_full_documentation(
+            **information, show_options=show_options
+        )
     return result
 
 
-def print_full_documentation(linter: PyLinter, stream: TextIO = sys.stdout) -> None:
+def print_full_documentation(
+    linter: PyLinter, stream: TextIO = sys.stdout, show_options: bool = True
+) -> None:
     """Output a full documentation in ReST format."""
-    print(_get_checkers_documentation(linter)[:-3], file=stream)
+    print(
+        _get_checkers_documentation(linter, show_options=show_options)[:-3], file=stream
+    )
