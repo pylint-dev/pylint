@@ -34,6 +34,9 @@ class ChangelogDirective(SphinxDirective):
     parser = RSTParser()
 
     def run(self):
+        if not self.config.pylint_changelog_token:
+            logger.warning("A GitHub token is required to generate the changelog.")
+            return []
         result = []
         caption = self.options.get("caption")
         if caption:
@@ -53,13 +56,6 @@ class ChangelogDirective(SphinxDirective):
 
     def _get_relevant_issues(self) -> Iterable[Issue]:
         full_query = self._build_query()
-        token = self.config.pylint_changelog_token
-        if not token:
-            logger.warning(
-                "No token provided. "
-                "Unauthenticated requests are subject to rate limiting, "
-                "and changelog generation may fail."
-            )
         gh = Github(login_or_token=self.config.pylint_changelog_token)
         logger.info("Searching for pull requests matching query %s", full_query)
         return gh.search_issues(query=full_query)
