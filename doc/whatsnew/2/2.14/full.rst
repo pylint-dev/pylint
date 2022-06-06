@@ -14,6 +14,10 @@ Release date: TBA
 
   Closes #6800
 
+* Fixed a crash when linting ``__new__()`` methods that return a call expression.
+
+  Closes #6805
+
 * Don't crash if we can't find the user's home directory.
 
   Closes #6802
