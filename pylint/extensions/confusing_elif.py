@@ -40,7 +40,7 @@ class ConfusingConsecutiveElifChecker(BaseChecker):
             self.add_message("confusing-consecutive-elif", node=node.orelse[0])
 
     @staticmethod
-    def _has_no_else_clause(node: nodes.If):
+    def _has_no_else_clause(node: nodes.If) -> bool:
         orelse = node.orelse
         while orelse and isinstance(orelse[0], nodes.If):
             orelse = orelse[0].orelse
