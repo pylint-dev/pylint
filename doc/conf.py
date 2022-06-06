@@ -40,6 +40,7 @@ extensions = [
     "pylint_extensions",
     "pylint_messages",
     "pylint_options",
+    "pylint_changelog",
     "sphinx.ext.autosectionlabel",
     "sphinx.ext.intersphinx",
     "sphinx_reredirects",
@@ -297,3 +298,13 @@ intersphinx_mapping = {
 autosectionlabel_prefix_document = True
 
 linkcheck_ignore = ["https://github.com/PyCQA/pylint/blob/main/pylint/extensions/.*"]
+
+
+# -- Options for pylint_changelog extension ------------------------------------
+
+pylint_changelog_user = "PyCQA"
+pylint_changelog_project = "pylint"
+pylint_changelog_token = os.getenv("GITHUB_TOKEN")
+pylint_changelog_exclude_labels = [
+    "Documentation 📖",
+]

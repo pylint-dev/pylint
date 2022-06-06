@@ -11,39 +11,34 @@
 Summary -- Release highlights
 =============================
 
+.. changelog::
+   :caption: New checkers
+   :query: is:closed is:pr milestone:2.15.0 label:"New checker ✨"
 
-New checkers
-============
+.. changelog::
+   :caption: Removed checkers
+   :query: is:closed is:pr milestone:2.15.0 label:"Removed checker ❌"
 
+.. changelog::
+   :caption: Extensions
+   :query: is:closed is:pr milestone:2.15.0 label:"Extension"
 
-Removed checkers
-================
+.. changelog::
+   :caption: False positives fixed
+   :query: is:closed is:pr milestone:2.15.0 label:"False Positive 🦟"
 
+.. changelog::
+   :caption: False negatives fixed
+   :query: is:closed is:pr milestone:2.15.0 label:"False Negative 🦋"
 
-Extensions
-==========
+.. changelog::
+   :caption: Other bug fixes
+   :query: is:closed is:pr milestone:2.15.0 label:"Bug 🪳" -label:"False Negative 🦋" -label:"False Positive 🦟"
 
+.. changelog::
+  :caption: Other Changes
+  :query: is:closed is:pr milestone:2.15.0 -label:"False Negative 🦋" -label:"False Positive 🦟" -label:"Bug 🪳" -label:"New checker ✨" -label:"Removed checker ❌"
 
-False positives fixed
-=====================
-
-
-False negatives fixed
-=====================
-
-* Emit ``modified-iterating-list`` and analogous messages for dicts and sets when iterating
-  literals, or when using the ``del`` keyword.
-
-  Closes #6648
-
-
-Other bug fixes
-===============
-
-
-Other Changes
-=============
-
-
-Internal changes
-================
+.. changelog::
+   :caption: Internal changes
+   :query: is:closed is:pr milestone:2.15.0 label:"Maintenance"
