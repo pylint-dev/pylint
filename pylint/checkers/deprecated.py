@@ -25,30 +25,35 @@ ACCEPTABLE_NODES = (
 )
 
 MSGS: dict[str, MessageDefinitionTuple] = {
-    "W0402": (
+    "W4901": (
         "Deprecated module %r",
         "deprecated-module",
         "A module marked as deprecated is imported.",
+        {"old_names": [("W0402", "old-deprecated-module")]},
     ),
-    "W1505": (
+    "W4902": (
         "Using deprecated method %s()",
         "deprecated-method",
         "The method is marked as deprecated and will be removed in the future.",
+        {"old_names": [("W1505", "old-deprecated-method")]},
     ),
-    "W1511": (
+    "W4903": (
         "Using deprecated argument %s of method %s()",
         "deprecated-argument",
         "The argument is marked as deprecated and will be removed in the future.",
+        {"old_names": [("W1511", "old-deprecated-argument")]},
     ),
-    "W1512": (
+    "W4904": (
         "Using deprecated class %s of module %s",
         "deprecated-class",
         "The class is marked as deprecated and will be removed in the future.",
+        {"old_names": [("W1512", "old-deprecated-class")]},
     ),
-    "W1513": (
+    "W4905": (
         "Using deprecated decorator %s()",
         "deprecated-decorator",
         "The decorator is marked as deprecated and will be removed in the future.",
+        {"old_names": [("W1513", "old-deprecated-decorator")]},
     ),
 }
 
