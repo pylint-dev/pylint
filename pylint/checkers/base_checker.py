@@ -47,7 +47,7 @@ class BaseChecker(_ArgumentsProvider):
     enabled: bool = True
     # Set of messages allowed to be reused in multiple checkers.
     # Hence, the Message ID does not need to match Checker ID.
-    shared_message_ids: set[str] = {}
+    shared_message_ids: set[str] = set()
 
     def __init__(self, linter: PyLinter) -> None:
         """Checker instances should have the linter as argument."""
