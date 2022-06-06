@@ -36,7 +36,7 @@ Basic checker
 
 Verbatim name of the checker is ``basic``.
 
-You can find the options of this checker here: :ref:`basic-options`
+See also :ref:`basic checker's options' documentation <basic-options>`
 
 Basic checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -217,7 +217,7 @@ Classes checker
 
 Verbatim name of the checker is ``classes``.
 
-You can find the options of this checker here: :ref:`classes-options`
+See also :ref:`classes checker's options' documentation <classes-options>`
 
 Classes checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -367,7 +367,7 @@ Design checker
 
 Verbatim name of the checker is ``design``.
 
-You can find the options of this checker here: :ref:`design-options`
+See also :ref:`design checker's options' documentation <design-options>`
 
 Design checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -404,7 +404,7 @@ Exceptions checker
 
 Verbatim name of the checker is ``exceptions``.
 
-You can find the options of this checker here: :ref:`exceptions-options`
+See also :ref:`exceptions checker's options' documentation <exceptions-options>`
 
 Exceptions checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -468,7 +468,7 @@ Format checker
 
 Verbatim name of the checker is ``format``.
 
-You can find the options of this checker here: :ref:`format-options`
+See also :ref:`format checker's options' documentation <format-options>`
 
 Format checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -503,7 +503,7 @@ Imports checker
 
 Verbatim name of the checker is ``imports``.
 
-You can find the options of this checker here: :ref:`imports-options`
+See also :ref:`imports checker's options' documentation <imports-options>`
 
 Imports checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -573,7 +573,7 @@ Logging checker
 
 Verbatim name of the checker is ``logging``.
 
-You can find the options of this checker here: :ref:`logging-options`
+See also :ref:`logging checker's options' documentation <logging-options>`
 
 Logging checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -625,7 +625,7 @@ Miscellaneous checker
 
 Verbatim name of the checker is ``miscellaneous``.
 
-You can find the options of this checker here: :ref:`miscellaneous-options`
+See also :ref:`miscellaneous checker's options' documentation <miscellaneous-options>`
 
 Miscellaneous checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -699,7 +699,7 @@ Refactoring checker
 
 Verbatim name of the checker is ``refactoring``.
 
-You can find the options of this checker here: :ref:`refactoring-options`
+See also :ref:`refactoring checker's options' documentation <refactoring-options>`
 
 Refactoring checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -864,7 +864,7 @@ Similarities checker
 
 Verbatim name of the checker is ``similarities``.
 
-You can find the options of this checker here: :ref:`similarities-options`
+See also :ref:`similarities checker's options' documentation <similarities-options>`
 
 Similarities checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -883,7 +883,7 @@ Spelling checker
 
 Verbatim name of the checker is ``spelling``.
 
-You can find the options of this checker here: :ref:`spelling-options`
+See also :ref:`spelling checker's options' documentation <spelling-options>`
 
 Spelling checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -966,7 +966,7 @@ String checker
 
 Verbatim name of the checker is ``string``.
 
-You can find the options of this checker here: :ref:`string-options`
+See also :ref:`string checker's options' documentation <string-options>`
 
 String checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -1065,7 +1065,7 @@ Typecheck checker
 
 Verbatim name of the checker is ``typecheck``.
 
-You can find the options of this checker here: :ref:`typecheck-options`
+See also :ref:`typecheck checker's options' documentation <typecheck-options>`
 
 Typecheck checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1240,7 +1240,7 @@ Variables checker
 
 Verbatim name of the checker is ``variables``.
 
-You can find the options of this checker here: :ref:`variables-options`
+See also :ref:`variables checker's options' documentation <variables-options>`
 
 Variables checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^

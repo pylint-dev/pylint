@@ -42,7 +42,7 @@ Broad Try Clause checker
 This checker is provided by ``pylint.extensions.broad_try_clause``.
 Verbatim name of the checker is ``broad_try_clause``.
 
-You can find the options of this checker here: :ref:`broad_try_clause-options`
+See also :ref:`broad_try_clause checker's options' documentation <broad_try_clause-options>`
 
 Broad Try Clause checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -64,7 +64,7 @@ Checkers that can improve code consistency.
 As such they don't necessarily provide a performance benefit and
 are often times opinionated.
 
-You can find the options of this checker here: :ref:`code_style-options`
+See also :ref:`code_style checker's options' documentation <code_style-options>`
 
 Code Style checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -192,7 +192,7 @@ you can use the ``bad-functions`` option::
     $ pylint a.py --load-plugins=pylint.extensions.bad_builtin --bad-functions=apply,reduce
     ...
 
-You can find the options of this checker here: :ref:`deprecated_builtins-options`
+See also :ref:`deprecated_builtins checker's options' documentation <deprecated_builtins-options>`
 
 Deprecated Builtins checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -250,7 +250,7 @@ higher than a preestablished value, which can be controlled through the
     $ pylint a.py --load-plugins=pylint.extensions.mccabe --max-complexity=50
     $
 
-You can find the options of this checker here: :ref:`design-options`
+See also :ref:`design checker's options' documentation <design-options>`
 
 Design checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -530,7 +530,7 @@ docstring defining the interface, e.g. a superclass method, after "see"::
 Naming inconsistencies in existing parameter and their type documentations are
 still detected.
 
-You can find the options of this checker here: :ref:`parameter_documentation-options`
+See also :ref:`parameter_documentation checker's options' documentation <parameter_documentation-options>`
 
 Parameter Documentation checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -621,7 +621,7 @@ Typing checker Documentation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Find issue specifically related to type annotations.
 
-You can find the options of this checker here: :ref:`typing-options`
+See also :ref:`typing checker's options' documentation <typing-options>`
 
 Typing checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^
