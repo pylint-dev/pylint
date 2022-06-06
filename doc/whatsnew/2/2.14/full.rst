@@ -1,9 +1,14 @@
 Full changelog
 ==============
 
-What's New in Pylint 2.14.1?
+What's New in Pylint 2.14.2?
 ----------------------------
 Release date: TBA
+
+
+What's New in Pylint 2.14.1?
+----------------------------
+Release date: 2022-06-06
 
 * Avoid reporting ``unnecessary-dict-index-lookup`` or ``unnecessary-list-index-lookup``
   when the index lookup is part of a destructuring assignment.
