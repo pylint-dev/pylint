@@ -66,7 +66,9 @@ def _get_all_options(linter: PyLinter) -> OptionsDataDict:
 def _create_checker_section(
     checker: str, options: list[OptionsData], linter: PyLinter
 ) -> str:
-    checker_string = get_rst_title(f"``{checker.capitalize()}`` Checker", "^")
+    checker_string = f".. _{checker}-options:\n\n"
+    checker_string += get_rst_title(f"``{checker.capitalize()}`` **Checker**", "-")
+
     toml_doc = tomlkit.document()
     pylint_tool_table = tomlkit.table(is_super_table=True)
     toml_doc.add(tomlkit.key(["tool", "pylint"]), pylint_tool_table)
@@ -75,11 +77,11 @@ def _create_checker_section(
 
     for option in sorted(options, key=lambda x: x.name):
         checker_string += get_rst_title(f"--{option.name}", '"')
-        checker_string += f"\nDescription:\n  *{option.optdict.get('help')}*\n\n"
+        checker_string += f"*{option.optdict.get('help')}*\n\n"
         if option.optdict.get("default") == "":
-            checker_string += 'Default:\n  ``""``\n\n\n'
+            checker_string += '**Default:** ``""``\n\n\n'
         else:
-            checker_string += f"Default:\n  ``{option.optdict.get('default')}``\n\n\n"
+            checker_string += f"**Default:**  ``{option.optdict.get('default')}``\n\n\n"
 
         # Start adding the option to the toml example
         if option.optdict.get("hide_from_config_file"):
@@ -138,13 +140,13 @@ def _write_options_page(options: OptionsDataDict, linter: PyLinter) -> None:
         ".. This file is auto-generated. Make any changes to the associated\n"
         ".. docs extension in 'doc/exts/pylint_options.py'.\n\n"
         ".. _all-options:",
-        get_rst_title("Standard Checkers:", "^"),
+        get_rst_title("Standard Checkers", "^"),
     ]
     found_extensions = False
 
     for checker, checker_options in options.items():
         if not found_extensions and checker_options[0].extension:
-            sections.append(get_rst_title("Extensions:", "^"))
+            sections.append(get_rst_title("Extensions", "^"))
             found_extensions = True
         sections.append(_create_checker_section(checker, checker_options, linter))
 

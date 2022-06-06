@@ -83,7 +83,10 @@ def builder_inited(app: Optional[Sphinx]) -> None:
             if i == max_len - 1:
                 # Remove the \n\n at the end of the file
                 j = -3
-            print(checker.get_full_documentation(**information)[:j], file=stream)
+            print(
+                checker.get_full_documentation(**information, show_options=False)[:j],
+                file=stream,
+            )
 
 
 def get_plugins_info(linter, doc_files):
