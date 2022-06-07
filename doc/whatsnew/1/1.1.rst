@@ -9,7 +9,9 @@ Release date: 2013-12-22
   emitted as a regular warn().
 
 * Avoid false used-before-assignment for except handler defined
-  identifier used on the same line (#111).
+  identifier used on the same line.
+
+  Closes #111
 
 * Combine 'no-space-after-operator', 'no-space-after-comma' and
   'no-space-before-operator' into a new warning 'bad-whitespace'.
@@ -26,13 +28,16 @@ Release date: 2013-12-22
 * Add 'bad-context-manager' error, checking that '__exit__'
   special method accepts the right number of arguments.
 
-* Run pylint as a python module 'python -m pylint' (anatoly techtonik).
+* Run pylint as a python module 'python -m pylint' (Anatoly Techtonik).
 
 * Check for non-exception classes inside an except clause.
 
 * epylint support options to give to pylint after the file to analyze and
-  have basic input validation (bitbucket #53 and #54), patches provided by
+  have basic input validation, patches provided by
   felipeochoa and Brian Lane.
+
+  Closes BitBucket #53
+  Closes BitBucket #54
 
 * Added a new warning, 'non-iterator-returned', for non-iterators
   returned by '__iter__'.
@@ -42,21 +47,29 @@ Release date: 2013-12-22
   (unbalanced-tuple-unpacking).
 
 * useless-else-on-loop not emitted if there is a break in the
-  else clause of inner loop (#117).
+  else clause of inner loop.
 
-* don't mark ``input`` as a bad function when using python3 (#110).
+  Closes #117
+
+* don't mark ``input`` as a bad function when using python3.
+
+  Closes #110
 
 * badly-implemented-container caused several problems in its
   current implementation. Deactivate it until we have something
-  better. See #112 for instance.
+  better.
+
+  Refs #112
 
 * Use attribute regexp for properties in python3, as in python2
 
-* Create the PYLINTHOME directory when needed, it might fail and lead to
+* Create the ``PYLINTHOME`` directory when needed, it might fail and lead to
   spurious warnings on import of pylint.config.
 
 * Fix setup.py so that pylint properly install on Windows when using python3
 
 * Various documentation fixes and enhancements
 
-* Fix issue #55 (false-positive trailing-whitespace on Windows)
+* Fix a false-positive trailing-whitespace on Windows
+
+  Closes #55
