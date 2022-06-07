@@ -23,7 +23,8 @@ TESTS_DIR = Path(__file__).parent.parent
 PRIMER_DIRECTORY = TESTS_DIR / ".pylint_primer_tests/"
 PACKAGES_TO_PRIME_PATH = Path(__file__).parent / "packages_to_prime.json"
 
-PackageMessages = Dict[str, List[Dict[str, Union[str, int]]]]
+PackageMessage = Dict[str, Union[str, int]]
+PackageMessages = Dict[str, List[PackageMessage]]
 
 GITHUB_CRASH_TEMPLATE_LOCATION = "/home/runner/.cache"
 CRASH_TEMPLATE_INTRO = "There is a pre-filled template"
@@ -91,6 +92,9 @@ class Primer:
         self.packages = self._get_packages_to_lint_from_json(json_path)
         """All packages to prime."""
 
+        self.astroid_errors: list[PackageMessage] = []
+        self.other_fatal_msgs: list[PackageMessage] = []
+
     def run(self) -> None:
         if self.config.command == "prepare":
             self._handle_prepare_command()
@@ -129,15 +133,28 @@ class Primer:
                 f.write(commit_string)
 
     def _handle_run_command(self) -> None:
-        packages: PackageMessages = {}
+        output_path = (
+            PRIMER_DIRECTORY
+            / f"output_{'.'.join(str(i) for i in sys.version_info[:3])}_{self.config.type}.txt"
+        )
+        if output_path.exists():
+            output_path.unlink()
 
         for package, data in self.packages.items():
             output = self._lint_package(data)
-            packages[package] = output
+            self._write_output({package: output}, output_path)
             print(f"Successfully primed {package}.")
 
-        astroid_errors = []
-        other_fatal_msgs = []
+        # Fail loudly (and fail CI pipelines) if any fatal errors are found,
+        # unless they are astroid-errors, in which case just warn.
+        # This is to avoid introducing a dependency on bleeding-edge astroid
+        # for pylint CI pipelines generally, even though we want to use astroid main
+        # for the purpose of diffing emitted messages and generating PR comments.
+        if self.astroid_errors:
+            warnings.warn(f"Fatal errors traced to astroid:  {self.astroid_errors}")
+        assert not self.other_fatal_msgs, self.other_fatal_msgs
+
+    def _write_output(self, packages: PackageMessages, output_path: Path) -> None:
         for msg in chain.from_iterable(packages.values()):
             if msg["type"] == "fatal":
                 # Remove the crash template location if we're running on GitHub.
@@ -146,26 +163,12 @@ class Primer:
                 if GITHUB_CRASH_TEMPLATE_LOCATION in msg["message"]:
                     msg["message"] = msg["message"].rsplit(CRASH_TEMPLATE_INTRO)[0]
                 if msg["symbol"] == "astroid-error":
-                    astroid_errors.append(msg)
+                    self.astroid_errors.append(msg)
                 else:
-                    other_fatal_msgs.append(msg)
+                    self.other_fatal_msgs.append(msg)
 
-        with open(
-            PRIMER_DIRECTORY
-            / f"output_{'.'.join(str(i) for i in sys.version_info[:3])}_{self.config.type}.txt",
-            "w",
-            encoding="utf-8",
-        ) as f:
+        with open(output_path, "a", encoding="utf-8") as f:
             json.dump(packages, f)
-
-        # Fail loudly (and fail CI pipelines) if any fatal errors are found,
-        # unless they are astroid-errors, in which case just warn.
-        # This is to avoid introducing a dependency on bleeding-edge astroid
-        # for pylint CI pipelines generally, even though we want to use astroid main
-        # for the purpose of diffing emitted messages and generating PR comments.
-        if astroid_errors:
-            warnings.warn(f"Fatal errors traced to astroid:  {astroid_errors}")
-        assert not other_fatal_msgs, other_fatal_msgs
 
     def _handle_compare_command(self) -> None:
         with open(self.config.base_file, encoding="utf-8") as f:
