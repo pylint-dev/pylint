@@ -24,32 +24,43 @@ ACCEPTABLE_NODES = (
     nodes.ClassDef,
 )
 
-# pylint: disable-next=consider-using-namedtuple-or-dataclass
-MSGS: dict[str, MessageDefinitionTuple] = {
+DEPRECATED_MODULE_MESSAGE: dict[str, MessageDefinitionTuple] = {
     "W4901": (
         "Deprecated module %r",
         "deprecated-module",
         "A module marked as deprecated is imported.",
         {"old_names": [("W0402", "old-deprecated-module")]},
     ),
+}
+
+DEPRECATED_METHOD_MESSAGE: dict[str, MessageDefinitionTuple] = {
     "W4902": (
         "Using deprecated method %s()",
         "deprecated-method",
         "The method is marked as deprecated and will be removed in the future.",
         {"old_names": [("W1505", "old-deprecated-method")]},
     ),
+}
+
+DEPRECATED_ARGUMENT_MESSAGE: dict[str, MessageDefinitionTuple] = {
     "W4903": (
         "Using deprecated argument %s of method %s()",
         "deprecated-argument",
         "The argument is marked as deprecated and will be removed in the future.",
         {"old_names": [("W1511", "old-deprecated-argument")]},
     ),
+}
+
+DEPRECATED_CLASS_MESSAGE: dict[str, MessageDefinitionTuple] = {
     "W4904": (
         "Using deprecated class %s of module %s",
         "deprecated-class",
         "The class is marked as deprecated and will be removed in the future.",
         {"old_names": [("W1512", "old-deprecated-class")]},
     ),
+}
+
+DEPRECATED_DECORATOR_MESSAGE: dict[str, MessageDefinitionTuple] = {
     "W4905": (
         "Using deprecated decorator %s()",
         "deprecated-decorator",
@@ -61,9 +72,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
 
 class DeprecatedMixin(BaseChecker):
 
-    shared_message_ids: set[str] = set(MSGS.keys())
-
-    msgs: dict[str, MessageDefinitionTuple] = MSGS
+    shared_message_ids: set[str] = {"W4901", "W4902", "W4903", "W4904", "W4905"}
 
     """A mixin implementing logic for checking deprecated symbols.
 

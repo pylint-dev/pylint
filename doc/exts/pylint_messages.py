@@ -7,7 +7,7 @@
 import os
 from collections import defaultdict
 from inspect import getmodule
-from itertools import chain
+from itertools import chain, groupby
 from pathlib import Path
 from typing import DefaultDict, Dict, List, NamedTuple, Optional, Tuple
 
@@ -43,6 +43,7 @@ class MessageData(NamedTuple):
     related_links: str
     checker_module_name: str
     checker_module_path: str
+    shared: bool = False
 
 
 MessagesDict = Dict[str, List[MessageData]]
@@ -134,6 +135,12 @@ def _get_all_messages(
         ((checker, msg) for msg in checker.messages)
         for checker in linter.get_checkers()
     )
+    shared_msg_ids = set(
+        chain.from_iterable(
+            [checker.shared_message_ids for checker in linter.get_checkers()]
+        )
+    )
+
     for checker, message in checker_message_mapping:
         message_data_path = (
             PYLINT_MESSAGES_DATA_PATH / message.symbol[0] / message.symbol
@@ -157,15 +164,19 @@ def _get_all_messages(
             related,
             checker_module.__name__,
             checker_module.__file__,
+            message.msgid in shared_msg_ids,
         )
         msg_type = MSG_TYPES_DOC[message.msgid[0]]
         messages_dict[msg_type].append(message_data)
         if message.old_names:
             for old_name in message.old_names:
                 category = MSG_TYPES_DOC[old_name[0][0]]
-                old_messages[category][(old_name[1], old_name[0])].append(
-                    (message.symbol, msg_type)
-                )
+                if (message.symbol, msg_type) not in old_messages[category][
+                    (old_name[1], old_name[0])
+                ]:
+                    old_messages[category][(old_name[1], old_name[0])].append(
+                        (message.symbol, msg_type)
+                    )
 
     return messages_dict, old_messages
 
@@ -196,19 +207,26 @@ def _write_message_page(messages_dict: MessagesDict) -> None:
         if not category_dir.exists():
             category_dir.mkdir(parents=True, exist_ok=True)
         for message in messages:
+            if message.shared:
+                continue
             if not _message_needs_update(message, category):
                 continue
             _write_single_message_page(category_dir, message)
+        for _, shared_messages in groupby(
+            sorted(
+                (message for message in messages if message.shared), key=lambda m: m.id
+            ),
+            key=lambda m: m.id,
+        ):
+            shared_messages_list = list(shared_messages)
+            if len(shared_messages_list) > 1:
+                _write_single_shared_message_page(category_dir, shared_messages_list)
+            else:
+                _write_single_message_page(category_dir, shared_messages_list[0])
 
 
-def _write_single_message_page(category_dir: Path, message: MessageData) -> None:
-    checker_module_rel_path = os.path.relpath(
-        message.checker_module_path, PYLINT_BASE_PATH
-    )
-    messages_file = os.path.join(category_dir, f"{message.name}.rst")
-    with open(messages_file, "w", encoding="utf-8") as stream:
-        stream.write(
-            f""".. _{message.name}:
+def _generate_single_message_body(message: MessageData) -> str:
+    body = f""".. _{message.name}:
 
 {get_rst_title(f"{message.name} / {message.id}", "=")}
 **Message emitted:**
@@ -224,19 +242,44 @@ def _write_single_message_page(category_dir: Path, message: MessageData) -> None
 {message.details}
 {message.related_links}
 """
-        )
-        if message.checker_module_name.startswith("pylint.extensions."):
-            stream.write(
-                f"""
+    if message.checker_module_name.startswith("pylint.extensions."):
+        body += f"""
 .. note::
   This message is emitted by the optional :ref:`'{message.checker}'<{message.checker_module_name}>` checker which requires the ``{message.checker_module_name}``
   plugin to be loaded.
 
 """
-            )
-        checker_url = (
-            f"https://github.com/PyCQA/pylint/blob/main/{checker_module_rel_path}"
+    return body
+
+
+def _generate_checker_url(message: MessageData) -> str:
+    checker_module_rel_path = os.path.relpath(
+        message.checker_module_path, PYLINT_BASE_PATH
+    )
+    return f"https://github.com/PyCQA/pylint/blob/main/{checker_module_rel_path}"
+
+
+def _write_single_shared_message_page(
+    category_dir: Path, messages: List[MessageData]
+) -> None:
+    message = messages[0]
+    messages_file = os.path.join(category_dir, f"{message.name}.rst")
+    with open(messages_file, "w", encoding="utf-8") as stream:
+        stream.write(_generate_single_message_body(message))
+        checker_urls = ", ".join(
+            [
+                f"`{message.checker} <{_generate_checker_url(message)}>`__"
+                for message in messages
+            ]
         )
+        stream.write(f"Created by the {checker_urls} checkers.")
+
+
+def _write_single_message_page(category_dir: Path, message: MessageData) -> None:
+    messages_file = os.path.join(category_dir, f"{message.name}.rst")
+    with open(messages_file, "w", encoding="utf-8") as stream:
+        stream.write(_generate_single_message_body(message))
+        checker_url = _generate_checker_url(message)
         stream.write(f"Created by the `{message.checker} <{checker_url}>`__ checker.")
 
 
@@ -271,7 +314,11 @@ Pylint can emit the following messages:
             "refactor",
             "information",
         ):
-            messages = sorted(messages_dict[category], key=lambda item: item.name)
+            # We need remove all duplicated shared messages
+            messages = sorted(
+                {msg.id: msg for msg in messages_dict[category]}.values(),
+                key=lambda item: item.name,
+            )
             old_messages = sorted(old_messages_dict[category], key=lambda item: item[0])
             messages_string = "".join(
                 f"   {category}/{message.name}\n" for message in messages

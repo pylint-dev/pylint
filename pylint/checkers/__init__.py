@@ -50,7 +50,14 @@ from pylint.checkers.base_checker import (
     BaseRawFileChecker,
     BaseTokenChecker,
 )
-from pylint.checkers.deprecated import DeprecatedMixin
+from pylint.checkers.deprecated import (
+    DeprecatedMixin,
+    DEPRECATED_MODULE_MESSAGE,
+    DEPRECATED_METHOD_MESSAGE,
+    DEPRECATED_ARGUMENT_MESSAGE,
+    DEPRECATED_CLASS_MESSAGE,
+    DEPRECATED_DECORATOR_MESSAGE,
+)
 from pylint.checkers.mapreduce_checker import MapReduceMixin
 from pylint.utils import LinterStats, diff_string, register_plugins
 

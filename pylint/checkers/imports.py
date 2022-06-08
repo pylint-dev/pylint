@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING, Any
 import astroid
 from astroid import nodes
 
-from pylint.checkers import BaseChecker, DeprecatedMixin
+from pylint.checkers import DEPRECATED_MODULE_MESSAGE, BaseChecker, DeprecatedMixin
 from pylint.checkers.utils import (
     get_import_name,
     is_from_fallback_block,
@@ -301,7 +301,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
     """
 
     name = "imports"
-    msgs = {**DeprecatedMixin.msgs, **MSGS}
+    msgs = {**DEPRECATED_MODULE_MESSAGE, **MSGS}
     default_deprecated_modules = ()
 
     options = (
