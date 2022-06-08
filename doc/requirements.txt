@@ -1,5 +1,5 @@
 Sphinx==5.0.1
 sphinx-reredirects<1
-myst-parser~=0.17
+myst-parser~=0.18
 furo==2022.6.4.1
 -e .
