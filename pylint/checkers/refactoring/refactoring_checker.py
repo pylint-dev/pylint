@@ -1267,6 +1267,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "consider-using-in",
             node=node,
             args=(common_variable, maybe_not, values_string),
+            confidence=HIGH,
         )
 
     def _check_chained_comparison(self, node):
