@@ -15,7 +15,8 @@ from typing import TYPE_CHECKING, Any
 import astroid
 from astroid import nodes
 
-from pylint.checkers import DEPRECATED_MODULE_MESSAGE, BaseChecker, DeprecatedMixin
+from pylint.checkers import BaseChecker, DeprecatedMixin
+from pylint.checkers.deprecated import DEPRECATED_MODULE_MESSAGE
 from pylint.checkers.utils import (
     get_import_name,
     is_from_fallback_block,

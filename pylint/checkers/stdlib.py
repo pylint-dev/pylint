@@ -14,14 +14,12 @@ import astroid
 from astroid import nodes
 
 from pylint import interfaces
-from pylint.checkers import (
+from pylint.checkers import BaseChecker, DeprecatedMixin, utils
+from pylint.checkers.deprecated import (
     DEPRECATED_ARGUMENT_MESSAGE,
     DEPRECATED_CLASS_MESSAGE,
     DEPRECATED_DECORATOR_MESSAGE,
     DEPRECATED_METHOD_MESSAGE,
-    BaseChecker,
-    DeprecatedMixin,
-    utils,
 )
 from pylint.typing import MessageDefinitionTuple
 
