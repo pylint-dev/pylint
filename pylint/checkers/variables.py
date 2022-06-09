@@ -1339,7 +1339,7 @@ class VariablesChecker(BaseChecker):
     def visit_delname(self, node: nodes.DelName) -> None:
         self.visit_name(node)
 
-    def visit_name(self, node: nodes.Name) -> None:
+    def visit_name(self, node: nodes.Name | nodes.AssignName | nodes.DelName) -> None:
         """Don't add the 'utils.only_required_for_messages' decorator here!
 
         It's important that all 'Name' nodes are visited, otherwise the
