@@ -8,11 +8,11 @@ from __future__ import annotations
 
 import re
 import tokenize
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
-from astroid import nodes, Dict, Assign
+from astroid import Assign, Dict, nodes
 
-from pylint.checkers import BaseRawFileChecker, BaseTokenChecker, BaseChecker, utils
+from pylint.checkers import BaseChecker, BaseRawFileChecker, BaseTokenChecker, utils
 from pylint.typing import ManagedMessage
 from pylint.utils.pragma_parser import OPTION_PO, PragmaParserError, parse_pragma
 
@@ -174,6 +174,7 @@ class EncodingChecker(BaseTokenChecker, BaseRawFileChecker):
                     args=comment_text,
                     line=comment.start[0],
                 )
+
 
 class NoDictDirectAccessChecker(BaseChecker):
     name = "no-dict-direct-access"
