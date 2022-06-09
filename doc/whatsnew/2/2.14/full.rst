@@ -5,6 +5,11 @@ What's New in Pylint 2.14.2?
 ----------------------------
 Release date: TBA
 
+* Fixed a false positive for ``unused-variable`` when a function returns an
+  ``argparse.Namespace`` object.
+
+  Closes #6895
+
 
 What's New in Pylint 2.14.1?
 ----------------------------
