@@ -19,6 +19,7 @@ from pylint.lint import Run
 from pylint.reporters import JSONReporter
 from pylint.testutils.primer import PackageToLint
 
+MAX_GITHUB_COMMENT_LENGTH = 65536
 TESTS_DIR = Path(__file__).parent.parent
 PRIMER_DIRECTORY = TESTS_DIR / ".pylint_primer_tests/"
 PACKAGES_TO_PRIME_PATH = Path(__file__).parent / "packages_to_prime.json"
@@ -189,6 +190,9 @@ class Primer:
     ) -> None:
         comment = ""
         for package, missing_messages in all_missing_messages.items():
+            if len(comment) >= MAX_GITHUB_COMMENT_LENGTH:
+                break
+
             new_messages = all_new_messages[package]
             package_data = self.packages[package]
 
@@ -255,14 +259,29 @@ class Primer:
                 comment += "\n</details>\n\n"
 
         if comment == "":
-            comment = "🤖 According to the primer, this change has **no effect** on the checked open source code. 🤖🎉"
+            comment = (
+                "🤖 According to the primer, this change has **no effect** on the"
+                " checked open source code. 🤖🎉\n\n"
+            )
         else:
             comment = (
-                "🤖 **Effect of this PR on checked open source code:** 🤖\n\n" + comment
+                f"🤖 **Effect of this PR on checked open source code:** 🤖\n\n{comment}"
             )
-
-        comment += f"*This comment was generated for commit {self.config.commit}*"
-
+        hash_information = (
+            f"*This comment was generated for commit {self.config.commit}*"
+        )
+        if len(comment) + len(hash_information) >= MAX_GITHUB_COMMENT_LENGTH:
+            truncation_information = (
+                f"*This comment was truncated because GitHub allows only"
+                f"{MAX_GITHUB_COMMENT_LENGTH} characters in a comment.*"
+            )
+            max_len = (
+                MAX_GITHUB_COMMENT_LENGTH
+                - len(hash_information)
+                - len(truncation_information)
+            )
+            comment = f"{comment[:max_len - 10]}...\n\n{truncation_information}\n\n"
+        comment += hash_information
         with open(PRIMER_DIRECTORY / "comment.txt", "w", encoding="utf-8") as f:
             f.write(comment)
 
