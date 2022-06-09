@@ -259,10 +259,13 @@ class Primer:
                 comment += "\n</details>\n\n"
 
         if comment == "":
-            comment = "🤖 According to the primer, this change has **no effect** on the checked open source code. 🤖🎉"
+            comment = (
+                "🤖 According to the primer, this change has **no effect** on the"
+                " checked open source code. 🤖🎉\n\n"
+            )
         else:
             comment = (
-                "🤖 **Effect of this PR on checked open source code:** 🤖\n\n" + comment
+                f"🤖 **Effect of this PR on checked open source code:** 🤖\n\n{comment}"
             )
         hash_information = (
             f"*This comment was generated for commit {self.config.commit}*"
