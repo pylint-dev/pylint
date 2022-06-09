@@ -270,7 +270,7 @@ class Primer:
         hash_information = (
             f"*This comment was generated for commit {self.config.commit}*"
         )
-        if len(comment) >= MAX_GITHUB_COMMENT_LENGTH:
+        if len(comment) + len(hash_information) >= MAX_GITHUB_COMMENT_LENGTH:
             truncation_information = (
                 f"*This comment was truncated because GitHub allows only"
                 f"{MAX_GITHUB_COMMENT_LENGTH} characters in a comment.*"
@@ -280,10 +280,8 @@ class Primer:
                 - len(hash_information)
                 - len(truncation_information)
             )
-            comment = comment[:max_len] + truncation_information
-
+            comment = f"{comment[:max_len - 5]}...\n{truncation_information}"
         comment += hash_information
-
         with open(PRIMER_DIRECTORY / "comment.txt", "w", encoding="utf-8") as f:
             f.write(comment)
 
