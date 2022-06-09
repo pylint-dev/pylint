@@ -45,9 +45,6 @@ class BaseChecker(_ArgumentsProvider):
     reports: tuple[tuple[str, str, ReportsCallable], ...] = ()
     # mark this checker as enabled or not.
     enabled: bool = True
-    # Set of messages allowed to be reused in multiple checkers.
-    # Hence, the Message ID does not need to match Checker ID.
-    shared_message_ids: set[str] = set()
 
     def __init__(self, linter: PyLinter) -> None:
         """Checker instances should have the linter as argument."""
@@ -177,7 +174,7 @@ class BaseChecker(_ArgumentsProvider):
         checker_id = None
         existing_ids = []
         for message in self.messages:
-            if message.msgid in self.shared_message_ids:
+            if message.shared:
                 continue
             if checker_id is not None and checker_id != message.msgid[1:3]:
                 error_msg = "Inconsistent checker part in message id "
@@ -222,7 +219,7 @@ class BaseChecker(_ArgumentsProvider):
 """
             raise InvalidMessageError(error_msg)
         options.setdefault("scope", default_scope)
-        return MessageDefinition(self, msgid, msg, descr, symbol, **options)
+        return MessageDefinition(self, msgid, msg, descr, symbol, options)
 
     @property
     def messages(self) -> list[MessageDefinition]:

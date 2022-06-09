@@ -121,6 +121,7 @@ class ExtraMessageOptions(TypedDict, total=False):
     old_names: list[tuple[str, str]]
     maxversion: tuple[int, int]
     minversion: tuple[int, int]
+    shared: bool
 
 
 MessageDefinitionTuple = Union[

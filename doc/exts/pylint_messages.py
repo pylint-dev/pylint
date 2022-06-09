@@ -135,11 +135,6 @@ def _get_all_messages(
         ((checker, msg) for msg in checker.messages)
         for checker in linter.get_checkers()
     )
-    shared_msg_ids = set(
-        chain.from_iterable(
-            [checker.shared_message_ids for checker in linter.get_checkers()]
-        )
-    )
 
     for checker, message in checker_message_mapping:
         message_data_path = (
@@ -164,7 +159,7 @@ def _get_all_messages(
             related,
             checker_module.__name__,
             checker_module.__file__,
-            message.msgid in shared_msg_ids,
+            message.shared,
         )
         msg_type = MSG_TYPES_DOC[message.msgid[0]]
         messages_dict[msg_type].append(message_data)

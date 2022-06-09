@@ -29,7 +29,7 @@ DEPRECATED_MODULE_MESSAGE: dict[str, MessageDefinitionTuple] = {
         "Deprecated module %r",
         "deprecated-module",
         "A module marked as deprecated is imported.",
-        {"old_names": [("W0402", "old-deprecated-module")]},
+        {"old_names": [("W0402", "old-deprecated-module")], "shared": True},
     ),
 }
 
@@ -38,7 +38,7 @@ DEPRECATED_METHOD_MESSAGE: dict[str, MessageDefinitionTuple] = {
         "Using deprecated method %s()",
         "deprecated-method",
         "The method is marked as deprecated and will be removed in the future.",
-        {"old_names": [("W1505", "old-deprecated-method")]},
+        {"old_names": [("W1505", "old-deprecated-method")], "shared": True},
     ),
 }
 
@@ -47,7 +47,7 @@ DEPRECATED_ARGUMENT_MESSAGE: dict[str, MessageDefinitionTuple] = {
         "Using deprecated argument %s of method %s()",
         "deprecated-argument",
         "The argument is marked as deprecated and will be removed in the future.",
-        {"old_names": [("W1511", "old-deprecated-argument")]},
+        {"old_names": [("W1511", "old-deprecated-argument")], "shared": True},
     ),
 }
 
@@ -56,7 +56,7 @@ DEPRECATED_CLASS_MESSAGE: dict[str, MessageDefinitionTuple] = {
         "Using deprecated class %s of module %s",
         "deprecated-class",
         "The class is marked as deprecated and will be removed in the future.",
-        {"old_names": [("W1512", "old-deprecated-class")]},
+        {"old_names": [("W1512", "old-deprecated-class")], "shared": True},
     ),
 }
 
@@ -65,15 +65,12 @@ DEPRECATED_DECORATOR_MESSAGE: dict[str, MessageDefinitionTuple] = {
         "Using deprecated decorator %s()",
         "deprecated-decorator",
         "The decorator is marked as deprecated and will be removed in the future.",
-        {"old_names": [("W1513", "old-deprecated-decorator")]},
+        {"old_names": [("W1513", "old-deprecated-decorator")], "shared": True},
     ),
 }
 
 
 class DeprecatedMixin(BaseChecker):
-
-    shared_message_ids: set[str] = {"W4901", "W4902", "W4903", "W4904", "W4905"}
-
     """A mixin implementing logic for checking deprecated symbols.
 
     A class implementing mixin must define "deprecated-method" Message.
