@@ -10,9 +10,9 @@ import re
 import tokenize
 from typing import TYPE_CHECKING
 
-from astroid import Assign, Dict, nodes
+from astroid import nodes
 
-from pylint.checkers import BaseChecker, BaseRawFileChecker, BaseTokenChecker, utils
+from pylint.checkers import BaseRawFileChecker, BaseTokenChecker
 from pylint.typing import ManagedMessage
 from pylint.utils.pragma_parser import OPTION_PO, PragmaParserError, parse_pragma
 
@@ -176,24 +176,6 @@ class EncodingChecker(BaseTokenChecker, BaseRawFileChecker):
                 )
 
 
-class NoDictDirectAccessChecker(BaseChecker):
-    name = "no-dict-direct-access"
-    msgs = {
-        "W0001": (
-            "Uses dict operator []",
-            "dict-direct-access",
-            "Used to warn when subscripting a dictionary instead of using the get() function",
-        ),
-    }
-
-    def visit_subscript(self, node: nodes.Subscript) -> None:
-        if isinstance(utils.safe_infer(node.value), Dict) and not isinstance(
-            node.parent, Assign
-        ):
-            self.add_message("dict-direct-access", node=node)
-
-
 def register(linter: PyLinter) -> None:
     linter.register_checker(EncodingChecker(linter))
     linter.register_checker(ByIdManagedMessagesChecker(linter))
-    linter.register_checker(NoDictDirectAccessChecker(linter))

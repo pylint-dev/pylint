@@ -15,7 +15,6 @@ Summary -- Release highlights
 New checkers
 ============
 
-
 Removed checkers
 ================
 
@@ -23,6 +22,10 @@ Removed checkers
 Extensions
 ==========
 
+* ``NoDictSubscriptChecker``
+
+    * Added optional extension ``no-dict-subscript`` to emit messages when the ``[]`` operator is used
+      to access a dictionary value.
 
 False positives fixed
 =====================
