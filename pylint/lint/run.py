@@ -75,7 +75,7 @@ def _cpu_count() -> int:
         cpu_count = multiprocessing.cpu_count()
     else:
         cpu_count = 1
-    if cpu_share is not None:
+    if cpu_share:
         return min(cpu_share, cpu_count)
     return cpu_count
 
