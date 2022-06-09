@@ -280,7 +280,7 @@ class Primer:
                 - len(hash_information)
                 - len(truncation_information)
             )
-            comment = f"{comment[:max_len - 5]}...\n{truncation_information}"
+            comment = f"{comment[:max_len - 10]}...\n\n{truncation_information}\n\n"
         comment += hash_information
         with open(PRIMER_DIRECTORY / "comment.txt", "w", encoding="utf-8") as f:
             f.write(comment)
