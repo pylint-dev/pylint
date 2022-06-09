@@ -273,7 +273,7 @@ class Primer:
         if len(comment) + len(hash_information) >= MAX_GITHUB_COMMENT_LENGTH:
             truncation_information = (
                 f"*This comment was truncated because GitHub allows only"
-                f"{MAX_GITHUB_COMMENT_LENGTH} characters in a comment.*"
+                f" {MAX_GITHUB_COMMENT_LENGTH} characters in a comment.*"
             )
             max_len = (
                 MAX_GITHUB_COMMENT_LENGTH
