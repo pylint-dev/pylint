@@ -220,7 +220,7 @@ class ExceptionRaiseLeafVisitor(BaseVisitor):
 
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         # TODO (Typing): This function can be called from visit_instance
-        #  with the return type of instance._proxied (untyped right now)
+        #  with the return type of instance._proxied (not typed right now)
         if not utils.inherit_from_std_ex(node) and utils.has_known_bases(node):
             if node.newstyle:
                 self._checker.add_message("raising-non-exception", node=self._node)
