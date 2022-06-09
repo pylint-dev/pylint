@@ -8,11 +8,11 @@ from __future__ import annotations
 
 import re
 import tokenize
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
-from astroid import nodes
+from astroid import nodes, Dict, Assign
 
-from pylint.checkers import BaseRawFileChecker, BaseTokenChecker
+from pylint.checkers import BaseRawFileChecker, BaseTokenChecker, BaseChecker, utils
 from pylint.typing import ManagedMessage
 from pylint.utils.pragma_parser import OPTION_PO, PragmaParserError, parse_pragma
 
@@ -175,7 +175,24 @@ class EncodingChecker(BaseTokenChecker, BaseRawFileChecker):
                     line=comment.start[0],
                 )
 
+class NoDictDirectAccessChecker(BaseChecker):
+    name = "no-dict-direct-access"
+    msgs = {
+        "W0001": (
+            "Uses dict operator []",
+            "dict-direct-access",
+            "Used to warn when subscripting a dictionary instead of using the get() function",
+        ),
+    }
+
+    def visit_subscript(self, node: nodes.Subscript) -> None:
+        if isinstance(utils.safe_infer(node.value), Dict) and not isinstance(
+            node.parent, Assign
+        ):
+            self.add_message("dict-direct-access", node=node)
+
 
 def register(linter: PyLinter) -> None:
     linter.register_checker(EncodingChecker(linter))
     linter.register_checker(ByIdManagedMessagesChecker(linter))
+    linter.register_checker(NoDictDirectAccessChecker(linter))
