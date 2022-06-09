@@ -1447,7 +1447,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "consider-swap-variables",
     )
     def visit_return(self, node: nodes.Return | nodes.Assign) -> None:
-        """This function can be called from 'visit_assign'."""
         self._check_swap_variables(node)
         if self._is_and_or_ternary(node.value):
             cond, truth_value, false_value = self._and_or_ternary_arguments(node.value)

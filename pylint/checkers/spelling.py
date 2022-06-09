@@ -448,7 +448,7 @@ class SpellingChecker(BaseTokenChecker):
         | nodes.ClassDef
         | nodes.Module,
     ) -> None:
-        """Check the node has any spelling errors."""
+        """Check if the node has any spelling errors."""
         if not self.initialized:
             return
         if not node.doc_node:
