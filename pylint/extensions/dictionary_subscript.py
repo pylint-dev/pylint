@@ -13,7 +13,7 @@ from pylint.lint import PyLinter
 class NoDictSubscriptChecker(BaseChecker):
     name = "no-dict-subscript"
     msgs = {
-        "W0001": (
+        "R5701": (
             "Uses dict operator []",
             "dict-subscript",
             "Used to warn when subscripting a dictionary instead of using the get() function",
