@@ -15,8 +15,8 @@ from _pytest.monkeypatch import MonkeyPatch
 from py._path.local import LocalPath  # type: ignore[import]
 
 from pylint import run_epylint, run_pylint, run_pyreverse, run_symilar
-from pylint.testutils import GenericTestReporter as Reporter
 from pylint.lint import Run
+from pylint.testutils import GenericTestReporter as Reporter
 
 
 @pytest.mark.parametrize(
@@ -46,10 +46,11 @@ def test_runner_with_arguments(runner: Callable, tmpdir: LocalPath) -> None:
 
 
 def test_pylint_run_jobs_equal_zero_not_crashing_in_docker(
-        monkeypatch: MonkeyPatch,
-        tmpdir: LocalPath
+    monkeypatch: MonkeyPatch, tmpdir: LocalPath
 ) -> None:
-    """ Check that the pylint runner does not crash if `pylint.lint.run._query_cpu` yields 0. """
+    """Check that the pylint runner does not crash if `pylint.lint.run._query_cpu`
+    yields 0.
+    """
     monkeypatch.setattr("pylint.lint.run._query_cpu", lambda: 0)
     filepath = os.path.abspath(__file__)
     testargs = [filepath, "--jobs=0"]
