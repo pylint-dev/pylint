@@ -5,6 +5,9 @@ What's New in Pylint 2.14.2?
 ----------------------------
 Release date: TBA
 
+* Fixed a false positive for ``used-before-assignment`` when a try block returns
+  but an except handler defines a name via type annotation.
+
 
 
 What's New in Pylint 2.14.1?

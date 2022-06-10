@@ -726,6 +726,13 @@ scope_type : {self._atomic.scope_type}
     def _defines_name_raises_or_returns(name: str, node: nodes.NodeNG) -> bool:
         if isinstance(node, (nodes.Raise, nodes.Return)):
             return True
+        if (
+            isinstance(node, nodes.AnnAssign)
+            and node.value
+            and isinstance(node.target, nodes.AssignName)
+            and node.target.name == name
+        ):
+            return True
         if isinstance(node, nodes.Assign):
             for target in node.targets:
                 for elt in utils.get_all_elements(target):
