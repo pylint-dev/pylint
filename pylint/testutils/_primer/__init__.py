@@ -4,4 +4,7 @@
 
 __all__ = ["PackageToLint", "PRIMER_DIRECTORY_PATH"]
 
-from pylint.testutils.primer.package_to_lint import PRIMER_DIRECTORY_PATH, PackageToLint
+from pylint.testutils._primer.package_to_lint import (
+    PRIMER_DIRECTORY_PATH,
+    PackageToLint,
+)
