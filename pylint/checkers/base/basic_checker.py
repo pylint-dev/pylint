@@ -321,10 +321,13 @@ class BasicChecker(_BasicChecker):
         elif isinstance(test, nodes.Call):
             inferred_call = utils.safe_infer(test.func)
             if isinstance(inferred_call, nodes.FunctionDef):
-                return_nodes = list(inferred_call._get_return_nodes_skip_functions())
-                if return_nodes and all(
-                    isinstance(n.value, nodes.GeneratorExp) for n in return_nodes
-                ):
+                all_returns_were_generator = None
+                for return_node in inferred_call._get_return_nodes_skip_functions():
+                    if not isinstance(return_node.value, nodes.GeneratorExp):
+                        all_returns_were_generator = False
+                        break
+                    all_returns_were_generator = True
+                if all_returns_were_generator:
                     self.add_message(
                         "using-constant-test", node=node, confidence=INFERENCE
                     )
