@@ -12,7 +12,7 @@ from pathlib import Path
 import pytest
 from pytest import LogCaptureFixture
 
-from pylint.testutils.primer import PackageToLint
+from pylint.testutils._primer import PackageToLint
 
 PRIMER_DIRECTORY = (Path("tests") / ".pylint_primer_tests/").resolve()
 

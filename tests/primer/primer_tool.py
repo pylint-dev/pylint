@@ -17,7 +17,7 @@ import git
 
 from pylint.lint import Run
 from pylint.reporters import JSONReporter
-from pylint.testutils.primer import PackageToLint
+from pylint.testutils._primer import PackageToLint
 
 MAX_GITHUB_COMMENT_LENGTH = 65536
 TESTS_DIR = Path(__file__).parent.parent
