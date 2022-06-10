@@ -36,6 +36,10 @@ False negatives fixed
 
   Closes #6648
 
+* Emit ``using-constant-test`` when testing the truth value of a call that only returns generators.
+
+  Closes #6909
+
 
 Other bug fixes
 ===============
