@@ -2,9 +2,9 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-"""Check for dictionary read-access via subscript"""
+"""Check for dictionary read-access via subscript."""
 
-from astroid import nodes, Dict, Assign
+from astroid import Assign, Dict, nodes
 
 from pylint.checkers import BaseChecker, utils
 from pylint.lint import PyLinter
@@ -22,9 +22,10 @@ class NoDictSubscriptChecker(BaseChecker):
 
     def visit_subscript(self, node: nodes.Subscript) -> None:
         if isinstance(utils.safe_infer(node.value), Dict) and not isinstance(
-                node.parent, Assign
+            node.parent, Assign
         ):
             self.add_message("dict-subscript", node=node)
+
 
 def register(linter: PyLinter) -> None:
     linter.register_checker(NoDictSubscriptChecker(linter))
