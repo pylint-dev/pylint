@@ -14,7 +14,7 @@ class NoDictSubscriptChecker(BaseChecker):
     name = "no-dict-subscript"
     msgs = {
         "R5701": (
-            "Uses dict operator []",
+            "Using dict operator [], consider using get() instead",
             "dict-subscript",
             "Used to warn when subscripting a dictionary instead of using the get() function",
         ),
