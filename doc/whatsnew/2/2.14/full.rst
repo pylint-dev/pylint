@@ -5,6 +5,10 @@ What's New in Pylint 2.14.2?
 ----------------------------
 Release date: TBA
 
+* Don't crash if ``lint.run._query_cpu()`` returns 0 for number of available
+  cpus.
+
+  Closes #6902
 
 What's New in Pylint 2.14.1?
 ----------------------------
