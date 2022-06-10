@@ -317,7 +317,7 @@ class BasicChecker(_BasicChecker):
         emit = isinstance(test, (nodes.Const,) + structs + const_nodes)
         if not isinstance(test, except_nodes):
             inferred = utils.safe_infer(test)
-        # Emit if the call is to a function that only returns GeneratorExp (always truthy)
+        # Emit if calling a function that only returns GeneratorExp (always tests True)
         elif isinstance(test, nodes.Call):
             inferred_call = utils.safe_infer(test.func)
             if isinstance(inferred_call, nodes.FunctionDef):
