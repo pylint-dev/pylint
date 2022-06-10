@@ -11,7 +11,6 @@ from collections.abc import Callable
 from unittest.mock import patch
 
 import pytest
-from _pytest.monkeypatch import MonkeyPatch
 from py._path.local import LocalPath  # type: ignore[import]
 
 from pylint import run_epylint, run_pylint, run_pyreverse, run_symilar
@@ -45,13 +44,10 @@ def test_runner_with_arguments(runner: Callable, tmpdir: LocalPath) -> None:
         assert err.value.code == 0
 
 
-def test_pylint_run_jobs_equal_zero_not_crashing_in_docker(
-    monkeypatch: MonkeyPatch, tmpdir: LocalPath
-) -> None:
+def test_pylint_run_jobs_equal_zero_not_crashing_in_docker(tmpdir: LocalPath) -> None:
     """Check that the pylint runner does not crash if `pylint.lint.run._query_cpu`
     yields 0.
     """
-    monkeypatch.setattr("pylint.lint.run._query_cpu", lambda: 0)
     filepath = os.path.abspath(__file__)
     testargs = [filepath, "--jobs=0"]
     with tmpdir.as_cwd():

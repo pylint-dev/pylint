@@ -5,8 +5,8 @@ What's New in Pylint 2.14.2?
 ----------------------------
 Release date: TBA
 
-* Don't crash if ``lint.run._query_cpu()`` returns 0 for number of available
-  cpus.
+* Don't crash if ``lint.run._query_cpu()`` is run within a Kubernetes Pod, that has only
+  a fraction of a cpu core assigned. Just go with one process then.
 
   Closes #6902
 
