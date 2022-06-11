@@ -5,6 +5,11 @@ What's New in Pylint 2.14.2?
 ----------------------------
 Release date: TBA
 
+* Fixed a false positive in ``unnecessary-list-index-lookup`` and ``unnecessary-dict-index-lookup``
+  when the subscript is updated in the body of a nested loop.
+
+  Closes #6818
+
 * Fixed a false positive for ``used-before-assignment`` when a try block returns
   but an except handler defines a name via type annotation.
 
