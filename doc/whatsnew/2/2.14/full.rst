@@ -5,6 +5,10 @@ What's New in Pylint 2.14.2?
 ----------------------------
 Release date: TBA
 
+* Fixed a false positive in ``consider-using-f-string`` if the left side of a ``%`` is not a string.
+
+  Closes #6689
+
 * Fixed a false positive in ``unnecessary-list-index-lookup`` and ``unnecessary-dict-index-lookup``
   when the subscript is updated in the body of a nested loop.
 
