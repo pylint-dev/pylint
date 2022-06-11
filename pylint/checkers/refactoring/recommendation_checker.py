@@ -394,6 +394,10 @@ class RecommendationChecker(checkers.BaseChecker):
             if "\\" in node.parent.right.as_string():
                 return
 
+            # If % applied to another type than str, it's modulo and can't be replaced by formatting
+            if not isinstance(node.parent.left.value, str):
+                return
+
             inferred_right = utils.safe_infer(node.parent.right)
 
             # If dicts or lists of length > 1 are used
