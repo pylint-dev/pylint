@@ -1921,14 +1921,30 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 return
             iterating_object_name = node.iter.func.expr.as_string()
 
+            # Store potential violations. These will only be reported if we don't
+            # discover any writes to the collection during the loop.
+            messages = []
+
             # Verify that the body of the for loop uses a subscript
             # with the object that was iterated. This uses some heuristics
             # in order to make sure that the same object is used in the
             # for body.
 
             children = (
-                node.body if isinstance(node, nodes.For) else node.parent.get_children()
+                node.body
+                if isinstance(node, nodes.For)
+                else list(node.parent.get_children())
             )
+
+            # Check if there are any for / while loops within the loop in question;
+            # If so, we will be more conservative about reporting errors as we
+            # can't yet do proper control flow analysis to be sure when
+            # reassignment will affect us
+            nested_loops = itertools.chain.from_iterable(
+                child.nodes_of_class((nodes.For, nodes.While)) for child in children
+            )
+            has_nested_loops = next(nested_loops, None) is not None
+
             for child in children:
                 for subscript in child.nodes_of_class(nodes.Subscript):
                     if not isinstance(subscript.value, (nodes.Name, nodes.Attribute)):
@@ -1968,11 +1984,19 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                             # defined and compare that to the for loop's line number
                             continue
 
-                        self.add_message(
-                            "unnecessary-dict-index-lookup",
-                            node=subscript,
-                            args=(node.target.elts[1].as_string()),
-                        )
+                        if has_nested_loops:
+                            messages.append(
+                                {
+                                    "node": subscript,
+                                    "variable": node.target.elts[1].as_string(),
+                                }
+                            )
+                        else:
+                            self.add_message(
+                                "unnecessary-dict-index-lookup",
+                                node=subscript,
+                                args=(node.target.elts[1].as_string(),),
+                            )
 
                     # Case where .items is assigned to single var (i.e., for item in d.items())
                     elif isinstance(value, nodes.Subscript):
@@ -1999,11 +2023,31 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                         inferred = utils.safe_infer(value.slice)
                         if not isinstance(inferred, nodes.Const) or inferred.value != 0:
                             continue
-                        self.add_message(
-                            "unnecessary-dict-index-lookup",
-                            node=subscript,
-                            args=("1".join(value.as_string().rsplit("0", maxsplit=1)),),
-                        )
+
+                        if has_nested_loops:
+                            messages.append(
+                                {
+                                    "node": subscript,
+                                    "variable": "1".join(
+                                        value.as_string().rsplit("0", maxsplit=1)
+                                    ),
+                                }
+                            )
+                        else:
+                            self.add_message(
+                                "unnecessary-dict-index-lookup",
+                                node=subscript,
+                                args=(
+                                    "1".join(value.as_string().rsplit("0", maxsplit=1)),
+                                ),
+                            )
+
+            for message in messages:
+                self.add_message(
+                    "unnecessary-dict-index-lookup",
+                    node=message["node"],
+                    args=(message["variable"],),
+                )
 
     def _check_unnecessary_list_index_lookup(
         self, node: nodes.For | nodes.Comprehension
@@ -2029,9 +2073,25 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         iterating_object_name = node.iter.args[0].name
         value_variable = node.target.elts[1]
 
+        # Store potential violations. These will only be reported if we don't
+        # discover any writes to the collection during the loop.
+        bad_nodes = []
+
         children = (
-            node.body if isinstance(node, nodes.For) else node.parent.get_children()
+            node.body
+            if isinstance(node, nodes.For)
+            else list(node.parent.get_children())
         )
+
+        # Check if there are any for / while loops within the loop in question;
+        # If so, we will be more conservative about reporting errors as we
+        # can't yet do proper control flow analysis to be sure when
+        # reassignment will affect us
+        nested_loops = itertools.chain.from_iterable(
+            child.nodes_of_class((nodes.For, nodes.While)) for child in children
+        )
+        has_nested_loops = next(nested_loops, None) is not None
+
         for child in children:
             for subscript in child.nodes_of_class(nodes.Subscript):
                 if isinstance(node, nodes.For) and _is_part_of_assignment_target(
@@ -2070,9 +2130,23 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                         # reassigned on a later line, so it can't be used.
                         continue
 
-                    self.add_message(
-                        "unnecessary-list-index-lookup",
-                        node=subscript,
-                        args=(node.target.elts[1].name,),
-                        confidence=HIGH,
-                    )
+                    if has_nested_loops:
+                        # Have found a likely issue, but since there are nested
+                        # loops we don't want to report this unless we get to the
+                        # end of the loop without updating the collection
+                        bad_nodes.append(subscript)
+                    else:
+                        self.add_message(
+                            "unnecessary-list-index-lookup",
+                            node=subscript,
+                            args=(node.target.elts[1].name,),
+                            confidence=HIGH,
+                        )
+
+        for subscript in bad_nodes:
+            self.add_message(
+                "unnecessary-list-index-lookup",
+                node=subscript,
+                args=(node.target.elts[1].name,),
+                confidence=HIGH,
+            )

@@ -47,3 +47,7 @@ Other Changes
 
 Internal changes
 ================
+
+* ``pylint.testutils.primer`` is now a private API.
+
+  Refs #6905
