@@ -309,7 +309,7 @@ Pylint can emit the following messages:
             "refactor",
             "information",
         ):
-            # We need remove all duplicated shared messages
+            # We need to remove all duplicated shared messages
             messages = sorted(
                 {msg.id: msg for msg in messages_dict[category]}.values(),
                 key=lambda item: item.name,
