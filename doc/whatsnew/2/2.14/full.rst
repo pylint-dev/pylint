@@ -5,6 +5,11 @@ What's New in Pylint 2.14.2?
 ----------------------------
 Release date: TBA
 
+* Don't crash if ``lint.run._query_cpu()`` is run within a Kubernetes Pod, that has only
+  a fraction of a cpu core assigned. Just go with one process then.
+
+  Closes #6902
+
 * Fixed a false positive in ``consider-using-f-string`` if the left side of a ``%`` is not a string.
 
   Closes #6689
