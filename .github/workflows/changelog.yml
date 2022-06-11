@@ -12,13 +12,11 @@ jobs:
     name: Changelog Entry Check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-
-      - name: Grep PR description for changelog content
+      - uses: actions-ecosystem/action-regex-match@v2
+        name: Check PR description for changelog content
         if:
           contains(github.event.pull_request.labels.*.name, 'skip news :mute:') != true
-        run: |
-          [[ github.event.pull_request.body =~ <!-- changelog start -->\n(.*\n)*<!-- changelog end --> ]] || \
-          echo "Please add '<!-- changelog start -->\nYOUR CHANGELOG ENTRY\n<!-- changelog end -->' to the description of the PR \
-          (or if appropriate, ask a maintainer to add the 'skip news' label)" && \
-          exit 1)
+        with:
+          text: ${{ github.event.pull_request.body }}
+          regex: '<!-- changelog start -->\n(.*\n)*<!-- changelog end -->'
+          flags: gm
