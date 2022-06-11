@@ -73,6 +73,7 @@ def statement_good():
     "%s" % "\n"
     "%s" % "\n".join(i for i in "string")
     1 % "str"
+    (1, 2) % 'garbage'
 
 
 def statement_bad():
