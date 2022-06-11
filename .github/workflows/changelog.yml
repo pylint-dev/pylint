@@ -1,0 +1,24 @@
+name: changelog
+
+on:
+  pull_request:
+    types: [opened, synchronize, labeled, unlabeled, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Changelog Entry Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Grep PR description for changelog content
+        if:
+          contains(github.event.pull_request.labels.*.name, 'skip news :mute:') != true
+        run: |
+          [[ github.event.pull_request.body =~ <!-- changelog start -->\n(.*\n)*<!-- changelog end --> ]] || \
+          echo "Please add '<!-- changelog start -->\nYOUR CHANGELOG ENTRY\n<!-- changelog end -->' to the description of the PR \
+          (or if appropriate, ask a maintainer to add the 'skip news' label)" && \
+          exit 1)

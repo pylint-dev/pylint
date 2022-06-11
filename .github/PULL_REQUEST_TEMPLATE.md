@@ -28,7 +28,10 @@ To ease the process of reviewing your PR, do make sure to complete the following
 <!--
 Provide a short summary of the change, focused on the user-facing aspects.
 This summary will be included in the changelog. Please do not remove the
-"changelog start" and "changelog end" lines.
+"changelog start" and "changelog end" lines, as they are used by the script
+generating the changelog.
+If your PR does not need a changelog entry, ask a contributor to add the
+'skip news :mute:' label.
 -->
 <!-- changelog start -->
 

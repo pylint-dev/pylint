@@ -34,13 +34,15 @@ class ChangelogDirective(SphinxDirective):
     has_content = True
     parser = Parser()
     changelog_pattern = re.compile(
-        r"<!-- changelog start -->\n(?P<entry>.*)\n<!-- changelog end -->",
+        r"<!-- changelog start -->\n(?P<entry>(.*\n)*)<!-- changelog end -->",
         flags=re.MULTILINE,
     )
 
     def run(self):
         if not self.config.pylint_changelog_token:
-            logger.warning("A GitHub token is required to generate the changelog.")
+            logger.info(
+                "No Github token provided. Changelog generation will be skipped."
+            )
             return []
         result = []
         caption = self.options.get("caption")
@@ -80,7 +82,11 @@ class ChangelogDirective(SphinxDirective):
         if match:
             text = match.group("entry").strip()
         else:
-            logger.info("PR #%d is missing the changelog section.", issue.number)
+            logger.warning(
+                "PR #%d is missing the changelog section. "
+                "Using the PR title as substitute.",
+                issue.number,
+            )
             text = issue.title
         text += f"\n\nPR: [#{issue.number}](https://github.com/PyCQA/pylint/pull/{issue.number})"
         return nodes.list_item("", *self._parse_markdown(text).children)
