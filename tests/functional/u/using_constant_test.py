@@ -147,3 +147,19 @@ def test_good_comprehension_checks():
     {data for data in range(100) if abs(data)}
     {data: 1 for data in range(100) if data}
     {data: 1 for data in range(100)}
+
+
+# Calls to functions returning generator expressions are always truthy
+def get_generator():
+    return (x for x in range(0))
+
+if get_generator():  # [using-constant-test]
+    pass
+
+def maybe_get_generator(arg):
+    if arg:
+        return (x for x in range(0))
+    return None
+
+if maybe_get_generator(None):
+    pass

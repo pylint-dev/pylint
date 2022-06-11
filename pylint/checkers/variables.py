@@ -708,7 +708,9 @@ scope_type : {self._atomic.scope_type}
                 # Assume the except blocks execute, so long as each handler
                 # defines the name, raises, or returns.
                 elif all(
-                    NamesConsumer._defines_name_raises_or_returns(node.name, handler)
+                    NamesConsumer._defines_name_raises_or_returns_recursive(
+                        node.name, handler
+                    )
                     for handler in closest_try_except.handlers
                 ):
                     continue
@@ -721,45 +723,49 @@ scope_type : {self._atomic.scope_type}
         return uncertain_nodes
 
     @staticmethod
-    def _defines_name_raises_or_returns(
-        name: str, handler: nodes.ExceptHandler
+    def _defines_name_raises_or_returns(name: str, node: nodes.NodeNG) -> bool:
+        if isinstance(node, (nodes.Raise, nodes.Return)):
+            return True
+        if (
+            isinstance(node, nodes.AnnAssign)
+            and node.value
+            and isinstance(node.target, nodes.AssignName)
+            and node.target.name == name
+        ):
+            return True
+        if isinstance(node, nodes.Assign):
+            for target in node.targets:
+                for elt in utils.get_all_elements(target):
+                    if isinstance(elt, nodes.AssignName) and elt.name == name:
+                        return True
+        if isinstance(node, nodes.If):
+            # Check for assignments inside the test
+            if isinstance(node.test, nodes.NamedExpr) and node.test.target.name == name:
+                return True
+            if isinstance(node.test, nodes.Call):
+                for arg_or_kwarg in node.test.args + [
+                    kw.value for kw in node.test.keywords
+                ]:
+                    if (
+                        isinstance(arg_or_kwarg, nodes.NamedExpr)
+                        and arg_or_kwarg.target.name == name
+                    ):
+                        return True
+        return False
+
+    @staticmethod
+    def _defines_name_raises_or_returns_recursive(
+        name: str, node: nodes.NodeNG
     ) -> bool:
-        """Return True if some child of `handler` defines the name `name`,
+        """Return True if some child of `node` defines the name `name`,
         raises, or returns.
         """
-
-        def _define_raise_or_return(stmt: nodes.NodeNG) -> bool:
-            if isinstance(stmt, (nodes.Raise, nodes.Return)):
-                return True
-            if isinstance(stmt, nodes.Assign):
-                for target in stmt.targets:
-                    for elt in utils.get_all_elements(target):
-                        if isinstance(elt, nodes.AssignName) and elt.name == name:
-                            return True
-            if isinstance(stmt, nodes.If):
-                # Check for assignments inside the test
-                if (
-                    isinstance(stmt.test, nodes.NamedExpr)
-                    and stmt.test.target.name == name
-                ):
-                    return True
-                if isinstance(stmt.test, nodes.Call):
-                    for arg_or_kwarg in stmt.test.args + [
-                        kw.value for kw in stmt.test.keywords
-                    ]:
-                        if (
-                            isinstance(arg_or_kwarg, nodes.NamedExpr)
-                            and arg_or_kwarg.target.name == name
-                        ):
-                            return True
-            return False
-
-        for stmt in handler.get_children():
-            if _define_raise_or_return(stmt):
+        for stmt in node.get_children():
+            if NamesConsumer._defines_name_raises_or_returns(name, stmt):
                 return True
             if isinstance(stmt, (nodes.If, nodes.With)):
                 if any(
-                    _define_raise_or_return(nested_stmt)
+                    NamesConsumer._defines_name_raises_or_returns(name, nested_stmt)
                     for nested_stmt in stmt.get_children()
                 ):
                     return True

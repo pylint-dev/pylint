@@ -82,7 +82,9 @@ Release date: 2013-08-06
   raise Exception, args
 
 * Support for PEP 3102 and new missing-kwoa (E1125) message for missing
-  mandatory keyword argument (logilab.org's #107788)
+  mandatory keyword argument
+
+  Closes Logilab #107788
 
 * Fix spelling of max-branchs option, now max-branches
 
@@ -92,19 +94,30 @@ Release date: 2013-08-06
 
 * Follow astng renaming to astroid
 
-* bitbucket #37: check for unbalanced unpacking in assignments
+* Check for unbalanced unpacking in assignments
 
-* bitbucket #25: fix incomplete-protocol false positive for read-only
-  containers like tuple
+  Closes BitBucket #37
 
-* bitbucket #16: fix False positive E1003 on Python 3 for argument-less super()
+* Fix incomplete-protocol false positive for read-only containers like tuple
 
-* bitbucket #6: put back documentation in source distribution
+  Closes BitBucket #25
 
-* bitbucket #15: epylint shouldn't hang anymore when there is a large
-  output on pylint'stderr
+* Fix False positive E1003 on Python 3 for argument-less super()
 
-* bitbucket #7: fix epylint w/ python3
+  Closes BitBucket #16
 
-* bitbucket #3: remove string module from the default list of deprecated
-  modules
+* Put back documentation in source distribution
+
+  Closes BitBucket #6
+
+* epylint shouldn't hang anymore when there is a large output on pylint'stderr
+
+  Closes BitBucket #15
+
+* Fix epylint w/ python3
+
+  Closes BitBucket #7
+
+* Remove string module from the default list of deprecated modules
+
+  Closes BitBucket #3

@@ -1,1 +1,3 @@
-# This is a placeholder for correct code for this message.
+from ast import literal_eval
+
+literal_eval("[1, 2, 3]")

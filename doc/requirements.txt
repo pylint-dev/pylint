@@ -1,6 +1,6 @@
-Sphinx==4.5.0
+Sphinx==5.0.1
 sphinx-reredirects<1
-myst-parser~=0.17
 github3.py~=3.2
+myst-parser~=0.18
 furo==2022.6.4.1
 -e .

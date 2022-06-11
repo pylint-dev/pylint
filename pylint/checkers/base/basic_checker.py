@@ -17,7 +17,7 @@ from astroid import nodes
 
 from pylint import utils as lint_utils
 from pylint.checkers import BaseChecker, utils
-from pylint.interfaces import HIGH
+from pylint.interfaces import HIGH, INFERENCE
 from pylint.reporters.ureports import nodes as reporter_nodes
 from pylint.utils import LinterStats
 
@@ -317,6 +317,22 @@ class BasicChecker(_BasicChecker):
         emit = isinstance(test, (nodes.Const,) + structs + const_nodes)
         if not isinstance(test, except_nodes):
             inferred = utils.safe_infer(test)
+        # Emit if calling a function that only returns GeneratorExp (always tests True)
+        elif isinstance(test, nodes.Call):
+            inferred_call = utils.safe_infer(test.func)
+            if isinstance(inferred_call, nodes.FunctionDef):
+                # Can't use all(x) or not any(not x) for this condition, because it
+                # will return True for empty generators, which is not what we want.
+                all_returns_were_generator = None
+                for return_node in inferred_call._get_return_nodes_skip_functions():
+                    if not isinstance(return_node.value, nodes.GeneratorExp):
+                        all_returns_were_generator = False
+                        break
+                    all_returns_were_generator = True
+                if all_returns_were_generator:
+                    self.add_message(
+                        "using-constant-test", node=node, confidence=INFERENCE
+                    )
 
         if emit:
             self.add_message("using-constant-test", node=test)
@@ -336,12 +352,14 @@ class BasicChecker(_BasicChecker):
                     for inf_call in call_inferred:
                         if inf_call != astroid.Uninferable:
                             self.add_message(
-                                "missing-parentheses-for-call-in-test", node=test
+                                "missing-parentheses-for-call-in-test",
+                                node=test,
+                                confidence=INFERENCE,
                             )
                             break
                 except astroid.InferenceError:
                     pass
-            self.add_message("using-constant-test", node=test)
+            self.add_message("using-constant-test", node=test, confidence=INFERENCE)
 
     def visit_module(self, _: nodes.Module) -> None:
         """Check module name, docstring and required arguments."""

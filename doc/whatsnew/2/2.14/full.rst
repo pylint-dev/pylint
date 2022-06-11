@@ -1,9 +1,26 @@
 Full changelog
 ==============
 
-What's New in Pylint 2.14.1?
+What's New in Pylint 2.14.2?
 ----------------------------
 Release date: TBA
+
+* Fixed a false positive in ``consider-using-f-string`` if the left side of a ``%`` is not a string.
+
+  Closes #6689
+
+* Fixed a false positive in ``unnecessary-list-index-lookup`` and ``unnecessary-dict-index-lookup``
+  when the subscript is updated in the body of a nested loop.
+
+  Closes #6818
+
+* Fixed a false positive for ``used-before-assignment`` when a try block returns
+  but an except handler defines a name via type annotation.
+
+
+What's New in Pylint 2.14.1?
+----------------------------
+Release date: 2022-06-06
 
 * Avoid reporting ``unnecessary-dict-index-lookup`` or ``unnecessary-list-index-lookup``
   when the index lookup is part of a destructuring assignment.
