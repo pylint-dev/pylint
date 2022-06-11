@@ -43,7 +43,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from pylint.checkers import BaseChecker, DeprecatedMixin
-
 from pylint.checkers.deprecated import (
     DEPRECATED_ARGUMENT_MESSAGE,
     DEPRECATED_METHOD_MESSAGE,
