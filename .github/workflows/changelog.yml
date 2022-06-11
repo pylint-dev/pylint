@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions-ecosystem/action-regex-match@v2
+        id: regex-match
         name: Check PR description for changelog content
         if:
           contains(github.event.pull_request.labels.*.name, 'skip news :mute:') != true
@@ -20,3 +21,12 @@ jobs:
           text: ${{ github.event.pull_request.body }}
           regex: '<!-- changelog start -->\n(.*\n)*<!-- changelog end -->'
           flags: gm
+
+      - name: Emit warning if changelog is missing
+        if:
+          contains(github.event.pull_request.labels.*.name, 'skip news :mute:') != true
+          && ${{ steps.regex-match.outputs.match == '' }}
+        run: |
+          "Please add '<!-- changelog start -->\nYOUR CHANGELOG ENTRY\n<!-- changelog end -->' to the description of the PR \
+          (or if appropriate, ask a maintainer to add the 'skip news' label)" && \
+          exit 1)
