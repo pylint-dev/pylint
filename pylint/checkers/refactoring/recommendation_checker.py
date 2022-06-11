@@ -395,7 +395,9 @@ class RecommendationChecker(checkers.BaseChecker):
                 return
 
             # If % applied to another type than str, it's modulo and can't be replaced by formatting
-            if not isinstance(node.parent.left.value, str):
+            if not hasattr(node.parent.left, "value") or not isinstance(
+                node.parent.left.value, str
+            ):
                 return
 
             inferred_right = utils.safe_infer(node.parent.right)
