@@ -62,3 +62,15 @@ for a, b in enumerate(num_list):
 num_list = [1, 2, 3]
 for a, b in enumerate(num_list):
     ([x, num_list[a]], _) = ([5, 6], 1)
+
+# Regression test for https://github.com/PyCQA/pylint/issues/6818
+updated_list = [1, 2, 3]
+for idx, val in enumerate(updated_list):
+    while updated_list[idx] > 0:
+        updated_list[idx] -= 1
+
+updated_list = [1, 2, 3]
+for idx, val in enumerate(updated_list):
+    print(updated_list[idx]) # [unnecessary-list-index-lookup]
+    updated_list[idx] -= 1
+    print(updated_list[idx])

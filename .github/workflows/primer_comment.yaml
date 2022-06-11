@@ -111,7 +111,7 @@ jobs:
       - name: Compare outputs
         run: |
           . venv/bin/activate
-          python tests/primer/primer_tool.py compare \
+          python tests/primer/__main__.py compare \
           --commit=${{ github.event.workflow_run.head_sha }} \
           --base-file=output_${{ steps.python.outputs.python-version }}_main.txt \
           --new-file=output_${{ steps.python.outputs.python-version }}_pr.txt

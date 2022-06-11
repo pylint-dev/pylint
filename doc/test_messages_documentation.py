@@ -121,6 +121,8 @@ class LintModuleTest:
             line = match.group("line")
             if line is None:
                 lineno = i + 1
+            elif line.startswith("+") or line.startswith("-"):
+                lineno = i + 1 + int(line)
             else:
                 lineno = int(line)
 

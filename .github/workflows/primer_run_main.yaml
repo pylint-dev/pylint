@@ -72,8 +72,8 @@ jobs:
         id: commitstring
         run: |
           . venv/bin/activate
-          python tests/primer/primer_tool.py prepare --make-commit-string
-          output=$(python tests/primer/primer_tool.py prepare --read-commit-string)
+          python tests/primer/__main__.py prepare --make-commit-string
+          output=$(python tests/primer/__main__.py prepare --read-commit-string)
           echo "::set-output name=commitstring::$output"
       - name: Restore projects cache
         id: cache-projects
@@ -86,7 +86,7 @@ jobs:
       - name: Regenerate cache
         run: |
           . venv/bin/activate
-          python tests/primer/primer_tool.py prepare --clone
+          python tests/primer/__main__.py prepare --clone
       - name: Upload output diff
         uses: actions/upload-artifact@v3
         with:
@@ -98,7 +98,7 @@ jobs:
         run: |
           . venv/bin/activate
           pip install -e .
-          python tests/primer/primer_tool.py run --type=main 2>warnings.txt
+          python tests/primer/__main__.py run --type=main 2>warnings.txt
           WARNINGS=$(head -c 65000 < warnings.txt)
           if [[ $WARNINGS ]]
           then echo "::warning ::$WARNINGS"
