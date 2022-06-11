@@ -10,6 +10,10 @@ Release date: TBA
 
   Closes #6902
 
+* Fixed a false positive in ``consider-using-f-string`` if the left side of a ``%`` is not a string.
+
+  Closes #6689
+
 * Fixed a false positive in ``unnecessary-list-index-lookup`` and ``unnecessary-dict-index-lookup``
   when the subscript is updated in the body of a nested loop.
 
