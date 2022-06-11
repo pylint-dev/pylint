@@ -20,9 +20,6 @@ from pylint.reporters import JSONReporter
 from pylint.testutils._primer import PackageToLint
 
 MAX_GITHUB_COMMENT_LENGTH = 65536
-TESTS_DIR = Path(__file__).parent.parent
-PRIMER_DIRECTORY = TESTS_DIR / ".pylint_primer_tests/"
-PACKAGES_TO_PRIME_PATH = Path(__file__).parent / "packages_to_prime.json"
 
 PackageMessages = Dict[str, List[Dict[str, Union[str, int]]]]
 
@@ -33,8 +30,9 @@ CRASH_TEMPLATE_INTRO = "There is a pre-filled template"
 class Primer:
     """Main class to handle priming of packages."""
 
-    def __init__(self, json_path: Path) -> None:
+    def __init__(self, primer_directory: Path, json_path: Path) -> None:
         # Preparing arguments
+        self.primer_directory = primer_directory
         self._argument_parser = argparse.ArgumentParser(prog="Pylint Primer")
         self._subparsers = self._argument_parser.add_subparsers(dest="command")
 
@@ -120,12 +118,14 @@ class Primer:
                 print(f"'{package}' remote is at commit '{remote_sha1_commit}'.")
                 commit_string += remote_sha1_commit + "_"
         elif self.config.read_commit_string:
-            with open(PRIMER_DIRECTORY / "commit_string.txt", encoding="utf-8") as f:
+            with open(
+                self.primer_directory / "commit_string.txt", encoding="utf-8"
+            ) as f:
                 print(f.read())
 
         if commit_string:
             with open(
-                PRIMER_DIRECTORY / "commit_string.txt", "w", encoding="utf-8"
+                self.primer_directory / "commit_string.txt", "w", encoding="utf-8"
             ) as f:
                 f.write(commit_string)
 
@@ -152,7 +152,7 @@ class Primer:
                     other_fatal_msgs.append(msg)
 
         with open(
-            PRIMER_DIRECTORY
+            self.primer_directory
             / f"output_{'.'.join(str(i) for i in sys.version_info[:3])}_{self.config.type}.txt",
             "w",
             encoding="utf-8",
@@ -282,7 +282,7 @@ class Primer:
             )
             comment = f"{comment[:max_len - 10]}...\n\n{truncation_information}\n\n"
         comment += hash_information
-        with open(PRIMER_DIRECTORY / "comment.txt", "w", encoding="utf-8") as f:
+        with open(self.primer_directory / "comment.txt", "w", encoding="utf-8") as f:
             f.write(comment)
 
     def _lint_package(self, data: PackageToLint) -> list[dict[str, str | int]]:
@@ -304,8 +304,3 @@ class Primer:
                 name: PackageToLint(**package_data)
                 for name, package_data in json.load(f).items()
             }
-
-
-if __name__ == "__main__":
-    primer = Primer(PACKAGES_TO_PRIME_PATH)
-    primer.run()
