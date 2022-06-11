@@ -36,13 +36,10 @@ False negatives fixed
 
   Closes #6648
 
-* Emit ``using-constant-test`` when testing the truth value of a call that only returns generators.
+* Emit ``using-constant-test`` when testing the truth value of a variable or call result
+  holding a generator.
 
   Closes #6909
-
-* Emit ``using-constant-test`` when testing the truth value of a variable holding a generator.
-
-  Refs #6909
 
 
 Other bug fixes
