@@ -9,7 +9,7 @@ Release date: TBA
   a fraction of a cpu core assigned. Just go with one process then.
 
   Closes #6902
-  
+
 * Fixed a false positive in ``unnecessary-list-index-lookup`` and ``unnecessary-dict-index-lookup``
   when the subscript is updated in the body of a nested loop.
 
