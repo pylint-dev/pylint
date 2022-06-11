@@ -1,26 +1,26 @@
 """Check unknown or deleted option. """
 
 # Standard disable with unknown value
-# pylint: disable=C05048  # [bad-option-value]
+# pylint: disable=C05048  # [unknown-option-value]
 # Standard disable with deleted symbol
-# pylint: disable=execfile-builtin  # [bad-option-value]
+# pylint: disable=execfile-builtin  # [useless-option-value]
 # Standard disable with deleted msgid
-# pylint: disable=W1656  # [bad-option-value]
+# pylint: disable=W1656  # [useless-option-value]
 # disable-next with unknown value
-# pylint: disable-next=R78948  # [bad-option-value]
+# pylint: disable-next=R78948  # [unknown-option-value]
 # disable-next with deleted symbol
-# pylint: disable-next=deprecated-types-field  # [bad-option-value]
+# pylint: disable-next=deprecated-types-field  # [useless-option-value]
 # disable-next with deleted msgid
-# pylint: disable-next=W1634  # [bad-option-value]
+# pylint: disable-next=W1634  # [useless-option-value]
 
 # enable with unknown value
-# pylint:enable=W04044  # [bad-option-value]
+# pylint:enable=W04044  # [unknown-option-value]
 # enable with deleted symbol
-# pylint:enable=no-space-after-comma  # [bad-option-value]
+# pylint:enable=dict-values-not-iterating  # [useless-option-value]
 # enable with deleted msgid
-# pylint:enable=W1622  # [bad-option-value]
+# pylint:enable=W1622  # [useless-option-value]
 
 # Standard disable with deleted old name symbol of deleted message
-# pylint: disable=no-space-after-operator  # [bad-option-value]
+# pylint: disable=no-space-after-operator  # [useless-option-value]
 # Standard disable with deleted old name msgid of deleted message
-# pylint: disable=C0323  # [bad-option-value]
+# pylint: disable=C0323  # [useless-option-value]

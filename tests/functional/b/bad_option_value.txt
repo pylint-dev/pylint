@@ -1,11 +1,11 @@
-bad-option-value:4:0:None:None::Bad option value for 'disable', expected a valid pylint message and got 'C05048':HIGH
-bad-option-value:6:0:None:None::Bad option value for 'disable', expected a valid pylint message and got 'execfile-builtin':HIGH
-bad-option-value:8:0:None:None::Bad option value for 'disable', expected a valid pylint message and got 'W1656':HIGH
-bad-option-value:10:0:None:None::Bad option value for 'disable-next', expected a valid pylint message and got 'R78948':HIGH
-bad-option-value:12:0:None:None::Bad option value for 'disable-next', expected a valid pylint message and got 'deprecated-types-field':HIGH
-bad-option-value:14:0:None:None::Bad option value for 'disable-next', expected a valid pylint message and got 'W1634':HIGH
-bad-option-value:17:0:None:None::Bad option value for 'enable', expected a valid pylint message and got 'W04044':HIGH
-bad-option-value:19:0:None:None::Bad option value for 'enable', expected a valid pylint message and got 'no-space-after-comma':HIGH
-bad-option-value:21:0:None:None::Bad option value for 'enable', expected a valid pylint message and got 'W1622':HIGH
-bad-option-value:24:0:None:None::Bad option value for 'disable', expected a valid pylint message and got 'no-space-after-operator':HIGH
-bad-option-value:26:0:None:None::Bad option value for 'disable', expected a valid pylint message and got 'C0323':HIGH
+unknown-option-value:4:0:None:None::Unknown option value for 'disable', expected a valid pylint message and got 'C05048':HIGH
+useless-option-value:6:0:None:None::"Useless option value for 'disable', 'execfile-builtin' was removed from pylint, see https://github.com/PyCQA/pylint/pull/4942.":HIGH
+useless-option-value:8:0:None:None::"Useless option value for 'disable', 'W1656' was removed from pylint, see https://github.com/PyCQA/pylint/pull/4942.":HIGH
+unknown-option-value:10:0:None:None::Unknown option value for 'disable-next', expected a valid pylint message and got 'R78948':HIGH
+useless-option-value:12:0:None:None::"Useless option value for 'disable-next', 'deprecated-types-field' was removed from pylint, see https://github.com/PyCQA/pylint/pull/4942.":HIGH
+useless-option-value:14:0:None:None::"Useless option value for 'disable-next', 'W1634' was removed from pylint, see https://github.com/PyCQA/pylint/pull/4942.":HIGH
+unknown-option-value:17:0:None:None::Unknown option value for 'enable', expected a valid pylint message and got 'W04044':HIGH
+useless-option-value:19:0:None:None::"Useless option value for 'enable', 'dict-values-not-iterating' was removed from pylint, see https://github.com/PyCQA/pylint/pull/4942.":HIGH
+useless-option-value:21:0:None:None::"Useless option value for 'enable', 'W1622' was removed from pylint, see https://github.com/PyCQA/pylint/pull/4942.":HIGH
+useless-option-value:24:0:None:None::"Useless option value for 'disable', 'no-space-after-operator' was removed from pylint, see https://github.com/PyCQA/pylint/pull/3577.":HIGH
+useless-option-value:26:0:None:None::"Useless option value for 'disable', 'C0323' was removed from pylint, see https://github.com/PyCQA/pylint/pull/3577.":HIGH

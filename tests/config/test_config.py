@@ -60,7 +60,7 @@ def test_unknown_message_id(capsys: CaptureFixture) -> None:
     """Check that we correctly raise a message on an unknown id."""
     Run([str(EMPTY_MODULE), "--disable=12345"], exit=False)
     output = capsys.readouterr()
-    assert "Command line:1:0: E0012: Bad option value for '--disable'" in output.out
+    assert "Command line:1:0: W0012: Unknown option value for '--disable'" in output.out
 
 
 def test_unknown_option_name(capsys: CaptureFixture) -> None:

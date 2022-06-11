@@ -7,4 +7,8 @@ unused-import:9:0:9:51::Unused OrderedDict imported from collections:UNDEFINED
 unused-import:9:0:9:51::Unused deque imported from collections:UNDEFINED
 unused-import:10:0:10:22::Unused import re:UNDEFINED
 unused-import:13:0:13:40::Unused SomeOtherName imported from fake:UNDEFINED
-unused-import:45:0:45:9::Unused import os:UNDEFINED
+unused-import:48:0:48:9::Unused import os:UNDEFINED
+unused-import:79:4:79:19::Unused import unittest:UNDEFINED
+unused-import:81:4:81:15::Unused import uuid:UNDEFINED
+unused-import:83:4:83:19::Unused import warnings:UNDEFINED
+unused-import:85:4:85:21::Unused import compileall:UNDEFINED

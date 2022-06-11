@@ -216,7 +216,9 @@ class DocstringParameterChecker(BaseChecker):
 
     visit_asyncfunctiondef = visit_functiondef
 
-    def check_functiondef_params(self, node, node_doc):
+    def check_functiondef_params(
+        self, node: nodes.FunctionDef, node_doc: Docstring
+    ) -> None:
         node_allow_no_param = None
         if node.name in self.constructor_names:
             class_node = checker_utils.node_frame_class(node)
@@ -247,7 +249,9 @@ class DocstringParameterChecker(BaseChecker):
             node_doc, node.args, node, node_allow_no_param
         )
 
-    def check_functiondef_returns(self, node, node_doc):
+    def check_functiondef_returns(
+        self, node: nodes.FunctionDef, node_doc: Docstring
+    ) -> None:
         if (not node_doc.supports_yields and node.is_generator()) or node.is_abstract():
             return
 
@@ -257,7 +261,9 @@ class DocstringParameterChecker(BaseChecker):
         ):
             self.add_message("redundant-returns-doc", node=node)
 
-    def check_functiondef_yields(self, node, node_doc):
+    def check_functiondef_yields(
+        self, node: nodes.FunctionDef, node_doc: Docstring
+    ) -> None:
         if not node_doc.supports_yields or node.is_abstract():
             return
 
@@ -446,25 +452,21 @@ class DocstringParameterChecker(BaseChecker):
 
     def _compare_ignored_args(
         self,
-        found_argument_names,
-        message_id,
-        ignored_argument_names,
-        warning_node,
-    ):
+        found_argument_names: set[str],
+        message_id: str,
+        ignored_argument_names: set[str],
+        warning_node: nodes.NodeNG,
+    ) -> None:
         """Compare the found argument names with the ignored ones and
         generate a message if there are ignored arguments found.
 
         :param found_argument_names: argument names found in the docstring
-        :type found_argument_names: set
 
         :param message_id: pylint message id
-        :type message_id: str
 
         :param ignored_argument_names: Expected argument names
-        :type ignored_argument_names: set
 
         :param warning_node: The node to be analyzed
-        :type warning_node: :class:`astroid.scoped_nodes.Node`
         """
         existing_ignored_argument_names = ignored_argument_names & found_argument_names
 
@@ -481,7 +483,7 @@ class DocstringParameterChecker(BaseChecker):
         arguments_node: astroid.Arguments,
         warning_node: astroid.NodeNG,
         accept_no_param_doc: bool | None = None,
-    ):
+    ) -> None:
         """Check that all parameters are consistent with the parameters mentioned
         in the parameter documentation (e.g. the Sphinx tags 'param' and 'type').
 
@@ -616,26 +618,28 @@ class DocstringParameterChecker(BaseChecker):
             warning_node,
         )
 
-    def check_single_constructor_params(self, class_doc, init_doc, class_node):
+    def check_single_constructor_params(
+        self, class_doc: Docstring, init_doc: Docstring, class_node: nodes.ClassDef
+    ) -> None:
         if class_doc.has_params() and init_doc.has_params():
             self.add_message(
                 "multiple-constructor-doc", args=(class_node.name,), node=class_node
             )
 
-    def _handle_no_raise_doc(self, excs, node):
+    def _handle_no_raise_doc(self, excs: set[str], node: nodes.FunctionDef) -> None:
         if self.linter.config.accept_no_raise_doc:
             return
 
         self._add_raise_message(excs, node)
 
-    def _add_raise_message(self, missing_excs, node):
+    def _add_raise_message(
+        self, missing_excs: set[str], node: nodes.FunctionDef
+    ) -> None:
         """Adds a message on :param:`node` for the missing exception type.
 
         :param missing_excs: A list of missing exception types.
-        :type missing_excs: set(str)
 
         :param node: The node show the message on.
-        :type node: nodes.NodeNG
         """
         if node.is_abstract():
             try:

@@ -46,7 +46,7 @@ class BroadTryClauseChecker(checkers.BaseChecker):
         ),
     )
 
-    def _count_statements(self, try_node):
+    def _count_statements(self, try_node: nodes.TryExcept | nodes.TryFinally) -> int:
         statement_count = len(try_node.body)
 
         for body_node in try_node.body:

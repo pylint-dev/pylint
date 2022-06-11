@@ -16,6 +16,8 @@ on:
       - "!.github/workflows/primer_run_main.yaml"
       - "!.github/workflows/primer_comment.yaml"
       - "!tests/primer/packages_to_prime.json"
+    branches-ignore:
+      - "maintenance/**"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -62,7 +64,7 @@ jobs:
           'astroid_sha.txt') }}"
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.2
+        uses: actions/cache@v3.0.3
         with:
           path: venv
           key: >-
@@ -143,7 +145,7 @@ jobs:
           echo "::set-output name=commitstring::$output"
       - name: Restore projects cache
         id: cache-projects
-        uses: actions/cache@v3
+        uses: actions/cache@v3.0.3
         with:
           path: tests/.pylint_primer_tests/
           key: >-

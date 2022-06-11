@@ -17,15 +17,18 @@ class SomeClass(object):
     SomeOtherName = SomeOtherName
 
 from never import __all__
-# pylint: disable=wrong-import-order,ungrouped-imports
+# pylint: disable=wrong-import-order,ungrouped-imports,reimported
 import typing
 from typing import TYPE_CHECKING
+import typing as t
 
 
 if typing.TYPE_CHECKING:
     import collections
 if TYPE_CHECKING:
     import itertools
+if t.TYPE_CHECKING:
+    import xml
 
 
 def get_ordered_dict() -> 'collections.OrderedDict':
@@ -65,3 +68,22 @@ class NonRegr(object):
 if TYPE_CHECKING:
     if sys.version_info >= (3, 6, 2):
         from typing import NoReturn
+
+# Pathological cases
+from io import TYPE_CHECKING  # pylint: disable=no-name-in-module
+import trace as t
+import astroid as typing
+TYPE_CHECKING = "red herring"
+
+if TYPE_CHECKING:
+    import unittest  # [unused-import]
+if t.TYPE_CHECKING:  # pylint: disable=no-member
+    import uuid  # [unused-import]
+if typing.TYPE_CHECKING:  # pylint: disable=no-member
+    import warnings  # [unused-import]
+if typing.TYPE_CHECKING_WITH_MAGIC:  # pylint: disable=no-member
+    import compileall  # [unused-import]
+
+TYPE_CHECKING = False
+if TYPE_CHECKING:
+    import zoneinfo

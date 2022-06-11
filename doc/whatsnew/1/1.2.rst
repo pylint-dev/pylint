@@ -11,18 +11,25 @@ Release date: 2014-04-30
   lines.
 
 * Emit [assignment-from-none] when the function contains bare returns.
-  Fixes BitBucket issue #191.
+
+  Closes BitBucket #191
 
 * Added a new warning for closing over variables that are
-  defined in loops. Fixes Bitbucket issue #176.
+  defined in loops.
+
+  Closes BitBucket #176
 
 * Do not warn about \u escapes in string literals when Unicode literals
-  are used for Python 2.*. Fixes BitBucket issue #151.
+  are used for Python 2.*.
+
+  Closes BitBucket #151
 
 * Extend the checking for unbalanced-tuple-unpacking and
   unpacking-non-sequence to instance attribute unpacking as well.
 
-* Fix explicit checking of python script (1.2 regression, #219)
+* Fix explicit checking of python script (1.2 regression)
+
+  Closes #219
 
 * Restore --init-hook, renamed accidentally into --init-hooks in 1.2.0
 
@@ -37,27 +44,34 @@ What's New in Pylint 1.2.0?
 Release date: 2014-04-18
 
 * Pass the current python paths to pylint process when invoked via
-  epylint.  Fixes BitBucket issue #133.
+  epylint.
+
+  Closes BitBucket #133.
 
 * Add -i / --include-ids and -s / --symbols back as completely ignored
-  options. Fixes BitBucket issue #180.
+  options.
 
-* Extend the number of cases in which logging calls are detected. Fixes
-  bitbucket issue #182.
+  Closes BitBucket #180.
+
+* Extend the number of cases in which logging calls are detected.
+
+  Closes BitBucket #182.
 
 * Improve pragma handling to not detect pylint:* strings in non-comments.
-  Fixes BitBucket issue #79.
+
+  Closes BitBucket #79.
 
 * Do not crash with UnknownMessage if an unknown message ID/name appears
   in disable or enable in the configuration. Patch by Cole Robinson.
-  Fixes bitbucket issue #170.
 
-* Add new warning 'eval-used', checking that the builtin function ``eval``
-  was used.
+  Closes BitBucket #170
+
+* Add new warning 'eval-used', checking that the builtin function ``eval`` was used.
 
 * Make it possible to show a naming hint for invalid name by setting
-  include-naming-hint. Also make the naming hints configurable. Fixes
-  BitBucket issue #138.
+  include-naming-hint. Also make the naming hints configurable.
+
+  Closes BitBucket #138
 
 * Added support for enforcing multiple, but consistent name styles for
   different name types inside a single module; based on a patch written
@@ -78,18 +92,23 @@ Release date: 2014-04-18
   Closes #166
 
 * Python 2.5 support restored: fixed small issues preventing pylint to run
-  on python 2.5. Bitbucket issues #50 and #62.
+  on python 2.5.
 
-* bitbucket #128: pylint doesn't crash when looking
-  for used-before-assignment in context manager
-  assignments.
+  Closes BitBucket #50
+  Closes BitBucket #62
+
+* pylint doesn't crash when looking for used-before-assignment in context manager assignments.
+
+  Closes BitBucket #128
 
 * Add new warning, 'bad-reversed-sequence', for checking that the
   reversed() builtin receive a sequence (implements ``__getitem__`` and ``__len__``,
   without being a dict or a dict subclass) or an instance which implements
   ``__reversed__``.
 
-* Mark ``file`` as a bad function when using python2 (closes #8).
+* Mark ``file`` as a bad function when using python2
+
+  Closes #8
 
 * Add new warning 'bad-exception-context', checking
   that ``raise ... from ...`` uses a proper exception context
@@ -99,7 +118,9 @@ Release date: 2014-04-18
   for 'nonlocal' uses.
 
 * Emit 'undefined-all-variable' if a package's __all__
-  variable contains a missing submodule (closes #126).
+  variable contains a missing submodule.
+
+  Closes #126
 
 * Add a new warning 'abstract-class-instantiated' for checking
   that abstract classes created with ``abc`` module and

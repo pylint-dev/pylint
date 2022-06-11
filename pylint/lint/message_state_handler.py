@@ -56,15 +56,14 @@ class _MessageStateHandler:
         }
         self._pragma_lineno: dict[str, int] = {}
         # TODO: 3.0: Update key type to str when current_name is always str
-        self._stashed_bad_option_value_messages: defaultdict[
-            str | None, list[tuple[str | None, str]]
+        self._stashed_messages: defaultdict[
+            tuple[str | None, str], list[tuple[str | None, str]]
         ] = defaultdict(list)
-        """Bad option values for --enable and --disable are encountered too early to
-        warn about them, i.e. before all option providers have been fully parsed.
+        """Some messages in the options (for --enable and --disable) are encountered
+        too early to warn about them.
 
-        Thus,
-        this dict stores option_value and msg_id needed to (later) emit the
-        bad-option-value messages keyed on module names.
+        i.e. before all option providers have been fully parsed. Thus, this dict stores
+        option_value and msg_id needed to (later) emit the messages keyed on module names.
         """
 
     def _set_one_msg_status(
@@ -411,13 +410,21 @@ class _MessageStateHandler:
                             l_start -= 1
                         try:
                             meth(msgid, "module", l_start)
+                        except exceptions.DeletedMessageError as e:
+                            self.linter.add_message(
+                                "useless-option-value",
+                                args=(pragma_repr.action, e),
+                                line=start[0],
+                                confidence=HIGH,
+                            )
                         except exceptions.UnknownMessageError:
                             self.linter.add_message(
-                                "bad-option-value",
+                                "unknown-option-value",
                                 args=(pragma_repr.action, msgid),
                                 line=start[0],
                                 confidence=HIGH,
                             )
+
             except UnRecognizedOptionError as err:
                 self.linter.add_message(
                     "unrecognized-inline-option", args=err.token, line=start[0]
