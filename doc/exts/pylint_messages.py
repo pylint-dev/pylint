@@ -166,6 +166,8 @@ def _get_all_messages(
         if message.old_names:
             for old_name in message.old_names:
                 category = MSG_TYPES_DOC[old_name[0][0]]
+                # We check if the message is already in old_messages so
+                # we don't duplicate shared messages.
                 if (message.symbol, msg_type) not in old_messages[category][
                     (old_name[1], old_name[0])
                 ]:
@@ -309,7 +311,7 @@ Pylint can emit the following messages:
             "refactor",
             "information",
         ):
-            # We need remove all duplicated shared messages
+            # We need to remove all duplicated shared messages
             messages = sorted(
                 {msg.id: msg for msg in messages_dict[category]}.values(),
                 key=lambda item: item.name,
