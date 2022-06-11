@@ -62,7 +62,10 @@ def _query_cpu() -> int | None:
     # In K8s Pods also a fraction of a single core could be available
     # As multiprocessing is not able to run only a "fraction" of process
     # assume we have 1 CPU available
-    return max(avail_cpu, 1)
+    if avail_cpu == 0:
+        avail_cpu = 1
+
+    return avail_cpu
 
 
 def _cpu_count() -> int:
