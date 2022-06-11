@@ -219,7 +219,7 @@ class BaseChecker(_ArgumentsProvider):
 """
             raise InvalidMessageError(error_msg)
         options.setdefault("scope", default_scope)
-        return MessageDefinition(self, msgid, msg, descr, symbol, options)
+        return MessageDefinition(self, msgid, msg, descr, symbol, **options)
 
     @property
     def messages(self) -> list[MessageDefinition]:

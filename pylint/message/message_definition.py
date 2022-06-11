@@ -11,7 +11,6 @@ from astroid import nodes
 
 from pylint.constants import _SCOPE_EXEMPT, MSG_TYPES, WarningScope
 from pylint.exceptions import InvalidMessageError
-from pylint.typing import ExtraMessageOptions
 from pylint.utils import normalize_text
 
 if TYPE_CHECKING:
@@ -19,6 +18,8 @@ if TYPE_CHECKING:
 
 
 class MessageDefinition:
+    # TODO: remove disable and move all extra option to single parameter.
+    # pylint: disable-next=too-many-arguments
     def __init__(
         self,
         checker: BaseChecker,
@@ -26,7 +27,11 @@ class MessageDefinition:
         msg: str,
         description: str,
         symbol: str,
-        extra_options: ExtraMessageOptions,
+        scope: str,
+        minversion: tuple[int, int] | None = None,
+        maxversion: tuple[int, int] | None = None,
+        old_names: list[tuple[str, str]] | None = None,
+        shared: bool = False,
     ) -> None:
         self.checker_name = checker.name
         self.check_msgid(msgid)
@@ -34,13 +39,13 @@ class MessageDefinition:
         self.symbol = symbol
         self.msg = msg
         self.description = description
-        self.scope: str = extra_options["scope"]
-        self.minversion: tuple[int, int] | None = extra_options.get("minversion", None)
-        self.maxversion: tuple[int, int] | None = extra_options.get("maxversion", None)
-        self.shared: bool = extra_options.get("shared", False)
+        self.scope = scope
+        self.minversion = minversion
+        self.maxversion = maxversion
+        self.shared = shared
         self.old_names: list[tuple[str, str]] = []
-        if "old_names" in extra_options:
-            for old_msgid, old_symbol in extra_options["old_names"]:
+        if old_names:
+            for old_msgid, old_symbol in old_names:
                 self.check_msgid(old_msgid)
                 self.old_names.append(
                     (old_msgid, old_symbol),

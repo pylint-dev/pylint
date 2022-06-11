@@ -12,7 +12,6 @@ from pylint.constants import WarningScope
 from pylint.exceptions import InvalidMessageError
 from pylint.lint.pylinter import PyLinter
 from pylint.message import MessageDefinition
-from pylint.typing import ExtraMessageOptions
 
 
 @pytest.mark.parametrize(
@@ -65,14 +64,15 @@ class TestMessagesDefinition:
 
     @staticmethod
     def get_message_definition() -> MessageDefinition:
-        extra_msg_options: ExtraMessageOptions = {"scope": WarningScope.NODE}
         return MessageDefinition(
             FalseChecker(),
             "W1234",
             "message",
             "description",
             "msg-symbol",
-            extra_msg_options,
+            WarningScope.NODE,
+            minversion=None,
+            maxversion=None,
         )
 
     def test_may_be_emitted(self) -> None:
