@@ -44,11 +44,6 @@ from typing import TYPE_CHECKING
 
 from pylint.checkers import BaseChecker, DeprecatedMixin
 
-from pylint.checkers.deprecated import (
-    DEPRECATED_ARGUMENT_MESSAGE,
-    DEPRECATED_METHOD_MESSAGE,
-)
-
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
@@ -56,7 +51,7 @@ if TYPE_CHECKING:
 class DeprecationChecker(DeprecatedMixin, BaseChecker):
     """Class implementing deprecation checker."""
 
-    # DeprecationMixin class is Mixin class implementing logic for searching deprecated methods and functions.
+    # DeprecatedMixin class is Mixin class implementing logic for searching deprecated methods and functions.
     # The list of deprecated methods/functions is defined by implementing class via deprecated_methods callback.
     # DeprecatedMixin class is overriding attributes of BaseChecker hence must be specified *before* BaseChecker
     # in list of base classes.
@@ -65,7 +60,10 @@ class DeprecationChecker(DeprecatedMixin, BaseChecker):
     name = "deprecated"
 
     # Register messages emitted by the checker.
-    msgs = {**DEPRECATED_METHOD_MESSAGE, **DEPRECATED_ARGUMENT_MESSAGE}
+    msgs = {
+        **DeprecatedMixin.DEPRECATED_METHOD_MESSAGE,
+        **DeprecatedMixin.DEPRECATED_ARGUMENT_MESSAGE,
+    }
 
     def deprecated_methods(self) -> set[str]:
         """Callback method called by DeprecatedMixin for every method/function found in the code.

@@ -16,7 +16,6 @@ import astroid
 from astroid import nodes
 
 from pylint.checkers import BaseChecker, DeprecatedMixin
-from pylint.checkers.deprecated import DEPRECATED_MODULE_MESSAGE
 from pylint.checkers.utils import (
     get_import_name,
     is_from_fallback_block,
@@ -302,7 +301,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
     """
 
     name = "imports"
-    msgs = {**DEPRECATED_MODULE_MESSAGE, **MSGS}
+    msgs = {**DeprecatedMixin.DEPRECATED_MODULE_MESSAGE, **MSGS}
     default_deprecated_modules = ()
 
     options = (

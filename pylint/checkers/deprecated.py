@@ -24,57 +24,57 @@ ACCEPTABLE_NODES = (
     nodes.ClassDef,
 )
 
-DEPRECATED_MODULE_MESSAGE: dict[str, MessageDefinitionTuple] = {
-    "W4901": (
-        "Deprecated module %r",
-        "deprecated-module",
-        "A module marked as deprecated is imported.",
-        {"old_names": [("W0402", "old-deprecated-module")], "shared": True},
-    ),
-}
-
-DEPRECATED_METHOD_MESSAGE: dict[str, MessageDefinitionTuple] = {
-    "W4902": (
-        "Using deprecated method %s()",
-        "deprecated-method",
-        "The method is marked as deprecated and will be removed in the future.",
-        {"old_names": [("W1505", "old-deprecated-method")], "shared": True},
-    ),
-}
-
-DEPRECATED_ARGUMENT_MESSAGE: dict[str, MessageDefinitionTuple] = {
-    "W4903": (
-        "Using deprecated argument %s of method %s()",
-        "deprecated-argument",
-        "The argument is marked as deprecated and will be removed in the future.",
-        {"old_names": [("W1511", "old-deprecated-argument")], "shared": True},
-    ),
-}
-
-DEPRECATED_CLASS_MESSAGE: dict[str, MessageDefinitionTuple] = {
-    "W4904": (
-        "Using deprecated class %s of module %s",
-        "deprecated-class",
-        "The class is marked as deprecated and will be removed in the future.",
-        {"old_names": [("W1512", "old-deprecated-class")], "shared": True},
-    ),
-}
-
-DEPRECATED_DECORATOR_MESSAGE: dict[str, MessageDefinitionTuple] = {
-    "W4905": (
-        "Using deprecated decorator %s()",
-        "deprecated-decorator",
-        "The decorator is marked as deprecated and will be removed in the future.",
-        {"old_names": [("W1513", "old-deprecated-decorator")], "shared": True},
-    ),
-}
-
 
 class DeprecatedMixin(BaseChecker):
     """A mixin implementing logic for checking deprecated symbols.
 
     A class implementing mixin must define "deprecated-method" Message.
     """
+
+    DEPRECATED_MODULE_MESSAGE: dict[str, MessageDefinitionTuple] = {
+        "W4901": (
+            "Deprecated module %r",
+            "deprecated-module",
+            "A module marked as deprecated is imported.",
+            {"old_names": [("W0402", "old-deprecated-module")], "shared": True},
+        ),
+    }
+
+    DEPRECATED_METHOD_MESSAGE: dict[str, MessageDefinitionTuple] = {
+        "W4902": (
+            "Using deprecated method %s()",
+            "deprecated-method",
+            "The method is marked as deprecated and will be removed in the future.",
+            {"old_names": [("W1505", "old-deprecated-method")], "shared": True},
+        ),
+    }
+
+    DEPRECATED_ARGUMENT_MESSAGE: dict[str, MessageDefinitionTuple] = {
+        "W4903": (
+            "Using deprecated argument %s of method %s()",
+            "deprecated-argument",
+            "The argument is marked as deprecated and will be removed in the future.",
+            {"old_names": [("W1511", "old-deprecated-argument")], "shared": True},
+        ),
+    }
+
+    DEPRECATED_CLASS_MESSAGE: dict[str, MessageDefinitionTuple] = {
+        "W4904": (
+            "Using deprecated class %s of module %s",
+            "deprecated-class",
+            "The class is marked as deprecated and will be removed in the future.",
+            {"old_names": [("W1512", "old-deprecated-class")], "shared": True},
+        ),
+    }
+
+    DEPRECATED_DECORATOR_MESSAGE: dict[str, MessageDefinitionTuple] = {
+        "W4905": (
+            "Using deprecated decorator %s()",
+            "deprecated-decorator",
+            "The decorator is marked as deprecated and will be removed in the future.",
+            {"old_names": [("W1513", "old-deprecated-decorator")], "shared": True},
+        ),
+    }
 
     @utils.only_required_for_messages(
         "deprecated-method",
