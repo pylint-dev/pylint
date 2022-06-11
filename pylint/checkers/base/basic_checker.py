@@ -321,6 +321,8 @@ class BasicChecker(_BasicChecker):
         elif isinstance(test, nodes.Call):
             inferred_call = utils.safe_infer(test.func)
             if isinstance(inferred_call, nodes.FunctionDef):
+                # Can't use all(x) or not any(not x) for this condition, because it
+                # will return True for empty generators, which is not what we want.
                 all_returns_were_generator = None
                 for return_node in inferred_call._get_return_nodes_skip_functions():
                     if not isinstance(return_node.value, nodes.GeneratorExp):
