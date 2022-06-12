@@ -34,8 +34,7 @@ Release date: TBA
 * Fixed a false positive for ``used-before-assignment`` when a try block returns
   but an except handler defines a name via type annotation.
 
-* ``--errors-only`` no longer explicitly enables non-error messages. This led to the unexpected
-  behavior of cancelling out prior disables.
+* ``--errors-only`` no longer unexpectedly enables previously disabled messages.
 
   Closes #6811
 
