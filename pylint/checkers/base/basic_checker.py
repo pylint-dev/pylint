@@ -377,24 +377,25 @@ class BasicChecker(_BasicChecker):
         emit = False
         maybe_generator_call = None
         lookup_result = test.frame(future=True).lookup(test.name)
-        if lookup_result:
-            maybe_generator_assigned = (
-                isinstance(assign_name.parent.value, nodes.GeneratorExp)
-                for assign_name in lookup_result[1]
-                if isinstance(assign_name.parent, nodes.Assign)
-            )
-            first_item = next(maybe_generator_assigned, None)
-            if first_item is not None:
-                # Emit if this variable is certain to hold a generator
-                if all(itertools.chain((first_item,), maybe_generator_assigned)):
-                    emit = True
-                # If this variable holds the result of a call, save it for next test
-                elif (
-                    len(lookup_result[1]) == 1
-                    and isinstance(lookup_result[1][0].parent, nodes.Assign)
-                    and isinstance(lookup_result[1][0].parent.value, nodes.Call)
-                ):
-                    maybe_generator_call = lookup_result[1][0].parent.value
+        if not lookup_result:
+            return emit, maybe_generator_call
+        maybe_generator_assigned = (
+            isinstance(assign_name.parent.value, nodes.GeneratorExp)
+            for assign_name in lookup_result[1]
+            if isinstance(assign_name.parent, nodes.Assign)
+        )
+        first_item = next(maybe_generator_assigned, None)
+        if first_item is not None:
+            # Emit if this variable is certain to hold a generator
+            if all(itertools.chain((first_item,), maybe_generator_assigned)):
+                emit = True
+            # If this variable holds the result of a call, save it for next test
+            elif (
+                len(lookup_result[1]) == 1
+                and isinstance(lookup_result[1][0].parent, nodes.Assign)
+                and isinstance(lookup_result[1][0].parent.value, nodes.Call)
+            ):
+                maybe_generator_call = lookup_result[1][0].parent.value
         return emit, maybe_generator_call
 
     def visit_module(self, _: nodes.Module) -> None:
