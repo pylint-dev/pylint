@@ -1,1 +1,3 @@
-# This is a placeholder for correct code for this message.
+import os
+
+copied_env = os.environ.copy()
