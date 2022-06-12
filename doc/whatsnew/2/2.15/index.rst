@@ -54,6 +54,11 @@ Other bug fixes
 Other Changes
 =============
 
+* ``--errors-only`` no longer unexpectedly enables previously disabled messages. It was
+  acting as "emit *all* and only error messages" without being clearly documented that way.
+
+  Closes #6811
+
 
 Internal changes
 ================
