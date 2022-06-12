@@ -1,12 +1,9 @@
-import random
-
-
-def divide_by_random_int(x):
+def divide_by_zero(x):
     try:
-        res = x / random.randint(0, 2)
+        res = x / 0
     except ZeroDivisionError as e:
         pass
     finally:
-        print(res)  # [used-before-assignment]
+        return res  # [used-before-assignment]
 
     print(e)  # [used-before-assignment]
