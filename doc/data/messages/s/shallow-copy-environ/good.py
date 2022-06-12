@@ -1,3 +1,3 @@
 import os
 
-os.environ.copy()
+copied_env = os.environ.copy()
