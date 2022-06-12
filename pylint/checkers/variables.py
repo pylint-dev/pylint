@@ -1973,10 +1973,14 @@ class VariablesChecker(BaseChecker):
                         )
                     )
                 ):
-                    # Expressions, with assignment expressions
-                    # Use only after assignment
-                    # b = (c := 2) and c
-                    maybe_before_assign = False
+                    # Relation of a name to the same name in a named expression
+                    # Could be used before assignment if self-referencing:
+                    # (b := b)
+                    # Otherwise, safe if used after assignment:
+                    # (b := 2) and b
+                    maybe_before_assign = any(
+                        anc is defnode.value for anc in node.node_ancestors()
+                    )
 
             # Look for type checking definitions inside a type checking guard.
             if isinstance(defstmt, (nodes.Import, nodes.ImportFrom)):
@@ -2076,6 +2080,14 @@ class VariablesChecker(BaseChecker):
                 if (
                     not isinstance(ref_node.parent, nodes.AnnAssign)
                     or ref_node.parent.value
+                ) and not (
+                    # EXCEPTION: will not have a value if a self-referencing named expression
+                    # var: int
+                    # if (var := var * var)  <-- "var" still undefined
+                    isinstance(ref_node.parent, nodes.NamedExpr)
+                    and any(
+                        anc is ref_node.parent.value for anc in node.node_ancestors()
+                    )
                 ):
                     return False
             parent = parent_scope.parent

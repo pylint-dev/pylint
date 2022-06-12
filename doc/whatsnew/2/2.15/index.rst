@@ -41,6 +41,11 @@ False negatives fixed
 
   Closes #6909
 
+* Emit ``used-before-assignment`` for self-referencing named expressions (``:=``) lacking
+  prior assignments.
+
+  Closes #5653
+
 
 Other bug fixes
 ===============
