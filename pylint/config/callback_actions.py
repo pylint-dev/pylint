@@ -378,7 +378,10 @@ class _XableAction(_AccessLinterObjectAction):
         for msgid in utils._check_csv(values[0]):
             try:
                 xabling_function(msgid)
-            except exceptions.DeletedMessageError as e:
+            except (
+                exceptions.DeletedMessageError,
+                exceptions.MessageBecameExtensionError,
+            ) as e:
                 self.linter._stashed_messages[
                     (self.linter.current_name, "useless-option-value")
                 ].append((option_string, str(e)))

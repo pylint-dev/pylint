@@ -24,6 +24,17 @@ class DeletedMessageError(UnknownMessageError):
         )
 
 
+class MessageBecameExtensionError(UnknownMessageError):
+    """Raised when a message id or symbol that was moved to an optional
+    extension is encountered.
+    """
+
+    def __init__(self, msgid_or_symbol: str, moved_explanation: str):
+        super().__init__(
+            f"'{msgid_or_symbol}' was moved to an optional extension, see {moved_explanation}."
+        )
+
+
 class EmptyReportError(Exception):
     """Raised when a report is empty and so should not be displayed."""
 
