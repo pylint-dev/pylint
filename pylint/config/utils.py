@@ -266,7 +266,7 @@ def _preprocess_options(run: Run, args: Sequence[str]) -> list[str]:
                 raise ArgumentPreprocessingError(f"Option {option} expects a value")
             value = args[i]
         elif not takearg and value is not None:
-            raise ArgumentPreprocessingError(f"Option {option} doesn't expects a value")
+            raise ArgumentPreprocessingError(f"Option {option} doesn't expect a value")
 
         cb(run, value)
         i += 1
