@@ -5,6 +5,8 @@ What's New in Pylint 2.14.2?
 ----------------------------
 Release date: TBA
 
+* Avoided raising an identical ``undefined-loop-variable`` message twice on the same line.
+
 * Don't crash if ``lint.run._query_cpu()`` is run within a Kubernetes Pod, that has only
   a fraction of a cpu core assigned. Just go with one process then.
 
