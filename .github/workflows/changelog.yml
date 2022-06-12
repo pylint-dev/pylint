@@ -2,7 +2,7 @@ name: changelog
 
 on:
   pull_request:
-    types: [opened, synchronize, labeled, unlabeled, reopened]
+    types: [opened, synchronize, labeled, unlabeled, reopened, edited]
 
 permissions:
   contents: read
