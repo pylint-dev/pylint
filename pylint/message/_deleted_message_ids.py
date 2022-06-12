@@ -123,7 +123,9 @@ DELETED_MESSAGES_IDS = {
     "https://github.com/PyCQA/pylint/pull/6421": [
         DeletedMessage("W0111", "assign-to-new-keyword"),
     ],
-    "https://github.com/PyCQA/pylint/pull/6448. It can be enabled as an optional extension": [
+}
+MOVED_TO_EXTENSIONS = {
+    "https://pylint.pycqa.org/en/latest/whatsnew/2/2.14/summary.html#removed-checkers": [
         DeletedMessage("R0201", "no-self-use")
     ],
 }
