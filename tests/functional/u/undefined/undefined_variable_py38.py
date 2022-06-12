@@ -14,7 +14,13 @@ def typing_and_assignment_expression():
 def typing_and_self_referencing_assignment_expression():
     """The variable gets assigned in an assignment expression that references itself"""
     var: int
-    if (var := var ** 2):  # false negative: https://github.com/PyCQA/pylint/issues/5653
+    if (var := var ** 2):  # [used-before-assignment]
+        print(var)
+
+
+def self_referencing_assignment_expression():
+    """An invalid self-referencing assignment expression"""
+    if (var := var()):  # [used-before-assignment]
         print(var)
 
 
