@@ -123,6 +123,9 @@ DELETED_MESSAGES_IDS = {
     "https://github.com/PyCQA/pylint/pull/6421": [
         DeletedMessage("W0111", "assign-to-new-keyword"),
     ],
+    "https://github.com/PyCQA/pylint/pull/6448. It can be enabled as an optional extension": [
+        DeletedMessage("R0201", "no-self-use")
+    ],
 }
 
 
