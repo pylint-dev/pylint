@@ -36,14 +36,15 @@ False negatives fixed
 
   Closes #6648
 
+* Emit ``using-constant-test`` when testing the truth value of a variable or call result
+  holding a generator.
+
+  Closes #6909
+
 * Emit ``used-before-assignment`` for self-referencing named expressions (``:=``) lacking
   prior assignments.
 
   Closes #5653
-
-* Emit ``using-constant-test`` when testing the truth value of a call that only returns generators.
-
-  Closes #6909
 
 
 Other bug fixes

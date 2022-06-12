@@ -163,3 +163,16 @@ def maybe_get_generator(arg):
 
 if maybe_get_generator(None):
     pass
+
+y = (a for a in range(10))
+if y:  # [using-constant-test]
+    pass
+
+z = (a for a in range(10))
+z = "red herring"
+if z:
+    pass
+
+gen = get_generator()
+if gen:  # [using-constant-test]
+    pass

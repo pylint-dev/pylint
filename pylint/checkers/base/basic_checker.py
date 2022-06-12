@@ -315,11 +315,17 @@ class BasicChecker(_BasicChecker):
         )
         inferred = None
         emit = isinstance(test, (nodes.Const,) + structs + const_nodes)
+        maybe_generator_call = None
         if not isinstance(test, except_nodes):
             inferred = utils.safe_infer(test)
+            if inferred is astroid.Uninferable and isinstance(test, nodes.Name):
+                emit, maybe_generator_call = BasicChecker._name_holds_generator(test)
+
         # Emit if calling a function that only returns GeneratorExp (always tests True)
         elif isinstance(test, nodes.Call):
-            inferred_call = utils.safe_infer(test.func)
+            maybe_generator_call = test
+        if maybe_generator_call:
+            inferred_call = utils.safe_infer(maybe_generator_call.func)
             if isinstance(inferred_call, nodes.FunctionDef):
                 # Can't use all(x) or not any(not x) for this condition, because it
                 # will return True for empty generators, which is not what we want.
@@ -333,9 +339,10 @@ class BasicChecker(_BasicChecker):
                     self.add_message(
                         "using-constant-test", node=node, confidence=INFERENCE
                     )
+                    return
 
         if emit:
-            self.add_message("using-constant-test", node=test)
+            self.add_message("using-constant-test", node=test, confidence=INFERENCE)
         elif isinstance(inferred, const_nodes):
             # If the constant node is a FunctionDef or Lambda then
             # it may be an illicit function call due to missing parentheses
@@ -360,6 +367,36 @@ class BasicChecker(_BasicChecker):
                 except astroid.InferenceError:
                     pass
             self.add_message("using-constant-test", node=test, confidence=INFERENCE)
+
+    @staticmethod
+    def _name_holds_generator(test: nodes.Name) -> tuple[bool, nodes.Call | None]:
+        """Return whether `test` tests a name certain to hold a generator, or optionally
+        a call that should be then tested to see if *it* returns only generators.
+        """
+        assert isinstance(test, nodes.Name)
+        emit = False
+        maybe_generator_call = None
+        lookup_result = test.frame(future=True).lookup(test.name)
+        if not lookup_result:
+            return emit, maybe_generator_call
+        maybe_generator_assigned = (
+            isinstance(assign_name.parent.value, nodes.GeneratorExp)
+            for assign_name in lookup_result[1]
+            if isinstance(assign_name.parent, nodes.Assign)
+        )
+        first_item = next(maybe_generator_assigned, None)
+        if first_item is not None:
+            # Emit if this variable is certain to hold a generator
+            if all(itertools.chain((first_item,), maybe_generator_assigned)):
+                emit = True
+            # If this variable holds the result of a call, save it for next test
+            elif (
+                len(lookup_result[1]) == 1
+                and isinstance(lookup_result[1][0].parent, nodes.Assign)
+                and isinstance(lookup_result[1][0].parent.value, nodes.Call)
+            ):
+                maybe_generator_call = lookup_result[1][0].parent.value
+        return emit, maybe_generator_call
 
     def visit_module(self, _: nodes.Module) -> None:
         """Check module name, docstring and required arguments."""
