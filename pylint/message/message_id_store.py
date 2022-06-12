@@ -141,15 +141,15 @@ class MessageIdStore:
             symbol = self.__msgid_to_symbol.get(msgid)
             if not symbol:
                 deletion_reason = is_deleted_msgid(msgid)
-            if deletion_reason is None:
-                moved_reason = is_moved_msgid(msgid)
+                if deletion_reason is None:
+                    moved_reason = is_moved_msgid(msgid)
         else:
             symbol = msgid_or_symbol
             msgid = self.__symbol_to_msgid.get(msgid_or_symbol)
             if not msgid:
                 deletion_reason = is_deleted_symbol(symbol)
-            if deletion_reason is None:
-                moved_reason = is_moved_symbol(symbol)
+                if deletion_reason is None:
+                    moved_reason = is_moved_symbol(symbol)
         if not msgid or not symbol:
             if deletion_reason is not None:
                 raise DeletedMessageError(msgid_or_symbol, deletion_reason)
