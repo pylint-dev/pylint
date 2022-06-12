@@ -366,8 +366,7 @@ class DocstringParameterChecker(BaseChecker):
         if not (doc_has_yields_type or func_node.returns):
             self.add_message("missing-yield-type-doc", node=func_node)
 
-    def visit_yieldfrom(self, node: nodes.YieldFrom) -> None:
-        self.visit_yield(node)
+    visit_yieldfrom = visit_yield
 
     def _compare_missing_args(
         self,
