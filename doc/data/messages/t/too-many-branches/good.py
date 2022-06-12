@@ -1,5 +1,5 @@
 def num_to_word(x):
-    {
+    return {
         0: "zero",
         1: "one",
         2: "two",
