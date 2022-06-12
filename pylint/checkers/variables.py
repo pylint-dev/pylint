@@ -1499,7 +1499,6 @@ class VariablesChecker(BaseChecker):
                 node, nodes.ComprehensionScope
             ):
                 self._check_late_binding_closure(node)
-                self._loopvar_name(node)
                 return (VariableVisitConsumerAction.RETURN, None)
 
         found_nodes = current_consumer.get_next_to_consume(node)
