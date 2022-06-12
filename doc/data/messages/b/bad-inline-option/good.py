@@ -1,1 +1,1 @@
-# This is a placeholder for correct code for this message.
+long_string = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"  # pylint: disable=line-too-long
