@@ -16,6 +16,10 @@
 # pylint: disable-next=deprecated-types-field  # [useless-option-value]
 # disable-next with deleted msgid
 # pylint: disable-next=W1634  # [useless-option-value]
+# disable-next with symbol moved to extension
+# pylint: disable-next=no-self-use  # [useless-option-value]
+# disable-next with msgid moved to extension
+# pylint: disable-next=R0201  # [useless-option-value]
 
 # enable with unknown value
 # pylint:enable=W04044  # [unknown-option-value]
