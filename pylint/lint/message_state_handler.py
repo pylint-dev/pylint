@@ -410,7 +410,10 @@ class _MessageStateHandler:
                             l_start -= 1
                         try:
                             meth(msgid, "module", l_start)
-                        except exceptions.DeletedMessageError as e:
+                        except (
+                            exceptions.DeletedMessageError,
+                            exceptions.MessageBecameExtensionError,
+                        ) as e:
                             self.linter.add_message(
                                 "useless-option-value",
                                 args=(pragma_repr.action, e),
