@@ -4,8 +4,12 @@
 # pylint: disable=C05048  # [unknown-option-value]
 # Standard disable with deleted symbol
 # pylint: disable=execfile-builtin  # [useless-option-value]
+# Standard disable with symbol moved to extension
+# pylint: disable=no-self-use  # [useless-option-value]
 # Standard disable with deleted msgid
 # pylint: disable=W1656  # [useless-option-value]
+# Standard disable with msgid moved to extension
+# pylint: disable=R0201  # [useless-option-value]
 # disable-next with unknown value
 # pylint: disable-next=R78948  # [unknown-option-value]
 # disable-next with deleted symbol
@@ -17,8 +21,12 @@
 # pylint:enable=W04044  # [unknown-option-value]
 # enable with deleted symbol
 # pylint:enable=dict-values-not-iterating  # [useless-option-value]
+# enable with symbol moved to extension
+# pylint: enable=no-self-use  # [useless-option-value]
 # enable with deleted msgid
 # pylint:enable=W1622  # [useless-option-value]
+# enable with msgid moved to extension
+# pylint: enable=R0201  # [useless-option-value]
 
 # Standard disable with deleted old name symbol of deleted message
 # pylint: disable=no-space-after-operator  # [useless-option-value]
