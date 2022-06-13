@@ -27,6 +27,10 @@ Release date: TBA
 
   Closes #6818
 
+* Fixed an issue with multi-line ``init-hook`` options which did not record the line endings.
+
+  Closes #6888
+
 * Fixed a false positive for ``used-before-assignment`` when a try block returns
   but an except handler defines a name via type annotation.
 
