@@ -96,7 +96,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               workflow_id: ".github/workflows/primer_run_main.yaml",
-              status: "completed"
+              status: "success"
             });
             const lastRunMain = runs.data.workflow_runs.reduce(function(prev, current) {
                 return (prev.run_number > current.run_number) ? prev : current
