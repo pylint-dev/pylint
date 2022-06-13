@@ -258,7 +258,7 @@ Optionally message can contain optional extra options::
 
 The message is then formatted using the ``args`` parameter from ``add_message`` i.e. in
 ``self.add_message("import-error", args=module_we_cant_import, node=importnode)``
-    
+
 
 * The ``old_names`` option permits to change the message id or symbol of a message without breaking the message control used on the old messages by users. The option is specified as a list
   of tuples (``message-id``, ``old-message-symbol``) e.g. ``{"old_names": [("F0401", "old-import-error")]}``.
