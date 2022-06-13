@@ -249,16 +249,20 @@ Pylint message is defined using the following format::
 Optionally message can contain optional extra options::
 
    msgs = {
-       "message-id": (
-           "displayed-message", "message-symbol", "message-help",
-           {"extra_option_name": "extra_option_value"}
-       )
-   }
+       "E0401": (
+        "Unable to import %s",
+        "import-error",
+        "Used when pylint has been unable to import a module.",
+        {"old_names": [("F0401", "old-import-error")]},
+    ),
 
-* The ``old_names`` option provides the way of specifying legacy ``message-id`` and
-  ``message-symbol`` of the message used in the past. The option is specified as a list
+The message is then formatted using the ``args`` parameter from ``add_message`` i.e. in
+``self.add_message("import-error", args=module_we_cant_import, node=importnode)``
+    
+
+* The ``old_names`` option permits to change the message id or symbol of a message without breaking the message control used on the old messages by users. The option is specified as a list
   of tuples (``message-id``, ``old-message-symbol``) e.g. ``{"old_names": [("F0401", "old-import-error")]}``.
-  The legacy message-symbols must be prefixed with ``old-`` prefix.
+  The symbol / msgid association must be unique so if you're changing the message id the symbol also need to change and you can generally use the ``old-`` prefix for that.
 * The ``minversion`` or ``maxversion`` options specify minimum or maximum version of python
   relevant for this message. The option value is specified as tuple with major version number
   as first number and minor version number as second number e.g. ``{"minversion": (3, 5)}``
