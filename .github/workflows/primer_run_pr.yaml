@@ -41,7 +41,7 @@ jobs:
           fetch-depth: 0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v3.1.2
+        uses: actions/setup-python@v4.0.0
         with:
           python-version: ${{ matrix.python-version }}
       - uses: actions/setup-node@v3
@@ -64,7 +64,7 @@ jobs:
           'astroid_sha.txt') }}"
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.3
+        uses: actions/cache@v3.0.4
         with:
           path: venv
           key: >-
@@ -96,7 +96,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               workflow_id: ".github/workflows/primer_run_main.yaml",
-              status: "completed"
+              status: "success"
             });
             const lastRunMain = runs.data.workflow_runs.reduce(function(prev, current) {
                 return (prev.run_number > current.run_number) ? prev : current
@@ -145,7 +145,7 @@ jobs:
           echo "::set-output name=commitstring::$output"
       - name: Restore projects cache
         id: cache-projects
-        uses: actions/cache@v3.0.3
+        uses: actions/cache@v3.0.4
         with:
           path: tests/.pylint_primer_tests/
           key: >-

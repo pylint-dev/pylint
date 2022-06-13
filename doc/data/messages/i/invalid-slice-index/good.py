@@ -1,1 +1,3 @@
-# This is a placeholder for correct code for this message.
+LETTERS = ["a", "b", "c", "d"]
+
+FIRST_THREE = LETTERS[:3]

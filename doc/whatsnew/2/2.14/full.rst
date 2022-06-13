@@ -5,6 +5,19 @@ What's New in Pylint 2.14.2?
 ----------------------------
 Release date: TBA
 
+
+* Fixed a false positive for ``unused-variable`` when a function returns an
+  ``argparse.Namespace`` object.
+
+  Closes #6895
+
+* Avoided raising an identical ``undefined-loop-variable`` message twice on the same line.
+
+* Don't crash if ``lint.run._query_cpu()`` is run within a Kubernetes Pod, that has only
+  a fraction of a cpu core assigned. Just go with one process then.
+
+  Closes #6902
+
 * Fixed a false positive in ``consider-using-f-string`` if the left side of a ``%`` is not a string.
 
   Closes #6689
@@ -13,6 +26,10 @@ Release date: TBA
   when the subscript is updated in the body of a nested loop.
 
   Closes #6818
+
+* Fixed an issue with multi-line ``init-hook`` options which did not record the line endings.
+
+  Closes #6888
 
 * Fixed a false positive for ``used-before-assignment`` when a try block returns
   but an except handler defines a name via type annotation.
