@@ -61,3 +61,9 @@ Internal changes
 * ``pylint.testutils.primer`` is now a private API.
 
   Refs #6905
+
+* Fixed an issue where it was impossible to update functional tests output when the existing
+  output was impossible to parse. Instead of raising an error we raise a warning message and
+  let the functional test fail with a default value.
+
+  Refs #6891
