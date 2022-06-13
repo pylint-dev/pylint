@@ -66,4 +66,4 @@ Internal changes
   output was impossible to parse. Instead of raising an error we raise a warning message and
   let the functional test fail with a default value.
 
-  Closes #6891
+  Refs #6891
