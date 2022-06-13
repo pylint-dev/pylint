@@ -29,7 +29,7 @@ jobs:
         uses: actions/checkout@v3.0.2
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v3.1.2
+        uses: actions/setup-python@v4.0.0
         with:
           python-version: ${{ matrix.python-version }}
       - name: Generate partial Python venv restore key
@@ -40,7 +40,7 @@ jobs:
           }}"
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.3
+        uses: actions/cache@v3.0.4
         with:
           path: venv
           key: >-
@@ -84,12 +84,12 @@ jobs:
         uses: actions/checkout@v3.0.2
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v3.1.2
+        uses: actions/setup-python@v4.0.0
         with:
           python-version: ${{ matrix.python-version }}
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.3
+        uses: actions/cache@v3.0.4
         with:
           path: venv
           key:
@@ -128,12 +128,12 @@ jobs:
         uses: actions/checkout@v3.0.2
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v3.1.2
+        uses: actions/setup-python@v4.0.0
         with:
           python-version: ${{ matrix.python-version }}
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.3
+        uses: actions/cache@v3.0.4
         with:
           path: venv
           key:
@@ -184,7 +184,7 @@ jobs:
         uses: actions/checkout@v3.0.2
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v3.1.2
+        uses: actions/setup-python@v4.0.0
         with:
           python-version: ${{ matrix.python-version }}
       - name: Generate partial Python venv restore key
@@ -195,7 +195,7 @@ jobs:
           }}"
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.3
+        uses: actions/cache@v3.0.4
         with:
           path: venv
           key: >-
@@ -230,7 +230,7 @@ jobs:
         uses: actions/checkout@v3.0.2
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v3.1.2
+        uses: actions/setup-python@v4.0.0
         with:
           python-version: ${{ matrix.python-version }}
       - name: Generate partial Python venv restore key
@@ -241,7 +241,7 @@ jobs:
           }}"
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.3
+        uses: actions/cache@v3.0.4
         with:
           path: venv
           key: >-
@@ -274,7 +274,7 @@ jobs:
         uses: actions/checkout@v3.0.2
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v3.1.2
+        uses: actions/setup-python@v4.0.0
         with:
           python-version: ${{ matrix.python-version }}
       - name: Generate partial Python venv restore key
@@ -285,7 +285,7 @@ jobs:
           }}"
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.3
+        uses: actions/cache@v3.0.4
         with:
           path: venv
           key: >-

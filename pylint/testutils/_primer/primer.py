@@ -17,11 +17,9 @@ import git
 
 from pylint.lint import Run
 from pylint.reporters import JSONReporter
-from pylint.testutils.primer import PackageToLint
+from pylint.testutils._primer import PackageToLint
 
-TESTS_DIR = Path(__file__).parent.parent
-PRIMER_DIRECTORY = TESTS_DIR / ".pylint_primer_tests/"
-PACKAGES_TO_PRIME_PATH = Path(__file__).parent / "packages_to_prime.json"
+MAX_GITHUB_COMMENT_LENGTH = 65536
 
 PackageMessages = Dict[str, List[Dict[str, Union[str, int]]]]
 
@@ -32,8 +30,9 @@ CRASH_TEMPLATE_INTRO = "There is a pre-filled template"
 class Primer:
     """Main class to handle priming of packages."""
 
-    def __init__(self, json_path: Path) -> None:
+    def __init__(self, primer_directory: Path, json_path: Path) -> None:
         # Preparing arguments
+        self.primer_directory = primer_directory
         self._argument_parser = argparse.ArgumentParser(prog="Pylint Primer")
         self._subparsers = self._argument_parser.add_subparsers(dest="command")
 
@@ -119,12 +118,14 @@ class Primer:
                 print(f"'{package}' remote is at commit '{remote_sha1_commit}'.")
                 commit_string += remote_sha1_commit + "_"
         elif self.config.read_commit_string:
-            with open(PRIMER_DIRECTORY / "commit_string.txt", encoding="utf-8") as f:
+            with open(
+                self.primer_directory / "commit_string.txt", encoding="utf-8"
+            ) as f:
                 print(f.read())
 
         if commit_string:
             with open(
-                PRIMER_DIRECTORY / "commit_string.txt", "w", encoding="utf-8"
+                self.primer_directory / "commit_string.txt", "w", encoding="utf-8"
             ) as f:
                 f.write(commit_string)
 
@@ -151,7 +152,7 @@ class Primer:
                     other_fatal_msgs.append(msg)
 
         with open(
-            PRIMER_DIRECTORY
+            self.primer_directory
             / f"output_{'.'.join(str(i) for i in sys.version_info[:3])}_{self.config.type}.txt",
             "w",
             encoding="utf-8",
@@ -189,6 +190,9 @@ class Primer:
     ) -> None:
         comment = ""
         for package, missing_messages in all_missing_messages.items():
+            if len(comment) >= MAX_GITHUB_COMMENT_LENGTH:
+                break
+
             new_messages = all_new_messages[package]
             package_data = self.packages[package]
 
@@ -255,15 +259,30 @@ class Primer:
                 comment += "\n</details>\n\n"
 
         if comment == "":
-            comment = "🤖 According to the primer, this change has **no effect** on the checked open source code. 🤖🎉"
+            comment = (
+                "🤖 According to the primer, this change has **no effect** on the"
+                " checked open source code. 🤖🎉\n\n"
+            )
         else:
             comment = (
-                "🤖 **Effect of this PR on checked open source code:** 🤖\n\n" + comment
+                f"🤖 **Effect of this PR on checked open source code:** 🤖\n\n{comment}"
             )
-
-        comment += f"*This comment was generated for commit {self.config.commit}*"
-
-        with open(PRIMER_DIRECTORY / "comment.txt", "w", encoding="utf-8") as f:
+        hash_information = (
+            f"*This comment was generated for commit {self.config.commit}*"
+        )
+        if len(comment) + len(hash_information) >= MAX_GITHUB_COMMENT_LENGTH:
+            truncation_information = (
+                f"*This comment was truncated because GitHub allows only"
+                f" {MAX_GITHUB_COMMENT_LENGTH} characters in a comment.*"
+            )
+            max_len = (
+                MAX_GITHUB_COMMENT_LENGTH
+                - len(hash_information)
+                - len(truncation_information)
+            )
+            comment = f"{comment[:max_len - 10]}...\n\n{truncation_information}\n\n"
+        comment += hash_information
+        with open(self.primer_directory / "comment.txt", "w", encoding="utf-8") as f:
             f.write(comment)
 
     def _lint_package(self, data: PackageToLint) -> list[dict[str, str | int]]:
@@ -273,8 +292,6 @@ class Primer:
         # TODO: Find a way to allow cyclic-import and compare output correctly
         disables = ["--disable=duplicate-code,cyclic-import"]
         arguments = data.pylint_args + enables + disables
-        if data.pylintrc_relpath:
-            arguments += [f"--rcfile={data.pylintrc_relpath}"]
         output = StringIO()
         reporter = JSONReporter(output)
         Run(arguments, reporter=reporter, exit=False)
@@ -287,8 +304,3 @@ class Primer:
                 name: PackageToLint(**package_data)
                 for name, package_data in json.load(f).items()
             }
-
-
-if __name__ == "__main__":
-    primer = Primer(PACKAGES_TO_PRIME_PATH)
-    primer.run()

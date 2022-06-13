@@ -124,6 +124,11 @@ DELETED_MESSAGES_IDS = {
         DeletedMessage("W0111", "assign-to-new-keyword"),
     ],
 }
+MOVED_TO_EXTENSIONS = {
+    "https://pylint.pycqa.org/en/latest/whatsnew/2/2.14/summary.html#removed-checkers": [
+        DeletedMessage("R0201", "no-self-use")
+    ],
+}
 
 
 @lru_cache(maxsize=None)
@@ -145,6 +150,30 @@ def is_deleted_msgid(msgid: str) -> str | None:
         for deleted_message in deleted_messages:
             if msgid == deleted_message.msgid or any(
                 msgid == m[0] for m in deleted_message.old_names
+            ):
+                return explanation
+    return None
+
+
+@lru_cache(maxsize=None)
+def is_moved_symbol(symbol: str) -> str | None:
+    """Return the explanation for moving if the message was moved to extensions."""
+    for explanation, moved_messages in MOVED_TO_EXTENSIONS.items():
+        for moved_message in moved_messages:
+            if symbol == moved_message.symbol or any(
+                symbol == m[1] for m in moved_message.old_names
+            ):
+                return explanation
+    return None
+
+
+@lru_cache(maxsize=None)
+def is_moved_msgid(msgid: str) -> str | None:
+    """Return the explanation for moving if the message was moved to extensions."""
+    for explanation, moved_messages in MOVED_TO_EXTENSIONS.items():
+        for moved_message in moved_messages:
+            if msgid == moved_message.msgid or any(
+                msgid == m[0] for m in moved_message.old_names
             ):
                 return explanation
     return None

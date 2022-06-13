@@ -2,7 +2,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-from pylint.testutils.primer import PRIMER_DIRECTORY_PATH, PackageToLint
+from pylint.testutils._primer import PRIMER_DIRECTORY_PATH, PackageToLint
 
 
 def test_package_to_lint() -> None:

@@ -10,6 +10,7 @@ import re
 
 import astroid
 from astroid import nodes
+from astroid.util import Uninferable
 
 from pylint.checkers import utils
 
@@ -88,7 +89,7 @@ def returns_something(return_node: nodes.Return) -> bool:
     return not (isinstance(returns, nodes.Const) and returns.value is None)
 
 
-def _get_raise_target(node):
+def _get_raise_target(node: nodes.NodeNG) -> nodes.NodeNG | Uninferable | None:
     if isinstance(node.exc, nodes.Call):
         func = node.exc.func
         if isinstance(func, (nodes.Name, nodes.Attribute)):
