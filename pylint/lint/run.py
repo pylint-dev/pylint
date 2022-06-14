@@ -9,9 +9,13 @@ import sys
 import warnings
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Any
+from typing import Any, ClassVar
 
 from pylint import config
+from pylint.config._pylint_config import (
+    _handle_pylint_config_commands,
+    _register_generate_config_options,
+)
 from pylint.config.config_initialization import _config_initialization
 from pylint.config.exceptions import ArgumentPreprocessingError
 from pylint.config.utils import _preprocess_options
@@ -54,11 +58,20 @@ def _query_cpu() -> int | None:
             cpu_shares = int(file.read().rstrip())
         # For AWS, gives correct value * 1024.
         avail_cpu = int(cpu_shares / 1024)
+
+    # In K8s Pods also a fraction of a single core could be available
+    # As multiprocessing is not able to run only a "fraction" of process
+    # assume we have 1 CPU available
+    if avail_cpu == 0:
+        avail_cpu = 1
+
     return avail_cpu
 
 
 def _cpu_count() -> int:
-    """Use sched_affinity if available for virtualized or containerized environments."""
+    """Use sched_affinity if available for virtualized or containerized
+    environments.
+    """
     cpu_share = _query_cpu()
     cpu_count = None
     sched_getaffinity = getattr(os, "sched_getaffinity", None)
@@ -88,6 +101,11 @@ class Run:
 group are mutually exclusive.",
         ),
     )
+    _is_pylint_config: ClassVar[bool] = False
+    """Boolean whether or not this is a 'pylint-config' run.
+
+    Used by _PylintConfigRun to make the 'pylint-config' command work.
+    """
 
     def __init__(
         self,
@@ -132,9 +150,30 @@ group are mutually exclusive.",
         linter.disable("I")
         linter.enable("c-extension-no-member")
 
+        # Register the options needed for 'pylint-config'
+        # By not registering them by default they don't show up in the normal usage message
+        if self._is_pylint_config:
+            _register_generate_config_options(linter._arg_parser)
+
         args = _config_initialization(
             linter, args, reporter, config_file=self._rcfile, verbose_mode=self.verbose
         )
+
+        # Handle the 'pylint-config' command
+        if self._is_pylint_config:
+            warnings.warn(
+                "NOTE: The 'pylint-config' command is experimental and usage can change",
+                UserWarning,
+            )
+            code = _handle_pylint_config_commands(linter)
+            if exit:
+                sys.exit(code)
+            return
+
+        # Display help messages if there are no files to lint
+        if not args:
+            print(linter.help())
+            sys.exit(32)
 
         if linter.config.jobs < 0:
             print(
@@ -188,3 +227,13 @@ group are mutually exclusive.",
                     sys.exit(self.linter.msg_status or 1)
             else:
                 sys.exit(self.linter.msg_status)
+
+
+class _PylintConfigRun(Run):
+    """A private wrapper for the 'pylint-config' command."""
+
+    _is_pylint_config: ClassVar[bool] = True
+    """Boolean whether or not this is a 'pylint-config' run.
+
+    Used by _PylintConfigRun to make the 'pylint-config' command work.
+    """

@@ -132,7 +132,9 @@ def get_module_and_frameid(node: nodes.NodeNG) -> tuple[str, str]:
 
 
 def get_rst_title(title: str, character: str) -> str:
-    """Permit to get a title formatted as ReStructuredText test (underlined with a chosen character)."""
+    """Permit to get a title formatted as ReStructuredText test (underlined with a
+    chosen character).
+    """
     return f"{title}\n{character * len(title)}\n"
 
 
@@ -380,6 +382,11 @@ def _ini_format(stream: TextIO, options: list[tuple[str, OptionDict, Any]]) -> N
         DeprecationWarning,
     )
     for optname, optdict, value in options:
+        # Skip deprecated option
+        if "kwargs" in optdict:
+            assert isinstance(optdict["kwargs"], dict)
+            if "new_names" in optdict["kwargs"]:
+                continue
         value = _format_option_value(optdict, value)
         help_opt = optdict.get("help")
         if help_opt:
@@ -389,7 +396,7 @@ def _ini_format(stream: TextIO, options: list[tuple[str, OptionDict, Any]]) -> N
             print(help_opt, file=stream)
         else:
             print(file=stream)
-        if value is None:
+        if value in {"None", "False"}:
             print(f"#{optname}=", file=stream)
         else:
             value = str(value).strip()

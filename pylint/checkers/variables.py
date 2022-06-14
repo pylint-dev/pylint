@@ -680,12 +680,16 @@ scope_type : {self._atomic.scope_type}
             if closest_except_handler.parent_of(node):
                 continue
             closest_try_except: nodes.TryExcept = closest_except_handler.parent
+            # If the try or else blocks return, assume the except blocks execute.
             try_block_returns = any(
                 isinstance(try_statement, nodes.Return)
                 for try_statement in closest_try_except.body
             )
-            # If the try block returns, assume the except blocks execute.
-            if try_block_returns:
+            else_block_returns = any(
+                isinstance(else_statement, nodes.Return)
+                for else_statement in closest_try_except.orelse
+            )
+            if try_block_returns or else_block_returns:
                 # Exception: if this node is in the final block of the other_node_statement,
                 # it will execute before returning. Assume the except statements are uncertain.
                 if (
@@ -694,10 +698,19 @@ scope_type : {self._atomic.scope_type}
                     and closest_try_except.parent.parent_of(node_statement)
                 ):
                     uncertain_nodes.append(other_node)
+                # Or the node_statement is in the else block of the relevant TryExcept
+                elif (
+                    isinstance(node_statement.parent, nodes.TryExcept)
+                    and node_statement in node_statement.parent.orelse
+                    and closest_try_except.parent.parent_of(node_statement)
+                ):
+                    uncertain_nodes.append(other_node)
                 # Assume the except blocks execute, so long as each handler
                 # defines the name, raises, or returns.
                 elif all(
-                    NamesConsumer._defines_name_raises_or_returns(node.name, handler)
+                    NamesConsumer._defines_name_raises_or_returns_recursive(
+                        node.name, handler
+                    )
                     for handler in closest_try_except.handlers
                 ):
                     continue
@@ -710,45 +723,49 @@ scope_type : {self._atomic.scope_type}
         return uncertain_nodes
 
     @staticmethod
-    def _defines_name_raises_or_returns(
-        name: str, handler: nodes.ExceptHandler
+    def _defines_name_raises_or_returns(name: str, node: nodes.NodeNG) -> bool:
+        if isinstance(node, (nodes.Raise, nodes.Return)):
+            return True
+        if (
+            isinstance(node, nodes.AnnAssign)
+            and node.value
+            and isinstance(node.target, nodes.AssignName)
+            and node.target.name == name
+        ):
+            return True
+        if isinstance(node, nodes.Assign):
+            for target in node.targets:
+                for elt in utils.get_all_elements(target):
+                    if isinstance(elt, nodes.AssignName) and elt.name == name:
+                        return True
+        if isinstance(node, nodes.If):
+            # Check for assignments inside the test
+            if isinstance(node.test, nodes.NamedExpr) and node.test.target.name == name:
+                return True
+            if isinstance(node.test, nodes.Call):
+                for arg_or_kwarg in node.test.args + [
+                    kw.value for kw in node.test.keywords
+                ]:
+                    if (
+                        isinstance(arg_or_kwarg, nodes.NamedExpr)
+                        and arg_or_kwarg.target.name == name
+                    ):
+                        return True
+        return False
+
+    @staticmethod
+    def _defines_name_raises_or_returns_recursive(
+        name: str, node: nodes.NodeNG
     ) -> bool:
-        """Return True if some child of `handler` defines the name `name`,
+        """Return True if some child of `node` defines the name `name`,
         raises, or returns.
         """
-
-        def _define_raise_or_return(stmt: nodes.NodeNG) -> bool:
-            if isinstance(stmt, (nodes.Raise, nodes.Return)):
-                return True
-            if isinstance(stmt, nodes.Assign):
-                for target in stmt.targets:
-                    for elt in utils.get_all_elements(target):
-                        if isinstance(elt, nodes.AssignName) and elt.name == name:
-                            return True
-            if isinstance(stmt, nodes.If):
-                # Check for assignments inside the test
-                if (
-                    isinstance(stmt.test, nodes.NamedExpr)
-                    and stmt.test.target.name == name
-                ):
-                    return True
-                if isinstance(stmt.test, nodes.Call):
-                    for arg_or_kwarg in stmt.test.args + [
-                        kw.value for kw in stmt.test.keywords
-                    ]:
-                        if (
-                            isinstance(arg_or_kwarg, nodes.NamedExpr)
-                            and arg_or_kwarg.target.name == name
-                        ):
-                            return True
-            return False
-
-        for stmt in handler.get_children():
-            if _define_raise_or_return(stmt):
+        for stmt in node.get_children():
+            if NamesConsumer._defines_name_raises_or_returns(name, stmt):
                 return True
             if isinstance(stmt, (nodes.If, nodes.With)):
                 if any(
-                    _define_raise_or_return(nested_stmt)
+                    NamesConsumer._defines_name_raises_or_returns(name, nested_stmt)
                     for nested_stmt in stmt.get_children()
                 ):
                     return True
@@ -851,8 +868,10 @@ scope_type : {self._atomic.scope_type}
     def _uncertain_nodes_in_try_blocks_when_evaluating_except_blocks(
         found_nodes: list[nodes.NodeNG], node_statement: nodes.Statement
     ) -> list[nodes.NodeNG]:
-        """Return any nodes in ``found_nodes`` that should be treated as uncertain because they
-        are in a try block and the ``node_statement`` being evaluated is in one of its except handlers.
+        """Return any nodes in ``found_nodes`` that should be treated as uncertain.
+
+        Nodes are uncertain when they are in a try block and the ``node_statement``
+        being evaluated is in one of its except handlers.
         """
         uncertain_nodes: list[nodes.NodeNG] = []
         closest_except_handler = utils.get_node_first_ancestor_of_type(
@@ -1232,13 +1251,12 @@ class VariablesChecker(BaseChecker):
 
         global_names = _flattened_scope_names(node.nodes_of_class(nodes.Global))
         nonlocal_names = _flattened_scope_names(node.nodes_of_class(nodes.Nonlocal))
-        comprehension_target_names: list[str] = []
+        comprehension_target_names: set[str] = set()
 
         for comprehension_scope in node.nodes_of_class(nodes.ComprehensionScope):
             for generator in comprehension_scope.generators:
-                self._find_assigned_names_recursive(
-                    generator.target, comprehension_target_names
-                )
+                for name in utils.find_assigned_names_recursive(generator.target):
+                    comprehension_target_names.add(name)
 
         for name, stmts in not_consumed.items():
             self._check_is_unused(
@@ -1321,7 +1339,7 @@ class VariablesChecker(BaseChecker):
     def visit_delname(self, node: nodes.DelName) -> None:
         self.visit_name(node)
 
-    def visit_name(self, node: nodes.Name) -> None:
+    def visit_name(self, node: nodes.Name | nodes.AssignName | nodes.DelName) -> None:
         """Don't add the 'utils.only_required_for_messages' decorator here!
 
         It's important that all 'Name' nodes are visited, otherwise the
@@ -1411,8 +1429,8 @@ class VariablesChecker(BaseChecker):
     def _should_node_be_skipped(
         self, node: nodes.Name, consumer: NamesConsumer, is_start_index: bool
     ) -> bool:
-        """Tests a consumer and node for various conditions in which the node
-        shouldn't be checked for the undefined-variable and used-before-assignment checks.
+        """Tests a consumer and node for various conditions in which the node shouldn't
+        be checked for the undefined-variable and used-before-assignment checks.
         """
         if consumer.scope_type == "class":
             # The list of base classes in the class definition is not part
@@ -1447,20 +1465,6 @@ class VariablesChecker(BaseChecker):
 
         return False
 
-    def _find_assigned_names_recursive(
-        self,
-        target: nodes.AssignName | nodes.BaseContainer,
-        target_names: list[str],
-    ) -> None:
-        """Update `target_names` in place with the names of assignment
-        targets, recursively (to account for nested assignments).
-        """
-        if isinstance(target, nodes.AssignName):
-            target_names.append(target.name)
-        elif isinstance(target, nodes.BaseContainer):
-            for elt in target.elts:
-                self._find_assigned_names_recursive(elt, target_names)
-
     # pylint: disable=too-many-return-statements
     def _check_consumer(
         self,
@@ -1480,7 +1484,6 @@ class VariablesChecker(BaseChecker):
                 node, nodes.ComprehensionScope
             ):
                 self._check_late_binding_closure(node)
-                self._loopvar_name(node)
                 return (VariableVisitConsumerAction.RETURN, None)
 
         found_nodes = current_consumer.get_next_to_consume(node)
@@ -1790,7 +1793,9 @@ class VariablesChecker(BaseChecker):
     def _in_lambda_or_comprehension_body(
         node: nodes.NodeNG, frame: nodes.NodeNG
     ) -> bool:
-        """Return True if node within a lambda/comprehension body (or similar) and thus should not have access to class attributes in frame."""
+        """Return True if node within a lambda/comprehension body (or similar) and thus
+        should not have access to class attributes in frame.
+        """
         child = node
         parent = node.parent
         while parent is not None:
@@ -1967,10 +1972,14 @@ class VariablesChecker(BaseChecker):
                         )
                     )
                 ):
-                    # Expressions, with assignment expressions
-                    # Use only after assignment
-                    # b = (c := 2) and c
-                    maybe_before_assign = False
+                    # Relation of a name to the same name in a named expression
+                    # Could be used before assignment if self-referencing:
+                    # (b := b)
+                    # Otherwise, safe if used after assignment:
+                    # (b := 2) and b
+                    maybe_before_assign = any(
+                        anc is defnode.value for anc in node.node_ancestors()
+                    )
 
             # Look for type checking definitions inside a type checking guard.
             if isinstance(defstmt, (nodes.Import, nodes.ImportFrom)):
@@ -2070,6 +2079,14 @@ class VariablesChecker(BaseChecker):
                 if (
                     not isinstance(ref_node.parent, nodes.AnnAssign)
                     or ref_node.parent.value
+                ) and not (
+                    # EXCEPTION: will not have a value if a self-referencing named expression
+                    # var: int
+                    # if (var := var * var)  <-- "var" still undefined
+                    isinstance(ref_node.parent, nodes.NamedExpr)
+                    and any(
+                        anc is ref_node.parent.value for anc in node.node_ancestors()
+                    )
                 ):
                     return False
             parent = parent_scope.parent
@@ -2113,35 +2130,30 @@ class VariablesChecker(BaseChecker):
                 return True
         return False
 
-    def _ignore_class_scope(self, node):
+    def _ignore_class_scope(self, node: nodes.NodeNG) -> bool:
         """Return True if the node is in a local class scope, as an assignment.
 
-        :param node: Node considered
-        :type node: astroid.Node
-        :return: True if the node is in a local class scope, as an assignment. False otherwise.
-        :rtype: bool
-        """
-        # Detect if we are in a local class scope, as an assignment.
-        # For example, the following is fair game.
-        #
-        # class A:
-        #    b = 1
-        #    c = lambda b=b: b * b
-        #
-        # class B:
-        #    tp = 1
-        #    def func(self, arg: tp):
-        #        ...
-        # class C:
-        #    tp = 2
-        #    def func(self, arg=tp):
-        #        ...
-        # class C:
-        #    class Tp:
-        #        pass
-        #    class D(Tp):
-        #        ...
+        Detect if we are in a local class scope, as an assignment.
+        For example, the following is fair game.
 
+        class A:
+           b = 1
+           c = lambda b=b: b * b
+
+        class B:
+           tp = 1
+           def func(self, arg: tp):
+               ...
+        class C:
+           tp = 2
+           def func(self, arg=tp):
+               ...
+        class C:
+           class Tp:
+               pass
+           class D(Tp):
+               ...
+        """
         name = node.name
         frame = node.statement(future=True).scope()
         in_annotation_or_default_or_decorator = self._defined_in_function_definition(
@@ -2225,6 +2237,13 @@ class VariablesChecker(BaseChecker):
         # For functions we can do more by inferring the length of the itered object
         try:
             inferred = next(assign.iter.infer())
+            # Prefer the target of enumerate() rather than the enumerate object itself
+            if (
+                isinstance(inferred, astroid.Instance)
+                and inferred.qname() == "builtins.enumerate"
+                and assign.iter.args
+            ):
+                inferred = next(assign.iter.args[0].infer())
         except astroid.InferenceError:
             self.add_message("undefined-loop-variable", args=node.name, node=node)
         else:
@@ -2258,7 +2277,7 @@ class VariablesChecker(BaseChecker):
         stmt,
         global_names,
         nonlocal_names: Iterable[str],
-        comprehension_target_names: list[str],
+        comprehension_target_names: Iterable[str],
     ) -> None:
         # Ignore some special names specified by user configuration.
         if self._is_name_ignored(stmt, name):
@@ -2460,7 +2479,9 @@ class VariablesChecker(BaseChecker):
 
     @staticmethod
     def _comprehension_between_frame_and_node(node: nodes.Name) -> bool:
-        """Return True if a ComprehensionScope intervenes between `node` and its frame."""
+        """Return True if a ComprehensionScope intervenes between `node` and its
+        frame.
+        """
         closest_comprehension_scope = utils.get_node_first_ancestor_of_type(
             node, nodes.ComprehensionScope
         )

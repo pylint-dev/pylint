@@ -12,6 +12,7 @@ import sys
 import tempfile
 from collections.abc import Iterator
 from pathlib import Path
+from unittest import mock
 
 import pytest
 from pytest import CaptureFixture
@@ -27,6 +28,7 @@ def pop_pylintrc() -> None:
     os.environ.pop("PYLINTRC", None)
 
 
+# pylint: disable=duplicate-code
 if os.name == "java":
     if os.name == "nt":
         HOME = "USERPROFILE"
@@ -53,6 +55,9 @@ def fake_home() -> Iterator[None]:
         else:
             os.environ[HOME] = old_home
         shutil.rmtree(folder, ignore_errors=True)
+
+
+# pylint: enable=duplicate-code
 
 
 @contextlib.contextmanager
@@ -95,6 +100,7 @@ def test_pylintrc() -> None:
 @pytest.mark.usefixtures("pop_pylintrc")
 def test_pylintrc_parentdir() -> None:
     """Test that the first pylintrc we find is the first parent directory."""
+    # pylint: disable=duplicate-code
     with tempdir() as chroot:
         chroot_path = Path(chroot)
         testutils.create_files(
@@ -159,6 +165,21 @@ def test_verbose_output_no_config(capsys: CaptureFixture) -> None:
             assert "No config file found, using default configuration" in out.err
 
 
+@pytest.mark.usefixtures("pop_pylintrc")
+def test_verbose_abbreviation(capsys: CaptureFixture) -> None:
+    """Test that we correctly handle an abbreviated pre-processable option."""
+    with tempdir() as chroot:
+        with fake_home():
+            chroot_path = Path(chroot)
+            testutils.create_files(["a/b/c/d/__init__.py"])
+            os.chdir(chroot_path / "a/b/c")
+            with pytest.raises(SystemExit):
+                Run(["--ve"])
+            out = capsys.readouterr()
+            # This output only exists when launched in verbose mode
+            assert "No config file found, using default configuration" in out.err
+
+
 @pytest.mark.parametrize(
     "content,expected",
     [
@@ -218,3 +239,17 @@ def test_cfg_has_config(content: str, expected: str, tmp_path: Path) -> None:
     with open(fake_cfg, "w", encoding="utf8") as f:
         f.write(content)
     assert _cfg_has_config(fake_cfg) == expected
+
+
+def test_non_existent_home() -> None:
+    """Test that we handle a non-existent home directory.
+
+    Reported in https://github.com/PyCQA/pylint/issues/6802.
+    """
+    with mock.patch("pathlib.Path.home", side_effect=RuntimeError):
+        current_dir = os.getcwd()
+        os.chdir(os.path.dirname(os.path.abspath(sys.executable)))
+
+        assert not list(config.find_default_config_files())
+
+        os.chdir(current_dir)

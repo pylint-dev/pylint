@@ -14,6 +14,7 @@ INVALID_CODE_BLOCK_PATTERN = (
     r"(?<=\s`)([\w\-\.\(\)\=]+\s{0,1}[\w\-\.\(\)\=]*)(?=`[,\.]{0,1}\s|$)"
 )
 
+# TODO: 2.14.0: Upgrade script for change in changelog
 DEFAULT_CHANGELOG = "ChangeLog"
 DEFAULT_SUBTITLE_PREFIX = "What's New in"
 

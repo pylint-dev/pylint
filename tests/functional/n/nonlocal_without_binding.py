@@ -1,6 +1,6 @@
 """ Checks that reversed() receive proper argument """
 # pylint: disable=missing-docstring,invalid-name,unused-variable, useless-object-inheritance
-# pylint: disable=too-few-public-methods,no-self-use
+# pylint: disable=too-few-public-methods
 
 def test():
     def parent():

@@ -10,6 +10,7 @@ An Argument instance represents a pylint option to be handled by an argparse.Arg
 from __future__ import annotations
 
 import argparse
+import os
 import pathlib
 import re
 import sys
@@ -43,6 +44,8 @@ _ArgumentTypes = Union[
 
 def _confidence_transformer(value: str) -> Sequence[str]:
     """Transforms a comma separated string of confidence values."""
+    if not value:
+        return interfaces.CONFIDENCE_LEVEL_NAMES
     values = pylint_utils._check_csv(value)
     for confidence in values:
         if confidence not in interfaces.CONFIDENCE_LEVEL_NAMES:
@@ -78,6 +81,11 @@ def _non_empty_string_transformer(value: str) -> str:
     if not value:
         raise argparse.ArgumentTypeError("Option cannot be an empty string.")
     return pylint_utils._unquote(value)
+
+
+def _path_transformer(value: str) -> str:
+    """Expand user and variables in a path."""
+    return os.path.expandvars(os.path.expanduser(value))
 
 
 def _py_version_transformer(value: str) -> tuple[int, ...]:
@@ -120,6 +128,7 @@ _TYPE_TRANSFORMERS: dict[str, Callable[[str], _ArgumentTypes]] = {
     "int": int,
     "confidence": _confidence_transformer,
     "non_empty_string": _non_empty_string_transformer,
+    "path": _path_transformer,
     "py_version": _py_version_transformer,
     "regexp": re.compile,
     "regexp_csv": _regexp_csv_transfomer,
@@ -246,7 +255,8 @@ class _StoreArgument(_BaseStoreArgument):
 
 
 class _StoreTrueArgument(_BaseStoreArgument):
-    """Class representing a 'store_true' argument to be parsed by an argparse.ArgumentsParser.
+    """Class representing a 'store_true' argument to be parsed by an
+    argparse.ArgumentsParser.
 
     This is based on the parameters passed to argparse.ArgumentsParser.add_message.
     See:
@@ -441,7 +451,8 @@ class _StoreNewNamesArgument(_DeprecationArgument):
 
 
 class _CallableArgument(_Argument):
-    """Class representing an callable argument to be parsed by an argparse.ArgumentsParser.
+    """Class representing an callable argument to be parsed by an
+    argparse.ArgumentsParser.
 
     This is based on the parameters passed to argparse.ArgumentsParser.add_message.
     See:

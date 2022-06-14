@@ -1,4 +1,4 @@
-# pylint: disable=too-few-public-methods, useless-object-inheritance
+# pylint: disable=too-few-public-methods, useless-object-inheritance, unnecessary-lambda-assignment
 """check for scope problems"""
 
 __revision__ = None

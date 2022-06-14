@@ -2,7 +2,7 @@
 with accept-no-returns-doc = no"""
 # pylint: disable=function-redefined, invalid-name, undefined-variable, missing-function-docstring
 # pylint: disable=unused-argument, disallowed-name, too-few-public-methods
-# pylint: disable=no-self-use, line-too-long
+# pylint: disable=line-too-long
 
 
 def my_func(self):  # [missing-return-type-doc]

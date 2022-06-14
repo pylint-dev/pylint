@@ -31,7 +31,7 @@ def _config_initialization(
 
     # Set the current module to the configuration file
     # to allow raising messages on the configuration file.
-    linter.set_current_module(str(config_file) if config_file else None)
+    linter.set_current_module(str(config_file) if config_file else "")
 
     # Read the configuration file
     config_file_parser = _ConfigurationFileParser(verbose_mode, linter)
@@ -45,18 +45,18 @@ def _config_initialization(
 
     # Run init hook, if present, before loading plugins
     if "init-hook" in config_data:
-        exec(utils._unquote(config_data["init-hook"]))  # pylint: disable=exec-used
+        exec(config_data["init-hook"])  # pylint: disable=exec-used
 
     # Load plugins if specified in the config file
     if "load-plugins" in config_data:
         linter.load_plugin_modules(utils._splitstrip(config_data["load-plugins"]))
 
+    unrecognized_options_message = None
     # First we parse any options from a configuration file
     try:
         linter._parse_configuration_file(config_args)
     except _UnrecognizedOptionError as exc:
-        msg = ", ".join(exc.options)
-        linter.add_message("unrecognized-option", line=0, args=msg)
+        unrecognized_options_message = ", ".join(exc.options)
 
     # Then, if a custom reporter is provided as argument, it may be overridden
     # by file parameters, so we re-set it here. We do this before command line
@@ -81,8 +81,17 @@ def _config_initialization(
             unrecognized_options.append(opt[1:])
     if unrecognized_options:
         msg = ", ".join(unrecognized_options)
-        linter.add_message("unrecognized-option", line=0, args=msg)
-        raise _UnrecognizedOptionError(options=unrecognized_options)
+        linter._arg_parser.error(f"Unrecognized option found: {msg}")
+
+    # Now that config file and command line options have been loaded
+    # with all disables, it is safe to emit messages
+    if unrecognized_options_message is not None:
+        linter.set_current_module(str(config_file) if config_file else "")
+        linter.add_message(
+            "unrecognized-option", args=unrecognized_options_message, line=0
+        )
+
+    linter._emit_stashed_messages()
 
     # Set the current module to configuration as we don't know where
     # the --load-plugins key is coming from
@@ -92,15 +101,14 @@ def _config_initialization(
     # load plugin specific configuration.
     linter.load_plugin_configuration()
 
-    # parsed_args_list should now only be a list of files/directories to lint.
-    # All other options have been removed from the list.
-    if not parsed_args_list:
-        print(linter.help())
-        sys.exit(32)
-
     # Now that plugins are loaded, get list of all fail_on messages, and enable them
     linter.enable_fail_on_messages()
 
     linter._parse_error_mode()
 
+    # Link the base Namespace object on the current directory
+    linter._directory_namespaces[Path(".").resolve()] = (linter.config, {})
+
+    # parsed_args_list should now only be a list of files/directories to lint.
+    # All other options have been removed from the list.
     return parsed_args_list

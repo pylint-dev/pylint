@@ -52,8 +52,11 @@ class ConsiderUsingAnyOrAllChecker(BaseChecker):
 
     @staticmethod
     def _build_suggested_string(node: nodes.For, final_return_bool: bool) -> str:
-        """When a nodes.For node can be rewritten as an any/all statement, return a suggestion for that statement
-        final_return_bool is the boolean literal returned after the for loop if all conditions fail.
+        """When a nodes.For node can be rewritten as an any/all statement, return a
+        suggestion for that statement.
+
+        'final_return_bool' is the boolean literal returned after the for loop if all
+        conditions fail.
         """
         loop_var = node.target.as_string()
         loop_iter = node.iter.as_string()

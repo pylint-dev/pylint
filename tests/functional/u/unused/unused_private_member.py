@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, invalid-name, too-few-public-methods, no-self-use, line-too-long, unused-argument, protected-access
+# pylint: disable=missing-docstring, invalid-name, too-few-public-methods, line-too-long, unused-argument, protected-access
 from functools import partialmethod
 
 
@@ -344,3 +344,10 @@ class TypeSelfCallInMethod:
 
     def a(self):
         return type(self).__a
+
+
+class Item:
+    """Regression test for https://github.com/PyCQA/pylint/issues/6709"""
+    def __init__(self, parent):
+        self.__parent: Item = parent
+        self.__item = self.__parent.__item  # [unused-private-member]

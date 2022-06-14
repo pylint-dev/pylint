@@ -42,7 +42,7 @@ from pylint.config.option_parser import OptionParser
 from pylint.config.options_provider_mixin import OptionsProviderMixIn
 from pylint.config.utils import _convert_option_to_argument, _parse_rich_type_value
 from pylint.constants import MAIN_CHECKER_NAME
-from pylint.typing import OptionDict
+from pylint.typing import DirectoryNamespaceDict, OptionDict
 
 if sys.version_info >= (3, 11):
     import tomllib
@@ -66,11 +66,21 @@ class _ArgumentsManager:
         self._config = argparse.Namespace()
         """Namespace for all options."""
 
+        self._base_config = self._config
+        """Fall back Namespace object created during initialization.
+
+        This is necessary for the per-directory configuration support. Whenever we
+        fail to match a file with a directory we fall back to the Namespace object
+        created during initialization.
+        """
+
         self._arg_parser = argparse.ArgumentParser(
             prog=prog,
             usage=usage or "%(prog)s [options]",
             description=description,
             formatter_class=_HelpFormatter,
+            # Needed to let 'pylint-config' overwrite the -h command
+            conflict_handler="resolve",
         )
         """The command line argument parser."""
 
@@ -79,6 +89,9 @@ class _ArgumentsManager:
 
         self._option_dicts: dict[str, OptionDict] = {}
         """All option dictionaries that have been registered."""
+
+        self._directory_namespaces: DirectoryNamespaceDict = {}
+        """Mapping of directories and their respective namespace objects."""
 
         # TODO: 3.0: Remove deprecated attributes introduced to keep API
         # parity with optparse. Until '_maxlevel'
@@ -130,7 +143,7 @@ class _ArgumentsManager:
 
             section_desc = provider.option_groups_descs.get(section, None)
 
-            # We exclude master since its docstring comes from PyLinter
+            # We exclude main since its docstring comes from PyLinter
             if provider.name != MAIN_CHECKER_NAME and provider.__doc__:
                 section_desc = provider.__doc__.split("\n\n")[0]
 
@@ -431,7 +444,12 @@ class _ArgumentsManager:
                 continue
 
             options = []
-            for opt in group._group_actions:
+            option_actions = [
+                i
+                for i in group._group_actions
+                if not isinstance(i, argparse._SubParsersAction)
+            ]
+            for opt in option_actions:
                 if "--help" in opt.option_strings:
                     continue
 
@@ -654,18 +672,20 @@ class _ArgumentsManager:
         )
         self.set_option(opt, value)
 
-    def _generate_config_file(self) -> None:
-        """Write a configuration file according to the current configuration into stdout."""
+    def _generate_config_file(self) -> str:
+        """Write a configuration file according to the current configuration into
+        stdout.
+        """
         toml_doc = tomlkit.document()
         pylint_tool_table = tomlkit.table(is_super_table=True)
         toml_doc.add(tomlkit.key(["tool", "pylint"]), pylint_tool_table)
 
         for group in sorted(
             self._arg_parser._action_groups,
-            key=lambda x: (x.title != "Master", x.title),
+            key=lambda x: (x.title != "Main", x.title),
         ):
             # Skip the options section with the --help option
-            if group.title == "options":
+            if group.title in {"options", "optional arguments", "Commands"}:
                 continue
 
             # Skip sections without options such as "positional arguments"
@@ -673,9 +693,12 @@ class _ArgumentsManager:
                 continue
 
             group_table = tomlkit.table()
-            for action in sorted(
-                group._group_actions, key=lambda x: x.option_strings[0][2:]
-            ):
+            option_actions = [
+                i
+                for i in group._group_actions
+                if not isinstance(i, argparse._SubParsersAction)
+            ]
+            for action in sorted(option_actions, key=lambda x: x.option_strings[0][2:]):
                 optname = action.option_strings[0][2:]
 
                 # We skip old name options that don't have their own optdict
@@ -703,6 +726,12 @@ class _ArgumentsManager:
                     group_table.add(tomlkit.nl())
                     continue
 
+                # Skip deprecated options
+                if "kwargs" in optdict:
+                    assert isinstance(optdict["kwargs"], dict)
+                    if "new_names" in optdict["kwargs"]:
+                        continue
+
                 # Tomlkit doesn't support regular expressions
                 if isinstance(value, re.Pattern):
                     value = value.pattern
@@ -710,6 +739,10 @@ class _ArgumentsManager:
                     value[0], re.Pattern
                 ):
                     value = [i.pattern for i in value]
+
+                # Handle tuples that should be strings
+                if optdict.get("type") == "py_version":
+                    value = ".".join(str(i) for i in value)
 
                 # Add to table
                 group_table.add(optname, value)
@@ -723,7 +756,7 @@ class _ArgumentsManager:
         # Make sure the string we produce is valid toml and can be parsed
         tomllib.loads(toml_string)
 
-        print(toml_string)
+        return toml_string
 
     def set_option(
         self,

@@ -1,13 +1,13 @@
 # pylint: disable=missing-docstring, comparison-with-itself
 
 
-if 2 is 2: # [literal-comparison]
+if 2 is 2: # [literal-comparison, comparison-of-constants]
     pass
 
-if "a" is b"a": # [literal-comparison]
+if "a" is b"a": # [literal-comparison, comparison-of-constants]
     pass
 
-if 2.0 is 3.0: # [literal-comparison]
+if 2.0 is 3.0: # [literal-comparison, comparison-of-constants]
     pass
 
 if () is (1, 2, 3):

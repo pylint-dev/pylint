@@ -34,6 +34,7 @@ from pylint.checkers.utils import (
     is_inside_abstract_class,
     is_iterable,
     is_mapping,
+    is_node_in_type_annotation_context,
     is_overload_stub,
     is_postponed_evaluation_enabled,
     is_super,
@@ -451,7 +452,9 @@ def _emit_no_member(
                 return False
             if metaclass:
                 # Renamed in Python 3.10 to `EnumType`
-                return metaclass.qname() in {"enum.EnumMeta", "enum.EnumType"}
+                if metaclass.qname() in {"enum.EnumMeta", "enum.EnumType"}:
+                    return not _enum_has_attribute(owner, node)
+                return False
             return False
         if not has_known_bases(owner):
             return False
@@ -521,6 +524,79 @@ def _emit_no_member(
         node_origin, parent = parent, parent.parent
 
     return True
+
+
+def _get_all_attribute_assignments(
+    node: nodes.FunctionDef, name: str | None = None
+) -> set[str]:
+    attributes: set[str] = set()
+    for child in node.nodes_of_class((nodes.Assign, nodes.AnnAssign)):
+        targets = []
+        if isinstance(child, nodes.Assign):
+            targets = child.targets
+        elif isinstance(child, nodes.AnnAssign):
+            targets = [child.target]
+        for assign_target in targets:
+            if isinstance(assign_target, nodes.Tuple):
+                targets.extend(assign_target.elts)
+                continue
+            if (
+                isinstance(assign_target, nodes.AssignAttr)
+                and isinstance(assign_target.expr, nodes.Name)
+                and (name is None or assign_target.expr.name == name)
+            ):
+                attributes.add(assign_target.attrname)
+    return attributes
+
+
+def _enum_has_attribute(
+    owner: astroid.Instance | nodes.ClassDef, node: nodes.Attribute
+) -> bool:
+    if isinstance(owner, astroid.Instance):
+        enum_def = next(
+            (b.parent for b in owner.bases if isinstance(b.parent, nodes.ClassDef)),
+            None,
+        )
+
+        if enum_def is None:
+            # We don't inherit from anything, so try to find the parent
+            # class definition and roll with that
+            enum_def = node
+            while enum_def is not None and not isinstance(enum_def, nodes.ClassDef):
+                enum_def = enum_def.parent
+
+        # If this blows, something is clearly wrong
+        assert enum_def is not None, "enum_def unexpectedly None"
+    else:
+        enum_def = owner
+
+    # Find __new__ and __init__
+    dunder_new = next((m for m in enum_def.methods() if m.name == "__new__"), None)
+    dunder_init = next((m for m in enum_def.methods() if m.name == "__init__"), None)
+
+    enum_attributes: set[str] = set()
+
+    # Find attributes defined in __new__
+    if dunder_new:
+        # Get the object returned in __new__
+        returned_obj_name = next(
+            (c.value for c in dunder_new.get_children() if isinstance(c, nodes.Return)),
+            None,
+        )
+        if isinstance(returned_obj_name, nodes.Name):
+            # Find all attribute assignments to the returned object
+            enum_attributes |= _get_all_attribute_assignments(
+                dunder_new, returned_obj_name.name
+            )
+
+    # Find attributes defined in __init__
+    if dunder_init and dunder_init.body and dunder_init.args:
+        # Grab the name referring to `self` from the function def
+        enum_attributes |= _get_all_attribute_assignments(
+            dunder_init, dunder_init.args.arguments[0].name
+        )
+
+    return node.attrname in enum_attributes
 
 
 def _determine_callable(
@@ -949,7 +1025,9 @@ accessed. Python regular expressions are accepted.",
         self.visit_attribute(node)
 
     @only_required_for_messages("no-member", "c-extension-no-member")
-    def visit_attribute(self, node: nodes.Attribute) -> None:
+    def visit_attribute(
+        self, node: nodes.Attribute | nodes.AssignAttr | nodes.DelAttr
+    ) -> None:
         """Check that the accessed attribute exists.
 
         to avoid too much false positives for now, we'll consider the code as
@@ -961,6 +1039,11 @@ accessed. Python regular expressions are accepted.",
             pattern.match(name)
             for name in (node.attrname, node.as_string())
             for pattern in self._compiled_generated_members
+        ):
+            return
+
+        if is_postponed_evaluation_enabled(node) and is_node_in_type_annotation_context(
+            node
         ):
             return
 
@@ -1101,7 +1184,9 @@ accessed. Python regular expressions are accepted.",
         self._check_dundername_is_string(node)
 
     def _check_assignment_from_function_call(self, node: nodes.Assign) -> None:
-        """When assigning to a function call, check that the function returns a valid value."""
+        """When assigning to a function call, check that the function returns a valid
+        value.
+        """
         if not isinstance(node.value, nodes.Call):
             return
 

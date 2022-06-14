@@ -8,7 +8,6 @@ from __future__ import annotations
 
 from collections.abc import Container, Iterable
 from itertools import chain
-from typing import Any
 
 import astroid
 from astroid import nodes
@@ -16,6 +15,7 @@ from astroid import nodes
 from pylint.checkers import utils
 from pylint.checkers.base_checker import BaseChecker
 from pylint.checkers.utils import get_import_name, infer_all, safe_infer
+from pylint.typing import MessageDefinitionTuple
 
 ACCEPTABLE_NODES = (
     astroid.BoundMethod,
@@ -31,7 +31,7 @@ class DeprecatedMixin(BaseChecker):
     A class implementing mixin must define "deprecated-method" Message.
     """
 
-    msgs: Any = {
+    msgs: dict[str, MessageDefinitionTuple] = {
         "W1505": (
             "Using deprecated method %s()",
             "deprecated-method",
@@ -84,13 +84,12 @@ class DeprecatedMixin(BaseChecker):
                 mod_name, class_name = name.split(".", 1)
                 self.check_deprecated_class(node, mod_name, (class_name,))
 
-    def deprecated_decorators(self) -> Iterable:
+    def deprecated_decorators(self) -> Iterable[str]:
         """Callback returning the deprecated decorators.
 
         Returns:
             collections.abc.Container of deprecated decorator names.
         """
-        # pylint: disable=no-self-use
         return ()
 
     @utils.only_required_for_messages("deprecated-decorator")
@@ -125,7 +124,6 @@ class DeprecatedMixin(BaseChecker):
         Returns:
             collections.abc.Container of deprecated function/method names.
         """
-        # pylint: disable=no-self-use
         return ()
 
     def deprecated_arguments(self, method: str) -> Iterable[tuple[int | None, str]]:
@@ -151,20 +149,18 @@ class DeprecatedMixin(BaseChecker):
             .. code-block:: python
                 ((1, 'arg2'), (3, 'arg4'))
         """
-        # pylint: disable=no-self-use
         # pylint: disable=unused-argument
         return ()
 
-    def deprecated_modules(self) -> Iterable:
+    def deprecated_modules(self) -> Iterable[str]:
         """Callback returning the deprecated modules.
 
         Returns:
             collections.abc.Container of deprecated module names.
         """
-        # pylint: disable=no-self-use
         return ()
 
-    def deprecated_classes(self, module: str) -> Iterable:
+    def deprecated_classes(self, module: str) -> Iterable[str]:
         """Callback returning the deprecated classes of module.
 
         Args:
@@ -173,17 +169,16 @@ class DeprecatedMixin(BaseChecker):
         Returns:
             collections.abc.Container of deprecated class names.
         """
-        # pylint: disable=no-self-use
         # pylint: disable=unused-argument
         return ()
 
-    def check_deprecated_module(self, node, mod_path):
+    def check_deprecated_module(self, node: nodes.Import, mod_path: str) -> None:
         """Checks if the module is deprecated."""
         for mod_name in self.deprecated_modules():
             if mod_path == mod_name or mod_path.startswith(mod_name + "."):
                 self.add_message("deprecated-module", node=node, args=mod_path)
 
-    def check_deprecated_method(self, node, inferred):
+    def check_deprecated_method(self, node: nodes.Call, inferred: nodes.NodeNG) -> None:
         """Executes the checker for the given node.
 
         This method should be called from the checker implementing this mixin.
@@ -229,7 +224,9 @@ class DeprecatedMixin(BaseChecker):
                     "deprecated-argument", node=node, args=(arg_name, func_name)
                 )
 
-    def check_deprecated_class(self, node, mod_name, class_names):
+    def check_deprecated_class(
+        self, node: nodes.NodeNG, mod_name: str, class_names: Iterable[str]
+    ) -> None:
         """Checks if the class is deprecated."""
 
         for class_name in class_names:
@@ -238,7 +235,7 @@ class DeprecatedMixin(BaseChecker):
                     "deprecated-class", node=node, args=(class_name, mod_name)
                 )
 
-    def check_deprecated_class_in_call(self, node):
+    def check_deprecated_class_in_call(self, node: nodes.Call) -> None:
         """Checks if call the deprecated class."""
 
         if isinstance(node.func, nodes.Attribute) and isinstance(

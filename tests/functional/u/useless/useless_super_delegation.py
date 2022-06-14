@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, no-member, no-self-use, bad-super-call
+# pylint: disable=missing-docstring, no-member, bad-super-call
 # pylint: disable=too-few-public-methods, unused-argument, invalid-name, too-many-public-methods
 # pylint: disable=line-too-long, useless-object-inheritance, arguments-out-of-order
 # pylint: disable=super-with-arguments, dangerous-default-value
@@ -279,3 +279,27 @@ class NotUselessSuperDecorators(Base):
     @trigger_something('value1')
     def method_decorated(self):
         super(NotUselessSuperDecorators, self).method_decorated()
+
+
+class MyList(list):
+    def __eq__(self, other):
+        return len(self) == len(other)
+
+    def __hash__(self):
+        return hash(len(self))
+
+
+class ExtendedList(MyList):
+    def __eq__(self, other):
+        return super().__eq__(other) and len(self) > 0
+
+    def __hash__(self):
+        return super().__hash__()
+
+
+class DecoratedList(MyList):
+    def __str__(self):
+        return f'List -> {super().__str__()}'
+
+    def __hash__(self): # [useless-super-delegation]
+        return super().__hash__()

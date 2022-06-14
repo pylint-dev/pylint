@@ -2,7 +2,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-# pylint: disable=too-many-arguments, redefined-builtin
+# pylint: disable=too-many-arguments, redefined-builtin, duplicate-code
 
 """Callback actions for various options."""
 
@@ -12,7 +12,7 @@ import abc
 import argparse
 import sys
 import warnings
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -261,7 +261,7 @@ class _GenerateRCFileAction(_AccessRunObjectAction):
         values: str | Sequence[Any] | None,
         option_string: str | None = "--generate-rcfile",
     ) -> None:
-        # TODO: 2.14: Deprecate this after discussion about this removal has been completed.
+        # TODO: 2.15: Deprecate this after discussion about this removal has been completed.
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             self.run.linter.generate_config(skipsections=("Commands",))
@@ -278,7 +278,7 @@ class _GenerateConfigFileAction(_AccessRunObjectAction):
         values: str | Sequence[Any] | None,
         option_string: str | None = "--generate-toml-config",
     ) -> None:
-        self.run.linter._generate_config_file()
+        print(self.run.linter._generate_config_file())
         sys.exit(0)
 
 
@@ -365,7 +365,43 @@ class _AccessLinterObjectAction(_CallbackAction):
         raise NotImplementedError  # pragma: no cover
 
 
-class _DisableAction(_AccessLinterObjectAction):
+class _XableAction(_AccessLinterObjectAction):
+    """Callback action for enabling or disabling a message."""
+
+    def _call(
+        self,
+        xabling_function: Callable[[str], None],
+        values: str | Sequence[Any] | None,
+        option_string: str | None,
+    ):
+        assert isinstance(values, (tuple, list))
+        for msgid in utils._check_csv(values[0]):
+            try:
+                xabling_function(msgid)
+            except (
+                exceptions.DeletedMessageError,
+                exceptions.MessageBecameExtensionError,
+            ) as e:
+                self.linter._stashed_messages[
+                    (self.linter.current_name, "useless-option-value")
+                ].append((option_string, str(e)))
+            except exceptions.UnknownMessageError:
+                self.linter._stashed_messages[
+                    (self.linter.current_name, "unknown-option-value")
+                ].append((option_string, msgid))
+
+    @abc.abstractmethod
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: str | Sequence[Any] | None,
+        option_string: str | None = "--disable",
+    ) -> None:
+        raise NotImplementedError  # pragma: no cover
+
+
+class _DisableAction(_XableAction):
     """Callback action for disabling a message."""
 
     def __call__(
@@ -375,17 +411,10 @@ class _DisableAction(_AccessLinterObjectAction):
         values: str | Sequence[Any] | None,
         option_string: str | None = "--disable",
     ) -> None:
-        assert isinstance(values, (tuple, list))
-        msgids = utils._check_csv(values[0])
-        for msgid in msgids:
-            try:
-                self.linter.disable(msgid)
-            except exceptions.UnknownMessageError:
-                msg = f"{option_string}. Don't recognize message {msgid}."
-                self.linter.add_message("bad-option-value", args=msg, line=0)
+        self._call(self.linter.disable, values, option_string)
 
 
-class _EnableAction(_AccessLinterObjectAction):
+class _EnableAction(_XableAction):
     """Callback action for enabling a message."""
 
     def __call__(
@@ -395,14 +424,7 @@ class _EnableAction(_AccessLinterObjectAction):
         values: str | Sequence[Any] | None,
         option_string: str | None = "--enable",
     ) -> None:
-        assert isinstance(values, (tuple, list))
-        msgids = utils._check_csv(values[0])
-        for msgid in msgids:
-            try:
-                self.linter.enable(msgid)
-            except exceptions.UnknownMessageError:
-                msg = f"{option_string}. Don't recognize message {msgid}."
-                self.linter.add_message("bad-option-value", args=msg, line=0)
+        self._call(self.linter.enable, values, option_string)
 
 
 class _OutputFormatAction(_AccessLinterObjectAction):
@@ -420,3 +442,46 @@ class _OutputFormatAction(_AccessLinterObjectAction):
             values[0], str
         ), "'output-format' should be a comma separated string of reporters"
         self.linter._load_reporters(values[0])
+
+
+class _AccessParserAction(_CallbackAction):
+    """Action that has access to the ArgumentParser object."""
+
+    def __init__(
+        self,
+        option_strings: Sequence[str],
+        dest: str,
+        nargs: None = None,
+        const: None = None,
+        default: None = None,
+        type: None = None,
+        choices: None = None,
+        required: bool = False,
+        help: str = "",
+        metavar: str = "",
+        **kwargs: argparse.ArgumentParser,
+    ) -> None:
+        self.parser = kwargs["parser"]
+
+        super().__init__(
+            option_strings,
+            dest,
+            0,
+            const,
+            default,
+            type,
+            choices,
+            required,
+            help,
+            metavar,
+        )
+
+    @abc.abstractmethod
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: str | Sequence[Any] | None,
+        option_string: str | None = None,
+    ) -> None:
+        raise NotImplementedError  # pragma: no cover

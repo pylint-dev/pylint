@@ -10,11 +10,12 @@ import re
 
 import astroid
 from astroid import nodes
+from astroid.util import Uninferable
 
 from pylint.checkers import utils
 
 
-def space_indentation(s):
+def space_indentation(s: str) -> int:
     """The number of leading spaces in a string.
 
     :param str s: input string
@@ -25,7 +26,7 @@ def space_indentation(s):
     return len(s) - len(s.lstrip(" "))
 
 
-def get_setters_property_name(node):
+def get_setters_property_name(node: nodes.FunctionDef) -> str | None:
     """Get the name of the property that the given node is a setter for.
 
     :param node: The node to get the property name for.
@@ -46,7 +47,7 @@ def get_setters_property_name(node):
     return None
 
 
-def get_setters_property(node):
+def get_setters_property(node: nodes.FunctionDef) -> nodes.FunctionDef | None:
     """Get the property node for the given setter node.
 
     :param node: The node to get the property for.
@@ -61,7 +62,7 @@ def get_setters_property(node):
     property_name = get_setters_property_name(node)
     class_node = utils.node_frame_class(node)
     if property_name and class_node:
-        class_attrs = class_node.getattr(node.name)
+        class_attrs: list[nodes.FunctionDef] = class_node.getattr(node.name)
         for attr in class_attrs:
             if utils.decorated_with_property(attr):
                 property_ = attr
@@ -70,7 +71,7 @@ def get_setters_property(node):
     return property_
 
 
-def returns_something(return_node):
+def returns_something(return_node: nodes.Return) -> bool:
     """Check if a return node returns a value other than None.
 
     :param return_node: The return node to check.
@@ -88,7 +89,7 @@ def returns_something(return_node):
     return not (isinstance(returns, nodes.Const) and returns.value is None)
 
 
-def _get_raise_target(node):
+def _get_raise_target(node: nodes.NodeNG) -> nodes.NodeNG | Uninferable | None:
     if isinstance(node.exc, nodes.Call):
         func = node.exc.func
         if isinstance(func, (nodes.Name, nodes.Attribute)):
@@ -107,7 +108,6 @@ def possible_exc_types(node: nodes.NodeNG) -> set[nodes.ClassDef]:
     .. note::
 
         Caught exception types are ignored.
-
 
     :param node: The raise node to find exception types for.
 
@@ -136,6 +136,8 @@ def possible_exc_types(node: nodes.NodeNG) -> set[nodes.ClassDef]:
             exceptions = [target]
         elif isinstance(target, nodes.FunctionDef):
             for ret in target.nodes_of_class(nodes.Return):
+                if ret.value is None:
+                    continue
                 if ret.frame(future=True) != target:
                     # return from inner function - ignore it
                     continue
@@ -190,9 +192,8 @@ class Docstring:
     """
 
     # These methods are designed to be overridden
-    # pylint: disable=no-self-use
     def __init__(self, doc: nodes.Const | None) -> None:
-        docstring = doc.value if doc else ""
+        docstring: str = doc.value if doc else ""
         self.doc = docstring.expandtabs()
 
     def __repr__(self) -> str:
@@ -202,34 +203,34 @@ class Docstring:
         """Returns the number of matching docstring sections."""
         return 0
 
-    def exceptions(self):
+    def exceptions(self) -> set[str]:
         return set()
 
-    def has_params(self):
+    def has_params(self) -> bool:
         return False
 
-    def has_returns(self):
+    def has_returns(self) -> bool:
         return False
 
-    def has_rtype(self):
+    def has_rtype(self) -> bool:
         return False
 
-    def has_property_returns(self):
+    def has_property_returns(self) -> bool:
         return False
 
-    def has_property_type(self):
+    def has_property_type(self) -> bool:
         return False
 
-    def has_yields(self):
+    def has_yields(self) -> bool:
         return False
 
-    def has_yields_type(self):
+    def has_yields_type(self) -> bool:
         return False
 
-    def match_param_docs(self):
+    def match_param_docs(self) -> tuple[set[str], set[str]]:
         return set(), set()
 
-    def params_documented_elsewhere(self):
+    def params_documented_elsewhere(self) -> bool:
         return self.re_for_parameters_see.search(self.doc) is not None
 
 
@@ -324,8 +325,8 @@ class SphinxDocstring(Docstring):
             )
         )
 
-    def exceptions(self):
-        types = set()
+    def exceptions(self) -> set[str]:
+        types: set[str] = set()
 
         for match in re.finditer(self.re_raise_in_docstring, self.doc):
             raise_type = match.group(1)
@@ -333,25 +334,25 @@ class SphinxDocstring(Docstring):
 
         return types
 
-    def has_params(self):
+    def has_params(self) -> bool:
         if not self.doc:
             return False
 
         return self.re_param_in_docstring.search(self.doc) is not None
 
-    def has_returns(self):
+    def has_returns(self) -> bool:
         if not self.doc:
             return False
 
         return bool(self.re_returns_in_docstring.search(self.doc))
 
-    def has_rtype(self):
+    def has_rtype(self) -> bool:
         if not self.doc:
             return False
 
         return bool(self.re_rtype_in_docstring.search(self.doc))
 
-    def has_property_returns(self):
+    def has_property_returns(self) -> bool:
         if not self.doc:
             return False
 
@@ -359,13 +360,13 @@ class SphinxDocstring(Docstring):
         # so the first line must not be a known directive.
         return not self.doc.lstrip().startswith(":")
 
-    def has_property_type(self):
+    def has_property_type(self) -> bool:
         if not self.doc:
             return False
 
         return bool(self.re_property_type_in_docstring.search(self.doc))
 
-    def match_param_docs(self):
+    def match_param_docs(self) -> tuple[set[str], set[str]]:
         params_with_doc = set()
         params_with_type = set()
 
@@ -423,7 +424,7 @@ class EpytextDocstring(SphinxDocstring):
 
     re_returns_in_docstring = re.compile(r"@returns?:")
 
-    def has_property_returns(self):
+    def has_property_returns(self) -> bool:
         if not self.doc:
             return False
 
@@ -533,13 +534,13 @@ class GoogleDocstring(Docstring):
             )
         )
 
-    def has_params(self):
+    def has_params(self) -> bool:
         if not self.doc:
             return False
 
         return self.re_param_section.search(self.doc) is not None
 
-    def has_returns(self):
+    def has_returns(self) -> bool:
         if not self.doc:
             return False
 
@@ -555,7 +556,7 @@ class GoogleDocstring(Docstring):
 
         return False
 
-    def has_rtype(self):
+    def has_rtype(self) -> bool:
         if not self.doc:
             return False
 
@@ -571,7 +572,7 @@ class GoogleDocstring(Docstring):
 
         return False
 
-    def has_property_returns(self):
+    def has_property_returns(self) -> bool:
         # The summary line is the return doc,
         # so the first line must not be a known directive.
         first_line = self._first_line()
@@ -582,13 +583,13 @@ class GoogleDocstring(Docstring):
             or self.re_yields_section.search(first_line)
         )
 
-    def has_property_type(self):
+    def has_property_type(self) -> bool:
         if not self.doc:
             return False
 
         return bool(self.re_property_returns_line.match(self._first_line()))
 
-    def has_yields(self):
+    def has_yields(self) -> bool:
         if not self.doc:
             return False
 
@@ -604,7 +605,7 @@ class GoogleDocstring(Docstring):
 
         return False
 
-    def has_yields_type(self):
+    def has_yields_type(self) -> bool:
         if not self.doc:
             return False
 
@@ -620,8 +621,8 @@ class GoogleDocstring(Docstring):
 
         return False
 
-    def exceptions(self):
-        types = set()
+    def exceptions(self) -> set[str]:
+        types: set[str] = set()
 
         entries = self._parse_section(self.re_raise_section)
         for entry in entries:
@@ -636,9 +637,9 @@ class GoogleDocstring(Docstring):
 
         return types
 
-    def match_param_docs(self):
-        params_with_doc = set()
-        params_with_type = set()
+    def match_param_docs(self) -> tuple[set[str], set[str]]:
+        params_with_doc: set[str] = set()
+        params_with_type: set[str] = set()
 
         entries = self._parse_section(self.re_param_section)
         entries.extend(self._parse_section(self.re_keyword_param_section))
@@ -662,28 +663,28 @@ class GoogleDocstring(Docstring):
 
         return params_with_doc, params_with_type
 
-    def _first_line(self):
+    def _first_line(self) -> str:
         return self.doc.lstrip().split("\n", 1)[0]
 
     @staticmethod
-    def min_section_indent(section_match):
+    def min_section_indent(section_match: re.Match[str]) -> int:
         return len(section_match.group(1)) + 1
 
     @staticmethod
-    def _is_section_header(_):
+    def _is_section_header(_: str) -> bool:
         # Google parsing does not need to detect section headers,
         # because it works off of indentation level only
         return False
 
-    def _parse_section(self, section_re):
+    def _parse_section(self, section_re: re.Pattern[str]) -> list[str]:
         section_match = section_re.search(self.doc)
         if section_match is None:
             return []
 
         min_indentation = self.min_section_indent(section_match)
 
-        entries = []
-        entry = []
+        entries: list[str] = []
+        entry: list[str] = []
         is_first = True
         for line in section_match.group(2).splitlines():
             if not line.strip():
@@ -801,11 +802,11 @@ class NumpyDocstring(GoogleDocstring):
         return params_with_doc, params_with_type
 
     @staticmethod
-    def min_section_indent(section_match):
+    def min_section_indent(section_match: re.Match[str]) -> int:
         return len(section_match.group(1))
 
     @staticmethod
-    def _is_section_header(line):
+    def _is_section_header(line: str) -> bool:
         return bool(re.match(r"\s*-+$", line))
 
 

@@ -197,6 +197,7 @@ def _make_graph(
 # the import checker itself ###################################################
 
 MSGS: dict[str, MessageDefinitionTuple] = {
+    **{k: v for k, v in DeprecatedMixin.msgs.items() if k[1:3] == "04"},
     "E0401": (
         "Unable to import %s",
         "import-error",
@@ -226,11 +227,6 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Wildcard import %s",
         "wildcard-import",
         "Used when `from module import *` is detected.",
-    ),
-    "W0402": (
-        "Deprecated module %r",
-        "deprecated-module",
-        "A module marked as deprecated is imported.",
     ),
     "W0404": (
         "Reimport %r (imported line %s)",
@@ -334,7 +330,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             "import-graph",
             {
                 "default": "",
-                "type": "string",
+                "type": "path",
                 "metavar": "<file.gv>",
                 "help": "Output a graph (.gv or any supported image format) of"
                 " all (i.e. internal and external) dependencies to the given file"
@@ -345,7 +341,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             "ext-import-graph",
             {
                 "default": "",
-                "type": "string",
+                "type": "path",
                 "metavar": "<file.gv>",
                 "help": "Output a graph (.gv or any supported image format)"
                 " of external dependencies to the given file"
@@ -356,7 +352,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             "int-import-graph",
             {
                 "default": "",
-                "type": "string",
+                "type": "path",
                 "metavar": "<file.gv>",
                 "help": "Output a graph (.gv or any supported image format)"
                 " of internal dependencies to the given file"
@@ -542,8 +538,6 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         self._first_non_import_node = None
 
     def compute_first_non_import_node(self, node):
-        if not self.linter.is_message_enabled("wrong-import-position", node.fromlineno):
-            return
         # if the node does not contain an import instruction, and if it is the
         # first node of the module, keep a track of it (all the import positions
         # of the module will be compared to the position of this first
@@ -584,8 +578,6 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
     ) = visit_comprehension = visit_expr = visit_if = compute_first_non_import_node
 
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
-        if not self.linter.is_message_enabled("wrong-import-position", node.fromlineno):
-            return
         # If it is the first non import instruction of the module, record it.
         if self._first_non_import_node:
             return
@@ -636,7 +628,16 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         # if a first non-import instruction has already been encountered,
         # it means the import comes after it and therefore is not well placed
         if self._first_non_import_node:
-            self.add_message("wrong-import-position", node=node, args=node.as_string())
+            if self.linter.is_message_enabled(
+                "wrong-import-position", self._first_non_import_node.fromlineno
+            ):
+                self.add_message(
+                    "wrong-import-position", node=node, args=node.as_string()
+                )
+            else:
+                self.linter.add_ignored_message(
+                    "wrong-import-position", node.fromlineno, node
+                )
 
     def _record_import(self, node, importedmodnode):
         """Record the package `node` imports from."""
@@ -770,7 +771,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             message = f"Cannot import {modname!r} due to syntax error {str(exc.error)!r}"  # pylint: disable=no-member; false positive
             self.add_message("syntax-error", line=importnode.lineno, args=message)
 
-        except astroid.AstroidBuildingException:
+        except astroid.AstroidBuildingError:
             if not self.linter.is_message_enabled("import-error"):
                 return None
             if _ignore_import_failure(importnode, modname, self._ignored_modules):
@@ -783,6 +784,8 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
             dotted_modname = get_import_name(importnode, modname)
             self.add_message("import-error", args=repr(dotted_modname), node=importnode)
+        except Exception as e:  # pragma: no cover
+            raise astroid.AstroidError from e
         return None
 
     def _add_imported_module(

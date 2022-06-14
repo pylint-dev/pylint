@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import itertools
 import os
+from collections.abc import Iterable
 
 from astroid import modutils, nodes
 
@@ -56,7 +57,7 @@ class DiagramWriter:
         )
         self.used_colors: dict[str, str] = {}
 
-    def write(self, diadefs):
+    def write(self, diadefs: Iterable[ClassDiagram | PackageDiagram]) -> None:
         """Write files for <project> according to <diadefs>."""
         for diagram in diadefs:
             basename = diagram.title.strip().replace(" ", "_")
@@ -64,10 +65,10 @@ class DiagramWriter:
             if os.path.exists(self.config.output_directory):
                 file_name = os.path.join(self.config.output_directory, file_name)
             self.set_printer(file_name, basename)
-            if diagram.TYPE == "class":
-                self.write_classes(diagram)
-            else:
+            if isinstance(diagram, PackageDiagram):
                 self.write_packages(diagram)
+            else:
+                self.write_classes(diagram)
             self.save()
 
     def write_packages(self, diagram: PackageDiagram) -> None:

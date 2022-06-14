@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import tokenize
 from tokenize import TokenInfo
 from typing import TYPE_CHECKING
 
@@ -31,12 +32,12 @@ class ElseifUsedChecker(BaseTokenChecker):
         )
     }
 
-    def __init__(self, linter=None):
+    def __init__(self, linter: PyLinter) -> None:
         super().__init__(linter)
         self._init()
 
-    def _init(self):
-        self._elifs = {}
+    def _init(self) -> None:
+        self._elifs: dict[tokenize._Position, str] = {}
 
     def process_tokens(self, tokens: list[TokenInfo]) -> None:
         """Process tokens and look for 'if' or 'elif'."""

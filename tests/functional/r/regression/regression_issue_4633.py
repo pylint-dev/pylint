@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,too-few-public-methods,no-self-use
+# pylint: disable=missing-docstring,too-few-public-methods
 
 """
 Regression tests for https://github.com/PyCQA/pylint/issues/4633

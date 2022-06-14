@@ -13,6 +13,28 @@ class UnknownMessageError(Exception):
     """Raised when an unregistered message id is encountered."""
 
 
+class DeletedMessageError(UnknownMessageError):
+    """Raised when a message id or symbol that was deleted from pylint is
+    encountered.
+    """
+
+    def __init__(self, msgid_or_symbol: str, removal_explanation: str):
+        super().__init__(
+            f"'{msgid_or_symbol}' was removed from pylint, see {removal_explanation}."
+        )
+
+
+class MessageBecameExtensionError(UnknownMessageError):
+    """Raised when a message id or symbol that was moved to an optional
+    extension is encountered.
+    """
+
+    def __init__(self, msgid_or_symbol: str, moved_explanation: str):
+        super().__init__(
+            f"'{msgid_or_symbol}' was moved to an optional extension, see {moved_explanation}."
+        )
+
+
 class EmptyReportError(Exception):
     """Raised when a report is empty and so should not be displayed."""
 
@@ -26,4 +48,6 @@ class InvalidArgsError(ValueError):
 
 
 class NoLineSuppliedError(Exception):
-    """Raised when trying to disable a message on a next line without supplying a line number."""
+    """Raised when trying to disable a message on a next line without supplying a line
+    number.
+    """

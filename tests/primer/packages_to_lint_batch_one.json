@@ -1,23 +1,8 @@
 {
-  "black": {
-    "branch": "main",
-    "directories": ["src/black/", "src/blackd/", "src/blib2to3/"],
-    "url": "https://github.com/psf/black.git"
-  },
   "django": {
     "branch": "main",
     "directories": ["django"],
     "url": "https://github.com/django/django.git"
-  },
-  "flask": {
-    "branch": "main",
-    "directories": ["src/flask"],
-    "url": "https://github.com/pallets/flask.git"
-  },
-  "home-assistant": {
-    "branch": "dev",
-    "directories": ["homeassistant"],
-    "url": "https://github.com/home-assistant/core.git"
   },
   "keras": {
     "branch": "master",

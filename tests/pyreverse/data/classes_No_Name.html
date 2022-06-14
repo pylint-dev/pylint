@@ -20,7 +20,7 @@
             my_int : Optional[int]
             my_int_2 : Optional[int]
             my_string : str
-            do_it(new_int: int) -> int
+            do_it(new_int: int) int
           }
           class Interface {
             get_value()
@@ -36,8 +36,8 @@
             relation2
             top : str
             from_value(value: int)
-            increment_value() -> None
-            transform_value(value: int) -> int
+            increment_value() None
+            transform_value(value: int) int
           }
           Specialization --|> Ancestor
           Ancestor ..|> Interface

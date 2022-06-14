@@ -10,6 +10,7 @@ import sys
 from collections.abc import Sequence
 from typing import NoReturn
 
+from pylint import constants
 from pylint.config.arguments_manager import _ArgumentsManager
 from pylint.config.arguments_provider import _ArgumentsProvider
 from pylint.lint.utils import fix_import_path
@@ -175,7 +176,7 @@ OPTIONS: Options = (
             type="csv",
             metavar="<file[,file...]>",
             dest="ignore_list",
-            default=("CVS",),
+            default=constants.DEFAULT_IGNORE_LIST,
             help="Files or directories to be skipped. They should be base names, not paths.",
         ),
     ),
@@ -193,7 +194,7 @@ OPTIONS: Options = (
         "output-directory",
         dict(
             default="",
-            type="string",
+            type="path",
             short="d",
             action="store",
             metavar="<output_directory>",
@@ -227,7 +228,7 @@ class Run(_ArgumentsManager, _ArgumentsProvider):
 
         sys.exit(self.run(args))
 
-    def run(self, args):
+    def run(self, args: list[str]) -> int:
         """Checking arguments and run project."""
         if not args:
             print(self.help())
@@ -238,9 +239,9 @@ class Run(_ArgumentsManager, _ArgumentsProvider):
                 project_name=self.config.project,
                 black_list=self.config.ignore_list,
             )
-        linker = Linker(project, tag=True)
-        handler = DiadefsHandler(self.config)
-        diadefs = handler.get_diadefs(project, linker)
+            linker = Linker(project, tag=True)
+            handler = DiadefsHandler(self.config)
+            diadefs = handler.get_diadefs(project, linker)
         writer.DiagramWriter(self.config).write(diadefs)
         return 0
 

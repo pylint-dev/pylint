@@ -42,6 +42,7 @@ class MermaidJSPrinter(Printer):
 
         Nodes can be classes, packages, participants etc.
         """
+        # pylint: disable=duplicate-code
         if properties is None:
             properties = NodeProperties(label=name)
         stereotype = "~~Interface~~" if type_ is NodeType.INTERFACE else ""
@@ -54,7 +55,7 @@ class MermaidJSPrinter(Printer):
                 args = self._get_method_arguments(func)
                 line = f"{func.name}({', '.join(args)})"
                 if func.returns:
-                    line += " -> " + get_annotation_label(func.returns)
+                    line += f" {get_annotation_label(func.returns)}"
                 body.append(line)
         name = name.split(".")[-1]
         self.emit(f"{nodetype} {name}{stereotype} {{")

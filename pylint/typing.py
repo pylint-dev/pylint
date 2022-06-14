@@ -6,7 +6,9 @@
 
 from __future__ import annotations
 
+import argparse
 import sys
+from pathlib import Path
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -18,7 +20,6 @@ from typing import (
     Pattern,
     Tuple,
     Type,
-    TypeVar,
     Union,
 )
 
@@ -28,9 +29,6 @@ else:
     from typing_extensions import Literal, TypedDict
 
 if TYPE_CHECKING:
-    from astroid import nodes
-
-    from pylint.checkers import BaseChecker
     from pylint.config.callback_actions import _CallbackAction
     from pylint.reporters.ureports.nodes import Section
     from pylint.utils import LinterStats
@@ -114,13 +112,6 @@ OptionDict = Dict[
 Options = Tuple[Tuple[str, OptionDict], ...]
 
 
-AstCallback = Callable[["nodes.NodeNG"], None]
-"""Callable representing a visit or leave function."""
-
-CheckerT_co = TypeVar("CheckerT_co", bound="BaseChecker", covariant=True)
-AstCallbackMethod = Callable[[CheckerT_co, "nodes.NodeNG"], None]
-"""Callable representing a visit or leave method."""
-
 ReportsCallable = Callable[["Section", "LinterStats", Optional["LinterStats"]], None]
 """Callable to create a report."""
 
@@ -138,3 +129,5 @@ MessageDefinitionTuple = Union[
     Tuple[str, str, str],
     Tuple[str, str, str, ExtraMessageOptions],
 ]
+# Mypy doesn't support recursive types (yet), see https://github.com/python/mypy/issues/731
+DirectoryNamespaceDict = Dict[Path, Tuple[argparse.Namespace, "DirectoryNamespaceDict"]]  # type: ignore[misc]

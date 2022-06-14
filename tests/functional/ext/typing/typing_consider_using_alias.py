@@ -3,7 +3,7 @@
 'py-version' needs to be set to '3.7' or '3.8' and 'runtime-typing=no'.
 With 'from __future__ import annotations' present.
 """
-# pylint: disable=missing-docstring,invalid-name,unused-argument,line-too-long
+# pylint: disable=missing-docstring,invalid-name,unused-argument,line-too-long,unnecessary-direct-lambda-call
 from __future__ import annotations
 
 import collections

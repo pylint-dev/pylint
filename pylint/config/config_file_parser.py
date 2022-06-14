@@ -9,6 +9,7 @@ from __future__ import annotations
 import configparser
 import os
 import sys
+import warnings
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -30,8 +31,7 @@ class _ConfigurationFileParser:
         self.verbose_mode = verbose
         self.linter = linter
 
-    @staticmethod
-    def _parse_ini_file(file_path: Path) -> tuple[dict[str, str], list[str]]:
+    def _parse_ini_file(self, file_path: Path) -> tuple[dict[str, str], list[str]]:
         """Parse and handle errors of a ini configuration file."""
         parser = configparser.ConfigParser(inline_comment_prefixes=("#", ";"))
 
@@ -42,11 +42,32 @@ class _ConfigurationFileParser:
         config_content: dict[str, str] = {}
         options: list[str] = []
         for section in parser.sections():
+            if self._ini_file_with_sections(str(file_path)) and not section.startswith(
+                "pylint"
+            ):
+                if section.lower() == "master":
+                    # TODO: 3.0: Remove deprecated handling of master, only allow 'pylint.' sections
+                    warnings.warn(
+                        "The use of 'MASTER' or 'master' as configuration section for pylint "
+                        "has been deprecated, as it's bad practice to not start sections titles with the "
+                        "tool name. Please use 'pylint.main' instead.",
+                        UserWarning,
+                    )
+                else:
+                    continue
             for opt, value in parser[section].items():
-                value = value.replace("\n", "")
                 config_content[opt] = value
                 options += [f"--{opt}", value]
         return config_content, options
+
+    @staticmethod
+    def _ini_file_with_sections(file_path: str) -> bool:
+        """Return whether the file uses sections."""
+        if "setup.cfg" in file_path:
+            return True
+        if "tox.ini" in file_path:
+            return True
+        return False
 
     def _parse_toml_file(self, file_path: Path) -> tuple[dict[str, str], list[str]]:
         """Parse and handle errors of a toml configuration file."""

@@ -2,7 +2,7 @@
 with accept-no-param-doc = no"""
 # pylint: disable=function-redefined, invalid-name, undefined-variable, missing-class-docstring
 # pylint: disable=unused-argument, too-few-public-methods, unnecessary-pass, line-too-long
-# pylint: disable=missing-function-docstring, disallowed-name, no-self-use
+# pylint: disable=missing-function-docstring, disallowed-name
 
 
 def test_missing_func_params_in_sphinx_docstring(  # [missing-param-doc, missing-type-doc]

@@ -137,6 +137,9 @@ class LinterStats:
         self.nb_duplicated_lines = 0
         self.percent_duplicated_lines = 0.0
 
+    def __repr__(self) -> str:
+        return str(self)
+
     def __str__(self) -> str:
         return f"""{self.bad_names}
         {sorted(self.by_module.items())}
@@ -157,7 +160,9 @@ class LinterStats:
         {self.percent_duplicated_lines}"""
 
     def init_single_module(self, module_name: str) -> None:
-        """Use through PyLinter.set_current_module so PyLinter.current_name is consistent."""
+        """Use through PyLinter.set_current_module so PyLinter.current_name is
+        consistent.
+        """
         self.by_module[module_name] = ModuleStats(
             convention=0, error=0, fatal=0, info=0, refactor=0, statement=0, warning=0
         )
@@ -298,7 +303,9 @@ class LinterStats:
     def increase_single_module_message_count(
         self, modname: str, type_name: MessageTypesFullName, increase: int
     ) -> None:
-        """Increase the message type count of an individual message type of a module."""
+        """Increase the message type count of an individual message type of a
+        module.
+        """
         self.by_module[modname][type_name] += increase
 
     def reset_message_count(self) -> None:
@@ -312,7 +319,9 @@ class LinterStats:
 
 
 def merge_stats(stats: list[LinterStats]) -> LinterStats:
-    """Used to merge multiple stats objects into a new one when pylint is run in parallel mode."""
+    """Used to merge multiple stats objects into a new one when pylint is run in
+    parallel mode.
+    """
     merged = LinterStats()
     for stat in stats:
         merged.bad_names["argument"] += stat.bad_names["argument"]

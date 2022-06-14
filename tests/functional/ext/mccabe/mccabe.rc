@@ -1,4 +1,4 @@
-[MASTER]
+[MAIN]
 load-plugins=pylint.extensions.mccabe,
 
 max-complexity=0

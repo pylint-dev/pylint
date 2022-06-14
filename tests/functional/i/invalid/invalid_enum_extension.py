@@ -1,6 +1,6 @@
 """Test check for classes extending an Enum class."""
 # pylint: disable=missing-class-docstring,invalid-name
-from enum import Enum
+from enum import Enum, IntFlag
 
 # We don't flag the Enum class itself
 class A(Enum):
@@ -19,3 +19,8 @@ class C(Enum):
 
 class D(C):
     x = 3
+
+
+class CustomFlags(IntFlag):
+    SUPPORT_OPEN = 1
+    SUPPORT_CLOSE = 2

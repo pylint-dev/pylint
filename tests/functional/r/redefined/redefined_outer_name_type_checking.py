@@ -1,5 +1,5 @@
 # pylint: disable=missing-module-docstring,missing-class-docstring,too-few-public-methods
-# pylint: disable=no-self-use,missing-function-docstring
+# pylint: disable=missing-function-docstring
 from __future__ import annotations
 
 from typing import TYPE_CHECKING

@@ -94,7 +94,7 @@ class EncodingChecker(BaseTokenChecker, BaseRawFileChecker):
         ),
     )
 
-    def open(self):
+    def open(self) -> None:
         super().open()
 
         notes = "|".join(re.escape(note) for note in self.linter.config.notes)

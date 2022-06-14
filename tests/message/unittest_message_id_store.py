@@ -111,7 +111,7 @@ def test_exclusivity_of_msgids() -> None:
     # Some pairs are hard-coded as they are pre-existing and non-exclusive,
     # and we don't want to rename them for backwards compatibility
     checker_id_pairs = {
-        "00": ("master", "miscellaneous"),
+        "00": ("main", "miscellaneous"),
         "01": (
             "basic",
             "refactoring",

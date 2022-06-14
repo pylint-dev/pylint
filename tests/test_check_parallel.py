@@ -4,7 +4,7 @@
 
 """Puts the check_parallel system under test."""
 
-# pylint: disable=protected-access,missing-function-docstring,no-self-use
+# pylint: disable=protected-access,missing-function-docstring
 
 from __future__ import annotations
 
@@ -303,7 +303,7 @@ class TestCheckParallel:
             arguments=["--enable", "R9999"],
         )
         assert len(linter.get_checkers()) == 2, (
-            "We should only have the 'master' and 'sequential-checker' "
+            "We should only have the 'main' and 'sequential-checker' "
             "checkers registered"
         )
         assert {

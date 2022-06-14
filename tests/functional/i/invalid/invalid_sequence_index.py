@@ -1,5 +1,5 @@
 """Errors for invalid sequence indices"""
-# pylint: disable=too-few-public-methods, no-self-use, import-error, missing-docstring, useless-object-inheritance, unnecessary-pass
+# pylint: disable=too-few-public-methods, import-error, missing-docstring, useless-object-inheritance, unnecessary-pass
 import six
 from unknown import Unknown
 

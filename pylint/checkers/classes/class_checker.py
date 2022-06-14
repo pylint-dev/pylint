@@ -27,13 +27,10 @@ from pylint.checkers.utils import (
     is_builtin_object,
     is_comprehension,
     is_iterable,
-    is_overload_stub,
     is_property_setter,
     is_property_setter_or_deleter,
-    is_protocol_class,
     node_frame_class,
     only_required_for_messages,
-    overrides_a_method,
     safe_infer,
     unimplemented_abstract_methods,
     uninferable_final_decorators,
@@ -128,6 +125,59 @@ def _definition_equivalent_to_call(definition, call):
 
     # No extra kwargs in call.
     return all(kw in call.args or kw in definition.kwonlyargs for kw in call.kws)
+
+
+def _is_trivial_super_delegation(function: nodes.FunctionDef) -> bool:
+    """Check whether a function definition is a method consisting only of a
+    call to the same function on the superclass.
+    """
+    if (
+        not function.is_method()
+        # Adding decorators to a function changes behavior and
+        # constitutes a non-trivial change.
+        or function.decorators
+    ):
+        return False
+
+    body = function.body
+    if len(body) != 1:
+        # Multiple statements, which means this overridden method
+        # could do multiple things we are not aware of.
+        return False
+
+    statement = body[0]
+    if not isinstance(statement, (nodes.Expr, nodes.Return)):
+        # Doing something else than what we are interested in.
+        return False
+
+    call = statement.value
+    if (
+        not isinstance(call, nodes.Call)
+        # Not a super() attribute access.
+        or not isinstance(call.func, nodes.Attribute)
+    ):
+        return False
+
+    # Anything other than a super call is non-trivial.
+    super_call = safe_infer(call.func.expr)
+    if not isinstance(super_call, astroid.objects.Super):
+        return False
+
+    # The name should be the same.
+    if call.func.attrname != function.name:
+        return False
+
+    # Should be a super call with the MRO pointer being the
+    # current class and the type being the current instance.
+    current_scope = function.parent.scope()
+    if (
+        super_call.mro_pointer != current_scope
+        or not isinstance(super_call.type, astroid.Instance)
+        or super_call.type.name != current_scope.name
+    ):
+        return False
+
+    return True
 
 
 # Deal with parameters overriding in two methods.
@@ -257,7 +307,6 @@ def _different_parameters(
        * one of the methods is having variadics, while the other is not
 
        * they have different keyword only parameters.
-
     """
     output_messages = []
     original_parameters = _positional_parameters(original)
@@ -409,14 +458,6 @@ def _is_attribute_property(name, klass):
     return False
 
 
-def _has_bare_super_call(fundef_node):
-    for call in fundef_node.nodes_of_class(nodes.Call):
-        func = call.func
-        if isinstance(func, nodes.Name) and func.name == "super" and not call.args:
-            return True
-    return False
-
-
 def _has_same_layout_slots(slots, assigned_value):
     inferred = next(assigned_value.infer())
     if isinstance(inferred, nodes.ClassDef):
@@ -506,12 +547,6 @@ MSGS: dict[
         'Used when a static method has "self" or a value specified in '
         "valid-classmethod-first-arg option or "
         "valid-metaclass-classmethod-first-arg option as first argument.",
-    ),
-    "R0201": (
-        "Method could be a function",
-        "no-self-use",
-        "Used when a method doesn't use its bound instance, and so could "
-        "be written as a function.",
     ),
     "W0221": (
         "%s %s %r method",
@@ -773,7 +808,6 @@ a metaclass class method.",
         super().__init__(linter)
         self._accessed = ScopeAccessMap()
         self._first_attrs = []
-        self._meth_could_be_func = None
 
     def open(self) -> None:
         self._mixin_class_rgx = self.linter.config.mixin_class_rgx
@@ -836,17 +870,17 @@ a metaclass class method.",
             ):
                 self.add_message("inherit-non-class", args=base.as_string(), node=node)
 
-            if (
-                isinstance(ancestor, nodes.ClassDef)
-                and ancestor.is_subtype_of("enum.Enum")
-                and any(isinstance(stmt, nodes.Assign) for stmt in ancestor.body)
+            if isinstance(ancestor, nodes.ClassDef) and ancestor.is_subtype_of(
+                "enum.Enum"
             ):
-                self.add_message(
-                    "invalid-enum-extension",
-                    args=ancestor.name,
-                    node=node,
-                    confidence=INFERENCE,
-                )
+                members = ancestor.getattr("__members__")
+                if members and isinstance(members[0], nodes.Dict) and members[0].items:
+                    self.add_message(
+                        "invalid-enum-extension",
+                        args=ancestor.name,
+                        node=node,
+                        confidence=INFERENCE,
+                    )
 
             if ancestor.name == object.__name__:
                 self.add_message(
@@ -854,7 +888,9 @@ a metaclass class method.",
                 )
 
     def _check_typing_final(self, node: nodes.ClassDef) -> None:
-        """Detect that a class does not subclass a class decorated with `typing.final`."""
+        """Detect that a class does not subclass a class decorated with
+        `typing.final`.
+        """
         if not self._py38_plus:
             return
         for base in node.bases:
@@ -992,7 +1028,7 @@ a metaclass class method.",
                 if attribute.attrname != assign_attr.attrname:
                     continue
 
-                if isinstance(attribute.expr, nodes.Call):
+                if not isinstance(attribute.expr, nodes.Name):
                     continue
 
                 if assign_attr.expr.name in {
@@ -1104,7 +1140,6 @@ a metaclass class method.",
 
         # 'is_method()' is called and makes sure that this is a 'nodes.ClassDef'
         klass = node.parent.frame(future=True)  # type: nodes.ClassDef
-        self._meth_could_be_func = True
         # check first argument is self if this is actually a method
         self._check_first_arg_for_type(node, klass.type == "metaclass")
         if node.name == "__init__":
@@ -1190,7 +1225,7 @@ a metaclass class method.",
 
     visit_asyncfunctiondef = visit_functiondef
 
-    def _check_useless_super_delegation(self, function):
+    def _check_useless_super_delegation(self, function: nodes.FunctionDef) -> None:
         """Check if the given function node is an useless method override.
 
         We consider it *useless* if it uses the super() builtin, but having
@@ -1201,55 +1236,17 @@ a metaclass class method.",
         this method, then the method could be removed altogether, by letting
         other implementation to take precedence.
         """
-
-        if (
-            not function.is_method()
-            # With decorators is a change of use
-            or function.decorators
-        ):
+        if not _is_trivial_super_delegation(function):
             return
 
-        body = function.body
-        if len(body) != 1:
-            # Multiple statements, which means this overridden method
-            # could do multiple things we are not aware of.
-            return
+        call = function.body[0].value
 
-        statement = body[0]
-        if not isinstance(statement, (nodes.Expr, nodes.Return)):
-            # Doing something else than what we are interested into.
-            return
-
-        call = statement.value
-        if (
-            not isinstance(call, nodes.Call)
-            # Not a super() attribute access.
-            or not isinstance(call.func, nodes.Attribute)
-        ):
-            return
-
-        # Should be a super call.
-        try:
-            super_call = next(call.func.expr.infer())
-        except astroid.InferenceError:
-            return
-        else:
-            if not isinstance(super_call, astroid.objects.Super):
-                return
-
-        # The name should be the same.
-        if call.func.attrname != function.name:
-            return
-
-        # Should be a super call with the MRO pointer being the
-        # current class and the type being the current instance.
-        current_scope = function.parent.scope()
-        if (
-            super_call.mro_pointer != current_scope
-            or not isinstance(super_call.type, astroid.Instance)
-            or super_call.type.name != current_scope.name
-        ):
-            return
+        # Classes that override __eq__ should also override
+        # __hash__, even a trivial override is meaningful
+        if function.name == "__hash__":
+            for other_method in function.parent.mymethods():
+                if other_method.name == "__eq__":
+                    return
 
         # Check values of default args
         klass = function.parent.frame(future=True)
@@ -1469,23 +1466,6 @@ a metaclass class method.",
         if node.is_method():
             if node.args.args is not None:
                 self._first_attrs.pop()
-            if not self.linter.is_message_enabled("no-self-use"):
-                return
-            class_node = node.parent.frame(future=True)
-            if (
-                self._meth_could_be_func
-                and node.type == "method"
-                and node.name not in PYMETHODS
-                and not (
-                    node.is_abstract()
-                    or overrides_a_method(class_node, node.name)
-                    or decorated_with_property(node)
-                    or _has_bare_super_call(node)
-                    or is_protocol_class(class_node)
-                    or is_overload_stub(node)
-                )
-            ):
-                self.add_message("no-self-use", node=node)
 
     leave_asyncfunctiondef = leave_functiondef
 
@@ -1784,7 +1764,9 @@ a metaclass class method.",
 
     @staticmethod
     def _is_inferred_instance(expr, klass):
-        """Check if the inferred value of the given *expr* is an instance of *klass*."""
+        """Check if the inferred value of the given *expr* is an instance of
+        *klass*.
+        """
 
         inferred = safe_infer(expr)
         if not isinstance(inferred, astroid.Instance):
@@ -1794,7 +1776,8 @@ a metaclass class method.",
 
     @staticmethod
     def _is_class_attribute(name, klass):
-        """Check if the given attribute *name* is a class or instance member of the given *klass*.
+        """Check if the given attribute *name* is a class or instance member of the
+        given *klass*.
 
         Returns ``True`` if the name is a property in the given klass,
         ``False`` otherwise.
@@ -1811,15 +1794,6 @@ a metaclass class method.",
             return True
         except astroid.NotFoundError:
             return False
-
-    def visit_name(self, node: nodes.Name) -> None:
-        """Check if the name handle an access to a class member
-        if so, register it.
-        """
-        if self._first_attrs and (
-            node.name == self._first_attrs[-1] or not self._first_attrs[-1]
-        ):
-            self._meth_could_be_func = False
 
     def _check_accessed_members(self, node, accessed):
         """Check that accessed members are defined."""
