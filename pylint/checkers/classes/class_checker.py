@@ -1276,6 +1276,14 @@ a metaclass class method.",
         args = _signature_from_call(call)
 
         if meth_node is not None:
+            # Detect if the super method uses varargs or kwargs and the function doesn't
+            if (
+                meth_node.args.vararg
+                and not function.args.vararg
+                or meth_node.args.kwarg
+                and not function.args.kwarg
+            ):
+                return
 
             def form_annotations(arguments):
                 annotations = chain(

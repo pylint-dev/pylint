@@ -27,6 +27,11 @@ Release date: TBA
 
   Closes #6818
 
+* Fixed a false positive for ``useless-super-delegation`` for subclasses that specify the number of
+  of parameters against a parent that uses a variadic argument.
+
+  Closes #2270
+
 * Fixed an issue with multi-line ``init-hook`` options which did not record the line endings.
 
   Closes #6888
