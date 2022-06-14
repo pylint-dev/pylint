@@ -18,7 +18,6 @@ if TYPE_CHECKING:
 
 
 class MessageDefinition:
-    # TODO: remove disable and move all extra option to single parameter.
     # pylint: disable-next=too-many-arguments
     def __init__(
         self,

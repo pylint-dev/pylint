@@ -260,8 +260,7 @@ def _write_single_shared_message_page(
     category_dir: Path, messages: List[MessageData]
 ) -> None:
     message = messages[0]
-    messages_file = os.path.join(category_dir, f"{message.name}.rst")
-    with open(messages_file, "w", encoding="utf-8") as stream:
+    with open(category_dir / f"{message.name}.rst", "w", encoding="utf-8") as stream:
         stream.write(_generate_single_message_body(message))
         checker_urls = ", ".join(
             [
@@ -273,8 +272,7 @@ def _write_single_shared_message_page(
 
 
 def _write_single_message_page(category_dir: Path, message: MessageData) -> None:
-    messages_file = os.path.join(category_dir, f"{message.name}.rst")
-    with open(messages_file, "w", encoding="utf-8") as stream:
+    with open(category_dir / f"{message.name}.rst", "w", encoding="utf-8") as stream:
         stream.write(_generate_single_message_body(message))
         checker_url = _generate_checker_url(message)
         stream.write(f"Created by the `{message.checker} <{checker_url}>`__ checker.")

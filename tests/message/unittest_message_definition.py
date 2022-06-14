@@ -71,8 +71,6 @@ class TestMessagesDefinition:
             "description",
             "msg-symbol",
             WarningScope.NODE,
-            minversion=None,
-            maxversion=None,
         )
 
     def test_may_be_emitted(self) -> None:
