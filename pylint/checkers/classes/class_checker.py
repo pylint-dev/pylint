@@ -1277,10 +1277,7 @@ a metaclass class method.",
 
         if meth_node is not None:
             # Detect if the super method uses varargs and the function doesn't
-            if (
-                meth_node.args.vararg
-                and not function.args.vararg
-            ):
+            if meth_node.args.vararg and not function.args.vararg:
                 return
 
             def form_annotations(arguments):
