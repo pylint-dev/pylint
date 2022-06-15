@@ -2,7 +2,7 @@ class Animal:
     pass
 
 
-class Fish:
+class Tree:
     pass
 
 
