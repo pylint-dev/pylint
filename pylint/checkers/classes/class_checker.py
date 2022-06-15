@@ -73,7 +73,7 @@ def _signature_from_call(call):
     for keyword in call.keywords or []:
         arg, value = keyword.arg, keyword.value
         if arg is None and isinstance(value, nodes.Name):
-            # Starred node and we are interested only in names,
+            # Starred node, and we are interested only in names,
             # otherwise some transformation might occur for the parameter.
             starred_kws.append(value.name)
         elif isinstance(value, nodes.Name):
@@ -1304,7 +1304,10 @@ a metaclass class method.",
 
         if _definition_equivalent_to_call(params, args):
             self.add_message(
-                "useless-super-delegation", node=function, args=(function.name,)
+                "useless-parent-delegation",
+                node=function,
+                args=(function.name,),
+                confidence=INFERENCE,
             )
 
     def _check_property_with_parameters(self, node):

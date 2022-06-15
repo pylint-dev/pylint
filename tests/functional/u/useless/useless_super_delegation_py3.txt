@@ -1,2 +1,2 @@
-useless-parent-delegation:21:4:21:15:UselessSuper.useless:Useless parent delegation in method 'useless':UNDEFINED
-useless-parent-delegation:34:4:34:16:Ham.__init__:Useless parent delegation in method '__init__':UNDEFINED
+useless-parent-delegation:21:4:21:15:UselessSuper.useless:Useless parent delegation in method 'useless':INFERENCE
+useless-parent-delegation:34:4:34:16:Ham.__init__:Useless parent delegation in method '__init__':INFERENCE
