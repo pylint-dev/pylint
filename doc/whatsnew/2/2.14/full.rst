@@ -10,6 +10,11 @@ Release date: TBA
 
   Closes #2270
 
+* Fixed false positive for ``undefined-variable`` for ``__class__`` in inner methods.
+
+  Closes #4032
+
+
 What's New in Pylint 2.14.2?
 ----------------------------
 Release date: 2022-06-15
