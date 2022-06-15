@@ -9,6 +9,11 @@ Release date: TBA
 
   Closes #4922, Closes #2903
 
+* Fixed a false positive for ``useless-super-delegation`` for subclasses that specify the number of
+  of parameters against a parent that uses a variadic argument.
+
+  Closes #2270
+
 
 What's New in Pylint 2.14.2?
 ----------------------------
