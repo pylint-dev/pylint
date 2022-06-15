@@ -344,11 +344,9 @@ def is_defined_before(var_node: nodes.Name) -> bool:
 
     Verify that the variable node is defined by a parent node
     (e.g. if or with) earlier than `var_node`, or is defined by a
-    (list, set, dict, or generator comprehension, lambda),
-    or is a nonlocal, or is defined
-    in a previous sibling node on the same line
-    (statement_defining ; statement_using)
-    (statement_block: statement_using).
+    (list, set, dict, or generator comprehension, lambda)
+    or in a previous sibling node on the same line
+    (statement_defining ; statement_using).
     """
     varname = var_node.name
     for parent in var_node.node_ancestors():
@@ -359,8 +357,6 @@ def is_defined_before(var_node: nodes.Name) -> bool:
         if isinstance(defnode_scope, COMP_NODE_TYPES + (nodes.Lambda,)):
             return True
         if defnode.lineno < var_node.lineno:
-            return True
-        if isinstance(defnode, nodes.Nonlocal):
             return True
         # `defnode` and `var_node` on the same line
         for defnode_anc in defnode.node_ancestors():
@@ -376,10 +372,6 @@ def is_defined_before(var_node: nodes.Name) -> bool:
                     nodes.TryFinally,
                     nodes.ExceptHandler,
                 ),
-            ):
-                return True
-            if isinstance(defnode_anc, nodes.If) and not (
-                defnode_anc.test is var_node or defnode_anc.test.parent_of(var_node)
             ):
                 return True
     # possibly multiple statements on the same line using semicolon separator
