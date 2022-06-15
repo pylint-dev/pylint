@@ -1276,7 +1276,7 @@ a metaclass class method.",
         args = _signature_from_call(call)
 
         if meth_node is not None:
-            # Detect if the super method uses varargs and the function doesn't
+            # Detect if the super method uses varargs and the function doesn't or makes some of those explicit
             if meth_node.args.vararg and (
                 not function.args.vararg
                 or len(function.args.args) > len(meth_node.args.args)
