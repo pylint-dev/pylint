@@ -1,3 +1,2 @@
 used-before-assignment:3:8:3:9::Using variable 'x' before assignment:HIGH
 used-before-assignment:5:3:5:4::Using variable 'y' before assignment:HIGH
-used-before-assignment:8:9:8:10::Using variable 'z' before assignment:HIGH

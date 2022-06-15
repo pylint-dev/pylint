@@ -4,6 +4,3 @@ if 1 + 1 == 2:
 
 if y:  # [used-before-assignment]
     y = y + 1
-
-if (z := z):  # [used-before-assignment]
-    z = z + 1
