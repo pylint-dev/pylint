@@ -288,8 +288,7 @@ def is_defined_in_scope(
     varname: str,
     scope: nodes.NodeNG,
 ) -> bool:
-    return bool(defnode_in_scope(var_node, varname, scope))
-
+    return defnode_in_scope(var_node, varname, scope) is not None
 
 def defnode_in_scope(
     var_node: nodes.NodeNG,
