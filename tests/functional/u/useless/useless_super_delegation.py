@@ -310,6 +310,27 @@ class Super:
     def __init__(self, *args):
         self.args = args
 
+
 class Sub(Super):
     def __init__(self, a, b):
         super().__init__(a, b)
+
+
+class SubTwo(Super):
+    def __init__(self, a, *args):
+        super().__init__(a, *args)
+
+
+class SuperTwo:
+    def __init__(self, a, *args):
+        self.args = args
+
+
+class SubTwoOne(SuperTwo):
+    def __init__(self, a, *args):  # [useless-super-delegation]
+        super().__init__(a, *args)
+
+
+class SubTwoTwo(SuperTwo):
+    def __init__(self, a, b, *args):
+        super().__init__(a, b, *args)
