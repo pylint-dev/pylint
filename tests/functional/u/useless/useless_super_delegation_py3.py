@@ -18,7 +18,7 @@ class AlsoNotUselessSuper(NotUselessSuper):
 
 class UselessSuper(object):
 
-    def useless(self, *, first): # [useless-super-delegation]
+    def useless(self, *, first): # [useless-parent-delegation]
         super().useless(first=first)
 
 
@@ -31,7 +31,7 @@ class Spam(Egg):
         super().__init__(thing)
 
 class Ham(Egg):
-    def __init__(self, thing: object) -> None: # [useless-super-delegation]
+    def __init__(self, thing: object) -> None: # [useless-parent-delegation]
         super().__init__(thing)
 
 

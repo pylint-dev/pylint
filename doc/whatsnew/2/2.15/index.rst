@@ -77,6 +77,10 @@ Other bug fixes
 Other Changes
 =============
 
+* ``useless-super-delegation`` has been renamed to ``useless-parent-delegation`` in order to be more generic.
+
+  Closes #6953
+
 
 Internal changes
 ================

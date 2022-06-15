@@ -8,7 +8,7 @@ class NotUselessSuper(object):
 
 class UselessSuper(object):
 
-    def useless(self, first, *, second=None, **kwargs): # [useless-super-delegation]
+    def useless(self, first, *, second=None, **kwargs): # [useless-parent-delegation]
         return super().useless(first, second=second, **kwargs)
 
 # pylint: disable=wrong-import-position
@@ -36,11 +36,11 @@ class NoReturnType:
 class ReturnTypeSpecified(NoReturnType):
     choices = ['a', 'b']
 
-    def draw(self) -> str: # [useless-super-delegation]
+    def draw(self) -> str: # [useless-parent-delegation]
         return super().draw()
 
 class ReturnTypeSame(ReturnTypeAny):
     choices = ['a', 'b']
 
-    def draw(self) -> Any: # [useless-super-delegation]
+    def draw(self) -> Any: # [useless-parent-delegation]
         return super().draw()
