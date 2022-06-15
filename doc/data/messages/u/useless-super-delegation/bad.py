@@ -5,4 +5,6 @@ class Animal:
 
 
 class Human(Animal):
-    """There is no need to override 'eat' it does the same thing than for Animal."""
+
+    def eat(self, food):
+        super(Human, self).eat()  # [useless-super-delegation]
