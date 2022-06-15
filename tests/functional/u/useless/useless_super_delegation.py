@@ -211,63 +211,63 @@ class NotUselessSuper(Base):
 
 class UselessSuper(Base):
 
-    def equivalent_params(self): # [useless-super-delegation]
+    def equivalent_params(self): # [useless-parent-delegation]
         return super(UselessSuper, self).equivalent_params()
 
-    def equivalent_params_1(self, first): # [useless-super-delegation]
+    def equivalent_params_1(self, first): # [useless-parent-delegation]
         return super(UselessSuper, self).equivalent_params_1(first)
 
-    def equivalent_params_2(self, *args): # [useless-super-delegation]
+    def equivalent_params_2(self, *args): # [useless-parent-delegation]
         return super(UselessSuper, self).equivalent_params_2(*args)
 
-    def equivalent_params_3(self, *args, **kwargs): # [useless-super-delegation]
+    def equivalent_params_3(self, *args, **kwargs): # [useless-parent-delegation]
         return super(UselessSuper, self).equivalent_params_3(*args, **kwargs)
 
-    def equivalent_params_4(self, first): # [useless-super-delegation]
+    def equivalent_params_4(self, first): # [useless-parent-delegation]
         super(UselessSuper, self).equivalent_params_4(first)
 
-    def equivalent_params_5(self, first, *args): # [useless-super-delegation]
+    def equivalent_params_5(self, first, *args): # [useless-parent-delegation]
         super(UselessSuper, self).equivalent_params_5(first, *args)
 
-    def equivalent_params_6(self, first, *args, **kwargs): # [useless-super-delegation]
+    def equivalent_params_6(self, first, *args, **kwargs): # [useless-parent-delegation]
         return super(UselessSuper, self).equivalent_params_6(first, *args, **kwargs)
 
-    def with_default_argument(self, first, default_arg="default"): # [useless-super-delegation]
+    def with_default_argument(self, first, default_arg="default"): # [useless-parent-delegation]
         # useless because the default value here is the same as in the base class
         return super(UselessSuper, self).with_default_argument(first, default_arg)
 
-    def without_default_argument(self, first, second): # [useless-super-delegation]
+    def without_default_argument(self, first, second): # [useless-parent-delegation]
         return super(UselessSuper, self).without_default_argument(first, second)
 
-    def with_default_argument_none(self, first, default_arg=None): # [useless-super-delegation]
+    def with_default_argument_none(self, first, default_arg=None): # [useless-parent-delegation]
         # useless because the default value here is the same as in the base class
         super(UselessSuper, self).with_default_argument_none(first, default_arg)
 
-    def with_default_argument_int(self, first, default_arg=42): # [useless-super-delegation]
+    def with_default_argument_int(self, first, default_arg=42): # [useless-parent-delegation]
         super(UselessSuper, self).with_default_argument_int(first, default_arg)
 
-    def with_default_argument_tuple(self, first, default_arg=()): # [useless-super-delegation]
+    def with_default_argument_tuple(self, first, default_arg=()): # [useless-parent-delegation]
         super(UselessSuper, self).with_default_argument_tuple(first, default_arg)
 
-    def with_default_argument_dict(self, first, default_arg={}): # [useless-super-delegation]
+    def with_default_argument_dict(self, first, default_arg={}): # [useless-parent-delegation]
         super(UselessSuper, self).with_default_argument_dict(first, default_arg)
 
-    def with_default_argument_var(self, first, default_arg=default_var): # [useless-super-delegation]
+    def with_default_argument_var(self, first, default_arg=default_var): # [useless-parent-delegation]
         super(UselessSuper, self).with_default_argument_var(first, default_arg)
 
-    def __init__(self): # [useless-super-delegation]
+    def __init__(self): # [useless-parent-delegation]
         super(UselessSuper, self).__init__()
 
-    def with_default_arg(self, first, default_arg="only_in_super_base"): # [useless-super-delegation]
+    def with_default_arg(self, first, default_arg="only_in_super_base"): # [useless-parent-delegation]
         super(UselessSuper, self).with_default_arg(first, default_arg)
 
-    def with_default_arg_bis(self, first, default_arg="only_in_super_base"): # [useless-super-delegation]
+    def with_default_arg_bis(self, first, default_arg="only_in_super_base"): # [useless-parent-delegation]
         super(UselessSuper, self).with_default_arg_bis(first, default_arg)
 
-    def with_default_arg_ter(self, first, default_arg="has_been_changed"): # [useless-super-delegation]
+    def with_default_arg_ter(self, first, default_arg="has_been_changed"): # [useless-parent-delegation]
         super(UselessSuper, self).with_default_arg_ter(first, default_arg)
 
-    def with_default_arg_quad(self, first, default_arg="has_been_changed"): # [useless-super-delegation]
+    def with_default_arg_quad(self, first, default_arg="has_been_changed"): # [useless-parent-delegation]
         super(UselessSuper, self).with_default_arg_quad(first, default_arg)
 
 
@@ -301,7 +301,7 @@ class DecoratedList(MyList):
     def __str__(self):
         return f'List -> {super().__str__()}'
 
-    def __hash__(self): # [useless-super-delegation]
+    def __hash__(self): # [useless-parent-delegation]
         return super().__hash__()
 
 
@@ -327,7 +327,7 @@ class SuperTwo:
 
 
 class SubTwoOne(SuperTwo):
-    def __init__(self, a, *args):  # [useless-super-delegation]
+    def __init__(self, a, *args):  # [useless-parent-delegation]
         super().__init__(a, *args)
 
 

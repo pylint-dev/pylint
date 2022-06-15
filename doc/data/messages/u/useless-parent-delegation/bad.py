@@ -6,5 +6,5 @@ class Animal:
 
 class Human(Animal):
 
-    def eat(self, food):  # [useless-super-delegation]
+    def eat(self, food):  # [useless-parent-delegation]
         super(Human, self).eat(food)
