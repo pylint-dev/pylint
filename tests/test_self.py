@@ -1520,6 +1520,16 @@ class TestCallbackOptions:
             assert run.linter._error_mode
 
     @staticmethod
+    def test_errors_only_functions_as_disable() -> None:
+        """--errors-only functions as a shortcut for --disable=W,C,R,I;
+        it no longer enables any messages."""
+        run = Run(
+            [str(UNNECESSARY_LAMBDA), "--disable=import-error", "--errors-only"],
+            do_exit=False,
+        )
+        assert not run.linter.is_message_enabled("import-error")
+
+    @staticmethod
     def test_verbose() -> None:
         """Test the --verbose flag."""
         with pytest.raises(SystemExit):
