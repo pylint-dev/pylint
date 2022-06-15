@@ -34,6 +34,11 @@ Release date: TBA
 * Fixed a false positive for ``used-before-assignment`` when a try block returns
   but an except handler defines a name via type annotation.
 
+* ``--errors-only`` no longer enables previously disabled messages. It was acting as
+  "emit *all* and only error messages" without being clearly documented that way.
+
+  Closes #6811
+
 
 What's New in Pylint 2.14.1?
 ----------------------------
