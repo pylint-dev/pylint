@@ -1,10 +1,16 @@
 Full changelog
 ==============
 
-What's New in Pylint 2.14.2?
+What's New in Pylint 2.14.3?
 ----------------------------
 Release date: TBA
 
+
+
+
+What's New in Pylint 2.14.2?
+----------------------------
+Release date: 2022-06-15
 
 * Fixed a false positive for ``unused-variable`` when a function returns an
   ``argparse.Namespace`` object.
@@ -38,6 +44,11 @@ Release date: TBA
 
 * Fixed a false positive for ``used-before-assignment`` when a try block returns
   but an except handler defines a name via type annotation.
+
+* ``--errors-only`` no longer enables previously disabled messages. It was acting as
+  "emit *all* and only error messages" without being clearly documented that way.
+
+  Closes #6811
 
 
 What's New in Pylint 2.14.1?

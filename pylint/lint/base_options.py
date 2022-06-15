@@ -529,9 +529,9 @@ def _make_run_options(self: Run) -> Options:
                 "action": _ErrorsOnlyModeAction,
                 "kwargs": {"Run": self},
                 "short": "E",
-                "help": "In error mode, checkers without error messages are "
-                "disabled and for others, only the ERROR messages are "
-                "displayed, and no reports are done by default.",
+                "help": "In error mode, messages with a category besides "
+                "ERROR or FATAL are suppressed, and no reports are done by default. "
+                "Error mode is compatible with disabling specific errors. ",
                 "hide_from_config_file": True,
             },
         ),

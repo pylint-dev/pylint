@@ -371,6 +371,7 @@ contributors:
 - Peter Bittner <django@bittner.it>
 - Peter Aronoff <peter@aronoff.org>
 - Paul Cochrane <paul@liekut.de>
+- Paul Lichtenberger <paul.lichtenberger.rgbg@gmail.com>
 - Patrik <patrik.mrx@gmail.com>
 - Pascal Corpet <pcorpet@users.noreply.github.com>
 - Pablo Galindo Salgado <Pablogsal@gmail.com>
