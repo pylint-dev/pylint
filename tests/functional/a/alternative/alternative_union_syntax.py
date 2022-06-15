@@ -100,4 +100,5 @@ class WithReverse(metaclass=ReverseMetaclass):
 class DefaultMetaclass:
     pass
 
-class_list_reversed_invalid = [WithReverse | DefaultMetaclass]
+class_list = [WithForward | DefaultMetaclass]
+class_list_reversed = [WithReverse | DefaultMetaclass]
