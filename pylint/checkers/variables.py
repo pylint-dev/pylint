@@ -1977,8 +1977,9 @@ class VariablesChecker(BaseChecker):
                     # (b := b)
                     # Otherwise, safe if used after assignment:
                     # (b := 2) and b
-                    maybe_before_assign = any(
-                        anc is defnode.value for anc in node.node_ancestors()
+                    maybe_before_assign = (
+                        defnode.value is node
+                        or any(anc is defnode.value for anc in node.node_ancestors())
                     )
 
             # Look for type checking definitions inside a type checking guard.

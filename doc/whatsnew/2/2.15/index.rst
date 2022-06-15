@@ -46,6 +46,10 @@ False negatives fixed
 
   Closes #5653
 
+* Emit ``used-before-assignment`` for self-referencing assignments under if conditions.
+
+  Closes #6643
+
 
 Other bug fixes
 ===============
