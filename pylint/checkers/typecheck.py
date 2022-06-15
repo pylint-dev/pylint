@@ -18,7 +18,7 @@ from collections import deque
 from collections.abc import Callable, Iterator, Sequence
 from functools import singledispatch
 from re import Pattern
-from typing import TYPE_CHECKING, Any, List, Union
+from typing import TYPE_CHECKING, Any, Union
 
 import astroid.exceptions
 import astroid.helpers
