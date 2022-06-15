@@ -18,10 +18,10 @@ from collections import deque
 from collections.abc import Callable, Iterator, Sequence
 from functools import singledispatch
 from re import Pattern
-from typing import TYPE_CHECKING, Any, Union
+from typing import TYPE_CHECKING, Any, List, Union
 
-import astroid
 import astroid.exceptions
+import astroid.helpers
 from astroid import bases, nodes
 
 from pylint.checkers import BaseChecker, utils
@@ -631,7 +631,7 @@ def _determine_callable(
         try:
             # Use the last definition of __new__.
             new = callable_obj.local_attr("__new__")[-1]
-        except astroid.NotFoundError:
+        except astroid.exceptions.NotFoundError:
             new = None
 
         from_object = new and new.parent.scope().name == "object"
@@ -641,7 +641,7 @@ def _determine_callable(
             try:
                 # Use the last definition of __init__.
                 callable_obj = callable_obj.local_attr("__init__")[-1]
-            except astroid.NotFoundError as e:
+            except astroid.exceptions.NotFoundError as e:
                 raise ValueError from e
         else:
             callable_obj = new
@@ -1902,6 +1902,22 @@ accessed. Python regular expressions are accepted.",
             if not allowed_nested_syntax:
                 self._check_unsupported_alternative_union_syntax(node)
 
+    def _includes_version_compatible_overload(self, attrs: List[nodes.NodeNG]):
+        """Check if a set of overloads of an operator includes one that
+        can be relied upon for our configured Python version.
+
+        If we are running under a Python 3.10+ runtime but configured for
+        pre-3.10 compatibility then Astroid will ahve inferred the
+        existence of __or__ / __ror__ on builtins.type, but these aren't
+        available in the configured version of Python.
+        """
+        is_py310_builtin = all(
+            isinstance(attr, (nodes.FunctionDef, astroid.BoundMethod))
+            and attr.parent.qname() == "builtins.type"
+            for attr in attrs
+        )
+        return (not is_py310_builtin) or self._py310_plus
+
     def _check_unsupported_alternative_union_syntax(self, node: nodes.BinOp) -> None:
         """Check if left or right node is of type `type`.
 
@@ -1915,22 +1931,10 @@ accessed. Python regular expressions are accepted.",
         left_is_type = False
         right_is_type = False
 
-        def _has_usable_overload(attrs):
-            # We have a candidate overload of the operator. However, if this
-            # is a Python 3.10 runtime but configured for pre-3.10 compatibility
-            # Astroid will have inferred the existence of __or__ / __ror__ on
-            # builtins.type, which is not suitable.
-            is_py310_builtin = all(
-                isinstance(attr, (nodes.FunctionDef, astroid.BoundMethod))
-                and attr.parent.qname() == "builtins.type"
-                for attr in attrs
-            )
-            return (not is_py310_builtin) or self._py310_plus
-
         if isinstance(left_obj, nodes.ClassDef) and is_classdef_type(left_obj):
             try:
                 attrs = left_obj.getattr("__or__")
-                if _has_usable_overload(attrs):
+                if self._includes_version_compatible_overload(attrs):
                     return
                 left_is_type = True
             except astroid.NotFoundError:
@@ -1939,7 +1943,7 @@ accessed. Python regular expressions are accepted.",
         if isinstance(right_obj, nodes.ClassDef) and is_classdef_type(right_obj):
             try:
                 attrs = right_obj.getattr("__ror__")
-                if _has_usable_overload(attrs):
+                if self._includes_version_compatible_overload(attrs):
                     return
                 right_is_type = True
             except astroid.NotFoundError:
