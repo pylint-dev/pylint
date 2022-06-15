@@ -288,26 +288,32 @@ def is_defined_in_scope(
     varname: str,
     scope: nodes.NodeNG,
 ) -> bool:
+    return defnode_in_scope(var_node, varname, scope) is not None
+
+
+def defnode_in_scope(
+    var_node: nodes.NodeNG,
+    varname: str,
+    scope: nodes.NodeNG,
+) -> nodes.NodeNG | None:
     if isinstance(scope, nodes.If):
         for node in scope.body:
-            if (
-                isinstance(node, nodes.Assign)
-                and any(
-                    isinstance(target, nodes.AssignName) and target.name == varname
-                    for target in node.targets
-                )
-            ) or (isinstance(node, nodes.Nonlocal) and varname in node.names):
-                return True
+            if isinstance(node, nodes.Nonlocal) and varname in node.names:
+                return node
+            if isinstance(node, nodes.Assign):
+                for target in node.targets:
+                    if isinstance(target, nodes.AssignName) and target.name == varname:
+                        return target
     elif isinstance(scope, (COMP_NODE_TYPES, nodes.For)):
         for ass_node in scope.nodes_of_class(nodes.AssignName):
             if ass_node.name == varname:
-                return True
+                return ass_node
     elif isinstance(scope, nodes.With):
         for expr, ids in scope.items:
             if expr.parent_of(var_node):
                 break
             if ids and isinstance(ids, nodes.AssignName) and ids.name == varname:
-                return True
+                return ids
     elif isinstance(scope, (nodes.Lambda, nodes.FunctionDef)):
         if scope.args.is_argument(varname):
             # If the name is found inside a default value
@@ -317,32 +323,57 @@ def is_defined_in_scope(
                 try:
                     scope.args.default_value(varname)
                     scope = scope.parent
-                    is_defined_in_scope(var_node, varname, scope)
+                    defnode = defnode_in_scope(var_node, varname, scope)
                 except astroid.NoDefault:
                     pass
-            return True
+                else:
+                    return defnode
+            return scope
         if getattr(scope, "name", None) == varname:
-            return True
+            return scope
     elif isinstance(scope, nodes.ExceptHandler):
         if isinstance(scope.name, nodes.AssignName):
             ass_node = scope.name
             if ass_node.name == varname:
-                return True
-    return False
+                return ass_node
+    return None
 
 
 def is_defined_before(var_node: nodes.Name) -> bool:
     """Check if the given variable node is defined before.
 
     Verify that the variable node is defined by a parent node
+    (e.g. if or with) earlier than `var_node`, or is defined by a
     (list, set, dict, or generator comprehension, lambda)
     or in a previous sibling node on the same line
     (statement_defining ; statement_using).
     """
     varname = var_node.name
     for parent in var_node.node_ancestors():
-        if is_defined_in_scope(var_node, varname, parent):
+        defnode = defnode_in_scope(var_node, varname, parent)
+        if defnode is None:
+            continue
+        defnode_scope = defnode.scope()
+        if isinstance(defnode_scope, COMP_NODE_TYPES + (nodes.Lambda,)):
             return True
+        if defnode.lineno < var_node.lineno:
+            return True
+        # `defnode` and `var_node` on the same line
+        for defnode_anc in defnode.node_ancestors():
+            if defnode_anc.lineno != var_node.lineno:
+                continue
+            if isinstance(
+                defnode_anc,
+                (
+                    nodes.For,
+                    nodes.While,
+                    nodes.With,
+                    nodes.TryExcept,
+                    nodes.TryFinally,
+                    nodes.ExceptHandler,
+                ),
+            ):
+                return True
     # possibly multiple statements on the same line using semicolon separator
     stmt = var_node.statement(future=True)
     _node = stmt.previous_sibling()
