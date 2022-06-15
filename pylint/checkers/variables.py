@@ -1418,8 +1418,11 @@ class VariablesChecker(BaseChecker):
                 or node.name in self.linter.config.additional_builtins
                 or (
                     node.name == "__class__"
-                    and isinstance(frame, nodes.FunctionDef)
-                    and frame.is_method()
+                    and any(
+                        i.is_method()
+                        for i in node.node_ancestors()
+                        if isinstance(i, nodes.FunctionDef)
+                    )
                 )
             )
             and not utils.node_ignores_exception(node, NameError)
