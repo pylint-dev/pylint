@@ -1,9 +1,15 @@
 Full changelog
 ==============
 
-What's New in Pylint 2.14.2?
+What's New in Pylint 2.14.3?
 ----------------------------
 Release date: TBA
+
+
+
+What's New in Pylint 2.14.2?
+----------------------------
+Release date: 2022-06-15
 
 
 * Fixed a false positive for ``unused-variable`` when a function returns an
