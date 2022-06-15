@@ -5,4 +5,4 @@ class Animal:
 
 
 class Human(Animal):
-    """There is no need to override 'eat' it does the same thing as the implementation in Animal."""
+    """There is no need to override 'eat' it has the same signature as the implementation in Animal."""
