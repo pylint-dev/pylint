@@ -361,7 +361,7 @@ def is_defined_before(var_node: nodes.Name) -> bool:
             return True
         if isinstance(defnode, nodes.Nonlocal):
             return True
-        # defnode and var_node on the same line
+        # `defnode` and `var_node` on the same line
         for defnode_anc in defnode.node_ancestors():
             if defnode_anc.lineno != var_node.lineno:
                 continue
