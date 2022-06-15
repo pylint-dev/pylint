@@ -5,7 +5,10 @@ What's New in Pylint 2.14.3?
 ----------------------------
 Release date: TBA
 
+* Fixed a false positive for ``useless-super-delegation`` for subclasses that specify the number of
+  of parameters against a parent that uses a variadic argument.
 
+  Closes #2270
 
 
 What's New in Pylint 2.14.2?
@@ -32,11 +35,6 @@ Release date: 2022-06-15
   when the subscript is updated in the body of a nested loop.
 
   Closes #6818
-
-* Fixed a false positive for ``useless-super-delegation`` for subclasses that specify the number of
-  of parameters against a parent that uses a variadic argument.
-
-  Closes #2270
 
 * Fixed an issue with multi-line ``init-hook`` options which did not record the line endings.
 
