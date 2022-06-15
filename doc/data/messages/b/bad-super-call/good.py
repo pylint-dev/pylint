@@ -2,6 +2,10 @@ class Animal:
     pass
 
 
+class Fish:
+    pass
+
+
 class Cat(Animal):
     def __init__(self):
-        super().__init__()
+        super(Animal, self).__init__()
