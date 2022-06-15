@@ -46,6 +46,10 @@ False negatives fixed
 
   Closes #5653
 
+* Emit ``used-before-assignment`` when calling nested functions before assignment.
+
+  Closes #6812
+
 
 Other bug fixes
 ===============
