@@ -1902,7 +1902,7 @@ accessed. Python regular expressions are accepted.",
             if not allowed_nested_syntax:
                 self._check_unsupported_alternative_union_syntax(node)
 
-    def _includes_version_compatible_overload(self, attrs: List[nodes.NodeNG]):
+    def _includes_version_compatible_overload(self, attrs: list[nodes.NodeNG]):
         """Check if a set of overloads of an operator includes one that
         can be relied upon for our configured Python version.
 
