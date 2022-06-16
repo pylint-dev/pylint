@@ -119,6 +119,7 @@ It has the following format::
 
     if self.linter.config.ignore_ints:
         # skip check
+        pass
 
 Next we'll track when we enter and leave a function.
 
