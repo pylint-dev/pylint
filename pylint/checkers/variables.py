@@ -204,11 +204,12 @@ def _detect_global_scope(node, frame, defframe):
         return False
     if isinstance(frame, nodes.FunctionDef):
         # If the parent of the current node is a
-        # function, then it can be under its scope
-        # (defined in, which doesn't concern us) or
+        # function, then it can be under its scope (defined in); or
         # the `->` part of annotations. The same goes
         # for annotations of function arguments, they'll have
         # their parent the Arguments node.
+        if frame.parent_of(defframe):
+            return node.lineno < defframe.lineno
         if not isinstance(node.parent, (nodes.FunctionDef, nodes.Arguments)):
             return False
     elif any(

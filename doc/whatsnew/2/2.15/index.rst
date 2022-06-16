@@ -46,6 +46,10 @@ False negatives fixed
 
   Closes #5653
 
+* Emit ``used-before-assignment`` when calling nested functions before assignment.
+
+  Closes #6812
+
 * Emit ``used-before-assignment`` for self-referencing assignments under if conditions.
 
   Closes #6643
