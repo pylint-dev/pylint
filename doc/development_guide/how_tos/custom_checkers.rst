@@ -117,9 +117,8 @@ It has the following format::
 
   .. code-block:: python
 
-    if self.linter.config.ignore_ints:
-        # skip check
-        pass
+    if not self.linter.config.ignore_ints:
+        ...
 
 Next we'll track when we enter and leave a function.
 
