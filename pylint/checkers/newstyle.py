@@ -108,7 +108,9 @@ class NewStyleConflictChecker(BaseChecker):
                 except astroid.InferenceError:
                     continue
 
-                if klass is not supcls:
+                # If the supcls is in the ancestors of klass super can be used to skip
+                # a step in the mro() and get a method from a higher parent
+                if klass is not supcls and all(i != supcls for i in klass.ancestors()):
                     name = None
                     # if supcls is not Uninferable, then supcls was inferred
                     # and use its name. Otherwise, try to look
