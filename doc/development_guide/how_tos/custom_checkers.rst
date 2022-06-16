@@ -230,7 +230,7 @@ Pylint message is defined using the following format::
         "Used when pylint has been unable to import a module.",  # Message description
         { # Additional parameters:
              # message control support for the old names of the messages:
-            "old_names": [("F0401", "old-import-error")] 
+            "old_names": [("F0401", "old-import-error")]
             "minversion": (3, 5), # No check under this version
             "maxversion": (3, 7), # No check above this version
         },
