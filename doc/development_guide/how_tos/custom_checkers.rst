@@ -224,10 +224,21 @@ Defining a Message
 Pylint message is defined using the following format::
 
    msgs = {
-       "message-id": (
-           "displayed-message", "message-symbol", "message-help"
-       )
-   }
+       "E0401": ( # message id
+        "Unable to import %s", # template of displayed message
+        "import-error", # message symbol
+        "Used when pylint has been unable to import a module.",  # Message description
+        { # Additional parameters:
+             # message control support for the old names of the messages:
+            "old_names": [("F0401", "old-import-error")] 
+            "minversion": (3, 5), # No check under this version
+            "maxversion": (3, 7), # No check above this version
+        },
+    ),
+
+The message is then formatted using the ``args`` parameter from ``add_message`` i.e. in
+``self.add_message("import-error", args=module_we_cant_import, node=importnode)``, the value in ``module_we_cant_import`` say ``patglib`` will be interpolled and the final result will be:
+``Unable to import patglib``
 
 
 * The ``message-id`` should be a 4-digit number,
@@ -248,16 +259,6 @@ Pylint message is defined using the following format::
 
 Optionally message can contain optional extra options::
 
-   msgs = {
-       "E0401": (
-        "Unable to import %s",
-        "import-error",
-        "Used when pylint has been unable to import a module.",
-        {"old_names": [("F0401", "old-import-error")]},
-    ),
-
-The message is then formatted using the ``args`` parameter from ``add_message`` i.e. in
-``self.add_message("import-error", args=module_we_cant_import, node=importnode)``
 
 
 * The ``old_names`` option permits to change the message id or symbol of a message without breaking the message control used on the old messages by users. The option is specified as a list
