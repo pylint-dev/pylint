@@ -178,6 +178,10 @@ class BaseChecker(_ArgumentsProvider):
         checker_id = None
         existing_ids = []
         for message in self.messages:
+            # Id's for shared messages such as the 'deprecated-*' messages
+            # can be inconsistent with their checker id.
+            if message.shared:
+                continue
             if checker_id is not None and checker_id != message.msgid[1:3]:
                 error_msg = "Inconsistent checker part in message id "
                 error_msg += f"'{message.msgid}' (expected 'x{checker_id}xx' "

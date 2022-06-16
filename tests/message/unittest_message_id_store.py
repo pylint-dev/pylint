@@ -131,6 +131,8 @@ def test_exclusivity_of_msgids() -> None:
     }
 
     for msgid, definition in runner.linter.msgs_store._messages_definitions.items():
+        if definition.shared:
+            continue
         if msgid[1:3] in checker_id_pairs:
             assert (
                 definition.checker_name in checker_id_pairs[msgid[1:3]]

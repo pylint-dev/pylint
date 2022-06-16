@@ -64,7 +64,6 @@ class TestMessagesDefinition:
 
     @staticmethod
     def get_message_definition() -> MessageDefinition:
-        kwargs = {"minversion": None, "maxversion": None}
         return MessageDefinition(
             FalseChecker(),
             "W1234",
@@ -72,7 +71,6 @@ class TestMessagesDefinition:
             "description",
             "msg-symbol",
             WarningScope.NODE,
-            **kwargs,
         )
 
     def test_may_be_emitted(self) -> None:
