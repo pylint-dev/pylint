@@ -114,9 +114,9 @@ It has the following format::
   This is used on the command line and in config files.
   The hyphen is replaced by an underscore when used in the checker,
   similarly to how you would use  ``argparse.Namespace``:
-  
+
   .. code-block:: python
-  
+
     if self.linter.config.ignore_ints:
         # skip check
         return
