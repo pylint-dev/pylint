@@ -1025,7 +1025,9 @@ accessed. Python regular expressions are accepted.",
         self.visit_attribute(node)
 
     @only_required_for_messages("no-member", "c-extension-no-member")
-    def visit_attribute(self, node: nodes.Attribute) -> None:
+    def visit_attribute(
+        self, node: nodes.Attribute | nodes.AssignAttr | nodes.DelAttr
+    ) -> None:
         """Check that the accessed attribute exists.
 
         to avoid too much false positives for now, we'll consider the code as

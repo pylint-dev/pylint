@@ -1,9 +1,59 @@
 Full changelog
 ==============
 
-What's New in Pylint 2.14.2?
+What's New in Pylint 2.14.3?
 ----------------------------
 Release date: TBA
+
+* Fixed two false positives for ``bad-super-call`` for calls that refer to a non-direct parent.
+
+  Closes #4922, Closes #2903
+
+* Fixed a false positive for ``useless-super-delegation`` for subclasses that specify the number of
+  of parameters against a parent that uses a variadic argument.
+
+  Closes #2270
+
+* Fixed false positive for ``undefined-variable`` for ``__class__`` in inner methods.
+
+  Closes #4032
+
+What's New in Pylint 2.14.2?
+----------------------------
+Release date: 2022-06-15
+
+* Fixed a false positive for ``unused-variable`` when a function returns an
+  ``argparse.Namespace`` object.
+
+  Closes #6895
+
+* Avoided raising an identical ``undefined-loop-variable`` message twice on the same line.
+
+* Don't crash if ``lint.run._query_cpu()`` is run within a Kubernetes Pod, that has only
+  a fraction of a cpu core assigned. Just go with one process then.
+
+  Closes #6902
+
+* Fixed a false positive in ``consider-using-f-string`` if the left side of a ``%`` is not a string.
+
+  Closes #6689
+
+* Fixed a false positive in ``unnecessary-list-index-lookup`` and ``unnecessary-dict-index-lookup``
+  when the subscript is updated in the body of a nested loop.
+
+  Closes #6818
+
+* Fixed an issue with multi-line ``init-hook`` options which did not record the line endings.
+
+  Closes #6888
+
+* Fixed a false positive for ``used-before-assignment`` when a try block returns
+  but an except handler defines a name via type annotation.
+
+* ``--errors-only`` no longer enables previously disabled messages. It was acting as
+  "emit *all* and only error messages" without being clearly documented that way.
+
+  Closes #6811
 
 
 What's New in Pylint 2.14.1?

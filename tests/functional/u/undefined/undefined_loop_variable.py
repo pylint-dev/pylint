@@ -146,3 +146,11 @@ def use_enumerate():
     for i, num in enumerate(range(3)):
         pass
     print(i, num)
+
+
+def find_even_number(container):
+    """https://github.com/PyCQA/pylint/pull/6923#discussion_r895134495"""
+    for something in container:
+        if something % 2 == 0:
+            break
+    return something  # [undefined-loop-variable]

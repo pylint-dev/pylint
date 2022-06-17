@@ -1,7 +1,10 @@
-undefined-variable:42:6:42:16::Undefined variable 'no_default':UNDEFINED
-undefined-variable:50:6:50:22::Undefined variable 'again_no_default':UNDEFINED
-undefined-variable:76:6:76:19::Undefined variable 'else_assign_1':INFERENCE
-undefined-variable:99:6:99:19::Undefined variable 'else_assign_2':INFERENCE
-used-before-assignment:134:10:134:16:type_annotation_used_improperly_after_comprehension:Using variable 'my_int' before assignment:HIGH
-used-before-assignment:141:10:141:16:type_annotation_used_improperly_after_comprehension_2:Using variable 'my_int' before assignment:HIGH
-used-before-assignment:171:12:171:16:expression_in_ternary_operator_inside_container_wrong_position:Using variable 'val3' before assignment:HIGH
+used-before-assignment:17:15:17:18:typing_and_self_referencing_assignment_expression:Using variable 'var' before assignment:HIGH
+used-before-assignment:23:15:23:18:self_referencing_assignment_expression:Using variable 'var' before assignment:HIGH
+undefined-variable:48:6:48:16::Undefined variable 'no_default':UNDEFINED
+undefined-variable:56:6:56:22::Undefined variable 'again_no_default':UNDEFINED
+undefined-variable:82:6:82:19::Undefined variable 'else_assign_1':INFERENCE
+undefined-variable:105:6:105:19::Undefined variable 'else_assign_2':INFERENCE
+used-before-assignment:140:10:140:16:type_annotation_used_improperly_after_comprehension:Using variable 'my_int' before assignment:HIGH
+used-before-assignment:147:10:147:16:type_annotation_used_improperly_after_comprehension_2:Using variable 'my_int' before assignment:HIGH
+used-before-assignment:177:12:177:16:expression_in_ternary_operator_inside_container_wrong_position:Using variable 'val3' before assignment:HIGH
+used-before-assignment:181:9:181:10::Using variable 'z' before assignment:HIGH

@@ -99,6 +99,16 @@ def func_ok7(var):
     print(msg)
 
 
+def func_ok8(var):
+    """Define 'msg' in one handler via type annotation."""
+    try:
+        return 1 / var.some_other_func()
+    except ZeroDivisionError:
+        # See func_invalid2() for mere annotation without value
+        msg: str = "Division by 0"
+    print(msg)
+
+
 def func_invalid1(var):
     """'msg' is not defined in one handler."""
     try:

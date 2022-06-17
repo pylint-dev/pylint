@@ -18,3 +18,4 @@ useless-super-delegation:264:4:264:28:UselessSuper.with_default_arg_bis:Useless 
 useless-super-delegation:267:4:267:28:UselessSuper.with_default_arg_ter:Useless super delegation in method 'with_default_arg_ter':UNDEFINED
 useless-super-delegation:270:4:270:29:UselessSuper.with_default_arg_quad:Useless super delegation in method 'with_default_arg_quad':UNDEFINED
 useless-super-delegation:304:4:304:16:DecoratedList.__hash__:Useless super delegation in method '__hash__':UNDEFINED
+useless-super-delegation:330:4:330:16:SubTwoOne.__init__:Useless super delegation in method '__init__':UNDEFINED

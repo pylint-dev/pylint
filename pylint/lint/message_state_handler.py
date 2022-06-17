@@ -227,14 +227,11 @@ class _MessageStateHandler:
         self._register_by_id_managed_msg(msgid, line, is_disabled=False)
 
     def disable_noerror_messages(self) -> None:
-        for msgcat, msgids in self.linter.msgs_store._msgs_by_category.items():
-            # enable only messages with 'error' severity and above ('fatal')
+        """Disable message categories other than `error` and `fatal`."""
+        for msgcat in self.linter.msgs_store._msgs_by_category:
             if msgcat in {"E", "F"}:
-                for msgid in msgids:
-                    self.enable(msgid)
-            else:
-                for msgid in msgids:
-                    self.disable(msgid)
+                continue
+            self.disable(msgcat)
 
     def list_messages_enabled(self) -> None:
         emittable, non_emittable = self.linter.msgs_store.find_emittable_messages()
@@ -410,7 +407,10 @@ class _MessageStateHandler:
                             l_start -= 1
                         try:
                             meth(msgid, "module", l_start)
-                        except exceptions.DeletedMessageError as e:
+                        except (
+                            exceptions.DeletedMessageError,
+                            exceptions.MessageBecameExtensionError,
+                        ) as e:
                             self.linter.add_message(
                                 "useless-option-value",
                                 args=(pragma_repr.action, e),

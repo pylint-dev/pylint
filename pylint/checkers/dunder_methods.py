@@ -49,7 +49,7 @@ DUNDER_METHODS: dict[str, str] = {
     "__delitem__": "Use del keyword",
     "__iter__": "Use iter built-in function",
     "__next__": "Use next built-in function",
-    "__reversed__": "Use reversed built-in funciton",
+    "__reversed__": "Use reversed built-in function",
     "__contains__": "Use in keyword",
     "__add__": "Use + operator",
     "__sub__": "Use - operator",

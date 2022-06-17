@@ -13,7 +13,7 @@ import pytest
 from pylint.constants import PY38_PLUS
 from pylint.interfaces import HIGH, INFERENCE, Confidence
 from pylint.message import Message
-from pylint.testutils.output_line import MalformedOutputLineException, OutputLine
+from pylint.testutils.output_line import OutputLine
 from pylint.typing import MessageLocationTuple
 
 
@@ -127,20 +127,20 @@ def test_output_line_to_csv(confidence: Confidence, message: Callable) -> None:
 def test_output_line_from_csv_error() -> None:
     """Test that errors are correctly raised for incorrect OutputLine's."""
     # Test a csv-string which does not have a number for line and column
-    with pytest.raises(
-        MalformedOutputLineException,
+    with pytest.warns(
+        UserWarning,
         match="msg-symbolic-name:42:27:MyClass.my_function:The message",
     ):
         OutputLine.from_csv("'missing-docstring', 'line', 'column', 'obj', 'msg'", True)
     # Test a tuple which does not have a number for line and column
-    with pytest.raises(
-        MalformedOutputLineException, match="symbol='missing-docstring' ?"
+    with pytest.warns(
+        UserWarning, match="we got 'missing-docstring:line:column:obj:msg'"
     ):
         csv = ("missing-docstring", "line", "column", "obj", "msg")
         OutputLine.from_csv(csv, True)
     # Test a csv-string that is too long
-    with pytest.raises(
-        MalformedOutputLineException,
+    with pytest.warns(
+        UserWarning,
         match="msg-symbolic-name:42:27:MyClass.my_function:The message",
     ):
         OutputLine.from_csv(

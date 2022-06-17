@@ -124,3 +124,9 @@ for input_output in d.items():
 d = {'a': 1, 'b': 2, 'c': 3}
 for key, val in d.items():
     ([d[key], x], y) = ([1, 2], 3)
+
+# Regression test for https://github.com/PyCQA/pylint/issues/6818
+d = {'a': 1, 'b': 2, 'c': 3}
+for key, val in d.items():
+    while d[key] > 0:
+        d[key] -= 1
