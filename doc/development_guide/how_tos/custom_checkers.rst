@@ -76,30 +76,7 @@ So far we have defined the following required components of our checker:
 * A message dictionary. Each checker is being used for finding problems
    in your code, the problems being displayed to the user through **messages**.
    The message dictionary should specify what messages the checker is
-   going to emit. It has the following format::
-
-       msgs = {
-           "message-id": (
-               "displayed-message", "message-symbol", "message-help"
-           )
-       }
-
-
-   * The ``message-id`` should be a 4-digit number,
-     prefixed with a **message category**.
-     There are multiple message categories,
-     these being ``C``, ``W``, ``E``, ``F``, ``R``,
-     standing for ``Convention``, ``Warning``, ``Error``, ``Fatal`` and ``Refactoring``.
-     The 4 digits should not conflict with existing checkers
-     and the first 2 digits should consistent across the checker.
-
-   * The ``displayed-message`` is used for displaying the message to the user,
-     once it is emitted.
-
-   * The ``message-symbol`` is an alias of the message id
-     and it can be used wherever the message id can be used.
-
-   * The ``message-help`` is used when calling ``pylint --help-msg``.
+   going to emit. See `Defining a Message`_ for the details about defining a new message.
 
 We have also defined an optional component of the checker.
 The options list defines any user configurable options.
@@ -245,6 +222,60 @@ Now we can debug our checker!
     module's parent directory in your ``PYTHONPATH``
     environment variable or by adding the ``my_plugin.py``
     file to the ``pylint/checkers`` directory if running from source.
+
+Defining a Message
+------------------
+
+Pylint message is defined using the following format::
+
+   msgs = {
+       "E0401": ( # message id
+        "Unable to import %s", # template of displayed message
+        "import-error", # message symbol
+        "Used when pylint has been unable to import a module.",  # Message description
+        { # Additional parameters:
+             # message control support for the old names of the messages:
+            "old_names": [("F0401", "old-import-error")]
+            "minversion": (3, 5), # No check under this version
+            "maxversion": (3, 7), # No check above this version
+        },
+    ),
+
+The message is then formatted using the ``args`` parameter from ``add_message`` i.e. in
+``self.add_message("import-error", args=module_we_cant_import, node=importnode)``, the value in ``module_we_cant_import`` say ``patglib`` will be interpolled and the final result will be:
+``Unable to import patglib``
+
+
+* The ``message-id`` should be a 4-digit number,
+  prefixed with a **message category**.
+  There are multiple message categories,
+  these being ``C``, ``W``, ``E``, ``F``, ``R``,
+  standing for ``Convention``, ``Warning``, ``Error``, ``Fatal`` and ``Refactoring``.
+  The 4 digits should not conflict with existing checkers
+  and the first 2 digits should consistent across the checker (except shared messages).
+
+* The ``displayed-message`` is used for displaying the message to the user,
+  once it is emitted.
+
+* The ``message-symbol`` is an alias of the message id
+  and it can be used wherever the message id can be used.
+
+* The ``message-help`` is used when calling ``pylint --help-msg``.
+
+Optionally message can contain optional extra options:
+
+* The ``old_names`` option permits to change the message id or symbol of a message without breaking the message control used on the old messages by users. The option is specified as a list
+  of tuples (``message-id``, ``old-message-symbol``) e.g. ``{"old_names": [("F0401", "old-import-error")]}``.
+  The symbol / msgid association must be unique so if you're changing the message id the symbol also need to change and you can generally use the ``old-`` prefix for that.
+
+* The ``minversion`` or ``maxversion`` options specify minimum or maximum version of python
+  relevant for this message. The option value is specified as tuple with major version number
+  as first number and minor version number as second number e.g. ``{"minversion": (3, 5)}``
+
+* The ``shared`` option enables sharing message between multiple checkers. As mentioned
+  previously, normally the message cannot be shared between multiple checkers.
+  To allow having message shared between multiple checkers, the ``shared`` option must
+  be set to ``True``.
 
 Parallelize a Checker
 ---------------------
