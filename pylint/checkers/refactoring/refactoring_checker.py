@@ -323,9 +323,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "R1714": (
             'Consider merging these comparisons with "in" to %r',
             "consider-using-in",
-            "To check if a variable is equal to one of many values,"
-            'combine the values into a tuple and check if the variable is contained "in" it '
-            "instead of checking for equality against each of the values."
+            "To check if a variable is equal to one of many values, "
+            'combine the values into a set or tuple and check if the variable is contained "in" it '
+            "instead of checking for equality against each of the values. "
             "This is faster and less verbose.",
         ),
         "R1715": (
