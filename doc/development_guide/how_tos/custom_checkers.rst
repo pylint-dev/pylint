@@ -262,16 +262,16 @@ The message is then formatted using the ``args`` parameter from ``add_message`` 
 
 * The ``message-help`` is used when calling ``pylint --help-msg``.
 
-Optionally message can contain optional extra options::
-
-
+Optionally message can contain optional extra options:
 
 * The ``old_names`` option permits to change the message id or symbol of a message without breaking the message control used on the old messages by users. The option is specified as a list
   of tuples (``message-id``, ``old-message-symbol``) e.g. ``{"old_names": [("F0401", "old-import-error")]}``.
   The symbol / msgid association must be unique so if you're changing the message id the symbol also need to change and you can generally use the ``old-`` prefix for that.
+
 * The ``minversion`` or ``maxversion`` options specify minimum or maximum version of python
   relevant for this message. The option value is specified as tuple with major version number
   as first number and minor version number as second number e.g. ``{"minversion": (3, 5)}``
+
 * The ``shared`` option enables sharing message between multiple checkers. As mentioned
   previously, normally the message cannot be shared between multiple checkers.
   To allow having message shared between multiple checkers, the ``shared`` option must
