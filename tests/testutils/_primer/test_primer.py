@@ -19,54 +19,17 @@ FIXTURES_PATH = HERE / "fixtures"
 
 
 @pytest.mark.parametrize(
-    "directory,expected",
+    "directory",
     [
-        [
-            FIXTURES_PATH / "both_empty",
-            """🤖 According to the primer, this change has **no effect** on the checked open source code. 🤖🎉
-
-*This comment was generated for commit v2.14.2*""",
-        ],
-        [
-            FIXTURES_PATH / "message_changed",
-            """🤖 **Effect of this PR on checked open source code:** 🤖
-
-
-
-**Effect on [astroid](https://github.com/PyCQA/astroid):**
-The following messages are now emitted:
-
-<details>
-
-1) locally-disabled:
-*Locally disabling redefined-builtin [we added some text in the message] (W0622)*
-https://github.com/PyCQA/astroid/blob/main/astroid/__init__.py#L91
-
-</details>
-
-The following messages are no longer emitted:
-
-<details>
-
-1) locally-disabled:
-*Locally disabling redefined-builtin (W0622)*
-https://github.com/PyCQA/astroid/blob/main/astroid/__init__.py#L91
-
-</details>
-
-*This comment was generated for commit v2.14.2*""",
-        ],
-        [
-            FIXTURES_PATH / "no_change",
-            """🤖 According to the primer, this change has **no effect** on the checked open source code. 🤖🎉
-
-*This comment was generated for commit v2.14.2*""",
-        ],
+        pytest.param(p, id=str(p.relative_to(FIXTURES_PATH)))
+        for p in FIXTURES_PATH.iterdir()
+        if p.is_dir()
     ],
 )
-def test_compare(directory: Path, expected: str) -> None:
+def test_compare(directory: Path) -> None:
     main = directory / "main.json"
     pr = directory / "pr.json"
+    expected_file = directory / "expected.txt"
     new_argv = [
         "python tests/primer/__main__.py",
         "compare",
@@ -78,4 +41,7 @@ def test_compare(directory: Path, expected: str) -> None:
         Primer(PRIMER_DIRECTORY, PACKAGES_TO_PRIME_PATH).run()
     with open(PRIMER_DIRECTORY / "comment.txt", encoding="utf8") as f:
         content = f.read()
-    assert content == expected
+    with open(expected_file, encoding="utf8") as f:
+        expected = f.read()
+    # rstrip so the expected.txt can end with a newline
+    assert content == expected.rstrip("\n")
