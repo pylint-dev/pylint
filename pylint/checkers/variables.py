@@ -299,9 +299,12 @@ def _fix_dot_imports(not_consumed):
 def _find_frame_imports(name: str, frame: nodes.LocalsDictNodeNG) -> bool:
     """Detect imports in the frame, with the required *name*.
 
-    Such imports can be considered assignments.
+    Such imports can be considered assignments if they are not globals.
     Returns True if an import for the given name was found.
     """
+    if name in _flattened_scope_names(frame.nodes_of_class(nodes.Global)):
+        return False
+
     imports = frame.nodes_of_class((nodes.Import, nodes.ImportFrom))
     for import_node in imports:
         for import_name, import_alias in import_node.names:
@@ -315,7 +318,7 @@ def _find_frame_imports(name: str, frame: nodes.LocalsDictNodeNG) -> bool:
     return False
 
 
-def _import_name_is_global(stmt, global_names):
+def _import_name_is_global(stmt, global_names) -> bool:
     for import_name, import_alias in stmt.names:
         # If the import uses an alias, check only that.
         # Otherwise, check only the import name.
