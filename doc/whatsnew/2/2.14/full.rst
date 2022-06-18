@@ -1,9 +1,15 @@
 Full changelog
 ==============
 
-What's New in Pylint 2.14.3?
+What's New in Pylint 2.14.4?
 ----------------------------
 Release date: TBA
+
+
+
+What's New in Pylint 2.14.3?
+----------------------------
+Release date: 2022-06-18
 
 * Fixed two false positives for ``bad-super-call`` for calls that refer to a non-direct parent.
 
