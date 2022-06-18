@@ -278,8 +278,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         """Check that there are not unnecessary parentheses after a keyword.
 
         Parens are unnecessary if there is exactly one balanced outer pair on a
-        line, and it is followed by a colon, and contains no commas (i.e. is not a
-        tuple).
+        line and contains no commas (i.e. is not a tuple).
 
         Args:
         tokens: list of Tokens; the entire list of Tokens.
