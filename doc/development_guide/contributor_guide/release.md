@@ -51,7 +51,6 @@ branch
   [readthedoc](https://readthedocs.org/projects/pylint/versions/), except the last one.
   (For example: hide `v2.4.0`, `v2.4.1`, `v2.4.2` and keep only `v2.4.3`)
 
-
 ## Backporting a fix from `main` to the maintenance branch
 
 Whenever a commit on `main` should be released in a patch release on the current
