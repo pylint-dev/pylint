@@ -1353,8 +1353,7 @@ class VariablesChecker(BaseChecker):
             return
 
         self._undefined_and_used_before_checker(node, stmt)
-        if self._is_undefined_loop_variable_enabled:
-            self._loopvar_name(node)
+        self._loopvar_name(node)
 
     @utils.only_required_for_messages("redefined-outer-name")
     def visit_excepthandler(self, node: nodes.ExceptHandler) -> None:
