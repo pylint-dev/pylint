@@ -1082,14 +1082,6 @@ class VariablesChecker(BaseChecker):
         """This is a queue, last in first out."""
         self._postponed_evaluation_enabled = False
 
-    def open(self) -> None:
-        """Called when loading the checker."""
-        self._is_undefined_variable_enabled = self.linter.is_message_enabled(
-            "undefined-variable"
-        )
-        self._is_undefined_loop_variable_enabled = self.linter.is_message_enabled(
-            "undefined-loop-variable"
-        )
 
     def leave_for(self, node: nodes.For) -> None:
         self._store_type_annotation_names(node)
@@ -1411,8 +1403,7 @@ class VariablesChecker(BaseChecker):
         # we have not found the name, if it isn't a builtin, that's an
         # undefined name !
         if (
-            self._is_undefined_variable_enabled
-            and not (
+            not (
                 node.name in nodes.Module.scope_attrs
                 or utils.is_builtin(node.name)
                 or node.name in self.linter.config.additional_builtins
