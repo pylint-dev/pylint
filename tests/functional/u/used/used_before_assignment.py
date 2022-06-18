@@ -1,4 +1,4 @@
-"""pylint doesn't see the NameError in this module"""
+"""Miscellaneous used-before-assignment cases"""
 # pylint: disable=consider-using-f-string, missing-function-docstring
 __revision__ = None
 
@@ -13,3 +13,8 @@ def outer():
         pass
 
 outer()
+
+import time  # pylint: disable=unused-import, wrong-import-position
+def redefine_time_import():
+    print(time.time())  # [used-before-assignment]
+    import time  # pylint: disable=import-outside-toplevel, reimported, redefined-outer-name

@@ -50,6 +50,10 @@ False negatives fixed
 
   Closes #6812
 
+* Emit ``used-before-assignment`` when relying on a name that is reimported later in a function.
+
+  Closes #4624
+
 * Emit ``used-before-assignment`` for self-referencing assignments under if conditions.
 
   Closes #6643
