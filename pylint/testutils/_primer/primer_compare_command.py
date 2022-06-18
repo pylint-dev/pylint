@@ -26,81 +26,23 @@ class CompareCommand(PrimerCommand):
                 except ValueError:
                     final_main_dict[package].append(message)
 
-        self._create_comment(final_main_dict, new_dict)
+        comment = self._create_comment(final_main_dict, new_dict)
+        with open(self.primer_directory / "comment.txt", "w", encoding="utf-8") as f:
+            f.write(comment)
 
     def _create_comment(
         self, all_missing_messages: PackageMessages, all_new_messages: PackageMessages
-    ) -> None:
+    ) -> str:
         comment = ""
         for package, missing_messages in all_missing_messages.items():
             if len(comment) >= MAX_GITHUB_COMMENT_LENGTH:
                 break
-
             new_messages = all_new_messages[package]
-            package_data = self.packages[package]
-
             if not missing_messages and not new_messages:
                 continue
-
-            comment += f"\n\n**Effect on [{package}]({self.packages[package].url}):**\n"
-
-            # Create comment for new messages
-            count = 1
-            astroid_errors = 0
-            new_non_astroid_messages = ""
-            if new_messages:
-                print("Now emitted:")
-            for message in new_messages:
-                filepath = str(message["path"]).replace(
-                    str(package_data.clone_directory), ""
-                )
-                # Existing astroid errors may still show up as "new" because the timestamp
-                # in the message is slightly different.
-                if message["symbol"] == "astroid-error":
-                    astroid_errors += 1
-                else:
-                    new_non_astroid_messages += (
-                        f"{count}) {message['symbol']}:\n*{message['message']}*\n"
-                        f"{package_data.url}/blob/{package_data.branch}{filepath}#L{message['line']}\n"
-                    )
-                    print(message)
-                    count += 1
-
-            if astroid_errors:
-                comment += (
-                    f"{astroid_errors} error(s) were found stemming from the `astroid` library. "
-                    "This is unlikely to have been caused by your changes. "
-                    "A GitHub Actions warning links directly to the crash report template. "
-                    "Please open an issue against `astroid` if one does not exist already. \n\n"
-                )
-            if new_non_astroid_messages:
-                comment += (
-                    "The following messages are now emitted:\n\n<details>\n\n"
-                    + new_non_astroid_messages
-                    + "\n</details>\n\n"
-                )
-
-            # Create comment for missing messages
-            count = 1
-            if missing_messages:
-                comment += (
-                    "The following messages are no longer emitted:\n\n<details>\n\n"
-                )
-                print("No longer emitted:")
-            for message in missing_messages:
-                comment += f"{count}) {message['symbol']}:\n*{message['message']}*\n"
-                filepath = str(message["path"]).replace(
-                    str(package_data.clone_directory), ""
-                )
-                assert not package_data.url.endswith(
-                    ".git"
-                ), "You don't need the .git at the end of the github url."
-                comment += f"{package_data.url}/blob/{package_data.branch}{filepath}#L{message['line']}\n"
-                count += 1
-                print(message)
-            if missing_messages:
-                comment += "\n</details>\n\n"
-
+            comment += self._create_comment_for_package(
+                package, new_messages, missing_messages
+            )
         if comment == "":
             comment = (
                 "🤖 According to the primer, this change has **no effect** on the"
@@ -110,6 +52,70 @@ class CompareCommand(PrimerCommand):
             comment = (
                 f"🤖 **Effect of this PR on checked open source code:** 🤖\n\n{comment}"
             )
+        return self._truncate_comment(comment)
+
+    def _create_comment_for_package(
+        self, package: str, new_messages, missing_messages
+    ) -> str:
+        comment = f"\n\n**Effect on [{package}]({self.packages[package].url}):**\n"
+        # Create comment for new messages
+        count = 1
+        astroid_errors = 0
+        new_non_astroid_messages = ""
+        if new_messages:
+            print("Now emitted:")
+        for message in new_messages:
+            filepath = str(message["path"]).replace(
+                str(self.packages[package].clone_directory), ""
+            )
+            # Existing astroid errors may still show up as "new" because the timestamp
+            # in the message is slightly different.
+            if message["symbol"] == "astroid-error":
+                astroid_errors += 1
+            else:
+                new_non_astroid_messages += (
+                    f"{count}) {message['symbol']}:\n*{message['message']}*\n"
+                    f"{self.packages[package].url}/blob/{self.packages[package].branch}{filepath}#L{message['line']}\n"
+                )
+                print(message)
+                count += 1
+
+        if astroid_errors:
+            comment += (
+                f"{astroid_errors} error(s) were found stemming from the `astroid` library. "
+                "This is unlikely to have been caused by your changes. "
+                "A GitHub Actions warning links directly to the crash report template. "
+                "Please open an issue against `astroid` if one does not exist already. \n\n"
+            )
+        if new_non_astroid_messages:
+            comment += (
+                "The following messages are now emitted:\n\n<details>\n\n"
+                + new_non_astroid_messages
+                + "\n</details>\n\n"
+            )
+
+        # Create comment for missing messages
+        count = 1
+        if missing_messages:
+            comment += "The following messages are no longer emitted:\n\n<details>\n\n"
+            print("No longer emitted:")
+        for message in missing_messages:
+            comment += f"{count}) {message['symbol']}:\n*{message['message']}*\n"
+            filepath = str(message["path"]).replace(
+                str(self.packages[package].clone_directory), ""
+            )
+            assert not self.packages[package].url.endswith(
+                ".git"
+            ), "You don't need the .git at the end of the github url."
+            comment += f"{self.packages[package].url}/blob/{self.packages[package].branch}{filepath}#L{message['line']}\n"
+            count += 1
+            print(message)
+        if missing_messages:
+            comment += "\n</details>\n\n"
+        return comment
+
+    def _truncate_comment(self, comment: str) -> str:
+        """GitHub allows only a set number of characters in a comment."""
         hash_information = (
             f"*This comment was generated for commit {self.config.commit}*"
         )
@@ -125,5 +131,4 @@ class CompareCommand(PrimerCommand):
             )
             comment = f"{comment[:max_len - 10]}...\n\n{truncation_information}\n\n"
         comment += hash_information
-        with open(self.primer_directory / "comment.txt", "w", encoding="utf-8") as f:
-            f.write(comment)
+        return comment
