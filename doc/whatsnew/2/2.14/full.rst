@@ -14,7 +14,7 @@ Release date: TBA
 
   Closes #2270
 
-* Allow suppressing ``undefined-loop-variable`` without raising ``useless-suppression``.
+* Allow suppressing ``undefined-loop-variable`` and ``undefined-variable`` without raising ``useless-suppression``.
 
 * Fixed false positive for ``undefined-variable`` for ``__class__`` in inner methods.
 
