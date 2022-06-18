@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 from pylint.testutils._primer.primer_command import PackageMessages, PrimerCommand
 
@@ -12,11 +13,16 @@ MAX_GITHUB_COMMENT_LENGTH = 65536
 
 class CompareCommand(PrimerCommand):
     def run(self) -> None:
-        with open(self.config.base_file, encoding="utf-8") as f:
-            main_dict: PackageMessages = json.load(f)
-        with open(self.config.new_file, encoding="utf-8") as f:
-            new_dict: PackageMessages = json.load(f)
+        main_dict = self._load_json(self.config.base_file)
+        new_dict = self._load_json(self.config.new_file)
+        final_main_dict = self._cross_reference(main_dict, new_dict)
+        comment = self._create_comment(final_main_dict, new_dict)
+        with open(self.primer_directory / "comment.txt", "w", encoding="utf-8") as f:
+            f.write(comment)
 
+    def _cross_reference(
+        self, main_dict: PackageMessages, new_dict: PackageMessages
+    ) -> PackageMessages:
         final_main_dict: PackageMessages = {}
         for package, messages in main_dict.items():
             final_main_dict[package] = []
@@ -25,10 +31,12 @@ class CompareCommand(PrimerCommand):
                     new_dict[package].remove(message)
                 except ValueError:
                     final_main_dict[package].append(message)
+        return final_main_dict
 
-        comment = self._create_comment(final_main_dict, new_dict)
-        with open(self.primer_directory / "comment.txt", "w", encoding="utf-8") as f:
-            f.write(comment)
+    def _load_json(self, file_path: Path | str) -> PackageMessages:
+        with open(file_path, encoding="utf-8") as f:
+            result: PackageMessages = json.load(f)
+        return result
 
     def _create_comment(
         self, all_missing_messages: PackageMessages, all_new_messages: PackageMessages
