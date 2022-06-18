@@ -1082,15 +1082,6 @@ class VariablesChecker(BaseChecker):
         """This is a queue, last in first out."""
         self._postponed_evaluation_enabled = False
 
-    def open(self) -> None:
-        """Called when loading the checker."""
-        self._is_undefined_variable_enabled = self.linter.is_message_enabled(
-            "undefined-variable"
-        )
-        self._is_undefined_loop_variable_enabled = self.linter.is_message_enabled(
-            "undefined-loop-variable"
-        )
-
     def leave_for(self, node: nodes.For) -> None:
         self._store_type_annotation_names(node)
 
@@ -1353,8 +1344,7 @@ class VariablesChecker(BaseChecker):
             return
 
         self._undefined_and_used_before_checker(node, stmt)
-        if self._is_undefined_loop_variable_enabled:
-            self._loopvar_name(node)
+        self._loopvar_name(node)
 
     @utils.only_required_for_messages("redefined-outer-name")
     def visit_excepthandler(self, node: nodes.ExceptHandler) -> None:
@@ -1411,23 +1401,19 @@ class VariablesChecker(BaseChecker):
 
         # we have not found the name, if it isn't a builtin, that's an
         # undefined name !
-        if (
-            self._is_undefined_variable_enabled
-            and not (
-                node.name in nodes.Module.scope_attrs
-                or utils.is_builtin(node.name)
-                or node.name in self.linter.config.additional_builtins
-                or (
-                    node.name == "__class__"
-                    and any(
-                        i.is_method()
-                        for i in node.node_ancestors()
-                        if isinstance(i, nodes.FunctionDef)
-                    )
+        if not (
+            node.name in nodes.Module.scope_attrs
+            or utils.is_builtin(node.name)
+            or node.name in self.linter.config.additional_builtins
+            or (
+                node.name == "__class__"
+                and any(
+                    i.is_method()
+                    for i in node.node_ancestors()
+                    if isinstance(i, nodes.FunctionDef)
                 )
             )
-            and not utils.node_ignores_exception(node, NameError)
-        ):
+        ) and not utils.node_ignores_exception(node, NameError):
             self.add_message("undefined-variable", args=node.name, node=node)
 
     def _should_node_be_skipped(
