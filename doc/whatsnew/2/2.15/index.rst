@@ -27,6 +27,9 @@ Extensions
 False positives fixed
 =====================
 
+* The ``differing-param-doc`` check was triggered by positional only arguments.
+
+  Closes #6950
 
 False negatives fixed
 =====================
