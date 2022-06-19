@@ -154,6 +154,7 @@ iterables
 iteritems
 jn
 jpg
+json
 jx
 jython
 # class is a reserved word

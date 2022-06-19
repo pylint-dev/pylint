@@ -15,7 +15,6 @@ PackageMessages = Dict[str, List[Dict[str, Union[str, int]]]]
 
 
 class PrimerCommand:
-
     """Generic primer action with required arguments."""
 
     def __init__(
