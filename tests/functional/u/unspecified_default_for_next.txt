@@ -1,0 +1,4 @@
+unspecified-default-for-next:4:0:4:23::Using next without explicitly specifying a default value:INFERENCE
+unspecified-default-for-next:5:6:5:29::Using next without explicitly specifying a default value:INFERENCE
+unspecified-default-for-next:13:4:13:27::Using next without explicitly specifying a default value:INFERENCE
+unspecified-default-for-next:30:0:30:33::Using next without explicitly specifying a default value:INFERENCE

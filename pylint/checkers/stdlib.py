@@ -434,6 +434,13 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                 ]
             },
         ),
+        "W1519": (
+            "Using next without explicitly specifying a default value",
+            "unspecified-default-for-next",
+            "Without a default value calls to next() can raise a StopIteration "
+            "exception. This exception should be caught or a default value can "
+            "be provided.",
+        ),
     }
 
     def __init__(self, linter: PyLinter) -> None:
@@ -522,6 +529,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                     self._check_for_preexec_fn_in_popen(node)
             elif isinstance(inferred, nodes.FunctionDef):
                 name = inferred.qname()
+                self._check_next_call(node, name)
                 if name == COPY_COPY:
                     self._check_shallow_copy_environ(node)
                 elif name in ENV_GETTERS:
@@ -719,6 +727,20 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                 call_arg=utils.safe_infer(env_value_arg),
                 allow_none=True,
             )
+
+    def _check_next_call(self, node: nodes.Call, name: str) -> None:
+        if name != "builtins.next":
+            return
+        if len(node.args) != 1:
+            # We don't care about this call if there are zero arguments
+            return
+        if utils.get_exception_handlers(node, StopIteration):
+            return
+        self.add_message(
+            "unspecified-default-for-next",
+            node=node,
+            confidence=interfaces.INFERENCE,
+        )
 
     def _check_invalid_envvar_value(self, node, infer, message, call_arg, allow_none):
         if call_arg in (astroid.Uninferable, None):

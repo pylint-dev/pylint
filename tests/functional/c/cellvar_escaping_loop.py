@@ -1,4 +1,5 @@
-# pylint: disable=unnecessary-comprehension,missing-docstring,too-few-public-methods,unnecessary-direct-lambda-call
+# pylint: disable=unnecessary-comprehension, missing-docstring, too-few-public-methods
+# pylint: disable=unnecessary-direct-lambda-call, unspecified-default-for-next
 """Tests for loopvar-in-closure."""
 from __future__ import print_function
 
