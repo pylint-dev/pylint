@@ -505,6 +505,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         "deprecated-class",
         "unspecified-encoding",
         "forgotten-debug-statement",
+        "unspecified-default-for-next",
     )
     def visit_call(self, node: nodes.Call) -> None:
         """Visit a Call node."""
