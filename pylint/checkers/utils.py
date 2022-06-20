@@ -1651,7 +1651,9 @@ def get_subscript_const_value(node: nodes.Subscript) -> nodes.Const:
     return inferred
 
 
-def get_import_name(importnode: nodes.Import | nodes.ImportFrom, modname: str) -> str:
+def get_import_name(
+    importnode: nodes.Import | nodes.ImportFrom, modname: str | None
+) -> str | None:
     """Get a prepared module name from the given import node.
 
     In the case of relative imports, this will return the

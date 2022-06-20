@@ -10,6 +10,8 @@ import collections
 import copy
 import os
 import sys
+from collections import defaultdict
+from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any
 
 import astroid
@@ -69,7 +71,7 @@ DEPRECATED_MODULES = {
 }
 
 
-def _qualified_names(modname):
+def _qualified_names(modname: str | None) -> list[str]:
     """Split the names of the given module into subparts.
 
     For example,
@@ -77,11 +79,18 @@ def _qualified_names(modname):
     returns
         ['pylint', 'pylint.checkers', 'pylint.checkers.ImportsChecker']
     """
-    names = modname.split(".")
+    names = modname.split(".") if modname is not None else ""
     return [".".join(names[0 : i + 1]) for i in range(len(names))]
 
 
-def _get_first_import(node, context, name, base, level, alias):
+def _get_first_import(
+    node: nodes.Import | nodes.ImportFrom,
+    context: nodes.LocalsDictNodeNG,
+    name: str,
+    base: str | None,
+    level: int | None,
+    alias: str | None,
+) -> nodes.Import | nodes.ImportFrom | None:
     """Return the node where [base.]<name> is imported or None if not found."""
     fullname = f"{base}.{name}" if base else name
 
@@ -116,7 +125,11 @@ def _get_first_import(node, context, name, base, level, alias):
     return None
 
 
-def _ignore_import_failure(node, modname, ignored_modules):
+def _ignore_import_failure(
+    node: nodes.Import | nodes.ImportFrom,
+    modname: str | None,
+    ignored_modules: Sequence[str],
+) -> bool:
     for submodule in _qualified_names(modname):
         if submodule in ignored_modules:
             return True
@@ -186,7 +199,7 @@ def _dependencies_graph(filename: str, dep_info: dict[str, set[str]]) -> str:
 
 def _make_graph(
     filename: str, dep_info: dict[str, set[str]], sect: Section, gtype: str
-):
+) -> None:
     """Generate a dependencies graph and add some information about it in the
     report's section.
     """
@@ -403,7 +416,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
     def __init__(self, linter: PyLinter) -> None:
         BaseChecker.__init__(self, linter)
-        self.import_graph: collections.defaultdict = collections.defaultdict(set)
+        self.import_graph: defaultdict[str, set[str]] = defaultdict(set)
         self._imports_stack: list[tuple[Any, Any]] = []
         self._first_non_import_node = None
         self._module_pkg: dict[
@@ -415,14 +428,14 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             ("RP0402", "Modules dependencies graph", self._report_dependencies_graph),
         )
 
-    def open(self):
+    def open(self) -> None:
         """Called before visiting project (i.e set of modules)."""
         self.linter.stats.dependencies = {}
         self.linter.stats = self.linter.stats
-        self.import_graph = collections.defaultdict(set)
+        self.import_graph = defaultdict(set)
         self._module_pkg = {}  # mapping of modules to the pkg they belong in
-        self._excluded_edges = collections.defaultdict(set)
-        self._ignored_modules = self.linter.config.ignored_modules
+        self._excluded_edges: defaultdict[str, set[str]] = defaultdict(set)
+        self._ignored_modules: Sequence[str] = self.linter.config.ignored_modules
         # Build a mapping {'module': 'preferred-module'}
         self.preferred_modules = dict(
             module.split(":")
@@ -431,13 +444,13 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         )
         self._allow_any_import_level = set(self.linter.config.allow_any_import_level)
 
-    def _import_graph_without_ignored_edges(self):
+    def _import_graph_without_ignored_edges(self) -> defaultdict[str, set[str]]:
         filtered_graph = copy.deepcopy(self.import_graph)
         for node in filtered_graph:
             filtered_graph[node].difference_update(self._excluded_edges[node])
         return filtered_graph
 
-    def close(self):
+    def close(self) -> None:
         """Called before visiting project (i.e set of modules)."""
         if self.linter.is_message_enabled("cyclic-import"):
             graph = self._import_graph_without_ignored_edges()
@@ -536,7 +549,17 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         self._imports_stack = []
         self._first_non_import_node = None
 
-    def compute_first_non_import_node(self, node):
+    def compute_first_non_import_node(
+        self,
+        node: nodes.If
+        | nodes.Expr
+        | nodes.Comprehension
+        | nodes.IfExp
+        | nodes.Assign
+        | nodes.AssignAttr
+        | nodes.TryExcept
+        | nodes.TryFinally,
+    ) -> None:
         # if the node does not contain an import instruction, and if it is the
         # first node of the module, keep a track of it (all the import positions
         # of the module will be compared to the position of this first
@@ -598,7 +621,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
     visit_classdef = visit_for = visit_while = visit_functiondef
 
-    def _check_misplaced_future(self, node):
+    def _check_misplaced_future(self, node: nodes.ImportFrom) -> None:
         basename = node.modname
         if basename == "__future__":
             # check if this is the first non-docstring statement in the module
@@ -611,7 +634,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                     self.add_message("misplaced-future", node=node)
             return
 
-    def _check_same_line_imports(self, node):
+    def _check_same_line_imports(self, node: nodes.ImportFrom) -> None:
         # Detect duplicate imports on the same line.
         names = (name for name, _ in node.names)
         counter = collections.Counter(names)
@@ -619,7 +642,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             if count > 1:
                 self.add_message("reimported", node=node, args=(name, node.fromlineno))
 
-    def _check_position(self, node):
+    def _check_position(self, node: nodes.Import | nodes.ImportFrom) -> None:
         """Check `node` import or importfrom node position is correct.
 
         Send a message  if `node` comes before another instruction
@@ -638,7 +661,11 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                     "wrong-import-position", node.fromlineno, node
                 )
 
-    def _record_import(self, node, importedmodnode):
+    def _record_import(
+        self,
+        node: nodes.Import | nodes.ImportFrom,
+        importedmodnode: nodes.Module | None,
+    ) -> None:
         """Record the package `node` imports from."""
         if isinstance(node, nodes.ImportFrom):
             importedname = node.modname
@@ -759,7 +786,9 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                         )
         return std_imports, external_imports, local_imports
 
-    def _get_imported_module(self, importnode, modname):
+    def _get_imported_module(
+        self, importnode: nodes.Import | nodes.ImportFrom, modname: str | None
+    ) -> nodes.Module | None:
         try:
             return importnode.do_import_module(modname)
         except astroid.TooManyLevelsError:
@@ -862,7 +891,12 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                     args=(splitted_packages[0], import_name),
                 )
 
-    def _check_reimport(self, node, basename=None, level=None):
+    def _check_reimport(
+        self,
+        node: nodes.Import | nodes.ImportFrom,
+        basename: str | None = None,
+        level: int | None = None,
+    ):
         """Check if the import is necessary (i.e. not already done)."""
         if not self.linter.is_message_enabled("reimported"):
             return
@@ -912,7 +946,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
     def _filter_dependencies_graph(self, internal):
         """Build the internal or the external dependency graph."""
-        graph = collections.defaultdict(set)
+        graph = defaultdict(set)
         for importee, importers in self.linter.stats.dependencies.items():
             for importer in importers:
                 package = self._module_pkg.get(importer, importer)

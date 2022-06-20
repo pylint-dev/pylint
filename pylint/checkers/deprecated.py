@@ -189,10 +189,10 @@ class DeprecatedMixin(BaseChecker):
         # pylint: disable=unused-argument
         return ()
 
-    def check_deprecated_module(self, node: nodes.Import, mod_path: str) -> None:
+    def check_deprecated_module(self, node: nodes.Import, mod_path: str | None) -> None:
         """Checks if the module is deprecated."""
         for mod_name in self.deprecated_modules():
-            if mod_path == mod_name or mod_path.startswith(mod_name + "."):
+            if mod_path == mod_name or mod_path.startswith(mod_name + "."):  # type: ignore[union-attr]
                 self.add_message("deprecated-module", node=node, args=mod_path)
 
     def check_deprecated_method(self, node: nodes.Call, inferred: nodes.NodeNG) -> None:
