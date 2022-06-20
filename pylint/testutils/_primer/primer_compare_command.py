@@ -13,27 +13,31 @@ MAX_GITHUB_COMMENT_LENGTH = 65536
 
 class CompareCommand(PrimerCommand):
     def run(self) -> None:
-        main_dict = self._load_json(self.config.base_file)
-        new_dict = self._load_json(self.config.new_file)
-        final_main_dict = self._cross_reference(main_dict, new_dict)
-        comment = self._create_comment(final_main_dict, new_dict)
+        main_messages = self._load_json(self.config.base_file)
+        pr_messages = self._load_json(self.config.new_file)
+        missing_messages, new_messages = self._cross_reference(
+            main_messages, pr_messages
+        )
+        comment = self._create_comment(missing_messages, new_messages)
         with open(self.primer_directory / "comment.txt", "w", encoding="utf-8") as f:
             f.write(comment)
 
+    @staticmethod
     def _cross_reference(
-        self, main_dict: PackageMessages, new_dict: PackageMessages
-    ) -> PackageMessages:
-        final_main_dict: PackageMessages = {}
+        main_dict: PackageMessages, pr_messages: PackageMessages
+    ) -> tuple[PackageMessages, PackageMessages]:
+        missing_messages: PackageMessages = {}
         for package, messages in main_dict.items():
-            final_main_dict[package] = []
+            missing_messages[package] = []
             for message in messages:
                 try:
-                    new_dict[package].remove(message)
+                    pr_messages[package].remove(message)
                 except ValueError:
-                    final_main_dict[package].append(message)
-        return final_main_dict
+                    missing_messages[package].append(message)
+        return missing_messages, pr_messages
 
-    def _load_json(self, file_path: Path | str) -> PackageMessages:
+    @staticmethod
+    def _load_json(file_path: Path | str) -> PackageMessages:
         with open(file_path, encoding="utf-8") as f:
             result: PackageMessages = json.load(f)
         return result
