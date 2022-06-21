@@ -95,7 +95,7 @@ Release date: 2017-12-15
 
   When unknown reporter class will be selected as Pylint reporter,
   meaningful error message would be raised instead of bare ``ImportError``
-  or ``AttribueError`` related to module or reporter class being not found.
+  or ``AttributeError`` related to module or reporter class being not found.
 
   Closes #1388
 

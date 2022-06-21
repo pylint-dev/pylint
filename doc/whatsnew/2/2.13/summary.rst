@@ -168,7 +168,7 @@ Other Changes
 
   Closes #352
 
-* Updated the position of messages for class and function defintions to no longer cover
+* Updated the position of messages for class and function definitions to no longer cover
   the complete definition. Only the ``def`` or ``class`` + the name of the class/function
   are covered.
 
