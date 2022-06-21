@@ -1,5 +1,5 @@
 """Tests for undefined variable with assignment expressions"""
-# pylint: disable=using-constant-test, expression-not-assigned, unspecified-default-for-next
+# pylint: disable=using-constant-test, expression-not-assigned, unguarded-next-without-default
 
 # Tests for annotation of variables and potentially undefinition
 
@@ -7,24 +7,26 @@
 def typing_and_assignment_expression():
     """The variable gets assigned in an assignment expression"""
     var: int
-    if (var := 1 ** 2):
+    if var := 1**2:
         print(var)
 
 
 def typing_and_self_referencing_assignment_expression():
     """The variable gets assigned in an assignment expression that references itself"""
     var: int
-    if (var := var ** 2):  # [used-before-assignment]
+    if var := var**2:  # [used-before-assignment]
         print(var)
 
 
 def self_referencing_assignment_expression():
     """An invalid self-referencing assignment expression"""
-    if (var := var()):  # [used-before-assignment]
+    if var := var():  # [used-before-assignment]
         print(var)
 
 
-def typed_assignment_in_function_default(param: str = (typed_default := "walrus")) -> None:
+def typed_assignment_in_function_default(
+    param: str = (typed_default := "walrus"),
+) -> None:
     """An annotated assignment expression in a default parameter should not emit"""
     return param
 
@@ -32,7 +34,7 @@ def typed_assignment_in_function_default(param: str = (typed_default := "walrus"
 print(typed_default)
 
 
-def assignment_in_function_default(param = (default := "walrus")) -> None:
+def assignment_in_function_default(param=(default := "walrus")) -> None:
     """An assignment expression in a default parameter should not emit"""
     return param
 
@@ -45,7 +47,7 @@ def no_assignment_in_function_default(param: str = "walrus") -> None:
     return param
 
 
-print(no_default) # [undefined-variable]
+print(no_default)  # [undefined-variable]
 
 
 def no_parameters_in_function_default() -> None:
@@ -53,7 +55,7 @@ def no_parameters_in_function_default() -> None:
     return
 
 
-print(again_no_default) # [undefined-variable]
+print(again_no_default)  # [undefined-variable]
 
 # Tests for assignment expressions in if ... else comprehensions
 
@@ -79,7 +81,7 @@ print(if_assign_5)
 
 {i: i if True else (else_assign_1 := i) for i in range(10)}
 
-print(else_assign_1) # [undefined-variable]
+print(else_assign_1)  # [undefined-variable]
 
 
 # Tests for assignment expressions in the assignment of comprehensions
@@ -88,7 +90,7 @@ print(else_assign_1) # [undefined-variable]
 
 print(assign_assign_1)
 
-COMPREHENSION_TWO =[(assign_assign_2 := i) for i in range(10)]
+COMPREHENSION_TWO = [(assign_assign_2 := i) for i in range(10)]
 
 print(assign_assign_2)
 
@@ -117,6 +119,7 @@ sorted_things = sorted(
 
 
 # Tests for type annotation reused in comprehension
+
 
 def type_annotation_used_after_comprehension():
     """https://github.com/PyCQA/pylint/issues/5326#issuecomment-982635371"""
@@ -155,28 +158,33 @@ print(sep=colon if (colon := ":") else None)
 
 class Dummy:
     """Expression in ternary operator: keyword argument"""
+
     # pylint: disable=too-few-public-methods
     def __init__(self, value):
         self.value = value
 
 
-dummy = Dummy(value=val if (val := 'something') else 'anything')
+dummy = Dummy(value=val if (val := "something") else "anything")
+
 
 def expression_in_ternary_operator_inside_container():
     """Named expression in ternary operator: inside container"""
-    return [val2 if (val2 := 'something') else 'anything']
+    return [val2 if (val2 := "something") else "anything"]
 
 
 def expression_in_ternary_operator_inside_container_tuple():
     """Same case, using a tuple inside a 1-element list"""
-    return [(val3, val3) if (val3 := 'something') else 'anything']
+    return [(val3, val3) if (val3 := "something") else "anything"]
 
 
 def expression_in_ternary_operator_inside_container_wrong_position():
     """2-element list where named expression comes too late"""
-    return [val3, val3 if (val3 := 'something') else 'anything']  # [used-before-assignment]
+    return [
+        val3,
+        val3 if (val3 := "something") else "anything",
+    ]  # [used-before-assignment]
 
 
 # Self-referencing
-if (z := z):  # [used-before-assignment]
+if z := z:  # [used-before-assignment]
     z = z + 1

@@ -15,7 +15,7 @@ Summary -- Release highlights
 New checkers
 ============
 
-* Added ``unspecified-default-for-next`` checker which warns about calls to ``next()``
+* Added ``unguarded-next-without-default`` checker which warns about calls to ``next()``
   without a default value.
 
   Closes #4725

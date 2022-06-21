@@ -105,7 +105,7 @@ disable=
     # We anticipate #3512 where it will become optional
     fixme,
     # TODO: 2.15: Fix and enable.
-    unspecified-default-for-next
+    unguarded-next-without-default
 
 
 [REPORTS]

@@ -436,7 +436,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         ),
         "W1519": (
             "Using next without explicitly specifying a default value",
-            "unspecified-default-for-next",
+            "unguarded-next-without-default",
             "Without a default value calls to next() can raise a StopIteration "
             "exception. This exception should be caught or a default value can "
             "be provided.",
@@ -505,7 +505,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         "deprecated-class",
         "unspecified-encoding",
         "forgotten-debug-statement",
-        "unspecified-default-for-next",
+        "unguarded-next-without-default",
     )
     def visit_call(self, node: nodes.Call) -> None:
         """Visit a Call node."""
@@ -732,13 +732,17 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
     def _check_next_call(self, node: nodes.Call, name: str) -> None:
         if name != "builtins.next":
             return
+        # We don't care about this call if there are zero arguments
         if len(node.args) != 1:
-            # We don't care about this call if there are zero arguments
             return
         if utils.get_exception_handlers(node, StopIteration):
             return
+        # Raising is fine within __next__
+        func_def = utils.get_node_first_ancestor_of_type(node, nodes.FunctionDef)
+        if func_def and func_def.name == "__next__":
+            return
         self.add_message(
-            "unspecified-default-for-next",
+            "unguarded-next-without-default",
             node=node,
             confidence=interfaces.INFERENCE,
         )

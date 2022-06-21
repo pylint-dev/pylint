@@ -1,0 +1,4 @@
+unguarded-next-without-default:6:0:6:23::Using next without explicitly specifying a default value:INFERENCE
+unguarded-next-without-default:7:6:7:29::Using next without explicitly specifying a default value:INFERENCE
+unguarded-next-without-default:15:4:15:27::Using next without explicitly specifying a default value:INFERENCE
+unguarded-next-without-default:32:0:32:33::Using next without explicitly specifying a default value:INFERENCE
