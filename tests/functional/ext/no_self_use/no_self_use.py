@@ -28,13 +28,20 @@ class Toto:
 
 class Base:
     """an abstract class"""
-
     def __init__(self):
         self.aaa = 2
 
     def check(self, arg):
         """an abstract method, could not be a function"""
         raise NotImplementedError
+
+    def pass_only(self):  # [no-self-use]
+        # non-docstring because having one affects the result here
+        # this method isn't a real method since it doesn't need self
+        pass
+
+    def docstring_only(self):  # [no-self-use]
+        """this method isn't a real method since it doesn't need self"""
 
 
 class Sub(Base):
