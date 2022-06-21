@@ -127,7 +127,7 @@ def test_exclusivity_of_msgids() -> None:
         "07": ("exceptions", "broad_try_clause", "overlap-except"),
         "12": ("design", "logging"),
         "17": ("async", "refactoring"),
-        "20": ("compare-to-zero", "refactoring"),
+        "20": ("compare-to-zero", "empty-comment"),
     }
 
     for msgid, definition in runner.linter.msgs_store._messages_definitions.items():
