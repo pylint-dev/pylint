@@ -6,3 +6,6 @@ def update_number(number):  # [nonlocal-and-global]
     nonlocal NUMBER
     NUMBER = number
     print(f"New global number is: {NUMBER}")
+    
+
+update_number(24)
