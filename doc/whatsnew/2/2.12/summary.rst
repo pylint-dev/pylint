@@ -187,12 +187,12 @@ Other Changes
 
   Closes #5194
 
-* ``mising-param-doc`` now correctly parses asterisks for variable length and
+* ``missing-param-doc`` now correctly parses asterisks for variable length and
   keyword parameters
 
   Closes #3733
 
-* ``mising-param-doc`` now correctly handles Numpy parameter documentation without
+* ``missing-param-doc`` now correctly handles Numpy parameter documentation without
   explicit typing
 
   Closes #5222
