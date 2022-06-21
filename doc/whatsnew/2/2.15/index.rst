@@ -16,7 +16,7 @@ New checkers
 ============
 
 * Added ``unguarded-next-without-default`` checker which warns about calls to ``next()``
-  without a default value.
+  without a default value or handling of possible ``StopIteration`` in the same scope.
 
   Closes #4725
 

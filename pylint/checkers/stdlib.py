@@ -438,7 +438,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "Using next without explicitly specifying a default value or catching the StopIteration",
             "unguarded-next-without-default",
             "Without a default value calls to next() can raise a StopIteration "
-            "exception. This exception should be caught or a default value can "
+            "exception. This exception should be caught or a default value should "
             "be provided.",
         ),
     }
