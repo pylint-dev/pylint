@@ -56,11 +56,9 @@ def good_case8():
     """Another eager binding of the cell variable."""
     funs = []
     for i in range(10):
-
         def func(bound_i=i):
             """Ignore."""
             return bound_i
-
         funs.append(func)
     return funs
 
@@ -78,10 +76,8 @@ def good_case10():
     """Ignore when a loop variable is shadowed by an inner function"""
     lst = []
     for i in range(10):  # pylint: disable=unused-variable
-
         def func():
             i = 100
-
             def func2(arg=i):
                 return arg
 
@@ -92,7 +88,8 @@ def good_case10():
 
 
 def good_case_issue3107():
-    """Eager binding of cell variable when used in a non-trivial default argument expression."""
+    """Eager binding of cell variable when used in a non-trivial default argument expression.
+    """
     for i in [[2], [3]]:
         next(filter(lambda j, ix=i[0]: j == ix, [1, 3]))
 
@@ -103,19 +100,15 @@ def good_case_issue_5012():
     """
     funs = []
     for i in range(5):
-
         def func(*, _i=i):
             print(_i)
-
         funs.append(func)
 
         def func2(_i=i):
             print(_i)
-
         funs.append(func2)
 
     return funs
-
 
 def bad_case():
     """Closing over a loop variable."""
@@ -143,11 +136,9 @@ def bad_case4():
     """Closing over variable defined in loop."""
     lst = []
     for i in range(10):
-
         def nested():
             """Nested function."""
             return i**2  # [cell-var-from-loop]
-
         lst.append(nested)
     return lst
 
@@ -183,7 +174,9 @@ def bad_case6():
 def bad_case7():
     """Multiple variables unpacked in comprehension."""
     return [
-        lambda: (x + y)  # [cell-var-from-loop]  # [cell-var-from-loop]
+        lambda: (
+            x  # [cell-var-from-loop]
+            + y)  # [cell-var-from-loop]
         for x, y in ((1, 2), (3, 4), (5, 6))
     ]
 
@@ -210,7 +203,6 @@ def bad_case10():
     """Detect when a loop variable is the default argument for a nested function"""
     lst = []
     for i in range(10):
-
         def func():
             def func2(arg=i):  # [cell-var-from-loop]
                 return arg
@@ -223,9 +215,15 @@ def bad_case10():
 
 def bad_case_issue2846():
     """Closing over variable that is used within a comprehension in the function body."""
-    lst_a = [(lambda: n) for n in range(3)]  # [cell-var-from-loop]
+    lst_a = [
+        (lambda: n)  # [cell-var-from-loop]
+        for n in range(3)
+    ]
 
-    lst_b = [(lambda: [n for _ in range(3)]) for n in range(3)]  # [cell-var-from-loop]
+    lst_b = [
+        (lambda: [n for _ in range(3)])  # [cell-var-from-loop]
+        for n in range(3)
+    ]
 
     return lst_a, lst_b
 
