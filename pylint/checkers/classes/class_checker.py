@@ -529,8 +529,8 @@ MSGS: dict[
         "Metaclass method %s should have %s as first argument",
         "bad-mcs-method-argument",
         "Used when a metaclass method has a first argument named "
-        "differently than the value specified in valid-classmethod-first"
-        '-arg option (default to "cls"), recommended to easily '
+        "differently than the value specified in valid-classmethod-first-"
+        'arg option (default to "cls"), recommended to easily '
         "differentiate them from regular instance methods.",
     ),
     "C0204": (
@@ -750,8 +750,10 @@ class ClassChecker(BaseChecker):
                 "default": ("__init__", "__new__", "setUp", "__post_init__"),
                 "type": "csv",
                 "metavar": "<method names>",
-                "help": "List of method names used to declare (i.e. assign) \
-instance attributes.",
+                "help": (
+                    "List of method names used to declare (i.e. assign) "
+                    "instance attributes."
+                ),
             },
         ),
         (
@@ -760,8 +762,10 @@ instance attributes.",
                 "default": ("cls",),
                 "type": "csv",
                 "metavar": "<argument names>",
-                "help": "List of valid names for the first argument in \
-a class method.",
+                "help": (
+                    "List of valid names for the first argument in "
+                    "a class method."
+                ),
             },
         ),
         (
@@ -770,8 +774,10 @@ a class method.",
                 "default": ("cls",),
                 "type": "csv",
                 "metavar": "<argument names>",
-                "help": "List of valid names for the first argument in \
-a metaclass class method.",
+                "help": (
+                    "List of valid names for the first argument in "
+                    "a metaclass class method."
+                ),
             },
         ),
         (
