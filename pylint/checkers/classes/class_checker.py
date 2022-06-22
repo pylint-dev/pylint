@@ -763,8 +763,7 @@ class ClassChecker(BaseChecker):
                 "type": "csv",
                 "metavar": "<argument names>",
                 "help": (
-                    "List of valid names for the first argument in "
-                    "a class method."
+                    "List of valid names for the first argument in " "a class method."
                 ),
             },
         ),
