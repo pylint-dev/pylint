@@ -120,11 +120,3 @@ class WithHorrible(metaclass=HorribleMetaclass):
     pass
 
 class_list = [WithHorrible | DefaultMetaclass]
-
-class SecondLevelMetaclass(ForwardMetaclass):
-    pass
-
-class WithSecondLevel(metaclass=SecondLevelMetaclass):
-    pass
-
-class_list_with_second_level = [WithSecondLevel | DefaultMetaclass]
