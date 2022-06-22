@@ -12,7 +12,5 @@ missing-raises-doc:34:0:34:30:_async_private_func3:"""Exception"" not documented
 missing-any-param-doc:39:0:39:28:async_public_func1:"Missing any documentation in ""async_public_func1""":UNDEFINED
 differing-param-doc:44:0:44:23:differing_param_doc:"""param"" differing in parameter documentation":UNDEFINED
 differing-param-doc:55:0:55:35:differing_param_doc_kwords_only:"""param"" differing in parameter documentation":UNDEFINED
-differing-param-doc:66:0:66:32:differing_param_doc_pos_only:"""param"" differing in parameter documentation":UNDEFINED
-missing-type-doc:77:0:77:20:missing_type_doc:"""par1"" missing in parameter type documentation":UNDEFINED
-missing-type-doc:87:0:87:32:missing_type_doc_kwords_only:"""par1"" missing in parameter type documentation":UNDEFINED
-missing-type-doc:97:0:97:29:missing_type_doc_pos_only:"""par1"" missing in parameter type documentation":UNDEFINED
+missing-type-doc:66:0:66:20:missing_type_doc:"""par1"" missing in parameter type documentation":UNDEFINED
+missing-type-doc:76:0:76:32:missing_type_doc_kwords_only:"""par1"" missing in parameter type documentation":UNDEFINED
