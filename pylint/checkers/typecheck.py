@@ -20,6 +20,7 @@ from functools import singledispatch
 from re import Pattern
 from typing import TYPE_CHECKING, Any, Union
 
+import astroid
 import astroid.exceptions
 import astroid.helpers
 from astroid import bases, nodes
@@ -1902,12 +1903,12 @@ accessed. Python regular expressions are accepted.",
             if not allowed_nested_syntax:
                 self._check_unsupported_alternative_union_syntax(node)
 
-    def _includes_version_compatible_overload(self, attrs: list[nodes.NodeNG]):
+    def _includes_version_compatible_overload(self, attrs: list):
         """Check if a set of overloads of an operator includes one that
         can be relied upon for our configured Python version.
 
         If we are running under a Python 3.10+ runtime but configured for
-        pre-3.10 compatibility then Astroid will ahve inferred the
+        pre-3.10 compatibility then Astroid will have inferred the
         existence of __or__ / __ror__ on builtins.type, but these aren't
         available in the configured version of Python.
         """
@@ -1916,7 +1917,7 @@ accessed. Python regular expressions are accepted.",
             and attr.parent.qname() == "builtins.type"
             for attr in attrs
         )
-        return (not is_py310_builtin) or self._py310_plus
+        return not is_py310_builtin or self._py310_plus
 
     def _check_unsupported_alternative_union_syntax(self, node: nodes.BinOp) -> None:
         """Check if left or right node is of type `type`.
