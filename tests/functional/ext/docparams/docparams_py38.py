@@ -1,4 +1,4 @@
-"""Fixture for testing missing documentation in docparams."""
+"""Fixture for testing missing documentation in docparams (Python >=3.8 only)."""
 
 
 def differing_param_doc_pos_only(par1: int, /) -> int:  # [differing-param-doc]
