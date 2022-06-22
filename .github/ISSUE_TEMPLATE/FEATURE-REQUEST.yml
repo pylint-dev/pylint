@@ -1,6 +1,6 @@
 name: ✨ Feature request
 description: Suggest an idea for pylint
-labels: [enhancement, needs triage]
+labels: ["enhancement", "Needs triage :inbox_tray:", "Needs decision :lock:"]
 body:
   - type: markdown
     attributes:
