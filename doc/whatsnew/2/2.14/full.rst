@@ -1,9 +1,15 @@
 Full changelog
 ==============
 
-What's New in Pylint 2.14.3?
+What's New in Pylint 2.14.4?
 ----------------------------
 Release date: TBA
+
+
+
+What's New in Pylint 2.14.3?
+----------------------------
+Release date: 2022-06-18
 
 * Fixed two false positives for ``bad-super-call`` for calls that refer to a non-direct parent.
 
@@ -14,9 +20,12 @@ Release date: TBA
 
   Closes #2270
 
+* Allow suppressing ``undefined-loop-variable`` and ``undefined-variable`` without raising ``useless-suppression``.
+
 * Fixed false positive for ``undefined-variable`` for ``__class__`` in inner methods.
 
   Closes #4032
+
 
 What's New in Pylint 2.14.2?
 ----------------------------

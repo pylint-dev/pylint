@@ -184,6 +184,7 @@ contributors:
 - Antonio Quarta <sgheppy88@gmail.com> (sgheppy)
 - Andrew J. Simmons <anjsimmo@gmail.com> (anjsimmo)
 - wtracy <afishionado@gmail.com>
+- Yilei "Dolee" Yang <yileiyang@google.com>
 - chohner <mail@chohner.com>
 - Tiago Honorato <61059243+tiagohonorato@users.noreply.github.com>
 - Steven M. Vascellaro <svascellaro@gmail.com>
@@ -223,7 +224,6 @@ contributors:
 - grizzly.nyo@gmail.com <grizzly.nyo@gmail.com>
 - craig-sh <craig-sh@users.noreply.github.com>
 - bernie gray <bfgray3@users.noreply.github.com>
-- Yilei "Dolee" Yang <yileiyang@google.com>
 - Wes Turner <westurner@google.com> (Google): added new check 'inconsistent-quotes'
 - Tyler Thieding <tyler@thieding.com>
 - Tobias Hernstig <30827238+thernstig@users.noreply.github.com>

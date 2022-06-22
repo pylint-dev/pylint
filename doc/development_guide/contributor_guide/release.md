@@ -47,6 +47,9 @@ branch
 - Create a `maintenance/X.Y.x` (For example: `maintenance/2.4.x` from the `v2.4.0` tag.)
 - Close the current milestone and create the new ones (For example: close `2.4.0`,
   create `2.4.1` and `2.6.0`)
+- Hide and deactivate all the patch releases for the previous minor release on
+  [readthedoc](https://readthedocs.org/projects/pylint/versions/), except the last one.
+  (For example: hide `v2.4.0`, `v2.4.1`, `v2.4.2` and keep only `v2.4.3`)
 
 ## Backporting a fix from `main` to the maintenance branch
 

@@ -1,1 +1,2 @@
-You can help us make the doc better `by contributing <https://github.com/PyCQA/pylint/issues/5953>`_ !
+It's possible to give a default value to ``next`` or catch the ``StopIteration``,
+or return directly. A ``StopIteration`` cannot be propagated from a generator.

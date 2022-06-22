@@ -1,0 +1,26 @@
+🤖 **Effect of this PR on checked open source code:** 🤖
+
+
+
+**Effect on [astroid](https://github.com/PyCQA/astroid):**
+The following messages are now emitted:
+
+<details>
+
+1) locally-disabled:
+*Locally disabling redefined-builtin [we added some text in the message] (W0622)*
+https://github.com/PyCQA/astroid/blob/main/astroid/__init__.py#L91
+
+</details>
+
+The following messages are no longer emitted:
+
+<details>
+
+1) locally-disabled:
+*Locally disabling redefined-builtin (W0622)*
+https://github.com/PyCQA/astroid/blob/main/astroid/__init__.py#L91
+
+</details>
+
+*This comment was generated for commit v2.14.2*
