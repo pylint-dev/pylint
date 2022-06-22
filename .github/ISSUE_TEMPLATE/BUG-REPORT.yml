@@ -1,6 +1,6 @@
 name: 🐛 Bug report
 description: Report a bug in pylint
-labels: ["Needs triage :inbox_tray:", "Needs reproduction :mag:", "Bug :beetle:"]
+labels: ["Needs triage :inbox_tray:", "Bug :beetle:"]
 body:
   - type: markdown
     attributes:
