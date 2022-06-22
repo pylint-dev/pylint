@@ -632,7 +632,7 @@ def _determine_callable(
         try:
             # Use the last definition of __new__.
             new = callable_obj.local_attr("__new__")[-1]
-        except astroid.exceptions.NotFoundError:
+        except astroid.NotFoundError:
             new = None
 
         from_object = new and new.parent.scope().name == "object"
@@ -642,7 +642,7 @@ def _determine_callable(
             try:
                 # Use the last definition of __init__.
                 callable_obj = callable_obj.local_attr("__init__")[-1]
-            except astroid.exceptions.NotFoundError as e:
+            except astroid.NotFoundError as e:
                 raise ValueError from e
         else:
             callable_obj = new
