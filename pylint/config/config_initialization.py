@@ -45,7 +45,7 @@ def _config_initialization(
 
     # Run init hook, if present, before loading plugins
     if "init-hook" in config_data:
-        exec(config_data["init-hook"])  # pylint: disable=exec-used
+        exec(utils._unquote(config_data["init-hook"]))  # pylint: disable=exec-used
 
     # Load plugins if specified in the config file
     if "load-plugins" in config_data:
