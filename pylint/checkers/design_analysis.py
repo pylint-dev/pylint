@@ -93,7 +93,7 @@ MSGS: dict[
         "leading to fragility where the order of parents dictates behavior.",
     ),
     "R0918": (
-        "super() called despite multiple parents defining %s",
+        "super() called despite multiple direct parents defining %s",
         "order-dependent-super-resolution",
         "Used for reliance on super() despite multiple direct parents defining a method, "
         "leading to fragility where the order of parents dictates behavior.",
