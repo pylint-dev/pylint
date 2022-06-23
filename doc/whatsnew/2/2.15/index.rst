@@ -15,6 +15,9 @@ Summary -- Release highlights
 New checkers
 ============
 
+Added new checker ``missing-timeout`` to warn of default timeout values that could cause
+a program to be hanging indefinitely.
+
 
 Removed checkers
 ================
