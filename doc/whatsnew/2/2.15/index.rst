@@ -39,7 +39,6 @@ False positives fixed
 
   Closes #4951
 
-
 False negatives fixed
 =====================
 
