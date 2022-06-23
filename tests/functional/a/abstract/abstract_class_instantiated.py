@@ -76,10 +76,10 @@ class AbstractSizable(Structure):
         pass
     __len__ = length
 
-class NoMroAbstractMethods(Container, Iterator, Sizable, Hashable):
+class NoMroAbstractMethods(Container, Iterator, Sizable, Hashable):  # pylint: disable=order-dependent-resolution
     pass
 
-class BadMroAbstractMethods(Container, Iterator, AbstractSizable):
+class BadMroAbstractMethods(Container, Iterator, AbstractSizable):  # pylint: disable=order-dependent-resolution
     pass
 
 class SomeMetaclass(metaclass=abc.ABCMeta):
