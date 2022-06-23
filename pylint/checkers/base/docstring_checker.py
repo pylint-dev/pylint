@@ -98,8 +98,8 @@ class DocStringChecker(_BasicChecker):
                 "type": "int",
                 "metavar": "<int>",
                 "help": (
-                    "Minimum line length for functions/classes that "
-                    "require docstrings, shorter ones are exempt."
+                    "Minimum line length for functions/classes that"
+                    " require docstrings, shorter ones are exempt."
                 ),
             },
         ),
