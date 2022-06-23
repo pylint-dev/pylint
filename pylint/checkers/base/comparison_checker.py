@@ -76,8 +76,8 @@ class ComparisonChecker(_BasicChecker):
         "W0177": (
             "Comparison %s should be %s",
             "nan-comparison",
-            "Used when an expression is compared to NaN"
-            "values like numpy.NaN and float('nan')",
+            "Used when an expression is compared to NaN "
+            "values like numpy.NaN and float('nan').",
         ),
     }
 
