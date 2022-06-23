@@ -81,3 +81,14 @@ def missing_type_doc_kwords_only(*, par1) -> int:  # [missing-type-doc]
     """
 
     return par1
+
+
+def params_are_documented(par1: int, *, par2: int) -> int:
+    """This is a test docstring params where nothing is raised as it is all documented
+
+    :param par1: some param
+    :param par2: some other param
+    :return: the sum of params
+    """
+
+    return par1 + par2
