@@ -9,6 +9,9 @@ Release date: TBA
 
   Closes #6950
 
+* Fixed regression that didn't allow quoted ``init-hooks`` in option files.
+
+  Closes #7006
 
 What's New in Pylint 2.14.3?
 ----------------------------
