@@ -40,7 +40,7 @@ reporter initialized with a custom stream:
 
     pylint_output = StringIO()  # Custom open stream
     reporter = TextReporter(pylint_output)
-    Run(["test_file.py"], reporter=reporter, do_exit=False)
+    Run(["test_file.py"], reporter=reporter, exit=False)
     print(pylint_output.getvalue())  # Retrieve and print the text report
 
 The reporter can accept any stream object as as parameter. In this example,
@@ -53,7 +53,7 @@ the stream outputs to a file:
 
     with open("report.out", "w") as f:
         reporter = TextReporter(f)
-        Run(["test_file.py"], reporter=reporter, do_exit=False)
+        Run(["test_file.py"], reporter=reporter, exit=False)
 
 This would be useful to capture pylint output in an open stream which
 can be passed onto another program.
