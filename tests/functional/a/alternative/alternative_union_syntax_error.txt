@@ -1,6 +1,7 @@
 unsupported-binary-operation:14:8:14:30::unsupported operand type(s) for |:UNDEFINED
 unsupported-binary-operation:15:7:15:35::unsupported operand type(s) for |:UNDEFINED
 unsupported-binary-operation:17:23:17:33::unsupported operand type(s) for |:UNDEFINED
+unsupported-binary-operation:18:6:18:22::unsupported operand type(s) for |:UNDEFINED
 unsupported-binary-operation:18:6:18:15::unsupported operand type(s) for |:UNDEFINED
 unsupported-binary-operation:19:6:19:34::unsupported operand type(s) for |:UNDEFINED
 unsupported-binary-operation:20:18:20:46::unsupported operand type(s) for |:UNDEFINED

@@ -1934,23 +1934,35 @@ accessed. Python regular expressions are accepted.",
         left_is_type = False
         right_is_type = False
 
-        if isinstance(left_obj, nodes.ClassDef) and is_classdef_type(left_obj):
-            try:
-                attrs = left_obj.getattr("__or__")
-                if self._includes_version_compatible_overload(attrs):
-                    return
-                left_is_type = True
-            except astroid.NotFoundError:
-                left_is_type = True
+        if isinstance(left_obj, nodes.ClassDef):
+            for left_or_ancestor in itertools.chain((left_obj,), left_obj.ancestors()):
+                if is_classdef_type(left_or_ancestor):
+                    left_obj = left_or_ancestor
+                try:
+                    attrs = left_obj.getattr("__or__")
+                    if self._includes_version_compatible_overload(attrs):
+                        return
+                    left_is_type = True
+                    break
+                except astroid.NotFoundError:
+                    left_is_type = True
+                    break
 
-        if isinstance(right_obj, nodes.ClassDef) and is_classdef_type(right_obj):
-            try:
-                attrs = right_obj.getattr("__ror__")
-                if self._includes_version_compatible_overload(attrs):
-                    return
-                right_is_type = True
-            except astroid.NotFoundError:
-                right_is_type = True
+        if isinstance(right_obj, nodes.ClassDef):
+            for right_or_ancestor in itertools.chain(
+                (right_obj,), right_obj.ancestors()
+            ):
+                if is_classdef_type(right_or_ancestor):
+                    right_obj = right_or_ancestor
+                try:
+                    attrs = right_obj.getattr("__ror__")
+                    if self._includes_version_compatible_overload(attrs):
+                        return
+                    right_is_type = True
+                    break
+                except astroid.NotFoundError:
+                    right_is_type = True
+                    break
 
         if left_is_type or right_is_type:
             self.add_message("unsupported-binary-operation", args=msg, node=node)
