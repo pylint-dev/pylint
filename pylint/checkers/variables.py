@@ -296,12 +296,15 @@ def _fix_dot_imports(not_consumed):
     return sorted(names.items(), key=lambda a: a[1].fromlineno)
 
 
-def _find_frame_imports(name, frame):
+def _find_frame_imports(name: str, frame: nodes.LocalsDictNodeNG) -> bool:
     """Detect imports in the frame, with the required *name*.
 
-    Such imports can be considered assignments.
+    Such imports can be considered assignments if they are not globals.
     Returns True if an import for the given name was found.
     """
+    if name in _flattened_scope_names(frame.nodes_of_class(nodes.Global)):
+        return False
+
     imports = frame.nodes_of_class((nodes.Import, nodes.ImportFrom))
     for import_node in imports:
         for import_name, import_alias in import_node.names:
@@ -312,10 +315,10 @@ def _find_frame_imports(name, frame):
                     return True
             elif import_name and import_name == name:
                 return True
-    return None
+    return False
 
 
-def _import_name_is_global(stmt, global_names):
+def _import_name_is_global(stmt, global_names) -> bool:
     for import_name, import_alias in stmt.names:
         # If the import uses an alias, check only that.
         # Otherwise, check only the import name.
@@ -334,10 +337,13 @@ def _flattened_scope_names(
     return set(itertools.chain.from_iterable(values))
 
 
-def _assigned_locally(name_node):
+def _assigned_locally(name_node: nodes.Name):
     """Checks if name_node has corresponding assign statement in same scope."""
-    assign_stmts = name_node.scope().nodes_of_class(nodes.AssignName)
-    return any(a.name == name_node.name for a in assign_stmts)
+    name_node_scope = name_node.scope()
+    assign_stmts = name_node_scope.nodes_of_class(nodes.AssignName)
+    return any(a.name == name_node.name for a in assign_stmts) or _find_frame_imports(
+        name_node.name, name_node_scope
+    )
 
 
 def _has_locals_call_after_node(stmt, scope):
