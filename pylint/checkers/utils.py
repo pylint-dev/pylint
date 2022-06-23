@@ -1830,7 +1830,6 @@ def in_type_checking_block(node: nodes.NodeNG) -> bool:
             if (
                 isinstance(inferred_module, nodes.Module)
                 and inferred_module.name == "typing"
-                and inferred_module.pytype() == "builtins.module"
             ):
                 return True
 
