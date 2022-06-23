@@ -15,7 +15,12 @@ import astroid
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import only_required_for_messages
+from pylint.checkers.utils import (
+    get_node_first_ancestor_of_type,
+    only_required_for_messages,
+    safe_infer,
+)
+from pylint.interfaces import INFERENCE
 from pylint.typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
@@ -80,6 +85,18 @@ MSGS: dict[
         "Too many boolean expressions in if statement (%s/%s)",
         "too-many-boolean-expressions",
         "Used when an if statement contains too many boolean expressions.",
+    ),
+    "R0917": (
+        "Method(s) defined on multiple direct parents without reimplementation: %s",
+        "order-dependent-resolution",
+        "Used when methods defined on multiple direct parents are not reimplemented, "
+        "leading to fragility where the order of parents dictates behavior.",
+    ),
+    "R0918": (
+        "super() called despite multiple parents defining %s",
+        "order-dependent-super-resolution",
+        "Used for reliance on super() despite multiple direct parents defining a method, "
+        "leading to fragility where the order of parents dictates behavior.",
     ),
 }
 SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
@@ -445,7 +462,12 @@ class MisdesignChecker(BaseChecker):
                 args=(len(node.instance_attrs), self.linter.config.max_attributes),
             )
 
-    @only_required_for_messages("too-few-public-methods", "too-many-public-methods")
+    @only_required_for_messages(
+        "too-few-public-methods",
+        "too-many-public-methods",
+        "order-dependent-resolution",
+        "order-dependent-super-resolution",
+    )
     def leave_classdef(self, node: nodes.ClassDef) -> None:
         """Check number of public methods."""
         my_methods = sum(
@@ -490,6 +512,72 @@ class MisdesignChecker(BaseChecker):
                 node=node,
                 args=(all_methods, self.linter.config.min_public_methods),
             )
+
+        self._check_order_dependent_resolutions(node)
+
+    def _check_order_dependent_resolutions(self, node: nodes.ClassDef) -> None:
+        if len(node.bases) < 2:
+            return
+
+        all_base_method_names: set[str] = set()
+        all_base_methods: set[nodes.FunctionDef] = set()
+        methods_defined_in_multiple_bases: set[nodes.FunctionDef] = set()
+
+        for base in node.bases:
+            klass = safe_infer(base)
+            if not isinstance(klass, nodes.ClassDef):
+                continue
+            module = get_node_first_ancestor_of_type(klass, nodes.Module)
+            assert module is not None  # TODO: remove when astroid typing improved?
+            if module.name == "typing":
+                continue
+
+            this_base_method_names = [
+                f.name for f in klass.methods() if f.name != "__init__"
+            ]
+            intersection = all_base_method_names.intersection(this_base_method_names)
+            methods_defined_in_multiple_bases.update(
+                {
+                    f
+                    for f in klass.methods()
+                    if f.name in intersection and f not in all_base_methods
+                }
+            )
+            all_base_method_names.update(this_base_method_names)
+            all_base_methods.update(klass.methods())
+
+        missing_reimplementations = [
+            m
+            for m in methods_defined_in_multiple_bases
+            if m.name not in (f.name for f in node.mymethods())
+        ]
+        if missing_reimplementations:
+            self.add_message(
+                "order-dependent-resolution",
+                node=node,
+                args=(", ".join(sorted(f.name for f in missing_reimplementations)),),
+                confidence=INFERENCE,
+            )
+
+        for parent_meth in methods_defined_in_multiple_bases:
+            if parent_meth in missing_reimplementations:
+                continue
+            this_meth = next(node.ilookup(parent_meth.name), None)
+            if this_meth is None:  # pragma: no cover
+                continue
+            meth_frame = this_meth.frame()
+            for call_node in this_meth.nodes_of_class(nodes.Call):
+                if call_node.frame() is not meth_frame:
+                    continue
+                if isinstance(call_node.func, nodes.Attribute) and isinstance(
+                    safe_infer(call_node.func.expr), astroid.objects.Super
+                ):
+                    self.add_message(
+                        "order-dependent-super-resolution",
+                        node=call_node,
+                        confidence=INFERENCE,
+                        args=this_meth.name,
+                    )
 
     @only_required_for_messages(
         "too-many-return-statements",
