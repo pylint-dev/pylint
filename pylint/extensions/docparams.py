@@ -524,6 +524,7 @@ class DocstringParameterChecker(BaseChecker):
         # Collect the function arguments.
         expected_argument_names = {arg.name for arg in arguments_node.args}
         expected_argument_names.update(arg.name for arg in arguments_node.kwonlyargs)
+        expected_argument_names.update(arg.name for arg in arguments_node.posonlyargs)
         not_needed_type_in_docstring = self.not_needed_param_in_docstring.copy()
 
         expected_but_ignored_argument_names = set()
@@ -560,6 +561,9 @@ class DocstringParameterChecker(BaseChecker):
                 params_with_type.add(arg_name.name)
         for index, arg_name in enumerate(arguments_node.kwonlyargs):
             if arguments_node.kwonlyargs_annotations[index]:
+                params_with_type.add(arg_name.name)
+        for index, arg_name in enumerate(arguments_node.posonlyargs):
+            if arguments_node.posonlyargs_annotations[index]:
                 params_with_type.add(arg_name.name)
 
         if not tolerate_missing_params:
