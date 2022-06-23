@@ -59,21 +59,21 @@ class DocStringChecker(_BasicChecker):
         "C0114": (
             "Missing module docstring",
             "missing-module-docstring",
-            "Used when a module has no docstring."
+            "Used when a module has no docstring. "
             "Empty modules do not require a docstring.",
             {"old_names": [("C0111", "missing-docstring")]},
         ),
         "C0115": (
             "Missing class docstring",
             "missing-class-docstring",
-            "Used when a class has no docstring."
+            "Used when a class has no docstring. "
             "Even an empty class must have a docstring.",
             {"old_names": [("C0111", "missing-docstring")]},
         ),
         "C0116": (
             "Missing function or method docstring",
             "missing-function-docstring",
-            "Used when a function or method has no docstring."
+            "Used when a function or method has no docstring. "
             "Some special methods like __init__ do not require a "
             "docstring.",
             {"old_names": [("C0111", "missing-docstring")]},
@@ -98,8 +98,8 @@ class DocStringChecker(_BasicChecker):
                 "type": "int",
                 "metavar": "<int>",
                 "help": (
-                    "Minimum line length for functions/classes that"
-                    " require docstrings, shorter ones are exempt."
+                    "Minimum line length for functions/classes that "
+                    "require docstrings, shorter ones are exempt."
                 ),
             },
         ),

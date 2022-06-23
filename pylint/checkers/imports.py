@@ -218,9 +218,9 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Use 'from %s import %s' instead",
         "consider-using-from-import",
         "Emitted when a submodule of a package is imported and "
-        "aliased with the same name. "
-        "E.g., instead of ``import concurrent.futures as futures`` use "
-        "``from concurrent import futures``",
+        "aliased with the same name, "
+        "e.g., instead of ``import concurrent.futures as futures`` use "
+        "``from concurrent import futures``.",
     ),
     "W0401": (
         "Wildcard import %s",
@@ -257,23 +257,23 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "%s should be placed before %s",
         "wrong-import-order",
         "Used when PEP8 import order is not respected (standard imports "
-        "first, then third-party libraries, then local imports)",
+        "first, then third-party libraries, then local imports).",
     ),
     "C0412": (
         "Imports from package %s are not grouped",
         "ungrouped-imports",
-        "Used when imports are not grouped by packages",
+        "Used when imports are not grouped by packages.",
     ),
     "C0413": (
         'Import "%s" should be placed at the top of the module',
         "wrong-import-position",
-        "Used when code and imports are mixed",
+        "Used when code and imports are mixed.",
     ),
     "C0414": (
         "Import alias does not rename original package",
         "useless-import-alias",
-        "Used when an import alias is same as original package."
-        "e.g using import numpy as numpy instead of import numpy as np",
+        "Used when an import alias is same as original package, "
+        "e.g., using import numpy as numpy instead of import numpy as np.",
     ),
     "C0415": (
         "Import outside toplevel (%s)",

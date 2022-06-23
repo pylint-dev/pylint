@@ -200,8 +200,8 @@ class BaseChecker(_ArgumentsProvider):
             # TODO: 3.0: Remove deprecated if-statement
             elif implements(self, (IRawChecker, ITokenChecker)):
                 warnings.warn(  # pragma: no cover
-                    "Checkers should subclass BaseTokenChecker or BaseRawFileChecker"
-                    "instead of using the __implements__ mechanism. Use of __implements__"
+                    "Checkers should subclass BaseTokenChecker or BaseRawFileChecker "
+                    "instead of using the __implements__ mechanism. Use of __implements__ "
                     "will no longer be supported in pylint 3.0",
                     DeprecationWarning,
                 )
