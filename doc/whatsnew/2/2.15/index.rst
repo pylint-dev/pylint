@@ -15,6 +15,9 @@ Summary -- Release highlights
 New checkers
 ============
 
+Added new checker ``missing-timeout`` to warn of default timeout values that could cause
+a program to be hanging indefinitely.
+
 
 Removed checkers
 ================
@@ -30,6 +33,12 @@ False positives fixed
 * The ``differing-param-doc`` check was triggered by positional only arguments.
 
   Closes #6950
+
+* Don't report ``unsupported-binary-operation`` on Python <= 3.9 when using the ``|`` operator
+  with types, if one has a metaclass that overloads ``__or__`` or ``__ror__`` as appropriate.
+
+  Closes #4951
+
 
 False negatives fixed
 =====================

@@ -339,7 +339,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "R1716": (
             "Simplify chained comparison between the operands",
             "chained-comparison",
-            "This message is emitted when pylint encounters boolean operation like"
+            "This message is emitted when pylint encounters boolean operation like "
             '"a < b and b < c", suggesting instead to refactor it to "a < b < c"',
         ),
         "R1717": (
@@ -348,7 +348,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "Emitted when we detect the creation of a dictionary "
             "using the dict() callable and a transient list. "
             "Although there is nothing syntactically wrong with this code, "
-            "it is hard to read and can be simplified to a dict comprehension."
+            "it is hard to read and can be simplified to a dict comprehension. "
             "Also it is faster since you don't need to create another "
             "transient list",
         ),
@@ -356,7 +356,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "Consider using a set comprehension",
             "consider-using-set-comprehension",
             "Although there is nothing syntactically wrong with this code, "
-            "it is hard to read and can be simplified to a set comprehension."
+            "it is hard to read and can be simplified to a set comprehension. "
             "Also it is faster since you don't need to create another "
             "transient list",
         ),

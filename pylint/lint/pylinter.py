@@ -249,7 +249,7 @@ class PyLinter(
     * handle some basic but necessary stats' data (number of classes, methods...)
 
     IDE plugin developers: you may have to call
-    `astroid.builder.MANAGER.astroid_cache.clear()` across runs if you want
+    `astroid.MANAGER.clear_cache()` across runs if you want
     to ensure the latest code version is actually checked.
 
     This class needs to support pickling for parallel linting to work. The exception

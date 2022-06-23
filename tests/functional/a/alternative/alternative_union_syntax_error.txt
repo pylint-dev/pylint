@@ -22,3 +22,4 @@ unsupported-binary-operation:76:12:76:21:CustomDataClass:unsupported operand typ
 unsupported-binary-operation:80:12:80:21:CustomDataClass2:unsupported operand type(s) for |:UNDEFINED
 unsupported-binary-operation:84:12:84:21:CustomDataClass3:unsupported operand type(s) for |:UNDEFINED
 unsupported-binary-operation:89:12:89:21:CustomDataClass4:unsupported operand type(s) for |:UNDEFINED
+unsupported-binary-operation:111:31:111:61::unsupported operand type(s) for |:UNDEFINED

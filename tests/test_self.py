@@ -1525,7 +1525,7 @@ class TestCallbackOptions:
         it no longer enables any messages."""
         run = Run(
             [str(UNNECESSARY_LAMBDA), "--disable=import-error", "--errors-only"],
-            do_exit=False,
+            exit=False,
         )
         assert not run.linter.is_message_enabled("import-error")
 
