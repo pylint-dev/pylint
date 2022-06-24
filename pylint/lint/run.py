@@ -82,7 +82,7 @@ def _cpu_count() -> int:
         cpu_count = multiprocessing.cpu_count()
     else:
         cpu_count = 1
-    if sys.platform == 'win32':
+    if sys.platform == "win32":
         # Using too many child processes in Python 3 hits either hangs or a
         # ValueError exception, and, has diminishing returns. Clamp to 56 to
         # give margin for error.
