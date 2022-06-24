@@ -1,2 +1,2 @@
-fruits_number = {"apple": 42}
-print(f"Number of apples : {fruits_number[['apple']]}")  # [unhashable-dict-key]
+# Print the number of apples:
+print({"apple": 42}[["apple"]])  # [unhashable-dict-key]

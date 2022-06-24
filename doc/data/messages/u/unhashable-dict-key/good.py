@@ -1,2 +1,2 @@
-fruits_number = {"apple": 42}
-print(f"Number of apples : {fruits_number['apple']}")
+# Print the number of apples:
+print({"apple": 42}["apple"])
