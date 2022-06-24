@@ -1,1 +1,0 @@
-useless-parent-delegation:16:4:16:16:Ham.__init__:Useless parent delegation in method '__init__':INFERENCE
