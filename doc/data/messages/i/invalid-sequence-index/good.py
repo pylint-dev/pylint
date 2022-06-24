@@ -1,2 +1,2 @@
-fruit = ['apple', 'banana', 'orange']
-print(fruit[0])
+fruits = ['apple', 'banana', 'orange']
+print(fruits[0])
