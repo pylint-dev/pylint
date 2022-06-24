@@ -18,7 +18,7 @@ from collections import deque
 from collections.abc import Callable, Iterator, Sequence
 from functools import singledispatch
 from re import Pattern
-from typing import TYPE_CHECKING, Any, Literal, Union
+from typing import TYPE_CHECKING, Any, Union
 
 import astroid
 import astroid.exceptions
@@ -53,8 +53,10 @@ from pylint.typing import MessageDefinitionTuple
 
 if sys.version_info >= (3, 8):
     from functools import cached_property
+    from typing import Literal
 else:
     from astroid.decorators import cachedproperty as cached_property
+    from typing_extensions import Literal
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
