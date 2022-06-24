@@ -1945,7 +1945,7 @@ accessed. Python regular expressions are accepted.",
                 return True
             except astroid.NotFoundError:
                 return True
-        return False
+        return False  # pragma: no cover
 
     def _check_unsupported_alternative_union_syntax(self, node: nodes.BinOp) -> None:
         """Check if left or right node is of type `type`.
