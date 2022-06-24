@@ -1,1 +1,1 @@
-# This is a placeholder for correct code for this message.
+# TODO: Some kind of an activity
