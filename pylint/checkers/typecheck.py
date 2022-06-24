@@ -31,7 +31,6 @@ from pylint.checkers.utils import (
     decorated_with_property,
     has_known_bases,
     is_builtin_object,
-    is_classdef_type,
     is_comprehension,
     is_inside_abstract_class,
     is_iterable,
@@ -1935,17 +1934,13 @@ accessed. Python regular expressions are accepted.",
     ) -> bool | VERSION_COMPATIBLE_OVERLOAD:
         if not isinstance(node, nodes.ClassDef):
             return False
-        for node_or_ancestor in itertools.chain((node,), node.ancestors()):
-            if is_classdef_type(node_or_ancestor):
-                node = node_or_ancestor
-            try:
-                attrs = node.getattr(operation)
-                if self._includes_version_compatible_overload(attrs):
-                    return VERSION_COMPATIBLE_OVERLOAD_SENTINEL
-                return True
-            except astroid.NotFoundError:
-                return True
-        return False  # pragma: no cover
+        try:
+            attrs = node.getattr(operation)
+            if self._includes_version_compatible_overload(attrs):
+                return VERSION_COMPATIBLE_OVERLOAD_SENTINEL
+            return True
+        except astroid.NotFoundError:
+            return True
 
     def _check_unsupported_alternative_union_syntax(self, node: nodes.BinOp) -> None:
         """Check if left or right node is of type `type`.
