@@ -1936,11 +1936,11 @@ accessed. Python regular expressions are accepted.",
             return False
         try:
             attrs = node.getattr(operation)
-            if self._includes_version_compatible_overload(attrs):
-                return VERSION_COMPATIBLE_OVERLOAD_SENTINEL
-            return True
         except astroid.NotFoundError:
             return True
+        if self._includes_version_compatible_overload(attrs):
+            return VERSION_COMPATIBLE_OVERLOAD_SENTINEL
+        return True
 
     def _check_unsupported_alternative_union_syntax(self, node: nodes.BinOp) -> None:
         """Check if left or right node is of type `type`.
