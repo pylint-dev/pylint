@@ -3,5 +3,5 @@ class Fruit:
         pass
 
 class Worm(Fruit):
-    async def bore(self):
+    def bore(self):  # [invalid-overridden-method]
         pass
