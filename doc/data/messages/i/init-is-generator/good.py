@@ -6,5 +6,5 @@ class Fruit:
         yield from self.__worms
 
 apple = Fruit(["Fahad", "Anisha", "Tabatha"])
-for worm in apple.worms()
+for worm in apple.worms():
     pass
