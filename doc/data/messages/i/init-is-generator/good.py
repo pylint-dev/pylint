@@ -1,10 +1,10 @@
-class Foo:
-    def __init__(self, data):
-        self.data = data
+class Fruit:
+    def __init__(self, worms):
+        self.__worms = worms
 
-    def get_items(self):
-        yield from self.data
+    def worms(self):
+        yield from self.__worms
 
-foo = Foo([1, 2, 3])
-for item in foo.get_items():
+apple = Fruit(["Fahad", "Anisha", "Tabatha"])
+for worm in apple.worms()
     pass

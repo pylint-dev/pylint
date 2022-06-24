@@ -1,3 +1,5 @@
-class Foo:
-    def __init__(self, data):  # [init-is-generator]
-        yield from data
+class Fruit:
+    def __init__(self, worms):  # [init-is-generator]
+        yield from worms
+
+apple = Fruit(["Fahad", "Anisha", "Tabatha"])              
