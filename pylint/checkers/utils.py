@@ -1854,3 +1854,17 @@ def find_assigned_names_recursive(
     elif isinstance(target, nodes.BaseContainer):
         for elt in target.elts:
             yield from find_assigned_names_recursive(elt)
+
+
+def is_hashable(node: nodes.NodeNG) -> bool:
+    """Return whether all inferred values of `node` are not hashable."""
+    try:
+        for inferred in node.infer():
+            if inferred is astroid.Uninferable:
+                return True
+            hash_fn = next(inferred.igetattr("__hash__"))
+            if getattr(hash_fn, "value", True) is not None:
+                return True
+    except astroid.InferenceError:
+        return True
+    return False

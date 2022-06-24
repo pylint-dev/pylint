@@ -33,6 +33,7 @@ from pylint.checkers.utils import (
     is_builtin_object,
     is_classdef_type,
     is_comprehension,
+    is_hashable,
     is_inside_abstract_class,
     is_iterable,
     is_mapping,
@@ -2003,6 +2004,12 @@ accessed. Python regular expressions are accepted.",
         if op in {"in", "not in"}:
             self._check_membership_test(right)
 
+    @only_required_for_messages("unhashable-dict-key")
+    def visit_dict(self, node: nodes.Dict) -> None:
+        for k, _ in node.items:
+            if not is_hashable(k):
+                self.add_message("unhashable-dict-key", node=k, confidence=INFERENCE)
+
     @only_required_for_messages(
         "unsubscriptable-object",
         "unsupported-assignment-operation",
@@ -2020,15 +2027,10 @@ accessed. Python regular expressions are accepted.",
 
         if isinstance(node.value, nodes.Dict):
             # Assert dict key is hashable
-            inferred = safe_infer(node.slice)
-            if inferred and inferred != astroid.Uninferable:
-                try:
-                    hash_fn = next(inferred.igetattr("__hash__"))
-                except astroid.InferenceError:
-                    pass
-                else:
-                    if getattr(hash_fn, "value", True) is None:
-                        self.add_message("unhashable-dict-key", node=node.value)
+            if not is_hashable(node.slice):
+                self.add_message(
+                    "unhashable-dict-key", node=node.value, confidence=INFERENCE
+                )
 
         if node.ctx == astroid.Load:
             supported_protocol = supports_getitem

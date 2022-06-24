@@ -69,6 +69,10 @@ False negatives fixed
 
   Closes #6643
 
+* Emit ``unhashable-dict-key`` when creating dicts, not just when accessing them.
+
+  Closes #7034
+
 
 Other bug fixes
 ===============
