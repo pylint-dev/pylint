@@ -1,1 +1,2 @@
-# This is a placeholder for correct code for this message.
+# Print the number of apples:
+print({"apple": 42}["apple"])
