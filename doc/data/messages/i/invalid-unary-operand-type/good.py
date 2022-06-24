@@ -1,1 +1,3 @@
-# This is a placeholder for correct code for this message.
+fruit = 1
+worm = 10
+worm -= fruit
