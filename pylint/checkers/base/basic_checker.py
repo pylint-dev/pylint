@@ -169,7 +169,7 @@ class BasicChecker(_BasicChecker):
             'Used when you use the "exec" statement (function for Python '
             "3), to discourage its usage. That doesn't "
             "mean you cannot use it! "
-            "It’s dangerous to use this function for a user input.",
+            "It's dangerous to use this function for a user input.",
         ),
         "W0123": (
             "Use of eval",
