@@ -83,9 +83,7 @@ def _cpu_count() -> int:
     else:
         cpu_count = 1
     if sys.platform == "win32":
-        # Using too many child processes in Python 3 hits either hangs or a
-        # ValueError exception, and, has diminishing returns. Clamp to 56 to
-        # give margin for error.
+        # See also https://github.com/python/cpython/issues/94242
         cpu_count = min(cpu_count, 56)
     if cpu_share is not None:
         return min(cpu_share, cpu_count)
