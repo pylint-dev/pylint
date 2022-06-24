@@ -1,1 +1,1 @@
-# This is a placeholder for correct code for this message.
+print('{a[1]}'.format(a=[0, 1]))
