@@ -190,11 +190,11 @@ group are mutually exclusive.",
                 linter.set_option("jobs", 1)
             elif linter.config.jobs == 0:
                 linter.config.jobs = _cpu_count()
-                if sys.platform == 'win32':
+                if sys.platform == "win32":
                     # Using too many child processes in Python 3 hits either hangs or a
                     # ValueError exception, and, has diminishing returns. Clamp to 56 to
                     # give margin for error.
-                    jobs = min(jobs, 56)
+                    min(jobs, 56)
 
         if self._output:
             try:
