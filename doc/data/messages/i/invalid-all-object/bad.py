@@ -1,5 +1,5 @@
 __all__ = (
-    None, # [invalid-all-object],
+    None,  # [invalid-all-object]
     Fruit,
     Worm,
 )
