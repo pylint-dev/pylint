@@ -1963,7 +1963,12 @@ accessed. Python regular expressions are accepted.",
             return
 
         if left_is_type or right_is_type:
-            self.add_message("unsupported-binary-operation", args=msg, node=node)
+            self.add_message(
+                "unsupported-binary-operation",
+                args=msg,
+                node=node,
+                confidence=INFERENCE,
+            )
 
     # TODO: This check was disabled (by adding the leading underscore)
     # due to false positives several years ago - can we re-enable it?
