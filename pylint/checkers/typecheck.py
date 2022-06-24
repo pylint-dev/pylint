@@ -18,7 +18,7 @@ from collections import deque
 from collections.abc import Callable, Iterator, Sequence
 from functools import singledispatch
 from re import Pattern
-from typing import TYPE_CHECKING, Any, Union
+from typing import TYPE_CHECKING, Any, Literal, Union
 
 import astroid
 import astroid.exceptions
@@ -75,6 +75,13 @@ TYPE_ANNOTATION_NODES_TYPES = (
     nodes.Arguments,
     nodes.FunctionDef,
 )
+
+
+class VERSION_COMPATIBLE_OVERLOAD:
+    pass
+
+
+VERSION_COMPATIBLE_OVERLOAD_SENTINEL = VERSION_COMPATIBLE_OVERLOAD()
 
 
 def _unflatten(iterable):
@@ -1921,6 +1928,23 @@ accessed. Python regular expressions are accepted.",
         )
         return not is_py310_builtin or self._py310_plus
 
+    def _recursive_search_for_classdef_type(
+        self, node: nodes.ClassDef, operation: Literal["__or__", "__ror__"]
+    ) -> bool | VERSION_COMPATIBLE_OVERLOAD:
+        if not isinstance(node, nodes.ClassDef):
+            return False
+        for node_or_ancestor in itertools.chain((node,), node.ancestors()):
+            if is_classdef_type(node_or_ancestor):
+                node = node_or_ancestor
+            try:
+                attrs = node.getattr(operation)
+                if self._includes_version_compatible_overload(attrs):
+                    return VERSION_COMPATIBLE_OVERLOAD_SENTINEL
+                return True
+            except astroid.NotFoundError:
+                return True
+        return False
+
     def _check_unsupported_alternative_union_syntax(self, node: nodes.BinOp) -> None:
         """Check if left or right node is of type `type`.
 
@@ -1931,38 +1955,12 @@ accessed. Python regular expressions are accepted.",
         msg = "unsupported operand type(s) for |"
         left_obj = astroid.helpers.object_type(node.left)
         right_obj = astroid.helpers.object_type(node.right)
-        left_is_type = False
-        right_is_type = False
-
-        if isinstance(left_obj, nodes.ClassDef):
-            for left_or_ancestor in itertools.chain((left_obj,), left_obj.ancestors()):
-                if is_classdef_type(left_or_ancestor):
-                    left_obj = left_or_ancestor
-                try:
-                    attrs = left_obj.getattr("__or__")
-                    if self._includes_version_compatible_overload(attrs):
-                        return
-                    left_is_type = True
-                    break
-                except astroid.NotFoundError:
-                    left_is_type = True
-                    break
-
-        if isinstance(right_obj, nodes.ClassDef):
-            for right_or_ancestor in itertools.chain(
-                (right_obj,), right_obj.ancestors()
-            ):
-                if is_classdef_type(right_or_ancestor):
-                    right_obj = right_or_ancestor
-                try:
-                    attrs = right_obj.getattr("__ror__")
-                    if self._includes_version_compatible_overload(attrs):
-                        return
-                    right_is_type = True
-                    break
-                except astroid.NotFoundError:
-                    right_is_type = True
-                    break
+        left_is_type = self._recursive_search_for_classdef_type(left_obj, "__or__")
+        if left_is_type is VERSION_COMPATIBLE_OVERLOAD_SENTINEL:
+            return
+        right_is_type = self._recursive_search_for_classdef_type(right_obj, "__ror__")
+        if right_is_type is VERSION_COMPATIBLE_OVERLOAD_SENTINEL:
+            return
 
         if left_is_type or right_is_type:
             self.add_message("unsupported-binary-operation", args=msg, node=node)
