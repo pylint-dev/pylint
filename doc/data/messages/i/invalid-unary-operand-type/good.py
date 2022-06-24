@@ -1,3 +1,3 @@
-fruit = 1
-worm = 10
-worm -= fruit
+cherries = 10
+eaten_cherries = 2
+cherries -= eaten_cherries
