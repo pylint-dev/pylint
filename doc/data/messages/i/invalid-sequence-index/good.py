@@ -1,1 +1,2 @@
-# This is a placeholder for correct code for this message.
+fruit = ['apple', 'banana', 'orange']
+print(fruit[0])
