@@ -1,4 +1,8 @@
-__all__ = [Fruit, Worm]  # [invalid-all-object]
+__all__ = (
+    None, # [invalid-all-object],
+    Fruit,
+    Worm,
+)
 
 class Fruit:
     pass
