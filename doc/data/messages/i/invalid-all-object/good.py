@@ -1,1 +1,7 @@
-# This is a placeholder for correct code for this message.
+class Fruit:
+    pass
+
+class Worm:
+    pass
+
+__all__ = ['Fruit', 'Worm']
