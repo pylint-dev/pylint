@@ -1,3 +1,3 @@
 def foo():
-    '''Docstring.'''
+    '''Docstring.'''  # [bad-docstring-quotes]
     return
