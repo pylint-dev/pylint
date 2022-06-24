@@ -1,7 +1,7 @@
 class Fruit:
-    async def bore(self):
-        pass
+    async def bore(self, insect):
+        insect.eat(self)
 
-class Worm(Fruit):
-    def bore(self):  # [invalid-overridden-method]
-        pass
+class Apple(Fruit):
+    def bore(self, insect):  # [invalid-overridden-method]
+        insect.eat(self)

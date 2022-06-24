@@ -1,7 +1,7 @@
 class Fruit:
-    async def bore(self):
-        pass
+    async def bore(self, insect):
+        insect.eat(self)
 
-class Worm(Fruit):
-    async def bore(self):
-        pass
+class Apple(Fruit):
+    async def bore(self, insect):
+        insect.eat(self)
