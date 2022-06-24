@@ -82,6 +82,11 @@ def _cpu_count() -> int:
         cpu_count = multiprocessing.cpu_count()
     else:
         cpu_count = 1
+    if sys.platform == 'win32':
+        # Using too many child processes in Python 3 hits either hangs or a
+        # ValueError exception, and, has diminishing returns. Clamp to 56 to
+        # give margin for error.
+        cpu_count = min(cpu_count, 56)
     if cpu_share is not None:
         return min(cpu_share, cpu_count)
     return cpu_count
@@ -190,11 +195,6 @@ group are mutually exclusive.",
                 linter.set_option("jobs", 1)
             elif linter.config.jobs == 0:
                 linter.config.jobs = _cpu_count()
-                if sys.platform == "win32":
-                    # Using too many child processes in Python 3 hits either hangs or a
-                    # ValueError exception, and, has diminishing returns. Clamp to 56 to
-                    # give margin for error.
-                    min(jobs, 56)
 
         if self._output:
             try:
