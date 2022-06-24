@@ -1,1 +1,1 @@
-*fruit = ['apple', 'banana', 'orange']
+*fruit = ['apple', 'banana', 'orange']  # [invalid-star-assignment-target]
