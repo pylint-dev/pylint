@@ -1,1 +1,6 @@
-# This is a placeholder for correct code for this message.
+a = 1
+b = 2
+
+a, b = b, a
+
+print(a, b)
