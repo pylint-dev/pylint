@@ -1,0 +1,1 @@
+The available methods and variables used in ``exec()`` may introduce a security hole. You can restrict the use of these variables and methods by passing optional globals and locals parameters (dictionaries) to the ``exec()`` method.
