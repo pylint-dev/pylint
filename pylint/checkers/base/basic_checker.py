@@ -166,10 +166,10 @@ class BasicChecker(_BasicChecker):
         "W0122": (
             "Use of exec",
             "exec-used",
-            'Raised when the "exec" statement is used. '
-            "It's dangerous to use this function for a user input, "
-            "and it's also slower than actual code in general. This doesn't "
-            "mean you should never use it, but you should consider alternatives first.",
+            "Raised when the 'exec' statement is used. It's dangerous to use this "
+            "function for a user input, and it's also slower than actual code in "
+            "general. This doesn't mean you should never use it, but you should "
+            "consider alternatives first.",
         ),
         "W0123": (
             "Use of eval",
