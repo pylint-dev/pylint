@@ -9,10 +9,15 @@ Release date: TBA
 
   Closes #7006
 
+* Fixed a false positive for ``modified-iterating-dict`` when updating an existing key.
+
+  Closes #6179
+
 * Fixed an issue where many-core Windows machines (>~60 logical processors) would hang when
   using the default jobs count.
 
   Closes #6965
+
 
 What's New in Pylint 2.14.3?
 ----------------------------
