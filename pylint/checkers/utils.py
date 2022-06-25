@@ -1865,6 +1865,6 @@ def is_hashable(node: nodes.NodeNG) -> bool:
             hash_fn = next(inferred.igetattr("__hash__"))
             if getattr(hash_fn, "value", True) is not None:
                 return True
+        return False
     except astroid.InferenceError:
         return True
-    return False
