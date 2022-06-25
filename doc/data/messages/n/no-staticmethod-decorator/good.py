@@ -1,1 +1,4 @@
-# This is a placeholder for correct code for this message.
+class Worm:
+    @staticmethod
+    def bore(self):
+        pass
