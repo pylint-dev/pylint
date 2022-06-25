@@ -6,17 +6,10 @@ class GenericAstrology:
         self.signs = signs
         self.predictions = predictions
 
-    def __iter__(self):
+    def __iter__(self):  # [non-iterator-returned]
         self.index = 0
         self.number_of_prediction = len(self.predictions)
         return self
-
-    def __next__(self):
-        if self.index == len(self.signs):
-            raise StopIteration
-        self.index += 1
-        prediction_index = random.randint(0, self.number_of_prediction - 1)
-        return self.signs[self.index - 1], self.predictions[prediction_index]
 
 
 SIGNS = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra"]
