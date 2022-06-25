@@ -1,4 +1,5 @@
-programs = {'do_something': lambda: print("Do something")}
-program = input('Enter a program code to be used: ')
-if programs.get(program):
-    programs[program]()
+def get_user_code(username):
+    return input(f'Enter code to be executed please, {username}: ')
+
+username = "Ada"
+exec(get_user_code(username))  # pylint: disable=exec-used
