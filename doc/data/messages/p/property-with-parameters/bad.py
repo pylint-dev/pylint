@@ -1,4 +1,4 @@
 class Worm:
     @property
-    def bore(self, arg):  # [property-with-parameters]
+    def bore(self, depth):  # [property-with-parameters]
         pass
