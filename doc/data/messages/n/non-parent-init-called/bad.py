@@ -1,13 +1,15 @@
-class Shape:
+class Animal:
     def __init__(self):
-        self.shape = True
+        self.is_multicellular = True
 
-class Rectangle(Shape):
+
+class Vertebrate(Animal):
     def __init__(self):
         super().__init__()
-        self.rectangle = True
+        self.has_vertebrae = True
 
-class Square(Rectangle):
+
+class Cat(Vertebrate):
     def __init__(self):
-        Shape.__init__(self)  # [non-parent-init-called]
-        self.square = True
+        Animal.__init__(self)  # [non-parent-init-called]
+        self.adorable = True
