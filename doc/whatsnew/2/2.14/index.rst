@@ -10,12 +10,3 @@
 
    summary.rst
    full.rst
-
-
-Internal changes
-================
-
-* Fixed an issue where many-core Windows machines (>~60 logical processors) would hang when
-  using the default jobs count.
-
-  Closes #6965

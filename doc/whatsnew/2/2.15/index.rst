@@ -94,8 +94,3 @@ Internal changes
   let the functional test fail with a default value.
 
   Refs #6891
-
-* Fixed an issue where many-core Windows machines (>~60 logical processors) would hang when
-  using the default jobs count.
-
-  Closes #6965
