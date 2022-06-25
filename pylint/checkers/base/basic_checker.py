@@ -169,7 +169,7 @@ class BasicChecker(_BasicChecker):
             "Raised when the 'exec' statement is used. It's dangerous to use this "
             "function for a user input, and it's also slower than actual code in "
             "general. This doesn't mean you should never use it, but you should "
-            "consider alternatives first.",
+            "consider alternatives first and restrict the functions available.",
         ),
         "W0123": (
             "Use of eval",
