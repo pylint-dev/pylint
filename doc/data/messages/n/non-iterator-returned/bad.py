@@ -16,4 +16,3 @@ SIGNS = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra"]
 PREDICTIONS = ["good things", "bad thing", "existential dread"]
 for sign, prediction in GenericAstrology(SIGNS, PREDICTIONS):
     print(f"{sign} : {prediction} today")
-
