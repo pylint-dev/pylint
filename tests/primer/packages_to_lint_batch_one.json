@@ -1,9 +1,4 @@
 {
-  "django": {
-    "branch": "main",
-    "directories": ["django"],
-    "url": "https://github.com/django/django.git"
-  },
   "keras": {
     "branch": "master",
     "directories": ["keras"],
