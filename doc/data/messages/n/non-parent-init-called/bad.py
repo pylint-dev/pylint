@@ -9,5 +9,5 @@ class Rectangle(Shape):
 
 class Square(Rectangle):
     def __init__(self):
-        super().__init__()
+        Shape.__init__(self)  # [non-parent-init-called]
         self.square = True
