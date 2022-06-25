@@ -2022,6 +2022,14 @@ accessed. Python regular expressions are accepted.",
             if not is_hashable(k):
                 self.add_message("unhashable-dict-key", node=k, confidence=INFERENCE)
 
+    @only_required_for_messages("unhashable-dict-key")
+    def visit_set(self, node: nodes.Set) -> None:
+        for element in node.elts:
+            if not is_hashable(element):
+                self.add_message(
+                    "unhashable-dict-key", node=element, confidence=INFERENCE
+                )
+
     @only_required_for_messages(
         "unsubscriptable-object",
         "unsupported-assignment-operation",

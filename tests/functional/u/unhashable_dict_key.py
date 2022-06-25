@@ -18,5 +18,6 @@ class Unhashable(object):
     [1, 2, 3]: "tomato",  # [unhashable-dict-key]
     [4, 5, 6]: "celeriac",  # [unhashable-dict-key]
 }
+{[1, 2, 3]}  # [unhashable-dict-key]
 {"tomato": "tomahto"}
 {dict: {}}

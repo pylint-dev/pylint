@@ -69,9 +69,9 @@ False negatives fixed
 
   Closes #6643
 
-* Emit ``unhashable-dict-key`` when creating dicts, not just when accessing them.
+* Emit ``unhashable-dict-key`` when creating sets and dicts, not just when accessing dicts.
 
-  Closes #7034
+  Closes #7034, Closes #7055
 
 
 Other bug fixes
