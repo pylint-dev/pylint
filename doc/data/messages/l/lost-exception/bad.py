@@ -1,7 +1,12 @@
-def fruit(value):
+class FasterThanTheSpeedOfLightError(ZeroDivisionError):
+    def __init__(self):
+        super().__init__("You can't go faster than the speed of light !")
+
+
+def calculate_speed(distance: float, time: float) -> float:
     try:
-        return 2 / value
-    except ZeroDivisionError:
-        print('Connot divide zero.')
+        return distance / time
+    except ZeroDivisionError as e:
+        raise FasterThanTheSpeedOfLightError() from e
     finally:
-        return 0  # [lost-exception]
+        return 299792458  # [lost-exception]
