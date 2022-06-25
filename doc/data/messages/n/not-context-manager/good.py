@@ -1,4 +1,4 @@
-class Ctx:
+class MyContextManager:
     def __enter__(self):
         pass
 
@@ -6,5 +6,5 @@ class Ctx:
         pass
 
 
-with Ctx() as ctx:
+with MyContextManager() as c:
     pass
