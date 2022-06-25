@@ -3,5 +3,5 @@ class Fruit:
         if worm:
             self.worm = worm
 
-    def bore(self):
+    def worm(self):  # [method-hidden]
         pass
