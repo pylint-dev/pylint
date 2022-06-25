@@ -8,3 +8,5 @@ def calculate_speed(distance: float, time: float) -> float:
         return distance / time
     except ZeroDivisionError as e:
         raise FasterThanTheSpeedOfLightError() from e
+    finally:
+        return 299792458  # [lost-exception]

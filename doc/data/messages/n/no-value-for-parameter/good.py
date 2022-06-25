@@ -1,1 +1,4 @@
-# This is a placeholder for correct code for this message.
+def add(x, y):
+    return x + y
+
+add(1, 2)
