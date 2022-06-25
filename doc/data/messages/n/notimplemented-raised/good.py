@@ -1,1 +1,3 @@
-# This is a placeholder for correct code for this message.
+class Worm:
+    def bore(self):
+        raise NotImplementedError
