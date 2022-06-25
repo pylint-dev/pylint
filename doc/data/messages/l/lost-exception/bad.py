@@ -3,5 +3,5 @@ def fruit(value):
         return 2 / value
     except ZeroDivisionError:
         print('Connot divide zero.')
-    
-    return 0
+    finally:
+        return 0  # [lost-exception]
