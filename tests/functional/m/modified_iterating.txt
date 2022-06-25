@@ -8,3 +8,4 @@ modified-iterating-list:48:4:48:23::Iterated list 'item_list' is being modified 
 modified-iterating-list:52:4:52:23::Iterated list 'item_list' is being modified inside for loop body, consider iterating through a copy of it instead.:INFERENCE
 modified-iterating-list:55:12:55:31::Iterated list 'item_list' is being modified inside for loop body, consider iterating through a copy of it instead.:INFERENCE
 modified-iterating-list:57:16:57:35::Iterated list 'item_list' is being modified inside for loop body, consider iterating through a copy of it instead.:INFERENCE
+modified-iterating-dict:83:8:83:28:update_existing_key:Iterated dict 'my_dict' is being modified inside for loop body, iterate through a copy of it instead.:INFERENCE

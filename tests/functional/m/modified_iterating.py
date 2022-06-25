@@ -71,3 +71,13 @@ dict1 = {"1": 1}
 dict2 = {"2": 2}
 for item in dict1:
     dict2[item] = 1
+
+
+def update_existing_key():
+    """No message when updating existing keys"""
+    for key in my_dict:
+        my_dict[key] = 1
+
+    for key in my_dict:
+        new_key = key.lower()
+        my_dict[new_key] = 1  # [modified-iterating-dict]

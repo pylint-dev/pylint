@@ -130,6 +130,15 @@ class ModifiedIterationChecker(checkers.BaseChecker):
     ) -> bool:
         if not self._is_node_assigns_subscript_name(node):
             return False
+        # Do not emit when merely updating the same key being iterated
+        if (
+            isinstance(iter_obj, nodes.Name)
+            and iter_obj.name == node.targets[0].value.name
+            and isinstance(iter_obj.parent.target, nodes.AssignName)
+            and isinstance(node.targets[0].slice, nodes.Name)
+            and iter_obj.parent.target.name == node.targets[0].slice.name
+        ):
+            return False
         infer_val = utils.safe_infer(node.targets[0].value)
         if not isinstance(infer_val, nodes.Dict):
             return False
