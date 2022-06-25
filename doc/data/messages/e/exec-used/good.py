@@ -1,7 +1,8 @@
-def get_user_code(username):
-    return input(f'Enter code to be executed please, {username}: ')
+def get_user_code(name):
+    return input(f'Enter code to be executed please, {name}: ')
+
 
 username = "Ada"
-globals = {'__builtins__' : None}
-locals = {'print': print}
-exec(get_user_code(username), globals, locals)  # pylint: disable=exec-used
+allowed_globals = {'__builtins__' : None}
+allowed_locals = {'print': print}
+exec(get_user_code(username), allowed_globals, allowed_locals)  # pylint: disable=exec-used
