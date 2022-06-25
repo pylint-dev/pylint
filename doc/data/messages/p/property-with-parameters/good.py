@@ -1,1 +1,4 @@
-# This is a placeholder for correct code for this message.
+class Worm:
+    @property
+    def bore(self):
+        pass
