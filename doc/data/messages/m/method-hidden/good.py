@@ -1,7 +1,6 @@
 class Fruit:
-    def __init__(self, worm):
-        if worm:
-            self.worm = worm
+    def __init__(self, vitamins):
+        self.vitamins = vitamins
 
-    def bore(self):
+    def antioxidants(self):
         pass
