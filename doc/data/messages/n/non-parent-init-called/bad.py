@@ -11,5 +11,5 @@ class Vertebrate(Animal):
 
 class Cat(Vertebrate):
     def __init__(self):
-        super().__init__()
+        Animal.__init__(self)  # [non-parent-init-called]
         self.is_adorable = True
