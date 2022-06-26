@@ -1100,7 +1100,7 @@ Typecheck checker Messages
 :not-context-manager (E1129): *Context manager '%s' doesn't implement __enter__ and __exit__.*
   Used when an instance in a with statement doesn't implement the context
   manager protocol(__enter__/__exit__).
-:unhashable-member (E1140): *Dict key is unhashable*
+:unhashable-member (E1140): *Member is unhashable*
   Emitted when a dict key is not hashable (i.e. doesn't define __hash__
   method).
 :repeated-keyword (E1132): *Got multiple values for keyword argument %r in function call*
