@@ -1,7 +1,7 @@
-def add(x, y):
-    return x + y
+def square(x):
+    return x * x
 
 
-add(x=1, y=2)
+square(x=4)
 # or
-add(1, 2)
+square(5)
