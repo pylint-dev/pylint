@@ -10,4 +10,4 @@ class Fruit:  # [too-many-instance-attributes]
         self.fruit_antioxidants = None
         self.secondary_worm_name = "Kim"
         self.secondary_worm_type = "Apple maggot"
-        self.secondary_worm_color = "Whitish"        
+        self.secondary_worm_color = "Whitish"
