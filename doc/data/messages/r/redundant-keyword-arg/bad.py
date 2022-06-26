@@ -1,5 +1,5 @@
-def add(x, y):
-    return x + y
+def square(x):
+    return x * x
 
 
-add(1, x=1, y=2)  # [redundant-keyword-arg]
+square(5, x=4)  # [redundant-keyword-arg]
