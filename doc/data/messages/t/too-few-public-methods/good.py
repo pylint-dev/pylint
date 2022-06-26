@@ -1,1 +1,6 @@
-# This is a placeholder for correct code for this message.
+class Worm:
+    def bore(self):
+        pass
+
+    def eat(self):
+        pass
