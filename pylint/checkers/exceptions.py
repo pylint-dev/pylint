@@ -69,7 +69,7 @@ MSGS: dict[
     "E0702": (
         "Raising %s while only classes or instances are allowed",
         "raising-bad-type",
-        "Used when something which is neither a class, an instance nor a string "
+        "Used when something which is neither a class nor an instance "
         "is raised (i.e. a `TypeError` will be raised).",
     ),
     "E0703": (
