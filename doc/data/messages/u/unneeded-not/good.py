@@ -1,2 +1,2 @@
-if not input():
+if input():
     pass
