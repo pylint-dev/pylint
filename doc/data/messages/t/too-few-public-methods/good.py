@@ -1,6 +1,7 @@
 import dataclasses
 
-class Worm: 
+
+class Worm:
     def __init__(self, name: str, fruit_of_residence: Fruit):
         self.name = name
         self.fruit_of_residence = fruit_of_residence
