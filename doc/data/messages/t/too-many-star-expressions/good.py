@@ -1,1 +1,1 @@
-# This is a placeholder for correct code for this message.
+*sirius_and_arcturus, vega= ["Sirius", "Arcturus", "Vega"]
