@@ -7,4 +7,4 @@ def calculate_speed(distance: float, time: float) -> float:
     try:
         return distance / time
     except ZeroDivisionError as e:
-        raise FasterThanTheSpeedOfLightError() from e
+        raise None  # [raising-bad-type]
