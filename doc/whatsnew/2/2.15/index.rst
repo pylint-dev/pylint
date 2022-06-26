@@ -69,7 +69,8 @@ False negatives fixed
 
   Closes #6643
 
-* Emit ``unhashable-dict-key`` when creating sets and dicts, not just when accessing dicts.
+* Rename ``unhashable-dict-key`` to ``unhashable-member`` and emit when creating sets and dicts,
+  not just when accessing dicts.
 
   Closes #7034, Closes #7055
 
