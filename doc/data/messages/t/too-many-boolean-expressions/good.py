@@ -1,3 +1,3 @@
-def foo(x, y, z):
-    if all([x, y, z]) and set(map(lambda n: n % 2, [x, y, z])).issubset({0}):
+def can_be_divided_by_two_and_are_not_zero(x, y, z):
+    if all(i and i%2==0 for i in [x, y, z]):
         pass
