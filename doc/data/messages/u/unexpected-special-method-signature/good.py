@@ -1,4 +1,4 @@
-class Foo:
+class ContextManager:
     def __enter__(self):
         pass
 
