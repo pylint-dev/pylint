@@ -1101,7 +1101,7 @@ Typecheck checker Messages
   Used when an instance in a with statement doesn't implement the context
   manager protocol(__enter__/__exit__).
 :unhashable-member (E1140): *Member is unhashable*
-  Emitted when a dict key is not hashable (i.e. doesn't define __hash__
+  Emitted when a dict key or set member is not hashable (i.e. doesn't define __hash__
   method).
 :repeated-keyword (E1132): *Got multiple values for keyword argument %r in function call*
   Emitted when a function call got multiple values for a keyword.
