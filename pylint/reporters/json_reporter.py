@@ -32,7 +32,7 @@ class JSONReporter(BaseReporter):
 
     @staticmethod
     def serialize(message: Message) -> dict[str, int | str | None]:
-        # TODO (3.0) add abs-path and confidence
+        # TODO: 3.0: Add abs-path and confidence or a new JSONReporter
         return {
             "type": message.category,
             "module": message.module,
@@ -54,7 +54,7 @@ class JSONReporter(BaseReporter):
             symbol=message_as_json["symbol"],
             msg=message_as_json["message"],
             location=MessageLocationTuple(
-                # TODO (3.0) abs-path is not available in json export
+                # TODO: 3.0: Add abs-path and confidence or a new JSONReporter
                 abspath=message_as_json["path"],
                 path=message_as_json["path"],
                 module=message_as_json["module"],
@@ -64,7 +64,7 @@ class JSONReporter(BaseReporter):
                 end_line=message_as_json["endLine"],
                 end_column=message_as_json["endColumn"],
             ),
-            # TODO (3.0) confidence is not available in json export
+            # TODO: 3.0: Make confidence available or a new JSONReporter
             confidence=UNDEFINED,
         )
 
