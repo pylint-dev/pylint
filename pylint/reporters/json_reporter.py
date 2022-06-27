@@ -9,7 +9,10 @@ from __future__ import annotations
 import json
 from typing import TYPE_CHECKING
 
+from pylint.interfaces import UNDEFINED
+from pylint.message import Message
 from pylint.reporters.base_reporter import BaseReporter
+from pylint.typing import MessageLocationTuple
 
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
@@ -24,23 +27,46 @@ class JSONReporter(BaseReporter):
 
     def display_messages(self, layout: Section | None) -> None:
         """Launch layouts display."""
-        json_dumpable = [
-            {
-                "type": msg.category,
-                "module": msg.module,
-                "obj": msg.obj,
-                "line": msg.line,
-                "column": msg.column,
-                "endLine": msg.end_line,
-                "endColumn": msg.end_column,
-                "path": msg.path,
-                "symbol": msg.symbol,
-                "message": msg.msg or "",
-                "message-id": msg.msg_id,
-            }
-            for msg in self.messages
-        ]
+        json_dumpable = [self.serialize(message) for message in self.messages]
         print(json.dumps(json_dumpable, indent=4), file=self.out)
+
+    @staticmethod
+    def serialize(message: Message) -> dict[str, int | str | None]:
+        # TODO (3.0) add abs-path and confidence
+        return {
+            "type": message.category,
+            "module": message.module,
+            "obj": message.obj,
+            "line": message.line,
+            "column": message.column,
+            "endLine": message.end_line,
+            "endColumn": message.end_column,
+            "path": message.path,
+            "symbol": message.symbol,
+            "message": message.msg or "",
+            "message-id": message.msg_id,
+        }
+
+    @staticmethod
+    def deserialize(message_as_json: dict) -> Message:
+        return Message(
+            msg_id=message_as_json["message-id"],
+            symbol=message_as_json["symbol"],
+            msg=message_as_json["message"],
+            location=MessageLocationTuple(
+                # TODO (3.0) abs-path is not available in json export
+                abspath=message_as_json["path"],
+                path=message_as_json["path"],
+                module=message_as_json["module"],
+                obj=message_as_json["obj"],
+                line=message_as_json["line"],
+                column=message_as_json["column"],
+                end_line=message_as_json["endLine"],
+                end_column=message_as_json["endColumn"],
+            ),
+            # TODO (3.0) confidence is not available in json export
+            confidence=UNDEFINED,
+        )
 
     def display_reports(self, layout: Section) -> None:
         """Don't do anything in this reporter."""
