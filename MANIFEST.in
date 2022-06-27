@@ -1,13 +1,1 @@
 include README.rst
-recursive-exclude pylint *.rst
-prune .github
-prune doc
-prune elisp
-prune examples
-prune tests
-prune script
-exclude .*
-exclude Dockerfile
-exclude pylintrc
-exclude requirements_*.txt
-exclude tox.ini
