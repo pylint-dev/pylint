@@ -1857,7 +1857,7 @@ def find_assigned_names_recursive(
 
 
 def is_hashable(node: nodes.NodeNG) -> bool:
-    """Return whether all inferred values of `node` are not hashable."""
+    """Return whether any inferred value of `node` is hashable. When finding ambiguity, return True."""
     try:
         for inferred in node.infer():
             if inferred is astroid.Uninferable:
