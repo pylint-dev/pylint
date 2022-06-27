@@ -11,6 +11,7 @@ from io import StringIO
 from itertools import chain
 
 from pylint.lint import Run
+from pylint.message import Message
 from pylint.reporters import JSONReporter
 from pylint.testutils._primer.package_to_lint import PackageToLint
 from pylint.testutils._primer.primer_command import PackageMessages, PrimerCommand
@@ -24,20 +25,18 @@ class RunCommand(PrimerCommand):
         packages: PackageMessages = {}
 
         for package, data in self.packages.items():
-            output = self._lint_package(data)
-            packages[package] = output
+            packages[package] = self._lint_package(data)
             print(f"Successfully primed {package}.")
 
         astroid_errors = []
         other_fatal_msgs = []
         for msg in chain.from_iterable(packages.values()):
-            if msg["type"] == "fatal":
-                # Remove the crash template location if we're running on GitHub.
-                # We were falsely getting "new" errors when the timestamp changed.
-                assert isinstance(msg["message"], str)
-                if GITHUB_CRASH_TEMPLATE_LOCATION in msg["message"]:
-                    msg["message"] = msg["message"].rsplit(CRASH_TEMPLATE_INTRO)[0]
-                if msg["symbol"] == "astroid-error":
+            if msg.category == "fatal":
+                if GITHUB_CRASH_TEMPLATE_LOCATION in msg.msg:
+                    # Remove the crash template location if we're running on GitHub.
+                    # We were falsely getting "new" errors when the timestamp changed.
+                    msg.msg = msg.msg.rsplit(CRASH_TEMPLATE_INTRO)[0]
+                if msg.symbol == "astroid-error":
                     astroid_errors.append(msg)
                 else:
                     other_fatal_msgs.append(msg)
@@ -48,7 +47,13 @@ class RunCommand(PrimerCommand):
             "w",
             encoding="utf-8",
         ) as f:
-            json.dump(packages, f)
+            json.dump(
+                {
+                    p: [JSONReporter.serialize(m) for m in msgs]
+                    for p, msgs in packages.items()
+                },
+                f,
+            )
 
         # Fail loudly (and fail CI pipelines) if any fatal errors are found,
         # unless they are astroid-errors, in which case just warn.
@@ -59,7 +64,7 @@ class RunCommand(PrimerCommand):
             warnings.warn(f"Fatal errors traced to astroid:  {astroid_errors}")
         assert not other_fatal_msgs, other_fatal_msgs
 
-    def _lint_package(self, data: PackageToLint) -> list[dict[str, str | int]]:
+    def _lint_package(self, data: PackageToLint) -> list[Message]:
         # We want to test all the code we can
         enables = ["--enable-all-extensions", "--enable=all"]
         # Duplicate code takes too long and is relatively safe
@@ -69,4 +74,4 @@ class RunCommand(PrimerCommand):
         output = StringIO()
         reporter = JSONReporter(output)
         Run(arguments, reporter=reporter, exit=False)
-        return json.loads(output.getvalue())
+        return [JSONReporter.deserialize(m) for m in json.loads(output.getvalue())]
