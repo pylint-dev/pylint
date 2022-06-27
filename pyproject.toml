@@ -10,7 +10,7 @@ readme      = "README.rst"
 authors     = [
     {name = "Python Code Quality Authority", email = "code-quality@python.org"}
 ]
-keywords    = ["static", "code", "analysis", "linter", "python", "lint"]
+keywords    = ["static code analysis", "linter", "python", "lint"]
 classifiers = [
     "Development Status :: 6 - Mature",
     "Environment :: Console",
