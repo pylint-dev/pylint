@@ -719,16 +719,14 @@ scope_type : {self._atomic.scope_type}
     def _branch_handles_name(name: str, body: Iterable[nodes.NodeNG]) -> bool:
         return any(
             NamesConsumer._defines_name_raises_or_returns(name, if_body_stmt)
-            for if_body_stmt in body
-        ) or (
-            any(
-                NamesConsumer._exhaustively_define_name_raise_or_return(name, nested)
-                for nested in body
-                if isinstance(
-                    nested,
-                    (nodes.If, nodes.TryExcept, nodes.TryFinally, nodes.With),
-                )
+            or isinstance(
+                if_body_stmt,
+                (nodes.If, nodes.TryExcept, nodes.TryFinally, nodes.With),
             )
+            and NamesConsumer._exhaustively_define_name_raise_or_return(
+                name, if_body_stmt
+            )
+            for if_body_stmt in body
         )
 
     def _uncertain_nodes_in_false_tests(
