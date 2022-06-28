@@ -1330,7 +1330,7 @@ class TestRunTC:
                     code=0,
                 )
 
-    def test_ignore_path_recursive_current_dir(self) ->None:
+    def test_ignore_path_recursive_current_dir(self) -> None:
         """Tests that path is normalized before checked that is ignored. Github bug #6964"""
         with _test_sys_path():
             # pytest is including directory HERE/regrtest_data to sys.path which causes
