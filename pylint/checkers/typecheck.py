@@ -31,7 +31,6 @@ from pylint.checkers.utils import (
     decorated_with_property,
     has_known_bases,
     is_builtin_object,
-    is_classdef_type,
     is_comprehension,
     is_inside_abstract_class,
     is_iterable,
@@ -53,8 +52,10 @@ from pylint.typing import MessageDefinitionTuple
 
 if sys.version_info >= (3, 8):
     from functools import cached_property
+    from typing import Literal
 else:
     from astroid.decorators import cachedproperty as cached_property
+    from typing_extensions import Literal
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -75,6 +76,13 @@ TYPE_ANNOTATION_NODES_TYPES = (
     nodes.Arguments,
     nodes.FunctionDef,
 )
+
+
+class VERSION_COMPATIBLE_OVERLOAD:
+    pass
+
+
+VERSION_COMPATIBLE_OVERLOAD_SENTINEL = VERSION_COMPATIBLE_OVERLOAD()
 
 
 def _unflatten(iterable):
@@ -1921,6 +1929,19 @@ accessed. Python regular expressions are accepted.",
         )
         return not is_py310_builtin or self._py310_plus
 
+    def _recursive_search_for_classdef_type(
+        self, node: nodes.ClassDef, operation: Literal["__or__", "__ror__"]
+    ) -> bool | VERSION_COMPATIBLE_OVERLOAD:
+        if not isinstance(node, nodes.ClassDef):
+            return False
+        try:
+            attrs = node.getattr(operation)
+        except astroid.NotFoundError:
+            return True
+        if self._includes_version_compatible_overload(attrs):
+            return VERSION_COMPATIBLE_OVERLOAD_SENTINEL
+        return True
+
     def _check_unsupported_alternative_union_syntax(self, node: nodes.BinOp) -> None:
         """Check if left or right node is of type `type`.
 
@@ -1931,29 +1952,20 @@ accessed. Python regular expressions are accepted.",
         msg = "unsupported operand type(s) for |"
         left_obj = astroid.helpers.object_type(node.left)
         right_obj = astroid.helpers.object_type(node.right)
-        left_is_type = False
-        right_is_type = False
-
-        if isinstance(left_obj, nodes.ClassDef) and is_classdef_type(left_obj):
-            try:
-                attrs = left_obj.getattr("__or__")
-                if self._includes_version_compatible_overload(attrs):
-                    return
-                left_is_type = True
-            except astroid.NotFoundError:
-                left_is_type = True
-
-        if isinstance(right_obj, nodes.ClassDef) and is_classdef_type(right_obj):
-            try:
-                attrs = right_obj.getattr("__ror__")
-                if self._includes_version_compatible_overload(attrs):
-                    return
-                right_is_type = True
-            except astroid.NotFoundError:
-                right_is_type = True
+        left_is_type = self._recursive_search_for_classdef_type(left_obj, "__or__")
+        if left_is_type is VERSION_COMPATIBLE_OVERLOAD_SENTINEL:
+            return
+        right_is_type = self._recursive_search_for_classdef_type(right_obj, "__ror__")
+        if right_is_type is VERSION_COMPATIBLE_OVERLOAD_SENTINEL:
+            return
 
         if left_is_type or right_is_type:
-            self.add_message("unsupported-binary-operation", args=msg, node=node)
+            self.add_message(
+                "unsupported-binary-operation",
+                args=msg,
+                node=node,
+                confidence=INFERENCE,
+            )
 
     # TODO: This check was disabled (by adding the leading underscore)
     # due to false positives several years ago - can we re-enable it?

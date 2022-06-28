@@ -1,1 +1,1 @@
-You can help us make the doc better `by contributing <https://github.com/PyCQA/pylint/issues/5953>`_ !
+Async context manager doesn't implement ``__aenter__`` and ``__aexit__``. It can't be emitted when using Python < 3.5.

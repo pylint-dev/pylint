@@ -1,1 +1,3 @@
-# This is a placeholder for correct code for this message.
+import logging
+
+logging.warning("Here is a variable: %s", my_var)

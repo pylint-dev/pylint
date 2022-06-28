@@ -1,1 +1,2 @@
-You can help us make the doc better `by contributing <https://github.com/PyCQA/pylint/issues/5953>`_ !
+From `PEP 257`:
+    "For consistency, always use ``"""triple double quotes"""`` around docstrings."

@@ -10,6 +10,11 @@
     "directories": ["src/black/", "src/blackd/", "src/blib2to3/"],
     "url": "https://github.com/psf/black"
   },
+  "django": {
+    "branch": "main",
+    "directories": ["django"],
+    "url": "https://github.com/django/django"
+  },
   "flask": {
     "branch": "main",
     "directories": ["src/flask"],

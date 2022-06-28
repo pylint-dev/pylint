@@ -189,7 +189,6 @@ class BasicErrorChecker(_BasicChecker):
             "continue-in-finally",
             "Emitted when the `continue` keyword is found "
             "inside a finally clause, which is a SyntaxError.",
-            {"maxversion": (3, 8)},
         ),
         "E0117": (
             "nonlocal name %s found without binding",
@@ -205,6 +204,10 @@ class BasicErrorChecker(_BasicChecker):
             {"minversion": (3, 6)},
         ),
     }
+
+    def open(self) -> None:
+        py_version = self.linter.config.py_version
+        self._py38_plus = py_version >= (3, 8)
 
     @utils.only_required_for_messages("function-redefined")
     def visit_classdef(self, node: nodes.ClassDef) -> None:
@@ -492,6 +495,7 @@ class BasicErrorChecker(_BasicChecker):
                 isinstance(parent, nodes.TryFinally)
                 and node in parent.finalbody
                 and isinstance(node, nodes.Continue)
+                and not self._py38_plus
             ):
                 self.add_message("continue-in-finally", node=node)
 
