@@ -18,6 +18,10 @@ Release date: TBA
 
   Closes #6965
 
+* Don't report ``import-private-name`` for relative imports.
+
+  Closes #7078
+
 
 What's New in Pylint 2.14.3?
 ----------------------------
