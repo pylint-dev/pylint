@@ -1331,7 +1331,7 @@ class TestRunTC:
                 )
 
     def test_ignore_path_recursive_current_dir(self) -> None:
-        """Tests that path is normalized before checked that is ignored. Github bug #6964"""
+        """Tests that path is normalized before checked that is ignored. GitHub issue #6964"""
         with _test_sys_path():
             # pytest is including directory HERE/regrtest_data to sys.path which causes
             # astroid to believe that directory is a package.
