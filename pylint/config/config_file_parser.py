@@ -42,7 +42,7 @@ class _ConfigurationFileParser:
         config_content: dict[str, str] = {}
         options: list[str] = []
         for section in parser.sections():
-            if self._ini_file_with_sections(str(file_path)) and not section.startswith(
+            if self._ini_file_with_sections(file_path) and not section.startswith(
                 "pylint"
             ):
                 if section.lower() == "master":
@@ -61,11 +61,11 @@ class _ConfigurationFileParser:
         return config_content, options
 
     @staticmethod
-    def _ini_file_with_sections(file_path: str) -> bool:
+    def _ini_file_with_sections(file_path: Path) -> bool:
         """Return whether the file uses sections."""
-        if "setup.cfg" in file_path:
+        if "setup.cfg" in file_path.parts:
             return True
-        if "tox.ini" in file_path:
+        if "tox.ini" in file_path.parts:
             return True
         return False
 

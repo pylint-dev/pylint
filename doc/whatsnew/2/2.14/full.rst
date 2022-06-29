@@ -23,6 +23,12 @@ Release date: TBA
 
   Closes #6965
 
+* Fixed an issue with the recognition of ``setup.cfg`` files.
+  Only ``.cfg`` files that are exactly named ``setup.cfg`` require section names that
+  start with ``pylint.``.
+
+  Closes #3630
+
 * Don't report ``import-private-name`` for relative imports.
 
   Closes #7078

@@ -1,3 +1,0 @@
-{
-  "load_plugins": ["pylint_flask"]
-}
