@@ -2033,7 +2033,10 @@ accessed. Python regular expressions are accepted.",
         for element in node.elts:
             if not is_hashable(element):
                 self.add_message(
-                    "unhashable-member", node=element, confidence=INFERENCE
+                    "unhashable-member",
+                    node=element,
+                    args=(element.as_string(), "member", "set"),
+                    confidence=INFERENCE,
                 )
 
     @only_required_for_messages(
@@ -2055,7 +2058,10 @@ accessed. Python regular expressions are accepted.",
             # Assert dict key is hashable
             if not is_hashable(node.slice):
                 self.add_message(
-                    "unhashable-member", node=node.value, confidence=INFERENCE
+                    "unhashable-member",
+                    node=node.value,
+                    args=(node.slice.as_string(), "key", "dict"),
+                    confidence=INFERENCE,
                 )
 
         if node.ctx == astroid.Load:
