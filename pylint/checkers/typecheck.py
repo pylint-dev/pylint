@@ -20,7 +20,9 @@ from functools import singledispatch
 from re import Pattern
 from typing import TYPE_CHECKING, Any, Union
 
+import astroid
 import astroid.exceptions
+import astroid.helpers
 from astroid import bases, nodes
 
 from pylint.checkers import BaseChecker, utils
@@ -29,11 +31,11 @@ from pylint.checkers.utils import (
     decorated_with_property,
     has_known_bases,
     is_builtin_object,
-    is_classdef_type,
     is_comprehension,
     is_inside_abstract_class,
     is_iterable,
     is_mapping,
+    is_node_in_type_annotation_context,
     is_overload_stub,
     is_postponed_evaluation_enabled,
     is_super,
@@ -50,8 +52,10 @@ from pylint.typing import MessageDefinitionTuple
 
 if sys.version_info >= (3, 8):
     from functools import cached_property
+    from typing import Literal
 else:
     from astroid.decorators import cachedproperty as cached_property
+    from typing_extensions import Literal
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -72,6 +76,13 @@ TYPE_ANNOTATION_NODES_TYPES = (
     nodes.Arguments,
     nodes.FunctionDef,
 )
+
+
+class VERSION_COMPATIBLE_OVERLOAD:
+    pass
+
+
+VERSION_COMPATIBLE_OVERLOAD_SENTINEL = VERSION_COMPATIBLE_OVERLOAD()
 
 
 def _unflatten(iterable):
@@ -450,10 +461,10 @@ def _emit_no_member(
             except astroid.MroError:
                 return False
             if metaclass:
-                if _enum_has_attribute(owner, node):
-                    return False
                 # Renamed in Python 3.10 to `EnumType`
-                return metaclass.qname() in {"enum.EnumMeta", "enum.EnumType"}
+                if metaclass.qname() in {"enum.EnumMeta", "enum.EnumType"}:
+                    return not _enum_has_attribute(owner, node)
+                return False
             return False
         if not has_known_bases(owner):
             return False
@@ -582,7 +593,7 @@ def _enum_has_attribute(
             (c.value for c in dunder_new.get_children() if isinstance(c, nodes.Return)),
             None,
         )
-        if returned_obj_name is not None:
+        if isinstance(returned_obj_name, nodes.Name):
             # Find all attribute assignments to the returned object
             enum_attributes |= _get_all_attribute_assignments(
                 dunder_new, returned_obj_name.name
@@ -1024,7 +1035,9 @@ accessed. Python regular expressions are accepted.",
         self.visit_attribute(node)
 
     @only_required_for_messages("no-member", "c-extension-no-member")
-    def visit_attribute(self, node: nodes.Attribute) -> None:
+    def visit_attribute(
+        self, node: nodes.Attribute | nodes.AssignAttr | nodes.DelAttr
+    ) -> None:
         """Check that the accessed attribute exists.
 
         to avoid too much false positives for now, we'll consider the code as
@@ -1036,6 +1049,11 @@ accessed. Python regular expressions are accepted.",
             pattern.match(name)
             for name in (node.attrname, node.as_string())
             for pattern in self._compiled_generated_members
+        ):
+            return
+
+        if is_postponed_evaluation_enabled(node) and is_node_in_type_annotation_context(
+            node
         ):
             return
 
@@ -1176,7 +1194,9 @@ accessed. Python regular expressions are accepted.",
         self._check_dundername_is_string(node)
 
     def _check_assignment_from_function_call(self, node: nodes.Assign) -> None:
-        """When assigning to a function call, check that the function returns a valid value."""
+        """When assigning to a function call, check that the function returns a valid
+        value.
+        """
         if not isinstance(node.value, nodes.Call):
             return
 
@@ -1893,14 +1913,59 @@ accessed. Python regular expressions are accepted.",
             if not allowed_nested_syntax:
                 self._check_unsupported_alternative_union_syntax(node)
 
+    def _includes_version_compatible_overload(self, attrs: list):
+        """Check if a set of overloads of an operator includes one that
+        can be relied upon for our configured Python version.
+
+        If we are running under a Python 3.10+ runtime but configured for
+        pre-3.10 compatibility then Astroid will have inferred the
+        existence of __or__ / __ror__ on builtins.type, but these aren't
+        available in the configured version of Python.
+        """
+        is_py310_builtin = all(
+            isinstance(attr, (nodes.FunctionDef, astroid.BoundMethod))
+            and attr.parent.qname() == "builtins.type"
+            for attr in attrs
+        )
+        return not is_py310_builtin or self._py310_plus
+
+    def _recursive_search_for_classdef_type(
+        self, node: nodes.ClassDef, operation: Literal["__or__", "__ror__"]
+    ) -> bool | VERSION_COMPATIBLE_OVERLOAD:
+        if not isinstance(node, nodes.ClassDef):
+            return False
+        try:
+            attrs = node.getattr(operation)
+        except astroid.NotFoundError:
+            return True
+        if self._includes_version_compatible_overload(attrs):
+            return VERSION_COMPATIBLE_OVERLOAD_SENTINEL
+        return True
+
     def _check_unsupported_alternative_union_syntax(self, node: nodes.BinOp) -> None:
-        """Check if left or right node is of type `type`."""
+        """Check if left or right node is of type `type`.
+
+        If either is, and doesn't support an or operator via a metaclass,
+        infer that this is a mistaken attempt to use alternative union
+        syntax when not supported.
+        """
         msg = "unsupported operand type(s) for |"
-        for n in (node.left, node.right):
-            n = astroid.helpers.object_type(n)
-            if isinstance(n, nodes.ClassDef) and is_classdef_type(n):
-                self.add_message("unsupported-binary-operation", args=msg, node=node)
-                break
+        left_obj = astroid.helpers.object_type(node.left)
+        right_obj = astroid.helpers.object_type(node.right)
+        left_is_type = self._recursive_search_for_classdef_type(left_obj, "__or__")
+        if left_is_type is VERSION_COMPATIBLE_OVERLOAD_SENTINEL:
+            return
+        right_is_type = self._recursive_search_for_classdef_type(right_obj, "__ror__")
+        if right_is_type is VERSION_COMPATIBLE_OVERLOAD_SENTINEL:
+            return
+
+        if left_is_type or right_is_type:
+            self.add_message(
+                "unsupported-binary-operation",
+                args=msg,
+                node=node,
+                confidence=INFERENCE,
+            )
 
     # TODO: This check was disabled (by adding the leading underscore)
     # due to false positives several years ago - can we re-enable it?

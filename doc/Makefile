@@ -13,7 +13,7 @@ PYTHONPATH    =
 # Internal variables.
 PAPEROPT_a4     = -D latex_paper_size=a4
 PAPEROPT_letter = -D latex_paper_size=letter
-ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees -T -E -W --keep-going $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
+ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees -T -W --keep-going $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) -n .
 
 .PHONY: help clean html dirhtml singlehtml pickle json htmlhelp qthelp devhelp epub latex latexpdf text man changes linkcheck
 
@@ -36,16 +36,21 @@ help:
 	@echo "  linkcheck  to check all external links for integrity"
 
 clean:
-	-rm -rf $(BUILDDIR)/*
+	-rm -rf $(BUILDDIR)/* user_guide/messages/convention user_guide/messages/error \
+	  user_guide/messages/fatal user_guide/messages/information user_guide/messages/refactor \
+	  user_guide/messages/warning technical_reference/extensions.rst technical_reference/features.rst
 
-html:
-	@echo
+install-dependencies:
 	@echo "Install dependencies"
-	$(PIP) install furo
-	@echo "Finished installing dependencies"
+	cd ../ && $(PIP) install -r doc/requirements.txt && cd doc/
+
+build-html:
+	@echo "If you did not run 'make install-dependencies', you need to."
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
-	$(SPHINXBUILD) -b linkcheck $(ALLSPHINXOPTS) $(BUILDDIR)/linkcheck
-	@echo
+	@echo "HTML build complete"
+
+html: install-dependencies build-html
+	$(SPHINXBUILD) -b linkcheck -q $(ALLSPHINXOPTS) $(BUILDDIR)/linkcheck
 	@echo "Link check complete; look for any errors in the above output " \
 	      "or in $(BUILDDIR)/linkcheck/output.txt."
 
@@ -128,7 +133,7 @@ changes:
 	@echo "The overview file is in $(BUILDDIR)/changes."
 
 linkcheck:
-	$(SPHINXBUILD) -b linkcheck $(ALLSPHINXOPTS) $(BUILDDIR)/linkcheck
+	$(SPHINXBUILD) -b linkcheck -q $(ALLSPHINXOPTS) $(BUILDDIR)/linkcheck
 	@echo
 	@echo "Link check complete; look for any errors in the above output " \
 	      "or in $(BUILDDIR)/linkcheck/output.txt."

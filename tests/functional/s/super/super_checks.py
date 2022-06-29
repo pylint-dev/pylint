@@ -29,7 +29,7 @@ class Py3kAaaa(NewAaaa):
 class Py3kWrongSuper(Py3kAaaa):
     """new style"""
     def __init__(self):
-        super(NewAaaa, self).__init__()  # [bad-super-call]
+        super(NewAaaa, self).__init__()
 
 class WrongNameRegression(Py3kAaaa):
     """ test a regression with the message """
@@ -59,7 +59,7 @@ class SuperDifferentScope(object):
             """The following super is in another scope than `test`."""
             def __init__(self, arg):
                 super(FalsePositive, self).__init__(arg)
-        super(object, 1).__init__() # [bad-super-call]
+        super(object, 1).__init__()
 
 
 class UnknownBases(Missing):
@@ -123,3 +123,34 @@ class SuperWithSelfClass(object):
     """self.__class__ may lead to recursion loop in derived classes"""
     def __init__(self):
         super(self.__class__, self).__init__() # [bad-super-call]
+
+
+# Reported in https://github.com/PyCQA/pylint/issues/2903
+class Parent:
+    def method(self):
+        print()
+
+
+class Child(Parent):
+    def method(self):
+        print("Child")
+        super().method()
+
+class Niece(Parent):
+    def method(self):
+        print("Niece")
+        super().method()
+
+class GrandChild(Child):
+    def method(self):
+        print("Grandchild")
+        super(GrandChild, self).method()
+        super(Child, self).method()
+        super(Niece, self).method()  # [bad-super-call]
+
+
+# Reported in https://github.com/PyCQA/pylint/issues/4922
+class AlabamaCousin(Child, Niece):
+    def method(self):
+        print("AlabamaCousin")
+        super(Child, self).method()

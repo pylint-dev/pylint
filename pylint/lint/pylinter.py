@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import argparse
 import collections
 import contextlib
 import functools
@@ -15,6 +16,7 @@ import warnings
 from collections import defaultdict
 from collections.abc import Callable, Iterable, Iterator, Sequence
 from io import TextIOWrapper
+from pathlib import Path
 from typing import Any
 
 import astroid
@@ -29,9 +31,10 @@ from pylint.constants import (
     MSG_TYPES_STATUS,
     WarningScope,
 )
+from pylint.interfaces import HIGH
 from pylint.lint.base_options import _make_linter_options
 from pylint.lint.caching import load_results, save_results
-from pylint.lint.expand_modules import expand_modules
+from pylint.lint.expand_modules import _is_ignored_file, expand_modules
 from pylint.lint.message_state_handler import _MessageStateHandler
 from pylint.lint.parallel import check_parallel
 from pylint.lint.report_functions import (
@@ -40,6 +43,7 @@ from pylint.lint.report_functions import (
     report_total_messages_stats,
 )
 from pylint.lint.utils import (
+    _is_relative_to,
     fix_import_path,
     get_fatal_error_message,
     prepare_crash_report,
@@ -49,6 +53,7 @@ from pylint.reporters.base_reporter import BaseReporter
 from pylint.reporters.text import TextReporter
 from pylint.reporters.ureports import nodes as report_nodes
 from pylint.typing import (
+    DirectoryNamespaceDict,
     FileItem,
     ManagedMessage,
     MessageDefinitionTuple,
@@ -188,11 +193,24 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Used when an unknown inline option is encountered.",
         {"scope": WarningScope.LINE},
     ),
-    "E0012": (
-        "Bad option value for %s",
-        "bad-option-value",
-        "Used when a bad value for an inline option is encountered.",
-        {"scope": WarningScope.LINE},
+    "W0012": (
+        "Unknown option value for '%s', expected a valid pylint message and got '%s'",
+        "unknown-option-value",
+        "Used when an unknown value is encountered for an option.",
+        {
+            "scope": WarningScope.LINE,
+            "old_names": [("E0012", "bad-option-value")],
+        },
+    ),
+    "R0022": (
+        "Useless option value for '%s', %s",
+        "useless-option-value",
+        "Used when a value for an option that is now deleted from pylint"
+        " is encountered.",
+        {
+            "scope": WarningScope.LINE,
+            "old_names": [("E0012", "bad-option-value")],
+        },
     ),
     "E0013": (
         "Plugin '%s' is impossible to load, is it installed ? ('%s')",
@@ -231,7 +249,7 @@ class PyLinter(
     * handle some basic but necessary stats' data (number of classes, methods...)
 
     IDE plugin developers: you may have to call
-    `astroid.builder.MANAGER.astroid_cache.clear()` across runs if you want
+    `astroid.MANAGER.clear_cache()` across runs if you want
     to ensure the latest code version is actually checked.
 
     This class needs to support pickling for parallel linting to work. The exception
@@ -564,8 +582,7 @@ class PyLinter(
             if not msg.may_be_emitted():
                 self._msgs_state[msg.msgid] = False
 
-    @staticmethod
-    def _discover_files(files_or_modules: Sequence[str]) -> Iterator[str]:
+    def _discover_files(self, files_or_modules: Sequence[str]) -> Iterator[str]:
         """Discover python modules and packages in sub-directory.
 
         Returns iterator of paths to discovered modules and packages.
@@ -579,6 +596,16 @@ class PyLinter(
                     if any(root.startswith(s) for s in skip_subtrees):
                         # Skip subtree of already discovered package.
                         continue
+
+                    if _is_ignored_file(
+                        root,
+                        self.config.ignore,
+                        self.config.ignore_patterns,
+                        self.config.ignore_paths,
+                    ):
+                        skip_subtrees.append(root)
+                        continue
+
                     if "__init__.py" in files:
                         skip_subtrees.append(root)
                         yield root
@@ -677,7 +704,8 @@ class PyLinter(
         check_astroid_module: Callable[[nodes.Module], bool | None],
         file: FileItem,
     ) -> None:
-        """Check a file using the passed utility functions (get_ast and check_astroid_module).
+        """Check a file using the passed utility functions (get_ast and
+        check_astroid_module).
 
         :param callable get_ast: callable returning AST from defined file taking the following arguments
         - filepath: path to the file to check
@@ -685,6 +713,7 @@ class PyLinter(
         :param callable check_astroid_module: callable checking an AST taking the following arguments
         - ast: AST of the module
         :param FileItem file: data about the file
+        :raises AstroidError: for any failures stemming from astroid
         """
         self.set_current_module(file.name, file.filepath)
         # get the module representation
@@ -698,7 +727,10 @@ class PyLinter(
         # fix the current file (if the source file was not available or
         # if it's actually a c extension)
         self.current_file = ast_node.file
-        check_astroid_module(ast_node)
+        try:
+            check_astroid_module(ast_node)
+        except Exception as e:  # pragma: no cover
+            raise astroid.AstroidError from e
         # warn about spurious inline messages handling
         spurious_messages = self.file_state.iter_spurious_suppression_messages(
             self.msgs_store
@@ -708,7 +740,8 @@ class PyLinter(
 
     @staticmethod
     def _get_file_descr_from_stdin(filepath: str) -> FileItem:
-        """Return file description (tuple of module name, file path, base name) from given file path.
+        """Return file description (tuple of module name, file path, base name) from
+        given file path.
 
         This method is used for creating suitable file description for _check_files when the
         source is standard input.
@@ -726,7 +759,8 @@ class PyLinter(
     def _iterate_file_descrs(
         self, files_or_modules: Sequence[str]
     ) -> Iterator[FileItem]:
-        """Return generator yielding file descriptions (tuples of module name, file path, base name).
+        """Return generator yielding file descriptions (tuples of module name, file
+        path, base name).
 
         The returned generator yield one item for each Python module that should be linted.
         """
@@ -774,6 +808,26 @@ class PyLinter(
         self.current_name = modname
         self.current_file = filepath or modname
         self.stats.init_single_module(modname or "")
+
+        # If there is an actual filepath we might need to update the config attribute
+        if filepath:
+            namespace = self._get_namespace_for_file(
+                Path(filepath), self._directory_namespaces
+            )
+            if namespace:
+                self.config = namespace or self._base_config
+
+    def _get_namespace_for_file(
+        self, filepath: Path, namespaces: DirectoryNamespaceDict
+    ) -> argparse.Namespace | None:
+        for directory in namespaces:
+            if _is_relative_to(filepath, directory):
+                namespace = self._get_namespace_for_file(
+                    filepath, namespaces[directory][1]
+                )
+                if namespace is None:
+                    return namespaces[directory][0]
+        return None
 
     @contextlib.contextmanager
     def _astroid_module_checker(
@@ -1184,3 +1238,16 @@ class PyLinter(
                 message_definition.msgid,
                 line,
             )
+
+    def _emit_stashed_messages(self) -> None:
+        for keys, values in self._stashed_messages.items():
+            modname, symbol = keys
+            self.linter.set_current_module(modname)
+            for args in values:
+                self.add_message(
+                    symbol,
+                    args=args,
+                    line=0,
+                    confidence=HIGH,
+                )
+        self._stashed_messages = collections.defaultdict(list)

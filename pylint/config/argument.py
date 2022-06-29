@@ -255,7 +255,8 @@ class _StoreArgument(_BaseStoreArgument):
 
 
 class _StoreTrueArgument(_BaseStoreArgument):
-    """Class representing a 'store_true' argument to be parsed by an argparse.ArgumentsParser.
+    """Class representing a 'store_true' argument to be parsed by an
+    argparse.ArgumentsParser.
 
     This is based on the parameters passed to argparse.ArgumentsParser.add_message.
     See:
@@ -450,7 +451,8 @@ class _StoreNewNamesArgument(_DeprecationArgument):
 
 
 class _CallableArgument(_Argument):
-    """Class representing an callable argument to be parsed by an argparse.ArgumentsParser.
+    """Class representing an callable argument to be parsed by an
+    argparse.ArgumentsParser.
 
     This is based on the parameters passed to argparse.ArgumentsParser.add_message.
     See:

@@ -1,3 +1,3 @@
 - `PEP 8, Import Guideline <https://peps.python.org/pep-0008/#imports>`_
-- `Pylint block-disable <https://pylint.pycqa.org/en/latest/user_guide/message-control.html#block-disables>`_
+- :ref:`Pylint block-disable <block_disables>`
 - `mypy --no-implicit-reexport <https://mypy.readthedocs.io/en/stable/command_line.html#cmdoption-mypy-no-implicit-reexport>`_

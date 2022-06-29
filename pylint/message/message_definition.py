@@ -18,6 +18,7 @@ if TYPE_CHECKING:
 
 
 class MessageDefinition:
+    # pylint: disable-next=too-many-arguments
     def __init__(
         self,
         checker: BaseChecker,
@@ -29,6 +30,7 @@ class MessageDefinition:
         minversion: tuple[int, int] | None = None,
         maxversion: tuple[int, int] | None = None,
         old_names: list[tuple[str, str]] | None = None,
+        shared: bool = False,
     ) -> None:
         self.checker_name = checker.name
         self.check_msgid(msgid)
@@ -39,6 +41,7 @@ class MessageDefinition:
         self.scope = scope
         self.minversion = minversion
         self.maxversion = maxversion
+        self.shared = shared
         self.old_names: list[tuple[str, str]] = []
         if old_names:
             for old_msgid, old_symbol in old_names:

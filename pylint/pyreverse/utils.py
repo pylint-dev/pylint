@@ -11,9 +11,20 @@ import re
 import shutil
 import subprocess
 import sys
+from typing import TYPE_CHECKING, Any, Callable, Optional, Tuple, Union
 
 import astroid
 from astroid import nodes
+
+if TYPE_CHECKING:
+    from pylint.pyreverse.diagrams import ClassDiagram, PackageDiagram
+
+    _CallbackT = Callable[
+        [nodes.NodeNG],
+        Union[Tuple[ClassDiagram], Tuple[PackageDiagram, ClassDiagram], None],
+    ]
+    _CallbackTupleT = Tuple[Optional[_CallbackT], Optional[_CallbackT]]
+
 
 RCFILE = ".pyreverserc"
 
@@ -46,7 +57,7 @@ PRIVATE = re.compile(r"^__(_*[^\W_])+_?$")
 PROTECTED = re.compile(r"^_\w*$")
 
 
-def get_visibility(name):
+def get_visibility(name: str) -> str:
     """Return the visibility from a name: public, protected, private or special."""
     if SPECIAL.match(name):
         visibility = "special"
@@ -60,37 +71,18 @@ def get_visibility(name):
     return visibility
 
 
-ABSTRACT = re.compile(r"^.*Abstract.*")
-FINAL = re.compile(r"^[^\W\da-z]*$")
-
-
-def is_abstract(node):
-    """Return true if the given class node correspond to an abstract class
-    definition.
-    """
-    return ABSTRACT.match(node.name)
-
-
-def is_final(node):
-    """Return true if the given class/function node correspond to final
-    definition.
-    """
-    return FINAL.match(node.name)
-
-
-def is_interface(node):
+def is_interface(node: nodes.ClassDef) -> bool:
     # bw compatibility
     return node.type == "interface"
 
 
-def is_exception(node):
+def is_exception(node: nodes.ClassDef) -> bool:
     # bw compatibility
     return node.type == "exception"
 
 
 # Helpers #####################################################################
 
-_CONSTRUCTOR = 1
 _SPECIAL = 2
 _PROTECTED = 4
 _PRIVATE = 8
@@ -111,7 +103,7 @@ VIS_MOD = {
 class FilterMixIn:
     """Filter nodes according to a mode and nodes' visibility."""
 
-    def __init__(self, mode):
+    def __init__(self, mode: str) -> None:
         """Init filter modes."""
         __mode = 0
         for nummod in mode.split("+"):
@@ -121,14 +113,14 @@ class FilterMixIn:
                 print(f"Unknown filter mode {ex}", file=sys.stderr)
         self.__mode = __mode
 
-    def show_attr(self, node):
+    def show_attr(self, node: nodes.NodeNG | str) -> bool:
         """Return true if the node should be treated."""
         visibility = get_visibility(getattr(node, "name", node))
         return not self.__mode & VIS_MOD[visibility]
 
 
-class ASTWalker:
-    """A walker visiting a tree in preorder, calling on the handler:.
+class LocalsVisitor:
+    """Visit a project by traversing the locals dictionary.
 
     * visit_<class name> on entering a node, where class name is the class of
     the node in lower case
@@ -137,63 +129,28 @@ class ASTWalker:
     the node in lower case
     """
 
-    def __init__(self, handler):
-        self.handler = handler
-        self._cache = {}
+    def __init__(self) -> None:
+        self._cache: dict[type[nodes.NodeNG], _CallbackTupleT] = {}
+        self._visited: set[nodes.NodeNG] = set()
 
-    def walk(self, node, _done=None):
-        """Walk on the tree from <node>, getting callbacks from handler."""
-        if _done is None:
-            _done = set()
-        if node in _done:
-            raise AssertionError((id(node), node, node.parent))
-        _done.add(node)
-        self.visit(node)
-        for child_node in node.get_children():
-            assert child_node is not node
-            self.walk(child_node, _done)
-        self.leave(node)
-        assert node.parent is not node
-
-    def get_callbacks(self, node):
+    def get_callbacks(self, node: nodes.NodeNG) -> _CallbackTupleT:
         """Get callbacks from handler for the visited node."""
         klass = node.__class__
         methods = self._cache.get(klass)
         if methods is None:
-            handler = self.handler
             kid = klass.__name__.lower()
             e_method = getattr(
-                handler, f"visit_{kid}", getattr(handler, "visit_default", None)
+                self, f"visit_{kid}", getattr(self, "visit_default", None)
             )
             l_method = getattr(
-                handler, f"leave_{kid}", getattr(handler, "leave_default", None)
+                self, f"leave_{kid}", getattr(self, "leave_default", None)
             )
             self._cache[klass] = (e_method, l_method)
         else:
             e_method, l_method = methods
         return e_method, l_method
 
-    def visit(self, node):
-        """Walk on the tree from <node>, getting callbacks from handler."""
-        method = self.get_callbacks(node)[0]
-        if method is not None:
-            method(node)
-
-    def leave(self, node):
-        """Walk on the tree from <node>, getting callbacks from handler."""
-        method = self.get_callbacks(node)[1]
-        if method is not None:
-            method(node)
-
-
-class LocalsVisitor(ASTWalker):
-    """Visit a project by traversing the locals dictionary."""
-
-    def __init__(self):
-        super().__init__(self)
-        self._visited = set()
-
-    def visit(self, node):
+    def visit(self, node: nodes.NodeNG) -> Any:
         """Launch the visit starting from the given node."""
         if node in self._visited:
             return None
@@ -253,7 +210,7 @@ def get_annotation(
     return ann
 
 
-def infer_node(node: nodes.AssignAttr | nodes.AssignName) -> set:
+def infer_node(node: nodes.AssignAttr | nodes.AssignName) -> set[Any]:
     """Return a set containing the node annotation if it exists
     otherwise return a set of the inferred types using the NodeNG.infer method.
     """
@@ -261,7 +218,9 @@ def infer_node(node: nodes.AssignAttr | nodes.AssignName) -> set:
     ann = get_annotation(node)
     try:
         if ann:
-            if isinstance(ann, nodes.Subscript):
+            if isinstance(ann, nodes.Subscript) or (
+                isinstance(ann, nodes.BinOp) and ann.op == "|"
+            ):
                 return {ann}
             return set(ann.infer())
         return set(node.infer())
@@ -269,7 +228,7 @@ def infer_node(node: nodes.AssignAttr | nodes.AssignName) -> set:
         return {ann} if ann else set()
 
 
-def check_graphviz_availability():
+def check_graphviz_availability() -> None:
     """Check if the ``dot`` command is available on the machine.
 
     This is needed if image output is desired and ``dot`` is used to convert

@@ -15,6 +15,7 @@ from astroid import nodes
 
 from pylint import interfaces
 from pylint.checkers import BaseChecker, DeprecatedMixin, utils
+from pylint.typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -332,8 +333,11 @@ def _check_mode_str(mode):
 class StdlibChecker(DeprecatedMixin, BaseChecker):
     name = "stdlib"
 
-    msgs = {
-        **{k: v for k, v in DeprecatedMixin.msgs.items() if k[1:3] == "15"},
+    msgs: dict[str, MessageDefinitionTuple] = {
+        **DeprecatedMixin.DEPRECATED_METHOD_MESSAGE,
+        **DeprecatedMixin.DEPRECATED_ARGUMENT_MESSAGE,
+        **DeprecatedMixin.DEPRECATED_CLASS_MESSAGE,
+        **DeprecatedMixin.DEPRECATED_DECORATOR_MESSAGE,
         "W1501": (
             '"%s" is not a valid mode for open.',
             "bad-open-mode",
@@ -392,15 +396,15 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "The preexec_fn parameter is not safe to use in the presence "
             "of threads in your application. The child process could "
             "deadlock before exec is called. If you must use it, keep it "
-            "trivial! Minimize the number of libraries you call into."
-            "https://docs.python.org/3/library/subprocess.html#popen-constructor",
+            "trivial! Minimize the number of libraries you call into. "
+            "See https://docs.python.org/3/library/subprocess.html#popen-constructor",
         ),
         "W1510": (
             "Using subprocess.run without explicitly set `check` is not recommended.",
             "subprocess-run-check",
             "The check parameter should always be used with explicitly set "
-            "`check` keyword to make clear what the error-handling behavior is."
-            "https://docs.python.org/3/library/subprocess.html#subprocess.run",
+            "`check` keyword to make clear what the error-handling behavior is. "
+            "See https://docs.python.org/3/library/subprocess.html#subprocess.run",
         ),
         "W1514": (
             "Using open without explicitly specifying an encoding",
@@ -421,7 +425,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "By decorating a method with lru_cache or cache the 'self' argument will be linked to "
             "the function and therefore never garbage collected. Unless your instance "
             "will never need to be garbage collected (singleton) it is recommended to refactor "
-            "code to avoid this pattern or add a maxsize to the cache."
+            "code to avoid this pattern or add a maxsize to the cache. "
             "The default value for maxsize is 128.",
             {
                 "old_names": [

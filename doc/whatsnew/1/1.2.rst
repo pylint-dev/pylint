@@ -1,0 +1,158 @@
+**************************
+  What's New In Pylint 1.2
+**************************
+
+Release date: 2014-04-30
+
+* Restore the ability to specify the init-hook option via the
+  configuration file, which was accidentally broken in 1.2.0.
+
+* Add a new warning [bad-continuation] for badly indented continued
+  lines.
+
+* Emit [assignment-from-none] when the function contains bare returns.
+
+  Closes BitBucket #191
+
+* Added a new warning for closing over variables that are
+  defined in loops.
+
+  Closes BitBucket #176
+
+* Do not warn about \u escapes in string literals when Unicode literals
+  are used for Python 2.*.
+
+  Closes BitBucket #151
+
+* Extend the checking for unbalanced-tuple-unpacking and
+  unpacking-non-sequence to instance attribute unpacking as well.
+
+* Fix explicit checking of python script (1.2 regression)
+
+  Closes #219
+
+* Restore --init-hook, renamed accidentally into --init-hooks in 1.2.0
+
+  Closes #211
+
+* Add 'indexing-exception' warning, which detects that indexing
+  an exception occurs in Python 2 (behaviour removed in Python 3).
+
+
+What's New in Pylint 1.2.0?
+===========================
+Release date: 2014-04-18
+
+* Pass the current python paths to pylint process when invoked via
+  epylint.
+
+  Closes BitBucket #133.
+
+* Add -i / --include-ids and -s / --symbols back as completely ignored
+  options.
+
+  Closes BitBucket #180.
+
+* Extend the number of cases in which logging calls are detected.
+
+  Closes BitBucket #182.
+
+* Improve pragma handling to not detect pylint:* strings in non-comments.
+
+  Closes BitBucket #79.
+
+* Do not crash with UnknownMessage if an unknown message ID/name appears
+  in disable or enable in the configuration. Patch by Cole Robinson.
+
+  Closes BitBucket #170
+
+* Add new warning 'eval-used', checking that the builtin function ``eval`` was used.
+
+* Make it possible to show a naming hint for invalid name by setting
+  include-naming-hint. Also make the naming hints configurable.
+
+  Closes BitBucket #138
+
+* Added support for enforcing multiple, but consistent name styles for
+  different name types inside a single module; based on a patch written
+  by morbo@google.com.
+
+* Also warn about empty docstrings on overridden methods; contributed
+  by sebastianu@google.com.
+
+* Also inspect arguments to constructor calls, and emit relevant
+  warnings; contributed by sebastianu@google.com.
+
+* Added a new configuration option logging-modules to make the list
+  of module names that can be checked for 'logging-not-lazy' et. al.
+  configurable; contributed by morbo@google.com.
+
+* ensure init-hooks is evaluated before other options, notably load-plugins
+
+  Closes #166
+
+* Python 2.5 support restored: fixed small issues preventing pylint to run
+  on python 2.5.
+
+  Closes BitBucket #50
+  Closes BitBucket #62
+
+* pylint doesn't crash when looking for used-before-assignment in context manager assignments.
+
+  Closes BitBucket #128
+
+* Add new warning, 'bad-reversed-sequence', for checking that the
+  reversed() builtin receive a sequence (implements ``__getitem__`` and ``__len__``,
+  without being a dict or a dict subclass) or an instance which implements
+  ``__reversed__``.
+
+* Mark ``file`` as a bad function when using python2
+
+  Closes #8
+
+* Add new warning 'bad-exception-context', checking
+  that ``raise ... from ...`` uses a proper exception context
+  (None or an exception).
+
+* Enhance the check for 'used-before-assignment' to look
+  for 'nonlocal' uses.
+
+* Emit 'undefined-all-variable' if a package's __all__
+  variable contains a missing submodule.
+
+  Closes #126
+
+* Add a new warning 'abstract-class-instantiated' for checking
+  that abstract classes created with ``abc`` module and
+  with abstract methods are instantiated.
+
+* Do not warn about 'return-arg-in-generator' in Python 3.3+.
+
+* Do not warn about 'abstract-method' when the abstract method
+  is implemented through assignment
+
+  Closes #155
+
+* Improve cyclic import detection in the case of packages, patch by Buck Golemon
+
+* Add new warnings for checking proper class __slots__:
+  ``invalid-slots-object`` and ``invalid-slots``.
+
+* Search for rc file in `~/.config/pylintrc` if `~/.pylintrc`
+  doesn't exists
+
+  Closes #121
+
+* Don't register the new style checker w/ python >= 3
+
+* Fix unused-import false positive w/ augment assignment
+
+  Closes #78
+
+* Fix access-member-before-definition false negative wrt aug assign
+
+  Closes #164
+
+* Do not attempt to analyze non python file, e.g. .so file
+
+  Closes #122

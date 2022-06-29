@@ -139,3 +139,18 @@ def variable_name_assigned_in_body_of_second_loop():
         alias = True
         if alias:
             print(alias)
+
+
+def use_enumerate():
+    """https://github.com/PyCQA/pylint/issues/6593"""
+    for i, num in enumerate(range(3)):
+        pass
+    print(i, num)
+
+
+def find_even_number(container):
+    """https://github.com/PyCQA/pylint/pull/6923#discussion_r895134495"""
+    for something in container:
+        if something % 2 == 0:
+            break
+    return something  # [undefined-loop-variable]

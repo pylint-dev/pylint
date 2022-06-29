@@ -9,8 +9,9 @@ analyse-fallback-blocks=no
 # all available extensions.
 #enable-all-extensions=
 
-# In error mode, checkers without error messages are disabled and for others,
-# only the ERROR messages are displayed, and no reports are done by default.
+# In error mode, messages with a category besides ERROR or FATAL are
+# suppressed, and no reports are done by default. Error mode is compatible with
+# disabling specific errors.
 #errors-only=
 
 # Always return a 0 (non-error) status code, even if lint errors are found.
@@ -277,8 +278,7 @@ signature-mutators=
 
 [EXCEPTIONS]
 
-# Exceptions that will emit a warning when being caught. Defaults to
-# "BaseException, Exception".
+# Exceptions that will emit a warning when caught.
 overgeneral-exceptions=BaseException,
                        Exception
 

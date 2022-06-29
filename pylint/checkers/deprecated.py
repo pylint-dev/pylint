@@ -8,7 +8,6 @@ from __future__ import annotations
 
 from collections.abc import Container, Iterable
 from itertools import chain
-from typing import Any
 
 import astroid
 from astroid import nodes
@@ -16,6 +15,7 @@ from astroid import nodes
 from pylint.checkers import utils
 from pylint.checkers.base_checker import BaseChecker
 from pylint.checkers.utils import get_import_name, infer_all, safe_infer
+from pylint.typing import MessageDefinitionTuple
 
 ACCEPTABLE_NODES = (
     astroid.BoundMethod,
@@ -31,31 +31,48 @@ class DeprecatedMixin(BaseChecker):
     A class implementing mixin must define "deprecated-method" Message.
     """
 
-    msgs: Any = {
-        "W1505": (
-            "Using deprecated method %s()",
-            "deprecated-method",
-            "The method is marked as deprecated and will be removed in the future.",
-        ),
-        "W1511": (
-            "Using deprecated argument %s of method %s()",
-            "deprecated-argument",
-            "The argument is marked as deprecated and will be removed in the future.",
-        ),
-        "W0402": (
+    DEPRECATED_MODULE_MESSAGE: dict[str, MessageDefinitionTuple] = {
+        "W4901": (
             "Deprecated module %r",
             "deprecated-module",
             "A module marked as deprecated is imported.",
+            {"old_names": [("W0402", "old-deprecated-module")], "shared": True},
         ),
-        "W1512": (
+    }
+
+    DEPRECATED_METHOD_MESSAGE: dict[str, MessageDefinitionTuple] = {
+        "W4902": (
+            "Using deprecated method %s()",
+            "deprecated-method",
+            "The method is marked as deprecated and will be removed in the future.",
+            {"old_names": [("W1505", "old-deprecated-method")], "shared": True},
+        ),
+    }
+
+    DEPRECATED_ARGUMENT_MESSAGE: dict[str, MessageDefinitionTuple] = {
+        "W4903": (
+            "Using deprecated argument %s of method %s()",
+            "deprecated-argument",
+            "The argument is marked as deprecated and will be removed in the future.",
+            {"old_names": [("W1511", "old-deprecated-argument")], "shared": True},
+        ),
+    }
+
+    DEPRECATED_CLASS_MESSAGE: dict[str, MessageDefinitionTuple] = {
+        "W4904": (
             "Using deprecated class %s of module %s",
             "deprecated-class",
             "The class is marked as deprecated and will be removed in the future.",
+            {"old_names": [("W1512", "old-deprecated-class")], "shared": True},
         ),
-        "W1513": (
+    }
+
+    DEPRECATED_DECORATOR_MESSAGE: dict[str, MessageDefinitionTuple] = {
+        "W4905": (
             "Using deprecated decorator %s()",
             "deprecated-decorator",
             "The decorator is marked as deprecated and will be removed in the future.",
+            {"old_names": [("W1513", "old-deprecated-decorator")], "shared": True},
         ),
     }
 
@@ -84,7 +101,7 @@ class DeprecatedMixin(BaseChecker):
                 mod_name, class_name = name.split(".", 1)
                 self.check_deprecated_class(node, mod_name, (class_name,))
 
-    def deprecated_decorators(self) -> Iterable:
+    def deprecated_decorators(self) -> Iterable[str]:
         """Callback returning the deprecated decorators.
 
         Returns:
@@ -152,7 +169,7 @@ class DeprecatedMixin(BaseChecker):
         # pylint: disable=unused-argument
         return ()
 
-    def deprecated_modules(self) -> Iterable:
+    def deprecated_modules(self) -> Iterable[str]:
         """Callback returning the deprecated modules.
 
         Returns:
@@ -160,7 +177,7 @@ class DeprecatedMixin(BaseChecker):
         """
         return ()
 
-    def deprecated_classes(self, module: str) -> Iterable:
+    def deprecated_classes(self, module: str) -> Iterable[str]:
         """Callback returning the deprecated classes of module.
 
         Args:
@@ -172,13 +189,13 @@ class DeprecatedMixin(BaseChecker):
         # pylint: disable=unused-argument
         return ()
 
-    def check_deprecated_module(self, node, mod_path):
+    def check_deprecated_module(self, node: nodes.Import, mod_path: str) -> None:
         """Checks if the module is deprecated."""
         for mod_name in self.deprecated_modules():
             if mod_path == mod_name or mod_path.startswith(mod_name + "."):
                 self.add_message("deprecated-module", node=node, args=mod_path)
 
-    def check_deprecated_method(self, node, inferred):
+    def check_deprecated_method(self, node: nodes.Call, inferred: nodes.NodeNG) -> None:
         """Executes the checker for the given node.
 
         This method should be called from the checker implementing this mixin.
@@ -224,7 +241,9 @@ class DeprecatedMixin(BaseChecker):
                     "deprecated-argument", node=node, args=(arg_name, func_name)
                 )
 
-    def check_deprecated_class(self, node, mod_name, class_names):
+    def check_deprecated_class(
+        self, node: nodes.NodeNG, mod_name: str, class_names: Iterable[str]
+    ) -> None:
         """Checks if the class is deprecated."""
 
         for class_name in class_names:
@@ -233,7 +252,7 @@ class DeprecatedMixin(BaseChecker):
                     "deprecated-class", node=node, args=(class_name, mod_name)
                 )
 
-    def check_deprecated_class_in_call(self, node):
+    def check_deprecated_class_in_call(self, node: nodes.Call) -> None:
         """Checks if call the deprecated class."""
 
         if isinstance(node.func, nodes.Attribute) and isinstance(

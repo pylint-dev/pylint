@@ -89,7 +89,6 @@ class RegExFilter(Filter):
 
     This filter skips any words the match the expression
     assigned to the class attribute ``_pattern``.
-
     """
 
     _pattern: Pattern[str]
@@ -122,7 +121,9 @@ class SphinxDirectives(RegExFilter):
 
 
 class ForwardSlashChunker(Chunker):
-    """This chunker allows splitting words like 'before/after' into 'before' and 'after'."""
+    """This chunker allows splitting words like 'before/after' into 'before' and
+    'after'.
+    """
 
     def next(self):
         while True:
@@ -426,22 +427,16 @@ class SpellingChecker(BaseTokenChecker):
 
     @only_required_for_messages("wrong-spelling-in-docstring")
     def visit_module(self, node: nodes.Module) -> None:
-        if not self.initialized:
-            return
         self._check_docstring(node)
 
     @only_required_for_messages("wrong-spelling-in-docstring")
     def visit_classdef(self, node: nodes.ClassDef) -> None:
-        if not self.initialized:
-            return
         self._check_docstring(node)
 
     @only_required_for_messages("wrong-spelling-in-docstring")
     def visit_functiondef(
         self, node: nodes.FunctionDef | nodes.AsyncFunctionDef
     ) -> None:
-        if not self.initialized:
-            return
         self._check_docstring(node)
 
     visit_asyncfunctiondef = visit_functiondef
@@ -453,12 +448,12 @@ class SpellingChecker(BaseTokenChecker):
         | nodes.ClassDef
         | nodes.Module,
     ) -> None:
-        """Check the node has any spelling errors."""
+        """Check if the node has any spelling errors."""
+        if not self.initialized:
+            return
         if not node.doc_node:
             return
-
         start_line = node.lineno + 1
-
         # Go through lines of docstring
         for idx, line in enumerate(node.doc_node.value.splitlines()):
             self._check_spelling("wrong-spelling-in-docstring", line, start_line + idx)

@@ -1,0 +1,150 @@
+# Most of this is inspired by the mypy primer
+# See: https://github.com/hauntsaninja/mypy_primer
+# This is the primer job that creates the comment on the PR
+# It needs to trigger on workflow_run instead of pull_request
+# as we need repository wide access to create a comment
+
+name: Primer / Comment
+
+on:
+  workflow_run:
+    workflows: [Primer / Run]
+    types:
+      - completed
+
+env:
+  CACHE_VERSION: 2
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  primer-comment:
+    name: Run
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - run: npm install @octokit/rest
+      - name: Check out code from GitHub
+        uses: actions/checkout@v3.0.2
+      - name: Set up Python 3.10
+        id: python
+        uses: actions/setup-python@v4.0.0
+        with:
+          python-version: "3.10"
+
+      # Restore cached Python environment
+      - name: Generate partial Python venv restore key
+        id: generate-python-key
+        run: >-
+          echo "::set-output name=key::venv-${{ env.CACHE_VERSION }}-${{
+            hashFiles('setup.cfg', 'requirements_test.txt', 'requirements_test_min.txt')
+          }}"
+      - name: Restore Python virtual environment
+        id: cache-venv
+        uses: actions/cache@v3.0.4
+        with:
+          path: venv
+          key: >-
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
+            steps.generate-python-key.outputs.key }}
+          restore-keys: |
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-venv-${{ env.CACHE_VERSION }}-
+      - name: Create Python virtual environment
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: |
+          python -m venv venv
+          . venv/bin/activate
+          python -m pip install -U pip setuptools wheel
+          pip install -U -r requirements_test.txt
+
+      - name: Download outputs
+        uses: actions/github-script@v6
+        with:
+          script: |
+            // Download workflow pylint output
+            const fs = require('fs');
+            const artifacts_workflow = await github.rest.actions.listWorkflowRunArtifacts({
+               owner: context.repo.owner,
+               repo: context.repo.repo,
+               run_id: ${{ github.event.workflow_run.id }},
+            });
+
+            // Get 'main' output
+            const [matchArtifactWorkflowMain] = artifacts_workflow.data.artifacts.filter((artifact) =>
+              artifact.name == "primer_output_main");
+            const downloadOne = await github.rest.actions.downloadArtifact({
+               owner: context.repo.owner,
+               repo: context.repo.repo,
+               artifact_id: matchArtifactWorkflowMain.id,
+               archive_format: "zip",
+            });
+            fs.writeFileSync("primer_main_output.zip", Buffer.from(downloadOne.data));
+
+            // Get PR output
+            const [matchArtifactWorkflowPR] = artifacts_workflow.data.artifacts.filter((artifact) =>
+              artifact.name == "primer_output_pr");
+            const downloadTwo = await github.rest.actions.downloadArtifact({
+               owner: context.repo.owner,
+               repo: context.repo.repo,
+               artifact_id: matchArtifactWorkflowPR.id,
+               archive_format: "zip",
+            });
+            fs.writeFileSync("primer_pr_output.zip", Buffer.from(downloadTwo.data));
+
+            // Get PR number
+            const [matchArtifactWorkflowNumber] = artifacts_workflow.data.artifacts.filter((artifact) =>
+              artifact.name == "pr_number");
+            const downloadThree = await github.rest.actions.downloadArtifact({
+               owner: context.repo.owner,
+               repo: context.repo.repo,
+               artifact_id: matchArtifactWorkflowNumber.id,
+               archive_format: "zip",
+            });
+            fs.writeFileSync("primer_pr_number.zip", Buffer.from(downloadThree.data));
+      - run: unzip primer_main_output.zip
+      - run: unzip primer_pr_output.zip
+      - run: unzip primer_pr_number.zip
+      - name: Compare outputs
+        run: |
+          . venv/bin/activate
+          python tests/primer/__main__.py compare \
+          --commit=${{ github.event.workflow_run.head_sha }} \
+          --base-file=output_${{ steps.python.outputs.python-version }}_main.txt \
+          --new-file=output_${{ steps.python.outputs.python-version }}_pr.txt
+      - name: Post comment
+        id: post-comment
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs')
+            const comment = fs.readFileSync('tests/.pylint_primer_tests/comment.txt', { encoding: 'utf8' })
+            console.log("Comment to post:")
+            console.log(comment)
+            const prNumber = parseInt(fs.readFileSync("pr_number.txt", { encoding: "utf8" }))
+            await github.rest.issues.createComment({
+              issue_number: prNumber,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            })
+            return prNumber
+      - name: Hide old comments
+        # Taken from mypy primer
+        # v0.3.0
+        uses: kanga333/comment-hider@bbdf5b562fbec24e6f60572d8f712017428b92e0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          leave_visible: 1
+          issue_number: ${{ steps.post-comment.outputs.result }}
+      - name: Warn about failure
+        if: ${{ failure() }}
+        run: |
+          echo "🤖 **Comment workflow failed**. 🤖" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Please investigate:" >> $GITHUB_STEP_SUMMARY
+          echo "@DanielNoord" >> $GITHUB_STEP_SUMMARY

@@ -110,7 +110,7 @@ def test_interfaces() -> None:
         ("Concrete0", ["MyIFace"]),
         ("Concrete1", ["MyIFace", "AnotherIFace"]),
         ("Concrete2", ["MyIFace", "AnotherIFace"]),
-        ("Concrete23", ["MyIFace", "AnotherIFace"]),
+        ("Concrete23", []),
     ):
         klass = module[klass]
         assert [i.name for i in inspector.interfaces(klass)] == interfaces
@@ -130,3 +130,18 @@ def test_project_node(project: Project) -> None:
         "data.suppliermodule_test",
     ]
     assert sorted(project.keys()) == expected
+
+
+def test_interface_deprecation(project: Project) -> None:
+    linker = inspector.Linker(project)
+    cls = astroid.extract_node(
+        '''
+        class IMachin: pass
+
+        class Concrete:  #@
+            """docstring"""
+            __implements__ = (IMachin,)
+    '''
+    )
+    with pytest.warns(DeprecationWarning):
+        linker.visit_classdef(cls)

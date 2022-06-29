@@ -29,11 +29,11 @@ undefined-variable:228:25:228:37:LambdaClass4.<lambda>:Undefined variable 'Lambd
 undefined-variable:236:25:236:37:LambdaClass5.<lambda>:Undefined variable 'LambdaClass5':UNDEFINED
 used-before-assignment:257:26:257:34:func_should_fail:Using variable 'datetime' before assignment:HIGH
 undefined-variable:284:18:284:24:not_using_loop_variable_accordingly:Undefined variable 'iteree':UNDEFINED
-undefined-variable:295:27:295:28:undefined_annotation:Undefined variable 'x':UNDEFINED
-used-before-assignment:296:7:296:8:undefined_annotation:Using variable 'x' before assignment:HIGH
-undefined-variable:326:11:326:12:decorated3:Undefined variable 'x':UNDEFINED
-undefined-variable:331:19:331:20:decorated4:Undefined variable 'y':UNDEFINED
-undefined-variable:352:10:352:20:global_var_mixed_assignment:Undefined variable 'GLOBAL_VAR':HIGH
-undefined-variable:364:19:364:44:RepeatedReturnAnnotations.x:Undefined variable 'RepeatedReturnAnnotations':UNDEFINED
-undefined-variable:366:19:366:44:RepeatedReturnAnnotations.y:Undefined variable 'RepeatedReturnAnnotations':UNDEFINED
-undefined-variable:368:19:368:44:RepeatedReturnAnnotations.z:Undefined variable 'RepeatedReturnAnnotations':UNDEFINED
+undefined-variable:301:27:301:28:undefined_annotation:Undefined variable 'x':UNDEFINED
+used-before-assignment:302:7:302:8:undefined_annotation:Using variable 'x' before assignment:HIGH
+undefined-variable:332:11:332:12:decorated3:Undefined variable 'x':UNDEFINED
+undefined-variable:337:19:337:20:decorated4:Undefined variable 'y':UNDEFINED
+undefined-variable:358:10:358:20:global_var_mixed_assignment:Undefined variable 'GLOBAL_VAR':HIGH
+undefined-variable:370:19:370:44:RepeatedReturnAnnotations.x:Undefined variable 'RepeatedReturnAnnotations':UNDEFINED
+undefined-variable:372:19:372:44:RepeatedReturnAnnotations.y:Undefined variable 'RepeatedReturnAnnotations':UNDEFINED
+undefined-variable:374:19:374:44:RepeatedReturnAnnotations.z:Undefined variable 'RepeatedReturnAnnotations':UNDEFINED

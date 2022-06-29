@@ -45,7 +45,7 @@ class MisplacedComparisonConstantChecker(BaseChecker):
         left: nodes.NodeNG,
         right: nodes.NodeNG,
         operator: str,
-    ):
+    ) -> None:
         if isinstance(right, nodes.Const):
             return
         operator = REVERSED_COMPS.get(operator, operator)

@@ -6,9 +6,9 @@
 from __future__ import annotations
 
 from pylint.checkers import initialize as initialize_checkers
-from pylint.constants import DELETED_MSGID_PREFIXES
 from pylint.extensions import initialize as initialize_extensions
 from pylint.lint.pylinter import PyLinter
+from pylint.message._deleted_message_ids import DELETED_MSGID_PREFIXES
 
 
 def register_all_checkers_and_plugins(linter: PyLinter) -> None:

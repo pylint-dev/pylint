@@ -1,2 +1,2 @@
-bad-option-value:10:0:None:None::Bad option value for disable. Don't recognize message a-removed-option.:UNDEFINED
-bad-option-value:13:0:None:None::Bad option value for disable. Don't recognize message a-removed-option.:UNDEFINED
+unknown-option-value:10:0:None:None::Unknown option value for 'disable', expected a valid pylint message and got 'a-removed-option':HIGH
+unknown-option-value:13:0:None:None::Unknown option value for 'disable', expected a valid pylint message and got 'a-removed-option':HIGH

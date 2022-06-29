@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import sys
 import traceback
 from collections import defaultdict
 from collections.abc import Sequence
@@ -95,7 +96,10 @@ class ASTWalker:
         except Exception:
             if self.exception_msg is False:
                 file = getattr(astroid.root(), "file", None)
-                print(f"Exception on node {repr(astroid)} in file '{file}'")
+                print(
+                    f"Exception on node {repr(astroid)} in file '{file}'",
+                    file=sys.stderr,
+                )
                 traceback.print_exc()
                 self.exception_msg = True
             raise

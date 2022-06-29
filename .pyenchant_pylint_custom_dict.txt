@@ -21,10 +21,12 @@ async
 asynccontextmanager
 attr
 attrib
+backport
 BaseChecker
 basename
 behaviour
 bidi
+Bitbucket
 bla
 bom
 bool
@@ -74,6 +76,7 @@ deepcopy
 defframe
 defstmts
 deleter
+dependabot
 deque
 destructured
 destructuring
@@ -152,6 +155,7 @@ iterables
 iteritems
 jn
 jpg
+json
 jx
 jython
 # class is a reserved word
@@ -172,6 +176,7 @@ linkers
 linter
 linux
 listcomp
+Logilab
 longstring
 lsp
 mapfile
@@ -186,6 +191,7 @@ misdesign
 misdesigns
 mixin
 modname
+monkeypatch
 mro
 # Used so much that we need the abbreviation
 msg
@@ -217,6 +223,7 @@ numpy
 ok
 optdict
 optik
+optionals
 optiondict
 optname
 optparse
@@ -229,6 +236,7 @@ params
 paren
 parens
 passthru
+positionals
 png
 pragma
 pragma's
@@ -283,9 +291,11 @@ stmt
 str
 stringified
 subclasses
+subcommands
 subdicts
 subgraphs
 sublists
+subparsers
 subparts
 subprocess
 subscriptable
@@ -346,4 +356,5 @@ wc
 xfails
 xml
 xyz
+yml
 yoda

@@ -46,7 +46,7 @@ def test_run(tmp_path, name, git_repo):
     filepaths = _get_py_files(scanpath=str(checkoutdir))
     print(f"Have {len(filepaths)} files")
 
-    runner = Run(filepaths, reporter=Reporter(), do_exit=False)
+    runner = Run(filepaths, reporter=Reporter(), exit=False)
 
     print(
         f"Had {len(filepaths)} files with {len(runner.linter.reporter.messages)} messages"

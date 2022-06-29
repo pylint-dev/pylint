@@ -7,8 +7,7 @@
 from __future__ import annotations
 
 import itertools
-from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import astroid
 from astroid import nodes
@@ -20,7 +19,7 @@ if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
 
-def _is_constant_zero(node):
+def _is_constant_zero(node: str | nodes.NodeNG) -> bool:
     return isinstance(node, astroid.Const) and node.value == 0
 
 
@@ -46,20 +45,21 @@ class CompareToZeroChecker(checkers.BaseChecker):
 
     @utils.only_required_for_messages("compare-to-zero")
     def visit_compare(self, node: nodes.Compare) -> None:
+        # pylint: disable=duplicate-code
         _operators = ["!=", "==", "is not", "is"]
         # note: astroid.Compare has the left most operand in node.left
         # while the rest are a list of tuples in node.ops
         # the format of the tuple is ('compare operator sign', node)
         # here we squash everything into `ops` to make it easier for processing later
-        ops = [("", node.left)]
+        ops: list[tuple[str, nodes.NodeNG]] = [("", node.left)]
         ops.extend(node.ops)
-        iter_ops: Iterable[Any] = iter(ops)
-        ops = list(itertools.chain(*iter_ops))
+        iter_ops = iter(ops)
+        all_ops = list(itertools.chain(*iter_ops))
 
-        for ops_idx in range(len(ops) - 2):
-            op_1 = ops[ops_idx]
-            op_2 = ops[ops_idx + 1]
-            op_3 = ops[ops_idx + 2]
+        for ops_idx in range(len(all_ops) - 2):
+            op_1 = all_ops[ops_idx]
+            op_2 = all_ops[ops_idx + 1]
+            op_3 = all_ops[ops_idx + 2]
             error_detected = False
 
             # 0 ?? X

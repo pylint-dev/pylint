@@ -85,8 +85,8 @@ STREAM_TYPES = Union[TextIO, BufferedReader, BytesIO]
 
 
 class CplSuccessiveLinesLimits:
-    """Holds a SuccessiveLinesLimits object for each file compared and a
-    counter on the number of common lines between both stripped lines collections extracted from both files.
+    """Holds a SuccessiveLinesLimits object for each checked file and counts the number
+    of common lines between both stripped lines collections extracted from both files.
     """
 
     __slots__ = ("first_file", "second_file", "effective_cmn_lines_nb")
@@ -108,7 +108,9 @@ CplIndexToCplLines_T = Dict["LineSetStartCouple", CplSuccessiveLinesLimits]
 
 
 class LinesChunk:
-    """The LinesChunk object computes and stores the hash of some consecutive stripped lines of a lineset."""
+    """The LinesChunk object computes and stores the hash of some consecutive stripped
+    lines of a lineset.
+    """
 
     __slots__ = ("_fileid", "_index", "_hash")
 
@@ -117,7 +119,9 @@ class LinesChunk:
         """The name of the file from which the LinesChunk object is generated."""
 
         self._index: Index = Index(num_line)
-        """The index in the stripped lines that is the starting of consecutive lines."""
+        """The index in the stripped lines that is the starting of consecutive
+        lines.
+        """
 
         self._hash: int = sum(hash(lin) for lin in lines)
         """The hash of some consecutive lines."""
@@ -562,7 +566,8 @@ def stripped_lines(
     ignore_signatures: bool,
     line_enabled_callback: Callable[[str, int], bool] | None = None,
 ) -> list[LineSpecifs]:
-    """Return tuples of line/line number/line type with leading/trailing white-space and any ignored code features removed.
+    """Return tuples of line/line number/line type with leading/trailing white-space and
+    any ignored code features removed.
 
     :param lines: a collection of lines
     :param ignore_comments: if true, any comment in the lines collection is removed from the result
@@ -591,7 +596,9 @@ def stripped_lines(
         def _get_functions(
             functions: list[nodes.NodeNG], tree: nodes.NodeNG
         ) -> list[nodes.NodeNG]:
-            """Recursively get all functions including nested in the classes from the tree."""
+            """Recursively get all functions including nested in the classes from the
+            tree.
+            """
 
             for node in tree.body:
                 if isinstance(node, (nodes.FunctionDef, nodes.AsyncFunctionDef)):

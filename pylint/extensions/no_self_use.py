@@ -42,7 +42,7 @@ class NoSelfUseChecker(BaseChecker):
 
     def visit_name(self, node: nodes.Name) -> None:
         """Check if the name handle an access to a class member
-        if so, register it
+        if so, register it.
         """
         if self._first_attrs and (
             node.name == self._first_attrs[-1] or not self._first_attrs[-1]

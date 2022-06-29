@@ -197,7 +197,6 @@ def _make_graph(
 # the import checker itself ###################################################
 
 MSGS: dict[str, MessageDefinitionTuple] = {
-    **{k: v for k, v in DeprecatedMixin.msgs.items() if k[1:3] == "04"},
     "E0401": (
         "Unable to import %s",
         "import-error",
@@ -219,9 +218,9 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Use 'from %s import %s' instead",
         "consider-using-from-import",
         "Emitted when a submodule of a package is imported and "
-        "aliased with the same name. "
-        "E.g., instead of ``import concurrent.futures as futures`` use "
-        "``from concurrent import futures``",
+        "aliased with the same name, "
+        "e.g., instead of ``import concurrent.futures as futures`` use "
+        "``from concurrent import futures``.",
     ),
     "W0401": (
         "Wildcard import %s",
@@ -258,23 +257,23 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "%s should be placed before %s",
         "wrong-import-order",
         "Used when PEP8 import order is not respected (standard imports "
-        "first, then third-party libraries, then local imports)",
+        "first, then third-party libraries, then local imports).",
     ),
     "C0412": (
         "Imports from package %s are not grouped",
         "ungrouped-imports",
-        "Used when imports are not grouped by packages",
+        "Used when imports are not grouped by packages.",
     ),
     "C0413": (
         'Import "%s" should be placed at the top of the module',
         "wrong-import-position",
-        "Used when code and imports are mixed",
+        "Used when code and imports are mixed.",
     ),
     "C0414": (
         "Import alias does not rename original package",
         "useless-import-alias",
-        "Used when an import alias is same as original package."
-        "e.g using import numpy as numpy instead of import numpy as np",
+        "Used when an import alias is same as original package, "
+        "e.g., using import numpy as numpy instead of import numpy as np.",
     ),
     "C0415": (
         "Import outside toplevel (%s)",
@@ -302,7 +301,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
     """
 
     name = "imports"
-    msgs = MSGS
+    msgs = {**DeprecatedMixin.DEPRECATED_MODULE_MESSAGE, **MSGS}
     default_deprecated_modules = ()
 
     options = (
@@ -771,7 +770,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             message = f"Cannot import {modname!r} due to syntax error {str(exc.error)!r}"  # pylint: disable=no-member; false positive
             self.add_message("syntax-error", line=importnode.lineno, args=message)
 
-        except astroid.AstroidBuildingException:
+        except astroid.AstroidBuildingError:
             if not self.linter.is_message_enabled("import-error"):
                 return None
             if _ignore_import_failure(importnode, modname, self._ignored_modules):
@@ -784,6 +783,8 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
             dotted_modname = get_import_name(importnode, modname)
             self.add_message("import-error", args=repr(dotted_modname), node=importnode)
+        except Exception as e:  # pragma: no cover
+            raise astroid.AstroidError from e
         return None
 
     def _add_imported_module(

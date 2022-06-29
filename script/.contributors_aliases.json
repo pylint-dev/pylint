@@ -419,7 +419,8 @@
   },
   "matusvalo@users.noreply.github.com": {
     "mails": ["matusvalo@users.noreply.github.com", "matusvalo@gmail.com"],
-    "name": "Matus Valo"
+    "name": "Matus Valo",
+    "team": "Maintainers"
   },
   "me@the-compiler.org": {
     "mails": [

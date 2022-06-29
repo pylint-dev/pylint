@@ -1,0 +1,11 @@
+[MAIN]
+load-plugins = pylint.extensions.docparams
+
+[BASIC]
+accept-no-param-doc = no
+accept-no-raise-doc = no
+accept-no-return-doc = no
+accept-no-yields-doc = no
+
+[testoptions]
+min_pyver=3.8

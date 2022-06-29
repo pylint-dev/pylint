@@ -33,44 +33,6 @@ class MessageTest(NamedTuple):
     """
 
 
-class MalformedOutputLineException(Exception):
-    def __init__(
-        self,
-        row: Sequence[str] | str,
-        exception: Exception,
-    ) -> None:
-        example = "msg-symbolic-name:42:27:MyClass.my_function:The message"
-        other_example = "msg-symbolic-name:7:42::The message"
-        expected = [
-            "symbol",
-            "line",
-            "column",
-            "end_line",
-            "end_column",
-            "MyClass.myFunction, (or '')",
-            "Message",
-            "confidence",
-        ]
-        reconstructed_row = ""
-        i = 0
-        try:
-            for i, column in enumerate(row):
-                reconstructed_row += f"\t{expected[i]}='{column}' ?\n"
-            for missing in expected[i + 1 :]:
-                reconstructed_row += f"\t{missing}= Nothing provided !\n"
-        except IndexError:
-            pass
-        raw = ":".join(row)
-        msg = f"""\
-{exception}
-
-Expected '{example}' or '{other_example}' but we got '{raw}':
-{reconstructed_row}
-
-Try updating it with: 'python tests/test_functional.py {UPDATE_OPTION}'"""
-        super().__init__(msg)
-
-
 class OutputLine(NamedTuple):
     symbol: str
     lineno: int
@@ -111,8 +73,8 @@ class OutputLine(NamedTuple):
 
     @staticmethod
     def _get_py38_none_value(value: _T, check_endline: bool) -> _T | None:
-        """Used to make end_line and end_column None as indicated by our version compared to
-        `min_pyver_end_position`.
+        """Used to make end_line and end_column None as indicated by our version
+        compared to `min_pyver_end_position`.
         """
         if not check_endline:
             return None  # pragma: no cover
@@ -122,11 +84,12 @@ class OutputLine(NamedTuple):
     def from_csv(
         cls, row: Sequence[str] | str, check_endline: bool = True
     ) -> OutputLine:
-        """Create an OutputLine from a comma separated list (the functional tests expected
-        output .txt files).
+        """Create an OutputLine from a comma separated list (the functional tests
+        expected output .txt files).
         """
         if isinstance(row, str):
             row = row.split(",")
+        # noinspection PyBroadException
         try:
             column = cls._get_column(row[2])
             if len(row) == 5:
@@ -170,8 +133,14 @@ class OutputLine(NamedTuple):
                     row[7],
                 )
             raise IndexError
-        except Exception as e:
-            raise MalformedOutputLineException(row, e) from e
+        except Exception:  # pylint: disable=broad-except
+            warnings.warn(
+                "Expected 'msg-symbolic-name:42:27:MyClass.my_function:The message:"
+                f"CONFIDENCE' but we got '{':'.join(row)}'. Try updating the expected"
+                f" output with:\npython tests/test_functional.py {UPDATE_OPTION}",
+                UserWarning,
+            )
+            return cls("", 0, 0, None, None, "", "", "")
 
     def to_csv(self) -> tuple[str, str, str, str, str, str, str, str]:
         """Convert an OutputLine to a tuple of string to be written by a

@@ -68,7 +68,9 @@ class FileState:
             self._effective_max_line_number = None
         self._msgs_store = msg_store
         self._is_base_filestate = is_base_filestate
-        """If this FileState is the base state made during initialization of PyLinter."""
+        """If this FileState is the base state made during initialization of
+        PyLinter.
+        """
 
     def collect_block_lines(
         self, msgs_store: MessageDefinitionStore, module_node: nodes.Module

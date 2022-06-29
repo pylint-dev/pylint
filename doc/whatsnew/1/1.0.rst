@@ -1,0 +1,123 @@
+**************************
+  What's New In Pylint 1.0
+**************************
+
+Release date: 2013-08-06
+
+* Add check for the use of 'exec' function
+
+* New --msg-template option to control output, deprecating "msvc" and
+  "parseable" output formats as well as killing ``--include-ids`` and ``--symbols``
+  options
+
+* Do not emit [fixme] for every line if the config value 'notes'
+  is empty, but [fixme] is enabled.
+
+* Emit warnings about lines exceeding the column limit when
+  those lines are inside multiline docstrings.
+
+* Do not double-check parameter names with the regex for parameters and
+  inline variables.
+
+* Added a new warning missing-final-newline (C0304) for files missing
+  the final newline.
+
+* Methods that are decorated as properties are now treated as attributes
+  for the purposes of name checking.
+
+* Names of derived instance class member are not checked any more.
+
+* Names in global statements are now checked against the regular
+  expression for constants.
+
+* For toplevel name assignment, the class name regex will be used if
+  pylint can detect that value on the right-hand side is a class
+  (like collections.namedtuple()).
+
+* Simplified invalid-name message
+
+* Added a new warning invalid-encoded-data (W0512) for files that
+  contain data that cannot be decoded with the specified or
+  default encoding.
+
+* New warning bad-open-mode (W1501) for calls to open (or file) that
+  specify invalid open modes (Original implementation by Sasha Issayev).
+
+* New warning old-style-class (C1001) for classes that do not have any
+  base class.
+
+* Add new name type 'class_attribute' for attributes defined
+  in class scope. By default, allow both const and variable names.
+
+* New warning trailing-whitespace (C0303) that warns about
+  trailing whitespace.
+
+* Added a new warning unpacking-in-except (W0712) about unpacking
+  exceptions in handlers, which is unsupported in Python 3.
+
+* Add a configuration option for missing-docstring to
+  optionally exempt short functions/methods/classes from
+  the check.
+
+* Add the type of the offending node to missing-docstring
+  and empty-docstring.
+
+* New utility classes for per-checker unittests in testutils.py
+
+* Do not warn about redefinitions of variables that match the
+  dummy regex.
+
+* Do not treat all variables starting with _ as dummy variables,
+  only _ itself.
+
+* Make the line-too-long warning configurable by adding a regex for lines
+  for with the length limit should not be enforced
+
+* Do not warn about a long line if a pylint disable
+  option brings it above the length limit
+
+* Do not flag names in nested with statements as undefined.
+
+* Added a new warning 'old-raise-syntax' for the deprecated syntax
+  raise Exception, args
+
+* Support for PEP 3102 and new missing-kwoa (E1125) message for missing
+  mandatory keyword argument
+
+  Closes Logilab #107788
+
+* Fix spelling of max-branchs option, now max-branches
+
+* Added a new base class and interface for checkers that work on the
+  tokens rather than the syntax, and only tokenize the input file
+  once.
+
+* Follow astng renaming to astroid
+
+* Check for unbalanced unpacking in assignments
+
+  Closes BitBucket #37
+
+* Fix incomplete-protocol false positive for read-only containers like tuple
+
+  Closes BitBucket #25
+
+* Fix False positive E1003 on Python 3 for argument-less super()
+
+  Closes BitBucket #16
+
+* Put back documentation in source distribution
+
+  Closes BitBucket #6
+
+* epylint shouldn't hang anymore when there is a large output on pylint'stderr
+
+  Closes BitBucket #15
+
+* Fix epylint w/ python3
+
+  Closes BitBucket #7
+
+* Remove string module from the default list of deprecated modules
+
+  Closes BitBucket #3
