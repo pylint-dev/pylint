@@ -375,7 +375,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Emitted when await is used outside an async function.",
     ),
     "E1143": (
-        "Member is unhashable",
+        "'%s' is unhashable and can't be used as a %s in a %s",
         "unhashable-member",
         "Emitted when a dict key or set member is not hashable "
         "(i.e. doesn't define __hash__ method).",
@@ -2021,7 +2021,7 @@ accessed. Python regular expressions are accepted.",
     def visit_dict(self, node: nodes.Dict) -> None:
         for k, _ in node.items:
             if not is_hashable(k):
-                self.add_message("unhashable-member", node=k, confidence=INFERENCE)
+                self.add_message("unhashable-member", node=k, args=(k.as_string(), "key", "dict"), confidence=INFERENCE)
 
     @only_required_for_messages("unhashable-member")
     def visit_set(self, node: nodes.Set) -> None:
