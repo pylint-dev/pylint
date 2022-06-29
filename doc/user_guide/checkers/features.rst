@@ -41,7 +41,8 @@ General options
   specified are enabled, while categories only check already-enabled messages.
 :jobs:
   Use multiple processes to speed up Pylint. Specifying 0 will auto-detect the
-  number of processors available to use.
+  number of processors available to use, and will cap the count on Windows to
+  avoid hangs.
 
   Default: ``1``
 :unsafe-load-any-extension:

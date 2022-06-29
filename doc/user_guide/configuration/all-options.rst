@@ -165,7 +165,7 @@ Default:
 """"""
 
 Description:
-  *Use multiple processes to speed up Pylint. Specifying 0 will auto-detect the number of processors available to use.*
+  *Use multiple processes to speed up Pylint. Specifying 0 will auto-detect the number of processors available to use, and will cap the count on Windows to avoid hangs.*
 
 Default:
   ``1``

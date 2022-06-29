@@ -53,7 +53,8 @@ ignore-patterns = ["^\\.#"]
 # init-hook =
 
 # Use multiple processes to speed up Pylint. Specifying 0 will auto-detect the
-# number of processors available to use.
+# number of processors available to use, and will cap the count on Windows to
+# avoid hangs.
 jobs = 1
 
 # Control the amount of potential inferred values when inferring a single object.
