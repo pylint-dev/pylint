@@ -30,10 +30,6 @@ Extensions
 False positives fixed
 =====================
 
-* The ``differing-param-doc`` check was triggered by positional only arguments.
-
-  Closes #6950
-
 * Don't report ``unsupported-binary-operation`` on Python <= 3.9 when using the ``|`` operator
   with types, if one has a metaclass that overloads ``__or__`` or ``__ror__`` as appropriate.
 

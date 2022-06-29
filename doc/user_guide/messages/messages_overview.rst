@@ -181,6 +181,7 @@ All renamed messages in the error category:
    error/maybe-no-member
    error/old-non-iterator-returned-2
    error/old-unbalanced-tuple-unpacking
+   error/unhashable-dict-key
 
 .. _warning-category:
 
@@ -265,6 +266,7 @@ All messages in the warning category:
    warning/missing-raises-doc
    warning/missing-return-doc
    warning/missing-return-type-doc
+   warning/missing-timeout
    warning/missing-type-doc
    warning/missing-yield-doc
    warning/missing-yield-type-doc
@@ -322,7 +324,7 @@ All messages in the warning category:
    warning/unused-wildcard-import
    warning/useless-else-on-loop
    warning/useless-param-doc
-   warning/useless-super-delegation
+   warning/useless-parent-delegation
    warning/useless-type-doc
    warning/useless-with-lock
    warning/using-constant-test
@@ -342,6 +344,11 @@ All renamed messages in the warning category:
    warning/implicit-str-concat-in-sequence
    warning/lru-cache-decorating-method
    warning/old-assignment-from-none
+   warning/old-deprecated-argument
+   warning/old-deprecated-class
+   warning/old-deprecated-decorator
+   warning/old-deprecated-method
+   warning/old-deprecated-module
    warning/old-empty-docstring
    warning/old-missing-param-doc
    warning/old-missing-returns-doc
@@ -350,6 +357,7 @@ All renamed messages in the warning category:
    warning/old-non-iterator-returned-1
    warning/old-unidiomatic-typecheck
    warning/old-unpacking-non-sequence
+   warning/useless-super-delegation
 
 .. _convention-category:
 

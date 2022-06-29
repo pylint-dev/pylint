@@ -120,7 +120,7 @@ Standard Checkers
 
 --jobs
 """"""
-*Use multiple processes to speed up Pylint. Specifying 0 will auto-detect the number of processors available to use.*
+*Use multiple processes to speed up Pylint. Specifying 0 will auto-detect the number of processors available to use, and will cap the count on Windows to avoid hangs.*
 
 **Default:**  ``1``
 
@@ -1058,6 +1058,37 @@ Standard Checkers
    </details>
 
 
+.. _method_args-options:
+
+``Method_args`` **Checker**
+---------------------------
+--timeout-methods
+"""""""""""""""""
+*List of qualified names (i.e., library.method) which require a timeout parameter e.g. 'requests.api.get,requests.api.post'*
+
+**Default:**  ``('requests.api.delete', 'requests.api.get', 'requests.api.head', 'requests.api.options', 'requests.api.patch', 'requests.api.post', 'requests.api.put', 'requests.api.request')``
+
+
+
+.. raw:: html
+
+   <details>
+   <summary><a>Example configuration section</a></summary>
+
+**Note:** Only ``pylint.tool`` is required, the section title is not. These are the default values.
+
+.. code-block:: toml
+
+   [tool.pylint.method_args]
+   timeout-methods = ["requests.api.delete", "requests.api.get", "requests.api.head", "requests.api.options", "requests.api.patch", "requests.api.post", "requests.api.put", "requests.api.request"]
+
+
+
+.. raw:: html
+
+   </details>
+
+
 .. _miscellaneous-options:
 
 ``Miscellaneous`` **Checker**
@@ -1715,7 +1746,7 @@ Extensions
 ----------------------
 --runtime-typing
 """"""""""""""""
-*Set to ``no`` if the app / library does **NOT** need to support runtime introspection of type annotations. If you use type annotations **exclusively** for type checking of an application, you're probably fine. For libraries, evaluate if some users what to access the type hints at runtime first, e.g., through ``typing.get_type_hints``. Applies to Python versions 3.7 - 3.9*
+*Set to ``no`` if the app / library does **NOT** need to support runtime introspection of type annotations. If you use type annotations **exclusively** for type checking of an application, you're probably fine. For libraries, evaluate if some users want to access the type hints at runtime first, e.g., through ``typing.get_type_hints``. Applies to Python versions 3.7 - 3.9*
 
 **Default:**  ``True``
 
