@@ -2021,7 +2021,12 @@ accessed. Python regular expressions are accepted.",
     def visit_dict(self, node: nodes.Dict) -> None:
         for k, _ in node.items:
             if not is_hashable(k):
-                self.add_message("unhashable-member", node=k, args=(k.as_string(), "key", "dict"), confidence=INFERENCE)
+                self.add_message(
+                    "unhashable-member",
+                    node=k,
+                    args=(k.as_string(), "key", "dict"),
+                    confidence=INFERENCE,
+                )
 
     @only_required_for_messages("unhashable-member")
     def visit_set(self, node: nodes.Set) -> None:
