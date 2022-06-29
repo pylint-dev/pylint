@@ -1,9 +1,15 @@
 Full changelog
 ==============
 
-What's New in Pylint 2.14.4?
+What's New in Pylint 2.14.5?
 ----------------------------
 Release date: TBA
+
+
+
+What's New in Pylint 2.14.4?
+----------------------------
+Release date: 2022-06-29
 
 * The ``differing-param-doc`` check was triggered by positional only arguments.
 

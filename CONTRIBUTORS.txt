@@ -401,6 +401,7 @@ contributors:
 - Matthijs Blom <19817960+MatthijsBlom@users.noreply.github.com>
 - Matej Marušák <marusak.matej@gmail.com>
 - Markus Siebenhaar <41283549+siehar@users.noreply.github.com>
+- Marco Pernigotti <7657251+mpernigo@users.noreply.github.com>
 - Marco Edward Gorelli <marcogorelli@protonmail.com>: Documented Jupyter integration
 - Marcin Kurczewski <rr-@sakuya.pl> (rr-)
 - Maik Röder <maikroeder@gmail.com>
@@ -489,6 +490,7 @@ contributors:
 - Caio Carrara <ccarrara@redhat.com>
 - C.A.M. Gerlach <WIDEnetServices@gmail.com>
 - Bruno P. Kinoshita <kinow@users.noreply.github.com>
+- Bruce Dawson <randomascii@users.noreply.github.com>
 - Brian C. Lane <bcl@redhat.com>
 - Brandon W Maister <quodlibetor@gmail.com>
 - BioGeek <jeroen.vangoey@gmail.com>
