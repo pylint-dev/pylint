@@ -1,0 +1,3 @@
+Pylint now support python 3.11.
+
+Closes #5920
