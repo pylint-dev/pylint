@@ -156,7 +156,7 @@ All messages in the error category:
    error/undefined-variable
    error/unexpected-keyword-arg
    error/unexpected-special-method-signature
-   error/unhashable-dict-key
+   error/unhashable-member
    error/unpacking-non-sequence
    error/unrecognized-inline-option
    error/unrecognized-option
