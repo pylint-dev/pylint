@@ -65,7 +65,7 @@ False negatives fixed
 
   Closes #6643
 
-* Emit ``nonlocal-without-binding`` when a nonlocal name has been assigned at a later point in the same scope. 
+* Emit ``nonlocal-without-binding`` when a nonlocal name has been assigned at a later point in the same scope.
 
   Closes #6883
 
