@@ -35,6 +35,11 @@ False positives fixed
 
   Closes #4951
 
+* Prevent false positives when accessing ``PurePath.parents`` by index (not slice) on Python 3.10+.
+
+  Closes #5832
+
+
 False negatives fixed
 =====================
 
