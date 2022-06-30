@@ -78,7 +78,7 @@ Standard Checkers
 
 --fail-under
 """"""""""""
-*Specify a score threshold to be exceeded before program exits with error.*
+*Specify a score threshold under which the program will exit with error.*
 
 **Default:**  ``10``
 
