@@ -92,8 +92,8 @@ if FALSE:
         VAR9 = __name__
 print(VAR9)  # [used-before-assignment]
 
-for value_inferred_as_falsy_but_could_be_truthy in [0, 0]:
-    VAR10 = value_inferred_as_falsy_but_could_be_truthy
+for num in [0, 1]:
+    VAR10 = num
     if VAR10:
         VAR11 = False
 print(VAR11)
