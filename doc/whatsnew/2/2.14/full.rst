@@ -6,6 +6,9 @@ What's New in Pylint 2.14.5?
 Release date: TBA
 
 
+* Fixed handling of ``--`` as separator between positional arguments and flags.
+
+  Closes #7003
 
 What's New in Pylint 2.14.4?
 ----------------------------
