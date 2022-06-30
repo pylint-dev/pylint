@@ -76,7 +76,8 @@ def _config_initialization(
     unrecognized_options: list[str] = []
     for opt in parsed_args_list:
         if opt.startswith("--"):
-            unrecognized_options.append(opt[2:])
+            if len(opt) > 2:
+                unrecognized_options.append(opt[2:])
         elif opt.startswith("-"):
             unrecognized_options.append(opt[1:])
     if unrecognized_options:
