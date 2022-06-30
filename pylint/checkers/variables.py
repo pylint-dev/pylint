@@ -779,37 +779,42 @@ scope_type : {self._atomic.scope_type}
                 continue
 
             # Name defined somewhere else during a loop
-            if isinstance(closest_if.test, nodes.Name):
-                loop_names = set()
-                other_node_frame = other_node.frame(future=True)
-                for_ancestor = None
-                for ancestor in other_node.node_ancestors():
-                    if ancestor.frame() is not other_node_frame:
-                        break
-                    if isinstance(ancestor, nodes.For):
-                        loop_names.update(
-                            {
-                                a.name
-                                for a in ancestor.target.nodes_of_class(
-                                    nodes.AssignName
-                                )
-                            }
-                        )
-                        for_ancestor = ancestor
-                if closest_if.test.name in loop_names:
-                    continue
-                if for_ancestor is not None and isinstance(
-                    other_node, nodes.AssignName
-                ):
-                    if any(
-                        an.name == other_node.name
-                        for an in for_ancestor.nodes_of_class(nodes.AssignName)
-                    ):
-                        continue
+            if NamesConsumer._name_defined_later_in_loop(closest_if, other_node):
+                continue
+
             uncertain_nodes.append(other_node)
             self._if_nodes_deemed_uncertain.add(closest_if)
 
         return uncertain_nodes
+
+    @staticmethod
+    def _name_defined_later_in_loop(
+        closest_if: nodes.If, other_node: nodes.NodeNG
+    ) -> bool:
+        """Identify if the name tested in `closest_if` is assigned later in a loop."""
+        if not isinstance(closest_if.test, nodes.Name):
+            return False
+        loop_names = set()
+        other_node_frame = other_node.frame(future=True)
+        for_ancestor = None
+        for ancestor in other_node.node_ancestors():
+            if ancestor.frame() is not other_node_frame:
+                break
+            if isinstance(ancestor, nodes.For):
+                loop_names.update(
+                    {a.name for a in ancestor.target.nodes_of_class(nodes.AssignName)}
+                )
+                for_ancestor = ancestor
+        if closest_if.test.name in loop_names:
+            return True
+        if for_ancestor is None:
+            return False
+        if not isinstance(other_node, nodes.AssignName):
+            return False
+        return any(
+            an.name == other_node.name
+            for an in for_ancestor.nodes_of_class(nodes.AssignName)
+        )
 
     @staticmethod
     def _uncertain_nodes_in_except_blocks(
