@@ -11,6 +11,7 @@
 Summary -- Release highlights
 =============================
 
+Stub: Include information about the new default values of ``disable``. This can potentially break CIs.
 
 New checkers
 ============
@@ -22,6 +23,21 @@ a program to be hanging indefinitely.
 Removed checkers
 ================
 
+
+Configuration
+================
+
+* We have added a new default value for the ``disable`` option. By default the following messages are now disabled:
+  ``missing-module-docstring``, ``missing-class-docstring``, ``missing-function-docstring``,
+  ``too-many-ancestors``, ``too-many-instance-attributes``, ``too-few-public-methods``,
+  ``too-many-public-methods``, ``too-many-return-statements``, ``too-many-branches``,
+  ``too-many-arguments``, ``too-many-locals``, ``too-many-statements``, ``too-many-boolean-expressions``,
+  ``too-many-nested-blocks``, ``bad-classmethod-argument``, ``bad-mcs-classmethod-argument``,
+  ``duplicate-code``, ``fixme``.
+  Previously no messages were disabled by default. That behaviour can be reinstated by adding ``disable =`` to
+  the configuration file.
+
+  Closes #3512
 
 Extensions
 ==========
