@@ -931,3 +931,12 @@ print(submodule1)
         with fix_import_path([tmpdir]):
             linter.check(["submodule2.py"])
     assert not linter.stats.by_msg
+
+
+def test_lint_namespace_package_under_dir(initialized_linter: PyLinter) -> None:
+    """Regression test for https://github.com/PyCQA/pylint/issues/1667"""
+    linter = initialized_linter
+    with tempdir():
+        create_files(["outer/namespace/__init__.py", "outer/namespace/module.py"])
+        linter.check(["outer.namespace"])
+    assert not linter.stats.by_msg

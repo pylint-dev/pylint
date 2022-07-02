@@ -74,6 +74,10 @@ False negatives fixed
 Other bug fixes
 ===============
 
+* Fix a failure to lint namespace packages contained in directories lacking ``__init__.py``.
+
+  Closes #1667
+
 
 Other Changes
 =============
