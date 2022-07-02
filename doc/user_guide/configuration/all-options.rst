@@ -99,7 +99,7 @@ Standard Checkers
 
 --ignore-paths
 """"""""""""""
-*Add files or directories matching the regex patterns to the ignore-list. The regex matches against paths and can be in Posix or Windows format.*
+*Add files or directories matching the regex patterns to the ignore-list. The regex matches against paths and can be in Posix or Windows format. Because '\' represents the directory delimiter on Windows systems, it can't be used as an escape character.*
 
 **Default:**  ``[]``
 
