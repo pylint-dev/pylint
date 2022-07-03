@@ -39,6 +39,7 @@ from pylint.constants import (
 )
 from pylint.exceptions import InvalidMessageError
 from pylint.lint import PyLinter
+from pylint.lint.pylinter import MANAGER
 from pylint.lint.utils import fix_import_path
 from pylint.message import Message
 from pylint.reporters import text
@@ -912,6 +913,39 @@ def test_recursive_ignore(ignore_parameter, ignore_parameter_value) -> None:
     ):
         module = os.path.abspath(join(REGRTEST_DATA_DIR, *regrtest_data_module))
     assert module in linted_file_paths
+
+
+def test_relative_imports(initialized_linter: PyLinter) -> None:
+    """Regression test for https://github.com/PyCQA/pylint/issues/3651"""
+    linter = initialized_linter
+    MANAGER.clear_cache()  # Essential to reproduce the failure
+    with tempdir() as tmpdir:
+        create_files(["x/y/__init__.py", "x/y/one.py", "x/y/two.py"], tmpdir)
+        with open("x/y/__init__.py", "w", encoding="utf-8") as f:
+            f.write(
+                """
+\"\"\"Module x.y\"\"\"
+from .one import ONE
+from .two import TWO
+"""
+            )
+        with open("x/y/one.py", "w", encoding="utf-8") as f:
+            f.write(
+                """
+\"\"\"Module x.y.one\"\"\"
+ONE = 1
+"""
+            )
+        with open("x/y/two.py", "w", encoding="utf-8") as f:
+            f.write(
+                """
+\"\"\"Module x.y.two\"\"\"
+from .one import ONE
+TWO = ONE + ONE
+"""
+            )
+        linter.check(["x"])
+    assert not linter.stats.by_msg
 
 
 def test_import_sibling_module_from_namespace(initialized_linter: PyLinter) -> None:
