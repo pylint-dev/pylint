@@ -87,6 +87,11 @@ def _create_checker_section(
         if option.optdict.get("hide_from_config_file"):
             continue
 
+        if "kwargs" in option.optdict:
+            assert isinstance(option.optdict["kwargs"], dict)
+            if option.optdict["kwargs"].get("new_names"):
+                continue
+
         # Get current value of option
         value = getattr(linter.config, option.name.replace("-", "_"))
 
