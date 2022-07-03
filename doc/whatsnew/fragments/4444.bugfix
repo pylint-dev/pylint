@@ -1,0 +1,3 @@
+Fix the failure to lint modules contained under an identically named directory.
+
+Closes #4444
