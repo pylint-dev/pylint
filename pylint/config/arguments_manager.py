@@ -32,6 +32,7 @@ from pylint.config.argument import (
     _StoreOldNamesArgument,
     _StoreTrueArgument,
 )
+from pylint.config.deprecation_actions import _NewNamesAction
 from pylint.config.exceptions import (
     UnrecognizedArgumentAction,
     _UnrecognizedOptionError,
@@ -216,6 +217,7 @@ class _ArgumentsManager:
                 help=argument.help,
                 metavar=argument.metavar,
                 choices=argument.choices,
+                dest=argument.dest,
             )
         elif isinstance(argument, _StoreTrueArgument):
             section_group.add_argument(
@@ -451,6 +453,10 @@ class _ArgumentsManager:
             ]
             for opt in option_actions:
                 if "--help" in opt.option_strings:
+                    continue
+
+                # Skip deprecated options
+                if isinstance(opt, _NewNamesAction):
                     continue
 
                 optname = opt.option_strings[0][2:]
@@ -710,6 +716,12 @@ class _ArgumentsManager:
                 if optdict.get("hide_from_config_file"):
                     continue
 
+                # Skip deprecated options
+                if "kwargs" in optdict:
+                    assert isinstance(optdict["kwargs"], dict)
+                    if "new_names" in optdict["kwargs"]:
+                        continue
+
                 # Add help comment
                 help_msg = optdict.get("help", "")
                 assert isinstance(help_msg, str)
@@ -725,12 +737,6 @@ class _ArgumentsManager:
                     group_table.add(tomlkit.comment(f"{optname} ="))
                     group_table.add(tomlkit.nl())
                     continue
-
-                # Skip deprecated options
-                if "kwargs" in optdict:
-                    assert isinstance(optdict["kwargs"], dict)
-                    if "new_names" in optdict["kwargs"]:
-                        continue
 
                 # Tomlkit doesn't support regular expressions
                 if isinstance(value, re.Pattern):

@@ -6,5 +6,5 @@
       "missing-module-docstring"
     ]
   },
-  "extension_pkg_whitelist": ["pygame"]
+  "extension_pkg_allow_list": ["pygame"]
 }

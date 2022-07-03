@@ -853,6 +853,7 @@ class TypeChecker(BaseChecker):
                 "class should be ignored. A class is considered mixin if its name matches "
                 "the mixin-class-rgx option.",
                 "kwargs": {"new_names": ["ignore-checks-for-mixin"]},
+                "dest": "ignore_checks_for_mixin",
             },
         ),
         (

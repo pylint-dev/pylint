@@ -110,6 +110,10 @@ def _convert_option_to_argument(
                 section=optdict.get("group", None),
             )
         if "new_names" in optdict["kwargs"]:
+            dest = optdict.get("dest", None)
+            assert (
+                dest
+            ), f"An option ({flags[0]}) with a new name should have a new destination"
             return _StoreNewNamesArgument(
                 flags=flags,
                 default=default,
@@ -120,6 +124,7 @@ def _convert_option_to_argument(
                 hide_help=optdict.get("hide", False),
                 kwargs=optdict.get("kwargs", {}),
                 section=optdict.get("group", None),
+                dest=dest,
             )
     if "dest" in optdict:
         return _StoreOldNamesArgument(

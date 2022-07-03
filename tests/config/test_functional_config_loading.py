@@ -83,6 +83,9 @@ def test_functional_config_loading(
         warnings.filterwarnings(
             "ignore", message="The use of 'MASTER'.*", category=UserWarning
         )
+        warnings.filterwarnings(
+            "ignore", message="--extension-pkg-whitelist.*", category=DeprecationWarning
+        )
         mock_exit, _, runner = run_using_a_configuration_file(
             configuration_path, file_to_lint_path
         )

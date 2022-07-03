@@ -303,6 +303,8 @@ def _make_linter_options(linter: PyLinter) -> Options:
                     " arbitrary code. (This is an alternative name to"
                     " extension-pkg-allow-list for backward compatibility.)"
                 ),
+                "kwargs": {"new_names": ["extension-pkg-allow-list"]},
+                "dest": "extension_pkg_allow_list",
             },
         ),
         (

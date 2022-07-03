@@ -82,6 +82,10 @@ Other Changes
 
   Closes #6953
 
+* The ``extension-pkg-whitelist`` option has been deprecated in favour of ``extension-pkg-allow-list``.
+
+  Ref #5465
+
 
 Internal changes
 ================

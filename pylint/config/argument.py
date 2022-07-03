@@ -433,6 +433,7 @@ class _StoreNewNamesArgument(_DeprecationArgument):
         hide_help: bool,
         kwargs: dict[str, Any],
         section: str | None,
+        dest: str,
     ) -> None:
         super().__init__(
             flags=flags,
@@ -448,6 +449,9 @@ class _StoreNewNamesArgument(_DeprecationArgument):
 
         self.kwargs = kwargs
         """Any additional arguments passed to the action."""
+
+        self.dest = dest
+        """The new destination of the argument."""
 
 
 class _CallableArgument(_Argument):
