@@ -25,7 +25,7 @@ a program to be hanging indefinitely.
   This may result in picky messages about methods like ``__repr__()`` being slightly different on
   direct parents, but even those scenarios can be a source of bugs or unintended behavior.
 
-  Closes #6961, #6992
+  Closes #6992
 
 
 Removed checkers
