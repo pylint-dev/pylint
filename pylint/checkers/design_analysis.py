@@ -546,6 +546,12 @@ class MisdesignChecker(BaseChecker):
             all_base_method_names.update(this_base_method_names)
             all_base_methods.update(klass.methods())
 
+        human_readable_bases = ", ".join(
+            f"{b.parent.name}.{b.attrname}"
+            if isinstance(b, nodes.Attribute)
+            else getattr(b, "name", str(b))
+            for b in node.bases
+        )
         missing_reimplementations = [
             m
             for m in methods_defined_in_multiple_bases
@@ -553,11 +559,10 @@ class MisdesignChecker(BaseChecker):
         ]
         if missing_reimplementations:
             functions = ", ".join(sorted(f.name for f in missing_reimplementations))
-            classes = ", ".join(b.name for b in node.bases)
             self.add_message(
                 "order-dependent-resolution",
                 node=node,
-                args=(classes, functions),
+                args=(human_readable_bases, functions),
                 confidence=INFERENCE,
             )
 
@@ -574,12 +579,11 @@ class MisdesignChecker(BaseChecker):
                 if isinstance(call_node.func, nodes.Attribute) and isinstance(
                     safe_infer(call_node.func.expr), astroid.objects.Super
                 ):
-                    classes = ", ".join(b.name for b in node.bases)
                     self.add_message(
                         "order-dependent-super-resolution",
                         node=call_node,
                         confidence=INFERENCE,
-                        args=(classes, this_meth.name),
+                        args=(human_readable_bases, this_meth.name),
                     )
 
     @only_required_for_messages(
