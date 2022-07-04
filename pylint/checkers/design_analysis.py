@@ -550,7 +550,7 @@ class MisdesignChecker(BaseChecker):
                 continue
 
             this_base_method_names = [
-                f.name for f in klass.methods() if f.name != "__init__"
+                f.name for f in klass.methods() if f.name not in ("__init__", "__new__")
             ]
             intersection = all_base_method_names.intersection(this_base_method_names)
             methods_defined_in_multiple_bases.update(
