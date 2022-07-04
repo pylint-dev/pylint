@@ -87,7 +87,7 @@ MSGS: dict[
         "Used when an if statement contains too many boolean expressions.",
     ),
     "R0917": (
-        "Method(s) defined on multiple direct parents without reimplementation: %s",
+        "Method(s) defined on %s without reimplementation: %s",
         "order-dependent-resolution",
         "Used when methods defined on multiple direct parents are not reimplemented, "
         "leading to fragility where the order of parents dictates behavior.",
@@ -574,11 +574,12 @@ class MisdesignChecker(BaseChecker):
                 if isinstance(call_node.func, nodes.Attribute) and isinstance(
                     safe_infer(call_node.func.expr), astroid.objects.Super
                 ):
+                    classes = ", ".join(b.name for b in node.bases)
                     self.add_message(
                         "order-dependent-super-resolution",
                         node=call_node,
                         confidence=INFERENCE,
-                        args=this_meth.name,
+                        args=(classes, this_meth.name),
                     )
 
     @only_required_for_messages(
