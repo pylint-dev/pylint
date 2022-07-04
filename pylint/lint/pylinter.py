@@ -233,7 +233,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
 }
 
 
-# pylint: disable=too-many-instance-attributes,too-many-public-methods
+# pylint: disable=too-many-instance-attributes,too-many-public-methods,order-dependent-resolution
 class PyLinter(
     _ArgumentsManager,
     _MessageStateHandler,
