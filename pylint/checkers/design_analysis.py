@@ -21,6 +21,7 @@ from pylint.checkers.utils import (
     only_required_for_messages,
     safe_infer,
 )
+from pylint.constants import IS_PYPY
 from pylint.interfaces import INFERENCE
 from pylint.typing import MessageDefinitionTuple
 
@@ -522,7 +523,12 @@ class MisdesignChecker(BaseChecker):
         for b in node.bases:
             if isinstance(b, nodes.Name):
                 inferred = safe_infer(b)
-                if isinstance(inferred, nodes.ClassDef) and is_builtin_object(inferred):
+                # TODO: find out how to detect builtins on PyPy
+                if (
+                    isinstance(inferred, nodes.ClassDef)
+                    and not IS_PYPY
+                    and is_builtin_object(inferred)
+                ):
                     continue
             elif isinstance(b, nodes.Attribute):
                 expr = b.expr
