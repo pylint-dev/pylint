@@ -18,10 +18,8 @@ New checkers
 Added new checker ``missing-timeout`` to warn of default timeout values that could cause
 a program to be hanging indefinitely.
 
-* Added new refactoring messages ``order-dependent-resolution`` and ``order-dependent-super-resolution``
-  to indicate fragile inheritance structures where the behavior of a method depends on the order in
-  which direct parents are specified in the class definition. It's not that the order is wrong
-  per se: it's that it would be better to reimplement the method to clarify the wanted behavior or
+* Added new refactoring messages ``hidden-parent-method`` and ``hidden-super-method``
+  to indicate when it would be better to reimplement the method to clarify the wanted behavior or
   to change the inheritance structure so that the method is inherited from a common grandparent.
 
   This may result in picky messages about methods like ``__repr__()`` being slightly different on

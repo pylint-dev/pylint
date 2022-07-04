@@ -10,5 +10,5 @@ class KindParent:
         return "It would be better for you in the long run if you wouldn't do that."
 
 
-class Child(HarshParent, KindParent):  # [order-dependent-resolution]
+class Child(HarshParent, KindParent):  # [hidden-parent-method]
     pass

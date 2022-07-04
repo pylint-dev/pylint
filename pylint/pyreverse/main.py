@@ -206,7 +206,7 @@ OPTIONS: Options = (
 
 class Run(
     _ArgumentsManager, _ArgumentsProvider
-):  # pylint: disable=order-dependent-resolution
+):  # pylint: disable=hidden-parent-method
     """Base class providing common behaviour for pyreverse commands."""
 
     options = OPTIONS

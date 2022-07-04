@@ -96,14 +96,14 @@ class DerivedListIterable(list[collections.abc.Iterable[int]]):
 
 
 # Multiple generic base classes
-# pylint: disable-next=order-dependent-resolution
+# pylint: disable-next=hidden-parent-method
 class DerivedMultiple(collections.abc.Sized, collections.abc.Hashable):  # [abstract-method,abstract-method]
     pass
 
-# pylint: disable-next=order-dependent-resolution
+# pylint: disable-next=hidden-parent-method
 class CustomAbstractCls1(abc.ABC):
     pass
-# pylint: disable-next=order-dependent-resolution
+# pylint: disable-next=hidden-parent-method
 class CustomAbstractCls2(collections.abc.Sized, collections.abc.Iterable[CustomAbstractCls1]):  # [abstract-method,abstract-method]  # __iter__, __len__
     pass
 class CustomImplementation(CustomAbstractCls2):  # [abstract-method,abstract-method]  # __iter__, __len__

@@ -745,7 +745,7 @@ def report_similarities(
 # wrapper to get a pylint checker from the similar class
 class SimilarChecker(
     BaseRawFileChecker, Similar
-):  # pylint: disable=order-dependent-resolution
+):  # pylint: disable=hidden-parent-method
     """Checks for similarities and duplicated code.
 
     This computation may be memory / CPU intensive, so you

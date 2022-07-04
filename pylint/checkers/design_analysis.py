@@ -90,13 +90,13 @@ MSGS: dict[
     ),
     "R0917": (
         "Method(s) defined on %s without reimplementation on %s: %s",
-        "order-dependent-resolution",
+        "hidden-parent-method",
         "Used when methods defined on multiple direct parents are not reimplemented, "
         "leading to fragility where the order of parents dictates behavior.",
     ),
     "R0918": (
-        "super() called despite %s defining %s",
-        "order-dependent-super-resolution",
+        "super() called despite hidden %s defined on %s",
+        "hidden-super-method",
         "Used for reliance on super() despite multiple direct parents defining a method, "
         "leading to fragility where the order of parents dictates behavior.",
     ),
@@ -467,8 +467,8 @@ class MisdesignChecker(BaseChecker):
     @only_required_for_messages(
         "too-few-public-methods",
         "too-many-public-methods",
-        "order-dependent-resolution",
-        "order-dependent-super-resolution",
+        "hidden-parent-method",
+        "hidden-super-method",
     )
     def leave_classdef(self, node: nodes.ClassDef) -> None:
         """Check number of public methods."""
@@ -515,9 +515,9 @@ class MisdesignChecker(BaseChecker):
                 args=(all_methods, self.linter.config.min_public_methods),
             )
 
-        self._check_order_dependent_resolutions(node)
+        self._check_hidden_parent_methods(node)
 
-    def _check_order_dependent_resolutions(self, node: nodes.ClassDef) -> None:
+    def _check_hidden_parent_methods(self, node: nodes.ClassDef) -> None:
         if IS_PYPY:
             return
         # Filter out builtins and attributes like collections.abc.Sized
@@ -577,7 +577,7 @@ class MisdesignChecker(BaseChecker):
         if missing_reimplementations:
             functions = ", ".join(sorted(f.name for f in missing_reimplementations))
             self.add_message(
-                "order-dependent-resolution",
+                "hidden-parent-method",
                 node=node,
                 args=(
                     ", ".join(c.name for c in parents_to_mention_in_warning),
@@ -606,12 +606,12 @@ class MisdesignChecker(BaseChecker):
                 else:
                     continue
                 self.add_message(
-                    "order-dependent-super-resolution",
+                    "hidden-super-method",
                     node=call_node,
                     confidence=INFERENCE,
                     args=(
-                        ", ".join(c.name for c in parents_to_mention_in_warning),
                         this_meth.name,
+                        ", ".join(c.name for c in parents_to_mention_in_warning),
                     ),
                 )
 

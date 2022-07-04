@@ -13,4 +13,4 @@ class KindParent:
 class Child(HarshParent, KindParent):
     @staticmethod
     def scold():
-        return super().scold()  # [order-dependent-super-resolution]
+        return super().scold()  # [hidden-super-method]

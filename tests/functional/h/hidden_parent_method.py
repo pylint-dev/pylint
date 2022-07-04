@@ -1,5 +1,5 @@
 # pylint: disable=too-few-public-methods, missing-class-docstring
-"""Functional tests for order-dependent-resolution and order-dependent-super-resolution."""
+"""Functional tests for hidden-parent-method and hidden-super-method."""
 import typing
 GrandparentT = typing.TypeVar('GrandparentT', 'Grandparent')
 
@@ -24,7 +24,7 @@ class Parent2(Grandparent):
         return "I'm parent 2"
 
 
-class Child1(Parent1, Parent2):  # [order-dependent-resolution]
+class Child1(Parent1, Parent2):  # [hidden-parent-method]
     pass
 
 
@@ -36,7 +36,7 @@ class Child2(Parent1, Parent2):
 class Child3(Parent1, Parent2):
     def __repr__(self):
         print("warn, because calls super(), which is order-dependent")
-        return super().__repr__()  # [order-dependent-super-resolution]
+        return super().__repr__()  # [hidden-super-method]
 
 
 class Child4(Parent1, Parent2):

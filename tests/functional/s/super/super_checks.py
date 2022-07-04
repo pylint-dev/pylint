@@ -153,4 +153,4 @@ class GrandChild(Child):
 class AlabamaCousin(Child, Niece):
     def method(self):
         print("AlabamaCousin")
-        super(Child, self).method()  # [order-dependent-super-resolution]
+        super(Child, self).method()  # [hidden-super-method]

@@ -98,7 +98,7 @@ class AbstractSizable(Structure):
     __len__ = length
 
 
-# pylint: disable=order-dependent-resolution
+# pylint: disable=hidden-parent-method
 class GoodComplexMRO(Container, Iterator, Sizable, Hashable):
     pass
 
