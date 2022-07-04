@@ -13,4 +13,4 @@ class KindParent:
 class Child(HarshParent, KindParent):
     @staticmethod
     def scold():
-        HarshParent.scold()
+        return HarshParent.scold()
