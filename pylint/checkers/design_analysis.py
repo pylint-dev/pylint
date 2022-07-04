@@ -17,6 +17,7 @@ from astroid import nodes
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
     get_node_first_ancestor_of_type,
+    is_builtin_object,
     only_required_for_messages,
     safe_infer,
 )
@@ -521,9 +522,7 @@ class MisdesignChecker(BaseChecker):
         for b in node.bases:
             if isinstance(b, nodes.Name):
                 inferred = safe_infer(b)
-                if isinstance(inferred, nodes.ClassDef) and inferred.qname().startswith(
-                    "builtins"
-                ):
+                if isinstance(inferred, nodes.ClassDef) and is_builtin_object(inferred):
                     continue
             elif isinstance(b, nodes.Attribute):
                 expr = b.expr
