@@ -576,15 +576,20 @@ class MisdesignChecker(BaseChecker):
             for call_node in this_meth.nodes_of_class(nodes.Call):
                 if call_node.frame() is not meth_frame:
                     continue
-                if isinstance(call_node.func, nodes.Attribute) and isinstance(
-                    safe_infer(call_node.func.expr), astroid.objects.Super
-                ):
-                    self.add_message(
-                        "order-dependent-super-resolution",
-                        node=call_node,
-                        confidence=INFERENCE,
-                        args=(human_readable_bases, this_meth.name),
-                    )
+                if isinstance(call_node.func, nodes.Attribute):
+                    if not isinstance(call_node.func.expr, astroid.objects.Super):
+                        continue
+                elif isinstance(call_node.func, nodes.Name):
+                    if call_node.func.name != "super":
+                        continue
+                else:
+                    continue
+                self.add_message(
+                    "order-dependent-super-resolution",
+                    node=call_node,
+                    confidence=INFERENCE,
+                    args=(human_readable_bases, this_meth.name),
+                )
 
     @only_required_for_messages(
         "too-many-return-statements",
