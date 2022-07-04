@@ -74,8 +74,12 @@ class Child7(HasClose):
         super().close()
 
 
-class Grandchild(Child6, Child7):
+class Grandchild1(Child6, Child7):
     def close(self):
         """All paths delegate to super -- no warning"""
         print("Grandchild")
         super().close()
+
+
+class Granchild2(Child6, Child7):
+    """Same test, but without reimplementation -- no warning"""
