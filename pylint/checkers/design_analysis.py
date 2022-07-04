@@ -522,13 +522,11 @@ class MisdesignChecker(BaseChecker):
         relevant_bases = []
         for b in node.bases:
             if isinstance(b, nodes.Name):
-                inferred = safe_infer(b)
                 # TODO: find out how to detect builtins on PyPy
-                if (
-                    isinstance(inferred, nodes.ClassDef)
-                    and not IS_PYPY
-                    and is_builtin_object(inferred)
-                ):
+                if IS_PYPY:
+                    continue
+                inferred = safe_infer(b)
+                if isinstance(inferred, nodes.ClassDef) and is_builtin_object(inferred):
                     continue
             elif isinstance(b, nodes.Attribute):
                 expr = b.expr
