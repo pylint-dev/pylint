@@ -250,6 +250,8 @@ class PrivateImportChecker(BaseChecker):
         """Does the node's file's path contain the base name of `import_mod_name`?"""
         if not import_mod_name:  # from . import ...
             return True
+        if node.level:  # from .foo import ..., from ..bar import ...
+            return True
 
         base_import_package = import_mod_name.split(".")[0]
 

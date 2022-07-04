@@ -1,7 +1,7 @@
 """Tests for import-private-name."""
 # pylint: disable=unused-import, missing-docstring, reimported, import-error, wrong-import-order
 # pylint: disable=no-name-in-module, multiple-imports, ungrouped-imports, misplaced-future
-# pylint: disable=wrong-import-position
+# pylint: disable=wrong-import-position, relative-beyond-top-level
 
 # Basic cases
 from _world import hello  # [import-private-name]
@@ -132,3 +132,8 @@ class Regression6624:
 class Example:
     def save(self):
         return self
+
+
+# Treat relative imports as internal
+from .other_file import _private
+from ..parent import _private

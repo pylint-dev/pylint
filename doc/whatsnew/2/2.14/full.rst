@@ -1,10 +1,47 @@
 Full changelog
 ==============
 
-What's New in Pylint 2.14.4?
+What's New in Pylint 2.14.5?
 ----------------------------
 Release date: TBA
 
+
+
+What's New in Pylint 2.14.4?
+----------------------------
+Release date: 2022-06-29
+
+* The ``differing-param-doc`` check was triggered by positional only arguments.
+
+  Closes #6950
+
+* Fixed an issue where scanning `.` directory recursively with ``--ignore-path=^path/to/dir`` is not
+  ignoring the `path/to/dir` directory.
+
+  Closes #6964
+
+* Fixed regression that didn't allow quoted ``init-hooks`` in option files.
+
+  Closes #7006
+
+* Fixed a false positive for ``modified-iterating-dict`` when updating an existing key.
+
+  Closes #6179
+
+* Fixed an issue where many-core Windows machines (>~60 logical processors) would hang when
+  using the default jobs count.
+
+  Closes #6965
+
+* Fixed an issue with the recognition of ``setup.cfg`` files.
+  Only ``.cfg`` files that are exactly named ``setup.cfg`` require section names that
+  start with ``pylint.``.
+
+  Closes #3630
+
+* Don't report ``import-private-name`` for relative imports.
+
+  Closes #7078
 
 
 What's New in Pylint 2.14.3?

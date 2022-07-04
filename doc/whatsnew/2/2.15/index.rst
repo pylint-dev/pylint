@@ -15,6 +15,9 @@ Summary -- Release highlights
 New checkers
 ============
 
+Added new checker ``missing-timeout`` to warn of default timeout values that could cause
+a program to be hanging indefinitely.
+
 
 Removed checkers
 ================
@@ -27,6 +30,10 @@ Extensions
 False positives fixed
 =====================
 
+* Don't report ``unsupported-binary-operation`` on Python <= 3.9 when using the ``|`` operator
+  with types, if one has a metaclass that overloads ``__or__`` or ``__ror__`` as appropriate.
+
+  Closes #4951
 
 False negatives fixed
 =====================
@@ -50,9 +57,18 @@ False negatives fixed
 
   Closes #6812
 
+* Emit ``used-before-assignment`` when relying on a name that is reimported later in a function.
+
+  Closes #4624
+
 * Emit ``used-before-assignment`` for self-referencing assignments under if conditions.
 
   Closes #6643
+
+* Rename ``unhashable-dict-key`` to ``unhashable-member`` and emit when creating sets and dicts,
+  not just when accessing dicts.
+
+  Closes #7034, Closes #7055
 
 
 Other bug fixes
@@ -61,6 +77,10 @@ Other bug fixes
 
 Other Changes
 =============
+
+* ``useless-super-delegation`` has been renamed to ``useless-parent-delegation`` in order to be more generic.
+
+  Closes #6953
 
 
 Internal changes

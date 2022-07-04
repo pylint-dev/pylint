@@ -73,7 +73,7 @@ def _signature_from_call(call):
     for keyword in call.keywords or []:
         arg, value = keyword.arg, keyword.value
         if arg is None and isinstance(value, nodes.Name):
-            # Starred node and we are interested only in names,
+            # Starred node, and we are interested only in names,
             # otherwise some transformation might occur for the parameter.
             starred_kws.append(value.name)
         elif isinstance(value, nodes.Name):
@@ -470,9 +470,7 @@ def _has_same_layout_slots(slots, assigned_value):
     return False
 
 
-MSGS: dict[
-    str, MessageDefinitionTuple
-] = {  # pylint: disable=consider-using-namedtuple-or-dataclass
+MSGS: dict[str, MessageDefinitionTuple] = {
     "F0202": (
         "Unable to check methods signature (%s / %s)",
         "method-check-failed",
@@ -579,12 +577,13 @@ MSGS: dict[
         "Used when an __init__ method is called on a class which is not "
         "in the direct ancestors for the analysed class.",
     ),
-    "W0235": (
-        "Useless super delegation in method %r",
-        "useless-super-delegation",
+    "W0246": (
+        "Useless parent or super() delegation in method %r",
+        "useless-parent-delegation",
         "Used whenever we can detect that an overridden method is useless, "
-        "relying on super() delegation to do the same thing as another method "
+        "relying on parent or super() delegation to do the same thing as another method "
         "from the MRO.",
+        {"old_names": [("W0235", "useless-super-delegation")]},
     ),
     "W0236": (
         "Method %r was expected to be %r, found it instead as %r",
@@ -1305,7 +1304,10 @@ a metaclass class method.",
 
         if _definition_equivalent_to_call(params, args):
             self.add_message(
-                "useless-super-delegation", node=function, args=(function.name,)
+                "useless-parent-delegation",
+                node=function,
+                args=(function.name,),
+                confidence=INFERENCE,
             )
 
     def _check_property_with_parameters(self, node):

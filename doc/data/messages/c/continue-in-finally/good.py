@@ -1,1 +1,7 @@
-# This is a placeholder for correct code for this message.
+while True:
+    try:
+        pass
+    except ValueError:
+        pass
+    else:
+        continue
