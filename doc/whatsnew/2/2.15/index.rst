@@ -82,6 +82,10 @@ Other Changes
 
   Closes #6953
 
+* ``bad-exception-context`` has been renamed to ``bad-exception-cause`` as it is about the cause and not the context.
+
+  Closes #3694
+
 
 Internal changes
 ================

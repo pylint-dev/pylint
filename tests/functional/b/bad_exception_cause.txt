@@ -1,0 +1,5 @@
+bad-exception-cause:14:4:14:27:test:Exception context set to something which is not an exception, nor None:UNDEFINED
+bad-exception-cause:17:4:17:34:test:Exception context set to something which is not an exception, nor None:UNDEFINED
+bad-exception-cause:23:4:23:36:test:Exception context set to something which is not an exception, nor None:UNDEFINED
+catching-non-exception:31:7:31:15::"Catching an exception which doesn't inherit from Exception: function":UNDEFINED
+bad-exception-cause:32:4:32:28::Exception context set to something which is not an exception, nor None:UNDEFINED
