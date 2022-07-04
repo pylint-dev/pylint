@@ -88,7 +88,7 @@ MSGS: dict[
         "Used when an if statement contains too many boolean expressions.",
     ),
     "R0917": (
-        "Method(s) defined on %s without reimplementation: %s",
+        "Method(s) defined on %s without reimplementation on %s: %s",
         "order-dependent-resolution",
         "Used when methods defined on multiple direct parents are not reimplemented, "
         "leading to fragility where the order of parents dictates behavior.",
@@ -578,7 +578,7 @@ class MisdesignChecker(BaseChecker):
             self.add_message(
                 "order-dependent-resolution",
                 node=node,
-                args=(human_readable_bases, functions),
+                args=(human_readable_bases, node.name, functions),
                 confidence=INFERENCE,
             )
 
