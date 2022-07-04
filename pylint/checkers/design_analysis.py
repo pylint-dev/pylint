@@ -93,7 +93,7 @@ MSGS: dict[
         "leading to fragility where the order of parents dictates behavior.",
     ),
     "R0918": (
-        "super() called despite multiple direct parents defining %s",
+        "super() called despite %s defining %s",
         "order-dependent-super-resolution",
         "Used for reliance on super() despite multiple direct parents defining a method, "
         "leading to fragility where the order of parents dictates behavior.",
@@ -552,10 +552,12 @@ class MisdesignChecker(BaseChecker):
             if m.name not in (f.name for f in node.mymethods())
         ]
         if missing_reimplementations:
+            functions = ", ".join(sorted(f.name for f in missing_reimplementations))
+            classes = ", ".join(b.name for b in node.bases)
             self.add_message(
                 "order-dependent-resolution",
                 node=node,
-                args=(", ".join(sorted(f.name for f in missing_reimplementations)),),
+                args=(classes, functions),
                 confidence=INFERENCE,
             )
 
