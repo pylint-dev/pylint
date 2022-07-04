@@ -544,6 +544,7 @@ class MisdesignChecker(BaseChecker):
         all_base_method_names: set[str] = set()
         all_base_methods: set[nodes.FunctionDef] = set()
         methods_defined_in_multiple_bases: set[nodes.FunctionDef] = set()
+        parents_to_mention_in_warning: list[nodes.ClassDef] = []
 
         for base in relevant_bases:
             klass = safe_infer(base)
@@ -558,22 +559,19 @@ class MisdesignChecker(BaseChecker):
                 f.name for f in klass.methods() if f.name not in ("__init__", "__new__")
             ]
             intersection = all_base_method_names.intersection(this_base_method_names)
-            methods_defined_in_multiple_bases.update(
-                {
-                    f
-                    for f in klass.methods()
-                    if f.name in intersection and f not in all_base_methods
-                }
-            )
+            methods_newly_found_in_multiple_bases = {
+                f
+                for f in klass.methods()
+                if f.name in intersection and f not in all_base_methods
+            }
+            if methods_newly_found_in_multiple_bases:
+                parents_to_mention_in_warning.append(klass)
+                methods_defined_in_multiple_bases.update(
+                    methods_newly_found_in_multiple_bases
+                )
             all_base_method_names.update(this_base_method_names)
             all_base_methods.update(klass.methods())
 
-        human_readable_bases = ", ".join(
-            f"{b.parent.name}.{b.attrname}"
-            if isinstance(b, nodes.Attribute)
-            else getattr(b, "name", str(b))
-            for b in relevant_bases
-        )
         missing_reimplementations = [
             m
             for m in methods_defined_in_multiple_bases
@@ -584,7 +582,11 @@ class MisdesignChecker(BaseChecker):
             self.add_message(
                 "order-dependent-resolution",
                 node=node,
-                args=(human_readable_bases, node.name, functions),
+                args=(
+                    ", ".join(c.name for c in parents_to_mention_in_warning),
+                    node.name,
+                    functions,
+                ),
                 confidence=INFERENCE,
             )
 
@@ -610,7 +612,10 @@ class MisdesignChecker(BaseChecker):
                     "order-dependent-super-resolution",
                     node=call_node,
                     confidence=INFERENCE,
-                    args=(human_readable_bases, this_meth.name),
+                    args=(
+                        ", ".join(c.name for c in parents_to_mention_in_warning),
+                        this_meth.name,
+                    ),
                 )
 
     @only_required_for_messages(

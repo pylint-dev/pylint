@@ -1,2 +1,2 @@
-order-dependent-resolution:27:0:27:12:Child1:"Method(s) defined on Parent1, Parent2 without reimplementation on Child1: __repr__":INFERENCE
-order-dependent-super-resolution:39:15:39:22:Child3.__repr__:super() called despite Parent1, Parent2 defining __repr__:INFERENCE
+order-dependent-resolution:27:0:27:12:Child1:"Method(s) defined on Parent2 without reimplementation on Child1: __repr__":INFERENCE
+order-dependent-super-resolution:39:15:39:22:Child3.__repr__:super() called despite Parent2 defining __repr__:INFERENCE
