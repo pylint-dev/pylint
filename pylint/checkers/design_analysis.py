@@ -516,14 +516,31 @@ class MisdesignChecker(BaseChecker):
         self._check_order_dependent_resolutions(node)
 
     def _check_order_dependent_resolutions(self, node: nodes.ClassDef) -> None:
-        if len(node.bases) < 2:
+        # Filter out builtins and attributes like collections.abc.Sized
+        relevant_bases = []
+        for b in node.bases:
+            if isinstance(b, nodes.Name):
+                inferred = safe_infer(b)
+                if isinstance(inferred, nodes.ClassDef) and inferred.qname().startswith(
+                    "builtins"
+                ):
+                    continue
+            elif isinstance(b, nodes.Attribute):
+                expr = b.expr
+                while isinstance(expr, nodes.Attribute):
+                    expr = expr.expr
+                if isinstance(expr, nodes.Name) and expr.name == "collections":
+                    continue
+            relevant_bases.append(b)
+
+        if len(relevant_bases) < 2:
             return
 
         all_base_method_names: set[str] = set()
         all_base_methods: set[nodes.FunctionDef] = set()
         methods_defined_in_multiple_bases: set[nodes.FunctionDef] = set()
 
-        for base in node.bases:
+        for base in relevant_bases:
             klass = safe_infer(base)
             if not isinstance(klass, nodes.ClassDef):
                 continue
@@ -550,7 +567,7 @@ class MisdesignChecker(BaseChecker):
             f"{b.parent.name}.{b.attrname}"
             if isinstance(b, nodes.Attribute)
             else getattr(b, "name", str(b))
-            for b in node.bases
+            for b in relevant_bases
         )
         missing_reimplementations = [
             m

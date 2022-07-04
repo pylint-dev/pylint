@@ -48,3 +48,7 @@ class Child4(Parent1, Parent2):
 
 class Child5(Parent1, typing.Generic[GrandparentT]):
     pass
+
+
+class ListySet(list, set):
+    pass
