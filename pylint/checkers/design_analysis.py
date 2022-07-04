@@ -518,13 +518,12 @@ class MisdesignChecker(BaseChecker):
         self._check_order_dependent_resolutions(node)
 
     def _check_order_dependent_resolutions(self, node: nodes.ClassDef) -> None:
+        if IS_PYPY:
+            return
         # Filter out builtins and attributes like collections.abc.Sized
         relevant_bases = []
         for b in node.bases:
             if isinstance(b, nodes.Name):
-                # TODO: find out how to detect builtins on PyPy
-                if IS_PYPY:
-                    continue
                 inferred = safe_infer(b)
                 if isinstance(inferred, nodes.ClassDef) and is_builtin_object(inferred):
                     continue
