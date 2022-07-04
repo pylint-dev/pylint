@@ -94,12 +94,6 @@ MSGS: dict[
         "Used when methods defined on multiple direct parents are not reimplemented, "
         "leading to fragility where the order of parents dictates behavior.",
     ),
-    "R0918": (
-        "super() called despite hidden %s defined on %s",
-        "hidden-super-method",
-        "Used for reliance on super() despite multiple direct parents defining a method, "
-        "leading to fragility where the order of parents dictates behavior.",
-    ),
 }
 SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
 DATACLASSES_DECORATORS = frozenset({"dataclass", "attrs"})
@@ -468,7 +462,6 @@ class MisdesignChecker(BaseChecker):
         "too-few-public-methods",
         "too-many-public-methods",
         "hidden-parent-method",
-        "hidden-super-method",
     )
     def leave_classdef(self, node: nodes.ClassDef) -> None:
         """Check number of public methods."""
@@ -586,34 +579,6 @@ class MisdesignChecker(BaseChecker):
                 ),
                 confidence=INFERENCE,
             )
-
-        for parent_meth in methods_defined_in_multiple_bases:
-            if parent_meth in missing_reimplementations:
-                continue
-            this_meth = next(node.ilookup(parent_meth.name), None)
-            if this_meth is None:  # pragma: no cover
-                continue
-            meth_frame = this_meth.frame()
-            for call_node in this_meth.nodes_of_class(nodes.Call):
-                if call_node.frame() is not meth_frame:
-                    continue
-                if isinstance(call_node.func, nodes.Attribute):
-                    if not isinstance(call_node.func.expr, astroid.objects.Super):
-                        continue
-                elif isinstance(call_node.func, nodes.Name):
-                    if call_node.func.name != "super":
-                        continue
-                else:
-                    continue
-                self.add_message(
-                    "hidden-super-method",
-                    node=call_node,
-                    confidence=INFERENCE,
-                    args=(
-                        this_meth.name,
-                        ", ".join(c.name for c in parents_to_mention_in_warning),
-                    ),
-                )
 
     @only_required_for_messages(
         "too-many-return-statements",

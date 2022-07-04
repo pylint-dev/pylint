@@ -14,4 +14,3 @@ no-member:98:8:98:55:InvalidSuperChecks.__init__:Super of 'InvalidSuperChecks' h
 bad-super-call:120:8:120:31:SuperWithType.__init__:Bad first argument 'type' given to super():UNDEFINED
 bad-super-call:125:8:125:35:SuperWithSelfClass.__init__:Bad first argument 'self.__class__' given to super():UNDEFINED
 bad-super-call:149:8:149:26:GrandChild.method:Bad first argument 'Niece' given to super():UNDEFINED
-hidden-super-method:156:8:156:26:AlabamaCousin.method:super() called despite hidden method defined on Niece:INFERENCE

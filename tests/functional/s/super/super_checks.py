@@ -153,4 +153,4 @@ class GrandChild(Child):
 class AlabamaCousin(Child, Niece):
     def method(self):
         print("AlabamaCousin")
-        super(Child, self).method()  # [hidden-super-method]
+        super(Child, self).method()

@@ -1,7 +1,9 @@
 # pylint: disable=too-few-public-methods, missing-class-docstring
-"""Functional tests for hidden-parent-method and hidden-super-method."""
+"""Functional tests for hidden-parent-method."""
 import typing
-GrandparentT = typing.TypeVar('GrandparentT', 'Grandparent')
+
+GrandparentT = typing.TypeVar("GrandparentT", "Grandparent")
+
 
 class Grandparent:
     def __init__(self):
@@ -35,14 +37,15 @@ class Child2(Parent1, Parent2):
 
 class Child3(Parent1, Parent2):
     def __repr__(self):
-        print("warn, because calls super(), which is order-dependent")
-        return super().__repr__()  # [hidden-super-method]
+        print("could warn, but not now--would need to determine if all paths delegate to super()")
+        return super().__repr__()
 
 
 class Child4(Parent1, Parent2):
     def __repr__(self):
         def nested():
             return super().__repr__()
+
         return nested()
 
 
@@ -52,3 +55,27 @@ class Child5(Parent1, typing.Generic[GrandparentT]):
 
 class ListySet(list, set):
     pass
+
+
+class HasClose:
+    def close(self):
+        """Example demonstrating better inheritance pattern"""
+
+
+class Child6(HasClose):
+    def close(self):
+        print("Child6")
+        super().close()
+
+
+class Child7(HasClose):
+    def close(self):
+        print("Child7")
+        super().close()
+
+
+class Grandchild(Child6, Child7):
+    def close(self):
+        """All paths delegate to super -- no warning"""
+        print("Grandchild")
+        super().close()

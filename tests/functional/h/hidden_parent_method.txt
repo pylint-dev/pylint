@@ -1,2 +1,1 @@
-hidden-parent-method:27:0:27:12:Child1:"Method(s) defined on Parent2 without reimplementation on Child1: __repr__":INFERENCE
-hidden-super-method:39:15:39:22:Child3.__repr__:super() called despite hidden __repr__ defined on Parent2:INFERENCE
+hidden-parent-method:29:0:29:12:Child1:"Method(s) defined on Parent2 without reimplementation on Child1: __repr__":INFERENCE
