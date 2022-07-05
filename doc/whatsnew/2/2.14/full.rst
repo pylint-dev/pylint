@@ -6,6 +6,11 @@ What's New in Pylint 2.14.5?
 Release date: TBA
 
 
+* Fixed a crash in the ``undefined-loop-variable`` check when ``enumerate()`` is used
+  in a ternary expression.
+
+  Closes #7131
+
 * Fixed handling of ``--`` as separator between positional arguments and flags.
 
   Closes #7003
