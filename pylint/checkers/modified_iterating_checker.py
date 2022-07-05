@@ -1,4 +1,4 @@
-# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+﻿# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
@@ -75,12 +75,13 @@ class ModifiedIterationChecker(checkers.BaseChecker):
             self._deleted_iteration_target_cond(t, iter_obj) for t in node.targets
         ):
             inferred = utils.safe_infer(iter_obj)
-            if isinstance(inferred, nodes.List):
-                msg_id = "modified-iterating-list"
-            elif isinstance(inferred, nodes.Dict):
-                msg_id = "modified-iterating-dict"
-            elif isinstance(inferred, nodes.Set):
-                msg_id = "modified-iterating-set"
+            match inferred:
+                case nodes.List():
+                    msg_id = 'modified-iterating-list'
+                case nodes.Dict():
+                    msg_id = 'modified-iterating-dict'
+                case nodes.Set():
+                    msg_id = 'modified-iterating-set'
         elif not isinstance(iter_obj, nodes.Name):
             pass
         elif self._modified_iterating_list_cond(node, iter_obj):

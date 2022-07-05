@@ -1,4 +1,4 @@
-# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+﻿# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
@@ -172,79 +172,32 @@ class _ArgumentsManager:
         section_group: argparse._ArgumentGroup, argument: _Argument
     ) -> None:
         """Add an argument."""
-        if isinstance(argument, _StoreArgument):
-            section_group.add_argument(
-                *argument.flags,
-                action=argument.action,
-                default=argument.default,
-                type=argument.type,  # type: ignore[arg-type] # incorrect typing in typeshed
-                help=argument.help,
-                metavar=argument.metavar,
-                choices=argument.choices,
-            )
-        elif isinstance(argument, _StoreOldNamesArgument):
-            section_group.add_argument(
-                *argument.flags,
-                **argument.kwargs,
-                action=argument.action,
-                default=argument.default,
-                type=argument.type,  # type: ignore[arg-type] # incorrect typing in typeshed
-                help=argument.help,
-                metavar=argument.metavar,
-                choices=argument.choices,
-            )
-            # We add the old name as hidden option to make it's default value gets loaded when
-            # argparse initializes all options from the checker
-            assert argument.kwargs["old_names"]
-            for old_name in argument.kwargs["old_names"]:
-                section_group.add_argument(
-                    f"--{old_name}",
-                    action="store",
-                    default=argument.default,
-                    type=argument.type,  # type: ignore[arg-type] # incorrect typing in typeshed
-                    help=argparse.SUPPRESS,
-                    metavar=argument.metavar,
-                    choices=argument.choices,
-                )
-        elif isinstance(argument, _StoreNewNamesArgument):
-            section_group.add_argument(
-                *argument.flags,
-                **argument.kwargs,
-                action=argument.action,
-                default=argument.default,
-                type=argument.type,  # type: ignore[arg-type] # incorrect typing in typeshed
-                help=argument.help,
-                metavar=argument.metavar,
-                choices=argument.choices,
-            )
-        elif isinstance(argument, _StoreTrueArgument):
-            section_group.add_argument(
-                *argument.flags,
-                action=argument.action,
-                default=argument.default,
-                help=argument.help,
-            )
-        elif isinstance(argument, _CallableArgument):
-            section_group.add_argument(
-                *argument.flags,
-                **argument.kwargs,
-                action=argument.action,
-                help=argument.help,
-                metavar=argument.metavar,
-            )
-        elif isinstance(argument, _ExtendArgument):
-            section_group.add_argument(
-                *argument.flags,
-                action=argument.action,
-                default=argument.default,
-                type=argument.type,  # type: ignore[arg-type] # incorrect typing in typeshed
-                help=argument.help,
-                metavar=argument.metavar,
-                choices=argument.choices,
-                dest=argument.dest,
-            )
-        else:
-            raise UnrecognizedArgumentAction
+        # PRESERVED COMMENTS: 
+         # type: ignore[arg-type] # incorrect typing in typeshed
+         # type: ignore[arg-type] # incorrect typing in typeshed
+         # We add the old name as hidden option to make it's default value gets loaded when
+         # argparse initializes all options from the checker
+         # type: ignore[arg-type] # incorrect typing in typeshed
+         # type: ignore[arg-type] # incorrect typing in typeshed
+         # type: ignore[arg-type] # incorrect typing in typeshed
+        match argument:
+            case _StoreArgument():
+                section_group.add_argument(*argument.flags, action=argument.action, default=argument.default, type=argument.type, help=argument.help, metavar=argument.metavar, choices=argument.choices)
+            case _StoreOldNamesArgument():
+                section_group.add_argument(*argument.flags, **argument.kwargs, action=argument.action, default=argument.default, type=argument.type, help=argument.help, metavar=argument.metavar, choices=argument.choices)
+                assert argument.kwargs['old_names']
+                for old_name in argument.kwargs['old_names']:
+                    section_group.add_argument(f'--{old_name}', action='store', default=argument.default, type=argument.type, help=argparse.SUPPRESS, metavar=argument.metavar, choices=argument.choices)
+            case _StoreNewNamesArgument():
+                section_group.add_argument(*argument.flags, **argument.kwargs, action=argument.action, default=argument.default, type=argument.type, help=argument.help, metavar=argument.metavar, choices=argument.choices)
+            case _StoreTrueArgument():
+                section_group.add_argument(*argument.flags, action=argument.action, default=argument.default, help=argument.help)
+            case _CallableArgument():
+                section_group.add_argument(*argument.flags, **argument.kwargs, action=argument.action, help=argument.help, metavar=argument.metavar)
+            case _ExtendArgument():
+                section_group.add_argument(*argument.flags, action=argument.action, default=argument.default, type=argument.type, help=argument.help, metavar=argument.metavar, choices=argument.choices, dest=argument.dest)
+            case _:
+                raise UnrecognizedArgumentAction
 
     def _load_default_argument_values(self) -> None:
         """Loads the default values of all registered options."""
@@ -561,12 +514,13 @@ class _ArgumentsManager:
             if not isinstance(values, dict):
                 continue
             for option, value in values.items():
-                if isinstance(value, bool):
-                    values[option] = "yes" if value else "no"
-                elif isinstance(value, list):
-                    values[option] = ",".join(value)
-                else:
-                    values[option] = str(value)
+                match value:
+                    case bool():
+                        values[option] = 'yes' if value else 'no'
+                    case list():
+                        values[option] = ','.join(value)
+                    case _:
+                        values[option] = str(value)
             for option, value in values.items():
                 try:
                     parser.set(section_name, option, value=value)

@@ -1,4 +1,4 @@
-# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+﻿# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
@@ -275,14 +275,15 @@ class BasicErrorChecker(_BasicChecker):
         returns = node.nodes_of_class(
             nodes.Return, skip_klass=(nodes.FunctionDef, nodes.ClassDef)
         )
-        if node.is_method() and node.name == "__init__":
-            if node.is_generator():
-                self.add_message("init-is-generator", node=node)
-            else:
+        # PRESERVED COMMENTS: 
+         # Are we returning anything but None from constructors
+        match node.name:
+            case '__init__' if node.is_method() and node.is_generator():
+                self.add_message('init-is-generator', node=node)
+            case '__init__':
                 values = [r.value for r in returns]
-                # Are we returning anything but None from constructors
-                if any(v for v in values if not utils.is_none(v)):
-                    self.add_message("return-in-init", node=node)
+                if any((v for v in values if not utils.is_none(v))):
+                    self.add_message('return-in-init', node=node)
         # Check for duplicate names by clustering args with same name for detailed report
         arg_clusters = {}
         arguments: Iterator[Any] = filter(None, [node.args.args, node.args.kwonlyargs])

@@ -1,4 +1,4 @@
-# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+﻿# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
@@ -136,21 +136,22 @@ class NonAsciiNameChecker(base_checker.BaseChecker):
         # rules to different types of variables.
         frame = node.frame()
 
-        if isinstance(frame, nodes.FunctionDef):
-            if node.parent in frame.body:
-                # Only perform the check if the assignment was done in within the body
-                # of the function (and not the function parameter definition
-                # (will be handled in visit_functiondef)
-                # or within a decorator (handled in visit_call)
-                self._check_name("variable", node.name, node)
-        elif isinstance(frame, nodes.ClassDef):
-            self._check_name("attr", node.name, node)
-        else:
-            # Possibilities here:
-            # - isinstance(node.assign_type(), nodes.Comprehension) == inlinevar
-            # - isinstance(frame, nodes.Module) == variable (constant?)
-            # - some other kind of assignment missed but still most likely a variable
-            self._check_name("variable", node.name, node)
+        # PRESERVED COMMENTS: 
+         # Only perform the check if the assignment was done in within the body
+         # of the function (and not the function parameter definition
+         # (will be handled in visit_functiondef)
+         # or within a decorator (handled in visit_call)
+         # Possibilities here:
+         # - isinstance(node.assign_type(), nodes.Comprehension) == inlinevar
+         # - isinstance(frame, nodes.Module) == variable (constant?)
+        match frame:
+            case nodes.FunctionDef():
+                if node.parent in frame.body:
+                    self._check_name('variable', node.name, node)
+            case nodes.ClassDef():
+                self._check_name('attr', node.name, node)
+            case _:
+                self._check_name('variable', node.name, node)
 
     @utils.only_required_for_messages("non-ascii-name")
     def visit_classdef(self, node: nodes.ClassDef) -> None:

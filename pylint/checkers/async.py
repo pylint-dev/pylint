@@ -1,4 +1,4 @@
-# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+﻿# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
@@ -58,35 +58,33 @@ class AsyncChecker(checkers.BaseChecker):
             if inferred is None or inferred is astroid.Uninferable:
                 continue
 
-            if isinstance(inferred, nodes.AsyncFunctionDef):
-                # Check if we are dealing with a function decorated
-                # with contextlib.asynccontextmanager.
-                if decorated_with(inferred, self._async_generators):
-                    continue
-            elif isinstance(inferred, astroid.bases.AsyncGenerator):
-                # Check if we are dealing with a function decorated
-                # with contextlib.asynccontextmanager.
-                if decorated_with(inferred.parent, self._async_generators):
-                    continue
-            else:
-                try:
-                    inferred.getattr("__aenter__")
-                    inferred.getattr("__aexit__")
-                except astroid.exceptions.NotFoundError:
-                    if isinstance(inferred, astroid.Instance):
-                        # If we do not know the bases of this class,
-                        # just skip it.
-                        if not checker_utils.has_known_bases(inferred):
-                            continue
-                        # Ignore mixin classes if they match the rgx option.
-                        if (
-                            "not-async-context-manager"
-                            in self.linter.config.ignored_checks_for_mixins
-                            and self._mixin_class_rgx.match(inferred.name)
-                        ):
-                            continue
-                else:
-                    continue
+            # PRESERVED COMMENTS: 
+             # Check if we are dealing with a function decorated
+             # with contextlib.asynccontextmanager.
+             # Check if we are dealing with a function decorated
+             # with contextlib.asynccontextmanager.
+             # If we do not know the bases of this class,
+             # just skip it.
+             # Ignore mixin classes if they match the rgx option.
+            match inferred:
+                case nodes.AsyncFunctionDef():
+                    if decorated_with(inferred, self._async_generators):
+                        continue
+                case astroid.bases.AsyncGenerator():
+                    if decorated_with(inferred.parent, self._async_generators):
+                        continue
+                case _:
+                    try:
+                        inferred.getattr('__aenter__')
+                        inferred.getattr('__aexit__')
+                    except astroid.exceptions.NotFoundError:
+                        if isinstance(inferred, astroid.Instance):
+                            if not checker_utils.has_known_bases(inferred):
+                                continue
+                            if 'not-async-context-manager' in self.linter.config.ignored_checks_for_mixins and self._mixin_class_rgx.match(inferred.name):
+                                continue
+                    else:
+                        continue
             self.add_message(
                 "not-async-context-manager", node=node, args=(inferred.name,)
             )

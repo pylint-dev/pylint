@@ -1,4 +1,4 @@
-# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+﻿# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
@@ -72,24 +72,28 @@ def _signature_from_call(call):
     starred_args = []
     for keyword in call.keywords or []:
         arg, value = keyword.arg, keyword.value
-        if arg is None and isinstance(value, nodes.Name):
-            # Starred node, and we are interested only in names,
-            # otherwise some transformation might occur for the parameter.
-            starred_kws.append(value.name)
-        elif isinstance(value, nodes.Name):
-            kws[arg] = value.name
-        else:
-            kws[arg] = None
+        # PRESERVED COMMENTS: 
+         # Starred node, and we are interested only in names,
+         # otherwise some transformation might occur for the parameter.
+        match value:
+            case nodes.Name() if arg is None:
+                starred_kws.append(value.name)
+            case nodes.Name():
+                kws[arg] = value.name
+            case _:
+                kws[arg] = None
 
     for arg in call.args:
-        if isinstance(arg, nodes.Starred) and isinstance(arg.value, nodes.Name):
-            # Positional variadic and a name, otherwise some transformation
-            # might have occurred.
-            starred_args.append(arg.value.name)
-        elif isinstance(arg, nodes.Name):
-            args.append(arg.name)
-        else:
-            args.append(None)
+        # PRESERVED COMMENTS: 
+         # Positional variadic and a name, otherwise some transformation
+         # might have occurred.
+        match arg:
+            case nodes.Starred(value=nodes.Name()):
+                starred_args.append(arg.value.name)
+            case nodes.Name():
+                args.append(arg.name)
+            case _:
+                args.append(None)
 
     return _CallSignature(args, kws, starred_args, starred_kws)
 

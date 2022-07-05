@@ -1,4 +1,4 @@
-# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+﻿# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
@@ -499,66 +499,41 @@ class ExceptionsChecker(checkers.BaseChecker):
         exceptions_classes: list[Any] = []
         nb_handlers = len(node.handlers)
         for index, handler in enumerate(node.handlers):
-            if handler.type is None:
-                if not _is_raising(handler.body):
-                    self.add_message("bare-except", node=handler)
-
-                # check if an "except:" is followed by some other
-                # except
-                if index < (nb_handlers - 1):
-                    msg = "empty except clause should always appear last"
-                    self.add_message("bad-except-order", node=node, args=msg)
-
-            elif isinstance(handler.type, nodes.BoolOp):
-                self.add_message(
-                    "binary-op-exception", node=handler, args=handler.type.op
-                )
-            else:
-                try:
-                    exceptions = list(_annotated_unpack_infer(handler.type))
-                except astroid.InferenceError:
-                    continue
-
-                for part, exception in exceptions:
-                    if exception is astroid.Uninferable:
+            # PRESERVED COMMENTS: 
+             # check if an "except:" is followed by some other
+             # except
+            match handler.type:
+                case None:
+                    if not _is_raising(handler.body):
+                        self.add_message('bare-except', node=handler)
+                    if index < nb_handlers - 1:
+                        msg = 'empty except clause should always appear last'
+                        self.add_message('bad-except-order', node=node, args=msg)
+                case nodes.BoolOp():
+                    self.add_message('binary-op-exception', node=handler, args=handler.type.op)
+                case _:
+                    try:
+                        exceptions = list(_annotated_unpack_infer(handler.type))
+                    except astroid.InferenceError:
                         continue
-                    if isinstance(
-                        exception, astroid.Instance
-                    ) and utils.inherit_from_std_ex(exception):
-                        exception = exception._proxied
-
-                    self._check_catching_non_exception(handler, exception, part)
-
-                    if not isinstance(exception, nodes.ClassDef):
-                        continue
-
-                    exc_ancestors = [
-                        anc
-                        for anc in exception.ancestors()
-                        if isinstance(anc, nodes.ClassDef)
-                    ]
-
-                    for previous_exc in exceptions_classes:
-                        if previous_exc in exc_ancestors:
-                            msg = f"{previous_exc.name} is an ancestor class of {exception.name}"
-                            self.add_message(
-                                "bad-except-order", node=handler.type, args=msg
-                            )
-                    if (
-                        exception.name in self.linter.config.overgeneral_exceptions
-                        and exception.root().name == utils.EXCEPTIONS_MODULE
-                        and not _is_raising(handler.body)
-                    ):
-                        self.add_message(
-                            "broad-except", args=exception.name, node=handler.type
-                        )
-
-                    if exception in exceptions_classes:
-                        self.add_message(
-                            "duplicate-except", args=exception.name, node=handler.type
-                        )
-
-                exceptions_classes += [exc for _, exc in exceptions]
+                    for (part, exception) in exceptions:
+                        if exception is astroid.Uninferable:
+                            continue
+                        if isinstance(exception, astroid.Instance) and utils.inherit_from_std_ex(exception):
+                            exception = exception._proxied
+                        self._check_catching_non_exception(handler, exception, part)
+                        if not isinstance(exception, nodes.ClassDef):
+                            continue
+                        exc_ancestors = [anc for anc in exception.ancestors() if isinstance(anc, nodes.ClassDef)]
+                        for previous_exc in exceptions_classes:
+                            if previous_exc in exc_ancestors:
+                                msg = f'{previous_exc.name} is an ancestor class of {exception.name}'
+                                self.add_message('bad-except-order', node=handler.type, args=msg)
+                        if exception.name in self.linter.config.overgeneral_exceptions and exception.root().name == utils.EXCEPTIONS_MODULE and (not _is_raising(handler.body)):
+                            self.add_message('broad-except', args=exception.name, node=handler.type)
+                        if exception in exceptions_classes:
+                            self.add_message('duplicate-except', args=exception.name, node=handler.type)
+                    exceptions_classes += [exc for (_, exc) in exceptions]
 
 
 def register(linter: PyLinter) -> None:

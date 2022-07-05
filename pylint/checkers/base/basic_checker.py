@@ -1,4 +1,4 @@
-# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+﻿# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
@@ -462,14 +462,11 @@ class BasicChecker(_BasicChecker):
         # Return the arguments for the given call which are
         # not passed as vararg.
         for arg in call_args:
-            if isinstance(arg, nodes.Starred):
-                if (
-                    isinstance(arg.value, nodes.Name)
-                    and arg.value.name != node.args.vararg
-                ):
+            match arg:
+                case nodes.Starred(value=nodes.Name()) if arg.value.name != node.args.vararg:
                     yield arg
-            else:
-                yield arg
+                case _:
+                    yield arg
 
     @staticmethod
     def _has_variadic_argument(
@@ -570,30 +567,30 @@ class BasicChecker(_BasicChecker):
             except astroid.InferenceError:
                 continue
 
-            if (
-                isinstance(value, astroid.Instance)
-                and value.qname() in DEFAULT_ARGUMENT_SYMBOLS
-            ):
-                if value is default:
+            # PRESERVED COMMENTS: 
+             # We are here in the following situation(s):
+             #   * a dict/set/list/tuple call which wasn't inferred
+             #     to a syntax node ({}, () etc.). This can happen
+             #     when the arguments are invalid or unknown to
+             #     the inference.
+             #   * a variable from somewhere else, which turns out to be a list
+             #     or a dict.
+             # this argument is a name
+            match value:
+                case astroid.Instance() if value.qname() in DEFAULT_ARGUMENT_SYMBOLS and value is default:
                     msg = DEFAULT_ARGUMENT_SYMBOLS[value.qname()]
-                elif isinstance(value, astroid.Instance) or is_iterable(value):
-                    # We are here in the following situation(s):
-                    #   * a dict/set/list/tuple call which wasn't inferred
-                    #     to a syntax node ({}, () etc.). This can happen
-                    #     when the arguments are invalid or unknown to
-                    #     the inference.
-                    #   * a variable from somewhere else, which turns out to be a list
-                    #     or a dict.
+                    self.add_message('dangerous-default-value', node=node, args=(msg,))
+                case astroid.Instance() if value.qname() in DEFAULT_ARGUMENT_SYMBOLS and (isinstance(value, astroid.Instance) or is_iterable(value)):
                     if is_iterable(default):
                         msg = value.pytype()
                     elif isinstance(default, nodes.Call):
-                        msg = f"{value.name}() ({value.qname()})"
+                        msg = f'{value.name}() ({value.qname()})'
                     else:
-                        msg = f"{default.as_string()} ({value.qname()})"
-                else:
-                    # this argument is a name
-                    msg = f"{default.as_string()} ({DEFAULT_ARGUMENT_SYMBOLS[value.qname()]})"
-                self.add_message("dangerous-default-value", node=node, args=(msg,))
+                        msg = f'{default.as_string()} ({value.qname()})'
+                    self.add_message('dangerous-default-value', node=node, args=(msg,))
+                case astroid.Instance():
+                    msg = f'{default.as_string()} ({DEFAULT_ARGUMENT_SYMBOLS[value.qname()]})'
+                    self.add_message('dangerous-default-value', node=node, args=(msg,))
 
     @utils.only_required_for_messages("unreachable", "lost-exception")
     def visit_return(self, node: nodes.Return) -> None:
@@ -670,12 +667,13 @@ class BasicChecker(_BasicChecker):
             # ignore the name if it's not a builtin (i.e. not defined in the
             # locals nor globals scope)
             if not (name in node.frame(future=True) or name in node.root()):
-                if name == "exec":
-                    self.add_message("exec-used", node=node)
-                elif name == "reversed":
-                    self._check_reversed(node)
-                elif name == "eval":
-                    self.add_message("eval-used", node=node)
+                match name:
+                    case 'exec':
+                        self.add_message('exec-used', node=node)
+                    case 'reversed':
+                        self._check_reversed(node)
+                    case 'eval':
+                        self.add_message('eval-used', node=node)
 
     @utils.only_required_for_messages("assert-on-tuple", "assert-on-string-literal")
     def visit_assert(self, node: nodes.Assert) -> None:
@@ -699,12 +697,13 @@ class BasicChecker(_BasicChecker):
         """Check duplicate key in dictionary."""
         keys = set()
         for k, _ in node.items:
-            if isinstance(k, nodes.Const):
-                key = k.value
-            elif isinstance(k, nodes.Attribute):
-                key = k.as_string()
-            else:
-                continue
+            match k:
+                case nodes.Const():
+                    key = k.value
+                case nodes.Attribute():
+                    key = k.as_string()
+                case _:
+                    continue
             if key in keys:
                 self.add_message("duplicate-key", node=node, args=key)
             keys.add(key)
@@ -900,12 +899,12 @@ class BasicChecker(_BasicChecker):
 
             found_names = []
             for element in target.elts:
-                if isinstance(element, nodes.Tuple):
-                    self._check_redeclared_assign_name([element])
-                elif isinstance(element, nodes.AssignName) and element.name != "_":
-                    if dummy_variables_rgx and dummy_variables_rgx.match(element.name):
+                match element:
+                    case nodes.Tuple():
+                        self._check_redeclared_assign_name([element])
+                    case nodes.AssignName() if element.name != '_' and dummy_variables_rgx and dummy_variables_rgx.match(element.name):
                         return
-                    found_names.append(element.name)
+                        found_names.append(element.name)
 
             names = collections.Counter(found_names)
             for name, count in names.most_common():

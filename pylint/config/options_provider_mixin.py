@@ -1,4 +1,4 @@
-# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+﻿# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
@@ -69,16 +69,17 @@ class OptionsProviderMixIn:
         elif action == "append":
             optname = self.option_attrname(optname, optdict)
             _list = getattr(self.config, optname, None)
-            if _list is None:
-                if isinstance(value, (list, tuple)):
-                    _list = value
-                elif value is not None:
-                    _list = [value]
-                setattr(self.config, optname, _list)
-            elif isinstance(_list, tuple):
-                setattr(self.config, optname, _list + (value,))
-            else:
-                _list.append(value)
+            match _list:
+                case None:
+                    if isinstance(value, (list, tuple)):
+                        _list = value
+                    elif value is not None:
+                        _list = [value]
+                    setattr(self.config, optname, _list)
+                case tuple():
+                    setattr(self.config, optname, _list + (value,))
+                case _:
+                    _list.append(value)
         elif (
             action == "callback"
             or (not isinstance(action, str))

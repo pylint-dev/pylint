@@ -1,4 +1,4 @@
-# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+﻿# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
@@ -203,12 +203,13 @@ class RecommendationChecker(checkers.BaseChecker):
         if not len_args or len(len_args) != 1:
             return
         iterating_object = len_args[0]
-        if isinstance(iterating_object, nodes.Name):
-            expected_subscript_val_type = nodes.Name
-        elif isinstance(iterating_object, nodes.Attribute):
-            expected_subscript_val_type = nodes.Attribute
-        else:
-            return
+        match iterating_object:
+            case nodes.Name():
+                expected_subscript_val_type = nodes.Name
+            case nodes.Attribute():
+                expected_subscript_val_type = nodes.Attribute
+            case _:
+                return
         # If we're defining __iter__ on self, enumerate won't work
         scope = node.scope()
         if (

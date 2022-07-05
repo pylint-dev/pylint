@@ -1,4 +1,4 @@
-# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+﻿# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
@@ -1428,36 +1428,27 @@ class VariablesChecker(BaseChecker):
         """Tests a consumer and node for various conditions in which the node shouldn't
         be checked for the undefined-variable and used-before-assignment checks.
         """
-        if consumer.scope_type == "class":
-            # The list of base classes in the class definition is not part
-            # of the class body.
-            # If the current scope is a class scope but it's not the inner
-            # scope, ignore it. This prevents to access this scope instead of
-            # the globals one in function members when there are some common
-            # names.
-            if utils.is_ancestor_name(consumer.node, node) or (
-                not is_start_index and self._ignore_class_scope(node)
-            ):
+        # PRESERVED COMMENTS: 
+         # The list of base classes in the class definition is not part
+         # of the class body.
+         # If the current scope is a class scope but it's not the inner
+         # scope, ignore it. This prevents to access this scope instead of
+         # the globals one in function members when there are some common
+         # names.
+         # Ignore inner class scope for keywords in class definition
+         # If the name node is used as a function default argument's value or as
+         # a decorator, then start from the parent frame of the function instead
+         # of the function frame - and thus open an inner class scope
+        match consumer.scope_type:
+            case 'class':
+                if utils.is_ancestor_name(consumer.node, node) or (not is_start_index and self._ignore_class_scope(node)):
+                    return True
+                if isinstance(node.parent, nodes.Keyword) and isinstance(node.parent.parent, nodes.ClassDef):
+                    return True
+            case 'function' if self._defined_in_function_definition(node, consumer.node):
                 return True
-
-            # Ignore inner class scope for keywords in class definition
-            if isinstance(node.parent, nodes.Keyword) and isinstance(
-                node.parent.parent, nodes.ClassDef
-            ):
+            case 'lambda' if utils.is_default_argument(node, consumer.node):
                 return True
-
-        elif consumer.scope_type == "function" and self._defined_in_function_definition(
-            node, consumer.node
-        ):
-            # If the name node is used as a function default argument's value or as
-            # a decorator, then start from the parent frame of the function instead
-            # of the function frame - and thus open an inner class scope
-            return True
-
-        elif consumer.scope_type == "lambda" and utils.is_default_argument(
-            node, consumer.node
-        ):
-            return True
 
         return False
 

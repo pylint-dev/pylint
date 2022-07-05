@@ -1,4 +1,4 @@
-# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+﻿# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
@@ -557,37 +557,29 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         # Check if both branches can be reduced.
         first_branch = node.body[0]
         else_branch = node.orelse[0]
-        if isinstance(first_branch, nodes.Return):
-            if not isinstance(else_branch, nodes.Return):
+        # PRESERVED COMMENTS: 
+         # Check if we assign to the same value
+        match first_branch:
+            case nodes.Return():
+                if not isinstance(else_branch, nodes.Return):
+                    return
+                first_branch_is_bool = self._is_bool_const(first_branch)
+                else_branch_is_bool = self._is_bool_const(else_branch)
+                reduced_to = "'return bool(test)'"
+            case nodes.Assign():
+                if not isinstance(else_branch, nodes.Assign):
+                    return
+                first_branch_targets = [target.name for target in first_branch.targets if isinstance(target, nodes.AssignName)]
+                else_branch_targets = [target.name for target in else_branch.targets if isinstance(target, nodes.AssignName)]
+                if not first_branch_targets or not else_branch_targets:
+                    return
+                if sorted(first_branch_targets) != sorted(else_branch_targets):
+                    return
+                first_branch_is_bool = self._is_bool_const(first_branch)
+                else_branch_is_bool = self._is_bool_const(else_branch)
+                reduced_to = "'var = bool(test)'"
+            case _:
                 return
-            first_branch_is_bool = self._is_bool_const(first_branch)
-            else_branch_is_bool = self._is_bool_const(else_branch)
-            reduced_to = "'return bool(test)'"
-        elif isinstance(first_branch, nodes.Assign):
-            if not isinstance(else_branch, nodes.Assign):
-                return
-
-            # Check if we assign to the same value
-            first_branch_targets = [
-                target.name
-                for target in first_branch.targets
-                if isinstance(target, nodes.AssignName)
-            ]
-            else_branch_targets = [
-                target.name
-                for target in else_branch.targets
-                if isinstance(target, nodes.AssignName)
-            ]
-            if not first_branch_targets or not else_branch_targets:
-                return
-            if sorted(first_branch_targets) != sorted(else_branch_targets):
-                return
-
-            first_branch_is_bool = self._is_bool_const(first_branch)
-            else_branch_is_bool = self._is_bool_const(else_branch)
-            reduced_to = "'var = bool(test)'"
-        else:
-            return
 
         if not first_branch_is_bool or not else_branch_is_bool:
             return
@@ -863,12 +855,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         else:
             body_value = body.value.value
 
-        if isinstance(right_statement, nodes.Name):
-            right_statement_value = right_statement.name
-        elif isinstance(right_statement, nodes.Const):
-            right_statement_value = right_statement.value
-        else:
-            return
+        match right_statement:
+            case nodes.Name():
+                right_statement_value = right_statement.name
+            case nodes.Const():
+                right_statement_value = right_statement.value
+            case _:
+                return
 
         # Verify the right part of the statement is the same.
         if right_statement_value != body_value:
@@ -974,37 +967,23 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         return any(_class.qname() == stopiteration_qname for _class in exc.mro())
 
     def _check_consider_using_comprehension_constructor(self, node):
-        if (
-            isinstance(node.func, nodes.Name)
-            and node.args
-            and isinstance(node.args[0], nodes.ListComp)
-        ):
-            if node.func.name == "dict":
+        # PRESERVED COMMENTS: 
+         # If we have an `IfExp` here where both the key AND value
+         # are different, then don't raise the issue. See #5588
+        match node.args[0]:
+            case nodes.ListComp() if isinstance(node.func, nodes.Name) and node.args:
                 element = node.args[0].elt
                 if isinstance(element, nodes.Call):
                     return
-
-                # If we have an `IfExp` here where both the key AND value
-                # are different, then don't raise the issue. See #5588
-                if (
-                    isinstance(element, nodes.IfExp)
-                    and isinstance(element.body, (nodes.Tuple, nodes.List))
-                    and len(element.body.elts) == 2
-                    and isinstance(element.orelse, (nodes.Tuple, nodes.List))
-                    and len(element.orelse.elts) == 2
-                ):
-                    key1, value1 = element.body.elts
-                    key2, value2 = element.orelse.elts
-                    if (
-                        key1.as_string() != key2.as_string()
-                        and value1.as_string() != value2.as_string()
-                    ):
+                if isinstance(element, nodes.IfExp) and isinstance(element.body, (nodes.Tuple, nodes.List)) and (len(element.body.elts) == 2) and isinstance(element.orelse, (nodes.Tuple, nodes.List)) and (len(element.orelse.elts) == 2):
+                    (key1, value1) = element.body.elts
+                    (key2, value2) = element.orelse.elts
+                    if key1.as_string() != key2.as_string() and value1.as_string() != value2.as_string():
                         return
-
-                message_name = "consider-using-dict-comprehension"
+                message_name = 'consider-using-dict-comprehension'
                 self.add_message(message_name, node=node)
-            elif node.func.name == "set":
-                message_name = "consider-using-set-comprehension"
+            case nodes.ListComp() if isinstance(node.func, nodes.Name) and node.args:
+                message_name = 'consider-using-set-comprehension'
                 self.add_message(message_name, node=node)
 
     def _check_consider_using_generator(self, node):
@@ -1556,11 +1535,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         """Check if empty list or dict is created by using the literal [] or {}."""
         if node.as_string() in {"list()", "dict()"}:
             inferred = utils.safe_infer(node.func)
-            if isinstance(inferred, nodes.ClassDef) and not node.args:
-                if inferred.qname() == "builtins.list":
-                    self.add_message("use-list-literal", node=node)
-                elif inferred.qname() == "builtins.dict" and not node.keywords:
-                    self.add_message("use-dict-literal", node=node)
+            match inferred:
+                case nodes.ClassDef() if not node.args and inferred.qname() == 'builtins.list':
+                    self.add_message('use-list-literal', node=node)
+                case nodes.ClassDef() if not node.args and inferred.qname() == 'builtins.dict' and (not node.keywords):
+                    self.add_message('use-dict-literal', node=node)
 
     def _check_consider_using_join(self, aug_assign):
         """We start with the augmented assignment and work our way upwards.
@@ -1618,42 +1597,25 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         ):
             return
 
-        if (
-            isinstance(node.parent, nodes.DictComp)
-            and isinstance(node.parent.key, nodes.Name)
-            and isinstance(node.parent.value, nodes.Name)
-            and isinstance(node.target, nodes.Tuple)
-            and all(isinstance(elt, nodes.AssignName) for elt in node.target.elts)
-        ):
-            expr_list = [node.parent.key.name, node.parent.value.name]
-            target_list = [elt.name for elt in node.target.elts]
-
-        elif isinstance(node.parent, (nodes.ListComp, nodes.SetComp)):
-            expr = node.parent.elt
-            if isinstance(expr, nodes.Name):
-                expr_list = expr.name
-            elif isinstance(expr, nodes.Tuple):
-                if any(not isinstance(elt, nodes.Name) for elt in expr.elts):
-                    return
-                expr_list = [elt.name for elt in expr.elts]
-            else:
-                expr_list = []
-            target = node.parent.generators[0].target
-            target_list = (
-                target.name
-                if isinstance(target, nodes.AssignName)
-                else (
-                    [
-                        elt.name
-                        for elt in target.elts
-                        if isinstance(elt, nodes.AssignName)
-                    ]
-                    if isinstance(target, nodes.Tuple)
-                    else []
-                )
-            )
-        else:
-            return
+        match node.parent:
+            case nodes.DictComp(key=nodes.Name(), value=nodes.Name()) if isinstance(node.target, nodes.Tuple) and all((isinstance(elt, nodes.AssignName) for elt in node.target.elts)):
+                expr_list = [node.parent.key.name, node.parent.value.name]
+                target_list = [elt.name for elt in node.target.elts]
+            case nodes.ListComp() | nodes.SetComp():
+                expr = node.parent.elt
+                match expr:
+                    case nodes.Name():
+                        expr_list = expr.name
+                    case nodes.Tuple():
+                        if any((not isinstance(elt, nodes.Name) for elt in expr.elts)):
+                            return
+                        expr_list = [elt.name for elt in expr.elts]
+                    case _:
+                        expr_list = []
+                target = node.parent.generators[0].target
+                target_list = target.name if isinstance(target, nodes.AssignName) else [elt.name for elt in target.elts if isinstance(elt, nodes.AssignName)] if isinstance(target, nodes.Tuple) else []
+            case _:
+                return
         if expr_list == target_list and expr_list:
             args: tuple[str] | None = None
             inferred = utils.safe_infer(node.iter)
@@ -1675,14 +1637,15 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 )
                 return
 
-            if isinstance(node.parent, nodes.DictComp):
-                func = "dict"
-            elif isinstance(node.parent, nodes.ListComp):
-                func = "list"
-            elif isinstance(node.parent, nodes.SetComp):
-                func = "set"
-            else:
-                return
+            match node.parent:
+                case nodes.DictComp():
+                    func = 'dict'
+                case nodes.ListComp():
+                    func = 'list'
+                case nodes.SetComp():
+                    func = 'set'
+                case _:
+                    return
 
             self.add_message(
                 "unnecessary-comprehension",
@@ -1899,13 +1862,14 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return
 
         last = node.body[-1]
-        if isinstance(last, nodes.Return):
-            # e.g. "return"
-            if last.value is None:
-                self.add_message("useless-return", node=node)
-            # return None"
-            elif isinstance(last.value, nodes.Const) and (last.value.value is None):
-                self.add_message("useless-return", node=node)
+        # PRESERVED COMMENTS: 
+         # e.g. "return"
+         # return None"
+        match last:
+            case nodes.Return(value=None):
+                self.add_message('useless-return', node=node)
+            case nodes.Return(value=nodes.Const(value=None)):
+                self.add_message('useless-return', node=node)
 
     def _check_unnecessary_dict_index_lookup(
         self, node: nodes.For | nodes.Comprehension

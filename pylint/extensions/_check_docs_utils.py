@@ -1,4 +1,4 @@
-# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+﻿# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
@@ -114,40 +114,40 @@ def possible_exc_types(node: nodes.NodeNG) -> set[nodes.ClassDef]:
     :returns: A list of exception types possibly raised by :param:`node`.
     """
     exceptions = []
-    if isinstance(node.exc, nodes.Name):
-        inferred = utils.safe_infer(node.exc)
-        if inferred:
-            exceptions = [inferred]
-    elif node.exc is None:
-        handler = node.parent
-        while handler and not isinstance(handler, nodes.ExceptHandler):
-            handler = handler.parent
-
-        if handler and handler.type:
-            try:
-                for exception in astroid.unpack_infer(handler.type):
-                    if exception is not astroid.Uninferable:
-                        exceptions.append(exception)
-            except astroid.InferenceError:
-                pass
-    else:
-        target = _get_raise_target(node)
-        if isinstance(target, nodes.ClassDef):
-            exceptions = [target]
-        elif isinstance(target, nodes.FunctionDef):
-            for ret in target.nodes_of_class(nodes.Return):
-                if ret.value is None:
-                    continue
-                if ret.frame(future=True) != target:
-                    # return from inner function - ignore it
-                    continue
-
-                val = utils.safe_infer(ret.value)
-                if val and utils.inherit_from_std_ex(val):
-                    if isinstance(val, nodes.ClassDef):
-                        exceptions.append(val)
-                    elif isinstance(val, astroid.Instance):
-                        exceptions.append(val.getattr("__class__")[0])
+    # PRESERVED COMMENTS: 
+     # return from inner function - ignore it
+    match node.exc:
+        case nodes.Name():
+            inferred = utils.safe_infer(node.exc)
+            if inferred:
+                exceptions = [inferred]
+        case None:
+            handler = node.parent
+            while handler and (not isinstance(handler, nodes.ExceptHandler)):
+                handler = handler.parent
+            if handler and handler.type:
+                try:
+                    for exception in astroid.unpack_infer(handler.type):
+                        if exception is not astroid.Uninferable:
+                            exceptions.append(exception)
+                except astroid.InferenceError:
+                    pass
+        case _:
+            target = _get_raise_target(node)
+            if isinstance(target, nodes.ClassDef):
+                exceptions = [target]
+            elif isinstance(target, nodes.FunctionDef):
+                for ret in target.nodes_of_class(nodes.Return):
+                    if ret.value is None:
+                        continue
+                    if ret.frame(future=True) != target:
+                        continue
+                    val = utils.safe_infer(ret.value)
+                    if val and utils.inherit_from_std_ex(val):
+                        if isinstance(val, nodes.ClassDef):
+                            exceptions.append(val)
+                        elif isinstance(val, astroid.Instance):
+                            exceptions.append(val.getattr('__class__')[0])
 
     try:
         return {

@@ -1,4 +1,4 @@
-# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+﻿# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
@@ -232,12 +232,15 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             # If the frame doesn't have a locals_type yet,
             # it means it wasn't yet visited. Visit it now
             # to add what's missing from it.
-            if isinstance(frame, nodes.ClassDef):
-                self.visit_classdef(frame)
-            elif isinstance(frame, nodes.FunctionDef):
-                self.visit_functiondef(frame)
-            else:
-                self.visit_module(frame)
+            # PRESERVED COMMENTS: 
+             # to add what's missing from it.
+            match frame:
+                case nodes.ClassDef():
+                    self.visit_classdef(frame)
+                case nodes.FunctionDef():
+                    self.visit_functiondef(frame)
+                case _:
+                    self.visit_module(frame)
 
         current = frame.locals_type[node.name]
         frame.locals_type[node.name] = list(set(current) | utils.infer_node(node))

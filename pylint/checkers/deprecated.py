@@ -1,4 +1,4 @@
-# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+﻿# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
@@ -205,13 +205,13 @@ class DeprecatedMixin(BaseChecker):
         if not isinstance(inferred, ACCEPTABLE_NODES):
             return
 
-        if isinstance(node.func, nodes.Attribute):
-            func_name = node.func.attrname
-        elif isinstance(node.func, nodes.Name):
-            func_name = node.func.name
-        else:
-            # Not interested in other nodes.
-            return
+        match node.func:
+            case nodes.Attribute():
+                func_name = node.func.attrname
+            case nodes.Name():
+                func_name = node.func.name
+            case _:
+                return
 
         if hasattr(inferred.parent, "qname") and inferred.parent.qname():
             # Handling the situation when deprecated function is

@@ -1,4 +1,4 @@
-# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+﻿# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
@@ -656,18 +656,13 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             encoding_arg = None
             try:
                 if open_module == "pathlib":
-                    if node.func.attrname == "read_text":
-                        encoding_arg = utils.get_argument_from_call(
-                            node, position=0, keyword="encoding"
-                        )
-                    elif node.func.attrname == "write_text":
-                        encoding_arg = utils.get_argument_from_call(
-                            node, position=1, keyword="encoding"
-                        )
-                    else:
-                        encoding_arg = utils.get_argument_from_call(
-                            node, position=2, keyword="encoding"
-                        )
+                    match node.func.attrname:
+                        case 'read_text':
+                            encoding_arg = utils.get_argument_from_call(node, position=0, keyword='encoding')
+                        case 'write_text':
+                            encoding_arg = utils.get_argument_from_call(node, position=1, keyword='encoding')
+                        case _:
+                            encoding_arg = utils.get_argument_from_call(node, position=2, keyword='encoding')
                 else:
                     encoding_arg = utils.get_argument_from_call(
                         node, position=3, keyword="encoding"

@@ -1,4 +1,4 @@
-# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+﻿# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
@@ -193,22 +193,15 @@ class CodeStyleChecker(BaseChecker):
         """
         # Check if `node.test` contains a `Name` node
         node_name: nodes.Name | None = None
-        if isinstance(node.test, nodes.Name):
-            node_name = node.test
-        elif (
-            isinstance(node.test, nodes.UnaryOp)
-            and node.test.op == "not"
-            and isinstance(node.test.operand, nodes.Name)
-        ):
-            node_name = node.test.operand
-        elif (
-            isinstance(node.test, nodes.Compare)
-            and isinstance(node.test.left, nodes.Name)
-            and len(node.test.ops) == 1
-        ):
-            node_name = node.test.left
-        else:
-            return
+        match node.test:
+            case nodes.Name():
+                node_name = node.test
+            case nodes.UnaryOp(op='not', operand=nodes.Name()):
+                node_name = node.test.operand
+            case nodes.Compare(left=nodes.Name()) if len(node.test.ops) == 1:
+                node_name = node.test.left
+            case _:
+                return
 
         # Make sure the previous node is an assignment to the same name
         # used in `node.test`. Furthermore, ignore if assignment spans multiple lines.

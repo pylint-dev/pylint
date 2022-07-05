@@ -1,4 +1,4 @@
-# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+﻿# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
@@ -223,12 +223,13 @@ class PrivateImportChecker(BaseChecker):
             return False
         for assignment in assignments:
             current_attribute = None
-            if isinstance(assignment.value, nodes.Call):
-                current_attribute = assignment.value.func
-            elif isinstance(assignment.value, nodes.Attribute):
-                current_attribute = assignment.value
-            elif isinstance(assignment.value, nodes.Name):
-                current_attribute = assignment.value.name
+            match assignment.value:
+                case nodes.Call():
+                    current_attribute = assignment.value.func
+                case nodes.Attribute():
+                    current_attribute = assignment.value
+                case nodes.Name():
+                    current_attribute = assignment.value.name
             if not current_attribute:
                 continue
             while isinstance(current_attribute, (nodes.Attribute, nodes.Call)):

@@ -1,4 +1,4 @@
-# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+﻿# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
@@ -289,12 +289,13 @@ class OptionsManagerMixIn:
                 )
                 continue
             for option, value in values.items():
-                if isinstance(value, bool):
-                    values[option] = "yes" if value else "no"
-                elif isinstance(value, list):
-                    values[option] = ",".join(value)
-                else:
-                    values[option] = str(value)
+                match value:
+                    case bool():
+                        values[option] = 'yes' if value else 'no'
+                    case list():
+                        values[option] = ','.join(value)
+                    case _:
+                        values[option] = str(value)
             for option, value in values.items():
                 try:
                     parser.set(section_name, option, value=value)

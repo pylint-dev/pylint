@@ -1,4 +1,4 @@
-# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+﻿# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
@@ -231,32 +231,21 @@ class LoggingChecker(checkers.BaseChecker):
         else:
             return
 
-        if isinstance(node.args[format_pos], nodes.BinOp):
-            binop = node.args[format_pos]
-            emit = binop.op == "%"
-            if binop.op == "+":
-                total_number_of_strings = sum(
-                    1
-                    for operand in (binop.left, binop.right)
-                    if self._is_operand_literal_str(utils.safe_infer(operand))
-                )
-                emit = total_number_of_strings > 0
-            if emit:
-                self.add_message(
-                    "logging-not-lazy",
-                    node=node,
-                    args=(self._helper_string(node),),
-                )
-        elif isinstance(node.args[format_pos], nodes.Call):
-            self._check_call_func(node.args[format_pos])
-        elif isinstance(node.args[format_pos], nodes.Const):
-            self._check_format_string(node, format_pos)
-        elif isinstance(node.args[format_pos], nodes.JoinedStr):
-            self.add_message(
-                "logging-fstring-interpolation",
-                node=node,
-                args=(self._helper_string(node),),
-            )
+        match node.args[format_pos]:
+            case nodes.BinOp():
+                binop = node.args[format_pos]
+                emit = binop.op == '%'
+                if binop.op == '+':
+                    total_number_of_strings = sum((1 for operand in (binop.left, binop.right) if self._is_operand_literal_str(utils.safe_infer(operand))))
+                    emit = total_number_of_strings > 0
+                if emit:
+                    self.add_message('logging-not-lazy', node=node, args=(self._helper_string(node),))
+            case nodes.Call():
+                self._check_call_func(node.args[format_pos])
+            case nodes.Const():
+                self._check_format_string(node, format_pos)
+            case nodes.JoinedStr():
+                self.add_message('logging-fstring-interpolation', node=node, args=(self._helper_string(node),))
 
     def _helper_string(self, node):
         """Create a string that lists the valid types of formatting for this node."""

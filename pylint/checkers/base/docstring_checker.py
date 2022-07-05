@@ -1,4 +1,4 @@
-# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+﻿# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
@@ -128,29 +128,25 @@ class DocStringChecker(_BasicChecker):
             ):
                 return
 
-            if isinstance(node.parent.frame(future=True), nodes.ClassDef):
-                overridden = False
-                confidence = (
-                    interfaces.INFERENCE
-                    if utils.has_known_bases(node.parent.frame(future=True))
-                    else interfaces.INFERENCE_FAILURE
-                )
-                # check if node is from a method overridden by its ancestor
-                for ancestor in node.parent.frame(future=True).ancestors():
-                    if ancestor.qname() == "builtins.object":
-                        continue
-                    if node.name in ancestor and isinstance(
-                        ancestor[node.name], nodes.FunctionDef
-                    ):
-                        overridden = True
-                        break
-                self._check_docstring(
-                    ftype, node, report_missing=not overridden, confidence=confidence  # type: ignore[arg-type]
-                )
-            elif isinstance(node.parent.frame(future=True), nodes.Module):
-                self._check_docstring(ftype, node)  # type: ignore[arg-type]
-            else:
-                return
+            # PRESERVED COMMENTS: 
+             # check if node is from a method overridden by its ancestor
+             # type: ignore[arg-type]
+             # type: ignore[arg-type]
+            match node.parent.frame(future=True):
+                case nodes.ClassDef():
+                    overridden = False
+                    confidence = interfaces.INFERENCE if utils.has_known_bases(node.parent.frame(future=True)) else interfaces.INFERENCE_FAILURE
+                    for ancestor in node.parent.frame(future=True).ancestors():
+                        if ancestor.qname() == 'builtins.object':
+                            continue
+                        if node.name in ancestor and isinstance(ancestor[node.name], nodes.FunctionDef):
+                            overridden = True
+                            break
+                    self._check_docstring(ftype, node, report_missing=not overridden, confidence=confidence)
+                case nodes.Module():
+                    self._check_docstring(ftype, node)
+                case _:
+                    return
 
     visit_asyncfunctiondef = visit_functiondef
 
@@ -196,12 +192,13 @@ class DocStringChecker(_BasicChecker):
                     # Strings.
                     if func.bound.name in {"str", "unicode", "bytes"}:
                         return
-            if node_type == "module":
-                message = "missing-module-docstring"
-            elif node_type == "class":
-                message = "missing-class-docstring"
-            else:
-                message = "missing-function-docstring"
+            match node_type:
+                case 'module':
+                    message = 'missing-module-docstring'
+                case 'class':
+                    message = 'missing-class-docstring'
+                case _:
+                    message = 'missing-function-docstring'
             self.add_message(message, node=node, confidence=confidence)
         elif not docstring.strip():
             if node_type == "class":
