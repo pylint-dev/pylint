@@ -155,7 +155,7 @@ def _make_linter_options(linter: PyLinter) -> Options:
                 "default": 10,
                 "type": "float",
                 "metavar": "<score>",
-                "help": "Specify a score threshold to be exceeded before program exits with error.",
+                "help": "Specify a score threshold under which the program will exit with error.",
             },
         ),
         (
