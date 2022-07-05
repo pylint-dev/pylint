@@ -290,6 +290,20 @@ Else If Used checker Messages
   does not contain statements that would be unrelated to it.
 
 
+.. _pylint.extensions.empty_comment:
+
+Empty Comment checker
+~~~~~~~~~~~~~~~~~~~~~
+
+This checker is provided by ``pylint.extensions.empty_comment``.
+Verbatim name of the checker is ``empty-comment``.
+
+Empty Comment checker Messages
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:empty-comment (R2044): *Line with empty comment*
+  Used when a # symbol appears on a line not followed by an actual comment
+
+
 .. _pylint.extensions.eq_without_hash:
 
 Eq-Without-Hash checker
@@ -578,20 +592,6 @@ Redefined-Loop-Name checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :redefined-loop-name (W2901): *Redefining %r from loop (line %s)*
   Used when a loop variable is overwritten in the loop body.
-
-
-.. _pylint.extensions.empty_comment:
-
-Refactoring checker
-~~~~~~~~~~~~~~~~~~~
-
-This checker is provided by ``pylint.extensions.empty_comment``.
-Verbatim name of the checker is ``refactoring``.
-
-Refactoring checker Messages
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:empty-comment (R2044): *Line with empty comment*
-  Used when a # symbol appears on a line not followed by an actual comment
 
 
 .. _pylint.extensions.set_membership:
