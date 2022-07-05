@@ -236,7 +236,7 @@ class LoggingChecker(checkers.BaseChecker):
                 binop = node.args[format_pos]
                 emit = binop.op == '%'
                 if binop.op == '+':
-                    total_number_of_strings = sum((1 for operand in (binop.left, binop.right) if self._is_operand_literal_str(utils.safe_infer(operand))))
+                    total_number_of_strings = sum(1 for operand in (binop.left, binop.right) if self._is_operand_literal_str(utils.safe_infer(operand)))
                     emit = total_number_of_strings > 0
                 if emit:
                     self.add_message('logging-not-lazy', node=node, args=(self._helper_string(node),))

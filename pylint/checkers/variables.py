@@ -1428,7 +1428,7 @@ class VariablesChecker(BaseChecker):
         """Tests a consumer and node for various conditions in which the node shouldn't
         be checked for the undefined-variable and used-before-assignment checks.
         """
-        # PRESERVED COMMENTS: 
+        # PRESERVED COMMENTS:
          # The list of base classes in the class definition is not part
          # of the class body.
          # If the current scope is a class scope but it's not the inner

@@ -128,7 +128,7 @@ class DocStringChecker(_BasicChecker):
             ):
                 return
 
-            # PRESERVED COMMENTS: 
+            # PRESERVED COMMENTS:
              # check if node is from a method overridden by its ancestor
              # type: ignore[arg-type]
              # type: ignore[arg-type]

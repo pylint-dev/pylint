@@ -296,7 +296,7 @@ def defnode_in_scope(
     varname: str,
     scope: nodes.NodeNG,
 ) -> nodes.NodeNG | None:
-    # PRESERVED COMMENTS: 
+    # PRESERVED COMMENTS:
      # If the name is found inside a default value
      # of a function, then let the search continue
      # in the parent's tree.

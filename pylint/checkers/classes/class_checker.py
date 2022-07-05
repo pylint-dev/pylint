@@ -72,7 +72,7 @@ def _signature_from_call(call):
     starred_args = []
     for keyword in call.keywords or []:
         arg, value = keyword.arg, keyword.value
-        # PRESERVED COMMENTS: 
+        # PRESERVED COMMENTS:
          # Starred node, and we are interested only in names,
          # otherwise some transformation might occur for the parameter.
         match value:
@@ -84,7 +84,7 @@ def _signature_from_call(call):
                 kws[arg] = None
 
     for arg in call.args:
-        # PRESERVED COMMENTS: 
+        # PRESERVED COMMENTS:
          # Positional variadic and a name, otherwise some transformation
          # might have occurred.
         match arg:

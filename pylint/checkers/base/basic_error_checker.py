@@ -275,14 +275,14 @@ class BasicErrorChecker(_BasicChecker):
         returns = node.nodes_of_class(
             nodes.Return, skip_klass=(nodes.FunctionDef, nodes.ClassDef)
         )
-        # PRESERVED COMMENTS: 
+        # PRESERVED COMMENTS:
          # Are we returning anything but None from constructors
         match node.name:
             case '__init__' if node.is_method() and node.is_generator():
                 self.add_message('init-is-generator', node=node)
             case '__init__':
                 values = [r.value for r in returns]
-                if any((v for v in values if not utils.is_none(v))):
+                if any(v for v in values if not utils.is_none(v)):
                     self.add_message('return-in-init', node=node)
         # Check for duplicate names by clustering args with same name for detailed report
         arg_clusters = {}

@@ -557,7 +557,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         # Check if both branches can be reduced.
         first_branch = node.body[0]
         else_branch = node.orelse[0]
-        # PRESERVED COMMENTS: 
+        # PRESERVED COMMENTS:
          # Check if we assign to the same value
         match first_branch:
             case nodes.Return():
@@ -967,7 +967,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         return any(_class.qname() == stopiteration_qname for _class in exc.mro())
 
     def _check_consider_using_comprehension_constructor(self, node):
-        # PRESERVED COMMENTS: 
+        # PRESERVED COMMENTS:
          # If we have an `IfExp` here where both the key AND value
          # are different, then don't raise the issue. See #5588
         match node.args[0]:
@@ -1598,7 +1598,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return
 
         match node.parent:
-            case nodes.DictComp(key=nodes.Name(), value=nodes.Name()) if isinstance(node.target, nodes.Tuple) and all((isinstance(elt, nodes.AssignName) for elt in node.target.elts)):
+            case nodes.DictComp(key=nodes.Name(), value=nodes.Name()) if isinstance(node.target, nodes.Tuple) and all(isinstance(elt, nodes.AssignName) for elt in node.target.elts):
                 expr_list = [node.parent.key.name, node.parent.value.name]
                 target_list = [elt.name for elt in node.target.elts]
             case nodes.ListComp() | nodes.SetComp():
@@ -1607,7 +1607,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                     case nodes.Name():
                         expr_list = expr.name
                     case nodes.Tuple():
-                        if any((not isinstance(elt, nodes.Name) for elt in expr.elts)):
+                        if any(not isinstance(elt, nodes.Name) for elt in expr.elts):
                             return
                         expr_list = [elt.name for elt in expr.elts]
                     case _:
@@ -1862,7 +1862,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return
 
         last = node.body[-1]
-        # PRESERVED COMMENTS: 
+        # PRESERVED COMMENTS:
          # e.g. "return"
          # return None"
         match last:

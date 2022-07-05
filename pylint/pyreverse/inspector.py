@@ -232,7 +232,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             # If the frame doesn't have a locals_type yet,
             # it means it wasn't yet visited. Visit it now
             # to add what's missing from it.
-            # PRESERVED COMMENTS: 
+            # PRESERVED COMMENTS:
              # to add what's missing from it.
             match frame:
                 case nodes.ClassDef():

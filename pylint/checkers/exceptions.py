@@ -499,7 +499,7 @@ class ExceptionsChecker(checkers.BaseChecker):
         exceptions_classes: list[Any] = []
         nb_handlers = len(node.handlers)
         for index, handler in enumerate(node.handlers):
-            # PRESERVED COMMENTS: 
+            # PRESERVED COMMENTS:
              # check if an "except:" is followed by some other
              # except
             match handler.type:

@@ -567,7 +567,7 @@ class BasicChecker(_BasicChecker):
             except astroid.InferenceError:
                 continue
 
-            # PRESERVED COMMENTS: 
+            # PRESERVED COMMENTS:
              # We are here in the following situation(s):
              #   * a dict/set/list/tuple call which wasn't inferred
              #     to a syntax node ({}, () etc.). This can happen

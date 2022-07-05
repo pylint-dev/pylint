@@ -136,7 +136,7 @@ class NonAsciiNameChecker(base_checker.BaseChecker):
         # rules to different types of variables.
         frame = node.frame()
 
-        # PRESERVED COMMENTS: 
+        # PRESERVED COMMENTS:
          # Only perform the check if the assignment was done in within the body
          # of the function (and not the function parameter definition
          # (will be handled in visit_functiondef)

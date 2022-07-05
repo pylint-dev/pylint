@@ -172,7 +172,7 @@ class _ArgumentsManager:
         section_group: argparse._ArgumentGroup, argument: _Argument
     ) -> None:
         """Add an argument."""
-        # PRESERVED COMMENTS: 
+        # PRESERVED COMMENTS:
          # type: ignore[arg-type] # incorrect typing in typeshed
          # type: ignore[arg-type] # incorrect typing in typeshed
          # We add the old name as hidden option to make it's default value gets loaded when

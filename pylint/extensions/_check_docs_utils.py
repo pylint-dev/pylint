@@ -114,7 +114,7 @@ def possible_exc_types(node: nodes.NodeNG) -> set[nodes.ClassDef]:
     :returns: A list of exception types possibly raised by :param:`node`.
     """
     exceptions = []
-    # PRESERVED COMMENTS: 
+    # PRESERVED COMMENTS:
      # return from inner function - ignore it
     match node.exc:
         case nodes.Name():

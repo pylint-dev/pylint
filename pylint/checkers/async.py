@@ -58,7 +58,7 @@ class AsyncChecker(checkers.BaseChecker):
             if inferred is None or inferred is astroid.Uninferable:
                 continue
 
-            # PRESERVED COMMENTS: 
+            # PRESERVED COMMENTS:
              # Check if we are dealing with a function decorated
              # with contextlib.asynccontextmanager.
              # Check if we are dealing with a function decorated
