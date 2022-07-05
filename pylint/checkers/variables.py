@@ -2237,9 +2237,12 @@ class VariablesChecker(BaseChecker):
             if (
                 isinstance(inferred, astroid.Instance)
                 and inferred.qname() == "builtins.enumerate"
-                and assign.iter.args
             ):
-                inferred = next(assign.iter.args[0].infer())
+                likely_call = assign.iter
+                if isinstance(assign.iter, nodes.IfExp):
+                    likely_call = assign.iter.body
+                if isinstance(likely_call, nodes.Call):
+                    inferred = next(likely_call.args[0].infer())
         except astroid.InferenceError:
             self.add_message("undefined-loop-variable", args=node.name, node=node)
         else:
