@@ -415,7 +415,9 @@ class BasicErrorChecker(_BasicChecker):
             return
 
         if not isinstance(current_scope, nodes.FunctionDef):
-            self.add_message("nonlocal-without-binding", args=(name,), node=node)
+            self.add_message(
+                "nonlocal-without-binding", args=(name,), node=node, confidence=HIGH
+            )
 
     @utils.only_required_for_messages("nonlocal-without-binding")
     def visit_nonlocal(self, node: nodes.Nonlocal) -> None:
