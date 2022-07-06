@@ -292,13 +292,13 @@ Else If Used checker Messages
 
 .. _pylint.extensions.empty_comment:
 
-Empty Comment checker
+Empty-Comment checker
 ~~~~~~~~~~~~~~~~~~~~~
 
 This checker is provided by ``pylint.extensions.empty_comment``.
 Verbatim name of the checker is ``empty-comment``.
 
-Empty Comment checker Messages
+Empty-Comment checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :empty-comment (R2044): *Line with empty comment*
   Used when a # symbol appears on a line not followed by an actual comment

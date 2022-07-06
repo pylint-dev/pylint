@@ -23,13 +23,12 @@ See :ref:`upgrading pylint in the installation guide <upgrading_pylint>`.
 How do I find the name corresponding to a specific command line option?
 -----------------------------------------------------------------------
 
-You can generate a sample configuration file with ``--generate-toml-config``.
-Every option present on the command line before this will be included in
-the toml file
+See :ref:`the configuration documentation <all-configurations-options>`.
 
-For example::
+What is the format of the configuration file?
+---------------------------------------------
 
-    pylint --disable=bare-except,invalid-name --class-rgx='[A-Z][a-z]+' --generate-toml-config
+The configuration file can be an ``ini`` or ``toml`` file. See the :ref:`exhaustive list of possible options <all-options>`.
 
 How to disable a particular message?
 ------------------------------------
@@ -58,10 +57,6 @@ doing so arguments usage won't be checked. Another solution is to
 use one of the names defined in the "dummy-variables" configuration
 variable for unused argument ("_" and "dummy" by default).
 
-What is the format of the configuration file?
----------------------------------------------
-
-The configuration file can be an ``ini`` or ``toml`` file. See the :ref:`exhaustive list of possible options <all-options>`.
 
 Why are there a bunch of messages disabled by default?
 ------------------------------------------------------
