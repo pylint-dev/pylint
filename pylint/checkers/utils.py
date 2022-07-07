@@ -924,7 +924,7 @@ def uninferable_final_decorators(
 @lru_cache(maxsize=1024)
 def unimplemented_abstract_methods(
     node: nodes.ClassDef, is_abstract_cb: nodes.FunctionDef = None
-) -> dict[str, nodes.NodeNG]:
+) -> dict[str, nodes.FunctionDef]:
     """Get the unimplemented abstract methods for the given *node*.
 
     A method can be considered abstract if the callback *is_abstract_cb*
@@ -937,7 +937,7 @@ def unimplemented_abstract_methods(
     """
     if is_abstract_cb is None:
         is_abstract_cb = partial(decorated_with, qnames=ABC_METHODS)
-    visited: dict[str, nodes.NodeNG] = {}
+    visited: dict[str, nodes.FunctionDef] = {}
     try:
         mro = reversed(node.mro())
     except NotImplementedError:
