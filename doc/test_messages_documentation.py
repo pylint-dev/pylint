@@ -147,7 +147,7 @@ class LintModuleTest:
 
     def _runTest(self) -> None:
         """Run the test and assert message differences."""
-        self._linter.check([str(self._test_file[1])])
+        self._linter.check([str(self._test_file[1]), "--rcfile="])
         expected_messages = self._get_expected()
         actual_messages = self._get_actual()
         if self.is_good_test_file():
