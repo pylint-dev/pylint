@@ -1,8 +1,5 @@
 [MAIN]
 
-# Specify a configuration file.
-#rcfile=
-
 # Python code to execute, usually for sys.path manipulation such as
 # pygtk.require().
 #init-hook=
