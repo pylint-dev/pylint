@@ -1,1 +1,2 @@
-# This is a placeholder for correct code for this message.
+class Person:
+    __slots__ = ("name", "age",)

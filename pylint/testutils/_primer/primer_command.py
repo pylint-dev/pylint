@@ -7,11 +7,12 @@ from __future__ import annotations
 import abc
 import argparse
 from pathlib import Path
-from typing import Dict, List, Union
+from typing import Dict, List
 
+from pylint.message import Message
 from pylint.testutils._primer import PackageToLint
 
-PackageMessages = Dict[str, List[Dict[str, Union[str, int]]]]
+PackageMessages = Dict[str, List[Message]]
 
 
 class PrimerCommand:

@@ -41,7 +41,7 @@ def comment_part_of_string(line: bytes, comment_idx: int) -> bool:
 
 class CommentChecker(BaseRawFileChecker):
 
-    name = "refactoring"
+    name = "empty-comment"
     msgs = {
         "R2044": (
             "Line with empty comment",
