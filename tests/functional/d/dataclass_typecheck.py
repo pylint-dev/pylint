@@ -102,7 +102,7 @@ class Test2(metaclass=obj.attr1):  # [invalid-metaclass]
 
 {}[obj.attr0] = 1
 {}[obj.attr1] = 1
-{}[obj.attr5] = 1  # [unhashable-dict-key]
+{}[obj.attr5] = 1  # [unhashable-member]
 
 for k, v in obj.attr5:  # TODO: Should be a dict-iter-missing-items error
     print(k, v)

@@ -555,6 +555,8 @@ def test_load_plugin_configuration() -> None:
         ],
         exit=False,
     )
+
+    sys.path.remove(dummy_plugin_path)
     assert run.linter.config.ignore == ["foo", "bar", "bin"]
 
 

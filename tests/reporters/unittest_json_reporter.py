@@ -10,10 +10,15 @@ import json
 from io import StringIO
 from typing import Any
 
+import pytest
+
 from pylint import checkers
+from pylint.interfaces import UNDEFINED
 from pylint.lint import PyLinter
+from pylint.message import Message
 from pylint.reporters import JSONReporter
 from pylint.reporters.ureports.nodes import EvaluationSection
+from pylint.typing import MessageLocationTuple
 
 expected_score_message = "Expected score message"
 
@@ -98,3 +103,35 @@ def get_linter_result(score: bool, message: dict[str, Any]) -> list[dict[str, An
     reporter.display_messages(None)
     report_result = json.loads(output.getvalue())
     return report_result
+
+
+@pytest.mark.parametrize(
+    "message",
+    [
+        pytest.param(
+            Message(
+                msg_id="C0111",
+                symbol="missing-docstring",
+                location=MessageLocationTuple(
+                    # abs-path and path must be equal because one of them is removed
+                    # in the JsonReporter
+                    abspath=__file__,
+                    path=__file__,
+                    module="unittest_json_reporter",
+                    obj="obj",
+                    line=1,
+                    column=3,
+                    end_line=3,
+                    end_column=5,
+                ),
+                msg="This is the actual message",
+                confidence=UNDEFINED,
+            ),
+            id="everything-defined",
+        )
+    ],
+)
+def test_serialize_deserialize(message):
+    # TODO: 3.0: Add confidence handling, add path and abs path handling or a new JSONReporter
+    json_message = JSONReporter.serialize(message)
+    assert message == JSONReporter.deserialize(json_message)
