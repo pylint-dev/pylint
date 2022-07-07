@@ -73,6 +73,7 @@ dataclass
 datetime
 debian
 deepcopy
+defaultdicts
 defframe
 defstmts
 deleter
