@@ -149,12 +149,25 @@ class LintModuleTest:
         expected_messages = self._get_expected()
         actual_messages = self._get_actual()
         if self.is_good_test_file():
-            msg = "There should be no warning raised for 'good.py'"
-            assert actual_messages.total() == 0, msg  # type: ignore[attr-defined]
+            assert actual_messages.total() == 0, self.assert_message_good(actual_messages)  # type: ignore[attr-defined]
         if self.is_bad_test_file():
             msg = "There should be at least one warning raised for 'bad.py'"
             assert actual_messages.total() > 0, msg  # type: ignore[attr-defined]
         assert expected_messages == actual_messages
+
+    def assert_message_good(self, actual_messages: MessageCounter) -> str:
+        messages = "\n- ".join(f"{v} (l. {i})" for i, v in actual_messages)
+        msg = f"""There should be no warning raised for 'good.py' but these messages were raised:
+- {messages}
+
+See:
+
+"""
+        with open(self._test_file[1]) as f:
+            lines = [line[:-1] for line in f.readlines()]
+        for line_index, value in actual_messages:
+            lines[line_index - 1] += f"  # <-- /!\\ unexpected '{value}' /!\\"
+        return msg + "\n".join(lines)
 
 
 @pytest.mark.parametrize("test_file", TESTS, ids=TESTS_NAMES)
