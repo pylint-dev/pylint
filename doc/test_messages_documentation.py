@@ -22,7 +22,7 @@ from typing import List, Optional, TextIO, Tuple
 
 import pytest
 
-from pylint import checkers, config
+from pylint import checkers
 from pylint.config.config_initialization import _config_initialization
 from pylint.lint import PyLinter
 from pylint.message.message import Message
@@ -83,10 +83,8 @@ class LintModuleTest:
         config_file: Optional[Path]
         msgid, full_path = test_file
         pylintrc = full_path.parent / "pylintrc"
-        if pylintrc.exists():
-            config_file = pylintrc
-        else:
-            config_file = next(config.find_default_config_files(), None)
+        config_file = pylintrc if pylintrc.exists() else None
+        print(f"Config file used: {config_file}")
         args = [
             str(full_path),
             "--disable=all",
