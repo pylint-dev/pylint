@@ -15,7 +15,7 @@ Release date: TBA
 
   Closes #7003
 
-* Fixed the disabling of ``fixme``.
+* Fixed the disabling of ``fixme`` and its interaction with ``useless-suppression``.
 
 
 What's New in Pylint 2.14.4?

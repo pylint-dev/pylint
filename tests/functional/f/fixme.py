@@ -36,4 +36,6 @@ def function():
 # FIXME: Don't raise when the message is disabled
 
 # This line needs to be at the end of the file to make sure it doesn't end with a comment
+# Pragma's compare against the 'lineno' attribute of the respective nodes which
+# would stop too soon otherwise.
 print()
