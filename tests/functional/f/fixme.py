@@ -1,5 +1,5 @@
-# -*- encoding=utf-8 -*-
-# pylint: disable=missing-docstring, unused-variable
+"""Tests for fixme and its disabling and enabling."""
+# pylint: disable=missing-function-docstring, unused-variable
 
 # +1: [fixme]
 # FIXME: beep
@@ -29,5 +29,11 @@ def function():
 
     #FIXME: in fact nothing to fix #pylint: disable=fixme
     #TODO: in fact nothing to do #pylint: disable=fixme
-    #TODO: in fact nothing to do #pylint: disable=line-too-long, fixme
+    #TODO: in fact nothing to do #pylint: disable=line-too-long, fixme, useless-suppression
     # Todoist API mentioned should not result in a message.
+
+# pylint: disable-next=fixme
+# FIXME: Don't raise when the message is disabled
+
+# This line needs to be at the end of the file to make sure it doesn't end with a comment
+print()
