@@ -156,6 +156,8 @@ class LintModuleTest:
         assert expected_messages == actual_messages
 
     def assert_message_good(self, actual_messages: MessageCounter) -> str:
+        if not actual_messages:
+            return ""
         messages = "\n- ".join(f"{v} (l. {i})" for i, v in actual_messages)
         msg = f"""There should be no warning raised for 'good.py' but these messages were raised:
 - {messages}
