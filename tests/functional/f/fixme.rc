@@ -3,3 +3,4 @@
 notes=XXX,TODO,./TODO
 # Regular expression of note tags to take in consideration.
 notes-rgx=FIXME(?!.*ISSUE-\d+)|TO.*DO
+enable=useless-suppression
