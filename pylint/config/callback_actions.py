@@ -261,7 +261,7 @@ class _GenerateRCFileAction(_AccessRunObjectAction):
         values: str | Sequence[Any] | None,
         option_string: str | None = "--generate-rcfile",
     ) -> None:
-        # TODO: 2.x: Deprecate this after the autoupgrade functionality of
+        # TODO: 2.x: Deprecate this after the auto-upgrade functionality of
         # pylint-config is sufficient.
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
