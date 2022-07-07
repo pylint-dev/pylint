@@ -1945,12 +1945,12 @@ a metaclass class method.",
 
     def _check_first_arg_config(
         self,
-        first,
+        first: str | None,
         config: Sequence[str],
         node: nodes.FunctionDef,
         message: str,
-        method_name,
-    ):
+        method_name: str,
+    ) -> None:
         if first not in config:
             if len(config) == 1:
                 valid = repr(config[0])
