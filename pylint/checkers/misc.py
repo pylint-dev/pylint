@@ -14,7 +14,6 @@ from astroid import nodes
 
 from pylint.checkers import BaseRawFileChecker, BaseTokenChecker
 from pylint.typing import ManagedMessage
-from pylint.utils.pragma_parser import OPTION_PO, PragmaParserError, parse_pragma
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -134,45 +133,16 @@ class EncodingChecker(BaseTokenChecker, BaseRawFileChecker):
         """Inspect the source to find fixme problems."""
         if not self.linter.config.notes:
             return
-        comments = (
-            token_info for token_info in tokens if token_info.type == tokenize.COMMENT
-        )
-        for comment in comments:
-            comment_text = comment.string[1:].lstrip()  # trim '#' and white-spaces
-
-            # handle pylint disable clauses
-            disable_option_match = OPTION_PO.search(comment_text)
-            if disable_option_match:
-                try:
-                    values = []
-                    try:
-                        for pragma_repr in (
-                            p_rep
-                            for p_rep in parse_pragma(disable_option_match.group(2))
-                            if p_rep.action == "disable"
-                        ):
-                            values.extend(pragma_repr.messages)
-                    except PragmaParserError:
-                        # Printing useful information dealing with this error is done in the lint package
-                        pass
-                except ValueError:
-                    self.add_message(
-                        "bad-inline-option",
-                        args=disable_option_match.group(1).strip(),
-                        line=comment.start[0],
-                    )
-                    continue
-                self.linter.add_ignored_message("fixme", line=comment.start[0])
+        for token_info in tokens:
+            if token_info.type != tokenize.COMMENT:
                 continue
-
-            # emit warnings if necessary
-            match = self._fixme_pattern.search("#" + comment_text.lower())
-            if match:
+            comment_text = token_info.string[1:].lstrip()  # trim '#' and white-spaces
+            if self._fixme_pattern.search("#" + comment_text.lower()):
                 self.add_message(
                     "fixme",
-                    col_offset=comment.start[1] + 1,
+                    col_offset=token_info.start[1] + 1,
                     args=comment_text,
-                    line=comment.start[0],
+                    line=token_info.start[0],
                 )
 
 

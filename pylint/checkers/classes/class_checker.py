@@ -8,8 +8,11 @@ from __future__ import annotations
 
 import collections
 import sys
+from collections import defaultdict
+from collections.abc import Sequence
 from itertools import chain, zip_longest
 from re import Pattern
+from typing import TYPE_CHECKING, Union
 
 import astroid
 from astroid import bases, nodes
@@ -38,10 +41,16 @@ from pylint.checkers.utils import (
 from pylint.interfaces import HIGH, INFERENCE
 from pylint.typing import MessageDefinitionTuple
 
+if TYPE_CHECKING:
+    from pylint.lint.pylinter import PyLinter
+
+
 if sys.version_info >= (3, 8):
     from functools import cached_property
 else:
     from astroid.decorators import cachedproperty as cached_property
+
+_AccessNodes = Union[nodes.Attribute, nodes.AssignAttr]
 
 INVALID_BASE_CLASSES = {"bool", "range", "slice", "memoryview"}
 BUILTIN_DECORATORS = {"builtins.property", "builtins.classmethod"}
@@ -65,7 +74,7 @@ _ParameterSignature = collections.namedtuple(
 )
 
 
-def _signature_from_call(call):
+def _signature_from_call(call: nodes.Call) -> _CallSignature:
     kws = {}
     args = []
     starred_kws = []
@@ -702,17 +711,20 @@ MSGS: dict[str, MessageDefinitionTuple] = {
 }
 
 
-def _scope_default():
-    return collections.defaultdict(list)
+def _scope_default() -> defaultdict[str, list[_AccessNodes]]:
+    # It's impossible to nest defaultdicts so we must use a function
+    return defaultdict(list)
 
 
 class ScopeAccessMap:
     """Store the accessed variables per scope."""
 
     def __init__(self):
-        self._scopes = collections.defaultdict(_scope_default)
+        self._scopes: defaultdict[
+            nodes.ClassDef, defaultdict[str, list[_AccessNodes]]
+        ] = defaultdict(_scope_default)
 
-    def set_accessed(self, node):
+    def set_accessed(self, node: _AccessNodes) -> None:
         """Set the given node as accessed."""
 
         frame = node_frame_class(node)
@@ -721,7 +733,7 @@ class ScopeAccessMap:
             return
         self._scopes[frame][node.attrname].append(node)
 
-    def accessed(self, scope):
+    def accessed(self, scope: nodes.ClassDef) -> dict[str, list[_AccessNodes]]:
         """Get the accessed variables for the given scope."""
         return self._scopes.get(scope, {})
 
@@ -803,10 +815,10 @@ a metaclass class method.",
         ),
     )
 
-    def __init__(self, linter=None):
+    def __init__(self, linter: PyLinter) -> None:
         super().__init__(linter)
         self._accessed = ScopeAccessMap()
-        self._first_attrs = []
+        self._first_attrs: list[str | None] = []
 
     def open(self) -> None:
         self._mixin_class_rgx = self.linter.config.mixin_class_rgx
@@ -839,7 +851,7 @@ a metaclass class method.",
         self._check_typing_final(node)
         self._check_consistent_mro(node)
 
-    def _check_consistent_mro(self, node):
+    def _check_consistent_mro(self, node: nodes.ClassDef) -> None:
         """Detect that a class has a consistent mro or duplicate bases."""
         try:
             node.mro()
@@ -851,7 +863,7 @@ a metaclass class method.",
             # Old style class, there's no mro so don't do anything.
             pass
 
-    def _check_proper_bases(self, node):
+    def _check_proper_bases(self, node: nodes.ClassDef) -> None:
         """Detect that a class inherits something which is not
         a class or a type.
         """
@@ -1238,7 +1250,7 @@ a metaclass class method.",
         if not _is_trivial_super_delegation(function):
             return
 
-        call = function.body[0].value
+        call: nodes.Call = function.body[0].value
 
         # Classes that override __eq__ should also override
         # __hash__, even a trivial override is meaningful
@@ -1783,7 +1795,7 @@ a metaclass class method.",
         return inferred._proxied is klass
 
     @staticmethod
-    def _is_class_attribute(name, klass):
+    def _is_class_attribute(name: str, klass: nodes.ClassDef) -> bool:
         """Check if the given attribute *name* is a class or instance member of the
         given *klass*.
 
@@ -1803,7 +1815,9 @@ a metaclass class method.",
         except astroid.NotFoundError:
             return False
 
-    def _check_accessed_members(self, node, accessed):
+    def _check_accessed_members(
+        self, node: nodes.ClassDef, accessed: dict[str, list[_AccessNodes]]
+    ) -> None:
         """Check that accessed members are defined."""
         excs = ("AttributeError", "Exception", "BaseException")
         for attr, nodes_lst in accessed.items():
@@ -1863,7 +1877,7 @@ a metaclass class method.",
                                 args=(attr, lno),
                             )
 
-    def _check_first_arg_for_type(self, node, metaclass=0):
+    def _check_first_arg_for_type(self, node: nodes.FunctionDef, metaclass: bool):
         """Check the name of first argument, expect:.
 
         * 'self' for a regular method
@@ -1930,7 +1944,14 @@ a metaclass class method.",
         elif first != "self":
             self.add_message("no-self-argument", node=node)
 
-    def _check_first_arg_config(self, first, config, node, message, method_name):
+    def _check_first_arg_config(
+        self,
+        first: str | None,
+        config: Sequence[str],
+        node: nodes.FunctionDef,
+        message: str,
+        method_name: str,
+    ) -> None:
         if first not in config:
             if len(config) == 1:
                 valid = repr(config[0])
@@ -1939,12 +1960,12 @@ a metaclass class method.",
                 valid = f"{valid} or {config[-1]!r}"
             self.add_message(message, args=(method_name, valid), node=node)
 
-    def _check_bases_classes(self, node):
+    def _check_bases_classes(self, node: nodes.ClassDef) -> None:
         """Check that the given class node implements abstract methods from
         base classes.
         """
 
-        def is_abstract(method):
+        def is_abstract(method: nodes.FunctionDef) -> bool:
             return method.is_abstract(pass_is_abstract=False)
 
         # check if this class abstract
@@ -2050,7 +2071,13 @@ a metaclass class method.",
                 confidence=INFERENCE,
             )
 
-    def _check_signature(self, method1, refmethod, class_type, cls):
+    def _check_signature(
+        self,
+        method1: nodes.FunctionDef,
+        refmethod: nodes.FunctionDef,
+        class_type: str,
+        cls: nodes.ClassDef,
+    ) -> None:
         """Check that the signature of the two given methods match."""
         if not (
             isinstance(method1, nodes.FunctionDef)
@@ -2128,7 +2155,9 @@ a metaclass class method.",
                 "signature-differs", args=(class_type, method1.name), node=method1
             )
 
-    def _uses_mandatory_method_param(self, node):
+    def _uses_mandatory_method_param(
+        self, node: nodes.Attribute | nodes.Assign | nodes.AssignAttr
+    ) -> bool:
         """Check that attribute lookup name use first attribute variable name.
 
         Name is `self` for method, `cls` for classmethod and `mcs` for metaclass.
@@ -2159,7 +2188,7 @@ a metaclass class method.",
 
 
 def _ancestors_to_call(
-    klass_node: nodes.ClassDef, method="__init__"
+    klass_node: nodes.ClassDef, method: str = "__init__"
 ) -> dict[nodes.ClassDef, bases.UnboundMethod]:
     """Return a dictionary where keys are the list of base classes providing
     the queried method, and so that should/may be called from the method node.
