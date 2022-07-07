@@ -88,7 +88,7 @@ class LintModuleTest:
         args = [
             str(full_path),
             "--disable=all",
-            f"--enable={msgid},astroid-error,fatal,syntax-error",
+            f"--enable=F,{msgid},astroid-error,syntax-error",
         ]
         print(f"Command used:\npylint {' '.join(args)}")
         _config_initialization(
