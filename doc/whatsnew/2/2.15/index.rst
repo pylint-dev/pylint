@@ -30,10 +30,6 @@ Extensions
 False positives fixed
 =====================
 
-* The ``differing-param-doc`` check was triggered by positional only arguments.
-
-  Closes #6950
-
 * Don't report ``unsupported-binary-operation`` on Python <= 3.9 when using the ``|`` operator
   with types, if one has a metaclass that overloads ``__or__`` or ``__ror__`` as appropriate.
 
@@ -68,6 +64,15 @@ False negatives fixed
 * Emit ``used-before-assignment`` for self-referencing assignments under if conditions.
 
   Closes #6643
+
+* Emit ``nonlocal-without-binding`` when a nonlocal name has been assigned at a later point in the same scope.
+
+  Closes #6883
+
+* Rename ``unhashable-dict-key`` to ``unhashable-member`` and emit when creating sets and dicts,
+  not just when accessing dicts.
+
+  Closes #7034, Closes #7055
 
 
 Other bug fixes
