@@ -738,10 +738,10 @@ class NumpyDocstring(GoogleDocstring):
          (
           ({GoogleDocstring.re_multiple_type})      # default type declaration
           (,\s+optional)?                           # optional 'optional' indication
-         )|
+         )?
          (
           {{({re_default_value},?\s*)+}}            # set of default values
-         )
+         )?
         \n)?
         \s* (.*)                                    # optional description
     """,
