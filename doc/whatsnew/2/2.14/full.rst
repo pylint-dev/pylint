@@ -17,6 +17,10 @@ Release date: TBA
 
 * Fixed the disabling of ``fixme`` and its interaction with ``useless-suppression``.
 
+* Allow lists of default values in parameter documentation for ``Numpy`` style.
+
+  Closes #4035
+
 
 What's New in Pylint 2.14.4?
 ----------------------------

@@ -727,11 +727,22 @@ class NumpyDocstring(GoogleDocstring):
         re.X | re.S | re.M,
     )
 
+    re_default_value = r"""((['"]\w+\s*['"])|(True)|(False)|(None))"""
+
     re_param_line = re.compile(
         rf"""
-        \s*  (\*{{0,2}}\w+)(\s?(:|\n))                                      # identifier with potential asterisks
-        \s*  (?:({GoogleDocstring.re_multiple_type})(?:,\s+optional)?\n)?   # optional type declaration
-        \s* (.*)                                                            # optional description
+        \s*  (\*{{0,2}}\w+)(\s?(:|\n))              # identifier with potential asterisks
+        \s*
+        (
+         (
+          ({GoogleDocstring.re_multiple_type})      # default type declaration
+          (,\s+optional)?                           # optional 'optional' indication
+         )?
+         (
+          {{({re_default_value},?\s*)+}}            # set of default values
+         )?
+        \n)?
+        \s* (.*)                                    # optional description
     """,
         re.X | re.S,
     )
