@@ -70,7 +70,7 @@ You can see the plugin you need to explicitly :ref:`load in the technical refere
 Which messages should I disable to avoid duplicates if I use other popular linters ?
 ------------------------------------------------------------------------------------
 
-pycodestyle_: unneeded-not, line-too-long, unnecessary-semicolon, trailing-whitespace, missing-final-newline, bad-indentation, multiple-statements, bare-except, wrong-import-position
+pycodestyle_: bad-indentation, bare-except, line-too-long, missing-final-newline, multiple-statements, singleton-comparison, trailing-whitespace, unnecessary-semicolon, unneeded-not, wrong-import-position
 
 pyflakes_: undefined-variable, unused-import, unused-variable
 
