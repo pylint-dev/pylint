@@ -3,8 +3,8 @@ class Person:
     name = None
 
     def __init__(self, age, name):
-        self.name = name
         self.age = age
+        self.name = name
 
     @property
     def age(self):
