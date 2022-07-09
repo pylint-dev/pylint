@@ -2,7 +2,7 @@
 API
 ###
 
-You can call ``Pylint``, ``epylint``, ``symilar`` and ``pyreverse`` from another
+You can call ``pylint``, ``epylint``, ``symilar`` and ``pyreverse`` from another
 Python program thanks to their APIs:
 
 .. sourcecode:: python

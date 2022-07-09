@@ -13,7 +13,7 @@ You can clone Pylint using ::
   git clone https://github.com/PyCQA/pylint
 
 Before you start testing your code, you need to install your source-code package locally.
-Suppose you just cloned pylint with the previous ``git clone`` command. To set up your
+Suppose you just cloned Pylint with the previous ``git clone`` command. To set up your
 environment for testing, open a terminal and run::
 
     cd pylint
@@ -31,7 +31,7 @@ Astroid installation
 --------------------
 
 If you're testing new changes in astroid you need to also clone astroid_ and install
-with an editable installation alongside pylint as follows::
+with an editable installation alongside Pylint as follows::
 
     # Suppose you're in the pylint directory
     git clone https://github.com/PyCQA/astroid.git

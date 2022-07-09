@@ -47,11 +47,11 @@ extensions = [
 ]
 
 
-# Single file redirects are handled in this file and can be done by a pylint
+# Single file redirects are handled in this file and can be done by a Pylint
 # contributor. We use the following extension:
 # https://documatt.gitlab.io/sphinx-reredirects/usage.html
 # Directory redirects are handled in ReadTheDoc admin interface and can only be done
-# by pylint maintainers at the following URL:
+# by Pylint maintainers at the following URL:
 # https://readthedocs.org/dashboard/pylint/redirects/
 redirects: dict[str, str] = {
     # "<source>": "<target>"

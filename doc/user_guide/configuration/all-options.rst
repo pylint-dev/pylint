@@ -162,7 +162,7 @@ Standard Checkers
 
 --py-version
 """"""""""""
-*Minimum Python version to use for version dependent checks. Will default to the version used to run pylint.*
+*Minimum Python version to use for version dependent checks. Will default to the version used to run Pylint.*
 
 **Default:**  ``(3, 10)``
 
@@ -190,7 +190,7 @@ Standard Checkers
 
 --suggestion-mode
 """""""""""""""""
-*When enabled, pylint would attempt to guess common misconfiguration and emit user-friendly hints instead of false-positive error messages.*
+*When enabled, Pylint would attempt to guess common misconfiguration and emit user-friendly hints instead of false-positive error messages.*
 
 **Default:**  ``True``
 
@@ -1365,7 +1365,7 @@ Standard Checkers
 
 --generated-members
 """""""""""""""""""
-*List of members which are set dynamically and missed by pylint inference system, and so shouldn't trigger E1101 when accessed. Python regular expressions are accepted.*
+*List of members which are set dynamically and missed by Pylint inference system, and so shouldn't trigger E1101 when accessed. Python regular expressions are accepted.*
 
 **Default:**  ``()``
 
@@ -1386,7 +1386,7 @@ Standard Checkers
 
 --ignore-on-opaque-inference
 """"""""""""""""""""""""""""
-*This flag controls whether pylint should warn about no-member and similar checks whenever an opaque object is returned when inferring. The inference can return multiple potential results while evaluating a Python object, but some branches might not be evaluated, which results in partial inference. In that case, it might be useful to still emit no-member and other checks for the rest of the inferred objects.*
+*This flag controls whether Pylint should warn about no-member and similar checks whenever an opaque object is returned when inferring. The inference can return multiple potential results while evaluating a Python object, but some branches might not be evaluated, which results in partial inference. In that case, it might be useful to still emit no-member and other checks for the rest of the inferred objects.*
 
 **Default:**  ``True``
 

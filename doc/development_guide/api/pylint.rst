@@ -20,7 +20,7 @@ Recover the result in a stream
 ------------------------------
 
 You can also use ``pylint.lint.Run`` directly if you want to do something that
-can't be done using only pylint's command line options. Here's the basic example:
+can't be done using only Pylint's command line options. Here's the basic example:
 
 .. sourcecode:: python
 
@@ -28,7 +28,7 @@ can't be done using only pylint's command line options. Here's the basic example
 
     Run(argv=["--disable=line-too-long", "myfile.py"])
 
-With ``Run`` it is possible to invoke pylint programmatically with a
+With ``Run`` it is possible to invoke Pylint programmatically with a
 reporter initialized with a custom stream:
 
 .. sourcecode:: python
@@ -55,11 +55,11 @@ the stream outputs to a file:
         reporter = TextReporter(f)
         Run(["test_file.py"], reporter=reporter, exit=False)
 
-This would be useful to capture pylint output in an open stream which
+This would be useful to capture Pylint output in an open stream which
 can be passed onto another program.
 
 If your program expects that the files being linted might be edited
-between runs, you will need to clear pylint's inference cache:
+between runs, you will need to clear Pylint's inference cache:
 
 .. sourcecode:: python
 

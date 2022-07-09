@@ -42,7 +42,7 @@ your patch gets accepted:
 
 Tips for Getting Started with Pylint Development
 ------------------------------------------------
-* Read the :ref:`technical-reference`. It gives a short walk through of the pylint
+* Read the :ref:`technical-reference`. It gives a short walk through of the Pylint
   codebase and will help you identify where you will need to make changes
   for what you are trying to implement.
 

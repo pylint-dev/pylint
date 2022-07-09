@@ -55,7 +55,7 @@ ecosystem of existing plugins for popular frameworks such as `pylint-django`_ or
 
 Pylint isn't smarter than you: it may warn you about things that you have
 conscientiously done or check for some things that you don't care about.
-During adoption, especially in a legacy project where pylint was never enforced,
+During adoption, especially in a legacy project where Pylint was never enforced,
 it's best to start with the ``--errors-only`` flag, then disable
 convention and refactor message with ``--disable=C,R`` and progressively
 re-evaluate and re-enable messages as your priorities evolve.
@@ -63,14 +63,14 @@ re-evaluate and re-enable messages as your priorities evolve.
 Pylint ships with three additional tools:
 
 - pyreverse_ (standalone tool that generates package and class diagrams.)
-- symilar_  (duplicate code finder that is also integrated in pylint)
+- symilar_  (duplicate code finder that is also integrated in Pylint)
 - epylint_ (Emacs and Flymake compatible Pylint)
 
 .. _pyreverse: https://pylint.pycqa.org/en/latest/pyreverse.html
 .. _symilar: https://pylint.pycqa.org/en/latest/symilar.html
 .. _epylint: https://pylint.pycqa.org/en/latest/user_guide/ide_integration/flymake-emacs.html
 
-Projects that you might want to use alongside pylint include flake8_ (faster and simpler checks
+Projects that you might want to use alongside Pylint include flake8_ (faster and simpler checks
 with very few false positives), mypy_, pyright_ or pyre_ (typing checks), bandit_ (security
 oriented checks), black_ and isort_ (auto-formatting), autoflake_ (automated removal of
 unused imports or variables), pyupgrade_ (automated upgrade to newer python syntax) and
@@ -94,7 +94,7 @@ Install
 
 .. This is used inside the doc to recover the start of the short text for installation
 
-For command line use, pylint is installed with::
+For command line use, Pylint is installed with::
 
     pip install pylint
 
@@ -126,7 +126,7 @@ make a code contribution.
 Show your usage
 -----------------
 
-You can place this badge in your README to let others know your project uses pylint.
+You can place this badge in your README to let others know your project uses Pylint.
 
     .. image:: https://img.shields.io/badge/linting-pylint-yellowgreen
         :target: https://github.com/PyCQA/pylint
@@ -160,7 +160,7 @@ Please check `the contact information`_.
    :widths: 10 100
 
    * - |tideliftlogo|
-     - Professional support for pylint is available as part of the `Tidelift
+     - Professional support for Pylint is available as part of the `Tidelift
        Subscription`_.  Tidelift gives software development teams a single source for
        purchasing and maintaining their software, with professional grade assurances
        from the experts who know it best, while seamlessly integrating with existing

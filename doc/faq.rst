@@ -18,7 +18,7 @@ How do I contribute to Pylint?
 Does Pylint follow a versioning scheme?
 ----------------------------------------
 
-See :ref:`upgrading pylint in the installation guide <upgrading_pylint>`.
+See :ref:`upgrading Pylint in the installation guide <upgrading_pylint>`.
 
 How do I find the name corresponding to a specific command line option?
 -----------------------------------------------------------------------

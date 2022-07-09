@@ -176,7 +176,7 @@ Now we know how to use the astroid node, we can implement our check.
 Once we have established that the source code has failed our check,
 we use ``~.BaseChecker.add_message`` to emit our failure message.
 
-Finally, we need to register the checker with pylint.
+Finally, we need to register the checker with Pylint.
 Add the ``register`` function to the top level of the file.
 
 .. code-block:: python
@@ -208,7 +208,7 @@ Put the following into a Python file:
       return 5
 
 After inserting pdb into our checker and installing it,
-we can run pylint with only our checker::
+we can run Pylint with only our checker::
 
   $ pylint --load-plugins=my_plugin --disable=all --enable=non-unique-returns test.py
   (Pdb)
@@ -218,7 +218,7 @@ Now we can debug our checker!
 .. Note::
 
     ``my_plugin`` refers to a module called ``my_plugin.py``.
-    This module can be made available to pylint by putting this
+    This module can be made available to Pylint by putting this
     module's parent directory in your ``PYTHONPATH``
     environment variable or by adding the ``my_plugin.py``
     file to the ``pylint/checkers`` directory if running from source.

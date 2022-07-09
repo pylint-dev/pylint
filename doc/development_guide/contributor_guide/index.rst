@@ -1,9 +1,9 @@
 .. _contribute_guide:
 
-Contributing to pylint
+Contributing to Pylint
 ======================
 
-The contributor guide will help you if you want to contribute to pylint itself.
+The contributor guide will help you if you want to contribute to Pylint itself.
 
 .. toctree::
    :maxdepth: 2

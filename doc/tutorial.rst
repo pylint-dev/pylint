@@ -86,7 +86,7 @@ Pylint is going to ``pick on``: ::
     * (R) refactor, for bad code smell
     * (W) warning, for python specific problems
     * (E) error, for probable bugs in the code
-    * (F) fatal, if an error occurred which prevented pylint from doing
+    * (F) fatal, if an error occurred which prevented Pylint from doing
     further processing.
 
 When Pylint is first run on a fresh piece of code, a common complaint is that it

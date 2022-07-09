@@ -104,7 +104,7 @@ Basic checker Messages
 :self-assigning-variable (W0127): *Assigning the same variable %r to itself*
   Emitted when we detect that a variable is assigned to itself
 :comparison-with-callable (W0143): *Comparing against a callable, did you omit the parenthesis?*
-  This message is emitted when pylint detects that a comparison with a callable
+  This message is emitted when Pylint detects that a comparison with a callable
   was made, which might suggest that some parenthesis were omitted, resulting
   in potential unwanted behaviour.
 :nan-comparison (W0177): *Comparison %s should be %s*
@@ -516,7 +516,7 @@ Imports checker Messages
   Used when a relative import tries to access too many levels in the current
   package.
 :import-error (E0401): *Unable to import %s*
-  Used when pylint has been unable to import a module.
+  Used when Pylint has been unable to import a module.
 :deprecated-module (W4901): *Deprecated module %r*
   A module marked as deprecated is imported.
 :import-self (W0406): *Module import itself*
@@ -802,7 +802,7 @@ Refactoring checker Messages
   operations, such as for iteration, with statement assignment and exception
   handler assignment.
 :chained-comparison (R1716): *Simplify chained comparison between the operands*
-  This message is emitted when pylint encounters boolean operation like "a < b
+  This message is emitted when Pylint encounters boolean operation like "a < b
   and b < c", suggesting instead to refactor it to "a < b < c"
 :simplifiable-if-expression (R1719): *The if expression can be replaced with %s*
   Used when an if expression can be replaced with 'bool(test)' or simply 'test'
@@ -1250,10 +1250,10 @@ Verbatim name of the checker is ``unsupported_version``.
 Unsupported Version checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :using-f-string-in-unsupported-version (W2601): *F-strings are not supported by all versions included in the py-version setting*
-  Used when the py-version set by the user is lower than 3.6 and pylint
+  Used when the py-version set by the user is lower than 3.6 and Pylint
   encounters a f-string.
 :using-final-decorator-in-unsupported-version (W2602): *typing.final is not supported by all versions included in the py-version setting*
-  Used when the py-version set by the user is lower than 3.8 and pylint
+  Used when the py-version set by the user is lower than 3.8 and Pylint
   encounters a ``typing.final`` decorator.
 
 

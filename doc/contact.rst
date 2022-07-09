@@ -49,7 +49,7 @@ Support
    :align: left
    :class: tideliftlogo
 
-Professional support for pylint is available as part of the `Tidelift
+Professional support for Pylint is available as part of the `Tidelift
 Subscription`_.  Tidelift gives software development teams a single source for
 purchasing and maintaining their software, with professional grade assurances
 from the experts who know it best, while seamlessly integrating with existing

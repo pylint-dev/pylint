@@ -15,4 +15,4 @@ The following code shows valid case for re-raising exception immediately::
         except ArithmeticError:
             return float('nan')
 
-The pylint is able to detect this case and does not produce error.
+Pylint is able to detect this case and does not produce error.

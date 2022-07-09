@@ -2,7 +2,7 @@
 .. _test_your_code:
 
 ==============
-Testing pylint
+Testing Pylint
 ==============
 
 Pylint is very well tested and has a high code coverage. New contributions are not accepted

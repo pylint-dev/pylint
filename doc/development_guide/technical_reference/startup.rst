@@ -4,7 +4,7 @@ Startup and the Linter Class
 The two main classes in ``pylint.lint`` are
 ``.pylint.lint.Run`` and ``.pylint.lint.PyLinter``.
 
-The ``.pylint.lint.Run`` object is responsible for starting up pylint.
+The ``.pylint.lint.Run`` object is responsible for starting up Pylint.
 It does some basic checking of the given command line options to
 find the initial hook to run,
 find the config file to use,

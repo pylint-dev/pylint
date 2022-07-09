@@ -1,10 +1,10 @@
 .. _upgrading_pylint:
 
-Upgrading pylint
+Upgrading Pylint
 ================
 
-You should probably set the version of pylint in your development environment in order to
-choose when you actually upgrade pylint's warnings. pylint is following semver versioning.
+You should probably set the version of Pylint in your development environment in order to
+choose when you actually upgrade Pylint's warnings. Pylint is following semver versioning.
 But we can't guarantee that the output between version will stays the same. What this means
 is that:
 
