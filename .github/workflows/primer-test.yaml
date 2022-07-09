@@ -13,8 +13,7 @@ on:
       - ".github/workflows/primer-test.yaml"
 
 env:
-  # Also change CACHE_VERSION in the CI workflow
-  CACHE_VERSION: 6
+  CACHE_VERSION: 1
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}

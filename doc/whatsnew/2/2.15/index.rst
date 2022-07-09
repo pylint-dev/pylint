@@ -11,6 +11,9 @@
 Summary -- Release highlights
 =============================
 
+* We improved ``pylint``'s handling of namespace packages. More packages should be
+  linted without resorting to using the ``-recursive=y`` option.
+
 
 New checkers
 ============
@@ -85,6 +88,8 @@ Other Changes
 * ``useless-super-delegation`` has been renamed to ``useless-parent-delegation`` in order to be more generic.
 
   Closes #6953
+
+* Update ``astroid`` to 2.12.
 
 
 Internal changes

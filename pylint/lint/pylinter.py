@@ -914,7 +914,6 @@ class PyLinter(
                 data, modname, filepath
             )
         except astroid.AstroidSyntaxError as ex:
-            # pylint: disable=no-member
             self.add_message(
                 "syntax-error",
                 line=getattr(ex.error, "lineno", 0),

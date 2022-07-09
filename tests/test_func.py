@@ -14,9 +14,11 @@ import pytest
 
 from pylint.testutils import UPDATE_FILE, UPDATE_OPTION, _get_tests_info, linter
 from pylint.testutils.reporter_for_tests import GenericTestReporter
+from pylint.testutils.utils import _test_cwd
 
-INPUT_DIR = join(dirname(abspath(__file__)), "input")
-MSG_DIR = join(dirname(abspath(__file__)), "messages")
+TESTS_DIR = dirname(abspath(__file__))
+INPUT_DIR = join(TESTS_DIR, "input")
+MSG_DIR = join(TESTS_DIR, "messages")
 
 
 FILTER_RGX = None
@@ -46,7 +48,11 @@ class LintTestUsingModule:
             tocheck += [
                 self.package + f".{name.replace('.py', '')}" for name, _ in self.depends
             ]
-        self._test(tocheck)
+        # given that TESTS_DIR could be treated as a namespace package
+        # when under the current directory, cd to it so that "tests." is not
+        # prepended to module names in the output of cyclic-import
+        with _test_cwd(TESTS_DIR):
+            self._test(tocheck)
 
     def _check_result(self, got: str) -> None:
         error_msg = (

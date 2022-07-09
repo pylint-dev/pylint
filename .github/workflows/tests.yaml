@@ -10,8 +10,7 @@ on:
       - doc/data/messages/**
 
 env:
-  # Also change CACHE_VERSION in the other workflows
-  CACHE_VERSION: 7
+  CACHE_VERSION: 1
 
 jobs:
   tests-linux:

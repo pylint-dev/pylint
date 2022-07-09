@@ -3,6 +3,7 @@
 import xml.etree  # [unused-import]
 import xml.sax  # [unused-import]
 import os.path as test  # [unused-import]
+from abc import ABCMeta
 from sys import argv as test2  # [unused-import]
 from sys import flags  # [unused-import]
 # +1:[unused-import,unused-import]
@@ -10,6 +11,7 @@ from collections import deque, OrderedDict, Counter
 import re, html.parser  # [unused-import]
 DATA = Counter()
 # pylint: disable=self-assigning-variable
+import six
 from fake import SomeName, SomeOtherName  # [unused-import]
 class SomeClass(object):
     SomeName = SomeName # https://bitbucket.org/logilab/pylint/issue/475
@@ -87,3 +89,6 @@ if typing.TYPE_CHECKING_WITH_MAGIC:  # pylint: disable=no-member
 TYPE_CHECKING = False
 if TYPE_CHECKING:
     import zoneinfo
+
+class WithMetaclass(six.with_metaclass(ABCMeta, object)):
+    pass
