@@ -1,4 +1,3 @@
-items = (1, 2, 3, 4, 5)
 
 def any_even(items):
     """Return True if the list contains any even numbers"""
