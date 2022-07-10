@@ -7,7 +7,7 @@ from __future__ import annotations
 import contextlib
 import os
 import sys
-from collections.abc import Iterator
+from collections.abc import Generator, Iterator
 from typing import TextIO
 
 
@@ -20,6 +20,24 @@ def _patch_streams(out: TextIO) -> Iterator[None]:
     finally:
         sys.stderr = sys.__stderr__
         sys.stdout = sys.__stdout__
+
+
+@contextlib.contextmanager
+def _test_sys_path() -> Generator[None, None, None]:
+    original_path = sys.path
+    try:
+        yield
+    finally:
+        sys.path = original_path
+
+
+@contextlib.contextmanager
+def _test_cwd() -> Generator[None, None, None]:
+    original_dir = os.getcwd()
+    try:
+        yield
+    finally:
+        os.chdir(original_dir)
 
 
 def create_files(paths: list[str], chroot: str = ".") -> None:
