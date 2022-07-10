@@ -8,6 +8,8 @@ import contextlib
 import os
 import sys
 from collections.abc import Generator, Iterator
+from copy import copy
+from pathlib import Path
 from typing import TextIO
 
 
@@ -23,18 +25,26 @@ def _patch_streams(out: TextIO) -> Iterator[None]:
 
 
 @contextlib.contextmanager
-def _test_sys_path() -> Generator[None, None, None]:
+def _test_sys_path(
+    replacement_sys_path: list[str] | None = None,
+) -> Generator[None, None, None]:
     original_path = sys.path
     try:
+        if replacement_sys_path is not None:
+            sys.path = copy(replacement_sys_path)
         yield
     finally:
         sys.path = original_path
 
 
 @contextlib.contextmanager
-def _test_cwd() -> Generator[None, None, None]:
+def _test_cwd(
+    current_working_directory: str | Path | None = None,
+) -> Generator[None, None, None]:
     original_dir = os.getcwd()
     try:
+        if current_working_directory is not None:
+            os.chdir(current_working_directory)
         yield
     finally:
         os.chdir(original_dir)
