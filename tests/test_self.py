@@ -37,7 +37,7 @@ from pylint.reporters import JSONReporter
 from pylint.reporters.text import BaseReporter, ColorizedTextReporter, TextReporter
 from pylint.testutils._run import _add_rcfile_default_pylintrc
 from pylint.testutils._run import _Run as Run
-from pylint.testutils.utils import _patch_streams
+from pylint.testutils.utils import _patch_streams, _test_cwd, _test_sys_path
 from pylint.utils import utils
 
 if sys.version_info >= (3, 11):
@@ -67,24 +67,6 @@ def _configure_lc_ctype(lc_ctype: str) -> Iterator:
         os.environ.pop(lc_ctype_env)
         if original_lctype:
             os.environ[lc_ctype_env] = original_lctype
-
-
-@contextlib.contextmanager
-def _test_sys_path() -> Generator[None, None, None]:
-    original_path = sys.path
-    try:
-        yield
-    finally:
-        sys.path = original_path
-
-
-@contextlib.contextmanager
-def _test_cwd() -> Generator[None, None, None]:
-    original_dir = os.getcwd()
-    try:
-        yield
-    finally:
-        os.chdir(original_dir)
 
 
 class MultiReporter(BaseReporter):
