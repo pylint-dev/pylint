@@ -33,6 +33,8 @@ Extensions
 False positives fixed
 =====================
 
+* Don't report ``super-init-not-called`` for subclasses of ``Enum`` (on Python >= 3.11).
+
 * Don't report ``unsupported-binary-operation`` on Python <= 3.9 when using the ``|`` operator
   with types, if one has a metaclass that overloads ``__or__`` or ``__ror__`` as appropriate.
 

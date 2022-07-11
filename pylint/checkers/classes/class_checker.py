@@ -2059,6 +2059,11 @@ a metaclass class method.",
                 except astroid.InferenceError:
                     continue
 
+            # Skip if klass is Enum, Python's own docs and examples
+            # do not recommend Enum subclasses call Enum.__init__
+            if klass.name == "Enum":
+                continue
+
             if decorated_with(node, ["typing.overload"]):
                 continue
             cls = node_frame_class(method)
