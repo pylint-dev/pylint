@@ -1,6 +1,6 @@
 -e .[testutils,spelling]
 # astroid dependency is also defined in setup.cfg
-astroid==2.11.6  # Pinned to a specific version for tests
+astroid==2.12.1  # Pinned to a specific version for tests
 typing-extensions~=4.3
 pytest~=7.1
 pytest-benchmark~=3.4
