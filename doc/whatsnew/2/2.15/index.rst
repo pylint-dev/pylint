@@ -86,6 +86,10 @@ Other Changes
 
   Closes #6953
 
+* In Documentation, in "Messages Overview", show the `bad_code` first (instead of showing the correct code first)
+
+  Refs #7143
+
 
 Internal changes
 ================

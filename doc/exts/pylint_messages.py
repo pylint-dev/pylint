@@ -272,8 +272,8 @@ def _generate_single_message_body(message: MessageData) -> str:
 
 *{message.definition.description}*
 
-{message.good_code}
 {message.bad_code}
+{message.good_code}
 {message.details}
 {message.related_links}
 """
