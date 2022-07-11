@@ -149,10 +149,12 @@ class LintModuleTest:
         expected_messages = self._get_expected()
         actual_messages = self._get_actual()
         if self.is_good_test_file():
-            assert actual_messages.total() == 0, self.assert_message_good(actual_messages)  # type: ignore[attr-defined]
+            assert actual_messages.total() == 0, self.assert_message_good(
+                actual_messages
+            )
         if self.is_bad_test_file():
             msg = "There should be at least one warning raised for 'bad.py'"
-            assert actual_messages.total() > 0, msg  # type: ignore[attr-defined]
+            assert actual_messages.total() > 0, msg
         assert expected_messages == actual_messages
 
     def assert_message_good(self, actual_messages: MessageCounter) -> str:
