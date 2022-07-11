@@ -33,7 +33,7 @@ repos:
         exclude: tests(/\w*)*/functional/|tests/input|doc/data/messages|examples/|setup.py|tests(/\w*)*data/
         types: [python]
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.34.0
+    rev: v2.37.1
     hooks:
       - id: pyupgrade
         args: [--py37-plus]
@@ -111,7 +111,7 @@ repos:
         args: [--prose-wrap=always, --print-width=88]
         exclude: tests(/\w*)*data/
   - repo: https://github.com/DanielNoord/pydocstringformatter
-    rev: v0.6.1
+    rev: v0.6.2
     hooks:
       - id: pydocstringformatter
         exclude: *fixtures
