@@ -76,7 +76,7 @@ jobs:
     needs: tests-linux
     strategy:
       matrix:
-        python-version: [3.8]
+        python-version: ["3.10"]
     env:
       COVERAGERC_FILE: .coveragerc
     steps:
