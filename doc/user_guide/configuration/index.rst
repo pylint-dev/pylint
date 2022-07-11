@@ -15,6 +15,9 @@ For example::
 
     pylint --disable=bare-except,invalid-name --class-rgx='[A-Z][a-z]+' --generate-toml-config
 
+In practice, you should create a minimal configuration file which contains only
+configuration overrides. For all other options, Pylint will use default values.
+
 .. toctree::
    :maxdepth: 2
    :titlesonly:
