@@ -9,7 +9,6 @@ import os
 import sys
 from collections.abc import Generator, Iterator
 from copy import copy
-from pathlib import Path
 from typing import TextIO
 
 
@@ -35,19 +34,6 @@ def _test_sys_path(
         yield
     finally:
         sys.path = original_path
-
-
-@contextlib.contextmanager
-def _test_cwd(
-    current_working_directory: str | Path | None = None,
-) -> Generator[None, None, None]:
-    original_dir = os.getcwd()
-    try:
-        if current_working_directory is not None:
-            os.chdir(current_working_directory)
-        yield
-    finally:
-        os.chdir(original_dir)
 
 
 @contextlib.contextmanager

@@ -24,7 +24,6 @@ from os.path import abspath, dirname, join
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, TextIO
 from unittest import mock
-from unittest.mock import patch
 
 import pytest
 from py._path.local import LocalPath  # type: ignore[import]
@@ -39,7 +38,6 @@ from pylint.testutils._run import _add_rcfile_default_pylintrc
 from pylint.testutils._run import _Run as Run
 from pylint.testutils.utils import (
     _patch_streams,
-    _test_cwd,
     _test_environ_pythonpath,
     _test_sys_path,
 )
@@ -746,16 +744,15 @@ class TestRunTC:
         )
 
     @staticmethod
-    def test_modify_sys_path() -> None:
-        cwd = "/tmp/pytest-of-root/pytest-0/test_do_not_import_files_from_0"
+    def test_modify_sys_path(tmpdir: LocalPath) -> None:
         default_paths = [
             "/usr/local/lib/python39.zip",
             "/usr/local/lib/python3.9",
             "/usr/local/lib/python3.9/lib-dynload",
             "/usr/local/lib/python3.9/site-packages",
         ]
-        with _test_sys_path(), patch("os.getcwd") as mock_getcwd:
-            mock_getcwd.return_value = cwd
+        with tmpdir.as_cwd(), _test_sys_path():
+            cwd = os.getcwd()
             paths = [cwd, *default_paths]
             sys.path = copy(paths)
             with _test_environ_pythonpath(None):
@@ -1145,7 +1142,7 @@ class TestRunTC:
             [directory, "--recursive=y", f"--ignore-paths={ignore_path_value}"], code=0
         )
 
-    def test_recursive_current_dir(self):
+    def test_recursive_current_dir(self, tmpdir: LocalPath):
         with _test_sys_path():
             # pytest is including directory HERE/regrtest_data to sys.path which causes
             # astroid to believe that directory is a package.
@@ -1154,14 +1151,11 @@ class TestRunTC:
                 for path in sys.path
                 if not os.path.basename(path) == "regrtest_data"
             ]
-            with _test_cwd():
+            with tmpdir.as_cwd():
                 os.chdir(join(HERE, "regrtest_data", "directory", "subdirectory"))
-                self._runtest(
-                    [".", "--recursive=y"],
-                    code=0,
-                )
+                self._runtest([".", "--recursive=y"], code=0)
 
-    def test_ignore_path_recursive_current_dir(self) -> None:
+    def test_ignore_path_recursive_current_dir(self, tmpdir: LocalPath) -> None:
         """Tests that path is normalized before checked that is ignored. GitHub issue #6964"""
         with _test_sys_path():
             # pytest is including directory HERE/regrtest_data to sys.path which causes
@@ -1171,18 +1165,12 @@ class TestRunTC:
                 for path in sys.path
                 if not os.path.basename(path) == "regrtest_data"
             ]
-            with _test_cwd():
+            with tmpdir.as_cwd():
                 os.chdir(join(HERE, "regrtest_data", "directory"))
-                self._runtest(
-                    [
-                        ".",
-                        "--recursive=y",
-                        "--ignore-paths=^ignored_subdirectory/.*",
-                    ],
-                    code=0,
-                )
+                args = [".", "--recursive=y", "--ignore-paths=^ignored_subdirectory/.*"]
+                self._runtest(args, code=0)
 
-    def test_regression_recursive_current_dir(self):
+    def test_regression_recursive_current_dir(self, tmpdir: LocalPath):
         with _test_sys_path():
             # pytest is including directory HERE/regrtest_data to sys.path which causes
             # astroid to believe that directory is a package.
@@ -1191,12 +1179,9 @@ class TestRunTC:
                 for path in sys.path
                 if not os.path.basename(path) == "regrtest_data"
             ]
-            with _test_cwd():
+            with tmpdir.as_cwd():
                 os.chdir(join(HERE, "regrtest_data", "directory"))
-                self._test_output(
-                    ["."],
-                    expected_output="No such file or directory",
-                )
+                self._test_output(["."], expected_output="No such file or directory")
 
 
 class TestCallbackOptions:
