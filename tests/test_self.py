@@ -817,53 +817,24 @@ class TestRunTC:
                 modify_sys_path()
             assert sys.path == paths[1:]
 
-    @staticmethod
-    def test_do_not_import_files_from_local_directory(tmpdir: LocalPath) -> None:
-        p_astroid = tmpdir / "astroid.py"
-        p_astroid.write("'Docstring'\nimport completely_unknown\n")
-        p_hmac = tmpdir / "hmac.py"
-        p_hmac.write("'Docstring'\nimport completely_unknown\n")
-
-        with tmpdir.as_cwd():
-            subprocess.check_output(
-                [
-                    sys.executable,
-                    "-m",
-                    "pylint",
-                    "astroid.py",
-                    "--disable=import-error,unused-import",
-                ],
-                cwd=str(tmpdir),
-            )
-
-        # Linting this astroid file does not import it
-        with tmpdir.as_cwd():
-            subprocess.check_output(
-                [
-                    sys.executable,
-                    "-m",
-                    "pylint",
-                    "-j2",
-                    "astroid.py",
-                    "--disable=import-error,unused-import",
-                ],
-                cwd=str(tmpdir),
-            )
-
-        # Test with multiple jobs for hmac.py for which we have a
-        # CVE against: https://github.com/PyCQA/pylint/issues/959
-        with tmpdir.as_cwd():
-            subprocess.call(
-                [
-                    sys.executable,
-                    "-m",
-                    "pylint",
-                    "-j2",
-                    "hmac.py",
-                    "--disable=import-error,unused-import",
-                ],
-                cwd=str(tmpdir),
-            )
+    @pytest.mark.parametrize(
+        "args",
+        [
+            ["--disable=import-error,unused-import"],
+            # Test with multiple jobs for 'hmac.py' for which we have a
+            # CVE against: https://github.com/PyCQA/pylint/issues/959
+            ["-j2", "--disable=import-error,unused-import"],
+        ],
+    )
+    def test_do_not_import_files_from_local_directory(
+        self, tmpdir: LocalPath, args: list[str]
+    ) -> None:
+        for path in ("astroid.py", "hmac.py"):
+            file_path = tmpdir / path
+            file_path.write("'Docstring'\nimport completely_unknown\n")
+            with tmpdir.as_cwd():
+                pylint_call = [sys.executable, "-m", "pylint"] + args + [path]
+                subprocess.check_output(pylint_call, cwd=str(tmpdir))
 
     @staticmethod
     def test_do_not_import_files_from_local_directory_with_pythonpath(
@@ -1147,16 +1118,10 @@ class TestRunTC:
         the standard max_inferred of 100. We used to crash when this happened.
         """
         with pytest.raises(SystemExit) as ex:
-            Run(
-                [
-                    join(
-                        HERE,
-                        "regrtest_data",
-                        "max_inferable_limit_for_classes",
-                        "main.py",
-                    ),
-                ]
+            path = join(
+                HERE, "regrtest_data", "max_inferable_limit_for_classes", "main.py"
             )
+            Run([path])
         # Error code should not include bit-value 1 for crash
         assert not ex.value.code % 2
 
@@ -1174,76 +1139,39 @@ class TestRunTC:
             code=0,
         )
 
-    def test_ignore_recursive(self):
+    @pytest.mark.parametrize("ignore_value", ["ignored_subdirectory", "failing.py"])
+    def test_ignore_recursive(self, ignore_value: str) -> None:
         """Tests recursive run of linter ignoring directory using --ignore parameter.
 
         Ignored directory contains files yielding lint errors. If directory is not ignored
         test would fail due these errors.
         """
-        self._runtest(
-            [
-                join(HERE, "regrtest_data", "directory"),
-                "--recursive=y",
-                "--ignore=ignored_subdirectory",
-            ],
-            code=0,
-        )
+        directory = join(HERE, "regrtest_data", "directory")
+        self._runtest([directory, "--recursive=y", f"--ignore={ignore_value}"], code=0)
 
-        self._runtest(
-            [
-                join(HERE, "regrtest_data", "directory"),
-                "--recursive=y",
-                "--ignore=failing.py",
-            ],
-            code=0,
-        )
-
-    def test_ignore_pattern_recursive(self):
+    @pytest.mark.parametrize("ignore_pattern_value", ["ignored_.*", "failing.*"])
+    def test_ignore_pattern_recursive(self, ignore_pattern_value: str) -> None:
         """Tests recursive run of linter ignoring directory using --ignore-parameter parameter.
 
         Ignored directory contains files yielding lint errors. If directory is not ignored
         test would fail due these errors.
         """
+        directory = join(HERE, "regrtest_data", "directory")
         self._runtest(
-            [
-                join(HERE, "regrtest_data", "directory"),
-                "--recursive=y",
-                "--ignore-patterns=ignored_.*",
-            ],
+            [directory, "--recursive=y", f"--ignore-patterns={ignore_pattern_value}"],
             code=0,
         )
 
-        self._runtest(
-            [
-                join(HERE, "regrtest_data", "directory"),
-                "--recursive=y",
-                "--ignore-patterns=failing.*",
-            ],
-            code=0,
-        )
-
-    def test_ignore_path_recursive(self):
+    @pytest.mark.parametrize("ignore_path_value", [".*ignored.*", ".*failing.*"])
+    def test_ignore_path_recursive(self, ignore_path_value: str) -> None:
         """Tests recursive run of linter ignoring directory using --ignore-path parameter.
 
         Ignored directory contains files yielding lint errors. If directory is not ignored
         test would fail due these errors.
         """
+        directory = join(HERE, "regrtest_data", "directory")
         self._runtest(
-            [
-                join(HERE, "regrtest_data", "directory"),
-                "--recursive=y",
-                "--ignore-paths=.*ignored.*",
-            ],
-            code=0,
-        )
-
-        self._runtest(
-            [
-                join(HERE, "regrtest_data", "directory"),
-                "--recursive=y",
-                "--ignore-paths=.*failing.*",
-            ],
-            code=0,
+            [directory, "--recursive=y", f"--ignore-paths={ignore_path_value}"], code=0
         )
 
     def test_recursive_current_dir(self):
