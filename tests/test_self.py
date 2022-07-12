@@ -832,38 +832,14 @@ class TestRunTC:
         for path in ("astroid.py", "hmac.py"):
             file_path = tmpdir / path
             file_path.write("'Docstring'\nimport completely_unknown\n")
+            pylint_call = [sys.executable, "-m", "pylint"] + args + [path]
             with tmpdir.as_cwd():
-                pylint_call = [sys.executable, "-m", "pylint"] + args + [path]
                 subprocess.check_output(pylint_call, cwd=str(tmpdir))
-
-    @staticmethod
-    def test_do_not_import_files_from_local_directory_with_pythonpath(
-        tmpdir: LocalPath,
-    ) -> None:
-        p_astroid = tmpdir / "astroid.py"
-        p_astroid.write("'Docstring'\nimport completely_unknown\n")
-        p_hmac = tmpdir / "hmac.py"
-        p_hmac.write("'Docstring'\nimport completely_unknown\n")
-
-        # Appending a colon to PYTHONPATH should not break path stripping
-        # https://github.com/PyCQA/pylint/issues/3636
-        with tmpdir.as_cwd():
-            orig_pythonpath = os.environ.get("PYTHONPATH")
-            os.environ["PYTHONPATH"] = f"{(orig_pythonpath or '').strip(':')}:"
-            subprocess.check_output(
-                [
-                    sys.executable,
-                    "-m",
-                    "pylint",
-                    "astroid.py",
-                    "--disable=import-error,unused-import",
-                ],
-                cwd=str(tmpdir),
-            )
-            if orig_pythonpath:
-                os.environ["PYTHONPATH"] = orig_pythonpath
-            else:
-                del os.environ["PYTHONPATH"]
+            new_python_path = os.environ.get("PYTHONPATH", "").strip(":")
+            with tmpdir.as_cwd(), _test_environ_pythonpath(f"{new_python_path}:"):
+                # Appending a colon to PYTHONPATH should not break path stripping
+                # https://github.com/PyCQA/pylint/issues/3636
+                subprocess.check_output(pylint_call, cwd=str(tmpdir))
 
     @staticmethod
     def test_import_plugin_from_local_directory_if_pythonpath_cwd(
@@ -871,7 +847,6 @@ class TestRunTC:
     ) -> None:
         p_plugin = tmpdir / "plugin.py"
         p_plugin.write("# Some plugin content")
-
         with tmpdir.as_cwd():
             orig_pythonpath = os.environ.get("PYTHONPATH")
             if sys.platform == "win32":
@@ -912,25 +887,21 @@ class TestRunTC:
 
         # For multiple jobs we could not find the `spam.py` file.
         with tmpdir.as_cwd():
-            self._runtest(
-                [
-                    "-j2",
-                    "--disable=missing-docstring, missing-final-newline",
-                    "test_directory",
-                ],
-                code=0,
-            )
+            args = [
+                "-j2",
+                "--disable=missing-docstring, missing-final-newline",
+                "test_directory",
+            ]
+            self._runtest(args, code=0)
 
         # A single job should be fine as well
         with tmpdir.as_cwd():
-            self._runtest(
-                [
-                    "-j1",
-                    "--disable=missing-docstring, missing-final-newline",
-                    "test_directory",
-                ],
-                code=0,
-            )
+            args = [
+                "-j1",
+                "--disable=missing-docstring, missing-final-newline",
+                "test_directory",
+            ]
+            self._runtest(args, code=0)
 
     @staticmethod
     def test_can_list_directories_without_dunder_init(tmpdir: LocalPath) -> None:
