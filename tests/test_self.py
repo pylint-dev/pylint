@@ -761,83 +761,52 @@ class TestRunTC:
                     # Only delete PYTHONPATH if new_pythonpath wasn't None
                     del os.environ["PYTHONPATH"]
 
+        cwd = "/tmp/pytest-of-root/pytest-0/test_do_not_import_files_from_0"
+        default_paths = [
+            "/usr/local/lib/python39.zip",
+            "/usr/local/lib/python3.9",
+            "/usr/local/lib/python3.9/lib-dynload",
+            "/usr/local/lib/python3.9/site-packages",
+        ]
         with _test_sys_path(), patch("os.getcwd") as mock_getcwd:
-            cwd = "/tmp/pytest-of-root/pytest-0/test_do_not_import_files_from_0"
             mock_getcwd.return_value = cwd
-            default_paths = [
-                "/usr/local/lib/python39.zip",
-                "/usr/local/lib/python3.9",
-                "/usr/local/lib/python3.9/lib-dynload",
-                "/usr/local/lib/python3.9/site-packages",
-            ]
-
-            paths = [
-                cwd,
-                *default_paths,
-            ]
+            paths = [cwd, *default_paths]
             sys.path = copy(paths)
             with test_environ_pythonpath(None):
                 modify_sys_path()
             assert sys.path == paths[1:]
 
-            paths = [
-                cwd,
-                cwd,
-                *default_paths,
-            ]
+            paths = [cwd, cwd, *default_paths]
             sys.path = copy(paths)
             with test_environ_pythonpath("."):
                 modify_sys_path()
             assert sys.path == paths[1:]
 
-            paths = [
-                cwd,
-                "/custom_pythonpath",
-                *default_paths,
-            ]
+            paths = [cwd, "/custom_pythonpath", *default_paths]
             sys.path = copy(paths)
             with test_environ_pythonpath("/custom_pythonpath"):
                 modify_sys_path()
             assert sys.path == paths[1:]
 
-            paths = [
-                cwd,
-                "/custom_pythonpath",
-                cwd,
-                *default_paths,
-            ]
+            paths = [cwd, "/custom_pythonpath", cwd, *default_paths]
             sys.path = copy(paths)
             with test_environ_pythonpath("/custom_pythonpath:"):
                 modify_sys_path()
             assert sys.path == [paths[1]] + paths[3:]
 
-            paths = [
-                "",
-                cwd,
-                "/custom_pythonpath",
-                *default_paths,
-            ]
+            paths = ["", cwd, "/custom_pythonpath", *default_paths]
             sys.path = copy(paths)
             with test_environ_pythonpath(":/custom_pythonpath"):
                 modify_sys_path()
             assert sys.path == paths[2:]
 
-            paths = [
-                cwd,
-                cwd,
-                "/custom_pythonpath",
-                *default_paths,
-            ]
+            paths = [cwd, cwd, "/custom_pythonpath", *default_paths]
             sys.path = copy(paths)
             with test_environ_pythonpath(":/custom_pythonpath:"):
                 modify_sys_path()
             assert sys.path == paths[2:]
 
-            paths = [
-                cwd,
-                cwd,
-                *default_paths,
-            ]
+            paths = [cwd, cwd, *default_paths]
             sys.path = copy(paths)
             with test_environ_pythonpath(":."):
                 modify_sys_path()
@@ -856,12 +825,7 @@ class TestRunTC:
                 modify_sys_path()
             assert sys.path == paths[1:]
 
-            paths = [
-                "",
-                cwd,
-                *default_paths,
-                cwd,
-            ]
+            paths = ["", cwd, *default_paths, cwd]
             sys.path = copy(paths)
             with test_environ_pythonpath(cwd):
                 modify_sys_path()
