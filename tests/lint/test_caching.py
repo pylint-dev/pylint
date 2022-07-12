@@ -2,9 +2,6 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-# Pytest fixtures work like this by design
-# pylint: disable=redefined-outer-name
-
 import sys
 from pathlib import Path
 

@@ -246,7 +246,7 @@ class LintModuleTest:
         return received_msgs, received_output_lines
 
     def _runTest(self) -> None:
-        __tracebackhide__ = True  # pylint: disable=unused-variable
+        __tracebackhide__ = True
         modules_to_check = [self._test_file.source]
         self._linter.check(modules_to_check)
         expected_messages, expected_output = self._get_expected()

@@ -6,8 +6,6 @@
 to be incorporated in the automatic functional test framework
 """
 
-# pylint: disable=redefined-outer-name
-
 from __future__ import annotations
 
 import os

@@ -17,7 +17,6 @@ configuration. If you need to append or remove a value use the special key ``"fu
 and ``"functional_remove":``. Check the existing code for examples.
 """
 
-# pylint: disable=redefined-outer-name
 import logging
 import warnings
 from pathlib import Path

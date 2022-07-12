@@ -48,7 +48,7 @@ def test_primer_stdlib_no_crash(
     test_module_location: str, test_module_name: str, capsys: CaptureFixture
 ) -> None:
     """Test that pylint does not produce any crashes or fatal errors on stdlib modules."""
-    __tracebackhide__ = True  # pylint: disable=unused-variable
+    __tracebackhide__ = True
     os.chdir(test_module_location)
     with _patch_stdout(io.StringIO()):
         try:

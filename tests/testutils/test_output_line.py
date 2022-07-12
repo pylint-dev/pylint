@@ -2,8 +2,6 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-# pylint: disable=redefined-outer-name
-
 from __future__ import annotations
 
 from collections.abc import Callable

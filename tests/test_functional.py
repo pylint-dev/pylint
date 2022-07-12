@@ -42,7 +42,7 @@ TEST_WITH_EXPECTED_DEPRECATION = [
 def test_functional(
     test_file: FunctionalTestFile, recwarn: WarningsRecorder, pytestconfig: Config
 ) -> None:
-    __tracebackhide__ = True  # pylint: disable=unused-variable
+    __tracebackhide__ = True
     if UPDATE_FILE.exists():
         lint_test: (
             LintModuleOutputUpdate | testutils.LintModuleTest

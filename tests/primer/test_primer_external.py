@@ -44,7 +44,7 @@ class TestPrimer:
         package: PackageToLint,
         caplog: LogCaptureFixture,
     ) -> None:
-        __tracebackhide__ = True  # pylint: disable=unused-variable
+        __tracebackhide__ = True
         TestPrimer._primer_test(package, caplog)
 
     @staticmethod

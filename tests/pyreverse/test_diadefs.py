@@ -4,8 +4,6 @@
 
 """Unit test for the extensions.diadefslib modules."""
 
-# pylint: disable=redefined-outer-name
-
 from __future__ import annotations
 
 import sys

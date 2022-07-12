@@ -2,6 +2,7 @@
 # astroid dependency is also defined in setup.cfg
 astroid==2.11.6  # Pinned to a specific version for tests
 typing-extensions~=4.3
+pylint-pytest-plugin==0.1.0a1
 pytest~=7.1
 pytest-benchmark~=3.4
 pytest-timeout~=2.1
