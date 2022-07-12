@@ -17,7 +17,7 @@ import sys
 import tempfile
 import textwrap
 import warnings
-from collections.abc import Generator, Iterator
+from collections.abc import Iterator
 from copy import copy
 from io import BytesIO, StringIO
 from os.path import abspath, dirname, join
@@ -37,7 +37,12 @@ from pylint.reporters import JSONReporter
 from pylint.reporters.text import BaseReporter, ColorizedTextReporter, TextReporter
 from pylint.testutils._run import _add_rcfile_default_pylintrc
 from pylint.testutils._run import _Run as Run
-from pylint.testutils.utils import _patch_streams, _test_cwd, _test_sys_path
+from pylint.testutils.utils import (
+    _patch_streams,
+    _test_cwd,
+    _test_environ_pythonpath,
+    _test_sys_path,
+)
 from pylint.utils import utils
 
 if sys.version_info >= (3, 11):
@@ -742,25 +747,6 @@ class TestRunTC:
 
     @staticmethod
     def test_modify_sys_path() -> None:
-        @contextlib.contextmanager
-        def test_environ_pythonpath(
-            new_pythonpath: str | None,
-        ) -> Generator[None, None, None]:
-            original_pythonpath = os.environ.get("PYTHONPATH")
-            if new_pythonpath:
-                os.environ["PYTHONPATH"] = new_pythonpath
-            elif new_pythonpath is None and original_pythonpath is not None:
-                # If new_pythonpath is None, make sure to delete PYTHONPATH if present
-                del os.environ["PYTHONPATH"]
-            try:
-                yield
-            finally:
-                if original_pythonpath:
-                    os.environ["PYTHONPATH"] = original_pythonpath
-                elif new_pythonpath is not None:
-                    # Only delete PYTHONPATH if new_pythonpath wasn't None
-                    del os.environ["PYTHONPATH"]
-
         cwd = "/tmp/pytest-of-root/pytest-0/test_do_not_import_files_from_0"
         default_paths = [
             "/usr/local/lib/python39.zip",
@@ -772,62 +758,62 @@ class TestRunTC:
             mock_getcwd.return_value = cwd
             paths = [cwd, *default_paths]
             sys.path = copy(paths)
-            with test_environ_pythonpath(None):
+            with _test_environ_pythonpath(None):
                 modify_sys_path()
             assert sys.path == paths[1:]
 
             paths = [cwd, cwd, *default_paths]
             sys.path = copy(paths)
-            with test_environ_pythonpath("."):
+            with _test_environ_pythonpath("."):
                 modify_sys_path()
             assert sys.path == paths[1:]
 
             paths = [cwd, "/custom_pythonpath", *default_paths]
             sys.path = copy(paths)
-            with test_environ_pythonpath("/custom_pythonpath"):
+            with _test_environ_pythonpath("/custom_pythonpath"):
                 modify_sys_path()
             assert sys.path == paths[1:]
 
             paths = [cwd, "/custom_pythonpath", cwd, *default_paths]
             sys.path = copy(paths)
-            with test_environ_pythonpath("/custom_pythonpath:"):
+            with _test_environ_pythonpath("/custom_pythonpath:"):
                 modify_sys_path()
             assert sys.path == [paths[1]] + paths[3:]
 
             paths = ["", cwd, "/custom_pythonpath", *default_paths]
             sys.path = copy(paths)
-            with test_environ_pythonpath(":/custom_pythonpath"):
+            with _test_environ_pythonpath(":/custom_pythonpath"):
                 modify_sys_path()
             assert sys.path == paths[2:]
 
             paths = [cwd, cwd, "/custom_pythonpath", *default_paths]
             sys.path = copy(paths)
-            with test_environ_pythonpath(":/custom_pythonpath:"):
+            with _test_environ_pythonpath(":/custom_pythonpath:"):
                 modify_sys_path()
             assert sys.path == paths[2:]
 
             paths = [cwd, cwd, *default_paths]
             sys.path = copy(paths)
-            with test_environ_pythonpath(":."):
+            with _test_environ_pythonpath(":."):
                 modify_sys_path()
             assert sys.path == paths[1:]
             sys.path = copy(paths)
-            with test_environ_pythonpath(f":{cwd}"):
+            with _test_environ_pythonpath(f":{cwd}"):
                 modify_sys_path()
             assert sys.path == paths[1:]
 
             sys.path = copy(paths)
-            with test_environ_pythonpath(".:"):
+            with _test_environ_pythonpath(".:"):
                 modify_sys_path()
             assert sys.path == paths[1:]
             sys.path = copy(paths)
-            with test_environ_pythonpath(f"{cwd}:"):
+            with _test_environ_pythonpath(f"{cwd}:"):
                 modify_sys_path()
             assert sys.path == paths[1:]
 
             paths = ["", cwd, *default_paths, cwd]
             sys.path = copy(paths)
-            with test_environ_pythonpath(cwd):
+            with _test_environ_pythonpath(cwd):
                 modify_sys_path()
             assert sys.path == paths[1:]
 

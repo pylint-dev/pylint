@@ -50,6 +50,26 @@ def _test_cwd(
         os.chdir(original_dir)
 
 
+@contextlib.contextmanager
+def _test_environ_pythonpath(
+    new_pythonpath: str | None,
+) -> Generator[None, None, None]:
+    original_pythonpath = os.environ.get("PYTHONPATH")
+    if new_pythonpath:
+        os.environ["PYTHONPATH"] = new_pythonpath
+    elif new_pythonpath is None and original_pythonpath is not None:
+        # If new_pythonpath is None, make sure to delete PYTHONPATH if present
+        del os.environ["PYTHONPATH"]
+    try:
+        yield
+    finally:
+        if original_pythonpath:
+            os.environ["PYTHONPATH"] = original_pythonpath
+        elif new_pythonpath is not None:
+            # Only delete PYTHONPATH if new_pythonpath wasn't None
+            del os.environ["PYTHONPATH"]
+
+
 def create_files(paths: list[str], chroot: str = ".") -> None:
     """Creates directories and files found in <path>.
 
