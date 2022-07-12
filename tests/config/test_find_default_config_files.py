@@ -130,6 +130,47 @@ def test_pylintrc_parentdir() -> None:
 
 
 @pytest.mark.usefixtures("pop_pylintrc")
+def test_pyproject_toml_parentdir() -> None:
+    """Test the search of pyproject.toml file in parent directories"""
+    with tempdir() as chroot:
+        with fake_home():
+            chroot_path = Path(chroot)
+            files = [
+                "pyproject.toml",
+                "git/pyproject.toml",
+                "git/a/pyproject.toml",
+                "git/a/.git",
+                "git/a/b/c/__init__.py",
+                "hg/pyproject.toml",
+                "hg/a/pyproject.toml",
+                "hg/a/.hg",
+                "hg/a/b/c/__init__.py",
+                "none/sub/__init__.py",
+            ]
+            testutils.create_files(files)
+            for config_file in files:
+                if config_file.endswith("pyproject.toml"):
+                    with open(config_file, "w", encoding="utf-8") as fd:
+                        fd.write('[tool.pylint."messages control"]\n')
+            results = {
+                "": chroot_path / "pyproject.toml",
+                "git": chroot_path / "git" / "pyproject.toml",
+                "git/a": chroot_path / "git" / "a" / "pyproject.toml",
+                "git/a/b": chroot_path / "git" / "a" / "pyproject.toml",
+                "git/a/b/c": chroot_path / "git" / "a" / "pyproject.toml",
+                "hg": chroot_path / "hg" / "pyproject.toml",
+                "hg/a": chroot_path / "hg" / "a" / "pyproject.toml",
+                "hg/a/b": chroot_path / "hg" / "a" / "pyproject.toml",
+                "hg/a/b/c": chroot_path / "hg" / "a" / "pyproject.toml",
+                "none": chroot_path / "pyproject.toml",
+                "none/sub": chroot_path / "pyproject.toml",
+            }
+            for basedir, expected in results.items():
+                os.chdir(chroot_path / basedir)
+                assert next(config.find_default_config_files(), None) == expected
+
+
+@pytest.mark.usefixtures("pop_pylintrc")
 def test_pylintrc_parentdir_no_package() -> None:
     """Test that we don't find a pylintrc in sub-packages."""
     with tempdir() as chroot:
