@@ -4,8 +4,12 @@
 
 """Special methods checker and helper function's module."""
 
+from __future__ import annotations
+
+from typing import Any
+
 import astroid
-from astroid import nodes
+from astroid import bases, nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
@@ -16,11 +20,16 @@ from pylint.checkers.utils import (
     only_required_for_messages,
     safe_infer,
 )
+from pylint.lint.pylinter import PyLinter
 
 NEXT_METHOD = "__next__"
 
 
-def _safe_infer_call_result(node, caller, context=None):
+def _safe_infer_call_result(
+    node: nodes.AsyncFunctionDef | nodes.FunctionDef,
+    caller: nodes.AsyncFunctionDef | nodes.FunctionDef,
+    context: Any | None = None,
+) -> Any:
     """Safely infer the return value of a function.
 
     Returns None if inference failed or if there is some ambiguity (more than
@@ -131,7 +140,7 @@ class SpecialMethodsChecker(BaseChecker):
         ),
     }
 
-    def __init__(self, linter=None):
+    def __init__(self, linter: PyLinter) -> None:
         super().__init__(linter)
         self._protocol_map = {
             "__iter__": self._check_iter,
@@ -181,7 +190,9 @@ class SpecialMethodsChecker(BaseChecker):
 
     visit_asyncfunctiondef = visit_functiondef
 
-    def _check_unexpected_method_signature(self, node):
+    def _check_unexpected_method_signature(
+        self, node: nodes.AsyncFunctionDef | nodes.FunctionDef
+    ) -> None:
         expected_params = SPECIAL_METHODS_PARAMS[node.name]
 
         if expected_params is None:
@@ -208,7 +219,7 @@ class SpecialMethodsChecker(BaseChecker):
             # to take all of them in consideration.
             emit = mandatory not in expected_params
             # pylint: disable-next=consider-using-f-string
-            expected_params = "between %d or %d" % expected_params
+            expected_params = "between %d or %d" % expected_params  # type: ignore[assignment]
         else:
             # If the number of mandatory parameters doesn't
             # suffice, the expected parameters for this
@@ -231,7 +242,7 @@ class SpecialMethodsChecker(BaseChecker):
             )
 
     @staticmethod
-    def _is_wrapped_type(node, type_):
+    def _is_wrapped_type(node: nodes.NodeNG, type_: str) -> bool:
         return (
             isinstance(node, astroid.Instance)
             and node.name == type_
@@ -239,49 +250,49 @@ class SpecialMethodsChecker(BaseChecker):
         )
 
     @staticmethod
-    def _is_int(node):
+    def _is_int(node: nodes.Const | nodes.Dict) -> bool:
         if SpecialMethodsChecker._is_wrapped_type(node, "int"):
             return True
 
         return isinstance(node, nodes.Const) and isinstance(node.value, int)
 
     @staticmethod
-    def _is_str(node):
+    def _is_str(node: nodes.Const) -> bool:
         if SpecialMethodsChecker._is_wrapped_type(node, "str"):
             return True
 
         return isinstance(node, nodes.Const) and isinstance(node.value, str)
 
     @staticmethod
-    def _is_bool(node):
+    def _is_bool(node: nodes.Const) -> bool:
         if SpecialMethodsChecker._is_wrapped_type(node, "bool"):
             return True
 
         return isinstance(node, nodes.Const) and isinstance(node.value, bool)
 
     @staticmethod
-    def _is_bytes(node):
+    def _is_bytes(node: bases.Instance | nodes.Const) -> bool:
         if SpecialMethodsChecker._is_wrapped_type(node, "bytes"):
             return True
 
         return isinstance(node, nodes.Const) and isinstance(node.value, bytes)
 
     @staticmethod
-    def _is_tuple(node):
+    def _is_tuple(node: nodes.Const | nodes.Tuple) -> bool:
         if SpecialMethodsChecker._is_wrapped_type(node, "tuple"):
             return True
 
         return isinstance(node, nodes.Const) and isinstance(node.value, tuple)
 
     @staticmethod
-    def _is_dict(node):
+    def _is_dict(node: nodes.Dict | nodes.Tuple) -> bool:
         if SpecialMethodsChecker._is_wrapped_type(node, "dict"):
             return True
 
         return isinstance(node, nodes.Const) and isinstance(node.value, dict)
 
     @staticmethod
-    def _is_iterator(node):
+    def _is_iterator(node: Any) -> bool:
         if node is astroid.Uninferable:
             # Just ignore Uninferable objects.
             return True
@@ -308,55 +319,67 @@ class SpecialMethodsChecker(BaseChecker):
                     pass
         return False
 
-    def _check_iter(self, node, inferred):
+    def _check_iter(self, node: nodes.FunctionDef, inferred: Any) -> None:
         if not self._is_iterator(inferred):
             self.add_message("non-iterator-returned", node=node)
 
-    def _check_len(self, node, inferred):
+    def _check_len(self, node: nodes.FunctionDef, inferred: nodes.Const) -> None:
         if not self._is_int(inferred):
             self.add_message("invalid-length-returned", node=node)
         elif isinstance(inferred, nodes.Const) and inferred.value < 0:
             self.add_message("invalid-length-returned", node=node)
 
-    def _check_bool(self, node, inferred):
+    def _check_bool(self, node: nodes.FunctionDef, inferred: nodes.Const) -> None:
         if not self._is_bool(inferred):
             self.add_message("invalid-bool-returned", node=node)
 
-    def _check_index(self, node, inferred):
+    def _check_index(
+        self, node: nodes.FunctionDef, inferred: nodes.Const | nodes.Dict
+    ) -> None:
         if not self._is_int(inferred):
             self.add_message("invalid-index-returned", node=node)
 
-    def _check_repr(self, node, inferred):
+    def _check_repr(self, node: nodes.FunctionDef, inferred: nodes.Const) -> None:
         if not self._is_str(inferred):
             self.add_message("invalid-repr-returned", node=node)
 
-    def _check_str(self, node, inferred):
+    def _check_str(self, node: nodes.FunctionDef, inferred: nodes.Const) -> None:
         if not self._is_str(inferred):
             self.add_message("invalid-str-returned", node=node)
 
-    def _check_bytes(self, node, inferred):
+    def _check_bytes(
+        self, node: nodes.FunctionDef, inferred: bases.Instance | nodes.Const
+    ) -> None:
         if not self._is_bytes(inferred):
             self.add_message("invalid-bytes-returned", node=node)
 
-    def _check_hash(self, node, inferred):
+    def _check_hash(
+        self, node: nodes.FunctionDef, inferred: nodes.Const | nodes.Dict
+    ) -> None:
         if not self._is_int(inferred):
             self.add_message("invalid-hash-returned", node=node)
 
-    def _check_length_hint(self, node, inferred):
+    def _check_length_hint(
+        self, node: nodes.FunctionDef, inferred: nodes.Const
+    ) -> None:
         if not self._is_int(inferred):
             self.add_message("invalid-length-hint-returned", node=node)
         elif isinstance(inferred, nodes.Const) and inferred.value < 0:
             self.add_message("invalid-length-hint-returned", node=node)
 
-    def _check_format(self, node, inferred):
+    def _check_format(self, node: nodes.FunctionDef, inferred: nodes.Const) -> None:
         if not self._is_str(inferred):
             self.add_message("invalid-format-returned", node=node)
 
-    def _check_getnewargs(self, node, inferred):
+    def _check_getnewargs(
+        self, node: nodes.FunctionDef, inferred: nodes.Const | nodes.Tuple
+    ) -> None:
         if not self._is_tuple(inferred):
             self.add_message("invalid-getnewargs-returned", node=node)
 
-    def _check_getnewargs_ex(self, node, inferred):
+    def _check_getnewargs_ex(
+        self, node: nodes.FunctionDef, inferred: nodes.Const | nodes.Tuple
+    ) -> None:
         if not self._is_tuple(inferred):
             self.add_message("invalid-getnewargs-ex-returned", node=node)
             return
