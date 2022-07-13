@@ -8,8 +8,7 @@ on:
   pull_request: ~
 
 env:
-  # Also change CACHE_VERSION in the other workflows
-  CACHE_VERSION: 8
+  CACHE_VERSION: 1
   DEFAULT_PYTHON: "3.10"
   PRE_COMMIT_CACHE: ~/.cache/pre-commit
 

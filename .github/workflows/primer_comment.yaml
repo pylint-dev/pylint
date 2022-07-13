@@ -13,7 +13,7 @@ on:
       - completed
 
 env:
-  CACHE_VERSION: 2
+  CACHE_VERSION: 1
 
 permissions:
   contents: read

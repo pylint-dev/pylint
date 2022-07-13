@@ -24,7 +24,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  CACHE_VERSION: 2
+  CACHE_VERSION: 1
 
 jobs:
   run-primer:
