@@ -7,7 +7,7 @@
 Finding something to do
 -----------------------
 
-Want to contribute to pylint? There's a lot of things you can do. 
+Want to contribute to pylint? There's a lot of things you can do.
 Here's a list of links you can check depending on what you want to do:
 
 - `Asking a question on discord`_, or `on github`_
@@ -18,7 +18,8 @@ Here's a list of links you can check depending on what you want to do:
 - `Investigating or debugging complicated issues`_
 - `Designing or specifying a solution`_
 - `Giving your opinion on ongoing discussion`_
-- `Fixing false positives or bugs`_
+- `Fixing bugs and crashes`_
+- `Fixing false positives`_
 - `Creating new features or fixing false negatives`_
 - `Reviewing pull requests`_
 
@@ -31,7 +32,8 @@ Here's a list of links you can check depending on what you want to do:
 .. _`Investigating or debugging complicated issues`: https://github.com/PyCQA/pylint/issues?q=is%3Aopen+is%3Aissue+label%3A%22Needs+investigation+%F0%9F%94%AC%22
 .. _`Designing or specifying a solution`: https://github.com/PyCQA/pylint/issues?q=is%3Aopen+is%3Aissue+label%3A%22Needs+design+proposal+%3Alock%3A%22%2C%22Needs+specification+%3Aclosed_lock_with_key%3A%22
 .. _`Giving your opinion on ongoing discussion`: https://github.com/PyCQA/pylint/issues?q=is%3Aopen+is%3Aissue+label%3A%22Needs+decision+%3Alock%3A%22
-.. _`Fixing false positives or bugs`: https://github.com/PyCQA/pylint/issues?q=is%3Aopen+is%3Aissue+label%3A%22False+Positive+%F0%9F%A6%9F%22%2C%22Bug+%3Abeetle%3A%22%2C%22Crash+%F0%9F%92%A5%22
+.. _`Fixing bugs and crashes`: https://github.com/PyCQA/pylint/issues?q=is%3Aopen+is%3Aissue+label%3A%22Bug+%3Abeetle%3A%22%2C%22Crash+%F0%9F%92%A5%22
+.. _`Fixing false positives`: https://github.com/PyCQA/pylint/issues?q=is%3Aopen+is%3Aissue+label%3A%22False+Positive+%F0%9F%A6%9F%22
 .. _`Creating new features or fixing false negatives`: https://github.com/PyCQA/pylint/issues?q=is%3Aopen+is%3Aissue+label%3A%22False+Negative+%F0%9F%A6%8B%22%2C%22Enhancement+%E2%9C%A8%22
 .. _`Reviewing pull requests`: https://github.com/PyCQA/pylint/pulls?q=is%3Aopen+is%3Apr+label%3A%22Needs+review+%F0%9F%94%8D%22
 
