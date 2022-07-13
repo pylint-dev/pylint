@@ -1,10 +1,56 @@
-.. -*- coding: utf-8 -*-
-
 ==============
  Contributing
 ==============
 
 .. _repository:
+
+Finding something to do
+-----------------------
+
+Want to contribute to pylint? There's a lot of things you can do. 
+Here's a list of links you can check depending on what you want to do:
+
+- `Asking a question on discord`_, or `on github`_
+- `Opening an issue`_
+- `Making the documentation better`_
+- `Making the error message better`_
+- `Reproducing bugs and confirming that issues are valid`_
+- `Investigating or debugging complicated issues`_
+- `Designing or specifying a solution`_
+- `Giving your opinion on ongoing discussion`_
+- `Fixing false positives or bugs`_
+- `Creating new features or fixing false negatives`_
+- `Reviewing pull requests`_
+
+.. _`Asking a question on discord`: https://discord.com/invite/qYxpadCgkx
+.. _`on github`: https://github.com/PyCQA/pylint/issues/new/choose
+.. _`Opening an issue`: https://github.com/PyCQA/pylint/issues/new?assignees=&labels=Needs+triage+%3Ainbox_tray%3A&template=BUG-REPORT.yml
+.. _`Making the documentation better`: https://github.com/PyCQA/pylint/issues?q=is%3Aopen+is%3Aissue+label%3A%22Documentation+%3Agreen_book%3A%22
+.. _`Making the error message better`: https://github.com/PyCQA/pylint/issues?q=is%3Aopen+is%3Aissue+project%3Apycqa%2Fpylint%2F4+
+.. _`Reproducing bugs and confirming that issues are valid`: https://github.com/PyCQA/pylint/issues?q=is%3Aopen+is%3Aissue+label%3A%22Needs+reproduction+%3Amag%3A%22%2C%22Cannot+reproduce+%F0%9F%A4%B7%22
+.. _`Investigating or debugging complicated issues`: https://github.com/PyCQA/pylint/issues?q=is%3Aopen+is%3Aissue+label%3A%22Needs+investigation+%F0%9F%94%AC%22
+.. _`Designing or specifying a solution`: https://github.com/PyCQA/pylint/issues?q=is%3Aopen+is%3Aissue+label%3A%22Needs+design+proposal+%3Alock%3A%22%2C%22Needs+specification+%3Aclosed_lock_with_key%3A%22
+.. _`Giving your opinion on ongoing discussion`: https://github.com/PyCQA/pylint/issues?q=is%3Aopen+is%3Aissue+label%3A%22Needs+decision+%3Alock%3A%22
+.. _`Fixing false positives or bugs`: https://github.com/PyCQA/pylint/issues?q=is%3Aopen+is%3Aissue+label%3A%22False+Positive+%F0%9F%A6%9F%22%2C%22Bug+%3Abeetle%3A%22%2C%22Crash+%F0%9F%92%A5%22
+.. _`Creating new features or fixing false negatives`: https://github.com/PyCQA/pylint/issues?q=is%3Aopen+is%3Aissue+label%3A%22False+Negative+%F0%9F%A6%8B%22%2C%22Enhancement+%E2%9C%A8%22
+.. _`Reviewing pull requests`: https://github.com/PyCQA/pylint/pulls?q=is%3Aopen+is%3Apr+label%3A%22Needs+review+%F0%9F%94%8D%22
+
+
+If you are a pylint maintainer there's also:
+
+- `Triaging issues`_
+- `Labeling issues that do not have an actionable label yet`_
+- `Preparing the next patch release`_
+- `Checking stale pull requests status`_
+
+.. _`Triaging issues`: https://github.com/PyCQA/pylint/issues?q=is%3Aopen+is%3Aissue+label%3A%22Needs+triage+%3Ainbox_tray%3A%22
+.. _`Labeling issues that do not have an actionable label yet`: https://github.com/PyCQA/pylint/issues?q=is%3Aopen+is%3Aissue+-label%3A%22Needs+astroid+Brain+%F0%9F%A7%A0%22+-label%3A%22Needs+astroid+update%22+-label%3A%22Needs+backport%22+-label%3A%22Needs+decision+%3Alock%3A%22+-label%3A%22Needs+investigation+%F0%9F%94%AC%22+-label%3A%22Needs+PR%22+-label%3A%22Needs+reproduction+%3Amag%3A%22+-label%3A%22Needs+review+%F0%9F%94%8D%22+-label%3A%22Needs+triage+%3Ainbox_tray%3A%22+-label%3A%22Waiting+on+author%22+-label%3A%22Work+in+progress%22+-label%3AMaintenance+sort%3Aupdated-desc+-label%3A%22Needs+specification+%3Aclosed_lock_with_key%3A%22+-label%3A%22Needs+design+proposal+%3Alock%3A%22
+.. _`Preparing the next patch release`: https://github.com/PyCQA/pylint/issues?q=is%3Aopen+is%3Aissue+label%3A%22Needs+backport%22
+.. _`Checking stale pull requests status`: https://github.com/PyCQA/pylint/pulls?q=is%3Aopen+is%3Apr+label%3A%22Work+in+progress%22%2C%22Needs+astroid+update%22%2C%22Waiting+on+author%22
+
+
+Creating a pull request
+-----------------------
 
 Got a change for Pylint?  Below are a few steps you should take to make sure
 your patch gets accepted:

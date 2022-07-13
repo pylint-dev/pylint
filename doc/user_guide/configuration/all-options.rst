@@ -99,14 +99,14 @@ Standard Checkers
 
 --ignore-paths
 """"""""""""""
-*Add files or directories matching the regex patterns to the ignore-list. The regex matches against paths and can be in Posix or Windows format. Because '\' represents the directory delimiter on Windows systems, it can't be used as an escape character.*
+*Add files or directories matching the regular expressions patterns to the ignore-list. The regex matches against paths and can be in Posix or Windows format. Because '\' represents the directory delimiter on Windows systems, it can't be used as an escape character.*
 
 **Default:**  ``[]``
 
 
 --ignore-patterns
 """""""""""""""""
-*Files or directories matching the regex patterns are skipped. The regex matches against base names, not paths. The default value ignores Emacs file locks*
+*Files or directories matching the regular expression patterns are skipped. The regex matches against base names, not paths. The default value ignores Emacs file locks*
 
 **Default:**  ``(re.compile('^\\.#'),)``
 
