@@ -5,6 +5,8 @@
 import io
 from pathlib import Path
 
+from _io import BytesIO  # type: ignore[import]
+
 import pylint.interfaces
 import pylint.testutils
 
@@ -82,5 +84,5 @@ class FakeNode:
     def __init__(self, content: bytes):
         self.content = io.BytesIO(content)
 
-    def stream(self):
+    def stream(self) -> BytesIO:
         return self.content

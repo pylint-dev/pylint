@@ -6,12 +6,11 @@ from __future__ import annotations
 
 import contextlib
 from collections.abc import Callable, Iterator
-from typing import Any
 
 import astroid
 from astroid import nodes
 from astroid.manager import AstroidManager
-from astroid.nodes.node_classes import AssignAttr, Name
+from astroid.nodes import AssignAttr, Name
 
 from pylint.checkers import stdlib
 from pylint.testutils import CheckerTestCase
@@ -22,7 +21,7 @@ def _add_transform(
     manager: AstroidManager,
     node: type,
     transform: Callable,
-    predicate: Any | None = None,
+    predicate=None,
 ) -> Iterator:
     manager.register_transform(node, transform, predicate)
     try:
@@ -43,7 +42,7 @@ class TestStdlibChecker(CheckerTestCase):
         """
 
         def infer_func(
-            node: Name, context: Any | None = None  # pylint: disable=unused-argument
+            node: Name, context=None  # pylint: disable=unused-argument
         ) -> Iterator[Iterator | Iterator[AssignAttr]]:
             new_node = nodes.AssignAttr(attrname="alpha", parent=node)
             yield new_node

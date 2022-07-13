@@ -22,7 +22,7 @@ from copy import copy
 from io import BytesIO, StringIO
 from os.path import abspath, dirname, join
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, TextIO
+from typing import TYPE_CHECKING, TextIO
 from unittest import mock
 from unittest.mock import patch
 
@@ -83,7 +83,7 @@ class MultiReporter(BaseReporter):
         self._reporters = reporters
         self.path_strip_prefix = os.getcwd() + os.sep
 
-    def on_set_current_module(self, *args: str, **kwargs: Any) -> None:
+    def on_set_current_module(self, *args: str, **kwargs) -> None:
         for rep in self._reporters:
             rep.on_set_current_module(*args, **kwargs)
 
@@ -113,7 +113,7 @@ class TestRunTC:
     def _runtest(
         self,
         args: list[str],
-        reporter: Any = None,
+        reporter=None,
         out: StringIO | None = None,
         code: int | None = None,
     ) -> None:
@@ -133,7 +133,7 @@ class TestRunTC:
         assert pylint_code == code, msg
 
     @staticmethod
-    def _run_pylint(args: list[str], out: TextIO, reporter: Any = None) -> int:
+    def _run_pylint(args: list[str], out: TextIO, reporter=None) -> int:
         args = _add_rcfile_default_pylintrc(args + ["--persistent=no"])
         with _patch_streams(out):
             with pytest.raises(SystemExit) as cm:
@@ -958,7 +958,7 @@ class TestRunTC:
         # and errors that are generated they don't affect the exit code.
         self._runtest([path, "--fail-under=-10", "--disable=C"] + args, code=expected)
 
-    def test_one_module_fatal_error(self):
+    def test_one_module_fatal_error(self) -> None:
         """Fatal errors in one of several modules linted still exits non-zero."""
         valid_path = join(HERE, "conftest.py")
         invalid_path = join(HERE, "garbagePath.py")
@@ -1083,7 +1083,7 @@ class TestRunTC:
         # Error code should not include bit-value 1 for crash
         assert not ex.value.code % 2
 
-    def test_recursive(self):
+    def test_recursive(self) -> None:
         """Tests if running linter over directory using --recursive=y"""
         self._runtest(
             [join(HERE, "regrtest_data", "directory", "subdirectory"), "--recursive=y"],
@@ -1125,7 +1125,7 @@ class TestRunTC:
             [directory, "--recursive=y", f"--ignore-paths={ignore_path_value}"], code=0
         )
 
-    def test_recursive_current_dir(self):
+    def test_recursive_current_dir(self) -> None:
         with _test_sys_path():
             # pytest is including directory HERE/regrtest_data to sys.path which causes
             # astroid to believe that directory is a package.
