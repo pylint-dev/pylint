@@ -2,7 +2,7 @@
 Checks that we don't erroneously emit not-an-iterable errors for
 coroutines built with asyncio.coroutine.
 
-These decorators were deprecated in 3.8 and removed in 3.10.
+These decorators were deprecated in 3.8 and removed in 3.11.
 """
 # pylint: disable=missing-docstring,too-few-public-methods,unused-argument,bad-mcs-method-argument
 # pylint: disable=wrong-import-position
