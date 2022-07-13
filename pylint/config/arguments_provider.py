@@ -149,7 +149,7 @@ class _ArgumentsProvider:
             if option[0] == opt:
                 return option[1]
         raise optparse.OptionError(
-            f"no such option {opt} in section {self.name!r}", opt  # type: ignore[arg-type]
+            f"no such option {opt} in section {self.name}", opt  # type: ignore[arg-type]
         )
 
     def options_by_section(

@@ -94,9 +94,7 @@ class OptionsProviderMixIn:
         for option in self.options:
             if option[0] == opt:
                 return option[1]
-        raise optparse.OptionError(
-            f"no such option {opt} in section {self.name!r}", opt
-        )
+        raise optparse.OptionError(f"no such option {opt} in section {self.name}", opt)
 
     def options_by_section(self):
         """Return an iterator on options grouped by section.

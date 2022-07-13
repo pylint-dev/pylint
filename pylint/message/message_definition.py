@@ -53,9 +53,9 @@ class MessageDefinition:
     @staticmethod
     def check_msgid(msgid: str) -> None:
         if len(msgid) != 5:
-            raise InvalidMessageError(f"Invalid message id {msgid!r}")
+            raise InvalidMessageError(f"Invalid message id {msgid}")
         if msgid[0] not in MSG_TYPES:
-            raise InvalidMessageError(f"Bad message type {msgid[0]} in {msgid!r}")
+            raise InvalidMessageError(f"Bad message type {msgid[0]} in {msgid}")
 
     def __eq__(self, other: Any) -> bool:
         return (

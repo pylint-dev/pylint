@@ -47,7 +47,7 @@ class TestNamePresets(unittest.TestCase):
         naming_style: type[base.NamingStyle], name: str, name_type: str
     ) -> None:
         rgx = naming_style.get_regex(name_type)
-        fail = f"{name!r} does not match pattern {rgx!r} (style: {naming_style}, type: {name_type})"
+        fail = f"{name} does not match pattern {rgx!r} (style: {naming_style}, type: {name_type})"
         assert rgx.match(name), fail
 
     @staticmethod
@@ -55,7 +55,7 @@ class TestNamePresets(unittest.TestCase):
         naming_style: type[base.NamingStyle], name: str, name_type: str
     ) -> None:
         rgx = naming_style.get_regex(name_type)
-        fail = f"{name!r} not match pattern {rgx!r} (style: {naming_style}, type: {name_type})"
+        fail = f"{name} not match pattern {rgx!r} (style: {naming_style}, type: {name_type})"
         assert not rgx.match(name), fail
 
     def test_snake_case(self) -> None:

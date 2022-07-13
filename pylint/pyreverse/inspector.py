@@ -101,7 +101,7 @@ class Project:
         return self.modules
 
     def __repr__(self) -> str:
-        return f"<Project {self.name!r} at {id(self)} ({len(self.modules)} modules)>"
+        return f"<Project {self.name} at {id(self)} ({len(self.modules)} modules)>"
 
 
 class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
