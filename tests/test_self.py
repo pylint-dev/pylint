@@ -847,32 +847,19 @@ class TestRunTC:
     ) -> None:
         p_plugin = tmpdir / "plugin.py"
         p_plugin.write("# Some plugin content")
-        with tmpdir.as_cwd():
-            orig_pythonpath = os.environ.get("PYTHONPATH")
-            if sys.platform == "win32":
-                os.environ["PYTHONPATH"] = "."
-            else:
-                os.environ["PYTHONPATH"] = f"{(orig_pythonpath or '').strip(':')}:."
+        if sys.platform == "win32":
+            python_path = "."
+        else:
+            python_path = f"{os.environ.get('PYTHONPATH', '').strip(':')}:."
+        with tmpdir.as_cwd(), _test_environ_pythonpath(python_path):
+            args = [sys.executable, "-m", "pylint", "--load-plugins", "plugin"]
             process = subprocess.run(
-                [
-                    sys.executable,
-                    "-m",
-                    "pylint",
-                    "--load-plugins",
-                    "plugin",
-                ],
-                cwd=str(tmpdir),
-                stderr=subprocess.PIPE,
-                check=False,
+                args, cwd=str(tmpdir), stderr=subprocess.PIPE, check=False
             )
             assert (
                 "AttributeError: module 'plugin' has no attribute 'register'"
                 in process.stderr.decode()
             )
-            if orig_pythonpath:
-                os.environ["PYTHONPATH"] = orig_pythonpath
-            else:
-                del os.environ["PYTHONPATH"]
 
     def test_allow_import_of_files_found_in_modules_during_parallel_check(
         self, tmpdir: LocalPath
