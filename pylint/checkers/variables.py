@@ -13,13 +13,14 @@ import os
 import re
 import sys
 from collections import defaultdict
-from collections.abc import Iterable, Iterator
+from collections.abc import Generator, Iterable, Iterator
 from enum import Enum
 from functools import lru_cache
 from typing import TYPE_CHECKING, Any, NamedTuple
 
 import astroid
 from astroid import nodes
+from astroid.typing import InferenceResult
 
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import (
@@ -246,7 +247,9 @@ def _detect_global_scope(node, frame, defframe):
     return frame.lineno < defframe.lineno
 
 
-def _infer_name_module(node, name):
+def _infer_name_module(
+    node: nodes.Import, name: str
+) -> Generator[InferenceResult, None, None]:
     context = astroid.context.InferenceContext()
     context.lookupname = name
     return node.infer(context, asname=False)
