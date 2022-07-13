@@ -7,8 +7,8 @@
 Finding something to do
 -----------------------
 
-There's a lot of thing you can do. Here's a list of links you can
-check depending on what you want to do.
+Want to contribute to pylint? There's a lot of things you can do. 
+Here's a list of links you can check depending on what you want to do:
 
 - `Asking a question on discord`_, or `on github`_
 - `Opening an issue`_
