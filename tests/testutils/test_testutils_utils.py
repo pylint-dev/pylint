@@ -6,7 +6,7 @@ import os
 import sys
 from pathlib import Path
 
-from pylint.testutils.utils import _test_cwd, _test_sys_path
+from pylint.testutils.utils import _test_cwd, _test_environ_pythonpath, _test_sys_path
 
 
 def test__test_sys_path_no_arg() -> None:
@@ -48,3 +48,24 @@ def test__test_cwd(tmp_path: Path) -> None:
         os.chdir(new_path)
         assert os.getcwd() == str(new_path)
     assert os.getcwd() == cwd
+
+
+def test__test_environ_pythonpath_no_arg() -> None:
+    python_path = os.environ.get("PYTHONPATH")
+    with _test_environ_pythonpath():
+        assert os.environ.get("PYTHONPATH") == python_path
+        new_pythonpath = "./whatever/:"
+        os.environ["PYTHONPATH"] = new_pythonpath
+        assert os.environ.get("PYTHONPATH") == new_pythonpath
+    assert os.environ.get("PYTHONPATH") == python_path
+
+
+def test__test_environ_pythonpath() -> None:
+    python_path = os.environ.get("PYTHONPATH")
+    new_pythonpath = "./whatever/:"
+    with _test_environ_pythonpath(new_pythonpath):
+        assert os.environ.get("PYTHONPATH") == new_pythonpath
+        newer_pythonpath = "./something_else/:"
+        os.environ["PYTHONPATH"] = newer_pythonpath
+        assert os.environ.get("PYTHONPATH") == newer_pythonpath
+    assert os.environ.get("PYTHONPATH") == python_path

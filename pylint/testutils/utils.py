@@ -52,7 +52,7 @@ def _test_cwd(
 
 @contextlib.contextmanager
 def _test_environ_pythonpath(
-    new_pythonpath: str | None,
+    new_pythonpath: str | None = None,
 ) -> Generator[None, None, None]:
     original_pythonpath = os.environ.get("PYTHONPATH")
     if new_pythonpath:
@@ -63,10 +63,9 @@ def _test_environ_pythonpath(
     try:
         yield
     finally:
-        if original_pythonpath:
+        if original_pythonpath is not None:
             os.environ["PYTHONPATH"] = original_pythonpath
-        elif new_pythonpath is not None:
-            # Only delete PYTHONPATH if new_pythonpath wasn't None
+        elif "PYTHONPATH" in os.environ:
             del os.environ["PYTHONPATH"]
 
 

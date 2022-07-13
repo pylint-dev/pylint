@@ -758,7 +758,7 @@ class TestRunTC:
             mock_getcwd.return_value = cwd
             paths = [cwd, *default_paths]
             sys.path = copy(paths)
-            with _test_environ_pythonpath(None):
+            with _test_environ_pythonpath():
                 modify_sys_path()
             assert sys.path == paths[1:]
 
