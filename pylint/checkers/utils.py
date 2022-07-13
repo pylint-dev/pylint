@@ -22,6 +22,7 @@ import astroid.objects
 from astroid import TooManyLevelsError, nodes
 from astroid.context import InferenceContext
 from astroid.exceptions import AstroidError
+from astroid.nodes._base_nodes import ImportNode
 
 if TYPE_CHECKING:
     from pylint.checkers import BaseChecker
@@ -1651,9 +1652,7 @@ def get_subscript_const_value(node: nodes.Subscript) -> nodes.Const:
     return inferred
 
 
-def get_import_name(
-    importnode: nodes.Import | nodes.ImportFrom, modname: str | None
-) -> str | None:
+def get_import_name(importnode: ImportNode, modname: str | None) -> str | None:
     """Get a prepared module name from the given import node.
 
     In the case of relative imports, this will return the
