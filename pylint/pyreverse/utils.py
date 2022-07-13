@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING, Any, Callable, Optional, Tuple, Union
 
 import astroid
 from astroid import nodes
+from astroid.typing import InferenceResult
 
 if TYPE_CHECKING:
     from pylint.pyreverse.diagrams import ClassDiagram, PackageDiagram
@@ -210,7 +211,7 @@ def get_annotation(
     return ann
 
 
-def infer_node(node: nodes.AssignAttr | nodes.AssignName) -> set[Any]:
+def infer_node(node: nodes.AssignAttr | nodes.AssignName) -> set[InferenceResult]:
     """Return a set containing the node annotation if it exists
     otherwise return a set of the inferred types using the NodeNG.infer method.
     """
