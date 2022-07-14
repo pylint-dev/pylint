@@ -236,7 +236,7 @@ def hash_lineset(
                 index_i + min_common_lines
             ].line_number
         except IndexError:
-            end_linenumber = lineset.stripped_lines[-1].line_number + 1
+            end_linenumber = LineNumber(lineset.stripped_lines[-1].line_number + 1)
 
         index = Index(index_i)
         index2lines[index] = SuccessiveLinesLimits(
@@ -542,7 +542,7 @@ class Similar:
             for lineset2 in self.linesets[idx + 1 :]:
                 yield from self._find_common(lineset, lineset2)
 
-    def get_map_data(self):
+    def get_map_data(self) -> list[LineSet]:
         """Returns the data we can use for a map/reduce process.
 
         In this case we are returning this instance's Linesets, that is all file
@@ -550,7 +550,7 @@ class Similar:
         """
         return self.linesets
 
-    def combine_mapreduce_data(self, linesets_collection):
+    def combine_mapreduce_data(self, linesets_collection: list[list[LineSet]]) -> None:
         """Reduces and recombines data into a format that we can report on.
 
         The partner function of get_map_data()
@@ -694,29 +694,29 @@ class LineSet:
     def __str__(self):
         return f"<Lineset for {self.name}>"
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._real_lines)
 
     def __getitem__(self, index):
         return self._stripped_lines[index]
 
-    def __lt__(self, other):
+    def __lt__(self, other: LineSet) -> bool:
         return self.name < other.name
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return id(self)
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         if not isinstance(other, LineSet):
             return False
         return self.__dict__ == other.__dict__
 
     @property
-    def stripped_lines(self):
+    def stripped_lines(self) -> list[LineSpecifs]:
         return self._stripped_lines
 
     @property
-    def real_lines(self):
+    def real_lines(self) -> list[str]:
         return self._real_lines
 
 
@@ -817,7 +817,7 @@ class SimilarChecker(BaseRawFileChecker, Similar):
             ignore_signatures=self.linter.config.ignore_signatures,
         )
 
-    def open(self):
+    def open(self) -> None:
         """Init the checkers: reset linesets and statistics information."""
         self.linesets = []
         self.linter.stats.reset_duplicated_lines()
@@ -840,7 +840,7 @@ class SimilarChecker(BaseRawFileChecker, Similar):
         with node.stream() as stream:
             self.append_stream(self.linter.current_name, stream, node.file_encoding)  # type: ignore[arg-type]
 
-    def close(self):
+    def close(self) -> None:
         """Compute and display similarities on closing (i.e. end of parsing)."""
         total = sum(len(lineset) for lineset in self.linesets)
         duplicated = 0
@@ -861,11 +861,11 @@ class SimilarChecker(BaseRawFileChecker, Similar):
         stats.nb_duplicated_lines += int(duplicated)
         stats.percent_duplicated_lines += float(total and duplicated * 100.0 / total)
 
-    def get_map_data(self):
+    def get_map_data(self) -> list[LineSet]:
         """Passthru override."""
         return Similar.get_map_data(self)
 
-    def reduce_map_data(self, linter, data):
+    def reduce_map_data(self, linter: PyLinter, data: list[list[LineSet]]) -> None:
         """Reduces and recombines data into a format that we can report on.
 
         The partner function of get_map_data()
@@ -877,7 +877,7 @@ def register(linter: PyLinter) -> None:
     linter.register_checker(SimilarChecker(linter))
 
 
-def usage(status=0):
+def usage(status: int = 0) -> NoReturn:
     """Display command line usage information."""
     print("finds copy pasted blocks in a set of files")
     print()
