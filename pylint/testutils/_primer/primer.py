@@ -80,10 +80,12 @@ class Primer:
 
         if self.config.command == "prepare":
             command_class: type[PrimerCommand] = PrepareCommand
-        if self.config.command == "run":
+        elif self.config.command == "run":
             command_class = RunCommand
-        if self.config.command == "compare":
+        elif self.config.command == "compare":
             command_class = CompareCommand
+        else:
+            self._argument_parser.error("No command given.")
         self.command = command_class(self.primer_directory, self.packages, self.config)
 
     def run(self) -> None:
