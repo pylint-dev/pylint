@@ -74,7 +74,6 @@ def _configure_lc_ctype(lc_ctype: str) -> Iterator:
             os.environ[lc_ctype_env] = original_lctype
 
 
-# noinspection PyMissingConstructor
 class MultiReporter(BaseReporter):
     def __init__(self, reporters: list[BaseReporter]) -> None:
         # pylint: disable=super-init-not-called
