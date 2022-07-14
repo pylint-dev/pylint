@@ -77,7 +77,7 @@ def _configure_lc_ctype(lc_ctype: str) -> Iterator:
 class MultiReporter(BaseReporter):
     def __init__(self, reporters: list[BaseReporter]) -> None:
         # pylint: disable=super-init-not-called
-        # We don't call it because there is an attribute "linter" that is set inside the base class
+        # We don't call it because there is an attribute "linter" that is set inside the base class,
         # and we have another setter here using yet undefined attribute.
         # I don't think fixing the init order in a test class used once is worth it.
         self._reporters = reporters
@@ -958,7 +958,7 @@ class TestRunTC:
         # and errors that are generated they don't affect the exit code.
         self._runtest([path, "--fail-under=-10", "--disable=C"] + args, code=expected)
 
-    def test_one_module_fatal_error(self):
+    def test_one_module_fatal_error(self) -> None:
         """Fatal errors in one of several modules linted still exits non-zero."""
         valid_path = join(HERE, "conftest.py")
         invalid_path = join(HERE, "garbagePath.py")
@@ -1083,7 +1083,7 @@ class TestRunTC:
         # Error code should not include bit-value 1 for crash
         assert not ex.value.code % 2
 
-    def test_recursive(self):
+    def test_recursive(self) -> None:
         """Tests if running linter over directory using --recursive=y"""
         self._runtest(
             [join(HERE, "regrtest_data", "directory", "subdirectory"), "--recursive=y"],
@@ -1125,7 +1125,7 @@ class TestRunTC:
             [directory, "--recursive=y", f"--ignore-paths={ignore_path_value}"], code=0
         )
 
-    def test_recursive_current_dir(self):
+    def test_recursive_current_dir(self) -> None:
         with _test_sys_path():
             # pytest is including directory HERE/regrtest_data to sys.path which causes
             # astroid to believe that directory is a package.
