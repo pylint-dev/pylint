@@ -26,9 +26,10 @@ PRIMER_CURRENT_INTERPRETER = (3, 10)
 DEFAULT_ARGS = ["python tests/primer/__main__.py", "compare", "--commit=v2.14.2"]
 
 
-def test_primer_launch_no_args(capsys: CaptureFixture) -> None:
+@pytest.mark.parametrize("args", [[], ["wrong_command"]])
+def test_primer_launch_bad_args(args: list[str], capsys: CaptureFixture) -> None:
     with pytest.raises(SystemExit):
-        with patch("sys.argv", ["python tests/primer/__main__.py"]):
+        with patch("sys.argv", ["python tests/primer/__main__.py"] + args):
             Primer(PRIMER_DIRECTORY, PACKAGES_TO_PRIME_PATH).run()
     out, err = capsys.readouterr()
     assert not out
