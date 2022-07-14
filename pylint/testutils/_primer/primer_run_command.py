@@ -45,9 +45,10 @@ class RunCommand(PrimerCommand):
         with open(path, "w", encoding="utf-8") as f:
             json.dump(packages, f)
 
-    def _get_astroid_errors(
+    def _filter_astroid_errors(
         self, messages: list[OldJsonExport]
     ) -> tuple[list[Message], list[Message]]:
+        """This is to avoid introducing a dependency on bleeding-edge astroid."""
         astroid_errors = []
         other_fatal_msgs = []
         for raw_message in messages:
@@ -90,12 +91,7 @@ class RunCommand(PrimerCommand):
             print(
                 f"Encountered fatal errors while priming {package_name} !\n{readable_messages}"
             )
-            astroid_errors, other_fatal_msgs = self._get_astroid_errors(messages)
-            # Fail loudly (and fail CI pipelines) if any fatal errors are found,
-            # unless they are astroid-errors, in which case just warn.
-            # This is to avoid introducing a dependency on bleeding-edge astroid
-            # for pylint CI pipelines generally, even though we want to use astroid main
-            # for the purpose of diffing emitted messages and generating PR comments.
+            astroid_errors, other_fatal_msgs = self._filter_astroid_errors(messages)
             if astroid_errors:
                 warnings.warn(f"Fatal errors traced to astroid: {astroid_errors}")
         return messages, astroid_errors, other_fatal_msgs
