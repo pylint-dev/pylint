@@ -2,7 +2,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-from typing import NoReturn
+from typing import Any, NoReturn
 from unittest.mock import patch
 
 import pytest
@@ -14,7 +14,7 @@ from pylint.lint.pylinter import PyLinter
 from pylint.utils import FileState
 
 
-def raise_exception(*args, **kwargs) -> NoReturn:
+def raise_exception(*args: Any, **kwargs: Any) -> NoReturn:
     raise AstroidBuildingError(modname="spam")
 
 

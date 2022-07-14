@@ -9,6 +9,7 @@ from __future__ import annotations
 import os
 import sys
 from collections.abc import Iterator
+from typing import Any
 from unittest import mock
 
 import pytest
@@ -145,7 +146,7 @@ def test_graphviz_unsupported_image_format(capsys: CaptureFixture) -> None:
 )
 @mock.patch("pylint.pyreverse.main.Run.run", new=mock.MagicMock())
 @mock.patch("pylint.pyreverse.main.sys.exit", new=mock.MagicMock())
-def test_command_line_arguments_defaults(arg: str, expected_default) -> None:
+def test_command_line_arguments_defaults(arg: str, expected_default: Any) -> None:
     """Test that the default arguments of all options are correct."""
     run = main.Run([TEST_DATA_DIR])
     assert getattr(run.config, arg) == expected_default

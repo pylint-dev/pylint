@@ -22,7 +22,7 @@ from copy import copy
 from io import BytesIO, StringIO
 from os.path import abspath, dirname, join
 from pathlib import Path
-from typing import TYPE_CHECKING, TextIO
+from typing import TYPE_CHECKING, Any, TextIO
 from unittest import mock
 from unittest.mock import patch
 
@@ -84,7 +84,7 @@ class MultiReporter(BaseReporter):
         self._reporters = reporters
         self.path_strip_prefix = os.getcwd() + os.sep
 
-    def on_set_current_module(self, *args: str, **kwargs) -> None:
+    def on_set_current_module(self, *args: str, **kwargs: Any) -> None:
         for rep in self._reporters:
             rep.on_set_current_module(*args, **kwargs)
 
@@ -114,7 +114,7 @@ class TestRunTC:
     def _runtest(
         self,
         args: list[str],
-        reporter=None,
+        reporter: Any = None,
         out: StringIO | None = None,
         code: int | None = None,
     ) -> None:
@@ -134,7 +134,7 @@ class TestRunTC:
         assert pylint_code == code, msg
 
     @staticmethod
-    def _run_pylint(args: list[str], out: TextIO, reporter=None) -> int:
+    def _run_pylint(args: list[str], out: TextIO, reporter: Any = None) -> int:
         args = _add_rcfile_default_pylintrc(args + ["--persistent=no"])
         with _patch_streams(out):
             with pytest.raises(SystemExit) as cm:
