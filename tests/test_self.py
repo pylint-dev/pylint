@@ -74,10 +74,11 @@ def _configure_lc_ctype(lc_ctype: str) -> Iterator:
             os.environ[lc_ctype_env] = original_lctype
 
 
+# noinspection PyMissingConstructor
 class MultiReporter(BaseReporter):
     def __init__(self, reporters: list[BaseReporter]) -> None:
         # pylint: disable=super-init-not-called
-        # We don't call it because there is an attribute "linter" that is set inside the base class
+        # We don't call it because there is an attribute "linter" that is set inside the base class,
         # and we have another setter here using yet undefined attribute.
         # I don't think fixing the init order in a test class used once is worth it.
         self._reporters = reporters

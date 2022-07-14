@@ -9,10 +9,10 @@ import os
 import pathlib
 import sys
 from collections.abc import Callable
+from io import BufferedReader
 from unittest.mock import MagicMock, mock_open, patch
 
 import pytest
-from _io import BufferedReader  # type: ignore[import]
 from py._path.local import LocalPath  # type: ignore[import]
 
 from pylint import run_epylint, run_pylint, run_pyreverse, run_symilar
