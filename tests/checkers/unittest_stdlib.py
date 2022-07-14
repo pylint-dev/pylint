@@ -42,7 +42,7 @@ class TestStdlibChecker(CheckerTestCase):
         """
 
         def infer_func(
-            inner_node: nodes.Name, context=None  # pylint: disable=unused-argument
+            inner_node: nodes.Name, context: Any | None = None  # pylint: disable=unused-argument
         ) -> Iterator[Iterator | Iterator[nodes.AssignAttr]]:
             new_node = nodes.AssignAttr(attrname="alpha", parent=inner_node)
             yield new_node
