@@ -23,8 +23,20 @@ CRASH_TEMPLATE_INTRO = "There is a pre-filled template"
 class RunCommand(PrimerCommand):
     def run(self) -> None:
         packages: dict[str, list[OldJsonExport]] = {}
+        astroid_errors: list[Message] = []
+        other_fatal_msgs: list[Message] = []
         for package, data in self.packages.items():
-            packages[package] = self._lint_package(package, data)
+            messages, p_astroid_errors, p_other_fatal_msgs = self._lint_package(
+                package, data
+            )
+            astroid_errors += p_astroid_errors
+            other_fatal_msgs += p_other_fatal_msgs
+            packages[package] = messages
+        plural = "s" if len(other_fatal_msgs) > 1 else ""
+        assert not other_fatal_msgs, (
+            f"We encountered {len(other_fatal_msgs)} fatal error message{plural}"
+            " that can't be attributed to bleeding edge astroid alone (see log)."
+        )
         path = (
             self.primer_directory
             / f"output_{'.'.join(str(i) for i in sys.version_info[:3])}_{self.config.type}.txt"
@@ -53,7 +65,7 @@ class RunCommand(PrimerCommand):
 
     def _lint_package(
         self, package_name: str, data: PackageToLint
-    ) -> list[OldJsonExport]:
+    ) -> tuple[list[OldJsonExport], list[Message], list[Message]]:
         # We want to test all the code we can
         enables = ["--enable-all-extensions", "--enable=all"]
         # Duplicate code takes too long and is relatively safe
@@ -70,6 +82,8 @@ class RunCommand(PrimerCommand):
             pylint_exit_code = int(e.code)
         readable_messages: str = output.getvalue()
         messages: list[OldJsonExport] = json.loads(readable_messages)
+        astroid_errors: list[Message] = []
+        other_fatal_msgs: list[Message] = []
         if pylint_exit_code % 2 == 0:
             print(f"Successfully primed {package_name}.")
         else:
@@ -84,9 +98,4 @@ class RunCommand(PrimerCommand):
             # for the purpose of diffing emitted messages and generating PR comments.
             if astroid_errors:
                 warnings.warn(f"Fatal errors traced to astroid: {astroid_errors}")
-            plural = "s" if len(other_fatal_msgs) > 1 else ""
-            assert not other_fatal_msgs, (
-                f"We encountered {len(other_fatal_msgs)} fatal error message{plural}"
-                " that can't be attributed to bleeding edge astroid alone (see log)."
-            )
-        return messages
+        return messages, astroid_errors, other_fatal_msgs
