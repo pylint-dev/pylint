@@ -6,10 +6,11 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterator
 from typing import Any
 
 import astroid
-from astroid import bases, nodes
+from astroid import Uninferable, bases, nodes
 from astroid.context import InferenceContext
 
 from pylint.checkers import BaseChecker
@@ -30,7 +31,7 @@ def _safe_infer_call_result(
     node: nodes.FunctionDef,
     caller: nodes.FunctionDef,
     context: InferenceContext | None = None,
-) -> Any:
+) -> Iterator[nodes.NodeNG | Uninferable | None] | None:
     """Safely infer the return value of a function.
 
     Returns None if inference failed or if there is some ambiguity (more than
