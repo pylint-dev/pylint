@@ -10,6 +10,13 @@ works with your interpreter. We recommend ``pip``:
 
    pip install pylint
 
+Or if you want to also check spelling with ``enchant`` (you might need to
+`install the enchant C library <https://pyenchant.github.io/pyenchant/install.html#installing-the-enchant-c-library>`_ ):
+
+.. code-block:: sh
+
+   pip install pylint[spelling]
+
 Use the newest Python interpreter if you can.
 
 It's possible to analyse code written for older interpreters by using the ``py-version``
