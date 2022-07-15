@@ -26,8 +26,8 @@ NEXT_METHOD = "__next__"
 
 
 def _safe_infer_call_result(
-    node: nodes.AsyncFunctionDef | nodes.FunctionDef,
-    caller: nodes.AsyncFunctionDef | nodes.FunctionDef,
+    node: nodes.FunctionDef,
+    caller: nodes.FunctionDef,
     context: Any | None = None,
 ) -> Any:
     """Safely infer the return value of a function.
@@ -190,9 +190,7 @@ class SpecialMethodsChecker(BaseChecker):
 
     visit_asyncfunctiondef = visit_functiondef
 
-    def _check_unexpected_method_signature(
-        self, node: nodes.AsyncFunctionDef | nodes.FunctionDef
-    ) -> None:
+    def _check_unexpected_method_signature(self, node: nodes.FunctionDef) -> None:
         expected_params = SPECIAL_METHODS_PARAMS[node.name]
 
         if expected_params is None:
