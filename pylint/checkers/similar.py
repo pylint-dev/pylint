@@ -229,18 +229,16 @@ def hash_lineset(
     # Need different iterators on same lines but each one is shifted 1 from the precedent
     shifted_lines = [iter(lines[i:]) for i in range(min_common_lines)]
 
-    for index_i, *succ_lines in enumerate(zip(*shifted_lines)):
-        start_linenumber = lineset.stripped_lines[index_i].line_number
+    for i, *succ_lines in enumerate(zip(*shifted_lines)):
+        start_linenumber = LineNumber(lineset.stripped_lines[i].line_number)
         try:
-            end_linenumber = lineset.stripped_lines[
-                index_i + min_common_lines
-            ].line_number
+            end_linenumber = lineset.stripped_lines[i + min_common_lines].line_number
         except IndexError:
             end_linenumber = LineNumber(lineset.stripped_lines[-1].line_number + 1)
 
-        index = Index(index_i)
+        index = Index(i)
         index2lines[index] = SuccessiveLinesLimits(
-            start=LineNumber(start_linenumber), end=LineNumber(end_linenumber)
+            start=start_linenumber, end=end_linenumber
         )
 
         l_c = LinesChunk(lineset.name, index, *succ_lines)
