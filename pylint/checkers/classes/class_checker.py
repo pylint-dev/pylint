@@ -1681,7 +1681,9 @@ a metaclass class method.",
         if any(method_name == member.name for member in parent_class.mymethods()):
             self.add_message(msg, node=node.targets[0])
 
-    def _check_protected_attribute_access(self, node: nodes.Attribute) -> None:
+    def _check_protected_attribute_access(
+        self, node: nodes.Attribute | nodes.AssignAttr
+    ) -> None:
         """Given an attribute access node (set or get), check if attribute
         access is legitimate.
 
@@ -1694,12 +1696,10 @@ a metaclass class method.",
             Klass.
         """
         attrname = node.attrname
-
         if (
             is_attr_protected(attrname)
             and attrname not in self.linter.config.exclude_protected
         ):
-
             klass = node_frame_class(node)
 
             # In classes, check we are not getting a parent method
