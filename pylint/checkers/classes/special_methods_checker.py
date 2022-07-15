@@ -28,7 +28,7 @@ NEXT_METHOD = "__next__"
 def _safe_infer_call_result(
     node: nodes.FunctionDef,
     caller: nodes.FunctionDef,
-    context: Any | None = None,
+    context: InferenceContext | None = None,
 ) -> Any:
     """Safely infer the return value of a function.
 

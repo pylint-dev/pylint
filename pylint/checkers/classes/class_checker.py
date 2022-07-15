@@ -386,7 +386,7 @@ def _different_parameters(
     return output_messages
 
 
-def _is_invalid_base_class(cls: InferenceResult) -> bool:
+def _is_invalid_base_class(cls: nodes.ClassDef) -> bool:
     return cls.name in INVALID_BASE_CLASSES and is_builtin_object(cls)
 
 
@@ -412,7 +412,7 @@ def _has_data_descriptor(cls: nodes.ClassDef, attr: str) -> bool:
 def _called_in_methods(
     func: nodes.FunctionDef | nodes.Module,
     klass: nodes.ClassDef,
-    methods: tuple[str, str, str, str],
+    methods: Sequence[str],
 ) -> bool:
     """Check if the func was called in any of the given methods,
     belonging to the *klass*.
@@ -839,7 +839,7 @@ a metaclass class method.",
         self._py38_plus = py_version >= (3, 8)
 
     @cached_property
-    def _dummy_rgx(self) -> Pattern:
+    def _dummy_rgx(self) -> Pattern[str]:
         return self.linter.config.dummy_variables_rgx
 
     @only_required_for_messages(
