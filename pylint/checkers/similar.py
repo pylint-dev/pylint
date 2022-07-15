@@ -697,7 +697,7 @@ class LineSet:
     def __len__(self) -> int:
         return len(self._real_lines)
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: int) -> LineSpecifs:
         return self._stripped_lines[index]
 
     def __lt__(self, other: LineSet) -> bool:
