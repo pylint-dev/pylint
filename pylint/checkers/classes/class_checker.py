@@ -16,7 +16,6 @@ from typing import TYPE_CHECKING, Union
 
 import astroid
 from astroid import bases, nodes
-from astroid.typing import InferenceResult
 
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import (
