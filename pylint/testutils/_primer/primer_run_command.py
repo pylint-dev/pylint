@@ -45,8 +45,9 @@ class RunCommand(PrimerCommand):
         with open(path, "w", encoding="utf-8") as f:
             json.dump(packages, f)
 
+    @staticmethod
     def _filter_astroid_errors(
-        self, messages: list[OldJsonExport]
+        messages: list[OldJsonExport],
     ) -> tuple[list[Message], list[Message]]:
         """Separate fatal errors caused by astroid so we can report them
         independently.
@@ -65,6 +66,10 @@ class RunCommand(PrimerCommand):
                 else:
                     other_fatal_msgs.append(message)
         return astroid_errors, other_fatal_msgs
+
+    @staticmethod
+    def _print_msgs(msgs: list[Message]) -> str:
+        return "\n".join(f"- {JSONReporter.serialize(m)}" for m in msgs)
 
     def _lint_package(
         self, package_name: str, data: PackageToLint
@@ -90,10 +95,16 @@ class RunCommand(PrimerCommand):
         if pylint_exit_code % 2 == 0:
             print(f"Successfully primed {package_name}.")
         else:
-            print(
-                f"Encountered fatal errors while priming {package_name} !\n{readable_messages}"
-            )
             astroid_errors, other_fatal_msgs = self._filter_astroid_errors(messages)
+            print(f"Encountered fatal errors while priming {package_name} !\n")
+            if other_fatal_msgs:
+                print(
+                    "Fatal messages unrelated to astroid:\n"
+                    f"{self._print_msgs(other_fatal_msgs)}\n\n"
+                )
             if astroid_errors:
-                warnings.warn(f"Fatal errors traced to astroid: {astroid_errors}")
+                warnings.warn(
+                    f"Fatal messages that could be related to bleeding edge astroid:\n"
+                    f"{self._print_msgs(astroid_errors)}\n\n"
+                )
         return messages, astroid_errors, other_fatal_msgs
