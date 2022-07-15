@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING, Union
 
 import astroid
 from astroid import bases, nodes
+from astroid.nodes import LocalsDictNodeNG
 
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import (
@@ -409,7 +410,7 @@ def _has_data_descriptor(cls: nodes.ClassDef, attr: str) -> bool:
 
 
 def _called_in_methods(
-    func: nodes.FunctionDef | nodes.Module,
+    func: LocalsDictNodeNG,
     klass: nodes.ClassDef,
     methods: Sequence[str],
 ) -> bool:
@@ -1793,9 +1794,8 @@ a metaclass class method.",
         )
 
     @staticmethod
-    def _is_classmethod(func: nodes.FunctionDef) -> bool:
+    def _is_classmethod(func: LocalsDictNodeNG) -> bool:
         """Check if the given *func* node is a class method."""
-
         return isinstance(func, nodes.FunctionDef) and (
             func.type == "classmethod" or func.name == "__class_getitem__"
         )
