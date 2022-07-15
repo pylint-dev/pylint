@@ -25,10 +25,10 @@ class "ExceptionsChecker" as pylint.checkers.exceptions.ExceptionsChecker #aquam
 class "StdlibChecker" as pylint.checkers.stdlib.StdlibChecker #aquamarine {
   msgs : dict[str, MessageDefinitionTuple]
   name : str
-  deprecated_arguments(method: str)
-  deprecated_classes(module: str)
-  deprecated_decorators() -> Iterable
-  deprecated_methods()
+  deprecated_arguments(method: str) -> tuple[tuple[int | None, str], ...]
+  deprecated_classes(module: str) -> Iterable[str]
+  deprecated_decorators() -> Iterable[str]
+  deprecated_methods() -> set[str]
   visit_boolop(node: nodes.BoolOp) -> None
   visit_call(node: nodes.Call) -> None
   visit_functiondef(node: nodes.FunctionDef) -> None
