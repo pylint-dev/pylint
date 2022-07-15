@@ -1335,9 +1335,7 @@ a metaclass class method.",
                 confidence=INFERENCE,
             )
 
-    def _check_property_with_parameters(
-        self, node: nodes.AsyncFunctionDef | nodes.FunctionDef
-    ) -> None:
+    def _check_property_with_parameters(self, node: nodes.FunctionDef) -> None:
         if (
             node.args.args
             and len(node.args.args) > 1
@@ -1348,8 +1346,8 @@ a metaclass class method.",
 
     def _check_invalid_overridden_method(
         self,
-        function_node: nodes.AsyncFunctionDef | nodes.FunctionDef,
-        parent_function_node: nodes.AsyncFunctionDef | nodes.FunctionDef,
+        function_node: nodes.FunctionDef,
+        parent_function_node: nodes.FunctionDef,
     ) -> None:
         parent_is_property = decorated_with_property(
             parent_function_node
