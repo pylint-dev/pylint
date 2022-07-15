@@ -1799,15 +1799,13 @@ a metaclass class method.",
         )
 
     @staticmethod
-    def _is_inferred_instance(expr: nodes.Name, klass: nodes.ClassDef) -> bool:
+    def _is_inferred_instance(expr: nodes.NodeNG | None, klass: nodes.ClassDef) -> bool:
         """Check if the inferred value of the given *expr* is an instance of
         *klass*.
         """
-
         inferred = safe_infer(expr)
         if not isinstance(inferred, astroid.Instance):
             return False
-
         return inferred._proxied is klass
 
     @staticmethod
