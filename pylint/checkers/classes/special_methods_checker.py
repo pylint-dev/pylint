@@ -10,6 +10,7 @@ from typing import Any
 
 import astroid
 from astroid import bases, nodes
+from astroid.context import InferenceContext
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
