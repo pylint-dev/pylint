@@ -48,7 +48,9 @@ class RunCommand(PrimerCommand):
     def _filter_astroid_errors(
         self, messages: list[OldJsonExport]
     ) -> tuple[list[Message], list[Message]]:
-        """Separate fatal errors caused by astroid so we can report them independently."""
+        """Separate fatal errors caused by astroid so we can report them
+        independently.
+        """
         astroid_errors = []
         other_fatal_msgs = []
         for raw_message in messages:
