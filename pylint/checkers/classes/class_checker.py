@@ -195,9 +195,7 @@ def _is_trivial_super_delegation(function: nodes.FunctionDef) -> bool:
 # Deal with parameters overriding in two methods.
 
 
-def _positional_parameters(
-    method: bases.BoundMethod | bases.UnboundMethod | nodes.FunctionDef,
-) -> list[nodes.AssignName]:
+def _positional_parameters(method: nodes.FunctionDef) -> list[nodes.AssignName]:
     positional = method.args.args
     if method.is_bound() and method.type in {"classmethod", "method"}:
         positional = positional[1:]
