@@ -16,7 +16,7 @@ class "ExceptionsChecker" as pylint.checkers.exceptions.ExceptionsChecker #aquam
   msgs : dict
   name : str
   options : tuple
-  open()
+  open() -> None
   visit_binop(node: nodes.BinOp) -> None
   visit_compare(node: nodes.Compare) -> None
   visit_raise(node: nodes.Raise) -> None
