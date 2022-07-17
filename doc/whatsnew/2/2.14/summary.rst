@@ -283,11 +283,6 @@ Other Changes
 
   Closes #6594
 
-* Fix a crash in the ``not-callable`` check when there is ambiguity whether an instance
-  is being incorrectly provided to ``__new__()``.
-
-  Closes #7109
-
 * Fix ``unexpected-special-method-signature`` false positive for ``__init_subclass__`` methods with one or more arguments.
 
   Closes #6644

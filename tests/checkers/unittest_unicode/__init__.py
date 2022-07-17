@@ -82,5 +82,5 @@ class FakeNode:
     def __init__(self, content: bytes):
         self.content = io.BytesIO(content)
 
-    def stream(self):
+    def stream(self) -> io.BytesIO:
         return self.content

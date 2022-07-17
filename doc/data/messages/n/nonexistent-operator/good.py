@@ -1,1 +1,5 @@
-# This is a placeholder for correct code for this message.
+i = 0
+
+while i <= 10:
+    print(i)
+    i += 1

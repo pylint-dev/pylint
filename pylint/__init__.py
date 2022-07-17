@@ -4,6 +4,16 @@
 
 from __future__ import annotations
 
+__all__ = [
+    "__version__",
+    "version",
+    "modify_sys_path",
+    "run_pylint",
+    "run_epylint",
+    "run_symilar",
+    "run_pyreverse",
+]
+
 import os
 import sys
 from collections.abc import Sequence
@@ -96,4 +106,3 @@ def modify_sys_path() -> None:
 
 
 version = __version__
-__all__ = ["__version__", "version", "modify_sys_path"]

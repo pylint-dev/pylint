@@ -9,6 +9,8 @@ import os
 import pathlib
 import sys
 from collections.abc import Callable
+from io import BufferedReader
+from typing import Any
 from unittest.mock import MagicMock, mock_open, patch
 
 import pytest
@@ -53,7 +55,7 @@ def test_pylint_run_jobs_equal_zero_dont_crash_with_cpu_fraction(
     """
     builtin_open = open
 
-    def _mock_open(*args, **kwargs):
+    def _mock_open(*args: Any, **kwargs: Any) -> BufferedReader:
         if args[0] == "/sys/fs/cgroup/cpu/cpu.cfs_quota_us":
             return mock_open(read_data=b"-1")(*args, **kwargs)
         if args[0] == "/sys/fs/cgroup/cpu/cpu.shares":
@@ -62,7 +64,7 @@ def test_pylint_run_jobs_equal_zero_dont_crash_with_cpu_fraction(
 
     pathlib_path = pathlib.Path
 
-    def _mock_path(*args, **kwargs):
+    def _mock_path(*args: str, **kwargs) -> pathlib.Path:
         if args[0] == "/sys/fs/cgroup/cpu/cpu.shares":
             return MagicMock(is_file=lambda: True)
         return pathlib_path(*args, **kwargs)
