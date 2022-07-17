@@ -228,7 +228,7 @@ Description:
   *Minimum Python version to use for version dependent checks. Will default to the version used to run pylint.*
 
 Default:
-  ``(3, 8)``
+  ``(3, 10)``
 
 
 --recursive
@@ -334,7 +334,7 @@ Default:
 
    persistent = true
 
-   py-version = [3, 8]
+   py-version = [3, 10]
 
    recursive = false
 
@@ -1517,7 +1517,7 @@ Default:
 """""""""""""""
 
 Description:
-  *Spelling dictionary name. Available dictionaries: en_GB (aspell), en_US (hunspell), en_AU (aspell), en (aspell), en_CA (aspell).*
+  *Spelling dictionary name. Available dictionaries: none. To make it work, install the 'python-enchant' package.*
 
 Default:
   ``""``

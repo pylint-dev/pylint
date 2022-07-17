@@ -1323,8 +1323,8 @@ Verbatim name of the checker is ``spelling``.
 Spelling checker Options
 ^^^^^^^^^^^^^^^^^^^^^^^^
 :spelling-dict:
-  Spelling dictionary name. Available dictionaries: en_GB (aspell), en_US
-  (hunspell), en_AU (aspell), en (aspell), en_CA (aspell).
+  Spelling dictionary name. Available dictionaries: none. To make it work,
+  install the 'python-enchant' package.
 :spelling-ignore-words:
   List of comma separated words that should not be checked.
 :spelling-private-dict-file:

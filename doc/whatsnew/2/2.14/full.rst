@@ -1,9 +1,10 @@
 Full changelog
 ==============
 
+
 What's New in Pylint 2.14.5?
 ----------------------------
-Release date: TBA
+Release date: 2022-07-17
 
 
 * Fixed a crash in the ``undefined-loop-variable`` check when ``enumerate()`` is used
