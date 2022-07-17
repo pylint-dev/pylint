@@ -59,11 +59,17 @@ your patch gets accepted:
 
 - We recommend using Python 3.8 or higher for development of Pylint as it gives
   you access to the latest ``ast`` parser.
+
 - Install the dev dependencies, see :ref:`contributor_install`.
+
 - Use our test suite and write new tests, see :ref:`contributor_testing`.
-- Add an entry to the change log describing the change in `doc/whatsnew/2/2.15/index.rst`
-  (or ``doc/whatsnew/2/2.14/full.rst`` if the change needs backporting in 2.14).
-  If necessary you can write details or offer examples on how the new change is supposed to work.
+
+.. keep this in sync with the description of PULL_REQUEST_TEMPLATE.md!
+
+- Create a news fragment with `towncrier create <IssueNumber>.<type>` which will be
+  included in the changelog. `<type>` can be one of: new_check, removed_check, extension,
+  false_positive, false_negative, bugfix, other, internal. If necessary you can write
+  details or offer examples on how the new change is supposed to work.
 
 - Document your change, if it is a non-trivial one.
 
