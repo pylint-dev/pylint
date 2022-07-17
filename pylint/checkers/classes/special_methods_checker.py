@@ -218,8 +218,9 @@ class SpecialMethodsChecker(BaseChecker):
             # tuple, although the user should implement the method
             # to take all of them in consideration.
             emit = mandatory not in expected_params
-            # pylint: disable-next=consider-using-f-string
-            expected_params = "between %d or %d" % expected_params  # type: ignore[assignment]
+            # mypy think that expected_params has type Tuple[int, int] or int or None
+            # But at this point it must be 'Tuple[int, int]' because of the type check
+            expected_params = f"between {expected_params[0]} or {expected_params[1]}"  # type: ignore[assignment]
         else:
             # If the number of mandatory parameters doesn't
             # suffice, the expected parameters for this
