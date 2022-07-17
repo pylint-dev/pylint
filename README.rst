@@ -29,6 +29,10 @@
    :target: https://results.pre-commit.ci/latest/github/PyCQA/pylint/main
    :alt: pre-commit.ci status
 
+.. image:: https://img.shields.io/discord/825463413634891776.svg
+   :target: https://discord.gg/qYxpadCgkx
+   :alt: Discord
+
 What is Pylint?
 ================
 

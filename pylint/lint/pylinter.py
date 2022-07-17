@@ -259,7 +259,7 @@ class PyLinter(
     name = MAIN_CHECKER_NAME
     msgs = MSGS
     # Will be used like this : datetime.now().strftime(crash_file_path)
-    crash_file_path: str = "pylint-crash-%Y-%m-%d-%H.txt"
+    crash_file_path: str = "pylint-crash-%Y-%m-%d-%H-%M-%S.txt"
 
     option_groups_descs = {
         "Messages control": "Options controlling analysis messages",
@@ -914,7 +914,6 @@ class PyLinter(
                 data, modname, filepath
             )
         except astroid.AstroidSyntaxError as ex:
-            # pylint: disable=no-member
             self.add_message(
                 "syntax-error",
                 line=getattr(ex.error, "lineno", 0),

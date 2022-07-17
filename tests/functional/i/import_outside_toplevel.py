@@ -27,7 +27,7 @@ class C:
     import tokenize  # [import-outside-toplevel]
 
     def j(self):
-        import turtle  # [import-outside-toplevel]
+        import trace  # [import-outside-toplevel]
 
 
 def k(flag):

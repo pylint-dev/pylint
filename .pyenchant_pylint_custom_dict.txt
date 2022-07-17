@@ -73,6 +73,7 @@ dataclass
 datetime
 debian
 deepcopy
+defaultdicts
 defframe
 defstmts
 deleter
@@ -211,6 +212,7 @@ mymodule
 mypy
 namedtuple
 namespace
+newsfile
 newstyle
 nl
 nodename
@@ -243,6 +245,7 @@ pragma's
 pragmas
 pre
 preorder
+prepended
 proc
 py
 pyenchant
@@ -318,6 +321,7 @@ tokenizer
 toml
 tomlkit
 toplevel
+towncrier
 tp
 truthness
 tryexcept

@@ -11,7 +11,6 @@ from typing import Any
 import astroid
 from astroid import nodes
 from astroid.manager import AstroidManager
-from astroid.nodes.node_classes import AssignAttr, Name
 
 from pylint.checkers import stdlib
 from pylint.testutils import CheckerTestCase
@@ -43,9 +42,10 @@ class TestStdlibChecker(CheckerTestCase):
         """
 
         def infer_func(
-            node: Name, context: Any | None = None  # pylint: disable=unused-argument
-        ) -> Iterator[Iterator | Iterator[AssignAttr]]:
-            new_node = nodes.AssignAttr(attrname="alpha", parent=node)
+            inner_node: nodes.Name,
+            context: Any | None = None,  # pylint: disable=unused-argument
+        ) -> Iterator[Iterator | Iterator[nodes.AssignAttr]]:
+            new_node = nodes.AssignAttr(attrname="alpha", parent=inner_node)
             yield new_node
 
         manager = astroid.MANAGER
