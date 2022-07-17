@@ -1,0 +1,4 @@
+Added new checker ``missing-timeout`` to warn of default timeout values that could cause
+a program to be hanging indefinitely.
+
+Refs #6780
