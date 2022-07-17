@@ -10,10 +10,6 @@ the maintenance branch. If so, release a last patch release first. See
 
 - Write the `Summary -- Release highlights` in `doc/whatsnew` and upgrade the release
   date.
-- Remove the empty changelog for the last unreleased patch version `X.Y-1.Z'`. (For
-  example: `v2.3.5`)
-- Check the result of `git diff vX.Y-1.Z' doc/whatsnew`. (For example:
-  `git diff v2.3.4 doc/whatsnew`)
 - Install the release dependencies: `pip3 install -r requirements_test.txt`
 - Bump the version and release by using `tbump X.Y.0 --no-push --no-tag`. (For example:
   `tbump 2.4.0 --no-push --no-tag`)
@@ -51,16 +47,18 @@ branch
   [readthedoc](https://readthedocs.org/projects/pylint/versions/), except the last one.
   (For example: hide `v2.4.0`, `v2.4.1`, `v2.4.2` and keep only `v2.4.3`)
 
-## Backporting a fix from `main` to the maintenance branch
+## Back-porting a fix from `main` to the maintenance branch
 
 Whenever a commit on `main` should be released in a patch release on the current
 maintenance branch we cherry-pick the commit from `main`.
 
 - During the merge request on `main`, make sure that the changelog is for the patch
   version `X.Y-1.Z'`. (For example: `v2.3.5`)
-- After the PR is merged on `main` cherry-pick the commits on the `maintenance/X.Y.x`
-  branch (For example: from `maintenance/2.4.x` cherry-pick a commit from `main`)
+- After the PR is merged on `main` cherry-pick the commits on the `release-X.Y-1.Z'`
+  branch created from `maintenance/X.Y.x` then cherry-pick the commit from the `main`
+  branch. (For example: `release-2.3.5-branch` from `maintenance/2.3.x`)
 - Remove the "need backport" label from cherry-picked issues
+
 - Release a patch version
 
 ## Releasing a patch version
@@ -68,16 +66,16 @@ maintenance branch we cherry-pick the commit from `main`.
 We release patch versions when a crash or a bug is fixed on the main branch and has been
 cherry-picked on the maintenance branch.
 
-- Check the result of `git diff vX.Y-1.Z-1 doc/whatsnew`. (For example:
-  `git diff v2.3.4 doc/whatsnew`)
 - Install the release dependencies: `pip3 install -r requirements_test.txt`
 - Bump the version and release by using `tbump X.Y-1.Z --no-push`. (For example:
   `tbump 2.3.5 --no-push`)
 - Check the result visually with `git show`.
-- Open a merge request to run the CI tests for this branch
+- Open a merge request of `release-X.Y-1.Z'` in `maintenance/X.Y.x` (For example:
+  `release-2.3.5-branch` in `maintenance/2.3.x`) to run the CI tests for this branch.
 - Create and push the tag.
 - Release the version on GitHub with the same name as the tag and copy and paste the
-  appropriate changelog in the description. This triggers the PyPI release.
+  changelog from the ReadtheDoc generated documentation from the pull request pipeline
+  in the description. This triggers the PyPI release.
 - Merge the `maintenance/X.Y.x` branch on the main branch. The main branch should have
   the changelog for `X.Y-1.Z+1` (For example `v2.3.6`). This merge is required so
   `pre-commit autoupdate` works for pylint.
