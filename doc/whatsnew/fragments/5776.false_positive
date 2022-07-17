@@ -1,0 +1,3 @@
+Fixed inference of ``Enums`` when they are imported under an alias.
+
+Closes #5776

@@ -10,8 +10,7 @@ on:
       - doc/data/messages/**
 
 env:
-  # Also change CACHE_VERSION in the other workflows
-  CACHE_VERSION: 7
+  CACHE_VERSION: 20
 
 jobs:
   tests-linux:
@@ -76,7 +75,7 @@ jobs:
     needs: tests-linux
     strategy:
       matrix:
-        python-version: [3.8]
+        python-version: ["3.10"]
     env:
       COVERAGERC_FILE: .coveragerc
     steps:
@@ -122,7 +121,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.8]
+        python-version: ["3.10"]
     steps:
       - name: Check out code from GitHub
         uses: actions/checkout@v3.0.2

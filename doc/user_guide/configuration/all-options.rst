@@ -78,7 +78,7 @@ Standard Checkers
 
 --fail-under
 """"""""""""
-*Specify a score threshold to be exceeded before program exits with error.*
+*Specify a score threshold under which the program will exit with error.*
 
 **Default:**  ``10``
 
@@ -99,14 +99,14 @@ Standard Checkers
 
 --ignore-paths
 """"""""""""""
-*Add files or directories matching the regex patterns to the ignore-list. The regex matches against paths and can be in Posix or Windows format.*
+*Add files or directories matching the regular expressions patterns to the ignore-list. The regex matches against paths and can be in Posix or Windows format. Because '\' represents the directory delimiter on Windows systems, it can't be used as an escape character.*
 
 **Default:**  ``[]``
 
 
 --ignore-patterns
 """""""""""""""""
-*Files or directories matching the regex patterns are skipped. The regex matches against base names, not paths. The default value ignores Emacs file locks*
+*Files or directories matching the regular expression patterns are skipped. The regex matches against base names, not paths. The default value ignores Emacs file locks*
 
 **Default:**  ``(re.compile('^\\.#'),)``
 
@@ -120,7 +120,7 @@ Standard Checkers
 
 --jobs
 """"""
-*Use multiple processes to speed up Pylint. Specifying 0 will auto-detect the number of processors available to use.*
+*Use multiple processes to speed up Pylint. Specifying 0 will auto-detect the number of processors available to use, and will cap the count on Windows to avoid hangs.*
 
 **Default:**  ``1``
 
@@ -208,7 +208,7 @@ Standard Checkers
    <details>
    <summary><a>Example configuration section</a></summary>
 
-**Note:** Only ``pylint.tool`` is required, the section title is not. These are the default values.
+**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
 
 .. code-block:: toml
 
@@ -508,7 +508,7 @@ Standard Checkers
    <details>
    <summary><a>Example configuration section</a></summary>
 
-**Note:** Only ``pylint.tool`` is required, the section title is not. These are the default values.
+**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
 
 .. code-block:: toml
 
@@ -629,7 +629,7 @@ Standard Checkers
    <details>
    <summary><a>Example configuration section</a></summary>
 
-**Note:** Only ``pylint.tool`` is required, the section title is not. These are the default values.
+**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
 
 .. code-block:: toml
 
@@ -752,7 +752,7 @@ Standard Checkers
    <details>
    <summary><a>Example configuration section</a></summary>
 
-**Note:** Only ``pylint.tool`` is required, the section title is not. These are the default values.
+**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
 
 .. code-block:: toml
 
@@ -807,7 +807,7 @@ Standard Checkers
    <details>
    <summary><a>Example configuration section</a></summary>
 
-**Note:** Only ``pylint.tool`` is required, the section title is not. These are the default values.
+**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
 
 .. code-block:: toml
 
@@ -887,7 +887,7 @@ Standard Checkers
    <details>
    <summary><a>Example configuration section</a></summary>
 
-**Note:** Only ``pylint.tool`` is required, the section title is not. These are the default values.
+**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
 
 .. code-block:: toml
 
@@ -988,7 +988,7 @@ Standard Checkers
    <details>
    <summary><a>Example configuration section</a></summary>
 
-**Note:** Only ``pylint.tool`` is required, the section title is not. These are the default values.
+**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
 
 .. code-block:: toml
 
@@ -1042,7 +1042,7 @@ Standard Checkers
    <details>
    <summary><a>Example configuration section</a></summary>
 
-**Note:** Only ``pylint.tool`` is required, the section title is not. These are the default values.
+**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
 
 .. code-block:: toml
 
@@ -1050,6 +1050,37 @@ Standard Checkers
    logging-format-style = "old"
 
    logging-modules = ["logging"]
+
+
+
+.. raw:: html
+
+   </details>
+
+
+.. _method_args-options:
+
+``Method_args`` **Checker**
+---------------------------
+--timeout-methods
+"""""""""""""""""
+*List of qualified names (i.e., library.method) which require a timeout parameter e.g. 'requests.api.get,requests.api.post'*
+
+**Default:**  ``('requests.api.delete', 'requests.api.get', 'requests.api.head', 'requests.api.options', 'requests.api.patch', 'requests.api.post', 'requests.api.put', 'requests.api.request')``
+
+
+
+.. raw:: html
+
+   <details>
+   <summary><a>Example configuration section</a></summary>
+
+**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
+
+.. code-block:: toml
+
+   [tool.pylint.method_args]
+   timeout-methods = ["requests.api.delete", "requests.api.get", "requests.api.head", "requests.api.options", "requests.api.patch", "requests.api.post", "requests.api.put", "requests.api.request"]
 
 
 
@@ -1082,7 +1113,7 @@ Standard Checkers
    <details>
    <summary><a>Example configuration section</a></summary>
 
-**Note:** Only ``pylint.tool`` is required, the section title is not. These are the default values.
+**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
 
 .. code-block:: toml
 
@@ -1122,7 +1153,7 @@ Standard Checkers
    <details>
    <summary><a>Example configuration section</a></summary>
 
-**Note:** Only ``pylint.tool`` is required, the section title is not. These are the default values.
+**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
 
 .. code-block:: toml
 
@@ -1183,7 +1214,7 @@ Standard Checkers
    <details>
    <summary><a>Example configuration section</a></summary>
 
-**Note:** Only ``pylint.tool`` is required, the section title is not. These are the default values.
+**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
 
 .. code-block:: toml
 
@@ -1257,7 +1288,7 @@ Standard Checkers
    <details>
    <summary><a>Example configuration section</a></summary>
 
-**Note:** Only ``pylint.tool`` is required, the section title is not. These are the default values.
+**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
 
 .. code-block:: toml
 
@@ -1305,7 +1336,7 @@ Standard Checkers
    <details>
    <summary><a>Example configuration section</a></summary>
 
-**Note:** Only ``pylint.tool`` is required, the section title is not. These are the default values.
+**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
 
 .. code-block:: toml
 
@@ -1415,7 +1446,7 @@ Standard Checkers
    <details>
    <summary><a>Example configuration section</a></summary>
 
-**Note:** Only ``pylint.tool`` is required, the section title is not. These are the default values.
+**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
 
 .. code-block:: toml
 
@@ -1517,7 +1548,7 @@ Standard Checkers
    <details>
    <summary><a>Example configuration section</a></summary>
 
-**Note:** Only ``pylint.tool`` is required, the section title is not. These are the default values.
+**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
 
 .. code-block:: toml
 
@@ -1566,7 +1597,7 @@ Extensions
    <details>
    <summary><a>Example configuration section</a></summary>
 
-**Note:** Only ``pylint.tool`` is required, the section title is not. These are the default values.
+**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
 
 .. code-block:: toml
 
@@ -1597,7 +1628,7 @@ Extensions
    <details>
    <summary><a>Example configuration section</a></summary>
 
-**Note:** Only ``pylint.tool`` is required, the section title is not. These are the default values.
+**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
 
 .. code-block:: toml
 
@@ -1628,7 +1659,7 @@ Extensions
    <details>
    <summary><a>Example configuration section</a></summary>
 
-**Note:** Only ``pylint.tool`` is required, the section title is not. These are the default values.
+**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
 
 .. code-block:: toml
 
@@ -1687,7 +1718,7 @@ Extensions
    <details>
    <summary><a>Example configuration section</a></summary>
 
-**Note:** Only ``pylint.tool`` is required, the section title is not. These are the default values.
+**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
 
 .. code-block:: toml
 
@@ -1715,7 +1746,7 @@ Extensions
 ----------------------
 --runtime-typing
 """"""""""""""""
-*Set to ``no`` if the app / library does **NOT** need to support runtime introspection of type annotations. If you use type annotations **exclusively** for type checking of an application, you're probably fine. For libraries, evaluate if some users what to access the type hints at runtime first, e.g., through ``typing.get_type_hints``. Applies to Python versions 3.7 - 3.9*
+*Set to ``no`` if the app / library does **NOT** need to support runtime introspection of type annotations. If you use type annotations **exclusively** for type checking of an application, you're probably fine. For libraries, evaluate if some users want to access the type hints at runtime first, e.g., through ``typing.get_type_hints``. Applies to Python versions 3.7 - 3.9*
 
 **Default:**  ``True``
 
@@ -1726,7 +1757,7 @@ Extensions
    <details>
    <summary><a>Example configuration section</a></summary>
 
-**Note:** Only ``pylint.tool`` is required, the section title is not. These are the default values.
+**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
 
 .. code-block:: toml
 

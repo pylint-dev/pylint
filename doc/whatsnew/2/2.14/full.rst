@@ -1,9 +1,40 @@
 Full changelog
 ==============
 
+
+What's New in Pylint 2.14.5?
+----------------------------
+Release date: 2022-07-17
+
+
+* Fixed a crash in the ``undefined-loop-variable`` check when ``enumerate()`` is used
+  in a ternary expression.
+
+  Closes #7131
+
+* Fixed handling of ``--`` as separator between positional arguments and flags.
+
+  Closes #7003
+
+* Fixed the disabling of ``fixme`` and its interaction with ``useless-suppression``.
+
+* Allow lists of default values in parameter documentation for ``Numpy`` style.
+
+  Closes #4035
+
+
 What's New in Pylint 2.14.4?
 ----------------------------
-Release date: TBA
+Release date: 2022-06-29
+
+* The ``differing-param-doc`` check was triggered by positional only arguments.
+
+  Closes #6950
+
+* Fixed an issue where scanning `.` directory recursively with ``--ignore-path=^path/to/dir`` is not
+  ignoring the `path/to/dir` directory.
+
+  Closes #6964
 
 * Fixed regression that didn't allow quoted ``init-hooks`` in option files.
 
@@ -17,6 +48,16 @@ Release date: TBA
   using the default jobs count.
 
   Closes #6965
+
+* Fixed an issue with the recognition of ``setup.cfg`` files.
+  Only ``.cfg`` files that are exactly named ``setup.cfg`` require section names that
+  start with ``pylint.``.
+
+  Closes #3630
+
+* Don't report ``import-private-name`` for relative imports.
+
+  Closes #7078
 
 
 What's New in Pylint 2.14.3?

@@ -56,7 +56,7 @@ def _make_linter_options(linter: PyLinter) -> Options:
                 "metavar": "<pattern>[,<pattern>...]",
                 "dest": "black_list_re",
                 "default": (re.compile(r"^\.#"),),
-                "help": "Files or directories matching the regex patterns are"
+                "help": "Files or directories matching the regular expression patterns are"
                 " skipped. The regex matches against base names, not paths. The default value "
                 "ignores Emacs file locks",
             },
@@ -67,9 +67,10 @@ def _make_linter_options(linter: PyLinter) -> Options:
                 "type": "regexp_paths_csv",
                 "metavar": "<pattern>[,<pattern>...]",
                 "default": [],
-                "help": "Add files or directories matching the regex patterns to the "
+                "help": "Add files or directories matching the regular expressions patterns to the "
                 "ignore-list. The regex matches against paths and can be in "
-                "Posix or Windows format.",
+                "Posix or Windows format. Because '\\' represents the directory delimiter "
+                "on Windows systems, it can't be used as an escape character.",
             },
         ),
         (
@@ -154,7 +155,7 @@ def _make_linter_options(linter: PyLinter) -> Options:
                 "default": 10,
                 "type": "float",
                 "metavar": "<score>",
-                "help": "Specify a score threshold to be exceeded before program exits with error.",
+                "help": "Specify a score threshold under which the program will exit with error.",
             },
         ),
         (

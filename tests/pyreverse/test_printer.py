@@ -44,7 +44,7 @@ def test_unsupported_layout(layout: Layout, printer_class: type[Printer]):
         printer_class(title="unittest", layout=layout)
 
 
-def test_method_arguments_none():
+def test_method_arguments_none() -> None:
     func = nodes.FunctionDef()
     args = nodes.Arguments()
     args.args = None

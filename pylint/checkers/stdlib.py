@@ -8,10 +8,11 @@ from __future__ import annotations
 
 import sys
 from collections.abc import Iterable
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, Set, Tuple
 
 import astroid
 from astroid import nodes
+from astroid.typing import InferenceResult
 
 from pylint import interfaces
 from pylint.checkers import BaseChecker, DeprecatedMixin, utils
@@ -19,6 +20,8 @@ from pylint.typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
+
+DeprecationDict = Dict[Tuple[int, int, int], Set[str]]
 
 OPEN_FILES_MODE = ("open", "file")
 OPEN_FILES_FUNCS = OPEN_FILES_MODE + ("read_text", "write_text")
@@ -41,7 +44,9 @@ NON_INSTANCE_METHODS = {"builtins.staticmethod", "builtins.classmethod"}
 
 # For modules, see ImportsChecker
 
-DEPRECATED_ARGUMENTS = {
+DEPRECATED_ARGUMENTS: dict[
+    tuple[int, int, int], dict[str, tuple[tuple[int | None, str], ...]]
+] = {
     (0, 0, 0): {
         "int": ((None, "x"),),
         "bool": ((None, "x"),),
@@ -79,7 +84,7 @@ DEPRECATED_ARGUMENTS = {
     (3, 9, 0): {"random.Random.shuffle": ((1, "random"),)},
 }
 
-DEPRECATED_DECORATORS = {
+DEPRECATED_DECORATORS: DeprecationDict = {
     (3, 8, 0): {"asyncio.coroutine"},
     (3, 3, 0): {
         "abc.abstractclassmethod",
@@ -90,15 +95,17 @@ DEPRECATED_DECORATORS = {
 }
 
 
-DEPRECATED_METHODS: dict = {
+DEPRECATED_METHODS: dict[int, DeprecationDict] = {
     0: {
-        "cgi.parse_qs",
-        "cgi.parse_qsl",
-        "ctypes.c_buffer",
-        "distutils.command.register.register.check_metadata",
-        "distutils.command.sdist.sdist.check_metadata",
-        "tkinter.Misc.tk_menuBar",
-        "tkinter.Menu.tk_bindForTraversal",
+        (0, 0, 0): {
+            "cgi.parse_qs",
+            "cgi.parse_qsl",
+            "ctypes.c_buffer",
+            "distutils.command.register.register.check_metadata",
+            "distutils.command.sdist.sdist.check_metadata",
+            "tkinter.Misc.tk_menuBar",
+            "tkinter.Menu.tk_bindForTraversal",
+        }
     },
     2: {
         (2, 6, 0): {
@@ -244,7 +251,7 @@ DEPRECATED_METHODS: dict = {
 }
 
 
-DEPRECATED_CLASSES = {
+DEPRECATED_CLASSES: dict[tuple[int, int, int], dict[str, set[str]]] = {
     (3, 2, 0): {
         "configparser": {
             "LegacyInterpolation",
@@ -300,7 +307,7 @@ DEPRECATED_CLASSES = {
 }
 
 
-def _check_mode_str(mode):
+def _check_mode_str(mode: Any) -> bool:
     # check type
     if not isinstance(mode, str):
         return False
@@ -446,9 +453,9 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         for since_vers, func_list in DEPRECATED_METHODS[sys.version_info[0]].items():
             if since_vers <= sys.version_info:
                 self._deprecated_methods.update(func_list)
-        for since_vers, func_list in DEPRECATED_ARGUMENTS.items():
+        for since_vers, args_list in DEPRECATED_ARGUMENTS.items():
             if since_vers <= sys.version_info:
-                self._deprecated_arguments.update(func_list)
+                self._deprecated_arguments.update(args_list)
         for since_vers, class_list in DEPRECATED_CLASSES.items():
             if since_vers <= sys.version_info:
                 self._deprecated_classes.update(class_list)
@@ -458,17 +465,17 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         # Modules are checked by the ImportsChecker, because the list is
         # synced with the config argument deprecated-modules
 
-    def _check_bad_thread_instantiation(self, node):
+    def _check_bad_thread_instantiation(self, node: nodes.Call) -> None:
         if not node.kwargs and not node.keywords and len(node.args) <= 1:
             self.add_message("bad-thread-instantiation", node=node)
 
-    def _check_for_preexec_fn_in_popen(self, node):
+    def _check_for_preexec_fn_in_popen(self, node: nodes.Call) -> None:
         if node.keywords:
             for keyword in node.keywords:
                 if keyword.arg == "preexec_fn":
                     self.add_message("subprocess-popen-preexec-fn", node=node)
 
-    def _check_for_check_kw_in_run(self, node):
+    def _check_for_check_kw_in_run(self, node: nodes.Call) -> None:
         kwargs = {keyword.arg for keyword in (node.keywords or ())}
         if "check" not in kwargs:
             self.add_message("subprocess-run-check", node=node)
@@ -592,7 +599,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                 confidence=interfaces.INFERENCE,
             )
 
-    def _check_redundant_assert(self, node, infer):
+    def _check_redundant_assert(self, node: nodes.Call, infer: InferenceResult) -> None:
         if (
             isinstance(infer, astroid.BoundMethod)
             and node.args
@@ -605,7 +612,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                 node=node,
             )
 
-    def _check_datetime(self, node):
+    def _check_datetime(self, node: nodes.NodeNG) -> None:
         """Check that a datetime was inferred, if so, emit boolean-datetime warning."""
         try:
             inferred = next(node.infer())
@@ -681,7 +688,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                 if isinstance(encoding_arg, nodes.Const) and encoding_arg.value is None:
                     self.add_message("unspecified-encoding", node=node)
 
-    def _check_env_function(self, node, infer):
+    def _check_env_function(self, node: nodes.Call, infer: nodes.FunctionDef) -> None:
         env_name_kwarg = "key"
         env_value_kwarg = "default"
         if node.keywords:
@@ -720,7 +727,14 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                 allow_none=True,
             )
 
-    def _check_invalid_envvar_value(self, node, infer, message, call_arg, allow_none):
+    def _check_invalid_envvar_value(
+        self,
+        node: nodes.Call,
+        infer: nodes.FunctionDef,
+        message: str,
+        call_arg: InferenceResult | None,
+        allow_none: bool,
+    ) -> None:
         if call_arg in (astroid.Uninferable, None):
             return
 
@@ -734,18 +748,18 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             if emit:
                 self.add_message(message, node=node, args=(name, call_arg.pytype()))
         else:
-            self.add_message(message, node=node, args=(name, call_arg.pytype()))
+            self.add_message(message, node=node, args=(name, call_arg.pytype()))  # type: ignore[union-attr]
 
-    def deprecated_methods(self):
+    def deprecated_methods(self) -> set[str]:
         return self._deprecated_methods
 
-    def deprecated_arguments(self, method: str):
+    def deprecated_arguments(self, method: str) -> tuple[tuple[int | None, str], ...]:
         return self._deprecated_arguments.get(method, ())
 
-    def deprecated_classes(self, module: str):
+    def deprecated_classes(self, module: str) -> Iterable[str]:
         return self._deprecated_classes.get(module, ())
 
-    def deprecated_decorators(self) -> Iterable:
+    def deprecated_decorators(self) -> Iterable[str]:
         return self._deprecated_decorators
 
 

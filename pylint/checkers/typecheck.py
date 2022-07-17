@@ -32,6 +32,7 @@ from pylint.checkers.utils import (
     has_known_bases,
     is_builtin_object,
     is_comprehension,
+    is_hashable,
     is_inside_abstract_class,
     is_iterable,
     is_mapping,
@@ -363,12 +364,6 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "as a metaclass, something which might be invalid for using as "
         "a metaclass.",
     ),
-    "E1140": (
-        "Dict key is unhashable",
-        "unhashable-dict-key",
-        "Emitted when a dict key is not hashable "
-        "(i.e. doesn't define __hash__ method).",
-    ),
     "E1141": (
         "Unpacking a dictionary in iteration without calling .items()",
         "dict-iter-missing-items",
@@ -378,6 +373,13 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "'await' should be used within an async function",
         "await-outside-async",
         "Emitted when await is used outside an async function.",
+    ),
+    "E1143": (
+        "'%s' is unhashable and can't be used as a %s in a %s",
+        "unhashable-member",
+        "Emitted when a dict key or set member is not hashable "
+        "(i.e. doesn't define __hash__ method).",
+        {"old_names": [("E1140", "unhashable-dict-key")]},
     ),
     "W1113": (
         "Keyword argument before variable positional arguments list "
@@ -2015,11 +2017,33 @@ accessed. Python regular expressions are accepted.",
         if op in {"in", "not in"}:
             self._check_membership_test(right)
 
+    @only_required_for_messages("unhashable-member")
+    def visit_dict(self, node: nodes.Dict) -> None:
+        for k, _ in node.items:
+            if not is_hashable(k):
+                self.add_message(
+                    "unhashable-member",
+                    node=k,
+                    args=(k.as_string(), "key", "dict"),
+                    confidence=INFERENCE,
+                )
+
+    @only_required_for_messages("unhashable-member")
+    def visit_set(self, node: nodes.Set) -> None:
+        for element in node.elts:
+            if not is_hashable(element):
+                self.add_message(
+                    "unhashable-member",
+                    node=element,
+                    args=(element.as_string(), "member", "set"),
+                    confidence=INFERENCE,
+                )
+
     @only_required_for_messages(
         "unsubscriptable-object",
         "unsupported-assignment-operation",
         "unsupported-delete-operation",
-        "unhashable-dict-key",
+        "unhashable-member",
         "invalid-sequence-index",
         "invalid-slice-index",
     )
@@ -2032,15 +2056,13 @@ accessed. Python regular expressions are accepted.",
 
         if isinstance(node.value, nodes.Dict):
             # Assert dict key is hashable
-            inferred = safe_infer(node.slice)
-            if inferred and inferred != astroid.Uninferable:
-                try:
-                    hash_fn = next(inferred.igetattr("__hash__"))
-                except astroid.InferenceError:
-                    pass
-                else:
-                    if getattr(hash_fn, "value", True) is None:
-                        self.add_message("unhashable-dict-key", node=node.value)
+            if not is_hashable(node.slice):
+                self.add_message(
+                    "unhashable-member",
+                    node=node.value,
+                    args=(node.slice.as_string(), "key", "dict"),
+                    confidence=INFERENCE,
+                )
 
         if node.ctx == astroid.Load:
             supported_protocol = supports_getitem

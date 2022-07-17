@@ -1,0 +1,79 @@
+[build-system]
+requires = ["setuptools~=62.6", "wheel~=0.37.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name        = "pylint"
+license     = {text = "GPL-2.0-or-later"}
+description = "python code static checker"
+readme      = "README.rst"
+authors     = [
+    {name = "Python Code Quality Authority", email = "code-quality@python.org"}
+]
+keywords    = ["static code analysis", "linter", "python", "lint"]
+classifiers = [
+    "Development Status :: 6 - Mature",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Topic :: Software Development :: Debuggers",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Software Development :: Testing",
+]
+requires-python = ">=3.7.2"
+dependencies    = [
+    "dill>=0.2",
+    "platformdirs>=2.2.0",
+    # Also upgrade requirements_test_min.txt if you are bumping astroid.
+    # Pinned to dev of second minor update to allow editable installs and fix primer issues,
+    # see https://github.com/PyCQA/astroid/issues/1341
+    "astroid>=2.12.2,<=2.14.0-dev0",
+    "isort>=4.2.5,<6",
+    "mccabe>=0.6,<0.8",
+    "tomli>=1.1.0;python_version<'3.11'",
+    "tomlkit>=0.10.1",
+    "colorama>=0.4.5;sys_platform=='win32'",
+    "typing-extensions>=3.10.0;python_version<'3.10'",
+]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+testutils = ["gitpython>3"]
+spelling = ["pyenchant~=3.2"]
+
+[project.urls]
+"Docs: User Guide"  = "https://pylint.pycqa.org/en/latest/"
+"Source Code"       = "https://github.com/PyCQA/pylint"
+"What's New"        = "https://pylint.pycqa.org/en/latest/whatsnew/2/"
+"Bug Tracker"       = "https://github.com/PyCQA/pylint/issues"
+"Discord Server"    = "https://discord.com/invite/Egy6P8AMB5"
+"Docs: Contributer Guide" = "https://pylint.pycqa.org/en/latest/development_guide/contributor_guide/index.html"
+
+[project.scripts]
+pylint        = "pylint:run_pylint"
+pylint-config = "pylint:_run_pylint_config"
+epylint       = "pylint:run_epylint"
+pyreverse     = "pylint:run_pyreverse"
+symilar       = "pylint:run_symilar"
+
+[tool.setuptools]
+license-files = ["LICENSE", "CONTRIBUTORS.txt"]  # Keep in sync with setup.cfg
+
+[tool.setuptools.packages.find]
+include = ["pylint*"]
+
+[tool.setuptools.package-data]
+pylint = ["testutils/testing_pylintrc"]
+
+[tool.setuptools.dynamic]
+version = {attr = "pylint.__pkginfo__.__version__"}
