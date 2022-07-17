@@ -1,10 +1,88 @@
 Full changelog
 ==============
 
+
+What's New in Pylint 2.14.5?
+----------------------------
+Release date: 2022-07-17
+
+
+* Fixed a crash in the ``undefined-loop-variable`` check when ``enumerate()`` is used
+  in a ternary expression.
+
+  Closes #7131
+
+* Fixed handling of ``--`` as separator between positional arguments and flags.
+
+  Closes #7003
+
+* Fixed the disabling of ``fixme`` and its interaction with ``useless-suppression``.
+
+* Allow lists of default values in parameter documentation for ``Numpy`` style.
+
+  Closes #4035
+
+
+What's New in Pylint 2.14.4?
+----------------------------
+Release date: 2022-06-29
+
+* The ``differing-param-doc`` check was triggered by positional only arguments.
+
+  Closes #6950
+
+* Fixed an issue where scanning `.` directory recursively with ``--ignore-path=^path/to/dir`` is not
+  ignoring the `path/to/dir` directory.
+
+  Closes #6964
+
+* Fixed regression that didn't allow quoted ``init-hooks`` in option files.
+
+  Closes #7006
+
+* Fixed a false positive for ``modified-iterating-dict`` when updating an existing key.
+
+  Closes #6179
+
+* Fixed an issue where many-core Windows machines (>~60 logical processors) would hang when
+  using the default jobs count.
+
+  Closes #6965
+
+* Fixed an issue with the recognition of ``setup.cfg`` files.
+  Only ``.cfg`` files that are exactly named ``setup.cfg`` require section names that
+  start with ``pylint.``.
+
+  Closes #3630
+
+* Don't report ``import-private-name`` for relative imports.
+
+  Closes #7078
+
+
+What's New in Pylint 2.14.3?
+----------------------------
+Release date: 2022-06-18
+
+* Fixed two false positives for ``bad-super-call`` for calls that refer to a non-direct parent.
+
+  Closes #4922, Closes #2903
+
+* Fixed a false positive for ``useless-super-delegation`` for subclasses that specify the number of
+  of parameters against a parent that uses a variadic argument.
+
+  Closes #2270
+
+* Allow suppressing ``undefined-loop-variable`` and ``undefined-variable`` without raising ``useless-suppression``.
+
+* Fixed false positive for ``undefined-variable`` for ``__class__`` in inner methods.
+
+  Closes #4032
+
+
 What's New in Pylint 2.14.2?
 ----------------------------
-Release date: TBA
-
+Release date: 2022-06-15
 
 * Fixed a false positive for ``unused-variable`` when a function returns an
   ``argparse.Namespace`` object.
@@ -33,6 +111,11 @@ Release date: TBA
 
 * Fixed a false positive for ``used-before-assignment`` when a try block returns
   but an except handler defines a name via type annotation.
+
+* ``--errors-only`` no longer enables previously disabled messages. It was acting as
+  "emit *all* and only error messages" without being clearly documented that way.
+
+  Closes #6811
 
 
 What's New in Pylint 2.14.1?

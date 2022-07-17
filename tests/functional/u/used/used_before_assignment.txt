@@ -1,2 +1,4 @@
 used-before-assignment:6:19:6:22::Using variable 'MSG' before assignment:HIGH
 used-before-assignment:8:20:8:24::Using variable 'MSG2' before assignment:HIGH
+used-before-assignment:11:4:11:9:outer:Using variable 'inner' before assignment:HIGH
+used-before-assignment:21:10:21:14:redefine_time_import:Using variable 'time' before assignment:HIGH

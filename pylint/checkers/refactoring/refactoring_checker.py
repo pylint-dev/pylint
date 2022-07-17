@@ -321,11 +321,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "and increases readability compared to for-loop iteration.",
         ),
         "R1714": (
-            'Consider merging these comparisons with "in" to %r',
+            "Consider merging these comparisons with 'in' by using '%s %sin (%s)'."
+            " Use a set instead if elements are hashable.",
             "consider-using-in",
-            "To check if a variable is equal to one of many values,"
-            'combine the values into a tuple and check if the variable is contained "in" it '
-            "instead of checking for equality against each of the values."
+            "To check if a variable is equal to one of many values, "
+            'combine the values into a set or tuple and check if the variable is contained "in" it '
+            "instead of checking for equality against each of the values. "
             "This is faster and less verbose.",
         ),
         "R1715": (
@@ -339,7 +340,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "R1716": (
             "Simplify chained comparison between the operands",
             "chained-comparison",
-            "This message is emitted when pylint encounters boolean operation like"
+            "This message is emitted when pylint encounters boolean operation like "
             '"a < b and b < c", suggesting instead to refactor it to "a < b < c"',
         ),
         "R1717": (
@@ -348,7 +349,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "Emitted when we detect the creation of a dictionary "
             "using the dict() callable and a transient list. "
             "Although there is nothing syntactically wrong with this code, "
-            "it is hard to read and can be simplified to a dict comprehension."
+            "it is hard to read and can be simplified to a dict comprehension. "
             "Also it is faster since you don't need to create another "
             "transient list",
         ),
@@ -356,7 +357,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "Consider using a set comprehension",
             "consider-using-set-comprehension",
             "Although there is nothing syntactically wrong with this code, "
-            "it is hard to read and can be simplified to a set comprehension."
+            "it is hard to read and can be simplified to a set comprehension. "
             "Also it is faster since you don't need to create another "
             "transient list",
         ),
@@ -1258,13 +1259,16 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         # Gather information for the suggestion
         common_variable = sorted(list(common_variables))[0]
-        comprehension = "in" if node.op == "or" else "not in"
         values = list(collections.OrderedDict.fromkeys(values))
         values.remove(common_variable)
         values_string = ", ".join(values) if len(values) != 1 else values[0] + ","
-        suggestion = f"{common_variable} {comprehension} ({values_string})"
-
-        self.add_message("consider-using-in", node=node, args=(suggestion,))
+        maybe_not = "" if node.op == "or" else "not "
+        self.add_message(
+            "consider-using-in",
+            node=node,
+            args=(common_variable, maybe_not, values_string),
+            confidence=HIGH,
+        )
 
     def _check_chained_comparison(self, node):
         """Check if there is any chained comparison in the expression.

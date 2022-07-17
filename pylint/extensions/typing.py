@@ -142,7 +142,7 @@ class TypingChecker(BaseChecker):
                     "support runtime introspection of type annotations. "
                     "If you use type annotations **exclusively** for type checking "
                     "of an application, you're probably fine. For libraries, "
-                    "evaluate if some users what to access the type hints "
+                    "evaluate if some users want to access the type hints "
                     "at runtime first, e.g., through ``typing.get_type_hints``. "
                     "Applies to Python versions 3.7 - 3.9"
                 ),

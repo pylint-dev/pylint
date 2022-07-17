@@ -73,9 +73,11 @@ dataclass
 datetime
 debian
 deepcopy
+defaultdicts
 defframe
 defstmts
 deleter
+dependabot
 deque
 destructured
 destructuring
@@ -154,6 +156,7 @@ iterables
 iteritems
 jn
 jpg
+json
 jx
 jython
 # class is a reserved word
@@ -209,6 +212,7 @@ mymodule
 mypy
 namedtuple
 namespace
+newsfile
 newstyle
 nl
 nodename
@@ -241,6 +245,7 @@ pragma's
 pragmas
 pre
 preorder
+prepended
 proc
 py
 pyenchant
@@ -316,6 +321,7 @@ tokenizer
 toml
 tomlkit
 toplevel
+towncrier
 tp
 truthness
 tryexcept

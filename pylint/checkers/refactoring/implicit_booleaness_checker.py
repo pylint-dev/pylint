@@ -67,7 +67,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
             "'%s' can be simplified to '%s' as an empty sequence is falsey",
             "use-implicit-booleaness-not-comparison",
             "Used when Pylint detects that collection literal comparison is being "
-            "used to check for emptiness; Use implicit booleaness instead"
+            "used to check for emptiness; Use implicit booleaness instead "
             "of a collection classes; empty collections are considered as false",
         ),
     }

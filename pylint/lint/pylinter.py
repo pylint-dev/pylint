@@ -249,7 +249,7 @@ class PyLinter(
     * handle some basic but necessary stats' data (number of classes, methods...)
 
     IDE plugin developers: you may have to call
-    `astroid.builder.MANAGER.astroid_cache.clear()` across runs if you want
+    `astroid.MANAGER.clear_cache()` across runs if you want
     to ensure the latest code version is actually checked.
 
     This class needs to support pickling for parallel linting to work. The exception
@@ -259,7 +259,7 @@ class PyLinter(
     name = MAIN_CHECKER_NAME
     msgs = MSGS
     # Will be used like this : datetime.now().strftime(crash_file_path)
-    crash_file_path: str = "pylint-crash-%Y-%m-%d-%H.txt"
+    crash_file_path: str = "pylint-crash-%Y-%m-%d-%H-%M-%S.txt"
 
     option_groups_descs = {
         "Messages control": "Options controlling analysis messages",
@@ -914,7 +914,6 @@ class PyLinter(
                 data, modname, filepath
             )
         except astroid.AstroidSyntaxError as ex:
-            # pylint: disable=no-member
             self.add_message(
                 "syntax-error",
                 line=getattr(ex.error, "lineno", 0),

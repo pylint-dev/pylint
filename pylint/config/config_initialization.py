@@ -45,7 +45,7 @@ def _config_initialization(
 
     # Run init hook, if present, before loading plugins
     if "init-hook" in config_data:
-        exec(config_data["init-hook"])  # pylint: disable=exec-used
+        exec(utils._unquote(config_data["init-hook"]))  # pylint: disable=exec-used
 
     # Load plugins if specified in the config file
     if "load-plugins" in config_data:
@@ -76,7 +76,8 @@ def _config_initialization(
     unrecognized_options: list[str] = []
     for opt in parsed_args_list:
         if opt.startswith("--"):
-            unrecognized_options.append(opt[2:])
+            if len(opt) > 2:
+                unrecognized_options.append(opt[2:])
         elif opt.startswith("-"):
             unrecognized_options.append(opt[1:])
     if unrecognized_options:

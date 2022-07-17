@@ -20,7 +20,9 @@ from functools import singledispatch
 from re import Pattern
 from typing import TYPE_CHECKING, Any, Union
 
+import astroid
 import astroid.exceptions
+import astroid.helpers
 from astroid import bases, nodes
 
 from pylint.checkers import BaseChecker, utils
@@ -29,8 +31,8 @@ from pylint.checkers.utils import (
     decorated_with_property,
     has_known_bases,
     is_builtin_object,
-    is_classdef_type,
     is_comprehension,
+    is_hashable,
     is_inside_abstract_class,
     is_iterable,
     is_mapping,
@@ -51,8 +53,10 @@ from pylint.typing import MessageDefinitionTuple
 
 if sys.version_info >= (3, 8):
     from functools import cached_property
+    from typing import Literal
 else:
     from astroid.decorators import cachedproperty as cached_property
+    from typing_extensions import Literal
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -73,6 +77,13 @@ TYPE_ANNOTATION_NODES_TYPES = (
     nodes.Arguments,
     nodes.FunctionDef,
 )
+
+
+class VERSION_COMPATIBLE_OVERLOAD:
+    pass
+
+
+VERSION_COMPATIBLE_OVERLOAD_SENTINEL = VERSION_COMPATIBLE_OVERLOAD()
 
 
 def _unflatten(iterable):
@@ -353,12 +364,6 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "as a metaclass, something which might be invalid for using as "
         "a metaclass.",
     ),
-    "E1140": (
-        "Dict key is unhashable",
-        "unhashable-dict-key",
-        "Emitted when a dict key is not hashable "
-        "(i.e. doesn't define __hash__ method).",
-    ),
     "E1141": (
         "Unpacking a dictionary in iteration without calling .items()",
         "dict-iter-missing-items",
@@ -368,6 +373,13 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "'await' should be used within an async function",
         "await-outside-async",
         "Emitted when await is used outside an async function.",
+    ),
+    "E1143": (
+        "'%s' is unhashable and can't be used as a %s in a %s",
+        "unhashable-member",
+        "Emitted when a dict key or set member is not hashable "
+        "(i.e. doesn't define __hash__ method).",
+        {"old_names": [("E1140", "unhashable-dict-key")]},
     ),
     "W1113": (
         "Keyword argument before variable positional arguments list "
@@ -1903,14 +1915,59 @@ accessed. Python regular expressions are accepted.",
             if not allowed_nested_syntax:
                 self._check_unsupported_alternative_union_syntax(node)
 
+    def _includes_version_compatible_overload(self, attrs: list):
+        """Check if a set of overloads of an operator includes one that
+        can be relied upon for our configured Python version.
+
+        If we are running under a Python 3.10+ runtime but configured for
+        pre-3.10 compatibility then Astroid will have inferred the
+        existence of __or__ / __ror__ on builtins.type, but these aren't
+        available in the configured version of Python.
+        """
+        is_py310_builtin = all(
+            isinstance(attr, (nodes.FunctionDef, astroid.BoundMethod))
+            and attr.parent.qname() == "builtins.type"
+            for attr in attrs
+        )
+        return not is_py310_builtin or self._py310_plus
+
+    def _recursive_search_for_classdef_type(
+        self, node: nodes.ClassDef, operation: Literal["__or__", "__ror__"]
+    ) -> bool | VERSION_COMPATIBLE_OVERLOAD:
+        if not isinstance(node, nodes.ClassDef):
+            return False
+        try:
+            attrs = node.getattr(operation)
+        except astroid.NotFoundError:
+            return True
+        if self._includes_version_compatible_overload(attrs):
+            return VERSION_COMPATIBLE_OVERLOAD_SENTINEL
+        return True
+
     def _check_unsupported_alternative_union_syntax(self, node: nodes.BinOp) -> None:
-        """Check if left or right node is of type `type`."""
+        """Check if left or right node is of type `type`.
+
+        If either is, and doesn't support an or operator via a metaclass,
+        infer that this is a mistaken attempt to use alternative union
+        syntax when not supported.
+        """
         msg = "unsupported operand type(s) for |"
-        for n in (node.left, node.right):
-            n = astroid.helpers.object_type(n)
-            if isinstance(n, nodes.ClassDef) and is_classdef_type(n):
-                self.add_message("unsupported-binary-operation", args=msg, node=node)
-                break
+        left_obj = astroid.helpers.object_type(node.left)
+        right_obj = astroid.helpers.object_type(node.right)
+        left_is_type = self._recursive_search_for_classdef_type(left_obj, "__or__")
+        if left_is_type is VERSION_COMPATIBLE_OVERLOAD_SENTINEL:
+            return
+        right_is_type = self._recursive_search_for_classdef_type(right_obj, "__ror__")
+        if right_is_type is VERSION_COMPATIBLE_OVERLOAD_SENTINEL:
+            return
+
+        if left_is_type or right_is_type:
+            self.add_message(
+                "unsupported-binary-operation",
+                args=msg,
+                node=node,
+                confidence=INFERENCE,
+            )
 
     # TODO: This check was disabled (by adding the leading underscore)
     # due to false positives several years ago - can we re-enable it?
@@ -1960,11 +2017,33 @@ accessed. Python regular expressions are accepted.",
         if op in {"in", "not in"}:
             self._check_membership_test(right)
 
+    @only_required_for_messages("unhashable-member")
+    def visit_dict(self, node: nodes.Dict) -> None:
+        for k, _ in node.items:
+            if not is_hashable(k):
+                self.add_message(
+                    "unhashable-member",
+                    node=k,
+                    args=(k.as_string(), "key", "dict"),
+                    confidence=INFERENCE,
+                )
+
+    @only_required_for_messages("unhashable-member")
+    def visit_set(self, node: nodes.Set) -> None:
+        for element in node.elts:
+            if not is_hashable(element):
+                self.add_message(
+                    "unhashable-member",
+                    node=element,
+                    args=(element.as_string(), "member", "set"),
+                    confidence=INFERENCE,
+                )
+
     @only_required_for_messages(
         "unsubscriptable-object",
         "unsupported-assignment-operation",
         "unsupported-delete-operation",
-        "unhashable-dict-key",
+        "unhashable-member",
         "invalid-sequence-index",
         "invalid-slice-index",
     )
@@ -1977,15 +2056,13 @@ accessed. Python regular expressions are accepted.",
 
         if isinstance(node.value, nodes.Dict):
             # Assert dict key is hashable
-            inferred = safe_infer(node.slice)
-            if inferred and inferred != astroid.Uninferable:
-                try:
-                    hash_fn = next(inferred.igetattr("__hash__"))
-                except astroid.InferenceError:
-                    pass
-                else:
-                    if getattr(hash_fn, "value", True) is None:
-                        self.add_message("unhashable-dict-key", node=node.value)
+            if not is_hashable(node.slice):
+                self.add_message(
+                    "unhashable-member",
+                    node=node.value,
+                    args=(node.slice.as_string(), "key", "dict"),
+                    confidence=INFERENCE,
+                )
 
         if node.ctx == astroid.Load:
             supported_protocol = supports_getitem

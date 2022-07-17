@@ -120,7 +120,7 @@ def _create_checker_section(
    <details>
    <summary><a>Example configuration section</a></summary>
 
-**Note:** Only ``pylint.tool`` is required, the section title is not. These are the default values.
+**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
 
 .. code-block:: toml
 

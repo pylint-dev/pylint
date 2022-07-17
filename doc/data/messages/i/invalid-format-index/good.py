@@ -1,1 +1,2 @@
-# This is a placeholder for correct code for this message.
+enough_fruits = ["apple", "banana"]
+print('The second fruit is a {fruits[1]}'.format(fruits=enough_fruits))

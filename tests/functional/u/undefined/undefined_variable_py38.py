@@ -175,3 +175,8 @@ def expression_in_ternary_operator_inside_container_tuple():
 def expression_in_ternary_operator_inside_container_wrong_position():
     """2-element list where named expression comes too late"""
     return [val3, val3 if (val3 := 'something') else 'anything']  # [used-before-assignment]
+
+
+# Self-referencing
+if (z := z):  # [used-before-assignment]
+    z = z + 1

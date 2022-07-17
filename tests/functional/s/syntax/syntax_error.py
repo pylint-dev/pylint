@@ -1,1 +1,1 @@
-def toto # [syntax-error]
+for # [syntax-error]

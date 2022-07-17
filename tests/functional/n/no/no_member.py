@@ -30,6 +30,20 @@ sorted_query = parse.urlencode(
 new_parsed_url = parse.ParseResult._replace(parsed_url, query=sorted_query)
 new_url = new_parsed_url.geturl()  # No error here
 
+
+# Regression test for https://github.com/PyCQA/pylint/issues/3803
+# pylint: disable=too-few-public-methods
+class Base:
+    label: str
+
+
+class Derived(Base):
+    label = "I exist!"
+
+
+print(Derived.label)
+
+
 # Regression test for https://github.com/PyCQA/pylint/issues/6094
 # pylint: disable-next=unnecessary-dunder-call
 print(parse.__getattribute__("urlparse"))

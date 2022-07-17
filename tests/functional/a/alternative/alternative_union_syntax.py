@@ -82,3 +82,23 @@ class CustomDataClass3:
 @dataclasses.dataclass
 class CustomDataClass4:
     my_var: int | str
+
+class ForwardMetaclass(type):
+    def __or__(cls, other):
+        return True
+
+class ReverseMetaclass(type):
+    def __ror__(cls, other):
+        return True
+
+class WithForward(metaclass=ForwardMetaclass):
+    pass
+
+class WithReverse(metaclass=ReverseMetaclass):
+    pass
+
+class DefaultMetaclass:
+    pass
+
+class_list = [WithForward | DefaultMetaclass]
+class_list_reversed = [WithReverse | DefaultMetaclass]

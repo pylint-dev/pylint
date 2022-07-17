@@ -1,3 +1,0 @@
-useless-super-delegation:11:4:11:15:UselessSuper.useless:Useless super delegation in method 'useless':UNDEFINED
-useless-super-delegation:39:4:39:12:ReturnTypeSpecified.draw:Useless super delegation in method 'draw':UNDEFINED
-useless-super-delegation:45:4:45:12:ReturnTypeSame.draw:Useless super delegation in method 'draw':UNDEFINED

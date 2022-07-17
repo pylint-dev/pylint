@@ -13,13 +13,14 @@ import os
 import re
 import sys
 from collections import defaultdict
-from collections.abc import Iterable, Iterator
+from collections.abc import Generator, Iterable, Iterator
 from enum import Enum
 from functools import lru_cache
 from typing import TYPE_CHECKING, Any, NamedTuple
 
 import astroid
 from astroid import nodes
+from astroid.typing import InferenceResult
 
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import (
@@ -204,11 +205,12 @@ def _detect_global_scope(node, frame, defframe):
         return False
     if isinstance(frame, nodes.FunctionDef):
         # If the parent of the current node is a
-        # function, then it can be under its scope
-        # (defined in, which doesn't concern us) or
+        # function, then it can be under its scope (defined in); or
         # the `->` part of annotations. The same goes
         # for annotations of function arguments, they'll have
         # their parent the Arguments node.
+        if frame.parent_of(defframe):
+            return node.lineno < defframe.lineno
         if not isinstance(node.parent, (nodes.FunctionDef, nodes.Arguments)):
             return False
     elif any(
@@ -245,7 +247,9 @@ def _detect_global_scope(node, frame, defframe):
     return frame.lineno < defframe.lineno
 
 
-def _infer_name_module(node, name):
+def _infer_name_module(
+    node: nodes.Import, name: str
+) -> Generator[InferenceResult, None, None]:
     context = astroid.context.InferenceContext()
     context.lookupname = name
     return node.infer(context, asname=False)
@@ -295,12 +299,15 @@ def _fix_dot_imports(not_consumed):
     return sorted(names.items(), key=lambda a: a[1].fromlineno)
 
 
-def _find_frame_imports(name, frame):
+def _find_frame_imports(name: str, frame: nodes.LocalsDictNodeNG) -> bool:
     """Detect imports in the frame, with the required *name*.
 
-    Such imports can be considered assignments.
+    Such imports can be considered assignments if they are not globals.
     Returns True if an import for the given name was found.
     """
+    if name in _flattened_scope_names(frame.nodes_of_class(nodes.Global)):
+        return False
+
     imports = frame.nodes_of_class((nodes.Import, nodes.ImportFrom))
     for import_node in imports:
         for import_name, import_alias in import_node.names:
@@ -311,10 +318,10 @@ def _find_frame_imports(name, frame):
                     return True
             elif import_name and import_name == name:
                 return True
-    return None
+    return False
 
 
-def _import_name_is_global(stmt, global_names):
+def _import_name_is_global(stmt, global_names) -> bool:
     for import_name, import_alias in stmt.names:
         # If the import uses an alias, check only that.
         # Otherwise, check only the import name.
@@ -333,10 +340,13 @@ def _flattened_scope_names(
     return set(itertools.chain.from_iterable(values))
 
 
-def _assigned_locally(name_node):
+def _assigned_locally(name_node: nodes.Name):
     """Checks if name_node has corresponding assign statement in same scope."""
-    assign_stmts = name_node.scope().nodes_of_class(nodes.AssignName)
-    return any(a.name == name_node.name for a in assign_stmts)
+    name_node_scope = name_node.scope()
+    assign_stmts = name_node_scope.nodes_of_class(nodes.AssignName)
+    return any(a.name == name_node.name for a in assign_stmts) or _find_frame_imports(
+        name_node.name, name_node_scope
+    )
 
 
 def _has_locals_call_after_node(stmt, scope):
@@ -1081,15 +1091,6 @@ class VariablesChecker(BaseChecker):
         """This is a queue, last in first out."""
         self._postponed_evaluation_enabled = False
 
-    def open(self) -> None:
-        """Called when loading the checker."""
-        self._is_undefined_variable_enabled = self.linter.is_message_enabled(
-            "undefined-variable"
-        )
-        self._is_undefined_loop_variable_enabled = self.linter.is_message_enabled(
-            "undefined-loop-variable"
-        )
-
     def leave_for(self, node: nodes.For) -> None:
         self._store_type_annotation_names(node)
 
@@ -1139,9 +1140,24 @@ class VariablesChecker(BaseChecker):
         """Visit class: update consumption analysis variable."""
         self._to_consume.append(NamesConsumer(node, "class"))
 
-    def leave_classdef(self, _: nodes.ClassDef) -> None:
+    def leave_classdef(self, node: nodes.ClassDef) -> None:
         """Leave class: update consumption analysis variable."""
-        # do not check for not used locals here (no sense)
+        # Check for hidden ancestor names
+        # e.g. "six" in: Class X(six.with_metaclass(ABCMeta, object)):
+        for name_node in node.nodes_of_class(nodes.Name):
+            if (
+                isinstance(name_node.parent, nodes.Call)
+                and isinstance(name_node.parent.func, nodes.Attribute)
+                and isinstance(name_node.parent.func.expr, nodes.Name)
+            ):
+                hidden_name_node = name_node.parent.func.expr
+                for consumer in self._to_consume:
+                    if hidden_name_node.name in consumer.to_consume:
+                        consumer.mark_as_consumed(
+                            hidden_name_node.name,
+                            consumer.to_consume[hidden_name_node.name],
+                        )
+                        break
         self._to_consume.pop()
 
     def visit_lambda(self, node: nodes.Lambda) -> None:
@@ -1352,8 +1368,7 @@ class VariablesChecker(BaseChecker):
             return
 
         self._undefined_and_used_before_checker(node, stmt)
-        if self._is_undefined_loop_variable_enabled:
-            self._loopvar_name(node)
+        self._loopvar_name(node)
 
     @utils.only_required_for_messages("redefined-outer-name")
     def visit_excepthandler(self, node: nodes.ExceptHandler) -> None:
@@ -1410,20 +1425,19 @@ class VariablesChecker(BaseChecker):
 
         # we have not found the name, if it isn't a builtin, that's an
         # undefined name !
-        if (
-            self._is_undefined_variable_enabled
-            and not (
-                node.name in nodes.Module.scope_attrs
-                or utils.is_builtin(node.name)
-                or node.name in self.linter.config.additional_builtins
-                or (
-                    node.name == "__class__"
-                    and isinstance(frame, nodes.FunctionDef)
-                    and frame.is_method()
+        if not (
+            node.name in nodes.Module.scope_attrs
+            or utils.is_builtin(node.name)
+            or node.name in self.linter.config.additional_builtins
+            or (
+                node.name == "__class__"
+                and any(
+                    i.is_method()
+                    for i in node.node_ancestors()
+                    if isinstance(i, nodes.FunctionDef)
                 )
             )
-            and not utils.node_ignores_exception(node, NameError)
-        ):
+        ) and not utils.node_ignores_exception(node, NameError):
             self.add_message("undefined-variable", args=node.name, node=node)
 
     def _should_node_be_skipped(
@@ -1977,7 +1991,7 @@ class VariablesChecker(BaseChecker):
                     # (b := b)
                     # Otherwise, safe if used after assignment:
                     # (b := 2) and b
-                    maybe_before_assign = any(
+                    maybe_before_assign = defnode.value is node or any(
                         anc is defnode.value for anc in node.node_ancestors()
                     )
 
@@ -2241,9 +2255,12 @@ class VariablesChecker(BaseChecker):
             if (
                 isinstance(inferred, astroid.Instance)
                 and inferred.qname() == "builtins.enumerate"
-                and assign.iter.args
             ):
-                inferred = next(assign.iter.args[0].infer())
+                likely_call = assign.iter
+                if isinstance(assign.iter, nodes.IfExp):
+                    likely_call = assign.iter.body
+                if isinstance(likely_call, nodes.Call):
+                    inferred = next(likely_call.args[0].infer())
         except astroid.InferenceError:
             self.add_message("undefined-loop-variable", args=node.name, node=node)
         else:

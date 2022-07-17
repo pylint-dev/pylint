@@ -46,7 +46,7 @@ Basic checker Messages
   Used when a function / class / method is redefined.
 :continue-in-finally (E0116): *'continue' not supported inside 'finally' clause*
   Emitted when the `continue` keyword is found inside a finally clause, which
-  is a SyntaxError. This message can't be emitted when using Python >= 3.8.
+  is a SyntaxError.
 :abstract-class-instantiated (E0110): *Abstract class %r with abstract methods instantiated*
   Used when an abstract class with `abc.ABCMeta` as metaclass has abstract
   methods and is instantiated.
@@ -108,8 +108,8 @@ Basic checker Messages
   was made, which might suggest that some parenthesis were omitted, resulting
   in potential unwanted behaviour.
 :nan-comparison (W0177): *Comparison %s should be %s*
-  Used when an expression is compared to NaNvalues like numpy.NaN and
-  float('nan')
+  Used when an expression is compared to NaN values like numpy.NaN and
+  float('nan').
 :dangerous-default-value (W0102): *Dangerous default value %s as argument*
   Used when a mutable value as list or dictionary is detected in a default
   value for an argument.
@@ -154,8 +154,10 @@ Basic checker Messages
   using `ast.literal_eval` for safely evaluating strings containing Python
   expressions from untrusted sources.
 :exec-used (W0122): *Use of exec*
-  Used when you use the "exec" statement (function for Python 3), to discourage
-  its usage. That doesn't mean you cannot use it !
+  Raised when the 'exec' statement is used. It's dangerous to use this function
+  for a user input, and it's also slower than actual code in general. This
+  doesn't mean you should never use it, but you should consider alternatives
+  first and restrict the functions available.
 :using-constant-test (W0125): *Using a conditional statement with a constant value*
   Emitted when a conditional statement (If or ternary if) uses a constant value
   for its test. This might not be what the user intended to do.
@@ -184,12 +186,14 @@ Basic checker Messages
   Used when a module, function, class or method has an empty docstring (it
   would be too easy ;).
 :missing-class-docstring (C0115): *Missing class docstring*
-  Used when a class has no docstring.Even an empty class must have a docstring.
+  Used when a class has no docstring. Even an empty class must have a
+  docstring.
 :missing-function-docstring (C0116): *Missing function or method docstring*
-  Used when a function or method has no docstring.Some special methods like
+  Used when a function or method has no docstring. Some special methods like
   __init__ do not require a docstring.
 :missing-module-docstring (C0114): *Missing module docstring*
-  Used when a module has no docstring.Empty modules do not require a docstring.
+  Used when a module has no docstring. Empty modules do not require a
+  docstring.
 :typevar-name-incorrect-variance (C0105): *Type variable name does not reflect variance%s*
   Emitted when a TypeVar name doesn't reflect its type variance. According to
   PEP8, it is recommended to add suffixes '_co' and '_contra' to the variables
@@ -323,9 +327,10 @@ Classes checker Messages
   call and does not work as expected.
 :unused-private-member (W0238): *Unused private member `%s.%s`*
   Emitted when a private member of a class is defined but not used.
-:useless-super-delegation (W0235): *Useless super delegation in method %r*
+:useless-parent-delegation (W0246): *Useless parent or super() delegation in method %r*
   Used whenever we can detect that an overridden method is useless, relying on
-  super() delegation to do the same thing as another method from the MRO.
+  parent or super() delegation to do the same thing as another method from the
+  MRO.
 :non-parent-init-called (W0233): *__init__ method from a non direct base class %r is called*
   Used when an __init__ method is called on a class which is not in the direct
   ancestors for the analysed class.
@@ -512,7 +517,7 @@ Imports checker Messages
   package.
 :import-error (E0401): *Unable to import %s*
   Used when pylint has been unable to import a module.
-:deprecated-module (W0402): *Deprecated module %r*
+:deprecated-module (W4901): *Deprecated module %r*
   A module marked as deprecated is imported.
 :import-self (W0406): *Module import itself*
   Used when a module is importing itself.
@@ -529,21 +534,21 @@ Imports checker Messages
   Used when a cyclic import between two or more modules is detected.
 :consider-using-from-import (R0402): *Use 'from %s import %s' instead*
   Emitted when a submodule of a package is imported and aliased with the same
-  name. E.g., instead of ``import concurrent.futures as futures`` use ``from
-  concurrent import futures``
+  name, e.g., instead of ``import concurrent.futures as futures`` use ``from
+  concurrent import futures``.
 :wrong-import-order (C0411): *%s should be placed before %s*
   Used when PEP8 import order is not respected (standard imports first, then
-  third-party libraries, then local imports)
+  third-party libraries, then local imports).
 :wrong-import-position (C0413): *Import "%s" should be placed at the top of the module*
-  Used when code and imports are mixed
+  Used when code and imports are mixed.
 :useless-import-alias (C0414): *Import alias does not rename original package*
-  Used when an import alias is same as original package.e.g using import numpy
-  as numpy instead of import numpy as np
+  Used when an import alias is same as original package, e.g., using import
+  numpy as numpy instead of import numpy as np.
 :import-outside-toplevel (C0415): *Import outside toplevel (%s)*
   Used when an import statement is used anywhere other than the module
   toplevel. Move this import to the top of the file.
 :ungrouped-imports (C0412): *Imports from package %s are not grouped*
-  Used when imports are not grouped by packages
+  Used when imports are not grouped by packages.
 :multiple-imports (C0410): *Multiple imports on one line (%s)*
   Used when import statement importing multiple modules is detected.
 
@@ -608,6 +613,22 @@ Logging checker Messages
   logging function by passing the parameters as arguments. If logging-fstring-
   interpolation is disabled then you can use fstring formatting. If logging-
   format-interpolation is disabled then you can use str.format.
+
+
+Method Args checker
+~~~~~~~~~~~~~~~~~~~
+
+Verbatim name of the checker is ``method_args``.
+
+See also :ref:`method_args checker's options' documentation <method_args-options>`
+
+Method Args checker Messages
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:missing-timeout (W3101): *Missing timeout argument for method '%s' can cause your program to hang indefinitely*
+  Used when a method needs a 'timeout' parameter in order to avoid waiting for
+  a long time. If no timeout is specified explicitly the default value is used.
+  For example for 'requests' the program will never time out (i.e. hang
+  indefinitely).
 
 
 Metrics checker
@@ -709,10 +730,11 @@ Refactoring checker Messages
   Emitted when a boolean condition can be simplified to a constant value.
 :simplify-boolean-expression (R1709): *Boolean expression may be simplified to %s*
   Emitted when redundant pre-python 2.5 ternary syntax is used.
-:consider-using-in (R1714): *Consider merging these comparisons with "in" to %r*
-  To check if a variable is equal to one of many values,combine the values into
-  a tuple and check if the variable is contained "in" it instead of checking
-  for equality against each of the values.This is faster and less verbose.
+:consider-using-in (R1714): *Consider merging these comparisons with 'in' by using '%s %sin (%s)'. Use a set instead if elements are hashable.*
+  To check if a variable is equal to one of many values, combine the values
+  into a set or tuple and check if the variable is contained "in" it instead of
+  checking for equality against each of the values. This is faster and less
+  verbose.
 :consider-merging-isinstance (R1701): *Consider merging these isinstance calls to isinstance(%s, (%s))*
   Used when multiple consecutive isinstance calls can be merged into one.
 :consider-using-max-builtin (R1731): *Consider using '%s' instead of unnecessary if block*
@@ -734,15 +756,15 @@ Refactoring checker Messages
 :consider-using-dict-comprehension (R1717): *Consider using a dictionary comprehension*
   Emitted when we detect the creation of a dictionary using the dict() callable
   and a transient list. Although there is nothing syntactically wrong with this
-  code, it is hard to read and can be simplified to a dict comprehension.Also
+  code, it is hard to read and can be simplified to a dict comprehension. Also
   it is faster since you don't need to create another transient list
 :consider-using-generator (R1728): *Consider using a generator instead '%s(%s)'*
   If your container can be large using a generator will bring better
   performance.
 :consider-using-set-comprehension (R1718): *Consider using a set comprehension*
   Although there is nothing syntactically wrong with this code, it is hard to
-  read and can be simplified to a set comprehension.Also it is faster since you
-  don't need to create another transient list
+  read and can be simplified to a set comprehension. Also it is faster since
+  you don't need to create another transient list
 :consider-using-get (R1715): *Consider using dict.get for getting values from a dict if a key is present or a default if not*
   Using the builtin dict.get for getting a value from a dictionary if a key is
   present or a default if not, is simpler and considered more idiomatic,
@@ -780,7 +802,7 @@ Refactoring checker Messages
   operations, such as for iteration, with statement assignment and exception
   handler assignment.
 :chained-comparison (R1716): *Simplify chained comparison between the operands*
-  This message is emitted when pylint encounters boolean operation like"a < b
+  This message is emitted when pylint encounters boolean operation like "a < b
   and b < c", suggesting instead to refactor it to "a < b < c"
 :simplifiable-if-expression (R1719): *The if expression can be replaced with %s*
   Used when an if expression can be replaced with 'bool(test)' or simply 'test'
@@ -825,7 +847,7 @@ Refactoring checker Messages
   because Python will implicitly return None
 :use-implicit-booleaness-not-comparison (C1803): *'%s' can be simplified to '%s' as an empty sequence is falsey*
   Used when Pylint detects that collection literal comparison is being used to
-  check for emptiness; Use implicit booleaness insteadof a collection classes;
+  check for emptiness; Use implicit booleaness instead of a collection classes;
   empty collections are considered as false
 :unneeded-not (C0113): *Consider changing "%s" to "%s"*
   Used when a boolean expression contains an unneeded negation.
@@ -917,7 +939,7 @@ Stdlib checker Messages
   linked to the function and therefore never garbage collected. Unless your
   instance will never need to be garbage collected (singleton) it is
   recommended to refactor code to avoid this pattern or add a maxsize to the
-  cache.The default value for maxsize is 128.
+  cache. The default value for maxsize is 128.
 :forgotten-debug-statement (W1515): *Leaving functions creating breakpoints in production code is not recommended*
   Calls to breakpoint(), sys.breakpointhook() and pdb.set_trace() should be
   removed from code that is not actively being debugged.
@@ -934,13 +956,13 @@ Stdlib checker Messages
   they represent matches midnight UTC. This behaviour was fixed in Python 3.5.
   See https://bugs.python.org/issue13936 for reference. This message can't be
   emitted when using Python >= 3.5.
-:deprecated-argument (W1511): *Using deprecated argument %s of method %s()*
+:deprecated-argument (W4903): *Using deprecated argument %s of method %s()*
   The argument is marked as deprecated and will be removed in the future.
-:deprecated-class (W1512): *Using deprecated class %s of module %s*
+:deprecated-class (W4904): *Using deprecated class %s of module %s*
   The class is marked as deprecated and will be removed in the future.
-:deprecated-decorator (W1513): *Using deprecated decorator %s()*
+:deprecated-decorator (W4905): *Using deprecated decorator %s()*
   The decorator is marked as deprecated and will be removed in the future.
-:deprecated-method (W1505): *Using deprecated method %s()*
+:deprecated-method (W4902): *Using deprecated method %s()*
   The method is marked as deprecated and will be removed in the future.
 :unspecified-encoding (W1514): *Using open without explicitly specifying an encoding*
   It is better to specify an encoding when opening documents. Using the system
@@ -950,11 +972,11 @@ Stdlib checker Messages
   The preexec_fn parameter is not safe to use in the presence of threads in
   your application. The child process could deadlock before exec is called. If
   you must use it, keep it trivial! Minimize the number of libraries you call
-  into.https://docs.python.org/3/library/subprocess.html#popen-constructor
+  into. See https://docs.python.org/3/library/subprocess.html#popen-constructor
 :subprocess-run-check (W1510): *Using subprocess.run without explicitly set `check` is not recommended.*
   The check parameter should always be used with explicitly set `check` keyword
-  to make clear what the error-handling behavior
-  is.https://docs.python.org/3/library/subprocess.html#subprocess.run
+  to make clear what the error-handling behavior is. See
+  https://docs.python.org/3/library/subprocess.html#subprocess.run
 :bad-thread-instantiation (W1506): *threading.Thread needs the target function*
   The warning is emitted when a threading.Thread class is instantiated without
   the target function being passed. By default, the first parameter is the
@@ -1085,6 +1107,9 @@ Typecheck checker Messages
   Used when a variable is accessed for a nonexistent member.
 :not-callable (E1102): *%s is not callable*
   Used when an object being called has been inferred to a non callable object.
+:unhashable-member (E1143): *'%s' is unhashable and can't be used as a %s in a %s*
+  Emitted when a dict key or set member is not hashable (i.e. doesn't define
+  __hash__ method).
 :await-outside-async (E1142): *'await' should be used within an async function*
   Emitted when await is used outside an async function.
 :redundant-keyword-arg (E1124): *Argument %r passed by position and keyword in %s call*
@@ -1100,9 +1125,6 @@ Typecheck checker Messages
 :not-context-manager (E1129): *Context manager '%s' doesn't implement __enter__ and __exit__.*
   Used when an instance in a with statement doesn't implement the context
   manager protocol(__enter__/__exit__).
-:unhashable-dict-key (E1140): *Dict key is unhashable*
-  Emitted when a dict key is not hashable (i.e. doesn't define __hash__
-  method).
 :repeated-keyword (E1132): *Got multiple values for keyword argument %r in function call*
   Emitted when a function call got multiple values for a keyword.
 :invalid-metaclass (E1139): *Invalid metaclass %r used*

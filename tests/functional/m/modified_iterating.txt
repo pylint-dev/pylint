@@ -12,3 +12,4 @@ modified-iterating-set:60:4:60:15::Iterated set 'item_set' is being modified ins
 modified-iterating-list:64:4:64:23::Iterated list 'item_list' is being modified inside for loop body, consider iterating through a copy of it instead.:INFERENCE
 modified-iterating-list:67:12:67:31::Iterated list 'item_list' is being modified inside for loop body, consider iterating through a copy of it instead.:INFERENCE
 modified-iterating-list:69:16:69:35::Iterated list 'item_list' is being modified inside for loop body, consider iterating through a copy of it instead.:INFERENCE
+modified-iterating-dict:95:8:95:28:update_existing_key:Iterated dict 'my_dict' is being modified inside for loop body, iterate through a copy of it instead.:INFERENCE

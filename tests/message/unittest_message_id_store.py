@@ -127,10 +127,12 @@ def test_exclusivity_of_msgids() -> None:
         "07": ("exceptions", "broad_try_clause", "overlap-except"),
         "12": ("design", "logging"),
         "17": ("async", "refactoring"),
-        "20": ("compare-to-zero", "refactoring"),
+        "20": ("compare-to-zero", "empty-comment"),
     }
 
     for msgid, definition in runner.linter.msgs_store._messages_definitions.items():
+        if definition.shared:
+            continue
         if msgid[1:3] in checker_id_pairs:
             assert (
                 definition.checker_name in checker_id_pairs[msgid[1:3]]

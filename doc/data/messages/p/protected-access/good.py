@@ -1,1 +1,10 @@
-# This is a placeholder for correct code for this message.
+class Worm:
+    def __swallow(self):
+        pass
+
+    def eat(self):
+        return self.__swallow()
+
+
+jim = Worm()
+jim.eat()

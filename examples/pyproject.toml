@@ -24,7 +24,7 @@
 # specified are enabled, while categories only check already-enabled messages.
 # fail-on =
 
-# Specify a score threshold to be exceeded before program exits with error.
+# Specify a score threshold under which the program will exit with error.
 fail-under = 10
 
 # Interpret the stdin as a python script, whose filename needs to be passed as
@@ -53,7 +53,8 @@ ignore-patterns = ["^\\.#"]
 # init-hook =
 
 # Use multiple processes to speed up Pylint. Specifying 0 will auto-detect the
-# number of processors available to use.
+# number of processors available to use, and will cap the count on Windows to
+# avoid hangs.
 jobs = 1
 
 # Control the amount of potential inferred values when inferring a single object.
@@ -70,7 +71,7 @@ persistent = true
 
 # Minimum Python version to use for version dependent checks. Will default to the
 # version used to run pylint.
-py-version = "3.8"
+py-version = "3.10"
 
 # Discover python modules and packages in the file system subtree.
 # recursive =
@@ -411,8 +412,8 @@ min-similarity-lines = 4
 # Limits count of emitted suggestions for spelling mistakes.
 max-spelling-suggestions = 4
 
-# Spelling dictionary name. Available dictionaries: en_GB (aspell), en_US
-# (hunspell), en_AU (aspell), en (aspell), en_CA (aspell).
+# Spelling dictionary name. Available dictionaries: en (aspell), en_AU (aspell),
+# en_CA (aspell), en_GB (aspell), en_US (aspell).
 # spelling-dict =
 
 # List of comma separated words that should be considered directives if they

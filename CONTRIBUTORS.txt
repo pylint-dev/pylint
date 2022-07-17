@@ -88,6 +88,7 @@ contributors:
   * Add consider-merging-isinstance, superfluous-else-return
   * Fix consider-using-ternary for 'True and True and True or True' case
   * Add bad-docstring-quotes and docstring-first-line-empty
+  * Add missing-timeout
 - Ville Skyttä <ville.skytta@iki.fi>
 - Pierre-Yves David <pierre-yves.david@logilab.fr>
 - David Shea <dshea@redhat.com>: invalid sequence and slice index
@@ -184,6 +185,7 @@ contributors:
 - Antonio Quarta <sgheppy88@gmail.com> (sgheppy)
 - Andrew J. Simmons <anjsimmo@gmail.com> (anjsimmo)
 - wtracy <afishionado@gmail.com>
+- Yilei "Dolee" Yang <yileiyang@google.com>
 - chohner <mail@chohner.com>
 - Tiago Honorato <61059243+tiagohonorato@users.noreply.github.com>
 - Steven M. Vascellaro <svascellaro@gmail.com>
@@ -223,7 +225,6 @@ contributors:
 - grizzly.nyo@gmail.com <grizzly.nyo@gmail.com>
 - craig-sh <craig-sh@users.noreply.github.com>
 - bernie gray <bfgray3@users.noreply.github.com>
-- Yilei "Dolee" Yang <yileiyang@google.com>
 - Wes Turner <westurner@google.com> (Google): added new check 'inconsistent-quotes'
 - Tyler Thieding <tyler@thieding.com>
 - Tobias Hernstig <30827238+thernstig@users.noreply.github.com>
@@ -371,6 +372,7 @@ contributors:
 - Peter Bittner <django@bittner.it>
 - Peter Aronoff <peter@aronoff.org>
 - Paul Cochrane <paul@liekut.de>
+- Paul Lichtenberger <paul.lichtenberger.rgbg@gmail.com>
 - Patrik <patrik.mrx@gmail.com>
 - Pascal Corpet <pcorpet@users.noreply.github.com>
 - Pablo Galindo Salgado <Pablogsal@gmail.com>
@@ -400,6 +402,7 @@ contributors:
 - Matthijs Blom <19817960+MatthijsBlom@users.noreply.github.com>
 - Matej Marušák <marusak.matej@gmail.com>
 - Markus Siebenhaar <41283549+siehar@users.noreply.github.com>
+- Marco Pernigotti <7657251+mpernigo@users.noreply.github.com>
 - Marco Edward Gorelli <marcogorelli@protonmail.com>: Documented Jupyter integration
 - Marcin Kurczewski <rr-@sakuya.pl> (rr-)
 - Maik Röder <maikroeder@gmail.com>
@@ -488,6 +491,7 @@ contributors:
 - Caio Carrara <ccarrara@redhat.com>
 - C.A.M. Gerlach <WIDEnetServices@gmail.com>
 - Bruno P. Kinoshita <kinow@users.noreply.github.com>
+- Bruce Dawson <randomascii@users.noreply.github.com>
 - Brian C. Lane <bcl@redhat.com>
 - Brandon W Maister <quodlibetor@gmail.com>
 - BioGeek <jeroen.vangoey@gmail.com>
