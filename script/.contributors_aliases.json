@@ -97,6 +97,10 @@
     "mails": ["95424144+allanc65@users.noreply.github.com"],
     "name": "Allan Chandler"
   },
+  "<awilliam@redhat.com>": {
+    "mails": ["awilliam@redhat.com", "adam@blueradius.ca"],
+    "name": "Adam Williamson"
+  },
   "Adrien.DiMascio@logilab.fr": {
     "mails": ["Adrien.DiMascio@logilab.fr"],
     "name": "Adrien Di Mascio"
