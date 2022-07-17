@@ -1,14 +1,27 @@
 Full changelog
 ==============
 
+
 What's New in Pylint 2.14.5?
 ----------------------------
-Release date: TBA
+Release date: 2022-07-17
 
+
+* Fixed a crash in the ``undefined-loop-variable`` check when ``enumerate()`` is used
+  in a ternary expression.
+
+  Closes #7131
 
 * Fixed handling of ``--`` as separator between positional arguments and flags.
 
   Closes #7003
+
+* Fixed the disabling of ``fixme`` and its interaction with ``useless-suppression``.
+
+* Allow lists of default values in parameter documentation for ``Numpy`` style.
+
+  Closes #4035
+
 
 What's New in Pylint 2.14.4?
 ----------------------------

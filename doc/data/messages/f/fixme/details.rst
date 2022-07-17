@@ -1,1 +1,2 @@
-You can help us make the doc better `by contributing <https://github.com/PyCQA/pylint/issues/5953>`_ !
+You can get use regular expressions and the ``notes-rgx`` option to create some constraints for this message.
+See `the following issue <https://github.com/PyCQA/pylint/issues/2874>`_ for some examples.

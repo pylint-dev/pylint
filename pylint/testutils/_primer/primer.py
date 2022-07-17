@@ -22,7 +22,9 @@ class Primer:
         # Preparing arguments
         self.primer_directory = primer_directory
         self._argument_parser = argparse.ArgumentParser(prog="Pylint Primer")
-        self._subparsers = self._argument_parser.add_subparsers(dest="command")
+        self._subparsers = self._argument_parser.add_subparsers(
+            dest="command", required=True
+        )
 
         # All arguments for the prepare parser
         prepare_parser = self._subparsers.add_parser("prepare")
@@ -80,9 +82,9 @@ class Primer:
 
         if self.config.command == "prepare":
             command_class: type[PrimerCommand] = PrepareCommand
-        if self.config.command == "run":
+        elif self.config.command == "run":
             command_class = RunCommand
-        if self.config.command == "compare":
+        elif self.config.command == "compare":
             command_class = CompareCommand
         self.command = command_class(self.primer_directory, self.packages, self.config)
 

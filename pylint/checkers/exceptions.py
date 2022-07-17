@@ -8,10 +8,13 @@ from __future__ import annotations
 
 import builtins
 import inspect
+from collections.abc import Generator
 from typing import TYPE_CHECKING, Any
 
 import astroid
 from astroid import nodes, objects
+from astroid.context import InferenceContext
+from astroid.typing import InferenceResult, SuccessfulInferenceResult
 
 from pylint import checkers
 from pylint.checkers import utils
@@ -22,15 +25,17 @@ if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
 
-def _builtin_exceptions():
-    def predicate(obj):
+def _builtin_exceptions() -> set[str]:
+    def predicate(obj: Any) -> bool:
         return isinstance(obj, type) and issubclass(obj, BaseException)
 
     members = inspect.getmembers(builtins, predicate)
     return {exc.__name__ for (_, exc) in members}
 
 
-def _annotated_unpack_infer(stmt, context=None):
+def _annotated_unpack_infer(
+    stmt: nodes.NodeNG, context: InferenceContext | None = None
+) -> Generator[tuple[nodes.NodeNG, SuccessfulInferenceResult], None, None]:
     """Recursively generate nodes inferred by the given statement.
 
     If the inferred value is a list or a tuple, recurse on the elements.
@@ -49,7 +54,7 @@ def _annotated_unpack_infer(stmt, context=None):
         yield stmt, inferred
 
 
-def _is_raising(body: list) -> bool:
+def _is_raising(body: list[nodes.NodeNG]) -> bool:
     """Return whether the given statement node raises an exception."""
     return any(isinstance(node, nodes.Raise) for node in body)
 
@@ -167,11 +172,11 @@ MSGS: dict[
 class BaseVisitor:
     """Base class for visitors defined in this module."""
 
-    def __init__(self, checker, node):
+    def __init__(self, checker: ExceptionsChecker, node: nodes.Raise) -> None:
         self._checker = checker
         self._node = node
 
-    def visit(self, node):
+    def visit(self, node: SuccessfulInferenceResult) -> None:
         name = node.__class__.__name__.lower()
         dispatch_meth = getattr(self, "visit_" + name, None)
         if dispatch_meth:
@@ -219,8 +224,6 @@ class ExceptionRaiseLeafVisitor(BaseVisitor):
     visit_exceptioninstance = visit_instance
 
     def visit_classdef(self, node: nodes.ClassDef) -> None:
-        # TODO (Typing): This function can be called from visit_instance
-        #  with the return type of instance._proxied (not typed right now)
         if not utils.inherit_from_std_ex(node) and utils.has_known_bases(node):
             if node.newstyle:
                 self._checker.add_message("raising-non-exception", node=self._node)
@@ -250,7 +253,7 @@ class ExceptionsChecker(checkers.BaseChecker):
         ),
     )
 
-    def open(self):
+    def open(self) -> None:
         self._builtin_exceptions = _builtin_exceptions()
         super().open()
 
@@ -281,7 +284,7 @@ class ExceptionsChecker(checkers.BaseChecker):
             return
         ExceptionRaiseLeafVisitor(self, node).visit(inferred)
 
-    def _check_misplaced_bare_raise(self, node):
+    def _check_misplaced_bare_raise(self, node: nodes.Raise) -> None:
         # Filter out if it's present in __exit__.
         scope = node.scope()
         if (
@@ -365,7 +368,12 @@ class ExceptionsChecker(checkers.BaseChecker):
                 confidence=HIGH,
             )
 
-    def _check_catching_non_exception(self, handler, exc, part):
+    def _check_catching_non_exception(
+        self,
+        handler: nodes.ExceptHandler,
+        exc: SuccessfulInferenceResult,
+        part: nodes.NodeNG,
+    ) -> None:
         if isinstance(exc, nodes.Tuple):
             # Check if it is a tuple of exceptions.
             inferred = [utils.safe_infer(elt) for elt in exc.elts]
@@ -413,11 +421,11 @@ class ExceptionsChecker(checkers.BaseChecker):
                     "catching-non-exception", node=handler.type, args=(exc.name,)
                 )
 
-    def _check_try_except_raise(self, node):
+    def _check_try_except_raise(self, node: nodes.TryExcept) -> None:
         def gather_exceptions_from_handler(
-            handler,
-        ) -> list[nodes.NodeNG] | None:
-            exceptions: list[nodes.NodeNG] = []
+            handler: nodes.ExceptHandler,
+        ) -> list[InferenceResult] | None:
+            exceptions: list[InferenceResult] = []
             if handler.type:
                 exceptions_in_handler = utils.safe_infer(handler.type)
                 if isinstance(exceptions_in_handler, nodes.Tuple):
@@ -437,7 +445,7 @@ class ExceptionsChecker(checkers.BaseChecker):
 
         bare_raise = False
         handler_having_bare_raise = None
-        exceptions_in_bare_handler = []
+        exceptions_in_bare_handler: list[InferenceResult] | None = []
         for handler in node.handlers:
             if bare_raise:
                 # check that subsequent handler is not parent of handler which had bare raise.
@@ -520,8 +528,6 @@ class ExceptionsChecker(checkers.BaseChecker):
                     continue
 
                 for part, exception in exceptions:
-                    if exception is astroid.Uninferable:
-                        continue
                     if isinstance(
                         exception, astroid.Instance
                     ) and utils.inherit_from_std_ex(exception):

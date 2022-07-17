@@ -148,6 +148,13 @@ def use_enumerate():
     print(i, num)
 
 
+def use_enumerate_in_ternary_expression():
+    """https://github.com/PyCQA/pylint/issues/7131"""
+    for i, num in enumerate(range(3)) if __revision__ else enumerate(range(4)):
+        pass
+    print(i, num)
+
+
 def find_even_number(container):
     """https://github.com/PyCQA/pylint/pull/6923#discussion_r895134495"""
     for something in container:

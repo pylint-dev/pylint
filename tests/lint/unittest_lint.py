@@ -116,7 +116,7 @@ def fake_path() -> Iterator[Iterable[str]]:
     sys.path[:] = orig
 
 
-def test_no_args(fake_path: list[int]) -> None:
+def test_no_args(fake_path: list[str]) -> None:
     with lint.fix_import_path([]):
         assert sys.path == fake_path
     assert sys.path == fake_path
@@ -555,6 +555,8 @@ def test_load_plugin_configuration() -> None:
         ],
         exit=False,
     )
+
+    sys.path.remove(dummy_plugin_path)
     assert run.linter.config.ignore == ["foo", "bar", "bin"]
 
 

@@ -14,3 +14,6 @@ build:
   os: ubuntu-20.04
   tools:
     python: "3.8"
+  jobs:
+    pre_build:
+      - towncrier build --yes --date TBA

@@ -29,7 +29,7 @@ def bad_char_file_generator(tmp_path: Path) -> Callable[[str, bool, str], Path]:
     The generator also ensures that file generated is correct
     """
 
-    def encode_without_bom(string, encoding):
+    def encode_without_bom(string: str, encoding: str) -> bytes:
         return pylint.checkers.unicode._encode_without_bom(string, encoding)
 
     # All lines contain a not extra checked invalid character
@@ -70,7 +70,7 @@ def bad_char_file_generator(tmp_path: Path) -> Callable[[str, bool, str], Path]:
                     byte_line.decode(codec, "strict")
                 except UnicodeDecodeError as e:
                     raise ValueError(
-                        f"Line {lineno} did raise unexpected error: {byte_line}\n{e}"
+                        f"Line {lineno} did raise unexpected error: {byte_line!r}\n{e}"
                     ) from e
             else:
                 try:
@@ -81,7 +81,7 @@ def bad_char_file_generator(tmp_path: Path) -> Callable[[str, bool, str], Path]:
                     ...
                 else:
                     raise ValueError(
-                        f"Line {lineno} did not raise decode error: {byte_line}"
+                        f"Line {lineno} did not raise decode error: {byte_line!r}"
                     )
 
         file = tmp_path / "bad_chars.py"
