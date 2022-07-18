@@ -15,7 +15,7 @@ from astroid import nodes, objects
 
 from pylint import checkers
 from pylint.checkers import utils
-from pylint.interfaces import HIGH
+from pylint.interfaces import HIGH, INFERENCE
 from pylint.typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
@@ -72,13 +72,6 @@ MSGS: dict[
         "Used when something which is neither a class nor an instance "
         "is raised (i.e. a `TypeError` will be raised).",
     ),
-    "E0703": (
-        "Exception cause set to something which is not an exception, nor None",
-        "bad-exception-cause",
-        'Used when using the syntax "raise ... from ...", '
-        "where the exception cause is not an exception, "
-        "nor None.",
-    ),
     "E0704": (
         "The raise statement is not inside an except clause",
         "misplaced-bare-raise",
@@ -88,6 +81,14 @@ MSGS: dict[
         "a bare raise inside a finally clause, which might work, as long "
         "as an exception is raised inside the try block, but it is "
         "nevertheless a code smell that must not be relied upon.",
+    ),
+    "E0705": (
+        "Exception cause set to something which is not an exception, nor None",
+        "bad-exception-cause",
+        'Used when using the syntax "raise ... from ...", '
+        "where the exception cause is not an exception, "
+        "nor None.",
+        {"old_names": [("E0703", "bad-exception-context")]},
     ),
     "E0710": (
         "Raising a new style class which doesn't inherit from BaseException",
@@ -313,11 +314,11 @@ class ExceptionsChecker(checkers.BaseChecker):
 
         if isinstance(cause, nodes.Const):
             if cause.value is not None:
-                self.add_message("bad-exception-cause", node=node)
+                self.add_message("bad-exception-cause", node=node, confidence=INFERENCE)
         elif not isinstance(cause, nodes.ClassDef) and not utils.inherit_from_std_ex(
             cause
         ):
-            self.add_message("bad-exception-cause", node=node)
+            self.add_message("bad-exception-cause", node=node, confidence=INFERENCE)
 
     def _check_raise_missing_from(self, node: nodes.Raise) -> None:
         if node.exc is None:

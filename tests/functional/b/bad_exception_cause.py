@@ -1,4 +1,4 @@
-"""Check that raise ... from .. uses a proper exception context """
+"""Check that raise ... from .. uses a proper exception cause """
 
 # pylint: disable=unreachable, import-error, multiple-imports
 
