@@ -180,10 +180,12 @@ jobs:
         run: |
           echo "Failed to restore Python venv from cache"
           exit 1
+      - name: Install tox
+        run: |
+          pip install -U tox
       - name: Run checks on documentation code examples
         run: |
-          . venv/bin/activate
-          pytest doc/test_messages_documentation.py
+          tox -e test_doc
       - name: Check documentation build and links
         run: |
           . venv/bin/activate
