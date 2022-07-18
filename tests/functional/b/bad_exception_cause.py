@@ -1,4 +1,4 @@
-"""Check that raise ... from .. uses a proper exception context """
+"""Check that raise ... from .. uses a proper exception cause """
 
 # pylint: disable=unreachable, import-error, multiple-imports
 
@@ -11,16 +11,16 @@ class ExceptionSubclass(Exception):
 
 def test():
     """ docstring """
-    raise IndexError from 1 # [bad-exception-context]
+    raise IndexError from 1 # [bad-exception-cause]
     raise IndexError from None
     raise IndexError from ZeroDivisionError
-    raise IndexError from object() # [bad-exception-context]
+    raise IndexError from object() # [bad-exception-cause]
     raise IndexError from ExceptionSubclass
     raise IndexError from socket.error
     raise IndexError() from None
     raise IndexError() from ZeroDivisionError
     raise IndexError() from ZeroDivisionError()
-    raise IndexError() from object() # [bad-exception-context]
+    raise IndexError() from object() # [bad-exception-cause]
     raise IndexError() from unknown
 
 def function():
@@ -29,4 +29,4 @@ def function():
 try:
     pass
 except function as exc:  # [catching-non-exception]
-    raise Exception from exc  # [bad-exception-context]
+    raise Exception from exc  # [bad-exception-cause]
