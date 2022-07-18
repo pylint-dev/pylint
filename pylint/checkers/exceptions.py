@@ -63,7 +63,7 @@ OVERGENERAL_EXCEPTIONS = ("BaseException", "Exception")
 
 MSGS: dict[
     str, MessageDefinitionTuple
-] = {  # pylint: disable=consider-using-namedtuple-or-dataclass
+] = {
     "E0701": (
         "Bad except clauses order (%s)",
         "bad-except-order",
