@@ -24,7 +24,7 @@ jobs:
           fetch-depth: 0
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@v4.0.0
+        uses: actions/setup-python@v4.1.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
       - name: Generate partial Python venv restore key
