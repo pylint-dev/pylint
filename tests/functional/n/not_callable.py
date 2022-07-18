@@ -224,3 +224,11 @@ class Klass2:
 
 obj2 = Klass2()
 obj2.something()
+
+
+# Regression test for https://github.com/PyCQA/pylint/issues/7109
+instance_or_cls = MyClass  # pylint:disable=invalid-name
+instance_or_cls = MyClass()
+if not isinstance(instance_or_cls, MyClass):
+    new = MyClass.__new__(instance_or_cls)
+    new()

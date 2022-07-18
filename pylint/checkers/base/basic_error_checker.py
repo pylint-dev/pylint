@@ -404,7 +404,10 @@ class BasicErrorChecker(_BasicChecker):
                 self.add_message("nonlocal-without-binding", args=(name,), node=node)
                 return
 
-            if name not in current_scope.locals:
+            # Search for `name` in the parent scope if:
+            #  `current_scope` is the same scope in which the `nonlocal` name is declared
+            #  or `name` is not in `current_scope.locals`.
+            if current_scope is node.scope() or name not in current_scope.locals:
                 current_scope = current_scope.parent.scope()
                 continue
 
@@ -412,7 +415,9 @@ class BasicErrorChecker(_BasicChecker):
             return
 
         if not isinstance(current_scope, nodes.FunctionDef):
-            self.add_message("nonlocal-without-binding", args=(name,), node=node)
+            self.add_message(
+                "nonlocal-without-binding", args=(name,), node=node, confidence=HIGH
+            )
 
     @utils.only_required_for_messages("nonlocal-without-binding")
     def visit_nonlocal(self, node: nodes.Nonlocal) -> None:

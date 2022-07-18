@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring, unused-argument, wrong-import-position, invalid-name
-
+from pathlib import Path
 
 # Regression test for https://github.com/PyCQA/pylint/issues/400
 class TestListener:
@@ -42,3 +42,7 @@ class Derived(Base):
 
 
 print(Derived.label)
+
+
+# Regression test for https://github.com/PyCQA/pylint/issues/5832
+starter_path = Path(__file__).parents[3].resolve()

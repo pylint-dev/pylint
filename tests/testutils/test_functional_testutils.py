@@ -22,7 +22,7 @@ DATA_DIRECTORY = HERE / "data"
 
 @pytest.fixture(name="pytest_config")
 def pytest_config_fixture() -> MagicMock:
-    def _mock_getoption(option):
+    def _mock_getoption(option: str) -> bool:
         if option == "minimal_messages_config":
             return True
         return False

@@ -22,6 +22,8 @@ import astroid.objects
 from astroid import TooManyLevelsError, nodes
 from astroid.context import InferenceContext
 from astroid.exceptions import AstroidError
+from astroid.nodes._base_nodes import ImportNode
+from astroid.typing import InferenceResult, SuccessfulInferenceResult
 
 if TYPE_CHECKING:
     from pylint.checkers import BaseChecker
@@ -924,7 +926,7 @@ def uninferable_final_decorators(
 @lru_cache(maxsize=1024)
 def unimplemented_abstract_methods(
     node: nodes.ClassDef, is_abstract_cb: nodes.FunctionDef = None
-) -> dict[str, nodes.NodeNG]:
+) -> dict[str, nodes.FunctionDef]:
     """Get the unimplemented abstract methods for the given *node*.
 
     A method can be considered abstract if the callback *is_abstract_cb*
@@ -937,7 +939,7 @@ def unimplemented_abstract_methods(
     """
     if is_abstract_cb is None:
         is_abstract_cb = partial(decorated_with, qnames=ABC_METHODS)
-    visited: dict[str, nodes.NodeNG] = {}
+    visited: dict[str, nodes.FunctionDef] = {}
     try:
         mro = reversed(node.mro())
     except NotImplementedError:
@@ -1277,7 +1279,7 @@ def _get_python_type_of_node(node: nodes.NodeNG) -> str | None:
 @lru_cache(maxsize=1024)
 def safe_infer(
     node: nodes.NodeNG, context: InferenceContext | None = None
-) -> nodes.NodeNG | type[astroid.Uninferable] | None:
+) -> InferenceResult | None:
     """Return the inferred value for the given node.
 
     Return None if inference failed or if there is some ambiguity (more than
@@ -1319,8 +1321,8 @@ def safe_infer(
 
 @lru_cache(maxsize=512)
 def infer_all(
-    node: nodes.NodeNG, context: InferenceContext = None
-) -> list[nodes.NodeNG]:
+    node: nodes.NodeNG, context: InferenceContext | None = None
+) -> list[InferenceResult]:
     try:
         return list(node.infer(context=context))
     except astroid.InferenceError:
@@ -1358,7 +1360,7 @@ def is_none(node: nodes.NodeNG) -> bool:
     )
 
 
-def node_type(node: nodes.NodeNG) -> nodes.NodeNG | None:
+def node_type(node: nodes.NodeNG) -> SuccessfulInferenceResult | None:
     """Return the inferred type for `node`.
 
     If there is more than one possible type, or if inferred type is Uninferable or None,
@@ -1366,7 +1368,7 @@ def node_type(node: nodes.NodeNG) -> nodes.NodeNG | None:
     """
     # check there is only one possible type for the assign node. Else we
     # don't handle it for now
-    types: set[nodes.NodeNG] = set()
+    types: set[SuccessfulInferenceResult] = set()
     try:
         for var_type in node.infer():
             if var_type == astroid.Uninferable or is_none(var_type):
@@ -1651,7 +1653,7 @@ def get_subscript_const_value(node: nodes.Subscript) -> nodes.Const:
     return inferred
 
 
-def get_import_name(importnode: nodes.Import | nodes.ImportFrom, modname: str) -> str:
+def get_import_name(importnode: ImportNode, modname: str | None) -> str | None:
     """Get a prepared module name from the given import node.
 
     In the case of relative imports, this will return the

@@ -18,7 +18,7 @@ def test_invocation_of_pylint_config(capsys: CaptureFixture[str]) -> None:
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message="NOTE:.*", category=UserWarning)
         with pytest.raises(SystemExit) as ex:
-            _run_pylint_config()
+            _run_pylint_config([""])
         captured = capsys.readouterr()
         assert captured.err.startswith("usage: pylint-config [options]")
         assert ex.value.code == 2

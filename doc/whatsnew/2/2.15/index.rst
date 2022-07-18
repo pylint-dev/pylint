@@ -11,6 +11,8 @@
 Summary -- Release highlights
 =============================
 
+* We improved ``pylint``'s handling of namespace packages. More packages should be
+  linted without resorting to using the ``-recursive=y`` option.
 
 New checkers
 ============
@@ -99,3 +101,5 @@ Internal changes
   let the functional test fail with a default value.
 
   Refs #6891
+=======
+.. towncrier release notes start
