@@ -1,0 +1,3 @@
+Fix a failure to lint packages with ``__init__.py`` contained in directories lacking ``__init__.py``.
+
+Closes #1667
