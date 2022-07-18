@@ -61,9 +61,7 @@ def _is_raising(body: list[nodes.NodeNG]) -> bool:
 
 OVERGENERAL_EXCEPTIONS = ("BaseException", "Exception")
 
-MSGS: dict[
-    str, MessageDefinitionTuple
-] = {
+MSGS: dict[str, MessageDefinitionTuple] = {
     "E0701": (
         "Bad except clauses order (%s)",
         "bad-except-order",
