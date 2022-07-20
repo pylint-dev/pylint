@@ -177,6 +177,7 @@ All renamed messages in the error category:
    :titlesonly:
 
    error/bad-context-manager
+   error/bad-exception-context
    error/bad-option-value
    error/maybe-no-member
    error/old-non-iterator-returned-2
