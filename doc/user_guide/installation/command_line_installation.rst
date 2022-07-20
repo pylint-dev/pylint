@@ -19,6 +19,11 @@ Or if you want to also check spelling with ``enchant`` (you might need to
 
 The newest pylint support python interpreters that are not past end of life.
 
+We recommend to use the latest interpreter because we rely on the ``ast`` builtin
+module that get better with each new python interpreter. For example a python
+3.6 interpreter can't analyse 3.8 syntax (because of the new walrus operator) while a 3.8
+interpreter can deal with python 3.6. See :ref:`using pylint with multiple interpreters <continuous-integration>` for more detail.
+
 .. note::
     You can also use ``conda`` or your system package manager on debian based OS.
     These package managers lag a little behind as they are maintained by a separate
