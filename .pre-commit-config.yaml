@@ -85,6 +85,13 @@ repos:
         language: system
         types: [text]
         files: ^(doc/whatsnew/\d+\.\d+\.rst)
+      - id: check-newsfragments
+        name: Check newsfragments
+        entry: python3 -m script.check_newsfragments
+        language: system
+        types: [text]
+        files: ^(doc/whatsnew/fragments)
+        exclude: doc/whatsnew/fragments/_.*.rst
   - repo: https://github.com/rstcheck/rstcheck
     rev: "v6.0.0.post1"
     hooks:

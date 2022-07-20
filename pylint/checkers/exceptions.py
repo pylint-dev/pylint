@@ -18,7 +18,7 @@ from astroid.typing import InferenceResult, SuccessfulInferenceResult
 
 from pylint import checkers
 from pylint.checkers import utils
-from pylint.interfaces import HIGH
+from pylint.interfaces import HIGH, INFERENCE
 from pylint.typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
@@ -61,9 +61,7 @@ def _is_raising(body: list[nodes.NodeNG]) -> bool:
 
 OVERGENERAL_EXCEPTIONS = ("BaseException", "Exception")
 
-MSGS: dict[
-    str, MessageDefinitionTuple
-] = {  # pylint: disable=consider-using-namedtuple-or-dataclass
+MSGS: dict[str, MessageDefinitionTuple] = {
     "E0701": (
         "Bad except clauses order (%s)",
         "bad-except-order",
@@ -77,13 +75,6 @@ MSGS: dict[
         "Used when something which is neither a class nor an instance "
         "is raised (i.e. a `TypeError` will be raised).",
     ),
-    "E0703": (
-        "Exception context set to something which is not an exception, nor None",
-        "bad-exception-context",
-        'Used when using the syntax "raise ... from ...", '
-        "where the exception context is not an exception, "
-        "nor None.",
-    ),
     "E0704": (
         "The raise statement is not inside an except clause",
         "misplaced-bare-raise",
@@ -93,6 +84,14 @@ MSGS: dict[
         "a bare raise inside a finally clause, which might work, as long "
         "as an exception is raised inside the try block, but it is "
         "nevertheless a code smell that must not be relied upon.",
+    ),
+    "E0705": (
+        "Exception cause set to something which is not an exception, nor None",
+        "bad-exception-cause",
+        'Used when using the syntax "raise ... from ...", '
+        "where the exception cause is not an exception, "
+        "nor None.",
+        {"old_names": [("E0703", "bad-exception-context")]},
     ),
     "E0710": (
         "Raising a new style class which doesn't inherit from BaseException",
@@ -262,7 +261,7 @@ class ExceptionsChecker(checkers.BaseChecker):
         "raising-bad-type",
         "raising-non-exception",
         "notimplemented-raised",
-        "bad-exception-context",
+        "bad-exception-cause",
         "raising-format-tuple",
         "raise-missing-from",
     )
@@ -274,7 +273,7 @@ class ExceptionsChecker(checkers.BaseChecker):
         if node.cause is None:
             self._check_raise_missing_from(node)
         else:
-            self._check_bad_exception_context(node)
+            self._check_bad_exception_cause(node)
 
         expr = node.exc
         ExceptionRaiseRefVisitor(self, node).visit(expr)
@@ -305,10 +304,10 @@ class ExceptionsChecker(checkers.BaseChecker):
         if not current or not isinstance(current.parent, expected):
             self.add_message("misplaced-bare-raise", node=node)
 
-    def _check_bad_exception_context(self, node: nodes.Raise) -> None:
-        """Verify that the exception context is properly set.
+    def _check_bad_exception_cause(self, node: nodes.Raise) -> None:
+        """Verify that the exception cause is properly set.
 
-        An exception context can be only `None` or an exception.
+        An exception cause can be only `None` or an exception.
         """
         cause = utils.safe_infer(node.cause)
         if cause in (astroid.Uninferable, None):
@@ -316,11 +315,11 @@ class ExceptionsChecker(checkers.BaseChecker):
 
         if isinstance(cause, nodes.Const):
             if cause.value is not None:
-                self.add_message("bad-exception-context", node=node)
+                self.add_message("bad-exception-cause", node=node, confidence=INFERENCE)
         elif not isinstance(cause, nodes.ClassDef) and not utils.inherit_from_std_ex(
             cause
         ):
-            self.add_message("bad-exception-context", node=node)
+            self.add_message("bad-exception-cause", node=node, confidence=INFERENCE)
 
     def _check_raise_missing_from(self, node: nodes.Raise) -> None:
         if node.exc is None:
