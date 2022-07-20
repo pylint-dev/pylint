@@ -420,9 +420,9 @@ Exceptions checker Messages
 :catching-non-exception (E0712): *Catching an exception which doesn't inherit from Exception: %s*
   Used when a class which doesn't inherit from Exception is used as an
   exception in an except clause.
-:bad-exception-cause (E0705): *Exception cause set to something which is not an exception, nor None*
-  Used when using the syntax "raise ... from ...", where the exception cause is
-  not an exception, nor None.
+:bad-exception-context (E0703): *Exception context set to something which is not an exception, nor None*
+  Used when using the syntax "raise ... from ...", where the exception context
+  is not an exception, nor None.
 :notimplemented-raised (E0711): *NotImplemented raised - should raise NotImplementedError*
   Used when NotImplemented is raised instead of NotImplementedError
 :raising-bad-type (E0702): *Raising %s while only classes or instances are allowed*

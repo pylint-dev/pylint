@@ -3,10 +3,10 @@ Installation
 
 Pylint can be installed:
 
-- As a command line tool
-- Integrated in your editor/ide
-- As a pre-commit hook
-- for multiple python interpreters in your continuous integration
+- :ref:`As a command line tool <installation>`
+- :ref:`Integrated in your editor/ide <ide-integration>`
+- :ref:`As a pre-commit hook <pre-commit-integration>`
+- :ref:`For multiple python interpreters in your continuous integration <continuous-integration>`
 
 .. toctree::
    :maxdepth: 2
