@@ -1,3 +1,4 @@
+missing-raises-doc:14:0:14:30:test_ignores_unknown_style:"""RuntimeError"" not documented as being raised":HIGH
 unreachable:25:4:25:25:test_ignores_raise_uninferable:Unreachable code:HIGH
 missing-raises-doc:28:0:28:45:test_ignores_returns_from_inner_functions:"""RuntimeError"" not documented as being raised":HIGH
 unreachable:42:4:42:25:test_ignores_returns_from_inner_functions:Unreachable code:HIGH

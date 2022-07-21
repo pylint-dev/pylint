@@ -1,2 +1,5 @@
 [MAIN]
 load-plugins = pylint.extensions.docparams
+
+[BASIC]
+accept-no-raise-doc=no

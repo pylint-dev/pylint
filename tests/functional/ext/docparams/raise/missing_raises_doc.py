@@ -11,7 +11,7 @@ def test_ignores_no_docstring(self):
     raise RuntimeError("hi")
 
 
-def test_ignores_unknown_style(self):
+def test_ignores_unknown_style(self):  # [missing-raises-doc]
     """This is a docstring."""
     raise RuntimeError("hi")
 
