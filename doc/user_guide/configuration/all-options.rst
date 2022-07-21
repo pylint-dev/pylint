@@ -1249,7 +1249,7 @@ Standard Checkers
 
 --spelling-dict
 """""""""""""""
-*Spelling dictionary name. Available dictionaries: none. To make it work, install the 'python-enchant' package.*
+*Spelling dictionary name. Available dictionaries: en (aspell), en_AU (aspell), en_CA (aspell), en_GB (aspell), en_US (aspell).*
 
 **Default:** ``""``
 
