@@ -16,6 +16,7 @@ from pylint.checkers import BaseChecker
 from pylint.checkers import utils as checker_utils
 from pylint.extensions import _check_docs_utils as utils
 from pylint.extensions._check_docs_utils import Docstring
+from pylint.interfaces import HIGH
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -259,7 +260,7 @@ class DocstringParameterChecker(BaseChecker):
         if (node_doc.has_returns() or node_doc.has_rtype()) and not any(
             utils.returns_something(ret_node) for ret_node in return_nodes
         ):
-            self.add_message("redundant-returns-doc", node=node)
+            self.add_message("redundant-returns-doc", node=node, confidence=HIGH)
 
     def check_functiondef_yields(
         self, node: nodes.FunctionDef, node_doc: Docstring
@@ -333,13 +334,13 @@ class DocstringParameterChecker(BaseChecker):
         is_property = checker_utils.decorated_with_property(func_node)
 
         if not (doc.has_returns() or (doc.has_property_returns() and is_property)):
-            self.add_message("missing-return-doc", node=func_node)
+            self.add_message("missing-return-doc", node=func_node, confidence=HIGH)
 
         if func_node.returns:
             return
 
         if not (doc.has_rtype() or (doc.has_property_type() and is_property)):
-            self.add_message("missing-return-type-doc", node=func_node)
+            self.add_message("missing-return-type-doc", node=func_node, confidence=HIGH)
 
     def visit_yield(self, node: nodes.Yield | nodes.YieldFrom) -> None:
         if self.linter.config.accept_no_yields_doc:
@@ -361,10 +362,10 @@ class DocstringParameterChecker(BaseChecker):
             doc_has_yields_type = doc.has_rtype()
 
         if not doc_has_yields:
-            self.add_message("missing-yield-doc", node=func_node)
+            self.add_message("missing-yield-doc", node=func_node, confidence=HIGH)
 
         if not (doc_has_yields_type or func_node.returns):
-            self.add_message("missing-yield-type-doc", node=func_node)
+            self.add_message("missing-yield-type-doc", node=func_node, confidence=HIGH)
 
     visit_yieldfrom = visit_yield
 
@@ -405,6 +406,7 @@ class DocstringParameterChecker(BaseChecker):
                 message_id,
                 args=(", ".join(sorted(missing_argument_names)),),
                 node=warning_node,
+                confidence=HIGH,
             )
 
     def _compare_different_args(
@@ -447,6 +449,7 @@ class DocstringParameterChecker(BaseChecker):
                 message_id,
                 args=(", ".join(sorted(differing_argument_names)),),
                 node=warning_node,
+                confidence=HIGH,
             )
 
     def _compare_ignored_args(
@@ -474,6 +477,7 @@ class DocstringParameterChecker(BaseChecker):
                 message_id,
                 args=(", ".join(sorted(existing_ignored_argument_names)),),
                 node=warning_node,
+                confidence=HIGH,
             )
 
     def check_arguments_in_docstring(
@@ -582,6 +586,7 @@ class DocstringParameterChecker(BaseChecker):
                     "missing-any-param-doc",
                     args=(warning_node.name,),
                     node=warning_node,
+                    confidence=HIGH,
                 )
             else:
                 self._compare_missing_args(
@@ -626,7 +631,10 @@ class DocstringParameterChecker(BaseChecker):
     ) -> None:
         if class_doc.has_params() and init_doc.has_params():
             self.add_message(
-                "multiple-constructor-doc", args=(class_node.name,), node=class_node
+                "multiple-constructor-doc",
+                args=(class_node.name,),
+                node=class_node,
+                confidence=HIGH,
             )
 
     def _handle_no_raise_doc(self, excs: set[str], node: nodes.FunctionDef) -> None:
@@ -653,6 +661,7 @@ class DocstringParameterChecker(BaseChecker):
                 "missing-raises-doc",
                 args=(", ".join(sorted(missing_exceptions)),),
                 node=node,
+                confidence=HIGH,
             )
 
 
