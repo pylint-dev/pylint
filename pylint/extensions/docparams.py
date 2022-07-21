@@ -636,26 +636,24 @@ class DocstringParameterChecker(BaseChecker):
         self._add_raise_message(excs, node)
 
     def _add_raise_message(
-        self, missing_excs: set[str], node: nodes.FunctionDef
+        self, missing_exceptions: set[str], node: nodes.FunctionDef
     ) -> None:
         """Adds a message on :param:`node` for the missing exception type.
 
-        :param missing_excs: A list of missing exception types.
-
+        :param missing_exceptions: A list of missing exception types.
         :param node: The node show the message on.
         """
         if node.is_abstract():
             try:
-                missing_excs.remove("NotImplementedError")
+                missing_exceptions.remove("NotImplementedError")
             except KeyError:
                 pass
-
-        if not missing_excs:
-            return
-
-        self.add_message(
-            "missing-raises-doc", args=(", ".join(sorted(missing_excs)),), node=node
-        )
+        if missing_exceptions:
+            self.add_message(
+                "missing-raises-doc",
+                args=(", ".join(sorted(missing_exceptions)),),
+                node=node,
+            )
 
 
 def register(linter: PyLinter) -> None:
