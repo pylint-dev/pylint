@@ -30,10 +30,10 @@ inconsistent-return-statements:237:0:237:41:test_finds_kwargs_without_type_sphin
 inconsistent-return-statements:256:0:256:39:test_finds_args_without_type_sphinx:Either all return statements in a function should return an expression, or none of them should.:UNDEFINED
 inconsistent-return-statements:274:0:274:41:test_finds_kwargs_without_type_sphinx:Either all return statements in a function should return an expression, or none of them should.:UNDEFINED
 missing-raises-doc:299:4:299:11:Foo.foo:"""AttributeError"" not documented as being raised":HIGH
-unreachable:325:8:325:17:Foo.foo:Unreachable code:UNDEFINED
+unreachable:325:8:325:17:Foo.foo:Unreachable code:HIGH
 missing-param-doc:328:4:328:11:Foo.foo:"""value"" missing in parameter documentation":HIGH
 missing-raises-doc:328:4:328:11:Foo.foo:"""AttributeError"" not documented as being raised":HIGH
 missing-type-doc:328:4:328:11:Foo.foo:"""value"" missing in parameter type documentation":HIGH
-unreachable:364:8:364:17:Foo.foo:Unreachable code:UNDEFINED
+unreachable:364:8:364:17:Foo.foo:Unreachable code:HIGH
 useless-param-doc:368:4:368:55:Foo.test_useless_docs_ignored_argument_names_sphinx:"""_, _ignored"" useless ignored parameter documentation":HIGH
 useless-type-doc:368:4:368:55:Foo.test_useless_docs_ignored_argument_names_sphinx:"""_"" useless ignored parameter type documentation":HIGH
