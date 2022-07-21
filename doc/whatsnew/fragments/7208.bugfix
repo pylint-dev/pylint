@@ -1,0 +1,6 @@
+The ``accept-no-raise-doc`` option related to ``missing-raises-doc`` will now be correctly
+taken into account all the time. As the default value was false and was not taken into
+account because of a bug, it means you will have to add ``accept-no-raise-doc=no`` in
+your configuration to keep the same behavior.
+
+Closes #7208
