@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import re
+import sys
 import tokenize
 from re import Pattern
 from typing import TYPE_CHECKING
@@ -15,6 +16,11 @@ from astroid import nodes
 
 from pylint.checkers import BaseTokenChecker
 from pylint.checkers.utils import only_required_for_messages
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -42,14 +48,16 @@ except ImportError:
         ...
 
     class Filter:  # type: ignore[no-redef]
-        def _skip(self, word):
+        def _skip(self, word: str) -> bool:
             raise NotImplementedError
 
     class Chunker:  # type: ignore[no-redef]
         pass
 
     def get_tokenizer(
-        tag=None, chunkers=None, filters=None
+        tag: str | None = None,
+        chunkers: list[Chunker] | None = None,
+        filters: list[Filter] | None = None,
     ):  # pylint: disable=unused-argument
         return Filter()
 
@@ -70,7 +78,7 @@ else:
 class WordsWithDigitsFilter(Filter):
     """Skips words with digits."""
 
-    def _skip(self, word):
+    def _skip(self, word: str) -> bool:
         return any(char.isdigit() for char in word)
 
 
@@ -80,7 +88,7 @@ class WordsWithUnderscores(Filter):
     They are probably function parameter names.
     """
 
-    def _skip(self, word):
+    def _skip(self, word: str) -> bool:
         return "_" in word
 
 
@@ -93,7 +101,7 @@ class RegExFilter(Filter):
 
     _pattern: Pattern[str]
 
-    def _skip(self, word) -> bool:
+    def _skip(self, word: str) -> bool:
         return bool(self._pattern.match(word))
 
 
@@ -148,7 +156,7 @@ class ForwardSlashChunker(Chunker):
                 return f"{pre_text}/{post_text}", 0
             return pre_text, 0
 
-    def _next(self):
+    def _next(self) -> tuple[str, Literal[0]]:
         while True:
             if "/" not in self._text:
                 return self._text, 0
@@ -172,7 +180,7 @@ def _strip_code_flanked_in_backticks(line: str) -> str:
     so this cannot be done at the individual filter level.
     """
 
-    def replace_code_but_leave_surrounding_characters(match_obj) -> str:
+    def replace_code_but_leave_surrounding_characters(match_obj: re.Match[str]) -> str:
         return match_obj.group(1) + match_obj.group(5)
 
     return CODE_FLANKED_IN_BACKTICK_REGEX.sub(
@@ -187,7 +195,9 @@ def _strip_mypy_ignore_directive_rule(line: str) -> str:
     so this cannot be done at the individual filter level.
     """
 
-    def replace_rule_name_but_leave_surrounding_characters(match_obj) -> str:
+    def replace_rule_name_but_leave_surrounding_characters(
+        match_obj: re.Match[str],
+    ) -> str:
         return match_obj.group(1) + match_obj.group(3)
 
     return MYPY_IGNORE_DIRECTIVE_RULE_REGEX.sub(
