@@ -641,6 +641,13 @@ class PyLinter(
 
             filepath = files_or_modules[0]
             with fix_import_path(files_or_modules):
+                if _is_ignored_file(
+                    filepath,
+                    self.config.ignore,
+                    self.config.ignore_patterns,
+                    self.config.ignore_paths,
+                ):
+                    return
                 self._check_files(
                     functools.partial(self.get_ast, data=_read_stdin()),
                     [self._get_file_descr_from_stdin(filepath)],
