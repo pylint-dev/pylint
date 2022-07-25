@@ -99,6 +99,15 @@ def _py_version_transformer(value: str) -> tuple[int, ...]:
     return version
 
 
+def _regex_transformer(value: str) -> Pattern[str]:
+    """Return `re.compile(value)`."""
+    try:
+        return re.compile(value)
+    except re.error as e:
+        msg = f"Error in provided regular expression: {value} beginning at index {e.pos}: {e.msg}"
+        raise argparse.ArgumentTypeError(msg)
+
+
 def _regexp_csv_transfomer(value: str) -> Sequence[Pattern[str]]:
     """Transforms a comma separated list of regular expressions."""
     patterns: list[Pattern[str]] = []
@@ -130,7 +139,7 @@ _TYPE_TRANSFORMERS: dict[str, Callable[[str], _ArgumentTypes]] = {
     "non_empty_string": _non_empty_string_transformer,
     "path": _path_transformer,
     "py_version": _py_version_transformer,
-    "regexp": re.compile,
+    "regexp": _regex_transformer,
     "regexp_csv": _regexp_csv_transfomer,
     "regexp_paths_csv": _regexp_paths_csv_transfomer,
     "string": pylint_utils._unquote,

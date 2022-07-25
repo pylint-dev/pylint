@@ -111,6 +111,20 @@ def test_unknown_py_version(capsys: CaptureFixture) -> None:
     assert "the-newest has an invalid format, should be a version string." in output.err
 
 
+def test_regex_error(capsys: CaptureFixture) -> None:
+    """Check that we correctly error when an an option is passed whose value is an invalid regular expression."""
+    with pytest.raises(SystemExit):
+        Run(
+            [str(EMPTY_MODULE), r"--function-rgx=[\p{Han}a-z_][\p{Han}a-z0-9_]{2,30}$"],
+            exit=False,
+        )
+    output = capsys.readouterr()
+    assert (
+        r"Error in provided regular expression: [\p{Han}a-z_][\p{Han}a-z0-9_]{2,30}$ beginning at index 1: bad escape \p"
+        in output.err
+    )
+
+
 def test_short_verbose(capsys: CaptureFixture) -> None:
     """Check that we correctly handle the -v flag."""
     Run([str(EMPTY_MODULE), "-v"], exit=False)
