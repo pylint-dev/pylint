@@ -112,7 +112,7 @@ def _regexp_csv_transfomer(value: str) -> Sequence[Pattern[str]]:
     """Transforms a comma separated list of regular expressions."""
     patterns: list[Pattern[str]] = []
     for pattern in _csv_transformer(value):
-        patterns.append(re.compile(pattern))
+        patterns.append(_regex_transformer(pattern))
     return patterns
 
 

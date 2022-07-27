@@ -125,6 +125,22 @@ def test_regex_error(capsys: CaptureFixture) -> None:
     )
 
 
+def test_csv_regex_error(capsys: CaptureFixture) -> None:
+    """Check that we correctly error when an option is passed and one
+    of its comma-separated regular expressions values is an invalid regular expression.
+    """
+    with pytest.raises(SystemExit):
+        Run(
+            [str(EMPTY_MODULE), r"--bad-names-rgx=(foo{1,3})"],
+            exit=False,
+        )
+    output = capsys.readouterr()
+    assert (
+        r"Error in provided regular expression: (foo{1 beginning at index 0: missing ), unterminated subpattern"
+        in output.err
+    )
+
+
 def test_short_verbose(capsys: CaptureFixture) -> None:
     """Check that we correctly handle the -v flag."""
     Run([str(EMPTY_MODULE), "-v"], exit=False)
