@@ -1,0 +1,3 @@
+Fixed a false positive 'no-member' for first exception argument that were not a string. It's usually a string but not always.
+
+Closes #7233
