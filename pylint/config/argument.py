@@ -102,7 +102,7 @@ def _py_version_transformer(value: str) -> tuple[int, ...]:
 def _regexp_csv_transfomer(value: str) -> Sequence[Pattern[str]]:
     """Transforms a comma separated list of regular expressions."""
     patterns: list[Pattern[str]] = []
-    for pattern in _csv_transformer(value):
+    for pattern in pylint_utils._check_regexp_csv(value):
         patterns.append(re.compile(pattern))
     return patterns
 
