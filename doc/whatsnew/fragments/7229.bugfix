@@ -1,0 +1,5 @@
+When parsing comma-separated lists of regular expressions in the config, ignore
+commas that are inside braces since those indicate quantiers, not dilineation
+between expressions.
+
+Closes #7229
