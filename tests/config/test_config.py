@@ -5,6 +5,8 @@
 from __future__ import annotations
 
 import os
+import re
+import timeit
 from pathlib import Path
 
 import pytest
@@ -109,6 +111,44 @@ def test_unknown_py_version(capsys: CaptureFixture) -> None:
         Run([str(EMPTY_MODULE), "--py-version=the-newest"], exit=False)
     output = capsys.readouterr()
     assert "the-newest has an invalid format, should be a version string." in output.err
+
+
+CSV_REGEX_COMMA_CASES = [
+    ("foo", ["foo"]),
+    ("foo,bar", ["foo", "bar"]),
+    ("foo, bar", ["foo", "bar"]),
+    ("foo, bar{1,3}", ["foo", "bar{1,3}"]),
+]
+
+
+@pytest.mark.parametrize("in_string,expected", CSV_REGEX_COMMA_CASES)
+def test_csv_regex_comma_in_quantifier(in_string, expected) -> None:
+    """Check that we correctly parse a comma-separated regex when there are one
+    or more commas within quantifier expressions.
+    """
+
+    def _template_run(in_string):
+        r = Run(
+            [str(EMPTY_MODULE), rf"--bad-names-rgx={in_string}"],
+            exit=False,
+        )
+        return r.linter.config.bad_names_rgxs
+
+    assert _template_run(in_string) == [re.compile(regex) for regex in expected]
+
+    # Catch trivially nonlinear performance
+    small_input_time = timeit.timeit(
+        "_template_run(in_string*100)",
+        globals=locals(),
+        number=10,
+    )
+    large_input_time = timeit.timeit(
+        "_template_run(in_string*1000)",
+        globals=locals(),
+        number=10,
+    )
+    fudge_factor = 3
+    assert large_input_time < small_input_time * 10 * fudge_factor
 
 
 def test_short_verbose(capsys: CaptureFixture) -> None:
