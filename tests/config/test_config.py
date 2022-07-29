@@ -136,19 +136,6 @@ def test_csv_regex_comma_in_quantifier(in_string, expected) -> None:
 
     assert _template_run(in_string) == [re.compile(regex) for regex in expected]
 
-    # Catch trivially nonlinear performance
-    small_input_time = timeit.timeit(
-        "_template_run(in_string*100)",
-        globals=locals(),
-        number=10,
-    )
-    large_input_time = timeit.timeit(
-        "_template_run(in_string*1000)",
-        globals=locals(),
-        number=10,
-    )
-    fudge_factor = 3
-    assert large_input_time < small_input_time * 10 * fudge_factor
 
 
 def test_short_verbose(capsys: CaptureFixture) -> None:
