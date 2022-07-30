@@ -1523,7 +1523,7 @@ Standard Checkers
 
 --ignored-argument-names
 """"""""""""""""""""""""
-*Argument names that match this expression will be ignored. Default to name with leading underscore.*
+*Argument names that match this expression will be ignored.*
 
 **Default:**  ``re.compile('_.*|^ignored_|^unused_')``
 

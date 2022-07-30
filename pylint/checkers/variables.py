@@ -1056,8 +1056,7 @@ class VariablesChecker(BaseChecker):
                 "default": IGNORED_ARGUMENT_NAMES,
                 "type": "regexp",
                 "metavar": "<regexp>",
-                "help": "Argument names that match this expression will be "
-                "ignored. Default to name with leading underscore.",
+                "help": "Argument names that match this expression will be ignored.",
             },
         ),
         (

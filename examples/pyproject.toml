@@ -509,8 +509,7 @@ callbacks = ["cb_", "_cb"]
 # be used).
 dummy-variables-rgx = "_+$|(_[a-zA-Z0-9_]*[a-zA-Z0-9]+?$)|dummy|^ignored_|^unused_"
 
-# Argument names that match this expression will be ignored. Default to name with
-# leading underscore.
+# Argument names that match this expression will be ignored.
 ignored-argument-names = "_.*|^ignored_|^unused_"
 
 # Tells whether we should check for unused import in __init__ files.
