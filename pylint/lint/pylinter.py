@@ -692,11 +692,11 @@ class PyLinter(
                     )
                     msg = get_fatal_error_message(file.filepath, template_path)
                     if isinstance(ex, AstroidError):
-                        symbol = "astroid-error"
-                        self.add_message(symbol, args=(file.filepath, msg))
+                        self.add_message(
+                            "astroid-error", args=(file.filepath, msg), confidence=HIGH
+                        )
                     else:
-                        symbol = "fatal"
-                        self.add_message(symbol, args=msg)
+                        self.add_message("fatal", args=msg, confidence=HIGH)
 
     def _check_file(
         self,
@@ -918,7 +918,8 @@ class PyLinter(
                 "syntax-error",
                 line=getattr(ex.error, "lineno", 0),
                 col_offset=getattr(ex.error, "offset", None),
-                args=str(ex.error),
+                args=f"Parsing failed: '{ex.error}'",
+                confidence=HIGH,
             )
         except astroid.AstroidBuildingError as ex:
             self.add_message("parse-error", args=ex)
