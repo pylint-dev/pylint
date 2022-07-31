@@ -7,6 +7,7 @@
 import os
 
 import astroid
+import pytest
 
 from pylint import epylint as lint
 from pylint.checkers import imports
@@ -40,6 +41,9 @@ class TestImportsChecker(CheckerTestCase):
             self.checker.visit_importfrom(module.body[2].body[0])
 
     @staticmethod
+    @pytest.mark.xfail(
+        reason="epylint manipulates cwd; these tests should not be using epylint"
+    )
     def test_relative_beyond_top_level_two() -> None:
         output, errors = lint.py_run(
             f"{os.path.join(REGR_DATA, 'beyond_top_two')} -d all -e relative-beyond-top-level",
