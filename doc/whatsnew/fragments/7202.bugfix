@@ -1,0 +1,3 @@
+Fix crash when regex option raises a `re.error` exception.
+
+Closes #7202
