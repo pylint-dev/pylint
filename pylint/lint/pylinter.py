@@ -651,12 +651,14 @@ class PyLinter(
                     self.get_ast, self._iterate_file_descrs(files_or_modules)
                 )
         else:
+            original_sys_path = sys.path[:]
             check_parallel(
                 self,
                 self.config.jobs,
                 self._iterate_file_descrs(files_or_modules),
-                files_or_modules,
+                files_or_modules,  # this argument patches sys.path
             )
+            sys.path = original_sys_path
 
     def check_single_file(self, name: str, filepath: str, modname: str) -> None:
         warnings.warn(
