@@ -105,9 +105,7 @@ def expand_modules(
                 )
                 if filepath is None:
                     continue
-            except (ImportError, SyntaxError) as ex:
-                # The SyntaxError is a Python bug and should be
-                # removed once we move away from imp.find_module: https://bugs.python.org/issue10588
+            except ImportError as ex:
                 errors.append({"key": "fatal", "mod": modname, "ex": ex})
                 continue
         filepath = os.path.normpath(filepath)
