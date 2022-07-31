@@ -81,5 +81,5 @@ class Grandchild1(Child6, Child7):
         super().close()
 
 
-class Granchild2(Child6, Child7):
+class Grandchild2(Child6, Child7):
     """Same test, but without reimplementation -- no warning"""
