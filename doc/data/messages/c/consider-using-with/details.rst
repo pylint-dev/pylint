@@ -1,4 +1,4 @@
-Calling ``write()`` without using the with keyword or calling ``close()`` might
+Calling ``write()`` without using the ``with`` keyword or calling ``close()`` might
 result in the arguments of ``write()`` not being completely written to the disk,
 even if the program exits successfully.
 
