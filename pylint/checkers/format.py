@@ -128,7 +128,7 @@ def _last_token_on_line_is(tokens: TokenWrapper, line_end: int, token: str) -> b
 class TokenWrapper:
     """A wrapper for readable access to token information."""
 
-    def __init__(self, tokens: list[tokenize.TokenInfo]):
+    def __init__(self, tokens: list[tokenize.TokenInfo]) -> None:
         self._tokens = tokens
 
     def token(self, idx: int) -> str:
