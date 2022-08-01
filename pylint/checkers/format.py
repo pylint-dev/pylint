@@ -533,7 +533,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             except KeyError:
                 lines.append("")
 
-    def _check_multi_statement_line(self, node: nodes.NG, line: str) -> None:
+    def _check_multi_statement_line(self, node: nodes.NodeNG, line: str) -> None:
         """Check for lines containing multiple statements."""
         # Do not warn about multiple nested context managers
         # in with statements.
