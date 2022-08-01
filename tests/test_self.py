@@ -569,12 +569,9 @@ class TestRunTC:
                     expected_output=expected,
                 )
 
-    def test_stdin_syntaxerror(self) -> None:
-        expected_output = (
-            "************* Module a\n"
-            "a.py:1:4: E0001: invalid syntax (<unknown>, line 1) (syntax-error)"
-        )
-
+    def test_stdin_syntax_error(self) -> None:
+        expected_output = """************* Module a
+a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-error)"""
         with mock.patch(
             "pylint.lint.pylinter._read_stdin", return_value="for\n"
         ) as mock_stdin:

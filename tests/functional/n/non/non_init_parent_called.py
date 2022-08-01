@@ -46,6 +46,6 @@ class Super2(dict):
     """ Using the same idiom as Super, but without calling
     the __init__ method.
     """
-    def __init__(self):  # [super-init-not-called]
+    def __init__(self):
         base = super()
         base.__woohoo__()  # [no-member]
