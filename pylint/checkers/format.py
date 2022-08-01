@@ -256,7 +256,6 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         super().__init__(linter)
         self._lines: dict[int, str] = {}
         self._visited_lines: dict[int, int] = {}
-        self._bracket_stack: list[str | None] = [None]
 
     def new_line(self, tokens: TokenWrapper, line_end: int, line_start: int) -> None:
         """A new line has been encountered, process it if necessary."""
@@ -286,8 +285,6 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         start: The position of the keyword in the token list.
         """
         # If the next token is not a paren, we're fine.
-        if self._bracket_stack[-1] == ":" and tokens[start].string == "for":
-            self._bracket_stack.pop()
         if tokens[start + 1].string != "(":
             return
         if (
@@ -385,7 +382,6 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         - optionally bad construct (if given, bad_construct must be a compiled
           regular expression).
         """
-        self._bracket_stack = [None]
         indents = [0]
         check_equal = False
         line_num = 0
