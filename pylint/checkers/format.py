@@ -252,7 +252,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         ),
     )
 
-    def __init__(self, linter: PyLinter):
+    def __init__(self, linter: PyLinter) -> None:
         super().__init__(linter)
         self._lines: dict[int, str] = {}
         self._visited_lines: dict[str | None, int | None] = {}
