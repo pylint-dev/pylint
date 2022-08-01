@@ -255,7 +255,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
     def __init__(self, linter: PyLinter) -> None:
         super().__init__(linter)
         self._lines: dict[int, str] = {}
-        self._visited_lines: dict[str | None, int | None] = {}
+        self._visited_lines: dict[int, int] = {}
         self._bracket_stack: list[str | None] = [None]
 
     def new_line(self, tokens: TokenWrapper, line_end: int, line_start: int) -> None:
@@ -379,7 +379,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                     return
 
     def process_tokens(self, tokens: list[tokenize.TokenInfo]) -> None:
-        """Process tokens and search for :
+        """Process tokens and search for:
 
         - too long lines (i.e. longer than <max_chars>)
         - optionally bad construct (if given, bad_construct must be a compiled
@@ -393,7 +393,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         self._visited_lines = {}
         self._last_line_ending: str | None = None
         last_blank_line_num = 0
-        for idx, (tok_type, token, start, _, line) in enumerate(tokens):
+        for idx, (tok_type, string, start, _, line) in enumerate(tokens):
             if start[0] != line_num:
                 line_num = start[0]
                 # A tokenizer oddity: if an indented line contains a multi-line
@@ -411,10 +411,10 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 # If an INDENT appears, setting check_equal is wrong, and will
                 # be undone when we see the INDENT.
                 check_equal = True
-                self._check_line_ending(token, line_num)
+                self._check_line_ending(string, line_num)
             elif tok_type == tokenize.INDENT:
                 check_equal = False
-                self.check_indent_level(token, indents[-1] + 1, line_num)
+                self.check_indent_level(string, indents[-1] + 1, line_num)
                 indents.append(indents[-1] + 1)
             elif tok_type == tokenize.DEDENT:
                 # there's nothing we need to check here!  what's important is
@@ -438,10 +438,10 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                     check_equal = False
                     self.check_indent_level(line, indents[-1], line_num)
 
-            if tok_type == tokenize.NUMBER and token.endswith("l"):
+            if tok_type == tokenize.NUMBER and string.endswith("l"):
                 self.add_message("lowercase-l-suffix", line=line_num)
 
-            if token in _KEYWORD_TOKENS:
+            if string in _KEYWORD_TOKENS:
                 self._check_keyword_parentheses(tokens, idx)
 
         line_num -= 1  # to be ok with "wc -l"
@@ -533,7 +533,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             except KeyError:
                 lines.append("")
 
-    def _check_multi_statement_line(self, node: nodes.NodeNG, line: str) -> None:
+    def _check_multi_statement_line(self, node: nodes.NodeNG, line: int) -> None:
         """Check for lines containing multiple statements."""
         # Do not warn about multiple nested context managers
         # in with statements.
