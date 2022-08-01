@@ -646,7 +646,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
     def check_lines(self, lines: str, lineno: int) -> None:
         """Check given lines for potential messages.
 
-        Check lines have:
+        Check if lines have:
         - a final newline
         - no trailing white-space
         - less than a maximum number of characters
