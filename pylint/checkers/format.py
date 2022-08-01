@@ -13,6 +13,7 @@ Some parts of the process_token method is based from The Tab Nanny std module.
 
 from __future__ import annotations
 
+import sys
 import tokenize
 from functools import reduce
 from re import Match
@@ -33,6 +34,11 @@ from pylint.utils.pragma_parser import OPTION_PO, PragmaParserError, parse_pragm
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
 _KEYWORD_TOKENS = {
     "assert",
@@ -255,7 +261,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
     def __init__(self, linter: PyLinter) -> None:
         super().__init__(linter)
         self._lines: dict[int, str] = {}
-        self._visited_lines: dict[int, int] = {}
+        self._visited_lines: dict[int, Literal[1, 2]] = {}
 
     def new_line(self, tokens: TokenWrapper, line_end: int, line_start: int) -> None:
         """A new line has been encountered, process it if necessary."""
