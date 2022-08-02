@@ -33,7 +33,7 @@ repos:
         exclude: tests(/\w*)*/functional/|tests/input|doc/data/messages|examples/|setup.py|tests(/\w*)*data/
         types: [python]
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.37.2
+    rev: v2.37.3
     hooks:
       - id: pyupgrade
         args: [--py37-plus]
@@ -50,11 +50,11 @@ repos:
         args: [--safe, --quiet]
         exclude: *fixtures
   - repo: https://github.com/Pierre-Sassoulas/black-disable-checker
-    rev: v1.1.0
+    rev: v1.1.1
     hooks:
       - id: black-disable-checker
   - repo: https://github.com/PyCQA/flake8
-    rev: 4.0.1
+    rev: 5.0.3
     hooks:
       - id: flake8
         additional_dependencies: [flake8-typing-imports==1.12.0]
