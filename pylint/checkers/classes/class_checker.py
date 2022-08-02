@@ -886,6 +886,10 @@ a metaclass class method.",
             ):
                 members = ancestor.getattr("__members__")
                 if members and isinstance(members[0], nodes.Dict) and members[0].items:
+                    member_names = set(item[1].name for item in members[0].items)
+                    member_names.discard("__slots__")
+                    if not member_names:
+                        return
                     self.add_message(
                         "invalid-enum-extension",
                         args=ancestor.name,

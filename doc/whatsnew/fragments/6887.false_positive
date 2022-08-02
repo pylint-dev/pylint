@@ -1,0 +1,3 @@
+Don't treat ``__slots__`` as enum member.
+
+Closes #6887

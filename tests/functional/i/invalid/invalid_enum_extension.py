@@ -20,6 +20,13 @@ class C(Enum):
 class D(C):
     x = 3
 
+# __slots__ must not be treated as member
+class E(Enum):
+    __slots__ = ("x",)
+
+class F(E):
+    member = 3
+
 
 class CustomFlags(IntFlag):
     SUPPORT_OPEN = 1
