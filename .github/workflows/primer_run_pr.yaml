@@ -36,15 +36,15 @@ jobs:
         python-version: ["3.7", "3.10"]
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.0.2
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
         with:
           fetch-depth: 0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v4.1.0
+        uses: actions/setup-python@c4e89fac7e8767b327bbad6cb4d859eda999cf08
         with:
           python-version: ${{ matrix.python-version }}
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@2fddd8803e2f5c9604345a0b591c3020ee971a93
         with:
           node-version: 16
       - run: npm install @octokit/rest
@@ -64,7 +64,7 @@ jobs:
           'astroid_sha.txt') }}"
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.5
+        uses: actions/cache@0865c47f36e68161719c5b124609996bb5c40129
         with:
           path: venv
           key: >-
@@ -85,7 +85,7 @@ jobs:
       # Cache primer packages
       - name: Download last 'main' run info
         id: download-main-run
-        uses: actions/github-script@v6
+        uses: actions/github-script@ffb8857abe8cb40cd466f67ed527c2564ee1ea00
         with:
           script: |
             // Download 'main' pylint output
@@ -145,7 +145,7 @@ jobs:
           echo "::set-output name=commitstring::$output"
       - name: Restore projects cache
         id: cache-projects
-        uses: actions/cache@v3.0.5
+        uses: actions/cache@0865c47f36e68161719c5b124609996bb5c40129
         with:
           path: tests/.pylint_primer_tests/
           key: >-
@@ -175,14 +175,14 @@ jobs:
           then echo "::warning ::$WARNINGS"
           fi
       - name: Upload output of PR
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8
         with:
           name: primer_output_pr
           path:
             tests/.pylint_primer_tests/output_${{ steps.python.outputs.python-version
             }}_pr.txt
       - name: Upload output of 'main'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8
         with:
           name: primer_output_main
           path: output_${{ steps.python.outputs.python-version }}_main.txt
@@ -192,7 +192,7 @@ jobs:
         run: |
           echo ${{ github.event.pull_request.number }} | tee pr_number.txt
       - name: Upload PR number
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8
         with:
           name: pr_number
           path: pr_number.txt

@@ -24,15 +24,15 @@ jobs:
     name: Run
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@2fddd8803e2f5c9604345a0b591c3020ee971a93
         with:
           node-version: 16
       - run: npm install @octokit/rest
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.0.2
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
       - name: Set up Python 3.10
         id: python
-        uses: actions/setup-python@v4.1.0
+        uses: actions/setup-python@c4e89fac7e8767b327bbad6cb4d859eda999cf08
         with:
           python-version: "3.10"
 
@@ -45,7 +45,7 @@ jobs:
           }}"
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.5
+        uses: actions/cache@0865c47f36e68161719c5b124609996bb5c40129
         with:
           path: venv
           key: >-
@@ -62,7 +62,7 @@ jobs:
           pip install -U -r requirements_test.txt
 
       - name: Download outputs
-        uses: actions/github-script@v6
+        uses: actions/github-script@ffb8857abe8cb40cd466f67ed527c2564ee1ea00
         with:
           script: |
             // Download workflow pylint output
@@ -117,7 +117,7 @@ jobs:
           --new-file=output_${{ steps.python.outputs.python-version }}_pr.txt
       - name: Post comment
         id: post-comment
-        uses: actions/github-script@v6
+        uses: actions/github-script@ffb8857abe8cb40cd466f67ed527c2564ee1ea00
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
