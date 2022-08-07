@@ -1,7 +1,5 @@
 Pylint is now using Scorecards to implement security recommendations from the
-OpenSSF. This is done in order to secure our supply chains using a combination
+`OpenSSF <https://openssf.org/>`_. This is done in order to secure our supply chains using a combination
 of automated tooling and best practices, most of which were already implemented before.
-
-See https://openssf.org/.
 
 Refs #7267
