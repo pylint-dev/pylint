@@ -225,10 +225,10 @@ Now we can debug our checker!
 
     If your pylint config has an init-hook that modifies
     ``sys.path`` to include the module's parent directory, this
-    will also work, but only if:
+    will also work, but only if either:
 
     * the ``init-hook`` and the ``load-plugins`` list are both
-      defined in a pylintrc file.
+      defined in a pylintrc file, or...
     * the ``init-hook`` is passed as a command-line argument and
       the ``load-plugins`` list is in the pylintrc file
 
