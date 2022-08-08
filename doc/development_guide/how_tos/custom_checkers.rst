@@ -223,6 +223,18 @@ Now we can debug our checker!
     environment variable or by adding the ``my_plugin.py``
     file to the ``pylint/checkers`` directory if running from source.
 
+    If your pylint config has an init-hook that modifies
+    ``sys.path`` to include the module's parent directory, this
+    will also work, but only if:
+
+    * the ``init-hook`` and the ``load-plugins`` list are both
+      defined in a pylintrc file.
+    * the ``init-hook`` is passed as a command-line argument and
+      the ``load-plugins`` list is in the pylintrc file
+
+    This is because pylint loads plugins specified on command
+    line before loading any configuration from other sources.
+
 Defining a Message
 ------------------
 
