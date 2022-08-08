@@ -221,7 +221,7 @@ Now we can debug our checker!
     The preferred way of making this plugin available to pylint is
     by installing it as a package, such as with ``pip install .``.
 
-    Alternatively, this module can be made available to pylint by
+    Alternatively, the plugin module can be made available to pylint by
     putting this module's parent directory in your ``PYTHONPATH``
     environment variable.
 
