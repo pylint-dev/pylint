@@ -218,8 +218,11 @@ Now we can debug our checker!
 .. Note::
 
     ``my_plugin`` refers to a module called ``my_plugin.py``.
-    This module can be made available to pylint by putting this
-    module's parent directory in your ``PYTHONPATH``
+    The preferred way of making this plugin available to pylint is
+    by installing it as a package, such as with ``pip install .``.
+
+    Alternatively, this module can be made available to pylint by
+    putting this module's parent directory in your ``PYTHONPATH``
     environment variable or by adding the ``my_plugin.py``
     file to the ``pylint/checkers`` directory if running from source.
 
