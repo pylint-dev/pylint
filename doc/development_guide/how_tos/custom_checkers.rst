@@ -219,7 +219,8 @@ Now we can debug our checker!
 
     ``my_plugin`` refers to a module called ``my_plugin.py``.
     The preferred way of making this plugin available to pylint is
-    by installing it as a package, such as with ``pip install .``.
+    by installing it as a package. This can be done either from a packaging index like
+    ``PyPI`` or by installing it from a local source such as with ``pip install .``.
 
     Alternatively, the plugin module can be made available to pylint by
     putting this module's parent directory in your ``PYTHONPATH``
