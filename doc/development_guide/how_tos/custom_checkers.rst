@@ -223,8 +223,7 @@ Now we can debug our checker!
 
     Alternatively, this module can be made available to pylint by
     putting this module's parent directory in your ``PYTHONPATH``
-    environment variable or by adding the ``my_plugin.py``
-    file to the ``pylint/checkers`` directory if running from source.
+    environment variable.
 
     If your pylint config has an init-hook that modifies
     ``sys.path`` to include the module's parent directory, this
