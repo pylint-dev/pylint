@@ -7,11 +7,11 @@
 import os
 
 import astroid
-import pytest
+from pytest import CaptureFixture
 
-from pylint import epylint as lint
 from pylint.checkers import imports
 from pylint.interfaces import UNDEFINED
+from pylint.lint import Run
 from pylint.testutils import CheckerTestCase, MessageTest
 
 REGR_DATA = os.path.join(os.path.dirname(__file__), "..", "regrtest_data", "")
@@ -41,42 +41,57 @@ class TestImportsChecker(CheckerTestCase):
             self.checker.visit_importfrom(module.body[2].body[0])
 
     @staticmethod
-    @pytest.mark.xfail(
-        reason="epylint manipulates cwd; these tests should not be using epylint"
-    )
-    def test_relative_beyond_top_level_two() -> None:
-        output, errors = lint.py_run(
-            f"{os.path.join(REGR_DATA, 'beyond_top_two')} -d all -e relative-beyond-top-level",
-            return_std=True,
+    def test_relative_beyond_top_level_two(capsys: CaptureFixture[str]) -> None:
+        Run(
+            [
+                f"{os.path.join(REGR_DATA, 'beyond_top_two')}",
+                "-d all",
+                "-e relative-beyond-top-level",
+            ],
+            exit=False,
         )
+        output, errors = capsys.readouterr()
+
         top_level_function = os.path.join(
             REGR_DATA, "beyond_top_two/namespace_package/top_level_function.py"
         )
-        output2, errors2 = lint.py_run(
-            f"{top_level_function} -d all -e relative-beyond-top-level",
-            return_std=True,
+        Run(
+            [top_level_function, "-d all", "-e relative-beyond-top-level"],
+            exit=False,
         )
+        output2, errors2 = capsys.readouterr()
 
-        assert len(output.readlines()) == len(output2.readlines())
-        assert errors.readlines() == errors2.readlines()
-
-    @staticmethod
-    def test_relative_beyond_top_level_three() -> None:
-        output, errors = lint.py_run(
-            f"{os.path.join(REGR_DATA, 'beyond_top_three/a.py')} -d all -e relative-beyond-top-level",
-            return_std=True,
-        )
-        assert len(output.readlines()) == 5
-        assert errors.readlines() == []
+        # The first package fails to lint
+        assert len(output.split("\n")) == 1
+        assert len(output2.split("\n")) == 5
+        assert errors == errors2
 
     @staticmethod
-    def test_relative_beyond_top_level_four() -> None:
-        output, errors = lint.py_run(
-            f"{os.path.join(REGR_DATA, 'beyond_top_four/module')} -d missing-docstring,unused-import",
-            return_std=True,
+    def test_relative_beyond_top_level_three(capsys: CaptureFixture[str]) -> None:
+        Run(
+            [
+                f"{os.path.join(REGR_DATA, 'beyond_top_three/a.py')}",
+                "-d all",
+                "-e relative-beyond-top-level",
+            ],
+            exit=False,
         )
-        assert len(output.readlines()) == 5
-        assert errors.readlines() == []
+        output, errors = capsys.readouterr()
+        assert len(output.split("\n")) == 5
+        assert errors == ""
+
+    @staticmethod
+    def test_relative_beyond_top_level_four(capsys: CaptureFixture[str]) -> None:
+        Run(
+            [
+                f"{os.path.join(REGR_DATA, 'beyond_top_four/module')}",
+                "-d missing-docstring,unused-import",
+            ],
+            exit=False,
+        )
+        output, errors = capsys.readouterr()
+        assert len(output.split("\n")) == 5
+        assert errors == ""
 
     def test_wildcard_import_init(self) -> None:
         module = astroid.MANAGER.ast_from_module_name("init_wildcard", REGR_DATA)
