@@ -915,7 +915,7 @@ class PyLinter(
     ) -> nodes.Module | None:
         """Return an ast(roid) representation of a module or a string.
 
-        :param str filepath: path to checked file.
+        :param filepath: path to checked file.
         :param str modname: The name of the module to be checked.
         :param str data: optional contents of the checked file.
         :returns: the AST
