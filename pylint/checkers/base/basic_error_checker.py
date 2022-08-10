@@ -68,7 +68,7 @@ def _loop_exits_early(loop: nodes.For | nodes.While) -> bool:
     )
 
 
-def _has_abstract_methods(node):
+def _has_abstract_methods(node: nodes.ClassDef) -> bool:
     """Determine if the given `node` has abstract methods.
 
     The methods should be made abstract by decorating them
