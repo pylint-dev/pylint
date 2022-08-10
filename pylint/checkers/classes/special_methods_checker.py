@@ -7,7 +7,6 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import Any
 
 import astroid
 from astroid import bases, nodes
@@ -246,68 +245,68 @@ class SpecialMethodsChecker(BaseChecker):
             )
 
     @staticmethod
-    def _is_wrapped_type(node: nodes.NodeNG, type_: str) -> bool:
+    def _is_wrapped_type(node: InferenceResult, type_: str) -> bool:
         return (
-            isinstance(node, astroid.Instance)
+            isinstance(node, bases.Instance)
             and node.name == type_
             and not isinstance(node, nodes.Const)
         )
 
     @staticmethod
-    def _is_int(node: nodes.Const | nodes.Dict) -> bool:
+    def _is_int(node: InferenceResult) -> bool:
         if SpecialMethodsChecker._is_wrapped_type(node, "int"):
             return True
 
         return isinstance(node, nodes.Const) and isinstance(node.value, int)
 
     @staticmethod
-    def _is_str(node: nodes.Const) -> bool:
+    def _is_str(node: InferenceResult) -> bool:
         if SpecialMethodsChecker._is_wrapped_type(node, "str"):
             return True
 
         return isinstance(node, nodes.Const) and isinstance(node.value, str)
 
     @staticmethod
-    def _is_bool(node: nodes.Const) -> bool:
+    def _is_bool(node: InferenceResult) -> bool:
         if SpecialMethodsChecker._is_wrapped_type(node, "bool"):
             return True
 
         return isinstance(node, nodes.Const) and isinstance(node.value, bool)
 
     @staticmethod
-    def _is_bytes(node: bases.Instance | nodes.Const) -> bool:
+    def _is_bytes(node: InferenceResult) -> bool:
         if SpecialMethodsChecker._is_wrapped_type(node, "bytes"):
             return True
 
         return isinstance(node, nodes.Const) and isinstance(node.value, bytes)
 
     @staticmethod
-    def _is_tuple(node: nodes.Const | nodes.Tuple) -> bool:
+    def _is_tuple(node: InferenceResult) -> bool:
         if SpecialMethodsChecker._is_wrapped_type(node, "tuple"):
             return True
 
         return isinstance(node, nodes.Const) and isinstance(node.value, tuple)
 
     @staticmethod
-    def _is_dict(node: nodes.Dict | nodes.Tuple) -> bool:
+    def _is_dict(node: InferenceResult) -> bool:
         if SpecialMethodsChecker._is_wrapped_type(node, "dict"):
             return True
 
         return isinstance(node, nodes.Const) and isinstance(node.value, dict)
 
     @staticmethod
-    def _is_iterator(node: Any) -> bool:
+    def _is_iterator(node: InferenceResult) -> bool:
         if node is astroid.Uninferable:
             # Just ignore Uninferable objects.
             return True
-        if isinstance(node, astroid.bases.Generator):
+        if isinstance(node, bases.Generator):
             # Generators can be iterated.
             return True
         if isinstance(node, nodes.ComprehensionScope):
             # Comprehensions can be iterated.
             return True
 
-        if isinstance(node, astroid.Instance):
+        if isinstance(node, bases.Instance):
             try:
                 node.local_attr(NEXT_METHOD)
                 return True
