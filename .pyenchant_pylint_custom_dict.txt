@@ -212,6 +212,7 @@ mymodule
 mypy
 namedtuple
 namespace
+newsfile
 newstyle
 nl
 nodename
@@ -320,6 +321,7 @@ tokenizer
 toml
 tomlkit
 toplevel
+towncrier
 tp
 truthness
 tryexcept

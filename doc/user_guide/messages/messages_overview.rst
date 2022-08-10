@@ -56,7 +56,7 @@ All messages in the error category:
    error/await-outside-async
    error/bad-configuration-section
    error/bad-except-order
-   error/bad-exception-context
+   error/bad-exception-cause
    error/bad-format-character
    error/bad-plugin-value
    error/bad-reversed-sequence
@@ -177,6 +177,7 @@ All renamed messages in the error category:
    :titlesonly:
 
    error/bad-context-manager
+   error/bad-exception-context
    error/bad-option-value
    error/maybe-no-member
    error/old-non-iterator-returned-2

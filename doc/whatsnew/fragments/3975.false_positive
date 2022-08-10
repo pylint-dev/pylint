@@ -1,0 +1,3 @@
+Don't report ``super-init-not-called`` for abstract ``__init__`` methods.
+
+Closes #3975

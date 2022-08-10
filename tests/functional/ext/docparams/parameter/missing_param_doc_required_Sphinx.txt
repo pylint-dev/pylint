@@ -1,39 +1,39 @@
-missing-param-doc:8:0:8:48:test_missing_func_params_in_sphinx_docstring:"""y"" missing in parameter documentation":UNDEFINED
-missing-type-doc:8:0:8:48:test_missing_func_params_in_sphinx_docstring:"""x, y"" missing in parameter type documentation":UNDEFINED
-missing-param-doc:22:4:22:54:Foo.test_missing_method_params_in_sphinx_docstring:"""y"" missing in parameter documentation":UNDEFINED
-missing-type-doc:22:4:22:54:Foo.test_missing_method_params_in_sphinx_docstring:"""x, y"" missing in parameter type documentation":UNDEFINED
-differing-param-doc:55:0:55:54:test_wrong_name_of_func_params_in_sphinx_docstring:"""xarg1, zarg1"" differing in parameter documentation":UNDEFINED
-differing-type-doc:55:0:55:54:test_wrong_name_of_func_params_in_sphinx_docstring:"""yarg1, zarg1"" differing in parameter type documentation":UNDEFINED
-missing-param-doc:55:0:55:54:test_wrong_name_of_func_params_in_sphinx_docstring:"""xarg, zarg"" missing in parameter documentation":UNDEFINED
-missing-type-doc:55:0:55:54:test_wrong_name_of_func_params_in_sphinx_docstring:"""yarg, zarg"" missing in parameter type documentation":UNDEFINED
-differing-param-doc:72:0:72:58:test_wrong_name_of_func_params_in_sphinx_docstring_two:"""yarg1"" differing in parameter documentation":UNDEFINED
-differing-type-doc:72:0:72:58:test_wrong_name_of_func_params_in_sphinx_docstring_two:"""yarg1"" differing in parameter type documentation":UNDEFINED
-missing-param-doc:99:0:99:14:ClassFoo:"""x"" missing in parameter documentation":UNDEFINED
-missing-type-doc:99:0:99:14:ClassFoo:"""x, y"" missing in parameter type documentation":UNDEFINED
-missing-param-doc:116:4:116:16:ClassFoo.__init__:"""x"" missing in parameter documentation":UNDEFINED
-missing-type-doc:116:4:116:16:ClassFoo.__init__:"""x, y"" missing in parameter type documentation":UNDEFINED
-missing-param-doc:131:0:131:14:ClassFoo:"""x"" missing in parameter documentation":UNDEFINED
-missing-type-doc:131:0:131:14:ClassFoo:"""x, y"" missing in parameter type documentation":UNDEFINED
-multiple-constructor-doc:131:0:131:14:ClassFoo:"""ClassFoo"" has constructor parameters documented in class and __init__":UNDEFINED
-missing-param-doc:144:4:144:16:ClassFoo.__init__:"""x"" missing in parameter documentation":UNDEFINED
-missing-type-doc:144:4:144:16:ClassFoo.__init__:"""x, y"" missing in parameter type documentation":UNDEFINED
+missing-param-doc:8:0:8:48:test_missing_func_params_in_sphinx_docstring:"""y"" missing in parameter documentation":HIGH
+missing-type-doc:8:0:8:48:test_missing_func_params_in_sphinx_docstring:"""x, y"" missing in parameter type documentation":HIGH
+missing-param-doc:22:4:22:54:Foo.test_missing_method_params_in_sphinx_docstring:"""y"" missing in parameter documentation":HIGH
+missing-type-doc:22:4:22:54:Foo.test_missing_method_params_in_sphinx_docstring:"""x, y"" missing in parameter type documentation":HIGH
+differing-param-doc:55:0:55:54:test_wrong_name_of_func_params_in_sphinx_docstring:"""xarg1, zarg1"" differing in parameter documentation":HIGH
+differing-type-doc:55:0:55:54:test_wrong_name_of_func_params_in_sphinx_docstring:"""yarg1, zarg1"" differing in parameter type documentation":HIGH
+missing-param-doc:55:0:55:54:test_wrong_name_of_func_params_in_sphinx_docstring:"""xarg, zarg"" missing in parameter documentation":HIGH
+missing-type-doc:55:0:55:54:test_wrong_name_of_func_params_in_sphinx_docstring:"""yarg, zarg"" missing in parameter type documentation":HIGH
+differing-param-doc:72:0:72:58:test_wrong_name_of_func_params_in_sphinx_docstring_two:"""yarg1"" differing in parameter documentation":HIGH
+differing-type-doc:72:0:72:58:test_wrong_name_of_func_params_in_sphinx_docstring_two:"""yarg1"" differing in parameter type documentation":HIGH
+missing-param-doc:99:0:99:14:ClassFoo:"""x"" missing in parameter documentation":HIGH
+missing-type-doc:99:0:99:14:ClassFoo:"""x, y"" missing in parameter type documentation":HIGH
+missing-param-doc:116:4:116:16:ClassFoo.__init__:"""x"" missing in parameter documentation":HIGH
+missing-type-doc:116:4:116:16:ClassFoo.__init__:"""x, y"" missing in parameter type documentation":HIGH
+missing-param-doc:131:0:131:14:ClassFoo:"""x"" missing in parameter documentation":HIGH
+missing-type-doc:131:0:131:14:ClassFoo:"""x, y"" missing in parameter type documentation":HIGH
+multiple-constructor-doc:131:0:131:14:ClassFoo:"""ClassFoo"" has constructor parameters documented in class and __init__":HIGH
+missing-param-doc:144:4:144:16:ClassFoo.__init__:"""x"" missing in parameter documentation":HIGH
+missing-type-doc:144:4:144:16:ClassFoo.__init__:"""x, y"" missing in parameter type documentation":HIGH
 inconsistent-return-statements:154:0:154:34:test_warns_missing_args_sphinx:Either all return statements in a function should return an expression, or none of them should.:UNDEFINED
-missing-param-doc:154:0:154:34:test_warns_missing_args_sphinx:"""*args"" missing in parameter documentation":UNDEFINED
+missing-param-doc:154:0:154:34:test_warns_missing_args_sphinx:"""*args"" missing in parameter documentation":HIGH
 inconsistent-return-statements:169:0:169:36:test_warns_missing_kwargs_sphinx:Either all return statements in a function should return an expression, or none of them should.:UNDEFINED
-missing-param-doc:169:0:169:36:test_warns_missing_kwargs_sphinx:"""**kwargs"" missing in parameter documentation":UNDEFINED
+missing-param-doc:169:0:169:36:test_warns_missing_kwargs_sphinx:"""**kwargs"" missing in parameter documentation":HIGH
 inconsistent-return-statements:184:0:184:39:test_finds_args_without_type_sphinx:Either all return statements in a function should return an expression, or none of them should.:UNDEFINED
-missing-param-doc:184:0:184:39:test_finds_args_without_type_sphinx:"""*args"" missing in parameter documentation":UNDEFINED
+missing-param-doc:184:0:184:39:test_finds_args_without_type_sphinx:"""*args"" missing in parameter documentation":HIGH
 inconsistent-return-statements:201:0:201:41:test_finds_kwargs_without_type_sphinx:Either all return statements in a function should return an expression, or none of them should.:UNDEFINED
-missing-param-doc:201:0:201:41:test_finds_kwargs_without_type_sphinx:"""**kwargs"" missing in parameter documentation":UNDEFINED
+missing-param-doc:201:0:201:41:test_finds_kwargs_without_type_sphinx:"""**kwargs"" missing in parameter documentation":HIGH
 inconsistent-return-statements:218:0:218:39:test_finds_args_without_type_sphinx:Either all return statements in a function should return an expression, or none of them should.:UNDEFINED
 inconsistent-return-statements:237:0:237:41:test_finds_kwargs_without_type_sphinx:Either all return statements in a function should return an expression, or none of them should.:UNDEFINED
 inconsistent-return-statements:256:0:256:39:test_finds_args_without_type_sphinx:Either all return statements in a function should return an expression, or none of them should.:UNDEFINED
 inconsistent-return-statements:274:0:274:41:test_finds_kwargs_without_type_sphinx:Either all return statements in a function should return an expression, or none of them should.:UNDEFINED
-missing-raises-doc:299:4:299:11:Foo.foo:"""AttributeError"" not documented as being raised":UNDEFINED
-unreachable:325:8:325:17:Foo.foo:Unreachable code:UNDEFINED
-missing-param-doc:328:4:328:11:Foo.foo:"""value"" missing in parameter documentation":UNDEFINED
-missing-raises-doc:328:4:328:11:Foo.foo:"""AttributeError"" not documented as being raised":UNDEFINED
-missing-type-doc:328:4:328:11:Foo.foo:"""value"" missing in parameter type documentation":UNDEFINED
-unreachable:364:8:364:17:Foo.foo:Unreachable code:UNDEFINED
-useless-param-doc:368:4:368:55:Foo.test_useless_docs_ignored_argument_names_sphinx:"""_, _ignored"" useless ignored parameter documentation":UNDEFINED
-useless-type-doc:368:4:368:55:Foo.test_useless_docs_ignored_argument_names_sphinx:"""_"" useless ignored parameter type documentation":UNDEFINED
+missing-raises-doc:299:4:299:11:Foo.foo:"""AttributeError"" not documented as being raised":HIGH
+unreachable:325:8:325:17:Foo.foo:Unreachable code:HIGH
+missing-param-doc:328:4:328:11:Foo.foo:"""value"" missing in parameter documentation":HIGH
+missing-raises-doc:328:4:328:11:Foo.foo:"""AttributeError"" not documented as being raised":HIGH
+missing-type-doc:328:4:328:11:Foo.foo:"""value"" missing in parameter type documentation":HIGH
+unreachable:364:8:364:17:Foo.foo:Unreachable code:HIGH
+useless-param-doc:368:4:368:55:Foo.test_useless_docs_ignored_argument_names_sphinx:"""_, _ignored"" useless ignored parameter documentation":HIGH
+useless-type-doc:368:4:368:55:Foo.test_useless_docs_ignored_argument_names_sphinx:"""_"" useless ignored parameter type documentation":HIGH

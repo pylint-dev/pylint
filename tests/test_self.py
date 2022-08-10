@@ -569,12 +569,9 @@ class TestRunTC:
                     expected_output=expected,
                 )
 
-    def test_stdin_syntaxerror(self) -> None:
-        expected_output = (
-            "************* Module a\n"
-            "a.py:1:4: E0001: invalid syntax (<unknown>, line 1) (syntax-error)"
-        )
-
+    def test_stdin_syntax_error(self) -> None:
+        expected_output = """************* Module a
+a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-error)"""
         with mock.patch(
             "pylint.lint.pylinter._read_stdin", return_value="for\n"
         ) as mock_stdin:
@@ -761,6 +758,24 @@ class TestRunTC:
             with _test_environ_pythonpath():
                 modify_sys_path()
             assert sys.path == paths[1:]
+
+            paths = ["", *default_paths]
+            sys.path = copy(paths)
+            with _test_environ_pythonpath():
+                modify_sys_path()
+            assert sys.path == paths[1:]
+
+            paths = [".", *default_paths]
+            sys.path = copy(paths)
+            with _test_environ_pythonpath():
+                modify_sys_path()
+            assert sys.path == paths[1:]
+
+            paths = ["/do_not_remove", *default_paths]
+            sys.path = copy(paths)
+            with _test_environ_pythonpath():
+                modify_sys_path()
+            assert sys.path == paths
 
             paths = [cwd, cwd, *default_paths]
             sys.path = copy(paths)
@@ -1179,7 +1194,9 @@ class TestCallbackOptions:
             (["--long-help"], "Environment variables:"),
         ],
     )
-    def test_output_of_callback_options(command: list[str], expected: str) -> None:
+    def test_output_of_callback_options(
+        command: list[str], expected: str, tmp_path: Path
+    ) -> None:
         """Test whether certain strings are in the output of a callback command."""
         command = _add_rcfile_default_pylintrc(command)
         process = subprocess.run(
@@ -1187,6 +1204,7 @@ class TestCallbackOptions:
             capture_output=True,
             encoding="utf-8",
             check=False,
+            cwd=str(tmp_path),
         )
         assert expected in process.stdout
 
@@ -1199,7 +1217,9 @@ class TestCallbackOptions:
             [["--help-msg"], "--help-msg: expected at least one argumen", True],
         ],
     )
-    def test_help_msg(args: list[str], expected: str, error: bool) -> None:
+    def test_help_msg(
+        args: list[str], expected: str, error: bool, tmp_path: Path
+    ) -> None:
         """Test the --help-msg flag."""
         args = _add_rcfile_default_pylintrc(args)
         process = subprocess.run(
@@ -1207,6 +1227,7 @@ class TestCallbackOptions:
             capture_output=True,
             encoding="utf-8",
             check=False,
+            cwd=str(tmp_path),
         )
         if error:
             result = process.stderr
@@ -1215,7 +1236,7 @@ class TestCallbackOptions:
         assert expected in result
 
     @staticmethod
-    def test_generate_rcfile() -> None:
+    def test_generate_rcfile(tmp_path: Path) -> None:
         """Test the --generate-rcfile flag."""
         args = _add_rcfile_default_pylintrc(["--generate-rcfile"])
         process = subprocess.run(
@@ -1223,6 +1244,7 @@ class TestCallbackOptions:
             capture_output=True,
             encoding="utf-8",
             check=False,
+            cwd=str(tmp_path),
         )
         assert "[MAIN]" in process.stdout
         assert "[MASTER]" not in process.stdout
@@ -1233,6 +1255,7 @@ class TestCallbackOptions:
             capture_output=True,
             encoding="utf-8",
             check=False,
+            cwd=str(tmp_path),
         )
         assert process.stdout == process_two.stdout
 
@@ -1271,7 +1294,7 @@ class TestCallbackOptions:
         assert "suppressed-message" in messages
 
     @staticmethod
-    def test_generate_toml_config() -> None:
+    def test_generate_toml_config(tmp_path: Path) -> None:
         """Test the --generate-toml-config flag."""
         args = _add_rcfile_default_pylintrc(
             [
@@ -1284,6 +1307,7 @@ class TestCallbackOptions:
             capture_output=True,
             encoding="utf-8",
             check=False,
+            cwd=str(tmp_path),
         )
         assert "[tool.pylint.main]" in process.stdout
         assert "[tool.pylint.master]" not in process.stdout
@@ -1296,6 +1320,7 @@ class TestCallbackOptions:
             capture_output=True,
             encoding="utf-8",
             check=False,
+            cwd=str(tmp_path),
         )
         assert process.stdout == process_two.stdout
 

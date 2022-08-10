@@ -2051,7 +2051,7 @@ a metaclass class method.",
                         # Record that the class' init has been called
                         parents_with_called_inits.add(node_frame_class(method))
                     except KeyError:
-                        if klass not in to_call:
+                        if klass not in klass_node.ancestors(recurs=False):
                             self.add_message(
                                 "non-parent-init-called", node=expr, args=klass.name
                             )
@@ -2077,9 +2077,6 @@ a metaclass class method.",
                     continue
 
             if decorated_with(node, ["typing.overload"]):
-                continue
-            cls = node_frame_class(method)
-            if klass.name == "object" or (cls and cls.name == "object"):
                 continue
             self.add_message(
                 "super-init-not-called",
@@ -2213,7 +2210,10 @@ def _ancestors_to_call(
     to_call: dict[nodes.ClassDef, bases.UnboundMethod] = {}
     for base_node in klass_node.ancestors(recurs=False):
         try:
-            to_call[base_node] = next(base_node.igetattr(method))
+            init_node: bases.UnboundMethod = next(base_node.igetattr(method))
+            if init_node.is_abstract():
+                continue
+            to_call[base_node] = init_node
         except astroid.InferenceError:
             continue
     return to_call

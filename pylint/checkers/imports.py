@@ -28,6 +28,7 @@ from pylint.checkers.utils import (
 )
 from pylint.exceptions import EmptyReportError
 from pylint.graph import DotBackend, get_cycles
+from pylint.interfaces import HIGH
 from pylint.reporters.ureports.nodes import Paragraph, Section, VerbatimText
 from pylint.typing import MessageDefinitionTuple
 from pylint.utils import IsortDriver
@@ -800,10 +801,10 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 return None
             self.add_message("relative-beyond-top-level", node=importnode)
         except astroid.AstroidSyntaxError as exc:
-            message = (
-                f"Cannot import {modname!r} due to syntax error {str(exc.error)!r}"
+            message = f"Cannot import {modname!r} due to '{exc.error}'"
+            self.add_message(
+                "syntax-error", line=importnode.lineno, args=message, confidence=HIGH
             )
-            self.add_message("syntax-error", line=importnode.lineno, args=message)
 
         except astroid.AstroidBuildingError:
             if not self.linter.is_message_enabled("import-error"):

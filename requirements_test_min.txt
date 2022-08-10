@@ -5,4 +5,5 @@ typing-extensions~=4.3
 pytest~=7.1
 pytest-benchmark~=3.4
 pytest-timeout~=2.1
+towncrier~=21.9
 requests

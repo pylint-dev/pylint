@@ -82,8 +82,10 @@ def expand_modules(
             continue
         module_path = get_python_path(something)
         additional_search_path = [".", module_path] + path
-        if os.path.exists(something):
-            # this is a file or a directory
+        if os.path.isfile(something) or os.path.exists(
+            os.path.join(something, "__init__.py")
+        ):
+            # this is a file or a directory with an explicit __init__.py
             try:
                 modname = ".".join(
                     modutils.modpath_from_file(something, path=additional_search_path)
@@ -103,9 +105,7 @@ def expand_modules(
                 )
                 if filepath is None:
                     continue
-            except (ImportError, SyntaxError) as ex:
-                # The SyntaxError is a Python bug and should be
-                # removed once we move away from imp.find_module: https://bugs.python.org/issue10588
+            except ImportError as ex:
                 errors.append({"key": "fatal", "mod": modname, "ex": ex})
                 continue
         filepath = os.path.normpath(filepath)

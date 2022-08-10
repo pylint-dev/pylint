@@ -59,9 +59,9 @@ class NewStyleC(object):
 
 
 class AssignedInit(NewStyleC):
-    """No init called."""
+    """No init called, but abstract so that is fine."""
 
-    def __init__(self):  # [super-init-not-called]
+    def __init__(self):
         self.arg = 0
 
 
