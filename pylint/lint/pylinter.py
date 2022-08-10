@@ -17,6 +17,7 @@ from collections import defaultdict
 from collections.abc import Callable, Iterable, Iterator, Sequence
 from io import TextIOWrapper
 from pathlib import Path
+from re import Pattern
 from typing import Any
 
 import astroid
@@ -307,6 +308,7 @@ class PyLinter(
         self.current_name: str | None = None
         self.current_file: str | None = None
         self._ignore_file = False
+        self._ignore_paths: list[Pattern[str]] = []
 
         # Attributes related to stats
         self.stats = LinterStats()
@@ -576,6 +578,7 @@ class PyLinter(
 
         This method is called before any linting is done.
         """
+        self._ignore_paths = self.config.ignore_paths
         # initialize msgs_state now that all messages have been registered into
         # the store
         for msg in self.msgs_store.messages:
@@ -1013,7 +1016,6 @@ class PyLinter(
                 self.config.extension_pkg_whitelist
             )
         self.stats.reset_message_count()
-        self._ignore_paths = self.linter.config.ignore_paths
 
     def generate_reports(self) -> int | None:
         """Close the whole package /module, it's time to make reports !
