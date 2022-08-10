@@ -902,7 +902,7 @@ class PyLinter(
 
     def get_ast(
         self, filepath: str, modname: str, data: str | None = None
-    ) -> nodes.Module:
+    ) -> nodes.Module | None:
         """Return an ast(roid) representation of a module or a string.
 
         :param str filepath: path to checked file.
