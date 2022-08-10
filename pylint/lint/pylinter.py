@@ -626,7 +626,10 @@ class PyLinter(
 
         files_or_modules is either a string or list of strings presenting modules to check.
         """
+        # 1) Initialize
         self.initialize()
+
+        # 2) Gather all files
         if not isinstance(files_or_modules, (list, tuple)):
             # TODO: 3.0: Remove deprecated typing and update docstring
             warnings.warn(
@@ -642,23 +645,30 @@ class PyLinter(
                     "Missing filename required for --from-stdin"
                 )
 
-            filepath = files_or_modules[0]
+        # 3) Get all FileItems
+        with fix_import_path(files_or_modules):
+            if self.config.from_stdin:
+                fileitems = iter(
+                    (self._get_file_descr_from_stdin(files_or_modules[0]),)
+                )
+            else:
+                fileitems = self._iterate_file_descrs(files_or_modules)
+
+        if self.config.from_stdin:
             with fix_import_path(files_or_modules):
                 self._check_files(
                     functools.partial(self.get_ast, data=_read_stdin()),
-                    [self._get_file_descr_from_stdin(filepath)],
+                    fileitems,
                 )
         elif self.config.jobs == 1:
             with fix_import_path(files_or_modules):
-                self._check_files(
-                    self.get_ast, self._iterate_file_descrs(files_or_modules)
-                )
+                self._check_files(self.get_ast, fileitems)
         else:
             original_sys_path = sys.path[:]
             check_parallel(
                 self,
                 self.config.jobs,
-                self._iterate_file_descrs(files_or_modules),
+                fileitems,
                 files_or_modules,  # this argument patches sys.path
             )
             sys.path = original_sys_path
