@@ -6,12 +6,13 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterator
+from collections.abc import Callable
 from typing import Any
 
 import astroid
-from astroid import Uninferable, bases, nodes
+from astroid import bases, nodes
 from astroid.context import InferenceContext
+from astroid.typing import InferenceResult
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
@@ -31,7 +32,7 @@ def _safe_infer_call_result(
     node: nodes.FunctionDef,
     caller: nodes.FunctionDef,
     context: InferenceContext | None = None,
-) -> Iterator[nodes.NodeNG | Uninferable | None] | None:
+) -> InferenceResult | None:
     """Safely infer the return value of a function.
 
     Returns None if inference failed or if there is some ambiguity (more than
@@ -144,7 +145,9 @@ class SpecialMethodsChecker(BaseChecker):
 
     def __init__(self, linter: PyLinter) -> None:
         super().__init__(linter)
-        self._protocol_map = {
+        self._protocol_map: dict[
+            str, Callable[[nodes.FunctionDef, InferenceResult], None]
+        ] = {
             "__iter__": self._check_iter,
             "__len__": self._check_len,
             "__bool__": self._check_bool,
@@ -218,8 +221,8 @@ class SpecialMethodsChecker(BaseChecker):
             # tuple, although the user should implement the method
             # to take all of them in consideration.
             emit = mandatory not in expected_params
-            # mypy think that expected_params has type Tuple[int, int] or int or None
-            # But at this point it must be 'Tuple[int, int]' because of the type check
+            # mypy thinks that expected_params has type tuple[int, int] | int | None
+            # But at this point it must be 'tuple[int, int]' because of the type check
             expected_params = f"between {expected_params[0]} or {expected_params[1]}"  # type: ignore[assignment]
         else:
             # If the number of mandatory parameters doesn't
@@ -320,66 +323,60 @@ class SpecialMethodsChecker(BaseChecker):
                     pass
         return False
 
-    def _check_iter(self, node: nodes.FunctionDef, inferred: Any) -> None:
+    def _check_iter(self, node: nodes.FunctionDef, inferred: InferenceResult) -> None:
         if not self._is_iterator(inferred):
             self.add_message("non-iterator-returned", node=node)
 
-    def _check_len(self, node: nodes.FunctionDef, inferred: nodes.Const) -> None:
+    def _check_len(self, node: nodes.FunctionDef, inferred: InferenceResult) -> None:
         if not self._is_int(inferred):
             self.add_message("invalid-length-returned", node=node)
         elif isinstance(inferred, nodes.Const) and inferred.value < 0:
             self.add_message("invalid-length-returned", node=node)
 
-    def _check_bool(self, node: nodes.FunctionDef, inferred: nodes.Const) -> None:
+    def _check_bool(self, node: nodes.FunctionDef, inferred: InferenceResult) -> None:
         if not self._is_bool(inferred):
             self.add_message("invalid-bool-returned", node=node)
 
-    def _check_index(
-        self, node: nodes.FunctionDef, inferred: nodes.Const | nodes.Dict
-    ) -> None:
+    def _check_index(self, node: nodes.FunctionDef, inferred: InferenceResult) -> None:
         if not self._is_int(inferred):
             self.add_message("invalid-index-returned", node=node)
 
-    def _check_repr(self, node: nodes.FunctionDef, inferred: nodes.Const) -> None:
+    def _check_repr(self, node: nodes.FunctionDef, inferred: InferenceResult) -> None:
         if not self._is_str(inferred):
             self.add_message("invalid-repr-returned", node=node)
 
-    def _check_str(self, node: nodes.FunctionDef, inferred: nodes.Const) -> None:
+    def _check_str(self, node: nodes.FunctionDef, inferred: InferenceResult) -> None:
         if not self._is_str(inferred):
             self.add_message("invalid-str-returned", node=node)
 
-    def _check_bytes(
-        self, node: nodes.FunctionDef, inferred: bases.Instance | nodes.Const
-    ) -> None:
+    def _check_bytes(self, node: nodes.FunctionDef, inferred: InferenceResult) -> None:
         if not self._is_bytes(inferred):
             self.add_message("invalid-bytes-returned", node=node)
 
-    def _check_hash(
-        self, node: nodes.FunctionDef, inferred: nodes.Const | nodes.Dict
-    ) -> None:
+    def _check_hash(self, node: nodes.FunctionDef, inferred: InferenceResult) -> None:
         if not self._is_int(inferred):
             self.add_message("invalid-hash-returned", node=node)
 
     def _check_length_hint(
-        self, node: nodes.FunctionDef, inferred: nodes.Const
+        self, node: nodes.FunctionDef, inferred: InferenceResult
     ) -> None:
         if not self._is_int(inferred):
             self.add_message("invalid-length-hint-returned", node=node)
         elif isinstance(inferred, nodes.Const) and inferred.value < 0:
             self.add_message("invalid-length-hint-returned", node=node)
 
-    def _check_format(self, node: nodes.FunctionDef, inferred: nodes.Const) -> None:
+    def _check_format(self, node: nodes.FunctionDef, inferred: InferenceResult) -> None:
         if not self._is_str(inferred):
             self.add_message("invalid-format-returned", node=node)
 
     def _check_getnewargs(
-        self, node: nodes.FunctionDef, inferred: nodes.Const | nodes.Tuple
+        self, node: nodes.FunctionDef, inferred: InferenceResult
     ) -> None:
         if not self._is_tuple(inferred):
             self.add_message("invalid-getnewargs-returned", node=node)
 
     def _check_getnewargs_ex(
-        self, node: nodes.FunctionDef, inferred: nodes.Const | nodes.Tuple
+        self, node: nodes.FunctionDef, inferred: InferenceResult
     ) -> None:
         if not self._is_tuple(inferred):
             self.add_message("invalid-getnewargs-ex-returned", node=node)
