@@ -63,6 +63,13 @@ class NinthBad(object):
 class TenthBad(object):
     __slots__ = [1 + 2 + 3]  # [invalid-slots-object]
 
+class EleventhBad:  # [invalid-slots]
+    """type-annotated __slots__ with no value"""
+    __slots__: str
+
+class TwelfthBad:  # [invalid-slots]
+    __slots__ = None
+
 class PotentiallyGood(object):
     __slots__ = func()
 

@@ -1396,34 +1396,40 @@ a metaclass class method.",
     def _check_slots(self, node: nodes.ClassDef) -> None:
         if "__slots__" not in node.locals:
             return
-        for slots in node.igetattr("__slots__"):
-            # check if __slots__ is a valid type
-            if slots is astroid.Uninferable:
-                continue
-            if not is_iterable(slots) and not is_comprehension(slots):
-                self.add_message("invalid-slots", node=node)
-                continue
+        try:
+            slots = next(node.igetattr("__slots__"))
+        except astroid.InferenceError:
+            # The value __slots__ cannot be found.
+            self.add_message("invalid-slots", node=node)
+            return
 
-            if isinstance(slots, nodes.Const):
-                # a string, ignore the following checks
-                self.add_message("single-string-used-for-slots", node=node)
-                continue
-            if not hasattr(slots, "itered"):
-                # we can't obtain the values, maybe a .deque?
-                continue
+        # check if __slots__ is a valid type
+        if slots is astroid.Uninferable:
+            return
+        if not is_iterable(slots) and not is_comprehension(slots):
+            self.add_message("invalid-slots", node=node)
+            return
 
-            if isinstance(slots, nodes.Dict):
-                values = [item[0] for item in slots.items]
-            else:
-                values = slots.itered()
-            if values is astroid.Uninferable:
+        if isinstance(slots, nodes.Const):
+            # a string, ignore the following checks
+            self.add_message("single-string-used-for-slots", node=node)
+            return
+        if not hasattr(slots, "itered"):
+            # we can't obtain the values, maybe a .deque?
+            return
+
+        if isinstance(slots, nodes.Dict):
+            values = [item[0] for item in slots.items]
+        else:
+            values = slots.itered()
+        if values is astroid.Uninferable:
+            return
+        for elt in values:
+            try:
+                self._check_slots_elt(elt, node)
+            except astroid.InferenceError:
                 return
-            for elt in values:
-                try:
-                    self._check_slots_elt(elt, node)
-                except astroid.InferenceError:
-                    continue
-            self._check_redefined_slots(node, slots, values)
+        self._check_redefined_slots(node, slots, values)
 
     def _check_redefined_slots(
         self,
