@@ -17,6 +17,7 @@ from typing import TYPE_CHECKING, Union
 import astroid
 from astroid import bases, nodes
 from astroid.nodes import LocalsDictNodeNG
+from astroid.typing import SuccessfulInferenceResult
 
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import (
@@ -1459,7 +1460,7 @@ a metaclass class method.",
             )
 
     def _check_slots_elt(
-        self, elt: nodes.Attribute | nodes.Const, node: nodes.ClassDef
+        self, elt: SuccessfulInferenceResult, node: nodes.ClassDef
     ) -> None:
         for inferred in elt.infer():
             if inferred is astroid.Uninferable:
@@ -1799,7 +1800,7 @@ a metaclass class method.",
         )
 
     @staticmethod
-    def _is_inferred_instance(expr: nodes.NodeNG | None, klass: nodes.ClassDef) -> bool:
+    def _is_inferred_instance(expr, klass: nodes.ClassDef) -> bool:
         """Check if the inferred value of the given *expr* is an instance of
         *klass*.
         """
