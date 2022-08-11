@@ -193,9 +193,14 @@
     "name": "Bryce Guinta",
     "team": "Maintainers"
   },
-  "buck@yelp.com": {
-    "mails": ["buck@yelp.com", "buck.2019@gmail.com"],
-    "name": "Buck (Yelp)"
+  "buck.2019@gmail.com": {
+    "mails": [
+      "buck.2019@gmail.com",
+      "buck@yelp.com",
+      "workitharder@gmail.com",
+      "bukzor@google.com"
+    ],
+    "name": "Buck Evan"
   },
   "calen.pennington@gmail.com": {
     "mails": ["cale@edx.org", "calen.pennington@gmail.com"],
