@@ -70,6 +70,13 @@ class TenthBad(object):
 class EleventhBad:  # [invalid-slots]
     __slots__ = None
 
+class TwelfthBad:  # [invalid-slots]
+    x = 1
+    if x:
+        __slots__ = ("y",)
+    else:
+        __slots__ = None
+
 class PotentiallyGood(object):
     __slots__ = func()
 
