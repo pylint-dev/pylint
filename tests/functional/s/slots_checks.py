@@ -37,6 +37,14 @@ class SeventhGood:
     """type-annotated __slots__ with no value"""
     __slots__: str
 
+class EigthGood:
+    """Multiple __slots__ declared in the class"""
+    x = 1
+    if x:
+        __slots__: str
+    else:
+        __slots__ = ("y",)
+
 class Bad(object): # [invalid-slots]
     __slots__ = list
 
@@ -71,6 +79,7 @@ class EleventhBad:  # [invalid-slots]
     __slots__ = None
 
 class TwelfthBad:  # [invalid-slots]
+    """One valid & one invalid __slots__ value"""
     x = 1
     if x:
         __slots__ = ("y",)
