@@ -1396,7 +1396,8 @@ a metaclass class method.",
     def _check_slots(self, node: nodes.ClassDef) -> None:
         if "__slots__" not in node.locals:
             return
-        for slots in node.igetattr("__slots__"):
+
+        for slots in node.ilookup("__slots__"):
             # check if __slots__ is a valid type
             if slots is astroid.Uninferable:
                 continue
@@ -1417,7 +1418,7 @@ a metaclass class method.",
             else:
                 values = slots.itered()
             if values is astroid.Uninferable:
-                return
+                continue
             for elt in values:
                 try:
                     self._check_slots_elt(elt, node)
