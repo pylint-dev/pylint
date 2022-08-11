@@ -1399,8 +1399,9 @@ a metaclass class method.",
         try:
             slots = next(node.igetattr("__slots__"))
         except astroid.InferenceError:
-            # The value __slots__ cannot be found.
-            self.add_message("invalid-slots", node=node)
+            # The value of __slots__ cannot be found.
+            # This can happen when __slots__ is annotated & has no value; e.g:
+            # __slots__: str
             return
 
         # check if __slots__ is a valid type

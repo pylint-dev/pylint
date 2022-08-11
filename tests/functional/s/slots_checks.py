@@ -33,6 +33,10 @@ class FifthGood(object):
 class SixthGood(object):
     __slots__ = {"a": "b", "c": "d"}
 
+class SeventhGood:
+    """type-annotated __slots__ with no value"""
+    __slots__: str
+
 class Bad(object): # [invalid-slots]
     __slots__ = list
 
@@ -64,10 +68,6 @@ class TenthBad(object):
     __slots__ = [1 + 2 + 3]  # [invalid-slots-object]
 
 class EleventhBad:  # [invalid-slots]
-    """type-annotated __slots__ with no value"""
-    __slots__: str
-
-class TwelfthBad:  # [invalid-slots]
     __slots__ = None
 
 class PotentiallyGood(object):
