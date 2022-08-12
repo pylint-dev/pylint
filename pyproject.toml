@@ -53,6 +53,7 @@ spelling = ["pyenchant~=3.2"]
 
 [project.urls]
 "Docs: User Guide"  = "https://pylint.pycqa.org/en/latest/"
+"Source Code"       = "https://github.com/PyCQA/pylint"
 "homepage"          = "https://github.com/PyCQA/pylint"
 "What's New"        = "https://pylint.pycqa.org/en/latest/whatsnew/2/"
 "Bug Tracker"       = "https://github.com/PyCQA/pylint/issues"
