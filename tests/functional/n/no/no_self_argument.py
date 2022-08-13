@@ -35,6 +35,6 @@ class NoSelfArgument:
         print("goodbye!")
 
     @returns_staticmethod
-    def sum_strings(string1, string2):
+    def concatenate_strings(string1, string2):
         """A staticmethod created by `returns_staticmethod` function"""
         return string1 + string2
