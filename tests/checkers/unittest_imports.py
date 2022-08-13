@@ -61,8 +61,7 @@ class TestImportsChecker(CheckerTestCase):
         )
         output2, errors2 = capsys.readouterr()
 
-        # The first package fails to lint
-        assert len(output.split("\n")) == 1
+        assert len(output.split("\n")) == 5
         assert len(output2.split("\n")) == 5
         assert errors == errors2
 
