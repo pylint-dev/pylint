@@ -1926,7 +1926,7 @@ a metaclass class method.",
                 self.add_message("bad-staticmethod-argument", args=first, node=node)
                 return
             self._first_attrs[-1] = None
-        elif any(name == "builtins.staticmethod" for name in node.decoratornames()):
+        elif "builtins.staticmethod" in node.decoratornames():
             # Check if there is a decorator which is not named `staticmethod` but is assigned to one.
             return
         # class / regular method with no args
