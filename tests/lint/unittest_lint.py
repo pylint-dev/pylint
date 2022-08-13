@@ -942,3 +942,15 @@ def test_lint_namespace_package_under_dir(initialized_linter: PyLinter) -> None:
         create_files(["outer/namespace/__init__.py", "outer/namespace/module.py"])
         linter.check(["outer.namespace"])
     assert not linter.stats.by_msg
+
+
+def test_lint_namespace_package_under_dir_on_path(initialized_linter: PyLinter) -> None:
+    """If the directory above a namespace package is on sys.path,
+    the namespace module under it is linted."""
+    linter = initialized_linter
+    with tempdir() as tmpdir:
+        create_files(["namespace_on_path/submodule1.py"])
+        os.chdir(tmpdir)
+        with fix_import_path([tmpdir]):
+            linter.check(["namespace_on_path"])
+    assert linter.file_state.base_name == "namespace_on_path"
