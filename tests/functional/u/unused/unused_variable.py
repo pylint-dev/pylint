@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, invalid-name, too-few-public-methods, useless-object-inheritance,import-outside-toplevel, fixme, line-too-long
+# pylint: disable=missing-docstring, invalid-name, too-few-public-methods, import-outside-toplevel, fixme, line-too-long
 
 def test_regression_737():
     import xml # [unused-import]
@@ -22,7 +22,7 @@ def test_local_field_prefixed_with_unused_or_ignored():
     ignored_local_field = 42
 
 
-class HasUnusedDunderClass(object):
+class HasUnusedDunderClass:
 
     def test(self):
         __class__ = 42  # [unused-variable]
@@ -66,8 +66,7 @@ def hello(arg):
         return True
     raise Exception
 
-# pylint: disable=wrong-import-position,misplaced-future
-from __future__ import print_function
+# pylint: disable=wrong-import-position
 PATH = OS = collections = deque = None
 
 

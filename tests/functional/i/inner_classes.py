@@ -1,9 +1,9 @@
-# pylint: disable=too-few-public-methods, useless-object-inheritance, unnecessary-pass, unnecessary-dunder-call
+# pylint: disable=too-few-public-methods, unnecessary-pass, unnecessary-dunder-call
 """Backend Base Classes for the schwelm user DB"""
 
 __revision__ = "alpha"
 
-class Aaa(object):
+class Aaa:
     """docstring"""
     def __init__(self):
         self.__setattr__('a', 'b')

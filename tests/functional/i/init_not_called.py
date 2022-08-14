@@ -1,7 +1,6 @@
 # pylint: disable=too-few-public-methods, import-error, missing-docstring, wrong-import-position
-# pylint: disable=useless-super-delegation, useless-object-inheritance, unnecessary-pass
+# pylint: disable=useless-super-delegation, unnecessary-pass
 
-from __future__ import print_function
 
 from typing import overload
 
@@ -33,7 +32,7 @@ class ZZZZ(AAAA, BBBB, CCCC):
         AAAA.__init__(self)
 
 
-class NewStyleA(object):
+class NewStyleA:
     """new style class"""
 
     def __init__(self):
@@ -48,7 +47,7 @@ class NewStyleB(NewStyleA):
         super().__init__()
 
 
-class NewStyleC(object):
+class NewStyleC:
     """__init__ defined by assignment."""
 
     def xx_init(self):

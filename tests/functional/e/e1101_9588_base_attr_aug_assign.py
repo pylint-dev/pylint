@@ -1,4 +1,4 @@
-# pylint: disable=too-few-public-methods, useless-object-inheritance
+# pylint: disable=too-few-public-methods
 """
 False positive case of E1101:
 
@@ -9,7 +9,7 @@ https://www.logilab.org/ticket/9588
 """
 __revision__ = 0
 
-class BaseClass(object):
+class BaseClass:
     "The base class"
     def __init__(self):
         "Set an attribute."

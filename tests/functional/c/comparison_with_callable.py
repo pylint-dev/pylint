@@ -1,4 +1,4 @@
-# pylint: disable = disallowed-name, missing-docstring, useless-return, invalid-name, line-too-long, useless-object-inheritance, comparison-of-constants
+# pylint: disable = disallowed-name, missing-docstring, useless-return, invalid-name, line-too-long, comparison-of-constants
 def foo():
     return None
 
@@ -18,7 +18,7 @@ if foo() == goo():
     pass
 
 
-class FakeClass(object):
+class FakeClass:
     def __init__(self):
         self._fake_prop = 'fake it till you make it!!'
 

@@ -1,6 +1,5 @@
 """Test for the invalid-name warning."""
-# pylint: disable=useless-object-inheritance, unnecessary-pass, unnecessary-comprehension, unused-private-member, unnecessary-lambda-assignment
-from __future__ import print_function
+# pylint: disable=unnecessary-pass, unnecessary-comprehension, unused-private-member, unnecessary-lambda-assignment
 import abc
 import collections
 import typing
@@ -27,11 +26,11 @@ def no_nested_args(arg1, arg21, arg22):
     print(arg1, arg21, arg22)
 
 
-class bad_class_name(object):  # [invalid-name]
+class bad_class_name:  # [invalid-name]
     """Class with a bad name."""
 
 
-class CorrectClassName(object):
+class CorrectClassName:
     """Class with a good name."""
 
     def __init__(self):
@@ -74,7 +73,7 @@ V = [WHAT_Ever_inListComp for WHAT_Ever_inListComp in GOOD_CONST_NAME]
 def class_builder():
     """Function returning a class object."""
 
-    class EmbeddedClass(object):
+    class EmbeddedClass:
         """Useless class."""
 
     return EmbeddedClass
@@ -99,7 +98,7 @@ def test_globals():
     AlsoCorrect = 2
 
 
-class FooClass(object):
+class FooClass:
     """A test case for property names.
 
     Since by default, the regex for attributes is the same as the one

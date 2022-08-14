@@ -1,8 +1,8 @@
 """Test that valid class attribute doesn't trigger errors"""
 __revision__ = 'sponge bob'
-# pylint: disable=useless-object-inheritance,missing-docstring,too-few-public-methods
+# pylint: disable=missing-docstring,too-few-public-methods
 
-class Clazz(object):
+class Clazz:
     "dummy class"
 
     def __init__(self):

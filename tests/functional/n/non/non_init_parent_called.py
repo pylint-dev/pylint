@@ -1,20 +1,19 @@
 # pylint: disable=protected-access,import-self,too-few-public-methods,line-too-long
-# pylint: disable=wrong-import-order, useless-object-inheritance, unnecessary-dunder-call
+# pylint: disable=wrong-import-order, unnecessary-dunder-call
 """test for call to __init__ from a non ancestor class
 """
-from __future__ import print_function
 from . import non_init_parent_called
 import nonexistant  # [import-error]
 __revision__ = '$Id: non_init_parent_called.py,v 1.2 2004-09-29 08:35:13 syt Exp $'
 
-class AAAA(object):
+class AAAA:
     """ancestor 1"""
 
     def __init__(self):
         print('init', self)
         BBBBMixin.__init__(self)  # [non-parent-init-called]
 
-class BBBBMixin(object):
+class BBBBMixin:
     """ancestor 2"""
 
     def __init__(self):

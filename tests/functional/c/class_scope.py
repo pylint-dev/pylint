@@ -1,9 +1,9 @@
-# pylint: disable=too-few-public-methods, useless-object-inheritance, unnecessary-lambda-assignment
+# pylint: disable=too-few-public-methods, unnecessary-lambda-assignment
 """check for scope problems"""
 
 __revision__ = None
 
-class Well(object):
+class Well:
     """well"""
     attr = 42
     get_attr = lambda arg=attr: arg * 24
@@ -13,7 +13,7 @@ class Well(object):
     bad_lambda = lambda: get_attr_bad # [undefined-variable]
     bad_gen = list(attr + i for i in range(10)) # [undefined-variable]
 
-    class Data(object):
+    class Data:
         """base hidden class"""
     class Sub(Data):
         """whaou, is Data found???"""

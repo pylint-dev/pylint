@@ -1,5 +1,5 @@
 """Check for else branches on loops with break and return only."""
-from __future__ import print_function
+
 __revision__ = 0
 
 def test_return_for():

@@ -1,7 +1,6 @@
 """Tests for redefining builtins."""
 # pylint: disable=unused-import, wrong-import-position, reimported, import-error
 # pylint: disable=redefined-outer-name, import-outside-toplevel, wrong-import-order
-from __future__ import print_function
 
 
 def function():

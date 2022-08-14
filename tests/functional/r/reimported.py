@@ -15,9 +15,6 @@ from itertools import OrderedDict as NotOrderedDict
 from itertools import *
 from os import *
 
-# pylint: disable=misplaced-future
-from __future__ import absolute_import, print_function
-
 import sys
 
 import xml.etree.ElementTree

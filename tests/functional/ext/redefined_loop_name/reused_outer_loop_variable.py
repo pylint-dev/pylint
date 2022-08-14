@@ -1,5 +1,5 @@
 """Tests for redefining an outer loop variable."""
-from __future__ import print_function
+
 __revision__ = 0
 
 # Simple nested loop

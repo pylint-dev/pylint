@@ -1,8 +1,8 @@
-# pylint: disable=C0302,bare-except, useless-object-inheritance
+# pylint: disable=C0302,bare-except
 """pylint option block-disable"""
 from __future__ import print_function
 
-class Foo(object):
+class Foo:
     """block-disable test"""
 
     def __init__(self):
@@ -110,7 +110,7 @@ class Foo(object):
         print(self.blu)
 
 
-class ClassLevelMessage(object):
+class ClassLevelMessage:
     """shouldn't display to much attributes/not enough methods messages
     """
     # pylint: disable=R0902,R0903

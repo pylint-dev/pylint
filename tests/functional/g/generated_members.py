@@ -1,10 +1,10 @@
 """Test the generated-members config option."""
-# pylint: disable=pointless-statement, invalid-name, useless-object-inheritance
+# pylint: disable=pointless-statement, invalid-name
 from __future__ import annotations
 from astroid import nodes
 from pylint import checkers
 
-class Klass(object):
+class Klass:
     """A class with a generated member."""
 
 print(Klass().DoesNotExist)

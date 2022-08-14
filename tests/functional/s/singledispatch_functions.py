@@ -1,6 +1,5 @@
 # pylint: disable=missing-docstring,import-error,unused-import,assignment-from-no-return
-# pylint: disable=invalid-name, too-few-public-methods, useless-object-inheritance
-from __future__ import print_function
+# pylint: disable=invalid-name, too-few-public-methods
 from UNINFERABLE import uninferable_func
 
 try:
@@ -11,7 +10,7 @@ except ImportError:
 my_single_dispatch = singledispatch
 
 
-class FakeSingleDispatch(object):
+class FakeSingleDispatch:
 
     @staticmethod
     def register(function):

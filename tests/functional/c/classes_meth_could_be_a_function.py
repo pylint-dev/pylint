@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,too-few-public-methods,useless-object-inheritance
+# pylint: disable=missing-docstring,too-few-public-methods
 """
 #2479
 
@@ -7,14 +7,14 @@ like factory method pattern
 """
 __revision__ = 1
 
-class XAsub(object):
+class XAsub:
     pass
 class XBsub(XAsub):
     pass
 class XCsub(XAsub):
     pass
 
-class Aimpl(object):
+class Aimpl:
     # disable "method could be a function" on classes which are not overriding
     # the factory method because in that case the usage of polymorphism is not
     # detected
