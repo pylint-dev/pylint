@@ -59,7 +59,9 @@ CALLS_RETURNING_CONTEXT_MANAGERS = frozenset(
 )
 
 
-def _if_statement_is_always_returning(if_node, returning_node_class) -> bool:
+def _if_statement_is_always_returning(
+    if_node: nodes.If, returning_node_class: nodes.NodeNG
+) -> bool:
     return any(isinstance(node, returning_node_class) for node in if_node.body)
 
 
@@ -496,7 +498,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._return_nodes = {}
         self._consider_using_with_stack = ConsiderUsingWithStack()
         self._init()
-        self._never_returning_functions = None
+        self._never_returning_functions: set[str] = set()
 
     def _init(self):
         self._nested_blocks = []
@@ -697,7 +699,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             for name in names.nodes_of_class(nodes.AssignName):
                 self._check_redefined_argument_from_local(name)
 
-    def _check_superfluous_else(self, node, msg_id, returning_node_class):
+    def _check_superfluous_else(
+        self, node: nodes.If, msg_id: str, returning_node_class: nodes.NodeNG
+    ) -> None:
         if not node.orelse:
             # Not interested in if statements without else.
             return
@@ -714,22 +718,22 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 args = ("else", 'remove the "else" and de-indent the code inside it')
             self.add_message(msg_id, node=node, args=args)
 
-    def _check_superfluous_else_return(self, node):
+    def _check_superfluous_else_return(self, node: nodes.If) -> None:
         return self._check_superfluous_else(
             node, msg_id="no-else-return", returning_node_class=nodes.Return
         )
 
-    def _check_superfluous_else_raise(self, node):
+    def _check_superfluous_else_raise(self, node: nodes.If) -> None:
         return self._check_superfluous_else(
             node, msg_id="no-else-raise", returning_node_class=nodes.Raise
         )
 
-    def _check_superfluous_else_break(self, node):
+    def _check_superfluous_else_break(self, node: nodes.If) -> None:
         return self._check_superfluous_else(
             node, msg_id="no-else-break", returning_node_class=nodes.Break
         )
 
-    def _check_superfluous_else_continue(self, node):
+    def _check_superfluous_else_continue(self, node: nodes.If) -> None:
         return self._check_superfluous_else(
             node, msg_id="no-else-continue", returning_node_class=nodes.Continue
         )
@@ -1210,7 +1214,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             key: value for key, value in all_types.items() if key in duplicated_objects
         }
 
-    def _check_consider_merging_isinstance(self, node):
+    def _check_consider_merging_isinstance(self, node: nodes.BoolOp) -> None:
         """Check isinstance calls which can be merged together."""
         if node.op != "or":
             return
@@ -1224,7 +1228,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 args=(duplicated_name, ", ".join(names)),
             )
 
-    def _check_consider_using_in(self, node):
+    def _check_consider_using_in(self, node: nodes.BoolOp) -> None:
         allowed_ops = {"or": "==", "and": "!="}
 
         if node.op not in allowed_ops or len(node.values) < 2:
@@ -1270,7 +1274,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             confidence=HIGH,
         )
 
-    def _check_chained_comparison(self, node):
+    def _check_chained_comparison(self, node: nodes.BoolOp) -> None:
         """Check if there is any chained comparison in the expression.
 
         Add a refactoring message if a boolOp contains comparison like a < b and b < c,
@@ -1281,7 +1285,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if node.op != "and" or len(node.values) < 2:
             return
 
-        def _find_lower_upper_bounds(comparison_node, uses):
+        def _find_lower_upper_bounds(
+            comparison_node: nodes.Compare,
+            uses: collections.defaultdict[str, dict[str, set[nodes.Compare]]],
+        ) -> None:
             left_operand = comparison_node.left
             for operator, right_operand in comparison_node.ops:
                 for operand in (left_operand, right_operand):
@@ -1306,7 +1313,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                             uses[value]["lower_bound"].add(comparison_node)
                 left_operand = right_operand
 
-        uses = collections.defaultdict(
+        uses: collections.defaultdict[
+            str, dict[str, set[nodes.Compare]]
+        ] = collections.defaultdict(
             lambda: {"lower_bound": set(), "upper_bound": set()}
         )
         for comparison_node in node.values:
@@ -1322,7 +1331,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 break
 
     @staticmethod
-    def _apply_boolean_simplification_rules(operator, values):
+    def _apply_boolean_simplification_rules(operator: str, values):
         """Removes irrelevant values or returns short-circuiting values.
 
         This function applies the following two rules:
@@ -1348,7 +1357,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         return simplified_values or [nodes.Const(operator == "and")]
 
-    def _simplify_boolean_operation(self, bool_op):
+    def _simplify_boolean_operation(self, bool_op: nodes.BoolOp):
         """Attempts to simplify a boolean operation.
 
         Recursively applies simplification on the operator terms,
@@ -1370,7 +1379,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         simplified_bool_op.postinit(result)
         return simplified_bool_op
 
-    def _check_simplifiable_condition(self, node):
+    def _check_simplifiable_condition(self, node: nodes.BoolOp) -> None:
         """Check if a boolean condition can be simplified.
 
         Variables will not be simplified, even if the value can be inferred,
@@ -1412,7 +1421,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_simplifiable_condition(node)
 
     @staticmethod
-    def _is_simple_assignment(node):
+    def _is_simple_assignment(node: nodes.NodeNG | None) -> bool:
         return (
             isinstance(node, nodes.Assign)
             and len(node.targets) == 1
@@ -1420,7 +1429,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             and isinstance(node.value, nodes.Name)
         )
 
-    def _check_swap_variables(self, node):
+    def _check_swap_variables(self, node: nodes.Return | nodes.Assign) -> None:
         if not node.next_sibling() or not node.next_sibling().next_sibling():
             return
         assignments = [node, node.next_sibling(), node.next_sibling().next_sibling()]
@@ -1523,7 +1532,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 )
             stack[varname] = value
 
-    def _check_consider_using_with(self, node: nodes.Call):
+    def _check_consider_using_with(self, node: nodes.Call) -> None:
         if _is_inside_context_manager(node) or _is_a_return_statement(node):
             # If we are inside a context manager itself, we assume that it will handle the resource management itself.
             # If the node is a child of a return, we assume that the caller knows he is getting a context manager
@@ -1562,7 +1571,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 elif inferred.qname() == "builtins.dict" and not node.keywords:
                     self.add_message("use-dict-literal", node=node)
 
-    def _check_consider_using_join(self, aug_assign):
+    def _check_consider_using_join(self, aug_assign: nodes.AugAssign) -> None:
         """We start with the augmented assignment and work our way upwards.
 
         Names of variables for nodes if match successful:
@@ -1691,7 +1700,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             )
 
     @staticmethod
-    def _is_and_or_ternary(node):
+    def _is_and_or_ternary(node: nodes.NodeNG | None) -> bool:
         """Returns true if node is 'condition and true_value or false_value' form.
 
         All of: condition, true_value and false_value should not be a complex boolean expression
@@ -1708,7 +1717,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         )
 
     @staticmethod
-    def _and_or_ternary_arguments(node):
+    def _and_or_ternary_arguments(node: nodes.BoolOp):
         false_value = node.values[1]
         condition, true_value = node.values[0].values
         return condition, true_value, false_value
@@ -1881,7 +1890,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         except TypeError:
             return False
 
-    def _check_return_at_the_end(self, node):
+    def _check_return_at_the_end(self, node: nodes.FunctionDef) -> None:
         """Check for presence of a *single* return statement at the end of a
         function.
 
