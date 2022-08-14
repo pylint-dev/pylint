@@ -17,6 +17,7 @@ from collections import defaultdict
 from collections.abc import Callable, Iterable, Iterator, Sequence
 from io import TextIOWrapper
 from pathlib import Path
+from re import Pattern
 from typing import Any
 
 import astroid
@@ -307,6 +308,7 @@ class PyLinter(
         self.current_name: str | None = None
         self.current_file: str | None = None
         self._ignore_file = False
+        self._ignore_paths: list[Pattern[str]] = []
 
         # Attributes related to stats
         self.stats = LinterStats()
@@ -576,6 +578,7 @@ class PyLinter(
 
         This method is called before any linting is done.
         """
+        self._ignore_paths = self.config.ignore_paths
         # initialize msgs_state now that all messages have been registered into
         # the store
         for msg in self.msgs_store.messages:
@@ -623,7 +626,10 @@ class PyLinter(
 
         files_or_modules is either a string or list of strings presenting modules to check.
         """
+        # 1) Initialize
         self.initialize()
+
+        # 2) Gather all files
         if not isinstance(files_or_modules, (list, tuple)):
             # TODO: 3.0: Remove deprecated typing and update docstring
             warnings.warn(
@@ -639,23 +645,30 @@ class PyLinter(
                     "Missing filename required for --from-stdin"
                 )
 
-            filepath = files_or_modules[0]
+        # 3) Get all FileItems
+        with fix_import_path(files_or_modules):
+            if self.config.from_stdin:
+                fileitems = iter(
+                    (self._get_file_descr_from_stdin(files_or_modules[0]),)
+                )
+            else:
+                fileitems = self._iterate_file_descrs(files_or_modules)
+
+        if self.config.from_stdin:
             with fix_import_path(files_or_modules):
                 self._check_files(
                     functools.partial(self.get_ast, data=_read_stdin()),
-                    [self._get_file_descr_from_stdin(filepath)],
+                    fileitems,
                 )
         elif self.config.jobs == 1:
             with fix_import_path(files_or_modules):
-                self._check_files(
-                    self.get_ast, self._iterate_file_descrs(files_or_modules)
-                )
+                self._check_files(self.get_ast, fileitems)
         else:
             original_sys_path = sys.path[:]
             check_parallel(
                 self,
                 self.config.jobs,
-                self._iterate_file_descrs(files_or_modules),
+                fileitems,
                 files_or_modules,  # this argument patches sys.path
             )
             sys.path = original_sys_path
@@ -899,10 +912,10 @@ class PyLinter(
 
     def get_ast(
         self, filepath: str, modname: str, data: str | None = None
-    ) -> nodes.Module:
+    ) -> nodes.Module | None:
         """Return an ast(roid) representation of a module or a string.
 
-        :param str filepath: path to checked file.
+        :param filepath: path to checked file.
         :param str modname: The name of the module to be checked.
         :param str data: optional contents of the checked file.
         :returns: the AST
@@ -1013,7 +1026,6 @@ class PyLinter(
                 self.config.extension_pkg_whitelist
             )
         self.stats.reset_message_count()
-        self._ignore_paths = self.linter.config.ignore_paths
 
     def generate_reports(self) -> int | None:
         """Close the whole package /module, it's time to make reports !
