@@ -732,14 +732,17 @@ class PyLinter(
                 continue
             try:
                 self._lint_file(fileitem, module, check_astroid_module)
-            except astroid.AstroidError as ex:
+            except Exception as ex:  # pylint: disable=broad-except
                 template_path = prepare_crash_report(
                     ex, fileitem.filepath, self.crash_file_path
                 )
                 msg = get_fatal_error_message(fileitem.filepath, template_path)
-                self.add_message(
-                    "astroid-error", args=(fileitem.filepath, msg), confidence=HIGH
-                )
+                if isinstance(ex, astroid.AstroidError):
+                    self.add_message(
+                        "astroid-error", args=(fileitem.filepath, msg), confidence=HIGH
+                    )
+                else:
+                    self.add_message("fatal", args=msg, confidence=HIGH)
 
     def _lint_file(
         self,
