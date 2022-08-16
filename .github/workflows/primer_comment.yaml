@@ -21,6 +21,8 @@ permissions:
 
 jobs:
   primer-comment:
+    # Skip job if the workflow failed
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     name: Run
     runs-on: ubuntu-latest
     steps:
