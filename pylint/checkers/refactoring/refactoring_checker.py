@@ -11,7 +11,7 @@ import sys
 import tokenize
 from collections.abc import Iterator
 from functools import reduce
-from typing import NamedTuple
+from typing import TYPE_CHECKING, NamedTuple, Union
 
 import astroid
 from astroid import nodes
@@ -22,10 +22,17 @@ from pylint.checkers import utils
 from pylint.checkers.utils import node_frame_class
 from pylint.interfaces import HIGH
 
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
+
 if sys.version_info >= (3, 8):
     from functools import cached_property
 else:
     from astroid.decorators import cachedproperty as cached_property
+
+NodesWithNestedBlocks = Union[
+    nodes.TryExcept, nodes.TryFinally, nodes.While, nodes.For, nodes.If
+]
 
 KNOWN_INFINITE_ITERATORS = {"itertools.count"}
 BUILTIN_EXIT_FUNCS = frozenset(("quit", "exit"))
@@ -493,22 +500,21 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         ),
     )
 
-    def __init__(self, linter):
+    def __init__(self, linter: PyLinter) -> None:
         super().__init__(linter)
-        self._return_nodes = {}
+        self._return_nodes: dict[str, list[nodes.Return]] = {}
         self._consider_using_with_stack = ConsiderUsingWithStack()
         self._init()
         self._never_returning_functions: set[str] = set()
 
-    def _init(self):
-        self._nested_blocks = []
-        self._elifs = []
-        self._nested_blocks_msg = None
-        self._reported_swap_nodes = set()
-        self._can_simplify_bool_op = False
+    def _init(self) -> None:
+        self._nested_blocks: list[NodesWithNestedBlocks] = []
+        self._elifs: list[tuple[int, int]] = []
+        self._reported_swap_nodes: set[nodes.NodeNG] = set()
+        self._can_simplify_bool_op: bool = False
         self._consider_using_with_stack.clear_all()
 
-    def open(self):
+    def open(self) -> None:
         # do this in open since config not fully initialized in __init__
         self._never_returning_functions = set(
             self.linter.config.never_returning_functions
@@ -519,7 +525,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         return self.linter.config.dummy_variables_rgx
 
     @staticmethod
-    def _is_bool_const(node):
+    def _is_bool_const(node: nodes.Return | nodes.Assign) -> bool:
         return isinstance(node.value, nodes.Const) and isinstance(
             node.value.value, bool
         )
@@ -642,7 +648,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     visit_tryfinally = visit_tryexcept
     visit_while = visit_tryexcept
 
-    def _check_redefined_argument_from_local(self, name_node):
+    def _check_redefined_argument_from_local(self, name_node: nodes.AssignName) -> None:
         if self._dummy_rgx and self._dummy_rgx.match(name_node.name):
             return
         if not name_node.lineno:
@@ -977,7 +983,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         stopiteration_qname = f"{utils.EXCEPTIONS_MODULE}.StopIteration"
         return any(_class.qname() == stopiteration_qname for _class in exc.mro())
 
-    def _check_consider_using_comprehension_constructor(self, node):
+    def _check_consider_using_comprehension_constructor(self, node: nodes.Call) -> None:
         if (
             isinstance(node.func, nodes.Name)
             and node.args
@@ -1011,7 +1017,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 message_name = "consider-using-set-comprehension"
                 self.add_message(message_name, node=node)
 
-    def _check_consider_using_generator(self, node):
+    def _check_consider_using_generator(self, node: nodes.Call) -> None:
         # 'any', 'all', definitely should use generator, while 'list', 'tuple',
         # 'sum', 'max', and 'min' need to be considered first
         # See https://github.com/PyCQA/pylint/pull/3309#discussion_r576683109
@@ -1065,13 +1071,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_use_list_or_dict_literal(node)
 
     @staticmethod
-    def _has_exit_in_scope(scope):
+    def _has_exit_in_scope(scope: nodes.LocalsDictNodeNG) -> bool:
         exit_func = scope.locals.get("exit")
         return bool(
             exit_func and isinstance(exit_func[0], (nodes.ImportFrom, nodes.Import))
         )
 
-    def _check_quit_exit_call(self, node):
+    def _check_quit_exit_call(self, node: nodes.Call) -> None:
 
         if isinstance(node.func, nodes.Name) and node.func.name in BUILTIN_EXIT_FUNCS:
             # If we have `exit` imported from `sys` in the current or global scope, exempt this instance.
@@ -1082,7 +1088,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 return
             self.add_message("consider-using-sys-exit", node=node)
 
-    def _check_super_with_arguments(self, node):
+    def _check_super_with_arguments(self, node: nodes.Call) -> None:
         if not isinstance(node.func, nodes.Name) or node.func.name != "super":
             return
 
@@ -1094,13 +1100,16 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             or not isinstance(node.args[0], nodes.Name)
             or not isinstance(node.args[1], nodes.Name)
             or node_frame_class(node) is None
-            or node.args[0].name != node_frame_class(node).name
+            # TODO: PY38: Use walrus operator, this will also fix the mypy issue
+            or node.args[0].name != node_frame_class(node).name  # type: ignore[union-attr]
         ):
             return
 
         self.add_message("super-with-arguments", node=node)
 
-    def _check_raising_stopiteration_in_generator_next_call(self, node):
+    def _check_raising_stopiteration_in_generator_next_call(
+        self, node: nodes.Call
+    ) -> None:
         """Check if a StopIteration exception is raised by the call to next function.
 
         If the next value has a default value, then do not add message.
@@ -1134,7 +1143,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             ):
                 self.add_message("stop-iteration-return", node=node)
 
-    def _check_nested_blocks(self, node):
+    def _check_nested_blocks(
+        self,
+        node: NodesWithNestedBlocks,
+    ) -> None:
         """Update and check the number of nested blocks."""
         # only check block levels inside functions or methods
         if not isinstance(node.scope(), nodes.FunctionDef):
@@ -1160,7 +1172,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if len(nested_blocks) > len(self._nested_blocks):
             self._emit_nested_blocks_message_if_needed(nested_blocks)
 
-    def _emit_nested_blocks_message_if_needed(self, nested_blocks):
+    def _emit_nested_blocks_message_if_needed(
+        self, nested_blocks: list[NodesWithNestedBlocks]
+    ) -> None:
         if len(nested_blocks) > self.linter.config.max_nested_blocks:
             self.add_message(
                 "too-many-nested-blocks",
