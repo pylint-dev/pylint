@@ -11,10 +11,11 @@ import sys
 import tokenize
 from collections.abc import Iterator
 from functools import reduce
-from typing import TYPE_CHECKING, NamedTuple, Union
+from re import Pattern
+from typing import TYPE_CHECKING, Any, NamedTuple, Union
 
 import astroid
-from astroid import nodes
+from astroid import bases, nodes
 from astroid.util import Uninferable
 
 from pylint import checkers
@@ -99,7 +100,7 @@ def _is_trailing_comma(tokens: list[tokenize.TokenInfo], index: int) -> bool:
     if not more_tokens_on_line:
         return False
 
-    def get_curline_index_start():
+    def get_curline_index_start() -> int:
         """Get the index denoting the start of the current line."""
         for subindex, token in enumerate(reversed(tokens[:index])):
             # See Lib/tokenize.py and Lib/token.py in cpython for more info
@@ -202,7 +203,7 @@ class ConsiderUsingWithStack(NamedTuple):
 
     def get_stack_for_frame(
         self, frame: nodes.FunctionDef | nodes.ClassDef | nodes.Module
-    ):
+    ) -> dict[str, nodes.NodeNG]:
         """Get the stack corresponding to the scope of the given frame."""
         if isinstance(frame, nodes.FunctionDef):
             return self.function_scope
@@ -521,7 +522,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         )
 
     @cached_property
-    def _dummy_rgx(self):
+    def _dummy_rgx(self) -> Pattern[str]:
         return self.linter.config.dummy_variables_rgx
 
     @staticmethod
@@ -530,7 +531,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             node.value.value, bool
         )
 
-    def _is_actual_elif(self, node):
+    def _is_actual_elif(self, node: nodes.If) -> bool:
         """Check if the given node is an actual elif.
 
         This is a problem we're having with the builtin ast module,
@@ -546,7 +547,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                     return True
         return False
 
-    def _check_simplifiable_if(self, node):
+    def _check_simplifiable_if(self, node: nodes.If) -> None:
         """Check if the given if node can be simplified.
 
         The if statement can be reduced to a boolean expression
@@ -745,15 +746,18 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         )
 
     @staticmethod
-    def _type_and_name_are_equal(node_a, node_b):
-        for _type in (nodes.Name, nodes.AssignName):
-            if all(isinstance(_node, _type) for _node in (node_a, node_b)):
-                return node_a.name == node_b.name
-        if all(isinstance(_node, nodes.Const) for _node in (node_a, node_b)):
+    def _type_and_name_are_equal(node_a: Any, node_b: Any) -> bool:
+        if isinstance(node_a, nodes.Name) and isinstance(node_b, nodes.Name):
+            return node_a.name == node_b.name
+        if isinstance(node_a, nodes.AssignName) and isinstance(
+            node_b, nodes.AssignName
+        ):
+            return node_a.name == node_b.name
+        if isinstance(node_a, nodes.Const) and isinstance(node_b, nodes.Const):
             return node_a.value == node_b.value
         return False
 
-    def _is_dict_get_block(self, node):
+    def _is_dict_get_block(self, node: nodes.If) -> bool:
 
         # "if <compare node>"
         if not isinstance(node.test, nodes.Compare):
@@ -784,7 +788,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         # The object needs to be a dictionary instance
         return isinstance(utils.safe_infer(node.test.ops[0][1]), nodes.Dict)
 
-    def _check_consider_get(self, node):
+    def _check_consider_get(self, node: nodes.If) -> None:
         if_block_ok = self._is_dict_get_block(node)
         if if_block_ok and not node.orelse:
             self.add_message("consider-using-get", node=node)
@@ -820,7 +824,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_consider_get(node)
         self._check_consider_using_min_max_builtin(node)
 
-    def _check_consider_using_min_max_builtin(self, node: nodes.If):
+    def _check_consider_using_min_max_builtin(self, node: nodes.If) -> None:
         """Check if the given if node can be refactored as a min/max python builtin."""
         if self._is_actual_elif(node) or node.orelse:
             # Not interested in if statements with multiple branches.
@@ -903,7 +907,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def visit_ifexp(self, node: nodes.IfExp) -> None:
         self._check_simplifiable_ifexp(node)
 
-    def _check_simplifiable_ifexp(self, node):
+    def _check_simplifiable_ifexp(self, node: nodes.IfExp) -> None:
         if not isinstance(node.body, nodes.Const) or not isinstance(
             node.orelse, nodes.Const
         ):
@@ -962,7 +966,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def visit_raise(self, node: nodes.Raise) -> None:
         self._check_stop_iteration_inside_generator(node)
 
-    def _check_stop_iteration_inside_generator(self, node):
+    def _check_stop_iteration_inside_generator(self, node: nodes.Raise) -> None:
         """Check if an exception of type StopIteration is raised inside a generator."""
         frame = node.frame(future=True)
         if not isinstance(frame, nodes.FunctionDef) or not frame.is_generator():
@@ -972,13 +976,15 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if not node.exc:
             return
         exc = utils.safe_infer(node.exc)
-        if not exc or not isinstance(exc, (astroid.Instance, nodes.ClassDef)):
+        if not exc or not isinstance(exc, (bases.Instance, nodes.ClassDef)):
             return
         if self._check_exception_inherit_from_stopiteration(exc):
             self.add_message("stop-iteration-return", node=node)
 
     @staticmethod
-    def _check_exception_inherit_from_stopiteration(exc):
+    def _check_exception_inherit_from_stopiteration(
+        exc: nodes.ClassDef | bases.Instance,
+    ) -> bool:
         """Return True if the exception node in argument inherit from StopIteration."""
         stopiteration_qname = f"{utils.EXCEPTIONS_MODULE}.StopIteration"
         return any(_class.qname() == stopiteration_qname for _class in exc.mro())
@@ -1118,9 +1124,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         :type node: :class:`nodes.Call`
         """
 
-        def _looks_like_infinite_iterator(param):
+        def _looks_like_infinite_iterator(param: nodes.NodeNG) -> bool:
             inferred = utils.safe_infer(param)
-            if inferred:
+            if isinstance(inferred, bases.Instance):
                 return inferred.qname() in KNOWN_INFINITE_ITERATORS
             return False
 
@@ -1182,12 +1188,14 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 args=(len(nested_blocks), self.linter.config.max_nested_blocks),
             )
 
-    def _emit_consider_using_with_if_needed(self, stack: dict[str, nodes.NodeNG]):
+    def _emit_consider_using_with_if_needed(
+        self, stack: dict[str, nodes.NodeNG]
+    ) -> None:
         for node in stack.values():
             self.add_message("consider-using-with", node=node)
 
     @staticmethod
-    def _duplicated_isinstance_types(node):
+    def _duplicated_isinstance_types(node: nodes.BoolOp) -> dict[str, set[str]]:
         """Get the duplicated types from the underlying isinstance calls.
 
         :param nodes.BoolOp node: Node which should contain a bunch of isinstance calls.
@@ -1195,8 +1203,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                   to duplicate values from consecutive calls.
         :rtype: dict
         """
-        duplicated_objects = set()
-        all_types = collections.defaultdict(set)
+        duplicated_objects: set[str] = set()
+        all_types: collections.defaultdict[str, set[str]] = collections.defaultdict(set)
 
         for call in node.values:
             if not isinstance(call, nodes.Call) or len(call.args) != 2:
