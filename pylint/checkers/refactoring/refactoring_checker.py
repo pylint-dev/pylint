@@ -1100,6 +1100,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             or not isinstance(node.args[0], nodes.Name)
             or not isinstance(node.args[1], nodes.Name)
             or node_frame_class(node) is None
+            # TODO: PY38: Use walrus operator, this will also fix the mypy issue
             or node.args[0].name != node_frame_class(node).name  # type: ignore[union-attr]
         ):
             return
