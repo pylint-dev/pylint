@@ -18,6 +18,8 @@ import house, _chair, _stair  # [import-private-name]
 # Ignore dunders
 import __asd__
 import __future__
+from __future__ import print_function
+from __future__ import __print_function__
 
 # Ignore local modules
 # The check for local modules compares directory names in the path of the file being linted to
