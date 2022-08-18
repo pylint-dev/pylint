@@ -2242,7 +2242,7 @@ class VariablesChecker(BaseChecker):
             self.add_message("undefined-loop-variable", args=node.name, node=node)
             return
         if any(
-            isinstance(else_stmt, (nodes.Return, nodes.Raise))
+            isinstance(else_stmt, (nodes.Return, nodes.Raise, nodes.Break, nodes.Continue))
             for else_stmt in assign.orelse
         ):
             return
