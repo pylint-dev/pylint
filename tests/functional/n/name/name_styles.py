@@ -1,5 +1,6 @@
 """Test for the invalid-name warning."""
-# pylint: disable=unnecessary-pass, unnecessary-comprehension, unused-private-member, unnecessary-lambda-assignment
+# pylint: disable=unnecessary-pass, unnecessary-comprehension, unused-private-member
+# pylint: disable=unnecessary-lambda-assignment
 import abc
 import collections
 import typing
