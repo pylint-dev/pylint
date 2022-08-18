@@ -1,7 +1,7 @@
 """https://www.logilab.net/elo/ticket/18862"""
 # pylint: disable=unnecessary-lambda-assignment
 
-__revision__ = 1
+
 def function():
     """hop"""
     ggg = lambda: xxx

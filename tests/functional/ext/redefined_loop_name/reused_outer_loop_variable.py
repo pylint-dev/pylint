@@ -1,6 +1,5 @@
 """Tests for redefining an outer loop variable."""
 
-__revision__ = 0
 
 # Simple nested loop
 for i in range(10):

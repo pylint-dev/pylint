@@ -5,7 +5,6 @@ https://bitbucket.org/logilab/pylint/issue/93/pylint-crashes-on-namedtuple-attri
 """
 from collections import namedtuple
 
-__revision__ = None
 
 Thing = namedtuple('Thing', ())
 

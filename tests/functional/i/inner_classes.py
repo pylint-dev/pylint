@@ -1,7 +1,6 @@
 # pylint: disable=too-few-public-methods, unnecessary-pass, unnecessary-dunder-call
 """Backend Base Classes for the schwelm user DB"""
 
-__revision__ = "alpha"
 
 class Aaa:
     """docstring"""

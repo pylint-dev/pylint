@@ -7,14 +7,14 @@ import-private-name:12:0:12:28::Imported private object (_d):HIGH
 import-private-name:14:0:14:13::Imported private module (_house):HIGH
 import-private-name:15:0:15:29::Imported private modules (_house, _chair, _stair):HIGH
 import-private-name:16:0:16:28::Imported private modules (_chair, _stair):HIGH
-import-private-name:32:0:32:28::Imported private object (_private):HIGH
-import-private-name:33:0:33:24::Imported private object (_private):HIGH
-import-private-name:84:0:84:57::Imported private module (_TypeContainerExtra2):HIGH
-import-private-name:89:0:89:22::Imported private module (_private_module):HIGH
-import-private-name:92:0:92:23::Imported private module (_private_module2):HIGH
-import-private-name:96:0:96:23::Imported private module (_private_module3):HIGH
-import-private-name:101:0:101:23::Imported private module (_private_module4):HIGH
-import-private-name:105:0:105:41::Imported private module (_private_module5):HIGH
-import-private-name:109:0:109:42::Imported private module (_private_module6):HIGH
-import-private-name:112:0:112:40::Imported private object (_PrivateClass3):HIGH
-import-private-name:117:0:117:34::Imported private module (_private_module_unreachable):HIGH
+import-private-name:34:0:34:28::Imported private object (_private):HIGH
+import-private-name:35:0:35:24::Imported private object (_private):HIGH
+import-private-name:86:0:86:57::Imported private module (_TypeContainerExtra2):HIGH
+import-private-name:91:0:91:22::Imported private module (_private_module):HIGH
+import-private-name:94:0:94:23::Imported private module (_private_module2):HIGH
+import-private-name:98:0:98:23::Imported private module (_private_module3):HIGH
+import-private-name:103:0:103:23::Imported private module (_private_module4):HIGH
+import-private-name:107:0:107:41::Imported private module (_private_module5):HIGH
+import-private-name:111:0:111:42::Imported private module (_private_module6):HIGH
+import-private-name:114:0:114:40::Imported private object (_PrivateClass3):HIGH
+import-private-name:119:0:119:34::Imported private module (_private_module_unreachable):HIGH

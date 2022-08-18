@@ -5,5 +5,5 @@ reimported:10:0:10:27::Reimport 'deque' (imported line 9):UNDEFINED
 reimported:21:0:21:33::Reimport 'ElementTree' (imported line 20):UNDEFINED
 reimported:24:0:24:21::Reimport 'email.encoders' (imported line 23):UNDEFINED
 reimported:26:0:26:10::Reimport 'sys' (imported line 18):UNDEFINED
-redefined-outer-name:37:4:37:14:reimport:Redefining name 'sys' from outer scope (line 16):UNDEFINED
-reimported:37:4:37:14:reimport:Reimport 'sys' (imported line 18):UNDEFINED
+redefined-outer-name:36:4:36:14:reimport:Redefining name 'sys' from outer scope (line 16):UNDEFINED
+reimported:36:4:36:14:reimport:Reimport 'sys' (imported line 18):UNDEFINED

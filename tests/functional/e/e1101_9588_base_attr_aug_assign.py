@@ -7,7 +7,7 @@ modified with augmented assignment in a derived class.
 
 https://www.logilab.org/ticket/9588
 """
-__revision__ = 0
+
 
 class BaseClass:
     "The base class"

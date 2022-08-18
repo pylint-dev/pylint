@@ -2,7 +2,6 @@
 does not trigger a false positive on Python 3.
 """
 
-__revision__ = 1
 
 def test():
     """ Test that starred expressions don't give false positives. """

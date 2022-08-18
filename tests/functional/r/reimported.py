@@ -24,7 +24,6 @@ from email import encoders
 import email.encoders  # [reimported]
 
 import sys  # [reimported]  #pylint: disable=ungrouped-imports,wrong-import-order
-__revision__ = 0
 
 def no_reimport():
     """docstring"""

@@ -9,7 +9,6 @@
    object.__init__()
 """
 
-__revision__ = None
 
 class Statement:
     """ ... """

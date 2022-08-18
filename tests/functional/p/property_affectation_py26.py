@@ -3,7 +3,6 @@
 Simple test case for an annoying behavior in pylint.
 """
 
-__revision__ = 'pouet'
 
 class Test:
     """Smallest test case for reported issue."""

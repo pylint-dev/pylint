@@ -2,8 +2,6 @@
 """check for methods first arguments
 """
 
-__revision__ = 0
-
 
 class Obj:
     # C0202, classmethod

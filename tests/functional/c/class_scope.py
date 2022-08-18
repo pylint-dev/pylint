@@ -1,7 +1,6 @@
 # pylint: disable=too-few-public-methods, unnecessary-lambda-assignment
 """check for scope problems"""
 
-__revision__ = None
 
 class Well:
     """well"""

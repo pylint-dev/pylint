@@ -1,7 +1,7 @@
 """
 #3123: W0212 false positive on static method
 """
-__revision__ = 1
+
 
 # pylint: disable=no-classmethod-decorator, no-staticmethod-decorator
 class A3123:

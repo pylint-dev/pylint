@@ -1,6 +1,5 @@
 """Check for else branches on loops with break and return only."""
 
-__revision__ = 0
 
 def test_return_for():
     """else + return is not acceptable."""

@@ -4,7 +4,7 @@
 """
 from . import non_init_parent_called
 import nonexistant  # [import-error]
-__revision__ = '$Id: non_init_parent_called.py,v 1.2 2004-09-29 08:35:13 syt Exp $'
+
 
 class AAAA:
     """ancestor 1"""

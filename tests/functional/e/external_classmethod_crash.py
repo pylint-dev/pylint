@@ -17,5 +17,3 @@ def fetch_config(mainattr=None):
 class Aaa:
     """hop"""
     fetch_order = fetch_config('A')
-
-__revision__ = None

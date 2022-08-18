@@ -3,8 +3,6 @@
 bug notified by Pierre Rouleau on 2005-04-24
 """
 
-__revision__ = None
-
 
 class File(file):  # pylint: disable=undefined-variable
     """ Testing new-style class inheritance from file"""

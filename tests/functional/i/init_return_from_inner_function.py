@@ -1,7 +1,6 @@
 # pylint: disable=too-few-public-methods
 """#10075"""
 
-__revision__ = 1
 
 class Aaa:
     """docstring"""

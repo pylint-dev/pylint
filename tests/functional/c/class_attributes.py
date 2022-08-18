@@ -1,6 +1,6 @@
 """Test that valid class attribute doesn't trigger errors"""
-__revision__ = 'sponge bob'
 # pylint: disable=missing-docstring,too-few-public-methods
+
 
 class Clazz:
     "dummy class"

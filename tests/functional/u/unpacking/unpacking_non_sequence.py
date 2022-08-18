@@ -6,7 +6,6 @@ from os import rename as nonseq_func
 from functional.u.unpacking.unpacking import nonseq
 from typing import NamedTuple
 
-__revision__ = 0
 
 # Working
 
