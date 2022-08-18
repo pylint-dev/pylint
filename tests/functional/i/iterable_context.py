@@ -2,8 +2,8 @@
 Checks that primitive values are not used in an
 iterating/mapping context.
 """
-# pylint: disable=missing-docstring,invalid-name,too-few-public-methods,import-error,unused-argument,bad-mcs-method-argument,wrong-import-position,no-else-return, unnecessary-comprehension,redundant-u-string-prefix
-
+# pylint: disable=missing-docstring,invalid-name,too-few-public-methods,import-error,unused-argument,bad-mcs-method-argument,
+# pylint: disable=wrong-import-position,no-else-return, unnecessary-comprehension,redundant-u-string-prefix
 # primitives
 numbers = [1, 2, 3]
 
