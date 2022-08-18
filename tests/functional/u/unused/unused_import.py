@@ -1,5 +1,5 @@
 """unused import"""
-# pylint: disable=undefined-all-variable, import-error, too-few-public-methods, missing-docstring,wrong-import-position, useless-object-inheritance, multiple-imports
+# pylint: disable=undefined-all-variable, import-error, too-few-public-methods, missing-docstring,wrong-import-position, multiple-imports
 import xml.etree  # [unused-import]
 import xml.sax  # [unused-import]
 import os.path as test  # [unused-import]
@@ -11,9 +11,8 @@ from collections import deque, OrderedDict, Counter
 import re, html.parser  # [unused-import]
 DATA = Counter()
 # pylint: disable=self-assigning-variable
-import six
 from fake import SomeName, SomeOtherName  # [unused-import]
-class SomeClass(object):
+class SomeClass:
     SomeName = SomeName # https://bitbucket.org/logilab/pylint/issue/475
     SomeOtherName = 1
     SomeOtherName = SomeOtherName
@@ -43,14 +42,11 @@ def get_itertools_obj() -> 'itertools.count':
 def use_html_parser() -> 'html.parser.HTMLParser':
     return html.parser.HTMLParser
 
-# pylint: disable=misplaced-future
-
-from __future__ import print_function
 
 import os  # [unused-import]
 import sys
 
-class NonRegr(object):
+class NonRegr:
     """???"""
     def __init__(self):
         print('initialized')
@@ -90,5 +86,5 @@ TYPE_CHECKING = False
 if TYPE_CHECKING:
     import zoneinfo
 
-class WithMetaclass(six.with_metaclass(ABCMeta, object)):
+class WithMetaclass(metaclass=ABCMeta):
     pass

@@ -2,7 +2,6 @@
 """test suspicious lambda expressions
 """
 
-__revision__ = ''
 
 # Some simple examples of the most commonly encountered forms.
 # +1: [unnecessary-lambda]

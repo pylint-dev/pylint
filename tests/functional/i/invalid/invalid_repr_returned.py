@@ -1,19 +1,19 @@
 """Check invalid value returned by __repr__ """
 
-# pylint: disable=too-few-public-methods,missing-docstring,import-error,useless-object-inheritance,unnecessary-lambda-assignment
+# pylint: disable=too-few-public-methods,missing-docstring,import-error,unnecessary-lambda-assignment
 import six
 
 from missing import Missing
 
 
-class FirstGoodRepr(object):
+class FirstGoodRepr:
     """__repr__ returns <type 'str'>"""
 
     def __repr__(self):
         return "some repr"
 
 
-class SecondGoodRepr(object):
+class SecondGoodRepr:
     """__repr__ returns <type 'str'>"""
 
     def __repr__(self):
@@ -26,38 +26,38 @@ class ReprMetaclass(type):
 
 
 @six.add_metaclass(ReprMetaclass)
-class ThirdGoodRepr(object):
+class ThirdGoodRepr:
     """Repr through the metaclass."""
 
 
-class FirstBadRepr(object):
+class FirstBadRepr:
     """ __repr__ returns bytes """
 
     def __repr__(self):  # [invalid-repr-returned]
         return b"123"
 
 
-class SecondBadRepr(object):
+class SecondBadRepr:
     """ __repr__ returns int """
 
     def __repr__(self):  # [invalid-repr-returned]
         return 1
 
 
-class ThirdBadRepr(object):
+class ThirdBadRepr:
     """ __repr__ returns node which does not have 'value' in AST """
 
     def __repr__(self):  # [invalid-repr-returned]
         return lambda: "some repr"
 
 
-class AmbiguousRepr(object):
+class AmbiguousRepr:
     """ Uninferable return value """
 
     __repr__ = lambda self: Missing
 
 
-class AnotherAmbiguousRepr(object):
+class AnotherAmbiguousRepr:
     """Potential uninferable return value"""
 
     def __repr__(self):

@@ -1,6 +1,6 @@
 # pylint: disable=missing-docstring, no-member, bad-super-call
 # pylint: disable=too-few-public-methods, unused-argument, invalid-name, too-many-public-methods
-# pylint: disable=line-too-long, useless-object-inheritance, arguments-out-of-order
+# pylint: disable=line-too-long, arguments-out-of-order
 # pylint: disable=super-with-arguments, dangerous-default-value
 
 import random
@@ -13,7 +13,7 @@ def not_a_method(param, param2):
     return super(None, None).not_a_method(param, param2)
 
 
-class SuperBase(object):
+class SuperBase:
     def with_default_arg(self, first, default_arg="only_in_super_base"):
         pass
 
@@ -342,7 +342,7 @@ class SubTwoTwo(SuperTwo):
         super().__init__(a, b, *args)
 
 
-class NotUselessSuperPy3(object):
+class NotUselessSuperPy3:
     def not_passing_keyword_only(self, first, *, second):
         return super().not_passing_keyword_only(first)
 
@@ -355,7 +355,7 @@ class AlsoNotUselessSuperPy3(NotUselessSuperPy3):
         return super().not_passing_keyword_only(first, second=second)
 
 
-class UselessSuperPy3(object):
+class UselessSuperPy3:
     def useless(self, *, first):  # [useless-parent-delegation]
         super().useless(first=first)
 

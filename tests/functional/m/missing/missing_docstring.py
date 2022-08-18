@@ -1,5 +1,5 @@
 # [missing-module-docstring]
-# pylint: disable=too-few-public-methods, useless-object-inheritance
+# pylint: disable=too-few-public-methods
 
 def public_documented():
     """It has a docstring."""
@@ -14,11 +14,11 @@ def _private_documented():
     """It has a docstring."""
 
 
-class ClassDocumented(object):
+class ClassDocumented:
     """It has a docstring."""
 
 
-class ClassUndocumented(object): # [missing-class-docstring]
+class ClassUndocumented: # [missing-class-docstring]
     pass
 
 
@@ -35,7 +35,7 @@ def __mangled():
     pass
 
 
-class Property(object):
+class Property:
     """Don't warn about setters and deleters."""
 
     def __init__(self):
@@ -54,5 +54,5 @@ class Property(object):
         pass
 
 
-class DocumentedViaDunderDoc(object):
+class DocumentedViaDunderDoc:
     __doc__ = "This one"

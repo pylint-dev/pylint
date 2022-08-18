@@ -1,6 +1,5 @@
 """Miscellaneous used-before-assignment cases"""
 # pylint: disable=consider-using-f-string, missing-function-docstring
-__revision__ = None
 
 
 MSG = "hello %s" % MSG  # [used-before-assignment]

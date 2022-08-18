@@ -1,15 +1,15 @@
 """ Checks assigning attributes not found in class slots
 will trigger assigning-non-slot warning.
 """
-# pylint: disable=too-few-public-methods, missing-docstring, import-error, useless-object-inheritance, redundant-u-string-prefix, unnecessary-dunder-call
+# pylint: disable=too-few-public-methods, missing-docstring, import-error, redundant-u-string-prefix, unnecessary-dunder-call
 from collections import deque
 
 from missing import Unknown
 
-class Empty(object):
+class Empty:
     """ empty """
 
-class Bad(object):
+class Bad:
     """ missing not in slots. """
 
     __slots__ = ['member']
@@ -17,7 +17,7 @@ class Bad(object):
     def __init__(self):
         self.missing = 42 # [assigning-non-slot]
 
-class Bad2(object):
+class Bad2:
     """ missing not in slots """
     __slots__ = [deque.__name__, 'member']
 
@@ -45,7 +45,7 @@ class Good(Empty):
     def __init__(self):
         self.missing = 42
 
-class Good2(object):
+class Good2:
     """ Using __dict__ in slots will be safe. """
 
     __slots__ = ['__dict__', 'comp']
@@ -54,7 +54,7 @@ class Good2(object):
         self.comp = 4
         self.missing = 5
 
-class PropertyGood(object):
+class PropertyGood:
     """ Using properties is safe. """
 
     __slots__ = ['tmp', '_value']
@@ -71,7 +71,7 @@ class PropertyGood(object):
     def __init__(self):
         self.test = 42
 
-class PropertyGood2(object):
+class PropertyGood2:
     """ Using properties in the body of the class is safe. """
     __slots__ = ['_value']
 
@@ -87,7 +87,7 @@ class PropertyGood2(object):
     def __init__(self):
         self.test = 24
 
-class UnicodeSlots(object):
+class UnicodeSlots:
     """Using unicode objects in __slots__ is okay.
 
     On Python 3.3 onward, u'' is equivalent to '',
@@ -100,7 +100,7 @@ class UnicodeSlots(object):
         self.second = 24
 
 
-class DataDescriptor(object):
+class DataDescriptor:
     def __init__(self, name, default=''):
         self.__name = name
         self.__default = default
@@ -112,12 +112,12 @@ class DataDescriptor(object):
         setattr(inst, self.__name, value)
 
 
-class NonDataDescriptor(object):
+class NonDataDescriptor:
     def __get__(self, inst, cls):
         return 42
 
 
-class SlotsWithDescriptor(object):
+class SlotsWithDescriptor:
     __slots__ = ['_err']
     data_descriptor = DataDescriptor('_err')
     non_data_descriptor = NonDataDescriptor()
@@ -132,18 +132,18 @@ def dont_emit_for_descriptors():
     inst.non_data_descriptor = 'lala' # [assigning-non-slot]
 
 
-class ClassWithSlots(object):
+class ClassWithSlots:
     __slots__ = ['foobar']
 
 
-class ClassReassigningDunderClass(object):
+class ClassReassigningDunderClass:
     __slots__ = ['foobar']
 
     def release(self):
         self.__class__ = ClassWithSlots
 
 
-class ClassReassingingInvalidLayoutClass(object):
+class ClassReassingingInvalidLayoutClass:
     __slots__ = []
 
     def release(self):
@@ -175,7 +175,7 @@ class Cls(Generic[TYPE]):
         self.value = value
 
 
-class ClassDefiningSetattr(object):
+class ClassDefiningSetattr:
     __slots__ = ["foobar"]
 
     def __init__(self):

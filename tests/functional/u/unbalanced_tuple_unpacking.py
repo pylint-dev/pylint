@@ -3,7 +3,7 @@ from __future__ import absolute_import
 from typing import NamedTuple
 from functional.u.unpacking.unpacking import unpack
 
-# pylint: disable=missing-class-docstring, missing-function-docstring, using-constant-test, useless-object-inheritance,import-outside-toplevel
+# pylint: disable=missing-class-docstring, missing-function-docstring, using-constant-test, import-outside-toplevel
 
 
 def do_stuff():
@@ -83,7 +83,7 @@ def do_stuff9():
     return first + second
 
 
-class UnbalancedUnpacking(object):
+class UnbalancedUnpacking:
     """Test unbalanced tuple unpacking in instance attributes."""
 
     # pylint: disable=attribute-defined-outside-init, invalid-name, too-few-public-methods

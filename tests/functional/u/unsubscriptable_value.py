@@ -3,8 +3,7 @@ Checks that value used in a subscript supports subscription
 (i.e. defines __getitem__ method).
 """
 # pylint: disable=missing-docstring,pointless-statement,expression-not-assigned,wrong-import-position, unnecessary-comprehension
-# pylint: disable=too-few-public-methods,import-error,invalid-name,wrong-import-order, useless-object-inheritance, redundant-u-string-prefix
-import six
+# pylint: disable=too-few-public-methods,import-error,invalid-name,wrong-import-order, redundant-u-string-prefix
 
 # primitives
 numbers = [1, 2, 3]
@@ -22,10 +21,10 @@ dict(a=1, b=2)['a']
 
 
 # instances
-class NonSubscriptable(object):
+class NonSubscriptable:
     pass
 
-class Subscriptable(object):
+class Subscriptable:
     def __getitem__(self, key):
         return key + key
 
@@ -70,7 +69,7 @@ class MetaSubscriptable(type):
     def __getitem__(cls, key):
         return key + key
 
-class SubscriptableClass(six.with_metaclass(MetaSubscriptable, object)):
+class SubscriptableClass(metaclass=MetaSubscriptable):
     pass
 
 SubscriptableClass[0]
@@ -90,7 +89,7 @@ deq.append(42)
 deq[0]
 
 
-class AbstractClass(object):
+class AbstractClass:
 
     def __init__(self):
         self.ala = {i for i in range(10)}
@@ -102,7 +101,7 @@ class AbstractClass(object):
         self.portocala[0]
 
 
-class ClassMixin(object):
+class ClassMixin:
 
     def __init__(self):
         self.ala = {i for i in range(10)}

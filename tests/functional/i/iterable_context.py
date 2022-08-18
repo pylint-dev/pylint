@@ -2,9 +2,8 @@
 Checks that primitive values are not used in an
 iterating/mapping context.
 """
-# pylint: disable=missing-docstring,invalid-name,too-few-public-methods,import-error,unused-argument,bad-mcs-method-argument,wrong-import-position,no-else-return, useless-object-inheritance, unnecessary-comprehension,redundant-u-string-prefix
-from __future__ import print_function
-
+# pylint: disable=missing-docstring,invalid-name,too-few-public-methods,import-error,unused-argument,bad-mcs-method-argument,
+# pylint: disable=wrong-import-position,no-else-return, unnecessary-comprehension,redundant-u-string-prefix
 # primitives
 numbers = [1, 2, 3]
 
@@ -59,10 +58,10 @@ for i in powers_of_two:  # [not-an-iterable]
     pass
 
 # check for custom iterators
-class A(object):
+class A:
     pass
 
-class B(object):
+class B:
     def __iter__(self):
         return self
 
@@ -72,7 +71,7 @@ class B(object):
     def next(self):
         return 1
 
-class C(object):
+class C:
     "old-style iterator"
     def __getitem__(self, k):
         if k > 10:
@@ -128,7 +127,7 @@ for i in m:
     print(i)
 
 # skip checks if statement is inside mixin/base/abstract class
-class ManagedAccessViewMixin(object):
+class ManagedAccessViewMixin:
     access_requirements = None
 
     def get_access_requirements(self):
@@ -141,7 +140,7 @@ class ManagedAccessViewMixin(object):
         for requirement in classes:
             print(requirement)
 
-class BaseType(object):
+class BaseType:
     valid_values = None
 
     def validate(self, value):
@@ -154,7 +153,7 @@ class BaseType(object):
                     return True
             return False
 
-class AbstractUrlMarkManager(object):
+class AbstractUrlMarkManager:
     def __init__(self):
         self._lineparser = None
         self._init_lineparser()
@@ -167,7 +166,7 @@ class AbstractUrlMarkManager(object):
 
 # class is not named as abstract
 # but still is deduceably abstract
-class UrlMarkManager(object):
+class UrlMarkManager:
     def __init__(self):
         self._lineparser = None
         self._init_lineparser()
@@ -179,7 +178,7 @@ class UrlMarkManager(object):
         raise NotImplementedError
 
 
-class HasDynamicGetattr(object):
+class HasDynamicGetattr:
 
     def __init__(self):
         self._obj = []

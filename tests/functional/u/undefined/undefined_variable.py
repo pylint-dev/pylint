@@ -1,11 +1,9 @@
-# pylint: disable=missing-docstring, multiple-statements, useless-object-inheritance, import-outside-toplevel
+# pylint: disable=missing-docstring, multiple-statements, import-outside-toplevel
 # pylint: disable=too-few-public-methods, bare-except, broad-except
 # pylint: disable=using-constant-test, import-error, global-variable-not-assigned, unnecessary-comprehension
 # pylint: disable=unnecessary-lambda-assignment
 
-from __future__ import print_function
 
-# pylint: disable=wrong-import-position
 from typing import TYPE_CHECKING
 
 DEFINED = 1
@@ -106,7 +104,7 @@ class TestClass(Ancestor):  # [used-before-assignment]
         """
         class UsingBeforeDefinition(Empty):  # [used-before-assignment]
             """ uses Empty before definition """
-        class Empty(object):
+        class Empty:
             """ no op """
         return UsingBeforeDefinition
 
@@ -116,11 +114,11 @@ class TestClass(Ancestor):  # [used-before-assignment]
             """ no op """
         return MissingAncestor1
 
-class Self(object):
+class Self:
     """ Detect when using the same name inside the class scope. """
     obj = Self # [undefined-variable]
 
-class Self1(object):
+class Self1:
     """ No error should be raised here. """
 
     def test(self):
@@ -128,17 +126,17 @@ class Self1(object):
         return Self1
 
 
-class Ancestor(object):
+class Ancestor:
     """ No op """
 
-class Ancestor1(object):
+class Ancestor1:
     """ No op """
 
 NANA = BAT # [undefined-variable]
 del BAT  # [undefined-variable]
 
 
-class KeywordArgument(object):
+class KeywordArgument:
     """Test keyword arguments."""
 
     enable = True
@@ -186,11 +184,11 @@ def test_conditional_comprehension():
     return my_methods
 
 
-class MyError(object):
+class MyError:
     pass
 
 
-class MyClass(object):
+class MyClass:
     class MyError(MyError):
         pass
 

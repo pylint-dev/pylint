@@ -1,16 +1,15 @@
 """Check unpacking non-sequences in assignments. """
 
 # pylint: disable=too-few-public-methods, invalid-name, attribute-defined-outside-init, unused-variable
-# pylint: disable=using-constant-test, missing-docstring, wrong-import-order,wrong-import-position,no-else-return, useless-object-inheritance
+# pylint: disable=using-constant-test, missing-docstring, wrong-import-order,wrong-import-position,no-else-return
 from os import rename as nonseq_func
 from functional.u.unpacking.unpacking import nonseq
 from typing import NamedTuple
 
-__revision__ = 0
 
 # Working
 
-class Seq(object):
+class Seq:
     """ sequence """
     def __init__(self):
         self.items = range(2)
@@ -21,7 +20,7 @@ class Seq(object):
     def __len__(self):
         return len(self.items)
 
-class Iter(object):
+class Iter:
     """ Iterator """
     def __iter__(self):
         for number in range(2):
@@ -46,7 +45,7 @@ class MetaIter(type):
 class IterClass(metaclass=MetaIter):
     "class that is iterable (and unpackable)"
 
-class AbstrClass(object):
+class AbstrClass:
     "abstract class"
     pair = None
 
@@ -72,7 +71,7 @@ a, b = good_unpacking2()
 a, b = IterClass
 
 # Not working
-class NonSeq(object):
+class NonSeq:
     """ does nothing """
 
 a, b = NonSeq() # [unpacking-non-sequence]
@@ -83,7 +82,7 @@ a, b = nonseq # [unpacking-non-sequence]
 a, b = nonseq() # [unpacking-non-sequence]
 a, b = nonseq_func # [unpacking-non-sequence]
 
-class ClassUnpacking(object):
+class ClassUnpacking:
     """ Check unpacking as instance attributes. """
 
     def test(self):
@@ -100,7 +99,7 @@ class ClassUnpacking(object):
         self.a, self.b = ValueError # [unpacking-non-sequence]
         self.a, c = nonseq_func # [unpacking-non-sequence]
 
-class TestBase(object):
+class TestBase:
     'base class with `test` method implementation'
     @staticmethod
     def test(data):

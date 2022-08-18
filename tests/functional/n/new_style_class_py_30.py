@@ -2,8 +2,6 @@
 
 bug notified by Pierre Rouleau on 2005-04-24
 """
-from __future__ import print_function
-__revision__ = None
 
 
 class File(file):  # pylint: disable=undefined-variable

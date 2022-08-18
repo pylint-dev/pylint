@@ -1,6 +1,5 @@
 # pylint: disable=missing-docstring
 
-from __future__ import print_function
 
 def func1():
     return 1

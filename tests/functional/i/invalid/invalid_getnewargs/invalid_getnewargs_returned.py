@@ -1,19 +1,19 @@
 """Check invalid value returned by __getnewargs__ """
 
-# pylint: disable=too-few-public-methods,missing-docstring,import-error,useless-object-inheritance,unnecessary-lambda-assignment
+# pylint: disable=too-few-public-methods,missing-docstring,import-error,unnecessary-lambda-assignment
 import six
 
 from missing import Missing
 
 
-class FirstGoodGetNewArgs(object):
+class FirstGoodGetNewArgs:
     """__getnewargs__ returns <type 'tuple'>"""
 
     def __getnewargs__(self):
         return (1, "2", 3)
 
 
-class SecondGoodGetNewArgs(object):
+class SecondGoodGetNewArgs:
     """__getnewargs__ returns <type 'tuple'>"""
 
     def __getnewargs__(self):
@@ -26,37 +26,37 @@ class GetNewArgsMetaclass(type):
 
 
 @six.add_metaclass(GetNewArgsMetaclass)
-class ThirdGoodGetNewArgs(object):
+class ThirdGoodGetNewArgs:
     """GetNewArgs through the metaclass."""
 
 
-class FirstBadGetNewArgs(object):
+class FirstBadGetNewArgs:
     """ __getnewargs__ returns an integer """
 
     def __getnewargs__(self):  # [invalid-getnewargs-returned]
         return 1
 
 
-class SecondBadGetNewArgs(object):
+class SecondBadGetNewArgs:
     """ __getnewargs__ returns str """
 
     def __getnewargs__(self):  # [invalid-getnewargs-returned]
         return "(1, 2, 3)"
 
 
-class ThirdBadGetNewArgs(object):
+class ThirdBadGetNewArgs:
     """ __getnewargs__ returns node which does not have 'value' in AST """
 
     def __getnewargs__(self):  # [invalid-getnewargs-returned]
         return lambda: tuple(1, 2)
 
 
-class AmbigousGetNewArgs(object):
+class AmbigousGetNewArgs:
     """ Uninferable return value """
     __getnewargs__ = lambda self: Missing
 
 
-class AnotherAmbiguousGetNewArgs(object):
+class AnotherAmbiguousGetNewArgs:
     """Potential uninferable return value"""
     def __getnewargs__(self):
         return tuple(Missing)

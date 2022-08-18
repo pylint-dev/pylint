@@ -1,7 +1,6 @@
 """ Testing with statements that use generators. This should not crash. """
-# pylint: disable=useless-object-inheritance
 
-class Base(object):
+class Base:
     """ Base class. """
     val = 0
 

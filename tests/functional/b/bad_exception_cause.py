@@ -4,7 +4,6 @@
 
 import socket, unknown
 
-__revision__ = 0
 
 class ExceptionSubclass(Exception):
     """ subclass """

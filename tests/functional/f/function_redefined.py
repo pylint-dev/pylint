@@ -1,11 +1,11 @@
-# pylint: disable=missing-docstring,using-constant-test, useless-object-inheritance
+# pylint: disable=missing-docstring,using-constant-test
 # pylint: disable=unused-import,wrong-import-position,reimported, unnecessary-pass
 from __future__ import division
 
 from typing import Callable
 
 __revision__ = ''
-class AAAA(object):
+class AAAA:
     """docstring"""
     def __init__(self):
         pass
@@ -18,7 +18,7 @@ class AAAA(object):
     def method2(self): # [function-redefined]
         """docstring"""
 
-class AAAA(object): # [function-redefined]
+class AAAA: # [function-redefined]
     """docstring"""
     def __init__(self):
         pass
