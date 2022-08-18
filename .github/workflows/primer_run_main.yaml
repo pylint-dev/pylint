@@ -15,6 +15,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
+  # This needs to be the SAME as in the PR and comment job
   CACHE_VERSION: 20
 
 jobs:
@@ -40,25 +41,18 @@ jobs:
           curl https://api.github.com/repos/PyCQA/astroid/commits |
           python -c "import json, sys; print(json.load(sys.stdin)[0]['sha'])" > astroid_sha.txt
 
-      # Restore cached Python environment
-      - name: Generate partial Python venv restore key
-        id: generate-python-key
-        run: >-
-          echo "::set-output name=key::venv-${{ env.CACHE_VERSION }}-${{
-            hashFiles('setup.cfg', 'requirements_test.txt', 'requirements_test_min.txt',
-          'astroid_sha.txt') }}"
-      - name: Restore Python virtual environment
+      # Create a re-usable virtual environment
+      - name: Create Python virtual environment cache
         id: cache-venv
-        uses: actions/cache@v3.0.6
+        uses: actions/cache@v3.0.7
         with:
           path: venv
-          key: >-
-            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
-            steps.generate-python-key.outputs.key }}
+          key:
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-venv-primer-${{
+            env.CACHE_VERSION }}
           restore-keys: |
-            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-venv-${{ env.CACHE_VERSION }}-
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-venv-primer-${{ env.CACHE_VERSION }}
       - name: Create Python virtual environment
-        if: steps.cache-venv.outputs.cache-hit != 'true'
         run: |
           python -m venv venv
           . venv/bin/activate
@@ -77,7 +71,7 @@ jobs:
           echo "::set-output name=commitstring::$output"
       - name: Restore projects cache
         id: cache-projects
-        uses: actions/cache@v3.0.6
+        uses: actions/cache@v3.0.7
         with:
           path: tests/.pylint_primer_tests/
           key: >-

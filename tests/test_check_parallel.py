@@ -467,8 +467,10 @@ class TestCheckParallel:
                 # establish the baseline
                 assert (
                     linter.config.jobs == 1
-                ), "jobs>1 are ignored when calling _check_files"
-                linter._check_files(linter.get_ast, file_infos)
+                ), "jobs>1 are ignored when calling _lint_files"
+                ast_mapping = linter._get_asts(iter(file_infos), None)
+                with linter._astroid_module_checker() as check_astroid_module:
+                    linter._lint_files(ast_mapping, check_astroid_module)
                 assert linter.msg_status == 0, "We should not fail the lint"
                 stats_single_proc = linter.stats
             else:
@@ -534,8 +536,10 @@ class TestCheckParallel:
                 # establish the baseline
                 assert (
                     linter.config.jobs == 1
-                ), "jobs>1 are ignored when calling _check_files"
-                linter._check_files(linter.get_ast, file_infos)
+                ), "jobs>1 are ignored when calling _lint_files"
+                ast_mapping = linter._get_asts(iter(file_infos), None)
+                with linter._astroid_module_checker() as check_astroid_module:
+                    linter._lint_files(ast_mapping, check_astroid_module)
                 stats_single_proc = linter.stats
             else:
                 check_parallel(
