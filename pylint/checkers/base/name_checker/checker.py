@@ -39,7 +39,7 @@ _BadNamesTuple = Tuple[nodes.NodeNG, str, str, interfaces.Confidence]
 # Default patterns for name types that do not have styles
 DEFAULT_PATTERNS = {
     "typevar": re.compile(
-        r"^_{0,2}(?:[^\W\da-z_]+|(?:[^\W\da-z_]+[^\WA-Z_]+)+T?(?<!Type))(?:_co(?:ntra)?)?$"
+        r"^_{0,2}(?!T[A-Z]|Type)(?:[A-Z]+|(?:[A-Z]+[a-z]+)+T?(?<!Type))(?:_co(?:ntra)?)?$"
     )
 }
 
