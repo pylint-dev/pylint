@@ -64,11 +64,13 @@ def check_file(file: Path, verbose: bool) -> bool:
 
 The standard format is:
 
-<one or more line of text>
+<one or more line of text ending with a '.'>
 <one blank line>
 <issue reference> #<issuenumber>
 
 Where <issue reference> can be one of: {', '.join(VALID_ISSUES_KEYWORDS)}
+
+The regex used is '{VALID_CHANGELOG_COMPILED_PATTERN}'.
 
 For example:
 

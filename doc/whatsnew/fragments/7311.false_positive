@@ -1,0 +1,3 @@
+Fix `undefined-loop-variable` with `break` and `continue` statements in `else` blocks.
+
+Refs #7311

@@ -107,6 +107,24 @@ def for_else_raises(iterable):
     print(thing)
 
 
+def for_else_break(iterable):
+    while True:
+        for thing in iterable:
+            break
+        else:
+            break
+        print(thing)
+
+
+def for_else_continue(iterable):
+    while True:
+        for thing in iterable:
+            break
+        else:
+            continue
+        print(thing)
+
+
 lst = []
 lst2 = [1, 2, 3]
 
