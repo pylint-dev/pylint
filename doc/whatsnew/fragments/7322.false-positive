@@ -1,2 +1,2 @@
-Improve default TypeVar name regex. Disallow names prefixed with ``T`` or ``Type``.
+Improve default TypeVar name regex. Disallow names prefixed with ``T``.
 E.g. use ``AnyStrT`` instead of ``TAnyStr``.

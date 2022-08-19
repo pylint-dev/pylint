@@ -164,10 +164,10 @@ from typing import (
     TypeVar,
 )
 
-TYPE = TypeVar('TYPE')
+TypeT = TypeVar('TypeT')
 
 
-class Cls(Generic[TYPE]):
+class Cls(Generic[TypeT]):
     """ Simple class with slots """
     __slots__ = ['value']
 

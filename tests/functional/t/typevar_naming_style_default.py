@@ -32,6 +32,7 @@ AnyStr = TypeVar("AnyStr")
 DeviceTypeT = TypeVar("DeviceTypeT")
 HVACModeT = TypeVar("HVACModeT")
 TodoT = TypeVar("TodoT")
+TypeT = TypeVar("TypeT")
 _IPAddress = TypeVar("_IPAddress")
 CALLABLE_T = TypeVar("CALLABLE_T")  # [invalid-name]
 DeviceType = TypeVar("DeviceType")  # [invalid-name]
@@ -39,7 +40,6 @@ IPAddressU = TypeVar("IPAddressU")  # [invalid-name]
 
 # Wrong prefix
 TAnyStr = TypeVar("TAnyStr")  # [invalid-name]
-TypeAnyStr = TypeVar("TypeAnyStr")  # [invalid-name]
 
 # camelCase names with prefix
 badName = TypeVar("badName")  # [invalid-name]
