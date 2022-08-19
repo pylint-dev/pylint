@@ -37,8 +37,8 @@ https://mail.python.org/mailman3/lists/code-quality.python.org/
 Archives are available at
 https://mail.python.org/pipermail/code-quality/
 
-Archives before April 2013 are available at
-https://lists.logilab.org/pipermail/python-projects/
+Archives before April 2013 are not available anymore. At
+https://mail.python.org/pipermail/ it was under ``python-projects``.
 
 Support
 -------
