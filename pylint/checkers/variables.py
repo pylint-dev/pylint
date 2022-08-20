@@ -2258,8 +2258,10 @@ class VariablesChecker(BaseChecker):
                 comprehension_scope = utils.get_node_first_ancestor_of_type(
                     maybe_comprehension, nodes.ComprehensionScope
                 )
-                assert comprehension_scope is not None
-                if (
+                if comprehension_scope is None:
+                    # Should not be possible.
+                    pass
+                elif (
                     comprehension_scope.parent.scope() is scope
                     and node.name in comprehension_scope.locals
                 ):
