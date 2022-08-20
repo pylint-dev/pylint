@@ -2249,6 +2249,22 @@ class VariablesChecker(BaseChecker):
         ):
             return
 
+        maybe_walrus = utils.get_node_first_ancestor_of_type(node, nodes.NamedExpr)
+        if maybe_walrus:
+            maybe_comprehension = utils.get_node_first_ancestor_of_type(
+                maybe_walrus, nodes.Comprehension
+            )
+            if maybe_comprehension:
+                comprehension_scope = utils.get_node_first_ancestor_of_type(
+                    maybe_comprehension, nodes.ComprehensionScope
+                )
+                assert comprehension_scope is not None
+                if (
+                    comprehension_scope.parent.scope() is scope
+                    and node.name in comprehension_scope.locals
+                ):
+                    return
+
         # For functions we can do more by inferring the length of the itered object
         try:
             inferred = next(assign.iter.infer())

@@ -1,0 +1,3 @@
+Fix `undefined-loop-variable` from walrus in comprehension test.
+
+Closes #7222
