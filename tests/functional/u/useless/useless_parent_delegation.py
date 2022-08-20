@@ -2,6 +2,7 @@
 # pylint: disable=too-few-public-methods, unused-argument, invalid-name, too-many-public-methods
 # pylint: disable=line-too-long, arguments-out-of-order
 # pylint: disable=super-with-arguments, dangerous-default-value
+# pylint: disable=too-many-function-args, no-method-argument
 
 import random
 from typing import Any, List
@@ -413,3 +414,14 @@ class ReturnTypeSame(ReturnTypeAny):
 
     def draw(self) -> Any:  # [useless-parent-delegation]
         return super().draw()
+
+
+# Any number of positional arguments followed by one keyword argument with a default value
+class Fruit:
+    def __init__(*, tastes_bitter=None):
+        ...
+
+
+class Lemon(Fruit):
+    def __init__(*, tastes_bitter=True):
+        super().__init__(tastes_bitter=tastes_bitter)
