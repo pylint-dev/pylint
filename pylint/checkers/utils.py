@@ -1064,6 +1064,57 @@ def get_exception_handlers(
     return []
 
 
+def get_contextlib_with_statements(node: nodes.NodeNG) -> Iterator[nodes.With]:
+    """Get all contextlib.with statements in the ancestors of the given node."""
+    for with_node in node.node_ancestors():
+        if isinstance(with_node, nodes.With):
+            yield with_node
+
+
+def _suppresses_exception(
+    call: nodes.Call, exception: type[Exception] = Exception
+) -> bool:
+    """Check if the given node suppresses the given exception."""
+    for arg in call.args:
+        inferred = safe_infer(arg)
+        if isinstance(inferred, nodes.ClassDef):
+            if inferred.name == exception.__name__:
+                return True
+        elif isinstance(inferred, nodes.Tuple):
+            for elt in inferred.elts:
+                inferred_elt = safe_infer(elt)
+                if (
+                    isinstance(inferred_elt, nodes.ClassDef)
+                    and inferred_elt.name == exception.__name__
+                ):
+                    return True
+    return False
+
+
+def get_contextlib_suppressors(
+    node: nodes.NodeNG, exception: type[Exception] = Exception
+) -> Iterator[nodes.With]:
+    """Return the contextlib suppressors handling the exception.
+
+    Args:
+        node (nodes.NodeNG): A node that is potentially wrapped in a contextlib.suppress.
+        exception (builtin.Exception): exception or name of the exception.
+
+    Yields:
+        nodes.With: A with node that is suppressing the exception.
+    """
+    for with_node in get_contextlib_with_statements(node):
+        for item, _ in with_node.items:
+            if isinstance(item, nodes.Call):
+                inferred = safe_infer(item.func)
+                if (
+                    isinstance(inferred, nodes.ClassDef)
+                    and inferred.qname() == "contextlib.suppress"
+                ):
+                    if _suppresses_exception(item, exception):
+                        yield with_node
+
+
 def is_node_inside_try_except(node: nodes.Raise) -> bool:
     """Check if the node is directly under a Try/Except statement
     (but not under an ExceptHandler!).
@@ -1087,9 +1138,9 @@ def node_ignores_exception(
     excepts.
     """
     managing_handlers = get_exception_handlers(node, exception)
-    if not managing_handlers:
-        return False
-    return any(managing_handlers)
+    if managing_handlers:
+        return True
+    return any(get_contextlib_suppressors(node, exception))
 
 
 def class_is_abstract(node: nodes.ClassDef) -> bool:

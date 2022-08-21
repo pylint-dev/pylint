@@ -1,0 +1,3 @@
+``import-error`` now correctly checks for ``contextlib.suppress`` guards on import statements.
+
+Closes #7270
