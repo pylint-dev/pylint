@@ -914,6 +914,38 @@ def test_recursive_ignore(ignore_parameter, ignore_parameter_value) -> None:
     assert module in linted_file_paths
 
 
+def test_relative_imports(initialized_linter: PyLinter) -> None:
+    """Regression test for https://github.com/PyCQA/pylint/issues/3651"""
+    linter = initialized_linter
+    with tempdir() as tmpdir:
+        create_files(["x/y/__init__.py", "x/y/one.py", "x/y/two.py"], tmpdir)
+        with open("x/y/__init__.py", "w", encoding="utf-8") as f:
+            f.write(
+                """
+\"\"\"Module x.y\"\"\"
+from .one import ONE
+from .two import TWO
+"""
+            )
+        with open("x/y/one.py", "w", encoding="utf-8") as f:
+            f.write(
+                """
+\"\"\"Module x.y.one\"\"\"
+ONE = 1
+"""
+            )
+        with open("x/y/two.py", "w", encoding="utf-8") as f:
+            f.write(
+                """
+\"\"\"Module x.y.two\"\"\"
+from .one import ONE
+TWO = ONE + ONE
+"""
+            )
+        linter.check(["x/y"])
+    assert not linter.stats.by_msg
+
+
 def test_import_sibling_module_from_namespace(initialized_linter: PyLinter) -> None:
     """If the parent directory above `namespace` is on sys.path, ensure that
     modules under `namespace` can import each other without raising `import-error`."""
