@@ -10,7 +10,7 @@ import re
 import sys
 import tokenize
 from re import Pattern
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from astroid import nodes
 
@@ -35,8 +35,11 @@ try:
         WikiWordFilter,
         get_tokenizer,
     )
+
+    PYENCHANT_AVAILABLE = True
 except ImportError:
     enchant = None
+    PYENCHANT_AVAILABLE = False
 
     class EmailFilter:  # type: ignore[no-redef]
         ...
@@ -62,17 +65,33 @@ except ImportError:
         return Filter()
 
 
-if enchant is not None:
-    br = enchant.Broker()
-    dicts = br.list_dicts()
-    dict_choices = [""] + [d[0] for d in dicts]
-    dicts = [f"{d[0]} ({d[1].name})" for d in dicts]
-    dicts = ", ".join(dicts)
-    instr = ""
-else:
-    dicts = "none"
-    dict_choices = [""]
-    instr = " To make it work, install the 'python-enchant' package."
+def _get_enchant_dicts() -> list[tuple[Any, enchant.ProviderDesc]]:
+    # Broker().list_dicts() is not typed in enchant, but it does return tuples
+    return enchant.Broker().list_dicts() if PYENCHANT_AVAILABLE else []  # type: ignore[no-any-return]
+
+
+def _get_enchant_dict_choices(
+    inner_enchant_dicts: list[tuple[Any, enchant.ProviderDesc]]
+) -> list[str]:
+    return [""] + [d[0] for d in inner_enchant_dicts]
+
+
+def _get_enchant_dict_help(
+    inner_enchant_dicts: list[tuple[Any, enchant.ProviderDesc]],
+    pyenchant_available: bool,
+) -> str:
+    if inner_enchant_dicts:
+        dict_as_str = [f"{d[0]} ({d[1].name})" for d in inner_enchant_dicts]
+        enchant_help = f"Available dictionaries: {', '.join(dict_as_str)}"
+    else:
+        enchant_help = "No available dictionaries : You need to install "
+        if not pyenchant_available:
+            enchant_help += "both the python package and "
+        enchant_help += "the system dependency for enchant to work."
+    return f"Spelling dictionary name. {enchant_help}."
+
+
+enchant_dicts = _get_enchant_dicts()
 
 
 class WordsWithDigitsFilter(Filter):  # type: ignore[misc]
@@ -237,9 +256,8 @@ class SpellingChecker(BaseTokenChecker):
                 "default": "",
                 "type": "choice",
                 "metavar": "<dict name>",
-                "choices": dict_choices,
-                "help": "Spelling dictionary name. "
-                f"Available dictionaries: {dicts}.{instr}",
+                "choices": _get_enchant_dict_choices(enchant_dicts),
+                "help": _get_enchant_dict_help(enchant_dicts, PYENCHANT_AVAILABLE),
             },
         ),
         (
@@ -297,7 +315,7 @@ class SpellingChecker(BaseTokenChecker):
 
     def open(self) -> None:
         self.initialized = False
-        if enchant is None:
+        if not PYENCHANT_AVAILABLE:
             return
         dict_name = self.linter.config.spelling_dict
         if not dict_name:
