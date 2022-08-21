@@ -425,3 +425,8 @@ class Fruit:
 class Lemon(Fruit):
     def __init__(*, tastes_bitter=True):
         super().__init__(tastes_bitter=tastes_bitter)
+
+
+class CustomError(Exception):
+    def __init__(self, message="default"):
+        super().__init__(message)
