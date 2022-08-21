@@ -134,10 +134,3 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           leave_visible: 1
           issue_number: ${{ steps.post-comment.outputs.result }}
-      - name: Warn about failure
-        if: ${{ failure() }}
-        run: |
-          echo "🤖 **Comment workflow failed**. 🤖" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Please investigate:" >> $GITHUB_STEP_SUMMARY
-          echo "@DanielNoord" >> $GITHUB_STEP_SUMMARY
