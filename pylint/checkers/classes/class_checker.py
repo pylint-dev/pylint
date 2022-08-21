@@ -1290,6 +1290,8 @@ a metaclass class method.",
                 or _has_different_parameters_default_value(
                     meth_node.args, function.args
                 )
+                # arguments to builtins such as Exception.__init__() cannot be inspected
+                or (meth_node.args.args is None and function.argnames() != ["self"])
             ):
                 return
             break
