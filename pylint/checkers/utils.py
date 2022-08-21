@@ -1045,7 +1045,7 @@ def _except_handlers_ignores_exceptions(
 
 
 def get_exception_handlers(
-    node: nodes.NodeNG, exception: type[Exception] = Exception
+    node: nodes.NodeNG, exception: type[Exception] | str = Exception
 ) -> list[nodes.ExceptHandler] | None:
     """Return the collections of handlers handling the exception in arguments.
 
@@ -1072,27 +1072,29 @@ def get_contextlib_with_statements(node: nodes.NodeNG) -> Iterator[nodes.With]:
 
 
 def _suppresses_exception(
-    call: nodes.Call, exception: type[Exception] = Exception
+    call: nodes.Call, exception: type[Exception] | str = Exception
 ) -> bool:
     """Check if the given node suppresses the given exception."""
+    if not isinstance(exception, str):
+        exception = exception.__name__
     for arg in call.args:
         inferred = safe_infer(arg)
         if isinstance(inferred, nodes.ClassDef):
-            if inferred.name == exception.__name__:
+            if inferred.name == exception:
                 return True
         elif isinstance(inferred, nodes.Tuple):
             for elt in inferred.elts:
                 inferred_elt = safe_infer(elt)
                 if (
                     isinstance(inferred_elt, nodes.ClassDef)
-                    and inferred_elt.name == exception.__name__
+                    and inferred_elt.name == exception
                 ):
                     return True
     return False
 
 
 def get_contextlib_suppressors(
-    node: nodes.NodeNG, exception: type[Exception] = Exception
+    node: nodes.NodeNG, exception: type[Exception] | str = Exception
 ) -> Iterator[nodes.With]:
     """Return the contextlib suppressors handling the exception.
 
@@ -1130,7 +1132,7 @@ def is_node_inside_try_except(node: nodes.Raise) -> bool:
 
 
 def node_ignores_exception(
-    node: nodes.NodeNG, exception: type[Exception] = Exception
+    node: nodes.NodeNG, exception: type[Exception] | str = Exception
 ) -> bool:
     """Check if the node is in a TryExcept which handles the given exception.
 
