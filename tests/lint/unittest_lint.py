@@ -39,7 +39,6 @@ from pylint.constants import (
 )
 from pylint.exceptions import InvalidMessageError
 from pylint.lint import PyLinter
-from pylint.lint.pylinter import MANAGER
 from pylint.lint.utils import fix_import_path
 from pylint.message import Message
 from pylint.reporters import text
@@ -918,7 +917,6 @@ def test_recursive_ignore(ignore_parameter, ignore_parameter_value) -> None:
 def test_relative_imports(initialized_linter: PyLinter) -> None:
     """Regression test for https://github.com/PyCQA/pylint/issues/3651"""
     linter = initialized_linter
-    MANAGER.clear_cache()  # Essential to reproduce the failure
     with tempdir() as tmpdir:
         create_files(["x/y/__init__.py", "x/y/one.py", "x/y/two.py"], tmpdir)
         with open("x/y/__init__.py", "w", encoding="utf-8") as f:
@@ -944,7 +942,7 @@ from .one import ONE
 TWO = ONE + ONE
 """
             )
-        linter.check(["x"])
+        linter.check(["x/y"])
     assert not linter.stats.by_msg
 
 
