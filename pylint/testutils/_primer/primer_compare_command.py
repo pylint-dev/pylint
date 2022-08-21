@@ -94,10 +94,8 @@ class CompareCommand(PrimerCommand):
 
         if astroid_errors:
             comment += (
-                f"{astroid_errors} error(s) were found stemming from the `astroid` library. "
-                "This is unlikely to have been caused by your changes. "
-                "A GitHub Actions warning links directly to the crash report template. "
-                "Please open an issue against `astroid` if one does not exist already. \n\n"
+                f'{astroid_errors} "astroid error(s)" were found. '
+                "Please open the GitHub Actions log to see what failed or crashed.\n\n"
             )
         if new_non_astroid_messages:
             comment += (
