@@ -6,35 +6,43 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from pylint.testutils._primer.primer_command import PackageMessages, PrimerCommand
+from pylint.reporters.json_reporter import OldJsonExport
+from pylint.testutils._primer.primer_command import (
+    PackageData,
+    PackageMessages,
+    PrimerCommand,
+)
 
 MAX_GITHUB_COMMENT_LENGTH = 65536
 
 
 class CompareCommand(PrimerCommand):
     def run(self) -> None:
-        main_messages = self._load_json(self.config.base_file)
-        pr_messages = self._load_json(self.config.new_file)
-        missing_messages, new_messages = self._cross_reference(
-            main_messages, pr_messages
+        main_data = self._load_json(self.config.base_file)
+        pr_data = self._load_json(self.config.new_file)
+        missing_messages_data, new_messages_data = self._cross_reference(
+            main_data, pr_data
         )
-        comment = self._create_comment(missing_messages, new_messages)
+        comment = self._create_comment(missing_messages_data, new_messages_data)
         with open(self.primer_directory / "comment.txt", "w", encoding="utf-8") as f:
             f.write(comment)
 
     @staticmethod
     def _cross_reference(
-        main_dict: PackageMessages, pr_messages: PackageMessages
+        main_data: PackageMessages, pr_data: PackageMessages
     ) -> tuple[PackageMessages, PackageMessages]:
-        missing_messages: PackageMessages = {}
-        for package, messages in main_dict.items():
-            missing_messages[package] = []
-            for message in messages:
+        missing_messages_data: PackageMessages = {}
+        for package, data in main_data.items():
+            package_missing_messages: list[OldJsonExport] = []
+            for message in data["messages"]:
                 try:
-                    pr_messages[package].remove(message)
+                    pr_data[package]["messages"].remove(message)
                 except ValueError:
-                    missing_messages[package].append(message)
-        return missing_messages, pr_messages
+                    package_missing_messages.append(message)
+            missing_messages_data[package] = PackageData(
+                commit=pr_data[package]["commit"], messages=package_missing_messages
+            )
+        return missing_messages_data, pr_data
 
     @staticmethod
     def _load_json(file_path: Path | str) -> PackageMessages:
@@ -50,7 +58,7 @@ class CompareCommand(PrimerCommand):
             if len(comment) >= MAX_GITHUB_COMMENT_LENGTH:
                 break
             new_messages = all_new_messages[package]
-            if not missing_messages and not new_messages:
+            if not missing_messages["messages"] and not new_messages["messages"]:
                 continue
             comment += self._create_comment_for_package(
                 package, new_messages, missing_messages
@@ -67,16 +75,16 @@ class CompareCommand(PrimerCommand):
         return self._truncate_comment(comment)
 
     def _create_comment_for_package(
-        self, package: str, new_messages, missing_messages
+        self, package: str, new_messages: PackageData, missing_messages: PackageData
     ) -> str:
         comment = f"\n\n**Effect on [{package}]({self.packages[package].url}):**\n"
         # Create comment for new messages
         count = 1
         astroid_errors = 0
         new_non_astroid_messages = ""
-        if new_messages:
+        if new_messages["messages"]:
             print("Now emitted:")
-        for message in new_messages:
+        for message in new_messages["messages"]:
             filepath = str(message["path"]).replace(
                 str(self.packages[package].clone_directory), ""
             )
@@ -87,7 +95,7 @@ class CompareCommand(PrimerCommand):
             else:
                 new_non_astroid_messages += (
                     f"{count}) {message['symbol']}:\n*{message['message']}*\n"
-                    f"{self.packages[package].url}/blob/{self.packages[package].branch}{filepath}#L{message['line']}\n"
+                    f"{self.packages[package].url}/blob/{new_messages['commit']}{filepath}#L{message['line']}\n"
                 )
                 print(message)
                 count += 1
@@ -106,10 +114,10 @@ class CompareCommand(PrimerCommand):
 
         # Create comment for missing messages
         count = 1
-        if missing_messages:
+        if missing_messages["messages"]:
             comment += "The following messages are no longer emitted:\n\n<details>\n\n"
             print("No longer emitted:")
-        for message in missing_messages:
+        for message in missing_messages["messages"]:
             comment += f"{count}) {message['symbol']}:\n*{message['message']}*\n"
             filepath = str(message["path"]).replace(
                 str(self.packages[package].clone_directory), ""
