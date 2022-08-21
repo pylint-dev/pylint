@@ -35,8 +35,11 @@ try:
         WikiWordFilter,
         get_tokenizer,
     )
+
+    PYENCHANT_AVAILABLE = True
 except ImportError:
     enchant = None
+    PYENCHANT_AVAILABLE = False
 
     class EmailFilter:  # type: ignore[no-redef]
         ...
@@ -62,17 +65,16 @@ except ImportError:
         return Filter()
 
 
-if enchant is not None:
-    br = enchant.Broker()
-    dicts = br.list_dicts()
-    dict_choices = [""] + [d[0] for d in dicts]
-    dicts = [f"{d[0]} ({d[1].name})" for d in dicts]
-    dicts = ", ".join(dicts)
-    instr = ""
+INSTALL_ENCHANT = " To make it work, install the 'python-enchant' package."
+if PYENCHANT_AVAILABLE:
+    broker = enchant.Broker()
+    enchant_dicts = broker.list_dicts()
+    enchant_dict_choices = [""] + [d[0] for d in enchant_dicts]
+    enchant_dicts = [f"{d[0]} ({d[1].name})" for d in enchant_dicts]
+    enchant_dicts = ", ".join(enchant_dicts)
 else:
-    dicts = "none"
-    dict_choices = [""]
-    instr = " To make it work, install the 'python-enchant' package."
+    enchant_dicts = "none"
+    enchant_dict_choices = [""]
 
 
 class WordsWithDigitsFilter(Filter):
@@ -235,9 +237,9 @@ class SpellingChecker(BaseTokenChecker):
                 "default": "",
                 "type": "choice",
                 "metavar": "<dict name>",
-                "choices": dict_choices,
+                "choices": enchant_dict_choices,
                 "help": "Spelling dictionary name. "
-                f"Available dictionaries: {dicts}.{instr}",
+                f"Available dictionaries: {enchant_dicts}.{INSTALL_ENCHANT}",
             },
         ),
         (

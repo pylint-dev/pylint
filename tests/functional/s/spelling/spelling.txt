@@ -1,0 +1,20 @@
+wrong-spelling-in-comment:1:0:None:None::"Wrong spelling of a word 'docstring' in a comment:
+# [wrong-spelling-in-docstring, wrong-spelling-in-comment]
+                     ^^^^^^^^^
+Did you mean: ''doc string' or 'doc-string' or 'stringing''?":UNDEFINED
+wrong-spelling-in-docstring:1:0:None:None::"Wrong spelling of a word 'speling' in a docstring:
+Functional test for speling.
+                    ^^^^^^^
+Did you mean: ''spieling' or 'spelling' or 'spewing' or 'peeling''?":UNDEFINED
+wrong-spelling-in-comment:3:0:None:None::"Wrong spelling of a word 'mispeled' in a comment:
+# mispeled text # [wrong-spelling-in-comment]
+  ^^^^^^^^
+Did you mean: ''misspelled' or 'dispelled' or 'misspell' or 'misled''?":UNDEFINED
+wrong-spelling-in-comment:6:0:None:None::"Wrong spelling of a word 'docstring' in a comment:
+# [wrong-spelling-in-docstring, wrong-spelling-in-comment]
+                     ^^^^^^^^^
+Did you mean: ''doc string' or 'doc-string' or 'stringing''?":UNDEFINED
+wrong-spelling-in-docstring:6:0:None:None::"Wrong spelling of a word 'mispeled' in a docstring:
+mispeled text.
+^^^^^^^^
+Did you mean: ''misspelled' or 'dispelled' or 'misspell' or 'misled''?":UNDEFINED
