@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import json
 import sys
+import warnings
 from io import StringIO
 
 from pylint.lint import Run
@@ -86,6 +87,8 @@ class RunCommand(PrimerCommand):
         else:
             fatal_msgs = self._filter_fatal_errors(messages)
             if fatal_msgs:
-                print(f"Encountered fatal errors while priming {package_name} !\n")
-                print(f"{self._print_msgs(fatal_msgs)}\n\n")
+                warnings.warn(
+                    f"Encountered fatal errors while priming {package_name} !\n"
+                    f"{self._print_msgs(fatal_msgs)}\n\n"
+                )
         return messages, fatal_msgs
