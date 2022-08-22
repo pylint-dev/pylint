@@ -2127,6 +2127,15 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         )
         has_nested_loops = next(nested_loops, None) is not None
 
+        # Check if there are any if statements within the loop in question;
+        # If so, we will be more conservative about reporting errors as we
+        # can't yet do proper control flow analysis to be sure when
+        # reassignment will affect us
+        if_statements = itertools.chain.from_iterable(
+            child.nodes_of_class(nodes.If) for child in children
+        )
+        has_if_statements = next(if_statements, None) is not None
+
         for child in children:
             for subscript in child.nodes_of_class(nodes.Subscript):
                 if isinstance(node, nodes.For) and _is_part_of_assignment_target(
@@ -2170,6 +2179,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                         # loops we don't want to report this unless we get to the
                         # end of the loop without updating the collection
                         bad_nodes.append(subscript)
+                    elif has_if_statements:
+                        continue
                     else:
                         self.add_message(
                             "unnecessary-list-index-lookup",

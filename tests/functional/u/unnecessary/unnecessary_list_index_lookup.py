@@ -74,3 +74,10 @@ for idx, val in enumerate(updated_list):
     print(updated_list[idx]) # [unnecessary-list-index-lookup]
     updated_list[idx] -= 1
     print(updated_list[idx])
+
+# Regression test for https://github.com/PyCQA/pylint/issues/6896
+parts = ["a", "b", "c", "d"]
+for i, part in enumerate(parts):
+    if i == 3:  # more complex condition actually
+        parts.insert(i, "X")
+    print(part, parts[i])
