@@ -14,6 +14,15 @@ from astroid import modutils
 from pylint.typing import ErrorDescriptionDict, ModuleDescriptionDict
 
 
+def is_importable(filename: str, extra_paths: Sequence[str] | None = None) -> bool:
+    try:
+        modutils.modpath_from_file(filename, extra_paths)
+    except ImportError:
+        return False
+    else:
+        return True
+
+
 def _modpath_from_file(filename: str, is_namespace: bool, path: list[str]) -> list[str]:
     def _is_package_cb(inner_path: str, parts: list[str]) -> bool:
         return modutils.check_modpath_has_init(inner_path, parts) or is_namespace
@@ -80,8 +89,11 @@ def expand_modules(
             something, ignore_list, ignore_list_re, ignore_list_paths_re
         ):
             continue
-        module_path = get_python_path(something)
-        additional_search_path = [".", module_path] + path
+        if not is_importable(something):
+            module_path = get_python_path(something)
+            additional_search_path = [".", module_path] + path
+        else:
+            additional_search_path = path
         if os.path.exists(something):
             # this is a file or a directory
             try:

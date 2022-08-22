@@ -12,7 +12,7 @@ from datetime import datetime
 from pathlib import Path
 
 from pylint.config import PYLINT_HOME
-from pylint.lint.expand_modules import get_python_path
+from pylint.lint.expand_modules import get_python_path, is_importable
 
 
 def prepare_crash_report(ex: Exception, filepath: str, crash_file_path: str) -> Path:
@@ -76,10 +76,11 @@ def _patch_sys_path(args: Sequence[str]) -> list[str]:
     changes = []
     seen = set()
     for arg in args:
-        path = get_python_path(arg)
-        if path not in seen:
-            changes.append(path)
-            seen.add(path)
+        if not is_importable(arg):
+            path = get_python_path(arg)
+            if path not in seen:
+                changes.append(path)
+                seen.add(path)
 
     sys.path[:] = changes + sys.path
     return original
