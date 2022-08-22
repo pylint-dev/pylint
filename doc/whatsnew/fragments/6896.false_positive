@@ -1,0 +1,3 @@
+``unnecessary-list-index-lookup`` is now more conservative to avoid potential false positives.
+
+Closes #6896
