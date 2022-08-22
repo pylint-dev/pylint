@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
+from pathlib import Path, PosixPath
 
 from pylint.reporters.json_reporter import OldJsonExport
 from pylint.testutils._primer.primer_command import (
@@ -85,8 +85,10 @@ class CompareCommand(PrimerCommand):
         if new_messages["messages"]:
             print("Now emitted:")
         for message in new_messages["messages"]:
-            filepath = str(message["path"]).replace(
-                str(self.packages[package].clone_directory), ""
+            filepath = str(
+                PosixPath(message["path"]).relative_to(
+                    self.packages[package].clone_directory
+                )
             )
             # Existing astroid errors may still show up as "new" because the timestamp
             # in the message is slightly different.
@@ -95,7 +97,7 @@ class CompareCommand(PrimerCommand):
             else:
                 new_non_astroid_messages += (
                     f"{count}) {message['symbol']}:\n*{message['message']}*\n"
-                    f"{self.packages[package].url}/blob/{new_messages['commit']}{filepath}#L{message['line']}\n"
+                    f"{self.packages[package].url}/blob/{new_messages['commit']}/{filepath}#L{message['line']}\n"
                 )
                 print(message)
                 count += 1
@@ -119,13 +121,15 @@ class CompareCommand(PrimerCommand):
             print("No longer emitted:")
         for message in missing_messages["messages"]:
             comment += f"{count}) {message['symbol']}:\n*{message['message']}*\n"
-            filepath = str(message["path"]).replace(
-                str(self.packages[package].clone_directory), ""
+            filepath = str(
+                PosixPath(message["path"]).relative_to(
+                    self.packages[package].clone_directory
+                )
             )
             assert not self.packages[package].url.endswith(
                 ".git"
             ), "You don't need the .git at the end of the github url."
-            comment += f"{self.packages[package].url}/blob/{new_messages['commit']}{filepath}#L{message['line']}\n"
+            comment += f"{self.packages[package].url}/blob/{new_messages['commit']}/{filepath}#L{message['line']}\n"
             count += 1
             print(message)
         if missing_messages:
