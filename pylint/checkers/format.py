@@ -29,6 +29,7 @@ from pylint.checkers.utils import (
     only_required_for_messages,
 )
 from pylint.constants import WarningScope
+from pylint.interfaces import HIGH
 from pylint.typing import MessageDefinitionTuple
 from pylint.utils.pragma_parser import OPTION_PO, PragmaParserError, parse_pragma
 
@@ -403,6 +404,12 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 # the full line; therefore we check the next token on the line.
                 if tok_type == tokenize.INDENT:
                     self.new_line(TokenWrapper(tokens), idx - 1, idx + 1)
+                # A tokenizer oddity: if a line contains a multi-line string,
+                # the NEWLINE also gets its own token which we already checked in
+                # the multi-line docstring case.
+                # See https://github.com/PyCQA/pylint/issues/6936
+                elif tok_type == tokenize.NEWLINE:
+                    pass
                 else:
                     self.new_line(TokenWrapper(tokens), idx - 1, idx)
 
@@ -584,7 +591,10 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         stripped_line = line.rstrip("\t\n\r\v ")
         if line[len(stripped_line) :] not in ("\n", "\r\n"):
             self.add_message(
-                "trailing-whitespace", line=i, col_offset=len(stripped_line)
+                "trailing-whitespace",
+                line=i,
+                col_offset=len(stripped_line),
+                confidence=HIGH,
             )
 
     def check_line_length(self, line: str, i: int, checker_off: bool) -> None:

@@ -1,0 +1,3 @@
+Fix double emitting ``trailing-whitespace`` for multi-line docstrings.
+
+Closes #6936
