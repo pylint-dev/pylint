@@ -9,12 +9,18 @@ import sys
 import warnings
 from io import StringIO
 
+from git.repo import Repo
+
 from pylint.lint import Run
 from pylint.message import Message
 from pylint.reporters import JSONReporter
 from pylint.reporters.json_reporter import OldJsonExport
 from pylint.testutils._primer.package_to_lint import PackageToLint
-from pylint.testutils._primer.primer_command import PrimerCommand
+from pylint.testutils._primer.primer_command import (
+    PackageData,
+    PackageMessages,
+    PrimerCommand,
+)
 
 GITHUB_CRASH_TEMPLATE_LOCATION = "/home/runner/.cache"
 CRASH_TEMPLATE_INTRO = "There is a pre-filled template"
@@ -22,12 +28,13 @@ CRASH_TEMPLATE_INTRO = "There is a pre-filled template"
 
 class RunCommand(PrimerCommand):
     def run(self) -> None:
-        packages: dict[str, list[OldJsonExport]] = {}
+        packages: PackageMessages = {}
         fatal_msgs: list[Message] = []
         for package, data in self.packages.items():
             messages, p_fatal_msgs = self._lint_package(package, data)
             fatal_msgs += p_fatal_msgs
-            packages[package] = messages
+            local_commit = Repo(data.clone_directory).head.object.hexsha
+            packages[package] = PackageData(commit=local_commit, messages=messages)
         path = (
             self.primer_directory
             / f"output_{'.'.join(str(i) for i in sys.version_info[:3])}_{self.config.type}.txt"

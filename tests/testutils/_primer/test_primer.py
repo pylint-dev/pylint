@@ -37,12 +37,6 @@ def test_primer_launch_bad_args(args: list[str], capsys: CaptureFixture) -> None
 
 
 @pytest.mark.skipif(
-    sys.platform in {"win32", "darwin"},
-    reason=(
-        "Primers are internal and will never be run on costly github action (mac or windows)"
-    ),
-)
-@pytest.mark.skipif(
     sys.version_info[:2] != PRIMER_CURRENT_INTERPRETER or IS_PYPY,
     reason=(
         "Primers are internal and will always be run for only one interpreter (currently"
@@ -66,7 +60,7 @@ class TestPrimer:
 
     def test_truncated_compare(self) -> None:
         """Test for the truncation of comments that are too long."""
-        max_comment_length = 500
+        max_comment_length = 525
         directory = FIXTURES_PATH / "message_changed"
         with patch(
             "pylint.testutils._primer.primer_compare_command.MAX_GITHUB_COMMENT_LENGTH",
