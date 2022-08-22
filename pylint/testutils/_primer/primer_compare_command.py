@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path, PosixPath
+from pathlib import Path, PurePosixPath
 
 from pylint.reporters.json_reporter import OldJsonExport
 from pylint.testutils._primer.primer_command import (
@@ -86,7 +86,7 @@ class CompareCommand(PrimerCommand):
             print("Now emitted:")
         for message in new_messages["messages"]:
             filepath = str(
-                PosixPath(message["path"]).relative_to(
+                PurePosixPath(message["path"]).relative_to(
                     self.packages[package].clone_directory
                 )
             )
@@ -122,7 +122,7 @@ class CompareCommand(PrimerCommand):
         for message in missing_messages["messages"]:
             comment += f"{count}) {message['symbol']}:\n*{message['message']}*\n"
             filepath = str(
-                PosixPath(message["path"]).relative_to(
+                PurePosixPath(message["path"]).relative_to(
                     self.packages[package].clone_directory
                 )
             )
