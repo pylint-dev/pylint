@@ -406,7 +406,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                     self.new_line(TokenWrapper(tokens), idx - 1, idx + 1)
                 # A tokenizer oddity: if a line contains a multi-line string,
                 # the NEWLINE also gets its own token which we already checked in
-                # the multi-line docstring case.
+                # the multi-line docstring case. See https://github.com/PyCQA/pylint/issues/6936
                 elif tok_type == tokenize.NEWLINE:
                     pass
                 else:
