@@ -2127,7 +2127,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         )
         has_nested_loops = next(nested_loops, None) is not None
 
-        # Check if there are any if statemetns within the loop in question;
+        # Check if there are any if statements within the loop in question;
         # If so, we will be more conservative about reporting errors as we
         # can't yet do proper control flow analysis to be sure when
         # reassignment will affect us
