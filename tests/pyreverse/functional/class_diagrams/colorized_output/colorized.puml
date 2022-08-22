@@ -1,6 +1,6 @@
 @startuml classes
 set namespaceSeparator none
-class "CheckerCollector" as colorized.CheckerCollector #aliceblue {
+class "CheckerCollector" as pyreverse.functional.class_diagrams.colorized_output.colorized.CheckerCollector #aliceblue {
   checker1
   checker2
   checker3
@@ -36,7 +36,7 @@ class "StdlibChecker" as pylint.checkers.stdlib.StdlibChecker #aquamarine {
   visit_ifexp(node: nodes.IfExp) -> None
   visit_unaryop(node: nodes.UnaryOp) -> None
 }
-pylint.checkers.exceptions.ExceptionsChecker --* colorized.CheckerCollector : checker1
-pylint.checkers.stdlib.StdlibChecker --* colorized.CheckerCollector : checker3
-pylint.extensions.check_elif.ElseifUsedChecker --* colorized.CheckerCollector : checker2
+pylint.checkers.exceptions.ExceptionsChecker --* pyreverse.functional.class_diagrams.colorized_output.colorized.CheckerCollector : checker1
+pylint.checkers.stdlib.StdlibChecker --* pyreverse.functional.class_diagrams.colorized_output.colorized.CheckerCollector : checker3
+pylint.extensions.check_elif.ElseifUsedChecker --* pyreverse.functional.class_diagrams.colorized_output.colorized.CheckerCollector : checker2
 @enduml
