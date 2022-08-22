@@ -53,7 +53,7 @@ jobs:
       # Restore cached Python environment
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.7
+        uses: actions/cache@v3.0.8
         with:
           path: venv
           key:
@@ -128,7 +128,7 @@ jobs:
           echo "::set-output name=commitstring::$output"
       - name: Restore projects cache
         id: cache-projects
-        uses: actions/cache@v3.0.7
+        uses: actions/cache@v3.0.8
         with:
           path: tests/.pylint_primer_tests/
           key: >-
