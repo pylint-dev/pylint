@@ -1,6 +1,2 @@
 [Imports]
 deprecated-modules=imp
-
-[testoptions]
-# TODO: Check if astroid 2.12.3 fixes this
-except_implementations=PyPy
