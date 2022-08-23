@@ -1,8 +1,8 @@
 @startuml classes
 set namespaceSeparator none
-class "Dummy" as pyreverse.functional.class_diagrams.annotations.attributes_annotation.Dummy {
+class "Dummy" as attributes_annotation.Dummy {
 }
-class "Dummy2" as pyreverse.functional.class_diagrams.annotations.attributes_annotation.Dummy2 {
+class "Dummy2" as attributes_annotation.Dummy2 {
   alternative_union_syntax : str | int
   class_attr : list[Dummy]
   optional : Optional[Dummy]

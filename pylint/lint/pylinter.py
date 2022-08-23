@@ -35,7 +35,7 @@ from pylint.constants import (
 from pylint.interfaces import HIGH
 from pylint.lint.base_options import _make_linter_options
 from pylint.lint.caching import load_results, save_results
-from pylint.lint.expand_modules import _is_ignored_file, expand_modules
+from pylint.lint.expand_modules import _is_ignored_file, expand_modules, get_python_path
 from pylint.lint.message_state_handler import _MessageStateHandler
 from pylint.lint.parallel import check_parallel
 from pylint.lint.report_functions import (
@@ -670,12 +670,11 @@ class PyLinter(
 
         # The contextmanager also opens all checkers and sets up the PyLinter class
         with self._astroid_module_checker() as check_astroid_module:
-            with fix_import_path(files_or_modules):
-                # 4) Get the AST for each FileItem
-                ast_per_fileitem = self._get_asts(fileitems, data)
+            # 4) Get the AST for each FileItem
+            ast_per_fileitem = self._get_asts(fileitems, data)
 
-                # 5) Lint each ast
-                self._lint_files(ast_per_fileitem, check_astroid_module)
+            # 5) Lint each ast
+            self._lint_files(ast_per_fileitem, check_astroid_module)
 
     def _get_asts(
         self, fileitems: Iterator[FileItem], data: str | None
@@ -731,7 +730,8 @@ class PyLinter(
             if module is None:
                 continue
             try:
-                self._lint_file(fileitem, module, check_astroid_module)
+                with fix_import_path([get_python_path(fileitem.filepath)]):
+                    self._lint_file(fileitem, module, check_astroid_module)
             except Exception as ex:  # pylint: disable=broad-except
                 template_path = prepare_crash_report(
                     ex, fileitem.filepath, self.crash_file_path

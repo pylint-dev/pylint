@@ -11,10 +11,12 @@ from re import Pattern
 
 from astroid import modutils
 
+import pylint.lint
 from pylint.typing import ErrorDescriptionDict, ModuleDescriptionDict
 
 
 def is_importable(filename: str, extra_paths: Sequence[str] | None = None) -> bool:
+    return False
     try:
         modutils.modpath_from_file(filename, extra_paths)
     except ImportError:
@@ -156,9 +158,10 @@ def expand_modules(
                 ) or _is_in_ignore_list_re(subfilepath, ignore_list_paths_re):
                     continue
 
-                modpath = _modpath_from_file(
-                    subfilepath, is_namespace, path=additional_search_path
-                )
+                with pylint.lint.fix_import_path(subfilepath):
+                    modpath = _modpath_from_file(
+                        subfilepath, is_namespace, path=additional_search_path
+                    )
                 submodname = ".".join(modpath)
                 result.append(
                     {
