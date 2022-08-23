@@ -988,7 +988,9 @@ def test_lint_namespace_package_under_dir_on_path(initialized_linter: PyLinter) 
     assert linter.file_state.base_name == "namespace_on_path"
 
 
-def test_namespace_package_wrong_module_name_one_file(initialized_linter: PyLinter) -> None:
+def test_namespace_package_wrong_module_name_one_file(
+    initialized_linter: PyLinter,
+) -> None:
     """
     Something.
     """
@@ -997,49 +999,76 @@ def test_namespace_package_wrong_module_name_one_file(initialized_linter: PyLint
         create_files(["namespace2/namespace1/__init__.py", "namespace1/module1.py"])
         p = Path("namespace2/namespace1/__init__.py")
         with open(p, "w") as f:
-            f.write("""\"\"\"This module imports module1.\"\"\"
+            f.write(
+                """\"\"\"This module imports module1.\"\"\"
 import namespace1.module1
 print(namespace1.module1)
-""")
+"""
+            )
         os.chdir(tmpdir)
         with fix_import_path([tmpdir]):
-            linter.check(["namespace2/namespace1/__init__.py", ])
+            linter.check(
+                [
+                    "namespace2/namespace1/__init__.py",
+                ]
+            )
     assert not linter.stats.by_msg
 
 
-def test_namespace_package_wrong_module_name_many_roots(initialized_linter: PyLinter) -> None:
+def test_namespace_package_wrong_module_name_many_roots(
+    initialized_linter: PyLinter,
+) -> None:
     """
     Something.
     """
     linter = initialized_linter
     with tempdir() as tmpdir:
-        create_files(["root1/namespace2/namespace1/__init__.py", "root2/namespace1/module1.py"])
+        create_files(
+            ["root1/namespace2/namespace1/__init__.py", "root2/namespace1/module1.py"]
+        )
         p = Path("root1/namespace2/namespace1/__init__.py")
         with open(p, "w") as f:
-            f.write("""\"\"\"This module imports module1.\"\"\"
+            f.write(
+                """\"\"\"This module imports module1.\"\"\"
 import namespace1.module1
 print(namespace1.module1)
-""")
+"""
+            )
         os.chdir(tmpdir)
-        with fix_import_path([os.path.join(tmpdir, 'root1'), os.path.join(tmpdir, 'root2')]):
-            linter.check(["root1/namespace2/namespace1/__init__.py", ])
+        with fix_import_path(
+            [os.path.join(tmpdir, "root1"), os.path.join(tmpdir, "root2")]
+        ):
+            linter.check(
+                [
+                    "root1/namespace2/namespace1/__init__.py",
+                ]
+            )
     assert not linter.stats.by_msg
 
 
-def test_namespace_package_wrong_module_name_more_files(initialized_linter: PyLinter) -> None:
+def test_namespace_package_wrong_module_name_more_files(
+    initialized_linter: PyLinter,
+) -> None:
     """
     Something.
     """
     linter = initialized_linter
     with tempdir() as tmpdir:
-        create_files(["namespace2/namespace1/__init__.py", "namespace1/module1.py",
-                      "namespace1/module2.py"])
+        create_files(
+            [
+                "namespace2/namespace1/__init__.py",
+                "namespace1/module1.py",
+                "namespace1/module2.py",
+            ]
+        )
         p = Path("namespace1/module1.py")
         with open(p, "w") as f:
-            f.write("""\"\"\"This module imports module2.\"\"\"
+            f.write(
+                """\"\"\"This module imports module2.\"\"\"
 import namespace1.module2
 print(namespace1.module2)
-""")
+"""
+            )
         os.chdir(tmpdir)
         with fix_import_path([tmpdir]):
             linter.check(["namespace2/namespace1/__init__.py", "namespace1/module1.py"])
