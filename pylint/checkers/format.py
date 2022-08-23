@@ -404,11 +404,10 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 # the full line; therefore we check the next token on the line.
                 if tok_type == tokenize.INDENT:
                     self.new_line(TokenWrapper(tokens), idx - 1, idx + 1)
-                # A tokenizer oddity: if a line contains a multi-line string,
-                # the NEWLINE also gets its own token which we already checked in
-                # the multi-line docstring case.
+                # We don't test for trailing whitespaces in strings
                 # See https://github.com/PyCQA/pylint/issues/6936
-                elif tok_type == tokenize.NEWLINE:
+                # and https://github.com/PyCQA/pylint/issues/3822
+                elif tok_type == tokenize.STRING:
                     pass
                 else:
                     self.new_line(TokenWrapper(tokens), idx - 1, idx)
