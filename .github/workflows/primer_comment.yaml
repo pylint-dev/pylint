@@ -14,7 +14,7 @@ on:
 
 env:
   # This needs to be the SAME as in the Main and PR job
-  CACHE_VERSION: 20
+  CACHE_VERSION: 21
 
 permissions:
   contents: read
