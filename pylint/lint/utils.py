@@ -77,7 +77,7 @@ def _patch_sys_path(args: Sequence[str]) -> list[str]:
     seen = set()
     for arg in args:
         if not is_importable(arg):
-            path = get_python_path(arg)
+            path = arg
             if path not in seen:
                 changes.append(path)
                 seen.add(path)
