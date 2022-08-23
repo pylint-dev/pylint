@@ -12,7 +12,7 @@ from datetime import datetime
 from pathlib import Path
 
 from pylint.config import PYLINT_HOME
-from pylint.lint.expand_modules import get_python_path, is_importable
+from pylint.lint.expand_modules import is_importable
 
 
 def prepare_crash_report(ex: Exception, filepath: str, crash_file_path: str) -> Path:
