@@ -71,7 +71,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            let content = `Failed to restore Python venv from cache.
+            let comment = `Failed to restore Python venv from cache.
 
             @ maintainers/reviewers: if this PR bumps a dependency or CACHE_VERSION this is
             expected behaviour: only the main run can recreate the venv, to avoid bumping
