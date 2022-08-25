@@ -24,7 +24,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  pull-requests: write
+  issues: write
 
 env:
   # This needs to be the SAME as in the Main and comment job
