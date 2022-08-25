@@ -25,6 +25,7 @@ concurrency:
 
 permissions:
   issues: write
+  pull-requests: write
 
 env:
   # This needs to be the SAME as in the Main and comment job
