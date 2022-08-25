@@ -168,7 +168,7 @@ Basic checker Messages
   When two literals are compared with each other the result is a constant.
   Using the constant directly is both easier to read and more performant.
   Initializing 'True' and 'False' this way is not required since Python 2.3.
-:literal-comparison (R0123): *Comparison to literal*
+:literal-comparison (R0123): *In '%s', use '%s' when comparing constant literals not '%s' ('%s')*
   Used when comparing an object to a literal, which is usually what you do not
   want to do, since you can compare to a different literal than what was
   expected altogether.
