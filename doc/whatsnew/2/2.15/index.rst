@@ -6,7 +6,7 @@
    :maxdepth: 2
 
 :Release: 2.15
-:Date: 2022-08-25
+:Date: 2022-08-26
 
 Summary -- Release highlights
 =============================
@@ -16,6 +16,11 @@ default timeout values that could cause a program to be hanging indefinitely.
 
 We improved ``pylint``'s handling of namespace packages. More packages should
 be linted without resorting to using the ``--recursive=y`` option.
+
+Internally, we changed the way we generate the release notes, thanks to DudeNr33.
+There will be no more conflict resolution to do in the changelog, and every contributor rejoice.
+
+Marc Byrne became a maintainer, welcome to the team !
 
 .. towncrier release notes start
 
