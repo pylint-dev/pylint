@@ -1,3 +1,0 @@
-Fix false positive for `no-self-argument`/`no-method-argument` when a staticmethod is applied to a function but uses a different name.
-
-Closes #7300

@@ -1,3 +1,0 @@
-Emit ``used-before-assignment`` when relying on a name that is reimported later in a function.
-
-Closes #4624

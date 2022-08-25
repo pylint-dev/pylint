@@ -1,3 +1,0 @@
-Fix crash when a type-annotated `__slots__` with no value is declared.
-
-Closes #7280

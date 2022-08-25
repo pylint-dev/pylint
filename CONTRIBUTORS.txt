@@ -118,6 +118,7 @@ contributors:
 - Julien Palard <julien@palard.fr>
 - David Liu <david@cs.toronto.edu> (david-yz-liu)
 - Dan Goldsmith <djgoldsmith@googlemail.com>: support for msg-template in HTML reporter.
+- Buck Evan <buck.2019@gmail.com>
 - Mariatta Wijaya <Mariatta@users.noreply.github.com>
   * Added new check `logging-fstring-interpolation`
   * Documentation typo fixes
@@ -434,6 +435,7 @@ contributors:
 - Kevin Phillips <thefriendlycoder@gmail.com>
 - Kevin Jing Qiu <kevin.jing.qiu@gmail.com>
 - Kayran Schmidt <59456929+yumasheta@users.noreply.github.com>
+- Karthik Nadig <kanadig@microsoft.com>
 - Jürgen Hermann <jh@web.de>
 - Jérome Perrin <perrinjerome@gmail.com>
 - Josselin Feist <josselin@trailofbits.com>
@@ -484,6 +486,7 @@ contributors:
 - Dr. Nick <das-intensity@users.noreply.github.com>
 - Don Jayamanne <don.jayamanne@yahoo.com>
 - Dmytro Kyrychuk <dmytro.kyrychuck@gmail.com>
+- DetachHead <57028336+DetachHead@users.noreply.github.com>
 - Denis Laxalde <denis.laxalde@logilab.fr>
 - David Cain <davidjosephcain@gmail.com>
 - Danny Hermes <daniel.j.hermes@gmail.com>

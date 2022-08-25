@@ -1,4 +1,0 @@
-The message for ``literal-comparison`` is now more explicit about the problem and the
-solution.
-
-Closes #5237

@@ -1,4 +1,0 @@
-Prevent `useless-parent-delegation` for delegating to a builtin
-written in C (e.g. `Exception.__init__`) with non-self arguments.
-
-Closes #7319

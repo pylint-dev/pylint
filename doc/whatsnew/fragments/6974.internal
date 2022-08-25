@@ -1,5 +1,0 @@
-We changed the way we handle the changelog internally by using towncrier.
-If you're a contributor you won't have to fix merge conflicts in the
-changelog anymore.
-
-Closes #6974
