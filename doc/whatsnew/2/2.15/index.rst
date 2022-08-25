@@ -6,7 +6,7 @@
    :maxdepth: 2
 
 :Release: 2.15
-:Date: TBA
+:Date: 2022-08-25
 
 Summary -- Release highlights
 =============================
@@ -18,11 +18,6 @@ We improved ``pylint``'s handling of namespace packages. More packages should
 be linted without resorting to using the ``--recursive=y`` option.
 
 .. towncrier release notes start
-
-What's new in Pylint 2.15.0?
-----------------------------
-Release date: 2022-08-25
-
 
 New Checks
 ----------
