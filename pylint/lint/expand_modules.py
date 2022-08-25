@@ -11,6 +11,7 @@ from re import Pattern
 
 from astroid import modutils
 
+from pylint.lint.utils import fix_import_path, get_python_path
 from pylint.typing import ErrorDescriptionDict, ModuleDescriptionDict
 
 
@@ -21,24 +22,6 @@ def _modpath_from_file(filename: str, is_namespace: bool, path: list[str]) -> li
     return modutils.modpath_from_file_with_callback(
         filename, path=path, is_package_cb=_is_package_cb
     )
-
-
-def get_python_path(filepath: str) -> str:
-    """TODO This get the python path with the (bad) assumption that there is always
-    an __init__.py.
-
-    This is not true since python 3.3 and is causing problem.
-    """
-    dirname = os.path.realpath(os.path.expanduser(filepath))
-    if not os.path.isdir(dirname):
-        dirname = os.path.dirname(dirname)
-    while True:
-        if not os.path.exists(os.path.join(dirname, "__init__.py")):
-            return dirname
-        old_dirname = dirname
-        dirname = os.path.dirname(dirname)
-        if old_dirname == dirname:
-            return os.getcwd()
 
 
 def _is_in_ignore_list_re(element: str, ignore_list_re: list[Pattern[str]]) -> bool:
@@ -144,9 +127,10 @@ def expand_modules(
                 ) or _is_in_ignore_list_re(subfilepath, ignore_list_paths_re):
                     continue
 
-                modpath = _modpath_from_file(
-                    subfilepath, is_namespace, path=additional_search_path
-                )
+                with fix_import_path((something,)):
+                    modpath = _modpath_from_file(
+                        subfilepath, is_namespace, path=additional_search_path
+                    )
                 submodname = ".".join(modpath)
                 result.append(
                     {
