@@ -10,7 +10,7 @@ on:
       - doc/data/messages/**
 
 env:
-  CACHE_VERSION: 21
+  CACHE_VERSION: 22
 
 jobs:
   tests-linux:
