@@ -14,6 +14,7 @@ from _pytest.config import Config
 from _pytest.recwarn import WarningsRecorder
 
 from pylint import testutils
+from pylint.lint.utils import fix_import_path
 from pylint.testutils import UPDATE_FILE, UPDATE_OPTION
 from pylint.testutils.functional import (
     FunctionalTestFile,
@@ -50,7 +51,11 @@ def test_functional(
     else:
         lint_test = testutils.LintModuleTest(test_file, pytestconfig)
     lint_test.setUp()
-    lint_test.runTest()
+    # Pytest changes 'sys.path' depending on the files your running over.
+    # To fix this, we simply patch sys.path like we do in a normal run, but
+    # as if we're running against the tes file.
+    with fix_import_path((test_file.source,)):
+        lint_test.runTest()
     if recwarn.list:
         if (
             test_file.base in TEST_WITH_EXPECTED_DEPRECATION
@@ -68,6 +73,7 @@ if __name__ == "__main__":
         UPDATE_FILE.touch()
         sys.argv.remove(UPDATE_OPTION)
     try:
+
         pytest.main(sys.argv)
     finally:
         if UPDATE_FILE.exists():
