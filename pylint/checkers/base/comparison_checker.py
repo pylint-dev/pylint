@@ -48,7 +48,7 @@ class ComparisonChecker(_BasicChecker):
             {"old_names": [("W0154", "old-unidiomatic-typecheck")]},
         ),
         "R0123": (
-            "Comparison to literal",
+            "In '%s', use '%s' when comparing constant literals not '%s' ('%s')",
             "literal-comparison",
             "Used when comparing an object to a literal, which is usually "
             "what you do not want to do, since you can compare to a different "
@@ -201,7 +201,20 @@ class ComparisonChecker(_BasicChecker):
             is_const = isinstance(literal.value, (bytes, str, int, float))
 
         if is_const or is_other_literal:
-            self.add_message("literal-comparison", node=node)
+            bad = node.as_string()
+            if "is not" in bad:
+                equal_or_not_equal = "!="
+                is_or_is_not = "is not"
+            else:
+                equal_or_not_equal = "=="
+                is_or_is_not = "is"
+            good = bad.replace(is_or_is_not, equal_or_not_equal)
+            self.add_message(
+                "literal-comparison",
+                args=(bad, equal_or_not_equal, is_or_is_not, good),
+                node=node,
+                confidence=HIGH,
+            )
 
     def _check_logical_tautology(self, node: nodes.Compare) -> None:
         """Check if identifier is compared against itself.

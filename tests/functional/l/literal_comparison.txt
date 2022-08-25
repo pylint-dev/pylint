@@ -1,15 +1,15 @@
 comparison-of-constants:4:3:4:9::"Comparison between constants: '2 is 2' has a constant value":HIGH
-literal-comparison:4:3:4:9::Comparison to literal:UNDEFINED
+literal-comparison:4:3:4:9::In '2 is 2', use '==' when comparing constant literals not 'is' ('2 == 2'):HIGH
 comparison-of-constants:7:3:7:14::"Comparison between constants: 'a is b'a'' has a constant value":HIGH
-literal-comparison:7:3:7:14::Comparison to literal:UNDEFINED
+literal-comparison:7:3:7:14::In ''a' is b'a'', use '==' when comparing constant literals not 'is' (''a' == b'a''):HIGH
 comparison-of-constants:10:3:10:13::"Comparison between constants: '2.0 is 3.0' has a constant value":HIGH
-literal-comparison:10:3:10:13::Comparison to literal:UNDEFINED
-literal-comparison:16:3:16:19::Comparison to literal:UNDEFINED
-literal-comparison:19:3:19:18::Comparison to literal:UNDEFINED
-literal-comparison:22:3:22:18::Comparison to literal:UNDEFINED
-literal-comparison:25:3:25:23::Comparison to literal:UNDEFINED
-literal-comparison:28:3:28:22::Comparison to literal:UNDEFINED
-literal-comparison:31:3:31:22::Comparison to literal:UNDEFINED
-literal-comparison:38:3:38:13::Comparison to literal:UNDEFINED
-literal-comparison:41:3:41:13::Comparison to literal:UNDEFINED
-literal-comparison:44:3:44:14::Comparison to literal:UNDEFINED
+literal-comparison:10:3:10:13::In '2.0 is 3.0', use '==' when comparing constant literals not 'is' ('2.0 == 3.0'):HIGH
+literal-comparison:16:3:16:19::"In '() is {1: 2, 2: 3}', use '==' when comparing constant literals not 'is' ('() == {1: 2, 2: 3}')":HIGH
+literal-comparison:19:3:19:18::In '[] is [4, 5, 6]', use '==' when comparing constant literals not 'is' ('[] == [4, 5, 6]'):HIGH
+literal-comparison:22:3:22:18::In '() is {1, 2, 3}', use '==' when comparing constant literals not 'is' ('() == {1, 2, 3}'):HIGH
+literal-comparison:25:3:25:23::"In '() is not {1: 2, 2: 3}', use '!=' when comparing constant literals not 'is not' ('() != {1: 2, 2: 3}')":HIGH
+literal-comparison:28:3:28:22::In '[] is not [4, 5, 6]', use '!=' when comparing constant literals not 'is not' ('[] != [4, 5, 6]'):HIGH
+literal-comparison:31:3:31:22::In '() is not {1, 2, 3}', use '!=' when comparing constant literals not 'is not' ('() != {1, 2, 3}'):HIGH
+literal-comparison:38:3:38:13::In 'CONST is 0', use '==' when comparing constant literals not 'is' ('CONST == 0'):HIGH
+literal-comparison:41:3:41:13::In 'CONST is 1', use '==' when comparing constant literals not 'is' ('CONST == 1'):HIGH
+literal-comparison:44:3:44:14::In 'CONST is 42', use '==' when comparing constant literals not 'is' ('CONST == 42'):HIGH
