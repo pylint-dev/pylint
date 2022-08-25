@@ -1,9 +1,4 @@
-comparison-of-constants:4:3:4:9::"Comparison between constants: '2 is 2' has a constant value":HIGH
-literal-comparison:4:3:4:9::In '2 is 2', use '==' when comparing constant literals not 'is' ('2 == 2'):HIGH
-comparison-of-constants:7:6:7:12::"Comparison between constants: '2 == 2' has a constant value":HIGH
-comparison-of-constants:10:6:10:11::"Comparison between constants: '2 > 2' has a constant value":HIGH
-comparison-of-constants:20:3:20:15::"Comparison between constants: 'True == True' has a constant value":HIGH
-singleton-comparison:20:3:20:15::Comparison 'True == True' should be 'True is True' if checking for the singleton value True, or 'True' if testing for truthiness:UNDEFINED
-literal-comparison:25:3:25:13::In 'CONST is 0', use '==' when comparing constant literals not 'is' ('CONST == 0'):HIGH
-literal-comparison:28:3:28:13::In 'CONST is 1', use '==' when comparing constant literals not 'is' ('CONST == 1'):HIGH
-literal-comparison:31:3:31:14::In 'CONST is 42', use '==' when comparing constant literals not 'is' ('CONST == 42'):HIGH
+comparison-of-constants:3:6:3:12::"Comparison between constants: '2 == 2' has a constant value":HIGH
+comparison-of-constants:6:6:6:11::"Comparison between constants: '2 > 2' has a constant value":HIGH
+comparison-of-constants:16:3:16:15::"Comparison between constants: 'True == True' has a constant value":HIGH
+singleton-comparison:16:3:16:15::Comparison 'True == True' should be 'True is True' if checking for the singleton value True, or 'True' if testing for truthiness:UNDEFINED
