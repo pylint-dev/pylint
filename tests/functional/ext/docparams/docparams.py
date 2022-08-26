@@ -1,4 +1,5 @@
 """Fixture for testing missing documentation in docparams."""
+from __future__ import annotations
 
 
 def _private_func1(  # [missing-return-doc, missing-return-type-doc, missing-any-param-doc]
@@ -102,3 +103,40 @@ def params_are_documented(par1: int, *, par2: int) -> int:
     """
 
     return par1 + par2
+
+
+def params_with_pipe(arg1: int | bool, arg2: str | None = None) -> None:
+    """No errors raised when pipe symbol used for or.
+
+    `PEP 604`_ allows writing Union types as X | Y. Can be enabled in Python <3.10
+    using `from __future__ import annotations`.
+
+    Parameters
+    ----------
+    arg1 : int | bool
+        The first arg
+    arg2 : str | None, default=None
+        The second arg
+
+    .. _`PEP 604`:
+        https://peps.python.org/pep-0604/
+    """
+
+    print(arg1, arg2)
+
+
+def regression_6211(x: int = 0) -> None:
+    """This is a regression test for issue #6211.
+
+    False negative of "missing param doc" was being issued when "default" used in
+    NumPy-style docs. This test should return no errors.
+
+    See https://github.com/PyCQA/pylint/issues/6211
+
+    Parameter
+    ---------
+    x : int, default 0
+        The x parameter
+    """
+
+    print(x)

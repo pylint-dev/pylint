@@ -730,6 +730,8 @@ class NumpyDocstring(GoogleDocstring):
 
     re_default_value = r"""((['"]\w+\s*['"])|(\d+)|(True)|(False)|(None))"""
 
+    re_default_param = rf"""default[=: ]{re_default_value}"""
+
     re_param_line = re.compile(
         rf"""
         \s*  (?P<param_name>\*{{0,2}}\w+)(\s?(:|\n)) # identifier with potential asterisks
@@ -737,7 +739,8 @@ class NumpyDocstring(GoogleDocstring):
         (?P<param_type>
          (
           ({GoogleDocstring.re_multiple_type})      # default type declaration
-          (,\s+optional)?                           # optional 'optional' indication
+          (,\s+optional|,\s+{re_default_param})?    # optional 'optional' indication
+                                                    # or default value
          )?
          (
           {{({re_default_value},?\s*)+}}            # set of default values
