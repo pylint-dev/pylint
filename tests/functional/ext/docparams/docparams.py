@@ -125,7 +125,7 @@ def params_with_pipe(arg1: int | bool, arg2: str | None = None) -> None:
     print(arg1, arg2)
 
 
-def regression_6211(x: int = 0) -> None:
+def regression_6211(number: int = 0) -> None:
     """This is a regression test for issue #6211.
 
     False negative of "missing param doc" was being issued when "default" used in
@@ -135,8 +135,8 @@ def regression_6211(x: int = 0) -> None:
 
     Parameter
     ---------
-    x : int, default 0
-        The x parameter
+    number : int, default 0
+        The number parameter
     """
 
-    print(x)
+    print(number)
