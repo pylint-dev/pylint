@@ -17,6 +17,11 @@ default timeout values that could cause a program to be hanging indefinitely.
 We improved ``pylint``'s handling of namespace packages. More packages should
 be linted without resorting to using the ``--recursive=y`` option.
 
+We still welcome any community effort to help review, integrate, and add good/bad examples to the doc for
+<https://github.com/PyCQA/pylint/issues/5953>`_. This should be doable without any ``pylint`` or ``astroid``
+knowledge, so this is the perfect entrypoint if you want to contribute to ``pylint`` or open source without
+any experience with our code!
+
 Internally, we changed the way we generate the release notes, thanks to DudeNr33.
 There will be no more conflict resolution to do in the changelog, and every contributor rejoice.
 
