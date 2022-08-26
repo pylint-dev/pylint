@@ -1,3 +1,0 @@
-Fix sys.path pollution in parallel mode.
-
-Closes #7246

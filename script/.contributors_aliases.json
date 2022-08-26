@@ -31,7 +31,8 @@
   },
   "31762852+mbyrnepr2@users.noreply.github.com": {
     "mails": ["31762852+mbyrnepr2@users.noreply.github.com", "mbyrnepr2@gmail.com"],
-    "name": "Mark Byrne"
+    "name": "Mark Byrne",
+    "team": "Maintainers"
   },
   "31987769+sushobhit27@users.noreply.github.com": {
     "mails": [
@@ -354,7 +355,7 @@
     "name": "Jacob Bogdanov"
   },
   "jacobtylerwalls@gmail.com": {
-    "mails": ["jacobtylerwalls@gmail.com"],
+    "mails": ["jacobtylerwalls@gmail.com", "jwalls@azavea.com"],
     "name": "Jacob Walls",
     "team": "Maintainers"
   },

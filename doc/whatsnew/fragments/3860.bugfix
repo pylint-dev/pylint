@@ -1,4 +1,0 @@
-Fixed a syntax-error crash that was not handled properly when the declared encoding of a file
-was ``utf-9``.
-
-Closes #3860

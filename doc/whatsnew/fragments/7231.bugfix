@@ -1,3 +1,0 @@
-Check for `<cwd>` before removing first item from `sys.path` in `modify_sys_path`.
-
-Closes #7231

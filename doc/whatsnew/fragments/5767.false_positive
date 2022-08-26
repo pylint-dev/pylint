@@ -1,3 +1,0 @@
-Don't report ``no-value-for-parameter`` for dataclasses fields annotated with ``KW_ONLY``.
-
-Closes #5767
