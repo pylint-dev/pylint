@@ -34,7 +34,6 @@ What's new in Pylint 2.15.0?
 ----------------------------
 Release date: 2022-08-26
 
-
 New Checks
 ----------
 
