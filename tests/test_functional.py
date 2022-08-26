@@ -53,7 +53,7 @@ def test_functional(
     lint_test.setUp()
     # Pytest changes 'sys.path' depending on the files your running over.
     # To fix this, we simply patch sys.path like we do in a normal run, but
-    # as if we're running against the tes file.
+    # as if we're running against the test file.
     with fix_import_path((test_file.source,)):
         lint_test.runTest()
     if recwarn.list:
