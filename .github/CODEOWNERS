@@ -17,8 +17,8 @@ pylint/messages/*    @pierre-sassoulas
 pylint/typing.py     @DanielNoord @cdce8p
 
 # multiprocessing
-pylint/lint/parallel.py @doublethefish
-tests/test_check_parallel.py @doublethefish
+# pylint/lint/parallel.py @doublethefish
+# tests/test_check_parallel.py @doublethefish
 
 # @yushao2
 tests/functional/u/unused/unused_private_member.py @yushao2
