@@ -13,13 +13,13 @@ Ex-maintainers
 
 Maintainers
 -----------
-
 - Pierre Sassoulas <pierre.sassoulas@gmail.com>
 - Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 - Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 - Jacob Walls <jacobtylerwalls@gmail.com>
 - Hippo91 <guillaume.peillex@gmail.com>
 - Matus Valo <matusvalo@users.noreply.github.com>
+- Mark Byrne <31762852+mbyrnepr2@users.noreply.github.com>
 - Andreas Finkler <3929834+DudeNr33@users.noreply.github.com>
 - Łukasz Rogalski <rogalski.91@gmail.com>
 - Ashley Whetter <ashley@awhetter.co.uk>
@@ -51,7 +51,6 @@ contributors:
   * wrong-spelling-in-comment
   * wrong-spelling-in-docstring
   * parallel execution on multiple CPUs
-- Mark Byrne <31762852+mbyrnepr2@users.noreply.github.com>
 - Julthep Nandakwang <julthep@nandakwang.com>
 - Bruno Daniel <bruno.daniel@blue-yonder.com>: check_docs extension.
 - Sushobhit <31987769+sushobhit27@users.noreply.github.com> (sushobhit27)
