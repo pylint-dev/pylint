@@ -267,15 +267,24 @@ if TYPE_CHECKING:
 if TYPE_CHECKING:
     from collections import Counter
     from collections import OrderedDict
+    from collections import defaultdict
+    from collections import UserDict
 else:
     Counter = object
     OrderedDict = object
+    def defaultdict():
+        return {}
+    class UserDict(dict):
+        pass
 
 
 def tick(counter: Counter, name: str, dictionary: OrderedDict) -> OrderedDict:
     counter[name] += 1
     return dictionary
 
+defaultdict()
+
+UserDict()
 
 # pylint: disable=unused-argument
 def not_using_loop_variable_accordingly(iterator):
