@@ -126,17 +126,18 @@ def params_with_pipe(arg1: int | bool, arg2: str | None = None) -> None:
 
 
 def regression_6211(number: int = 0) -> None:
-    """This is a regression test for issue #6211.
+    """This is a regression test for issue `#6211`_.
 
     False negative of "missing param doc" was being issued when "default" used in
     NumPy-style docs. This test should return no errors.
 
-    See https://github.com/PyCQA/pylint/issues/6211
-
-    Parameter
-    ---------
+    Parameters
+    ----------
     number : int, default 0
         The number parameter
+
+    .. _`#6211`:
+        https://github.com/PyCQA/pylint/issues/6211
     """
 
     print(number)
