@@ -737,7 +737,6 @@ class NumpyDocstring(GoogleDocstring):
         \s*  (?P<param_name>\*{{0,2}}\w+)(\s?(:|\n)) # identifier with potential asterisks
         \s*
         (?P<param_type>
-         (?!=\n)
          (
           ({GoogleDocstring.re_multiple_type})      # default type declaration
           (,\s+optional|,\s+{re_default_param})?    # optional 'optional' indication
