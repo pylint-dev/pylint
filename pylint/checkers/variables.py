@@ -1841,7 +1841,6 @@ class VariablesChecker(BaseChecker):
         base_scope_type,
         is_recursive_klass,
     ) -> tuple[bool, bool, bool]:
-        # pylint: disable=too-many-nested-blocks
         maybe_before_assign = True
         annotation_return = False
         use_outer_definition = False
@@ -2014,8 +2013,13 @@ class VariablesChecker(BaseChecker):
                                 for target in definition.targets
                                 if isinstance(target, nodes.AssignName)
                             )
-                            if defined_in_or_else:
-                                break
+                        elif isinstance(
+                            definition, (nodes.ClassDef, nodes.FunctionDef)
+                        ):
+                            defined_in_or_else = definition.name == node.name
+
+                        if defined_in_or_else:
+                            break
 
                     if not used_in_branch and not defined_in_or_else:
                         maybe_before_assign = True
