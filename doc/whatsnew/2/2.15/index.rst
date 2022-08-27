@@ -72,6 +72,10 @@ False Positives Fixed
 - Fix `undefined-loop-variable` with `break` and `continue` statements in `else` blocks.
 
   Refs #7311 (`#7311 <https://github.com/PyCQA/pylint/issues/7311>`_)
+- Improve default TypeVar name regex. Disallow names prefixed with ``T``.
+  E.g. use ``AnyStrT`` instead of ``TAnyStr``.
+
+  Refs #7322 (`#7322 <https://github.com/PyCQA/pylint/issues/7322>`_`)
 
 
 False Negatives Fixed
