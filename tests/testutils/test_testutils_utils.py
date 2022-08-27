@@ -6,6 +6,8 @@ import os
 import sys
 from pathlib import Path
 
+import pytest
+
 from pylint.testutils.utils import _test_cwd, _test_environ_pythonpath, _test_sys_path
 
 
@@ -50,22 +52,28 @@ def test__test_cwd(tmp_path: Path) -> None:
     assert os.getcwd() == cwd
 
 
-def test__test_environ_pythonpath_no_arg() -> None:
-    python_path = os.environ.get("PYTHONPATH")
-    with _test_environ_pythonpath():
-        assert os.environ.get("PYTHONPATH") == python_path
+@pytest.mark.parametrize("old_pythonpath", ["./oldpath/:", None])
+def test__test_environ_pythonpath_no_arg(old_pythonpath: str) -> None:
+    real_pythonpath = os.environ.get("PYTHONPATH")
+    with _test_environ_pythonpath(old_pythonpath):
+        with _test_environ_pythonpath():
+            assert os.environ.get("PYTHONPATH") is None
+            new_pythonpath = "./whatever/:"
+            os.environ["PYTHONPATH"] = new_pythonpath
+            assert os.environ.get("PYTHONPATH") == new_pythonpath
+        assert os.environ.get("PYTHONPATH") == old_pythonpath
+    assert os.environ.get("PYTHONPATH") == real_pythonpath
+
+
+@pytest.mark.parametrize("old_pythonpath", ["./oldpath/:", None])
+def test__test_environ_pythonpath(old_pythonpath: str) -> None:
+    real_pythonpath = os.environ.get("PYTHONPATH")
+    with _test_environ_pythonpath(old_pythonpath):
         new_pythonpath = "./whatever/:"
-        os.environ["PYTHONPATH"] = new_pythonpath
-        assert os.environ.get("PYTHONPATH") == new_pythonpath
-    assert os.environ.get("PYTHONPATH") == python_path
-
-
-def test__test_environ_pythonpath() -> None:
-    python_path = os.environ.get("PYTHONPATH")
-    new_pythonpath = "./whatever/:"
-    with _test_environ_pythonpath(new_pythonpath):
-        assert os.environ.get("PYTHONPATH") == new_pythonpath
-        newer_pythonpath = "./something_else/:"
-        os.environ["PYTHONPATH"] = newer_pythonpath
-        assert os.environ.get("PYTHONPATH") == newer_pythonpath
-    assert os.environ.get("PYTHONPATH") == python_path
+        with _test_environ_pythonpath(new_pythonpath):
+            assert os.environ.get("PYTHONPATH") == new_pythonpath
+            newer_pythonpath = "./something_else/:"
+            os.environ["PYTHONPATH"] = newer_pythonpath
+            assert os.environ.get("PYTHONPATH") == newer_pythonpath
+        assert os.environ.get("PYTHONPATH") == old_pythonpath
+    assert os.environ.get("PYTHONPATH") == real_pythonpath
