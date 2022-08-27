@@ -2,7 +2,8 @@
 # Each line is a file pattern followed by one or more owners.
 
 # These owners will be the default owners for everything in the repo.
-* @pierre-sassoulas @DanielNoord @cdce8p @jacobtylerwalls @hippo91
+# Right now there is not default owner to avoid spam
+# * @pierre-sassoulas @DanielNoord @cdce8p @jacobtylerwalls @hippo91
 
 # Order is important. The last matching pattern has the most precedence.
 
@@ -25,7 +26,7 @@ tests/functional/u/unused/unused_private_member.py @yushao2
 
 # @areveny
 pylint/extensions/for_any_all.py @areveny
-tests/functional/ext/for_any_all/for_any_all.py @areveny
+tests/functional/ext/for_any_all/* @areveny
 pylint/extensions/private_import.py @areveny
 tests/extensions/test_private_import.py @areveny
 tests/functional/ext/private_import/private_import.py @areveny
