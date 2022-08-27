@@ -7,7 +7,6 @@
 from __future__ import annotations
 
 import re
-import sre_constants
 
 import pytest
 
@@ -24,7 +23,7 @@ def test__regexp_validator_valid() -> None:
 
 
 def test__regexp_validator_invalid() -> None:
-    with pytest.raises(sre_constants.error):
+    with pytest.raises(re.error):
         config.option._regexp_validator(None, None, "test_)")
 
 
@@ -56,7 +55,7 @@ def test__regexp_csv_validator_valid() -> None:
 
 def test__regexp_csv_validator_invalid() -> None:
     pattern_strings = ["test_.*", "foo\\.bar", "^baz)$"]
-    with pytest.raises(sre_constants.error):
+    with pytest.raises(re.error):
         config.option._regexp_csv_validator(None, None, ",".join(pattern_strings))
 
 
