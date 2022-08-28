@@ -7,26 +7,30 @@
 
 # Order is important. The last matching pattern has the most precedence.
 
-# @DudeNr33
-pylint/pyreverse/*    @DudeNr33
-tests/pyreverse/*    @DudeNr33
+### Core components
 
-# @pierre-sassoulas
-pylint/messages/*    @pierre-sassoulas
+# internal message handling
+pylint/message/*    @pierre-sassoulas
+tests/message/*    @pierre-sassoulas
 
 # typing
 pylint/typing.py     @DanielNoord @cdce8p
 
-# multiprocessing
+# multiprocessing (doublethefish is not yet a contributor with write access)
 # pylint/lint/parallel.py @doublethefish
 # tests/test_check_parallel.py @doublethefish
 
-# @yushao2
-tests/functional/u/unused/unused_private_member.py @yushao2
+### Pyreverse
+pylint/pyreverse/*    @DudeNr33
+tests/pyreverse/*    @DudeNr33
 
-# @areveny
+### Extensions
+
+# For any all
 pylint/extensions/for_any_all.py @areveny
 tests/functional/ext/for_any_all/* @areveny
+
+# Private import
 pylint/extensions/private_import.py @areveny
 tests/extensions/test_private_import.py @areveny
 tests/functional/ext/private_import/private_import.py @areveny
