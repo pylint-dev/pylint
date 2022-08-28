@@ -33,4 +33,4 @@ tests/functional/ext/for_any_all/* @areveny
 # Private import
 pylint/extensions/private_import.py @areveny
 tests/extensions/test_private_import.py @areveny
-tests/functional/ext/private_import/private_import.py @areveny
+tests/functional/ext/private_import/* @areveny
