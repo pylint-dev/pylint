@@ -675,8 +675,9 @@ class PyLinter(
             # 4) Get the AST for each FileItem
             ast_per_fileitem = self._get_asts(fileitems, data)
 
-            # 5) Lint each ast
-            self._lint_files(ast_per_fileitem, check_astroid_module)
+            with fix_import_path(files_or_modules):
+                # 5) Lint each ast
+                self._lint_files(ast_per_fileitem, check_astroid_module)
 
     def _get_asts(
         self, fileitems: Iterator[FileItem], data: str | None
@@ -1027,10 +1028,9 @@ class PyLinter(
         """
         before_check_statements = walker.nbstatements
 
-        with fix_import_path((ast_node.file or "",)):
-            retval = self._check_astroid_module(
-                ast_node, walker, rawcheckers, tokencheckers
-            )
+        retval = self._check_astroid_module(
+            ast_node, walker, rawcheckers, tokencheckers
+        )
 
         # TODO: 3.0: Remove unnecessary assertion
         assert self.current_name
