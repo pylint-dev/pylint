@@ -19,7 +19,7 @@ from io import StringIO
 from os import chdir, getcwd
 from os.path import abspath, dirname, join, sep
 from pathlib import Path
-from shutil import copy, copytree, rmtree
+from shutil import copytree, rmtree
 
 import platformdirs
 import pytest
@@ -540,7 +540,7 @@ def test_load_plugin_command_line_with_inithook_in_config_bad_value() -> None:
                 ]
             )
 
-        copytree(dummy_plugin_path, join(home_path , "copy_dummy"))
+        copytree(dummy_plugin_path, join(home_path, "copy_dummy"))
 
         # To confirm we won't load this module _without_ the init hook running.
         assert home_path not in sys.path
@@ -587,7 +587,6 @@ def test_load_plugin_command_line_with_inithook_in_config_bad_value() -> None:
                 end_column=None,
             ),
         )
-
 
         sys.path.remove(home_path)
 

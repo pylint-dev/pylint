@@ -18,7 +18,8 @@ from collections.abc import Callable, Iterator, Sequence
 from io import TextIOWrapper
 from pathlib import Path
 from re import Pattern
-from typing import Any
+from types import ModuleType
+from typing import Any, Optional
 
 import astroid
 from astroid import nodes
@@ -295,7 +296,7 @@ class PyLinter(
             str, list[checkers.BaseChecker]
         ] = collections.defaultdict(list)
         """Dictionary of registered and initialized checkers."""
-        self._dynamic_plugins: set[str] = set()
+        self._dynamic_plugins: dict[str, ModuleType | None] = {}
         """Set of loaded plugin names."""
 
         # Attributes related to registering messages and their handling
@@ -363,12 +364,14 @@ class PyLinter(
     def load_plugin_modules(self, modnames: list[str]) -> None:
         """Check a list pylint plugins modules, load and register them."""
         for modname in modnames:
-            if modname in self._dynamic_plugins:
+            if self._dynamic_plugins.get(modname, False):
                 continue
-            self._dynamic_plugins.add(modname)
+
+            self._dynamic_plugins[modname] = None
             try:
                 module = astroid.modutils.load_module_from_name(modname)
                 module.register(self)
+                self._dynamic_plugins[modname] = module
             except ModuleNotFoundError:
                 pass
 
