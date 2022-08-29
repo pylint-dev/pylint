@@ -11,14 +11,14 @@ from re import Pattern
 
 from astroid import modutils
 
-from pylint.lint.utils import fix_import_path, get_python_path
+from pylint.lint.utils import get_python_path
 from pylint.typing import ErrorDescriptionDict, ModuleDescriptionDict
 
 
 def _modpath_from_file(filename: str, is_namespace: bool, path: list[str]) -> list[str]:
     def _is_package_cb(inner_path: str, parts: list[str]) -> bool:
-        with fix_import_path((inner_path,)):
-            return modutils.check_modpath_has_init(inner_path, parts) or is_namespace
+        # with fix_import_path((inner_path,)):
+        return modutils.check_modpath_has_init(inner_path, parts) or is_namespace
 
     return modutils.modpath_from_file_with_callback(
         filename, path=path, is_package_cb=_is_package_cb
