@@ -51,7 +51,7 @@ def test_functional(
     else:
         lint_test = testutils.LintModuleTest(test_file, pytestconfig)
     lint_test.setUp()
-    # Pytest changes 'sys.path' depending on the files your running over.
+    # Pytest changes 'sys.path' depending on the files you're running over.
     # To fix this, we simply patch sys.path like we do in a normal run, but
     # as if we're running against the test file.
     with fix_import_path((test_file.source,)):
@@ -73,7 +73,6 @@ if __name__ == "__main__":
         UPDATE_FILE.touch()
         sys.argv.remove(UPDATE_OPTION)
     try:
-
         pytest.main(sys.argv)
     finally:
         if UPDATE_FILE.exists():

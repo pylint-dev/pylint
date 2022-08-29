@@ -993,7 +993,7 @@ def test_sys_path_patching_for_namespace_package(initialized_linter: PyLinter) -
     """Test that a normal package in the arguments doesn't pollute sys.path.
 
     Originally reported in https://github.com/PyCQA/pylint/issues/7339.
-    If pylint is ran over a file within a namespace package which
+    If pylint is run over a file within a namespace package which
     shares the name with a normal package that 1) is stored in another directory
     and 2) is being linted at the same time previously there would be a clash of names
     due to the addition of the normal package to sys.path.
