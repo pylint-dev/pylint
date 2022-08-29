@@ -17,7 +17,8 @@ from pylint.typing import ErrorDescriptionDict, ModuleDescriptionDict
 
 def _modpath_from_file(filename: str, is_namespace: bool, path: list[str]) -> list[str]:
     def _is_package_cb(inner_path: str, parts: list[str]) -> bool:
-        return modutils.check_modpath_has_init(inner_path, parts) or is_namespace
+        with fix_import_path((inner_path,)):
+            return modutils.check_modpath_has_init(inner_path, parts) or is_namespace
 
     return modutils.modpath_from_file_with_callback(
         filename, path=path, is_package_cb=_is_package_cb
@@ -127,10 +128,9 @@ def expand_modules(
                 ) or _is_in_ignore_list_re(subfilepath, ignore_list_paths_re):
                     continue
 
-                with fix_import_path((something,)):
-                    modpath = _modpath_from_file(
-                        subfilepath, is_namespace, path=additional_search_path
-                    )
+                modpath = _modpath_from_file(
+                    subfilepath, is_namespace, path=additional_search_path
+                )
                 submodname = ".".join(modpath)
                 result.append(
                     {
