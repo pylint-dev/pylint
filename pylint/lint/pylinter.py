@@ -382,7 +382,9 @@ class PyLinter(
         """
         for modname, module_or_error in self._dynamic_plugins.items():
             if isinstance(module_or_error, ModuleNotFoundError):
-                self.add_message("bad-plugin-value", args=(modname, module_or_error), line=0)
+                self.add_message(
+                    "bad-plugin-value", args=(modname, module_or_error), line=0
+                )
             elif hasattr(module_or_error, "load_configuration"):
                 module_or_error.load_configuration(self)
 
