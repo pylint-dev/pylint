@@ -15,7 +15,7 @@ repos:
             doc/data/messages/t/trailing-newlines/bad.py|
           )$
   - repo: https://github.com/myint/autoflake
-    rev: v1.4
+    rev: v1.5.1
     hooks:
       - id: autoflake
         exclude: &fixtures tests(/\w*)*/functional/|tests/input|doc/data/messages|tests(/\w*)*data/
@@ -118,7 +118,7 @@ repos:
         args: [--prose-wrap=always, --print-width=88]
         exclude: tests(/\w*)*data/
   - repo: https://github.com/DanielNoord/pydocstringformatter
-    rev: v0.7.0
+    rev: v0.7.1
     hooks:
       - id: pydocstringformatter
         exclude: *fixtures
