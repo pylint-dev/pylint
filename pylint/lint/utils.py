@@ -10,13 +10,11 @@ import sys
 import traceback
 from collections.abc import Iterator, Sequence
 from datetime import datetime
-from functools import lru_cache
 from pathlib import Path
 
 from pylint.config import PYLINT_HOME
 
 
-@lru_cache(maxsize=None)
 def get_python_path(filepath: str) -> str:
     """TODO This get the python path with the (bad) assumption that there is always
     an __init__.py.

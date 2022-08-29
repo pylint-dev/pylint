@@ -672,11 +672,12 @@ class PyLinter(
 
         # The contextmanager also opens all checkers and sets up the PyLinter class
         with self._astroid_module_checker() as check_astroid_module:
-            # 4) Get the AST for each FileItem
-            ast_per_fileitem = self._get_asts(fileitems, data)
+            with fix_import_path(files_or_modules):
+                # 4) Get the AST for each FileItem
+                ast_per_fileitem = self._get_asts(fileitems, data)
 
-            # 5) Lint each ast
-            self._lint_files(ast_per_fileitem, check_astroid_module)
+                # 5) Lint each ast
+                self._lint_files(ast_per_fileitem, check_astroid_module)
 
     def _get_asts(
         self, fileitems: Iterator[FileItem], data: str | None
@@ -759,25 +760,24 @@ class PyLinter(
         - ast: AST of the module
         :raises AstroidError: for any failures stemming from astroid
         """
-        with fix_import_path((file.filepath,)):
-            self.set_current_module(file.name, file.filepath)
-            self._ignore_file = False
-            self.file_state = FileState(file.modpath, self.msgs_store, module)
-            # fix the current file (if the source file was not available or
-            # if it's actually a c extension)
-            self.current_file = module.file
+        self.set_current_module(file.name, file.filepath)
+        self._ignore_file = False
+        self.file_state = FileState(file.modpath, self.msgs_store, module)
+        # fix the current file (if the source file was not available or
+        # if it's actually a c extension)
+        self.current_file = module.file
 
-            try:
-                check_astroid_module(module)
-            except Exception as e:
-                raise astroid.AstroidError from e
+        try:
+            check_astroid_module(module)
+        except Exception as e:
+            raise astroid.AstroidError from e
 
-            # warn about spurious inline messages handling
-            spurious_messages = self.file_state.iter_spurious_suppression_messages(
-                self.msgs_store
-            )
-            for msgid, line, args in spurious_messages:
-                self.add_message(msgid, line, None, args)
+        # warn about spurious inline messages handling
+        spurious_messages = self.file_state.iter_spurious_suppression_messages(
+            self.msgs_store
+        )
+        for msgid, line, args in spurious_messages:
+            self.add_message(msgid, line, None, args)
 
     def _check_file(
         self,
