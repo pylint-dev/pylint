@@ -19,7 +19,7 @@ from io import TextIOWrapper
 from pathlib import Path
 from re import Pattern
 from types import ModuleType
-from typing import Any, Optional
+from typing import Any
 
 import astroid
 from astroid import nodes
@@ -296,7 +296,7 @@ class PyLinter(
             str, list[checkers.BaseChecker]
         ] = collections.defaultdict(list)
         """Dictionary of registered and initialized checkers."""
-        self._dynamic_plugins: dict[str, ModuleType | None] = {}
+        self._dynamic_plugins: dict[str, ModuleType | ModuleNotFoundError] = {}
         """Set of loaded plugin names."""
 
         # Attributes related to registering messages and their handling
@@ -364,16 +364,14 @@ class PyLinter(
     def load_plugin_modules(self, modnames: list[str]) -> None:
         """Check a list pylint plugins modules, load and register them."""
         for modname in modnames:
-            if self._dynamic_plugins.get(modname, False):
+            if modname in self._dynamic_plugins:
                 continue
-
-            self._dynamic_plugins[modname] = None
             try:
                 module = astroid.modutils.load_module_from_name(modname)
                 module.register(self)
                 self._dynamic_plugins[modname] = module
-            except ModuleNotFoundError:
-                pass
+            except ModuleNotFoundError as mnf_e:
+                self._dynamic_plugins[modname] = mnf_e
 
     def load_plugin_configuration(self) -> None:
         """Call the configuration hook for plugins.
@@ -382,13 +380,11 @@ class PyLinter(
         hook, if exposed, and calls it to allow plugins to configure specific
         settings.
         """
-        for modname in self._dynamic_plugins:
-            try:
-                module = astroid.modutils.load_module_from_name(modname)
-                if hasattr(module, "load_configuration"):
-                    module.load_configuration(self)
-            except ModuleNotFoundError as e:
-                self.add_message("bad-plugin-value", args=(modname, e), line=0)
+        for modname, module_or_error in self._dynamic_plugins.items():
+            if isinstance(module_or_error, ModuleNotFoundError):
+                self.add_message("bad-plugin-value", args=(modname, module_or_error), line=0)
+            elif hasattr(module_or_error, "load_configuration"):
+                module_or_error.load_configuration(self)
 
     def _load_reporters(self, reporter_names: str) -> None:
         """Load the reporters if they are available on _reporters."""
