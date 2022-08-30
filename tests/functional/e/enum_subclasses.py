@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring, invalid-name
-from enum import Enum, IntEnum, auto
+from enum import Enum, Flag, IntEnum, auto
 
 
 class Issue1932(IntEnum):
@@ -60,6 +60,7 @@ class MyEnum(BaseEnum):
 
 print(MyEnum.FOO.value)
 
+
 class TestBase(Enum):
     """Adds a special method to enums."""
 
@@ -77,3 +78,18 @@ class TestEnum(TestBase):
 
 test_enum = TestEnum.a
 assert test_enum.hello_pylint() == test_enum.name
+
+
+# Check combinations of Flag members using the bitwise operators (&, |, ^, ~)
+# https://github.com/PyCQA/pylint/issues/7381
+class Colour(Flag):
+    NONE = 0
+    RED = 2
+    GREEN = 2
+    BLUE = 4
+
+
+and_expr = Colour.RED & Colour.GREEN & Colour.BLUE
+and_expr_with_complement = ~Colour.RED & ~Colour.GREEN & ~Colour.BLUE
+or_expr = Colour.RED | Colour.GREEN | Colour.BLUE
+xor_expr = Colour.RED ^ Colour.GREEN ^ Colour.BLUE
