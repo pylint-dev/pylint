@@ -1,0 +1,3 @@
+Fixed a crash with ``for`` loops that iterate over class attributes.
+
+Closes #7380

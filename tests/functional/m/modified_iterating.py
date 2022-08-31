@@ -26,7 +26,7 @@ my_dict = {"1": 1, "2": 2, "3": 3}
 i = 1
 for item in my_dict:
     item_list[0] = i  # for coverage, see reference at /pull/5628#discussion_r792181642
-    my_dict[i] = 1      # [modified-iterating-dict]
+    my_dict[i] = 1  # [modified-iterating-dict]
     i += 1
 
 i = 1
@@ -93,3 +93,15 @@ def update_existing_key():
     for key in my_dict:
         new_key = key.lower()
         my_dict[new_key] = 1  # [modified-iterating-dict]
+
+
+class MyClass:  # pylint: disable=too-few-public-methods
+    """Regression test for https://github.com/PyCQA/pylint/issues/7380"""
+
+    def __init__(self) -> None:
+        self.attribute = [1, 2, 3]
+
+    def my_method(self):
+        """This should raise as we are deleting."""
+        for var in self.attribute:
+            del var  # [modified-iterating-list]
