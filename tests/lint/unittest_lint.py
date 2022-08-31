@@ -60,7 +60,7 @@ else:
 
 
 @contextmanager
-def fake_home() -> Iterator[None]:
+def fake_home() -> Iterator[str]:
     folder = tempfile.mkdtemp("fake-home")
     old_home = os.environ.get(HOME)
     try:
@@ -526,13 +526,12 @@ def test_load_plugin_command_line() -> None:
 
 
 @pytest.mark.usefixtures("pop_pylintrc")
-@pytest.mark.xfail
 def test_load_plugin_command_line_with_inithook_in_config_bad_value() -> None:
     dummy_plugin_path = abspath(join(REGRTEST_DATA_DIR, "dummy_plugin"))
     with fake_home() as home_path:
         # construct a basic rc file that just modifies the path
         pylintrc_file = join(home_path, "pylintrc")
-        with open(pylintrc_file, "w") as out:
+        with open(pylintrc_file, "w", encoding="utf8") as out:
             out.writelines(
                 [
                     "[MASTER]\n",
