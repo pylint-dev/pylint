@@ -1,5 +1,5 @@
 """Tests for iterating-modified messages"""
-# pylint: disable=not-callable,unnecessary-comprehension
+# pylint: disable=not-callable,unnecessary-comprehension,too-few-public-methods
 
 import copy
 
@@ -95,7 +95,7 @@ def update_existing_key():
         my_dict[new_key] = 1  # [modified-iterating-dict]
 
 
-class MyClass:  # pylint: disable=too-few-public-methods
+class MyClass:
     """Regression test for https://github.com/PyCQA/pylint/issues/7380"""
 
     def __init__(self) -> None:
