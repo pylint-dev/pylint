@@ -1,3 +1,3 @@
-Fixed a crash with ``for`` loops that iterate over class attributes.
+Update ``modified_iterating`` checker to fix a crash with ``for`` loops on empty list
 
 Closes #7380
