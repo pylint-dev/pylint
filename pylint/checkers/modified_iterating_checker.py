@@ -81,7 +81,7 @@ class ModifiedIterationChecker(checkers.BaseChecker):
                 msg_id = "modified-iterating-dict"
             elif isinstance(inferred, nodes.Set):
                 msg_id = "modified-iterating-set"
-        elif not isinstance(iter_obj, nodes.Name):
+        elif not isinstance(iter_obj, (nodes.Name, nodes.Attribute)):
             pass
         elif self._modified_iterating_list_cond(node, iter_obj):
             msg_id = "modified-iterating-list"
@@ -90,10 +90,14 @@ class ModifiedIterationChecker(checkers.BaseChecker):
         elif self._modified_iterating_set_cond(node, iter_obj):
             msg_id = "modified-iterating-set"
         if msg_id:
+            if isinstance(iter_obj, nodes.Attribute):
+                obj_name = iter_obj.attrname
+            else:
+                obj_name = iter_obj.name
             self.add_message(
                 msg_id,
                 node=node,
-                args=(iter_obj.name,),
+                args=(obj_name,),
                 confidence=interfaces.INFERENCE,
             )
 
