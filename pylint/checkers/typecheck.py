@@ -1458,6 +1458,19 @@ accessed. Python regular expressions are accepted.",
         keyword_args += list(already_filled_keywords)
         num_positional_args += implicit_args + already_filled_positionals
 
+        # Decrement `num_positional_args` by 1 when a function call is assigned to a class attribute
+        # inside the class where the function is defined.
+        # This avoids emitting `too-many-function-args` since `num_positional_args`
+        # includes an implicit `self` argument which is not present in `called.args`.
+        if (
+            isinstance(node.frame(), nodes.ClassDef)
+            and isinstance(node.parent, (nodes.Assign, nodes.AnnAssign))
+            and isinstance(called, nodes.FunctionDef)
+            and called in node.frame().body
+            and num_positional_args > 0
+        ):
+            num_positional_args -= 1
+
         # Analyze the list of formal parameters.
         args = list(itertools.chain(called.args.posonlyargs or (), called.args.args))
         num_mandatory_parameters = len(args) - len(called.args.defaults)
