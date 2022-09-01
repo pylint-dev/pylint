@@ -247,7 +247,7 @@ class SphinxDocstring(Docstring):
 
     re_multiple_simple_type = r"""
         (?:{container_type}|{type})
-        (?:(?:\s+(?:of|or)\s+|\s*,\s*)(?:{container_type}|{type}))*
+        (?:(?:\s+(?:of|or)\s+|\s*,\s*|\s+\|\s+)(?:{container_type}|{type}))*
     """.format(
         type=re_type, container_type=re_simple_container_type
     )
@@ -449,7 +449,7 @@ class GoogleDocstring(Docstring):
 
     re_multiple_type = r"""
         (?:{container_type}|{type}|{xref})
-        (?:(?:\s+(?:of|or)\s+|\s*,\s*)(?:{container_type}|{type}|{xref}))*
+        (?:(?:\s+(?:of|or)\s+|\s*,\s*|\s+\|\s+)(?:{container_type}|{type}|{xref}))*
     """.format(
         type=re_type, xref=re_xref, container_type=re_container_type
     )
@@ -728,13 +728,13 @@ class NumpyDocstring(GoogleDocstring):
         re.X | re.S | re.M,
     )
 
-    re_default_value = r"""((['"]\w+\s*['"])|(True)|(False)|(None))"""
+    re_default_value = r"""((['"]\w+\s*['"])|(\d+)|(True)|(False)|(None))"""
 
     re_param_line = re.compile(
         rf"""
-        \s*  (\*{{0,2}}\w+)(\s?(:|\n))              # identifier with potential asterisks
+        \s*  (?P<param_name>\*{{0,2}}\w+)(\s?(:|\n)) # identifier with potential asterisks
         \s*
-        (
+        (?P<param_type>
          (
           ({GoogleDocstring.re_multiple_type})      # default type declaration
           (,\s+optional)?                           # optional 'optional' indication
@@ -742,8 +742,11 @@ class NumpyDocstring(GoogleDocstring):
          (
           {{({re_default_value},?\s*)+}}            # set of default values
          )?
-        \n)?
-        \s* (.*)                                    # optional description
+         (?:$|\n)
+        )?
+        (
+         \s* (?P<param_desc>.*)                     # optional description
+        )?
     """,
         re.X | re.S,
     )
@@ -794,15 +797,15 @@ class NumpyDocstring(GoogleDocstring):
                 continue
 
             # check if parameter has description only
-            re_only_desc = re.match(r"\s*  (\*{0,2}\w+)\s*:?\n", entry)
+            re_only_desc = re.match(r"\s*(\*{0,2}\w+)\s*:?\n\s*\w*$", entry)
             if re_only_desc:
-                param_name = match.group(1)
-                param_desc = match.group(2)
+                param_name = match.group("param_name")
+                param_desc = match.group("param_type")
                 param_type = None
             else:
-                param_name = match.group(1)
-                param_type = match.group(3)
-                param_desc = match.group(4)
+                param_name = match.group("param_name")
+                param_type = match.group("param_type")
+                param_desc = match.group("param_desc")
 
             if param_type:
                 params_with_type.add(param_name)

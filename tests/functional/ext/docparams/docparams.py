@@ -13,7 +13,7 @@ def _private_func2(param1):  # [missing-yield-doc, missing-yield-type-doc]
 
 def _private_func3(param1):  # [missing-raises-doc]
     """This is a test docstring without raises"""
-    raise Exception('Example')
+    raise Exception("Example")
 
 
 def public_func1(param1):  # [missing-any-param-doc]
@@ -33,7 +33,7 @@ async def _async_private_func2(param1):  # [missing-yield-doc, missing-yield-typ
 
 async def _async_private_func3(param1):  # [missing-raises-doc]
     """This is a test docstring without raises"""
-    raise Exception('Example')
+    raise Exception("Example")
 
 
 async def async_public_func1(param1):  # [missing-any-param-doc]
