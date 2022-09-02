@@ -660,9 +660,7 @@ class PyLinter(
         # 3) Get all FileItems
         with fix_import_path(files_or_modules):
             if self.config.from_stdin:
-                fileitems = iter(
-                    (self._get_file_descr_from_stdin(files_or_modules[0]),)
-                )
+                fileitems = self._get_file_descr_from_stdin(files_or_modules[0])
                 data: str | None = _read_stdin()
             else:
                 fileitems = self._iterate_file_descrs(files_or_modules)
@@ -817,14 +815,21 @@ class PyLinter(
         for msgid, line, args in spurious_messages:
             self.add_message(msgid, line, None, args)
 
-    @staticmethod
-    def _get_file_descr_from_stdin(filepath: str) -> FileItem:
+    def _get_file_descr_from_stdin(self, filepath: str) -> Iterator[FileItem]:
         """Return file description (tuple of module name, file path, base name) from
         given file path.
 
         This method is used for creating suitable file description for _check_files when the
         source is standard input.
         """
+        if _is_ignored_file(
+            filepath,
+            self.config.ignore,
+            self.config.ignore_patterns,
+            self.config.ignore_paths,
+        ):
+            return
+
         try:
             # Note that this function does not really perform an
             # __import__ but may raise an ImportError exception, which
@@ -833,7 +838,7 @@ class PyLinter(
         except ImportError:
             modname = os.path.splitext(os.path.basename(filepath))[0]
 
-        return FileItem(modname, filepath, filepath)
+        yield FileItem(modname, filepath, filepath)
 
     def _iterate_file_descrs(
         self, files_or_modules: Sequence[str]
