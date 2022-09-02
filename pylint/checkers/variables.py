@@ -2341,6 +2341,10 @@ class VariablesChecker(BaseChecker):
         if name in comprehension_target_names:
             return
 
+        # Ignore names in string literal type annotation.
+        if name in self._type_annotation_names:
+            return
+
         argnames = node.argnames()
         # Care about functions with unknown argument (builtins)
         if name in argnames:
@@ -2903,6 +2907,20 @@ class VariablesChecker(BaseChecker):
                     "potential-index-error", node=node, confidence=INFERENCE
                 )
             return
+
+    @utils.only_required_for_messages(
+        "unused-import",
+        "unused-variable",
+    )
+    def visit_const(self, node: nodes.Const) -> None:
+        """Take note of names that appear inside string literal type annotations."""
+        if node.pytype() != "builtins.str":
+            return
+        if not utils.is_node_in_type_annotation_context(node):
+            return
+        if not node.value.isidentifier():
+            return
+        self._type_annotation_names.append(node.value)
 
 
 def register(linter: PyLinter) -> None:
