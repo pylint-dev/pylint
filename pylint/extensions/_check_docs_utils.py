@@ -813,6 +813,10 @@ class NumpyDocstring(GoogleDocstring):
                 # should be
                 if param_type is None and re.match(r"\s*(\*{0,2}\w+)\s*:.+$", entry):
                     param_type = param_desc
+                # If the description is "" but we have a type description
+                # we consider the description to be the type
+                if not param_desc and param_type:
+                    param_desc = param_type
 
             if param_type:
                 params_with_type.add(param_name)

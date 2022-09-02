@@ -409,7 +409,7 @@ def test_with_list_of_default_values(arg, option, option2):
     return arg, option, option2
 
 
-def test_with_descriptions_instead_of_typing(arg, option):
+def test_with_descriptions_instead_of_typing(arg, axis, option):
     """We choose to accept description in place of typing as well.
 
     See: https://github.com/PyCQA/pylint/pull/7398.
@@ -417,6 +417,7 @@ def test_with_descriptions_instead_of_typing(arg, option):
     Parameters
     ----------
     arg : a number type.
+    axis : int or None
     option : {"y", "n"}
         Do I do it?
     """
