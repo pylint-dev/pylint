@@ -2913,13 +2913,27 @@ class VariablesChecker(BaseChecker):
         "unused-variable",
     )
     def visit_const(self, node: nodes.Const) -> None:
-        """Take note of names that appear inside string literal type annotations."""
+        """Take note of names that appear inside string literal type annotations...
+
+        ...Unless the string is a parameter to typing.Literal.
+        """
         if node.pytype() != "builtins.str":
             return
         if not utils.is_node_in_type_annotation_context(node):
             return
         if not node.value.isidentifier():
             return
+
+        # Check if parent's or grandparent's first child is typing.Literal
+        parent = node.parent
+        if isinstance(parent, nodes.Tuple):
+            parent = parent.parent
+
+        if isinstance(parent, nodes.Subscript):
+            origin = next(parent.get_children(), None)
+            if origin is not None and utils.is_typing_literal(origin):
+                return
+
         self._type_annotation_names.append(node.value)
 
 

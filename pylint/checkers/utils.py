@@ -1891,6 +1891,25 @@ def in_type_checking_block(node: nodes.NodeNG) -> bool:
     return False
 
 
+def is_typing_literal(node: nodes.NodeNG) -> bool:
+    """Check if a node refers to typing.Literal."""
+    if isinstance(node, nodes.Name):
+        import_from = node.lookup(node.name)[1][0]
+        if isinstance(import_from, nodes.ImportFrom):
+            return (
+                import_from.modname == "typing"
+                and import_from.real_name(node.name) == "Literal"
+            )
+    elif isinstance(node, nodes.Attribute):
+        inferred_module = safe_infer(node.expr)
+        return (
+            isinstance(inferred_module, nodes.Module)
+            and inferred_module.name == "typing"
+            and node.attrname == "Literal"
+        )
+    return False
+
+
 @lru_cache()
 def in_for_else_branch(parent: nodes.NodeNG, stmt: nodes.Statement) -> bool:
     """Returns True if stmt is inside the else branch for a parent For stmt."""
