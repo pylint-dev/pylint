@@ -14,13 +14,14 @@ import tokenize
 import traceback
 import warnings
 from collections import defaultdict
-from collections.abc import Callable, Iterable, Iterator, Sequence
+from collections.abc import Callable, Iterator, Sequence
 from io import TextIOWrapper
 from pathlib import Path
+from re import Pattern
 from typing import Any
 
 import astroid
-from astroid import AstroidError, nodes
+from astroid import nodes
 
 from pylint import checkers, exceptions, interfaces, reporters
 from pylint.checkers.base_checker import BaseChecker
@@ -307,6 +308,7 @@ class PyLinter(
         self.current_name: str | None = None
         self.current_file: str | None = None
         self._ignore_file = False
+        self._ignore_paths: list[Pattern[str]] = []
 
         # Attributes related to stats
         self.stats = LinterStats()
@@ -576,6 +578,7 @@ class PyLinter(
 
         This method is called before any linting is done.
         """
+        self._ignore_paths = self.config.ignore_paths
         # initialize msgs_state now that all messages have been registered into
         # the store
         for msg in self.msgs_store.messages:
@@ -623,7 +626,10 @@ class PyLinter(
 
         files_or_modules is either a string or list of strings presenting modules to check.
         """
+        # 1) Initialize
         self.initialize()
+
+        # 2) Gather all files
         if not isinstance(files_or_modules, (list, tuple)):
             # TODO: 3.0: Remove deprecated typing and update docstring
             warnings.warn(
@@ -639,31 +645,63 @@ class PyLinter(
                     "Missing filename required for --from-stdin"
                 )
 
-            filepath = files_or_modules[0]
-            with fix_import_path(files_or_modules):
-                if _is_ignored_file(
-                    filepath,
-                    self.config.ignore,
-                    self.config.ignore_patterns,
-                    self.config.ignore_paths,
-                ):
-                    return
-                self._check_files(
-                    functools.partial(self.get_ast, data=_read_stdin()),
-                    [self._get_file_descr_from_stdin(filepath)],
-                )
-        elif self.config.jobs == 1:
-            with fix_import_path(files_or_modules):
-                self._check_files(
-                    self.get_ast, self._iterate_file_descrs(files_or_modules)
-                )
-        else:
+        # TODO: Move the parallel invocation into step 5 of the checking process
+        if not self.config.from_stdin and self.config.jobs > 1:
+            original_sys_path = sys.path[:]
             check_parallel(
                 self,
                 self.config.jobs,
                 self._iterate_file_descrs(files_or_modules),
-                files_or_modules,
+                files_or_modules,  # this argument patches sys.path
             )
+            sys.path = original_sys_path
+            return
+
+        # 3) Get all FileItems
+        with fix_import_path(files_or_modules):
+            if self.config.from_stdin:
+                fileitems = iter(
+                    (self._get_file_descr_from_stdin(files_or_modules[0]),)
+                )
+                data: str | None = _read_stdin()
+            else:
+                fileitems = self._iterate_file_descrs(files_or_modules)
+                data = None
+
+        # The contextmanager also opens all checkers and sets up the PyLinter class
+        with self._astroid_module_checker() as check_astroid_module:
+            with fix_import_path(files_or_modules):
+                # 4) Get the AST for each FileItem
+                ast_per_fileitem = self._get_asts(fileitems, data)
+
+                # 5) Lint each ast
+                self._lint_files(ast_per_fileitem, check_astroid_module)
+
+    def _get_asts(
+        self, fileitems: Iterator[FileItem], data: str | None
+    ) -> dict[FileItem, nodes.Module | None]:
+        """Get the AST for all given FileItems."""
+        ast_per_fileitem: dict[FileItem, nodes.Module | None] = {}
+
+        for fileitem in fileitems:
+            self.set_current_module(fileitem.name, fileitem.filepath)
+
+            try:
+                ast_per_fileitem[fileitem] = self.get_ast(
+                    fileitem.filepath, fileitem.name, data
+                )
+            except astroid.AstroidBuildingError as ex:
+                template_path = prepare_crash_report(
+                    ex, fileitem.filepath, self.crash_file_path
+                )
+                msg = get_fatal_error_message(fileitem.filepath, template_path)
+                self.add_message(
+                    "astroid-error",
+                    args=(fileitem.filepath, msg),
+                    confidence=HIGH,
+                )
+
+        return ast_per_fileitem
 
     def check_single_file(self, name: str, filepath: str, modname: str) -> None:
         warnings.warn(
@@ -683,27 +721,61 @@ class PyLinter(
         with self._astroid_module_checker() as check_astroid_module:
             self._check_file(self.get_ast, check_astroid_module, file)
 
-    def _check_files(
+    def _lint_files(
         self,
-        get_ast: GetAstProtocol,
-        file_descrs: Iterable[FileItem],
+        ast_mapping: dict[FileItem, nodes.Module | None],
+        check_astroid_module: Callable[[nodes.Module], bool | None],
     ) -> None:
-        """Check all files from file_descrs."""
-        with self._astroid_module_checker() as check_astroid_module:
-            for file in file_descrs:
-                try:
-                    self._check_file(get_ast, check_astroid_module, file)
-                except Exception as ex:  # pylint: disable=broad-except
-                    template_path = prepare_crash_report(
-                        ex, file.filepath, self.crash_file_path
+        """Lint all AST modules from a mapping.."""
+        for fileitem, module in ast_mapping.items():
+            if module is None:
+                continue
+            try:
+                self._lint_file(fileitem, module, check_astroid_module)
+            except Exception as ex:  # pylint: disable=broad-except
+                template_path = prepare_crash_report(
+                    ex, fileitem.filepath, self.crash_file_path
+                )
+                msg = get_fatal_error_message(fileitem.filepath, template_path)
+                if isinstance(ex, astroid.AstroidError):
+                    self.add_message(
+                        "astroid-error", args=(fileitem.filepath, msg), confidence=HIGH
                     )
-                    msg = get_fatal_error_message(file.filepath, template_path)
-                    if isinstance(ex, AstroidError):
-                        symbol = "astroid-error"
-                        self.add_message(symbol, args=(file.filepath, msg))
-                    else:
-                        symbol = "fatal"
-                        self.add_message(symbol, args=msg)
+                else:
+                    self.add_message("fatal", args=msg, confidence=HIGH)
+
+    def _lint_file(
+        self,
+        file: FileItem,
+        module: nodes.Module,
+        check_astroid_module: Callable[[nodes.Module], bool | None],
+    ) -> None:
+        """Lint a file using the passed utility function check_astroid_module).
+
+        :param FileItem file: data about the file
+        :param nodes.Module module: the ast module to lint
+        :param Callable check_astroid_module: callable checking an AST taking the following arguments
+        - ast: AST of the module
+        :raises AstroidError: for any failures stemming from astroid
+        """
+        self.set_current_module(file.name, file.filepath)
+        self._ignore_file = False
+        self.file_state = FileState(file.modpath, self.msgs_store, module)
+        # fix the current file (if the source file was not available or
+        # if it's actually a c extension)
+        self.current_file = module.file
+
+        try:
+            check_astroid_module(module)
+        except Exception as e:
+            raise astroid.AstroidError from e
+
+        # warn about spurious inline messages handling
+        spurious_messages = self.file_state.iter_spurious_suppression_messages(
+            self.msgs_store
+        )
+        for msgid, line, args in spurious_messages:
+            self.add_message(msgid, line, None, args)
 
     def _check_file(
         self,
@@ -904,10 +976,10 @@ class PyLinter(
 
     def get_ast(
         self, filepath: str, modname: str, data: str | None = None
-    ) -> nodes.Module:
+    ) -> nodes.Module | None:
         """Return an ast(roid) representation of a module or a string.
 
-        :param str filepath: path to checked file.
+        :param filepath: path to checked file.
         :param str modname: The name of the module to be checked.
         :param str data: optional contents of the checked file.
         :returns: the AST
@@ -925,7 +997,8 @@ class PyLinter(
                 "syntax-error",
                 line=getattr(ex.error, "lineno", 0),
                 col_offset=getattr(ex.error, "offset", None),
-                args=str(ex.error),
+                args=f"Parsing failed: '{ex.error}'",
+                confidence=HIGH,
             )
         except astroid.AstroidBuildingError as ex:
             self.add_message("parse-error", args=ex)
@@ -1017,7 +1090,6 @@ class PyLinter(
                 self.config.extension_pkg_whitelist
             )
         self.stats.reset_message_count()
-        self._ignore_paths = self.linter.config.ignore_paths
 
     def generate_reports(self) -> int | None:
         """Close the whole package /module, it's time to make reports !

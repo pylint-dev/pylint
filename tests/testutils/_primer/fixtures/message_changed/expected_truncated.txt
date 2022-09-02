@@ -9,12 +9,12 @@ The following messages are now emitted:
 
 1) locally-disabled:
 *Locally disabling redefined-builtin [we added some text in the message] (W0622)*
-https://github.com/PyCQA/astroid/blob/main/astroid/__init__.py#L91
+https://github.com/PyCQA/astroid/blob/123456789abcdef/astroid/__init__.py#L91
 
 </details>
 
-The fol...
+The following message...
 
-*This comment was truncated because GitHub allows only 500 characters in a comment.*
+*This comment was truncated because GitHub allows only 525 characters in a comment.*
 
 *This comment was generated for commit v2.14.2*

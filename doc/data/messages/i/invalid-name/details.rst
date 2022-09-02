@@ -84,7 +84,7 @@ The following type of names are checked with a predefined pattern:
 | Name type          | Good names                                        | Bad names                                                  |
 +====================+===================================================+============================================================+
 | ``typevar``        | ``T``, ``_CallableT``, ``_T_co``, ``AnyStr``,     | ``DICT_T``, ``CALLABLE_T``, ``ENUM_T``, ``DeviceType``,    |
-|                    | ``DeviceTypeT``, ``IPAddressT``                   | ``_StrType``                                               |
+|                    | ``DeviceTypeT``, ``IPAddressT``                   | ``_StrType``, ``TAnyStr``                                  |
 +--------------------+---------------------------------------------------+------------------------------------------------------------+
 
 Custom regular expressions

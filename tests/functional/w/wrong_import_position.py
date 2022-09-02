@@ -1,6 +1,6 @@
 """Checks import order rule"""
 # pylint: disable=unused-import,ungrouped-imports,wrong-import-order
-# pylint: disable=import-error, too-few-public-methods, missing-docstring,using-constant-test, useless-object-inheritance
+# pylint: disable=import-error, too-few-public-methods, missing-docstring,using-constant-test
 import os.path
 
 if True:
@@ -8,13 +8,13 @@ if True:
 try:
     import sys
 except ImportError:
-    class Myclass(object):
+    class Myclass:
         """docstring"""
 
 if sys.version_info[0] >= 3:
     from collections import OrderedDict
 else:
-    class OrderedDict(object):
+    class OrderedDict:
         """Nothing to see here."""
         def some_func(self):
             pass

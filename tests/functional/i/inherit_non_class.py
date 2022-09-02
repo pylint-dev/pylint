@@ -1,8 +1,8 @@
 """Test that inheriting from something which is not
 a class emits a warning. """
 
-# pylint: disable=import-error, invalid-name, using-constant-test, useless-object-inheritance
-# pylint: disable=missing-docstring, too-few-public-methods
+# pylint: disable=import-error, invalid-name, using-constant-test
+# pylint: disable=missing-docstring, too-few-public-methods, useless-object-inheritance
 
 from missing import Missing
 
@@ -11,7 +11,7 @@ if 1:
 else:
     Ambiguous = int
 
-class Empty(object):
+class Empty:
     """ Empty class. """
 
 def return_class():
@@ -33,7 +33,7 @@ class Bad3(return_class): # [inherit-non-class]
 class Bad4(Empty()): # [inherit-non-class]
     """ Can't inherit from instance. """
 
-class Good(object):
+class Good:
     pass
 
 class Good1(int):
@@ -48,7 +48,7 @@ class Good3(type(int)):
 class Good4(return_class()):
     pass
 
-class Good5(Good4, int, object):
+class Good5(Good4, int):
     pass
 
 class Good6(Ambiguous):

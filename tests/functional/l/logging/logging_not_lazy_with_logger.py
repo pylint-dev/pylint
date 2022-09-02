@@ -3,7 +3,6 @@
 from __future__ import absolute_import
 import logging
 
-__revision__ = ''
 
 LOG = logging.getLogger("domain")
 LOG.debug("%s" % "junk")  # [logging-not-lazy]

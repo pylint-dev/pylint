@@ -357,6 +357,7 @@ vcg's
 vectorisation
 virtualized
 wc
+whitespaces
 xfails
 xml
 xyz

@@ -3,7 +3,8 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 from __future__ import annotations
 
-import git
+from git.cmd import Git
+from git.repo import Repo
 
 from pylint.testutils._primer.primer_command import PrimerCommand
 
@@ -18,13 +19,13 @@ class PrepareCommand(PrimerCommand):
                 commit_string += local_commit + "_"
         elif self.config.check:
             for package, data in self.packages.items():
-                local_commit = git.Repo(data.clone_directory).head.object.hexsha
+                local_commit = Repo(data.clone_directory).head.object.hexsha
                 print(f"Found '{package}' at commit '{local_commit}'.")
                 commit_string += local_commit + "_"
         elif self.config.make_commit_string:
             for package, data in self.packages.items():
                 remote_sha1_commit = (
-                    git.cmd.Git().ls_remote(data.url, data.branch).split("\t")[0]
+                    Git().ls_remote(data.url, data.branch).split("\t")[0]
                 )
                 print(f"'{package}' remote is at commit '{remote_sha1_commit}'.")
                 commit_string += remote_sha1_commit + "_"

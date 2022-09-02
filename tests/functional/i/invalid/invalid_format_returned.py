@@ -1,19 +1,19 @@
 """Check invalid value returned by __format__ """
 
-# pylint: disable=too-few-public-methods,missing-docstring,import-error,useless-object-inheritance,unnecessary-lambda-assignment
+# pylint: disable=too-few-public-methods,missing-docstring,import-error,unnecessary-lambda-assignment
 import six
 
 from missing import Missing
 
 
-class FirstGoodFormat(object):
+class FirstGoodFormat:
     """__format__ returns <type 'str'>"""
 
     def __format__(self, format_spec):
         return "some format"
 
 
-class SecondGoodFormat(object):
+class SecondGoodFormat:
     """__format__ returns <type 'str'>"""
 
     def __format__(self, format_spec):
@@ -26,38 +26,38 @@ class FormatMetaclass(type):
 
 
 @six.add_metaclass(FormatMetaclass)
-class ThirdGoodFormat(object):
+class ThirdGoodFormat:
     """Format through the metaclass."""
 
 
-class FirstBadFormat(object):
+class FirstBadFormat:
     """ __format__ returns bytes """
 
     def __format__(self, format_spec):  # [invalid-format-returned]
         return b"123"
 
 
-class SecondBadFormat(object):
+class SecondBadFormat:
     """ __format__ returns int """
 
     def __format__(self, format_spec):  # [invalid-format-returned]
         return 1
 
 
-class ThirdBadFormat(object):
+class ThirdBadFormat:
     """ __format__ returns node which does not have 'value' in AST """
 
     def __format__(self, format_spec):  # [invalid-format-returned]
         return lambda: "some format"
 
 
-class AmbiguousFormat(object):
+class AmbiguousFormat:
     """ Uninferable return value """
 
     __format__ = lambda self, format_spec: Missing
 
 
-class AnotherAmbiguousFormat(object):
+class AnotherAmbiguousFormat:
     """Potential uninferable return value"""
 
     def __format__(self, format_spec):

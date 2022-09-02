@@ -15,7 +15,7 @@ repos:
             doc/data/messages/t/trailing-newlines/bad.py|
           )$
   - repo: https://github.com/myint/autoflake
-    rev: v1.4
+    rev: v1.5.1
     hooks:
       - id: autoflake
         exclude: &fixtures tests(/\w*)*/functional/|tests/input|doc/data/messages|tests(/\w*)*data/
@@ -33,7 +33,7 @@ repos:
         exclude: tests(/\w*)*/functional/|tests/input|doc/data/messages|examples/|setup.py|tests(/\w*)*data/
         types: [python]
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.37.1
+    rev: v2.37.3
     hooks:
       - id: pyupgrade
         args: [--py37-plus]
@@ -50,11 +50,11 @@ repos:
         args: [--safe, --quiet]
         exclude: *fixtures
   - repo: https://github.com/Pierre-Sassoulas/black-disable-checker
-    rev: v1.1.0
+    rev: v1.1.1
     hooks:
       - id: black-disable-checker
   - repo: https://github.com/PyCQA/flake8
-    rev: 4.0.1
+    rev: 5.0.4
     hooks:
       - id: flake8
         additional_dependencies: [flake8-typing-imports==1.12.0]
@@ -93,14 +93,14 @@ repos:
         files: ^(doc/whatsnew/fragments)
         exclude: doc/whatsnew/fragments/_.*.rst
   - repo: https://github.com/rstcheck/rstcheck
-    rev: "v6.0.0.post1"
+    rev: "v6.1.0"
     hooks:
       - id: rstcheck
         args: ["--report-level=warning"]
         files: ^(doc/(.*/)*.*\.rst)
         additional_dependencies: [Sphinx==5.0.1]
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.961
+    rev: v0.971
     hooks:
       - id: mypy
         name: mypy
@@ -112,13 +112,13 @@ repos:
         additional_dependencies: ["platformdirs==2.2.0", "types-pkg_resources==0.1.3"]
         exclude: tests(/\w*)*/functional/|tests/input|tests(/.*)+/conftest.py|doc/data/messages|tests(/\w*)*data/
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v2.7.1
+    rev: v3.0.0-alpha.0
     hooks:
       - id: prettier
         args: [--prose-wrap=always, --print-width=88]
         exclude: tests(/\w*)*data/
   - repo: https://github.com/DanielNoord/pydocstringformatter
-    rev: v0.6.2
+    rev: v0.7.1
     hooks:
       - id: pydocstringformatter
         exclude: *fixtures

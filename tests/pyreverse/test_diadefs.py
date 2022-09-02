@@ -108,7 +108,8 @@ class TestDefaultDiadefGenerator:
     @pytest.mark.xfail
     def test_extract_relations(self, HANDLER: DiadefsHandler, PROJECT: Project) -> None:
         """Test extract_relations between classes."""
-        cd = DefaultDiadefGenerator(Linker(PROJECT), HANDLER).visit(PROJECT)[1]
+        with pytest.warns(DeprecationWarning):
+            cd = DefaultDiadefGenerator(Linker(PROJECT), HANDLER).visit(PROJECT)[1]
         cd.extract_relationships()
         relations = _process_relations(cd.relationships)
         assert relations == self._should_rels

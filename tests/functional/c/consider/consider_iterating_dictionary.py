@@ -1,11 +1,11 @@
 # pylint: disable=missing-docstring, expression-not-assigned, too-few-public-methods
-# pylint: disable=no-member, import-error, line-too-long, useless-object-inheritance
+# pylint: disable=no-member, import-error, line-too-long
 # pylint: disable=unnecessary-comprehension, use-dict-literal, use-implicit-booleaness-not-comparison
 
 from unknown import Unknown
 
 
-class CustomClass(object):
+class CustomClass:
     def keys(self):
         return []
 

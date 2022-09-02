@@ -1,5 +1,5 @@
 """Errors for invalid slice indices"""
-# pylint: disable=too-few-public-methods,missing-docstring,expression-not-assigned,useless-object-inheritance,unnecessary-pass
+# pylint: disable=too-few-public-methods,missing-docstring,expression-not-assigned,unnecessary-pass
 
 
 TESTLIST = [1, 2, 3]
@@ -16,7 +16,7 @@ def function2():
 def function3():
     """class without __index__ used as index"""
 
-    class NoIndexTest(object):
+    class NoIndexTest:
         """Class with no __index__ method"""
         pass
 
@@ -33,7 +33,7 @@ def function5():
 
 def function6():
     """class with __index__ used as index"""
-    class IndexTest(object):
+    class IndexTest:
         """Class with __index__ method"""
         def __index__(self):
             """Allow objects of this class to be used as slice indices"""
@@ -43,7 +43,7 @@ def function6():
 
 def function7():
     """class with __index__ in superclass used as index"""
-    class IndexType(object):
+    class IndexType:
         """Class with __index__ method"""
         def __index__(self):
             """Allow objects of this class to be used as slice indices"""

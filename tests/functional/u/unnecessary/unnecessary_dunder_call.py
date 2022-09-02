@@ -1,5 +1,5 @@
 """Checks for unnecessary-dunder-call."""
-# pylint: disable=too-few-public-methods, undefined-variable, useless-object-inheritance
+# pylint: disable=too-few-public-methods, undefined-variable
 # pylint: disable=missing-class-docstring, missing-function-docstring
 from collections import OrderedDict
 from typing import Any
@@ -26,19 +26,19 @@ def is_bigger_than_two(val):
 
 # Test dunder methods don't raise lint
 # if within a dunder method definition.
-class Foo1(object):
+class Foo1:
     def __init__(self):
         object.__init__(self)
 
-class Foo2(object):
+class Foo2:
     def __init__(self):
         super().__init__(self)
 
-class Bar1(object):
+class Bar1:
     def __new__(cls):
         object.__new__(cls)
 
-class Bar2(object):
+class Bar2:
     def __new__(cls):
         super().__new__(cls)
 
@@ -77,7 +77,7 @@ class MyClass(list):
         print("do some special checks")
         return super().__contains__(item)
 
-class PluginBase(object):
+class PluginBase:
     subclasses = []
 
     def __init_subclass__(cls, **kwargs):

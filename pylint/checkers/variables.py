@@ -1056,8 +1056,7 @@ class VariablesChecker(BaseChecker):
                 "default": IGNORED_ARGUMENT_NAMES,
                 "type": "regexp",
                 "metavar": "<regexp>",
-                "help": "Argument names that match this expression will be "
-                "ignored. Default to name with leading underscore.",
+                "help": "Argument names that match this expression will be ignored.",
             },
         ),
         (
@@ -1842,7 +1841,6 @@ class VariablesChecker(BaseChecker):
         base_scope_type,
         is_recursive_klass,
     ) -> tuple[bool, bool, bool]:
-        # pylint: disable=too-many-nested-blocks
         maybe_before_assign = True
         annotation_return = False
         use_outer_definition = False
@@ -2015,8 +2013,13 @@ class VariablesChecker(BaseChecker):
                                 for target in definition.targets
                                 if isinstance(target, nodes.AssignName)
                             )
-                            if defined_in_or_else:
-                                break
+                        elif isinstance(
+                            definition, (nodes.ClassDef, nodes.FunctionDef)
+                        ):
+                            defined_in_or_else = definition.name == node.name
+
+                        if defined_in_or_else:
+                            break
 
                     if not used_in_branch and not defined_in_or_else:
                         maybe_before_assign = True
@@ -2243,10 +2246,30 @@ class VariablesChecker(BaseChecker):
             self.add_message("undefined-loop-variable", args=node.name, node=node)
             return
         if any(
-            isinstance(else_stmt, (nodes.Return, nodes.Raise))
+            isinstance(
+                else_stmt, (nodes.Return, nodes.Raise, nodes.Break, nodes.Continue)
+            )
             for else_stmt in assign.orelse
         ):
             return
+
+        maybe_walrus = utils.get_node_first_ancestor_of_type(node, nodes.NamedExpr)
+        if maybe_walrus:
+            maybe_comprehension = utils.get_node_first_ancestor_of_type(
+                maybe_walrus, nodes.Comprehension
+            )
+            if maybe_comprehension:
+                comprehension_scope = utils.get_node_first_ancestor_of_type(
+                    maybe_comprehension, nodes.ComprehensionScope
+                )
+                if comprehension_scope is None:
+                    # Should not be possible.
+                    pass
+                elif (
+                    comprehension_scope.parent.scope() is scope
+                    and node.name in comprehension_scope.locals
+                ):
+                    return
 
         # For functions we can do more by inferring the length of the itered object
         try:

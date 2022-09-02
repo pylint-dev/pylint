@@ -6,9 +6,9 @@ unused-import:8:0:8:21::Unused flags imported from sys:UNDEFINED
 unused-import:10:0:10:51::Unused OrderedDict imported from collections:UNDEFINED
 unused-import:10:0:10:51::Unused deque imported from collections:UNDEFINED
 unused-import:11:0:11:22::Unused import re:UNDEFINED
-unused-import:15:0:15:40::Unused SomeOtherName imported from fake:UNDEFINED
-unused-import:50:0:50:9::Unused import os:UNDEFINED
-unused-import:81:4:81:19::Unused import unittest:UNDEFINED
-unused-import:83:4:83:15::Unused import uuid:UNDEFINED
-unused-import:85:4:85:19::Unused import warnings:UNDEFINED
-unused-import:87:4:87:21::Unused import compileall:UNDEFINED
+unused-import:14:0:14:40::Unused SomeOtherName imported from fake:UNDEFINED
+unused-import:46:0:46:9::Unused import os:UNDEFINED
+unused-import:77:4:77:19::Unused import unittest:UNDEFINED
+unused-import:79:4:79:15::Unused import uuid:UNDEFINED
+unused-import:81:4:81:19::Unused import warnings:UNDEFINED
+unused-import:83:4:83:21::Unused import compileall:UNDEFINED

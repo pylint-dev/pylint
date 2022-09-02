@@ -31,7 +31,8 @@
   },
   "31762852+mbyrnepr2@users.noreply.github.com": {
     "mails": ["31762852+mbyrnepr2@users.noreply.github.com", "mbyrnepr2@gmail.com"],
-    "name": "Mark Byrne"
+    "name": "Mark Byrne",
+    "team": "Maintainers"
   },
   "31987769+sushobhit27@users.noreply.github.com": {
     "mails": [
@@ -96,6 +97,10 @@
   "95424144+allanc65@users.noreply.github.com": {
     "mails": ["95424144+allanc65@users.noreply.github.com"],
     "name": "Allan Chandler"
+  },
+  "<awilliam@redhat.com>": {
+    "mails": ["awilliam@redhat.com", "adam@blueradius.ca"],
+    "name": "Adam Williamson"
   },
   "Adrien.DiMascio@logilab.fr": {
     "mails": ["Adrien.DiMascio@logilab.fr"],
@@ -189,9 +194,14 @@
     "name": "Bryce Guinta",
     "team": "Maintainers"
   },
-  "buck@yelp.com": {
-    "mails": ["buck@yelp.com", "buck.2019@gmail.com"],
-    "name": "Buck (Yelp)"
+  "buck.2019@gmail.com": {
+    "mails": [
+      "buck.2019@gmail.com",
+      "buck@yelp.com",
+      "workitharder@gmail.com",
+      "bukzor@google.com"
+    ],
+    "name": "Buck Evan"
   },
   "calen.pennington@gmail.com": {
     "mails": ["cale@edx.org", "calen.pennington@gmail.com"],
@@ -345,7 +355,7 @@
     "name": "Jacob Bogdanov"
   },
   "jacobtylerwalls@gmail.com": {
-    "mails": ["jacobtylerwalls@gmail.com"],
+    "mails": ["jacobtylerwalls@gmail.com", "jwalls@azavea.com"],
     "name": "Jacob Walls",
     "team": "Maintainers"
   },

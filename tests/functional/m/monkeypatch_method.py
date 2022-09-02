@@ -1,7 +1,7 @@
-# pylint: disable=missing-docstring,too-few-public-methods, useless-object-inheritance
+# pylint: disable=missing-docstring,too-few-public-methods
 '''Test that a function is considered a method when looked up through a class.'''
 
-class Clazz(object):
+class Clazz:
     'test class'
 
     def __init__(self, value):

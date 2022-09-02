@@ -1,11 +1,10 @@
 # pylint: disable=invalid-name,too-many-public-methods,attribute-defined-outside-init
-# pylint: disable=useless-object-inheritance,too-few-public-methods,deprecated-module
+# pylint: disable=too-few-public-methods,deprecated-module
 """This module demonstrates a possible problem of pyLint with calling __init__ s
 from inherited classes.
 Initializations done there are not considered, which results in Error E0203 for
 self.cookedq."""
 
-from __future__ import print_function
 
 import telnetlib
 
@@ -37,7 +36,7 @@ class SeeTelnet(telnetlib.Telnet):
             if len(match) > maxLength:
                 maxLength = len(match)
 
-class Base(object):
+class Base:
     """bla bla"""
     dougloup_papa = None
 
@@ -66,7 +65,7 @@ class Derived(Base):
         self.dougloup_moi = True
 
 
-class QoSALConnection(object):
+class QoSALConnection:
     """blabla"""
 
     _the_instance = None
@@ -79,7 +78,7 @@ class QoSALConnection(object):
     def __init__(self):
         pass
 
-class DefinedOutsideInit(object):
+class DefinedOutsideInit:
     """use_attr is seen as the method defining attr because its in
     first position
     """

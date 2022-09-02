@@ -1,8 +1,7 @@
 """Warning about assigning self/cls variable."""
-from __future__ import print_function
-# pylint: disable=too-few-public-methods, useless-object-inheritance
+# pylint: disable=too-few-public-methods
 
-class Foo(object):
+class Foo:
     """Class with methods that check for self/cls assignment"""
 
     # pylint: disable=no-self-argument

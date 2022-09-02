@@ -1,3 +1,0 @@
-Pylint now uses ``towncrier`` for changelog generation.
-
-Refs #6974

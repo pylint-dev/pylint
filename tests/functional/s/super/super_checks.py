@@ -1,4 +1,4 @@
-# pylint: disable=too-few-public-methods,import-error, missing-docstring, useless-object-inheritance
+# pylint: disable=too-few-public-methods,import-error, missing-docstring
 # pylint: disable=useless-super-delegation,wrong-import-position,invalid-name, wrong-import-order
 # pylint: disable=super-with-arguments
 from unknown import Missing
@@ -12,7 +12,7 @@ class Aaaa:
     def __init__(self):
         super(Aaaa, self).__init__()
 
-class NewAaaa(object):
+class NewAaaa:
     """old style"""
     def hop(self):
         """hop"""
@@ -36,19 +36,19 @@ class WrongNameRegression(Py3kAaaa):
     def __init__(self):
         super(Missing, self).__init__()  # [bad-super-call]
 
-class Getattr(object):
+class Getattr:
     """ crash """
     name = NewAaaa
 
-class CrashSuper(object):
+class CrashSuper:
     """ test a crash with this checker """
     def __init__(self):
         super(Getattr.name, self).__init__()  # [bad-super-call]
 
-class Empty(object):
+class Empty:
     """Just an empty class."""
 
-class SuperDifferentScope(object):
+class SuperDifferentScope:
     """Don'emit bad-super-call when the super call is in another scope.
     For reference, see https://bitbucket.org/logilab/pylint/issue/403.
     """
@@ -72,7 +72,7 @@ class UnknownBases(Missing):
 
 # Test that we are detecting proper super errors.
 
-class BaseClass(object):
+class BaseClass:
 
     not_a_method = 42
 
@@ -114,12 +114,12 @@ except AttributeError:
             super(TimeoutExpired, self).__init__("", returncode)
 
 
-class SuperWithType(object):
+class SuperWithType:
     """type(self) may lead to recursion loop in derived classes"""
     def __init__(self):
         super(type(self), self).__init__() # [bad-super-call]
 
-class SuperWithSelfClass(object):
+class SuperWithSelfClass:
     """self.__class__ may lead to recursion loop in derived classes"""
     def __init__(self):
         super(self.__class__, self).__init__() # [bad-super-call]

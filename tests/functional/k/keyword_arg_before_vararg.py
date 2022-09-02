@@ -1,7 +1,6 @@
 """Unittests for W1125 (kw args before *args)"""
-from __future__ import absolute_import, print_function
 
-# pylint: disable=unused-argument, useless-object-inheritance, unnecessary-pass
+# pylint: disable=unused-argument, unnecessary-pass
 def check_kwargs_before_args(param1, param2=2, *args): # [keyword-arg-before-vararg]
     """docstring"""
     pass
@@ -9,7 +8,7 @@ def check_kwargs_before_args(param1, param2=2, *args): # [keyword-arg-before-var
 check_kwargs_before_args(5)
 
 # pylint: disable=too-few-public-methods, invalid-name
-class AAAA(object):
+class AAAA:
     """class AAAA"""
     def func_in_class(self, param1, param2=2, *args): # [keyword-arg-before-vararg]
         "method in class AAAA"

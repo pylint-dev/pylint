@@ -37,7 +37,7 @@ dependencies    = [
     # Also upgrade requirements_test_min.txt if you are bumping astroid.
     # Pinned to dev of second minor update to allow editable installs and fix primer issues,
     # see https://github.com/PyCQA/astroid/issues/1341
-    "astroid>=2.12.2,<=2.14.0-dev0",
+    "astroid>=2.12.5,<=2.14.0-dev0",
     "isort>=4.2.5,<6",
     "mccabe>=0.6,<0.8",
     "tomli>=1.1.0;python_version<'3.11'",
@@ -54,10 +54,11 @@ spelling = ["pyenchant~=3.2"]
 [project.urls]
 "Docs: User Guide"  = "https://pylint.pycqa.org/en/latest/"
 "Source Code"       = "https://github.com/PyCQA/pylint"
+"homepage"          = "https://github.com/PyCQA/pylint"
 "What's New"        = "https://pylint.pycqa.org/en/latest/whatsnew/2/"
 "Bug Tracker"       = "https://github.com/PyCQA/pylint/issues"
 "Discord Server"    = "https://discord.com/invite/Egy6P8AMB5"
-"Docs: Contributer Guide" = "https://pylint.pycqa.org/en/latest/development_guide/contributor_guide/index.html"
+"Docs: Contributor Guide" = "https://pylint.pycqa.org/en/latest/development_guide/contributor_guide/index.html"
 
 [project.scripts]
 pylint        = "pylint:run_pylint"

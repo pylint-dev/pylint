@@ -1,6 +1,6 @@
-# pylint: disable=missing-docstring, useless-object-inheritance
+# pylint: disable=missing-docstring
 
-class Aaaa(object): # [too-many-public-methods]
+class Aaaa: # [too-many-public-methods]
 
     def __init__(self):
         pass

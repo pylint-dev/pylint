@@ -1,11 +1,10 @@
-# pylint: disable=too-few-public-methods, useless-object-inheritance
+# pylint: disable=too-few-public-methods
 """
 Simple test case for an annoying behavior in pylint.
 """
 
-__revision__ = 'pouet'
 
-class Test(object):
+class Test:
     """Smallest test case for reported issue."""
 
     def __init__(self):

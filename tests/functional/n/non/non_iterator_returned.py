@@ -1,9 +1,9 @@
 """Check non-iterators returned by __iter__ """
 
-# pylint: disable=too-few-public-methods, missing-docstring, useless-object-inheritance, consider-using-with
+# pylint: disable=too-few-public-methods, missing-docstring, consider-using-with
 
 
-class FirstGoodIterator(object):
+class FirstGoodIterator:
     """ yields in iterator. """
 
     def __iter__(self):
@@ -11,7 +11,7 @@ class FirstGoodIterator(object):
             yield index
 
 
-class SecondGoodIterator(object):
+class SecondGoodIterator:
     """ __iter__ and next """
 
     def __iter__(self):
@@ -26,14 +26,14 @@ class SecondGoodIterator(object):
         return 1
 
 
-class ThirdGoodIterator(object):
+class ThirdGoodIterator:
     """ Returns other iterator, not the current instance """
 
     def __iter__(self):
         return SecondGoodIterator()
 
 
-class FourthGoodIterator(object):
+class FourthGoodIterator:
     """ __iter__ returns iter(...) """
 
     def __iter__(self):
@@ -48,18 +48,18 @@ class IteratorMetaclass(type):
         return 2
 
 
-class IteratorClass(object, metaclass=IteratorMetaclass):
+class IteratorClass(metaclass=IteratorMetaclass):
     """Iterable through the metaclass."""
 
 
-class FifthGoodIterator(object):
+class FifthGoodIterator:
     """__iter__ returns a class which uses an iterator-metaclass."""
 
     def __iter__(self):
         return IteratorClass
 
 
-class FileBasedIterator(object):
+class FileBasedIterator:
     def __init__(self, path):
         self.path = path
         self.file = None
@@ -73,28 +73,28 @@ class FileBasedIterator(object):
         return self.file
 
 
-class FirstBadIterator(object):
+class FirstBadIterator:
     """ __iter__ returns a list """
 
     def __iter__(self):  # [non-iterator-returned]
         return []
 
 
-class SecondBadIterator(object):
+class SecondBadIterator:
     """ __iter__ without next """
 
     def __iter__(self):  # [non-iterator-returned]
         return self
 
 
-class ThirdBadIterator(object):
+class ThirdBadIterator:
     """ __iter__ returns an instance of another non-iterator """
 
     def __iter__(self):  # [non-iterator-returned]
         return SecondBadIterator()
 
 
-class FourthBadIterator(object):
+class FourthBadIterator:
     """__iter__ returns a class."""
 
     def __iter__(self):  # [non-iterator-returned]
