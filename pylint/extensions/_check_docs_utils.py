@@ -806,6 +806,13 @@ class NumpyDocstring(GoogleDocstring):
                 param_name = match.group("param_name")
                 param_type = match.group("param_type")
                 param_desc = match.group("param_desc")
+                # The re_param_line pattern needs to match multi-line which removes the ability
+                # to match a single line description like 'arg : a number type.'
+                # We are not trying to determine whether 'a number type' is correct typing
+                # but we do accept it as typing as it is in the place where typing
+                # should be
+                if param_type is None and re.match(r"\s*(\*{0,2}\w+)\s*:.+$", entry):
+                    param_type = param_desc
 
             if param_type:
                 params_with_type.add(param_name)
