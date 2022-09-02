@@ -1,2 +1,0 @@
-unused-import:4:0:4:20::Unused argv imported from sys:UNDEFINED
-unused-import:5:0:5:28::Unused version_info imported from sys:UNDEFINED
