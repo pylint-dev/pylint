@@ -1,0 +1,3 @@
+Pylint now tries to patch ``sys.path`` on a per file basis instead of per run.
+
+Closes #7339

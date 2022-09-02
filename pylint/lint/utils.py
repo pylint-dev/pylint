@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import contextlib
+import os
 import sys
 import traceback
 from collections.abc import Iterator, Sequence
@@ -12,7 +13,24 @@ from datetime import datetime
 from pathlib import Path
 
 from pylint.config import PYLINT_HOME
-from pylint.lint.expand_modules import get_python_path
+
+
+def get_python_path(filepath: str) -> str:
+    """TODO This get the python path with the (bad) assumption that there is always
+    an __init__.py.
+
+    This is not true since python 3.3 and is causing problem.
+    """
+    dirname = os.path.realpath(os.path.expanduser(filepath))
+    if not os.path.isdir(dirname):
+        dirname = os.path.dirname(dirname)
+    while True:
+        if not os.path.exists(os.path.join(dirname, "__init__.py")):
+            return dirname
+        old_dirname = dirname
+        dirname = os.path.dirname(dirname)
+        if old_dirname == dirname:
+            return os.getcwd()
 
 
 def prepare_crash_report(ex: Exception, filepath: str, crash_file_path: str) -> Path:

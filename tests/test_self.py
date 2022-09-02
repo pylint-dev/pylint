@@ -267,7 +267,7 @@ class TestRunTC:
         module2 = join(HERE, "regrtest_data", "wrong_import_position.py")
         expected_output = textwrap.dedent(
             f"""
-        ************* Module wrong_import_position
+        ************* Module regrtest_data.wrong_import_position
         {module2}:11:0: C0413: Import "import os" should be placed at the top of the module (wrong-import-position)
         """
         )
@@ -325,7 +325,7 @@ class TestRunTC:
             "line": 1,
             "type": "error",
             "symbol": "syntax-error",
-            "module": "syntax_error",
+            "module": "regrtest_data.syntax_error",
         }
         message = output[0]
         for key, value in expected.items():
@@ -368,7 +368,7 @@ class TestRunTC:
         assert isinstance(output[0], dict)
         expected = {
             "symbol": "unused-variable",
-            "module": "unused_variable",
+            "module": "regrtest_data.unused_variable",
             "column": 4,
             "message": "Unused variable 'variable'",
             "message-id": "W0612",
@@ -389,7 +389,7 @@ class TestRunTC:
         module = join(HERE, "regrtest_data", "application_crash.py")
         expected_output = textwrap.dedent(
             f"""
-        ************* Module application_crash
+        ************* Module regrtest_data.application_crash
         {module}:1:6: E0602: Undefined variable 'something_undefined' (undefined-variable)
         """
         )
@@ -446,7 +446,7 @@ class TestRunTC:
         config_path = join(HERE, "regrtest_data", "comments_pylintrc")
         expected = textwrap.dedent(
             f"""
-        ************* Module test_pylintrc_comments
+        ************* Module regrtest_data.test_pylintrc_comments
         {path}:2:0: W0311: Bad indentation. Found 1 spaces, expected 4 (bad-indentation)
         {path}:1:0: C0114: Missing module docstring (missing-module-docstring)
         {path}:1:0: C0116: Missing function or method docstring (missing-function-docstring)
