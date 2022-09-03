@@ -524,6 +524,7 @@ def test_load_plugin_command_line() -> None:
 
     sys.path.remove(dummy_plugin_path)
 
+
 @pytest.mark.usefixtures("pop_pylintrc")
 def test_load_plugin_command_line_and_config_with_inithook_in_config_bad_value() -> None:
     dummy_plugin_path = abspath(join(REGRTEST_DATA_DIR, "dummy_plugin"))
@@ -535,8 +536,7 @@ def test_load_plugin_command_line_and_config_with_inithook_in_config_bad_value()
                 [
                     "[MASTER]\n",
                     f"init-hook=\"import sys; sys.path.append('{home_path}')\"\n",
-                    "load-plugins=copy_dummy\n"
-
+                    "load-plugins=copy_dummy\n",
                 ]
             )
 
@@ -589,6 +589,7 @@ def test_load_plugin_command_line_and_config_with_inithook_in_config_bad_value()
         )
 
         sys.path.remove(home_path)
+
 
 @pytest.mark.usefixtures("pop_pylintrc")
 def test_load_plugin_command_line_with_inithook_in_config_bad_value() -> None:
