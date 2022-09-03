@@ -12,7 +12,7 @@ import os
 import re
 import sys
 import tempfile
-from collections.abc import Iterable, Iterator
+from collections.abc import Iterator
 from contextlib import contextmanager
 from importlib import reload
 from io import StringIO
@@ -23,6 +23,7 @@ from shutil import rmtree
 
 import platformdirs
 import pytest
+from astroid import nodes
 from pytest import CaptureFixture
 
 from pylint import checkers, config, exceptions, interfaces, lint, testutils
@@ -59,7 +60,7 @@ else:
 
 
 @contextmanager
-def fake_home() -> Iterator:
+def fake_home() -> Iterator[None]:
     folder = tempfile.mkdtemp("fake-home")
     old_home = os.environ.get(HOME)
     try:
@@ -74,7 +75,7 @@ def fake_home() -> Iterator:
         rmtree(folder, ignore_errors=True)
 
 
-def remove(file):
+def remove(file: str) -> None:
     try:
         os.remove(file)
     except OSError:
@@ -108,9 +109,9 @@ def tempdir() -> Iterator[str]:
 
 
 @pytest.fixture
-def fake_path() -> Iterator[Iterable[str]]:
+def fake_path() -> Iterator[list[str]]:
     orig = list(sys.path)
-    fake: Iterable[str] = ["1", "2", "3"]
+    fake = ["1", "2", "3"]
     sys.path[:] = fake
     yield fake
     sys.path[:] = orig
@@ -145,7 +146,7 @@ def test_one_arg(fake_path: list[str], case: list[str]) -> None:
         ["a", "a/c/__init__.py"],
     ],
 )
-def test_two_similar_args(fake_path, case):
+def test_two_similar_args(fake_path: list[str], case: list[str]) -> None:
     with tempdir() as chroot:
         create_files(["a/b/__init__.py", "a/c/__init__.py"])
         expected = [join(chroot, "a")] + fake_path
@@ -164,7 +165,7 @@ def test_two_similar_args(fake_path, case):
         ["a/b/c", "a", "a/b/c", "a/e", "a"],
     ],
 )
-def test_more_args(fake_path, case):
+def test_more_args(fake_path: list[str], case: list[str]) -> None:
     with tempdir() as chroot:
         create_files(["a/b/c/__init__.py", "a/d/__init__.py", "a/e/f.py"])
         expected = [
@@ -179,12 +180,12 @@ def test_more_args(fake_path, case):
 
 
 @pytest.fixture(scope="module")
-def disable():
+def disable() -> list[str]:
     return ["I"]
 
 
 @pytest.fixture(scope="module")
-def reporter():
+def reporter() -> type[testutils.GenericTestReporter]:
     return testutils.GenericTestReporter
 
 
@@ -208,7 +209,7 @@ def test_pylint_visit_method_taken_in_account(linter: PyLinter) -> None:
         msgs = {"W9999": ("", "custom", "")}
 
         @only_required_for_messages("custom")
-        def visit_class(self, _):
+        def visit_class(self, _: nodes.ClassDef) -> None:
             pass
 
     linter.register_checker(CustomChecker(linter))
@@ -615,7 +616,7 @@ def test_full_documentation(linter: PyLinter) -> None:
 
 
 def test_list_msgs_enabled(
-    initialized_linter: PyLinter, capsys: CaptureFixture
+    initialized_linter: PyLinter, capsys: CaptureFixture[str]
 ) -> None:
     linter = initialized_linter
     linter.enable("W0101", scope="package")
@@ -669,7 +670,7 @@ def test_pylint_home_from_environ() -> None:
         del os.environ["PYLINTHOME"]
 
 
-def test_warn_about_old_home(capsys: CaptureFixture) -> None:
+def test_warn_about_old_home(capsys: CaptureFixture[str]) -> None:
     """Test that we correctly warn about old_home."""
     # Create old home
     old_home = Path(USER_HOME) / OLD_DEFAULT_PYLINT_HOME
@@ -882,7 +883,7 @@ def test_by_module_statement_value(initialized_linter: PyLinter) -> None:
         ("--ignore-paths", ".*ignored.*/failing.*"),
     ],
 )
-def test_recursive_ignore(ignore_parameter, ignore_parameter_value) -> None:
+def test_recursive_ignore(ignore_parameter: str, ignore_parameter_value: str) -> None:
     run = Run(
         [
             "--recursive",
