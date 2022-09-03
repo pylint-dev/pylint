@@ -2913,9 +2913,8 @@ class VariablesChecker(BaseChecker):
         "unused-variable",
     )
     def visit_const(self, node: nodes.Const) -> None:
-        """Take note of names that appear inside string literal type annotations...
-
-        ...Unless the string is a parameter to typing.Literal.
+        """Take note of names that appear inside string literal type annotations
+        unless the string is a parameter to typing.Literal.
         """
         if node.pytype() != "builtins.str":
             return
@@ -2926,7 +2925,7 @@ class VariablesChecker(BaseChecker):
                 annotation = extract_node(node.value)
                 self._store_type_annotation_node(annotation)
             except ValueError:
-                # e.g. node.value is whitespace
+                # e.g. node.value is white space
                 return
             except astroid.AstroidSyntaxError:
                 # e.g. "?" or ":" in typing.Literal["?", ":"]

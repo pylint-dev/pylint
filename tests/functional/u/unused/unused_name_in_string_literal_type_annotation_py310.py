@@ -1,4 +1,5 @@
 # pylint: disable=missing-docstring
+
 from typing import TypeAlias
 
 def unused_variable_should_not_be_emitted():

@@ -1,4 +1,5 @@
 # pylint: disable=missing-docstring
+
 from argparse import ArgumentParser # [unused-import]
 from argparse import Namespace  # [unused-import]
 from typing import Literal as Lit

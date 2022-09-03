@@ -1,4 +1,6 @@
 """Test if pylint sees names inside string literal type annotations. #3299"""
+# pylint: disable=too-few-public-methods
+
 from argparse import ArgumentParser, Namespace
 import os
 from os import PathLike
@@ -19,7 +21,6 @@ def example3(_: "os.PathLike[str]") -> None:
 def example4(_: "PathLike[str]") -> None:
     """unused-import shouldn't be emitted for PathLike."""
 
-# pylint: disable=too-few-public-methods
 class Class:
     """unused-import shouldn't be emitted for Namespace"""
     cls: "Namespace"
