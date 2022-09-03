@@ -19,7 +19,7 @@ from functools import lru_cache
 from typing import TYPE_CHECKING, Any, NamedTuple
 
 import astroid
-from astroid import nodes
+from astroid import extract_node, nodes
 from astroid.typing import InferenceResult
 
 from pylint.checkers import BaseChecker, utils
@@ -2922,6 +2922,8 @@ class VariablesChecker(BaseChecker):
         if not utils.is_node_in_type_annotation_context(node):
             return
         if not node.value.isidentifier():
+            annotation = extract_node(node.value)
+            self._store_type_annotation_node(annotation)
             return
 
         # Check if parent's or grandparent's first child is typing.Literal
