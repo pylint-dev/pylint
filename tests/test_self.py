@@ -27,14 +27,14 @@ from unittest import mock
 from unittest.mock import patch
 
 import pytest
-from py._path.local import LocalPath  # type: ignore[import]
+from py._path.local import LocalPath
 
 from pylint import extensions, modify_sys_path
 from pylint.constants import MAIN_CHECKER_NAME, MSG_TYPES_STATUS
 from pylint.lint.pylinter import PyLinter
 from pylint.message import Message
-from pylint.reporters import JSONReporter
-from pylint.reporters.text import BaseReporter, ColorizedTextReporter, TextReporter
+from pylint.reporters import BaseReporter, JSONReporter
+from pylint.reporters.text import ColorizedTextReporter, TextReporter
 from pylint.testutils._run import _add_rcfile_default_pylintrc
 from pylint.testutils._run import _Run as Run
 from pylint.testutils.utils import (
@@ -62,7 +62,7 @@ UNNECESSARY_LAMBDA = join(
 
 
 @contextlib.contextmanager
-def _configure_lc_ctype(lc_ctype: str) -> Iterator:
+def _configure_lc_ctype(lc_ctype: str) -> Iterator[None]:
     lc_ctype_env = "LC_CTYPE"
     original_lctype = os.environ.get(lc_ctype_env)
     os.environ[lc_ctype_env] = lc_ctype
@@ -472,7 +472,7 @@ class TestRunTC:
             self._test_output([module, "-E"], expected_output=expected_output)
 
     @pytest.mark.skipif(sys.platform == "win32", reason="only occurs on *nix")
-    def test_parseable_file_path(self):
+    def test_parseable_file_path(self) -> None:
         file_name = "test_target.py"
         fake_path = HERE + os.getcwd()
         module = join(fake_path, file_name)
@@ -498,7 +498,7 @@ class TestRunTC:
             ("mymodule.py", "mymodule", "mymodule.py"),
         ],
     )
-    def test_stdin(self, input_path, module, expected_path):
+    def test_stdin(self, input_path: str, module: str, expected_path: str) -> None:
         expected_output = f"""************* Module {module}
 {expected_path}:1:0: W0611: Unused import os (unused-import)
 
@@ -517,7 +517,7 @@ class TestRunTC:
         self._runtest(["--from-stdin"], code=32)
 
     @pytest.mark.parametrize("write_bpy_to_disk", [False, True])
-    def test_relative_imports(self, write_bpy_to_disk, tmpdir):
+    def test_relative_imports(self, write_bpy_to_disk: bool, tmpdir: LocalPath) -> None:
         a = tmpdir.join("a")
 
         b_code = textwrap.dedent(
@@ -708,7 +708,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
             (-10, "C0115", "fail_under_plus7_5.py", 0),
         ],
     )
-    def test_fail_on(self, fu_score, fo_msgs, fname, out):
+    def test_fail_on(self, fu_score: int, fo_msgs: str, fname: str, out: int) -> None:
         self._runtest(
             [
                 "--fail-under",
@@ -736,7 +736,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
             (["--fail-on=C0116", "--disable=C0116"], 16),
         ],
     )
-    def test_fail_on_edge_case(self, opts, out):
+    def test_fail_on_edge_case(self, opts: list[str], out: int) -> None:
         self._runtest(
             opts + [join(HERE, "regrtest_data", "fail_under_plus7_5.py")],
             code=out,
@@ -967,7 +967,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
             (["--fail-on=useless-suppression", "--enable=C"], 22),
         ],
     )
-    def test_fail_on_exit_code(self, args, expected):
+    def test_fail_on_exit_code(self, args: list[str], expected: int) -> None:
         path = join(HERE, "regrtest_data", "fail_on.py")
         # We set fail-under to be something very low so that even with the warnings
         # and errors that are generated they don't affect the exit code.
@@ -993,7 +993,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
             (["--fail-on=useless-suppression", "--enable=C"], 1),
         ],
     )
-    def test_fail_on_info_only_exit_code(self, args, expected):
+    def test_fail_on_info_only_exit_code(self, args: list[str], expected: int) -> None:
         path = join(HERE, "regrtest_data", "fail_on_info_only.py")
         self._runtest([path] + args, code=expected)
 
@@ -1020,8 +1020,8 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
         ],
     )
     def test_output_file_can_be_combined_with_output_format_option(
-        self, tmpdir, output_format, expected_output
-    ):
+        self, tmpdir: LocalPath, output_format: str, expected_output: str
+    ) -> None:
         path = join(HERE, "regrtest_data", "unused_variable.py")
         output_file = tmpdir / "output.txt"
         self._test_output_file(
