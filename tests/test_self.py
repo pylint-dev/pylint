@@ -1128,6 +1128,20 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
             code=0,
         )
 
+    def test_ignore_pattern_from_stdin(self) -> None:
+        """Test if linter ignores standard input if the filename matches the ignore pattern."""
+        with mock.patch("pylint.lint.pylinter._read_stdin", return_value="import os\n"):
+            self._runtest(
+                [
+                    "--from-stdin",
+                    "mymodule.py",
+                    "--disable=all",
+                    "--enable=unused-import",
+                    "--ignore-patterns=mymodule.py",
+                ],
+                code=0,
+            )
+
     @pytest.mark.parametrize("ignore_path_value", [".*ignored.*", ".*failing.*"])
     def test_ignore_path_recursive(self, ignore_path_value: str) -> None:
         """Tests recursive run of linter ignoring directory using --ignore-path parameter.
