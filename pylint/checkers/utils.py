@@ -1894,7 +1894,10 @@ def in_type_checking_block(node: nodes.NodeNG) -> bool:
 def is_typing_literal(node: nodes.NodeNG) -> bool:
     """Check if a node refers to typing.Literal."""
     if isinstance(node, nodes.Name):
-        import_from = node.lookup(node.name)[1][0]
+        try:
+            import_from = node.lookup(node.name)[1][0]
+        except IndexError:
+            return False
         if isinstance(import_from, nodes.ImportFrom):
             return (
                 import_from.modname == "typing"
