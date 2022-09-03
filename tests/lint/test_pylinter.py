@@ -7,7 +7,7 @@ from unittest import mock
 from unittest.mock import patch
 
 import pytest
-from py._path.local import LocalPath  # type: ignore[import]
+from py._path.local import LocalPath
 from pytest import CaptureFixture
 
 from pylint.lint.pylinter import PyLinter

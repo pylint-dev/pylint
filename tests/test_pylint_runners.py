@@ -14,7 +14,7 @@ from typing import Any
 from unittest.mock import MagicMock, mock_open, patch
 
 import pytest
-from py._path.local import LocalPath  # type: ignore[import]
+from py._path.local import LocalPath
 
 from pylint import run_epylint, run_pylint, run_pyreverse, run_symilar
 from pylint.lint import Run
