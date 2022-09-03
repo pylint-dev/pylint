@@ -109,7 +109,8 @@ repos:
         types: [python]
         args: []
         require_serial: true
-        additional_dependencies: ["platformdirs==2.2.0", "types-pkg_resources==0.1.3"]
+        additional_dependencies:
+          ["platformdirs==2.2.0", "types-pkg_resources==0.1.3", "py==1.11"]
         exclude: tests(/\w*)*/functional/|tests/input|tests(/.*)+/conftest.py|doc/data/messages|tests(/\w*)*data/
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v3.0.0-alpha.0
