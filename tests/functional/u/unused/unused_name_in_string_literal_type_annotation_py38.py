@@ -13,3 +13,7 @@ def unused_variable_example():
     world = "world" # [unused-variable]
     example2: Lit["hello", "world"] = "hello"
     return example2
+
+
+# pylint shouldn't crash with the following strings in a type annotation context
+example3: Lit["", " ", "?"] = "?"
