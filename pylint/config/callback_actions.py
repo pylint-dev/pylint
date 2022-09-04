@@ -374,7 +374,7 @@ class _XableAction(_AccessLinterObjectAction):
         xabling_function: Callable[[str], None],
         values: str | Sequence[Any] | None,
         option_string: str | None,
-    ):
+    ) -> None:
         assert isinstance(values, (tuple, list))
         for msgid in utils._check_csv(values[0]):
             try:

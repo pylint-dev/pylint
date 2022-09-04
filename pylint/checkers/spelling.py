@@ -55,10 +55,10 @@ except ImportError:
         pass
 
     def get_tokenizer(
-        tag: str | None = None,
-        chunkers: list[Chunker] | None = None,
-        filters: list[Filter] | None = None,
-    ):  # pylint: disable=unused-argument
+        tag: str | None = None,  # pylint: disable=unused-argument
+        chunkers: list[Chunker] | None = None,  # pylint: disable=unused-argument
+        filters: list[Filter] | None = None,  # pylint: disable=unused-argument
+    ) -> Filter:
         return Filter()
 
 

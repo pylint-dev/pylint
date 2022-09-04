@@ -40,7 +40,7 @@ def _regexp_csv_validator(
 
 
 def _regexp_paths_csv_validator(
-    _, name: str, value: str | list[Pattern[str]]
+    _: Any, name: str, value: str | list[Pattern[str]]
 ) -> list[Pattern[str]]:
     if isinstance(value, list):
         return value
