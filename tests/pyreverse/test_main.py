@@ -45,7 +45,7 @@ def mock_graphviz(mock_subprocess):
 
 
 @pytest.fixture(params=[PROJECT_ROOT_DIR, TEST_DATA_DIR])
-def setup_path(request) -> Iterator:
+def setup_path(request) -> Iterator[None]:
     current_sys_path = list(sys.path)
     sys.path[:] = []
     current_dir = os.getcwd()

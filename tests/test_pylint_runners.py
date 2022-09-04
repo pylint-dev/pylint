@@ -8,9 +8,9 @@ from __future__ import annotations
 import os
 import pathlib
 import sys
-from collections.abc import Callable
+from collections.abc import Sequence
 from io import BufferedReader
-from typing import Any
+from typing import Any, NoReturn
 from unittest.mock import MagicMock, mock_open, patch
 
 import pytest
@@ -20,11 +20,21 @@ from pylint import run_epylint, run_pylint, run_pyreverse, run_symilar
 from pylint.lint import Run
 from pylint.testutils import GenericTestReporter as Reporter
 
+if sys.version_info >= (3, 8):
+    from typing import Protocol
+else:
+    from typing_extensions import Protocol
+
+
+class _RunCallable(Protocol):  # pylint: disable=too-few-public-methods
+    def __call__(self, argv: Sequence[str] | None = None) -> NoReturn | None:
+        ...
+
 
 @pytest.mark.parametrize(
     "runner", [run_epylint, run_pylint, run_pyreverse, run_symilar]
 )
-def test_runner(runner: Callable, tmpdir: LocalPath) -> None:
+def test_runner(runner: _RunCallable, tmpdir: LocalPath) -> None:
     filepath = os.path.abspath(__file__)
     testargs = ["", filepath]
     with tmpdir.as_cwd():
@@ -37,7 +47,7 @@ def test_runner(runner: Callable, tmpdir: LocalPath) -> None:
 @pytest.mark.parametrize(
     "runner", [run_epylint, run_pylint, run_pyreverse, run_symilar]
 )
-def test_runner_with_arguments(runner: Callable, tmpdir: LocalPath) -> None:
+def test_runner_with_arguments(runner: _RunCallable, tmpdir: LocalPath) -> None:
     """Check the runners with arguments as parameter instead of sys.argv."""
     filepath = os.path.abspath(__file__)
     testargs = [filepath]

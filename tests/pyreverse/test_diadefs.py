@@ -9,7 +9,7 @@
 from __future__ import annotations
 
 import sys
-from collections.abc import Callable
+from collections.abc import Iterator
 from pathlib import Path
 
 import pytest
@@ -25,6 +25,7 @@ from pylint.pyreverse.diagrams import DiagramEntity, Relationship
 from pylint.pyreverse.inspector import Linker, Project
 from pylint.testutils.pyreverse import PyreverseConfig
 from pylint.testutils.utils import _test_cwd
+from pylint.typing import GetProjectCallable
 
 HERE = Path(__file__)
 TESTS = HERE.parent.parent
@@ -53,7 +54,7 @@ def HANDLER(default_config: PyreverseConfig) -> DiadefsHandler:
 
 
 @pytest.fixture(scope="module")
-def PROJECT(get_project):
+def PROJECT(get_project: GetProjectCallable) -> Iterator[Project]:
     with _test_cwd(TESTS):
         yield get_project("data")
 
@@ -116,7 +117,7 @@ class TestDefaultDiadefGenerator:
 
     @pytest.mark.xfail
     def test_functional_relation_extraction(
-        self, default_config: PyreverseConfig, get_project: Callable
+        self, default_config: PyreverseConfig, get_project: GetProjectCallable
     ) -> None:
         """Functional test of relations extraction;
         different classes possibly in different modules
@@ -160,7 +161,9 @@ def test_known_values1(HANDLER: DiadefsHandler, PROJECT: Project) -> None:
     ]
 
 
-def test_known_values2(HANDLER: DiadefsHandler, get_project: Callable) -> None:
+def test_known_values2(
+    HANDLER: DiadefsHandler, get_project: GetProjectCallable
+) -> None:
     project = get_project("data.clientmodule_test")
     dd = DefaultDiadefGenerator(Linker(project), HANDLER).visit(project)
     assert len(dd) == 1
@@ -205,7 +208,7 @@ def test_known_values4(HANDLER: DiadefsHandler, PROJECT: Project) -> None:
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires dataclasses")
 def test_regression_dataclasses_inference(
-    HANDLER: DiadefsHandler, get_project: Callable
+    HANDLER: DiadefsHandler, get_project: GetProjectCallable
 ) -> None:
     project_path = Path("regrtest_data") / "dataclasses_pyreverse"
     path = get_project(str(project_path))

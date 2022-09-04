@@ -257,7 +257,7 @@ def _has_different_parameters_default_value(
 def _has_different_parameters(
     original: list[nodes.AssignName],
     overridden: list[nodes.AssignName],
-    dummy_parameter_regex: Pattern,
+    dummy_parameter_regex: Pattern[str],
 ) -> list[str]:
     result: list[str] = []
     zipped = zip_longest(original, overridden)
@@ -311,7 +311,7 @@ def _has_different_keyword_only_parameters(
 def _different_parameters(
     original: nodes.FunctionDef,
     overridden: nodes.FunctionDef,
-    dummy_parameter_regex: Pattern,
+    dummy_parameter_regex: Pattern[str],
 ) -> list[str]:
     """Determine if the two methods have different parameters.
 
