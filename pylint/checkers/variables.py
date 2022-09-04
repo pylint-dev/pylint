@@ -2839,7 +2839,7 @@ class VariablesChecker(BaseChecker):
 
         consumed = []  # [(scope_locals, consumed_key)]
         metaclass = klass.metaclass()
-        name = None
+        name = ""
         if isinstance(klass._metaclass, nodes.Name):
             name = klass._metaclass.name
         elif isinstance(klass._metaclass, nodes.Attribute) and klass._metaclass.expr:
