@@ -9,25 +9,33 @@ import optparse  # pylint: disable=deprecated-module
 import pathlib
 import re
 import warnings
+from collections.abc import Sequence
 from re import Pattern
+from typing import Any
 
 from pylint import utils
 
 
 # pylint: disable=unused-argument
-def _csv_validator(_, name, value):
+def _csv_validator(
+    _: Any, name: str, value: str | list[str] | tuple[str]
+) -> Sequence[str]:
     return utils._check_csv(value)
 
 
 # pylint: disable=unused-argument
-def _regexp_validator(_, name, value):
+def _regexp_validator(
+    _: Any, name: str, value: str | re.Pattern[str]
+) -> re.Pattern[str]:
     if hasattr(value, "pattern"):
-        return value
+        return value  # type: ignore[return-value]
     return re.compile(value)
 
 
 # pylint: disable=unused-argument
-def _regexp_csv_validator(_, name, value):
+def _regexp_csv_validator(
+    _: Any, name: str, value: str | list[str]
+) -> list[re.Pattern[str]]:
     return [_regexp_validator(_, name, val) for val in _csv_validator(_, name, value)]
 
 
