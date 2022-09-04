@@ -119,7 +119,8 @@ class TestExpandModules(CheckerTestCase):
     @set_config(ignore_paths="")
     def test_expand_modules(self, files_or_modules, expected):
         """Test expand_modules with the default value of ignore-paths."""
-        ignore_list, ignore_list_re = [], []
+        ignore_list: list[str] = []
+        ignore_list_re: list[re.Pattern[str]] = []
         modules, errors = expand_modules(
             files_or_modules,
             ignore_list,
@@ -145,7 +146,8 @@ class TestExpandModules(CheckerTestCase):
     @set_config(ignore_paths=".*/lint/.*")
     def test_expand_modules_with_ignore(self, files_or_modules, expected):
         """Test expand_modules with a non-default value of ignore-paths."""
-        ignore_list, ignore_list_re = [], []
+        ignore_list: list[str] = []
+        ignore_list_re: list[re.Pattern[str]] = []
         modules, errors = expand_modules(
             files_or_modules,
             ignore_list,
