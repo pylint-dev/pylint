@@ -29,11 +29,6 @@ Marc Byrne became a maintainer, welcome to the team !
 
 .. towncrier release notes start
 
-=======
-What's new in Pylint 2.15.0?
-----------------------------
-Release date: 2022-08-26
-
 New Checks
 ----------
 

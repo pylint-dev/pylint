@@ -1,4 +1,5 @@
 """Fixture for testing missing documentation in docparams."""
+
 from __future__ import annotations
 
 
