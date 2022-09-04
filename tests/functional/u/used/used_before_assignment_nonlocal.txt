@@ -5,3 +5,4 @@ used-before-assignment:33:22:33:32:test_fail4:Using variable 'test_fail5' before
 used-before-assignment:33:44:33:53:test_fail4:Using variable 'undefined' before assignment:HIGH
 used-before-assignment:39:18:39:28:test_fail5:Using variable 'undefined1' before assignment:HIGH
 used-before-assignment:90:10:90:18:type_annotation_never_gets_value_despite_nonlocal:Using variable 'some_num' before assignment:HIGH
+used-before-assignment:96:14:96:18:inner_function_lacks_access_to_outer_args.inner:Using variable 'args' before assignment:HIGH
