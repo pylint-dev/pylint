@@ -39,7 +39,7 @@ if TYPE_CHECKING:
 
 # The dictionary with Any should actually be a _ImportTree again
 # but mypy doesn't support recursive types yet
-_ImportTree = Dict[str, Union[List[Dict[str, Any], List[str]]]]
+_ImportTree = Dict[str, Union[List[Dict[str, Any]], List[str]]]
 
 DEPRECATED_MODULES = {
     (0, 0, 0): {"tkinter.tix", "fpectl"},
