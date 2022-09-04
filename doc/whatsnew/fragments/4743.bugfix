@@ -1,0 +1,3 @@
+``missing-return-doc`` now respects the ``no-docstring-rgx`` option.
+
+Closes #4743
