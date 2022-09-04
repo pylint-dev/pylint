@@ -137,4 +137,4 @@ DirectoryNamespaceDict = Dict[Path, Tuple[argparse.Namespace, "DirectoryNamespac
 
 class GetProjectCallable(Protocol):
     def __call__(self, module: str, name: str | None = "No Name") -> Project:
-        ...
+        ...  # pragma: no cover
