@@ -12,7 +12,7 @@ import os
 import re
 import sys
 import warnings
-from typing import Any, Optional
+from typing import Any
 
 import sphinx
 from sphinx.application import Sphinx
