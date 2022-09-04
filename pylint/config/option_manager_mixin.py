@@ -325,7 +325,9 @@ class OptionsManagerMixIn:
             provider = self._all_options[opt]
             provider.set_option(opt, opt_value)
 
-    def load_command_line_configuration(self, args=None) -> list[str]:
+    def load_command_line_configuration(
+        self, args: list[str] | None = None
+    ) -> list[str]:
         """Override configuration according to command line parameters.
 
         return additional arguments
@@ -340,7 +342,7 @@ class OptionsManagerMixIn:
                     if value is None:
                         continue
                     setattr(config, attr, value)
-            return args
+            return args  # type: ignore[return-value]
 
     def help(self, level=0):
         """Return the usage string for available options."""
