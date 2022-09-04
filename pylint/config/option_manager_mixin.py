@@ -2,6 +2,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+
 # pylint: disable=duplicate-code
 
 from __future__ import annotations
@@ -19,7 +20,7 @@ from typing import Any, TextIO
 
 from pylint import utils
 from pylint.config.option import Option
-from pylint.config.option_parser import OptionParser
+from pylint.config.option_parser import OptionParser  # type: ignore[attr-defined]
 from pylint.typing import OptionDict
 
 if sys.version_info >= (3, 11):
@@ -56,10 +57,10 @@ def _patch_optparse():
     # pylint: disable = redefined-variable-type
     orig_default = optparse.HelpFormatter
     try:
-        optparse.HelpFormatter.expand_default = _expand_default
+        optparse.HelpFormatter.expand_default = _expand_default  # type: ignore[assignment]
         yield
     finally:
-        optparse.HelpFormatter.expand_default = orig_default
+        optparse.HelpFormatter.expand_default = orig_default  # type: ignore[assignment]
 
 
 class OptionsManagerMixIn:
@@ -131,7 +132,7 @@ class OptionsManagerMixIn:
             # add section to the config file
             if (
                 group_name != "DEFAULT"
-                and group_name not in self.cfgfile_parser._sections
+                and group_name not in self.cfgfile_parser._sections  # type: ignore[attr-defined]
             ):
                 self.cfgfile_parser.add_section(group_name)
         # add provider's specific options
@@ -256,11 +257,11 @@ class OptionsManagerMixIn:
                 with open(config_file, encoding="utf_8_sig") as fp:
                     parser.read_file(fp)
                 # normalize each section's title
-                for sect, values in list(parser._sections.items()):
+                for sect, values in list(parser._sections.items()):  # type: ignore[attr-defined]
                     if sect.startswith("pylint."):
                         sect = sect[len("pylint.") :]
                     if not sect.isupper() and values:
-                        parser._sections[sect.upper()] = values
+                        parser._sections[sect.upper()] = values  # type: ignore[attr-defined]
 
         if not verbose:
             return

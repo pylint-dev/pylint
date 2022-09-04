@@ -38,8 +38,10 @@ from pylint.config.exceptions import (
 )
 from pylint.config.help_formatter import _HelpFormatter
 from pylint.config.option import Option
-from pylint.config.option_parser import OptionParser
-from pylint.config.options_provider_mixin import OptionsProviderMixIn
+from pylint.config.option_parser import OptionParser  # type: ignore[attr-defined]
+from pylint.config.options_provider_mixin import (  # type: ignore[attr-defined]
+    OptionsProviderMixIn,
+)
 from pylint.config.utils import _convert_option_to_argument, _parse_rich_type_value
 from pylint.constants import MAIN_CHECKER_NAME
 from pylint.typing import DirectoryNamespaceDict, OptionDict
@@ -287,7 +289,7 @@ class _ArgumentsManager:
         )
         # command line parser
         self.cmdline_parser = OptionParser(Option, usage=usage)
-        self.cmdline_parser.options_manager = self  # type: ignore[attr-defined]
+        self.cmdline_parser.options_manager = self
         self._optik_option_attrs = set(self.cmdline_parser.option_class.ATTRS)
 
     def register_options_provider(
@@ -632,7 +634,7 @@ class _ArgumentsManager:
                 if value is None:
                     continue
                 setattr(config, attr, value)
-        return args
+        return args  # type: ignore[return-value]
 
     def help(self, level: int | None = None) -> str:
         """Return the usage string based on the available options."""
