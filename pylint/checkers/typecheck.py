@@ -974,7 +974,7 @@ accessed. Python regular expressions are accepted.",
         return self.linter.config.suggestion_mode
 
     @cached_property
-    def _compiled_generated_members(self) -> tuple[Pattern, ...]:
+    def _compiled_generated_members(self) -> tuple[Pattern[str], ...]:
         # do this lazily since config not fully initialized in __init__
         # generated_members may contain regular expressions
         # (surrounded by quote `"` and followed by a comma `,`)
@@ -1928,7 +1928,7 @@ accessed. Python regular expressions are accepted.",
             if not allowed_nested_syntax:
                 self._check_unsupported_alternative_union_syntax(node)
 
-    def _includes_version_compatible_overload(self, attrs: list):
+    def _includes_version_compatible_overload(self, attrs: list[nodes.NodeNG]):
         """Check if a set of overloads of an operator includes one that
         can be relied upon for our configured Python version.
 

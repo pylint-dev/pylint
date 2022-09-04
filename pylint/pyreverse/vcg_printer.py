@@ -154,7 +154,7 @@ SHAPES: dict[NodeType, str] = {
     NodeType.CLASS: "box",
     NodeType.INTERFACE: "ellipse",
 }
-ARROWS: dict[EdgeType, dict] = {
+ARROWS: dict[EdgeType, dict[str, str | int]] = {
     EdgeType.USES: dict(arrowstyle="solid", backarrowstyle="none", backarrowsize=0),
     EdgeType.INHERITS: dict(
         arrowstyle="solid", backarrowstyle="none", backarrowsize=10

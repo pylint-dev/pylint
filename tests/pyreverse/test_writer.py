@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import codecs
 import os
-from collections.abc import Callable, Iterator
+from collections.abc import Iterator
 from difflib import unified_diff
 from unittest.mock import Mock
 
@@ -18,6 +18,7 @@ from pylint.pyreverse.diadefslib import DefaultDiadefGenerator, DiadefsHandler
 from pylint.pyreverse.inspector import Linker, Project
 from pylint.pyreverse.writer import DiagramWriter
 from pylint.testutils.pyreverse import PyreverseConfig
+from pylint.typing import GetProjectCallable
 
 _DEFAULTS = {
     "all_ancestors": None,
@@ -69,7 +70,9 @@ def _file_lines(path: str) -> list[str]:
 
 
 @pytest.fixture()
-def setup_dot(default_config: PyreverseConfig, get_project: Callable) -> Iterator:
+def setup_dot(
+    default_config: PyreverseConfig, get_project: GetProjectCallable
+) -> Iterator[None]:
     writer = DiagramWriter(default_config)
     project = get_project(TEST_DATA_DIR)
     yield from _setup(project, default_config, writer)
@@ -77,22 +80,26 @@ def setup_dot(default_config: PyreverseConfig, get_project: Callable) -> Iterato
 
 @pytest.fixture()
 def setup_colorized_dot(
-    colorized_dot_config: PyreverseConfig, get_project: Callable
-) -> Iterator:
+    colorized_dot_config: PyreverseConfig, get_project: GetProjectCallable
+) -> Iterator[None]:
     writer = DiagramWriter(colorized_dot_config)
     project = get_project(TEST_DATA_DIR, name="colorized")
     yield from _setup(project, colorized_dot_config, writer)
 
 
 @pytest.fixture()
-def setup_vcg(vcg_config: PyreverseConfig, get_project: Callable) -> Iterator:
+def setup_vcg(
+    vcg_config: PyreverseConfig, get_project: GetProjectCallable
+) -> Iterator[None]:
     writer = DiagramWriter(vcg_config)
     project = get_project(TEST_DATA_DIR)
     yield from _setup(project, vcg_config, writer)
 
 
 @pytest.fixture()
-def setup_puml(puml_config: PyreverseConfig, get_project: Callable) -> Iterator:
+def setup_puml(
+    puml_config: PyreverseConfig, get_project: GetProjectCallable
+) -> Iterator[None]:
     writer = DiagramWriter(puml_config)
     project = get_project(TEST_DATA_DIR)
     yield from _setup(project, puml_config, writer)
@@ -100,15 +107,17 @@ def setup_puml(puml_config: PyreverseConfig, get_project: Callable) -> Iterator:
 
 @pytest.fixture()
 def setup_colorized_puml(
-    colorized_puml_config: PyreverseConfig, get_project: Callable
-) -> Iterator:
+    colorized_puml_config: PyreverseConfig, get_project: GetProjectCallable
+) -> Iterator[None]:
     writer = DiagramWriter(colorized_puml_config)
     project = get_project(TEST_DATA_DIR, name="colorized")
     yield from _setup(project, colorized_puml_config, writer)
 
 
 @pytest.fixture()
-def setup_mmd(mmd_config: PyreverseConfig, get_project: Callable) -> Iterator:
+def setup_mmd(
+    mmd_config: PyreverseConfig, get_project: GetProjectCallable
+) -> Iterator[None]:
     writer = DiagramWriter(mmd_config)
 
     project = get_project(TEST_DATA_DIR)
@@ -116,7 +125,9 @@ def setup_mmd(mmd_config: PyreverseConfig, get_project: Callable) -> Iterator:
 
 
 @pytest.fixture()
-def setup_html(html_config: PyreverseConfig, get_project: Callable) -> Iterator:
+def setup_html(
+    html_config: PyreverseConfig, get_project: GetProjectCallable
+) -> Iterator[None]:
     writer = DiagramWriter(html_config)
 
     project = get_project(TEST_DATA_DIR)
@@ -125,7 +136,7 @@ def setup_html(html_config: PyreverseConfig, get_project: Callable) -> Iterator:
 
 def _setup(
     project: Project, config: PyreverseConfig, writer: DiagramWriter
-) -> Iterator:
+) -> Iterator[None]:
     linker = Linker(project)
     handler = DiadefsHandler(config)
     dd = DefaultDiadefGenerator(linker, handler).visit(project)

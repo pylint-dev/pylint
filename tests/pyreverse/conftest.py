@@ -12,6 +12,7 @@ from astroid.nodes.scoped_nodes import Module
 from pylint.lint import fix_import_path
 from pylint.pyreverse.inspector import Project, project_from_files
 from pylint.testutils.pyreverse import PyreverseConfig
+from pylint.typing import GetProjectCallable
 
 
 @pytest.fixture()
@@ -66,11 +67,11 @@ def html_config() -> PyreverseConfig:
 
 
 @pytest.fixture(scope="session")
-def get_project() -> Callable:
+def get_project() -> GetProjectCallable:
     def _get_project(module: str, name: str | None = "No Name") -> Project:
         """Return an astroid project representation."""
 
-        def _astroid_wrapper(func: Callable, modname: str) -> Module:
+        def _astroid_wrapper(func: Callable[[str], Module], modname: str) -> Module:
             return func(modname)
 
         with fix_import_path([module]):
