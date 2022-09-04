@@ -26,7 +26,7 @@ else:
     from typing_extensions import Protocol
 
 
-class _RunCallable(Protocol):
+class _RunCallable(Protocol):  # pylint: disable=too-few-public-methods
     def __call__(self, argv: Sequence[str] | None = None) -> NoReturn | None:
         ...
 
