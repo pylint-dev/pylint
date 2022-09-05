@@ -2210,7 +2210,7 @@ class VariablesChecker(BaseChecker):
         # assignment (which does not exist in code per se) as well as any later
         # modifications.
         if (
-            not astmts # pylint: disable=too-many-boolean-expressions
+            not astmts  # pylint: disable=too-many-boolean-expressions
             or (
                 astmts[0].parent == astmts[0].root()
                 and astmts[0].parent.parent_of(node)
