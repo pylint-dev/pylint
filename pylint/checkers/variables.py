@@ -2209,9 +2209,8 @@ class VariablesChecker(BaseChecker):
         # scope lookup rules would need to be changed to return the initial
         # assignment (which does not exist in code per se) as well as any later
         # modifications.
-        # pylint: disable-next=too-many-boolean-expressions
         if (
-            not astmts
+            not astmts  # pylint: disable=too-many-boolean-expressions
             or (
                 astmts[0].parent == astmts[0].root()
                 and astmts[0].parent.parent_of(node)
