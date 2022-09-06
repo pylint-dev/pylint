@@ -2258,7 +2258,9 @@ class VariablesChecker(BaseChecker):
             isinstance(
                 else_stmt, (nodes.Return, nodes.Raise, nodes.Break, nodes.Continue)
             ) or (
-                isinstance(else_stmt, nodes.FunctionDef) and
+                isinstance(else_stmt, nodes.Expr) and
+                # doesnt work
+                any(isinstance(expr, nodes.FunctionDef) for expr in else_stmt.get_children()) and
                 else_stmt.type_comment_returns.qualname() in ("typing.NoReturn", "typing.Never")
             )
             for else_stmt in assign.orelse

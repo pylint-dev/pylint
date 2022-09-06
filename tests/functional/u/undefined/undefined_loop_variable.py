@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring,redefined-builtin, consider-using-f-string, unnecessary-direct-lambda-call
-from typing import NoReturn, Never
+from typing import NoReturn
 
 
 def do_stuff(some_random_list):
@@ -128,27 +128,28 @@ def for_else_continue(iterable):
 
 
 def for_else_no_return(iterable):
-    def foo() -> NoReturn:
+    def fail() -> NoReturn:
         ...
 
     while True:
         for thing in iterable:
             break
         else:
-            foo()
+            fail()
         print(thing)
 
-
-def for_else_never(iterable):
-    def foo() -> Never:
-        ...
-
-    while True:
-        for thing in iterable:
-            break
-        else:
-            foo()
-        print(thing)
+# now do i make this only run on python 3.11
+# def for_else_never(iterable):
+#     from typing import Never
+#     def foo() -> Never:
+#         ...
+#
+#     while True:
+#         for thing in iterable:
+#             break
+#         else:
+#             foo()
+#         print(thing)
 
 lst = []
 lst2 = [1, 2, 3]
