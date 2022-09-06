@@ -5,7 +5,6 @@
 from __future__ import annotations
 
 import configparser
-import contextlib
 import os
 import sys
 import warnings
@@ -40,10 +39,10 @@ def _cfg_has_config(path: Path | str) -> bool:
     return any(section.startswith("pylint.") for section in parser.sections())
 
 
-def find_default_config_files() -> Iterator[Path]:
-    """Find all possible config files."""
+def _yield_default_files() -> Iterator[Path]:
+    """Iterate over the default config file names and see if they exist."""
     for config_name in CONFIG_NAMES:
-        with contextlib.suppress(OSError):
+        try:
             if config_name.is_file():
                 if config_name.suffix == ".toml" and not _toml_has_config(config_name):
                     continue
@@ -51,21 +50,30 @@ def find_default_config_files() -> Iterator[Path]:
                     continue
 
                 yield config_name.resolve()
+        except OSError:
+            pass
 
-    with contextlib.suppress(OSError):
-        if Path("__init__.py").is_file():
-            curdir = Path(os.getcwd()).resolve()
-            while (curdir / "__init__.py").is_file():
-                curdir = curdir.parent
-                for rc_name in RC_NAMES:
-                    rc_path = curdir / rc_name
-                    if rc_path.is_file():
-                        yield rc_path.resolve()
 
+def _find_project_config() -> Iterator[Path]:
+    """Traverse up the directory tree to find a config file.
+
+    Stop if no '__init__' is found and thus we are no longer in a package.
+    """
+    if Path("__init__.py").is_file():
+        curdir = Path(os.getcwd()).resolve()
+        while (curdir / "__init__.py").is_file():
+            curdir = curdir.parent
+            for rc_name in RC_NAMES:
+                rc_path = curdir / rc_name
+                if rc_path.is_file():
+                    yield rc_path.resolve()
+
+
+def _find_config_in_home_or_environment() -> Iterator[Path]:
+    """Find a config file in the specified environment var or the home directory."""
     if "PYLINTRC" in os.environ and Path(os.environ["PYLINTRC"]).exists():
-        with contextlib.suppress(OSError):
-            if Path(os.environ["PYLINTRC"]).is_file():
-                yield Path(os.environ["PYLINTRC"]).resolve()
+        if Path(os.environ["PYLINTRC"]).is_file():
+            yield Path(os.environ["PYLINTRC"]).resolve()
     else:
         try:
             user_home = Path.home()
@@ -75,18 +83,33 @@ def find_default_config_files() -> Iterator[Path]:
 
         if user_home is not None and str(user_home) not in ("~", "/root"):
             home_rc = user_home / ".pylintrc"
-            with contextlib.suppress(OSError):
-                if home_rc.is_file():
-                    yield home_rc.resolve()
+            if home_rc.is_file():
+                yield home_rc.resolve()
 
             home_rc = user_home / ".config" / "pylintrc"
-            with contextlib.suppress(OSError):
-                if home_rc.is_file():
-                    yield home_rc.resolve()
+            if home_rc.is_file():
+                yield home_rc.resolve()
 
-    with contextlib.suppress(OSError):
+
+def find_default_config_files() -> Iterator[Path]:
+    """Find all possible config files."""
+    yield from _yield_default_files()
+
+    try:
+        yield from _find_project_config()
+    except OSError:
+        pass
+
+    try:
+        yield from _find_config_in_home_or_environment()
+    except OSError:
+        pass
+
+    try:
         if os.path.isfile("/etc/pylintrc"):
             yield Path("/etc/pylintrc").resolve()
+    except OSError:
+        pass
 
 
 def find_pylintrc() -> str | None:
