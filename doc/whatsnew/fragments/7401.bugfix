@@ -1,3 +1,0 @@
-``disable-next`` is now correctly scoped to only the succeeding line.
-
-Closes #7401
