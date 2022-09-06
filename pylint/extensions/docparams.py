@@ -278,6 +278,11 @@ class DocstringParameterChecker(BaseChecker):
         if not isinstance(func_node, astroid.FunctionDef):
             return
 
+        # skip functions that match the 'no-docstring-rgx' config option
+        no_docstring_rgx = self.linter.config.no_docstring_rgx
+        if no_docstring_rgx and re.match(no_docstring_rgx, func_node.name):
+            return
+
         expected_excs = utils.possible_exc_types(node)
 
         if not expected_excs:
@@ -353,6 +358,11 @@ class DocstringParameterChecker(BaseChecker):
 
         func_node = node.frame(future=True)
         if not isinstance(func_node, astroid.FunctionDef):
+            return
+
+        # skip functions that match the 'no-docstring-rgx' config option
+        no_docstring_rgx = self.linter.config.no_docstring_rgx
+        if no_docstring_rgx and re.match(no_docstring_rgx, func_node.name):
             return
 
         doc = utils.docstringify(
