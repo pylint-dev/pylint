@@ -1,4 +1,6 @@
 # pylint: disable=missing-docstring,redefined-builtin, consider-using-f-string, unnecessary-direct-lambda-call
+from typing import NoReturn, Never
+
 
 def do_stuff(some_random_list):
     for var in some_random_list:
@@ -124,6 +126,29 @@ def for_else_continue(iterable):
             continue
         print(thing)
 
+
+def for_else_no_return(iterable):
+    def foo() -> NoReturn:
+        ...
+
+    while True:
+        for thing in iterable:
+            break
+        else:
+            foo()
+        print(thing)
+
+
+def for_else_never(iterable):
+    def foo() -> Never:
+        ...
+
+    while True:
+        for thing in iterable:
+            break
+        else:
+            foo()
+        print(thing)
 
 lst = []
 lst2 = [1, 2, 3]

@@ -2257,6 +2257,9 @@ class VariablesChecker(BaseChecker):
         if any(
             isinstance(
                 else_stmt, (nodes.Return, nodes.Raise, nodes.Break, nodes.Continue)
+            ) or (
+                isinstance(else_stmt, nodes.FunctionDef) and
+                else_stmt.type_comment_returns.qualname() in ("typing.NoReturn", "typing.Never")
             )
             for else_stmt in assign.orelse
         ):
