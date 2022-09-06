@@ -1,3 +1,0 @@
-Don't crash on ``OSError`` in config file discovery.
-
-Closes #7169

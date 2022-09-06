@@ -1,3 +1,0 @@
-Fix false positive for ``unused-variable`` and ``unused-import`` when a name is only used in a string literal type annotation.
-
-Closes #3299
