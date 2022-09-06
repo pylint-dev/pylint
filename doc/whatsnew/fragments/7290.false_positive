@@ -1,3 +1,0 @@
-Pylint now understands the ``kw_only`` keyword argument for ``dataclass``.
-
-Closes #7290, closes #6550, closes #5857

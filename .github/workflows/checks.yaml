@@ -8,7 +8,7 @@ on:
   pull_request: ~
 
 env:
-  CACHE_VERSION: 24
+  CACHE_VERSION: 25
   DEFAULT_PYTHON: "3.10"
   PRE_COMMIT_CACHE: ~/.cache/pre-commit
 
