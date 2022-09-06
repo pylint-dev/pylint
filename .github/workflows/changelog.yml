@@ -6,7 +6,7 @@ on:
 
 env:
   # Also change CACHE_VERSION in the other workflows
-  CACHE_VERSION: 23
+  CACHE_VERSION: 24
   DEFAULT_PYTHON: "3.10"
 
 jobs:
