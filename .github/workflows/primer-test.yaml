@@ -13,7 +13,7 @@ on:
       - ".github/workflows/primer-test.yaml"
 
 env:
-  CACHE_VERSION: 23
+  CACHE_VERSION: 24
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
