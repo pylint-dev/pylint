@@ -253,3 +253,12 @@ def test_non_existent_home() -> None:
         assert not list(config.find_default_config_files())
 
         os.chdir(current_dir)
+
+
+def test_permission_error() -> None:
+    """Test that we handle PermissionError correctly in find_default_config_files.
+
+    Reported in https://github.com/PyCQA/pylint/issues/7169.
+    """
+    with mock.patch("pathlib.Path.is_file", side_effect=PermissionError):
+        list(config.find_default_config_files())
