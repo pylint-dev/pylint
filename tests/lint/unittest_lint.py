@@ -535,7 +535,7 @@ def test_load_plugin_command_line_and_config_with_inithook_in_config_bad_value()
             out.writelines(
                 [
                     "[MASTER]\n",
-                    f"init-hook=\"import sys; sys.path.append('{home_path}')\"\n",
+                    f"init-hook=\"import sys; sys.path.append(r'{home_path}')\"\n",
                     "load-plugins=copy_dummy\n",
                 ]
             )
@@ -601,7 +601,7 @@ def test_load_plugin_command_line_with_inithook_in_config_bad_value() -> None:
             out.writelines(
                 [
                     "[MASTER]\n",
-                    f"init-hook=\"import sys; sys.path.append('{home_path}')\"\n",
+                    f"init-hook=\"import sys; sys.path.append(r'{home_path}')\"\n",
                 ]
             )
 
