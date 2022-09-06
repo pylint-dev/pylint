@@ -526,7 +526,14 @@ def test_load_plugin_command_line() -> None:
 
 
 @pytest.mark.usefixtures("pop_pylintrc")
-def test_load_plugin_command_line_and_config_with_inithook_in_config_bad_value() -> None:
+def test_load_plugin_path_manipulation_case_6() -> None:
+    """
+    Case 6 refers to issue #7264.
+    This is where we supply a plugin we want to load on both the CLI and
+    config file, but that plugin is only loadable after the ``init-hook`` in
+    the config file has run. This is not supported, and was previously a silent
+    failure. This test ensures a ``bad-plugin-value`` message is emitted.
+    """
     dummy_plugin_path = abspath(join(REGRTEST_DATA_DIR, "dummy_plugin"))
     with fake_home() as home_path:
         # construct a basic rc file that just modifies the path
@@ -559,12 +566,7 @@ def test_load_plugin_command_line_and_config_with_inithook_in_config_bad_value()
         assert run._rcfile == pylintrc_file
         assert home_path in sys.path
         # The module should not be loaded
-        assert (
-            len(
-                [ch.name for ch in run.linter.get_checkers() if ch.name == "copy_dummy"]
-            )
-            == 0
-        )
+        assert not any(ch.name == "copy_dummy" for ch in run.linter.get_checkers())
 
         # There should be a bad-plugin-message for this module
         assert len(run.linter.reporter.messages) == 1
@@ -592,7 +594,14 @@ def test_load_plugin_command_line_and_config_with_inithook_in_config_bad_value()
 
 
 @pytest.mark.usefixtures("pop_pylintrc")
-def test_load_plugin_command_line_with_inithook_in_config_bad_value() -> None:
+def test_load_plugin_path_manipulation_case_3() -> None:
+    """
+    Case 3 refers to issue #7264.
+    This is where we supply a plugin we want to load on both the CLI only,
+    but that plugin is only loadable after the ``init-hook`` in
+    the config file has run. This is not supported, and was previously a silent
+    failure. This test ensures a ``bad-plugin-value`` message is emitted.
+    """
     dummy_plugin_path = abspath(join(REGRTEST_DATA_DIR, "dummy_plugin"))
     with fake_home() as home_path:
         # construct a basic rc file that just modifies the path
@@ -624,12 +633,7 @@ def test_load_plugin_command_line_with_inithook_in_config_bad_value() -> None:
         assert run._rcfile == pylintrc_file
         assert home_path in sys.path
         # The module should not be loaded
-        assert (
-            len(
-                [ch.name for ch in run.linter.get_checkers() if ch.name == "copy_dummy"]
-            )
-            == 0
-        )
+        assert not any(ch.name == "copy_dummy" for ch in run.linter.get_checkers())
 
         # There should be a bad-plugin-message for this module
         assert len(run.linter.reporter.messages) == 1
@@ -654,6 +658,27 @@ def test_load_plugin_command_line_with_inithook_in_config_bad_value() -> None:
         )
 
         sys.path.remove(home_path)
+
+
+def test_load_plugin_command_line_before_init_hook() -> None:
+    regrtest_data_dir_abs = abspath(REGRTEST_DATA_DIR)
+
+    run = Run(
+        [
+            "--load-plugins",
+            "dummy_plugin",
+            "--init-hook",
+            f'import sys; sys.path.append("{regrtest_data_dir_abs}")',
+            join(REGRTEST_DATA_DIR, "empty.py"),
+        ],
+        exit=False,
+    )
+    assert (
+        len([ch.name for ch in run.linter.get_checkers() if ch.name == "dummy_plugin"])
+        == 2
+    )
+
+    sys.path.remove(regrtest_data_dir_abs)
 
 
 def test_load_plugin_command_line_with_inithook_command_line() -> None:
