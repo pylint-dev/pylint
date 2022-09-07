@@ -2,7 +2,7 @@
 
 from argparse import ArgumentParser # [unused-import]
 from argparse import Namespace  # [unused-import]
-import http #[unused-import]
+import http  # [unused-import]
 from http import HTTPStatus
 import typing as t
 from typing import Literal as Lit
