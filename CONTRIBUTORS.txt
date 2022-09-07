@@ -374,6 +374,7 @@ contributors:
 - Ry4an Brase <ry4an-hg@ry4an.org>
 - Ruro <ruro.ruro@ya.ru>
 - Roman Ivanov <me@roivanov.com>
+- Rogdham <contact@rogdham.net>
 - Robert Schweizer <robert_schweizer@gmx.de>
 - Reverb Chu <reverbc@users.noreply.github.com>
 - Renat Galimov <renat2017@gmail.com>
@@ -422,6 +423,7 @@ contributors:
 - Louis Sautier <sautier.louis@gmail.com>
 - Lorena Buciu <46202743+lorena-b@users.noreply.github.com>
 - Logan Miller <14319179+komodo472@users.noreply.github.com>
+- Levi Gruspe <mail.levig@gmail.com>
 - Kári Tristan Helgason <kthelgason@gmail.com>
 - Kurian Benoy <70306694+kurianbenoy-aot@users.noreply.github.com>
 - Krzysztof Czapla <k.czapla68@gmail.com>
@@ -481,6 +483,7 @@ contributors:
 - Eisuke Kawashima <e-kwsm@users.noreply.github.com>
 - Edward K. Ream <edreamleo@gmail.com>
 - Edgemaster <grand.edgemaster@gmail.com>
+- Drummond Ogilvie <me@daogilvie.com>
 - Drew Risinger <drewrisinger@users.noreply.github.com>
 - Dr. Nick <das-intensity@users.noreply.github.com>
 - Don Jayamanne <don.jayamanne@yahoo.com>
@@ -500,6 +503,7 @@ contributors:
 - Craig Citro <craigcitro@gmail.com>
 - Clément Pit-Claudel <cpitclaudel@users.noreply.github.com>
 - Christopher Zurcher <zurcher@users.noreply.github.com>
+- Christoph Blessing <33834216+cblessing24@users.noreply.github.com>
 - Carl Crowder <bitbucket@carlcrowder.com>: don't evaluate the value of arguments for 'dangerous-default-value'
 - Carey Metcalfe <carey@cmetcalfe.ca>: demoted `try-except-raise` from error to warning
 - Cameron Olechowski <camsterole@users.noreply.github.com>
