@@ -483,6 +483,7 @@ contributors:
 - Eisuke Kawashima <e-kwsm@users.noreply.github.com>
 - Edward K. Ream <edreamleo@gmail.com>
 - Edgemaster <grand.edgemaster@gmail.com>
+- Drummond Ogilvie <me@daogilvie.com>
 - Drew Risinger <drewrisinger@users.noreply.github.com>
 - Dr. Nick <das-intensity@users.noreply.github.com>
 - Don Jayamanne <don.jayamanne@yahoo.com>

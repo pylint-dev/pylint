@@ -1,8 +1,0 @@
-Fixed a case where custom plugins specified by command line could silently fail.
-
-Specifically, if a plugin relies on the ``init-hook`` option changing ``sys.path`` before
-it can be imported, this will now emit a ``bad-plugin-value`` message. Before this
-change, it would silently fail to register the plugin for use, but would load
-any configuration, which could have unintended effects.
-
-Fixes part of #7264.
