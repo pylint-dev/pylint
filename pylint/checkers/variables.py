@@ -2924,15 +2924,10 @@ class VariablesChecker(BaseChecker):
         parent = node.parent
         if isinstance(parent, nodes.Tuple):
             parent = parent.parent
-
         if isinstance(parent, nodes.Subscript):
             origin = next(parent.get_children(), None)
             if origin is not None and utils.is_typing_literal(origin):
                 return
-
-        if node.value.isidentifier():
-            self._type_annotation_names.append(node.value)
-            return
 
         try:
             annotation = extract_node(node.value)
