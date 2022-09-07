@@ -4,6 +4,7 @@ directory = "doc/whatsnew/fragments"
 filename = "doc/whatsnew/2/2.16/index.rst"
 template = "doc/whatsnew/fragments/_template.rst"
 issue_format = "`#{issue} <https://github.com/PyCQA/pylint/issues/{issue}>`_"
+wrap = true
 
 # Definition of fragment types.
 # TODO: with the next towncrier release (21.9.1) it will be possible to define
