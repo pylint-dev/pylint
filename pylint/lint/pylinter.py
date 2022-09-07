@@ -362,7 +362,7 @@ class PyLinter(
         reporters.initialize(self)
 
     def load_plugin_modules(self, modnames: list[str]) -> None:
-        """Check a list pylint plugins modules, load and register them.
+        """Check a list of pylint plugins modules, load and register them.
 
         If a module cannot be loaded, never try to load it again and instead
         store the error message for later use in ``load_plugin_configuration``
@@ -385,21 +385,17 @@ class PyLinter(
         hook, if exposed, and calls it to allow plugins to configure specific
         settings.
 
-        The dynamic plugins dictionary stores the result of attempting to load
-        the plugin of the given name in ``load_plugin_modules`` above.
+        The result of attempting to load the plugin of the given name
+        is stored in the dynamic plugins dictionary in ``load_plugin_modules`` above.
 
         ..note::
             This function previously always tried to load modules again, which
             led to some confusion and silent failure conditions as described
-            in #7264. Making it use the stored result is more efficient, and
+            in Github issue #7264. Making it use the stored result is more efficient, and
             means that we avoid the ``init-hook`` problems from before.
         """
         for modname, module_or_error in self._dynamic_plugins.items():
             if isinstance(module_or_error, ModuleNotFoundError):
-                # If we tried to import the module again now, it might actually
-                # succeed if init-hook changes to the syspath made it possible.
-                # It would import fine, and load configuration, but would not
-                # have been registered. Safer and cleaner to emit this message.
                 self.add_message(
                     "bad-plugin-value", args=(modname, module_or_error), line=0
                 )

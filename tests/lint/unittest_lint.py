@@ -527,8 +527,8 @@ def test_load_plugin_command_line() -> None:
 
 @pytest.mark.usefixtures("pop_pylintrc")
 def test_load_plugin_path_manipulation_case_6() -> None:
-    """
-    Case 6 refers to issue #7264.
+    """Case 6 refers to Github issue #7264.
+
     This is where we supply a plugin we want to load on both the CLI and
     config file, but that plugin is only loadable after the ``init-hook`` in
     the config file has run. This is not supported, and was previously a silent
@@ -595,9 +595,9 @@ def test_load_plugin_path_manipulation_case_6() -> None:
 
 @pytest.mark.usefixtures("pop_pylintrc")
 def test_load_plugin_path_manipulation_case_3() -> None:
-    """
-    Case 3 refers to issue #7264.
-    This is where we supply a plugin we want to load on both the CLI only,
+    """Case 3 refers to Github issue #7264.
+
+    This is where we supply a plugin we want to load on the CLI only,
     but that plugin is only loadable after the ``init-hook`` in
     the config file has run. This is not supported, and was previously a silent
     failure. This test ensures a ``bad-plugin-value`` message is emitted.
@@ -661,6 +661,7 @@ def test_load_plugin_path_manipulation_case_3() -> None:
 
 
 def test_load_plugin_command_line_before_init_hook() -> None:
+    """Check that the order of 'load-plugins' and 'init-hook' doesn't affect execution."""
     regrtest_data_dir_abs = abspath(REGRTEST_DATA_DIR)
 
     run = Run(
