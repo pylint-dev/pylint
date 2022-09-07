@@ -590,6 +590,7 @@ def test_load_plugin_path_manipulation_case_6() -> None:
             ),
         )
 
+        # Necessary as the executed init-hook modifies sys.path
         sys.path.remove(home_path)
 
 
@@ -657,6 +658,7 @@ def test_load_plugin_path_manipulation_case_3() -> None:
             ),
         )
 
+        # Necessary as the executed init-hook modifies sys.path
         sys.path.remove(home_path)
 
 
@@ -678,11 +680,12 @@ def test_load_plugin_command_line_before_init_hook() -> None:
         len([ch.name for ch in run.linter.get_checkers() if ch.name == "dummy_plugin"])
         == 2
     )
-
+    
+    # Necessary as the executed init-hook modifies sys.path
     sys.path.remove(regrtest_data_dir_abs)
 
 
-def test_load_plugin_command_line_with_inithook_command_line() -> None:
+def test_load_plugin_command_line_with_init_hook_command_line() -> None:
     regrtest_data_dir_abs = abspath(REGRTEST_DATA_DIR)
 
     run = Run(
@@ -700,6 +703,7 @@ def test_load_plugin_command_line_with_inithook_command_line() -> None:
         == 2
     )
 
+    # Necessary as the executed init-hook modifies sys.path
     sys.path.remove(regrtest_data_dir_abs)
 
 
