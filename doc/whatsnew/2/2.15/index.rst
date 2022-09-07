@@ -30,10 +30,18 @@ Marc Byrne became a maintainer, welcome to the team !
 .. towncrier release notes start
 
 
-What's new in Pylint 2.15.1?
+What's new in Pylint 2.15.2?
 ----------------------------
-Release date: 2022-09-06
+Release date: 2022-09-07
 
+- Fixed a case where custom plugins specified by command line could silently fail.
+
+  Specifically, if a plugin relies on the ``init-hook`` option changing ``sys.path`` before
+  it can be imported, this will now emit a ``bad-plugin-value`` message. Before this
+  change, it would silently fail to register the plugin for use, but would load
+  any configuration, which could have unintended effects.
+
+  Fixes part of #7264. (`#7264 <https://github.com/PyCQA/pylint/issues/7264>`_)
 - Fix ``used-before-assignment`` for functions/classes defined in type checking guard.
 
   Closes #7368 (`#7368 <https://github.com/PyCQA/pylint/issues/7368>`_)
@@ -69,6 +77,12 @@ Release date: 2022-09-06
 - Update ``modified_iterating`` checker to fix a crash with ``for`` loops on empty list.
 
   Closes #7380 (`#7380 <https://github.com/PyCQA/pylint/issues/7380>`_)
+
+What's new in Pylint 2.15.1?
+----------------------------
+Release date: 2022-09-06
+
+This is a "github only release", it was mistakenly released as ``2.16.0-dev`` on pypi. Replaced by ``2.15.2``.
 
 What's new in Pylint 2.15.0?
 ----------------------------
