@@ -391,7 +391,7 @@ class PyLinter(
         ..note::
             This function previously always tried to load modules again, which
             led to some confusion and silent failure conditions as described
-            in Github issue #7264. Making it use the stored result is more efficient, and
+            in GitHub issue #7264. Making it use the stored result is more efficient, and
             means that we avoid the ``init-hook`` problems from before.
         """
         for modname, module_or_error in self._dynamic_plugins.items():
