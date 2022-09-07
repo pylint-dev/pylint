@@ -18,6 +18,7 @@ from collections.abc import Callable, Iterator, Sequence
 from io import TextIOWrapper
 from pathlib import Path
 from re import Pattern
+from types import ModuleType
 from typing import Any
 
 import astroid
@@ -295,7 +296,7 @@ class PyLinter(
             str, list[checkers.BaseChecker]
         ] = collections.defaultdict(list)
         """Dictionary of registered and initialized checkers."""
-        self._dynamic_plugins: set[str] = set()
+        self._dynamic_plugins: dict[str, ModuleType | ModuleNotFoundError] = {}
         """Set of loaded plugin names."""
 
         # Attributes related to registering messages and their handling
@@ -361,16 +362,21 @@ class PyLinter(
         reporters.initialize(self)
 
     def load_plugin_modules(self, modnames: list[str]) -> None:
-        """Check a list pylint plugins modules, load and register them."""
+        """Check a list of pylint plugins modules, load and register them.
+
+        If a module cannot be loaded, never try to load it again and instead
+        store the error message for later use in ``load_plugin_configuration``
+        below.
+        """
         for modname in modnames:
             if modname in self._dynamic_plugins:
                 continue
-            self._dynamic_plugins.add(modname)
             try:
                 module = astroid.modutils.load_module_from_name(modname)
                 module.register(self)
-            except ModuleNotFoundError:
-                pass
+                self._dynamic_plugins[modname] = module
+            except ModuleNotFoundError as mnf_e:
+                self._dynamic_plugins[modname] = mnf_e
 
     def load_plugin_configuration(self) -> None:
         """Call the configuration hook for plugins.
@@ -378,14 +384,23 @@ class PyLinter(
         This walks through the list of plugins, grabs the "load_configuration"
         hook, if exposed, and calls it to allow plugins to configure specific
         settings.
+
+        The result of attempting to load the plugin of the given name
+        is stored in the dynamic plugins dictionary in ``load_plugin_modules`` above.
+
+        ..note::
+            This function previously always tried to load modules again, which
+            led to some confusion and silent failure conditions as described
+            in GitHub issue #7264. Making it use the stored result is more efficient, and
+            means that we avoid the ``init-hook`` problems from before.
         """
-        for modname in self._dynamic_plugins:
-            try:
-                module = astroid.modutils.load_module_from_name(modname)
-                if hasattr(module, "load_configuration"):
-                    module.load_configuration(self)
-            except ModuleNotFoundError as e:
-                self.add_message("bad-plugin-value", args=(modname, e), line=0)
+        for modname, module_or_error in self._dynamic_plugins.items():
+            if isinstance(module_or_error, ModuleNotFoundError):
+                self.add_message(
+                    "bad-plugin-value", args=(modname, module_or_error), line=0
+                )
+            elif hasattr(module_or_error, "load_configuration"):
+                module_or_error.load_configuration(self)
 
     def _load_reporters(self, reporter_names: str) -> None:
         """Load the reporters if they are available on _reporters."""
