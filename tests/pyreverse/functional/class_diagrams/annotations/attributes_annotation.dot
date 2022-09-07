@@ -1,6 +1,6 @@
 digraph "classes" {
 rankdir=BT
 charset="utf-8"
-"attributes_annotation.Dummy" [color="black", fontcolor="black", label=<{Dummy||}>, shape="record", style="solid"];
-"attributes_annotation.Dummy2" [color="black", fontcolor="black", label=<{Dummy2|alternative_union_syntax : str \| int<br ALIGN="LEFT"/>class_attr : list[Dummy]<br ALIGN="LEFT"/>optional : Optional[Dummy]<br ALIGN="LEFT"/>param : str<br ALIGN="LEFT"/>union : Union[int, str]|}>, shape="record", style="solid"];
+"attributes_annotation.Dummy" [color="black", fontcolor="black", label=<{Dummy|<br ALIGN="LEFT"/>|}>, shape="record", style="solid"];
+"attributes_annotation.Dummy2" [color="black", fontcolor="black", label=<{Dummy2|alternative_union_syntax : str \| int<br ALIGN="LEFT"/>class_attr : list[Dummy]<br ALIGN="LEFT"/>optional : Optional[Dummy]<br ALIGN="LEFT"/>param : str<br ALIGN="LEFT"/>union : Union[int, str]<br ALIGN="LEFT"/>|}>, shape="record", style="solid"];
 }
