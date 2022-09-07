@@ -73,7 +73,7 @@ class DotPrinter(Printer):
         color = properties.color if properties.color is not None else self.DEFAULT_COLOR
         style = "filled" if color != self.DEFAULT_COLOR else "solid"
         label = self._build_label_for_node(properties)
-        label_part = f', label="{label}"' if label else ""
+        label_part = f', label=<{label}>' if label else ""
         fontcolor_part = (
             f', fontcolor="{properties.fontcolor}"' if properties.fontcolor else ""
         )
@@ -92,17 +92,19 @@ class DotPrinter(Printer):
 
         # Add class attributes
         attrs: list[str] = properties.attrs or []
-        attrs_string = r"\l".join(attr.replace("|", r"\|") for attr in attrs)
-        label = rf"{{{label}|{attrs_string}\l|"
+        attrs_string = r'<br ALIGN="LEFT"/>'.join(attr.replace("|", r"\|")
+                                                  for attr in attrs)
+        label = rf"{{{label}|{attrs_string}|"
 
         # Add class methods
         methods: list[nodes.FunctionDef] = properties.methods or []
         for func in methods:
             args = self._get_method_arguments(func)
-            label += rf"{func.name}({', '.join(args)})"
+            method_name = f"<I>{func.name}</I>" if func.is_abstract() else f"{func.name}"
+            label += rf"{method_name}({', '.join(args)})"
             if func.returns:
                 label += ": " + get_annotation_label(func.returns)
-            label += r"\l"
+            label += r'<br ALIGN="LEFT"/>'
         label += "}"
         return label
 
