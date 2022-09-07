@@ -49,6 +49,7 @@ classmethod
 classmethod's
 classname
 classobj
+CLI
 cls
 cmp
 codebase
