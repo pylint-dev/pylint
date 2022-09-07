@@ -680,7 +680,7 @@ def test_load_plugin_command_line_before_init_hook() -> None:
         len([ch.name for ch in run.linter.get_checkers() if ch.name == "dummy_plugin"])
         == 2
     )
-    
+
     # Necessary as the executed init-hook modifies sys.path
     sys.path.remove(regrtest_data_dir_abs)
 
