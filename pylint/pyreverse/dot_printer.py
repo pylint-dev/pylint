@@ -94,7 +94,7 @@ class DotPrinter(Printer):
         attrs: list[str] = properties.attrs or []
         attrs_string = r'<br ALIGN="LEFT"/>'.join(attr.replace("|", r"\|")
                                                   for attr in attrs)
-        label = rf"{{{label}|{attrs_string}|"
+        label = rf'{{{label}|{attrs_string}<br ALIGN="LEFT"/>|'
 
         # Add class methods
         methods: list[nodes.FunctionDef] = properties.methods or []
