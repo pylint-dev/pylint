@@ -18,7 +18,6 @@ Release date: {{ versiondata.date }}
 {% for text, values in sections[section][category].items() %}
 - {{ text }} ({{ values|join(', ') }})
 
-
 {% endfor %}
 
 {% else %}
