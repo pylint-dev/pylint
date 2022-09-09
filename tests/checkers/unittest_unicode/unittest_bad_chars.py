@@ -41,7 +41,9 @@ def bad_char_file_generator(tmp_path: Path) -> Callable[[str, bool, str], Path]:
         "# Invalid char esc: \x1B",
     )
 
-    def _bad_char_file_generator(codec: str, add_invalid_bytes: bool, line_ending: str):
+    def _bad_char_file_generator(
+        codec: str, add_invalid_bytes: bool, line_ending: str
+    ) -> Path:
         byte_suffix = b""
         if add_invalid_bytes:
             if codec == "utf-8":

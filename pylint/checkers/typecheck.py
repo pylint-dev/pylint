@@ -24,6 +24,7 @@ import astroid
 import astroid.exceptions
 import astroid.helpers
 from astroid import bases, nodes
+from astroid.typing import InferenceResult
 
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import (
@@ -422,13 +423,13 @@ SEQUENCE_TYPES = {
 
 
 def _emit_no_member(
-    node,
-    owner,
-    owner_name,
+    node: nodes.Attribute | nodes.AssignAttr | nodes.DelAttr,
+    owner: InferenceResult,
+    owner_name: str | None,
     mixin_class_rgx: Pattern[str],
-    ignored_mixins=True,
-    ignored_none=True,
-):
+    ignored_mixins: bool = True,
+    ignored_none: bool = True,
+) -> bool:
     """Try to see if no-member should be emitted for the given owner.
 
     The following cases are ignored:
@@ -751,7 +752,9 @@ def _is_invalid_metaclass(metaclass):
     return False
 
 
-def _infer_from_metaclass_constructor(cls, func: nodes.FunctionDef):
+def _infer_from_metaclass_constructor(
+    cls: nodes.ClassDef, func: nodes.FunctionDef
+) -> InferenceResult | None:
     """Try to infer what the given *func* constructor is building.
 
     :param astroid.FunctionDef func:
@@ -1265,7 +1268,7 @@ accessed. Python regular expressions are accepted.",
             and isinstance(utils.safe_infer(node.func.expr), nodes.List)
         )
 
-    def _check_dundername_is_string(self, node) -> None:
+    def _check_dundername_is_string(self, node: nodes.Assign) -> None:
         """Check a string is assigned to self.__name__."""
 
         # Check the left-hand side of the assignment is <something>.__name__
@@ -1637,7 +1640,7 @@ accessed. Python regular expressions are accepted.",
 
         return True
 
-    def _check_invalid_sequence_index(self, subscript: nodes.Subscript):
+    def _check_invalid_sequence_index(self, subscript: nodes.Subscript) -> None:
         # Look for index operations where the parent is a sequence type.
         # If the types can be determined, only allow indices to be int,
         # slice or instances with __index__.
@@ -1928,7 +1931,7 @@ accessed. Python regular expressions are accepted.",
             if not allowed_nested_syntax:
                 self._check_unsupported_alternative_union_syntax(node)
 
-    def _includes_version_compatible_overload(self, attrs: list[nodes.NodeNG]):
+    def _includes_version_compatible_overload(self, attrs: list[nodes.NodeNG]) -> bool:
         """Check if a set of overloads of an operator includes one that
         can be relied upon for our configured Python version.
 
