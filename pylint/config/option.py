@@ -56,14 +56,14 @@ def _regexp_paths_csv_validator(
     return patterns
 
 
-def _choice_validator(choices, name, value):
+def _choice_validator(choices: list[Any], name: str, value: Any) -> Any:
     if value not in choices:
         msg = "option %s: invalid value: %r, should be in %s"
         raise optparse.OptionValueError(msg % (name, value, choices))
     return value
 
 
-def _yn_validator(opt, _, value):
+def _yn_validator(opt: str, _: str, value: Any) -> bool:
     if isinstance(value, int):
         return bool(value)
     if isinstance(value, str):
@@ -76,7 +76,7 @@ def _yn_validator(opt, _, value):
     raise optparse.OptionValueError(msg % (opt, value))
 
 
-def _multiple_choice_validator(choices, name, value):
+def _multiple_choice_validator(choices: list[Any], name: str, value: Any) -> Any:
     values = utils._check_csv(value)
     for csv_value in values:
         if csv_value not in choices:
@@ -85,18 +85,24 @@ def _multiple_choice_validator(choices, name, value):
     return values
 
 
-def _non_empty_string_validator(opt, _, value):  # pragma: no cover # Unused
+def _non_empty_string_validator(  # pragma: no cover # Unused
+    opt: Any, _: str, value: str
+) -> str:
     if not value:
         msg = "indent string can't be empty."
         raise optparse.OptionValueError(msg)
     return utils._unquote(value)
 
 
-def _multiple_choices_validating_option(opt, name, value):  # pragma: no cover # Unused
-    return _multiple_choice_validator(opt.choices, name, value)
+def _multiple_choices_validating_option(  # pragma: no cover # Unused
+    opt: optparse.Option, name: str, value: Any
+) -> Any:
+    return _multiple_choice_validator(
+        opt.choices, name, value  # type: ignore[attr-defined]
+    )
 
 
-def _py_version_validator(_, name, value):
+def _py_version_validator(_: Any, name: str, value: Any) -> tuple[int, int, int]:
     if not isinstance(value, tuple):
         try:
             value = tuple(int(val) for val in value.split("."))
@@ -142,7 +148,7 @@ def _call_validator(opttype: str, optdict: Any, option: str, value: Any) -> Any:
             ) from e
 
 
-def _validate(value, optdict, name=""):
+def _validate(value: Any, optdict: Any, name: str = "") -> Any:
     """Return a validated value for an option according to its type.
 
     optional argument name is only used for error message formatting
@@ -179,7 +185,7 @@ class Option(optparse.Option):
     TYPE_CHECKER["non_empty_string"] = _non_empty_string_validator
     TYPE_CHECKER["py_version"] = _py_version_validator
 
-    def __init__(self, *opts, **attrs):
+    def __init__(self, *opts: Any, **attrs: Any) -> None:
         # TODO: 3.0: Remove deprecated class
         warnings.warn(
             "Option has been deprecated and will be removed in pylint 3.0",
@@ -189,7 +195,7 @@ class Option(optparse.Option):
         if hasattr(self, "hide") and self.hide:  # type: ignore[attr-defined]
             self.help = optparse.SUPPRESS_HELP
 
-    def _check_choice(self):
+    def _check_choice(self) -> None:
         if self.type in {"choice", "multiple_choice", "confidence"}:
             if self.choices is None:  # type: ignore[attr-defined]
                 raise optparse.OptionError(
@@ -209,7 +215,9 @@ class Option(optparse.Option):
 
     optparse.Option.CHECK_METHODS[2] = _check_choice  # type: ignore[index]
 
-    def process(self, opt, value, values, parser):  # pragma: no cover # Argparse
+    def process(  # pragma: no cover # Argparse
+        self, opt: Any, value: Any, values: Any, parser: Any
+    ) -> int:
         assert isinstance(self.dest, str)
         if self.callback and self.callback.__module__ == "pylint.lint.run":
             return 1
