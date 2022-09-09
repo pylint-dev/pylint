@@ -48,8 +48,10 @@ def test_get_visibility(names, expected):
 )
 def test_get_annotation_annassign(assign, label):
     """AnnAssign."""
-    node = astroid.extract_node(assign)
-    got = get_annotation(node.value).name
+    node: nodes.AnnAssign = astroid.extract_node(assign)
+    annotation = get_annotation(node.value)
+    assert annotation is not None
+    got = annotation.name
     assert isinstance(node, nodes.AnnAssign)
     assert got == label, f"got {got} instead of {label} for value {node}"
 
@@ -75,7 +77,9 @@ def test_get_annotation_assignattr(init_method, label):
     instance_attrs = node.instance_attrs
     for assign_attrs in instance_attrs.values():
         for assign_attr in assign_attrs:
-            got = get_annotation(assign_attr).name
+            annotation = get_annotation(assign_attr)
+            assert annotation is not None
+            got = annotation.name
             assert isinstance(assign_attr, nodes.AssignAttr)
             assert got == label, f"got {got} instead of {label} for value {node}"
 

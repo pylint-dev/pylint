@@ -9,7 +9,7 @@ import optparse  # pylint: disable=deprecated-module
 import pathlib
 import re
 import warnings
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from re import Pattern
 from typing import Any
 
@@ -107,7 +107,7 @@ def _py_version_validator(_, name, value):
     return value
 
 
-VALIDATORS = {
+VALIDATORS: dict[str, Callable[[Any, str, Any], Any] | Callable[[Any], Any]] = {
     "string": utils._unquote,
     "int": int,
     "float": float,
@@ -128,14 +128,14 @@ VALIDATORS = {
 }
 
 
-def _call_validator(opttype, optdict, option, value):
+def _call_validator(opttype: str, optdict: Any, option: str, value: Any) -> Any:
     if opttype not in VALIDATORS:
         raise Exception(f'Unsupported type "{opttype}"')
     try:
-        return VALIDATORS[opttype](optdict, option, value)
+        return VALIDATORS[opttype](optdict, option, value)  # type: ignore[call-arg]
     except TypeError:
         try:
-            return VALIDATORS[opttype](value)
+            return VALIDATORS[opttype](value)  # type: ignore[call-arg]
         except Exception as e:
             raise optparse.OptionValueError(
                 f"{option} value ({value!r}) should be of type {opttype}"
@@ -186,23 +186,23 @@ class Option(optparse.Option):
             DeprecationWarning,
         )
         super().__init__(*opts, **attrs)
-        if hasattr(self, "hide") and self.hide:
+        if hasattr(self, "hide") and self.hide:  # type: ignore[attr-defined]
             self.help = optparse.SUPPRESS_HELP
 
     def _check_choice(self):
         if self.type in {"choice", "multiple_choice", "confidence"}:
-            if self.choices is None:
+            if self.choices is None:  # type: ignore[attr-defined]
                 raise optparse.OptionError(
                     "must supply a list of choices for type 'choice'", self
                 )
-            if not isinstance(self.choices, (tuple, list)):
+            if not isinstance(self.choices, (tuple, list)):  # type: ignore[attr-defined]
                 raise optparse.OptionError(
                     # pylint: disable-next=consider-using-f-string
                     "choices must be a list of strings ('%s' supplied)"
-                    % str(type(self.choices)).split("'")[1],
+                    % str(type(self.choices)).split("'")[1],  # type: ignore[attr-defined]
                     self,
                 )
-        elif self.choices is not None:
+        elif self.choices is not None:  # type: ignore[attr-defined]
             raise optparse.OptionError(
                 f"must not supply choices for type {self.type!r}", self
             )
@@ -210,6 +210,7 @@ class Option(optparse.Option):
     optparse.Option.CHECK_METHODS[2] = _check_choice  # type: ignore[index]
 
     def process(self, opt, value, values, parser):  # pragma: no cover # Argparse
+        assert isinstance(self.dest, str)
         if self.callback and self.callback.__module__ == "pylint.lint.run":
             return 1
         # First, convert the value(s) to the right type.  Howl if any

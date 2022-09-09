@@ -100,7 +100,7 @@ class LintTestUpdate(LintTestUsingModule):
         except OSError:
             expected = ""
         if got != expected:
-            with open(self.output, "w", encoding="utf-8") as f:
+            with open(self.output or "", "w", encoding="utf-8") as f:
                 f.write(got)
 
 
@@ -109,7 +109,7 @@ def gen_tests(filter_rgx):
         is_to_run = re.compile(filter_rgx).search
     else:
         is_to_run = (
-            lambda x: 1  # pylint: disable=unnecessary-lambda-assignment
+            lambda x: 1  # type: ignore[assignment] # pylint: disable=unnecessary-lambda-assignment
         )  # noqa: E731 We're going to throw all this anyway
     tests = []
     for module_file, messages_file in _get_tests_info(INPUT_DIR, MSG_DIR, "func_", ""):

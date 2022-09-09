@@ -133,6 +133,8 @@ class ForwardSlashChunker(Chunker):
     'after'.
     """
 
+    _text: str
+
     def next(self):
         while True:
             if not self._text:

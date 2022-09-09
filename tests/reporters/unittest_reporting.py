@@ -17,7 +17,7 @@ import pytest
 
 from pylint import checkers
 from pylint.lint import PyLinter
-from pylint.reporters import BaseReporter
+from pylint.reporters import BaseReporter, MultiReporter
 from pylint.reporters.text import ParseableTextReporter, TextReporter
 from pylint.typing import FileItem
 
@@ -195,6 +195,7 @@ def test_multi_format_output(tmp_path):
         linter.reporter.writeln("direct output")
 
         # Ensure the output files are flushed and closed
+        assert isinstance(linter.reporter, MultiReporter)
         linter.reporter.close_output_files()
         del linter.reporter
 
@@ -337,5 +338,5 @@ def test_display_results_is_renamed():
     reporter = CustomReporter()
     with pytest.raises(AttributeError) as exc:
         # pylint: disable=no-member
-        reporter.display_results()
+        reporter.display_results()  # type: ignore[attr-defined]
     assert "no attribute 'display_results'" in str(exc)

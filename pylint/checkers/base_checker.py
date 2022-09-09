@@ -7,7 +7,7 @@ from __future__ import annotations
 import abc
 import functools
 import warnings
-from collections.abc import Iterator
+from collections.abc import Iterable, Sequence
 from inspect import cleandoc
 from tokenize import TokenInfo
 from typing import TYPE_CHECKING, Any
@@ -105,8 +105,8 @@ class BaseChecker(_ArgumentsProvider):
     def get_full_documentation(
         self,
         msgs: dict[str, MessageDefinitionTuple],
-        options: Iterator[tuple[str, OptionDict, Any]],
-        reports: tuple[tuple[str, str, ReportsCallable], ...],
+        options: Iterable[tuple[str, OptionDict, Any]],
+        reports: Sequence[tuple[str, str, ReportsCallable]],
         doc: str | None = None,
         module: str | None = None,
         show_options: bool = True,

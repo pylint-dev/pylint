@@ -527,15 +527,15 @@ class NamesConsumer:
         )
         self.node = node
 
-    def __repr__(self):
-        to_consumes = [f"{k}->{v}" for k, v in self._atomic.to_consume.items()]
-        consumed = [f"{k}->{v}" for k, v in self._atomic.consumed.items()]
-        consumed_uncertain = [
+    def __repr__(self) -> str:
+        _to_consumes = [f"{k}->{v}" for k, v in self._atomic.to_consume.items()]
+        _consumed = [f"{k}->{v}" for k, v in self._atomic.consumed.items()]
+        _consumed_uncertain = [
             f"{k}->{v}" for k, v in self._atomic.consumed_uncertain.items()
         ]
-        to_consumes = ", ".join(to_consumes)
-        consumed = ", ".join(consumed)
-        consumed_uncertain = ", ".join(consumed_uncertain)
+        to_consumes = ", ".join(_to_consumes)
+        consumed = ", ".join(_consumed)
+        consumed_uncertain = ", ".join(_consumed_uncertain)
         return f"""
 to_consume : {to_consumes}
 consumed : {consumed}
@@ -2838,7 +2838,7 @@ class VariablesChecker(BaseChecker):
 
         consumed = []  # [(scope_locals, consumed_key)]
         metaclass = klass.metaclass()
-        name = None
+        name = ""
         if isinstance(klass._metaclass, nodes.Name):
             name = klass._metaclass.name
         elif isinstance(klass._metaclass, nodes.Attribute) and klass._metaclass.expr:
