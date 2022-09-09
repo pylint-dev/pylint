@@ -697,21 +697,29 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         self._imports_stack.append((node, importedname))
 
     @staticmethod
-    def _is_fallback_import(node, imports):
+    def _is_fallback_import(
+        node: ImportNode, imports: list[tuple[ImportNode, str]]
+    ) -> bool:
         imports = [import_node for (import_node, _) in imports]
         return any(astroid.are_exclusive(import_node, node) for import_node in imports)
 
-    def _check_imports_order(self, _module_node: nodes.Module):
+    def _check_imports_order(
+        self, _module_node: nodes.Module
+    ) -> tuple[
+        list[tuple[ImportNode, str]],
+        list[tuple[ImportNode, str]],
+        list[tuple[ImportNode, str]],
+    ]:
         """Checks imports of module `node` are grouped by category.
 
         Imports must follow this order: standard, 3rd party, local
         """
-        std_imports = []
-        third_party_imports = []
-        first_party_imports = []
+        std_imports: list[tuple[ImportNode, str]] = []
+        third_party_imports: list[tuple[ImportNode, str]] = []
+        first_party_imports: list[tuple[ImportNode, str]] = []
         # need of a list that holds third or first party ordered import
-        external_imports = []
-        local_imports = []
+        external_imports: list[tuple[ImportNode, str]] = []
+        local_imports: list[tuple[ImportNode, str]] = []
         third_party_not_ignored: list[tuple[ImportNode, str]] = []
         first_party_not_ignored: list[tuple[ImportNode, str]] = []
         local_not_ignored: list[tuple[ImportNode, str]] = []
@@ -869,7 +877,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             ):
                 self._excluded_edges[context_name].add(importedmodname)
 
-    def _check_preferred_module(self, node, mod_path):
+    def _check_preferred_module(self, node: ImportNode, mod_path: str) -> None:
         """Check if the module has a preferred replacement."""
         if mod_path in self.preferred_modules:
             self.add_message(

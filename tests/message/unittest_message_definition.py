@@ -21,7 +21,7 @@ from pylint.message import MessageDefinition
         ("W12345", "Invalid message id 'W12345'"),
     ],
 )
-def test_create_invalid_message_type(msgid, expected):
+def test_create_invalid_message_type(msgid: str, expected: str) -> None:
     checker_mock = mock.Mock(name="Checker")
     checker_mock.name = "checker"
 

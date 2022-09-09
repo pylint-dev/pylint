@@ -7,8 +7,7 @@
 from __future__ import annotations
 
 import itertools
-from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from astroid import nodes
 
@@ -46,15 +45,15 @@ class CompareToEmptyStringChecker(checkers.BaseChecker):
         # while the rest are a list of tuples in node.ops
         # the format of the tuple is ('compare operator sign', node)
         # here we squash everything into `ops` to make it easier for processing later
-        ops = [("", node.left)]
+        ops: list[tuple[str, nodes.NodeNG | None]] = [("", node.left)]
         ops.extend(node.ops)
-        iter_ops: Iterable[Any] = iter(ops)
-        ops = list(itertools.chain(*iter_ops))
+        iter_ops = iter(ops)
+        ops = list(itertools.chain(*iter_ops))  # type: ignore[arg-type]
 
         for ops_idx in range(len(ops) - 2):
-            op_1 = ops[ops_idx]
-            op_2 = ops[ops_idx + 1]
-            op_3 = ops[ops_idx + 2]
+            op_1: nodes.NodeNG | None = ops[ops_idx]
+            op_2: str = ops[ops_idx + 1]  # type: ignore[assignment]
+            op_3: nodes.NodeNG | None = ops[ops_idx + 2]
             error_detected = False
 
             # x ?? ""

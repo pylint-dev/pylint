@@ -689,7 +689,7 @@ class LineSet:
             line_enabled_callback=line_enabled_callback,
         )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"<Lineset for {self.name}>"
 
     def __len__(self) -> int:
