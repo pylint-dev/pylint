@@ -4,6 +4,8 @@
 
 """Unit tests for pylint.pyreverse.printer_factory."""
 
+from __future__ import annotations
+
 import pytest
 
 from pylint.pyreverse import printer_factory

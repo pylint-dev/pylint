@@ -3,6 +3,9 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Unit tests for utils functions in :mod:`pylint.extensions._check_docs_utils`."""
+
+from __future__ import annotations
+
 import astroid
 import pytest
 from astroid import nodes

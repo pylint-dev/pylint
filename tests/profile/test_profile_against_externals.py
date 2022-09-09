@@ -6,6 +6,8 @@
 
 # pylint: disable=missing-function-docstring
 
+from __future__ import annotations
+
 import os
 import pprint
 from pathlib import Path

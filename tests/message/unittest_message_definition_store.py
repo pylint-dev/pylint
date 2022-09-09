@@ -2,6 +2,8 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 from contextlib import redirect_stdout
 from io import StringIO
 
