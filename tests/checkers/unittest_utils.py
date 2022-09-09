@@ -25,7 +25,7 @@ from pylint.checkers.base_checker import BaseChecker
         ("mybuiltin", False),
     ],
 )
-def testIsBuiltin(name, expected):
+def testIsBuiltin(name: str, expected: bool) -> None:
     assert utils.is_builtin(name) == expected
 
 

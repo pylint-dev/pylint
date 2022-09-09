@@ -155,7 +155,7 @@ def get_plugins_info(
     return by_checker
 
 
-def setup(app):
+def setup(app: Sphinx) -> dict[str, str]:
     app.connect("builder-inited", builder_inited)
     return {"version": sphinx.__display_version__}
 

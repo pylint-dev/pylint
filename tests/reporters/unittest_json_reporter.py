@@ -131,7 +131,7 @@ def get_linter_result(score: bool, message: dict[str, Any]) -> list[dict[str, An
         )
     ],
 )
-def test_serialize_deserialize(message):
+def test_serialize_deserialize(message: Message) -> None:
     # TODO: 3.0: Add confidence handling, add path and abs path handling or a new JSONReporter
     json_message = JSONReporter.serialize(message)
     assert message == JSONReporter.deserialize(json_message)

@@ -140,7 +140,7 @@ class TestRunTC:
                 with warnings.catch_warnings():
                     warnings.simplefilter("ignore")
                     Run(args, reporter=reporter)
-            return cm.value.code
+            return int(cm.value.code)
 
     @staticmethod
     def _clean_paths(output: str) -> str:

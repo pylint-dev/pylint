@@ -7,6 +7,7 @@ from __future__ import annotations
 import warnings
 
 import astroid
+from astroid import nodes
 
 from pylint.checkers.base_checker import BaseChecker
 from pylint.checkers.utils import only_required_for_messages
@@ -27,19 +28,23 @@ class TestASTWalker:
             self.called: set[str] = set()
 
         @only_required_for_messages("first-message")
-        def visit_module(self, module):  # pylint: disable=unused-argument
+        def visit_module(
+            self, module: nodes.Module  # pylint: disable=unused-argument
+        ) -> None:
             self.called.add("module")
 
         @only_required_for_messages("second-message")
-        def visit_call(self, module):
+        def visit_call(self, module: nodes.Call) -> None:
             raise NotImplementedError
 
         @only_required_for_messages("second-message", "third-message")
-        def visit_assignname(self, module):  # pylint: disable=unused-argument
+        def visit_assignname(
+            self, module: nodes.AssignName  # pylint: disable=unused-argument
+        ) -> None:
             self.called.add("assignname")
 
         @only_required_for_messages("second-message")
-        def leave_assignname(self, module):
+        def leave_assignname(self, module: nodes.AssignName) -> None:
             raise NotImplementedError
 
     def test_only_required_for_messages(self) -> None:
@@ -59,7 +64,9 @@ class TestASTWalker:
                 self.called = False
 
             @only_required_for_messages("first-message")
-            def visit_assname(self, node):  # pylint: disable=unused-argument
+            def visit_assname(
+                self, node: nodes.AssignName  # pylint: disable=unused-argument
+            ) -> None:
                 self.called = True
 
         linter = self.MockLinter({"first-message": True})
