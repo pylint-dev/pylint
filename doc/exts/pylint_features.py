@@ -39,7 +39,7 @@ def builder_inited(app: Optional[Sphinx]) -> None:
         print_full_documentation(linter, stream, False)
 
 
-def setup(app):
+def setup(app: Sphinx) -> dict[str, str]:
     app.connect("builder-inited", builder_inited)
     return {"version": sphinx.__display_version__}
 
