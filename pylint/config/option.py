@@ -110,7 +110,7 @@ def _py_version_validator(_: Any, name: str, value: Any) -> tuple[int, int, int]
             raise optparse.OptionValueError(
                 f"Invalid format for {name}, should be version string. E.g., '3.8'"
             ) from None
-    return value
+    return value  # type: ignore[no-any-return]
 
 
 VALIDATORS: dict[str, Callable[[Any, str, Any], Any] | Callable[[Any], Any]] = {

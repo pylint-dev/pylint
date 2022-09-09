@@ -431,5 +431,5 @@ class IsortDriver:
 
     def place_module(self, package: str) -> str:
         if HAS_ISORT_5:
-            return isort.api.place_module(package, self.isort5_config)
-        return self.isort4_obj.place_module(package)
+            return isort.api.place_module(package, self.isort5_config)  # type: ignore[no-any-return]
+        return self.isort4_obj.place_module(package)  # type: ignore[no-any-return]

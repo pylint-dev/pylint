@@ -11,7 +11,7 @@ from pylint.config.options_provider_mixin import (  # type: ignore[attr-defined]
 )
 
 
-class ConfigurationMixIn(OptionsManagerMixIn, OptionsProviderMixIn):
+class ConfigurationMixIn(OptionsManagerMixIn, OptionsProviderMixIn):  # type: ignore[misc]
     """Basic mixin for simple configurations which don't need the
     manager / providers model.
     """

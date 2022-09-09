@@ -143,7 +143,7 @@ class ClassDiagram(Figure, FilterMixIn):
             and not decorated_with_property(m)
             and self.show_attr(m.name)
         ]
-        return sorted(methods, key=lambda n: n.name)
+        return sorted(methods, key=lambda n: n.name)  # type: ignore[no-any-return]
 
     def add_object(self, title: str, node: nodes.ClassDef) -> None:
         """Create a diagram object."""

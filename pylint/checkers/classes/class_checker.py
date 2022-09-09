@@ -200,7 +200,7 @@ def _positional_parameters(method: nodes.FunctionDef) -> list[nodes.AssignName]:
     positional = method.args.args
     if method.is_bound() and method.type in {"classmethod", "method"}:
         positional = positional[1:]
-    return positional
+    return positional  # type: ignore[no-any-return]
 
 
 class _DefaultMissing:
@@ -841,7 +841,7 @@ a metaclass class method.",
 
     @cached_property
     def _dummy_rgx(self) -> Pattern[str]:
-        return self.linter.config.dummy_variables_rgx
+        return self.linter.config.dummy_variables_rgx  # type: ignore[no-any-return]
 
     @only_required_for_messages(
         "abstract-method",
@@ -1991,7 +1991,7 @@ a metaclass class method.",
         """
 
         def is_abstract(method: nodes.FunctionDef) -> bool:
-            return method.is_abstract(pass_is_abstract=False)
+            return method.is_abstract(pass_is_abstract=False)  # type: ignore[no-any-return]
 
         # check if this class abstract
         if class_is_abstract(node):
