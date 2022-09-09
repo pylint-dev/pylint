@@ -9,7 +9,7 @@ from __future__ import annotations
 import re
 from collections import defaultdict
 from collections.abc import Iterator
-from typing import TYPE_CHECKING, List, cast
+from typing import TYPE_CHECKING
 
 import astroid
 from astroid import nodes

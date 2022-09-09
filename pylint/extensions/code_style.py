@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 import sys
-from typing import TYPE_CHECKING, Tuple, Type, Union, cast
+from typing import TYPE_CHECKING, Tuple, Type, cast
 
 from astroid import nodes
 
