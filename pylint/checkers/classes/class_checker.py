@@ -1803,7 +1803,7 @@ a metaclass class method.",
         )
 
     @staticmethod
-    def _is_inferred_instance(expr, klass: nodes.ClassDef) -> bool:
+    def _is_inferred_instance(expr: nodes.NodeNG, klass: nodes.ClassDef) -> bool:
         """Check if the inferred value of the given *expr* is an instance of
         *klass*.
         """

@@ -105,8 +105,10 @@ SEARCH_DICT_BYTE_UTF8 = {
 def test_map_positions_to_result(
     line: pylint.checkers.unicode._StrLike,
     expected: dict[int, pylint.checkers.unicode._BadChar],
-    search_dict,
-):
+    search_dict: dict[
+        pylint.checkers.unicode._StrLike, pylint.checkers.unicode._BadChar
+    ],
+) -> None:
     """Test all possible outcomes for map position function in UTF-8 and ASCII."""
     if isinstance(line, bytes):
         newline = b"\n"
@@ -133,7 +135,7 @@ def test_map_positions_to_result(
         pytest.param(b"12345678\n\r", id="wrong_order_byte"),
     ],
 )
-def test_line_length(line: pylint.checkers.unicode._StrLike):
+def test_line_length(line: pylint.checkers.unicode._StrLike) -> None:
     assert pylint.checkers.unicode._line_length(line, "utf-8") == 10
 
 
@@ -146,7 +148,7 @@ def test_line_length(line: pylint.checkers.unicode._StrLike):
         pytest.param("12345678\n\r", id="wrong_order"),
     ],
 )
-def test_line_length_utf16(line: str):
+def test_line_length_utf16(line: str) -> None:
     assert pylint.checkers.unicode._line_length(line.encode("utf-16"), "utf-16") == 10
 
 
@@ -159,7 +161,7 @@ def test_line_length_utf16(line: str):
         pytest.param("12345678\n\r", id="wrong_order"),
     ],
 )
-def test_line_length_utf32(line: str):
+def test_line_length_utf32(line: str) -> None:
     assert pylint.checkers.unicode._line_length(line.encode("utf-32"), "utf-32") == 10
 
 
@@ -186,7 +188,7 @@ def test_line_length_utf32(line: str):
         ("ASCII", "ascii"),
     ],
 )
-def test__normalize_codec_name(codec: str, expected: str):
+def test__normalize_codec_name(codec: str, expected: str) -> None:
     assert pylint.checkers.unicode._normalize_codec_name(codec) == expected
 
 
@@ -216,7 +218,7 @@ def test__normalize_codec_name(codec: str, expected: str):
 )
 def test___fix_utf16_32_line_stream(
     tmp_path: Path, codec: str, line_ending: str, final_new_line: bool
-):
+) -> None:
     """Content of stream should be the same as should be the length."""
 
     def decode_line(line: bytes, codec: str) -> str:
@@ -260,5 +262,5 @@ def test___fix_utf16_32_line_stream(
         ("ascii", 1),
     ],
 )
-def test__byte_to_str_length(codec: str, expected: int):
+def test__byte_to_str_length(codec: str, expected: int) -> None:
     assert pylint.checkers.unicode._byte_to_str_length(codec) == expected

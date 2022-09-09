@@ -7,6 +7,7 @@ from unittest import mock
 from unittest.mock import patch
 
 import pytest
+from _pytest.recwarn import WarningsRecorder
 from py._path.local import LocalPath
 from pytest import CaptureFixture
 
@@ -20,7 +21,7 @@ def raise_exception(*args: Any, **kwargs: Any) -> NoReturn:
 
 @patch.object(FileState, "iter_spurious_suppression_messages", raise_exception)
 def test_crash_in_file(
-    linter: PyLinter, capsys: CaptureFixture, tmpdir: LocalPath
+    linter: PyLinter, capsys: CaptureFixture[str], tmpdir: LocalPath
 ) -> None:
     with pytest.warns(DeprecationWarning):
         args = linter.load_command_line_configuration([__file__])
@@ -35,7 +36,7 @@ def test_crash_in_file(
     assert any(m.symbol == "fatal" for m in linter.reporter.messages)
 
 
-def test_check_deprecation(linter: PyLinter, recwarn):
+def test_check_deprecation(linter: PyLinter, recwarn: WarningsRecorder) -> None:
     linter.check("myfile.py")
     msg = recwarn.pop()
     assert "check function will only accept sequence" in str(msg)

@@ -35,7 +35,7 @@ def disable():
     return ["I"]
 
 
-def test_template_option(linter):
+def test_template_option(linter: PyLinter) -> None:
     output = StringIO()
     linter.reporter.out = output
     linter.config.msg_template = "{msg_id}:{line:03d}"
@@ -46,7 +46,7 @@ def test_template_option(linter):
     assert output.getvalue() == "************* Module 0123\nC0301:001\nC0301:002\n"
 
 
-def test_template_option_default(linter) -> None:
+def test_template_option_default(linter: PyLinter) -> None:
     """Test the default msg-template setting."""
     output = StringIO()
     linter.reporter.out = output
@@ -60,7 +60,7 @@ def test_template_option_default(linter) -> None:
     assert out_lines[2] == "my_module:2:0: C0301: Line too long (3/4) (line-too-long)"
 
 
-def test_template_option_end_line(linter) -> None:
+def test_template_option_end_line(linter: PyLinter) -> None:
     """Test the msg-template option with end_line and end_column."""
     output = StringIO()
     linter.reporter.out = output
@@ -79,7 +79,7 @@ def test_template_option_end_line(linter) -> None:
     assert out_lines[2] == "my_mod:2:0:2:4: C0301: Line too long (3/4) (line-too-long)"
 
 
-def test_template_option_non_existing(linter) -> None:
+def test_template_option_non_existing(linter: PyLinter) -> None:
     """Test the msg-template option with non-existent options.
     This makes sure that this option remains backwards compatible as new
     parameters do not break on previous versions

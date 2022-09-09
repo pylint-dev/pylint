@@ -14,6 +14,7 @@ from unittest import mock
 
 import pytest
 from _pytest.capture import CaptureFixture
+from _pytest.fixtures import SubRequest
 
 from pylint.lint import fix_import_path
 from pylint.pyreverse import main
@@ -23,13 +24,13 @@ PROJECT_ROOT_DIR = os.path.abspath(os.path.join(TEST_DATA_DIR, ".."))
 
 
 @pytest.fixture(name="mock_subprocess")
-def mock_utils_subprocess():
+def mock_utils_subprocess() -> Iterator[mock.MagicMock]:
     with mock.patch("pylint.pyreverse.utils.subprocess") as mock_subprocess:
         yield mock_subprocess
 
 
 @pytest.fixture
-def mock_graphviz(mock_subprocess):
+def mock_graphviz(mock_subprocess: mock.MagicMock) -> Iterator[None]:
     mock_subprocess.run.return_value = mock.Mock(
         stderr=(
             'Format: "XYZ" not recognized. Use one of: '
@@ -45,7 +46,7 @@ def mock_graphviz(mock_subprocess):
 
 
 @pytest.fixture(params=[PROJECT_ROOT_DIR, TEST_DATA_DIR])
-def setup_path(request) -> Iterator[None]:
+def setup_path(request: SubRequest) -> Iterator[None]:
     current_sys_path = list(sys.path)
     sys.path[:] = []
     current_dir = os.getcwd()
@@ -68,7 +69,9 @@ def test_project_root_in_sys_path() -> None:
 @mock.patch("pylint.pyreverse.main.DiadefsHandler", new=mock.MagicMock())
 @mock.patch("pylint.pyreverse.main.writer")
 @pytest.mark.usefixtures("mock_graphviz")
-def test_graphviz_supported_image_format(mock_writer, capsys: CaptureFixture) -> None:
+def test_graphviz_supported_image_format(
+    mock_writer: mock.MagicMock, capsys: CaptureFixture[str]
+) -> None:
     """Test that Graphviz is used if the image format is supported."""
     with pytest.raises(SystemExit) as wrapped_sysexit:
         # we have to catch the SystemExit so the test execution does not stop
@@ -88,7 +91,7 @@ def test_graphviz_supported_image_format(mock_writer, capsys: CaptureFixture) ->
 @mock.patch("pylint.pyreverse.main.writer")
 @pytest.mark.usefixtures("mock_graphviz")
 def test_graphviz_cant_determine_supported_formats(
-    mock_writer, mock_subprocess, capsys: CaptureFixture
+    mock_writer: mock.MagicMock, mock_subprocess: mock.MagicMock, capsys: CaptureFixture
 ) -> None:
     """Test that Graphviz is used if the image format is supported."""
     mock_subprocess.run.return_value.stderr = "..."
