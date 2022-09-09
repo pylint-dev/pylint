@@ -74,7 +74,7 @@ def test_pylint_run_jobs_equal_zero_dont_crash_with_cpu_fraction(
 
     pathlib_path = pathlib.Path
 
-    def _mock_path(*args: str, **kwargs) -> pathlib.Path:
+    def _mock_path(*args: str, **kwargs: Any) -> pathlib.Path:
         if args[0] == "/sys/fs/cgroup/cpu/cpu.shares":
             return MagicMock(is_file=lambda: True)
         return pathlib_path(*args, **kwargs)

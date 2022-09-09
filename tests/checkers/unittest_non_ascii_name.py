@@ -136,7 +136,7 @@ class TestNonAsciiChecker(pylint.testutils.CheckerTestCase):
         self,
         code: str,
         assign_type: str,
-    ):
+    ) -> None:
         """Variables defined no matter where, should be checked for non ascii."""
         assign_node = astroid.extract_node(code)
 
@@ -261,7 +261,7 @@ class TestNonAsciiChecker(pylint.testutils.CheckerTestCase):
             ),
         ],
     )
-    def test_check_import(self, import_statement: str, wrong_name: str | None):
+    def test_check_import(self, import_statement: str, wrong_name: str | None) -> None:
         """We expect that for everything that user can change there is a message."""
         node = astroid.extract_node(f"{import_statement} #@")
 
