@@ -21,7 +21,7 @@ from pylint.utils import get_rst_title, print_full_documentation
 
 
 # pylint: disable-next=unused-argument
-def builder_inited(app: Optional[Sphinx]) -> None:
+def builder_inited(app: Sphinx | None) -> None:
     # PACKAGE/docs/exts/pylint_extensions.py --> PACKAGE/
     base_path = os.path.dirname(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
