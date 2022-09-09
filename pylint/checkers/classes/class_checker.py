@@ -9,10 +9,10 @@ from __future__ import annotations
 import collections
 import sys
 from collections import defaultdict
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from itertools import chain, zip_longest
 from re import Pattern
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Any, Union
 
 import astroid
 from astroid import bases, nodes
@@ -244,7 +244,9 @@ def _has_different_parameters_default_value(
         if not isinstance(overridden_default, original_type):
             # Two args with same name but different types
             return True
-        is_same_fn = ASTROID_TYPE_COMPARATORS.get(original_type)
+        is_same_fn: Callable[[Any, Any], bool] | None = ASTROID_TYPE_COMPARATORS.get(
+            original_type
+        )
         if is_same_fn is None:
             # If the default value comparison is unhandled, assume the value is different
             return True

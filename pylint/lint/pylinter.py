@@ -939,9 +939,7 @@ class PyLinter(
         walker = ASTWalker(self)
         _checkers = self.prepare_checkers()
         tokencheckers = [
-            c
-            for c in _checkers
-            if isinstance(c, checkers.BaseTokenChecker) and c is not self
+            c for c in _checkers if isinstance(c, checkers.BaseTokenChecker)
         ]
         # TODO: 3.0: Remove deprecated for-loop
         for c in _checkers:

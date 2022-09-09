@@ -7,5 +7,7 @@
 Everything in this module is private.
 """
 
-from pylint.config._pylint_config.main import _handle_pylint_config_commands  # noqa
-from pylint.config._pylint_config.setup import _register_generate_config_options  # noqa
+from pylint.config._pylint_config.main import _handle_pylint_config_commands
+from pylint.config._pylint_config.setup import _register_generate_config_options
+
+__all__ = ("_handle_pylint_config_commands", "_register_generate_config_options")

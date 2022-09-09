@@ -135,7 +135,7 @@ class ForwardSlashChunker(Chunker):
 
     _text: str
 
-    def next(self):
+    def next(self) -> tuple[str, int]:
         while True:
             if not self._text:
                 raise StopIteration()
