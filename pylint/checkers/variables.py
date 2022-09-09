@@ -2424,6 +2424,9 @@ class VariablesChecker(BaseChecker):
             regex: re.Pattern[str] = self.linter.config.ignored_argument_names
         else:
             regex = authorized_rgx
+        # See https://stackoverflow.com/a/47007761/2519059 to
+        # understand what this function return. Please do NOT use
+        # this elsewhere, this is confusing for no benefit
         return regex and regex.match(name)
 
     def _check_unused_arguments(
