@@ -11,9 +11,11 @@ import warnings
 from contextlib import redirect_stdout
 from io import StringIO
 from json import dumps
-from typing import TYPE_CHECKING
+from pathlib import Path
+from typing import TYPE_CHECKING, TextIO
 
 import pytest
+from _pytest.recwarn import WarningsRecorder
 
 from pylint import checkers
 from pylint.lint import PyLinter
@@ -26,12 +28,12 @@ if TYPE_CHECKING:
 
 
 @pytest.fixture(scope="module")
-def reporter():
+def reporter() -> type[TextReporter]:
     return TextReporter
 
 
 @pytest.fixture(scope="module")
-def disable():
+def disable() -> list[str]:
     return ["I"]
 
 
@@ -111,7 +113,7 @@ def test_template_option_non_existing(linter: PyLinter) -> None:
     assert out_lines[2] == "my_mod:2::()"
 
 
-def test_deprecation_set_output(recwarn):
+def test_deprecation_set_output(recwarn: WarningsRecorder) -> None:
     """TODO remove in 3.0."""
     reporter = BaseReporter()
     # noinspection PyDeprecation
@@ -121,7 +123,7 @@ def test_deprecation_set_output(recwarn):
     assert reporter.out == sys.stdout
 
 
-def test_parseable_output_deprecated():
+def test_parseable_output_deprecated() -> None:
     with warnings.catch_warnings(record=True) as cm:
         warnings.simplefilter("always")
         ParseableTextReporter()
@@ -130,7 +132,7 @@ def test_parseable_output_deprecated():
     assert isinstance(cm[0].message, DeprecationWarning)
 
 
-def test_parseable_output_regression():
+def test_parseable_output_regression() -> None:
     output = StringIO()
     with warnings.catch_warnings(record=True):
         linter = PyLinter(reporter=ParseableTextReporter())
@@ -153,18 +155,18 @@ class NopReporter(BaseReporter):
     name = "nop-reporter"
     extension = ""
 
-    def __init__(self, output=None):
+    def __init__(self, output: TextIO | None = None) -> None:
         super().__init__(output)
         print("A NopReporter was initialized.", file=self.out)
 
-    def writeln(self, string=""):
+    def writeln(self, string: str = "") -> None:
         pass
 
     def _display(self, layout: Section) -> None:
         pass
 
 
-def test_multi_format_output(tmp_path):
+def test_multi_format_output(tmp_path: Path) -> None:
     text = StringIO(newline=None)
     json = tmp_path / "somefile.json"
 
@@ -189,7 +191,9 @@ def test_multi_format_output(tmp_path):
             linter.reporter.out = text
 
         linter.open()
-        linter.check_single_file_item(FileItem("somemodule", source_file, "somemodule"))
+        linter.check_single_file_item(
+            FileItem("somemodule", str(source_file), "somemodule")
+        )
         linter.add_message("line-too-long", line=1, args=(1, 2))
         linter.generate_reports()
         linter.reporter.writeln("direct output")
@@ -330,7 +334,7 @@ def test_multi_format_output(tmp_path):
     )
 
 
-def test_display_results_is_renamed():
+def test_display_results_is_renamed() -> None:
     class CustomReporter(TextReporter):
         def _display(self, layout: Section) -> None:
             return None

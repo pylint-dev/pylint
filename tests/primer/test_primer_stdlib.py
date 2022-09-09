@@ -6,6 +6,7 @@ import contextlib
 import io
 import os
 import sys
+from collections.abc import Iterator
 
 import pytest
 from pytest import CaptureFixture
@@ -22,7 +23,7 @@ def is_package(filename: str, location: str) -> bool:
 
 
 @contextlib.contextmanager
-def _patch_stdout(out):
+def _patch_stdout(out: io.StringIO) -> Iterator[None]:
     sys.stdout = out
     try:
         yield

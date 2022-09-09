@@ -233,7 +233,7 @@ disable = logging-not-lazy,logging-format-interpolation
         ],
     ],
 )
-def test_cfg_has_config(content: str, expected: str, tmp_path: Path) -> None:
+def test_cfg_has_config(content: str, expected: bool, tmp_path: Path) -> None:
     """Test that a cfg file has a pylint config."""
     fake_cfg = tmp_path / "fake.cfg"
     with open(fake_cfg, "w", encoding="utf8") as f:

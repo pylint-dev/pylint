@@ -23,7 +23,7 @@ class TestNonAsciiChecker(pylint.testutils.CheckerTestCase):
     @pytest.mark.skipif(
         sys.version_info < (3, 8), reason="requires python3.8 or higher"
     )
-    def test_kwargs_and_position_only(self):
+    def test_kwargs_and_position_only(self) -> None:
         """Even the new position only and keyword only should be found."""
         node = astroid.extract_node(
             """

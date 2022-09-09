@@ -94,7 +94,7 @@ class LintTestUsingModule:
 
 
 class LintTestUpdate(LintTestUsingModule):
-    def _check_result(self, got):
+    def _check_result(self, got: str) -> None:
         if not self._has_output():
             return
         try:

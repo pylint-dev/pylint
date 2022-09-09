@@ -31,7 +31,7 @@ from pylint.pyreverse.utils import (
         ),
     ],
 )
-def test_get_visibility(names, expected):
+def test_get_visibility(names: list[str], expected: str) -> None:
     for name in names:
         got = get_visibility(name)
         assert got == expected, f"got {got} instead of {expected} for value {name}"
@@ -46,7 +46,7 @@ def test_get_visibility(names, expected):
         ("a: Optional[str] = None", "Optional[str]"),
     ],
 )
-def test_get_annotation_annassign(assign, label):
+def test_get_annotation_annassign(assign: str, label: str) -> None:
     """AnnAssign."""
     node: nodes.AnnAssign = astroid.extract_node(assign)
     annotation = get_annotation(node.value)
@@ -67,7 +67,7 @@ def test_get_annotation_annassign(assign, label):
         ("def __init__(self, x: Optional[str] = 'str'): self.x = x", "Optional[str]"),
     ],
 )
-def test_get_annotation_assignattr(init_method, label):
+def test_get_annotation_assignattr(init_method: str, label: str) -> None:
     """AssignAttr."""
     assign = rf"""
         class A:
