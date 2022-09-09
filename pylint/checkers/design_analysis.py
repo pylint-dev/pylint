@@ -245,7 +245,7 @@ def _get_parents_iter(
     ``{A, B, C, D}`` -- both ``E`` and its ancestors are excluded.
     """
     parents: set[nodes.ClassDef] = set()
-    to_explore = cast(List[nodes.ClassDef], list(node.ancestors(recurs=False)))
+    to_explore = list(node.ancestors(recurs=False))
     while to_explore:
         parent = to_explore.pop()
         if parent.qname() in ignored_parents:

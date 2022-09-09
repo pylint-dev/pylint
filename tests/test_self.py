@@ -518,7 +518,7 @@ class TestRunTC:
 
     @pytest.mark.parametrize("write_bpy_to_disk", [False, True])
     def test_relative_imports(self, write_bpy_to_disk: bool, tmpdir: LocalPath) -> None:
-        a = tmpdir.join("a")
+        a = tmpdir.join("a")  # type: ignore[no-untyped-call]
 
         b_code = textwrap.dedent(
             """

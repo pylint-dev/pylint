@@ -30,7 +30,7 @@ def test_crash_in_file(
     out, err = capsys.readouterr()
     assert not out
     assert not err
-    files = tmpdir.listdir()
+    files = tmpdir.listdir()  # type: ignore[no-untyped-call]
     assert len(files) == 1
     assert "pylint-crash-20" in str(files[0])
     assert any(m.symbol == "fatal" for m in linter.reporter.messages)
@@ -53,7 +53,7 @@ def test_crash_during_linting(
         out, err = capsys.readouterr()
         assert not out
         assert not err
-        files = tmpdir.listdir()
+        files = tmpdir.listdir()  # type: ignore[no-untyped-call]
         assert len(files) == 1
         assert "pylint-crash-20" in str(files[0])
         assert any(m.symbol == "astroid-error" for m in linter.reporter.messages)
