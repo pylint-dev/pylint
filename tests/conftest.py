@@ -68,7 +68,7 @@ def reporter():
     return MinimalTestReporter
 
 
-def pytest_addoption(parser) -> None:
+def pytest_addoption(parser: pytest.Parser) -> None:
     parser.addoption(
         "--primer-stdlib",
         action="store_true",

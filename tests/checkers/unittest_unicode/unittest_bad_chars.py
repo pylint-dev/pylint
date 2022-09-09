@@ -120,7 +120,7 @@ class TestBadCharsChecker(pylint.testutils.CheckerTestCase):
         codec_and_msg: tuple[str, tuple[pylint.testutils.MessageTest]],
         line_ending: str,
         add_invalid_bytes: bool,
-    ):
+    ) -> None:
         """All combinations of bad characters that are accepted by Python at the moment
         are tested in all possible combinations of
           - line ending
@@ -215,7 +215,7 @@ class TestBadCharsChecker(pylint.testutils.CheckerTestCase):
         char: str,
         msg_id: str,
         codec_and_msg: tuple[str, tuple[pylint.testutils.MessageTest]],
-    ):
+    ) -> None:
         """Special test for a file containing chars that lead to
         Python or Astroid crashes (which causes Pylint to exit early)
         """

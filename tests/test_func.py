@@ -104,14 +104,16 @@ class LintTestUpdate(LintTestUsingModule):
                 f.write(got)
 
 
-def gen_tests(filter_rgx):
+def gen_tests(
+    filter_rgx: str | re.Pattern[str] | None,
+) -> list[tuple[str, str, list[tuple[str, str]]]]:
     if filter_rgx:
         is_to_run = re.compile(filter_rgx).search
     else:
         is_to_run = (
-            lambda x: 1  # type: ignore[assignment] # pylint: disable=unnecessary-lambda-assignment
+            lambda x: 1  # type: ignore[assignment,misc] # pylint: disable=unnecessary-lambda-assignment
         )  # noqa: E731 We're going to throw all this anyway
-    tests = []
+    tests: list[tuple[str, str, list[tuple[str, str]]]] = []
     for module_file, messages_file in _get_tests_info(INPUT_DIR, MSG_DIR, "func_", ""):
         if not is_to_run(module_file) or module_file.endswith((".pyc", "$py.class")):
             continue
@@ -135,7 +137,10 @@ TEST_WITH_EXPECTED_DEPRECATION = ["func_excess_escapes.py"]
     ids=[o[0] for o in gen_tests(FILTER_RGX)],
 )
 def test_functionality(
-    module_file, messages_file, dependencies, recwarn: pytest.WarningsRecorder
+    module_file: str,
+    messages_file: str,
+    dependencies: list[tuple[str, str]],
+    recwarn: pytest.WarningsRecorder,
 ) -> None:
     __test_functionality(module_file, messages_file, dependencies)
     if recwarn.list:
