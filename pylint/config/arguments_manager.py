@@ -646,7 +646,9 @@ class _ArgumentsManager:
             )
         return self._arg_parser.format_help()
 
-    def cb_set_provider_option(self, option, opt, value, parser):  # pragma: no cover
+    def cb_set_provider_option(  # pragma: no cover
+        self, option: Any, opt: Any, value: Any, parser: Any
+    ) -> None:
         """DEPRECATED: Optik callback for option setting."""
         # TODO: 3.0: Remove deprecated method.
         warnings.warn(
@@ -758,7 +760,7 @@ class _ArgumentsManager:
         # Make sure the string we produce is valid toml and can be parsed
         tomllib.loads(toml_string)
 
-        return toml_string
+        return str(toml_string)
 
     def set_option(
         self,

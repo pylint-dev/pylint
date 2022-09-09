@@ -121,8 +121,13 @@ class _ArgumentsProvider:
         )
         return getattr(self._arguments_manager.config, opt.replace("-", "_"), None)
 
-    # pylint: disable-next=unused-argument
-    def set_option(self, optname, value, action=None, optdict=None):  # pragma: no cover
+    def set_option(  # pragma: no cover
+        self,
+        optname: Any,
+        value: Any,
+        action: Any = None,  # pylint: disable=unused-argument
+        optdict: Any = None,  # pylint: disable=unused-argument
+    ) -> None:
         """DEPRECATED: Method called to set an option (registered in the options
         list).
         """
