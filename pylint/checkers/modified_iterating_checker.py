@@ -116,7 +116,7 @@ class ModifiedIterationChecker(checkers.BaseChecker):
         iter_obj: nodes.NodeNG,
         infer_val: nodes.List | nodes.Set,
     ) -> bool:
-        return (infer_val == utils.safe_infer(iter_obj)) and (
+        return (infer_val == utils.safe_infer(iter_obj)) and (  # type: ignore[no-any-return]
             node.value.func.expr.name == iter_obj.name
         )
 
@@ -159,7 +159,7 @@ class ModifiedIterationChecker(checkers.BaseChecker):
             return False
         if infer_val != utils.safe_infer(iter_obj):
             return False
-        return node.targets[0].value.name == iter_obj.name
+        return node.targets[0].value.name == iter_obj.name  # type: ignore[no-any-return]
 
     def _modified_iterating_set_cond(
         self, node: nodes.NodeNG, iter_obj: nodes.NodeNG

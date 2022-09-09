@@ -337,7 +337,7 @@ class NameChecker(_BasicChecker):
             if len(groups[min_warnings]) > 1:
                 by_line = sorted(
                     groups[min_warnings],
-                    key=lambda group: min(
+                    key=lambda group: min(  # type: ignore[no-any-return]
                         warning[0].lineno
                         for warning in group
                         if warning[0].lineno is not None

@@ -215,7 +215,7 @@ def _detect_global_scope(
         # for annotations of function arguments, they'll have
         # their parent the Arguments node.
         if frame.parent_of(defframe):
-            return node.lineno < defframe.lineno
+            return node.lineno < defframe.lineno  # type: ignore[no-any-return]
         if not isinstance(node.parent, (nodes.FunctionDef, nodes.Arguments)):
             return False
     elif any(
@@ -249,7 +249,7 @@ def _detect_global_scope(
         return False
     # At this point, we are certain that frame and defframe share a scope
     # and the definition of the first depends on the second.
-    return frame.lineno < defframe.lineno
+    return frame.lineno < defframe.lineno  # type: ignore[no-any-return]
 
 
 def _infer_name_module(
@@ -257,7 +257,7 @@ def _infer_name_module(
 ) -> Generator[InferenceResult, None, None]:
     context = astroid.context.InferenceContext()
     context.lookupname = name
-    return node.infer(context, asname=False)
+    return node.infer(context, asname=False)  # type: ignore[no-any-return]
 
 
 def _fix_dot_imports(
@@ -303,7 +303,7 @@ def _fix_dot_imports(
                         second_name = import_module_name
                 if second_name and second_name not in names:
                     names[second_name] = stmt
-    return sorted(names.items(), key=lambda a: a[1].fromlineno)
+    return sorted(names.items(), key=lambda a: a[1].fromlineno)  # type: ignore[no-any-return]
 
 
 def _find_frame_imports(name: str, frame: nodes.LocalsDictNodeNG) -> bool:
@@ -1780,7 +1780,7 @@ class VariablesChecker(BaseChecker):
 
     @cached_property
     def _ignored_modules(self) -> Iterable[str]:
-        return self.linter.config.ignored_modules
+        return self.linter.config.ignored_modules  # type: ignore[no-any-return]
 
     @cached_property
     def _allow_global_unused_variables(self) -> bool:
@@ -2663,7 +2663,7 @@ class VariablesChecker(BaseChecker):
     def _nodes_to_unpack(node: nodes.NodeNG) -> list[nodes.NodeNG] | None:
         """Return the list of values of the `Assign` node."""
         if isinstance(node, (nodes.Tuple, nodes.List)):
-            return node.itered()
+            return node.itered()  # type: ignore[no-any-return]
         if isinstance(node, astroid.Instance) and any(
             ancestor.qname() == "typing.NamedTuple" for ancestor in node.ancestors()
         ):

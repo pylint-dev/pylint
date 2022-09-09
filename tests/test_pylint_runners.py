@@ -67,10 +67,10 @@ def test_pylint_run_jobs_equal_zero_dont_crash_with_cpu_fraction(
 
     def _mock_open(*args: Any, **kwargs: Any) -> BufferedReader:
         if args[0] == "/sys/fs/cgroup/cpu/cpu.cfs_quota_us":
-            return mock_open(read_data=b"-1")(*args, **kwargs)
+            return mock_open(read_data=b"-1")(*args, **kwargs)  # type: ignore[no-any-return]
         if args[0] == "/sys/fs/cgroup/cpu/cpu.shares":
-            return mock_open(read_data=b"2")(*args, **kwargs)
-        return builtin_open(*args, **kwargs)
+            return mock_open(read_data=b"2")(*args, **kwargs)  # type: ignore[no-any-return]
+        return builtin_open(*args, **kwargs)  # type: ignore[no-any-return]
 
     pathlib_path = pathlib.Path
 

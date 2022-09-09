@@ -95,7 +95,7 @@ def _load_reporter_by_class(reporter_class: str) -> type[BaseReporter]:
     class_name = qname.split(".")[-1]
     klass = getattr(module, class_name)
     assert issubclass(klass, BaseReporter), f"{klass} is not a BaseReporter"
-    return klass
+    return klass  # type: ignore[no-any-return]
 
 
 # Python Linter class #########################################################

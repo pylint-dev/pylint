@@ -292,4 +292,4 @@ class FileState:
                 )
 
     def get_effective_max_line_number(self) -> int | None:
-        return self._effective_max_line_number
+        return self._effective_max_line_number  # type: ignore[no-any-return]

@@ -585,7 +585,7 @@ def stripped_lines(
         line_begins_import = {
             lineno: all(is_import for _, is_import in node_is_import_group)
             for lineno, node_is_import_group in groupby(
-                node_is_import_by_lineno, key=lambda x: x[0]
+                node_is_import_by_lineno, key=lambda x: x[0]  # type: ignore[no-any-return]
             )
         }
         current_line_is_import = False

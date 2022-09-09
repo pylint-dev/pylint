@@ -43,7 +43,7 @@ def get_setters_property_name(node: nodes.FunctionDef) -> str | None:
             and decorator.attrname == "setter"
             and isinstance(decorator.expr, nodes.Name)
         ):
-            return decorator.expr.name
+            return decorator.expr.name  # type: ignore[no-any-return]
     return None
 
 

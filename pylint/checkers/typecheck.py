@@ -161,7 +161,7 @@ def _is_owner_ignored(
 def _node_names(node: SuccessfulInferenceResult) -> Iterable[str]:
     if not hasattr(node, "locals"):
         return []
-    return node.locals.keys()
+    return node.locals.keys()  # type: ignore[no-any-return]
 
 
 @_node_names.register(nodes.ClassDef)
@@ -1001,7 +1001,7 @@ accessed. Python regular expressions are accepted.",
 
     @cached_property
     def _suggestion_mode(self) -> bool:
-        return self.linter.config.suggestion_mode
+        return self.linter.config.suggestion_mode  # type: ignore[no-any-return]
 
     @cached_property
     def _compiled_generated_members(self) -> tuple[Pattern[str], ...]:
@@ -1031,12 +1031,12 @@ accessed. Python regular expressions are accepted.",
         def _metaclass_name(metaclass: InferenceResult) -> str | None:
             # pylint: disable=unidiomatic-typecheck
             if isinstance(metaclass, (nodes.ClassDef, nodes.FunctionDef)):
-                return metaclass.name
+                return metaclass.name  # type: ignore[no-any-return]
             if type(metaclass) is bases.Instance:
                 # Really do mean type, not isinstance, since subclasses of bases.Instance
                 # like Const or Dict should use metaclass.as_string below.
                 return str(metaclass)
-            return metaclass.as_string()
+            return metaclass.as_string()  # type: ignore[no-any-return]
 
         metaclass = node.declared_metaclass()
         if not metaclass:

@@ -102,7 +102,7 @@ def get_linter_result(score: bool, message: dict[str, Any]) -> list[dict[str, An
         reporter.display_reports(EvaluationSection(expected_score_message))
     reporter.display_messages(None)
     report_result = json.loads(output.getvalue())
-    return report_result
+    return report_result  # type: ignore[no-any-return]
 
 
 @pytest.mark.parametrize(
