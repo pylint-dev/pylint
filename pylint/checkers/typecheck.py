@@ -15,16 +15,16 @@ import shlex
 import sys
 import types
 from collections import deque
-from collections.abc import Callable, Iterator, Sequence
+from collections.abc import Callable, Iterable, Iterator, Sequence
 from functools import singledispatch
 from re import Pattern
-from typing import TYPE_CHECKING, Any, Union
+from typing import TYPE_CHECKING, Any, TypeVar, Union
 
 import astroid
 import astroid.exceptions
 import astroid.helpers
-from astroid import bases, nodes
-from astroid.typing import InferenceResult
+from astroid import arguments, bases, nodes
+from astroid.typing import InferenceResult, SuccessfulInferenceResult
 
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import (
@@ -70,6 +70,8 @@ CallableObjects = Union[
     nodes.ClassDef,
 ]
 
+_T = TypeVar("_T")
+
 STR_FORMAT = {"builtins.str.format"}
 ASYNCIO_COROUTINE = "asyncio.coroutines.coroutine"
 BUILTIN_TUPLE = "builtins.tuple"
@@ -87,16 +89,16 @@ class VERSION_COMPATIBLE_OVERLOAD:
 VERSION_COMPATIBLE_OVERLOAD_SENTINEL = VERSION_COMPATIBLE_OVERLOAD()
 
 
-def _unflatten(iterable):
+def _unflatten(iterable: Iterable[_T]) -> Iterator[_T]:
     for index, elem in enumerate(iterable):
         if isinstance(elem, Sequence) and not isinstance(elem, str):
             yield from _unflatten(elem)
         elif elem and not index:
             # We're interested only in the first element.
-            yield elem
+            yield elem  # type: ignore[misc]
 
 
-def _flatten_container(iterable):
+def _flatten_container(iterable: Iterable[_T]) -> Iterator[_T]:
     # Flatten nested containers into a single iterable
     for item in iterable:
         if isinstance(item, (list, tuple, types.GeneratorType)):
@@ -105,7 +107,12 @@ def _flatten_container(iterable):
             yield item
 
 
-def _is_owner_ignored(owner, attrname, ignored_classes, ignored_modules):
+def _is_owner_ignored(
+    owner: SuccessfulInferenceResult,
+    attrname: str | None,
+    ignored_classes: Iterable[str],
+    ignored_modules: Iterable[str],
+) -> bool:
     """Check if the given owner should be ignored.
 
     This will verify if the owner's module is in *ignored_modules*
@@ -151,7 +158,7 @@ def _is_owner_ignored(owner, attrname, ignored_classes, ignored_modules):
 
 
 @singledispatch
-def _node_names(node):
+def _node_names(node: SuccessfulInferenceResult) -> Iterable[str]:
     if not hasattr(node, "locals"):
         return []
     return node.locals.keys()
@@ -159,7 +166,7 @@ def _node_names(node):
 
 @_node_names.register(nodes.ClassDef)
 @_node_names.register(astroid.Instance)
-def _(node):
+def _(node: nodes.ClassDef | bases.Instance) -> Iterable[str]:
     values = itertools.chain(node.instance_attrs.keys(), node.locals.keys())
 
     try:
@@ -171,7 +178,7 @@ def _(node):
     return itertools.chain(values, other_values)
 
 
-def _string_distance(seq1, seq2):
+def _string_distance(seq1: str, seq2: str) -> int:
     seq2_length = len(seq2)
 
     row = list(range(1, seq2_length + 1)) + [0]
@@ -189,20 +196,25 @@ def _string_distance(seq1, seq2):
     return row[seq2_length - 1]
 
 
-def _similar_names(owner, attrname, distance_threshold, max_choices):
+def _similar_names(
+    owner: SuccessfulInferenceResult,
+    attrname: str | None,
+    distance_threshold: int,
+    max_choices: int,
+) -> list[str]:
     """Given an owner and a name, try to find similar names.
 
     The similar names are searched given a distance metric and only
     a given number of choices will be returned.
     """
-    possible_names = []
+    possible_names: list[tuple[str, int]] = []
     names = _node_names(owner)
 
     for name in names:
         if name == attrname:
             continue
 
-        distance = _string_distance(attrname, name)
+        distance = _string_distance(attrname or "", name)
         if distance <= distance_threshold:
             possible_names.append((name, distance))
 
@@ -217,7 +229,12 @@ def _similar_names(owner, attrname, distance_threshold, max_choices):
     return sorted(picked)
 
 
-def _missing_member_hint(owner, attrname, distance_threshold, max_choices):
+def _missing_member_hint(
+    owner: SuccessfulInferenceResult,
+    attrname: str | None,
+    distance_threshold: int,
+    max_choices: int,
+) -> str:
     names = _similar_names(owner, attrname, distance_threshold, max_choices)
     if not names:
         # No similar name.
@@ -666,7 +683,11 @@ def _determine_callable(
     raise ValueError
 
 
-def _has_parent_of_type(node, node_type, statement):
+def _has_parent_of_type(
+    node: nodes.Call,
+    node_type: nodes.Keyword | nodes.Starred,
+    statement: nodes.Statement,
+) -> bool:
     """Check if the given node has a parent of the given type."""
     parent = node.parent
     while not isinstance(parent, node_type) and statement.parent_of(parent):
@@ -674,9 +695,9 @@ def _has_parent_of_type(node, node_type, statement):
     return isinstance(parent, node_type)
 
 
-def _no_context_variadic_keywords(node, scope):
+def _no_context_variadic_keywords(node: nodes.Call, scope: nodes.Lambda) -> bool:
     statement = node.statement(future=True)
-    variadics = ()
+    variadics = []
 
     if isinstance(scope, nodes.Lambda) and not isinstance(scope, nodes.FunctionDef):
         variadics = list(node.keywords or []) + node.kwargs
@@ -689,12 +710,17 @@ def _no_context_variadic_keywords(node, scope):
     return _no_context_variadic(node, scope.args.kwarg, nodes.Keyword, variadics)
 
 
-def _no_context_variadic_positional(node, scope):
+def _no_context_variadic_positional(node: nodes.Call, scope: nodes.Lambda) -> bool:
     variadics = node.starargs + node.kwargs
     return _no_context_variadic(node, scope.args.vararg, nodes.Starred, variadics)
 
 
-def _no_context_variadic(node, variadic_name, variadic_type, variadics):
+def _no_context_variadic(
+    node: nodes.Call,
+    variadic_name: str | None,
+    variadic_type: nodes.Keyword | nodes.Starred,
+    variadics: list[nodes.Keyword | nodes.Starred],
+) -> bool:
     """Verify if the given call node has variadic nodes without context.
 
     This is a workaround for handling cases of nested call functions
@@ -740,7 +766,7 @@ def _no_context_variadic(node, variadic_name, variadic_type, variadics):
     return False
 
 
-def _is_invalid_metaclass(metaclass):
+def _is_invalid_metaclass(metaclass: nodes.ClassDef) -> bool:
     try:
         mro = metaclass.mro()
     except NotImplementedError:
@@ -791,14 +817,15 @@ def _infer_from_metaclass_constructor(
     return inferred or None
 
 
-def _is_c_extension(module_node):
+def _is_c_extension(module_node: InferenceResult) -> bool:
     return (
-        not astroid.modutils.is_standard_module(module_node.name)
+        isinstance(module_node, nodes.Module)
+        and not astroid.modutils.is_standard_module(module_node.name)
         and not module_node.fully_defined()
     )
 
 
-def _is_invalid_isinstance_type(arg):
+def _is_invalid_isinstance_type(arg: nodes.NodeNG) -> bool:
     # Return True if we are sure that arg is not a type
     inferred = utils.safe_infer(arg)
     if not inferred:
@@ -973,7 +1000,7 @@ accessed. Python regular expressions are accepted.",
         self._mixin_class_rgx = self.linter.config.mixin_class_rgx
 
     @cached_property
-    def _suggestion_mode(self):
+    def _suggestion_mode(self) -> bool:
         return self.linter.config.suggestion_mode
 
     @cached_property
@@ -1001,7 +1028,7 @@ accessed. Python regular expressions are accepted.",
 
     @only_required_for_messages("invalid-metaclass")
     def visit_classdef(self, node: nodes.ClassDef) -> None:
-        def _metaclass_name(metaclass):
+        def _metaclass_name(metaclass: InferenceResult) -> str | None:
             # pylint: disable=unidiomatic-typecheck
             if isinstance(metaclass, (nodes.ClassDef, nodes.FunctionDef)):
                 return metaclass.name
@@ -1068,9 +1095,9 @@ accessed. Python regular expressions are accepted.",
             return
 
         # list of (node, nodename) which are missing the attribute
-        missingattr = set()
+        missingattr: set[tuple[SuccessfulInferenceResult, str | None]] = set()
 
-        non_opaque_inference_results = [
+        non_opaque_inference_results: list[SuccessfulInferenceResult] = [
             owner
             for owner in inferred
             if owner is not astroid.Uninferable and not isinstance(owner, nodes.Unknown)
@@ -1167,7 +1194,11 @@ accessed. Python regular expressions are accepted.",
                     confidence=INFERENCE,
                 )
 
-    def _get_nomember_msgid_hint(self, node, owner):
+    def _get_nomember_msgid_hint(
+        self,
+        node: nodes.Attribute | nodes.AssignAttr | nodes.DelAttr,
+        owner: SuccessfulInferenceResult,
+    ) -> tuple[Literal["c-extension-no-member", "no-member"], str]:
         suggestions_are_possible = self._suggestion_mode and isinstance(
             owner, nodes.Module
         )
@@ -1185,7 +1216,7 @@ accessed. Python regular expressions are accepted.",
                 )
             else:
                 hint = ""
-        return msg, hint
+        return msg, hint  # type: ignore[return-value]
 
     @only_required_for_messages(
         "assignment-from-no-return",
@@ -1289,7 +1320,7 @@ accessed. Python regular expressions are accepted.",
             # Add the message
             self.add_message("non-str-assignment-to-dunder-name", node=node)
 
-    def _check_uninferable_call(self, node):
+    def _check_uninferable_call(self, node: nodes.Call) -> None:
         """Check that the given uninferable Call node does not
         call an actual function.
         """
@@ -1341,7 +1372,13 @@ accessed. Python regular expressions are accepted.",
 
                 self.add_message("not-callable", node=node, args=node.func.as_string())
 
-    def _check_argument_order(self, node, call_site, called, called_param_names):
+    def _check_argument_order(
+        self,
+        node: nodes.Call,
+        call_site: arguments.CallSite,
+        called: CallableObjects,
+        called_param_names: list[str | None],
+    ) -> None:
         """Match the supplied argument names against the function parameters.
 
         Warn if some argument names are not in the same order as they are in
@@ -1381,7 +1418,7 @@ accessed. Python regular expressions are accepted.",
         if calling_parg_names != called_param_names[: len(calling_parg_names)]:
             self.add_message("arguments-out-of-order", node=node, args=())
 
-    def _check_isinstance_args(self, node):
+    def _check_isinstance_args(self, node: nodes.Call) -> None:
         if len(node.args) != 2:
             # isinstance called with wrong number of args
             return
@@ -1477,7 +1514,7 @@ accessed. Python regular expressions are accepted.",
         # Analyze the list of formal parameters.
         args = list(itertools.chain(called.args.posonlyargs or (), called.args.args))
         num_mandatory_parameters = len(args) - len(called.args.defaults)
-        parameters: list[list[Any]] = []
+        parameters: list[tuple[tuple[str | None, nodes.NodeNG | None], bool]] = []
         parameter_name_to_index = {}
         for i, arg in enumerate(args):
             if isinstance(arg, nodes.Tuple):
@@ -1494,7 +1531,7 @@ accessed. Python regular expressions are accepted.",
                 defval = called.args.defaults[i - num_mandatory_parameters]
             else:
                 defval = None
-            parameters.append([(name, defval), False])
+            parameters.append(((name, defval), False))
 
         kwparams = {}
         for i, arg in enumerate(called.args.kwonlyargs):
@@ -1512,7 +1549,7 @@ accessed. Python regular expressions are accepted.",
         # 1. Match the positional arguments.
         for i in range(num_positional_args):
             if i < len(parameters):
-                parameters[i][1] = True
+                parameters[i] = (parameters[i][0], True)
             elif called.args.vararg is not None:
                 # The remaining positional arguments get assigned to the *args
                 # parameter.
@@ -1543,7 +1580,7 @@ accessed. Python regular expressions are accepted.",
                             args=(keyword, callable_name),
                         )
                 else:
-                    parameters[i][1] = True
+                    parameters[i] = (parameters[i][0], True)
             elif keyword in kwparams:
                 if kwparams[keyword][1]:
                     # Duplicate definition of function parameter.
@@ -1573,7 +1610,7 @@ accessed. Python regular expressions are accepted.",
                 # Assume that *kwargs provides values for all remaining
                 # unassigned named parameters.
                 if name is not None:
-                    parameters[i][1] = True
+                    parameters[i] = (parameters[i][0], True)
                 else:
                     # **kwargs can't assign to tuples.
                     pass
@@ -2001,7 +2038,7 @@ accessed. Python regular expressions are accepted.",
         """Detect TypeErrors for augmented binary arithmetic operands."""
         self._check_binop_errors(node)
 
-    def _check_binop_errors(self, node):
+    def _check_binop_errors(self, node: nodes.BinOp | nodes.AugAssign) -> None:
         for error in node.type_errors():
             # Let the error customize its output.
             if any(
@@ -2011,7 +2048,7 @@ accessed. Python regular expressions are accepted.",
                 continue
             self.add_message("unsupported-binary-operation", args=str(error), node=node)
 
-    def _check_membership_test(self, node):
+    def _check_membership_test(self, node: nodes.NodeNG) -> None:
         if is_inside_abstract_class(node):
             return
         if is_comprehension(node):
@@ -2189,7 +2226,7 @@ class IterableChecker(BaseChecker):
     }
 
     @staticmethod
-    def _is_asyncio_coroutine(node):
+    def _is_asyncio_coroutine(node: nodes.NodeNG) -> bool:
         if not isinstance(node, nodes.Call):
             return False
 
@@ -2207,7 +2244,7 @@ class IterableChecker(BaseChecker):
             return True
         return False
 
-    def _check_iterable(self, node, check_async=False):
+    def _check_iterable(self, node: nodes.NodeNG, check_async: bool = False) -> None:
         if is_inside_abstract_class(node):
             return
         inferred = safe_infer(node)
@@ -2216,7 +2253,7 @@ class IterableChecker(BaseChecker):
         if not is_iterable(inferred, check_async=check_async):
             self.add_message("not-an-iterable", args=node.as_string(), node=node)
 
-    def _check_mapping(self, node):
+    def _check_mapping(self, node: nodes.NodeNG) -> None:
         if is_inside_abstract_class(node):
             return
         if isinstance(node, nodes.DictComp):
