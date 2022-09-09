@@ -45,13 +45,13 @@ _AppendableNodeT = TypeVar(
 )
 
 
-class PathGraph(Mccabe_PathGraph):
+class PathGraph(Mccabe_PathGraph):  # type: ignore[misc]
     def __init__(self, node: _SubGraphNodes | nodes.FunctionDef):
         super().__init__(name="", entity="", lineno=1)
         self.root = node
 
 
-class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):
+class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):  # type: ignore[misc]
     def __init__(self) -> None:
         super().__init__()
         self._bottom_counter = 0
