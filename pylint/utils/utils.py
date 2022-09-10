@@ -6,6 +6,7 @@ from __future__ import annotations
 
 try:
     import isort.api
+    import isort.settings
 
     HAS_ISORT_5 = True
 except ImportError:  # isort < 5
@@ -413,7 +414,7 @@ class IsortDriver:
 
     def __init__(self, config: argparse.Namespace) -> None:
         if HAS_ISORT_5:
-            self.isort5_config = isort.api.Config(
+            self.isort5_config = isort.settings.Config(
                 # There is no typo here. EXTRA_standard_library is
                 # what most users want. The option has been named
                 # KNOWN_standard_library for ages in pylint, and we
@@ -423,7 +424,7 @@ class IsortDriver:
             )
         else:
             # pylint: disable-next=no-member
-            self.isort4_obj = isort.SortImports(
+            self.isort4_obj = isort.SortImports(  # type: ignore[attr-defined]
                 file_contents="",
                 known_standard_library=config.known_standard_library,
                 known_third_party=config.known_third_party,
@@ -431,5 +432,5 @@ class IsortDriver:
 
     def place_module(self, package: str) -> str:
         if HAS_ISORT_5:
-            return isort.api.place_module(package, self.isort5_config)  # type: ignore[no-any-return]
+            return isort.api.place_module(package, self.isort5_config)
         return self.isort4_obj.place_module(package)  # type: ignore[no-any-return]
