@@ -19,7 +19,7 @@ from typing import TYPE_CHECKING, Callable, TypeVar
 
 import _string
 import astroid.objects
-from astroid import TooManyLevelsError, bases, nodes
+from astroid import TooManyLevelsError, nodes
 from astroid.context import InferenceContext
 from astroid.exceptions import AstroidError
 from astroid.nodes._base_nodes import ImportNode
@@ -37,15 +37,6 @@ COMP_NODE_TYPES = (
     nodes.SetComp,
     nodes.DictComp,
     nodes.GeneratorExp,
-)
-WITH_IGETATTR = (
-    nodes.Module,
-    nodes.ClassDef,
-    nodes.FunctionDef,
-    astroid.objects.Super,
-    nodes.Slice,
-    bases.UnboundMethod,
-    bases.BaseInstance,
 )
 EXCEPTIONS_MODULE = "builtins"
 ABC_MODULES = {"abc", "_py_abc"}
@@ -1959,7 +1950,7 @@ def is_hashable(node: nodes.NodeNG) -> bool:
         for inferred in node.infer():
             if inferred is astroid.Uninferable:
                 return True
-            if not isinstance(inferred, WITH_IGETATTR):
+            if not hasattr(inferred, "igetattr"):
                 return True
             hash_fn = next(inferred.igetattr("__hash__"))
             if hash_fn.parent is inferred:
