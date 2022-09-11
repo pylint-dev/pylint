@@ -1,0 +1,3 @@
+Description for ``typevar-rgx`` configuration (introduced by #5894) is mentioning ``typevar-naming-style``, which currently does not exist.
+
+Refs #7455
