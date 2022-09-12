@@ -1950,6 +1950,8 @@ def is_hashable(node: nodes.NodeNG) -> bool:
         for inferred in node.infer():
             if inferred is astroid.Uninferable:
                 return True
+            if not hasattr(inferred, "igetattr"):
+                return True
             hash_fn = next(inferred.igetattr("__hash__"))
             if hash_fn.parent is inferred:
                 return True
