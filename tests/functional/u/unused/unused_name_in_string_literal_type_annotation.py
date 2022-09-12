@@ -21,6 +21,11 @@ def example3(_: "os.PathLike[str]") -> None:
 def example4(_: "PathLike[str]") -> None:
     """unused-import shouldn't be emitted for PathLike."""
 
+# pylint shouldn't crash with the following strings in a type annotation context
+example5: Set[""]
+example6: Set[" "]
+example7: Set["?"]
+
 class Class:
     """unused-import shouldn't be emitted for Namespace"""
     cls: "Namespace"

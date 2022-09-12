@@ -2945,28 +2945,25 @@ class VariablesChecker(BaseChecker):
             return
         if not utils.is_node_in_type_annotation_context(node):
             return
-        if not node.value.isidentifier():
-            try:
-                annotation = extract_node(node.value)
-                self._store_type_annotation_node(annotation)
-            except ValueError:
-                # e.g. node.value is white space
-                return
-            except astroid.AstroidSyntaxError:
-                # e.g. "?" or ":" in typing.Literal["?", ":"]
-                return
 
         # Check if parent's or grandparent's first child is typing.Literal
         parent = node.parent
         if isinstance(parent, nodes.Tuple):
             parent = parent.parent
-
         if isinstance(parent, nodes.Subscript):
             origin = next(parent.get_children(), None)
             if origin is not None and utils.is_typing_literal(origin):
                 return
 
-        self._type_annotation_names.append(node.value)
+        try:
+            annotation = extract_node(node.value)
+            self._store_type_annotation_node(annotation)
+        except ValueError:
+            # e.g. node.value is white space
+            pass
+        except astroid.AstroidSyntaxError:
+            # e.g. "?" or ":" in typing.Literal["?", ":"]
+            pass
 
 
 def register(linter: PyLinter) -> None:
