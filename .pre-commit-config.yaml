@@ -14,7 +14,7 @@ repos:
             tests/functional/t/trailing_newlines.py|
             doc/data/messages/t/trailing-newlines/bad.py|
           )$
-  - repo: https://github.com/myint/autoflake
+  - repo: https://github.com/PyCQA/autoflake
     rev: v1.5.3
     hooks:
       - id: autoflake
