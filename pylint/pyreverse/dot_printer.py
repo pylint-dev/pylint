@@ -10,12 +10,18 @@ import os
 import subprocess
 import sys
 import tempfile
+from enum import Enum
 from pathlib import Path
 
 from astroid import nodes
 
 from pylint.pyreverse.printer import EdgeType, Layout, NodeProperties, NodeType, Printer
 from pylint.pyreverse.utils import get_annotation_label
+
+
+class HTMLLabels(Enum):
+    LINEBREAK_LEFT = '<br ALIGN="LEFT"/>'
+
 
 ALLOWED_CHARSETS: frozenset[str] = frozenset(("utf-8", "iso-8859-1", "latin1"))
 SHAPES: dict[NodeType, str] = {
@@ -92,10 +98,10 @@ class DotPrinter(Printer):
 
         # Add class attributes
         attrs: list[str] = properties.attrs or []
-        attrs_string = r'<br ALIGN="LEFT"/>'.join(
+        attrs_string = rf'{HTMLLabels.LINEBREAK_LEFT.value}'.join(
             attr.replace("|", r"\|") for attr in attrs
         )
-        label = rf'{{{label}|{attrs_string}<br ALIGN="LEFT"/>|'
+        label = rf'{{{label}|{attrs_string}{HTMLLabels.LINEBREAK_LEFT.value}|'
 
         # Add class methods
         methods: list[nodes.FunctionDef] = properties.methods or []
@@ -107,7 +113,7 @@ class DotPrinter(Printer):
             label += rf"{method_name}({', '.join(args)})"
             if func.returns:
                 label += ": " + get_annotation_label(func.returns)
-            label += r'<br ALIGN="LEFT"/>'
+            label += rf"{HTMLLabels.LINEBREAK_LEFT.value}"
         label += "}"
         return label
 
