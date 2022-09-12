@@ -98,10 +98,10 @@ class DotPrinter(Printer):
 
         # Add class attributes
         attrs: list[str] = properties.attrs or []
-        attrs_string = rf'{HTMLLabels.LINEBREAK_LEFT.value}'.join(
+        attrs_string = rf"{HTMLLabels.LINEBREAK_LEFT.value}".join(
             attr.replace("|", r"\|") for attr in attrs
         )
-        label = rf'{{{label}|{attrs_string}{HTMLLabels.LINEBREAK_LEFT.value}|'
+        label = rf"{{{label}|{attrs_string}{HTMLLabels.LINEBREAK_LEFT.value}|"
 
         # Add class methods
         methods: list[nodes.FunctionDef] = properties.methods or []
