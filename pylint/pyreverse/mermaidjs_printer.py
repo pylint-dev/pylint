@@ -54,7 +54,7 @@ class MermaidJSPrinter(Printer):
             for func in properties.methods:
                 args = self._get_method_arguments(func)
                 line = f"{func.name}({', '.join(args)})"
-                line += '*' if func.is_abstract() else ''
+                line += "*" if func.is_abstract() else ""
                 if func.returns:
                     line += f" {get_annotation_label(func.returns)}"
                 body.append(line)
