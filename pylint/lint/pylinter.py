@@ -346,6 +346,7 @@ class PyLinter(
         warnings.warn(
             "The option_groups attribute has been deprecated and will be removed in pylint 3.0",
             DeprecationWarning,
+            stacklevel=2,
         )
         return self._option_groups
 
@@ -354,6 +355,7 @@ class PyLinter(
         warnings.warn(
             "The option_groups attribute has been deprecated and will be removed in pylint 3.0",
             DeprecationWarning,
+            stacklevel=2,
         )
         self._option_groups = value
 
@@ -650,6 +652,7 @@ class PyLinter(
             warnings.warn(
                 "In pylint 3.0, the checkers check function will only accept sequence of string",
                 DeprecationWarning,
+                stacklevel=2,
             )
             files_or_modules = (files_or_modules,)  # type: ignore[assignment]
         if self.config.recursive:
@@ -721,6 +724,7 @@ class PyLinter(
             "In pylint 3.0, the checkers check_single_file function will be removed. "
             "Use check_single_file_item instead.",
             DeprecationWarning,
+            stacklevel=2,
         )
         self.check_single_file_item(FileItem(name, filepath, modname))
 
@@ -903,6 +907,7 @@ class PyLinter(
                     "If unknown it should be initialized as an empty string."
                 ),
                 DeprecationWarning,
+                stacklevel=2,
             )
         self.current_name = modname
         self.current_file = filepath or modname

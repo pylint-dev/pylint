@@ -21,6 +21,7 @@ class ConfigurationMixIn(OptionsManagerMixIn, OptionsProviderMixIn):  # type: ig
         warnings.warn(
             "ConfigurationMixIn has been deprecated and will be removed in pylint 3.0",
             DeprecationWarning,
+            stacklevel=2,
         )
         if not args:
             kwargs.setdefault("usage", "")

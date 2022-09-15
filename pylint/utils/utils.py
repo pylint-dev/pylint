@@ -281,6 +281,7 @@ def get_global_option(
         "get_global_option has been deprecated. You can use "
         "checker.linter.config to get all global options instead.",
         DeprecationWarning,
+        stacklevel=2,
     )
     return getattr(checker.linter.config, option.replace("-", "_"))
 
@@ -367,6 +368,7 @@ def format_section(
     warnings.warn(
         "format_section has been deprecated. It will be removed in pylint 3.0.",
         DeprecationWarning,
+        stacklevel=2,
     )
     if doc:
         print(_comment(doc), file=stream)
@@ -381,6 +383,7 @@ def _ini_format(stream: TextIO, options: list[tuple[str, OptionDict, Any]]) -> N
     warnings.warn(
         "_ini_format has been deprecated. It will be removed in pylint 3.0.",
         DeprecationWarning,
+        stacklevel=2,
     )
     for optname, optdict, value in options:
         # Skip deprecated option

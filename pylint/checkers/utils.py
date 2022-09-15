@@ -244,6 +244,7 @@ def is_inside_lambda(node: nodes.NodeNG) -> bool:
         "utils.is_inside_lambda will be removed in favour of calling "
         "utils.get_node_first_ancestor_of_type(x, nodes.Lambda) in pylint 3.0",
         DeprecationWarning,
+        stacklevel=2,
     )
     return any(isinstance(parent, nodes.Lambda) for parent in node.node_ancestors())
 
@@ -505,6 +506,7 @@ def check_messages(
         "utils.check_messages will be removed in favour of calling "
         "utils.only_required_for_messages in pylint 3.0",
         DeprecationWarning,
+        stacklevel=2,
     )
 
     return only_required_for_messages(*messages)
@@ -1516,6 +1518,7 @@ def is_class_subscriptable_pep585_with_postponed_evaluation_enabled(
         "Use 'is_postponed_evaluation_enabled(node) and "
         "is_node_in_type_annotation_context(node)' instead.",
         DeprecationWarning,
+        stacklevel=2,
     )
     return (
         is_postponed_evaluation_enabled(node)

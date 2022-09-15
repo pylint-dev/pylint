@@ -47,12 +47,14 @@ class FileState:
                 "FileState needs a string as modname argument. "
                 "This argument will be required in pylint 3.0",
                 DeprecationWarning,
+                stacklevel=2,
             )
         if msg_store is None:
             warnings.warn(
                 "FileState needs a 'MessageDefinitionStore' as msg_store argument. "
                 "This argument will be required in pylint 3.0",
                 DeprecationWarning,
+                stacklevel=2,
             )
         self.base_name = modname
         self._module_msgs_state: MessageStateDict = {}
@@ -79,6 +81,7 @@ class FileState:
         warnings.warn(
             "'collect_block_lines' has been deprecated and will be removed in pylint 3.0.",
             DeprecationWarning,
+            stacklevel=2,
         )
         for msg, lines in self._module_msgs_state.items():
             self._raw_module_msgs_state[msg] = lines.copy()

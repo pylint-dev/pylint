@@ -48,6 +48,7 @@ def load_results(base: str) -> LinterStats | None:
         "'pylint.config.load_results' is deprecated, please use "
         "'pylint.lint.load_results' instead. This will be removed in 3.0.",
         DeprecationWarning,
+        stacklevel=2,
     )
     return _real_load_results(base, PYLINT_HOME)
 
@@ -61,5 +62,6 @@ def save_results(results: LinterStats, base: str) -> None:
         "'pylint.config.save_results' is deprecated, please use "
         "'pylint.lint.save_results' instead. This will be removed in 3.0.",
         DeprecationWarning,
+        stacklevel=2,
     )
     return _real_save_results(results, base, PYLINT_HOME)
