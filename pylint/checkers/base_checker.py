@@ -54,6 +54,7 @@ class BaseChecker(_ArgumentsProvider):
                 "longer supported. Child classes should only inherit BaseChecker or any "
                 "of the other checker types from pylint.checkers.",
                 DeprecationWarning,
+                stacklevel=2,
             )
         if self.name is not None:
             self.name = self.name.lower()

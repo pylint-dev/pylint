@@ -77,6 +77,7 @@ class OptionsManagerMixIn:
         warnings.warn(
             "OptionsManagerMixIn has been deprecated and will be removed in pylint 3.0",
             DeprecationWarning,
+            stacklevel=2,
         )
         self.reset_parsers(usage)
         # list of registered options providers

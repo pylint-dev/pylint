@@ -125,6 +125,7 @@ class _ArgumentsManager:
         warnings.warn(
             "options_providers has been deprecated. It will be removed in pylint 3.0.",
             DeprecationWarning,
+            stacklevel=2,
         )
         return self._options_providers
 
@@ -133,6 +134,7 @@ class _ArgumentsManager:
         warnings.warn(
             "Setting options_providers has been deprecated. It will be removed in pylint 3.0.",
             DeprecationWarning,
+            stacklevel=2,
         )
         self._options_providers = value
 
@@ -282,6 +284,7 @@ class _ArgumentsManager:
             "reset_parsers has been deprecated. Parsers should be instantiated "
             "once during initialization and do not need to be reset.",
             DeprecationWarning,
+            stacklevel=2,
         )
         # configuration file parser
         self.cfgfile_parser = configparser.ConfigParser(
@@ -301,6 +304,7 @@ class _ArgumentsManager:
             "arguments providers should be registered by initializing ArgumentsProvider. "
             "This automatically registers the provider on the ArgumentsManager.",
             DeprecationWarning,
+            stacklevel=2,
         )
         self.options_providers.append(provider)
         non_group_spec_options = [
@@ -345,6 +349,7 @@ class _ArgumentsManager:
             "registered by initializing ArgumentsProvider. "
             "This automatically registers the group on the ArgumentsManager.",
             DeprecationWarning,
+            stacklevel=2,
         )
         # add option group to the command line parser
         if group_name in self._mygroups:
@@ -381,6 +386,7 @@ class _ArgumentsManager:
             "add_optik_option has been deprecated. Options should be automatically "
             "added by initializing an ArgumentsProvider.",
             DeprecationWarning,
+            stacklevel=2,
         )
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -399,6 +405,7 @@ class _ArgumentsManager:
             "optik_option has been deprecated. Parsing of option dictionaries should be done "
             "automatically by initializing an ArgumentsProvider.",
             DeprecationWarning,
+            stacklevel=2,
         )
         optdict = copy.copy(optdict)
         if "action" in optdict:
@@ -436,6 +443,7 @@ class _ArgumentsManager:
         warnings.warn(
             "generate_config has been deprecated. It will be removed in pylint 3.0.",
             DeprecationWarning,
+            stacklevel=2,
         )
         options_by_section = {}
         sections = []
@@ -495,6 +503,7 @@ class _ArgumentsManager:
             "load_provider_defaults has been deprecated. Parsing of option defaults should be done "
             "automatically by initializing an ArgumentsProvider.",
             DeprecationWarning,
+            stacklevel=2,
         )
         for provider in self.options_providers:
             with warnings.catch_warnings():
@@ -512,6 +521,7 @@ class _ArgumentsManager:
         warnings.warn(
             "read_config_file has been deprecated. It will be removed in pylint 3.0.",
             DeprecationWarning,
+            stacklevel=2,
         )
         if not config_file:
             if verbose:
@@ -583,6 +593,7 @@ class _ArgumentsManager:
         warnings.warn(
             "load_config_file has been deprecated. It will be removed in pylint 3.0.",
             DeprecationWarning,
+            stacklevel=2,
         )
         parser = self.cfgfile_parser
         for section in parser.sections():
@@ -597,6 +608,7 @@ class _ArgumentsManager:
         warnings.warn(
             "load_configuration has been deprecated. It will be removed in pylint 3.0.",
             DeprecationWarning,
+            stacklevel=2,
         )
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -608,6 +620,7 @@ class _ArgumentsManager:
         warnings.warn(
             "DEPRECATED: load_configuration_from_config has been deprecated. It will be removed in pylint 3.0.",
             DeprecationWarning,
+            stacklevel=2,
         )
         for opt, opt_value in config.items():
             opt = opt.replace("_", "-")
@@ -624,6 +637,7 @@ class _ArgumentsManager:
         warnings.warn(
             "load_command_line_configuration has been deprecated. It will be removed in pylint 3.0.",
             DeprecationWarning,
+            stacklevel=2,
         )
         args = sys.argv[1:] if args is None else list(args)
         (options, args) = self.cmdline_parser.parse_args(args=args)
@@ -643,6 +657,7 @@ class _ArgumentsManager:
                 "Supplying a 'level' argument to help() has been deprecated."
                 "You can call help() without any arguments.",
                 DeprecationWarning,
+                stacklevel=2,
             )
         return self._arg_parser.format_help()
 
@@ -654,6 +669,7 @@ class _ArgumentsManager:
         warnings.warn(
             "cb_set_provider_option has been deprecated. It will be removed in pylint 3.0.",
             DeprecationWarning,
+            stacklevel=2,
         )
         if opt.startswith("--"):
             # remove -- on long option
@@ -673,6 +689,7 @@ class _ArgumentsManager:
             "global_set_option has been deprecated. You can use _arguments_manager.set_option "
             "or linter.set_option to set options on the global configuration object.",
             DeprecationWarning,
+            stacklevel=2,
         )
         self.set_option(opt, value)
 
@@ -776,12 +793,14 @@ class _ArgumentsManager:
                 "The 'action' argument has been deprecated. You can use set_option "
                 "without the 'action' or 'optdict' arguments.",
                 DeprecationWarning,
+                stacklevel=2,
             )
         if optdict != "default_value":
             warnings.warn(
                 "The 'optdict' argument has been deprecated. You can use set_option "
                 "without the 'action' or 'optdict' arguments.",
                 DeprecationWarning,
+                stacklevel=2,
             )
 
         self.config = self._arg_parser.parse_known_args(

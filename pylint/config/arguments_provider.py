@@ -24,6 +24,7 @@ class UnsupportedAction(Exception):
         warnings.warn(
             "UnsupportedAction has been deprecated and will be removed in pylint 3.0",
             DeprecationWarning,
+            stacklevel=2,
         )
         super().__init__(*args)
 
@@ -55,6 +56,7 @@ class _ArgumentsProvider:
             "The level attribute has been deprecated. It was used to display the checker in the help or not,"
             " and everything is displayed in the help now. It will be removed in pylint 3.0.",
             DeprecationWarning,
+            stacklevel=2,
         )
         return self._level
 
@@ -65,6 +67,7 @@ class _ArgumentsProvider:
             "Setting the level attribute has been deprecated. It was used to display the checker in the help or not,"
             " and everything is displayed in the help now. It will be removed in pylint 3.0.",
             DeprecationWarning,
+            stacklevel=2,
         )
         self._level = value
 
@@ -75,6 +78,7 @@ class _ArgumentsProvider:
             "The checker-specific config attribute has been deprecated. Please use "
             "'linter.config' to access the global configuration object.",
             DeprecationWarning,
+            stacklevel=2,
         )
         return self._arguments_manager.config
 
@@ -85,6 +89,7 @@ class _ArgumentsProvider:
             "registered by initializing an ArgumentsProvider. "
             "This automatically registers the group on the ArgumentsManager.",
             DeprecationWarning,
+            stacklevel=2,
         )
         for opt, optdict in self.options:
             action = optdict.get("action")
@@ -105,6 +110,7 @@ class _ArgumentsProvider:
             "option_attrname has been deprecated. It will be removed "
             "in a future release.",
             DeprecationWarning,
+            stacklevel=2,
         )
         if optdict is None:
             with warnings.catch_warnings():
@@ -118,6 +124,7 @@ class _ArgumentsProvider:
             "option_value has been deprecated. It will be removed "
             "in a future release.",
             DeprecationWarning,
+            stacklevel=2,
         )
         return getattr(self._arguments_manager.config, opt.replace("-", "_"), None)
 
@@ -136,6 +143,7 @@ class _ArgumentsProvider:
             "set_option has been deprecated. You can use _arguments_manager.set_option "
             "or linter.set_option to set options on the global configuration object.",
             DeprecationWarning,
+            stacklevel=2,
         )
         self._arguments_manager.set_option(optname, value)
 
@@ -148,6 +156,7 @@ class _ArgumentsProvider:
             "get_option_def has been deprecated. It will be removed "
             "in a future release.",
             DeprecationWarning,
+            stacklevel=2,
         )
         assert self.options
         for option in self.options:
@@ -174,6 +183,7 @@ class _ArgumentsProvider:
             "options_by_section has been deprecated. It will be removed "
             "in a future release.",
             DeprecationWarning,
+            stacklevel=2,
         )
         sections: dict[str, list[tuple[str, OptionDict, Any]]] = {}
         for optname, optdict in self.options:
@@ -195,6 +205,7 @@ class _ArgumentsProvider:
             "options_and_values has been deprecated. It will be removed "
             "in a future release.",
             DeprecationWarning,
+            stacklevel=2,
         )
         if options is None:
             options = self.options

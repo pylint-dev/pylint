@@ -57,6 +57,7 @@ class Interface:
             "Interface and all of its subclasses have been deprecated "
             "and will be removed in pylint 3.0.",
             DeprecationWarning,
+            stacklevel=2,
         )
 
     @classmethod
@@ -78,6 +79,7 @@ def implements(
         "implements has been deprecated in favour of using basic "
         "inheritance patterns without using __implements__.",
         DeprecationWarning,
+        stacklevel=2,
     )
     implements_ = getattr(obj, "__implements__", ())
     if not isinstance(implements_, (list, tuple)):

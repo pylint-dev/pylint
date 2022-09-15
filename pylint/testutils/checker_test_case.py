@@ -85,6 +85,7 @@ class CheckerTestCase:
                         f"the expected value in {expected_msg}. In pylint 3.0 correct end_line "
                         "attributes will be required for MessageTest.",
                         DeprecationWarning,
+                        stacklevel=2,
                     )
                 if not expected_msg.end_col_offset == gotten_msg.end_col_offset:
                     warnings.warn(  # pragma: no cover
@@ -92,6 +93,7 @@ class CheckerTestCase:
                         f"the expected value in {expected_msg}. In pylint 3.0 correct end_col_offset "
                         "attributes will be required for MessageTest.",
                         DeprecationWarning,
+                        stacklevel=2,
                     )
 
     def walk(self, node: nodes.NodeNG) -> None:

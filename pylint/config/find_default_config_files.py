@@ -122,6 +122,7 @@ def find_pylintrc() -> str | None:
         "Use find_default_config_files if you want access to pylint's configuration file "
         "finding logic.",
         DeprecationWarning,
+        stacklevel=2,
     )
     for config_file in find_default_config_files():
         if str(config_file).endswith("pylintrc"):

@@ -190,6 +190,7 @@ class Option(optparse.Option):
         warnings.warn(
             "Option has been deprecated and will be removed in pylint 3.0",
             DeprecationWarning,
+            stacklevel=2,
         )
         super().__init__(*opts, **attrs)
         if hasattr(self, "hide") and self.hide:  # type: ignore[attr-defined]

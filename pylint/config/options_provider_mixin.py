@@ -29,6 +29,7 @@ class OptionsProviderMixIn:
         warnings.warn(
             "OptionsProviderMixIn has been deprecated and will be removed in pylint 3.0",
             DeprecationWarning,
+            stacklevel=2,
         )
         self.config = optparse.Values()
         self.load_defaults()

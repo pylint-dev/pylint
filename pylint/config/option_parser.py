@@ -25,6 +25,7 @@ class OptionParser(optparse.OptionParser):
         warnings.warn(
             "OptionParser has been deprecated and will be removed in pylint 3.0",
             DeprecationWarning,
+            stacklevel=2,
         )
         super().__init__(option_class=Option, *args, **kwargs)
 
