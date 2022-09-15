@@ -60,6 +60,7 @@ DEPRECATED_MODULES = {
         "crypt",
         "imghdr",
         "msilib",
+        "mailcap",
         "nis",
         "nntplib",
         "ossaudiodev",
