@@ -105,3 +105,15 @@ class MyClass:
         """This should raise as we are deleting."""
         for var in self.attribute:
             del var  # [modified-iterating-list]
+
+
+class MyClass2:
+    """Regression test for https://github.com/PyCQA/pylint/issues/7461"""
+    def __init__(self) -> None:
+        self.attribute = {}
+
+    def my_method(self):
+        """This should not raise, as a copy was made."""
+        for key in self.attribute:
+            tmp = self.attribute.copy()
+            tmp[key] = None
