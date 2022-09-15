@@ -42,7 +42,8 @@ def _convert_option_to_argument(
     if "level" in optdict and "hide" not in optdict:
         warnings.warn(
             "The 'level' key in optdicts has been deprecated. "
-            "Use 'hide' with a boolean to hide an option from the help message.",
+            "Use 'hide' with a boolean to hide an option from the help message. "
+            f"optdict={optdict}",
             DeprecationWarning,
         )
 
@@ -79,7 +80,8 @@ def _convert_option_to_argument(
         warnings.warn(
             "An option dictionary should have a 'default' key to specify "
             "the option's default value. This key will be required in pylint "
-            "3.0. It is not required for 'store_true' and callable actions.",
+            "3.0. It is not required for 'store_true' and callable actions. "
+            f"optdict={optdict}",
             DeprecationWarning,
         )
         default = None
