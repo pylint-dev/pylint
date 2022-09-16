@@ -1,3 +1,0 @@
-Fixed a crash in the ``unhashable-member`` checker when using a ``lambda`` as a dict key.
-
-Closes #7453

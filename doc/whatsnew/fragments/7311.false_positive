@@ -1,4 +1,0 @@
-Fix false positive for ``undefined-loop-variable`` in ``for-else`` loops that use a function
-having a return type annotation of ``NoReturn`` or ``Never``.
-
-Closes #7311
