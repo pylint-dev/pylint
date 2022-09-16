@@ -2254,24 +2254,27 @@ class VariablesChecker(BaseChecker):
         if not isinstance(assign, nodes.For):
             self.add_message("undefined-loop-variable", args=node.name, node=node)
             return
-        if any(
-            isinstance(
+        for else_stmt in assign.orelse:
+            if isinstance(
                 else_stmt, (nodes.Return, nodes.Raise, nodes.Break, nodes.Continue)
-            )
-            or (
-                isinstance(else_stmt, nodes.Expr)
-                and
-                # doesnt work
-                any(
-                    isinstance(expr, nodes.FunctionDef)
-                    for expr in else_stmt.get_children()
-                )
-                and else_stmt.type_comment_returns.qualname()
-                in ("typing.NoReturn", "typing.Never")
-            )
-            for else_stmt in assign.orelse
-        ):
-            return
+            ):
+                return
+            if isinstance(else_stmt, nodes.Expr) and isinstance(
+                else_stmt.value, nodes.Call
+            ):
+                inferred_func = utils.safe_infer(else_stmt.value.func)
+                if (
+                    isinstance(inferred_func, nodes.FunctionDef)
+                    and inferred_func.returns
+                ):
+                    inferred_return = utils.safe_infer(inferred_func.returns)
+                    if isinstance(
+                        inferred_return, nodes.FunctionDef
+                    ) and inferred_return.qname() in {
+                        "typing.NoReturn",
+                        "typing.Never",
+                    }:
+                        return
 
         maybe_walrus = utils.get_node_first_ancestor_of_type(node, nodes.NamedExpr)
         if maybe_walrus:
