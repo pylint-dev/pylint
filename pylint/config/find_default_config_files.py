@@ -39,17 +39,26 @@ def _cfg_has_config(path: Path | str) -> bool:
     return any(section.startswith("pylint.") for section in parser.sections())
 
 
-def find_default_config_files() -> Iterator[Path]:
-    """Find all possible config files."""
+def _yield_default_files() -> Iterator[Path]:
+    """Iterate over the default config file names and see if they exist."""
     for config_name in CONFIG_NAMES:
-        if config_name.is_file():
-            if config_name.suffix == ".toml" and not _toml_has_config(config_name):
-                continue
-            if config_name.suffix == ".cfg" and not _cfg_has_config(config_name):
-                continue
+        try:
+            if config_name.is_file():
+                if config_name.suffix == ".toml" and not _toml_has_config(config_name):
+                    continue
+                if config_name.suffix == ".cfg" and not _cfg_has_config(config_name):
+                    continue
 
-            yield config_name.resolve()
+                yield config_name.resolve()
+        except OSError:
+            pass
 
+
+def _find_project_config() -> Iterator[Path]:
+    """Traverse up the directory tree to find a config file.
+
+    Stop if no '__init__' is found and thus we are no longer in a package.
+    """
     if Path("__init__.py").is_file():
         curdir = Path(os.getcwd()).resolve()
         while (curdir / "__init__.py").is_file():
@@ -59,31 +68,61 @@ def find_default_config_files() -> Iterator[Path]:
                 if rc_path.is_file():
                     yield rc_path.resolve()
 
+
+def _find_config_in_home_or_environment() -> Iterator[Path]:
+    """Find a config file in the specified environment var or the home directory."""
     if "PYLINTRC" in os.environ and Path(os.environ["PYLINTRC"]).exists():
         if Path(os.environ["PYLINTRC"]).is_file():
             yield Path(os.environ["PYLINTRC"]).resolve()
     else:
-        user_home = Path.home()
-        if str(user_home) not in ("~", "/root"):
+        try:
+            user_home = Path.home()
+        except RuntimeError:
+            # If the home directory does not exist a RuntimeError will be raised
+            user_home = None
+
+        if user_home is not None and str(user_home) not in ("~", "/root"):
             home_rc = user_home / ".pylintrc"
             if home_rc.is_file():
                 yield home_rc.resolve()
+
             home_rc = user_home / ".config" / "pylintrc"
             if home_rc.is_file():
                 yield home_rc.resolve()
 
-    if os.path.isfile("/etc/pylintrc"):
-        yield Path("/etc/pylintrc").resolve()
+
+def find_default_config_files() -> Iterator[Path]:
+    """Find all possible config files."""
+    yield from _yield_default_files()
+
+    try:
+        yield from _find_project_config()
+    except OSError:
+        pass
+
+    try:
+        yield from _find_config_in_home_or_environment()
+    except OSError:
+        pass
+
+    try:
+        if os.path.isfile("/etc/pylintrc"):
+            yield Path("/etc/pylintrc").resolve()
+    except OSError:
+        pass
 
 
 def find_pylintrc() -> str | None:
-    """Search the pylint rc file and return its path if it finds it, else return None."""
+    """Search the pylint rc file and return its path if it finds it, else return
+    None.
+    """
     # TODO: 3.0: Remove deprecated function
     warnings.warn(
         "find_pylintrc and the PYLINTRC constant have been deprecated. "
         "Use find_default_config_files if you want access to pylint's configuration file "
         "finding logic.",
         DeprecationWarning,
+        stacklevel=2,
     )
     for config_file in find_default_config_files():
         if str(config_file).endswith("pylintrc"):

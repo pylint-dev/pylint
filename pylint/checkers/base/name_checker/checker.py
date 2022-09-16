@@ -6,12 +6,15 @@
 
 from __future__ import annotations
 
+import argparse
 import collections
 import itertools
 import re
 import sys
+from collections.abc import Iterable
 from enum import Enum, auto
 from re import Pattern
+from typing import TYPE_CHECKING, Tuple
 
 import astroid
 from astroid import nodes
@@ -26,11 +29,17 @@ from pylint.checkers.base.name_checker.naming_style import (
     _create_naming_options,
 )
 from pylint.checkers.utils import is_property_deleter, is_property_setter
+from pylint.typing import Options
+
+if TYPE_CHECKING:
+    from pylint.lint.pylinter import PyLinter
+
+_BadNamesTuple = Tuple[nodes.NodeNG, str, str, interfaces.Confidence]
 
 # Default patterns for name types that do not have styles
 DEFAULT_PATTERNS = {
     "typevar": re.compile(
-        r"^_{0,2}(?:[^\W\da-z_]+|(?:[^\W\da-z_]+[^\WA-Z_]+)+T?(?<!Type))(?:_co(?:ntra)?)?$"
+        r"^_{0,2}(?!T[A-Z])(?:[A-Z]+|(?:[A-Z]+[a-z]+)+T?(?<!Type))(?:_co(?:ntra)?)?$"
     )
 }
 
@@ -45,14 +54,14 @@ class TypeVarVariance(Enum):
     double_variant = auto()
 
 
-def _get_properties(config):
+def _get_properties(config: argparse.Namespace) -> tuple[set[str], set[str]]:
     """Returns a tuple of property classes and names.
 
     Property classes are fully qualified, such as 'abc.abstractproperty' and
     property names are the actual names, such as 'abstract_property'.
     """
     property_classes = {BUILTIN_PROPERTY}
-    property_names = set()  # Not returning 'property', it has its own check.
+    property_names: set[str] = set()  # Not returning 'property', it has its own check.
     if config is not None:
         property_classes.update(config.property_classes)
         property_names.update(
@@ -61,7 +70,7 @@ def _get_properties(config):
     return property_classes, property_names
 
 
-def _redefines_import(node):
+def _redefines_import(node: nodes.AssignName) -> bool:
     """Detect that the given node (AssignName) is inside an
     exception handler and redefines an import from the tryexcept body.
 
@@ -83,15 +92,15 @@ def _redefines_import(node):
     return False
 
 
-def _determine_function_name_type(node: nodes.FunctionDef, config=None):
+def _determine_function_name_type(
+    node: nodes.FunctionDef, config: argparse.Namespace
+) -> str:
     """Determine the name type whose regex the function's name should match.
 
     :param node: A function node.
     :param config: Configuration from which to pull additional property classes.
-    :type config: :class:`optparse.Values`
 
     :returns: One of ('function', 'method', 'attr')
-    :rtype: str
     """
     property_classes, property_names = _get_properties(config)
     if not node.is_method():
@@ -124,7 +133,9 @@ def _determine_function_name_type(node: nodes.FunctionDef, config=None):
 EXEMPT_NAME_CATEGORIES = {"exempt", "ignore"}
 
 
-def _is_multi_naming_match(match, node_type, confidence):
+def _is_multi_naming_match(
+    match: re.Match[str] | None, node_type: str, confidence: interfaces.Confidence
+) -> bool:
     return (
         match is not None
         and match.lastgroup is not None
@@ -175,7 +186,7 @@ class NameChecker(_BasicChecker):
         ),
     }
 
-    options = (
+    _options: Options = (
         (
             "good-names",
             {
@@ -250,19 +261,19 @@ class NameChecker(_BasicChecker):
                 "These decorators are taken in consideration only for invalid-name.",
             },
         ),
-    ) + _create_naming_options()
+    )
+    options: Options = _options + _create_naming_options()
 
-    def __init__(self, linter):
+    def __init__(self, linter: PyLinter) -> None:
         super().__init__(linter)
-        self._name_category = {}
-        self._name_group = {}
-        self._bad_names = {}
-        self._name_regexps = {}
-        self._name_hints = {}
-        self._good_names_rgxs_compiled = []
-        self._bad_names_rgxs_compiled = []
+        self._name_group: dict[str, str] = {}
+        self._bad_names: dict[str, dict[str, list[_BadNamesTuple]]] = {}
+        self._name_regexps: dict[str, re.Pattern[str]] = {}
+        self._name_hints: dict[str, str] = {}
+        self._good_names_rgxs_compiled: list[re.Pattern[str]] = []
+        self._bad_names_rgxs_compiled: list[re.Pattern[str]] = []
 
-    def open(self):
+    def open(self) -> None:
         self.linter.stats.reset_bad_names()
         for group in self.linter.config.name_group:
             for name_type in group.split(":"):
@@ -315,7 +326,9 @@ class NameChecker(_BasicChecker):
         for all_groups in self._bad_names.values():
             if len(all_groups) < 2:
                 continue
-            groups = collections.defaultdict(list)
+            groups: collections.defaultdict[
+                int, list[list[_BadNamesTuple]]
+            ] = collections.defaultdict(list)
             min_warnings = sys.maxsize
             prevalent_group, _ = max(all_groups.items(), key=lambda item: len(item[1]))
             for group in all_groups.values():
@@ -324,9 +337,13 @@ class NameChecker(_BasicChecker):
             if len(groups[min_warnings]) > 1:
                 by_line = sorted(
                     groups[min_warnings],
-                    key=lambda group: min(warning[0].lineno for warning in group),
+                    key=lambda group: min(  # type: ignore[no-any-return]
+                        warning[0].lineno
+                        for warning in group
+                        if warning[0].lineno is not None
+                    ),
                 )
-                warnings = itertools.chain(*by_line[1:])
+                warnings: Iterable[_BadNamesTuple] = itertools.chain(*by_line[1:])
             else:
                 warnings = groups[min_warnings][0]
             for args in warnings:
@@ -449,15 +466,12 @@ class NameChecker(_BasicChecker):
                 else:
                     self._check_name("class_attribute", node.name, node)
 
-    def _recursive_check_names(self, args):
+    def _recursive_check_names(self, args: list[nodes.AssignName]) -> None:
         """Check names in a possibly recursive list <arg>."""
         for arg in args:
-            if isinstance(arg, nodes.AssignName):
-                self._check_name("argument", arg.name, arg)
-            else:
-                self._recursive_check_names(arg.elts)
+            self._check_name("argument", arg.name, arg)
 
-    def _find_name_group(self, node_type):
+    def _find_name_group(self, node_type: str) -> str:
         return self._name_group.get(node_type, node_type)
 
     def _raise_name_warning(
@@ -466,7 +480,7 @@ class NameChecker(_BasicChecker):
         node: nodes.NodeNG,
         node_type: str,
         name: str,
-        confidence,
+        confidence: interfaces.Confidence,
         warning: str = "invalid-name",
     ) -> None:
         type_label = constants.HUMAN_READABLE_TYPES[node_type]
@@ -497,10 +511,16 @@ class NameChecker(_BasicChecker):
             pattern.match(name) for pattern in self._bad_names_rgxs_compiled
         )
 
-    def _check_name(self, node_type, name, node, confidence=interfaces.HIGH):
+    def _check_name(
+        self,
+        node_type: str,
+        name: str,
+        node: nodes.NodeNG,
+        confidence: interfaces.Confidence = interfaces.HIGH,
+    ) -> None:
         """Check for a name using the type's regexp."""
 
-        def _should_exempt_from_invalid_name(node):
+        def _should_exempt_from_invalid_name(node: nodes.NodeNG) -> bool:
             if node_type == "variable":
                 inferred = utils.safe_infer(node)
                 if isinstance(inferred, nodes.ClassDef):
@@ -519,7 +539,8 @@ class NameChecker(_BasicChecker):
         if _is_multi_naming_match(match, node_type, confidence):
             name_group = self._find_name_group(node_type)
             bad_name_group = self._bad_names.setdefault(name_group, {})
-            warnings = bad_name_group.setdefault(match.lastgroup, [])
+            # Ignored because this is checked by the if statement
+            warnings = bad_name_group.setdefault(match.lastgroup, [])  # type: ignore[union-attr, arg-type]
             warnings.append((node, node_type, name, confidence))
 
         if match is None and not _should_exempt_from_invalid_name(node):

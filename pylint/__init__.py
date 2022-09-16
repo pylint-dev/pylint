@@ -4,6 +4,16 @@
 
 from __future__ import annotations
 
+__all__ = [
+    "__version__",
+    "version",
+    "modify_sys_path",
+    "run_pylint",
+    "run_epylint",
+    "run_symilar",
+    "run_pyreverse",
+]
+
 import os
 import sys
 from collections.abc import Sequence
@@ -25,6 +35,16 @@ def run_pylint(argv: Sequence[str] | None = None) -> None:
         PylintRun(argv or sys.argv[1:])
     except KeyboardInterrupt:
         sys.exit(1)
+
+
+def _run_pylint_config(argv: Sequence[str] | None = None) -> None:
+    """Run pylint-config.
+
+    argv can be a sequence of strings normally supplied as arguments on the command line
+    """
+    from pylint.lint.run import _PylintConfigRun
+
+    _PylintConfigRun(argv or sys.argv[1:])
 
 
 def run_epylint(argv: Sequence[str] | None = None) -> NoReturn:
@@ -76,9 +96,10 @@ def modify_sys_path() -> None:
       if pylint is installed in an editable configuration (as the last item).
       https://github.com/PyCQA/pylint/issues/4161
     """
-    sys.path.pop(0)
-    env_pythonpath = os.environ.get("PYTHONPATH", "")
     cwd = os.getcwd()
+    if sys.path[0] in ("", ".", cwd):
+        sys.path.pop(0)
+    env_pythonpath = os.environ.get("PYTHONPATH", "")
     if env_pythonpath.startswith(":") and env_pythonpath not in (f":{cwd}", ":."):
         sys.path.pop(0)
     elif env_pythonpath.endswith(":") and env_pythonpath not in (f"{cwd}:", ".:"):
@@ -86,4 +107,3 @@ def modify_sys_path() -> None:
 
 
 version = __version__
-__all__ = ["__version__", "version", "modify_sys_path"]

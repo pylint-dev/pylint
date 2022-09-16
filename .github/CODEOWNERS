@@ -1,0 +1,36 @@
+# Lines starting with '#' are comments.
+# Each line is a file pattern followed by one or more owners.
+
+# These owners will be the default owners for everything in the repo.
+# Right now there is not default owner to avoid spam
+# * @pierre-sassoulas @DanielNoord @cdce8p @jacobtylerwalls @hippo91
+
+# Order is important. The last matching pattern has the most precedence.
+
+### Core components
+
+# internal message handling
+pylint/message/*    @pierre-sassoulas
+tests/message/*    @pierre-sassoulas
+
+# typing
+pylint/typing.py     @DanielNoord @cdce8p
+
+# multiprocessing (doublethefish is not yet a contributor with write access)
+# pylint/lint/parallel.py @doublethefish
+# tests/test_check_parallel.py @doublethefish
+
+### Pyreverse
+pylint/pyreverse/*    @DudeNr33
+tests/pyreverse/*    @DudeNr33
+
+### Extensions
+
+# For any all
+pylint/extensions/for_any_all.py @areveny
+tests/functional/ext/for_any_all/* @areveny
+
+# Private import
+pylint/extensions/private_import.py @areveny
+tests/extensions/test_private_import.py @areveny
+tests/functional/ext/private_import/* @areveny

@@ -1,5 +1,6 @@
-[MASTER]
+[MAIN]
 load-plugins = pylint.extensions.docparams
+no-docstring-rgx = ONLYVERYSPECIFICFUNCTIONS
 
 [BASIC]
 accept-no-param-doc = no

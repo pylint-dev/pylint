@@ -1,7 +1,7 @@
 """Tests for import-private-name."""
 # pylint: disable=unused-import, missing-docstring, reimported, import-error, wrong-import-order
 # pylint: disable=no-name-in-module, multiple-imports, ungrouped-imports, misplaced-future
-# pylint: disable=wrong-import-position
+# pylint: disable=wrong-import-position, relative-beyond-top-level
 
 # Basic cases
 from _world import hello  # [import-private-name]
@@ -119,3 +119,21 @@ my_var7: _PrivateClass3 = _PrivateClass3()
 import _private_module_unreachable # [import-private-name]
 my_var8: _private_module_unreachable.Thing8
 _private_module_unreachable.Thing8()
+
+
+# pylint: disable=too-few-public-methods
+class Regression6624:
+    """Ensure that an import statement precedes this case."""
+    def get_example(self):
+        example: Example = Example().save()
+        return example
+
+
+class Example:
+    def save(self):
+        return self
+
+
+# Treat relative imports as internal
+from .other_file import _private
+from ..parent import _private

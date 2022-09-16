@@ -1,6 +1,6 @@
 """Test that not-in-loop is detected properly."""
 # pylint: disable=missing-docstring, invalid-name, too-few-public-methods
-# pylint: disable=useless-else-on-loop, using-constant-test, useless-object-inheritance
+# pylint: disable=useless-else-on-loop, using-constant-test
 # pylint: disable=no-else-continue
 
 while True:
@@ -16,7 +16,7 @@ def lala():
     continue # [not-in-loop]
 
 while True:
-    class A(object):
+    class A:
         continue # [not-in-loop]
 
 for _ in range(10):

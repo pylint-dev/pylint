@@ -4,11 +4,6 @@
 
 from __future__ import annotations
 
-import os
-import pathlib
-import pickle
-import sys
-
 __all__ = [
     "ConfigurationMixIn",  # Deprecated
     "find_default_config_files",
@@ -21,7 +16,11 @@ __all__ = [
     "PYLINTRC",
     "USER_HOME",  # Compatibility with the old API
     "PYLINT_HOME",  # Compatibility with the old API
+    "save_results",  # Compatibility with the old API # Deprecated
+    "load_results",  # Compatibility with the old API # Deprecated
 ]
+
+import warnings
 
 from pylint.config.arguments_provider import UnsupportedAction
 from pylint.config.configuration_mixin import ConfigurationMixIn
@@ -32,38 +31,37 @@ from pylint.config.find_default_config_files import (
 )
 from pylint.config.option import Option
 from pylint.config.option_manager_mixin import OptionsManagerMixIn
-from pylint.config.option_parser import OptionParser
-from pylint.config.options_provider_mixin import OptionsProviderMixIn
+from pylint.config.option_parser import OptionParser  # type: ignore[attr-defined]
+from pylint.config.options_provider_mixin import (  # type: ignore[attr-defined]
+    OptionsProviderMixIn,
+)
 from pylint.constants import PYLINT_HOME, USER_HOME
 from pylint.utils import LinterStats
 
 
-def _get_pdata_path(base_name: str, recurs: int) -> pathlib.Path:
-    base_name = base_name.replace(os.sep, "_")
-    return pathlib.Path(PYLINT_HOME) / f"{base_name}{recurs}.stats"
-
-
 def load_results(base: str) -> LinterStats | None:
-    data_file = _get_pdata_path(base, 1)
-    try:
-        with open(data_file, "rb") as stream:
-            data = pickle.load(stream)
-            if not isinstance(data, LinterStats):
-                raise TypeError
-            return data
-    except Exception:  # pylint: disable=broad-except
-        return None
+    # TODO: 3.0: Remove deprecated function
+    # pylint: disable=import-outside-toplevel
+    from pylint.lint.caching import load_results as _real_load_results
+
+    warnings.warn(
+        "'pylint.config.load_results' is deprecated, please use "
+        "'pylint.lint.load_results' instead. This will be removed in 3.0.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    return _real_load_results(base, PYLINT_HOME)
 
 
 def save_results(results: LinterStats, base: str) -> None:
-    if not os.path.exists(PYLINT_HOME):
-        try:
-            os.makedirs(PYLINT_HOME)
-        except OSError:
-            print(f"Unable to create directory {PYLINT_HOME}", file=sys.stderr)
-    data_file = _get_pdata_path(base, 1)
-    try:
-        with open(data_file, "wb") as stream:
-            pickle.dump(results, stream)
-    except OSError as ex:
-        print(f"Unable to create file {data_file}: {ex}", file=sys.stderr)
+    # TODO: 3.0: Remove deprecated function
+    # pylint: disable=import-outside-toplevel
+    from pylint.lint.caching import save_results as _real_save_results
+
+    warnings.warn(
+        "'pylint.config.save_results' is deprecated, please use "
+        "'pylint.lint.save_results' instead. This will be removed in 3.0.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    return _real_save_results(results, base, PYLINT_HOME)

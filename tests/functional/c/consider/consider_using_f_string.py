@@ -72,6 +72,9 @@ def statement_good():
     "{}".format("\n".join(i for i in "string"))
     "%s" % "\n"
     "%s" % "\n".join(i for i in "string")
+    1 % "str"
+    (1, 2) % 'garbage'
+
 
 def statement_bad():
     "String %f" % PARAM_1  # [consider-using-f-string]

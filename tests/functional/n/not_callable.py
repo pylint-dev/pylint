@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,too-few-public-methods,wrong-import-position,useless-object-inheritance,use-dict-literal
+# pylint: disable=missing-docstring,too-few-public-methods,wrong-import-position,use-dict-literal
 # pylint: disable=wrong-import-order, undefined-variable
 
 REVISION = None
@@ -10,10 +10,10 @@ def correct():
 
 REVISION = correct()
 
-class Correct(object):
+class Correct:
     """callable object"""
 
-class MetaCorrect(object):
+class MetaCorrect:
     """callable object"""
     def __call__(self):
         return self
@@ -37,7 +37,7 @@ INCORRECT = INT() # [not-callable]
 class MyProperty(property):
     """ test subclasses """
 
-class PropertyTest(object):
+class PropertyTest:
     """ class """
 
     def __init__(self):
@@ -69,7 +69,7 @@ PROP.custom() # [not-callable]
 
 # Safe from not-callable when using properties.
 
-class SafeProperty(object):
+class SafeProperty:
     @property
     def static(self):
         return staticmethod
@@ -98,7 +98,7 @@ class SafeProperty(object):
 
     @property
     def instance(self):
-        class Empty(object):
+        class Empty:
             def __call__(self):
                 return 42
         return Empty()
@@ -235,3 +235,11 @@ class Klass2:
 
 obj2 = Klass2()
 obj2.something()
+
+
+# Regression test for https://github.com/PyCQA/pylint/issues/7109
+instance_or_cls = MyClass  # pylint:disable=invalid-name
+instance_or_cls = MyClass()
+if not isinstance(instance_or_cls, MyClass):
+    new = MyClass.__new__(instance_or_cls)
+    new()

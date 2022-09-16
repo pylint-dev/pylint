@@ -16,7 +16,7 @@ from pylint.checkers.utils import (
     is_protocol_class,
     overrides_a_method,
 )
-from pylint.interfaces import HIGH
+from pylint.interfaces import INFERENCE
 
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
@@ -42,7 +42,7 @@ class NoSelfUseChecker(BaseChecker):
 
     def visit_name(self, node: nodes.Name) -> None:
         """Check if the name handle an access to a class member
-        if so, register it
+        if so, register it.
         """
         if self._first_attrs and (
             node.name == self._first_attrs[-1] or not self._first_attrs[-1]
@@ -95,7 +95,7 @@ class NoSelfUseChecker(BaseChecker):
                     or is_overload_stub(node)
                 )
             ):
-                self.add_message("no-self-use", node=node, confidence=HIGH)
+                self.add_message("no-self-use", node=node, confidence=INFERENCE)
 
     leave_asyncfunctiondef = leave_functiondef
 

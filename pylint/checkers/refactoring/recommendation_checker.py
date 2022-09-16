@@ -67,7 +67,7 @@ class RecommendationChecker(checkers.BaseChecker):
         self._py36_plus = py_version >= (3, 6)
 
     @staticmethod
-    def _is_builtin(node, function):
+    def _is_builtin(node: nodes.NodeNG, function: str) -> bool:
         inferred = utils.safe_infer(node)
         if not inferred:
             return False
@@ -104,7 +104,9 @@ class RecommendationChecker(checkers.BaseChecker):
             self.add_message("consider-iterating-dictionary", node=node)
 
     def _check_use_maxsplit_arg(self, node: nodes.Call) -> None:
-        """Add message when accessing first or last elements of a str.split() or str.rsplit()."""
+        """Add message when accessing first or last elements of a str.split() or
+        str.rsplit().
+        """
 
         # Check if call is split() or rsplit()
         if not (
@@ -390,6 +392,12 @@ class RecommendationChecker(checkers.BaseChecker):
         elif isinstance(node.parent, nodes.BinOp) and node.parent.op == "%":
             # Backslashes can't be in f-string expressions
             if "\\" in node.parent.right.as_string():
+                return
+
+            # If % applied to another type than str, it's modulo and can't be replaced by formatting
+            if not hasattr(node.parent.left, "value") or not isinstance(
+                node.parent.left.value, str
+            ):
                 return
 
             inferred_right = utils.safe_infer(node.parent.right)

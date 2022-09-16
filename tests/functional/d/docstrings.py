@@ -1,6 +1,5 @@
-# pylint: disable=useless-object-inheritance, unnecessary-pass, consider-using-f-string
+# pylint: disable=unnecessary-pass, consider-using-f-string
 # -1: [missing-module-docstring]
-from __future__ import print_function
 
 # +1: [empty-docstring]
 def function0():
@@ -20,7 +19,7 @@ def function3(value):
     print(value)
 
 # +1: [missing-class-docstring]
-class AAAA(object):
+class AAAA:
     # missing docstring
 
 ##     class BBBB:

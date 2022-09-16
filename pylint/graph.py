@@ -167,8 +167,8 @@ def normalize_node_id(nid: str) -> str:
 def get_cycles(
     graph_dict: dict[str, set[str]], vertices: list[str] | None = None
 ) -> Sequence[list[str]]:
-    """Return a list of detected cycles in a dictionary representing an ordered graph
-    (i.e. key are vertices and values is a list of destination vertices representing edges).
+    """Return a list of detected cycles based on an ordered graph (i.e. keys are
+    vertices and values are lists of destination vertices representing edges).
     """
     if not graph_dict:
         return ()

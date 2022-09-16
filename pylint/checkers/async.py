@@ -39,7 +39,7 @@ class AsyncChecker(checkers.BaseChecker):
         ),
     }
 
-    def open(self):
+    def open(self) -> None:
         self._mixin_class_rgx = self.linter.config.mixin_class_rgx
         self._async_generators = ["contextlib.asynccontextmanager"]
 

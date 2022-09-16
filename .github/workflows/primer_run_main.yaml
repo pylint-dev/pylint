@@ -1,0 +1,106 @@
+# Most of this is inspired by the mypy primer
+# See: https://github.com/hauntsaninja/mypy_primer
+# This is the primer job that runs on the default 'main' branch
+# It is also responsible for caching the packages to prime on
+
+name: Primer / Main
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # This needs to be the SAME as in the PR and comment job
+  CACHE_VERSION: 26
+
+jobs:
+  run-primer:
+    name: Run / ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        python-version: ["3.7", "3.10"]
+    steps:
+      - name: Check out code from GitHub
+        uses: actions/checkout@v3.0.2
+      - name: Set up Python ${{ matrix.python-version }}
+        id: python
+        uses: actions/setup-python@v4.2.0
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Get latest astroid commit
+        id: get-astroid-sha
+        run: |
+          curl https://api.github.com/repos/PyCQA/astroid/commits |
+          python -c "import json, sys; print(json.load(sys.stdin)[0]['sha'])" > astroid_sha.txt
+
+      # Create a re-usable virtual environment
+      - name: Create Python virtual environment cache
+        id: cache-venv
+        uses: actions/cache@v3.0.8
+        with:
+          path: venv
+          key:
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-venv-primer-${{
+            env.CACHE_VERSION }}
+          restore-keys: |
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-venv-primer-${{ env.CACHE_VERSION }}
+      - name: Create Python virtual environment
+        run: |
+          python -m venv venv
+          . venv/bin/activate
+          python -m pip install -U pip setuptools wheel
+          pip install -U -r requirements_test.txt
+          # Use bleeding-edge astroid
+          pip install git+https://github.com/PyCQA/astroid.git
+
+      # Cache primer packages
+      - name: Get commit string
+        id: commitstring
+        run: |
+          . venv/bin/activate
+          python tests/primer/__main__.py prepare --make-commit-string
+          output=$(python tests/primer/__main__.py prepare --read-commit-string)
+          echo "::set-output name=commitstring::$output"
+      - name: Restore projects cache
+        id: cache-projects
+        uses: actions/cache@v3.0.8
+        with:
+          path: tests/.pylint_primer_tests/
+          key: >-
+            ${{ runner.os }}-${{ matrix.python-version }}-${{
+            steps.commitstring.outputs.commitstring }}-primer
+      - name: Regenerate cache
+        run: |
+          . venv/bin/activate
+          python tests/primer/__main__.py prepare --clone
+      - name: Upload output diff
+        uses: actions/upload-artifact@v3
+        with:
+          name: primer_commitstring
+          path: tests/.pylint_primer_tests/commit_string.txt
+
+      # Run primer
+      - name: Run pylint primer
+        run: |
+          . venv/bin/activate
+          pip install -e .
+          python tests/primer/__main__.py run --type=main 2>warnings.txt
+          WARNINGS=$(head -c 65000 < warnings.txt)
+          if [[ $WARNINGS ]]
+          then echo "::warning ::$WARNINGS"
+          fi
+      - name: Upload output
+        uses: actions/upload-artifact@v3
+        with:
+          name: primer_output
+          path:
+            tests/.pylint_primer_tests/output_${{ steps.python.outputs.python-version
+            }}_main.txt

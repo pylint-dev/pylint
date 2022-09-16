@@ -1,0 +1,4 @@
+Emit ``used-before-assignment`` when function arguments are redefined inside
+an inner function and accessed there before assignment.
+
+Closes #2374

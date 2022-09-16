@@ -1,7 +1,7 @@
-# pylint: disable=missing-docstring,too-few-public-methods,bare-except,broad-except, useless-object-inheritance, unused-private-member
+# pylint: disable=missing-docstring,too-few-public-methods,bare-except,broad-except, unused-private-member
 # pylint: disable=using-constant-test,expression-not-assigned, assigning-non-slot, unused-variable,pointless-statement, wrong-import-order, wrong-import-position,import-outside-toplevel
-from __future__ import print_function
-class Provider(object):
+
+class Provider:
     """provide some attributes and method"""
     cattr = 4
     def __init__(self):
@@ -14,7 +14,7 @@ class Provider(object):
         print('hop hop hop', self)
 
 
-class Client(object):
+class Client:
     """use provider class"""
 
     def __init__(self):
@@ -64,17 +64,17 @@ class Client(object):
         super().misssing() # [no-member]
 
 
-class Mixin(object):
+class Mixin:
     """No no-member should be emitted for mixins."""
 
-class Getattr(object):
+class Getattr:
     """no-member shouldn't be emitted for classes with dunder getattr."""
 
     def __getattr__(self, attr):
         return self.__dict__[attr]
 
 
-class Getattribute(object):
+class Getattribute:
     """no-member shouldn't be emitted for classes with dunder getattribute."""
 
     def __getattribute__(self, attr):
@@ -164,13 +164,13 @@ def no_conjugate_member(magic_flag):
     return something.conjugate()
 
 
-class NoDunderNameInInstance(object):
+class NoDunderNameInInstance:
     """Emit a warning when accessing __name__ from an instance."""
     def __init__(self):
         self.var = self.__name__ # [no-member]
 
 
-class InvalidAccessBySlots(object):
+class InvalidAccessBySlots:
     __slots__ = ('a', )
     def __init__(self):
         var = self.teta # [no-member]
@@ -183,13 +183,13 @@ class MetaWithDynamicGetattr(type):
         return attr
 
 
-class SomeClass(object, metaclass=MetaWithDynamicGetattr):
+class SomeClass(metaclass=MetaWithDynamicGetattr):
     pass
 
 
 SomeClass.does_not_exist
 
-class ClassWithMangledAttribute(object):
+class ClassWithMangledAttribute:
     def __init__(self):
         self.name = 'Bug1643'
     def __bar(self):

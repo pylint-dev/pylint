@@ -1,10 +1,10 @@
 """
 #3123: W0212 false positive on static method
 """
-__revision__ = 1
 
-# pylint: disable=no-classmethod-decorator, no-staticmethod-decorator, useless-object-inheritance
-class A3123(object):
+
+# pylint: disable=no-classmethod-decorator, no-staticmethod-decorator
+class A3123:
     """oypuee"""
     _protected = 1
     def __init__(self):

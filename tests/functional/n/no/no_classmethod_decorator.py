@@ -2,9 +2,9 @@
 scope and if classmethod's argument is a member of the class
 """
 
-# pylint: disable=too-few-public-methods, using-constant-test, no-self-argument, useless-object-inheritance
+# pylint: disable=too-few-public-methods, using-constant-test, no-self-argument
 
-class MyClass(object):
+class MyClass:
     """Some class"""
     def __init__(self):
         pass
@@ -30,6 +30,6 @@ def helloworld():
 
 MyClass.new_class_method = classmethod(helloworld)
 
-class MyOtherClass(object):
+class MyOtherClass:
     """Some other class"""
     _make = classmethod(tuple.__new__)

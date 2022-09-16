@@ -1,6 +1,6 @@
-# pylint: disable=too-few-public-methods, missing-docstring, useless-object-inheritance
+# pylint: disable=too-few-public-methods, missing-docstring
 
-class PluginBase(object):
+class PluginBase:
     subclasses = []
 
     def __init_subclass__(cls, **kwargs):

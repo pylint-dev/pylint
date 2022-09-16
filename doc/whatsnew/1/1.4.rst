@@ -1,0 +1,403 @@
+**************************
+  What's New In Pylint 1.4
+**************************
+
+What's New in Pylint 1.4.3?
+===========================
+Release date: 2015-03-14
+
+* Remove three warnings: star-args, abstract-class-little-used,
+  abstract-class-not-used. These warnings don't add any real value
+  and they don't imply errors or problems in the code.
+
+* Added a new option for controlling the peephole optimizer in astroid.
+  The option ``--optimize-ast`` will control the peephole optimizer,
+  which is used to optimize a couple of AST subtrees. The current problem
+  solved by the peephole optimizer is when multiple joined strings,
+  with the addition operator, are encountered. If the numbers of such
+  strings is high enough, Pylint will then fail with a maximum recursion
+  depth exceeded error, due to its visitor architecture. The peephole
+  just transforms such calls, if it can, into the final resulting string
+  and this exhibit a problem, because the visit_binop method stops being
+  called (in the optimized AST it will be a Const node).
+
+
+What's New in Pylint 1.4.2?
+===========================
+Release date: 2015-03-11
+
+* Don't require a docstring for empty modules.
+
+  Closes #261
+
+* Fix a false positive with ``too-few-format-args`` string warning,
+  emitted when the string format contained a normal positional
+  argument ('{0}'), mixed with a positional argument which did
+  an attribute access ('{0.__class__}').
+
+  Closes #463
+
+* Take in account all the methods from the ancestors
+  when checking for too-few-public-methods.
+
+  Closes #471
+
+* Catch enchant errors and emit 'invalid-characters-in-docstring'
+  when checking for spelling errors.
+
+  Closes #469
+
+* Use all the inferred statements for the super-init-not-called
+  check.
+
+  Closes #389
+
+* Add a new warning, 'unichr-builtin', emitted by the Python 3
+  porting checker, when the unichr builtin is found.
+
+  Closes #472
+
+* Add a new warning, 'intern-builtin', emitted by the Python 3
+  porting checker, when the intern builtin is found.
+
+  Closes #473
+
+* Add support for editable installations.
+
+* The HTML output accepts the ``--msg-template`` option. Patch by
+  Dan Goldsmith.
+
+* Add 'map-builtin-not-iterating' (replacing 'implicit-map-evaluation'),
+  'zip-builtin-not-iterating', 'range-builtin-not-iterating', and
+  'filter-builtin-not-iterating' which are emitted by ``--py3k`` when the
+  appropriate built-in is not used in an iterating context (semantics
+  taken from 2to3).
+
+* Add a new warning, 'unidiomatic-typecheck', emitted when an explicit
+  typecheck uses type() instead of isinstance(). For example,
+  `type(x) == Y` instead of `isinstance(x, Y)`. Patch by Chris Rebert.
+
+  Closes #299
+
+* Add support for combining the Python 3 checker mode with the --jobs
+  flag (--py3k and --jobs).
+
+  Closes #467
+
+* Add a new warning for the Python 3 porting checker, 'using-cmp-argument',
+  emitted when the ``cmp`` argument for the ``list.sort`` or ``sorted builtin``
+  is encountered.
+
+* Make the --py3k flag commutative with the -E flag. Also, this patch
+  fixes the leaks of error messages from the Python 3 checker when
+  the errors mode was activated.
+
+  Closes #437
+
+
+What's New in Pylint 1.4.1?
+===========================
+Release date: 2015-01-16
+
+* Look only in the current function's scope for bad-super-call.
+
+  Closes #403
+
+* Check the return of properties when checking for not-callable.
+
+  Closes #406
+
+* Warn about using the input() or round() built-ins for Python 3.
+
+  Closes #411
+
+* Proper abstract method lookup while checking for abstract-class-instantiated.
+
+  Closes #401
+
+* Use a mro traversal for finding abstract methods.
+
+  Closes #415
+
+* Fix a false positive with catching-non-exception and tuples of exceptions.
+
+* Fix a false negative with raising-non-exception, when the raise used
+  an uninferrable exception context.
+
+* Fix a false positive on Python 2 for raising-bad-type, when
+  raising tuples in the form 'raise (ZeroDivisionError, None)'.
+
+* Fix a false positive with invalid-slots-objects, where the slot entry
+  was a unicode string on Python 2.
+
+  Closes #421
+
+* Add a new warning, 'redundant-unittest-assert', emitted when using
+  unittest's methods assertTrue and assertFalse with constant value
+  as argument. Patch by Vlad Temian.
+
+* Add a new JSON reporter, usable through -f flag.
+
+* Add the method names for the 'signature-differs' and 'argument-differs'
+  warnings.
+
+  Closes #433
+
+* Don't compile test files when installing.
+
+* Fix a crash which occurred when using multiple jobs and the files
+  given as argument didn't exist at all.
+
+What's New in Pylint 1.4.0?
+===========================
+Release date: 2014-11-23
+
+* Added new options for controlling the loading of C extensions.
+  By default, only C extensions from the stdlib will be loaded
+  into the active Python interpreter for inspection, because they
+  can run arbitrary code on import. The option
+  ``--extension-pkg-whitelist`` can be used to specify modules
+  or packages that are safe to load.
+
+* Change default max-line-length to 100 rather than 80
+
+* Drop BaseRawChecker class which were only there for backward
+  compatibility for a while now
+
+* Don't try to analyze string formatting with objects coming from
+  function arguments.
+
+  Closes #373
+
+* Port source code to be Python 2/3 compatible. This drops the
+  need for 2to3, but does drop support for Python 2.5.
+
+* Each message now comes with a confidence level attached, and
+  can be filtered base on this level. This allows to filter out
+  all messages that were emitted even though an inference failure
+  happened during checking.
+
+* Improved presenting unused-import message.
+
+  Closes #293
+
+* Add new checker for finding spelling errors. New messages:
+  wrong-spelling-in-comment, wrong-spelling-in-docstring.
+  New options: spelling-dict, spelling-ignore-words.
+
+* Add new '-j' option for running checks in sub-processes.
+
+* Added new checks for line endings if they are mixed (LF vs CRLF)
+  or if they are not as expected. New messages: mixed-line-endings,
+  unexpected-line-ending-format. New option: expected-line-ending-format.
+
+* 'dangerous-default-value' no longer evaluates the value of the arguments,
+  which could result in long error messages or sensitive data being leaked.
+
+  Closes #282
+
+* Fix a false positive with string formatting checker, when
+  encountering a string which uses only position-based arguments.
+
+  Closes #285
+
+* Fix a false positive with string formatting checker, when using
+  keyword argument packing.
+
+  Closes #288
+
+* Proper handle class level scope for lambdas.
+
+* Handle 'too-few-format-args' or 'too-many-format-args' for format
+  strings with both named and positional fields.
+
+  Closes #286
+
+* Analyze only strings by the string format checker.
+
+  Closes #287
+
+* Properly handle nested format string fields.
+
+  Closes #294
+
+* Don't emit 'attribute-defined-outside-init' if the attribute
+  was set by a function call in a defining method.
+
+  Closes #192
+
+* Properly handle unicode format strings for Python 2.
+
+  Closes #296
+
+* Don't emit 'import-error' if an import was protected by a try-except,
+  which excepted ImportError.
+
+* Fix an 'unused-import' false positive, when the error was emitted
+  for all the members imported with 'from import' form.
+
+  Closes #304
+
+* Don't emit 'invalid-name' when assigning a name in an
+  ImportError handler.
+
+  Closes #302
+
+* Don't count branches from nested functions.
+
+* Fix a false positive with 'too-few-format-args', when the format
+  strings contains duplicate manual position arguments.
+
+  Closes #310
+
+* fixme regex handles comments without spaces after the hash.
+
+  Closes #311
+
+* Don't emit 'unused-import' when a special object is imported
+  (__all__, __doc__ etc.).
+
+  Closes #309
+
+* Look in the metaclass, if defined, for members not found in the current
+  class.
+
+  Closes #306
+
+* Don't emit 'protected-access' if the attribute is accessed using
+  a property defined at the class level.
+
+* Detect calls of the parent's __init__, through a binded super() call.
+
+* Check that a class has an explicitly defined metaclass before
+  emitting 'old-style-class' for Python 2.
+
+* Emit 'catching-non-exception' for non-class nodes.
+
+  Closes #303
+
+* Order of reporting is consistent.
+
+* Add a new warning, 'boolean-datetime', emitted when an instance
+  of 'datetime.time' is used in a boolean context.
+
+  Closes #239
+
+* Fix a crash which occurred while checking for 'method-hidden',
+  when the parent frame was something different than a function.
+
+* Generate html output for missing files.
+
+  Closes #320
+
+* Fix a false positive with 'too-many-format-args', when the format
+  string contains mixed attribute access arguments and manual
+  fields.
+
+  Closes #322
+
+* Extend the cases where 'undefined-variable' and 'used-before-assignment'
+  can be detected.
+
+  Closes #291
+
+* Add support for customising callback identifiers, by adding a new
+  '--callbacks' command line option.
+
+  Closes #326
+
+* Add a new warning, 'logging-format-interpolation', emitted when .format()
+  string interpolation is used within logging function calls.
+
+* Don't emit 'unbalanced-tuple-unpacking' when the rhs of the assignment
+  is a variable length argument.
+
+  Closes #329
+
+* Add a new warning, 'inherit-non-class', emitted when a class inherits
+  from something which is not a class.
+
+  Closes #331
+
+* Fix another false positives with 'undefined-variable', where the variable
+  can be found as a class assignment and used in a function annotation.
+
+  Closes #342
+
+* Handle assignment of the string format method to a variable.
+
+  Closes #351
+
+* Support wheel packaging format for PyPi.
+
+  Closes #334
+
+* Check that various built-ins that do not exist in Python 3 are not
+  used: apply, basestring, buffer, cmp, coerce, execfile, file, long
+  raw_input, reduce, StandardError, unicode, reload and xrange.
+
+* Warn for magic methods which are not used in any way in Python 3:
+  __coerce__, __delslice__, __getslice__, __setslice__, __cmp__,
+  __oct__, __nonzero__ and __hex__.
+
+* Don't emit 'assigning-non-slot' when the assignment is for a property.
+
+  Closes #359
+
+* Fix for regression: '{path}' was no longer accepted in '--msg-template'.
+
+* Report the percentage of all messages, not just for errors and warnings.
+
+  Closes #319
+
+* 'too-many-public-methods' is reported only for methods defined in a class,
+  not in its ancestors.
+
+  Closes #248
+
+* 'too-many-lines' disable pragma can be located on any line, not only the
+  first.
+
+  Closes #321
+
+* Warn in Python 2 when an import statement is found without a
+  corresponding ``from __future__ import absolute_import``.
+
+* Warn in Python 2 when a non-floor division operation is found without
+  a corresponding ``from __future__ import division``.
+
+* Add a new option, 'exclude-protected', for excluding members
+  from the protected-access warning.
+
+  Closes #48
+
+* Warn in Python 2 when using dict.iter*(), dict.view*(); none of these
+  methods are available in Python 3.
+
+* Warn in Python 2 when calling an object's next() method; Python 3 uses
+  __next__() instead.
+
+* Warn when assigning to __metaclass__ at a class scope; in Python 3 a
+  metaclass is specified as an argument to the 'class' statement.
+
+* Warn when performing parameter tuple unpacking; it is not supported in
+  Python 3.
+
+* 'abstract-class-instantiated' is also emitted for Python 2.
+  It was previously disabled.
+
+* Add 'long-suffix' error, emitted when encountering the long suffix
+  on numbers.
+
+* Add support for disabling a checker, by specifying an 'enabled'
+  attribute on the checker class.
+
+* Add a new CLI option, --py3k, for enabling Python 3 porting mode. This
+  mode will disable all other checkers and will emit warnings and
+  errors for constructs which are invalid or removed in Python 3.
+
+* Add 'old-octal-literal' to Python 3 porting checker, emitted when
+  encountering octals with the old syntax.
+
+* Add 'implicit-map-evaluation' to Python 3 porting checker, emitted
+  when encountering the use of map builtin, without explicit evaluation.

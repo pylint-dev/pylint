@@ -107,6 +107,24 @@ def for_else_raises(iterable):
     print(thing)
 
 
+def for_else_break(iterable):
+    while True:
+        for thing in iterable:
+            break
+        else:
+            break
+        print(thing)
+
+
+def for_else_continue(iterable):
+    while True:
+        for thing in iterable:
+            break
+        else:
+            continue
+        print(thing)
+
+
 lst = []
 lst2 = [1, 2, 3]
 
@@ -139,3 +157,25 @@ def variable_name_assigned_in_body_of_second_loop():
         alias = True
         if alias:
             print(alias)
+
+
+def use_enumerate():
+    """https://github.com/PyCQA/pylint/issues/6593"""
+    for i, num in enumerate(range(3)):
+        pass
+    print(i, num)
+
+
+def use_enumerate_in_ternary_expression():
+    """https://github.com/PyCQA/pylint/issues/7131"""
+    for i, num in enumerate(range(3)) if __revision__ else enumerate(range(4)):
+        pass
+    print(i, num)
+
+
+def find_even_number(container):
+    """https://github.com/PyCQA/pylint/pull/6923#discussion_r895134495"""
+    for something in container:
+        if something % 2 == 0:
+            break
+    return something  # [undefined-loop-variable]

@@ -1,7 +1,7 @@
 """Test warnings about access to undefined variables
 for various Python 3 constructs. """
 # pylint: disable=too-few-public-methods, import-error
-# pylint: disable=wrong-import-position, invalid-metaclass, useless-object-inheritance
+# pylint: disable=wrong-import-position, invalid-metaclass
 class Undefined:
     """ test various annotation problems. """
 
@@ -37,7 +37,7 @@ class Undefined1:
             """ Triggers undefined-variable. """
 
 
-class FalsePositive342(object):
+class FalsePositive342:
     # pylint: disable=line-too-long
     """ Fix some false positives found in
     https://bitbucket.org/logilab/pylint/issue/342/spurious-undefined-variable-for-class

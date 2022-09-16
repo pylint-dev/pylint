@@ -1,0 +1,49 @@
+{
+  "astroid": {
+    "branch": "main",
+    "directories": ["astroid"],
+    "url": "https://github.com/PyCQA/astroid",
+    "pylintrc_relpath": "pylintrc"
+  },
+  "black": {
+    "branch": "main",
+    "directories": ["src/black/", "src/blackd/", "src/blib2to3/"],
+    "url": "https://github.com/psf/black"
+  },
+  "django": {
+    "branch": "main",
+    "directories": ["django"],
+    "url": "https://github.com/django/django"
+  },
+  "flask": {
+    "branch": "main",
+    "directories": ["src/flask"],
+    "url": "https://github.com/pallets/flask"
+  },
+  "pandas": {
+    "branch": "main",
+    "directories": ["pandas"],
+    "pylint_additional_args": ["--ignore-patterns=\"test_"],
+    "url": "https://github.com/pandas-dev/pandas"
+  },
+  "psycopg": {
+    "branch": "master",
+    "directories": ["psycopg/psycopg"],
+    "url": "https://github.com/psycopg/psycopg"
+  },
+  "pygame": {
+    "branch": "main",
+    "directories": ["src_py"],
+    "url": "https://github.com/pygame/pygame"
+  },
+  "pytest": {
+    "branch": "main",
+    "directories": ["src/_pytest"],
+    "url": "https://github.com/pytest-dev/pytest"
+  },
+  "sentry": {
+    "branch": "master",
+    "directories": ["src/sentry"],
+    "url": "https://github.com/getsentry/sentry"
+  }
+}

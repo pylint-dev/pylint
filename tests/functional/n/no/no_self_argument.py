@@ -1,8 +1,15 @@
 """Check for method without self as first argument"""
-# pylint: disable=useless-object-inheritance
-from __future__ import print_function
 
-class NoSelfArgument(object):
+
+MYSTATICMETHOD = staticmethod
+
+
+def returns_staticmethod(my_function):
+    """Create a staticmethod from function `my_function`"""
+    return staticmethod(my_function)
+
+
+class NoSelfArgument:
     """dummy class"""
 
     def __init__(truc):  # [no-self-argument]
@@ -16,3 +23,18 @@ class NoSelfArgument(object):
     def edf(self):
         """just another method"""
         print('yapudju in', self)
+
+    @staticmethod
+    def say_hello():
+        """A standard staticmethod"""
+        print("hello!")
+
+    @MYSTATICMETHOD
+    def say_goodbye():
+        """A staticmethod but using a different name"""
+        print("goodbye!")
+
+    @returns_staticmethod
+    def concatenate_strings(string1, string2):
+        """A staticmethod created by `returns_staticmethod` function"""
+        return string1 + string2

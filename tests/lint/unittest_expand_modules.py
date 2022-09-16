@@ -12,7 +12,7 @@ import pytest
 from pylint.checkers import BaseChecker
 from pylint.lint.expand_modules import _is_in_ignore_list_re, expand_modules
 from pylint.testutils import CheckerTestCase, set_config
-from pylint.typing import MessageDefinitionTuple
+from pylint.typing import MessageDefinitionTuple, ModuleDescriptionDict
 
 
 def test__is_in_ignore_list_re_match() -> None:
@@ -69,13 +69,14 @@ test_pylinter = {
     "path": str(TEST_DIRECTORY / "lint/test_pylinter.py"),
 }
 
-test_namespace_packages = {
+test_caching = {
     "basename": "lint",
     "basepath": INIT_PATH,
     "isarg": False,
-    "name": "lint.test_namespace_packages",
-    "path": str(TEST_DIRECTORY / "lint/test_namespace_packages.py"),
+    "name": "lint.test_caching",
+    "path": str(TEST_DIRECTORY / "lint/test_caching.py"),
 }
+
 
 init_of_package = {
     "basename": "lint",
@@ -106,7 +107,7 @@ class TestExpandModules(CheckerTestCase):
                 [str(Path(__file__).parent)],
                 [
                     init_of_package,
-                    test_namespace_packages,
+                    test_caching,
                     test_pylinter,
                     test_utils,
                     this_file_from_init,
@@ -116,9 +117,12 @@ class TestExpandModules(CheckerTestCase):
         ],
     )
     @set_config(ignore_paths="")
-    def test_expand_modules(self, files_or_modules, expected):
+    def test_expand_modules(
+        self, files_or_modules: list[str], expected: list[ModuleDescriptionDict]
+    ) -> None:
         """Test expand_modules with the default value of ignore-paths."""
-        ignore_list, ignore_list_re = [], []
+        ignore_list: list[str] = []
+        ignore_list_re: list[re.Pattern[str]] = []
         modules, errors = expand_modules(
             files_or_modules,
             ignore_list,
@@ -142,9 +146,12 @@ class TestExpandModules(CheckerTestCase):
         ],
     )
     @set_config(ignore_paths=".*/lint/.*")
-    def test_expand_modules_with_ignore(self, files_or_modules, expected):
+    def test_expand_modules_with_ignore(
+        self, files_or_modules: list[str], expected: list[ModuleDescriptionDict]
+    ) -> None:
         """Test expand_modules with a non-default value of ignore-paths."""
-        ignore_list, ignore_list_re = [], []
+        ignore_list: list[str] = []
+        ignore_list_re: list[re.Pattern[str]] = []
         modules, errors = expand_modules(
             files_or_modules,
             ignore_list,

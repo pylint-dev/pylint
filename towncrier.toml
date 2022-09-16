@@ -1,0 +1,51 @@
+[tool.towncrier]
+version = "2.16.0"
+directory = "doc/whatsnew/fragments"
+filename = "doc/whatsnew/2/2.16/index.rst"
+template = "doc/whatsnew/fragments/_template.rst"
+issue_format = "`#{issue} <https://github.com/PyCQA/pylint/issues/{issue}>`_"
+wrap = true
+
+# Definition of fragment types.
+# TODO: with the next towncrier release (21.9.1) it will be possible to define
+# custom types as toml tables:
+# https://github.com/twisted/towncrier#further-options
+[[tool.towncrier.type]]
+directory = "new_check"
+name = "New Checks"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "removed_check"
+name = "Removed Checks"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "extension"
+name = "Extensions"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "false_positive"
+name = "False Positives Fixed"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "false_negative"
+name = "False Negatives Fixed"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "bugfix"
+name = "Other Bug Fixes"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "other"
+name = "Other Changes"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "internal"
+name = "Internal Changes"
+showcontent = true

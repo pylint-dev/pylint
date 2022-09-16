@@ -1,6 +1,6 @@
 name: 🤔 Support question
 description: Questions about pylint that are not covered in the documentation
-labels: [question, needs triage, documentation]
+labels: ["Needs triage :inbox_tray:", "Question", "Documentation :green_book:"]
 body:
   - type: markdown
     attributes:

@@ -17,6 +17,7 @@
 import sys
 
 from pylint.config.exceptions import ArgumentPreprocessingError
+from pylint.lint.caching import load_results, save_results
 from pylint.lint.parallel import check_parallel
 from pylint.lint.pylinter import PyLinter
 from pylint.lint.report_functions import (
@@ -37,6 +38,8 @@ __all__ = [
     "ArgumentPreprocessingError",
     "_patch_sys_path",
     "fix_import_path",
+    "save_results",
+    "load_results",
 ]
 
 if __name__ == "__main__":

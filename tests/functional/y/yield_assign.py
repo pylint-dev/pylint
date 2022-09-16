@@ -1,6 +1,5 @@
 """https://www.logilab.org/ticket/8771"""
 
-from __future__ import print_function
 
 def generator():
     """yield as assignment"""

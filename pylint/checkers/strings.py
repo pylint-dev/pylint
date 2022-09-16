@@ -7,15 +7,16 @@
 from __future__ import annotations
 
 import collections
-import numbers
 import re
+import sys
 import tokenize
 from collections import Counter
 from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING
 
 import astroid
-from astroid import nodes
+from astroid import bases, nodes
+from astroid.typing import SuccessfulInferenceResult
 
 from pylint.checkers import BaseChecker, BaseRawFileChecker, BaseTokenChecker, utils
 from pylint.checkers.utils import only_required_for_messages
@@ -24,6 +25,12 @@ from pylint.typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
+
 
 _AST_NODE_STR_TYPES = ("__builtin__.unicode", "__builtin__.str", "builtins.str")
 # Prefixes for both strings and bytes literals per
@@ -200,7 +207,7 @@ OTHER_NODES = (
 )
 
 
-def get_access_path(key, parts):
+def get_access_path(key: str | Literal[0], parts: list[tuple[bool, str]]) -> str:
     """Given a list of format specifiers, returns
     the final access path (e.g. a.b.c[0][1]).
     """
@@ -213,7 +220,9 @@ def get_access_path(key, parts):
     return str(key) + "".join(path)
 
 
-def arg_matches_format_type(arg_type, format_type):
+def arg_matches_format_type(
+    arg_type: SuccessfulInferenceResult, format_type: str
+) -> bool:
     if format_type in "sr":
         # All types can be printed with %s and %r
         return True
@@ -427,7 +436,9 @@ class StringFormatChecker(BaseChecker):
             elif func.name == "format":
                 self._check_new_format(node, func)
 
-    def _detect_vacuous_formatting(self, node, positional_arguments):
+    def _detect_vacuous_formatting(
+        self, node: nodes.Call, positional_arguments: list[SuccessfulInferenceResult]
+    ) -> None:
         counter = collections.Counter(
             arg.name for arg in positional_arguments if isinstance(arg, nodes.Name)
         )
@@ -438,7 +449,7 @@ class StringFormatChecker(BaseChecker):
                 "duplicate-string-formatting-argument", node=node, args=(name,)
             )
 
-    def _check_new_format(self, node, func):
+    def _check_new_format(self, node: nodes.Call, func: bases.BoundMethod) -> None:
         """Check the new string formatting."""
         # Skip format nodes which don't have an explicit string on the
         # left side of the format operation.
@@ -522,10 +533,16 @@ class StringFormatChecker(BaseChecker):
         self._detect_vacuous_formatting(node, positional_arguments)
         self._check_new_format_specifiers(node, fields, named_arguments)
 
-    def _check_new_format_specifiers(self, node, fields, named):
+    def _check_new_format_specifiers(
+        self,
+        node: nodes.Call,
+        fields: list[tuple[str, list[tuple[bool, str]]]],
+        named: dict[str, SuccessfulInferenceResult],
+    ) -> None:
         """Check attribute and index access in the format
         string ("{0.a}" and "{0[a]}").
         """
+        key: Literal[0] | str
         for key, specifiers in fields:
             # Obtain the argument. If it can't be obtained
             # or inferred, skip this check.
@@ -534,7 +551,7 @@ class StringFormatChecker(BaseChecker):
                 # to 0. It will not be present in `named`, so use the value
                 # 0 for it.
                 key = 0
-            if isinstance(key, numbers.Number):
+            if isinstance(key, int):
                 try:
                     argname = utils.get_argument_from_call(node, key)
                 except utils.NoSuchArgumentError:
@@ -558,7 +575,7 @@ class StringFormatChecker(BaseChecker):
                 # because we can't infer its value properly.
                 continue
             previous = argument
-            parsed = []
+            parsed: list[tuple[bool, str]] = []
             for is_attribute, specifier in specifiers:
                 if previous is astroid.Uninferable:
                     break
@@ -692,9 +709,12 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
     # Unicode strings.
     UNICODE_ESCAPE_CHARACTERS = "uUN"
 
-    def __init__(self, linter):
+    def __init__(self, linter: PyLinter) -> None:
         super().__init__(linter)
-        self.string_tokens = {}  # token position -> (token value, next token)
+        self.string_tokens: dict[
+            tuple[int, int], tuple[str, tokenize.TokenInfo | None]
+        ] = {}
+        """Token position -> (token value, next token)."""
 
     def process_module(self, node: nodes.Module) -> None:
         self._unicode_literals = "unicode_literals" in node.future_imports
@@ -812,7 +832,7 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
                         confidence=HIGH,
                     )
 
-    def process_string_token(self, token, start_row, start_col):
+    def process_string_token(self, token: str, start_row: int, start_col: int) -> None:
         quote_char = None
         index = None
         for index, char in enumerate(token):
@@ -839,15 +859,15 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
             )
 
     def process_non_raw_string_token(
-        self, prefix, string_body, start_row, string_start_col
-    ):
+        self, prefix: str, string_body: str, start_row: int, string_start_col: int
+    ) -> None:
         """Check for bad escapes in a non-raw string.
 
         prefix: lowercase string of string prefix markers ('ur').
         string_body: the un-parsed body of the string, not including the quote
         marks.
-        start_row: integer line number in the source.
-        string_start_col: integer col number of the string start in the source.
+        start_row: line number in the source.
+        string_start_col: col number of the string start in the source.
         """
         # Walk through the string; if we see a backslash then escape the next
         # character, and skip over it.  If we see a non-escaped character,
@@ -907,7 +927,7 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
         ):
             self._detect_u_string_prefix(node)
 
-    def _detect_u_string_prefix(self, node: nodes.Const):
+    def _detect_u_string_prefix(self, node: nodes.Const) -> None:
         """Check whether strings include a 'u' prefix like u'String'."""
         if node.kind == "u":
             self.add_message(
@@ -922,7 +942,7 @@ def register(linter: PyLinter) -> None:
     linter.register_checker(StringConstantChecker(linter))
 
 
-def str_eval(token):
+def str_eval(token: str) -> str:
     """Mostly replicate `ast.literal_eval(token)` manually to avoid any performance hit.
 
     This supports f-strings, contrary to `ast.literal_eval`.

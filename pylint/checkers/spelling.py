@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import re
+import sys
 import tokenize
 from re import Pattern
 from typing import TYPE_CHECKING
@@ -15,6 +16,11 @@ from astroid import nodes
 
 from pylint.checkers import BaseTokenChecker
 from pylint.checkers.utils import only_required_for_messages
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -42,15 +48,17 @@ except ImportError:
         ...
 
     class Filter:  # type: ignore[no-redef]
-        def _skip(self, word):
+        def _skip(self, word: str) -> bool:
             raise NotImplementedError
 
     class Chunker:  # type: ignore[no-redef]
         pass
 
     def get_tokenizer(
-        tag=None, chunkers=None, filters=None
-    ):  # pylint: disable=unused-argument
+        tag: str | None = None,  # pylint: disable=unused-argument
+        chunkers: list[Chunker] | None = None,  # pylint: disable=unused-argument
+        filters: list[Filter] | None = None,  # pylint: disable=unused-argument
+    ) -> Filter:
         return Filter()
 
 
@@ -67,34 +75,33 @@ else:
     instr = " To make it work, install the 'python-enchant' package."
 
 
-class WordsWithDigitsFilter(Filter):
+class WordsWithDigitsFilter(Filter):  # type: ignore[misc]
     """Skips words with digits."""
 
-    def _skip(self, word):
+    def _skip(self, word: str) -> bool:
         return any(char.isdigit() for char in word)
 
 
-class WordsWithUnderscores(Filter):
+class WordsWithUnderscores(Filter):  # type: ignore[misc]
     """Skips words with underscores.
 
     They are probably function parameter names.
     """
 
-    def _skip(self, word):
+    def _skip(self, word: str) -> bool:
         return "_" in word
 
 
-class RegExFilter(Filter):
+class RegExFilter(Filter):  # type: ignore[misc]
     """Parent class for filters using regular expressions.
 
     This filter skips any words the match the expression
     assigned to the class attribute ``_pattern``.
-
     """
 
     _pattern: Pattern[str]
 
-    def _skip(self, word) -> bool:
+    def _skip(self, word: str) -> bool:
         return bool(self._pattern.match(word))
 
 
@@ -121,10 +128,14 @@ class SphinxDirectives(RegExFilter):
     _pattern = re.compile(r"^(:([a-z]+)){1,2}:`([^`]+)(`)?")
 
 
-class ForwardSlashChunker(Chunker):
-    """This chunker allows splitting words like 'before/after' into 'before' and 'after'."""
+class ForwardSlashChunker(Chunker):  # type: ignore[misc]
+    """This chunker allows splitting words like 'before/after' into 'before' and
+    'after'.
+    """
 
-    def next(self):
+    _text: str
+
+    def next(self) -> tuple[str, int]:
         while True:
             if not self._text:
                 raise StopIteration()
@@ -147,7 +158,7 @@ class ForwardSlashChunker(Chunker):
                 return f"{pre_text}/{post_text}", 0
             return pre_text, 0
 
-    def _next(self):
+    def _next(self) -> tuple[str, Literal[0]]:
         while True:
             if "/" not in self._text:
                 return self._text, 0
@@ -161,6 +172,7 @@ class ForwardSlashChunker(Chunker):
 
 
 CODE_FLANKED_IN_BACKTICK_REGEX = re.compile(r"(\s|^)(`{1,2})([^`]+)(\2)([^`]|$)")
+MYPY_IGNORE_DIRECTIVE_RULE_REGEX = re.compile(r"(\s|^)(type\: ignore\[[^\]]+\])(.*)")
 
 
 def _strip_code_flanked_in_backticks(line: str) -> str:
@@ -170,11 +182,28 @@ def _strip_code_flanked_in_backticks(line: str) -> str:
     so this cannot be done at the individual filter level.
     """
 
-    def replace_code_but_leave_surrounding_characters(match_obj) -> str:
+    def replace_code_but_leave_surrounding_characters(match_obj: re.Match[str]) -> str:
         return match_obj.group(1) + match_obj.group(5)
 
     return CODE_FLANKED_IN_BACKTICK_REGEX.sub(
         replace_code_but_leave_surrounding_characters, line
+    )
+
+
+def _strip_mypy_ignore_directive_rule(line: str) -> str:
+    """Alter line so mypy rule name is ignored.
+
+    Pyenchant parses anything flanked by spaces as an individual token,
+    so this cannot be done at the individual filter level.
+    """
+
+    def replace_rule_name_but_leave_surrounding_characters(
+        match_obj: re.Match[str],
+    ) -> str:
+        return match_obj.group(1) + match_obj.group(3)
+
+    return MYPY_IGNORE_DIRECTIVE_RULE_REGEX.sub(
+        replace_rule_name_but_leave_surrounding_characters, line
     )
 
 
@@ -332,6 +361,7 @@ class SpellingChecker(BaseTokenChecker):
             starts_with_comment = False
 
         line = _strip_code_flanked_in_backticks(line)
+        line = _strip_mypy_ignore_directive_rule(line)
 
         for word, word_start_at in self.tokenizer(line.strip()):
             word_start_at += initial_space
@@ -409,22 +439,16 @@ class SpellingChecker(BaseTokenChecker):
 
     @only_required_for_messages("wrong-spelling-in-docstring")
     def visit_module(self, node: nodes.Module) -> None:
-        if not self.initialized:
-            return
         self._check_docstring(node)
 
     @only_required_for_messages("wrong-spelling-in-docstring")
     def visit_classdef(self, node: nodes.ClassDef) -> None:
-        if not self.initialized:
-            return
         self._check_docstring(node)
 
     @only_required_for_messages("wrong-spelling-in-docstring")
     def visit_functiondef(
         self, node: nodes.FunctionDef | nodes.AsyncFunctionDef
     ) -> None:
-        if not self.initialized:
-            return
         self._check_docstring(node)
 
     visit_asyncfunctiondef = visit_functiondef
@@ -436,12 +460,12 @@ class SpellingChecker(BaseTokenChecker):
         | nodes.ClassDef
         | nodes.Module,
     ) -> None:
-        """Check the node has any spelling errors."""
+        """Check if the node has any spelling errors."""
+        if not self.initialized:
+            return
         if not node.doc_node:
             return
-
         start_line = node.lineno + 1
-
         # Go through lines of docstring
         for idx, line in enumerate(node.doc_node.value.splitlines()):
             self._check_spelling("wrong-spelling-in-docstring", line, start_line + idx)

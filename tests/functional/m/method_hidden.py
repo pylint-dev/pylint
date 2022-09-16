@@ -1,11 +1,10 @@
-# pylint: disable=too-few-public-methods, useless-object-inheritance,missing-docstring
+# pylint: disable=too-few-public-methods,missing-docstring
 # pylint: disable=unused-private-member
 """check method hiding ancestor attribute
 """
-from __future__ import print_function
 
 
-class Abcd(object):
+class Abcd:
     """dummy"""
 
     def __init__(self):

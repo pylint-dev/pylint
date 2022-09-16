@@ -1,11 +1,11 @@
 """Detect problems with invalid operands used on invalid objects."""
 # pylint: disable=missing-docstring,too-few-public-methods,invalid-name
-# pylint: disable=unused-variable, useless-object-inheritance, use-dict-literal
+# pylint: disable=unused-variable, use-dict-literal
 
 import collections
 
 
-class Implemented(object):
+class Implemented:
     def __invert__(self):
         return 42
     def __pos__(self):
@@ -42,7 +42,7 @@ def these_are_bad():
     neg_str = -"" # [invalid-unary-operand-type]
     invert_str = ~"" # [invalid-unary-operand-type]
     pos_str = +"" # [invalid-unary-operand-type]
-    class A(object):
+    class A:
         pass
     invert_func = ~(lambda: None) # [invalid-unary-operand-type]
     invert_class = ~A # [invalid-unary-operand-type]

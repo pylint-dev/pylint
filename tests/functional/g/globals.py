@@ -1,6 +1,5 @@
 """Warnings about global statements and usage of global variables."""
 # pylint: disable=invalid-name, redefined-outer-name, missing-function-docstring, missing-class-docstring, import-outside-toplevel, too-few-public-methods
-from __future__ import print_function
 
 global CSTE  # [global-at-module-level]
 print(CSTE)  # [undefined-variable]

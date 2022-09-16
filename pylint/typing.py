@@ -6,7 +6,9 @@
 
 from __future__ import annotations
 
+import argparse
 import sys
+from pathlib import Path
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -22,12 +24,13 @@ from typing import (
 )
 
 if sys.version_info >= (3, 8):
-    from typing import Literal, TypedDict
+    from typing import Literal, Protocol, TypedDict
 else:
-    from typing_extensions import Literal, TypedDict
+    from typing_extensions import Literal, Protocol, TypedDict
 
 if TYPE_CHECKING:
     from pylint.config.callback_actions import _CallbackAction
+    from pylint.pyreverse.inspector import Project
     from pylint.reporters.ureports.nodes import Section
     from pylint.utils import LinterStats
 
@@ -121,9 +124,17 @@ class ExtraMessageOptions(TypedDict, total=False):
     old_names: list[tuple[str, str]]
     maxversion: tuple[int, int]
     minversion: tuple[int, int]
+    shared: bool
 
 
 MessageDefinitionTuple = Union[
     Tuple[str, str, str],
     Tuple[str, str, str, ExtraMessageOptions],
 ]
+# Mypy doesn't support recursive types (yet), see https://github.com/python/mypy/issues/731
+DirectoryNamespaceDict = Dict[Path, Tuple[argparse.Namespace, "DirectoryNamespaceDict"]]  # type: ignore[misc]
+
+
+class GetProjectCallable(Protocol):
+    def __call__(self, module: str, name: str | None = "No Name") -> Project:
+        ...  # pragma: no cover

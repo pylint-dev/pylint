@@ -1,0 +1,75 @@
+**************************
+  What's New In Pylint 1.1
+**************************
+
+Release date: 2013-12-22
+
+* Add new check for use of deprecated pragma directives "pylint:disable-msg"
+  or "pylint:enable-msg" (I0022, deprecated-pragma) which was previously
+  emitted as a regular warn().
+
+* Avoid false used-before-assignment for except handler defined
+  identifier used on the same line.
+
+  Closes #111
+
+* Combine 'no-space-after-operator', 'no-space-after-comma' and
+  'no-space-before-operator' into a new warning 'bad-whitespace'.
+
+* Add a new warning 'superfluous-parens' for unnecessary
+  parentheses after certain keywords.
+
+* Fix a potential crash in the redefine-in-handler warning
+  if the redefined name is a nested getattr node.
+
+* Add a new option for the multi-statement warning to
+  allow single-line if statements.
+
+* Add 'bad-context-manager' error, checking that '__exit__'
+  special method accepts the right number of arguments.
+
+* Run pylint as a python module 'python -m pylint' (Anatoly Techtonik).
+
+* Check for non-exception classes inside an except clause.
+
+* epylint support options to give to pylint after the file to analyze and
+  have basic input validation, patches provided by
+  felipeochoa and Brian Lane.
+
+  Closes BitBucket #53
+  Closes BitBucket #54
+
+* Added a new warning, 'non-iterator-returned', for non-iterators
+  returned by '__iter__'.
+
+* Add new checks for unpacking non-sequences in assignments
+  (unpacking-non-sequence) as well as unbalanced tuple unpacking
+  (unbalanced-tuple-unpacking).
+
+* useless-else-on-loop not emitted if there is a break in the
+  else clause of inner loop.
+
+  Closes #117
+
+* don't mark ``input`` as a bad function when using python3.
+
+  Closes #110
+
+* badly-implemented-container caused several problems in its
+  current implementation. Deactivate it until we have something
+  better.
+
+  Refs #112
+
+* Use attribute regexp for properties in python3, as in python2
+
+* Create the ``PYLINTHOME`` directory when needed, it might fail and lead to
+  spurious warnings on import of pylint.config.
+
+* Fix setup.py so that pylint properly install on Windows when using python3
+
+* Various documentation fixes and enhancements
+
+* Fix a false-positive trailing-whitespace on Windows
+
+  Closes #55

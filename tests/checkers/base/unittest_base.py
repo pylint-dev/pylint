@@ -9,7 +9,7 @@ import unittest
 
 class TestNoSix(unittest.TestCase):
     @unittest.skip("too many dependencies need six :(")
-    def test_no_six(self):
+    def test_no_six(self) -> None:
         try:
             has_six = True
         except ImportError:

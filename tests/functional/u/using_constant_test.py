@@ -1,6 +1,6 @@
 """Verify if constant tests are used inside if statements."""
 # pylint: disable=invalid-name, missing-docstring,too-few-public-methods
-# pylint: disable=expression-not-assigned, useless-object-inheritance
+# pylint: disable=expression-not-assigned
 # pylint: disable=missing-parentheses-for-call-in-test, unnecessary-comprehension, condition-evals-to-constant
 # pylint: disable=use-list-literal, use-dict-literal
 
@@ -11,7 +11,7 @@ def function():
     yield
 
 
-class Class(object):
+class Class:
 
     def method(self):
         pass
@@ -147,3 +147,32 @@ def test_good_comprehension_checks():
     {data for data in range(100) if abs(data)}
     {data: 1 for data in range(100) if data}
     {data: 1 for data in range(100)}
+
+
+# Calls to functions returning generator expressions are always truthy
+def get_generator():
+    return (x for x in range(0))
+
+if get_generator():  # [using-constant-test]
+    pass
+
+def maybe_get_generator(arg):
+    if arg:
+        return (x for x in range(0))
+    return None
+
+if maybe_get_generator(None):
+    pass
+
+y = (a for a in range(10))
+if y:  # [using-constant-test]
+    pass
+
+z = (a for a in range(10))
+z = "red herring"
+if z:
+    pass
+
+gen = get_generator()
+if gen:  # [using-constant-test]
+    pass

@@ -8,11 +8,15 @@ import re
 from re import Pattern
 
 from pylint import constants
+from pylint.typing import OptionDict, Options
 
 
 class NamingStyle:
-    """It may seem counter-intuitive that single naming style has multiple "accepted"
-    forms of regular expressions, but we need to special-case stuff like dunder names in method names.
+    """Class to register all accepted forms of a single naming style.
+
+    It may seem counter-intuitive that single naming style has multiple "accepted"
+    forms of regular expressions, but we need to special-case stuff like dunder
+    names in method names.
     """
 
     ANY: Pattern[str] = re.compile(".*")
@@ -24,7 +28,7 @@ class NamingStyle:
     CLASS_ATTRIBUTE_RGX: Pattern[str] = ANY
 
     @classmethod
-    def get_regex(cls, name_type):
+    def get_regex(cls, name_type: str) -> Pattern[str]:
         return {
             "module": cls.MOD_NAME_RGX,
             "const": cls.CONST_NAME_RGX,
@@ -136,8 +140,8 @@ KNOWN_NAME_TYPES = {
 }
 
 
-def _create_naming_options():
-    name_options = []
+def _create_naming_options() -> Options:
+    name_options: list[tuple[str, OptionDict]] = []
     for name_type in sorted(KNOWN_NAME_TYPES):
         human_readable_name = constants.HUMAN_READABLE_TYPES[name_type]
         name_type_hyphened = name_type.replace("_", "-")

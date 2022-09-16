@@ -6,13 +6,15 @@
 
 from __future__ import annotations
 
+import argparse
+from collections.abc import Generator
 from typing import Any
 
 import astroid
 from astroid import nodes
 
 from pylint.pyreverse.diagrams import ClassDiagram, PackageDiagram
-from pylint.pyreverse.inspector import Project
+from pylint.pyreverse.inspector import Linker, Project
 from pylint.pyreverse.utils import LocalsVisitor
 
 # diagram generators ##########################################################
@@ -21,21 +23,22 @@ from pylint.pyreverse.utils import LocalsVisitor
 class DiaDefGenerator:
     """Handle diagram generation options."""
 
-    def __init__(self, linker, handler):
+    def __init__(self, linker: Linker, handler: DiadefsHandler) -> None:
         """Common Diagram Handler initialization."""
         self.config = handler.config
+        self.module_names: bool = False
         self._set_default_options()
         self.linker = linker
-        self.classdiagram = None  # defined by subclasses
+        self.classdiagram: ClassDiagram  # defined by subclasses
 
-    def get_title(self, node):
+    def get_title(self, node: nodes.ClassDef) -> str:
         """Get title for objects."""
         title = node.name
         if self.module_names:
             title = f"{node.root().name}.{title}"
-        return title
+        return title  # type: ignore[no-any-return]
 
-    def _set_option(self, option):
+    def _set_option(self, option: bool | None) -> bool:
         """Activate some options if not explicitly deactivated."""
         # if we have a class diagram, we want more information by default;
         # so if the option is None, we return True
@@ -43,7 +46,7 @@ class DiaDefGenerator:
             return bool(self.config.classes)
         return option
 
-    def _set_default_options(self):
+    def _set_default_options(self) -> None:
         """Set different default options with _default dictionary."""
         self.module_names = self._set_option(self.config.module_names)
         all_ancestors = self._set_option(self.config.all_ancestors)
@@ -59,22 +62,24 @@ class DiaDefGenerator:
             association_level = self.config.show_associated
         self.anc_level, self.association_level = anc_level, association_level
 
-    def _get_levels(self):
+    def _get_levels(self) -> tuple[int, int]:
         """Help function for search levels."""
         return self.anc_level, self.association_level
 
-    def show_node(self, node):
+    def show_node(self, node: nodes.ClassDef) -> bool:
         """True if builtins and not show_builtins."""
         if self.config.show_builtin:
             return True
-        return node.root().name != "builtins"
+        return node.root().name != "builtins"  # type: ignore[no-any-return]
 
-    def add_class(self, node):
+    def add_class(self, node: nodes.ClassDef) -> None:
         """Visit one class and add it to diagram."""
         self.linker.visit(node)
         self.classdiagram.add_object(self.get_title(node), node)
 
-    def get_ancestors(self, node, level):
+    def get_ancestors(
+        self, node: nodes.ClassDef, level: int
+    ) -> Generator[nodes.ClassDef, None, None]:
         """Return ancestor nodes of a class node."""
         if level == 0:
             return
@@ -83,7 +88,9 @@ class DiaDefGenerator:
                 continue
             yield ancestor
 
-    def get_associated(self, klass_node, level):
+    def get_associated(
+        self, klass_node: nodes.ClassDef, level: int
+    ) -> Generator[nodes.ClassDef, None, None]:
         """Return associated nodes of a class node."""
         if level == 0:
             return
@@ -97,7 +104,9 @@ class DiaDefGenerator:
                     continue
                 yield node
 
-    def extract_classes(self, klass_node, anc_level, association_level):
+    def extract_classes(
+        self, klass_node: nodes.ClassDef, anc_level: int, association_level: int
+    ) -> None:
         """Extract recursively classes related to klass_node."""
         if self.classdiagram.has_node(klass_node) or not self.show_node(klass_node):
             return
@@ -117,7 +126,7 @@ class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
     * a class diagram including project's classes
     """
 
-    def __init__(self, linker, handler):
+    def __init__(self, linker: Linker, handler: DiadefsHandler) -> None:
         DiaDefGenerator.__init__(self, linker, handler)
         LocalsVisitor.__init__(self)
 
@@ -172,7 +181,7 @@ class ClassDiadefGenerator(DiaDefGenerator):
     given class.
     """
 
-    def class_diagram(self, project, klass):
+    def class_diagram(self, project: Project, klass: nodes.ClassDef) -> ClassDiagram:
         """Return a class diagram definition for the class and related classes."""
         self.classdiagram = ClassDiagram(klass, self.config.mode)
         if len(project.modules) > 1:
@@ -194,10 +203,10 @@ class ClassDiadefGenerator(DiaDefGenerator):
 class DiadefsHandler:
     """Get diagram definitions from user (i.e. xml files) or generate them."""
 
-    def __init__(self, config):
+    def __init__(self, config: argparse.Namespace) -> None:
         self.config = config
 
-    def get_diadefs(self, project, linker):
+    def get_diadefs(self, project: Project, linker: Linker) -> list[ClassDiagram]:
         """Get the diagram's configuration data.
 
         :param project:The pyreverse project

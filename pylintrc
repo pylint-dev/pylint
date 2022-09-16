@@ -1,7 +1,4 @@
-[MASTER]
-
-# Specify a configuration file.
-#rcfile=
+[MAIN]
 
 # Python code to execute, usually for sys.path manipulation such as
 # pygtk.require().
@@ -61,7 +58,7 @@ py-version = 3.7.2
 # complex, nested conditions.
 limit-inference-results=100
 
-# Specify a score threshold to be exceeded before program exits with error.
+# Specify a score threshold under which the program will exit with error.
 fail-under=10.0
 
 # Return non-zero exit code if any of these messages/categories are detected,
@@ -83,7 +80,6 @@ fail-on=
 enable=
     use-symbolic-message-instead,
     useless-suppression,
-    fixme
 
 # Disable the message, report, category or checker with the given id(s). You
 # can either give multiple identifiers separated by comma (,) or put this
@@ -324,7 +320,7 @@ method-naming-style=snake_case
 # Regular expression matching correct method names
 method-rgx=[a-z_][a-z0-9_]{2,}$
 
-# Regular expression which can overwrite the naming style set by typevar-naming-style.
+# Regular expression matching correct type variable names
 #typevar-rgx=
 
 # Regular expression which should only match function or class names that do

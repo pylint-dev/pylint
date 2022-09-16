@@ -1,2 +1,2 @@
-[testoptions]
-min_pyver=3.8
+[MAIN]
+py-version=3.8

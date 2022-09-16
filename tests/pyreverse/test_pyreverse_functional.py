@@ -5,7 +5,7 @@
 from pathlib import Path
 
 import pytest
-from py._path.local import LocalPath  # type: ignore[import]
+from py._path.local import LocalPath
 
 from pylint.pyreverse.main import Run
 from pylint.testutils.pyreverse import (

@@ -1,10 +1,14 @@
 unused-import:3:0:3:16::Unused import xml.etree:UNDEFINED
 unused-import:4:0:4:14::Unused import xml.sax:UNDEFINED
 unused-import:5:0:5:22::Unused os.path imported as test:UNDEFINED
-unused-import:6:0:6:29::Unused argv imported from sys as test2:UNDEFINED
-unused-import:7:0:7:21::Unused flags imported from sys:UNDEFINED
-unused-import:9:0:9:51::Unused OrderedDict imported from collections:UNDEFINED
-unused-import:9:0:9:51::Unused deque imported from collections:UNDEFINED
-unused-import:10:0:10:22::Unused import re:UNDEFINED
-unused-import:13:0:13:40::Unused SomeOtherName imported from fake:UNDEFINED
-unused-import:45:0:45:9::Unused import os:UNDEFINED
+unused-import:7:0:7:29::Unused argv imported from sys as test2:UNDEFINED
+unused-import:8:0:8:21::Unused flags imported from sys:UNDEFINED
+unused-import:10:0:10:51::Unused OrderedDict imported from collections:UNDEFINED
+unused-import:10:0:10:51::Unused deque imported from collections:UNDEFINED
+unused-import:11:0:11:22::Unused import re:UNDEFINED
+unused-import:14:0:14:40::Unused SomeOtherName imported from fake:UNDEFINED
+unused-import:46:0:46:9::Unused import os:UNDEFINED
+unused-import:77:4:77:19::Unused import unittest:UNDEFINED
+unused-import:79:4:79:15::Unused import uuid:UNDEFINED
+unused-import:81:4:81:19::Unused import warnings:UNDEFINED
+unused-import:83:4:83:21::Unused import compileall:UNDEFINED

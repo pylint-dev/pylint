@@ -18,7 +18,7 @@ def _modpath_from_file(filename: str, is_namespace: bool, path: list[str]) -> li
     def _is_package_cb(inner_path: str, parts: list[str]) -> bool:
         return modutils.check_modpath_has_init(inner_path, parts) or is_namespace
 
-    return modutils.modpath_from_file_with_callback(
+    return modutils.modpath_from_file_with_callback(  # type: ignore[no-any-return]
         filename, path=path, is_package_cb=_is_package_cb
     )
 
@@ -46,6 +46,21 @@ def _is_in_ignore_list_re(element: str, ignore_list_re: list[Pattern[str]]) -> b
     return any(file_pattern.match(element) for file_pattern in ignore_list_re)
 
 
+def _is_ignored_file(
+    element: str,
+    ignore_list: list[str],
+    ignore_list_re: list[Pattern[str]],
+    ignore_list_paths_re: list[Pattern[str]],
+) -> bool:
+    element = os.path.normpath(element)
+    basename = os.path.basename(element)
+    return (
+        basename in ignore_list
+        or _is_in_ignore_list_re(basename, ignore_list_re)
+        or _is_in_ignore_list_re(element, ignore_list_paths_re)
+    )
+
+
 def expand_modules(
     files_or_modules: Sequence[str],
     ignore_list: list[str],
@@ -61,10 +76,8 @@ def expand_modules(
 
     for something in files_or_modules:
         basename = os.path.basename(something)
-        if (
-            basename in ignore_list
-            or _is_in_ignore_list_re(os.path.basename(something), ignore_list_re)
-            or _is_in_ignore_list_re(something, ignore_list_paths_re)
+        if _is_ignored_file(
+            something, ignore_list, ignore_list_re, ignore_list_paths_re
         ):
             continue
         module_path = get_python_path(something)
@@ -90,9 +103,7 @@ def expand_modules(
                 )
                 if filepath is None:
                     continue
-            except (ImportError, SyntaxError) as ex:
-                # The SyntaxError is a Python bug and should be
-                # removed once we move away from imp.find_module: https://bugs.python.org/issue10588
+            except ImportError as ex:
                 errors.append({"key": "fatal", "mod": modname, "ex": ex})
                 continue
         filepath = os.path.normpath(filepath)

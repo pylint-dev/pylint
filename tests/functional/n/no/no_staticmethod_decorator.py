@@ -2,9 +2,9 @@
 scope and if static method's argument is a member of the class
 """
 
-# pylint: disable=too-few-public-methods, using-constant-test, no-method-argument, useless-object-inheritance
+# pylint: disable=too-few-public-methods, using-constant-test, no-method-argument
 
-class MyClass(object):
+class MyClass:
     """Some class"""
     def __init__(self):
         pass
@@ -30,6 +30,6 @@ def helloworld():
 
 MyClass.new_static_method = staticmethod(helloworld)
 
-class MyOtherClass(object):
+class MyOtherClass:
     """Some other class"""
     _make = staticmethod(tuple.__new__)

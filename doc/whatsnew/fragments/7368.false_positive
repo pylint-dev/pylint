@@ -1,0 +1,3 @@
+Fix ``used-before-assignment`` for functions/classes defined in type checking guard.
+
+Closes #7368

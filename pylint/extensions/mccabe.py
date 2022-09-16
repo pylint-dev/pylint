@@ -6,7 +6,8 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Any, TypeVar, Union
 
 from astroid import nodes
 from mccabe import PathGraph as Mccabe_PathGraph
@@ -19,23 +20,48 @@ from pylint.interfaces import HIGH
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
+_StatementNodes = Union[
+    nodes.Assert,
+    nodes.Assign,
+    nodes.AugAssign,
+    nodes.Delete,
+    nodes.Raise,
+    nodes.Yield,
+    nodes.Import,
+    nodes.Call,
+    nodes.Subscript,
+    nodes.Pass,
+    nodes.Continue,
+    nodes.Break,
+    nodes.Global,
+    nodes.Return,
+    nodes.Expr,
+    nodes.Await,
+]
 
-class PathGraph(Mccabe_PathGraph):
-    def __init__(self, node):
+_SubGraphNodes = Union[nodes.If, nodes.TryExcept, nodes.For, nodes.While]
+_AppendableNodeT = TypeVar(
+    "_AppendableNodeT", bound=Union[_StatementNodes, nodes.While, nodes.FunctionDef]
+)
+
+
+class PathGraph(Mccabe_PathGraph):  # type: ignore[misc]
+    def __init__(self, node: _SubGraphNodes | nodes.FunctionDef):
         super().__init__(name="", entity="", lineno=1)
         self.root = node
 
 
-class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):
-    def __init__(self):
+class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):  # type: ignore[misc]
+    def __init__(self) -> None:
         super().__init__()
         self._bottom_counter = 0
+        self.graph: PathGraph | None = None
 
-    def default(self, node, *args):
+    def default(self, node: nodes.NodeNG, *args: Any) -> None:
         for child in node.get_children():
             self.dispatch(child, *args)
 
-    def dispatch(self, node, *args):
+    def dispatch(self, node: nodes.NodeNG, *args: Any) -> Any:
         self.node = node
         klass = node.__class__
         meth = self._cache.get(klass)
@@ -45,7 +71,7 @@ class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):
             self._cache[klass] = meth
         return meth(node, *args)
 
-    def visitFunctionDef(self, node):
+    def visitFunctionDef(self, node: nodes.FunctionDef) -> None:
         if self.graph is not None:
             # closure
             pathnode = self._append_node(node)
@@ -65,7 +91,7 @@ class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):
 
     visitAsyncFunctionDef = visitFunctionDef
 
-    def visitSimpleStatement(self, node):
+    def visitSimpleStatement(self, node: _StatementNodes) -> None:
         self._append_node(node)
 
     visitAssert = (
@@ -74,8 +100,6 @@ class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):
         visitAugAssign
     ) = (
         visitDelete
-    ) = (
-        visitPrint
     ) = (
         visitRaise
     ) = (
@@ -94,20 +118,25 @@ class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):
         visitBreak
     ) = visitGlobal = visitReturn = visitExpr = visitAwait = visitSimpleStatement
 
-    def visitWith(self, node):
+    def visitWith(self, node: nodes.With) -> None:
         self._append_node(node)
         self.dispatch_list(node.body)
 
     visitAsyncWith = visitWith
 
-    def _append_node(self, node):
-        if not self.tail:
+    def _append_node(self, node: _AppendableNodeT) -> _AppendableNodeT | None:
+        if not self.tail or not self.graph:
             return None
         self.graph.connect(self.tail, node)
         self.tail = node
         return node
 
-    def _subgraph(self, node, name, extra_blocks=()):
+    def _subgraph(
+        self,
+        node: _SubGraphNodes,
+        name: str,
+        extra_blocks: Sequence[nodes.ExceptHandler] = (),
+    ) -> None:
         """Create the subgraphs representing any `if` and `for` statements."""
         if self.graph is None:
             # global loop
@@ -119,7 +148,12 @@ class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):
             self._append_node(node)
             self._subgraph_parse(node, node, extra_blocks)
 
-    def _subgraph_parse(self, node, pathnode, extra_blocks):
+    def _subgraph_parse(
+        self,
+        node: _SubGraphNodes,
+        pathnode: _SubGraphNodes,
+        extra_blocks: Sequence[nodes.ExceptHandler],
+    ) -> None:
         """Parse the body and any `else` block of `if` and `for` statements."""
         loose_ends = []
         self.tail = node
@@ -135,7 +169,7 @@ class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):
             loose_ends.append(self.tail)
         else:
             loose_ends.append(node)
-        if node:
+        if node and self.graph:
             bottom = f"{self._bottom_counter}"
             self._bottom_counter += 1
             for end in loose_ends:

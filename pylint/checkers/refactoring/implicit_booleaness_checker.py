@@ -67,7 +67,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
             "'%s' can be simplified to '%s' as an empty sequence is falsey",
             "use-implicit-booleaness-not-comparison",
             "Used when Pylint detects that collection literal comparison is being "
-            "used to check for emptiness; Use implicit booleaness instead"
+            "used to check for emptiness; Use implicit booleaness instead "
             "of a collection classes; empty collections are considered as false",
         ),
     }
@@ -126,8 +126,8 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
 
     @utils.only_required_for_messages("use-implicit-booleaness-not-len")
     def visit_unaryop(self, node: nodes.UnaryOp) -> None:
-        """`not len(S)` must become `not S` regardless if the parent block
-        is a test condition or something else (boolean expression) e.g. `if not len(S):`.
+        """`not len(S)` must become `not S` regardless if the parent block is a test
+        condition or something else (boolean expression) e.g. `if not len(S):`.
         """
         if (
             isinstance(node, nodes.UnaryOp)
@@ -208,7 +208,8 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
 
     @staticmethod
     def base_names_of_instance(node: bases.Uninferable | bases.Instance) -> list[str]:
-        """Return all names inherited by a class instance or those returned by a function.
+        """Return all names inherited by a class instance or those returned by a
+        function.
 
         The inherited names include 'object'.
         """

@@ -1,6 +1,5 @@
 """test string format error"""
 # pylint: disable=unsupported-binary-operation,line-too-long, consider-using-f-string
-from __future__ import print_function
 
 PARG_1 = PARG_2 = PARG_3 = 1
 

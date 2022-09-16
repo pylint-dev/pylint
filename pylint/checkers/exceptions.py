@@ -8,28 +8,34 @@ from __future__ import annotations
 
 import builtins
 import inspect
+from collections.abc import Generator
 from typing import TYPE_CHECKING, Any
 
 import astroid
 from astroid import nodes, objects
+from astroid.context import InferenceContext
+from astroid.typing import InferenceResult, SuccessfulInferenceResult
 
 from pylint import checkers
 from pylint.checkers import utils
+from pylint.interfaces import HIGH, INFERENCE
 from pylint.typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
 
-def _builtin_exceptions():
-    def predicate(obj):
+def _builtin_exceptions() -> set[str]:
+    def predicate(obj: Any) -> bool:
         return isinstance(obj, type) and issubclass(obj, BaseException)
 
     members = inspect.getmembers(builtins, predicate)
     return {exc.__name__ for (_, exc) in members}
 
 
-def _annotated_unpack_infer(stmt, context=None):
+def _annotated_unpack_infer(
+    stmt: nodes.NodeNG, context: InferenceContext | None = None
+) -> Generator[tuple[nodes.NodeNG, SuccessfulInferenceResult], None, None]:
     """Recursively generate nodes inferred by the given statement.
 
     If the inferred value is a list or a tuple, recurse on the elements.
@@ -48,16 +54,14 @@ def _annotated_unpack_infer(stmt, context=None):
         yield stmt, inferred
 
 
-def _is_raising(body: list) -> bool:
+def _is_raising(body: list[nodes.NodeNG]) -> bool:
     """Return whether the given statement node raises an exception."""
     return any(isinstance(node, nodes.Raise) for node in body)
 
 
 OVERGENERAL_EXCEPTIONS = ("BaseException", "Exception")
 
-MSGS: dict[
-    str, MessageDefinitionTuple
-] = {  # pylint: disable=consider-using-namedtuple-or-dataclass
+MSGS: dict[str, MessageDefinitionTuple] = {
     "E0701": (
         "Bad except clauses order (%s)",
         "bad-except-order",
@@ -71,13 +75,6 @@ MSGS: dict[
         "Used when something which is neither a class nor an instance "
         "is raised (i.e. a `TypeError` will be raised).",
     ),
-    "E0703": (
-        "Exception context set to something which is not an exception, nor None",
-        "bad-exception-context",
-        'Used when using the syntax "raise ... from ...", '
-        "where the exception context is not an exception, "
-        "nor None.",
-    ),
     "E0704": (
         "The raise statement is not inside an except clause",
         "misplaced-bare-raise",
@@ -87,6 +84,14 @@ MSGS: dict[
         "a bare raise inside a finally clause, which might work, as long "
         "as an exception is raised inside the try block, but it is "
         "nevertheless a code smell that must not be relied upon.",
+    ),
+    "E0705": (
+        "Exception cause set to something which is not an exception, nor None",
+        "bad-exception-cause",
+        'Used when using the syntax "raise ... from ...", '
+        "where the exception cause is not an exception, "
+        "nor None.",
+        {"old_names": [("E0703", "bad-exception-context")]},
     ),
     "E0710": (
         "Raising a new style class which doesn't inherit from BaseException",
@@ -131,13 +136,13 @@ MSGS: dict[
         "try-except-raise block!",
     ),
     "W0707": (
-        "Consider explicitly re-raising using the 'from' keyword",
+        "Consider explicitly re-raising using %s'%s from %s'",
         "raise-missing-from",
-        "Python 3's exception chaining means it shows the traceback of the "
-        "current exception, but also the original exception. Not using `raise "
-        "from` makes the traceback inaccurate, because the message implies "
-        "there is a bug in the exception-handling code itself, which is a "
-        "separate situation than wrapping an exception.",
+        "Python's exception chaining shows the traceback of the current exception, "
+        "but also of the original exception. When you raise a new exception after "
+        "another exception was caught it's likely that the second exception is a "
+        "friendly re-wrapping of the first exception. In such cases `raise from` "
+        "provides a better link between the two tracebacks in the final error.",
     ),
     "W0711": (
         'Exception to catch is the result of a binary "%s" operation',
@@ -166,11 +171,11 @@ MSGS: dict[
 class BaseVisitor:
     """Base class for visitors defined in this module."""
 
-    def __init__(self, checker, node):
+    def __init__(self, checker: ExceptionsChecker, node: nodes.Raise) -> None:
         self._checker = checker
         self._node = node
 
-    def visit(self, node):
+    def visit(self, node: SuccessfulInferenceResult) -> None:
         name = node.__class__.__name__.lower()
         dispatch_meth = getattr(self, "visit_" + name, None)
         if dispatch_meth:
@@ -242,14 +247,12 @@ class ExceptionsChecker(checkers.BaseChecker):
                 "default": OVERGENERAL_EXCEPTIONS,
                 "type": "csv",
                 "metavar": "<comma-separated class names>",
-                "help": "Exceptions that will emit a warning "  # pylint: disable=consider-using-f-string
-                'when being caught. Defaults to "%s".'
-                % (", ".join(OVERGENERAL_EXCEPTIONS),),
+                "help": "Exceptions that will emit a warning when caught.",
             },
         ),
     )
 
-    def open(self):
+    def open(self) -> None:
         self._builtin_exceptions = _builtin_exceptions()
         super().open()
 
@@ -258,7 +261,7 @@ class ExceptionsChecker(checkers.BaseChecker):
         "raising-bad-type",
         "raising-non-exception",
         "notimplemented-raised",
-        "bad-exception-context",
+        "bad-exception-cause",
         "raising-format-tuple",
         "raise-missing-from",
     )
@@ -270,7 +273,7 @@ class ExceptionsChecker(checkers.BaseChecker):
         if node.cause is None:
             self._check_raise_missing_from(node)
         else:
-            self._check_bad_exception_context(node)
+            self._check_bad_exception_cause(node)
 
         expr = node.exc
         ExceptionRaiseRefVisitor(self, node).visit(expr)
@@ -280,7 +283,7 @@ class ExceptionsChecker(checkers.BaseChecker):
             return
         ExceptionRaiseLeafVisitor(self, node).visit(inferred)
 
-    def _check_misplaced_bare_raise(self, node):
+    def _check_misplaced_bare_raise(self, node: nodes.Raise) -> None:
         # Filter out if it's present in __exit__.
         scope = node.scope()
         if (
@@ -301,10 +304,10 @@ class ExceptionsChecker(checkers.BaseChecker):
         if not current or not isinstance(current.parent, expected):
             self.add_message("misplaced-bare-raise", node=node)
 
-    def _check_bad_exception_context(self, node: nodes.Raise) -> None:
-        """Verify that the exception context is properly set.
+    def _check_bad_exception_cause(self, node: nodes.Raise) -> None:
+        """Verify that the exception cause is properly set.
 
-        An exception context can be only `None` or an exception.
+        An exception cause can be only `None` or an exception.
         """
         cause = utils.safe_infer(node.cause)
         if cause in (astroid.Uninferable, None):
@@ -312,11 +315,11 @@ class ExceptionsChecker(checkers.BaseChecker):
 
         if isinstance(cause, nodes.Const):
             if cause.value is not None:
-                self.add_message("bad-exception-context", node=node)
+                self.add_message("bad-exception-cause", node=node, confidence=INFERENCE)
         elif not isinstance(cause, nodes.ClassDef) and not utils.inherit_from_std_ex(
             cause
         ):
-            self.add_message("bad-exception-context", node=node)
+            self.add_message("bad-exception-cause", node=node, confidence=INFERENCE)
 
     def _check_raise_missing_from(self, node: nodes.Raise) -> None:
         if node.exc is None:
@@ -336,18 +339,40 @@ class ExceptionsChecker(checkers.BaseChecker):
         if containing_except_node.name is None:
             # The `except` doesn't have an `as exception:` part, meaning there's no way that
             # the `raise` is raising the same exception.
-            self.add_message("raise-missing-from", node=node)
-        elif isinstance(node.exc, nodes.Call) and isinstance(node.exc.func, nodes.Name):
-            # We have a `raise SomeException(whatever)`.
-            self.add_message("raise-missing-from", node=node)
+            class_of_old_error = "Exception"
+            if isinstance(containing_except_node.type, (nodes.Name, nodes.Tuple)):
+                # 'except ZeroDivisionError' or 'except (ZeroDivisionError, ValueError)'
+                class_of_old_error = containing_except_node.type.as_string()
+            self.add_message(
+                "raise-missing-from",
+                node=node,
+                args=(
+                    f"'except {class_of_old_error} as exc' and ",
+                    node.as_string(),
+                    "exc",
+                ),
+                confidence=HIGH,
+            )
         elif (
-            isinstance(node.exc, nodes.Name)
+            isinstance(node.exc, nodes.Call)
+            and isinstance(node.exc.func, nodes.Name)
+            or isinstance(node.exc, nodes.Name)
             and node.exc.name != containing_except_node.name.name
         ):
-            # We have a `raise SomeException`.
-            self.add_message("raise-missing-from", node=node)
+            # We have a `raise SomeException(whatever)` or a `raise SomeException`
+            self.add_message(
+                "raise-missing-from",
+                node=node,
+                args=("", node.as_string(), containing_except_node.name.name),
+                confidence=HIGH,
+            )
 
-    def _check_catching_non_exception(self, handler, exc, part):
+    def _check_catching_non_exception(
+        self,
+        handler: nodes.ExceptHandler,
+        exc: SuccessfulInferenceResult,
+        part: nodes.NodeNG,
+    ) -> None:
         if isinstance(exc, nodes.Tuple):
             # Check if it is a tuple of exceptions.
             inferred = [utils.safe_infer(elt) for elt in exc.elts]
@@ -395,11 +420,11 @@ class ExceptionsChecker(checkers.BaseChecker):
                     "catching-non-exception", node=handler.type, args=(exc.name,)
                 )
 
-    def _check_try_except_raise(self, node):
+    def _check_try_except_raise(self, node: nodes.TryExcept) -> None:
         def gather_exceptions_from_handler(
-            handler,
-        ) -> list[nodes.NodeNG] | None:
-            exceptions: list[nodes.NodeNG] = []
+            handler: nodes.ExceptHandler,
+        ) -> list[InferenceResult] | None:
+            exceptions: list[InferenceResult] = []
             if handler.type:
                 exceptions_in_handler = utils.safe_infer(handler.type)
                 if isinstance(exceptions_in_handler, nodes.Tuple):
@@ -419,7 +444,7 @@ class ExceptionsChecker(checkers.BaseChecker):
 
         bare_raise = False
         handler_having_bare_raise = None
-        exceptions_in_bare_handler = []
+        exceptions_in_bare_handler: list[InferenceResult] | None = []
         for handler in node.handlers:
             if bare_raise:
                 # check that subsequent handler is not parent of handler which had bare raise.
@@ -502,8 +527,6 @@ class ExceptionsChecker(checkers.BaseChecker):
                     continue
 
                 for part, exception in exceptions:
-                    if exception is astroid.Uninferable:
-                        continue
                     if isinstance(
                         exception, astroid.Instance
                     ) and utils.inherit_from_std_ex(exception):

@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, too-few-public-methods, useless-object-inheritance
+# pylint: disable=missing-docstring, too-few-public-methods
 from dataclasses import dataclass, InitVar
 
 # InitVars should not count as instance attributes (see issue #3754)

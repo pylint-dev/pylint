@@ -108,7 +108,7 @@ import re
 class OrderedDict:
     pass
 
-var12: OrderedDict[str, int]  # [unsubscriptable-object]
+var12: OrderedDict[str, int]  # string annotations aren't checked
 var13: list[int]
 var14: collections.OrderedDict[str, int]
 var15: collections.Counter[int]

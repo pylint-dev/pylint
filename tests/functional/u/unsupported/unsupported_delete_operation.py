@@ -3,8 +3,7 @@ Checks that value used in a subscript support deletion
 (i.e. defines __delitem__ method).
 """
 # pylint: disable=missing-docstring,pointless-statement,expression-not-assigned,wrong-import-position,unnecessary-comprehension
-# pylint: disable=too-few-public-methods,import-error,invalid-name,wrong-import-order, useless-object-inheritance
-import six
+# pylint: disable=too-few-public-methods,import-error,invalid-name,wrong-import-order
 
 # primitives
 numbers = [1, 2, 3]
@@ -21,10 +20,10 @@ del {x: 10 - x for x in range(10)}[0]
 
 
 # instances
-class NonSubscriptable(object):
+class NonSubscriptable:
     pass
 
-class Subscriptable(object):
+class Subscriptable:
     def __delitem__(self, key):
         pass
 
@@ -69,7 +68,7 @@ class MetaSubscriptable(type):
     def __delitem__(cls, key):
         pass
 
-class SubscriptableClass(six.with_metaclass(MetaSubscriptable, object)):
+class SubscriptableClass(metaclass=MetaSubscriptable):
     pass
 
 del SubscriptableClass[0]

@@ -1,6 +1,6 @@
 """Check invalid value returned by __len__ """
 
-# pylint: disable=too-few-public-methods,missing-docstring,import-error,useless-object-inheritance,unnecessary-lambda-assignment
+# pylint: disable=too-few-public-methods,missing-docstring,import-error,unnecessary-lambda-assignment
 import sys
 
 import six
@@ -8,14 +8,14 @@ import six
 from missing import Missing
 
 
-class FirstGoodLen(object):
+class FirstGoodLen:
     """__len__ returns <type 'int'>"""
 
     def __len__(self):
         return 0
 
 
-class SecondGoodLen(object):
+class SecondGoodLen:
     """__len__ returns <type 'long'>"""
 
     def __len__(self):
@@ -28,44 +28,44 @@ class LenMetaclass(type):
 
 
 @six.add_metaclass(LenMetaclass)
-class ThirdGoodLen(object):
+class ThirdGoodLen:
     """Length through the metaclass."""
 
 
-class FirstBadLen(object):
+class FirstBadLen:
     """ __len__ returns a negative integer """
 
     def __len__(self):  # [invalid-length-returned]
         return -1
 
 
-class SecondBadLen(object):
+class SecondBadLen:
     """ __len__ returns non-int """
 
     def __len__(self):  # [invalid-length-returned]
         return 3.0
 
 
-class ThirdBadLen(object):
+class ThirdBadLen:
     """ __len__ returns node which does not have 'value' in AST """
 
     def __len__(self):  # [invalid-length-returned]
         return lambda: 3
 
 
-class NonRegression(object):
+class NonRegression:
     """ __len__ returns nothing """
 
     def __len__(self):  # [invalid-length-returned]
         print(3.0)
 
 
-class AmbigousLen(object):
+class AmbigousLen:
     """ Uninferable return value """
     __len__ = lambda self: Missing
 
 
-class AnotherAmbiguousLen(object):
+class AnotherAmbiguousLen:
     """Potential uninferable return value"""
     def __len__(self):
         return int(Missing)

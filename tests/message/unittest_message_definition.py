@@ -21,7 +21,7 @@ from pylint.message import MessageDefinition
         ("W12345", "Invalid message id 'W12345'"),
     ],
 )
-def test_create_invalid_message_type(msgid, expected):
+def test_create_invalid_message_type(msgid: str, expected: str) -> None:
     checker_mock = mock.Mock(name="Checker")
     checker_mock.name = "checker"
 
@@ -64,7 +64,6 @@ class TestMessagesDefinition:
 
     @staticmethod
     def get_message_definition() -> MessageDefinition:
-        kwargs = {"minversion": None, "maxversion": None}
         return MessageDefinition(
             FalseChecker(),
             "W1234",
@@ -72,7 +71,6 @@ class TestMessagesDefinition:
             "description",
             "msg-symbol",
             WarningScope.NODE,
-            **kwargs,
         )
 
     def test_may_be_emitted(self) -> None:
