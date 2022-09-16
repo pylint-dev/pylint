@@ -684,7 +684,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Used when a value in __slots__ conflicts with a class variable, property or method.",
     ),
     "E0243": (
-        "Invalid __class__ object",
+        "Invalid assignment to '__class__'. Should be a class definition but got a '%s'",
         "invalid-class-object",
         "Used when an invalid object is assigned to a __class__ property. "
         "Only a class is permitted.",
@@ -1579,7 +1579,12 @@ a metaclass class method.",
         ):
             # If is uninferable, we allow it to prevent false positives
             return
-        self.add_message("invalid-class-object", node=node, confidence=INFERENCE)
+        self.add_message(
+            "invalid-class-object",
+            node=node,
+            args=inferred.__class__.__name__,
+            confidence=INFERENCE,
+        )
 
     def _check_in_slots(self, node: nodes.AssignAttr) -> None:
         """Check that the given AssignAttr node
