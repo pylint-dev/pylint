@@ -19,7 +19,7 @@ from io import StringIO
 from os import chdir, getcwd
 from os.path import abspath, dirname, join, sep
 from pathlib import Path
-from shutil import copytree, rmtree
+from shutil import copy, rmtree
 
 import platformdirs
 import pytest
@@ -534,7 +534,9 @@ def test_load_plugin_path_manipulation_case_6() -> None:
     the config file has run. This is not supported, and was previously a silent
     failure. This test ensures a ``bad-plugin-value`` message is emitted.
     """
-    dummy_plugin_path = abspath(join(REGRTEST_DATA_DIR, "dummy_plugin"))
+    dummy_plugin_path = abspath(
+        join(REGRTEST_DATA_DIR, "dummy_plugin", "dummy_plugin.py")
+    )
     with fake_home() as home_path:
         # construct a basic rc file that just modifies the path
         pylintrc_file = join(home_path, "pylintrc")
@@ -547,7 +549,7 @@ def test_load_plugin_path_manipulation_case_6() -> None:
                 ]
             )
 
-        copytree(dummy_plugin_path, join(home_path, "copy_dummy"))
+        copy(dummy_plugin_path, join(home_path, "copy_dummy.py"))
 
         # To confirm we won't load this module _without_ the init hook running.
         assert home_path not in sys.path
@@ -566,7 +568,7 @@ def test_load_plugin_path_manipulation_case_6() -> None:
         assert run._rcfile == pylintrc_file
         assert home_path in sys.path
         # The module should not be loaded
-        assert not any(ch.name == "copy_dummy" for ch in run.linter.get_checkers())
+        assert not any(ch.name == "dummy_plugin" for ch in run.linter.get_checkers())
 
         # There should be a bad-plugin-message for this module
         assert len(run.linter.reporter.messages) == 1
@@ -603,7 +605,9 @@ def test_load_plugin_path_manipulation_case_3() -> None:
     the config file has run. This is not supported, and was previously a silent
     failure. This test ensures a ``bad-plugin-value`` message is emitted.
     """
-    dummy_plugin_path = abspath(join(REGRTEST_DATA_DIR, "dummy_plugin"))
+    dummy_plugin_path = abspath(
+        join(REGRTEST_DATA_DIR, "dummy_plugin", "dummy_plugin.py")
+    )
     with fake_home() as home_path:
         # construct a basic rc file that just modifies the path
         pylintrc_file = join(home_path, "pylintrc")
@@ -615,7 +619,7 @@ def test_load_plugin_path_manipulation_case_3() -> None:
                 ]
             )
 
-        copytree(dummy_plugin_path, join(home_path, "copy_dummy"))
+        copy(dummy_plugin_path, join(home_path, "copy_dummy.py"))
 
         # To confirm we won't load this module _without_ the init hook running.
         assert home_path not in sys.path
@@ -634,7 +638,7 @@ def test_load_plugin_path_manipulation_case_3() -> None:
         assert run._rcfile == pylintrc_file
         assert home_path in sys.path
         # The module should not be loaded
-        assert not any(ch.name == "copy_dummy" for ch in run.linter.get_checkers())
+        assert not any(ch.name == "dummy_plugin" for ch in run.linter.get_checkers())
 
         # There should be a bad-plugin-message for this module
         assert len(run.linter.reporter.messages) == 1
@@ -662,49 +666,137 @@ def test_load_plugin_path_manipulation_case_3() -> None:
         sys.path.remove(home_path)
 
 
+@pytest.mark.usefixtures("pop_pylintrc")
+def test_load_plugin_pylintrc_order_independent() -> None:
+    """Test that the init-hook is called independent of the order in a config file.
+
+    We want to ensure that any path manipulation in init hook
+    that means a plugin can load (as per GitHub Issue #7264 Cases 4+7)
+    runs before the load call, regardless of the order of lines in the
+    pylintrc file.
+    """
+    dummy_plugin_path = abspath(
+        join(REGRTEST_DATA_DIR, "dummy_plugin", "dummy_plugin.py")
+    )
+
+    with fake_home() as home_path:
+        copy(dummy_plugin_path, join(home_path, "copy_dummy.py"))
+        # construct a basic rc file that just modifies the path
+        pylintrc_file_before = join(home_path, "pylintrc_before")
+        with open(pylintrc_file_before, "w", encoding="utf8") as out:
+            out.writelines(
+                [
+                    "[MASTER]\n",
+                    f"init-hook=\"import sys; sys.path.append(r'{home_path}')\"\n",
+                    "load-plugins=copy_dummy\n",
+                ]
+            )
+        pylintrc_file_after = join(home_path, "pylintrc_after")
+        with open(pylintrc_file_after, "w", encoding="utf8") as out:
+            out.writelines(
+                [
+                    "[MASTER]\n",
+                    "load-plugins=copy_dummy\n"
+                    f"init-hook=\"import sys; sys.path.append(r'{home_path}')\"\n",
+                ]
+            )
+        for rcfile in (pylintrc_file_before, pylintrc_file_after):
+            # To confirm we won't load this module _without_ the init hook running.
+            assert home_path not in sys.path
+            run = Run(
+                [
+                    "--rcfile",
+                    rcfile,
+                    join(REGRTEST_DATA_DIR, "empty.py"),
+                ],
+                exit=False,
+            )
+            assert (
+                len(
+                    [
+                        ch.name
+                        for ch in run.linter.get_checkers()
+                        if ch.name == "dummy_plugin"
+                    ]
+                )
+                == 2
+            )
+            assert run._rcfile == rcfile
+            assert home_path in sys.path
+
+            # Necessary as the executed init-hook modifies sys.path
+            sys.path.remove(home_path)
+
+
 def test_load_plugin_command_line_before_init_hook() -> None:
     """Check that the order of 'load-plugins' and 'init-hook' doesn't affect execution."""
-    regrtest_data_dir_abs = abspath(REGRTEST_DATA_DIR)
-
-    run = Run(
-        [
-            "--load-plugins",
-            "dummy_plugin",
-            "--init-hook",
-            f'import sys; sys.path.append("{regrtest_data_dir_abs}")',
-            join(REGRTEST_DATA_DIR, "empty.py"),
-        ],
-        exit=False,
-    )
-    assert (
-        len([ch.name for ch in run.linter.get_checkers() if ch.name == "dummy_plugin"])
-        == 2
+    dummy_plugin_path = abspath(
+        join(REGRTEST_DATA_DIR, "dummy_plugin", "dummy_plugin.py")
     )
 
-    # Necessary as the executed init-hook modifies sys.path
-    sys.path.remove(regrtest_data_dir_abs)
+    with fake_home() as home_path:
+        copy(dummy_plugin_path, join(home_path, "copy_dummy.py"))
+        # construct a basic rc file that just modifies the path
+        assert home_path not in sys.path
+        run = Run(
+            [
+                "--load-plugins",
+                "copy_dummy",
+                "--init-hook",
+                f'import sys; sys.path.append(r"{home_path}")',
+                join(REGRTEST_DATA_DIR, "empty.py"),
+            ],
+            exit=False,
+        )
+        assert home_path in sys.path
+        assert (
+            len(
+                [
+                    ch.name
+                    for ch in run.linter.get_checkers()
+                    if ch.name == "dummy_plugin"
+                ]
+            )
+            == 2
+        )
+
+        # Necessary as the executed init-hook modifies sys.path
+        sys.path.remove(home_path)
 
 
 def test_load_plugin_command_line_with_init_hook_command_line() -> None:
-    regrtest_data_dir_abs = abspath(REGRTEST_DATA_DIR)
-
-    run = Run(
-        [
-            "--init-hook",
-            f'import sys; sys.path.append("{regrtest_data_dir_abs}")',
-            "--load-plugins",
-            "dummy_plugin",
-            join(REGRTEST_DATA_DIR, "empty.py"),
-        ],
-        exit=False,
-    )
-    assert (
-        len([ch.name for ch in run.linter.get_checkers() if ch.name == "dummy_plugin"])
-        == 2
+    dummy_plugin_path = abspath(
+        join(REGRTEST_DATA_DIR, "dummy_plugin", "dummy_plugin.py")
     )
 
-    # Necessary as the executed init-hook modifies sys.path
-    sys.path.remove(regrtest_data_dir_abs)
+    with fake_home() as home_path:
+        copy(dummy_plugin_path, join(home_path, "copy_dummy.py"))
+        # construct a basic rc file that just modifies the path
+        assert home_path not in sys.path
+        run = Run(
+            [
+                "--init-hook",
+                f'import sys; sys.path.append(r"{home_path}")',
+                "--load-plugins",
+                "copy_dummy",
+                join(REGRTEST_DATA_DIR, "empty.py"),
+            ],
+            exit=False,
+        )
+        assert (
+            len(
+                [
+                    ch.name
+                    for ch in run.linter.get_checkers()
+                    if ch.name == "dummy_plugin"
+                ]
+            )
+            == 2
+        )
+        assert home_path in sys.path
+
+        # Necessary as the executed init-hook modifies sys.path
+        sys.path.remove(home_path)
 
 
 def test_load_plugin_config_file() -> None:
