@@ -1,0 +1,9 @@
+Add and fix regression tests for plugin loading.
+
+This shores up the tests that cover the loading of custom plugins as affected
+by any changes made to the ``sys.path`` during execution of an ``init-hook``.
+Given the existing contract of allowing plugins to be loaded by fiddling with
+the path in this way, this is now the last bit of work needed to close Github
+issue #7264.
+
+Closes #7264
