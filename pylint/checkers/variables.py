@@ -28,7 +28,12 @@ from pylint.checkers.utils import (
     in_type_checking_block,
     is_postponed_evaluation_enabled,
 )
-from pylint.constants import PY39_PLUS, TYPING_TYPE_CHECKS_GUARDS
+from pylint.constants import (
+    PY39_PLUS,
+    TYPING_NEVER,
+    TYPING_NORETURN,
+    TYPING_TYPE_CHECKS_GUARDS,
+)
 from pylint.interfaces import CONTROL_FLOW, HIGH, INFERENCE, INFERENCE_FAILURE
 from pylint.typing import MessageDefinitionTuple
 
@@ -2270,10 +2275,7 @@ class VariablesChecker(BaseChecker):
                     inferred_return = utils.safe_infer(inferred_func.returns)
                     if isinstance(
                         inferred_return, nodes.FunctionDef
-                    ) and inferred_return.qname() in {
-                        "typing.NoReturn",
-                        "typing.Never",
-                    }:
+                    ) and inferred_return.qname() in {*TYPING_NORETURN, *TYPING_NEVER}:
                         return
 
         maybe_walrus = utils.get_node_first_ancestor_of_type(node, nodes.NamedExpr)
