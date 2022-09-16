@@ -89,3 +89,11 @@ def override_class():
         pass
 
     CLASS()
+
+
+# Regression test for https://github.com/PyCQA/pylint/issues/4809
+# Don't emit global-variable-not-assigned
+def import_it():
+    global argp, namedtuple
+    import argparse as argp
+    from collections import namedtuple
