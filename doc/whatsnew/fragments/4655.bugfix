@@ -1,3 +1,3 @@
-Any assertion on a populated tuple will now receive a `assert-on-tuple` warning.
+Any assertion on a populated tuple will now receive a ``assert-on-tuple`` warning.
 
 Closes #4655
