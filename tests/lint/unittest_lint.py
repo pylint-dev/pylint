@@ -669,7 +669,7 @@ def test_load_plugin_path_manipulation_case_3() -> None:
 @pytest.mark.usefixtures("pop_pylintrc")
 def test_load_plugin_pylintrc_order_independent() -> None:
     """Test that the init-hook is called independent of the order in a config file.
-    
+
     We want to ensure that any path manipulation in init hook
     that means a plugin can load (as per GitHub Issue #7264 Cases 4+7)
     runs before the load call, regardless of the order of lines in the
