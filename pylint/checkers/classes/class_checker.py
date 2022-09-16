@@ -1579,7 +1579,7 @@ a metaclass class method.",
         ):
             # If is uninferable, we allow it to prevent false positives
             return
-        self.add_message("invalid-class-object", node=node)
+        self.add_message("invalid-class-object", node=node, confidence=INFERENCE)
 
     def _check_in_slots(self, node: nodes.AssignAttr) -> None:
         """Check that the given AssignAttr node
