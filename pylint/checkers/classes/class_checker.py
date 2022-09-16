@@ -1558,7 +1558,18 @@ a metaclass class method.",
     def _check_invalid_class_object(self, node: nodes.AssignAttr) -> None:
         if not node.attrname == "__class__":
             return
-        inferred = safe_infer(node.parent.value)
+        if isinstance(node.parent, nodes.Tuple):
+            class_index = -1
+            for i, elt in enumerate(node.parent.elts):
+                if hasattr(elt, "attrname") and elt.attrname == "__class__":
+                    class_index = i
+            if class_index == -1:
+                # This should not happen because we checked that the node name
+                # is '__class__' earlier, but let's not be too confident here
+                return  # pragma: no cover
+            inferred = safe_infer(node.parent.parent.value.elts[class_index])
+        else:
+            inferred = safe_infer(node.parent.value)
         if (
             isinstance(inferred, nodes.ClassDef)
             or inferred is astroid.Uninferable
