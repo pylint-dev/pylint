@@ -201,7 +201,6 @@ def get_number(arg):
 
 get_number(10)()  # [not-callable]
 
-
 class Klass:
     def __init__(self):
         self._x = None
