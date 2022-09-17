@@ -12,7 +12,7 @@ import tokenize
 from collections.abc import Iterator
 from functools import reduce
 from re import Pattern
-from typing import TYPE_CHECKING, Any, NamedTuple, Union
+from typing import TYPE_CHECKING, Any, NamedTuple, Union, cast
 
 import astroid
 from astroid import bases, nodes
@@ -1595,6 +1595,29 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 elif inferred.qname() == "builtins.dict" and not node.keywords:
                     self.add_message("use-dict-literal", node=node)
 
+    @staticmethod
+    def _name_to_concatenate(node: nodes.NodeNG) -> str | None:
+        if isinstance(node, nodes.Name):
+            return cast(str | None, node.name)
+        if not isinstance(node, nodes.JoinedStr):
+            return None
+
+        # If the node is of the form f"<Const><Name><Const>", returns the name of the Name node.
+        # Rationale: the following ``for`` loop can be turned into a join expression.
+        #
+        # result = 'a'
+        # for item in ['1', '2', '3', '4']:
+        #     result += f'b{item}c'
+        #
+        # 'ab1cb2cb3cb4c' == 'ab' + 'cb'.join(items) + 'c'
+
+        values = [
+            value for value in node.values if isinstance(value, nodes.FormattedValue)
+        ]
+        if len(values) != 1 or not isinstance(values[0].value, nodes.Name):
+            return None
+        return cast(str | None, values[0].value.name)
+
     def _check_consider_using_join(self, aug_assign: nodes.AugAssign) -> None:
         """We start with the augmented assignment and work our way upwards.
 
@@ -1622,8 +1645,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             and aug_assign.target.name in result_assign_names
             and isinstance(assign.value, nodes.Const)
             and isinstance(assign.value.value, str)
-            and isinstance(aug_assign.value, nodes.Name)
-            and aug_assign.value.name == for_loop.target.name
+            and self._name_to_concatenate(aug_assign.value) == for_loop.target.name
         )
         if is_concat_loop:
             self.add_message("consider-using-join", node=aug_assign)
