@@ -1602,7 +1602,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if not isinstance(node, nodes.JoinedStr):
             return None
 
-        # If the node is of the form f"<Const><Name><Const>", returns the name of the Name node.
+        # If the node is of the form f"<Const>{<Name>}<Const>", returns the name of the Name node.
         # Rationale: the following ``for`` loop can be turned into a join expression.
         #
         # result = 'a'

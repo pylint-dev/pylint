@@ -20,20 +20,20 @@ for number in ['1', '2', '3']:
 result = 'a'
 for number in ['1', '2', '3']:
     result += f'b{number}'  # [consider-using-join]
-# result == 'ab1b2b3'
-# result == 'b'.join(['a', '1', '2', '3'])
+assert result == 'ab1b2b3'
+assert result == 'b'.join(['a', '1', '2', '3'])
 
 result = 'a'
 for number in ['1', '2', '3']:
     result += f'{number}c'  # [consider-using-join]
-# result == 'a1c2c3c'
-# result == 'a' + 'c'.join(['1', '2', '3']) + 'c'
+assert result == 'a1c2c3c'
+assert result == 'a' + 'c'.join(['1', '2', '3']) + 'c'
 
 result = 'a'
 for number in ['1', '2', '3']:
     result += f'b{number}c'  # [consider-using-join]
-# result == 'ab1cb2cb3c'
-# result == 'ab' + 'cb'.join(['1', '2', '3']) + 'c'
+assert result == 'ab1cb2cb3c'
+assert result == 'ab' + 'cb'.join(['1', '2', '3']) + 'c'
 
 result = 0  # result is not a string
 for number in ['1', '2', '3']:
