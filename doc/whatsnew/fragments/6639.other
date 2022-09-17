@@ -1,0 +1,4 @@
+``consider-using-join`` enhancement.
+It can now be emitted in cases where the string separator is non-empty.
+
+Closes #6639
