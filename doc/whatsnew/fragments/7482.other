@@ -1,2 +1,0 @@
-Replace erroneous usage of `.format()` on the `bytes` object with %-formatting
-in the message example for W1402 (anomalous-unicode-escape-in-string).
