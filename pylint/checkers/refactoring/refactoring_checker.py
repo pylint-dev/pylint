@@ -1598,7 +1598,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     @staticmethod
     def _name_to_concatenate(node: nodes.NodeNG) -> str | None:
         if isinstance(node, nodes.Name):
-            return cast(str | None, node.name)
+            return cast("str | None", node.name)
         if not isinstance(node, nodes.JoinedStr):
             return None
 
@@ -1616,7 +1616,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         ]
         if len(values) != 1 or not isinstance(values[0].value, nodes.Name):
             return None
-        return cast(str | None, values[0].value.name)
+        return cast("str | None", values[0].value.name)
 
     def _check_consider_using_join(self, aug_assign: nodes.AugAssign) -> None:
         """We start with the augmented assignment and work our way upwards.
