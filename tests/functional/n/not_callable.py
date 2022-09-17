@@ -232,3 +232,14 @@ instance_or_cls = MyClass()
 if not isinstance(instance_or_cls, MyClass):
     new = MyClass.__new__(instance_or_cls)
     new()
+
+
+# Regression test for https://github.com/PyCQA/pylint/issues/5113.
+# Do not emit `not-callable`.
+ATTRIBUTES = {
+    'DOMAIN': ("domain", str),
+    'IMAGE': ("image", bytes),
+}
+
+for key, (name, validate) in ATTRIBUTES.items():
+    name = validate(1)
