@@ -33,9 +33,14 @@
    :target: https://bestpractices.coreinfrastructure.org/projects/6328
    :alt: CII Best Practices
 
+.. image:: https://api.securityscorecards.dev/projects/github.com/PyCQA/pylint/badge
+   :target: https://api.securityscorecards.dev/projects/github.com/PyCQA/pylint
+   :alt: OpenSSF Scorecard
+
 .. image:: https://img.shields.io/discord/825463413634891776.svg
    :target: https://discord.gg/qYxpadCgkx
    :alt: Discord
+
 
 What is Pylint?
 ================
