@@ -1597,19 +1597,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     @staticmethod
     def _name_to_concatenate(node: nodes.NodeNG) -> str | None:
+        """Try to extract the name used in a concatenation loop."""
         if isinstance(node, nodes.Name):
             return cast("str | None", node.name)
         if not isinstance(node, nodes.JoinedStr):
             return None
-
-        # If the node is of the form f"<Const>{<Name>}<Const>", returns the name of the Name node.
-        # Rationale: the following ``for`` loop can be turned into a join expression.
-        #
-        # result = 'a'
-        # for item in ['1', '2', '3', '4']:
-        #     result += f'b{item}c'
-        #
-        # 'ab1cb2cb3cb4c' == 'ab' + 'cb'.join(items) + 'c'
 
         values = [
             value for value in node.values if isinstance(value, nodes.FormattedValue)
