@@ -19,7 +19,7 @@ from functools import lru_cache
 from typing import TYPE_CHECKING, Any, NamedTuple
 
 import astroid
-from astroid import extract_node, nodes
+from astroid import bases, extract_node, nodes
 from astroid.nodes import _base_nodes
 from astroid.typing import InferenceResult
 
@@ -2276,7 +2276,17 @@ class VariablesChecker(BaseChecker):
                     inferred_return = utils.safe_infer(inferred_func.returns)
                     if isinstance(
                         inferred_return, nodes.FunctionDef
-                    ) and inferred_return.qname() in {*TYPING_NORETURN, *TYPING_NEVER}:
+                    ) and inferred_return.qname() in {
+                        *TYPING_NORETURN,
+                        *TYPING_NEVER,
+                        "typing._SpecialForm",
+                    }:
+                        return
+                    # typing_extensions.NoReturn returns a _SpecialForm
+                    if (
+                        isinstance(inferred_return, bases.Instance)
+                        and inferred_return.qname() == "typing._SpecialForm"
+                    ):
                         return
 
         maybe_walrus = utils.get_node_first_ancestor_of_type(node, nodes.NamedExpr)
