@@ -1229,6 +1229,7 @@ class TestCallbackOptions:
             [["--help-msg", "W0101"], ":unreachable (W0101)", False],
             [["--help-msg", "WX101"], "No such message id", False],
             [["--help-msg"], "--help-msg: expected at least one argumen", True],
+            [["--help-msg", "C0102,C0103"], ":invalid-name (C0103):", False],
         ],
     )
     def test_help_msg(
