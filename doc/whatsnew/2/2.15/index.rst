@@ -29,6 +29,30 @@ Marc Byrne became a maintainer, welcome to the team !
 
 .. towncrier release notes start
 
+What's new in Pylint 2.15.3?
+----------------------------
+Release date: 2022-09-19
+
+
+- Fixed a crash in the ``unhashable-member`` checker when using a ``lambda`` as a dict key.
+
+  Closes #7453 (`#7453 <https://github.com/PyCQA/pylint/issues/7453>`_)
+- Fix a crash in the ``modified-iterating-dict`` checker involving instance attributes.
+
+  Closes #7461 (`#7461 <https://github.com/PyCQA/pylint/issues/7461>`_)
+- ``invalid-class-object`` does not crash anymore when ``__class__`` is assigned alongside another variable.
+
+  Closes #7467 (`#7467 <https://github.com/PyCQA/pylint/issues/7467>`_)
+- Fix false positive for ``global-variable-not-assigned`` when a global variable is re-assigned via an ``ImportFrom`` node.
+
+  Closes #4809 (`#4809 <https://github.com/PyCQA/pylint/issues/4809>`_)
+- Fix false positive for ``undefined-loop-variable`` in ``for-else`` loops that use a function
+  having a return type annotation of ``NoReturn`` or ``Never``.
+
+  Closes #7311 (`#7311 <https://github.com/PyCQA/pylint/issues/7311>`_)
+- ``--help-msg`` now accepts a comma-separated list of message IDs again.
+
+  Closes #7471 (`#7471 <https://github.com/PyCQA/pylint/issues/7471>`_)
 
 What's new in Pylint 2.15.2?
 ----------------------------
