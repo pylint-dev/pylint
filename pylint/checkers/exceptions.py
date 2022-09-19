@@ -59,7 +59,7 @@ def _is_raising(body: list[nodes.NodeNG]) -> bool:
     return any(isinstance(node, nodes.Raise) for node in body)
 
 
-OVERGENERAL_EXCEPTIONS = ("BaseException", "Exception")
+OVERGENERAL_EXCEPTIONS = ("builtins.BaseException", "builtins.Exception")
 
 MSGS: dict[str, MessageDefinitionTuple] = {
     "E0701": (
@@ -593,16 +593,19 @@ class ExceptionsChecker(checkers.BaseChecker):
                                 confidence=INFERENCE,
                             )
                     if (
-                        exception.name in self.linter.config.overgeneral_exceptions
+                        exception.qname() in self.linter.config.overgeneral_exceptions
+                        # undotted name, deprecated
+                        or "." not in exception.name
+                        and exception.name in self.linter.config.overgeneral_exceptions
                         and exception.root().name == utils.EXCEPTIONS_MODULE
-                        and not _is_raising(handler.body)
                     ):
-                        self.add_message(
-                            "broad-exception-caught",
-                            args=exception.name,
-                            node=handler.type,
-                            confidence=INFERENCE,
-                        )
+                        if not _is_raising(handler.body):
+                            self.add_message(
+                                "broad-exception-caught",
+                                args=exception.name,
+                                node=handler.type,
+                                confidence=INFERENCE,
+                            )
 
                     if exception in exceptions_classes:
                         self.add_message(
