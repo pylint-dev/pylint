@@ -22,10 +22,7 @@ def generate_interactive_config(linter: PyLinter) -> None:
     print("Starting interactive pylint configuration generation")
 
     format_type = utils.get_and_validate_format()
-    if format_type == "toml":
-        minimal = utils.get_minimal_setting()
-    else:
-        minimal = False
+    minimal = format_type == "toml" and utils.get_minimal_setting()
     to_file, output_file_name = utils.get_and_validate_output_file()
 
     if format_type == "toml":
