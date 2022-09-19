@@ -1,6 +1,6 @@
 '''Assert check example'''
 
-# pylint: disable=comparison-with-itself, comparison-of-constants
+# pylint: disable=comparison-with-itself, comparison-of-constants, line-too-long
 assert (1 == 1, 2 == 2), "message is raised even when there is an assert message"  # [assert-on-tuple]
 assert (1 == 1, 2 == 2) # [assert-on-tuple]
 assert 1 == 1, "no error"
