@@ -163,7 +163,7 @@ group are mutually exclusive.",
         if self._is_pylint_config:
             _register_generate_config_options(linter._arg_parser)
 
-        args = _config_initialization(
+        _config_initialization(
             linter, args, reporter, config_file=self._rcfile, verbose_mode=self.verbose
         )
 
@@ -179,7 +179,7 @@ group are mutually exclusive.",
             return
 
         # Display help messages if there are no files to lint
-        if not args:
+        if not linter.config.files:
             print(linter.help())
             sys.exit(32)
 
@@ -203,13 +203,13 @@ group are mutually exclusive.",
             try:
                 with open(self._output, "w", encoding="utf-8") as output:
                     linter.reporter.out = output
-                    linter.check(args)
+                    linter.check(linter.config.files)
                     score_value = linter.generate_reports()
             except OSError as ex:
                 print(ex, file=sys.stderr)
                 sys.exit(32)
         else:
-            linter.check(args)
+            linter.check(linter.config.files)
             score_value = linter.generate_reports()
 
         if do_exit is not UNUSED_PARAM_SENTINEL:

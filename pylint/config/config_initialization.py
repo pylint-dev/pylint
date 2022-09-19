@@ -23,7 +23,7 @@ def _config_initialization(
     reporter: reporters.BaseReporter | reporters.MultiReporter | None = None,
     config_file: None | str | Path = None,
     verbose_mode: bool = False,
-) -> list[str]:
+) -> None:
     """Parse all available options, read config files and command line arguments and
     set options accordingly.
     """
@@ -119,5 +119,7 @@ def _config_initialization(
     linter._directory_namespaces[Path(".").resolve()] = (linter.config, {})
 
     # parsed_args_list should now only be a list of files/directories to lint.
-    # All other options have been removed from the list.
-    return parsed_args_list
+    # All other options have been removed from the list. If there is anything
+    # left we overwrite any 'files' as given by the configuration file.
+    if parsed_args_list:
+        linter.config.files = parsed_args_list
