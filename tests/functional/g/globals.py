@@ -31,9 +31,15 @@ def define_constant():
 
 
 def global_with_import():
-    """should only warn for global-statement"""
+    """should only warn for global-statement when using `Import` node"""
     global sys  # [global-statement]
-    import sys  # pylint: disable=import-outside-toplevel
+    import sys
+
+
+def global_with_import_from():
+    """should only warn for global-statement when using `ImportFrom` node"""
+    global namedtuple  # [global-statement]
+    from collections import namedtuple
 
 
 def global_no_assign():
@@ -75,11 +81,6 @@ def override_func():
 
     FUNC()
 
-def func():
-    """Overriding a global with an import should only throw a global statement error"""
-    global sys  # [global-statement]
-
-    import sys
 
 def override_class():
     """Overriding a class should only throw a global statement error"""
