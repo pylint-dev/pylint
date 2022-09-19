@@ -2,5 +2,5 @@ Sphinx==5.1.1
 sphinx-reredirects<1
 myst-parser~=0.18
 towncrier~=22.8
-furo==2022.6.21
+furo==2022.9.15
 -e .
