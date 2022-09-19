@@ -183,7 +183,7 @@ def test_writing_minimal_file(
         # Check not minimal has comments
         Run(["generate", "--interactive"], exit=False)
         captured = capsys.readouterr()
-        assert any(i.startswith("#") for i in captured.out.split("\n"))
+        assert any(line.startswith("#") for line in captured.out.splitlines())
 
         # Check minimal doesn't have comments and no default values
         Run(["--accept-no-return-doc=y", "generate", "--interactive"], exit=False)
