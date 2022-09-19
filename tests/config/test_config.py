@@ -19,6 +19,7 @@ from pylint.lint import Run as LintRun
 from pylint.testutils import create_files
 from pylint.testutils._run import _Run as Run
 from pylint.testutils.configuration_test import run_using_a_configuration_file
+from pylint.testutils.utils import _test_cwd
 
 HERE = Path(__file__).parent.absolute()
 REGRTEST_DATA_DIR = HERE / ".." / "regrtest_data"
@@ -242,3 +243,43 @@ def test_enable_before_disable_all_takes_effect() -> None:
         / "toml_with_specific_enable_before_disable_all.toml",
     )
     assert toml_runner.linter.is_message_enabled("fixme")
+
+
+def test_files_can_be_set_in_config(tmp_path: Path) -> None:
+    """Test that the files option can be set in a config file."""
+    with _test_cwd(tmp_path):
+        bad_file = tmp_path / "bad.py"
+        bad_file.write_text("1")
+        good_file = tmp_path / "good.py"
+        good_file.write_text("'''My module docstring'''\n")
+        init_file = tmp_path / "__init__.py"
+        init_file.write_text("")
+
+        # Test that we run on files set in the config file
+        config_file = tmp_path / "pylintrc"
+        config_file.write_text("[MAIN]\nfiles=good.py,bad.py")
+        runner = Run(["--rcfile", str(config_file)], exit=False)
+        assert runner.linter.stats.by_msg
+        # Test that we can override the configuration file with a command line argument
+        runner = Run(["good.py"], exit=False)
+        assert not runner.linter.stats.by_msg
+        # Or by supplying --files directly
+        runner = Run(["--files", "good.py"], exit=False)
+        assert not runner.linter.stats.by_msg
+
+        # Test that we can run on the current directory by specifying it
+        config_file = tmp_path / "pylintrc"
+        config_file.write_text("[MAIN]\nfiles=" + str(tmp_path))
+        runner = Run(["--rcfile", str(config_file)], exit=False)
+        assert runner.linter.stats.by_msg
+        # Test that we can also use just the command 'pylint'. Using LintRun
+        # makes sure that the --rcfile option doesn't get patched.
+        other_runner = LintRun([], exit=False)
+        assert other_runner.linter.stats.by_msg
+
+    # Test that we can also run on a directory set as files even if it is
+    # not our current cwd
+    config_file = tmp_path / "pylintrc"
+    config_file.write_text("[MAIN]\nfiles=" + str(tmp_path))
+    runner = Run(["--rcfile", str(config_file)], exit=False)
+    assert runner.linter.stats.by_msg
