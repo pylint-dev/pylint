@@ -220,20 +220,24 @@ Now we can debug our checker!
     ``my_plugin`` refers to a module called ``my_plugin.py``.
     The preferred way of making this plugin available to pylint is
     by installing it as a package. This can be done either from a packaging index like
-    ``PyPI`` or by installing it from a local source such as with ``pip install .``.
+    ``PyPI`` or by installing it from a local source such as with ``pip install``.
 
     Alternatively, the plugin module can be made available to pylint by
     putting this module's parent directory in your ``PYTHONPATH``
     environment variable.
 
-    If your pylint config has an init-hook that modifies
+    If your pylint config has an ``init-hook`` that modifies
     ``sys.path`` to include the module's parent directory, this
     will also work, but only if either:
 
     * the ``init-hook`` and the ``load-plugins`` list are both
-      defined in a pylintrc file, or...
+      defined in a configuration file, or...
     * the ``init-hook`` is passed as a command-line argument and
-      the ``load-plugins`` list is in the pylintrc file
+      the ``load-plugins`` list is in the configuration file
+
+    I.E You cannot load a custom plugin by modifying ``sys.path`` if you
+    supply the ``init-hook`` in a configuration file, but pass the module name
+    in via ``--load-plugins`` on the command line.
 
     This is because pylint loads plugins specified on command
     line before loading any configuration from other sources.
