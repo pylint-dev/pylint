@@ -693,7 +693,7 @@ class _ArgumentsManager:
         )
         self.set_option(opt, value)
 
-    def _generate_config_file(self) -> str:
+    def _generate_config_file(self, *, minimal: bool = False) -> str:
         """Write a configuration file according to the current configuration into
         stdout.
         """
@@ -732,19 +732,21 @@ class _ArgumentsManager:
                     continue
 
                 # Add help comment
-                help_msg = optdict.get("help", "")
-                assert isinstance(help_msg, str)
-                help_text = textwrap.wrap(help_msg, width=79)
-                for line in help_text:
-                    group_table.add(tomlkit.comment(line))
+                if not minimal:
+                    help_msg = optdict.get("help", "")
+                    assert isinstance(help_msg, str)
+                    help_text = textwrap.wrap(help_msg, width=79)
+                    for line in help_text:
+                        group_table.add(tomlkit.comment(line))
 
                 # Get current value of option
                 value = getattr(self.config, optname.replace("-", "_"))
 
                 # Create a comment if the option has no value
                 if not value:
-                    group_table.add(tomlkit.comment(f"{optname} ="))
-                    group_table.add(tomlkit.nl())
+                    if not minimal:
+                        group_table.add(tomlkit.comment(f"{optname} ="))
+                        group_table.add(tomlkit.nl())
                     continue
 
                 # Skip deprecated options
@@ -765,12 +767,17 @@ class _ArgumentsManager:
                 if optdict.get("type") == "py_version":
                     value = ".".join(str(i) for i in value)
 
+                # Check if it is default value if we are in minimal mode
+                if minimal and value == optdict.get("default"):
+                    continue
+
                 # Add to table
                 group_table.add(optname, value)
                 group_table.add(tomlkit.nl())
 
             assert group.title
-            pylint_tool_table.add(group.title.lower(), group_table)
+            if group_table:
+                pylint_tool_table.add(group.title.lower(), group_table)
 
         toml_string = tomlkit.dumps(toml_doc)
 
