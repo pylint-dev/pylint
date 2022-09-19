@@ -1,0 +1,3 @@
+``--help-msg`` now accepts a comma-separated list of message IDs again.
+
+Closes #7471
