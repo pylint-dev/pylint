@@ -188,7 +188,7 @@ class BasicChecker(_BasicChecker):
             "re-raised.",
         ),
         "W0199": (
-            "Assert called on a 2-item-tuple. Did you mean 'assert x,y'?",
+            "Assert called on a populated tuple. Did you mean 'assert x,y'?",
             "assert-on-tuple",
             "A call of assert on a tuple will always evaluate to true if "
             "the tuple is not empty, and will always evaluate to false if "
@@ -680,12 +680,8 @@ class BasicChecker(_BasicChecker):
     @utils.only_required_for_messages("assert-on-tuple", "assert-on-string-literal")
     def visit_assert(self, node: nodes.Assert) -> None:
         """Check whether assert is used on a tuple or string literal."""
-        if (
-            node.fail is None
-            and isinstance(node.test, nodes.Tuple)
-            and len(node.test.elts) == 2
-        ):
-            self.add_message("assert-on-tuple", node=node)
+        if isinstance(node.test, nodes.Tuple) and len(node.test.elts) > 0:
+            self.add_message("assert-on-tuple", node=node, confidence=HIGH)
 
         if isinstance(node.test, nodes.Const) and isinstance(node.test.value, str):
             if node.test.value:
