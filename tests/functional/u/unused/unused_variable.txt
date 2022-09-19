@@ -13,8 +13,7 @@ unused-import:55:4:55:38:unused_import_from:Unused namedtuple imported from coll
 unused-import:59:4:59:40:unused_import_in_function:Unused hexdigits imported from string:UNDEFINED
 unused-variable:64:4:64:10:hello:Unused variable 'my_var':UNDEFINED
 unused-variable:75:4:75:8:function:Unused variable 'aaaa':UNDEFINED
-global-variable-not-assigned:97:4:97:39:test_global:Using global for 'PATH' but no assignment is done:UNDEFINED
-global-variable-not-assigned:97:4:97:39:test_global:Using global for 'deque' but no assignment is done:UNDEFINED
+global-statement:97:4:97:39:test_global:Using the global statement:UNDEFINED
 unused-import:103:4:103:28:test_global:Unused platform imported from sys:UNDEFINED
 unused-import:104:4:104:38:test_global:Unused version imported from sys as VERSION:UNDEFINED
 unused-import:105:4:105:15:test_global:Unused import this:UNDEFINED

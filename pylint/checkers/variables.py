@@ -1311,7 +1311,8 @@ class VariablesChecker(BaseChecker):
                 assign_nodes = []
 
             not_defined_locally_by_import = not any(
-                isinstance(local, nodes.Import) for local in locals_.get(name, ())
+                isinstance(local, (nodes.Import, nodes.ImportFrom))
+                for local in locals_.get(name, ())
             )
             if (
                 not utils.is_reassigned_after_current(node, name)

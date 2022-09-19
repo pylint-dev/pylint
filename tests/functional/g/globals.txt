@@ -5,10 +5,10 @@ global-variable-not-assigned:23:4:23:14:other:Using global for 'HOP' but no assi
 undefined-variable:24:10:24:13:other:Undefined variable 'HOP':UNDEFINED
 global-variable-undefined:29:4:29:18:define_constant:Global variable 'SOMEVAR' undefined at the module level:UNDEFINED
 global-statement:35:4:35:14:global_with_import:Using the global statement:UNDEFINED
-global-variable-not-assigned:41:4:41:19:global_no_assign:Using global for 'CONSTANT' but no assignment is done:UNDEFINED
-global-statement:47:4:47:19:global_del:Using the global statement:UNDEFINED
-global-statement:54:4:54:19:global_operator_assign:Using the global statement:UNDEFINED
-global-statement:61:4:61:19:global_function_assign:Using the global statement:UNDEFINED
-global-statement:71:4:71:15:override_func:Using the global statement:UNDEFINED
-global-statement:80:4:80:14:func:Using the global statement:UNDEFINED
-global-statement:86:4:86:16:override_class:Using the global statement:UNDEFINED
+global-statement:41:4:41:21:global_with_import_from:Using the global statement:UNDEFINED
+global-variable-not-assigned:47:4:47:19:global_no_assign:Using global for 'CONSTANT' but no assignment is done:UNDEFINED
+global-statement:53:4:53:19:global_del:Using the global statement:UNDEFINED
+global-statement:60:4:60:19:global_operator_assign:Using the global statement:UNDEFINED
+global-statement:67:4:67:19:global_function_assign:Using the global statement:UNDEFINED
+global-statement:77:4:77:15:override_func:Using the global statement:UNDEFINED
+global-statement:87:4:87:16:override_class:Using the global statement:UNDEFINED
