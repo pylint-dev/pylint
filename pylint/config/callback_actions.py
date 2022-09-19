@@ -158,9 +158,11 @@ class _MessageHelpAction(_CallbackAction):
         option_string: str | None = "--help-msg",
     ) -> None:
         assert isinstance(values, (list, tuple))
-        assert isinstance(values[0], str)
-        values = values[0].split(",")
-        self.run.linter.msgs_store.help_message(values)
+        values_to_print: list[str] = []
+        for msg in values:
+            assert isinstance(msg, str)
+            values_to_print += msg.split(",")
+        self.run.linter.msgs_store.help_message(values_to_print)
         sys.exit(0)
 
 
