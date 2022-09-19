@@ -681,7 +681,7 @@ class BasicChecker(_BasicChecker):
     def visit_assert(self, node: nodes.Assert) -> None:
         """Check whether assert is used on a tuple or string literal."""
         if isinstance(node.test, nodes.Tuple) and len(node.test.elts) > 0:
-            self.add_message("assert-on-tuple", node=node)
+            self.add_message("assert-on-tuple", node=node, confidence=HIGH)
 
         if isinstance(node.test, nodes.Const) and isinstance(node.test.value, str):
             if node.test.value:
