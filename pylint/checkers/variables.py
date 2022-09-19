@@ -19,7 +19,7 @@ from functools import lru_cache
 from typing import TYPE_CHECKING, Any, NamedTuple
 
 import astroid
-from astroid import extract_node, nodes
+from astroid import bases, extract_node, nodes
 from astroid.nodes import _base_nodes
 from astroid.typing import InferenceResult
 
@@ -28,7 +28,12 @@ from pylint.checkers.utils import (
     in_type_checking_block,
     is_postponed_evaluation_enabled,
 )
-from pylint.constants import PY39_PLUS, TYPING_TYPE_CHECKS_GUARDS
+from pylint.constants import (
+    PY39_PLUS,
+    TYPING_NEVER,
+    TYPING_NORETURN,
+    TYPING_TYPE_CHECKS_GUARDS,
+)
 from pylint.interfaces import CONTROL_FLOW, HIGH, INFERENCE, INFERENCE_FAILURE
 from pylint.typing import MessageDefinitionTuple
 
@@ -2255,13 +2260,35 @@ class VariablesChecker(BaseChecker):
         if not isinstance(assign, nodes.For):
             self.add_message("undefined-loop-variable", args=node.name, node=node)
             return
-        if any(
-            isinstance(
+        for else_stmt in assign.orelse:
+            if isinstance(
                 else_stmt, (nodes.Return, nodes.Raise, nodes.Break, nodes.Continue)
-            )
-            for else_stmt in assign.orelse
-        ):
-            return
+            ):
+                return
+            # TODO: 2.16: Consider using RefactoringChecker._is_function_def_never_returning
+            if isinstance(else_stmt, nodes.Expr) and isinstance(
+                else_stmt.value, nodes.Call
+            ):
+                inferred_func = utils.safe_infer(else_stmt.value.func)
+                if (
+                    isinstance(inferred_func, nodes.FunctionDef)
+                    and inferred_func.returns
+                ):
+                    inferred_return = utils.safe_infer(inferred_func.returns)
+                    if isinstance(
+                        inferred_return, nodes.FunctionDef
+                    ) and inferred_return.qname() in {
+                        *TYPING_NORETURN,
+                        *TYPING_NEVER,
+                        "typing._SpecialForm",
+                    }:
+                        return
+                    # typing_extensions.NoReturn returns a _SpecialForm
+                    if (
+                        isinstance(inferred_return, bases.Instance)
+                        and inferred_return.qname() == "typing._SpecialForm"
+                    ):
+                        return
 
         maybe_walrus = utils.get_node_first_ancestor_of_type(node, nodes.NamedExpr)
         if maybe_walrus:
