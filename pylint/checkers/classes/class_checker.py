@@ -1182,7 +1182,7 @@ a metaclass class method.",
                 continue
             if not isinstance(parent_function, nodes.FunctionDef):
                 continue
-            self._check_signature(node, parent_function, "overridden", klass)
+            self._check_signature(node, parent_function, klass)
             self._check_invalid_overridden_method(node, parent_function)
             break
 
@@ -2119,7 +2119,6 @@ a metaclass class method.",
         self,
         method1: nodes.FunctionDef,
         refmethod: nodes.FunctionDef,
-        class_type: str,
         cls: nodes.ClassDef,
     ) -> None:
         """Check that the signature of the two given methods match."""
@@ -2151,6 +2150,9 @@ a metaclass class method.",
         arg_differ_output = _different_parameters(
             refmethod, method1, dummy_parameter_regex=self._dummy_rgx
         )
+
+        class_type = "overriding"
+
         if len(arg_differ_output) > 0:
             for msg in arg_differ_output:
                 if "Number" in msg:
@@ -2190,11 +2192,13 @@ a metaclass class method.",
                         class_type,
                         f"{method1.parent.frame().name}.{method1.name}",
                     )
+
                 self.add_message(error_type, args=msg_args, node=method1)
         elif (
             len(method1.args.defaults) < len(refmethod.args.defaults)
             and not method1.args.vararg
         ):
+            class_type = "overridden"
             self.add_message(
                 "signature-differs", args=(class_type, method1.name), node=method1
             )
