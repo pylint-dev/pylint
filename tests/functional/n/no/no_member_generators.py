@@ -1,0 +1,15 @@
+"""Test no-member for generators
+"""
+# pylint: disable=missing-docstring, too-few-public-methods
+import contextlib
+
+@contextlib.contextmanager
+def context_manager():
+    try:
+        yield
+    finally:
+        pass
+
+cm = context_manager()
+cm.__enter__()
+cm.__exit__(None, None, None)

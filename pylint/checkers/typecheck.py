@@ -510,6 +510,14 @@ def _emit_no_member(
             return False
         except astroid.NotFoundError:
             pass
+    if isinstance(owner, astroid.bases.Generator) and node.attrname in {
+        "__enter__",
+        "__exit__",
+    }:
+        # Avoid false positive on generators.
+        # See https://github.com/PyCQA/pylint/issues/2567
+        return False
+
     if owner_name and node.attrname.startswith("_" + owner_name):
         # Test if an attribute has been mangled ('private' attribute)
         unmangled_name = node.attrname.split("_" + owner_name)[-1]

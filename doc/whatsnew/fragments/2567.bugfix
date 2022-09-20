@@ -1,0 +1,3 @@
+Fixed a false positive case when a generator object received ``no-member`` error.
+
+Closes #2567
