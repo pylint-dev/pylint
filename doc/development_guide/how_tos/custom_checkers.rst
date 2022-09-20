@@ -235,10 +235,9 @@ Now we can debug our checker!
     * the ``init-hook`` is passed as a command-line argument and
       the ``load-plugins`` list is in the configuration file
 
-    I.E You cannot load a custom plugin by modifying ``sys.path`` if you
+    So, you cannot load a custom plugin by modifying ``sys.path`` if you
     supply the ``init-hook`` in a configuration file, but pass the module name
     in via ``--load-plugins`` on the command line.
-
     This is because pylint loads plugins specified on command
     line before loading any configuration from other sources.
 
