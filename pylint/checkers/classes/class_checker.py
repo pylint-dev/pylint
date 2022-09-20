@@ -2192,7 +2192,6 @@ a metaclass class method.",
                         class_type,
                         f"{method1.parent.frame().name}.{method1.name}",
                     )
-
                 self.add_message(error_type, args=msg_args, node=method1)
         elif (
             len(method1.args.defaults) < len(refmethod.args.defaults)
