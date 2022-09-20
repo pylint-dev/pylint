@@ -2027,7 +2027,9 @@ a metaclass class method.",
                 # it is redefined as an attribute or with a descriptor
                 continue
 
-            self.add_message("abstract-method", node=node, args=(name, owner.name, node.name))
+            self.add_message(
+                "abstract-method", node=node, args=(name, owner.name, node.name), confidence=INFERENCE
+            )
 
     def _check_init(self, node: nodes.FunctionDef, klass_node: nodes.ClassDef) -> None:
         """Check that the __init__ method call super or ancestors'__init__

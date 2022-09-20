@@ -39,7 +39,7 @@ unsubscriptable-object:65:0:65:8::Value 're.Match' is unsubscriptable:UNDEFINED
 unsubscriptable-object:71:0:71:24::Value 'collections.abc.Hashable' is unsubscriptable:UNDEFINED
 unsubscriptable-object:72:0:72:21::Value 'collections.abc.Sized' is unsubscriptable:UNDEFINED
 unsubscriptable-object:75:0:75:26::Value 'collections.abc.ByteString' is unsubscriptable:UNDEFINED
-abstract-method:79:0:79:21:DerivedHashable:Method '__hash__' is abstract in class 'Hashable' but is not overridden in child class 'DerivedHashable':UNDEFINED
+abstract-method:79:0:79:21:DerivedHashable:Method '__hash__' is abstract in class 'Hashable' but is not overridden in child class 'DerivedHashable':INFERENCE
 unsubscriptable-object:82:22:82:46:DerivedIterable:Value 'collections.abc.Iterable' is unsubscriptable:UNDEFINED
 unsubscriptable-object:85:24:85:50:DerivedCollection:Value 'collections.abc.Collection' is unsubscriptable:UNDEFINED
 unsubscriptable-object:90:18:90:22:DerivedList:Value 'list' is unsubscriptable:UNDEFINED
@@ -47,11 +47,11 @@ unsubscriptable-object:93:17:93:20:DerivedSet:Value 'set' is unsubscriptable:UND
 unsubscriptable-object:96:25:96:48:DerivedOrderedDict:Value 'collections.OrderedDict' is unsubscriptable:UNDEFINED
 unsubscriptable-object:99:31:99:55:DerivedListIterable:Value 'collections.abc.Iterable' is unsubscriptable:UNDEFINED
 unsubscriptable-object:99:26:99:30:DerivedListIterable:Value 'list' is unsubscriptable:UNDEFINED
-abstract-method:104:0:104:21:DerivedMultiple:Method '__hash__' is abstract in class 'Hashable' but is not overridden in child class 'DerivedMultiple':UNDEFINED
-abstract-method:104:0:104:21:DerivedMultiple:Method '__len__' is abstract in class 'Sized' but is not overridden in child class 'DerivedMultiple':UNDEFINED
-abstract-method:109:0:109:24:CustomAbstractCls2:Method '__len__' is abstract in class 'Sized' but is not overridden in child class 'CustomAbstractCls2':UNDEFINED
+abstract-method:104:0:104:21:DerivedMultiple:Method '__hash__' is abstract in class 'Hashable' but is not overridden in child class 'DerivedMultiple':INFERENCE
+abstract-method:104:0:104:21:DerivedMultiple:Method '__len__' is abstract in class 'Sized' but is not overridden in child class 'DerivedMultiple':INFERENCE
+abstract-method:109:0:109:24:CustomAbstractCls2:Method '__len__' is abstract in class 'Sized' but is not overridden in child class 'CustomAbstractCls2':INFERENCE
 unsubscriptable-object:109:48:109:72:CustomAbstractCls2:Value 'collections.abc.Iterable' is unsubscriptable:UNDEFINED
-abstract-method:111:0:111:26:CustomImplementation:Method '__len__' is abstract in class 'Sized' but is not overridden in child class 'CustomImplementation':UNDEFINED
+abstract-method:111:0:111:26:CustomImplementation:Method '__len__' is abstract in class 'Sized' but is not overridden in child class 'CustomImplementation':INFERENCE
 unsubscriptable-object:116:11:116:16::Value 'tuple' is unsubscriptable:UNDEFINED
 unsubscriptable-object:117:10:117:14::Value 'dict' is unsubscriptable:UNDEFINED
 unsubscriptable-object:118:17:118:40::Value 'collections.OrderedDict' is unsubscriptable:UNDEFINED
