@@ -60,8 +60,6 @@ def _is_raising(body: list[nodes.NodeNG]) -> bool:
     return any(isinstance(node, nodes.Raise) for node in body)
 
 
-OVERGENERAL_EXCEPTIONS = ("builtins.BaseException", "builtins.Exception")
-
 MSGS: dict[str, MessageDefinitionTuple] = {
     "E0701": (
         "Bad except clauses order (%s)",
@@ -279,7 +277,7 @@ class ExceptionsChecker(checkers.BaseChecker):
         (
             "overgeneral-exceptions",
             {
-                "default": OVERGENERAL_EXCEPTIONS,
+                "default": ("builtins.BaseException", "builtins.Exception"),
                 "type": "csv",
                 "metavar": "<comma-separated class names>",
                 "help": "Exceptions that will emit a warning when caught.",
