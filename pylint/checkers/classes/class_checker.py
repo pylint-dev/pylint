@@ -583,7 +583,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "implemented interface or in an overridden method.",
     ),
     "W0223": (
-        "Method %r is abstract in class %r but is not overridden",
+        "Method %r is abstract in class %r but is not overridden in child class %r",
         "abstract-method",
         "Used when an abstract method (i.e. raise NotImplementedError) is "
         "not overridden in concrete class.",
@@ -2026,7 +2026,8 @@ a metaclass class method.",
             if name in node.locals:
                 # it is redefined as an attribute or with a descriptor
                 continue
-            self.add_message("abstract-method", node=node, args=(name, owner.name))
+
+            self.add_message("abstract-method", node=node, args=(name, owner.name, node.name))
 
     def _check_init(self, node: nodes.FunctionDef, klass_node: nodes.ClassDef) -> None:
         """Check that the __init__ method call super or ancestors'__init__
