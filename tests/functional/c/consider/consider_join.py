@@ -35,6 +35,15 @@ for number in ['1', '2', '3']:
 assert result == 'ab1cb2cb3c'
 assert result == 'ab' + 'cb'.join(['1', '2', '3']) + 'c'
 
+result = ''
+for number in ['1', '2', '3']:
+    result += number  # [consider-using-join]
+
+result = ''
+for number in ['1', '2', '3']:
+    result += f"{number}, "  # [consider-using-join]
+result = result[:-2]
+
 result = 0  # result is not a string
 for number in ['1', '2', '3']:
     result += number
