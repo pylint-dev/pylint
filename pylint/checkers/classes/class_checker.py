@@ -2028,7 +2028,10 @@ a metaclass class method.",
                 continue
 
             self.add_message(
-                "abstract-method", node=node, args=(name, owner.name, node.name), confidence=INFERENCE
+                "abstract-method",
+                node=node,
+                args=(name, owner.name, node.name),
+                confidence=INFERENCE,
             )
 
     def _check_init(self, node: nodes.FunctionDef, klass_node: nodes.ClassDef) -> None:
