@@ -602,7 +602,7 @@ class ExceptionsChecker(checkers.BaseChecker):
                             )
                     if (
                         exception.qname() in self.linter.config.overgeneral_exceptions
-                        # not a qualified name, deprecated
+                        # TODO: 3.0: not a qualified name, deprecated
                         or "." not in exception.name
                         and exception.name in self.linter.config.overgeneral_exceptions
                         and exception.root().name == utils.EXCEPTIONS_MODULE
