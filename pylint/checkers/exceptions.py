@@ -287,15 +287,14 @@ class ExceptionsChecker(checkers.BaseChecker):
 
     def open(self) -> None:
         self._builtin_exceptions = _builtin_exceptions()
-        if any(
-            "." in exc_name for exc_name in self.linter.config.overgeneral_exceptions
-        ):
-            warnings.warn(
-                "Specifying exception names in overgeneral-exceptions option without"
-                " module name has been deprecated."
-                " Use fully qualified name (e.g. builtins.Exception) instead.",
-                DeprecationWarning,
-            )
+        for exc_name in self.linter.config.overgeneral_exceptions:
+            if "." not in exc_name:
+                warnings.warn(
+                    "Specifying exception names in overgeneral-exceptions option"
+                    " without module name has been deprecated."
+                    f" Use fully qualified name (e.g. builtins.{exc_name}) instead.",
+                    DeprecationWarning,
+                )
         super().open()
 
     @utils.only_required_for_messages(
