@@ -106,9 +106,7 @@ class WithMetaclass(metaclass=ABCMeta):
 # `unused-import` should not be emitted when a type annotation uses quotation marks
 from typing import List
 
-a: "List[int]" = []
 
-
-class B:
-    def get_all_classes(self) -> "List[B]":
+class Bee:
+    def get_all_classes(self) -> "List[Bee]":
         pass
