@@ -1963,3 +1963,36 @@ def is_hashable(node: nodes.NodeNG) -> bool:
         return False
     except astroid.InferenceError:
         return True
+
+
+def is_augassign(node: nodes.NodeNG, parent: nodes.NodeNG) -> bool:
+    """
+    Determine if the node is being assigned to a modified version of
+    itself, aka an augmented assignment, but without a AugAssign being used.
+
+    For example,
+        obj.value = 1 + obj.value
+    is the same as
+        obj.value += 1
+    and this function is intended to detect the first case.
+    """
+    if not isinstance(node, nodes.AssignAttr):
+        return False
+
+    children = [x for x in parent.get_children()]
+    binops = [x for x in children if isinstance(x, nodes.BinOp)]
+    if not binops:
+        return False
+
+    binop = binops[0]
+
+    attr = None
+    if isinstance(binop.right, nodes.Attribute):
+        attr = binop.right
+    elif isinstance(binop.left, nodes.Attribute):
+        attr = binop.left
+
+    if not attr:
+        return False
+
+    return binop.op == "+" and attr.attrname == node.attrname
