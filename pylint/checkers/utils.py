@@ -1979,20 +1979,18 @@ def is_augassign(node: nodes.NodeNG, parent: nodes.NodeNG) -> bool:
     if not isinstance(node, nodes.AssignAttr):
         return False
 
-    children = [x for x in parent.get_children()]
-    binops = [x for x in children if isinstance(x, nodes.BinOp)]
-    if not binops:
+    binops = [x for x in parent.get_children() if isinstance(x, nodes.BinOp)]
+
+    if not binops or binops[0].op != "+":
         return False
 
     binop = binops[0]
 
-    attr = None
     if isinstance(binop.right, nodes.Attribute):
         attr = binop.right
     elif isinstance(binop.left, nodes.Attribute):
         attr = binop.left
-
-    if not attr:
+    else:
         return False
 
-    return binop.op == "+" and attr.attrname == node.attrname
+    return attr.attrname == node.attrname
