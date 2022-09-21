@@ -6,18 +6,24 @@ import os.path as test  # [unused-import]
 from abc import ABCMeta
 from sys import argv as test2  # [unused-import]
 from sys import flags  # [unused-import]
+
 # +1:[unused-import,unused-import]
 from collections import deque, OrderedDict, Counter
 import re, html.parser  # [unused-import]
+
 DATA = Counter()
 # pylint: disable=self-assigning-variable
 from fake import SomeName, SomeOtherName  # [unused-import]
+
+
 class SomeClass:
-    SomeName = SomeName # https://bitbucket.org/logilab/pylint/issue/475
+    SomeName = SomeName  # https://bitbucket.org/logilab/pylint/issue/475
     SomeOtherName = 1
     SomeOtherName = SomeOtherName
 
+
 from never import __all__
+
 # pylint: disable=wrong-import-order,ungrouped-imports,reimported
 import typing
 from typing import TYPE_CHECKING
@@ -32,24 +38,27 @@ if t.TYPE_CHECKING:
     import xml
 
 
-def get_ordered_dict() -> 'collections.OrderedDict':
+def get_ordered_dict() -> "collections.OrderedDict":
     return []
 
 
-def get_itertools_obj() -> 'itertools.count':
+def get_itertools_obj() -> "itertools.count":
     return []
 
-def use_html_parser() -> 'html.parser.HTMLParser':
+
+def use_html_parser() -> "html.parser.HTMLParser":
     return html.parser.HTMLParser
 
 
 import os  # [unused-import]
 import sys
 
+
 class NonRegr:
     """???"""
+
     def __init__(self):
-        print('initialized')
+        print("initialized")
 
     def sys(self):
         """should not get sys from there..."""
@@ -61,7 +70,8 @@ class NonRegr:
 
     def blop(self):
         """yo"""
-        print(self, 'blip')
+        print(self, "blip")
+
 
 if TYPE_CHECKING:
     if sys.version_info >= (3, 6, 2):
@@ -71,6 +81,7 @@ if TYPE_CHECKING:
 from io import TYPE_CHECKING  # pylint: disable=no-name-in-module
 import trace as t
 import astroid as typing
+
 TYPE_CHECKING = "red herring"
 
 if TYPE_CHECKING:
@@ -86,6 +97,7 @@ TYPE_CHECKING = False
 if TYPE_CHECKING:
     import zoneinfo
 
+
 class WithMetaclass(metaclass=ABCMeta):
     pass
 
@@ -93,7 +105,9 @@ class WithMetaclass(metaclass=ABCMeta):
 # Regression test for https://github.com/PyCQA/pylint/issues/3765
 # `unused-import` should not be emitted when a type annotation uses quotation marks
 from typing import List
+
 a: "List[int]" = []
+
 
 class B:
     def get_all_classes(self) -> "List[B]":
