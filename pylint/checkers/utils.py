@@ -1965,6 +1965,7 @@ def is_hashable(node: nodes.NodeNG) -> bool:
         return True
 
 
+<<<<<<< HEAD
 def get_full_name_of_attribute(node: nodes.Attribute | nodes.AssignAttr) -> str:
     """Return the full name of an attribute and the classes it belongs to.
 
