@@ -88,3 +88,13 @@ if TYPE_CHECKING:
 
 class WithMetaclass(metaclass=ABCMeta):
     pass
+
+
+# Regression test for https://github.com/PyCQA/pylint/issues/3765
+# `unused-import` should not be emitted when a type annotation uses quotation marks
+from typing import List
+a: "List[int]" = []
+
+class B:
+    def get_all_classes(self) -> "List[B]":
+        pass
