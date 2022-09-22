@@ -7,14 +7,14 @@ def test_ok():
     cnt = 1
     def wrap():
         nonlocal cnt
-        cnt = cnt + 1
+        cnt += 1
     wrap()
 
 def test_fail():
     """ doesn't use nonlocal """
     cnt = 1
     def wrap():
-        cnt = cnt + 1 # [used-before-assignment]
+        cnt += 1 # [used-before-assignment]
     wrap()
 
 def test_fail2():
@@ -23,7 +23,7 @@ def test_fail2():
     count = 1
     def wrap():
         nonlocal count
-        cnt = cnt + 1 # [used-before-assignment]
+        cnt += 1 # [used-before-assignment]
     wrap()
 
 def test_fail3(arg: test_fail4): # [used-before-assignment]
