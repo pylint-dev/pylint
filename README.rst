@@ -67,7 +67,7 @@ ecosystem of existing plugins for popular frameworks and third party libraries.
     Pylint supports the Python standard library out of the box. Third-party
     libraries are not always supported, so a plugin might be needed. A good place
     to start is ``PyPI`` which often returns a plugin by searching for
-    ``pylint <library>``. `pylint-django`_ and `pylint-pydantic`_, `pylint-django`_ and
+    ``pylint <library>``. `pylint-pydantic`_, `pylint-django`_ and
     `pylint-sonarjson`_ are examples of such plugins. More information about plugins
     and how to load them can be found at `plugins`_.
 
