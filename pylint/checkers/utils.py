@@ -2000,7 +2000,7 @@ def _is_target_name_in_binop_side(
 def is_augmented_assign(node: nodes.Assign) -> tuple[bool, str]:
     """Determine if the node is assigning itself (with modifications) to itself.
 
-    For example, x = 1 + x
+    For example: x = 1 + x
     """
     if not isinstance(node.value, nodes.BinOp):
         return False, ""
