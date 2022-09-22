@@ -66,6 +66,16 @@ ecosystem of existing plugins for popular frameworks such as `pylint-django`_ or
 .. _`pylint-django`: https://github.com/PyCQA/pylint-django
 .. _`pylint-sonarjson`: https://github.com/omegacen/pylint-sonarjson
 
+.. note::
+
+    Pylint supports the Python standard library out of the box. Third-party
+    libraries are not always supported, so a plugin might be needed. A good place
+    to start is ``PyPI`` which often returns a plugin by searching for
+    ``pylint <library>``. `pylint-django`_ and `pylint-pydantic`_ are examples
+    of such plugins.
+
+.. _`pylint-pydantic`: https://pypi.org/project/pylint-pydantic
+
 Pylint isn't smarter than you: it may warn you about things that you have
 conscientiously done or check for some things that you don't care about.
 During adoption, especially in a legacy project where pylint was never enforced,
