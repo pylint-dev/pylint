@@ -1993,4 +1993,4 @@ def is_augassign(node: nodes.NodeNG, parent: nodes.NodeNG) -> bool:
     else:
         return False
 
-    return attr.attrname == node.attrname
+    return attr.attrname == node.attrname  # type: ignore[no-any-return]
