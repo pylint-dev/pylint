@@ -1965,32 +1965,65 @@ def is_hashable(node: nodes.NodeNG) -> bool:
         return True
 
 
-def is_augassign(node: nodes.NodeNG, parent: nodes.NodeNG) -> bool:
+def _is_target_name_in_binop_side(
+    target: nodes.AssignName | nodes.AssignAttr, side: nodes.NodeNG | None
+) -> bool:
+    """Determine whether the target name-like node is referenced in the side node."""
+    if isinstance(side, nodes.Name):
+        if isinstance(target, nodes.AssignName):
+            return target.name == side.name  # type: ignore[no-any-return]
+        return False
+    if isinstance(side, nodes.Attribute):
+        if isinstance(target, nodes.AssignAttr):
+            target_parent = target.parent
+            target_string = target.attrname or ""
+            while isinstance(target_parent, (nodes.Attribute, nodes.Name)):
+                if isinstance(target_parent, nodes.Attribute):
+                    target_string = f"{target_parent.attrname}.{target_string}"
+                else:
+                    target_string = f"{target_parent.name}.{target_string}"
+                target_parent = target_parent.parent
+
+            side_parent = side.parent
+            side_string = side.attrname or ""
+            while isinstance(side_parent, (nodes.Attribute, nodes.Name)):
+                if isinstance(side_parent, nodes.Attribute):
+                    side_string = f"{side_parent.attrname}.{side_string}"
+                else:
+                    side_string = f"{side_parent.name}.{side_string}"
+                side_parent = side_parent.parent
+            return target_string == side_string
+        return False
+    return False
+
+
+def is_augmented_assign(node: nodes.Assign) -> tuple[bool, str]:
+    """Determine if the node is assigning itself (with modifications) to itself.
+
+    For example, x = 1 + x
     """
-    Determine if the node is being assigned to a modified version of
-    itself, aka an augmented assignment, but without a AugAssign being used.
+    if not isinstance(node.value, nodes.BinOp):
+        return False, ""
 
-    For example,
-        obj.value = 1 + obj.value
-    is the same as
-        obj.value += 1
-    and this function is intended to detect the first case.
-    """
-    if not isinstance(node, nodes.AssignAttr):
-        return False
+    binop = node.value
+    target = node.targets[0]
 
-    binops = [x for x in parent.get_children() if isinstance(x, nodes.BinOp)]
+    if not isinstance(target, (nodes.AssignName, nodes.AssignAttr)):
+        return False, ""
 
-    if not binops or binops[0].op != "+":
-        return False
+    # We don't want to catch x = "1" + x
+    if isinstance(binop.left, nodes.Const) and isinstance(
+        binop.left.value, (str, bytes)
+    ):
+        return False, ""
 
-    binop = binops[0]
+    # This could probably be improved but for now we disregard all assignments from calls
+    if isinstance(binop.left, nodes.Call) or isinstance(binop.right, nodes.Call):
+        return False, ""
 
-    if isinstance(binop.right, nodes.Attribute):
-        attr = binop.right
-    elif isinstance(binop.left, nodes.Attribute):
-        attr = binop.left
-    else:
-        return False
+    if _is_target_name_in_binop_side(target, binop.left):
+        return True, binop.op
+    if _is_target_name_in_binop_side(target, binop.right):
+        return True, binop.op
 
-    return attr.attrname == node.attrname  # type: ignore[no-any-return]
+    return False, ""

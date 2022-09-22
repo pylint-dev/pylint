@@ -1,3 +1,0 @@
-Fix ``no-member`` false negative when augmented assign is done manually, without ``+=``.
-
-Closes #4562

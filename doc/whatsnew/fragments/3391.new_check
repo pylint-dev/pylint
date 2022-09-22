@@ -1,0 +1,4 @@
+Added ``consider-using-augmented-assign`` which flags ``x = x + 1`` to simplify to
+``x += 1``.
+
+Closes #3391
