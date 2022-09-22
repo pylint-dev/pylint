@@ -1965,6 +1965,22 @@ def is_hashable(node: nodes.NodeNG) -> bool:
         return True
 
 
+def get_full_name_of_attribute(node: nodes.Attribute | nodes.AssignAttr) -> str:
+    """Return the full name of an attribute and the classes it belongs to.
+
+    For example: "Class1.Class2.attr"
+    """
+    parent = node.parent
+    ret = node.attrname or ""
+    while isinstance(parent, (nodes.Attribute, nodes.Name)):
+        if isinstance(parent, nodes.Attribute):
+            ret = f"{parent.attrname}.{ret}"
+        else:
+            ret = f"{parent.name}.{ret}"
+        parent = parent.parent
+    return ret
+
+
 def _is_target_name_in_binop_side(
     target: nodes.AssignName | nodes.AssignAttr, side: nodes.NodeNG | None
 ) -> bool:
@@ -1973,27 +1989,8 @@ def _is_target_name_in_binop_side(
         if isinstance(target, nodes.AssignName):
             return target.name == side.name  # type: ignore[no-any-return]
         return False
-    if isinstance(side, nodes.Attribute):
-        if isinstance(target, nodes.AssignAttr):
-            target_parent = target.parent
-            target_string = target.attrname or ""
-            while isinstance(target_parent, (nodes.Attribute, nodes.Name)):
-                if isinstance(target_parent, nodes.Attribute):
-                    target_string = f"{target_parent.attrname}.{target_string}"
-                else:
-                    target_string = f"{target_parent.name}.{target_string}"
-                target_parent = target_parent.parent
-
-            side_parent = side.parent
-            side_string = side.attrname or ""
-            while isinstance(side_parent, (nodes.Attribute, nodes.Name)):
-                if isinstance(side_parent, nodes.Attribute):
-                    side_string = f"{side_parent.attrname}.{side_string}"
-                else:
-                    side_string = f"{side_parent.name}.{side_string}"
-                side_parent = side_parent.parent
-            return target_string == side_string
-        return False
+    if isinstance(side, nodes.Attribute) and isinstance(target, nodes.AssignAttr):
+        return get_full_name_of_attribute(target) == get_full_name_of_attribute(side)
     return False
 
 
