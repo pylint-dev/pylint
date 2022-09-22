@@ -59,22 +59,21 @@ will know that ``argparse.error(...)`` is in fact a logging call and not an argp
 .. _`code smells`: https://martinfowler.com/bliki/CodeSmell.html
 
 Pylint is highly configurable and permits to write plugins in order to add your
-own checks (for example, for internal libraries or an internal rule). Pylint has an
-ecosystem of existing plugins for popular frameworks such as `pylint-django`_ or
-`pylint-sonarjson`_.
-
-.. _`pylint-django`: https://github.com/PyCQA/pylint-django
-.. _`pylint-sonarjson`: https://github.com/omegacen/pylint-sonarjson
+own checks (for example, for internal libraries or an internal rule). Pylint also has an
+ecosystem of existing plugins for popular frameworks and third party libraries.
 
 .. note::
 
     Pylint supports the Python standard library out of the box. Third-party
     libraries are not always supported, so a plugin might be needed. A good place
     to start is ``PyPI`` which often returns a plugin by searching for
-    ``pylint <library>``. `pylint-django`_ and `pylint-pydantic`_ are examples
-    of such plugins.
+    ``pylint <library>``. `pylint-django`_ and `pylint-pydantic`_, `pylint-django`_ and
+    `pylint-sonarjson`_ are examples of such plugins. More information about plugins
+    and how to load them can be found at `plugins`_.
 
 .. _`pylint-pydantic`: https://pypi.org/project/pylint-pydantic
+.. _`pylint-django`: https://github.com/PyCQA/pylint-django
+.. _`pylint-sonarjson`: https://github.com/omegacen/pylint-sonarjson
 
 Pylint isn't smarter than you: it may warn you about things that you have
 conscientiously done or check for some things that you don't care about.
