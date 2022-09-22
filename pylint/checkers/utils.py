@@ -2024,8 +2024,10 @@ def is_augmented_assign(node: nodes.Assign) -> tuple[bool, str]:
     if _is_target_name_in_binop_side(target, binop.left):
         return True, binop.op
     if _is_target_name_in_binop_side(target, binop.right):
-        if binop.op == "%" and safe_infer(binop.left) is astroid.Uninferable:
-            return False, ""
-        return True, binop.op
-
+        inferred_left = safe_infer(binop.left)
+        if isinstance(inferred_left, nodes.Const) and isinstance(
+            inferred_left.value, int
+        ):
+            return True, binop.op
+        return False, ""
     return False, ""

@@ -14,6 +14,11 @@ x, y = 1 + x, 2 + x
 x = 1 + x - 2
 x = 1 + x + 2
 
+# For anything other than a float or an int we only want to warn on
+# assignments where the 'itself' is on the left side of the assignment
+my_list = [2, 3, 4]
+my_list = [1] + my_list
+
 
 class MyClass:
     """Simple base class."""
