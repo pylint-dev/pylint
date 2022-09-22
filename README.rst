@@ -69,7 +69,7 @@ ecosystem of existing plugins for popular frameworks and third party libraries.
     to start is ``PyPI`` which often returns a plugin by searching for
     ``pylint <library>``. `pylint-pydantic`_, `pylint-django`_ and
     `pylint-sonarjson`_ are examples of such plugins. More information about plugins
-    and how to load them can be found at `plugins`_.
+    and how to load them can be found at :ref:`plugins <plugins>`.
 
 .. _`pylint-pydantic`: https://pypi.org/project/pylint-pydantic
 .. _`pylint-django`: https://github.com/PyCQA/pylint-django
