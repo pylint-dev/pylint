@@ -1,5 +1,5 @@
 """Tests for undefined variable with assignment expressions"""
-# pylint: disable=using-constant-test, expression-not-assigned
+# pylint: disable=using-constant-test, expression-not-assigned, consider-using-augmented-assign
 
 # Tests for annotation of variables and potentially undefinition
 

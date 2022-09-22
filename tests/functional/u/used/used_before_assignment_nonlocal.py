@@ -1,5 +1,5 @@
 """Check for nonlocal and used-before-assignment"""
-# pylint: disable=missing-docstring, unused-variable, too-few-public-methods
+# pylint: disable=missing-docstring, unused-variable, too-few-public-methods, consider-using-augmented-assign
 
 
 def test_ok():
@@ -7,14 +7,14 @@ def test_ok():
     cnt = 1
     def wrap():
         nonlocal cnt
-        cnt += 1
+        cnt = cnt + 1
     wrap()
 
 def test_fail():
     """ doesn't use nonlocal """
     cnt = 1
     def wrap():
-        cnt += 1 # [used-before-assignment]
+        cnt = cnt + 1 # [used-before-assignment]
     wrap()
 
 def test_fail2():
@@ -23,7 +23,7 @@ def test_fail2():
     count = 1
     def wrap():
         nonlocal count
-        cnt += 1 # [used-before-assignment]
+        cnt = cnt + 1 # [used-before-assignment]
     wrap()
 
 def test_fail3(arg: test_fail4): # [used-before-assignment]
